@@ -10,9 +10,9 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: Реорганизация и CLI Базис' (Protocol in workflow.md)
 
 ## Фаза 2: Портирование логики парсинга и обогащения
-- [ ] Task: Перенести логику парсинга (из parse_w3s.js) в TypeScript.
-    - [ ] Написать юнит-тесты для парсинга HTML-структуры W3Schools.
-    - [ ] Реализовать команду `parse` в CLI.
+- [x] Task: Перенести логику парсинга (из parse_w3s.js) в TypeScript. [b7b8c8d]
+    - [x] Написать юнит-тесты для парсинга HTML-структуры W3Schools.
+    - [x] Реализовать команду `parse` в CLI.
 - [ ] Task: Перенести логику обогащения данных (из enrich_syllabus.js) в TypeScript.
     - [ ] Написать тесты для интеграции с ИИ (mocking).
     - [ ] Реализовать команду `enrich` в CLI.
