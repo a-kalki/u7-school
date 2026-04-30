@@ -1,14 +1,14 @@
-# Project Context
+# Контекст проекта
 
-## Definition
-- [Product Definition](./product.md)
-- [Product Guidelines](./product-guidelines.md)
-- [Tech Stack](./tech-stack.md)
+## Определение
+- [Определение продукта](./product.md)
+- [Руководства по продукту](./product-guidelines.md)
+- [Технологический стек](./tech-stack.md)
 
-## Workflow
-- [Workflow](./workflow.md)
-- [Code Style Guides](./code_styleguides/)
+## Процесс разработки (Workflow)
+- [Рабочий процесс](./workflow.md)
+- [Руководства по стилю кода](./code_styleguides/)
 
-## Management
-- [Tracks Registry](./tracks.md)
-- [Tracks Directory](./tracks/)
+## Управление
+- [Реестр треков](./tracks.md)
+- [Директория треков](./tracks/)

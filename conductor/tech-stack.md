@@ -1,12 +1,12 @@
-# Tech Stack
+# Технологический стек
 
-## Core
-- **Language:** TypeScript
-- **Runtime & Package Manager:** Bun
+## Основное
+- **Язык:** TypeScript
+- **Среда выполнения и менеджер пакетов:** Bun
 
-## Frameworks & Libraries
-- **Web API / Backend:** Elysia
+## Фреймворки и библиотеки
+- **Web API / Бэкенд:** Elysia
 - **Telegram Bot:** Grammy
-- **Data Validation:** Valibot
-- **AI Integration:** Google GenAI / Gemini
-- **Linting & Formatting:** Biome
+- **Валидация данных:** Valibot
+- **Интеграция ИИ:** Google GenAI / Gemini
+- **Линтинг и форматирование:** Biome

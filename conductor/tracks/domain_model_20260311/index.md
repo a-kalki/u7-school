@@ -1,5 +1,5 @@
-# Track domain_model_20260311 Context
+# Контекст трека domain_model_20260311
 
-- [Specification](./spec.md)
-- [Implementation Plan](./plan.md)
-- [Metadata](./metadata.json)
+- [Спецификация](./spec.md)
+- [План реализации](./plan.md)
+- [Метаданные](./metadata.json)
