@@ -17,10 +17,10 @@ export function applyReplacements(text: string): string {
 	return result;
 }
 
-export function parseSidebar(html: string, courseName: string): Section[] {
+export function parseSidebar(html: string, courseName: string): (Section & { lessons: (Lesson & { originalFile: string })[] })[] {
 	const $ = cheerio.load(html);
-	const sections: Section[] = [];
-	let currentSection: Section | null = null;
+	const sections: any[] = [];
+	let currentSection: any | null = null;
 
 	$("#leftmenuinnerinner")
 		.children()

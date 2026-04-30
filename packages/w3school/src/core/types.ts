@@ -1,11 +1,9 @@
 export interface Lesson {
 	title: string;
-	originalFile: string;
 	fileName: string;
 	url: string;
-	mdFile?: string;
 	summary?: string;
-	}
+}
 export interface Section {
 	topic: string;
 	lessons: Lesson[];

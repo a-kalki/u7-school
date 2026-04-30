@@ -13,7 +13,7 @@ describe("EnrichmentService", () => {
       {
         topic: "Basic",
         lessons: [
-          { title: "Intro", url: "url", mdFile: "intro.md" }
+          { title: "Intro", url: "url", fileName: "intro.md" }
         ]
       }
     ];

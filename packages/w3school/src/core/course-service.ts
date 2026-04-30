@@ -112,7 +112,7 @@ export class CourseService {
 				const fullOutPath = join(courseOutDir, outFileName);
 
 				if (options.onlyNew && existsSync(fullOutPath)) {
-					lesson.mdFile = outFileName;
+					lesson.fileName = outFileName;
 					continue;
 				}
 
@@ -120,19 +120,21 @@ export class CourseService {
 				const markdown = convertToMarkdown(lessonHtml);
 
 				writeFileSync(fullOutPath, markdown);
-				lesson.mdFile = outFileName;
+				lesson.fileName = outFileName;
 			}
 		}
 
-		// Сохранение syllabus.json
+		// Сохранение syllabus.json - только разрешенные поля
 		const cleanedSections = sections.map((section) => ({
-			...section,
-			lessons: section.lessons.map(
-				({ originalFile, fileName, mdFile, ...l }) => ({
-					...l,
-					mdFile,
-				}),
-			),
+			topic: section.topic,
+			lessons: section.lessons
+				.filter((l) => l.fileName.endsWith(".md")) // Только те, что реально спарсили
+				.map((l) => ({
+					title: l.title,
+					fileName: l.fileName,
+					url: l.url,
+					...(l.summary ? { summary: l.summary } : {}),
+				})),
 		}));
 
 		writeFileSync(
@@ -142,12 +144,10 @@ export class CourseService {
 
 		// Генерация README
 		let readme = `# ${courseName.toUpperCase()} Course\n\n`;
-		for (const section of sections) {
+		for (const section of cleanedSections) {
 			readme += `## ${section.topic}\n`;
 			for (const lesson of section.lessons) {
-				if (lesson.mdFile) {
-					readme += `- [${lesson.title}](${lesson.mdFile}) ([Original](${lesson.url}))\n`;
-				}
+				readme += `- [${lesson.title}](${lesson.fileName}) ([Original](${lesson.url}))\n`;
 			}
 			readme += "\n";
 		}

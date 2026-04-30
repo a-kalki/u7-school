@@ -29,10 +29,20 @@ export class EnrichmentService {
           continue;
         }
 
-        const mdFile = lesson.mdFile;
-        if (!mdFile) continue;
+        let fileName = lesson.fileName;
+        if (!fileName) continue;
 
-        const mdPath = join(courseDir, mdFile);
+        // Определяем имя .md файла на диске
+        let mdFileName = fileName;
+        if (!mdFileName.endsWith(".md")) {
+          if (mdFileName.includes(".")) {
+            mdFileName = `${mdFileName.substring(0, mdFileName.lastIndexOf("."))}.md`;
+          } else {
+            mdFileName += ".md";
+          }
+        }
+
+        const mdPath = join(courseDir, mdFileName);
         if (existsSync(mdPath)) {
           const content = readFileSync(mdPath, "utf-8");
           console.log(`  [process] ${lesson.title} ...`);
@@ -41,9 +51,20 @@ export class EnrichmentService {
 
           if (summary) {
             lesson.summary = summary;
+            lesson.fileName = mdFileName; // Синхронизируем расширение в JSON
             updated = true;
-            // Сохраняем после каждого урока, чтобы не терять прогресс
-            writeFileSync(syllabusPath, JSON.stringify(sections, null, 2));
+            
+            // Фильтруем поля при сохранении
+            const cleanSections = sections.map(s => ({
+              topic: s.topic,
+              lessons: s.lessons.map(l => ({
+                title: l.title,
+                fileName: l.fileName,
+                url: l.url,
+                ...(l.summary ? { summary: l.summary } : {})
+              }))
+            }));
+            writeFileSync(syllabusPath, JSON.stringify(cleanSections, null, 2));
           }
         }
       }
