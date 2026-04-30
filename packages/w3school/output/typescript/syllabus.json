@@ -1,0 +1,252 @@
+[
+  {
+    "topic": "TypeScript tutorial",
+    "lessons": [
+      {
+        "title": "TS HOME",
+        "fileName": "index.php.html",
+        "url": "https://www.w3schools.com/typescript/index.php.html"
+      },
+      {
+        "title": "TS Introduction",
+        "fileName": "typescript_intro.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_intro.php.html"
+      },
+      {
+        "title": "TS Get Started",
+        "fileName": "typescript_getstarted.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_getstarted.php.html"
+      },
+      {
+        "title": "TS Simple Types",
+        "fileName": "typescript_simple_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_simple_types.php.html"
+      },
+      {
+        "title": "TS Explicit & Inference",
+        "fileName": "typescript_explicit_inference.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_explicit_inference.php.html"
+      },
+      {
+        "title": "TS Special Types",
+        "fileName": "typescript_special_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_special_types.php.html"
+      },
+      {
+        "title": "TS Arrays",
+        "fileName": "typescript_arrays.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_arrays.php.html"
+      },
+      {
+        "title": "TS Tuples",
+        "fileName": "typescript_tuples.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_tuples.php.html"
+      },
+      {
+        "title": "TS Object Types",
+        "fileName": "typescript_object_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_object_types.php.html"
+      },
+      {
+        "title": "TS Enums",
+        "fileName": "typescript_enums.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_enums.php.html"
+      },
+      {
+        "title": "TS Aliases & Interfaces",
+        "fileName": "typescript_aliases_and_interfaces.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_aliases_and_interfaces.php.html"
+      },
+      {
+        "title": "TS Union Types",
+        "fileName": "typescript_union_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_union_types.php.html"
+      },
+      {
+        "title": "TS Functions",
+        "fileName": "typescript_functions.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_functions.php.html"
+      },
+      {
+        "title": "TS Casting",
+        "fileName": "typescript_casting.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_casting.php.html"
+      },
+      {
+        "title": "TS Classes",
+        "fileName": "typescript_classes.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_classes.php.html"
+      },
+      {
+        "title": "TS Basic Generics",
+        "fileName": "typescript_basic_generics.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_basic_generics.php.html"
+      },
+      {
+        "title": "TS Utility Types",
+        "fileName": "typescript_utility_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_utility_types.php.html"
+      },
+      {
+        "title": "TS Keyof",
+        "fileName": "typescript_keyof.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_keyof.php.html"
+      },
+      {
+        "title": "TS Null",
+        "fileName": "typescript_null.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_null.php.html"
+      },
+      {
+        "title": "TS Definitely Typed",
+        "fileName": "typescript_definitely_typed.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_definitely_typed.php.html"
+      },
+      {
+        "title": "TS 5 Updates",
+        "fileName": "typescript_5_updates.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_5_updates.php.html"
+      },
+      {
+        "title": "TS Configuration",
+        "fileName": "typescript_config.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_config.php.html"
+      },
+      {
+        "title": "TS with Node.js",
+        "fileName": "typescript_nodejs.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_nodejs.php.html"
+      },
+      {
+        "title": "TS with React",
+        "fileName": "typescript_react.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_react.php.html"
+      },
+      {
+        "title": "TS Tooling",
+        "fileName": "typescript_tooling.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_tooling.php.html"
+      },
+      {
+        "title": "TS Advanced Types",
+        "fileName": "typescript_advanced_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_advanced_types.php.html"
+      },
+      {
+        "title": "TS Type Guards",
+        "fileName": "typescript_type_guards.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_type_guards.php.html"
+      },
+      {
+        "title": "TS Conditional Types",
+        "fileName": "typescript_conditional_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_conditional_types.php.html"
+      },
+      {
+        "title": "TS Mapped Types",
+        "fileName": "typescript_mapped_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_mapped_types.php.html"
+      },
+      {
+        "title": "TS Type Inference",
+        "fileName": "typescript_type_inference.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_type_inference.php.html"
+      },
+      {
+        "title": "TS Literal Types",
+        "fileName": "typescript_literal_types.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_literal_types.php.html"
+      },
+      {
+        "title": "TS Namespaces",
+        "fileName": "typescript_namespaces.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_namespaces.php.html"
+      },
+      {
+        "title": "TS Index Signatures",
+        "fileName": "typescript_index_signatures.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_index_signatures.php.html"
+      },
+      {
+        "title": "TS Declaration Merging",
+        "fileName": "typescript_declaration_merging.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_declaration_merging.php.html"
+      },
+      {
+        "title": "TS Async Programming",
+        "fileName": "typescript_async.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_async.php.html"
+      },
+      {
+        "title": "TS Decorators",
+        "fileName": "typescript_decorators.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_decorators.php.html"
+      },
+      {
+        "title": "TS in JS Projects",
+        "fileName": "typescript_jsdoc.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_jsdoc.php.html"
+      },
+      {
+        "title": "TS Migration",
+        "fileName": "typescript_migration.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_migration.php.html"
+      },
+      {
+        "title": "TS Error Handling",
+        "fileName": "typescript_error_handling.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_error_handling.php.html"
+      },
+      {
+        "title": "TS Best Practices",
+        "fileName": "typescript_best_practices.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_best_practices.php.html"
+      }
+    ]
+  },
+  {
+    "topic": "TypeScript Cert",
+    "lessons": [
+      {
+        "title": "TS Certificate",
+        "fileName": "typescript_exam.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_exam.php.html"
+      }
+    ]
+  },
+  {
+    "topic": "TypeScript Exercises",
+    "lessons": [
+      {
+        "title": "TS Editor",
+        "fileName": "typescript_editor.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_editor.php.html"
+      },
+      {
+        "title": "TS Exercises",
+        "fileName": "typescript_exercises.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_exercises.php.html"
+      },
+      {
+        "title": "TS Quiz",
+        "fileName": "typescript_quiz.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_quiz.php.html"
+      },
+      {
+        "title": "TS Practice Problems",
+        "fileName": "typescript_practice.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_practice.php.html"
+      },
+      {
+        "title": "TS Syllabus",
+        "fileName": "typescript_syllabus.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_syllabus.php.html"
+      },
+      {
+        "title": "TS Study Plan",
+        "fileName": "typescript_study_plan.php.html",
+        "url": "https://www.w3schools.com/typescript/typescript_study_plan.php.html"
+      }
+    ]
+  }
+]

@@ -1,0 +1,442 @@
+[
+  {
+    "topic": "SQL Tutorial",
+    "lessons": [
+      {
+        "title": "SQL HOME",
+        "fileName": "default.asp.html",
+        "url": "https://www.w3schools.com/sql/default.asp.html"
+      },
+      {
+        "title": "SQL Intro",
+        "fileName": "sql_intro.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_intro.asp.html"
+      },
+      {
+        "title": "SQL Syntax",
+        "fileName": "sql_syntax.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_syntax.asp.html"
+      },
+      {
+        "title": "SQL Select",
+        "fileName": "sql_select.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_select.asp.html"
+      },
+      {
+        "title": "SQL Select Distinct",
+        "fileName": "sql_distinct.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_distinct.asp.html"
+      },
+      {
+        "title": "SQL Where",
+        "fileName": "sql_where.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_where.asp.html"
+      },
+      {
+        "title": "SQL Order By",
+        "fileName": "sql_orderby.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_orderby.asp.html"
+      },
+      {
+        "title": "SQL And",
+        "fileName": "sql_and_or.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_and_or.asp.html"
+      },
+      {
+        "title": "SQL Or",
+        "fileName": "sql_or.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_or.asp.html"
+      },
+      {
+        "title": "SQL Not",
+        "fileName": "sql_not.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_not.asp.html"
+      },
+      {
+        "title": "SQL Insert Into",
+        "fileName": "sql_insert.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_insert.asp.html"
+      },
+      {
+        "title": "SQL Null Values",
+        "fileName": "sql_null_values.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_null_values.asp.html"
+      },
+      {
+        "title": "SQL Update",
+        "fileName": "sql_update.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_update.asp.html"
+      },
+      {
+        "title": "SQL Delete",
+        "fileName": "sql_delete.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_delete.asp.html"
+      },
+      {
+        "title": "SQL Select Top",
+        "fileName": "sql_top.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_top.asp.html"
+      },
+      {
+        "title": "SQL Aggregate Functions",
+        "fileName": "sql_aggregate_functions.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_aggregate_functions.asp.html"
+      },
+      {
+        "title": "SQL Min()",
+        "fileName": "sql_min_max.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_min_max.asp.html"
+      },
+      {
+        "title": "SQL Max()",
+        "fileName": "sql_max.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_max.asp.html"
+      },
+      {
+        "title": "SQL Count()",
+        "fileName": "sql_count.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_count.asp.html"
+      },
+      {
+        "title": "SQL Sum()",
+        "fileName": "sql_sum.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_sum.asp.html"
+      },
+      {
+        "title": "SQL Avg()",
+        "fileName": "sql_avg.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_avg.asp.html"
+      },
+      {
+        "title": "SQL Like",
+        "fileName": "sql_like.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_like.asp.html"
+      },
+      {
+        "title": "SQL Wildcards",
+        "fileName": "sql_wildcards.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_wildcards.asp.html"
+      },
+      {
+        "title": "SQL In",
+        "fileName": "sql_in.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_in.asp.html"
+      },
+      {
+        "title": "SQL Between",
+        "fileName": "sql_between.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_between.asp.html"
+      },
+      {
+        "title": "SQL Aliases",
+        "fileName": "sql_alias.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_alias.asp.html"
+      },
+      {
+        "title": "SQL Joins",
+        "fileName": "sql_join.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_join.asp.html"
+      },
+      {
+        "title": "SQL Inner Join",
+        "fileName": "sql_join_inner.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_join_inner.asp.html"
+      },
+      {
+        "title": "SQL Left Join",
+        "fileName": "sql_join_left.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_join_left.asp.html"
+      },
+      {
+        "title": "SQL Right Join",
+        "fileName": "sql_join_right.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_join_right.asp.html"
+      },
+      {
+        "title": "SQL Full Join",
+        "fileName": "sql_join_full.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_join_full.asp.html"
+      },
+      {
+        "title": "SQL Self Join",
+        "fileName": "sql_join_self.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_join_self.asp.html"
+      },
+      {
+        "title": "SQL Union",
+        "fileName": "sql_union.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_union.asp.html"
+      },
+      {
+        "title": "SQL Union All",
+        "fileName": "sql_union_all.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_union_all.asp.html"
+      },
+      {
+        "title": "SQL Group By",
+        "fileName": "sql_groupby.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_groupby.asp.html"
+      },
+      {
+        "title": "SQL Having",
+        "fileName": "sql_having.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_having.asp.html"
+      },
+      {
+        "title": "SQL Exists",
+        "fileName": "sql_exists.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_exists.asp.html"
+      },
+      {
+        "title": "SQL Any",
+        "fileName": "sql_any_all.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_any_all.asp.html"
+      },
+      {
+        "title": "SQL All",
+        "fileName": "sql_all.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_all.asp.html"
+      },
+      {
+        "title": "SQL Select Into",
+        "fileName": "sql_select_into.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_select_into.asp.html"
+      },
+      {
+        "title": "SQL Insert Into Select",
+        "fileName": "sql_insert_into_select.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_insert_into_select.asp.html"
+      },
+      {
+        "title": "SQL Case",
+        "fileName": "sql_case.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_case.asp.html"
+      },
+      {
+        "title": "SQL Null Functions",
+        "fileName": "sql_isnull.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_isnull.asp.html"
+      },
+      {
+        "title": "SQL Stored Procedures",
+        "fileName": "sql_stored_procedures.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_stored_procedures.asp.html"
+      },
+      {
+        "title": "SQL Comments",
+        "fileName": "sql_comments.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_comments.asp.html"
+      },
+      {
+        "title": "SQL Operators",
+        "fileName": "sql_operators.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_operators.asp.html"
+      }
+    ]
+  },
+  {
+    "topic": "SQL Database",
+    "lessons": [
+      {
+        "title": "SQL Create DB",
+        "fileName": "sql_create_db.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_create_db.asp.html"
+      },
+      {
+        "title": "SQL Drop DB",
+        "fileName": "sql_drop_db.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_drop_db.asp.html"
+      },
+      {
+        "title": "SQL Backup DB",
+        "fileName": "sql_backup_db.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_backup_db.asp.html"
+      },
+      {
+        "title": "SQL Create Table",
+        "fileName": "sql_create_table.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_create_table.asp.html"
+      },
+      {
+        "title": "SQL Drop Table",
+        "fileName": "sql_drop_table.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_drop_table.asp.html"
+      },
+      {
+        "title": "SQL Alter Table",
+        "fileName": "sql_alter.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_alter.asp.html"
+      },
+      {
+        "title": "SQL Constraints",
+        "fileName": "sql_constraints.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_constraints.asp.html"
+      },
+      {
+        "title": "SQL Not Null",
+        "fileName": "sql_notnull.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_notnull.asp.html"
+      },
+      {
+        "title": "SQL Unique",
+        "fileName": "sql_unique.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_unique.asp.html"
+      },
+      {
+        "title": "SQL Primary Key",
+        "fileName": "sql_primarykey.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_primarykey.asp.html"
+      },
+      {
+        "title": "SQL Foreign Key",
+        "fileName": "sql_foreignkey.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_foreignkey.asp.html"
+      },
+      {
+        "title": "SQL Check",
+        "fileName": "sql_check.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_check.asp.html"
+      },
+      {
+        "title": "SQL Default",
+        "fileName": "sql_default.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_default.asp.html"
+      },
+      {
+        "title": "SQL Create Index",
+        "fileName": "sql_create_index.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_create_index.asp.html"
+      },
+      {
+        "title": "SQL Auto Increment",
+        "fileName": "sql_autoincrement.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_autoincrement.asp.html"
+      },
+      {
+        "title": "SQL Dates",
+        "fileName": "sql_dates.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_dates.asp.html"
+      },
+      {
+        "title": "SQL Views",
+        "fileName": "sql_view.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_view.asp.html"
+      },
+      {
+        "title": "SQL Injection",
+        "fileName": "sql_injection.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_injection.asp.html"
+      },
+      {
+        "title": "SQL Parameters",
+        "fileName": "sql_parameterized_queries.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_parameterized_queries.asp.html"
+      },
+      {
+        "title": "SQL Prepared Statements",
+        "fileName": "sql_prepared_statements.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_prepared_statements.asp.html"
+      },
+      {
+        "title": "SQL Hosting",
+        "fileName": "sql_hosting.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_hosting.asp.html"
+      }
+    ]
+  },
+  {
+    "topic": "SQL Cert",
+    "lessons": [
+      {
+        "title": "SQL Certificate",
+        "fileName": "sql_exam.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_exam.asp.html"
+      }
+    ]
+  },
+  {
+    "topic": "SQL References",
+    "lessons": [
+      {
+        "title": "SQL Data Types",
+        "fileName": "sql_datatypes.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_datatypes.asp.html"
+      },
+      {
+        "title": "SQL Keywords",
+        "fileName": "sql_ref_keywords.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_ref_keywords.asp.html"
+      },
+      {
+        "title": "MySQL Functions",
+        "fileName": "sql_ref_mysql.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_ref_mysql.asp.html"
+      },
+      {
+        "title": "SQL Server Functions",
+        "fileName": "sql_ref_sqlserver.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_ref_sqlserver.asp.html"
+      },
+      {
+        "title": "MS Access Functions",
+        "fileName": "sql_ref_msaccess.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_ref_msaccess.asp.html"
+      },
+      {
+        "title": "SQL Quick Ref",
+        "fileName": "sql_quickref.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_quickref.asp.html"
+      }
+    ]
+  },
+  {
+    "topic": "SQL Examples",
+    "lessons": [
+      {
+        "title": "SQL Examples",
+        "fileName": "sql_examples.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_examples.asp.html"
+      },
+      {
+        "title": "SQL Editor",
+        "fileName": "sql_editor.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_editor.asp.html"
+      },
+      {
+        "title": "SQL Quiz",
+        "fileName": "sql_quiz.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_quiz.asp.html"
+      },
+      {
+        "title": "SQL Exercises",
+        "fileName": "sql_exercises.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_exercises.asp.html"
+      },
+      {
+        "title": "SQL Server",
+        "fileName": "sql_server.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_server.asp.html"
+      },
+      {
+        "title": "SQL Syllabus",
+        "fileName": "sql_syllabus.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_syllabus.asp.html"
+      },
+      {
+        "title": "SQL Study Plan",
+        "fileName": "sql_study_plan.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_study_plan.asp.html"
+      },
+      {
+        "title": "SQL Bootcamp",
+        "fileName": "sql_bootcamp.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_bootcamp.asp.html"
+      },
+      {
+        "title": "SQL Training",
+        "fileName": "sql_training.asp.html",
+        "url": "https://www.w3schools.com/sql/sql_training.asp.html"
+      }
+    ]
+  }
+]

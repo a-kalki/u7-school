@@ -11,7 +11,7 @@
 - [x] Task: Conductor - User Manual Verification 'Preparation & Base Structure' (Protocol in workflow.md)
 
 ## Phase 2: w3school Integration
-- [ ] Task: Import `w3school` package
+- [~] Task: Import `w3school` package
     - [ ] Скопировать содержимое из `~/Downloads/w3school` в `packages/w3school`
     - [ ] Очистить пакет от ненужных файлов (старые `.git`, `node_modules`)
 - [ ] Task: Configure `packages/w3school`

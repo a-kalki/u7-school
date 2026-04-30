@@ -1,0 +1,2035 @@
+[
+  {
+    "topic": "HOW TO",
+    "lessons": [
+      {
+        "title": "HowTo Home",
+        "fileName": "default.asp.html",
+        "url": "https://www.w3schools.com/howto/default.asp.html",
+        "summary": "The \"HowTo Home\" section provides a comprehensive collection of practical code snippets using HTML, CSS, and JavaScript. It serves as a resource for developers to implement common web interface components, such as navigation menus, modals, slideshows, and interactive forms."
+      }
+    ]
+  },
+  {
+    "topic": "Menus",
+    "lessons": [
+      {
+        "title": "Icon Bar",
+        "fileName": "howto_css_icon_bar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_icon_bar.asp.html",
+        "summary": "This lesson provides a practical guide on creating vertical and horizontal icon bars using CSS and Font Awesome. It covers the necessary HTML structure and specific CSS styling techniques to implement responsive layouts, hover effects, and active states for navigation icons."
+      },
+      {
+        "title": "Menu Icon",
+        "fileName": "howto_css_menu_icon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_menu_icon.asp.html",
+        "summary": "This lesson demonstrates how to build a custom menu icon using CSS and HTML. It covers both a static design using simple divs and an interactive, animated version that transforms into a \"cancel\" icon upon clicking, utilizing JavaScript to toggle CSS classes for smooth visual transitions."
+      },
+      {
+        "title": "Accordion",
+        "fileName": "howto_js_accordion.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_accordion.asp.html",
+        "summary": "This lesson provides a comprehensive guide on creating interactive accordion components to manage large amounts of content. It covers the essential HTML, CSS, and JavaScript required to build functional, animated, and icon-enhanced collapsible sections for web interfaces."
+      },
+      {
+        "title": "Tabs",
+        "fileName": "howto_js_tabs.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_tabs.asp.html",
+        "summary": "This lesson provides a comprehensive guide on creating interactive, toggleable tabs for web pages using HTML, CSS, and JavaScript. It covers essential implementation steps, including styling, content switching logic, and optional enhancements like fade-in animations and default tab selection."
+      },
+      {
+        "title": "Vertical Tabs",
+        "fileName": "howto_js_vertical_tabs.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_vertical_tabs.asp.html",
+        "summary": "This lesson provides a practical guide to building interactive vertical tab menus for web applications. It demonstrates how to structure the HTML, apply CSS for layout and styling, and use JavaScript to toggle content visibility based on user interaction."
+      },
+      {
+        "title": "Tab Headers",
+        "fileName": "howto_js_tab_header.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_tab_header.asp.html",
+        "summary": "This lesson provides a practical guide on creating interactive tab headers using HTML, CSS, and JavaScript. It demonstrates how to structure tabbed content, apply styling for visual distinction, and implement a script to toggle visibility based on user interaction."
+      },
+      {
+        "title": "Full Page Tabs",
+        "fileName": "howto_js_full_page_tabs.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_full_page_tabs.asp.html",
+        "summary": "This lesson provides a practical guide to building full-page tabs that occupy the entire browser window. By combining HTML structure, CSS styling, and JavaScript functionality, learners can create interactive navigation where clicking buttons dynamically displays specific content sections."
+      },
+      {
+        "title": "Hover Tabs",
+        "fileName": "howto_js_hover_tabs.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_hover_tabs.asp.html",
+        "summary": "This lesson demonstrates how to create interactive hover-triggered tabs using HTML, CSS, and JavaScript. By combining CSS styling with a JavaScript function that toggles display properties, users can dynamically switch between content sections simply by moving their mouse over menu buttons."
+      },
+      {
+        "title": "Top Navigation",
+        "fileName": "howto_js_topnav.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_topnav.asp.html",
+        "summary": "This lesson provides a practical guide to building a functional top navigation bar using HTML and CSS. It covers the essential structure for links and styling techniques, including hover effects and active state indicators, to help learners create clean, professional website menus."
+      },
+      {
+        "title": "Responsive Topnav",
+        "fileName": "howto_js_topnav_responsive.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_topnav_responsive.asp.html",
+        "summary": "This lesson teaches how to build a responsive top navigation bar using HTML, CSS, and JavaScript. It demonstrates how to use media queries and a toggle function to transform a horizontal menu into a vertical, hamburger-style layout for smaller screen sizes."
+      },
+      {
+        "title": "Split Navigation",
+        "fileName": "howto_css_topnav_split.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_topnav_split.asp.html",
+        "summary": "This lesson provides a practical guide on creating a split navigation bar using HTML and CSS. By applying specific float properties to navigation links, you can effectively align elements to both the left and right sides of a container to enhance your website's layout."
+      },
+      {
+        "title": "Navbar with Icons",
+        "fileName": "howto_css_navbar_icon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_navbar_icon.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive navigation bar enhanced with icons using HTML and CSS. It covers integrating an icon library and applying styling techniques to ensure the menu adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Search Menu",
+        "fileName": "howto_js_search_menu.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_search_menu.asp.html",
+        "summary": "This lesson provides a practical guide on building a dynamic search menu to filter navigation links. By combining HTML structure, CSS styling, and JavaScript logic, learners can implement a functional search bar that hides non-matching list items in real-time as the user types."
+      },
+      {
+        "title": "Search Bar",
+        "fileName": "howto_css_searchbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_searchbar.asp.html",
+        "summary": "This lesson provides a practical guide on integrating a search input field into a responsive navigation menu. It covers the essential HTML structure and CSS styling required to ensure the search bar remains functional and adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Fixed Sidebar",
+        "fileName": "howto_css_fixed_sidebar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_fixed_sidebar.asp.html",
+        "summary": "This lesson provides a practical guide on creating a fixed side navigation menu using CSS. It covers the necessary HTML structure and CSS properties, such as position: fixed, to ensure the sidebar remains stationary while the page content scrolls."
+      },
+      {
+        "title": "Side Navigation",
+        "fileName": "howto_js_sidenav.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_sidenav.asp.html",
+        "summary": "This lesson provides a comprehensive guide to building animated, closable side navigation menus. It covers the essential HTML, CSS, and JavaScript required to implement various styles, including overlays, off-canvas push effects, and full-width menus."
+      },
+      {
+        "title": "Responsive Sidebar",
+        "fileName": "howto_css_sidebar_responsive.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_sidebar_responsive.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive sidebar navigation menu using HTML and CSS. It demonstrates how to use fixed positioning for desktop layouts and media queries to adapt the navigation for smaller screens, ensuring a seamless user experience across devices."
+      },
+      {
+        "title": "Fullscreen Navigation",
+        "fileName": "howto_js_fullscreen_overlay.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_fullscreen_overlay.asp.html",
+        "summary": "This lesson provides a practical guide to building a full-screen overlay navigation menu using HTML, CSS, and JavaScript. It demonstrates how to implement responsive, animated navigation effects, including sliding transitions and simple toggling, to enhance user interface functionality."
+      },
+      {
+        "title": "Off-Canvas Menu",
+        "fileName": "howto_js_off-canvas.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_off-canvas.asp.html",
+        "summary": "This lesson provides a practical guide to building an off-canvas navigation menu. It covers the essential HTML structure, CSS styling for layout and transitions, and JavaScript functions to toggle the menu's visibility and manage page content positioning."
+      },
+      {
+        "title": "Hover Sidenav Buttons",
+        "fileName": "howto_css_sidenav_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_sidenav_buttons.asp.html",
+        "summary": "This lesson demonstrates how to create interactive side navigation buttons using HTML and CSS. By utilizing absolute positioning and CSS transitions, you can design buttons that remain hidden off-screen and smoothly slide into view when triggered by a hover effect."
+      },
+      {
+        "title": "Sidebar with Icons",
+        "fileName": "howto_css_sidebar_icons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_sidebar_icons.asp.html",
+        "summary": "This lesson provides a practical guide on creating a fixed, vertical sidebar navigation menu enhanced with icons. It covers the necessary HTML structure using an icon library and the CSS required to style the layout, links, and responsive behavior for different screen sizes."
+      },
+      {
+        "title": "Horizontal Scroll Menu",
+        "fileName": "howto_css_menu_horizontal_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_menu_horizontal_scroll.asp.html",
+        "summary": "This lesson teaches how to build a horizontal scrollable navigation menu using CSS. By applying the `overflow: auto` and `white-space: nowrap` properties to a container, you can effectively manage overflow content for a responsive and user-friendly web interface."
+      },
+      {
+        "title": "Vertical Menu",
+        "fileName": "howto_css_vertical_menu.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_vertical_menu.asp.html",
+        "summary": "This lesson provides a practical guide on creating a vertical menu using HTML and CSS. It covers essential styling techniques, such as block-level link formatting and hover effects, while also demonstrating how to implement a scrollable menu by adjusting height and overflow properties."
+      },
+      {
+        "title": "Bottom Navigation",
+        "fileName": "howto_css_bottom_nav.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_bottom_nav.asp.html",
+        "summary": "This lesson provides a practical guide to building a fixed bottom navigation menu using HTML and CSS. It covers the essential structure and styling required to create a functional, persistent navigation bar that remains anchored at the bottom of the browser window."
+      },
+      {
+        "title": "Responsive Bottom Nav",
+        "fileName": "howto_js_bottom_nav_responsive.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_bottom_nav_responsive.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive bottom navigation bar using HTML, CSS, and JavaScript. It demonstrates how to use media queries and a toggle function to ensure the menu adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Bottom Border Nav Links",
+        "fileName": "howto_css_navbar_border.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_navbar_border.asp.html",
+        "summary": "This lesson demonstrates how to create a navigation menu with interactive bottom borders using CSS. By applying the `border-bottom` property to anchor tags, you can effectively highlight active links and provide visual feedback when users hover over menu items."
+      },
+      {
+        "title": "Right Aligned Menu Links",
+        "fileName": "howto_css_topnav_right.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_topnav_right.asp.html",
+        "summary": "This lesson demonstrates how to create a navigation bar with both left-aligned and right-aligned links using HTML and CSS. By utilizing the float property on a container div, you can effectively split your menu items to achieve a professional, balanced layout for your website."
+      },
+      {
+        "title": "Centered Menu Link",
+        "fileName": "howto_css_topnav_centered.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_topnav_centered.asp.html",
+        "summary": "This lesson provides a practical guide for creating a navigation bar with a centered link or logo. It demonstrates how to use HTML structure and CSS positioning to organize menu items while ensuring the layout remains responsive for mobile devices."
+      },
+      {
+        "title": "Equal Width Menu Links",
+        "fileName": "howto_css_topnav_equal_width.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_topnav_equal_width.asp.html",
+        "summary": "This lesson provides a practical guide to creating a responsive navigation bar with equal-width links using HTML and CSS. It explains how to distribute link widths proportionally and includes media queries to ensure the menu adapts seamlessly to smaller screen sizes."
+      },
+      {
+        "title": "Fixed Menu",
+        "fileName": "howto_css_fixed_menu.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_fixed_menu.asp.html",
+        "summary": "This lesson explains how to implement a fixed navigation bar using CSS by applying the `position: fixed` property. It covers positioning menus at the top or bottom of the page and highlights the importance of adding margins to the main content to prevent it from being obscured by the menu."
+      },
+      {
+        "title": "Slide Down Bar on Scroll",
+        "fileName": "howto_js_navbar_slide.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_navbar_slide.asp.html",
+        "summary": "This lesson demonstrates how to create a navigation bar that slides into view when a user scrolls down the page. By combining CSS transitions for smooth animation with JavaScript to detect scroll position, you can effectively toggle the visibility of a fixed header element."
+      },
+      {
+        "title": "Hide Navbar on Scroll",
+        "fileName": "howto_js_navbar_hide_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_navbar_hide_scroll.asp.html",
+        "summary": "This lesson demonstrates how to create a responsive navigation bar that automatically hides when scrolling down and reappears when scrolling up. By combining CSS transitions for smooth movement with JavaScript to track scroll position, you can effectively optimize screen space for users."
+      },
+      {
+        "title": "Shrink Navbar on Scroll",
+        "fileName": "howto_js_navbar_shrink_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_navbar_shrink_scroll.asp.html",
+        "summary": "This lesson demonstrates how to create a dynamic navigation bar that shrinks when a user scrolls down the page. By combining CSS transitions for smooth visual effects with JavaScript to monitor scroll position, you can effectively adjust padding and font sizes for a polished user experience."
+      },
+      {
+        "title": "Sticky Navbar",
+        "fileName": "howto_js_navbar_sticky.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_navbar_sticky.asp.html",
+        "summary": "This lesson explains how to create a sticky navigation bar using CSS. By applying the `position: sticky` property along with a specified offset, you can ensure the navbar remains fixed at the top of the viewport as the user scrolls through the page content."
+      },
+      {
+        "title": "Navbar on Image",
+        "fileName": "howto_css_navbar_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_navbar_image.asp.html",
+        "summary": "This lesson demonstrates how to overlay a navigation menu onto a background image using CSS. By utilizing absolute positioning and container styling, you can effectively integrate functional navigation links directly onto visual elements for a modern web design layout."
+      },
+      {
+        "title": "Hover Dropdowns",
+        "fileName": "howto_css_dropdown.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_dropdown.asp.html",
+        "summary": "This lesson explains how to build a hoverable dropdown menu using HTML and CSS. It covers the structural requirements for the container and content, as well as the specific CSS properties needed to hide the menu by default and display it upon user interaction."
+      },
+      {
+        "title": "Click Dropdowns",
+        "fileName": "howto_js_dropdown.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_dropdown.asp.html",
+        "summary": "This lesson teaches how to build a functional, clickable dropdown menu using HTML, CSS, and JavaScript. It covers structuring the menu, styling it for proper positioning and display, and implementing toggle logic to show or hide content based on user interaction."
+      },
+      {
+        "title": "Cascading Dropdown",
+        "fileName": "howto_js_cascading_dropdown.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_cascading_dropdown.asp.html",
+        "summary": "This lesson demonstrates how to implement a cascading dropdown system using HTML and JavaScript. By dynamically updating child dropdown options based on the selection made in a parent menu, you can create interactive, data-driven forms that guide users through hierarchical choices."
+      },
+      {
+        "title": "Dropdown in Topnav",
+        "fileName": "howto_css_dropdown_navbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_dropdown_navbar.asp.html",
+        "summary": "This lesson provides a practical guide on creating a dropdown menu within a navigation bar using HTML and CSS. It explains how to structure the container elements and use the hover selector to display hidden content, enabling interactive navigation for web interfaces."
+      },
+      {
+        "title": "Dropdown in Sidenav",
+        "fileName": "howto_js_dropdown_sidenav.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_dropdown_sidenav.asp.html",
+        "summary": "This lesson provides a practical guide on integrating interactive dropdown menus into a side navigation bar. It covers the necessary HTML structure, CSS styling for layout and visibility, and JavaScript logic to toggle the dropdown content, enabling a functional and responsive UI component."
+      },
+      {
+        "title": "Resp Navbar Dropdown",
+        "fileName": "howto_js_responsive_navbar_dropdown.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_responsive_navbar_dropdown.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive navigation bar featuring a dropdown menu. It demonstrates how to integrate HTML structure, CSS styling for layout and responsiveness, and JavaScript to toggle the menu display on smaller screens."
+      },
+      {
+        "title": "Subnavigation Menu",
+        "fileName": "howto_css_subnav.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_subnav.asp.html",
+        "summary": "This lesson provides a practical guide for building a functional subnavigation menu using HTML and CSS. It explains how to structure the navigation container and apply styling to create interactive dropdowns that appear upon hovering over specific menu items."
+      },
+      {
+        "title": "Dropup",
+        "fileName": "howto_css_dropup.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_dropup.asp.html",
+        "summary": "This lesson explains how to build a hoverable dropup menu using HTML and CSS. It details the necessary structural elements and styling techniques, such as using absolute positioning and the hover selector, to ensure the menu appears correctly above the trigger element."
+      },
+      {
+        "title": "Mega Menu",
+        "fileName": "howto_css_mega_menu.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_mega_menu.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive mega menu using HTML and CSS. You will learn how to structure a full-width dropdown container, organize content into columns, and use hover effects to display the menu, ensuring a professional navigation experience."
+      },
+      {
+        "title": "Mobile Menu",
+        "fileName": "howto_js_mobile_navbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_mobile_navbar.asp.html",
+        "summary": "This lesson provides a practical guide to building responsive mobile navigation menus using HTML, CSS, and JavaScript. It demonstrates how to implement a functional \"hamburger\" icon that toggles the visibility of navigation links, ensuring a user-friendly experience on smaller screens."
+      },
+      {
+        "title": "Curtain Menu",
+        "fileName": "howto_js_curtain_menu.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_curtain_menu.asp.html",
+        "summary": "This lesson provides a practical guide to building a curtain navigation menu using HTML, CSS, and JavaScript. It demonstrates how to create an overlay effect that can slide in from the side, drop down from the top, or appear instantly, offering flexible animation options for web development."
+      },
+      {
+        "title": "Collapsed Sidebar",
+        "fileName": "howto_js_collapse_sidebar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_collapse_sidebar.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive, collapsible sidebar menu. By combining HTML structure, CSS styling for transitions, and JavaScript functions to toggle visibility, learners can effectively implement a dynamic navigation interface for their web projects."
+      },
+      {
+        "title": "Collapsed Sidepanel",
+        "fileName": "howto_js_collapse_sidepanel.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_collapse_sidepanel.asp.html",
+        "summary": "This lesson provides a practical guide to building a collapsible sidepanel menu using HTML, CSS, and JavaScript. By manipulating the element's width through simple functions, you can create a smooth, interactive navigation experience for your website."
+      },
+      {
+        "title": "Pagination",
+        "fileName": "howto_css_pagination.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_pagination.asp.html",
+        "summary": "This lesson provides a practical guide to building a functional pagination component using HTML and CSS. It demonstrates how to structure navigation links and apply styling for active states and hover effects to create a clean, interactive user interface."
+      },
+      {
+        "title": "Breadcrumbs",
+        "fileName": "howto_css_breadcrumbs.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_breadcrumbs.asp.html",
+        "summary": "This lesson provides a practical guide on creating breadcrumb navigation to help users track their website location. It demonstrates how to structure the navigation using HTML lists and style them with CSS to achieve a clean, horizontal layout with separator symbols and hover effects."
+      },
+      {
+        "title": "Button Group",
+        "fileName": "howto_css_button_group.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_button_group.asp.html",
+        "summary": "This lesson teaches how to create horizontal button groups using HTML and CSS. It covers the essential structure and styling techniques required to align buttons side-by-side, manage borders, and implement justified, full-width layouts for responsive web design."
+      },
+      {
+        "title": "Vertical Button Group",
+        "fileName": "howto_css_button_group_vertical.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_button_group_vertical.asp.html",
+        "summary": "This lesson explains how to create a vertical button group using HTML and CSS. It demonstrates how to stack buttons by applying a block display property and utilizing the `:not(:last-child)` selector to manage borders effectively for a clean, unified interface."
+      },
+      {
+        "title": "Sticky Social Bar",
+        "fileName": "howto_css_sticky_social_bar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_sticky_social_bar.asp.html",
+        "summary": "This lesson provides a practical guide on creating a fixed, vertically aligned social media icon bar using HTML and CSS. It demonstrates how to integrate Font Awesome icons and apply CSS positioning properties to ensure the bar remains anchored on the screen for improved user engagement."
+      },
+      {
+        "title": "Pill Navigation",
+        "fileName": "howto_css_pill_nav.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_pill_nav.asp.html",
+        "summary": "This lesson provides a practical guide on creating pill-style navigation menus using HTML and CSS. It covers the essential steps for styling links, managing hover states, and defining active elements, while also explaining how to adapt the layout for vertical navigation."
+      },
+      {
+        "title": "Responsive Header",
+        "fileName": "howto_css_responsive_header.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_responsive_header.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive website header using HTML and CSS. It demonstrates how to structure navigation elements and implement media queries to ensure the layout adapts seamlessly to different screen sizes."
+      }
+    ]
+  },
+  {
+    "topic": "Images",
+    "lessons": [
+      {
+        "title": "Slideshow",
+        "fileName": "howto_js_slideshow.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_slideshow.asp.html",
+        "summary": "This lesson provides a comprehensive guide to building a responsive image slideshow using HTML, CSS, and JavaScript. It covers essential implementation steps, including manual navigation controls, automatic transitions, and techniques for managing multiple slideshows on a single page."
+      },
+      {
+        "title": "Slideshow Gallery",
+        "fileName": "howto_js_slideshow_gallery.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_slideshow_gallery.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive slideshow gallery using HTML, CSS, and JavaScript. It covers the essential steps for structuring the image container, styling the navigation controls, and implementing the logic to cycle through images and thumbnails."
+      },
+      {
+        "title": "Modal Images",
+        "fileName": "howto_css_modal_images.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_modal_images.asp.html",
+        "summary": "This lesson provides a practical guide on creating responsive modal images using HTML, CSS, and JavaScript. It demonstrates how to trigger a popup dialog that displays an enlarged version of an image with a caption, ensuring a seamless user experience across different screen sizes."
+      },
+      {
+        "title": "Lightbox",
+        "fileName": "howto_js_lightbox.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_lightbox.asp.html",
+        "summary": "This lesson provides a practical guide on creating a modal image gallery, or lightbox, by integrating CSS and JavaScript. It demonstrates how to combine modal functionality with slideshow controls to display images in an interactive, full-screen overlay."
+      },
+      {
+        "title": "Responsive Image Grid",
+        "fileName": "howto_css_image_grid_responsive.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_grid_responsive.asp.html",
+        "summary": "This lesson demonstrates how to build a responsive image gallery using HTML and CSS Flexbox. It provides a practical guide on adjusting column layouts to four, two, or single-width displays based on screen size, ensuring optimal viewing across different devices."
+      },
+      {
+        "title": "Image Grid",
+        "fileName": "howto_js_image_grid.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_image_grid.asp.html",
+        "summary": "This lesson demonstrates how to build a dynamic image gallery using HTML, CSS Flexbox, and JavaScript. It provides a practical guide for creating a layout that allows users to toggle between different column views, adjusting the grid display with the click of a button."
+      },
+      {
+        "title": "Image Gallery",
+        "fileName": "howto_css_image_gallery.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_gallery.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive image gallery using HTML and CSS. It demonstrates how to use media queries to automatically adjust image layouts, ensuring optimal display across various screen sizes from desktop to mobile devices."
+      },
+      {
+        "title": "Scrollable Image Gallery",
+        "fileName": "howto_css_image_gallery_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_gallery_scroll.asp.html",
+        "summary": "This lesson demonstrates how to build a horizontal image gallery using HTML and CSS. By applying the `overflow: auto` and `white-space: nowrap` properties to a container div, you can easily create a responsive, scrollable layout for displaying multiple images side-by-side."
+      },
+      {
+        "title": "Tab Gallery",
+        "fileName": "howto_js_tab_img_gallery.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_tab_img_gallery.asp.html",
+        "summary": "This lesson demonstrates how to build an interactive tabbed image gallery using HTML, CSS, and JavaScript. By clicking on thumbnail images, users can dynamically display a larger version of the selected photo with descriptive text and a close button functionality."
+      },
+      {
+        "title": "Image Overlay Fade",
+        "fileName": "howto_css_image_overlay.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_overlay.asp.html",
+        "summary": "This lesson provides a practical guide on implementing a fading overlay effect for images triggered by hover interactions. It serves as an introductory tutorial for enhancing web design through CSS-based visual transitions."
+      },
+      {
+        "title": "Image Overlay Slide",
+        "fileName": "howto_css_image_overlay_slide.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_overlay_slide.asp.html",
+        "summary": "This lesson provides a practical guide on implementing interactive image overlay effects that trigger upon hover. By utilizing CSS styling techniques, learners can enhance their web design projects with dynamic, sliding visual transitions."
+      },
+      {
+        "title": "Image Overlay Zoom",
+        "fileName": "howto_css_image_overlay_zoom.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_overlay_zoom.asp.html",
+        "summary": "This lesson demonstrates how to implement an interactive image overlay zoom effect using HTML and CSS. By utilizing container positioning, CSS transitions, and the transform property, users can create a responsive overlay that smoothly scales into view when hovering over an image."
+      },
+      {
+        "title": "Image Overlay Title",
+        "fileName": "howto_css_image_overlay_title.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_overlay_title.asp.html",
+        "summary": "This lesson provides a practical guide on creating an interactive image overlay title that appears upon hovering. By combining HTML structure with CSS positioning and opacity transitions, you can effectively display text over images to enhance user engagement on your website."
+      },
+      {
+        "title": "Image Overlay Icon",
+        "fileName": "howto_css_image_overlay_icon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_overlay_icon.asp.html",
+        "summary": "This lesson demonstrates how to create an interactive image overlay effect using HTML and CSS. By utilizing absolute positioning and hover states, you can display a centered icon over an image when a user interacts with the container, enhancing the visual engagement of your web design."
+      },
+      {
+        "title": "Image Effects",
+        "fileName": "howto_css_image_effects.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_effects.asp.html",
+        "summary": "This lesson introduces the CSS `filter` property as a tool for applying visual enhancements like grayscale and blur to images. It provides practical code examples and notes on browser compatibility to help developers effectively implement these stylistic effects in their web projects."
+      },
+      {
+        "title": "Black and White Image",
+        "fileName": "howto_css_image_bw.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_bw.asp.html",
+        "summary": "This lesson demonstrates how to convert color images to black and white using the CSS `filter` property. By applying the `grayscale(100%)` function to an image element, developers can easily achieve a monochromatic effect across different web browsers."
+      },
+      {
+        "title": "Image Text",
+        "fileName": "howto_css_image_text.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_text.asp.html",
+        "summary": "This lesson demonstrates how to overlay text onto images using HTML and CSS. By utilizing a relative container and absolute positioning, you can precisely place text in various locations, such as corners or the center of an image, to create professional visual layouts."
+      },
+      {
+        "title": "Image Text Blocks",
+        "fileName": "howto_css_image_text_blocks.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_text_blocks.asp.html",
+        "summary": "This lesson explains how to overlay text blocks onto images using HTML and CSS. By utilizing a container with relative positioning and an absolute-positioned text element, you can effectively place and style descriptive content directly over visual media."
+      },
+      {
+        "title": "Transparent Image Text",
+        "fileName": "howto_css_image_transparent.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_transparent.asp.html",
+        "summary": "This lesson demonstrates how to overlay text onto an image using CSS. By utilizing absolute positioning and the rgba() color property, you can create a semi-transparent background box for text, ensuring it remains readable while maintaining a stylish, see-through effect over the image."
+      },
+      {
+        "title": "Full Page Image",
+        "fileName": "howto_css_full_page.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_full_page.asp.html",
+        "summary": "This lesson explains how to create responsive full-page or partial-page background images using CSS. It details the necessary properties, such as background-size and height, to ensure images scale and center perfectly across the entire browser window."
+      },
+      {
+        "title": "Form on Image",
+        "fileName": "howto_css_form_on_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_form_on_image.asp.html",
+        "summary": "This lesson demonstrates how to overlay a functional HTML form onto a full-width background image using CSS. By utilizing absolute positioning and responsive background properties, you can effectively integrate user input fields directly onto visual elements for a modern web design."
+      },
+      {
+        "title": "Hero Image",
+        "fileName": "howto_css_hero_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_hero_image.asp.html",
+        "summary": "This lesson explains how to create a responsive hero image using HTML and CSS. It demonstrates how to overlay text on a background image, utilizing a linear gradient for readability and CSS positioning properties to ensure the content remains perfectly centered across all screen sizes."
+      },
+      {
+        "title": "Blur Background Image",
+        "fileName": "howto_css_blurred_background.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_blurred_background.asp.html",
+        "summary": "This lesson demonstrates how to create a blurred background effect using CSS. By applying the filter property to an image container and positioning text over it, you can achieve a professional, modern layout for your web pages."
+      },
+      {
+        "title": "Change Bg on Scroll",
+        "fileName": "howto_css_bg_change_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_bg_change_scroll.asp.html",
+        "summary": "This lesson demonstrates how to create a dynamic background effect that changes as the user scrolls through a webpage. By utilizing CSS properties like background-size and fixed positioning, you can stack multiple images to achieve a seamless, visually engaging scrolling experience."
+      },
+      {
+        "title": "Side-by-Side Images",
+        "fileName": "howto_css_images_side_by_side.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_images_side_by_side.asp.html",
+        "summary": "This lesson demonstrates how to align images side-by-side using CSS float or flexbox properties. It provides practical HTML and CSS code examples for creating multi-column layouts and includes instructions on using media queries to ensure the design remains responsive on smaller screens."
+      },
+      {
+        "title": "Rounded Images",
+        "fileName": "howto_css_rounded_images.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_rounded_images.asp.html",
+        "summary": "This lesson explains how to create rounded or circular images using the CSS `border-radius` property. By applying a value of 50% to an image element, you can easily transform standard rectangular photos into perfect circles for modern web design."
+      },
+      {
+        "title": "Avatar Images",
+        "fileName": "howto_css_image_avatar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_avatar.asp.html",
+        "summary": "This lesson demonstrates how to create customized avatar images using HTML and CSS. By applying specific width, height, and a 50% border-radius property, you can easily transform standard square images into professional circular avatars for your web projects."
+      },
+      {
+        "title": "Responsive Images",
+        "fileName": "howto_css_image_responsive.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_responsive.asp.html",
+        "summary": "This lesson explains how to create responsive images using CSS to ensure they adapt to various screen sizes. By applying properties like width, max-width, and height: auto, you can control how images scale, allowing them to shrink, expand, or maintain specific size limits automatically."
+      },
+      {
+        "title": "Center Images",
+        "fileName": "howto_css_image_center.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_center.asp.html",
+        "summary": "This lesson explains how to center an image using CSS by converting it into a block-level element and setting its left and right margins to \"auto.\" It also notes that this method requires the image width to be less than 100% to achieve the desired alignment."
+      },
+      {
+        "title": "Thumbnails",
+        "fileName": "howto_css_thumbnail.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_thumbnail.asp.html",
+        "summary": "This lesson explains how to create clickable thumbnail images by wrapping an `<img>` element within an `<a>` tag. It demonstrates how to use CSS to apply borders, padding, and interactive hover effects to enhance the visual presentation of small preview images."
+      },
+      {
+        "title": "Border Around Image",
+        "fileName": "howto_css_border_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_border_image.asp.html",
+        "summary": "This lesson demonstrates how to apply a border to an image element using the CSS `border` property. By defining the width, style, and color within this property, you can easily enhance the visual presentation of your images on a webpage."
+      },
+      {
+        "title": "Meet the Team",
+        "fileName": "howto_css_team.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_team.asp.html",
+        "summary": "This lesson provides a practical guide for building a responsive \"Meet the Team\" page. It demonstrates how to structure employee profiles using HTML and apply CSS to create a professional, card-based layout that adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Sticky Image",
+        "fileName": "howto_css_image_sticky.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_image_sticky.asp.html",
+        "summary": "This lesson explains how to implement a sticky image using the CSS `position: sticky` property. It details how elements toggle between relative and fixed positioning based on scroll depth, noting that a directional offset must be specified for the effect to function correctly."
+      },
+      {
+        "title": "Flip an Image",
+        "fileName": "howto_css_flip_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_flip_image.asp.html",
+        "summary": "This lesson demonstrates how to create mirror and 3D flip effects for images using CSS transformations. It covers simple hover-based horizontal flipping and more complex animated 3D flip boxes that reveal text content, providing the necessary HTML and CSS code for implementation."
+      },
+      {
+        "title": "Shake an Image",
+        "fileName": "howto_css_shake_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_shake_image.asp.html",
+        "summary": "This lesson demonstrates how to create a dynamic \"shake\" effect for images using CSS animations. By utilizing the `@keyframes` rule and the `:hover` pseudo-class, learners can implement an infinite, jittery movement triggered whenever a user interacts with an image."
+      },
+      {
+        "title": "Portfolio Gallery",
+        "fileName": "howto_css_portfolio_gallery.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_portfolio_gallery.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive portfolio gallery using HTML and CSS. It demonstrates how to implement a flexible grid system that automatically adjusts column layouts based on screen width to ensure optimal viewing across different devices."
+      },
+      {
+        "title": "Portfolio with Filtering",
+        "fileName": "howto_js_portfolio_filter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_portfolio_filter.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive portfolio gallery with category filtering. It demonstrates how to integrate HTML structure, CSS styling, and JavaScript logic to dynamically display and hide content based on user selection."
+      },
+      {
+        "title": "Image Zoom",
+        "fileName": "howto_js_image_zoom.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_image_zoom.asp.html",
+        "summary": "This lesson provides a comprehensive guide to implementing an interactive image zoom feature using HTML, CSS, and JavaScript. It covers the necessary structural setup, styling for the zoom lens, and the functional logic required to calculate ratios and track cursor movement for a seamless effect."
+      },
+      {
+        "title": "Image Magnifier Glass",
+        "fileName": "howto_js_image_magnifier_glass.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_image_magnifier_glass.asp.html",
+        "summary": "This lesson provides a practical guide to creating an interactive image magnifier using HTML, CSS, and JavaScript. It explains how to build a dynamic lens that tracks mouse or touch movements to zoom into specific areas of an image, offering a complete implementation for web developers."
+      },
+      {
+        "title": "Image Comparison Slider",
+        "fileName": "howto_js_image_comparison.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_image_comparison.asp.html",
+        "summary": "This lesson provides a practical guide to building an interactive image comparison slider. By combining HTML structure, CSS styling, and JavaScript logic, you can create a functional tool that allows users to reveal and compare two overlapping images using a draggable slider."
+      },
+      {
+        "title": "Favicon",
+        "fileName": "howto_html_favicon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_favicon.asp.html",
+        "summary": "This lesson explains how to add a favicon to your website to display a small icon in the browser tab. You will learn to prepare a simple image file and link it within the `<head>` section of your HTML document to ensure it appears correctly next to your page title."
+      }
+    ]
+  },
+  {
+    "topic": "Buttons",
+    "lessons": [
+      {
+        "title": "Alert Buttons",
+        "fileName": "howto_css_alert_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_alert_buttons.asp.html",
+        "summary": "This lesson demonstrates how to create and style alert buttons using HTML and CSS. By applying specific classes and background colors, you can effectively communicate different states such as success, information, warnings, and danger to users through intuitive visual cues."
+      },
+      {
+        "title": "Outline Buttons",
+        "fileName": "howto_css_outline_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_outline_buttons.asp.html",
+        "summary": "This lesson provides a practical guide on creating outline buttons using CSS. It demonstrates how to apply specific border colors and hover effects to different button states, while also showing how to implement rounded corners using the border-radius property."
+      },
+      {
+        "title": "Split Buttons",
+        "fileName": "howto_css_button_split.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_button_split.asp.html",
+        "summary": "This lesson provides a practical guide to creating split button dropdowns using HTML and CSS. It demonstrates how to structure the button and menu elements, utilizing CSS to manage positioning, styling, and hover-triggered visibility for an interactive user interface component."
+      },
+      {
+        "title": "Animated Buttons",
+        "fileName": "howto_css_animate_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_animate_buttons.asp.html",
+        "summary": "This lesson provides a practical guide on enhancing user interface elements by animating buttons using CSS. It serves as a focused resource for developers looking to add interactive visual effects to their web projects, with links to further styling techniques in the CSS Buttons Tutorial."
+      },
+      {
+        "title": "Fading Buttons",
+        "fileName": "howto_css_fading_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_fading_buttons.asp.html",
+        "summary": "This lesson provides a practical guide on creating fading button effects using CSS. It serves as a focused resource for developers looking to enhance their UI elements with smooth transitions and directs learners to further documentation for comprehensive button styling techniques."
+      },
+      {
+        "title": "Button on Image",
+        "fileName": "howto_css_button_on_image.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_button_on_image.asp.html",
+        "summary": "This lesson demonstrates how to overlay a button onto an image using CSS positioning. By wrapping both elements in a relative container and applying absolute positioning with a transform property, you can precisely center the button over any responsive image."
+      },
+      {
+        "title": "Social Media Buttons",
+        "fileName": "howto_css_social_media_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_social_media_buttons.asp.html",
+        "summary": "This lesson provides a practical guide on creating and styling social media buttons using CSS and the Font Awesome icon library. It covers essential techniques for customizing button appearance, including hover effects and the implementation of circular designs using border-radius properties."
+      },
+      {
+        "title": "Read More Read Less",
+        "fileName": "howto_js_read_more.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_read_more.asp.html",
+        "summary": "This tutorial provides a practical guide to implementing a \"Read More/Read Less\" toggle feature using HTML, CSS, and JavaScript. By manipulating element display properties and button text, learners can efficiently manage content visibility to improve user experience on web pages."
+      },
+      {
+        "title": "Loading Buttons",
+        "fileName": "howto_css_loading_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_loading_buttons.asp.html",
+        "summary": "This lesson demonstrates how to create functional loading buttons by integrating Font Awesome icons with custom CSS. It provides a step-by-step guide on structuring the HTML elements and applying styles to achieve a professional, animated loading effect for user interfaces."
+      },
+      {
+        "title": "Download Buttons",
+        "fileName": "howto_css_download_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_download_button.asp.html",
+        "summary": "This lesson provides a practical guide on creating and styling download buttons using HTML and CSS. It demonstrates how to integrate icon libraries like Font Awesome and apply custom styling to achieve both auto-width and full-width button layouts with interactive hover effects."
+      },
+      {
+        "title": "Pill Buttons",
+        "fileName": "howto_css_pill_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_pill_button.asp.html",
+        "summary": "This lesson explains how to create pill-shaped buttons using CSS. By applying the `border-radius` property to a standard HTML button element, you can easily transform square corners into rounded, pill-like edges for a modern UI design."
+      },
+      {
+        "title": "Notification Button",
+        "fileName": "howto_css_notification_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_notification_button.asp.html",
+        "summary": "This lesson provides a practical guide for creating notification buttons using HTML and CSS. By combining a standard link element with a positioned badge span, you can effectively display dynamic alerts or message counts on your website interface."
+      },
+      {
+        "title": "Icon Buttons",
+        "fileName": "howto_css_icon_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_icon_buttons.asp.html",
+        "summary": "This lesson demonstrates how to create functional icon buttons using HTML and CSS. By integrating an icon library like Font Awesome and applying custom styling, you can easily build interactive buttons that feature both icons and text for improved user interface design."
+      },
+      {
+        "title": "Next/prev Buttons",
+        "fileName": "howto_css_next_prev.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_next_prev.asp.html",
+        "summary": "This lesson provides a practical guide to creating functional \"next\" and \"previous\" navigation buttons using HTML and CSS. It covers the essential markup for links and demonstrates how to apply styling, hover effects, and border-radius properties to achieve both standard and rounded designs."
+      },
+      {
+        "title": "More Button in Nav",
+        "fileName": "howto_css_more_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_more_button.asp.html",
+        "summary": "This lesson demonstrates how to implement a \"more\" dropdown menu within a navigation bar using HTML and CSS. It explains how to structure the container elements and utilize the CSS :hover selector to reveal hidden menu content when a user interacts with the navigation button."
+      },
+      {
+        "title": "Block Buttons",
+        "fileName": "howto_css_block_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_block_buttons.asp.html",
+        "summary": "This lesson explains how to create full-width block buttons using HTML and CSS. By setting the display property to block and the width to 100%, you can easily transform standard buttons into responsive elements that span the entire container width."
+      },
+      {
+        "title": "Text Buttons",
+        "fileName": "howto_css_text_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_text_buttons.asp.html",
+        "summary": "This lesson demonstrates how to create text-based buttons by removing default borders and background colors using CSS. It provides practical examples for styling various button states, including color-coded success, info, warning, and danger variants with interactive hover effects."
+      },
+      {
+        "title": "Round Buttons",
+        "fileName": "howto_css_round_buttons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_round_buttons.asp.html",
+        "summary": "This lesson demonstrates how to create rounded buttons using the CSS `border-radius` property. By applying various pixel values or a 50% radius, learners can effectively control the curvature of button corners to achieve different design styles."
+      },
+      {
+        "title": "Scroll To Top Button",
+        "fileName": "howto_js_scroll_to_top.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_scroll_to_top.asp.html",
+        "summary": "This lesson provides a practical guide to creating a \"scroll to top\" button using HTML, CSS, and JavaScript. It covers styling the button for fixed positioning and implementing script logic to toggle its visibility and trigger a smooth return to the top of the page."
+      }
+    ]
+  },
+  {
+    "topic": "Forms",
+    "lessons": [
+      {
+        "title": "Login Form",
+        "fileName": "howto_css_login_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_login_form.asp.html",
+        "summary": "This lesson provides a practical guide to building responsive login forms using HTML and CSS. It covers both standard form implementation and the creation of interactive modal windows, including styling techniques and basic JavaScript for enhanced user experience."
+      },
+      {
+        "title": "Signup Form",
+        "fileName": "howto_css_signup_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_signup_form.asp.html",
+        "summary": "This lesson provides a practical guide on creating responsive sign-up forms using HTML and CSS. It covers both standard form implementation and the creation of interactive modal windows, including optional JavaScript to enhance user experience."
+      },
+      {
+        "title": "Checkout Form",
+        "fileName": "howto_css_checkout_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_checkout_form.asp.html",
+        "summary": "This lesson provides a practical guide on building a responsive checkout form using HTML and CSS. It demonstrates how to structure billing and payment inputs while utilizing CSS Flexbox to ensure the layout adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Contact Form",
+        "fileName": "howto_css_contact_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_contact_form.asp.html",
+        "summary": "This lesson provides a practical guide to building a functional contact form using HTML and CSS. It covers the essential steps of structuring form inputs with HTML elements and applying professional styling to ensure a responsive and user-friendly interface."
+      },
+      {
+        "title": "Social Login Form",
+        "fileName": "howto_css_social_login.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_social_login.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive social login form using HTML and CSS. It demonstrates how to structure form elements and apply custom styling to create a professional interface that supports both social media authentication and manual login options."
+      },
+      {
+        "title": "Register Form",
+        "fileName": "howto_css_register_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_register_form.asp.html",
+        "summary": "This lesson provides a practical guide on building a functional registration form using HTML and CSS. It covers the essential structure for user input fields and demonstrates how to apply styling to ensure a clean, responsive, and user-friendly interface for account creation."
+      },
+      {
+        "title": "Form with Icons",
+        "fileName": "howto_css_form_icon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_form_icon.asp.html",
+        "summary": "This lesson demonstrates how to create a visually engaging registration form by integrating icons into input fields. By combining HTML structure with CSS Flexbox styling, learners can effectively align icons and inputs to build modern, user-friendly web forms."
+      },
+      {
+        "title": "Newsletter",
+        "fileName": "howto_css_newsletter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_newsletter.asp.html",
+        "summary": "This lesson provides a practical guide on building a functional email newsletter subscription form using HTML and CSS. It covers the essential structure of form elements and demonstrates how to apply styling to ensure a clean, responsive, and user-friendly interface for web visitors."
+      },
+      {
+        "title": "Stacked Form",
+        "fileName": "howto_css_stacked_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_stacked_form.asp.html",
+        "summary": "This lesson demonstrates how to design a vertically stacked form using HTML and CSS. By structuring form inputs and labels sequentially and applying specific CSS styling, you can create a clean, responsive layout where elements are positioned on top of each other for improved readability."
+      },
+      {
+        "title": "Responsive Form",
+        "fileName": "howto_css_responsive_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_responsive_form.asp.html",
+        "summary": "This lesson demonstrates how to build a responsive form using HTML and CSS. It explains how to structure form elements with containers and apply media queries to ensure labels and inputs stack vertically on smaller screens, providing an optimal user experience across different devices."
+      },
+      {
+        "title": "Popup Form",
+        "fileName": "howto_js_popup_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_popup_form.asp.html",
+        "summary": "This lesson provides a practical guide on creating an interactive popup form using HTML, CSS, and JavaScript. It covers the essential steps for structuring the form, applying necessary styles for positioning and visibility, and implementing basic functions to open and close the interface."
+      },
+      {
+        "title": "Inline Form",
+        "fileName": "howto_css_inline_form.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_inline_form.asp.html",
+        "summary": "This lesson provides a practical guide to creating responsive inline forms using HTML and CSS. By utilizing Flexbox and media queries, you will learn how to arrange form elements horizontally on larger screens while ensuring they stack vertically for improved usability on smaller devices."
+      },
+      {
+        "title": "Clear Input Field",
+        "fileName": "howto_html_clear_input.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_clear_input.asp.html",
+        "summary": "This lesson demonstrates two methods for clearing HTML input fields: automatically upon focus using the `onfocus` attribute and manually via a button click using JavaScript. These techniques provide simple, efficient ways to manage user input and improve form interactivity."
+      },
+      {
+        "title": "Hide Number Arrows",
+        "fileName": "howto_css_hide_arrow_number.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_hide_arrow_number.asp.html",
+        "summary": "This lesson provides a practical guide on how to remove default increment/decrement spinners from HTML number inputs using CSS. By applying specific browser-targeted styles, developers can create a cleaner interface while maintaining the input's underlying functionality."
+      },
+      {
+        "title": "Copy Text to Clipboard",
+        "fileName": "howto_js_copy_clipboard.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_copy_clipboard.asp.html",
+        "summary": "This lesson demonstrates how to implement a \"copy to clipboard\" feature using HTML and JavaScript. It covers selecting input field text, utilizing the Clipboard API for copying, and enhancing the user experience by adding a CSS-based tooltip for visual feedback."
+      },
+      {
+        "title": "Animated Search",
+        "fileName": "howto_css_animated_search.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_animated_search.asp.html",
+        "summary": "This lesson demonstrates how to create an interactive, animated search form using HTML and CSS. By applying a CSS transition to the input field's width property, the form expands smoothly when clicked, providing a polished and responsive user experience."
+      },
+      {
+        "title": "Search Button",
+        "fileName": "howto_css_search_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_search_button.asp.html",
+        "summary": "This lesson provides a practical guide on creating a functional search button using HTML and CSS. It covers the necessary markup for a search form and demonstrates how to apply styling, including icon integration and responsive layout techniques, to achieve a professional-looking interface."
+      },
+      {
+        "title": "Fullscreen Search",
+        "fileName": "howto_css_fullscreen_search.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_fullscreen_search.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive fullscreen search overlay using HTML, CSS, and JavaScript. It covers the structural setup, styling for the overlay effect, and the necessary functions to toggle the search box visibility for an improved user experience."
+      },
+      {
+        "title": "Input Field in Navbar",
+        "fileName": "howto_css_input_navbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_input_navbar.asp.html",
+        "summary": "This lesson demonstrates how to integrate a search input field and submit button into a navigation menu. It provides the necessary HTML structure and CSS styling to ensure the navbar remains functional and responsive across different screen sizes."
+      },
+      {
+        "title": "Login Form in Navbar",
+        "fileName": "howto_css_login_form_navbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_login_form_navbar.asp.html",
+        "summary": "This lesson provides a practical guide on integrating a login form directly into a website's navigation menu. It covers the necessary HTML structure and CSS styling required to create a functional, responsive layout that adapts seamlessly to various screen sizes."
+      },
+      {
+        "title": "Custom Checkbox/Radio",
+        "fileName": "howto_css_custom_checkbox.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_custom_checkbox.asp.html",
+        "summary": "This lesson provides a practical guide on creating custom checkboxes and radio buttons using HTML and CSS. It demonstrates how to hide default browser inputs and use styled span elements to achieve a unique, consistent design across different web interfaces."
+      },
+      {
+        "title": "Custom Select",
+        "fileName": "howto_custom_select.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_custom_select.asp.html",
+        "summary": "This lesson provides a practical guide on creating custom select boxes using HTML, CSS, and JavaScript. It demonstrates how to hide the default browser element and replace it with a styled, interactive component that functions through custom event handling."
+      },
+      {
+        "title": "Toggle Switch",
+        "fileName": "howto_css_switch.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_switch.asp.html",
+        "summary": "This lesson provides a practical guide to creating functional toggle switches using HTML and CSS. By utilizing a hidden checkbox and styled slider elements, learners can implement both rectangular and rounded on/off buttons with smooth transition effects."
+      },
+      {
+        "title": "Check Checkbox",
+        "fileName": "howto_js_display_checkbox_text.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_display_checkbox_text.asp.html",
+        "summary": "This lesson demonstrates how to toggle the visibility of text based on a checkbox state using JavaScript. By utilizing the `checked` property and an `onclick` event listener, you can dynamically update the CSS `display` style of an HTML element to show or hide content interactively."
+      },
+      {
+        "title": "Detect Caps Lock",
+        "fileName": "howto_js_detect_capslock.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_detect_capslock.asp.html",
+        "summary": "This lesson demonstrates how to detect if the Caps Lock key is active within an input field using JavaScript. By utilizing the `getModifierState(\"CapsLock\")` method within a keyup event listener, developers can dynamically display or hide warning messages to improve user experience."
+      },
+      {
+        "title": "Trigger Button on Enter",
+        "fileName": "howto_js_trigger_button_enter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_trigger_button_enter.asp.html",
+        "summary": "This lesson demonstrates how to trigger a button click using the JavaScript `keypress` event listener. By detecting the \"Enter\" key within an input field, you can programmatically execute a button's click action, enhancing user interaction and form accessibility."
+      },
+      {
+        "title": "Password Validation",
+        "fileName": "howto_js_password_validation.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_password_validation.asp.html",
+        "summary": "This lesson demonstrates how to build an interactive password validation form using HTML, CSS, and JavaScript. It covers implementing regex-based input restrictions and providing real-time visual feedback to users as they meet specific security requirements."
+      },
+      {
+        "title": "Toggle Password Visibility",
+        "fileName": "howto_js_toggle_password.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_toggle_password.asp.html",
+        "summary": "This lesson demonstrates how to implement a password visibility toggle using HTML and JavaScript. By manipulating the input field's type attribute through a checkbox event, users can easily switch between masked and plain text views to improve their login experience."
+      },
+      {
+        "title": "Multiple Step Form",
+        "fileName": "howto_js_form_steps.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_form_steps.asp.html",
+        "summary": "This lesson provides a practical guide to building a multi-step registration form using HTML, CSS, and JavaScript. It demonstrates how to manage form navigation, implement input validation, and display visual progress indicators to improve the user experience."
+      },
+      {
+        "title": "Autocomplete",
+        "fileName": "howto_js_autocomplete.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_autocomplete.asp.html",
+        "summary": "This lesson provides a step-by-step guide to building a custom autocomplete feature for web forms. It covers the necessary HTML structure, CSS styling for the dropdown interface, and JavaScript logic to filter data from an array and handle keyboard navigation."
+      },
+      {
+        "title": "Turn off autocomplete",
+        "fileName": "howto_html_autocomplete_off.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_autocomplete_off.asp.html",
+        "summary": "This lesson explains how to disable browser-based text suggestions for web forms using the `autocomplete` attribute. By applying this attribute to specific input fields or entire form elements, developers can effectively prevent the browser from storing or suggesting user data."
+      },
+      {
+        "title": "Turn off spellcheck",
+        "fileName": "howto_html_spellcheck_disable.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_spellcheck_disable.asp.html",
+        "summary": "This lesson explains how to disable browser-based spellcheck in HTML forms using the `spellcheck=\"false\"` attribute. You can apply this setting to individual input fields, textareas, or an entire form element to prevent the display of red underlines for spelling errors."
+      },
+      {
+        "title": "File Upload Button",
+        "fileName": "howto_html_file_upload_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_file_upload_button.asp.html",
+        "summary": "This lesson demonstrates how to implement a file upload feature using the HTML `<input type=\"file\">` element. It provides a concise code example showing how to integrate this button within a form to enable users to select and submit files to a server-side destination."
+      },
+      {
+        "title": "Empty Input Validation",
+        "fileName": "howto_js_validation_empty_input.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_validation_empty_input.asp.html",
+        "summary": "This lesson demonstrates how to implement basic form validation using JavaScript to ensure required fields are not submitted empty. By checking the input value within a validation function, you can trigger an alert and prevent form submission if the field remains blank."
+      }
+    ]
+  },
+  {
+    "topic": "Filters",
+    "lessons": [
+      {
+        "title": "Filter List",
+        "fileName": "howto_js_filter_lists.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_filter_lists.asp.html",
+        "summary": "This lesson provides a practical guide on creating a dynamic search filter for HTML lists using JavaScript. By combining basic HTML structure, CSS styling, and a simple JavaScript function, users learn how to filter list items in real-time based on user input."
+      },
+      {
+        "title": "Filter Table",
+        "fileName": "howto_js_filter_table.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_filter_table.asp.html",
+        "summary": "This lesson provides a practical guide on implementing a real-time search filter for HTML tables using JavaScript. By combining structured HTML, CSS styling, and a dynamic filtering function, learners can enable users to quickly locate specific data entries within a table."
+      },
+      {
+        "title": "Filter Elements",
+        "fileName": "howto_js_filter_elements.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_filter_elements.asp.html",
+        "summary": "This lesson demonstrates how to create a dynamic filtering system for web elements using HTML, CSS, and JavaScript. By assigning specific classes to DIV elements, users can toggle their visibility via control buttons, effectively categorizing and displaying content based on user selection."
+      },
+      {
+        "title": "Filter Dropdown",
+        "fileName": "howto_js_filter_dropdown.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_filter_dropdown.asp.html",
+        "summary": "This lesson demonstrates how to create a functional, searchable dropdown menu using HTML, CSS, and JavaScript. It covers structuring the dropdown container, styling the search input and menu items, and implementing a filter function to dynamically hide or show links based on user input."
+      },
+      {
+        "title": "Sort List",
+        "fileName": "howto_js_sort_list.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_sort_list.asp.html",
+        "summary": "This lesson provides a practical guide on using JavaScript to sort HTML list items alphabetically or numerically. It demonstrates how to implement custom sorting functions that allow users to toggle between ascending and descending orders by manipulating DOM elements."
+      },
+      {
+        "title": "Sort Table",
+        "fileName": "howto_js_sort_table.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_sort_table.asp.html",
+        "summary": "This lesson demonstrates how to implement dynamic table sorting using JavaScript. It covers basic alphabetical sorting and advanced functionality, such as toggling between ascending and descending order via header clicks and handling numerical data types."
+      }
+    ]
+  },
+  {
+    "topic": "Tables",
+    "lessons": [
+      {
+        "title": "Zebra Striped Table",
+        "fileName": "howto_css_table_zebra.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_table_zebra.asp.html",
+        "summary": "This lesson explains how to enhance table readability by applying alternating background colors to rows. By utilizing the CSS `nth-child()` selector with the \"even\" or \"odd\" argument, developers can easily implement a zebra-striped design for better visual organization of tabular data."
+      },
+      {
+        "title": "Center Tables",
+        "fileName": "howto_css_table_center.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_table_center.asp.html",
+        "summary": "This lesson explains how to horizontally center an HTML table by applying CSS. By setting the left and right margins to \"auto\" on the table element, you can achieve alignment, provided the table width is not set to 100%."
+      },
+      {
+        "title": "Full-width Table",
+        "fileName": "howto_css_table_full_width.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_table_full_width.asp.html",
+        "summary": "This lesson explains how to expand an HTML table to span the entire width of its container using CSS. By applying the `width: 100%` property to the table element, you can ensure a responsive layout that adapts to different screen sizes."
+      },
+      {
+        "title": "Nested Table",
+        "fileName": "howto_html_table_nested.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_table_nested.asp.html",
+        "summary": "This lesson explains how to create a nested table by placing one table structure inside the cell of another. It provides a clear code example demonstrating the syntax required to embed data grids within existing table rows, offering a practical approach for complex HTML layout organization."
+      },
+      {
+        "title": "Side-by-side Tables",
+        "fileName": "howto_css_table_side_by_side.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_table_side_by_side.asp.html",
+        "summary": "This lesson explains how to display tables side-by-side using CSS float or flexbox properties. It also provides a responsive design approach by utilizing media queries to stack tables vertically on smaller screens, ensuring optimal layout across different devices."
+      },
+      {
+        "title": "Responsive Tables",
+        "fileName": "howto_css_table_responsive.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_table_responsive.asp.html",
+        "summary": "This lesson explains how to create responsive tables that remain accessible on smaller screens. By wrapping a standard table in a container element with the CSS property `overflow-x:auto`, you enable a horizontal scroll bar, ensuring content remains readable regardless of the device width."
+      },
+      {
+        "title": "Comparison Table",
+        "fileName": "howto_css_comparison_table.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_comparison_table.asp.html",
+        "summary": "This lesson provides a practical guide on building a responsive comparison table using HTML and CSS. It covers the essential structure for data organization and demonstrates how to apply custom styling, including zebra-striped rows and Font Awesome icons, to enhance visual clarity and presentation."
+      }
+    ]
+  },
+  {
+    "topic": "More",
+    "lessons": [
+      {
+        "title": "Fullscreen Video",
+        "fileName": "howto_css_fullscreen_video.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_fullscreen_video.asp.html",
+        "summary": "This lesson demonstrates how to create a responsive, full-screen video background using CSS to cover the entire browser window. It also provides instructions for integrating HTML5 video elements and optional JavaScript functionality to include overlay content and a play/pause toggle button."
+      },
+      {
+        "title": "Modal Boxes",
+        "fileName": "howto_css_modals.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_modals.asp.html",
+        "summary": "This lesson provides a practical guide to building interactive modal boxes using HTML, CSS, and JavaScript. It covers the essential steps for structure, styling, and functionality, including how to implement headers, footers, and animations for a professional user interface."
+      },
+      {
+        "title": "Delete Modal",
+        "fileName": "howto_css_delete_modal.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_delete_modal.asp.html",
+        "summary": "This lesson provides a practical guide on creating a delete confirmation modal using HTML and CSS. It covers the necessary structural markup, styling for the modal interface, and optional JavaScript to enhance user interaction by allowing the modal to close when clicking outside its content."
+      },
+      {
+        "title": "Timeline",
+        "fileName": "howto_css_timeline.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_timeline.asp.html",
+        "summary": "This lesson provides a practical guide on building a responsive timeline using HTML and CSS. It covers the necessary structural markup and styling techniques, including the use of media queries to ensure the layout adapts seamlessly to smaller screen sizes."
+      },
+      {
+        "title": "Scroll Indicator",
+        "fileName": "howto_js_scroll_indicator.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_scroll_indicator.asp.html",
+        "summary": "This lesson explains how to build a dynamic scroll indicator that tracks a user's progress down a webpage. By combining HTML structure, fixed CSS styling, and a JavaScript scroll event listener, you can create a visual progress bar that updates in real-time as the page is scrolled."
+      },
+      {
+        "title": "Progress Bars",
+        "fileName": "howto_js_progressbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_progressbar.asp.html",
+        "summary": "This lesson provides a practical guide to building and animating a progress bar using HTML, CSS, and JavaScript. It covers the fundamental implementation of dynamic width adjustments and demonstrates how to incorporate text labels to display real-time completion percentages."
+      },
+      {
+        "title": "Skill Bar",
+        "fileName": "howto_css_skill_bar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_skill_bar.asp.html",
+        "summary": "This lesson provides a practical guide on creating visual skill bars for resumes using HTML and CSS. It demonstrates how to structure the containers and apply specific styling to represent proficiency levels through color-coded, width-adjusted progress bars."
+      },
+      {
+        "title": "Range Sliders",
+        "fileName": "howto_js_rangeslider.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_rangeslider.asp.html",
+        "summary": "This lesson provides a practical guide to building and customizing range sliders using HTML, CSS, and JavaScript. It covers essential techniques for styling slider tracks and handles, including how to implement dynamic value displays and custom visual designs like rounded shapes or icons."
+      },
+      {
+        "title": "Color Picker",
+        "fileName": "howto_html_colorpicker.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_colorpicker.asp.html",
+        "summary": "This lesson explains how to implement a color selection tool in HTML using the `<input type=\"color\">` element. It covers the basic syntax, the requirement for using hexadecimal values for color definitions, and specifies that the default color is black if no value is provided."
+      },
+      {
+        "title": "Email Field",
+        "fileName": "howto_html_email_field.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_email_field.asp.html",
+        "summary": "This lesson explains how to implement an email input field in HTML using the `<input type=\"email\">` attribute. This element automatically validates user input to ensure that the provided text follows a correct email address format."
+      },
+      {
+        "title": "Tooltips",
+        "fileName": "howto_css_tooltip.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_tooltip.asp.html",
+        "summary": "This lesson provides a practical guide on creating interactive tooltips using HTML and CSS. It demonstrates how to structure the container and apply styling—including positioning, visibility, and transition effects—to display informative text upon hovering over a specific element."
+      },
+      {
+        "title": "Display Element Hover",
+        "fileName": "howto_css_display_element_hover.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_display_element_hover.asp.html",
+        "summary": "This lesson explains how to reveal hidden content when a user hovers over a specific element. By utilizing the CSS `display` property and the adjacent sibling selector (`+`), you can effectively toggle the visibility of elements immediately following a hovered container."
+      },
+      {
+        "title": "Popups",
+        "fileName": "howto_js_popup.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_popup.asp.html",
+        "summary": "This lesson provides a practical guide to building interactive popups using HTML, CSS, and JavaScript. It covers the essential steps for structuring the container, styling the visual elements with animations, and implementing a toggle function to control visibility upon user interaction."
+      },
+      {
+        "title": "Collapsible",
+        "fileName": "howto_js_collapsible.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_collapsible.asp.html",
+        "summary": "This lesson provides a comprehensive guide on creating interactive collapsible sections using HTML, CSS, and JavaScript. It covers the implementation of basic toggle functionality, advanced animated slide-down effects, and the addition of visual icons to improve user interface clarity."
+      },
+      {
+        "title": "Calendar",
+        "fileName": "howto_css_calendar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_calendar.asp.html",
+        "summary": "This lesson provides a practical guide on building a functional calendar interface using HTML and CSS. It demonstrates how to structure the month header, weekday labels, and date grid, while using CSS to style the layout and highlight the current day."
+      },
+      {
+        "title": "HTML Includes",
+        "fileName": "howto_html_include.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_include.asp.html",
+        "summary": "This lesson explains how to modularize web pages by including external HTML snippets. By using a custom \"w3-include-html\" attribute and a custom JavaScript function, developers can dynamically fetch and inject multiple HTML files into a single document via XMLHttpRequest."
+      },
+      {
+        "title": "To Do List",
+        "fileName": "howto_js_todolist.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_todolist.asp.html",
+        "summary": "This lesson provides a practical guide to building an interactive to-do list using HTML, CSS, and JavaScript. It covers essential techniques for structuring the interface, styling elements for better usability, and implementing functional logic to add, check off, and remove tasks dynamically."
+      },
+      {
+        "title": "Loaders",
+        "fileName": "howto_css_loader.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_loader.asp.html",
+        "summary": "This lesson explains how to create a CSS-based preloader using HTML containers and keyframe animations. It covers styling properties like border-radius and width to define the shape, while demonstrating how to implement continuous rotation and customize the spinner with multiple colors."
+      },
+      {
+        "title": "Badges",
+        "fileName": "howto_css_badge.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_badge.asp.html",
+        "summary": "This lesson explains how to create visual badges using HTML and CSS to highlight additional information. By applying a span element with specific styling properties like background color, padding, and border-radius, you can easily integrate functional labels into your web content."
+      },
+      {
+        "title": "Star Rating",
+        "fileName": "howto_css_star_rating.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_star_rating.asp.html",
+        "summary": "This lesson demonstrates how to implement a star rating component using CSS and the Font Awesome icon library. By combining HTML span elements with a simple CSS class to control color, you can easily create a visual rating system for your web projects."
+      },
+      {
+        "title": "User Rating",
+        "fileName": "howto_css_user_rating.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_user_rating.asp.html",
+        "summary": "This lesson provides a practical guide for building a responsive user rating scorecard using HTML and CSS. It demonstrates how to integrate icon libraries for star ratings and use CSS layout techniques to create visual progress bars that represent review distributions."
+      },
+      {
+        "title": "Overlay Effect",
+        "fileName": "howto_css_overlay.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_overlay.asp.html",
+        "summary": "This lesson demonstrates how to implement a full-page overlay effect using a combination of HTML, CSS, and JavaScript. By utilizing fixed positioning and z-index, you can create a semi-transparent layer that toggles visibility to display content or messages over your existing web page."
+      },
+      {
+        "title": "Contact Chips",
+        "fileName": "howto_css_contact_chips.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_contact_chips.asp.html",
+        "summary": "This lesson explains how to design contact chips using HTML and CSS, focusing on styling elements with images and rounded borders. It also provides a practical guide for implementing a functional close button that allows users to hide the chip via a simple JavaScript onclick event."
+      },
+      {
+        "title": "Cards",
+        "fileName": "howto_css_cards.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_cards.asp.html",
+        "summary": "This lesson provides a practical guide on creating visually appealing UI cards using HTML and CSS. It covers essential techniques such as implementing box shadows for depth, adding hover effects for interactivity, and styling elements with rounded corners to enhance modern web design layouts."
+      },
+      {
+        "title": "Flip Card",
+        "fileName": "howto_css_flip_card.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_flip_card.asp.html",
+        "summary": "This lesson provides a practical guide on creating an interactive 3D flip card using HTML and CSS. By utilizing CSS transitions and the transform property, learners can implement a hover-triggered animation that reveals the back side of a card element."
+      },
+      {
+        "title": "Profile Card",
+        "fileName": "howto_css_profile_card.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_profile_card.asp.html",
+        "summary": "This lesson provides a practical guide on building a professional profile card using HTML and CSS. It covers the essential steps for structuring the card layout, styling elements like buttons and icons, and implementing hover effects to create an interactive user interface."
+      },
+      {
+        "title": "Product Card",
+        "fileName": "howto_css_product_card.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_product_card.asp.html",
+        "summary": "This lesson provides a practical guide on building a responsive product card using HTML and CSS. It demonstrates how to structure the card elements and apply styling, including box shadows, typography, and interactive button effects, to create a professional e-commerce display."
+      },
+      {
+        "title": "Alerts",
+        "fileName": "howto_js_alert.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_alert.asp.html",
+        "summary": "This lesson explains how to create customizable alert messages using HTML and CSS to notify users of status changes. It covers styling alert boxes, implementing a close button functionality, and using JavaScript to manage multiple alerts with smooth fade-out transition effects."
+      },
+      {
+        "title": "Callout",
+        "fileName": "howto_js_callout.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_callout.asp.html",
+        "summary": "This lesson explains how to create a fixed-position callout message using HTML and CSS to notify users of tips or important updates. It provides a step-by-step guide on structuring the container and implementing a functional close button to dismiss the notification."
+      },
+      {
+        "title": "Notes",
+        "fileName": "howto_css_notes.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_notes.asp.html",
+        "summary": "This lesson explains how to create visual \"notes\" using CSS to highlight specific information such as warnings, success messages, or danger alerts. By combining semantic HTML div elements with custom CSS styling, users can effectively draw attention to important content on their websites."
+      },
+      {
+        "title": "Labels",
+        "fileName": "howto_css_labels.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_labels.asp.html",
+        "summary": "This lesson demonstrates how to create and style visual labels using HTML and CSS. By applying specific classes to span elements, you can implement color-coded indicators for different categories such as success, information, warnings, and danger."
+      },
+      {
+        "title": "Ribbon",
+        "fileName": "howto_css_ribbon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_ribbon.asp.html",
+        "summary": "This lesson demonstrates how to create a decorative CSS ribbon for UI elements. By combining HTML span tags with absolute positioning and CSS rotation, you can effectively highlight specific content like \"NEW\" or \"HOT\" labels on buttons to enhance visual engagement."
+      },
+      {
+        "title": "Tag Cloud",
+        "fileName": "howto_css_tag_cloud.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_tag_cloud.asp.html",
+        "summary": "This lesson provides a practical guide on creating a visually appealing tag cloud using HTML and CSS. By applying specific styling properties like padding, border-radius, and background colors to span elements, you can effectively organize and display a list of tags on your website."
+      },
+      {
+        "title": "Circles",
+        "fileName": "howto_css_circles.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_circles.asp.html",
+        "summary": "This lesson explains how to create circular elements using CSS. By setting equal height and width values and applying a 50% border-radius to an HTML span element, you can effectively transform a square container into a perfect circle."
+      },
+      {
+        "title": "Style HR",
+        "fileName": "howto_css_style_hr.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_style_hr.asp.html",
+        "summary": "This lesson explains how to customize the appearance of the HTML `<hr>` element using CSS. It demonstrates how to modify horizontal rules by applying various border properties, including styles for thickness, color, dash patterns, and rounded corners."
+      },
+      {
+        "title": "Coupon",
+        "fileName": "howto_css_coupon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_coupon.asp.html",
+        "summary": "This lesson provides a practical guide on designing a digital coupon using HTML and CSS. It demonstrates how to structure the layout with containers and apply specific styling properties, such as dotted borders and rounded corners, to create a professional-looking promotional element."
+      },
+      {
+        "title": "List Group",
+        "fileName": "howto_css_list_group.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_list_group.asp.html",
+        "summary": "This lesson demonstrates how to transform a standard HTML list into a visually structured \"list group\" using CSS. By removing default list styling and applying custom borders, padding, and background colors, you can create a clean, professional interface for displaying grouped content."
+      },
+      {
+        "title": "List Group with Badges",
+        "fileName": "howto_css_list_group_badges.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_list_group_badges.asp.html",
+        "summary": "This lesson demonstrates how to transform a standard HTML list into a styled list group using CSS. By applying specific border, padding, and background properties, you can create a professional interface that incorporates circular badges to display numerical data effectively."
+      },
+      {
+        "title": "List Without Bullets",
+        "fileName": "howto_css_list_without_bullets.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_list_without_bullets.asp.html",
+        "summary": "This lesson explains how to remove default bullet points from an unordered list using the CSS `list-style-type: none` property. It further instructs developers to reset the `margin` and `padding` to zero to ensure the list is properly aligned and free of default browser spacing."
+      },
+      {
+        "title": "Responsive Text",
+        "fileName": "howto_css_responsive_text.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_responsive_text.asp.html",
+        "summary": "This lesson explains how to implement responsive typography using CSS. It covers scaling text dynamically based on the browser's viewport width using the \"vw\" unit and adjusting font sizes for specific screen dimensions through CSS media queries."
+      },
+      {
+        "title": "Cutout Text",
+        "fileName": "howto_css_cutout_text.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_cutout_text.asp.html",
+        "summary": "This lesson explains how to create responsive cutout text using CSS. By utilizing the `mix-blend-mode` property, developers can make text appear transparent against a background image. Note that this technique is not supported in Internet Explorer or Edge."
+      },
+      {
+        "title": "Glowing Text",
+        "fileName": "howto_css_glowing_text.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_glowing_text.asp.html",
+        "summary": "This lesson demonstrates how to create a neon glowing text effect using CSS. By combining the `text-shadow` property with `keyframes` and `animation`, you can produce a dynamic, pulsating light effect that repeats infinitely."
+      },
+      {
+        "title": "Fixed Footer",
+        "fileName": "howto_css_fixed_footer.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_fixed_footer.asp.html",
+        "summary": "This lesson demonstrates how to implement a fixed, sticky footer using CSS. By applying the \"position: fixed\" property along with bottom and width constraints, you can ensure the footer remains anchored to the bottom of the browser window regardless of page content."
+      },
+      {
+        "title": "Sticky Element",
+        "fileName": "howto_css_sticky_element.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_sticky_element.asp.html",
+        "summary": "This lesson explains how to implement a sticky element using the CSS `position: sticky` property. It details how elements toggle between relative and fixed positioning based on scroll offsets, noting that a directional constraint like `top` is required for the effect to function correctly."
+      },
+      {
+        "title": "Equal Height",
+        "fileName": "howto_css_equal_height.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_equal_height.asp.html",
+        "summary": "This lesson demonstrates how to create equal-height columns using CSS table properties or the modern Flexbox layout. It also provides guidance on implementing responsive design by using media queries to stack columns vertically on smaller screens."
+      },
+      {
+        "title": "Clearfix",
+        "fileName": "howto_css_clearfix.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_clearfix.asp.html",
+        "summary": "This lesson explains how to resolve layout issues caused by floating elements overflowing their containers. It introduces the \"clearfix\" hack, comparing the simple `overflow: auto` method with the more robust, modern pseudo-element approach using `::after` to ensure proper layout containment."
+      },
+      {
+        "title": "Responsive Floats",
+        "fileName": "howto_css_responsive_floats.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_responsive_floats.asp.html",
+        "summary": "This lesson explains how to implement responsive floating elements using CSS media queries. By defining specific pixel breakpoints, you can control whether an element floats based on the user's screen width, ensuring flexible layouts across different devices."
+      },
+      {
+        "title": "Snackbar",
+        "fileName": "howto_js_snackbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_snackbar.asp.html",
+        "summary": "This lesson provides a practical guide to creating a snackbar notification using HTML, CSS, and JavaScript. You will learn how to style the element for fixed positioning, implement fade-in and fade-out animations, and use a JavaScript function to trigger the display for a set duration."
+      },
+      {
+        "title": "Fullscreen Window",
+        "fileName": "howto_js_fullscreen.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_fullscreen.asp.html",
+        "summary": "This lesson explains how to implement fullscreen functionality using the JavaScript `requestFullscreen()` method. It covers both element-specific and full-page modes, including cross-browser compatibility prefixes and CSS styling techniques for fullscreen states."
+      },
+      {
+        "title": "Scroll Drawing",
+        "fileName": "howto_js_scrolldrawing.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_scrolldrawing.asp.html",
+        "summary": "This lesson demonstrates how to create an interactive scroll-drawing effect using JavaScript and SVG path elements. By calculating the scroll percentage and manipulating the stroke-dashoffset property, you can dynamically animate the drawing of shapes as the user scrolls down the page."
+      },
+      {
+        "title": "Smooth Scroll",
+        "fileName": "howto_css_smooth_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_smooth_scroll.asp.html",
+        "summary": "This lesson explains how to implement smooth scrolling using the CSS `scroll-behavior: smooth` property. It also provides a cross-browser fallback solution using jQuery for environments where native CSS support is unavailable."
+      },
+      {
+        "title": "Gradient Bg Scroll",
+        "fileName": "howto_css_bg_gradient_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_bg_gradient_scroll.asp.html",
+        "summary": "This lesson demonstrates how to implement a linear gradient background that spans the entire length of a scrollable webpage. By applying a CSS linear-gradient property to the body element with an extended height, you can create a dynamic, multi-colored background effect for your site."
+      },
+      {
+        "title": "Sticky Header",
+        "fileName": "howto_js_sticky_header.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_sticky_header.asp.html",
+        "summary": "This lesson explains how to create a sticky header that remains fixed at the top of the viewport during scrolling. By applying the CSS `position: sticky` property along with a specified offset, you can easily ensure your navigation elements stay visible as users navigate your webpage."
+      },
+      {
+        "title": "Shrink Header on Scroll",
+        "fileName": "howto_js_shrink_header_scroll.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_shrink_header_scroll.asp.html",
+        "summary": "This lesson provides a practical guide to creating a dynamic header that shrinks when the user scrolls down the page. By combining CSS transitions for smooth visual effects with JavaScript to detect scroll position, you can effectively optimize screen space for a better user experience."
+      },
+      {
+        "title": "Pricing Table",
+        "fileName": "howto_css_pricing_table.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_pricing_table.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive pricing table using HTML and CSS. You will learn how to structure data into columns and apply styling, including hover effects and media queries, to ensure the layout adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Parallax",
+        "fileName": "howto_css_parallax.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_parallax.asp.html",
+        "summary": "This lesson explains how to implement a parallax scrolling effect using CSS by applying the `background-attachment: fixed` property to a container. It also provides guidance on scaling images for full-screen layouts and using media queries to disable the effect on mobile devices."
+      },
+      {
+        "title": "Aspect Ratio",
+        "fileName": "howto_css_aspect_ratio.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_aspect_ratio.asp.html",
+        "summary": "This lesson explains how to maintain consistent element proportions using CSS. It covers the traditional method of using percentage-based padding to preserve aspect ratios and introduces the modern `aspect-ratio` property for simpler, more efficient responsive design."
+      },
+      {
+        "title": "Responsive Iframes",
+        "fileName": "howto_css_responsive_iframes.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_responsive_iframes.asp.html",
+        "summary": "This lesson explains how to create responsive iframes that maintain a consistent aspect ratio during resizing. By wrapping an iframe in a container and using CSS padding-top percentages, developers can ensure embedded content scales proportionally across different screen sizes."
+      },
+      {
+        "title": "Toggle Like/Dislike",
+        "fileName": "howto_js_toggle_like.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_toggle_like.asp.html",
+        "summary": "This lesson demonstrates how to create an interactive like/dislike toggle button using HTML, Font Awesome icons, and JavaScript. By utilizing the classList.toggle method, users can seamlessly switch between thumbs-up and thumbs-down icons with a single click."
+      },
+      {
+        "title": "Toggle Hide/Show",
+        "fileName": "howto_js_toggle_hide_show.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_toggle_hide_show.asp.html",
+        "summary": "This lesson demonstrates how to create a toggle effect for HTML elements using JavaScript. By manipulating the CSS display property through a button click, you can easily switch an element between visible and hidden states."
+      },
+      {
+        "title": "Toggle Dark Mode",
+        "fileName": "howto_js_toggle_dark_mode.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_toggle_dark_mode.asp.html",
+        "summary": "This lesson demonstrates how to implement a dark mode toggle using CSS and JavaScript. By defining a specific CSS class and utilizing the JavaScript `classList.toggle` method, developers can easily switch between light and dark themes on a webpage."
+      },
+      {
+        "title": "Toggle Text",
+        "fileName": "howto_js_toggle_text.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_toggle_text.asp.html",
+        "summary": "This lesson demonstrates how to toggle text content within an HTML element using JavaScript. By implementing a simple function triggered by a button click, users learn to swap between two distinct text strings by checking and updating the element's innerHTML property."
+      },
+      {
+        "title": "Toggle Class",
+        "fileName": "howto_js_toggle_class.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_toggle_class.asp.html",
+        "summary": "This lesson demonstrates how to dynamically switch a CSS class on an HTML element using the JavaScript `classList.toggle()` method. By combining a button trigger with this property, users can efficiently add or remove styles to create interactive web page elements."
+      },
+      {
+        "title": "Add Class",
+        "fileName": "howto_js_add_class.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_add_class.asp.html",
+        "summary": "This lesson demonstrates how to dynamically add a CSS class to an HTML element using JavaScript. By utilizing the `classList.add()` method, you can trigger style changes on specific elements through user interactions like button clicks."
+      },
+      {
+        "title": "Remove Class",
+        "fileName": "howto_js_remove_class.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_remove_class.asp.html",
+        "summary": "This lesson demonstrates how to remove a specific CSS class from an HTML element using JavaScript. By utilizing the `classList.remove()` method, you can dynamically update an element's styling triggered by user interactions like button clicks."
+      },
+      {
+        "title": "Change Class",
+        "fileName": "howto_js_change_class.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_change_class.asp.html",
+        "summary": "This lesson demonstrates how to modify an element's class name using JavaScript's `classList` property. By utilizing the `remove()` and `add()` methods, you can effectively update the styling or behavior of a specific DOM element dynamically."
+      },
+      {
+        "title": "Active Class",
+        "fileName": "howto_js_active_element.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_active_element.asp.html",
+        "summary": "This lesson demonstrates how to dynamically highlight a selected element by toggling an \"active\" CSS class using JavaScript. It provides a practical approach to managing button states by looping through elements, removing the class from the previous selection, and applying it to the current one."
+      },
+      {
+        "title": "Tree View",
+        "fileName": "howto_js_treeview.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_treeview.asp.html",
+        "summary": "This lesson provides a practical guide to building an interactive, hierarchical tree view using HTML, CSS, and JavaScript. It demonstrates how to structure nested lists and implement toggle functionality, allowing users to expand or collapse branches through clickable icons."
+      },
+      {
+        "title": "Remove Decimals",
+        "fileName": "howto_js_remove_decimals.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_remove_decimals.asp.html",
+        "summary": "This lesson explains how to remove the decimal portion of a number in JavaScript using the `Math.trunc()` method. By applying this function, you can easily truncate floating-point values to return only the integer part."
+      },
+      {
+        "title": "Remove Property",
+        "fileName": "howto_js_remove_property_object.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_remove_property_object.asp.html",
+        "summary": "This lesson explains how to use the JavaScript `delete` operator to remove both the value and the key from an object. It emphasizes that this operator is strictly for object properties and warns against using it on predefined JavaScript properties to avoid potential application crashes."
+      },
+      {
+        "title": "Offline Detection",
+        "fileName": "howto_js_offline_detection.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_offline_detection.asp.html",
+        "summary": "This lesson explains how to determine a browser's connectivity status using the `navigator.onLine` property in JavaScript. By accessing this Boolean value, developers can easily detect whether a user is currently online or offline to improve application responsiveness."
+      },
+      {
+        "title": "Find Hidden Element",
+        "fileName": "howto_js_check_hidden.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_check_hidden.asp.html",
+        "summary": "This lesson demonstrates how to detect if a web element is hidden using JavaScript's `getComputedStyle` method. It explains the functional differences between `display: none`, which removes an element from the layout, and `visibility: hidden`, which hides the element while preserving its space."
+      },
+      {
+        "title": "Redirect Webpage",
+        "fileName": "howto_js_redirect_webpage.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_redirect_webpage.asp.html",
+        "summary": "This lesson explains how to redirect users to a new URL using JavaScript's `location.href` and `location.replace` methods. It highlights the key distinction that `replace()` removes the current page from the browser history, preventing users from navigating back to the original document."
+      },
+      {
+        "title": "Format a Number",
+        "fileName": "howto_js_format_number_dec.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_format_number_dec.asp.html",
+        "summary": "This lesson explains how to use the JavaScript `toFixed()` method to format numbers to a specific number of decimal places. It demonstrates that the method automatically rounds the value to the desired precision, providing a simple way to control numeric output in your code."
+      },
+      {
+        "title": "Zoom Hover",
+        "fileName": "howto_css_zoom_hover.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_zoom_hover.asp.html",
+        "summary": "This lesson explains how to create a zoom effect on web elements using CSS. By applying the `transform: scale()` property combined with a `transition` for smooth animation, you can easily enlarge elements when a user hovers over them."
+      },
+      {
+        "title": "Flip Box",
+        "fileName": "howto_css_flip_box.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_flip_box.asp.html",
+        "summary": "This lesson provides a practical guide to creating interactive 3D flip boxes using HTML and CSS. It demonstrates how to structure the container elements and apply transform properties to achieve both horizontal and vertical flipping effects upon mouse hover."
+      },
+      {
+        "title": "Center Vertically",
+        "fileName": "howto_css_center-vertical.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_center-vertical.asp.html",
+        "summary": "This lesson provides practical techniques for centering elements within a container using CSS. It covers both vertical and horizontal alignment methods, including the use of absolute positioning with transform properties and modern Flexbox layouts to achieve precise element placement."
+      },
+      {
+        "title": "Center Button in DIV",
+        "fileName": "howto_css_center_button.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_center_button.asp.html",
+        "summary": "This lesson demonstrates how to center a button within a container using CSS. It covers techniques for vertical and horizontal alignment, including the use of absolute positioning with transform properties and modern Flexbox layouts."
+      },
+      {
+        "title": "Center a List",
+        "fileName": "howto_css_center-list.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_center-list.asp.html",
+        "summary": "To center a list in CSS, wrap the `<ul>` element in a container `<div>` and apply `text-align: center` to the parent. Then, set the `<ul>` to `display: inline-block` to ensure it centers correctly while allowing you to left-align the list items for a cleaner appearance."
+      },
+      {
+        "title": "Transition on Hover",
+        "fileName": "howto_css_transition_hover.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_transition_hover.asp.html",
+        "summary": "This lesson explains how to implement smooth visual changes in CSS by using the transition property. It demonstrates how to apply these effects to elements like buttons, allowing property values such as opacity and background color to animate gracefully when a user hovers over them."
+      },
+      {
+        "title": "Arrows",
+        "fileName": "howto_css_arrows.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_arrows.asp.html",
+        "summary": "This lesson demonstrates how to create directional arrows using CSS by applying specific border styles and rotation transforms to inline elements. By combining a base class with directional modifiers, you can easily generate up, down, left, and right arrows for your web projects."
+      },
+      {
+        "title": "Shapes",
+        "fileName": "howto_css_shapes.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_shapes.asp.html",
+        "summary": "This lesson provides a practical guide on utilizing CSS to design and implement various geometric shapes for web development. It focuses on leveraging styling properties to create visual elements directly through code, enhancing layout aesthetics without the need for external image assets."
+      },
+      {
+        "title": "Download Link",
+        "fileName": "howto_html_download_link.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_html_download_link.asp.html",
+        "summary": "This lesson explains how to use the HTML `download` attribute to trigger file downloads when a user clicks a hyperlink. It covers how to implement the attribute with an `href` and demonstrates how to optionally rename the downloaded file by providing a specific value to the attribute."
+      },
+      {
+        "title": "Full Height Element",
+        "fileName": "howto_css_div_full_height.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_div_full_height.asp.html",
+        "summary": "This lesson explains how to stretch HTML elements to match the full height of the browser window using CSS. By setting the height of the html, body, and target elements to 100%, you can ensure your content consistently occupies the entire vertical space of the viewport."
+      },
+      {
+        "title": "Browser Window",
+        "fileName": "howto_css_browser_window.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_browser_window.asp.html",
+        "summary": "This lesson provides a practical guide on how to design a browser window interface using CSS. It includes interactive examples that demonstrate the necessary styling techniques to replicate a web browser's appearance for your projects."
+      },
+      {
+        "title": "Custom Scrollbar",
+        "fileName": "howto_css_custom_scrollbar.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp.html",
+        "summary": "This lesson explains how to style browser scrollbars using the non-standard `::-webkit-scrollbar` pseudo-elements. It provides practical CSS examples for customizing the track and handle, while noting that these features are primarily supported in Chrome, Safari, Edge, and Opera."
+      },
+      {
+        "title": "Hide Scrollbar",
+        "fileName": "howto_css_hide_scrollbars.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_hide_scrollbars.asp.html",
+        "summary": "This lesson explains how to hide scrollbars using CSS. It covers using the `overflow` property to disable scrolling entirely, as well as browser-specific techniques to hide scrollbars while maintaining full page scroll functionality."
+      },
+      {
+        "title": "Show/Force Scrollbar",
+        "fileName": "howto_css_force_scrollbars.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_force_scrollbars.asp.html",
+        "summary": "This lesson explains how to force the display of scrollbars on a webpage using the CSS `overflow` property. By applying `overflow: scroll` or specific directional properties like `overflow-y` and `overflow-x`, developers can ensure scrollbars remain visible regardless of content length."
+      },
+      {
+        "title": "Device Look",
+        "fileName": "howto_css_devices.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_devices.asp.html",
+        "summary": "This lesson provides practical guidance on using CSS to create realistic visual representations of smartphones, tablets, and laptops. Through interactive examples, learners discover how to style web elements to mimic the appearance of various digital devices."
+      },
+      {
+        "title": "Contenteditable Border",
+        "fileName": "howto_css_contenteditable_border.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_contenteditable_border.asp.html",
+        "summary": "This lesson explains how to remove the default focus border that appears on elements with the `contenteditable` attribute. By applying the `outline: 0px solid transparent;` CSS property to the `[contenteditable]` selector, you can achieve a cleaner, borderless look for your editable content."
+      },
+      {
+        "title": "Placeholder Color",
+        "fileName": "howto_css_placeholder.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_placeholder.asp.html",
+        "summary": "This lesson explains how to customize the color of input placeholder text using the CSS `::placeholder` pseudo-element. It also highlights the importance of setting `opacity: 1` to ensure consistent styling across different browsers, particularly Firefox."
+      },
+      {
+        "title": "Disable Resizing of Textarea",
+        "fileName": "howto_css_disable_resize_textarea.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_disable_resize_textarea.asp.html",
+        "summary": "This lesson explains how to prevent users from manually resizing a textarea element on a webpage. By applying the CSS `resize: none;` property to the textarea selector, developers can effectively lock the element's dimensions for a consistent layout."
+      },
+      {
+        "title": "Disable Text Selection",
+        "fileName": "howto_css_disable_text_selection.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_disable_text_selection.asp.html",
+        "summary": "This lesson explains how to prevent users from highlighting or selecting text on a webpage using the CSS `user-select` property. By applying the `none` value to specific elements, developers can effectively disable default browser selection behavior across different platforms."
+      },
+      {
+        "title": "Text Selection Color",
+        "fileName": "howto_css_text_selection.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_text_selection.asp.html",
+        "summary": "This lesson explains how to customize the visual appearance of highlighted text on a webpage using the CSS `::selection` pseudo-element. By applying specific color and background properties to this selector, developers can override default browser styles to match their site's branding."
+      },
+      {
+        "title": "Bullet Color",
+        "fileName": "howto_css_bullet_color.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_bullet_color.asp.html",
+        "summary": "This lesson explains how to customize the appearance of list items using CSS. By applying the `::marker` pseudo-element to `<li>` tags, users can easily modify the color of list bullets to better suit their design requirements."
+      },
+      {
+        "title": "Vertical Line",
+        "fileName": "howto_css_vertical_line.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_vertical_line.asp.html",
+        "summary": "This lesson demonstrates how to implement a vertical line in web design using CSS. It provides code examples for creating a basic line with the border-left property and explains how to precisely center it on a page using absolute positioning and margin adjustments."
+      },
+      {
+        "title": "Dividers",
+        "fileName": "howto_css_dividers.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_dividers.asp.html",
+        "summary": "This lesson provides a practical guide on creating custom visual dividers using HTML and CSS. By applying specific border styles—such as dashed, dotted, solid, and rounded—to the `<hr>` element, learners can effectively enhance the layout and organization of their web content."
+      },
+      {
+        "title": "Text Divider",
+        "fileName": "howto_css_text_divider.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_text_divider.asp.html",
+        "summary": "This lesson demonstrates how to create responsive text dividers using CSS flexbox. By applying the `::before` and `::after` pseudo-elements to a container, you can effectively center text between two horizontal lines to enhance your webpage layout."
+      },
+      {
+        "title": "Animate Icons",
+        "fileName": "howto_js_animate_icons.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_animate_icons.asp.html",
+        "summary": "This lesson demonstrates how to create animated icons by cycling through a sequence of Font Awesome characters using JavaScript. By utilizing the `setTimeout` and `setInterval` functions, developers can replace icons at timed intervals to simulate dynamic effects like a charging battery."
+      },
+      {
+        "title": "Countdown Timer",
+        "fileName": "howto_js_countdown.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_countdown.asp.html",
+        "summary": "This lesson provides a practical guide to building a dynamic countdown timer using JavaScript. It demonstrates how to calculate the time difference between the current moment and a target date, updating the display every second using the setInterval method."
+      },
+      {
+        "title": "Typewriter",
+        "fileName": "howto_js_typewriter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_typewriter.asp.html",
+        "summary": "This lesson provides a practical guide to creating a dynamic typewriter effect using HTML and JavaScript. By utilizing the `setTimeout()` method, learners can programmatically append characters to a text element, effectively simulating real-time typing on a webpage."
+      },
+      {
+        "title": "Coming Soon Page",
+        "fileName": "howto_css_coming_soon.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_coming_soon.asp.html",
+        "summary": "This lesson provides a practical guide on building a professional \"Coming Soon\" page using HTML and CSS for layout and styling. It further explains how to enhance the page by integrating a functional JavaScript countdown timer to engage users until the launch date."
+      },
+      {
+        "title": "Chat Messages",
+        "fileName": "howto_css_chat.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_chat.asp.html",
+        "summary": "This lesson provides a practical guide on designing chat message interfaces using HTML and CSS. It demonstrates how to structure message containers, style avatars, and use CSS properties to align text and images, enabling developers to create visually distinct, interactive chat layouts."
+      },
+      {
+        "title": "Popup Chat Window",
+        "fileName": "howto_js_popup_chat.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_popup_chat.asp.html",
+        "summary": "This lesson provides a practical guide on building a functional popup chat window using HTML, CSS, and JavaScript. It covers the essential steps to structure the form, apply styling for a fixed-position interface, and implement basic toggle functionality to open and close the chat window."
+      },
+      {
+        "title": "Split Screen",
+        "fileName": "howto_css_split_screen.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_split_screen.asp.html",
+        "summary": "This lesson provides a practical guide on creating a 50/50 split-screen layout using HTML and CSS. By utilizing fixed positioning and transform properties, you will learn how to divide the viewport into two distinct sections with perfectly centered content."
+      },
+      {
+        "title": "Testimonials",
+        "fileName": "howto_css_testimonials.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_testimonials.asp.html",
+        "summary": "This lesson provides a practical guide on building responsive testimonial sections for websites. It demonstrates how to structure the HTML and apply CSS styling, including media queries, to ensure that user feedback displays effectively across different screen sizes."
+      },
+      {
+        "title": "Section Counter",
+        "fileName": "howto_css_section_counter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_section_counter.asp.html",
+        "summary": "This lesson provides a practical guide for building a responsive \"section counter\" to showcase business metrics. It demonstrates how to structure the layout using HTML and style the data cards with CSS, including media queries to ensure the design remains functional across different screen sizes."
+      },
+      {
+        "title": "Quotes Slideshow",
+        "fileName": "howto_js_quotes_slideshow.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_quotes_slideshow.asp.html",
+        "summary": "This lesson provides a practical guide to building an interactive quotes slideshow using HTML, CSS, and JavaScript. It covers the structural setup, styling for visual presentation, and the logic required to navigate between slides using buttons and indicators."
+      },
+      {
+        "title": "Closable List Items",
+        "fileName": "howto_js_close_list_items.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_close_list_items.asp.html",
+        "summary": "This lesson demonstrates how to create interactive list items that can be hidden by clicking a close button. By combining HTML structure, CSS styling, and JavaScript event listeners, learners can implement a functional UI component to remove specific list entries dynamically."
+      },
+      {
+        "title": "Typical Device Breakpoints",
+        "fileName": "howto_css_media_query_breakpoints.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_media_query_breakpoints.asp.html",
+        "summary": "This lesson explains how to implement responsive design by using five standard CSS media query breakpoints. By categorizing devices into groups ranging from phones to large desktops, developers can efficiently manage layout adjustments across various screen sizes."
+      },
+      {
+        "title": "Draggable HTML Element",
+        "fileName": "howto_js_draggable.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_draggable.asp.html",
+        "summary": "This lesson provides a practical guide to creating a draggable HTML element using CSS and JavaScript. It demonstrates how to implement mouse event listeners to track cursor movement and dynamically update an element's absolute position on the screen."
+      },
+      {
+        "title": "JS Media Queries",
+        "fileName": "howto_js_media_queries.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_media_queries.asp.html",
+        "summary": "This lesson explains how to implement responsive design using the JavaScript `window.matchMedia()` method. It demonstrates how to create a `MediaQueryList` object and attach event listeners to trigger dynamic changes in your web page based on viewport size adjustments."
+      },
+      {
+        "title": "Syntax Highlighter",
+        "fileName": "howto_syntax_highlight.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_syntax_highlight.asp.html",
+        "summary": "This lesson provides a practical guide on implementing a syntax highlighter to improve the readability of code snippets. It outlines the necessary HTML structure and demonstrates how to apply a JavaScript function to dynamically colorize and format code content within a web page."
+      },
+      {
+        "title": "JS Animations",
+        "fileName": "howto_js_animate.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_animate.asp.html",
+        "summary": "This lesson explains how to create web animations by programmatically modifying element styles using JavaScript timers. It covers the necessary CSS positioning requirements and demonstrates how to use `setInterval` to execute gradual frame updates for smooth visual movement."
+      },
+      {
+        "title": "JS String Length",
+        "fileName": "howto_js_string_length.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_string_length.asp.html",
+        "summary": "In JavaScript, you can easily determine the number of characters in a string by using the built-in `length` property. This property returns the total count of characters, providing a simple and efficient way to measure string size within your code."
+      },
+      {
+        "title": "JS Exponentiation",
+        "fileName": "howto_js_exponentiation.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_exponentiation.asp.html",
+        "summary": "This lesson introduces the JavaScript exponentiation operator (**), which raises a base to a specified power, functioning similarly to the Math.pow() method. It also covers the exponentiation assignment operator (**=), allowing for concise updates to variable values through power calculations."
+      },
+      {
+        "title": "JS Default Parameters",
+        "fileName": "howto_js_default_parameters.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_default_parameters.asp.html",
+        "summary": "This lesson explains how to handle missing arguments in JavaScript functions by assigning default values. It contrasts the traditional manual check for undefined parameters with the more efficient ES6 syntax, which allows developers to define default values directly within the function declaration."
+      },
+      {
+        "title": "JS Random Number",
+        "fileName": "howto_js_random_number_two_nums.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_random_number_two_nums.asp.html",
+        "summary": "This lesson demonstrates how to generate random integers within a specific range using JavaScript's `Math.random()` and `Math.floor()` methods. It provides two distinct functions to handle scenarios where the maximum value is either excluded or included in the result."
+      },
+      {
+        "title": "JS Sort Numeric Array",
+        "fileName": "howto_js_sort_numeric_array.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_sort_numeric_array.asp.html",
+        "summary": "To sort a numeric array in JavaScript, use the `sort()` method with a compare function. Providing `a - b` sorts the numbers in ascending order, while `b - a` sorts them in descending order. This approach ensures correct numerical sorting, which differs from the default string-based behavior."
+      },
+      {
+        "title": "JS Spread Operator",
+        "fileName": "howto_js_spread_operator.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_spread_operator.asp.html",
+        "summary": "The JavaScript spread operator (...) allows you to efficiently expand iterables like arrays and objects into individual elements. It is a powerful tool for merging data, copying structures, and extracting specific values, while also providing a concise way to handle property overrides in objects."
+      },
+      {
+        "title": "JS Scroll Into View",
+        "fileName": "howto_js_scroll_into_view.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_scroll_into_view.asp.html",
+        "summary": "This lesson introduces the `scrollIntoView()` method, a JavaScript function used to programmatically bring a specific element into the browser's visible area. It provides a concise code example demonstrating how to target an element and trigger the scroll action for improved user navigation."
+      },
+      {
+        "title": "Get Current Date",
+        "fileName": "howto_js_get_date.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_get_date.asp.html",
+        "summary": "This lesson demonstrates how to retrieve the current date in JavaScript using the `new Date()` constructor. It provides a concise code example and directs learners to further resources for mastering date manipulation."
+      },
+      {
+        "title": "Get Current URL",
+        "fileName": "howto_js_get_url.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_get_url.asp.html",
+        "summary": "This lesson explains how to retrieve the current page's web address using the JavaScript `window.location.href` property. It provides a practical code example demonstrating how to display the full URL directly within an HTML element."
+      },
+      {
+        "title": "Get Current Screen Size",
+        "fileName": "howto_js_get_current_window.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_get_current_window.asp.html",
+        "summary": "This lesson explains how to retrieve the current browser window dimensions using JavaScript. By utilizing the `window.innerWidth` and `window.innerHeight` properties, developers can easily access the page's height and width, excluding toolbars and scrollbars."
+      },
+      {
+        "title": "Get Iframe Elements",
+        "fileName": "howto_js_element_iframe.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_element_iframe.asp.html",
+        "summary": "This lesson explains how to access and manipulate elements within an iframe using JavaScript. By utilizing the `contentWindow.document` property, developers can target specific elements inside an embedded document to perform actions like modifying CSS styles."
+      }
+    ]
+  },
+  {
+    "topic": "Website",
+    "lessons": [
+      {
+        "title": "Create a Website",
+        "fileName": "howto_website_create_website.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_create_website.asp.html",
+        "summary": "W3Schools Spaces offers a free, browser-based platform for building and hosting websites using HTML, CSS, and JavaScript. The lesson guides beginners through account setup, template selection, and code editing, empowering users to create and publish their own projects with ease."
+      },
+      {
+        "title": "Make a Website",
+        "fileName": "howto_make_a_website.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_make_a_website.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive website from scratch using HTML and CSS. It covers essential structural elements like headers, navigation bars, and flexible column layouts, while demonstrating how to use media queries to ensure compatibility across all devices."
+      },
+      {
+        "title": "Make a Static Website",
+        "fileName": "howto_website_static.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_static.asp.html",
+        "summary": "This lesson introduces static websites as a secure, cost-effective, and beginner-friendly way to build web content using HTML, CSS, and JavaScript. It guides learners through building from scratch or using templates via the W3Schools Spaces platform to gain practical web development experience."
+      },
+      {
+        "title": "Host a Static Website",
+        "fileName": "howto_website_host_staticwebsite.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_host_staticwebsite.asp.html",
+        "summary": "This lesson introduces W3Schools Spaces as a simplified platform for hosting static websites using HTML, CSS, and JavaScript. It guides users through creating an account, uploading files, and managing projects directly in the browser, while highlighting built-in HTTPS security features."
+      },
+      {
+        "title": "Make a Website (W3.CSS)",
+        "fileName": "howto_website.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website.asp.html",
+        "summary": "This lesson guides beginners through building a responsive website using the W3.CSS framework. It covers the importance of layout planning, implementing semantic HTML5 elements, and utilizing CSS classes to create navigation bars, slideshows, and structured content sections."
+      },
+      {
+        "title": "Make a Website (BS3)",
+        "fileName": "howto_website_bootstrap.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_bootstrap.asp.html",
+        "summary": "This lesson provides an introduction to building responsive, mobile-first websites using the Bootstrap 3 CSS framework. It offers practical resources, including live demos and tutorials, to help beginners leverage this popular tool for efficient web development."
+      },
+      {
+        "title": "Make a Website (BS4)",
+        "fileName": "howto_website_bootstrap4.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_bootstrap4.asp.html",
+        "summary": "This lesson provides a practical introduction to building responsive, mobile-first websites using the Bootstrap 4 framework. It offers hands-on examples and resources to help learners effectively utilize this popular tool for modern web development."
+      },
+      {
+        "title": "Make a Website (BS5)",
+        "fileName": "howto_website_bootstrap5.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_bootstrap5.asp.html",
+        "summary": "This lesson introduces Bootstrap 5 as a powerful, free framework for building responsive, mobile-first websites. It provides practical examples and resources to help learners create professional web layouts efficiently. Users are encouraged to explore tutorials and templates to master the tool."
+      },
+      {
+        "title": "Create and View a Website",
+        "fileName": "howto_create_and_view.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_create_and_view.asp.html",
+        "summary": "This lesson provides a step-by-step guide to creating and viewing a basic HTML web page using a simple text editor. It covers writing code, saving files with the correct extensions, and opening them in a browser, while also introducing online tools for quick testing and web development."
+      },
+      {
+        "title": "Create a Link Tree Website",
+        "fileName": "howto_website_create_linktree.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_create_linktree.asp.html",
+        "summary": "This lesson provides a comprehensive guide to building a personalized link tree website using HTML, CSS, and JavaScript. It covers both manual development and the use of customizable templates, offering practical steps to structure, design, and host your site via W3Schools Spaces."
+      },
+      {
+        "title": "Create a Portfolio",
+        "fileName": "howto_website_create_portfolio.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_create_portfolio.asp.html",
+        "summary": "This lesson provides a comprehensive guide on building a professional online portfolio to showcase skills and attract career opportunities. It details essential sections like the hero, about, projects, and contact areas, while offering technical steps to develop the site using HTML, CSS, and JS."
+      },
+      {
+        "title": "Create a Resume",
+        "fileName": "howto_website_create_resume.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_create_resume.asp.html",
+        "summary": "This lesson guides you through creating a professional online resume using HTML, CSS, and JavaScript. It covers essential content sections, design planning, and technical implementation using W3Schools Spaces to help you build and publish a personalized digital portfolio for global accessibility."
+      },
+      {
+        "title": "Make a Restaurant Website",
+        "fileName": "howto_website_restaurant.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_restaurant.asp.html",
+        "summary": "This lesson explains the importance of a restaurant website for branding, online reservations, and customer engagement. It guides learners through the core technical requirements—HTML, CSS, and JavaScript—while outlining essential site sections and offering options to build from scratch or templates."
+      },
+      {
+        "title": "Make a Business Website",
+        "fileName": "howto_website_business.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_website_business.asp.html",
+        "summary": "This lesson explains the importance of a professional website for business credibility and lead generation. It outlines essential structural components, such as hero and contact sections, while providing guidance on using HTML, CSS, and JavaScript or ready-made templates to build your site."
+      },
+      {
+        "title": "Make a WebBook",
+        "fileName": "howto_make_a_webbook.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_make_a_webbook.asp.html",
+        "summary": "This lesson provides a foundational guide to creating responsive digital books using HTML and CSS. It covers essential document structure, the implementation of a table of contents, and the process of linking individual chapters to ensure a functional, multi-page reading experience."
+      },
+      {
+        "title": "Center Website",
+        "fileName": "howto_css_center_website.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_center_website.asp.html",
+        "summary": "This lesson explains how to horizontally center a website using CSS by applying a container element with a defined `max-width` and the `margin: auto` property. This technique ensures the content remains centered on wider screens while adapting to smaller displays."
+      },
+      {
+        "title": "Contact Section",
+        "fileName": "howto_css_contact_section.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_contact_section.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive contact section for web pages. It covers the necessary HTML structure and CSS styling, including media queries to ensure the layout adapts seamlessly to smaller screen sizes."
+      },
+      {
+        "title": "About Page",
+        "fileName": "howto_css_about_page.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_about_page.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive \"About Us\" page using HTML and CSS. It demonstrates how to structure content with cards and columns, ensuring the layout adapts seamlessly to different screen sizes through effective styling and media queries."
+      },
+      {
+        "title": "Big Header",
+        "fileName": "howto_css_style_header.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_style_header.asp.html",
+        "summary": "This lesson provides a practical guide on styling a website header using HTML and CSS. It demonstrates how to structure the header element and apply specific properties, such as padding, text alignment, background color, and font size, to create a visually appealing, large-scale header design."
+      },
+      {
+        "title": "Example Website",
+        "fileName": "howto_css_example_website.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_example_website.asp.html",
+        "summary": "This lesson introduces the fundamentals of building a responsive website using HTML and CSS to ensure compatibility across all devices. It provides a practical demo for testing layout adaptability and offers resources for creating custom websites through the W3Schools Spaces platform."
+      }
+    ]
+  },
+  {
+    "topic": "Grid",
+    "lessons": [
+      {
+        "title": "2 Column Layout",
+        "fileName": "howto_css_two_columns.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_two_columns.asp.html",
+        "summary": "This lesson explains how to build a two-column layout using CSS floats or the modern Flexbox approach. It covers techniques for creating equal and unequal column widths, as well as implementing responsive design to ensure layouts stack correctly on smaller screens."
+      },
+      {
+        "title": "3 Column Layout",
+        "fileName": "howto_css_three_columns.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_three_columns.asp.html",
+        "summary": "This lesson explains how to build a three-column layout using CSS floats and HTML containers. It provides practical examples for creating equal, unequal, and responsive column structures that automatically stack on smaller screens, ensuring a flexible design for various device widths."
+      },
+      {
+        "title": "4 Column Layout",
+        "fileName": "howto_css_four_columns.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_four_columns.asp.html",
+        "summary": "This lesson demonstrates how to build a four-column grid layout using CSS floats and HTML containers. It further explains how to implement responsive design by using media queries to stack columns vertically on smaller screens, ensuring optimal display across different devices."
+      },
+      {
+        "title": "Expanding Grid",
+        "fileName": "howto_js_expanding_grid.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_expanding_grid.asp.html",
+        "summary": "This lesson provides a practical guide to building an interactive expanding grid using HTML, CSS, and JavaScript. It demonstrates how to create a responsive layout where clicking grid items triggers the display of specific content containers, complete with a functional close button feature."
+      },
+      {
+        "title": "List Grid View",
+        "fileName": "howto_js_list_grid_view.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_list_grid_view.asp.html",
+        "summary": "This lesson demonstrates how to implement a toggleable list and grid view for web content. By combining HTML structure, CSS styling, and JavaScript functions, users can dynamically adjust the layout width of elements to switch between a single-column list and a multi-column grid display."
+      },
+      {
+        "title": "Mixed Column Layout",
+        "fileName": "howto_css_mixed_columns.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_mixed_columns.asp.html",
+        "summary": "This lesson teaches how to build a responsive mixed column layout using CSS. By utilizing media queries, you will learn to transition a grid from four columns to two columns, and finally to a full-width stacked layout as the screen size decreases."
+      },
+      {
+        "title": "Column Cards",
+        "fileName": "howto_css_column_cards.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_column_cards.asp.html",
+        "summary": "This lesson provides a practical guide on building responsive column cards using HTML and CSS. It demonstrates how to structure card elements within a grid and apply styling, including media queries to ensure the layout adapts seamlessly to different screen sizes."
+      },
+      {
+        "title": "Zig Zag Layout",
+        "fileName": "howto_css_zig_zag_layout.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_zig_zag_layout.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive zig-zag layout using CSS. By utilizing HTML containers and media queries, you can create alternating column structures that automatically stack for optimal viewing on smaller screens."
+      },
+      {
+        "title": "Blog Layout",
+        "fileName": "howto_css_blog_layout.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_css_blog_layout.asp.html",
+        "summary": "This lesson provides a practical guide to building a responsive blog layout using HTML and CSS. It demonstrates how to structure content into columns and implement media queries to ensure the design adapts seamlessly across different screen sizes."
+      }
+    ]
+  },
+  {
+    "topic": "Google",
+    "lessons": [
+      {
+        "title": "Google Charts",
+        "fileName": "howto_google_charts.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_google_charts.asp.html",
+        "summary": "This lesson provides a practical guide on integrating Google Charts into web pages. It demonstrates how to set up a container element, load the necessary Chart API, and use JavaScript to render a dynamic pie chart with custom data and display options."
+      },
+      {
+        "title": "Google Fonts",
+        "fileName": "howto_google_fonts.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_google_fonts.asp.html",
+        "summary": "This lesson introduces Google Fonts as a free, accessible resource for web typography. It explains how to integrate these fonts into your web pages, highlighting the extensive library of over 810 options available for developers to enhance their site's design."
+      },
+      {
+        "title": "Google Font Pairings",
+        "fileName": "howto_google_fonts_pairings.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_google_fonts_pairings.asp.html",
+        "summary": "This lesson emphasizes the importance of effective typography in design by showcasing a curated selection of popular Google Font pairings. It provides practical visual examples to help designers choose harmonious font combinations for their web projects."
+      },
+      {
+        "title": "Google Set up Analytics",
+        "fileName": "howto_google_analytics.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_google_analytics.asp.html",
+        "summary": "This lesson provides a comprehensive, step-by-step guide to setting up Google Analytics 4 for your website. It covers the entire process from account creation and property configuration to installing the Global Site Tag (gtag.js) and verifying data collection in real time."
+      }
+    ]
+  },
+  {
+    "topic": "Converters",
+    "lessons": [
+      {
+        "title": "Convert Weight",
+        "fileName": "howto_js_weight_converter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_weight_converter.asp.html",
+        "summary": "This lesson teaches how to build a functional weight converter using HTML and JavaScript. It provides practical code examples for real-time input processing and includes comprehensive conversion formulas for units such as pounds, kilograms, ounces, grams, and stones."
+      },
+      {
+        "title": "Convert Temperature",
+        "fileName": "howto_js_temperature_converter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_temperature_converter.asp.html",
+        "summary": "This lesson provides a practical guide to building a functional temperature converter using HTML and JavaScript. It explains the necessary code implementation and outlines the mathematical formulas required to convert values between Fahrenheit, Celsius, and Kelvin scales."
+      },
+      {
+        "title": "Convert Length",
+        "fileName": "howto_js_length_converter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_length_converter.asp.html",
+        "summary": "This lesson demonstrates how to build a functional length converter using HTML and JavaScript. It provides practical code examples for input handling and includes comprehensive reference tables detailing the mathematical formulas required to convert between various units of measurement."
+      },
+      {
+        "title": "Convert Speed",
+        "fileName": "howto_js_speed_converter.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_js_speed_converter.asp.html",
+        "summary": "This lesson provides a practical guide to building a speed converter using HTML and JavaScript. It explains how to implement input elements and event handlers, while offering a comprehensive reference table of mathematical formulas for converting between MPH, KPH, Knots, and Mach."
+      }
+    ]
+  },
+  {
+    "topic": "Blog",
+    "lessons": [
+      {
+        "title": "Get a Developer Job",
+        "fileName": "howto_blog_developer_job.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_blog_developer_job.asp.html",
+        "summary": "This guide outlines a practical roadmap for aspiring developers to land their first job through consistent practice, project building, and networking. It emphasizes mastering core web technologies, creating a strong portfolio, and leveraging free resources to gain essential industry experience."
+      },
+      {
+        "title": "Become a Front-End Dev.",
+        "fileName": "howto_blog_become_frontenddev.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_blog_become_frontenddev.asp.html",
+        "summary": "This guide introduces the role of a Front-End Developer, focusing on the essential mastery of HTML, CSS, and JavaScript. It outlines a clear learning path, including key frameworks and additional skills, to help beginners build interactive web interfaces and prepare for a career in the field."
+      },
+      {
+        "title": "Hire Developers",
+        "fileName": "howto_blog_hire_developers.asp.html",
+        "url": "https://www.w3schools.com/howto/howto_blog_hire_developers.asp.html",
+        "summary": "This guide provides a practical checklist for hiring developers, emphasizing the importance of defining specific technical needs and building a targeted candidate pipeline. It highlights the value of personalized outreach and balanced evaluation, ensuring both technical proficiency and cultural fit."
+      }
+    ]
+  }
+]

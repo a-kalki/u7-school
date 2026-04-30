@@ -1,0 +1,11 @@
+{
+  "name": "@u7/w3school",
+  "version": "0.1.0",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "turndown": "^7.2.4"
+  }
+}
