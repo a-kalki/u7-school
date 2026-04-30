@@ -1,21 +1,21 @@
 {
-  "name": "u7-school",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@google/genai": "^1.49.0",
-    "dotenv": "^17.3.1",
-    "elysia": "^1.4.27",
-    "gemini": "^7.5.2",
-    "grammy": "^1.41.1",
-    "valibot": "^1.2.0"
-  }
+	"name": "u7-school",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.6",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@google/genai": "^1.49.0",
+		"dotenv": "^17.3.1",
+		"elysia": "^1.4.27",
+		"gemini": "^7.5.2",
+		"grammy": "^1.41.1",
+		"valibot": "^1.2.0"
+	}
 }

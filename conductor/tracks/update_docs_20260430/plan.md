@@ -9,3 +9,6 @@
 - [x] **Task: Переименовать проект в package.json** 37ed702
     - [ ] Изменить поле `name` на `u7-school`.
 - [x] **Task: Conductor - User Manual Verification 'Documentation Update' (Protocol in workflow.md) [checkpoint: 1812b03]**
+
+## Phase: Review Fixes
+- [~] Task: Apply review suggestions

@@ -18,5 +18,5 @@
 bun install
 ```
 
-Для запуска проекта: `bun start:dev`.
+Для запуска проекта: `bun run index.ts`.
 
