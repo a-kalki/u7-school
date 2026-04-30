@@ -18,10 +18,12 @@ function showHelp() {
   clean   - Удалить СКАЧАННЫЕ исходники (HTML) курса из www.w3schools.com
   help    - Показать эту справку
 
+Опции для 'parse', 'enrich', 'clean':
+  --course N  Указать определенный курс (например: --course git)
+
 Опции для 'parse':
   --force     Полная перезапись (удаляет папку курса перед началом)
   --new       Парсить только те файлы, которых еще нет в output/
-  --course N  Парсить только определенный курс (например: --course git)
 `);
 }
 
@@ -111,14 +113,14 @@ async function main() {
         targetCourse = args[courseIdx + 1].toLowerCase();
       }
 
-      const available = await service.getAvailableCourses();
-      let toProcess = available;
+      const parsed = await service.getParsedCourses();
+      let toProcess = parsed;
 
       if (targetCourse) {
-        if (available.includes(targetCourse)) {
+        if (parsed.includes(targetCourse)) {
           toProcess = [targetCourse];
         } else {
-          console.error(`Ошибка: Курс "${targetCourse}" не найден в output.`);
+          console.error(`Ошибка: Курс "${targetCourse}" не найден в output (нужно сначала выполнить parse).`);
           return;
         }
       }
