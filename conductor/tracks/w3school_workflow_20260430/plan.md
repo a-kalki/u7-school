@@ -13,9 +13,9 @@
 - [x] Task: Перенести логику парсинга (из parse_w3s.js) в TypeScript. [b7b8c8d]
     - [x] Написать юнит-тесты для парсинга HTML-структуры W3Schools.
     - [x] Реализовать команду `parse` в CLI.
-- [ ] Task: Перенести логику обогащения данных (из enrich_syllabus.js) в TypeScript.
-    - [ ] Написать тесты для интеграции с ИИ (mocking).
-    - [ ] Реализовать команду `enrich` в CLI.
+- [x] Task: Перенести логику обогащения данных (из enrich_syllabus.js) в TypeScript. [b684b7e]
+    - [x] Написать тесты для интеграции с ИИ (mocking).
+    - [x] Реализовать команду `enrich` в CLI.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Портирование логики парсинга и обогащения' (Protocol in workflow.md)
 
 ## Фаза 3: Документация и завершение
