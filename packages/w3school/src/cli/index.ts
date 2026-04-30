@@ -15,7 +15,7 @@ function showHelp() {
   status  - Проверить состояние локального хранилища контента
   parse   - Запустить парсинг скачанных HTML-файлов
   enrich  - Обогатить данные курсов через ИИ (генерация сводок)
-  clean   - Удалить спарсенные данные курса из output
+  clean   - Удалить СКАЧАННЫЕ исходники (HTML) курса из www.w3schools.com
   help    - Показать эту справку
 
 Опции для 'parse':
@@ -147,14 +147,14 @@ async function main() {
 
       const { rm } = await import("node:fs/promises");
       const { existsSync } = await import("node:fs");
-      const courseOutDir = join(OUTPUT_DIR, targetCourse);
+      const courseSourceDir = join(BASE_DIR, targetCourse);
 
-      if (existsSync(courseOutDir)) {
-        console.log(`Удаление данных курса: ${targetCourse}...`);
-        await rm(courseOutDir, { recursive: true, force: true });
+      if (existsSync(courseSourceDir)) {
+        console.log(`Удаление исходных данных курса: ${targetCourse}...`);
+        await rm(courseSourceDir, { recursive: true, force: true });
         console.log("Готово.");
       } else {
-        console.log(`Курс "${targetCourse}" не найден в output.`);
+        console.log(`Исходные данные курса "${targetCourse}" не найдены.`);
       }
       break;
     }
