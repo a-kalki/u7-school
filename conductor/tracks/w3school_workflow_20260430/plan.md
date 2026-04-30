@@ -2,7 +2,7 @@
 
 ## Фаза 1: Реорганизация и CLI Базис
 - [ ] Task: Создать структуру папок для CLI и данных внутри пакета.
-    - [ ] Подготовить директории `src/cli`, `src/core`, `src/api`.
+    - [ ] Подготовить директории `src/cli`, `src/core`.
     - [ ] Настроить точку входа для CLI (bin) в `package.json`.
 - [ ] Task: Реализовать базовый CLI каркас на Bun.
     - [ ] Написать тесты для парсинга аргументов командной строки.
@@ -18,16 +18,8 @@
     - [ ] Реализовать команду `enrich` в CLI.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Портирование логики парсинга и обогащения' (Protocol in workflow.md)
 
-## Фаза 3: Публичный API и Типизация
-- [ ] Task: Разработать схемы данных (Valibot) для структуры курсов.
-    - [ ] Определить интерфейсы Course, Lesson, Syllabus.
-- [ ] Task: Реализовать публичный API в `src/index.ts`.
-    - [ ] Написать тесты для методов доступа к данным (`getCourse`, `getLesson`).
-    - [ ] Реализовать экспорт методов для использования другими модулями.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Публичный API и Типизация' (Protocol in workflow.md)
-
-## Фаза 4: Документация и завершение
+## Фаза 3: Документация и завершение
 - [ ] Task: Создать руководство для ментора (`INSTRUCTIONS.md`).
     - [ ] Описать процесс использования `wget` и команд CLI.
 - [ ] Task: Финальная проверка покрытия тестами и линтинг.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4: Документация и завершение' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Документация и завершение' (Protocol in workflow.md)
