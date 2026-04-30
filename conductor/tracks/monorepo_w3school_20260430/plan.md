@@ -19,12 +19,12 @@
     - [x] Написать базовый тест для проверки доступности данных в `w3school` (TDD)
 - [x] Task: Conductor - User Manual Verification 'w3school Integration' (Protocol in workflow.md)
 
-## Phase 3: Global Configuration & Validation
-- [~] Task: Unified Configuration
-    - [ ] Вынести `biome.json` в корень для общего линтинга
-    - [ ] Настроить общие зависимости в корневом `package.json`
-- [ ] Task: Validation
-    - [ ] Запустить `bun install` для линковки воркспейсов
-    - [ ] Запустить `bun run build` для всех пакетов
-    - [ ] Запустить `bun run lint` (Biome) по всему монорепозиторию
-- [ ] Task: Conductor - User Manual Verification 'Global Configuration & Validation' (Protocol in workflow.md)
+## Phase 3: Global Configuration & Validation [checkpoint: f800b70]
+- [x] Task: Unified Configuration
+    - [x] Вынести `biome.json` в корень для общего линтинга
+    - [x] Настроить общие зависимости в корневом `package.json`
+- [x] Task: Validation
+    - [x] Запустить `bun install` для линковки воркспейсов
+    - [x] Запустить `bun run build` для всех пакетов
+    - [x] Запустить `bun run lint` (Biome) по всему монорепозиторию
+- [x] Task: Conductor - User Manual Verification 'Global Configuration & Validation' (Protocol in workflow.md)
