@@ -7,6 +7,12 @@
 		"apps/*",
 		"packages/*"
 	],
+	"scripts": {
+		"test": "bun test",
+		"lint": "biome lint apps/ packages/*/src/ package.json biome.json",
+		"format": "biome format apps/ packages/*/src/ package.json biome.json --write",
+		"check": "biome check apps/ packages/*/src/ package.json biome.json --write"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.6",
 		"@types/bun": "latest"

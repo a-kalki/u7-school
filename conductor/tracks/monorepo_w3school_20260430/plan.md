@@ -20,7 +20,7 @@
 - [x] Task: Conductor - User Manual Verification 'w3school Integration' (Protocol in workflow.md)
 
 ## Phase 3: Global Configuration & Validation
-- [ ] Task: Unified Configuration
+- [~] Task: Unified Configuration
     - [ ] Вынести `biome.json` в корень для общего линтинга
     - [ ] Настроить общие зависимости в корневом `package.json`
 - [ ] Task: Validation
