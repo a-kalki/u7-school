@@ -1,14 +1,14 @@
 # Implementation Plan: Monorepo Transition & w3school Integration
 
-## Phase 1: Preparation & Base Structure
-- [~] Task: Initialize Bun Workspaces
-    - [ ] Создать директории `apps/` и `packages/`
-    - [ ] Обновить корневой `package.json`, добавив поле `workspaces`
-- [ ] Task: Migrating current project to `apps/u7-bot`
-    - [ ] Перенести `src/`, `index.ts`, `tsconfig.json` в `apps/u7-bot/`
-    - [ ] Создать `package.json` для `apps/u7-bot`
-    - [ ] Обновить пути и импорты
-- [ ] Task: Conductor - User Manual Verification 'Preparation & Base Structure' (Protocol in workflow.md)
+## Phase 1: Preparation & Base Structure [checkpoint: 6002771]
+- [x] Task: Initialize Bun Workspaces
+    - [x] Создать директории `apps/` и `packages/`
+    - [x] Обновить корневой `package.json`, добавив поле `workspaces`
+- [x] Task: Migrating current project to `apps/u7-bot`
+    - [x] Перенести `src/`, `index.ts`, `tsconfig.json` в `apps/u7-bot/`
+    - [x] Создать `package.json` для `apps/u7-bot`
+    - [x] Обновить пути и импорты
+- [x] Task: Conductor - User Manual Verification 'Preparation & Base Structure' (Protocol in workflow.md)
 
 ## Phase 2: w3school Integration
 - [ ] Task: Import `w3school` package
