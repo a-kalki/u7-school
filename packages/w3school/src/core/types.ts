@@ -4,8 +4,8 @@ export interface Lesson {
 	fileName: string;
 	url: string;
 	mdFile?: string;
-}
-
+	summary?: string;
+	}
 export interface Section {
 	topic: string;
 	lessons: Lesson[];

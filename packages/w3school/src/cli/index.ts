@@ -67,9 +67,47 @@ async function main() {
       console.log("--- ПАРСИНГ ЗАВЕРШЕН ---");
       break;
     }
-    case "enrich":
-      console.log("Выполнение команды: enrich (в разработке)");
+    case "enrich": {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        console.error("Ошибка: Переменная окружения GEMINI_API_KEY не установлена.");
+        return;
+      }
+
+      const { AIService } = await import("../core/ai-service");
+      const { EnrichmentService } = await import("../core/enrichment-service");
+
+      const aiService = new AIService(apiKey);
+      const enrichmentService = new EnrichmentService(OUTPUT_DIR, aiService);
+
+      let targetCourse: string | undefined;
+      const courseIdx = args.indexOf("--course");
+      if (courseIdx !== -1 && args[courseIdx + 1]) {
+        targetCourse = args[courseIdx + 1].toLowerCase();
+      }
+
+      const available = await service.getAvailableCourses();
+      let toProcess = available;
+
+      if (targetCourse) {
+        if (available.includes(targetCourse)) {
+          toProcess = [targetCourse];
+        } else {
+          console.error(`Ошибка: Курс "${targetCourse}" не найден в output.`);
+          return;
+        }
+      }
+
+      if (toProcess.length === 0) {
+        console.log("Доступных курсов для обогащения не найдено.");
+        return;
+      }
+
+      for (const course of toProcess) {
+        await enrichmentService.enrichCourse(course);
+      }
       break;
+    }
     default:
       showHelp();
       break;
