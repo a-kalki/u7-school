@@ -10,14 +10,14 @@
     - [x] Обновить пути и импорты
 - [x] Task: Conductor - User Manual Verification 'Preparation & Base Structure' (Protocol in workflow.md)
 
-## Phase 2: w3school Integration
-- [~] Task: Import `w3school` package
-    - [ ] Скопировать содержимое из `~/Downloads/w3school` в `packages/w3school`
-    - [ ] Очистить пакет от ненужных файлов (старые `.git`, `node_modules`)
-- [ ] Task: Configure `packages/w3school`
-    - [ ] Настроить `package.json` (имя, версия)
-    - [ ] Написать базовый тест для проверки доступности данных в `w3school` (TDD)
-- [ ] Task: Conductor - User Manual Verification 'w3school Integration' (Protocol in workflow.md)
+## Phase 2: w3school Integration [checkpoint: 7e16d44]
+- [x] Task: Import `w3school` package
+    - [x] Скопировать содержимое из `~/Downloads/w3school` в `packages/w3school`
+    - [x] Очистить пакет от ненужных файлов (старые `.git`, `node_modules`)
+- [x] Task: Configure `packages/w3school`
+    - [x] Настроить `package.json` (имя, версия)
+    - [x] Написать базовый тест для проверки доступности данных в `w3school` (TDD)
+- [x] Task: Conductor - User Manual Verification 'w3school Integration' (Protocol in workflow.md)
 
 ## Phase 3: Global Configuration & Validation
 - [ ] Task: Unified Configuration
