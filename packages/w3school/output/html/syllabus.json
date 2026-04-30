@@ -4,241 +4,241 @@
     "lessons": [
       {
         "title": "HTML HOME",
-        "fileName": "default.asp.html",
+        "fileName": "default.asp.md",
         "url": "https://www.w3schools.com/html/default.asp.html",
         "summary": "This HTML tutorial provides a comprehensive, interactive introduction to web development through practical examples, exercises, and quizzes. It offers a structured learning path for beginners, complete with extensive technical references and the option to earn a professional certification."
       },
       {
         "title": "HTML Introduction",
-        "fileName": "html_intro.asp.html",
+        "fileName": "html_intro.asp.md",
         "url": "https://www.w3schools.com/html/html_intro.asp.html",
         "summary": "This lesson introduces HTML as the standard markup language used to define the structure of web pages through various elements. It explains how browsers interpret these tags to display content and provides a foundational overview of document structure, element syntax, and the evolution of HTML5."
       },
       {
         "title": "HTML Editors",
-        "fileName": "html_editors.asp.html",
+        "fileName": "html_editors.asp.md",
         "url": "https://www.w3schools.com/html/html_editors.asp.html",
         "summary": "While professional tools exist, beginners are encouraged to use simple text editors like Notepad or TextEdit to learn HTML fundamentals. This lesson provides a step-by-step guide to creating, saving, and viewing web pages, while also introducing online editors for quick testing and development."
       },
       {
         "title": "HTML Basic",
-        "fileName": "html_basic.asp.html",
+        "fileName": "html_basic.asp.md",
         "url": "https://www.w3schools.com/html/html_basic.asp.html",
         "summary": "This lesson introduces the fundamental structure of HTML documents, including the essential `<!DOCTYPE>` declaration and basic tags for headings, paragraphs, links, and images. It also provides practical instructions on how to view and inspect source code directly within a web browser."
       },
       {
         "title": "HTML Elements",
-        "fileName": "html_elements.asp.html",
+        "fileName": "html_elements.asp.md",
         "url": "https://www.w3schools.com/html/html_elements.asp.html",
         "summary": "HTML elements consist of a start tag, content, and an end tag, though some empty elements lack closing tags. Elements can be nested to structure documents, and while tags are case-insensitive, lowercase is recommended. Proper syntax, including mandatory end tags, is essential for stability."
       },
       {
         "title": "HTML Attributes",
-        "fileName": "html_attributes.asp.html",
+        "fileName": "html_attributes.asp.md",
         "url": "https://www.w3schools.com/html/html_attributes.asp.html",
         "summary": "HTML attributes provide essential additional information about elements and are always defined within the start tag using name/value pairs. This lesson covers key attributes like href, src, alt, and style, while emphasizing best practices such as using lowercase names and quotes for values."
       },
       {
         "title": "HTML Headings",
-        "fileName": "html_headings.asp.html",
+        "fileName": "html_headings.asp.md",
         "url": "https://www.w3schools.com/html/html_headings.asp.html",
         "summary": "HTML headings, defined by tags from `<h1>` to `<h6>`, are essential for establishing document structure and improving search engine indexing. They should be used to organize content hierarchically rather than for styling purposes. Developers can further customize heading sizes using CSS."
       },
       {
         "title": "HTML Paragraphs",
-        "fileName": "html_paragraphs.asp.html",
+        "fileName": "html_paragraphs.asp.md",
         "url": "https://www.w3schools.com/html/html_paragraphs.asp.html",
         "summary": "This lesson explains how to structure text using the `<p>` element, noting that browsers automatically ignore extra whitespace in source code. It also introduces the `<hr>` tag for thematic breaks, the `<br>` tag for manual line breaks, and the `<pre>` element for preserving preformatted text."
       },
       {
         "title": "HTML Styles",
-        "fileName": "html_styles.asp.html",
+        "fileName": "html_styles.asp.md",
         "url": "https://www.w3schools.com/html/html_styles.asp.html",
         "summary": "This lesson introduces the HTML `style` attribute, which allows you to apply CSS properties directly to elements. You will learn how to customize visual aspects such as background colors, text colors, font families, font sizes, and text alignment to enhance your web page design."
       },
       {
         "title": "HTML Formatting",
-        "fileName": "html_formatting.asp.html",
+        "fileName": "html_formatting.asp.md",
         "url": "https://www.w3schools.com/html/html_formatting.asp.html",
         "summary": "This lesson introduces essential HTML formatting elements used to define text with specific meanings or visual styles. It covers tags for bold, italic, emphasized, and highlighted text, as well as elements for subscript, superscript, and document revisions like insertions and deletions."
       },
       {
         "title": "HTML Quotations",
-        "fileName": "html_quotation_elements.asp.html",
+        "fileName": "html_quotation_elements.asp.md",
         "url": "https://www.w3schools.com/html/html_quotation_elements.asp.html",
         "summary": "This lesson introduces essential HTML elements for managing quotations, citations, and text formatting. It covers tags like `<blockquote>`, `<q>`, `<abbr>`, `<address>`, `<cite>`, and `<bdo>`, explaining their specific semantic purposes and how they influence browser rendering and accessibility."
       },
       {
         "title": "HTML Comments",
-        "fileName": "html_comments.asp.html",
+        "fileName": "html_comments.asp.md",
         "url": "https://www.w3schools.com/html/html_comments.asp.html",
         "summary": "HTML comments are non-displayed annotations created using the `<!-- -->` syntax, serving as a valuable tool for documenting source code. They are effectively used to leave reminders, hide content temporarily, or debug specific sections of an HTML document."
       },
       {
         "title": "HTML Colors",
-        "fileName": "html_colors.asp.html",
+        "fileName": "html_colors.asp.md",
         "url": "https://www.w3schools.com/html/html_colors.asp.html",
         "summary": "This lesson introduces methods for applying color to HTML elements, including backgrounds, text, and borders. It covers the use of 140 standard color names alongside various numerical formats such as RGB, HEX, HSL, and their alpha-channel variants for transparency."
       },
       {
         "title": "HTML CSS",
-        "fileName": "html_css.asp.html",
+        "fileName": "html_css.asp.md",
         "url": "https://www.w3schools.com/html/html_css.asp.html",
         "summary": "This lesson introduces Cascading Style Sheets (CSS) as a powerful tool for controlling the layout, colors, and typography of web pages. It explains the three methods of implementation—inline, internal, and external—while covering essential properties like borders, padding, and margins."
       },
       {
         "title": "HTML Links",
-        "fileName": "html_links.asp.html",
+        "fileName": "html_links.asp.md",
         "url": "https://www.w3schools.com/html/html_links.asp.html",
         "summary": "This lesson explains how to create hyperlinks using the HTML `<a>` tag and the `href` attribute. It covers essential concepts such as absolute versus relative URLs, the `target` attribute for window management, and techniques for linking images, email addresses, and buttons."
       },
       {
         "title": "HTML Images",
-        "fileName": "html_images.asp.html",
+        "fileName": "html_images.asp.md",
         "url": "https://www.w3schools.com/html/html_images.asp.html",
         "summary": "This lesson explains how to embed images in HTML using the `<img>` tag, emphasizing the importance of the `src` and `alt` attributes. It covers essential techniques for managing image sizing, positioning, and linking, while highlighting best practices for web performance and accessibility."
       },
       {
         "title": "HTML Favicon",
-        "fileName": "html_favicon.asp.html",
+        "fileName": "html_favicon.asp.md",
         "url": "https://www.w3schools.com/html/html_favicon.asp.html",
         "summary": "A favicon is a small icon displayed in the browser tab to represent a website. You can add one by placing an image file in your project directory and linking it within the `<head>` section of your HTML document using the `<link>` tag."
       },
       {
         "title": "HTML Page Title",
-        "fileName": "html_page_title.asp.html",
+        "fileName": "html_page_title.asp.md",
         "url": "https://www.w3schools.com/html/html_page_title.asp.html",
         "summary": "The `<title>` element is essential for defining a web page's identity in browser toolbars, bookmarks, and search engine results. By providing an accurate and meaningful description of the page content, developers can significantly improve user experience and search engine optimization (SEO)."
       },
       {
         "title": "HTML Tables",
-        "fileName": "html_tables.asp.html",
+        "fileName": "html_tables.asp.md",
         "url": "https://www.w3schools.com/html/html_tables.asp.html",
         "summary": "This lesson introduces HTML tables as a structured way to organize data using rows and columns. It explains the core tags—`<table>`, `<tr>`, `<td>`, and `<th>`—required to build and label tables, while noting that cells can contain various HTML elements for flexible content presentation."
       },
       {
         "title": "HTML Lists",
-        "fileName": "html_lists.asp.html",
+        "fileName": "html_lists.asp.md",
         "url": "https://www.w3schools.com/html/html_lists.asp.html",
         "summary": "This lesson introduces HTML lists as a way to organize related content effectively. It covers the implementation of unordered lists, ordered lists, and description lists using specific tags like `<ul>`, `<ol>`, and `<dl>`. These elements provide developers with essential tools for structuring data."
       },
       {
         "title": "HTML Block & Inline",
-        "fileName": "html_blocks.asp.html",
+        "fileName": "html_blocks.asp.md",
         "url": "https://www.w3schools.com/html/html_blocks.asp.html",
         "summary": "HTML elements are categorized as either block-level or inline based on their default display behavior. Block-level elements start on a new line and occupy the full width, while inline elements remain within the flow of text, taking only necessary space. These distinctions are essential for layout."
       },
       {
         "title": "HTML Div",
-        "fileName": "html_div.asp.html",
+        "fileName": "html_div.asp.md",
         "url": "https://www.w3schools.com/html/html_div.asp.html",
         "summary": "The `<div>` element serves as a versatile block-level container for grouping HTML content. This lesson explores its fundamental usage and demonstrates how to manage layout and alignment using CSS techniques such as float, inline-block, Flexbox, and Grid."
       },
       {
         "title": "HTML Classes",
-        "fileName": "html_classes.asp.html",
+        "fileName": "html_classes.asp.md",
         "url": "https://www.w3schools.com/html/html_classes.asp.html",
         "summary": "The HTML `class` attribute allows you to assign one or more names to elements, enabling consistent styling via CSS and targeted manipulation through JavaScript. This versatile attribute can be applied to any HTML element, with class names being case-sensitive and shareable across different tags."
       },
       {
         "title": "HTML Id",
-        "fileName": "html_id.asp.html",
+        "fileName": "html_id.asp.md",
         "url": "https://www.w3schools.com/html/html_id.asp.html",
         "summary": "The HTML `id` attribute assigns a unique identifier to an element, which is essential for targeted CSS styling, JavaScript manipulation, and creating internal page bookmarks. Unlike classes, each `id` must be unique within a document and follow specific naming conventions to function correctly."
       },
       {
         "title": "HTML Buttons",
-        "fileName": "html_buttons.asp.html",
+        "fileName": "html_buttons.asp.md",
         "url": "https://www.w3schools.com/html/html_buttons.asp.html",
         "summary": "The HTML `<button>` element enables user interaction through clickable actions, form submissions, or JavaScript execution. This lesson covers essential button attributes, including styling, the `disabled` state, and the importance of defining specific types for form control."
       },
       {
         "title": "HTML Iframes",
-        "fileName": "html_iframe.asp.html",
+        "fileName": "html_iframe.asp.md",
         "url": "https://www.w3schools.com/html/html_iframe.asp.html",
         "summary": "The HTML `<iframe>` tag allows developers to embed external web pages within a current document. This lesson covers essential configuration techniques, including setting dimensions, customizing borders with CSS, and using iframes as targets for hyperlinks to enhance page interactivity."
       },
       {
         "title": "HTML JavaScript",
-        "fileName": "html_scripts.asp.html",
+        "fileName": "html_scripts.asp.md",
         "url": "https://www.w3schools.com/html/html_scripts.asp.html",
         "summary": "This lesson introduces JavaScript as a tool for creating dynamic and interactive HTML content. It covers the implementation of the `<script>` tag for embedding code, the use of `document.getElementById()` for element manipulation, and the `<noscript>` tag for handling browsers without script support."
       },
       {
         "title": "HTML File Paths",
-        "fileName": "html_filepaths.asp.html",
+        "fileName": "html_filepaths.asp.md",
         "url": "https://www.w3schools.com/html/html_filepaths.asp.html",
         "summary": "HTML file paths define the location of resources like images, scripts, and stylesheets within a website's folder structure. Developers can use absolute URLs or relative paths, with the latter being the recommended best practice to ensure links remain functional across different environments."
       },
       {
         "title": "HTML Head",
-        "fileName": "html_head.asp.html",
+        "fileName": "html_head.asp.md",
         "url": "https://www.w3schools.com/html/html_head.asp.html",
         "summary": "The HTML `<head>` element serves as a container for essential metadata, scripts, and styles that define a document's properties without being displayed on the page. It includes critical elements like `<title>`, `<meta>`, and `<link>`, which are vital for SEO, responsiveness, and external resource integration."
       },
       {
         "title": "HTML Layout",
-        "fileName": "html_layout.asp.html",
+        "fileName": "html_layout.asp.md",
         "url": "https://www.w3schools.com/html/html_layout.asp.html",
         "summary": "This lesson introduces essential HTML semantic elements used to structure web page content logically. It further explores various layout techniques, including CSS frameworks, floats, flexbox, and grid, to help developers create responsive, multi-column designs for different screen sizes."
       },
       {
         "title": "HTML Responsive",
-        "fileName": "html_responsive.asp.html",
+        "fileName": "html_responsive.asp.md",
         "url": "https://www.w3schools.com/html/html_responsive.asp.html",
         "summary": "Responsive web design ensures websites automatically adjust to fit any device screen size. This lesson covers essential techniques, including viewport configuration, flexible images, scalable text units, and media queries. It also introduces CSS frameworks like W3.CSS and Bootstrap for efficient development."
       },
       {
         "title": "HTML Computercode",
-        "fileName": "html_computercode_elements.asp.html",
+        "fileName": "html_computercode_elements.asp.md",
         "url": "https://www.w3schools.com/html/html_computercode_elements.asp.html",
         "summary": "This lesson introduces specialized HTML elements for representing technical content, including `<code>`, `<kbd>`, `<samp>`, and `<var>`. These tags help format programming code, user inputs, and variables using monospace fonts. Additionally, it explains how to use `<pre>` to preserve whitespace."
       },
       {
         "title": "HTML Semantics",
-        "fileName": "html5_semantic_elements.asp.html",
+        "fileName": "html5_semantic_elements.asp.md",
         "url": "https://www.w3schools.com/html/html5_semantic_elements.asp.html",
         "summary": "HTML semantic elements provide clear meaning to both browsers and developers by defining the purpose of page content. Unlike non-semantic tags, these elements improve accessibility and structure by identifying specific sections like headers, articles, and navigation."
       },
       {
         "title": "HTML Style Guide",
-        "fileName": "html5_syntax.asp.html",
+        "fileName": "html5_syntax.asp.md",
         "url": "https://www.w3schools.com/html/html5_syntax.asp.html",
         "summary": "This HTML style guide provides essential best practices for writing clean, consistent, and maintainable code. It covers key conventions such as using lowercase syntax, proper indentation, mandatory document declarations, and metadata optimization to ensure cross-browser compatibility and SEO."
       },
       {
         "title": "HTML Entities",
-        "fileName": "html_entities.asp.html",
+        "fileName": "html_entities.asp.md",
         "url": "https://www.w3schools.com/html/html_entities.asp.html",
         "summary": "HTML entities are used to display reserved characters and symbols that might otherwise conflict with browser rendering. By utilizing entity names or numbers, developers can safely include special characters and manage spacing, such as non-breaking spaces, within their web content."
       },
       {
         "title": "HTML Symbols",
-        "fileName": "html_symbols.asp.html",
+        "fileName": "html_symbols.asp.md",
         "url": "https://www.w3schools.com/html/html_symbols.asp.html",
         "summary": "This lesson explains how to insert special characters and symbols into HTML documents using entity names or numeric references. It provides comprehensive tables and references for various categories, including mathematical operators, Greek letters, currency signs, and diverse graphical symbols."
       },
       {
         "title": "HTML Emojis",
-        "fileName": "html_emojis.asp.html",
+        "fileName": "html_emojis.asp.md",
         "url": "https://www.w3schools.com/html/html_emojis.asp.html",
         "summary": "This lesson explains that emojis are not images but characters within the UTF-8 Unicode set. It demonstrates how to display them in HTML using entity numbers and emphasizes the importance of the UTF-8 meta tag for correct rendering. Emojis can be styled and sized just like standard text."
       },
       {
         "title": "HTML Charsets",
-        "fileName": "html_charset.asp.html",
+        "fileName": "html_charset.asp.md",
         "url": "https://www.w3schools.com/html/html_charset.asp.html",
         "summary": "HTML character sets define how browsers interpret text, with the `<meta>` tag used to specify the encoding. While historical standards like ASCII, ANSI, and ISO-8859-1 existed, UTF-8 is now the recommended standard because it supports nearly all global characters and symbols."
       },
       {
         "title": "HTML URL Encode",
-        "fileName": "html_urlencode.asp.html",
+        "fileName": "html_urlencode.asp.md",
         "url": "https://www.w3schools.com/html/html_urlencode.asp.html",
         "summary": "This lesson defines Uniform Resource Locators (URLs) as the standard method for addressing web resources, detailing their syntax components like schemes, domains, and paths. It further explains the necessity of URL encoding to convert non-ASCII characters and spaces into a transmittable format."
       },
       {
         "title": "HTML vs. XHTML",
-        "fileName": "html_xhtml.asp.html",
+        "fileName": "html_xhtml.asp.md",
         "url": "https://www.w3schools.com/html/html_xhtml.asp.html",
         "summary": "XHTML is a stricter, XML-based version of HTML designed for better extensibility and error handling. It requires well-formed code, including mandatory document structures, properly nested and closed elements, lowercase syntax, and fully quoted attributes."
       }
@@ -249,37 +249,37 @@
     "lessons": [
       {
         "title": "HTML Forms",
-        "fileName": "html_forms.asp.html",
+        "fileName": "html_forms.asp.md",
         "url": "https://www.w3schools.com/html/html_forms.asp.html",
         "summary": "This lesson introduces HTML forms as essential containers for collecting user input, which is typically sent to a server for processing. It covers key elements like `<form>`, `<input>`, and `<label>`, explaining how to implement text fields, radio buttons, checkboxes, and submit buttons."
       },
       {
         "title": "HTML Form Attributes",
-        "fileName": "html_forms_attributes.asp.html",
+        "fileName": "html_forms_attributes.asp.md",
         "url": "https://www.w3schools.com/html/html_forms_attributes.asp.html",
         "summary": "This lesson explores essential HTML form attributes that control how data is processed and submitted. It covers key functions like defining submission destinations, HTTP methods, response targets, and browser behavior settings such as autocomplete and validation."
       },
       {
         "title": "HTML Form Elements",
-        "fileName": "html_form_elements.asp.html",
+        "fileName": "html_form_elements.asp.md",
         "url": "https://www.w3schools.com/html/html_form_elements.asp.html",
         "summary": "This lesson provides a comprehensive overview of essential HTML form elements, including inputs, labels, select menus, and text areas. It explains how to use these tags to structure user input, group related data with fieldsets, and implement interactive features like buttons and dynamic outputs."
       },
       {
         "title": "HTML Input Types",
-        "fileName": "html_form_input_types.asp.html",
+        "fileName": "html_form_input_types.asp.md",
         "url": "https://www.w3schools.com/html/html_form_input_types.asp.html",
         "summary": "This lesson provides a comprehensive overview of the various HTML `<input>` element types, ranging from standard text and password fields to specialized controls like date pickers, sliders, and file uploads. It also introduces essential attributes for managing user input and form restrictions."
       },
       {
         "title": "HTML Input Attributes",
-        "fileName": "html_form_attributes.asp.html",
+        "fileName": "html_form_attributes.asp.md",
         "url": "https://www.w3schools.com/html/html_form_attributes.asp.html",
         "summary": "This lesson provides a comprehensive overview of HTML `<input>` attributes, which are essential for controlling user data entry and form behavior. It covers key features like validation, formatting, and accessibility, enabling developers to create more functional and interactive web forms."
       },
       {
         "title": "Input Form Attributes",
-        "fileName": "html_form_attributes_form.asp.html",
+        "fileName": "html_form_attributes_form.asp.md",
         "url": "https://www.w3schools.com/html/html_form_attributes_form.asp.html",
         "summary": "This lesson explores HTML input attributes that allow developers to override default form behavior. These attributes, including formaction, formmethod, and formenctype, provide granular control over how specific input elements process, encode, and submit data to the server."
       }
@@ -290,13 +290,13 @@
     "lessons": [
       {
         "title": "HTML Canvas",
-        "fileName": "html5_canvas.asp.html",
+        "fileName": "html5_canvas.asp.md",
         "url": "https://www.w3schools.com/html/html5_canvas.asp.html",
         "summary": "The HTML `<canvas>` element serves as a container for rendering dynamic graphics on web pages. While the element defines the drawing area, JavaScript is required to execute commands for creating shapes, text, gradients, and images within that space."
       },
       {
         "title": "HTML SVG",
-        "fileName": "html5_svg.asp.html",
+        "fileName": "html5_svg.asp.md",
         "url": "https://www.w3schools.com/html/html5_svg.asp.html",
         "summary": "This lesson introduces Scalable Vector Graphics (SVG), an XML-based format for creating resolution-independent web graphics. It covers the use of the `<svg>` element to render shapes and text, while contrasting SVG's object-based approach with the pixel-based rendering of the HTML Canvas."
       }
@@ -307,31 +307,31 @@
     "lessons": [
       {
         "title": "HTML Media",
-        "fileName": "html_media.asp.html",
+        "fileName": "html_media.asp.md",
         "url": "https://www.w3schools.com/html/html_media.asp.html",
         "summary": "This lesson explores the integration of multimedia elements like audio and video into web pages. It highlights the evolution of browser support and identifies the specific file formats, such as MP4, MP3, and Ogg, that are officially supported by the HTML standard for web compatibility."
       },
       {
         "title": "HTML Video",
-        "fileName": "html5_video.asp.html",
+        "fileName": "html5_video.asp.md",
         "url": "https://www.w3schools.com/html/html5_video.asp.html",
         "summary": "The HTML `<video>` element enables the embedding of video content using attributes like controls, autoplay, and source files. This lesson covers essential configuration, supported media formats, and the use of DOM methods to manage playback, volume, and interactive events."
       },
       {
         "title": "HTML Audio",
-        "fileName": "html5_audio.asp.html",
+        "fileName": "html5_audio.asp.md",
         "url": "https://www.w3schools.com/html/html5_audio.asp.html",
         "summary": "The HTML `<audio>` element enables the integration of sound into web pages using various formats like MP3, WAV, and OGG. By utilizing attributes such as `controls`, `autoplay`, and `source`, developers can manage playback and ensure cross-browser compatibility through the DOM API."
       },
       {
         "title": "HTML Plug-ins",
-        "fileName": "html_object.asp.html",
+        "fileName": "html_object.asp.md",
         "url": "https://www.w3schools.com/html/html_object.asp.html",
         "summary": "HTML plug-ins were historically used to extend browser functionality for tasks like running Java applets or Flash movies, though most are now obsolete. Modern web development relies on the `<object>` and `<embed>` elements to integrate external content, such as images or documents, into pages."
       },
       {
         "title": "HTML YouTube",
-        "fileName": "html_youtube.asp.html",
+        "fileName": "html_youtube.asp.md",
         "url": "https://www.w3schools.com/html/html_youtube.asp.html",
         "summary": "Embedding YouTube videos in HTML is a simple alternative to managing complex video formats. By using the `<iframe>` element and a unique video ID, you can easily display content while customizing playback features like autoplay, looping, and control visibility through URL parameters."
       }
@@ -342,49 +342,39 @@
     "lessons": [
       {
         "title": "HTML Web APIs",
-        "fileName": "html5_api_whatis.asp.html",
+        "fileName": "html5_api_whatis.asp.md",
         "url": "https://www.w3schools.com/html/html5_api_whatis.asp.html",
         "summary": "Web APIs are built-in browser interfaces that simplify complex tasks like geolocation, data storage, and background processing. Developers should prioritize browser compatibility, robust error handling, and user consent when implementing these tools to ensure a seamless experience."
       },
       {
         "title": "HTML Geolocation",
-        "fileName": "html5_geolocation.asp.html",
+        "fileName": "html5_geolocation.asp.md",
         "url": "https://www.w3schools.com/html/html5_geolocation.asp.html",
         "summary": "The HTML Geolocation API allows web applications to retrieve a user's geographical coordinates with their explicit permission. This lesson covers implementing location tracking via `getCurrentPosition()` and `watchPosition()`, while emphasizing the importance of secure contexts and robust error handling."
       },
       {
         "title": "HTML Drag and Drop",
-        "fileName": "html5_draganddrop.asp.html",
+        "fileName": "html5_draganddrop.asp.md",
         "url": "https://www.w3schools.com/html/html5_draganddrop.asp.html",
         "summary": "The HTML Drag and Drop API allows users to move elements across a webpage by implementing specific event handlers. By setting the draggable attribute and utilizing dataTransfer methods, developers can define how data is captured, moved, and dropped into designated target containers."
       },
       {
         "title": "HTML Web Storage",
-        "fileName": "html5_webstorage.asp.html",
+        "fileName": "html5_webstorage.asp.md",
         "url": "https://www.w3schools.com/html/html5_webstorage.asp.html",
         "summary": "The HTML Web Storage API allows applications to store data locally within a browser, offering a more secure and efficient alternative to cookies. It provides two primary objects: localStorage for persistent data and sessionStorage for session-specific data, both accessible via simple key-value pairs."
       },
       {
         "title": "HTML Web Workers",
-        "fileName": "html5_webworkers.asp.html",
+        "fileName": "html5_webworkers.asp.md",
         "url": "https://www.w3schools.com/html/html5_webworkers.asp.html",
         "summary": "The HTML Web Workers API allows developers to run resource-intensive JavaScript tasks in background threads, preventing the main page from becoming unresponsive. By using external files and a message-passing system, workers execute independently of the DOM to improve overall web performance."
       },
       {
         "title": "HTML SSE",
-        "fileName": "html5_serversentevents.asp.html",
+        "fileName": "html5_serversentevents.asp.md",
         "url": "https://www.w3schools.com/html/html5_serversentevents.asp.html",
         "summary": "The HTML Server-Sent Events (SSE) API enables real-time, one-way data streaming from a server to a web page. By utilizing the `EventSource` object and the `text/event-stream` content type, developers can push automatic updates like news feeds or stock prices directly to the client."
-      }
-    ]
-  },
-  {
-    "topic": "HTML Cert",
-    "lessons": [
-      {
-        "title": "HTML Certificate",
-        "fileName": "https://www.w3schools.com/html/html_exam.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/html/html_exam.asp"
       }
     ]
   },
@@ -392,158 +382,58 @@
     "topic": "HTML Examples",
     "lessons": [
       {
-        "title": "HTML Examples",
-        "fileName": "https://www.w3schools.com/html/html_examples.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/html/html_examples.asp"
-      },
-      {
         "title": "HTML Editor",
-        "fileName": "html_editor.asp.html",
+        "fileName": "html_editor.asp.md",
         "url": "https://www.w3schools.com/html/html_editor.asp.html",
         "summary": "This lesson introduces an online HTML editor that allows users to write and preview HTML, CSS, and JavaScript code directly in their browser. It also highlights W3Schools Spaces as a platform for building and publishing websites and recommends the HTML tutorial for beginners."
       },
       {
-        "title": "HTML Quiz",
-        "fileName": "https://www.w3schools.com/html/html_quiz.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/html/html_quiz.asp"
-      },
-      {
-        "title": "HTML Exercises",
-        "fileName": "https://www.w3schools.com/html/html_exercises.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/html/html_exercises.asp"
-      },
-      {
         "title": "HTML Challenges",
-        "fileName": "html_challenges.asp.html",
+        "fileName": "html_challenges.asp.md",
         "url": "https://www.w3schools.com/html/html_challenges.asp.html",
         "summary": "This lesson offers interactive HTML coding challenges designed to help learners practice and refine their web development skills. By completing these exercises, students can reinforce their knowledge and work toward earning a professional certification to enhance their career portfolio."
       },
       {
         "title": "HTML Website",
-        "fileName": "html_website.asp.html",
+        "fileName": "html_website.asp.md",
         "url": "https://www.w3schools.com/html/html_website.asp.html",
         "summary": "W3Schools Spaces provides a cloud-based platform for building, hosting, and managing websites directly in the browser. It offers an integrated code editor, AI-assisted tutoring, and various templates to support both front-end and full-stack development projects."
       },
       {
         "title": "HTML Syllabus",
-        "fileName": "html_syllabus.asp.html",
+        "fileName": "html_syllabus.asp.md",
         "url": "https://www.w3schools.com/html/html_syllabus.asp.html",
         "summary": "This comprehensive HTML syllabus provides a beginner-friendly, step-by-step guide to web development. It features interactive exercises, a sandbox environment for hands-on practice, and an optional certification program to validate skills for various professional and academic fields."
       },
       {
         "title": "HTML Study Plan",
-        "fileName": "html_study_plan.asp.html",
+        "fileName": "html_study_plan.asp.md",
         "url": "https://www.w3schools.com/html/html_study_plan.asp.html",
         "summary": "W3Schools Academy offers a flexible, customizable HTML study plan designed to streamline classroom management and instruction. Teachers can utilize pre-built learning paths, interactive exercises, and progress-tracking tools to support diverse student needs and prepare them for certification."
       },
       {
         "title": "HTML Interview Prep",
-        "fileName": "html_interview_prep.asp.html",
+        "fileName": "html_interview_prep.asp.md",
         "url": "https://www.w3schools.com/html/html_interview_prep.asp.html",
         "summary": "This lesson provides a comprehensive guide to Front-End interview preparation, covering technical expectations, portfolio building, and company research. It also introduces an AI-powered interactive tool designed to simulate interviews and offer performance feedback to boost candidate confidence."
       },
       {
         "title": "HTML Bootcamp",
-        "fileName": "html_bootcamp.asp.html",
+        "fileName": "html_bootcamp.asp.md",
         "url": "https://www.w3schools.com/html/html_bootcamp.asp.html",
         "summary": "The W3Schools HTML & CSS Bootcamp is a three-week, instructor-led online program designed to teach foundational web development skills. Participants learn to build responsive, accessible websites while preparing for professional certification through live sessions, hands-on projects, and peer support."
       },
       {
         "title": "HTML Summary",
-        "fileName": "html_summary.asp.html",
+        "fileName": "html_summary.asp.md",
         "url": "https://www.w3schools.com/html/html_summary.asp.html",
         "summary": "This lesson concludes the HTML fundamentals and outlines the next steps for web development, including learning CSS for styling and JavaScript for interactivity. It also provides guidance on publishing your website through an Internet Service Provider or self-hosting, while encouraging further certification."
       },
       {
         "title": "HTML Accessibility",
-        "fileName": "html_accessibility.asp.html",
+        "fileName": "html_accessibility.asp.md",
         "url": "https://www.w3schools.com/html/html_accessibility.asp.html",
         "summary": "This lesson emphasizes the importance of web accessibility by using semantic HTML elements, proper heading structures, and descriptive alternative text. It also highlights the necessity of declaring document languages, using clear, concise text, and creating meaningful link descriptions."
-      }
-    ]
-  },
-  {
-    "topic": "HTML References",
-    "lessons": [
-      {
-        "title": "HTML Tag List",
-        "fileName": "https://www.w3schools.com/tags/default.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/default.asp"
-      },
-      {
-        "title": "HTML Attributes",
-        "fileName": "https://www.w3schools.com/tags/ref_attributes.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_attributes.asp"
-      },
-      {
-        "title": "HTML Global Attributes",
-        "fileName": "https://www.w3schools.com/tags/ref_standardattributes.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_standardattributes.asp"
-      },
-      {
-        "title": "HTML Browser Support",
-        "fileName": "https://www.w3schools.com/tags/ref_html_browsersupport.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_html_browsersupport.asp"
-      },
-      {
-        "title": "HTML Events",
-        "fileName": "https://www.w3schools.com/tags/ref_eventattributes.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_eventattributes.asp"
-      },
-      {
-        "title": "HTML Colors",
-        "fileName": "https://www.w3schools.com/tags/ref_colornames.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_colornames.asp"
-      },
-      {
-        "title": "HTML Canvas",
-        "fileName": "https://www.w3schools.com/tags/ref_canvas.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_canvas.asp"
-      },
-      {
-        "title": "HTML Audio/Video",
-        "fileName": "https://www.w3schools.com/tags/ref_av_dom.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_av_dom.asp"
-      },
-      {
-        "title": "HTML Doctypes",
-        "fileName": "https://www.w3schools.com/tags/ref_html_dtd.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_html_dtd.asp"
-      },
-      {
-        "title": "HTML Character Sets",
-        "fileName": "https://www.w3schools.com/tags/ref_charactersets.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_charactersets.asp"
-      },
-      {
-        "title": "HTML URL Encode",
-        "fileName": "https://www.w3schools.com/tags/ref_urlencode.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_urlencode.asp"
-      },
-      {
-        "title": "HTML Lang Codes",
-        "fileName": "https://www.w3schools.com/tags/ref_language_codes.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_language_codes.asp"
-      },
-      {
-        "title": "HTTP Messages",
-        "fileName": "https://www.w3schools.com/tags/ref_httpmessages.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_httpmessages.asp"
-      },
-      {
-        "title": "HTTP Methods",
-        "fileName": "https://www.w3schools.com/tags/ref_httpmethods.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_httpmethods.asp"
-      },
-      {
-        "title": "PX to EM Converter",
-        "fileName": "https://www.w3schools.com/tags/ref_pxtoemconversion.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_pxtoemconversion.asp"
-      },
-      {
-        "title": "Keyboard Shortcuts",
-        "fileName": "https://www.w3schools.com/tags/ref_keyboardshortcuts.asp",
-        "url": "https://www.w3schools.com/html/https://www.w3schools.com/tags/ref_keyboardshortcuts.asp"
       }
     ]
   }

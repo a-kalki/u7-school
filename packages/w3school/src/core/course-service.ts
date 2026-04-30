@@ -44,6 +44,7 @@ export class CourseService {
 
 	async getEnrichmentStats(courseName: string): Promise<{ total: number; enriched: number }> {
 		const syllabusPath = join(this.outputDir, courseName, "syllabus.json");
+		const courseDir = join(this.outputDir, courseName);
 		if (!existsSync(syllabusPath)) return { total: 0, enriched: 0 };
 
 		const sections: any[] = JSON.parse(readFileSync(syllabusPath, "utf-8"));
@@ -52,8 +53,11 @@ export class CourseService {
 
 		for (const section of sections) {
 			for (const lesson of section.lessons) {
-				total++;
-				if (lesson.summary) enriched++;
+				const mdPath = join(courseDir, lesson.fileName);
+				if (lesson.fileName.endsWith(".md") && existsSync(mdPath)) {
+					total++;
+					if (lesson.summary) enriched++;
+				}
 			}
 		}
 

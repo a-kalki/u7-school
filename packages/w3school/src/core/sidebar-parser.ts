@@ -34,19 +34,25 @@ export function parseSidebar(html: string, courseName: string): (Section & { les
 				};
 				sections.push(currentSection);
 			} else if ($el.is("a") && $el.attr("target") === "_top") {
+				const href = $el.attr("href") || "";
+				
+				// Игнорируем внешние ссылки и ссылки на другие разделы (содержащие / или ://)
+				if (href.includes("/") || href.includes("://")) {
+					return;
+				}
+
 				if (!currentSection) {
 					currentSection = { topic: "Introduction", lessons: [] };
 					sections.push(currentSection);
 				}
 
-				const href = $el.attr("href") || "";
 				const cleanName = href.split("?")[0].replace(/%3F.*/, "");
 				const lessonTitle = applyReplacements($el.text().trim());
 
 				currentSection.lessons.push({
 					title: lessonTitle,
 					originalFile: href,
-					fileName: cleanName,
+					fileName: cleanName, // CourseService заменит на .md
 					url: `${W3S_URL}/${courseName}/${cleanName}`,
 				});
 			}

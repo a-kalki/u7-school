@@ -19,7 +19,45 @@ export class EnrichmentService {
     }
 
     console.log(`\n>>> Обогащение курса: ${courseName.toUpperCase()}`);
-    const sections: Section[] = JSON.parse(readFileSync(syllabusPath, "utf-8"));
+    let sections: Section[] = JSON.parse(readFileSync(syllabusPath, "utf-8"));
+
+    // НОРМАЛИЗАЦИЯ: Исправляем старые fileName (.html -> .md) и удаляем мусор
+    let needsNormalization = false;
+    const normalizedSections = sections.map(s => ({
+      topic: s.topic,
+      lessons: s.lessons
+        .map(l => {
+          let fileName = l.fileName;
+          // Если fileName ведет на .html или .asp, но на диске есть .md
+          if (!fileName.endsWith(".md")) {
+            const potentialMd = fileName.includes(".") 
+              ? `${fileName.substring(0, fileName.lastIndexOf("."))}.md`
+              : `${fileName}.md`;
+            
+            if (existsSync(join(courseDir, potentialMd))) {
+              fileName = potentialMd;
+              needsNormalization = true;
+            }
+          }
+          return {
+            title: l.title,
+            fileName: fileName,
+            url: l.url,
+            ...(l.summary ? { summary: l.summary } : {})
+          };
+        })
+        .filter(l => {
+          const exists = l.fileName.endsWith(".md") && existsSync(join(courseDir, l.fileName));
+          if (!exists) needsNormalization = true;
+          return exists;
+        })
+    })).filter(s => s.lessons.length > 0);
+
+    if (needsNormalization) {
+      console.log(`  [info] Нормализация syllabus.json для ${courseName}...`);
+      sections = normalizedSections;
+      writeFileSync(syllabusPath, JSON.stringify(sections, null, 2));
+    }
 
     let updated = false;
     for (const section of sections) {
@@ -29,20 +67,9 @@ export class EnrichmentService {
           continue;
         }
 
-        let fileName = lesson.fileName;
-        if (!fileName) continue;
-
-        // Определяем имя .md файла на диске
-        let mdFileName = fileName;
-        if (!mdFileName.endsWith(".md")) {
-          if (mdFileName.includes(".")) {
-            mdFileName = `${mdFileName.substring(0, mdFileName.lastIndexOf("."))}.md`;
-          } else {
-            mdFileName += ".md";
-          }
-        }
-
-        const mdPath = join(courseDir, mdFileName);
+        const fileName = lesson.fileName;
+        const mdPath = join(courseDir, fileName);
+        
         if (existsSync(mdPath)) {
           const content = readFileSync(mdPath, "utf-8");
           console.log(`  [process] ${lesson.title} ...`);
@@ -51,10 +78,9 @@ export class EnrichmentService {
 
           if (summary) {
             lesson.summary = summary;
-            lesson.fileName = mdFileName; // Синхронизируем расширение в JSON
             updated = true;
             
-            // Фильтруем поля при сохранении
+            // Сохраняем после каждого урока
             const cleanSections = sections.map(s => ({
               topic: s.topic,
               lessons: s.lessons.map(l => ({

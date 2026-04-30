@@ -1,15 +1,26 @@
-# w3school
+# W3Schools Content Processor
 
-To install dependencies:
+Пакет для автоматизации сбора и подготовки учебных материалов с сайта W3Schools.
 
-```bash
-bun install
-```
+## Быстрый старт
 
-To run:
+1. **Установка зависимостей:**
+   ```bash
+   bun install
+   ```
 
-```bash
-bun run index.ts
-```
+2. **Просмотр состояния:**
+   ```bash
+   bun w3s status
+   ```
 
-This project was created using `bun init` in bun v1.3.11. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+3. **Полный цикл работы:**
+   Подробные инструкции по скачиванию контента через `wget` и использованию всех команд CLI доступны в файле:
+   👉 **[INSTRUCTIONS.md](./INSTRUCTIONS.md)**
+
+## Основные возможности
+
+- **Парсинг:** Конвертация HTML уроков в чистый Markdown.
+- **Обогащение:** Автоматическая генерация кратких сводок (summary) для каждого урока через Gemini AI.
+- **Управление:** Простой CLI для контроля процесса обработки контента.
+- **Локальное хранение:** Все данные хранятся внутри пакета в папках `www.w3schools.com` (исходники) и `output` (результат).

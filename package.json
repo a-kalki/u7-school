@@ -20,5 +20,7 @@
 	"peerDependencies": {
 		"typescript": "^5"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@google/genai": "^1.51.0"
+	}
 }
