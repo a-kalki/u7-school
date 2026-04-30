@@ -1,7 +1,7 @@
 # Implementation Plan: Monorepo Transition & w3school Integration
 
 ## Phase 1: Preparation & Base Structure
-- [ ] Task: Initialize Bun Workspaces
+- [~] Task: Initialize Bun Workspaces
     - [ ] Создать директории `apps/` и `packages/`
     - [ ] Обновить корневой `package.json`, добавив поле `workspaces`
 - [ ] Task: Migrating current project to `apps/u7-bot`
