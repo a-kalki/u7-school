@@ -15,6 +15,7 @@ function showHelp() {
   status  - Проверить состояние локального хранилища контента
   parse   - Запустить парсинг скачанных HTML-файлов
   enrich  - Обогатить данные курсов через ИИ (генерация сводок)
+  clean   - Удалить спарсенные данные курса из output
   help    - Показать эту справку
 
 Опции для 'parse':
@@ -129,6 +130,31 @@ async function main() {
 
       for (const course of toProcess) {
         await enrichmentService.enrichCourse(course);
+      }
+      break;
+    }
+    case "clean": {
+      let targetCourse: string | undefined;
+      const courseIdx = args.indexOf("--course");
+      if (courseIdx !== -1 && args[courseIdx + 1]) {
+        targetCourse = args[courseIdx + 1].toLowerCase();
+      }
+
+      if (!targetCourse) {
+        console.error("Ошибка: Укажите курс для удаления через --course <название>");
+        return;
+      }
+
+      const { rm } = await import("node:fs/promises");
+      const { existsSync } = await import("node:fs");
+      const courseOutDir = join(OUTPUT_DIR, targetCourse);
+
+      if (existsSync(courseOutDir)) {
+        console.log(`Удаление данных курса: ${targetCourse}...`);
+        await rm(courseOutDir, { recursive: true, force: true });
+        console.log("Готово.");
+      } else {
+        console.log(`Курс "${targetCourse}" не найден в output.`);
       }
       break;
     }

@@ -1,11 +1,11 @@
-export type Command = "status" | "parse" | "enrich" | "help";
+export type Command = "status" | "parse" | "enrich" | "clean" | "help";
 
 export interface ParsedArgs {
   command: Command;
   args: string[];
 }
 
-const VALID_COMMANDS: Command[] = ["status", "parse", "enrich"];
+const VALID_COMMANDS: Command[] = ["status", "parse", "enrich", "clean"];
 
 export function parseArgs(rawArgs: string[]): ParsedArgs {
   const [commandCandidate, ...rest] = rawArgs;
