@@ -32,6 +32,28 @@ describe("CourseService", () => {
 		expect(courses).toContain("html");
 	});
 
+	test("should get parsed courses and enrichment stats", async () => {
+		const service = new CourseService(TEST_BASE_DIR, TEST_OUTPUT_DIR);
+		await service.parseCourse("html");
+
+		const parsed = await service.getParsedCourses();
+		expect(parsed).toContain("html");
+
+		const stats = await service.getEnrichmentStats("html");
+		expect(stats.total).toBe(1);
+		expect(stats.enriched).toBe(0);
+
+		// Симулируем обогащение
+		const { readFileSync, writeFileSync } = await import("node:fs");
+		const syllabusPath = join(TEST_OUTPUT_DIR, "html", "syllabus.json");
+		const syllabus = JSON.parse(readFileSync(syllabusPath, "utf-8"));
+		syllabus[0].lessons[0].summary = "Done";
+		writeFileSync(syllabusPath, JSON.stringify(syllabus));
+
+		const newStats = await service.getEnrichmentStats("html");
+		expect(newStats.enriched).toBe(1);
+	});
+
 	test("should parse course and generate output", async () => {
 		const service = new CourseService(TEST_BASE_DIR, TEST_OUTPUT_DIR);
 		await service.parseCourse("html");

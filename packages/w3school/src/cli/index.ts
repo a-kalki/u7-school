@@ -30,11 +30,35 @@ async function main() {
 
   switch (command) {
     case "status": {
-      const courses = await service.getAvailableCourses();
-      console.log(`Найдено доступных курсов: ${courses.length}`);
-      if (courses.length > 0) {
-        console.log(`Курсы: ${courses.join(", ")}`);
+      const rawCourses = await service.getAvailableCourses();
+      const parsedCourses = await service.getParsedCourses();
+
+      console.log("\n=== СОСТОЯНИЕ КОНТЕНТА ===");
+
+      // 1. Парсинг
+      const toParse = rawCourses.filter((c) => !parsedCourses.includes(c));
+      console.log(`\nДоступно для парсинга (${rawCourses.length}):`);
+      if (rawCourses.length > 0) {
+        for (const course of rawCourses) {
+          const isNew = !parsedCourses.includes(course);
+          console.log(`  ${isNew ? "[+]" : "[v]"} ${course.padEnd(15)} ${isNew ? "(новое)" : "(уже спарсено)"}`);
+        }
+      } else {
+        console.log("  (нет исходных HTML файлов)");
       }
+
+      // 2. Обогащение
+      console.log(`\nДоступно для обогащения (${parsedCourses.length}):`);
+      if (parsedCourses.length > 0) {
+        for (const course of parsedCourses) {
+          const { total, enriched } = await service.getEnrichmentStats(course);
+          const status = enriched === total ? "[v]" : enriched === 0 ? "[ ]" : "[~]";
+          console.log(`  ${status} ${course.padEnd(15)} ${enriched}/${total} уроков обогащено`);
+        }
+      } else {
+        console.log("  (нет спарсенных курсов)");
+      }
+      console.log("");
       break;
     }
     case "parse": {

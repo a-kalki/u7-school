@@ -32,6 +32,34 @@ export class CourseService {
 			});
 	}
 
+	async getParsedCourses(): Promise<string[]> {
+		if (!existsSync(this.outputDir)) return [];
+
+		const entries = await readdir(this.outputDir, { withFileTypes: true });
+		return entries
+			.filter((dirent) => dirent.isDirectory())
+			.map((dirent) => dirent.name)
+			.filter((name) => existsSync(join(this.outputDir, name, "syllabus.json")));
+	}
+
+	async getEnrichmentStats(courseName: string): Promise<{ total: number; enriched: number }> {
+		const syllabusPath = join(this.outputDir, courseName, "syllabus.json");
+		if (!existsSync(syllabusPath)) return { total: 0, enriched: 0 };
+
+		const sections: any[] = JSON.parse(readFileSync(syllabusPath, "utf-8"));
+		let total = 0;
+		let enriched = 0;
+
+		for (const section of sections) {
+			for (const lesson of section.lessons) {
+				total++;
+				if (lesson.summary) enriched++;
+			}
+		}
+
+		return { total, enriched };
+	}
+
 	async parseCourse(
 		courseName: string,
 		options: ParserOptions = {},
