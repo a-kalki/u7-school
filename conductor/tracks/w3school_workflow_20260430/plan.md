@@ -18,9 +18,9 @@
     - [x] Реализовать команду `enrich` в CLI с поддержкой нормализации данных.
 - [x] Task: Conductor - User Manual Verification 'Фаза 2: Портирование логики парсинга и обогащения' (Protocol in workflow.md)
 
-## Фаза 3: Документация и завершение
-- [ ] Task: Создать руководство для ментора (`INSTRUCTIONS.md`).
-    - [ ] Описать процесс использования `wget` для скачивания курсов.
-    - [ ] Документировать все команды CLI (`status`, `parse`, `enrich`, `clean`).
-- [ ] Task: Финальная проверка всего воркфлоу (от скачивания до обогащения).
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Документация и завершение' (Protocol in workflow.md)
+## Фаза 3: Документация и завершение [checkpoint: ed63786]
+- [x] Task: Создать руководство для ментора (`INSTRUCTIONS.md`).
+    - [x] Описать процесс использования `wget` для скачивания курсов.
+    - [x] Документировать все команды CLI (`status`, `parse`, `enrich`, `clean`).
+- [x] Task: Финальная проверка всего воркфлоу (от скачивания до обогащения).
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: Документация и завершение' (Protocol in workflow.md)
