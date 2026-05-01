@@ -1,14 +1,10 @@
 import * as v from "valibot";
+import type { CreateUserCommand } from "../../api/commands/create_user_command";
+import { CreateUserCommandSchema } from "../../api/commands/create_user_command";
 import { DomainException } from "../shared/exceptions";
+import { isoNow } from "../shared/iso_now";
 import type { User } from "./user";
 import { UserSchema } from "./user";
-
-/** Команда создания пользователя */
-export interface CreateUserCommand {
-	name: string;
-	telegramId: number;
-	role: string;
-}
 
 /**
  * Агрегат пользователя.
@@ -27,34 +23,54 @@ export class UserAr {
 	}
 
 	/**
+	 * Проверяет инварианты агрегата через схему валидации.
+	 * Выбрасывает DomainException.validation при нарушении.
+	 */
+	validateInvariants(): void {
+		const result = v.safeParse(UserSchema, this.#state);
+		if (!result.success) {
+			throw DomainException.validation(
+				"Некорректные данные пользователя",
+				"Нарушение инвариантов UserAr",
+				v.flatten<typeof UserSchema>(result.issues),
+			);
+		}
+	}
+
+	/**
 	 * Фабричный метод создания нового пользователя из команды.
-	 * Генерирует UUID и временные метки, валидирует данные через UserSchema.
+	 * Генерирует UUID и временные метки, валидирует данные.
 	 */
 	static create(command: CreateUserCommand): UserAr {
-		const candidate = {
-			uuid: crypto.randomUUID(),
-			name: command.name,
-			telegramId: command.telegramId,
-			role: command.role,
-			createdAt: new Date().toISOString().slice(0, 16),
-		};
-
-		const result = v.safeParse(UserSchema, candidate);
-
-		if (!result.success) {
-			const issues = v.flatten<typeof UserSchema>(result.issues).nested;
-			const details = Object.entries(issues)
-				.filter(([, msgs]) => msgs !== undefined)
-				.map(([field, msgs]) => `${field}: ${msgs!.join("; ")}`)
-				.join(" | ");
-
-			throw new DomainException(
-				"UserValidationError",
-				"Некорректные данные пользователя",
-				details || "Ошибка валидации",
+		// 1. Валидация входящей команды
+		const cmdResult = v.safeParse(CreateUserCommandSchema, command);
+		if (!cmdResult.success) {
+			throw DomainException.validation(
+				"Некорректная команда создания пользователя",
+				"Ошибка валидации CreateUserCommand",
+				v.flatten<typeof CreateUserCommandSchema>(cmdResult.issues),
 			);
 		}
 
-		return new UserAr(result.output);
+		// 2. Формирование кандидата
+		const candidate: User = {
+			uuid: crypto.randomUUID(),
+			name: cmdResult.output.name,
+			telegramId: cmdResult.output.telegramId,
+			role: cmdResult.output.role,
+			createdAt: isoNow(),
+		};
+
+		// 3. Проверка инвариантов
+		const userResult = v.safeParse(UserSchema, candidate);
+		if (!userResult.success) {
+			throw DomainException.validation(
+				"Некорректные данные пользователя",
+				"Ошибка валидации UserSchema",
+				v.flatten<typeof UserSchema>(userResult.issues),
+			);
+		}
+
+		return new UserAr(userResult.output);
 	}
 }

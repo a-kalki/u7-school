@@ -73,19 +73,19 @@ module.handle(command: ModuleCommand): Promise<Result>;
 
 ### Обработка исключений
 
-Определены два вида исключений:
-  - ApiException: исключения уровня приложения, например проверка на права доступа;
-      - httpStatus: http статус;
-      - userMessage: описание для пользователя;
-      - name: имя ошибки;
-      - debugInfo: описание для программиста;
-      - level: "api";
-  - DomainException: исключения уровня домена, например проверка на инварианты;
-      - httpStatus: http статус;
-      - userMessage: описание для пользователя;
-      - name: имя ошибки;
-      - debugInfo: описание для программиста;
-      - level: "domain";
+Иерархия исключений:
+- **`AppException`** (абстрактный базовый класс):
+  - Поля: `name`, `userMessage`, `debugInfo`, `httpStatus`, `payload`
+  - Метод `rest()` → `{ error, message, status, payload }` для HTTP-ответа
+  - **`DomainException`** (level: `"domain"`) — ошибки предметной области
+  - **`ApiException`** (level: `"api"`) — ошибки уровня приложения
+
+Фабричные методы для типовых ошибок:
+- `DomainException.validation(userMsg, debug, payload?)` — 422, payload для ошибок валидации
+- `DomainException.conflict(userMsg, debug)` — 409, конфликт (дубликат)
+- `DomainException.notFound(entity, id)` — 404, сущность не найдена
+- `ApiException.accessDenied(userMsg, debug)` — 403, недостаточно прав
+
 Уровень контроллера самостоятельно перехватывает ошибки и решает что далее делать с ними.
 
 
@@ -99,12 +99,30 @@ module.handle(command: ModuleCommand): Promise<Result>;
 | Политика прав | `<Имя>Policy` | `UserPolicy`, `CoursePolicy` |
 | Объект БД (опционально) | `<Имя>Record` | `UserRecord`, `CourseRecord` |
 | Объект вывода (опционально) | `<Имя>Output` / `<Имя>Out` | `UserOutput`, `UserOut` |
-| Команда | `<Действие><Имя>Command` | `CreateUserCommand`, `CreateCourseCommand` |
+| Команда + схема | `<Действие><Имя>Command` + `<Действие><Имя>CommandSchema` | `CreateUserCommand`, `CreateUserCommandSchema` |
 | Сценарий использования | `<Имя><Действие>Uc` | `UserCreatingUc`, `CourseCreatingUc` |
 
 ### Структура команды
 
-Команда — plain object со следующей структурой:
+Каждая команда размещается в `api/commands/` и состоит из:
+- **Типа** (TypeScript-тип, выведенный из Valibot-схемы)
+- **Схемы валидации** (Valibot-схема для строгой проверки входящих данных)
+
+Пример:
+```typescript
+// packages/core/src/api/commands/create_user_command.ts
+import * as v from "valibot";
+
+export const CreateUserCommandSchema = v.object({
+  name: v.pipe(v.string(), v.nonEmpty("...")),
+  telegramId: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  role: v.pipe(v.string(), v.picklist([...])),
+});
+
+export type CreateUserCommand = v.InferOutput<typeof CreateUserCommandSchema>;
+```
+
+Обёрточная команда модуля — plain object со следующей структурой:
 
 ```typescript
 type ModuleCommand = {
@@ -128,7 +146,7 @@ Result
 ## Межмодульное взаимодействие
 
 - **Изменение, чтение состояния:** Только через фасад модуля или сам модуль (entry point + команду). Прямой вызов Use Case другого модуля запрещён.
-- **Доменные объекты:** Доменные объекты можно импортировать напрямую из любого модуля с соблюдением модульной иерархии зависимости.
+- **Доменные объекты:** Доменные объекты (сущности, схемы, агрегаты, политики) можно импортировать напрямую из любого модуля с соблюдением модульной иерархии зависимостей. Команды, use-case и репозитории импортируются только через entry point модуля.
 
 ## Инверсия зависимостей (DI)
 

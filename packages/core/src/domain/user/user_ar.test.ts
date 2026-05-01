@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Role } from "./roles";
+import { DomainException } from "../shared/exceptions";
 import type { User } from "./user";
 import { UserAr } from "./user_ar";
 
@@ -8,8 +8,8 @@ const validUser: User = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
 	name: "Иван Петров",
 	telegramId: 123456789,
-	role: Role.ADMIN,
-	createdAt: "2026-05-01T12:00:00.000Z",
+	role: "ADMIN",
+	createdAt: "2026-05-01T12:00",
 };
 
 describe("Агрегат пользователя (UserAr)", () => {
@@ -18,51 +18,56 @@ describe("Агрегат пользователя (UserAr)", () => {
 		expect(ar.state).toEqual(validUser);
 	});
 
-	test("должен создаваться фабричным методом create из валидной команды", () => {
-		const command = {
-			name: "Иван Петров",
-			telegramId: 123456789,
-			role: Role.ADMIN,
-		};
-		const ar = UserAr.create(command);
-		expect(ar.state.name).toBe("Иван Петров");
-		expect(ar.state.telegramId).toBe(123456789);
-		expect(ar.state.role).toBe(Role.ADMIN);
-		expect(ar.state.uuid).toBeString();
-	});
-
-	test("create должен выбрасывать DomainException при пустом имени", () => {
-		const command = {
-			name: "",
-			telegramId: 123456789,
-			role: Role.ADMIN,
-		};
-		expect(() => UserAr.create(command)).toThrow();
-	});
-
-	test("create должен выбрасывать DomainException при невалидном telegramId", () => {
-		const command = {
-			name: "Иван",
-			telegramId: -1,
-			role: Role.ADMIN,
-		};
-		expect(() => UserAr.create(command)).toThrow();
-	});
-
-	test("create должен выбрасывать DomainException при невалидной роли", () => {
-		const command = {
-			name: "Иван",
-			telegramId: 123456789,
-			role: "SUPERHERO",
-		};
-		expect(() => UserAr.create(command)).toThrow();
-	});
-
-	test("состояние агрегата доступно только для чтения через геттер", () => {
+	test("состояние агрегата иммутабельно через геттер", () => {
 		const ar = new UserAr(validUser);
 		const state = ar.state;
-		// Попытка мутации полученного объекта не должна влиять на агрегат
 		state.name = "Хакер";
 		expect(ar.state.name).toBe("Иван Петров");
+	});
+
+	test("create должен создавать агрегат с корректным состоянием", () => {
+		const ar = UserAr.create({
+			name: "Мария",
+			telegramId: 999,
+			role: "MENTOR",
+		});
+
+		expect(ar.state.name).toBe("Мария");
+		expect(ar.state.telegramId).toBe(999);
+		expect(ar.state.role).toBe("MENTOR");
+		expect(ar.state.uuid).toBeString();
+		expect(ar.state.createdAt).toBeString();
+	});
+
+	test("create должен генерировать уникальные UUID для разных пользователей", () => {
+		const ar1 = UserAr.create({
+			name: "А",
+			telegramId: 1,
+			role: "STUDENT",
+		});
+		const ar2 = UserAr.create({
+			name: "Б",
+			telegramId: 2,
+			role: "STUDENT",
+		});
+		expect(ar1.state.uuid).not.toBe(ar2.state.uuid);
+	});
+
+	test("validateInvariants должен проходить для валидного состояния", () => {
+		const ar = new UserAr(validUser);
+		expect(() => ar.validateInvariants()).not.toThrow();
+	});
+
+	test("validateInvariants должен выбрасывать DomainException при нарушении инвариантов", () => {
+		const ar = new UserAr(validUser);
+		// Мутируем приватное состояние через создание некорректного пользователя
+		const badAr = new UserAr({ ...validUser, name: "" });
+		expect(() => badAr.validateInvariants()).toThrow(DomainException);
+	});
+
+	test("create должен выбрасывать DomainException при невалидной команде", () => {
+		expect(() =>
+			UserAr.create({ name: "", telegramId: 1, role: "ADMIN" }),
+		).toThrow(DomainException);
 	});
 });

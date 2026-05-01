@@ -23,7 +23,7 @@
     - [x] Реализовать статический метод `UserAr.create(command)` с валидацией через `UserSchema`.
     - [x] Реализовать методы доступа к состоянию (getters).
     - [x] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: UserAr' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: UserAr' (Protocol in workflow.md)
 
 ## Phase 2: Политики и репозитории пользователя
 - [ ] Task: Тесты для UserPolicy
