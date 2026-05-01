@@ -9,7 +9,7 @@
     - [x] Настроить тестовый скрипт в `package.json` (используя Bun test).
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Инициализация' (Protocol in workflow.md)
 
-## Phase 2: Модель Пользователя (User)
+## Phase 2: Модель Пользователя (User) `[checkpoint: 321ad2a]`
 - [x] Task: Определение ролей (Roles) `[d533795]`
     - [x] Написать тест для Enum/типа ролей (STUDENT, MENTOR, ADMIN).
     - [x] Реализовать Enum/тип ролей.
@@ -17,7 +17,7 @@
     - [x] Написать падающие тесты для схемы User (валидация ID, email, ролей).
     - [x] Реализовать схему User с использованием Valibot.
     - [x] Добиться прохождения тестов.
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Модель Пользователя' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Модель Пользователя' (Protocol in workflow.md)
 
 ## Phase 3: Базовая структура Курса и Модуля
 - [ ] Task: Схема Курса (Course Schema)
