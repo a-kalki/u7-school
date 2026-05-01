@@ -9,7 +9,7 @@
     - [x] Перевести весь файл на русский язык.
     - [x] Адаптировать секцию «Development Commands» под Bun/TypeScript/Biome (убрать примеры на Python/Go/Node).
     - [x] Проверить, что ссылки на инструменты (git, bun, biome) остались без изменений.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1: AGENTS.md и workflow' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1: AGENTS.md и workflow' (Protocol in workflow.md)
 
 ## Фаза 2: Крупные skill-файлы (setup, implement)
 - [ ] Task: Перевод и адаптация conductor-setup/SKILL.md
