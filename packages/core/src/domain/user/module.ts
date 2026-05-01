@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { ProjectSchema } from "./project";
 
 /**
  * Общие поля модуля.
@@ -16,12 +17,6 @@ const ModuleBaseSchema = v.object({
   additional: v.optional(v.string()),
 });
 
-// Временная заглушка для элемента проекта (будет заменена на ProjectSchema)
-const ProjectRefSchema = v.object({
-  id: v.string(),
-  title: v.string(),
-});
-
 // Временная заглушка для элемента урока (будет заменена на LessonSchema)
 const LessonRefSchema = v.object({
   id: v.string(),
@@ -37,7 +32,7 @@ const ModuleWithProjectsSchema = v.object({
   /** Тип модуля — с проектами */
   kind: v.literal("projects"),
   /** Список проектов в модуле */
-  projects: v.array(ProjectRefSchema),
+  projects: v.array(ProjectSchema),
 });
 
 /**
