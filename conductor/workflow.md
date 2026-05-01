@@ -1,333 +1,340 @@
-# Project Workflow
+# Рабочий процесс проекта
 
-## Guiding Principles
+## Руководящие принципы
 
-1. **The Plan is the Source of Truth:** All work must be tracked in `plan.md`
-2. **The Tech Stack is Deliberate:** Changes to the tech stack must be documented in `tech-stack.md` *before* implementation
-3. **Test-Driven Development:** Write unit tests before implementing functionality
-4. **High Code Coverage:** Aim for >80% code coverage for all modules
-5. **User Experience First:** Every decision should prioritize user experience
-6. **Non-Interactive & CI-Aware:** Prefer non-interactive commands. Use `CI=true` for watch-mode tools (tests, linters) to ensure single execution.
+1. **План — источник истины:** Вся работа должна отслеживаться в `plan.md`
+2. **Технологический стек осознан:** Изменения в стеке должны быть задокументированы в `tech-stack.md` *до* реализации
+3. **Разработка через тестирование (TDD):** Пиши модульные тесты перед реализацией функциональности
+4. **Высокое покрытие кода:** Стремись к >80% покрытия для всех модулей
+5. **Пользовательский опыт прежде всего:** Каждое решение должно ставить用户体验 на первое место
+6. **Non-interactive и CI-совместимость:** Предпочитай неинтерактивные команды. Используй `CI=true` для инструментов в режиме наблюдения (тесты, линтеры), чтобы гарантировать однократное выполнение.
 
-## Task Workflow
+## Рабочий процесс задач
 
-All tasks follow a strict lifecycle:
+Все задачи следуют строгому жизненному циклу:
 
-### Standard Task Workflow
+### Стандартный рабочий процесс задачи
 
-1. **Select Task:** Choose the next available task from `plan.md` in sequential order
+1. **Выбери задачу:** Возьми следующую доступную задачу из `plan.md` в последовательном порядке
 
-2. **Mark In Progress:** Before beginning work, edit `plan.md` and change the task from `[ ]` to `[~]`
+2. **Отметь как «В процессе»:** Перед началом работы отредактируй `plan.md` и измени статус задачи с `[ ]` на `[~]`
 
-3. **Write Failing Tests (Red Phase):**
-   - Create a new test file for the feature or bug fix.
-   - Write one or more unit tests that clearly define the expected behavior and acceptance criteria for the task.
-   - **CRITICAL:** Run the tests and confirm that they fail as expected. This is the "Red" phase of TDD. Do not proceed until you have failing tests.
+3. **Напиши падающие тесты (Фаза Red):**
+   - Создай новый тестовый файл для функции или исправления.
+   - Напиши один или несколько модульных тестов, которые чётко определяют ожидаемое поведение и критерии приёмки для задачи.
+   - **КРИТИЧНО:** Запусти тесты и убедись, что они падают, как и ожидалось. Это фаза «Red» TDD. Не продолжай, пока не получишь падающие тесты.
 
-4. **Implement to Pass Tests (Green Phase):**
-   - Write the minimum amount of application code necessary to make the failing tests pass.
-   - Run the test suite again and confirm that all tests now pass. This is the "Green" phase.
+4. **Реализуй, чтобы тесты прошли (Фаза Green):**
+   - Напиши минимальный объём кода, необходимый для прохождения падающих тестов.
+   - Запусти тесты снова и убедись, что все тесты проходят. Это фаза «Green».
 
-5. **Refactor (Optional but Recommended):**
-   - With the safety of passing tests, refactor the implementation code and the test code to improve clarity, remove duplication, and enhance performance without changing the external behavior.
-   - Rerun tests to ensure they still pass after refactoring.
+5. **Рефакторинг (Опционально, но рекомендуется):**
+   - С защитой в виде проходящих тестов, отрефактори код реализации и тестовый код для улучшения читаемости, устранения дублирования и повышения производительности без изменения внешнего поведения.
+   - Перезапусти тесты, чтобы убедиться, что они всё ещё проходят после рефакторинга.
 
-6. **Verify Coverage:** Run coverage reports using the project's chosen tools. For example, in a Python project, this might look like:
+6. **Проверь покрытие:** Запусти отчёты о покрытии с помощью инструментов проекта.
    ```bash
-   pytest --cov=app --cov-report=html
+   bun test --coverage
    ```
-   Target: >80% coverage for new code. The specific tools and commands will vary by language and framework.
+   Цель: >80% покрытия для нового кода.
 
-7. **Document Deviations:** If implementation differs from tech stack:
-   - **STOP** implementation
-   - Update `tech-stack.md` with new design
-   - Add dated note explaining the change
-   - Resume implementation
+7. **Задокументируй отклонения:** Если реализация отличается от технологического стека:
+   - **ОСТАНОВИ** реализацию
+   - Обнови `tech-stack.md` с новым решением
+   - Добавь заметку с датой, объясняющую изменение
+   - Возобнови реализацию
 
-8. **Commit Code Changes:**
-   - Stage all code changes related to the task.
-   - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
-   - Perform the commit.
+8. **Закоммить изменения кода:**
+   - Проиндексируй все изменения кода, связанные с задачей.
+   - Предложи ясное, краткое сообщение коммита, например, `feat(ui): Создать базовую HTML-структуру для калькулятора`.
+   - Выполни коммит.
 
-9. **Attach Task Summary with Git Notes:**
-   - **Step 9.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 9.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
-   - **Step 9.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
+9. **Прикрепи сводку задачи через Git Notes:**
+   - **Шаг 9.1: Получи хеш коммита:** Получи хеш *только что сделанного коммита* (`git log -1 --format="%H"`).
+   - **Шаг 9.2: Составь содержание заметки:** Создай подробную сводку выполненной задачи. Она должна включать имя задачи, сводку изменений, список всех созданных/изменённых файлов и основную причину изменений.
+   - **Шаг 9.3: Прикрепи заметку:** Используй команду `git notes`, чтобы прикрепить сводку к коммиту.
      ```bash
-     # The note content from the previous step is passed via the -m flag.
-     git notes add -m "<note content>" <commit_hash>
+     # Содержание заметки из предыдущего шага передаётся через флаг -m.
+     git notes add -m "<содержание заметки>" <хеш_коммита>
      ```
 
-10. **Get and Record Task Commit SHA:**
-    - **Step 10.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
-    - **Step 10.2: Write Plan:** Write the updated content back to `plan.md`.
+10. **Получи и запиши SHA коммита задачи:**
+    - **Шаг 10.1: Обнови план:** Прочитай `plan.md`, найди строку выполненной задачи, обнови её статус с `[~]` на `[x]` и добавь первые 7 символов хеша *только что сделанного коммита*.
+    - **Шаг 10.2: Запиши план:** Запиши обновлённое содержимое обратно в `plan.md`.
 
-11. **Commit Plan Update:**
-    - **Action:** Stage the modified `plan.md` file.
-    - **Action:** Commit this change with a descriptive message (e.g., `conductor(plan): Mark task 'Create user model' as complete`).
+11. **Закоммить обновление плана:**
+    - **Действие:** Проиндексируй изменённый `plan.md`.
+    - **Действие:** Закоммить это изменение с описательным сообщением (например, `conductor(plan): Отметить задачу 'Создать модель пользователя' как выполненную`).
 
-### Phase Completion Verification and Checkpointing Protocol
+### Протокол завершения фазы и создания контрольной точки
 
-**Trigger:** This protocol is executed immediately after a task is completed that also concludes a phase in `plan.md`.
+**Триггер:** Этот протокол выполняется сразу после завершения задачи, которая также закрывает фазу в `plan.md`.
 
-1.  **Announce Protocol Start:** Inform the user that the phase is complete and the verification and checkpointing protocol has begun.
+1.  **Объяви о старте протокола:** Сообщи пользователю, что фаза завершена и протокол верификации и создания контрольной точки начался.
 
-2.  **Ensure Test Coverage for Phase Changes:**
-    -   **Step 2.1: Determine Phase Scope:** To identify the files changed in this phase, you must first find the starting point. Read `plan.md` to find the Git commit SHA of the *previous* phase's checkpoint. If no previous checkpoint exists, the scope is all changes since the first commit.
-    -   **Step 2.2: List Changed Files:** Execute `git diff --name-only <previous_checkpoint_sha> HEAD` to get a precise list of all files modified during this phase.
-    -   **Step 2.3: Verify and Create Tests:** For each file in the list:
-        -   **CRITICAL:** First, check its extension. Exclude non-code files (e.g., `.json`, `.md`, `.yaml`).
-        -   For each remaining code file, verify a corresponding test file exists.
-        -   If a test file is missing, you **must** create one. Before writing the test, **first, analyze other test files in the repository to determine the correct naming convention and testing style.** The new tests **must** validate the functionality described in this phase's tasks (`plan.md`).
+2.  **Обеспечь тестовое покрытие для изменений фазы:**
+    -   **Шаг 2.1: Определи область фазы:** Чтобы определить файлы, изменённые в этой фазе, сначала найди начальную точку. Прочитай `plan.md`, чтобы найти SHA коммита Git *предыдущей* контрольной точки фазы. Если предыдущей контрольной точки нет, область — все изменения с первого коммита.
+    -   **Шаг 2.2: Список изменённых файлов:** Выполни `git diff --name-only <sha_предыдущей_точки> HEAD`, чтобы получить точный список всех файлов, изменённых в этой фазе.
+    -   **Шаг 2.3: Проверь и создай тесты:** Для каждого файла в списке:
+        -   **КРИТИЧНО:** Сначала проверь его расширение. Исключи не-кодовые файлы (например, `.json`, `.md`, `.yaml`).
+        -   Для каждого оставшегося кодового файла проверь, существует ли соответствующий тестовый файл.
+        -   Если тестовый файл отсутствует, ты **должен** его создать. Перед написанием теста **сначала проанализируй другие тестовые файлы в репозитории**, чтобы определить правильное соглашение об именовании и стиль тестирования. Новые тесты **должны** проверять функциональность, описанную в задачах этой фазы (`plan.md`).
 
-3.  **Execute Automated Tests with Proactive Debugging:**
-    -   Before execution, you **must** announce the exact shell command you will use to run the tests.
-    -   **Example Announcement:** "I will now run the automated test suite to verify the phase. **Command:** `CI=true npm test`"
-    -   Execute the announced command.
-    -   If tests fail, you **must** inform the user and begin debugging. You may attempt to propose a fix a **maximum of two times**. If the tests still fail after your second proposed fix, you **must stop**, report the persistent failure, and ask the user for guidance.
+3.  **Запусти автоматические тесты с проактивной отладкой:**
+    -   Перед выполнением ты **должен** объявить точную shell-команду, которую будешь использовать для запуска тестов.
+    -   **Пример объявления:** «Я сейчас запущу автоматический набор тестов для проверки фазы. **Команда:** `CI=true bun test`»
+    -   Выполни объявленную команду.
+    -   Если тесты падают, ты **должен** сообщить пользователю и начать отладку. Ты можешь попытаться предложить исправление **не более двух раз**. Если тесты всё ещё падают после второго предложенного исправления, ты **должен остановиться**, сообщить о постоянной ошибке и запросить руководство пользователя.
 
-4.  **Propose a Detailed, Actionable Manual Verification Plan:**
-    -   **CRITICAL:** To generate the plan, first analyze `product.md`, `product-guidelines.md`, and `plan.md` to determine the user-facing goals of the completed phase.
-    -   You **must** generate a step-by-step plan that walks the user through the verification process, including any necessary commands and specific, expected outcomes.
-    -   The plan you present to the user **must** follow this format:
+4.  **Предложи подробный, действенный план ручной верификации:**
+    -   **КРИТИЧНО:** Для создания плана сначала проанализируй `product.md`, `product-guidelines.md` и `plan.md`, чтобы определить пользовательские цели завершённой фазы.
+    -   Ты **должен** создать пошаговый план, который проведёт пользователя через процесс верификации, включая все необходимые команды и конкретные ожидаемые результаты.
+    -   План, который ты представляешь пользователю, **должен** следовать этому формату:
 
-        **For a Frontend Change:**
+        **Для изменений фронтенда:**
         ```
-        The automated tests have passed. For manual verification, please follow these steps:
+        Автоматические тесты пройдены. Для ручной верификации, пожалуйста, выполни следующие шаги:
 
-        **Manual Verification Steps:**
-        1.  **Start the development server with the command:** `npm run dev`
-        2.  **Open your browser to:** `http://localhost:3000`
-        3.  **Confirm that you see:** The new user profile page, with the user's name and email displayed correctly.
-        ```
-
-        **For a Backend Change:**
-        ```
-        The automated tests have passed. For manual verification, please follow these steps:
-
-        **Manual Verification Steps:**
-        1.  **Ensure the server is running.**
-        2.  **Execute the following command in your terminal:** `curl -X POST http://localhost:8080/api/v1/users -d '{"name": "test"}'`
-        3.  **Confirm that you receive:** A JSON response with a status of `201 Created`.
+        **Шаги ручной верификации:**
+        1.  **Запусти сервер разработки командой:** `bun run dev`
+        2.  **Открой браузер по адресу:** `http://localhost:3000`
+        3.  **Убедись, что видишь:** Страницу профиля пользователя с корректно отображаемыми именем и email.
         ```
 
-5.  **Await Explicit User Feedback:**
-    -   After presenting the detailed plan, ask the user for confirmation: "**Does this meet your expectations? Please confirm with yes or provide feedback on what needs to be changed.**"
-    -   **PAUSE** and await the user's response. Do not proceed without an explicit yes or confirmation.
+        **Для изменений бэкенда:**
+        ```
+        Автоматические тесты пройдены. Для ручной верификации, пожалуйста, выполни следующие шаги:
 
-6.  **Create Checkpoint Commit:**
-    -   Stage all changes. If no changes occurred in this step, proceed with an empty commit.
-    -   Perform the commit with a clear and concise message (e.g., `conductor(checkpoint): Checkpoint end of Phase X`).
+        **Шаги ручной верификации:**
+        1.  **Убедись, что сервер запущен.**
+        2.  **Выполни следующую команду в терминале:** `curl -X POST http://localhost:8080/api/v1/users -d '{"name": "test"}'`
+        3.  **Убедись, что получаешь:** JSON-ответ со статусом `201 Created`.
+        ```
 
-7.  **Attach Auditable Verification Report using Git Notes:**
-    -   **Step 7.1: Draft Note Content:** Create a detailed verification report including the automated test command, the manual verification steps, and the user's confirmation.
-    -   **Step 7.2: Attach Note:** Use the `git notes` command and the full commit hash from the previous step to attach the full report to the checkpoint commit.
+5.  **Дождись явной обратной связи от пользователя:**
+    -   После представления подробного плана спроси пользователя: «**Соответствует ли это твоим ожиданиям? Пожалуйста, подтверди (да) или укажи, что нужно изменить.**»
+    -   **ПРИОСТАНОВИСЬ** и жди ответа пользователя. Не продолжай без явного «да» или подтверждения.
 
-8.  **Get and Record Phase Checkpoint SHA:**
-    -   **Step 8.1: Get Commit Hash:** Obtain the hash of the *just-created checkpoint commit* (`git log -1 --format="%H"`).
-    -   **Step 8.2: Update Plan:** Read `plan.md`, find the heading for the completed phase, and append the first 7 characters of the commit hash in the format `[checkpoint: <sha>]`.
-    -   **Step 8.3: Write Plan:** Write the updated content back to `plan.md`.
+6.  **Создай коммит контрольной точки:**
+    -   Проиндексируй все изменения. Если на этом шаге изменений не было, сделай пустой коммит.
+    -   Выполни коммит с ясным и кратким сообщением (например, `conductor(checkpoint): Контрольная точка конца Фазы X`).
 
-9. **Commit Plan Update:**
-    - **Action:** Stage the modified `plan.md` file.
-    - **Action:** Commit this change with a descriptive message following the format `conductor(plan): Mark phase '<PHASE NAME>' as complete`.
+7.  **Прикрепи аудируемый отчёт о верификации через Git Notes:**
+    -   **Шаг 7.1: Составь содержание заметки:** Создай подробный отчёт о верификации, включая команду автоматического тестирования, шаги ручной верификации и подтверждение пользователя.
+    -   **Шаг 7.2: Прикрепи заметку:** Используй команду `git notes` и полный хеш коммита из предыдущего шага, чтобы прикрепить полный отчёт к коммиту контрольной точки.
 
-10.  **Announce Completion:** Inform the user that the phase is complete and the checkpoint has been created, with the detailed verification report attached as a git note.
+8.  **Получи и запиши SHA контрольной точки фазы:**
+    -   **Шаг 8.1: Получи хеш коммита:** Получи хеш *только что созданного коммита контрольной точки* (`git log -1 --format="%H"`).
+    -   **Шаг 8.2: Обнови план:** Прочитай `plan.md`, найди заголовок завершённой фазы и добавь первые 7 символов хеша коммита в формате `[checkpoint: <sha>]`.
+    -   **Шаг 8.3: Запиши план:** Запиши обновлённое содержимое обратно в `plan.md`.
 
-### Quality Gates
+9. **Закоммить обновление плана:**
+    - **Действие:** Проиндексируй изменённый `plan.md`.
+    - **Действие:** Закоммить это изменение с описательным сообщением в формате `conductor(plan): Отметить фазу '<ИМЯ ФАЗЫ>' как завершённую`.
 
-Before marking any task complete, verify:
+10.  **Объяви о завершении:** Сообщи пользователю, что фаза завершена и контрольная точка создана, с подробным отчётом о верификации, прикреплённым как git note.
 
-- [ ] All tests pass
-- [ ] Code coverage meets requirements (>80%)
-- [ ] Code follows project's code style guidelines (as defined in `code_styleguides/`)
-- [ ] All public functions/methods are documented (e.g., docstrings, JSDoc, GoDoc)
-- [ ] Type safety is enforced (e.g., type hints, TypeScript types, Go types)
-- [ ] No linting or static analysis errors (using the project's configured tools)
-- [ ] Works correctly on mobile (if applicable)
-- [ ] Documentation updated if needed
-- [ ] No security vulnerabilities introduced
+### Контроль качества
 
-## Development Commands
+Перед тем как отметить любую задачу как завершённую, проверь:
 
-**AI AGENT INSTRUCTION: This section should be adapted to the project's specific language, framework, and build tools.**
+- [ ] Все тесты проходят
+- [ ] Покрытие кода соответствует требованиям (>80%)
+- [ ] Код следует руководствам по стилю проекта (как определено в `code_styleguides/`)
+- [ ] Все публичные функции/методы документированы (например, docstrings, JSDoc, GoDoc)
+- [ ] Типобезопасность обеспечена (например, type hints, типы TypeScript, типы Go)
+- [ ] Нет ошибок линтинга или статического анализа (с использованием настроенных инструментов проекта)
+- [ ] Корректно работает на мобильных устройствах (если применимо)
+- [ ] Документация обновлена при необходимости
+- [ ] Не внесено уязвимостей безопасности
 
-### Setup
+## Команды разработки
+
+### Настройка
 ```bash
-# Example: Commands to set up the development environment (e.g., install dependencies, configure database)
-# e.g., for a Node.js project: npm install
-# e.g., for a Go project: go mod tidy
+# Установка зависимостей
+bun install
 ```
 
-### Daily Development
+### Ежедневная разработка
 ```bash
-# Example: Commands for common daily tasks (e.g., start dev server, run tests, lint, format)
-# e.g., for a Node.js project: npm run dev, npm test, npm run lint
-# e.g., for a Go project: go run main.go, go test ./..., go fmt ./...
+# Запуск всех тестов
+bun test
+
+# Запуск тестов конкретного пакета
+bun test --filter @u7/core
+
+# Форматирование кода
+bunx biome format --write .
+
+# Линтинг
+bunx biome check --write .
+
+# Проверка типов
+bun run typecheck
 ```
 
-### Before Committing
+### Перед коммитом
 ```bash
-# Example: Commands to run all pre-commit checks (e.g., format, lint, type check, run tests)
-# e.g., for a Node.js project: npm run check
-# e.g., for a Go project: make check (if a Makefile exists)
+# Полная проверка: форматирование, линтинг, типы, тесты
+bunx biome check --write . && bun run typecheck && bun test
 ```
 
-## Testing Requirements
+## Требования к тестированию
 
-### Unit Testing
-- Every module must have corresponding tests.
-- Use appropriate test setup/teardown mechanisms (e.g., fixtures, beforeEach/afterEach).
-- Mock external dependencies.
-- Test both success and failure cases.
+### Модульное тестирование
+- Каждый модуль должен иметь соответствующие тесты.
+- Используй соответствующие механизмы настройки/очистки (например, fixtures, beforeEach/afterEach).
+- Мокируй внешние зависимости.
+- Тестируй как успешные, так и неуспешные сценарии.
 
-### Integration Testing
-- Test complete user flows
-- Verify database transactions
-- Test authentication and authorization
-- Check form submissions
+### Интеграционное тестирование
+- Тестируй полные пользовательские сценарии
+- Проверяй транзакции базы данных
+- Тестируй аутентификацию и авторизацию
+- Проверяй отправку форм
 
-### Mobile Testing
-- Test on actual iPhone when possible
-- Use Safari developer tools
-- Test touch interactions
-- Verify responsive layouts
-- Check performance on 3G/4G
+### Мобильное тестирование
+- Тестируй на реальном iPhone, когда возможно
+- Используй инструменты разработчика Safari
+- Тестируй сенсорные взаимодействия
+- Проверяй адаптивные макеты
+- Проверяй производительность на 3G/4G
 
-## Code Review Process
+## Процесс код-ревью
 
-### Self-Review Checklist
-Before requesting review:
+### Чеклист самопроверки
+Перед запросом ревью:
 
-1. **Functionality**
-   - Feature works as specified
-   - Edge cases handled
-   - Error messages are user-friendly
+1. **Функциональность**
+   - Функция работает как указано в спецификации
+   - Граничные случаи обработаны
+   - Сообщения об ошибках понятны пользователю
 
-2. **Code Quality**
-   - Follows style guide
-   - DRY principle applied
-   - Clear variable/function names
-   - Appropriate comments
+2. **Качество кода**
+   - Соответствует руководству по стилю
+   - Применён принцип DRY
+   - Понятные имена переменных/функций
+   - Уместные комментарии
 
-3. **Testing**
-   - Unit tests comprehensive
-   - Integration tests pass
-   - Coverage adequate (>80%)
+3. **Тестирование**
+   - Модульные тесты всеобъемлющи
+   - Интеграционные тесты проходят
+   - Покрытие адекватное (>80%)
 
-4. **Security**
-   - No hardcoded secrets
-   - Input validation present
-   - SQL injection prevented
-   - XSS protection in place
+4. **Безопасность**
+   - Нет захардкоженных секретов
+   - Присутствует валидация ввода
+   - Предотвращены SQL-инъекции
+   - На месте защита от XSS
 
-5. **Performance**
-   - Database queries optimized
-   - Images optimized
-   - Caching implemented where needed
+5. **Производительность**
+   - Запросы к базе данных оптимизированы
+   - Изображения оптимизированы
+   - Кеширование реализовано где нужно
 
-6. **Mobile Experience**
-   - Touch targets adequate (44x44px)
-   - Text readable without zooming
-   - Performance acceptable on mobile
-   - Interactions feel native
+6. **Мобильный опыт**
+   - Сенсорные цели адекватны (44x44px)
+   - Текст читаем без масштабирования
+   - Производительность приемлема на мобильных
+   - Взаимодействия ощущаются нативными
 
-## Commit Guidelines
+## Руководство по коммитам
 
-### Message Format
+### Формат сообщения
 ```
-<type>(<scope>): <description>
+<тип>(<область>): <описание>
 
-[optional body]
+[опциональное тело]
 
-[optional footer]
+[опциональный footer]
 ```
 
-### Types
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Formatting, missing semicolons, etc.
-- `refactor`: Code change that neither fixes a bug nor adds a feature
-- `test`: Adding missing tests
-- `chore`: Maintenance tasks
+### Типы
+- `feat`: Новая функциональность
+- `fix`: Исправление бага
+- `docs`: Только документация
+- `style`: Форматирование, пропущенные точки с запятой и т.д.
+- `refactor`: Изменение кода, которое не исправляет баг и не добавляет функциональность
+- `test`: Добавление недостающих тестов
+- `chore`: Задачи обслуживания
 
-### Examples
+### Примеры
 ```bash
-git commit -m "feat(auth): Add remember me functionality"
-git commit -m "fix(posts): Correct excerpt generation for short posts"
-git commit -m "test(comments): Add tests for emoji reaction limits"
-git commit -m "style(mobile): Improve button touch targets"
+git commit -m "feat(auth): Добавить функциональность 'запомнить меня'"
+git commit -m "fix(posts): Исправить генерацию excerpt для коротких постов"
+git commit -m "test(comments): Добавить тесты для лимитов emoji-реакций"
+git commit -m "style(mobile): Улучшить сенсорные цели кнопок"
 ```
 
-## Definition of Done
+## Определение готовности
 
-A task is complete when:
+Задача считается завершённой, когда:
 
-1. All code implemented to specification
-2. Unit tests written and passing
-3. Code coverage meets project requirements
-4. Documentation complete (if applicable)
-5. Code passes all configured linting and static analysis checks
-6. Works beautifully on mobile (if applicable)
-7. Implementation notes added to `plan.md`
-8. Changes committed with proper message
-9. Git note with task summary attached to the commit
+1. Весь код реализован согласно спецификации
+2. Модульные тесты написаны и проходят
+3. Покрытие кода соответствует требованиям проекта
+4. Документация завершена (если применимо)
+5. Код проходит все настроенные проверки линтинга и статического анализа
+6. Красиво работает на мобильных (если применимо)
+7. Заметки о реализации добавлены в `plan.md`
+8. Изменения закоммичены с правильным сообщением
+9. Git note со сводкой задачи прикреплён к коммиту
 
-## Emergency Procedures
+## Чрезвычайные процедуры
 
-### Critical Bug in Production
-1. Create hotfix branch from main
-2. Write failing test for bug
-3. Implement minimal fix
-4. Test thoroughly including mobile
-5. Deploy immediately
-6. Document in plan.md
+### Критический баг в продакшене
+1. Создай ветку hotfix от main
+2. Напиши падающий тест для бага
+3. Реализуй минимальное исправление
+4. Тщательно протестируй, включая мобильные
+5. Разверни немедленно
+6. Задокументируй в plan.md
 
-### Data Loss
-1. Stop all write operations
-2. Restore from latest backup
-3. Verify data integrity
-4. Document incident
-5. Update backup procedures
+### Потеря данных
+1. Останови все операции записи
+2. Восстанови из последнего бэкапа
+3. Проверь целостность данных
+4. Задокументируй инцидент
+5. Обнови процедуры бэкапа
 
-### Security Breach
-1. Rotate all secrets immediately
-2. Review access logs
-3. Patch vulnerability
-4. Notify affected users (if any)
-5. Document and update security procedures
+### Нарушение безопасности
+1. Немедленно смени все секреты
+2. Проверь логи доступа
+3. Исправь уязвимость
+4. Уведоми затронутых пользователей (если есть)
+5. Задокументируй и обнови процедуры безопасности
 
-## Deployment Workflow
+## Рабочий процесс развёртывания
 
-### Pre-Deployment Checklist
-- [ ] All tests passing
-- [ ] Coverage >80%
-- [ ] No linting errors
-- [ ] Mobile testing complete
-- [ ] Environment variables configured
-- [ ] Database migrations ready
-- [ ] Backup created
+### Чеклист перед развёртыванием
+- [ ] Все тесты проходят
+- [ ] Покрытие >80%
+- [ ] Нет ошибок линтинга
+- [ ] Мобильное тестирование завершено
+- [ ] Переменные окружения настроены
+- [ ] Миграции базы данных готовы
+- [ ] Бэкап создан
 
-### Deployment Steps
-1. Merge feature branch to main
-2. Tag release with version
-3. Push to deployment service
-4. Run database migrations
-5. Verify deployment
-6. Test critical paths
-7. Monitor for errors
+### Шаги развёртывания
+1. Слей feature-ветку в main
+2. Пометь релиз версией
+3. Отправь в сервис развёртывания
+4. Выполни миграции базы данных
+5. Проверь развёртывание
+6. Протестируй критически важные пути
+7. Отслеживай ошибки
 
-### Post-Deployment
-1. Monitor analytics
-2. Check error logs
-3. Gather user feedback
-4. Plan next iteration
+### После развёртывания
+1. Отслеживай аналитику
+2. Проверяй логи ошибок
+3. Собирай обратную связь пользователей
+4. Планируй следующую итерацию
 
-## Continuous Improvement
+## Постоянное улучшение
 
-- Review workflow weekly
-- Update based on pain points
-- Document lessons learned
-- Optimize for user happiness
-- Keep things simple and maintainable
+- Пересматривай рабочий процесс еженедельно
+- Обновляй на основе болевых точек
+- Документируй извлечённые уроки
+- Оптимизируй для счастья пользователей
+- Сохраняй простоту и поддерживаемость
