@@ -15,5 +15,5 @@ export enum Role {
 /** Valibot-схема для валидации роли пользователя */
 export const RoleSchema = v.picklist(
   [Role.STUDENT, Role.MENTOR, Role.ADMIN],
-  "Недопустимая роль. Ожидается: STUDENT, MENTOR или ADMIN",
+  `Недопустимая роль. Ожидается: ${Object.keys(Role).join(",")}`,
 );

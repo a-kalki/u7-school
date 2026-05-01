@@ -8,7 +8,7 @@ describe("Схема пользователя (User)", () => {
   const validUser: User = {
     id: "550e8400-e29b-41d4-a716-446655440000",
     name: "Иван Петров",
-    email: "ivan@example.com",
+    telegramId: 123456789,
     role: Role.STUDENT,
   };
 
@@ -46,25 +46,33 @@ describe("Схема пользователя (User)", () => {
     });
   });
 
-  describe("Валидация email", () => {
-    test("должна отклонять пользователя без email", () => {
-      const { email, ...withoutEmail } = validUser;
-      const result = v.safeParse(UserSchema, withoutEmail);
+  describe("Валидация telegramId", () => {
+    test("должна отклонять пользователя без telegramId", () => {
+      const { telegramId, ...withoutTg } = validUser;
+      const result = v.safeParse(UserSchema, withoutTg);
       expect(result.success).toBe(false);
     });
 
-    test("должна отклонять невалидный email", () => {
+    test("должна отклонять нецелый telegramId", () => {
       const result = v.safeParse(UserSchema, {
         ...validUser,
-        email: "не-email",
+        telegramId: 123.45,
       });
       expect(result.success).toBe(false);
     });
 
-    test("должна отклонять email без домена", () => {
+    test("должна отклонять нулевой telegramId", () => {
       const result = v.safeParse(UserSchema, {
         ...validUser,
-        email: "user@",
+        telegramId: 0,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    test("должна отклонять отрицательный telegramId", () => {
+      const result = v.safeParse(UserSchema, {
+        ...validUser,
+        telegramId: -1,
       });
       expect(result.success).toBe(false);
     });
