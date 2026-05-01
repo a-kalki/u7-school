@@ -26,7 +26,7 @@
     - [x] Перевести весь файл на русский язык (~16K).
     - [x] Заменить те же инструменты gemini-cli на pi.
     - [x] Адаптировать протокол Track Cleanup (archive/delete) под pi.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: setup и implement' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: setup и implement' (Protocol in workflow.md)
 
 ## Фаза 3: Средние skill-файлы (newtrack, review)
 - [ ] Task: Перевод и адаптация conductor-newtrack/SKILL.md
