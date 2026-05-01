@@ -1,5 +1,19 @@
 # Conductor Context
 
+## Языковое правило (Language Rule)
+
+**ВСЯ коммуникация, документация, комментарии в коде, сообщения коммитов, размышления и генерируемый контент должны быть на РУССКОМ языке.** Это касается:
+- Всех ответов и сообщений ассистента.
+- Всех внутренних размышлений (thinking).
+- Всех комментариев в генерируемом коде.
+- Всех генерируемых файлов документации.
+- Всех commit-сообщений.
+- Всех названий переменных, функций и типов (если не указано иное).
+
+Единственное исключение: код на TypeScript/JavaScript (ключевые слова, имена API), команды bash, имена файлов.
+
+---
+
 If a user mentions a "plan" or asks about the plan, and they have used the conductor extension in the current session, they are likely referring to the `conductor/tracks.md` file or one of the track plans (`conductor/tracks/<track_id>/plan.md`).
 
 ## Universal File Resolution Protocol

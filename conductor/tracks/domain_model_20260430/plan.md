@@ -5,9 +5,9 @@
     - [x] Инициализировать `package.json` с базовыми настройками.
     - [x] Настроить `tsconfig.json` (наследование от корня).
     - [x] Установить зависимость `valibot`.
-- [ ] Task: Настройка инфраструктуры тестирования
-    - [ ] Настроить тестовый скрипт в `package.json` (используя Bun test).
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Инициализация' (Protocol in workflow.md)
+- [x] Task: Настройка инфраструктуры тестирования
+    - [x] Настроить тестовый скрипт в `package.json` (используя Bun test).
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Инициализация' (Protocol in workflow.md)
 
 ## Phase 2: Модель Пользователя (User)
 - [ ] Task: Определение ролей (Roles)

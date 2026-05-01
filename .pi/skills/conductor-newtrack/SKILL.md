@@ -1,5 +1,5 @@
 ---
-name: conductor-newTrack
+name: conductor-newtrack
 description: Plans a track, generates track-specific spec documents and updates the tracks file
 ---
 
