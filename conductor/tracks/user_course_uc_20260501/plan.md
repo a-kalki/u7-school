@@ -11,7 +11,7 @@
     - [x] Описать подход к DI (контейнер/реестр в корне модуля, рассмотреть предлагает ли что либо elysia).
     - [x] Добавить диаграмму потока команды (console/bot/rest → command → module → uc → aggregate → repository).
     - [x] Структура команды: `{name: string, user?: uuid, attrs: unknown}`;
-- [ ] Task: Conductor - User Manual Verification 'Phase 0: Архитектурная документация' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 0: Архитектурная документация' (Protocol in workflow.md)
 
 ## Phase 1: Агрегат пользователя (UserAr)
 - [ ] Task: Тесты для UserAr
