@@ -28,7 +28,7 @@
     - [x] Адаптировать протокол Track Cleanup (archive/delete) под pi.
 - [x] Task: Conductor - User Manual Verification 'Фаза 2: setup и implement' (Protocol in workflow.md)
 
-## Фаза 3: Средние skill-файлы (newtrack, review)
+## Фаза 3: Средние skill-файлы (newtrack, review) [checkpoint: f5eec0e]
 - [x] Task: Перевод и адаптация conductor-newtrack/SKILL.md `90248e7`
     - [x] Перевести весь файл на русский язык (~12K).
     - [x] Заменить `enter_plan_mode` / `exit_plan_mode` / `ask_user` на диалоговый режим pi.
