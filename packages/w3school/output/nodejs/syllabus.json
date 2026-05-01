@@ -129,7 +129,8 @@
       {
         "title": "Node Publish Packages",
         "fileName": "nodejs_publish_package.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_publish_package.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_publish_package.asp.html",
+        "summary": "This guide outlines the essential steps for publishing Node.js packages to the npm registry, from initial setup and configuration to version management and best practices. It covers terminal commands for authentication, testing, and publishing while emphasizing the importance of maintenance and documentation."
       }
     ]
   },
@@ -139,77 +140,92 @@
       {
         "title": "HTTP Module",
         "fileName": "ref_http.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_http.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_http.asp.html",
+        "summary": "The Node.js HTTP module provides essential tools for building web servers and handling network requests. This lesson covers server creation, managing HTTP headers and status codes, parsing URLs and query strings, processing RESTful methods, and utilizing streams for efficient data transmission."
       },
       {
         "title": "HTTPS Module",
         "fileName": "ref_https.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_https.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_https.asp.html",
+        "summary": "The Node.js HTTPS module enables secure, encrypted communication by implementing the HTTP protocol over TLS/SSL. The module allows developers to create secure servers and clients, manage SSL/TLS certificates, and leverage advanced features like HTTP/2 for improved performance and data protection."
       },
       {
         "title": "File System (fs)",
         "fileName": "ref_fs.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_fs.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_fs.asp.html",
+        "summary": "The Node.js File System (fs) module provides a robust suite of methods for performing file and directory operations, supporting synchronous, callback-based, and modern promise-based APIs. It enables developers to read, write, rename, and delete files, while utilizing streams for memory-efficient handling of large data."
       },
       {
         "title": "Path Module",
         "fileName": "ref_path.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_path.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_path.asp.html",
+        "summary": "The Node.js Path module provides essential tools for cross-platform file path manipulation, normalization, and resolution. It allows developers to handle paths consistently across different operating systems, offering key methods for parsing, joining, and securing file operations."
       },
       {
         "title": "OS Module",
         "fileName": "ref_os.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_os.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_os.asp.html",
+        "summary": "The Node.js OS module provides a cross-platform utility for accessing system-level information and performing environment-specific tasks. It allows developers to monitor CPU and memory resources, retrieve user and network details, and handle OS-specific conventions like file paths and line endings."
       },
       {
         "title": "URL Module",
         "fileName": "ref_url.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_url.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_url.asp.html",
+        "summary": "The Node.js URL module provides essential utilities for parsing, constructing, and manipulating web addresses. It covers both the legacy API and the modern WHATWG URL standard, while also offering tools for managing query parameters and implementing secure server-side file routing."
       },
       {
         "title": "Events Module",
         "fileName": "ref_events.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_events.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_events.asp.html",
+        "summary": "The Node.js Events module utilizes an event-driven architecture based on the EventEmitter class. This lesson covers how to create, emit, and manage custom events, including best practices for error handling, argument passing, and lifecycle management of event listeners."
       },
       {
         "title": "Stream Module",
         "fileName": "ref_stream.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_stream.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_stream.asp.html",
+        "summary": "Node.js streams enable memory-efficient data processing by handling information in chunks rather than loading entire datasets at once. This module covers the four core stream types, advanced piping techniques, and error handling, providing essential tools for building high-performance applications."
       },
       {
         "title": "Buffer Module",
         "fileName": "ref_buffer.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_buffer.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_buffer.asp.html",
+        "summary": "The Node.js Buffer module facilitates the manipulation of raw binary data outside the V8 heap. This lesson covers essential methods for creating, reading, writing, and transforming buffers, while emphasizing critical security practices and performance optimization techniques for memory management."
       },
       {
         "title": "Crypto Module",
         "fileName": "ref_crypto.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_crypto.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_crypto.asp.html",
+        "summary": "The Node.js Crypto module provides built-in tools for secure data handling, including hashing, HMAC, and both symmetric and asymmetric encryption. It enables developers to implement critical security features like password protection, digital signatures, and secure communication channels."
       },
       {
         "title": "Timers Module",
         "fileName": "ref_timers.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_timers.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_timers.asp.html",
+        "summary": "The Node.js Timers module enables scheduling code execution through `setTimeout`, `setInterval`, and `setImmediate`. It includes Promise-based APIs, best practices for event loop management, and techniques to prevent resource leaks while implementing features like debouncing and throttling."
       },
       {
         "title": "DNS Module",
         "fileName": "ref_dns.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_dns.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_dns.asp.html",
+        "summary": "The Node.js DNS module offers essential tools for domain name resolution, supporting both callback-based and modern promise-based APIs. It enables developers to perform IP lookups, query various DNS records, and create custom resolvers to manage network traffic efficiently and reliably."
       },
       {
         "title": "Assert Module",
         "fileName": "ref_assert.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_assert.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_assert.asp.html",
+        "summary": "The Node.js Assert module provides a lightweight, built-in solution for validating code invariants through truthy checks, equality comparisons, and error handling. While ideal for simple scripts and minimizing dependencies, developers should prefer strict mode for more reliable testing results."
       },
       {
         "title": "Util Module",
         "fileName": "ref_util.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_util.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_util.asp.html",
+        "summary": "The Node.js Util module is a core toolkit providing essential functions for debugging, formatting strings, and managing asynchronous code. It simplifies development by offering reliable utilities for type checking, API deprecation, and converting between callback and Promise-based patterns."
       },
       {
         "title": "Readline Module",
         "fileName": "ref_readline.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_readline.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_readline.asp.html",
+        "summary": "The Node.js Readline module enables line-by-line input processing, making it an essential tool for building interactive command-line applications, REPLs, and memory-efficient file parsers. By leveraging its event-driven interface and configuration options, developers can create sophisticated CLI tools."
       }
     ]
   },
@@ -219,27 +235,32 @@
       {
         "title": "Node ES6+",
         "fileName": "nodejs_es6.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_es6.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_es6.asp.html",
+        "summary": "This lesson explores modern ES6+ features in Node.js, highlighting how they enhance code quality, readability, and maintainability. It covers essential topics like block-scoped variables, arrow functions, asynchronous patterns, and class syntax, all of which are fully supported in modern Node.js environments."
       },
       {
         "title": "Node Process",
         "fileName": "nodejs_process_management.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_process_management.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_process_management.asp.html",
+        "summary": "This lesson covers Node.js process management, focusing on the `process` object for lifecycle control, system signals, and environment variables. It also explores managing child processes, monitoring performance metrics, and utilizing tools like PM2 to ensure reliable production deployments."
       },
       {
         "title": "Node TypeScript",
         "fileName": "nodejs_typescript.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_typescript.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_typescript.asp.html",
+        "summary": "This lesson introduces TypeScript as a typed superset of JavaScript, emphasizing its role in improving code safety and maintainability within Node.js environments. It covers essential project configuration, core syntax, and the benefits of using static typing for scalable, long-term development."
       },
       {
         "title": "Node Adv. TypeScript",
         "fileName": "nodejs_typescript_advanced.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_typescript_advanced.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_typescript_advanced.asp.html",
+        "summary": "This lesson explores advanced TypeScript features essential for building robust, maintainable Node.js applications, covering topics like generics, decorators, and mapped types. It provides practical patterns for creating type-safe abstractions and highlights best practices to optimize code quality."
       },
       {
         "title": "Node Lint & Formatting",
         "fileName": "nodejs_linting_formatting.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_linting_formatting.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_linting_formatting.asp.html",
+        "summary": "This lesson explores how to maintain code quality in Node.js projects using ESLint for linting and Prettier for formatting. It covers essential setup, editor integration, and the use of Git hooks with Husky to ensure consistent standards and automated error prevention across development teams."
       }
     ]
   },
@@ -249,32 +270,38 @@
       {
         "title": "Node Frameworks",
         "fileName": "nodejs_frameworks.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_frameworks.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_frameworks.asp.html",
+        "summary": "Node.js frameworks provide essential structure, security, and productivity tools for building diverse web applications and APIs. By categorizing options—such as minimalist, full-stack, and real-time frameworks—developers can choose the right solution based on performance, scalability, and project complexity."
       },
       {
         "title": "Express.js",
         "fileName": "nodejs_express.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_express.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_express.asp.html",
+        "summary": "Express.js is a minimal, flexible web framework for Node.js, widely used for building APIs and web applications. This lesson covers core concepts including routing, middleware, error handling, serving static files, and best practices for creating scalable, secure production applications."
       },
       {
         "title": "Middleware Concept",
         "fileName": "nodejs_middleware.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_middleware.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_middleware.asp.html",
+        "summary": "Middleware in Node.js acts as a processing layer in the request-response cycle, allowing developers to execute code, modify objects, and control flow. By utilizing application-level, router-level, or error-handling functions, developers can build modular, reusable, and secure applications."
       },
       {
         "title": "REST API Design",
         "fileName": "nodejs_rest_api.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_rest_api.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_rest_api.asp.html",
+        "summary": "This lesson explores the core principles of RESTful API design and their practical implementation using Node.js and Express. It covers essential topics such as resource-based architecture, HTTP methods, API versioning, error handling, validation, and documentation to ensure scalable development."
       },
       {
         "title": "API Authentication",
         "fileName": "nodejs_api_auth.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_api_auth.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_api_auth.asp.html",
+        "summary": "This guide provides a comprehensive overview of API authentication in Node.js, covering essential methods like Session-based, JWT, OAuth 2.0, and API Keys. It details implementation patterns and emphasizes critical security best practices, including password hashing, rate limiting, and secure token management."
       },
       {
         "title": "Node.js with Frontend",
         "fileName": "nodejs_frontend.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_frontend.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_frontend.asp.html",
+        "summary": "This lesson explores building full-stack applications by integrating Node.js with popular frontend frameworks like React, Angular, Vue, and Svelte. It covers core integration patterns, best practices for project structure, API security, and performance optimization to ensure a unified ecosystem."
       }
     ]
   },
@@ -284,122 +311,146 @@
       {
         "title": "MySQL Get Started",
         "fileName": "nodejs_mysql.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql.asp.html",
+        "summary": "This lesson provides an introduction to integrating MySQL with Node.js. It covers the necessary setup, including installing the MySQL driver via NPM, establishing a database connection, and executing basic SQL queries to interact with your data."
       },
       {
         "title": "MySQL Create Database",
         "fileName": "nodejs_mysql_create_db.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_create_db.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_create_db.asp.html",
+        "summary": "This lesson demonstrates how to programmatically create a new MySQL database using Node.js. By utilizing the `mysql` library, you can execute the \"CREATE DATABASE\" SQL statement within your application code to manage your database infrastructure directly."
       },
       {
         "title": "MySQL Create Table",
         "fileName": "nodejs_mysql_create_table.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_create_table.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_create_table.asp.html",
+        "summary": "This lesson explains how to create MySQL database tables using Node.js by executing SQL statements via the query method. It highlights the importance of defining a primary key for unique record identification and demonstrates how to use the ALTER TABLE command to modify existing structures."
       },
       {
         "title": "MySQL Insert Into",
         "fileName": "nodejs_mysql_insert.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_insert.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_insert.asp.html",
+        "summary": "This lesson demonstrates how to insert single and multiple records into a MySQL database using Node.js. It covers using parameterized queries for data insertion and explains how to retrieve the result object to verify affected rows or obtain the ID of a newly inserted record."
       },
       {
         "title": "MySQL Select From",
         "fileName": "nodejs_mysql_select.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_select.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_select.asp.html",
+        "summary": "This lesson demonstrates how to use the MySQL SELECT statement within a Node.js environment to retrieve data from a database. It covers fetching all columns or specific fields, explains how the result is returned as an array of objects, and details how to access metadata using the fields object."
       },
       {
         "title": "MySQL Where",
         "fileName": "nodejs_mysql_where.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_where.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_where.asp.html",
+        "summary": "This lesson explains how to filter database records in Node.js using the SQL \"WHERE\" clause and the \"LIKE\" operator for wildcard searches. It also emphasizes the importance of escaping user-provided variables using placeholders to prevent SQL injection attacks."
       },
       {
         "title": "MySQL Order By",
         "fileName": "nodejs_mysql_orderby.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_orderby.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_orderby.asp.html",
+        "summary": "This lesson explains how to use the MySQL ORDER BY statement to sort query results within a Node.js application. It demonstrates both default ascending order and the use of the DESC keyword to sort data in descending order."
       },
       {
         "title": "MySQL Delete",
         "fileName": "nodejs_mysql_delete.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_delete.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_delete.asp.html",
+        "summary": "This lesson explains how to delete records from a MySQL database using the \"DELETE FROM\" statement within a Node.js environment. It highlights the critical importance of the WHERE clause to avoid accidental data loss and demonstrates how to interpret the resulting object to verify affected rows."
       },
       {
         "title": "MySQL Drop Table",
         "fileName": "nodejs_mysql_drop_table.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_drop_table.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_drop_table.asp.html",
+        "summary": "This lesson explains how to delete existing MySQL database tables using the \"DROP TABLE\" statement within a Node.js environment. It also demonstrates how to implement the \"IF EXISTS\" clause to prevent runtime errors when attempting to drop tables that may not be present in the database."
       },
       {
         "title": "MySQL Update",
         "fileName": "nodejs_mysql_update.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_update.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_update.asp.html",
+        "summary": "The lesson demonstrates updating MySQL records via Node.js using the UPDATE statement with a WHERE clause to target specific rows. It warns that omitting the WHERE clause updates all records. The result object (e.g., `affectedRows`) shows how many rows were modified, as illustrated by the example output."
       },
       {
         "title": "MySQL Limit",
         "fileName": "nodejs_mysql_limit.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_limit.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_limit.asp.html",
+        "summary": "This lesson explains how to control the number of records returned from a MySQL database using the LIMIT statement in Node.js. It covers how to restrict results and use the OFFSET keyword or shorthand syntax to begin data retrieval from a specific starting position."
       },
       {
         "title": "MySQL Join",
         "fileName": "nodejs_mysql_join.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_join.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mysql_join.asp.html",
+        "summary": "The lesson explains how to combine rows from two tables using JOINs in Node.js with MySQL. It demonstrates INNER JOIN (returns only matching records), LEFT JOIN (returns all users, with null for missing products), and RIGHT JOIN (returns all products, with null for unmatched users). Examples show query syntax and resulting data."
       },
       {
         "title": "MongoDB Get Started",
         "fileName": "nodejs_mongodb.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb.asp.html",
+        "summary": "Node.js integrates with MongoDB, a popular NoSQL database. To get started, download MongoDB locally or use the cloud Atlas service. Then install the official MongoDB driver via npm to enable Node.js applications to manipulate the database."
       },
       {
         "title": "MongoDB Create DB",
         "fileName": "nodejs_mongodb_create_db.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_create_db.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_create_db.asp.html",
+        "summary": "To create a MongoDB database in Node.js, instantiate a MongoClient and connect to a URL containing the database name. MongoDB creates the database only after it contains at least one collection with a document, not on connection alone."
       },
       {
         "title": "MongoDB Collection",
         "fileName": "nodejs_mongodb_createcollection.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_createcollection.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_createcollection.asp.html",
+        "summary": "A MongoDB collection is analogous to a table in MySQL. To create one, use the `createCollection()` method in Node.js, as shown with a database connection and callback. However, the collection does not physically exist until a document is inserted into it."
       },
       {
         "title": "MongoDB Insert",
         "fileName": "nodejs_mongodb_insert.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_insert.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_insert.asp.html",
+        "summary": "The lesson demonstrates inserting documents into MongoDB collections using Node.js. It covers the `insertOne()` method for single records and `insertMany()` for multiple documents, both accepting a callback to handle errors and results. The result object provides insertion details like `insertedCount`, and MongoDB automatically generates unique `_id` fields unless specified."
       },
       {
         "title": "MongoDB Find",
         "fileName": "nodejs_mongodb_find.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_find.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_find.asp.html",
+        "summary": "The lesson explains MongoDB's `findOne()` and `find()` methods for retrieving documents from a collection, analogous to SQL's SELECT. It demonstrates querying all documents, limiting fields with projection, and accessing result array elements. Practical Node.js code examples illustrate each concept."
       },
       {
         "title": "MongoDB Query",
         "fileName": "nodejs_mongodb_query.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_query.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_query.asp.html",
+        "summary": "The lesson explains how to filter MongoDB query results using a query object as the first argument of `find()`, demonstrated with exact matches. It also covers using regular expressions to search strings, such as matching addresses starting with \"S\". Examples show connecting to a local MongoDB, querying a collection, and outputting filtered document arrays."
       },
       {
         "title": "MongoDB Sort",
         "fileName": "nodejs_mongodb_sort.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_sort.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_sort.asp.html",
+        "summary": "The lesson explains how to use the `sort()` method in Node.js with MongoDB to order query results. Sorting is done by passing an object with field names and values of `1` for ascending order or `-1` for descending order, as demonstrated with a `customers` collection sorted by name."
       },
       {
         "title": "MongoDB Delete",
         "fileName": "nodejs_mongodb_delete.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_delete.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_delete.asp.html",
+        "summary": "The lesson explains how to delete documents in MongoDB using Node.js: `deleteOne()` deletes the first matching document, while `deleteMany()` deletes all matches. Both methods use a query object to specify which documents to remove. The result object from `deleteMany()` includes a `n` property indicating the number of deleted documents."
       },
       {
         "title": "MongoDB Drop Collection",
         "fileName": "nodejs_mongodb_drop.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_drop.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_drop.asp.html",
+        "summary": "The lesson demonstrates two ways to delete a MongoDB collection in Node.js: using the `drop()` method on a collection object, or the `dropCollection()` method on the database object. Both return a boolean indicating success, and require a callback to handle errors and confirm deletion."
       },
       {
         "title": "MongoDB Update",
         "fileName": "nodejs_mongodb_update.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_update.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_update.asp.html",
+        "summary": "The lesson explains updating MongoDB documents in Node.js using `updateOne()` to modify the first matching document and `updateMany()` to update all matches. The `$set` operator updates only specified fields, and both methods return a result object with metrics like `nModified` for tracking affected documents."
       },
       {
         "title": "MongoDB Limit",
         "fileName": "nodejs_mongodb_limit.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_limit.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_limit.asp.html",
+        "summary": "The lesson explains how to use the `limit()` method in MongoDB with Node.js to restrict the number of documents returned by a query. It demonstrates that `limit(5)` returns only the first five documents from a collection, as shown in the example with a customers collection and the resulting output."
       },
       {
         "title": "MongoDB Join",
         "fileName": "nodejs_mongodb_join.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_join.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_mongodb_join.asp.html",
+        "summary": "MongoDB supports left outer joins via the `$lookup` aggregation stage. The example joins an \"orders\" collection with a \"products\" collection by matching `product_id` to `_id`, embedding matching product documents as an array in the orders result."
       }
     ]
   },
@@ -409,17 +460,20 @@
       {
         "title": "GraphQL",
         "fileName": "nodejs_graphql.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_graphql.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_graphql.asp.html",
+        "summary": "GraphQL is a query language for APIs that allows clients to request exactly the data they need from a single endpoint, reducing over- and under-fetching. This lesson demonstrates building a Node.js GraphQL server using Express, including schema definition, resolver implementation, and mutation handling for CRUD operations. Best practices such as error handling, validation, and using DataLoader to solve the N+1 problem are also covered."
       },
       {
         "title": "Socket.IO",
         "fileName": "nodejs_socketio.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_socketio.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_socketio.asp.html",
+        "summary": "Socket.IO enables real-time bidirectional communication between clients and servers with features like automatic reconnection, rooms, and fallback to HTTP long-polling. The lesson guides building a chat application, demonstrating how to add usernames, rooms, typing indicators, and user lists. It also covers Socket.IO events, middleware for authentication, and compares Socket.IO to native WebSockets."
       },
       {
         "title": "WebSockets",
         "fileName": "nodejs_websockets.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_websockets.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_websockets.asp.html",
+        "summary": "This lesson covers WebSockets for real-time, bidirectional communication in Node.js, contrasting them with HTTP. It guides through setting up a WebSocket server and clients (Node.js and browser), with code examples for chat apps. Advanced topics include binary data, heartbeats, authentication, rate limiting, and performance optimization via compression."
       }
     ]
   },
@@ -429,22 +483,26 @@
       {
         "title": "Node Adv. Debugging",
         "fileName": "nodejs_debugging_advanced.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_debugging_advanced.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_debugging_advanced.asp.html",
+        "summary": "This lesson covers advanced Node.js debugging techniques including using Chrome DevTools and VS Code for breakpoints and profiling, the `debug` module for conditional logging, detecting memory leaks with heap snapshots, CPU profiling for performance bottlenecks, and strategies for debugging asynchronous code like async/await and stack traces."
       },
       {
         "title": "Node Testing Apps",
         "fileName": "nodejs_testing.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_testing.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_testing.asp.html",
+        "summary": "This lesson introduces Node.js testing, covering its benefits, types (unit, integration, end-to-end), and Test-Driven Development (TDD). It emphasizes best practices like writing testable code, organizing tests, and leveraging CI for automation, equipping developers to build reliable applications."
       },
       {
         "title": "Node Test Frameworks",
         "fileName": "nodejs_testing_frameworks.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_testing_frameworks.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_testing_frameworks.asp.html",
+        "summary": "This lesson introduces essential Node.js testing frameworks—Jest, Mocha, Vitest, and Node.js Assert—highlighting their features, installation, and use cases. It emphasizes testing’s role in reliability and maintenance, comparing frameworks by configuration, speed, built-in mocks, and coverage to help developers choose the best fit for their projects."
       },
       {
         "title": "Node Test Runner",
         "fileName": "nodejs_test_runner.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_test_runner.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_test_runner.asp.html",
+        "summary": "The Node.js Test Runner, stable since v20, offers a zero-config, built-in framework for writing and running tests with support for async, hooks, parallel execution, and code coverage. It uses the `node:test` and `node:assert` modules, requiring no external dependencies, making it ideal for simple projects while still supporting advanced features like subtests and custom reporters."
       }
     ]
   },
@@ -454,27 +512,32 @@
       {
         "title": "Node Env Variables",
         "fileName": "nodejs_environment.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_environment.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_environment.asp.html",
+        "summary": "Environment variables store configuration separate from code, keeping sensitive data out of version control and enabling environment-specific behavior. In Node.js, they are accessed via `process.env`, often with default values. For local development, the `dotenv` package loads variables from a `.env` file, which should never be committed to version control."
       },
       {
         "title": "Node Dev vs Prod",
         "fileName": "nodejs_dev_vs_prod.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_dev_vs_prod.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_dev_vs_prod.asp.html",
+        "summary": "The lesson contrasts Node.js development and production environments, emphasizing the use of `NODE_ENV` to toggle features like verbose logging and detailed errors in dev versus minimal logging, security, and performance optimizations in production. It covers environment-specific configuration, error handling, logging strategies, performance tweaks (e.g., clustering), security measures (Helmet, rate limiting), and differing build/deployment processes, while urging best practices like environment variables and CI/CD."
       },
       {
         "title": "Node CI/CD",
         "fileName": "nodejs_ci_cd.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_ci_cd.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_ci_cd.asp.html",
+        "summary": "This lesson covers CI/CD fundamentals for Node.js, including automated testing and deployment pipelines. It details tools like GitHub Actions with sample workflows, best practices for fast, secure builds, and Docker integration for consistent environments. Monitoring metrics and optimization techniques are also emphasized for reliable, frequent releases."
       },
       {
         "title": "Node Security",
         "fileName": "nodejs_security.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_security.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_security.asp.html",
+        "summary": "Node.js security is critical due to its vast ecosystem and server-side access. The lesson covers common vulnerabilities like injection and XSS, alongside essential practices: input validation, dependency auditing, secure authentication, and using HTTPS/security headers. Advanced topics include rate limiting, CSRF protection, and integrating security into the development lifecycle. Consistent application of these measures is key."
       },
       {
         "title": "Node Deployment",
         "fileName": "nodejs_deployment_modern.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_deployment_modern.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_deployment_modern.asp.html",
+        "summary": "Modern Node.js deployment strategies include containerization with Docker, orchestration via Kubernetes, cloud platforms like Heroku, and serverless computing. CI/CD pipelines, Infrastructure as Code, and edge computing further enhance reliability, scalability, and automation for production environments."
       }
     ]
   },
@@ -484,32 +547,38 @@
       {
         "title": "Node Logging",
         "fileName": "nodejs_logging.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_logging.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_logging.asp.html",
+        "summary": "Effective logging in Node.js is vital for debugging, monitoring, and auditing. The lesson covers built-in console methods, their limitations, and transitions to structured JSON logging using libraries like Winston, Pino, and Bunyan. Best practices emphasize proper log levels, contextual metadata, and sanitizing sensitive data, along with production strategies such as log rotation, centralized aggregation, and correlation IDs for distributed tracing."
       },
       {
         "title": "Node Monitoring",
         "fileName": "nodejs_monitoring_observability.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_monitoring_observability.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_monitoring_observability.asp.html",
+        "summary": "This lesson covers Node.js observability through metrics, logs, and traces. It demonstrates collecting system and application metrics with Prometheus, implementing distributed tracing via OpenTelemetry, and structured logging with Pino. Best practices for alerting, visualization with Grafana, and avoiding common pitfalls are also discussed."
       },
       {
         "title": "Node Performance",
         "fileName": "nodejs_performance.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_performance.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_performance.asp.html",
+        "summary": "This lesson covers Node.js performance diagnostics using built-in tools (console.time, process.memoryUsage, perf_hooks) and advanced techniques like CPU profiling, heap snapshots, event loop monitoring, flame graphs, and benchmarking. It emphasizes measuring before optimizing and provides practical steps to identify and fix common issues such as memory leaks and long-running operations."
       },
       {
         "title": "Child Process Module",
         "fileName": "nodejs_child_process.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_child_process.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_child_process.asp.html",
+        "summary": "The Node.js Child Process module enables executing system commands, running CPU-intensive tasks in separate processes, and communicating via IPC. It offers four methods: `exec()` for shell commands with buffered output, `execFile()` for binaries without shell overhead, `spawn()` for streaming I/O with large or long-running processes, and `fork()` for creating child Node.js processes with built-in messaging. Security concerns like command injection and resource management require careful handling."
       },
       {
         "title": "Cluster Module",
         "fileName": "nodejs_cluster.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_cluster.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_cluster.asp.html",
+        "summary": "The Node.js Cluster module enables an application to spawn multiple worker processes sharing the same server port, thus utilizing all CPU cores for improved performance. The master process manages workers, distributes connections via load balancing, and supports zero-downtime restarts and graceful shutdowns. Inter-process communication allows coordination, while best practices include stateless design and proper worker lifecycle management."
       },
       {
         "title": "Worker Threads",
         "fileName": "nodejs_worker_threads.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_worker_threads.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_worker_threads.asp.html",
+        "summary": "Worker Threads enable parallel execution of CPU-intensive JavaScript tasks in Node.js by running code across multiple cores, sharing memory via SharedArrayBuffer, and communicating via message passing. The lesson covers creating workers, transferring data, using Atomics for synchronization, building worker pools, and comparing this module to child processes and clustering, emphasizing appropriate use cases and best practices."
       }
     ]
   },
@@ -519,47 +588,56 @@
       {
         "title": "Microservices",
         "fileName": "nodejs_microservices.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_microservices.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_microservices.asp.html",
+        "summary": "Microservices architecture structures applications as small, independently deployable services focused on single business capabilities. Node.js is well-suited due to its lightweight, async nature. The lesson covers key principles, communication patterns (synchronous/asynchronous), API Gateway, service discovery, data strategies (Saga, CQRS), and essential patterns for resilience, security, and observability."
       },
       {
         "title": "Node WebAssembly",
         "fileName": "nodejs_webassembly.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_webassembly.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_webassembly.asp.html",
+        "summary": "WebAssembly (Wasm) is a low-level binary format providing near-native performance in Node.js, enabling code from languages like C, C++, and Rust to run efficiently. Node.js supports Wasm via the global `WebAssembly` object, allowing compilation, instantiation, and memory management. This integration is ideal for computationally intensive tasks such as image processing, cryptography, and scientific computing."
       },
       {
         "title": "HTTP2 Module",
         "fileName": "nodejs_http2.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_http2.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_http2.asp.html",
+        "summary": "The Node.js HTTP/2 module implements the HTTP/2 protocol, offering binary framing, multiplexing, header compression, and server push for improved performance. This lesson covers creating secure and cleartext servers, client connections, stream management, server push, and HTTP/1.1 compatibility. Practical examples demonstrate real-world use in API gateways, streaming, and performance optimization."
       },
       {
         "title": "Perf_hooks Module",
         "fileName": "nodejs_perf_hooks.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_perf_hooks.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_perf_hooks.asp.html",
+        "summary": "The perf_hooks module provides APIs for high-resolution performance measurement, including timers, marks, measures, and observers. It enables precise timing of operations, event loop monitoring via histograms, and supports advanced use cases like distributed tracing and optimization. This module is essential for identifying bottlenecks and tracking application performance."
       },
       {
         "title": "VM Module",
         "fileName": "ref_vm.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_vm.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_vm.asp.html",
+        "summary": "The Node.js VM module executes JavaScript in isolated V8 contexts, enabling sandboxed code execution for dynamic evaluation, plugin systems, and template engines. It offers `Script` pre-compilation, context methods like `runInContext`, and timeout controls, but is not a fully secure sandbox and should be supplemented with additional security measures for untrusted code."
       },
       {
         "title": "TLS/SSL Module",
         "fileName": "nodejs_tls.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_tls.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_tls.asp.html",
+        "summary": "This lesson covers TLS/SSL fundamentals and their implementation in Node.js using the `tls` module. It explains how to create secure servers and clients with certificate authentication, while also exploring advanced topics like SNI, session resumption, and security best practices (cipher suites, OCSP stapling). Practical examples include integrating TLS with HTTPS and Express for production-ready secure applications."
       },
       {
         "title": "Net Module",
         "fileName": "nodejs_net.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_net.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_net.asp.html",
+        "summary": "The Node.js Net module enables low-level TCP server and client creation for custom protocols and IPC. It covers socket management, event handling, and building applications like chat servers or JSON-based protocols. The module offers more control than HTTP but requires manual handling of framing, buffering, and error management."
       },
       {
         "title": "Zlib Module",
         "fileName": "ref_zlib.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_zlib.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_zlib.asp.html",
+        "summary": "The Node.js Zlib module provides bindings for compression and decompression using Gzip, Deflate, and Brotli algorithms. It supports both callback and promise-based APIs, stream processing for large files, HTTP compression, and customizable options like compression levels. Practical applications include compressing log files, API responses, and optimizing bandwidth. The module is essential for reducing file sizes and improving data transfer efficiency."
       },
       {
         "title": "Real-World Examples",
         "fileName": "nodejs_real_world_examples.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_real_world_examples.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_real_world_examples.asp.html",
+        "summary": "This lesson demonstrates Node.js building real-world applications: a RESTful Todo API, JWT authentication, file uploads, microservices, scheduled tasks, and real-time analytics with WebSockets. Each example includes production-ready practices like error handling, security, and scalability. The content emphasizes Node.js's versatility for backend development, from simple CRUD to complex distributed systems."
       }
     ]
   },
@@ -569,42 +647,50 @@
       {
         "title": "RasPi Get Started",
         "fileName": "nodejs_raspberrypi.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi.asp.html",
+        "summary": "This lesson covers setting up a Raspberry Pi, including flashing Raspbian OS, configuring WiFi, enabling SSH, and installing Node.js. It guides users through headless setup and basic commands, preparing the Pi for GPIO programming with Node.js."
       },
       {
         "title": "RasPi GPIO Introduction",
         "fileName": "nodejs_raspberrypi_gpio_intro.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_gpio_intro.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_gpio_intro.asp.html",
+        "summary": "This lesson introduces GPIO on the Raspberry Pi, explaining its pins for input/output to control devices like LEDs and sensors. It covers pin layout, breadboard prototyping, and using the `onoff` Node.js module to interface with GPIO."
       },
       {
         "title": "RasPi Blinking LED",
         "fileName": "nodejs_raspberrypi_blinking_led.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_blinking_led.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_blinking_led.asp.html",
+        "summary": "This lesson demonstrates controlling a Raspberry Pi GPIO pin with Node.js and the onoff module to blink an LED. It covers circuit assembly using a breadboard, resistor, LED, and jumper wires, then provides a script that toggles the LED on and off every 250ms for 5 seconds."
       },
       {
         "title": "RasPi LED & Pushbutton",
         "fileName": "nodejs_raspberrypi_led_pushbutton.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_led_pushbutton.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_led_pushbutton.asp.html",
+        "summary": "This lesson teaches how to use a Raspberry Pi GPIO pin as input to control an LED with a pushbutton. It includes building a circuit with resistors, button, and LED on a breadboard, then writing a Node.js script using the onoff module to turn the LED on when the button is pressed and off when released. The lesson emphasizes proper shutdown and circuit connections."
       },
       {
         "title": "RasPi Flowing LEDs",
         "fileName": "nodejs_raspberrypi_flowing_leds.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_flowing_leds.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_flowing_leds.asp.html",
+        "summary": "This lesson teaches how to create a flowing LED effect on a Raspberry Pi using Node.js. It covers building a circuit with 8 LEDs and resistors connected to GPIO pins, then writing a script with the onoff module to turn LEDs on and off in sequence using an array and interval timer. The result is a visual flowing light pattern controlled by code."
       },
       {
         "title": "RasPi WebSocket",
         "fileName": "nodejs_raspberrypi_webserver_websocket.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_webserver_websocket.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_webserver_websocket.asp.html",
+        "summary": "This lesson teaches how to set up a Node.js web server with WebSocket on a Raspberry Pi, enabling real-time bidirectional communication between a browser UI and GPIO pins. Using the socket.io and onoff modules, it demonstrates controlling an LED via a checkbox and receiving push button state from the Pi. The tutorial includes hardware setup, server code, and client-side HTML/JavaScript."
       },
       {
         "title": "RasPi RGB LED WebSocket",
         "fileName": "nodejs_raspberrypi_rgb_led_websocket.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_rgb_led_websocket.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_rgb_led_websocket.asp.html",
+        "summary": "This lesson teaches how to control an RGB LED on a Raspberry Pi using Pulse-Width Modulation (PWM) and WebSocket. It covers building the circuit for common cathode or anode LEDs, installing the pigpio module, and creating a Node.js server that receives color values from a web interface via WebSocket. The web UI includes sliders and a color picker to set LED colors in real time."
       },
       {
         "title": "RasPi Components",
         "fileName": "nodejs_raspberrypi_components.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_components.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_raspberrypi_components.asp.html",
+        "summary": "The lesson introduces essential hardware components for Raspberry Pi projects, including GPIO pins, a breadboard, LEDs, resistors, push buttons, and jumper wires. It also covers Node.js modules like onoff, Socket.IO, and pigpio for GPIO control and communication."
       }
     ]
   },
@@ -614,7 +700,8 @@
       {
         "title": "Node.js Certificate",
         "fileName": "nodejs_exam.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_exam.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_exam.asp.html",
+        "summary": "The lesson promotes the W3Schools HTML Certificate, a flexible online exam costing $95 with no expiration. It offers three achievement levels (Intermediate, Advanced, Professional) based on adaptive multiple-choice questions taken within 60 minutes. The certificate includes a verifiable link and QR code for sharing on CVs,"
       }
     ]
   },
@@ -624,102 +711,122 @@
       {
         "title": "Built-in Modules",
         "fileName": "ref_modules.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_modules.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_modules.asp.html",
+        "summary": "The lesson covers Node.js's built-in modules, which require no additional installation. It lists modules like `fs` for file system, `http` for servers, `crypto` for cryptography, and `path` for file paths. These modules provide essential utilities for handling binary data, streams, URL parsing, and more, enabling developers to build robust applications without external dependencies."
       },
       {
         "title": "EventEmitter (events)",
         "fileName": "ref_eventemitter.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_eventemitter.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_eventemitter.asp.html",
+        "summary": "The EventEmitter module is central to Node.js's asynchronous, event-driven architecture, enabling objects to communicate by emitting and listening for named events. It provides methods like `on()`, `once()`, `emit()`, and `removeListener()`, with synchronous listener execution by default and support for error handling through the `'error'`"
       },
       {
         "title": "Worker (cluster)",
         "fileName": "ref_worker.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_worker.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_worker.asp.html",
+        "summary": "The lesson provides a comprehensive guide to Node.js cluster workers, covering the Worker object’s properties, methods, and events. It demonstrates how to create multi-process HTTP servers, communicate between primary and worker processes, and implement patterns like graceful shutdown, zero-downtime restarts, and status monitoring. The content emphasizes best practices such as state isolation, handling unexpected terminations, and sticky sessions for production applications."
       },
       {
         "title": "Cipher (crypto)",
         "fileName": "ref_cipher.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_cipher.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_cipher.asp.html",
+        "summary": "The lesson covers Node.js's `crypto` module Cipher class for encryption, emphasizing the secure use of `createCipheriv()` with explicit key and IV over the deprecated `createCipher()`. It explains methods like `update()`, `final()`, `setAAD()`, and `getAuthTag()`, and demonstrates encryption with various algorithms, binary streams, AEAD (e.g., AES-GCM), manual padding, and password-based key derivation via PBKDF2, concluding with security best practices."
       },
       {
         "title": "Decipher (crypto)",
         "fileName": "ref_decipher.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_decipher.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_decipher.asp.html",
+        "summary": "This lesson explains Node.js's Decipher class from the crypto module for decrypting data using algorithms like AES-256-CBC and AES-256-GCM with explicit initialization vectors. It covers key methods (update, final, setAAD, setAuthTag), practical examples including password-based decryption with PBKDF2, and security best practices such as using authenticated encryption and proper error handling."
       },
       {
         "title": "DiffieHellman (crypto)",
         "fileName": "ref_diffiehellman.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_diffiehellman.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_diffiehellman.asp.html",
+        "summary": "This lesson explains how to implement the Diffie-Hellman key exchange in Node.js using the built-in `crypto` module, covering instance creation, key generation, computing shared secrets, and using predefined groups. It includes complete examples of secure key exchange for symmetric encryption, error handling, and important security considerations like using 2048+ bit primes and authentication to prevent man-in-the-middle attacks."
       },
       {
         "title": "ECDH (crypto)",
         "fileName": "ref_ecdh.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_ecdh.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_ecdh.asp.html",
+        "summary": "The lesson explains Node.js's ECDH class for secure key exchange using elliptic curve cryptography. It covers methods like key generation, shared secret computation, and supported curves. Practical examples demonstrate key exchange, encoding formats, and using the shared secret for AES encryption, along with performance comparisons and security best practices."
       },
       {
         "title": "Hash (crypto)",
         "fileName": "ref_hash.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_hash.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_hash.asp.html",
+        "summary": "This lesson explains how to use Node.js's `crypto` module to create cryptographic hashes, covering the `Hash` class, key methods (`update`, `digest`, `copy`), and common algorithms like SHA-256 and SHA-512. It includes practical examples such as hashing strings, files, and passwords, and emphasizes security best practices, including avoiding broken algorithms and using specialized functions like PBKDF2 for password storage."
       },
       {
         "title": "Hmac (crypto)",
         "fileName": "ref_hmac.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_hmac.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_hmac.asp.html",
+        "summary": "The lesson covers Node.js's HMAC (Hash-based Message Authentication Code) from the `crypto` module, explaining how to create HMAC instances using `crypto.createHmac()`, update with data via `hmac.update()`, and compute digests with `hmac.digest()`. It includes practical examples like API authentication, file integrity verification, multiple algorithms, different key types, and security best practices such as using strong keys and constant-time comparison."
       },
       {
         "title": "Sign (crypto)",
         "fileName": "ref_sign.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_sign.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_sign.asp.html",
+        "summary": "The lesson explains how to use Node.js’s `crypto.createSign()` to generate digital signatures, covering the `update()` and `sign()` methods. It demonstrates signing with various algorithms (RSA, ECDSA, EdDSA), handling multiple data updates, file signing, and key formats. Best practices emphasize strong keys, secure private key storage, and modern algorithms like RSA-PSS or ECDSA."
       },
       {
         "title": "Verify (crypto)",
         "fileName": "ref_verify.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_verify.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_verify.asp.html",
+        "summary": "The lesson explains how to use Node.js's `crypto.createVerify()` to verify digital signatures, covering methods like `update()` and `verify()`, and demonstrates verification with multiple algorithms, streaming file data, various key formats, and advanced options like PSS padding. It also emphasizes security best practices and common use cases such as software update validation and API authentication."
       },
       {
         "title": "Socket (dgram, net, tls)",
         "fileName": "ref_socket.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_socket.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_socket.asp.html",
+        "summary": "This lesson covers Node.js network sockets (net module), detailing socket properties, methods, events, and practical examples for TCP client/server communication, timeouts, buffer management, IPC via Unix sockets, and half-closed connections. It emphasizes best practices like error handling, backpressure, and keep-alive for robust socket programming."
       },
       {
         "title": "ReadStream (fs, stream)",
         "fileName": "ref_readstream.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_readstream.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_readstream.asp.html",
+        "summary": "A ReadStream in Node.js enables asynchronous, efficient reading from resources like files or HTTP requests. It implements the Readable interface, supporting events (data, end, error), methods (pipe, pause, resume), and flow control. The lesson covers creating and managing streams, handling backpressure, and best practices for error handling and memory efficiency."
       },
       {
         "title": "WriteStream (fs, stream)",
         "fileName": "ref_writestream.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_writestream.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_writestream.asp.html",
+        "summary": "A Node.js WriteStream is a Writable stream used to write data asynchronously to destinations like files, standard output, or HTTP responses. It provides methods (write, end, cork, uncork) and events (drain, finish, error) for flow control and backpressure handling. Best practices include always handling errors, managing backpressure, and using cork/uncork"
       },
       {
         "title": "Server (http, https, net, tls)",
         "fileName": "ref_server.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_server.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_server.asp.html",
+        "summary": "This lesson covers Node.js server objects for HTTP, HTTPS, TCP (net), and TLS/SSL protocols, detailing common methods, events, and configuration. It provides code examples for creating each server type, adding routing, timeouts, and HTTP/2, along with best practices for error handling and security."
       },
       {
         "title": "Agent (http, https)",
         "fileName": "ref_agent.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_agent.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_agent.asp.html",
+        "summary": "The Node.js Agent lesson explains how to manage HTTP/HTTPS connection pooling and reuse through the `http.Agent` and `https.Agent` classes. It covers customizing agents with `keepAlive`, `maxSockets`, and SSL/TLS options, demonstrates performance gains from pooling, and shows advanced usage like proxy agents and disabling pooling. Best practices emphasize using `keepAlive`, setting limits, and proper cleanup."
       },
       {
         "title": "Request (http)",
         "fileName": "ref_request.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_request.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_request.asp.html",
+        "summary": "This lesson explains Node.js HTTP request objects: `http.ClientRequest` for outgoing requests and `http.IncomingMessage` for incoming messages. It covers creating requests, handling headers, methods, events, and practical examples including GET, POST, file uploads, and timeouts, along with best practices for error handling and memory management."
       },
       {
         "title": "Response (http)",
         "fileName": "ref_response.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_response.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_response.asp.html",
+        "summary": "The lesson explains the Node.js HTTP Response object (`http.ServerResponse`), detailing how to set status codes, headers, and send data to clients. It covers response properties (e.g., `statusCode`, `headersSent`), methods (e.g., `write`, `end`, `writeHead`), streaming, and compression techniques like gzip. Best practices include always setting Content-Type, using proper status codes, and ending responses."
       },
       {
         "title": "Message (http)",
         "fileName": "ref_message.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_message.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_message.asp.html",
+        "summary": "The lesson covers the `http.IncomingMessage` object in Node.js, which represents both server-side requests and client-side responses. It implements the Readable Stream interface, enabling efficient body consumption via streams, events, and methods like `pipe()`. Key properties include `headers`, `method`, `statusCode`, and `url`, with examples demonstrating server/client usage, trailers, flow control, and best practices for error handling and memory management."
       },
       {
         "title": "Interface (readline)",
         "fileName": "ref_interface.asp.md",
-        "url": "https://www.w3schools.com/nodejs/ref_interface.asp.html"
+        "url": "https://www.w3schools.com/nodejs/ref_interface.asp.html",
+        "summary": "The lesson covers Node.js's `readline` module and its `Interface` class for reading input line by line, ideal for CLI tools and interactive prompts. It details properties, methods, and events, with examples including basic prompts, promise-based API, CLI with history, masked password input, and interactive menus. Best practices emphasize proper cleanup, error handling, and user-friendly prompts."
       }
     ]
   },
@@ -729,42 +836,50 @@
       {
         "title": "Node.js Compiler",
         "fileName": "nodejs_compiler.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_compiler.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_compiler.asp.html",
+        "summary": "W3Schools Spaces is a cloud-based code editor and hosting platform with a Node.js environment, requiring no setup. It offers templates, package management, and file navigation for building and deploying websites. Users can edit code directly in the browser, debug with terminal/logs, and publish sites with SSL and custom domains."
       },
       {
         "title": "Node.js Server",
         "fileName": "nodejs_server.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_server.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_server.asp.html",
+        "summary": "This lesson is not an educational tutorial but a promotional page for W3Schools Spaces, a hosting platform. It focuses on selling paid plans, templates, and an AI tutor rather than teaching how to create a Node.js server. No actual Node.js code or server setup instructions are provided."
       },
       {
         "title": "Node.js Quiz",
         "fileName": "nodejs_quiz.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_quiz.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_quiz.asp.html",
+        "summary": "The lesson offers a 25-question Node.js quiz with no time limit, where each correct answer earns one point, up to a maximum score of 25. It serves as an informal self-assessment tool, with a link to a Node.js tutorial for beginners. Additionally, it promotes W3Schools' coding certification program."
       },
       {
         "title": "Node.js Exercises",
         "fileName": "nodejs_exercises.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_exercises.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_exercises.asp.html",
+        "summary": "This lesson offers 94 practical exercises covering a wide range of Node.js topics, from fundamentals and async programming to databases, testing, and deployment. Each category contains 3-9 multiple-choice or fill-in-the-blank questions, with hints and answer reveals available for guidance. It's a complete, hands-on way to test and reinforce Node.js skills."
       },
       {
         "title": "Node.js Pratice Problems",
         "fileName": "nodejs_practice.php.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_practice.php.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_practice.php.html",
+        "summary": "This lesson provides a collection of Node.js coding problems ranging from easy to hard, including a weekly challenge. Users can write and submit code to receive instant feedback against hidden test cases, earning XP and tracking progress. It covers fundamental programming concepts through practical exercises."
       },
       {
         "title": "Node.js Syllabus",
         "fileName": "nodejs_syllabus.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_syllabus.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_syllabus.asp.html",
+        "summary": "This beginner-friendly Node.js syllabus covers environment setup, core modules (HTTP, File System, NPM), and database integration with MySQL and MongoDB. It includes creating web servers, handling files, sending emails, and building real-world applications. The course offers a browser-based sandbox for hands-on practice and a certification path for learners."
       },
       {
         "title": "Node.js Study Plan",
         "fileName": "nodejs_study_plan.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_study_plan.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_study_plan.asp.html",
+        "summary": "The Node.js Study Plan from W3Schools Academy provides teachers with a customizable, step-by-step curriculum covering basics to advanced topics like server building and asynchronous events. It includes pre-built materials, interactive content, progress tracking, and a certification exam, with flexible timelines (e.g., 5-week plan) to accommodate different skill levels and learning paces."
       },
       {
         "title": "Node.js Bootcamp",
         "fileName": "nodejs_bootcamp.asp.md",
-        "url": "https://www.w3schools.com/nodejs/nodejs_bootcamp.asp.html"
+        "url": "https://www.w3schools.com/nodejs/nodejs_bootcamp.asp.html",
+        "summary": "This 6-week live online bootcamp teaches Node.js fundamentals for building fast, scalable server-side applications and REST APIs with Express, PostgreSQL, Sequelize, and JWT security. Participants gain hands-on experience through evening sessions, culminating in the W3Schools Certified Node Developer exam, all for $495."
       }
     ]
   }

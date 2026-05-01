@@ -4,28 +4,33 @@
     "lessons": [
       {
         "title": "PostgreSQL Home",
-        "fileName": "index.php.html",
-        "url": "https://www.w3schools.com/postgresql/index.php.html"
+        "fileName": "index.php.md",
+        "url": "https://www.w3schools.com/postgresql/index.php.html",
+        "summary": "This tutorial introduces PostgreSQL as a free, open-source relational database supporting both SQL and JSON queries. It offers a step-by-step guide for installation, database creation, and performing CRUD operations, with practical examples and exercises to reinforce learning, plus a quiz to test knowledge."
       },
       {
         "title": "PostgreSQL Intro",
-        "fileName": "postgresql_intro.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_intro.php.html"
+        "fileName": "postgresql_intro.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_intro.php.html",
+        "summary": "PostgreSQL is a free, open-source database system supporting both SQL and JSON queries, commonly used as a back-end for web applications and compatible with major programming languages. Developed at UC Berkeley starting in 1986, it was designed to handle multiple data types and now runs on Windows, MacOS, and UNIX platforms."
       },
       {
         "title": "PostgreSQL Install",
-        "fileName": "postgresql_install.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_install.php.html"
+        "fileName": "postgresql_install.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_install.php.html",
+        "summary": "This lesson guides users through downloading and installing PostgreSQL locally using the EDB installer. It covers selecting components like the PostgreSQL Server, pgAdmin 4, and Command Line Tools, as well as configuring the password, port, and locale. The installation process is completed with a final check and confirmation."
       },
       {
         "title": "PostgreSQL Get Started",
-        "fileName": "postgresql_getstarted.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_getstarted.php.html"
+        "fileName": "postgresql_getstarted.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_getstarted.php.html",
+        "summary": "This lesson introduces connecting to a PostgreSQL database using SQL Shell (psql), guiding users through server, database, port, username, and password prompts. After successful connection, it demonstrates executing SQL statements like `SELECT version()` and emphasizes ending each statement with a semicolon."
       },
       {
         "title": "PostgreSQL pgAdmin 4",
-        "fileName": "postgresql_pgadmin4.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_pgadmin4.php.html"
+        "fileName": "postgresql_pgadmin4.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_pgadmin4.php.html",
+        "summary": "This lesson introduces pgAdmin 4, a graphical interface for PostgreSQL, as an alternative to the command-line psql. It guides users through starting pgAdmin, connecting to a server, opening the Query Tool, and executing SQL statements like `SELECT version()`. The result is displayed in the Data Output area, offering a user-friendly way to interact with the database."
       }
     ]
   },
@@ -34,53 +39,63 @@
     "lessons": [
       {
         "title": "PostgreSQL CREATE TABLE",
-        "fileName": "postgresql_create_table.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_create_table.php.html"
+        "fileName": "postgresql_create_table.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_create_table.php.html",
+        "summary": "The lesson demonstrates creating a table in PostgreSQL using the SQL statement `CREATE TABLE cars (brand VARCHAR(255), model VARCHAR(255), year INT);`, which defines fields with string and integer data types. It explains how to connect to the database, execute the statement, and display the empty table with `SELECT * FROM cars;`."
       },
       {
         "title": "PostgreSQL INSERT INTO",
-        "fileName": "postgresql_insert_into.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_insert_into.php.html"
+        "fileName": "postgresql_insert_into.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_insert_into.php.html",
+        "summary": "The lesson explains how to use PostgreSQL's `INSERT INTO` statement to add data to a table, covering single-row insertion with proper quoting for strings, and extending to multiple rows using comma-separated value lists. It also demonstrates verifying results with `SELECT * FROM table`."
       },
       {
         "title": "PostgreSQL Fetch Data",
-        "fileName": "postgresql_fetch_data.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_fetch_data.php.html"
+        "fileName": "postgresql_fetch_data.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_fetch_data.php.html",
+        "summary": "This lesson introduces the PostgreSQL `SELECT` statement for retrieving data. It shows how to fetch specific columns by listing their names and how to return all columns using the asterisk (`*`). Simple examples demonstrate querying a \"cars\" table."
       },
       {
         "title": "PostgreSQL ADD COLUMN",
-        "fileName": "postgresql_add_column.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_add_column.php.html"
+        "fileName": "postgresql_add_column.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_add_column.php.html",
+        "summary": "The lesson explains how to use the `ALTER TABLE` statement to add a new column (e.g., `color`) to an existing table in PostgreSQL. The data type (e.g., `VARCHAR(255)`) must be specified, and the new column initially contains NULL values. The result can be verified with a `SELECT` query."
       },
       {
         "title": "PostgreSQL UPDATE",
-        "fileName": "postgresql_update.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_update.php.html"
+        "fileName": "postgresql_update.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_update.php.html",
+        "summary": "The PostgreSQL UPDATE statement modifies existing records in a table, using SET to assign new values and WHERE to specify which rows to update. Omitting WHERE updates all rows, while multiple columns can be updated by separating name/value pairs with commas. Always verify changes with a SELECT query."
       },
       {
         "title": "PostgreSQL ALTER COLUMN",
-        "fileName": "postgresql_alter_column.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_alter_column.php.html"
+        "fileName": "postgresql_alter_column.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_alter_column.php.html",
+        "summary": "The lesson explains how to use the `ALTER TABLE` statement with the `ALTER COLUMN` clause to change a column’s data type or size in PostgreSQL. It demonstrates modifying the `year` column from `INT` to `VARCHAR(4)` and the `color` column to `VARCHAR(30)`, while noting that some type conversions may fail if existing data cannot be coerced."
       },
       {
         "title": "PostgreSQL  DROP COLUMN",
-        "fileName": "postgresql_drop_column.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_drop_column.php.html"
+        "fileName": "postgresql_drop_column.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_drop_column.php.html",
+        "summary": "The lesson demonstrates how to remove a column from a PostgreSQL table using `ALTER TABLE ... DROP COLUMN`. It provides a concrete example of deleting the `color` column from the `cars` table and verifying the change with a `SELECT` query. The result confirms the column is successfully removed."
       },
       {
         "title": "PostgreSQL DELETE",
-        "fileName": "postgresql_delete.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_delete.php.html"
+        "fileName": "postgresql_delete.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_delete.php.html",
+        "summary": "The PostgreSQL `DELETE` statement removes records from a table, but omitting the `WHERE` clause deletes all rows. Use `DELETE` with a condition to target specific records, while `TRUNCATE TABLE` efficiently clears all rows without affecting table structure. Always exercise caution when deleting data."
       },
       {
         "title": "PostgreSQL DROP TABLE",
-        "fileName": "postgresql_drop_table.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_drop_table.php.html"
+        "fileName": "postgresql_drop_table.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_drop_table.php.html",
+        "summary": "The lesson covers the `DROP TABLE` statement in PostgreSQL, which permanently deletes a table and all its data. It warns users to exercise caution due to irretrievable data loss. An example drops the `cars` table, and subsequent attempts to query it result in an error confirming its removal."
       },
       {
         "title": "Create Demo Database",
-        "fileName": "postgresql_create_demodatabase.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_create_demodatabase.php.html"
+        "fileName": "postgresql_create_demodatabase.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_create_demodatabase.php.html",
+        "summary": "This lesson provides SQL commands to create and populate six interrelated tables (categories, customers, products, orders, order_details, testproducts) in a PostgreSQL demo database. It transitions from a simple table to a richer dataset, enabling demonstration of advanced database features like joins and queries. Users can execute the provided statements or view the pre-built tables online."
       }
     ]
   },
@@ -89,148 +104,165 @@
     "lessons": [
       {
         "title": "PostgreSQL Operators",
-        "fileName": "postgresql_operators.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_operators.php.html"
+        "fileName": "postgresql_operators.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_operators.php.html",
+        "summary": "The lesson covers key PostgreSQL operators for the WHERE clause, including comparison operators (=, <, >, <=, >=, !=, <>), pattern matching with LIKE (case-sensitive) and ILIKE (case-insensitive), logical operators AND/OR, list membership with IN, range checking with BETWEEN, null checks with IS NULL, and the NOT operator for negation. Examples demonstrate filtering data from a cars table."
       },
       {
         "title": "PostgreSQL SELECT",
-        "fileName": "postgresql_select.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_select.php.html"
+        "fileName": "postgresql_select.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_select.php.html",
+        "summary": "The lesson introduces the PostgreSQL SELECT statement for retrieving data. It covers selecting specific columns by naming them, and using an asterisk (*) to return all columns from a table."
       },
       {
         "title": "PostgreSQL SELECT DISTINCT",
-        "fileName": "postgresql_select_distinct.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_select_distinct.php.html"
+        "fileName": "postgresql_select_distinct.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_select_distinct.php.html",
+        "summary": "The PostgreSQL `SELECT DISTINCT` statement filters duplicate values, returning only unique entries from a column. It can be combined with `COUNT` to count the number of distinct values, as in `SELECT COUNT(DISTINCT country) FROM customers`."
       },
       {
         "title": "PostgreSQL WHERE",
-        "fileName": "postgresql_where.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_where.php.html"
+        "fileName": "postgresql_where.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_where.php.html",
+        "summary": "The PostgreSQL WHERE clause filters records based on specified conditions. Text values require single quotes, while numeric fields should not be quoted, though quotes won't cause errors. Operators like `>` can be used for numeric comparisons, e.g., `WHERE customer_id > 80`."
       },
       {
         "title": "PostgreSQL ORDER BY",
-        "fileName": "postgresql_orderby.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_orderby.php.html"
+        "fileName": "postgresql_orderby.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_orderby.php.html",
+        "summary": "The PostgreSQL ORDER BY clause sorts query results, ascending by default. Use DESC for descending order. It works with numeric values as well as strings, ordering alphabetically or reverse alphabetically when specified."
       },
       {
         "title": "PostgreSQL LIMIT",
-        "fileName": "postgresql_limit.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_limit.php.html"
+        "fileName": "postgresql_limit.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_limit.php.html",
+        "summary": "The PostgreSQL LIMIT clause restricts query results to a specified number of rows, while OFFSET skips a given number of rows before starting to return records. Together, they enable pagination, with OFFSET counting from zero (e.g., OFFSET 40 starts at record 41). This allows precise control over result subsets."
       },
       {
         "title": "PostgreSQL MIN and MAX",
-        "fileName": "postgresql_min_max.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_min_max.php.html"
+        "fileName": "postgresql_min_max.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_min_max.php.html",
+        "summary": "The lesson introduces PostgreSQL's MIN and MAX functions, which return the smallest and largest values from a selected column. It demonstrates basic usage with SQL examples and explains how to rename the default result column using the AS keyword."
       },
       {
         "title": "PostgreSQL COUNT",
-        "fileName": "postgresql_count.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_count.php.html"
+        "fileName": "postgresql_count.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_count.php.html",
+        "summary": "The PostgreSQL `COUNT()` function returns the number of rows that match a specified criterion, such as a column or condition. It ignores NULL values when counting a specific column. Using a `WHERE` clause, you can filter results, for example, counting customers from a particular city."
       },
       {
         "title": "PostgreSQL SUM",
-        "fileName": "postgresql_sum.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_sum.php.html"
+        "fileName": "postgresql_sum.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_sum.php.html",
+        "summary": "The PostgreSQL SUM function calculates the total sum of values in a numeric column, ignoring NULLs. It is used in SELECT queries, such as `SUM(quantity)` to sum quantities from the `order_details` table."
       },
       {
         "title": "PostgreSQL AVG",
-        "fileName": "postgresql_avg.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_avg.php.html"
+        "fileName": "postgresql_avg.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_avg.php.html",
+        "summary": "The PostgreSQL `AVG()` function calculates the average value of a numeric column, ignoring NULLs. It returns a precise decimal by default, which can be rounded using the `::NUMERIC(10,2)` operator to show only two decimal places."
       },
       {
         "title": "PostgreSQL LIKE",
-        "fileName": "postgresql_like.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_like.php.html"
+        "fileName": "postgresql_like.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_like.php.html",
+        "summary": "The lesson explains PostgreSQL's `LIKE` operator for pattern matching using `%` (any sequence) and `_` (single character) wildcards. It covers searching for patterns at start, end, or anywhere in a string, and introduces `ILIKE` for case-insensitive searches. Examples demonstrate syntax for various patterns."
       },
       {
         "title": "PostgreSQL IN",
-        "fileName": "postgresql_in.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_in.php.html"
+        "fileName": "postgresql_in.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_in.php.html",
+        "summary": "The PostgreSQL `IN` operator filters records matching a list of values in a `WHERE` clause, acting as shorthand for multiple `OR` conditions. `NOT IN` excludes records matching any list value. Both operators also accept subqueries, enabling dynamic filtering based on results from another query."
       },
       {
         "title": "PostgreSQL BETWEEN",
-        "fileName": "postgresql_between.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_between.php.html"
+        "fileName": "postgresql_between.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_between.php.html",
+        "summary": "The PostgreSQL `BETWEEN` operator selects values within an inclusive range for numbers, text (alphabetical order), or dates. It is used in `WHERE` clauses, as in `WHERE price BETWEEN 10 AND 15`. Examples demonstrate usage with text and dates, often combined with `ORDER BY` for readability."
       },
       {
         "title": "PostgreSQL AS",
-        "fileName": "postgresql_as.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_as.php.html"
+        "fileName": "postgresql_as.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_as.php.html",
+        "summary": "The lesson explains that the `AS` keyword creates temporary aliases for columns or tables, often for readability, and is optional. It demonstrates concatenating columns with `||` and adding spaces via `|| ' ' ||`, and using double quotes for aliases containing spaces."
       },
       {
         "title": "PostgreSQL Joins",
-        "fileName": "postgresql_joins.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_joins.php.html"
+        "fileName": "postgresql_joins.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_joins.php.html",
+        "summary": "A JOIN combines rows from multiple tables using a related column. The lesson introduces INNER JOIN, which returns matching rows from both tables, and lists other types: LEFT, RIGHT, FULL, and CROSS JOIN, each serving different purposes for combining data."
       },
       {
         "title": "PostgreSQL INNER JOIN",
-        "fileName": "postgresql_inner_join.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_inner_join.php.html"
+        "fileName": "postgresql_inner_join.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_inner_join.php.html",
+        "summary": "INNER JOIN in PostgreSQL returns only records with matching values in both joined tables, excluding non-matching rows. The lesson demonstrates joining `testproducts` and `categories` tables on `category_id`, resulting in four matching products. `JOIN` and `INNER JOIN` are functionally identical, with `INNER` being the default."
       },
       {
         "title": "PostgreSQL LEFT JOIN",
-        "fileName": "postgresql_left_join.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_left_join.php.html"
+        "fileName": "postgresql_left_join.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_left_join.php.html",
+        "summary": "The lesson explains that PostgreSQL's `LEFT JOIN` returns all records from the left table and matching ones from the right, filling non-matches with NULLs. It demonstrates using `testproducts` (left) and `categories` (right), showing unmatched rows yield empty `category_name`. It clarifies that `LEFT JOIN` and `LEFT OUTER JOIN` are identical."
       },
       {
         "title": "PostgreSQL RIGHT JOIN",
-        "fileName": "postgresql_right_join.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_right_join.php.html"
+        "fileName": "postgresql_right_join.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_right_join.php.html",
+        "summary": "The lesson explains that PostgreSQL’s `RIGHT JOIN` returns all rows from the right table, with matching rows from the left table; unmatched left rows appear as NULL. An example demonstrates joining `testproducts` (left) with `categories` (right), producing categories even without matching products. `RIGHT JOIN` and `RIGHT OUTER JOIN` are identical."
       },
       {
         "title": "PostgreSQL FULL JOIN",
-        "fileName": "postgresql_full_join.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_full_join.php.html"
+        "fileName": "postgresql_full_join.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_full_join.php.html",
+        "summary": "A FULL JOIN returns all records from both tables, filling unmatched fields with NULL. The lesson demonstrates this using testproducts and categories, where many products have no matching category, and categories without products also appear. FULL JOIN and FULL OUTER JOIN are identical."
       },
       {
         "title": "PostgreSQL CROSS JOIN",
-        "fileName": "postgresql_cross_join.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_cross_join.php.html"
+        "fileName": "postgresql_cross_join.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_cross_join.php.html",
+        "summary": "CROSS JOIN in PostgreSQL returns the Cartesian product of two or more tables, pairing each row from the first table with every row from the second. This can generate very large result sets, as illustrated by joining a 10-row products table with an 8-row categories table to produce 80 rows. It is a powerful but potentially costly operation."
       },
       {
         "title": "PostgreSQL UNION",
-        "fileName": "postgresql_union.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_union.php.html"
+        "fileName": "postgresql_union.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_union.php.html",
+        "summary": "The PostgreSQL UNION operator combines results from multiple queries, requiring matching column counts, data types, and order. UNION returns only distinct rows, while UNION ALL includes duplicates, allowing control over result uniqueness."
       },
       {
         "title": "PostgreSQL GROUP BY",
-        "fileName": "postgresql_groupby.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_groupby.php.html"
+        "fileName": "postgresql_groupby.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_groupby.php.html",
+        "summary": "The lesson explains the PostgreSQL GROUP BY clause, which groups rows with identical values into summary rows, often combined with aggregate functions like COUNT, SUM, and AVG. It demonstrates basic usage with a single table and then shows how to use GROUP BY with JOIN to aggregate data across related tables, such as counting orders per customer."
       },
       {
         "title": "PostgreSQL HAVING",
-        "fileName": "postgresql_having.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_having.php.html"
+        "fileName": "postgresql_having.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_having.php.html",
+        "summary": "The `HAVING` clause filters aggregated data after `GROUP BY`, unlike `WHERE`. It enables conditions on aggregate functions like `COUNT` or `SUM`. Examples demonstrate filtering groups by customer count or order totals, such as listing customers with orders over $1000."
       },
       {
         "title": "PostgreSQL EXISTS",
-        "fileName": "postgresql_exists.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_exists.php.html"
+        "fileName": "postgresql_exists.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_exists.php.html",
+        "summary": "The PostgreSQL `EXISTS` operator tests whether a subquery returns any rows, yielding TRUE if at least one record exists. It is often used with correlated subqueries to filter results from an outer query. Adding `NOT` inverts the condition, returning rows where the subquery finds no matches, as shown in examples checking customers with or without orders."
       },
       {
         "title": "PostgreSQL ANY",
-        "fileName": "postgresql_any.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_any.php.html"
+        "fileName": "postgresql_any.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_any.php.html",
+        "summary": "The PostgreSQL `ANY` operator compares a single value to a set of values, returning TRUE if the condition is met by at least one element. It is commonly used with subqueries, as in `WHERE product_id = ANY (subquery)`, to filter rows based on dynamic ranges. This operator simplifies queries that would otherwise require multiple OR conditions."
       },
       {
         "title": "PostgreSQL ALL",
-        "fileName": "postgresql_all.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_all.php.html"
+        "fileName": "postgresql_all.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_all.php.html",
+        "summary": "The PostgreSQL ALL operator returns a boolean result, yielding TRUE only when a condition holds for all values returned by a subquery. It is commonly used with SELECT, WHERE, and HAVING statements, as shown in an example filtering products where all related order details have a quantity greater than 10."
       },
       {
         "title": "PostgreSQL CASE",
-        "fileName": "postgresql_case.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_case.php.html"
-      }
-    ]
-  },
-  {
-    "topic": "PostgreSQL Cert",
-    "lessons": [
-      {
-        "title": "PostgreSQL Certificate",
-        "fileName": "https://www.w3schools.com/postgresql/postgresql_exam.php",
-        "url": "https://www.w3schools.com/postgresql/https://www.w3schools.com/postgresql/postgresql_exam.php"
+        "fileName": "postgresql_case.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_case.php.html",
+        "summary": "The PostgreSQL CASE expression evaluates conditions sequentially, returning a value when the first true condition is found. If no conditions are true, it returns the ELSE value or NULL if ELSE is omitted. An alias can be added after END to name the resulting column."
       }
     ]
   },
@@ -238,24 +270,16 @@
     "topic": "Exercises",
     "lessons": [
       {
-        "title": "PostgreSQL Exercises",
-        "fileName": "https://www.w3schools.com/postgresql/postgresql_exercises.php",
-        "url": "https://www.w3schools.com/postgresql/https://www.w3schools.com/postgresql/postgresql_exercises.php"
-      },
-      {
-        "title": "PostgreSQL Quiz",
-        "fileName": "https://www.w3schools.com/postgresql/postgresql_quiz.php",
-        "url": "https://www.w3schools.com/postgresql/https://www.w3schools.com/postgresql/postgresql_quiz.php"
-      },
-      {
         "title": "PostgreSQL Syllabus",
-        "fileName": "postgresql_syllabus.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_syllabus.php.html"
+        "fileName": "postgresql_syllabus.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_syllabus.php.html",
+        "summary": "A beginner-friendly, step-by-step PostgreSQL tutorial covering fundamentals to advanced database management. It includes interactive lessons, exercises, quizzes, and a sandbox environment for hands-on practice. Learners can track progress and earn a \"Certified PostgreSQL Developer\" certification upon completion."
       },
       {
         "title": "PostgreSQL Study Plan",
-        "fileName": "postgresql_study_plan.php.html",
-        "url": "https://www.w3schools.com/postgresql/postgresql_study_plan.php.html"
+        "fileName": "postgresql_study_plan.php.md",
+        "url": "https://www.w3schools.com/postgresql/postgresql_study_plan.php.html",
+        "summary": "W3Schools Academy offers a PostgreSQL Study Plan with customizable learning paths, interactive content, and progress tracking. Teachers can set timelines and pace, assign different plans to students, and use auto-grading tools. The plan aligns with a certification exam and includes pre-built tutorials, exercises, and challenges for step-by-step learning."
       }
     ]
   }

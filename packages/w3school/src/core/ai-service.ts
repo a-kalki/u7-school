@@ -1,11 +1,14 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from 'openai';
 
 export class AIService {
-  private readonly model = "gemini-3.1-flash-lite-preview";
-  private ai: GoogleGenAI;
+  private readonly model = "deepseek-v4-flash";
+  private ai: OpenAI;
 
   constructor(apiKey: string) {
-    this.ai = new GoogleGenAI({ apiKey });
+    this.ai = new OpenAI({
+      baseURL: 'https://api.deepseek.com',
+      apiKey,
+    });
   }
 
   async getSummary(title: string, content: string): Promise<string | null> {
@@ -16,21 +19,19 @@ Write only the summary text in English, without any introductory remarks or prea
 LESSON CONTENT:
 ${content}`;
 
-      const response = await this.ai.models.generateContent({
+      const response = await this.ai.chat.completions.create({
         model: this.model,
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 200,
-        },
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 200,
       });
 
-      if (!response.text) {
-        console.error("Unexpected Gemini response: missing text");
+      if (!response.choices[0]?.message?.content) {
+        console.error("Unexpected AI response: missing text");
         return null;
       }
 
-      return response.text.trim();
+      return response.choices[0].message.content.trim();
     } catch (error: any) {
       console.error(`Error fetching summary: ${error.message}`);
       return null;

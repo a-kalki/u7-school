@@ -4,23 +4,27 @@
     "lessons": [
       {
         "title": "JS Tutorial",
-        "fileName": "default.asp.html",
-        "url": "https://www.w3schools.com/js/default.asp.html"
+        "fileName": "default.asp.md",
+        "url": "https://www.w3schools.com/js/default.asp.html",
+        "summary": "This JavaScript tutorial covers the language from basics to the 2026 version, emphasizing hands-on learning with a \"Try it Yourself\" editor and practical examples. It explains JavaScript's role as a core web technology alongside HTML and CSS, and includes exercises, quizzes, references, and certification options."
       },
       {
         "title": "JS Introduction",
-        "fileName": "js_intro.asp.html",
-        "url": "https://www.w3schools.com/js/js_intro.asp.html"
+        "fileName": "js_intro.asp.md",
+        "url": "https://www.w3schools.com/js/js_intro.asp.html",
+        "summary": "JavaScript is the programming language of the web, capable of manipulating HTML, CSS, and data. It can change element content, attribute values, styles, and hide/show elements using methods like `getElementById()`. The lesson also clarifies that JavaScript and Java are different languages, noting its creation by Brendan Eich in 1995."
       },
       {
         "title": "JS Where To",
-        "fileName": "js_whereto.asp.html",
-        "url": "https://www.w3schools.com/js/js_whereto.asp.html"
+        "fileName": "js_whereto.asp.md",
+        "url": "https://www.w3schools.com/js/js_whereto.asp.html",
+        "summary": "JavaScript code is placed in HTML using `<script>` tags, either in the `<head>` or `<body>` sections. Functions are often triggered by events like button clicks. External `.js` files improve maintainability and caching, referenced via the `src` attribute with full URLs, file paths, or no path."
       },
       {
         "title": "JS Output",
-        "fileName": "js_output.asp.html",
-        "url": "https://www.w3schools.com/js/js_output.asp.html"
+        "fileName": "js_output.asp.md",
+        "url": "https://www.w3schools.com/js/js_output.asp.html",
+        "summary": "This lesson explains the primary ways to display data in JavaScript, including modifying HTML elements via innerHTML/innerText, using document.write() for testing (with caution), showing alert boxes with window.alert(), and logging to the browser console for debugging. It also notes that window.print() allows printing the page but JavaScript lacks direct output device access."
       }
     ]
   },
@@ -29,38 +33,45 @@
     "lessons": [
       {
         "title": "JS Syntax",
-        "fileName": "js_syntax.asp.html",
-        "url": "https://www.w3schools.com/js/js_syntax.asp.html"
+        "fileName": "js_syntax.asp.md",
+        "url": "https://www.w3schools.com/js/js_syntax.asp.html",
+        "summary": "JavaScript syntax defines rules for values (literals and variables) and uses keywords like `let` for variable declaration. Identifiers follow specific naming rules and are case-sensitive. Operators and expressions compute values, and lower camel case is preferred for multi-word variable names."
       },
       {
         "title": "JS Statements",
-        "fileName": "js_statements.asp.html",
-        "url": "https://www.w3schools.com/js/js_statements.asp.html"
+        "fileName": "js_statements.asp.md",
+        "url": "https://www.w3schools.com/js/js_statements.asp.html",
+        "summary": "JavaScript statements are basic building blocks of programs, executed in order. They include values, operators, and keywords, often separated by semicolons. Code blocks group statements in curly braces for functions or conditions. White space improves readability, and keywords like let, if, and function define actions."
       },
       {
         "title": "JS Comments",
-        "fileName": "js_comments.asp.html",
-        "url": "https://www.w3schools.com/js/js_comments.asp.html"
+        "fileName": "js_comments.asp.md",
+        "url": "https://www.w3schools.com/js/js_comments.asp.html",
+        "summary": "JavaScript comments (// for single line, /* */ for multi-line) enhance code readability and can prevent execution for testing. They allow developers to explain or temporarily disable code, with single-line comments being most common for inline notes and block comments for formal documentation."
       },
       {
         "title": "JS Variables",
-        "fileName": "js_variables.asp.html",
-        "url": "https://www.w3schools.com/js/js_variables.asp.html"
+        "fileName": "js_variables.asp.md",
+        "url": "https://www.w3schools.com/js/js_variables.asp.html",
+        "summary": "JavaScript variables are containers for data, declared using `let` (mutable) or `const` (immutable), with `var` being outdated. Identifiers must start with a letter, underscore, or dollar sign, are case-sensitive, and cannot be reserved words. Variables can hold numbers or strings; quotes distinguish strings, and the `=` operator assigns values, not compares."
       },
       {
         "title": "JS Let",
-        "fileName": "js_let.asp.html",
-        "url": "https://www.w3schools.com/js/js_let.asp.html"
+        "fileName": "js_let.asp.md",
+        "url": "https://www.w3schools.com/js/js_let.asp.html",
+        "summary": "The lesson introduces the `let` keyword (ES6), which provides block scoping, prevents redeclaration within the same scope, and requires declaration before use, unlike `var`. It contrasts `let` with `var` and `const`, explaining hoisting behavior, and notes that `let` is supported in modern browsers but not Internet Explorer 11."
       },
       {
         "title": "JS Const",
-        "fileName": "js_const.asp.html",
-        "url": "https://www.w3schools.com/js/js_const.asp.html"
+        "fileName": "js_const.asp.md",
+        "url": "https://www.w3schools.com/js/js_const.asp.html",
+        "summary": "The lesson on `const` explains that variables declared with it cannot be reassigned or redeclared and have block scope. Although `const` prevents reassignment of the variable itself, properties of constant objects or array elements can still be mutated. It also contrasts `const` with `var` and `let` regarding scope, hoisting, and redeclaration rules."
       },
       {
         "title": "JS Types",
-        "fileName": "js_types.asp.html",
-        "url": "https://www.w3schools.com/js/js_types.asp.html"
+        "fileName": "js_types.asp.md",
+        "url": "https://www.w3schools.com/js/js_types.asp.html",
+        "summary": "JavaScript has 8 data types: String, Number, BigInt, Boolean, Object, Undefined, Null, and Symbol. The `typeof` operator identifies a variable's type. Strings use quotes, numbers are floating-point, booleans are true/false, and undefined indicates a declared but unassigned variable. Empty strings differ from undefined."
       }
     ]
   },
@@ -69,8 +80,9 @@
     "lessons": [
       {
         "title": "JS Operators",
-        "fileName": "js_operators.asp.html",
-        "url": "https://www.w3schools.com/js/js_operators.asp.html"
+        "fileName": "js_operators.asp.md",
+        "url": "https://www.w3schools.com/js/js_operators.asp.html",
+        "summary": "JavaScript operators perform mathematical, assignment, comparison, and logical operations. Key categories include arithmetic (+, -, *, etc.), assignment (=, +=), comparison (==, >), and logical (&&, ||). The `+` operator also concatenates strings, and adding a number to a string results in string concatenation."
       }
     ]
   },
@@ -79,8 +91,9 @@
     "lessons": [
       {
         "title": "JS If Conditions",
-        "fileName": "js_if.asp.html",
-        "url": "https://www.w3schools.com/js/js_if.asp.html"
+        "fileName": "js_if.asp.md",
+        "url": "https://www.w3schools.com/js/js_if.asp.html",
+        "summary": "The lesson introduces the JavaScript `if` statement for conditional code execution, illustrating syntax with examples like checking time or age. It also covers nested `if` statements and recommends using the logical AND operator (`&&`) for clarity and simplicity."
       }
     ]
   },
@@ -89,8 +102,9 @@
     "lessons": [
       {
         "title": "JS Loops",
-        "fileName": "js_loops.asp.html",
-        "url": "https://www.w3schools.com/js/js_loops.asp.html"
+        "fileName": "js_loops.asp.md",
+        "url": "https://www.w3schools.com/js/js_loops.asp.html",
+        "summary": "This lesson introduces JavaScript loops for repetitive code execution, covering the `for` loop (with initialization, condition, and increment), `while` loop (repeats while a condition is true), and `do...while` loop (executes once before checking the condition). It also explains loop variable scope, demonstrating that `let` inside the loop is block-scoped."
       }
     ]
   },
@@ -99,8 +113,9 @@
     "lessons": [
       {
         "title": "JS Strings",
-        "fileName": "js_strings.asp.html",
-        "url": "https://www.w3schools.com/js/js_strings.asp.html"
+        "fileName": "js_strings.asp.md",
+        "url": "https://www.w3schools.com/js/js_strings.asp.html",
+        "summary": "JavaScript strings store text using single or double quotes, with template literals (backticks) allowing quotes inside and multiline strings. The length property returns character count, and escape characters handle special characters. Avoid creating strings as objects with `new` to prevent unexpected behavior and performance issues."
       }
     ]
   },
@@ -109,8 +124,9 @@
     "lessons": [
       {
         "title": "JS Numbers",
-        "fileName": "js_numbers.asp.html",
-        "url": "https://www.w3schools.com/js/js_numbers.asp.html"
+        "fileName": "js_numbers.asp.md",
+        "url": "https://www.w3schools.com/js/js_numbers.asp.html",
+        "summary": "JavaScript numbers are always 64-bit floating point, with integer precision up to 15 digits. The + operator performs addition for numbers but concatenation for strings, while other operators coerce strings to numbers. Special values include NaN and Infinity. Creating Number objects with `new` is discouraged as it complicates comparisons and performance."
       }
     ]
   },
@@ -119,8 +135,9 @@
     "lessons": [
       {
         "title": "JS Functions",
-        "fileName": "js_functions.asp.html",
-        "url": "https://www.w3schools.com/js/js_functions.asp.html"
+        "fileName": "js_functions.asp.md",
+        "url": "https://www.w3schools.com/js/js_functions.asp.html",
+        "summary": "This lesson covers JavaScript functions from basics to advanced topics, including function declarations, parameters, return values, arrow functions, callbacks, the `this` keyword, and closures. It emphasizes understanding functions as reusable code blocks, how to define and invoke them, and key concepts like parameter vs. argument distinctions and function expressions."
       }
     ]
   },
@@ -129,8 +146,9 @@
     "lessons": [
       {
         "title": "JS Objects",
-        "fileName": "js_objects.asp.html",
-        "url": "https://www.w3schools.com/js/js_objects.asp.html"
+        "fileName": "js_objects.asp.md",
+        "url": "https://www.w3schools.com/js/js_objects.asp.html",
+        "summary": "This lesson introduces JavaScript objects as variables that store both values and functions, emphasizing their central role in the language. It covers object properties, methods, and `this`, then progresses to constructors for creating multiple objects. Advanced topics include object definitions, iterations, getters/setters, management, protection, and prototypes, providing a comprehensive learning path."
       }
     ]
   },
@@ -139,8 +157,9 @@
     "lessons": [
       {
         "title": "JS Scope",
-        "fileName": "js_scope.asp.html",
-        "url": "https://www.w3schools.com/js/js_scope.asp.html"
+        "fileName": "js_scope.asp.md",
+        "url": "https://www.w3schools.com/js/js_scope.asp.html",
+        "summary": "JavaScript scope defines variable visibility. Variables can have global, function, or block scope. Global variables are accessible everywhere, function-scoped variables are local to a function, and block-scoped variables (with `let`/`const`) are confined to a block. Avoid unintended global variables to prevent overwrites."
       }
     ]
   },
@@ -149,8 +168,9 @@
     "lessons": [
       {
         "title": "JS Dates",
-        "fileName": "js_dates.asp.html",
-        "url": "https://www.w3schools.com/js/js_dates.asp.html"
+        "fileName": "js_dates.asp.md",
+        "url": "https://www.w3schools.com/js/js_dates.asp.html",
+        "summary": "This lesson explains JavaScript Date objects, covering creation via `new Date()` with various formats (string, year/month values, milliseconds). Key details include zero-based month indexing, automatic overflow handling, and date storage as milliseconds since January 1, 1970. The tutorial also introduces methods for displaying dates in different formats, such as `toString()`, `toDateString()`, `toUTCString()`, and `toISOString()`."
       }
     ]
   },
@@ -159,8 +179,9 @@
     "lessons": [
       {
         "title": "JS Temporal  New",
-        "fileName": "js_temporal.asp.html",
-        "url": "https://www.w3schools.com/js/js_temporal.asp.html"
+        "fileName": "js_temporal.asp.md",
+        "url": "https://www.w3schools.com/js/js_temporal.asp.html",
+        "summary": "This lesson introduces JavaScript Temporal as a modern, immutable replacement for the flawed Date object, offering first-class timezone and DST support. It covers core types like Instant, PlainDateTime, ZonedDateTime, and Duration, along with safe arithmetic, comparison, and conversion methods. The tutorial also explains migration paths, formatting standards (ISO 8601), and browser support status."
       }
     ]
   },
@@ -169,8 +190,9 @@
     "lessons": [
       {
         "title": "JS Arrays",
-        "fileName": "js_arrays.asp.html",
-        "url": "https://www.w3schools.com/js/js_arrays.asp.html"
+        "fileName": "js_arrays.asp.md",
+        "url": "https://www.w3schools.com/js/js_arrays.asp.html",
+        "summary": "JavaScript arrays are ordered, zero-indexed, and dynamic collections that can hold heterogeneous data. They are created using literals (`[]`) and support properties like `length` and methods like `push()`. Unlike objects, arrays use numbered indexes, and you can identify them with `Array.isArray()`. The lesson also covers nested arrays and objects."
       }
     ]
   },
@@ -179,8 +201,9 @@
     "lessons": [
       {
         "title": "JS Sets",
-        "fileName": "js_sets.asp.html",
-        "url": "https://www.w3schools.com/js/js_sets.asp.html"
+        "fileName": "js_sets.asp.md",
+        "url": "https://www.w3schools.com/js/js_sets.asp.html",
+        "summary": "A JavaScript Set stores unique values of any type. You create a Set using `new Set(array)` or an empty set with `add()`. Duplicate values are ignored, and elements can be iterated with a `for..of` loop. Sets are an ES6 feature supported in modern browsers."
       }
     ]
   },
@@ -189,8 +212,9 @@
     "lessons": [
       {
         "title": "JS Maps",
-        "fileName": "js_maps.asp.html",
-        "url": "https://www.w3schools.com/js/js_maps.asp.html"
+        "fileName": "js_maps.asp.md",
+        "url": "https://www.w3schools.com/js/js_maps.asp.html",
+        "summary": "A JavaScript Map stores key-value pairs where keys can be any data type, unlike objects. Maps preserve insertion order, have a `size` property, are directly iterable, and perform well with frequent additions or removals. They are created using `new Map()` and values are set or retrieved with `.set()` and `.get()`."
       }
     ]
   },
@@ -199,8 +223,9 @@
     "lessons": [
       {
         "title": "JS Loops",
-        "fileName": "js_looping.asp.html",
-        "url": "https://www.w3schools.com/js/js_looping.asp.html"
+        "fileName": "js_looping.asp.md",
+        "url": "https://www.w3schools.com/js/js_looping.asp.html",
+        "summary": "JavaScript loops repeat code execution for iteration over values, data structures, or repeated actions. The lesson covers `for`, `while`, `do...while`, `for...in`, `for...of`, and mentions array methods like `forEach()`. Each loop type has specific use cases, such as known iterations, condition-based execution, or iterating object properties and iterables."
       }
     ]
   },
@@ -209,8 +234,9 @@
     "lessons": [
       {
         "title": "JS Math",
-        "fileName": "js_math.asp.html",
-        "url": "https://www.w3schools.com/js/js_math.asp.html"
+        "fileName": "js_math.asp.md",
+        "url": "https://www.w3schools.com/js/js_math.asp.html",
+        "summary": "The JavaScript Math object provides static methods and properties for common mathematical tasks. It includes constants like PI and E, rounding functions (round, ceil, floor, trunc), and methods for exponents, trigonometry, logarithms, min/max, and random numbers. All are accessed directly as `Math.property` or `Math.method()`."
       }
     ]
   },
@@ -219,8 +245,9 @@
     "lessons": [
       {
         "title": "JS RegExp",
-        "fileName": "js_regexp.asp.html",
-        "url": "https://www.w3schools.com/js/js_regexp.asp.html"
+        "fileName": "js_regexp.asp.md",
+        "url": "https://www.w3schools.com/js/js_regexp.asp.html",
+        "summary": "This lesson introduces JavaScript regular expressions (RegExp) as patterns for searching, replacing, and validating text. It covers syntax with flags like `/g` (global) and `/i` (case-insensitive), along with metacharacters (`\\d`, `\\w`), quantifiers (`?`, `*`), assertions (`^`, `$`), and character classes (`[a-z]`)."
       }
     ]
   },
@@ -229,8 +256,9 @@
     "lessons": [
       {
         "title": "JS Data Types",
-        "fileName": "js_datatypes.asp.html",
-        "url": "https://www.w3schools.com/js/js_datatypes.asp.html"
+        "fileName": "js_datatypes.asp.md",
+        "url": "https://www.w3schools.com/js/js_datatypes.asp.html",
+        "summary": "JavaScript has 8 data types: 7 primitives (Number, BigInt, String, Boolean, Undefined, Null, Symbol) and 1 Object (including arrays, dates, etc.). Variables are dynamically typed, meaning the same variable can hold different types. The `typeof` operator identifies a value's type. JavaScript also converts types when mixing numbers and strings, evaluating left to right."
       }
     ]
   },
@@ -239,8 +267,9 @@
     "lessons": [
       {
         "title": "JS Errors",
-        "fileName": "js_errors_intro.asp.html",
-        "url": "https://www.w3schools.com/js/js_errors_intro.asp.html"
+        "fileName": "js_errors_intro.asp.md",
+        "url": "https://www.w3schools.com/js/js_errors_intro.asp.html",
+        "summary": "This lesson introduces common JavaScript error types (Reference, Type, Range, URI, Syntax, Eval) and explains how to handle them using `try...catch`. It emphasizes that syntax errors are not catchable as they occur before runtime, causing script execution to stop immediately."
       }
     ]
   },
@@ -249,8 +278,9 @@
     "lessons": [
       {
         "title": "JS Debugging",
-        "fileName": "js_debugging.asp.html",
-        "url": "https://www.w3schools.com/js/js_debugging.asp.html"
+        "fileName": "js_debugging.asp.md",
+        "url": "https://www.w3schools.com/js/js_debugging.asp.html",
+        "summary": "Debugging is the process of finding and fixing bugs, which are normal in coding. The lesson emphasizes using the browser console and `console.log()` to check values, reading error messages like ReferenceError and TypeError, and following a systematic approach: Read, Reproduce, Reduce, Fix. Beginners are encouraged to verify assumptions rather than guess."
       }
     ]
   },
@@ -259,8 +289,9 @@
     "lessons": [
       {
         "title": "JS Style Guide",
-        "fileName": "js_conventions.asp.html",
-        "url": "https://www.w3schools.com/js/js_conventions.asp.html"
+        "fileName": "js_conventions.asp.md",
+        "url": "https://www.w3schools.com/js/js_conventions.asp.html",
+        "summary": "Consistent coding conventions, like using camelCase, 2-space indentation, and semicolons, improve JavaScript code readability and maintainability. Key rules include placing spaces around operators, breaking long lines after operators or commas, and using lowercase file names. Adhering to these style guidelines helps avoid errors and ensures clarity across projects."
       }
     ]
   },
@@ -269,8 +300,9 @@
     "lessons": [
       {
         "title": "JS Reference",
-        "fileName": "js_alphabetic_reference.asp.html",
-        "url": "https://www.w3schools.com/js/js_alphabetic_reference.asp.html"
+        "fileName": "js_alphabetic_reference.asp.md",
+        "url": "https://www.w3schools.com/js/js_alphabetic_reference.asp.html",
+        "summary": "This lesson provides an extensive alphabetical reference of JavaScript properties, methods, and objects, organized by category. It serves as a quick lookup guide for developers, covering core language features, DOM, events, APIs, and modern temporal objects. The content is structured similarly to a dictionary, linking to detailed W3Schools pages."
       }
     ]
   },
@@ -279,8 +311,9 @@
     "lessons": [
       {
         "title": "JS Projects New",
-        "fileName": "js_project_counter.asp.html",
-        "url": "https://www.w3schools.com/js/js_project_counter.asp.html"
+        "fileName": "js_project_counter.asp.md",
+        "url": "https://www.w3schools.com/js/js_project_counter.asp.html",
+        "summary": "This lesson guides learners in building an interactive counter with increase, decrease, reset, save, and load buttons. It teaches JavaScript variables, functions, DOM manipulation, event handling via onclick, and local storage for data persistence. Exercises encourage extending the counter by starting at a different value, preventing negative numbers, and auto-loading saved data on page refresh."
       }
     ]
   },
@@ -289,8 +322,9 @@
     "lessons": [
       {
         "title": "JS 2026",
-        "fileName": "js_2026.asp.html",
-        "url": "https://www.w3schools.com/js/js_2026.asp.html"
+        "fileName": "js_2026.asp.md",
+        "url": "https://www.w3schools.com/js/js_2026.asp.html",
+        "summary": "ECMAScript 2026 introduces the Temporal API for modern date handling, resource management with `using` and `await using` keywords, and `Error.isError()` for realm-safe error checks. It also adds `Array.fromAsync()` for async data and Uint8Array methods for Base64/Hexadecimal conversion, while Records & Tuples and Pattern Matching remain Stage 3 proposals."
       }
     ]
   },
@@ -299,13 +333,15 @@
     "lessons": [
       {
         "title": "JS HTML DOM",
-        "fileName": "js_htmldom.asp.html",
-        "url": "https://www.w3schools.com/js/js_htmldom.asp.html"
+        "fileName": "js_htmldom.asp.md",
+        "url": "https://www.w3schools.com/js/js_htmldom.asp.html",
+        "summary": "The HTML DOM is a tree of nodes representing an HTML page, created by the browser on load. It enables JavaScript to access and modify elements using methods like `getElementById()` and properties like `innerHTML`. This standard, defined by W3C, allows dynamic updates to content, style, and structure."
       },
       {
         "title": "JS Events",
-        "fileName": "js_events.asp.html",
-        "url": "https://www.w3schools.com/js/js_events.asp.html"
+        "fileName": "js_events.asp.md",
+        "url": "https://www.w3schools.com/js/js_events.asp.html",
+        "summary": "This lesson explains that JavaScript events are actions (clicks, loads, key presses) that trigger code execution. It covers using inline event attributes (e.g., onclick) and calling functions, but recommends the `addEventListener()` method for cleaner separation of HTML and JavaScript. Event handlers manage user input, page loads, and other browser actions."
       }
     ]
   },
@@ -314,83 +350,93 @@
     "lessons": [
       {
         "title": "JS Functions",
-        "fileName": "js_function_advanced.asp.html",
-        "url": "https://www.w3schools.com/js/js_function_advanced.asp.html"
+        "fileName": "js_function_advanced.asp.md",
+        "url": "https://www.w3schools.com/js/js_function_advanced.asp.html",
+        "summary": "This advanced lesson explores JavaScript functions beyond basics, covering definitions, callbacks, the `this` keyword, and explicit binding with `call`, `apply`, and `bind`. It also introduces IIFEs, closures, and function object properties, enabling deeper control over execution context and scope."
       },
       {
         "title": "JS Objects",
-        "fileName": "js_object_advanced.asp.html",
-        "url": "https://www.w3schools.com/js/js_object_advanced.asp.html"
+        "fileName": "js_object_advanced.asp.md",
+        "url": "https://www.w3schools.com/js/js_object_advanced.asp.html",
+        "summary": "This advanced lesson explores JavaScript objects beyond basics, covering creation methods (literal, constructor, `Object.assign`, etc.), the `this` keyword, iteration techniques, accessors, property management, protection, and inheritance via prototypes. It provides a comprehensive reference for object manipulation and configuration."
       },
       {
         "title": "JS Classes",
-        "fileName": "js_classes.asp.html",
-        "url": "https://www.w3schools.com/js/js_classes.asp.html"
+        "fileName": "js_classes.asp.md",
+        "url": "https://www.w3schools.com/js/js_classes.asp.html",
+        "summary": "JavaScript classes, introduced in ES6, serve as templates for creating objects with a constructor method for initialization and custom methods for functionality. Objects are instantiated using the `new` keyword, and the constructor runs automatically. Classes follow strict mode rules, requiring proper variable declarations to avoid errors."
       },
       {
         "title": "JS Asynchronous",
-        "fileName": "js_asynchronous.asp.html",
-        "url": "https://www.w3schools.com/js/js_asynchronous.asp.html"
+        "fileName": "js_asynchronous.asp.md",
+        "url": "https://www.w3schools.com/js/js_asynchronous.asp.html",
+        "summary": "A structured path to master asynchronous JavaScript, progressing from core concepts like callbacks and promises to modern async/await and fetch. It emphasizes a logical order, practical debugging of async code, and a comprehensive reference."
       },
       {
         "title": "JS Modules",
-        "fileName": "js_modules.asp.html",
-        "url": "https://www.w3schools.com/js/js_modules.asp.html"
+        "fileName": "js_modules.asp.md",
+        "url": "https://www.w3schools.com/js/js_modules.asp.html",
+        "summary": "JavaScript modules are self-contained code blocks using `export` and `import` to share functionality across files, enabling better organization, private scope, and reusability. They prevent naming conflicts, enforce strict mode, and require an HTTP server to work. Modules are essential for modern, maintainable, and scalable applications."
       },
       {
         "title": "JS Meta & Proxy",
-        "fileName": "js_meta_programming.asp.html",
-        "url": "https://www.w3schools.com/js/js_meta_programming.asp.html"
+        "fileName": "js_meta_programming.asp.md",
+        "url": "https://www.w3schools.com/js/js_meta_programming.asp.html",
+        "summary": "This lesson introduces JavaScript metaprogramming, where code manipulates itself at runtime through inspection, modification, and dynamic generation. It focuses on the Proxy and Reflect objects, which allow intercepting and controlling operations like property reading and writing, with practical examples for logging and safe forwarding."
       },
       {
         "title": "JS Typed Arrays",
-        "fileName": "js_typed_arrays.asp.html",
-        "url": "https://www.w3schools.com/js/js_typed_arrays.asp.html"
+        "fileName": "js_typed_arrays.asp.md",
+        "url": "https://www.w3schools.com/js/js_typed_arrays.asp.html",
+        "summary": "JavaScript Typed Arrays provide fixed-length, fixed-type buffers for efficient binary data handling, unlike regular arrays. They offer performance benefits for WebGL, Canvas, File, Media, and WebSocket APIs by allowing direct memory access. Types range from 8-bit integers to 64-bit floats, with key differences including fixed size and lack of standard array methods."
       },
       {
         "title": "JS DOM Navigation",
-        "fileName": "js_htmldom_navigation.asp.html",
-        "url": "https://www.w3schools.com/js/js_htmldom_navigation.asp.html"
+        "fileName": "js_htmldom_navigation.asp.md",
+        "url": "https://www.w3schools.com/js/js_htmldom_navigation.asp.html",
+        "summary": "This lesson explains how to navigate the HTML DOM tree using node relationships like parent, child, and sibling. It covers key navigation properties (parentNode, childNodes, firstChild, lastChild, nextSibling, previousSibling) and node properties (nodeName, nodeValue, nodeType). Understanding these concepts is essential for accessing and manipulating HTML elements via JavaScript."
       },
       {
         "title": "JS Windows",
-        "fileName": "js_window.asp.html",
-        "url": "https://www.w3schools.com/js/js_window.asp.html"
+        "fileName": "js_window.asp.md",
+        "url": "https://www.w3schools.com/js/js_window.asp.html",
+        "summary": "The lesson covers the Browser Object Model (BOM) and the `window` object, which represents the browser window and contains all global variables and functions. It explains how to determine browser window size using `innerHeight` and `innerWidth`, and lists methods like `open()`, `close()`, `moveTo()`, and `resizeTo()` for window manipulation."
       },
       {
         "title": "JS Web APIs",
-        "fileName": "js_api_intro.asp.html",
-        "url": "https://www.w3schools.com/js/js_api_intro.asp.html"
+        "fileName": "js_api_intro.asp.md",
+        "url": "https://www.w3schools.com/js/js_api_intro.asp.html",
+        "summary": "This lesson introduces Web APIs as browser and server interfaces that extend functionality and simplify code. It covers key browser APIs like Geolocation, highlights the foundational DOM, Fetch, and Web Storage APIs for modern development, and mentions third-party APIs such as YouTube and Twitter."
       },
       {
         "title": "JS AJAX",
-        "fileName": "js_ajax_intro.asp.html",
-        "url": "https://www.w3schools.com/js/js_ajax_intro.asp.html"
+        "fileName": "js_ajax_intro.asp.md",
+        "url": "https://www.w3schools.com/js/js_ajax_intro.asp.html",
+        "summary": "AJAX (Asynchronous JavaScript and XML) enables web pages to update content dynamically without full reloads by exchanging data with a server in the background. It uses the built-in `XMLHttpRequest` object or the modern Fetch API to send requests and handle responses. The lesson demonstrates a button click that fetches text from a server and updates a `<div>` element, highlighting asynchronous, partial page updates."
       },
       {
         "title": "JS JSON",
-        "fileName": "js_json_intro.asp.html",
-        "url": "https://www.w3schools.com/js/js_json_intro.asp.html"
+        "fileName": "js_json_intro.asp.md",
+        "url": "https://www.w3schools.com/js/js_json_intro.asp.html",
+        "summary": "JSON is a plain text format for storing and transporting data, derived from JavaScript object syntax but language-independent. JavaScript provides built-in methods `JSON.parse()` and `JSON.stringify()` to convert between JSON strings and native objects. This makes JSON ideal for exchanging data between computers and storing JavaScript objects as text."
       },
       {
         "title": "JS jQuery",
-        "fileName": "js_jquery_selectors.asp.html",
-        "url": "https://www.w3schools.com/js/js_jquery_selectors.asp.html"
+        "fileName": "js_jquery_selectors.asp.md",
+        "url": "https://www.w3schools.com/js/js_jquery_selectors.asp.html",
+        "summary": "jQuery simplifies DOM selection with concise syntax like `$(\"#id\")`, but modern JavaScript achieves the same with methods like `getElementById()` and `querySelectorAll()`. The lesson compares jQuery and vanilla JS selectors by id, tag, class, and CSS selectors, showing jQuery's historical popularity and current redundancy."
       },
       {
         "title": "JS Graphics",
-        "fileName": "js_graphics.asp.html",
-        "url": "https://www.w3schools.com/js/js_graphics.asp.html"
+        "fileName": "js_graphics.asp.md",
+        "url": "https://www.w3schools.com/js/js_graphics.asp.html",
+        "summary": "This lesson introduces three JavaScript libraries for creating graphics: Plotly.js, Chart.js, and Google Chart. Plotly.js offers over 40 chart types including 3D and statistical graphs. Chart.js provides eight built-in charts like line, bar, and pie. Google Chart features diverse options from simple line charts to complex tree maps and geo charts."
       },
       {
         "title": "JS Examples",
-        "fileName": "js_examples.asp.html",
-        "url": "https://www.w3schools.com/js/js_examples.asp.html"
-      },
-      {
-        "title": "JS Reference",
-        "fileName": "https://www.w3schools.com/jsref/default.asp",
-        "url": "https://www.w3schools.com/js/https://www.w3schools.com/jsref/default.asp"
+        "fileName": "js_examples.asp.md",
+        "url": "https://www.w3schools.com/js/js_examples.asp.html",
+        "summary": "This lesson provides a comprehensive collection of JavaScript examples demonstrating core concepts, including syntax, variables, functions, objects, arrays, events, and JSON manipulation. It covers practical tasks like changing HTML content, handling user interactions, and data transformation. The examples serve as a hands-on reference for learning JavaScript through direct code demonstrations."
       }
     ]
   }

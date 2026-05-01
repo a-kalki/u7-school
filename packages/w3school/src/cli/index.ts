@@ -95,9 +95,9 @@ async function main() {
       break;
     }
     case "enrich": {
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = process.env.DEEPSEEK_API_KEY;
       if (!apiKey) {
-        console.error("Ошибка: Переменная окружения GEMINI_API_KEY не установлена.");
+        console.error("Ошибка: Переменная окружения DEEPSEEK_API_KEY не установлена.");
         return;
       }
 

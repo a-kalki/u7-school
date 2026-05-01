@@ -6,17 +6,28 @@
 
 Для скачивания курсов используется утилита `wget`. Скачивание необходимо производить в папку `packages/w3school/www.w3schools.com/`.
 
+### Получить cookies с страницы w3schools
+
+Сайт w3schools использует защиту, самый простой способ обойти это установить расширение в chrome, залогиниться в ресурсе и сохранить авторизацию как файл. Потом вставить его в запрос.
+
+1. Установи расширение `Get cookies.txt LOCALLY`;
+1. Войти в свою учетную запись в w3schools;
+1. Через расширение сохранить куки авторизации как файл `cookies.txt`;
+
 ### Команда для скачивания (пример для курса SQL):
 ```bash
-cd packages/w3school/www.w3schools.com/
-wget --recursive --level=1 --no-parent --page-requisites --adjust-extension --convert-links --no-check-certificate https://www.w3schools.com/sql/
+cd packages/w3school/
+wget --load-cookies ~/Downloads/cookies.txt \
+     --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" \
+     -r -l 2 -np -k -E -p -nc \
+     --include-directories=/html,/css,/lib,/images \
+     --reject-regex "(.*exercise.*|.*quiz.*|.*exam.*|.*cert.*)" \
+     https://w3schools.com
 ```
 
-**Важные флаги:**
-- `--recursive`: рекурсивное скачивание.
-- `--level=1`: скачиваем только страницы самого курса (без ухода на внешние ссылки).
-- `--adjust-extension`: сохраняет файлы с расширением `.html`.
-- `--convert-links`: подправляет ссылки для локального просмотра.
+**Важные опции:**
+- укажите путь к файлу в --load-cookies;
+- укажите имя курса в include-directories (в примере качает курсы html, css);
 
 ---
 
