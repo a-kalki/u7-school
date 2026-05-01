@@ -1,9 +1,5 @@
 import * as v from "valibot";
 
-/**
- * Схема пользователя платформы u7-school.
- * Содержит поля: uuid, name, telegramId, role, createdAt, updatedAt.
- */
 export const UserSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   name: v.pipe(v.string(), v.nonEmpty("Имя не может быть пустым")),
@@ -20,8 +16,7 @@ export const UserSchema = v.object({
     ),
   ),
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
-  updatedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  updatedAt: v.optional(v.pipe(v.string(), v.isoDateTime("Некорректный формат даты"))),
 });
 
-/** Тип пользователя, выводимый из схемы Valibot */
 export type User = v.InferOutput<typeof UserSchema>;

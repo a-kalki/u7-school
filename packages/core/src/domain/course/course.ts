@@ -3,14 +3,10 @@ import { StatusSchema } from "../shared/status";
 import { ModuleSchema } from "../module/module";
 import { ProjectSchema } from "../project/project";
 
-/** Базовые поля для всех вариантов курса */
 const CourseBaseSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   title: v.pipe(v.string(), v.nonEmpty("Название курса не может быть пустым")),
-  description: v.pipe(
-    v.string(),
-    v.nonEmpty("Описание курса не может быть пустым"),
-  ),
+  description: v.pipe(v.string(), v.nonEmpty("Описание курса не может быть пустым")),
   authorId: v.pipe(v.string(), v.uuid("Некорректный формат UUID автора")),
   targetAudience: v.optional(v.string()),
   goal: v.optional(v.string()),
@@ -19,30 +15,24 @@ const CourseBaseSchema = v.object({
   additional: v.optional(v.string()),
   status: StatusSchema,
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
-  updatedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  updatedAt: v.optional(v.pipe(v.string(), v.isoDateTime("Некорректный формат даты"))),
 });
 
 /** Курс с модулями */
 const CourseWithModulesSchema = v.object({
   ...CourseBaseSchema.entries,
   kind: v.literal("modules"),
-  modules: v.pipe(
-    v.array(ModuleSchema),
-    v.nonEmpty("Курс должен содержать хотя бы один модуль"),
-  ),
+  modules: v.array(ModuleSchema),
 });
 
 /** Курс с проектами */
 const CourseWithProjectsSchema = v.object({
   ...CourseBaseSchema.entries,
   kind: v.literal("projects"),
-  projects: v.pipe(
-    v.array(ProjectSchema),
-    v.nonEmpty("Курс должен содержать хотя бы один проект"),
-  ),
+  projects: v.array(ProjectSchema),
 });
 
-/** Схема курса — исключающее ИЛИ */
+/** Схема курса — исключающее ИЛИ (модули | проекты) */
 export const CourseSchema = v.variant("kind", [
   CourseWithModulesSchema,
   CourseWithProjectsSchema,

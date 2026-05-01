@@ -1,47 +1,45 @@
 import * as v from "valibot";
+import { FileMetadataSchema } from "./file";
 
-/** Общие поля шага */
-const StepBaseSchema = {
+const StepBase = {
   uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
-  description: v.pipe(
-    v.string(),
-    v.nonEmpty("Описание шага не может быть пустым"),
-  ),
+  description: v.pipe(v.string(), v.nonEmpty("Описание шага не может быть пустым")),
   order: v.pipe(v.number(), v.integer(), v.minValue(0)),
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
-  updatedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  updatedAt: v.optional(v.pipe(v.string(), v.isoDateTime("Некорректный формат даты"))),
 };
 
-/**
- * Текстовый шаг — теоретический материал для чтения.
- */
-const TextStepSchema = v.object({
-  ...StepBaseSchema,
-  kind: v.literal("text"),
-  /** Текстовое содержимое (опционально) */
+/** Базовый шаг — описание с опциональным текстовым контентом */
+const DefaultStepSchema = v.object({
+  ...StepBase,
+  kind: v.literal("default"),
   content: v.optional(v.string()),
 });
 
-/**
- * Шаг с кодом — практическое задание.
- */
+/** Шаг с кодом — расширяет базовый: добавляет code и language */
 const CodeStepSchema = v.object({
-  ...StepBaseSchema,
+  ...StepBase,
   kind: v.literal("code"),
-  /** Исходный код задания */
+  content: v.optional(v.string()),
   code: v.pipe(v.string(), v.nonEmpty("Код не может быть пустым")),
-  /** Язык программирования (опционально) */
   language: v.optional(v.string()),
 });
 
-/**
- * Схема шага — text | code (дискриминатор: kind).
- */
+/** Шаг с файлом — описание + прикреплённый файл */
+const FileStepSchema = v.object({
+  ...StepBase,
+  kind: v.literal("file"),
+  content: v.optional(v.string()),
+  file: FileMetadataSchema,
+});
+
 export const StepSchema = v.variant("kind", [
-  TextStepSchema,
+  DefaultStepSchema,
   CodeStepSchema,
+  FileStepSchema,
 ]);
 
-export type TextStep = v.InferOutput<typeof TextStepSchema>;
+export type DefaultStep = v.InferOutput<typeof DefaultStepSchema>;
 export type CodeStep = v.InferOutput<typeof CodeStepSchema>;
+export type FileStep = v.InferOutput<typeof FileStepSchema>;
 export type Step = v.InferOutput<typeof StepSchema>;

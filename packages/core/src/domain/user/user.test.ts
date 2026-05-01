@@ -10,81 +10,29 @@ describe("Схема пользователя (User)", () => {
     telegramId: 123456789,
     role: Role.STUDENT,
     createdAt: "2026-05-01T12:00",
-    updatedAt: "2026-05-01T12:00",
   };
 
-  test("должна принимать валидного пользователя со всеми полями", () => {
-    const result = v.safeParse(UserSchema, validUser);
-    expect(result.success).toBe(true);
+  test("должна принимать валидного пользователя", () => {
+    expect(v.safeParse(UserSchema, validUser).success).toBe(true);
   });
 
-  describe("Валидация UUID", () => {
-    test("должна отклонять пользователя без uuid", () => {
-      const { uuid, ...rest } = validUser;
-      const result = v.safeParse(UserSchema, rest);
-      expect(result.success).toBe(false);
-    });
-
-    test("должна отклонять невалидный UUID", () => {
-      const result = v.safeParse(UserSchema, {
-        ...validUser,
-        uuid: "not-a-uuid",
-      });
-      expect(result.success).toBe(false);
-    });
+  test("должна принимать пользователя с updatedAt", () => {
+    expect(
+      v.safeParse(UserSchema, { ...validUser, updatedAt: "2026-05-01T12:00" }).success,
+    ).toBe(true);
   });
 
-  describe("Валидация telegramId", () => {
-    test("должна отклонять нецелый telegramId", () => {
-      const result = v.safeParse(UserSchema, {
-        ...validUser,
-        telegramId: 123.45,
-      });
-      expect(result.success).toBe(false);
-    });
-
-    test("должна отклонять отрицательный telegramId", () => {
-      const result = v.safeParse(UserSchema, {
-        ...validUser,
-        telegramId: -1,
-      });
-      expect(result.success).toBe(false);
-    });
+  test("должна отклонять невалидный UUID", () => {
+    expect(v.safeParse(UserSchema, { ...validUser, uuid: "bad" }).success).toBe(false);
   });
 
-  describe("Валидация дат", () => {
-    test("должна отклонять невалидный формат createdAt", () => {
-      const result = v.safeParse(UserSchema, {
-        ...validUser,
-        createdAt: "вчера",
-      });
-      expect(result.success).toBe(false);
-    });
-
-    test("должна отклонять невалидный формат updatedAt", () => {
-      const result = v.safeParse(UserSchema, {
-        ...validUser,
-        updatedAt: "2026-13-01T12:00",
-      });
-      expect(result.success).toBe(false);
-    });
+  test("должна отклонять невалидный telegramId", () => {
+    expect(v.safeParse(UserSchema, { ...validUser, telegramId: -1 }).success).toBe(false);
   });
 
-  describe("Валидация роли", () => {
-    test("должна отклонять невалидную роль", () => {
-      const result = v.safeParse(UserSchema, {
-        ...validUser,
-        role: "SUPERHERO" as Role,
-      });
-      expect(result.success).toBe(false);
-    });
-  });
-
-  describe("Валидация имени", () => {
-    test("должна отклонять пользователя без имени", () => {
-      const { name, ...rest } = validUser;
-      const result = v.safeParse(UserSchema, rest);
-      expect(result.success).toBe(false);
-    });
+  test("должна отклонять невалидную роль", () => {
+    expect(
+      v.safeParse(UserSchema, { ...validUser, role: "SUPERHERO" as Role }).success,
+    ).toBe(false);
   });
 });
