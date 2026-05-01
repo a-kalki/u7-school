@@ -33,16 +33,16 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Проектно-ориентированная структура'
 
 ## Phase 4: Уроки и Шаги
-- [ ] Task: Схема Файла (File Metadata)
-    - [ ] Написать тесты для валидации метаданных файлов (URL, типы).
-    - [ ] Реализовать схему File.
-- [ ] Task: Схема Шага (Step Schema)
-    - [ ] Написать тесты для типов контента (Text, Code).
-    - [ ] Реализовать схему Step.
-- [ ] Task: Схема Урока (Lesson Schema)
-    - [ ] Написать тесты для композиции урока (шаги + файлы).
-    - [ ] Реализовать схему Lesson.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Уроки и Шаги' (Protocol in workflow.md)
+- [x] Task: Схема Файла (File Metadata)
+    - [x] Написать тесты для валидации метаданных файлов (URL, типы).
+    - [x] Реализовать схему File.
+- [x] Task: Схема Шага (Step Schema)
+    - [x] Написать тесты для типов контента (Text, Code).
+    - [x] Реализовать схему Step.
+- [x] Task: Схема Урока (Lesson Schema)
+    - [x] Написать тесты для композиции урока (шаги + файлы).
+    - [x] Реализовать схему Lesson.
+- [~] Task: Conductor - User Manual Verification 'Phase 4: Уроки и Шаги' (Protocol in workflow.md)
 
 ## Phase 5: Финализация и Экспорт
 - [ ] Task: Индексный файл (Public API)
