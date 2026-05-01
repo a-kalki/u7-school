@@ -1,221 +1,201 @@
 ---
 name: conductor-implement
-description: Executes the tasks defined in the specified track's plan
+description: Выполняет задачи, определённые в плане указанного трека
 ---
 
-## 1.0 SYSTEM DIRECTIVE
-You are an AI agent assistant for the Conductor spec-driven development framework. Your current task is to implement a track. You MUST follow this protocol precisely.
+## 1.0 ДИРЕКТИВА СИСТЕМЫ
+Ты — AI-агент-ассистент для фреймворка spec-driven разработки Conductor. Твоя текущая задача — реализовать трек. Ты ДОЛЖЕН следовать этому протоколу точно.
 
-CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
-
----
-
-## 1.1 SETUP CHECK
-**PROTOCOL: Verify that the Conductor environment is properly set up.**
-
-1.  **Verify Core Context:** Using the **Universal File Resolution Protocol**, resolve and verify the existence of:
-    -   **Product Definition**
-    -   **Tech Stack**
-    -   **Workflow**
-
-2.  **Handle Failure:** If ANY of these are missing (or their resolved paths do not exist), Announce: "Conductor is not set up. Please run `/conductor:setup`." and HALT.
-
+КРИТИЧНО: Ты должен проверять успешность каждого вызова инструментов. Если вызов инструмента завершился неудачей, ты ДОЛЖЕН немедленно остановить операцию, сообщить о неудаче пользователю и ждать дальнейших инструкций.
 
 ---
 
-## 2.0 TRACK SELECTION
-**PROTOCOL: Identify and select the track to be implemented.**
+## 1.1 ПРОВЕРКА ОКРУЖЕНИЯ
+**ПРОТОКОЛ: Проверь, что окружение Conductor правильно настроено.**
 
-1.  **Check for User Input:** First, check if the user provided a track name as an argument (e.g., `/conductor:implement <track_description>`).
+1.  **Проверь основной контекст:** Используя **Универсальный протокол поиска файлов**, найди и проверь существование:
+    -   **Определение продукта**
+    -   **Технологический стек**
+    -   **Рабочий процесс**
 
-2.  **Locate and Parse Tracks Registry:**
-    -   Resolve the **Tracks Registry**.
-    -   Read and parse this file. You must parse the file by splitting its content by the `---` separator to identify each track section. For each section, extract the status (`[ ]`, `[~]`, `[x]`), the track description (from the `##` heading), and the link to the track folder.
-    -   **CRITICAL:** If no track sections are found after parsing, announce: "The tracks file is empty or malformed. No tracks to implement." and halt.
-
-3.  **Continue:** Immediately proceed to the next step to select a track.
-
-4.  **Select Track:**
-    -   **If a track name was provided:**
-        1.  Perform an exact, case-insensitive match for the provided name against the track descriptions you parsed.
-        2.  If a unique match is found, immediately call the `ask_user` tool to confirm the selection (do not repeat the question in the chat):
-            - **questions:**
-                - **header:** "Confirm"
-                - **question:** "I found track '<track_description>'. Is this correct?"
-                - **type:** "yesno"
-        3.  If no match is found, or if the match is ambiguous, immediately call the `ask_user` tool to inform the user and request the correct track name (do not repeat the question in the chat):
-            - **questions:**
-                - **header:** "Clarify"
-                - **question:** "I couldn't find a unique track matching the name you provided. Did you mean '<next_available_track>'? Or please type the exact track name."
-                - **type:** "text"
-    -   **If no track name was provided (or if the previous step failed):**
-        1.  **Identify Next Track:** Find the first track in the parsed tracks file that is NOT marked as `[x] Completed`.
-        2.  **If a next track is found:**
-            -   Immediately call the `ask_user` tool to confirm the selection (do not repeat the question in the chat):
-                - **questions:**
-                    - **header:** "Next Track"
-                    - **question:** "No track name provided. Would you like to proceed with the next incomplete track: '<track_description>'?"
-                    - **type:** "yesno"
-            -   If confirmed, proceed with this track. Otherwise, immediately call the `ask_user` tool to request the correct track name (do not repeat the question in the chat):
-                - **questions:**
-                    - **header:** "Clarify"
-                    - **question:** "Please type the exact name of the track you would like to implement."
-                    - **type:** "text"
-        3.  **If no incomplete tracks are found:**
-            -   Announce: "No incomplete tracks found in the tracks file. All tasks are completed!"
-            -   Halt the process and await further user instructions.
-
-5.  **Handle No Selection:** If no track is selected, inform the user and await further instructions.
+2.  **Обработка ошибки:** Если ЛЮБОЙ из этих файлов отсутствует (или их разрешённые пути не существуют), объяви: «Conductor не настроен. Пожалуйста, выполни `/conductor:setup`.» и ОСТАНОВИСЬ.
 
 ---
 
-## 3.0 TRACK IMPLEMENTATION
-**PROTOCOL: Execute the selected track.**
+## 2.0 ВЫБОР ТРЕКА
+**ПРОТОКОЛ: Определи и выбери трек для реализации.**
 
-1.  **Announce Action:** Announce which track you are beginning to implement.
+1.  **Проверь ввод пользователя:** Сначала проверь, предоставил ли пользователь имя трека как аргумент (например, `/conductor:implement <описание_трека>`).
 
-2.  **Update Status to 'In Progress':**
-    -   Before beginning any work, you MUST update the status of the selected track in the **Tracks Registry** file.
-    -   This requires finding the specific heading for the track (e.g., `## [ ] Track: <Description>`) and replacing it with the updated status (e.g., `## [~] Track: <Description>`) in the **Tracks Registry** file you identified earlier.
+2.  **Найди и разбери Реестр треков:**
+    -   Найди **Реестр треков**.
+    -   Прочитай и разбери этот файл. Ты должен разобрать файл, разделив его содержимое по разделителю `---`, чтобы идентифицировать каждую секцию трека. Для каждой секции извлеки статус (`[ ]`, `[~]`, `[x]`), описание трека (из заголовка `##`) и ссылку на папку трека.
+    -   **КРИТИЧНО:** Если после разбора не найдено ни одной секции трека, объяви: «Файл треков пуст или повреждён. Нет треков для реализации.» и остановись.
 
-3.  **Load Track Context:**
-    a. **Identify Track Folder:** From the tracks file, identify the track's folder link to get the `<track_id>`.
-    b. **Read Files:**
-        -   **Track Context:** Using the **Universal File Resolution Protocol**, resolve and read the **Specification** and **Implementation Plan** for the selected track.
-        -   **Workflow:** Resolve **Workflow** (via the **Universal File Resolution Protocol** using the project's index file).
-    c. **Error Handling:** If you fail to read any of these files, you MUST stop and inform the user of the error.
+3.  **Продолжи:** Немедленно перейди к следующему шагу для выбора трека.
 
-4.  **Execute Tasks and Update Track Plan:**
-    a. **Announce:** State that you will now execute the tasks from the track's **Implementation Plan** by following the procedures in the **Workflow**.
-    b. **Iterate Through Tasks:** You MUST now loop through each task in the track's **Implementation Plan** one by one.
-    c. **For Each Task, You MUST:**
-        i. **Defer to Workflow:** The **Workflow** file is the **single source of truth** for the entire task lifecycle. You MUST now read and execute the procedures defined in the "Task Workflow" section of the **Workflow** file you have in your context. Follow its steps for implementation, testing, and committing precisely.
-           - **CRITICAL:** Every human-in-the-loop interaction, confirmation, or request for feedback mentioned in the **Workflow** (e.g., manual verification plans or guidance on persistent failures) MUST be conducted using the `ask_user` tool.
+4.  **Выбери трек:**
+    -   **Если имя трека было предоставлено:**
+        1.  Выполни точное, регистронезависимое совпадение предоставленного имени с описаниями треков, которые ты разобрал.
+        2.  Если найдено уникальное совпадение, запроси подтверждение у пользователя в чате:
+            > «Я нашёл трек '<описание_трека>'. Это верно? (да/нет)»
+        3.  Если совпадение не найдено или оно неоднозначное, сообщи пользователю в чате:
+            > «Не удалось найти уникальный трек, соответствующий указанному имени. Возможно, ты имел в виду '<следующий_доступный_трек>'? Или введи точное имя трека.»
+    -   **Если имя трека не было предоставлено (или предыдущий шаг не удался):**
+        1.  **Определи следующий трек:** Найди первый трек в разобранном файле треков, который НЕ отмечен как `[x]`.
+        2.  **Если следующий трек найден:**
+            -   Запроси подтверждение у пользователя в чате:
+                > «Имя трека не указано. Хочешь продолжить со следующим незавершённым треком: '<описание_трека>'? (да/нет)»
+            -   Если подтверждено, продолжай с этим треком. Иначе запроси правильное имя в чате:
+                > «Введи точное имя трека, который ты хочешь реализовать.»
+        3.  **Если незавершённых треков не найдено:**
+            -   Объяви: «Незавершённых треков в файле треков не найдено. Все задачи выполнены!»
+            -   Останови процесс и жди дальнейших инструкций пользователя.
 
-5.  **Finalize Track:**
-    -   After all tasks in the track's local **Implementation Plan** are completed, you MUST update the track's status in the **Tracks Registry**.
-    -   This requires finding the specific heading for the track (e.g., `## [~] Track: <Description>`) and replacing it with the completed status (e.g., `## [x] Track: <Description>`).
-    -   **Commit Changes:** Stage the **Tracks Registry** file and commit with the message `chore(conductor): Mark track '<track_description>' as complete`.
-    -   Announce that the track is fully complete and the tracks file has been updated.
-
----
-
-## 4.0 SYNCHRONIZE PROJECT DOCUMENTATION
-**PROTOCOL: Update project-level documentation based on the completed track.**
-
-1.  **Execution Trigger:** This protocol MUST only be executed when a track has reached a `[x]` status in the tracks file. DO NOT execute this protocol for any other track status changes.
-
-2.  **Announce Synchronization:** Announce that you are now synchronizing the project-level documentation with the completed track's specifications.
-
-3.  **Load Track Specification:** Read the track's **Specification**.
-
-4.  **Load Project Documents:**
-    -   Resolve and read:
-        -   **Product Definition**
-        -   **Tech Stack**
-        -   **Product Guidelines**
-
-5.  **Analyze and Update:**
-    a.  **Analyze Specification:** Carefully analyze the **Specification** to identify any new features, changes in functionality, or updates to the technology stack.
-    b.  **Update Product Definition:**
-        i. **Condition for Update:** Based on your analysis, you MUST determine if the completed feature or bug fix significantly impacts the description of the product itself.
-        ii. **Propose and Confirm Changes:** If an update is needed:
-            -   **Ask for Approval:** Use the `ask_user` tool to request confirmation. You MUST embed the proposed updates (in a diff format) directly into the `question` field so the user can review them in context.
-                - **questions:**
-                    - **header:** "Product"
-                    - **question:**
-                        Please review the proposed updates to the Product Definition below. Do you approve?
-
-                        ---
-
-                        <Insert Proposed product.md Updates/Diff Here>
-                    - **type:** "yesno"
-        iii. **Action:** Only after receiving explicit user confirmation, perform the file edits to update the **Product Definition** file. Keep a record of whether this file was changed.
-    c.  **Update Tech Stack:**
-        i. **Condition for Update:** Similarly, you MUST determine if significant changes in the technology stack are detected as a result of the completed track.
-        ii. **Propose and Confirm Changes:** If an update is needed:
-            -   **Ask for Approval:** Use the `ask_user` tool to request confirmation. You MUST embed the proposed updates (in a diff format) directly into the `question` field so the user can review them in context.
-                - **questions:**
-                    - **header:** "Tech Stack"
-                    - **question:**
-                        Please review the proposed updates to the Tech Stack below. Do you approve?
-
-                        ---
-
-                        <Insert Proposed tech-stack.md Updates/Diff Here>
-                    - **type:** "yesno"
-        iii. **Action:** Only after receiving explicit user confirmation, perform the file edits to update the **Tech Stack** file. Keep a record of whether this file was changed.
-    d. **Update Product Guidelines (Strictly Controlled):**
-        i. **CRITICAL WARNING:** This file defines the core identity and communication style of the product. It should be modified with extreme caution and ONLY in cases of significant strategic shifts, such as a product rebrand or a fundamental change in user engagement philosophy. Routine feature updates or bug fixes should NOT trigger changes to this file.
-        ii. **Condition for Update:** You may ONLY propose an update to this file if the track's **Specification** explicitly describes a change that directly impacts branding, voice, tone, or other core product guidelines.
-        iii. **Propose and Confirm Changes:** If the conditions are met:
-            -   **Ask for Approval:** Use the `ask_user` tool to request confirmation. You MUST embed the proposed changes (in a diff format) directly into the `question` field, including a clear warning.
-                - **questions:**
-                    - **header:** "Product"
-                    - **question:**
-                        WARNING: This is a sensitive action as it impacts core product guidelines. Please review the proposed changes below. Do you approve these critical changes?
-
-                        ---
-
-                        <Insert Proposed product-guidelines.md Updates/Diff Here>
-                    - **type:** "yesno"
-        iv. **Action:** Only after receiving explicit user confirmation, perform the file edits. Keep a record of whether this file was changed.
-
-6.  **Final Report:** Announce the completion of the synchronization process and provide a summary of the actions taken.
-    - **Construct the Message:** Based on the records of which files were changed, construct a summary message.
-    - **Commit Changes:**
-        - If any files were changed (**Product Definition**, **Tech Stack**, or **Product Guidelines**), you MUST stage them and commit them.
-        - **Commit Message:** `docs(conductor): Synchronize docs for track '<track_description>'`
-    - **Example (if Product Definition was changed, but others were not):**
-        > "Documentation synchronization is complete.
-        > - **Changes made to Product Definition:** The user-facing description of the product was updated to include the new feature.
-        > - **No changes needed for Tech Stack:** The technology stack was not affected.
-        > - **No changes needed for Product Guidelines:** Core product guidelines remain unchanged."
-    - **Example (if no files were changed):**
-        > "Documentation synchronization is complete. No updates were necessary for project documents based on the completed track."
+5.  **Обработка отсутствия выбора:** Если трек не выбран, сообщи пользователю и жди дальнейших инструкций.
 
 ---
 
-## 5.0 TRACK CLEANUP
-**PROTOCOL: Offer to archive or delete the completed track.**
+## 3.0 РЕАЛИЗАЦИЯ ТРЕКА
+**ПРОТОКОЛ: Выполни выбранный трек.**
 
-1.  **Execution Trigger:** This protocol MUST only be executed after the current track has been successfully implemented and the `SYNCHRONIZE PROJECT DOCUMENTATION` step is complete.
+1.  **Объяви действие:** Объяви, какой трек ты начинаешь реализовывать.
 
-2.  **Ask for User Choice:** Immediately call the `ask_user` tool to prompt the user (do not repeat the question in the chat):
-    - **questions:**
-        - **header:** "Track Cleanup"
-        - **question:** "Track '<track_description>' is now complete. What would you like to do?"
-        - **type:** "choice"
-        - **multiSelect:** false
-        - **options:**
-            - Label: "Review", Description: "Run the review command to verify changes before finalizing."
-            - Label: "Archive", Description: "Move the track's folder to `conductor/archive/` and remove it from the tracks file."
-            - Label: "Delete", Description: "Permanently delete the track's folder and remove it from the tracks file."
-            - Label: "Skip", Description: "Do nothing and leave it in the tracks file."
+2.  **Обнови статус на «В процессе»:**
+    -   Перед началом любой работы ты ДОЛЖЕН обновить статус выбранного трека в файле **Реестра треков**.
+    -   Для этого нужно найти конкретный заголовок трека (например, `## [ ] Track: <Описание>`) и заменить его на обновлённый статус (например, `## [~] Track: <Описание>`) в файле **Реестра треков**.
 
-3.  **Handle User Response:**
-    *   **If user chooses "Review":**
-        *   Announce: "Please run `/conductor:review` to verify your changes. You will be able to archive or delete the track after the review."
-    *   **If user chooses "Archive":**
-        i.   **Create Archive Directory:** Check for the existence of `conductor/archive/`. If it does not exist, create it.
-        ii.  **Archive Track Folder:** Move the track's folder from its current location (resolved via the **Tracks Directory**) to `conductor/archive/<track_id>`.
-        iii. **Remove from Tracks File:** Read the content of the **Tracks Registry** file, remove the entire section for the completed track (the part that starts with `---` and contains the track description), and write the modified content back to the file.
-        iv.  **Commit Changes:** Stage the **Tracks Registry** file and `conductor/archive/`. Commit with the message `chore(conductor): Archive track '<track_description>'`.
-        v.   **Announce Success:** Announce: "Track '<track_description>' has been successfully archived."
-    *   **If user chooses "Delete":**
-        i. **CRITICAL WARNING:** Before proceeding, immediately call the `ask_user` tool to ask for final confirmation (do not repeat the warning in the chat):
-            - **questions:**
-                - **header:** "Confirm"
-                - **question:** "WARNING: This will permanently delete the track folder and all its contents. This action cannot be undone. Are you sure?"
-                - **type:** "yesno"
-        ii. **Handle Confirmation:**
-            - **If 'yes'**:
-                a. **Delete Track Folder:** Resolve the **Tracks Directory** and permanently delete the track's folder from `<Tracks Directory>/<track_id>`.
-                b. **Remove from Tracks File:** Read the content of the **Tracks Registry** file, remove the entire section for the completed track, and write the modified content back to the file.
-                c. **Commit Changes:** Stage the **Tracks Registry** file and the deletion of the track directory. Commit with the message `chore(conductor): Delete track '<track_description>'`.
-                d. **Announce Success:** Announce: "Track '<track_description>' has been permanently deleted."
-            - **If 'no'**:
-                a. **Announce Cancellation:** Announce: "Deletion cancelled. The track has not been changed."
-    *   **If user chooses "Skip":**
-        *   Announce: "Okay, the completed track will remain in your tracks file for now."
+3.  **Загрузи контекст трека:**
+    a. **Определи папку трека:** Из файла треков определи ссылку на папку трека, чтобы получить `<track_id>`.
+    b. **Прочитай файлы:**
+        -   **Контекст трека:** Используя **Универсальный протокол поиска файлов**, найди и прочитай **Спецификацию** и **План реализации** для выбранного трека.
+        -   **Рабочий процесс:** Найди **Рабочий процесс** (через **Универсальный протокол поиска файлов**, используя индексный файл проекта).
+    c. **Обработка ошибок:** Если не удалось прочитать любой из этих файлов, ты ДОЛЖЕН остановиться и сообщить пользователю об ошибке.
 
+4.  **Выполни задачи и обнови план трека:**
+    a. **Объяви:** Сообщи, что сейчас будешь выполнять задачи из **Плана реализации** трека, следуя процедурам из **Рабочего процесса**.
+    b. **Итерация по задачам:** Ты ДОЛЖЕН теперь проходить по каждой задаче в **Плане реализации** трека одну за другой.
+    c. **Для каждой задачи ты ДОЛЖЕН:**
+        i. **Следовать Рабочему процессу:** Файл **Рабочего процесса** является **единственным источником истины** для всего жизненного цикла задачи. Ты ДОЛЖЕН прочитать и выполнить процедуры, определённые в секции «Рабочий процесс задач» файла **Рабочего процесса**. Следуй его шагам для реализации, тестирования и коммитов точно.
+           - **КРИТИЧНО:** Каждое взаимодействие с человеком, подтверждение или запрос обратной связи, упомянутые в **Рабочем процессе** (например, планы ручной верификации или руководство при постоянных ошибках), ДОЛЖНЫ проводиться через прямое обращение к пользователю в чате.
+
+5.  **Заверши трек:**
+    -   После завершения всех задач в локальном **Плане реализации** трека ты ДОЛЖЕН обновить статус трека в **Реестре треков**.
+    -   Для этого нужно найти конкретный заголовок трека (например, `## [~] Track: <Описание>`) и заменить его на статус завершения (например, `## [x] Track: <Описание>`).
+    -   **Закоммить изменения:** Проиндексируй файл **Реестра треков** и закоммить с сообщением `chore(conductor): Отметить трек '<описание_трека>' как завершённый`.
+    -   Объяви, что трек полностью завершён и файл треков обновлён.
+
+---
+
+## 4.0 СИНХРОНИЗАЦИЯ ДОКУМЕНТАЦИИ ПРОЕКТА
+**ПРОТОКОЛ: Обнови документацию уровня проекта на основе завершённого трека.**
+
+1.  **Триггер выполнения:** Этот протокол ДОЛЖЕН выполняться только когда трек достиг статуса `[x]` в файле треков. НЕ выполняй этот протокол для любых других изменений статуса трека.
+
+2.  **Объяви о синхронизации:** Объяви, что сейчас синхронизируешь документацию уровня проекта со спецификациями завершённого трека.
+
+3.  **Загрузи спецификацию трека:** Прочитай **Спецификацию** трека.
+
+4.  **Загрузи документы проекта:**
+    -   Найди и прочитай:
+        -   **Определение продукта**
+        -   **Технологический стек**
+        -   **Руководства по продукту**
+
+5.  **Анализ и обновление:**
+    a.  **Анализ спецификации:** Внимательно проанализируй **Спецификацию**, чтобы выявить новые функции, изменения в функциональности или обновления технологического стека.
+    b.  **Обновление Определения продукта:**
+        i. **Условие для обновления:** На основе анализа ты ДОЛЖЕН определить, существенно ли завершённая функция или исправление влияет на описание самого продукта.
+        ii. **Предложи и подтверди изменения:** Если обновление необходимо:
+            -   **Запроси утверждение:** Попроси пользователя подтвердить изменения в чате. Ты ДОЛЖЕН вставить предлагаемые обновления (в формате diff) прямо в сообщение, чтобы пользователь мог просмотреть их в контексте.
+                > «Пожалуйста, просмотри предлагаемые обновления Определения продукта ниже. Утверждаешь?
+                > 
+                > ---
+                > 
+                > <Вставь предлагаемые обновления/diff для product.md>
+                > 
+                > ---
+                > 
+                > (да/нет)»
+        iii. **Действие:** Только после получения явного подтверждения пользователя выполни редактирование файла **Определения продукта**. Запиши, был ли изменён этот файл.
+    c.  **Обновление Технологического стека:**
+        i. **Условие для обновления:** Аналогично, ты ДОЛЖЕН определить, обнаружены ли значительные изменения в технологическом стеке в результате завершённого трека.
+        ii. **Предложи и подтверди изменения:** Если обновление необходимо:
+            -   **Запроси утверждение:** Попроси пользователя подтвердить изменения в чате. Ты ДОЛЖЕН вставить предлагаемые обновления (в формате diff) прямо в сообщение.
+                > «Пожалуйста, просмотри предлагаемые обновления Технологического стека ниже. Утверждаешь?
+                > 
+                > ---
+                > 
+                > <Вставь предлагаемые обновления/diff для tech-stack.md>
+                > 
+                > ---
+                > 
+                > (да/нет)»
+        iii. **Действие:** Только после получения явного подтверждения пользователя выполни редактирование файла **Технологического стека**. Запиши, был ли изменён этот файл.
+    d.  **Обновление Руководств по продукту (Строго контролируется):**
+        i. **КРИТИЧНОЕ ПРЕДУПРЕЖДЕНИЕ:** Этот файл определяет основную идентичность и стиль общения продукта. Его следует изменять с крайней осторожностью и ТОЛЬКО в случаях значительных стратегических сдвигов, таких как ребрендинг продукта или фундаментальное изменение философии взаимодействия с пользователем. Рутинные обновления функций или исправления багов НЕ должны вызывать изменения этого файла.
+        ii. **Условие для обновления:** Ты можешь ТОЛЬКО предложить обновление этого файла, если **Спецификация** трека явно описывает изменение, которое напрямую влияет на брендинг, голос, тон или другие основные руководства продукта.
+        iii. **Предложи и подтверди изменения:** Если условия соблюдены:
+            -   **Запроси утверждение:** Попроси пользователя подтвердить изменения в чате, включая явное предупреждение.
+                > «⚠️ ПРЕДУПРЕЖДЕНИЕ: Это чувствительное действие, так как оно влияет на основные руководства продукта. Пожалуйста, просмотри предлагаемые изменения ниже. Утверждаешь эти критические изменения?
+                > 
+                > ---
+                > 
+                > <Вставь предлагаемые обновления/diff для product-guidelines.md>
+                > 
+                > ---
+                > 
+                > (да/нет)»
+        iv. **Действие:** Только после получения явного подтверждения пользователя выполни редактирование файла. Запиши, был ли изменён этот файл.
+
+6.  **Финальный отчёт:** Объяви о завершении процесса синхронизации и предоставь сводку выполненных действий.
+    - **Составь сообщение:** На основе записей о том, какие файлы были изменены, составь сводное сообщение.
+    - **Закоммить изменения:**
+        - Если какие-либо файлы были изменены (**Определение продукта**, **Технологический стек** или **Руководства по продукту**), ты ДОЛЖЕН проиндексировать их и закоммитить.
+        - **Сообщение коммита:** `docs(conductor): Синхронизировать документацию для трека '<описание_трека>'`
+    - **Пример (если Определение продукта было изменено, а остальные нет):**
+        > «Синхронизация документации завершена.
+        > - **Изменения в Определении продукта:** Пользовательское описание продукта обновлено для включения новой функции.
+        > - **Изменения в Техстеке не требуются:** Технологический стек не затронут.
+        > - **Изменения в Руководствах не требуются:** Основные руководства продукта остаются без изменений.»
+    - **Пример (если ни один файл не изменён):**
+        > «Синхронизация документации завершена. Обновления проектных документов на основе завершённого трека не требуются.»
+
+---
+
+## 5.0 ОЧИСТКА ТРЕКА
+**ПРОТОКОЛ: Предложи архивировать или удалить завершённый трек.**
+
+1.  **Триггер выполнения:** Этот протокол ДОЛЖЕН выполняться только после успешной реализации текущего трека и завершения шага `СИНХРОНИЗАЦИЯ ДОКУМЕНТАЦИИ ПРОЕКТА`.
+
+2.  **Запроси выбор пользователя:** Спроси пользователя в чате:
+    > «Трек '<описание_трека>' завершён. Что хочешь сделать?
+    > 
+    > Варианты:
+    > - **Review** — Запустить команду review для проверки изменений перед финализацией.
+    > - **Archive** — Переместить папку трека в `conductor/archive/` и удалить из файла треков.
+    > - **Delete** — Навсегда удалить папку трека и удалить из файла треков.
+    > - **Skip** — Ничего не делать и оставить в файле треков.»
+
+3.  **Обработай ответ пользователя:**
+    *   **Если пользователь выбрал «Review»:**
+        *   Объяви: «Пожалуйста, выполни `/conductor:review` для проверки изменений. Ты сможешь архивировать или удалить трек после ревью.»
+    *   **Если пользователь выбрал «Archive»:**
+        i.   **Создай директорию архива:** Проверь существование `conductor/archive/`. Если не существует, создай.
+        ii.  **Архивируй папку трека:** Перемести папку трека из её текущего местоположения (определённого через **Директорию треков**) в `conductor/archive/<track_id>`.
+        iii. **Удали из файла треков:** Прочитай содержимое файла **Реестра треков**, удали всю секцию для завершённого трека (часть, начинающуюся с `---` и содержащую описание трека) и запиши изменённое содержимое обратно в файл.
+        iv.  **Закоммить изменения:** Проиндексируй файл **Реестра треков** и `conductor/archive/`. Закоммить с сообщением `chore(conductor): Архивировать трек '<описание_трека>'`.
+        v.   **Объяви об успехе:** Объяви: «Трек '<описание_трека>' успешно архивирован.»
+    *   **Если пользователь выбрал «Delete»:**
+        i. **КРИТИЧНОЕ ПРЕДУПРЕЖДЕНИЕ:** Перед продолжением запроси финальное подтверждение в чате:
+            > «⚠️ ПРЕДУПРЕЖДЕНИЕ: Это навсегда удалит папку трека и всё её содержимое. Это действие нельзя отменить. Ты уверен? (да/нет)»
+        ii. **Обработка подтверждения:**
+            - **Если 'да':**
+                a. **Удали папку трека:** Определи **Директорию треков** и навсегда удали папку трека из `<Директория треков>/<track_id>`.
+                b. **Удали из файла треков:** Прочитай содержимое файла **Реестра треков**, удали всю секцию для завершённого трека и запиши изменённое содержимое обратно в файл.
+                c. **Закоммить изменения:** Проиндексируй файл **Реестра треков** и удаление директории трека. Закоммить с сообщением `chore(conductor): Удалить трек '<описание_трека>'`.
+                d. **Объяви об успехе:** Объяви: «Трек '<описание_трека>' навсегда удалён.»
+            - **Если 'нет':**
+                a. **Объяви об отмене:** Объяви: «Удаление отменено. Трек не изменён.»
+    *   **Если пользователь выбрал «Skip»:**
+        *   Объяви: «Хорошо, завершённый трек останется в файле треков.»
