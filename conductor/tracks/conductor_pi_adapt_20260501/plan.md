@@ -5,10 +5,10 @@
     - [x] Перевести Universal File Resolution Protocol на русский язык.
     - [x] Проверить и сохранить все перекрёстные ссылки (conductor/index.md, conductor/tracks.md и т.д.).
     - [x] Убедиться, что весь файл следует языковому правилу (русский).
-- [ ] Task: Перевод и адаптация conductor/workflow.md
-    - [ ] Перевести весь файл на русский язык.
-    - [ ] Адаптировать секцию «Development Commands» под Bun/TypeScript/Biome (убрать примеры на Python/Go/Node).
-    - [ ] Проверить, что ссылки на инструменты (git, bun, biome) остались без изменений.
+- [x] Task: Перевод и адаптация conductor/workflow.md `e905f28`
+    - [x] Перевести весь файл на русский язык.
+    - [x] Адаптировать секцию «Development Commands» под Bun/TypeScript/Biome (убрать примеры на Python/Go/Node).
+    - [x] Проверить, что ссылки на инструменты (git, bun, biome) остались без изменений.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: AGENTS.md и workflow' (Protocol in workflow.md)
 
 ## Фаза 2: Крупные skill-файлы (setup, implement)
