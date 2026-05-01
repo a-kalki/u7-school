@@ -44,10 +44,10 @@
     - [x] Реализовать схему Lesson.
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Уроки и Шаги' (Protocol in workflow.md)
 
-## Phase 5: Финализация и Экспорт
+## Phase 5: Финализация и Экспорт `[checkpoint: 2e987e1]`
 - [x] Task: Индексный файл (Public API)
     - [x] Написать тесты на корректность экспорта всех типов и схем.
     - [x] Реализовать `src/index.ts` с экспортами.
 - [x] Task: Проверка линтинга и форматов
     - [x] Запустить `biome check --write .`
-- [~] Task: Conductor - User Manual Verification 'Phase 5: Финализация' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 5: Финализация' (Protocol in workflow.md)
