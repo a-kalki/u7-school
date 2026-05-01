@@ -26,12 +26,12 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: UserAr' (Protocol in workflow.md)
 
 ## Phase 2: Политики и репозитории пользователя
-- [x] Task: Тесты для UserPolicy
+- [x] Task: Тесты для UserPolicy [8b33b3c]
     - [x] Тест: ADMIN может создавать пользователей.
-- [x] Task: Реализация UserPolicy
+- [x] Task: Реализация UserPolicy [8b33b3c]
     - [x] Реализовать `UserPolicy` с методами `canCreate(actor: User)`, `canRead`, `canEdit`.
     - [x] Добиться прохождения тестов.
-- [x] Task: Тесты для UserRepository (in-memory)
+- [x] Task: Тесты для UserRepository (in-memory) [8b33b3c]
     - [x] Тест: сохранение и получение пользователя по uuid.
     - [x] Тест: получение несуществующего пользователя возвращает undefined.
     - [x] Тест: сохранение дубликата по uuid — ошибка.
