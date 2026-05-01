@@ -56,4 +56,4 @@
 - [x] Task: Проверка функциональности `already_verified`
     - [ ] Выполнить `/conductor:status` и убедиться, что агент корректно читает документацию.
     - [ ] Проверить, что все перекрёстные ссылки между файлами разрешаются.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5: Верификация' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 5: Верификация' (Protocol in workflow.md)
