@@ -2,12 +2,15 @@
 
 ## Phase 0: Архитектурная документация
 - [ ] Task: Создание `docs/architecture.md`
-    - [ ] Описать двухслойную архитектуру (domain + api) и обоснование выбора.
+    - [ ] Описать разделения приложения на доменные модули (core, w3school).
+    - [ ] Каждый модуль имеет метод принимающий команду и распределяющий далее use-case объектам модуля. Метод вызывается внешним контроллером (rest, console, bot);
+    - [ ] Описать двухслойную архитектуру для бэкенда (domain + api в каждом модуле) и обоснование выбора.
     - [ ] Зафиксировать соглашения об именовании (Entity, Schema, Ar, Policy, Record, Output, Command, Uc).
     - [ ] Описать устройство доменных модулей: структура, эндпойнты, команды, сценарии использования.
     - [ ] Зафиксировать правила межмодульного взаимодействия (фасады для мутаций, прямые импорты для политик).
-    - [ ] Описать подход к DI (контейнер/реестр в корне модуля).
-    - [ ] Добавить диаграмму потока команды (console/bot/rest → endpoint → command → uc → aggregate → repository).
+    - [ ] Описать подход к DI (контейнер/реестр в корне модуля, рассмотреть предлагает ли что либо elysia).
+    - [ ] Добавить диаграмму потока команды (console/bot/rest → command → module → uc → aggregate → repository).
+    - [ ] Структура команды: `{name: string, user?: uuid, attrs: unknown}`;
 - [ ] Task: Conductor - User Manual Verification 'Phase 0: Архитектурная документация' (Protocol in workflow.md)
 
 ## Phase 1: Агрегат пользователя (UserAr)
@@ -25,8 +28,6 @@
 ## Phase 2: Политики и репозитории пользователя
 - [ ] Task: Тесты для UserPolicy
     - [ ] Тест: ADMIN может создавать пользователей.
-    - [ ] Тест: STUDENT/MENTOR не могут создавать пользователей.
-    - [ ] Тест: проверка прав на чтение/редактирование.
 - [ ] Task: Реализация UserPolicy
     - [ ] Реализовать `UserPolicy` с методами `canCreate(actor: User)`, `canRead`, `canEdit`.
     - [ ] Добиться прохождения тестов.
@@ -47,7 +48,7 @@
     - [ ] Тест: bootstrap-режим — создание первого пользователя без проверки прав.
     - [ ] Тест: дубликат telegramId — ошибка.
 - [ ] Task: Реализация UserCreatingUc
-    - [ ] Реализовать `UserCreatingUc.execute(command, policy, repository)`.
+    - [ ] Реализовать `UserCreatingUc.execute(command)`.
     - [ ] Реализовать логику bootstrap (если репозиторий пуст, проверка прав пропускается).
     - [ ] Интегрировать `UserAr.create`, `UserPolicy`, `UserRepository`.
     - [ ] Добиться прохождения тестов.
@@ -90,26 +91,33 @@
     - [ ] Добиться прохождения тестов.
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc' (Protocol in workflow.md)
 
-## Phase 6: Эндпойнт api/core и консольный интерфейс
-- [ ] Task: Тесты для маршрутизации команд
+## Phase 6: Модуль core — entry point и диспатчер команд
+- [ ] Task: Тесты для диспатчера команд
     - [ ] Тест: команда `create-user` направляется в `UserCreatingUc`.
     - [ ] Тест: команда `create-course` направляется в `CourseCreatingUc`.
     - [ ] Тест: неизвестная команда — ошибка.
-- [ ] Task: Реализация эндпойнта api/core
-    - [ ] Реализовать диспатчер команд: принимает plain-object команду, возвращает результат.
-    - [ ] Определить структуру команд: `{ type: "create-user", payload: {...} }`.
+- [ ] Task: Реализация диспатчера команд
+    - [ ] Определить структуру команд: `CreateUserCommand`, `CreateCourseCommand`.
+    - [ ] Реализовать диспатчер: принимает команду (plain object), передаёт в соответствующий UC.
     - [ ] Добиться прохождения тестов.
+- [ ] Task: Entry point модуля
+    - [ ] Реализовать единый entry point модуля `core` — функция, принимающая команду и возвращающая результат.
+    - [ ] Связать entry point с диспатчером.
+    - [ ] Добиться прохождения тестов.
+- [ ] Task: Conductor - User Manual Verification 'Phase 6: Модуль core' (Protocol in workflow.md)
+
+## Phase 7: Консольный интерфейс
 - [ ] Task: Консольная команда create-user
     - [ ] Принимать аргументы: `--name`, `--telegram-id`, `--role`.
-    - [ ] Формировать `CreateUserCommand`, отправлять в эндпойнт.
+    - [ ] Формировать `CreateUserCommand`, отправлять в entry point модуля `core`.
     - [ ] Выводить результат (созданный пользователь или ошибка).
 - [ ] Task: Консольная команда create-course
     - [ ] Принимать аргументы: `--title`, `--description`, `--author-id`.
-    - [ ] Формировать `CreateCourseCommand`, отправлять в эндпойнт.
+    - [ ] Формировать `CreateCourseCommand`, отправлять в entry point модуля `core`.
     - [ ] Выводить результат.
-- [ ] Task: Conductor - User Manual Verification 'Phase 6: Эндпойнт и консоль' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 7: Консольный интерфейс' (Protocol in workflow.md)
 
-## Phase 7: DI, фасады и финализация
+## Phase 8: DI, интеграция и финализация
 - [ ] Task: Тесты для DI-контейнера
     - [ ] Тест: регистрация и получение зависимости.
     - [ ] Тест: перезапись зависимости (для тестовых моков).
@@ -117,13 +125,9 @@
 - [ ] Task: Реализация DI-контейнера
     - [ ] Реализовать легковесный контейнер (Map-based) с методами `register`/`resolve`.
     - [ ] Добиться прохождения тестов.
-- [ ] Task: Фасады модулей
-    - [ ] Создать `UserModuleFacade` — точка входа для операций с пользователями.
-    - [ ] Создать `CourseModuleFacade` — точка входа для операций с курсами.
-    - [ ] Фасады используют DI-контейнер для получения зависимостей.
 - [ ] Task: Интеграционные тесты полного сценария
     - [ ] Тест: create-user (bootstrap) → create-course (с проверкой прав) — полный сквозной сценарий.
 - [ ] Task: Проверка покрытия и Biome
     - [ ] Запустить `bun test --coverage`, убедиться в покрытии >80%.
     - [ ] Запустить `bunx biome check --write .`, исправить ошибки.
-- [ ] Task: Conductor - User Manual Verification 'Phase 7: DI, фасады и финализация' (Protocol in workflow.md)
+- [ ] Task: Conductor - User Manual Verification 'Phase 8: DI, интеграция и финализация' (Protocol in workflow.md)
