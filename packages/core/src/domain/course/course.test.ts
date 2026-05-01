@@ -53,6 +53,11 @@ describe("Схема курса (Course)", () => {
     expect(v.safeParse(CourseSchema, c).success).toBe(true);
   });
 
+  test("должна принимать курс с тегами", () => {
+    const c: CourseWithModules = { ...baseFields, kind: "modules", modules: [], tags: ["typescript", "beginner"] };
+    expect(v.safeParse(CourseSchema, c).success).toBe(true);
+  });
+
   test("должна отклонять невалидный статус", () => {
     const c = { ...baseFields, status: "deleted", kind: "modules" as const, modules: [] };
     expect(v.safeParse(CourseSchema, c).success).toBe(false);

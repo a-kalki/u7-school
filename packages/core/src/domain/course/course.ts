@@ -13,6 +13,7 @@ const CourseBaseSchema = v.object({
   result: v.optional(v.string()),
   rules: v.optional(v.string()),
   additional: v.optional(v.string()),
+  tags: v.optional(v.array(v.string())),
   status: StatusSchema,
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
   updatedAt: v.optional(v.pipe(v.string(), v.isoDateTime("Некорректный формат даты"))),

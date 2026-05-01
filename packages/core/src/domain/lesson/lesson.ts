@@ -9,10 +9,12 @@ export const LessonSchema = v.object({
   status: StatusSchema,
   order: v.pipe(v.number(), v.integer(), v.minValue(0)),
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
-  updatedAt: v.optional(v.pipe(v.string(), v.isoDateTime("Некорректный формат даты"))),
-  /** Шаги урока (обязательно, может быть пустым) */
+  updatedAt: v.optional(
+    v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  ),
+  estimatedMinutes: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   steps: v.array(StepSchema),
-  /** Дополнительные шаги от ментора для практических занятий */
+  /** Для практических занятий */
   mentorSteps: v.optional(v.array(StepSchema)),
 });
 
