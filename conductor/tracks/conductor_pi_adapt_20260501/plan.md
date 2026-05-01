@@ -11,7 +11,7 @@
     - [x] Проверить, что ссылки на инструменты (git, bun, biome) остались без изменений.
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: AGENTS.md и workflow' (Protocol in workflow.md)
 
-## Фаза 2: Крупные skill-файлы (setup, implement)
+## Фаза 2: Крупные skill-файлы (setup, implement) [checkpoint: 251a611]
 - [x] Task: Перевод и адаптация conductor-setup/SKILL.md `c5d395d`
     - [x] Перевести весь файл на русский язык (~40K).
     - [x] Заменить `enter_plan_mode` / `exit_plan_mode` на описание работы в диалоговом режиме pi.
