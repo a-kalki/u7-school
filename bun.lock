@@ -27,6 +27,13 @@
         "valibot": "^1.2.0",
       },
     },
+    "packages/core": {
+      "name": "@u7/core",
+      "version": "0.1.0",
+      "dependencies": {
+        "valibot": "^1.0.0",
+      },
+    },
     "packages/w3school": {
       "name": "@u7/w3school",
       "version": "0.1.0",
@@ -96,6 +103,8 @@
     "@types/retry": ["@types/retry@0.12.0", "", {}, "sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA=="],
 
     "@u7/bot": ["@u7/bot@workspace:apps/u7-bot"],
+
+    "@u7/core": ["@u7/core@workspace:packages/core"],
 
     "@u7/w3school": ["@u7/w3school@workspace:packages/w3school"],
 
