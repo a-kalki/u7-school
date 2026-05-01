@@ -35,6 +35,10 @@ packages/<module>/
 - **Агрегаты (Ar):** Классы, инкапсулирующие состояние сущности и поведение (богатая доменная
   модель). Принимают состояние сущности через конструктор, предоставляют методы для его изменения
   с проверкой инвариантов.
+  - Инварианты проверяются standalone-функцией `validateInvariants(entity)`, которая вызывается
+    в конструкторе (при создании из существующего состояния) и в фабричном методе `create()`
+    (при создании нового агрегата). Это исключает дублирование и гарантирует проверку при
+    любом способе создания.
 - **Политики (Policy):** Объекты, проверяющие права доступа (создание, чтение, редактирование,
   удаление). Импортируются напрямую там, где требуется проверка прав.
 
@@ -108,15 +112,19 @@ module.handle(command: ModuleCommand): Promise<Result>;
 - **Типа** (TypeScript-тип, выведенный из Valibot-схемы)
 - **Схемы валидации** (Valibot-схема для строгой проверки входящих данных)
 
+Схема команды переиспользует поля схемы сущности (`UserSchema.entries.name`) —
+это позволяет держать единственный источник истины для правил валидации:
+
 Пример:
 ```typescript
 // packages/core/src/api/commands/create_user_command.ts
 import * as v from "valibot";
+import { UserSchema } from "../../domain/user/user";
 
 export const CreateUserCommandSchema = v.object({
-  name: v.pipe(v.string(), v.nonEmpty("...")),
-  telegramId: v.pipe(v.number(), v.integer(), v.minValue(1)),
-  role: v.pipe(v.string(), v.picklist([...])),
+  name: UserSchema.entries.name,
+  telegramId: UserSchema.entries.telegramId,
+  role: UserSchema.entries.role,
 });
 
 export type CreateUserCommand = v.InferOutput<typeof CreateUserCommandSchema>;

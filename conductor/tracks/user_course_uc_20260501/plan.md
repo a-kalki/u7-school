@@ -18,12 +18,12 @@
     - [x] Тест: создание UserAr из валидной CreateUserCommand возвращает агрегат с корректным состоянием.
     - [x] Тест: создание UserAr с невалидными данными (пустое имя, невалидный telegramId) — ошибка валидации.
     - [x] Тест: UserAr отдаёт состояние только для чтения, мутация возможна только через методы агрегата.
-- [x] Task: Реализация UserAr [8bc72a0]
+- [x] Task: Реализация UserAr [094e3dd]
     - [x] Реализовать класс `UserAr` с приватным состоянием `User`.
     - [x] Реализовать статический метод `UserAr.create(command)` с валидацией через `UserSchema`.
     - [x] Реализовать методы доступа к состоянию (getters).
     - [x] Добиться прохождения тестов.
-- [~] Task: Conductor - User Manual Verification 'Phase 1: UserAr' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: UserAr' (Protocol in workflow.md)
 
 ## Phase 2: Политики и репозитории пользователя
 - [ ] Task: Тесты для UserPolicy
