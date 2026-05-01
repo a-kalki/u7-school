@@ -1,4 +1,4 @@
-# Conductor Context
+# Контекст Conductor
 
 ## Языковое правило (Language Rule)
 
@@ -14,42 +14,41 @@
 
 ---
 
-If a user mentions a "plan" or asks about the plan, and they have used the conductor extension in the current session, they are likely referring to the `conductor/tracks.md` file or one of the track plans (`conductor/tracks/<track_id>/plan.md`).
+Если пользователь упоминает «план» или спрашивает о плане и он использовал расширение conductor в текущей сессии, он, вероятно, имеет в виду файл `conductor/tracks.md` или один из планов треков (`conductor/tracks/<track_id>/plan.md`).
 
-## Universal File Resolution Protocol
+## Универсальный протокол поиска файлов
 
-**PROTOCOL: How to locate files.**
-To find a file (e.g., "**Product Definition**") within a specific context (Project Root or a specific Track):
+**ПРОТОКОЛ: Как находить файлы.**
+Чтобы найти файл (например, «**Определение продукта**») в определённом контексте (корень проекта или конкретный трек):
 
-1.  **Identify Index:** Determine the relevant index file:
-    -   **Project Context:** `conductor/index.md`
-    -   **Track Context:**
-        a. Resolve and read the **Tracks Registry** (via Project Context).
-        b. Find the entry for the specific `<track_id>`.
-        c. Follow the link provided in the registry to locate the track's folder. The index file is `<track_folder>/index.md`.
-        d. **Fallback:** If the track is not yet registered (e.g., during creation) or the link is broken:
-            1. Resolve the **Tracks Directory** (via Project Context).
-            2. The index file is `<Tracks Directory>/<track_id>/index.md`.
+1.  **Определи индекс:** Найди соответствующий индексный файл:
+    -   **Контекст проекта:** `conductor/index.md`
+    -   **Контекст трека:**
+        a. Найди и прочитай **Реестр треков** (через контекст проекта).
+        b. Найди запись для конкретного `<track_id>`.
+        c. Перейди по ссылке из реестра, чтобы найти папку трека. Индексный файл: `<track_folder>/index.md`.
+        d. **Запасной вариант:** Если трек ещё не зарегистрирован (например, в процессе создания) или ссылка сломана:
+            1. Найди **Директорию треков** (через контекст проекта).
+            2. Индексный файл: `<Директория треков>/<track_id>/index.md`.
 
-2.  **Check Index:** Read the index file and look for a link with a matching or semantically similar label.
+2.  **Проверь индекс:** Прочитай индексный файл и найди ссылку с совпадающей или семантически близкой меткой.
 
-3.  **Resolve Path:** If a link is found, resolve its path **relative to the directory containing the `index.md` file**.
-    -   *Example:* If `conductor/index.md` links to `./workflow.md`, the full path is `conductor/workflow.md`.
+3.  **Разреши путь:** Если ссылка найдена, разреши её путь **относительно директории, содержащей `index.md`**.
+    -   *Пример:* Если `conductor/index.md` ссылается на `./workflow.md`, полный путь: `conductor/workflow.md`.
 
-4.  **Fallback:** If the index file is missing or the link is absent, use the **Default Path** keys below.
+4.  **Запасной вариант:** Если индексный файл отсутствует или ссылка не найдена, используй **Стандартные пути по умолчанию** ниже.
 
-5.  **Verify:** You MUST verify the resolved file actually exists on the disk.
+5.  **Проверь:** Ты ДОЛЖЕН убедиться, что разрешённый файл действительно существует на диске.
 
-**Standard Default Paths (Project):**
-- **Product Definition**: `conductor/product.md`
-- **Tech Stack**: `conductor/tech-stack.md`
-- **Workflow**: `conductor/workflow.md`
-- **Product Guidelines**: `conductor/product-guidelines.md`
-- **Tracks Registry**: `conductor/tracks.md`
-- **Tracks Directory**: `conductor/tracks/`
+**Стандартные пути по умолчанию (Проект):**
+- **Определение продукта**: `conductor/product.md`
+- **Технологический стек**: `conductor/tech-stack.md`
+- **Рабочий процесс**: `conductor/workflow.md`
+- **Руководства по продукту**: `conductor/product-guidelines.md`
+- **Реестр треков**: `conductor/tracks.md`
+- **Директория треков**: `conductor/tracks/`
 
-**Standard Default Paths (Track):**
-- **Specification**: `conductor/tracks/<track_id>/spec.md`
-- **Implementation Plan**: `conductor/tracks/<track_id>/plan.md`
-- **Metadata**: `conductor/tracks/<track_id>/metadata.json`
-
+**Стандартные пути по умолчанию (Трек):**
+- **Спецификация**: `conductor/tracks/<track_id>/spec.md`
+- **План реализации**: `conductor/tracks/<track_id>/plan.md`
+- **Метаданные**: `conductor/tracks/<track_id>/metadata.json`
