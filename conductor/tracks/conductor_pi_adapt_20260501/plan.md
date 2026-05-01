@@ -1,10 +1,10 @@
 # План реализации: Адаптация документации Conductor под pi и перевод на русский
 
 ## Фаза 1: AGENTS.md и корневые файлы
-- [ ] Task: Перевод и адаптация AGENTS.md
-    - [ ] Перевести Universal File Resolution Protocol на русский язык.
-    - [ ] Проверить и сохранить все перекрёстные ссылки (conductor/index.md, conductor/tracks.md и т.д.).
-    - [ ] Убедиться, что весь файл следует языковому правилу (русский).
+- [x] Task: Перевод и адаптация AGENTS.md `6ee3b7a`
+    - [x] Перевести Universal File Resolution Protocol на русский язык.
+    - [x] Проверить и сохранить все перекрёстные ссылки (conductor/index.md, conductor/tracks.md и т.д.).
+    - [x] Убедиться, что весь файл следует языковому правилу (русский).
 - [ ] Task: Перевод и адаптация conductor/workflow.md
     - [ ] Перевести весь файл на русский язык.
     - [ ] Адаптировать секцию «Development Commands» под Bun/TypeScript/Biome (убрать примеры на Python/Go/Node).
