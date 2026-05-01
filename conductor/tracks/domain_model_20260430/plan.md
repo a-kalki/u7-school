@@ -19,17 +19,18 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Модель Пользователя' (Protocol in workflow.md)
 
-## Phase 3: Базовая структура Курса и Модуля
-- [x] Task: Схема Курса (Course Schema) `[34fa4e7]`
-    - [x] Написать тесты для структуры курса (название, описание, связь с автором).
-    - [x] Реализовать схему Course.
-- [x] Task: Схема Модуля (Module Schema) `[6fa92fc]`
-    - [x] Написать тесты для исключающей логики Модуля (либо проекты, либо уроки).
-    - [x] Реализовать схему Module с использованием `v.union` или аналогичного механизма Valibot.
-- [x] Task: Схема Проекта (Project Schema) `[f58c3f6]`
-    - [x] Написать базовые тесты для метаданных проекта.
-    - [x] Реализовать схему Project.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Структура Курса' (Protocol in workflow.md)
+## Phase 3: Проектно-ориентированная структура (Course → Module → Project → Lesson)
+- [x] Task: Пересмотр схемы Курса (Course) — исключающее ИЛИ (модули или проекты) `[3fccd72]`
+    - [x] Обновить CourseSchema: курс содержит либо modules[], либо projects[] (v.variant)
+    - [x] Обновить тесты Course с учётом исключающего ИЛИ
+- [x] Task: Пересмотр схемы Модуля (Module) — содержит только проекты `[3fccd72]`
+    - [x] Убрать lessons[] из ModuleSchema, оставить только projects[]
+    - [x] Убрать v.variant, упростить до обычного object
+    - [x] Обновить тесты Module
+- [x] Task: Пересмотр схемы Проекта (Project) — содержит уроки `[3fccd72]`
+    - [x] Добавить lessons[] в ProjectSchema
+    - [x] Обновить тесты Project
+- [ ] Task: Conductor - User Manual Verification 'Phase 3: Проектно-ориентированная структура'
 
 ## Phase 4: Уроки и Шаги
 - [ ] Task: Схема Файла (File Metadata)
