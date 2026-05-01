@@ -15,7 +15,14 @@ describe("Схема проекта (Project)", () => {
     createdAt: "2026-05-01T12:00",
     updatedAt: "2026-05-01T12:00",
     lessons: [
-      { uuid: "660e8400-e29b-41d4-a716-446655440001", title: "Введение" },
+      {
+        uuid: "660e8400-e29b-41d4-a716-446655440001",
+        title: "Введение",
+        status: Status.DRAFT,
+        order: 1,
+        createdAt: "2026-05-01T12:00",
+        updatedAt: "2026-05-01T12:00",
+      },
     ],
   };
 

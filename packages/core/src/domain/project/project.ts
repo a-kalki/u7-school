@@ -1,11 +1,7 @@
 import * as v from "valibot";
 import { StatusSchema } from "../shared/status";
 
-// Временная заглушка для урока (замена на LessonSchema в Фазе 4)
-const LessonRefSchema = v.object({
-  uuid: v.pipe(v.string(), v.uuid()),
-  title: v.string(),
-});
+import { LessonSchema } from "../lesson/lesson";
 
 /**
  * Схема проекта. Основная рабочая единица, содержит список уроков.
@@ -22,7 +18,7 @@ export const ProjectSchema = v.object({
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
   updatedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
   /** Список уроков в проекте (опционально) */
-  lessons: v.optional(v.array(LessonRefSchema)),
+  lessons: v.optional(v.array(LessonSchema)),
 });
 
 export type Project = v.InferOutput<typeof ProjectSchema>;
