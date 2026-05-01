@@ -41,13 +41,13 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 3: newtrack и review' (Protocol in workflow.md)
 
 ## Фаза 4: Малые skill-файлы (revert, status)
-- [ ] Task: Перевод и адаптация conductor-revert/SKILL.md
-    - [ ] Перевести весь файл на русский язык (~9K).
-    - [ ] Заменить `ask_user` и другие gemini-инструменты.
-    - [ ] Проверить корректность git-команд (они не меняются, только описания вокруг).
-- [ ] Task: Перевод и адаптация conductor-status/SKILL.md
-    - [ ] Перевести весь файл на русский язык (~3K).
-    - [ ] Минимальные правки (файл и так короткий и без сложных инструментов).
+- [x] Task: Перевод и адаптация conductor-revert/SKILL.md `9905bd2`
+    - [x] Перевести весь файл на русский язык (~9K).
+    - [x] Заменить `ask_user` и другие gemini-инструменты.
+    - [x] Проверить корректность git-команд (они не меняются, только описания вокруг).
+- [x] Task: Перевод и адаптация conductor-status/SKILL.md `9905bd2`
+    - [x] Перевести весь файл на русский язык (~3K).
+    - [x] Минимальные правки (файл и так короткий и без сложных инструментов).
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4: revert и status' (Protocol in workflow.md)
 
 ## Фаза 5: Верификация и финализация
