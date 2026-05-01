@@ -29,15 +29,15 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 2: setup и implement' (Protocol in workflow.md)
 
 ## Фаза 3: Средние skill-файлы (newtrack, review)
-- [ ] Task: Перевод и адаптация conductor-newtrack/SKILL.md
-    - [ ] Перевести весь файл на русский язык (~12K).
-    - [ ] Заменить `enter_plan_mode` / `exit_plan_mode` / `ask_user` на диалоговый режим pi.
-    - [ ] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
-    - [ ] Адаптировать протокол Interactive Specification Generation под текстовый диалог.
-- [ ] Task: Перевод и адаптация conductor-review/SKILL.md
-    - [ ] Перевести весь файл на русский язык (~12K).
-    - [ ] Заменить те же инструменты.
-    - [ ] Адаптировать протокол Review Output под pi.
+- [x] Task: Перевод и адаптация conductor-newtrack/SKILL.md `90248e7`
+    - [x] Перевести весь файл на русский язык (~12K).
+    - [x] Заменить `enter_plan_mode` / `exit_plan_mode` / `ask_user` на диалоговый режим pi.
+    - [x] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
+    - [x] Адаптировать протокол Interactive Specification Generation под текстовый диалог.
+- [x] Task: Перевод и адаптация conductor-review/SKILL.md `90248e7`
+    - [x] Перевести весь файл на русский язык (~12K).
+    - [x] Заменить те же инструменты.
+    - [x] Адаптировать протокол Review Output под pi.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: newtrack и review' (Protocol in workflow.md)
 
 ## Фаза 4: Малые skill-файлы (revert, status)
