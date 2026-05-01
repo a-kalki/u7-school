@@ -51,7 +51,7 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 4: revert и status' (Protocol in workflow.md)
 
 ## Фаза 5: Верификация и финализация
-- [ ] Task: Проверка отсутствия старых инструментов
+- [~] Task: Проверка отсутствия старых инструментов
     - [ ] Выполнить `grep -r "enter_plan_mode\|exit_plan_mode\|ask_user\|run_shell_command\|write_file\|geminiignore" .pi/skills/ conductor/ AGENTS.md` и убедиться, что результат пуст.
 - [ ] Task: Проверка функциональности
     - [ ] Выполнить `/conductor:status` и убедиться, что агент корректно читает документацию.
