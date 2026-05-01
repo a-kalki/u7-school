@@ -17,7 +17,7 @@
     - [x] Написать падающие тесты для схемы User (валидация ID, email, ролей).
     - [x] Реализовать схему User с использованием Valibot.
     - [x] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Модель Пользователя' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Модель Пользователя' (Protocol in workflow.md)
 
 ## Phase 3: Базовая структура Курса и Модуля
 - [ ] Task: Схема Курса (Course Schema)
