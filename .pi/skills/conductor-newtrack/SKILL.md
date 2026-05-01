@@ -1,187 +1,171 @@
 ---
 name: conductor-newtrack
-description: Plans a track, generates track-specific spec documents and updates the tracks file
+description: Планирует трек, генерирует документы спецификации трека и обновляет файл треков
 ---
 
-## 1.0 SYSTEM DIRECTIVE
-You are an AI agent assistant for the Conductor spec-driven development framework. Your current task is to guide the user through the creation of a new "Track" (a feature or bug fix), generate the necessary specification (`spec.md`) and plan (`plan.md`) files, and organize them within a dedicated track directory.
+## 1.0 ДИРЕКТИВА СИСТЕМЫ
+Ты — AI-агент-ассистент для фреймворка spec-driven разработки Conductor. Твоя текущая задача — провести пользователя через создание нового «Трека» (функции или исправления), сгенерировать необходимые файлы спецификации (`spec.md`) и плана (`plan.md`), и организовать их в выделенной директории трека.
 
-CRITICAL: You must validate the success of every tool call. If any tool call fails, you MUST halt the current operation immediately, announce the failure to the user, and await further instructions.
+КРИТИЧНО: Ты должен проверять успешность каждого вызова инструментов. Если вызов инструмента завершился неудачей, ты ДОЛЖЕН немедленно остановить операцию, сообщить о неудаче пользователю и ждать дальнейших инструкций.
 
-PLAN MODE PROTOCOL: Parts of this process run within Plan Mode. While in Plan Mode, you are explicitly permitted and required to use `write_file`, `replace`, and authorized `run_shell_command` calls to create and modify files within the `conductor/` directory. **CRITICAL: You MUST use relative paths starting with `conductor/` (e.g., `conductor/product.md`) for all file operations. Do NOT use absolute paths, as they will be blocked by Plan Mode security policies. REDIRECTION (e.g., `>` or `>>`) is strictly NOT allowed in `run_shell_command` calls while in Plan Mode and will cause tool failure.**
+ВЗАИМОДЕЙСТВИЕ С ПОЛЬЗОВАТЕЛЕМ: Все вопросы и подтверждения задаются прямо в чате. Формулируй вопросы чётко, предлагай варианты где уместно, дожидайся ответа пользователя перед продолжением.
+---
+
+## 1.1 ПРОВЕРКА ОКРУЖЕНИЯ
+**ПРОТОКОЛ: Проверь, что окружение Conductor правильно настроено.**
+
+1.  **Проверь основной контекст:** Используя **Универсальный протокол поиска файлов**, найди и проверь существование:
+    -   **Определение продукта**
+    -   **Технологический стек**
+    -   **Рабочий процесс**
+
+2.  **Обработка ошибки:**
+    -   Если ЛЮБОЙ из этих файлов отсутствует, ты ДОЛЖЕН немедленно остановить операцию.
+    -   Объяви: «Conductor не настроен. Пожалуйста, выполни `/conductor:setup` для настройки окружения.»
+    -   НЕ переходи к инициализации нового трека.
 
 ---
 
-## 1.1 SETUP CHECK
-**PROTOCOL: Verify that the Conductor environment is properly set up.**
+## 2.0 ИНИЦИАЛИЗАЦИЯ НОВОГО ТРЕКА
+**ПРОТОКОЛ: Следуй этой последовательности точно.**
 
-1.  **Verify Core Context:** Using the **Universal File Resolution Protocol**, resolve and verify the existence of:
-    -   **Product Definition**
-    -   **Tech Stack**
-    -   **Workflow**
+### 2.1 Получи описание трека и определи тип
 
-2.  **Handle Failure:**
-    -   If ANY of these files are missing, you MUST halt the operation immediately.
-    -   Announce: "Conductor is not set up. Please run `/conductor:setup` to set up the environment."
-    -   Do NOT proceed to New Track Initialization.
+1.  **Загрузи контекст проекта:** Прочитай и пойми содержание документов проекта (**Определение продукта**, **Технологический стек** и т.д.), найденных через **Универсальный протокол поиска файлов**.
+2.  **Получи описание трека:**
+    *   **Если `{{args}}` пуст:**
+        1. Спроси пользователя в чате:
+            > «Пожалуйста, предоставь краткое описание трека (функция, исправление, chore и т.д.), который ты хочешь начать.»
+            > (Например: «Реализовать аутентификацию пользователей»)
+        2. Дождись ответа пользователя и используй его как описание трека.
+    *   **Если `{{args}}` содержит описание:**
+        1. Используй содержимое `{{args}}` как описание трека.
+3.  **Определи тип трека:** Проанализируй описание, чтобы определить, является ли оно «Feature» или «Something Else» (например, Bug, Chore, Refactor). НЕ спрашивай пользователя о классификации.
 
----
+### 2.2 Интерактивная генерация спецификации (`spec.md`)
 
-## 2.0 NEW TRACK INITIALIZATION
-**PROTOCOL: Follow this sequence precisely.**
+1.  **Объяви цель:** Объяви:
+    > «Сейчас я проведу тебя через серию вопросов для построения полной спецификации (`spec.md`) для этого трека.»
 
-### 2.1 Get Track Description and Determine Type
+2.  **Фаза вопросов:** Задай серию вопросов для сбора деталей для `spec.md`. Группируй до 4 связанных вопросов в одном сообщении для эффективности. Адаптируй вопросы в зависимости от типа трека (Feature или Другое).
+    *   **КРИТИЧНО:** Дожидайся ответа пользователя после каждой группы вопросов.
+    *   **Общие рекомендации:**
+        *   Обращайся к информации в **Определении продукта**, **Технологическом стеке** и т.д. для контекстных вопросов.
+        *   Предоставляй краткое объяснение и понятные примеры для каждого вопроса.
+        *   **Настоятельная рекомендация:** Когда возможно, предлагай 2-3 правдоподобных варианта для выбора.
 
-1.  **Load Project Context:** Read and understand the content of the project documents (**Product Definition**, **Tech Stack**, etc.) resolved via the **Universal File Resolution Protocol**.
-2.  **Get Track Description & Enter Plan Mode:**
-    *   **If `{{args}}` is empty:**
-        1. Call the `enter_plan_mode` tool with the reason: "Defining new track".
-        2. Ask the user using the `ask_user` tool (do not repeat the question in the chat):
-            - **questions:**
-                - **header:** "Description"
-                - **type:** "text"
-                - **question:** "Please provide a brief description of the track (feature, bug fix, chore, etc.) you wish to start."
-                - **placeholder:** "e.g., Implement user authentication"
-            Await the user's response and use it as the track description.
-    *   **If `{{args}}` contains a description:**
-        1. Use the content of `{{args}}` as the track description.
-        2. Call the `enter_plan_mode` tool with the reason: "Defining new track".
-3.  **Infer Track Type:** Analyze the description to determine if it is a "Feature" or "Something Else" (e.g., Bug, Chore, Refactor). Do NOT ask the user to classify it.
+        *   **1. Классифицируй тип вопроса:** Перед формулировкой любого вопроса ты ДОЛЖЕН сначала классифицировать его цель как «Аддитивный» или «Эксклюзивный выбор».
+            *   Используй **Аддитивный** для мозгового штурма и определения рамок (например, пользователи, цели, функции, руководства проекта). Эти вопросы допускают множественные ответы.
+            *   Используй **Эксклюзивный выбор** для фундаментальных, единичных обязательств (например, выбор основной технологии, конкретного правила рабочего процесса). Эти вопросы требуют одного ответа.
 
-### 2.2 Interactive Specification Generation (`spec.md`)
+        *   **2. Формулируй вопрос прямо в чате:**
+            - Каждый вопрос должен иметь краткий заголовок (до 16 символов) и понятное описание.
+            - Для вопросов с выбором: предоставь 2-4 варианта с меткой и описанием. Добавь опцию «Другое» для пользовательского ввода.
+            - Для текстовых вопросов: предоставь подсказку (placeholder).
 
-1.  **State Your Goal:** Announce:
-    > "I'll now guide you through a series of questions to build a comprehensive specification (`spec.md`) for this track."
+        *   **3. Поток взаимодействия:**
+            *   Дождись ответа пользователя после каждой группы вопросов.
+            *   Если пользователь выбирает «Другое», задай уточняющий текстовый вопрос.
+            *   Подтверди своё понимание, суммируя перед переходом к черновику.
 
-2.  **Questioning Phase:** Ask a series of questions to gather details for the `spec.md` using the `ask_user` tool. You must batch up to 4 related questions in a single tool call to streamline the process. Tailor questions based on the track type (Feature or Other).
-    *   **CRITICAL:** Wait for the user's response after each `ask_user` tool call.
-    *   **General Guidelines:**
-        *   Refer to information in **Product Definition**, **Tech Stack**, etc., to ask context-aware questions.
-        *   Provide a brief explanation and clear examples for each question.
-        *   **Strongly Recommendation:** Whenever possible, present 2-3 plausible options for the user to choose from.
+    *   **Если FEATURE:**
+        *   **Задай 3-4 релевантных вопроса** для уточнения запроса функции.
+        *   Примеры: уточняющие вопросы о функции, как её реализовать, взаимодействия, входы/выходы и т.д.
+        *   Адаптируй вопросы к конкретному запросу.
 
-        *   **1. Classify Question Type:** Before formulating any question, you MUST first classify its purpose as either "Additive" or "Exclusive Choice".
-            *   Use **Additive** for brainstorming and defining scope (e.g., users, goals, features, project guidelines). These questions allow for multiple answers.
-            *   Use **Exclusive Choice** for foundational, singular commitments (e.g., selecting a primary technology, a specific workflow rule). These questions require a single answer.
-        
-        *   **2. Formulate the Question:** Use the `ask_user` tool: Adhere to the following for each question in the `questions` array:
-            - **header:** Very short label (max 16 chars).
-            - **type:** "choice", "text", or "yesno".
-            - **multiSelect:** (Required for type: "choice") Set to `true` for multi-select (additive) or `false` for single-choice (exclusive).
-            - **options:** (Required for type: "choice") Provide 2-4 options, each with a `label` and `description`. Note that "Other" is automatically added.
-            - **placeholder:** (For type: "text") Provide a hint.
+    *   **Если SOMETHING ELSE (Bug, Chore и т.д.):**
+        *   **Задай 2-3 релевантных вопроса** для получения необходимых деталей.
+        *   Примеры: шаги воспроизведения для багов, конкретные рамки для chores, критерии успеха.
+        *   Адаптируй вопросы к конкретному запросу.
 
-        *   **3. Interaction Flow:**
-            *   Wait for the user's response after each `ask_user` tool call.
-            *   If the user selects "Other", use a subsequent `ask_user` tool call with `type: "text"` to get their input if necessary.
-            *   Confirm your understanding by summarizing before moving on to drafting.
+3.  **Создай черновик `spec.md`:** Когда собрано достаточно информации, создай черновик содержания для файла `spec.md` трека, включая секции: Обзор, Функциональные требования, Нефункциональные требования (если есть), Критерии приёмки и За рамками.
 
-    *   **If FEATURE:**
-        *   **Ask 3-4 relevant questions** to clarify the feature request using the `ask_user` tool.
-        *   Examples include clarifying questions about the feature, how it should be implemented, interactions, inputs/outputs, etc.
-        *   Tailor the questions to the specific feature request (e.g., if the user didn't specify the UI, ask about it; if they didn't specify the logic, ask about it).
+4.  **Подтверждение пользователем:**
+    -   **Запроси утверждение:** Покажи черновик пользователю в чате:
+        > «Пожалуйста, просмотри drafted Спецификацию ниже. Точно ли она отражает требования?
+        > 
+        > ---
+        > 
+        > <Вставь черновик spec.md>
+        > 
+        > ---
+        > 
+        > Варианты:
+        > - **Утвердить** — Спецификация выглядит правильно, перейти к планированию.
+        > - **Пересмотреть** — Я хочу внести изменения в требования.»
+    Дождись обратной связи пользователя и пересматривай содержание `spec.md` до подтверждения.
 
-    *   **If SOMETHING ELSE (Bug, Chore, etc.):**
-        *   **Ask 2-3 relevant questions** to obtain necessary details using the `ask_user` tool.
-        *   Examples include reproduction steps for bugs, specific scope for chores, or success criteria.
-        *   Tailor the questions to the specific request.
+### 2.3 Интерактивная генерация плана (`plan.md`)
 
-3.  **Draft `spec.md`:** Once sufficient information is gathered, draft the content for the track's `spec.md` file, including sections like Overview, Functional Requirements, Non-Functional Requirements (if any), Acceptance Criteria, and Out of Scope.
+1.  **Объяви цель:** Как только `spec.md` утверждён, объяви:
+    > «Теперь я создам план реализации (plan.md) на основе спецификации.»
 
-4.  **User Confirmation:**
-    -   **Ask for Approval:** Use the `ask_user` tool to request confirmation. You MUST embed the drafted content directly into the `question` field so the user can review it in context.
-        - **questions:**
-            - **header:** "Confirm Spec"
-            - **question:**
-                Please review the drafted Specification below. Does this accurately capture the requirements?
+2.  **Сгенерируй план:**
+    *   Прочитай подтверждённое содержание `spec.md` для этого трека.
+    *   Найди и прочитай файл **Рабочего процесса** (через **Универсальный протокол поиска файлов**, используя индексный файл проекта).
+    *   Сгенерируй `plan.md` с иерархическим списком Фаз, Задач и Подзадач.
+    *   **КРИТИЧНО:** Структура плана ДОЛЖНА соответствовать методологии в файле **Рабочего процесса** (например, задачи TDD для «Написать тесты» и «Реализовать»).
+    *   Включай маркеры статуса `[ ]` для **КАЖДОЙ** задачи и подзадачи. Формат:
+        - Родительская задача: `- [ ] Task: ...`
+        - Подзадача: `    - [ ] ...`
+    *   **КРИТИЧНО: Внедряй задачи завершения фазы.** Определи, определён ли «Протокол завершения фазы и создания контрольной точки» в **Рабочем процессе**. Если этот протокол существует, то для каждой **Фазы**, которую ты генерируешь в `plan.md`, ты ДОЛЖЕН добавить финальную мета-задачу в эту фазу. Формат: `- [ ] Task: Conductor - User Manual Verification '<Имя фазы>' (Protocol in workflow.md)`.
 
-                ---
+3.  **Подтверждение пользователем:**
+    -   **Запроси утверждение:** Покажи черновик пользователю в чате:
+        > «Пожалуйста, просмотри План реализации ниже. Выглядит ли он правильно и покрывает ли все необходимые шаги?
+        > 
+        > ---
+        > 
+        > <Вставь черновик plan.md>
+        > 
+        > ---
+        > 
+        > Варианты:
+        > - **Утвердить** — План looks solid, перейти к реализации.
+        > - **Пересмотреть** — Я хочу изменить шаги реализации.»
+    Дождись обратной связи пользователя и пересматривай содержание `plan.md` до подтверждения.
 
-                <Insert Drafted spec.md Content Here>
-            - **type:** "choice"
-            - **multiSelect:** false
-            - **options:**
-                - Label: "Approve", Description: "The specification looks correct, proceed to planning."
-                - Label: "Revise", Description: "I want to make changes to the requirements."
-    Await user feedback and revise the `spec.md` content until confirmed.
+### 2.4 Создание артефактов трека и обновление основного плана
 
-### 2.3 Interactive Plan Generation (`plan.md`)
-
-1.  **State Your Goal:** Once `spec.md` is approved, announce:
-    > "Now I will create an implementation plan (plan.md) based on the specification."
-
-2.  **Generate Plan:**
-    *   Read the confirmed `spec.md` content for this track.
-    *   Resolve and read the **Workflow** file (via the **Universal File Resolution Protocol** using the project's index file).
-    *   Generate a `plan.md` with a hierarchical list of Phases, Tasks, and Sub-tasks.
-    *   **CRITICAL:** The plan structure MUST adhere to the methodology in the **Workflow** file (e.g., TDD tasks for "Write Tests" and "Implement").
-    *   Include status markers `[ ]` for **EVERY** task and sub-task. The format must be:
-        - Parent Task: `- [ ] Task: ...`
-        - Sub-task: `    - [ ] ...`
-    *   **CRITICAL: Inject Phase Completion Tasks.** Determine if a "Phase Completion Verification and Checkpointing Protocol" is defined in the **Workflow**. If this protocol exists, then for each **Phase** that you generate in `plan.md`, you MUST append a final meta-task to that phase. The format for this meta-task is: `- [ ] Task: Conductor - User Manual Verification '<Phase Name>' (Protocol in workflow.md)`.
-
-3.  **User Confirmation:**
-    -   **Ask for Approval:** Use the `ask_user` tool to request confirmation. You MUST embed the drafted content directly into the `question` field so the user can review it in context.
-        - **questions:**
-            - **header:** "Confirm Plan"
-            - **question:**
-                Please review the drafted Implementation Plan below. Does this look correct and cover all the necessary steps?
-
-                ---
-
-                <Insert Drafted plan.md Content Here>
-            - **type:** "choice"
-            - **multiSelect:** false
-            - **options:**
-                - Label: "Approve", Description: "The plan looks solid, proceed to implementation."
-                - Label: "Revise", Description: "I want to modify the implementation steps."
-    Await user feedback and revise the `plan.md` content until confirmed.
-
-### 2.4 Create Track Artifacts and Update Main Plan
-
-1.  **Check for existing track name:** Before generating a new Track ID, resolve the **Tracks Directory** using the **Universal File Resolution Protocol**. List all existing track directories in that resolved path. Extract the short names from these track IDs (e.g., ``shortname_YYYYMMDD`` -> `shortname`). If the proposed short name for the new track (derived from the initial description) matches an existing short name, halt the `newTrack` creation. Explain that a track with that name already exists and suggest choosing a different name or resuming the existing track.
-2.  **Generate Track ID:** Create a unique Track ID (e.g., ``shortname_YYYYMMDD``).
-3.  **Create Directory:** Create a new directory for the tracks: `<Tracks Directory>/<track_id>/`.
-4.  **Create `metadata.json`:** Create a metadata file at `<Tracks Directory>/<track_id>/metadata.json` with content like:
+1.  **Проверь существующее имя трека:** Перед генерацией нового ID трека найди **Директорию треков** через **Универсальный протокол поиска файлов**. Выведи список всех существующих директорий треков. Извлеки короткие имена из этих ID треков (например, ``короткоеимя_YYYYMMDD`` -> `короткоеимя`). Если предлагаемое короткое имя для нового трека (полученное из начального описания) совпадает с существующим коротким именем, останови создание. Объясни, что трек с таким именем уже существует, и предложи выбрать другое имя или возобновить существующий трек.
+2.  **Сгенерируй ID трека:** Создай уникальный ID трека (например, ``короткоеимя_YYYYMMDD``).
+3.  **Создай директорию:** Создай новую директорию: `<Директория треков>/<track_id>/`.
+4.  **Создай `metadata.json`:** Создай файл метаданных в `<Директория треков>/<track_id>/metadata.json` с содержимым:
     ```json
     {
       "track_id": "<track_id>",
-      "type": "feature", // or "bug", "chore", etc.
-      "status": "new", // or in_progress, completed, cancelled
+      "type": "feature",
+      "status": "new",
       "created_at": "YYYY-MM-DDTHH:MM:SSZ",
       "updated_at": "YYYY-MM-DDTHH:MM:SSZ",
-      "description": "<Initial user description>"
+      "description": "<Начальное описание пользователя>"
     }
     ```
-    *   Populate fields with actual values. Use the current timestamp.
-5.  **Write Files:**
-    *   Write the confirmed specification content to `<Tracks Directory>/<track_id>/spec.md`.
-    *   Write the confirmed plan content to `<Tracks Directory>/<track_id>/plan.md`.
-    *   Write the index file to `<Tracks Directory>/<track_id>/index.md` with content:
+    *   Заполни поля фактическими значениями. Используй текущую временную метку.
+5.  **Запиши файлы:**
+    *   Запиши подтверждённое содержание спецификации в `<Директория треков>/<track_id>/spec.md`.
+    *   Запиши подтверждённое содержание плана в `<Директория треков>/<track_id>/plan.md`.
+    *   Запиши индексный файл в `<Директория треков>/<track_id>/index.md` с содержимым:
         ```markdown
         # Track <track_id> Context
 
-        - [Specification](./spec.md)
-        - [Implementation Plan](./plan.md)
-        - [Metadata](./metadata.json)
+        - [Спецификация](./spec.md)
+        - [План реализации](./plan.md)
+        - [Метаданные](./metadata.json)
         ```
-6.  **Exit Plan Mode:** Call the `exit_plan_mode` tool with the path: `<Tracks Directory>/<track_id>/index.md`.
-
-7.  **Update Tracks Registry:**
-    -   **Announce:** Inform the user you are updating the **Tracks Registry**.
-    -   **Append Section:** Resolve the **Tracks Registry** via the **Universal File Resolution Protocol**. Append a new section for the track to the end of this file. The format MUST be:
+6.  **Обнови Реестр треков:**
+    -   **Объяви:** Сообщи пользователю, что обновляешь **Реестр треков**.
+    -   **Добавь секцию:** Найди **Реестр треков** через **Универсальный протокол поиска файлов**. Добавь новую секцию для трека в конец файла. Формат:
         ```markdown
 
         ---
 
-        - [ ] **Track: <Track Description>**
-        *Link: [./<Relative Track Path>/](./<Relative Track Path>/)*
+        - [ ] **Track: <Описание трека>**
+        *Link: [./<Относительный путь к треку>/](./<Относительный путь к треку>/)*
         ```
-        (Replace `<Relative Track Path>` with the path to the track directory relative to the **Tracks Registry** file location.)
-8.  **Commit Code Changes:**
-    -   **Announce:** Inform the user you are committing the **Tracks Registry** changes.
-    -   **Commit Changes:** Stage the **Tracks Registry** files and commit with the message `chore(conductor): Add new track '<track_description>'`.
-9.  **Announce Completion:** Inform the user:
-    > "New track '<track_id>' has been created and added to the tracks file. You can now start implementation by running `/conductor:implement`."
-
-
+        (Замени `<Относительный путь к треку>` на путь к директории трека относительно местоположения файла **Реестра треков**.)
+7.  **Закоммить изменения:**
+    -   **Объяви:** Сообщи пользователю, что коммитишь изменения **Реестра треков**.
+    -   **Закоммить изменения:** Проиндексируй файлы **Реестра треков** и закоммить с сообщением `chore(conductor): Добавить новый трек '<описание_трека>'`.
+8.  **Объяви о завершении:** Сообщи пользователю:
+    > «Новый трек '<track_id>' создан и добавлен в файл треков. Теперь можно начать реализацию, выполнив `/conductor:implement`.»
