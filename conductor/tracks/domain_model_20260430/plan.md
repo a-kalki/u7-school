@@ -32,7 +32,7 @@
     - [x] Обновить тесты Project
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Проектно-ориентированная структура'
 
-## Phase 4: Уроки и Шаги
+## Phase 4: Уроки и Шаги `[checkpoint: 0355240]`
 - [x] Task: Схема Файла (File Metadata)
     - [x] Написать тесты для валидации метаданных файлов (URL, типы).
     - [x] Реализовать схему File.
