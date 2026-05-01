@@ -1,6 +1,6 @@
 # План реализации: Адаптация документации Conductor под pi и перевод на русский
 
-## Фаза 1: AGENTS.md и корневые файлы
+## Фаза 1: AGENTS.md и корневые файлы [checkpoint: 7089962]
 - [x] Task: Перевод и адаптация AGENTS.md `6ee3b7a`
     - [x] Перевести Universal File Resolution Protocol на русский язык.
     - [x] Проверить и сохранить все перекрёстные ссылки (conductor/index.md, conductor/tracks.md и т.д.).
