@@ -13,7 +13,7 @@
     - [x] Структура команды: `{name: string, user?: uuid, attrs: unknown}`;
 - [x] Task: Conductor - User Manual Verification 'Phase 0: Архитектурная документация' (Protocol in workflow.md)
 
-## Phase 1: Агрегат пользователя (UserAr)
+## Phase 1: Агрегат пользователя (UserAr) [checkpoint: e4f89b6]
 - [x] Task: Тесты для UserAr [8bc72a0]
     - [x] Тест: создание UserAr из валидной CreateUserCommand возвращает агрегат с корректным состоянием.
     - [x] Тест: создание UserAr с невалидными данными (пустое имя, невалидный telegramId) — ошибка валидации.
