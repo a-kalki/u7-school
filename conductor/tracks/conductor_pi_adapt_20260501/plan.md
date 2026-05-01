@@ -40,7 +40,7 @@
     - [x] Адаптировать протокол Review Output под pi.
 - [x] Task: Conductor - User Manual Verification 'Фаза 3: newtrack и review' (Protocol in workflow.md)
 
-## Фаза 4: Малые skill-файлы (revert, status)
+## Фаза 4: Малые skill-файлы (revert, status) [checkpoint: d9c3562]
 - [x] Task: Перевод и адаптация conductor-revert/SKILL.md `9905bd2`
     - [x] Перевести весь файл на русский язык (~9K).
     - [x] Заменить `ask_user` и другие gemini-инструменты.
