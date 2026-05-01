@@ -10,9 +10,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Инициализация' (Protocol in workflow.md)
 
 ## Phase 2: Модель Пользователя (User)
-- [ ] Task: Определение ролей (Roles)
-    - [ ] Написать тест для Enum/типа ролей (STUDENT, MENTOR, ADMIN).
-    - [ ] Реализовать Enum/тип ролей.
+- [x] Task: Определение ролей (Roles) `[d533795]`
+    - [x] Написать тест для Enum/типа ролей (STUDENT, MENTOR, ADMIN).
+    - [x] Реализовать Enum/тип ролей.
 - [ ] Task: Схема Пользователя (User Schema)
     - [ ] Написать падающие тесты для схемы User (валидация ID, email, ролей).
     - [ ] Реализовать схему User с использованием Valibot.
