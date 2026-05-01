@@ -2,13 +2,17 @@ import { describe, test, expect } from "bun:test";
 import * as v from "valibot";
 import { ProjectSchema, type Project } from "./project";
 
-describe("Схема проекта (Project)", () => {
+describe("Схема проекта (Project) — содержит уроки", () => {
   const validProject: Project = {
     id: "proj-001",
     title: "Калькулятор на TypeScript",
     goal: "Создать полноценное консольное приложение-калькулятор",
     result: "Студент создаст работающий калькулятор с обработкой ошибок",
     additional: "Использовать паттерн Strategy для операций",
+    lessons: [
+      { id: "les-1", title: "Введение" },
+      { id: "les-2", title: "Архитектура" },
+    ],
   };
 
   test("должна принимать валидный проект со всеми полями", () => {
@@ -25,10 +29,18 @@ describe("Схема проекта (Project)", () => {
     expect(result.success).toBe(true);
   });
 
-  test("должна принимать проект без goal, result, additional", () => {
-    const { goal, result, additional, ...rest } = validProject;
-    const res = v.safeParse(ProjectSchema, rest);
-    expect(res.success).toBe(true);
+  test("должна принимать проект без уроков", () => {
+    const { lessons, ...rest } = validProject;
+    const result = v.safeParse(ProjectSchema, rest);
+    expect(result.success).toBe(true);
+  });
+
+  test("должна принимать проект с пустым массивом уроков", () => {
+    const result = v.safeParse(ProjectSchema, {
+      ...validProject,
+      lessons: [],
+    });
+    expect(result.success).toBe(true);
   });
 
   describe("Валидация обязательных полей", () => {
