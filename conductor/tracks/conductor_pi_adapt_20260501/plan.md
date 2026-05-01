@@ -12,13 +12,13 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: AGENTS.md и workflow' (Protocol in workflow.md)
 
 ## Фаза 2: Крупные skill-файлы (setup, implement)
-- [ ] Task: Перевод и адаптация conductor-setup/SKILL.md
-    - [ ] Перевести весь файл на русский язык (~40K).
-    - [ ] Заменить `enter_plan_mode` / `exit_plan_mode` на описание работы в диалоговом режиме pi.
-    - [ ] Заменить `ask_user` на прямое обращение к пользователю в чате.
-    - [ ] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
-    - [ ] Удалить упоминания `.geminiignore`.
-    - [ ] Адаптировать/удалить ограничения Plan Mode (запрет абсолютных путей, редиректов).
+- [x] Task: Перевод и адаптация conductor-setup/SKILL.md `c5d395d`
+    - [x] Перевести весь файл на русский язык (~40K).
+    - [x] Заменить `enter_plan_mode` / `exit_plan_mode` на описание работы в диалоговом режиме pi.
+    - [x] Заменить `ask_user` на прямое обращение к пользователю в чате.
+    - [x] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
+    - [x] Удалить упоминания `.geminiignore`.
+    - [x] Адаптировать/удалить ограничения Plan Mode (запрет абсолютных путей, редиректов).
 - [ ] Task: Перевод conductor-setup/templates/workflow.md
     - [ ] Перевести на русский язык.
     - [ ] Убедиться, что шаблон в точности соответствует `conductor/workflow.md`.
