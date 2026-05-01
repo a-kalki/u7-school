@@ -19,7 +19,7 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Модель Пользователя' (Protocol in workflow.md)
 
-## Phase 3: Проектно-ориентированная структура (Course → Module → Project → Lesson)
+## Phase 3: Проектно-ориентированная структура (Course → Module → Project → Lesson) `[checkpoint: d93026a]`
 - [x] Task: Пересмотр схемы Курса (Course) — исключающее ИЛИ (модули или проекты) `[3fccd72]`
     - [x] Обновить CourseSchema: курс содержит либо modules[], либо projects[] (v.variant)
     - [x] Обновить тесты Course с учётом исключающего ИЛИ
@@ -30,7 +30,7 @@
 - [x] Task: Пересмотр схемы Проекта (Project) — содержит уроки `[3fccd72]`
     - [x] Добавить lessons[] в ProjectSchema
     - [x] Обновить тесты Project
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Проектно-ориентированная структура'
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Проектно-ориентированная структура'
 
 ## Phase 4: Уроки и Шаги
 - [ ] Task: Схема Файла (File Metadata)
