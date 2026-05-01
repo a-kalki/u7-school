@@ -1,29 +1,28 @@
 import * as v from "valibot";
+import { StatusSchema } from "../shared/status";
 
-// Временная заглушка для урока (будет заменена на LessonSchema в Фазе 4)
+// Временная заглушка для урока (замена на LessonSchema в Фазе 4)
 const LessonRefSchema = v.object({
-  id: v.string(),
+  uuid: v.pipe(v.string(), v.uuid()),
   title: v.string(),
 });
 
 /**
- * Схема проекта платформы u7-school.
- * Основная рабочая единица. Содержит список уроков.
+ * Схема проекта. Основная рабочая единица, содержит список уроков.
  */
 export const ProjectSchema = v.object({
-  /** Уникальный идентификатор проекта */
-  id: v.pipe(v.string(), v.nonEmpty("ID проекта не может быть пустым")),
-  /** Название проекта */
+  uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   title: v.pipe(v.string(), v.nonEmpty("Название проекта не может быть пустым")),
-  /** Цель проекта */
   goal: v.optional(v.string()),
-  /** Что будет уметь или какой результат получит студент */
   result: v.optional(v.string()),
-  /** Дополнительная информация */
   additional: v.optional(v.string()),
-  /** Список уроков в проекте */
+  status: StatusSchema,
+  /** Порядковый номер для сортировки внутри модуля/курса */
+  order: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  updatedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  /** Список уроков в проекте (опционально) */
   lessons: v.optional(v.array(LessonRefSchema)),
 });
 
-/** Тип проекта, выводимый из схемы Valibot */
 export type Project = v.InferOutput<typeof ProjectSchema>;

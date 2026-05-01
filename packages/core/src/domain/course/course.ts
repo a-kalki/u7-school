@@ -1,79 +1,53 @@
 import * as v from "valibot";
+import { StatusSchema } from "../shared/status";
 import { ModuleSchema } from "../module/module";
 import { ProjectSchema } from "../project/project";
 
-/**
- * Базовые метаданные курса (общие для обоих вариантов).
- */
+/** Базовые поля для всех вариантов курса */
 const CourseBaseSchema = v.object({
-  /** Уникальный идентификатор курса */
-  id: v.pipe(v.string(), v.nonEmpty("ID курса не может быть пустым")),
-  /** Название курса */
+  uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   title: v.pipe(v.string(), v.nonEmpty("Название курса не может быть пустым")),
-  /** Описание курса */
   description: v.pipe(
     v.string(),
     v.nonEmpty("Описание курса не может быть пустым"),
   ),
-  /** ID автора (ментора), создавшего курс */
-  authorId: v.pipe(v.string(), v.nonEmpty("ID автора не может быть пустым")),
-  /** Для кого предназначен курс */
+  authorId: v.pipe(v.string(), v.uuid("Некорректный формат UUID автора")),
   targetAudience: v.optional(v.string()),
-  /** Цель курса */
   goal: v.optional(v.string()),
-  /** Что будет уметь студент в конце курса */
   result: v.optional(v.string()),
-  /** Правила прохождения курса */
   rules: v.optional(v.string()),
-  /** Дополнительная информация от ментора */
   additional: v.optional(v.string()),
+  status: StatusSchema,
+  createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  updatedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
 });
 
-/**
- * Курс, содержащий модули.
- * Ментор выбрал модульный подход.
- */
+/** Курс с модулями */
 const CourseWithModulesSchema = v.object({
   ...CourseBaseSchema.entries,
-  /** Тип курса — с модулями */
   kind: v.literal("modules"),
-  /** Список модулей */
   modules: v.pipe(
     v.array(ModuleSchema),
     v.nonEmpty("Курс должен содержать хотя бы один модуль"),
   ),
 });
 
-/**
- * Курс, содержащий проекты напрямую.
- * Ментор выбрал проектный подход.
- */
+/** Курс с проектами */
 const CourseWithProjectsSchema = v.object({
   ...CourseBaseSchema.entries,
-  /** Тип курса — с проектами */
   kind: v.literal("projects"),
-  /** Список проектов */
   projects: v.pipe(
     v.array(ProjectSchema),
     v.nonEmpty("Курс должен содержать хотя бы один проект"),
   ),
 });
 
-/**
- * Схема курса — исключающее ИЛИ:
- * курс содержит либо модули, либо проекты напрямую, но не оба одновременно.
- * Дискриминатор: поле kind ("modules" | "projects").
- */
+/** Схема курса — исключающее ИЛИ */
 export const CourseSchema = v.variant("kind", [
   CourseWithModulesSchema,
   CourseWithProjectsSchema,
 ]);
 
-/** Тип курса с модулями */
 export type CourseWithModules = v.InferOutput<typeof CourseWithModulesSchema>;
-
-/** Тип курса с проектами */
 export type CourseWithProjects = v.InferOutput<typeof CourseWithProjectsSchema>;
-
-/** Объединённый тип курса */
 export type Course = v.InferOutput<typeof CourseSchema>;

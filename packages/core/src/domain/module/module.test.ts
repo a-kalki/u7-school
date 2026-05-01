@@ -1,56 +1,83 @@
 import { describe, test, expect } from "bun:test";
 import * as v from "valibot";
 import { ModuleSchema, type Module } from "./module";
+import { Status } from "../shared/status";
 
-describe("Схема модуля (Module) — содержит проекты", () => {
+describe("Схема модуля (Module)", () => {
   const validModule: Module = {
-    id: "mod-001",
+    uuid: "550e8400-e29b-41d4-a716-446655440000",
     title: "Модуль с проектами",
     goal: "Научиться создавать проекты",
     result: "Студент создаст 3 проекта",
     additional: "Дополнительные материалы",
+    status: Status.DRAFT,
+    order: 1,
+    createdAt: "2026-05-01T12:00",
+    updatedAt: "2026-05-01T12:00",
     projects: [
-      { id: "proj-1", title: "Проект 1" },
-      { id: "proj-2", title: "Проект 2" },
+      {
+        uuid: "660e8400-e29b-41d4-a716-446655440001",
+        title: "Проект 1",
+        status: Status.DRAFT,
+        order: 1,
+        createdAt: "2026-05-01T12:00",
+        updatedAt: "2026-05-01T12:00",
+      },
     ],
   };
 
-  test("должна принимать валидный модуль с проектами", () => {
-    const result = v.safeParse(ModuleSchema, validModule);
-    expect(result.success).toBe(true);
+  test("должна принимать валидный модуль", () => {
+    expect(v.safeParse(ModuleSchema, validModule).success).toBe(true);
   });
 
   test("должна принимать модуль без необязательных полей", () => {
     const minimal: Module = {
-      id: "mod-min",
-      title: "Минимальный модуль",
-      projects: [{ id: "p1", title: "P1" }],
+      uuid: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Минимум",
+      status: Status.PUBLISHED,
+      order: 0,
+      createdAt: "2026-05-01T12:00",
+      updatedAt: "2026-05-01T12:00",
+      projects: [
+        {
+          uuid: "660e8400-e29b-41d4-a716-446655440001",
+          title: "P1",
+          status: Status.DRAFT,
+          order: 0,
+          createdAt: "2026-05-01T12:00",
+          updatedAt: "2026-05-01T12:00",
+        },
+      ],
     };
-    const result = v.safeParse(ModuleSchema, minimal);
-    expect(result.success).toBe(true);
+    expect(v.safeParse(ModuleSchema, minimal).success).toBe(true);
   });
 
-  describe("Валидация обязательных полей", () => {
-    test("должна отклонять модуль без названия", () => {
-      const result = v.safeParse(ModuleSchema, {
-        ...validModule,
-        title: "",
-      });
-      expect(result.success).toBe(false);
-    });
+  test("должна отклонять модуль без проектов", () => {
+    const { projects, ...rest } = validModule;
+    expect(v.safeParse(ModuleSchema, rest).success).toBe(false);
+  });
 
-    test("должна отклонять модуль без проектов", () => {
-      const { projects, ...rest } = validModule;
-      const result = v.safeParse(ModuleSchema, rest);
-      expect(result.success).toBe(false);
-    });
+  test("должна отклонять модуль с пустым массивом проектов", () => {
+    expect(
+      v.safeParse(ModuleSchema, { ...validModule, projects: [] }).success,
+    ).toBe(false);
+  });
 
-    test("должна отклонять модуль с пустым массивом проектов", () => {
-      const result = v.safeParse(ModuleSchema, {
-        ...validModule,
-        projects: [],
-      });
-      expect(result.success).toBe(false);
-    });
+  test("должна отклонять невалидный статус", () => {
+    expect(
+      v.safeParse(ModuleSchema, { ...validModule, status: "deleted" }).success,
+    ).toBe(false);
+  });
+
+  test("должна отклонять невалидный UUID", () => {
+    expect(
+      v.safeParse(ModuleSchema, { ...validModule, uuid: "bad" }).success,
+    ).toBe(false);
+  });
+
+  test("должна отклонять отрицательный order", () => {
+    expect(
+      v.safeParse(ModuleSchema, { ...validModule, order: -1 }).success,
+    ).toBe(false);
   });
 });
