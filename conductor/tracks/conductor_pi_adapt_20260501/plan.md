@@ -22,10 +22,10 @@
 - [x] Task: Перевод conductor-setup/templates/workflow.md `b123db9`
     - [x] Перевести на русский язык.
     - [x] Убедиться, что шаблон в точности соответствует `conductor/workflow.md`.
-- [ ] Task: Перевод и адаптация conductor-implement/SKILL.md
-    - [ ] Перевести весь файл на русский язык (~16K).
-    - [ ] Заменить те же инструменты gemini-cli на pi.
-    - [ ] Адаптировать протокол Track Cleanup (archive/delete) под pi.
+- [x] Task: Перевод и адаптация conductor-implement/SKILL.md `6f9d17e`
+    - [x] Перевести весь файл на русский язык (~16K).
+    - [x] Заменить те же инструменты gemini-cli на pi.
+    - [x] Адаптировать протокол Track Cleanup (archive/delete) под pi.
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: setup и implement' (Protocol in workflow.md)
 
 ## Фаза 3: Средние skill-файлы (newtrack, review)
