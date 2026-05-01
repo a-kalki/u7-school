@@ -19,9 +19,9 @@
     - [x] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
     - [x] Удалить упоминания `.geminiignore`.
     - [x] Адаптировать/удалить ограничения Plan Mode (запрет абсолютных путей, редиректов).
-- [ ] Task: Перевод conductor-setup/templates/workflow.md
-    - [ ] Перевести на русский язык.
-    - [ ] Убедиться, что шаблон в точности соответствует `conductor/workflow.md`.
+- [x] Task: Перевод conductor-setup/templates/workflow.md `b123db9`
+    - [x] Перевести на русский язык.
+    - [x] Убедиться, что шаблон в точности соответствует `conductor/workflow.md`.
 - [ ] Task: Перевод и адаптация conductor-implement/SKILL.md
     - [ ] Перевести весь файл на русский язык (~16K).
     - [ ] Заменить те же инструменты gemini-cli на pi.
