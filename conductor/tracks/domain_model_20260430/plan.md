@@ -42,7 +42,7 @@
 - [x] Task: Схема Урока (Lesson Schema)
     - [x] Написать тесты для композиции урока (шаги + файлы).
     - [x] Реализовать схему Lesson.
-- [~] Task: Conductor - User Manual Verification 'Phase 4: Уроки и Шаги' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Уроки и Шаги' (Protocol in workflow.md)
 
 ## Phase 5: Финализация и Экспорт
 - [ ] Task: Индексный файл (Public API)
