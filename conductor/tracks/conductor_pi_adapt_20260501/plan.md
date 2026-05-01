@@ -1,0 +1,59 @@
+# План реализации: Адаптация документации Conductor под pi и перевод на русский
+
+## Фаза 1: AGENTS.md и корневые файлы
+- [ ] Task: Перевод и адаптация AGENTS.md
+    - [ ] Перевести Universal File Resolution Protocol на русский язык.
+    - [ ] Проверить и сохранить все перекрёстные ссылки (conductor/index.md, conductor/tracks.md и т.д.).
+    - [ ] Убедиться, что весь файл следует языковому правилу (русский).
+- [ ] Task: Перевод и адаптация conductor/workflow.md
+    - [ ] Перевести весь файл на русский язык.
+    - [ ] Адаптировать секцию «Development Commands» под Bun/TypeScript/Biome (убрать примеры на Python/Go/Node).
+    - [ ] Проверить, что ссылки на инструменты (git, bun, biome) остались без изменений.
+- [ ] Task: Conductor - User Manual Verification 'Фаза 1: AGENTS.md и workflow' (Protocol in workflow.md)
+
+## Фаза 2: Крупные skill-файлы (setup, implement)
+- [ ] Task: Перевод и адаптация conductor-setup/SKILL.md
+    - [ ] Перевести весь файл на русский язык (~40K).
+    - [ ] Заменить `enter_plan_mode` / `exit_plan_mode` на описание работы в диалоговом режиме pi.
+    - [ ] Заменить `ask_user` на прямое обращение к пользователю в чате.
+    - [ ] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
+    - [ ] Удалить упоминания `.geminiignore`.
+    - [ ] Адаптировать/удалить ограничения Plan Mode (запрет абсолютных путей, редиректов).
+- [ ] Task: Перевод conductor-setup/templates/workflow.md
+    - [ ] Перевести на русский язык.
+    - [ ] Убедиться, что шаблон в точности соответствует `conductor/workflow.md`.
+- [ ] Task: Перевод и адаптация conductor-implement/SKILL.md
+    - [ ] Перевести весь файл на русский язык (~16K).
+    - [ ] Заменить те же инструменты gemini-cli на pi.
+    - [ ] Адаптировать протокол Track Cleanup (archive/delete) под pi.
+- [ ] Task: Conductor - User Manual Verification 'Фаза 2: setup и implement' (Protocol in workflow.md)
+
+## Фаза 3: Средние skill-файлы (newtrack, review)
+- [ ] Task: Перевод и адаптация conductor-newtrack/SKILL.md
+    - [ ] Перевести весь файл на русский язык (~12K).
+    - [ ] Заменить `enter_plan_mode` / `exit_plan_mode` / `ask_user` на диалоговый режим pi.
+    - [ ] Заменить `run_shell_command` → `bash`, `write_file` → `write`, `replace` → `edit`.
+    - [ ] Адаптировать протокол Interactive Specification Generation под текстовый диалог.
+- [ ] Task: Перевод и адаптация conductor-review/SKILL.md
+    - [ ] Перевести весь файл на русский язык (~12K).
+    - [ ] Заменить те же инструменты.
+    - [ ] Адаптировать протокол Review Output под pi.
+- [ ] Task: Conductor - User Manual Verification 'Фаза 3: newtrack и review' (Protocol in workflow.md)
+
+## Фаза 4: Малые skill-файлы (revert, status)
+- [ ] Task: Перевод и адаптация conductor-revert/SKILL.md
+    - [ ] Перевести весь файл на русский язык (~9K).
+    - [ ] Заменить `ask_user` и другие gemini-инструменты.
+    - [ ] Проверить корректность git-команд (они не меняются, только описания вокруг).
+- [ ] Task: Перевод и адаптация conductor-status/SKILL.md
+    - [ ] Перевести весь файл на русский язык (~3K).
+    - [ ] Минимальные правки (файл и так короткий и без сложных инструментов).
+- [ ] Task: Conductor - User Manual Verification 'Фаза 4: revert и status' (Protocol in workflow.md)
+
+## Фаза 5: Верификация и финализация
+- [ ] Task: Проверка отсутствия старых инструментов
+    - [ ] Выполнить `grep -r "enter_plan_mode\|exit_plan_mode\|ask_user\|run_shell_command\|write_file\|geminiignore" .pi/skills/ conductor/ AGENTS.md` и убедиться, что результат пуст.
+- [ ] Task: Проверка функциональности
+    - [ ] Выполнить `/conductor:status` и убедиться, что агент корректно читает документацию.
+    - [ ] Проверить, что все перекрёстные ссылки между файлами разрешаются.
+- [ ] Task: Conductor - User Manual Verification 'Фаза 5: Верификация' (Protocol in workflow.md)
