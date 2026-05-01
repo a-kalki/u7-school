@@ -48,7 +48,7 @@
 - [x] Task: Перевод и адаптация conductor-status/SKILL.md `9905bd2`
     - [x] Перевести весь файл на русский язык (~3K).
     - [x] Минимальные правки (файл и так короткий и без сложных инструментов).
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4: revert и status' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4: revert и status' (Protocol in workflow.md)
 
 ## Фаза 5: Верификация и финализация
 - [ ] Task: Проверка отсутствия старых инструментов
