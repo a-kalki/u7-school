@@ -38,7 +38,7 @@
     - [x] Перевести весь файл на русский язык (~12K).
     - [x] Заменить те же инструменты.
     - [x] Адаптировать протокол Review Output под pi.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: newtrack и review' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: newtrack и review' (Protocol in workflow.md)
 
 ## Фаза 4: Малые skill-файлы (revert, status)
 - [ ] Task: Перевод и адаптация conductor-revert/SKILL.md
