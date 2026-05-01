@@ -12,7 +12,9 @@ export async function getCourses(): Promise<string[]> {
 	try {
 		const entries = await readdir(outputDir, { withFileTypes: true });
 		return entries
-			.filter((entry) => entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name))
+			.filter(
+				(entry) => entry.isDirectory() && !EXCLUDED_DIRS.includes(entry.name),
+			)
 			.map((entry) => entry.name);
 	} catch (error) {
 		console.error("Ошибка при чтении директории курсов:", error);

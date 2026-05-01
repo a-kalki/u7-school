@@ -45,7 +45,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Уроки и Шаги' (Protocol in workflow.md)
 
 ## Phase 5: Финализация и Экспорт
-- [ ] Task: Индексный файл (Public API)
+- [~] Task: Индексный файл (Public API)
     - [ ] Написать тесты на корректность экспорта всех типов и схем.
     - [ ] Реализовать `src/index.ts` с экспортами.
 - [ ] Task: Проверка линтинга и форматов

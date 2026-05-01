@@ -1,17 +1,34 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 
-// Проверка, что пакет @u7/core инициализирован и доступен для импорта
-describe("Инициализация пакета @u7/core", () => {
-  test("пакет должен экспортироваться и быть доступным для импорта", async () => {
-    // Импорт точки входа пакета
-    const mod = await import("./index");
-    expect(mod).toBeDefined();
-  });
+describe("Public API (index.ts)", () => {
+	test("должен экспортировать все схемы и типы", async () => {
+		const api = await import("./index");
 
-  test("пакет должен иметь доступ к valibot", async () => {
-    // Проверка, что зависимость valibot доступна
-    const valibot = await import("valibot");
-    expect(valibot).toBeDefined();
-    expect(typeof valibot.object).toBe("function");
-  });
+		// User
+		expect(api.UserSchema).toBeDefined();
+		expect(api.Role).toBeDefined();
+		expect(api.RoleSchema).toBeDefined();
+
+		// Course
+		expect(api.CourseSchema).toBeDefined();
+
+		// Module
+		expect(api.ModuleSchema).toBeDefined();
+
+		// Project
+		expect(api.ProjectSchema).toBeDefined();
+
+		// Lesson
+		expect(api.LessonSchema).toBeDefined();
+
+		// Step
+		expect(api.StepSchema).toBeDefined();
+
+		// File
+		expect(api.FileMetadataSchema).toBeDefined();
+
+		// Status
+		expect(api.Status).toBeDefined();
+		expect(api.StatusSchema).toBeDefined();
+	});
 });

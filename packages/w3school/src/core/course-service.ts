@@ -39,10 +39,14 @@ export class CourseService {
 		return entries
 			.filter((dirent) => dirent.isDirectory())
 			.map((dirent) => dirent.name)
-			.filter((name) => existsSync(join(this.outputDir, name, "syllabus.json")));
+			.filter((name) =>
+				existsSync(join(this.outputDir, name, "syllabus.json")),
+			);
 	}
 
-	async getEnrichmentStats(courseName: string): Promise<{ total: number; enriched: number }> {
+	async getEnrichmentStats(
+		courseName: string,
+	): Promise<{ total: number; enriched: number }> {
 		const syllabusPath = join(this.outputDir, courseName, "syllabus.json");
 		const courseDir = join(this.outputDir, courseName);
 		if (!existsSync(syllabusPath)) return { total: 0, enriched: 0 };

@@ -7,13 +7,13 @@ import * as v from "valibot";
  * - archived: архивирован, скрыт из активных списков
  */
 export enum Status {
-  DRAFT = "draft",
-  PUBLISHED = "published",
-  ARCHIVED = "archived",
+	DRAFT = "draft",
+	PUBLISHED = "published",
+	ARCHIVED = "archived",
 }
 
 /** Valibot-схема для валидации статуса */
 export const StatusSchema = v.picklist(
-  [Status.DRAFT, Status.PUBLISHED, Status.ARCHIVED],
-  "Недопустимый статус. Ожидается: draft, published или archived",
+	[Status.DRAFT, Status.PUBLISHED, Status.ARCHIVED],
+	"Недопустимый статус. Ожидается: draft, published или archived",
 );

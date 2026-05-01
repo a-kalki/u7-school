@@ -1,38 +1,44 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { UserSchema, type User } from "./user";
 import { Role } from "./roles";
+import { type User, UserSchema } from "./user";
 
 describe("Схема пользователя (User)", () => {
-  const validUser: User = {
-    uuid: "550e8400-e29b-41d4-a716-446655440000",
-    name: "Иван Петров",
-    telegramId: 123456789,
-    role: Role.STUDENT,
-    createdAt: "2026-05-01T12:00",
-  };
+	const validUser: User = {
+		uuid: "550e8400-e29b-41d4-a716-446655440000",
+		name: "Иван Петров",
+		telegramId: 123456789,
+		role: Role.STUDENT,
+		createdAt: "2026-05-01T12:00",
+	};
 
-  test("должна принимать валидного пользователя", () => {
-    expect(v.safeParse(UserSchema, validUser).success).toBe(true);
-  });
+	test("должна принимать валидного пользователя", () => {
+		expect(v.safeParse(UserSchema, validUser).success).toBe(true);
+	});
 
-  test("должна принимать пользователя с updatedAt", () => {
-    expect(
-      v.safeParse(UserSchema, { ...validUser, updatedAt: "2026-05-01T12:00" }).success,
-    ).toBe(true);
-  });
+	test("должна принимать пользователя с updatedAt", () => {
+		expect(
+			v.safeParse(UserSchema, { ...validUser, updatedAt: "2026-05-01T12:00" })
+				.success,
+		).toBe(true);
+	});
 
-  test("должна отклонять невалидный UUID", () => {
-    expect(v.safeParse(UserSchema, { ...validUser, uuid: "bad" }).success).toBe(false);
-  });
+	test("должна отклонять невалидный UUID", () => {
+		expect(v.safeParse(UserSchema, { ...validUser, uuid: "bad" }).success).toBe(
+			false,
+		);
+	});
 
-  test("должна отклонять невалидный telegramId", () => {
-    expect(v.safeParse(UserSchema, { ...validUser, telegramId: -1 }).success).toBe(false);
-  });
+	test("должна отклонять невалидный telegramId", () => {
+		expect(
+			v.safeParse(UserSchema, { ...validUser, telegramId: -1 }).success,
+		).toBe(false);
+	});
 
-  test("должна отклонять невалидную роль", () => {
-    expect(
-      v.safeParse(UserSchema, { ...validUser, role: "SUPERHERO" as Role }).success,
-    ).toBe(false);
-  });
+	test("должна отклонять невалидную роль", () => {
+		expect(
+			v.safeParse(UserSchema, { ...validUser, role: "SUPERHERO" as Role })
+				.success,
+		).toBe(false);
+	});
 });

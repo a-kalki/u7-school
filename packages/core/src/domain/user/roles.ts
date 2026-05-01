@@ -7,13 +7,13 @@ import * as v from "valibot";
  * - ADMIN: администратор платформы
  */
 export enum Role {
-  STUDENT = "STUDENT",
-  MENTOR = "MENTOR",
-  ADMIN = "ADMIN",
+	STUDENT = "STUDENT",
+	MENTOR = "MENTOR",
+	ADMIN = "ADMIN",
 }
 
 /** Valibot-схема для валидации роли пользователя */
 export const RoleSchema = v.picklist(
-  [Role.STUDENT, Role.MENTOR, Role.ADMIN],
-  `Недопустимая роль. Ожидается: ${Object.keys(Role).join(",")}`,
+	[Role.STUDENT, Role.MENTOR, Role.ADMIN],
+	`Недопустимая роль. Ожидается: ${Object.keys(Role).join(",")}`,
 );

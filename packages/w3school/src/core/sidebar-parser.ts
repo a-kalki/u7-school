@@ -17,7 +17,10 @@ export function applyReplacements(text: string): string {
 	return result;
 }
 
-export function parseSidebar(html: string, courseName: string): (Section & { lessons: (Lesson & { originalFile: string })[] })[] {
+export function parseSidebar(
+	html: string,
+	courseName: string,
+): (Section & { lessons: (Lesson & { originalFile: string })[] })[] {
 	const $ = cheerio.load(html);
 	const sections: any[] = [];
 	let currentSection: any | null = null;
@@ -35,7 +38,7 @@ export function parseSidebar(html: string, courseName: string): (Section & { les
 				sections.push(currentSection);
 			} else if ($el.is("a") && $el.attr("target") === "_top") {
 				const href = $el.attr("href") || "";
-				
+
 				// Игнорируем внешние ссылки и ссылки на другие разделы (содержащие / или ://)
 				if (href.includes("/") || href.includes("://")) {
 					return;
