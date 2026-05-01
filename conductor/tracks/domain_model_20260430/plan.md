@@ -1,13 +1,13 @@
 # Implementation Plan: Разработка доменной модели платформы (модуль core)
 
-## Phase 1: Инициализация модуля packages/core
+## Phase 1: Инициализация модуля packages/core `[checkpoint: 3420733]`
 - [x] Task: Создание структуры пакета `packages/core` `[9540497]`
     - [x] Инициализировать `package.json` с базовыми настройками.
     - [x] Настроить `tsconfig.json` (наследование от корня).
     - [x] Установить зависимость `valibot`.
 - [x] Task: Настройка инфраструктуры тестирования
     - [x] Настроить тестовый скрипт в `package.json` (используя Bun test).
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Инициализация' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Инициализация' (Protocol in workflow.md)
 
 ## Phase 2: Модель Пользователя (User)
 - [ ] Task: Определение ролей (Roles)
