@@ -1,6 +1,6 @@
 import * as v from "valibot";
-import { ModuleSchema } from "./module";
-import { ProjectSchema } from "./project";
+import { ModuleSchema } from "../module/module";
+import { ProjectSchema } from "../project/project";
 
 /**
  * Базовые метаданные курса (общие для обоих вариантов).
@@ -16,10 +16,7 @@ const CourseBaseSchema = v.object({
     v.nonEmpty("Описание курса не может быть пустым"),
   ),
   /** ID автора (ментора), создавшего курс */
-  authorId: v.pipe(
-    v.string(),
-    v.nonEmpty("ID автора не может быть пустым"),
-  ),
+  authorId: v.pipe(v.string(), v.nonEmpty("ID автора не может быть пустым")),
   /** Для кого предназначен курс */
   targetAudience: v.optional(v.string()),
   /** Цель курса */
@@ -76,9 +73,7 @@ export const CourseSchema = v.variant("kind", [
 export type CourseWithModules = v.InferOutput<typeof CourseWithModulesSchema>;
 
 /** Тип курса с проектами */
-export type CourseWithProjects = v.InferOutput<
-  typeof CourseWithProjectsSchema
->;
+export type CourseWithProjects = v.InferOutput<typeof CourseWithProjectsSchema>;
 
 /** Объединённый тип курса */
 export type Course = v.InferOutput<typeof CourseSchema>;

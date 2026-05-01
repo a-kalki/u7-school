@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { ProjectSchema } from "./project";
+import { ProjectSchema } from "../project/project";
 
 /**
  * Схема модуля платформы u7-school.

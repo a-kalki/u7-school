@@ -1,8 +1,8 @@
 import { describe, test, expect } from "bun:test";
 import * as v from "valibot";
 import { CourseSchema, type Course, type CourseWithModules, type CourseWithProjects } from "./course";
-import type { Module } from "./module";
-import type { Project } from "./project";
+import type { Module } from "../module/module";
+import type { Project } from "../project/project";
 
 describe("Схема курса (Course) — исключающее ИЛИ (модули | проекты)", () => {
   const sampleModule: Module = {
