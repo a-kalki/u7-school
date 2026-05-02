@@ -68,28 +68,28 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 4: CourseAr' (Protocol in workflow.md)
 
 ## Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc
-- [ ] Task: Тесты для CoursePolicy
-    - [ ] Тест: MENTOR и ADMIN могут создавать курсы.
-    - [ ] Тест: STUDENT не может создавать курсы.
-- [ ] Task: Реализация CoursePolicy
-    - [ ] Реализовать `CoursePolicy` с методами `canCreate`, `canRead`, `canEdit`.
-    - [ ] Добиться прохождения тестов.
-- [ ] Task: Тесты для CourseRepository (in-memory)
-    - [ ] Тест: сохранение и получение курса.
-    - [ ] Тест: дубликат uuid — ошибка.
-- [ ] Task: Реализация CourseRepository
-    - [ ] Определить интерфейс `CourseRepository`.
-    - [ ] Реализовать `InMemoryCourseRepository`.
-    - [ ] Добиться прохождения тестов.
-- [ ] Task: Тесты для CourseCreatingUc
-    - [ ] Тест: успешное создание курса ментором.
-    - [ ] Тест: создание курса студентом — отказ.
-    - [ ] Тест: автор не существует в UserRepository — ошибка.
-- [ ] Task: Реализация CourseCreatingUc
-    - [ ] Реализовать `CourseCreatingUc.execute(command, policy, courseRepo, userRepo)`.
-    - [ ] Проверка существования автора через `UserRepository`.
-    - [ ] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc' (Protocol in workflow.md)
+- [x] Task: Тесты для CoursePolicy
+    - [x] Тест: MENTOR и ADMIN могут создавать курсы.
+    - [x] Тест: STUDENT не может создавать курсы.
+- [x] Task: Реализация CoursePolicy
+    - [x] Реализовать `CoursePolicy` с методами `canCreate`, `canRead`, `canEdit`.
+    - [x] Добиться прохождения тестов.
+- [x] Task: Тесты для CourseRepository (in-memory)
+    - [x] Тест: сохранение и получение курса.
+    - [x] Тест: дубликат uuid — ошибка.
+- [x] Task: Реализация CourseRepository
+    - [x] Определить интерфейс `CourseRepository`.
+    - [x] Реализовать `InMemoryCourseRepository`.
+    - [x] Добиться прохождения тестов.
+- [x] Task: Тесты для CourseCreatingUc
+    - [x] Тест: успешное создание курса ментором.
+    - [x] Тест: создание курса студентом — отказ.
+    - [x] Тест: автор не существует в UserRepository — ошибка.
+- [x] Task: Реализация CourseCreatingUc
+    - [x] Реализовать `CourseCreatingUc.execute(command, policy, courseRepo, userRepo)`.
+    - [x] Проверка существования автора через `UserRepository`.
+    - [x] Добиться прохождения тестов.
+- [x] Task: Conductor - User Manual Verification 'Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc' (Protocol in workflow.md)
 
 ## Phase 6: Модуль core — entry point и диспатчер команд
 - [ ] Task: Тесты для диспатчера команд
