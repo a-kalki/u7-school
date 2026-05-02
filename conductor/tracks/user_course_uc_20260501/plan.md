@@ -39,7 +39,7 @@
     - [x] Определить интерфейс `UserRepository`.
     - [x] Реализовать `InMemoryUserRepository` с Map-хранилищем.
     - [x] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: UserPolicy и UserRepository' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 2: UserPolicy и UserRepository' (Protocol in workflow.md)
 
 ## Phase 3: Сценарий создания пользователя (UserCreatingUc)
 - [ ] Task: Тесты для UserCreatingUc

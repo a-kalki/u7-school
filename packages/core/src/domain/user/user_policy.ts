@@ -13,7 +13,7 @@ export const UserPolicy = {
 		return true;
 	},
 
-	canEdit(actor: User): boolean {
-		return actor.role === "ADMIN";
+	canEdit(actor: User, target: User): boolean {
+		return actor.role === "ADMIN" || actor.uuid === target.uuid;
 	},
 };

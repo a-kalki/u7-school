@@ -51,16 +51,24 @@ describe("UserPolicy", () => {
 	});
 
 	describe("canEdit", () => {
-		test("ADMIN может редактировать пользователей", () => {
-			expect(UserPolicy.canEdit(admin)).toBe(true);
+		test("ADMIN может редактировать любого пользователя", () => {
+			expect(UserPolicy.canEdit(admin, student)).toBe(true);
 		});
 
-		test("MENTOR не может редактировать пользователей", () => {
-			expect(UserPolicy.canEdit(mentor)).toBe(false);
+		test("MENTOR не может редактировать чужой профиль", () => {
+			expect(UserPolicy.canEdit(mentor, student)).toBe(false);
 		});
 
-		test("STUDENT не может редактировать пользователей", () => {
-			expect(UserPolicy.canEdit(student)).toBe(false);
+		test("MENTOR может редактировать свой профиль", () => {
+			expect(UserPolicy.canEdit(mentor, mentor)).toBe(true);
+		});
+
+		test("STUDENT не может редактировать чужой профиль", () => {
+			expect(UserPolicy.canEdit(student, mentor)).toBe(false);
+		});
+
+		test("STUDENT может редактировать свой профиль", () => {
+			expect(UserPolicy.canEdit(student, student)).toBe(true);
 		});
 	});
 });
