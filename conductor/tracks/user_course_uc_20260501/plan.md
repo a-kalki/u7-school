@@ -25,7 +25,7 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: UserAr' (Protocol in workflow.md)
 
-## Phase 2: Политики и репозитории пользователя
+## Phase 2: Политики и репозитории пользователя [checkpoint: 24cb3d4]
 - [x] Task: Тесты для UserPolicy [8b33b3c]
     - [x] Тест: ADMIN может создавать пользователей.
 - [x] Task: Реализация UserPolicy [8b33b3c]
