@@ -42,16 +42,16 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: UserPolicy и UserRepository' (Protocol in workflow.md)
 
 ## Phase 3: Сценарий создания пользователя (UserCreatingUc)
-- [ ] Task: Тесты для UserCreatingUc
-    - [ ] Тест: успешное создание пользователя администратором.
-    - [ ] Тест: создание пользователя студентом — отказ (недостаточно прав).
-    - [ ] Тест: bootstrap-режим — создание первого пользователя без проверки прав.
-    - [ ] Тест: дубликат telegramId — ошибка.
-- [ ] Task: Реализация UserCreatingUc
-    - [ ] Реализовать `UserCreatingUc.execute(command)`.
-    - [ ] Реализовать логику bootstrap (если репозиторий пуст, проверка прав пропускается).
-    - [ ] Интегрировать `UserAr.create`, `UserPolicy`, `UserRepository`.
-    - [ ] Добиться прохождения тестов.
+- [x] Task: Тесты для UserCreatingUc
+    - [x] Тест: успешное создание пользователя администратором.
+    - [x] Тест: создание пользователя студентом — отказ (недостаточно прав).
+    - [x] Тест: bootstrap-режим — создание первого пользователя без проверки прав.
+    - [x] Тест: дубликат telegramId — ошибка.
+- [x] Task: Реализация UserCreatingUc
+    - [x] Реализовать `UserCreatingUc.execute(command)`.
+    - [x] Реализовать логику bootstrap (если репозиторий пуст, проверка прав пропускается).
+    - [x] Интегрировать `UserAr.create`, `UserPolicy`, `UserRepository`.
+    - [x] Добиться прохождения тестов.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: UserCreatingUc' (Protocol in workflow.md)
 
 ## Phase 4: Агрегат курса (CourseAr)
