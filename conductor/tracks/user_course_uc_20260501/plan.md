@@ -52,7 +52,7 @@
     - [x] Реализовать логику bootstrap (если репозиторий пуст, проверка прав пропускается).
     - [x] Интегрировать `UserAr.create`, `UserPolicy`, `UserRepository`.
     - [x] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: UserCreatingUc' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: UserCreatingUc' (Protocol in workflow.md)
 
 ## Phase 4: Агрегат курса (CourseAr)
 - [ ] Task: Тесты для CourseAr
