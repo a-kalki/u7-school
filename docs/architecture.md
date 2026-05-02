@@ -81,14 +81,18 @@ module.handle(command: ModuleCommand): Promise<Result>;
 - **`AppException`** (абстрактный базовый класс):
   - Поля: `name`, `userMessage`, `debugInfo`, `httpStatus`, `payload`
   - Метод `rest()` → `{ error, message, status, payload }` для HTTP-ответа
-  - **`DomainException`** (level: `"domain"`) — ошибки предметной области
-  - **`ApiException`** (level: `"api"`) — ошибки уровня приложения
+  - **`DomainException`** (level: `"domain"`) — ошибки предметной области:
+    - Нарушение инвариантов (validation)
+    - Нарушение бизнес-правил, включая права доступа на основе ролей (accessDenied)
+  - **`ApiException`** (level: `"api"`) — ошибки уровня приложения:
+    - Аутентификация, невалидный токен, сессия (accessDenied)
 
 Фабричные методы для типовых ошибок:
 - `DomainException.validation(userMsg, debug, payload?)` — 422, payload для ошибок валидации
 - `DomainException.conflict(userMsg, debug)` — 409, конфликт (дубликат)
 - `DomainException.notFound(entity, id)` — 404, сущность не найдена
-- `ApiException.accessDenied(userMsg, debug)` — 403, недостаточно прав
+- `DomainException.accessDenied(userMsg, debug)` — 403, нарушение доменных прав (роль, владелец)
+- `ApiException.accessDenied(userMsg, debug)` — 403, ошибки уровня приложения (не авторизован, невалидный токен)
 
 Уровень контроллера самостоятельно перехватывает ошибки и решает что далее делать с ними.
 

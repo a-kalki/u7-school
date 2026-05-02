@@ -84,6 +84,19 @@ export class DomainException extends AppException {
 			404,
 		);
 	}
+
+	/** Нарушение прав доступа на уровне доменных правил (роль, владелец) */
+	static accessDenied(
+		userMessage: string,
+		debugInfo: string,
+	): DomainException {
+		return new DomainException(
+			"DomainAccessDeniedError",
+			userMessage,
+			debugInfo,
+			403,
+		);
+	}
 }
 
 /**

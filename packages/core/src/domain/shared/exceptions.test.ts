@@ -53,6 +53,17 @@ describe("DomainException", () => {
 		expect(ex.userMessage).toBe("Пользователь не найден(а)");
 	});
 
+	test("accessDenied — фабричный метод", () => {
+		const ex = DomainException.accessDenied(
+			"Только ADMIN может создавать пользователей",
+			"роль STUDENT",
+		);
+
+		expect(ex.name).toBe("DomainAccessDeniedError");
+		expect(ex.httpStatus).toBe(403);
+		expect(ex.level).toBe("domain");
+	});
+
 	test("rest() — возвращает объект для HTTP-ответа", () => {
 		const ex = DomainException.validation("Ошибка", "детали", { key: "val" });
 		const r = ex.rest();

@@ -1,7 +1,6 @@
 import type { CreateUserCommand } from "../commands/create_user_command";
 import { CreateUserCommandSchema } from "../commands/create_user_command";
 import { parseOrThrow } from "../shared/parse_or_throw";
-import { ApiException } from "../../domain/shared/exceptions";
 import { DomainException } from "../../domain/shared/exceptions";
 import type { User } from "../../domain/user/user";
 import { UserAr } from "../../domain/user/user_ar";
@@ -48,7 +47,7 @@ export class UserCreatingUc {
 
 			// 4. Проверка прав
 			if (!UserPolicy.canCreate(actor)) {
-				throw ApiException.accessDenied(
+				throw DomainException.accessDenied(
 					"Недостаточно прав для создания пользователя",
 					`Роль ${actor.role} не может создавать пользователей`,
 				);

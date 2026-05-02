@@ -4,7 +4,7 @@ import { Role } from "../../domain/user/roles";
 import type { User } from "../../domain/user/user";
 import { InMemoryUserRepository } from "./user_repository";
 import { UserCreatingUc } from "./user_creating_uc";
-import { ApiException, DomainException } from "../../domain/shared/exceptions";
+import { DomainException } from "../../domain/shared/exceptions";
 
 /** Хелпер: добавляет пользователя в репо и возвращает его uuid */
 function addUser(repo: InMemoryUserRepository, overrides: Partial<User> = {}): string {
@@ -48,7 +48,7 @@ describe("UserCreatingUc", () => {
 		const repo = new InMemoryUserRepository();
 		const studentId = addUser(repo, { role: Role.STUDENT, telegramId: 300 });
 		const uc = new UserCreatingUc(repo);
-		expect(() => uc.execute(studentCmd, studentId)).toThrow(ApiException);
+		expect(() => uc.execute(studentCmd, studentId)).toThrow(DomainException);
 	});
 
 	test("несуществующий actorId — notFound", () => {
