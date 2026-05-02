@@ -41,7 +41,7 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: UserPolicy и UserRepository' (Protocol in workflow.md)
 
-## Phase 3: Сценарий создания пользователя (UserCreatingUc) [checkpoint: 881dd15]
+## Phase 3: Сценарий создания пользователя (UserCreatingUc) [checkpoint: 661b0fd]
 - [x] Task: Тесты для UserCreatingUc [16eaa45]
     - [x] Тест: успешное создание пользователя администратором.
     - [x] Тест: создание пользователя студентом — отказ (недостаточно прав).
