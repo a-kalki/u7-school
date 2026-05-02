@@ -1,25 +1,15 @@
-import * as v from "valibot";
 import type { CreateUserCommand } from "../../api/commands/create_user_command";
 import { CreateUserCommandSchema } from "../../api/commands/create_user_command";
-import { DomainException } from "../shared/exceptions";
+import { parseOrThrow } from "../../api/shared/parse_or_throw";
 import { isoNow } from "../shared/iso_now";
 import type { User } from "./user";
 import { UserSchema } from "./user";
 
 /**
- * Проверяет инварианты агрегата через схему валидации.
- * Выбрасывает DomainException.validation при нарушении.
+ * Проверяет инварианты пользователя через схему валидации.
  */
-function validateInvariants(user: User): v.InferOutput<typeof UserSchema> {
-  const result = v.safeParse(UserSchema, user);
-  if (!result.success) {
-    throw DomainException.validation(
-      "Некорректные данные пользователя",
-      "Нарушение инвариантов UserAr",
-      v.flatten<typeof UserSchema>(result.issues),
-    );
-  }
-  return result.output;
+function validateInvariants(user: User): User {
+	return parseOrThrow(UserSchema, user, "Некорректные данные пользователя");
 }
 
 /**
@@ -27,44 +17,36 @@ function validateInvariants(user: User): v.InferOutput<typeof UserSchema> {
  * Инкапсулирует состояние User и логику его изменения.
  */
 export class UserAr {
-  #state: User;
+	#state: User;
 
-  constructor(user: User) {
-    this.#state = validateInvariants(user);
-  }
+	constructor(user: User) {
+		this.#state = validateInvariants(user);
+	}
 
-  /** Состояние агрегата только для чтения */
-  get state(): Readonly<User> {
-    return structuredClone(this.#state);
-  }
+	/** Состояние агрегата только для чтения */
+	get state(): Readonly<User> {
+		return structuredClone(this.#state);
+	}
 
-  /**
-   * Фабричный метод создания нового пользователя из команды.
-   * Генерирует UUID и временные метки, валидирует данные.
-   */
-  static create(command: CreateUserCommand): UserAr {
-    // 1. Валидация входящей команды
-    const cmdResult = v.safeParse(CreateUserCommandSchema, command);
-    if (!cmdResult.success) {
-      throw DomainException.validation(
-        "Некорректная команда создания пользователя",
-        "Ошибка валидации CreateUserCommand",
-        v.flatten<typeof CreateUserCommandSchema>(cmdResult.issues),
-      );
-    }
+	/**
+	 * Фабричный метод создания нового пользователя из команды.
+	 */
+	static create(command: CreateUserCommand): UserAr {
+		const parsed = parseOrThrow(
+			CreateUserCommandSchema,
+			command,
+			"Некорректная команда создания пользователя",
+		);
 
-    // 2. Формирование кандидата
-    const candidate: User = {
-      uuid: crypto.randomUUID(),
-      name: cmdResult.output.name,
-      telegramId: cmdResult.output.telegramId,
-      role: cmdResult.output.role,
-      createdAt: isoNow(),
-    };
+		const candidate: User = {
+			uuid: crypto.randomUUID(),
+			name: parsed.name,
+			telegramId: parsed.telegramId,
+			role: parsed.role,
+			createdAt: isoNow(),
+		};
 
-    // 3. Проверка инвариантов
-    const result = validateInvariants(candidate);
-
-    return new UserAr(result);
-  }
+		const result = validateInvariants(candidate);
+		return new UserAr(result);
+	}
 }

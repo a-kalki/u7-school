@@ -4,70 +4,66 @@ import { Role } from "../../domain/user/roles";
 import type { User } from "../../domain/user/user";
 import { InMemoryUserRepository } from "./user_repository";
 import { UserCreatingUc } from "./user_creating_uc";
+import { ApiException, DomainException } from "../../domain/shared/exceptions";
 
-/** Фикстуры */
-const adminCmd: CreateUserCommand = {
-	name: "Админ",
-	telegramId: 1,
-	role: Role.ADMIN,
-};
+/** Хелпер: добавляет пользователя в репо и возвращает его uuid */
+function addUser(repo: InMemoryUserRepository, overrides: Partial<User> = {}): string {
+	const user: User = {
+		uuid: overrides.uuid ?? crypto.randomUUID(),
+		name: overrides.name ?? "Тест",
+		telegramId: overrides.telegramId ?? Math.floor(Math.random() * 100000),
+		role: overrides.role ?? Role.ADMIN,
+		createdAt: overrides.createdAt ?? "2026-05-01T12:00",
+	};
+	repo.save(user);
+	return user.uuid;
+}
 
-const studentCmd: CreateUserCommand = {
-	name: "Студент",
-	telegramId: 2,
-	role: Role.STUDENT,
-};
+const adminCmd: CreateUserCommand = { name: "Админ", telegramId: 1, role: Role.ADMIN };
+const studentCmd: CreateUserCommand = { name: "Студент", telegramId: 2, role: Role.STUDENT };
 
 describe("UserCreatingUc", () => {
-	const repo = new InMemoryUserRepository();
-
-	test("успешное создание первого пользователя в bootstrap-режиме (без актора)", () => {
-		const uc = new UserCreatingUc(repo);
-		const result = uc.execute(adminCmd);
-		expect(result.name).toBe("Админ");
-		expect(result.role).toBe(Role.ADMIN);
-		expect(repo.isEmpty()).toBe(false);
+	test("bootstrap: создаёт первого ADMIN без actorId", () => {
+		const uc = new UserCreatingUc(new InMemoryUserRepository());
+		const user = uc.execute(adminCmd);
+		expect(user.role).toBe(Role.ADMIN);
 	});
 
-	test("bootstrap-режим: первый пользователь создаётся даже STUDENT без актора", () => {
-		const emptyRepo = new InMemoryUserRepository();
-		const uc = new UserCreatingUc(emptyRepo);
-		const result = uc.execute({ name: "Бут", telegramId: 99, role: Role.STUDENT });
-		expect(result.role).toBe(Role.STUDENT);
-	});
-
-	test("после bootstrap: STUDENT не может создать пользователя (недостаточно прав)", () => {
-		const uc = new UserCreatingUc(repo);
-		const studentActor: User = {
-			uuid: "uuid-student",
-			name: "Студент",
-			telegramId: 2,
-			role: Role.STUDENT,
-			createdAt: "2026-05-01T12:00",
-		};
-		expect(() => uc.execute(studentCmd, studentActor)).toThrow();
-	});
-
-	test("после bootstrap: ADMIN может создать пользователя", () => {
-		const uc = new UserCreatingUc(repo);
-		const adminActor: User = {
-			uuid: "uuid-admin",
-			name: "Админ",
-			telegramId: 1,
-			role: Role.ADMIN,
-			createdAt: "2026-05-01T12:00",
-		};
-		const result = uc.execute(
-			{ name: "Новый", telegramId: 3, role: Role.MENTOR },
-			adminActor,
+	test("bootstrap: отклоняет STUDENT — первый пользователь должен быть ADMIN", () => {
+		const uc = new UserCreatingUc(new InMemoryUserRepository());
+		expect(() => uc.execute(studentCmd)).toThrow(
+			"Первый пользователь должен быть администратором",
 		);
-		expect(result.name).toBe("Новый");
 	});
 
-	test("дубликат telegramId — ошибка", () => {
-		const freshRepo = new InMemoryUserRepository();
-		const uc = new UserCreatingUc(freshRepo);
-		uc.execute(adminCmd);
-		expect(() => uc.execute(adminCmd)).toThrow();
+	test("ADMIN создаёт пользователя", () => {
+		const repo = new InMemoryUserRepository();
+		const adminId = addUser(repo, { role: Role.ADMIN, telegramId: 100 });
+		const uc = new UserCreatingUc(repo);
+		const user = uc.execute({ name: "Новый", telegramId: 200, role: Role.MENTOR }, adminId);
+		expect(user.role).toBe(Role.MENTOR);
+	});
+
+	test("STUDENT не может создавать — AccessDenied", () => {
+		const repo = new InMemoryUserRepository();
+		const studentId = addUser(repo, { role: Role.STUDENT, telegramId: 300 });
+		const uc = new UserCreatingUc(repo);
+		expect(() => uc.execute(studentCmd, studentId)).toThrow(ApiException);
+	});
+
+	test("несуществующий actorId — notFound", () => {
+		const uc = new UserCreatingUc(new InMemoryUserRepository());
+		expect(() => uc.execute(adminCmd, "nonexistent")).toThrow(
+			"Пользователь не найден",
+		);
+	});
+
+	test("дубликат telegramId — conflict", () => {
+		const repo = new InMemoryUserRepository();
+		addUser(repo, { telegramId: 777, role: Role.ADMIN });
+		const adminId = addUser(repo, { telegramId: 778, role: Role.ADMIN });
+		const uc = new UserCreatingUc(repo);
+		expect(() => uc.execute({ name: "Дубль", telegramId: 777, role: Role.MENTOR }, adminId))
+			.toThrow("Пользователь с таким telegramId уже существует");
 	});
 });

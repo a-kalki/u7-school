@@ -1,6 +1,6 @@
-import * as v from "valibot";
 import type { CreateUserCommand } from "../commands/create_user_command";
 import { CreateUserCommandSchema } from "../commands/create_user_command";
+import { parseOrThrow } from "../shared/parse_or_throw";
 import { ApiException } from "../../domain/shared/exceptions";
 import { DomainException } from "../../domain/shared/exceptions";
 import type { User } from "../../domain/user/user";
@@ -21,21 +21,32 @@ export class UserCreatingUc {
 	/**
 	 * Выполняет создание пользователя.
 	 * @param command — команда создания
-	 * @param actor — пользователь, выполняющий действие (опционально; если не передан — bootstrap)
+	 * @param actorId — uuid пользователя, выполняющего действие (опционально; без него — bootstrap)
 	 */
-	execute(command: CreateUserCommand, actor?: User): User {
+	execute(command: CreateUserCommand, actorId?: string): User {
 		// 1. Валидация команды
-		const cmdResult = v.safeParse(CreateUserCommandSchema, command);
-		if (!cmdResult.success) {
-			throw DomainException.validation(
-				"Некорректная команда создания пользователя",
-				"Ошибка валидации CreateUserCommand",
-				v.flatten<typeof CreateUserCommandSchema>(cmdResult.issues),
-			);
-		}
+		parseOrThrow(
+			CreateUserCommandSchema,
+			command,
+			"Некорректная команда создания пользователя",
+		);
 
-		// 2. Проверка прав (не в bootstrap-режиме)
-		if (actor !== undefined) {
+		// 2. Bootstrap-режим: нет actorId → первый пользователь, только ADMIN
+		if (actorId === undefined || actorId === null) {
+			if (command.role !== "ADMIN") {
+				throw DomainException.validation(
+					"Первый пользователь должен быть администратором",
+					`bootstrap требует роль ADMIN, получена ${command.role}`,
+				);
+			}
+		} else {
+			// 3. Загружаем актора
+			const actor = this.#repo.getByUuid(actorId);
+			if (!actor) {
+				throw DomainException.notFound("Пользователь", actorId);
+			}
+
+			// 4. Проверка прав
 			if (!UserPolicy.canCreate(actor)) {
 				throw ApiException.accessDenied(
 					"Недостаточно прав для создания пользователя",
@@ -44,7 +55,7 @@ export class UserCreatingUc {
 			}
 		}
 
-		// 3. Проверка уникальности telegramId
+		// 5. Проверка уникальности telegramId
 		if (this.#repo.isTelegramIdTaken(command.telegramId)) {
 			throw DomainException.conflict(
 				"Пользователь с таким telegramId уже существует",
@@ -52,10 +63,10 @@ export class UserCreatingUc {
 			);
 		}
 
-		// 4. Создание агрегата
-		const ar = UserAr.create(cmdResult.output);
+		// 6. Создание агрегата
+		const ar = UserAr.create(command);
 
-		// 5. Сохранение
+		// 7. Сохранение
 		this.#repo.save(ar.state as User);
 
 		return ar.state as User;
