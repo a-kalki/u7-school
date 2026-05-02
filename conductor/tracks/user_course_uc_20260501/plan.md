@@ -42,7 +42,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: UserPolicy и UserRepository' (Protocol in workflow.md)
 
 ## Phase 3: Сценарий создания пользователя (UserCreatingUc)
-- [x] Task: Тесты для UserCreatingUc
+- [x] Task: Тесты для UserCreatingUc [16eaa45]
     - [x] Тест: успешное создание пользователя администратором.
     - [x] Тест: создание пользователя студентом — отказ (недостаточно прав).
     - [x] Тест: bootstrap-режим — создание первого пользователя без проверки прав.
