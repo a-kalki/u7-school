@@ -55,17 +55,17 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: UserCreatingUc' (Protocol in workflow.md)
 
 ## Phase 4: Агрегат курса (CourseAr)
-- [ ] Task: Тесты для CourseAr
-    - [ ] Тест: создание CourseAr из валидной CreateCourseCommand.
-    - [ ] Тест: пустой title или description — ошибка валидации.
-    - [ ] Тест: невалидный authorId (не UUID) — ошибка валидации.
-    - [ ] Тест: CourseAr инкапсулирует состояние, изменение через методы агрегата.
-- [ ] Task: Реализация CourseAr
-    - [ ] Реализовать класс `CourseAr` с приватным состоянием `Course`.
-    - [ ] Реализовать `CourseAr.create(command)` с валидацией через `CourseSchema`.
-    - [ ] Реализовать методы `changeTitle`, `changeDescription`.
-    - [ ] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: CourseAr' (Protocol in workflow.md)
+- [x] Task: Тесты для CourseAr
+    - [x] Тест: создание CourseAr из валидной CreateCourseCommand.
+    - [x] Тест: пустой title или description — ошибка валидации.
+    - [x] Тест: невалидный authorId (не UUID) — ошибка валидации.
+    - [x] Тест: CourseAr инкапсулирует состояние, изменение через методы агрегата.
+- [x] Task: Реализация CourseAr
+    - [x] Реализовать класс `CourseAr` с приватным состоянием `Course`.
+    - [x] Реализовать `CourseAr.create(command)` с валидацией через `CourseSchema`.
+    - [x] Реализовать методы `changeTitle`, `changeDescription`.
+    - [x] Добиться прохождения тестов.
+- [x] Task: Conductor - User Manual Verification 'Phase 4: CourseAr' (Protocol in workflow.md)
 
 ## Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc
 - [ ] Task: Тесты для CoursePolicy
