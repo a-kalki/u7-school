@@ -67,7 +67,7 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 4: CourseAr' (Protocol in workflow.md)
 
-## Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc
+## Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc [checkpoint: e88ae6d]
 - [x] Task: Тесты для CoursePolicy
     - [x] Тест: MENTOR и ADMIN могут создавать курсы.
     - [x] Тест: STUDENT не может создавать курсы.
