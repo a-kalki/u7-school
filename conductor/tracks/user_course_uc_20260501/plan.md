@@ -54,7 +54,7 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 3: UserCreatingUc' (Protocol in workflow.md)
 
-## Phase 4: Агрегат курса (CourseAr)
+## Phase 4: Агрегат курса (CourseAr) [checkpoint: 8ff9fea]
 - [x] Task: Тесты для CourseAr
     - [x] Тест: создание CourseAr из валидной CreateCourseCommand.
     - [x] Тест: пустой title или description — ошибка валидации.
