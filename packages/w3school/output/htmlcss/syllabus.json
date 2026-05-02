@@ -1,277 +1,277 @@
 [
-  {
-    "topic": "HTML & CSS Tutorial",
-    "lessons": [
-      {
-        "title": "HOME",
-        "fileName": "default.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/default.asp.html",
-        "summary": "This integrated HTML and CSS tutorial teaches you to build structured, responsive webpages by combining both languages. It features editable examples and exercises for hands-on practice, like creating a basic card. The lesson also offers links to standalone tutorials for deeper study."
-      },
-      {
-        "title": "Introduction",
-        "fileName": "htmlcss_intro.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_intro.asp.html",
-        "summary": "This introductory lesson outlines a comprehensive HTML and CSS course, teaching how to structure content with semantic HTML and style it with CSS for layout, colors, and responsiveness. It progresses from setup through foundations, styling, layout, enhancements, quality, and projects, emphasizing hands-on practice with embedded editors, exercises, and a project folder. No prior coding experience required."
-      },
-      {
-        "title": "Environment Setup",
-        "fileName": "htmlcss_setup.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_setup.asp.html",
-        "summary": "The lesson covers the minimal requirements (browser and text editor) for HTML/CSS development, then guides through optional but recommended tools like VS Code with extensions, browser DevTools, and a structured project folder. It includes platform-specific setup instructions and a demo to verify the environment works correctly."
-      },
-      {
-        "title": "First Web Page",
-        "fileName": "htmlcss_first_webpage.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_first_webpage.asp.html",
-        "summary": "This lesson guides learners in building a simple homepage by creating an `index.html` file with semantic HTML structure and linking it to an external `styles.css` file. It demonstrates how to apply basic CSS for layout, typography, gradients, and shadows, resulting in a clean, styled page. The hands-on steps include creating the files, opening in a browser, and experimenting with colors and fonts."
-      },
-      {
-        "title": "Workflow & Tools",
-        "fileName": "htmlcss_workflow.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_workflow.asp.html",
-        "summary": "This lesson teaches a professional HTML/CSS workflow: organize files into clear folders, use Git for version control, preview changes instantly with Live Server or similar tools, and edit efficiently with multi-cursor, Emmet, and linters. It also covers using DevTools for debugging, creating reusable components, and maintaining a README for project clarity."
-      }
-    ]
-  },
-  {
-    "topic": "HTML & CSS Foundations",
-    "lessons": [
-      {
-        "title": "Essentials",
-        "fileName": "htmlcss_essentials.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_essentials.asp.html",
-        "summary": "This lesson covers HTML element anatomy, including tags, attributes, and content, as well as global attributes like class and id. It explains how CSS attaches via selectors, emphasizes semantic tags over generic divs, and distinguishes block vs inline elements for layout. Consistent indentation improves readability."
-      },
-      {
-        "title": "Document Structure",
-        "fileName": "htmlcss_document_structure.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_document_structure.asp.html",
-        "summary": "An HTML document is composed of a `<!DOCTYPE>` declaration, `<html>` element, `<head>` for metadata (character set, viewport, title, CSS links), and `<body>` for visible content. Semantic containers like `<header>`, `<nav>`, `<main>`, and `<footer>` structure the page, while external CSS is linked in the head for efficient loading. Accessibility is enhanced with a `lang` attribute and proper heading hierarchy."
-      },
-      {
-        "title": "Text Content",
-        "fileName": "htmlcss_text_content.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_text_content.asp.html",
-        "summary": "This lesson covers structuring text content with HTML headings, paragraphs, and inline semantics (e.g., `<strong>`, `<em>`), while emphasizing accessibility and SEO. It also explains how to enhance readability through CSS typography, including font families, spacing, and consistent whitespace rhythm."
-      },
-      {
-        "title": "Lists & Tables",
-        "fileName": "htmlcss_lists_tables.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_lists_tables.asp.html",
-        "summary": "The lesson covers HTML lists (unordered, ordered, description) and tables for presenting structured data, combined with CSS styling to enhance readability and accessibility. It emphasizes semantic markup, scope attributes, and responsive techniques like scroll containers for tables, ensuring content remains usable on all devices."
-      },
-      {
-        "title": "Links & Navigation",
-        "fileName": "htmlcss_links_navigation.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_links_navigation.asp.html",
-        "summary": "This lesson teaches how to create hyperlinks using the `<a>` tag and how to build semantic, accessible navigation menus with `<nav>` and lists. It covers link attributes, CSS styling for navigation (flexbox, hover/active states), skip links, and responsive designs. Emphasis is placed on accessibility, including `aria-label` and focus management."
-      },
-      {
-        "title": "Images & Media",
-        "fileName": "htmlcss_images_media.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_images_media.asp.html",
-        "summary": "This lesson teaches how to add images, audio, and video to web pages using semantic HTML and CSS. It covers essential practices like descriptive alt text, responsive images with max-width, the picture element for art direction, and native media players. Lazy loading and accessibility guidelines are emphasized to improve performance and inclusivity."
-      },
-      {
-        "title": "Forms & Validation",
-        "fileName": "htmlcss_forms_validation.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_forms_validation.asp.html",
-        "summary": "This lesson teaches how to build accessible, well-styled HTML forms with built-in validation using input types, required attributes, and CSS pseudo-classes like :valid/:invalid for real-time feedback. It covers form structure, labels, security (HTTPS, server-side validation), and layout with CSS Grid, emphasizing user experience and accessibility."
-      },
-      {
-        "title": "Reusable Components",
-        "fileName": "htmlcss_reusable_components.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_reusable_components.asp.html",
-        "summary": "The lesson teaches how to build reusable HTML and CSS components—such as buttons, cards, and alerts—using base classes with variant modifiers for consistent design. It emphasizes scoping styles to avoid side effects, documenting usage, and applying accessibility best practices like ARIA roles and visible focus states."
-      }
-    ]
-  },
-  {
-    "topic": "HTML & CSSStyling Core",
-    "lessons": [
-      {
-        "title": "Styling Essentials",
-        "fileName": "htmlcss_styling_essentials.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_styling_essentials.asp.html",
-        "summary": "This lesson covers the core concepts of CSS, including how it works with selectors and declarations, the cascade and specificity, and essential styling properties for color, typography, spacing, and layout. It also explains methods for including CSS and provides practical examples to transform plain HTML into polished designs."
-      },
-      {
-        "title": "Selectors & Specificity",
-        "fileName": "htmlcss_selectors_specificity.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_selectors_specificity.asp.html",
-        "summary": "This lesson covers CSS selectors—from basic types and attributes to combinators and pseudo-classes—and explains specificity as a point-based system that determines which rule wins when conflicts arise. It emphasizes using the cascade strategically, avoiding `!important`, and debugging with DevTools to maintain clear, maintainable styles."
-      },
-      {
-        "title": "Cascade & Inheritance",
-        "fileName": "htmlcss_cascade_inheritance.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_cascade_inheritance.asp.html",
-        "summary": "The CSS cascade determines which rule applies based on importance, specificity, and source order, while inheritance automatically passes certain styles (like color) from parent to child elements. Understanding both mechanisms keeps styles predictable and simplifies debugging."
-      },
-      {
-        "title": "Typography",
-        "fileName": "htmlcss_typography.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_typography.asp.html",
-        "summary": "This lesson covers core typography techniques in HTML and CSS, including selecting fonts with fallbacks, using relative units like rem and em for scalable text, and applying size, weight, spacing, and alignment utilities. It emphasizes responsive design with clamp() and media queries, accessibility through contrast ratios and semantic tags, and provides a practical demo of article typography."
-      },
-      {
-        "title": "Colors & Backgrounds",
-        "fileName": "htmlcss_colors_backgrounds.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_colors_backgrounds.asp.html",
-        "summary": "This lesson covers CSS color notations (keywords, hex, RGB, HSL) and using custom properties for maintainable palettes. It explores background properties, gradients (linear, radial, conic), and overlay techniques with multiple backgrounds. Accessibility principles like contrast ratios and avoiding color-only cues are also emphasized for inclusive design."
-      },
-      {
-        "title": "Box Model",
-        "fileName": "htmlcss_box_model.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_box_model.asp.html",
-        "summary": "The CSS Box Model defines every element as a rectangular box with content, padding, border, and margin layers. The `box-sizing` property controls whether dimensions include padding and border, with `border-box` simplifying layout math. Vertical margins can collapse between blocks, and shorthand properties enable efficient spacing. Understanding these concepts is essential for precise layout control."
-      }
-    ]
-  },
-  {
-    "topic": "HTML & CSS Layout",
-    "lessons": [
-      {
-        "title": "Layout Fundamentals",
-        "fileName": "htmlcss_layout_flow.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_layout_flow.asp.html",
-        "summary": "Master the default document flow—block, inline, and inline-block—before using advanced layout methods. Learn to control display, clear floats in legacy code, and manage stacking contexts for precise element layering. These fundamentals form the foundation for Flexbox and Grid."
-      },
-      {
-        "title": "Positioning & Z-Index",
-        "fileName": "htmlcss_layout_positioning.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_layout_positioning.asp.html",
-        "summary": "This lesson explains CSS positioning modes—static, relative, absolute, fixed, and sticky—and how offset properties control element placement. It covers z-index for layering, stacking contexts, and practical patterns like sticky headers and tooltips, with guidelines for effective use."
-      },
-      {
-        "title": "Flexbox",
-        "fileName": "htmlcss_layout_flexbox.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_layout_flexbox.asp.html",
-        "summary": "Flexbox enables efficient one-dimensional layout for rows or columns, simplifying alignment and space distribution. It uses a flex container with properties like `flex-direction`, `justify-content`, and `align-items`, while flex items can grow, shrink, wrap, or reorder. Common patterns include toolbars, split layouts, and responsive media objects."
-      },
-      {
-        "title": "CSS Grid",
-        "fileName": "htmlcss_layout_grid.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_layout_grid.asp.html",
-        "summary": "CSS Grid enables two-dimensional layouts by defining rows, columns, and regions. Key features include track sizing with `fr`, `minmax()`, and `auto-fit` for responsiveness, explicit placement via grid lines or named areas, and alignment controls. It simplifies creating complex, adaptive structures like dashboards and landing pages."
-      },
-      {
-        "title": "Layout Patterns",
-        "fileName": "htmlcss_layout_patterns.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_layout_patterns.asp.html",
-        "summary": "This lesson teaches how to build reusable responsive layouts using Flexbox, Grid, and modern CSS, covering hero sections, split panels, dashboard cards, marketing content blocks, and footer patterns. It emphasizes collapsing columns on smaller screens, sticky navigation, fluid card grids, and alternating content order."
-      },
-      {
-        "title": "Responsive Design",
-        "fileName": "htmlcss_responsive_design.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_responsive_design.asp.html",
-        "summary": "Responsive design uses flexible grids, fluid typography, media queries, and viewport meta tags to adapt layouts across devices. Techniques like mobile-first design, `clamp()` for text, and `minmax()` grids ensure content scales gracefully. Container queries and responsive media further enhance adaptability. Testing with DevTools and real devices confirms performance and usability."
-      },
-      {
-        "title": "Responsive Components",
-        "fileName": "htmlcss_responsive_components.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_responsive_components.asp.html",
-        "summary": "The lesson teaches how to build responsive UI components using Flexbox, Grid, and fluid units. It covers navigation collapse, card grids, data table adaptation, stacked forms, and accessible micro-interactions with reduced-motion support. Emphasis is on maintaining keyboard and screen reader compatibility across viewports."
-      }
-    ]
-  },
-  {
-    "topic": "HTML & CSS Enhancements",
-    "lessons": [
-      {
-        "title": "Custom Properties",
-        "fileName": "htmlcss_variables.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_variables.asp.html",
-        "summary": "CSS custom properties (variables) centralize design tokens like colors and spacing, reducing duplication. Declared with `--name` on `:root` or scoped containers, they support dynamic theming via classes, media queries, or JavaScript. Variables work in `calc()`, gradients, and accept fallbacks, enabling runtime adjustments and maintainable design systems."
-      },
-      {
-        "title": "Calc & Functions",
-        "fileName": "htmlcss_functions.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_functions.asp.html",
-        "summary": "This lesson explores CSS functions like `calc()`, `clamp()`, and `min()/max()` for responsive math, along with color functions (`rgb()`, `hsl()`, `color-mix()`) and trigonometry (`sin()`, `cos()`). It demonstrates how to combine these with custom properties to create fluid spacing, adaptive colors, and geometry-based layouts without JavaScript."
-      },
-      {
-        "title": "Transitions",
-        "fileName": "htmlcss_transitions.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_transitions.asp.html",
-        "summary": "CSS transitions animate property changes, creating smooth hover/focus effects without JavaScript. Key properties include duration, timing, delay, and shorthand. Practical examples show button feedback, while best practices cover custom easing, responsive motion, and honoring `prefers-reduced-motion` for accessibility."
-      },
-      {
-        "title": "Transforms",
-        "fileName": "htmlcss_transforms.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_transforms.asp.html",
-        "summary": "CSS transforms enable rotating, scaling, skewing, and translating elements without disrupting page flow. They support 2D and 3D effects, with perspective creating depth and transform-origin controlling pivot points. GPU-accelerated transforms enhance performance, and combining them with transitions allows smooth, dynamic interactions."
-      },
-      {
-        "title": "Animations",
-        "fileName": "htmlcss_animations.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_animations.asp.html",
-        "summary": "CSS animations use `@keyframes` to define style snapshots at percentages or keywords, applied via properties like duration, timing, iteration, and direction. They are ideal for micro-interactions and loading indicators, as demonstrated by a pulsing loader with `infinite alternate`. Sequencing can be achieved with delays or multiple animations, and accessibility requires respecting `prefers-reduced-motion` and providing user controls."
-      },
-      {
-        "title": "Effects & Filters",
-        "fileName": "htmlcss_effects.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_effects.asp.html",
-        "summary": "This lesson covers CSS effects like box/text shadows, backdrop filters, blend modes, and hardware-accelerated filters to enhance interface depth. It emphasizes using these sparingly for focus, while maintaining text legibility, contrast, and performance—especially avoiding heavy filters on large elements."
-      }
-    ]
-  },
-  {
-    "topic": "HTML & CSS Quality",
-    "lessons": [
-      {
-        "title": "Accessibility",
-        "fileName": "htmlcss_accessibility.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_accessibility.asp.html",
-        "summary": "The lesson teaches how to build inclusive web experiences using semantic HTML, alt text, keyboard support, sufficient color contrast, and ARIA. It emphasizes using native elements, maintaining focus outlines, and testing with assistive technologies like screen readers and contrast checkers."
-      },
-      {
-        "title": "Design Systems",
-        "fileName": "htmlcss_design_systems.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_design_systems.asp.html",
-        "summary": "A design system unifies design and development through shared foundations like design tokens (colors, spacing), a component library with semantic HTML and CSS modifiers, and documented standards. It includes governance for usage, contribution, and adoption metrics, plus tooling like Storybook for hosting and automated distribution."
-      },
-      {
-        "title": "Performance",
-        "fileName": "htmlcss_performance.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_performance.asp.html",
-        "summary": "Optimize HTML with semantic, lean markup, modern images, and lazy loading. Inline critical CSS above the fold, defer others, and minify. Use transforms and opacity for smooth animations to avoid layout thrashing. Measure performance with Lighthouse, DevTools, and real-user metrics to ensure fast, responsive interfaces."
-      },
-      {
-        "title": "Debugging & Testing",
-        "fileName": "htmlcss_debugging_testing.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_debugging_testing.asp.html",
-        "summary": "The lesson covers systematic debugging and testing for HTML/CSS, including live inspection with DevTools, linting with Stylelint/ESLint, and automated testing (unit, integration, visual regression) to catch issues early. Manual QA across browsers, devices, and accessibility checks ensures stable, visually consistent interfaces."
-      },
-      {
-        "title": "Tooling & Automation",
-        "fileName": "htmlcss_tooling.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_tooling.asp.html",
-        "summary": "Modern HTML and CSS tooling enhances development through productive editors, preprocessors like Sass, and methodologies such as BEM. Build pipelines automate minification, autoprefixing, and hot module reloading. Continuous integration and static site generators streamline testing and deployment to platforms like Netlify."
-      }
-    ]
-  },
-  {
-    "topic": "HTML & CSS Practice & Exams",
-    "lessons": [
-      {
-        "title": "Landing Page Project",
-        "fileName": "htmlcss_project_landing_page.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_project_landing_page.asp.html",
-        "summary": "This lesson guides learners through building a responsive marketing landing page with HTML and CSS, covering project skeleton, hero section, features grid, social proof, pricing, FAQ, and responsive tweaks. It emphasizes semantic structure, clear CTAs, mobile-first design, and a final polish checklist for performance, accessibility, and SEO."
-      },
-      {
-        "title": "Exercises",
-        "fileName": "htmlcss_exercises.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_exercises.asp.html",
-        "summary": "This lesson offers 37 exercises across 35 HTML & CSS categories, from basics to advanced topics like Flexbox and animations. Each category contains 3–4 multiple-choice or fill-in-the-blank questions, with answers available in corresponding tutorials. Users can retry or reveal answers to reinforce learning."
-      },
-      {
-        "title": "Quiz",
-        "fileName": "htmlcss_quiz.asp.md",
-        "url": "https://www.w3schools.com/htmlcss/htmlcss_quiz.asp.html",
-        "summary": "This lesson presents a 25-question HTML & CSS quiz with no time limit, where each correct answer earns one point up to a maximum score of 25. It is an unofficial, self-assessment tool from W3Schools, designed to test users' knowledge. A link to start the quiz and a suggestion to review the HTML & CSS tutorial for beginners are also provided."
-      }
-    ]
-  }
+	{
+		"topic": "HTML & CSS Tutorial",
+		"lessons": [
+			{
+				"title": "HOME",
+				"fileName": "default.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/default.asp.html",
+				"summary": "This integrated HTML and CSS tutorial teaches you to build structured, responsive webpages by combining both languages. It features editable examples and exercises for hands-on practice, like creating a basic card. The lesson also offers links to standalone tutorials for deeper study."
+			},
+			{
+				"title": "Introduction",
+				"fileName": "htmlcss_intro.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_intro.asp.html",
+				"summary": "This introductory lesson outlines a comprehensive HTML and CSS course, teaching how to structure content with semantic HTML and style it with CSS for layout, colors, and responsiveness. It progresses from setup through foundations, styling, layout, enhancements, quality, and projects, emphasizing hands-on practice with embedded editors, exercises, and a project folder. No prior coding experience required."
+			},
+			{
+				"title": "Environment Setup",
+				"fileName": "htmlcss_setup.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_setup.asp.html",
+				"summary": "The lesson covers the minimal requirements (browser and text editor) for HTML/CSS development, then guides through optional but recommended tools like VS Code with extensions, browser DevTools, and a structured project folder. It includes platform-specific setup instructions and a demo to verify the environment works correctly."
+			},
+			{
+				"title": "First Web Page",
+				"fileName": "htmlcss_first_webpage.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_first_webpage.asp.html",
+				"summary": "This lesson guides learners in building a simple homepage by creating an `index.html` file with semantic HTML structure and linking it to an external `styles.css` file. It demonstrates how to apply basic CSS for layout, typography, gradients, and shadows, resulting in a clean, styled page. The hands-on steps include creating the files, opening in a browser, and experimenting with colors and fonts."
+			},
+			{
+				"title": "Workflow & Tools",
+				"fileName": "htmlcss_workflow.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_workflow.asp.html",
+				"summary": "This lesson teaches a professional HTML/CSS workflow: organize files into clear folders, use Git for version control, preview changes instantly with Live Server or similar tools, and edit efficiently with multi-cursor, Emmet, and linters. It also covers using DevTools for debugging, creating reusable components, and maintaining a README for project clarity."
+			}
+		]
+	},
+	{
+		"topic": "HTML & CSS Foundations",
+		"lessons": [
+			{
+				"title": "Essentials",
+				"fileName": "htmlcss_essentials.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_essentials.asp.html",
+				"summary": "This lesson covers HTML element anatomy, including tags, attributes, and content, as well as global attributes like class and id. It explains how CSS attaches via selectors, emphasizes semantic tags over generic divs, and distinguishes block vs inline elements for layout. Consistent indentation improves readability."
+			},
+			{
+				"title": "Document Structure",
+				"fileName": "htmlcss_document_structure.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_document_structure.asp.html",
+				"summary": "An HTML document is composed of a `<!DOCTYPE>` declaration, `<html>` element, `<head>` for metadata (character set, viewport, title, CSS links), and `<body>` for visible content. Semantic containers like `<header>`, `<nav>`, `<main>`, and `<footer>` structure the page, while external CSS is linked in the head for efficient loading. Accessibility is enhanced with a `lang` attribute and proper heading hierarchy."
+			},
+			{
+				"title": "Text Content",
+				"fileName": "htmlcss_text_content.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_text_content.asp.html",
+				"summary": "This lesson covers structuring text content with HTML headings, paragraphs, and inline semantics (e.g., `<strong>`, `<em>`), while emphasizing accessibility and SEO. It also explains how to enhance readability through CSS typography, including font families, spacing, and consistent whitespace rhythm."
+			},
+			{
+				"title": "Lists & Tables",
+				"fileName": "htmlcss_lists_tables.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_lists_tables.asp.html",
+				"summary": "The lesson covers HTML lists (unordered, ordered, description) and tables for presenting structured data, combined with CSS styling to enhance readability and accessibility. It emphasizes semantic markup, scope attributes, and responsive techniques like scroll containers for tables, ensuring content remains usable on all devices."
+			},
+			{
+				"title": "Links & Navigation",
+				"fileName": "htmlcss_links_navigation.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_links_navigation.asp.html",
+				"summary": "This lesson teaches how to create hyperlinks using the `<a>` tag and how to build semantic, accessible navigation menus with `<nav>` and lists. It covers link attributes, CSS styling for navigation (flexbox, hover/active states), skip links, and responsive designs. Emphasis is placed on accessibility, including `aria-label` and focus management."
+			},
+			{
+				"title": "Images & Media",
+				"fileName": "htmlcss_images_media.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_images_media.asp.html",
+				"summary": "This lesson teaches how to add images, audio, and video to web pages using semantic HTML and CSS. It covers essential practices like descriptive alt text, responsive images with max-width, the picture element for art direction, and native media players. Lazy loading and accessibility guidelines are emphasized to improve performance and inclusivity."
+			},
+			{
+				"title": "Forms & Validation",
+				"fileName": "htmlcss_forms_validation.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_forms_validation.asp.html",
+				"summary": "This lesson teaches how to build accessible, well-styled HTML forms with built-in validation using input types, required attributes, and CSS pseudo-classes like :valid/:invalid for real-time feedback. It covers form structure, labels, security (HTTPS, server-side validation), and layout with CSS Grid, emphasizing user experience and accessibility."
+			},
+			{
+				"title": "Reusable Components",
+				"fileName": "htmlcss_reusable_components.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_reusable_components.asp.html",
+				"summary": "The lesson teaches how to build reusable HTML and CSS components—such as buttons, cards, and alerts—using base classes with variant modifiers for consistent design. It emphasizes scoping styles to avoid side effects, documenting usage, and applying accessibility best practices like ARIA roles and visible focus states."
+			}
+		]
+	},
+	{
+		"topic": "HTML & CSSStyling Core",
+		"lessons": [
+			{
+				"title": "Styling Essentials",
+				"fileName": "htmlcss_styling_essentials.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_styling_essentials.asp.html",
+				"summary": "This lesson covers the core concepts of CSS, including how it works with selectors and declarations, the cascade and specificity, and essential styling properties for color, typography, spacing, and layout. It also explains methods for including CSS and provides practical examples to transform plain HTML into polished designs."
+			},
+			{
+				"title": "Selectors & Specificity",
+				"fileName": "htmlcss_selectors_specificity.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_selectors_specificity.asp.html",
+				"summary": "This lesson covers CSS selectors—from basic types and attributes to combinators and pseudo-classes—and explains specificity as a point-based system that determines which rule wins when conflicts arise. It emphasizes using the cascade strategically, avoiding `!important`, and debugging with DevTools to maintain clear, maintainable styles."
+			},
+			{
+				"title": "Cascade & Inheritance",
+				"fileName": "htmlcss_cascade_inheritance.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_cascade_inheritance.asp.html",
+				"summary": "The CSS cascade determines which rule applies based on importance, specificity, and source order, while inheritance automatically passes certain styles (like color) from parent to child elements. Understanding both mechanisms keeps styles predictable and simplifies debugging."
+			},
+			{
+				"title": "Typography",
+				"fileName": "htmlcss_typography.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_typography.asp.html",
+				"summary": "This lesson covers core typography techniques in HTML and CSS, including selecting fonts with fallbacks, using relative units like rem and em for scalable text, and applying size, weight, spacing, and alignment utilities. It emphasizes responsive design with clamp() and media queries, accessibility through contrast ratios and semantic tags, and provides a practical demo of article typography."
+			},
+			{
+				"title": "Colors & Backgrounds",
+				"fileName": "htmlcss_colors_backgrounds.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_colors_backgrounds.asp.html",
+				"summary": "This lesson covers CSS color notations (keywords, hex, RGB, HSL) and using custom properties for maintainable palettes. It explores background properties, gradients (linear, radial, conic), and overlay techniques with multiple backgrounds. Accessibility principles like contrast ratios and avoiding color-only cues are also emphasized for inclusive design."
+			},
+			{
+				"title": "Box Model",
+				"fileName": "htmlcss_box_model.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_box_model.asp.html",
+				"summary": "The CSS Box Model defines every element as a rectangular box with content, padding, border, and margin layers. The `box-sizing` property controls whether dimensions include padding and border, with `border-box` simplifying layout math. Vertical margins can collapse between blocks, and shorthand properties enable efficient spacing. Understanding these concepts is essential for precise layout control."
+			}
+		]
+	},
+	{
+		"topic": "HTML & CSS Layout",
+		"lessons": [
+			{
+				"title": "Layout Fundamentals",
+				"fileName": "htmlcss_layout_flow.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_layout_flow.asp.html",
+				"summary": "Master the default document flow—block, inline, and inline-block—before using advanced layout methods. Learn to control display, clear floats in legacy code, and manage stacking contexts for precise element layering. These fundamentals form the foundation for Flexbox and Grid."
+			},
+			{
+				"title": "Positioning & Z-Index",
+				"fileName": "htmlcss_layout_positioning.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_layout_positioning.asp.html",
+				"summary": "This lesson explains CSS positioning modes—static, relative, absolute, fixed, and sticky—and how offset properties control element placement. It covers z-index for layering, stacking contexts, and practical patterns like sticky headers and tooltips, with guidelines for effective use."
+			},
+			{
+				"title": "Flexbox",
+				"fileName": "htmlcss_layout_flexbox.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_layout_flexbox.asp.html",
+				"summary": "Flexbox enables efficient one-dimensional layout for rows or columns, simplifying alignment and space distribution. It uses a flex container with properties like `flex-direction`, `justify-content`, and `align-items`, while flex items can grow, shrink, wrap, or reorder. Common patterns include toolbars, split layouts, and responsive media objects."
+			},
+			{
+				"title": "CSS Grid",
+				"fileName": "htmlcss_layout_grid.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_layout_grid.asp.html",
+				"summary": "CSS Grid enables two-dimensional layouts by defining rows, columns, and regions. Key features include track sizing with `fr`, `minmax()`, and `auto-fit` for responsiveness, explicit placement via grid lines or named areas, and alignment controls. It simplifies creating complex, adaptive structures like dashboards and landing pages."
+			},
+			{
+				"title": "Layout Patterns",
+				"fileName": "htmlcss_layout_patterns.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_layout_patterns.asp.html",
+				"summary": "This lesson teaches how to build reusable responsive layouts using Flexbox, Grid, and modern CSS, covering hero sections, split panels, dashboard cards, marketing content blocks, and footer patterns. It emphasizes collapsing columns on smaller screens, sticky navigation, fluid card grids, and alternating content order."
+			},
+			{
+				"title": "Responsive Design",
+				"fileName": "htmlcss_responsive_design.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_responsive_design.asp.html",
+				"summary": "Responsive design uses flexible grids, fluid typography, media queries, and viewport meta tags to adapt layouts across devices. Techniques like mobile-first design, `clamp()` for text, and `minmax()` grids ensure content scales gracefully. Container queries and responsive media further enhance adaptability. Testing with DevTools and real devices confirms performance and usability."
+			},
+			{
+				"title": "Responsive Components",
+				"fileName": "htmlcss_responsive_components.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_responsive_components.asp.html",
+				"summary": "The lesson teaches how to build responsive UI components using Flexbox, Grid, and fluid units. It covers navigation collapse, card grids, data table adaptation, stacked forms, and accessible micro-interactions with reduced-motion support. Emphasis is on maintaining keyboard and screen reader compatibility across viewports."
+			}
+		]
+	},
+	{
+		"topic": "HTML & CSS Enhancements",
+		"lessons": [
+			{
+				"title": "Custom Properties",
+				"fileName": "htmlcss_variables.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_variables.asp.html",
+				"summary": "CSS custom properties (variables) centralize design tokens like colors and spacing, reducing duplication. Declared with `--name` on `:root` or scoped containers, they support dynamic theming via classes, media queries, or JavaScript. Variables work in `calc()`, gradients, and accept fallbacks, enabling runtime adjustments and maintainable design systems."
+			},
+			{
+				"title": "Calc & Functions",
+				"fileName": "htmlcss_functions.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_functions.asp.html",
+				"summary": "This lesson explores CSS functions like `calc()`, `clamp()`, and `min()/max()` for responsive math, along with color functions (`rgb()`, `hsl()`, `color-mix()`) and trigonometry (`sin()`, `cos()`). It demonstrates how to combine these with custom properties to create fluid spacing, adaptive colors, and geometry-based layouts without JavaScript."
+			},
+			{
+				"title": "Transitions",
+				"fileName": "htmlcss_transitions.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_transitions.asp.html",
+				"summary": "CSS transitions animate property changes, creating smooth hover/focus effects without JavaScript. Key properties include duration, timing, delay, and shorthand. Practical examples show button feedback, while best practices cover custom easing, responsive motion, and honoring `prefers-reduced-motion` for accessibility."
+			},
+			{
+				"title": "Transforms",
+				"fileName": "htmlcss_transforms.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_transforms.asp.html",
+				"summary": "CSS transforms enable rotating, scaling, skewing, and translating elements without disrupting page flow. They support 2D and 3D effects, with perspective creating depth and transform-origin controlling pivot points. GPU-accelerated transforms enhance performance, and combining them with transitions allows smooth, dynamic interactions."
+			},
+			{
+				"title": "Animations",
+				"fileName": "htmlcss_animations.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_animations.asp.html",
+				"summary": "CSS animations use `@keyframes` to define style snapshots at percentages or keywords, applied via properties like duration, timing, iteration, and direction. They are ideal for micro-interactions and loading indicators, as demonstrated by a pulsing loader with `infinite alternate`. Sequencing can be achieved with delays or multiple animations, and accessibility requires respecting `prefers-reduced-motion` and providing user controls."
+			},
+			{
+				"title": "Effects & Filters",
+				"fileName": "htmlcss_effects.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_effects.asp.html",
+				"summary": "This lesson covers CSS effects like box/text shadows, backdrop filters, blend modes, and hardware-accelerated filters to enhance interface depth. It emphasizes using these sparingly for focus, while maintaining text legibility, contrast, and performance—especially avoiding heavy filters on large elements."
+			}
+		]
+	},
+	{
+		"topic": "HTML & CSS Quality",
+		"lessons": [
+			{
+				"title": "Accessibility",
+				"fileName": "htmlcss_accessibility.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_accessibility.asp.html",
+				"summary": "The lesson teaches how to build inclusive web experiences using semantic HTML, alt text, keyboard support, sufficient color contrast, and ARIA. It emphasizes using native elements, maintaining focus outlines, and testing with assistive technologies like screen readers and contrast checkers."
+			},
+			{
+				"title": "Design Systems",
+				"fileName": "htmlcss_design_systems.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_design_systems.asp.html",
+				"summary": "A design system unifies design and development through shared foundations like design tokens (colors, spacing), a component library with semantic HTML and CSS modifiers, and documented standards. It includes governance for usage, contribution, and adoption metrics, plus tooling like Storybook for hosting and automated distribution."
+			},
+			{
+				"title": "Performance",
+				"fileName": "htmlcss_performance.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_performance.asp.html",
+				"summary": "Optimize HTML with semantic, lean markup, modern images, and lazy loading. Inline critical CSS above the fold, defer others, and minify. Use transforms and opacity for smooth animations to avoid layout thrashing. Measure performance with Lighthouse, DevTools, and real-user metrics to ensure fast, responsive interfaces."
+			},
+			{
+				"title": "Debugging & Testing",
+				"fileName": "htmlcss_debugging_testing.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_debugging_testing.asp.html",
+				"summary": "The lesson covers systematic debugging and testing for HTML/CSS, including live inspection with DevTools, linting with Stylelint/ESLint, and automated testing (unit, integration, visual regression) to catch issues early. Manual QA across browsers, devices, and accessibility checks ensures stable, visually consistent interfaces."
+			},
+			{
+				"title": "Tooling & Automation",
+				"fileName": "htmlcss_tooling.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_tooling.asp.html",
+				"summary": "Modern HTML and CSS tooling enhances development through productive editors, preprocessors like Sass, and methodologies such as BEM. Build pipelines automate minification, autoprefixing, and hot module reloading. Continuous integration and static site generators streamline testing and deployment to platforms like Netlify."
+			}
+		]
+	},
+	{
+		"topic": "HTML & CSS Practice & Exams",
+		"lessons": [
+			{
+				"title": "Landing Page Project",
+				"fileName": "htmlcss_project_landing_page.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_project_landing_page.asp.html",
+				"summary": "This lesson guides learners through building a responsive marketing landing page with HTML and CSS, covering project skeleton, hero section, features grid, social proof, pricing, FAQ, and responsive tweaks. It emphasizes semantic structure, clear CTAs, mobile-first design, and a final polish checklist for performance, accessibility, and SEO."
+			},
+			{
+				"title": "Exercises",
+				"fileName": "htmlcss_exercises.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_exercises.asp.html",
+				"summary": "This lesson offers 37 exercises across 35 HTML & CSS categories, from basics to advanced topics like Flexbox and animations. Each category contains 3–4 multiple-choice or fill-in-the-blank questions, with answers available in corresponding tutorials. Users can retry or reveal answers to reinforce learning."
+			},
+			{
+				"title": "Quiz",
+				"fileName": "htmlcss_quiz.asp.md",
+				"url": "https://www.w3schools.com/htmlcss/htmlcss_quiz.asp.html",
+				"summary": "This lesson presents a 25-question HTML & CSS quiz with no time limit, where each correct answer earns one point up to a maximum score of 25. It is an unofficial, self-assessment tool from W3Schools, designed to test users' knowledge. A link to start the quiz and a suggestion to review the HTML & CSS tutorial for beginners are also provided."
+			}
+		]
+	}
 ]

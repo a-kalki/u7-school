@@ -1,656 +1,656 @@
 [
-  {
-    "topic": "CSS Tutorial",
-    "lessons": [
-      {
-        "title": "CSS HOME",
-        "fileName": "default.asp.md",
-        "url": "https://www.w3schools.com/css/default.asp.html",
-        "summary": "This comprehensive CSS tutorial provides a structured path for learning web styling, ranging from basic concepts to advanced techniques. It features over 700 interactive examples, practical exercises, and detailed references to help learners master CSS and earn professional certification."
-      },
-      {
-        "title": "CSS Introduction",
-        "fileName": "css_intro.asp.md",
-        "url": "https://www.w3schools.com/css/css_intro.asp.html",
-        "summary": "CSS (Cascading Style Sheets) is a powerful language used to define the design, layout, and visual presentation of web pages across various devices. By utilizing external stylesheets, developers can efficiently manage and update the appearance of an entire website through a single file."
-      },
-      {
-        "title": "CSS Syntax",
-        "fileName": "css_syntax.asp.md",
-        "url": "https://www.w3schools.com/css/css_syntax.asp.html",
-        "summary": "CSS syntax is composed of a selector that targets HTML elements and a declaration block containing property-value pairs. Declarations are separated by semicolons and enclosed in curly braces, providing a structured way to apply styles to web content."
-      },
-      {
-        "title": "CSS Selectors",
-        "fileName": "css_selectors.asp.md",
-        "url": "https://www.w3schools.com/css/css_selectors.asp.html",
-        "summary": "CSS selectors are essential tools used to target HTML elements for styling. This lesson introduces the five primary categories of selectors, focusing specifically on the fundamental element, id, and class selectors used to apply styles to web content."
-      },
-      {
-        "title": "CSS How To",
-        "fileName": "css_howto.asp.md",
-        "url": "https://www.w3schools.com/css/css_howto.asp.html",
-        "summary": "This lesson explains the three primary methods for integrating CSS into HTML documents: external style sheets, internal styles, and inline attributes. It emphasizes the efficiency of using external files to manage website design and provides syntax guidelines for proper CSS implementation."
-      },
-      {
-        "title": "CSS Comments",
-        "fileName": "css_comments.asp.md",
-        "url": "https://www.w3schools.com/css/css_comments.asp.html",
-        "summary": "CSS comments are defined by the `/*` and `*/` syntax and are ignored by browsers, making them ideal for documenting code or temporarily disabling specific styles. They can be placed anywhere within a stylesheet, including inline or across multiple lines, to improve readability and maintenance."
-      },
-      {
-        "title": "CSS Errors",
-        "fileName": "css_errors.asp.md",
-        "url": "https://www.w3schools.com/css/css_errors.asp.html",
-        "summary": "This lesson identifies common CSS syntax errors, such as missing semicolons, invalid property names, incorrect values, and unclosed braces, which prevent styles from rendering correctly. It recommends using code editors, linters, and frequent testing to maintain clean, functional stylesheets."
-      },
-      {
-        "title": "CSS Colors",
-        "fileName": "css_colors.asp.md",
-        "url": "https://www.w3schools.com/css/css_colors.asp.html",
-        "summary": "This lesson introduces CSS color implementation, covering the use of predefined color names and various numerical formats like RGB, HEX, and HSL. It demonstrates how to apply these values to style element backgrounds, text, and borders, including the use of alpha channels for transparency."
-      },
-      {
-        "title": "CSS Backgrounds",
-        "fileName": "css_background.asp.md",
-        "url": "https://www.w3schools.com/css/css_background.asp.html",
-        "summary": "This lesson explores essential CSS background properties, including color, image, and positioning, to enhance element styling. It also covers techniques for managing transparency, specifically comparing the `opacity` property with the more precise RGBA color model for background effects."
-      },
-      {
-        "title": "CSS Borders",
-        "fileName": "css_border.asp.md",
-        "url": "https://www.w3schools.com/css/css_border.asp.html",
-        "summary": "This lesson introduces CSS border properties, which allow developers to customize the style, width, and color of an element's edges. It emphasizes that the `border-style` property is essential, as other border settings will not function without a defined style value."
-      },
-      {
-        "title": "CSS Margins",
-        "fileName": "css_margin.asp.md",
-        "url": "https://www.w3schools.com/css/css_margin.asp.html",
-        "summary": "This lesson explains how CSS margins create space around elements outside their borders. It covers individual side properties, the flexible shorthand syntax, and the use of values like auto and inherit for precise layout control."
-      },
-      {
-        "title": "CSS Padding",
-        "fileName": "css_padding.asp.md",
-        "url": "https://www.w3schools.com/css/css_padding.asp.html",
-        "summary": "CSS padding properties create space around an element's content, inside its borders. You can define padding for individual sides or use the shorthand property to set all sides efficiently with various length or percentage values."
-      },
-      {
-        "title": "CSS Height / Width",
-        "fileName": "css_height_width.asp.md",
-        "url": "https://www.w3schools.com/css/css_height_width.asp.html",
-        "summary": "The CSS height and width properties define the dimensions of an element's content area, excluding padding, borders, and margins. These properties accept various values, including auto, specific lengths, percentages, and inheritance, allowing for flexible and responsive web layouts."
-      },
-      {
-        "title": "CSS Box Model",
-        "fileName": "css_boxmodel.asp.md",
-        "url": "https://www.w3schools.com/css/css_boxmodel.asp.html",
-        "summary": "The CSS box model defines every HTML element as a rectangular box consisting of content, padding, borders, and margins. Understanding this structure is essential for layout design, as calculating an element's total dimensions requires adding its content size to the padding and border values."
-      },
-      {
-        "title": "CSS Outline",
-        "fileName": "css_outline.asp.md",
-        "url": "https://www.w3schools.com/css/css_outline.asp.html",
-        "summary": "A CSS outline is a line drawn outside an element's border to enhance visibility without affecting the element's dimensions. This lesson covers essential properties like style, color, and width, emphasizing that the outline-style property is required for any outline to be rendered."
-      },
-      {
-        "title": "CSS Text",
-        "fileName": "css_text.asp.md",
-        "url": "https://www.w3schools.com/css/css_text.asp.html",
-        "summary": "This lesson introduces essential CSS properties for styling and formatting text, with a primary focus on the color property. It explains how to define text and background colors using names, HEX, or RGB values while emphasizing the importance of high contrast for accessibility."
-      },
-      {
-        "title": "CSS Fonts",
-        "fileName": "css_font.asp.md",
-        "url": "https://www.w3schools.com/css/css_font.asp.html",
-        "summary": "This lesson explains the importance of typography in web design and introduces the CSS `font-family` property. It covers the implementation of fallback font systems and categorizes fonts into five distinct generic families to help developers create readable, brand-aligned interfaces."
-      },
-      {
-        "title": "CSS Icons",
-        "fileName": "css_icons.asp.md",
-        "url": "https://www.w3schools.com/css/css_icons.asp.html",
-        "summary": "This lesson explains how to integrate scalable Font Awesome icons into HTML pages using simple class names. By linking a library script in the document head, developers can easily add and customize vector icons with CSS without requiring local installation."
-      },
-      {
-        "title": "CSS Links",
-        "fileName": "css_link.asp.md",
-        "url": "https://www.w3schools.com/css/css_link.asp.html",
-        "summary": "This lesson explains how to style HTML links using various CSS properties like color, font, and background. It details how to apply unique styles based on link states—link, visited, hover, and active—while emphasizing the importance of specific order rules for these pseudo-classes."
-      },
-      {
-        "title": "CSS Lists",
-        "fileName": "css_list.asp.md",
-        "url": "https://www.w3schools.com/css/css_list.asp.html",
-        "summary": "This lesson covers essential CSS properties for styling ordered and unordered lists, including marker types, positioning, and image replacement. It also explains how to use the shorthand `list-style` property and apply custom colors, margins, and padding to enhance list presentation."
-      },
-      {
-        "title": "CSS Tables",
-        "fileName": "css_table.asp.md",
-        "url": "https://www.w3schools.com/css/css_table.asp.html",
-        "summary": "This lesson explains how to enhance HTML tables using CSS properties to manage borders, spacing, and layout. It covers techniques for styling borders, collapsing them into a single line, and adjusting cell padding and spacing to improve the visual presentation of tabular data."
-      },
-      {
-        "title": "CSS Display",
-        "fileName": "css_display.asp.md",
-        "url": "https://www.w3schools.com/css/css_display.asp.html",
-        "summary": "The CSS `display` property is a fundamental tool for controlling element layout by defining whether items behave as block or inline elements. It allows developers to override default browser behaviors to achieve specific designs, including advanced layouts like flexbox and grid."
-      },
-      {
-        "title": "CSS Max-width",
-        "fileName": "css_max-width.asp.md",
-        "url": "https://www.w3schools.com/css/css_max-width.asp.html",
-        "summary": "The CSS `max-width` property restricts an element's maximum width while allowing it to shrink, preventing layout issues on smaller screens. By replacing fixed widths with `max-width`, developers can create more responsive designs that maintain readability without requiring horizontal scrolling."
-      },
-      {
-        "title": "CSS Position",
-        "fileName": "css_position.asp.md",
-        "url": "https://www.w3schools.com/css/css_position.asp.html",
-        "summary": "The CSS `position` property allows developers to override the normal document flow to control element placement. By utilizing values like static, relative, fixed, absolute, and sticky, combined with directional properties, you can precisely position elements within a web page layout."
-      },
-      {
-        "title": "CSS Position Offsets",
-        "fileName": "css_position_offset.asp.md",
-        "url": "https://www.w3schools.com/css/css_position_offset.asp.html",
-        "summary": "This lesson explains how to use the top, right, bottom, and left properties to control the placement of elements. These offsets only function on elements with a defined position value, such as relative, absolute, fixed, or sticky, allowing for precise layout control."
-      },
-      {
-        "title": "CSS Z-index",
-        "fileName": "css_z-index.asp.md",
-        "url": "https://www.w3schools.com/css/css_z-index.asp.html",
-        "summary": "The CSS z-index property controls the vertical stacking order of positioned elements, determining which items appear in front or behind others. It only applies to positioned elements or flex items, with higher values placing elements on top. Without it, elements follow the HTML source order."
-      },
-      {
-        "title": "CSS Overflow",
-        "fileName": "css_overflow.asp.md",
-        "url": "https://www.w3schools.com/css/css_overflow.asp.html",
-        "summary": "The CSS overflow property manages how content is displayed when it exceeds the boundaries of an element's box. By utilizing values like visible, hidden, scroll, or auto, developers can effectively control layout presentation and handle content clipping or scrolling requirements."
-      },
-      {
-        "title": "CSS Float",
-        "fileName": "css_float.asp.md",
-        "url": "https://www.w3schools.com/css/css_float.asp.html",
-        "summary": "The CSS `float` property allows you to position elements to the left or right of their container, enabling text and inline content to wrap around them. By utilizing values like `left`, `right`, and `none`, developers can control layout flow and align multiple block elements side-by-side."
-      },
-      {
-        "title": "CSS Inline-block",
-        "fileName": "css_inline-block.asp.md",
-        "url": "https://www.w3schools.com/css/css_inline-block.asp.html",
-        "summary": "The `display: inline-block` property allows elements to sit side-by-side while supporting block-level styling like width, height, and vertical margins. This hybrid approach is a versatile tool for layout design, commonly used to create horizontal navigation menus from vertical list items."
-      },
-      {
-        "title": "CSS Align",
-        "fileName": "css_align.asp.md",
-        "url": "https://www.w3schools.com/css/css_align.asp.html",
-        "summary": "This lesson explores various CSS techniques for aligning elements, highlighting methods for both horizontal and vertical positioning. It covers traditional approaches like margins and text-align, while emphasizing Flexbox and Grid as the most efficient, modern solutions for centering content."
-      },
-      {
-        "title": "CSS Combinators",
-        "fileName": "css_combinators.asp.md",
-        "url": "https://www.w3schools.com/css/css_combinators.asp.html",
-        "summary": "CSS combinators define the relationship between selectors to create more precise styling rules. This lesson covers the four primary types: descendant (space), child (>), next sibling (+), and subsequent-sibling (~), which allow developers to target elements based on their document hierarchy."
-      },
-      {
-        "title": "CSS Pseudo-classes",
-        "fileName": "css_pseudo_classes.asp.md",
-        "url": "https://www.w3schools.com/css/css_pseudo_classes.asp.html",
-        "summary": "CSS pseudo-classes are keywords added to selectors to style elements based on specific states or document positions. They are categorized into interactive types, which respond to user actions like hovering or focusing, and structural types, which target elements based on their hierarchy."
-      },
-      {
-        "title": "CSS Pseudo-elements",
-        "fileName": "css_pseudo_elements.asp.md",
-        "url": "https://www.w3schools.com/css/css_pseudo_elements.asp.html",
-        "summary": "CSS pseudo-elements are keywords added to selectors to style specific parts of an element or insert generated content. Using the double-colon syntax, developers can precisely target text fragments, list markers, or interactive UI components. This feature enhances design flexibility beyond standard HTML."
-      },
-      {
-        "title": "CSS Opacity",
-        "fileName": "css_image_transparency.asp.md",
-        "url": "https://www.w3schools.com/css/css_image_transparency.asp.html",
-        "summary": "The CSS `opacity` property controls element transparency using values from 0.0 to 1.0, often combined with `:hover` for interactive effects. While `opacity` affects entire elements, using RGBA color values allows for background transparency without impacting the visibility of child content."
-      },
-      {
-        "title": "CSS Navigation Bars",
-        "fileName": "css_navbar.asp.md",
-        "url": "https://www.w3schools.com/css/css_navbar.asp.html",
-        "summary": "Navigation bars are essential web components that facilitate user movement across a site. They are typically constructed using HTML lists and styled with CSS to remove default browser formatting, providing a clean foundation for both vertical and horizontal layouts."
-      },
-      {
-        "title": "CSS Dropdowns",
-        "fileName": "css_dropdowns.asp.md",
-        "url": "https://www.w3schools.com/css/css_dropdowns.asp.html",
-        "summary": "This lesson explains how to create interactive dropdown components using CSS. By utilizing relative and absolute positioning combined with the hover selector, you can display hidden content or navigation menus when a user interacts with a trigger element."
-      },
-      {
-        "title": "CSS Image Gallery",
-        "fileName": "css_image_gallery.asp.md",
-        "url": "https://www.w3schools.com/css/css_image_gallery.asp.html",
-        "summary": "This lesson demonstrates how to build an organized image gallery using HTML and CSS Flexbox. It covers the structural requirements for image containers and explains how to implement responsive design using media queries to ensure the layout adapts seamlessly across different screen sizes."
-      },
-      {
-        "title": "CSS Image Sprites",
-        "fileName": "css_image_sprites.asp.md",
-        "url": "https://www.w3schools.com/css/css_image_sprites.asp.html",
-        "summary": "CSS image sprites combine multiple small images into a single file to reduce server requests and bandwidth usage. By using the `background-image` and `background-position` properties, developers can display specific portions of the sprite to create efficient UI elements and hover effects."
-      },
-      {
-        "title": "CSS Attribute Selectors",
-        "fileName": "css_attribute_selectors.asp.md",
-        "url": "https://www.w3schools.com/css/css_attribute_selectors.asp.html",
-        "summary": "CSS attribute selectors allow developers to target HTML elements based on the presence or specific values of their attributes. By using syntax enclosed in square brackets, you can precisely style elements through exact, partial, or prefix-based matching, with an option for case-insensitive results."
-      },
-      {
-        "title": "CSS Forms",
-        "fileName": "css_forms.asp.md",
-        "url": "https://www.w3schools.com/css/css_forms.asp.html",
-        "summary": "This lesson explores how to enhance the visual appeal of HTML forms using CSS. It covers styling techniques for various input fields, labels, and buttons by applying essential properties like padding, borders, and typography to create professional and user-friendly web interfaces."
-      },
-      {
-        "title": "CSS Counters",
-        "fileName": "css_counters.asp.md",
-        "url": "https://www.w3schools.com/css/css_counters.asp.html",
-        "summary": "CSS counters allow for dynamic element numbering using CSS variables instead of JavaScript. By utilizing properties like counter-reset, counter-increment, and the content property, developers can easily manage, increment, or decrement custom numbering sequences throughout a webpage."
-      },
-      {
-        "title": "CSS Units",
-        "fileName": "css_units.asp.md",
-        "url": "https://www.w3schools.com/css/css_units.asp.html",
-        "summary": "CSS units define the dimensions of elements and are categorized into absolute and relative types. While absolute units remain fixed, relative units scale dynamically, making them essential for creating responsive web designs that adapt to various screen sizes."
-      },
-      {
-        "title": "CSS Inheritance",
-        "fileName": "css_inheritance.asp.md",
-        "url": "https://www.w3schools.com/css/css_inheritance.asp.html",
-        "summary": "CSS inheritance determines how elements adopt styles when no specific value is defined. Properties are categorized as either inherited, which default to the parent's computed value, or non-inherited, which revert to their initial defaults. The `inherit` keyword allows for manual override."
-      },
-      {
-        "title": "CSS Specificity",
-        "fileName": "css_specificity.asp.md",
-        "url": "https://www.w3schools.com/css/css_specificity.asp.html",
-        "summary": "CSS specificity is an algorithm used by browsers to determine which style declaration takes precedence when multiple rules target the same element. By assigning weight to different selectors, the browser ensures that the most specific rule is applied to the HTML element."
-      },
-      {
-        "title": "CSS !important",
-        "fileName": "css_important.asp.md",
-        "url": "https://www.w3schools.com/css/css_important.asp.html",
-        "summary": "The `!important` rule grants a CSS property the highest priority, overriding all other styling rules. While it is a powerful tool for specific overrides or accessibility needs, it should be used sparingly to avoid complex, difficult-to-debug code."
-      },
-      {
-        "title": "CSS Math Functions",
-        "fileName": "css_math_functions.asp.md",
-        "url": "https://www.w3schools.com/css/css_math_functions.asp.html",
-        "summary": "This lesson introduces CSS math functions, which enable dynamic property values through mathematical expressions. It covers the use of `calc()` for arithmetic operations, `min()` and `max()` for value selection, and `clamp()` for responsive sizing between defined boundaries."
-      },
-      {
-        "title": "CSS Optimization",
-        "fileName": "css_performance.asp.md",
-        "url": "https://www.w3schools.com/css/css_performance.asp.html",
-        "summary": "CSS optimization improves website performance and user experience by reducing file size and browser rendering time. Key strategies include using simple selectors, leveraging shorthand properties, minifying code, and utilizing efficient animation techniques to minimize layout recalculations."
-      },
-      {
-        "title": "CSS Accessibility",
-        "fileName": "css_accessibility.asp.md",
-        "url": "https://www.w3schools.com/css/css_accessibility.asp.html",
-        "summary": "This lesson explores essential CSS techniques to enhance web accessibility, focusing on visual clarity and inclusive navigation. It covers implementing high color contrast, readable typography, visible focus indicators, and semantic structure. Additionally, it highlights respecting user preferences."
-      },
-      {
-        "title": "CSS Website Layout",
-        "fileName": "css_website_layout.asp.md",
-        "url": "https://www.w3schools.com/css/css_website_layout.asp.html",
-        "summary": "This lesson introduces the foundational structure of a website, covering the styling of headers, navigation bars, and footers. It further explains how to implement responsive multi-column layouts using CSS Flexbox and media queries to ensure content adapts to different screen sizes."
-      }
-    ]
-  },
-  {
-    "topic": "CSS Advanced",
-    "lessons": [
-      {
-        "title": "CSS Rounded Corners",
-        "fileName": "css3_borders.asp.md",
-        "url": "https://www.w3schools.com/css/css3_borders.asp.html",
-        "summary": "This lesson introduces the CSS `border-radius` property, which is used to create rounded corners for elements with backgrounds, borders, or images. It explains how to control individual corners, create elliptical shapes using slash notation, and achieve circular designs with percentage values."
-      },
-      {
-        "title": "CSS Border Images",
-        "fileName": "css3_border_images.asp.md",
-        "url": "https://www.w3schools.com/css/css3_border_images.asp.html",
-        "summary": "The CSS `border-image` property allows developers to replace standard borders with custom images by slicing them into nine sections. This shorthand property controls how images are sourced, sliced, repeated, or stretched, provided a base border is defined for the element."
-      },
-      {
-        "title": "CSS Backgrounds",
-        "fileName": "css3_backgrounds.asp.md",
-        "url": "https://www.w3schools.com/css/css3_backgrounds.asp.html",
-        "summary": "This lesson explains how to apply multiple background images to a single CSS element by stacking them using comma-separated values. It also introduces advanced properties like background-clip, origin, and size, demonstrating how to use the shorthand property for efficient styling."
-      },
-      {
-        "title": "CSS Colors",
-        "fileName": "css3_colors.asp.md",
-        "url": "https://www.w3schools.com/css/css3_colors.asp.html",
-        "summary": "This lesson explores various CSS color formats, including color names, HEX, RGB, and HSL values. It specifically highlights how to manage transparency using RGBA and HSLA extensions, while distinguishing these methods from the general CSS opacity property that affects an entire element's visibility."
-      },
-      {
-        "title": "CSS Gradients",
-        "fileName": "css3_gradients.asp.md",
-        "url": "https://www.w3schools.com/css/css3_gradients.asp.html",
-        "summary": "CSS gradients allow for smooth color transitions within elements using the background-image property. This lesson covers the three primary types—linear, radial, and conic—with a focus on customizing linear gradients through directions, specific angles, multiple color stops, and transparency."
-      },
-      {
-        "title": "CSS Shadows",
-        "fileName": "css3_shadows.asp.md",
-        "url": "https://www.w3schools.com/css/css3_shadows.asp.html",
-        "summary": "This lesson explores the `text-shadow` property, demonstrating how to apply horizontal and vertical offsets, blur effects, and colors to text. It also covers advanced techniques, including creating neon glows, layering multiple shadows, and using the property to simulate text borders."
-      },
-      {
-        "title": "CSS Text Effects",
-        "fileName": "css3_text_effects.asp.md",
-        "url": "https://www.w3schools.com/css/css3_text_effects.asp.html",
-        "summary": "This lesson explores essential CSS properties for managing text layout and overflow. You will learn how to control line breaking, word wrapping, and text orientation to ensure content displays correctly across different containers."
-      },
-      {
-        "title": "CSS Custom Fonts",
-        "fileName": "css3_fonts.asp.md",
-        "url": "https://www.w3schools.com/css/css3_fonts.asp.html",
-        "summary": "The CSS `@font-face` rule enables developers to load custom fonts directly from a web server, ensuring consistent typography across all browsers. By defining font families and source URLs, you can integrate various font styles and weights while utilizing optimized formats like WOFF/WOFF2."
-      },
-      {
-        "title": "CSS 2D Transforms",
-        "fileName": "css3_2dtransforms.asp.md",
-        "url": "https://www.w3schools.com/css/css3_2dtransforms.asp.html",
-        "summary": "This lesson introduces the CSS transform property, which enables the manipulation of elements through rotation, scaling, translation, and skewing. It details various 2D transformation functions and properties, providing the necessary tools to modify an element's position and appearance."
-      },
-      {
-        "title": "CSS 3D Transforms",
-        "fileName": "css3_3dtransforms.asp.md",
-        "url": "https://www.w3schools.com/css/css3_3dtransforms.asp.html",
-        "summary": "This lesson introduces CSS 3D transforms, explaining how to manipulate elements in three-dimensional space using rotation, translation, and scaling functions. It covers key properties like perspective and backface-visibility, providing the essential tools for creating dynamic 3D web effects."
-      },
-      {
-        "title": "CSS Transitions",
-        "fileName": "css3_transitions.asp.md",
-        "url": "https://www.w3schools.com/css/css3_transitions.asp.html",
-        "summary": "CSS transitions enable smooth changes to element properties over a specified duration. By using the shorthand transition property or its individual components, developers can control timing, delays, and speed curves, typically triggering these effects through pseudo-classes like :hover."
-      },
-      {
-        "title": "CSS Animations",
-        "fileName": "css3_animations.asp.md",
-        "url": "https://www.w3schools.com/css/css3_animations.asp.html",
-        "summary": "CSS animations enable smooth style transitions for HTML elements without requiring JavaScript. By using the @keyframes rule, developers define specific style changes at various time intervals, which are then bound to elements using the animation-name and animation-duration properties."
-      },
-      {
-        "title": "CSS Tooltips",
-        "fileName": "css_tooltip.asp.md",
-        "url": "https://www.w3schools.com/css/css_tooltip.asp.html",
-        "summary": "This lesson explains how to create interactive CSS tooltips that display extra information when a user hovers over an element. It covers the essential HTML structure, positioning techniques for all four sides, and how to implement smooth fade-in effects using CSS transitions."
-      },
-      {
-        "title": "CSS Image Styling",
-        "fileName": "css3_images.asp.md",
-        "url": "https://www.w3schools.com/css/css3_images.asp.html",
-        "summary": "This lesson covers essential CSS techniques for styling images, including creating rounded corners, thumbnails, and polaroid-style cards. It also explores responsive design principles, demonstrating how to use properties and media queries to ensure images scale appropriately across different devices."
-      },
-      {
-        "title": "CSS Image Modal",
-        "fileName": "css3_images_modal.asp.md",
-        "url": "https://www.w3schools.com/css/css3_images_modal.asp.html",
-        "summary": "This lesson demonstrates how to create a responsive image gallery using HTML, CSS, and JavaScript. It explains how to display larger versions of images in a modal popup window that appears over the main content, providing a seamless user experience without navigating away from the page."
-      },
-      {
-        "title": "CSS Image Centering",
-        "fileName": "css3_image_center.asp.md",
-        "url": "https://www.w3schools.com/css/css3_image_center.asp.html",
-        "summary": "This lesson explores various CSS techniques for centering images horizontally and vertically. It demonstrates how to achieve alignment using `margin: auto`, `display: flex`, and `display: grid`, providing practical code examples for both simple horizontal positioning and full container centering."
-      },
-      {
-        "title": "CSS Image Filters",
-        "fileName": "css3_image_filters.asp.md",
-        "url": "https://www.w3schools.com/css/css3_image_filters.asp.html",
-        "summary": "This lesson introduces the CSS `filter` property, which allows developers to apply various visual effects to elements. It covers essential functions like blur, brightness, contrast, and color adjustments, providing practical examples for manipulating images directly through CSS code."
-      },
-      {
-        "title": "CSS Image Shapes",
-        "fileName": "css3_image_shapes.asp.md",
-        "url": "https://www.w3schools.com/css/css3_image_shapes.asp.html",
-        "summary": "This lesson explores how to use the CSS `clip-path` and `shape-outside` properties to manipulate image geometry. By utilizing functions like `circle()`, `ellipse()`, and `polygon()`, developers can create custom image shapes and control how surrounding text wraps around them."
-      },
-      {
-        "title": "CSS object-fit",
-        "fileName": "css3_object-fit.asp.md",
-        "url": "https://www.w3schools.com/css/css3_object-fit.asp.html",
-        "summary": "The CSS `object-fit` property controls how images or videos are resized to fit their containers. By utilizing values like `cover`, `contain`, and `fill`, developers can effectively manage aspect ratios and content display, ensuring media scales appropriately within defined layout dimensions."
-      },
-      {
-        "title": "CSS object-position",
-        "fileName": "css3_object-position.asp.md",
-        "url": "https://www.w3schools.com/css/css3_object-position.asp.html",
-        "summary": "The CSS `object-position` property allows you to precisely align images or videos within their containers by defining x and y coordinates. Used alongside `object-fit`, it enables developers to control which part of the media is displayed, supporting keywords, percentages, and pixel values."
-      },
-      {
-        "title": "CSS Masking",
-        "fileName": "css3_masking.asp.md",
-        "url": "https://www.w3schools.com/css/css3_masking.asp.html",
-        "summary": "CSS masking allows you to partially or fully hide elements by applying a mask layer using images, gradients, or SVG elements. Through properties like mask-image, mask-repeat, and mask-position, developers can precisely control how these layers shape and display underlying content."
-      },
-      {
-        "title": "CSS Buttons",
-        "fileName": "css3_buttons.asp.md",
-        "url": "https://www.w3schools.com/css/css3_buttons.asp.html",
-        "summary": "This lesson explains how to customize HTML buttons using essential CSS properties such as background-color, padding, border-radius, and font-size. It demonstrates how to apply these styles to create buttons with varying sizes, shapes, colors, and border styles for improved web design."
-      },
-      {
-        "title": "CSS Pagination",
-        "fileName": "css3_pagination.asp.md",
-        "url": "https://www.w3schools.com/css/css3_pagination.asp.html",
-        "summary": "This lesson explains how to build responsive pagination using CSS flexbox and unordered lists. It covers essential styling techniques, including how to implement active states for current pages and disabled states for navigation controls to improve user experience."
-      },
-      {
-        "title": "CSS Multiple Columns",
-        "fileName": "css3_multiple_columns.asp.md",
-        "url": "https://www.w3schools.com/css/css3_multiple_columns.asp.html",
-        "summary": "The CSS Multi-column Layout module enables developers to organize content into newspaper-style columns easily. This lesson introduces essential properties like column-count, column-gap, and column-rule to control layout structure, spacing, and visual styling between columns."
-      },
-      {
-        "title": "CSS User Interface",
-        "fileName": "css3_user_interface.asp.md",
-        "url": "https://www.w3schools.com/css/css3_user_interface.asp.html",
-        "summary": "This lesson covers essential CSS user interface properties for enhancing element interactivity. It explains how to use the resize property to control user-driven dimension adjustments and the outline-offset property to create transparent spacing between an element's border and its outline."
-      },
-      {
-        "title": "CSS Variables",
-        "fileName": "css3_variables.asp.md",
-        "url": "https://www.w3schools.com/css/css3_variables.asp.html",
-        "summary": "CSS variables improve code maintainability and readability by allowing developers to store and reuse values globally or locally. By using the var() function, you can efficiently manage design properties like colors, enabling quick, centralized updates across your entire stylesheet."
-      },
-      {
-        "title": "CSS @property",
-        "fileName": "css3_property.asp.md",
-        "url": "https://www.w3schools.com/css/css3_property.asp.html",
-        "summary": "The CSS @property rule allows developers to define custom properties directly in stylesheets with strict data type validation, default values, and inheritance control. This feature enhances CSS capabilities by enabling advanced functionality, such as animating gradients that were previously impossible."
-      },
-      {
-        "title": "CSS Box Sizing",
-        "fileName": "css3_box-sizing.asp.md",
-        "url": "https://www.w3schools.com/css/css3_box-sizing.asp.html",
-        "summary": "The CSS `box-sizing` property determines whether padding and borders are included in an element's total dimensions. By using `box-sizing: border-box;`, developers can ensure elements maintain their specified size, making layout calculations more intuitive and consistent across all elements."
-      },
-      {
-        "title": "CSS Media Queries",
-        "fileName": "css3_mediaqueries.asp.md",
-        "url": "https://www.w3schools.com/css/css3_mediaqueries.asp.html",
-        "summary": "CSS media queries are essential tools for building responsive web designs by applying styles based on device characteristics. By using the @media rule with specific media types and features, developers can tailor layouts to various screen sizes, resolutions, and user preferences."
-      }
-    ]
-  },
-  {
-    "topic": "CSS Flexbox",
-    "lessons": [
-      {
-        "title": "Flexbox Intro",
-        "fileName": "css3_flexbox.asp.md",
-        "url": "https://www.w3schools.com/css/css3_flexbox.asp.html",
-        "summary": "CSS Flexbox is a powerful layout model designed for creating flexible, responsive one-dimensional arrangements of items. It simplifies web design by organizing elements into rows or columns within a parent container, serving as a modern alternative to traditional float and positioning methods."
-      },
-      {
-        "title": "Flex Container",
-        "fileName": "css3_flexbox_container.asp.md",
-        "url": "https://www.w3schools.com/css/css3_flexbox_container.asp.html",
-        "summary": "This lesson introduces the CSS Flexbox layout model, focusing on essential container properties like display, direction, and wrapping. It explains how to control the arrangement and alignment of flex items using key properties such as flex-flow, justify-content, and various alignment tools."
-      },
-      {
-        "title": "Flex Items",
-        "fileName": "css3_flexbox_items.asp.md",
-        "url": "https://www.w3schools.com/css/css3_flexbox_items.asp.html",
-        "summary": "This lesson explores CSS properties used to control individual flex items within a container. It covers essential tools like order, growth, shrinkage, basis, and alignment, which allow developers to precisely manage the layout and behavior of elements in a flexible design."
-      },
-      {
-        "title": "Flex Responsive",
-        "fileName": "css3_flexbox_responsive.asp.md",
-        "url": "https://www.w3schools.com/css/css3_flexbox_responsive.asp.html",
-        "summary": "This lesson demonstrates how to build responsive layouts using CSS Flexbox combined with media queries. It covers techniques such as adjusting flex-direction or modifying flex item properties at specific breakpoints to ensure content adapts seamlessly across different screen sizes."
-      }
-    ]
-  },
-  {
-    "topic": "CSS Grid",
-    "lessons": [
-      {
-        "title": "Grid Intro",
-        "fileName": "css_grid.asp.md",
-        "url": "https://www.w3schools.com/css/css_grid.asp.html",
-        "summary": "The CSS Grid Layout module provides a powerful two-dimensional system for creating responsive web structures using rows and columns. This lesson introduces grid containers and items, highlighting their efficiency over traditional positioning methods and providing an overview of essential properties."
-      },
-      {
-        "title": "Grid Container",
-        "fileName": "css_grid_container.asp.md",
-        "url": "https://www.w3schools.com/css/css_grid_container.asp.html",
-        "summary": "A CSS grid container is established by setting the display property to grid or inline-grid, which automatically turns all direct child elements into grid items. This lesson provides an overview of essential container properties used to define layout structures, item alignment, and spacing."
-      },
-      {
-        "title": "Grid Items",
-        "fileName": "css_grid_item.asp.md",
-        "url": "https://www.w3schools.com/css/css_grid_item.asp.html",
-        "summary": "This lesson explains how direct children of a grid container become grid items. It covers using line numbers and shorthand properties to control the placement and spanning of items across rows and columns, while also introducing alignment properties for precise item positioning."
-      },
-      {
-        "title": "Grid 12-column Layout",
-        "fileName": "css_grid_12column.asp.md",
-        "url": "https://www.w3schools.com/css/css_grid_12column.asp.html",
-        "summary": "The 12-column grid is a flexible, efficient system for creating responsive web layouts by dividing space into equal fractional units. This lesson explains how to implement the grid using CSS properties like `grid-template-columns` and media queries to ensure consistent cross-device design."
-      },
-      {
-        "title": "CSS @supports",
-        "fileName": "css_supports_rule.asp.md",
-        "url": "https://www.w3schools.com/css/css_supports_rule.asp.html",
-        "summary": "The CSS @supports rule allows developers to check for browser compatibility with specific properties and values. By using this feature, you can implement progressive enhancement by defining fallback styles for older browsers while applying advanced layouts only when supported."
-      }
-    ]
-  },
-  {
-    "topic": "CSS Responsive",
-    "lessons": [
-      {
-        "title": "RWD Intro",
-        "fileName": "css_rwd_intro.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_intro.asp.html",
-        "summary": "Responsive web design ensures websites provide an optimal viewing experience across all devices by automatically adjusting layouts to fit various screen sizes. By utilizing the viewport meta tag, flexible grids, and media queries, developers create accessible, user-friendly web interfaces."
-      },
-      {
-        "title": "RWD Viewport",
-        "fileName": "css_rwd_viewport.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_viewport.asp.html",
-        "summary": "The viewport meta tag is essential for responsive design, as it instructs browsers to scale web pages correctly across different device widths. To ensure a positive user experience, developers should avoid fixed-width elements and use relative CSS values to prevent horizontal scrolling."
-      },
-      {
-        "title": "RWD Grid View",
-        "fileName": "css_rwd_grid.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_grid.asp.html",
-        "summary": "This lesson introduces the concept of a responsive grid-view, which organizes web pages into flexible rows and columns. It demonstrates how to implement a basic grid layout using CSS Grid and the box-sizing property to ensure consistent element sizing across different screen sizes."
-      },
-      {
-        "title": "RWD Media Queries",
-        "fileName": "css_rwd_mediaqueries.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_mediaqueries.asp.html",
-        "summary": "This lesson introduces CSS media queries as a fundamental tool for creating responsive web designs. It demonstrates how to implement breakpoints, adjust layouts, and modify styles based on device characteristics, screen orientation, and user accessibility preferences."
-      },
-      {
-        "title": "RWD Images",
-        "fileName": "css_rwd_images.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_images.asp.html",
-        "summary": "This lesson explores techniques for creating responsive images, including CSS properties like max-width for scaling and background-size for layout control. It also covers optimizing performance through media queries and the HTML <picture> element to serve appropriate images based on device size."
-      },
-      {
-        "title": "RWD Videos",
-        "fileName": "css_rwd_videos.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_videos.asp.html",
-        "summary": "This lesson explains how to create responsive video players using CSS. It demonstrates that while setting the width to 100% allows scaling, using the max-width property is often superior as it prevents videos from scaling beyond their original dimensions."
-      },
-      {
-        "title": "RWD Frameworks",
-        "fileName": "css_rwd_frameworks.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_frameworks.asp.html",
-        "summary": "This lesson introduces CSS frameworks as an efficient way to implement responsive web design. It highlights W3.CSS and Bootstrap as popular tools that simplify the development of layouts that adapt seamlessly to various screen sizes."
-      },
-      {
-        "title": "RWD Templates",
-        "fileName": "css_rwd_templates.asp.md",
-        "url": "https://www.w3schools.com/css/css_rwd_templates.asp.html",
-        "summary": "This lesson provides a comprehensive collection of responsive website templates built with the W3.CSS framework. Users are free to modify, share, and utilize these designs for their own projects, with options to host them directly via W3Schools Spaces."
-      }
-    ]
-  },
-  {
-    "topic": "CSS Examples",
-    "lessons": [
-      {
-        "title": "CSS Templates",
-        "fileName": "css_templates.asp.md",
-        "url": "https://www.w3schools.com/css/css_templates.asp.html",
-        "summary": "This lesson provides a collection of responsive CSS starter templates featuring common layouts like headers, footers, and navigation bars. Students can explore and adapt these designs using float, flexbox, or grid techniques to build their own web projects efficiently."
-      },
-      {
-        "title": "CSS Editor",
-        "fileName": "css_editor.asp.md",
-        "url": "https://www.w3schools.com/css/css_editor.asp.html",
-        "summary": "This lesson introduces an online CSS editor that allows users to write, edit, and preview HTML, CSS, and JavaScript code directly in their browser. It also highlights W3Schools Spaces for publishing websites and recommends the comprehensive CSS tutorial for those looking to build foundational skills."
-      },
-      {
-        "title": "CSS Snippets",
-        "fileName": "css_snippets.asp.md",
-        "url": "https://www.w3schools.com/css/css_snippets.asp.html",
-        "summary": "This lesson provides a curated collection of practical CSS snippets designed to help developers implement common web features. It offers ready-to-use code examples for elements like navigation bars, loaders, and interactive buttons, serving as a quick reference for enhancing project designs."
-      },
-      {
-        "title": "CSS Code Challenges",
-        "fileName": "css_challenges.asp.md",
-        "url": "https://www.w3schools.com/css/css_challenges.asp.html",
-        "summary": "This lesson offers interactive CSS code challenges designed to help learners practice and refine their styling skills through hands-on exercises. By completing these tasks, students can strengthen their technical proficiency and work toward earning a professional certification for their portfolio."
-      },
-      {
-        "title": "CSS Website",
-        "fileName": "css_website.asp.md",
-        "url": "https://www.w3schools.com/css/css_website.asp.html",
-        "summary": "W3Schools Spaces provides a cloud-based platform for building, hosting, and managing websites directly in your browser. It features a powerful code editor, AI-assisted tutoring, and various templates to support both frontend and full-stack development projects."
-      },
-      {
-        "title": "CSS Syllabus",
-        "fileName": "css_syllabus.asp.md",
-        "url": "https://www.w3schools.com/css/css_syllabus.asp.html",
-        "summary": "This beginner-friendly CSS syllabus provides a comprehensive, step-by-step guide to web styling, covering everything from basic syntax to responsive design. Through interactive lessons, hands-on sandbox environments, and certification options, learners gain the skills needed for modern web development."
-      },
-      {
-        "title": "CSS Study Plan",
-        "fileName": "css_study_plan.asp.md",
-        "url": "https://www.w3schools.com/css/css_study_plan.asp.html",
-        "summary": "The W3Schools Academy offers a flexible, customizable CSS study plan designed to streamline classroom management and instruction. Teachers can utilize interactive tutorials, progress tracking, and auto-graded assessments to create personalized learning paths that accommodate various student skill levels."
-      },
-      {
-        "title": "CSS Interview Prep",
-        "fileName": "css_interview_prep.asp.md",
-        "url": "https://www.w3schools.com/css/css_interview_prep.asp.html",
-        "summary": "This guide provides essential strategies for Front-End interview success, covering technical coding tasks, portfolio development, and company research. It also introduces an AI-powered interactive tool designed to help candidates practice interview scenarios and receive performance feedback."
-      },
-      {
-        "title": "CSS Bootcamp",
-        "fileName": "css_bootcamp.asp.md",
-        "url": "https://www.w3schools.com/css/css_bootcamp.asp.html",
-        "summary": "This three-week live online bootcamp provides comprehensive training in HTML and CSS fundamentals, covering everything from semantic structure to responsive design. Through instructor-led sessions and collaborative projects, students gain practical skills and earn professional certifications."
-      }
-    ]
-  }
+	{
+		"topic": "CSS Tutorial",
+		"lessons": [
+			{
+				"title": "CSS HOME",
+				"fileName": "default.asp.md",
+				"url": "https://www.w3schools.com/css/default.asp.html",
+				"summary": "This comprehensive CSS tutorial provides a structured path for learning web styling, ranging from basic concepts to advanced techniques. It features over 700 interactive examples, practical exercises, and detailed references to help learners master CSS and earn professional certification."
+			},
+			{
+				"title": "CSS Introduction",
+				"fileName": "css_intro.asp.md",
+				"url": "https://www.w3schools.com/css/css_intro.asp.html",
+				"summary": "CSS (Cascading Style Sheets) is a powerful language used to define the design, layout, and visual presentation of web pages across various devices. By utilizing external stylesheets, developers can efficiently manage and update the appearance of an entire website through a single file."
+			},
+			{
+				"title": "CSS Syntax",
+				"fileName": "css_syntax.asp.md",
+				"url": "https://www.w3schools.com/css/css_syntax.asp.html",
+				"summary": "CSS syntax is composed of a selector that targets HTML elements and a declaration block containing property-value pairs. Declarations are separated by semicolons and enclosed in curly braces, providing a structured way to apply styles to web content."
+			},
+			{
+				"title": "CSS Selectors",
+				"fileName": "css_selectors.asp.md",
+				"url": "https://www.w3schools.com/css/css_selectors.asp.html",
+				"summary": "CSS selectors are essential tools used to target HTML elements for styling. This lesson introduces the five primary categories of selectors, focusing specifically on the fundamental element, id, and class selectors used to apply styles to web content."
+			},
+			{
+				"title": "CSS How To",
+				"fileName": "css_howto.asp.md",
+				"url": "https://www.w3schools.com/css/css_howto.asp.html",
+				"summary": "This lesson explains the three primary methods for integrating CSS into HTML documents: external style sheets, internal styles, and inline attributes. It emphasizes the efficiency of using external files to manage website design and provides syntax guidelines for proper CSS implementation."
+			},
+			{
+				"title": "CSS Comments",
+				"fileName": "css_comments.asp.md",
+				"url": "https://www.w3schools.com/css/css_comments.asp.html",
+				"summary": "CSS comments are defined by the `/*` and `*/` syntax and are ignored by browsers, making them ideal for documenting code or temporarily disabling specific styles. They can be placed anywhere within a stylesheet, including inline or across multiple lines, to improve readability and maintenance."
+			},
+			{
+				"title": "CSS Errors",
+				"fileName": "css_errors.asp.md",
+				"url": "https://www.w3schools.com/css/css_errors.asp.html",
+				"summary": "This lesson identifies common CSS syntax errors, such as missing semicolons, invalid property names, incorrect values, and unclosed braces, which prevent styles from rendering correctly. It recommends using code editors, linters, and frequent testing to maintain clean, functional stylesheets."
+			},
+			{
+				"title": "CSS Colors",
+				"fileName": "css_colors.asp.md",
+				"url": "https://www.w3schools.com/css/css_colors.asp.html",
+				"summary": "This lesson introduces CSS color implementation, covering the use of predefined color names and various numerical formats like RGB, HEX, and HSL. It demonstrates how to apply these values to style element backgrounds, text, and borders, including the use of alpha channels for transparency."
+			},
+			{
+				"title": "CSS Backgrounds",
+				"fileName": "css_background.asp.md",
+				"url": "https://www.w3schools.com/css/css_background.asp.html",
+				"summary": "This lesson explores essential CSS background properties, including color, image, and positioning, to enhance element styling. It also covers techniques for managing transparency, specifically comparing the `opacity` property with the more precise RGBA color model for background effects."
+			},
+			{
+				"title": "CSS Borders",
+				"fileName": "css_border.asp.md",
+				"url": "https://www.w3schools.com/css/css_border.asp.html",
+				"summary": "This lesson introduces CSS border properties, which allow developers to customize the style, width, and color of an element's edges. It emphasizes that the `border-style` property is essential, as other border settings will not function without a defined style value."
+			},
+			{
+				"title": "CSS Margins",
+				"fileName": "css_margin.asp.md",
+				"url": "https://www.w3schools.com/css/css_margin.asp.html",
+				"summary": "This lesson explains how CSS margins create space around elements outside their borders. It covers individual side properties, the flexible shorthand syntax, and the use of values like auto and inherit for precise layout control."
+			},
+			{
+				"title": "CSS Padding",
+				"fileName": "css_padding.asp.md",
+				"url": "https://www.w3schools.com/css/css_padding.asp.html",
+				"summary": "CSS padding properties create space around an element's content, inside its borders. You can define padding for individual sides or use the shorthand property to set all sides efficiently with various length or percentage values."
+			},
+			{
+				"title": "CSS Height / Width",
+				"fileName": "css_height_width.asp.md",
+				"url": "https://www.w3schools.com/css/css_height_width.asp.html",
+				"summary": "The CSS height and width properties define the dimensions of an element's content area, excluding padding, borders, and margins. These properties accept various values, including auto, specific lengths, percentages, and inheritance, allowing for flexible and responsive web layouts."
+			},
+			{
+				"title": "CSS Box Model",
+				"fileName": "css_boxmodel.asp.md",
+				"url": "https://www.w3schools.com/css/css_boxmodel.asp.html",
+				"summary": "The CSS box model defines every HTML element as a rectangular box consisting of content, padding, borders, and margins. Understanding this structure is essential for layout design, as calculating an element's total dimensions requires adding its content size to the padding and border values."
+			},
+			{
+				"title": "CSS Outline",
+				"fileName": "css_outline.asp.md",
+				"url": "https://www.w3schools.com/css/css_outline.asp.html",
+				"summary": "A CSS outline is a line drawn outside an element's border to enhance visibility without affecting the element's dimensions. This lesson covers essential properties like style, color, and width, emphasizing that the outline-style property is required for any outline to be rendered."
+			},
+			{
+				"title": "CSS Text",
+				"fileName": "css_text.asp.md",
+				"url": "https://www.w3schools.com/css/css_text.asp.html",
+				"summary": "This lesson introduces essential CSS properties for styling and formatting text, with a primary focus on the color property. It explains how to define text and background colors using names, HEX, or RGB values while emphasizing the importance of high contrast for accessibility."
+			},
+			{
+				"title": "CSS Fonts",
+				"fileName": "css_font.asp.md",
+				"url": "https://www.w3schools.com/css/css_font.asp.html",
+				"summary": "This lesson explains the importance of typography in web design and introduces the CSS `font-family` property. It covers the implementation of fallback font systems and categorizes fonts into five distinct generic families to help developers create readable, brand-aligned interfaces."
+			},
+			{
+				"title": "CSS Icons",
+				"fileName": "css_icons.asp.md",
+				"url": "https://www.w3schools.com/css/css_icons.asp.html",
+				"summary": "This lesson explains how to integrate scalable Font Awesome icons into HTML pages using simple class names. By linking a library script in the document head, developers can easily add and customize vector icons with CSS without requiring local installation."
+			},
+			{
+				"title": "CSS Links",
+				"fileName": "css_link.asp.md",
+				"url": "https://www.w3schools.com/css/css_link.asp.html",
+				"summary": "This lesson explains how to style HTML links using various CSS properties like color, font, and background. It details how to apply unique styles based on link states—link, visited, hover, and active—while emphasizing the importance of specific order rules for these pseudo-classes."
+			},
+			{
+				"title": "CSS Lists",
+				"fileName": "css_list.asp.md",
+				"url": "https://www.w3schools.com/css/css_list.asp.html",
+				"summary": "This lesson covers essential CSS properties for styling ordered and unordered lists, including marker types, positioning, and image replacement. It also explains how to use the shorthand `list-style` property and apply custom colors, margins, and padding to enhance list presentation."
+			},
+			{
+				"title": "CSS Tables",
+				"fileName": "css_table.asp.md",
+				"url": "https://www.w3schools.com/css/css_table.asp.html",
+				"summary": "This lesson explains how to enhance HTML tables using CSS properties to manage borders, spacing, and layout. It covers techniques for styling borders, collapsing them into a single line, and adjusting cell padding and spacing to improve the visual presentation of tabular data."
+			},
+			{
+				"title": "CSS Display",
+				"fileName": "css_display.asp.md",
+				"url": "https://www.w3schools.com/css/css_display.asp.html",
+				"summary": "The CSS `display` property is a fundamental tool for controlling element layout by defining whether items behave as block or inline elements. It allows developers to override default browser behaviors to achieve specific designs, including advanced layouts like flexbox and grid."
+			},
+			{
+				"title": "CSS Max-width",
+				"fileName": "css_max-width.asp.md",
+				"url": "https://www.w3schools.com/css/css_max-width.asp.html",
+				"summary": "The CSS `max-width` property restricts an element's maximum width while allowing it to shrink, preventing layout issues on smaller screens. By replacing fixed widths with `max-width`, developers can create more responsive designs that maintain readability without requiring horizontal scrolling."
+			},
+			{
+				"title": "CSS Position",
+				"fileName": "css_position.asp.md",
+				"url": "https://www.w3schools.com/css/css_position.asp.html",
+				"summary": "The CSS `position` property allows developers to override the normal document flow to control element placement. By utilizing values like static, relative, fixed, absolute, and sticky, combined with directional properties, you can precisely position elements within a web page layout."
+			},
+			{
+				"title": "CSS Position Offsets",
+				"fileName": "css_position_offset.asp.md",
+				"url": "https://www.w3schools.com/css/css_position_offset.asp.html",
+				"summary": "This lesson explains how to use the top, right, bottom, and left properties to control the placement of elements. These offsets only function on elements with a defined position value, such as relative, absolute, fixed, or sticky, allowing for precise layout control."
+			},
+			{
+				"title": "CSS Z-index",
+				"fileName": "css_z-index.asp.md",
+				"url": "https://www.w3schools.com/css/css_z-index.asp.html",
+				"summary": "The CSS z-index property controls the vertical stacking order of positioned elements, determining which items appear in front or behind others. It only applies to positioned elements or flex items, with higher values placing elements on top. Without it, elements follow the HTML source order."
+			},
+			{
+				"title": "CSS Overflow",
+				"fileName": "css_overflow.asp.md",
+				"url": "https://www.w3schools.com/css/css_overflow.asp.html",
+				"summary": "The CSS overflow property manages how content is displayed when it exceeds the boundaries of an element's box. By utilizing values like visible, hidden, scroll, or auto, developers can effectively control layout presentation and handle content clipping or scrolling requirements."
+			},
+			{
+				"title": "CSS Float",
+				"fileName": "css_float.asp.md",
+				"url": "https://www.w3schools.com/css/css_float.asp.html",
+				"summary": "The CSS `float` property allows you to position elements to the left or right of their container, enabling text and inline content to wrap around them. By utilizing values like `left`, `right`, and `none`, developers can control layout flow and align multiple block elements side-by-side."
+			},
+			{
+				"title": "CSS Inline-block",
+				"fileName": "css_inline-block.asp.md",
+				"url": "https://www.w3schools.com/css/css_inline-block.asp.html",
+				"summary": "The `display: inline-block` property allows elements to sit side-by-side while supporting block-level styling like width, height, and vertical margins. This hybrid approach is a versatile tool for layout design, commonly used to create horizontal navigation menus from vertical list items."
+			},
+			{
+				"title": "CSS Align",
+				"fileName": "css_align.asp.md",
+				"url": "https://www.w3schools.com/css/css_align.asp.html",
+				"summary": "This lesson explores various CSS techniques for aligning elements, highlighting methods for both horizontal and vertical positioning. It covers traditional approaches like margins and text-align, while emphasizing Flexbox and Grid as the most efficient, modern solutions for centering content."
+			},
+			{
+				"title": "CSS Combinators",
+				"fileName": "css_combinators.asp.md",
+				"url": "https://www.w3schools.com/css/css_combinators.asp.html",
+				"summary": "CSS combinators define the relationship between selectors to create more precise styling rules. This lesson covers the four primary types: descendant (space), child (>), next sibling (+), and subsequent-sibling (~), which allow developers to target elements based on their document hierarchy."
+			},
+			{
+				"title": "CSS Pseudo-classes",
+				"fileName": "css_pseudo_classes.asp.md",
+				"url": "https://www.w3schools.com/css/css_pseudo_classes.asp.html",
+				"summary": "CSS pseudo-classes are keywords added to selectors to style elements based on specific states or document positions. They are categorized into interactive types, which respond to user actions like hovering or focusing, and structural types, which target elements based on their hierarchy."
+			},
+			{
+				"title": "CSS Pseudo-elements",
+				"fileName": "css_pseudo_elements.asp.md",
+				"url": "https://www.w3schools.com/css/css_pseudo_elements.asp.html",
+				"summary": "CSS pseudo-elements are keywords added to selectors to style specific parts of an element or insert generated content. Using the double-colon syntax, developers can precisely target text fragments, list markers, or interactive UI components. This feature enhances design flexibility beyond standard HTML."
+			},
+			{
+				"title": "CSS Opacity",
+				"fileName": "css_image_transparency.asp.md",
+				"url": "https://www.w3schools.com/css/css_image_transparency.asp.html",
+				"summary": "The CSS `opacity` property controls element transparency using values from 0.0 to 1.0, often combined with `:hover` for interactive effects. While `opacity` affects entire elements, using RGBA color values allows for background transparency without impacting the visibility of child content."
+			},
+			{
+				"title": "CSS Navigation Bars",
+				"fileName": "css_navbar.asp.md",
+				"url": "https://www.w3schools.com/css/css_navbar.asp.html",
+				"summary": "Navigation bars are essential web components that facilitate user movement across a site. They are typically constructed using HTML lists and styled with CSS to remove default browser formatting, providing a clean foundation for both vertical and horizontal layouts."
+			},
+			{
+				"title": "CSS Dropdowns",
+				"fileName": "css_dropdowns.asp.md",
+				"url": "https://www.w3schools.com/css/css_dropdowns.asp.html",
+				"summary": "This lesson explains how to create interactive dropdown components using CSS. By utilizing relative and absolute positioning combined with the hover selector, you can display hidden content or navigation menus when a user interacts with a trigger element."
+			},
+			{
+				"title": "CSS Image Gallery",
+				"fileName": "css_image_gallery.asp.md",
+				"url": "https://www.w3schools.com/css/css_image_gallery.asp.html",
+				"summary": "This lesson demonstrates how to build an organized image gallery using HTML and CSS Flexbox. It covers the structural requirements for image containers and explains how to implement responsive design using media queries to ensure the layout adapts seamlessly across different screen sizes."
+			},
+			{
+				"title": "CSS Image Sprites",
+				"fileName": "css_image_sprites.asp.md",
+				"url": "https://www.w3schools.com/css/css_image_sprites.asp.html",
+				"summary": "CSS image sprites combine multiple small images into a single file to reduce server requests and bandwidth usage. By using the `background-image` and `background-position` properties, developers can display specific portions of the sprite to create efficient UI elements and hover effects."
+			},
+			{
+				"title": "CSS Attribute Selectors",
+				"fileName": "css_attribute_selectors.asp.md",
+				"url": "https://www.w3schools.com/css/css_attribute_selectors.asp.html",
+				"summary": "CSS attribute selectors allow developers to target HTML elements based on the presence or specific values of their attributes. By using syntax enclosed in square brackets, you can precisely style elements through exact, partial, or prefix-based matching, with an option for case-insensitive results."
+			},
+			{
+				"title": "CSS Forms",
+				"fileName": "css_forms.asp.md",
+				"url": "https://www.w3schools.com/css/css_forms.asp.html",
+				"summary": "This lesson explores how to enhance the visual appeal of HTML forms using CSS. It covers styling techniques for various input fields, labels, and buttons by applying essential properties like padding, borders, and typography to create professional and user-friendly web interfaces."
+			},
+			{
+				"title": "CSS Counters",
+				"fileName": "css_counters.asp.md",
+				"url": "https://www.w3schools.com/css/css_counters.asp.html",
+				"summary": "CSS counters allow for dynamic element numbering using CSS variables instead of JavaScript. By utilizing properties like counter-reset, counter-increment, and the content property, developers can easily manage, increment, or decrement custom numbering sequences throughout a webpage."
+			},
+			{
+				"title": "CSS Units",
+				"fileName": "css_units.asp.md",
+				"url": "https://www.w3schools.com/css/css_units.asp.html",
+				"summary": "CSS units define the dimensions of elements and are categorized into absolute and relative types. While absolute units remain fixed, relative units scale dynamically, making them essential for creating responsive web designs that adapt to various screen sizes."
+			},
+			{
+				"title": "CSS Inheritance",
+				"fileName": "css_inheritance.asp.md",
+				"url": "https://www.w3schools.com/css/css_inheritance.asp.html",
+				"summary": "CSS inheritance determines how elements adopt styles when no specific value is defined. Properties are categorized as either inherited, which default to the parent's computed value, or non-inherited, which revert to their initial defaults. The `inherit` keyword allows for manual override."
+			},
+			{
+				"title": "CSS Specificity",
+				"fileName": "css_specificity.asp.md",
+				"url": "https://www.w3schools.com/css/css_specificity.asp.html",
+				"summary": "CSS specificity is an algorithm used by browsers to determine which style declaration takes precedence when multiple rules target the same element. By assigning weight to different selectors, the browser ensures that the most specific rule is applied to the HTML element."
+			},
+			{
+				"title": "CSS !important",
+				"fileName": "css_important.asp.md",
+				"url": "https://www.w3schools.com/css/css_important.asp.html",
+				"summary": "The `!important` rule grants a CSS property the highest priority, overriding all other styling rules. While it is a powerful tool for specific overrides or accessibility needs, it should be used sparingly to avoid complex, difficult-to-debug code."
+			},
+			{
+				"title": "CSS Math Functions",
+				"fileName": "css_math_functions.asp.md",
+				"url": "https://www.w3schools.com/css/css_math_functions.asp.html",
+				"summary": "This lesson introduces CSS math functions, which enable dynamic property values through mathematical expressions. It covers the use of `calc()` for arithmetic operations, `min()` and `max()` for value selection, and `clamp()` for responsive sizing between defined boundaries."
+			},
+			{
+				"title": "CSS Optimization",
+				"fileName": "css_performance.asp.md",
+				"url": "https://www.w3schools.com/css/css_performance.asp.html",
+				"summary": "CSS optimization improves website performance and user experience by reducing file size and browser rendering time. Key strategies include using simple selectors, leveraging shorthand properties, minifying code, and utilizing efficient animation techniques to minimize layout recalculations."
+			},
+			{
+				"title": "CSS Accessibility",
+				"fileName": "css_accessibility.asp.md",
+				"url": "https://www.w3schools.com/css/css_accessibility.asp.html",
+				"summary": "This lesson explores essential CSS techniques to enhance web accessibility, focusing on visual clarity and inclusive navigation. It covers implementing high color contrast, readable typography, visible focus indicators, and semantic structure. Additionally, it highlights respecting user preferences."
+			},
+			{
+				"title": "CSS Website Layout",
+				"fileName": "css_website_layout.asp.md",
+				"url": "https://www.w3schools.com/css/css_website_layout.asp.html",
+				"summary": "This lesson introduces the foundational structure of a website, covering the styling of headers, navigation bars, and footers. It further explains how to implement responsive multi-column layouts using CSS Flexbox and media queries to ensure content adapts to different screen sizes."
+			}
+		]
+	},
+	{
+		"topic": "CSS Advanced",
+		"lessons": [
+			{
+				"title": "CSS Rounded Corners",
+				"fileName": "css3_borders.asp.md",
+				"url": "https://www.w3schools.com/css/css3_borders.asp.html",
+				"summary": "This lesson introduces the CSS `border-radius` property, which is used to create rounded corners for elements with backgrounds, borders, or images. It explains how to control individual corners, create elliptical shapes using slash notation, and achieve circular designs with percentage values."
+			},
+			{
+				"title": "CSS Border Images",
+				"fileName": "css3_border_images.asp.md",
+				"url": "https://www.w3schools.com/css/css3_border_images.asp.html",
+				"summary": "The CSS `border-image` property allows developers to replace standard borders with custom images by slicing them into nine sections. This shorthand property controls how images are sourced, sliced, repeated, or stretched, provided a base border is defined for the element."
+			},
+			{
+				"title": "CSS Backgrounds",
+				"fileName": "css3_backgrounds.asp.md",
+				"url": "https://www.w3schools.com/css/css3_backgrounds.asp.html",
+				"summary": "This lesson explains how to apply multiple background images to a single CSS element by stacking them using comma-separated values. It also introduces advanced properties like background-clip, origin, and size, demonstrating how to use the shorthand property for efficient styling."
+			},
+			{
+				"title": "CSS Colors",
+				"fileName": "css3_colors.asp.md",
+				"url": "https://www.w3schools.com/css/css3_colors.asp.html",
+				"summary": "This lesson explores various CSS color formats, including color names, HEX, RGB, and HSL values. It specifically highlights how to manage transparency using RGBA and HSLA extensions, while distinguishing these methods from the general CSS opacity property that affects an entire element's visibility."
+			},
+			{
+				"title": "CSS Gradients",
+				"fileName": "css3_gradients.asp.md",
+				"url": "https://www.w3schools.com/css/css3_gradients.asp.html",
+				"summary": "CSS gradients allow for smooth color transitions within elements using the background-image property. This lesson covers the three primary types—linear, radial, and conic—with a focus on customizing linear gradients through directions, specific angles, multiple color stops, and transparency."
+			},
+			{
+				"title": "CSS Shadows",
+				"fileName": "css3_shadows.asp.md",
+				"url": "https://www.w3schools.com/css/css3_shadows.asp.html",
+				"summary": "This lesson explores the `text-shadow` property, demonstrating how to apply horizontal and vertical offsets, blur effects, and colors to text. It also covers advanced techniques, including creating neon glows, layering multiple shadows, and using the property to simulate text borders."
+			},
+			{
+				"title": "CSS Text Effects",
+				"fileName": "css3_text_effects.asp.md",
+				"url": "https://www.w3schools.com/css/css3_text_effects.asp.html",
+				"summary": "This lesson explores essential CSS properties for managing text layout and overflow. You will learn how to control line breaking, word wrapping, and text orientation to ensure content displays correctly across different containers."
+			},
+			{
+				"title": "CSS Custom Fonts",
+				"fileName": "css3_fonts.asp.md",
+				"url": "https://www.w3schools.com/css/css3_fonts.asp.html",
+				"summary": "The CSS `@font-face` rule enables developers to load custom fonts directly from a web server, ensuring consistent typography across all browsers. By defining font families and source URLs, you can integrate various font styles and weights while utilizing optimized formats like WOFF/WOFF2."
+			},
+			{
+				"title": "CSS 2D Transforms",
+				"fileName": "css3_2dtransforms.asp.md",
+				"url": "https://www.w3schools.com/css/css3_2dtransforms.asp.html",
+				"summary": "This lesson introduces the CSS transform property, which enables the manipulation of elements through rotation, scaling, translation, and skewing. It details various 2D transformation functions and properties, providing the necessary tools to modify an element's position and appearance."
+			},
+			{
+				"title": "CSS 3D Transforms",
+				"fileName": "css3_3dtransforms.asp.md",
+				"url": "https://www.w3schools.com/css/css3_3dtransforms.asp.html",
+				"summary": "This lesson introduces CSS 3D transforms, explaining how to manipulate elements in three-dimensional space using rotation, translation, and scaling functions. It covers key properties like perspective and backface-visibility, providing the essential tools for creating dynamic 3D web effects."
+			},
+			{
+				"title": "CSS Transitions",
+				"fileName": "css3_transitions.asp.md",
+				"url": "https://www.w3schools.com/css/css3_transitions.asp.html",
+				"summary": "CSS transitions enable smooth changes to element properties over a specified duration. By using the shorthand transition property or its individual components, developers can control timing, delays, and speed curves, typically triggering these effects through pseudo-classes like :hover."
+			},
+			{
+				"title": "CSS Animations",
+				"fileName": "css3_animations.asp.md",
+				"url": "https://www.w3schools.com/css/css3_animations.asp.html",
+				"summary": "CSS animations enable smooth style transitions for HTML elements without requiring JavaScript. By using the @keyframes rule, developers define specific style changes at various time intervals, which are then bound to elements using the animation-name and animation-duration properties."
+			},
+			{
+				"title": "CSS Tooltips",
+				"fileName": "css_tooltip.asp.md",
+				"url": "https://www.w3schools.com/css/css_tooltip.asp.html",
+				"summary": "This lesson explains how to create interactive CSS tooltips that display extra information when a user hovers over an element. It covers the essential HTML structure, positioning techniques for all four sides, and how to implement smooth fade-in effects using CSS transitions."
+			},
+			{
+				"title": "CSS Image Styling",
+				"fileName": "css3_images.asp.md",
+				"url": "https://www.w3schools.com/css/css3_images.asp.html",
+				"summary": "This lesson covers essential CSS techniques for styling images, including creating rounded corners, thumbnails, and polaroid-style cards. It also explores responsive design principles, demonstrating how to use properties and media queries to ensure images scale appropriately across different devices."
+			},
+			{
+				"title": "CSS Image Modal",
+				"fileName": "css3_images_modal.asp.md",
+				"url": "https://www.w3schools.com/css/css3_images_modal.asp.html",
+				"summary": "This lesson demonstrates how to create a responsive image gallery using HTML, CSS, and JavaScript. It explains how to display larger versions of images in a modal popup window that appears over the main content, providing a seamless user experience without navigating away from the page."
+			},
+			{
+				"title": "CSS Image Centering",
+				"fileName": "css3_image_center.asp.md",
+				"url": "https://www.w3schools.com/css/css3_image_center.asp.html",
+				"summary": "This lesson explores various CSS techniques for centering images horizontally and vertically. It demonstrates how to achieve alignment using `margin: auto`, `display: flex`, and `display: grid`, providing practical code examples for both simple horizontal positioning and full container centering."
+			},
+			{
+				"title": "CSS Image Filters",
+				"fileName": "css3_image_filters.asp.md",
+				"url": "https://www.w3schools.com/css/css3_image_filters.asp.html",
+				"summary": "This lesson introduces the CSS `filter` property, which allows developers to apply various visual effects to elements. It covers essential functions like blur, brightness, contrast, and color adjustments, providing practical examples for manipulating images directly through CSS code."
+			},
+			{
+				"title": "CSS Image Shapes",
+				"fileName": "css3_image_shapes.asp.md",
+				"url": "https://www.w3schools.com/css/css3_image_shapes.asp.html",
+				"summary": "This lesson explores how to use the CSS `clip-path` and `shape-outside` properties to manipulate image geometry. By utilizing functions like `circle()`, `ellipse()`, and `polygon()`, developers can create custom image shapes and control how surrounding text wraps around them."
+			},
+			{
+				"title": "CSS object-fit",
+				"fileName": "css3_object-fit.asp.md",
+				"url": "https://www.w3schools.com/css/css3_object-fit.asp.html",
+				"summary": "The CSS `object-fit` property controls how images or videos are resized to fit their containers. By utilizing values like `cover`, `contain`, and `fill`, developers can effectively manage aspect ratios and content display, ensuring media scales appropriately within defined layout dimensions."
+			},
+			{
+				"title": "CSS object-position",
+				"fileName": "css3_object-position.asp.md",
+				"url": "https://www.w3schools.com/css/css3_object-position.asp.html",
+				"summary": "The CSS `object-position` property allows you to precisely align images or videos within their containers by defining x and y coordinates. Used alongside `object-fit`, it enables developers to control which part of the media is displayed, supporting keywords, percentages, and pixel values."
+			},
+			{
+				"title": "CSS Masking",
+				"fileName": "css3_masking.asp.md",
+				"url": "https://www.w3schools.com/css/css3_masking.asp.html",
+				"summary": "CSS masking allows you to partially or fully hide elements by applying a mask layer using images, gradients, or SVG elements. Through properties like mask-image, mask-repeat, and mask-position, developers can precisely control how these layers shape and display underlying content."
+			},
+			{
+				"title": "CSS Buttons",
+				"fileName": "css3_buttons.asp.md",
+				"url": "https://www.w3schools.com/css/css3_buttons.asp.html",
+				"summary": "This lesson explains how to customize HTML buttons using essential CSS properties such as background-color, padding, border-radius, and font-size. It demonstrates how to apply these styles to create buttons with varying sizes, shapes, colors, and border styles for improved web design."
+			},
+			{
+				"title": "CSS Pagination",
+				"fileName": "css3_pagination.asp.md",
+				"url": "https://www.w3schools.com/css/css3_pagination.asp.html",
+				"summary": "This lesson explains how to build responsive pagination using CSS flexbox and unordered lists. It covers essential styling techniques, including how to implement active states for current pages and disabled states for navigation controls to improve user experience."
+			},
+			{
+				"title": "CSS Multiple Columns",
+				"fileName": "css3_multiple_columns.asp.md",
+				"url": "https://www.w3schools.com/css/css3_multiple_columns.asp.html",
+				"summary": "The CSS Multi-column Layout module enables developers to organize content into newspaper-style columns easily. This lesson introduces essential properties like column-count, column-gap, and column-rule to control layout structure, spacing, and visual styling between columns."
+			},
+			{
+				"title": "CSS User Interface",
+				"fileName": "css3_user_interface.asp.md",
+				"url": "https://www.w3schools.com/css/css3_user_interface.asp.html",
+				"summary": "This lesson covers essential CSS user interface properties for enhancing element interactivity. It explains how to use the resize property to control user-driven dimension adjustments and the outline-offset property to create transparent spacing between an element's border and its outline."
+			},
+			{
+				"title": "CSS Variables",
+				"fileName": "css3_variables.asp.md",
+				"url": "https://www.w3schools.com/css/css3_variables.asp.html",
+				"summary": "CSS variables improve code maintainability and readability by allowing developers to store and reuse values globally or locally. By using the var() function, you can efficiently manage design properties like colors, enabling quick, centralized updates across your entire stylesheet."
+			},
+			{
+				"title": "CSS @property",
+				"fileName": "css3_property.asp.md",
+				"url": "https://www.w3schools.com/css/css3_property.asp.html",
+				"summary": "The CSS @property rule allows developers to define custom properties directly in stylesheets with strict data type validation, default values, and inheritance control. This feature enhances CSS capabilities by enabling advanced functionality, such as animating gradients that were previously impossible."
+			},
+			{
+				"title": "CSS Box Sizing",
+				"fileName": "css3_box-sizing.asp.md",
+				"url": "https://www.w3schools.com/css/css3_box-sizing.asp.html",
+				"summary": "The CSS `box-sizing` property determines whether padding and borders are included in an element's total dimensions. By using `box-sizing: border-box;`, developers can ensure elements maintain their specified size, making layout calculations more intuitive and consistent across all elements."
+			},
+			{
+				"title": "CSS Media Queries",
+				"fileName": "css3_mediaqueries.asp.md",
+				"url": "https://www.w3schools.com/css/css3_mediaqueries.asp.html",
+				"summary": "CSS media queries are essential tools for building responsive web designs by applying styles based on device characteristics. By using the @media rule with specific media types and features, developers can tailor layouts to various screen sizes, resolutions, and user preferences."
+			}
+		]
+	},
+	{
+		"topic": "CSS Flexbox",
+		"lessons": [
+			{
+				"title": "Flexbox Intro",
+				"fileName": "css3_flexbox.asp.md",
+				"url": "https://www.w3schools.com/css/css3_flexbox.asp.html",
+				"summary": "CSS Flexbox is a powerful layout model designed for creating flexible, responsive one-dimensional arrangements of items. It simplifies web design by organizing elements into rows or columns within a parent container, serving as a modern alternative to traditional float and positioning methods."
+			},
+			{
+				"title": "Flex Container",
+				"fileName": "css3_flexbox_container.asp.md",
+				"url": "https://www.w3schools.com/css/css3_flexbox_container.asp.html",
+				"summary": "This lesson introduces the CSS Flexbox layout model, focusing on essential container properties like display, direction, and wrapping. It explains how to control the arrangement and alignment of flex items using key properties such as flex-flow, justify-content, and various alignment tools."
+			},
+			{
+				"title": "Flex Items",
+				"fileName": "css3_flexbox_items.asp.md",
+				"url": "https://www.w3schools.com/css/css3_flexbox_items.asp.html",
+				"summary": "This lesson explores CSS properties used to control individual flex items within a container. It covers essential tools like order, growth, shrinkage, basis, and alignment, which allow developers to precisely manage the layout and behavior of elements in a flexible design."
+			},
+			{
+				"title": "Flex Responsive",
+				"fileName": "css3_flexbox_responsive.asp.md",
+				"url": "https://www.w3schools.com/css/css3_flexbox_responsive.asp.html",
+				"summary": "This lesson demonstrates how to build responsive layouts using CSS Flexbox combined with media queries. It covers techniques such as adjusting flex-direction or modifying flex item properties at specific breakpoints to ensure content adapts seamlessly across different screen sizes."
+			}
+		]
+	},
+	{
+		"topic": "CSS Grid",
+		"lessons": [
+			{
+				"title": "Grid Intro",
+				"fileName": "css_grid.asp.md",
+				"url": "https://www.w3schools.com/css/css_grid.asp.html",
+				"summary": "The CSS Grid Layout module provides a powerful two-dimensional system for creating responsive web structures using rows and columns. This lesson introduces grid containers and items, highlighting their efficiency over traditional positioning methods and providing an overview of essential properties."
+			},
+			{
+				"title": "Grid Container",
+				"fileName": "css_grid_container.asp.md",
+				"url": "https://www.w3schools.com/css/css_grid_container.asp.html",
+				"summary": "A CSS grid container is established by setting the display property to grid or inline-grid, which automatically turns all direct child elements into grid items. This lesson provides an overview of essential container properties used to define layout structures, item alignment, and spacing."
+			},
+			{
+				"title": "Grid Items",
+				"fileName": "css_grid_item.asp.md",
+				"url": "https://www.w3schools.com/css/css_grid_item.asp.html",
+				"summary": "This lesson explains how direct children of a grid container become grid items. It covers using line numbers and shorthand properties to control the placement and spanning of items across rows and columns, while also introducing alignment properties for precise item positioning."
+			},
+			{
+				"title": "Grid 12-column Layout",
+				"fileName": "css_grid_12column.asp.md",
+				"url": "https://www.w3schools.com/css/css_grid_12column.asp.html",
+				"summary": "The 12-column grid is a flexible, efficient system for creating responsive web layouts by dividing space into equal fractional units. This lesson explains how to implement the grid using CSS properties like `grid-template-columns` and media queries to ensure consistent cross-device design."
+			},
+			{
+				"title": "CSS @supports",
+				"fileName": "css_supports_rule.asp.md",
+				"url": "https://www.w3schools.com/css/css_supports_rule.asp.html",
+				"summary": "The CSS @supports rule allows developers to check for browser compatibility with specific properties and values. By using this feature, you can implement progressive enhancement by defining fallback styles for older browsers while applying advanced layouts only when supported."
+			}
+		]
+	},
+	{
+		"topic": "CSS Responsive",
+		"lessons": [
+			{
+				"title": "RWD Intro",
+				"fileName": "css_rwd_intro.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_intro.asp.html",
+				"summary": "Responsive web design ensures websites provide an optimal viewing experience across all devices by automatically adjusting layouts to fit various screen sizes. By utilizing the viewport meta tag, flexible grids, and media queries, developers create accessible, user-friendly web interfaces."
+			},
+			{
+				"title": "RWD Viewport",
+				"fileName": "css_rwd_viewport.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_viewport.asp.html",
+				"summary": "The viewport meta tag is essential for responsive design, as it instructs browsers to scale web pages correctly across different device widths. To ensure a positive user experience, developers should avoid fixed-width elements and use relative CSS values to prevent horizontal scrolling."
+			},
+			{
+				"title": "RWD Grid View",
+				"fileName": "css_rwd_grid.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_grid.asp.html",
+				"summary": "This lesson introduces the concept of a responsive grid-view, which organizes web pages into flexible rows and columns. It demonstrates how to implement a basic grid layout using CSS Grid and the box-sizing property to ensure consistent element sizing across different screen sizes."
+			},
+			{
+				"title": "RWD Media Queries",
+				"fileName": "css_rwd_mediaqueries.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_mediaqueries.asp.html",
+				"summary": "This lesson introduces CSS media queries as a fundamental tool for creating responsive web designs. It demonstrates how to implement breakpoints, adjust layouts, and modify styles based on device characteristics, screen orientation, and user accessibility preferences."
+			},
+			{
+				"title": "RWD Images",
+				"fileName": "css_rwd_images.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_images.asp.html",
+				"summary": "This lesson explores techniques for creating responsive images, including CSS properties like max-width for scaling and background-size for layout control. It also covers optimizing performance through media queries and the HTML <picture> element to serve appropriate images based on device size."
+			},
+			{
+				"title": "RWD Videos",
+				"fileName": "css_rwd_videos.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_videos.asp.html",
+				"summary": "This lesson explains how to create responsive video players using CSS. It demonstrates that while setting the width to 100% allows scaling, using the max-width property is often superior as it prevents videos from scaling beyond their original dimensions."
+			},
+			{
+				"title": "RWD Frameworks",
+				"fileName": "css_rwd_frameworks.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_frameworks.asp.html",
+				"summary": "This lesson introduces CSS frameworks as an efficient way to implement responsive web design. It highlights W3.CSS and Bootstrap as popular tools that simplify the development of layouts that adapt seamlessly to various screen sizes."
+			},
+			{
+				"title": "RWD Templates",
+				"fileName": "css_rwd_templates.asp.md",
+				"url": "https://www.w3schools.com/css/css_rwd_templates.asp.html",
+				"summary": "This lesson provides a comprehensive collection of responsive website templates built with the W3.CSS framework. Users are free to modify, share, and utilize these designs for their own projects, with options to host them directly via W3Schools Spaces."
+			}
+		]
+	},
+	{
+		"topic": "CSS Examples",
+		"lessons": [
+			{
+				"title": "CSS Templates",
+				"fileName": "css_templates.asp.md",
+				"url": "https://www.w3schools.com/css/css_templates.asp.html",
+				"summary": "This lesson provides a collection of responsive CSS starter templates featuring common layouts like headers, footers, and navigation bars. Students can explore and adapt these designs using float, flexbox, or grid techniques to build their own web projects efficiently."
+			},
+			{
+				"title": "CSS Editor",
+				"fileName": "css_editor.asp.md",
+				"url": "https://www.w3schools.com/css/css_editor.asp.html",
+				"summary": "This lesson introduces an online CSS editor that allows users to write, edit, and preview HTML, CSS, and JavaScript code directly in their browser. It also highlights W3Schools Spaces for publishing websites and recommends the comprehensive CSS tutorial for those looking to build foundational skills."
+			},
+			{
+				"title": "CSS Snippets",
+				"fileName": "css_snippets.asp.md",
+				"url": "https://www.w3schools.com/css/css_snippets.asp.html",
+				"summary": "This lesson provides a curated collection of practical CSS snippets designed to help developers implement common web features. It offers ready-to-use code examples for elements like navigation bars, loaders, and interactive buttons, serving as a quick reference for enhancing project designs."
+			},
+			{
+				"title": "CSS Code Challenges",
+				"fileName": "css_challenges.asp.md",
+				"url": "https://www.w3schools.com/css/css_challenges.asp.html",
+				"summary": "This lesson offers interactive CSS code challenges designed to help learners practice and refine their styling skills through hands-on exercises. By completing these tasks, students can strengthen their technical proficiency and work toward earning a professional certification for their portfolio."
+			},
+			{
+				"title": "CSS Website",
+				"fileName": "css_website.asp.md",
+				"url": "https://www.w3schools.com/css/css_website.asp.html",
+				"summary": "W3Schools Spaces provides a cloud-based platform for building, hosting, and managing websites directly in your browser. It features a powerful code editor, AI-assisted tutoring, and various templates to support both frontend and full-stack development projects."
+			},
+			{
+				"title": "CSS Syllabus",
+				"fileName": "css_syllabus.asp.md",
+				"url": "https://www.w3schools.com/css/css_syllabus.asp.html",
+				"summary": "This beginner-friendly CSS syllabus provides a comprehensive, step-by-step guide to web styling, covering everything from basic syntax to responsive design. Through interactive lessons, hands-on sandbox environments, and certification options, learners gain the skills needed for modern web development."
+			},
+			{
+				"title": "CSS Study Plan",
+				"fileName": "css_study_plan.asp.md",
+				"url": "https://www.w3schools.com/css/css_study_plan.asp.html",
+				"summary": "The W3Schools Academy offers a flexible, customizable CSS study plan designed to streamline classroom management and instruction. Teachers can utilize interactive tutorials, progress tracking, and auto-graded assessments to create personalized learning paths that accommodate various student skill levels."
+			},
+			{
+				"title": "CSS Interview Prep",
+				"fileName": "css_interview_prep.asp.md",
+				"url": "https://www.w3schools.com/css/css_interview_prep.asp.html",
+				"summary": "This guide provides essential strategies for Front-End interview success, covering technical coding tasks, portfolio development, and company research. It also introduces an AI-powered interactive tool designed to help candidates practice interview scenarios and receive performance feedback."
+			},
+			{
+				"title": "CSS Bootcamp",
+				"fileName": "css_bootcamp.asp.md",
+				"url": "https://www.w3schools.com/css/css_bootcamp.asp.html",
+				"summary": "This three-week live online bootcamp provides comprehensive training in HTML and CSS fundamentals, covering everything from semantic structure to responsive design. Through instructor-led sessions and collaborative projects, students gain practical skills and earn professional certifications."
+			}
+		]
+	}
 ]

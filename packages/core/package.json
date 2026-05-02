@@ -1,13 +1,13 @@
 {
-  "name": "@u7/core",
-  "version": "0.1.0",
-  "module": "src/index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "test": "bun test"
-  },
-  "dependencies": {
-    "valibot": "^1.0.0"
-  }
+	"name": "@u7/core",
+	"version": "0.1.0",
+	"module": "src/index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"test": "bun test"
+	},
+	"dependencies": {
+		"valibot": "^1.0.0"
+	}
 }

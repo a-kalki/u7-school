@@ -1,10 +1,10 @@
-import type { CreateUserCommand } from "../commands/create_user_command";
-import { CreateUserCommandSchema } from "../commands/create_user_command";
-import { parseOrThrow } from "../shared/parse_or_throw";
 import { DomainException } from "../../domain/shared/exceptions";
 import type { User } from "../../domain/user/user";
 import { UserAr } from "../../domain/user/user_ar";
 import { UserPolicy } from "../../domain/user/user_policy";
+import type { CreateUserCommand } from "../commands/create_user_command";
+import { CreateUserCommandSchema } from "../commands/create_user_command";
+import { parseOrThrow } from "../shared/parse_or_throw";
 import type { UserRepository } from "./user_repository";
 
 /**
@@ -22,7 +22,7 @@ export class UserCreatingUc {
 	 * @param command — команда создания
 	 * @param actorId — uuid пользователя, выполняющего действие (опционально; без него — bootstrap)
 	 */
-	execute(command: CreateUserCommand, actorId?: string): User {
+	async execute(command: CreateUserCommand, actorId?: string): Promise<User> {
 		// 1. Валидация команды
 		parseOrThrow(
 			CreateUserCommandSchema,
@@ -40,7 +40,7 @@ export class UserCreatingUc {
 			}
 		} else {
 			// 3. Загружаем актора
-			const actor = this.#repo.getByUuid(actorId);
+			const actor = await this.#repo.getByUuid(actorId);
 			if (!actor) {
 				throw DomainException.notFound("Пользователь", actorId);
 			}
@@ -55,7 +55,7 @@ export class UserCreatingUc {
 		}
 
 		// 5. Проверка уникальности telegramId
-		if (this.#repo.isTelegramIdTaken(command.telegramId)) {
+		if (await this.#repo.isTelegramIdTaken(command.telegramId)) {
 			throw DomainException.conflict(
 				"Пользователь с таким telegramId уже существует",
 				`telegramId=${command.telegramId}`,
@@ -66,7 +66,7 @@ export class UserCreatingUc {
 		const ar = UserAr.create(command);
 
 		// 7. Сохранение
-		this.#repo.save(ar.state as User);
+		await this.#repo.save(ar.state as User);
 
 		return ar.state as User;
 	}

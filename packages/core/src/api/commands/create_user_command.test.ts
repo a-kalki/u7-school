@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
 import { Role } from "../../domain/user/roles";
 import {
-	CreateUserCommandSchema,
 	type CreateUserCommand,
+	CreateUserCommandSchema,
 } from "./create_user_command";
 
 describe("CreateUserCommand (схема валидации)", () => {

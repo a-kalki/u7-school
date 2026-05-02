@@ -73,10 +73,7 @@ export class DomainException extends AppException {
 	}
 
 	/** Сущность не найдена */
-	static notFound(
-		entity: string,
-		identifier: string,
-	): DomainException {
+	static notFound(entity: string, identifier: string): DomainException {
 		return new DomainException(
 			"DomainNotFoundError",
 			`${entity} не найден(а)`,
@@ -86,10 +83,7 @@ export class DomainException extends AppException {
 	}
 
 	/** Нарушение прав доступа на уровне доменных правил (роль, владелец) */
-	static accessDenied(
-		userMessage: string,
-		debugInfo: string,
-	): DomainException {
+	static accessDenied(userMessage: string, debugInfo: string): DomainException {
 		return new DomainException(
 			"DomainAccessDeniedError",
 			userMessage,
@@ -107,15 +101,7 @@ export class ApiException extends AppException {
 	readonly level = "api" as const;
 
 	/** Недостаточно прав */
-	static accessDenied(
-		userMessage: string,
-		debugInfo: string,
-	): ApiException {
-		return new ApiException(
-			"AccessDeniedError",
-			userMessage,
-			debugInfo,
-			403,
-		);
+	static accessDenied(userMessage: string, debugInfo: string): ApiException {
+		return new ApiException("AccessDeniedError", userMessage, debugInfo, 403);
 	}
 }
