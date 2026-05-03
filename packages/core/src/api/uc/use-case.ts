@@ -1,3 +1,4 @@
+import * as v from "valibot";
 import { throwError } from "../../domain/errors/error-helpers";
 import type { AppError } from "../../domain/errors/errors";
 
@@ -9,10 +10,60 @@ export interface UcMeta {
 }
 
 export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
-  abstract execute(
+  /** Имя команды, которую обрабатывает этот use-case */
+  abstract readonly commandName: TMeta["commandName"];
+
+  /** Схема Valibot для валидации входящих данных */
+  protected abstract readonly inputSchema: v.BaseSchema<unknown, TMeta["input"], v.BaseIssue<unknown>>;
+
+  protected resolve!: TResolve;
+
+  /**
+   * Инициализирует use-case с резолвером.
+   * Вызывается модулем при регистрации use-case.
+   */
+  init(resolve: TResolve) {
+    this.resolve = resolve;
+  }
+
+  /**
+   * Основной метод выполнения use-case.
+   * @param command Входящие данные (невалидированные)
+   * @param actorId ID пользователя, выполняющего действие (опционально)
+   */
+  async handle(command: unknown, actorId?: string): Promise<TMeta["output"]> {
+    const validatedCommand = this.validate(command);
+    return this.execute(validatedCommand, actorId);
+  }
+
+  /** Бизнес-логика use-case */
+  protected abstract execute(
     command: TMeta["input"],
     actorId?: string,
   ): Promise<TMeta["output"]> | TMeta["output"];
+
+  /**
+   * Валидирует входящие данные через inputSchema.
+   * В случае ошибки выбрасывает Validation AppError.
+   */
+  protected validate(command: unknown): TMeta["input"] {
+    try {
+      return v.parse(this.inputSchema, command);
+    } catch (error) {
+      if (error instanceof v.ValiError) {
+        const issues = error.issues.map((issue) => ({
+          path: issue.path?.map((p: any) => p.key).join("."),
+          message: issue.message,
+        }));
+
+        this.throwValidation(
+          { issues },
+          "Переданы некорректные данные"
+        );
+      }
+      throw error;
+    }
+  }
 
   /** Данные не найдены */
   protected throwNotFound<

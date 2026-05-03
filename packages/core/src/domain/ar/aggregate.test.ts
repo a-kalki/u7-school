@@ -23,7 +23,7 @@ interface TestArMeta extends ArMeta {
 
 class TestAggregate extends Aggregate<TestArMeta> {
   doSomethingBad() {
-    this.throwInvariant({ name: ["Not be empty"] }, "Bad thing happened");
+    this.throwInvariant("TestArError1", "Bad thing happened");
   }
 }
 

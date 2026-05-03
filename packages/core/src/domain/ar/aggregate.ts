@@ -8,14 +8,18 @@ export interface ArMeta {
 
 export abstract class Aggregate<TMeta extends ArMeta> {
   /** Ошибка инварианта. */
-  protected throwInvariant(
-    payload: Record<string, unknown>,
+  protected throwInvariant<
+    K extends Extract<TMeta["errors"], { kind: "validation" }>["name"],
+    E extends Extract<TMeta["errors"], { name: K }>,
+  >(
+    name: K,
     message = "Нарушение инварианта домена",
+    payload?: E["payload"],
   ): never {
     throwError({
-      name: "AggregateInvariantError",
-      level: "api",
-      kind: "internal",
+      name,
+      level: "domain",
+      kind: "validation",
       message,
       payload,
     } as AppError);

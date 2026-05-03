@@ -37,21 +37,19 @@
 
 ## Phase 3: Абстрактный класс UseCase (FR4)
 
-- [~] Task: Написать тесты для UseCase
-    - [ ] Тест: use-case валидирует команду через схему
-    - [ ] Тест: use-case вызывает execute с command и actorId
-    - [ ] Тест: use-case имеет доступ к резолверу модуля
-    - [ ] Тест: use-case выбрасывает ошибку через throwError
-    - [ ] Тест: use-case с пустым резолвером (undefined)
-- [ ] Task: Реализовать абстрактный класс UseCase
-    - [ ] `UseCase<TMeta, TResolve>` — дженерик по Meta и резолверу
-    - [ ] Абстрактное свойство `commandSchema` (Valibot)
-    - [ ] Абстрактный метод `execute(command, actorId?)`
-    - [ ] Защищённый метод `validate(command)` — валидация через схему, выбрасывает ошибку при провале
-    - [ ] Защищённый геттер/свойство `resolve` — доступ к резолверу
-    - [ ] Метод `throwError(error)` — хелпер выбрасывания
-    - [ ] Статическое/экземплярное свойство `commandName` из Meta
-- [ ] Task: Регресс-проверка: все тесты проходят, типы компилируются
+- [x] Task: Написать тесты для UseCase [1fbb1ad]
+    - [x] Тест: use-case валидирует команду через схему
+    - [x] Тест: use-case вызывает execute с command и actorId
+    - [x] Тест: use-case имеет доступ к резолверу модуля
+    - [x] Тест: use-case выбрасывает ошибку через throwError
+- [x] Task: Реализовать абстрактный класс UseCase [1fbb1ad]
+    - [x] `UseCase<TMeta, TResolve>` — дженерик по Meta и резолверу
+    - [x] Абстрактное свойство `commandSchema` (Valibot)
+    - [x] Абстрактный метод `execute(command, actorId?)`
+    - [x] Защищённый метод `validate(command)` — валидация через схему, выбрасывает ошибку при провале
+    - [x] Защищённый геттер/свойство `resolve` — доступ к резолверу
+    - [x] Статическое/экземплярное свойство `commandName` из Meta
+- [x] Task: Регресс-проверка: все тесты проходят, типы компилируются [1fbb1ad]
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: UseCase' (Protocol in workflow.md)
 
 ## Phase 4: Абстрактный класс Module (FR5)
