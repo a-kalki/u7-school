@@ -1,5 +1,5 @@
-import { throwError } from "./error-helpers";
-import type { DomainError } from "./errors";
+import { throwError } from "../errors/error-helpers";
+import type { DomainError } from "../errors/errors";
 
 export interface ArMeta {
 	name: string;

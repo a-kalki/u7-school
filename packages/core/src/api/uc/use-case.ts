@@ -1,5 +1,5 @@
-import { throwError } from "../domain/error-helpers";
-import type { AppError } from "../domain/errors";
+import { throwError } from "../../domain/errors/error-helpers";
+import type { AppError } from "../../domain/errors/errors";
 
 export interface UcMeta {
 	commandName: string;
