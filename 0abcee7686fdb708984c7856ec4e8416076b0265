@@ -1,0 +1,4 @@
+Task: Написать типы Meta и реализовать UseCase и Aggregate
+Summary: Добавлены UcMeta, ArMeta, и базовые классы UseCase и Aggregate с типизированным throwError.
+Files: packages/core/src/domain/aggregate.ts, packages/core/src/domain/aggregate.test.ts, packages/core/src/api/use-case.ts, packages/core/src/api/use-case.test.ts
+Reason: Реализация функциональных требований FR2 и FR3.
