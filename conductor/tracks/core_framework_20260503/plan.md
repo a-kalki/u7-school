@@ -2,14 +2,14 @@
 
 ## Phase 1: Инициализация пакета и базовые типы ошибок (FR1)
 
-- [ ] Task: Создать пакет `packages/core/` с `package.json` (`@u7/core`)
+- [~] Task: Создать пакет `packages/core/` с `package.json` (`@u7/core`)
 - [ ] Task: Написать тесты для типов и объектов ошибок
-    - [ ] Тест: DomainErrorObject создаётся корректно
-    - [ ] Тест: ApiErrorObject создаётся корректно
+    - [ ] Тест: хелпер создания DomainError работает корректно
+    - [ ] Тест: хелпер создания ApiErrorObject работает корректно
     - [ ] Тест: хелпер throwError выбрасывает исключение с правильным объектом ошибки
     - [ ] Тест: хелпер fromError восстанавливает объект ошибки из исключения
 - [ ] Task: Реализовать типы ошибок и хелперы
-    - [ ] `ErrorObject` — базовый тип: `{ level, code, message, payload? }`
+    - [ ] `AppError` — базовый тип со свойствами
     - [ ] `DomainErrorObject` — level: "domain"
     - [ ] `ApiErrorObject` — level: "api"
     - [ ] `throwError(error)` — выбрасывает исключение с сериализованной ошибкой
@@ -21,17 +21,17 @@
 
 ## Phase 2: UC Meta и Aggregate Meta (FR2, FR3)
 
-- [ ] Task: Написать тесты для UseCaseMeta
-    - [ ] Тест: Meta компилируется с input, output, errors, commandName
-    - [ ] Тест: TypeScript проверяет, что errors соответствуют объявленным
-- [ ] Task: Написать тесты для AggregateMeta
-    - [ ] Тест: агрегат объявляет пул ошибок в Meta
+- [ ] Task: Написать типы Meta
+    - [ ] Определить тип UcMeta, ArMeta;
+    - [ ] Определить болванки абстрактных классов UseCase, Aggregate
+- [ ] Task: Написать тесты для UseCase
+    - [ ] Тест: метод use-case выбрасывает ошибку из объявленного пула
+- [ ] Task: Написать тесты для Aggregate
     - [ ] Тест: метод агрегата выбрасывает ошибку из объявленного пула
-    - [ ] Тест: ошибка агрегата включается в UC Meta
-- [ ] Task: Реализовать UseCaseMeta и AggregateMeta
-    - [ ] `UseCaseMeta<TInput, TOutput, TErrors, TCommandName>` — дженерик-тип
-    - [ ] `AggregateMeta<TErrors>` — дженерик-тип для пула ошибок
-    - [ ] Встроенный хелпер для агрегата: `this.throwError(error)` (через базовый класс или миксин)
+- [ ] Task: Реализовать UseCase и Aggregate
+    - [ ] Агрегат проходит все тесты и нет ошибок линтера tsc
+    - [ ] UseCase проходит все тесты и нет ошибок линтера tsc
+    - [ ] Все работает через встроенный хелпер: `this.throwError(error)` который следит за типами ошибок с meta
 - [ ] Task: Регресс-проверка: все тесты проходят, типы компилируются
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: meta types' (Protocol in workflow.md)
 
@@ -58,10 +58,10 @@
 
 - [ ] Task: Написать тесты для Module
     - [ ] Тест: модуль инициализируется с резолвером
+    - [ ] Тест: модуль передаёт резолвер use-case'ам
     - [ ] Тест: модуль находит use-case по имени команды
     - [ ] Тест: модуль передаёт команду в execute нужного use-case
-    - [ ] Тест: модуль выбрасывает ошибку для неизвестной команды
-    - [ ] Тест: модуль передаёт резолвер use-case'ам
+    - [ ] Тест: модуль выбрасывает ошибку badRequest для неизвестной команды
 - [ ] Task: Реализовать абстрактный класс Module
     - [ ] `Module<TResolve>` — дженерик по типу резолвера
     - [ ] Абстрактное свойство `useCases: UseCase[]`
@@ -70,8 +70,8 @@
       - Валидирует команду через схему use-case
       - Вызывает `execute(command, actorId)`
       - Возвращает результат
-    - [ ] Конструктор принимает `TResolve`, сохраняет
-    - [ ] Метод для OpenAPI-вывода: `getCommands()` — список команд модуля с Meta
+    - [ ] Конструктор или init() принимает `TResolve`, сохраняет
+    - [ ] Метод для OpenAPI-вывода: `getCommands()` — список схем команд модуля с Meta
 - [ ] Task: Регресс-проверка: все тесты проходят
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Module' (Protocol in workflow.md)
 
