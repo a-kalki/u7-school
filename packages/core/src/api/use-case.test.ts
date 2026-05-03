@@ -1,0 +1,47 @@
+import { describe, expect, test } from "bun:test";
+import { UseCase } from "./use-case";
+import type { UcMeta } from "./use-case";
+import { AppException } from "../domain/errors";
+import type { ApiError } from "../domain/errors";
+
+interface TestUcError extends ApiError {
+	name: "TestUcError";
+}
+
+interface TestUcMeta extends UcMeta {
+	commandName: "test-cmd";
+	input: { foo: string };
+	output: { bar: string };
+	errors: TestUcError;
+}
+
+class TestUseCase extends UseCase<TestUcMeta> {
+	execute(command: { foo: string }) {
+		if (command.foo === "bad") {
+			this.throwError({
+				name: "TestUcError",
+				level: "api",
+				userMessage: "Bad input",
+				debugInfo: "foo is bad",
+			});
+		}
+		return { bar: "ok" };
+	}
+}
+
+describe("UseCase (Phase 2)", () => {
+	test("метод use-case выбрасывает ошибку из объявленного пула", () => {
+		const uc = new TestUseCase();
+		
+		let caught: unknown;
+		try {
+			uc.execute({ foo: "bad" });
+		} catch (e) {
+			caught = e;
+		}
+
+		expect(caught).toBeInstanceOf(AppException);
+		const appEx = caught as AppException;
+		expect(appEx.error.name).toBe("TestUcError");
+	});
+});
