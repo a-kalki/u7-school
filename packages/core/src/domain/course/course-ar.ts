@@ -1,7 +1,7 @@
-import type { CreateCourseCommand } from "../../api/commands/create_course_command";
-import { CreateCourseCommandSchema } from "../../api/commands/create_course_command";
-import { parseOrThrow } from "../../api/shared/parse_or_throw";
-import { isoNow } from "../shared/iso_now";
+import type { CreateCourseCommand } from "../../api/commands/create-course-command";
+import { CreateCourseCommandSchema } from "../../api/commands/create-course-command";
+import { parseOrThrow } from "../../api/shared/parse-or-throw";
+import { isoNow } from "../shared/iso-now";
 import { Status } from "../shared/status";
 import type { Course, CourseWithModules } from "./course";
 import { CourseSchema } from "./course";

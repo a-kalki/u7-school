@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { User } from "./user";
-import { UserAr } from "./user_ar";
+import { UserAr } from "./user-ar";
 
 const validUser: User = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",

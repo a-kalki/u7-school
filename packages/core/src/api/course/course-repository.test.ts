@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { CourseWithModules } from "../../domain/course/course";
 import { Status } from "../../domain/shared/status";
-import { InMemoryCourseRepository } from "./course_repository";
+import { InMemoryCourseRepository } from "./course-repository";
 
 const course: CourseWithModules = {
 	uuid: "c",

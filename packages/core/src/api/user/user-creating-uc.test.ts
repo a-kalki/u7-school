@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { Role } from "../../domain/user/roles";
 import type { User } from "../../domain/user/user";
-import type { CreateUserCommand } from "../commands/create_user_command";
-import { UserCreatingUc } from "./user_creating_uc";
-import { InMemoryUserRepository } from "./user_repository";
+import type { CreateUserCommand } from "../commands/create-user-command";
+import { UserCreatingUc } from "./user-creating-uc";
+import { InMemoryUserRepository } from "./user-repository";
 
 /** Хелпер: добавляет пользователя в репо и возвращает его uuid */
 async function addUser(

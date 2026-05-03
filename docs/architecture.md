@@ -99,6 +99,14 @@ module.handle(command: ModuleCommand): Promise<Result>;
 
 ## Соглашения об именовании
 
+### Имена файлов
+
+Все файлы в `packages/` и `apps/` используют **kebab-case**:
+- `user-ar.ts`, `course-policy.ts`, `create-user-command.ts`
+- Тестовые файлы: `<имя>.test.ts`
+
+### Имена сущностей
+
 | Концепт | Шаблон имени | Пример |
 |---|---|---|
 | Сущность (тип) | `<Имя>` | `User`, `Course` |

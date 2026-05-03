@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { isoNow } from "./iso_now";
+import { isoNow } from "./iso-now";
 
 describe("isoNow", () => {
 	test("должен возвращать строку в формате YYYY-MM-DDTHH:mm", () => {

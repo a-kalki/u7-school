@@ -1,11 +1,11 @@
 import { DomainException } from "../../domain/shared/exceptions";
 import type { User } from "../../domain/user/user";
-import { UserAr } from "../../domain/user/user_ar";
-import { UserPolicy } from "../../domain/user/user_policy";
-import type { CreateUserCommand } from "../commands/create_user_command";
-import { CreateUserCommandSchema } from "../commands/create_user_command";
-import { parseOrThrow } from "../shared/parse_or_throw";
-import type { UserRepository } from "./user_repository";
+import { UserAr } from "../../domain/user/user-ar";
+import { UserPolicy } from "../../domain/user/user-policy";
+import type { CreateUserCommand } from "../commands/create-user-command";
+import { CreateUserCommandSchema } from "../commands/create-user-command";
+import { parseOrThrow } from "../shared/parse-or-throw";
+import type { UserRepository } from "./user-repository";
 
 /**
  * Сценарий использования: создание пользователя.

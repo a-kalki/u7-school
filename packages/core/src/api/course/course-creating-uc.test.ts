@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import type { User } from "../../domain/user/user";
-import { InMemoryUserRepository } from "../user/user_repository";
-import { CourseCreatingUc } from "./course_creating_uc";
-import { InMemoryCourseRepository } from "./course_repository";
+import { InMemoryUserRepository } from "../user/user-repository";
+import { CourseCreatingUc } from "./course-creating-uc";
+import { InMemoryCourseRepository } from "./course-repository";
 
 async function addUser(
 	repo: InMemoryUserRepository,

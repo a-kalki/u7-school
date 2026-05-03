@@ -1,12 +1,12 @@
 import type { Course } from "../../domain/course/course";
-import { CourseAr } from "../../domain/course/course_ar";
-import { CoursePolicy } from "../../domain/course/course_policy";
+import { CourseAr } from "../../domain/course/course-ar";
+import { CoursePolicy } from "../../domain/course/course-policy";
 import { DomainException } from "../../domain/shared/exceptions";
-import type { CreateCourseCommand } from "../commands/create_course_command";
-import { CreateCourseCommandSchema } from "../commands/create_course_command";
-import { parseOrThrow } from "../shared/parse_or_throw";
+import type { CreateCourseCommand } from "../commands/create-course-command";
+import { CreateCourseCommandSchema } from "../commands/create-course-command";
+import { parseOrThrow } from "../shared/parse-or-throw";
 import type { UserRepository } from "../user/user_repository";
-import type { CourseRepository } from "./course_repository";
+import type { CourseRepository } from "./course-repository";
 
 export class CourseCreatingUc {
 	#courseRepo: CourseRepository;

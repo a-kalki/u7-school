@@ -4,7 +4,7 @@ import { Role } from "../../domain/user/roles";
 import {
 	type CreateUserCommand,
 	CreateUserCommandSchema,
-} from "./create_user_command";
+} from "./create-user-command";
 
 describe("CreateUserCommand (схема валидации)", () => {
 	const validCommand: CreateUserCommand = {

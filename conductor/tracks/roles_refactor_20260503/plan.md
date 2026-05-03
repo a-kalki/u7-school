@@ -2,37 +2,37 @@
 
 ## Phase 1: Переименование файлов на kebab-case (FR3)
 
-- [ ] Task: Переименовать файлы в `packages/core/src/domain/`
-    - [ ] `user_ar.ts` → `user-ar.ts`
-    - [ ] `user_ar.test.ts` → `user-ar.test.ts`
-    - [ ] `user_policy.ts` → `user-policy.ts`
-    - [ ] `user_policy.test.ts` → `user-policy.test.ts`
-    - [ ] `course_ar.ts` → `course-ar.ts`
-    - [ ] `course_ar.test.ts` → `course-ar.test.ts`
-    - [ ] `course_policy.ts` → `course-policy.ts`
-    - [ ] `course_policy.test.ts` → `course-policy.test.ts`
-    - [ ] `iso_now.ts` → `iso-now.ts`
-    - [ ] `iso_now.test.ts` → `iso-now.test.ts`
-- [ ] Task: Переименовать файлы в `packages/core/src/api/`
-    - [ ] `create_course_command.ts` → `create-course-command.ts`
-    - [ ] `create_course_command.test.ts` → `create-course-command.test.ts`
-    - [ ] `create_user_command.ts` → `create-user-command.ts`
-    - [ ] `create_user_command.test.ts` → `create-user-command.test.ts`
-    - [ ] `course_creating_uc.ts` → `course-creating-uc.ts`
-    - [ ] `course_creating_uc.test.ts` → `course-creating-uc.test.ts`
-    - [ ] `course_repository.ts` → `course-repository.ts`
-    - [ ] `course_repository.test.ts` → `course-repository.test.ts`
-    - [ ] `user_creating_uc.ts` → `user-creating-uc.ts`
-    - [ ] `user_creating_uc.test.ts` → `user-creating-uc.test.ts`
-    - [ ] `user_repository.ts` → `user-repository.ts`
-    - [ ] `user_repository.test.ts` → `user-repository.test.ts`
-    - [ ] `parse_or_throw.ts` → `parse-or-throw.ts`
-- [ ] Task: Переименовать файлы в `apps/u7-bot/`
+- [x] Task: Переименовать файлы в `packages/core/src/domain/`
+    - [x] `user_ar.ts` → `user-ar.ts`
+    - [x] `user_ar.test.ts` → `user-ar.test.ts`
+    - [x] `user_policy.ts` → `user-policy.ts`
+    - [x] `user_policy.test.ts` → `user-policy.test.ts`
+    - [x] `course_ar.ts` → `course-ar.ts`
+    - [x] `course_ar.test.ts` → `course-ar.test.ts`
+    - [x] `course_policy.ts` → `course-policy.ts`
+    - [x] `course_policy.test.ts` → `course-policy.test.ts`
+    - [x] `iso_now.ts` → `iso-now.ts`
+    - [x] `iso_now.test.ts` → `iso-now.test.ts`
+- [x] Task: Переименовать файлы в `packages/core/src/api/`
+    - [x] `create_course_command.ts` → `create-course-command.ts`
+    - [x] `create_course_command.test.ts` → `create-course-command.test.ts`
+    - [x] `create_user_command.ts` → `create-user-command.ts`
+    - [x] `create_user_command.test.ts` → `create-user-command.test.ts`
+    - [x] `course_creating_uc.ts` → `course-creating-uc.ts`
+    - [x] `course_creating_uc.test.ts` → `course-creating-uc.test.ts`
+    - [x] `course_repository.ts` → `course-repository.ts`
+    - [x] `course_repository.test.ts` → `course-repository.test.ts`
+    - [x] `user_creating_uc.ts` → `user-creating-uc.ts`
+    - [x] `user_creating_uc.test.ts` → `user-creating-uc.test.ts`
+    - [x] `user_repository.ts` → `user-repository.ts`
+    - [x] `user_repository.test.ts` → `user-repository.test.ts`
+    - [x] `parse_or_throw.ts` → `parse-or-throw.ts`
+- [x] Task: Переименовать файлы в `apps/u7-bot/`
     - [ ] `course.schema.test.ts` → `course-schema.test.ts`
-- [ ] Task: Обновить все импорты в `packages/core/src/` на новые имена файлов
-- [ ] Task: Обновить все импорты в `apps/u7-bot/` на новые имена файлов
-- [ ] Task: Добавить соглашение о kebab-case в `docs/architecture.md`
-- [ ] Task: Регресс-проверка: запустить `bun test`, все ранее проходившие тесты должны проходить
+- [x] Task: Обновить все импорты в `packages/core/src/` на новые имена файлов
+- [x] Task: Обновить все импорты в `apps/u7-bot/` на новые имена файлов
+- [x] Task: Добавить соглашение о kebab-case в `docs/architecture.md`
+- [x] Task: Регресс-проверка: запустить `bun test`, все ранее проходившие тесты должны проходить
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: kebab-case' (Protocol in workflow.md)
 
 ## Phase 2: Переименование модуля @u7/core → @u7/course (FR2)

@@ -1,7 +1,7 @@
 import { DomainException } from "../../../domain/shared/exceptions";
-import { InMemoryCourseRepository } from "../../course/course_repository";
+import { InMemoryCourseRepository } from "../../course/course-repository";
 import { CoreModule } from "../../module";
-import { InMemoryUserRepository } from "../../user/user_repository";
+import { InMemoryUserRepository } from "../../user/user-repository";
 
 /** Консольный контроллер — парсит CLI-аргументы и выполняет через CoreModule */
 export class ConsoleController {

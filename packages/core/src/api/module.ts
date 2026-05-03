@@ -1,8 +1,8 @@
 import { ApiException, DomainException } from "../domain/shared/exceptions";
-import { CourseCreatingUc } from "./course/course_creating_uc";
-import type { CourseRepository } from "./course/course_repository";
-import { UserCreatingUc } from "./user/user_creating_uc";
-import type { UserRepository } from "./user/user_repository";
+import { CourseCreatingUc } from "./course/course-creating-uc";
+import type { CourseRepository } from "./course/course-repository";
+import { UserCreatingUc } from "./user/user-creating-uc";
+import type { UserRepository } from "./user/user-repository";
 
 /** Команда модуля */
 export type ModuleCommand = {

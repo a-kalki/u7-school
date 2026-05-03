@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Status } from "../shared/status";
 import type { CourseWithModules } from "./course";
-import { CourseAr } from "./course_ar";
+import { CourseAr } from "./course-ar";
 
 const validCourse: CourseWithModules = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",

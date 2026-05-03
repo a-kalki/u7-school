@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import type { CreateCourseCommand } from "./create_course_command";
-import { CreateCourseCommandSchema } from "./create_course_command";
+import type { CreateCourseCommand } from "./create-course-command";
+import { CreateCourseCommandSchema } from "./create-course-command";
 
 const validCmd: CreateCourseCommand = {
 	title: "Курс",

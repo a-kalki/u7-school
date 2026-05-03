@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { Status } from "../shared/status";
 import type { User } from "../user/user";
 import type { Course, CourseWithModules } from "./course";
-import { CoursePolicy } from "./course_policy";
+import { CoursePolicy } from "./course-policy";
 
 const admin: User = {
 	uuid: "a",

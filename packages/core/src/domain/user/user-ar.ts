@@ -1,7 +1,7 @@
-import type { CreateUserCommand } from "../../api/commands/create_user_command";
-import { CreateUserCommandSchema } from "../../api/commands/create_user_command";
-import { parseOrThrow } from "../../api/shared/parse_or_throw";
-import { isoNow } from "../shared/iso_now";
+import type { CreateUserCommand } from "../../api/commands/create-user-command";
+import { CreateUserCommandSchema } from "../../api/commands/create-user-command";
+import { parseOrThrow } from "../../api/shared/parse-or-throw";
+import { isoNow } from "../shared/iso-now";
 import type { User } from "./user";
 import { UserSchema } from "./user";
 
