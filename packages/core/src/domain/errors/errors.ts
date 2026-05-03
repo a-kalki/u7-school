@@ -1,9 +1,18 @@
+export type ErrorKind =
+	| "validation"
+	| "conflict"
+	| "not-found"
+	| "access-denied"
+	| "bad-request"
+	| "internal";
+
 export interface AppError {
-  name: string;
-  level: "domain" | "api";
-  userMessage: string;
-  debugInfo: string;
-  payload?: unknown;
+	name: string;
+	level: "domain" | "api";
+	kind: ErrorKind;
+	userMessage: string;
+	debugInfo: string;
+	payload?: unknown;
 }
 
 export interface DomainError extends AppError {

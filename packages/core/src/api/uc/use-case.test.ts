@@ -6,6 +6,7 @@ import { UseCase } from "./use-case";
 
 interface TestUcError extends ApiError {
   name: "TestUcError";
+  kind: "bad-request";
 }
 
 interface TestUcMeta extends UcMeta {
@@ -18,12 +19,7 @@ interface TestUcMeta extends UcMeta {
 class TestUseCase extends UseCase<TestUcMeta> {
   execute(command: { foo: string }) {
     if (command.foo === "bad") {
-      this.throwError({
-        name: "TestUcError",
-        level: "api",
-        userMessage: "Bad input",
-        debugInfo: "foo is bad",
-      });
+      this.throwBadRequest("TestUcError", "Bad input", "foo is bad");
     }
     return { bar: "ok" };
   }

@@ -22,6 +22,7 @@ export function fromError(error: unknown): AppError {
 	return {
 		name: "UnknownError",
 		level: "api",
+		kind: "internal",
 		userMessage: "Произошла неизвестная ошибка",
 		debugInfo,
 	};

@@ -8,6 +8,7 @@ describe("errors", () => {
 		const domainErr: DomainError = {
 			name: "TestDomainError",
 			level: "domain",
+			kind: "validation",
 			userMessage: "Test msg",
 			debugInfo: "Test debug",
 		};
@@ -26,6 +27,7 @@ describe("errors", () => {
 		const apiErr: ApiError = {
 			name: "TestApiError",
 			level: "api",
+			kind: "bad-request",
 			userMessage: "Api msg",
 			debugInfo: "Api debug",
 			payload: { x: 1 },

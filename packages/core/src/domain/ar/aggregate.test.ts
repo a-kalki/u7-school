@@ -6,10 +6,12 @@ import { AppException } from "../errors/errors";
 
 interface TestArError1 extends DomainError {
   name: "TestArError1";
+  kind: "validation";
 }
 
 interface TestArError2 extends DomainError {
   name: "TestArError2";
+  kind: "conflict";
 }
 
 type TestArErrors = TestArError1 | TestArError2;
@@ -21,12 +23,7 @@ interface TestArMeta extends ArMeta {
 
 class TestAggregate extends Aggregate<TestArMeta> {
   doSomethingBad() {
-    this.throwError({
-      name: "TestArError1",
-      level: "domain",
-      userMessage: "Bad thing happened",
-      debugInfo: "test",
-    });
+    this.throwInvariant("TestArError1", "Bad thing happened");
   }
 }
 
