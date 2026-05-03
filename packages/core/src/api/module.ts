@@ -32,11 +32,18 @@ export class CoreModule {
 					command.attrs as never,
 					command.user,
 				);
-			case "create-course":
+			case "create-course": {
+				if (command.user === undefined) {
+					throw DomainException.validation(
+						"Для создания курса требуется actorId",
+						"command.user отсутствует",
+					);
+				}
 				return new CourseCreatingUc(
 					this.#resolve.courseRepo,
 					this.#resolve.userRepo,
-				).execute(command.attrs as never, command.user!);
+				).execute(command.attrs as never, command.user);
+			}
 			default:
 				throw DomainException.validation(
 					`Неизвестная команда: ${command.name}`,
