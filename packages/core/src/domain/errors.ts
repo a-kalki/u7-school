@@ -6,11 +6,11 @@ export interface AppError {
 	payload?: unknown;
 }
 
-export interface DomainErrorObject extends AppError {
+export interface DomainError extends AppError {
 	level: "domain";
 }
 
-export interface ApiErrorObject extends AppError {
+export interface ApiError extends AppError {
 	level: "api";
 }
 

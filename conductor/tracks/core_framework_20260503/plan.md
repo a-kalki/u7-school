@@ -5,13 +5,13 @@
 - [x] Task: Создать пакет `packages/core/` с `package.json` (`@u7/core`) [728c6a5]
 - [x] Task: Написать тесты для типов и объектов ошибок [c4afe8a]
     - [x] Тест: хелпер создания DomainError работает корректно
-    - [x] Тест: хелпер создания ApiErrorObject работает корректно
+    - [x] Тест: хелпер создания ApiError работает корректно
     - [x] Тест: хелпер throwError выбрасывает исключение с правильным объектом ошибки
     - [x] Тест: хелпер fromError восстанавливает объект ошибки из исключения
 - [x] Task: Реализовать типы ошибок и хелперы [c4afe8a]
     - [x] `AppError` — базовый тип со свойствами
-    - [x] `DomainErrorObject` — level: "domain"
-    - [x] `ApiErrorObject` — level: "api"
+    - [x] `DomainError` — level: "domain"
+    - [x] `ApiError` — level: "api"
     - [x] `throwError(error)` — выбрасывает исключение с сериализованной ошибкой
     - [x] `fromError(exception)` — восстанавливает `ErrorObject` из исключения
     - [x] Тип `AppException` (базовое исключение)
