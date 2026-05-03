@@ -1,4 +1,4 @@
-import { DomainException } from "../domain/shared/exceptions";
+import { ApiException, DomainException } from "../domain/shared/exceptions";
 import { CourseCreatingUc } from "./course/course_creating_uc";
 import type { CourseRepository } from "./course/course_repository";
 import { UserCreatingUc } from "./user/user_creating_uc";
@@ -45,7 +45,7 @@ export class CoreModule {
 				).execute(command.attrs as never, command.user);
 			}
 			default:
-				throw DomainException.validation(
+				throw ApiException.badRequest(
 					`Неизвестная команда: ${command.name}`,
 					`Диспатчер не нашёл обработчик для ${command.name}`,
 				);

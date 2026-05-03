@@ -104,4 +104,9 @@ export class ApiException extends AppException {
 	static accessDenied(userMessage: string, debugInfo: string): ApiException {
 		return new ApiException("AccessDeniedError", userMessage, debugInfo, 403);
 	}
+
+	/** Некорректный запрос (неизвестная команда и т.п.) */
+	static badRequest(userMessage: string, debugInfo: string): ApiException {
+		return new ApiException("BadRequestError", userMessage, debugInfo, 400);
+	}
 }

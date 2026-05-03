@@ -5,10 +5,6 @@ import { InMemoryCourseRepository } from "./course/course_repository";
 import { CoreModule } from "./module";
 import { InMemoryUserRepository } from "./user/user_repository";
 
-const userRepo = new InMemoryUserRepository();
-const courseRepo = new InMemoryCourseRepository();
-const module = new CoreModule({ userRepo, courseRepo });
-
 async function addUser(
 	repo: InMemoryUserRepository,
 	u: Partial<User>,
@@ -26,7 +22,11 @@ async function addUser(
 
 describe("CoreModule", () => {
 	test("create-user: bootstrap создаёт ADMIN", async () => {
-		const r = await module.handle({
+		const m = new CoreModule({
+			userRepo: new InMemoryUserRepository(),
+			courseRepo: new InMemoryCourseRepository(),
+		});
+		const r = await m.handle({
 			name: "create-user",
 			attrs: { name: "А", telegramId: 1, role: Role.ADMIN },
 		});
@@ -34,11 +34,16 @@ describe("CoreModule", () => {
 	});
 
 	test("create-user: с actorId создаёт пользователя", async () => {
+		const userRepo = new InMemoryUserRepository();
+		const m = new CoreModule({
+			userRepo,
+			courseRepo: new InMemoryCourseRepository(),
+		});
 		const admin = await addUser(userRepo, {
 			role: Role.ADMIN,
 			telegramId: 100,
 		});
-		const r = await module.handle({
+		const r = await m.handle({
 			name: "create-user",
 			user: admin.uuid,
 			attrs: { name: "Б", telegramId: 200, role: Role.STUDENT },
@@ -47,11 +52,16 @@ describe("CoreModule", () => {
 	});
 
 	test("create-course: MENTOR создаёт курс", async () => {
+		const userRepo = new InMemoryUserRepository();
+		const m = new CoreModule({
+			userRepo,
+			courseRepo: new InMemoryCourseRepository(),
+		});
 		const mentor = await addUser(userRepo, {
 			role: Role.MENTOR,
 			telegramId: 300,
 		});
-		const r = await module.handle({
+		const r = await m.handle({
 			name: "create-course",
 			user: mentor.uuid,
 			attrs: { title: "К", description: "Д", authorId: mentor.uuid },
@@ -60,7 +70,11 @@ describe("CoreModule", () => {
 	});
 
 	test("неизвестная команда — ошибка", async () => {
-		await expect(module.handle({ name: "unknown", attrs: {} })).rejects.toThrow(
+		const m = new CoreModule({
+			userRepo: new InMemoryUserRepository(),
+			courseRepo: new InMemoryCourseRepository(),
+		});
+		await expect(m.handle({ name: "unknown", attrs: {} })).rejects.toThrow(
 			"Неизвестная команда",
 		);
 	});
