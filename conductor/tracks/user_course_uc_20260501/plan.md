@@ -104,7 +104,7 @@
     - [x] Реализовать единый entry point модуля `core` — класс, принимающая команду и возвращающая результат.
     - [x] Связать entry point с диспатчером.
     - [x] Добиться прохождения тестов.
-- [ ] Task: Conductor - User Manual Verification 'Phase 6: Модуль core' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 6: Модуль core' (Protocol in workflow.md)
 
 ## Phase 7: Консольный интерфейс
 - [ ] Task: Консольная команда create-user
