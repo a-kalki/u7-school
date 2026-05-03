@@ -37,7 +37,7 @@
 
 ## Phase 2: Переименование модуля @u7/core → @u7/course (FR2)
 
-- [~] Task: Переименовать директорию `packages/core` → `packages/course`
+- [x] Task: Переименовать директорию `packages/core` → `packages/course` [bb78fca]
 - [x] Task: Обновить `packages/course/package.json`: `"name": "@u7/course"`
 - [x] Task: Обновить все импорты `@u7/core` → `@u7/course` в проекте (packages, apps)
 - [x] Task: Обновить путь в `package.json` корня (workspaces)
