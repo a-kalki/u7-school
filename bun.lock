@@ -21,15 +21,15 @@
       "version": "0.1.0",
       "dependencies": {
         "@google/genai": "^1.49.0",
-        "@u7/core": "workspace:*",
+        "@u7/course": "workspace:*",
         "dotenv": "^17.3.1",
         "elysia": "^1.4.27",
         "grammy": "^1.41.1",
         "valibot": "^1.2.0",
       },
     },
-    "packages/core": {
-      "name": "@u7/core",
+    "packages/course": {
+      "name": "@u7/course",
       "version": "0.1.0",
       "dependencies": {
         "valibot": "^1.0.0",
@@ -105,7 +105,7 @@
 
     "@u7/bot": ["@u7/bot@workspace:apps/u7-bot"],
 
-    "@u7/core": ["@u7/core@workspace:packages/core"],
+    "@u7/course": ["@u7/course@workspace:packages/course"],
 
     "@u7/w3school": ["@u7/w3school@workspace:packages/w3school"],
 

@@ -164,7 +164,7 @@ bun install
 bun test
 
 # Запуск тестов конкретного пакета
-bun test --filter @u7/core
+bun test --filter @u7/course
 
 # Форматирование кода
 bunx biome format --write .

@@ -1,5 +1,5 @@
 {
-	"name": "@u7/core",
+	"name": "@u7/course",
 	"version": "0.1.0",
 	"module": "src/index.ts",
 	"type": "module",

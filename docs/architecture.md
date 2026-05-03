@@ -71,7 +71,7 @@ packages/<module>/
 команду и возвращает результат:
 
 ```typescript
-// packages/core/src/api/module.ts
+// packages/course/src/api/module.ts
 module.handle(command: ModuleCommand): Promise<Result>;
 ```
 
@@ -133,7 +133,7 @@ module.handle(command: ModuleCommand): Promise<Result>;
 
 Пример:
 ```typescript
-// packages/core/src/api/commands/create_user_command.ts
+// packages/course/src/api/commands/create_user_command.ts
 import * as v from "valibot";
 import { UserSchema } from "../../domain/user/user";
 
