@@ -1,0 +1,4 @@
+Task: Улучшение архитектуры ошибок с категоризацией (kind)
+Summary: В AppError добавлено свойство kind (validation, not-found и т.д.). В Aggregate добавлены хелперы throwInvariant, throwConflict. В UseCase добавлены throwNotFound, throwAccessDenied и т.д. Тесты обновлены и проходят успешно.
+Files: packages/core/src/domain/errors/errors.ts, packages/core/src/domain/errors/error-helpers.ts, packages/core/src/domain/ar/aggregate.ts, packages/core/src/api/uc/use-case.ts, plus tests
+Reason: Уменьшение boilerplate-кода и обеспечение удобного HTTP маппинга на уровне REST (обсуждено в PR/Issue).
