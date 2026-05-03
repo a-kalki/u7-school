@@ -1,0 +1,4 @@
+Task: Вынести хелперы в отдельный файл
+Summary: Хелперы throwError и fromError вынесены в error-helpers.ts для лучшего разделения.
+Files: packages/core/src/domain/error-helpers.ts, packages/core/src/domain/errors.ts, packages/core/src/domain/errors.test.ts, packages/core/src/index.ts
+Reason: Улучшение структуры кода и разделение типов от логики.
