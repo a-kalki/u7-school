@@ -45,7 +45,7 @@
 - [x] Task: Регресс-проверка: запустить `bun test`, все ранее проходившие тесты должны проходить
 - [x] Task: Conductor - User Manual Verification 'Phase 2: rename module' (Protocol in workflow.md) [8ede3ed]
 
-## Phase 3: Множественные роли пользователя (FR1)
+## Phase 3: Множественные роли пользователя (FR1) [checkpoint: c7ce369]
 
 - [x] Task: Обновить тесты для `UserSchema` — заменить `role` на `roles: Role[]`, добавить новые тесты [6b2ff33]
     - [ ] Обновить существующие тесты: `role` → `roles` (массив)
@@ -70,7 +70,7 @@
 - [x] Task: Реализовать `UserCreatingUc`: работа с массивом ролей
 - [x] Task: Обновить `UserRepository`: интерфейс и in-memory реализацию
 - [x] Task: Регресс-проверка`, все тесты проходят, покрытие >80%
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: multi-roles' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: multi-roles' (Protocol in workflow.md) [c7ce369]
 
 ## Phase 4: Исправление тестов ai-service (FR4)
 
