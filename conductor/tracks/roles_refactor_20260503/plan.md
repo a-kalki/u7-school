@@ -74,9 +74,9 @@
 
 ## Phase 4: Исправление тестов ai-service (FR4)
 
-- [ ] Task: Заменить мок `@google/genai` на `openai` в `ai-service.test.ts`
-    - [ ] Мок `chat.completions.create` — возвращает корректный ответ в формате OpenAI API
-    - [ ] Мок ошибки API через `mockRejectedValue` с актуальной структурой
-- [ ] Task: Обновить тест ошибки: убрать `spyOn(ai.models, "generateContent")` (старый Gemini API)
-- [ ] Task: Регресс-проверка: запустить `bun test --filter w3school`, все тесты проходят, без реальных HTTP-запросов
+- [x] Task: Заменить мок `@google/genai` на `openai` в `ai-service.test.ts`
+    - [x] Мок `chat.completions.create` — возвращает корректный ответ в формате OpenAI API
+    - [x] Мок ошибки API через `mockRejectedValue` с актуальной структурой
+- [x] Task: Обновить тест ошибки: убрать `spyOn(ai.models, "generateContent")` (старый Gemini API)
+- [x] Task: Регресс-проверка: запустить `bun test --filter w3school`, все тесты проходят, без реальных HTTP-запросов
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: ai-service fix' (Protocol in workflow.md)
