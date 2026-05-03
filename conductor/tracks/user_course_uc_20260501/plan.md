@@ -92,18 +92,18 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc' (Protocol in workflow.md)
 
 ## Phase 6: Модуль core — entry point и диспатчер команд
-- [~] Task: Тесты для диспатчера команд
-    - [ ] Тест: команда `create-user` направляется в `UserCreatingUc`.
-    - [ ] Тест: команда `create-course` направляется в `CourseCreatingUc`.
-    - [ ] Тест: неизвестная команда — ошибка.
-- [ ] Task: Реализация диспатчера команд
-    - [ ] Определить структуру команд: `CreateUserCommand`, `CreateCourseCommand`.
-    - [ ] Реализовать диспатчер: принимает команду (plain object), передаёт в соответствующий UC.
-    - [ ] Добиться прохождения тестов.
-- [ ] Task: Entry point модуля
-    - [ ] Реализовать единый entry point модуля `core` — функция, принимающая команду и возвращающая результат.
-    - [ ] Связать entry point с диспатчером.
-    - [ ] Добиться прохождения тестов.
+- [x] Task: Тесты для диспатчера команд
+    - [x] Тест: команда `create-user` направляется в `UserCreatingUc`.
+    - [x] Тест: команда `create-course` направляется в `CourseCreatingUc`.
+    - [x] Тест: неизвестная команда — ошибка.
+- [x] Task: Реализация диспатчера команд
+    - [x] Определить структуру команд: `CreateUserCommand`, `CreateCourseCommand`.
+    - [x] Реализовать диспатчер: принимает команду (plain object), передаёт в соответствующий UC.
+    - [x] Добиться прохождения тестов.
+- [x] Task: Entry point модуля
+    - [x] Реализовать единый entry point модуля `core` — класс, принимающая команду и возвращающая результат.
+    - [x] Связать entry point с диспатчером.
+    - [x] Добиться прохождения тестов.
 - [ ] Task: Conductor - User Manual Verification 'Phase 6: Модуль core' (Protocol in workflow.md)
 
 ## Phase 7: Консольный интерфейс
