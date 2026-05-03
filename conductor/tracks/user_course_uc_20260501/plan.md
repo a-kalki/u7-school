@@ -91,7 +91,7 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 5: CoursePolicy, CourseRepository, CourseCreatingUc' (Protocol in workflow.md)
 
-## Phase 6: Модуль core — entry point и диспатчер команд
+## Phase 6: Модуль core — entry point и диспатчер команд [checkpoint: 488fe4d]
 - [x] Task: Тесты для диспатчера команд
     - [x] Тест: команда `create-user` направляется в `UserCreatingUc`.
     - [x] Тест: команда `create-course` направляется в `CourseCreatingUc`.
