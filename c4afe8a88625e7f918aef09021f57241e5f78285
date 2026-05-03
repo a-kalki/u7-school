@@ -1,0 +1,4 @@
+Task: Реализовать типы ошибок и хелперы
+Summary: Добавлены AppError, DomainErrorObject, ApiErrorObject, AppException, throwError, fromError.
+Files: packages/core/src/errors.ts, packages/core/src/errors.test.ts, packages/core/src/index.ts
+Reason: Реализация базовых типов ошибок для каркаса.
