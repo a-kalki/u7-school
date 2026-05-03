@@ -3,20 +3,20 @@
 ## Phase 1: Инициализация пакета и базовые типы ошибок (FR1)
 
 - [x] Task: Создать пакет `packages/core/` с `package.json` (`@u7/core`) [728c6a5]
-- [~] Task: Написать тесты для типов и объектов ошибок
-    - [ ] Тест: хелпер создания DomainError работает корректно
-    - [ ] Тест: хелпер создания ApiErrorObject работает корректно
-    - [ ] Тест: хелпер throwError выбрасывает исключение с правильным объектом ошибки
-    - [ ] Тест: хелпер fromError восстанавливает объект ошибки из исключения
-- [ ] Task: Реализовать типы ошибок и хелперы
-    - [ ] `AppError` — базовый тип со свойствами
-    - [ ] `DomainErrorObject` — level: "domain"
-    - [ ] `ApiErrorObject` — level: "api"
-    - [ ] `throwError(error)` — выбрасывает исключение с сериализованной ошибкой
-    - [ ] `fromError(exception)` — восстанавливает `ErrorObject` из исключения
-    - [ ] Тип `AppException` (базовое исключение)
-- [ ] Task: Интегрировать в корневой workspace и bun link
-- [ ] Task: Регресс-проверка: все тесты проходят
+- [x] Task: Написать тесты для типов и объектов ошибок [c4afe8a]
+    - [x] Тест: хелпер создания DomainError работает корректно
+    - [x] Тест: хелпер создания ApiErrorObject работает корректно
+    - [x] Тест: хелпер throwError выбрасывает исключение с правильным объектом ошибки
+    - [x] Тест: хелпер fromError восстанавливает объект ошибки из исключения
+- [x] Task: Реализовать типы ошибок и хелперы [c4afe8a]
+    - [x] `AppError` — базовый тип со свойствами
+    - [x] `DomainErrorObject` — level: "domain"
+    - [x] `ApiErrorObject` — level: "api"
+    - [x] `throwError(error)` — выбрасывает исключение с сериализованной ошибкой
+    - [x] `fromError(exception)` — восстанавливает `ErrorObject` из исключения
+    - [x] Тип `AppException` (базовое исключение)
+- [x] Task: Интегрировать в корневой workspace и bun link [c4afe8a]
+- [x] Task: Регресс-проверка: все тесты проходят [c4afe8a]
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: errors' (Protocol in workflow.md)
 
 ## Phase 2: UC Meta и Aggregate Meta (FR2, FR3)

@@ -28,6 +28,13 @@
         "valibot": "^1.2.0",
       },
     },
+    "packages/core": {
+      "name": "@u7/core",
+      "version": "0.1.0",
+      "dependencies": {
+        "valibot": "^1.0.0",
+      },
+    },
     "packages/course": {
       "name": "@u7/course",
       "version": "0.1.0",
@@ -104,6 +111,8 @@
     "@types/retry": ["@types/retry@0.12.0", "", {}, "sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA=="],
 
     "@u7/bot": ["@u7/bot@workspace:apps/u7-bot"],
+
+    "@u7/core": ["@u7/core@workspace:packages/core"],
 
     "@u7/course": ["@u7/course@workspace:packages/course"],
 
