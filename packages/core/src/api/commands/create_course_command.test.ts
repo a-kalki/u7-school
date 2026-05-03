@@ -15,14 +15,23 @@ describe("CreateCourseCommand (схема валидации)", () => {
 	});
 
 	test("должна отклонять пустой title", () => {
-		expect(v.safeParse(CreateCourseCommandSchema, { ...validCmd, title: "" }).success).toBe(false);
+		expect(
+			v.safeParse(CreateCourseCommandSchema, { ...validCmd, title: "" })
+				.success,
+		).toBe(false);
 	});
 
 	test("должна отклонять пустой description", () => {
-		expect(v.safeParse(CreateCourseCommandSchema, { ...validCmd, description: "" }).success).toBe(false);
+		expect(
+			v.safeParse(CreateCourseCommandSchema, { ...validCmd, description: "" })
+				.success,
+		).toBe(false);
 	});
 
 	test("должна отклонять невалидный authorId", () => {
-		expect(v.safeParse(CreateCourseCommandSchema, { ...validCmd, authorId: "bad" }).success).toBe(false);
+		expect(
+			v.safeParse(CreateCourseCommandSchema, { ...validCmd, authorId: "bad" })
+				.success,
+		).toBe(false);
 	});
 });

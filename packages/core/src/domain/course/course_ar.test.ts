@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { DomainException } from "../shared/exceptions";
+import { Status } from "../shared/status";
 import type { CourseWithModules } from "./course";
 import { CourseAr } from "./course_ar";
-import { Status } from "../shared/status";
 
 const validCourse: CourseWithModules = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
@@ -41,24 +40,14 @@ describe("Агрегат курса (CourseAr)", () => {
 		expect(ar.state.uuid).toBeString();
 	});
 
-	test("create должен выбрасывать при пустом title", () => {
+	test("create должен выбрасывать DomainException при невалидной команде", () => {
 		expect(() =>
 			CourseAr.create({
 				title: "",
 				description: "desc",
 				authorId: "660e8400-e29b-41d4-a716-446655440001",
 			}),
-		).toThrow(DomainException);
-	});
-
-	test("create должен выбрасывать при невалидном authorId", () => {
-		expect(() =>
-			CourseAr.create({
-				title: "Курс",
-				description: "desc",
-				authorId: "bad-uuid",
-			}),
-		).toThrow(DomainException);
+		).toThrow("Некорректная команда создания курса");
 	});
 
 	test("changeTitle обновляет заголовок и updatedAt", () => {
@@ -77,6 +66,6 @@ describe("Агрегат курса (CourseAr)", () => {
 
 	test("changeTitle с пустой строкой выбрасывает", () => {
 		const ar = new CourseAr(validCourse);
-		expect(() => ar.changeTitle("")).toThrow(DomainException);
+		expect(() => ar.changeTitle("")).toThrow("Некорректные данные курса");
 	});
 });

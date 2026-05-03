@@ -11,7 +11,10 @@ export class InMemoryCourseRepository implements CourseRepository {
 
 	async save(course: Course): Promise<void> {
 		if (this.#byUuid.has(course.uuid)) {
-			throw DomainException.conflict("Курс уже существует", `uuid=${course.uuid}`);
+			throw DomainException.conflict(
+				"Курс уже существует",
+				`uuid=${course.uuid}`,
+			);
 		}
 		this.#byUuid.set(course.uuid, course);
 	}

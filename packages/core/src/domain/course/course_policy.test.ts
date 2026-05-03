@@ -1,10 +1,43 @@
 import { describe, expect, test } from "bun:test";
+import { Status } from "../shared/status";
 import type { User } from "../user/user";
+import type { Course, CourseWithModules } from "./course";
 import { CoursePolicy } from "./course_policy";
 
-const admin: User = { uuid: "a", name: "A", telegramId: 1, role: "ADMIN", createdAt: "2026-05-01T12:00" };
-const mentor: User = { uuid: "m", name: "M", telegramId: 2, role: "MENTOR", createdAt: "2026-05-01T12:00" };
-const student: User = { uuid: "s", name: "S", telegramId: 3, role: "STUDENT", createdAt: "2026-05-01T12:00" };
+const admin: User = {
+	uuid: "a",
+	name: "A",
+	telegramId: 1,
+	role: "ADMIN",
+	createdAt: "2026-05-01T12:00",
+};
+const mentor: User = {
+	uuid: "m",
+	name: "M",
+	telegramId: 2,
+	role: "MENTOR",
+	createdAt: "2026-05-01T12:00",
+};
+const student: User = {
+	uuid: "s",
+	name: "S",
+	telegramId: 3,
+	role: "STUDENT",
+	createdAt: "2026-05-01T12:00",
+};
+
+function makeCourse(authorId: string): Course {
+	return {
+		uuid: "c",
+		title: "T",
+		description: "D",
+		authorId,
+		kind: "modules",
+		modules: [],
+		status: Status.DRAFT,
+		createdAt: "2026-05-01T12:00",
+	} as CourseWithModules;
+}
 
 describe("CoursePolicy", () => {
 	describe("canCreate", () => {
@@ -18,19 +51,20 @@ describe("CoursePolicy", () => {
 	});
 	describe("canRead", () => {
 		test("все могут читать", () => {
-			expect(CoursePolicy.canRead(admin)).toBe(true);
-			expect(CoursePolicy.canRead(student)).toBe(true);
+			const course = makeCourse(mentor.uuid);
+			expect(CoursePolicy.canRead(admin, course)).toBe(true);
+			expect(CoursePolicy.canRead(student, course)).toBe(true);
 		});
 	});
 	describe("canEdit", () => {
 		test("ADMIN может редактировать любой курс", () => {
-			expect(CoursePolicy.canEdit(admin, "other-author")).toBe(true);
+			expect(CoursePolicy.canEdit(admin, makeCourse("other"))).toBe(true);
 		});
 		test("автор может редактировать свой курс", () => {
-			expect(CoursePolicy.canEdit(mentor, mentor.uuid)).toBe(true);
+			expect(CoursePolicy.canEdit(mentor, makeCourse(mentor.uuid))).toBe(true);
 		});
 		test("не-автор не может редактировать чужой курс", () => {
-			expect(CoursePolicy.canEdit(mentor, "other-author")).toBe(false);
+			expect(CoursePolicy.canEdit(mentor, makeCourse("other"))).toBe(false);
 		});
 	});
 });

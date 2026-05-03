@@ -1,5 +1,6 @@
 import * as v from "valibot";
 
+// TODO: нужно чтобы поддерживало несколько ролей
 export const UserSchema = v.object({
 	uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
 	name: v.pipe(v.string(), v.nonEmpty("Имя не может быть пустым")),

@@ -1,11 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import type { CourseWithModules } from "../../domain/course/course";
-import { InMemoryCourseRepository } from "./course_repository";
 import { Status } from "../../domain/shared/status";
+import { InMemoryCourseRepository } from "./course_repository";
 
 const course: CourseWithModules = {
-	uuid: "c", title: "T", description: "D", authorId: "a",
-	kind: "modules", modules: [], status: Status.DRAFT, createdAt: "2026-05-01T12:00",
+	uuid: "c",
+	title: "T",
+	description: "D",
+	authorId: "a",
+	kind: "modules",
+	modules: [],
+	status: Status.DRAFT,
+	createdAt: "2026-05-01T12:00",
 };
 
 describe("CourseRepository (in-memory)", () => {

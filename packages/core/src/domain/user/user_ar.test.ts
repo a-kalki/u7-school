@@ -1,9 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { DomainException } from "../shared/exceptions";
 import type { User } from "./user";
 import { UserAr } from "./user_ar";
 
-/** Фикстура валидного пользователя */
 const validUser: User = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
 	name: "Иван Петров",
@@ -32,7 +30,6 @@ describe("Агрегат пользователя (UserAr)", () => {
 			telegramId: 999,
 			role: "MENTOR",
 		});
-
 		expect(ar.state.name).toBe("Мария");
 		expect(ar.state.telegramId).toBe(999);
 		expect(ar.state.role).toBe("MENTOR");
@@ -40,33 +37,25 @@ describe("Агрегат пользователя (UserAr)", () => {
 		expect(ar.state.createdAt).toBeString();
 	});
 
-	test("create должен генерировать уникальные UUID для разных пользователей", () => {
-		const ar1 = UserAr.create({
-			name: "А",
-			telegramId: 1,
-			role: "STUDENT",
-		});
-		const ar2 = UserAr.create({
-			name: "Б",
-			telegramId: 2,
-			role: "STUDENT",
-		});
+	test("create должен генерировать уникальные UUID", () => {
+		const ar1 = UserAr.create({ name: "А", telegramId: 1, role: "STUDENT" });
+		const ar2 = UserAr.create({ name: "Б", telegramId: 2, role: "STUDENT" });
 		expect(ar1.state.uuid).not.toBe(ar2.state.uuid);
 	});
 
-	test("validateInvariants должен проходить для валидного состояния", () => {
+	test("инварианты проходят для валидного состояния", () => {
 		expect(() => new UserAr(validUser)).not.toThrow();
 	});
 
-	test("validateInvariants должен выбрасывать DomainException при нарушении инвариантов", () => {
+	test("инварианты выбрасывают при нарушении", () => {
 		expect(() => new UserAr({ ...validUser, name: "" })).toThrow(
-			DomainException,
+			"Некорректные данные пользователя",
 		);
 	});
 
-	test("create должен выбрасывать DomainException при невалидной команде", () => {
+	test("create выбрасывает при невалидной команде", () => {
 		expect(() =>
 			UserAr.create({ name: "", telegramId: 1, role: "ADMIN" }),
-		).toThrow(DomainException);
+		).toThrow("Некорректная команда создания пользователя");
 	});
 });

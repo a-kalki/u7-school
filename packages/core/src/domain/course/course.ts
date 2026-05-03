@@ -3,7 +3,7 @@ import { ModuleSchema } from "../module/module";
 import { ProjectSchema } from "../project/project";
 import { StatusSchema } from "../shared/status";
 
-const CourseBaseSchema = v.object({
+export const CourseBaseSchema = v.object({
 	uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
 	title: v.pipe(v.string(), v.nonEmpty("Название курса не может быть пустым")),
 	description: v.pipe(

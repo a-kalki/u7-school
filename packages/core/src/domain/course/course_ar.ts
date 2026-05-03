@@ -2,15 +2,20 @@ import type { CreateCourseCommand } from "../../api/commands/create_course_comma
 import { CreateCourseCommandSchema } from "../../api/commands/create_course_command";
 import { parseOrThrow } from "../../api/shared/parse_or_throw";
 import { isoNow } from "../shared/iso_now";
+import { Status } from "../shared/status";
 import type { Course, CourseWithModules } from "./course";
 import { CourseSchema } from "./course";
-import { Status } from "../shared/status";
 
 /**
  * Проверяет инварианты курса через схему валидации.
  */
 function validateInvariants(course: Course): Course {
-	return parseOrThrow(CourseSchema, course, "Некорректные данные курса");
+	return parseOrThrow(
+		CourseSchema,
+		course,
+		"Некорректные данные курса",
+		"Ошибка инвариантов объекта Course",
+	);
 }
 
 /**

@@ -1,11 +1,14 @@
 import * as v from "valibot";
+import { CourseBaseSchema } from "../../domain/course/course";
 
 /** Схема валидации команды создания курса */
 export const CreateCourseCommandSchema = v.object({
-	title: v.pipe(v.string(), v.nonEmpty("Название курса не может быть пустым")),
-	description: v.pipe(v.string(), v.nonEmpty("Описание курса не может быть пустым")),
-	authorId: v.pipe(v.string(), v.uuid("Некорректный формат UUID автора")),
+	title: CourseBaseSchema.entries.title,
+	description: CourseBaseSchema.entries.description,
+	authorId: CourseBaseSchema.entries.authorId,
 });
 
 /** Команда создания курса */
-export type CreateCourseCommand = v.InferOutput<typeof CreateCourseCommandSchema>;
+export type CreateCourseCommand = v.InferOutput<
+	typeof CreateCourseCommandSchema
+>;
