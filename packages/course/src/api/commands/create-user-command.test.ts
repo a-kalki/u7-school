@@ -10,7 +10,7 @@ describe("CreateUserCommand (схема валидации)", () => {
 	const validCommand: CreateUserCommand = {
 		name: "Иван Петров",
 		telegramId: 123456789,
-		role: Role.ADMIN,
+		roles: [Role.ADMIN],
 	};
 
 	test("должна принимать валидную команду", () => {
@@ -19,11 +19,20 @@ describe("CreateUserCommand (схема валидации)", () => {
 		);
 	});
 
+	test("должна принимать несколько ролей", () => {
+		expect(
+			v.safeParse(CreateUserCommandSchema, {
+				...validCommand,
+				roles: [Role.STUDENT, Role.MENTOR],
+			}).success,
+		).toBe(true);
+	});
+
 	test("должна принимать роль STUDENT", () => {
 		expect(
 			v.safeParse(CreateUserCommandSchema, {
 				...validCommand,
-				role: Role.STUDENT,
+				roles: [Role.STUDENT],
 			}).success,
 		).toBe(true);
 	});
@@ -32,7 +41,7 @@ describe("CreateUserCommand (схема валидации)", () => {
 		expect(
 			v.safeParse(CreateUserCommandSchema, {
 				...validCommand,
-				role: Role.MENTOR,
+				roles: [Role.MENTOR],
 			}).success,
 		).toBe(true);
 	});
@@ -51,11 +60,20 @@ describe("CreateUserCommand (схема валидации)", () => {
 		).toBe(false);
 	});
 
-	test("должна отклонять невалидную роль", () => {
+	test("должна отклонять пустой массив ролей", () => {
 		expect(
 			v.safeParse(CreateUserCommandSchema, {
 				...validCommand,
-				role: "UNKNOWN",
+				roles: [],
+			}).success,
+		).toBe(false);
+	});
+
+	test("должна отклонять невалидную роль в массиве", () => {
+		expect(
+			v.safeParse(CreateUserCommandSchema, {
+				...validCommand,
+				roles: ["UNKNOWN"],
 			}).success,
 		).toBe(false);
 	});

@@ -10,7 +10,7 @@ describe("Консольный интерфейс", () => {
 			"--telegram-id=1",
 		]);
 		const parsed = JSON.parse(result);
-		expect(parsed.role).toBe("ADMIN");
+		expect(parsed.roles).toEqual(["ADMIN"]);
 		expect(parsed.name).toBe("Иван");
 	});
 
@@ -21,7 +21,7 @@ describe("Консольный интерфейс", () => {
 				"create-user",
 				"--name=X",
 				"--telegram-id=2",
-				"--role=STUDENT",
+				"--roles=STUDENT",
 			]),
 		).rejects.toThrow("Первый пользователь должен быть администратором");
 	});
@@ -40,7 +40,7 @@ describe("Консольный интерфейс", () => {
 			"create-user",
 			"--name=Ментор",
 			"--telegram-id=20",
-			"--role=MENTOR",
+			"--roles=MENTOR",
 			`--actor-id=${adminId}`,
 		]);
 		const mentorId = JSON.parse(mentorResult).uuid;

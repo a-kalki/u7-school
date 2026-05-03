@@ -5,7 +5,7 @@ import { UserSchema } from "../../domain/user/user";
 export const CreateUserCommandSchema = v.object({
 	name: UserSchema.entries.name,
 	telegramId: UserSchema.entries.telegramId,
-	role: UserSchema.entries.role,
+	roles: UserSchema.entries.roles,
 });
 
 /** Команда создания пользователя */

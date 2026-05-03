@@ -13,7 +13,7 @@ async function addUser(
 		uuid: u.uuid ?? crypto.randomUUID(),
 		name: u.name ?? "X",
 		telegramId: u.telegramId ?? Math.floor(Math.random() * 100000),
-		role: u.role ?? Role.ADMIN,
+		roles: u.roles ?? [Role.ADMIN],
 		createdAt: "2026-05-01T12:00",
 	};
 	await repo.save(user);
@@ -28,9 +28,9 @@ describe("CoreModule", () => {
 		});
 		const r = await m.handle({
 			name: "create-user",
-			attrs: { name: "А", telegramId: 1, role: Role.ADMIN },
+			attrs: { name: "А", telegramId: 1, roles: [Role.ADMIN] },
 		});
-		expect((r as User).role).toBe(Role.ADMIN);
+		expect((r as User).roles).toEqual([Role.ADMIN]);
 	});
 
 	test("create-user: с actorId создаёт пользователя", async () => {
@@ -40,13 +40,13 @@ describe("CoreModule", () => {
 			courseRepo: new InMemoryCourseRepository(),
 		});
 		const admin = await addUser(userRepo, {
-			role: Role.ADMIN,
+			roles: [Role.ADMIN],
 			telegramId: 100,
 		});
 		const r = await m.handle({
 			name: "create-user",
 			user: admin.uuid,
-			attrs: { name: "Б", telegramId: 200, role: Role.STUDENT },
+			attrs: { name: "Б", telegramId: 200, roles: [Role.STUDENT] },
 		});
 		expect((r as User).name).toBe("Б");
 	});
@@ -58,7 +58,7 @@ describe("CoreModule", () => {
 			courseRepo: new InMemoryCourseRepository(),
 		});
 		const mentor = await addUser(userRepo, {
-			role: Role.MENTOR,
+			roles: [Role.MENTOR],
 			telegramId: 300,
 		});
 		const r = await m.handle({

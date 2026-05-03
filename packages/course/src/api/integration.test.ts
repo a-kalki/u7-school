@@ -14,19 +14,19 @@ describe("Интеграционный тест: полный сценарий",
 		// Bootstrap: первый пользователь — ADMIN
 		const r1 = await m.handle({
 			name: "create-user",
-			attrs: { name: "Админ", telegramId: 1, role: Role.ADMIN },
+			attrs: { name: "Админ", telegramId: 1, roles: [Role.ADMIN] },
 		});
 		const admin = r1 as User;
-		expect(admin.role).toBe(Role.ADMIN);
+		expect(admin.roles).toEqual([Role.ADMIN]);
 
 		// Создаём MENTOR
 		const r2 = await m.handle({
 			name: "create-user",
 			user: admin.uuid,
-			attrs: { name: "Ментор", telegramId: 2, role: Role.MENTOR },
+			attrs: { name: "Ментор", telegramId: 2, roles: [Role.MENTOR] },
 		});
 		const mentor = r2 as User;
-		expect(mentor.role).toBe(Role.MENTOR);
+		expect(mentor.roles).toEqual([Role.MENTOR]);
 
 		// MENTOR создаёт курс
 		const r3 = await m.handle({

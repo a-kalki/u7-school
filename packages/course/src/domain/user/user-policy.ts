@@ -6,7 +6,7 @@ import type { User } from "../user/user";
  */
 export const UserPolicy = {
 	canCreate(actor: User): boolean {
-		return actor.role === "ADMIN";
+		return actor.roles.includes("ADMIN");
 	},
 
 	canRead(_actor: User): boolean {
@@ -14,6 +14,6 @@ export const UserPolicy = {
 	},
 
 	canEdit(actor: User, target: User): boolean {
-		return actor.role === "ADMIN" || actor.uuid === target.uuid;
+		return actor.roles.includes("ADMIN") || actor.uuid === target.uuid;
 	},
 };

@@ -32,7 +32,8 @@ export class ConsoleController {
 					"ожидается --key=value",
 				);
 			const rawKey = match[1];
-			const value = rawKey === "telegram-id" ? Number(match[2]) : match[2];
+			const rawValue = match[2];
+			const value = rawKey === "telegram-id" ? Number(rawValue) : rawValue;
 			// actor-id обрабатывается отдельно, остальные мапятся в camelCase
 			if (rawKey === "actor-id") {
 				user = value as string;
@@ -43,13 +44,14 @@ export class ConsoleController {
 						: rawKey === "author-id"
 							? "authorId"
 							: rawKey;
-				attrs[key] = value;
+				// Массивы: ключ roles разбивается по запятой
+				attrs[key] = key === "roles" ? (rawValue as string).split(",") : value;
 			}
 		}
 
-		// По умолчанию role = ADMIN (для bootstrap)
-		if (name === "create-user" && !attrs.role) {
-			attrs.role = "ADMIN";
+		// По умолчанию roles = [ADMIN] (для bootstrap)
+		if (name === "create-user" && !attrs.roles) {
+			attrs.roles = ["ADMIN"];
 		}
 
 		try {

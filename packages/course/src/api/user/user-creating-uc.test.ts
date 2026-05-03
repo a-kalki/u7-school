@@ -14,7 +14,7 @@ async function addUser(
 		uuid: overrides.uuid ?? crypto.randomUUID(),
 		name: overrides.name ?? "Тест",
 		telegramId: overrides.telegramId ?? Math.floor(Math.random() * 100000),
-		role: overrides.role ?? Role.ADMIN,
+		roles: overrides.roles ?? [Role.ADMIN],
 		createdAt: overrides.createdAt ?? "2026-05-01T12:00",
 	};
 	await repo.save(user);
@@ -24,19 +24,19 @@ async function addUser(
 const adminCmd: CreateUserCommand = {
 	name: "Админ",
 	telegramId: 1,
-	role: Role.ADMIN,
+	roles: [Role.ADMIN],
 };
 const studentCmd: CreateUserCommand = {
 	name: "Студент",
 	telegramId: 2,
-	role: Role.STUDENT,
+	roles: [Role.STUDENT],
 };
 
 describe("UserCreatingUc", () => {
 	test("bootstrap: создаёт первого ADMIN без actorId", async () => {
 		const uc = new UserCreatingUc(new InMemoryUserRepository());
 		const user = await uc.execute(adminCmd);
-		expect(user.role).toBe(Role.ADMIN);
+		expect(user.roles).toEqual([Role.ADMIN]);
 	});
 
 	test("bootstrap: отклоняет STUDENT — первый пользователь должен быть ADMIN", async () => {
@@ -48,19 +48,30 @@ describe("UserCreatingUc", () => {
 
 	test("ADMIN создаёт пользователя", async () => {
 		const repo = new InMemoryUserRepository();
-		const adminId = await addUser(repo, { role: Role.ADMIN, telegramId: 100 });
+		const adminId = await addUser(repo, { roles: [Role.ADMIN], telegramId: 100 });
 		const uc = new UserCreatingUc(repo);
 		const user = await uc.execute(
-			{ name: "Новый", telegramId: 200, role: Role.MENTOR },
+			{ name: "Новый", telegramId: 200, roles: [Role.MENTOR] },
 			adminId,
 		);
-		expect(user.role).toBe(Role.MENTOR);
+		expect(user.roles).toEqual([Role.MENTOR]);
+	});
+
+	test("ADMIN создаёт пользователя с несколькими ролями", async () => {
+		const repo = new InMemoryUserRepository();
+		const adminId = await addUser(repo, { roles: [Role.ADMIN], telegramId: 100 });
+		const uc = new UserCreatingUc(repo);
+		const user = await uc.execute(
+			{ name: "Мульти", telegramId: 201, roles: [Role.STUDENT, Role.MENTOR] },
+			adminId,
+		);
+		expect(user.roles).toEqual([Role.STUDENT, Role.MENTOR]);
 	});
 
 	test("STUDENT не может создавать — AccessDenied", async () => {
 		const repo = new InMemoryUserRepository();
 		const studentId = await addUser(repo, {
-			role: Role.STUDENT,
+			roles: [Role.STUDENT],
 			telegramId: 300,
 		});
 		const uc = new UserCreatingUc(repo);
@@ -78,14 +89,26 @@ describe("UserCreatingUc", () => {
 
 	test("дубликат telegramId — conflict", async () => {
 		const repo = new InMemoryUserRepository();
-		await addUser(repo, { telegramId: 777, role: Role.ADMIN });
-		const adminId = await addUser(repo, { telegramId: 778, role: Role.ADMIN });
+		await addUser(repo, { telegramId: 777, roles: [Role.ADMIN] });
+		const adminId = await addUser(repo, { telegramId: 778, roles: [Role.ADMIN] });
 		const uc = new UserCreatingUc(repo);
 		expect(
 			uc.execute(
-				{ name: "Дубль", telegramId: 777, role: Role.MENTOR },
+				{ name: "Дубль", telegramId: 777, roles: [Role.MENTOR] },
 				adminId,
 			),
 		).rejects.toThrow("Пользователь с таким telegramId уже существует");
+	});
+
+	test("отклоняет создание с пустым массивом ролей", async () => {
+		const repo = new InMemoryUserRepository();
+		const adminId = await addUser(repo, { roles: [Role.ADMIN], telegramId: 500 });
+		const uc = new UserCreatingUc(repo);
+		expect(
+			uc.execute(
+				{ name: "Пусто", telegramId: 501, roles: [] },
+				adminId,
+			),
+		).rejects.toThrow("Некорректная команда создания пользователя");
 	});
 });

@@ -30,12 +30,19 @@ export class UserCreatingUc {
 			"Некорректная команда создания пользователя",
 		);
 
+		if (command.roles === undefined || command.roles.length === 0) {
+			throw DomainException.validation(
+				"Некорректная команда создания пользователя",
+				"roles не может быть пустым",
+			);
+		}
+
 		// 2. Bootstrap-режим: нет actorId → первый пользователь, только ADMIN
 		if (actorId === undefined || actorId === null) {
-			if (command.role !== "ADMIN") {
+			if (!command.roles.includes("ADMIN")) {
 				throw DomainException.validation(
 					"Первый пользователь должен быть администратором",
-					`bootstrap требует роль ADMIN, получена ${command.role}`,
+					`bootstrap требует роль ADMIN, получены ${command.roles.join(",")}`,
 				);
 			}
 		} else {
@@ -49,7 +56,7 @@ export class UserCreatingUc {
 			if (!UserPolicy.canCreate(actor)) {
 				throw DomainException.accessDenied(
 					"Недостаточно прав для создания пользователя",
-					`Роль ${actor.role} не может создавать пользователей`,
+					`Роль [${actor.roles.join(",")}] не может создавать пользователей`,
 				);
 			}
 		}

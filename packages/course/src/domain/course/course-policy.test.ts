@@ -8,21 +8,21 @@ const admin: User = {
 	uuid: "a",
 	name: "A",
 	telegramId: 1,
-	role: "ADMIN",
+	roles: ["ADMIN"],
 	createdAt: "2026-05-01T12:00",
 };
 const mentor: User = {
 	uuid: "m",
 	name: "M",
 	telegramId: 2,
-	role: "MENTOR",
+	roles: ["MENTOR"],
 	createdAt: "2026-05-01T12:00",
 };
 const student: User = {
 	uuid: "s",
 	name: "S",
 	telegramId: 3,
-	role: "STUDENT",
+	roles: ["STUDENT"],
 	createdAt: "2026-05-01T12:00",
 };
 

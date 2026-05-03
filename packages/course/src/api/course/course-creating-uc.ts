@@ -33,7 +33,7 @@ export class CourseCreatingUc {
 		if (!CoursePolicy.canCreate(actor)) {
 			throw DomainException.accessDenied(
 				"Недостаточно прав для создания курса",
-				`Роль ${actor.role} не может создавать курсы`,
+				`Роль [${actor.roles.join(",")}] не может создавать курсы`,
 			);
 		}
 

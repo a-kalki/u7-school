@@ -47,7 +47,7 @@ export class UserAr {
 			uuid: crypto.randomUUID(),
 			name: parsed.name,
 			telegramId: parsed.telegramId,
-			role: parsed.role,
+			roles: parsed.roles,
 			createdAt: isoNow(),
 		};
 

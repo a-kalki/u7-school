@@ -12,7 +12,7 @@ async function addUser(
 		uuid: u.uuid ?? crypto.randomUUID(),
 		name: u.name ?? "X",
 		telegramId: u.telegramId ?? 1,
-		role: u.role ?? "MENTOR",
+		roles: u.roles ?? ["MENTOR"],
 		createdAt: "2026-05-01T12:00",
 	};
 	await repo.save(user);
@@ -24,7 +24,7 @@ describe("CourseCreatingUc", () => {
 		const userRepo = new InMemoryUserRepository();
 		const courseRepo = new InMemoryCourseRepository();
 		const mentorId = await addUser(userRepo, {
-			role: "MENTOR",
+			roles: ["MENTOR"],
 			telegramId: 10,
 		});
 		const uc = new CourseCreatingUc(courseRepo, userRepo);
@@ -38,7 +38,7 @@ describe("CourseCreatingUc", () => {
 	test("STUDENT не может создать", async () => {
 		const userRepo = new InMemoryUserRepository();
 		const studentId = await addUser(userRepo, {
-			role: "STUDENT",
+			roles: ["STUDENT"],
 			telegramId: 20,
 		});
 		const uc = new CourseCreatingUc(new InMemoryCourseRepository(), userRepo);
@@ -53,7 +53,7 @@ describe("CourseCreatingUc", () => {
 	test("автор не существует → notFound", async () => {
 		const userRepo = new InMemoryUserRepository();
 		const mentorId = await addUser(userRepo, {
-			role: "MENTOR",
+			roles: ["MENTOR"],
 			telegramId: 30,
 		});
 		const uc = new CourseCreatingUc(new InMemoryCourseRepository(), userRepo);
