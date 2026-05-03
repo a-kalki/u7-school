@@ -74,7 +74,7 @@
 
 ## Phase 4: Исправление тестов ai-service (FR4)
 
-- [x] Task: Заменить мок `@google/genai` на `openai` в `ai-service.test.ts`
+- [x] Task: Заменить мок [200bfb0] `@google/genai` на `openai` в `ai-service.test.ts`
     - [x] Мок `chat.completions.create` — возвращает корректный ответ в формате OpenAI API
     - [x] Мок ошибки API через `mockRejectedValue` с актуальной структурой
 - [x] Task: Обновить тест ошибки: убрать `spyOn(ai.models, "generateContent")` (старый Gemini API)
