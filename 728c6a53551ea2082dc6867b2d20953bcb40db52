@@ -1,0 +1,4 @@
+Task: Создать пакет packages/core/ с package.json (@u7/core)
+Summary: Созданы package.json, tsconfig.json и src/index.ts для нового пакета @u7/core.
+Files: packages/core/package.json, packages/core/tsconfig.json, packages/core/src/index.ts
+Reason: Инициализация нового пакета согласно плану Phase 1.
