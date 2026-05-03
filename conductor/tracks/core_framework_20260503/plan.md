@@ -33,11 +33,11 @@
     - [x] UseCase проходит все тесты и нет ошибок линтера tsc
     - [x] Все работает через встроенный хелпер: `this.throwError(error)` который следит за типами ошибок с meta
 - [x] Task: Регресс-проверка: все тесты проходят, типы компилируются [0abcee7]
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: meta types' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: meta types' (Protocol in workflow.md) [checkpoint: 1be4125]
 
 ## Phase 3: Абстрактный класс UseCase (FR4)
 
-- [ ] Task: Написать тесты для UseCase
+- [~] Task: Написать тесты для UseCase
     - [ ] Тест: use-case валидирует команду через схему
     - [ ] Тест: use-case вызывает execute с command и actorId
     - [ ] Тест: use-case имеет доступ к резолверу модуля
