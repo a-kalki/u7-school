@@ -35,7 +35,7 @@
 - [x] Task: Регресс-проверка: запустить `bun test`, все ранее проходившие тесты должны проходить
 - [x] Task: Conductor - User Manual Verification 'Phase 1: kebab-case' (Protocol in workflow.md) [6f6a708]
 
-## Phase 2: Переименование модуля @u7/core → @u7/course (FR2)
+## Phase 2: Переименование модуля @u7/core → @u7/course (FR2) [checkpoint: 8ede3ed]
 
 - [x] Task: Переименовать директорию `packages/core` → `packages/course` [bb78fca]
 - [x] Task: Обновить `packages/course/package.json`: `"name": "@u7/course"`
@@ -43,7 +43,7 @@
 - [x] Task: Обновить путь в `package.json` корня (workspaces)
 - [x] Task: Обновить ссылки в `docs/architecture.md`
 - [x] Task: Регресс-проверка: запустить `bun test`, все ранее проходившие тесты должны проходить
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: rename module' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: rename module' (Protocol in workflow.md) [8ede3ed]
 
 ## Phase 3: Множественные роли пользователя (FR1)
 
