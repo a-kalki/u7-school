@@ -2,7 +2,7 @@
 
 ## Phase 1: Переименование файлов на kebab-case (FR3)
 
-- [x] Task: Переименовать файлы в `packages/core/src/domain/`
+- [x] Task: Переименовать файлы в `packages/core/src/domain/` [663d2f2]
     - [x] `user_ar.ts` → `user-ar.ts`
     - [x] `user_ar.test.ts` → `user-ar.test.ts`
     - [x] `user_policy.ts` → `user-policy.ts`
