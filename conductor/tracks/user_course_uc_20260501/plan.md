@@ -106,16 +106,16 @@
     - [x] Добиться прохождения тестов.
 - [x] Task: Conductor - User Manual Verification 'Phase 6: Модуль core' (Protocol in workflow.md)
 
-## Phase 7: Консольный интерфейс
-- [ ] Task: Консольная команда create-user
-    - [ ] Принимать аргументы: `--name`, `--telegram-id`, `--role`.
-    - [ ] Формировать `CreateUserCommand`, отправлять в entry point модуля `core`.
-    - [ ] Выводить результат (созданный пользователь или ошибка).
-- [ ] Task: Консольная команда create-course
-    - [ ] Принимать аргументы: `--title`, `--description`, `--author-id`.
-    - [ ] Формировать `CreateCourseCommand`, отправлять в entry point модуля `core`.
-    - [ ] Выводить результат.
-- [ ] Task: Conductor - User Manual Verification 'Phase 7: Консольный интерфейс' (Protocol in workflow.md)
+## Phase 7: Консольный интерфейс [checkpoint: e1ff22f]
+- [x] Task: Консольная команда create-user
+    - [x] Принимать аргументы: `--name`, `--telegram-id`, `--role`.
+    - [x] Формировать `CreateUserCommand`, отправлять в entry point модуля `core`.
+    - [x] Выводить результат (созданный пользователь или ошибка).
+- [x] Task: Консольная команда create-course
+    - [x] Принимать аргументы: `--title`, `--description`, `--author-id`.
+    - [x] Формировать `CreateCourseCommand`, отправлять в entry point модуля `core`.
+    - [x] Выводить результат.
+- [x] Task: Conductor - User Manual Verification 'Phase 7: Консольный интерфейс' (Protocol in workflow.md)
 
 ## Phase 8: DI, интеграция и финализация
 - [ ] Task: Тесты для DI-контейнера
