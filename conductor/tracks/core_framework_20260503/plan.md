@@ -17,11 +17,11 @@
     - [x] Тип `AppException` (базовое исключение)
 - [x] Task: Интегрировать в корневой workspace и bun link [c4afe8a]
 - [x] Task: Регресс-проверка: все тесты проходят [c4afe8a]
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: errors' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: errors' (Protocol in workflow.md) [checkpoint: fc1170c]
 
 ## Phase 2: UC Meta и Aggregate Meta (FR2, FR3)
 
-- [ ] Task: Написать типы Meta
+- [~] Task: Написать типы Meta
     - [ ] Определить тип UcMeta, ArMeta;
     - [ ] Определить болванки абстрактных классов UseCase, Aggregate
 - [ ] Task: Написать тесты для UseCase
