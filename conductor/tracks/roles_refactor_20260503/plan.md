@@ -1,6 +1,6 @@
 # План реализации: Множественные роли, переименование, исправление ai-service
 
-## Phase 1: Переименование файлов на kebab-case (FR3)
+## Phase 1: Переименование файлов на kebab-case (FR3) [checkpoint: 6f6a708]
 
 - [x] Task: Переименовать файлы в `packages/core/src/domain/` [663d2f2]
     - [x] `user_ar.ts` → `user-ar.ts`
@@ -33,7 +33,7 @@
 - [x] Task: Обновить все импорты в `apps/u7-bot/` на новые имена файлов
 - [x] Task: Добавить соглашение о kebab-case в `docs/architecture.md`
 - [x] Task: Регресс-проверка: запустить `bun test`, все ранее проходившие тесты должны проходить
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: kebab-case' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: kebab-case' (Protocol in workflow.md) [6f6a708]
 
 ## Phase 2: Переименование модуля @u7/core → @u7/course (FR2)
 
