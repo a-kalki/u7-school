@@ -9,8 +9,7 @@ describe("errors", () => {
 			name: "TestDomainError",
 			level: "domain",
 			kind: "validation",
-			userMessage: "Test msg",
-			debugInfo: "Test debug",
+			message: "Test msg",
 		};
 		let caught: unknown;
 		try {
@@ -28,8 +27,7 @@ describe("errors", () => {
 			name: "TestApiError",
 			level: "api",
 			kind: "bad-request",
-			userMessage: "Api msg",
-			debugInfo: "Api debug",
+			message: "Api msg",
 			payload: { x: 1 },
 		};
 		const exception = new AppException(apiErr);
@@ -42,6 +40,6 @@ describe("errors", () => {
 		const recovered = fromError(error);
 		expect(recovered.level).toBe("api");
 		expect(recovered.name).toBe("UnknownError");
-		expect(recovered.debugInfo).toBe("Some standard error");
+		expect(recovered.message).toBe("Some standard error");
 	});
 });

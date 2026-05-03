@@ -10,8 +10,7 @@ export interface AppError {
 	name: string;
 	level: "domain" | "api";
 	kind: ErrorKind;
-	userMessage: string;
-	debugInfo: string;
+	message: string;
 	payload?: unknown;
 }
 
@@ -25,7 +24,7 @@ export interface ApiError extends AppError {
 
 export class AppException extends Error {
   constructor(public readonly error: AppError) {
-    super(error.userMessage);
+    super(error.message);
     this.name = "AppException";
   }
 }

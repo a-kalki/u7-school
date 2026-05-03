@@ -19,7 +19,7 @@ interface TestUcMeta extends UcMeta {
 class TestUseCase extends UseCase<TestUcMeta> {
   execute(command: { foo: string }) {
     if (command.foo === "bad") {
-      this.throwBadRequest("TestUcError", "Bad input", "foo is bad");
+      this.throwBadRequest("TestUcError", "Bad input");
     }
     return { bar: "ok" };
   }

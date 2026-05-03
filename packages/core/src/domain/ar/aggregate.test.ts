@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import type { ArMeta } from "./aggregate";
-import { Aggregate } from "./aggregate";
 import type { DomainError } from "../errors/errors";
 import { AppException } from "../errors/errors";
+import type { ArMeta } from "./aggregate";
+import { Aggregate } from "./aggregate";
 
 interface TestArError1 extends DomainError {
   name: "TestArError1";
@@ -23,7 +23,7 @@ interface TestArMeta extends ArMeta {
 
 class TestAggregate extends Aggregate<TestArMeta> {
   doSomethingBad() {
-    this.throwInvariant("TestArError1", "Bad thing happened");
+    this.throwInvariant({ name: ["Not be empty"] }, "Bad thing happened");
   }
 }
 

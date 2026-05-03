@@ -10,20 +10,19 @@ export function fromError(error: unknown): AppError {
 		return error.error;
 	}
 
-	let debugInfo = "Unknown error";
+	let message = "Unknown error";
 	if (error instanceof Error) {
-		debugInfo = error.message;
+		message = error.message;
 	} else if (typeof error === "string") {
-		debugInfo = error;
+		message = error;
 	} else {
-		debugInfo = String(error);
+		message = String(error);
 	}
 
 	return {
 		name: "UnknownError",
 		level: "api",
 		kind: "internal",
-		userMessage: "Произошла неизвестная ошибка",
-		debugInfo,
+		message,
 	};
 }
