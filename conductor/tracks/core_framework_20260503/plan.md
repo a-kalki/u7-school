@@ -92,13 +92,13 @@
 
 ## Phase 6: Интеграция — демо-модуль с тестами (FR7)
 
-- [~] Task: Написать интеграционные тесты
-    - [ ] Тест: полный сценарий — CLI → Module → UseCase → ответ
-    - [ ] Тест: полный сценарий с ошибкой агрегата → контроллер ловит
-    - [ ] Тест: demo-модуль с getCommands() возвращает список команд
-- [ ] Task: Создать demo-модуль для проверки каркаса
-    - [ ] DemoCreateUserCommand, DemoCreateUserUC, DemoModule
-    - [ ] DemoUserAr с AggregateMeta (пул ошибок: "invalid_name")
-    - [ ] Интеграция через CLI-контроллер
-- [ ] Task: Регресс-проверка: все тесты проходят, все сценарии работают
+- [x] Task: Написать интеграционные тесты [2c70e03]
+    - [x] Тест: полный сценарий — CLI → Module → UseCase → ответ
+    - [x] Тест: полный сценарий с ошибкой агрегата → контроллер ловит
+    - [x] Тест: demo-модуль с getCommands() возвращает список команд
+- [x] Task: Создать demo-модуль для проверки каркаса [2c70e03]
+    - [x] DemoCreateUserCommand, DemoCreateUserUC, DemoModule
+    - [x] DemoUserAr с AggregateMeta (пул ошибок: "invalid_name")
+    - [x] Интеграция через CLI-контроллер
+- [x] Task: Регресс-проверка: все тесты проходят, все сценарии работают [2c70e03]
 - [ ] Task: Conductor - User Manual Verification 'Phase 6: integration' (Protocol in workflow.md)
