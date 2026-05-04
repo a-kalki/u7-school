@@ -1,0 +1,4 @@
+Phase 1: Extraction & Refinement
+Summary: Все архитектурные правила извлечены из docs/architecture.md и дополнены новыми требованиями (ModuleMeta, пирамида тестов, защита от регресса). Создан api.md.
+Files: conductor/code_styleguides/*.md
+Reason: Завершение Фазы 1 трека декомпозиции.
