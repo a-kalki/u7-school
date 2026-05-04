@@ -1,0 +1,4 @@
+Task: Извлечь соглашения по именованию в naming.md
+Summary: Создан файл conductor/code_styleguides/naming.md с правилами именования файлов (kebab-case) и классов (Ar, Uc, Policy).
+Files: conductor/code_styleguides/naming.md
+Reason: Декомпозиция монолитной документации.
