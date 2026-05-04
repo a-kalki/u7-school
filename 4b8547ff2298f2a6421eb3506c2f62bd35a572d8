@@ -1,0 +1,4 @@
+Task: Извлечь правила интеграции и DI в integration.md
+Summary: Создан файл conductor/code_styleguides/integration.md с описанием Resolve, правил межмодульного взаимодействия и использования фасадов.
+Files: conductor/code_styleguides/integration.md
+Reason: Декомпозиция монолитной документации.
