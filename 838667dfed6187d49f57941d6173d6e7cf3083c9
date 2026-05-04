@@ -1,0 +1,4 @@
+Task: Реализовать абстрактный класс Module
+Summary: Добавлен абстрактный класс Module, который инициализируется с резолвером и передает его своим UseCase'ам, имеет метод handle() и getCommands(). Тесты написаны.
+Files: packages/core/src/api/module.ts, packages/core/src/api/module.test.ts, packages/core/src/index.ts
+Reason: Реализация функционального требования FR5.
