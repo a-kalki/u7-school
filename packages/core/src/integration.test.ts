@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { Aggregate } from "./domain/ar/aggregate";
-import type { ArMeta } from "./domain/ar/aggregate";
-import type { DomainError } from "./domain/errors/errors";
-import { UseCase } from "./api/uc/use-case";
-import type { UcMeta } from "./api/uc/use-case";
-import { Module } from "./api/module/module";
-import type { ModuleMeta } from "./domain/module/types";
 import { createCliController } from "./api/controller/cli";
+import { Module } from "./api/module/module";
+import type { UcMeta } from "./api/uc/use-case";
+import { UseCase } from "./api/uc/use-case";
+import type { ArMeta } from "./domain/ar/aggregate";
+import { Aggregate } from "./domain/ar/aggregate";
+import type { DomainError } from "./domain/errors/errors";
+import type { ModuleMeta } from "./domain/module/types";
 
 // 1. Domain
 interface InvalidNameError extends DomainError {
@@ -29,7 +29,7 @@ class DemoUserAr extends Aggregate<DemoUserArMeta> {
     if (this.name.length < 3) {
       this.throwInvariant(
         { minLen: 3, actual: this.name.length },
-        "Имя пользователя должно быть не короче 3 символов"
+        "Имя пользователя должно быть не короче 3 символов",
       );
     }
   }
@@ -47,7 +47,10 @@ interface DemoCreateUserUcMeta extends UcMeta {
   errors: InvalidNameError;
 }
 
-class DemoCreateUserUC extends UseCase<DemoCreateUserUcMeta, { db: any[] }> {
+class DemoCreateUserUC extends UseCase<
+  DemoCreateUserUcMeta,
+  { db: { name: string }[] }
+> {
   readonly commandName = "demo.create-user";
   readonly inputSchema = v.object({
     name: v.string(),
@@ -58,7 +61,7 @@ class DemoCreateUserUC extends UseCase<DemoCreateUserUcMeta, { db: any[] }> {
     user.validateName(); // Могут выброситься доменные ошибки
 
     const snapshot = user.toSnapshot();
-    
+
     // Эмулируем сохранение в БД через резолвер
     this.resolve.db.push(snapshot);
 
@@ -72,10 +75,10 @@ class DemoCreateUserUC extends UseCase<DemoCreateUserUcMeta, { db: any[] }> {
 // 3. Module
 interface DemoModuleMeta extends ModuleMeta {
   name: "Demo";
-  url: "/api/demo";
+  url: "demo";
 }
 
-class DemoModule extends Module<DemoModuleMeta, { db: any[] }> {
+class DemoModule extends Module<DemoModuleMeta, { db: { name: string }[] }> {
   readonly name = "Demo";
   readonly useCases = [new DemoCreateUserUC()];
 }
@@ -83,7 +86,7 @@ class DemoModule extends Module<DemoModuleMeta, { db: any[] }> {
 // Tests
 describe("Integration: Core Framework", () => {
   test("Полный сценарий: CLI -> Module -> UseCase -> Успешный ответ", async () => {
-    const db: any[] = [];
+    const db: { name: string }[] = [];
     const module = new DemoModule();
     module.init({ db });
 
@@ -95,11 +98,11 @@ describe("Integration: Core Framework", () => {
       expect(result.data).toEqual({ id: "user-1", name: "Ivan" });
     }
     expect(db).toHaveLength(1);
-    expect(db[0].name).toBe("Ivan");
+    expect(db[0]?.name).toBe("Ivan");
   });
 
   test("Сценарий с ошибкой агрегата: контроллер корректно её ловит и форматирует", async () => {
-    const db: any[] = [];
+    const db: { name: string }[] = [];
     const module = new DemoModule();
     module.init({ db });
 
@@ -111,7 +114,9 @@ describe("Integration: Core Framework", () => {
     if (!result.success) {
       expect(result.error.kind).toBe("internal"); // Агрегат бросает throwInvariant -> kind: internal
       expect(result.error.name).toBe("AR_INVARIANT_ERROR");
-      expect(result.error.message).toBe("Имя пользователя должно быть не короче 3 символов");
+      expect(result.error.message).toBe(
+        "Имя пользователя должно быть не короче 3 символов",
+      );
       expect(result.error.payload).toEqual({ minLen: 3, actual: 2 });
     }
     expect(db).toHaveLength(0);
@@ -120,7 +125,7 @@ describe("Integration: Core Framework", () => {
   test("demo-модуль возвращает список команд через getCommands()", () => {
     const module = new DemoModule();
     const commands = module.getCommands();
-    
+
     expect(commands).toHaveLength(1);
     expect(commands[0]?.commandName).toBe("demo.create-user");
     expect(commands[0]?.inputSchema).toBeDefined();
