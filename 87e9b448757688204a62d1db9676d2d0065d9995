@@ -1,0 +1,4 @@
+Task: Извлечь правила обработки ошибок в errors.md
+Summary: Создан файл conductor/code_styleguides/errors.md с описанием иерархии AppError, категорий kind и правил использования AppException.
+Files: conductor/code_styleguides/errors.md
+Reason: Декомпозиция монолитной документации.
