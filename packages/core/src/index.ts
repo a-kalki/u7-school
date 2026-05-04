@@ -4,3 +4,4 @@ export * from "./domain/ar/aggregate";
 export * from "./domain/module/types";
 export * from "./api/uc/use-case";
 export * from "./api/module/module";
+export * from "./api/controller/cli";
