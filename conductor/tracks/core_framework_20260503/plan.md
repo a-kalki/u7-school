@@ -75,19 +75,19 @@
 
 ## Phase 5: CLI-контроллер с обработкой ошибок (FR6)
 
-- [~] Task: Написать тесты для CLI-контроллера
-    - [ ] Тест: контроллер создаёт ModuleCommand из CLI-аргументов
-    - [ ] Тест: контроллер передаёт команду модулю
-    - [ ] Тест: контроллер ловит DomainError → JSON-ошибка
-    - [ ] Тест: контроллер ловит ApiError → JSON-ошибка
-    - [ ] Тест: контроллер ловит неизвестное исключение → 500
-- [ ] Task: Реализовать CLI-контроллер
-    - [ ] Функция `createCliController(module)` — фабрика
-    - [ ] `run(args: string[])` — парсинг CLI-аргументов в ModuleCommand
-    - [ ] Обработчик ошибок: ловит исключения, `fromError()` → JSON-ответ
-    - [ ] Успешный ответ: `{ success: true, data: result }`
-    - [ ] Ошибочный ответ: `{ success: false, error: { code, message, payload? } }`
-- [ ] Task: Регресс-проверка: все тесты проходят
+- [x] Task: Написать тесты для CLI-контроллера [025ce58]
+    - [x] Тест: контроллер создаёт ModuleCommand из CLI-аргументов
+    - [x] Тест: контроллер передаёт команду модулю
+    - [x] Тест: контроллер ловит DomainError → JSON-ошибка
+    - [x] Тест: контроллер ловит ApiError → JSON-ошибка
+    - [x] Тест: контроллер ловит неизвестное исключение → 500
+- [x] Task: Реализовать CLI-контроллер [025ce58]
+    - [x] Функция `createCliController(module)` — фабрика
+    - [x] `run(args: string[])` — парсинг CLI-аргументов в ModuleCommand
+    - [x] Обработчик ошибок: ловит исключения, `fromError()` → JSON-ответ
+    - [x] Успешный ответ: `{ success: true, data: result }`
+    - [x] Ошибочный ответ: `{ success: false, error: AppError }`
+- [x] Task: Регресс-проверка: все тесты проходят [025ce58]
 - [ ] Task: Conductor - User Manual Verification 'Phase 5: CLI-controller' (Protocol in workflow.md)
 
 ## Phase 6: Интеграция — демо-модуль с тестами (FR7)
