@@ -1,0 +1,19 @@
+Фаза 3: Авторизация и метаданные UC
+
+- Добавлены abstract readonly поля: description, aggregateName, aggregateLabel, type, requiresAuth
+- Добавлен protected checkAuth() с возможностью переопределения
+- Условная типизация actorId в execute(): string при requiresAuth=true
+- Добавлен getCommand() для экспорта метаданных со схемами
+- Удалён getInputSchema()
+- Обновлён Module.getCommands() для использования getCommand()
+- Обновлены все тестовые классы
+
+Изменённые файлы:
+- packages/core/src/api/uc/use-case.ts
+- packages/core/src/api/uc/use-case-auth.test.ts
+- packages/core/src/api/module/module.ts
+- packages/core/src/api/uc/use-case.test.ts
+- packages/core/src/api/uc/use-case-output.test.ts
+- packages/core/src/api/module/module.test.ts
+- packages/core/src/api/controller/cli.test.ts
+- packages/core/src/integration.test.ts
