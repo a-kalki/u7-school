@@ -1,0 +1,10 @@
+Фаза 1: Расширение доменных типов (ArMeta, UcMeta)
+
+- Добавлено поле label в ArMeta
+- Добавлены поля description, arMeta, requiresAuth, type в UcMeta
+- Созданы compile-time тесты для проверки новых полей
+
+Изменённые файлы:
+- packages/core/src/domain/ar/aggregate.ts
+- packages/core/src/api/uc/use-case.ts
+- packages/core/src/domain/types.test.ts
