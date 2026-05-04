@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { Role } from "./roles";
 import type { User } from "./user";
 import { UserAr } from "./user-ar";
-import { Role } from "./roles";
 
 const validUser: User = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
@@ -48,8 +48,16 @@ describe("Агрегат пользователя (UserAr)", () => {
 	});
 
 	test("create должен генерировать уникальные UUID", () => {
-		const ar1 = UserAr.create({ name: "А", telegramId: 1, roles: [Role.STUDENT] });
-		const ar2 = UserAr.create({ name: "Б", telegramId: 2, roles: [Role.STUDENT] });
+		const ar1 = UserAr.create({
+			name: "А",
+			telegramId: 1,
+			roles: [Role.STUDENT],
+		});
+		const ar2 = UserAr.create({
+			name: "Б",
+			telegramId: 2,
+			roles: [Role.STUDENT],
+		});
 		expect(ar1.state.uuid).not.toBe(ar2.state.uuid);
 	});
 

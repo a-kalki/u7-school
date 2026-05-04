@@ -5,7 +5,7 @@ import { DomainException } from "../../domain/shared/exceptions";
 import type { CreateCourseCommand } from "../commands/create-course-command";
 import { CreateCourseCommandSchema } from "../commands/create-course-command";
 import { parseOrThrow } from "../shared/parse-or-throw";
-import type { UserRepository } from "../user/user_repository";
+import type { UserRepository } from "../user/user-repository";
 import type { CourseRepository } from "./course-repository";
 
 export class CourseCreatingUc {

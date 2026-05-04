@@ -1,4 +1,5 @@
 import type { User } from "../user/user";
+import { Role } from "./roles";
 
 /**
  * Политика прав доступа для пользователей.
@@ -6,7 +7,7 @@ import type { User } from "../user/user";
  */
 export const UserPolicy = {
 	canCreate(actor: User): boolean {
-		return actor.roles.includes("ADMIN");
+		return actor.roles.includes(Role.ADMIN);
 	},
 
 	canRead(_actor: User): boolean {
@@ -14,6 +15,6 @@ export const UserPolicy = {
 	},
 
 	canEdit(actor: User, target: User): boolean {
-		return actor.roles.includes("ADMIN") || actor.uuid === target.uuid;
+		return actor.roles.includes(Role.ADMIN) || actor.uuid === target.uuid;
 	},
 };

@@ -11,8 +11,7 @@ const turndownService = new TurndownService({
 turndownService.addRule("w3-example", {
 	filter: (node) => node.classList.contains("w3-example"),
 	replacement: (_content, node) => {
-		const HTMLElement = node as unknown as HTMLElement;
-		const code = HTMLElement.querySelector("pre, .w3-code")?.textContent || "";
+		const code = node.querySelector("pre, .w3-code")?.textContent || "";
 		return `\n\`\`\`javascript\n${code.trim()}\n\`\`\`\n`;
 	},
 });

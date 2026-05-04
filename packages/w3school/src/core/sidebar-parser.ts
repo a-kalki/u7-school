@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import type { Section } from "./types";
+import type { Lesson, Section } from "./types";
 
 const W3S_URL = "https://www.w3schools.com";
 
@@ -49,7 +49,7 @@ export function parseSidebar(
 					sections.push(currentSection);
 				}
 
-				const cleanName = href.split("?")[0].replace(/%3F.*/, "");
+				const cleanName = (href.split("?")[0] ?? "").replace(/%3F.*/, "");
 				const lessonTitle = applyReplacements($el.text().trim());
 
 				currentSection.lessons.push({

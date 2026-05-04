@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import * as v from "valibot";
 import { CourseSchema, LessonSchema, ModuleSchema } from "@u7/course";
+import * as v from "valibot";
 
 describe("Course Domain Schemas", () => {
 	describe("LessonSchema", () => {

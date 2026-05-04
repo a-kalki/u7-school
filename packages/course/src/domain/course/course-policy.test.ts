@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Status } from "../shared/status";
+import { Role } from "../user/roles";
 import type { User } from "../user/user";
 import type { Course, CourseWithModules } from "./course";
 import { CoursePolicy } from "./course-policy";
@@ -8,21 +9,21 @@ const admin: User = {
 	uuid: "a",
 	name: "A",
 	telegramId: 1,
-	roles: ["ADMIN"],
+	roles: [Role.ADMIN],
 	createdAt: "2026-05-01T12:00",
 };
 const mentor: User = {
 	uuid: "m",
 	name: "M",
 	telegramId: 2,
-	roles: ["MENTOR"],
+	roles: [Role.MENTOR],
 	createdAt: "2026-05-01T12:00",
 };
 const student: User = {
 	uuid: "s",
 	name: "S",
 	telegramId: 3,
-	roles: ["STUDENT"],
+	roles: [Role.STUDENT],
 	createdAt: "2026-05-01T12:00",
 };
 

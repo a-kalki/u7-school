@@ -41,9 +41,9 @@ describe("Схема пользователя (User)", () => {
 	});
 
 	test("должна отклонять пустой массив ролей", () => {
-		expect(
-			v.safeParse(UserSchema, { ...validUser, roles: [] }).success,
-		).toBe(false);
+		expect(v.safeParse(UserSchema, { ...validUser, roles: [] }).success).toBe(
+			false,
+		);
 	});
 
 	test("должна отклонять невалидную роль в массиве", () => {

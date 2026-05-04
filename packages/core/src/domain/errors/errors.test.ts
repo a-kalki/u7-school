@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { fromError, throwError } from "./error-helpers";
 import type { ApiError, DomainError } from "./errors";
 import { AppException } from "./errors";
-import { fromError, throwError } from "./error-helpers";
 
 describe("errors", () => {
 	test("throwError выбрасывает исключение с правильным объектом ошибки", () => {

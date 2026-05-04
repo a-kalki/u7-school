@@ -4,9 +4,9 @@ import { Status, StatusSchema } from "./status";
 
 describe("Статусы (Status)", () => {
 	test("должны быть определены DRAFT, PUBLISHED, ARCHIVED", () => {
-		expect(Status.DRAFT).toBe("draft");
-		expect(Status.PUBLISHED).toBe("published");
-		expect(Status.ARCHIVED).toBe("archived");
+		expect(Status.DRAFT as string).toBe("draft");
+		expect(Status.PUBLISHED as string).toBe("published");
+		expect(Status.ARCHIVED as string).toBe("archived");
 	});
 
 	test("StatusSchema должна пропускать валидные статусы", () => {

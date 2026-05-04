@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { User } from "../user/user";
-import { UserPolicy } from "./user-policy";
 import { Role } from "./roles";
+import { UserPolicy } from "./user-policy";
 
 /** Фикстуры пользователей с разными ролями */
 const admin: User = {

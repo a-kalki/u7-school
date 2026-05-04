@@ -5,9 +5,9 @@ import { Role, RoleSchema } from "./roles";
 describe("Роли пользователей (Roles)", () => {
 	test("должны быть определены роли STUDENT, MENTOR, ADMIN", () => {
 		// Проверяем, что все три роли существуют
-		expect(Role.STUDENT).toBe("STUDENT");
-		expect(Role.MENTOR).toBe("MENTOR");
-		expect(Role.ADMIN).toBe("ADMIN");
+		expect(Role.STUDENT as string).toBe("STUDENT");
+		expect(Role.MENTOR as string).toBe("MENTOR");
+		expect(Role.ADMIN as string).toBe("ADMIN");
 	});
 
 	test("RoleSchema должна пропускать валидные значения ролей", () => {

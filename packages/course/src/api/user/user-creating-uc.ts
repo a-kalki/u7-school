@@ -1,4 +1,5 @@
 import { DomainException } from "../../domain/shared/exceptions";
+import { Role } from "../../domain/user/roles";
 import type { User } from "../../domain/user/user";
 import { UserAr } from "../../domain/user/user-ar";
 import { UserPolicy } from "../../domain/user/user-policy";
@@ -39,7 +40,7 @@ export class UserCreatingUc {
 
 		// 2. Bootstrap-режим: нет actorId → первый пользователь, только ADMIN
 		if (actorId === undefined || actorId === null) {
-			if (!command.roles.includes("ADMIN")) {
+			if (!command.roles.includes(Role.ADMIN)) {
 				throw DomainException.validation(
 					"Первый пользователь должен быть администратором",
 					`bootstrap требует роль ADMIN, получены ${command.roles.join(",")}`,

@@ -15,7 +15,7 @@ export class ConsoleController {
 	}
 
 	async run(args: string[]): Promise<string> {
-		const name = args[0];
+		const name = args[0]!;
 		if (!name)
 			throw DomainException.validation(
 				"Не указана команда",
@@ -25,14 +25,14 @@ export class ConsoleController {
 		const attrs: Record<string, unknown> = {};
 		let user: string | undefined;
 		for (let i = 1; i < args.length; i++) {
-			const match = args[i].match(/^--([^=]+)=(.+)$/);
+			const match = args[i]!.match(/^--([^=]+)=(.+)$/);
 			if (!match)
 				throw DomainException.validation(
 					`Неверный формат аргумента: ${args[i]}`,
 					"ожидается --key=value",
 				);
-			const rawKey = match[1];
-			const rawValue = match[2];
+			const rawKey = match[1]!;
+			const rawValue = match[2]!;
 			const value = rawKey === "telegram-id" ? Number(rawValue) : rawValue;
 			// actor-id обрабатывается отдельно, остальные мапятся в camelCase
 			if (rawKey === "actor-id") {

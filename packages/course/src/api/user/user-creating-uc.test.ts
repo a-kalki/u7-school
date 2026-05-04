@@ -48,7 +48,10 @@ describe("UserCreatingUc", () => {
 
 	test("ADMIN создаёт пользователя", async () => {
 		const repo = new InMemoryUserRepository();
-		const adminId = await addUser(repo, { roles: [Role.ADMIN], telegramId: 100 });
+		const adminId = await addUser(repo, {
+			roles: [Role.ADMIN],
+			telegramId: 100,
+		});
 		const uc = new UserCreatingUc(repo);
 		const user = await uc.execute(
 			{ name: "Новый", telegramId: 200, roles: [Role.MENTOR] },
@@ -59,7 +62,10 @@ describe("UserCreatingUc", () => {
 
 	test("ADMIN создаёт пользователя с несколькими ролями", async () => {
 		const repo = new InMemoryUserRepository();
-		const adminId = await addUser(repo, { roles: [Role.ADMIN], telegramId: 100 });
+		const adminId = await addUser(repo, {
+			roles: [Role.ADMIN],
+			telegramId: 100,
+		});
 		const uc = new UserCreatingUc(repo);
 		const user = await uc.execute(
 			{ name: "Мульти", telegramId: 201, roles: [Role.STUDENT, Role.MENTOR] },
@@ -90,7 +96,10 @@ describe("UserCreatingUc", () => {
 	test("дубликат telegramId — conflict", async () => {
 		const repo = new InMemoryUserRepository();
 		await addUser(repo, { telegramId: 777, roles: [Role.ADMIN] });
-		const adminId = await addUser(repo, { telegramId: 778, roles: [Role.ADMIN] });
+		const adminId = await addUser(repo, {
+			telegramId: 778,
+			roles: [Role.ADMIN],
+		});
 		const uc = new UserCreatingUc(repo);
 		expect(
 			uc.execute(
@@ -102,13 +111,13 @@ describe("UserCreatingUc", () => {
 
 	test("отклоняет создание с пустым массивом ролей", async () => {
 		const repo = new InMemoryUserRepository();
-		const adminId = await addUser(repo, { roles: [Role.ADMIN], telegramId: 500 });
+		const adminId = await addUser(repo, {
+			roles: [Role.ADMIN],
+			telegramId: 500,
+		});
 		const uc = new UserCreatingUc(repo);
 		expect(
-			uc.execute(
-				{ name: "Пусто", telegramId: 501, roles: [] },
-				adminId,
-			),
+			uc.execute({ name: "Пусто", telegramId: 501, roles: [] }, adminId),
 		).rejects.toThrow("Некорректная команда создания пользователя");
 	});
 });

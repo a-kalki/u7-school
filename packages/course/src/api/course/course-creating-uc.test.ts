@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { Role } from "../../domain/user/roles";
 import type { User } from "../../domain/user/user";
 import { InMemoryUserRepository } from "../user/user-repository";
 import { CourseCreatingUc } from "./course-creating-uc";
@@ -12,7 +13,7 @@ async function addUser(
 		uuid: u.uuid ?? crypto.randomUUID(),
 		name: u.name ?? "X",
 		telegramId: u.telegramId ?? 1,
-		roles: u.roles ?? ["MENTOR"],
+		roles: u.roles ?? [Role.MENTOR],
 		createdAt: "2026-05-01T12:00",
 	};
 	await repo.save(user);
@@ -24,7 +25,7 @@ describe("CourseCreatingUc", () => {
 		const userRepo = new InMemoryUserRepository();
 		const courseRepo = new InMemoryCourseRepository();
 		const mentorId = await addUser(userRepo, {
-			roles: ["MENTOR"],
+			roles: [Role.MENTOR],
 			telegramId: 10,
 		});
 		const uc = new CourseCreatingUc(courseRepo, userRepo);
@@ -38,7 +39,7 @@ describe("CourseCreatingUc", () => {
 	test("STUDENT не может создать", async () => {
 		const userRepo = new InMemoryUserRepository();
 		const studentId = await addUser(userRepo, {
-			roles: ["STUDENT"],
+			roles: [Role.STUDENT],
 			telegramId: 20,
 		});
 		const uc = new CourseCreatingUc(new InMemoryCourseRepository(), userRepo);
@@ -53,7 +54,7 @@ describe("CourseCreatingUc", () => {
 	test("автор не существует → notFound", async () => {
 		const userRepo = new InMemoryUserRepository();
 		const mentorId = await addUser(userRepo, {
-			roles: ["MENTOR"],
+			roles: [Role.MENTOR],
 			telegramId: 30,
 		});
 		const uc = new CourseCreatingUc(new InMemoryCourseRepository(), userRepo);

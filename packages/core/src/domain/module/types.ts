@@ -1,10 +1,10 @@
 export interface ModuleMeta {
-  name: string;
-  url: string;
+	name: string;
+	url: string;
 }
 
 export interface ModuleCommand {
-  name: string;
-  attrs: unknown;
-  actorId?: string;
+	name: string;
+	attrs: unknown;
+	actorId?: string;
 }
