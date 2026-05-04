@@ -1,5 +1,6 @@
 import * as v from "valibot";
 import { throwError } from "../../domain/errors/error-helpers";
+import type { ArMeta } from "../../domain/ar/aggregate";
 import type {
   AppError,
   CommandValidationError,
@@ -8,9 +9,17 @@ import type {
 
 export interface UcMeta {
   commandName: string;
+  /** User-friendly описание use-case ("Добавить нового пользователя") */
+  description: string;
+  /** Метаданные агрегата, к которому привязан use-case */
+  arMeta: ArMeta;
   input: unknown;
   output: unknown;
   errors: AppError;
+  /** Требуется ли авторизация для выполнения */
+  requiresAuth: boolean;
+  /** Тип use-case: команда или запрос */
+  type: "command" | "query";
 }
 
 export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {

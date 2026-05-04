@@ -3,6 +3,8 @@ import type { DomainError } from "../errors/errors";
 
 export interface ArMeta {
   name: string;
+  /** User-friendly название агрегата ("Пользователь", "Курс") */
+  label: string;
   errors: DomainError;
 }
 
