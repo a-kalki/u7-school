@@ -1,6 +1,9 @@
 import * as v from "valibot";
 import { throwError } from "../../domain/errors/error-helpers";
-import type { AppError } from "../../domain/errors/errors";
+import type {
+  AppError,
+  CommandValidationError,
+} from "../../domain/errors/errors";
 
 export interface UcMeta {
   commandName: string;
@@ -14,7 +17,11 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   abstract readonly commandName: TMeta["commandName"];
 
   /** Схема Valibot для валидации входящих данных */
-  protected abstract readonly inputSchema: v.BaseSchema<unknown, TMeta["input"], v.BaseIssue<unknown>>;
+  protected abstract readonly inputSchema: v.BaseSchema<
+    unknown,
+    TMeta["input"],
+    v.BaseIssue<unknown>
+  >;
 
   protected resolve!: TResolve;
 
@@ -52,14 +59,12 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     } catch (error) {
       if (error instanceof v.ValiError) {
         const issues = error.issues.map((issue) => ({
+          // biome-ignore lint/suspicious/noExplicitAny: reason
           path: issue.path?.map((p: any) => p.key).join("."),
           message: issue.message,
         }));
 
-        this.throwValidation(
-          { issues },
-          "Переданы некорректные данные"
-        );
+        this.throwValidation({ issues }, "Переданы некорректные данные");
       }
       throw error;
     }
@@ -69,72 +74,56 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   protected throwNotFound<
     K extends Extract<TMeta["errors"], { kind: "not-found" }>["name"],
     E extends Extract<TMeta["errors"], { name: K }>,
-  >(
-    name: K,
-    message = "Сущность не найдена",
-    payload?: E["payload"],
-    level: E["level"] = "domain",
-  ): never {
+  >(name: K, message = "Сущность не найдена", payload?: E["payload"]): never {
     throwError({
       name,
-      level,
+      level: "domain",
       kind: "not-found",
       message,
       payload,
-    } as AppError);
+    });
   }
 
   /** Нет прав на действие */
   protected throwAccessDenied<
     K extends Extract<TMeta["errors"], { kind: "access-denied" }>["name"],
     E extends Extract<TMeta["errors"], { name: K }>,
-  >(
-    name: K,
-    message = "Доступ запрещен",
-    payload?: E["payload"],
-    level: E["level"] = "domain",
-  ): never {
+  >(name: K, message = "Доступ запрещен", payload?: E["payload"]): never {
     throwError({
       name,
-      level,
+      level: "domain",
       kind: "access-denied",
       message,
       payload,
-    } as AppError);
+    });
   }
 
   /** Невозможно обработать */
   protected throwBadRequest<
     K extends Extract<TMeta["errors"], { kind: "bad-request" }>["name"],
     E extends Extract<TMeta["errors"], { name: K }>,
-  >(
-    name: K,
-    message = "Некорректный запрос",
-    payload?: E["payload"],
-    level = "api",
-  ): never {
+  >(name: K, message = "Некорректный запрос", payload?: E["payload"]): never {
     throwError({
       name,
-      level,
+      level: "api",
       kind: "bad-request",
       message,
       payload,
-    } as AppError);
+    });
   }
 
   /** Ошибка валидации */
   protected throwValidation(
     payload: Record<string, unknown>,
     message = "Ошибка валидации",
-    level = "domain",
   ): never {
     throwError({
-      name: "ValidationError",
-      level,
+      name: "COMMAND_VALIDATION_ERROR",
+      level: "domain",
       kind: "validation",
       message,
       payload,
-    } as AppError);
+    } as CommandValidationError);
   }
 
   /** Ошибки доменных правил */
@@ -145,15 +134,14 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     name: K,
     message = "Конфликт данных и текущего действия",
     payload?: E["payload"],
-    level: E["level"] = "domain",
   ): never {
     throwError({
       name,
-      level,
+      level: "domain",
       kind: "conflict",
       message,
       payload,
-    } as AppError);
+    });
   }
 
   /** Исключительные ошибки в коде */
@@ -172,6 +160,6 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
       kind: "internal",
       message,
       payload,
-    } as AppError);
+    });
   }
 }

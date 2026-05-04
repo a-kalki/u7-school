@@ -22,7 +22,7 @@ export abstract class Aggregate<TMeta extends ArMeta> {
       kind: "validation",
       message,
       payload,
-    } as AppError);
+    } as DomainError);
   }
 
   /** Ошибки доменных правил */
@@ -40,6 +40,6 @@ export abstract class Aggregate<TMeta extends ArMeta> {
       kind: "conflict",
       message,
       payload,
-    } as AppError);
+    } as DomainError);
   }
 }
