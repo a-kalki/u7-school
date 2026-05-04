@@ -1,0 +1,4 @@
+Task: Реализовать CLI-контроллер с обработкой ошибок
+Summary: Создана фабрика createCliController(module) с методом run(args), который парсит CLI аргументы в ModuleCommand и вызывает модуль. Добавлен глобальный catch с fromError() для приведения всех исключений к стандартизированному ответу {success, data/error}.
+Files: packages/core/src/api/controller/cli.ts, packages/core/src/api/controller/cli.test.ts, packages/core/src/index.ts
+Reason: Реализация функционального требования FR6 для интеграции слоев.
