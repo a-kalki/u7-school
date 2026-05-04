@@ -1,10 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { Module } from "./module";
-import type { ModuleCommand } from "./module";
-import { UseCase } from "./uc/use-case";
-import type { UcMeta } from "./uc/use-case";
 import * as v from "valibot";
-import { AppException } from "../domain/errors/errors";
+import {
+  AppException,
+  type NoCommandFoundError,
+} from "../../domain/errors/errors";
+import type { ModuleMeta } from "../../domain/module/types";
+import { Module } from "./module";
+import type { UcMeta } from "../uc/use-case";
+import { UseCase } from "../uc/use-case";
 
 interface TestUcMeta extends UcMeta {
   commandName: "test-cmd";
@@ -22,7 +25,12 @@ class TestUseCase extends UseCase<TestUcMeta, { value: string }> {
   }
 }
 
-class TestModule extends Module<{ value: string }> {
+interface TestModuleMeta extends ModuleMeta {
+  name: "TestModule";
+  url: "/test";
+}
+
+class TestModule extends Module<TestModuleMeta, { value: string }> {
   readonly name = "TestModule";
   readonly useCases = [new TestUseCase()];
 }
@@ -58,7 +66,9 @@ describe("Module (Phase 4)", () => {
     const appEx = caught as AppException;
     expect(appEx.error.name).toBe("NO_COMMAND_FOUND");
     expect(appEx.error.kind).toBe("bad-request");
-    expect((appEx.error.payload as any).commandName).toBe("unknown-cmd");
+    const payload = appEx.error.payload as NoCommandFoundError["payload"];
+    expect(payload.commandName).toBe("unknown-cmd");
+    expect(payload.moduleName).toBe("TestModule");
   });
 
   test("модуль возвращает список команд (getCommands)", () => {

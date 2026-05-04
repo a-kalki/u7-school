@@ -3,6 +3,7 @@ import { throwError } from "../../domain/errors/error-helpers";
 import type {
   AppError,
   CommandValidationError,
+  DomainError,
 } from "../../domain/errors/errors";
 
 export interface UcMeta {
@@ -22,6 +23,10 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     TMeta["input"],
     v.BaseIssue<unknown>
   >;
+
+  getInputSchema(): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
+    return this.inputSchema;
+  }
 
   protected resolve!: TResolve;
 
@@ -64,7 +69,8 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
           message: issue.message,
         }));
 
-        this.throwValidation({ issues }, "Переданы некорректные данные");
+        const name: CommandValidationError["name"] = "COMMAND_VALIDATION_ERROR";
+        this.throwValidation({ issues }, name, "Переданы некорректные данные");
       }
       throw error;
     }
@@ -115,15 +121,16 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   /** Ошибка валидации */
   protected throwValidation(
     payload: Record<string, unknown>,
-    message = "Ошибка валидации",
+    name: string,
+    message: string,
   ): never {
     throwError({
-      name: "COMMAND_VALIDATION_ERROR",
+      name,
       level: "domain",
       kind: "validation",
       message,
       payload,
-    } as CommandValidationError);
+    } satisfies DomainError);
   }
 
   /** Ошибки доменных правил */

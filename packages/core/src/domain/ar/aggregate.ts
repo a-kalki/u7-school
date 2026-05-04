@@ -1,5 +1,5 @@
 import { throwError } from "../errors/error-helpers";
-import type { AppError, DomainError } from "../errors/errors";
+import type { DomainError } from "../errors/errors";
 
 export interface ArMeta {
   name: string;
@@ -8,21 +8,17 @@ export interface ArMeta {
 
 export abstract class Aggregate<TMeta extends ArMeta> {
   /** Ошибка инварианта. */
-  protected throwInvariant<
-    K extends Extract<TMeta["errors"], { kind: "validation" }>["name"],
-    E extends Extract<TMeta["errors"], { name: K }>,
-  >(
-    name: K,
-    message = "Нарушение инварианта домена",
-    payload?: E["payload"],
+  protected throwInvariant(
+    payload: Record<string, unknown>,
+    message = "Нарушены инварианты агрегата",
   ): never {
     throwError({
-      name,
+      name: "AR_INVARIANT_ERROR",
       level: "domain",
-      kind: "validation",
+      kind: "internal",
       message,
       payload,
-    } as DomainError);
+    } satisfies DomainError);
   }
 
   /** Ошибки доменных правил */
@@ -40,6 +36,6 @@ export abstract class Aggregate<TMeta extends ArMeta> {
       kind: "conflict",
       message,
       payload,
-    } as DomainError);
+    } satisfies DomainError);
   }
 }

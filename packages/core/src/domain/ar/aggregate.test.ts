@@ -23,7 +23,7 @@ interface TestArMeta extends ArMeta {
 
 class TestAggregate extends Aggregate<TestArMeta> {
   doSomethingBad() {
-    this.throwInvariant("TestArError1", "Bad thing happened");
+    this.throwInvariant({ foo: "bad" }, "Bad thing happened");
   }
 }
 
@@ -40,6 +40,8 @@ describe("Aggregate", () => {
 
     expect(caught).toBeInstanceOf(AppException);
     const appEx = caught as AppException;
-    expect(appEx.error.name).toBe("TestArError1");
+    expect(appEx.error.name).toBe("AR_INVARIANT_ERROR");
+    expect(appEx.error.message).toBe("Bad thing happened");
+    expect(appEx.error.payload).toEqual({ foo: "bad" });
   });
 });

@@ -1,5 +1,3 @@
-import type { ValiError } from "valibot";
-
 export type ErrorKind =
   | "validation"
   | "conflict"
@@ -53,6 +51,10 @@ export interface UnauthorizedError extends ApiError {
 
 export interface NoCommandFoundError extends ApiError {
   name: "NO_COMMAND_FOUND";
+  payload: {
+    commandName: string;
+    moduleName: string;
+  };
 }
 
 export interface ServerInternalError extends ApiError {

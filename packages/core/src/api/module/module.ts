@@ -1,23 +1,16 @@
-import type { UseCase, UcMeta } from "./uc/use-case";
-import { throwError } from "../domain/errors/error-helpers";
-import type { NoCommandFoundError } from "../domain/errors/errors";
+import { throwError } from "../../domain/errors/error-helpers";
+import type { NoCommandFoundError } from "../../domain/errors/errors";
+import type { ModuleCommand, ModuleMeta } from "../../domain/module/types";
+import type { UcMeta, UseCase } from "../uc/use-case";
 
-export interface ModuleCommand {
-  name: string;
-  attrs: unknown;
-  actorId?: string;
-}
-
-export abstract class Module<TResolve> {
-  abstract readonly name: string;
-  // biome-ignore lint/suspicious/noExplicitAny: allow UseCase array with any types for generic storage
-  abstract readonly useCases: UseCase<any, TResolve>[];
+export abstract class Module<TMeta extends ModuleMeta, TResolve> {
+  abstract readonly name: TMeta["name"];
+  abstract readonly useCases: UseCase<UcMeta, TResolve>[];
 
   protected resolve!: TResolve;
-  
+
   // Кэш для быстрого поиска use-case по имени
-  // biome-ignore lint/suspicious/noExplicitAny: allow useCase any
-  private useCaseMap = new Map<string, UseCase<any, TResolve>>();
+  private useCaseMap = new Map<string, UseCase<UcMeta, TResolve>>();
 
   init(resolve: TResolve) {
     this.resolve = resolve;
@@ -29,7 +22,7 @@ export abstract class Module<TResolve> {
 
   async handle(command: ModuleCommand): Promise<unknown> {
     const uc = this.useCaseMap.get(command.name);
-    
+
     if (!uc) {
       this.throwNoCommandFound(command.name);
     }
@@ -44,7 +37,7 @@ export abstract class Module<TResolve> {
       kind: "bad-request",
       message: `Команда '${commandName}' не найдена в модуле '${this.name}'`,
       payload: { commandName, moduleName: this.name },
-    } as NoCommandFoundError);
+    } satisfies NoCommandFoundError);
   }
 
   /**
@@ -53,9 +46,7 @@ export abstract class Module<TResolve> {
    */
   getCommands() {
     return this.useCases.map((uc) => {
-      // Чтобы получить схему, которая объявлена как protected, делаем cast
-      // biome-ignore lint/suspicious/noExplicitAny: access protected property
-      const schema = (uc as any).inputSchema;
+      const schema = uc.getInputSchema();
       return {
         commandName: uc.commandName,
         inputSchema: schema,
