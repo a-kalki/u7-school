@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { createCliController } from "./cli";
-import { Module } from "../module/module";
-import { UseCase } from "../uc/use-case";
-import type { UcMeta } from "../uc/use-case";
-import type { ModuleMeta } from "../../domain/module/types";
 import * as v from "valibot";
+import type { ModuleMeta } from "../../domain/module/types";
+import { Module } from "../module/module";
+import type { UcMeta } from "../uc/use-case";
+import { UseCase } from "../uc/use-case";
+import { createCliController } from "./cli";
 
 interface TestUcMeta extends UcMeta {
   commandName: "test-cmd";
@@ -54,7 +54,7 @@ describe("CLI Controller", () => {
     module.init({ test: true });
     const controller = createCliController(module);
 
-    const result = await controller.run(["test-cmd", '{bad json}']);
+    const result = await controller.run(["test-cmd", "{bad json}"]);
 
     expect(result.success).toBe(false);
     if (!result.success) {

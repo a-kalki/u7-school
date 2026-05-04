@@ -1,7 +1,7 @@
 import { fromError } from "../../domain/errors/error-helpers";
 import type { AppError } from "../../domain/errors/errors";
-import type { Module } from "../module/module";
 import type { ModuleCommand, ModuleMeta } from "../../domain/module/types";
+import type { Module } from "../module/module";
 
 export type CliResponse =
   | { success: true; data: unknown }
@@ -19,7 +19,7 @@ export function createCliController<TMeta extends ModuleMeta, TResolve>(
 
         const commandName = args[0] as string;
         let attrs = {};
-        
+
         // Простой парсинг: ожидаем, что второй аргумент - это JSON строка с параметрами
         if (args.length > 1 && args[1]) {
           try {
