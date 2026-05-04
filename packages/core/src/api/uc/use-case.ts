@@ -33,6 +33,13 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     v.BaseIssue<unknown>
   >;
 
+  /** Схема Valibot для валидации выходных данных */
+  protected abstract readonly outputSchema: v.BaseSchema<
+    unknown,
+    TMeta["output"],
+    v.BaseIssue<unknown>
+  >;
+
   getInputSchema(): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
     return this.inputSchema;
   }
@@ -53,8 +60,9 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
    * @param actorId ID пользователя, выполняющего действие (опционально)
    */
   async handle(command: unknown, actorId?: string): Promise<TMeta["output"]> {
-    const validatedCommand = this.validate(command);
-    return this.execute(validatedCommand, actorId);
+    const validatedCommand = this.validateInput(command);
+    const result = await this.execute(validatedCommand, actorId);
+    return this.validateOutput(result);
   }
 
   /** Бизнес-логика use-case */
@@ -67,7 +75,7 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
    * Валидирует входящие данные через inputSchema.
    * В случае ошибки выбрасывает Validation AppError.
    */
-  protected validate(command: unknown): TMeta["input"] {
+  protected validateInput(command: unknown): TMeta["input"] {
     try {
       return v.parse(this.inputSchema, command);
     } catch (error) {
@@ -80,6 +88,34 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
 
         const name: CommandValidationError["name"] = "COMMAND_VALIDATION_ERROR";
         this.throwValidation({ issues }, name, "Переданы некорректные данные");
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Валидирует выходные данные через outputSchema.
+   * В случае ошибки выбрасывает internal AppError.
+   */
+  protected validateOutput(result: unknown): TMeta["output"] {
+    try {
+      return v.parse(this.outputSchema, result);
+    } catch (error) {
+      if (error instanceof v.ValiError) {
+        const issues = error.issues.map((issue) => ({
+          // biome-ignore lint/suspicious/noExplicitAny: reason
+          path: issue.path?.map((p: any) => p.key).join("."),
+          message: issue.message,
+        }));
+
+        this.throwInternal(
+          "OUTPUT_VALIDATION_ERROR" as Extract<
+            TMeta["errors"],
+            { kind: "internal" }
+          >["name"],
+          "Ошибка валидации выходных данных",
+          { issues },
+        );
       }
       throw error;
     }

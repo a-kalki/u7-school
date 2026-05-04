@@ -19,6 +19,7 @@ interface TestUcMeta extends UcMeta {
 class TestUseCase extends UseCase<TestUcMeta, { value: string }> {
   readonly commandName = "test-cmd";
   readonly inputSchema = v.object({ foo: v.string() });
+  readonly outputSchema = v.object({ bar: v.string() });
 
   execute(command: { foo: string }) {
     return { bar: `${command.foo}-${this.resolve.value}` };

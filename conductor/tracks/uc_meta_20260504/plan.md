@@ -14,17 +14,17 @@
 
 ### Фаза 2: Output-валидация и рефакторинг handle()
 
-- [ ] Task: Написать падающие тесты для output-валидации
-  - [ ] Тест: UseCase валидирует output через outputSchema
-  - [ ] Тест: При ошибке output-валидации выбрасывается internal error
-  - [ ] Тест: validateInput() работает корректно (переименовано из validate)
-  - [ ] Тест: handle() вызывает validateInput → execute → validateOutput
-- [ ] Task: Реализовать outputSchema и validateOutput() на UseCase
-- [ ] Task: Реализовать validateInput() (переименовать validate → validateInput)
-- [ ] Task: Обновить handle() для вызова цепочки: validateInput → execute → validateOutput
-- [ ] Task: Запустить тесты, убедиться что проходят (Green)
-- [ ] Task: Рефакторинг (при необходимости)
-- [ ] Task: Закоммитить изменения
+- [x] Task: Написать падающие тесты для output-валидации
+  - [x] Тест: UseCase валидирует output через outputSchema
+  - [x] Тест: При ошибке output-валидации выбрасывается internal error
+  - [x] Тест: validateInput() работает корректно (переименовано из validate)
+  - [x] Тест: handle() вызывает validateInput → execute → validateOutput
+- [x] Task: Реализовать outputSchema и validateOutput() на UseCase
+- [x] Task: Реализовать validateInput() (переименовать validate → validateInput)
+- [x] Task: Обновить handle() для вызова цепочки: validateInput → execute → validateOutput
+- [x] Task: Запустить тесты, убедиться что проходят (Green)
+- [x] Task: Рефакторинг (при необходимости)
+- [x] Task: Закоммитить изменения
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Output-валидация и рефакторинг handle()' (Protocol in workflow.md)
 
 ### Фаза 3: Авторизация и метаданные UC

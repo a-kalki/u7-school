@@ -55,6 +55,10 @@ class DemoCreateUserUC extends UseCase<
   readonly inputSchema = v.object({
     name: v.string(),
   });
+  readonly outputSchema = v.object({
+    id: v.string(),
+    name: v.string(),
+  });
 
   execute(command: { name: string }) {
     const user = new DemoUserAr(command.name);
