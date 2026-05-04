@@ -50,11 +50,11 @@
     - [x] Защищённый геттер/свойство `resolve` — доступ к резолверу
     - [x] Статическое/экземплярное свойство `commandName` из Meta
 - [x] Task: Регресс-проверка: все тесты проходят, типы компилируются [1fbb1ad]
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: UseCase' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: UseCase' (Protocol in workflow.md) [checkpoint: 02a41fc]
 
 ## Phase 4: Абстрактный класс Module (FR5)
 
-- [ ] Task: Написать тесты для Module
+- [~] Task: Написать тесты для Module
     - [ ] Тест: модуль инициализируется с резолвером
     - [ ] Тест: модуль передаёт резолвер use-case'ам
     - [ ] Тест: модуль находит use-case по имени команды
