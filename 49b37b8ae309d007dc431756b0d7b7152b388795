@@ -1,0 +1,15 @@
+Фаза 2: Output-валидация и рефакторинг handle()
+
+- Добавлен abstract protected outputSchema в UseCase
+- Добавлен protected validateOutput() с выбросом internal error
+- Переименован validate() → validateInput()
+- Обновлён handle(): validateInput → execute → validateOutput
+- Обновлены все тестовые классы для поддержки outputSchema
+
+Изменённые файлы:
+- packages/core/src/api/uc/use-case.ts
+- packages/core/src/api/uc/use-case.test.ts
+- packages/core/src/api/uc/use-case-output.test.ts
+- packages/core/src/api/module/module.test.ts
+- packages/core/src/api/controller/cli.test.ts
+- packages/core/src/integration.test.ts
