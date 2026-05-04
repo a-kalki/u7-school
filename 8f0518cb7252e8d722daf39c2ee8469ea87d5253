@@ -1,0 +1,4 @@
+Task: Обновить README.md
+Summary: В корневой README.md добавлен раздел 'Документация и руководства' со ссылками на декомпозированные файлы в conductor/code_styleguides/.
+Files: README.md
+Reason: Улучшение навигации по документации.
