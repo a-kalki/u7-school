@@ -1,11 +1,15 @@
 import * as v from "valibot";
-import { throwError } from "../../domain/errors/error-helpers";
 import type { ArMeta } from "../../domain/ar/aggregate";
+import { throwError } from "../../domain/errors/error-helpers";
 import type {
   AppError,
-  CommandValidationError,
   DomainError,
+  InputValidationError,
+  OutputValidationError,
+  UnAuthorizedError,
 } from "../../domain/errors/errors";
+
+type UseCaseType = "command" | "query";
 
 export interface UcMeta {
   commandName: string;
@@ -22,24 +26,35 @@ export interface UcMeta {
   type: "command" | "query";
 }
 
+export interface UcDocType {
+  commandName: UcMeta["commandName"];
+  description: UcMeta["description"];
+  aggregateName: ArMeta["name"];
+  aggregateLabel: ArMeta["label"];
+  type: UseCaseType;
+  requiresAuth: UcMeta["requiresAuth"];
+  inputSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
+  outputSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
+}
+
 export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   /** Имя команды, которую обрабатывает этот use-case */
-  abstract readonly commandName: TMeta["commandName"];
+  protected abstract readonly commandName: TMeta["commandName"];
 
   /** User-friendly описание use-case */
-  abstract readonly description: TMeta["description"];
+  protected abstract readonly description: TMeta["description"];
 
   /** Техническое имя агрегата */
-  abstract readonly aggregateName: TMeta["arMeta"]["name"];
+  protected abstract readonly aggregateName: TMeta["arMeta"]["name"];
 
   /** User-friendly название агрегата */
-  abstract readonly aggregateLabel: TMeta["arMeta"]["label"];
+  protected abstract readonly aggregateLabel: TMeta["arMeta"]["label"];
 
   /** Тип use-case: команда или запрос */
-  abstract readonly type: TMeta["type"];
+  protected abstract readonly type: TMeta["type"];
 
   /** Требуется ли авторизация для выполнения */
-  abstract readonly requiresAuth: TMeta["requiresAuth"];
+  protected abstract readonly requiresAuth: TMeta["requiresAuth"];
 
   /** Схема Valibot для валидации входящих данных */
   protected abstract readonly inputSchema: v.BaseSchema<
@@ -65,10 +80,14 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     this.resolve = resolve;
   }
 
+  getCommandName(): TMeta["commandName"] {
+    return this.commandName;
+  }
+
   /**
    * Возвращает метаданные команды вместе со схемами.
    */
-  getCommand() {
+  getDocType(): UcDocType {
     return {
       commandName: this.commandName,
       description: this.description,
@@ -91,7 +110,9 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     const validatedCommand = this.validateInput(command);
     const result = await this.execute(
       validatedCommand,
-      actorId as TMeta["requiresAuth"] extends true ? string : string | undefined,
+      actorId as TMeta["requiresAuth"] extends true
+      ? string
+      : string | undefined,
     );
     return this.validateOutput(result);
   }
@@ -107,10 +128,12 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
    */
   protected checkAuth(actorId?: string): void {
     if (this.requiresAuth && actorId === undefined) {
-      this.throwAccessDenied(
-        "UNAUTHORIZED" as Extract<TMeta["errors"], { kind: "access-denied" }>["name"],
-        "Требуется авторизация",
-      );
+      throwError({
+        name: "UNAUTHORIZED_ERROR",
+        level: "api",
+        kind: "unauthorized",
+        message: "Требуется авторизация",
+      } satisfies UnAuthorizedError);
     }
   }
 
@@ -129,7 +152,7 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
           message: issue.message,
         }));
 
-        const name: CommandValidationError["name"] = "COMMAND_VALIDATION_ERROR";
+        const name: InputValidationError["name"] = "INPUT_VALIDATION_ERROR";
         this.throwValidation({ issues }, name, "Переданы некорректные данные");
       }
       throw error;
@@ -152,10 +175,7 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
         }));
 
         this.throwInternal(
-          "OUTPUT_VALIDATION_ERROR" as Extract<
-            TMeta["errors"],
-            { kind: "internal" }
-          >["name"],
+          "OUTPUT_VALIDATION_ERROR",
           "Ошибка валидации выходных данных",
           { issues },
         );
@@ -241,7 +261,10 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
 
   /** Исключительные ошибки в коде */
   protected throwInternal<
-    K extends Extract<TMeta["errors"], { kind: "internal" }>["name"],
+    K extends Extract<
+      TMeta["errors"] & OutputValidationError,
+      { kind: "internal" }
+    >["name"],
     E extends Extract<TMeta["errors"], { name: K }>,
   >(
     name: K,

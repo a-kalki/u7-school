@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { AppException } from "../../domain/errors/errors";
 import type { ApiError } from "../../domain/errors/errors";
+import { AppException } from "../../domain/errors/errors";
 import type { UcMeta } from "./use-case";
 import { UseCase } from "./use-case";
 
@@ -18,14 +18,14 @@ interface OutputTestUcMeta extends UcMeta {
 }
 
 class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
-  readonly commandName = "test-output";
-  readonly description = "Тестовый UC с валидацией выхода";
-  readonly aggregateName = "TestAr";
-  readonly aggregateLabel = "Тестовый агрегат";
-  readonly type = "command" as const;
-  readonly requiresAuth = false as const;
-  readonly inputSchema = v.object({ foo: v.string() });
-  readonly outputSchema = v.object({
+  protected readonly commandName = "test-output";
+  protected readonly description = "Тестовый UC с валидацией выхода";
+  protected readonly aggregateName = "TestAr";
+  protected readonly aggregateLabel = "Тестовый агрегат";
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ foo: v.string() });
+  protected readonly outputSchema = v.object({
     bar: v.string(),
     count: v.number(),
   });
@@ -36,22 +36,20 @@ class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
       count: command.foo.length,
     };
   }
-
-  /** Публичная обёртка для protected validateInput */
-  testValidateInput(command: unknown) {
-    return this.validateInput(command);
-  }
 }
 
-class InvalidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
-  readonly commandName = "test-output";
-  readonly description = "Тестовый UC с невалидным выходом";
-  readonly aggregateName = "TestAr";
-  readonly aggregateLabel = "Тестовый агрегат";
-  readonly type = "command" as const;
-  readonly requiresAuth = false as const;
-  readonly inputSchema = v.object({ foo: v.string() });
-  readonly outputSchema = v.object({
+class InvalidOutputUseCase extends UseCase<
+  OutputTestUcMeta,
+  { prefix: string }
+> {
+  protected readonly commandName = "test-output";
+  protected readonly description = "Тестовый UC с невалидным выходом";
+  protected readonly aggregateName = "TestAr";
+  protected readonly aggregateLabel = "Тестовый агрегат";
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ foo: v.string() });
+  protected readonly outputSchema = v.object({
     bar: v.string(),
     count: v.number(),
   });
@@ -83,6 +81,7 @@ describe("UseCase: output validation", () => {
     let caught: unknown;
     try {
       await uc.handle({ foo: "hello" });
+      expect("this").toBe("not be call");
     } catch (e) {
       caught = e;
     }
@@ -91,14 +90,6 @@ describe("UseCase: output validation", () => {
     const appEx = caught as AppException;
     expect(appEx.error.kind).toBe("internal");
     expect(appEx.error.name).toBe("OUTPUT_VALIDATION_ERROR");
-  });
-
-  test("validateInput() работает корректно (переименовано из validate)", () => {
-    const uc = new ValidOutputUseCase();
-    uc.init({ prefix: "ok" });
-
-    const result = uc.testValidateInput({ foo: "test" });
-    expect(result).toEqual({ foo: "test" });
   });
 
   test("handle() вызывает цепочку validateInput → execute → validateOutput", async () => {

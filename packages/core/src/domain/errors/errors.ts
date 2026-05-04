@@ -29,8 +29,14 @@ export interface DomainError extends AppError {
   kind: DomainErrorKinds;
 }
 
-export interface CommandValidationError extends DomainError {
-  name: "COMMAND_VALIDATION_ERROR";
+export interface InputValidationError extends DomainError {
+  name: "INPUT_VALIDATION_ERROR";
+  kind: "validation";
+}
+
+export interface OutputValidationError extends DomainError {
+  name: "OUTPUT_VALIDATION_ERROR";
+  kind: "internal";
 }
 
 export type ApiErrorKinds = Extract<
@@ -45,12 +51,14 @@ export interface ApiError extends AppError {
   kind: ApiErrorKinds;
 }
 
-export interface UnauthorizedError extends ApiError {
+export interface UnAuthorizedError extends ApiError {
   name: "UNAUTHORIZED_ERROR";
+  kind: "unauthorized";
 }
 
 export interface NoCommandFoundError extends ApiError {
   name: "NO_COMMAND_FOUND";
+  kind: "bad-request";
   payload: {
     commandName: string;
     moduleName: string;
@@ -59,11 +67,14 @@ export interface NoCommandFoundError extends ApiError {
 
 export interface ServerInternalError extends ApiError {
   name: "SEVER_INTERNAL_ERROR";
+  kind: "internal";
 }
 
 /** Ошибки которые могут вернуться с любого запроса */
 export type BaseUcErrors =
-  | CommandValidationError
+  | InputValidationError
+  | UnAuthorizedError
+  | OutputValidationError
   | NoCommandFoundError
   | ServerInternalError;
 

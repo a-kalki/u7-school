@@ -94,7 +94,7 @@ describe("CLI Controller", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.kind).toBe("validation");
-      expect(result.error.name).toBe("COMMAND_VALIDATION_ERROR");
+      expect(result.error.name).toBe("INPUT_VALIDATION_ERROR");
     }
   });
 

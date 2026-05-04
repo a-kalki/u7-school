@@ -133,7 +133,7 @@ describe("Integration: Core Framework", () => {
 
   test("demo-модуль возвращает список команд через getCommands()", () => {
     const module = new DemoModule();
-    const commands = module.getCommands();
+    const commands = module.getDocTypes();
 
     expect(commands).toHaveLength(1);
     const cmd = commands[0];

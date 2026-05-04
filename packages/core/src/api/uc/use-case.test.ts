@@ -18,14 +18,14 @@ interface TestUcMeta extends UcMeta {
 }
 
 class TestUseCase extends UseCase<TestUcMeta, { test: boolean }> {
-  readonly commandName = "test-cmd";
-  readonly description = "Тестовый UC";
-  readonly aggregateName = "TestAr";
-  readonly aggregateLabel = "Тестовый агрегат";
-  readonly type = "command" as const;
-  readonly requiresAuth = false as const;
-  readonly inputSchema = v.object({ foo: v.string() });
-  readonly outputSchema = v.object({ bar: v.string() });
+  protected readonly commandName = "test-cmd";
+  protected readonly description = "Тестовый UC";
+  protected readonly aggregateName = "TestAr";
+  protected readonly aggregateLabel = "Тестовый агрегат";
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ foo: v.string() });
+  protected readonly outputSchema = v.object({ bar: v.string() });
 
   execute(command: { foo: string }) {
     if (command.foo === "bad") {
@@ -50,7 +50,7 @@ describe("UseCase", () => {
     expect(caught).toBeInstanceOf(AppException);
     const appEx = caught as AppException;
     expect(appEx.error.kind).toBe("validation");
-    expect(appEx.error.name).toBe("COMMAND_VALIDATION_ERROR");
+    expect(appEx.error.name).toBe("INPUT_VALIDATION_ERROR");
   });
 
   test("use-case имеет доступ к резолверу модуля и возвращает результат", async () => {

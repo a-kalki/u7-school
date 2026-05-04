@@ -79,7 +79,7 @@ describe("Module (Phase 4)", () => {
 
   test("модуль возвращает список команд (getCommands)", () => {
     const module = new TestModule();
-    const commands = module.getCommands();
+    const commands = module.getDocTypes();
     expect(commands).toHaveLength(1);
     expect(commands[0]?.commandName).toBe("test-cmd");
     expect(commands[0]?.inputSchema).toBeDefined();
@@ -87,7 +87,7 @@ describe("Module (Phase 4)", () => {
 
   test("getCommands() агрегирует полные метаданные от getCommand()", () => {
     const module = new TestModule();
-    const commands = module.getCommands();
+    const commands = module.getDocTypes();
 
     expect(commands).toHaveLength(1);
     const cmd = commands[0];

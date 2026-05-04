@@ -1,7 +1,7 @@
 import { throwError } from "../../domain/errors/error-helpers";
 import type { NoCommandFoundError } from "../../domain/errors/errors";
 import type { ModuleCommand, ModuleMeta } from "../../domain/module/types";
-import type { UcMeta, UseCase } from "../uc/use-case";
+import type { UcDocType, UcMeta, UseCase } from "../uc/use-case";
 
 export abstract class Module<TMeta extends ModuleMeta, TResolve> {
   abstract readonly name: TMeta["name"];
@@ -16,7 +16,7 @@ export abstract class Module<TMeta extends ModuleMeta, TResolve> {
     this.resolve = resolve;
     for (const uc of this.useCases) {
       uc.init(resolve);
-      this.useCaseMap.set(uc.commandName, uc);
+      this.useCaseMap.set(uc.getCommandName(), uc);
     }
   }
 
@@ -44,7 +44,7 @@ export abstract class Module<TMeta extends ModuleMeta, TResolve> {
    * Возвращает метаданные команд модуля.
    * Агрегирует getCommand() каждого use-case.
    */
-  getCommands() {
-    return this.useCases.map((uc) => uc.getCommand());
+  getDocTypes(): UcDocType[] {
+    return this.useCases.map((uc) => uc.getDocType());
   }
 }

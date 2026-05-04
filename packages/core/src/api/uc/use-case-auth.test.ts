@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { AppException } from "../../domain/errors/errors";
 import type { DomainError } from "../../domain/errors/errors";
+import { AppException } from "../../domain/errors/errors";
 import type { UcMeta } from "./use-case";
 import { UseCase } from "./use-case";
 
@@ -19,14 +19,14 @@ interface AuthUcMeta extends UcMeta {
 
 /** UseCase, требующий авторизацию */
 class AuthRequiredUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
-  readonly commandName = "test-auth";
-  readonly description = "Тестовый UC с авторизацией";
-  readonly aggregateName = "TestAr";
-  readonly aggregateLabel = "Тестовый агрегат";
-  readonly type = "command" as const;
-  readonly requiresAuth = true as const;
-  readonly inputSchema = v.object({ data: v.string() });
-  readonly outputSchema = v.object({ result: v.string() });
+  protected readonly commandName = "test-auth";
+  protected readonly description = "Тестовый UC с авторизацией";
+  protected readonly aggregateName = "TestAr";
+  protected readonly aggregateLabel = "Тестовый агрегат";
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = true as const;
+  protected readonly inputSchema = v.object({ data: v.string() });
+  protected readonly outputSchema = v.object({ result: v.string() });
 
   execute(command: { data: string }, actorId: string) {
     return { result: `${this.resolve.prefix}:${actorId}:${command.data}` };
@@ -35,39 +35,19 @@ class AuthRequiredUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
 
 /** UseCase без авторизации */
 class AuthOptionalUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
-  readonly commandName = "test-auth";
-  readonly description = "Тестовый UC без авторизации";
-  readonly aggregateName = "TestAr";
-  readonly aggregateLabel = "Тестовый агрегат";
-  readonly type = "query" as const;
-  readonly requiresAuth = false as const;
-  readonly inputSchema = v.object({ data: v.string() });
-  readonly outputSchema = v.object({ result: v.string() });
+  protected readonly commandName = "test-auth";
+  protected readonly description = "Тестовый UC без авторизации";
+  protected readonly aggregateName = "TestAr";
+  protected readonly aggregateLabel = "Тестовый агрегат";
+  protected readonly type = "query" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ data: v.string() });
+  protected readonly outputSchema = v.object({ result: v.string() });
 
   execute(command: { data: string }, actorId?: string) {
-    return { result: `${this.resolve.prefix}:${actorId ?? "anon"}:${command.data}` };
-  }
-}
-
-/** UseCase с кастомной проверкой авторизации */
-class CustomAuthUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
-  readonly commandName = "test-auth";
-  readonly description = "Тестовый UC с кастомной авторизацией";
-  readonly aggregateName = "TestAr";
-  readonly aggregateLabel = "Тестовый агрегат";
-  readonly type = "command" as const;
-  readonly requiresAuth = true as const;
-  readonly inputSchema = v.object({ data: v.string() });
-  readonly outputSchema = v.object({ result: v.string() });
-
-  protected override checkAuth(actorId?: string): void {
-    if (actorId !== "admin") {
-      this.throwAccessDenied("AuthTestError", "Только администратор");
-    }
-  }
-
-  execute(command: { data: string }, actorId: string) {
-    return { result: `${this.resolve.prefix}:${actorId}:${command.data}` };
+    return {
+      result: `${this.resolve.prefix}:${actorId ?? "anon"}:${command.data}`,
+    };
   }
 }
 
@@ -85,7 +65,8 @@ describe("UseCase: авторизация", () => {
 
     expect(caught).toBeInstanceOf(AppException);
     const appEx = caught as AppException;
-    expect(appEx.error.kind).toBe("access-denied");
+    expect(appEx.error.kind).toBe("unauthorized");
+    expect(appEx.error.name).toBe("UNAUTHORIZED_ERROR");
   });
 
   test("requiresAuth=true с actorId выполняется успешно", async () => {
@@ -103,47 +84,12 @@ describe("UseCase: авторизация", () => {
     const result = await uc.handle({ data: "test" });
     expect(result.result).toBe("ok:anon:test");
   });
-
-  test("checkAuth() можно переопределить", async () => {
-    const uc = new CustomAuthUseCase();
-    uc.init({ prefix: "ok" });
-
-    // admin проходит
-    const result = await uc.handle({ data: "test" }, "admin");
-    expect(result.result).toBe("ok:admin:test");
-  });
-
-  test("переопределённый checkAuth() отклоняет неавторизованных", async () => {
-    const uc = new CustomAuthUseCase();
-    uc.init({ prefix: "ok" });
-
-    let caught: unknown;
-    try {
-      await uc.handle({ data: "test" }, "user"); // не admin
-    } catch (e) {
-      caught = e;
-    }
-
-    expect(caught).toBeInstanceOf(AppException);
-    const appEx = caught as AppException;
-    expect(appEx.error.kind).toBe("access-denied");
-    expect(appEx.error.message).toBe("Только администратор");
-  });
 });
 
 describe("UseCase: метаданные", () => {
-  test("UseCase содержит description, aggregateName, aggregateLabel, type", () => {
-    const uc = new AuthRequiredUseCase();
-
-    expect(uc.description).toBe("Тестовый UC с авторизацией");
-    expect(uc.aggregateName).toBe("TestAr");
-    expect(uc.aggregateLabel).toBe("Тестовый агрегат");
-    expect(uc.type).toBe("command");
-  });
-
   test("UseCase.getCommand() возвращает полные метаданные", () => {
     const uc = new AuthRequiredUseCase();
-    const cmd = uc.getCommand();
+    const cmd = uc.getDocType();
 
     expect(cmd.commandName).toBe("test-auth");
     expect(cmd.description).toBe("Тестовый UC с авторизацией");
@@ -153,11 +99,5 @@ describe("UseCase: метаданные", () => {
     expect(cmd.requiresAuth).toBe(true);
     expect(cmd.inputSchema).toBeDefined();
     expect(cmd.outputSchema).toBeDefined();
-  });
-
-  test("getInputSchema() удалён из UseCase", () => {
-    const uc = new AuthRequiredUseCase();
-    // @ts-expect-error getInputSchema не должен существовать
-    expect(uc.getInputSchema).toBeUndefined();
   });
 });
