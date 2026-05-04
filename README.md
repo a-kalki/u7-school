@@ -24,8 +24,8 @@
 
 Основные архитектурные принципы и соглашения по разработке:
 - [Общая архитектура](./conductor/code_styleguides/architecture.md)
-- [Backend-слой (UseCase, Module)](./conductor/code_styleguides/api.md)
 - [Принципы DDD (Aggregate, Schema, Policy)](./conductor/code_styleguides/ddd.md)
+- [Backend-слой (UseCase, Module)](./conductor/code_styleguides/api.md)
 - [Обработка ошибок и исключений](./conductor/code_styleguides/errors.md)
 - [Соглашения по именованию](./conductor/code_styleguides/naming.md)
 - [Правила тестирования (TDD, пирамида тестов)](./conductor/code_styleguides/testing.md)
