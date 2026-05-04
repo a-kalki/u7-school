@@ -1,0 +1,4 @@
+Task: Удалить монолитный docs/architecture.md
+Summary: Файл docs/architecture.md удален, так как его содержимое перенесено в conductor/code_styleguides/.
+Files: docs/architecture.md
+Reason: Очистка после декомпозиции.
