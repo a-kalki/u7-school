@@ -42,7 +42,7 @@
 - [x] Task: Реализовать getCommand() на UseCase, удалить getInputSchema()
 - [x] Task: Запустить тесты, убедиться что проходят (Green)
 - [x] Task: Рефакторинг (при необходимости)
-- [x] Task: Закоммитить изменения
+- [x] Task: Закоммитить изменения [81f5b92]
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Авторизация и метаданные UC' (Protocol in workflow.md)
 
 ### Фаза 4: Module, интеграция и экспорты
