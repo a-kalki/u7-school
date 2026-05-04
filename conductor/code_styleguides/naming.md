@@ -19,14 +19,15 @@
 | Команда модуля | `<Имя>Command` | `CreateUserCommand` |
 | Сценарий использования | `<Имя><Действие>Uc` | `UserCreateUc`, `CourseDeleteUc` |
 
+
 ## Структура команды модуля
 
-Объекты команд, передаваемые в `Module.handle()`, имеют фиксированную структуру:
+Объекты команд уровня модуля, передаваемые в `Module.handle()`, имеют фиксированную структуру:
 
 ```typescript
 interface ModuleCommand {
   name: string;      // Имя команды литералом, например "user.create"
-  attrs: unknown;    // Данные команды (атрибуты)
+  attrs: unknown;    // UcMeta['input']
   actorId?: string;  // ID пользователя/актора (UUID)
 }
 ```
