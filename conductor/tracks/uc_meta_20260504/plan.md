@@ -24,7 +24,7 @@
 - [x] Task: Обновить handle() для вызова цепочки: validateInput → execute → validateOutput
 - [x] Task: Запустить тесты, убедиться что проходят (Green)
 - [x] Task: Рефакторинг (при необходимости)
-- [x] Task: Закоммитить изменения
+- [x] Task: Закоммитить изменения [49b37b8]
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Output-валидация и рефакторинг handle()' (Protocol in workflow.md)
 
 ### Фаза 3: Авторизация и метаданные UC
