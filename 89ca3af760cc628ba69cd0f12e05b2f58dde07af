@@ -1,0 +1,4 @@
+Task: Обновить product-guidelines.md
+Summary: В conductor/product-guidelines.md добавлен раздел со ссылками на новые архитектурные гайдлайны.
+Files: conductor/product-guidelines.md
+Reason: Обеспечение доступа ИИ-агентов к правилам разработки через основной контекст.
