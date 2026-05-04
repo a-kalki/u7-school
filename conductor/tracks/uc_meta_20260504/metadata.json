@@ -1,0 +1,8 @@
+{
+  "track_id": "uc_meta_20260504",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-05-04T19:03:00Z",
+  "updated_at": "2026-05-04T19:03:00Z",
+  "description": "Метаданные UseCase и output-валидация в @u7/core"
+}
