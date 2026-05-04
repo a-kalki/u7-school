@@ -1,0 +1,4 @@
+Task: Извлечь принципы DDD в ddd.md
+Summary: Создан файл conductor/code_styleguides/ddd.md с описанием Entity, Schema, Ar, Policy и правил наследования валидации.
+Files: conductor/code_styleguides/ddd.md
+Reason: Декомпозиция монолитной документации.
