@@ -1,0 +1,11 @@
+Фаза 4: Module, интеграция и экспорты
+
+- Module.getCommands() агрегирует getCommand() каждого UC
+- Добавлены тесты на полные метаданные в Module и интеграции
+- Обновлён index.ts с явными реэкспортами ArMeta и UcMeta
+- Покрытие кода: 85.92%
+
+Изменённые файлы:
+- packages/core/src/api/module/module.test.ts
+- packages/core/src/integration.test.ts
+- packages/core/src/index.ts
