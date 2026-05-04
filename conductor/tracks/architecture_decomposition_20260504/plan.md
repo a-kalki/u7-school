@@ -13,7 +13,7 @@
 
 ## Phase 2: Очистка и обновление ссылок (FR2)
 
-- [ ] Task: Удалить монолитный `docs/architecture.md`
-- [ ] Task: Обновить/создать `README.md` со ссылками на новые файлы
-- [ ] Task: Добавить ссылки на новые гайдлайны в `conductor/product-guidelines.md`
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Cleanup and Linking'
+- [x] Task: Удалить монолитный `docs/architecture.md` [cbf755f]
+- [x] Task: Обновить/создать `README.md` со ссылками на новые файлы [69bdac3]
+- [x] Task: Добавить ссылки на новые гайдлайны в `conductor/product-guidelines.md` [8f0518c]
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Cleanup and Linking' [22cec3d]
