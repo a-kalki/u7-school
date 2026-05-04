@@ -71,11 +71,11 @@
     - [x] Конструктор или init() принимает `TResolve`, сохраняет
     - [x] Метод для OpenAPI-вывода: `getCommands()` — список схем команд модуля с Meta
 - [x] Task: Регресс-проверка: все тесты проходят [838667d]
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Module' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Module' (Protocol in workflow.md) [checkpoint: 0cf7599]
 
 ## Phase 5: CLI-контроллер с обработкой ошибок (FR6)
 
-- [ ] Task: Написать тесты для CLI-контроллера
+- [~] Task: Написать тесты для CLI-контроллера
     - [ ] Тест: контроллер создаёт ModuleCommand из CLI-аргументов
     - [ ] Тест: контроллер передаёт команду модулю
     - [ ] Тест: контроллер ловит DomainError → JSON-ошибка
