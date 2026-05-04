@@ -136,7 +136,14 @@ describe("Integration: Core Framework", () => {
     const commands = module.getCommands();
 
     expect(commands).toHaveLength(1);
-    expect(commands[0]?.commandName).toBe("demo.create-user");
-    expect(commands[0]?.inputSchema).toBeDefined();
+    const cmd = commands[0];
+    expect(cmd?.commandName).toBe("demo.create-user");
+    expect(cmd?.description).toBe("Создать пользователя");
+    expect(cmd?.aggregateName).toBe("User");
+    expect(cmd?.aggregateLabel).toBe("Пользователь");
+    expect(cmd?.type).toBe("command");
+    expect(cmd?.requiresAuth).toBe(false);
+    expect(cmd?.inputSchema).toBeDefined();
+    expect(cmd?.outputSchema).toBeDefined();
   });
 });

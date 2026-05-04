@@ -47,14 +47,14 @@
 
 ### Фаза 4: Module, интеграция и экспорты
 
-- [ ] Task: Написать падающие тесты для Module
-  - [ ] Тест: Module.getCommands() агрегирует uc.getCommand() с полными метаданными
-  - [ ] Тест: Интеграционный тест проходит с новыми метаданными
-- [ ] Task: Обновить Module.getCommands() для агрегации uc.getCommand()
-- [ ] Task: Обновить packages/core/src/index.ts (новые типы и экспорты)
-- [ ] Task: Обновить интеграционный тест (packages/core/src/integration.test.ts)
-- [ ] Task: Запустить тесты, убедиться что проходят (Green)
-- [ ] Task: Проверить покрытие кода (>80%)
-- [ ] Task: Рефакторинг (при необходимости)
-- [ ] Task: Закоммитить изменения
+- [x] Task: Написать падающие тесты для Module
+  - [x] Тест: Module.getCommands() агрегирует uc.getCommand() с полными метаданными
+  - [x] Тест: Интеграционный тест проходит с новыми метаданными
+- [x] Task: Обновить Module.getCommands() для агрегации uc.getCommand()
+- [x] Task: Обновить packages/core/src/index.ts (новые типы и экспорты)
+- [x] Task: Обновить интеграционный тест (packages/core/src/integration.test.ts)
+- [x] Task: Запустить тесты, убедиться что проходят (Green)
+- [x] Task: Проверить покрытие кода (>80%)
+- [x] Task: Рефакторинг (при необходимости)
+- [x] Task: Закоммитить изменения
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4: Module, интеграция и экспорты' (Protocol in workflow.md)

@@ -84,4 +84,20 @@ describe("Module (Phase 4)", () => {
     expect(commands[0]?.commandName).toBe("test-cmd");
     expect(commands[0]?.inputSchema).toBeDefined();
   });
+
+  test("getCommands() агрегирует полные метаданные от getCommand()", () => {
+    const module = new TestModule();
+    const commands = module.getCommands();
+
+    expect(commands).toHaveLength(1);
+    const cmd = commands[0];
+    expect(cmd?.commandName).toBe("test-cmd");
+    expect(cmd?.description).toBe("Тестовый UC");
+    expect(cmd?.aggregateName).toBe("TestAr");
+    expect(cmd?.aggregateLabel).toBe("Тестовый агрегат");
+    expect(cmd?.type).toBe("command");
+    expect(cmd?.requiresAuth).toBe(false);
+    expect(cmd?.inputSchema).toBeDefined();
+    expect(cmd?.outputSchema).toBeDefined();
+  });
 });
