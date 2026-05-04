@@ -52,6 +52,11 @@ class DemoCreateUserUC extends UseCase<
   { db: { name: string }[] }
 > {
   readonly commandName = "demo.create-user";
+  readonly description = "Создать пользователя";
+  readonly aggregateName = "User";
+  readonly aggregateLabel = "Пользователь";
+  readonly type = "command" as const;
+  readonly requiresAuth = false as const;
   readonly inputSchema = v.object({
     name: v.string(),
   });

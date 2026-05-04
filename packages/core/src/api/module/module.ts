@@ -42,15 +42,9 @@ export abstract class Module<TMeta extends ModuleMeta, TResolve> {
 
   /**
    * Возвращает метаданные команд модуля.
-   * Опциональный задел для генерации OpenAPI.
+   * Агрегирует getCommand() каждого use-case.
    */
   getCommands() {
-    return this.useCases.map((uc) => {
-      const schema = uc.getInputSchema();
-      return {
-        commandName: uc.commandName,
-        inputSchema: schema,
-      };
-    });
+    return this.useCases.map((uc) => uc.getCommand());
   }
 }

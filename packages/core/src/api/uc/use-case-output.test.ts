@@ -19,6 +19,11 @@ interface OutputTestUcMeta extends UcMeta {
 
 class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
   readonly commandName = "test-output";
+  readonly description = "Тестовый UC с валидацией выхода";
+  readonly aggregateName = "TestAr";
+  readonly aggregateLabel = "Тестовый агрегат";
+  readonly type = "command" as const;
+  readonly requiresAuth = false as const;
   readonly inputSchema = v.object({ foo: v.string() });
   readonly outputSchema = v.object({
     bar: v.string(),
@@ -40,6 +45,11 @@ class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
 
 class InvalidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
   readonly commandName = "test-output";
+  readonly description = "Тестовый UC с невалидным выходом";
+  readonly aggregateName = "TestAr";
+  readonly aggregateLabel = "Тестовый агрегат";
+  readonly type = "command" as const;
+  readonly requiresAuth = false as const;
   readonly inputSchema = v.object({ foo: v.string() });
   readonly outputSchema = v.object({
     bar: v.string(),

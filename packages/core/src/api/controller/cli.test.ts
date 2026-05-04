@@ -15,6 +15,11 @@ interface TestUcMeta extends UcMeta {
 
 class TestUseCase extends UseCase<TestUcMeta, { test: boolean }> {
   readonly commandName = "test-cmd";
+  readonly description = "Тестовый UC";
+  readonly aggregateName = "TestAr";
+  readonly aggregateLabel = "Тестовый агрегат";
+  readonly type = "command" as const;
+  readonly requiresAuth = false as const;
   readonly inputSchema = v.object({ foo: v.string() });
   readonly outputSchema = v.object({ bar: v.string() });
 

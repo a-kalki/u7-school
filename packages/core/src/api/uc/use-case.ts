@@ -26,6 +26,21 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   /** Имя команды, которую обрабатывает этот use-case */
   abstract readonly commandName: TMeta["commandName"];
 
+  /** User-friendly описание use-case */
+  abstract readonly description: TMeta["description"];
+
+  /** Техническое имя агрегата */
+  abstract readonly aggregateName: TMeta["arMeta"]["name"];
+
+  /** User-friendly название агрегата */
+  abstract readonly aggregateLabel: TMeta["arMeta"]["label"];
+
+  /** Тип use-case: команда или запрос */
+  abstract readonly type: TMeta["type"];
+
+  /** Требуется ли авторизация для выполнения */
+  abstract readonly requiresAuth: TMeta["requiresAuth"];
+
   /** Схема Valibot для валидации входящих данных */
   protected abstract readonly inputSchema: v.BaseSchema<
     unknown,
@@ -40,10 +55,6 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     v.BaseIssue<unknown>
   >;
 
-  getInputSchema(): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
-    return this.inputSchema;
-  }
-
   protected resolve!: TResolve;
 
   /**
@@ -55,21 +66,53 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   }
 
   /**
+   * Возвращает метаданные команды вместе со схемами.
+   */
+  getCommand() {
+    return {
+      commandName: this.commandName,
+      description: this.description,
+      aggregateName: this.aggregateName,
+      aggregateLabel: this.aggregateLabel,
+      type: this.type,
+      requiresAuth: this.requiresAuth,
+      inputSchema: this.inputSchema,
+      outputSchema: this.outputSchema,
+    };
+  }
+
+  /**
    * Основной метод выполнения use-case.
    * @param command Входящие данные (невалидированные)
    * @param actorId ID пользователя, выполняющего действие (опционально)
    */
   async handle(command: unknown, actorId?: string): Promise<TMeta["output"]> {
+    this.checkAuth(actorId);
     const validatedCommand = this.validateInput(command);
-    const result = await this.execute(validatedCommand, actorId);
+    const result = await this.execute(
+      validatedCommand,
+      actorId as TMeta["requiresAuth"] extends true ? string : string | undefined,
+    );
     return this.validateOutput(result);
   }
 
   /** Бизнес-логика use-case */
   protected abstract execute(
     command: TMeta["input"],
-    actorId?: string,
+    actorId: TMeta["requiresAuth"] extends true ? string : string | undefined,
   ): Promise<TMeta["output"]> | TMeta["output"];
+
+  /**
+   * Проверяет авторизацию. Можно переопределить для кастомной логики.
+   */
+  protected checkAuth(actorId?: string): void {
+    if (this.requiresAuth && actorId === undefined) {
+      this.throwAccessDenied(
+        "UNAUTHORIZED" as Extract<TMeta["errors"], { kind: "access-denied" }>["name"],
+        "Требуется авторизация",
+      );
+    }
+  }
 
   /**
    * Валидирует входящие данные через inputSchema.

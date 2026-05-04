@@ -29,20 +29,20 @@
 
 ### Фаза 3: Авторизация и метаданные UC
 
-- [ ] Task: Написать падающие тесты для авторизации и метаданных
-  - [ ] Тест: requiresAuth=true требует actorId, иначе UnauthorizedError
-  - [ ] Тест: checkAuth() можно переопределить
-  - [ ] Тест: actorId в execute типизирован условно
-  - [ ] Тест: UseCase содержит description, aggregateName, aggregateLabel, type
-  - [ ] Тест: UseCase.getCommand() возвращает полные метаданные
-  - [ ] Тест: getInputSchema() удалён
-- [ ] Task: Реализовать requiresAuth и checkAuth() на UseCase
-- [ ] Task: Реализовать условную типизацию actorId в execute()
-- [ ] Task: Реализовать description, aggregateName, aggregateLabel, type на UseCase
-- [ ] Task: Реализовать getCommand() на UseCase, удалить getInputSchema()
-- [ ] Task: Запустить тесты, убедиться что проходят (Green)
-- [ ] Task: Рефакторинг (при необходимости)
-- [ ] Task: Закоммитить изменения
+- [x] Task: Написать падающие тесты для авторизации и метаданных
+  - [x] Тест: requiresAuth=true требует actorId, иначе UnauthorizedError
+  - [x] Тест: checkAuth() можно переопределить
+  - [x] Тест: actorId в execute типизирован условно
+  - [x] Тест: UseCase содержит description, aggregateName, aggregateLabel, type
+  - [x] Тест: UseCase.getCommand() возвращает полные метаданные
+  - [x] Тест: getInputSchema() удалён
+- [x] Task: Реализовать requiresAuth и checkAuth() на UseCase
+- [x] Task: Реализовать условную типизацию actorId в execute()
+- [x] Task: Реализовать description, aggregateName, aggregateLabel, type на UseCase
+- [x] Task: Реализовать getCommand() на UseCase, удалить getInputSchema()
+- [x] Task: Запустить тесты, убедиться что проходят (Green)
+- [x] Task: Рефакторинг (при необходимости)
+- [x] Task: Закоммитить изменения
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Авторизация и метаданные UC' (Protocol in workflow.md)
 
 ### Фаза 4: Module, интеграция и экспорты
