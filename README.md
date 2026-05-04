@@ -20,6 +20,18 @@
 
 Для управления жизненным циклом проекта, планирования и реализации задач используется методология [Conductor](https://github.com/epm-dev-kalki/conductor). С полной документацией проекта можно ознакомиться в папке `./conductor/`.
 
+## Документация и руководства
+
+Основные архитектурные принципы и соглашения по разработке:
+- [Общая архитектура](./conductor/code_styleguides/architecture.md)
+- [Backend-слой (UseCase, Module)](./conductor/code_styleguides/api.md)
+- [Принципы DDD (Aggregate, Schema, Policy)](./conductor/code_styleguides/ddd.md)
+- [Обработка ошибок и исключений](./conductor/code_styleguides/errors.md)
+- [Соглашения по именованию](./conductor/code_styleguides/naming.md)
+- [Правила тестирования (TDD, пирамида тестов)](./conductor/code_styleguides/testing.md)
+- [Межмодульное взаимодействие и DI](./conductor/code_styleguides/integration.md)
+- [TypeScript Styleguide](./conductor/code_styleguides/typescript.md)
+
 ## Установка и запуск
 
 Для установки зависимостей:
