@@ -1,0 +1,8 @@
+Phase 1: Создание структуры packages/auth
+
+- Создан packages/auth/package.json с зависимостями @u7/core и valibot
+- Создан packages/auth/tsconfig.json
+- Созданы директории src/{domain,api,ui/auto-ui}
+- Создан packages/auth/src/index.ts с публичными экспортами
+
+Файлы: packages/auth/package.json, packages/auth/tsconfig.json, packages/auth/src/index.ts
