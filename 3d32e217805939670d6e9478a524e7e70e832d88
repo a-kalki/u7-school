@@ -1,0 +1,1 @@
+Автоматические тесты пройдены: CI=true bun test packages/core/src/ui. Ручная верификация: базовый UIRouter проверен.
