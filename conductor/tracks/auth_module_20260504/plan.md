@@ -1,11 +1,11 @@
 # Plan: Выделение модуля аутентификации и пользователей (auth)
 
-## Phase 1: Создание структуры packages/auth
+## Phase 1: Создание структуры packages/auth [~]
 
-- [ ] Task: Создать `packages/auth/package.json` с зависимостями `@u7/core`, `valibot`
-- [ ] Task: Создать `packages/auth/tsconfig.json`, наследующий базовую конфигурацию
-- [ ] Task: Создать директории `packages/auth/src/{domain,api,ui}/`
-- [ ] Task: Создать `packages/auth/src/index.ts` с публичными экспортами
+- [~] Task: Создать `packages/auth/package.json` с зависимостями `@u7/core`, `valibot`
+- [~] Task: Создать `packages/auth/tsconfig.json`, наследующий базовую конфигурацию
+- [~] Task: Создать директории `packages/auth/src/{domain,api,ui}/`
+- [~] Task: Создать `packages/auth/src/index.ts` с публичными экспортами
 - [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 ## Phase 2: Перенос домена User из packages/course
