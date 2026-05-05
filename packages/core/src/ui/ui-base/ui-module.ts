@@ -19,7 +19,7 @@ export abstract class UIModule<
   MR extends UIModuleResolver,
 > {
   /** Данные, загруженные из about.md */
-  public about: AboutData | null = null;
+  public about!: AboutData;
 
   public abstract name: TMeta["name"];
 
@@ -34,9 +34,6 @@ export abstract class UIModule<
   async init(appResolver: AR): Promise<void> {
     this.appResolver = appResolver;
     this.about = await loadAboutFile(this.resolver.aboutPath);
-    if (!this.about) {
-      throw new Error(`Файл about.md не найден или не может быть загружен для модуля '${this.name}' по пути: ${this.resolver.aboutPath}`);
-    }
   }
 
   /**

@@ -38,8 +38,7 @@ describe('about-parser (Парсер about.md)', () => {
     await fs.promises.rm(testDir, { recursive: true, force: true });
   });
 
-  it('должен возвращать null, если about.md не существует', async () => {
-    const result = await loadAboutFile(__dirname); // здесь нет about.md
-    expect(result).toBeNull();
+  it('должен выбрасывать ошибку, если about.md не существует', async () => {
+    expect(loadAboutFile(__dirname)).rejects.toThrow(); // здесь нет about.md
   });
 });

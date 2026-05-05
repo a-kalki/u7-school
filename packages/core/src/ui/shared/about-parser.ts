@@ -49,14 +49,15 @@ export function parseAboutMarkdown(markdown: string): AboutData {
  * Загружает и парсит файл about.md из указанной директории.
  * 
  * @param dirPath Путь к директории, где находится about.md
- * @returns Распарсенные данные или null, если файл не найден или недоступен
+ * @returns Распарсенные данные
+ * @throws Ошибка, если файл не найден или недоступен
  */
-export async function loadAboutFile(dirPath: string): Promise<AboutData | null> {
+export async function loadAboutFile(dirPath: string): Promise<AboutData> {
   const aboutPath = path.join(dirPath, 'about.md');
   try {
     const content = await fs.promises.readFile(aboutPath, 'utf-8');
     return parseAboutMarkdown(content);
   } catch (err) {
-    return null;
+    throw new Error(`Файл about.md не найден или не может быть загружен по пути: ${aboutPath}`);
   }
 }
