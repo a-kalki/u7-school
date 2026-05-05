@@ -24,6 +24,8 @@
 - [x] Task: Создать `AutoUiModule`
     - [x] Написать тесты (вычисление агрегатов, генерация меню, маппинг строкового payload в JSON)
     - [x] Реализовать `AutoUiModule` с привязкой к `ApiModule`
-- [ ] Task: Интеграция с консолью
-    - [ ] Обновить `cli.ts` для использования `AutoUiApp` в цикле REPL
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Реализация Auto-UI' (Protocol in workflow.md)
+- [x] Task: Интеграция с консолью
+    - [x] Реализовать `AutoUiConsoleController` для REPL
+    - [x] Написать интеграционный тест для `AutoUiApp` + `AutoUiModule`
+    - [x] Перенести CLI в `apps/u7-cli` и создать рабочее демо
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: Реализация Auto-UI' (Protocol in workflow.md)

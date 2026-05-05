@@ -1,4 +1,3 @@
-export * from "./api/controller/cli";
 export * from "./api/module/module";
 export type { UcMeta } from "./api/uc/use-case";
 export * from "./api/uc/use-case";
@@ -16,3 +15,4 @@ export * from "./ui/ui-base/ui-app";
 export * from "./ui/auto-ui/command-parser";
 export * from "./ui/auto-ui/auto-ui-app";
 export * from "./ui/auto-ui/auto-ui-module";
+export * from "./ui/auto-ui/console-controller";
