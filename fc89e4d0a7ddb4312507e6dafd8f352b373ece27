@@ -1,0 +1,8 @@
+Phase 2 (continued): Рефакторинг Aggregate в @u7/core
+
+- Перенесен iso-now.ts в packages/core/src/shared/
+- Добавлены тесты для iso-now
+- Обновлен Aggregate: добавлен дженерик TState, валидация в конструкторе, #state, get state()
+- Обновлены тесты Aggregate
+- Обновлен UserAr для работы с новым Aggregate
+- Все тесты проходят (34 core/auth + 38 course)
