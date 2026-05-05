@@ -19,8 +19,8 @@ export abstract class UIApp<TResolver extends UIAppResolver> {
   constructor(
     public readonly modules: UIModule<
       ModuleMeta,
-      UIAppResolver,
-      UIModuleResolver<ModuleMeta>
+      TResolver,
+      UIModuleResolver
     >[],
     public readonly resolver: TResolver,
   ) { }

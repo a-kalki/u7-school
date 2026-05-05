@@ -8,7 +8,7 @@ interface TestAppResolver extends UIAppResolver {
   someAppService: boolean;
 }
 
-interface TestModuleResolver extends UIModuleResolver<{ name: "mock"; url: "/mock" }> {
+interface TestModuleResolver extends UIModuleResolver {
   someModuleService: boolean;
 }
 
@@ -52,7 +52,6 @@ describe("ui-app (Базовое UI-приложение)", () => {
     const uiModule = new TestUIModule({
       aboutPath: testModuleDir,
       someModuleService: true,
-      apiModule: {} as any, // Mock API Module
     });
 
     const uiApp = new TestUIApp([uiModule], {

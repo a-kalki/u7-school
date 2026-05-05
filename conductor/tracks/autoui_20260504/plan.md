@@ -12,18 +12,18 @@
     - [x] Реализовать `UIApp`
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: Базовые абстракции UI (App и Module)' (Protocol in workflow.md)
 
-## Фаза 2: Система навигации (Router) [checkpoint: 3d32e21]
-- [x] Task: Создать базовый механизм маршрутизации (Router)
-    - [x] Написать тесты для роутера (обработка путей типа `/app`, `/<module-id>`, вызов соответствующих контроллеров UI)
-    - [x] Реализовать ядро `Router` и привязать к `UIApp` / `UIModule`
-- [~] Task: Conductor - User Manual Verification 'Фаза 2: Система навигации (Router)' (Protocol in workflow.md)
+## Фаза 2: Система навигации (CommandParser & Intent)
+- [x] Task: Создать абстракции намерений (UIIntent) и CommandParser (бывший Router)
+    - [x] Написать тесты для парсера команд (парсинг `/app`, `/<module>`, многострочного ввода для execute)
+    - [x] Реализовать парсер команд, не привязанный к логике приложения
 
-## Фаза 3: Реализация Auto-UI (Console)
-- [ ] Task: Создать конкретные классы для консоли (`ConsoleUIApp`, `ConsoleUIModule`)
-    - [ ] Написать тесты для генерации текстовых меню на основе данных из App/Module
-    - [ ] Реализовать методы рендеринга
-- [ ] Task: Интеграция роутера с консольным вводом-выводом
-    - [ ] Реализовать цикл `while(true)` или `readline` для получения пользовательского ввода и передачи пути в Router
-- [ ] Task: Обновить интеграционный тест / демо в `cli.ts` для использования новой архитектуры Auto-UI
-    - [ ] Настроить приложение, добавить модули и запустить консольный интерфейс
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Реализация Auto-UI (Console)' (Protocol in workflow.md)
+## Фаза 3: Реализация Auto-UI (Оркестратор и Модуль)
+- [x] Task: Создать `AutoUiApp` (перевалочный пункт / Оркестратор)
+    - [x] Написать тесты для `AutoUiApp.handleInput()` (маршрутизация intent'ов, генерация приветствий)
+    - [x] Реализовать `AutoUiApp`
+- [x] Task: Создать `AutoUiModule`
+    - [x] Написать тесты (вычисление агрегатов, генерация меню, маппинг строкового payload в JSON)
+    - [x] Реализовать `AutoUiModule` с привязкой к `ApiModule`
+- [ ] Task: Интеграция с консолью
+    - [ ] Обновить `cli.ts` для использования `AutoUiApp` в цикле REPL
+- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Реализация Auto-UI' (Protocol in workflow.md)
