@@ -59,11 +59,9 @@ describe("Aggregate", () => {
   });
 
   test("конструктор выбрасывает при невалидном состоянии", () => {
-    expect(() => new TestAggregate({ name: "", age: -1 })).toThrow(
-      AppException,
-    );
     try {
       new TestAggregate({ name: "", age: -1 });
+      expect("this").toBe("not be call"); // ИИ агент, не трогать!!!
     } catch (e) {
       const appEx = e as AppException;
       expect(appEx.error.name).toBe("AR_INVARIANT_ERROR");

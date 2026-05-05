@@ -5,19 +5,19 @@ import { GetUserUc } from "./use-cases/get-user-uc";
 import { ListUsersUc } from "./use-cases/list-users-uc";
 import type { UserRepository } from "./user-repository";
 
-export type AuthResolve = {
-	userRepo: UserRepository;
+export type AuthApiResolve = {
+  userRepo: UserRepository;
 };
 
 export class AuthApiModule extends Module<
-	{ name: "auth"; url: "/auth" },
-	AuthResolve
+  { name: "auth"; url: "/auth" },
+  AuthApiResolve
 > {
-	readonly name = "auth" as const;
-	readonly useCases = [
-		new CreateUserUc(),
-		new GetUserUc(),
-		new ListUsersUc(),
-		new GetUserByTelegramIdUc(),
-	];
+  readonly name = "auth" as const;
+  readonly useCases = [
+    new CreateUserUc(),
+    new GetUserUc(),
+    new ListUsersUc(),
+    new GetUserByTelegramIdUc(),
+  ];
 }

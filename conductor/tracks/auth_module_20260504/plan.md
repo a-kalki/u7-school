@@ -58,13 +58,13 @@
 - [x] Task: Обновить `apps/u7-cli/package.json` — добавить зависимость `@u7/auth`
 - [x] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
 
-## Phase 5: Финализация и проверка качества [~]
+## Phase 5: Финализация и проверка качества [x] [checkpoint: 47a8d0a]
 
-- [~] Task: Убедиться, что `packages/auth` собирается (`tsc --noEmit`)
-- [~] Task: Убедиться, что `packages/course` собирается после удаления user
-- [~] Task: Убедиться, что `apps/u7-cli` собирается
-- [~] Task: Запустить полный набор тестов (`bun test`)
-- [~] Task: Проверить покрытие кода (`bun test --coverage`), цель >80%
-- [~] Task: Запустить линтинг (`bunx biome check --write .`)
-- [~] Task: Обновить `README.md` (если нужно) с информацией о новом модуле
-- [ ] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
+- [x] Task: Убедиться, что `packages/auth` собирается (`tsc --noEmit`)
+- [x] Task: Убедиться, что `packages/course` собирается после удаления user
+- [x] Task: Убедиться, что `apps/u7-cli` собирается
+- [x] Task: Запустить полный набор тестов (`bun test`)
+- [x] Task: Проверить покрытие кода (`bun test --coverage`), цель >80%
+- [x] Task: Запустить линтинг (`bunx biome check --write .`)
+- [x] Task: Обновить `README.md` (если нужно) с информацией о новом модуле
+- [x] Task: Conductor - User Manual Verification 'Phase 5' (Protocol in workflow.md)
