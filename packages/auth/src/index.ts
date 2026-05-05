@@ -19,3 +19,4 @@ export * from "./api/use-cases/get-user-uc";
 export * from "./api/use-cases/list-users-uc";
 export * from "./api/use-cases/get-user-by-telegram-id-uc";
 export * from "./api/auth-module";
+export * from "./ui/auto-ui/auth-auto-ui-module";

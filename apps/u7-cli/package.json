@@ -1,14 +1,15 @@
 {
-  "name": "@u7/cli",
-  "version": "0.1.0",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "start": "bun src/main.ts"
-  },
-  "dependencies": {
-    "@u7/core": "workspace:*",
-    "@u7/course": "workspace:*",
-    "valibot": "^1.2.0"
-  }
+	"name": "@u7/cli",
+	"version": "0.1.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"start": "bun src/main.ts"
+	},
+	"dependencies": {
+		"@u7/auth": "workspace:*",
+		"@u7/core": "workspace:*",
+		"@u7/course": "workspace:*",
+		"valibot": "^1.2.0"
+	}
 }
