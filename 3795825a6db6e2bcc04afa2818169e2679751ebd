@@ -1,0 +1,2 @@
+Автоматические тесты пройдены: CI=true bun test packages/core/src/ui.
+Ручная верификация: абстракции UIApp, UIModule проверены пользователем.
