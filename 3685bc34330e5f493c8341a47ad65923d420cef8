@@ -1,0 +1,11 @@
+Phase 2: Перенос домена User из packages/course
+
+- Перенесены файлы домена: user.ts, roles.ts, user-policy.ts, user-ar.ts
+- Адаптирован UserAr под базовый класс Aggregate из @u7/core
+- Создан domain/shared/iso-now.ts
+- Создан api/commands/create-user-command.ts
+- Написаны тесты: roles.test.ts, user.test.ts, user-policy.test.ts, user-ar.test.ts
+- Удален packages/course/src/domain/user/
+- Обновлены импорты в packages/course на @u7/auth
+- Обновлен packages/course/package.json с зависимостью @u7/auth
+- Все тесты packages/course проходят (38/38)
