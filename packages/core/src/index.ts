@@ -8,3 +8,8 @@ export * from "./domain/ar/aggregate";
 export * from "./domain/errors/error-helpers";
 export * from "./domain/errors/errors";
 export * from "./domain/module/types";
+
+// UI Base
+export * from "./ui/shared/about-parser";
+export * from "./ui/ui-base/ui-module";
+export * from "./ui/ui-base/ui-app";
