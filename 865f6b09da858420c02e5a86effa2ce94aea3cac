@@ -1,0 +1,7 @@
+Phase 3: Реализация API-модуля auth
+
+- Создан UserRepository интерфейс и InMemoryUserRepository
+- Реализованы UseCase: CreateUserUc (с бутстрапом), GetUserUc, ListUsersUc, GetUserByTelegramIdUc
+- Создан AuthApiModule extends Module
+- Написаны тесты для репозитория, всех UseCase и интеграционный тест модуля
+- Все тесты проходят (22/22)
