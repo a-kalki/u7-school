@@ -13,3 +13,4 @@ export * from "./domain/module/types";
 export * from "./ui/shared/about-parser";
 export * from "./ui/ui-base/ui-module";
 export * from "./ui/ui-base/ui-app";
+export * from "./ui/ui-base/router";

@@ -2,13 +2,13 @@ import { describe, expect, it } from "bun:test";
 import * as fs from "fs";
 import * as path from "path";
 import { UIApp, type UIAppResolver } from "./ui-app";
-import { UIModule } from "./ui-module";
+import { UIModule, type UIModuleResolver } from "./ui-module";
 
 interface TestAppResolver extends UIAppResolver {
   someAppService: boolean;
 }
 
-interface TestModuleResolver extends UIAppResolver {
+interface TestModuleResolver extends UIModuleResolver<{ name: "mock"; url: "/mock" }> {
   someModuleService: boolean;
 }
 
@@ -21,6 +21,10 @@ class TestUIModule extends UIModule<
 
   render() {
     return "module";
+  }
+
+  renderUseCase(ucName: string) {
+    return `uc-${ucName}`;
   }
 }
 
@@ -48,6 +52,7 @@ describe("ui-app (Базовое UI-приложение)", () => {
     const uiModule = new TestUIModule({
       aboutPath: testModuleDir,
       someModuleService: true,
+      apiModule: {} as any, // Mock API Module
     });
 
     const uiApp = new TestUIApp([uiModule], {
@@ -61,7 +66,7 @@ describe("ui-app (Базовое UI-приложение)", () => {
     expect(uiApp.about?.body).toBe("Описание приложения.");
 
     expect(uiApp.modules.length).toBe(1);
-    const module = uiApp.modules[0] as TestUIModule;
+    const module = uiApp.modules[0] as unknown as TestUIModule;
     expect(module.about?.title).toBe("Модуль");
     expect(module.about?.body).toBe("Описание модуля.");
     expect(module.appResolver.someAppService).toBe(true);

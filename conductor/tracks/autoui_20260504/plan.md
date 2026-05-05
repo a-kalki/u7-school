@@ -13,10 +13,10 @@
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: Базовые абстракции UI (App и Module)' (Protocol in workflow.md)
 
 ## Фаза 2: Система навигации (Router)
-- [ ] Task: Создать базовый механизм маршрутизации (Router)
-    - [ ] Написать тесты для роутера (обработка путей типа `/app`, `/<module-id>`, вызов соответствующих контроллеров UI)
-    - [ ] Реализовать ядро `Router` и привязать к `UIApp` / `UIModule`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: Система навигации (Router)' (Protocol in workflow.md)
+- [x] Task: Создать базовый механизм маршрутизации (Router)
+    - [x] Написать тесты для роутера (обработка путей типа `/app`, `/<module-id>`, вызов соответствующих контроллеров UI)
+    - [x] Реализовать ядро `Router` и привязать к `UIApp` / `UIModule`
+- [~] Task: Conductor - User Manual Verification 'Фаза 2: Система навигации (Router)' (Protocol in workflow.md)
 
 ## Фаза 3: Реализация Auto-UI (Console)
 - [ ] Task: Создать конкретные классы для консоли (`ConsoleUIApp`, `ConsoleUIModule`)

@@ -7,12 +7,16 @@ import type { UIAppResolver } from "./ui-app";
 class TestUIModule extends UIModule<
   { name: "mock"; url: "/mock" },
   UIAppResolver,
-  UIModuleResolver
+  UIModuleResolver<{ name: "mock"; url: "/mock" }>
 > {
   name = "mock" as const;
 
   render(): string {
     return "rendered";
+  }
+
+  renderUseCase(ucName: string): string {
+    return `rendered-uc-${ucName}`;
   }
 }
 
@@ -25,7 +29,7 @@ describe("ui-module (Базовый UI-модуль)", () => {
       "# Mock Module\nЭто мок-модуль для тестирования.",
     );
 
-    const uiModule = new TestUIModule({ aboutPath: testDir });
+    const uiModule = new TestUIModule({ aboutPath: testDir, apiModule: {} as any });
 
     await uiModule.init({ aboutPath: "." });
 
@@ -39,7 +43,7 @@ describe("ui-module (Базовый UI-модуль)", () => {
   });
 
   it("должен выбрасывать ошибку без about.md", async () => {
-    const uiModule = new TestUIModule({ aboutPath: __dirname });
+    const uiModule = new TestUIModule({ aboutPath: __dirname, apiModule: {} as any });
 
     expect(uiModule.init({ aboutPath: "." })).rejects.toThrow();
   });

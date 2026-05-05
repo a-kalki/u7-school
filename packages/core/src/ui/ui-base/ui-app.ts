@@ -20,7 +20,7 @@ export abstract class UIApp<TResolver extends UIAppResolver> {
     public readonly modules: UIModule<
       ModuleMeta,
       UIAppResolver,
-      UIModuleResolver
+      UIModuleResolver<ModuleMeta>
     >[],
     public readonly resolver: TResolver,
   ) { }
