@@ -8,6 +8,7 @@
 		"test": "bun test"
 	},
 	"dependencies": {
+		"@u7/auth": "workspace:*",
 		"valibot": "^1.0.0"
 	}
 }

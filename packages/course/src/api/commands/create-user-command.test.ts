@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { Role } from "../../domain/user/roles";
+import { Role } from "@u7/auth";
 import {
 	type CreateUserCommand,
 	CreateUserCommandSchema,

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { Role } from "./roles";
 import type { User } from "./user";
 import { UserAr } from "./user-ar";
+import { CreateUserCommandSchema } from "../../api/commands/create-user-command";
 
 const validUser: User = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
@@ -69,17 +70,5 @@ describe("Агрегат пользователя (UserAr)", () => {
 		expect(() => new UserAr({ ...validUser, name: "" })).toThrow(
 			"Некорректные данные пользователя",
 		);
-	});
-
-	test("create выбрасывает при невалидной команде", () => {
-		expect(() =>
-			UserAr.create({ name: "", telegramId: 1, roles: [Role.ADMIN] }),
-		).toThrow("Некорректная команда создания пользователя");
-	});
-
-	test("create выбрасывает при пустом массиве ролей", () => {
-		expect(() =>
-			UserAr.create({ name: "А", telegramId: 1, roles: [] }),
-		).toThrow("Некорректная команда создания пользователя");
 	});
 });

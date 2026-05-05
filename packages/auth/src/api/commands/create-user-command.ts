@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { UserSchema } from "@u7/auth";
+import { UserSchema } from "../../domain/user/user";
 
 /** Схема валидации команды создания пользователя */
 export const CreateUserCommandSchema = v.object({

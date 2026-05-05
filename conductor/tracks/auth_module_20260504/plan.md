@@ -8,18 +8,18 @@
 - [x] Task: Создать `packages/auth/src/index.ts` с публичными экспортами
 - [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Перенос домена User из packages/course
+## Phase 2: Перенос домена User из packages/course [~]
 
-- [ ] Task: Перенести `domain/user/user-ar.ts` → `packages/auth/src/domain/user/user-ar.ts`
-- [ ] Task: Перенести `domain/user/user.ts` → `packages/auth/src/domain/user/user.ts`
-- [ ] Task: Перенести `domain/user/roles.ts` → `packages/auth/src/domain/user/roles.ts`
-- [ ] Task: Перенести `domain/user/user-policy.ts` → `packages/auth/src/domain/user/user-policy.ts`
-- [ ] Task: Адаптировать `UserAr` под базовый класс `Aggregate` из `@u7/core`
-- [ ] Task: Написать тесты для `user-ar.test.ts`
-- [ ] Task: Написать тесты для `user-policy.test.ts`
-- [ ] Task: Написать тесты для `roles.test.ts`
-- [ ] Task: Удалить `packages/course/src/domain/user/` и обновить импорты в `packages/course`
-- [ ] Task: Обновить `packages/course/src/index.ts` (удалить экспорты user, добавить зависимость от `@u7/auth` при необходимости)
+- [~] Task: Перенести `domain/user/user-ar.ts` → `packages/auth/src/domain/user/user-ar.ts`
+- [~] Task: Перенести `domain/user/user.ts` → `packages/auth/src/domain/user/user.ts`
+- [~] Task: Перенести `domain/user/roles.ts` → `packages/auth/src/domain/user/roles.ts`
+- [~] Task: Перенести `domain/user/user-policy.ts` → `packages/auth/src/domain/user/user-policy.ts`
+- [~] Task: Адаптировать `UserAr` под базовый класс `Aggregate` из `@u7/core`
+- [~] Task: Написать тесты для `user-ar.test.ts`
+- [~] Task: Написать тесты для `user-policy.test.ts`
+- [~] Task: Написать тесты для `roles.test.ts`
+- [~] Task: Удалить `packages/course/src/domain/user/` и обновить импорты в `packages/course`
+- [~] Task: Обновить `packages/course/src/index.ts` (удалить экспорты user, добавить зависимость от `@u7/auth` при необходимости)
 - [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
 ## Phase 3: Реализация API-модуля auth

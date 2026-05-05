@@ -24,6 +24,4 @@ export type { Project } from "./domain/project/project";
 export { ProjectSchema } from "./domain/project/project";
 // Статусы
 export { Status, StatusSchema } from "./domain/shared/status";
-export { Role, RoleSchema } from "./domain/user/roles";
-export type { User } from "./domain/user/user";
-export { UserSchema } from "./domain/user/user";
+// Auth module exports migrated to @u7/auth

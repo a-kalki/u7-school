@@ -1,4 +1,4 @@
-import type { User } from "../user/user";
+import type { User } from "./user";
 import { Role } from "./roles";
 
 /**

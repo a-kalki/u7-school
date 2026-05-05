@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { User } from "../user/user";
+import type { User } from "./user";
 import { Role } from "./roles";
 import { UserPolicy } from "./user-policy";
 

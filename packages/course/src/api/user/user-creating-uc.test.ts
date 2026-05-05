@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Role } from "../../domain/user/roles";
-import type { User } from "../../domain/user/user";
-import type { CreateUserCommand } from "../commands/create-user-command";
+import { Role } from "@u7/auth";
+import type { User, CreateUserCommand } from "@u7/auth";
 import { UserCreatingUc } from "./user-creating-uc";
 import { InMemoryUserRepository } from "./user-repository";
 
