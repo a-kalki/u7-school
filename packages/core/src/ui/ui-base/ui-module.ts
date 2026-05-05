@@ -1,4 +1,3 @@
-import type { UcDocType } from "../../api/uc/use-case";
 import type { ModuleMeta } from "../../domain/module/types";
 import { type AboutData, loadAboutFile } from "../shared/about-parser";
 import type { UIAppResolver } from "./ui-app";
@@ -7,7 +6,7 @@ import type { UIAppResolver } from "./ui-app";
  * Зависимости, необходимые для инициализации UI-модуля.
  */
 export interface UIModuleResolver {
-  aboutPath: string;
+	aboutPath: string;
 }
 
 /**
@@ -15,30 +14,30 @@ export interface UIModuleResolver {
  * Оборачивает доменный API-модуль и добавляет логику UI.
  */
 export abstract class UIModule<
-  TMeta extends ModuleMeta,
-  AR extends UIAppResolver,
-  MR extends UIModuleResolver,
+	TMeta extends ModuleMeta,
+	AR extends UIAppResolver,
+	MR extends UIModuleResolver,
 > {
-  /** Данные, загруженные из about.md */
-  public about!: AboutData;
+	/** Данные, загруженные из about.md */
+	public about!: AboutData;
 
-  public abstract name: TMeta["name"];
+	public abstract name: TMeta["name"];
 
-  /** Ссылка на резолвер приложения, передается при инициализации в UIApp */
-  public appResolver!: AR;
+	/** Ссылка на резолвер приложения, передается при инициализации в UIApp */
+	public appResolver!: AR;
 
-  constructor(protected readonly resolver: MR) { }
+	constructor(protected readonly resolver: MR) {}
 
-  /**
-   * Инициализирует модуль, загружает метаданные и сохраняет appResolver.
-   */
-  async init(appResolver: AR): Promise<void> {
-    this.appResolver = appResolver;
-    this.about = await loadAboutFile(this.resolver.aboutPath);
-  }
+	/**
+	 * Инициализирует модуль, загружает метаданные и сохраняет appResolver.
+	 */
+	async init(appResolver: AR): Promise<void> {
+		this.appResolver = appResolver;
+		this.about = await loadAboutFile(this.resolver.aboutPath);
+	}
 
-  /**
-   * Основной метод рендеринга модуля (должен быть реализован в наследниках).
-   */
-  abstract render(...args: unknown[]): unknown;
+	/**
+	 * Основной метод рендеринга модуля (должен быть реализован в наследниках).
+	 */
+	abstract render(...args: unknown[]): unknown;
 }

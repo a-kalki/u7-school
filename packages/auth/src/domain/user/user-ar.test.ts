@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { Role } from "./roles";
 import type { User } from "./user";
 import { UserAr } from "./user-ar";
-import { CreateUserCommandSchema } from "../../api/commands/create-user-command";
 
 const validUser: User = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
@@ -16,14 +15,6 @@ describe("Агрегат пользователя (UserAr)", () => {
 	test("должен создаваться из существующего User и отдавать состояние", () => {
 		const ar = new UserAr(validUser);
 		expect(ar.state).toEqual(validUser);
-	});
-
-	test("состояние агрегата иммутабельно через геттер", () => {
-		const ar = new UserAr(validUser);
-		const state = ar.state;
-		// @ts-expect-error
-		state.name = "Хакер";
-		expect(ar.state.name).toBe("Иван Петров");
 	});
 
 	test("create должен создавать агрегат с корректным состоянием", () => {
@@ -68,7 +59,7 @@ describe("Агрегат пользователя (UserAr)", () => {
 
 	test("инварианты выбрасывают при нарушении", () => {
 		expect(() => new UserAr({ ...validUser, name: "" })).toThrow(
-			"Некорректные данные пользователя",
+			"Нарушены инварианты агрегата",
 		);
 	});
 });

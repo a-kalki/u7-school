@@ -1,6 +1,4 @@
-import * as v from "valibot";
-import { Aggregate } from "@u7/core";
-import { isoNow } from "../shared/iso-now";
+import { Aggregate, isoNow } from "@u7/core";
 import type { CreateUserCommand } from "../../api/commands/create-user-command";
 import type { User } from "./user";
 import { UserSchema } from "./user";
@@ -16,24 +14,9 @@ export interface UserArMeta {
  * Агрегат пользователя.
  * Инкапсулирует состояние User и логику его изменения.
  */
-export class UserAr extends Aggregate<UserArMeta> {
-	#state: User;
-
-	constructor(user: User) {
-		super();
-		const result = v.safeParse(UserSchema, user);
-		if (!result.success) {
-			this.throwInvariant(
-				{ issues: v.flatten(result.issues) },
-				"Некорректные данные пользователя",
-			);
-		}
-		this.#state = result.output;
-	}
-
-	/** Состояние агрегата только для чтения */
-	get state(): Readonly<User> {
-		return structuredClone(this.#state);
+export class UserAr extends Aggregate<User, UserArMeta> {
+	constructor(state: unknown) {
+		super(state, UserSchema);
 	}
 
 	/**

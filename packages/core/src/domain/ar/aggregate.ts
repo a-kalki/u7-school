@@ -1,3 +1,4 @@
+import * as v from "valibot";
 import { throwError } from "../errors/error-helpers";
 import type { DomainError } from "../errors/errors";
 
@@ -7,7 +8,25 @@ export interface ArMeta {
 	errors: DomainError;
 }
 
-export abstract class Aggregate<TMeta extends ArMeta> {
+export abstract class Aggregate<TState, TMeta extends ArMeta> {
+	#state: TState;
+
+	constructor(state: unknown, schema: v.GenericSchema<TState>) {
+		const result = v.safeParse(schema, state);
+		if (!result.success) {
+			this.throwInvariant(
+				{ issues: v.flatten(result.issues) },
+				"Нарушены инварианты агрегата",
+			);
+		}
+		this.#state = result.output;
+	}
+
+	/** Состояние агрегата только для чтения */
+	get state(): Readonly<TState> {
+		return structuredClone(this.#state);
+	}
+
 	/** Ошибка инварианта. */
 	protected throwInvariant(
 		payload: Record<string, unknown>,

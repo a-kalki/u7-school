@@ -1,76 +1,76 @@
 import { describe, expect, it } from "bun:test";
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { UIApp, type UIAppResolver } from "./ui-app";
 import { UIModule, type UIModuleResolver } from "./ui-module";
 
 interface TestAppResolver extends UIAppResolver {
-  someAppService: boolean;
+	someAppService: boolean;
 }
 
 interface TestModuleResolver extends UIModuleResolver {
-  someModuleService: boolean;
+	someModuleService: boolean;
 }
 
 class TestUIModule extends UIModule<
-  { name: "mock"; url: "/mock" },
-  TestAppResolver,
-  TestModuleResolver
+	{ name: "mock"; url: "/mock" },
+	TestAppResolver,
+	TestModuleResolver
 > {
-  name = "mock" as const;
+	name = "mock" as const;
 
-  render() {
-    return "module";
-  }
+	render() {
+		return "module";
+	}
 
-  renderUseCase(ucName: string) {
-    return `uc-${ucName}`;
-  }
+	renderUseCase(ucName: string) {
+		return `uc-${ucName}`;
+	}
 }
 
 class TestUIApp extends UIApp<TestAppResolver> {
-  render() {
-    return "app";
-  }
+	render() {
+		return "app";
+	}
 }
 
 describe("ui-app (Базовое UI-приложение)", () => {
-  it("должен инициализировать приложение и модули, а также загружать about.md", async () => {
-    const testAppDir = path.join(__dirname, "test-app");
-    const testModuleDir = path.join(testAppDir, "module");
+	it("должен инициализировать приложение и модули, а также загружать about.md", async () => {
+		const testAppDir = path.join(__dirname, "test-app");
+		const testModuleDir = path.join(testAppDir, "module");
 
-    await fs.promises.mkdir(testModuleDir, { recursive: true });
-    await fs.promises.writeFile(
-      path.join(testAppDir, "about.md"),
-      "# Приложение\nОписание приложения.",
-    );
-    await fs.promises.writeFile(
-      path.join(testModuleDir, "about.md"),
-      "# Модуль\nОписание модуля.",
-    );
+		await fs.promises.mkdir(testModuleDir, { recursive: true });
+		await fs.promises.writeFile(
+			path.join(testAppDir, "about.md"),
+			"# Приложение\nОписание приложения.",
+		);
+		await fs.promises.writeFile(
+			path.join(testModuleDir, "about.md"),
+			"# Модуль\nОписание модуля.",
+		);
 
-    const uiModule = new TestUIModule({
-      aboutPath: testModuleDir,
-      someModuleService: true,
-    });
+		const uiModule = new TestUIModule({
+			aboutPath: testModuleDir,
+			someModuleService: true,
+		});
 
-    const uiApp = new TestUIApp([uiModule], {
-      aboutPath: testAppDir,
-      someAppService: true,
-    });
+		const uiApp = new TestUIApp([uiModule], {
+			aboutPath: testAppDir,
+			someAppService: true,
+		});
 
-    await uiApp.init();
+		await uiApp.init();
 
-    expect(uiApp.about?.title).toBe("Приложение");
-    expect(uiApp.about?.body).toBe("Описание приложения.");
+		expect(uiApp.about?.title).toBe("Приложение");
+		expect(uiApp.about?.body).toBe("Описание приложения.");
 
-    expect(uiApp.modules.length).toBe(1);
-    const module = uiApp.modules[0] as unknown as TestUIModule;
-    expect(module.about?.title).toBe("Модуль");
-    expect(module.about?.body).toBe("Описание модуля.");
-    expect(module.appResolver.someAppService).toBe(true);
+		expect(uiApp.modules.length).toBe(1);
+		const module = uiApp.modules[0] as unknown as TestUIModule;
+		expect(module.about?.title).toBe("Модуль");
+		expect(module.about?.body).toBe("Описание модуля.");
+		expect(module.appResolver.someAppService).toBe(true);
 
-    // Очистка
-    await fs.promises.rm(testAppDir, { recursive: true, force: true });
-  });
+		// Очистка
+		await fs.promises.rm(testAppDir, { recursive: true, force: true });
+	});
 });
