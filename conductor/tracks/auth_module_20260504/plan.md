@@ -6,9 +6,9 @@
 - [x] Task: Создать `packages/auth/tsconfig.json`, наследующий базовую конфигурацию
 - [x] Task: Создать директории `packages/auth/src/{domain,api,ui}/`
 - [x] Task: Создать `packages/auth/src/index.ts` с публичными экспортами
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
-## Phase 2: Перенос домена User из packages/course [x] [checkpoint: 3685bc3]
+## Phase 2: Перенос домена User из packages/course [x] [checkpoint: fc89e4d]
 
 - [x] Task: Перенести `domain/user/user-ar.ts` → `packages/auth/src/domain/user/user-ar.ts`
 - [x] Task: Перенести `domain/user/user.ts` → `packages/auth/src/domain/user/user.ts`
@@ -20,18 +20,18 @@
 - [x] Task: Написать тесты для `roles.test.ts`
 - [x] Task: Удалить `packages/course/src/domain/user/` и обновить импорты в `packages/course`
 - [x] Task: Обновить `packages/course/src/index.ts` (удалить экспорты user, добавить зависимость от `@u7/auth` при необходимости)
-- [ ] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)
 
-## Phase 3: Реализация API-модуля auth
+## Phase 3: Реализация API-модуля auth [~]
 
-- [ ] Task: Создать интерфейс `UserRepository` в `packages/auth/src/api/user-repository.ts`
-- [ ] Task: Реализовать `InMemoryUserRepository` в `packages/auth/src/api/user-repository-inmemory.ts`
-- [ ] Task: Написать тесты для `InMemoryUserRepository`
-- [ ] Task: Создать схему `CreateUserCommandSchema` в `packages/auth/src/api/commands/create-user-command.ts`
-- [ ] Task: Реализовать `CreateUserUc` с логикой бутстрапа (первый пользователь = ADMIN)
-    - [ ] Subtask: Написать падающие тесты для `CreateUserUc`
-    - [ ] Subtask: Реализовать `CreateUserUc`, наследуясь от `@u7/core` `UseCase`
-    - [ ] Subtask: Убедиться, что тесты проходят
+- [~] Task: Создать интерфейс `UserRepository` в `packages/auth/src/api/user-repository.ts`
+- [~] Task: Реализовать `InMemoryUserRepository` в `packages/auth/src/api/user-repository-inmemory.ts`
+- [~] Task: Написать тесты для `InMemoryUserRepository`
+- [~] Task: Создать схему `CreateUserCommandSchema` в `packages/auth/src/api/commands/create-user-command.ts`
+- [~] Task: Реализовать `CreateUserUc` с логикой бутстрапа (первый пользователь = ADMIN)
+    - [~] Subtask: Написать падающие тесты для `CreateUserUc`
+    - [~] Subtask: Реализовать `CreateUserUc`, наследуясь от `@u7/core` `UseCase`
+    - [~] Subtask: Убедиться, что тесты проходят
 - [ ] Task: Реализовать `GetUserUc` (по UUID)
     - [ ] Subtask: Написать падающие тесты
     - [ ] Subtask: Реализовать UseCase
