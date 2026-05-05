@@ -1,5 +1,5 @@
-import * as v from "valibot";
 import { UseCase } from "@u7/core";
+import * as v from "valibot";
 import type { User } from "../../domain/user/user";
 import { UserSchema } from "../../domain/user/user";
 import type { UserRepository } from "../user-repository";
@@ -20,7 +20,10 @@ export interface ListUsersUcMeta {
 	type: "query";
 }
 
-export class ListUsersUc extends UseCase<ListUsersUcMeta, { userRepo: UserRepository }> {
+export class ListUsersUc extends UseCase<
+	ListUsersUcMeta,
+	{ userRepo: UserRepository }
+> {
 	protected readonly commandName = "list-users" as const;
 	protected readonly description = "Список всех пользователей" as const;
 	protected readonly aggregateName = "user" as const;

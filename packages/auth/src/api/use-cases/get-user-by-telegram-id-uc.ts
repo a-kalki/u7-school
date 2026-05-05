@@ -1,5 +1,5 @@
-import * as v from "valibot";
 import { UseCase } from "@u7/core";
+import * as v from "valibot";
 import type { User } from "../../domain/user/user";
 import { UserSchema } from "../../domain/user/user";
 import type { UserRepository } from "../user-repository";
@@ -13,7 +13,9 @@ const GetUserByTelegramIdInputSchema = v.object({
 	),
 });
 
-type GetUserByTelegramIdInput = v.InferOutput<typeof GetUserByTelegramIdInputSchema>;
+type GetUserByTelegramIdInput = v.InferOutput<
+	typeof GetUserByTelegramIdInputSchema
+>;
 
 export interface GetUserByTelegramIdUcMeta {
 	commandName: "get-user-by-telegram-id";
@@ -40,13 +42,13 @@ export class GetUserByTelegramIdUc extends UseCase<
 	protected readonly outputSchema = UserSchema;
 
 	async execute(command: GetUserByTelegramIdInput): Promise<User> {
-		const user = await this.resolve.userRepo.getByTelegramId(command.telegramId);
+		const user = await this.resolve.userRepo.getByTelegramId(
+			command.telegramId,
+		);
 		if (!user) {
-			this.throwNotFound(
-				"USER_NOT_FOUND",
-				"Пользователь не найден",
-				{ telegramId: command.telegramId },
-			);
+			this.throwNotFound("USER_NOT_FOUND", "Пользователь не найден", {
+				telegramId: command.telegramId,
+			});
 		}
 		return user;
 	}

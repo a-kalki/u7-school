@@ -4,11 +4,6 @@ describe("Public API (index.ts)", () => {
 	test("должен экспортировать все схемы и типы", async () => {
 		const api = await import("./index");
 
-		// User
-		expect(api.UserSchema).toBeDefined();
-		expect(api.Role).toBeDefined();
-		expect(api.RoleSchema).toBeDefined();
-
 		// Course
 		expect(api.CourseSchema).toBeDefined();
 

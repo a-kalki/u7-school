@@ -1,8 +1,0 @@
-{
-  "track_id": "autoui_20260504",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-05-04T12:00:00Z",
-  "updated_at": "2026-05-04T12:00:00Z",
-  "description": "Архитектура Auto-UI для @u7/core с абстракциями UIApp, UIModule и роутером"
-}

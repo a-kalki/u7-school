@@ -1,5 +1,5 @@
-import type { User } from "./user";
 import { Role } from "./roles";
+import type { User } from "./user";
 
 /**
  * Политика прав доступа для пользователей.

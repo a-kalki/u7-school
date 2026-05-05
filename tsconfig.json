@@ -20,6 +20,7 @@
 		"noPropertyAccessFromIndexSignature": false,
 		"baseUrl": ".",
 		"paths": {
+			"@u7/auth": ["packages/auth/src/index.ts"],
 			"@u7/core": ["packages/core/src/index.ts"],
 			"@u7/course": ["packages/course/src/index.ts"],
 			"@u7/w3school": ["packages/w3school/src/index.ts"]

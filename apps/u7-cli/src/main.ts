@@ -1,7 +1,10 @@
-import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { AuthApiModule, AuthAutoUiModule, InMemoryUserRepository } from "@u7/auth";
+import {
+	AuthApiModule,
+	AuthAutoUiModule,
+	InMemoryUserRepository,
+} from "@u7/auth";
 import { AutoUiApp, AutoUiConsoleController } from "@u7/core";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

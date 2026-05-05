@@ -1,8 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { AuthApiModule, AuthAutoUiModule, InMemoryUserRepository } from "@u7/auth";
-import { AutoUiApp } from "@u7/core";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+	AuthApiModule,
+	AuthAutoUiModule,
+	InMemoryUserRepository,
+} from "@u7/auth";
+import { AutoUiApp } from "@u7/core";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");

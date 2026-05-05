@@ -1,5 +1,5 @@
-import * as v from "valibot";
 import { UseCase } from "@u7/core";
+import * as v from "valibot";
 import type { User } from "../../domain/user/user";
 import { UserSchema } from "../../domain/user/user";
 import type { UserRepository } from "../user-repository";
@@ -22,7 +22,10 @@ export interface GetUserUcMeta {
 	type: "query";
 }
 
-export class GetUserUc extends UseCase<GetUserUcMeta, { userRepo: UserRepository }> {
+export class GetUserUc extends UseCase<
+	GetUserUcMeta,
+	{ userRepo: UserRepository }
+> {
 	protected readonly commandName = "get-user" as const;
 	protected readonly description = "Получить пользователя по UUID" as const;
 	protected readonly aggregateName = "user" as const;
@@ -35,11 +38,9 @@ export class GetUserUc extends UseCase<GetUserUcMeta, { userRepo: UserRepository
 	async execute(command: GetUserInput): Promise<User> {
 		const user = await this.resolve.userRepo.getByUuid(command.uuid);
 		if (!user) {
-			this.throwNotFound(
-				"USER_NOT_FOUND",
-				"Пользователь не найден",
-				{ uuid: command.uuid },
-			);
+			this.throwNotFound("USER_NOT_FOUND", "Пользователь не найден", {
+				uuid: command.uuid,
+			});
 		}
 		return user;
 	}

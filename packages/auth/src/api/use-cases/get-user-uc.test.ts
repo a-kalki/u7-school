@@ -29,8 +29,8 @@ describe("GetUserUc", () => {
 		const uc = new GetUserUc();
 		uc.init({ userRepo: repo });
 
-		await expect(uc.handle({ uuid: "550e8400-e29b-41d4-a716-446655440999" })).rejects.toThrow(
-			AppException,
-		);
+		await expect(
+			uc.handle({ uuid: "550e8400-e29b-41d4-a716-446655440999" }),
+		).rejects.toThrow(AppException);
 	});
 });

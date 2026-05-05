@@ -10,7 +10,11 @@ describe("CreateUserUc", () => {
 		const uc = new CreateUserUc();
 		uc.init({ userRepo: repo });
 
-		const user = await uc.handle({ name: "Админ", telegramId: 1, roles: [Role.STUDENT] });
+		const user = await uc.handle({
+			name: "Админ",
+			telegramId: 1,
+			roles: [Role.STUDENT],
+		});
 		expect(user.roles).toEqual([Role.ADMIN]);
 		expect(user.name).toBe("Админ");
 	});
@@ -24,7 +28,11 @@ describe("CreateUserUc", () => {
 		await uc.handle({ name: "Админ", telegramId: 1, roles: [Role.ADMIN] });
 
 		// Второй — сохраняет свои роли
-		const user = await uc.handle({ name: "Студент", telegramId: 2, roles: [Role.STUDENT] });
+		const user = await uc.handle({
+			name: "Студент",
+			telegramId: 2,
+			roles: [Role.STUDENT],
+		});
 		expect(user.roles).toEqual([Role.STUDENT]);
 	});
 

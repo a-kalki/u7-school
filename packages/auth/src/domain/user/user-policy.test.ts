@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import type { User } from "./user";
 import { Role } from "./roles";
+import type { User } from "./user";
 import { UserPolicy } from "./user-policy";
 
 /** Фикстуры пользователей с разными ролями */

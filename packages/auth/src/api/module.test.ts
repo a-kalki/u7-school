@@ -71,7 +71,7 @@ describe("AuthApiModule", () => {
 			name: "list-users",
 			attrs: {},
 		});
-		expect((result as User[])).toHaveLength(1);
+		expect(result as User[]).toHaveLength(1);
 	});
 
 	test("get-user-by-telegram-id: находит пользователя", async () => {
@@ -99,8 +99,8 @@ describe("AuthApiModule", () => {
 		const mod = new AuthApiModule();
 		mod.init({ userRepo: new InMemoryUserRepository() });
 
-		await expect(
-			mod.handle({ name: "unknown", attrs: {} }),
-		).rejects.toThrow("Команда 'unknown' не найдена");
+		await expect(mod.handle({ name: "unknown", attrs: {} })).rejects.toThrow(
+			"Команда 'unknown' не найдена",
+		);
 	});
 });

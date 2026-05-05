@@ -1,9 +1,8 @@
-import * as v from "valibot";
 import { UseCase } from "@u7/core";
 import { Role } from "../../domain/user/roles";
-import { UserAr } from "../../domain/user/user-ar";
 import type { User } from "../../domain/user/user";
 import { UserSchema } from "../../domain/user/user";
+import { UserAr } from "../../domain/user/user-ar";
 import type { CreateUserCommand } from "../commands/create-user-command";
 import { CreateUserCommandSchema } from "../commands/create-user-command";
 import type { UserRepository } from "../user-repository";
@@ -20,7 +19,10 @@ export interface CreateUserUcMeta {
 	type: "command";
 }
 
-export class CreateUserUc extends UseCase<CreateUserUcMeta, { userRepo: UserRepository }> {
+export class CreateUserUc extends UseCase<
+	CreateUserUcMeta,
+	{ userRepo: UserRepository }
+> {
 	protected readonly commandName = "create-user" as const;
 	protected readonly description = "Создать пользователя" as const;
 	protected readonly aggregateName = "user" as const;
@@ -30,10 +32,7 @@ export class CreateUserUc extends UseCase<CreateUserUcMeta, { userRepo: UserRepo
 	protected readonly inputSchema = CreateUserCommandSchema;
 	protected readonly outputSchema = UserSchema;
 
-	async execute(
-		command: CreateUserCommand,
-		_actorId?: string,
-	): Promise<User> {
+	async execute(command: CreateUserCommand, _actorId?: string): Promise<User> {
 		const repo = this.resolve.userRepo;
 
 		// Bootstrap: если репозиторий пуст, первый пользователь автоматически ADMIN

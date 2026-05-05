@@ -29,6 +29,8 @@ describe("GetUserByTelegramIdUc", () => {
 		const uc = new GetUserByTelegramIdUc();
 		uc.init({ userRepo: repo });
 
-		await expect(uc.handle({ telegramId: 99999 })).rejects.toThrow(AppException);
+		await expect(uc.handle({ telegramId: 99999 })).rejects.toThrow(
+			AppException,
+		);
 	});
 });
