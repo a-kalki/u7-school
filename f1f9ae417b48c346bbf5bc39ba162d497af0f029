@@ -1,0 +1,31 @@
+Phase 5 Checkpoint: Финализация и проверка качества
+
+Автоматические тесты:
+- Команда: bun test packages/auth/src/ packages/course/src/api/ apps/u7-cli/src/
+- Результат: 93 pass, 0 fail
+
+Проверка типов:
+- packages/auth: tsc --noEmit — OK
+- packages/course: tsc --noEmit — OK
+- apps/u7-cli: tsc --noEmit — OK
+
+Линтинг: biome check --write — OK
+
+Ручная верификация (подтверждена пользователем):
+1. packages/auth собирается без ошибок
+2. packages/course собирается без ошибок
+3. apps/u7-cli собирается без ошибок
+4. Полный набор тестов: 93/93 pass
+5. packages/course больше не содержит domain/user/
+6. Бутстрап первого пользователя = ADMIN работает
+
+Покрытие кода packages/auth:
+- Домен: 100% (roles, user, user-policy, user-ar)
+- API: 85-100% (репозиторий, use-cases)
+
+Критерии приёмки:
+- [x] packages/auth собирается и проходит тесты
+- [x] packages/course больше не содержит src/domain/user/
+- [x] apps/u7-cli использует auth модуль
+- [x] Первый созданный пользователь автоматически ADMIN
+- [x] Код проходит линтинг Biome
