@@ -124,6 +124,20 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   ): Promise<TMeta["output"]> | TMeta["output"];
 
   /**
+   * Получает актора (пользователя), выполняющего действие.
+   */
+  protected abstract getUser(userId: string): Promise<TMeta["arMeta"]["state"]>;
+
+  /**
+   * Проверяет права доступа актора на выполнение команды.
+   * Должна выбросить ошибку доступа, если прав недостаточно.
+   */
+  protected abstract checkPolicy(
+    command: TMeta["input"],
+    actor: TMeta["arMeta"]["state"],
+  ): Promise<void> | void;
+
+  /**
    * Проверяет авторизацию. Можно переопределить для кастомной логики.
    */
   protected checkAuth(actorId?: string): void {

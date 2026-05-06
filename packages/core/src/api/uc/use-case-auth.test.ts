@@ -28,6 +28,17 @@ class AuthRequiredUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
   protected readonly inputSchema = v.object({ data: v.string() });
   protected readonly outputSchema = v.object({ result: v.string() });
 
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return { id: _userId };
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
+
   execute(command: { data: string }, actorId: string) {
     return { result: `${this.resolve.prefix}:${actorId}:${command.data}` };
   }
@@ -43,6 +54,17 @@ class AuthOptionalUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = v.object({ data: v.string() });
   protected readonly outputSchema = v.object({ result: v.string() });
+
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return { id: _userId };
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
 
   execute(command: { data: string }, actorId?: string) {
     return {

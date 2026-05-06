@@ -26,6 +26,17 @@ class TestUseCase extends UseCase<TestUcMeta, { value: string }> {
   readonly inputSchema = v.object({ foo: v.string() });
   readonly outputSchema = v.object({ bar: v.string() });
 
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return {};
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
+
   execute(command: { foo: string }) {
     return { bar: `${command.foo}-${this.resolve.value}` };
   }

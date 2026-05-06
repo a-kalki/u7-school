@@ -11,7 +11,7 @@ describe("UserApiModule", () => {
 
     const result = await mod.handle({
       name: "create-user",
-      attrs: { name: "А", telegramId: 1, roles: [Role.STUDENT] },
+      attrs: { name: "А", telegramId: 1, roles: [Role.ADMIN] },
     });
     expect((result as User).roles).toEqual([Role.ADMIN]);
   });
@@ -21,13 +21,14 @@ describe("UserApiModule", () => {
     const mod = new UserApiModule();
     mod.init({ userRepo: repo });
 
-    await mod.handle({
+    const admin = await mod.handle({
       name: "create-user",
       attrs: { name: "Админ", telegramId: 1, roles: [Role.ADMIN] },
     });
     const result = await mod.handle({
       name: "create-user",
       attrs: { name: "Студент", telegramId: 2, roles: [Role.STUDENT] },
+      actorId: (admin as User).uuid,
     });
     expect((result as User).roles).toEqual([Role.STUDENT]);
   });

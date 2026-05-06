@@ -18,6 +18,17 @@ class CreateCourseUseCase extends UseCase<any, any> {
   inputSchema = v.object({ title: v.string(), description: v.string() });
   outputSchema = v.any();
 
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return {};
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
+
   protected async execute(payload: any) {
     return { id: "123", title: payload.title };
   }

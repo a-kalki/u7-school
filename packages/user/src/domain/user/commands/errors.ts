@@ -24,8 +24,17 @@ export type BootstrapRequiresAdminUcError = {
   message: string;
 };
 
+/** Доступ запрещён */
+export type AccessDeniedUcError = {
+  name: "ACCESS_DENIED";
+  level: "domain";
+  kind: "access-denied";
+  message: string;
+};
+
 /** Любая известная ошибка user-модуля */
 export type UserModuleError =
   | UserNotFoundUcError
   | TelegramIdTakenUcError
-  | BootstrapRequiresAdminUcError;
+  | BootstrapRequiresAdminUcError
+  | AccessDeniedUcError;

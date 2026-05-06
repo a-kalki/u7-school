@@ -19,10 +19,10 @@ export * from "./domain/user/commands/get-user-by-telegram-id-cmd";
 export * from "./domain/user/commands/errors";
 // API
 export * from "./api/module";
-export * from "./api/create-user-uc";
-export * from "./api/get-user-uc";
-export * from "./api/list-users-uc";
-export * from "./api/get-user-by-telegram-id-uc";
+export * from "./api/user/create-user-uc";
+export * from "./api/user/get-user-uc";
+export * from "./api/user/list-users-uc";
+export * from "./api/user/get-user-by-telegram-id-uc";
 // Infra
 export * from "./infra/db/user-inmemory-repo";
 // UI

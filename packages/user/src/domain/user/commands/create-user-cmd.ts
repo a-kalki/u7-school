@@ -2,6 +2,7 @@ import * as v from "valibot";
 import type { User, UserArMeta } from "../entity";
 import { UserSchema } from "../entity";
 import type {
+  AccessDeniedUcError,
   BootstrapRequiresAdminUcError,
   TelegramIdTakenUcError,
 } from "./errors";
@@ -31,4 +32,5 @@ export interface CreateUserCmdMeta {
 /** Ошибки команды создания пользователя */
 export type CreateUserCmdError =
   | TelegramIdTakenUcError
-  | BootstrapRequiresAdminUcError;
+  | BootstrapRequiresAdminUcError
+  | AccessDeniedUcError;

@@ -27,6 +27,17 @@ class TestUseCase extends UseCase<TestUcMeta, { test: boolean }> {
   protected readonly inputSchema = v.object({ foo: v.string() });
   protected readonly outputSchema = v.object({ bar: v.string() });
 
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return {};
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
+
   execute(command: { foo: string }) {
     if (command.foo === "bad") {
       this.throwBadRequest("TestUcError", "Bad input");

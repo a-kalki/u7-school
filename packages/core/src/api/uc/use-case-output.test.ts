@@ -30,6 +30,17 @@ class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
     count: v.number(),
   });
 
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return {};
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
+
   execute(command: { foo: string }) {
     return {
       bar: `${this.resolve.prefix}-${command.foo}`,
@@ -53,6 +64,17 @@ class InvalidOutputUseCase extends UseCase<
     bar: v.string(),
     count: v.number(),
   });
+
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return {};
+  }
+
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
 
   execute() {
     // Возвращаем невалидный output (count — строка вместо числа)
