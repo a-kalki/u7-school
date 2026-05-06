@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Role } from "@u7/auth";
-import type { User, CreateUserCommand } from "@u7/auth";
+import { Role } from "@u7/user";
+import type { User, CreateUserCmd } from "@u7/user";
 import { UserCreatingUc } from "./user-creating-uc";
 import { InMemoryUserRepository } from "./user-repository";
 
@@ -20,12 +20,12 @@ async function addUser(
 	return user.uuid;
 }
 
-const adminCmd: CreateUserCommand = {
+const adminCmd: CreateUserCmd = {
 	name: "Админ",
 	telegramId: 1,
 	roles: [Role.ADMIN],
 };
-const studentCmd: CreateUserCommand = {
+const studentCmd: CreateUserCmd = {
 	name: "Студент",
 	telegramId: 2,
 	roles: [Role.STUDENT],

@@ -263,7 +263,7 @@ bunx biome check --write . && bun run typecheck && bun test
 
 ### Примеры
 ```bash
-git commit -m "feat(auth): Добавить функциональность 'запомнить меня'"
+git commit -m "feat(user): Добавить функциональность 'запомнить меня'"
 git commit -m "fix(posts): Исправить генерацию excerpt для коротких постов"
 git commit -m "test(comments): Добавить тесты для лимитов emoji-реакций"
 git commit -m "style(mobile): Улучшить сенсорные цели кнопок"

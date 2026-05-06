@@ -1,5 +1,5 @@
-import { Role } from "@u7/auth";
-import type { User } from "@u7/auth";
+import { Role } from "@u7/user";
+import type { User } from "@u7/user";
 import type { Course } from "./course";
 
 export const CoursePolicy = {

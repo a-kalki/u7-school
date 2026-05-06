@@ -24,10 +24,8 @@ packages/<module>/
 
 ```
 src/api/
-  uc/             # Объекты сценариев использования (Use Cases)
-  repositories/   # Интерфейсы репозиториев
-  controllers/    # Точки входа (console, bot, ui/rest)
-  module/         # Entry point модуля (module.ts)
+  <command-name>-uc.ts   # Сценарии использования (Use Cases)
+  module.ts              # Entry point модуля
 ```
 
 ## Вход в модуль: Команды и Entry Point

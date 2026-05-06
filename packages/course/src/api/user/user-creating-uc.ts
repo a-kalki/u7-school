@@ -1,7 +1,7 @@
 import { DomainException } from "../../domain/shared/exceptions";
-import { Role, UserAr, UserPolicy } from "@u7/auth";
-import type { User, CreateUserCommand } from "@u7/auth";
-import { CreateUserCommandSchema } from "@u7/auth";
+import { Role, UserAr, UserPolicy } from "@u7/user";
+import type { User, CreateUserCmd } from "@u7/user";
+import { CreateUserCmdSchema } from "@u7/user";
 import { parseOrThrow } from "../shared/parse-or-throw";
 import type { UserRepository } from "./user-repository";
 
@@ -20,10 +20,10 @@ export class UserCreatingUc {
 	 * @param command — команда создания
 	 * @param actorId — uuid пользователя, выполняющего действие (опционально; без него — bootstrap)
 	 */
-	async execute(command: CreateUserCommand, actorId?: string): Promise<User> {
+	async execute(command: CreateUserCmd, actorId?: string): Promise<User> {
 		// 1. Валидация команды
 		parseOrThrow(
-			CreateUserCommandSchema,
+			CreateUserCmdSchema,
 			command,
 			"Некорректная команда создания пользователя",
 		);

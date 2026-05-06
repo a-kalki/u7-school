@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Status } from "../shared/status";
-import { Role } from "@u7/auth";
-import type { User } from "@u7/auth";
+import { Role } from "@u7/user";
+import type { User } from "@u7/user";
 import type { Course, CourseWithModules } from "./course";
 import { CoursePolicy } from "./course-policy";
 

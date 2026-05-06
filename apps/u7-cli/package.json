@@ -7,7 +7,7 @@
 		"start": "bun src/main.ts"
 	},
 	"dependencies": {
-		"@u7/auth": "workspace:*",
+		"@u7/user": "workspace:*",
 		"@u7/core": "workspace:*",
 		"@u7/course": "workspace:*",
 		"valibot": "^1.2.0"

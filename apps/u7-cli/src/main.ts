@@ -1,26 +1,25 @@
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-	AuthApiModule,
-	AuthAutoUiModule,
-	InMemoryUserRepository,
-} from "@u7/auth";
+	UserApiModule,
+	UserAutoUiModule,
+	UserInmemoryRepo,
+} from "@u7/user";
 import { AutoUiApp, AutoUiConsoleController } from "@u7/core";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 
 async function main() {
-	// --- Auth Domain Module ---
-	const userRepo = new InMemoryUserRepository();
-	const apiModule = new AuthApiModule();
+	// --- User Domain Module ---
+	const userRepo = new UserInmemoryRepo();
+	const apiModule = new UserApiModule();
 	apiModule.init({ userRepo });
 
-	// Auth module about.md
-	const authModDir = path.join(rootDir, "..", "..", "packages", "auth");
+	const userModDir = path.join(rootDir, "..", "..", "packages", "user");
 
-	const uiModule = new AuthAutoUiModule({
-		aboutPath: authModDir,
+	const uiModule = new UserAutoUiModule({
+		aboutPath: userModDir,
 		apiModule,
 	});
 

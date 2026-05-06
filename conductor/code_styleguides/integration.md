@@ -13,8 +13,8 @@
 ```typescript
 // Пример интерфейса резолвера в packages/core/src/api/module/module.ts
 export type CoreResolve = {
-  userRepo: UserRepository;
-  courseRepo: CourseRepository;
+  userRepo: UserRepo;
+  courseRepo: CourseRepo;
 }
 ```
 
