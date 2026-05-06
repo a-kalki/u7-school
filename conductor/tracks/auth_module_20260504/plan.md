@@ -58,7 +58,7 @@
 - [x] Task: Обновить `apps/u7-cli/package.json` — добавить зависимость `@u7/auth`
 - [x] Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)
 
-## Phase 5: Финализация и проверка качества [x] [checkpoint: 47a8d0a]
+## Phase 5: Финализация и проверка качества [x] [checkpoint: f1f9ae4]
 
 - [x] Task: Убедиться, что `packages/auth` собирается (`tsc --noEmit`)
 - [x] Task: Убедиться, что `packages/course` собирается после удаления user
