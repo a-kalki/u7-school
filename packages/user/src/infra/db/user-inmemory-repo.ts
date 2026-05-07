@@ -7,6 +7,11 @@ export class UserInmemoryRepo implements UserRepo {
 	#byTelegramId = new Map<number, User>();
 
 	async save(user: User): Promise<void> {
+		// Удаляем старый telegramId при перезаписи
+		const existing = this.#byUuid.get(user.uuid);
+		if (existing && existing.telegramId !== user.telegramId) {
+			this.#byTelegramId.delete(existing.telegramId);
+		}
 		this.#byUuid.set(user.uuid, user);
 		this.#byTelegramId.set(user.telegramId, user);
 	}
@@ -53,7 +58,7 @@ export class UserInmemoryRepo implements UserRepo {
 				});
 			}
 
-			if (filter.limit !== undefined && filter.limit > 0) {
+			if (filter.limit !== undefined) {
 				users = users.slice(0, filter.limit);
 			}
 		}
