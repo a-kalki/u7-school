@@ -9,7 +9,7 @@
 - [x] Task: Проверить покрытие тестами хелперов (`bun test --coverage`) `[d6879a3]`
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: Хелперы-фабрики ошибок' (Protocol in workflow.md) `[e782b99]`
 
-## Фаза 2: Перепроектирование UseCase
+## Фаза 2: Перепроектирование UseCase [checkpoint: 4e72177]
 
 - [x] Task: Заменить `throw*()` на единый `throwError()` в `UseCase` `[9421f05]`
     - [x] Написать тесты на новый метод `throwError` (Red)
@@ -20,7 +20,7 @@
 - [x] Task: Обновить `Module.throwNoCommandFound` на использование фабрики `errBadRequest` `[9421f05]`
 - [x] Task: Обновить тесты `UseCase` и `Module` под новый API `[9421f05]`
 - [x] Task: Проверить покрытие тестами (`bun test --coverage`) `[9421f05]`
-- [~] Task: Conductor - User Manual Verification 'Фаза 2: Перепроектирование UseCase' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: Перепроектирование UseCase' (Protocol in workflow.md) `[4e72177]`
 
 ## Фаза 3: Обновление пакета @u7/user
 
