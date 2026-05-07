@@ -1,3 +1,5 @@
+import { errNotFound } from "@u7/core";
+import type { UserNotFoundUcError } from "../../domain/user/commands/errors";
 import {
   type GetUserByTelegramIdCmd,
   type GetUserByTelegramIdCmdMeta,
@@ -26,9 +28,9 @@ export class GetUserByTelegramIdUc extends UserUseCase<GetUserByTelegramIdCmdMet
       command.telegramId,
     );
     if (!user) {
-      this.throwNotFound("USER_NOT_FOUND", "Пользователь не найден", {
+      this.throwError(errNotFound<UserNotFoundUcError>("USER_NOT_FOUND", "Пользователь не найден", {
         telegramId: command.telegramId,
-      });
+      }));
     }
     return user;
   }

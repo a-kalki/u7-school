@@ -1,40 +1,36 @@
+import type {
+	NotFoundError,
+	ConflictError,
+	AccessDeniedError,
+} from "@u7/core";
+
 /** Пользователь не найден */
-export type UserNotFoundUcError = {
-  name: "USER_NOT_FOUND";
-  level: "domain";
-  kind: "not-found";
-  message: string;
-  payload?: { uuid?: string; telegramId?: number };
-};
+export type UserNotFoundUcError = NotFoundError<
+	"USER_NOT_FOUND",
+	{ uuid?: string; telegramId?: number } | undefined
+>;
 
 /** Telegram ID уже занят */
-export type TelegramIdTakenUcError = {
-  name: "TELEGRAM_ID_TAKEN";
-  level: "domain";
-  kind: "conflict";
-  message: string;
-  payload?: { telegramId: number };
-};
+export type TelegramIdTakenUcError = ConflictError<
+	"TELEGRAM_ID_TAKEN",
+	{ telegramId: number } | undefined
+>;
 
 /** Bootstrap требует ADMIN роль */
-export type BootstrapRequiresAdminUcError = {
-  name: "BOOTSTRAP_REQUIRES_ADMIN";
-  level: "domain";
-  kind: "conflict";
-  message: string;
-};
+export type BootstrapRequiresAdminUcError = ConflictError<
+	"BOOTSTRAP_REQUIRES_ADMIN",
+	undefined
+>;
 
 /** Доступ запрещён */
-export type AccessDeniedUcError = {
-  name: "ACCESS_DENIED";
-  level: "domain";
-  kind: "access-denied";
-  message: string;
-};
+export type AccessDeniedUcError = AccessDeniedError<
+	"ACCESS_DENIED",
+	undefined
+>;
 
 /** Любая известная ошибка user-модуля */
 export type UserModuleError =
-  | UserNotFoundUcError
-  | TelegramIdTakenUcError
-  | BootstrapRequiresAdminUcError
-  | AccessDeniedUcError;
+	| UserNotFoundUcError
+	| TelegramIdTakenUcError
+	| BootstrapRequiresAdminUcError
+	| AccessDeniedUcError;

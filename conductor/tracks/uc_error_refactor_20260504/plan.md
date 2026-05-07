@@ -24,11 +24,11 @@
 
 ## Фаза 3: Обновление пакета @u7/user
 
-- [ ] Task: Мигрировать `UserUseCase` на `throwError` + фабрики
-    - [ ] Заменить `this.throwNotFound(...)` на `this.throwError(errNotFound(...))`
-- [ ] Task: Мигрировать `CreateUserUc` на новый API
-    - [ ] Заменить `this.throwAccessDenied(...)` и `this.throwConflict(...)` на `this.throwError(err*(...))`
-- [ ] Task: Проверить остальные use-case'ы user-пакета на наличие вызовов `throw*()`
-- [ ] Task: Запустить все тесты пакета `user` и убедиться, что они проходят
-- [ ] Task: Проверить покрытие тестами (`bun test --coverage --filter @u7/user`)
+- [x] Task: Мигрировать `UserUseCase` на `throwError` + фабрики `[cf33e34]`
+    - [x] Заменить `this.throwNotFound(...)` на `this.throwError(errNotFound(...))`
+- [x] Task: Мигрировать `CreateUserUc` на новый API `[cf33e34]`
+    - [x] Заменить `this.throwAccessDenied(...)` и `this.throwConflict(...)` на `this.throwError(err*(...))`
+- [x] Task: Проверить остальные use-case'ы user-пакета на наличие вызовов `throw*()` `[cf33e34]`
+- [x] Task: Запустить все тесты пакета `user` и убедиться, что они проходят `[cf33e34]`
+- [x] Task: Проверить покрытие тестами (`bun test --coverage --filter @u7/user`) `[cf33e34]`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Обновление пакета @u7/user' (Protocol in workflow.md)

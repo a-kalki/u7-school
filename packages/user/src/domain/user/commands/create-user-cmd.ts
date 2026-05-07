@@ -5,6 +5,7 @@ import type {
   AccessDeniedUcError,
   BootstrapRequiresAdminUcError,
   TelegramIdTakenUcError,
+  UserNotFoundUcError,
 } from "./errors";
 
 /** Схема валидации команды создания пользователя */
@@ -31,6 +32,7 @@ export interface CreateUserCmdMeta {
 
 /** Ошибки команды создания пользователя */
 export type CreateUserCmdError =
+  | UserNotFoundUcError
   | TelegramIdTakenUcError
   | BootstrapRequiresAdminUcError
   | AccessDeniedUcError;

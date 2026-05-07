@@ -25,12 +25,18 @@
 ## Пример
 
 ```typescript
+import { errAccessDenied, errConflict } from "@u7/core";
 import { UserAr } from "../../domain/user/a-root";
 import {
   type CreateUserCmd,
   type CreateUserCmdMeta,
   CreateUserCmdSchema,
 } from "../../domain/user/commands/create-user-cmd";
+import type {
+  AccessDeniedUcError,
+  BootstrapRequiresAdminUcError,
+  TelegramIdTakenUcError,
+} from "../../domain/user/commands/errors";
 import type { User } from "../../domain/user/entity";
 import { UserSchema } from "../../domain/user/entity";
 import { UserPolicy } from "../../domain/user/policy";
@@ -54,15 +60,19 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
 
   /**
    * Проверка прав на создание пользователя.
+   * Только ADMIN может создавать пользователей.
    */
   protected override async checkPolicy(
     _command: CreateUserCmd,
     actor: User,
   ): Promise<void> {
     if (!UserPolicy.canCreate(actor)) {
-      this.throwAccessDenied(
-        "ACCESS_DENIED",
-        "Недостаточно прав для создания пользователя",
+      this.throwError(
+        errAccessDenied<AccessDeniedUcError>(
+          "ACCESS_DENIED",
+          "Недостаточно прав для создания пользователя",
+          undefined,
+        ),
       );
     }
   }
@@ -74,17 +84,23 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
     if (isEmpty) {
       // Bootstrap: первый пользователь обязан иметь роль ADMIN
       if (!command.roles.includes(Role.ADMIN)) {
-        this.throwConflict(
-          "BOOTSTRAP_REQUIRES_ADMIN",
-          "Первый пользователь должен иметь роль ADMIN",
+        this.throwError(
+          errConflict<BootstrapRequiresAdminUcError>(
+            "BOOTSTRAP_REQUIRES_ADMIN",
+            "Первый пользователь должен иметь роль ADMIN",
+            undefined,
+          ),
         );
       }
     } else {
       // Репозиторий не пуст — требуется авторизованный ADMIN
       if (!actorId) {
-        this.throwAccessDenied(
-          "ACCESS_DENIED",
-          "Требуется авторизация для создания пользователя",
+        this.throwError(
+          errAccessDenied<AccessDeniedUcError>(
+            "ACCESS_DENIED",
+            "Требуется авторизация для создания пользователя",
+            undefined,
+          ),
         );
       }
       const actor = await this.getUser(actorId);
@@ -93,10 +109,12 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
 
     // Проверка уникальности telegramId
     if (await repo.isTelegramIdTaken(command.telegramId)) {
-      this.throwConflict(
-        "TELEGRAM_ID_TAKEN",
-        "Пользователь с таким telegramId уже существует",
-        { telegramId: command.telegramId },
+      this.throwError(
+        errConflict<TelegramIdTakenUcError>(
+          "TELEGRAM_ID_TAKEN",
+          "Пользователь с таким telegramId уже существует",
+          { telegramId: command.telegramId },
+        ),
       );
     }
 

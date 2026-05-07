@@ -1,5 +1,6 @@
-import { type UcMeta, UseCase } from "@u7/core";
+import { errNotFound, type UcMeta, UseCase } from "@u7/core";
 import type { UserApiModuleResolver } from "../domain/module";
+import type { UserNotFoundUcError } from "../domain/user/commands/errors";
 import type { User } from "../domain/user/entity";
 
 /**
@@ -17,9 +18,15 @@ export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
   protected async getUser(userId: string): Promise<User> {
     const user = await this.resolve.userRepo.getByUuid(userId);
     if (!user) {
-      this.throwNotFound("USER_NOT_FOUND", "Пользователь не найден", {
-        uuid: userId,
-      });
+      this.throwError(
+        errNotFound<UserNotFoundUcError>(
+          "USER_NOT_FOUND",
+          "Пользователь не найден",
+          {
+            uuid: userId,
+          },
+        ),
+      );
     }
     return user;
   }
