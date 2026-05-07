@@ -1,113 +1,109 @@
-import type { AppError } from "./errors";
-import { AppException } from "./errors";
 import type {
-	AccessDeniedError,
-	BadRequestError,
-	ConflictError,
-	InternalError,
-	NotFoundError,
-	UnauthorizedError,
-	ValidationError,
+  AccessDeniedError,
+  AppError,
+  BadRequestError,
+  ConflictError,
+  InternalError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
 } from "./errors";
+import { AppException } from "./errors";
 
 export function throwError(error: AppError): never {
-	throw new AppException(error);
+  throw new AppException(error);
 }
 
 export function fromError(error: unknown): AppError {
-	if (error instanceof AppException) {
-		return error.error;
-	}
+  if (error instanceof AppException) {
+    return error.error;
+  }
 
-	let message = "Unknown error";
-	if (error instanceof Error) {
-		message = error.message;
-	} else if (typeof error === "string") {
-		message = error;
-	} else {
-		message = String(error);
-	}
+  let message = "Unknown error";
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === "string") {
+    message = error;
+  } else {
+    message = String(error);
+  }
 
-	return {
-		name: "UnknownError",
-		level: "api",
-		kind: "internal",
-		message,
-	};
+  return {
+    name: "UnknownError",
+    level: "api",
+    kind: "internal",
+    message,
+  };
 }
 
 // ── Фабрики ошибок ──
 
-/** Создаёт доменную ошибку «не найдено» */
-export function errNotFound<N extends string, P = undefined>(
-	name: N,
-	message: string,
-	payload?: P,
-): NotFoundError<N, P> {
-	return { name, level: "domain", kind: "not-found", message, payload: payload as P } as NotFoundError<N, P>;
+export function errNotFound<E extends NotFoundError>(
+  name: E["name"],
+  message: E["message"],
+  payload: E["payload"],
+): E {
+  return { name, level: "domain", kind: "not-found", message, payload } as E;
 }
 
-/** Создаёт доменную ошибку «конфликт» */
-export function errConflict<N extends string, P = undefined>(
-	name: N,
-	message: string,
-	payload?: P,
-): ConflictError<N, P> {
-	return { name, level: "domain", kind: "conflict", message, payload: payload as P } as ConflictError<N, P>;
+export function errConflict<E extends ConflictError>(
+  name: E["name"],
+  message: E["message"],
+  payload: E["payload"],
+): E {
+  return { name, level: "domain", kind: "conflict", message, payload } as E;
 }
 
-/** Создаёт доменную ошибку «доступ запрещён» */
-export function errAccessDenied<N extends string, P = undefined>(
-	name: N,
-	message: string,
-	payload?: P,
-): AccessDeniedError<N, P> {
-	return { name, level: "domain", kind: "access-denied", message, payload: payload as P } as AccessDeniedError<N, P>;
+export function errAccessDenied<E extends AccessDeniedError>(
+  name: E["name"],
+  message: E["message"],
+  payload: E["payload"],
+): E {
+  return {
+    name,
+    level: "domain",
+    kind: "access-denied",
+    message,
+    payload,
+  } as E;
 }
 
-/** Создаёт API-ошибку «некорректный запрос» */
-export function errBadRequest<N extends string, P = undefined>(
-	name: N,
-	message: string,
-	payload?: P,
-): BadRequestError<N, P> {
-	return { name, level: "api", kind: "bad-request", message, payload: payload as P } as BadRequestError<N, P>;
+export function errBadRequest<E extends BadRequestError>(
+  name: E["name"],
+  message: E["message"],
+  payload: E["payload"],
+): E {
+  return { name, level: "api", kind: "bad-request", message, payload } as E;
 }
 
-/** Создаёт API-ошибку «не авторизован» */
-export function errUnauthorized<N extends string, P = undefined>(
-	name: N,
-	message: string,
-	payload?: P,
-): UnauthorizedError<N, P> {
-	return { name, level: "api", kind: "unauthorized", message, payload: payload as P } as UnauthorizedError<N, P>;
+export function errUnauthorized<E extends UnauthorizedError>(
+  name: E["name"],
+  message: E["message"],
+): E {
+  return { name, level: "api", kind: "unauthorized", message } as E;
 }
 
-/** Создаёт доменную ошибку валидации */
-export function errValidation<N extends string, P = undefined>(
-	name: N,
-	message: string,
-	payload?: P,
-): ValidationError<N, P> {
-	return { name, level: "domain", kind: "validation", message, payload: payload as P } as ValidationError<N, P>;
+export function errValidation<E extends ValidationError>(
+  name: E["name"],
+  message: E["message"],
+  payload: E["payload"],
+): E {
+  return { name, level: "domain", kind: "validation", message, payload } as E;
 }
 
-/** Создаёт внутреннюю ошибку (api по умолчанию) */
 export function errInternal<
-	N extends string,
-	P = undefined,
-	L extends "domain" | "api" = "api",
+  E extends InternalError<string, unknown, "domain" | "api">,
 >(
-	name: N,
-	message: string,
-	payload?: P,
-	level?: L,
-): InternalError<N, P, L> {
-	return {
-		name,
-		level: (level ?? "api") as L,
-		kind: "internal",
-		message,
-		payload: payload as P,
-	} as InternalError<N, P, L>;
+  name: E["name"],
+  message: E["message"],
+  payload: E["payload"],
+  level?: E["level"],
+): E {
+  return {
+    name,
+    level: (level ?? "api") as E["level"],
+    kind: "internal",
+    message,
+    payload,
+  } as E;
 }

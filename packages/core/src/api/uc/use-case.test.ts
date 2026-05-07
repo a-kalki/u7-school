@@ -8,105 +8,100 @@ import { UseCase } from "./use-case";
 
 type TestUcError = BadRequestError<"TestUcError">;
 
-interface TestUcMeta extends UcMeta {
-	commandName: "test-cmd";
-	input: { foo: string };
-	output: { bar: string };
-	errors: TestUcError;
+type TestNotIncludedUcError = BadRequestError<"TestNotfincludedUcError">;
+
+interface TestUcMeta {
+  commandName: "test-cmd";
+  description: string;
+  arMeta: UcMeta["arMeta"];
+  input: { foo: string };
+  output: { bar: string };
+  errors: TestUcError;
+  requiresAuth: false;
+  type: "command";
 }
 
 class TestUseCase extends UseCase<TestUcMeta, { test: boolean }> {
-	protected readonly commandName = "test-cmd";
-	protected readonly description = "Тестовый UC";
-	protected readonly arName = "TestAr";
-	protected readonly arLabel = "Тестовый агрегат";
-	protected readonly type = "command" as const;
-	protected readonly requiresAuth = false as const;
-	protected readonly inputSchema = v.object({ foo: v.string() });
-	protected readonly outputSchema = v.object({ bar: v.string() });
+  protected readonly commandName = "test-cmd" as const;
+  protected readonly description = "Тестовый UC";
+  protected readonly arName = "TestAr";
+  protected readonly arLabel = "Тестовый агрегат";
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ foo: v.string() });
+  protected readonly outputSchema = v.object({ bar: v.string() });
 
-	protected async getUser(_userId: string): Promise<Record<string, unknown>> {
-		return {};
-	}
+  protected async getUser(_userId: string): Promise<Record<string, unknown>> {
+    return {};
+  }
 
-	protected async checkPolicy(
-		_command: unknown,
-		_actor: unknown,
-	): Promise<void> {
-		// Доступно всем
-	}
+  protected async checkPolicy(
+    _command: unknown,
+    _actor: unknown,
+  ): Promise<void> {
+    // Доступно всем
+  }
 
-	execute(command: { foo: string }) {
-		if (command.foo === "bad") {
-			this.throwError(errBadRequest("TestUcError", "Bad input"));
-		}
-		return { bar: `ok-${this.resolve.test}` };
-	}
+  execute(command: { foo: string }) {
+    if (command.foo === "bad") {
+      this.throwError(
+        errBadRequest<TestUcError>("TestUcError", "Bad input", undefined),
+      );
+    }
+    if (command.foo === "bar") {
+      this.throwError(
+        // @ts-expect-error: линтер запрещает вызывать ошибки не включенные в Meta
+        errBadRequest<TestNotIncludedUcError>(
+          "TestNotfincludedUcError",
+          "Bad input",
+          undefined,
+        ),
+      );
+    }
+    return { bar: `ok-${this.resolve.test}` };
+  }
 }
 
 describe("UseCase", () => {
-	test("use-case валидирует команду через схему", async () => {
-		const uc = new TestUseCase();
-		uc.init({ test: true });
+  test("use-case валидирует команду через схему", async () => {
+    const uc = new TestUseCase();
+    uc.init({ test: true });
 
-		let caught: unknown;
-		try {
-			await uc.handle({ foo: 123 }); // invalid type
-		} catch (e) {
-			caught = e;
-		}
+    let caught: unknown;
+    try {
+      await uc.handle({ foo: 123 }); // invalid type
+    } catch (e) {
+      caught = e;
+    }
 
-		expect(caught).toBeInstanceOf(AppException);
-		const appEx = caught as AppException;
-		expect(appEx.error.kind).toBe("validation");
-		expect(appEx.error.name).toBe("INPUT_VALIDATION_ERROR");
-	});
+    expect(caught).toBeInstanceOf(AppException);
+    const appEx = caught as AppException;
+    expect(appEx.error.kind).toBe("validation");
+    expect(appEx.error.name).toBe("INPUT_VALIDATION_ERROR");
+  });
 
-	test("use-case имеет доступ к резолверу модуля и возвращает результат", async () => {
-		const uc = new TestUseCase();
-		uc.init({ test: true });
+  test("use-case имеет доступ к резолверу модуля и возвращает результат", async () => {
+    const uc = new TestUseCase();
+    uc.init({ test: true });
 
-		const result = await uc.handle({ foo: "good" });
-		expect(result.bar).toBe("ok-true");
-	});
+    const result = await uc.handle({ foo: "good" });
+    expect(result.bar).toBe("ok-true");
+  });
 
-	test("use-case выбрасывает ошибку через throwError из бизнес-логики", async () => {
-		const uc = new TestUseCase();
-		uc.init({ test: true });
+  test("use-case выбрасывает ошибку через throwError из бизнес-логики", async () => {
+    const uc = new TestUseCase();
+    uc.init({ test: true });
 
-		let caught: unknown;
-		try {
-			await uc.handle({ foo: "bad" });
-		} catch (e) {
-			caught = e;
-		}
+    let caught: unknown;
+    try {
+      await uc.handle({ foo: "bad" });
+    } catch (e) {
+      caught = e;
+    }
 
-		expect(caught).toBeInstanceOf(AppException);
-		const appEx = caught as AppException;
-		expect(appEx.error.name).toBe("TestUcError");
-		expect(appEx.error.kind).toBe("bad-request");
-	});
-
-	test("throwError выбрасывает ошибку из BaseUcErrors (INPUT_VALIDATION_ERROR)", () => {
-		// Проверяем, что throwError доступен и работает для BaseUcErrors
-		// Используем вызов через отдельный тестовый UC
-		const uc = new TestUseCase();
-		uc.init({ test: true });
-
-		// Проверяем, что ошибка выбрасывается через throwError
-		// (TypeScript должен разрешить передачу BaseUcErrors)
-		let caught: unknown;
-		try {
-			// @ts-expect-error: проверяем рантайм-поведение через хак
-			(uc as unknown as { throwError: (e: unknown) => never }).throwError({
-				name: "INPUT_VALIDATION_ERROR",
-				level: "domain",
-				kind: "validation",
-				message: "test",
-			});
-		} catch (e) {
-			caught = e;
-		}
-		expect(caught).toBeInstanceOf(AppException);
-	});
+    expect(caught).toBeInstanceOf(AppException);
+    const appEx = caught as AppException;
+    expect(appEx.error.name).toBe("TestUcError");
+    expect(appEx.error.kind).toBe("bad-request");
+  });
 });

@@ -11,16 +11,16 @@
 
 ## Фаза 2: Перепроектирование UseCase
 
-- [ ] Task: Заменить `throw*()` на единый `throwError()` в `UseCase`
-    - [ ] Написать тесты на новый метод `throwError` (Red)
-    - [ ] Удалить `throwNotFound`, `throwConflict`, `throwAccessDenied`, `throwBadRequest`, `throwValidation`, `throwInternal` (Green)
-    - [ ] Реализовать `throwError(error: TMeta["errors"] | BaseUcErrors): never` (Green)
-    - [ ] Обновить `validateInput`, `validateOutput`, `checkAuth` на использование `throwError` (Green)
-    - [ ] Проверить, что TypeScript блокирует передачу ошибок не из union (Green)
-- [ ] Task: Обновить `Module.throwNoCommandFound` на использование фабрики `errBadRequest`
-- [ ] Task: Обновить тесты `UseCase` и `Module` под новый API
-- [ ] Task: Проверить покрытие тестами (`bun test --coverage`)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: Перепроектирование UseCase' (Protocol in workflow.md)
+- [x] Task: Заменить `throw*()` на единый `throwError()` в `UseCase` `[9421f05]`
+    - [x] Написать тесты на новый метод `throwError` (Red)
+    - [x] Удалить `throwNotFound`, `throwConflict`, `throwAccessDenied`, `throwBadRequest`, `throwValidation`, `throwInternal` (Green)
+    - [x] Реализовать `throwError(error: TMeta["errors"] | BaseUcErrors): never` (Green)
+    - [x] Обновить `validateInput`, `validateOutput`, `checkAuth` на использование `throwError` (Green)
+    - [x] Проверить, что TypeScript блокирует передачу ошибок не из union (Green)
+- [x] Task: Обновить `Module.throwNoCommandFound` на использование фабрики `errBadRequest` `[9421f05]`
+- [x] Task: Обновить тесты `UseCase` и `Module` под новый API `[9421f05]`
+- [x] Task: Проверить покрытие тестами (`bun test --coverage`) `[9421f05]`
+- [~] Task: Conductor - User Manual Verification 'Фаза 2: Перепроектирование UseCase' (Protocol in workflow.md)
 
 ## Фаза 3: Обновление пакета @u7/user
 
