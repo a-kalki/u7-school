@@ -1,21 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import type { DomainError } from "../errors/errors";
 import { AppException } from "../errors/errors";
 import type { ArMeta } from "./aggregate";
 import { Aggregate } from "./aggregate";
-
-interface TestArError1 extends DomainError {
-  name: "TestArError1";
-  kind: "validation";
-}
-
-interface TestArError2 extends DomainError {
-  name: "TestArError2";
-  kind: "conflict";
-}
-
-type TestArErrors = TestArError1 | TestArError2;
 
 type TestState = {
   name: string;
@@ -24,7 +11,6 @@ type TestState = {
 
 interface TestArMeta extends ArMeta {
   name: "TestAr";
-  errors: TestArErrors;
   label: "Test aggregate";
   state: TestState;
 }

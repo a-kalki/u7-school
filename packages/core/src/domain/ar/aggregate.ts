@@ -5,7 +5,6 @@ import type { DomainError } from "../errors/errors";
 export interface ArMeta {
   name: string;
   label: string;
-  errors: DomainError;
   state: Record<string, unknown>;
 }
 
@@ -58,24 +57,6 @@ export abstract class Aggregate<TMeta extends ArMeta> {
       name: "AR_INVARIANT_ERROR",
       level: "domain",
       kind: "internal",
-      message,
-      payload,
-    } satisfies DomainError);
-  }
-
-  /** Ошибки доменных правил */
-  protected throwConflict<
-    K extends Extract<TMeta["errors"], { kind: "conflict" }>["name"],
-    E extends Extract<TMeta["errors"], { name: K }>,
-  >(
-    name: K,
-    message = "Конфликт состояния домена",
-    payload?: E["payload"],
-  ): never {
-    throwError({
-      name,
-      level: "domain",
-      kind: "conflict",
       message,
       payload,
     } satisfies DomainError);

@@ -6,7 +6,7 @@
     - [x] Написать тесты на `errNotFound`, `errConflict`, `errAccessDenied`, `errBadRequest`, `errValidation`, `errInternal` (Red)
     - [x] Реализовать фабрики как дженерик-функции, возвращающие типизированный объект ошибки (Green)
     - [x] Убедиться, что каждая фабрика возвращает правильный `kind` и `level` (Refactor)
-- [ ] Task: Проверить покрытие тестами хелперов (`bun test --coverage`)
+- [x] Task: Проверить покрытие тестами хелперов (`bun test --coverage`) `[d6879a3]`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Хелперы-фабрики ошибок' (Protocol in workflow.md)
 
 ## Фаза 2: Перепроектирование UseCase
