@@ -16,7 +16,7 @@
     - [x] Обновить `AutoUiConsoleController` — перехватывать AppException, извлекать Valibot issues, форматировать через `formatValibotErrors`
 - [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2: Упреждающие подсказки при вводе команд (FR4) [checkpoint: 7374449]
+## Фаза 2: Упреждающие подсказки при вводе команд (FR4) [checkpoint: e5600be]
 
 - [x] Task: Обновить `renderUseCasePrompt()` в `AutoUiModule` — детальная подсказка [1b3a554]
     - [x] Написать тест: renderUseCasePrompt для create-user показывает текущий блок кода + доп.инфо вне блока
