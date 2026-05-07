@@ -1,14 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import type { DomainError } from "../../domain/errors/errors";
+import type { AccessDeniedError } from "../../domain/errors/errors";
 import { AppException } from "../../domain/errors/errors";
 import type { UcMeta } from "./use-case";
 import { UseCase } from "./use-case";
 
-interface AuthTestError extends DomainError {
-  name: "AuthTestError";
-  kind: "access-denied";
-}
+type AuthTestError = AccessDeniedError<"AuthTestError">;
 
 interface AuthUcMeta extends UcMeta {
   commandName: "test-auth";

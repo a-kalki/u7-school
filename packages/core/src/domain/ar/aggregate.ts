@@ -1,6 +1,6 @@
 import * as v from "valibot";
 import { throwError } from "../errors/error-helpers";
-import type { DomainError } from "../errors/errors";
+import type { AppError } from "../errors/errors";
 
 export interface ArMeta {
   name: string;
@@ -59,6 +59,6 @@ export abstract class Aggregate<TMeta extends ArMeta> {
       kind: "internal",
       message,
       payload,
-    } satisfies DomainError);
+    } satisfies AppError);
   }
 }

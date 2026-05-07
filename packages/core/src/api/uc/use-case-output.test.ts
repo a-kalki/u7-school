@@ -1,14 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import type { ApiError } from "../../domain/errors/errors";
+import type { BadRequestError } from "../../domain/errors/errors";
 import { AppException } from "../../domain/errors/errors";
 import type { UcMeta } from "./use-case";
 import { UseCase } from "./use-case";
 
-interface OutputTestError extends ApiError {
-  name: "OutputTestError";
-  kind: "bad-request";
-}
+type OutputTestError = BadRequestError<"OutputTestError">;
 
 interface OutputTestUcMeta extends UcMeta {
   commandName: "test-output";

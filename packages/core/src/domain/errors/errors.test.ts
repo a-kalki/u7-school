@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { fromError, throwError } from "./error-helpers";
-import type { ApiError, DomainError } from "./errors";
+import type { AppError } from "./errors";
 import { AppException } from "./errors";
 
 describe("errors", () => {
 	test("throwError выбрасывает исключение с правильным объектом ошибки", () => {
-		const domainErr: DomainError = {
+		const domainErr: AppError = {
 			name: "TestDomainError",
 			level: "domain",
 			kind: "validation",
@@ -23,7 +23,7 @@ describe("errors", () => {
 	});
 
 	test("fromError восстанавливает объект ошибки из исключения", () => {
-		const apiErr: ApiError = {
+		const apiErr: AppError = {
 			name: "TestApiError",
 			level: "api",
 			kind: "bad-request",

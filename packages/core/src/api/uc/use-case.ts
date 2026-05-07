@@ -1,11 +1,10 @@
 import * as v from "valibot";
 import type { ArMeta } from "../../domain/ar/aggregate";
-import { errInternal, errValidation, throwError } from "../../domain/errors/error-helpers";
+import { errInternal, errUnauthorized, errValidation, throwError } from "../../domain/errors/error-helpers";
 import type {
 	AppError,
 	BaseUcErrors,
 	InputValidationError,
-	UnAuthorizedError,
 } from "../../domain/errors/errors";
 
 type UseCaseType = "command" | "query";
@@ -150,12 +149,9 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
 	 */
 	protected checkAuth(actorId?: string): void {
 		if (this.requiresAuth && actorId === undefined) {
-			this.throwError({
-				name: "UNAUTHORIZED_ERROR",
-				level: "api",
-				kind: "unauthorized",
-				message: "Требуется авторизация",
-			} satisfies UnAuthorizedError);
+			this.throwError(
+				errUnauthorized("UNAUTHORIZED_ERROR", "Требуется авторизация"),
+			);
 		}
 	}
 
