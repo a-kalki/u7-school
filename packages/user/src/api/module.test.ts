@@ -72,7 +72,7 @@ describe("UserApiModule", () => {
       name: "list-users",
       attrs: {},
     });
-    expect(result as User[]).toHaveLength(1);
+    expect((result as { users: User[] }).users).toHaveLength(1);
   });
 
   test("user.get-by-telegram-id: находит пользователя", async () => {
