@@ -1,4 +1,5 @@
 import { describe, expect, it } from "bun:test";
+import * as v from "valibot";
 import { Module } from "#api/module/module";
 import type { UcDocType, UcMeta, UseCase } from "#api/uc/use-case";
 import { AutoUiModule } from "./auto-ui-module";
@@ -34,6 +35,22 @@ class TestApiModule extends Module<TestModuleMeta, Record<string, unknown>> {
         inputSchema: {} as any,
         // biome-ignore lint/suspicious/noExplicitAny: reason
         outputSchema: {} as any,
+      },
+      {
+        commandName: "uc3",
+        description: "Создать пользователя",
+        arName: "user",
+        arLabel: "Пользователь",
+        type: "command",
+        requiresAuth: false,
+        inputSchema: v.object({
+          name: v.string(),
+          email: v.pipe(v.string(), v.email()),
+          role: v.picklist(["admin", "mentor", "student"] as const),
+          age: v.optional(v.number()),
+          tags: v.array(v.string()),
+        }),
+        outputSchema: v.any(),
       },
     ];
   }
@@ -123,6 +140,37 @@ describe("auto-ui-module", () => {
     expect(response).toContain("Успех!");
     expect(response).toContain("val1");
     expect(response).toContain("val2");
+  });
+
+  it("должен генерировать детальный prompt с типами и допустимыми значениями", async () => {
+    const mod = new TestAutoUiModule({ aboutPath: ".", apiModule });
+
+    const response = await mod.handleIntent({
+      type: "usecase",
+      moduleName: "testmod",
+      aggregateName: "user",
+      commandName: "uc3",
+      action: "prompt",
+    });
+
+    // Текущий блок кода сохранён
+    expect(response).toContain('Для выполнения команды "Создать пользователя"');
+    expect(response).toContain("/testmod/user/uc3");
+    expect(response).toContain("```");
+
+    // Детальная информация о параметрах вне блока кода
+    expect(response).toContain("**Параметры:**");
+    expect(response).toContain("**name**");
+    expect(response).toContain("string");
+    expect(response).toContain("**role**");
+    expect(response).toContain("admin");
+    expect(response).toContain("mentor");
+    expect(response).toContain("student");
+    expect(response).toContain("**age**");
+    expect(response).toContain("опционально");
+    expect(response).toContain("number");
+    expect(response).toContain("**tags**");
+    expect(response).toContain("массив");
   });
 
   it("должен выбрасывать ошибки при выполнении usecase без перехвата", async () => {

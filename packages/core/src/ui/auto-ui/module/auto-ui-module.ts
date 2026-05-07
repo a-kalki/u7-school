@@ -100,6 +100,7 @@ export abstract class AutoUiModule<
     }
 
     let fieldsPrompt = "";
+    const fieldDetails: string[] = [];
     const schema = uc.inputSchema as v.BaseSchema<
       unknown,
       unknown,
@@ -108,15 +109,79 @@ export abstract class AutoUiModule<
 
     if (schema && typeof schema === "object" && "entries" in schema) {
       // @ts-expect-error: схема будет валидной
-      const keys = Object.keys(schema.entries);
+      const entries = schema.entries as Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>;
+      const keys = Object.keys(entries);
+
       for (const key of keys) {
         fieldsPrompt += `- ${key}\n`;
+        const entry = entries[key] as v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>;
+        fieldDetails.push(this.describeField(key, entry));
       }
     } else {
       fieldsPrompt = "- Данные (текст)\n";
     }
 
-    return `Для выполнения команды "${uc.description}" отправьте сообщение следующего формата:\n\`\`\`\n/${this.name}/${uc.arName}/${uc.commandName}\n${fieldsPrompt}\`\`\`\n`;
+    let result = `Для выполнения команды "${uc.description}" отправьте сообщение следующего формата:\n\`\`\`\n/${this.name}/${uc.arName}/${uc.commandName}\n${fieldsPrompt}\`\`\`\n`;
+
+    if (fieldDetails.length > 0) {
+      result += `\n**Параметры:**\n${fieldDetails.join("\n")}\n`;
+    }
+
+    return result;
+  }
+
+  private describeField(
+    name: string,
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+  ): string {
+    const parts: string[] = [];
+    let current = schema;
+    let optional = false;
+    let isArray = false;
+
+    while (current) {
+      const type = current.type as string | undefined;
+
+      if (type === "optional" || type === "nullable") {
+        optional = true;
+        current = current.wrapped as typeof current;
+        continue;
+      }
+
+      if (type === "array") {
+        isArray = true;
+        current = current.item as typeof current;
+        continue;
+      }
+
+      if (type === "picklist") {
+        const options = current.options as ReadonlyArray<string>;
+        const opts = options.map((o) => `\`${o}\``).join(", ");
+        parts.push(`тип: перечисление, допустимые значения: ${opts}`);
+        break;
+      }
+
+      if (type === "enum") {
+        const options = current.options as ReadonlyArray<string>;
+        const opts = options.map((o) => `\`${o}\``).join(", ");
+        parts.push(`тип: перечисление, допустимые значения: ${opts}`);
+        break;
+      }
+
+      if (type) {
+        const prefix = isArray ? "массив " : "";
+        parts.push(`тип: ${prefix}\`${type}\``);
+        break;
+      }
+
+      break;
+    }
+
+    if (optional) {
+      parts.push("опционально");
+    }
+
+    return `- **${name}** — ${parts.join(", ")}`;
   }
 
   private async executeUseCase(
