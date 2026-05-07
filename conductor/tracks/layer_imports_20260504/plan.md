@@ -1,6 +1,6 @@
 # План реализации: Layer-based импорты
 
-## Фаза 1: Layer-based exports для `@u7/core`
+## Фаза 1: Layer-based exports для `@u7/core` [checkpoint: 57f593f]
 
 - [x] Task: Создать слойные index.ts (barrel exports)
     - [x] Создать `src/domain/index.ts` — ре-экспорт aggregate, errors, module/types
