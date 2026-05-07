@@ -68,13 +68,13 @@
 
 ## Фаза 3: Документирование
 
-- [ ] Task: Добавить раздел «Layer-based импорты» в `conductor/code_styleguides/architecture.md`
-    - [ ] Схема слоёв и направление зависимостей
-    - [ ] Инструкция по настройке `exports`/`imports` для пакетов
-    - [ ] Примеры внешних и внутренних импортов
-    - [ ] Правила для `ui/web` vs `ui/auto-ui`
+- [x] Task: Добавить раздел «Layer-based импорты» в `conductor/code_styleguides/architecture.md`
+    - [x] Схема слоёв и направление зависимостей
+    - [x] Инструкция по настройке `exports`/`imports` для пакетов
+    - [x] Примеры внешних и внутренних импортов
+    - [x] Правила для `ui/web` vs `ui/auto-ui`
 
-- [ ] Task: Обновить `conductor/product-guidelines.md`
-    - [ ] Добавить ссылку на раздел «Layer-based импорты» в сводке architecture.md
+- [x] Task: Обновить `conductor/product-guidelines.md`
+    - [x] Добавить ссылку на раздел «Layer-based импорты» в сводке architecture.md
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
