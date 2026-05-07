@@ -10,10 +10,10 @@
 - [x] Task: Создать `formatValibotErrors()` в `auto-ui/controller/` [369e83f]
     - [x] Написать тесты: функция возвращает читаемый многострочный текст с полями, ожидаемыми значениями и примерами
     - [x] Реализовать `formatValibotErrors()` — обходит issues Valibot, форматирует построчно
-- [ ] Task: Интегрировать `formatValibotErrors` в `AutoUiConsoleController`
-    - [ ] Написать тест: при ошибке валидации контроллер вызывает formatValibotErrors
-    - [ ] Обновить `AutoUiModule.executeUseCase()` — не форматировать ошибку самому
-    - [ ] Обновить `AutoUiConsoleController` — перехватывать AppException, извлекать Valibot issues, форматировать через `formatValibotErrors`
+- [x] Task: Интегрировать `formatValibotErrors` в `AutoUiConsoleController` [0340dc3]
+    - [x] Написать тест: при ошибке валидации контроллер вызывает formatValibotErrors
+    - [x] Обновить `AutoUiModule.executeUseCase()` — не форматировать ошибку самому
+    - [x] Обновить `AutoUiConsoleController` — перехватывать AppException, извлекать Valibot issues, форматировать через `formatValibotErrors`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Упреждающие подсказки при вводе команд (FR4)
