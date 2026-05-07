@@ -1,0 +1,11 @@
+Задача: Обновить схему ListUsersCmdSchema — добавить параметры
+
+Изменения:
+- list-users-cmd.ts: ListUsersCmdSchema — limit (default 20), role (picklist), name, telegramId, sort (regex createdAt|name:asc|desc)
+- ListUsersCmdMeta: input/output обновлены, output теперь ListUsersResult
+- repo.ts: интерфейс UserListFilter, getAll(filter?)
+- user-inmemory-repo.ts: реализована фильтрация (role, name, telegramId) и сортировка (поле + направление)
+- list-users-uc.ts: execute передаёт фильтры в репозиторий, возвращает { users, total, appliedFilters }
+- list-users-uc.test.ts: 10 тестов (пустой список, фильтры, сортировка, appliedFilters)
+
+Результат: Все 277 тестов проходят.
