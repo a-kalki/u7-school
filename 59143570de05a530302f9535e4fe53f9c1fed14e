@@ -1,0 +1,11 @@
+**Отчёт о верификации: Контрольная точка Фазы 3**
+
+**Изменения:** только документация (architecture.md, product-guidelines.md)
+
+**Шаги верификации:**
+- Раздел «Layer-based импорты» добавлен в architecture.md ✅
+- Ссылка в product-guidelines.md обновлена ✅
+- bun tsc --noEmit: без ошибок ✅
+- bun test: 261 pass, 0 fail ✅
+
+**Подтверждение пользователя:** да
