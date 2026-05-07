@@ -1,18 +1,18 @@
 import * as v from "valibot";
-import type { ArMeta } from "../../domain/ar/aggregate";
+import type { ArMeta } from "#domain/ar/aggregate";
 import {
   errInternal,
   errUnauthorized,
   errValidation,
   throwError,
-} from "../../domain/errors/error-helpers";
+} from "#domain/errors/error-helpers";
 import type {
   AppError,
   AuthError,
   BaseUcErrors,
   InputValidationError,
   OutputValidationError,
-} from "../../domain/errors/errors";
+} from "#domain/errors/errors";
 
 type UseCaseType = "command" | "query";
 

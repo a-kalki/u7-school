@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { Module } from "../../api/module/module";
-import type { UcDocType, UcMeta, UseCase } from "../../api/uc/use-case";
+import { Module } from "#api/module/module";
+import type { UcDocType, UcMeta, UseCase } from "#api/uc/use-case";
 import { AutoUiModule } from "./auto-ui-module";
 
 type TestModuleMeta = { name: "testmod"; url: "testurl" };

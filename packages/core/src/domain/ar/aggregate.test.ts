@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { AppException } from "../errors/errors";
+import { AppException } from "#domain/errors/errors";
 import type { ArMeta } from "./aggregate";
 import { Aggregate } from "./aggregate";
 

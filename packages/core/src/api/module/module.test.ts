@@ -3,10 +3,10 @@ import * as v from "valibot";
 import {
   AppException,
   type NoCommandFoundError,
-} from "../../domain/errors/errors";
-import type { ModuleMeta } from "../../domain/module/types";
-import type { UcMeta } from "../uc/use-case";
-import { UseCase } from "../uc/use-case";
+} from "#domain/errors/errors";
+import type { ModuleMeta } from "#domain/module/types";
+import type { UcMeta } from "#api/uc/use-case";
+import { UseCase } from "#api/uc/use-case";
 import { Module } from "./module";
 
 interface TestUcMeta extends UcMeta {

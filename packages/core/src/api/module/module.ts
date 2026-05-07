@@ -1,7 +1,7 @@
-import { errBadRequest, throwError } from "../../domain/errors/error-helpers";
-import type { NoCommandFoundError } from "../../domain/errors/errors";
-import type { ModuleCommand, ModuleMeta } from "../../domain/module/types";
-import type { UcDocType, UcMeta, UseCase } from "../uc/use-case";
+import { errBadRequest, throwError } from "#domain/errors/error-helpers";
+import type { NoCommandFoundError } from "#domain/errors/errors";
+import type { ModuleCommand, ModuleMeta } from "#domain/module/types";
+import type { UcDocType, UcMeta, UseCase } from "#api/uc/use-case";
 
 export abstract class Module<TMeta extends ModuleMeta, TResolve> {
   abstract readonly name: TMeta["name"];

@@ -1,6 +1,6 @@
 import * as v from "valibot";
-import { throwError } from "../errors/error-helpers";
-import type { AppError } from "../errors/errors";
+import { throwError } from "#domain/errors/error-helpers";
+import type { AppError } from "#domain/errors/errors";
 
 export interface ArMeta {
   name: string;

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import type { BadRequestError } from "../../domain/errors/errors";
-import { AppException } from "../../domain/errors/errors";
+import type { BadRequestError } from "#domain/errors/errors";
+import { AppException } from "#domain/errors/errors";
 import type { UcMeta } from "./use-case";
 import { UseCase } from "./use-case";
 

@@ -2,8 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as v from "valibot";
-import { Module } from "../../api/module/module";
-import { UseCase } from "../../api/uc/use-case";
+import { Module } from "#api/module/module";
+import { UseCase } from "#api/uc/use-case";
 import { AutoUiApp } from "./auto-ui-app";
 import { AutoUiModule } from "./auto-ui-module";
 

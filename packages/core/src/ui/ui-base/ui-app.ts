@@ -1,5 +1,5 @@
-import type { ModuleMeta } from "../../domain/module/types";
-import { type AboutData, loadAboutFile } from "../shared/about-parser";
+import type { ModuleMeta } from "#domain/module/types";
+import { type AboutData, loadAboutFile } from "#ui/shared/about-parser";
 import type { UIModule, UIModuleResolver } from "./ui-module";
 
 /**

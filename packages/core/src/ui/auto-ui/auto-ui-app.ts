@@ -1,5 +1,5 @@
-import type { ModuleMeta } from "../../domain/module/types";
-import { UIApp, type UIAppResolver } from "../ui-base/ui-app";
+import type { ModuleMeta } from "#domain/module/types";
+import { UIApp, type UIAppResolver } from "#ui/ui-base/ui-app";
 import type { AutoUiModule, AutoUiModuleResolver } from "./auto-ui-module";
 import { CommandParser } from "./command-parser";
 

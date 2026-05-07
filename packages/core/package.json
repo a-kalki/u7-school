@@ -6,5 +6,17 @@
 	"private": true,
 	"scripts": {
 		"test": "bun test"
+	},
+	"exports": {
+		"./domain": "./src/domain/index.ts",
+		"./api": "./src/api/index.ts",
+		"./ui": "./src/ui/index.ts",
+		"./shared": "./src/shared/index.ts"
+	},
+	"imports": {
+		"#domain/*": "./src/domain/*.ts",
+		"#api/*": "./src/api/*.ts",
+		"#ui/*": "./src/ui/*.ts",
+		"#shared/*": "./src/shared/*.ts"
 	}
 }
