@@ -1,0 +1,20 @@
+**Задача: Фаза 1 — Layer-based exports для @u7/core**
+
+**Сводка:**
+- Созданы barrel index.ts для слоёв (domain, api, ui, shared)
+- Настроены exports/imports в packages/core/package.json
+- Добавлены paths в tsconfig.json для @u7/core/domain, @u7/core/api, @u7/core/ui, @u7/core/shared
+- Все 16 файлов с внутренними относительными импортами переведены на #domain/..., #api/..., #ui/...
+- Обновлён корневой src/index.ts (импорты через слойные index.ts)
+
+**Изменённые файлы (22):**
+packages/core/src/domain/index.ts (новый)
+packages/core/src/api/index.ts (новый)
+packages/core/src/ui/index.ts (новый)
+packages/core/src/shared/index.ts (новый)
+packages/core/package.json
+tsconfig.json
+packages/core/src/index.ts
++ 15 файлов с заменой импортов
+
+**Результат:** bun test: 58 pass, 0 fail. bun tsc --noEmit: без ошибок.
