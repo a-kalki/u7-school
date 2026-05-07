@@ -66,7 +66,7 @@
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
-## Фаза 3: Документирование
+## Фаза 3: Документирование [checkpoint: 5914357]
 
 - [x] Task: Добавить раздел «Layer-based импорты» в `conductor/code_styleguides/architecture.md`
     - [x] Схема слоёв и направление зависимостей
@@ -77,4 +77,4 @@
 - [x] Task: Обновить `conductor/product-guidelines.md`
     - [x] Добавить ссылку на раздел «Layer-based импорты» в сводке architecture.md
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
