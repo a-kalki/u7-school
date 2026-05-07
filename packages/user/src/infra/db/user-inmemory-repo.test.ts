@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Role } from "../../domain/user/roles";
-import type { User } from "../../domain/user/entity";
+import { Role } from "#domain/user/roles";
+import type { User } from "#domain/user/entity";
 import { UserInmemoryRepo } from "./user-inmemory-repo";
 
 const testUser: User = {

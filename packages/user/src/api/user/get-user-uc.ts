@@ -2,10 +2,10 @@ import {
   type GetUserCmd,
   type GetUserCmdMeta,
   GetUserCmdSchema,
-} from "../../domain/user/commands/get-user-cmd";
-import type { User } from "../../domain/user/entity";
-import { UserSchema } from "../../domain/user/entity";
-import { UserUseCase } from "../user-uc";
+} from "#domain/user/commands/get-user-cmd";
+import type { User } from "#domain/user/entity";
+import { UserSchema } from "#domain/user/entity";
+import { UserUseCase } from "#api/user-uc";
 
 /**
  * Use-case получения пользователя по UUID.

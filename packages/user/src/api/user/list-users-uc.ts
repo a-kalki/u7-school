@@ -2,10 +2,10 @@ import * as v from "valibot";
 import {
   type ListUsersCmdMeta,
   ListUsersCmdSchema,
-} from "../../domain/user/commands/list-users-cmd";
-import type { User } from "../../domain/user/entity";
-import { UserSchema } from "../../domain/user/entity";
-import { UserUseCase } from "../user-uc";
+} from "#domain/user/commands/list-users-cmd";
+import type { User } from "#domain/user/entity";
+import { UserSchema } from "#domain/user/entity";
+import { UserUseCase } from "#api/user-uc";
 
 /**
  * Use-case получения списка всех пользователей.

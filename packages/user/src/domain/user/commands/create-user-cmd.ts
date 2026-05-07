@@ -1,6 +1,6 @@
 import * as v from "valibot";
-import type { User, UserArMeta } from "../entity";
-import { UserSchema } from "../entity";
+import type { User, UserArMeta } from "#domain/user/entity";
+import { UserSchema } from "#domain/user/entity";
 import type {
   AccessDeniedUcError,
   BootstrapRequiresAdminUcError,

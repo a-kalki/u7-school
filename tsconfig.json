@@ -21,6 +21,10 @@
 		"baseUrl": ".",
 		"paths": {
 			"@u7/user": ["packages/user/src/index.ts"],
+			"@u7/user/domain": ["packages/user/src/domain/index.ts"],
+			"@u7/user/api": ["packages/user/src/api/index.ts"],
+			"@u7/user/ui": ["packages/user/src/ui/index.ts"],
+			"@u7/user/infra": ["packages/user/src/infra/index.ts"],
 			"@u7/core": ["packages/core/src/index.ts"],
 			"@u7/core/domain": ["packages/core/src/domain/index.ts"],
 			"@u7/core/api": ["packages/core/src/api/index.ts"],

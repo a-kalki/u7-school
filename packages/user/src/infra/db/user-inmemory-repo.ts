@@ -1,5 +1,5 @@
-import type { User } from "../../domain/user/entity";
-import type { UserRepo } from "../../domain/user/repo";
+import type { User } from "#domain/user/entity";
+import type { UserRepo } from "#domain/user/repo";
 
 /** In-memory реализация репозитория пользователей */
 export class UserInmemoryRepo implements UserRepo {

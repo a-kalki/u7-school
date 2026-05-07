@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import type { User, UserArMeta } from "../entity";
+import type { User, UserArMeta } from "#domain/user/entity";
 
 /** Схема валидации команды списка пользователей */
 export const ListUsersCmdSchema = v.object({});

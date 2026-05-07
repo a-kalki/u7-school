@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from "bun:test";
-import type { User } from "../../domain/user/entity";
-import type { UserRepo } from "../../domain/user/repo";
-import { Role } from "../../domain/user/roles";
+import type { User } from "#domain/user/entity";
+import type { UserRepo } from "#domain/user/repo";
+import { Role } from "#domain/user/roles";
 import { ListUsersUc } from "./list-users-uc";
 
 function setupUc() {

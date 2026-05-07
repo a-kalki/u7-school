@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import type { User } from "../domain/user/entity";
-import { Role } from "../domain/user/roles";
-import { UserInmemoryRepo } from "../infra/db/user-inmemory-repo";
+import type { User } from "#domain/user/entity";
+import { Role } from "#domain/user/roles";
+import { UserInmemoryRepo } from "#infra/db/user-inmemory-repo";
 import { UserApiModule } from "./module";
 
 describe("UserApiModule", () => {

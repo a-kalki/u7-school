@@ -9,5 +9,17 @@
 	},
 	"dependencies": {
 		"@u7/core": "workspace:*"
+	},
+	"exports": {
+		"./domain": "./src/domain/index.ts",
+		"./api": "./src/api/index.ts",
+		"./ui": "./src/ui/index.ts",
+		"./infra": "./src/infra/index.ts"
+	},
+	"imports": {
+		"#domain/*": "./src/domain/*.ts",
+		"#api/*": "./src/api/*.ts",
+		"#ui/*": "./src/ui/*.ts",
+		"#infra/*": "./src/infra/*.ts"
 	}
 }

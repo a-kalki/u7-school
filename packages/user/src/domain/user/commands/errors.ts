@@ -2,7 +2,7 @@ import type {
 	NotFoundError,
 	ConflictError,
 	AccessDeniedError,
-} from "@u7/core";
+} from "@u7/core/domain";
 
 /** Пользователь не найден */
 export type UserNotFoundUcError = NotFoundError<

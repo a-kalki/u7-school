@@ -1,4 +1,5 @@
-import { Aggregate, isoNow } from "@u7/core";
+import { Aggregate } from "@u7/core/domain";
+import { isoNow } from "@u7/core/shared";
 import type { CreateUserCmd } from "./commands/create-user-cmd";
 import type { User, UserArMeta } from "./entity";
 import { UserSchema } from "./entity";

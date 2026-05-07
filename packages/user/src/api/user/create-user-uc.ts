@@ -1,20 +1,20 @@
-import { errAccessDenied, errConflict } from "@u7/core";
-import { UserAr } from "../../domain/user/a-root";
+import { errAccessDenied, errConflict } from "@u7/core/domain";
+import { UserAr } from "#domain/user/a-root";
 import {
   type CreateUserCmd,
   type CreateUserCmdMeta,
   CreateUserCmdSchema,
-} from "../../domain/user/commands/create-user-cmd";
+} from "#domain/user/commands/create-user-cmd";
 import type {
   AccessDeniedUcError,
   BootstrapRequiresAdminUcError,
   TelegramIdTakenUcError,
-} from "../../domain/user/commands/errors";
-import type { User } from "../../domain/user/entity";
-import { UserSchema } from "../../domain/user/entity";
-import { UserPolicy } from "../../domain/user/policy";
-import { Role } from "../../domain/user/roles";
-import { UserUseCase } from "../user-uc";
+} from "#domain/user/commands/errors";
+import type { User } from "#domain/user/entity";
+import { UserSchema } from "#domain/user/entity";
+import { UserPolicy } from "#domain/user/policy";
+import { Role } from "#domain/user/roles";
+import { UserUseCase } from "#api/user-uc";
 
 /**
  * Use-case создания пользователя.

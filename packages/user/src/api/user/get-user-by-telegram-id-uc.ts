@@ -1,13 +1,13 @@
-import { errNotFound } from "@u7/core";
-import type { UserNotFoundUcError } from "../../domain/user/commands/errors";
+import { errNotFound } from "@u7/core/domain";
+import type { UserNotFoundUcError } from "#domain/user/commands/errors";
 import {
   type GetUserByTelegramIdCmd,
   type GetUserByTelegramIdCmdMeta,
   GetUserByTelegramIdCmdSchema,
-} from "../../domain/user/commands/get-user-by-telegram-id-cmd";
-import type { User } from "../../domain/user/entity";
-import { UserSchema } from "../../domain/user/entity";
-import { UserUseCase } from "../user-uc";
+} from "#domain/user/commands/get-user-by-telegram-id-cmd";
+import type { User } from "#domain/user/entity";
+import { UserSchema } from "#domain/user/entity";
+import { UserUseCase } from "#api/user-uc";
 
 /**
  * Use-case поиска пользователя по Telegram ID.
