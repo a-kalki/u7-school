@@ -1,6 +1,6 @@
 # План реализации: Улучшение CLI — авторизация и UX
 
-## Фаза 1: Улучшение сообщений об ошибках валидации (FR5)
+## Фаза 1: Улучшение сообщений об ошибках валидации (FR5) [checkpoint: 16c1283]
 
 - [x] Task: Реорганизовать слой `auto-ui` с подпапками в `@u7/core` [2e8ec0c]
     - [x] Создать структуру: `auto-ui/app/`, `auto-ui/module/`, `auto-ui/controller/`, `auto-ui/parser/`
@@ -14,7 +14,7 @@
     - [x] Написать тест: при ошибке валидации контроллер вызывает formatValibotErrors
     - [x] Обновить `AutoUiModule.executeUseCase()` — не форматировать ошибку самому
     - [x] Обновить `AutoUiConsoleController` — перехватывать AppException, извлекать Valibot issues, форматировать через `formatValibotErrors`
-- [~] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Упреждающие подсказки при вводе команд (FR4)
 
