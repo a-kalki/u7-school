@@ -47,3 +47,94 @@ module.handle(command: ModuleCommand): Promise<unknown>;
     - Изменение состояния через агрегат (`Ar`).
     - Сохранение через репозиторий (`Repo`).
 4. **Result:** Возврат результата вызывающей стороне.
+
+## Layer-based импорты
+
+### Схема слоёв и направление зависимостей
+
+Каждый пакет предоставляет точки входа по слоям через `exports` в `package.json`. Внешние потребители импортируют только через слойные точки входа:
+
+```
+@u7/core/domain    — чистый домен (Aggregate, AppError, фабрики ошибок)
+@u7/core/api       — сценарии использования (UseCase, Module)
+@u7/core/ui        — интерфейс (AutoUiApp, UIModule)
+@u7/core/shared    — общий код (isoNow)
+```
+
+**Направление зависимостей:**
+
+```
+shared → domain → (api, ui)
+```
+
+- `domain` **не импортирует** `api` или `ui`.
+- `api` может импортировать `domain`.
+- `ui/auto-ui` (бот, консоль) может импортировать `api`.
+- `ui/web` (браузерный) **не импортирует** `api` напрямую.
+
+### Настройка package.json
+
+Каждый пакет должен иметь поля `exports` (для внешних импортов) и `imports` (для внутренних `#`-импортов):
+
+```jsonc
+// packages/<module>/package.json
+{
+  "exports": {
+    "./domain": "./src/domain/index.ts",
+    "./api": "./src/api/index.ts",
+    "./ui": "./src/ui/index.ts",
+    "./infra": "./src/infra/index.ts"
+  },
+  "imports": {
+    "#domain/*": "./src/domain/*.ts",
+    "#api/*": "./src/api/*.ts",
+    "#ui/*": "./src/ui/*.ts",
+    "#infra/*": "./src/infra/*.ts"
+  }
+}
+```
+
+### Слойные index.ts (barrel exports)
+
+Каждый слой должен иметь `index.ts`, ре-экспортирующий все публичные классы и типы. Например `src/domain/index.ts`:
+
+```typescript
+export { Aggregate } from "./ar/aggregate";
+export { errNotFound, throwError } from "./errors/error-helpers";
+export type { AppError, NotFoundError } from "./errors/errors";
+```
+
+### Примеры импортов
+
+**Внешние (из другого пакета):**
+```typescript
+import { Aggregate } from "@u7/core/domain";
+import { UseCase } from "@u7/core/api";
+import { UserAr } from "@u7/user/domain";
+```
+
+**Внутренние (внутри пакета, через `#`):**
+```typescript
+import { throwError } from "#domain/errors/error-helpers";
+import type { UseCase } from "#api/uc/use-case";
+import { UserUseCase } from "#api/user-uc";
+```
+
+### Flat-импорты запрещены
+
+Импорты без суффикса слоя (`@u7/core`, `@u7/user`) **запрещены**. Каждый импорт должен явно указывать слой-источник.
+
+### TypeScript paths
+
+В корневом `tsconfig.json` должны быть прописаны пути для каждого слойного экспорта:
+
+```json
+{
+  "paths": {
+    "@u7/core/domain": ["packages/core/src/domain/index.ts"],
+    "@u7/core/api": ["packages/core/src/api/index.ts"],
+    "@u7/core/ui": ["packages/core/src/ui/index.ts"],
+    "@u7/core/shared": ["packages/core/src/shared/index.ts"]
+  }
+}
+```
