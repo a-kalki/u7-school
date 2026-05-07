@@ -1,11 +1,9 @@
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-	UserApiModule,
-	UserAutoUiModule,
-	UserInmemoryRepo,
-} from "@u7/user";
-import { AutoUiApp, AutoUiConsoleController } from "@u7/core";
+import { UserApiModule } from "@u7/user/api";
+import { UserAutoUiModule } from "@u7/user/ui";
+import { UserInmemoryRepo } from "@u7/user/infra";
+import { AutoUiApp, AutoUiConsoleController } from "@u7/core/ui";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");

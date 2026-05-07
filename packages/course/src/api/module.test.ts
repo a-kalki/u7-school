@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { Role } from "@u7/user";
-import type { User } from "@u7/user";
+import { Role } from "@u7/user/domain";
+import type { User } from "@u7/user/domain";
 import { InMemoryCourseRepository } from "./course/course-repository";
 import { CoreModule } from "./module";
 import { InMemoryUserRepository } from "./user/user-repository";

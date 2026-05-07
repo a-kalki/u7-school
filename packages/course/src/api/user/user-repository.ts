@@ -1,5 +1,5 @@
 import { DomainException } from "../../domain/shared/exceptions";
-import type { User } from "@u7/user";
+import type { User } from "@u7/user/domain";
 
 /** Интерфейс репозитория пользователей */
 export interface UserRepository {

@@ -1,7 +1,7 @@
 import { DomainException } from "../../domain/shared/exceptions";
-import { Role, UserAr, UserPolicy } from "@u7/user";
-import type { User, CreateUserCmd } from "@u7/user";
-import { CreateUserCmdSchema } from "@u7/user";
+import { Role, UserAr, UserPolicy } from "@u7/user/domain";
+import type { User, CreateUserCmd } from "@u7/user/domain";
+import { CreateUserCmdSchema } from "@u7/user/domain";
 import { parseOrThrow } from "../shared/parse-or-throw";
 import type { UserRepository } from "./user-repository";
 
