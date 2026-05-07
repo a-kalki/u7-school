@@ -1,13 +1,13 @@
 # План реализации: Перепроектирование API ошибок в @u7/core
 
-## Фаза 1: Хелперы-фабрики ошибок
+## Фаза 1: Хелперы-фабрики ошибок [checkpoint: e782b99]
 
 - [x] Task: Создать дженерик-фабрики ошибок в `domain/errors/error-helpers.ts` `[f93fec8]`
     - [x] Написать тесты на `errNotFound`, `errConflict`, `errAccessDenied`, `errBadRequest`, `errValidation`, `errInternal` (Red)
     - [x] Реализовать фабрики как дженерик-функции, возвращающие типизированный объект ошибки (Green)
     - [x] Убедиться, что каждая фабрика возвращает правильный `kind` и `level` (Refactor)
 - [x] Task: Проверить покрытие тестами хелперов (`bun test --coverage`) `[d6879a3]`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1: Хелперы-фабрики ошибок' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1: Хелперы-фабрики ошибок' (Protocol in workflow.md) `[e782b99]`
 
 ## Фаза 2: Перепроектирование UseCase
 
