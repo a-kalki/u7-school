@@ -1,6 +1,6 @@
 import { stdin as input, stdout as output } from "node:process";
 import * as readline from "node:readline/promises";
-import type { AutoUiApp } from "./auto-ui-app";
+import type { AutoUiApp } from "../app/auto-ui-app";
 
 /**
  * Контроллер для работы с AutoUiApp через консоль (REPL).

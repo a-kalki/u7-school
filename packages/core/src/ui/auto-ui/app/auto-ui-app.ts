@@ -1,7 +1,7 @@
 import type { ModuleMeta } from "#domain/module/types";
 import { UIApp, type UIAppResolver } from "#ui/ui-base/ui-app";
-import type { AutoUiModule, AutoUiModuleResolver } from "./auto-ui-module";
-import { CommandParser } from "./command-parser";
+import type { AutoUiModule, AutoUiModuleResolver } from "../module/auto-ui-module";
+import { CommandParser } from "../parser/command-parser";
 
 export class AutoUiApp<
 	AR extends UIAppResolver = UIAppResolver,

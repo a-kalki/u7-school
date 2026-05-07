@@ -4,8 +4,8 @@ import * as path from "node:path";
 import * as v from "valibot";
 import { Module } from "#api/module/module";
 import { UseCase } from "#api/uc/use-case";
-import { AutoUiApp } from "./auto-ui-app";
-import { AutoUiModule } from "./auto-ui-module";
+import { AutoUiApp } from "./app/auto-ui-app";
+import { AutoUiModule } from "./module/auto-ui-module";
 
 // 1. Доменный слой (API)
 class CreateCourseUseCase extends UseCase<any, any> {

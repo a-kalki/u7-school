@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import type { ModuleMeta } from "#domain/module/types";
 import type { UIAppResolver } from "#ui/ui-base/ui-app";
 import { AutoUiApp } from "./auto-ui-app";
-import type { AutoUiModule, AutoUiModuleResolver } from "./auto-ui-module";
-import type { UIIntent } from "./command-parser";
+import type { AutoUiModule, AutoUiModuleResolver } from "../module/auto-ui-module";
+import type { UIIntent } from "../parser/command-parser";
 
 type GeneralAutoUiModule = AutoUiModule<
 	ModuleMeta,

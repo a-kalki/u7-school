@@ -4,7 +4,7 @@ import type { UcDocType } from "#api/uc/use-case";
 import type { ModuleMeta } from "#domain/module/types";
 import type { UIAppResolver } from "#ui/ui-base/ui-app";
 import { UIModule, type UIModuleResolver } from "#ui/ui-base/ui-module";
-import type { UIIntent } from "./command-parser";
+import type { UIIntent } from "../parser/command-parser";
 
 export interface AutoUiModuleResolver<TMeta extends ModuleMeta>
   extends UIModuleResolver {

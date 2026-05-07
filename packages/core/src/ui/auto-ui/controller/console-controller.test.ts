@@ -1,6 +1,6 @@
 import { describe, expect, it, mock, spyOn } from "bun:test";
 import * as readline from "node:readline/promises";
-import type { AutoUiApp } from "./auto-ui-app";
+import type { AutoUiApp } from "../app/auto-ui-app";
 import { AutoUiConsoleController } from "./console-controller";
 
 describe("AutoUiConsoleController", () => {
