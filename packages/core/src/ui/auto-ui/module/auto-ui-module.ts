@@ -23,7 +23,7 @@ export abstract class AutoUiModule<
   /**
    * Обработка намерений от AutoUiApp
    */
-  async handleIntent(intent: UIIntent): Promise<string> {
+  async handleIntent(intent: UIIntent, actorId: string | null = null): Promise<string> {
     if (intent.type === "module") {
       if (intent.command === "about") {
         return this.renderAbout();
@@ -42,7 +42,7 @@ export abstract class AutoUiModule<
         return this.renderUseCasePrompt(ucName);
       }
       if (intent.action === "execute") {
-        return this.executeUseCase(ucName, intent.payload);
+        return this.executeUseCase(ucName, intent.payload, actorId);
       }
     }
 
@@ -141,7 +141,8 @@ export abstract class AutoUiModule<
    * Проверяет, является ли схема массивом (с учётом обёрток optional/nullable).
    */
   private isArraySchema(
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+      Record<string, unknown>,
   ): boolean {
     let current = schema;
     while (current) {
@@ -196,7 +197,9 @@ export abstract class AutoUiModule<
 
       if (type) {
         const prefix = isArray ? "массив " : "";
-        const arrayHint = isArray ? " (через запятую, напр. \`- значение1, значение2\`)" : "";
+        const arrayHint = isArray
+          ? " (через запятую, напр. \`- значение1, значение2\`)"
+          : "";
         parts.push(`тип: ${prefix}\`${type}\`${arrayHint}`);
         break;
       }
@@ -214,6 +217,7 @@ export abstract class AutoUiModule<
   private async executeUseCase(
     commandName: string,
     payload: string[],
+    actorId: string | null,
   ): Promise<string> {
     const uc = this.getDocTypes().find((u) => u.commandName === commandName);
     if (!uc) {
@@ -228,17 +232,21 @@ export abstract class AutoUiModule<
     >;
 
     if (schema && typeof schema === "object" && "entries" in schema) {
-      // @ts-expect-error: схему будет валидной
-      const entries = schema.entries as Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>>;
+      const entries = schema.entries as Record<
+        string,
+        v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+        Record<string, unknown>
+      >;
       const keys = Object.keys(entries);
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i] as string;
         if (payload[i] !== undefined) {
           const entry = entries[key];
           // Для полей-массивов — разбиваем строку по запятой
+          // @ts-expect-error:
           if (this.isArraySchema(entry)) {
-            attrs[key] = payload[i]
-              .split(",")
+            // biome-ignore lint/style/noNonNullAssertion: проверены выше;
+            attrs[key] = payload[i]!.split(",")
               .map((s) => s.trim())
               .filter((s) => s !== "");
           } else {
@@ -250,12 +258,12 @@ export abstract class AutoUiModule<
       attrs._rawPayload = payload;
     }
 
-    const actorId = "system-ui"; // Заглушка, в будущем получать из Session
+    const effectiveActorId = actorId || "system-ui"; // Заглушка для неаутентифицированных
 
     const result = await this.resolver.apiModule.handle({
       name: commandName,
       attrs,
-      actorId,
+      actorId: effectiveActorId,
     });
 
     return `**Успех!**\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;

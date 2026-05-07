@@ -8,6 +8,9 @@ export class AutoUiApp<
 > extends UIApp<AR> {
 	private parser = new CommandParser();
 
+	/** ID текущего активного пользователя (null = не аутентифицирован) */
+	currentActorId: string | null = null;
+
 	/**
 	 * Приведение типов для модулей AutoUiApp
 	 */
@@ -51,8 +54,8 @@ export class AutoUiApp<
 			return `Ошибка: Модуль '${moduleName}' не найден.\nВведите /app для возврата в главное меню.`;
 		}
 
-		// Делегируем обработку модулю
-		return targetModule.handleIntent(intent);
+		// Делегируем обработку модулю, передавая текущий actorId
+		return targetModule.handleIntent(intent, this.currentActorId);
 	}
 
 	/**
