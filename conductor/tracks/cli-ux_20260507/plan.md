@@ -27,13 +27,13 @@
 
 ## Фаза 3: Параметризация list-users (FR3)
 
-- [ ] Task: Обновить схему `ListUsersCmdSchema` — добавить параметры
-    - [ ] Написать тесты: валидация limit (по умолчанию 20), role, name, telegramId, sort
-    - [ ] Обновить `ListUsersCmdSchema` — limit, role, name, telegramId, sort
-    - [ ] Обновить мета-тип `ListUsersCmdMeta`
-- [ ] Task: Реализовать фильтрацию и сортировку в `ListUsersUc`
-    - [ ] Написать тесты: фильтрация по роли, поиск по имени, фильтр по telegramId, сортировка, лимит
-    - [ ] Реализовать логику фильтрации/сортировки в `ListUsersUc.execute()`
+- [x] Task: Обновить схему `ListUsersCmdSchema` — добавить параметры [43b6cf3]
+    - [x] Написать тесты: валидация limit (по умолчанию 20), role, name, telegramId, sort
+    - [x] Обновить `ListUsersCmdSchema` — limit, role, name, telegramId, sort
+    - [x] Обновить мета-тип `ListUsersCmdMeta`
+- [x] Task: Реализовать фильтрацию и сортировку в `ListUsersUc` [43b6cf3]
+    - [x] Написать тесты: фильтрация по роли, поиск по имени, фильтр по telegramId, сортировка, лимит
+    - [x] Реализовать логику фильтрации/сортировки в `ListUsersUc.execute()`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4: Авторизация — бутстрап и логин (FR1, FR2)
