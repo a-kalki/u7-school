@@ -38,13 +38,13 @@
 
 ## Фаза 4: Авторизация — бутстрап и логин (FR1, FR2)
 
-- [ ] Task: Реализовать `ActorSession` в приложении `u7-cli`
-    - [ ] Написать тесты для ActorSession (установка, получение actorId, isAuthenticated)
-    - [ ] Реализовать класс `ActorSession` в `apps/u7-cli/src/`
-- [ ] Task: Интегрировать `ActorSession` в `AutoUiConsoleController` и `AutoUiApp`
-    - [ ] Написать интеграционный тест: команды выполняются с actorId из сессии
-    - [ ] Обновить `AutoUiApp` — опциональный `actorId` через setter/параметр
-    - [ ] Обновить `AutoUiConsoleController` — создавать сессию, передавать actorId
+- [x] Task: Реализовать `ActorSession` в приложении `u7-cli` [d324b40]
+    - [x] Написать тесты для ActorSession (установка, получение actorId, isAuthenticated)
+    - [x] Реализовать класс `ActorSession` в `apps/u7-cli/src/`
+- [x] Task: Интегрировать `ActorSession` в `AutoUiConsoleController` и `AutoUiApp` [4619876]
+    - [x] Написать интеграционный тест: команды выполняются с actorId из сессии
+    - [x] Обновить `AutoUiApp` — опциональный `actorId` через setter/параметр
+    - [x] Обновить `AutoUiConsoleController` — создавать сессию, передавать actorId
 - [ ] Task: Добавить команды `/register` и `/login` в CLI
     - [ ] Написать тесты: /register (пустой репо → успех, непустой → ошибка), /login (выбор пользователя)
     - [ ] Реализовать `/register` — создаёт админа через UserApiModule, устанавливает сессию
