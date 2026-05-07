@@ -1,0 +1,15 @@
+Отчёт о верификации Фазы 4: Авторизация — бутстрап и логин
+
+Автоматические тесты:
+- Команда: bun test
+- Результат: 319 pass, 0 fail, 642 expect() calls
+
+Изменения фазы:
+- ActorSession: класс хранения активного пользователя (5 тестов)
+- AutoUiApp.currentActorId: проброс actorId через всю цепочку App→Module→executeUseCase
+- CommandParser: /register и /login с опциональным userId
+- AutoUiApp: handleRegister (перенаправление на create-user), handleLogin (список/выбор)
+- renderAboutAsync: /register при пустом репо, /login при непустом, активный пользователь
+- Исправлена outputSchema ListUsersUc
+
+Подтверждение пользователя: да (04.05.2026)
