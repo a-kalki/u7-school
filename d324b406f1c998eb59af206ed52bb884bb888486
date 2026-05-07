@@ -1,0 +1,7 @@
+Задача: Реализовать ActorSession в приложении u7-cli
+
+Изменения:
+- actor-session.ts: класс ActorSession с actorId, isAuthenticated, setActor(), clear()
+- actor-session.test.ts: 5 тестов (по умолчанию, установка, сброс, перезапись)
+
+Результат: 5 тестов проходят.
