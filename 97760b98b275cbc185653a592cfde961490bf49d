@@ -1,0 +1,11 @@
+Отчёт верификации Фазы 3: Обновление пакета @u7/user
+
+Автоматические тесты: 80 pass (user), 58 pass (core)
+Типы: tsc --noEmit — чисто
+
+Изменения:
+- UserUseCase, CreateUserUc, GetUserUc, GetUserByTelegramIdUc: throw*() → throwError(err*())
+- commands/errors.ts: переведён на дженерик-типы из @u7/core
+- Все старые throw-методы удалены
+
+Подтверждение пользователя: да
