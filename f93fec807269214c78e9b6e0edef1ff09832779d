@@ -1,0 +1,13 @@
+Задача: Создать дженерик-фабрики ошибок
+
+Созданы 6 дженерик-фабрик ошибок:
+- errNotFound, errConflict, errAccessDenied, errBadRequest, errValidation, errInternal
+
+Каждая фабрика принимает name (литеральный тип), message, payload? и возвращает типизированный объект с правильным kind и level.
+Добавлены дженерик-типы: NotFoundError, ConflictError, AccessDeniedError, BadRequestError, ValidationError, InternalError.
+
+Файлы:
+- packages/core/src/domain/errors/error-helpers.ts (реализация)
+- packages/core/src/domain/errors/error-helpers.test.ts (8 тестов)
+
+Все 57 тестов пакета проходят, покрытие error-helpers.ts — 95.31%.
