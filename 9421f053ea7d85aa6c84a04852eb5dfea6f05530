@@ -1,0 +1,13 @@
+Задача: Заменить throw*() на единый throwError()
+
+Удалены 6 методов (throwNotFound, throwConflict, throwAccessDenied, throwBadRequest, throwValidation, throwInternal).
+Добавлен единый throwError(error: TMeta['errors'] | BaseUcErrors): never.
+validateInput, validateOutput, checkAuth обновлены на использование throwError + фабрик.
+Module.throwNoCommandFound переписан на errBadRequest.
+
+Файлы:
+- packages/core/src/api/uc/use-case.ts
+- packages/core/src/api/uc/use-case.test.ts
+- packages/core/src/api/module/module.ts
+
+Все 58 тестов проходят. use-case.ts — 100% покрытие строк.
