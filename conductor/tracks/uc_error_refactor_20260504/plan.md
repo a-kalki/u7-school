@@ -22,7 +22,7 @@
 - [x] Task: Проверить покрытие тестами (`bun test --coverage`) `[9421f05]`
 - [x] Task: Conductor - User Manual Verification 'Фаза 2: Перепроектирование UseCase' (Protocol in workflow.md) `[4e72177]`
 
-## Фаза 3: Обновление пакета @u7/user
+## Фаза 3: Обновление пакета @u7/user [checkpoint: 97760b9]
 
 - [x] Task: Мигрировать `UserUseCase` на `throwError` + фабрики `[cf33e34]`
     - [x] Заменить `this.throwNotFound(...)` на `this.throwError(errNotFound(...))`
@@ -31,4 +31,4 @@
 - [x] Task: Проверить остальные use-case'ы user-пакета на наличие вызовов `throw*()` `[cf33e34]`
 - [x] Task: Запустить все тесты пакета `user` и убедиться, что они проходят `[cf33e34]`
 - [x] Task: Проверить покрытие тестами (`bun test --coverage --filter @u7/user`) `[cf33e34]`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Обновление пакета @u7/user' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: Обновление пакета @u7/user' (Protocol in workflow.md) `[97760b9]`
