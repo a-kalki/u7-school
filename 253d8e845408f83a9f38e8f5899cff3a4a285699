@@ -1,0 +1,14 @@
+Отчёт о верификации Фазы 3: Параметризация list-users
+
+Автоматические тесты:
+- Команда: bun test
+- Результат: 309 pass, 0 fail, 617 expect() calls
+
+Изменения:
+- ListUsersCmdSchema: limit, role, name, telegramId, sort
+- UserInmemoryRepo: фильтрация (роль/имя/telegramId), сортировка, лимит
+- Исправлен баг: перезапись telegramId при сохранении
+- user-inmemory-repo.test.ts: с 6 до 38 тестов (фильтры по роли, имени (регистр), telegramId, сортировка, лимит, комбинированные)
+- ListUsersUc передаёт фильтры в репозиторий, возвращает { users, total, appliedFilters }
+
+Подтверждение пользователя: да (04.05.2026)
