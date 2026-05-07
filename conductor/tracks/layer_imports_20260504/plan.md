@@ -34,33 +34,33 @@
 
 ## Фаза 2: Layer-based exports и миграция `@u7/user`
 
-- [ ] Task: Создать слойные index.ts для `@u7/user`
-    - [ ] Создать `src/domain/index.ts` — ре-экспорт entity, a-root, policy, roles, repo, types, errors, commands
-    - [ ] Создать `src/api/index.ts` — ре-экспорт module, use-cases
-    - [ ] Создать `src/ui/index.ts` — ре-экспорт auto-ui
-    - [ ] Создать `src/infra/index.ts` — ре-экспорт db
+- [x] Task: Создать слойные index.ts для `@u7/user`
+    - [x] Создать `src/domain/index.ts` — ре-экспорт entity, a-root, policy, roles, repo, types, errors, commands
+    - [x] Создать `src/api/index.ts` — ре-экспорт module, use-cases
+    - [x] Создать `src/ui/index.ts` — ре-экспорт auto-ui
+    - [x] Создать `src/infra/index.ts` — ре-экспорт db
 
-- [ ] Task: Настроить exports и imports в `packages/user/package.json`
-    - [ ] Добавить `exports`: `./domain`, `./api`, `./ui`, `./infra`
-    - [ ] Добавить `imports`: `#domain/*`, `#api/*`, `#ui/*`, `#infra/*`
+- [x] Task: Настроить exports и imports в `packages/user/package.json`
+    - [x] Добавить `exports`: `./domain`, `./api`, `./ui`, `./infra`
+    - [x] Добавить `imports`: `#domain/*`, `#api/*`, `#ui/*`, `#infra/*`
 
-- [ ] Task: Обновить корневой `tsconfig.json`
-    - [ ] Добавить paths: `@u7/user/domain`, `@u7/user/api`, `@u7/user/ui`, `@u7/user/infra`
+- [x] Task: Обновить корневой `tsconfig.json`
+    - [x] Добавить paths: `@u7/user/domain`, `@u7/user/api`, `@u7/user/ui`, `@u7/user/infra`
 
-- [ ] Task: Заменить импорты `@u7/core` на слойные
-    - [ ] `a-root.ts`: `@u7/core` → `@u7/core/domain`
-    - [ ] `entity.ts`: `@u7/core` → разделить на domain и shared
-    - [ ] `commands/errors.ts`: `@u7/core` → `@u7/core/domain`
-    - [ ] Все use-case файлы: `@u7/core` → `@u7/core/api`
-    - [ ] `api/module.ts`: `@u7/core` → `@u7/core/api`
-    - [ ] `ui/auto-ui/module.ts`: `@u7/core` → `@u7/core/ui`
+- [x] Task: Заменить импорты `@u7/core` на слойные
+    - [x] `a-root.ts`: `@u7/core` → `@u7/core/domain` + `@u7/core/shared`
+    - [x] `entity.ts`: `@u7/core` → разделить на domain и shared
+    - [x] `commands/errors.ts`: `@u7/core` → `@u7/core/domain`
+    - [x] Все use-case файлы: `@u7/core` → `@u7/core/domain` или `@u7/core/api`
+    - [x] `api/module.ts`: `@u7/core` → `@u7/core/api`
+    - [x] `ui/auto-ui/module.ts`: `@u7/core` → `@u7/core/ui`
 
-- [ ] Task: Заменить внутренние относительные импорты на `#`-импорты
-    - [ ] `api/module.ts`: `../domain/...` → `#domain/...`
-    - [ ] Все use-case: `../../domain/...` → `#domain/...`
-    - [ ] `domain/user/a-root.ts`: `./commands/...` → `#domain/user/commands/...`, `./entity` → `#domain/user/entity`
+- [x] Task: Заменить внутренние относительные импорты на `#`-импорты
+    - [x] `api/module.ts`: `../domain/...` → `#domain/...`
+    - [x] Все use-case: `../../domain/...` → `#domain/...`
+    - [x] `domain/user/a-root.ts`: `./commands/...` → `#domain/user/commands/...`, `./entity` → `#domain/user/entity`
 
-- [ ] Task: Проверить прохождение тестов и типов
+- [~] Task: Проверить прохождение тестов и типов
     - [ ] `cd packages/user && bun test`
     - [ ] `bun run typecheck`
 
