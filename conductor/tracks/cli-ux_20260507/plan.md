@@ -14,7 +14,7 @@
     - [x] Написать тест: при ошибке валидации контроллер вызывает formatValibotErrors
     - [x] Обновить `AutoUiModule.executeUseCase()` — не форматировать ошибку самому
     - [x] Обновить `AutoUiConsoleController` — перехватывать AppException, извлекать Valibot issues, форматировать через `formatValibotErrors`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Упреждающие подсказки при вводе команд (FR4)
 

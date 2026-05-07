@@ -1,15 +1,15 @@
 import { stdin as input, stdout as output } from "node:process";
 import * as readline from "node:readline/promises";
+import type * as v from "valibot";
 import { AppException } from "#domain/errors/errors";
 import type { AutoUiApp } from "../app/auto-ui-app";
 import { formatValibotErrors } from "./format-valibot-errors";
-import type * as v from "valibot";
 
 /**
  * Контроллер для работы с AutoUiApp через консоль (REPL).
  */
 export class AutoUiConsoleController {
-  constructor(private readonly app: AutoUiApp) {}
+  constructor(private readonly app: AutoUiApp) { }
 
   /**
    * Запускает интерактивный цикл взаимодействия в консоли.
