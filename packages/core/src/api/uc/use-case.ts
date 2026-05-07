@@ -188,7 +188,7 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
           errValidation<InputValidationError>(
             "INPUT_VALIDATION_ERROR",
             "Переданы некорректные данные",
-            { issues },
+            { issues, rawIssues: error.issues as v.BaseIssue<unknown>[] },
           ),
         );
       }

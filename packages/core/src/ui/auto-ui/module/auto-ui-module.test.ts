@@ -125,17 +125,18 @@ describe("auto-ui-module", () => {
     expect(response).toContain("val2");
   });
 
-  it("должен перехватывать ошибки при выполнении usecase", async () => {
+  it("должен выбрасывать ошибки при выполнении usecase без перехвата", async () => {
     const mod = new TestAutoUiModule({ aboutPath: ".", apiModule });
 
-    const response = await mod.handleIntent({
-      type: "usecase",
-      moduleName: "testmod",
-      aggregateName: "agg2",
-      commandName: "uc2",
-      action: "execute",
-      payload: [],
-    });
-    expect(response).toContain("**Ошибка выполнения:** Test error");
+    await expect(
+      mod.handleIntent({
+        type: "usecase",
+        moduleName: "testmod",
+        aggregateName: "agg2",
+        commandName: "uc2",
+        action: "execute",
+        payload: [],
+      }),
+    ).rejects.toThrow("Test error");
   });
 });

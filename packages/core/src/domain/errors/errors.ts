@@ -22,6 +22,14 @@ export interface AppError {
 /** Структура ошибок валидации Valibot */
 export type ValidationIssues = {
   issues: Array<{ path?: string; message: string }>;
+  rawIssues?: Array<{
+    message: string;
+    expected: string | null;
+    received: string;
+    path?: Array<{ type: string; key?: unknown }>;
+    input?: unknown;
+    issues?: unknown[];
+  }>;
 };
 
 // ── Дженерик-типы ошибок ──

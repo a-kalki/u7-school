@@ -1,12 +1,15 @@
 import { stdin as input, stdout as output } from "node:process";
 import * as readline from "node:readline/promises";
+import { AppException } from "#domain/errors/errors";
 import type { AutoUiApp } from "../app/auto-ui-app";
+import { formatValibotErrors } from "./format-valibot-errors";
+import type * as v from "valibot";
 
 /**
  * Контроллер для работы с AutoUiApp через консоль (REPL).
  */
 export class AutoUiConsoleController {
-  constructor(private readonly app: AutoUiApp) { }
+  constructor(private readonly app: AutoUiApp) {}
 
   /**
    * Запускает интерактивный цикл взаимодействия в консоли.
@@ -20,8 +23,7 @@ export class AutoUiConsoleController {
 
     try {
       // 1. При начале работы выдаем приглашение из about.md
-      const initialResponse = await this.app.handleInput("/app");
-      console.log(`\n${initialResponse}`);
+      await this.safeHandle("/app");
 
       let buffer: string[] = [];
       let isBuffering = false;
@@ -52,15 +54,13 @@ export class AutoUiConsoleController {
           }
 
           // Иначе выполняем мгновенно (навигация)
-          const response = await this.app.handleInput(trimmedLine);
-          console.log(`\n${response}`);
+          await this.safeHandle(trimmedLine);
           process.stdout.write("\n> ");
         } else {
           // В режиме буферизации
           if (trimmedLine === "") {
             // Пустая строка — сигнал к выполнению накопленного
-            const response = await this.app.handleInput(buffer.join("\n"));
-            console.log(`\n${response}`);
+            await this.safeHandle(buffer.join("\n"));
             buffer = [];
             isBuffering = false;
             process.stdout.write("\n> ");
@@ -78,5 +78,44 @@ export class AutoUiConsoleController {
     } finally {
       rl.close();
     }
+  }
+
+  /**
+   * Безопасно выполняет handleInput и форматирует возможные ошибки.
+   */
+  private async safeHandle(text: string): Promise<void> {
+    try {
+      const response = await this.app.handleInput(text);
+      console.log(`\n${response}`);
+    } catch (err) {
+      console.log(`\n${this.formatError(err)}`);
+    }
+  }
+
+  /**
+   * Форматирует ошибку для вывода в консоль.
+   * Для ошибок валидации использует formatValibotErrors.
+   */
+  private formatError(err: unknown): string {
+    if (err instanceof AppException) {
+      const { error } = err;
+
+      // Ошибки валидации — форматируем через Valibot issues
+      if (error.kind === "validation") {
+        const payload = error.payload as
+          | { rawIssues?: v.BaseIssue<unknown>[] }
+          | undefined;
+
+        if (payload?.rawIssues && payload.rawIssues.length > 0) {
+          return formatValibotErrors(payload.rawIssues);
+        }
+      }
+
+      // Остальные AppException — просто сообщение
+      return `**Ошибка:** ${error.message}`;
+    }
+
+    // Обычные ошибки
+    return `**Ошибка выполнения:** ${(err as Error).message || String(err)}`;
   }
 }

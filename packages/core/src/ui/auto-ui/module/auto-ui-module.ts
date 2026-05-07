@@ -128,39 +128,35 @@ export abstract class AutoUiModule<
       return `Ошибка: Команда '${commandName}' не найдена.`;
     }
 
-    try {
-      const attrs: Record<string, unknown> = {};
-      const schema = uc.inputSchema as v.BaseSchema<
-        unknown,
-        unknown,
-        v.BaseIssue<unknown>
-      >;
+    const attrs: Record<string, unknown> = {};
+    const schema = uc.inputSchema as v.BaseSchema<
+      unknown,
+      unknown,
+      v.BaseIssue<unknown>
+    >;
 
-      if (schema && typeof schema === "object" && "entries" in schema) {
-        // @ts-expect-error: схему будет валидной
-        const keys = Object.keys(schema.entries);
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i] as string;
-          if (payload[i] !== undefined) {
-            attrs[key] = payload[i];
-          }
+    if (schema && typeof schema === "object" && "entries" in schema) {
+      // @ts-expect-error: схему будет валидной
+      const keys = Object.keys(schema.entries);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i] as string;
+        if (payload[i] !== undefined) {
+          attrs[key] = payload[i];
         }
-      } else {
-        attrs._rawPayload = payload;
       }
-
-      const actorId = "system-ui"; // Заглушка, в будущем получать из Session
-
-      const result = await this.resolver.apiModule.handle({
-        name: commandName,
-        attrs,
-        actorId,
-      });
-
-      return `**Успех!**\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
-    } catch (err) {
-      return `**Ошибка выполнения:** ${(err as Error).message || String(err)}`;
+    } else {
+      attrs._rawPayload = payload;
     }
+
+    const actorId = "system-ui"; // Заглушка, в будущем получать из Session
+
+    const result = await this.resolver.apiModule.handle({
+      name: commandName,
+      attrs,
+      actorId,
+    });
+
+    return `**Успех!**\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
   }
 
   /**
