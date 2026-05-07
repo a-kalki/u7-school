@@ -45,13 +45,13 @@
     - [x] Написать интеграционный тест: команды выполняются с actorId из сессии
     - [x] Обновить `AutoUiApp` — опциональный `actorId` через setter/параметр
     - [x] Обновить `AutoUiConsoleController` — создавать сессию, передавать actorId
-- [ ] Task: Добавить команды `/register` и `/login` в CLI
-    - [ ] Написать тесты: /register (пустой репо → успех, непустой → ошибка), /login (выбор пользователя)
-    - [ ] Реализовать `/register` — создаёт админа через UserApiModule, устанавливает сессию
-    - [ ] Реализовать `/login` — показывает список пользователей, принимает выбор, устанавливает сессию
-    - [ ] Обновить `CommandParser` — добавить `/register` и `/login`
-    - [ ] Обновить `AutoUiApp` — обрабатывать новые команды
-- [ ] Task: Обновить стартовый экран CLI
-    - [ ] Написать тест: renderAbout показывает /register при пустом репо, /login при непустом
-    - [ ] Обновить `AutoUiApp.renderAbout()` — учитывать наличие пользователей
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Добавить команды `/register` и `/login` в CLI [fe92c74]
+    - [x] Написать тесты: /register (пустой репо → успех, непустой → ошибка), /login (выбор пользователя)
+    - [x] Реализовать `/register` — создаёт админа через UserApiModule, устанавливает сессию
+    - [x] Реализовать `/login` — показывает список пользователей, принимает выбор, устанавливает сессию
+    - [x] Обновить `CommandParser` — добавить `/register` и `/login`
+    - [x] Обновить `AutoUiApp` — обрабатывать новые команды
+- [x] Task: Обновить стартовый экран CLI [78919ad]
+    - [x] Написать тест: renderAbout показывает /register при пустом репо, /login при непустом
+    - [x] Обновить `AutoUiApp.renderAbout()` — учитывать наличие пользователей
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
