@@ -1,0 +1,11 @@
+Задача: Интегрировать formatValibotErrors в AutoUiConsoleController
+
+Изменения:
+- UseCase.validateInput(): добавлено сохранение rawIssues (оригинальные Valibot issues) в payload InputValidationError
+- ValidationIssues тип расширен полем rawIssues для хранения оригинальных Valibot BaseIssue[]
+- AutoUiModule.executeUseCase(): убран try/catch — ошибки пролетают наверх до контроллера
+- AutoUiConsoleController: добавлен метод safeHandle с try/catch, метод formatError для форматирования ошибок
+- formatError использует formatValibotErrors для kind='validation', иначе выводит сообщение ошибки
+- console-controller.test.ts: добавлен тест проверки форматирования ошибок валидации
+
+Результат: Все 64 теста проходят.
