@@ -38,7 +38,7 @@ export class AutoUiApp<
 
 		if (intent.type === "app") {
 			if (intent.command === "about") {
-				return this.renderAbout();
+				return this.renderAboutAsync();
 			}
 			if (intent.command === "modules") {
 				return this.renderModulesList();
@@ -65,13 +65,48 @@ export class AutoUiApp<
 	}
 
 	/**
-	 * Рендеринг стартового экрана (about)
+	 * Рендеринг стартового экрана (about) с учётом наличия пользователей.
 	 */
-	private renderAbout(): string {
+	private async renderAboutAsync(): Promise<string> {
 		const title = this.about.title ? `**${this.about.title}**\n\n` : "";
 		const body = this.about.body;
-		const menu = "\n\n--- \n**Меню:**\n- Список модулей: `/modules`";
+
+		// Проверяем, есть ли зарегистрированные пользователи
+		const hasUsers = await this.checkHasUsers();
+
+		let menu = "\n\n--- \n**Меню:**\n- Список модулей: `/modules`\n";
+
+		if (this.currentActorId) {
+			menu += `- Активный пользователь: \`${this.currentActorId}\`\n`;
+		}
+
+		if (!hasUsers) {
+			menu += "- **Регистрация администратора:** `/register`\n";
+		} else if (!this.currentActorId) {
+			menu += "- **Вход в систему:** `/login`\n";
+		}
+
 		return `${title}${body}${menu}`;
+	}
+
+	/**
+	 * Проверяет, есть ли пользователи в системе.
+	 */
+	private async checkHasUsers(): Promise<boolean> {
+		for (const mod of this.autoUiModules) {
+			try {
+				const result = await mod.resolver.apiModule.handle({
+					name: "list-users",
+					attrs: {},
+					actorId: "system-ui",
+				});
+				const data = result as { users?: unknown[] };
+				return (data.users?.length ?? 0) > 0;
+			} catch {
+				continue;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -89,7 +124,10 @@ export class AutoUiApp<
 
 	// Заглушка, чтобы удовлетворить абстракцию UIApp
 	render(): string {
-		return this.renderAbout();
+		const title = this.about.title ? `**${this.about.title}**\n\n` : "";
+		const body = this.about.body;
+		const menu = "\n\n--- \n**Меню:**\n- Список модулей: `/modules`";
+		return `${title}${body}${menu}`;
 	}
 
 	/**

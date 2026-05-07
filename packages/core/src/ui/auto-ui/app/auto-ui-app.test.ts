@@ -33,6 +33,7 @@ class MockAutoUiModule {
 describe("AutoUiApp", () => {
 	it("должен рендерить about и список модулей", async () => {
 		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
+		mockModule.resolver.apiModule.handle = mock(async () => ({ users: [] }));
 		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
 		app.about = { title: "Главное приложение", body: "Текст приложения" };
 
@@ -40,10 +41,38 @@ describe("AutoUiApp", () => {
 		expect(aboutResponse).toContain("**Главное приложение**");
 		expect(aboutResponse).toContain("Текст приложения");
 		expect(aboutResponse).toContain("/modules");
+		expect(aboutResponse).toContain("/register"); // нет пользователей
 
 		const modulesResponse = await app.handleInput("/modules");
 		expect(modulesResponse).toContain("**Доступные модули:**");
 		expect(modulesResponse).toContain("- Тестовый Модуль: /testmod");
+	});
+
+	it("показывает /login когда есть пользователи и нет активного", async () => {
+		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
+		mockModule.resolver.apiModule.handle = mock(async () => ({
+			users: [{ uuid: "u1", name: "Иван" }],
+		}));
+		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
+		app.about = { title: "App", body: "Текст" };
+
+		const response = await app.handleInput("/app");
+		expect(response).toContain("/login");
+		expect(response).not.toContain("/register");
+	});
+
+	it("показывает активного пользователя когда аутентифицирован", async () => {
+		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
+		mockModule.resolver.apiModule.handle = mock(async () => ({
+			users: [{ uuid: "u1", name: "Иван" }],
+		}));
+		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
+		app.about = { title: "App", body: "Текст" };
+		app.currentActorId = "u1";
+
+		const response = await app.handleInput("/app");
+		expect(response).toContain("Активный пользователь");
+		expect(response).toContain("u1");
 	});
 
 	it("должен маршрутизировать команды в модуль", async () => {

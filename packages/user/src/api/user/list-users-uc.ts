@@ -8,6 +8,7 @@ import {
 import type { User } from "#domain/user/entity";
 import { UserSchema } from "#domain/user/entity";
 import { UserUseCase } from "#api/user-uc";
+import { Role, RoleSchema } from "#domain/index";
 
 /**
  * Use-case получения списка пользователей с фильтрацией и сортировкой.
@@ -15,7 +16,8 @@ import { UserUseCase } from "#api/user-uc";
  */
 export class ListUsersUc extends UserUseCase<ListUsersCmdMeta> {
   protected readonly commandName = "list-users" as const;
-  protected readonly description = "Список всех пользователей с фильтрацией" as const;
+  protected readonly description =
+    "Список всех пользователей с фильтрацией" as const;
   protected readonly arName = "user" as const;
   protected readonly arLabel = "Пользователь" as const;
   protected readonly type = "query" as const;
