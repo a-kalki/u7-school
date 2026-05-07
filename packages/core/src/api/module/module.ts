@@ -1,5 +1,4 @@
-import { throwError } from "../../domain/errors/error-helpers";
-import type { NoCommandFoundError } from "../../domain/errors/errors";
+import { errBadRequest, throwError } from "../../domain/errors/error-helpers";
 import type { ModuleCommand, ModuleMeta } from "../../domain/module/types";
 import type { UcDocType, UcMeta, UseCase } from "../uc/use-case";
 
@@ -31,13 +30,12 @@ export abstract class Module<TMeta extends ModuleMeta, TResolve> {
 	}
 
 	protected throwNoCommandFound(commandName: string): never {
-		throwError({
-			name: "NO_COMMAND_FOUND",
-			level: "api",
-			kind: "bad-request",
-			message: `Команда '${commandName}' не найдена в модуле '${this.name}'`,
-			payload: { commandName, moduleName: this.name },
-		} satisfies NoCommandFoundError);
+		throwError(
+			errBadRequest("NO_COMMAND_FOUND", `Команда '${commandName}' не найдена в модуле '${this.name}'`, {
+				commandName,
+				moduleName: this.name,
+			}),
+		);
 	}
 
 	/**
