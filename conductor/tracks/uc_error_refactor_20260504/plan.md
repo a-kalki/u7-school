@@ -2,10 +2,10 @@
 
 ## Фаза 1: Хелперы-фабрики ошибок
 
-- [ ] Task: Создать дженерик-фабрики ошибок в `domain/errors/error-helpers.ts`
-    - [ ] Написать тесты на `errNotFound`, `errConflict`, `errAccessDenied`, `errBadRequest`, `errValidation`, `errInternal` (Red)
-    - [ ] Реализовать фабрики как дженерик-функции, возвращающие типизированный объект ошибки (Green)
-    - [ ] Убедиться, что каждая фабрика возвращает правильный `kind` и `level` (Refactor)
+- [x] Task: Создать дженерик-фабрики ошибок в `domain/errors/error-helpers.ts` `[f93fec8]`
+    - [x] Написать тесты на `errNotFound`, `errConflict`, `errAccessDenied`, `errBadRequest`, `errValidation`, `errInternal` (Red)
+    - [x] Реализовать фабрики как дженерик-функции, возвращающие типизированный объект ошибки (Green)
+    - [x] Убедиться, что каждая фабрика возвращает правильный `kind` и `level` (Refactor)
 - [ ] Task: Проверить покрытие тестами хелперов (`bun test --coverage`)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Хелперы-фабрики ошибок' (Protocol in workflow.md)
 
