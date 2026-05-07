@@ -156,6 +156,62 @@ export abstract class AutoUiModule<
     return false;
   }
 
+  /**
+   * Приводит строковое значение CLI к типу, ожидаемому Valibot-схемой.
+   */
+  private coerceValue(
+    value: string,
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+  ): unknown {
+    let current = schema;
+
+    // Раскрываем optional/nullable
+    while (current) {
+      const type = current.type as string | undefined;
+      if (type === "optional" || type === "nullable") {
+        current = current.wrapped as typeof current;
+        continue;
+      }
+      break;
+    }
+
+    const type = current.type as string | undefined;
+
+    switch (type) {
+      case "number":
+        return Number(value);
+      case "boolean":
+        return value.toLowerCase() === "true";
+      case "string":
+      case "picklist":
+      case "enum":
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  /**
+   * Извлекает схему элемента из схемы массива (с учётом обёрток).
+   */
+  private getArrayItemSchema(
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+  ): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown> {
+    let current = schema;
+    while (current) {
+      const type = current.type as string | undefined;
+      if (type === "optional" || type === "nullable") {
+        current = current.wrapped as typeof current;
+        continue;
+      }
+      if (type === "array") {
+        return current.item as typeof current;
+      }
+      break;
+    }
+    return {} as typeof current;
+  }
+
   private describeField(
     name: string,
     schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
@@ -242,15 +298,18 @@ export abstract class AutoUiModule<
         const key = keys[i] as string;
         if (payload[i] !== undefined) {
           const entry = entries[key];
-          // Для полей-массивов — разбиваем строку по запятой
+          // Для полей-массивов — разбиваем строку по запятой и коэрсим элементы
           // @ts-expect-error:
           if (this.isArraySchema(entry)) {
+            const itemSchema = this.getArrayItemSchema(entry);
             // biome-ignore lint/style/noNonNullAssertion: проверены выше;
             attrs[key] = payload[i]!.split(",")
               .map((s) => s.trim())
-              .filter((s) => s !== "");
+              .filter((s) => s !== "")
+              .map((s) => this.coerceValue(s, itemSchema));
           } else {
-            attrs[key] = payload[i];
+            // @ts-expect-error:
+            attrs[key] = this.coerceValue(payload[i]!, entry);
           }
         }
       }

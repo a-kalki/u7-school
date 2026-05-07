@@ -57,8 +57,7 @@ class TestApiModule extends Module<TestModuleMeta, Record<string, unknown>> {
   override async handle(cmd: { name: string; attrs: Record<string, unknown> }) {
     if (cmd.name === "uc1")
       return { success: true, received: cmd.attrs._rawPayload };
-    if (cmd.name === "uc3")
-      return { success: true, attrs: cmd.attrs };
+    if (cmd.name === "uc3") return { success: true, attrs: cmd.attrs };
     throw new Error("Test error");
   }
 }
@@ -142,6 +141,27 @@ describe("auto-ui-module", () => {
     expect(response).toContain("Успех!");
     expect(response).toContain("val1");
     expect(response).toContain("val2");
+  });
+
+  it("должен коэрсить строки в типы согласно схеме (number)", async () => {
+    const mod = new TestAutoUiModule({ aboutPath: ".", apiModule });
+
+    const response = await mod.handleIntent({
+      type: "usecase",
+      moduleName: "testmod",
+      aggregateName: "user",
+      commandName: "uc3",
+      action: "execute",
+      payload: ["Иван", "ivan@test.com", "mentor", "25", "1, 2, 3"],
+    });
+
+    expect(response).toContain("**Успех!**");
+    // age должно быть числом 25, а не строкой "25"
+    expect(response).toContain('"age": 25');
+    // tags — массив строк (схема v.array(v.string())), остаются строками
+    expect(response).toContain('"1"');
+    expect(response).toContain('"2"');
+    expect(response).toContain('"3"');
   });
 
   it("должен генерировать детальный prompt с типами и допустимыми значениями", async () => {
