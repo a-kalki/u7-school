@@ -1,0 +1,13 @@
+Отчёт верификации Фазы 2: Перепроектирование UseCase
+
+Автоматические тесты: 58 pass, 0 fail
+Типы: tsc --noEmit — чисто
+
+Изменения:
+- UseCase: удалены 6 throw*(), добавлен throwError(error: TMeta['errors'] | BaseUcErrors)
+- Фабрики: E extends XxxError дженерики, type inference работает
+- Module: throwNoCommandFound через errBadRequest
+- UcMeta.errors: AppError (структурная типизация в наследниках)
+- Удалены DomainError, ApiError; дженерик-типы в errors.ts
+
+Подтверждение пользователя: да
