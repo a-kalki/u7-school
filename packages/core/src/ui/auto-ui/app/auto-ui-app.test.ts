@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import type { ModuleMeta } from "#domain/module/types";
 import type { UIAppResolver } from "#ui/ui-base/ui-app";
 import { AutoUiApp } from "./auto-ui-app";
@@ -15,6 +15,13 @@ type GeneralAutoUiModule = AutoUiModule<
 class MockAutoUiModule {
 	name = "testmod";
 	about = { title: "Тестовый Модуль", body: "Описание модуля" };
+	resolver = {
+		aboutPath: ".",
+		apiModule: {
+			getDocTypes: mock(() => []),
+			handle: mock(async () => ({})),
+		},
+	};
 
 	async init() {}
 
@@ -52,5 +59,59 @@ describe("AutoUiApp", () => {
 
 		const response = await app.handleInput("/unknownmod");
 		expect(response).toContain("Ошибка: Модуль 'unknownmod' не найден");
+	});
+
+	it("должен обрабатывать /register через модуль с create-user", async () => {
+		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
+		mockModule.resolver.apiModule.getDocTypes = mock(() => [
+			{ commandName: "create-user", arName: "user", arLabel: "Пользователь" },
+		]);
+		mockModule.name = "user";
+		mockModule.handleIntent = mock(async (intent: UIIntent) => {
+			if (intent.type === "usecase" && intent.action === "prompt")
+				return "create-user prompt";
+			return "ok";
+		});
+
+		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
+		const response = await app.handleInput("/register");
+		expect(response).toContain("Регистрация первого администратора");
+		expect(response).toContain("create-user prompt");
+	});
+
+	it("/login без аргументов показывает список пользователей", async () => {
+		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
+		mockModule.resolver.apiModule.getDocTypes = mock(() => [
+			{ commandName: "list-users", arName: "user", arLabel: "Пользователь" },
+		]);
+		mockModule.name = "user";
+		mockModule.resolver.apiModule.handle = mock(async () => ({
+			users: [
+				{ uuid: "u1", name: "Иван" },
+				{ uuid: "u2", name: "Мария" },
+			],
+		}));
+
+		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
+		const response = await app.handleInput("/login");
+		expect(response).toContain("**Выберите пользователя:**");
+		expect(response).toContain("Иван");
+		expect(response).toContain("/login u1");
+		expect(response).toContain("Мария");
+		expect(response).toContain("/login u2");
+	});
+
+	it("/login с userId устанавливает текущего пользователя", async () => {
+		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
+		mockModule.resolver.apiModule.getDocTypes = mock(() => [
+			{ commandName: "list-users", arName: "user", arLabel: "Пользователь" },
+		]);
+		mockModule.name = "user";
+
+		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
+		const response = await app.handleInput("/login user-123");
+		expect(response).toContain("**Вход выполнен.**");
+		expect(response).toContain("user-123");
+		expect(app.currentActorId).toBe("user-123");
 	});
 });

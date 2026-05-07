@@ -13,6 +13,20 @@ describe("command-parser", () => {
 			type: "app",
 			command: "modules",
 		});
+		expect(parser.parse("/register")).toEqual({
+			type: "app",
+			command: "register",
+		});
+		expect(parser.parse("/login")).toEqual({
+			type: "app",
+			command: "login",
+			userId: undefined,
+		});
+		expect(parser.parse("/login user-123")).toEqual({
+			type: "app",
+			command: "login",
+			userId: "user-123",
+		});
 	});
 
 	it("должен парсить команды уровня модуля", () => {

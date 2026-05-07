@@ -3,6 +3,8 @@ export type UIIntent =
 	| { type: "app"; command: "about" } // для /, /app, /start, /about
 	| { type: "app"; command: "modules" } // для /modules
 	| { type: "app"; command: "quit" } // для /quit
+	| { type: "app"; command: "register" } // для /register
+	| { type: "app"; command: "login"; userId?: string } // для /login [userId]
 	// Уровень модуля
 	| { type: "module"; moduleName: string; command: "about" } // /<module>
 	| { type: "module"; moduleName: string; command: "aggregates" } // /<module>/aggregates
@@ -55,6 +57,14 @@ export class CommandParser {
 		}
 		if (commandLine === "/modules") {
 			return { type: "app", command: "modules" };
+		}
+		if (commandLine === "/register") {
+			return { type: "app", command: "register" };
+		}
+		if (commandLine.startsWith("/login")) {
+			const parts = commandLine.split(/\s+/);
+			const userId = parts[1] || undefined;
+			return { type: "app", command: "login", userId };
 		}
 		if (commandLine === "/quit" || commandLine === "/exit") {
 			return { type: "app", command: "quit" };
