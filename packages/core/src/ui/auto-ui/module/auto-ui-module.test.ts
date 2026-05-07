@@ -54,9 +54,11 @@ class TestApiModule extends Module<TestModuleMeta, Record<string, unknown>> {
       },
     ];
   }
-  override async handle(cmd: { name: string; attrs: { _rawPayload: string } }) {
+  override async handle(cmd: { name: string; attrs: Record<string, unknown> }) {
     if (cmd.name === "uc1")
       return { success: true, received: cmd.attrs._rawPayload };
+    if (cmd.name === "uc3")
+      return { success: true, attrs: cmd.attrs };
     throw new Error("Test error");
   }
 }
@@ -171,7 +173,25 @@ describe("auto-ui-module", () => {
     expect(response).toContain("number");
     expect(response).toContain("**tags**");
     expect(response).toContain("массив");
-    expect(response).toContain("каждый элемент с новой строки");
+    expect(response).toContain("через запятую");
+  });
+
+  it("должен разбивать строку с запятыми для полей-массивов", async () => {
+    const mod = new TestAutoUiModule({ aboutPath: ".", apiModule });
+
+    const response = await mod.handleIntent({
+      type: "usecase",
+      moduleName: "testmod",
+      aggregateName: "user",
+      commandName: "uc3",
+      action: "execute",
+      payload: ["Иван", "ivan@test.com", "mentor", "25", "js, ts, html"],
+    });
+
+    expect(response).toContain("**Успех!**");
+    expect(response).toContain('"js"');
+    expect(response).toContain('"ts"');
+    expect(response).toContain('"html"');
   });
 
   it("должен выбрасывать ошибки при выполнении usecase без перехвата", async () => {

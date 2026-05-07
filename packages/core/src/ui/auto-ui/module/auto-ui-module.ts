@@ -137,6 +137,24 @@ export abstract class AutoUiModule<
     return result;
   }
 
+  /**
+   * Проверяет, является ли схема массивом (с учётом обёрток optional/nullable).
+   */
+  private isArraySchema(
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+  ): boolean {
+    let current = schema;
+    while (current) {
+      const type = current.type as string | undefined;
+      if (type === "optional" || type === "nullable") {
+        current = current.wrapped as typeof current;
+        continue;
+      }
+      return type === "array";
+    }
+    return false;
+  }
+
   private describeField(
     name: string,
     schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
@@ -178,7 +196,7 @@ export abstract class AutoUiModule<
 
       if (type) {
         const prefix = isArray ? "массив " : "";
-        const arrayHint = isArray ? " (каждый элемент с новой строки, напр. \`- значение\`)" : "";
+        const arrayHint = isArray ? " (через запятую, напр. \`- значение1, значение2\`)" : "";
         parts.push(`тип: ${prefix}\`${type}\`${arrayHint}`);
         break;
       }
@@ -211,11 +229,21 @@ export abstract class AutoUiModule<
 
     if (schema && typeof schema === "object" && "entries" in schema) {
       // @ts-expect-error: схему будет валидной
-      const keys = Object.keys(schema.entries);
+      const entries = schema.entries as Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>>;
+      const keys = Object.keys(entries);
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i] as string;
         if (payload[i] !== undefined) {
-          attrs[key] = payload[i];
+          const entry = entries[key];
+          // Для полей-массивов — разбиваем строку по запятой
+          if (this.isArraySchema(entry)) {
+            attrs[key] = payload[i]
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s !== "");
+          } else {
+            attrs[key] = payload[i];
+          }
         }
       }
     } else {
