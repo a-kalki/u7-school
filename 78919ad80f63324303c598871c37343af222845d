@@ -1,0 +1,10 @@
+Задача: Добавить команды /register и /login + стартовый экран
+
+Изменения:
+- CommandParser: добавлены /register и /login с опциональным userId
+- AutoUiApp: handleRegister() перенаправляет на create-user, handleLogin() показывает список или устанавливает actorId
+- renderAboutAsync(): показывает /register при пустом репо, /login при наличии пользователей, активного пользователя
+- AutoUiApp.currentActorId используется во всей цепочке до executeUseCase
+- Исправлена outputSchema ListUsersUc для корректной валидации appliedFilters
+
+Результат: Все 319 тестов проходят.
