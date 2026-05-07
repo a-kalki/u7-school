@@ -108,13 +108,20 @@ export abstract class AutoUiModule<
     >;
 
     if (schema && typeof schema === "object" && "entries" in schema) {
-      // @ts-expect-error: схема будет валидной
-      const entries = schema.entries as Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>;
+      const entries = schema.entries as Record<
+        string,
+        v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
+      >;
       const keys = Object.keys(entries);
 
       for (const key of keys) {
         fieldsPrompt += `- ${key}\n`;
-        const entry = entries[key] as v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>;
+        const entry = entries[key] as v.BaseSchema<
+          unknown,
+          unknown,
+          v.BaseIssue<unknown>
+        > &
+          Record<string, unknown>;
         fieldDetails.push(this.describeField(key, entry));
       }
     } else {
@@ -132,7 +139,8 @@ export abstract class AutoUiModule<
 
   private describeField(
     name: string,
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+      Record<string, unknown>,
   ): string {
     const parts: string[] = [];
     let current = schema;
@@ -170,7 +178,8 @@ export abstract class AutoUiModule<
 
       if (type) {
         const prefix = isArray ? "массив " : "";
-        parts.push(`тип: ${prefix}\`${type}\``);
+        const arrayHint = isArray ? " (каждый элемент с новой строки, напр. \`- значение\`)" : "";
+        parts.push(`тип: ${prefix}\`${type}\`${arrayHint}`);
         break;
       }
 

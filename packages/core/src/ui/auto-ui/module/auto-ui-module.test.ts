@@ -171,6 +171,7 @@ describe("auto-ui-module", () => {
     expect(response).toContain("number");
     expect(response).toContain("**tags**");
     expect(response).toContain("массив");
+    expect(response).toContain("каждый элемент с новой строки");
   });
 
   it("должен выбрасывать ошибки при выполнении usecase без перехвата", async () => {
