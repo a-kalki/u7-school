@@ -1,0 +1,9 @@
+Задача: Интегрировать ActorSession в AutoUiConsoleController и AutoUiApp
+
+Изменения:
+- AutoUiApp: добавлено свойство currentActorId (string | null)
+- AutoUiApp.handleInput: передаёт currentActorId в модуль
+- AutoUiModule.handleIntent: принимает actorId параметр
+- AutoUiModule.executeUseCase: использует переданный actorId (fallback 'system-ui')
+
+Результат: Все 314 тестов проходят.
