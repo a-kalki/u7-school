@@ -1,0 +1,13 @@
+Задача: Реорганизовать слой auto-ui с подпапками в @u7/core
+
+Изменения:
+- Создана структура подпапок: app/, module/, controller/, parser/ внутри ui/auto-ui/
+- auto-ui-app.ts → app/auto-ui-app.ts
+- auto-ui-module.ts → module/auto-ui-module.ts
+- console-controller.ts → controller/console-controller.ts
+- command-parser.ts → parser/command-parser.ts
+- Тестовые файлы перенесены вместе с исходниками
+- Обновлён ui/index.ts с новыми путями импортов
+- Обновлены относительные импорты во всех затронутых файлах
+
+Результат: Все 58 тестов проходят.
