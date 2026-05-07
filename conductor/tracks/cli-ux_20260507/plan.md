@@ -36,7 +36,7 @@
     - [x] Реализовать логику фильтрации/сортировки в `ListUsersUc.execute()`
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
-## Фаза 4: Авторизация — бутстрап и логин (FR1, FR2)
+## Фаза 4: Авторизация — бутстрап и логин (FR1, FR2) [checkpoint: 417024e]
 
 - [x] Task: Реализовать `ActorSession` в приложении `u7-cli` [d324b40]
     - [x] Написать тесты для ActorSession (установка, получение actorId, isAuthenticated)
