@@ -25,7 +25,7 @@
     - [x] Если можно сгенерировать пример из схемы — добавить (опционально)
 - [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
-## Фаза 3: Параметризация list-users (FR3)
+## Фаза 3: Параметризация list-users (FR3) [checkpoint: 253d8e8]
 
 - [x] Task: Обновить схему `ListUsersCmdSchema` — добавить параметры [43b6cf3]
     - [x] Написать тесты: валидация limit (по умолчанию 20), role, name, telegramId, sort
@@ -34,7 +34,7 @@
 - [x] Task: Реализовать фильтрацию и сортировку в `ListUsersUc` [43b6cf3]
     - [x] Написать тесты: фильтрация по роли, поиск по имени, фильтр по telegramId, сортировка, лимит
     - [x] Реализовать логику фильтрации/сортировки в `ListUsersUc.execute()`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4: Авторизация — бутстрап и логин (FR1, FR2)
 
