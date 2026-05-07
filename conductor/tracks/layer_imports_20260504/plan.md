@@ -32,7 +32,7 @@
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2: Layer-based exports и миграция `@u7/user`
+## Фаза 2: Layer-based exports и миграция `@u7/user` [checkpoint: 534f0df]
 
 - [x] Task: Создать слойные index.ts для `@u7/user`
     - [x] Создать `src/domain/index.ts` — ре-экспорт entity, a-root, policy, roles, repo, types, errors, commands
