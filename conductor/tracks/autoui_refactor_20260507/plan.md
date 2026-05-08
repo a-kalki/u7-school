@@ -15,7 +15,7 @@
     - [x] Никакой логики register/login/session — чистая обработка ввода
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: AutoUiController' (Protocol in workflow.md)
 
-## Фаза 2: `AutoUiCliController` (core)
+## Фаза 2: `AutoUiCliController` (core) [checkpoint: 034b004]
 
 - [x] Task: Написать тесты для `AutoUiCliController` `042849c`
     - [ ] Тест: расширяет `AutoUiController`
