@@ -4,12 +4,10 @@ import { AutoUiCliController } from "@u7/core/ui";
 
 /**
  * Контроллер CLI для модуля пользователей.
- * Расширяет AutoUiCliController, реализуя конкретный UX для /register и /login.
  *
- * Явно знает структуру модуля user:
- * - /user/user/create-user
- * - /user/user/list-users
- * - /user/user/get-user-by-telegram-id
+ * Использует прямой API-вызов usecase'ов через app.callUseCase()
+ * вместо парсинга команд, что позволяет применять встроенные фильтры
+ * list-users (name, telegramId, limit).
  */
 export class UserCliController extends AutoUiCliController {
 	// ── CLI-окружение ──
@@ -29,8 +27,7 @@ export class UserCliController extends AutoUiCliController {
 	// ── Auth ──
 
 	/**
-	 * Обработка /register.
-	 * Направляет на create-user и оформляет заголовком.
+	 * Обработка /register — показывает prompt для create-user.
 	 */
 	async handleRegister(): Promise<string> {
 		const response = await this.safeHandle("/user/user/create-user");
@@ -48,17 +45,14 @@ export class UserCliController extends AutoUiCliController {
 	 * - /login name: <часть>      — поиск по имени
 	 */
 	async handleLogin(args?: string): Promise<string> {
-		// Без аргументов — список пользователей
 		if (!args) {
 			return this.renderLoginList();
 		}
 
-		// Парсим аргументы
 		const colonIndex = args.indexOf(":");
 		const hasPrefix = colonIndex > 0;
 
 		if (!hasPrefix) {
-			// Простое значение — считаем UUID
 			return this.loginById(args.trim());
 		}
 
@@ -78,24 +72,20 @@ export class UserCliController extends AutoUiCliController {
 	}
 
 	/**
-	 * Рендеринг меню в зависимости от состояния:
-	 * - Нет пользователей → /register
-	 * - Есть, без сессии → /login
-	 * - Есть сессия → актуальный actorId
+	 * Рендеринг меню в зависимости от наличия пользователей и сессии.
 	 */
 	async renderMenu(): Promise<string> {
 		let menu = "\n\n---\n**Меню:**\n- Список модулей: `/modules`\n";
 
 		const actor = this.currentActor;
-
 		if (actor) {
 			menu += `- Активный пользователь: ${actor.name} \`${actor.uuid}\`\n`;
 			return menu;
 		}
 
 		try {
-			const response = await this.safeHandle("/user/user/list-users");
-			const data = JSON.parse(response) as { users?: unknown[] };
+			const result = await this.app.callUseCase("user", "list-users", { limit: 1 });
+			const data = result as { users?: unknown[] };
 			const hasUsers = (data.users?.length ?? 0) > 0;
 
 			if (!hasUsers) {
@@ -104,11 +94,33 @@ export class UserCliController extends AutoUiCliController {
 				menu += "- **Вход в систему:** `/login`\n";
 			}
 		} catch {
-			// Fallback: предлагаем регистрацию
 			menu += "- **Регистрация администратора:** `/register`\n";
 		}
 
 		return menu;
+	}
+
+	// ── Хук авто-авторизации ──
+
+	/**
+	 * Вызывается после каждой успешно выполненной команды.
+	 * Если была выполнена команда create-user — автоматически входит под созданным пользователем.
+	 */
+	onCommandExecuted(response: string): void {
+		if (this.currentActor) return; // Уже залогинены
+
+		// Ищем JSON с uuid и name в ответе create-user
+		const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/);
+		if (!jsonMatch) return;
+
+		try {
+			const data = JSON.parse(jsonMatch[1]) as { uuid?: string; name?: string };
+			if (data.uuid && data.name) {
+				this.setActor(data.uuid, data.name);
+			}
+		} catch {
+			// Не JSON или не тот формат — игнорируем
+		}
 	}
 
 	// ── Приватные хелперы ──
@@ -118,8 +130,8 @@ export class UserCliController extends AutoUiCliController {
 	 */
 	private async renderLoginList(): Promise<string> {
 		try {
-			const response = await this.safeHandle("/user/user/list-users");
-			const data = JSON.parse(response) as {
+			const result = await this.app.callUseCase("user", "list-users", {});
+			const data = result as {
 				users?: Array<{ uuid: string; name: string }>;
 			};
 
@@ -131,8 +143,7 @@ export class UserCliController extends AutoUiCliController {
 			for (const user of data.users) {
 				output += `- ${user.name}: \`/login ${user.uuid}\`\n`;
 			}
-			output +=
-				"\nВведите `/login <id>` для входа, или `/login name: <имя>` для поиска.";
+			output += "\nВведите `/login <id>` для входа, или `/login name: <имя>` для поиска.";
 			return output;
 		} catch {
 			return "**Ошибка:** Не удалось получить список пользователей.";
@@ -140,13 +151,12 @@ export class UserCliController extends AutoUiCliController {
 	}
 
 	/**
-	 * Вход по ID (UUID) с проверкой существования пользователя.
+	 * Вход по ID (UUID) с проверкой существования.
 	 */
 	private async loginById(id: string): Promise<string> {
 		try {
-			// Проверяем, существует ли пользователь с таким UUID
-			const response = await this.safeHandle("/user/user/list-users");
-			const data = JSON.parse(response) as {
+			const result = await this.app.callUseCase("user", "list-users", {});
+			const data = result as {
 				users?: Array<{ uuid: string; name: string }>;
 			};
 
@@ -163,36 +173,44 @@ export class UserCliController extends AutoUiCliController {
 	}
 
 	/**
-	 * Вход по Telegram ID.
+	 * Вход по Telegram ID — использует встроенный фильтр list-users.
 	 */
 	private async loginByTelegramId(telegramId: string): Promise<string> {
-		try {
-			const response = await this.safeHandle(
-				"/user/user/get-user-by-telegram-id",
-			);
-			const data = JSON.parse(response) as { uuid?: string; name?: string };
+		const numId = Number(telegramId);
+		if (Number.isNaN(numId)) {
+			return `**Ошибка:** Telegram ID должен быть числом, получено \`${telegramId}\`.`;
+		}
 
-			if (!data.uuid) {
+		try {
+			const result = await this.app.callUseCase("user", "list-users", {
+				telegramId: numId,
+				limit: 1,
+			});
+			const data = result as {
+				users?: Array<{ uuid: string; name: string }>;
+			};
+
+			if (!data.users || data.users.length === 0) {
 				return `**Ошибка:** Пользователь с Telegram ID \`${telegramId}\` не найден.`;
 			}
 
-			this.setActor(data.uuid, data.name);
-			return `**Вход выполнен.** Активный пользователь: ${data.name ?? data.uuid} \`${data.uuid}\`\n\nВведите /app для возврата в меню.`;
+			const user = data.users[0]!;
+			this.setActor(user.uuid, user.name);
+			return `**Вход выполнен.** Активный пользователь: ${user.name} \`${user.uuid}\`\n\nВведите /app для возврата в меню.`;
 		} catch {
 			return `**Ошибка:** Пользователь с Telegram ID \`${telegramId}\` не найден.`;
 		}
 	}
 
 	/**
-	 * Поиск по имени.
-	 * Если найдено ровно одно совпадение — входит. Иначе — показывает варианты.
+	 * Поиск по имени — использует встроенный фильтр name (частичное совпадение).
 	 */
 	private async loginByName(namePart: string): Promise<string> {
-		const lowerPart = namePart.toLowerCase();
-
 		try {
-			const response = await this.safeHandle("/user/user/list-users");
-			const data = JSON.parse(response) as {
+			const result = await this.app.callUseCase("user", "list-users", {
+				name: namePart,
+			});
+			const data = result as {
 				users?: Array<{ uuid: string; name: string }>;
 			};
 
@@ -200,23 +218,15 @@ export class UserCliController extends AutoUiCliController {
 				return `**Ошибка:** Пользователи с именем, содержащим \`${namePart}\`, не найдены.`;
 			}
 
-			const matches = data.users.filter((u) =>
-				u.name.toLowerCase().includes(lowerPart),
-			);
-
-			if (matches.length === 0) {
-				return `**Ошибка:** Пользователи с именем, содержащим \`${namePart}\`, не найдены.`;
-			}
-
-			const singleMatch = matches.length === 1 ? matches[0] : undefined;
-			if (singleMatch) {
-				this.setActor(singleMatch.uuid, singleMatch.name);
-				return `**Вход выполнен.** Активный пользователь: ${singleMatch.name} \`${singleMatch.uuid}\`\n\nВведите /app для возврата в меню.`;
+			if (data.users.length === 1) {
+				const user = data.users[0]!;
+				this.setActor(user.uuid, user.name);
+				return `**Вход выполнен.** Активный пользователь: ${user.name} \`${user.uuid}\`\n\nВведите /app для возврата в меню.`;
 			}
 
 			// Несколько совпадений — показываем варианты
 			let output = `**Найдено несколько пользователей** (по запросу \`${namePart}\`):\n\n`;
-			for (const user of matches) {
+			for (const user of data.users) {
 				output += `- ${user.name}: \`/login ${user.uuid}\`\n`;
 			}
 			output += "\nВведите `/login <id>` для входа.";

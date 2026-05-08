@@ -59,6 +59,30 @@ export class AutoUiApp<
 	}
 
 	/**
+	 * Прямой вызов usecase модуля в обход CommandParser.
+	 * Используется контроллерами для выполнения API-запросов
+	 * (list-users, get-user-by-telegram-id и т.д.).
+	 *
+	 * @returns Результат выполнения usecase (сырой объект от API-модуля)
+	 */
+	async callUseCase(
+		moduleName: string,
+		commandName: string,
+		attrs: Record<string, unknown> = {},
+	): Promise<unknown> {
+		const mod = this.autoUiModules.find((m) => m.name === moduleName);
+		if (!mod) {
+			throw new Error(`Модуль '${moduleName}' не найден`);
+		}
+
+		return mod.resolver.apiModule.handle({
+			name: commandName,
+			attrs,
+			actorId: this.currentActor?.uuid,
+		});
+	}
+
+	/**
 	 * Рендеринг списка доступных модулей
 	 */
 	private renderModulesList(): string {

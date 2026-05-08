@@ -63,6 +63,16 @@ export abstract class AutoUiCliController extends AutoUiController {
 	// ── REPL-цикл ──
 
 	/**
+	 * Хук, вызываемый после каждого успешного выполнения usecase.
+	 * По умолчанию — пустая реализация. Наследники могут переопределить
+	 * для авто-авторизации после create-user и т.п.
+	 */
+	protected onCommandExecuted(_response: string): void {
+		// пусто
+	}
+
+
+	/**
 	 * Запускает интерактивный REPL-цикл.
 	 * Обрабатывает построчный ввод, буферизацию для UseCase,
 	 * маршрутизацию register/login, навигацию.
@@ -132,6 +142,7 @@ export abstract class AutoUiCliController extends AutoUiController {
 						const response = await this.safeHandle(buffer.join("\n"));
 						console.log(`\n${response}`);
 						buffer = [];
+						this.onCommandExecuted(response);
 						isBuffering = false;
 						this.writePrompt();
 					} else {

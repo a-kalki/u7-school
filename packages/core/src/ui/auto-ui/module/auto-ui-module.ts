@@ -320,12 +320,12 @@ export abstract class AutoUiModule<
       attrs._rawPayload = payload;
     }
 
-    const effectiveActorId = actorId || "system-ui"; // Заглушка для неаутентифицированных
-
+    // Передаём actorId как есть (может быть undefined для неаутентифицированных).
+    // UseCase сам решает, требуется ли авторизация.
     const result = await this.resolver.apiModule.handle({
       name: commandName,
       attrs,
-      actorId: effectiveActorId,
+      actorId,
     });
 
     return `**Успех!**\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
