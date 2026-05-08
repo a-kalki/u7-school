@@ -410,4 +410,80 @@ describe("UserJsonRepo", () => {
       expect(await repo.getByUuid(user1.uuid)).toEqual(updated);
     });
   });
+
+  describe("seed-инициализация", () => {
+    const SEED_FILE = "/tmp/user-json-repo-seed-test.json";
+    const DATA_FILE = "/tmp/user-json-repo-seed-data.json";
+
+    test("загружает seed при первом обращении если файла данных нет", async () => {
+      // Создаём seed-файл с ADMIN
+      const seedUsers: User[] = [
+        createTestUser({
+          uuid: "00000000-0000-0000-0000-000000000001",
+          name: "Администратор",
+          telegramId: 1,
+          roles: [Role.ADMIN],
+          createdAt: "2026-05-08T00:00",
+        }),
+      ];
+      await Bun.write(SEED_FILE, JSON.stringify(seedUsers, null, 2));
+
+      // Убеждаемся, что data-файла нет
+      await Bun.$`rm -f ${DATA_FILE}`;
+
+      const seedRepo = new UserJsonRepo(DATA_FILE, SEED_FILE);
+
+      // Первый вызов — должен загрузить seed
+      const all = await seedRepo.getAll();
+      expect(all).toHaveLength(1);
+      expect(all[0]?.name).toBe("Администратор");
+      expect(all[0]?.telegramId).toBe(1);
+
+      // Проверяем что файл создан
+      expect(await Bun.file(DATA_FILE).exists()).toBe(true);
+
+      // Очистка
+      await Bun.$`rm -f ${SEED_FILE} ${DATA_FILE}`;
+    });
+
+    test("не перезаписывает существующие данные seed-ом", async () => {
+      // Создаём data-файл с пользователем
+      await repo.save(user1);
+
+      // Создаём seed с другими данными
+      const seedUsers: User[] = [
+        createTestUser({
+          uuid: "00000000-0000-0000-0000-000000000001",
+          name: "Из Seed",
+          telegramId: 999,
+          roles: [Role.ADMIN],
+          createdAt: "2026-05-08T00:00",
+        }),
+      ];
+      await Bun.write(SEED_FILE, JSON.stringify(seedUsers, null, 2));
+
+      // Новый репо на тот же data-файл (где уже есть user1)
+      const seedRepo = new UserJsonRepo(TEST_FILE, SEED_FILE);
+      const all = await seedRepo.getAll();
+
+      // Должен быть user1, а не seed-данные
+      expect(all).toHaveLength(1);
+      expect(all[0]?.name).toBe("Иван");
+
+      await Bun.$`rm -f ${SEED_FILE}`;
+    });
+
+    test("игнорирует seed если он невалидный JSON", async () => {
+      await Bun.write(SEED_FILE, "{not json");
+      await Bun.$`rm -f ${DATA_FILE}`;
+
+      const seedRepo = new UserJsonRepo(DATA_FILE, SEED_FILE);
+      const all = await seedRepo.getAll();
+
+      // Пустой — seed не загрузился
+      expect(all).toHaveLength(0);
+
+      await Bun.$`rm -f ${SEED_FILE} ${DATA_FILE}`;
+    });
+  });
 });

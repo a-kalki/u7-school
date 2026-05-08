@@ -26,6 +26,11 @@ export class JsonFileRepo<T> {
   readonly #schema: GenericSchema<T>;
   readonly #filePath: string;
 
+  /** Путь к JSON-файлу */
+  get filePath(): string {
+    return this.#filePath;
+  }
+
   /**
    * @param schema — Valibot-схема для валидации каждого объекта
    * @param filePath — путь к JSON-файлу
