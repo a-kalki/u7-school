@@ -1,0 +1,9 @@
+Задача: Написать тесты для UserCliController и реализовать UserCliController
+- UserCliController расширяет AutoUiCliController
+- handleRegister(): вызов create-user, заголовок 'Регистрация первого администратора'
+- handleLogin(args): поддержка /login, /login <uuid>, /login uuid:<id>, /login telegramId:<num>, /login name:<часть>
+- renderMenu(): меню в зависимости от наличия пользователей и сессии
+- createReadline(), writePrompt(), handleQuit() — CLI-окружение
+- 19 тестов: register, login (6 вариантов), menu (4 варианта), CLI, REPL-сценарий
+- Обновлены экспорты @u7/core/ui (AutoUiController, AutoUiCliController)
+Файлы: packages/user/src/ui/auto-ui/controller/cli.ts (+), cli.test.ts (+) и обновления core
