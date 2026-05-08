@@ -95,7 +95,7 @@
     - [ ] В `handleInput` для `"app"` оставить только `"about"` → `render()`, `"modules"` → `renderModulesList()`
 - [x] Task: Conductor - User Manual Verification 'Фаза 4: Очистка AutoUiApp' (Protocol in workflow.md)
 
-## Фаза 5: Обновление `apps/u7-cli` и удаление `actor-session`
+## Фаза 5: Обновление `apps/u7-cli` и удаление `actor-session` [checkpoint: 37df007]
 
 - [x] Task: Написать тесты для main.ts с UserCliController
     - [ ] Тест: `UserCliController` инициализируется с `AutoUiApp`
