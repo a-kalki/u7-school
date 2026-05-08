@@ -41,12 +41,12 @@
     - [x] Создать `data/users/seed.json` с одним пользователем ADMIN
     - [x] В `UserJsonRepo` при первом вызове `isEmpty()` → true → загрузка из seed
     - [x] Написать тест на авто-инициализацию из seed
-- [ ] Task: Интегрировать UserJsonRepo в модуль user
-    - [ ] Заменить `UserInMemoryRepo` на `UserJsonRepo` в `packages/user/src/api/module.ts`
-    - [ ] Обновить `packages/user/src/infra/index.ts`
-    - [ ] Убедиться, что `UserJsonRepo` совместим с DI модуля
-- [ ] Task: Прогнать все существующие тесты и устранить регрессии
-    - [ ] Запустить `bun test --filter @u7/user`
-    - [ ] Исправить тесты, завязанные на inMemory (если есть)
-    - [ ] Проверить интеграционные тесты Auto-UI
+- [x] Task: Интегрировать UserJsonRepo в модуль user [`8791003`]
+    - [x] Заменить `UserInMemoryRepo` на `UserJsonRepo` в `packages/user/src/api/module.ts`
+    - [x] Обновить `packages/user/src/infra/index.ts`
+    - [x] Убедиться, что `UserJsonRepo` совместим с DI модуля
+- [x] Task: Прогнать все существующие тесты и устранить регрессии [`8791003`]
+    - [x] Запустить `bun test --filter @u7/user`
+    - [x] Исправить тесты, завязанные на inMemory (если есть)
+    - [x] Проверить интеграционные тесты Auto-UI
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Seed-данные и финальная интеграция' (Protocol in workflow.md)
