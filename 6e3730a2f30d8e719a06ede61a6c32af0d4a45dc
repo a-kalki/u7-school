@@ -1,0 +1,12 @@
+Отчёт о верификации Фазы 4 (Очистка AutoUiApp)
+
+Команда: CI=true bun test
+Результат: 359 pass, 0 fail
+
+Шаги ручной верификации: /register и /login больше не обрабатываются AutoUiApp
+Подтверждение пользователя: да
+
+Изменения:
+- Удалены: handleRegister(), handleLogin(), checkHasUsers(), renderAboutAsync()
+- /app теперь использует render() (без auth-логики)
+- /register и /login возвращают «Неопознанный ответ»
