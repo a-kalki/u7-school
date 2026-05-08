@@ -1,0 +1,16 @@
+Отчёт о верификации Фазы 1 (AutoUiController)
+
+Команда автоматического тестирования: CI=true bun test
+Результат: 326 pass, 0 fail (все тесты проходят)
+
+Шаги ручной верификации:
+1. Запустить приложение: cd apps/u7-cli && bun run src/main.ts
+2. Убедиться в приветственном экране (about + меню)
+3. /modules — список доступных модулей
+4. /quit — завершение с сообщением «До свидания!»
+
+Подтверждение пользователя: да
+
+Изменённые файлы фазы:
+- packages/core/src/ui/auto-ui/controller/base.ts (новый)
+- packages/core/src/ui/auto-ui/controller/base.test.ts (новый)
