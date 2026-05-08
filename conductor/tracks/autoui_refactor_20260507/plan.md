@@ -2,18 +2,18 @@
 
 ## Фаза 1: Абстрактный `AutoUiController` (core)
 
-- [ ] Task: Написать тесты для `AutoUiController`
+- [x] Task: Написать тесты для `AutoUiController` `2062c79`
     - [ ] Тест: `safeHandle` делегирует в `app.handleInput` и возвращает строку
-    - [ ] Тест: `safeHandle` форматирует AppException
-    - [ ] Тест: `safeHandle` форматирует Valibot ошибки
-    - [ ] Тест: конструктор принимает AutoUiApp
-- [ ] Task: Реализовать `AutoUiController`
+    - [x] Тест: `safeHandle` форматирует AppException
+    - [x] Тест: `safeHandle` форматирует Valibot ошибки
+    - [x] Тест: конструктор принимает AutoUiApp
+- [x] Task: Реализовать `AutoUiController` `2062c79`
     - [ ] Создать `packages/core/src/ui/auto-ui/controller/base.ts`
     - [ ] Абстрактный класс, принимает `app: AutoUiApp`
-    - [ ] `safeHandle(text: string): Promise<string>` — делегирование в `app.handleInput` + перехват ошибок
-    - [ ] `formatError(err: unknown): string` — форматирование AppException / Valibot (из текущего console-controller)
-    - [ ] Никакой логики register/login/session — чистая обработка ввода
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1: AutoUiController' (Protocol in workflow.md)
+    - [x] `safeHandle(text: string): Promise<string>` — делегирование в `app.handleInput` + перехват ошибок
+    - [x] `formatError(err: unknown): string` — форматирование AppException / Valibot (из текущего console-controller)
+    - [x] Никакой логики register/login/session — чистая обработка ввода
+- [x] Task: Conductor - User Manual Verification 'Фаза 1: AutoUiController' (Protocol in workflow.md)
 
 ## Фаза 2: `AutoUiCliController` (core)
 
