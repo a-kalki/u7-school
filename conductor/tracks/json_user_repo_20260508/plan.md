@@ -17,22 +17,22 @@
 
 ## Фаза 2: Реализация UserJsonRepo в user
 
-- [ ] Task: Написать тесты для `UserJsonRepo` (TDD Red)
-    - [ ] Создать `packages/user/src/infra/db/user-json-repo.test.ts`
-    - [ ] Тест: `save` → `getByUuid` возвращает сохранённого пользователя
-    - [ ] Тест: `save` дважды (update) — перезаписывает существующего
-    - [ ] Тест: `getByTelegramId` находит по telegramId
-    - [ ] Тест: `getAll()` возвращает всех пользователей
-    - [ ] Тест: `getAll()` с фильтром по `role`, `name`, `telegramId`
-    - [ ] Тест: `isTelegramIdTaken` — true/false
-    - [ ] Тест: `isEmpty` — true для нового хранилища, false после save
-    - [ ] Тест: невалидные данные в файле пропускаются с логом
-- [ ] Task: Реализовать `UserJsonRepo` (TDD Green + Refactor)
-    - [ ] Создать `packages/user/src/infra/db/user-json-repo.ts`
-    - [ ] Наследует/использует `JsonFileRepo<User>` из core
-    - [ ] Реализует интерфейс `UserRepo`
-    - [ ] Фильтрация `getAll`: по `role`, `name` (частичное совпадение), `telegramId`, `sort`
-    - [ ] Путь по умолчанию: `data/users/users.json` (от корня проекта)
+- [x] Task: Написать тесты для `UserJsonRepo` (TDD Red) [`c22bbe6`]
+    - [x] Создать `packages/user/src/infra/db/user-json-repo.test.ts`
+    - [x] Тест: `save` → `getByUuid` возвращает сохранённого пользователя
+    - [x] Тест: `save` дважды (update) — перезаписывает существующего
+    - [x] Тест: `getByTelegramId` находит по telegramId
+    - [x] Тест: `getAll()` возвращает всех пользователей
+    - [x] Тест: `getAll()` с фильтром по `role`, `name`, `telegramId`
+    - [x] Тест: `isTelegramIdTaken` — true/false
+    - [x] Тест: `isEmpty` — true для нового хранилища, false после save
+    - [x] Тест: невалидные данные в файле пропускаются с логом
+- [x] Task: Реализовать `UserJsonRepo` (TDD Green + Refactor) [`c22bbe6`]
+    - [x] Создать `packages/user/src/infra/db/user-json-repo.ts`
+    - [x] Наследует/использует `JsonFileRepo<User>` из core
+    - [x] Реализует интерфейс `UserRepo`
+    - [x] Фильтрация `getAll`: по `role`, `name` (частичное совпадение), `telegramId`, `sort`
+    - [x] Путь по умолчанию: `data/users/users.json` (от корня проекта)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Реализация UserJsonRepo' (Protocol in workflow.md)
 
 ## Фаза 3: Seed-данные и финальная интеграция
