@@ -1,0 +1,8 @@
+Задача: Написать тесты для AutoUiCliController и реализовать AutoUiCliController
+- Создан AutoUiCliController (cli.ts): абстрактный CLI-контроллер с REPL-циклом
+- Управление сессией: actorId getter, setActor(id), clearActor()
+- Абстрактные методы: createReadline(), writePrompt(), handleQuit(), handleRegister(), handleLogin(), renderMenu()
+- REPL-цикл run(): буферизация, навигация, маршрутизация register/login
+- При старте: safeHandle('/app') + renderMenu()
+- 14 тестов: REPL-цикл, буферизация, /quit, /exit, сессия, register/login-маршрутизация
+Файлы: packages/core/src/ui/auto-ui/controller/cli.ts (+), packages/core/src/ui/auto-ui/controller/cli.test.ts (+)
