@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Файл `api/<command-name>-uc.ts` содержит класс UC — оркестратор одной бизнес-операции. Наследуется от `UseCase<CmdMeta, Resolver>`.
+Файл `api/<entity>/<command-name>-uc.ts` содержит класс UC — оркестратор одной бизнес-операции. Наследуется от `UseCase<CmdMeta, Resolver>`.
 
 ## Правила
 
