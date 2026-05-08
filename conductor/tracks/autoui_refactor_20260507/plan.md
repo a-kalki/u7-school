@@ -49,7 +49,7 @@
 
 ## Фаза 3: `UserCliController` (user)
 
-- [x] Task: Написать тесты для `UserCliController`
+- [x] Task: Написать тесты для `UserCliController` `9630437`
     - [ ] Тест: расширяет `AutoUiCliController`
     - [ ] Тест: `handleRegister()` — отправляет `app.handleInput("/user/user/create-user")` с action=prompt, возвращает отформатированный ответ
     - [ ] Тест: `handleRegister()` — форматирует экран "Регистрация первого администратора"
@@ -60,7 +60,7 @@
     - [ ] Тест: `createReadline()` возвращает readline.Interface
     - [ ] Тест: `writePrompt()` выводит `> `
     - [ ] Тест: `handleQuit()` выводит "До свидания!"
-- [x] Task: Реализовать `UserCliController`
+- [x] Task: Реализовать `UserCliController` `9630437`
     - [ ] Создать `packages/user/src/ui/auto-ui/controller/cli.ts`
     - [ ] Расширяет `AutoUiCliController`
     - [ ] Явно знает структуру модуля `user`:
