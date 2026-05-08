@@ -37,10 +37,10 @@
 
 ## Фаза 3: Seed-данные и финальная интеграция
 
-- [ ] Task: Создать seed.json и механизм инициализации
-    - [ ] Создать `data/users/seed.json` с одним пользователем ADMIN
-    - [ ] В `UserJsonRepo` при первом вызове `isEmpty()` → true → загрузка из seed
-    - [ ] Написать тест на авто-инициализацию из seed
+- [x] Task: Создать seed.json и механизм инициализации [`5588220`]
+    - [x] Создать `data/users/seed.json` с одним пользователем ADMIN
+    - [x] В `UserJsonRepo` при первом вызове `isEmpty()` → true → загрузка из seed
+    - [x] Написать тест на авто-инициализацию из seed
 - [ ] Task: Интегрировать UserJsonRepo в модуль user
     - [ ] Заменить `UserInMemoryRepo` на `UserJsonRepo` в `packages/user/src/api/module.ts`
     - [ ] Обновить `packages/user/src/infra/index.ts`
