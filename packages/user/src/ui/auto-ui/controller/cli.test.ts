@@ -45,7 +45,7 @@ describe("UserCliController", () => {
           }
           return "ok";
         }),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -60,7 +60,7 @@ describe("UserCliController", () => {
     it("без аргументов, пустой список: сообщение об отсутствии пользователей", async () => {
       const mockApp = {
         handleInput: mock(async () => JSON.stringify({ users: [] })),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -68,28 +68,60 @@ describe("UserCliController", () => {
       expect(result).toContain("Нет зарегистрированных пользователей");
     });
 
-    it("с простым значением (без префикса): устанавливает actorId", async () => {
+    it("с простым значением (без префикса): проверяет существование и устанавливает actor", async () => {
       const mockApp = {
-        handleInput: mock(async () => "ok"),
-        currentActorId: null,
+        handleInput: mock(async (text: string) => {
+          if (text === "/user/user/list-users") {
+            return JSON.stringify({
+              users: [
+                { uuid: "user-123", name: "Иван" },
+              ],
+            });
+          }
+          return "ok";
+        }),
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
       const result = await ctrl.handleLogin("user-123");
-      expect(mockApp.currentActorId).toBe("user-123");
+      expect(mockApp.currentActor).toEqual({ uuid: "user-123", name: "Иван" });
       expect(result).toContain("**Вход выполнен.**");
+      expect(result).toContain("Иван");
     });
 
-    it('с префиксом "uuid: <id>": устанавливает actorId', async () => {
+    it("с простым значением: если пользователь не найден — ошибка", async () => {
       const mockApp = {
-        handleInput: mock(async () => "ok"),
-        currentActorId: null,
+        handleInput: mock(async () => JSON.stringify({ users: [] })),
+        currentActor: null,
+      } as unknown as AnyAutoUiApp;
+
+      const ctrl = new UserCliController(mockApp);
+      const result = await ctrl.handleLogin("nonexistent");
+      expect(result).toContain("не найден");
+      expect(mockApp.currentActor).toBeNull();
+    });
+
+    it('с префиксом "uuid: <id>": проверяет и устанавливает actor', async () => {
+      const mockApp = {
+        handleInput: mock(async (text: string) => {
+          if (text === "/user/user/list-users") {
+            return JSON.stringify({
+              users: [
+                { uuid: "user-456", name: "Мария" },
+              ],
+            });
+          }
+          return "ok";
+        }),
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
       const result = await ctrl.handleLogin("uuid: user-456");
-      expect(mockApp.currentActorId).toBe("user-456");
+      expect(mockApp.currentActor).toEqual({ uuid: "user-456", name: "Мария" });
       expect(result).toContain("**Вход выполнен.**");
+      expect(result).toContain("Мария");
     });
 
     it('с префиксом "telegramId: <num>": ищет по telegramId и устанавливает actorId', async () => {
@@ -100,7 +132,7 @@ describe("UserCliController", () => {
           }
           return "ok";
         }),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -109,8 +141,9 @@ describe("UserCliController", () => {
       expect(mockApp.handleInput).toHaveBeenCalledWith(
         "/user/user/get-user-by-telegram-id",
       );
-      expect(mockApp.currentActorId).toBe("tg-user-1");
+      expect(mockApp.currentActor).toEqual({ uuid: "tg-user-1", name: "TG User" });
       expect(result).toContain("**Вход выполнен.**");
+      expect(result).toContain("TG User");
     });
 
     it('с префиксом "telegramId:" если пользователь не найден — ошибка', async () => {
@@ -118,7 +151,7 @@ describe("UserCliController", () => {
         handleInput: mock(async () => {
           throw new Error("Not found");
         }),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -139,13 +172,14 @@ describe("UserCliController", () => {
           }
           return "ok";
         }),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
       const result = await ctrl.handleLogin("name: Иван");
-      expect(mockApp.currentActorId).toBe("u1");
+      expect(mockApp.currentActor).toEqual({ uuid: "u1", name: "Иван Петров" });
       expect(result).toContain("**Вход выполнен.**");
+      expect(result).toContain("Иван Петров");
     });
 
     it('с префиксом "name:" при нескольких совпадениях — показывает варианты', async () => {
@@ -158,7 +192,7 @@ describe("UserCliController", () => {
             ],
           }),
         ),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -167,13 +201,13 @@ describe("UserCliController", () => {
       expect(result).toContain("Иван Петров");
       expect(result).toContain("Иван Сидоров");
       // actorId не должен быть установлен
-      expect(mockApp.currentActorId).toBeNull();
+      expect(mockApp.currentActor).toBeNull();
     });
 
     it('с префиксом "name:" при отсутствии совпадений — сообщение', async () => {
       const mockApp = {
         handleInput: mock(async () => JSON.stringify({ users: [] })),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -186,7 +220,7 @@ describe("UserCliController", () => {
     it("без пользователей: показывает /register", async () => {
       const mockApp = {
         handleInput: mock(async () => JSON.stringify({ users: [] })),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -200,7 +234,7 @@ describe("UserCliController", () => {
         handleInput: mock(async () =>
           JSON.stringify({ users: [{ uuid: "u1", name: "Иван" }] }),
         ),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -209,17 +243,18 @@ describe("UserCliController", () => {
       expect(menu).not.toContain("/register");
     });
 
-    it("с активной сессией: показывает actorId", async () => {
+    it("с активной сессией: показывает имя и uuid", async () => {
       const mockApp = {
         handleInput: mock(async () =>
           JSON.stringify({ users: [{ uuid: "u1", name: "Иван" }] }),
         ),
-        currentActorId: "u1",
+        currentActor: { uuid: "u1", name: "Иван" },
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
       const menu = await ctrl.renderMenu();
       expect(menu).toContain("Активный пользователь");
+      expect(menu).toContain("Иван");
       expect(menu).toContain("u1");
     });
 
@@ -228,7 +263,7 @@ describe("UserCliController", () => {
         handleInput: mock(async () => {
           throw new Error("DB error");
         }),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const ctrl = new UserCliController(mockApp);
@@ -276,7 +311,7 @@ describe("UserCliController", () => {
           if (text === "/user/user/list-users") return JSON.stringify({ users: [] });
           return "ok";
         }),
-        currentActorId: null,
+        currentActor: null,
       } as unknown as AnyAutoUiApp;
 
       const mockLines = ["/register", "/quit"];

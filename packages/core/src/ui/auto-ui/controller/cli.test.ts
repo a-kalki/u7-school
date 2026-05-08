@@ -184,24 +184,25 @@ describe("AutoUiCliController", () => {
     logSpy.mockRestore();
   });
 
-  it("setActor(id) устанавливает actorId в app", () => {
-    const mockApp = { currentActorId: null } as AutoUiApp;
+  it("setActor(id) устанавливает actor в app", () => {
+    const mockApp = { currentActor: null } as AutoUiApp;
     const ctrl = new TestCliController(mockApp);
-    ctrl.setActor("user-123");
-    expect(mockApp.currentActorId).toBe("user-123");
+    ctrl.setActor("user-123", "Иван");
+    expect(mockApp.currentActor).toEqual({ uuid: "user-123", name: "Иван" });
   });
 
-  it("clearActor() сбрасывает actorId в app", () => {
-    const mockApp = { currentActorId: "user-123" } as AutoUiApp;
+  it("clearActor() сбрасывает actor в app", () => {
+    const mockApp = { currentActor: { uuid: "user-123", name: "Иван" } } as AutoUiApp;
     const ctrl = new TestCliController(mockApp);
     ctrl.clearActor();
-    expect(mockApp.currentActorId).toBeNull();
+    expect(mockApp.currentActor).toBeNull();
   });
 
-  it("get actorId читает actorId из app", () => {
-    const mockApp = { currentActorId: "user-456" } as AutoUiApp;
+  it("get actorId читает uuid из app", () => {
+    const mockApp = { currentActor: { uuid: "user-456", name: "Мария" } } as AutoUiApp;
     const ctrl = new TestCliController(mockApp);
     expect(ctrl.actorId).toBe("user-456");
+    expect(ctrl.currentActor?.name).toBe("Мария");
   });
 
   it("конкретный подкласс реализует все абстрактные методы", () => {

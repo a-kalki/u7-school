@@ -8,8 +8,8 @@ export class AutoUiApp<
 > extends UIApp<AR> {
 	private parser = new CommandParser();
 
-	/** ID текущего активного пользователя (null = не аутентифицирован) */
-	currentActorId: string | null = null;
+	/** Текущий активный пользователь (null = не аутентифицирован) */
+	currentActor: { uuid: string; name: string } | null = null;
 
 	/**
 	 * Приведение типов для модулей AutoUiApp
@@ -61,7 +61,7 @@ export class AutoUiApp<
 		}
 
 		// Делегируем обработку модулю, передавая текущий actorId
-		return targetModule.handleIntent(intent, this.currentActorId);
+		return targetModule.handleIntent(intent, this.currentActor?.uuid ?? null);
 	}
 
 	/**
@@ -76,13 +76,13 @@ export class AutoUiApp<
 
 		let menu = "\n\n--- \n**Меню:**\n- Список модулей: `/modules`\n";
 
-		if (this.currentActorId) {
-			menu += `- Активный пользователь: \`${this.currentActorId}\`\n`;
+		if (this.currentActor) {
+			menu += `- Активный пользователь: ${this.currentActor.name} \`${this.currentActor.uuid}\`\n`;
 		}
 
 		if (!hasUsers) {
 			menu += "- **Регистрация администратора:** `/register`\n";
-		} else if (!this.currentActorId) {
+		} else if (!this.currentActor) {
 			menu += "- **Вход в систему:** `/login`\n";
 		}
 
@@ -173,7 +173,7 @@ export class AutoUiApp<
 
 			if (userId) {
 				// Устанавливаем текущего пользователя
-				this.currentActorId = userId;
+				this.currentActor = { uuid: userId, name: userId };
 				return `**Вход выполнен.** Активный пользователь: \`${userId}\`\n\nВведите /app для возврата в меню.`;
 			}
 

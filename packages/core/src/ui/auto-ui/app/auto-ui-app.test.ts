@@ -68,7 +68,7 @@ describe("AutoUiApp", () => {
 		}));
 		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
 		app.about = { title: "App", body: "Текст" };
-		app.currentActorId = "u1";
+		app.currentActor = { uuid: "u1", name: "Иван" };
 
 		const response = await app.handleInput("/app");
 		expect(response).toContain("Активный пользователь");
@@ -141,6 +141,6 @@ describe("AutoUiApp", () => {
 		const response = await app.handleInput("/login user-123");
 		expect(response).toContain("**Вход выполнен.**");
 		expect(response).toContain("user-123");
-		expect(app.currentActorId).toBe("user-123");
+		expect(app.currentActor).toEqual({ uuid: "user-123", name: "user-123" });
 	});
 });

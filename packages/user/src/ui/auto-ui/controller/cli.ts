@@ -91,10 +91,10 @@ export class UserCliController extends AutoUiCliController {
   async renderMenu(): Promise<string> {
     let menu = "\n\n---\n**Меню:**\n- Список модулей: `/modules`\n";
 
-    const actorId = this.actorId;
+    const actor = this.currentActor;
 
-    if (actorId) {
-      menu += `- Активный пользователь: \`${actorId}\`\n`;
+    if (actor) {
+      menu += `- Активный пользователь: ${actor.name} \`${actor.uuid}\`\n`;
       return menu;
     }
 
@@ -145,11 +145,26 @@ export class UserCliController extends AutoUiCliController {
   }
 
   /**
-   * Вход по ID (UUID).
+   * Вход по ID (UUID) с проверкой существования пользователя.
    */
-  private loginById(id: string): string {
-    this.setActor(id);
-    return `**Вход выполнен.** Активный пользователь: \`${id}\`\n\nВведите /app для возврата в меню.`;
+  private async loginById(id: string): Promise<string> {
+    try {
+      // Проверяем, существует ли пользователь с таким UUID
+      const response = await this.safeHandle("/user/user/list-users");
+      const data = JSON.parse(response) as {
+        users?: Array<{ uuid: string; name: string }>;
+      };
+
+      const user = data.users?.find((u) => u.uuid === id);
+      if (!user) {
+        return `**Ошибка:** Пользователь с ID \`${id}\` не найден.`;
+      }
+
+      this.setActor(user.uuid, user.name);
+      return `**Вход выполнен.** Активный пользователь: ${user.name} \`${user.uuid}\`\n\nВведите /app для возврата в меню.`;
+    } catch {
+      return `**Ошибка:** Не удалось проверить пользователя \`${id}\`.`;
+    }
   }
 
   /**
@@ -166,8 +181,8 @@ export class UserCliController extends AutoUiCliController {
         return `**Ошибка:** Пользователь с Telegram ID \`${telegramId}\` не найден.`;
       }
 
-      this.setActor(data.uuid);
-      return `**Вход выполнен.** Активный пользователь: \`${data.uuid}\` (${data.name ?? "без имени"})\n\nВведите /app для возврата в меню.`;
+      this.setActor(data.uuid, data.name);
+      return `**Вход выполнен.** Активный пользователь: ${data.name ?? data.uuid} \`${data.uuid}\`\n\nВведите /app для возврата в меню.`;
     } catch {
       return `**Ошибка:** Пользователь с Telegram ID \`${telegramId}\` не найден.`;
     }
@@ -199,8 +214,8 @@ export class UserCliController extends AutoUiCliController {
       }
 
       if (matches.length === 1) {
-        this.setActor(matches[0].uuid);
-        return `**Вход выполнен.** Активный пользователь: \`${matches[0].uuid}\` (${matches[0].name})\n\nВведите /app для возврата в меню.`;
+        this.setActor(matches[0].uuid, matches[0].name);
+        return `**Вход выполнен.** Активный пользователь: ${matches[0].name} \`${matches[0].uuid}\`\n\nВведите /app для возврата в меню.`;
       }
 
       // Несколько совпадений — показываем варианты

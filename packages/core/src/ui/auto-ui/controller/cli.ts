@@ -17,19 +17,24 @@ export abstract class AutoUiCliController extends AutoUiController {
     super(app);
   }
 
-  /** ID текущего активного пользователя (делегирует в app) */
+  /** Текущий активный пользователь (делегирует в app) */
+  get currentActor(): { uuid: string; name: string } | null {
+    return this.app.currentActor;
+  }
+
+  /** ID текущего активного пользователя */
   get actorId(): string | null {
-    return this.app.currentActorId;
+    return this.app.currentActor?.uuid ?? null;
   }
 
   /** Устанавливает активного пользователя */
-  setActor(id: string): void {
-    this.app.currentActorId = id;
+  setActor(uuid: string, name?: string): void {
+    this.app.currentActor = { uuid, name: name || uuid };
   }
 
   /** Сбрасывает сессию (logout) */
   clearActor(): void {
-    this.app.currentActorId = null;
+    this.app.currentActor = null;
   }
 
   // ── Абстрактные методы для CLI-окружения ──
