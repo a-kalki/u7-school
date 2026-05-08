@@ -82,7 +82,7 @@
     - [ ] `handleQuit()`: `console.log("До свидания!")`
 - [x] Task: Conductor - User Manual Verification 'Фаза 3: UserCliController' (Protocol in workflow.md)
 
-## Фаза 4: Очистка `AutoUiApp`
+## Фаза 4: Очистка `AutoUiApp` [checkpoint: 6e3730a]
 
 - [x] Task: Написать тесты для очищенного `AutoUiApp`
     - [ ] Тест: `handleInput("/app")` рендерит about через `render()`
