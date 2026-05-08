@@ -96,7 +96,7 @@ describe("AutoUiApp (очищенный)", () => {
 
 	it("передаёт currentActor.uuid в модуль при обработке intent", async () => {
 		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
-		mockModule.handleIntent = mock(async (intent: UIIntent, actorId: string | null) => {
+		mockModule.handleIntent = mock(async (intent: UIIntent, actorId?: string) => {
 			return `actor:${actorId}`;
 		});
 

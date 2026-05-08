@@ -55,7 +55,7 @@ export class AutoUiApp<
 		}
 
 		// Делегируем обработку модулю, передавая текущий actorId
-		return targetModule.handleIntent(intent, this.currentActor?.uuid ?? null);
+		return targetModule.handleIntent(intent, this.currentActor?.uuid);
 	}
 
 	/**
