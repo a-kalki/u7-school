@@ -38,16 +38,10 @@ export class AutoUiApp<
 
 		if (intent.type === "app") {
 			if (intent.command === "about") {
-				return this.renderAboutAsync();
+				return this.render();
 			}
 			if (intent.command === "modules") {
 				return this.renderModulesList();
-			}
-			if (intent.command === "register") {
-				return this.handleRegister();
-			}
-			if (intent.command === "login") {
-				return this.handleLogin((intent as { userId?: string }).userId);
 			}
 			return "Ошибка: Неопознанный ответ на уровне приложения.";
 		}
@@ -62,51 +56,6 @@ export class AutoUiApp<
 
 		// Делегируем обработку модулю, передавая текущий actorId
 		return targetModule.handleIntent(intent, this.currentActor?.uuid ?? null);
-	}
-
-	/**
-	 * Рендеринг стартового экрана (about) с учётом наличия пользователей.
-	 */
-	private async renderAboutAsync(): Promise<string> {
-		const title = this.about.title ? `**${this.about.title}**\n\n` : "";
-		const body = this.about.body;
-
-		// Проверяем, есть ли зарегистрированные пользователи
-		const hasUsers = await this.checkHasUsers();
-
-		let menu = "\n\n--- \n**Меню:**\n- Список модулей: `/modules`\n";
-
-		if (this.currentActor) {
-			menu += `- Активный пользователь: ${this.currentActor.name} \`${this.currentActor.uuid}\`\n`;
-		}
-
-		if (!hasUsers) {
-			menu += "- **Регистрация администратора:** `/register`\n";
-		} else if (!this.currentActor) {
-			menu += "- **Вход в систему:** `/login`\n";
-		}
-
-		return `${title}${body}${menu}`;
-	}
-
-	/**
-	 * Проверяет, есть ли пользователи в системе.
-	 */
-	private async checkHasUsers(): Promise<boolean> {
-		for (const mod of this.autoUiModules) {
-			try {
-				const result = await mod.resolver.apiModule.handle({
-					name: "list-users",
-					attrs: {},
-					actorId: "system-ui",
-				});
-				const data = result as { users?: unknown[] };
-				return (data.users?.length ?? 0) > 0;
-			} catch {
-				continue;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -130,77 +79,4 @@ export class AutoUiApp<
 		return `${title}${body}${menu}`;
 	}
 
-	/**
-	 * Обработка команды /register.
-	 * Находит первый модуль, поддерживающий create-user, и перенаправляет на него.
-	 */
-	private async handleRegister(): Promise<string> {
-		// Ищем модуль с use-case create-user
-		for (const mod of this.autoUiModules) {
-			const docTypes = mod.resolver.apiModule.getDocTypes();
-			const createUserUc = docTypes.find((u) => u.commandName === "create-user");
-			if (createUserUc) {
-				// Перенаправляем — показываем prompt для create-user
-				return (
-					"**Регистрация первого администратора**\n\n" +
-					(await mod.handleIntent(
-						{
-							type: "usecase",
-							moduleName: mod.name,
-							aggregateName: createUserUc.arName,
-							commandName: "create-user",
-							action: "prompt",
-						},
-						null,
-					))
-				);
-			}
-		}
-		return "Ошибка: Не найден модуль с поддержкой регистрации.";
-	}
-
-	/**
-	 * Обработка команды /login [userId].
-	 * Без аргументов — показывает список пользователей.
-	 * С аргументом — устанавливает текущего пользователя.
-	 */
-	private async handleLogin(userId?: string): Promise<string> {
-		// Ищем модуль с list-users
-		for (const mod of this.autoUiModules) {
-			const docTypes = mod.resolver.apiModule.getDocTypes();
-			const listUc = docTypes.find((u) => u.commandName === "list-users");
-			if (!listUc) continue;
-
-			if (userId) {
-				// Устанавливаем текущего пользователя
-				this.currentActor = { uuid: userId, name: userId };
-				return `**Вход выполнен.** Активный пользователь: \`${userId}\`\n\nВведите /app для возврата в меню.`;
-			}
-
-			// Показываем список пользователей
-			try {
-				const result = await this.autoUiModules[0].resolver.apiModule.handle({
-					name: "list-users",
-					attrs: {},
-					actorId: "system-ui",
-				});
-
-				const data = result as { users?: Array<{ uuid: string; name: string }> };
-				if (!data.users || data.users.length === 0) {
-					return "Нет зарегистрированных пользователей. Введите /register для создания первого администратора.";
-				}
-
-				let response = "**Выберите пользователя:**\n\n";
-				for (const user of data.users) {
-					response += `- ${user.name}: \`/login ${user.uuid}\`\n`;
-				}
-				response += "\nВведите `/login <id>` для входа.";
-				return response;
-			} catch {
-				return "Ошибка получения списка пользователей.";
-			}
-		}
-
-		return "Ошибка: Не найден модуль с поддержкой входа.";
-	}
 }
