@@ -1,0 +1,16 @@
+Task: UserJsonRepo (TDD: тесты + реализация)
+
+Реализован JSON-файловый репозиторий пользователей.
+
+Файлы:
+- packages/user/src/infra/db/user-json-repo.ts — реализация
+- packages/user/src/infra/db/user-json-repo.test.ts — тесты (38 тестов, 100% покрытие user-json-repo.ts)
+- packages/core/src/infra/index.ts — barrel для infra слоя
+- packages/core/src/index.ts — добавлен экспорт infra
+- packages/core/package.json — добавлен exports "./infra"
+
+Функциональность:
+- Реализует UserRepo с хранением в JSON-файле через JsonFileRepo<User>
+- Путь по умолчанию: data/users/users.json
+- Все методы: save, getByUuid, getByTelegramId, getAll (с фильтрами/сортировкой/лимитом), isTelegramIdTaken, isEmpty
+- При чтении невалидные объекты пропускаются
