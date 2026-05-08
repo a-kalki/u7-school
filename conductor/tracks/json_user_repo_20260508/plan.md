@@ -35,7 +35,7 @@
     - [x] Путь по умолчанию: `data/users/users.json` (от корня проекта)
 - [x] Task: Conductor - User Manual Verification 'Фаза 2: Реализация UserJsonRepo' (Protocol in workflow.md) [`598eee6`]
 
-## Фаза 3: Seed-данные и финальная интеграция
+## Фаза 3: Seed-данные и финальная интеграция [checkpoint: e361c1d]
 
 - [x] Task: Создать seed.json и механизм инициализации [`5588220`]
     - [x] Создать `data/users/seed.json` с одним пользователем ADMIN
@@ -49,4 +49,4 @@
     - [x] Запустить `bun test --filter @u7/user`
     - [x] Исправить тесты, завязанные на inMemory (если есть)
     - [x] Проверить интеграционные тесты Auto-UI
-- [~] Task: Conductor - User Manual Verification 'Фаза 3: Seed-данные и финальная интеграция' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: Seed-данные и финальная интеграция' (Protocol in workflow.md) [`e361c1d`]
