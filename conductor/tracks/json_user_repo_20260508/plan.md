@@ -1,6 +1,6 @@
 # План реализации: Постоянное JSON-хранилище пользователей
 
-## Фаза 1: Общий JSON-адаптер в core
+## Фаза 1: Общий JSON-адаптер в core [checkpoint: e2eb74c]
 
 - [x] Task: Написать тесты для `JsonFileRepo<T>` (TDD Red) [`4894252`]
     - [x] Создать `packages/core/src/infra/json-file-repo.test.ts`
@@ -13,7 +13,7 @@
     - [x] Параметры: путь к файлу, Valibot-схема для валидации
     - [x] Методы: `readAll()`, `writeAll(items)`
     - [x] При чтении: парсинг JSON → фильтрация через схему → лог предупреждений для невалидных записей
-- [~] Task: Conductor - User Manual Verification 'Фаза 1: Общий JSON-адаптер в core' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1: Общий JSON-адаптер в core' (Protocol in workflow.md) [`e2eb74c`]
 
 ## Фаза 2: Реализация UserJsonRepo в user
 
