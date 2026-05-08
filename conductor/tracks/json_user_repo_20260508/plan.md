@@ -49,4 +49,4 @@
     - [x] Запустить `bun test --filter @u7/user`
     - [x] Исправить тесты, завязанные на inMemory (если есть)
     - [x] Проверить интеграционные тесты Auto-UI
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Seed-данные и финальная интеграция' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Фаза 3: Seed-данные и финальная интеграция' (Protocol in workflow.md)
