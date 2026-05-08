@@ -47,7 +47,7 @@
     - [ ] При старте: `safeHandle("/app")` + `renderMenu()`
 - [x] Task: Conductor - User Manual Verification 'Фаза 2: AutoUiCliController' (Protocol in workflow.md)
 
-## Фаза 3: `UserCliController` (user)
+## Фаза 3: `UserCliController` (user) [checkpoint: bd4e218]
 
 - [x] Task: Написать тесты для `UserCliController` `9630437`
     - [ ] Тест: расширяет `AutoUiCliController`
