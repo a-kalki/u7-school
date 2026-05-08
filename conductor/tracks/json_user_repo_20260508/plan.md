@@ -33,7 +33,7 @@
     - [x] Реализует интерфейс `UserRepo`
     - [x] Фильтрация `getAll`: по `role`, `name` (частичное совпадение), `telegramId`, `sort`
     - [x] Путь по умолчанию: `data/users/users.json` (от корня проекта)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: Реализация UserJsonRepo' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Фаза 2: Реализация UserJsonRepo' (Protocol in workflow.md)
 
 ## Фаза 3: Seed-данные и финальная интеграция
 

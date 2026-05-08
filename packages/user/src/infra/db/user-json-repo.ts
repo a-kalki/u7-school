@@ -1,7 +1,7 @@
 import { JsonFileRepo } from "@u7/core/infra";
 import type { User } from "#domain/user/entity";
-import type { UserListFilter, UserRepo } from "#domain/user/repo";
 import { UserSchema } from "#domain/user/entity";
+import type { UserListFilter, UserRepo } from "#domain/user/repo";
 
 /**
  * JSON-файловая реализация репозитория пользователей.
@@ -45,14 +45,13 @@ export class UserJsonRepo implements UserRepo {
 
     if (filter) {
       if (filter.role) {
+        // biome-ignore lint/style/noNonNullAssertion: проверены выше;
         users = users.filter((u) => u.roles.includes(filter.role!));
       }
 
       if (filter.name) {
         const nameLower = filter.name.toLowerCase();
-        users = users.filter((u) =>
-          u.name.toLowerCase().includes(nameLower),
-        );
+        users = users.filter((u) => u.name.toLowerCase().includes(nameLower));
       }
 
       if (filter.telegramId !== undefined) {

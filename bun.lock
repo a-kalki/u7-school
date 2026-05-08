@@ -33,17 +33,10 @@
       "name": "@u7/cli",
       "version": "0.1.0",
       "dependencies": {
-        "@u7/auth": "workspace:*",
         "@u7/core": "workspace:*",
         "@u7/course": "workspace:*",
+        "@u7/user": "workspace:*",
         "valibot": "^1.2.0",
-      },
-    },
-    "packages/auth": {
-      "name": "@u7/auth",
-      "version": "0.1.0",
-      "dependencies": {
-        "@u7/core": "workspace:*",
       },
     },
     "packages/core": {
@@ -54,8 +47,15 @@
       "name": "@u7/course",
       "version": "0.1.0",
       "dependencies": {
-        "@u7/auth": "workspace:*",
+        "@u7/user": "workspace:*",
         "valibot": "^1.0.0",
+      },
+    },
+    "packages/user": {
+      "name": "@u7/user",
+      "version": "0.1.0",
+      "dependencies": {
+        "@u7/core": "workspace:*",
       },
     },
     "packages/w3school": {
@@ -126,8 +126,6 @@
 
     "@types/retry": ["@types/retry@0.12.0", "", {}, "sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA=="],
 
-    "@u7/auth": ["@u7/auth@workspace:packages/auth"],
-
     "@u7/bot": ["@u7/bot@workspace:apps/u7-bot"],
 
     "@u7/cli": ["@u7/cli@workspace:apps/u7-cli"],
@@ -135,6 +133,8 @@
     "@u7/core": ["@u7/core@workspace:packages/core"],
 
     "@u7/course": ["@u7/course@workspace:packages/course"],
+
+    "@u7/user": ["@u7/user@workspace:packages/user"],
 
     "@u7/w3school": ["@u7/w3school@workspace:packages/w3school"],
 
