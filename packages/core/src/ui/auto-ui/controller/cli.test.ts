@@ -14,7 +14,7 @@ class TestCliController extends AutoUiCliController {
   writePrompt(): void { process.stdout.write("\n> "); }
   handleQuit(): void { console.log("До свидания!"); }
   async handleRegister(): Promise<string> { return "register-handled"; }
-  async handleLogin(userId?: string): Promise<string> { return `login-${userId ?? "list"}`; }
+  async handleLogin(args?: string): Promise<string> { return `login-${args ?? "list"}`; }
   renderMenu(): string { return "меню"; }
 }
 
@@ -276,7 +276,7 @@ describe("AutoUiCliController", () => {
     logSpy.mockRestore();
   });
 
-  it('маршрутизирует "login" → handleLogin()', async () => {
+  it('маршрутизирует "login" (без аргументов) → handleLogin(undefined)', async () => {
     const mockApp = {
       handleInput: mock(async (text: string) => {
         if (text === "/app") return "Приветствие";
@@ -305,7 +305,7 @@ describe("AutoUiCliController", () => {
     logSpy.mockRestore();
   });
 
-  it('маршрутизирует "login <id>" → handleLogin(id)', async () => {
+  it('маршрутизирует "login <args>" → handleLogin(args)', async () => {
     const mockApp = {
       handleInput: mock(async (text: string) => {
         if (text === "/app") return "Приветствие";

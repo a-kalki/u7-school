@@ -48,8 +48,14 @@ export abstract class AutoUiCliController extends AutoUiController {
   /** Обработка команды /register */
   abstract handleRegister(): Promise<string>;
 
-  /** Обработка команды /login [userId] */
-  abstract handleLogin(userId?: string): Promise<string>;
+  /**
+   * Обработка команды /login [args].
+   * args — всё, что идёт после `/login` (может быть undefined).
+   * Наследник сам решает, как интерпретировать аргументы:
+   *   /login <uuid>, /login uuid: <uuid>,
+   *   /login telegramId: <num>, /login name: <часть имени>, и т.д.
+   */
+  abstract handleLogin(args?: string): Promise<string>;
 
   /** Рендеринг меню в зависимости от состояния сессии */
   abstract renderMenu(): string;
@@ -98,9 +104,9 @@ export abstract class AutoUiCliController extends AutoUiController {
           }
 
           if (trimmedLine.startsWith("/login")) {
-            const parts = trimmedLine.split(/\s+/);
-            const userId = parts.length > 1 ? parts[1] : undefined;
-            const response = await this.handleLogin(userId);
+            // Передаём всё после "/login" наследнику для гибкого парсинга
+            const args = trimmedLine.slice("/login".length).trim() || undefined;
+            const response = await this.handleLogin(args);
             console.log(`\n${response}`);
             this.writePrompt();
             continue;
