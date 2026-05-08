@@ -17,7 +17,7 @@
 
 ## Фаза 2: `AutoUiCliController` (core)
 
-- [ ] Task: Написать тесты для `AutoUiCliController`
+- [x] Task: Написать тесты для `AutoUiCliController` `042849c`
     - [ ] Тест: расширяет `AutoUiController`
     - [ ] Тест: `run()` запускает REPL-цикл с построчным вводом
     - [ ] Тест: буферизация: `/module/agg/uc` + параметры + пустая строка → выполнение
@@ -27,7 +27,7 @@
     - [ ] Тест: `clearActor()` сбрасывает `app.currentActorId`
     - [ ] Тест: `get actorId` читает `app.currentActorId`
     - [ ] Тест: `handleRegister()`, `handleLogin()`, `renderMenu()` — абстрактные
-- [ ] Task: Реализовать `AutoUiCliController`
+- [x] Task: Реализовать `AutoUiCliController` `042849c`
     - [ ] Создать `packages/core/src/ui/auto-ui/controller/cli.ts`
     - [ ] Расширяет `AutoUiController`
     - [ ] Управление сессией (на уровне CLI-контроллера):
@@ -45,11 +45,11 @@
     - [ ] REPL-цикл `run()` с буферизацией (из текущего `AutoUiConsoleController`)
     - [ ] При разборе `"register"` → `this.handleRegister()`, `"login"` → `this.handleLogin()`
     - [ ] При старте: `safeHandle("/app")` + `renderMenu()`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: AutoUiCliController' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: AutoUiCliController' (Protocol in workflow.md)
 
 ## Фаза 3: `UserCliController` (user)
 
-- [ ] Task: Написать тесты для `UserCliController`
+- [x] Task: Написать тесты для `UserCliController`
     - [ ] Тест: расширяет `AutoUiCliController`
     - [ ] Тест: `handleRegister()` — отправляет `app.handleInput("/user/user/create-user")` с action=prompt, возвращает отформатированный ответ
     - [ ] Тест: `handleRegister()` — форматирует экран "Регистрация первого администратора"
@@ -60,7 +60,7 @@
     - [ ] Тест: `createReadline()` возвращает readline.Interface
     - [ ] Тест: `writePrompt()` выводит `> `
     - [ ] Тест: `handleQuit()` выводит "До свидания!"
-- [ ] Task: Реализовать `UserCliController`
+- [x] Task: Реализовать `UserCliController`
     - [ ] Создать `packages/user/src/ui/auto-ui/controller/cli.ts`
     - [ ] Расширяет `AutoUiCliController`
     - [ ] Явно знает структуру модуля `user`:
@@ -80,43 +80,43 @@
     - [ ] `createReadline()`: `readline.createInterface({ input: process.stdin, output: process.stdout })`
     - [ ] `writePrompt()`: `process.stdout.write("\n> ")`
     - [ ] `handleQuit()`: `console.log("До свидания!")`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: UserCliController' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: UserCliController' (Protocol in workflow.md)
 
 ## Фаза 4: Очистка `AutoUiApp`
 
-- [ ] Task: Написать тесты для очищенного `AutoUiApp`
+- [x] Task: Написать тесты для очищенного `AutoUiApp`
     - [ ] Тест: `handleInput("/app")` рендерит about через `render()`
     - [ ] Тест: `handleInput("/app/modules")` рендерит список модулей
     - [ ] Тест: `handleInput` НЕ содержит обработку `"register"` и `"login"`
     - [ ] Тест: `currentActorId` сохраняется и читается
-- [ ] Task: Очистить `AutoUiApp`
+- [x] Task: Очистить `AutoUiApp`
     - [ ] Удалить методы: `handleRegister()`, `handleLogin()`, `checkHasUsers()`, `renderAboutAsync()`
     - [ ] Удалить case `"register"` и `"login"` из `handleInput()`
     - [ ] В `handleInput` для `"app"` оставить только `"about"` → `render()`, `"modules"` → `renderModulesList()`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4: Очистка AutoUiApp' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4: Очистка AutoUiApp' (Protocol in workflow.md)
 
 ## Фаза 5: Обновление `apps/u7-cli` и удаление `actor-session`
 
-- [ ] Task: Написать тесты для main.ts с UserCliController
+- [x] Task: Написать тесты для main.ts с UserCliController
     - [ ] Тест: `UserCliController` инициализируется с `AutoUiApp`
     - [ ] Тест: полная интеграция UserApiModule → UserAutoUiModule → AutoUiApp → UserCliController
-- [ ] Task: Обновить `main.ts`
+- [x] Task: Обновить `main.ts`
     - [ ] Импортировать `UserCliController` из `@u7/user/ui`
     - [ ] Заменить `new AutoUiConsoleController(app)` на `new UserCliController(app)`
-- [ ] Task: Удалить `apps/u7-cli/src/actor-session.ts` и `actor-session.test.ts`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5: Обновление u7-cli' (Protocol in workflow.md)
+- [x] Task: Удалить `apps/u7-cli/src/actor-session.ts` и `actor-session.test.ts`
+- [x] Task: Conductor - User Manual Verification 'Фаза 5: Обновление u7-cli' (Protocol in workflow.md)
 
 ## Фаза 6: Очистка экспортов и удаление старого кода
 
-- [ ] Task: Обновить экспорты `@u7/core/ui`
+- [x] Task: Обновить экспорты `@u7/core/ui`
     - [ ] Экспортировать `AutoUiController` из `base.ts`
     - [ ] Экспортировать `AutoUiCliController` из `cli.ts`
     - [ ] Удалить экспорт `AutoUiConsoleController`
-- [ ] Task: Удалить `console-controller.ts` и `console-controller.test.ts`
-- [ ] Task: Обновить экспорты `@u7/user/ui`
+- [x] Task: Удалить `console-controller.ts` и `console-controller.test.ts`
+- [x] Task: Обновить экспорты `@u7/user/ui`
     - [ ] Экспортировать `UserCliController` из `controller/cli.ts`
-- [ ] Task: Запустить полную проверку
+- [x] Task: Запустить полную проверку
     - [ ] `bun test` — все тесты проходят
     - [ ] `bunx biome check` — нет ошибок
     - [ ] `bun run typecheck` — типы проходят
-- [ ] Task: Conductor - User Manual Verification 'Фаза 6: Очистка и финальная проверка' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 6: Очистка и финальная проверка' (Protocol in workflow.md)
