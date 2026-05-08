@@ -90,7 +90,7 @@ describe("UserJsonRepo", () => {
   beforeEach(async () => {
     // Удаляем тестовый файл перед каждым тестом
     await Bun.$`rm -f ${TEST_FILE}`;
-    repo = new UserJsonRepo(TEST_FILE);
+    repo = new UserJsonRepo(TEST_FILE, "/nonexistent-seed.json");
   });
 
   describe("save", () => {
@@ -382,7 +382,7 @@ describe("UserJsonRepo", () => {
       await Bun.write(TEST_FILE, JSON.stringify(raw, null, 2));
 
       // Создаём новый репо на том же файле
-      const repo2 = new UserJsonRepo(TEST_FILE);
+      const repo2 = new UserJsonRepo(TEST_FILE, "/nonexistent-seed.json");
       const result = await repo2.getAll();
 
       // Должен быть только валидный user1
