@@ -1,5 +1,5 @@
-import { errNotFound } from "@u7/core/domain";
 import { type UcMeta, UseCase } from "@u7/core/api";
+import { errNotFound } from "@u7/core/domain";
 import type { UserApiModuleResolver } from "#domain/module";
 import type { UserNotFoundUcError } from "#domain/user/commands/errors";
 import type { User } from "#domain/user/entity";

@@ -23,7 +23,7 @@ export abstract class AutoUiModule<
   /**
    * Обработка намерений от AutoUiApp
    */
-  async handleIntent(intent: UIIntent, actorId: string | null = null): Promise<string> {
+  async handleIntent(intent: UIIntent, actorId?: string): Promise<string> {
     if (intent.type === "module") {
       if (intent.command === "about") {
         return this.renderAbout();
@@ -161,7 +161,8 @@ export abstract class AutoUiModule<
    */
   private coerceValue(
     value: string,
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+      Record<string, unknown>,
   ): unknown {
     let current = schema;
 
@@ -195,8 +196,10 @@ export abstract class AutoUiModule<
    * Извлекает схему элемента из схемы массива (с учётом обёрток).
    */
   private getArrayItemSchema(
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown>,
-  ): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> & Record<string, unknown> {
+    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+      Record<string, unknown>,
+  ): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+    Record<string, unknown> {
     let current = schema;
     while (current) {
       const type = current.type as string | undefined;
@@ -273,7 +276,7 @@ export abstract class AutoUiModule<
   private async executeUseCase(
     commandName: string,
     payload: string[],
-    actorId: string | null,
+    actorId?: string,
   ): Promise<string> {
     const uc = this.getDocTypes().find((u) => u.commandName === commandName);
     if (!uc) {
@@ -309,7 +312,7 @@ export abstract class AutoUiModule<
               .map((s) => this.coerceValue(s, itemSchema));
           } else {
             // @ts-expect-error:
-            attrs[key] = this.coerceValue(payload[i]!, entry);
+            attrs[key] = this.coerceValue(payload[i], entry);
           }
         }
       }

@@ -1,7 +1,7 @@
-import { describe, expect, test, beforeEach } from "bun:test";
-import { UserInmemoryRepo } from "./user-inmemory-repo";
-import { Role } from "../../domain/user/roles";
+import { beforeEach, describe, expect, test } from "bun:test";
 import type { User } from "../../domain/user/entity";
+import { Role } from "../../domain/user/roles";
+import { UserInmemoryRepo } from "./user-inmemory-repo";
 
 // Хелперы для создания тестовых данных
 const createTestUser = (overrides: Partial<User> = {}): User => ({
@@ -13,38 +13,48 @@ const createTestUser = (overrides: Partial<User> = {}): User => ({
   ...overrides,
 });
 
-const saveUsers = async (repo: UserInmemoryRepo, users: User[]): Promise<void> => {
+const saveUsers = async (
+  repo: UserInmemoryRepo,
+  users: User[],
+): Promise<void> => {
   for (const user of users) {
     await repo.save(user);
   }
 };
 
-const assertUserExists = async (repo: UserInmemoryRepo, uuid: string, expected: User): Promise<void> => {
+const assertUserExists = async (
+  repo: UserInmemoryRepo,
+  uuid: string,
+  expected: User,
+): Promise<void> => {
   const found = await repo.getByUuid(uuid);
   expect(found).toEqual(expected);
 };
 
-const assertUserNotFound = async (repo: UserInmemoryRepo, uuid: string): Promise<void> => {
+const assertUserNotFound = async (
+  repo: UserInmemoryRepo,
+  uuid: string,
+): Promise<void> => {
   const found = await repo.getByUuid(uuid);
   expect(found).toBeUndefined();
 };
 
 describe("UserInmemoryRepo", () => {
   let repo: UserInmemoryRepo;
-  
+
   const user1 = createTestUser({
     uuid: "550e8400-e29b-41d4-a716-446655440000",
     name: "Иван",
     telegramId: 123,
   });
-  
+
   const user2 = createTestUser({
     uuid: "660e8400-e29b-41d4-a716-446655440001",
     name: "Петр",
     telegramId: 456,
     roles: [Role.MENTOR],
   });
-  
+
   const user3 = createTestUser({
     uuid: "770e8400-e29b-41d4-a716-446655440002",
     name: "Мария",
@@ -89,7 +99,7 @@ describe("UserInmemoryRepo", () => {
 
     test("сохраняет несколько пользователей", async () => {
       await saveUsers(repo, [user1, user2]);
-      
+
       const all = await repo.getAll();
       expect(all).toHaveLength(2);
       expect(all).toContainEqual(user1);
@@ -98,19 +108,19 @@ describe("UserInmemoryRepo", () => {
 
     test("перезаписывает существующего пользователя по uuid", async () => {
       await repo.save(user1);
-      
+
       const updatedUser = { ...user1, name: "Иван Обновленный" };
       await repo.save(updatedUser);
-      
+
       await assertUserExists(repo, user1.uuid, updatedUser);
     });
 
     test("обновляет telegramId в мапе при перезаписи", async () => {
       await repo.save(user1);
-      
+
       const updatedUser = { ...user1, telegramId: 999 };
       await repo.save(updatedUser);
-      
+
       expect(await repo.getByTelegramId(user1.telegramId)).toBeUndefined();
       expect(await repo.getByTelegramId(999)).toEqual(updatedUser);
     });
@@ -130,7 +140,7 @@ describe("UserInmemoryRepo", () => {
   describe("getByTelegramId", () => {
     test("возвращает пользователя по существующему telegramId", async () => {
       await repo.save(user1);
-      
+
       const result = await repo.getByTelegramId(user1.telegramId);
       expect(result).toEqual(user1);
     });
@@ -148,7 +158,7 @@ describe("UserInmemoryRepo", () => {
 
     test("возвращает всех сохранённых пользователей", async () => {
       await saveUsers(repo, [user1, user2, user3]);
-      
+
       const result = await repo.getAll();
       expect(result).toHaveLength(3);
       expect(result).toEqual(expect.arrayContaining([user1, user2, user3]));
@@ -156,10 +166,10 @@ describe("UserInmemoryRepo", () => {
 
     test("возвращает актуальные данные после обновления", async () => {
       await repo.save(user1);
-      
+
       const updatedUser = { ...user1, name: "Новое имя" };
       await repo.save(updatedUser);
-      
+
       const all = await repo.getAll();
       expect(all).toHaveLength(1);
       expect(all[0]).toEqual(updatedUser);
@@ -194,7 +204,7 @@ describe("UserInmemoryRepo", () => {
       test("ищет по имени — точное совпадение", async () => {
         const result = await repo.getAll({ name: "Иван" });
         expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Иван");
+        expect(result[0]?.name).toBe("Иван");
       });
 
       test("ищет по имени — частичное совпадение", async () => {
@@ -208,7 +218,7 @@ describe("UserInmemoryRepo", () => {
       test("ищет по имени — регистронезависимо", async () => {
         const result = await repo.getAll({ name: "мария" });
         expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Мария");
+        expect(result[0]?.name).toBe("Мария");
       });
 
       test("ищет по имени — нет совпадений", async () => {
@@ -219,7 +229,7 @@ describe("UserInmemoryRepo", () => {
       test("фильтрует по telegramId — точное совпадение", async () => {
         const result = await repo.getAll({ telegramId: 123 });
         expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Иван");
+        expect(result[0]?.name).toBe("Иван");
       });
 
       test("фильтрует по telegramId — нет совпадений", async () => {
@@ -300,9 +310,9 @@ describe("UserInmemoryRepo", () => {
           sort: "name:asc",
         });
         expect(result).toHaveLength(3);
-        expect(result[0].name).toBe("Борис"); // Б < И < П
-        expect(result[1].name).toBe("Иван");
-        expect(result[2].name).toBe("Петр Студент");
+        expect(result[0]?.name).toBe("Борис"); // Б < И < П
+        expect(result[1]?.name).toBe("Иван");
+        expect(result[2]?.name).toBe("Петр Студент");
       });
 
       test("фильтр по имени + лимит", async () => {
@@ -318,7 +328,7 @@ describe("UserInmemoryRepo", () => {
           limit: 5,
         });
         expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Борис");
+        expect(result[0]?.name).toBe("Борис");
       });
 
       test("без фильтра — возвращает всех", async () => {
@@ -345,10 +355,10 @@ describe("UserInmemoryRepo", () => {
 
     test("отслеживает изменения при перезаписи", async () => {
       await repo.save(user1);
-      
+
       const updatedUser = { ...user1, telegramId: 999 };
       await repo.save(updatedUser);
-      
+
       expect(await repo.isTelegramIdTaken(user1.telegramId)).toBe(false);
       expect(await repo.isTelegramIdTaken(999)).toBe(true);
     });
@@ -369,15 +379,15 @@ describe("UserInmemoryRepo", () => {
     test("корректно работает последовательность операций", async () => {
       // Пустой репозиторий
       expect(await repo.isEmpty()).toBe(true);
-      
+
       // Сохраняем
       await saveUsers(repo, [user1, user2]);
       expect(await repo.getAll()).toHaveLength(2);
-      
+
       // Проверяем поиск
       expect(await repo.getByUuid(user1.uuid)).toEqual(user1);
       expect(await repo.getByTelegramId(user2.telegramId)).toEqual(user2);
-      
+
       // Обновляем
       const updated = { ...user1, name: "Обновлённый" };
       await repo.save(updated);

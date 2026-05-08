@@ -7,11 +7,9 @@ import { formatValibotErrors } from "./format-valibot-errors";
  * Абстрактный контроллер для AutoUiApp.
  * Обеспечивает общую логику обработки ввода и форматирования ошибок,
  * без привязки к конкретному интерфейсу (консоль, бот и т.д.).
- *
- * НЕ содержит логики register/login/session — только чистая обработка ввода.
  */
 export abstract class AutoUiController {
-  constructor(protected readonly app: AutoUiApp) {}
+  constructor(protected readonly app: AutoUiApp) { }
 
   /**
    * Безопасно выполняет handleInput и форматирует возможные ошибки.
