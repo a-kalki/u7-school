@@ -11,7 +11,8 @@
 		"./domain": "./src/domain/index.ts",
 		"./api": "./src/api/index.ts",
 		"./ui": "./src/ui/index.ts",
-		"./shared": "./src/shared/index.ts"
+		"./shared": "./src/shared/index.ts",
+		"./infra": "./src/infra/index.ts"
 	},
 	"imports": {
 		"#domain/*": "./src/domain/*.ts",
