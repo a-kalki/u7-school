@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { UserApiModule } from "@u7/user/api";
 import { UserAutoUiModule, UserCliController } from "@u7/user/ui";
-import { UserInmemoryRepo } from "@u7/user/infra";
+import { UserJsonRepo } from "@u7/user/infra";
 import { AutoUiApp } from "@u7/core/ui";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,7 +17,7 @@ describe("u7-cli с UserCliController", () => {
 	});
 
 	test("полная интеграция: UserApiModule → UserAutoUiModule → AutoUiApp → UserCliController", async () => {
-		const repo = new UserInmemoryRepo();
+		const repo = new UserJsonRepo("/tmp/u7-cli-main-test.json", "/nonexistent-seed.json");
 		const apiModule = new UserApiModule();
 		apiModule.init({ userRepo: repo });
 
@@ -37,7 +37,7 @@ describe("u7-cli с UserCliController", () => {
 	});
 
 	test("UserCliController handleRegister возвращает заголовок регистрации", async () => {
-		const repo = new UserInmemoryRepo();
+		const repo = new UserJsonRepo("/tmp/u7-cli-main-test2.json", "/nonexistent-seed.json");
 		const apiModule = new UserApiModule();
 		apiModule.init({ userRepo: repo });
 

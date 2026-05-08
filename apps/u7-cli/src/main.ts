@@ -2,7 +2,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AutoUiApp } from "@u7/core/ui";
 import { UserApiModule } from "@u7/user/api";
-import { UserInmemoryRepo } from "@u7/user/infra";
+import { UserJsonRepo } from "@u7/user/infra";
 import { UserAutoUiModule, UserCliController } from "@u7/user/ui";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -10,7 +10,7 @@ const rootDir = path.resolve(__dirname, "..");
 
 async function main() {
 	// --- User Domain Module ---
-	const userRepo = new UserInmemoryRepo();
+	const userRepo = new UserJsonRepo();
 	const apiModule = new UserApiModule();
 	apiModule.init({ userRepo });
 
