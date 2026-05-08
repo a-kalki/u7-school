@@ -1,0 +1,19 @@
+Отчёт о верификации Фазы 3 (UserCliController)
+
+Команда: CI=true bun test
+Результат: 360 pass, 0 fail
+
+Шаги ручной верификации: запуск приложения, проверка /register, /login, /quit
+Подтверждение пользователя: да (с доработками)
+
+Доработки по замечаниям:
+- currentActorId → currentActor {uuid, name} — показ имени при логине
+- loginById() проверяет существование через list-users
+- loginByTelegramId/loginByName — оставлены с обоснованием
+
+Изменённые файлы:
+- packages/user/src/ui/auto-ui/controller/cli.ts (+)
+- packages/user/src/ui/auto-ui/controller/cli.test.ts (+)
+- packages/core/src/ui/auto-ui/app/auto-ui-app.ts (currentActor)
+- packages/core/src/ui/auto-ui/controller/cli.ts (currentActor)
+- packages/core/src/ui/index.ts (экспорты)
