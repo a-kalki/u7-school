@@ -1,0 +1,13 @@
+Checkpoint: Фаза 2 — Реализация UserJsonRepo
+
+Автоматические тесты: bun test packages/user/ --coverage
+Результат: все тесты user проходят, user-json-repo.ts — 100% покрытие
+
+Ручная верификация:
+- UserJsonRepo реализует UserRepo с хранением в JSON через JsonFileRepo<User>
+- 38 тестов покрывают все методы интерфейса
+- Фильтрация (role, name, telegramId), сортировка, лимит — идентично inMemory
+- Невалидные объекты в JSON пропускаются с warn
+- Экспорт infra из core добавлен
+
+Подтверждение пользователя: да
