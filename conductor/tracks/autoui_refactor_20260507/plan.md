@@ -1,6 +1,6 @@
 # План реализации: Рефакторинг auto-ui слоя
 
-## Фаза 1: Абстрактный `AutoUiController` (core)
+## Фаза 1: Абстрактный `AutoUiController` (core) [checkpoint: 0895148]
 
 - [x] Task: Написать тесты для `AutoUiController` `2062c79`
     - [ ] Тест: `safeHandle` делегирует в `app.handleInput` и возвращает строку
