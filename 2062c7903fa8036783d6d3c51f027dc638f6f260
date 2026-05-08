@@ -1,0 +1,6 @@
+Задача: Написать тесты для AutoUiController и реализовать AutoUiController
+- Создан AutoUiController (base.ts): абстрактный контроллер без REPL, без auth
+- Метод safeHandle(): делегирует в app.handleInput(), перехватывает и форматирует ошибки
+- Метод formatError(): форматирует AppException, Valibot-ошибки и обычные Error
+- 6 тестов покрывают: делегирование, AppException, Valibot-валидацию, обычные ошибки, строковые исключения, конструктор
+Файлы: packages/core/src/ui/auto-ui/controller/base.ts (+), packages/core/src/ui/auto-ui/controller/base.test.ts (+)
