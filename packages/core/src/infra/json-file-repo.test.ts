@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, afterEach } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import * as v from "valibot";
 import { JsonFileRepo, JsonFileRepoError } from "./json-file-repo";
 
@@ -112,7 +112,10 @@ describe("JsonFileRepo", () => {
 
     test("не-массив в JSON выбрасывает JsonFileRepoError", async () => {
       const filePath = testFile("not-array.json");
-      await Bun.write(filePath, JSON.stringify({ id: "1", name: "Один" }, null, 2));
+      await Bun.write(
+        filePath,
+        JSON.stringify({ id: "1", name: "Один" }, null, 2),
+      );
 
       const repo = new JsonFileRepo(ItemSchema, filePath);
 

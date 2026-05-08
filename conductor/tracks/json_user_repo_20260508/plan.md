@@ -13,7 +13,7 @@
     - [x] Параметры: путь к файлу, Valibot-схема для валидации
     - [x] Методы: `readAll()`, `writeAll(items)`
     - [x] При чтении: парсинг JSON → фильтрация через схему → лог предупреждений для невалидных записей
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1: Общий JSON-адаптер в core' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Фаза 1: Общий JSON-адаптер в core' (Protocol in workflow.md)
 
 ## Фаза 2: Реализация UserJsonRepo в user
 
