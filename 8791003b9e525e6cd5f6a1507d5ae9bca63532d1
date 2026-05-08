@@ -1,0 +1,10 @@
+Task: Интеграция UserJsonRepo + прогон всех тестов
+
+Файлы:
+- packages/user/src/infra/index.ts — добавлен экспорт UserJsonRepo
+- packages/user/src/api/module.test.ts — тесты совместимости с UserJsonRepo
+- packages/user/src/infra/db/user-json-repo.test.ts — исправлен seedPath в тестах
+- data/users/seed.json — исправлен формат даты (без секунд)
+
+Результат: bun test packages/user/ → 187 pass, 0 fail
+UserJsonRepo полностью совместим с DI модуля (UserApiModule.init({userRepo: new UserJsonRepo(...)}))
