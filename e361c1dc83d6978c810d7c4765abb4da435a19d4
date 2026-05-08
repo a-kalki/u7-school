@@ -1,0 +1,15 @@
+Checkpoint: Фаза 3 — Seed-данные и финальная интеграция
+
+Автоматические тесты:
+- bun test packages/user/ packages/core/src/infra/json-file-repo.test.ts → 155 pass, 0 fail
+- bun test apps/u7-cli/ → 3 pass, 0 fail
+
+Финальное состояние:
+- JsonFileRepo<T> в core — универсальный JSON-адаптер (8 тестов, 100% покрытие)
+- UserJsonRepo — реализация UserRepo с seed-инициализацией (41 тест, 100% покрытие)
+- UserInmemoryRepo удалён, все использования заменены на UserJsonRepo
+- u7-cli main.ts использует UserJsonRepo
+- data/users/seed.json содержит ADMIN
+- При первом запуске: файла users.json нет → авто-загрузка из seed
+
+Подтверждение пользователя: да
