@@ -15,7 +15,7 @@
     - [x] При чтении: парсинг JSON → фильтрация через схему → лог предупреждений для невалидных записей
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: Общий JSON-адаптер в core' (Protocol in workflow.md) [`e2eb74c`]
 
-## Фаза 2: Реализация UserJsonRepo в user
+## Фаза 2: Реализация UserJsonRepo в user [checkpoint: 598eee6]
 
 - [x] Task: Написать тесты для `UserJsonRepo` (TDD Red) [`c22bbe6`]
     - [x] Создать `packages/user/src/infra/db/user-json-repo.test.ts`
@@ -33,7 +33,7 @@
     - [x] Реализует интерфейс `UserRepo`
     - [x] Фильтрация `getAll`: по `role`, `name` (частичное совпадение), `telegramId`, `sort`
     - [x] Путь по умолчанию: `data/users/users.json` (от корня проекта)
-- [~] Task: Conductor - User Manual Verification 'Фаза 2: Реализация UserJsonRepo' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: Реализация UserJsonRepo' (Protocol in workflow.md) [`598eee6`]
 
 ## Фаза 3: Seed-данные и финальная интеграция
 
