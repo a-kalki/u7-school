@@ -57,8 +57,8 @@ export abstract class AutoUiCliController extends AutoUiController {
    */
   abstract handleLogin(args?: string): Promise<string>;
 
-  /** Рендеринг меню в зависимости от состояния сессии */
-  abstract renderMenu(): string;
+  /** Рендеринг меню в зависимости от состояния сессии (может быть асинхронным) */
+  abstract renderMenu(): Promise<string>;
 
   // ── REPL-цикл ──
 
@@ -74,7 +74,7 @@ export abstract class AutoUiCliController extends AutoUiController {
       // 1. При старте — about и меню
       const aboutResponse = await this.safeHandle("/app");
       console.log(`\n${aboutResponse}`);
-      console.log(this.renderMenu());
+      console.log(await this.renderMenu());
 
       this.writePrompt();
 

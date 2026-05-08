@@ -15,7 +15,7 @@ class TestCliController extends AutoUiCliController {
   handleQuit(): void { console.log("До свидания!"); }
   async handleRegister(): Promise<string> { return "register-handled"; }
   async handleLogin(args?: string): Promise<string> { return `login-${args ?? "list"}`; }
-  renderMenu(): string { return "меню"; }
+  async renderMenu(): Promise<string> { return "меню"; }
 }
 
 describe("AutoUiCliController", () => {
@@ -210,7 +210,7 @@ describe("AutoUiCliController", () => {
     // Все абстрактные методы должны быть реализованы в TestCliController
     expect(() => ctrl.handleRegister()).not.toThrow();
     expect(() => ctrl.handleLogin()).not.toThrow();
-    expect(() => ctrl.renderMenu()).not.toThrow();
+    expect(async () => await ctrl.renderMenu()).not.toThrow();
     expect(() => ctrl.createReadline()).not.toThrow();
     expect(() => ctrl.writePrompt()).not.toThrow();
     expect(() => ctrl.handleQuit()).not.toThrow();

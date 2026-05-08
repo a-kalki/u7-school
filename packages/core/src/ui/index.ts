@@ -3,6 +3,8 @@ export { AutoUiApp } from "./auto-ui/app/auto-ui-app";
 export { AutoUiModule } from "./auto-ui/module/auto-ui-module";
 export type { AutoUiModuleResolver } from "./auto-ui/module/auto-ui-module";
 export { CommandParser } from "./auto-ui/parser/command-parser";
+export { AutoUiController } from "./auto-ui/controller/base";
+export { AutoUiCliController } from "./auto-ui/controller/cli";
 export { AutoUiConsoleController } from "./auto-ui/controller/console-controller";
 export { formatValibotErrors } from "./auto-ui/controller/format-valibot-errors";
 export { UIApp, type UIAppResolver } from "./ui-base/ui-app";
