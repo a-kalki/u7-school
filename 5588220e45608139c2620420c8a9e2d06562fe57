@@ -1,0 +1,13 @@
+Task: Seed-инициализация UserJsonRepo
+
+Файлы:
+- data/users/seed.json — начальный ADMIN-пользователь
+- packages/user/src/infra/db/user-json-repo.ts — механизм #ensureInit()
+- packages/user/src/infra/db/user-json-repo.test.ts — 3 теста seed
+- packages/core/src/infra/json-file-repo.ts — добавлен геттер filePath
+
+Функциональность:
+- При первом обращении к репо, если data-файл отсутствует, загружается seed.json
+- Seed валидируется через JsonFileRepo (невалидные записи пропускаются)
+- Существующие данные не перезаписываются seed-ом
+- Невалидный JSON в seed → предупреждение и пустое хранилище
