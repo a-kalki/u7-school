@@ -2,17 +2,17 @@
 
 ## Фаза 1: Общий JSON-адаптер в core
 
-- [ ] Task: Написать тесты для `JsonFileRepo<T>` (TDD Red)
-    - [ ] Создать `packages/core/src/infra/json-file-repo.test.ts`
-    - [ ] Тест: запись и чтение массива объектов
-    - [ ] Тест: валидация объектов через Valibot-схему (невалидные пропускаются)
-    - [ ] Тест: пустой/отсутствующий файл → возврат пустого массива
-    - [ ] Тест: сохранение перезаписывает файл полностью
-- [ ] Task: Реализовать `JsonFileRepo<T>` (TDD Green + Refactor)
-    - [ ] Создать `packages/core/src/infra/json-file-repo.ts`
-    - [ ] Параметры: путь к файлу, Valibot-схема для валидации
-    - [ ] Методы: `readAll()`, `writeAll(items)`
-    - [ ] При чтении: парсинг JSON → фильтрация через схему → лог предупреждений для невалидных записей
+- [x] Task: Написать тесты для `JsonFileRepo<T>` (TDD Red) [`4894252`]
+    - [x] Создать `packages/core/src/infra/json-file-repo.test.ts`
+    - [x] Тест: запись и чтение массива объектов
+    - [x] Тест: валидация объектов через Valibot-схему (невалидные пропускаются)
+    - [x] Тест: пустой/отсутствующий файл → возврат пустого массива
+    - [x] Тест: сохранение перезаписывает файл полностью
+- [x] Task: Реализовать `JsonFileRepo<T>` (TDD Green + Refactor) [`4894252`]
+    - [x] Создать `packages/core/src/infra/json-file-repo.ts`
+    - [x] Параметры: путь к файлу, Valibot-схема для валидации
+    - [x] Методы: `readAll()`, `writeAll(items)`
+    - [x] При чтении: парсинг JSON → фильтрация через схему → лог предупреждений для невалидных записей
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Общий JSON-адаптер в core' (Protocol in workflow.md)
 
 ## Фаза 2: Реализация UserJsonRepo в user
