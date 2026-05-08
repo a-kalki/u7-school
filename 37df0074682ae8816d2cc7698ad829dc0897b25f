@@ -1,0 +1,9 @@
+Отчёт о верификации Фазы 5 (Обновление u7-cli)
+
+Команда: CI=true bun test
+Результат: 355 pass, 0 fail
+
+Изменения:
+- main.ts: AutoUiConsoleController → UserCliController
+- Удалены actor-session.ts и actor-session.test.ts
+- Экспортирован UserCliController из @u7/user/ui
