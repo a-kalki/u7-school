@@ -32,3 +32,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# w3school downloaded course files (generated, should not be committed)
+packages/w3school/www.w3schools.com/
+packages/w3school/w3schools.com/
