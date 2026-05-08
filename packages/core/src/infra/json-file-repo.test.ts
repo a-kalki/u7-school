@@ -1,7 +1,6 @@
 import { describe, expect, test, beforeEach, afterEach } from "bun:test";
-import { unlinkSync } from "node:fs";
 import * as v from "valibot";
-import { JsonFileRepo } from "./json-file-repo";
+import { JsonFileRepo, JsonFileRepoError } from "./json-file-repo";
 
 // Тестовая схема для проверки валидации
 const ItemSchema = v.object({
@@ -49,14 +48,12 @@ describe("JsonFileRepo", () => {
       expect(result).toEqual([]);
     });
 
-    test("возвращает пустой массив для пустого файла", async () => {
+    test("выбрасывает JsonFileRepoError для пустого файла", async () => {
       const filePath = testFile("empty.json");
       await Bun.write(filePath, "");
       const repo = new JsonFileRepo(ItemSchema, filePath);
 
-      const result = await repo.readAll();
-
-      expect(result).toEqual([]);
+      await expect(repo.readAll()).rejects.toThrow(JsonFileRepoError);
     });
 
     test("сохранение полностью перезаписывает файл", async () => {
@@ -113,14 +110,22 @@ describe("JsonFileRepo", () => {
       expect(result).toEqual([]);
     });
 
-    test("валидный JSON но не массив — возвращает пустой массив", async () => {
+    test("не-массив в JSON выбрасывает JsonFileRepoError", async () => {
       const filePath = testFile("not-array.json");
       await Bun.write(filePath, JSON.stringify({ id: "1", name: "Один" }, null, 2));
 
       const repo = new JsonFileRepo(ItemSchema, filePath);
-      const result = await repo.readAll();
 
-      expect(result).toEqual([]);
+      await expect(repo.readAll()).rejects.toThrow(JsonFileRepoError);
+    });
+
+    test("битый JSON выбрасывает JsonFileRepoError", async () => {
+      const filePath = testFile("broken.json");
+      await Bun.write(filePath, "{not valid json");
+
+      const repo = new JsonFileRepo(ItemSchema, filePath);
+
+      await expect(repo.readAll()).rejects.toThrow(JsonFileRepoError);
     });
   });
 });
