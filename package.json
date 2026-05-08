@@ -9,9 +9,18 @@
 	],
 	"scripts": {
 		"test": "bun test",
-		"lint": "biome lint apps/ packages/*/src/ package.json biome.json",
-		"format": "biome format apps/ packages/*/src/ package.json biome.json --write",
-		"check": "biome check apps/ packages/*/src/ package.json biome.json --write"
+		"test:p": "bash -c 'bun run --cwd \"packages/${0}\" test'",
+		"test:a": "bash -c 'bun run --cwd \"apps/${0}\" test'",
+		"lint": "bunx biome check .",
+		"lint:p": "bash -c 'bun run --cwd \"packages/${0}\" lint'",
+		"lint:a": "bash -c 'bun run --cwd \"apps/${0}\" lint'",
+		"format": "bunx biome check . --write",
+		"tslint": "tsc --noEmit",
+		"tslint:p": "bash -c 'bun run --cwd \"packages/${0}\" tslint'",
+		"tslint:a": "bash -c 'bun run --cwd \"apps/${0}\" tslint'",
+		"check": "bun run lint && bun run tslint && bun test",
+		"check:p": "bash -c 'bun run --cwd \"packages/${0}\" check'",
+		"check:a": "bash -c 'bun run --cwd \"apps/${0}\" check'"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.6",

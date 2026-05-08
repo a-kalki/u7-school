@@ -5,7 +5,11 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"test": "bun test"
+		"test": "bun test",
+		"lint": "bunx biome check .",
+		"tslint": "tsc --noEmit",
+		"format": "bunx biome check . --write",
+		"check": "bun run lint && bun run tslint && bun test"
 	},
 	"dependencies": {
 		"@u7/user": "workspace:*",

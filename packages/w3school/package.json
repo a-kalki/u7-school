@@ -7,6 +7,13 @@
 	},
 	"type": "module",
 	"private": true,
+	"scripts": {
+		"test": "bun test",
+		"lint": "bunx biome check .",
+		"tslint": "tsc --noEmit",
+		"format": "bunx biome check . --write",
+		"check": "bun run lint && bun run tslint && bun test"
+	},
 	"dependencies": {
 		"cheerio": "^1.2.0",
 		"turndown": "^7.2.4"
