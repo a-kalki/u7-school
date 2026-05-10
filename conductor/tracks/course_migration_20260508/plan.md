@@ -37,22 +37,22 @@
 
 ## Фаза 3: Агрегат Step (Domain)
 
-- [ ] Task: Создать `domain/step/entity.ts` (`StepSchema`, `Step`, `StepArMeta`) — variant text/code/file
-    - [ ] Написать тесты для `StepSchema`
-    - [ ] Реализовать схему (включая варианты) и тип
-- [ ] Task: Создать `domain/step/a-root.ts` (`StepAr`)
-    - [ ] Написать тесты для `StepAr`
-    - [ ] Реализовать агрегат с фабричным методом `create()`
-- [ ] Task: Создать `domain/step/policy.ts` (`StepPolicy`) — делегирует редактирование CoursePolicy
-    - [ ] Написать тесты для `StepPolicy`
-    - [ ] Реализовать политику
-- [ ] Task: Создать `domain/step/repo.ts` (интерфейс `StepRepo`)
-- [ ] Task: Создать `domain/step/types.ts`
-- [ ] Task: Создать `domain/step/errors.ts`
-- [ ] Task: Создать команды `domain/step/commands/`
-    - [ ] `create-step-cmd.ts`
-    - [ ] `get-step-cmd.ts`
-    - [ ] `errors.ts`
+- [x] Task: Создать `domain/step/entity.ts` (`StepSchema`, `Step`, `StepArMeta`) — variant text/code/file `9b5dc92`
+    - [x] Написать тесты для `StepSchema`
+    - [x] Реализовать схему (включая варианты) и тип
+- [x] Task: Создать `domain/step/a-root.ts` (`StepAr`) `9b5dc92`
+    - [x] Написать тесты для `StepAr`
+    - [x] Реализовать агрегат с фабричным методом `create()`
+- [x] Task: Создать `domain/step/policy.ts` (`StepPolicy`) — делегирует редактирование CoursePolicy `9b5dc92`
+    - [x] Написать тесты для `StepPolicy`
+    - [x] Реализовать политику
+- [x] Task: Создать `domain/step/repo.ts` (интерфейс `StepRepo`) `9b5dc92`
+- [x] Task: Создать `domain/step/types.ts` `9b5dc92`
+- [x] Task: Создать `domain/step/errors.ts` `9b5dc92`
+- [x] Task: Создать команды `domain/step/commands/` `9b5dc92`
+    - [x] `create-step-cmd.ts`
+    - [x] `get-step-cmd.ts`
+    - [x] `errors.ts`
 - [ ] Task: Conductor - User Manual Verification 'Step' (Protocol in workflow.md)
 
 ## Фаза 4: Агрегат Lesson (Domain)
