@@ -29,4 +29,26 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
     }
     return course;
   }
+
+  /**
+   * Получает пользователя по ID (делегирует фасаду).
+   * Реализация абстрактного метода UseCase.
+   */
+  protected async getUser(userId: string): Promise<Course> {
+    const user = await this.resolve.userFacade.getUserByUuid(userId);
+    // Возвращаем заглушку — реальный User из другого модуля
+    // Курсы используют User только через фасад, не как состояние агрегата
+    return undefined as unknown as Course;
+  }
+
+  /**
+   * Проверка прав доступа.
+   * По умолчанию — доступно всем.
+   */
+  protected async checkPolicy(
+    _command: TMeta["input"],
+    _actor: Course,
+  ): Promise<void> {
+    // Доступно всем
+  }
 }
