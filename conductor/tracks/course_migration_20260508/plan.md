@@ -105,22 +105,22 @@
 
 ## Фаза 7: Infra — реализации репозиториев и фасада
 
-- [ ] Task: Создать `infra/db/course-json-repo.ts` (`CourseJsonRepo`)
-    - [ ] Написать тесты для `CourseJsonRepo`
-    - [ ] Реализовать на основе `JsonFileRepo`
-- [ ] Task: Создать `infra/db/lesson-json-repo.ts` (`LessonJsonRepo`)
-    - [ ] Написать тесты для `LessonJsonRepo`
-    - [ ] Реализовать на основе `JsonFileRepo`
-- [ ] Task: Создать `infra/db/step-json-repo.ts` (`StepJsonRepo`)
-    - [ ] Написать тесты для `StepJsonRepo`
-    - [ ] Реализовать на основе `JsonFileRepo`
-- [ ] Task: Создать `infra/db/file-metadata-json-repo.ts` (`FileMetadataJsonRepo`)
-    - [ ] Написать тесты для `FileMetadataJsonRepo`
-    - [ ] Реализовать на основе `JsonFileRepo`
-- [ ] Task: Создать `infra/user-in-proc-facade.ts` (`UserInProcFacade`)
-    - [ ] Написать тесты для `UserInProcFacade`
-    - [ ] Реализовать фасад (принимает `UserApiModule`, делегирует вызовы)
-- [ ] Task: Создать `infra/index.ts` — реэкспорт
+- [x] Task: Создать `infra/db/course-json-repo.ts` (`CourseJsonRepo`) `baa14bd`
+    - [x] Написать тесты для `CourseJsonRepo`
+    - [x] Реализовать на основе `JsonFileRepo`
+- [x] Task: Создать `infra/db/lesson-json-repo.ts` (`LessonJsonRepo`) `baa14bd`
+    - [x] Написать тесты для `LessonJsonRepo`
+    - [x] Реализовать на основе `JsonFileRepo`
+- [x] Task: Создать `infra/db/step-json-repo.ts` (`StepJsonRepo`) `baa14bd`
+    - [x] Написать тесты для `StepJsonRepo`
+    - [x] Реализовать на основе `JsonFileRepo`
+- [x] Task: Создать `infra/db/file-metadata-json-repo.ts` (`FileMetadataJsonRepo`) `baa14bd`
+    - [x] Написать тесты для `FileMetadataJsonRepo`
+    - [x] Реализовать на основе `JsonFileRepo`
+- [x] Task: Создать `infra/user-in-proc-facade.ts` (`UserInProcFacade`) `baa14bd`
+    - [x] Написать тесты для `UserInProcFacade`
+    - [x] Реализовать фасад (принимает `UserApiModule`, делегирует вызовы)
+- [x] Task: Создать `infra/index.ts` — реэкспорт `baa14bd`
 - [ ] Task: Conductor - User Manual Verification 'Infra' (Protocol in workflow.md)
 
 ## Фаза 8: API — Use-case'ы и модуль
