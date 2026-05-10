@@ -1,0 +1,7 @@
+Задача: Создать Status enum и StatusSchema
+
+Изменения:
+- domain/status.ts: Status enum (DRAFT, PUBLISHED, ARCHIVED) + StatusSchema (v.picklist)
+- domain/status.test.ts: 3 теста (определение значений, валидная валидация, невалидная валидация)
+
+Причина: общий перечислимый тип статуса для всех агрегатов модуля course
