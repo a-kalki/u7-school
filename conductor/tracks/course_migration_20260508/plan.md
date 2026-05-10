@@ -77,25 +77,25 @@
 
 ## Фаза 5: Агрегат Course (Domain)
 
-- [ ] Task: Создать `domain/course/entity.ts` — Course + Module + Project схемы и типы
-    - [ ] Написать тесты для `CourseSchema` (включая variants)
-    - [ ] Написать тесты для `ModuleSchema`
-    - [ ] Написать тесты для `ProjectSchema`
-    - [ ] Реализовать все схемы и `CourseArMeta`
-- [ ] Task: Создать `domain/course/a-root.ts` (`CourseAr`)
-    - [ ] Написать тесты для `CourseAr`
-    - [ ] Реализовать агрегат с фабричным методом `create()`
-- [ ] Task: Создать `domain/course/policy.ts` (`CoursePolicy`)
-    - [ ] Написать тесты для `CoursePolicy`
-    - [ ] Реализовать политику (canCreate: ADMIN/MENTOR, canRead: все, canEdit: ADMIN или автор)
-- [ ] Task: Создать `domain/course/repo.ts` (интерфейс `CourseRepo` + `CourseListFilter`)
-- [ ] Task: Создать `domain/course/types.ts`
-- [ ] Task: Создать `domain/course/errors.ts`
-- [ ] Task: Создать команды `domain/course/commands/`
-    - [ ] `create-course-cmd.ts`
-    - [ ] `get-course-cmd.ts`
-    - [ ] `list-courses-cmd.ts`
-    - [ ] `errors.ts`
+- [x] Task: Создать `domain/course/entity.ts` — Course + Module + Project схемы и типы `bda2948`
+    - [x] Написать тесты для `CourseSchema` (включая variants)
+    - [x] Написать тесты для `ModuleSchema`
+    - [x] Написать тесты для `ProjectSchema`
+    - [x] Реализовать все схемы и `CourseArMeta`
+- [x] Task: Создать `domain/course/a-root.ts` (`CourseAr`) `bda2948`
+    - [x] Написать тесты для `CourseAr`
+    - [x] Реализовать агрегат с фабричным методом `create()`
+- [x] Task: Создать `domain/course/policy.ts` (`CoursePolicy`) `bda2948`
+    - [x] Написать тесты для `CoursePolicy`
+    - [x] Реализовать политику (canCreate: ADMIN/MENTOR, canRead: все, canEdit: ADMIN или автор)
+- [x] Task: Создать `domain/course/repo.ts` (интерфейс `CourseRepo` + `CourseListFilter`) `bda2948`
+- [x] Task: Создать `domain/course/types.ts` `bda2948`
+- [x] Task: Создать `domain/course/errors.ts` `bda2948`
+- [x] Task: Создать команды `domain/course/commands/` `bda2948`
+    - [x] `create-course-cmd.ts`
+    - [x] `get-course-cmd.ts`
+    - [x] `list-courses-cmd.ts`
+    - [x] `errors.ts`
 - [ ] Task: Conductor - User Manual Verification 'Course' (Protocol in workflow.md)
 
 ## Фаза 6: Domain — сборка слоя
