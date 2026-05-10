@@ -1,4 +1,6 @@
 import * as v from "valibot";
+import { UserUseCase } from "#api/user-uc";
+import { RoleSchema } from "#domain/index";
 import {
   type ListUsersCmd,
   type ListUsersCmdMeta,
@@ -7,8 +9,6 @@ import {
 } from "#domain/user/commands/list-users-cmd";
 import type { User } from "#domain/user/entity";
 import { UserSchema } from "#domain/user/entity";
-import { UserUseCase } from "#api/user-uc";
-import { Role, RoleSchema } from "#domain/index";
 
 /**
  * Use-case получения списка пользователей с фильтрацией и сортировкой.
@@ -28,7 +28,7 @@ export class ListUsersUc extends UserUseCase<ListUsersCmdMeta> {
     total: v.number(),
     appliedFilters: v.object({
       limit: v.number(),
-      role: v.optional(v.string()),
+      role: v.optional(RoleSchema),
       name: v.optional(v.string()),
       telegramId: v.optional(v.number()),
       sort: v.string(),

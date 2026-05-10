@@ -1,5 +1,27 @@
 # Todo задачи
 
+## Перепроектировать AutoUiApp, ApiModule
+1. Сделать новый AppMeta: name, modules: union of ModuleMeta;
+1. Создать абстрактный App<AppMeta>, их расширяют AutoUiApp;
+1. Похоже AutoUiApp (как и последующие BotApp, RestApp) должны переехать в слой api, они ответственны за запуск приложения на сервере;
+1. Посмотреть нужен ли AutoUiModule (как и в будущем BotUiModule, RestUiModule);
+1. ModuleMeta принимает union UcMeta, ApiModule.usecases через типы следит чтобы регистрировались только те usecase которые указаны в ModuleMeta['usecases'];
+1. AutoUiModule (если решим оставить) должен предоставлять свой метод handle, сейчас он пользуется закрытым свойством resolver.apiModule.hangle(...);
+1. AutoUiApp в методе callUseCase через дженерик следит чтобы были переданы верные (связанные) moduleName, us-command;
+1. ModuleFacadе, должны принимать тоже принимают дженерик параметр ModuleMeta и в своей реализации следят за корректностью типов ModuleMeta.UcMeta.UcCommand;
+
+
+// Todo
+## README.md
+Обновить файл README.md в связи с изменениями структуры и команд.
+1. О проекте (текущее, можно развернуть если есть чем);
+1. Уровни документации:
+    - о текущем документе;
+    - документация о разработке, в `conductor/`;
+1. Рассказать о модулях проекта, какие есть, что делают;
+1. Как развернуть (последовательность действий и команд. Например, установить postgres, сделать git clone, bun install, настроить .env.production, bun start:prod).
+
+// Todo
 ## UI основанный на user-story
 
 Это заготовка на возможную будущую имплементацию более человечного ui основанного на user-story.

@@ -47,6 +47,7 @@
       "name": "@u7/course",
       "version": "0.1.0",
       "dependencies": {
+        "@u7/core": "workspace:*",
         "@u7/user": "workspace:*",
         "valibot": "^1.0.0",
       },

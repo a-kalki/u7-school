@@ -5,7 +5,7 @@ import { Role } from "#domain/user/roles";
 import { ListUsersUc } from "./list-users-uc";
 
 function setupUc() {
-  const save = mock(async (): Promise<void> => {});
+  const save = mock(async (): Promise<void> => { });
   const getByUuid = mock(async (): Promise<User | undefined> => undefined);
   const getByTelegramId = mock(
     async (): Promise<User | undefined> => undefined,
@@ -75,9 +75,7 @@ describe("ListUsersUc", () => {
 
     await uc.handle({});
 
-    expect(getAll).toHaveBeenCalledWith(
-      expect.objectContaining({ limit: 20 }),
-    );
+    expect(getAll).toHaveBeenCalledWith(expect.objectContaining({ limit: 20 }));
   });
 
   test("передаёт кастомный лимит", async () => {
@@ -86,19 +84,17 @@ describe("ListUsersUc", () => {
 
     await uc.handle({ limit: 5 });
 
-    expect(getAll).toHaveBeenCalledWith(
-      expect.objectContaining({ limit: 5 }),
-    );
+    expect(getAll).toHaveBeenCalledWith(expect.objectContaining({ limit: 5 }));
   });
 
   test("передаёт фильтр по роли", async () => {
     const { getAll, uc } = setupUc();
     getAll.mockResolvedValueOnce([]);
 
-    await uc.handle({ role: "Student" });
+    await uc.handle({ role: Role.STUDENT });
 
     expect(getAll).toHaveBeenCalledWith(
-      expect.objectContaining({ role: "Student" }),
+      expect.objectContaining({ role: Role.STUDENT }),
     );
   });
 
@@ -150,11 +146,11 @@ describe("ListUsersUc", () => {
     const { getAll, uc } = setupUc();
     getAll.mockResolvedValueOnce([]);
 
-    const result = await uc.handle({ role: "Mentor", limit: 10 });
+    const result = await uc.handle({ role: Role.MENTOR, limit: 10 });
 
     expect(result.appliedFilters).toEqual({
       limit: 10,
-      role: "Mentor",
+      role: Role.MENTOR,
       name: undefined,
       telegramId: undefined,
       sort: "createdAt:desc",

@@ -257,7 +257,7 @@ export abstract class AutoUiModule<
       if (type) {
         const prefix = isArray ? "массив " : "";
         const arrayHint = isArray
-          ? " (через запятую, напр. \`- значение1, значение2\`)"
+          ? " (через запятую, напр. `- значение1, значение2`)"
           : "";
         parts.push(`тип: ${prefix}\`${type}\`${arrayHint}`);
         break;
@@ -302,9 +302,10 @@ export abstract class AutoUiModule<
         if (payload[i] !== undefined) {
           const entry = entries[key];
           // Для полей-массивов — разбиваем строку по запятой и коэрсим элементы
-          // @ts-expect-error:
-          if (this.isArraySchema(entry)) {
-            const itemSchema = this.getArrayItemSchema(entry);
+          // biome-ignore lint/style/noNonNullAssertion: проверены выше;
+          if (this.isArraySchema(entry!)) {
+            // biome-ignore lint/style/noNonNullAssertion: проверены выше;
+            const itemSchema = this.getArrayItemSchema(entry!);
             // biome-ignore lint/style/noNonNullAssertion: проверены выше;
             attrs[key] = payload[i]!.split(",")
               .map((s) => s.trim())

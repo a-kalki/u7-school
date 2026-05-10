@@ -1,15 +1,6 @@
 import * as v from "valibot";
 import type { User, UserArMeta } from "#domain/user/entity";
-import type { Role } from "#domain/user/roles";
-
-/** Допустимые роли для фильтрации */
-const RoleSchema = v.picklist(["Admin", "Mentor", "Student"] as const);
-
-/** Поля для сортировки */
-const SortFieldSchema = v.picklist(["createdAt", "name"] as const);
-
-/** Направление сортировки */
-const SortDirSchema = v.picklist(["asc", "desc"] as const);
+import { type Role, RoleSchema } from "#domain/user/roles";
 
 /** Схема валидации команды списка пользователей */
 export const ListUsersCmdSchema = v.object({
@@ -18,10 +9,7 @@ export const ListUsersCmdSchema = v.object({
   name: v.optional(v.string()),
   telegramId: v.optional(v.number()),
   sort: v.optional(
-    v.pipe(
-      v.string(),
-      v.regex(/^(createdAt|name):(asc|desc)$/),
-    ),
+    v.pipe(v.string(), v.regex(/^(createdAt|name):(asc|desc)$/)),
     "createdAt:desc",
   ),
 });
