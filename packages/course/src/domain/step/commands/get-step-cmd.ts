@@ -1,11 +1,11 @@
 import * as v from "valibot";
 import type { Step, StepArMeta } from "../entity";
-import { StepSchema } from "../entity";
+import { StepCommonSchema } from "../entity";
 import type { StepNotFoundUcError } from "./errors";
 
 /** Схема валидации команды получения шага */
 export const GetStepCmdSchema = v.object({
-  uuid: StepSchema.entries.uuid,
+  uuid: StepCommonSchema.entries.uuid,
 });
 
 /** Команда получения шага */

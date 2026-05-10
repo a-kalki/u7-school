@@ -1,20 +1,20 @@
 import * as v from "valibot";
 import type { Course, CourseArMeta } from "../entity";
-import { CourseSchema, ModuleSchema, ProjectSchema } from "../entity";
+import { CourseCommonSchema, ModuleSchema, ProjectSchema } from "../entity";
 import type { CourseAccessDeniedUcError } from "./errors";
 
 /** Схема валидации команды создания курса */
 export const CreateCourseCmdSchema = v.object({
-  title: CourseSchema.entries.title,
-  description: CourseSchema.entries.description,
-  kind: CourseSchema.entries.kind,
-  targetAudience: CourseSchema.entries.targetAudience,
-  goal: CourseSchema.entries.goal,
-  result: CourseSchema.entries.result,
-  rules: CourseSchema.entries.rules,
-  additional: CourseSchema.entries.additional,
-  tags: CourseSchema.entries.tags,
-  status: CourseSchema.entries.status,
+  title: CourseCommonSchema.entries.title,
+  description: CourseCommonSchema.entries.description,
+  kind: v.picklist(["modules", "projects"]),
+  targetAudience: CourseCommonSchema.entries.targetAudience,
+  goal: CourseCommonSchema.entries.goal,
+  result: CourseCommonSchema.entries.result,
+  rules: CourseCommonSchema.entries.rules,
+  additional: CourseCommonSchema.entries.additional,
+  tags: CourseCommonSchema.entries.tags,
+  status: CourseCommonSchema.entries.status,
   modules: v.optional(v.array(ModuleSchema)),
   projects: v.optional(v.array(ProjectSchema)),
 });

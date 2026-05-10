@@ -2,7 +2,7 @@ import * as v from "valibot";
 import { StatusSchema } from "../status";
 
 /** Общие поля для всех вариантов шага */
-const StepCommonSchema = v.object({
+export const StepCommonSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   courseId: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   description: v.pipe(v.string(), v.trim(), v.nonEmpty("Описание не может быть пустым")),

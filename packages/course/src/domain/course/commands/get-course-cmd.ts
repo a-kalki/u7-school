@@ -1,11 +1,11 @@
 import * as v from "valibot";
 import type { Course, CourseArMeta } from "../entity";
-import { CourseSchema } from "../entity";
+import { CourseCommonSchema } from "../entity";
 import type { CourseNotFoundUcError } from "./errors";
 
 /** Схема валидации команды получения курса */
 export const GetCourseCmdSchema = v.object({
-  uuid: CourseSchema.entries.uuid,
+  uuid: CourseCommonSchema.entries.uuid,
 });
 
 /** Команда получения курса */

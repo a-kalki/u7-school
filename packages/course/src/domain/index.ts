@@ -16,7 +16,7 @@ export type { ListCoursesCmd, ListCoursesCmdMeta } from "./course/commands/list-
 export { ListCoursesCmdSchema } from "./course/commands/list-courses-cmd";
 export type { CourseAccessDeniedUcError, CourseModuleError, CourseNotFoundUcError } from "./course/commands/errors";
 export type { Course, CourseArMeta, CourseModules, CourseProjects } from "./course/entity";
-export { CourseSchema, ModuleSchema, ProjectSchema } from "./course/entity";
+export { CourseSchema, CourseCommonSchema, ModuleSchema, ProjectSchema } from "./course/entity";
 export type { Module, Project } from "./course/entity";
 export { CoursePolicy } from "./course/policy";
 export type { CourseRepo, CourseListFilter } from "./course/repo";
@@ -42,7 +42,7 @@ export type { GetStepCmd, GetStepCmdError, GetStepCmdMeta } from "./step/command
 export { GetStepCmdSchema } from "./step/commands/get-step-cmd";
 export type { StepAccessDeniedUcError, StepModuleError, StepNotFoundUcError } from "./step/commands/errors";
 export type { Step, StepArMeta, StepText, StepCode, StepFile } from "./step/entity";
-export { StepSchema } from "./step/entity";
+export { StepSchema, StepCommonSchema } from "./step/entity";
 export { StepPolicy } from "./step/policy";
 export type { StepRepo } from "./step/repo";
 

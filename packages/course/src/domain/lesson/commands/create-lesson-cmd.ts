@@ -11,8 +11,8 @@ export const CreateLessonCmdSchema = v.object({
   status: LessonSchema.entries.status,
   order: LessonSchema.entries.order,
   estimatedMinutes: LessonSchema.entries.estimatedMinutes,
-  stepIds: LessonSchema.entries.stepIds,
-  mentorStepIds: LessonSchema.entries.mentorStepIds,
+  stepIds: v.optional(LessonSchema.entries.stepIds),
+  mentorStepIds: v.optional(LessonSchema.entries.mentorStepIds),
 });
 
 /** Команда создания урока */

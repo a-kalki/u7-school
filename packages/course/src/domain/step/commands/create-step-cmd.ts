@@ -1,19 +1,19 @@
 import * as v from "valibot";
 import type { Step, StepArMeta } from "../entity";
-import { StepSchema } from "../entity";
+import { StepCommonSchema } from "../entity";
 import type { StepAccessDeniedUcError } from "./errors";
 
 /** Схема валидации команды создания шага */
 export const CreateStepCmdSchema = v.object({
-  courseId: StepSchema.entries.courseId,
-  kind: StepSchema.entries.kind,
-  description: StepSchema.entries.description,
-  content: StepSchema.entries.content,
+  courseId: StepCommonSchema.entries.courseId,
+  kind: v.picklist(["text", "code", "file"]),
+  description: StepCommonSchema.entries.description,
+  content: StepCommonSchema.entries.content,
   code: v.optional(v.string()),
   language: v.optional(v.string()),
   fileId: v.optional(v.string()),
-  status: StepSchema.entries.status,
-  order: StepSchema.entries.order,
+  status: StepCommonSchema.entries.status,
+  order: StepCommonSchema.entries.order,
 });
 
 /** Команда создания шага */

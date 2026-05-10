@@ -33,7 +33,7 @@ export const ProjectSchema = v.object({
 export type Project = v.InferOutput<typeof ProjectSchema>;
 
 /** Общие поля курса */
-const CourseCommonSchema = v.object({
+export const CourseCommonSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid("Некорректный формат UUID")),
   title: v.pipe(v.string(), v.trim(), v.nonEmpty("Заголовок не может быть пустым")),
   description: v.pipe(v.string(), v.trim(), v.nonEmpty("Описание не может быть пустым")),

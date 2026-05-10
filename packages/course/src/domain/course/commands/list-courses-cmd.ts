@@ -1,14 +1,13 @@
 import * as v from "valibot";
 import { StatusSchema } from "../../status";
 import type { Course, CourseArMeta } from "../entity";
-import { CourseSchema } from "../entity";
 
 /** Схема валидации команды списка курсов */
 export const ListCoursesCmdSchema = v.object({
   status: v.optional(StatusSchema),
   authorId: v.optional(v.pipe(v.string(), v.uuid())),
   title: v.optional(v.string()),
-  kind: v.optional(CourseSchema.entries.kind),
+  kind: v.optional(v.picklist(["modules", "projects"])),
   tags: v.optional(v.array(v.string())),
   sort: v.optional(v.string()),
   limit: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
