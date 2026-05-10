@@ -2,7 +2,7 @@
 
 ## Фаза 1: Фундамент — настройки, общие типы, очистка
 
-- [ ] Task: Настроить `package.json` (exports, imports, `@u7/core` deps)
+- [x] Task: Настроить `package.json` (exports, imports, `@u7/core` deps) `6ee98cc`
 - [ ] Task: Удалить все старые файлы модуля `course`
     - [ ] Удалить `src/domain/` (course, lesson, module, project, shared)
     - [ ] Удалить `src/api/` (commands, course, user, shared, controllers, main.ts, integration.test.ts)
