@@ -1,0 +1,8 @@
+Задача: Удалить все старые файлы модуля course
+
+Изменения:
+- Удалены все файлы в packages/course/src/ (43 файла, 2061 строка)
+- Удалены: domain (course, lesson, module, project, shared), api (commands, course, user, shared, controllers)
+- Удалены: src/index.ts, src/index.test.ts
+
+Причина: полная очистка перед миграцией на новую архитектуру core
