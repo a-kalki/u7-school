@@ -57,22 +57,22 @@
 
 ## Фаза 4: Агрегат Lesson (Domain)
 
-- [ ] Task: Создать `domain/lesson/entity.ts` (`LessonSchema`, `Lesson`, `LessonArMeta`)
-    - [ ] Написать тесты для `LessonSchema`
-    - [ ] Реализовать схему и тип
-- [ ] Task: Создать `domain/lesson/a-root.ts` (`LessonAr`)
-    - [ ] Написать тесты для `LessonAr`
-    - [ ] Реализовать агрегат с фабричным методом `create()`
-- [ ] Task: Создать `domain/lesson/policy.ts` (`LessonPolicy`) — делегирует редактирование CoursePolicy
-    - [ ] Написать тесты для `LessonPolicy`
-    - [ ] Реализовать политику
-- [ ] Task: Создать `domain/lesson/repo.ts` (интерфейс `LessonRepo`)
-- [ ] Task: Создать `domain/lesson/types.ts`
-- [ ] Task: Создать `domain/lesson/errors.ts`
-- [ ] Task: Создать команды `domain/lesson/commands/`
-    - [ ] `create-lesson-cmd.ts`
-    - [ ] `get-lesson-cmd.ts`
-    - [ ] `errors.ts`
+- [x] Task: Создать `domain/lesson/entity.ts` (`LessonSchema`, `Lesson`, `LessonArMeta`) `1895b07`
+    - [x] Написать тесты для `LessonSchema`
+    - [x] Реализовать схему и тип
+- [x] Task: Создать `domain/lesson/a-root.ts` (`LessonAr`) `1895b07`
+    - [x] Написать тесты для `LessonAr`
+    - [x] Реализовать агрегат с фабричным методом `create()`
+- [x] Task: Создать `domain/lesson/policy.ts` (`LessonPolicy`) — делегирует редактирование CoursePolicy `1895b07`
+    - [x] Написать тесты для `LessonPolicy`
+    - [x] Реализовать политику
+- [x] Task: Создать `domain/lesson/repo.ts` (интерфейс `LessonRepo`) `1895b07`
+- [x] Task: Создать `domain/lesson/types.ts` `1895b07`
+- [x] Task: Создать `domain/lesson/errors.ts` `1895b07`
+- [x] Task: Создать команды `domain/lesson/commands/` `1895b07`
+    - [x] `create-lesson-cmd.ts`
+    - [x] `get-lesson-cmd.ts`
+    - [x] `errors.ts`
 - [ ] Task: Conductor - User Manual Verification 'Lesson' (Protocol in workflow.md)
 
 ## Фаза 5: Агрегат Course (Domain)
