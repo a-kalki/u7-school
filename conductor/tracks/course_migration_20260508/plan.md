@@ -10,9 +10,9 @@
 - [x] Task: Создать общие типы — `Status` enum и `StatusSchema` (`domain/status.ts`) `ddfa9bf`
     - [x] Написать тесты для `StatusSchema`
     - [x] Реализовать `Status` enum и `StatusSchema`
-- [ ] Task: Создать `domain/types.ts` (вспомогательные типы уровня модуля)
-- [ ] Task: Создать `domain/module.ts` (`CourseModuleMeta`, `CourseApiModuleResolver`)
-- [ ] Task: Создать `domain/facade.ts` (интерфейс `UserFacade`)
+- [x] Task: Создать `domain/types.ts` (вспомогательные типы уровня модуля) `40c249c`
+- [x] Task: Создать `domain/module.ts` (`CourseModuleMeta`, `CourseApiModuleResolver`) `f5c6f66`
+- [~] Task: Создать `domain/facade.ts` (интерфейс `UserFacade`)
 - [ ] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md)
 
 ## Фаза 2: Агрегат FileMetadata (Domain)
