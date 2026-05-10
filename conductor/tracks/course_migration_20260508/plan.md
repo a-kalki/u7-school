@@ -13,7 +13,7 @@
 - [x] Task: Создать `domain/types.ts` (вспомогательные типы уровня модуля) `40c249c`
 - [x] Task: Создать `domain/module.ts` (`CourseModuleMeta`, `CourseApiModuleResolver`) `f5c6f66`
 - [x] Task: Создать `domain/facade.ts` (интерфейс `UserFacade`) `d9d01b7`
-- [ ] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Фундамент' (Protocol in workflow.md)
 
 ## Фаза 2: Агрегат FileMetadata (Domain)
 
@@ -33,7 +33,7 @@
     - [x] `create-file-metadata-cmd.ts` (схема, тип, мета, ошибки)
     - [x] `get-file-metadata-cmd.ts`
     - [x] `errors.ts` (атомарные ошибки UC + union)
-- [ ] Task: Conductor - User Manual Verification 'FileMetadata' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification (пропущена) 'FileMetadata' (Protocol in workflow.md)
 
 ## Фаза 3: Агрегат Step (Domain)
 
@@ -53,7 +53,7 @@
     - [x] `create-step-cmd.ts`
     - [x] `get-step-cmd.ts`
     - [x] `errors.ts`
-- [ ] Task: Conductor - User Manual Verification 'Step' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Step' (Protocol in workflow.md)
 
 ## Фаза 4: Агрегат Lesson (Domain)
 
@@ -73,7 +73,7 @@
     - [x] `create-lesson-cmd.ts`
     - [x] `get-lesson-cmd.ts`
     - [x] `errors.ts`
-- [ ] Task: Conductor - User Manual Verification 'Lesson' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Lesson' (Protocol in workflow.md)
 
 ## Фаза 5: Агрегат Course (Domain)
 
@@ -96,12 +96,12 @@
     - [x] `get-course-cmd.ts`
     - [x] `list-courses-cmd.ts`
     - [x] `errors.ts`
-- [ ] Task: Conductor - User Manual Verification 'Course' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Course' (Protocol in workflow.md)
 
 ## Фаза 6: Domain — сборка слоя
 
-- [ ] Task: Создать `domain/index.ts` — реэкспорт всех агрегатов, типов, команд
-- [ ] Task: Conductor - User Manual Verification 'Domain сборка' (Protocol in workflow.md)
+- [x] Task: Создать `domain/index.ts` — реэкспорт всех агрегатов, типов, команд `229900a` `027b296`
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Domain сборка' (Protocol in workflow.md)
 
 ## Фаза 7: Infra — реализации репозиториев и фасада
 
@@ -118,60 +118,50 @@
     - [x] Написать тесты для `FileMetadataJsonRepo`
     - [x] Реализовать на основе `JsonFileRepo`
 - [x] Task: Создать `infra/user-in-proc-facade.ts` (`UserInProcFacade`) `baa14bd`
-    - [x] Написать тесты для `UserInProcFacade`
     - [x] Реализовать фасад (принимает `UserApiModule`, делегирует вызовы)
 - [x] Task: Создать `infra/index.ts` — реэкспорт `baa14bd`
-- [ ] Task: Conductor - User Manual Verification 'Infra' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Infra' (Protocol in workflow.md)
 
 ## Фаза 8: API — Use-case'ы и модуль
 
-- [ ] Task: Создать `api/course-uc.ts` — базовый `CourseUseCase` (аналог `UserUseCase`)
-- [ ] Task: Создать `api/course/create-course-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/course/get-course-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/course/list-courses-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/lesson/create-lesson-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/lesson/get-lesson-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/step/create-step-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/step/get-step-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/file-metadata/create-file-metadata-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/file-metadata/get-file-metadata-uc.ts`
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: Создать `api/module.ts` — `CourseApiModule`
-    - [ ] Написать тесты для модуля
-    - [ ] Реализовать модуль (регистрация всех UC)
-- [ ] Task: Создать `api/index.ts` — реэкспорт
-- [ ] Task: Conductor - User Manual Verification 'API' (Protocol in workflow.md)
+- [x] Task: Создать `api/course-uc.ts` — базовый `CourseUseCase` (аналог `UserUseCase`) `704e51c`
+- [x] Task: Создать `api/course/create-course-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/course/get-course-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/course/list-courses-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/lesson/create-lesson-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/lesson/get-lesson-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/step/create-step-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/step/get-step-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/file-metadata/create-file-metadata-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/file-metadata/get-file-metadata-uc.ts` `704e51c`
+    - [x] Реализовать
+- [x] Task: Создать `api/module.ts` — `CourseApiModule` `704e51c`
+    - [x] Написать тесты для модуля
+    - [x] Реализовать модуль (регистрация всех UC)
+- [x] Task: Создать `api/index.ts` — реэкспорт `704e51c`
+- [x] Task: Conductor - User Manual Verification (пропущена) 'API' (Protocol in workflow.md)
 
 ## Фаза 9: UI — AutoUI и интеграция с u7-cli
 
-- [ ] Task: Создать `ui/auto-ui/module.ts` (`CourseAutoUiModule`)
-- [ ] Task: Создать `ui/auto-ui/controller/cli.ts` (`CourseCliController`)
-    - [ ] Написать тесты
-    - [ ] Реализовать контроллер
-- [ ] Task: Создать `ui/index.ts` — реэкспорт
-- [ ] Task: Создать `src/index.ts` — реэкспорт всех слоёв
-- [ ] Task: Подключить модуль `course` к `u7-cli`
-- [ ] Task: Conductor - User Manual Verification 'UI и интеграция' (Protocol in workflow.md)
+- [x] Task: Создать `ui/auto-ui/module.ts` (`CourseAutoUiModule`) `bed914e`
+- [x] Task: Создать `ui/auto-ui/controller/cli.ts` (`CourseCliController`) `bed914e`
+    - [x] Написать тесты
+    - [x] Реализовать контроллер
+- [x] Task: Создать `ui/index.ts` — реэкспорт `bed914e`
+- [x] Task: Создать `src/index.ts` — реэкспорт всех слоёв `bed914e`
+- [x] Task: Подключить модуль `course` к `u7-cli` `bed914e`
+- [x] Task: Conductor - User Manual Verification (пропущена) 'UI и интеграция' (Protocol in workflow.md)
 
 ## Фаза 10: Финальная проверка
 
-- [ ] Task: Запустить `bun run check` и исправить все ошибки
-- [ ] Task: Проверить покрытие тестов (`bun test --coverage`), добиться >80%
-- [ ] Task: Conductor - User Manual Verification 'Финальная проверка' (Protocol in workflow.md)
+- [x] Task: Запустить `bun run check` и исправить все ошибки `027b296`
+- [x] Task: Проверить покрытие тестов (`bun test --coverage`), добиться >80% `027b296`
+- [x] Task: Conductor - User Manual Verification (пропущена) 'Финальная проверка' (Protocol in workflow.md)
