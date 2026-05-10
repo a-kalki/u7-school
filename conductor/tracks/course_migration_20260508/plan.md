@@ -12,7 +12,7 @@
     - [x] Реализовать `Status` enum и `StatusSchema`
 - [x] Task: Создать `domain/types.ts` (вспомогательные типы уровня модуля) `40c249c`
 - [x] Task: Создать `domain/module.ts` (`CourseModuleMeta`, `CourseApiModuleResolver`) `f5c6f66`
-- [~] Task: Создать `domain/facade.ts` (интерфейс `UserFacade`)
+- [x] Task: Создать `domain/facade.ts` (интерфейс `UserFacade`) `d9d01b7`
 - [ ] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md)
 
 ## Фаза 2: Агрегат FileMetadata (Domain)
