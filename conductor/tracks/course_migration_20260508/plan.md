@@ -3,10 +3,10 @@
 ## Фаза 1: Фундамент — настройки, общие типы, очистка
 
 - [x] Task: Настроить `package.json` (exports, imports, `@u7/core` deps) `6ee98cc`
-- [ ] Task: Удалить все старые файлы модуля `course`
-    - [ ] Удалить `src/domain/` (course, lesson, module, project, shared)
-    - [ ] Удалить `src/api/` (commands, course, user, shared, controllers, main.ts, integration.test.ts)
-    - [ ] Удалить `src/index.ts`, `src/index.test.ts`
+- [x] Task: Удалить все старые файлы модуля `course` `3e49082`
+    - [x] Удалить `src/domain/` (course, lesson, module, project, shared)
+    - [x] Удалить `src/api/` (commands, course, user, shared, controllers, main.ts, integration.test.ts)
+    - [x] Удалить `src/index.ts`, `src/index.test.ts`
 - [ ] Task: Создать общие типы — `Status` enum и `StatusSchema` (`domain/status.ts`)
     - [ ] Написать тесты для `StatusSchema`
     - [ ] Реализовать `Status` enum и `StatusSchema`
