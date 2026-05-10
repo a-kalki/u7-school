@@ -17,22 +17,22 @@
 
 ## Фаза 2: Агрегат FileMetadata (Domain)
 
-- [ ] Task: Создать `domain/file-metadata/entity.ts` (`FileMetadataSchema`, `FileMetadata`, `FileMetadataArMeta`)
-    - [ ] Написать тесты для `FileMetadataSchema`
-    - [ ] Реализовать схему и тип
-- [ ] Task: Создать `domain/file-metadata/a-root.ts` (`FileMetadataAr`)
-    - [ ] Написать тесты для `FileMetadataAr`
-    - [ ] Реализовать агрегат с фабричным методом `create()`
-- [ ] Task: Создать `domain/file-metadata/policy.ts` (`FileMetadataPolicy`)
-    - [ ] Написать тесты для `FileMetadataPolicy`
-    - [ ] Реализовать политику (canCreate: ADMIN/MENTOR, canRead: все, canEdit: ADMIN или автор)
-- [ ] Task: Создать `domain/file-metadata/repo.ts` (интерфейс `FileMetadataRepo`)
-- [ ] Task: Создать `domain/file-metadata/types.ts`
-- [ ] Task: Создать `domain/file-metadata/errors.ts` (доменные ошибки агрегата)
-- [ ] Task: Создать команды `domain/file-metadata/commands/`
-    - [ ] `create-file-metadata-cmd.ts` (схема, тип, мета, ошибки)
-    - [ ] `get-file-metadata-cmd.ts`
-    - [ ] `errors.ts` (атомарные ошибки UC + union)
+- [x] Task: Создать `domain/file-metadata/entity.ts` (`FileMetadataSchema`, `FileMetadata`, `FileMetadataArMeta`) `a79d229`
+    - [x] Написать тесты для `FileMetadataSchema`
+    - [x] Реализовать схему и тип
+- [x] Task: Создать `domain/file-metadata/a-root.ts` (`FileMetadataAr`) `a79d229`
+    - [x] Написать тесты для `FileMetadataAr`
+    - [x] Реализовать агрегат с фабричным методом `create()`
+- [x] Task: Создать `domain/file-metadata/policy.ts` (`FileMetadataPolicy`) `a79d229`
+    - [x] Написать тесты для `FileMetadataPolicy`
+    - [x] Реализовать политику (canCreate: ADMIN/MENTOR, canRead: все, canEdit: ADMIN или автор)
+- [x] Task: Создать `domain/file-metadata/repo.ts` (интерфейс `FileMetadataRepo`) `a79d229`
+- [x] Task: Создать `domain/file-metadata/types.ts` `a79d229`
+- [x] Task: Создать `domain/file-metadata/errors.ts` (доменные ошибки агрегата) `a79d229`
+- [x] Task: Создать команды `domain/file-metadata/commands/` `a79d229`
+    - [x] `create-file-metadata-cmd.ts` (схема, тип, мета, ошибки)
+    - [x] `get-file-metadata-cmd.ts`
+    - [x] `errors.ts` (атомарные ошибки UC + union)
 - [ ] Task: Conductor - User Manual Verification 'FileMetadata' (Protocol in workflow.md)
 
 ## Фаза 3: Агрегат Step (Domain)
