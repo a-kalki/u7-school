@@ -1,0 +1,6 @@
+Задача: Создать domain/types.ts
+
+Изменения:
+- domain/types.ts: CourseId, LessonId, StepId, FileMetadataId, Order
+
+Причина: вспомогательные типы уровня модуля для семантических обёрток
