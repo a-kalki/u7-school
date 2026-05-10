@@ -1,0 +1,9 @@
+Задача: Настроить package.json (exports, imports, @u7/core deps)
+
+Изменения:
+- Добавлен exports: ./domain, ./api, ./ui, ./infra
+- Добавлен imports: #domain/*, #api/*, #ui/*, #infra/*
+- Добавлена зависимость @u7/core: workspace:*
+- Сохранена зависимость @u7/user: workspace:*
+
+Причина: подготовка модуля course к новой архитектуре core, зеркальной модулю user.
