@@ -5,7 +5,7 @@ import type { StepNotFoundUcError } from "./errors";
 
 /** Схема валидации команды получения шага */
 export const GetStepCmdSchema = v.object({
-  uuid: StepCommonSchema.entries.uuid,
+	uuid: StepCommonSchema.entries.uuid,
 });
 
 /** Команда получения шага */
@@ -13,14 +13,14 @@ export type GetStepCmd = v.InferOutput<typeof GetStepCmdSchema>;
 
 /** Мета команды получения шага */
 export interface GetStepCmdMeta {
-  commandName: "get-step";
-  description: "Получить шаг по UUID";
-  arMeta: StepArMeta;
-  input: GetStepCmd;
-  output: Step;
-  errors: GetStepCmdError;
-  requiresAuth: false;
-  type: "query";
+	commandName: "get-step";
+	description: "Получить шаг по UUID";
+	arMeta: StepArMeta;
+	input: GetStepCmd;
+	output: Step;
+	errors: GetStepCmdError;
+	requiresAuth: false;
+	type: "query";
 }
 
 /** Ошибки команды получения шага */

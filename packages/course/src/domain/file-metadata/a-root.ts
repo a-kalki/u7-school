@@ -10,25 +10,25 @@ import { FileMetadataSchema } from "./entity";
  * Функционал загрузки/указания файлов будет реализован в будущих треках.
  */
 export class FileMetadataAr extends Aggregate<FileMetadataArMeta> {
-  constructor(state: FileMetadata) {
-    super(state, FileMetadataSchema);
-  }
+	constructor(state: FileMetadata) {
+		super(state, FileMetadataSchema);
+	}
 
-  /**
-   * Фабричный метод создания новых метаданных файла из команды.
-   */
-  static create(command: CreateFileMetadataCmd): FileMetadataAr {
-    const candidate: FileMetadata = {
-      uuid: crypto.randomUUID(),
-      courseId: command.courseId,
-      name: command.name,
-      url: command.url,
-      mimeType: command.mimeType,
-      size: command.size,
-      description: command.description,
-      createdAt: isoNow(),
-    };
+	/**
+	 * Фабричный метод создания новых метаданных файла из команды.
+	 */
+	static create(command: CreateFileMetadataCmd): FileMetadataAr {
+		const candidate: FileMetadata = {
+			uuid: crypto.randomUUID(),
+			courseId: command.courseId,
+			name: command.name,
+			url: command.url,
+			mimeType: command.mimeType,
+			size: command.size,
+			description: command.description,
+			createdAt: isoNow(),
+		};
 
-    return new FileMetadataAr(candidate);
-  }
+		return new FileMetadataAr(candidate);
+	}
 }

@@ -1,31 +1,31 @@
 {
-  "name": "@u7/course",
-  "version": "0.1.0",
-  "module": "src/index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "test": "bun test",
-    "lint": "bunx biome check .",
-    "tslint": "tsc --noEmit",
-    "format": "bunx biome check . --write",
-    "check": "bun run lint && bun run tslint && bun test"
-  },
-  "dependencies": {
-    "@u7/core": "workspace:*",
-    "@u7/user": "workspace:*",
-    "valibot": "^1.0.0"
-  },
-  "exports": {
-    "./domain": "./src/domain/index.ts",
-    "./api": "./src/api/index.ts",
-    "./ui": "./src/ui/index.ts",
-    "./infra": "./src/infra/index.ts"
-  },
-  "imports": {
-    "#domain/*": "./src/domain/*.ts",
-    "#api/*": "./src/api/*.ts",
-    "#ui/*": "./src/ui/*.ts",
-    "#infra/*": "./src/infra/*.ts"
-  }
+	"name": "@u7/course",
+	"version": "0.1.0",
+	"module": "src/index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"test": "bun test",
+		"lint": "bunx biome check .",
+		"tslint": "tsc --noEmit",
+		"format": "bunx biome check . --write",
+		"check": "bun run lint && bun run tslint && bun test"
+	},
+	"dependencies": {
+		"@u7/core": "workspace:*",
+		"@u7/user": "workspace:*",
+		"valibot": "^1.0.0"
+	},
+	"exports": {
+		"./domain": "./src/domain/index.ts",
+		"./api": "./src/api/index.ts",
+		"./ui": "./src/ui/index.ts",
+		"./infra": "./src/infra/index.ts"
+	},
+	"imports": {
+		"#domain/*": "./src/domain/*.ts",
+		"#api/*": "./src/api/*.ts",
+		"#ui/*": "./src/ui/*.ts",
+		"#infra/*": "./src/infra/*.ts"
+	}
 }

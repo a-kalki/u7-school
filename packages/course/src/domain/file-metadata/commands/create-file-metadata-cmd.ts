@@ -5,27 +5,29 @@ import type { FileMetadataAccessDeniedUcError } from "./errors";
 
 /** Схема валидации команды создания метаданных файла */
 export const CreateFileMetadataCmdSchema = v.object({
-  courseId: FileMetadataSchema.entries.courseId,
-  name: FileMetadataSchema.entries.name,
-  url: FileMetadataSchema.entries.url,
-  mimeType: FileMetadataSchema.entries.mimeType,
-  size: FileMetadataSchema.entries.size,
-  description: FileMetadataSchema.entries.description,
+	courseId: FileMetadataSchema.entries.courseId,
+	name: FileMetadataSchema.entries.name,
+	url: FileMetadataSchema.entries.url,
+	mimeType: FileMetadataSchema.entries.mimeType,
+	size: FileMetadataSchema.entries.size,
+	description: FileMetadataSchema.entries.description,
 });
 
 /** Команда создания метаданных файла */
-export type CreateFileMetadataCmd = v.InferOutput<typeof CreateFileMetadataCmdSchema>;
+export type CreateFileMetadataCmd = v.InferOutput<
+	typeof CreateFileMetadataCmdSchema
+>;
 
 /** Мета команды создания метаданных файла */
 export interface CreateFileMetadataCmdMeta {
-  commandName: "create-file-metadata";
-  description: "Создать метаданные файла";
-  arMeta: FileMetadataArMeta;
-  input: CreateFileMetadataCmd;
-  output: FileMetadata;
-  errors: CreateFileMetadataCmdError;
-  requiresAuth: true;
-  type: "command";
+	commandName: "create-file-metadata";
+	description: "Создать метаданные файла";
+	arMeta: FileMetadataArMeta;
+	input: CreateFileMetadataCmd;
+	output: FileMetadata;
+	errors: CreateFileMetadataCmdError;
+	requiresAuth: true;
+	type: "command";
 }
 
 /** Ошибки команды создания метаданных файла */

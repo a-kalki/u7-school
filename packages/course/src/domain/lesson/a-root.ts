@@ -11,27 +11,27 @@ import { LessonSchema } from "./entity";
  * Права на редактирование делегируются CoursePolicy.
  */
 export class LessonAr extends Aggregate<LessonArMeta> {
-  constructor(state: Lesson) {
-    super(state, LessonSchema);
-  }
+	constructor(state: Lesson) {
+		super(state, LessonSchema);
+	}
 
-  /**
-   * Фабричный метод создания нового урока из команды.
-   */
-  static create(command: CreateLessonCmd): LessonAr {
-    const candidate: Lesson = {
-      uuid: crypto.randomUUID(),
-      courseId: command.courseId,
-      title: command.title,
-      additional: command.additional,
-      status: command.status,
-      order: command.order,
-      createdAt: isoNow(),
-      estimatedMinutes: command.estimatedMinutes,
-      stepIds: command.stepIds ?? [],
-      mentorStepIds: command.mentorStepIds ?? [],
-    };
+	/**
+	 * Фабричный метод создания нового урока из команды.
+	 */
+	static create(command: CreateLessonCmd): LessonAr {
+		const candidate: Lesson = {
+			uuid: crypto.randomUUID(),
+			courseId: command.courseId,
+			title: command.title,
+			additional: command.additional,
+			status: command.status,
+			order: command.order,
+			createdAt: isoNow(),
+			estimatedMinutes: command.estimatedMinutes,
+			stepIds: command.stepIds ?? [],
+			mentorStepIds: command.mentorStepIds ?? [],
+		};
 
-    return new LessonAr(candidate);
-  }
+		return new LessonAr(candidate);
+	}
 }
