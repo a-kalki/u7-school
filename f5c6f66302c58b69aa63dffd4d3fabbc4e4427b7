@@ -1,0 +1,6 @@
+Задача: Создать domain/module.ts
+
+Изменения:
+- domain/module.ts: CourseModuleMeta (name, url), CourseApiModuleResolver (courseRepo, lessonRepo, stepRepo, fileMetadataRepo, userFacade)
+
+Причина: мета-описание модуля course, зеркальное user
