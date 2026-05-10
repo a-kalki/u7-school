@@ -7,9 +7,9 @@
     - [x] Удалить `src/domain/` (course, lesson, module, project, shared)
     - [x] Удалить `src/api/` (commands, course, user, shared, controllers, main.ts, integration.test.ts)
     - [x] Удалить `src/index.ts`, `src/index.test.ts`
-- [ ] Task: Создать общие типы — `Status` enum и `StatusSchema` (`domain/status.ts`)
-    - [ ] Написать тесты для `StatusSchema`
-    - [ ] Реализовать `Status` enum и `StatusSchema`
+- [x] Task: Создать общие типы — `Status` enum и `StatusSchema` (`domain/status.ts`) `ddfa9bf`
+    - [x] Написать тесты для `StatusSchema`
+    - [x] Реализовать `Status` enum и `StatusSchema`
 - [ ] Task: Создать `domain/types.ts` (вспомогательные типы уровня модуля)
 - [ ] Task: Создать `domain/module.ts` (`CourseModuleMeta`, `CourseApiModuleResolver`)
 - [ ] Task: Создать `domain/facade.ts` (интерфейс `UserFacade`)
