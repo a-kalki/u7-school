@@ -1,0 +1,6 @@
+Задача: Создать domain/facade.ts (интерфейс UserFacade)
+
+Изменения:
+- domain/facade.ts: интерфейс UserFacade (getUserByUuid, userExists)
+
+Причина: контракт для межмодульной интеграции @u7/course → @u7/user
