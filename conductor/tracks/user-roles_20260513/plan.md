@@ -20,6 +20,6 @@
 - [x] Task: Обновить экспорты $T1index.ts
 - [x] Task: Обновить экспорты $T1domain/index.ts
 - [x] Task: Обновить экспорты $T1api/index.ts
-- [ ] Task: Проверить покрытие >80%: `bun run test:p user --coverage`
+- [~] Task: Проверить покрытие >80%: `bun run test:p user --coverage`
 - [ ] Task: Проверить lint и tsc: `bun run check:p user`
 - [ ] Task: Conductor - User Manual Verification 'Интеграция и финал' (Protocol in workflow.md)

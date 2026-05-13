@@ -1,11 +1,8 @@
 import * as v from "valibot";
-import { RoleSchema } from "../roles";
 import type { User, UserArMeta } from "../entity";
 import { UserSchema } from "../entity";
-import type {
-	AccessDeniedUcError,
-	UserNotFoundUcError,
-} from "./errors";
+import { RoleSchema } from "../roles";
+import type { AccessDeniedUcError, UserNotFoundUcError } from "./errors";
 
 /** Схема валидации команды добавления роли пользователю */
 export const AddRoleToUserCmdSchema = v.object({
@@ -28,6 +25,4 @@ export interface AddRoleToUserCmdMeta {
 }
 
 /** Ошибки команды добавления роли пользователю */
-export type AddRoleToUserCmdError =
-	| UserNotFoundUcError
-	| AccessDeniedUcError;
+export type AddRoleToUserCmdError = UserNotFoundUcError | AccessDeniedUcError;

@@ -48,9 +48,7 @@ export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
 		message: string,
 		params?: { uuid?: string; telegramId?: number },
 	): never {
-		this.throwError(
-			errNotFound<UserNotFoundUcError>(name, message, params),
-		);
+		this.throwError(errNotFound<UserNotFoundUcError>(name, message, params));
 	}
 
 	/**

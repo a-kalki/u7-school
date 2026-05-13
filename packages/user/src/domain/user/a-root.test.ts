@@ -115,7 +115,11 @@ describe("UserAr", () => {
 			ar.addRole(Role.SUBSCRIBER);
 			ar.addRole(Role.CANDIDATE);
 			ar.addRole(Role.SUBSCRIBER); // дубль — игнорируется
-			expect(ar.state.roles).toEqual([Role.GUEST, Role.SUBSCRIBER, Role.CANDIDATE]);
+			expect(ar.state.roles).toEqual([
+				Role.GUEST,
+				Role.SUBSCRIBER,
+				Role.CANDIDATE,
+			]);
 		});
 	});
 });

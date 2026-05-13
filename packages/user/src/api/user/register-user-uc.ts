@@ -1,12 +1,12 @@
 import { errConflict } from "@u7/core/domain";
 import { UserUseCase } from "#api/user-uc";
 import { UserAr } from "#domain/user/a-root";
+import type { TelegramIdTakenUcError } from "#domain/user/commands/errors";
 import {
 	type RegisterUserCmd,
 	type RegisterUserCmdMeta,
 	RegisterUserCmdSchema,
 } from "#domain/user/commands/register-user-cmd";
-import type { TelegramIdTakenUcError } from "#domain/user/commands/errors";
 import type { User } from "#domain/user/entity";
 import { UserSchema } from "#domain/user/entity";
 

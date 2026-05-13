@@ -17,10 +17,16 @@ function makeUser(overrides: Partial<User> = {}): User {
 
 function setupUc() {
 	const save = mock(async (_user: User): Promise<void> => {});
-	const getByUuid = mock(async (_uuid: string): Promise<User | undefined> => undefined);
-	const getByTelegramId = mock(async (_id: number): Promise<User | undefined> => undefined);
+	const getByUuid = mock(
+		async (_uuid: string): Promise<User | undefined> => undefined,
+	);
+	const getByTelegramId = mock(
+		async (_id: number): Promise<User | undefined> => undefined,
+	);
 	const getAll = mock(async (): Promise<User[]> => []);
-	const isTelegramIdTaken = mock(async (_id: number): Promise<boolean> => false);
+	const isTelegramIdTaken = mock(
+		async (_id: number): Promise<boolean> => false,
+	);
 	const isEmpty = mock(async (): Promise<boolean> => true);
 
 	const repo: UserRepo = {
@@ -59,7 +65,10 @@ describe("AddRoleToUserUc", () => {
 		test("не дублирует существующую роль", async () => {
 			const { getByUuid, save, uc } = setupUc();
 			const admin = makeUser();
-			const target = makeUser({ roles: [Role.STUDENT, Role.MENTOR], telegramId: 2 });
+			const target = makeUser({
+				roles: [Role.STUDENT, Role.MENTOR],
+				telegramId: 2,
+			});
 
 			getByUuid.mockResolvedValueOnce(admin);
 			getByUuid.mockResolvedValueOnce(target);
@@ -83,7 +92,10 @@ describe("AddRoleToUserUc", () => {
 			getByUuid.mockResolvedValueOnce(undefined);
 
 			await expect(
-				uc.handle({ userId: crypto.randomUUID(), role: Role.MENTOR }, admin.uuid),
+				uc.handle(
+					{ userId: crypto.randomUUID(), role: Role.MENTOR },
+					admin.uuid,
+				),
 			).rejects.toThrow("Пользователь не найден");
 		});
 
