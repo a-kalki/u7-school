@@ -14,12 +14,12 @@
 - [x] Task: Написать тесты для RegisterUserUc
 - [x] Task: Написать тесты для AddRoleToUserUc
 - [x] Task: Обновить UserModule (зарегистрировать новые UC)
-- [ ] Task: Conductor - User Manual Verification 'UseCases' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'UseCases' (Protocol in workflow.md)
 
-## Фаза 3: Интеграция и финал
+## Фаза 3: Интеграция и финал [checkpoint: 4288a5e]
 - [x] Task: Обновить экспорты $T1index.ts
 - [x] Task: Обновить экспорты $T1domain/index.ts
 - [x] Task: Обновить экспорты $T1api/index.ts
-- [~] Task: Проверить покрытие >80%: `bun run test:p user --coverage`
-- [ ] Task: Проверить lint и tsc: `bun run check:p user`
-- [ ] Task: Conductor - User Manual Verification 'Интеграция и финал' (Protocol in workflow.md)
+- [x] Task: Проверить покрытие >80%: `bun run test:p user --coverage`
+- [x] Task: Проверить lint и tsc: `bun run check:p user`
+- [x] Task: Conductor - User Manual Verification 'Интеграция и финал' (Protocol in workflow.md)
