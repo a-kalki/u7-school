@@ -5,5 +5,5 @@ export * from "./api";
 export * from "./domain";
 // Infra
 export * from "./infra";
-// UI
-export * from "./ui";
+// UI - удален
+// export * from "./ui";

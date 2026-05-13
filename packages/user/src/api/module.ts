@@ -1,11 +1,11 @@
-import { Module } from "@u7/core/api";
+import { ApiModule } from "@u7/core/api";
 import type { UserApiModuleResolver, UserModuleMeta } from "#domain/module";
 import { CreateUserUc } from "./user/create-user-uc";
 import { GetUserByTelegramIdUc } from "./user/get-user-by-telegram-id-uc";
 import { GetUserUc } from "./user/get-user-uc";
 import { ListUsersUc } from "./user/list-users-uc";
 
-export class UserApiModule extends Module<
+export class UserApiModule extends ApiModule<
 	UserModuleMeta,
 	UserApiModuleResolver
 > {

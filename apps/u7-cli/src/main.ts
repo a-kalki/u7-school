@@ -1,28 +1,15 @@
-import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-import { AutoUiApp } from "@u7/core/ui";
+import { ApiApp } from "@u7/core/api";
 import { CourseApiModule } from "@u7/course/api";
 import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from "@u7/course/infra";
-import { CourseAutoUiModule } from "@u7/course/ui";
 import { UserApiModule } from "@u7/user/api";
 import { UserInProcFacade, UserJsonRepo } from "@u7/user/infra";
-import { UserAutoUiModule, UserCliController } from "@u7/user/ui";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, "..");
+import { CliController } from "./cli-controller";
 
 async function main() {
 	// --- User Domain Module ---
 	const userRepo = new UserJsonRepo();
 	const userApiModule = new UserApiModule();
 	userApiModule.init({ userRepo });
-
-	const userModDir = path.join(rootDir, "..", "..", "packages", "user");
-
-	const userUiModule = new UserAutoUiModule({
-		aboutPath: userModDir,
-		apiModule: userApiModule,
-	});
 
 	// --- Course Domain Module ---
 	const userFacade = new UserInProcFacade(userApiModule);
@@ -34,21 +21,12 @@ async function main() {
 		userFacade,
 	});
 
-	const courseModDir = path.join(rootDir, "..", "..", "packages", "course");
-
-	const courseUiModule = new CourseAutoUiModule({
-		aboutPath: courseModDir,
-		apiModule: courseApiModule,
-	});
-
 	// --- App ---
-	const app = new AutoUiApp([userUiModule, courseUiModule], {
-		aboutPath: rootDir,
-	});
+	const app = new ApiApp();
+	app.register(userApiModule);
+	app.register(courseApiModule);
 
-	await app.init();
-
-	const controller = new UserCliController(app);
+	const controller = new CliController(app);
 	await controller.run();
 }
 

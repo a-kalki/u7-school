@@ -10,7 +10,6 @@ export type {
 export { CreateUserCmdSchema } from "./user/commands/create-user-cmd";
 export type {
 	AccessDeniedUcError,
-	BootstrapRequiresAdminUcError,
 	TelegramIdTakenUcError,
 	UserModuleError,
 	UserNotFoundUcError,

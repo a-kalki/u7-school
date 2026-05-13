@@ -16,12 +16,6 @@ export type TelegramIdTakenUcError = ConflictError<
 	{ telegramId: number } | undefined
 >;
 
-/** Bootstrap требует ADMIN роль */
-export type BootstrapRequiresAdminUcError = ConflictError<
-	"BOOTSTRAP_REQUIRES_ADMIN",
-	undefined
->;
-
 /** Доступ запрещён */
 export type AccessDeniedUcError = AccessDeniedError<"ACCESS_DENIED", undefined>;
 
@@ -29,5 +23,4 @@ export type AccessDeniedUcError = AccessDeniedError<"ACCESS_DENIED", undefined>;
 export type UserModuleError =
 	| UserNotFoundUcError
 	| TelegramIdTakenUcError
-	| BootstrapRequiresAdminUcError
 	| AccessDeniedUcError;

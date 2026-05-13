@@ -3,7 +3,7 @@ import { errBadRequest, throwError } from "#domain/errors/error-helpers";
 import type { NoCommandFoundError } from "#domain/errors/errors";
 import type { ModuleCommand, ModuleMeta } from "#domain/module/types";
 
-export abstract class Module<TMeta extends ModuleMeta, TResolve> {
+export abstract class ApiModule<TMeta extends ModuleMeta, TResolve> {
 	abstract readonly name: TMeta["name"];
 	abstract readonly useCases: UseCase<UcMeta, TResolve>[];
 

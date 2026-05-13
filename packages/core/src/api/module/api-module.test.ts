@@ -6,7 +6,7 @@ import type { ArMeta } from "#domain/ar/aggregate";
 import { Aggregate } from "#domain/ar/aggregate";
 import { AppException, type NoCommandFoundError } from "#domain/errors/errors";
 import type { ModuleMeta } from "#domain/module/types";
-import { Module } from "./module";
+import { ApiModule } from "./api-module";
 
 interface TestArMeta extends ArMeta {
 	name: "TestAr";
@@ -21,6 +21,8 @@ class TestAr extends Aggregate<TestArMeta> {
 	static readonly arName = "TestAr";
 	static readonly arLabel = "Тестовый агрегат";
 }
+
+// biome-ignore lint/correctness/noUnusedVariables: needed for interface
 
 interface TestUcMeta extends UcMeta {
 	ucName: "test-cmd";
@@ -56,7 +58,7 @@ interface TestModuleMeta extends ModuleMeta {
 	url: "/test";
 }
 
-class TestModule extends Module<TestModuleMeta, { value: string }> {
+class TestModule extends ApiModule<TestModuleMeta, { value: string }> {
 	readonly name = "TestModule";
 	readonly useCases = [new TestUseCase()];
 }

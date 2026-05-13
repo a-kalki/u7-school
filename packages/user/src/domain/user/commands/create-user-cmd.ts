@@ -3,7 +3,6 @@ import type { User, UserArMeta } from "#domain/user/entity";
 import { UserSchema } from "#domain/user/entity";
 import type {
 	AccessDeniedUcError,
-	BootstrapRequiresAdminUcError,
 	TelegramIdTakenUcError,
 	UserNotFoundUcError,
 } from "./errors";
@@ -25,7 +24,7 @@ export interface CreateUserCmdMeta {
 	input: CreateUserCmd;
 	output: User;
 	errors: CreateUserCmdError;
-	requiresAuth: false;
+	requiresAuth: true;
 	type: "command";
 }
 
@@ -33,5 +32,4 @@ export interface CreateUserCmdMeta {
 export type CreateUserCmdError =
 	| UserNotFoundUcError
 	| TelegramIdTakenUcError
-	| BootstrapRequiresAdminUcError
 	| AccessDeniedUcError;

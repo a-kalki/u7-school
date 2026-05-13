@@ -1,4 +1,4 @@
-import { Module } from "@u7/core/api";
+import { ApiModule } from "@u7/core/api";
 import type { CourseApiModuleResolver, CourseModuleMeta } from "#domain/module";
 import { AddModuleUc } from "./course/add-module-uc";
 import { AddProjectToModuleUc } from "./course/add-project-to-module-uc";
@@ -13,7 +13,7 @@ import { GetLessonUc } from "./lesson/get-lesson-uc";
 import { CreateStepUc } from "./step/create-step-uc";
 import { GetStepUc } from "./step/get-step-uc";
 
-export class CourseApiModule extends Module<
+export class CourseApiModule extends ApiModule<
 	CourseModuleMeta,
 	CourseApiModuleResolver
 > {

@@ -58,26 +58,10 @@ function makeUser(overrides: Partial<User> = {}): User {
 
 describe("CreateUserUc", () => {
 	describe("SUCCESS", () => {
-		test("бутстрап: создаёт первого пользователя с ролью ADMIN без актора", async () => {
-			const { isEmpty, save, uc } = setupUc();
-			isEmpty.mockResolvedValue(true);
-
-			const user = await uc.handle({
-				name: "Админ",
-				telegramId: 1,
-				roles: [Role.ADMIN],
-			});
-
-			expect(user.name).toBe("Админ");
-			expect(user.roles).toEqual([Role.ADMIN]);
-			expect(save).toHaveBeenCalledTimes(1);
-		});
-
-		test("второй пользователь сохраняет переданные роли", async () => {
-			const { isEmpty, getByUuid, uc } = setupUc();
+		test("пользователь сохраняет переданные роли", async () => {
+			const { getByUuid, uc } = setupUc();
 			const admin = makeUser();
 
-			isEmpty.mockResolvedValueOnce(false);
 			getByUuid.mockResolvedValueOnce(admin);
 			const user = await uc.handle(
 				{ name: "Студент", telegramId: 2, roles: [Role.STUDENT] },
@@ -88,10 +72,9 @@ describe("CreateUserUc", () => {
 		});
 
 		test("ADMIN может создавать других пользователей", async () => {
-			const { isEmpty, getByUuid, save, uc } = setupUc();
+			const { getByUuid, save, uc } = setupUc();
 			const admin = makeUser();
 
-			isEmpty.mockResolvedValueOnce(false);
 			getByUuid.mockResolvedValueOnce(admin);
 
 			const user = await uc.handle(
@@ -106,20 +89,10 @@ describe("CreateUserUc", () => {
 	});
 
 	describe("FAIL", () => {
-		test("бутстрап: отклоняет первого пользователя без роли ADMIN", async () => {
-			const { isEmpty, uc } = setupUc();
-			isEmpty.mockResolvedValue(true);
-
-			await expect(
-				uc.handle({ name: "Не админ", telegramId: 1, roles: [Role.STUDENT] }),
-			).rejects.toThrow("Первый пользователь должен иметь роль ADMIN");
-		});
-
 		test("отклоняет дубликат telegramId", async () => {
-			const { isEmpty, getByUuid, isTelegramIdTaken, uc } = setupUc();
+			const { getByUuid, isTelegramIdTaken, uc } = setupUc();
 			const admin = makeUser();
 
-			isEmpty.mockResolvedValueOnce(false);
 			getByUuid.mockResolvedValueOnce(admin);
 			isTelegramIdTaken.mockResolvedValueOnce(true);
 
@@ -132,17 +105,18 @@ describe("CreateUserUc", () => {
 		});
 
 		test("отклоняет невалидную команду", async () => {
-			const { uc } = setupUc();
+			const { getByUuid, uc } = setupUc();
+			const admin = makeUser();
+
+			getByUuid.mockResolvedValueOnce(admin);
 
 			await expect(
-				uc.handle({ name: "", telegramId: -1, roles: [] }),
+				uc.handle({ name: "", telegramId: -1, roles: [] }, admin.uuid),
 			).rejects.toThrow("Переданы некорректные данные");
 		});
 
-		test("отклоняет создание без авторизации при непустом репозитории", async () => {
-			const { isEmpty, uc } = setupUc();
-
-			isEmpty.mockResolvedValueOnce(false);
+		test("отклоняет создание без авторизации", async () => {
+			const { uc } = setupUc();
 
 			await expect(
 				uc.handle({ name: "Хакер", telegramId: 2, roles: [Role.ADMIN] }),
@@ -150,10 +124,9 @@ describe("CreateUserUc", () => {
 		});
 
 		test("отклоняет создание пользователем без прав ADMIN", async () => {
-			const { isEmpty, getByUuid, uc } = setupUc();
+			const { getByUuid, uc } = setupUc();
 			const student = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
 
-			isEmpty.mockResolvedValueOnce(false);
 			getByUuid.mockResolvedValueOnce(student);
 
 			await expect(
