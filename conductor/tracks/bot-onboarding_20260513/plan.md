@@ -1,6 +1,7 @@
 # План реализации: Telegram-бот onboarding
 
 ## Фаза 1: Инфраструктура бота
+- [ ] Task: Авторегистрация бота в @u7/user: если бота нет в БД, регистрируем через .env `adminTelegramId` как SYSTEM-пользователя с ролью ADMIN
 - [ ] Task: Установить @grammyjs/conversations
 - [ ] Task: Настроить .env.development, .env.production (BOT_TOKEN, NEWS_GROUP_LINK)
 - [ ] Task: Настроить Bot instance, session middleware (JSON storage), error handler
