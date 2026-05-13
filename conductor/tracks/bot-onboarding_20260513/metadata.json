@@ -1,0 +1,8 @@
+{
+  "track_id": "bot-onboarding_20260513",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-05-13T00:00:00Z",
+  "updated_at": "2026-05-13T00:00:00Z",
+  "description": "Telegram-флоу onboarding в apps/u7-bot через grammY + @grammyjs/conversations"
+}
