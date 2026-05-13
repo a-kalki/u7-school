@@ -1,0 +1,14 @@
+Задача: Создать RegisterUserUc и AddRoleToUserUc
+
+Изменения:
+- packages/user/src/api/user/register-user-uc.ts: UC регистрации (без авторизации, роль GUEST)
+- packages/user/src/api/user/register-user-uc.test.ts: тесты RegisterUserUc
+- packages/user/src/api/user/add-role-to-user-uc.ts: UC добавления роли (требует ADMIN)
+- packages/user/src/api/user/add-role-to-user-uc.test.ts: тесты AddRoleToUserUc
+- packages/user/src/domain/user/commands/register-user-cmd.ts: команда регистрации
+- packages/user/src/domain/user/commands/add-role-to-user-cmd.ts: команда добавления роли
+- packages/user/src/api/module.ts: зарегистрированы новые UC
+- packages/user/src/api/user-uc.ts: добавлен throwNotFound
+- packages/user/src/domain/index.ts, api/index.ts: обновлены экспорты
+
+Причина: расширение домена пользователя для onboarding-воронки.
