@@ -107,14 +107,20 @@ describe("UserCliController", () => {
 
 		it('с префиксом "telegramId: <num>": ищет через фильтр list-users', async () => {
 			const app = mockApp({
-				callUseCase: mock(async (_mod: string, _cmd: string, attrs: Record<string, unknown>) => {
-					if (attrs.telegramId === 12345) {
-						return {
-							users: [{ uuid: "tg-user-1", name: "TG User" }],
-						};
-					}
-					return { users: [] };
-				}),
+				callUseCase: mock(
+					async (
+						_mod: string,
+						_cmd: string,
+						attrs: Record<string, unknown>,
+					) => {
+						if (attrs.telegramId === 12345) {
+							return {
+								users: [{ uuid: "tg-user-1", name: "TG User" }],
+							};
+						}
+						return { users: [] };
+					},
+				),
 			});
 			const ctrl = new UserCliController(app);
 			const result = await ctrl.handleLogin("telegramId: 12345");
@@ -145,14 +151,20 @@ describe("UserCliController", () => {
 
 		it('с префиксом "name: <часть>": ищет через фильтр name', async () => {
 			const app = mockApp({
-				callUseCase: mock(async (_mod: string, _cmd: string, attrs: Record<string, unknown>) => {
-					if (attrs.name === "Иван") {
-						return {
-							users: [{ uuid: "u1", name: "Иван Петров" }],
-						};
-					}
-					return { users: [] };
-				}),
+				callUseCase: mock(
+					async (
+						_mod: string,
+						_cmd: string,
+						attrs: Record<string, unknown>,
+					) => {
+						if (attrs.name === "Иван") {
+							return {
+								users: [{ uuid: "u1", name: "Иван Петров" }],
+							};
+						}
+						return { users: [] };
+					},
+				),
 			});
 			const ctrl = new UserCliController(app);
 			const result = await ctrl.handleLogin("name: Иван");
@@ -200,7 +212,9 @@ describe("UserCliController", () => {
 			const menu = await ctrl.renderMenu();
 			expect(menu).toContain("/register");
 			expect(menu).not.toContain("/login");
-			expect(app.callUseCase).toHaveBeenCalledWith("user", "list-users", { limit: 1 });
+			expect(app.callUseCase).toHaveBeenCalledWith("user", "list-users", {
+				limit: 1,
+			});
 		});
 
 		it("с пользователями и без сессии: показывает /login", async () => {

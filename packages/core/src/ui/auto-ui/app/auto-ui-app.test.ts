@@ -1,9 +1,12 @@
 import { describe, expect, it, mock } from "bun:test";
 import type { ModuleMeta } from "#domain/module/types";
 import type { UIAppResolver } from "#ui/ui-base/ui-app";
-import { AutoUiApp } from "./auto-ui-app";
-import type { AutoUiModule, AutoUiModuleResolver } from "../module/auto-ui-module";
+import type {
+	AutoUiModule,
+	AutoUiModuleResolver,
+} from "../module/auto-ui-module";
 import type { UIIntent } from "../parser/command-parser";
+import { AutoUiApp } from "./auto-ui-app";
 
 type GeneralAutoUiModule = AutoUiModule<
 	ModuleMeta,
@@ -96,9 +99,11 @@ describe("AutoUiApp (очищенный)", () => {
 
 	it("передаёт currentActor.uuid в модуль при обработке intent", async () => {
 		const mockModule = new MockAutoUiModule() as unknown as GeneralAutoUiModule;
-		mockModule.handleIntent = mock(async (intent: UIIntent, actorId?: string) => {
-			return `actor:${actorId}`;
-		});
+		mockModule.handleIntent = mock(
+			async (_intent: UIIntent, actorId?: string) => {
+				return `actor:${actorId}`;
+			},
+		);
 
 		const app = new AutoUiApp([mockModule], { aboutPath: "mock" });
 		app.currentActor = { uuid: "user-1", name: "Иван" };

@@ -71,7 +71,6 @@ export abstract class AutoUiCliController extends AutoUiController {
 		// пусто
 	}
 
-
 	/**
 	 * Запускает интерактивный REPL-цикл.
 	 * Обрабатывает построчный ввод, буферизацию для UseCase,

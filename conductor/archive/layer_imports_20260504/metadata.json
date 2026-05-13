@@ -1,8 +1,8 @@
 {
-  "track_id": "layer_imports_20260504",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-05-04T09:15:00Z",
-  "updated_at": "2026-05-04T09:15:00Z",
-  "description": "Реорганизовать структуру импортов/экспортов пакетов на послойную (layer-based) архитектуру: @u7/core/domain, @u7/core/api, @u7/core/ui"
+	"track_id": "layer_imports_20260504",
+	"type": "feature",
+	"status": "new",
+	"created_at": "2026-05-04T09:15:00Z",
+	"updated_at": "2026-05-04T09:15:00Z",
+	"description": "Реорганизовать структуру импортов/экспортов пакетов на послойную (layer-based) архитектуру: @u7/core/domain, @u7/core/api, @u7/core/ui"
 }

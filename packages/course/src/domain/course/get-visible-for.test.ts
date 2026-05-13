@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { User } from "@u7/user/domain";
 import { Role } from "@u7/user/domain";
-import { Status } from "../status";
 import { CourseAr } from "./a-root";
 
 function makeActor(roles: Role[], uuid = "actor-uuid"): User {
@@ -28,7 +27,7 @@ describe("CourseAr.getVisibleFor", () => {
 			const ar = CourseAr.create("Курс", "Описание", "modules", authorId);
 			ar.publish();
 			expect(ar.getVisibleFor()).not.toBeNull();
-			expect(ar.getVisibleFor()!.title).toBe("Курс");
+			expect(ar.getVisibleFor()?.title).toBe("Курс");
 		});
 	});
 
@@ -42,8 +41,8 @@ describe("CourseAr.getVisibleFor", () => {
 				result: undefined,
 				additional: undefined,
 			});
-			const modUuid = (ar.state as { modules: { uuid: string }[] }).modules[0]!
-				.uuid;
+			const modUuid = (ar.state as { modules: { uuid: string }[] }).modules[0]
+				?.uuid as string;
 			ar.addProjectToModule(modUuid, {
 				courseId: "x",
 				title: "П1",
@@ -78,8 +77,8 @@ describe("CourseAr.getVisibleFor", () => {
 				result: undefined,
 				additional: undefined,
 			});
-			const modUuid = (ar.state as { modules: { uuid: string }[] }).modules[0]!
-				.uuid;
+			const modUuid = (ar.state as { modules: { uuid: string }[] }).modules[0]
+				?.uuid as string;
 			ar.addProjectToModule(modUuid, {
 				courseId: "x",
 				title: "П1",
@@ -108,8 +107,8 @@ describe("CourseAr.getVisibleFor", () => {
 				result: undefined,
 				additional: undefined,
 			});
-			const modUuid = (ar.state as { modules: { uuid: string }[] }).modules[0]!
-				.uuid;
+			const modUuid = (ar.state as { modules: { uuid: string }[] }).modules[0]
+				?.uuid as string;
 			ar.addProjectToModule(modUuid, {
 				courseId: "x",
 				title: "П1",
@@ -119,7 +118,7 @@ describe("CourseAr.getVisibleFor", () => {
 			});
 			const projUuid = (
 				ar.state as { modules: { projects: { uuid: string }[] }[] }
-			).modules[0]!.projects[0]!.uuid;
+			).modules[0]?.projects[0]?.uuid as string;
 			ar.publishProject(projUuid);
 			ar.publishModule(modUuid);
 			ar.publish();
@@ -150,7 +149,7 @@ describe("CourseAr.getVisibleFor", () => {
 				additional: undefined,
 			});
 			const projUuid = (ar.state as { projects: { uuid: string }[] })
-				.projects[0]!.uuid;
+				.projects[0]?.uuid as string;
 			ar.publishProject(projUuid);
 			ar.publish();
 

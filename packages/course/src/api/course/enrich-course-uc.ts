@@ -17,7 +17,10 @@ import { CourseUseCase } from "../course-uc";
 export class EnrichCourseUc extends CourseUseCase<EnrichCourseCmdMeta> {
 	protected readonly ucName = "enrich-course" as const;
 	protected readonly ucLabel = "Обогатить курс" as const;
-	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
+	protected readonly arMeta = {
+		arName: CourseAr.arName as "Course",
+		arLabel: CourseAr.arLabel as "Курс",
+	};
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = EnrichCourseCmdSchema;

@@ -16,7 +16,10 @@ import { CourseUseCase } from "../course-uc";
 export class AddModuleUc extends CourseUseCase<AddModuleCmdMeta> {
 	protected readonly ucName = "add-module" as const;
 	protected readonly ucLabel = "Добавить модуль в курс" as const;
-	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
+	protected readonly arMeta = {
+		arName: CourseAr.arName as "Course",
+		arLabel: CourseAr.arLabel as "Курс",
+	};
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = AddModuleCmdSchema;

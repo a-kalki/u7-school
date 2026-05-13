@@ -18,7 +18,10 @@ function makeUser(r: Role[] = [Role.ADMIN]): User {
 	};
 }
 
-function makeCourse(authorId: string, kind: "modules" | "projects" = "projects"): Course {
+function makeCourse(
+	authorId: string,
+	kind: "modules" | "projects" = "projects",
+): Course {
 	const base = {
 		uuid: crypto.randomUUID(),
 		title: "К",
@@ -38,12 +41,14 @@ function makeCourse(authorId: string, kind: "modules" | "projects" = "projects")
 		return {
 			...base,
 			kind: "projects",
-			projects: [{
-				uuid: crypto.randomUUID(),
-				title: "П",
-				status: Status.DRAFT,
-				lessonIds: [],
-			}],
+			projects: [
+				{
+					uuid: crypto.randomUUID(),
+					title: "П",
+					status: Status.DRAFT,
+					lessonIds: [],
+				},
+			],
 		} as Course;
 	}
 	return { ...base, kind: "modules", modules: [] } as unknown as Course;
@@ -86,13 +91,15 @@ function setupUc() {
 describe("CreateLessonUc", () => {
 	describe("SUCCESS", () => {
 		test("MENTOR создаёт урок в своём курсе", async () => {
-			const { courseGetByUuid, courseSave, lessonSave, getUserByUuid, uc } = setupUc();
+			const { courseGetByUuid, courseSave, lessonSave, getUserByUuid, uc } =
+				setupUc();
 			const mentor = makeUser([Role.MENTOR]);
 			const course = makeCourse(mentor.uuid, "projects");
 			getUserByUuid.mockResolvedValueOnce(mentor);
 			courseGetByUuid.mockResolvedValueOnce(course);
 
-			const projectId = (course as { projects?: { uuid: string }[] }).projects?.[0]?.uuid ?? "";
+			const projectId =
+				(course as { projects?: { uuid: string }[] }).projects?.[0]?.uuid ?? "";
 
 			const result = await uc.handle(
 				{
@@ -134,11 +141,16 @@ describe("CreateLessonUc", () => {
 			courseGetByUuid.mockResolvedValueOnce(course);
 
 			await expect(
-				uc.handle({
-					courseId: course.uuid,
-					projectId: (course as { projects?: { uuid: string }[] }).projects?.[0]?.uuid ?? "",
-					title: "У"
-				}, mentor.uuid),
+				uc.handle(
+					{
+						courseId: course.uuid,
+						projectId:
+							(course as { projects?: { uuid: string }[] }).projects?.[0]
+								?.uuid ?? "",
+						title: "У",
+					},
+					mentor.uuid,
+				),
 			).rejects.toThrow("Вы не являетесь автором курса");
 		});
 

@@ -39,7 +39,7 @@ async function main() {
 			console.log("\n=== СОСТОЯНИЕ КОНТЕНТА ===");
 
 			// 1. Парсинг
-			const toParse = rawCourses.filter((c) => !parsedCourses.includes(c));
+			const _toParse = rawCourses.filter((c) => !parsedCourses.includes(c));
 			console.log(`\nДоступно для парсинга (${rawCourses.length}):`);
 			if (rawCourses.length > 0) {
 				for (const course of rawCourses) {
@@ -76,7 +76,7 @@ async function main() {
 
 			const courseIdx = args.indexOf("--course");
 			if (courseIdx !== -1 && args[courseIdx + 1]) {
-				targetCourse = args[courseIdx + 1]!.toLowerCase();
+				targetCourse = args[courseIdx + 1]?.toLowerCase();
 			}
 
 			const available = await service.getAvailableCourses();
@@ -117,7 +117,7 @@ async function main() {
 			let targetCourse: string | undefined;
 			const courseIdx = args.indexOf("--course");
 			if (courseIdx !== -1 && args[courseIdx + 1]) {
-				targetCourse = args[courseIdx + 1]!.toLowerCase();
+				targetCourse = args[courseIdx + 1]?.toLowerCase();
 			}
 
 			const parsed = await service.getParsedCourses();
@@ -148,7 +148,7 @@ async function main() {
 			let targetCourse: string | undefined;
 			const courseIdx = args.indexOf("--course");
 			if (courseIdx !== -1 && args[courseIdx + 1]) {
-				targetCourse = args[courseIdx + 1]!.toLowerCase();
+				targetCourse = args[courseIdx + 1]?.toLowerCase();
 			}
 
 			if (!targetCourse) {

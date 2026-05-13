@@ -29,9 +29,11 @@ describe("LessonAr", () => {
 		});
 
 		test("принимает команду с опциональными полями", () => {
-			const ar = LessonAr.create(
-				{ ...cmd, additional: "Доп", estimatedMinutes: 30 },
-			);
+			const ar = LessonAr.create({
+				...cmd,
+				additional: "Доп",
+				estimatedMinutes: 30,
+			});
 			expect(ar.state.additional).toBe("Доп");
 			expect(ar.state.estimatedMinutes).toBe(30);
 		});

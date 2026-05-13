@@ -1,6 +1,6 @@
 import { CourseAr } from "#domain/course/a-root";
-import { CourseDs } from "#domain/course-ds";
 import { CoursePolicy } from "#domain/course/policy";
+import { CourseDs } from "#domain/course-ds";
 import { LessonAr } from "#domain/lesson/a-root";
 import {
 	type CreateLessonCmd,
@@ -20,7 +20,10 @@ import { CourseUseCase } from "../course-uc";
 export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
 	protected readonly ucName = "create-lesson" as const;
 	protected readonly ucLabel = "Создать урок" as const;
-	protected readonly arMeta = { arName: LessonAr.arName as "Lesson", arLabel: LessonAr.arLabel as "Урок" };
+	protected readonly arMeta = {
+		arName: LessonAr.arName as "Lesson",
+		arLabel: LessonAr.arLabel as "Урок",
+	};
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = CreateLessonCmdSchema;
@@ -40,7 +43,11 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
 
 		const courseAr = new CourseAr(courseState);
 		const ds = new CourseDs();
-		const { course, lesson } = ds.createLesson(courseAr, command, command.projectId);
+		const { course, lesson } = ds.createLesson(
+			courseAr,
+			command,
+			command.projectId,
+		);
 
 		const db = this.resolve.db;
 		if (db) {

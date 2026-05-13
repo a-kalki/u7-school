@@ -2,8 +2,8 @@ import { type UcMeta, UseCase } from "@u7/core/api";
 import { errAccessDenied, errNotFound } from "@u7/core/domain";
 import type { UserApiModuleResolver } from "#domain/module";
 import type {
-  AccessDeniedUcError,
-  UserNotFoundUcError,
+	AccessDeniedUcError,
+	UserNotFoundUcError,
 } from "#domain/user/commands/errors";
 import type { User } from "#domain/user/entity";
 
@@ -12,46 +12,42 @@ import type { User } from "#domain/user/entity";
  * Приватный для пакета @u7/user — не экспортируется наружу.
  */
 export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
-  TMeta,
-  UserApiModuleResolver
+	TMeta,
+	UserApiModuleResolver
 > {
-  /**
-   * Получает пользователя по его ID.
-   * Возвращает undefined, если пользователь не найден.
-   */
-  protected async getUser(userId: string): Promise<User | undefined> {
-    return this.resolve.userRepo.getByUuid(userId);
-  }
+	/**
+	 * Получает пользователя по его ID.
+	 * Возвращает undefined, если пользователь не найден.
+	 */
+	protected async getUser(userId: string): Promise<User | undefined> {
+		return this.resolve.userRepo.getByUuid(userId);
+	}
 
-  /**
-   * Получает актора (пользователя) и выбрасывает ошибку, если не найден.
-   */
-  protected async getActor(actorId: string): Promise<User> {
-    const actor = await this.getUser(actorId);
-    if (!actor) {
-      this.throwError(
-        errNotFound<UserNotFoundUcError>(
-          "USER_NOT_FOUND",
-          "Пользователь не найден",
-          { uuid: actorId },
-        ),
-      );
-    }
-    return actor;
-  }
+	/**
+	 * Получает актора (пользователя) и выбрасывает ошибку, если не найден.
+	 */
+	protected async getActor(actorId: string): Promise<User> {
+		const actor = await this.getUser(actorId);
+		if (!actor) {
+			this.throwError(
+				errNotFound<UserNotFoundUcError>(
+					"USER_NOT_FOUND",
+					"Пользователь не найден",
+					{ uuid: actorId },
+				),
+			);
+		}
+		return actor;
+	}
 
-  /**
-   * Выбрасывает ошибку доступа.
-   */
-  protected throwAccessDenied(
-    message = "Недостаточно прав для выполнения действия",
-  ): never {
-    this.throwError(
-      errAccessDenied<AccessDeniedUcError>(
-        "ACCESS_DENIED",
-        message,
-        undefined,
-      ),
-    );
-  }
+	/**
+	 * Выбрасывает ошибку доступа.
+	 */
+	protected throwAccessDenied(
+		message = "Недостаточно прав для выполнения действия",
+	): never {
+		this.throwError(
+			errAccessDenied<AccessDeniedUcError>("ACCESS_DENIED", message, undefined),
+		);
+	}
 }

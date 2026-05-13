@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { CourseSchema, LessonSchema, ModuleSchema } from "@u7/course";
+import { CourseSchema, LessonSchema, ModuleSchema } from "@u7/course/domain";
 import * as v from "valibot";
 
 describe("Course Domain Schemas", () => {
@@ -7,12 +7,12 @@ describe("Course Domain Schemas", () => {
 		test("should validate a valid lesson", () => {
 			const lesson = {
 				uuid: crypto.randomUUID(),
+				courseId: crypto.randomUUID(),
 				title: "Introduction",
 				status: "draft",
-				order: 0,
 				createdAt: "2026-01-01T00:00",
-				steps: [],
-				mentorSteps: [],
+				stepIds: [],
+				mentorStepIds: [],
 			};
 			const result = v.safeParse(LessonSchema, lesson);
 			expect(result.success).toBe(true);
@@ -21,11 +21,11 @@ describe("Course Domain Schemas", () => {
 		test("should fail if title is missing", () => {
 			const lesson = {
 				uuid: crypto.randomUUID(),
+				courseId: crypto.randomUUID(),
 				status: "draft",
-				order: 0,
 				createdAt: "2026-01-01T00:00",
-				steps: [],
-				mentorSteps: [],
+				stepIds: [],
+				mentorStepIds: [],
 			};
 			const result = v.safeParse(LessonSchema, lesson);
 			expect(result.success).toBe(false);

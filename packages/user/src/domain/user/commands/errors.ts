@@ -1,7 +1,7 @@
 import type {
-	NotFoundError,
-	ConflictError,
 	AccessDeniedError,
+	ConflictError,
+	NotFoundError,
 } from "@u7/core/domain";
 
 /** Пользователь не найден */
@@ -23,10 +23,7 @@ export type BootstrapRequiresAdminUcError = ConflictError<
 >;
 
 /** Доступ запрещён */
-export type AccessDeniedUcError = AccessDeniedError<
-	"ACCESS_DENIED",
-	undefined
->;
+export type AccessDeniedUcError = AccessDeniedError<"ACCESS_DENIED", undefined>;
 
 /** Любая известная ошибка user-модуля */
 export type UserModuleError =

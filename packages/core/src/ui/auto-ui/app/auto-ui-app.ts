@@ -1,6 +1,9 @@
 import type { ModuleMeta } from "#domain/module/types";
 import { UIApp, type UIAppResolver } from "#ui/ui-base/ui-app";
-import type { AutoUiModule, AutoUiModuleResolver } from "../module/auto-ui-module";
+import type {
+	AutoUiModule,
+	AutoUiModuleResolver,
+} from "../module/auto-ui-module";
 import { CommandParser } from "../parser/command-parser";
 
 export class AutoUiApp<
@@ -75,7 +78,7 @@ export class AutoUiApp<
 			throw new Error(`Модуль '${moduleName}' не найден`);
 		}
 
-		return mod.resolver.apiModule.handle({
+		return mod.apiModule.handle({
 			name: commandName,
 			attrs,
 			actorId: this.currentActor?.uuid,
@@ -102,5 +105,4 @@ export class AutoUiApp<
 		const menu = "\n\n--- \n**Меню:**\n- Список модулей: `/modules`";
 		return `${title}${body}${menu}`;
 	}
-
 }

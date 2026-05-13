@@ -1,10 +1,11 @@
 // Domain
-export * from "./domain";
+
 // API
 export * from "./api";
-// UI
-export * from "./ui";
-// Shared
-export * from "./shared";
+export * from "./domain";
 // Infra
 export * from "./infra";
+// Shared
+export * from "./shared";
+// UI
+export * from "./ui";

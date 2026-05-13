@@ -17,14 +17,14 @@ describe("SidebarParser", () => {
 		const sections = parseSidebar(mockHtml, courseName);
 
 		expect(sections).toHaveLength(2);
-		expect(sections[0]!.topic).toBe("HTML Basic");
-		expect(sections[0]!.lessons).toHaveLength(2);
-		expect(sections[0]!.lessons[0]!.title).toBe("HTML Introduction");
-		expect(sections[0]!.lessons[0]!.url).toBe(
+		expect(sections[0]?.topic).toBe("HTML Basic");
+		expect(sections[0]?.lessons).toHaveLength(2);
+		expect(sections[0]?.lessons[0]?.title).toBe("HTML Introduction");
+		expect(sections[0]?.lessons[0]?.url).toBe(
 			"https://www.w3schools.com/html/default.asp",
 		);
-		expect(sections[1]!.topic).toBe("HTML Forms");
-		expect(sections[1]!.lessons).toHaveLength(1);
+		expect(sections[1]?.topic).toBe("HTML Forms");
+		expect(sections[1]?.lessons).toHaveLength(1);
 	});
 
 	test("should handle missing h2 as 'Introduction' topic", () => {
@@ -34,7 +34,7 @@ describe("SidebarParser", () => {
       </div>
     `;
 		const sections = parseSidebar(mockHtmlNoH2, "html");
-		expect(sections[0]!.topic).toBe("Introduction");
-		expect(sections[0]!.lessons[0]!.title).toBe("Intro Lesson");
+		expect(sections[0]?.topic).toBe("Introduction");
+		expect(sections[0]?.lessons[0]?.title).toBe("Intro Lesson");
 	});
 });

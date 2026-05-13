@@ -16,7 +16,10 @@ import { CourseUseCase } from "../course-uc";
 export class AddProjectUc extends CourseUseCase<AddProjectCmdMeta> {
 	protected readonly ucName = "add-project" as const;
 	protected readonly ucLabel = "Добавить проект в курс" as const;
-	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
+	protected readonly arMeta = {
+		arName: CourseAr.arName as "Course",
+		arLabel: CourseAr.arLabel as "Курс",
+	};
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = AddProjectCmdSchema;

@@ -1,8 +1,8 @@
 {
-  "track_id": "uc_error_refactor_20260504",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-05-04T12:00:00Z",
-  "updated_at": "2026-05-04T12:00:00Z",
-  "description": "Перепроектировать API ошибок в @u7/core: заменить разрозненные throw*() на единый throwError() с дженерик-хелперами-фабриками"
+	"track_id": "uc_error_refactor_20260504",
+	"type": "feature",
+	"status": "new",
+	"created_at": "2026-05-04T12:00:00Z",
+	"updated_at": "2026-05-04T12:00:00Z",
+	"description": "Перепроектировать API ошибок в @u7/core: заменить разрозненные throw*() на единый throwError() с дженерик-хелперами-фабриками"
 }

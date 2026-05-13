@@ -7,335 +7,339 @@ import { UIModule, type UIModuleResolver } from "#ui/ui-base/ui-module";
 import type { UIIntent } from "../parser/command-parser";
 
 export interface AutoUiModuleResolver<TMeta extends ModuleMeta>
-  extends UIModuleResolver {
-  apiModule: Module<TMeta, unknown>;
+	extends UIModuleResolver {
+	apiModule: Module<TMeta, unknown>;
 }
 
 export abstract class AutoUiModule<
-  TMeta extends ModuleMeta,
-  AR extends UIAppResolver = UIAppResolver,
-  MR extends AutoUiModuleResolver<TMeta> = AutoUiModuleResolver<TMeta>,
+	TMeta extends ModuleMeta,
+	AR extends UIAppResolver = UIAppResolver,
+	MR extends AutoUiModuleResolver<TMeta> = AutoUiModuleResolver<TMeta>,
 > extends UIModule<TMeta, AR, MR> {
-  render(): unknown {
-    return this.renderAbout();
-  }
+	public get apiModule(): Module<TMeta, unknown> {
+		return this.resolver.apiModule;
+	}
 
-  /**
-   * Обработка намерений от AutoUiApp
-   */
-  async handleIntent(intent: UIIntent, actorId?: string): Promise<string> {
-    if (intent.type === "module") {
-      if (intent.command === "about") {
-        return this.renderAbout();
-      }
-      if (intent.command === "aggregates") {
-        return this.renderAggregates();
-      }
-      if (intent.command === "usecases") {
-        return this.renderUseCases(intent.aggregateName);
-      }
-    }
+	render(): unknown {
+		return this.renderAbout();
+	}
 
-    if (intent.type === "usecase") {
-      const ucName = intent.commandName;
-      if (intent.action === "prompt") {
-        return this.renderUseCasePrompt(ucName);
-      }
-      if (intent.action === "execute") {
-        return this.executeUseCase(ucName, intent.payload, actorId);
-      }
-    }
+	/**
+	 * Обработка намерений от AutoUiApp
+	 */
+	async handleIntent(intent: UIIntent, actorId?: string): Promise<string> {
+		if (intent.type === "module") {
+			if (intent.command === "about") {
+				return this.renderAbout();
+			}
+			if (intent.command === "aggregates") {
+				return this.renderAggregates();
+			}
+			if (intent.command === "usecases") {
+				return this.renderUseCases(intent.aggregateName);
+			}
+		}
 
-    return `Неизвестная команда модуля ${this.name}`;
-  }
+		if (intent.type === "usecase") {
+			const ucName = intent.commandName;
+			if (intent.action === "prompt") {
+				return this.renderUseCasePrompt(ucName);
+			}
+			if (intent.action === "execute") {
+				return this.executeUseCase(ucName, intent.payload, actorId);
+			}
+		}
 
-  private renderAbout(): string {
-    const title = this.about?.title ? `**${this.about.title}**\n\n` : "";
-    const body = this.about?.body || `Добро пожаловать в модуль ${this.name}!`;
-    const menu = `\n\n--- \n**Меню:**\n- Продолжить: /${this.name}/aggregates\n- Назад: /app`;
-    return `${title}${body}${menu}`;
-  }
+		return `Неизвестная команда модуля ${this.name}`;
+	}
 
-  private renderAggregates(): string {
-    const aggregates = new Set<string>();
-    const aggregateLabels = new Map<string, string>();
+	private renderAbout(): string {
+		const title = this.about?.title ? `**${this.about.title}**\n\n` : "";
+		const body = this.about?.body || `Добро пожаловать в модуль ${this.name}!`;
+		const menu = `\n\n--- \n**Меню:**\n- Продолжить: /${this.name}/aggregates\n- Назад: /app`;
+		return `${title}${body}${menu}`;
+	}
 
-    for (const uc of this.getDocTypes()) {
-      aggregates.add(uc.arName);
-      aggregateLabels.set(uc.arName, uc.arLabel);
-    }
+	private renderAggregates(): string {
+		const aggregates = new Set<string>();
+		const aggregateLabels = new Map<string, string>();
 
-    let result = `**Доступные объекты (${this.name}):**\n\n`;
-    for (const agg of aggregates) {
-      const label = aggregateLabels.get(agg);
-      result += `- ${label} (${agg}): /${this.name}/${agg}\n`;
-    }
-    result += `\n---\n**Назад:** /${this.name}`;
-    return result;
-  }
+		for (const uc of this.getDocTypes()) {
+			aggregates.add(uc.arName);
+			aggregateLabels.set(uc.arName, uc.arLabel);
+		}
 
-  private renderUseCases(aggregateName: string): string {
-    const useCases = this.getDocTypes().filter(
-      (uc) => uc.arName === aggregateName,
-    );
+		let result = `**Доступные объекты (${this.name}):**\n\n`;
+		for (const agg of aggregates) {
+			const label = aggregateLabels.get(agg);
+			result += `- ${label} (${agg}): /${this.name}/${agg}\n`;
+		}
+		result += `\n---\n**Назад:** /${this.name}`;
+		return result;
+	}
 
-    if (useCases.length === 0) {
-      return `Ошибка: Объект '${aggregateName}' не найден.\nНазад: /${this.name}/aggregates`;
-    }
+	private renderUseCases(aggregateName: string): string {
+		const useCases = this.getDocTypes().filter(
+			(uc) => uc.arName === aggregateName,
+		);
 
-    // biome-ignore lint/style/noNonNullAssertion: проверены выше;
-    const label = useCases[0]!.arLabel;
-    let result = `**Команды для "${label}":**\n\n`;
-    for (const uc of useCases) {
-      result += `- ${uc.ucLabel}: /${this.name}/${aggregateName}/${uc.ucName}\n`;
-    }
-    result += `\n---\n**Назад:** /${this.name}/aggregates`;
-    return result;
-  }
+		if (useCases.length === 0) {
+			return `Ошибка: Объект '${aggregateName}' не найден.\nНазад: /${this.name}/aggregates`;
+		}
 
-  private renderUseCasePrompt(ucName: string): string {
-    const uc = this.getDocTypes().find((u) => u.ucName === ucName);
-    if (!uc) {
-      return `Ошибка: Команда '${ucName}' не найдена.`;
-    }
+		// biome-ignore lint/style/noNonNullAssertion: проверены выше;
+		const label = useCases[0]!.arLabel;
+		let result = `**Команды для "${label}":**\n\n`;
+		for (const uc of useCases) {
+			result += `- ${uc.ucLabel}: /${this.name}/${aggregateName}/${uc.ucName}\n`;
+		}
+		result += `\n---\n**Назад:** /${this.name}/aggregates`;
+		return result;
+	}
 
-    let fieldsPrompt = "";
-    const fieldDetails: string[] = [];
-    const schema = uc.inputSchema as v.BaseSchema<
-      unknown,
-      unknown,
-      v.BaseIssue<unknown>
-    >;
+	private renderUseCasePrompt(ucName: string): string {
+		const uc = this.getDocTypes().find((u) => u.ucName === ucName);
+		if (!uc) {
+			return `Ошибка: Команда '${ucName}' не найдена.`;
+		}
 
-    if (schema && typeof schema === "object" && "entries" in schema) {
-      const entries = schema.entries as Record<
-        string,
-        v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
-      >;
-      const keys = Object.keys(entries);
+		let fieldsPrompt = "";
+		const fieldDetails: string[] = [];
+		const schema = uc.inputSchema as v.BaseSchema<
+			unknown,
+			unknown,
+			v.BaseIssue<unknown>
+		>;
 
-      for (const key of keys) {
-        fieldsPrompt += `- ${key}\n`;
-        const entry = entries[key] as v.BaseSchema<
-          unknown,
-          unknown,
-          v.BaseIssue<unknown>
-        > &
-          Record<string, unknown>;
-        fieldDetails.push(this.describeField(key, entry));
-      }
-    } else {
-      fieldsPrompt = "- Данные (текст)\n";
-    }
+		if (schema && typeof schema === "object" && "entries" in schema) {
+			const entries = schema.entries as Record<
+				string,
+				v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>
+			>;
+			const keys = Object.keys(entries);
 
-    let result = `Для выполнения команды "${uc.ucLabel}" отправьте сообщение следующего формата:\n\`\`\`\n/${this.name}/${uc.arName}/${uc.ucName}\n${fieldsPrompt}\`\`\`\n`;
+			for (const key of keys) {
+				fieldsPrompt += `- ${key}\n`;
+				const entry = entries[key] as v.BaseSchema<
+					unknown,
+					unknown,
+					v.BaseIssue<unknown>
+				> &
+					Record<string, unknown>;
+				fieldDetails.push(this.describeField(key, entry));
+			}
+		} else {
+			fieldsPrompt = "- Данные (текст)\n";
+		}
 
-    if (fieldDetails.length > 0) {
-      result += `\n**Параметры:**\n${fieldDetails.join("\n")}\n`;
-    }
+		let result = `Для выполнения команды "${uc.ucLabel}" отправьте сообщение следующего формата:\n\`\`\`\n/${this.name}/${uc.arName}/${uc.ucName}\n${fieldsPrompt}\`\`\`\n`;
 
-    return result;
-  }
+		if (fieldDetails.length > 0) {
+			result += `\n**Параметры:**\n${fieldDetails.join("\n")}\n`;
+		}
 
-  /**
-   * Проверяет, является ли схема массивом (с учётом обёрток optional/nullable).
-   */
-  private isArraySchema(
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
-      Record<string, unknown>,
-  ): boolean {
-    let current = schema;
-    while (current) {
-      const type = current.type as string | undefined;
-      if (type === "optional" || type === "nullable") {
-        current = current.wrapped as typeof current;
-        continue;
-      }
-      return type === "array";
-    }
-    return false;
-  }
+		return result;
+	}
 
-  /**
-   * Приводит строковое значение CLI к типу, ожидаемому Valibot-схемой.
-   */
-  private coerceValue(
-    value: string,
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
-      Record<string, unknown>,
-  ): unknown {
-    let current = schema;
+	/**
+	 * Проверяет, является ли схема массивом (с учётом обёрток optional/nullable).
+	 */
+	private isArraySchema(
+		schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+			Record<string, unknown>,
+	): boolean {
+		let current = schema;
+		while (current) {
+			const type = current.type as string | undefined;
+			if (type === "optional" || type === "nullable") {
+				current = current.wrapped as typeof current;
+				continue;
+			}
+			return type === "array";
+		}
+		return false;
+	}
 
-    // Раскрываем optional/nullable
-    while (current) {
-      const type = current.type as string | undefined;
-      if (type === "optional" || type === "nullable") {
-        current = current.wrapped as typeof current;
-        continue;
-      }
-      break;
-    }
+	/**
+	 * Приводит строковое значение CLI к типу, ожидаемому Valibot-схемой.
+	 */
+	private coerceValue(
+		value: string,
+		schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+			Record<string, unknown>,
+	): unknown {
+		let current = schema;
 
-    const type = current.type as string | undefined;
+		// Раскрываем optional/nullable
+		while (current) {
+			const type = current.type as string | undefined;
+			if (type === "optional" || type === "nullable") {
+				current = current.wrapped as typeof current;
+				continue;
+			}
+			break;
+		}
 
-    switch (type) {
-      case "number":
-        return Number(value);
-      case "boolean":
-        return value.toLowerCase() === "true";
-      case "string":
-      case "picklist":
-      case "enum":
-        return value;
-      default:
-        return value;
-    }
-  }
+		const type = current.type as string | undefined;
 
-  /**
-   * Извлекает схему элемента из схемы массива (с учётом обёрток).
-   */
-  private getArrayItemSchema(
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
-      Record<string, unknown>,
-  ): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
-    Record<string, unknown> {
-    let current = schema;
-    while (current) {
-      const type = current.type as string | undefined;
-      if (type === "optional" || type === "nullable") {
-        current = current.wrapped as typeof current;
-        continue;
-      }
-      if (type === "array") {
-        return current.item as typeof current;
-      }
-      break;
-    }
-    return {} as typeof current;
-  }
+		switch (type) {
+			case "number":
+				return Number(value);
+			case "boolean":
+				return value.toLowerCase() === "true";
+			case "string":
+			case "picklist":
+			case "enum":
+				return value;
+			default:
+				return value;
+		}
+	}
 
-  private describeField(
-    name: string,
-    schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
-      Record<string, unknown>,
-  ): string {
-    const parts: string[] = [];
-    let current = schema;
-    let optional = false;
-    let isArray = false;
+	/**
+	 * Извлекает схему элемента из схемы массива (с учётом обёрток).
+	 */
+	private getArrayItemSchema(
+		schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+			Record<string, unknown>,
+	): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+		Record<string, unknown> {
+		let current = schema;
+		while (current) {
+			const type = current.type as string | undefined;
+			if (type === "optional" || type === "nullable") {
+				current = current.wrapped as typeof current;
+				continue;
+			}
+			if (type === "array") {
+				return current.item as typeof current;
+			}
+			break;
+		}
+		return {} as typeof current;
+	}
 
-    while (current) {
-      const type = current.type as string | undefined;
+	private describeField(
+		name: string,
+		schema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+			Record<string, unknown>,
+	): string {
+		const parts: string[] = [];
+		let current = schema;
+		let optional = false;
+		let isArray = false;
 
-      if (type === "optional" || type === "nullable") {
-        optional = true;
-        current = current.wrapped as typeof current;
-        continue;
-      }
+		while (current) {
+			const type = current.type as string | undefined;
 
-      if (type === "array") {
-        isArray = true;
-        current = current.item as typeof current;
-        continue;
-      }
+			if (type === "optional" || type === "nullable") {
+				optional = true;
+				current = current.wrapped as typeof current;
+				continue;
+			}
 
-      if (type === "picklist") {
-        const options = current.options as ReadonlyArray<string>;
-        const opts = options.map((o) => `\`${o}\``).join(", ");
-        parts.push(`тип: перечисление, допустимые значения: ${opts}`);
-        break;
-      }
+			if (type === "array") {
+				isArray = true;
+				current = current.item as typeof current;
+				continue;
+			}
 
-      if (type === "enum") {
-        const options = current.options as ReadonlyArray<string>;
-        const opts = options.map((o) => `\`${o}\``).join(", ");
-        parts.push(`тип: перечисление, допустимые значения: ${opts}`);
-        break;
-      }
+			if (type === "picklist") {
+				const options = current.options as ReadonlyArray<string>;
+				const opts = options.map((o) => `\`${o}\``).join(", ");
+				parts.push(`тип: перечисление, допустимые значения: ${opts}`);
+				break;
+			}
 
-      if (type) {
-        const prefix = isArray ? "массив " : "";
-        const arrayHint = isArray
-          ? " (через запятую, напр. `- значение1, значение2`)"
-          : "";
-        parts.push(`тип: ${prefix}\`${type}\`${arrayHint}`);
-        break;
-      }
+			if (type === "enum") {
+				const options = current.options as ReadonlyArray<string>;
+				const opts = options.map((o) => `\`${o}\``).join(", ");
+				parts.push(`тип: перечисление, допустимые значения: ${opts}`);
+				break;
+			}
 
-      break;
-    }
+			if (type) {
+				const prefix = isArray ? "массив " : "";
+				const arrayHint = isArray
+					? " (через запятую, напр. `- значение1, значение2`)"
+					: "";
+				parts.push(`тип: ${prefix}\`${type}\`${arrayHint}`);
+				break;
+			}
 
-    if (optional) {
-      parts.push("опционально");
-    }
+			break;
+		}
 
-    return `- **${name}** — ${parts.join(", ")}`;
-  }
+		if (optional) {
+			parts.push("опционально");
+		}
 
-  private async executeUseCase(
-    ucName: string,
-    payload: string[],
-    actorId?: string,
-  ): Promise<string> {
-    const uc = this.getDocTypes().find((u) => u.ucName === ucName);
-    if (!uc) {
-      return `Ошибка: Команда '${ucName}' не найдена.`;
-    }
+		return `- **${name}** — ${parts.join(", ")}`;
+	}
 
-    const attrs: Record<string, unknown> = {};
-    const schema = uc.inputSchema as v.BaseSchema<
-      unknown,
-      unknown,
-      v.BaseIssue<unknown>
-    >;
+	private async executeUseCase(
+		ucName: string,
+		payload: string[],
+		actorId?: string,
+	): Promise<string> {
+		const uc = this.getDocTypes().find((u) => u.ucName === ucName);
+		if (!uc) {
+			return `Ошибка: Команда '${ucName}' не найдена.`;
+		}
 
-    if (schema && typeof schema === "object" && "entries" in schema) {
-      const entries = schema.entries as Record<
-        string,
-        v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
-        Record<string, unknown>
-      >;
-      const keys = Object.keys(entries);
-      for (let i = 0; i < keys.length; i++) {
-        const key = keys[i] as string;
-        if (payload[i] !== undefined) {
-          const entry = entries[key];
-          // Для полей-массивов — разбиваем строку по запятой и коэрсим элементы
-          // biome-ignore lint/style/noNonNullAssertion: проверены выше;
-          if (this.isArraySchema(entry!)) {
-            // biome-ignore lint/style/noNonNullAssertion: проверены выше;
-            const itemSchema = this.getArrayItemSchema(entry!);
-            // biome-ignore lint/style/noNonNullAssertion: проверены выше;
-            attrs[key] = payload[i]!.split(",")
-              .map((s) => s.trim())
-              .filter((s) => s !== "")
-              .map((s) => this.coerceValue(s, itemSchema));
-          } else {
-            // @ts-expect-error:
-            attrs[key] = this.coerceValue(payload[i], entry);
-          }
-        }
-      }
-    } else {
-      attrs._rawPayload = payload;
-    }
+		const attrs: Record<string, unknown> = {};
+		const schema = uc.inputSchema as v.BaseSchema<
+			unknown,
+			unknown,
+			v.BaseIssue<unknown>
+		>;
 
-    // Передаём actorId как есть (может быть undefined для неаутентифицированных).
-    // UseCase сам решает, требуется ли авторизация.
-    const result = await this.resolver.apiModule.handle({
-      name: ucName,
-      attrs,
-      actorId,
-    });
+		if (schema && typeof schema === "object" && "entries" in schema) {
+			const entries = schema.entries as Record<
+				string,
+				v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> &
+					Record<string, unknown>
+			>;
+			const keys = Object.keys(entries);
+			for (let i = 0; i < keys.length; i++) {
+				const key = keys[i] as string;
+				if (payload[i] !== undefined) {
+					const entry = entries[key];
+					// Для полей-массивов — разбиваем строку по запятой и коэрсим элементы
+					// biome-ignore lint/style/noNonNullAssertion: проверены выше;
+					if (this.isArraySchema(entry!)) {
+						// biome-ignore lint/style/noNonNullAssertion: проверены выше;
+						const itemSchema = this.getArrayItemSchema(entry!);
+						// biome-ignore lint/style/noNonNullAssertion: проверены выше;
+						attrs[key] = payload[i]!.split(",")
+							.map((s) => s.trim())
+							.filter((s) => s !== "")
+							.map((s) => this.coerceValue(s, itemSchema));
+					} else {
+						// @ts-expect-error:
+						attrs[key] = this.coerceValue(payload[i], entry);
+					}
+				}
+			}
+		} else {
+			attrs._rawPayload = payload;
+		}
 
-    return `**Успех!**\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
-  }
+		// Передаём actorId как есть (может быть undefined для неаутентифицированных).
+		// UseCase сам решает, требуется ли авторизация.
+		const result = await this.resolver.apiModule.handle({
+			name: ucName,
+			attrs,
+			actorId,
+		});
 
-  /**
-   * Возвращает типы команд из привязанного доменного модуля
-   */
-  private getDocTypes(): UcDocType[] {
-    return this.resolver.apiModule.getDocTypes();
-  }
+		return `**Успех!**\n\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\``;
+	}
+
+	/**
+	 * Возвращает типы команд из привязанного доменного модуля
+	 */
+	private getDocTypes(): UcDocType[] {
+		return this.resolver.apiModule.getDocTypes();
+	}
 }

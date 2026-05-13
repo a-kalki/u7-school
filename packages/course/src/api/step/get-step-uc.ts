@@ -1,5 +1,5 @@
-import { StepAr } from "#domain/step/a-root";
 import { errNotFound } from "@u7/core/domain";
+import { StepAr } from "#domain/step/a-root";
 import type { StepNotFoundUcError } from "#domain/step/commands/errors";
 import {
 	type GetStepCmd,
@@ -18,7 +18,10 @@ import { CourseUseCase } from "../course-uc";
 export class GetStepUc extends CourseUseCase<GetStepCmdMeta> {
 	protected readonly ucName = "get-step" as const;
 	protected readonly ucLabel = "Получить шаг по UUID" as const;
-	protected readonly arMeta = { arName: StepAr.arName as "Step", arLabel: StepAr.arLabel as "Шаг" };
+	protected readonly arMeta = {
+		arName: StepAr.arName as "Step",
+		arLabel: StepAr.arLabel as "Шаг",
+	};
 	protected readonly type = "query" as const;
 	protected readonly requiresAuth = false as const;
 	protected readonly inputSchema = GetStepCmdSchema;

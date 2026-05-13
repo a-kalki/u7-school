@@ -252,11 +252,11 @@ describe("CourseApiModule", () => {
 		const courseId = await createCourseAsMentor(mod, mentor, "projects");
 
 		// Добавляем проект в курс
-		const withProject = await mod.handle({
+		const withProject = (await mod.handle({
 			name: "add-project",
 			attrs: { courseId, title: "Проект 1" },
 			actorId: mentor.uuid,
-		}) as { projects?: { uuid: string }[] };
+		})) as { projects?: { uuid: string }[] };
 		const projectId = withProject.projects?.[0]?.uuid ?? "";
 
 		const result = await mod.handle({

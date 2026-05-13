@@ -17,7 +17,10 @@ import { CourseUseCase } from "../course-uc";
 export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
 	protected readonly ucName = "create-step" as const;
 	protected readonly ucLabel = "Создать шаг" as const;
-	protected readonly arMeta = { arName: StepAr.arName as "Step", arLabel: StepAr.arLabel as "Шаг" };
+	protected readonly arMeta = {
+		arName: StepAr.arName as "Step",
+		arLabel: StepAr.arLabel as "Шаг",
+	};
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = CreateStepCmdSchema;
@@ -35,7 +38,7 @@ export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
 			this.throwAccessDenied("Вы не являетесь автором курса");
 		}
 
-		const steps = await this.resolve.stepRepo.getByCourseId(command.courseId);
+		const _steps = await this.resolve.stepRepo.getByCourseId(command.courseId);
 
 		const ar = StepAr.create(command);
 		await this.resolve.stepRepo.save(ar.state);

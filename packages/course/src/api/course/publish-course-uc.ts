@@ -16,7 +16,10 @@ import { CourseUseCase } from "../course-uc";
 export class PublishCourseUc extends CourseUseCase<PublishCourseCmdMeta> {
 	protected readonly ucName = "publish-course" as const;
 	protected readonly ucLabel = "Опубликовать курс (этап 4)" as const;
-	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
+	protected readonly arMeta = {
+		arName: CourseAr.arName as "Course",
+		arLabel: CourseAr.arLabel as "Курс",
+	};
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = PublishCourseCmdSchema;

@@ -12,7 +12,11 @@ import type { NotFoundError } from "./errors";
 
 describe("error helpers (фабрики ошибок)", () => {
 	test("errNotFound создаёт объект с kind=not-found и level=domain", () => {
-		const err = errNotFound("USER_NOT_FOUND", "Пользователь не найден", undefined);
+		const err = errNotFound(
+			"USER_NOT_FOUND",
+			"Пользователь не найден",
+			undefined,
+		);
 		expect(err.kind).toBe("not-found");
 		expect(err.level).toBe("domain");
 		expect(err.name).toBe("USER_NOT_FOUND");
@@ -53,7 +57,10 @@ describe("error helpers (фабрики ошибок)", () => {
 		expect(err.kind).toBe("bad-request");
 		expect(err.level).toBe("api");
 		expect(err.name).toBe("NO_COMMAND_FOUND");
-		expect(err.payload).toEqual({ commandName: "test", moduleName: "test-module" });
+		expect(err.payload).toEqual({
+			commandName: "test",
+			moduleName: "test-module",
+		});
 	});
 
 	test("errUnauthorized создаёт объект с kind=unauthorized и level=api", () => {
@@ -74,7 +81,11 @@ describe("error helpers (фабрики ошибок)", () => {
 	});
 
 	test("errInternal создаёт объект с kind=internal и level=api", () => {
-		const err = errInternal("SEVER_INTERNAL_ERROR", "Внутренняя ошибка", undefined);
+		const err = errInternal(
+			"SEVER_INTERNAL_ERROR",
+			"Внутренняя ошибка",
+			undefined,
+		);
 		expect(err.kind).toBe("internal");
 		expect(err.level).toBe("api");
 		expect(err.name).toBe("SEVER_INTERNAL_ERROR");

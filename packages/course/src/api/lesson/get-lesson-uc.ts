@@ -1,5 +1,5 @@
-import { LessonAr } from "#domain/lesson/a-root";
 import { errNotFound } from "@u7/core/domain";
+import { LessonAr } from "#domain/lesson/a-root";
 import type { LessonNotFoundUcError } from "#domain/lesson/commands/errors";
 import {
 	type GetLessonCmd,
@@ -18,7 +18,10 @@ import { CourseUseCase } from "../course-uc";
 export class GetLessonUc extends CourseUseCase<GetLessonCmdMeta> {
 	protected readonly ucName = "get-lesson" as const;
 	protected readonly ucLabel = "Получить урок по UUID" as const;
-	protected readonly arMeta = { arName: LessonAr.arName as "Lesson", arLabel: LessonAr.arLabel as "Урок" };
+	protected readonly arMeta = {
+		arName: LessonAr.arName as "Lesson",
+		arLabel: LessonAr.arLabel as "Урок",
+	};
 	protected readonly type = "query" as const;
 	protected readonly requiresAuth = false as const;
 	protected readonly inputSchema = GetLessonCmdSchema;

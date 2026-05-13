@@ -9,21 +9,21 @@ describe("StepAr", () => {
 	describe("create", () => {
 		test("создаёт text-шаг", () => {
 			const ar = StepAr.create({
-					courseId: crypto.randomUUID(),
-					kind: "text",
-					content: "Описание",
-				});
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Описание",
+			});
 			expect(ar.state.kind).toBe("text");
 			expect(ar.state.status).toBe(Status.DRAFT);
 		});
 
 		test("создаёт code-шаг", () => {
 			const ar = StepAr.create({
-					courseId: crypto.randomUUID(),
-					kind: "code",
-					content: "Код",
-					code: "console.log(1)",
-				});
+				courseId: crypto.randomUUID(),
+				kind: "code",
+				content: "Код",
+				code: "console.log(1)",
+			});
 			expect(ar.state.kind).toBe("code");
 			if (ar.state.kind === "code")
 				expect(ar.state.code).toBe("console.log(1)");
@@ -31,24 +31,24 @@ describe("StepAr", () => {
 
 		test("создаёт code-шаг без language", () => {
 			const ar = StepAr.create({
-					courseId: crypto.randomUUID(),
-					kind: "code",
-					content: "Код",
-					code: "x",
-				});
+				courseId: crypto.randomUUID(),
+				kind: "code",
+				content: "Код",
+				code: "x",
+			});
 			if (ar.state.kind === "code") expect(ar.state.language).toBeUndefined();
 		});
 
 		test("создаёт file-шаг", () => {
 			const ar = StepAr.create({
-					courseId: crypto.randomUUID(),
-					kind: "file",
-					content: "Файл",
-					fileName: "doc.pdf",
-					fileMimeType: "application/pdf",
-					fileSize: 2048,
-					fileDescription: "Документ",
-				});
+				courseId: crypto.randomUUID(),
+				kind: "file",
+				content: "Файл",
+				fileName: "doc.pdf",
+				fileMimeType: "application/pdf",
+				fileSize: 2048,
+				fileDescription: "Документ",
+			});
 			expect(ar.state.kind).toBe("file");
 			if (ar.state.kind === "file") {
 				expect(ar.state.file.name).toBe("doc.pdf");
@@ -59,10 +59,10 @@ describe("StepAr", () => {
 
 		test("не создаёт updatedAt при создании", () => {
 			const ar = StepAr.create({
-					courseId: crypto.randomUUID(),
-					kind: "text",
-					content: "Описание",
-				});
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Описание",
+			});
 			expect(ar.state.updatedAt).toBeUndefined();
 		});
 	});
@@ -91,47 +91,59 @@ describe("StepAr", () => {
 		}
 
 		test("без актора — DRAFT → null", () => {
-			const ar = StepAr.create(
-				{ courseId: crypto.randomUUID(), kind: "text", content: "Ш" },
-			);
+			const ar = StepAr.create({
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Ш",
+			});
 			expect(ar.getVisibleFor(undefined, course)).toBeNull();
 		});
 
 		test("без актора — PUBLISHED → шаг", () => {
-			const ar = StepAr.create(
-				{ courseId: crypto.randomUUID(), kind: "text", content: "Ш" },
-			);
+			const ar = StepAr.create({
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Ш",
+			});
 			const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });
 			expect(published.getVisibleFor(undefined, course)).not.toBeNull();
 		});
 
 		test("автор видит DRAFT", () => {
-			const ar = StepAr.create(
-				{ courseId: crypto.randomUUID(), kind: "text", content: "Ш" },
-			);
+			const ar = StepAr.create({
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Ш",
+			});
 			expect(
 				ar.getVisibleFor(makeActor([Role.MENTOR], authorId), course),
 			).not.toBeNull();
 		});
 
 		test("ADMIN видит DRAFT", () => {
-			const ar = StepAr.create(
-				{ courseId: crypto.randomUUID(), kind: "text", content: "Ш" },
-			);
+			const ar = StepAr.create({
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Ш",
+			});
 			expect(ar.getVisibleFor(makeActor([Role.ADMIN]), course)).not.toBeNull();
 		});
 
 		test("студент не видит DRAFT", () => {
-			const ar = StepAr.create(
-				{ courseId: crypto.randomUUID(), kind: "text", content: "Ш" },
-			);
+			const ar = StepAr.create({
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Ш",
+			});
 			expect(ar.getVisibleFor(makeActor([Role.STUDENT]), course)).toBeNull();
 		});
 
 		test("студент видит PUBLISHED", () => {
-			const ar = StepAr.create(
-				{ courseId: crypto.randomUUID(), kind: "text", content: "Ш" },
-			);
+			const ar = StepAr.create({
+				courseId: crypto.randomUUID(),
+				kind: "text",
+				content: "Ш",
+			});
 			const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });
 			expect(
 				published.getVisibleFor(makeActor([Role.STUDENT]), course),

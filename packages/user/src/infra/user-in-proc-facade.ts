@@ -7,30 +7,30 @@ import type { User } from "#domain/user/entity";
  * Принимает UserApiModule и делегирует вызовы его API.
  */
 export class UserInProcFacade implements UserFacade {
-  readonly #userApi: UserApiModule;
+	readonly #userApi: UserApiModule;
 
-  constructor(userApi: UserApiModule) {
-    this.#userApi = userApi;
-  }
+	constructor(userApi: UserApiModule) {
+		this.#userApi = userApi;
+	}
 
-  async getUserByUuid(
-    uuid: string,
-    actorId?: string,
-  ): Promise<User | undefined> {
-    try {
-      const result = await this.#userApi.handle({
-        name: "get-user",
-        attrs: { uuid },
-        actorId,
-      });
-      return result as User;
-    } catch {
-      return undefined;
-    }
-  }
+	async getUserByUuid(
+		uuid: string,
+		actorId?: string,
+	): Promise<User | undefined> {
+		try {
+			const result = await this.#userApi.handle({
+				name: "get-user",
+				attrs: { uuid },
+				actorId,
+			});
+			return result as User;
+		} catch {
+			return undefined;
+		}
+	}
 
-  async userExists(uuid: string, actorId?: string): Promise<boolean> {
-    const user = await this.getUserByUuid(uuid, actorId);
-    return user !== undefined;
-  }
+	async userExists(uuid: string, actorId?: string): Promise<boolean> {
+		const user = await this.getUserByUuid(uuid, actorId);
+		return user !== undefined;
+	}
 }

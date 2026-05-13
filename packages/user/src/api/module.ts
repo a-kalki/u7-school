@@ -6,14 +6,14 @@ import { GetUserUc } from "./user/get-user-uc";
 import { ListUsersUc } from "./user/list-users-uc";
 
 export class UserApiModule extends Module<
-  UserModuleMeta,
-  UserApiModuleResolver
+	UserModuleMeta,
+	UserApiModuleResolver
 > {
-  readonly name = "user" as const;
-  readonly useCases = [
-    new CreateUserUc(),
-    new GetUserUc(),
-    new ListUsersUc(),
-    new GetUserByTelegramIdUc(),
-  ];
+	readonly name = "user" as const;
+	readonly useCases = [
+		new CreateUserUc(),
+		new GetUserUc(),
+		new ListUsersUc(),
+		new GetUserByTelegramIdUc(),
+	];
 }

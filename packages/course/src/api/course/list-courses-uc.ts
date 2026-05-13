@@ -1,5 +1,5 @@
-import { CourseAr } from "#domain/course/a-root";
 import * as v from "valibot";
+import { CourseAr } from "#domain/course/a-root";
 import type {
 	ListCoursesCmd,
 	ListCoursesCmdMeta,
@@ -18,7 +18,10 @@ const CoursesListOutputSchema = v.array(CourseSchema);
 export class ListCoursesUc extends CourseUseCase<ListCoursesCmdMeta> {
 	protected readonly ucName = "list-courses" as const;
 	protected readonly ucLabel = "Получить список курсов" as const;
-	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
+	protected readonly arMeta = {
+		arName: CourseAr.arName as "Course",
+		arLabel: CourseAr.arLabel as "Курс",
+	};
 	protected readonly type = "query" as const;
 	protected readonly requiresAuth = false as const;
 	protected readonly inputSchema = ListCoursesCmdSchema;

@@ -1,4 +1,3 @@
-import * as v from "valibot";
 import { CourseAr } from "#domain/course/a-root";
 import type {
 	GetCourseCmd,
@@ -15,7 +14,10 @@ import { CourseUseCase } from "../course-uc";
 export class GetCourseUc extends CourseUseCase<GetCourseCmdMeta> {
 	protected readonly ucName = "get-course" as const;
 	protected readonly ucLabel = "Получить курс по UUID" as const;
-	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
+	protected readonly arMeta = {
+		arName: CourseAr.arName as "Course",
+		arLabel: CourseAr.arLabel as "Курс",
+	};
 	protected readonly type = "query" as const;
 	protected readonly requiresAuth = false as const;
 	protected readonly inputSchema = GetCourseCmdSchema;

@@ -1,13 +1,12 @@
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AutoUiApp } from "@u7/core/ui";
-import { UserApiModule } from "@u7/user/api";
-import { UserJsonRepo } from "@u7/user/infra";
-import { UserAutoUiModule, UserCliController } from "@u7/user/ui";
 import { CourseApiModule } from "@u7/course/api";
 import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from "@u7/course/infra";
-import { UserInProcFacade } from "@u7/user/infra";
 import { CourseAutoUiModule } from "@u7/course/ui";
+import { UserApiModule } from "@u7/user/api";
+import { UserInProcFacade, UserJsonRepo } from "@u7/user/infra";
+import { UserAutoUiModule, UserCliController } from "@u7/user/ui";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
