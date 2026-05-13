@@ -1,0 +1,10 @@
+Задача: Добавить роли GUEST, SUBSCRIBER, CANDIDATE и методы UserAr.register, addRole
+
+Изменения:
+- packages/user/src/domain/user/roles.ts: добавлены роли GUEST, SUBSCRIBER, CANDIDATE
+- packages/user/src/domain/user/roles.test.ts: обновлены тесты ролей
+- packages/user/src/domain/user/a-root.ts: добавлены методы register() и addRole()
+- packages/user/src/domain/user/a-root.test.ts: добавлены тесты register и addRole
+- packages/user/src/domain/user/commands/register-user-cmd.ts: новая команда регистрации
+
+Причина: расширение домена пользователя для onboarding-воронки.
