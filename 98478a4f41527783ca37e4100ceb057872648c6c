@@ -1,0 +1,13 @@
+Контрольная точка Фазы 1: Модель и агрегат
+
+Команда тестирования: bun run test:p user
+Результат: 125 pass, 0 fail
+
+Шаги ручной верификации:
+1. Запусти тесты домена: bun run test:p user
+2. Убедись, что видишь: 125 тестов проходят, 0 падают
+3. Проверь новые роли в enum: packages/user/src/domain/user/roles.ts
+4. Проверь методы агрегата: packages/user/src/domain/user/a-root.ts (register, addRole)
+5. Проверь покрытие: bun run test:p user --coverage
+
+Подтверждение пользователя: да
