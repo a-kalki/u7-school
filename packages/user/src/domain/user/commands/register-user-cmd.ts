@@ -1,6 +1,7 @@
 import * as v from "valibot";
 import type { User, UserArMeta } from "../entity";
 import { UserSchema } from "../entity";
+import type { TelegramIdTakenUcError } from "./errors";
 
 /** Схема валидации команды регистрации пользователя */
 export const RegisterUserCmdSchema = v.object({
@@ -23,4 +24,4 @@ export interface RegisterUserCmdMeta {
 }
 
 /** Ошибки команды регистрации пользователя */
-export type RegisterUserCmdError = never;
+export type RegisterUserCmdError = TelegramIdTakenUcError;

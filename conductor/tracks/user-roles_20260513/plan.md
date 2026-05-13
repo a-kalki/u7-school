@@ -9,7 +9,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Модель и агрегат' (Protocol in workflow.md)
 
 ## Фаза 2: UseCases
-- [ ] Task: Создать RegisterUserUc (делегирует $T2)
+- [~] Task: Создать RegisterUserUc (делегирует $T2)
 - [ ] Task: Создать AddRoleToUserUc (делегирует UserAr.addRole)
 - [ ] Task: Написать тесты для RegisterUserUc
 - [ ] Task: Написать тесты для AddRoleToUserUc

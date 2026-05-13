@@ -3,6 +3,12 @@ export type { UserFacade } from "./facade";
 export type { UserApiModuleResolver, UserModuleMeta } from "./module";
 export { UserAr } from "./user/a-root";
 export type {
+	AddRoleToUserCmd,
+	AddRoleToUserCmdError,
+	AddRoleToUserCmdMeta,
+} from "./user/commands/add-role-to-user-cmd";
+export { AddRoleToUserCmdSchema } from "./user/commands/add-role-to-user-cmd";
+export type {
 	CreateUserCmd,
 	CreateUserCmdError,
 	CreateUserCmdMeta,
@@ -32,6 +38,12 @@ export type {
 	ListUsersCmdMeta,
 } from "./user/commands/list-users-cmd";
 export { ListUsersCmdSchema } from "./user/commands/list-users-cmd";
+export type {
+	RegisterUserCmd,
+	RegisterUserCmdError,
+	RegisterUserCmdMeta,
+} from "./user/commands/register-user-cmd";
+export { RegisterUserCmdSchema } from "./user/commands/register-user-cmd";
 export type { User, UserArMeta } from "./user/entity";
 export { UserSchema } from "./user/entity";
 export { UserPolicy } from "./user/policy";

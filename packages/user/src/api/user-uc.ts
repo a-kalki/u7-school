@@ -41,6 +41,19 @@ export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
 	}
 
 	/**
+	 * Выбрасывает ошибку "не найдено".
+	 */
+	protected throwNotFound(
+		name: UserNotFoundUcError["name"],
+		message: string,
+		params?: { uuid?: string; telegramId?: number },
+	): never {
+		this.throwError(
+			errNotFound<UserNotFoundUcError>(name, message, params),
+		);
+	}
+
+	/**
 	 * Выбрасывает ошибку доступа.
 	 */
 	protected throwAccessDenied(
