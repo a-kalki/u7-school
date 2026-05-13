@@ -1,7 +1,7 @@
 [$T1=packages/user/src/, $T2=UserAr.register]
 # План реализации: Расширение ролей пользователя
 
-## Фаза 1: Модель и агрегат [checkpoint: a630014]
+## Фаза 1: Модель и агрегат [checkpoint: 98478a4]
 - [x] Task: Добавить GUEST, SUBSCRIBER, CANDIDATE в Role enum и RoleSchema
 - [x] Task: Добавить метод $T2(cmd) для создания из telegramId + name с ролью GUEST
 - [x] Task: Добавить метод UserAr.addRole(role) — идемпотентное добавление
