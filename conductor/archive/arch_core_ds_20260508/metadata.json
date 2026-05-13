@@ -1,0 +1,8 @@
+{
+  "track_id": "arch_core_ds_20260508",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-05-08T00:00:00Z",
+  "updated_at": "2026-05-08T00:00:00Z",
+  "description": "Архитектурные улучшения ядра и сервисного слоя: BaseJsonDb с транзакциями, Domain Service, safeUpdate, throwInternal, удаление order, рефакторинг UseCase"
+}
