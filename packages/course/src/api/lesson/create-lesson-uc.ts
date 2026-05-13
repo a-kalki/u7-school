@@ -1,4 +1,5 @@
-import { errAccessDenied } from "@u7/core/domain";
+import { CourseAr } from "#domain/course/a-root";
+import { CourseDs } from "#domain/course-ds";
 import { CoursePolicy } from "#domain/course/policy";
 import { LessonAr } from "#domain/lesson/a-root";
 import {
@@ -6,7 +7,6 @@ import {
 	type CreateLessonCmdMeta,
 	CreateLessonCmdSchema,
 } from "#domain/lesson/commands/create-lesson-cmd";
-import type { LessonAccessDeniedUcError } from "#domain/lesson/commands/errors";
 import type { Lesson } from "#domain/lesson/entity";
 import { LessonSchema } from "#domain/lesson/entity";
 import { LessonPolicy } from "#domain/lesson/policy";
@@ -15,55 +15,49 @@ import { CourseUseCase } from "../course-uc";
 /**
  * Use-case создания урока.
  * Требует прав ADMIN/MENTOR + проверка авторства курса через CoursePolicy.
+ * Использует CourseDs для координации Course + Lesson + транзакционное сохранение.
  */
 export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
-	protected readonly commandName = "create-lesson" as const;
-	protected readonly description = "Создать урок" as const;
-	protected readonly arName = "lesson" as const;
-	protected readonly arLabel = "Урок" as const;
+	protected readonly ucName = "create-lesson" as const;
+	protected readonly ucLabel = "Создать урок" as const;
+	protected readonly arMeta = { arName: LessonAr.arName as "Lesson", arLabel: LessonAr.arLabel as "Урок" };
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = CreateLessonCmdSchema;
 	protected readonly outputSchema = LessonSchema;
 
 	async execute(command: CreateLessonCmd, actorId: string): Promise<Lesson> {
-		const actor = await this.resolve.userFacade.getUserByUuid(actorId);
-		if (!actor) {
-			this.throwError(
-				errAccessDenied<LessonAccessDeniedUcError>(
-					"LESSON_ACCESS_DENIED",
-					"Пользователь не найден",
-					undefined,
-				),
-			);
-		}
+		const actor = await this.getActor(actorId);
 
-		// Проверка базовых прав (ADMIN/MENTOR)
 		if (!LessonPolicy.canCreate(actor)) {
-			this.throwError(
-				errAccessDenied<LessonAccessDeniedUcError>(
-					"LESSON_ACCESS_DENIED",
-					"Недостаточно прав для создания урока",
-					undefined,
-				),
-			);
+			this.throwAccessDenied("Недостаточно прав для создания урока");
 		}
 
-		// Проверка авторства курса (MENTOR может создавать только в своих курсах)
-		const course = await this.getCourse(command.courseId);
-		if (!CoursePolicy.canEdit(actor, course)) {
-			this.throwError(
-				errAccessDenied<LessonAccessDeniedUcError>(
-					"LESSON_ACCESS_DENIED",
-					"Вы не являетесь автором курса",
-					undefined,
-				),
-			);
+		const courseState = await this.getCourse(command.courseId);
+		if (!CoursePolicy.canEdit(actor, courseState)) {
+			this.throwAccessDenied("Вы не являетесь автором курса");
 		}
 
-		const ar = LessonAr.create(command);
-		await this.resolve.lessonRepo.save(ar.state);
+		const courseAr = new CourseAr(courseState);
+		const ds = new CourseDs();
+		const { course, lesson } = ds.createLesson(courseAr, command, command.projectId);
 
-		return ar.state;
+		const db = this.resolve.db;
+		if (db) {
+			db.begin();
+			try {
+				await this.resolve.courseRepo.save(course.state);
+				await this.resolve.lessonRepo.save(lesson.state);
+				await db.commit();
+			} catch (e) {
+				db.rollback();
+				throw e;
+			}
+		} else {
+			await this.resolve.courseRepo.save(course.state);
+			await this.resolve.lessonRepo.save(lesson.state);
+		}
+
+		return lesson.state;
 	}
 }

@@ -5,7 +5,8 @@ import { UserApiModule } from "@u7/user/api";
 import { UserJsonRepo } from "@u7/user/infra";
 import { UserAutoUiModule, UserCliController } from "@u7/user/ui";
 import { CourseApiModule } from "@u7/course/api";
-import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo, FileMetadataJsonRepo, UserInProcFacade } from "@u7/course/infra";
+import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from "@u7/course/infra";
+import { UserInProcFacade } from "@u7/user/infra";
 import { CourseAutoUiModule } from "@u7/course/ui";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,6 @@ async function main() {
 		courseRepo: new CourseJsonRepo(),
 		lessonRepo: new LessonJsonRepo(),
 		stepRepo: new StepJsonRepo(),
-		fileMetadataRepo: new FileMetadataJsonRepo(),
 		userFacade,
 	});
 

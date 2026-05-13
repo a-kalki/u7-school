@@ -32,8 +32,7 @@ export interface ListUsersResult {
 
 /** Мета команды списка пользователей */
 export interface ListUsersCmdMeta {
-  commandName: "list-users";
-  description: "Список всех пользователей с фильтрацией";
+  ucName: "list-users";
   arMeta: UserArMeta;
   input: ListUsersCmd;
   output: ListUsersResult;

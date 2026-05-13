@@ -17,7 +17,6 @@ function makeLesson(overrides: Partial<Lesson> = {}): Lesson {
 		courseId: crypto.randomUUID(),
 		title: "Тестовый урок",
 		status: Status.DRAFT,
-		order: 1,
 		createdAt: "2026-05-01T12:00",
 		stepIds: [],
 		mentorStepIds: [],

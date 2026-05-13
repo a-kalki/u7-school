@@ -12,11 +12,6 @@ export const LessonSchema = v.object({
 	),
 	additional: v.optional(v.string()),
 	status: StatusSchema,
-	order: v.pipe(
-		v.number(),
-		v.integer("order должен быть целым числом"),
-		v.minValue(0, "order не может быть отрицательным"),
-	),
 	createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
 	updatedAt: v.optional(
 		v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
@@ -40,8 +35,7 @@ export type Lesson = v.InferOutput<typeof LessonSchema>;
 
 /** Метаданные агрегата Lesson */
 export interface LessonArMeta {
-	name: "lesson";
+	name: "Lesson";
 	label: "Урок";
-	errors: never;
 	state: Lesson;
 }

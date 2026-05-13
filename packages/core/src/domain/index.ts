@@ -8,6 +8,7 @@ export type {
   BadRequestError,
   BaseUcErrors,
   ConflictError,
+  DomainError,
   ErrorKind,
   InputValidationError,
   InternalError,
@@ -24,6 +25,7 @@ export {
   errAccessDenied,
   errBadRequest,
   errConflict,
+  errDomain,
   errInternal,
   errNotFound,
   errUnauthorized,
@@ -32,3 +34,6 @@ export {
   throwError,
 } from "./errors/error-helpers";
 export type { ModuleCommand, ModuleMeta } from "./module/types";
+// Общие value-objects
+export { FileMetadataSchema } from "./common/file-metadata";
+export type { FileMetadata } from "./common/file-metadata";

@@ -7,26 +7,32 @@ import { UseCase } from "#api/uc/use-case";
 import { AutoUiApp } from "./app/auto-ui-app";
 import { AutoUiModule } from "./module/auto-ui-module";
 
+import { Aggregate } from "#domain/ar/aggregate";
+import type { ArMeta } from "#domain/ar/aggregate";
+
+interface CourseArMeta extends ArMeta {
+  name: "Course";
+  label: "Курс";
+  state: { uuid: string; createdAt: string; updatedAt?: string } & Record<string, unknown>;
+}
+
+class CourseAr extends Aggregate<CourseArMeta> {
+  static readonly arName = "Course";
+  static readonly arLabel = "Курс";
+}
+
 // 1. Доменный слой (API)
 class CreateCourseUseCase extends UseCase<any, any> {
-  commandName = "create-course" as const;
-  description = "Создать новый курс" as const;
-  arName = "course" as const;
-  arLabel = "Курс" as const;
-  type = "command" as const;
-  requiresAuth = false as const;
-  inputSchema = v.object({ title: v.string(), description: v.string() });
-  outputSchema = v.any();
+  protected readonly ucName = "create-course" as const;
+  protected readonly ucLabel = "Создать новый курс" as const;
+  protected readonly arMeta = { arName: "Course" as const, arLabel: "Курс" as const };
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ title: v.string(), description: v.string() });
+  protected readonly outputSchema = v.any();
 
   protected async getUser(_userId: string): Promise<Record<string, unknown>> {
     return {};
-  }
-
-  protected async checkPolicy(
-    _command: unknown,
-    _actor: unknown,
-  ): Promise<void> {
-    // Доступно всем
   }
 
   protected async execute(payload: any) {
@@ -98,20 +104,20 @@ describe("AutoUI Integration", () => {
 
     // 4. Агрегаты
     response = await app.handleInput("/courses/aggregates");
-    expect(response).toContain("Курс (course): /courses/course");
+    expect(response).toContain("Курс (Course): /courses/Course");
 
     // 5. UseCase List
-    response = await app.handleInput("/courses/course");
+    response = await app.handleInput("/courses/Course");
     expect(response).toContain(
-      "Создать новый курс: /courses/course/create-course",
+      "Создать новый курс: /courses/Course/create-course",
     );
 
     // 6. UseCase Prompt
-    response = await app.handleInput("/courses/course/create-course");
+    response = await app.handleInput("/courses/Course/create-course");
     expect(response).toContain('Для выполнения команды "Создать новый курс"');
 
     // 7. Execute (с заглушкой маппинга)
-    const input = "/courses/course/create-course\n- JS Basics\n- Learn JS";
+    const input = "/courses/Course/create-course\n- JS Basics\n- Learn JS";
     response = await app.handleInput(input);
     expect(response).toContain("**Успех!**");
     expect(response).toContain("JS Basics");

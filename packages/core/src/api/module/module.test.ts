@@ -9,32 +9,39 @@ import type { UcMeta } from "#api/uc/use-case";
 import { UseCase } from "#api/uc/use-case";
 import { Module } from "./module";
 
+import type { ArMeta } from "#domain/ar/aggregate";
+import { Aggregate } from "#domain/ar/aggregate";
+
+interface TestArMeta extends ArMeta {
+  name: "TestAr";
+  label: "Тестовый агрегат";
+  state: { uuid: string; createdAt: string; updatedAt?: string } & Record<string, unknown>;
+}
+
+class TestAr extends Aggregate<TestArMeta> {
+  static readonly arName = "TestAr";
+  static readonly arLabel = "Тестовый агрегат";
+}
+
 interface TestUcMeta extends UcMeta {
-  commandName: "test-cmd";
+  ucName: "test-cmd";
+  arMeta: TestArMeta;
   input: { foo: string };
   output: { bar: string };
   errors: never;
 }
 
 class TestUseCase extends UseCase<TestUcMeta, { value: string }> {
-  readonly commandName = "test-cmd";
-  readonly description = "Тестовый UC";
-  readonly arName = "TestAr";
-  readonly arLabel = "Тестовый агрегат";
-  readonly type = "command" as const;
-  readonly requiresAuth = false as const;
-  readonly inputSchema = v.object({ foo: v.string() });
-  readonly outputSchema = v.object({ bar: v.string() });
+  protected readonly ucName = "test-cmd" as const;
+  protected readonly ucLabel = "Тестовый UC" as const;
+  protected readonly arMeta = { arName: "TestAr" as const, arLabel: "Тестовый агрегат" as const };
+  protected readonly type = "command" as const;
+  protected readonly requiresAuth = false as const;
+  protected readonly inputSchema = v.object({ foo: v.string() });
+  protected readonly outputSchema = v.object({ bar: v.string() });
 
   protected async getUser(_userId: string): Promise<Record<string, unknown>> {
     return {};
-  }
-
-  protected async checkPolicy(
-    _command: unknown,
-    _actor: unknown,
-  ): Promise<void> {
-    // Доступно всем
   }
 
   execute(command: { foo: string }) {
@@ -92,7 +99,7 @@ describe("Module (Phase 4)", () => {
     const module = new TestModule();
     const commands = module.getDocTypes();
     expect(commands).toHaveLength(1);
-    expect(commands[0]?.commandName).toBe("test-cmd");
+    expect(commands[0]?.ucName).toBe("test-cmd");
     expect(commands[0]?.inputSchema).toBeDefined();
   });
 
@@ -102,8 +109,8 @@ describe("Module (Phase 4)", () => {
 
     expect(commands).toHaveLength(1);
     const cmd = commands[0];
-    expect(cmd?.commandName).toBe("test-cmd");
-    expect(cmd?.description).toBe("Тестовый UC");
+    expect(cmd?.ucName).toBe("test-cmd");
+    expect(cmd?.ucLabel).toBe("Тестовый UC");
     expect(cmd?.arName).toBe("TestAr");
     expect(cmd?.arLabel).toBe("Тестовый агрегат");
     expect(cmd?.type).toBe("command");

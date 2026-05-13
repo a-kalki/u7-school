@@ -1,5 +1,6 @@
 import type { GenericSchema } from "valibot";
 import * as v from "valibot";
+import { BaseJsonDb } from "./base-json-db";
 
 /**
  * Ошибка, возникающая при повреждении структуры JSON-файла.
@@ -25,6 +26,8 @@ export class JsonFileRepoError extends Error {
 export class JsonFileRepo<T> {
   readonly #schema: GenericSchema<T>;
   readonly #filePath: string;
+  readonly #db?: BaseJsonDb;
+  readonly #collectionName: string;
 
   /** Путь к JSON-файлу */
   get filePath(): string {
@@ -34,10 +37,23 @@ export class JsonFileRepo<T> {
   /**
    * @param schema — Valibot-схема для валидации каждого объекта
    * @param filePath — путь к JSON-файлу
+   * @param db — опционально: экземпляр BaseJsonDb для транзакционной поддержки
+   * @param collectionName — имя коллекции (обязательно при передаче db)
    */
-  constructor(schema: GenericSchema<T>, filePath: string) {
+  constructor(
+    schema: GenericSchema<T>,
+    filePath: string,
+    db?: BaseJsonDb,
+    collectionName?: string,
+  ) {
     this.#schema = schema;
     this.#filePath = filePath;
+    this.#db = db;
+    this.#collectionName = collectionName ?? filePath;
+
+    if (db) {
+      db.registerCollection(this.#collectionName, filePath);
+    }
   }
 
   /**
@@ -47,27 +63,32 @@ export class JsonFileRepo<T> {
    * - Отдельные невалидные объекты пропускаются с console.warn
    */
   async readAll(): Promise<T[]> {
-    const file = Bun.file(this.#filePath);
+    let raw: unknown[];
 
-    if (!(await file.exists())) {
-      return [];
-    }
+    if (this.#db) {
+      raw = (await this.#db.readCollection(this.#collectionName, this.#filePath)) as unknown[];
+    } else {
+      const file = Bun.file(this.#filePath);
 
-    let raw: unknown;
-    try {
-      raw = await file.json();
-    } catch (cause) {
-      throw new JsonFileRepoError(
-        `Не удалось распарсить JSON: ${cause instanceof Error ? cause.message : String(cause)}`,
-        this.#filePath,
-      );
-    }
+      if (!(await file.exists())) {
+        return [];
+      }
 
-    if (!Array.isArray(raw)) {
-      throw new JsonFileRepoError(
-        `Ожидался JSON-массив, получен ${typeof raw}`,
-        this.#filePath,
-      );
+      try {
+        raw = await file.json();
+      } catch (cause) {
+        throw new JsonFileRepoError(
+          `Не удалось распарсить JSON: ${cause instanceof Error ? cause.message : String(cause)}`,
+          this.#filePath,
+        );
+      }
+
+      if (!Array.isArray(raw)) {
+        throw new JsonFileRepoError(
+          `Ожидался JSON-массив, получен ${typeof raw}`,
+          this.#filePath,
+        );
+      }
     }
 
     const result: T[] = [];
@@ -91,6 +112,10 @@ export class JsonFileRepo<T> {
    * Записывает массив объектов в файл (полная перезапись).
    */
   async writeAll(items: T[]): Promise<void> {
-    await Bun.write(this.#filePath, JSON.stringify(items, null, 2));
+    if (this.#db) {
+      await this.#db.writeCollection(this.#collectionName, this.#filePath, items);
+    } else {
+      await Bun.write(this.#filePath, JSON.stringify(items, null, 2));
+    }
   }
 }

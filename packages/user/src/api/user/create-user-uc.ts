@@ -1,4 +1,5 @@
-import { errAccessDenied, errConflict } from "@u7/core/domain";
+import { type AuthError, errConflict, errUnauthorized } from "@u7/core/domain";
+import { UserUseCase } from "#api/user-uc";
 import { UserAr } from "#domain/user/a-root";
 import {
   type CreateUserCmd,
@@ -6,7 +7,6 @@ import {
   CreateUserCmdSchema,
 } from "#domain/user/commands/create-user-cmd";
 import type {
-  AccessDeniedUcError,
   BootstrapRequiresAdminUcError,
   TelegramIdTakenUcError,
 } from "#domain/user/commands/errors";
@@ -14,7 +14,6 @@ import type { User } from "#domain/user/entity";
 import { UserSchema } from "#domain/user/entity";
 import { UserPolicy } from "#domain/user/policy";
 import { Role } from "#domain/user/roles";
-import { UserUseCase } from "#api/user-uc";
 
 /**
  * Use-case создания пользователя.
@@ -22,33 +21,13 @@ import { UserUseCase } from "#api/user-uc";
  * но даже в bootstrap первый пользователь обязан иметь роль ADMIN в команде).
  */
 export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
-  protected readonly commandName = "create-user" as const;
-  protected readonly description = "Создать пользователя" as const;
-  protected readonly arName = "user" as const;
-  protected readonly arLabel = "Пользователь" as const;
+  protected readonly ucName = "create-user" as const;
+  protected readonly ucLabel = "Создать пользователя" as const;
+  protected readonly arMeta = { arName: UserAr.arName as "User", arLabel: UserAr.arLabel as "Пользователь" };
   protected readonly type = "command" as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = CreateUserCmdSchema;
   protected readonly outputSchema = UserSchema;
-
-  /**
-   * Проверка прав на создание пользователя.
-   * Только ADMIN может создавать пользователей.
-   */
-  protected override async checkPolicy(
-    _command: CreateUserCmd,
-    actor: User,
-  ): Promise<void> {
-    if (!UserPolicy.canCreate(actor)) {
-      this.throwError(
-        errAccessDenied<AccessDeniedUcError>(
-          "ACCESS_DENIED",
-          "Недостаточно прав для создания пользователя",
-          undefined,
-        ),
-      );
-    }
-  }
 
   async execute(command: CreateUserCmd, actorId?: string): Promise<User> {
     const repo = this.resolve.userRepo;
@@ -68,16 +47,17 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
     } else {
       // Репозиторий не пуст — требуется авторизованный ADMIN
       if (!actorId) {
-        this.throwError(
-          errAccessDenied<AccessDeniedUcError>(
-            "ACCESS_DENIED",
-            "Требуется авторизация для создания пользователя",
-            undefined,
+        this.throwBaseErrors(
+          errUnauthorized<AuthError>(
+            "UNAUTHORIZED_ERROR",
+            "Требуется авторизация",
           ),
         );
       }
-      const actor = await this.getUser(actorId);
-      await this.checkPolicy(command, actor);
+      const actor = await this.getActor(actorId);
+      if (!UserPolicy.canCreate(actor)) {
+        this.throwAccessDenied("Недостаточно прав для создания пользователя");
+      }
     }
 
     // Проверка уникальности telegramId

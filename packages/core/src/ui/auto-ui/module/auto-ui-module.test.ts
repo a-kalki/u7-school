@@ -13,8 +13,8 @@ class TestApiModule extends Module<TestModuleMeta, Record<string, unknown>> {
   override getDocTypes(): UcDocType[] {
     return [
       {
-        commandName: "uc1",
-        description: "Первая команда",
+        ucName: "uc1",
+        ucLabel: "Первая команда",
         arName: "agg1",
         arLabel: "Агрегат 1",
         type: "command",
@@ -25,8 +25,8 @@ class TestApiModule extends Module<TestModuleMeta, Record<string, unknown>> {
         outputSchema: {} as any,
       },
       {
-        commandName: "uc2",
-        description: "Вторая команда",
+        ucName: "uc2",
+        ucLabel: "Вторая команда",
         arName: "agg2",
         arLabel: "Агрегат 2",
         type: "command",
@@ -37,8 +37,8 @@ class TestApiModule extends Module<TestModuleMeta, Record<string, unknown>> {
         outputSchema: {} as any,
       },
       {
-        commandName: "uc3",
-        description: "Создать пользователя",
+        ucName: "uc3",
+        ucLabel: "Создать пользователя",
         arName: "user",
         arLabel: "Пользователь",
         type: "command",

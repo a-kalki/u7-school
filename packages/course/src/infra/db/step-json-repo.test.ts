@@ -18,7 +18,6 @@ function makeStep(overrides: Partial<Step> = {}): Step {
 		kind: "text",
 		description: "Тестовый шаг",
 		status: Status.DRAFT,
-		order: 1,
 		createdAt: "2026-05-01T12:00",
 		...overrides,
 	} as Step;

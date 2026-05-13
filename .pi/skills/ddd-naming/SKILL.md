@@ -47,6 +47,7 @@ description: Соглашения об именовании файлов, пап
 | Модуль (мета) | `<Name><Type>ModuleMeta` | `UserApiModuleMeta` |
 | Модуль (резолвер) | `<Name><Type>ModuleResolver` | `UserApiModuleResolver` |
 | Модуль (класс) | `<Name><Type>Module` | `UserApiModule`, `UserAutoUiModule` |
+| Domain Service | `<Module>Ds` | `CourseDs` |
 | БД (интерфейс) | `<ModuleName>Db` | `UserDb` |
 | БД (реализация) | `<ModuleName><Type>Db` | `UserSqliteDb` |
 | Фасад (интерфейс) | `<ModuleName>Facade` | `UserFacade` |

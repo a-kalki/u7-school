@@ -1,4 +1,8 @@
 import type { AccessDeniedError, NotFoundError } from "@u7/core/domain";
+import type {
+	CourseAccessDeniedUcError,
+	CourseNotFoundUcError,
+} from "../../course/commands/errors";
 
 /** Урок не найден */
 export type LessonNotFoundUcError = NotFoundError<
@@ -15,4 +19,6 @@ export type LessonAccessDeniedUcError = AccessDeniedError<
 /** Любая известная ошибка lesson-модуля */
 export type LessonModuleError =
 	| LessonNotFoundUcError
-	| LessonAccessDeniedUcError;
+	| LessonAccessDeniedUcError
+	| CourseNotFoundUcError
+	| CourseAccessDeniedUcError;

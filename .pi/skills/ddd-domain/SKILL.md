@@ -25,6 +25,8 @@ description: Правила и шаблоны для Domain-слоя — Entity,
 | Errors (usecase) | `domain/<entity>/commands/errors.ts` | `conductor/code_styleguides/skills/errors.md` |
 | Enum | `domain/<entity>/<enum>.ts` | `conductor/code_styleguides/skills/enum.md` |
 | Types | `domain/<entity>/types.ts` | `conductor/code_styleguides/skills/types.md` |
+| Facade | `domain/facade.ts` | `conductor/code_styleguides/skills/facade.md` |
+| Domain Service | `domain/<module>-ds.ts` | `conductor/code_styleguides/skills/domain-service.md` |
 
 ---
 

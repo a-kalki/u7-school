@@ -101,6 +101,16 @@ export type InternalError<
   payload: P;
 };
 
+/** Доменная ошибка, выбрасываемая агрегатом через throwInternal */
+export type DomainError<N extends string = string, P = undefined> = {
+  name: N;
+  level: "domain";
+  kind: "internal";
+  message: string;
+  aggregateName: string;
+  payload: P;
+};
+
 // ── Конкретные базовые ошибки фреймворка ──
 
 export type InputValidationError = ValidationError<

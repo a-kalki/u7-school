@@ -18,11 +18,10 @@ export type ListCoursesCmd = v.InferOutput<typeof ListCoursesCmdSchema>;
 
 /** Мета команды списка курсов */
 export interface ListCoursesCmdMeta {
-	commandName: "list-courses";
-	description: "Получить список курсов";
+	ucName: "list-courses";
 	arMeta: CourseArMeta;
 	input: ListCoursesCmd;
-	output: { courses: Course[] };
+	output: Course[];
 	errors: never;
 	requiresAuth: false;
 	type: "query";

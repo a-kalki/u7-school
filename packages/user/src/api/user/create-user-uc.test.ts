@@ -146,7 +146,7 @@ describe("CreateUserUc", () => {
 
       await expect(
         uc.handle({ name: "Хакер", telegramId: 2, roles: [Role.ADMIN] }),
-      ).rejects.toThrow("Требуется авторизация для создания пользователя");
+      ).rejects.toThrow("Требуется авторизация");
     });
 
     test("отклоняет создание пользователем без прав ADMIN", async () => {

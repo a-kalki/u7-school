@@ -51,7 +51,6 @@
       - commands/: типы и схемы команд для usecase;
         - <command-name>-cmd.ts: command, schema, meta, cmd-error;
         - errors.ts: атомарные ошибки uc и union ошибок модуля;
-      - errors.ts: доменные ошибки агрегата;
     - module.ts: мета тип модуля, резолвер модуля и другие типы уровня модуля;
     - facade.ts: интерфейс фасада (если нужно);
     - db.ts: интерфейс БД (если нужно);

@@ -1,3 +1,4 @@
+import { FileMetadataSchema } from "@u7/core/domain";
 import * as v from "valibot";
 import { StatusSchema } from "../status";
 
@@ -12,11 +13,6 @@ export const StepCommonSchema = v.object({
 	),
 	content: v.optional(v.string()),
 	status: StatusSchema,
-	order: v.pipe(
-		v.number(),
-		v.integer("order должен быть целым числом"),
-		v.minValue(0, "order не может быть отрицательным"),
-	),
 	createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
 	updatedAt: v.optional(
 		v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
@@ -37,11 +33,11 @@ const CodeStepSchema = v.object({
 	language: v.optional(v.string()),
 });
 
-/** Вариант file — шаг с файлом */
+/** Вариант file — шаг с вложенными метаданными файла */
 const FileStepSchema = v.object({
 	...StepCommonSchema.entries,
 	kind: v.literal("file"),
-	fileId: v.pipe(v.string(), v.uuid("Некорректный формат UUID для fileId")),
+	file: FileMetadataSchema,
 });
 
 /** Схема валидации шага (discriminated union по kind) */
@@ -52,15 +48,13 @@ export const StepSchema = v.variant("kind", [
 ]);
 
 export type Step = v.InferOutput<typeof StepSchema>;
-
 export type StepText = v.InferOutput<typeof TextStepSchema>;
 export type StepCode = v.InferOutput<typeof CodeStepSchema>;
 export type StepFile = v.InferOutput<typeof FileStepSchema>;
 
 /** Метаданные агрегата Step */
 export interface StepArMeta {
-	name: "step";
+	name: "Step";
 	label: "Шаг";
-	errors: never;
 	state: Step;
 }

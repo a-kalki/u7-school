@@ -7,16 +7,13 @@ const validModule = {
 	uuid: "550e8400-e29b-41d4-a716-446655440000",
 	title: "Модуль 1",
 	status: Status.DRAFT,
-	order: 1,
-	createdAt: "2026-05-01T12:00",
+	projects: [],
 };
 
 const validProject = {
 	uuid: "550e8400-e29b-41d4-a716-446655440001",
 	title: "Проект 1",
 	status: Status.PUBLISHED,
-	order: 1,
-	createdAt: "2026-05-01T12:00",
 	lessonIds: ["770e8400-e29b-41d4-a716-446655440002"],
 };
 
@@ -28,7 +25,7 @@ const validModulesCourse = {
 	authorId: "660e8400-e29b-41d4-a716-446655440004",
 	status: Status.DRAFT,
 	createdAt: "2026-05-01T12:00",
-	modules: [validModule],
+	modules: [{ ...validModule, projects: [] }],
 };
 
 const validProjectsCourse = {
@@ -45,6 +42,15 @@ const validProjectsCourse = {
 describe("ModuleSchema", () => {
 	test("принимает валидный модуль", () => {
 		const result = v.safeParse(ModuleSchema, validModule);
+		expect(result.success).toBe(true);
+	});
+
+	test("принимает модуль с проектами", () => {
+		const withProjects = {
+			...validModule,
+			projects: [validProject],
+		};
+		const result = v.safeParse(ModuleSchema, withProjects);
 		expect(result.success).toBe(true);
 	});
 

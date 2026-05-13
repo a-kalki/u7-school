@@ -1,3 +1,4 @@
+import { LessonAr } from "#domain/lesson/a-root";
 import { errNotFound } from "@u7/core/domain";
 import type { LessonNotFoundUcError } from "#domain/lesson/commands/errors";
 import {
@@ -7,24 +8,26 @@ import {
 } from "#domain/lesson/commands/get-lesson-cmd";
 import type { Lesson } from "#domain/lesson/entity";
 import { LessonSchema } from "#domain/lesson/entity";
+import type { LessonRepo } from "#domain/lesson/repo";
 import { CourseUseCase } from "../course-uc";
 
 /**
  * Use-case получения урока по UUID.
- * Доступно всем.
+ * Без actorId — только PUBLISHED. С actorId — через LessonPolicy.
  */
 export class GetLessonUc extends CourseUseCase<GetLessonCmdMeta> {
-	protected readonly commandName = "get-lesson" as const;
-	protected readonly description = "Получить урок по UUID" as const;
-	protected readonly arName = "lesson" as const;
-	protected readonly arLabel = "Урок" as const;
+	protected readonly ucName = "get-lesson" as const;
+	protected readonly ucLabel = "Получить урок по UUID" as const;
+	protected readonly arMeta = { arName: LessonAr.arName as "Lesson", arLabel: LessonAr.arLabel as "Урок" };
 	protected readonly type = "query" as const;
 	protected readonly requiresAuth = false as const;
 	protected readonly inputSchema = GetLessonCmdSchema;
 	protected readonly outputSchema = LessonSchema;
 
-	async execute(command: GetLessonCmd): Promise<Lesson> {
-		const lesson = await this.resolve.lessonRepo.getByUuid(command.uuid);
+	async execute(command: GetLessonCmd, actorId?: string): Promise<Lesson> {
+		const lesson = await (this.resolve.lessonRepo as LessonRepo).getByUuid(
+			command.uuid,
+		);
 		if (!lesson) {
 			this.throwError(
 				errNotFound<LessonNotFoundUcError>(
@@ -34,6 +37,9 @@ export class GetLessonUc extends CourseUseCase<GetLessonCmdMeta> {
 				),
 			);
 		}
-		return lesson;
+
+		const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
+
+		return this.getOutLesson(lesson, actor);
 	}
 }

@@ -4,34 +4,33 @@ import { LessonSchema } from "#domain/lesson/entity";
 import type { LessonRepo } from "#domain/lesson/repo";
 
 /**
- * JSON-файловая реализация репозитория уроков.
- * Хранит данные в JSON-файле через {@link JsonFileRepo}.
+ * JSON-реализация репозитория уроков.
  */
-export class LessonJsonRepo implements LessonRepo {
-	readonly #repo: JsonFileRepo<Lesson>;
-
+export class LessonJsonRepo extends JsonFileRepo<Lesson> implements LessonRepo {
 	constructor(filePath = "data/courses/lessons.json") {
-		this.#repo = new JsonFileRepo(LessonSchema, filePath);
+		super(LessonSchema, filePath);
 	}
 
 	async save(lesson: Lesson): Promise<void> {
-		const all = await this.#repo.readAll();
+		const all = await this.readAll();
 		const idx = all.findIndex((l) => l.uuid === lesson.uuid);
-		if (idx !== -1) {
-			all[idx] = lesson;
-		} else {
-			all.push(lesson);
-		}
-		await this.#repo.writeAll(all);
+		if (idx !== -1) all[idx] = lesson;
+		else all.push(lesson);
+		await this.writeAll(all);
 	}
 
 	async getByUuid(uuid: string): Promise<Lesson | undefined> {
-		const all = await this.#repo.readAll();
+		const all = await this.readAll();
 		return all.find((l) => l.uuid === uuid);
 	}
 
 	async getByIds(ids: string[]): Promise<Lesson[]> {
-		const all = await this.#repo.readAll();
+		const all = await this.readAll();
 		return all.filter((l) => ids.includes(l.uuid));
+	}
+
+	async getByCourseId(courseId: string): Promise<Lesson[]> {
+		const all = await this.readAll();
+		return all.filter((l) => l.courseId === courseId);
 	}
 }

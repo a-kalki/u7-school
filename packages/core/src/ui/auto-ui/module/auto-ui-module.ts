@@ -87,16 +87,16 @@ export abstract class AutoUiModule<
     const label = useCases[0]!.arLabel;
     let result = `**Команды для "${label}":**\n\n`;
     for (const uc of useCases) {
-      result += `- ${uc.description}: /${this.name}/${aggregateName}/${uc.commandName}\n`;
+      result += `- ${uc.ucLabel}: /${this.name}/${aggregateName}/${uc.ucName}\n`;
     }
     result += `\n---\n**Назад:** /${this.name}/aggregates`;
     return result;
   }
 
-  private renderUseCasePrompt(commandName: string): string {
-    const uc = this.getDocTypes().find((u) => u.commandName === commandName);
+  private renderUseCasePrompt(ucName: string): string {
+    const uc = this.getDocTypes().find((u) => u.ucName === ucName);
     if (!uc) {
-      return `Ошибка: Команда '${commandName}' не найдена.`;
+      return `Ошибка: Команда '${ucName}' не найдена.`;
     }
 
     let fieldsPrompt = "";
@@ -128,7 +128,7 @@ export abstract class AutoUiModule<
       fieldsPrompt = "- Данные (текст)\n";
     }
 
-    let result = `Для выполнения команды "${uc.description}" отправьте сообщение следующего формата:\n\`\`\`\n/${this.name}/${uc.arName}/${uc.commandName}\n${fieldsPrompt}\`\`\`\n`;
+    let result = `Для выполнения команды "${uc.ucLabel}" отправьте сообщение следующего формата:\n\`\`\`\n/${this.name}/${uc.arName}/${uc.ucName}\n${fieldsPrompt}\`\`\`\n`;
 
     if (fieldDetails.length > 0) {
       result += `\n**Параметры:**\n${fieldDetails.join("\n")}\n`;
@@ -274,13 +274,13 @@ export abstract class AutoUiModule<
   }
 
   private async executeUseCase(
-    commandName: string,
+    ucName: string,
     payload: string[],
     actorId?: string,
   ): Promise<string> {
-    const uc = this.getDocTypes().find((u) => u.commandName === commandName);
+    const uc = this.getDocTypes().find((u) => u.ucName === ucName);
     if (!uc) {
-      return `Ошибка: Команда '${commandName}' не найдена.`;
+      return `Ошибка: Команда '${ucName}' не найдена.`;
     }
 
     const attrs: Record<string, unknown> = {};
@@ -324,7 +324,7 @@ export abstract class AutoUiModule<
     // Передаём actorId как есть (может быть undefined для неаутентифицированных).
     // UseCase сам решает, требуется ли авторизация.
     const result = await this.resolver.apiModule.handle({
-      name: commandName,
+      name: ucName,
       attrs,
       actorId,
     });

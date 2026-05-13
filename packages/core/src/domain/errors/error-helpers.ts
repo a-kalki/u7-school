@@ -3,6 +3,7 @@ import type {
   AppError,
   BadRequestError,
   ConflictError,
+  DomainError,
   InternalError,
   NotFoundError,
   UnauthorizedError,
@@ -105,5 +106,22 @@ export function errInternal<
     kind: "internal",
     message,
     payload,
+  } as E;
+}
+
+/** Фабрика доменной ошибки агрегата */
+export function errDomain<E extends DomainError>(
+  name: E["name"],
+  message: E["message"],
+  aggregateName: E["aggregateName"],
+  payload?: E["payload"],
+): E {
+  return {
+    name,
+    level: "domain",
+    kind: "internal",
+    message,
+    aggregateName,
+    payload: payload as E["payload"],
   } as E;
 }

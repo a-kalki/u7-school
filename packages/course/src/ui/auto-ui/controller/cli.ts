@@ -31,12 +31,14 @@ export class CourseCliController extends AutoUiCliController {
 
 		try {
 			const result = await this.app.callUseCase("course", "list-courses", {});
-			const data = result as {
-				courses?: Array<{ uuid: string; title: string; kind: string }>;
-			};
-			if (data.courses && data.courses.length > 0) {
+			const data = result as Array<{
+				uuid: string;
+				title: string;
+				kind: string;
+			}>;
+			if (data && data.length > 0) {
 				menu += "\n**Список курсов:**\n";
-				for (const course of data.courses) {
+				for (const course of data) {
 					menu += `- [${course.kind}] ${course.title}: \`/course/course/get-course uuid: ${course.uuid}\`\n`;
 				}
 			} else {
@@ -49,7 +51,6 @@ export class CourseCliController extends AutoUiCliController {
 		menu += "\n- Создать курс: `/course/course/create-course`\n";
 		menu += "- Создать урок: `/course/course/create-lesson`\n";
 		menu += "- Создать шаг: `/course/course/create-step`\n";
-		menu += "- Создать файл: `/course/course/create-file-metadata`\n";
 		return menu;
 	}
 }

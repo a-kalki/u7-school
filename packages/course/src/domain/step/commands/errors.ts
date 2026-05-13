@@ -1,4 +1,8 @@
 import type { AccessDeniedError, NotFoundError } from "@u7/core/domain";
+import type {
+	CourseAccessDeniedUcError,
+	CourseNotFoundUcError,
+} from "../../course/commands/errors";
 
 /** Шаг не найден */
 export type StepNotFoundUcError = NotFoundError<
@@ -13,4 +17,8 @@ export type StepAccessDeniedUcError = AccessDeniedError<
 >;
 
 /** Любая известная ошибка step-модуля */
-export type StepModuleError = StepNotFoundUcError | StepAccessDeniedUcError;
+export type StepModuleError =
+	| StepNotFoundUcError
+	| StepAccessDeniedUcError
+	| CourseNotFoundUcError
+	| CourseAccessDeniedUcError;

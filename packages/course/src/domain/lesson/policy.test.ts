@@ -1,12 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import type { User } from "@u7/user/domain";
 import { Role } from "@u7/user/domain";
+import type { Course } from "../course/entity";
 import { Status } from "../status";
+import type { Lesson } from "./entity";
 import { LessonPolicy } from "./policy";
 
-function makeActor(roles: Role[]): User {
+function makeActor(roles: Role[], uuid = "actor-uuid"): User {
 	return {
-		uuid: crypto.randomUUID(),
+		uuid,
 		name: "Тест",
 		telegramId: 1,
 		roles,
@@ -14,12 +16,27 @@ function makeActor(roles: Role[]): User {
 	};
 }
 
-const lesson = {
-	uuid: "550e8400-e29b-41d4-a716-446655440000",
-	courseId: "660e8400-e29b-41d4-a716-446655440001",
+const authorId = "550e8400-e29b-41d4-a716-446655440000";
+
+function makeCourse(overrides: Partial<Course> = {}): Course {
+	return {
+		uuid: "course-uuid",
+		kind: "modules" as const,
+		title: "Курс",
+		description: "Описание",
+		authorId,
+		status: Status.DRAFT,
+		createdAt: "2026-05-01T12:00",
+		modules: [],
+		...overrides,
+	} as Course;
+}
+
+const lesson: Lesson = {
+	uuid: "lesson-uuid",
+	courseId: "course-uuid",
 	title: "Урок",
 	status: Status.DRAFT,
-	order: 1,
 	createdAt: "2026-05-01T12:00",
 	stepIds: [],
 	mentorStepIds: [],
@@ -27,42 +44,86 @@ const lesson = {
 
 describe("LessonPolicy", () => {
 	describe("canCreate", () => {
-		test("ADMIN может создавать", () => {
-			expect(LessonPolicy.canCreate(makeActor([Role.ADMIN]))).toBe(true);
+		test("ADMIN не может создавать", () => {
+			expect(LessonPolicy.canCreate(makeActor([Role.ADMIN]))).toBe(false);
 		});
-
 		test("MENTOR может создавать", () => {
 			expect(LessonPolicy.canCreate(makeActor([Role.MENTOR]))).toBe(true);
 		});
-
 		test("STUDENT не может создавать", () => {
 			expect(LessonPolicy.canCreate(makeActor([Role.STUDENT]))).toBe(false);
 		});
 	});
 
 	describe("canRead", () => {
-		test("любой пользователь может читать", () => {
-			expect(LessonPolicy.canRead(makeActor([Role.STUDENT]), lesson)).toBe(
-				true,
-			);
+		const course = makeCourse();
+
+		test("автор может читать DRAFT", () => {
+			expect(
+				LessonPolicy.canRead(
+					makeActor([Role.MENTOR], authorId),
+					lesson,
+					course,
+				),
+			).toBe(true);
+		});
+
+		test("ADMIN может читать DRAFT", () => {
+			expect(
+				LessonPolicy.canRead(
+					makeActor([Role.ADMIN], "not-author"),
+					lesson,
+					course,
+				),
+			).toBe(true);
+		});
+
+		test("студент (не автор) может читать PUBLISHED урок", () => {
+			expect(
+				LessonPolicy.canRead(
+					makeActor([Role.STUDENT]),
+					{ ...lesson, status: Status.PUBLISHED },
+					course,
+				),
+			).toBe(true);
+		});
+
+		test("студент (не автор) НЕ может читать DRAFT урок", () => {
+			expect(
+				LessonPolicy.canRead(makeActor([Role.STUDENT]), lesson, course),
+			).toBe(false);
 		});
 	});
 
 	describe("canEdit", () => {
-		test("ADMIN может редактировать", () => {
-			expect(LessonPolicy.canEdit(makeActor([Role.ADMIN]), lesson)).toBe(true);
+		const course = makeCourse();
+
+		test("автор может редактировать", () => {
+			expect(
+				LessonPolicy.canEdit(
+					makeActor([Role.MENTOR], authorId),
+					lesson,
+					course,
+				),
+			).toBe(true);
 		});
 
-		test("MENTOR не может редактировать напрямую", () => {
-			expect(LessonPolicy.canEdit(makeActor([Role.MENTOR]), lesson)).toBe(
-				false,
-			);
+		test("ADMIN может редактировать", () => {
+			expect(
+				LessonPolicy.canEdit(makeActor([Role.ADMIN]), lesson, course),
+			).toBe(true);
+		});
+
+		test("MENTOR (не автор) не может редактировать", () => {
+			expect(
+				LessonPolicy.canEdit(makeActor([Role.MENTOR], "other"), lesson, course),
+			).toBe(false);
 		});
 
 		test("STUDENT не может редактировать", () => {
-			expect(LessonPolicy.canEdit(makeActor([Role.STUDENT]), lesson)).toBe(
-				false,
-			);
+			expect(
+				LessonPolicy.canEdit(makeActor([Role.STUDENT]), lesson, course),
+			).toBe(false);
 		});
 	});
 });

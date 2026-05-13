@@ -1,12 +1,10 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import type { User } from "@u7/user/domain";
+import type { User, UserFacade } from "@u7/user/domain";
 import { Role } from "@u7/user/domain";
-import type { UserFacade } from "#domain/facade";
 import { Status } from "#domain/status";
 import { CourseJsonRepo } from "#infra/db/course-json-repo";
-import { FileMetadataJsonRepo } from "#infra/db/file-metadata-json-repo";
 import { LessonJsonRepo } from "#infra/db/lesson-json-repo";
 import { StepJsonRepo } from "#infra/db/step-json-repo";
 import { CourseApiModule } from "./module";
@@ -62,10 +60,23 @@ function setupModule(facade: MockUserFacade) {
 		courseRepo: new CourseJsonRepo(nextPath("courses")),
 		lessonRepo: new LessonJsonRepo(nextPath("lessons")),
 		stepRepo: new StepJsonRepo(nextPath("steps")),
-		fileMetadataRepo: new FileMetadataJsonRepo(nextPath("files")),
 		userFacade: facade,
 	});
 	return mod;
+}
+
+/** Создаёт курс от имени ментора и возвращает его uuid */
+async function createCourseAsMentor(
+	mod: CourseApiModule,
+	mentor: User,
+	kind: "modules" | "projects" = "modules",
+): Promise<string> {
+	const result = await mod.handle({
+		name: "create-course",
+		attrs: { title: "Курс", description: "Описание", kind },
+		actorId: mentor.uuid,
+	});
+	return (result as { uuid: string }).uuid;
 }
 
 describe("CourseApiModule", () => {
@@ -73,171 +84,7 @@ describe("CourseApiModule", () => {
 		rmSync(tmpDir, { recursive: true, force: true });
 	});
 
-	test("create-course: ADMIN создаёт курс", async () => {
-		const facade = new MockUserFacade();
-		const admin = makeAdmin();
-		facade.addUser(admin);
-
-		const mod = setupModule(facade);
-		const result = await mod.handle({
-			name: "create-course",
-			attrs: {
-				title: "Курс JS",
-				description: "Описание",
-				kind: "modules",
-				status: Status.DRAFT,
-			},
-			actorId: admin.uuid,
-		});
-
-		expect((result as { title: string }).title).toBe("Курс JS");
-	});
-
-	test("get-course: возвращает созданный курс", async () => {
-		const facade = new MockUserFacade();
-		const admin = makeAdmin();
-		facade.addUser(admin);
-
-		const mod = setupModule(facade);
-		const created = (await mod.handle({
-			name: "create-course",
-			attrs: {
-				title: "Курс Python",
-				description: "Описание",
-				kind: "projects",
-				status: Status.DRAFT,
-			},
-			actorId: admin.uuid,
-		})) as { uuid: string };
-
-		const result = await mod.handle({
-			name: "get-course",
-			attrs: { uuid: created.uuid },
-		});
-
-		expect((result as { title: string }).title).toBe("Курс Python");
-	});
-
-	test("list-courses: возвращает список курсов", async () => {
-		const facade = new MockUserFacade();
-		const admin = makeAdmin();
-		facade.addUser(admin);
-
-		const mod = setupModule(facade);
-		await mod.handle({
-			name: "create-course",
-			attrs: {
-				title: "Курс 1",
-				description: "Описание",
-				kind: "modules",
-				status: Status.DRAFT,
-			},
-			actorId: admin.uuid,
-		});
-
-		const result = await mod.handle({
-			name: "list-courses",
-			attrs: {},
-		});
-
-		expect((result as { courses: unknown[] }).courses).toHaveLength(1);
-	});
-
-	test("create-lesson: ADMIN создаёт урок", async () => {
-		const facade = new MockUserFacade();
-		const admin = makeAdmin();
-		facade.addUser(admin);
-
-		const mod = setupModule(facade);
-		const course = (await mod.handle({
-			name: "create-course",
-			attrs: {
-				title: "Курс",
-				description: "Описание",
-				kind: "modules",
-				status: Status.DRAFT,
-			},
-			actorId: admin.uuid,
-		})) as { uuid: string };
-
-		const result = await mod.handle({
-			name: "create-lesson",
-			attrs: {
-				courseId: course.uuid,
-				title: "Урок 1",
-				status: Status.DRAFT,
-				order: 1,
-			},
-			actorId: admin.uuid,
-		});
-
-		expect((result as { title: string }).title).toBe("Урок 1");
-	});
-
-	test("create-step: ADMIN создаёт шаг", async () => {
-		const facade = new MockUserFacade();
-		const admin = makeAdmin();
-		facade.addUser(admin);
-
-		const mod = setupModule(facade);
-		const course = (await mod.handle({
-			name: "create-course",
-			attrs: {
-				title: "Курс",
-				description: "Описание",
-				kind: "modules",
-				status: Status.DRAFT,
-			},
-			actorId: admin.uuid,
-		})) as { uuid: string };
-
-		const result = await mod.handle({
-			name: "create-step",
-			attrs: {
-				courseId: course.uuid,
-				kind: "text",
-				description: "Шаг 1",
-				status: Status.DRAFT,
-				order: 1,
-			},
-			actorId: admin.uuid,
-		});
-
-		expect((result as { kind: string }).kind).toBe("text");
-	});
-
-	test("create-file-metadata: ADMIN создаёт метаданные файла", async () => {
-		const facade = new MockUserFacade();
-		const admin = makeAdmin();
-		facade.addUser(admin);
-
-		const mod = setupModule(facade);
-		const course = (await mod.handle({
-			name: "create-course",
-			attrs: {
-				title: "Курс",
-				description: "Описание",
-				kind: "modules",
-				status: Status.DRAFT,
-			},
-			actorId: admin.uuid,
-		})) as { uuid: string };
-
-		const result = await mod.handle({
-			name: "create-file-metadata",
-			attrs: {
-				courseId: course.uuid,
-				name: "test.pdf",
-				url: "https://example.com/test.pdf",
-				mimeType: "application/pdf",
-			},
-			actorId: admin.uuid,
-		});
-
-		expect((result as { name: string }).name).toBe("test.pdf");
-	});
-
-	test("MENTOR может создать курс", async () => {
+	test("create-course: MENTOR создаёт курс", async () => {
 		const facade = new MockUserFacade();
 		const mentor = makeMentor();
 		facade.addUser(mentor);
@@ -245,15 +92,200 @@ describe("CourseApiModule", () => {
 		const mod = setupModule(facade);
 		const result = await mod.handle({
 			name: "create-course",
+			attrs: { title: "Курс JS", description: "Описание", kind: "modules" },
+			actorId: mentor.uuid,
+		});
+
+		expect((result as { title: string }).title).toBe("Курс JS");
+	});
+
+	test("create-course: ADMIN не может создать курс", async () => {
+		const facade = new MockUserFacade();
+		const admin = makeAdmin();
+		facade.addUser(admin);
+
+		const mod = setupModule(facade);
+
+		await expect(
+			mod.handle({
+				name: "create-course",
+				attrs: { title: "X", description: "X", kind: "modules" },
+				actorId: admin.uuid,
+			}),
+		).rejects.toThrow("Недостаточно прав для создания курса");
+	});
+
+	test("enrich-course: ADMIN обогащает курс ментора", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		const admin = makeAdmin();
+		facade.addUser(mentor);
+		facade.addUser(admin);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor);
+
+		const result = await mod.handle({
+			name: "enrich-course",
 			attrs: {
-				title: "Курс ментора",
-				description: "Описание",
-				kind: "projects",
-				status: Status.DRAFT,
+				courseId,
+				targetAudience: "Новички",
+				goal: "Научиться",
+				tags: ["js"],
+			},
+			actorId: admin.uuid,
+		});
+
+		expect((result as { targetAudience?: string }).targetAudience).toBe(
+			"Новички",
+		);
+	});
+
+	test("add-module: автор добавляет модуль", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor);
+
+		const result = await mod.handle({
+			name: "add-module",
+			attrs: { courseId, title: "Модуль 1" },
+			actorId: mentor.uuid,
+		});
+
+		const res = result as { kind: string; modules: { title: string }[] };
+		expect(res.modules).toHaveLength(1);
+		expect(res.modules[0]?.title).toBe("Модуль 1");
+	});
+
+	test("add-project-to-module: автор добавляет проект в модуль", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor);
+		const addModResult = await mod.handle({
+			name: "add-module",
+			attrs: { courseId, title: "Модуль 1" },
+			actorId: mentor.uuid,
+		});
+		const moduleUuid = (addModResult as { modules: { uuid: string }[] })
+			.modules[0]?.uuid as string;
+
+		const result = await mod.handle({
+			name: "add-project-to-module",
+			attrs: {
+				courseId,
+				moduleUuid,
+				title: "Проект в модуле",
 			},
 			actorId: mentor.uuid,
 		});
 
-		expect((result as { title: string }).title).toBe("Курс ментора");
+		const res = result as {
+			modules: { projects: { title: string }[] }[];
+		};
+		expect(res.modules[0]?.projects).toHaveLength(1);
+		expect(res.modules[0]?.projects[0]?.title).toBe("Проект в модуле");
+	});
+
+	test("publish-course: автор публикует курс", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor);
+
+		const result = await mod.handle({
+			name: "publish-course",
+			attrs: { courseId },
+			actorId: mentor.uuid,
+		});
+
+		expect((result as { status: string }).status).toBe(Status.PUBLISHED);
+	});
+
+	test("get-course: возвращает созданный курс", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor, "projects");
+
+		const result = await mod.handle({
+			name: "get-course",
+			attrs: { uuid: courseId },
+			actorId: mentor.uuid,
+		});
+
+		expect((result as { title: string }).title).toBe("Курс");
+	});
+
+	test("list-courses: возвращает список курсов", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		await createCourseAsMentor(mod, mentor);
+
+		const result = await mod.handle({
+			name: "list-courses",
+			attrs: {},
+			actorId: mentor.uuid,
+		});
+
+		expect(result as unknown[]).toHaveLength(1);
+	});
+
+	test("create-lesson: MENTOR создаёт урок в своём курсе", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor, "projects");
+
+		// Добавляем проект в курс
+		const withProject = await mod.handle({
+			name: "add-project",
+			attrs: { courseId, title: "Проект 1" },
+			actorId: mentor.uuid,
+		}) as { projects?: { uuid: string }[] };
+		const projectId = withProject.projects?.[0]?.uuid ?? "";
+
+		const result = await mod.handle({
+			name: "create-lesson",
+			attrs: { courseId, projectId, title: "Урок 1" },
+			actorId: mentor.uuid,
+		});
+
+		expect((result as { title: string }).title).toBe("Урок 1");
+	});
+
+	test("create-step: MENTOR создаёт шаг в своём курсе", async () => {
+		const facade = new MockUserFacade();
+		const mentor = makeMentor();
+		facade.addUser(mentor);
+
+		const mod = setupModule(facade);
+		const courseId = await createCourseAsMentor(mod, mentor);
+
+		const result = await mod.handle({
+			name: "create-step",
+			attrs: {
+				courseId,
+				kind: "text",
+				content: "Шаг 1",
+			},
+			actorId: mentor.uuid,
+		});
+
+		expect((result as { kind: string }).kind).toBe("text");
 	});
 });

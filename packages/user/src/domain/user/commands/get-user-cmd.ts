@@ -13,8 +13,7 @@ export type GetUserCmd = v.InferOutput<typeof GetUserCmdSchema>;
 
 /** Мета команды получения пользователя */
 export interface GetUserCmdMeta {
-  commandName: "get-user";
-  description: "Получить пользователя по UUID";
+  ucName: "get-user";
   arMeta: UserArMeta;
   input: GetUserCmd;
   output: User;

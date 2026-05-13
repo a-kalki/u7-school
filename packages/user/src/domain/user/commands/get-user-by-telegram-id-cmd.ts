@@ -15,8 +15,7 @@ export type GetUserByTelegramIdCmd = v.InferOutput<
 
 /** Мета команды поиска по Telegram ID */
 export interface GetUserByTelegramIdCmdMeta {
-  commandName: "get-user-by-telegram-id";
-  description: "Найти пользователя по Telegram ID";
+  ucName: "get-user-by-telegram-id";
   arMeta: UserArMeta;
   input: GetUserByTelegramIdCmd;
   output: User;

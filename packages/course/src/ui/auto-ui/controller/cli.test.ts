@@ -9,7 +9,7 @@ type AnyAutoUiApp = AutoUiApp<any>;
 function mockApp(overrides: Partial<AnyAutoUiApp> = {}): AnyAutoUiApp {
 	return {
 		handleInput: mock(async () => "ok"),
-		callUseCase: mock(async () => ({ courses: [] })),
+		callUseCase: mock(async () => []),
 		currentActor: null,
 		...overrides,
 	} as unknown as AnyAutoUiApp;
@@ -24,9 +24,9 @@ describe("CourseCliController", () => {
 
 	it("renderMenu показывает меню курсов", async () => {
 		const app = mockApp({
-			callUseCase: mock(async () => ({
-				courses: [{ uuid: "c1", title: "Курс JS", kind: "modules" }],
-			})),
+			callUseCase: mock(async () => [
+				{ uuid: "c1", title: "Курс JS", kind: "modules" },
+			]),
 		});
 		const ctrl = new CourseCliController(app);
 		const menu = await ctrl.renderMenu();
@@ -37,7 +37,7 @@ describe("CourseCliController", () => {
 
 	it("renderMenu с пустым списком курсов", async () => {
 		const app = mockApp({
-			callUseCase: mock(async () => ({ courses: [] })),
+			callUseCase: mock(async () => []),
 		});
 		const ctrl = new CourseCliController(app);
 		const menu = await ctrl.renderMenu();

@@ -1,6 +1,6 @@
+import type { BaseJsonDb } from "@u7/core/infra";
+import type { UserFacade } from "@u7/user/domain";
 import type { CourseRepo } from "./course/repo";
-import type { UserFacade } from "./facade";
-import type { FileMetadataRepo } from "./file-metadata/repo";
 import type { LessonRepo } from "./lesson/repo";
 import type { StepRepo } from "./step/repo";
 
@@ -12,9 +12,9 @@ export interface CourseModuleMeta {
 
 /** Резолвер зависимостей API-модуля курсов */
 export interface CourseApiModuleResolver {
+	db?: BaseJsonDb;
 	courseRepo: CourseRepo;
 	lessonRepo: LessonRepo;
 	stepRepo: StepRepo;
-	fileMetadataRepo: FileMetadataRepo;
 	userFacade: UserFacade;
 }

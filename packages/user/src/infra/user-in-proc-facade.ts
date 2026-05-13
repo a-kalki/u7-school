@@ -1,0 +1,36 @@
+import type { UserApiModule } from "#api/module";
+import type { UserFacade } from "#domain/facade";
+import type { User } from "#domain/user/entity";
+
+/**
+ * In-process реализация фасада пользователей.
+ * Принимает UserApiModule и делегирует вызовы его API.
+ */
+export class UserInProcFacade implements UserFacade {
+  readonly #userApi: UserApiModule;
+
+  constructor(userApi: UserApiModule) {
+    this.#userApi = userApi;
+  }
+
+  async getUserByUuid(
+    uuid: string,
+    actorId?: string,
+  ): Promise<User | undefined> {
+    try {
+      const result = await this.#userApi.handle({
+        name: "get-user",
+        attrs: { uuid },
+        actorId,
+      });
+      return result as User;
+    } catch {
+      return undefined;
+    }
+  }
+
+  async userExists(uuid: string, actorId?: string): Promise<boolean> {
+    const user = await this.getUserByUuid(uuid, actorId);
+    return user !== undefined;
+  }
+}

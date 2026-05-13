@@ -1,7 +1,10 @@
 import { type UcMeta, UseCase } from "@u7/core/api";
-import { errNotFound } from "@u7/core/domain";
+import { errAccessDenied, errNotFound } from "@u7/core/domain";
 import type { UserApiModuleResolver } from "#domain/module";
-import type { UserNotFoundUcError } from "#domain/user/commands/errors";
+import type {
+  AccessDeniedUcError,
+  UserNotFoundUcError,
+} from "#domain/user/commands/errors";
 import type { User } from "#domain/user/entity";
 
 /**
@@ -14,33 +17,41 @@ export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
 > {
   /**
    * Получает пользователя по его ID.
-   * Выбрасывает USER_NOT_FOUND, если пользователь не найден.
+   * Возвращает undefined, если пользователь не найден.
    */
-  protected async getUser(userId: string): Promise<User> {
-    const user = await this.resolve.userRepo.getByUuid(userId);
-    if (!user) {
+  protected async getUser(userId: string): Promise<User | undefined> {
+    return this.resolve.userRepo.getByUuid(userId);
+  }
+
+  /**
+   * Получает актора (пользователя) и выбрасывает ошибку, если не найден.
+   */
+  protected async getActor(actorId: string): Promise<User> {
+    const actor = await this.getUser(actorId);
+    if (!actor) {
       this.throwError(
         errNotFound<UserNotFoundUcError>(
           "USER_NOT_FOUND",
           "Пользователь не найден",
-          {
-            uuid: userId,
-          },
+          { uuid: actorId },
         ),
       );
     }
-    return user;
+    return actor;
   }
 
   /**
-   * Проверяет права доступа.
-   * По умолчанию — доступно всем.
-   * Переопределяется в конкретных use-case'ах.
+   * Выбрасывает ошибку доступа.
    */
-  protected async checkPolicy(
-    _command: TMeta["input"],
-    _actor: User,
-  ): Promise<void> {
-    // Доступно всем
+  protected throwAccessDenied(
+    message = "Недостаточно прав для выполнения действия",
+  ): never {
+    this.throwError(
+      errAccessDenied<AccessDeniedUcError>(
+        "ACCESS_DENIED",
+        message,
+        undefined,
+      ),
+    );
   }
 }

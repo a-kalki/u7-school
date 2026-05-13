@@ -13,8 +13,7 @@ export type GetCourseCmd = v.InferOutput<typeof GetCourseCmdSchema>;
 
 /** Мета команды получения курса */
 export interface GetCourseCmdMeta {
-	commandName: "get-course";
-	description: "Получить курс по UUID";
+	ucName: "get-course";
 	arMeta: CourseArMeta;
 	input: GetCourseCmd;
 	output: Course;

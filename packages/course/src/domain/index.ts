@@ -3,11 +3,35 @@
 // Агрегат Course
 export { CourseAr } from "./course/a-root";
 export type {
+	AddModuleCmd,
+	AddModuleCmdError,
+	AddModuleCmdMeta,
+} from "./course/commands/add-module-cmd";
+export { AddModuleCmdSchema } from "./course/commands/add-module-cmd";
+export type {
+	AddProjectCmd,
+	AddProjectCmdError,
+	AddProjectCmdMeta,
+} from "./course/commands/add-project-cmd";
+export { AddProjectCmdSchema } from "./course/commands/add-project-cmd";
+export type {
+	AddProjectToModuleCmd,
+	AddProjectToModuleCmdError,
+	AddProjectToModuleCmdMeta,
+} from "./course/commands/add-project-to-module-cmd";
+export { AddProjectToModuleCmdSchema } from "./course/commands/add-project-to-module-cmd";
+export type {
 	CreateCourseCmd,
 	CreateCourseCmdError,
 	CreateCourseCmdMeta,
 } from "./course/commands/create-course-cmd";
 export { CreateCourseCmdSchema } from "./course/commands/create-course-cmd";
+export type {
+	EnrichCourseCmd,
+	EnrichCourseCmdError,
+	EnrichCourseCmdMeta,
+} from "./course/commands/enrich-course-cmd";
+export { EnrichCourseCmdSchema } from "./course/commands/enrich-course-cmd";
 export type {
 	CourseAccessDeniedUcError,
 	CourseModuleError,
@@ -25,6 +49,12 @@ export type {
 } from "./course/commands/list-courses-cmd";
 export { ListCoursesCmdSchema } from "./course/commands/list-courses-cmd";
 export type {
+	PublishCourseCmd,
+	PublishCourseCmdError,
+	PublishCourseCmdMeta,
+} from "./course/commands/publish-course-cmd";
+export { PublishCourseCmdSchema } from "./course/commands/publish-course-cmd";
+export type {
 	Course,
 	CourseArMeta,
 	CourseModules,
@@ -41,30 +71,7 @@ export {
 export { CoursePolicy } from "./course/policy";
 export type { CourseListFilter, CourseRepo } from "./course/repo";
 export type { CourseId as CourseEntityId, CourseKind } from "./course/types";
-export type { UserFacade } from "./facade";
-// Агрегат FileMetadata
-export { FileMetadataAr } from "./file-metadata/a-root";
-export type {
-	CreateFileMetadataCmd,
-	CreateFileMetadataCmdError,
-	CreateFileMetadataCmdMeta,
-} from "./file-metadata/commands/create-file-metadata-cmd";
-export { CreateFileMetadataCmdSchema } from "./file-metadata/commands/create-file-metadata-cmd";
-export type {
-	FileMetadataAccessDeniedUcError,
-	FileMetadataModuleError,
-	FileMetadataNotFoundUcError,
-} from "./file-metadata/commands/errors";
-export type {
-	GetFileMetadataCmd,
-	GetFileMetadataCmdError,
-	GetFileMetadataCmdMeta,
-} from "./file-metadata/commands/get-file-metadata-cmd";
-export { GetFileMetadataCmdSchema } from "./file-metadata/commands/get-file-metadata-cmd";
-export type { FileMetadata, FileMetadataArMeta } from "./file-metadata/entity";
-export { FileMetadataSchema } from "./file-metadata/entity";
-export { FileMetadataPolicy } from "./file-metadata/policy";
-export type { FileMetadataRepo } from "./file-metadata/repo";
+
 // Агрегат Lesson
 export { LessonAr } from "./lesson/a-root";
 export type {
@@ -88,9 +95,12 @@ export type { Lesson, LessonArMeta } from "./lesson/entity";
 export { LessonSchema } from "./lesson/entity";
 export { LessonPolicy } from "./lesson/policy";
 export type { LessonRepo } from "./lesson/repo";
+
 export type { CourseApiModuleResolver, CourseModuleMeta } from "./module";
+
 // Общие типы
 export { Status, StatusSchema } from "./status";
+
 // Агрегат Step
 export { StepAr } from "./step/a-root";
 export type {
@@ -120,10 +130,9 @@ export type {
 export { StepCommonSchema, StepSchema } from "./step/entity";
 export { StepPolicy } from "./step/policy";
 export type { StepRepo } from "./step/repo";
+
 export type {
 	CourseId,
-	FileMetadataId,
 	LessonId,
-	Order,
 	StepId,
 } from "./types";

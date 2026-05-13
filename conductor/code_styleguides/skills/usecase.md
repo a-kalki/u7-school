@@ -2,13 +2,41 @@
 
 ## Назначение
 
-Файл `api/<entity>/<command-name>-uc.ts` содержит класс UC — оркестратор одной бизнес-операции. Наследуется от `UseCase<CmdMeta, Resolver>`.
+Файл `api/<entity>/<uc-name>-uc.ts` содержит класс UC — оркестратор одной бизнес-операции. Наследуется от `UseCase<CmdMeta, Resolver>`.
 
 ## Правила
 
-1. В основном класс опирается на каркас и поток определенный родителем концентрируясь на "личной" доменной логике.
-1. Старайся разбивать логику на логические шаги, делай методы не большими но пользуйся в этом разумностью.
-1. Концентрируйся на положительном потоке, если происходит прогнозируемая ошибка в потоке обработки, прерывай поток передав ошибку предусмотренным методам.
+1. В основном класс опирается на каркас и поток определённый родителем, концентрируясь на «личной» доменной логике.
+1. Старайся разбивать логику на логические шаги, делай методы небольшими, но пользуйся разумностью.
+1. Концентрируйся на положительном потоке, если происходит прогнозируемая ошибка — прерывай поток, передав ошибку предусмотренными методами.
+1. **CmdMeta.errors должен содержать ВСЕ ошибки**, которые могут быть выброшены в usecase (включая ошибки от `getActor()`, `throwAccessDenied()`, `getCourse()` и других хелперов базового класса). Система типов не проверяет это автоматически — ответственность разработчика/агента.
+1. **Проверка прав доступа** выполняется инлайн в методе `execute()` — с помощью `this.getActor()`, `Policy.canXxx()` и `this.throwAccessDenied()`.
+
+## Поля UseCase
+
+| Поле | Назначение | Пример |
+|---|---|---|
+| `ucName` | Уникальное имя (kebab-case) | `"create-course"` |
+| `ucLabel` | Человекочитаемая метка | `"Создать курс"` |
+| `arMeta` | Метаданные агрегата | `{ arName: "Course", arLabel: "Курс" }` |
+| `type` | Тип: `"command"` или `"query"` | `"command"` |
+| `requiresAuth` | Требуется ли авторизация | `true` |
+| `inputSchema` | Valibot-схема входных данных | `CreateCourseCmdSchema` |
+| `outputSchema` | Valibot-схема выходных данных | `CourseSchema` |
+
+## UcMeta (CmdMeta)
+
+```typescript
+export interface CreateCourseCmdMeta {
+  ucName: "create-course";          // было commandName
+  arMeta: CourseArMeta;
+  input: CreateCourseCmd;
+  output: Course;
+  errors: CreateCourseCmdError;
+  requiresAuth: true;
+  type: "command";
+}
+```
 
 ## Инструкция по предотвращению регресса
 
@@ -24,8 +52,28 @@
 
 ## Пример
 
+### Хелперы базового класса модуля
+
+Как правило, каждый модуль предоставляет свой базовый UC с хелперами:
+
 ```typescript
-import { errAccessDenied, errConflict } from "@u7/core";
+// Базовый UC модуля (например, UserUseCase)
+export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<TMeta, UserApiModuleResolver> {
+  /** Получить пользователя (возвращает undefined если не найден) */
+  protected async getUser(userId: string): Promise<User | undefined> { ... }
+
+  /** Получить актора с проверкой существования (бросает если не найден) */
+  protected async getActor(actorId: string): Promise<User> { ... }
+
+  /** Выбросить ошибку доступа */
+  protected throwAccessDenied(message?: string): never { ... }
+}
+```
+
+### Реализация конкретного usecase
+
+```typescript
+import { type AuthError, errConflict, errUnauthorized } from "@u7/core/domain";
 import { UserAr } from "../../domain/user/a-root";
 import {
   type CreateUserCmd,
@@ -33,7 +81,6 @@ import {
   CreateUserCmdSchema,
 } from "../../domain/user/commands/create-user-cmd";
 import type {
-  AccessDeniedUcError,
   BootstrapRequiresAdminUcError,
   TelegramIdTakenUcError,
 } from "../../domain/user/commands/errors";
@@ -45,37 +92,15 @@ import { UserUseCase } from "../user-uc";
 
 /**
  * Use-case создания пользователя.
- * Требует прав ADMIN (кроме bootstrap — первый пользователь при пустом репозитории,
- * но даже в bootstrap первый пользователь обязан иметь роль ADMIN в команде).
  */
 export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
-  protected readonly commandName = "create-user" as const;
-  protected readonly description = "Создать пользователя" as const;
-  protected readonly arName = "user" as const;
-  protected readonly arLabel = "Пользователь" as const;
+  protected readonly ucName = "create-user" as const;
+  protected readonly ucLabel = "Создать пользователя" as const;
+  protected readonly arMeta = { arName: UserAr.arName() as "User", arLabel: UserAr.arLabel() as "Пользователь" };
   protected readonly type = "command" as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = CreateUserCmdSchema;
   protected readonly outputSchema = UserSchema;
-
-  /**
-   * Проверка прав на создание пользователя.
-   * Только ADMIN может создавать пользователей.
-   */
-  protected override async checkPolicy(
-    _command: CreateUserCmd,
-    actor: User,
-  ): Promise<void> {
-    if (!UserPolicy.canCreate(actor)) {
-      this.throwError(
-        errAccessDenied<AccessDeniedUcError>(
-          "ACCESS_DENIED",
-          "Недостаточно прав для создания пользователя",
-          undefined,
-        ),
-      );
-    }
-  }
 
   async execute(command: CreateUserCmd, actorId?: string): Promise<User> {
     const repo = this.resolve.userRepo;
@@ -95,16 +120,19 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
     } else {
       // Репозиторий не пуст — требуется авторизованный ADMIN
       if (!actorId) {
-        this.throwError(
-          errAccessDenied<AccessDeniedUcError>(
-            "ACCESS_DENIED",
-            "Требуется авторизация для создания пользователя",
-            undefined,
+        this.throwBaseErrors(
+          errUnauthorized<AuthError>(
+            "UNAUTHORIZED_ERROR",
+            "Требуется авторизация",
           ),
         );
       }
-      const actor = await this.getUser(actorId);
-      await this.checkPolicy(command, actor);
+      const actor = await this.getActor(actorId);
+      if (!UserPolicy.canCreate(actor)) {
+        this.throwAccessDenied(
+          "Недостаточно прав для создания пользователя",
+        );
+      }
     }
 
     // Проверка уникальности telegramId
@@ -136,173 +164,3 @@ export class CreateUserUc extends UserUseCase<CreateUserCmdMeta> {
 1. Делай моки всех инфраструктурных объектов (репозитории, фасад), не импортируй их.
 1. Выноси повторяющуюся логику в хелперы.
 1. Стремись чтобы каждый тест был не более 10 строк кода, пусть тест будет кратким и понятным.
-
-```typescript
-import { describe, expect, mock, test } from "bun:test";
-import type { User } from "../../domain/user/entity";
-import type { UserRepo } from "../../domain/user/repo";
-import { Role } from "../../domain/user/roles";
-import { CreateUserUc } from "./create-user-uc";
-
-/**
- * Хелпер: создаёт мок-репозиторий и usecase.
- * Моки лежат в переменных, через них настраивается поведение в каждом тесте.
- */
-function setupUc() {
-  const save = mock(async (_user: User): Promise<void> => { });
-  const getByUuid = mock(
-    async (_uuid: string): Promise<User | undefined> => undefined,
-  );
-  const getByTelegramId = mock(
-    async (_id: number): Promise<User | undefined> => undefined,
-  );
-  const getAll = mock(async (): Promise<User[]> => []);
-  const isTelegramIdTaken = mock(
-    async (_id: number): Promise<boolean> => false,
-  );
-  const isEmpty = mock(async (): Promise<boolean> => true);
-
-  const repo: UserRepo = {
-    save,
-    getByUuid,
-    getByTelegramId,
-    getAll,
-    isTelegramIdTaken,
-    isEmpty,
-  };
-  const uc = new CreateUserUc();
-  uc.init({ userRepo: repo });
-
-  return {
-    save,
-    getByUuid,
-    getByTelegramId,
-    getAll,
-    isTelegramIdTaken,
-    isEmpty,
-    repo,
-    uc,
-  };
-}
-
-function makeUser(overrides: Partial<User> = {}): User {
-  return {
-    uuid: crypto.randomUUID(),
-    name: "Тест",
-    telegramId: 1,
-    roles: [Role.ADMIN],
-    createdAt: "2026-05-01T12:00",
-    ...overrides,
-  };
-}
-
-describe("CreateUserUc", () => {
-  describe("SUCCESS", () => {
-    test("бутстрап: создаёт первого пользователя с ролью ADMIN без актора", async () => {
-      const { isEmpty, save, uc } = setupUc();
-      isEmpty.mockResolvedValue(true);
-
-      const user = await uc.handle({
-        name: "Админ",
-        telegramId: 1,
-        roles: [Role.ADMIN],
-      });
-
-      expect(user.name).toBe("Админ");
-      expect(user.roles).toEqual([Role.ADMIN]);
-      expect(save).toHaveBeenCalledTimes(1);
-    });
-
-    test("второй пользователь сохраняет переданные роли", async () => {
-      const { isEmpty, getByUuid, uc } = setupUc();
-      const admin = makeUser();
-
-      isEmpty.mockResolvedValueOnce(false);
-      getByUuid.mockResolvedValueOnce(admin);
-      const user = await uc.handle(
-        { name: "Студент", telegramId: 2, roles: [Role.STUDENT] },
-        admin.uuid,
-      );
-
-      expect(user.roles).toEqual([Role.STUDENT]);
-    });
-
-    test("ADMIN может создавать других пользователей", async () => {
-      const { isEmpty, getByUuid, save, uc } = setupUc();
-      const admin = makeUser();
-
-      isEmpty.mockResolvedValueOnce(false);
-      getByUuid.mockResolvedValueOnce(admin);
-
-      const user = await uc.handle(
-        { name: "Новый студент", telegramId: 2, roles: [Role.STUDENT] },
-        admin.uuid,
-      );
-
-      expect(user.roles).toEqual([Role.STUDENT]);
-      expect(user.name).toBe("Новый студент");
-      expect(save).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("FAIL", () => {
-    test("бутстрап: отклоняет первого пользователя без роли ADMIN", async () => {
-      const { isEmpty, uc } = setupUc();
-      isEmpty.mockResolvedValue(true);
-
-      await expect(
-        uc.handle({ name: "Не админ", telegramId: 1, roles: [Role.STUDENT] }),
-      ).rejects.toThrow("Первый пользователь должен иметь роль ADMIN");
-    });
-
-    test("отклоняет дубликат telegramId", async () => {
-      const { isEmpty, getByUuid, isTelegramIdTaken, uc } = setupUc();
-      const admin = makeUser();
-
-      isEmpty.mockResolvedValueOnce(false);
-      getByUuid.mockResolvedValueOnce(admin);
-      isTelegramIdTaken.mockResolvedValueOnce(true);
-
-      await expect(
-        uc.handle(
-          { name: "Б", telegramId: 1, roles: [Role.STUDENT] },
-          admin.uuid,
-        ),
-      ).rejects.toThrow("Пользователь с таким telegramId уже существует");
-    });
-
-    test("отклоняет невалидную команду", async () => {
-      const { uc } = setupUc();
-
-      await expect(
-        uc.handle({ name: "", telegramId: -1, roles: [] }),
-      ).rejects.toThrow("Переданы некорректные данные");
-    });
-
-    test("отклоняет создание без авторизации при непустом репозитории", async () => {
-      const { isEmpty, uc } = setupUc();
-
-      isEmpty.mockResolvedValueOnce(false);
-
-      await expect(
-        uc.handle({ name: "Хакер", telegramId: 2, roles: [Role.ADMIN] }),
-      ).rejects.toThrow("Требуется авторизация для создания пользователя");
-    });
-
-    test("отклоняет создание пользователем без прав ADMIN", async () => {
-      const { isEmpty, getByUuid, uc } = setupUc();
-      const student = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
-
-      isEmpty.mockResolvedValueOnce(false);
-      getByUuid.mockResolvedValueOnce(student);
-
-      await expect(
-        uc.handle(
-          { name: "Хакер", telegramId: 3, roles: [Role.ADMIN] },
-          student.uuid,
-        ),
-      ).rejects.toThrow("Недостаточно прав для создания пользователя");
-    });
-  });
-});
-```

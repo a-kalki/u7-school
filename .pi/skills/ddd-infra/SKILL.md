@@ -19,10 +19,42 @@ description: Правила и шаблоны для Infra-слоя — реал
 | Паттерн | Файл в проекте | Полный styleguide |
 |---|---|---|
 | Repo (реализация) | `infra/db/<entity>-<type>-repo.ts` | `conductor/code_styleguides/skills/repo-impl.md` |
+| Db (БД) | `packages/core/src/infra/base-json-db.ts` | — |
 
 ---
 
-## 1. Repo (реализация) — `infra/db/<entity>-<type>-repo.ts`
+## 1. Db (База данных) — `BaseJsonDb`
+
+**Назначение:** управление JSON-файлами с поддержкой транзакций. Один экземпляр на модуль.
+
+### Ключевые правила
+1. Один `Db` на модуль, знает все `Repo` при создании.
+2. Передаётся в resolver (DI).
+3. `JsonFileRepo` принимает `BaseJsonDb` + имя коллекции опционально.
+4. UseCase использует `db.begin()` / `db.commit()` / `db.rollback()` для атомарных операций.
+5. Без транзакций — репозитории пишут напрямую на диск.
+
+### Пример
+```typescript
+const db = new BaseJsonDb();
+const courseRepo = new CourseJsonRepo(db, "courses");
+const lessonRepo = new LessonJsonRepo(db, "lessons");
+
+// В usecase:
+db.begin();
+try {
+  await courseRepo.save(course.state);
+  await lessonRepo.save(lesson.state);
+  await db.commit();
+} catch (e) {
+  db.rollback();
+  throw e;
+}
+```
+
+---
+
+## 2. Repo (реализация) — `infra/db/<entity>-<type>-repo.ts`
 
 **Назначение:** конкретная реализация доменного интерфейса `Repo`. Например: `UserSqliteRepo`, `UserInmemoryRepo`.
 

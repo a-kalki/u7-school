@@ -13,8 +13,7 @@ export type GetStepCmd = v.InferOutput<typeof GetStepCmdSchema>;
 
 /** Мета команды получения шага */
 export interface GetStepCmdMeta {
-	commandName: "get-step";
-	description: "Получить шаг по UUID";
+	ucName: "get-step";
 	arMeta: StepArMeta;
 	input: GetStepCmd;
 	output: Step;

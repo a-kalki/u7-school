@@ -20,8 +20,7 @@ export type CreateUserCmd = v.InferOutput<typeof CreateUserCmdSchema>;
 
 /** Мета команды создания пользователя */
 export interface CreateUserCmdMeta {
-  commandName: "create-user";
-  description: "Создать пользователя";
+  ucName: "create-user";
   arMeta: UserArMeta;
   input: CreateUserCmd;
   output: User;

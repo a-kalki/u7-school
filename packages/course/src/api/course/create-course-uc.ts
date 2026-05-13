@@ -1,59 +1,44 @@
-import { errAccessDenied } from "@u7/core/domain";
 import { CourseAr } from "#domain/course/a-root";
 import {
 	type CreateCourseCmd,
 	type CreateCourseCmdMeta,
 	CreateCourseCmdSchema,
 } from "#domain/course/commands/create-course-cmd";
-import type { CourseAccessDeniedUcError } from "#domain/course/commands/errors";
 import type { Course } from "#domain/course/entity";
 import { CourseSchema } from "#domain/course/entity";
 import { CoursePolicy } from "#domain/course/policy";
 import { CourseUseCase } from "../course-uc";
 
 /**
- * Use-case создания курса.
+ * Use-case создания курса (этап 1).
+ * Принимает только title, description, kind.
+ * authorId берётся из actorId, передаётся в CourseAr.create().
  * Требует прав ADMIN или MENTOR.
  */
 export class CreateCourseUc extends CourseUseCase<CreateCourseCmdMeta> {
-	protected readonly commandName = "create-course" as const;
-	protected readonly description = "Создать курс" as const;
-	protected readonly arName = "course" as const;
-	protected readonly arLabel = "Курс" as const;
+	protected readonly ucName = "create-course" as const;
+	protected readonly ucLabel = "Создать курс" as const;
+	protected readonly arMeta = { arName: CourseAr.arName as "Course", arLabel: CourseAr.arLabel as "Курс" };
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = true as const;
 	protected readonly inputSchema = CreateCourseCmdSchema;
 	protected readonly outputSchema = CourseSchema;
 
 	async execute(command: CreateCourseCmd, actorId: string): Promise<Course> {
-		// Получаем актора
-		const actor = await this.resolve.userFacade.getUserByUuid(actorId);
-		if (!actor) {
-			this.throwError(
-				errAccessDenied<CourseAccessDeniedUcError>(
-					"COURSE_ACCESS_DENIED",
-					"Пользователь не найден",
-					undefined,
-				),
-			);
-		}
+		const actor = await this.getActor(actorId);
 
-		// Проверка прав
 		if (!CoursePolicy.canCreate(actor)) {
-			this.throwError(
-				errAccessDenied<CourseAccessDeniedUcError>(
-					"COURSE_ACCESS_DENIED",
-					"Недостаточно прав для создания курса",
-					undefined,
-				),
-			);
+			this.throwAccessDenied("Недостаточно прав для создания курса");
 		}
 
-		const ar = CourseAr.create(command);
-		// Устанавливаем реальный authorId
-		const state = { ...ar.state, authorId: actorId } as Course;
-		await this.resolve.courseRepo.save(state);
+		const ar = CourseAr.create(
+			command.title,
+			command.title,
+			command.kind,
+			actorId,
+		);
+		await this.resolve.courseRepo.save(ar.state);
 
-		return state;
+		return ar.state;
 	}
 }

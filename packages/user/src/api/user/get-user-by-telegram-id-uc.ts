@@ -1,4 +1,5 @@
 import { errNotFound } from "@u7/core/domain";
+import { UserAr } from "#domain/user/a-root";
 import type { UserNotFoundUcError } from "#domain/user/commands/errors";
 import {
   type GetUserByTelegramIdCmd,
@@ -14,10 +15,9 @@ import { UserUseCase } from "#api/user-uc";
  * Доступно всем (checkPolicy — пустая реализация).
  */
 export class GetUserByTelegramIdUc extends UserUseCase<GetUserByTelegramIdCmdMeta> {
-  protected readonly commandName = "get-user-by-telegram-id" as const;
-  protected readonly description = "Найти пользователя по Telegram ID" as const;
-  protected readonly arName = "user" as const;
-  protected readonly arLabel = "Пользователь" as const;
+  protected readonly ucName = "get-user-by-telegram-id" as const;
+  protected readonly ucLabel = "Найти пользователя по Telegram ID" as const;
+  protected readonly arMeta = { arName: UserAr.arName as "User", arLabel: UserAr.arLabel as "Пользователь" };
   protected readonly type = "query" as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetUserByTelegramIdCmdSchema;

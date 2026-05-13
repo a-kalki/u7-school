@@ -1,5 +1,6 @@
 import * as v from "valibot";
 import { UserUseCase } from "#api/user-uc";
+import { UserAr } from "#domain/user/a-root";
 import { RoleSchema } from "#domain/index";
 import {
   type ListUsersCmd,
@@ -15,11 +16,10 @@ import { UserSchema } from "#domain/user/entity";
  * Доступно всем (checkPolicy — пустая реализация).
  */
 export class ListUsersUc extends UserUseCase<ListUsersCmdMeta> {
-  protected readonly commandName = "list-users" as const;
-  protected readonly description =
+  protected readonly ucName = "list-users" as const;
+  protected readonly ucLabel =
     "Список всех пользователей с фильтрацией" as const;
-  protected readonly arName = "user" as const;
-  protected readonly arLabel = "Пользователь" as const;
+  protected readonly arMeta = { arName: UserAr.arName as "User", arLabel: UserAr.arLabel as "Пользователь" };
   protected readonly type = "query" as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = ListUsersCmdSchema;

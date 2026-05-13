@@ -24,7 +24,7 @@ export type User = v.InferOutput<typeof UserSchema>;
 
 /** Метаданные агрегата пользователя */
 export interface UserArMeta {
-  name: "user";
+  name: "User";
   label: "Пользователь";
   errors: never;
   state: User;

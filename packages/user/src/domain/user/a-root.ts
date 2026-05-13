@@ -9,6 +9,9 @@ import { UserSchema } from "./entity";
  * Инкапсулирует состояние User и логику его изменения.
  */
 export class UserAr extends Aggregate<UserArMeta> {
+	static readonly arName = "User";
+	static readonly arLabel = "Пользователь";
+
 	constructor(state: User) {
 		super(state, UserSchema);
 	}
