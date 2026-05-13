@@ -1,0 +1,13 @@
+Контрольная точка Фазы 2: UseCases
+
+Команда тестирования: bun run test:p user
+Результат: 135 pass, 0 fail
+
+Шаги ручной верификации:
+1. Запусти тесты: bun run test:p user
+2. Убедись, что видишь: 135 тестов проходят, 0 падают
+3. Проверь RegisterUserUc: packages/user/src/api/user/register-user-uc.ts
+4. Проверь AddRoleToUserUc: packages/user/src/api/user/add-role-to-user-uc.ts
+5. Проверь экспорты: packages/user/src/domain/index.ts, api/index.ts, api/module.ts
+
+Подтверждение пользователя: да
