@@ -274,12 +274,28 @@ describe("CourseApiModule", () => {
 		facade.addUser(mentor);
 
 		const mod = setupModule(facade);
-		const courseId = await createCourseAsMentor(mod, mentor);
+		const courseId = await createCourseAsMentor(mod, mentor, "projects");
+
+		// Добавляем проект и урок
+		const withProject = (await mod.handle({
+			name: "add-project",
+			attrs: { courseId, title: "Проект 1" },
+			actorId: mentor.uuid,
+		})) as { projects?: { uuid: string }[] };
+		const projectId = withProject.projects?.[0]?.uuid ?? "";
+
+		const lesson = (await mod.handle({
+			name: "create-lesson",
+			attrs: { courseId, projectId, title: "Урок 1" },
+			actorId: mentor.uuid,
+		})) as { uuid: string };
 
 		const result = await mod.handle({
 			name: "create-step",
 			attrs: {
 				courseId,
+				lessonId: lesson.uuid,
+				description: "Описание",
 				kind: "text",
 				content: "Шаг 1",
 			},

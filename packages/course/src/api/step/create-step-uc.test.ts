@@ -50,6 +50,20 @@ function setupUc() {
 	const getUserByUuid = mock(
 		async (_uuid: string): Promise<User | undefined> => undefined,
 	);
+	const lessonGetByUuid = mock(
+		async () =>
+			({
+				uuid: crypto.randomUUID(),
+				courseId: crypto.randomUUID(),
+				title: "Урок",
+				status: Status.DRAFT,
+				createdAt: "2026-05-01T12:00",
+				stepIds: [],
+				mentorStepIds: [],
+			}) as any,
+	);
+	const lessonSave = mock(async () => {});
+
 	const userFacade: UserFacade = {
 		getUserByUuid,
 		userExists: mock(async () => false),
@@ -57,7 +71,7 @@ function setupUc() {
 	const uc = new CreateStepUc();
 	uc.init({
 		courseRepo,
-		lessonRepo: {} as never,
+		lessonRepo: { getByUuid: lessonGetByUuid, save: lessonSave } as any,
 		stepRepo,
 		userFacade,
 	});
@@ -76,6 +90,8 @@ describe("CreateStepUc", () => {
 			const result = await uc.handle(
 				{
 					courseId: course.uuid,
+					lessonId: crypto.randomUUID(),
+					description: "Описание",
 					kind: "text",
 					content: "Шаг 1",
 				},
@@ -96,6 +112,8 @@ describe("CreateStepUc", () => {
 				uc.handle(
 					{
 						courseId: crypto.randomUUID(),
+						lessonId: crypto.randomUUID(),
+						description: "Описание",
 						kind: "text",
 						content: "Ш",
 					},
@@ -114,6 +132,8 @@ describe("CreateStepUc", () => {
 				uc.handle(
 					{
 						courseId: crypto.randomUUID(),
+						lessonId: crypto.randomUUID(),
+						description: "Описание",
 						kind: "text",
 						content: "Ш",
 					},

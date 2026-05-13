@@ -9,6 +9,7 @@ import type {
 /** Схема валидации команды создания курса — только базовые поля */
 export const CreateCourseCmdSchema = v.object({
 	title: CourseCommonSchema.entries.title,
+	description: CourseCommonSchema.entries.description,
 	kind: v.picklist(["modules", "projects"]),
 });
 

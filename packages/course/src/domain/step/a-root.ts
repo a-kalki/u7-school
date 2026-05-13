@@ -23,7 +23,7 @@ export class StepAr extends Aggregate<StepArMeta> {
 		const base = {
 			uuid: crypto.randomUUID(),
 			courseId: command.courseId,
-			description: command.content ?? "",
+			description: command.description,
 			content: command.content,
 			status: Status.DRAFT,
 			createdAt: isoNow(),

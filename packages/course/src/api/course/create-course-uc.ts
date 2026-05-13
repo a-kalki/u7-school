@@ -36,7 +36,7 @@ export class CreateCourseUc extends CourseUseCase<CreateCourseCmdMeta> {
 
 		const ar = CourseAr.create(
 			command.title,
-			command.title,
+			command.description,
 			command.kind,
 			actorId,
 		);

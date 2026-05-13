@@ -1,4 +1,8 @@
+import { errNotFound } from "@u7/core/domain";
 import { CoursePolicy } from "#domain/course/policy";
+import { CourseDs } from "#domain/course-ds";
+import { LessonAr } from "#domain/lesson/a-root";
+import type { LessonNotFoundUcError } from "#domain/lesson/commands/errors";
 import { StepAr } from "#domain/step/a-root";
 import {
 	type CreateStepCmd,
@@ -38,11 +42,39 @@ export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
 			this.throwAccessDenied("Вы не являетесь автором курса");
 		}
 
-		const _steps = await this.resolve.stepRepo.getByCourseId(command.courseId);
+		const lessonState = await this.resolve.lessonRepo.getByUuid(
+			command.lessonId,
+		);
+		if (!lessonState) {
+			this.throwError(
+				errNotFound<LessonNotFoundUcError>(
+					"LESSON_NOT_FOUND",
+					"Урок не найден",
+					{ uuid: command.lessonId },
+				),
+			);
+		}
 
-		const ar = StepAr.create(command);
-		await this.resolve.stepRepo.save(ar.state);
+		const ds = new CourseDs();
+		const lessonAr = new LessonAr(lessonState);
+		const { lesson, step } = ds.createStep(lessonAr, command);
 
-		return ar.state;
+		const db = this.resolve.db;
+		if (db) {
+			db.begin();
+			try {
+				await this.resolve.lessonRepo.save(lesson.state);
+				await this.resolve.stepRepo.save(step.state);
+				await db.commit();
+			} catch (e) {
+				db.rollback();
+				throw e;
+			}
+		} else {
+			await this.resolve.lessonRepo.save(lesson.state);
+			await this.resolve.stepRepo.save(step.state);
+		}
+
+		return step.state;
 	}
 }

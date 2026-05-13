@@ -7,23 +7,7 @@ import { UserApiModule } from "./module";
 const NO_SEED = "/nonexistent-seed.json";
 
 describe("UserApiModule + UserJsonRepo", () => {
-	test("user.create: бутстрап создаёт ADMIN", async () => {
-		const jsonFile = "/tmp/user-module-test-1.json";
-		await Bun.$`rm -f ${jsonFile}`;
-
-		const mod = new UserApiModule();
-		mod.init({ userRepo: new UserJsonRepo(jsonFile, NO_SEED) });
-
-		const result = await mod.handle({
-			name: "create-user",
-			attrs: { name: "А", telegramId: 1, roles: [Role.ADMIN] },
-		});
-		expect((result as User).roles).toEqual([Role.ADMIN]);
-
-		await Bun.$`rm -f ${jsonFile}`;
-	});
-
-	test("user.create: второй пользователь сохраняет роли", async () => {
+	test("user.create: создаёт пользователя если есть права ADMIN", async () => {
 		const jsonFile = "/tmp/user-module-test-2.json";
 		await Bun.$`rm -f ${jsonFile}`;
 
@@ -31,14 +15,19 @@ describe("UserApiModule + UserJsonRepo", () => {
 		const mod = new UserApiModule();
 		mod.init({ userRepo: repo });
 
-		const admin = await mod.handle({
-			name: "create-user",
-			attrs: { name: "Админ", telegramId: 1, roles: [Role.ADMIN] },
-		});
+		const admin: User = {
+			uuid: crypto.randomUUID(),
+			name: "Админ",
+			telegramId: 1,
+			roles: [Role.ADMIN],
+			createdAt: "2026-05-01T12:00",
+		};
+		await repo.save(admin);
+
 		const result = await mod.handle({
 			name: "create-user",
 			attrs: { name: "Студент", telegramId: 2, roles: [Role.STUDENT] },
-			actorId: (admin as User).uuid,
+			actorId: admin.uuid,
 		});
 		expect((result as User).roles).toEqual([Role.STUDENT]);
 

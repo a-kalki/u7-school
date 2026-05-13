@@ -10,6 +10,8 @@ describe("StepAr", () => {
 		test("создаёт text-шаг", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Описание",
 			});
@@ -20,6 +22,8 @@ describe("StepAr", () => {
 		test("создаёт code-шаг", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "code",
 				content: "Код",
 				code: "console.log(1)",
@@ -32,6 +36,8 @@ describe("StepAr", () => {
 		test("создаёт code-шаг без language", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "code",
 				content: "Код",
 				code: "x",
@@ -42,6 +48,8 @@ describe("StepAr", () => {
 		test("создаёт file-шаг", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "file",
 				content: "Файл",
 				fileName: "doc.pdf",
@@ -60,6 +68,8 @@ describe("StepAr", () => {
 		test("не создаёт updatedAt при создании", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Описание",
 			});
@@ -93,6 +103,8 @@ describe("StepAr", () => {
 		test("без актора — DRAFT → null", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Ш",
 			});
@@ -102,6 +114,8 @@ describe("StepAr", () => {
 		test("без актора — PUBLISHED → шаг", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Ш",
 			});
@@ -112,6 +126,8 @@ describe("StepAr", () => {
 		test("автор видит DRAFT", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Ш",
 			});
@@ -123,6 +139,8 @@ describe("StepAr", () => {
 		test("ADMIN видит DRAFT", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Ш",
 			});
@@ -132,6 +150,8 @@ describe("StepAr", () => {
 		test("студент не видит DRAFT", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Ш",
 			});
@@ -141,6 +161,8 @@ describe("StepAr", () => {
 		test("студент видит PUBLISHED", () => {
 			const ar = StepAr.create({
 				courseId: crypto.randomUUID(),
+				lessonId: crypto.randomUUID(),
+				description: "Описание",
 				kind: "text",
 				content: "Ш",
 			});
