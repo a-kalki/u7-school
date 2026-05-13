@@ -2,7 +2,7 @@
 
 ---
 
-- [ ] **Track: Расширение ролей пользователя (user-roles)**
+- [~] **Track: Расширение ролей пользователя (user-roles)**
   *Link: [./tracks/user-roles_20260513/](./tracks/user-roles_20260513/)*
 
 ---
