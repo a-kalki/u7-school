@@ -1,7 +1,13 @@
+import * as fs from "node:fs";
+import { dirname, join } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import * as readline from "node:readline/promises";
+import { fileURLToPath } from "node:url";
 import type { ApiApp } from "@u7/core/api";
 import { formatValibotErrors } from "./controller/format-valibot-errors";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // biome-ignore lint/suspicious/noExplicitAny: recursive type resolution
 function getTypeString(schemaProp: any): string {
@@ -10,7 +16,7 @@ function getTypeString(schemaProp: any): string {
 	if (schemaProp.type === "optional" && schemaProp.wrapped) {
 		return getTypeString(schemaProp.wrapped);
 	}
-	
+
 	// handle valibot's pipe type
 	if (schemaProp.type === "pipe" && schemaProp.item) {
 		return getTypeString(schemaProp.item);
@@ -42,7 +48,7 @@ function printSchemaPrompt(schema: any) {
 		const p = prop as any;
 		const isOptional = p.type === "optional";
 		const reqStr = isOptional ? "" : "*";
-		
+
 		const typeStr = getTypeString(p);
 		console.log(`${key}${reqStr}: ${typeStr}`);
 	}
@@ -92,7 +98,33 @@ export class CliController {
 	}
 
 	async run() {
-		console.log("=== u7 CLI ===");
+		// Load and check about files
+		const appAboutPath = join(__dirname, "../about.md");
+		if (!fs.existsSync(appAboutPath)) {
+			throw new Error(
+				`Файл about.md приложения не найден по пути: ${appAboutPath}`,
+			);
+		}
+		const appAbout = fs.readFileSync(appAboutPath, "utf-8");
+
+		const moduleAbouts = new Map<string, string>();
+		for (const mod of this.app.getModules()) {
+			const modAboutPath = join(
+				__dirname,
+				"../../../packages",
+				mod.name,
+				"about.md",
+			);
+			if (!fs.existsSync(modAboutPath)) {
+				throw new Error(
+					`Модуль ${mod.name} не имеет файла about.md по пути: ${modAboutPath}`,
+				);
+			}
+			moduleAbouts.set(mod.name, fs.readFileSync(modAboutPath, "utf-8"));
+		}
+
+		console.log(appAbout);
+		console.log("\n=== u7 CLI ===");
 		console.log("Введите /app для справки\n");
 
 		this.prompt();
@@ -121,6 +153,26 @@ export class CliController {
 
 				if (text === "/modules") {
 					this.printModules();
+					this.prompt();
+					continue;
+				}
+
+				if (text.startsWith("/about")) {
+					const args = text.slice(6).trim();
+					if (!args) {
+						console.log(`\n--- О приложении ---\n`);
+						console.log(appAbout);
+					} else {
+						const modAbout = moduleAbouts.get(args);
+						if (modAbout) {
+							console.log(`\n--- О модуле: ${args} ---\n`);
+							console.log(modAbout);
+						} else {
+							console.log(
+								`Модуль '${args}' не найден. Для списка введите /modules`,
+							);
+						}
+					}
 					this.prompt();
 					continue;
 				}
@@ -189,6 +241,7 @@ export class CliController {
 	private printHelp() {
 		console.log("\n--- Меню ---");
 		console.log("- /modules  - Список модулей");
+		console.log("- /about [m] - О приложении или модуле m");
 		if (this.currentActor) {
 			console.log(
 				`- Активный пользователь: ${this.currentActor.name} (${this.currentActor.uuid})`,
@@ -203,7 +256,7 @@ export class CliController {
 		const mods = this.app.getModules();
 		console.log("\n--- Доступные модули ---");
 		for (const mod of mods) {
-			console.log(`\nМодуль /${mod.name}`);
+			console.log(`\nМодуль /${mod.name} (описание: /about ${mod.name})`);
 			for (const uc of mod.getDocTypes()) {
 				console.log(
 					`  /${mod.name}/${uc.arName ? `${uc.arName}/` : ""}${uc.ucName}`,
@@ -249,17 +302,6 @@ export class CliController {
 			);
 			console.log("\nУспех:");
 			console.log(JSON.stringify(result, null, 2));
-
-			// Авто-логин при регистрации
-			if (ucName === "create-user" && !this.currentActor) {
-				const r = result as { uuid?: string; name?: string };
-				if (r.uuid) {
-					this.currentActor = { uuid: r.uuid, name: r.name || r.uuid };
-					console.log(
-						`Автоматический вход выполнен: ${this.currentActor.name}`,
-					);
-				}
-			}
 		} catch (e: unknown) {
 			console.error("\nОшибка:");
 			if (
