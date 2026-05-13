@@ -8,7 +8,7 @@
 - [x] Task: Обновить UserAr тесты
 - [x] Task: Conductor - User Manual Verification 'Модель и агрегат' (Protocol in workflow.md)
 
-## Фаза 2: UseCases [checkpoint: 2729b98]
+## Фаза 2: UseCases [checkpoint: c61e983]
 - [x] Task: Создать RegisterUserUc (делегирует $T2)
 - [x] Task: Создать AddRoleToUserUc (делегирует UserAr.addRole)
 - [x] Task: Написать тесты для RegisterUserUc
