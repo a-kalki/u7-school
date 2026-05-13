@@ -18,9 +18,9 @@ export class RegisterUserUc extends UserUseCase<RegisterUserCmdMeta> {
 	protected readonly ucName = "register-user" as const;
 	protected readonly ucLabel = "Зарегистрировать пользователя" as const;
 	protected readonly arMeta = {
-		arName: UserAr.arName as "User",
-		arLabel: UserAr.arLabel as "Пользователь",
-	};
+		arName: "User",
+		arLabel: "Пользователь",
+	} as const;
 	protected readonly type = "command" as const;
 	protected readonly requiresAuth = false as const;
 	protected readonly inputSchema = RegisterUserCmdSchema;

@@ -126,4 +126,23 @@ describe("UserPolicy", () => {
 			expect(UserPolicy.canEdit(userWithoutRoles, userWithoutRoles)).toBe(true);
 		});
 	});
+
+	describe("canAddRole", () => {
+		test("ADMIN может добавлять роли", () => {
+			expect(UserPolicy.canAddRole(admin)).toBe(true);
+		});
+
+		test("STUDENT не может добавлять роли", () => {
+			expect(UserPolicy.canAddRole(student)).toBe(false);
+		});
+
+		test("MENTOR не может добавлять роли", () => {
+			expect(UserPolicy.canAddRole(teacher)).toBe(false);
+		});
+
+		test("пользователь с несколькими ролями включая ADMIN может добавлять", () => {
+			const userWithAdmin = { ...student, roles: [Role.STUDENT, Role.ADMIN] };
+			expect(UserPolicy.canAddRole(userWithAdmin)).toBe(true);
+		});
+	});
 });

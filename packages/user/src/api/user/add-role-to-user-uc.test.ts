@@ -112,6 +112,18 @@ describe("AddRoleToUserUc", () => {
 			).rejects.toThrow("Недостаточно прав для выполнения действия");
 		});
 
+		test("отклоняет самостоятельное добавление роли без прав ADMIN", async () => {
+			const { getByUuid, uc } = setupUc();
+			const student = makeUser({ roles: [Role.STUDENT], telegramId: 2 });
+
+			getByUuid.mockResolvedValueOnce(student);
+			getByUuid.mockResolvedValueOnce(student);
+
+			await expect(
+				uc.handle({ userId: student.uuid, role: Role.MENTOR }, student.uuid),
+			).rejects.toThrow("Недостаточно прав для выполнения действия");
+		});
+
 		test("отклоняет при отсутствии авторизации", async () => {
 			const { uc } = setupUc();
 

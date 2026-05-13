@@ -29,4 +29,8 @@ export const UserPolicy = {
 	canEdit(actor: User, target: User): boolean {
 		return this.isAdmin(actor) || actor.uuid === target.uuid;
 	},
+
+	canAddRole(actor: User): boolean {
+		return this.isAdmin(actor);
+	},
 };
