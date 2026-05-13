@@ -70,4 +70,52 @@ describe("UserAr", () => {
 			expect(ar.state.updatedAt).toBeUndefined();
 		});
 	});
+
+	describe("register", () => {
+		test("создаёт пользователя с ролью GUEST", () => {
+			const ar = UserAr.register({
+				name: "Анна",
+				telegramId: 789,
+			});
+			expect(ar.state.name).toBe("Анна");
+			expect(ar.state.telegramId).toBe(789);
+			expect(ar.state.roles).toEqual([Role.GUEST]);
+			expect(ar.state.uuid).toBeString();
+			expect(ar.state.createdAt).toBeString();
+			expect(ar.state.updatedAt).toBeUndefined();
+		});
+
+		test("генерирует UUID и createdAt при регистрации", () => {
+			const ar = UserAr.register({
+				name: "Борис",
+				telegramId: 999,
+			});
+			expect(ar.state.uuid).toMatch(
+				/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i,
+			);
+			expect(ar.state.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+		});
+	});
+
+	describe("addRole", () => {
+		test("добавляет роль, если её ещё нет", () => {
+			const ar = new UserAr(validUser);
+			ar.addRole(Role.SUBSCRIBER);
+			expect(ar.state.roles).toEqual([Role.ADMIN, Role.SUBSCRIBER]);
+		});
+
+		test("не дублирует существующую роль", () => {
+			const ar = new UserAr(validUser);
+			ar.addRole(Role.ADMIN);
+			expect(ar.state.roles).toEqual([Role.ADMIN]);
+		});
+
+		test("добавляет несколько разных ролей последовательно", () => {
+			const ar = UserAr.register({ name: "Вика", telegramId: 111 });
+			ar.addRole(Role.SUBSCRIBER);
+			ar.addRole(Role.CANDIDATE);
+			ar.addRole(Role.SUBSCRIBER); // дубль — игнорируется
+			expect(ar.state.roles).toEqual([Role.GUEST, Role.SUBSCRIBER, Role.CANDIDATE]);
+		});
+	});
 });
