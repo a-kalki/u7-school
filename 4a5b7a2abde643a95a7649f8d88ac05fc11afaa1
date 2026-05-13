@@ -1,0 +1,6 @@
+fix(user): Вынести проверку addRole в UserPolicy
+
+- UserPolicy.canAddRole(actor) — только ADMIN может добавлять роли
+- AddRoleToUserUc теперь использует UserPolicy.canAddRole вместо isAdmin
+- Self-service (actor === target) отклоняется — только SYSTEM/ADMIN бот
+- Обновлены тесты политики и UC
