@@ -22,7 +22,7 @@
   - генерация схемы для single choice;
   - генерация схемы для multiple choice;
   - генерация схемы для text.
-- [ ] Task: Conductor — User Manual Verification 'QuestionPoolService' (Protocol in workflow.md)
+- [x] Task: Conductor — User Manual Verification 'QuestionPoolService' (Protocol in workflow.md) [bf32c1e] (Protocol in workflow.md)
 
 ## Фаза 2: QuestionnaireAr [checkpoint: b6d623c]
 - [x] Task: Определить `QuestionnaireState` и `AnswerEntry` в `domain/questionnaire/questionnaire-state.ts`.
@@ -44,7 +44,7 @@
   - завершение → null + completed;
   - abandon;
   - получение answers.
-- [ ] Task: Conductor — User Manual Verification 'QuestionnaireAr' (Protocol in workflow.md)
+- [x] Task: Conductor — User Manual Verification 'QuestionnaireAr' (Protocol in workflow.md) [b6d623c] (Protocol in workflow.md)
 
 ## Фаза 3: Финал [checkpoint: e88a2f1]
 - [x] Task: Проверить покрытие (>80%). [e88a2f1]
@@ -52,4 +52,4 @@
 - [x] Task: Проверить tsc (`bun run tslint:p onboarding`).
 - [x] Task: Обновить экспорты в `domain/questionnaire/index.ts`.
 - [x] Task: Обновить `domain/index.ts` если нужно.
-- [ ] Task: Conductor — User Manual Verification 'Финал' (Protocol in workflow.md)
+- [x] Task: Conductor — User Manual Verification 'Финал' (Protocol in workflow.md) [e88a2f1] (Protocol in workflow.md)
