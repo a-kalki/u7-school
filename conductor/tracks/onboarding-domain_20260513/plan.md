@@ -1,12 +1,12 @@
 # План реализации: Доменный пакет onboarding
 
 ## Фаза 1: Модель данных и схемы
-- [ ] Task: Создать enums для ответов анкеты (source, experience, format, goals, intensity и т.д.)
-- [ ] Task: Создать ApplicationAnswers schema (valibot)
-- [ ] Task: Создать Application entity schema
-- [ ] Task: Создать QuestionnaireConfig — структура вопросов и вариантов ответов
-- [ ] Task: Написать тесты схем и QuestionnaireConfig
-- [ ] Task: Conductor - User Manual Verification 'Модель данных' (Protocol in workflow.md)
+- [x] Task: Создать enums для ответов анкеты (source, experience, format, goals, intensity и т.д.)
+- [x] Task: Создать ApplicationAnswers schema (valibot)
+- [x] Task: Создать Application entity schema
+- [x] Task: Создать QuestionnaireConfig — структура вопросов и вариантов ответов
+- [x] Task: Написать тесты схем и QuestionnaireConfig
+- [x] Task: Conductor - User Manual Verification 'Модель данных' (Protocol in workflow.md)
 
 ## Фаза 2: Агрегат и политики
 - [ ] Task: Создать ApplicationAr с методом create
