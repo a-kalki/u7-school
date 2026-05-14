@@ -46,10 +46,10 @@
   - получение answers.
 - [ ] Task: Conductor — User Manual Verification 'QuestionnaireAr' (Protocol in workflow.md)
 
-## Фаза 3: Финал
-- [ ] Task: Проверить покрытие (>80%).
-- [ ] Task: Проверить lint (`bun run lint:p onboarding`).
-- [ ] Task: Проверить tsc (`bun run tslint:p onboarding`).
-- [ ] Task: Обновить экспорты в `domain/questionnaire/index.ts`.
-- [ ] Task: Обновить `domain/index.ts` если нужно.
+## Фаза 3: Финал [checkpoint: e88a2f1]
+- [x] Task: Проверить покрытие (>80%). [e88a2f1]
+- [x] Task: Проверить lint (`bun run lint:p onboarding`).
+- [x] Task: Проверить tsc (`bun run tslint:p onboarding`).
+- [x] Task: Обновить экспорты в `domain/questionnaire/index.ts`.
+- [x] Task: Обновить `domain/index.ts` если нужно.
 - [ ] Task: Conductor — User Manual Verification 'Финал' (Protocol in workflow.md)

@@ -7,5 +7,5 @@
 
 ---
 
-- [~] **Track: Пул вопросов и движок анкеты (questionnaire)**
+- [x] **Track: Пул вопросов и движок анкеты (questionnaire)**
   *Link: [./tracks/questionnaire_20260513/](./tracks/questionnaire_20260513/)*
