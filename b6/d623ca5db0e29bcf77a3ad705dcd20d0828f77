@@ -1,0 +1,12 @@
+Task: Реализовать QuestionnaireAr
+
+- entity.ts: QuestionnaireSchema, AnswerEntrySchema, QuestionnaireStatusSchema
+- errors.ts: QuestionnaireValidationUcError, QuestionnaireCompletedUcError, QuestionNotFoundUcError
+- a-root.ts: start, submitAnswer, getNextQuestion, abandon, getCurrentState, getAnswers
+- a-root.test.ts: 11 тестов (ветвление, валидация, завершение, abandon)
+
+Файлы:
+- packages/onboarding/src/domain/questionnaire/entity.ts
+- packages/onboarding/src/domain/questionnaire/errors.ts
+- packages/onboarding/src/domain/questionnaire/a-root.ts
+- packages/onboarding/src/domain/questionnaire/a-root.test.ts
