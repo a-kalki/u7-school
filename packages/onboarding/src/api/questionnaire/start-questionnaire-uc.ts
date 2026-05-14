@@ -31,8 +31,7 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
 	): Promise<Questionnaire> {
 		const actor = await this.getActor(actorId);
 
-		// Проверяем, что актор либо сам пользователь, либо ADMIN/MENTOR
-		if (actor.uuid !== command.userId && !QuestionnairePolicy.canList(actor)) {
+		if (!QuestionnairePolicy.canCreate(actor, command.userId)) {
 			this.throwAccessDenied("Недостаточно прав для создания анкеты");
 		}
 

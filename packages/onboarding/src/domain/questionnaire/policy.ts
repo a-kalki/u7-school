@@ -7,6 +7,11 @@ import type { Questionnaire } from "./entity";
  * Stateless — проверяет права на основе роли и владения.
  */
 export const QuestionnairePolicy = {
+	/** Создавать анкету можно только для себя. */
+	canCreate(actor: User, userId: string): boolean {
+		return actor.uuid === userId;
+	},
+
 	/** Читать может владелец, ADMIN или MENTOR. */
 	canRead(actor: User, questionnaire: Questionnaire): boolean {
 		return (

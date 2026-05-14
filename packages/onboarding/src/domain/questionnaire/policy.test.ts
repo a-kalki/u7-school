@@ -24,6 +24,35 @@ const questionnaire: Questionnaire = {
 };
 
 describe("QuestionnairePolicy", () => {
+	describe("canCreate", () => {
+		test("можно создать анкету для себя", () => {
+			expect(
+				QuestionnairePolicy.canCreate(
+					makeActor([Role.GUEST], "user-1"),
+					"user-1",
+				),
+			).toBe(true);
+		});
+
+		test("нельзя создать анкету для другого", () => {
+			expect(
+				QuestionnairePolicy.canCreate(
+					makeActor([Role.GUEST], "user-1"),
+					"user-2",
+				),
+			).toBe(false);
+		});
+
+		test("ADMIN не может создать анкету для другого", () => {
+			expect(
+				QuestionnairePolicy.canCreate(
+					makeActor([Role.ADMIN], "admin-1"),
+					"user-1",
+				),
+			).toBe(false);
+		});
+	});
+
 	describe("isOwner", () => {
 		test("владелец — true", () => {
 			expect(
