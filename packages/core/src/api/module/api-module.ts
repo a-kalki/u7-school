@@ -1,11 +1,14 @@
 import type { UcDocType, UcMeta, UseCase } from "#api/uc/use-case";
 import { errBadRequest, throwError } from "#domain/errors/error-helpers";
 import type { NoCommandFoundError } from "#domain/errors/errors";
-import type { ModuleCommand, ModuleMeta } from "#domain/module/types";
+import type { ApiModuleMeta, ModuleCommand } from "#domain/module/types";
 
-export abstract class ApiModule<TMeta extends ModuleMeta, TResolve> {
+export abstract class ApiModule<TMeta extends ApiModuleMeta<any>, TResolve> {
 	abstract readonly name: TMeta["name"];
-	abstract readonly useCases: UseCase<UcMeta, TResolve>[];
+	abstract readonly useCases: UseCase<
+		TMeta extends ApiModuleMeta<infer U> ? U : UcMeta,
+		TResolve
+	>[];
 
 	protected resolve!: TResolve;
 
@@ -18,6 +21,10 @@ export abstract class ApiModule<TMeta extends ModuleMeta, TResolve> {
 			uc.init(resolve);
 			this.useCaseMap.set(uc.getUcName(), uc);
 		}
+	}
+
+	hasCommand(commandName: string): boolean {
+		return this.useCaseMap.has(commandName);
 	}
 
 	async handle(command: ModuleCommand): Promise<unknown> {

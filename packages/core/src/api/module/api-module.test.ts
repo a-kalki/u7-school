@@ -5,7 +5,7 @@ import { UseCase } from "#api/uc/use-case";
 import type { ArMeta } from "#domain/ar/aggregate";
 import { Aggregate } from "#domain/ar/aggregate";
 import { AppException, type NoCommandFoundError } from "#domain/errors/errors";
-import type { ModuleMeta } from "#domain/module/types";
+import type { ApiModuleMeta } from "#domain/module/types";
 import { ApiModule } from "./api-module";
 
 interface TestArMeta extends ArMeta {
@@ -53,7 +53,7 @@ class TestUseCase extends UseCase<TestUcMeta, { value: string }> {
 	}
 }
 
-interface TestModuleMeta extends ModuleMeta {
+interface TestModuleMeta extends ApiModuleMeta<TestUcMeta> {
 	name: "TestModule";
 	url: "/test";
 }

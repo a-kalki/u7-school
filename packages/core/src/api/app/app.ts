@@ -21,22 +21,4 @@ export abstract class App {
 	getModule(name: string): ApiModule<any, any> | undefined {
 		return this.modules.get(name);
 	}
-
-	async execute(
-		moduleName: string,
-		ucName: string,
-		attrs: Record<string, unknown> = {},
-		actorId?: string,
-	): Promise<unknown> {
-		const mod = this.modules.get(moduleName);
-		if (!mod) {
-			throw new Error(`Модуль '${moduleName}' не найден`);
-		}
-
-		return mod.handle({
-			name: ucName,
-			attrs,
-			actorId,
-		});
-	}
 }

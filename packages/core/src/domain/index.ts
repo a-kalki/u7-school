@@ -36,4 +36,4 @@ export type {
 	ValidationIssues,
 } from "./errors/errors";
 export { AppException } from "./errors/errors";
-export type { ModuleCommand, ModuleMeta } from "./module/types";
+export type { ApiModuleMeta, AppMeta, ModuleCommand } from "./module/types";
