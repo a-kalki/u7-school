@@ -1,0 +1,11 @@
+Фаза 4: UseCases и инфраструктура onboarding
+
+Созданы файлы:
+- packages/onboarding/src/api/onboarding-uc.ts — базовый класс UC
+- packages/onboarding/src/api/application/*.ts — 5 UC (create, get, list, get-by-user-id, update)
+- packages/onboarding/src/api/module.ts — OnboardingApiModule
+- packages/onboarding/src/api/module.test.ts — интеграционные тесты модуля
+- packages/onboarding/src/domain/module.ts — мета-тип и resolver
+- packages/onboarding/src/domain/application/commands/*-cmd.ts — команды для UC
+
+56 тестов onboarding проходят.
