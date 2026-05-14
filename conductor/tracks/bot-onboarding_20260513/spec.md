@@ -3,6 +3,12 @@
 ## Обзор
 Реализовать Telegram-флоу onboarding в `apps/u7-bot` через grammY + @grammyjs/conversations.
 
+### Источник анкеты
+Каноническое описание вопросов, вариантов ответов, правил ветвления и валидации:  
+→ [questionnaire-requirements.md](./questionnaire-requirements.md)
+
+> Все тексты вопросов, метки ответов и логика условного показа должны синхронизироваться с этим файлом. UI не содержит хардкода анкеты.
+
 ## Функциональные требования
 ### /start
 - Получить `telegramId` из `ctx.from.id`.
@@ -37,7 +43,33 @@
 - Удаляет промежуточные данные из session.
 - Возвращает в главное меню.
 
-### Архитектура
+## Архитектура домена onboarding
+### Пул вопросов (`Question Pool`)
+- Все вопросы и варианты ответов хранятся в **пуле** (`domain/question-pool/`).
+- Каждый вопрос — агрегат `QuestionAr`: `uuid`, `code`, `text`, `type` (single_choice / multiple_choice / text), `required`, `order`, `isActive`, `condition?`, `version`, `createdAt`.
+- Каждый вариант ответа — value-object `AnswerOption`: `uuid`, `questionUuid`, `code`, `label`, `order`.
+- Устаревшие вопросы/опции помечаются `isActive = false`, но **не удаляются** — это сохраняет читаемость старых заявок и позволяет строить дашборды по историческим данным.
+- Текущий диалог бота — это подмножество пула (`isActive = true`), отсортированное по `order`. UI получает его через API, а не из хардкода.
+
+### Заявка кандидата (`Application`)
+- Агрегат `ApplicationAr` (`domain/application/`): `uuid`, `userId`, `status`, `createdAt`, `submittedAt`.
+- Ответы вынесены в отдельную сущность `ApplicationAnswer` (`domain/application/application-answer.ts`): `uuid`, `applicationUuid`, `questionUuid`, `optionCodes: string[]`, `textValue?: string`.
+- Такая нормализация позволяет:
+  - Легко строить статистику (группировка по `questionUuid` + `optionCodes`).
+  - Менять тексты вопросов без миграции данных заявок.
+  - Поддерживать "исторические" вопросы, которых больше нет в активном диалоге.
+
+### Схемы ответов
+- Файлы `source.ts`, `experience.ts`, `goals.ts`, `intensity.ts`, `base-days.ts`, `base-time.ts`, `intensive-time.ts`, `format.ts` и т.д. переносятся из `domain/application/` в `domain/question-pool/answer-types/` (или аналогичную отдельную папку).
+- Эти типы/enum используются как **коды опций** в `AnswerOption.code`, а не как отдельные поля схемы `ApplicationAnswers`.
+
+### API для статистики и дашбордов (будущее)
+- `GET /questionnaire/current` — текущий активный диалог (вопросы + опции).
+- `GET /applications/:id/answers` — ответы заявки с развёрнутыми вопросами.
+- `GET /statistics?questionUuid=...&from=...&to=...` — агрегация ответов по вопросу.
+- `GET /question-pool` — полный пул (включая неактивные) для админки.
+
+## Архитектура бота
 - **Нет facade-обёрток** — controller работает напрямую через `app` объект.
 - **`app` объект** с дженериком в методе вызова UC для типизации команд.
 - Проверить нужен ли отдельный controller слой (как в CLI). Если нет — handlers напрямую используют `app`.
@@ -57,7 +89,7 @@
 - [ ] Заявка создаётся в БД, пользователь получает CANDIDATE.
 - [ ] `/cancel` прерывает опросник и очищает session.
 - [ ] Повторный `/start` корректно обрабатывает существующих кандидатов и подписчиков.
-- [ ] Конфигурация через .env.development/.env.production.
+- [ ] Конфигурация через `.env.development`/`.env.production`.
 
 ## За рамками
 - Выдача роли SUBSCRIBER при вступлении в группу (отдельный процесс).

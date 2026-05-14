@@ -1,0 +1,111 @@
+[
+  {
+    "question": "Как ты нашел нас?",
+    "questionCode": "how_found",
+    "multiple": true,
+    "answers": [
+      { "answer": "Через знакомых", "answerCode": "friends" },
+      { "answer": "Инстаграм", "answerCode": "instagram" },
+      { "answer": "Телеграм", "answerCode": "telegram" },
+      { "answer": "Расклеяные баннеры", "answerCode": "banners" },
+      { "answer": "Раздаваемые флаеры", "answerCode": "flyers" },
+      { "answer": "Другое", "answerCode": "other" }
+    ]
+  },
+  {
+    "question": "Почему мы заинтересовали тебя?",
+    "questionCode": "interest_reason",
+    "multiple": true,
+    "answers": [
+      { "answer": "Так бесплатно же!", "answerCode": "free" },
+      { "answer": "Кажется вы профессионалы", "answerCode": "professionals" },
+      { "answer": "Понравился контент рекламы и/или сайта", "answerCode": "content" },
+      { "answer": "Вдохновили отзывы на сайте", "answerCode": "reviews" },
+      { "answer": "Личный отзыв от друга", "answerCode": "friend_review" },
+      { "answer": "Другое", "answerCode": "other" }
+    ]
+  },
+  {
+    "question": "Какой у тебя опыт программирования?",
+    "questionCode": "experience",
+    "multiple": false,
+    "answers": [
+      { "answer": "Я новичок, хочу начать", "answerCode": "beginner" },
+      { "answer": "Я пробовал научиться, но одному сложно", "answerCode": "tried_alone" },
+      { "answer": "Я кое что знаю и умею, но нужен опытный друг", "answerCode": "some_knowledge" },
+      { "answer": "Я все знаю, здесь потому что интересно посмотреть)", "answerCode": "advanced" }
+    ]
+  },
+  {
+    "question": "Какой формат обучения тебя интересует?",
+    "questionCode": "format",
+    "multiple": false,
+    "answers": [
+      { "answer": "Офлайн: я живу в г. Уральск и хочу обучение по максимуму", "answerCode": "offline" },
+      { "answer": "Онлайн: я живу в другом городе, а так бы выбрал офлайн", "answerCode": "online_other_city" },
+      { "answer": "Онлайн: живу в г. Уральск, но не могу учиться офлайн", "answerCode": "online_uralsk" },
+      { "answer": "Онлайн: люблю быть сам с собой", "answerCode": "online_solo" }
+    ]
+  },
+  {
+    "question": "Определи свой темп и цели",
+    "questionCode": "goals",
+    "multiple": false,
+    "answers": [
+      { "answer": "6–9 месяцев (Low-code / No-code) — хочу быстро начать делать проекты без глубокого погружения в программирование, автоматизировать задачи, создавать простые приложения и сайты-визитки.", "answerCode": "lowcode" },
+      { "answer": "12–18 месяцев (Full-разработчик) — готов погружаться глубоко, разбираться в архитектуре, алгоритмах, базах данных и стать востребованным программистом.", "answerCode": "fullstack" },
+      { "answer": "Пока не определился — хочу начать, а дальше посмотрим по ощущениям.", "answerCode": "undecided" }
+    ]
+  },
+  {
+    "question": "Выбери подходящую интенсивность обучения",
+    "questionCode": "intensity",
+    "multiple": false,
+    "answers": [
+      { "answer": "Базовый: Учу теорию дома + 2 раза в неделю по 2 часа занятий с ментором (гибкий график)", "answerCode": "base" },
+      { "answer": "Интенсивный: Учусь активно 5 дней в неделю. Теория по 4 часа в классе + 2–4 раза в неделю по 2 часа разбора с ментором (полное погружение)", "answerCode": "intensive" }
+    ]
+  },
+  {
+    "question": "Какой день недели для тебя предпочтителен? (если 'Базовый')",
+    "questionCode": "base_days",
+    "multiple": true,
+    "condition": { "questionCode": "intensity", "answerCodes": ["base"] },
+    "answers": [
+      { "answer": "Любой день", "answerCode": "any" },
+      { "answer": "Понедельник", "answerCode": "mon" },
+      { "answer": "Вторник", "answerCode": "tue" },
+      { "answer": "Среда", "answerCode": "wed" },
+      { "answer": "Четверг", "answerCode": "thu" },
+      { "answer": "Пятница", "answerCode": "fri" },
+      { "answer": "Суббота", "answerCode": "sat" }
+    ]
+  },
+  {
+    "question": "Какое время занятий для тебя предпочтительно? (если Базовый)",
+    "questionCode": "base_time",
+    "multiple": true,
+    "condition": { "questionCode": "intensity", "answerCodes": ["base"] },
+    "answers": [
+      { "answer": "Любое время", "answerCode": "any" },
+      { "answer": "До 9 утра", "answerCode": "before_9" },
+      { "answer": "9-11 утра", "answerCode": "9_11" },
+      { "answer": "11-13 дня", "answerCode": "11_13" },
+      { "answer": "14-16 дня", "answerCode": "14_16" },
+      { "answer": "16-18 дня", "answerCode": "16_18" },
+      { "answer": "18-20 вечера", "answerCode": "18_20" },
+      { "answer": "после 20 вечера", "answerCode": "after_20" }
+    ]
+  },
+  {
+    "question": "Какое время занятий для тебя предпочтительно? (если Интенсив)",
+    "questionCode": "intensive_time",
+    "multiple": false,
+    "condition": { "questionCode": "intensity", "answerCodes": ["intensive"] },
+    "answers": [
+      { "answer": "Любое время", "answerCode": "any" },
+      { "answer": "До обеда (9 утра до 13 дня)", "answerCode": "before_noon" },
+      { "answer": "После обеда (14 дня до 18 вечера)", "answerCode": "after_noon" }
+    ]
+  }
+]
