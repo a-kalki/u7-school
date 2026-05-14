@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { ApiApp } from "@u7/core/api";
 import { BaseJsonDb } from "@u7/core/infra";
 import type { User } from "@u7/user/domain";
 import { Role } from "@u7/user/domain";
@@ -10,6 +11,7 @@ import type { Question } from "#domain/questionnaire/question";
 import { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
 import { QuestionnaireJsonRepo } from "#infra/db/questionnaire-json-repo";
 import { OnboardingController } from "./onboarding-controller";
+import type { OnboardingBotApp } from "../app";
 
 let tmpDir: string;
 
@@ -51,6 +53,7 @@ describe("OnboardingController", () => {
 	let questionnaireRepo: QuestionnaireJsonRepo;
 	let userRepo: UserJsonRepo;
 	let mod: OnboardingApiModule;
+	let apiApp: OnboardingBotApp;
 	let controller: OnboardingController;
 
 	beforeEach(() => {
@@ -88,7 +91,9 @@ describe("OnboardingController", () => {
 			},
 			db,
 		});
-		controller = new OnboardingController(mod, poolService);
+		apiApp = new ApiApp<any>() as OnboardingBotApp;
+		apiApp.register(mod);
+		controller = new OnboardingController(apiApp, poolService);
 	});
 
 	afterEach(() => {
@@ -167,11 +172,11 @@ describe("OnboardingController", () => {
 			);
 			await controller.abandon(questionnaireUuid, user.uuid);
 
-			const result = await mod.handle({
-				name: "get-questionnaire",
-				attrs: { uuid: questionnaireUuid },
-				actorId: user.uuid,
-			});
+			const result = await apiApp.execute(
+				"get-questionnaire",
+				{ uuid: questionnaireUuid },
+				user.uuid,
+			);
 			expect((result as { status: string }).status).toBe("abandoned");
 		});
 	});

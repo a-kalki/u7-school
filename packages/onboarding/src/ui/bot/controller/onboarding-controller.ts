@@ -1,4 +1,4 @@
-import type { OnboardingApiModule } from "#api/module";
+import type { OnboardingBotApp } from "../app";
 import type { Question } from "#domain/questionnaire/question";
 import type { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
 
@@ -33,10 +33,10 @@ export interface SubmitResult {
  * Не зависит от grammy/Telegram — только от API-модуля.
  */
 export class OnboardingController {
-	readonly #api: OnboardingApiModule;
+	readonly #api: OnboardingBotApp;
 	readonly #poolService: QuestionPoolService;
 
-	constructor(api: OnboardingApiModule, poolService: QuestionPoolService) {
+	constructor(api: OnboardingBotApp, poolService: QuestionPoolService) {
 		this.#api = api;
 		this.#poolService = poolService;
 	}
@@ -46,11 +46,11 @@ export class OnboardingController {
 	 * Возвращает UUID анкеты и первый вопрос.
 	 */
 	async start(userId: string, actorId: string): Promise<StartResult> {
-		const questionnaire = (await this.#api.handle({
-			name: "start-questionnaire",
-			attrs: { userId },
+		const questionnaire = (await this.#api.execute(
+			"start-questionnaire",
+			{ userId },
 			actorId,
-		})) as { uuid: string; currentQuestionCode: string | null };
+		)) as { uuid: string; currentQuestionCode: string | null };
 
 		const firstQuestion = questionnaire.currentQuestionCode
 			? await this.getCurrentQuestion(questionnaire.uuid, actorId)
@@ -72,11 +72,11 @@ export class OnboardingController {
 		value: string | string[],
 		actorId: string,
 	): Promise<SubmitResult> {
-		const questionnaire = (await this.#api.handle({
-			name: "submit-answer",
-			attrs: { questionnaireUuid: uuid, questionCode, value },
+		const questionnaire = (await this.#api.execute(
+			"submit-answer",
+			{ questionnaireUuid: uuid, questionCode, value },
 			actorId,
-		})) as {
+		)) as {
 			status: "in_progress" | "completed" | "abandoned";
 			currentQuestionCode: string | null;
 		};
@@ -99,11 +99,11 @@ export class OnboardingController {
 	 * Прерывает прохождение анкеты.
 	 */
 	async abandon(uuid: string, actorId: string): Promise<void> {
-		await this.#api.handle({
-			name: "abandon-questionnaire",
-			attrs: { uuid },
+		await this.#api.execute(
+			"abandon-questionnaire",
+			{ uuid },
 			actorId,
-		});
+		);
 	}
 
 	/**
@@ -113,11 +113,11 @@ export class OnboardingController {
 		uuid: string,
 		actorId: string,
 	): Promise<Question | null> {
-		const questionnaire = (await this.#api.handle({
-			name: "get-questionnaire",
-			attrs: { uuid },
+		const questionnaire = (await this.#api.execute(
+			"get-questionnaire",
+			{ uuid },
 			actorId,
-		})) as { currentQuestionCode: string | null };
+		)) as { currentQuestionCode: string | null };
 
 		if (!questionnaire.currentQuestionCode) return null;
 
@@ -130,11 +130,11 @@ export class OnboardingController {
 	 * Возвращает текстовый предпросмотр всех ответов.
 	 */
 	async getAnswersPreview(uuid: string, actorId: string): Promise<string> {
-		const questionnaire = (await this.#api.handle({
-			name: "get-questionnaire",
-			attrs: { uuid },
+		const questionnaire = (await this.#api.execute(
+			"get-questionnaire",
+			{ uuid },
 			actorId,
-		})) as {
+		)) as {
 			answers: {
 				questionCode: string;
 				answerCodes: string[];
@@ -159,11 +159,11 @@ export class OnboardingController {
 	 * Новую анкету можно начать, если нет активной (in_progress).
 	 */
 	async canRestart(userId: string, actorId: string): Promise<boolean> {
-		const questionnaires = (await this.#api.handle({
-			name: "list-questionnaires-by-user",
-			attrs: { userId },
+		const questionnaires = (await this.#api.execute(
+			"list-questionnaires-by-user",
+			{ userId },
 			actorId,
-		})) as { status: string }[];
+		)) as { status: string }[];
 
 		return !questionnaires.some((q) => q.status === "in_progress");
 	}

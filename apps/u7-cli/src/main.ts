@@ -1,9 +1,18 @@
 import { ApiApp } from "@u7/core/api";
+import type { AppMeta } from "@u7/core/domain";
 import { CourseApiModule } from "@u7/course/api";
+import type { CourseApiModuleMeta } from "@u7/course/domain";
 import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from "@u7/course/infra";
 import { UserApiModule } from "@u7/user/api";
+import type { UserApiModuleMeta } from "@u7/user/domain";
 import { UserInProcFacade, UserJsonRepo } from "@u7/user/infra";
 import { CliController } from "./cli-controller";
+
+export interface CliAppMeta extends AppMeta<
+	UserApiModuleMeta | CourseApiModuleMeta
+> {
+	name: "u7-cli";
+}
 
 async function main() {
 	// --- User Domain Module ---
@@ -22,7 +31,7 @@ async function main() {
 	});
 
 	// --- App ---
-	const app = new ApiApp();
+	const app = new ApiApp<CliAppMeta>();
 	app.register(userApiModule);
 	app.register(courseApiModule);
 
