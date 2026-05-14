@@ -1,0 +1,2 @@
+Фаза 3: Адаптация контроллеров и сборка ApiApp (u7-cli)
+Адаптирован cli-controller для вызова юзкейсов через type-safe метод apiApp.execute().
