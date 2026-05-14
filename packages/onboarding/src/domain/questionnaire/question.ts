@@ -2,7 +2,10 @@ import * as v from "valibot";
 
 /** Условие показа вопроса */
 export const ConditionSchema = v.object({
-	questionCode: v.pipe(v.string(), v.nonEmpty("Код вопроса в условии не может быть пустым")),
+	questionCode: v.pipe(
+		v.string(),
+		v.nonEmpty("Код вопроса в условии не может быть пустым"),
+	),
 	answerCodes: v.pipe(
 		v.array(v.pipe(v.string(), v.nonEmpty("Код ответа не может быть пустым"))),
 		v.minLength(1, "answerCodes должен содержать хотя бы один элемент"),
@@ -21,8 +24,14 @@ export type AnswerOption = v.InferOutput<typeof AnswerOptionSchema>;
 
 /** Вопрос с выбором ответа */
 export const ChoiceQuestionSchema = v.object({
-	question: v.pipe(v.string(), v.nonEmpty("Текст вопроса не может быть пустым")),
-	questionCode: v.pipe(v.string(), v.nonEmpty("Код вопроса не может быть пустым")),
+	question: v.pipe(
+		v.string(),
+		v.nonEmpty("Текст вопроса не может быть пустым"),
+	),
+	questionCode: v.pipe(
+		v.string(),
+		v.nonEmpty("Код вопроса не может быть пустым"),
+	),
 	type: v.literal("choice"),
 	multiple: v.boolean(),
 	condition: v.optional(ConditionSchema),
@@ -36,8 +45,14 @@ export type ChoiceQuestion = v.InferOutput<typeof ChoiceQuestionSchema>;
 
 /** Текстовый вопрос */
 export const TextQuestionSchema = v.object({
-	question: v.pipe(v.string(), v.nonEmpty("Текст вопроса не может быть пустым")),
-	questionCode: v.pipe(v.string(), v.nonEmpty("Код вопроса не может быть пустым")),
+	question: v.pipe(
+		v.string(),
+		v.nonEmpty("Текст вопроса не может быть пустым"),
+	),
+	questionCode: v.pipe(
+		v.string(),
+		v.nonEmpty("Код вопроса не может быть пустым"),
+	),
 	type: v.literal("text"),
 	condition: v.optional(ConditionSchema),
 });
@@ -45,6 +60,9 @@ export const TextQuestionSchema = v.object({
 export type TextQuestion = v.InferOutput<typeof TextQuestionSchema>;
 
 /** Объединённая схема вопроса */
-export const QuestionSchema = v.variant("type", [ChoiceQuestionSchema, TextQuestionSchema]);
+export const QuestionSchema = v.variant("type", [
+	ChoiceQuestionSchema,
+	TextQuestionSchema,
+]);
 
 export type Question = v.InferOutput<typeof QuestionSchema>;

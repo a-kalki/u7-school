@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
-import { QuestionPoolService } from "./question-pool-service";
 import type { Question } from "./question";
+import { QuestionPoolService } from "./question-pool-service";
 
 describe("QuestionPoolService", () => {
 	test("загружает корректный пул из JSON", () => {
@@ -68,7 +68,9 @@ describe("QuestionPoolService", () => {
 				answers: [{ answer: "B", answerCode: "b" }],
 			},
 		];
-		expect(() => new QuestionPoolService(pool)).toThrow("Дублирующийся questionCode: dup");
+		expect(() => new QuestionPoolService(pool)).toThrow(
+			"Дублирующийся questionCode: dup",
+		);
 	});
 
 	test("падает при отсутствии answers у choice-вопроса", () => {
@@ -109,7 +111,9 @@ describe("QuestionPoolService", () => {
 				],
 			},
 		];
-		expect(() => new QuestionPoolService(pool)).toThrow("Дублирующийся answerCode");
+		expect(() => new QuestionPoolService(pool)).toThrow(
+			"Дублирующийся answerCode",
+		);
 	});
 
 	test("падает при невалидном condition.questionCode", () => {
@@ -131,7 +135,7 @@ describe("QuestionPoolService", () => {
 			},
 		];
 		expect(() => new QuestionPoolService(pool)).toThrow(
-			"condition в вопросе \"q2\" ссылается на несуществующий questionCode: missing",
+			'condition в вопросе "q2" ссылается на несуществующий questionCode: missing',
 		);
 	});
 });
