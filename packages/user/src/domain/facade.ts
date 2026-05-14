@@ -1,4 +1,5 @@
 import type { User } from "./user/entity";
+import type { Role } from "./user/roles";
 
 /**
  * Фасад модуля пользователей для внешних модулей.
@@ -11,4 +12,11 @@ export interface UserFacade {
 
 	/** Проверить, существует ли пользователь с указанным UUID */
 	userExists(uuid: string, actorId?: string): Promise<boolean>;
+
+	/** Добавить роль пользователю */
+	addRoleToUser(
+		userId: string,
+		role: Role,
+		actorId?: string,
+	): Promise<User | undefined>;
 }
