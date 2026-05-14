@@ -12,19 +12,6 @@
 1. Содержит **только** фабричные методы создания и методы изменения состояния.
 1. Не содержит схему валидации — импортирует её из `entity.ts`.
 1. Не обращается к репозиторию, БД и внешним сервисам.
-1. Определяет `static readonly arName` и `static readonly arLabel` — константы имени и метки.
-
-## Статические поля arName / arLabel
-
-В базовом классе `Aggregate` **нет** статических методов `arName()`/`arLabel()`.
-Дочерний класс определяет их как `static readonly` поля:
-
-```typescript
-export class CourseAr extends Aggregate<CourseArMeta> {
-  static readonly arName = "Course";
-  static readonly arLabel = "Курс";
-}
-```
 
 ## Состояние и мутации
 
@@ -67,14 +54,14 @@ addModule(command: AddModuleCmd): void {
 ## Ошибки консистентности данных
 
 Если метод, возвращающий данные (например `getLessons`), не может найти ожидаемый объект —
-это ошибка консистентности данных, нужно выбрасывать `throwInternal`.
+это ошибка консистентности данных, нужно выбрасывать `throwBadRequest`.
 **Нельзя молча возвращать пустой массив/undefined** — это маскирует баги.
 
 ```typescript
 getLessons(projectId: string): string[] {
   const project = this.getProject(projectId);
   if (!project) {
-    this.throwInternal("Проект не найден в курсе");
+    this.throwBadRequest("Проект не найден в курсе");
   }
   return project.lessonIds;
 }
@@ -101,9 +88,6 @@ import type { User, UserArMeta } from "./entity";
 import { UserSchema } from "./entity";
 
 export class UserAr extends Aggregate<UserArMeta> {
-  static readonly arName = "User";
-  static readonly arLabel = "Пользователь";
-
   constructor(state: User) {
     super(state, UserSchema);
   }

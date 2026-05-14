@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { BaseJsonDb } from "@u7/core/infra";
@@ -14,10 +14,10 @@ import { ApplicationStatus } from "#domain/application/status";
 import { ApplicationJsonRepo } from "#infra/db/application-json-repo";
 import { OnboardingApiModule } from "./module";
 
-const tmpDir = mkdtempSync("/tmp/onboarding-api-test-");
+let tmpDir: string;
 
 function nextPath(prefix: string): string {
-	return join(tmpDir, `${prefix}.json`);
+	return join(tmpDir, `${prefix}-${crypto.randomUUID()}.json`);
 }
 
 function makeUser(overrides?: Partial<User>): User {
@@ -31,6 +31,17 @@ function makeUser(overrides?: Partial<User>): User {
 	};
 }
 
+function makeAnswers() {
+	return {
+		source: Source.TELEGRAM,
+		interestReason: "Хочу учиться",
+		experience: Experience.BEGINNER,
+		format: Format.ONLINE,
+		goals: Goals.CAREER_CHANGE,
+		intensity: Intensity.BASE,
+	};
+}
+
 describe("OnboardingApiModule", () => {
 	let db: BaseJsonDb;
 	let applicationRepo: ApplicationJsonRepo;
@@ -38,6 +49,7 @@ describe("OnboardingApiModule", () => {
 	let mod: OnboardingApiModule;
 
 	beforeEach(() => {
+		tmpDir = mkdtempSync("/tmp/onboarding-api-test-");
 		db = new BaseJsonDb();
 		applicationRepo = new ApplicationJsonRepo(nextPath("applications"), db);
 		userRepo = new UserJsonRepo(nextPath("users"), undefined, db);
@@ -45,17 +57,8 @@ describe("OnboardingApiModule", () => {
 		mod.init({ applicationRepo, userRepo, db });
 	});
 
-	afterAll(() => {
+	afterEach(() => {
 		rmSync(tmpDir, { recursive: true, force: true });
-	});
-
-	const makeAnswers = () => ({
-		source: Source.TELEGRAM,
-		interestReason: "Хочу учиться",
-		experience: Experience.BEGINNER,
-		format: Format.ONLINE,
-		goals: Goals.CAREER_CHANGE,
-		intensity: Intensity.BASE,
 	});
 
 	test("create-application: создаёт заявку и добавляет роль CANDIDATE", async () => {
@@ -92,7 +95,7 @@ describe("OnboardingApiModule", () => {
 				attrs: { userId: user.uuid, answers: makeAnswers() },
 				actorId: user.uuid,
 			}),
-		).rejects.toThrow();
+		).rejects.toThrow("Заявка для данного пользователя уже существует");
 	});
 
 	test("get-application: возвращает заявку владельцу", async () => {
@@ -132,7 +135,7 @@ describe("OnboardingApiModule", () => {
 				attrs: { uuid: created.uuid },
 				actorId: stranger.uuid,
 			}),
-		).rejects.toThrow();
+		).rejects.toThrow("Нет доступа к заявке");
 	});
 
 	test("list-applications: ADMIN видит все заявки", async () => {
@@ -168,7 +171,7 @@ describe("OnboardingApiModule", () => {
 				attrs: {},
 				actorId: user.uuid,
 			}),
-		).rejects.toThrow();
+		).rejects.toThrow("Недостаточно прав для просмотра списка заявок");
 	});
 
 	test("get-application-by-user-id: находит заявку по userId", async () => {
@@ -236,6 +239,6 @@ describe("OnboardingApiModule", () => {
 				},
 				actorId: stranger.uuid,
 			}),
-		).rejects.toThrow();
+		).rejects.toThrow("Недостаточно прав для обновления заявки");
 	});
 });

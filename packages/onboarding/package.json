@@ -12,7 +12,8 @@
 		"check": "bun run lint && bun run tslint && bun test"
 	},
 	"dependencies": {
-		"@u7/core": "workspace:*"
+		"@u7/core": "workspace:*",
+		"@u7/user": "workspace:*"
 	},
 	"exports": {
 		"./domain": "./src/domain/index.ts",

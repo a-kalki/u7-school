@@ -15,10 +15,10 @@ export class ApplicationJsonRepo implements ApplicationRepo {
 	readonly #repo: JsonFileRepo<Application>;
 
 	/**
-	 * @param filePath — путь к JSON-файлу (по умолчанию "data/onboarding/applications.json")
+	 * @param filePath — путь к JSON-файлу
 	 * @param db — опционально: экземпляр BaseJsonDb для транзакционной поддержки
 	 */
-	constructor(filePath = "data/onboarding/applications.json", db?: BaseJsonDb) {
+	constructor(filePath: string, db?: BaseJsonDb) {
 		this.#repo = new JsonFileRepo(
 			ApplicationSchema,
 			filePath,

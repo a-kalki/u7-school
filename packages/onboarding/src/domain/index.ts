@@ -18,6 +18,6 @@ export * from "./application/policy";
 export * from "./application/repo";
 export * from "./application/source";
 export * from "./application/status";
-export * from "./application-ds";
 export * from "./module";
+export * from "./onboarding-ds";
 export * from "./questionnaire/config";

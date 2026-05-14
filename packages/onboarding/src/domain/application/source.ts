@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 /**
  * Источник, откуда кандидат узнал о школе.
  */
@@ -13,3 +15,9 @@ export enum Source {
 	/** Другое */
 	OTHER = "OTHER",
 }
+
+/** Схема валидации источника */
+export const SourceSchema = v.picklist(
+	Object.values(Source),
+	"Недопустимый источник",
+);

@@ -1,12 +1,12 @@
 import * as v from "valibot";
-import { BaseDays } from "./base-days";
-import { BaseTime } from "./base-time";
-import { Experience } from "./experience";
-import { Format } from "./format";
-import { Goals } from "./goals";
-import { Intensity } from "./intensity";
-import { IntensiveTime } from "./intensive-time";
-import { Source } from "./source";
+import { BaseDaysSchema } from "./base-days";
+import { BaseTimeSchema } from "./base-time";
+import { ExperienceSchema } from "./experience";
+import { FormatSchema } from "./format";
+import { GoalsSchema } from "./goals";
+import { IntensitySchema } from "./intensity";
+import { IntensiveTimeSchema } from "./intensive-time";
+import { SourceSchema } from "./source";
 
 /**
  * Схема ответов на анкету кандидата.
@@ -14,7 +14,7 @@ import { Source } from "./source";
  */
 export const ApplicationAnswersSchema = v.object({
 	/** Откуда узнал о школе */
-	source: v.picklist(Object.values(Source)),
+	source: SourceSchema,
 	/** Причина интереса к школе */
 	interestReason: v.pipe(
 		v.string(),
@@ -22,19 +22,19 @@ export const ApplicationAnswersSchema = v.object({
 		v.nonEmpty("Причина интереса не может быть пустой"),
 	),
 	/** Уровень опыта программирования */
-	experience: v.picklist(Object.values(Experience)),
+	experience: ExperienceSchema,
 	/** Предпочитаемый формат обучения */
-	format: v.picklist(Object.values(Format)),
+	format: FormatSchema,
 	/** Цели обучения */
-	goals: v.picklist(Object.values(Goals)),
+	goals: GoalsSchema,
 	/** Желаемая интенсивность */
-	intensity: v.picklist(Object.values(Intensity)),
+	intensity: IntensitySchema,
 	/** Дни занятий для базового потока (опционально) */
-	baseDays: v.optional(v.picklist(Object.values(BaseDays))),
+	baseDays: v.optional(BaseDaysSchema),
 	/** Время занятий для базового потока (опционально) */
-	baseTime: v.optional(v.picklist(Object.values(BaseTime))),
+	baseTime: v.optional(BaseTimeSchema),
 	/** Время занятий для интенсивного потока (опционально) */
-	intensiveTime: v.optional(v.picklist(Object.values(IntensiveTime))),
+	intensiveTime: v.optional(IntensiveTimeSchema),
 });
 
 /** Ответы на анкету кандидата */

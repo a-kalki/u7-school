@@ -1,5 +1,7 @@
+import * as v from "valibot";
+
 /**
- * Предпочитаемые дни занятий для базового потока.
+ * Дни занятий для базового потока.
  */
 export enum BaseDays {
 	/** Понедельник, среда, пятница */
@@ -9,3 +11,9 @@ export enum BaseDays {
 	/** Выходные */
 	WEEKEND = "WEEKEND",
 }
+
+/** Схема валидации дней занятий */
+export const BaseDaysSchema = v.picklist(
+	Object.values(BaseDays),
+	"Недопустимые дни занятий",
+);

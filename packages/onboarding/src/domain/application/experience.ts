@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 /**
  * Уровень опыта программирования кандидата.
  */
@@ -11,3 +13,9 @@ export enum Experience {
 	/** Продвинутый */
 	ADVANCED = "ADVANCED",
 }
+
+/** Схема валидации уровня опыта */
+export const ExperienceSchema = v.picklist(
+	Object.values(Experience),
+	"Недопустимый уровень опыта",
+);

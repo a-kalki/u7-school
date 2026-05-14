@@ -1,3 +1,4 @@
+import { errConflict } from "@u7/core/domain";
 import { ApplicationAr } from "#domain/application/a-root";
 import {
 	type CreateApplicationCmd,
@@ -8,7 +9,7 @@ import type { ApplicationAlreadyExistsUcError } from "#domain/application/comman
 import type { Application } from "#domain/application/entity";
 import { ApplicationSchema } from "#domain/application/entity";
 import { ApplicationPolicy } from "#domain/application/policy";
-import { ApplicationDs } from "#domain/application-ds";
+import { OnboardingDs } from "#domain/onboarding-ds";
 import { OnboardingUseCase } from "../onboarding-uc";
 
 /**
@@ -37,29 +38,38 @@ export class CreateApplicationUc extends OnboardingUseCase<CreateApplicationCmdM
 			this.throwAccessDenied("Недостаточно прав для создания заявки");
 		}
 
-		const ds = new ApplicationDs(
-			this.resolve.applicationRepo,
-			this.resolve.userRepo,
-			this.resolve.db,
-		);
+		const user = await this.getUser(command.userId);
+		if (!user) {
+			this.throwAccessDenied("Пользователь не найден");
+		}
 
+		const hasApp = await this.resolve.applicationRepo.hasApplicationForUser(
+			command.userId,
+		);
+		if (hasApp) {
+			this.throwError(
+				errConflict<ApplicationAlreadyExistsUcError>(
+					"APPLICATION_ALREADY_EXISTS",
+					"Заявка для данного пользователя уже существует",
+					{ userId: command.userId },
+				),
+			);
+		}
+
+		const ds = new OnboardingDs();
+		const { application, userAr } = ds.createApplication(command, user);
+
+		const db = this.resolve.db;
+		db.begin();
 		try {
-			const application = await ds.createApplication(command, actor);
-			return application;
+			await this.resolve.applicationRepo.save(application.state);
+			await this.resolve.userRepo.save(userAr.state);
+			await db.commit();
 		} catch (error) {
-			// Перехватываем ошибки доменного сервиса и преобразуем в типизированные
-			if (error instanceof Error) {
-				if (error.message.includes("уже существует")) {
-					this.throwError({
-						name: "APPLICATION_ALREADY_EXISTS",
-						kind: "conflict",
-						level: "domain",
-						message: error.message,
-						payload: { userId: command.userId },
-					} as ApplicationAlreadyExistsUcError);
-				}
-			}
+			db.rollback();
 			throw error;
 		}
+
+		return application.state;
 	}
 }
