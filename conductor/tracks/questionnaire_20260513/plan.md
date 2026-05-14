@@ -24,17 +24,17 @@
   - генерация схемы для text.
 - [ ] Task: Conductor — User Manual Verification 'QuestionPoolService' (Protocol in workflow.md)
 
-## Фаза 2: QuestionnaireAr
-- [~] Task: Определить `QuestionnaireState` и `AnswerEntry` в `domain/questionnaire/questionnaire-state.ts`.
-- [~] Task: Определить ошибки: `QuestionnaireValidationError`, `QuestionnaireCompletedError`, `QuestionNotFoundError`.
-- [~] Task: Реализовать `QuestionnaireAr`:
+## Фаза 2: QuestionnaireAr [checkpoint: b6d623c]
+- [x] Task: Определить `QuestionnaireState` и `AnswerEntry` в `domain/questionnaire/questionnaire-state.ts`.
+- [x] Task: Определить ошибки: `QuestionnaireValidationError`, `QuestionnaireCompletedError`, `QuestionNotFoundError`.
+- [x] Task: Реализовать `QuestionnaireAr`: [b6d623c]
   - `start(userId): QuestionnaireAr` — фабричный метод, вызывает `getNextQuestion()` для установки первого вопроса;
   - `submitAnswer(questionCode, answerCodes / textValue)` — запрашивает схему у `QuestionPoolService`, валидирует, сохраняет;
   - `getNextQuestion(): Question | null` — перебирает `questionnaire` массив, учитывает `condition`, возвращает следующий вопрос или `null` (тогда `status = "completed"`);
   - `abandon(): void`;
   - `getCurrentState(): QuestionnaireState`;
   - `getAnswers(): AnswerEntry[]`.
-- [ ] Task: Написать тесты на `QuestionnaireAr`:
+- [x] Task: Написать тесты на `QuestionnaireAr`: [b6d623c]
   - создание и первый вопрос;
   - валидация single choice через схему сервиса;
   - валидация multiple choice;

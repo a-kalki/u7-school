@@ -20,4 +20,4 @@ export * from "./application/source";
 export * from "./application/status";
 export * from "./module";
 export * from "./onboarding-ds";
-export * from "./questionnaire/config";
+export * from "./questionnaire";
