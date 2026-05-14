@@ -11,36 +11,36 @@ import { ApplicationStatus } from "./status";
  * Инкапсулирует состояние Application и логику его изменения.
  */
 export class ApplicationAr extends Aggregate<ApplicationArMeta> {
-  static readonly arName = "Application";
-  static readonly arLabel = "Заявка";
+	static readonly arName = "Application";
+	static readonly arLabel = "Заявка";
 
-  constructor(state: Application) {
-    super(state, ApplicationSchema);
-  }
+	constructor(state: Application) {
+		super(state, ApplicationSchema);
+	}
 
-  /**
-   * Фабричный метод создания новой заявки из команды.
-   */
-  static create(command: CreateApplicationCmd): ApplicationAr {
-    const now = isoNow();
-    const candidate: Application = {
-      uuid: crypto.randomUUID(),
-      userId: command.userId,
-      status: ApplicationStatus.SUBMITTED,
-      answers: command.answers,
-      createdAt: now,
-      submittedAt: now,
-    };
+	/**
+	 * Фабричный метод создания новой заявки из команды.
+	 */
+	static create(command: CreateApplicationCmd): ApplicationAr {
+		const now = isoNow();
+		const candidate: Application = {
+			uuid: crypto.randomUUID(),
+			userId: command.userId,
+			status: ApplicationStatus.SUBMITTED,
+			answers: command.answers,
+			createdAt: now,
+			submittedAt: now,
+		};
 
-    return new ApplicationAr(candidate);
-  }
+		return new ApplicationAr(candidate);
+	}
 
-  /**
-   * Частичное обновление ответов заявки.
-   */
-  updateAnswers(command: UpdateApplicationCmd): void {
-    this.safeUpdate({
-      answers: command.answers,
-    });
-  }
+	/**
+	 * Частичное обновление ответов заявки.
+	 */
+	updateAnswers(command: UpdateApplicationCmd): void {
+		this.safeUpdate({
+			answers: command.answers,
+		});
+	}
 }

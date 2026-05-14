@@ -34,8 +34,8 @@
 - [x] Task: Conductor - User Manual Verification 'UseCases' (Protocol in workflow.md)
 
 ## Фаза 5: Финал
-- [ ] Task: Обновить экспорты пакета
-- [ ] Task: Подключить пакет к workspace
-- [ ] Task: Проверить покрытие >80%
-- [ ] Task: Проверить lint и tsc
-- [ ] Task: Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
+- [x] Task: Обновить экспорты пакета
+- [x] Task: Подключить пакет к workspace
+- [x] Task: Проверить покрытие >80%
+- [x] Task: Проверить lint и tsc
+- [x] Task: Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)

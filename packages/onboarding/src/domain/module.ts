@@ -4,13 +4,13 @@ import type { ApplicationRepo } from "./application/repo";
 
 /** Метаданные API-модуля onboarding */
 export interface OnboardingModuleMeta {
-  name: "onboarding";
-  url: "/onboarding";
+	name: "onboarding";
+	url: "/onboarding";
 }
 
 /** Резолвер зависимостей API-модуля onboarding */
 export interface OnboardingApiModuleResolver {
-  applicationRepo: ApplicationRepo;
-  userRepo: UserRepo;
-  db: BaseJsonDb;
+	applicationRepo: ApplicationRepo;
+	userRepo: UserRepo;
+	db: BaseJsonDb;
 }
