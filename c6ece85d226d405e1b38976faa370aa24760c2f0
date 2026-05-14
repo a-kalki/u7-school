@@ -1,0 +1,11 @@
+Фаза 2: Агрегат и политики onboarding
+
+Созданы файлы:
+- packages/onboarding/src/domain/application/a-root.ts — ApplicationAr с create и updateAnswers
+- packages/onboarding/src/domain/application/policy.ts — ApplicationPolicy (canCreate, canRead, canList, canUpdate)
+- packages/onboarding/src/domain/application/commands/create-application-cmd.ts
+- packages/onboarding/src/domain/application/commands/update-application-cmd.ts
+- packages/onboarding/src/domain/application/commands/errors.ts
+- Тесты для ApplicationAr и ApplicationPolicy
+
+42 тестов проходят.
