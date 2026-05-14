@@ -25,9 +25,9 @@
 - [ ] Task: Conductor — User Manual Verification 'QuestionPoolService' (Protocol in workflow.md)
 
 ## Фаза 2: QuestionnaireAr
-- [ ] Task: Определить `QuestionnaireState` и `AnswerEntry` в `domain/questionnaire/questionnaire-state.ts`.
-- [ ] Task: Определить ошибки: `QuestionnaireValidationError`, `QuestionnaireCompletedError`, `QuestionNotFoundError`.
-- [ ] Task: Реализовать `QuestionnaireAr`:
+- [~] Task: Определить `QuestionnaireState` и `AnswerEntry` в `domain/questionnaire/questionnaire-state.ts`.
+- [~] Task: Определить ошибки: `QuestionnaireValidationError`, `QuestionnaireCompletedError`, `QuestionNotFoundError`.
+- [~] Task: Реализовать `QuestionnaireAr`:
   - `start(userId): QuestionnaireAr` — фабричный метод, вызывает `getNextQuestion()` для установки первого вопроса;
   - `submitAnswer(questionCode, answerCodes / textValue)` — запрашивает схему у `QuestionPoolService`, валидирует, сохраняет;
   - `getNextQuestion(): Question | null` — перебирает `questionnaire` массив, учитывает `condition`, возвращает следующий вопрос или `null` (тогда `status = "completed"`);
