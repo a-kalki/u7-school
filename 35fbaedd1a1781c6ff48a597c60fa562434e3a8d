@@ -1,0 +1,12 @@
+Фаза 3: Domain Service onboarding
+
+Созданы файлы:
+- packages/onboarding/src/domain/application-ds.ts — доменный сервис, атомарно создаёт заявку + добавляет CANDIDATE
+- packages/onboarding/src/domain/application/repo.ts — интерфейс ApplicationRepo
+- packages/onboarding/src/infra/db/application-json-repo.ts — JSON-реализация
+- packages/onboarding/src/domain/application-ds.test.ts — тесты транзакций
+
+Изменены:
+- packages/user/src/infra/db/user-json-repo.ts — поддержка BaseJsonDb для транзакционности
+
+47 тестов onboarding проходят, 140 тестов user проходят.
