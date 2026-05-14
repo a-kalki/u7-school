@@ -1,0 +1,13 @@
+Фаза 1: QuestionPoolService — Verification Report
+
+Автоматические тесты: CI=true bun test (76 pass, 0 fail)
+Покрытие кода QuestionPoolService: 100%
+Линтинг: bunx biome check . — чисто
+Типы: tsc --noEmit — чисто
+
+Шаги ручной верификации:
+1. Убедиться, что сервер запущен
+2. Выполнить: node -e "const {QuestionPoolService} = require(...); const svc = new QuestionPoolService(); console.log(svc.getAll().length);"
+3. Ожидаемый результат: 9 вопросов, первый — how_found
+
+Подтверждение пользователя: да
