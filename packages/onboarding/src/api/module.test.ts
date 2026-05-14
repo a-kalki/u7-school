@@ -63,6 +63,7 @@ describe("OnboardingApiModule", () => {
 		mod.init({
 			questionnaireRepo,
 			questionPoolService: new QuestionPoolService(testPool),
+			includedQuestionCodes: testPool.map((q) => q.questionCode),
 			userFacade: {
 				getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
 				userExists: async (uuid: string) => {

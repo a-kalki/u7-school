@@ -43,11 +43,10 @@ export class SubmitAnswerUc extends OnboardingUseCase<SubmitAnswerCmdMeta> {
 			this.throwAccessDenied("Недостаточно прав для отправки ответа");
 		}
 
-		const poolService = this.resolve.questionPoolService;
 		const ar = new QuestionnaireAr(
 			questionnaire,
-			poolService,
-			poolService.getIncludedQuestionCodes(),
+			this.resolve.questionPoolService,
+			this.resolve.includedQuestionCodes,
 		);
 
 		ar.submitAnswer(command.questionCode, command.value);

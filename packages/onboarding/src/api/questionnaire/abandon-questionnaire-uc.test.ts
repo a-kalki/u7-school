@@ -73,6 +73,7 @@ function setupUc(initialQuestionnaire?: Questionnaire) {
 	uc.init({
 		questionnaireRepo: repo,
 		questionPoolService: poolService,
+		includedQuestionCodes: testPool.map((q) => q.questionCode),
 		userFacade,
 		db: { begin: () => {}, commit: async () => {}, rollback: () => {} } as any,
 	});

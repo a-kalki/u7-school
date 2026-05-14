@@ -66,6 +66,7 @@ describe("OnboardingController", () => {
 		mod.init({
 			questionnaireRepo,
 			questionPoolService: poolService,
+			includedQuestionCodes: testPool.map((q) => q.questionCode),
 			userFacade: {
 				getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
 				userExists: async (uuid: string) => {

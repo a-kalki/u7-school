@@ -20,17 +20,27 @@ export class QuestionPoolService {
 		return this.pool;
 	}
 
-	/**
-	 * Коды вопросов, включённых в текущую анкету.
-	 * Пул может содержать больше вопросов, но в анкету попадает только подмножество.
-	 */
-	getIncludedQuestionCodes(): string[] {
-		return this.pool.map((q) => q.questionCode);
-	}
-
 	/** Вопрос по коду */
 	getByCode(code: string): Question | undefined {
 		return this.index.get(code);
+	}
+
+	/**
+	 * Проверяет, что все коды из переданного списка существуют в пуле.
+	 * Выбрасывает ошибку, если какой-либо код не найден.
+	 *
+	 * Рекомендуется вызывать при инициализации приложения / resolver,
+	 * чтобы гарантировать, что `includedQuestionCodes` (подмножество пула)
+	 * не содержит недопустимых значений.
+	 */
+	assertAllCodesExist(codes: string[]): void {
+		for (const code of codes) {
+			if (!this.index.has(code)) {
+				throw new Error(
+					`questionCode "${code}" из includedQuestionCodes не найден в пуле`,
+				);
+			}
+		}
 	}
 
 	/**

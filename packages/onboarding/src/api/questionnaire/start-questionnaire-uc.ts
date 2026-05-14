@@ -35,13 +35,10 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
 			this.throwAccessDenied("Недостаточно прав для создания анкеты");
 		}
 
-		const poolService = this.resolve.questionPoolService;
-		const includedQuestionCodes = poolService.getIncludedQuestionCodes();
-
 		const ar = QuestionnaireAr.start(
 			command.userId,
-			poolService,
-			includedQuestionCodes,
+			this.resolve.questionPoolService,
+			this.resolve.includedQuestionCodes,
 		);
 		await this.resolve.questionnaireRepo.save(ar.state);
 

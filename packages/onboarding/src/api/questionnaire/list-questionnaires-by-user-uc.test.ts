@@ -56,6 +56,7 @@ function setupUc(questionnaires: Questionnaire[] = []) {
 	uc.init({
 		questionnaireRepo: repo,
 		questionPoolService: {} as any,
+		includedQuestionCodes: [],
 		userFacade,
 		db: { begin: () => {}, commit: async () => {}, rollback: () => {} } as any,
 	});

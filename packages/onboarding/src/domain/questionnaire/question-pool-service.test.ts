@@ -138,4 +138,33 @@ describe("QuestionPoolService", () => {
 			'condition в вопросе "q2" ссылается на несуществующий questionCode: missing',
 		);
 	});
+
+	test("assertAllCodesExist проходит для существующих кодов", () => {
+		const service = new QuestionPoolService([
+			{
+				question: "Q1",
+				questionCode: "q1",
+				type: "text",
+			},
+			{
+				question: "Q2",
+				questionCode: "q2",
+				type: "text",
+			},
+		]);
+		expect(() => service.assertAllCodesExist(["q1", "q2"])).not.toThrow();
+	});
+
+	test("assertAllCodesExist падает при отсутствующем коде", () => {
+		const service = new QuestionPoolService([
+			{
+				question: "Q1",
+				questionCode: "q1",
+				type: "text",
+			},
+		]);
+		expect(() => service.assertAllCodesExist(["q1", "missing"])).toThrow(
+			'questionCode "missing" из includedQuestionCodes не найден в пуле',
+		);
+	});
 });

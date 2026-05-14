@@ -71,8 +71,10 @@ Controller получает чистые данные и возвращает р
 
 ### QuestionPoolService
 - Передаётся в `OnboardingApiModule` через `Resolver`.
-- Пул вопросов может содержать больше вопросов, чем включается в конкретную анкету. `getIncludedQuestionCodes()` возвращает подмножество кодов вопросов, которые входят в текущую версию анкеты. UC получают список через сервис (`poolService.getIncludedQuestionCodes()`), а не вычисляют сами.
-- `StartQuestionnaireUc` и `SubmitAnswerUc` получают сервис из `resolve` и хранят ссылку (не создают каждый раз).
+- Пул вопросов — это общая библиотека **всех** вопросов. Конкретная анкета использует только **подмножество** (`includedQuestionCodes`), передаваемое через `Resolver`.
+- `includedQuestionCodes` — массив кодов вопросов, включённых в текущую версию анкеты. Например, пул содержит 50 вопросов, а в анкету включено 10.
+- При инициализации приложения рекомендуется вызывать `poolService.assertAllCodesExist(includedQuestionCodes)`, чтобы проверить, что все коды существуют в пуле.
+- UC (`StartQuestionnaireUc`, `SubmitAnswerUc`, `AbandonQuestionnaireUc`) получают `includedQuestionCodes` из `this.resolve`, а не вычисляют сами.
 
 ### Обновление роли при завершении
 - UC вызывает `UserFacade.addRoleToUser(userId, CANDIDATE)`.

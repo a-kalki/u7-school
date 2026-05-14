@@ -35,11 +35,10 @@ export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnai
 			this.throwAccessDenied("Недостаточно прав для прерывания анкеты");
 		}
 
-		const poolService = this.resolve.questionPoolService;
 		const ar = new QuestionnaireAr(
 			questionnaire,
-			poolService,
-			poolService.getIncludedQuestionCodes(),
+			this.resolve.questionPoolService,
+			this.resolve.includedQuestionCodes,
 		);
 		ar.abandon();
 
