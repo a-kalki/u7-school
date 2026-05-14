@@ -1,3 +1,4 @@
+import type { BaseJsonDb } from "@u7/core/infra";
 import { JsonFileRepo } from "@u7/core/infra";
 import type { User } from "#domain/user/entity";
 import { UserSchema } from "#domain/user/entity";
@@ -16,12 +17,14 @@ export class UserJsonRepo implements UserRepo {
 	/**
 	 * @param filePath — путь к JSON-файлу (по умолчанию "data/users/users.json")
 	 * @param seedPath — путь к seed-файлу (по умолчанию "data/users/seed.json")
+	 * @param db — опционально: экземпляр BaseJsonDb для транзакционной поддержки
 	 */
 	constructor(
 		filePath = "data/users/users.json",
 		seedPath = "data/users/seed.json",
+		db?: BaseJsonDb,
 	) {
-		this.#repo = new JsonFileRepo(UserSchema, filePath);
+		this.#repo = new JsonFileRepo(UserSchema, filePath, db, "users");
 		this.#seedPath = seedPath;
 	}
 

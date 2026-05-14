@@ -16,10 +16,10 @@
 - [x] Task: Conductor - User Manual Verification 'Агрегат' (Protocol in workflow.md)
 
 ## Фаза 3: Domain Service
-- [ ] Task: Создать ApplicationDs — доменный сервис для атомарного изменения двух агрегатов
-- [ ] Task: Реализовать механизм транзакции (атомарная запись двух JSON-файлов)
-- [ ] Task: Написать тесты для ApplicationDs
-- [ ] Task: Conductor - User Manual Verification 'Domain Service' (Protocol in workflow.md)
+- [x] Task: Создать ApplicationDs — доменный сервис для атомарного изменения двух агрегатов
+- [x] Task: Реализовать механизм транзакции (атомарная запись двух JSON-файлов)
+- [x] Task: Написать тесты для ApplicationDs
+- [x] Task: Conductor - User Manual Verification 'Domain Service' (Protocol in workflow.md)
 
 ## Фаза 4: UseCases и инфраструктура
 - [ ] Task: Создать CreateApplicationCmd / CreateApplicationUc (через ApplicationDs)

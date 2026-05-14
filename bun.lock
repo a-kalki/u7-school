@@ -52,6 +52,13 @@
         "valibot": "^1.0.0",
       },
     },
+    "packages/onboarding": {
+      "name": "@u7/onboarding",
+      "version": "0.1.0",
+      "dependencies": {
+        "@u7/core": "workspace:*",
+      },
+    },
     "packages/user": {
       "name": "@u7/user",
       "version": "0.1.0",
@@ -134,6 +141,8 @@
     "@u7/core": ["@u7/core@workspace:packages/core"],
 
     "@u7/course": ["@u7/course@workspace:packages/course"],
+
+    "@u7/onboarding": ["@u7/onboarding@workspace:packages/onboarding"],
 
     "@u7/user": ["@u7/user@workspace:packages/user"],
 

@@ -1,1 +1,1 @@
-// Экспорты инфраструктурного слоя будут добавлены в следующих фазах
+export { ApplicationJsonRepo } from "./db/application-json-repo";
