@@ -1,0 +1,7 @@
+Фаза 2: Миграция доменных модулей (course, user, onboarding и др.)
+Обновлены модули user, course, onboarding для соответствия новому строгому контракту.
+- Переименован ModuleMeta в ApiModuleMeta.
+- Добавлены объединенные типы UcMetas (UserUcMetas, CourseUcMetas, OnboardingUcMetas).
+- Модули теперь используют AppMeta / ApiModuleMeta.
+- Добавлено свойство addRoleToUser в тесты для MockUserFacade.
+- Обновлен ApiModule в каждом домене.
