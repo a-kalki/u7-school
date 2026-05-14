@@ -9,11 +9,11 @@
 - [x] Task: Conductor - User Manual Verification 'Модель данных' (Protocol in workflow.md)
 
 ## Фаза 2: Агрегат и политики
-- [ ] Task: Создать ApplicationAr с методом create
-- [ ] Task: Создать ApplicationPolicy (canCreate, canRead, canList, canUpdate)
-- [ ] Task: Написать тесты для ApplicationAr
-- [ ] Task: Написать тесты для ApplicationPolicy
-- [ ] Task: Conductor - User Manual Verification 'Агрегат' (Protocol in workflow.md)
+- [x] Task: Создать ApplicationAr с методом create
+- [x] Task: Создать ApplicationPolicy (canCreate, canRead, canList, canUpdate)
+- [x] Task: Написать тесты для ApplicationAr
+- [x] Task: Написать тесты для ApplicationPolicy
+- [x] Task: Conductor - User Manual Verification 'Агрегат' (Protocol in workflow.md)
 
 ## Фаза 3: Domain Service
 - [ ] Task: Создать ApplicationDs — доменный сервис для атомарного изменения двух агрегатов

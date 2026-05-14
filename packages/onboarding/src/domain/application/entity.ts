@@ -13,6 +13,9 @@ export const ApplicationSchema = v.object({
   answers: ApplicationAnswersSchema,
   createdAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
   submittedAt: v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  updatedAt: v.optional(
+    v.pipe(v.string(), v.isoDateTime("Некорректный формат даты")),
+  ),
 });
 
 /** Заявка кандидата */
