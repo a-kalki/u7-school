@@ -10,15 +10,6 @@
 
 ## Архитектура
 
-```
-domain/questionnaire/
-├── question-pool.json          # единый пул всех вопросов и ответов
-├── question-pool-service.ts    # загружает JSON, выдаёт вопросы, генерирует схемы
-├── questionnaire-ar.ts         # агрегат: проводит пользователя через анкету
-├── questionnaire-state.ts      # схема состояния прохождения
-└── question.ts                 # типы Question / AnswerOption / Condition
-```
-
 ### `question-pool.json`
 Массив объектов:
 

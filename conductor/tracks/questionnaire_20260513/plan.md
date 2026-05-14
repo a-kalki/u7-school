@@ -1,7 +1,7 @@
 # План реализации: Пул вопросов и движок анкеты
 
 ## Фаза 1: QuestionPoolService
-- [ ] Task: Определить типы `Question`, `AnswerOption`, `Condition` в `domain/questionnaire/question.ts`.
+- [~] Task: Определить типы `Question`, `AnswerOption`, `Condition` в `domain/questionnaire/question.ts`.
   - `type: "choice" | "text"`.
   - `multiple` — опционально, только для `choice`.
   - `answers` — опционально, только для `choice`.

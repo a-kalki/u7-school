@@ -77,7 +77,10 @@
     "questionCode": "base_days",
     "type": "choice",
     "multiple": true,
-    "condition": { "questionCode": "intensity", "answerCodes": ["base"] },
+    "condition": {
+      "questionCode": "intensity",
+      "answerCodes": ["base"]
+    },
     "answers": [
       { "answer": "Любой день", "answerCode": "any" },
       { "answer": "Понедельник", "answerCode": "mon" },
@@ -93,7 +96,10 @@
     "questionCode": "base_time",
     "type": "choice",
     "multiple": true,
-    "condition": { "questionCode": "intensity", "answerCodes": ["base"] },
+    "condition": {
+      "questionCode": "intensity",
+      "answerCodes": ["base"]
+    },
     "answers": [
       { "answer": "Любое время", "answerCode": "any" },
       { "answer": "До 9 утра", "answerCode": "before_9" },
@@ -110,7 +116,10 @@
     "questionCode": "intensive_time",
     "type": "choice",
     "multiple": false,
-    "condition": { "questionCode": "intensity", "answerCodes": ["intensive"] },
+    "condition": {
+      "questionCode": "intensity",
+      "answerCodes": ["intensive"]
+    },
     "answers": [
       { "answer": "Любое время", "answerCode": "any" },
       { "answer": "До обеда (9 утра до 13 дня)", "answerCode": "before_noon" },
