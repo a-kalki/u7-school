@@ -1,0 +1,12 @@
+Task: Определить типы Question, AnswerOption, Condition и реализовать QuestionPoolService
+
+- Добавлены Valibot-схемы для Question (choice/text), AnswerOption, Condition
+- Создан QuestionPoolService: загрузка JSON, валидация пула, getAll/getByCode/buildValidationSchema
+- question-pool.json переписан в валидный JSON
+- Покрытие тестами: загрузка, дубли questionCode/answerCode, отсутствие answers у text, condition, схемы валидации
+
+Файлы:
+- packages/onboarding/src/domain/questionnaire/question.ts
+- packages/onboarding/src/domain/questionnaire/question-pool-service.ts
+- packages/onboarding/src/domain/questionnaire/question-pool-service.test.ts
+- packages/onboarding/src/domain/questionnaire/question-pool.json
