@@ -13,17 +13,17 @@
 - [x] Task: Обновить `packages/user/src/api/module.ts`: переименовать `UserModuleMeta` в `UserApiModuleMeta`, добавить список `UcMeta` в её определение, и обновить `UserApiModule` для соответствия новому строгому контракту.
 - [x] Task: Аналогично обновить модули `course` и `onboarding` (и любые другие), связав их с их `UcMeta`. (7ceb911)
 - [x] Task: Запустить `bun run tslint` в пакетах `core`, `user`, `course`, `onboarding`, чтобы убедиться в отсутствии ошибок несоответствия типов внутри модулей. (7ceb911)
-- [~] Task: Conductor - User Manual Verification 'Фаза 2: Миграция доменных модулей' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: Миграция доменных модулей' (Protocol in workflow.md)
 
 ## Фаза 3: Адаптация контроллеров и сборка `ApiApp`
-- [ ] Task: Собрать `ApiApp` для `u7-cli`: создать экземпляр `AppMeta` и типизированного `ApiApp`, включающий все модули, **кроме** `onboarding`.
-- [ ] Task: Адаптировать CLI-контроллеры (например, в `apps/u7-cli` и `packages/*/src/ui/auto-ui/controller`) для вызова юзкейсов исключительно через type-safe метод `apiApp.execute(...)`.
-- [ ] Task: Собрать `ApiApp` для Telegram-бота в модуле `onboarding`: создать свой экземпляр `AppMeta` и `ApiApp`, включающий только модули `onboarding` и `user`.
-- [ ] Task: Заменить прямые вызовы `UseCase` в `onboarding` контроллерах/боте на вызовы через `ApiApp`.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3: Адаптация контроллеров и сборка ApiApp' (Protocol in workflow.md)
+- [x] Task: Собрать `ApiApp` для `u7-cli`: создать экземпляр `AppMeta` и типизированного `ApiApp`, включающий все модули, **кроме** `onboarding`.
+- [x] Task: Адаптировать CLI-контроллеры (например, в `apps/u7-cli` и `packages/*/src/ui/auto-ui/controller`) для вызова юзкейсов исключительно через type-safe метод `apiApp.execute(...)`. (папок auto-ui не существует)
+- [x] Task: Собрать `ApiApp` для Telegram-бота в модуле `onboarding`: создать свой экземпляр `AppMeta` и `ApiApp`, включающий только модули `onboarding` и `user`.
+- [x] Task: Заменить прямые вызовы `UseCase` в `onboarding` контроллерах/боте на вызовы через `ApiApp`.
+- [x] Task: Conductor - User Manual Verification 'Фаза 3: Адаптация контроллеров и сборка ApiApp' (Protocol in workflow.md)
 
 ## Фаза 4: Документация и финальная проверка
-- [ ] Task: Обновить архитектурную документацию в `conductor/code_styleguides/skills/module.md` (и других связанных гайдах), описав новую парадигму `AppMeta` -> `ApiModuleMeta` -> `UcMeta` и использование `ApiApp`.
-- [ ] Task: Найти и удалить во всей документации (особенно в `conductor/`) упоминания устаревшего `auto-ui`, заменить на `cli-controller`.
-- [ ] Task: Выполнить полную проверку всего проекта (`bun run check`), чтобы гарантировать, что типизация работает идеально, и все тесты по-прежнему зеленые.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4: Документация и финальная проверка' (Protocol in workflow.md)
+- [x] Task: Обновить архитектурную документацию в `conductor/code_styleguides/skills/module.md` (и других связанных гайдах), описав новую парадигму `AppMeta` -> `ApiModuleMeta` -> `UcMeta` и использование `ApiApp`.
+- [x] Task: Найти и удалить во всей документации (особенно в `conductor/`) упоминания устаревшего `auto-ui`, заменить на `cli-controller`.
+- [x] Task: Выполнить полную проверку всего проекта (`bun run check`), чтобы гарантировать, что типизация работает идеально, и все тесты по-прежнему зеленые.
+- [~] Task: Conductor - User Manual Verification 'Фаза 4: Документация и финальная проверка' (Protocol in workflow.md)
