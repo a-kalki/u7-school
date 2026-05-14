@@ -3,7 +3,7 @@
 
 ---
 
-- [~] **Track: Доменный пакет onboarding (onboarding-domain)**
+- [x] **Track: Доменный пакет onboarding (onboarding-domain)**
   *Link: [$T1]($T1)*
 
 ---
