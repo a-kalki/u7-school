@@ -1,0 +1,11 @@
+Фаза 1: Модель данных и схемы onboarding
+
+Созданы файлы:
+- packages/onboarding/package.json, tsconfig.json
+- packages/onboarding/src/domain/application/{source,experience,format,goals,intensity,base-days,base-time,intensive-time,status}.ts — enums
+- packages/onboarding/src/domain/application/answers.ts — ApplicationAnswers schema
+- packages/onboarding/src/domain/application/entity.ts — Application entity schema
+- packages/onboarding/src/domain/questionnaire/config.ts — QuestionnaireConfig
+- Тесты для всех схем и конфигурации
+
+22 тестов проходят.
