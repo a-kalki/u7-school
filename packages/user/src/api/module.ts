@@ -1,5 +1,5 @@
 import { ApiModule } from "@u7/core/api";
-import type { UserApiModuleResolver, UserModuleMeta } from "#domain/module";
+import type { UserApiModuleResolver, UserApiModuleMeta } from "#domain/module";
 import { AddRoleToUserUc } from "./user/add-role-to-user-uc";
 import { CreateUserUc } from "./user/create-user-uc";
 import { GetUserByTelegramIdUc } from "./user/get-user-by-telegram-id-uc";
@@ -8,7 +8,7 @@ import { ListUsersUc } from "./user/list-users-uc";
 import { RegisterUserUc } from "./user/register-user-uc";
 
 export class UserApiModule extends ApiModule<
-	UserModuleMeta,
+	UserApiModuleMeta,
 	UserApiModuleResolver
 > {
 	readonly name = "user" as const;

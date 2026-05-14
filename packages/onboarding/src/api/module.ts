@@ -1,7 +1,7 @@
 import { ApiModule } from "@u7/core/api";
 import type {
 	OnboardingApiModuleResolver,
-	OnboardingModuleMeta,
+	OnboardingApiModuleMeta,
 } from "#domain/module";
 import { AbandonQuestionnaireUc } from "./questionnaire/abandon-questionnaire-uc";
 import { GetQuestionnaireUc } from "./questionnaire/get-questionnaire-uc";
@@ -10,7 +10,7 @@ import { StartQuestionnaireUc } from "./questionnaire/start-questionnaire-uc";
 import { SubmitAnswerUc } from "./questionnaire/submit-answer-uc";
 
 export class OnboardingApiModule extends ApiModule<
-	OnboardingModuleMeta,
+	OnboardingApiModuleMeta,
 	OnboardingApiModuleResolver
 > {
 	readonly name = "onboarding" as const;
@@ -21,4 +21,12 @@ export class OnboardingApiModule extends ApiModule<
 		new AbandonQuestionnaireUc(),
 		new ListQuestionnairesByUserUc(),
 	];
+
+	override init(resolver: OnboardingApiModuleResolver): void {
+		super.init(resolver);
+		// проверяем что коды вопросов текущей анкеты есть в общем пуле вопросов
+		resolver.questionPoolService.assertAllCodesExist(
+			resolver.includedQuestionCodes,
+		);
+	}
 }

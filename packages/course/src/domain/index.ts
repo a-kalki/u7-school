@@ -96,7 +96,7 @@ export { LessonSchema } from "./lesson/entity";
 export { LessonPolicy } from "./lesson/policy";
 export type { LessonRepo } from "./lesson/repo";
 
-export type { CourseApiModuleResolver, CourseModuleMeta } from "./module";
+export type { CourseApiModuleResolver, CourseApiModuleMeta } from "./module";
 
 // Общие типы
 export { Status, StatusSchema } from "./status";

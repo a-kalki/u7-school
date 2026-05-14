@@ -54,7 +54,7 @@ function setupUc() {
 	);
 	const userFacade: UserFacade = {
 		getUserByUuid,
-		userExists: mock(async () => false),
+		userExists: mock(async () => false), addRoleToUser: mock(),
 	};
 	const uc = new AddProjectToModuleUc();
 	uc.init({

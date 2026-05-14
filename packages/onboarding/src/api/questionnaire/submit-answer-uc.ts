@@ -52,7 +52,7 @@ export class SubmitAnswerUc extends OnboardingUseCase<SubmitAnswerCmdMeta> {
 		ar.submitAnswer(command.questionCode, command.value);
 
 		// Если анкета завершена — добавляем роль CANDIDATE
-		if (ar.state.status === "completed") {
+		if (ar.isCompleted()) {
 			await this.resolve.userFacade.addRoleToUser(
 				questionnaire.userId,
 				Role.CANDIDATE,

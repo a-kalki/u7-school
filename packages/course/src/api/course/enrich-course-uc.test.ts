@@ -49,7 +49,7 @@ function setupUc() {
 		async (_uuid: string): Promise<User | undefined> => undefined,
 	);
 	const userExists = mock(async (_uuid: string): Promise<boolean> => false);
-	const userFacade: UserFacade = { getUserByUuid, userExists };
+	const userFacade: UserFacade = { getUserByUuid, userExists, addRoleToUser: mock() };
 
 	const uc = new EnrichCourseUc();
 	uc.init({

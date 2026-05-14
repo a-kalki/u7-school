@@ -1,6 +1,6 @@
 // Domain слой @u7/user
 export type { UserFacade } from "./facade";
-export type { UserApiModuleResolver, UserModuleMeta } from "./module";
+export type { UserApiModuleResolver, UserApiModuleMeta } from "./module";
 export { UserAr } from "./user/a-root";
 export type {
 	AddRoleToUserCmd,

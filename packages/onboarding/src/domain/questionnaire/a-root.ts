@@ -59,6 +59,10 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 		return ar;
 	}
 
+	isCompleted(): boolean {
+		return this.state.status === "completed";
+	}
+
 	/** Принимает и валидирует ответ, переходит к следующему вопросу */
 	submitAnswer(questionCode: string, value: string[] | string): void {
 		if (this.state.status !== "in_progress") {

@@ -26,6 +26,10 @@ class MockUserFacade implements UserFacade {
 	async userExists(uuid: string): Promise<boolean> {
 		return this.users.has(uuid);
 	}
+
+	async addRoleToUser(_uuid: string, _role: Role, _actorId?: string): Promise<User | undefined> {
+		return undefined;
+	}
 }
 
 function makeAdmin(): User {
