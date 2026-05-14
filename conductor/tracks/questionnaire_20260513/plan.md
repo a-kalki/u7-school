@@ -1,19 +1,19 @@
 # План реализации: Пул вопросов и движок анкеты
 
 ## Фаза 1: QuestionPoolService
-- [~] Task: Определить типы `Question`, `AnswerOption`, `Condition` в `domain/questionnaire/question.ts`.
-  - `type: "choice" | "text"`.
-  - `multiple` — опционально, только для `choice`.
-  - `answers` — опционально, только для `choice`.
-- [ ] Task: Обновить `question-pool.json` — добавить поле `type: "choice"` ко всем вопросам.
-- [ ] Task: Реализовать `QuestionPoolService`:
+- [x] Task: Определить типы `Question`, `AnswerOption`, `Condition` в `domain/questionnaire/question.ts`.
+  - `type: "choice" | "text"`. [a008a69]
+  - `multiple` — опционально, только для `choice`. [a008a69]
+  - `answers` — опционально, только для `choice`. [a008a69]
+- [x] Task: Обновить `question-pool.json` — добавить поле `type: "choice"` ко всем вопросам.
+- [x] Task: Реализовать `QuestionPoolService`: [a008a69]
   - загрузка JSON из файловой системы при инициализации;
   - валидация пула на старте (уникальность questionCode, наличие answers у choice, отсутствие answers у text, уникальность answerCode, валидность condition.questionCode);
   - при ошибке валидации — throw с детальным сообщением;
   - `getAll(): Question[]`;
   - `getByCode(code): Question | undefined`;
   - `buildValidationSchema(questionCode): Valibot schema` — автогенерация схемы для choice (single/multiple) и text.
-- [ ] Task: Написать тесты на `QuestionPoolService`:
+- [x] Task: Написать тесты на `QuestionPoolService`: [a008a69]
   - загрузка корректного пула;
   - падение при дублирующемся questionCode;
   - падение при отсутствии answers у choice-вопроса;
