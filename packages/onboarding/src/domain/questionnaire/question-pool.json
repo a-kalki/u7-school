@@ -2,6 +2,7 @@
   {
     "question": "Как ты нашел нас?",
     "questionCode": "how_found",
+    "type": "choice",
     "multiple": true,
     "answers": [
       { "answer": "Через знакомых", "answerCode": "friends" },
@@ -15,6 +16,7 @@
   {
     "question": "Почему мы заинтересовали тебя?",
     "questionCode": "interest_reason",
+    "type": "choice",
     "multiple": true,
     "answers": [
       { "answer": "Так бесплатно же!", "answerCode": "free" },
@@ -28,6 +30,7 @@
   {
     "question": "Какой у тебя опыт программирования?",
     "questionCode": "experience",
+    "type": "choice",
     "multiple": false,
     "answers": [
       { "answer": "Я новичок, хочу начать", "answerCode": "beginner" },
@@ -39,6 +42,7 @@
   {
     "question": "Какой формат обучения тебя интересует?",
     "questionCode": "format",
+    "type": "choice",
     "multiple": false,
     "answers": [
       { "answer": "Офлайн: я живу в г. Уральск и хочу обучение по максимуму", "answerCode": "offline" },
@@ -50,6 +54,7 @@
   {
     "question": "Определи свой темп и цели",
     "questionCode": "goals",
+    "type": "choice",
     "multiple": false,
     "answers": [
       { "answer": "6–9 месяцев (Low-code / No-code) — хочу быстро начать делать проекты без глубокого погружения в программирование, автоматизировать задачи, создавать простые приложения и сайты-визитки.", "answerCode": "lowcode" },
@@ -60,6 +65,7 @@
   {
     "question": "Выбери подходящую интенсивность обучения",
     "questionCode": "intensity",
+    "type": "choice",
     "multiple": false,
     "answers": [
       { "answer": "Базовый: Учу теорию дома + 2 раза в неделю по 2 часа занятий с ментором (гибкий график)", "answerCode": "base" },
@@ -69,6 +75,7 @@
   {
     "question": "Какой день недели для тебя предпочтителен? (если 'Базовый')",
     "questionCode": "base_days",
+    "type": "choice",
     "multiple": true,
     "condition": { "questionCode": "intensity", "answerCodes": ["base"] },
     "answers": [
@@ -84,6 +91,7 @@
   {
     "question": "Какое время занятий для тебя предпочтительно? (если Базовый)",
     "questionCode": "base_time",
+    "type": "choice",
     "multiple": true,
     "condition": { "questionCode": "intensity", "answerCodes": ["base"] },
     "answers": [
@@ -100,6 +108,7 @@
   {
     "question": "Какое время занятий для тебя предпочтительно? (если Интенсив)",
     "questionCode": "intensive_time",
+    "type": "choice",
     "multiple": false,
     "condition": { "questionCode": "intensity", "answerCodes": ["intensive"] },
     "answers": [

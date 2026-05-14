@@ -1,9 +1,10 @@
 # Спецификация: Пул вопросов и движок анкеты
 
 ## Обзор
-Реализовать доменный слой для управления onboarding-анкетой в `@u7/onboarding`.  
-Ключевая идея: **UI — проводник**, агрегат `QuestionnaireAr` — источник истины о состоянии прохождения.  
-Все вопросы и варианты ответов вынесены в единый JSON-пул; текущий анкетник — массив `questionCode` (живёт в коде).
+Реализовать доменный слой для управления onboarding-анкетой в `@u7/onboarding`.
+Агрегат `QuestionnaireAr` — единственный источник истины о состоянии прохождения анкеты: принимает ответы, валидирует их, определяет следующий вопрос с учётом ветвления.
+
+Все вопросы и варианты ответов живут в `question-pool.json`. `QuestionPoolService` загружает пул при старте, проверяет корректность, и отдаёт вопросы по запросу. Генерация схемы валидации — тоже здесь.
 
 > ⚠️ Вопросы больше не хардкодятся в TypeScript. Источник единой правды — `question-pool.json`.
 
@@ -12,19 +13,10 @@
 ```
 domain/questionnaire/
 ├── question-pool.json          # единый пул всех вопросов и ответов
-├── question-pool-service.ts    # загружает JSON, отвечает за поиск/фильтрацию
+├── question-pool-service.ts    # загружает JSON, выдаёт вопросы, генерирует схемы
 ├── questionnaire-ar.ts         # агрегат: проводит пользователя через анкету
 ├── questionnaire-state.ts      # схема состояния прохождения
-├── question.ts                 # типы Question / AnswerOption / Condition
-└── answer-types/               # перенесённые сюда типы ответов
-    ├── source.ts
-    ├── experience.ts
-    ├── goals.ts
-    ├── intensity.ts
-    ├── base-days.ts
-    ├── base-time.ts
-    ├── intensive-time.ts
-    └── format.ts
+└── question.ts                 # типы Question / AnswerOption / Condition
 ```
 
 ### `question-pool.json`
@@ -34,20 +26,23 @@ domain/questionnaire/
 interface Question {
   question: string;           // текст для отображения
   questionCode: string;       // уникальный код
-  multiple: boolean;          // одиночный / множественный выбор
+  type: "choice" | "text";    // тип вопроса
+  multiple?: boolean;         // для choice: одиночный / множественный выбор
   condition?: {               // условие показа
     questionCode: string;     // на какой ответ смотрим
     answerCodes: string[];    // хотя бы один из этих кодов → вопрос показывается
   };
-  answers: {
-    answer: string;           // текст для отображения
-    answerCode: string;       // код, сохраняемый в БД
+  answers?: {                 // для type = "choice"
+    answer: string;
+    answerCode: string;
   }[];
 }
 ```
 
+- `type = "choice"` — вопрос с вариантами ответа. `answers` обязателен, `multiple` обязателен.
+- `type = "text"` — открытый вопрос. `answers` отсутствует, `multiple` игнорируется.
 - Пул содержит **все** вопросы когда-либо существовавшие.
-- Устаревшие вопросы остаются в JSON, но исключаются из текущего анкетника.
+- Устаревшие вопросы остаются в JSON, но исключаются из текущего анкетника (массива в коде).
 - Ветвление реализовано через `condition` (пока OR по `answerCodes`).
 
 ### Текущий анкетник
@@ -68,15 +63,31 @@ const questionnaire = [
 ```
 
 - Порядок вопросов определяется порядком в этом массиве.
-- Агрегат использует `question-pool-service` для разрешения `questionCode` → `Question`.
+- Агрегат использует `QuestionPoolService` только для разрешения `questionCode` → `Question`.
 
 ### `QuestionPoolService`
-Не репозиторий — сервис, загружающий JSON при старте:
+Не репозиторий — сервис, загружающий JSON при старте приложения:
 
+- **Загрузка и валидация**: при инициализации читает `question-pool.json`, проверяет:
+  - Все `questionCode` уникальны.
+  - У `type = "choice"` присутствует `answers` (непустой) и `multiple` определён.
+  - У `type = "text"` отсутствует `answers`.
+  - Все `answerCode` внутри одного вопроса уникальны.
+  - `condition.questionCode` ссылается на существующий вопрос в пуле.
+  - При любой ошибке — **падает сразу** (fail-fast на старте).
 - `getAll()` → `Question[]` (весь пул).
 - `getByCode(code)` → `Question | undefined`.
-- `getActive(questionnaireCodes)` → `Question[]` (фильтрация по текущему анкетнику).
-- `findNext(currentCode, answers, questionnaireCodes)` → `Question | null` (с учётом condition).
+- `buildValidationSchema(questionCode)` → `Valibot schema` (см. ниже).
+
+### Автогенерация схемы валидации
+`QuestionPoolService.buildValidationSchema(questionCode)`:
+
+1. Находит `Question` по `questionCode`.
+2. Генерирует Valibot-схему:
+   - `type = "text"` → `v.pipe(v.string(), v.nonEmpty())`.
+   - `type = "choice"`, `multiple = false` → `v.picklist(answerCodes)`.
+   - `type = "choice"`, `multiple = true` → `v.pipe(v.array(v.string()), v.minLength(1), v.everyItem(v.picklist(answerCodes)))`.
+3. Возвращает схему; вызывающий (`QuestionnaireAr`) сам выполняет `v.parse()`.
 
 ### `QuestionnaireAr` — агрегат прохождения
 Состояние:
@@ -95,7 +106,7 @@ interface QuestionnaireState {
 interface AnswerEntry {
   questionCode: string;
   answerCodes: string[];      // для choice-вопросов
-  textValue?: string;         // для open-text вопросов
+  textValue?: string;         // для text-вопросов
   answeredAt: string;
 }
 ```
@@ -104,65 +115,42 @@ API агрегата:
 
 | Метод | Описание |
 |-------|----------|
-| `start(userId)` | Создаёт новое состояние, возвращает первый вопрос. |
-| `submitAnswer(questionCode, answerCodes / textValue)` | Принимает ответ, валидирует его **автоматически сгенерированной схемой** (см. ниже), сохраняет в `answers`. |
-| `getNextQuestion()` | Возвращает следующий вопрос с учётом `condition` и уже данных ответов. Если вопросы кончились — возвращает `null` и помечает `status = "completed"`. |
+| `start(userId)` | Создаёт новое состояние, возвращает первый вопрос через `getNextQuestion()`. |
+| `submitAnswer(questionCode, answerCodes / textValue)` | Принимает ответ, запрашивает схему у `QuestionPoolService`, валидирует, сохраняет в `answers`. |
+| `getNextQuestion()` | Определяет следующий вопрос: перебирает `questionnaire` начиная с `currentQuestionCode`, пропускает вопросы с невыполненным `condition`. Если вопросы кончились — возвращает `null` и помечает `status = "completed"`. |
 | `getCurrentState()` → `QuestionnaireState` | Текущее состояние для сохранения в репозиторий (UC). |
 | `getAnswers()` → `AnswerEntry[]` | Все ответы для формирования заявки. |
 | `abandon()` | Прерывает анкету, `status = "abandoned"`. |
 
-### Автогенерация схемы валидации
-При `submitAnswer` агрегат:
-
-1. Находит `Question` по `questionCode` через `QuestionPoolService`.
-2. Генерирует Valibot-схему динамически:
-   - `multiple = false` → `v.pipe(v.string(), v.nonEmpty())` или `v.picklist(answerCodes)`.
-   - `multiple = true` → `v.pipe(v.array(v.string()), v.minLength(1))` + `v.everyItem(v.picklist(answerCodes))`.
-   - В будущем: `minCount`, `maxCount` и т.д.
-3. Валидирует входящие данные по сгенерированной схеме.
-4. При ошибке — выбрасывает `QuestionnaireValidationError`.
-
 ### Ветвление (condition)
-- `getNextQuestion` итеративно перебирает `questionnaire` массив начиная с `currentQuestionCode`.
+- `getNextQuestion` итеративно перебирает `questionnaire` массив начиная с позиции после `currentQuestionCode`.
 - Для каждого кандидата проверяет `condition`:
   - `condition = undefined` → показываем.
-  - `condition` задано → смотрим в `answers`, есть ли `questionCode` с одним из `answerCodes`.
+  - `condition` задано → смотрим в `answers`, есть ли ответ на `questionCode` с одним из `answerCodes`.
 - Первый прошедший проверку вопрос возвращается как следующий.
 - Если нет ни одного — возвращаем `null` (анкета завершена).
 
-### Bot-UI роль
-- **Не хранит состояние**. Получает `currentQuestionCode` → запрашивает текст/опции из агрегата → показывает пользователю.
-- Получает ответ от пользователя → передаёт в `submitAnswer` → получает следующий вопрос или завершение.
-- При `/cancel` вызывает `abandon()`.
-
-### Публичный API (будущее, не в этом треке)
-При проектировании закладываем расширяемость:
-- `GET /questionnaire/current` → текущий активный анкетник.
-- `GET /question-pool` → полный пул (для админки и статистики).
-- `GET /statistics/:questionCode` → агрегация ответов.
+### Application агрегат
+> Существующий `ApplicationAr` (`domain/application/`) **будет удалён** в будущем треке. Вся информация о прохождении (статус, ответы) теперь в `QuestionnaireAr`. Пока не трогаем — убираем в отдельный трек.
 
 ## Функциональные требования
 ### QuestionPoolService
 - [ ] Загружает `question-pool.json` при инициализации.
+- [ ] Валидирует структуру пула на старте; при ошибке — падает с детальным сообщением.
 - [ ] `getAll()` возвращает все вопросы.
 - [ ] `getByCode(code)` возвращает вопрос по коду или `undefined`.
-- [ ] `getActive(questionnaireCodes)` фильтрует по текущему анкетнику.
-- [ ] `findNext(currentCode, answers, questionnaireCodes)` учитывает `condition`.
+- [ ] `buildValidationSchema(questionCode)` возвращает Valibot-схему для вопроса.
 
 ### QuestionnaireAr
-- [ ] `start(userId)` создаёт состояние `in_progress` с `currentQuestionCode = первый вопрос`.
-- [ ] `submitAnswer` валидирует ответ автосгенерированной Valibot-схемой.
+- [ ] `start(userId)` создаёт состояние `in_progress`, устанавливает `currentQuestionCode` через `getNextQuestion()`.
+- [ ] `submitAnswer` запрашивает схему у `QuestionPoolService`, валидирует ответ.
 - [ ] `submitAnswer` при ошибке валидации выбрасывает `QuestionnaireValidationError`.
 - [ ] `submitAnswer` сохраняет ответ в `answers`.
-- [ ] `getNextQuestion` возвращает следующий вопрос с учётом condition.
+- [ ] `getNextQuestion` возвращает следующий вопрос с учётом condition и уже данных ответов.
 - [ ] `getNextQuestion` возвращает `null` и `status = "completed"`, если вопросы кончились.
 - [ ] `abandon` меняет статус на `"abandoned"`.
 - [ ] `getCurrentState` возвращает полное состояние для сериализации.
-- [ ] `getAnswers` возвращает массив ответов для заявки.
-
-### Схемы ответов
-- [ ] Файлы `source.ts`, `experience.ts`, `goals.ts`, `intensity.ts`, `base-days.ts`, `base-time.ts`, `intensive-time.ts`, `format.ts` перенесены в `domain/questionnaire/answer-types/`.
-- [ ] Старые файлы в `domain/application/` удалены/обновлены.
+- [ ] `getAnswers` возвращает массив ответов.
 
 ## Нефункциональные требования
 - Покрытие тестами >80%.
@@ -171,17 +159,16 @@ API агрегата:
 - Следует DDD-гайдлайнам проекта.
 
 ## Критерии приёмки
-- [ ] `question-pool.json` создан и загружается сервисом.
-- [ ] `QuestionPoolService` проходит unit-тесты.
+- [ ] `question-pool.json` создан, содержит поле `type`.
+- [ ] `QuestionPoolService` валидирует пул на старте и падает при ошибках.
+- [ ] `QuestionPoolService.buildValidationSchema` генерирует корректные схемы для choice (single/multiple) и text.
 - [ ] `QuestionnaireAr` создаёт состояние, принимает ответы, переходит к следующему вопросу.
 - [ ] Ветвление base/intensive работает корректно.
-- [ ] Валидация ответов работает для одиночного и множественного выбора.
-- [ ] При завершении всех вопросов агрегат явно сообщает об этом.
-- [ ] Схемы ответов перенесены, старые импорты обновлены.
+- [ ] При завершении всех вопросов агрегат явно сообщает об этом (`null`).
 - [ ] Lint и tsc чистые.
 
 ## За рамками
-- Публичный HTTP API (админка, статистика).
 - UI (Telegram-бот).
 - Сохранение состояния в БД (делается в другом треке через UC + repo).
+- Удаление Application агрегата (отдельный трек).
 - Условия с логикой AND (пока только OR по `answerCodes`).
