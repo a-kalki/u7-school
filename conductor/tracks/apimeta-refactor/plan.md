@@ -7,13 +7,13 @@
 - [x] Task: Обновить `ApiModule`, чтобы свойство `useCases` строго соответствовало переданному `ApiModuleMeta<TUcMetas>` (система типов должна требовать реализацию всех заявленных контрактов). (b088c25)
 - [x] Task: Обновить `ApiApp` для поддержки `AppMeta`. Базовый `App` оставить без привязки к `AppMeta`. (b088c25)
 - [x] Task: В `ApiApp` реализовать type-safe метод `execute` (или `handle`). Продумать DX: если возможно, передавать только `UcMeta` (или выводить из имени), чтобы минимизировать параметры (например, отказаться от явной передачи имени модуля) с типизацией `attrs` и выводимым `Output`. (b088c25)
-- [~] Task: Conductor - User Manual Verification 'Фаза 1: Базовые типы и абстракции (пакет core)' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1: Базовые типы и абстракции (пакет core)' (Protocol in workflow.md)
 
 ## Фаза 2: Миграция доменных модулей (`course`, `user`, `onboarding` и др.)
-- [ ] Task: Обновить `packages/user/src/api/module.ts`: переименовать `UserModuleMeta` в `UserApiModuleMeta`, добавить список `UcMeta` в её определение, и обновить `UserApiModule` для соответствия новому строгому контракту.
-- [ ] Task: Аналогично обновить модули `course` и `onboarding` (и любые другие), связав их с их `UcMeta`.
-- [ ] Task: Запустить `bun run tslint` в пакетах `core`, `user`, `course`, `onboarding`, чтобы убедиться в отсутствии ошибок несоответствия типов внутри модулей.
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: Миграция доменных модулей' (Protocol in workflow.md)
+- [x] Task: Обновить `packages/user/src/api/module.ts`: переименовать `UserModuleMeta` в `UserApiModuleMeta`, добавить список `UcMeta` в её определение, и обновить `UserApiModule` для соответствия новому строгому контракту.
+- [x] Task: Аналогично обновить модули `course` и `onboarding` (и любые другие), связав их с их `UcMeta`. (7ceb911)
+- [x] Task: Запустить `bun run tslint` в пакетах `core`, `user`, `course`, `onboarding`, чтобы убедиться в отсутствии ошибок несоответствия типов внутри модулей. (7ceb911)
+- [~] Task: Conductor - User Manual Verification 'Фаза 2: Миграция доменных модулей' (Protocol in workflow.md)
 
 ## Фаза 3: Адаптация контроллеров и сборка `ApiApp`
 - [ ] Task: Собрать `ApiApp` для `u7-cli`: создать экземпляр `AppMeta` и типизированного `ApiApp`, включающий все модули, **кроме** `onboarding`.
