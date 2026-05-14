@@ -7,9 +7,11 @@ import type { Questionnaire } from "./entity";
  * Stateless — проверяет права на основе роли и владения.
  */
 export const QuestionnairePolicy = {
-	/** Создавать анкету можно только для себя. */
+	/**
+	 * Создавать анкету может сам пользователь или ADMIN (например, бот).
+	 */
 	canCreate(actor: User, userId: string): boolean {
-		return actor.uuid === userId;
+		return actor.uuid === userId || UserPolicy.isAdmin(actor);
 	},
 
 	/** Читать может владелец, ADMIN или MENTOR. */
@@ -26,10 +28,13 @@ export const QuestionnairePolicy = {
 		return UserPolicy.isAdmin(actor) || UserPolicy.isMentor(actor);
 	},
 
-	/** Отвечать может только владелец и только если анкета в процессе. */
+	/**
+	 * Отвечать может владелец или ADMIN (например, бот),
+	 * и только если анкета в процессе.
+	 */
 	canSubmitAnswer(actor: User, questionnaire: Questionnaire): boolean {
 		return (
-			this.isOwner(actor, questionnaire) &&
+			(this.isOwner(actor, questionnaire) || UserPolicy.isAdmin(actor)) &&
 			questionnaire.status === "in_progress"
 		);
 	},

@@ -43,13 +43,13 @@ describe("QuestionnairePolicy", () => {
 			).toBe(false);
 		});
 
-		test("ADMIN не может создать анкету для другого", () => {
+		test("ADMIN может создать анкету для другого", () => {
 			expect(
 				QuestionnairePolicy.canCreate(
 					makeActor([Role.ADMIN], "admin-1"),
 					"user-1",
 				),
-			).toBe(false);
+			).toBe(true);
 		});
 	});
 
@@ -152,11 +152,20 @@ describe("QuestionnairePolicy", () => {
 			).toBe(false);
 		});
 
-		test("ADMIN не может отвечать чужую анкету", () => {
+		test("ADMIN может отвечать чужую анкету", () => {
 			expect(
 				QuestionnairePolicy.canSubmitAnswer(
 					makeActor([Role.ADMIN], "other-uuid"),
 					questionnaire,
+				),
+			).toBe(true);
+		});
+
+		test("ADMIN не может отвечать на завершённую анкету", () => {
+			expect(
+				QuestionnairePolicy.canSubmitAnswer(
+					makeActor([Role.ADMIN], "other-uuid"),
+					{ ...questionnaire, status: "completed" },
 				),
 			).toBe(false);
 		});

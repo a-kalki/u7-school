@@ -140,6 +140,22 @@ describe("SubmitAnswerUc", () => {
 			);
 			expect(save).toHaveBeenCalledTimes(2);
 		});
+
+		test("ADMIN отправляет ответ за другого", async () => {
+			const q = makeQuestionnaire();
+			const { getUserByUuid, save, uc } = setupUc(q);
+			const admin = makeUser({ roles: [Role.ADMIN] });
+
+			getUserByUuid.mockResolvedValueOnce(admin);
+
+			const result = await uc.handle(
+				{ questionnaireUuid: q.uuid, questionCode: "q1", value: "yes" },
+				admin.uuid,
+			);
+
+			expect(result.status).toBe("in_progress");
+			expect(save).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	describe("FAIL", () => {

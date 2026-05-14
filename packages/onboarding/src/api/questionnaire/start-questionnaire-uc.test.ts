@@ -80,16 +80,17 @@ describe("StartQuestionnaireUc", () => {
 			expect(save).toHaveBeenCalledTimes(1);
 		});
 
-		test("ADMIN не может начать анкету для другого", async () => {
-			const { getUserByUuid, uc } = setupUc();
+		test("ADMIN может начать анкету для другого", async () => {
+			const { getUserByUuid, save, uc } = setupUc();
 			const admin = makeUser({ roles: [Role.ADMIN] });
 			const target = makeUser();
 
 			getUserByUuid.mockResolvedValueOnce(admin);
 
-			await expect(
-				uc.handle({ userId: target.uuid }, admin.uuid),
-			).rejects.toThrow("Недостаточно прав");
+			const result = await uc.handle({ userId: target.uuid }, admin.uuid);
+
+			expect(result.userId).toBe(target.uuid);
+			expect(save).toHaveBeenCalledTimes(1);
 		});
 	});
 
