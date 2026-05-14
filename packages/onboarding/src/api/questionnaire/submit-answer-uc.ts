@@ -47,7 +47,7 @@ export class SubmitAnswerUc extends OnboardingUseCase<SubmitAnswerCmdMeta> {
 		const ar = new QuestionnaireAr(
 			questionnaire,
 			poolService,
-			poolService.getAll().map((q) => q.questionCode),
+			poolService.getIncludedQuestionCodes(),
 		);
 
 		ar.submitAnswer(command.questionCode, command.value);

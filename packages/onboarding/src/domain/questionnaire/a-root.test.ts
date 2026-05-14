@@ -39,12 +39,13 @@ const testPool: Question[] = [
 	},
 ];
 
-const questionCodes = ["q1", "q2", "q3", "q4"];
+/** Коды вопросов, включённых в анкету (подмножество пула) */
+const includedQuestionCodes = ["q1", "q2", "q3", "q4"];
 
 describe("QuestionnaireAr", () => {
 	test("start создаёт анкету и определяет первый вопрос", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		expect(ar.getCurrentState().status).toBe("in_progress");
 		expect(ar.getCurrentState().currentQuestionCode).toBe("q1");
 		expect(ar.getCurrentState().answers).toHaveLength(0);
@@ -52,7 +53,7 @@ describe("QuestionnaireAr", () => {
 
 	test("прохождение полной анкеты с ветвлением (yes → q2 → q3 → q4)", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 
 		ar.submitAnswer("q1", "yes");
 		expect(ar.getCurrentState().currentQuestionCode).toBe("q2");
@@ -71,7 +72,7 @@ describe("QuestionnaireAr", () => {
 
 	test("ветвление: no → пропускает q2 → сразу q3", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 
 		ar.submitAnswer("q1", "no");
 		expect(ar.getCurrentState().currentQuestionCode).toBe("q3");
@@ -79,14 +80,14 @@ describe("QuestionnaireAr", () => {
 
 	test("валидация single choice — отклоняет неверный код", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 
 		expect(() => ar.submitAnswer("q1", "invalid")).toThrow();
 	});
 
 	test("валидация multiple choice — отклоняет пустой массив", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		ar.submitAnswer("q1", "yes");
 		ar.submitAnswer("q2", "ok");
 		ar.submitAnswer("q3", "hello");
@@ -96,7 +97,7 @@ describe("QuestionnaireAr", () => {
 
 	test("валидация text — отклоняет пустую строку", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		ar.submitAnswer("q1", "yes");
 		ar.submitAnswer("q2", "ok");
 
@@ -105,7 +106,7 @@ describe("QuestionnaireAr", () => {
 
 	test("ошибка при попытке ответить на завершённую анкету", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		ar.submitAnswer("q1", "no");
 		ar.submitAnswer("q3", "hello");
 		ar.submitAnswer("q4", ["a"]);
@@ -115,14 +116,14 @@ describe("QuestionnaireAr", () => {
 
 	test("ошибка при ответе не на текущий вопрос", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 
 		expect(() => ar.submitAnswer("q3", "hello")).toThrow("Ожидался вопрос");
 	});
 
 	test("abandon прерывает анкету", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		ar.abandon();
 
 		expect(ar.getCurrentState().status).toBe("abandoned");
@@ -131,7 +132,7 @@ describe("QuestionnaireAr", () => {
 
 	test("abandon на завершённой анкете ничего не меняет", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		ar.submitAnswer("q1", "no");
 		ar.submitAnswer("q3", "hello");
 		ar.submitAnswer("q4", ["a"]);
@@ -142,7 +143,7 @@ describe("QuestionnaireAr", () => {
 
 	test("getAnswers возвращает все ответы", () => {
 		const pool = new QuestionPoolService(testPool);
-		const ar = QuestionnaireAr.start("user-1", pool, questionCodes);
+		const ar = QuestionnaireAr.start("user-1", pool, includedQuestionCodes);
 		ar.submitAnswer("q1", "no");
 		ar.submitAnswer("q3", "hello");
 		ar.submitAnswer("q4", ["a"]);

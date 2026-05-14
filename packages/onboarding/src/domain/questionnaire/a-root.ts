@@ -18,16 +18,17 @@ import type { QuestionPoolService } from "./question-pool-service";
 /** Агрегат прохождения анкеты */
 export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 	readonly #poolService: QuestionPoolService;
-	readonly #questionCodes: string[];
+	/** Коды вопросов, включённых в эту анкету (подмножество пула) */
+	readonly #includedQuestionCodes: string[];
 
 	constructor(
 		state: Questionnaire,
 		poolService: QuestionPoolService,
-		questionCodes: string[],
+		includedQuestionCodes: string[],
 	) {
 		super(state, QuestionnaireSchema);
 		this.#poolService = poolService;
-		this.#questionCodes = questionCodes;
+		this.#includedQuestionCodes = includedQuestionCodes;
 	}
 
 	/** Возвращает текст вопроса по коду или сам код, если вопрос не найден */
@@ -36,11 +37,14 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 		return q ? q.question : code;
 	}
 
-	/** Фабричный метод — создаёт новую анкету и определяет первый вопрос */
+	/**
+	 * Фабричный метод — создаёт новую анкету и определяет первый вопрос.
+	 * @param includedQuestionCodes — коды вопросов, включённых в анкету (подмножество пула)
+	 */
 	static start(
 		userId: string,
 		poolService: QuestionPoolService,
-		questionCodes: string[],
+		includedQuestionCodes: string[],
 	): QuestionnaireAr {
 		const state: Questionnaire = {
 			uuid: crypto.randomUUID(),
@@ -50,7 +54,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 			currentQuestionCode: null,
 			createdAt: isoNow(),
 		};
-		const ar = new QuestionnaireAr(state, poolService, questionCodes);
+		const ar = new QuestionnaireAr(state, poolService, includedQuestionCodes);
 		ar.getNextQuestion();
 		return ar;
 	}
@@ -128,7 +132,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 	getNextQuestion(): Question | null {
 		let foundCurrent = this.state.currentQuestionCode === null;
 
-		for (const code of this.#questionCodes) {
+		for (const code of this.#includedQuestionCodes) {
 			if (!foundCurrent) {
 				if (code === this.state.currentQuestionCode) {
 					foundCurrent = true;

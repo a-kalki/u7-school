@@ -39,7 +39,7 @@ export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnai
 		const ar = new QuestionnaireAr(
 			questionnaire,
 			poolService,
-			poolService.getAll().map((q) => q.questionCode),
+			poolService.getIncludedQuestionCodes(),
 		);
 		ar.abandon();
 

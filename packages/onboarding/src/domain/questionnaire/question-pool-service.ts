@@ -20,6 +20,14 @@ export class QuestionPoolService {
 		return this.pool;
 	}
 
+	/**
+	 * Коды вопросов, включённых в текущую анкету.
+	 * Пул может содержать больше вопросов, но в анкету попадает только подмножество.
+	 */
+	getIncludedQuestionCodes(): string[] {
+		return this.pool.map((q) => q.questionCode);
+	}
+
 	/** Вопрос по коду */
 	getByCode(code: string): Question | undefined {
 		return this.index.get(code);

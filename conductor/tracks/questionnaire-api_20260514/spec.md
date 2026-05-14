@@ -52,7 +52,7 @@ Controller получает чистые данные и возвращает р
 ## Функциональные требования
 
 ### UC анкеты (API)
-- `start-questionnaire` — создаёт `QuestionnaireAr.start(userId, poolService, questionCodes)`, сохраняет в репозиторий, возвращает первый вопрос.
+- `start-questionnaire` — создаёт `QuestionnaireAr.start(userId, poolService, includedQuestionCodes)`, сохраняет в репозиторий, возвращает первый вопрос.
 - `submit-answer` — по `questionnaireUuid` загружает анкету, вызывает `submitAnswer(questionCode, value)`, сохраняет состояние. Если после ответа `getNextQuestion()` вернул `null` (completed), вызывает `add-role-to-user` через `UserFacade`, затем сохраняет завершённую анкету. **Явно задокументировать в коде: запись в `QuestionnaireRepo` и вызов `add-role-to-user` выполняются не в транзакции.**
 - `get-questionnaire` — получить анкету по UUID.
 - `abandon-questionnaire` — прервать анкету (статус `abandoned`).
@@ -71,7 +71,8 @@ Controller получает чистые данные и возвращает р
 
 ### QuestionPoolService
 - Передаётся в `OnboardingApiModule` через `Resolver`.
-- `StartQuestionnaireUc` и `SubmitAnswerUc` получают его из `resolve` и хранят ссылку (не создают каждый раз).
+- Пул вопросов может содержать больше вопросов, чем включается в конкретную анкету. `getIncludedQuestionCodes()` возвращает подмножество кодов вопросов, которые входят в текущую версию анкеты. UC получают список через сервис (`poolService.getIncludedQuestionCodes()`), а не вычисляют сами.
+- `StartQuestionnaireUc` и `SubmitAnswerUc` получают сервис из `resolve` и хранят ссылку (не создают каждый раз).
 
 ### Обновление роли при завершении
 - UC вызывает `UserFacade.addRoleToUser(userId, CANDIDATE)`.

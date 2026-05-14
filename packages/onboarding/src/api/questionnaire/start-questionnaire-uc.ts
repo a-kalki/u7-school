@@ -36,12 +36,12 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
 		}
 
 		const poolService = this.resolve.questionPoolService;
-		const questionCodes = poolService.getAll().map((q) => q.questionCode);
+		const includedQuestionCodes = poolService.getIncludedQuestionCodes();
 
 		const ar = QuestionnaireAr.start(
 			command.userId,
 			poolService,
-			questionCodes,
+			includedQuestionCodes,
 		);
 		await this.resolve.questionnaireRepo.save(ar.state);
 
