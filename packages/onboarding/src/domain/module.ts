@@ -1,6 +1,7 @@
 import type { BaseJsonDb } from "@u7/core/infra";
-import type { UserRepo } from "@u7/user/domain";
-import type { ApplicationRepo } from "./application/repo";
+import type { UserFacade } from "@u7/user/domain";
+import type { QuestionPoolService } from "./questionnaire/question-pool-service";
+import type { QuestionnaireRepo } from "./questionnaire/repo";
 
 /** Метаданные API-модуля onboarding */
 export interface OnboardingModuleMeta {
@@ -10,7 +11,8 @@ export interface OnboardingModuleMeta {
 
 /** Резолвер зависимостей API-модуля onboarding */
 export interface OnboardingApiModuleResolver {
-	applicationRepo: ApplicationRepo;
-	userRepo: UserRepo;
+	questionnaireRepo: QuestionnaireRepo;
+	questionPoolService: QuestionPoolService;
+	userFacade: UserFacade;
 	db: BaseJsonDb;
 }

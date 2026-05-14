@@ -1,4 +1,5 @@
 import type {
+	AccessDeniedError,
 	ConflictError,
 	NotFoundError,
 	ValidationError,
@@ -22,8 +23,19 @@ export type QuestionNotFoundUcError = NotFoundError<
 	{ questionCode: string } | undefined
 >;
 
+/** Анкета не найдена */
+export type QuestionnaireNotFoundUcError = NotFoundError<
+	"QUESTIONNAIRE_NOT_FOUND",
+	{ uuid: string } | undefined
+>;
+
+/** Доступ запрещён */
+export type AccessDeniedUcError = AccessDeniedError<"ACCESS_DENIED", undefined>;
+
 /** Любая известная ошибка модуля questionnaire */
 export type QuestionnaireModuleError =
 	| QuestionnaireValidationUcError
 	| QuestionnaireCompletedUcError
-	| QuestionNotFoundUcError;
+	| QuestionNotFoundUcError
+	| QuestionnaireNotFoundUcError
+	| AccessDeniedUcError;

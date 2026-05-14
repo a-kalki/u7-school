@@ -1,13 +1,13 @@
 import { type UcMeta, UseCase } from "@u7/core/api";
 import { errAccessDenied, errNotFound } from "@u7/core/domain";
 import type { User } from "@u7/user/domain";
+import type { OnboardingApiModuleResolver } from "#domain/module";
+import type { Questionnaire } from "#domain/questionnaire/entity";
 import type {
 	AccessDeniedUcError,
-	ApplicationNotFoundUcError,
-} from "#domain/application/commands/errors";
-import type { Application } from "#domain/application/entity";
-import { ApplicationPolicy } from "#domain/application/policy";
-import type { OnboardingApiModuleResolver } from "#domain/module";
+	QuestionnaireNotFoundUcError,
+} from "#domain/questionnaire/errors";
+import { QuestionnairePolicy } from "#domain/questionnaire/policy";
 
 /**
  * Базовый класс для всех use-case'ов модуля onboarding.
@@ -17,21 +17,21 @@ export abstract class OnboardingUseCase<TMeta extends UcMeta> extends UseCase<
 	OnboardingApiModuleResolver
 > {
 	/**
-	 * Получает заявку по UUID.
+	 * Получает анкету по UUID.
 	 * Выбрасывает ошибку, если не найдена.
 	 */
-	protected async getApplication(uuid: string): Promise<Application> {
-		const application = await this.resolve.applicationRepo.getByUuid(uuid);
-		if (!application) {
+	protected async getQuestionnaire(uuid: string): Promise<Questionnaire> {
+		const questionnaire = await this.resolve.questionnaireRepo.getByUuid(uuid);
+		if (!questionnaire) {
 			this.throwError(
-				errNotFound<ApplicationNotFoundUcError>(
-					"APPLICATION_NOT_FOUND",
-					"Заявка не найдена",
+				errNotFound<QuestionnaireNotFoundUcError>(
+					"QUESTIONNAIRE_NOT_FOUND",
+					"Анкета не найдена",
 					{ uuid },
 				),
 			);
 		}
-		return application;
+		return questionnaire;
 	}
 
 	/**
@@ -39,14 +39,14 @@ export abstract class OnboardingUseCase<TMeta extends UcMeta> extends UseCase<
 	 * Возвращает undefined, если не найден.
 	 */
 	protected async getUser(userId: string): Promise<User | undefined> {
-		return this.resolve.userRepo.getByUuid(userId);
+		return this.resolve.userFacade.getUserByUuid(userId);
 	}
 
 	/**
 	 * Получает актора (пользователя) и выбрасывает ошибку, если не найден.
 	 */
 	protected async getActor(actorId: string): Promise<User> {
-		const actor = await this.getUser(actorId);
+		const actor = await this.resolve.userFacade.getUserByUuid(actorId);
 		if (!actor) {
 			this.throwError(
 				errAccessDenied<AccessDeniedUcError>(
@@ -71,20 +71,20 @@ export abstract class OnboardingUseCase<TMeta extends UcMeta> extends UseCase<
 	}
 
 	/**
-	 * Возвращает заявку в читаемом виде.
-	 * Бросает ACCESS_DENIED если заявка не видна актору.
+	 * Возвращает анкету в читаемом виде.
+	 * Бросает ACCESS_DENIED если анкета не видна актору.
 	 */
-	protected getOutApplication(
-		application: Application,
+	protected getOutQuestionnaire(
+		questionnaire: Questionnaire,
 		actor?: User,
-	): Application {
+	): Questionnaire {
 		if (!actor) {
-			// Без актора никто не может читать (все заявки приватные)
-			this.throwAccessDenied("Нет доступа к заявке");
+			// Без актора анкеты не видны (все анкеты приватные)
+			this.throwAccessDenied("Нет доступа к анкете");
 		}
-		if (!ApplicationPolicy.canRead(actor, application)) {
-			this.throwAccessDenied("Нет доступа к заявке");
+		if (!QuestionnairePolicy.canRead(actor, questionnaire)) {
+			this.throwAccessDenied("Нет доступа к анкете");
 		}
-		return application;
+		return questionnaire;
 	}
 }

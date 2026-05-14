@@ -3,11 +3,11 @@ import type {
 	OnboardingApiModuleResolver,
 	OnboardingModuleMeta,
 } from "#domain/module";
-import { CreateApplicationUc } from "./application/create-application-uc";
-import { GetApplicationByUserIdUc } from "./application/get-application-by-user-id-uc";
-import { GetApplicationUc } from "./application/get-application-uc";
-import { ListApplicationsUc } from "./application/list-applications-uc";
-import { UpdateApplicationUc } from "./application/update-application-uc";
+import { AbandonQuestionnaireUc } from "./questionnaire/abandon-questionnaire-uc";
+import { GetQuestionnaireUc } from "./questionnaire/get-questionnaire-uc";
+import { ListQuestionnairesByUserUc } from "./questionnaire/list-questionnaires-by-user-uc";
+import { StartQuestionnaireUc } from "./questionnaire/start-questionnaire-uc";
+import { SubmitAnswerUc } from "./questionnaire/submit-answer-uc";
 
 export class OnboardingApiModule extends ApiModule<
 	OnboardingModuleMeta,
@@ -15,10 +15,10 @@ export class OnboardingApiModule extends ApiModule<
 > {
 	readonly name = "onboarding" as const;
 	readonly useCases = [
-		new CreateApplicationUc(),
-		new GetApplicationUc(),
-		new ListApplicationsUc(),
-		new GetApplicationByUserIdUc(),
-		new UpdateApplicationUc(),
+		new StartQuestionnaireUc(),
+		new SubmitAnswerUc(),
+		new GetQuestionnaireUc(),
+		new AbandonQuestionnaireUc(),
+		new ListQuestionnairesByUserUc(),
 	];
 }

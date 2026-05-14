@@ -5,13 +5,9 @@ import { BaseJsonDb } from "@u7/core/infra";
 import type { User } from "@u7/user/domain";
 import { Role } from "@u7/user/domain";
 import { UserJsonRepo } from "@u7/user/infra";
-import { Experience } from "#domain/application/experience";
-import { Format } from "#domain/application/format";
-import { Goals } from "#domain/application/goals";
-import { Intensity } from "#domain/application/intensity";
-import { Source } from "#domain/application/source";
-import { ApplicationStatus } from "#domain/application/status";
-import { ApplicationJsonRepo } from "#infra/db/application-json-repo";
+import type { Question } from "#domain/questionnaire/question";
+import { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
+import { QuestionnaireJsonRepo } from "#infra/db/questionnaire-json-repo";
 import { OnboardingApiModule } from "./module";
 
 let tmpDir: string;
@@ -31,85 +27,135 @@ function makeUser(overrides?: Partial<User>): User {
 	};
 }
 
-function makeAnswers() {
-	return {
-		source: Source.TELEGRAM,
-		interestReason: "Хочу учиться",
-		experience: Experience.BEGINNER,
-		format: Format.ONLINE,
-		goals: Goals.CAREER_CHANGE,
-		intensity: Intensity.BASE,
-	};
-}
+const testPool: Question[] = [
+	{
+		question: "Первый вопрос",
+		questionCode: "q1",
+		type: "choice",
+		multiple: false,
+		answers: [
+			{ answer: "Да", answerCode: "yes" },
+			{ answer: "Нет", answerCode: "no" },
+		],
+	},
+	{
+		question: "Второй вопрос",
+		questionCode: "q2",
+		type: "text",
+	},
+];
 
 describe("OnboardingApiModule", () => {
 	let db: BaseJsonDb;
-	let applicationRepo: ApplicationJsonRepo;
+	let questionnaireRepo: QuestionnaireJsonRepo;
 	let userRepo: UserJsonRepo;
 	let mod: OnboardingApiModule;
 
 	beforeEach(() => {
 		tmpDir = mkdtempSync("/tmp/onboarding-api-test-");
 		db = new BaseJsonDb();
-		applicationRepo = new ApplicationJsonRepo(nextPath("applications"), db);
+		questionnaireRepo = new QuestionnaireJsonRepo(
+			nextPath("questionnaires"),
+			db,
+		);
 		userRepo = new UserJsonRepo(nextPath("users"), undefined, db);
 		mod = new OnboardingApiModule();
-		mod.init({ applicationRepo, userRepo, db });
+		mod.init({
+			questionnaireRepo,
+			questionPoolService: new QuestionPoolService(testPool),
+			userFacade: {
+				getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
+				userExists: async (uuid: string) => {
+					const u = await userRepo.getByUuid(uuid);
+					return u !== undefined;
+				},
+				addRoleToUser: async (userId: string, role: Role) => {
+					const user = await userRepo.getByUuid(userId);
+					if (!user) return undefined;
+					const updated = {
+						...user,
+						roles: user.roles.includes(role)
+							? user.roles
+							: [...user.roles, role],
+					};
+					await userRepo.save(updated);
+					return updated;
+				},
+			},
+			db,
+		});
 	});
 
 	afterEach(() => {
 		rmSync(tmpDir, { recursive: true, force: true });
 	});
 
-	test("create-application: создаёт заявку и добавляет роль CANDIDATE", async () => {
+	test("start-questionnaire: создаёт анкету", async () => {
 		const user = makeUser();
 		await userRepo.save(user);
 
 		const result = await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
+			name: "start-questionnaire",
+			attrs: { userId: user.uuid },
 			actorId: user.uuid,
 		});
 
-		expect((result as { status: string }).status).toBe(
-			ApplicationStatus.SUBMITTED,
-		);
+		expect((result as { status: string }).status).toBe("in_progress");
+		expect(
+			(result as { currentQuestionCode: string | null }).currentQuestionCode,
+		).toBe("q1");
+	});
+
+	test("submit-answer: обрабатывает ответ и завершает анкету", async () => {
+		const user = makeUser();
+		await userRepo.save(user);
+
+		const created = (await mod.handle({
+			name: "start-questionnaire",
+			attrs: { userId: user.uuid },
+			actorId: user.uuid,
+		})) as { uuid: string };
+
+		const result = await mod.handle({
+			name: "submit-answer",
+			attrs: {
+				questionnaireUuid: created.uuid,
+				questionCode: "q1",
+				value: "yes",
+			},
+			actorId: user.uuid,
+		});
+
+		expect((result as { status: string }).status).toBe("in_progress");
+
+		const finalResult = await mod.handle({
+			name: "submit-answer",
+			attrs: {
+				questionnaireUuid: created.uuid,
+				questionCode: "q2",
+				value: "hello",
+			},
+			actorId: user.uuid,
+		});
+
+		expect((finalResult as { status: string }).status).toBe("completed");
 
 		const updatedUser = await userRepo.getByUuid(user.uuid);
 		expect(updatedUser?.roles).toContain(Role.CANDIDATE);
 	});
 
-	test("create-application: отклоняет дубликат", async () => {
-		const user = makeUser();
-		await userRepo.save(user);
-
-		await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
-			actorId: user.uuid,
-		});
-
-		await expect(
-			mod.handle({
-				name: "create-application",
-				attrs: { userId: user.uuid, answers: makeAnswers() },
-				actorId: user.uuid,
-			}),
-		).rejects.toThrow("Заявка для данного пользователя уже существует");
-	});
-
-	test("get-application: возвращает заявку владельцу", async () => {
+	test("get-questionnaire: возвращает анкету владельцу", async () => {
 		const user = makeUser();
 		await userRepo.save(user);
 
 		const created = (await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
+			name: "start-questionnaire",
+			attrs: { userId: user.uuid },
 			actorId: user.uuid,
 		})) as { uuid: string };
 
 		const result = await mod.handle({
-			name: "get-application",
+			name: "get-questionnaire",
 			attrs: { uuid: created.uuid },
 			actorId: user.uuid,
 		});
@@ -117,128 +163,66 @@ describe("OnboardingApiModule", () => {
 		expect((result as { uuid: string }).uuid).toBe(created.uuid);
 	});
 
-	test("get-application: отклоняет чужаку", async () => {
+	test("get-questionnaire: отклоняет чужаку", async () => {
 		const user = makeUser();
 		const stranger = makeUser();
 		await userRepo.save(user);
 		await userRepo.save(stranger);
 
 		const created = (await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
+			name: "start-questionnaire",
+			attrs: { userId: user.uuid },
 			actorId: user.uuid,
 		})) as { uuid: string };
 
 		await expect(
 			mod.handle({
-				name: "get-application",
+				name: "get-questionnaire",
 				attrs: { uuid: created.uuid },
 				actorId: stranger.uuid,
 			}),
-		).rejects.toThrow("Нет доступа к заявке");
+		).rejects.toThrow("Нет доступа к анкете");
 	});
 
-	test("list-applications: ADMIN видит все заявки", async () => {
+	test("abandon-questionnaire: прерывает анкету", async () => {
+		const user = makeUser();
+		await userRepo.save(user);
+
+		const created = (await mod.handle({
+			name: "start-questionnaire",
+			attrs: { userId: user.uuid },
+			actorId: user.uuid,
+		})) as { uuid: string };
+
+		const result = await mod.handle({
+			name: "abandon-questionnaire",
+			attrs: { uuid: created.uuid },
+			actorId: user.uuid,
+		});
+
+		expect((result as { status: string }).status).toBe("abandoned");
+	});
+
+	test("list-questionnaires-by-user: ADMIN видит все анкеты", async () => {
 		const admin = makeUser({ roles: [Role.ADMIN] });
 		const user = makeUser();
 		await userRepo.save(admin);
 		await userRepo.save(user);
 
 		await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
-			actorId: user.uuid,
-		});
-
-		const result = await mod.handle({
-			name: "list-applications",
-			attrs: {},
-			actorId: admin.uuid,
-		});
-
-		const apps = result as { userId: string }[];
-		expect(apps.length).toBeGreaterThanOrEqual(1);
-		expect(apps.some((a) => a.userId === user.uuid)).toBe(true);
-	});
-
-	test("list-applications: обычный пользователь не может листить", async () => {
-		const user = makeUser();
-		await userRepo.save(user);
-
-		await expect(
-			mod.handle({
-				name: "list-applications",
-				attrs: {},
-				actorId: user.uuid,
-			}),
-		).rejects.toThrow("Недостаточно прав для просмотра списка заявок");
-	});
-
-	test("get-application-by-user-id: находит заявку по userId", async () => {
-		const user = makeUser();
-		await userRepo.save(user);
-
-		await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
-			actorId: user.uuid,
-		});
-
-		const result = await mod.handle({
-			name: "get-application-by-user-id",
+			name: "start-questionnaire",
 			attrs: { userId: user.uuid },
 			actorId: user.uuid,
 		});
 
-		expect((result as { userId: string }).userId).toBe(user.uuid);
-	});
-
-	test("update-application: владелец обновляет ответы", async () => {
-		const user = makeUser();
-		await userRepo.save(user);
-
-		const created = (await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
-			actorId: user.uuid,
-		})) as { uuid: string };
-
 		const result = await mod.handle({
-			name: "update-application",
-			attrs: {
-				uuid: created.uuid,
-				answers: { ...makeAnswers(), interestReason: "Обновлённая причина" },
-			},
-			actorId: user.uuid,
+			name: "list-questionnaires-by-user",
+			attrs: { userId: user.uuid },
+			actorId: admin.uuid,
 		});
 
-		expect(
-			(result as { answers: { interestReason: string } }).answers
-				.interestReason,
-		).toBe("Обновлённая причина");
-	});
-
-	test("update-application: чужак не может обновить", async () => {
-		const user = makeUser();
-		const stranger = makeUser();
-		await userRepo.save(user);
-		await userRepo.save(stranger);
-
-		const created = (await mod.handle({
-			name: "create-application",
-			attrs: { userId: user.uuid, answers: makeAnswers() },
-			actorId: user.uuid,
-		})) as { uuid: string };
-
-		await expect(
-			mod.handle({
-				name: "update-application",
-				attrs: {
-					uuid: created.uuid,
-					answers: makeAnswers(),
-				},
-				actorId: stranger.uuid,
-			}),
-		).rejects.toThrow("Недостаточно прав для обновления заявки");
+		const list = result as { userId: string }[];
+		expect(list.length).toBeGreaterThanOrEqual(1);
+		expect(list.some((q) => q.userId === user.uuid)).toBe(true);
 	});
 });
