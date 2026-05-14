@@ -22,16 +22,16 @@
 - [x] Task: Conductor - User Manual Verification 'Domain Service' (Protocol in workflow.md)
 
 ## Фаза 4: UseCases и инфраструктура
-- [ ] Task: Создать CreateApplicationCmd / CreateApplicationUc (через ApplicationDs)
-- [ ] Task: Создать GetApplicationCmd / GetApplicationUc
-- [ ] Task: Создать ListApplicationsCmd / ListApplicationsUc
-- [ ] Task: Создать GetApplicationByUserIdCmd / GetApplicationByUserIdUc
-- [ ] Task: Создать UpdateApplicationCmd / UpdateApplicationUc (частичное изменение)
-- [ ] Task: Создать ApplicationRepo interface
-- [ ] Task: Создать ApplicationJsonRepo
-- [ ] Task: Создать OnboardingModule
-- [ ] Task: Написать тесты для UC и репо
-- [ ] Task: Conductor - User Manual Verification 'UseCases' (Protocol in workflow.md)
+- [x] Task: Создать CreateApplicationCmd / CreateApplicationUc (через ApplicationDs)
+- [x] Task: Создать GetApplicationCmd / GetApplicationUc
+- [x] Task: Создать ListApplicationsCmd / ListApplicationsUc
+- [x] Task: Создать GetApplicationByUserIdCmd / GetApplicationByUserIdUc
+- [x] Task: Создать UpdateApplicationCmd / UpdateApplicationUc (частичное изменение)
+- [x] Task: Создать ApplicationRepo interface
+- [x] Task: Создать ApplicationJsonRepo
+- [x] Task: Создать OnboardingModule
+- [x] Task: Написать тесты для UC и репо
+- [x] Task: Conductor - User Manual Verification 'UseCases' (Protocol in workflow.md)
 
 ## Фаза 5: Финал
 - [ ] Task: Обновить экспорты пакета

@@ -1,1 +1,2 @@
-// Экспорты API-слоя будут добавлены в следующих фазах
+export { OnboardingApiModule } from "./module";
+export { OnboardingUseCase } from "./onboarding-uc";
