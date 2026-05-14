@@ -7,5 +7,5 @@
 
 ---
 
-- [ ] **Track: API-слой анкеты onboarding и контроллер бота (questionnaire-api)**
+- [x] **Track: API-слой анкеты onboarding и контроллер бота (questionnaire-api)**
   *Link: [./tracks/questionnaire-api_20260514/](./tracks/questionnaire-api_20260514/)*
