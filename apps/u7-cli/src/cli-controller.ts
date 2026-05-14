@@ -93,7 +93,7 @@ export class CliController {
 	private currentActor: { uuid: string; name: string } | null = null;
 	private rl: readline.Interface;
 
-	constructor(private app: ApiApp) {
+	constructor(private app: ApiApp<any>) {
 		this.rl = readline.createInterface({ input, output });
 	}
 
@@ -206,7 +206,7 @@ export class CliController {
 					isBuffering = true;
 
 					const mod = this.app.getModule(modName);
-					const ucDoc = mod?.getDocTypes().find((d) => d.ucName === ucName);
+					const ucDoc = mod?.getDocTypes().find((d: any) => d.ucName === ucName);
 					if (ucDoc?.inputSchema) {
 						printSchemaPrompt(ucDoc.inputSchema);
 					}
@@ -276,7 +276,7 @@ export class CliController {
 		let payload = {};
 
 		const mod = this.app.getModule(modName);
-		const ucDoc = mod?.getDocTypes().find((d) => d.ucName === ucName);
+		const ucDoc = mod?.getDocTypes().find((d: any) => d.ucName === ucName);
 		const inputSchema = ucDoc?.inputSchema;
 
 		if (payloadStr) {
@@ -295,8 +295,7 @@ export class CliController {
 
 		try {
 			const result = await this.app.execute(
-				modName,
-				ucName,
+				ucName as any,
 				payload,
 				this.currentActor?.uuid,
 			);
@@ -340,8 +339,7 @@ export class CliController {
 		try {
 			// biome-ignore lint/suspicious/noExplicitAny: allow any for dynamic API call
 			const result: any = await this.app.execute(
-				"user",
-				"list-users",
+				"list-users" as any,
 				{},
 				this.currentActor?.uuid,
 			);
