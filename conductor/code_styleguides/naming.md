@@ -29,11 +29,13 @@
 | Сценарий использования | `<CommandName>Uc` | `CreateUserUc` | `api/user/create-user-uc.ts` |
 | Модуль (мета) | `<Name><Type>ModuleMeta` | `UserApiModuleMeta` | `domain/module.ts` |
 | Модуль (резолвер) | `<Name><Type>ModuleResolver` | `UserApiModuleResolver` | `domain/module.ts` |
-| Модуль (реализация) | `<Name><Type>Module` | `UserApiModule`, `UserAutoUiModule` | `api/module.ts`, `ui/auto-ui/module.ts` |
+| Модуль (реализация) | `<Name><Type>Module` | `UserApiModule` | `api/module.ts` |
 | БД (интерфейс) | `<ModuleName>Db` | `UserDb` | `domain/db.ts` |
 | БД (реализация) | `<ModuleName><Type>Db` | `UserSqliteDb` | `infra/db/user-db.ts` |
 | Фасад (интерфейс) | `<ModuleName>Facade` | `UserFacade` | `domain/facade.ts` |
 | Фасад (реализация) | `<ModuleName><Type>Facade` | `UserRestFacade` | `infra/user-rest-facade.ts` |
+| Приложение (мета) | `AppMeta` | `CliAppMeta` | `apps/u7-cli/src/main.ts` |
+| Приложение (реализация) | `ApiApp` | `ApiApp<CliAppMeta>` | `apps/u7-cli/src/main.ts` |
 
 ## Структура папок доменного модуля
 
@@ -67,9 +69,9 @@
       - <entity-name>-<type>-repo.ts: реализация repo;
     - <module-name>-facade.ts: реализация facade;
     - <(rest,bot,cli)-controller.ts>: точка входа извне;
-  - ui: логика и объекты для фронта;
-    - auto-ui: ui с автогенерацией тектового ui;
-      - module.ts: модуль c auti-ui-module;
+  - ui: логика и объекты для интерфейса;
+    - bot/controller/: контроллер для Telegram-бота;
+    - cli-controller.ts: контроллер для CLI;
 ```
 
 Данная структура не обязывает, при необходимости можно отойти от этого стандарта соблюдая здравый смысл. В таком случае используйте ее как концепцию.

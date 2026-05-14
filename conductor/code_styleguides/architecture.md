@@ -69,7 +69,7 @@ shared → domain → (api, ui)
 
 - `domain` **не импортирует** `api` или `ui`.
 - `api` может импортировать `domain`.
-- `ui/auto-ui` (бот, консоль) может импортировать `api`.
+- `ui/bot/controller/` и `cli-controller` могут импортировать `api`.
 - `ui/web` (браузерный) **не импортирует** `api` напрямую.
 
 ### Настройка package.json
