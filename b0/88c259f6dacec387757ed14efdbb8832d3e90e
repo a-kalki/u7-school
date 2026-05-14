@@ -1,0 +1,10 @@
+Phase 1: Базовые типы и абстракции (пакет core)
+Переименован ModuleMeta в ApiModuleMeta, добавлен generic-параметр TUcMetas.
+Создан интерфейс AppMeta. Обновлен ApiModule и ApiApp.
+Измененные файлы:
+- packages/core/src/domain/module/types.ts
+- packages/core/src/domain/index.ts
+- packages/core/src/api/module/api-module.ts
+- packages/core/src/api/module/api-module.test.ts
+- packages/core/src/api/app/api-app.ts
+- packages/core/src/api/app/app.ts
