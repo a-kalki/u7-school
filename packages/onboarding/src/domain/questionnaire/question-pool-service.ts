@@ -33,7 +33,7 @@ export class QuestionPoolService {
 	): v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>> {
 		const question = this.getByCode(questionCode);
 		if (!question) {
-			throw new Error(`Вопрос с кодом "${questionCode}" не найден в пуле`);
+			throw new Error(`Вопрос "${questionCode}" не найден в пуле`);
 		}
 
 		if (question.type === "text") {
@@ -61,7 +61,8 @@ export class QuestionPoolService {
 		}
 
 		// Exhaustiveness check для TypeScript
-		throw new Error(`Неизвестный тип вопроса для "${questionCode}"`);
+		const qText = this.getByCode(questionCode)?.question ?? questionCode;
+		throw new Error(`Неизвестный тип вопроса для "${qText}"`);
 	}
 
 	/** Валидация целостности пула */

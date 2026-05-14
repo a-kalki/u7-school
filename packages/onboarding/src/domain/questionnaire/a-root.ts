@@ -30,6 +30,12 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 		this.#questionCodes = questionCodes;
 	}
 
+	/** Возвращает текст вопроса по коду или сам код, если вопрос не найден */
+	#getQuestionText(code: string): string {
+		const q = this.#poolService.getByCode(code);
+		return q ? q.question : code;
+	}
+
 	/** Фабричный метод — создаёт новую анкету и определяет первый вопрос */
 	static start(
 		userId: string,
@@ -62,8 +68,12 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 		}
 
 		if (this.state.currentQuestionCode !== questionCode) {
+			const expected = this.#getQuestionText(
+				this.state.currentQuestionCode ?? "",
+			);
+			const received = this.#getQuestionText(questionCode);
 			this.throwBadRequest(
-				`Ожидался вопрос "${this.state.currentQuestionCode}", получен "${questionCode}"`,
+				`Ожидался вопрос "${expected}", получен "${received}"`,
 			);
 		}
 
@@ -72,10 +82,11 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 			v.parse(schema, value);
 		} catch (e) {
 			if (e instanceof v.ValiError) {
+				const qText = this.#getQuestionText(questionCode);
 				throwError(
 					errValidation<QuestionnaireValidationUcError>(
 						"QUESTIONNAIRE_VALIDATION",
-						`Некорректный ответ на вопрос "${questionCode}"`,
+						`Некорректный ответ на вопрос "${qText}"`,
 						{ questionCode, issues: [e.message] },
 					),
 				);
@@ -85,7 +96,9 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
 		const question = this.#poolService.getByCode(questionCode);
 		if (!question) {
-			this.throwBadRequest(`Вопрос "${questionCode}" не найден в пуле`);
+			this.throwBadRequest(
+				`Вопрос "${this.#getQuestionText(questionCode)}" не найден в пуле`,
+			);
 		}
 
 		const entry: AnswerEntry = {
@@ -125,13 +138,14 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
 			const question = this.#poolService.getByCode(code);
 			if (!question) {
-				this.throwBadRequest(`Вопрос "${code}" не найден в пуле`);
+				this.throwBadRequest(
+					`Вопрос "${this.#getQuestionText(code)}" не найден в пуле`,
+				);
 			}
 
 			const condition = question.condition;
 			if (!condition) {
-				this._state.currentQuestionCode = question.questionCode;
-				this.safeUpdate({});
+				this.safeUpdate({ currentQuestionCode: question.questionCode });
 				return question;
 			}
 
@@ -143,24 +157,20 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 					condition.answerCodes.includes(ac),
 				);
 				if (hasMatch) {
-					this._state.currentQuestionCode = question.questionCode;
-					this.safeUpdate({});
+					this.safeUpdate({ currentQuestionCode: question.questionCode });
 					return question;
 				}
 			}
 		}
 
-		this._state.status = "completed";
-		this._state.currentQuestionCode = null;
-		this.safeUpdate({});
+		this.safeUpdate({ status: "completed", currentQuestionCode: null });
 		return null;
 	}
 
 	/** Прерывает анкету */
 	abandon(): void {
 		if (this.state.status !== "in_progress") return;
-		this._state.status = "abandoned";
-		this.safeUpdate({});
+		this.safeUpdate({ status: "abandoned" });
 	}
 
 	/** Текущее состояние для сериализации */
