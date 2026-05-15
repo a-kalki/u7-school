@@ -7,3 +7,4 @@ export type {
   SubmitResult,
 } from './ui/bot/controller/onboarding-controller';
 export { OnboardingController } from './ui/bot/controller/onboarding-controller';
+export type { OnboardingBotAppMeta, OnboardingBotApp } from './ui/bot/app';

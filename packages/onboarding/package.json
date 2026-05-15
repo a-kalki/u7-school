@@ -16,6 +16,7 @@
     "@u7/user": "workspace:*"
   },
   "exports": {
+    ".": "./src/index.ts",
     "./domain": "./src/domain/index.ts",
     "./api": "./src/api/index.ts",
     "./infra": "./src/infra/index.ts"

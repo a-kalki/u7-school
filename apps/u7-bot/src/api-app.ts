@@ -1,0 +1,50 @@
+import { ApiApp } from "@u7/core/api";
+import { BaseJsonDb } from "@u7/core/infra";
+import { OnboardingApiModule, OnboardingController } from "@u7/onboarding";
+import { QuestionPoolService } from "@u7/onboarding/domain";
+import { QuestionnaireJsonRepo } from "@u7/onboarding/infra";
+import { UserApiModule } from "@u7/user/api";
+import { UserJsonRepo } from "@u7/user/infra";
+import { UserInProcFacade } from "@u7/user/infra";
+import type { BotConfig } from "./config";
+import type { OnboardingBotApp } from "@u7/onboarding";
+
+/**
+ * Фабрика создания ApiApp и зависимостей для бота.
+ */
+export function createApiApp(config: BotConfig) {
+  const db = new BaseJsonDb();
+
+  const userRepo = new UserJsonRepo(
+    `${config.dbDir}/users.json`,
+    undefined,
+    db,
+  );
+  const questionnaireRepo = new QuestionnaireJsonRepo(
+    `${config.dbDir}/questionnaires.json`,
+    db,
+  );
+
+  const poolService = new QuestionPoolService();
+
+  const userModule = new UserApiModule();
+  userModule.init({ userRepo });
+
+  const userFacade = new UserInProcFacade(userModule);
+
+  const onboardingModule = new OnboardingApiModule();
+  const allQuestionCodes = poolService.getAll().map((q) => q.questionCode);
+  onboardingModule.init({
+    questionnaireRepo,
+    questionPoolService: poolService,
+    includedQuestionCodes: allQuestionCodes,
+    userFacade,
+    db,
+  });
+
+  const apiApp = new ApiApp() as OnboardingBotApp;
+  apiApp.register(userModule);
+  apiApp.register(onboardingModule);
+
+  return { apiApp, userRepo, questionnaireRepo, poolService, userModule };
+}
