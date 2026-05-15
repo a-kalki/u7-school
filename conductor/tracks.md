@@ -3,7 +3,7 @@
 
 ---
 
-- [~] **Track: Telegram-бот onboarding (bot-onboarding)**
+- [x] **Track: Telegram-бот onboarding (bot-onboarding)**
   *Link: [$T1]($T1)*
 
 ---

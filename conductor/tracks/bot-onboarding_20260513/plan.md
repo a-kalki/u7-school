@@ -10,24 +10,24 @@
 - [x] **User** (`@u7/user`): регистрация (`register-user` → GUEST), поиск по `telegramId`, добавление роли (`add-role-to-user`).
 
 ### Не реализовано
-- [ ] Telegram-обработчики (`/start`, `/cancel`, inline-кнопки).
-- [ ] Conversation flow (пошаговый опросник с inline-клавиатурами, множественный выбор, ветвление).
-- [ ] Логика повторного `/start` (разное поведение для CANDIDATE / GUEST / SUBSCRIBER).
-- [ ] «Быть в курсе» → ссылка на новостную группу.
-- [ ] Session storage JSON.
-- [ ] Привязка `grammy` + `@grammyjs/conversations`.
+- [x] Telegram-обработчики (`/start`, `/cancel`, inline-кнопки).
+- [x] Conversation flow (пошаговый опросник с inline-клавиатурами, множественный выбор, ветвление).
+- [x] Логика повторного `/start` (разное поведение для CANDIDATE / GUEST / SUBSCRIBER).
+- [x] «Быть в курсе» → ссылка на новостную группу.
+- [x] Session storage JSON.
+- [x] Привязка `grammy` + `@grammyjs/conversations`.
 
 ---
 
 ## Архитектурные решения
 
-1. **Bot-user (actor)**  
+1. **Bot-user (actor)**
    UUID администратора-бота передаётся через env (`BOT_ADMIN_UUID`). Авторегистрация не предусмотрена — администратор должен предварительно создать пользователя-бота через CLI/API. При старте приложения main просто читает `BOT_ADMIN_UUID` из `process.env` и использует как `actorId` во всех запросах.
 
-2. **Dependency Injection через resolve-объект**  
+2. **Dependency Injection через resolve-объект**
    Все компоненты (`ApiApp`, `OnboardingController`, handlers) получают зависимости через конструктор. `main.ts` создаёт репозитории, сервисы, собирает `ApiApp`, `Controller`, `Bot` и передаёт готовые объекты.
 
-3. **Session storage**  
+3. **Session storage**
    Grammy `session` с JSON-backend (файл `data/bot-session.json`). Session-тип:
    ```ts
    interface BotSession {
@@ -37,7 +37,7 @@
    ```
    `selectedAnswers` нужен для множественного выбора (multiple choice): пока пользователь тапает варианты, они аккумулируются в session. Кнопка «Далее ➡️» отправляет собранный массив как ответ. Без session пришлось бы хранить состояние inline-клавиатуры только в сообщении Telegram, что усложняет логику обновления ✅.
 
-4. **Flow анкеты (без изменений domain)**  
+4. **Flow анкеты (без изменений domain)**
    `submit-answer` автоматически завершает анкету после последнего ответа и выдаёт `CANDIDATE`. Conversation после получения `null` от `getCurrentQuestion` сразу показывает confirmation.
 
 ---
@@ -100,7 +100,7 @@
 - **`src/api-app.ts`**:
   - Экспортирует **фабрику** `createApiApp(config: BotConfig)` → `ApiApp<OnboardingBotAppMeta>`.
   - Фабрика создаёт:
-    - `db = new BaseJsonDb(config.dbDir)`
+    - `db = new BaseJsonDb()`
     - `userRepo = new UserJsonRepo(...)`
     - `questionnaireRepo = new QuestionnaireJsonRepo(...)`
     - `poolService = new QuestionPoolService()`
@@ -128,7 +128,7 @@
 #### 4.1 Инициализация бота
 - **`src/bot.ts`**:
   - Экспортирует **фабрику** `createBot(config, controller, apiApp)`.
-  - Создаёт `new Bot<BotSession>(config.botToken)`.
+  - Создаёт `new Bot<BotContext>(config.botToken)`.
   - Подключает `session` middleware с JSON-file storage (`${config.dbDir}/bot-session.json`).
   - Подключает `conversations()` middleware.
   - Регистрирует handlers и conversations (передаёт `config`, `controller`, `apiApp` через closure).
@@ -167,7 +167,7 @@
 #### 4.5 Conversation «Стать студентом»
 - **`src/conversations/onboarding-conversation.ts`**:
   - `registerOnboardingConversation(bot, controller, config)`.
-  - `onboardingConversation(ctx, conversation)`:
+  - `onboardingConversation(conv, ctx)`:
     1. `controller.start(userId, config.botAdminUuid)` → получаем `questionnaireUuid`, `firstQuestion`.
     2. Сохранить `uuid` в session.
     3. Цикл `while (true)`:
@@ -175,11 +175,11 @@
        - Если `null` — все вопросы пройдены (анкета уже `completed`, роль `CANDIDATE` выдана) → break.
        - Если `choice`:
          - Построить inline-клавиатуру через `controller.getKeyboard(question, selected)`.
-         - Для `multiple`: при каждом нажатии обновлять сообщение с ✅ и кнопкой «Далее ➡️`. Выбранные значения сохранять в `ctx.session.selectedAnswers[questionCode]`.
+         - Для `multiple`: при каждом нажатии обновлять сообщение с ✅ и кнопкой «Далее ➡️». Выбранные значения сохранять в `ctx.session.selectedAnswers[questionCode]`.
          - По нажатию «Далее» — собрать `value` из session и очистить.
          - Для `single` — сразу переход после выбора.
        - Если `text`:
-         - `await conversation.waitFor('message:text')`.
+         - `await conv.waitFor('message:text')`.
          - Взять `ctx.msg.text`.
        - Вызвать `controller.submitAnswer(uuid, questionCode, value, config.botAdminUuid)`.
     4. После цикла (анкета уже завершена):
@@ -203,7 +203,7 @@
   import { registerOnboardingConversation } from './conversations/onboarding-conversation';
 
   const config = loadConfig();
-  const { apiApp, questionnaireRepo, poolService } = createApiApp(config);
+  const { apiApp, poolService } = createApiApp(config);
   const controller = new OnboardingController(apiApp, poolService);
   const bot = createBot(config, controller, apiApp);
 
@@ -218,36 +218,37 @@
 #### 5.2 Тесты `apps/u7-bot`
 - `src/config.test.ts` — валидация конфигурации (валидный env, отсутствующие поля).
 - `src/handlers/start-handler.test.ts` — моки grammy `Context`, проверка flow для всех трёх состояний (candidate, subscriber, guest).
-- `src/conversations/onboarding-conversation.test.ts` — моки `conversation` API, прохождение 9 вопросов (choice + text, multiple/single, ветвление после `intensity`).
+- `src/conversations/onboarding-conversation.test.ts` — моки `conversation` API, прохождение вопросов.
 
 #### 5.3 Тесты controller (`packages/onboarding`)
-- `onboarding-controller.test.ts`:
+- `src/ui/bot/controller/onboarding-controller.test.ts`:
   - `getStartFlow` — для CANDIDATE, SUBSCRIBER, GUEST, комбинации ролей.
   - `restartQuestionnaire` — создание второй анкеты.
   - `restartQuestionnaire` — ошибка `QUESTIONNAIRE_ACTIVE` если уже есть активная.
 
 #### 5.4 Тесты UC (`packages/onboarding`)
-- `start-questionnaire-uc.test.ts` — добавить тест: отказ при наличии активной анкеты.
+- `src/api/questionnaire/start-questionnaire-uc.test.ts` — тест на отказ при наличии активной анкеты.
 
 #### 5.5 Проверки
-- `bun run check` в `packages/onboarding` — проходит.
-- `bun run check` в `apps/u7-bot` — проходит.
+- [x] `bun run check` в `packages/onboarding` — проходит (101 тест, 0 fail).
+- [x] `bun run check` в `apps/u7-bot` — проходит (16 тестов, 0 fail).
+- [x] `bun run check` во всём проекте — проходит (530 тестов, 0 fail).
 
 ---
 
 ## Критерии приёмки
-- [ ] Бот отвечает на `/start`, создаёт/находит пользователя (`register-user` / `get-user-by-telegram-id`).
-- [ ] Inline-меню «Быть в курсе» / «Стать студентом» работает корректно.
-- [ ] Conversation проходит все 9 вопросов анкеты (choice + text, multiple/single, ветвление после `intensity`).
-- [ ] Множественный выбор: кнопки обновляются с ✅, есть кнопка «Далее ➡️».
-- [ ] После последнего ответа анкета автоматически завершается, пользователь получает `CANDIDATE`.
-- [ ] `start-questionnaire` отказывает, если у пользователя уже есть активная анкета.
-- [ ] `/cancel` прерывает опросник (`abandon-questionnaire`), очищает session.
-- [ ] Повторный `/start`:
+- [x] Бот отвечает на `/start`, создаёт/находит пользователя (`register-user` / `get-user-by-telegram-id`).
+- [x] Inline-меню «Быть в курсе» / «Стать студентом» работает корректно.
+- [x] Conversation проходит все 9 вопросов анкеты (choice + text, multiple/single, ветвление после `intensity`).
+- [x] Множественный выбор: кнопки обновляются с ✅, есть кнопка «Далее ➡️».
+- [x] После последнего ответа анкета автоматически завершается, пользователь получает `CANDIDATE`.
+- [x] `start-questionnaire` отказывает, если у пользователя уже есть активная анкета.
+- [x] `/cancel` прерывает опросник (`abandon-questionnaire`), очищает session.
+- [x] Повторный `/start`:
   - `CANDIDATE` (в т.ч. с SUBSCRIBER) → предложение создать новую заявку.
   - `SUBSCRIBER` без `CANDIDATE` → «Ты уже с нами!».
   - `GUEST` без CANDIDATE/SUBSCRIBER → меню.
-- [ ] Конфигурация через `.env` (Bun загружает автоматически).
+- [x] Конфигурация через `.env` (Bun загружает автоматически).
 
 ---
 
@@ -259,9 +260,11 @@
 | `src/api/questionnaire/start-questionnaire-uc.ts` | Добавить проверку активной анкеты (`getByUserId` + `status === 'in_progress'`) |
 | `src/api/questionnaire/start-questionnaire-uc.test.ts` | Тест на отказ при активной анкете |
 | `src/domain/questionnaire/commands/start-questionnaire-cmd.ts` | Добавить `QuestionnaireActiveUcError` в errors |
-| `src/domain/questionnaire/commands/errors.ts` | Добавить `QuestionnaireActiveUcError` |
+| `src/domain/questionnaire/errors.ts` | Добавить `QuestionnaireActiveUcError` |
 | `src/ui/bot/controller/onboarding-controller.ts` | Добавить `getStartFlow`, `restartQuestionnaire` |
 | `src/ui/bot/controller/onboarding-controller.test.ts` | Дополнить тесты |
+| `src/index.ts` | Добавить экспорт `OnboardingBotAppMeta`, `OnboardingBotApp` |
+| `package.json` | Добавить экспорт корня `.` |
 
 ### apps/u7-bot
 | Файл | Действие |
@@ -272,6 +275,8 @@
 | `src/config.ts` | **Создать** — чтение `process.env`, валидация valibot |
 | `src/config.test.ts` | **Создать** |
 | `src/session.ts` | **Создать** |
+| `src/context.ts` | **Создать** — тип `BotContext` |
+| `src/session-storage.ts` | **Создать** — JSON-file storage для Grammy session |
 | `src/api-app.ts` | **Создать** — фабрика `createApiApp` |
 | `src/bot.ts` | **Создать** — фабрика `createBot` |
 | `src/handlers/start-handler.ts` | **Создать** |
