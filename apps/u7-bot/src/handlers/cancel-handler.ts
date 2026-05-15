@@ -13,11 +13,19 @@ export function registerCancelHandler(
   config: BotConfig,
 ) {
   bot.command('cancel', async (ctx) => {
-    const uuid = ctx.session.questionnaireUuid;
+    const telegramId = ctx.from?.id;
+    if (!telegramId) {
+      await ctx.reply('Не удалось определить пользователя.');
+      return;
+    }
+
+    const uuid = await controller.getActiveQuestionnaireUuid(
+      String(telegramId),
+      config.botAdminUuid,
+    );
+
     if (uuid) {
       await controller.abandon(uuid, config.botAdminUuid);
-      ctx.session.questionnaireUuid = undefined;
-      ctx.session.selectedAnswers = {};
     }
 
     await ctx.reply('Опросник прерван. Данные удалены.', {

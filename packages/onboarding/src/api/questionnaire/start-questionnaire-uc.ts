@@ -45,7 +45,7 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
       this.throwError(
         errConflict<QuestionnaireActiveUcError>(
           'QUESTIONNAIRE_ACTIVE',
-          'У пользователя уже есть активная анкета',
+          'У тебя уже есть активная анкета',
           { userId: command.userId },
         ),
       );

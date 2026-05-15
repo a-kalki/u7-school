@@ -187,7 +187,25 @@ export class OnboardingController {
   }
 
   /**
+   * Возвращает UUID активной (in_progress) анкеты пользователя.
+   */
+  async getActiveQuestionnaireUuid(
+    userId: string,
+    actorId: string,
+  ): Promise<string | undefined> {
+    const questionnaires = await this.#app.execute(
+      'list-questionnaires-by-user',
+      { userId },
+      actorId,
+    );
+
+    const active = questionnaires.find((q) => q.status === 'in_progress');
+    return active?.uuid;
+  }
+
+  /**
    * Строит описание inline-клавиатуры для вопроса с выбором ответа.
+   * Кнопки содержат только номера [1] [2] [3], коды ответов — в data.
    */
   getKeyboard(
     question: Question,
@@ -195,16 +213,27 @@ export class OnboardingController {
   ): KeyboardDescription | null {
     if (question.type !== 'choice') return null;
 
-    const rows = question.answers.map((a) => [
-      {
-        text: (selectedValues?.includes(a.answerCode) ? '✅ ' : '') + a.answer,
-        code: a.answerCode,
-      },
-    ]);
+    const buttons = question.answers.map((a, i) => ({
+      text: String(i + 1),
+      code: a.answerCode,
+    }));
 
     return {
-      rows,
+      rows: [buttons],
       isMultiple: question.multiple,
     };
+  }
+
+  /**
+   * Форматирует текст вопроса с нумерованными вариантами и маркерами [x]/[ ].
+   */
+  formatQuestionText(question: Question, selectedValues?: string[]): string {
+    if (question.type !== 'choice') return question.question;
+    const lines: string[] = [question.question, ''];
+    question.answers.forEach((a, i) => {
+      const marker = selectedValues?.includes(a.answerCode) ? '[x]' : '[ ]';
+      lines.push(`${marker} ${i + 1}. ${a.answer}`);
+    });
+    return lines.join('\n');
   }
 }

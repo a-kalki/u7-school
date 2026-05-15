@@ -57,9 +57,12 @@ describe('onboardingConversation logic', () => {
         isCompleted: true,
       })),
       getKeyboard: mock(() => ({
-        rows: [[{ text: 'Да', code: 'yes' }]],
+        rows: [[{ text: '1', code: 'yes' }]],
         isMultiple: false,
       })),
+      formatQuestionText: mock(
+        (question: Question, _?: string[]) => question.question,
+      ),
     } as unknown as OnboardingController;
 
     const config = {

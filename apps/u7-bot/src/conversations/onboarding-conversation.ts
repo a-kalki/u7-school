@@ -1,9 +1,31 @@
 import { createConversation } from '@grammyjs/conversations';
 import type { OnboardingController } from '@u7/onboarding';
+import type { Question } from '@u7/onboarding/domain';
 import type { Bot } from 'grammy';
 import { InlineKeyboard } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
+
+/** Экранирует спецсимволы Telegram MarkdownV2 */
+function escapeMd(text: string): string {
+  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+}
+
+/**
+ * Форматирует вопрос с вариантами ответов в MarkdownV2.
+ * Вопрос жирным, выбранные варианты — `*[x]*`, невыбранные — `[ ]`.
+ */
+function formatQuestionMd(question: Question, selected?: string[]): string {
+  if (question.type !== 'choice') {
+    return `*${escapeMd(question.question)}*`;
+  }
+  const lines: string[] = [`*${escapeMd(question.question)}*`, ''];
+  question.answers.forEach((a, i) => {
+    const marker = selected?.includes(a.answerCode) ? '*\\[x\\]*' : '\\[ \\]';
+    lines.push(`${marker} ${i + 1}\\. ${escapeMd(a.answer)}`);
+  });
+  return lines.join('\n');
+}
 
 /**
  * Conversation прохождения onboarding-анкеты.
@@ -20,22 +42,39 @@ function onboardingConversation(
     }
 
     // Начинаем анкету
-    const { questionnaireUuid, firstQuestion } = await conv.external(() =>
-      controller.restartQuestionnaire(String(telegramId), config.botAdminUuid),
+    let questionnaireUuid: string;
+    let currentQuestion: Question | null = null;
+    try {
+      const result = await conv.external(() =>
+        controller.restartQuestionnaire(
+          String(telegramId),
+          config.botAdminUuid,
+        ),
+      );
+      questionnaireUuid = result.questionnaireUuid;
+      currentQuestion = result.firstQuestion;
+    } catch (err) {
+      await ctx.reply(
+        `Ошибка при создании анкеты: ${(err as Error).message || err}`,
+      );
+      return;
+    }
+
+    // Инструкция
+    await ctx.reply(
+      escapeMd(
+        'Ответьте на вопросы.\n\nВы в любой момент можете прервать опрос, набрав `/cancel`. В этом случае вы сможете позже пройти опрос заново.',
+      ),
+      { parse_mode: 'MarkdownV2' },
     );
 
-    ctx.session.questionnaireUuid = questionnaireUuid;
-    ctx.session.selectedAnswers = {};
-
-    let currentQuestion = firstQuestion;
+    const selectedAnswers: Record<string, string[]> = {};
 
     while (currentQuestion) {
       const question = currentQuestion;
-      if (!question) break;
 
       if (question.type === 'choice') {
-        const selected: string[] =
-          ctx.session.selectedAnswers?.[question.questionCode] ?? [];
+        const selected: string[] = selectedAnswers[question.questionCode] ?? [];
         const keyboardDesc = controller.getKeyboard(question, selected);
 
         if (!keyboardDesc) {
@@ -43,131 +82,187 @@ function onboardingConversation(
           return;
         }
 
-        const inlineKeyboard = new InlineKeyboard();
-        for (const row of keyboardDesc.rows) {
-          for (const btn of row) {
-            inlineKeyboard.text(btn.text, btn.code);
-          }
+        const allButtons = keyboardDesc.rows.flat();
+        const questionMd = formatQuestionMd(question, selected);
+
+        if (keyboardDesc.isMultiple) {
+          // --- МНОЖЕСТВЕННЫЙ ВЫБОР ---
+          const inlineKeyboard = new InlineKeyboard();
+          for (const btn of allButtons) inlineKeyboard.text(btn.text, btn.code);
           inlineKeyboard.row();
-        }
-        if (keyboardDesc.isMultiple) {
-          inlineKeyboard.text('Далее ➡️', 'next');
-        }
+          if (selected.length > 0) inlineKeyboard.text('-->', 'next');
 
-        await ctx.reply(question.question, {
-          reply_markup: inlineKeyboard,
-        });
+          await ctx.reply(questionMd, {
+            reply_markup: inlineKeyboard,
+            parse_mode: 'MarkdownV2',
+          });
 
-        let value: string | string[];
-
-        if (keyboardDesc.isMultiple) {
-          // Множественный выбор
           while (true) {
-            const callbackCtx = await conv.waitFor('callback_query:data');
-            const data = callbackCtx.callbackQuery?.data;
-            await callbackCtx.answerCallbackQuery();
+            const cq = await conv.waitFor('callback_query:data');
+            const data = cq.callbackQuery?.data;
+            await cq.answerCallbackQuery();
 
             if (data === 'next') {
-              value =
-                ctx.session.selectedAnswers?.[question.questionCode] ?? [];
-              break;
+              try {
+                const result = await conv.external(() =>
+                  controller.submitAnswer(
+                    questionnaireUuid,
+                    question.questionCode,
+                    selectedAnswers[question.questionCode] ?? [],
+                    config.botAdminUuid,
+                  ),
+                );
+                if (result.isCompleted) {
+                  await sendCompletion(ctx, config);
+                  return;
+                }
+                currentQuestion = result.nextQuestion;
+              } catch (err) {
+                await ctx.reply(
+                  `Ошибка: ${(err as Error).message || 'Неизвестная ошибка'}`,
+                );
+                // Не выходим — остаёмся в том же вопросе
+              }
+              break; // выходим из внутреннего while, внешний перепокажет вопрос
             }
 
             if (!data) continue;
 
-            // Toggle выбор
-            const currentSelected: string[] =
-              ctx.session.selectedAnswers?.[question.questionCode] ?? [];
-            const idx: number = currentSelected.indexOf(data);
-            const nextSelected: string[] =
-              idx >= 0
-                ? currentSelected.filter((c: string) => c !== data)
-                : [...currentSelected, data];
+            // Toggle
+            const cur: string[] = selectedAnswers[question.questionCode] ?? [];
+            const idx = cur.indexOf(data);
+            const next =
+              idx >= 0 ? cur.filter((c) => c !== data) : [...cur, data];
+            selectedAnswers[question.questionCode] = next;
 
-            ctx.session.selectedAnswers = {
-              ...ctx.session.selectedAnswers,
-              [question.questionCode]: nextSelected,
-            };
+            const updText = formatQuestionMd(question, next);
+            const updKbd = new InlineKeyboard();
+            for (const btn of allButtons) updKbd.text(btn.text, btn.code);
+            updKbd.row();
+            if (next.length > 0) updKbd.text('-->', 'next');
 
-            // Обновляем клавиатуру
-            const updatedDesc = controller.getKeyboard(question, nextSelected);
-            if (updatedDesc) {
-              const updatedKeyboard = new InlineKeyboard();
-              for (const row of updatedDesc.rows) {
-                for (const btn of row) {
-                  updatedKeyboard.text(btn.text, btn.code);
-                }
-                updatedKeyboard.row();
+            await cq.editMessageText(updText, {
+              reply_markup: updKbd,
+              parse_mode: 'MarkdownV2',
+            });
+          }
+        } else {
+          // --- ОДИНАРНЫЙ ВЫБОР ---
+          const inlineKeyboard = new InlineKeyboard();
+          for (const btn of allButtons) inlineKeyboard.text(btn.text, btn.code);
+
+          const sent = await ctx.reply(questionMd, {
+            reply_markup: inlineKeyboard,
+            parse_mode: 'MarkdownV2',
+          });
+
+          while (true) {
+            const cq = await conv.waitFor('callback_query:data');
+            const value = cq.callbackQuery?.data ?? '';
+            await cq.answerCallbackQuery();
+
+            if (!value) continue;
+
+            // Подсветить выбор маркером *[x]*
+            const answerIndex = parseInt(value, 10) - 1;
+            if (answerIndex >= 0 && answerIndex < question.answers.length) {
+              const selCode = [question.answers[answerIndex]!.answerCode];
+              const selectedText = formatQuestionMd(question, selCode);
+              await ctx.api.editMessageText(
+                sent.chat.id,
+                sent.message_id,
+                selectedText,
+                { parse_mode: 'MarkdownV2' },
+              );
+            }
+
+            try {
+              const result = await conv.external(() =>
+                controller.submitAnswer(
+                  questionnaireUuid,
+                  question.questionCode,
+                  value,
+                  config.botAdminUuid,
+                ),
+              );
+              if (result.isCompleted) {
+                await sendCompletion(ctx, config);
+                return;
               }
-              updatedKeyboard.text('Далее ➡️', 'next');
-              await callbackCtx.editMessageReplyMarkup({
-                reply_markup: updatedKeyboard,
+              currentQuestion = result.nextQuestion;
+              break;
+            } catch (err) {
+              await ctx.reply(
+                `Ошибка: ${(err as Error).message || 'Неизвестная ошибка'}`,
+              );
+              // Перепоказываем вопрос
+              await ctx.reply(questionMd, {
+                reply_markup: inlineKeyboard,
+                parse_mode: 'MarkdownV2',
               });
             }
           }
-        } else {
-          // Одиночный выбор
-          const callbackCtx = await conv.waitFor('callback_query:data');
-          await callbackCtx.answerCallbackQuery();
-          value = callbackCtx.callbackQuery?.data ?? '';
         }
-
-        const result = await conv.external(() =>
-          controller.submitAnswer(
-            questionnaireUuid,
-            question.questionCode,
-            value,
-            config.botAdminUuid,
-          ),
-        );
-
-        if (result.isCompleted) {
-          break;
-        }
-
-        currentQuestion = result.nextQuestion;
       } else if (question.type === 'text') {
-        await ctx.reply(question.question);
+        // --- ТЕКСТОВЫЙ ВОПРОС ---
+        await ctx.reply(escapeMd(question.question), {
+          parse_mode: 'MarkdownV2',
+        });
 
-        const msgCtx = await conv.waitFor('message:text');
-        const value = msgCtx.msg?.text ?? '';
+        while (true) {
+          const msgCtx = await conv.waitFor('message:text');
+          const value = msgCtx.msg?.text ?? '';
 
-        const result = await conv.external(() =>
-          controller.submitAnswer(
-            questionnaireUuid,
-            question.questionCode,
-            value,
-            config.botAdminUuid,
-          ),
-        );
+          if (!value.trim()) {
+            await ctx.reply('Пожалуйста, введите ответ.');
+            continue;
+          }
 
-        if (result.isCompleted) {
-          break;
+          try {
+            const result = await conv.external(() =>
+              controller.submitAnswer(
+                questionnaireUuid,
+                question.questionCode,
+                value,
+                config.botAdminUuid,
+              ),
+            );
+            if (result.isCompleted) {
+              await sendCompletion(ctx, config);
+              return;
+            }
+            currentQuestion = result.nextQuestion;
+            break;
+          } catch (err) {
+            await ctx.reply(
+              `Ошибка: ${(err as Error).message || 'Неизвестная ошибка'}`,
+            );
+          }
         }
-
-        currentQuestion = result.nextQuestion;
       } else {
         await ctx.reply('Неизвестный тип вопроса.');
         break;
       }
     }
-
-    // Анкета завершена
-    ctx.session.questionnaireUuid = undefined;
-    ctx.session.selectedAnswers = {};
-
-    await ctx.reply(
-      `Спасибо! Твоя заявка принята ✅\n\nПрисоединяйся к группе:\n${config.newsGroupUrl}`,
-      {
-        reply_markup: new InlineKeyboard().text('Вернуться в меню', 'menu'),
-      },
-    );
   };
 }
 
-/**
- * Регистрирует onboarding conversation в боте.
- */
+async function sendCompletion(ctx: BotContext, config: BotConfig) {
+  const text = [
+    escapeMd('Спасибо! Твоя заявка принята.'),
+    '',
+    escapeMd(
+      'Присоединяйся к группе — там ты узнаешь, чем мы живём и что происходит у других студентов:',
+    ),
+    escapeMd(config.newsGroupUrl),
+  ].join('\n');
+
+  await ctx.reply(text, {
+    reply_markup: new InlineKeyboard().text('Вернуться в меню', 'menu'),
+    parse_mode: 'MarkdownV2',
+  });
+}
+
 export function registerOnboardingConversation(
   bot: Bot<BotContext>,
   controller: OnboardingController,

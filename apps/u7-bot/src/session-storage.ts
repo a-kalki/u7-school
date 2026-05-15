@@ -1,4 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 /**
  * Простой JSON-file storage adapter для Grammy session.
@@ -34,6 +35,7 @@ export class JsonSessionStorage<T> {
       }
     }
     data[key] = value;
+    mkdirSync(dirname(this.#filePath), { recursive: true });
     writeFileSync(this.#filePath, JSON.stringify(data, null, 2));
   }
 
@@ -45,6 +47,7 @@ export class JsonSessionStorage<T> {
       const content = readFileSync(this.#filePath, 'utf-8');
       const data = JSON.parse(content) as Record<string, T>;
       delete data[key];
+      mkdirSync(dirname(this.#filePath), { recursive: true });
       writeFileSync(this.#filePath, JSON.stringify(data, null, 2));
     } catch {
       // ignore

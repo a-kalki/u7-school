@@ -15,8 +15,8 @@ export function createApiApp(config: BotConfig) {
   const db = new BaseJsonDb();
 
   const userRepo = new UserJsonRepo(
-    `${config.dbDir}/users.json`,
-    undefined,
+    `${config.dbDir}/users/users.json`,
+    `${config.dbDir}/users/seed.json`,
     db,
   );
   const questionnaireRepo = new QuestionnaireJsonRepo(

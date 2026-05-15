@@ -29,7 +29,7 @@ const testPool: Question[] = [
 ];
 
 function setupUc() {
-  const save = mock(async () => {});
+  const save = mock(async () => { });
   const getByUuid = mock(async () => undefined);
   const getByUserId = mock(async () => []);
 
@@ -60,9 +60,9 @@ function setupUc() {
     includedQuestionCodes: testPool.map((q) => q.questionCode),
     userFacade,
     db: {
-      begin: () => {},
-      commit: async () => {},
-      rollback: () => {},
+      begin: () => { },
+      commit: async () => { },
+      rollback: () => { },
     } as BaseJsonDb,
   });
 
@@ -148,7 +148,7 @@ describe('StartQuestionnaireUc', () => {
       repo.getByUserId = mock(async () => [activeQuestionnaire]);
 
       await expect(uc.handle({ userId: user.uuid }, user.uuid)).rejects.toThrow(
-        'У пользователя уже есть активная анкета',
+        'У тебя уже есть активная анкета',
       );
     });
   });

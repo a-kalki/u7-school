@@ -15,7 +15,7 @@ export function createBot(
 ) {
   const bot = new Bot<BotContext>(config.botToken);
 
-  const storage = new JsonSessionStorage(`${config.dbDir}/bot-session.json`);
+  const storage = new JsonSessionStorage(`${config.dbDir}/bot/session.json`);
 
   bot.use(
     session({

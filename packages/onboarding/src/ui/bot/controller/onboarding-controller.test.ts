@@ -272,11 +272,15 @@ describe('OnboardingController', () => {
 
       expect(keyboard).not.toBeNull();
       expect(keyboard?.isMultiple).toBe(false);
-      expect(keyboard?.rows).toHaveLength(2);
+      expect(keyboard?.rows).toHaveLength(1);
+      expect(keyboard?.rows[0]).toHaveLength(2);
+      expect(keyboard?.rows[0]?.[0]?.text).toBe('1');
       expect(keyboard?.rows[0]?.[0]?.code).toBe('yes');
+      expect(keyboard?.rows[0]?.[1]?.text).toBe('2');
+      expect(keyboard?.rows[0]?.[1]?.code).toBe('no');
     });
 
-    test('добавляет галочки для выбранных значений', () => {
+    test('возвращает кнопки-номера независимо от выбора', () => {
       const question: Question = {
         question: 'Тест?',
         questionCode: 'q1',
@@ -290,8 +294,27 @@ describe('OnboardingController', () => {
 
       const keyboard = controller.getKeyboard(question, ['a']);
 
-      expect(keyboard?.rows[0]?.[0]?.text).toBe('✅ A');
-      expect(keyboard?.rows[1]?.[0]?.text).toBe('B');
+      // Кнопки всегда номера, маркеры — в formatQuestionText
+      expect(keyboard?.rows[0]?.[0]?.text).toBe('1');
+      expect(keyboard?.rows[0]?.[1]?.text).toBe('2');
+    });
+
+    test('formatQuestionText добавляет маркеры [x]/[ ]', () => {
+      const question: Question = {
+        question: 'Тест?',
+        questionCode: 'q1',
+        type: 'choice',
+        multiple: true,
+        answers: [
+          { answer: 'A', answerCode: 'a' },
+          { answer: 'B', answerCode: 'b' },
+        ],
+      };
+
+      const text = controller.formatQuestionText(question, ['a']);
+
+      expect(text).toContain('[x] 1. A');
+      expect(text).toContain('[ ] 2. B');
     });
 
     test('возвращает null для text-вопроса', () => {
@@ -356,7 +379,7 @@ describe('OnboardingController', () => {
 
       await expect(
         controller.restartQuestionnaire(user.uuid, user.uuid),
-      ).rejects.toThrow('У пользователя уже есть активная анкета');
+      ).rejects.toThrow('У тебя уже есть активная анкета');
     });
   });
 });
