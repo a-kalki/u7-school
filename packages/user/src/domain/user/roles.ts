@@ -1,4 +1,4 @@
-import * as v from "valibot";
+import * as v from 'valibot';
 
 /**
  * Роли пользователей платформы u7-school.
@@ -10,23 +10,23 @@ import * as v from "valibot";
  * - ADMIN: администратор платформы
  */
 export enum Role {
-	GUEST = "GUEST",
-	SUBSCRIBER = "SUBSCRIBER",
-	CANDIDATE = "CANDIDATE",
-	STUDENT = "STUDENT",
-	MENTOR = "MENTOR",
-	ADMIN = "ADMIN",
+  GUEST = 'GUEST',
+  SUBSCRIBER = 'SUBSCRIBER',
+  CANDIDATE = 'CANDIDATE',
+  STUDENT = 'STUDENT',
+  MENTOR = 'MENTOR',
+  ADMIN = 'ADMIN',
 }
 
 /** Valibot-схема для валидации роли пользователя */
 export const RoleSchema = v.picklist(
-	[
-		Role.GUEST,
-		Role.SUBSCRIBER,
-		Role.CANDIDATE,
-		Role.STUDENT,
-		Role.MENTOR,
-		Role.ADMIN,
-	],
-	`Недопустимая роль. Ожидается: ${Object.keys(Role).join(",")}`,
+  [
+    Role.GUEST,
+    Role.SUBSCRIBER,
+    Role.CANDIDATE,
+    Role.STUDENT,
+    Role.MENTOR,
+    Role.ADMIN,
+  ],
+  `Недопустимая роль. Ожидается: ${Object.keys(Role).join(',')}`,
 );

@@ -1,5 +1,9 @@
-# Track questionnaire-api_20260514 Context
+# Apimeta Refactor
 
+## Ссылки
 - [Спецификация](./spec.md)
 - [План реализации](./plan.md)
 - [Метаданные](./metadata.json)
+
+## Статус
+Трек создан и готов к выполнению.

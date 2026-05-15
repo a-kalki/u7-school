@@ -1,2 +1,2 @@
-export { OnboardingApiModule } from "./module";
-export { OnboardingUseCase } from "./onboarding-uc";
+export { OnboardingApiModule } from './module';
+export { OnboardingUseCase } from './onboarding-uc';

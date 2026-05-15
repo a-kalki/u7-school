@@ -1,22 +1,22 @@
 {
-	"name": "@u7/bot",
-	"version": "0.1.0",
-	"module": "index.ts",
-	"type": "module",
-	"private": true,
-	"scripts": {
-		"test": "bun test",
-		"lint": "bunx biome check .",
-		"tslint": "tsc --noEmit",
-		"format": "bunx biome check . --write",
-		"check": "bun run lint && bun run tslint && bun test"
-	},
-	"dependencies": {
-		"@u7/course": "workspace:*",
-		"@google/genai": "^1.49.0",
-		"dotenv": "^17.3.1",
-		"elysia": "^1.4.27",
-		"grammy": "^1.41.1",
-		"valibot": "^1.2.0"
-	}
+  "name": "@u7/bot",
+  "version": "0.1.0",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "bun test",
+    "lint": "bunx biome check .",
+    "tslint": "tsc --noEmit",
+    "format": "bunx biome check . --write",
+    "check": "bun run lint && bun run tslint && bun test"
+  },
+  "dependencies": {
+    "@u7/course": "workspace:*",
+    "@google/genai": "^1.49.0",
+    "dotenv": "^17.3.1",
+    "elysia": "^1.4.27",
+    "grammy": "^1.41.1",
+    "valibot": "^1.2.0"
+  }
 }

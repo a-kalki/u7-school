@@ -1,24 +1,24 @@
-import type { AccessDeniedError, NotFoundError } from "@u7/core/domain";
+import type { AccessDeniedError, NotFoundError } from '@u7/core/domain';
 import type {
-	CourseAccessDeniedUcError,
-	CourseNotFoundUcError,
-} from "../../course/commands/errors";
+  CourseAccessDeniedUcError,
+  CourseNotFoundUcError,
+} from '../../course/commands/errors';
 
 /** Шаг не найден */
 export type StepNotFoundUcError = NotFoundError<
-	"STEP_NOT_FOUND",
-	{ uuid?: string } | undefined
+  'STEP_NOT_FOUND',
+  { uuid?: string } | undefined
 >;
 
 /** Доступ запрещён */
 export type StepAccessDeniedUcError = AccessDeniedError<
-	"STEP_ACCESS_DENIED",
-	undefined
+  'STEP_ACCESS_DENIED',
+  undefined
 >;
 
 /** Любая известная ошибка step-модуля */
 export type StepModuleError =
-	| StepNotFoundUcError
-	| StepAccessDeniedUcError
-	| CourseNotFoundUcError
-	| CourseAccessDeniedUcError;
+  | StepNotFoundUcError
+  | StepAccessDeniedUcError
+  | CourseNotFoundUcError
+  | CourseAccessDeniedUcError;

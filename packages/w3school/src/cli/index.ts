@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
-import { join } from "node:path";
-import { CourseService } from "../core/course-service";
-import { parseArgs } from "./args";
+import { join } from 'node:path';
+import { CourseService } from '../core/course-service';
+import { parseArgs } from './args';
 
-const PACKAGE_ROOT = join(import.meta.dir, "../..");
-const BASE_DIR = join(PACKAGE_ROOT, "www.w3schools.com");
-const OUTPUT_DIR = join(PACKAGE_ROOT, "output");
+const PACKAGE_ROOT = join(import.meta.dir, '../..');
+const BASE_DIR = join(PACKAGE_ROOT, 'www.w3schools.com');
+const OUTPUT_DIR = join(PACKAGE_ROOT, 'output');
 
 function showHelp() {
-	console.log(`
+  console.log(`
 Использование: w3s <команда> [аргументы]
 
 Команды:
@@ -28,153 +28,153 @@ function showHelp() {
 }
 
 async function main() {
-	const { command, args } = parseArgs(process.argv.slice(2));
-	const service = new CourseService(BASE_DIR, OUTPUT_DIR);
+  const { command, args } = parseArgs(process.argv.slice(2));
+  const service = new CourseService(BASE_DIR, OUTPUT_DIR);
 
-	switch (command) {
-		case "status": {
-			const rawCourses = await service.getAvailableCourses();
-			const parsedCourses = await service.getParsedCourses();
+  switch (command) {
+    case 'status': {
+      const rawCourses = await service.getAvailableCourses();
+      const parsedCourses = await service.getParsedCourses();
 
-			console.log("\n=== СОСТОЯНИЕ КОНТЕНТА ===");
+      console.log('\n=== СОСТОЯНИЕ КОНТЕНТА ===');
 
-			// 1. Парсинг
-			const _toParse = rawCourses.filter((c) => !parsedCourses.includes(c));
-			console.log(`\nДоступно для парсинга (${rawCourses.length}):`);
-			if (rawCourses.length > 0) {
-				for (const course of rawCourses) {
-					const isNew = !parsedCourses.includes(course);
-					console.log(
-						`  ${isNew ? "[+]" : "[v]"} ${course.padEnd(15)} ${isNew ? "(новое)" : "(уже спарсено)"}`,
-					);
-				}
-			} else {
-				console.log("  (нет исходных HTML файлов)");
-			}
+      // 1. Парсинг
+      const _toParse = rawCourses.filter((c) => !parsedCourses.includes(c));
+      console.log(`\nДоступно для парсинга (${rawCourses.length}):`);
+      if (rawCourses.length > 0) {
+        for (const course of rawCourses) {
+          const isNew = !parsedCourses.includes(course);
+          console.log(
+            `  ${isNew ? '[+]' : '[v]'} ${course.padEnd(15)} ${isNew ? '(новое)' : '(уже спарсено)'}`,
+          );
+        }
+      } else {
+        console.log('  (нет исходных HTML файлов)');
+      }
 
-			// 2. Обогащение
-			console.log(`\nДоступно для обогащения (${parsedCourses.length}):`);
-			if (parsedCourses.length > 0) {
-				for (const course of parsedCourses) {
-					const { total, enriched } = await service.getEnrichmentStats(course);
-					const status =
-						enriched === total ? "[v]" : enriched === 0 ? "[ ]" : "[~]";
-					console.log(
-						`  ${status} ${course.padEnd(15)} ${enriched}/${total} уроков обогащено`,
-					);
-				}
-			} else {
-				console.log("  (нет спарсенных курсов)");
-			}
-			console.log("");
-			break;
-		}
-		case "parse": {
-			const force = args.includes("--force");
-			const onlyNew = args.includes("--new");
-			let targetCourse: string | undefined;
+      // 2. Обогащение
+      console.log(`\nДоступно для обогащения (${parsedCourses.length}):`);
+      if (parsedCourses.length > 0) {
+        for (const course of parsedCourses) {
+          const { total, enriched } = await service.getEnrichmentStats(course);
+          const status =
+            enriched === total ? '[v]' : enriched === 0 ? '[ ]' : '[~]';
+          console.log(
+            `  ${status} ${course.padEnd(15)} ${enriched}/${total} уроков обогащено`,
+          );
+        }
+      } else {
+        console.log('  (нет спарсенных курсов)');
+      }
+      console.log('');
+      break;
+    }
+    case 'parse': {
+      const force = args.includes('--force');
+      const onlyNew = args.includes('--new');
+      let targetCourse: string | undefined;
 
-			const courseIdx = args.indexOf("--course");
-			if (courseIdx !== -1 && args[courseIdx + 1]) {
-				targetCourse = args[courseIdx + 1]?.toLowerCase();
-			}
+      const courseIdx = args.indexOf('--course');
+      if (courseIdx !== -1 && args[courseIdx + 1]) {
+        targetCourse = args[courseIdx + 1]?.toLowerCase();
+      }
 
-			const available = await service.getAvailableCourses();
-			let toProcess = available;
+      const available = await service.getAvailableCourses();
+      let toProcess = available;
 
-			if (targetCourse) {
-				if (available.includes(targetCourse)) {
-					toProcess = [targetCourse];
-				} else {
-					console.error(`Ошибка: Курс "${targetCourse}" не найден.`);
-					return;
-				}
-			}
+      if (targetCourse) {
+        if (available.includes(targetCourse)) {
+          toProcess = [targetCourse];
+        } else {
+          console.error(`Ошибка: Курс "${targetCourse}" не найден.`);
+          return;
+        }
+      }
 
-			console.log("--- ЗАПУСК ПАРСЕРА ---");
-			for (const course of toProcess) {
-				console.log(`Обработка курса: ${course}...`);
-				await service.parseCourse(course, { force, onlyNew });
-			}
-			console.log("--- ПАРСИНГ ЗАВЕРШЕН ---");
-			break;
-		}
-		case "enrich": {
-			const apiKey = process.env.DEEPSEEK_API_KEY;
-			if (!apiKey) {
-				console.error(
-					"Ошибка: Переменная окружения DEEPSEEK_API_KEY не установлена.",
-				);
-				return;
-			}
+      console.log('--- ЗАПУСК ПАРСЕРА ---');
+      for (const course of toProcess) {
+        console.log(`Обработка курса: ${course}...`);
+        await service.parseCourse(course, { force, onlyNew });
+      }
+      console.log('--- ПАРСИНГ ЗАВЕРШЕН ---');
+      break;
+    }
+    case 'enrich': {
+      const apiKey = process.env.DEEPSEEK_API_KEY;
+      if (!apiKey) {
+        console.error(
+          'Ошибка: Переменная окружения DEEPSEEK_API_KEY не установлена.',
+        );
+        return;
+      }
 
-			const { AIService } = await import("../core/ai-service");
-			const { EnrichmentService } = await import("../core/enrichment-service");
+      const { AIService } = await import('../core/ai-service');
+      const { EnrichmentService } = await import('../core/enrichment-service');
 
-			const aiService = new AIService(apiKey);
-			const enrichmentService = new EnrichmentService(OUTPUT_DIR, aiService);
+      const aiService = new AIService(apiKey);
+      const enrichmentService = new EnrichmentService(OUTPUT_DIR, aiService);
 
-			let targetCourse: string | undefined;
-			const courseIdx = args.indexOf("--course");
-			if (courseIdx !== -1 && args[courseIdx + 1]) {
-				targetCourse = args[courseIdx + 1]?.toLowerCase();
-			}
+      let targetCourse: string | undefined;
+      const courseIdx = args.indexOf('--course');
+      if (courseIdx !== -1 && args[courseIdx + 1]) {
+        targetCourse = args[courseIdx + 1]?.toLowerCase();
+      }
 
-			const parsed = await service.getParsedCourses();
-			let toProcess = parsed;
+      const parsed = await service.getParsedCourses();
+      let toProcess = parsed;
 
-			if (targetCourse) {
-				if (parsed.includes(targetCourse)) {
-					toProcess = [targetCourse];
-				} else {
-					console.error(
-						`Ошибка: Курс "${targetCourse}" не найден в output (нужно сначала выполнить parse).`,
-					);
-					return;
-				}
-			}
+      if (targetCourse) {
+        if (parsed.includes(targetCourse)) {
+          toProcess = [targetCourse];
+        } else {
+          console.error(
+            `Ошибка: Курс "${targetCourse}" не найден в output (нужно сначала выполнить parse).`,
+          );
+          return;
+        }
+      }
 
-			if (toProcess.length === 0) {
-				console.log("Доступных курсов для обогащения не найдено.");
-				return;
-			}
+      if (toProcess.length === 0) {
+        console.log('Доступных курсов для обогащения не найдено.');
+        return;
+      }
 
-			for (const course of toProcess) {
-				await enrichmentService.enrichCourse(course);
-			}
-			break;
-		}
-		case "clean": {
-			let targetCourse: string | undefined;
-			const courseIdx = args.indexOf("--course");
-			if (courseIdx !== -1 && args[courseIdx + 1]) {
-				targetCourse = args[courseIdx + 1]?.toLowerCase();
-			}
+      for (const course of toProcess) {
+        await enrichmentService.enrichCourse(course);
+      }
+      break;
+    }
+    case 'clean': {
+      let targetCourse: string | undefined;
+      const courseIdx = args.indexOf('--course');
+      if (courseIdx !== -1 && args[courseIdx + 1]) {
+        targetCourse = args[courseIdx + 1]?.toLowerCase();
+      }
 
-			if (!targetCourse) {
-				console.error(
-					"Ошибка: Укажите курс для удаления через --course <название>",
-				);
-				return;
-			}
+      if (!targetCourse) {
+        console.error(
+          'Ошибка: Укажите курс для удаления через --course <название>',
+        );
+        return;
+      }
 
-			const { rm } = await import("node:fs/promises");
-			const { existsSync } = await import("node:fs");
-			const courseSourceDir = join(BASE_DIR, targetCourse);
+      const { rm } = await import('node:fs/promises');
+      const { existsSync } = await import('node:fs');
+      const courseSourceDir = join(BASE_DIR, targetCourse);
 
-			if (existsSync(courseSourceDir)) {
-				console.log(`Удаление исходных данных курса: ${targetCourse}...`);
-				await rm(courseSourceDir, { recursive: true, force: true });
-				console.log("Готово.");
-			} else {
-				console.log(`Исходные данные курса "${targetCourse}" не найдены.`);
-			}
-			break;
-		}
-		default:
-			showHelp();
-			break;
-	}
+      if (existsSync(courseSourceDir)) {
+        console.log(`Удаление исходных данных курса: ${targetCourse}...`);
+        await rm(courseSourceDir, { recursive: true, force: true });
+        console.log('Готово.');
+      } else {
+        console.log(`Исходные данные курса "${targetCourse}" не найдены.`);
+      }
+      break;
+    }
+    default:
+      showHelp();
+      break;
+  }
 }
 
 await main();

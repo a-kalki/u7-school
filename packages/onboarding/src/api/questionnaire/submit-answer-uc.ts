@@ -1,14 +1,14 @@
-import { Role } from "@u7/user/domain";
-import { QuestionnaireAr } from "#domain/questionnaire/a-root";
+import { Role } from '@u7/user/domain';
+import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {
-	type SubmitAnswerCmd,
-	type SubmitAnswerCmdMeta,
-	SubmitAnswerCmdSchema,
-} from "#domain/questionnaire/commands/submit-answer-cmd";
-import type { Questionnaire } from "#domain/questionnaire/entity";
-import { QuestionnaireSchema } from "#domain/questionnaire/entity";
-import { QuestionnairePolicy } from "#domain/questionnaire/policy";
-import { OnboardingUseCase } from "../onboarding-uc";
+  type SubmitAnswerCmd,
+  type SubmitAnswerCmdMeta,
+  SubmitAnswerCmdSchema,
+} from '#domain/questionnaire/commands/submit-answer-cmd';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import { QuestionnaireSchema } from '#domain/questionnaire/entity';
+import { QuestionnairePolicy } from '#domain/questionnaire/policy';
+import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
  * Use-case отправки ответа на вопрос анкеты.
@@ -19,49 +19,49 @@ import { OnboardingUseCase } from "../onboarding-uc";
  * как completed, но роль может не обновиться.
  */
 export class SubmitAnswerUc extends OnboardingUseCase<SubmitAnswerCmdMeta> {
-	protected readonly ucName = "submit-answer" as const;
-	protected readonly ucLabel = "Отправить ответ" as const;
-	protected readonly arMeta = {
-		arName: "Questionnaire" as const,
-		arLabel: "Анкета" as const,
-	};
-	protected readonly type = "command" as const;
-	protected readonly requiresAuth = true as const;
-	protected readonly inputSchema = SubmitAnswerCmdSchema;
-	protected readonly outputSchema = QuestionnaireSchema;
+  protected readonly ucName = 'submit-answer' as const;
+  protected readonly ucLabel = 'Отправить ответ' as const;
+  protected readonly arMeta = {
+    arName: 'Questionnaire' as const,
+    arLabel: 'Анкета' as const,
+  };
+  protected readonly type = 'command' as const;
+  protected readonly requiresAuth = true as const;
+  protected readonly inputSchema = SubmitAnswerCmdSchema;
+  protected readonly outputSchema = QuestionnaireSchema;
 
-	async execute(
-		command: SubmitAnswerCmd,
-		actorId: string,
-	): Promise<Questionnaire> {
-		const actor = await this.getActor(actorId);
-		const questionnaire = await this.getQuestionnaire(
-			command.questionnaireUuid,
-		);
+  async execute(
+    command: SubmitAnswerCmd,
+    actorId: string,
+  ): Promise<Questionnaire> {
+    const actor = await this.getActor(actorId);
+    const questionnaire = await this.getQuestionnaire(
+      command.questionnaireUuid,
+    );
 
-		if (!QuestionnairePolicy.canSubmitAnswer(actor, questionnaire)) {
-			this.throwAccessDenied("Недостаточно прав для отправки ответа");
-		}
+    if (!QuestionnairePolicy.canSubmitAnswer(actor, questionnaire)) {
+      this.throwAccessDenied('Недостаточно прав для отправки ответа');
+    }
 
-		const ar = new QuestionnaireAr(
-			questionnaire,
-			this.resolve.questionPoolService,
-			this.resolve.includedQuestionCodes,
-		);
+    const ar = new QuestionnaireAr(
+      questionnaire,
+      this.resolve.questionPoolService,
+      this.resolve.includedQuestionCodes,
+    );
 
-		ar.submitAnswer(command.questionCode, command.value);
+    ar.submitAnswer(command.questionCode, command.value);
 
-		// Если анкета завершена — добавляем роль CANDIDATE
-		if (ar.isCompleted()) {
-			await this.resolve.userFacade.addRoleToUser(
-				questionnaire.userId,
-				Role.CANDIDATE,
-				actorId,
-			);
-		}
+    // Если анкета завершена — добавляем роль CANDIDATE
+    if (ar.isCompleted()) {
+      await this.resolve.userFacade.addRoleToUser(
+        questionnaire.userId,
+        Role.CANDIDATE,
+        actorId,
+      );
+    }
 
-		await this.resolve.questionnaireRepo.save(ar.state);
+    await this.resolve.questionnaireRepo.save(ar.state);
 
-		return ar.state;
-	}
+    return ar.state;
+  }
 }

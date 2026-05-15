@@ -1,9 +1,9 @@
-import type { Lesson } from "./entity";
+import type { Lesson } from './entity';
 
 /** Интерфейс репозитория уроков */
 export interface LessonRepo {
-	save(lesson: Lesson): Promise<void>;
-	getByUuid(uuid: string): Promise<Lesson | undefined>;
-	getByIds(ids: string[]): Promise<Lesson[]>;
-	getByCourseId(courseId: string): Promise<Lesson[]>;
+  save(lesson: Lesson): Promise<void>;
+  getByUuid(uuid: string): Promise<Lesson | undefined>;
+  getByIds(ids: string[]): Promise<Lesson[]>;
+  getByCourseId(courseId: string): Promise<Lesson[]>;
 }

@@ -1,525 +1,525 @@
 [
-	{
-		"topic": "SQL Tutorial",
-		"lessons": [
-			{
-				"title": "SQL HOME",
-				"fileName": "default.asp.md",
-				"url": "https://www.w3schools.com/sql/default.asp.html",
-				"summary": "This lesson introduces SQL as the standard language for managing databases, covering MySQL, SQL Server, Oracle, and more. It features an online editor with live examples, exercises, quizzes, and progress tracking. The content also includes comprehensive references, data types, and a certification option."
-			},
-			{
-				"title": "SQL Intro",
-				"fileName": "sql_intro.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_intro.asp.html",
-				"summary": "SQL is a standardized language for managing relational databases, enabling tasks like querying, inserting, updating, and deleting data. While SQL follows ANSI/ISO standards, different database systems have proprietary extensions. For web sites, SQL works with RDBMS like MySQL and server-side scripting to retrieve and display data. Data in RDBMS is organized into tables with columns and rows, where each row is a record."
-			},
-			{
-				"title": "SQL Syntax",
-				"fileName": "sql_syntax.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_syntax.asp.html",
-				"summary": "SQL syntax uses easy-to-understand keywords for statements like SELECT. Databases consist of tables with rows and columns; SQL keywords are case-insensitive, and a semicolon often ends statements. Key commands include SELECT, UPDATE, DELETE, INSERT INTO, and various CREATE/ALTER/DROP operations."
-			},
-			{
-				"title": "SQL Select",
-				"fileName": "sql_select.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_select.asp.html",
-				"summary": "The SQL SELECT statement retrieves data from a database. It allows selecting specific columns by naming them, or all columns using the asterisk (`*`). The lesson includes syntax examples and a demo \"Customers\" table to illustrate these concepts."
-			},
-			{
-				"title": "SQL Select Distinct",
-				"fileName": "sql_distinct.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_distinct.asp.html",
-				"summary": "The SQL SELECT DISTINCT statement retrieves only unique values from a column, eliminating duplicates. It also demonstrates counting distinct values using COUNT(DISTINCT) and notes a workaround for Microsoft Access. This lesson is essential for filtering duplicate data in queries."
-			},
-			{
-				"title": "SQL Where",
-				"fileName": "sql_where.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_where.asp.html",
-				"summary": "The SQL WHERE clause filters records to extract only those meeting specific conditions, used in SELECT, UPDATE, and DELETE. It requires single quotes for text values but not for numeric fields. Various operators like =, >, <, BETWEEN, LIKE, and IN can be used for precise filtering."
-			},
-			{
-				"title": "SQL Order By",
-				"fileName": "sql_orderby.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_orderby.asp.html",
-				"summary": "The SQL ORDER BY clause sorts query results in ascending (default) or descending order using ASC or DESC. It supports sorting by single or multiple columns, with alphabetical ordering for text. Multiple columns allow sorting by primary then secondary criteria, and ASC/DESC can be mixed per column."
-			},
-			{
-				"title": "SQL And",
-				"fileName": "sql_and_or.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_and_or.asp.html",
-				"summary": "The SQL AND operator filters records where all specified conditions are true. It can be combined with OR, but parentheses are crucial for correct logic. Examples show selecting customers from Spain starting with 'G' or using multiple conditions like country, city, and ID."
-			},
-			{
-				"title": "SQL Or",
-				"fileName": "sql_or.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_or.asp.html",
-				"summary": "The SQL OR operator filters records where any specified condition is true, unlike AND which requires all conditions. It can be used with multiple conditions and combined with AND, but parentheses are crucial to control logical grouping and avoid incorrect results."
-			},
-			{
-				"title": "SQL Not",
-				"fileName": "sql_not.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_not.asp.html",
-				"summary": "The SQL `NOT` operator reverses a condition, returning records that do not match specified criteria. It can be combined with operators like `LIKE`, `BETWEEN`, `IN`, and comparison operators to exclude data, such as selecting customers not from Spain or names not starting with 'A'. The operator is essential for filtering out unwanted rows."
-			},
-			{
-				"title": "SQL Insert Into",
-				"fileName": "sql_insert.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_insert.asp.html",
-				"summary": "The SQL INSERT INTO statement adds new records to a table. It can be used in two ways: specifying column names and values, or omitting column names when inserting values for all columns in order. You can insert data into specific columns, and multiple rows can be added by separating value sets with commas."
-			},
-			{
-				"title": "SQL Null Values",
-				"fileName": "sql_null_values.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_null_values.asp.html",
-				"summary": "SQL NULL represents unknown or missing data, distinct from zero or empty strings. Unlike regular comparisons, NULL must be tested using `IS NULL` and `IS NOT NULL` operators. The lesson demonstrates querying for customers with NULL or non-NULL address fields in a database."
-			},
-			{
-				"title": "SQL Update",
-				"fileName": "sql_update.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_update.asp.html",
-				"summary": "The SQL UPDATE statement modifies existing records in a table. It is crucial to include a WHERE clause to specify which rows to update; omitting it updates all rows. Examples show updating a single record by CustomerID and updating multiple records where the country is Mexico. Always ensure proper filtering to avoid unintended data changes."
-			},
-			{
-				"title": "SQL Delete",
-				"fileName": "sql_delete.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_delete.asp.html",
-				"summary": "The lesson explains the SQL DELETE statement for removing records, emphasizing the critical role of the WHERE clause to avoid deleting all rows. It demonstrates deleting specific records, then shows how to delete all records while preserving the table structure. Finally, it distinguishes DELETE from DROP TABLE, which removes the entire table."
-			},
-			{
-				"title": "SQL Select Top",
-				"fileName": "sql_top.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_top.asp.html",
-				"summary": "The lesson explains how to limit query results using SELECT TOP (SQL Server/MS Access), LIMIT (MySQL), and FETCH FIRST (Oracle). It covers syntax variations, including TOP PERCENT, combining with WHERE, and sorting with ORDER BY before limiting rows."
-			},
-			{
-				"title": "SQL Aggregate Functions",
-				"fileName": "sql_aggregate_functions.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_aggregate_functions.asp.html",
-				"summary": "SQL aggregate functions perform calculations on sets of values to return a single result, commonly paired with the GROUP BY clause. The primary functions include MIN, MAX, COUNT, SUM, and AVG, with COUNT(*) being the only one that includes null values."
-			},
-			{
-				"title": "SQL Min()",
-				"fileName": "sql_min_max.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_min_max.asp.html",
-				"summary": "The SQL `MIN()` function returns the smallest value from a selected column, supporting numeric, string, and date types. It can be used with an alias (`AS`) for clarity, applied to date columns to find earliest records, and combined with `GROUP BY` to find minimum values per group."
-			},
-			{
-				"title": "SQL Max()",
-				"fileName": "sql_max.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_max.asp.html",
-				"summary": "The SQL `MAX()` function returns the largest value from a column, supporting numeric, string, and date types. It can be used with an alias (`AS`) for clear column naming, applied to date columns, and combined with `GROUP BY` to find maximums per group."
-			},
-			{
-				"title": "SQL Count()",
-				"fileName": "sql_count.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_count.asp.html",
-				"summary": "The SQL COUNT() function returns the number of rows matching a criterion. It can count all rows (COUNT(*)), non-null values in a column (COUNT(column)), or unique non-null values (COUNT(DISTINCT column)). It also supports WHERE conditions, aliases, and GROUP BY for grouped counts."
-			},
-			{
-				"title": "SQL Sum()",
-				"fileName": "sql_sum.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_sum.asp.html",
-				"summary": "The SQL SUM() function calculates the total of a numeric column, ignoring NULL values. It can be combined with WHERE for conditions, AS for aliases, and GROUP BY for totals per group. Expressions like multiplication or joins are also supported for complex calculations."
-			},
-			{
-				"title": "SQL Avg()",
-				"fileName": "sql_avg.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_avg.asp.html",
-				"summary": "The lesson explains the SQL `AVG()` function, which calculates the average of a numeric column while ignoring NULL values. It demonstrates basic syntax, filtering with `WHERE`, using aliases with `AS`, comparing against average via subqueries, and grouping averages with `GROUP BY`. Practical examples using a Products table illustrate each concept."
-			},
-			{
-				"title": "SQL Like",
-				"fileName": "sql_like.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_like.asp.html",
-				"summary": "The SQL LIKE operator enables pattern matching in WHERE clauses using wildcards: `%` (any number of characters) and `_` (single character). The lesson demonstrates how to search for patterns at the start, end, or anywhere within text, and how to combine wildcards for flexible queries. Examples illustrate filtering customers by names starting with specific letters or containing certain substrings."
-			},
-			{
-				"title": "SQL Wildcards",
-				"fileName": "sql_wildcards.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_wildcards.asp.html",
-				"summary": "The lesson covers SQL wildcard characters used with the LIKE operator to search for patterns in strings. It explains the most common wildcards: % (any number of characters), _ (single character), and [] for matching specific characters or ranges, along with examples from the Customers table. It also demonstrates combining wildcards and notes differences in Microsoft Access."
-			},
-			{
-				"title": "SQL In",
-				"fileName": "sql_in.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_in.asp.html",
-				"summary": "The SQL IN operator simplifies WHERE clauses by checking if a value matches any item in a list, replacing multiple OR conditions. It also supports NOT IN to exclude values and can be used with subqueries to filter based on results from another table."
-			},
-			{
-				"title": "SQL Between",
-				"fileName": "sql_between.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_between.asp.html",
-				"summary": "The SQL `BETWEEN` operator filters records within an inclusive range of numbers, text, or dates. It can be combined with `NOT` to exclude a range, or with `IN` for additional conditions. Examples demonstrate usage with prices, alphabetical text, and date ranges, ensuring correct format for the database."
-			},
-			{
-				"title": "SQL Aliases",
-				"fileName": "sql_alias.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_alias.asp.html",
-				"summary": "SQL aliases, created with the `AS` keyword, temporarily rename columns or tables for improved readability within a query. They support spaces when enclosed in brackets or quotes and can combine multiple columns into one alias. Table aliases simplify join queries by shortening table names, making complex SQL more concise and understandable."
-			},
-			{
-				"title": "SQL Joins",
-				"fileName": "sql_join.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_join.asp.html",
-				"summary": "The SQL JOIN clause combines rows from two or more tables based on a related column. The lesson covers four join types: INNER (matching rows only), LEFT (all left table rows), RIGHT (all right table rows), and FULL (all rows from both). An example demonstrates an INNER JOIN linking Orders and Customers via CustomerID to retrieve order details with customer names."
-			},
-			{
-				"title": "SQL Inner Join",
-				"fileName": "sql_join_inner.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_join_inner.asp.html",
-				"summary": "The INNER JOIN returns only rows with matching values in both tables, using the ON keyword to specify the condition. It is the default join type, so JOIN and INNER JOIN are interchangeable. Best practices include prefixing column names with the table name to avoid ambiguity. Multiple INNER JOIN clauses can be added to join more than two tables."
-			},
-			{
-				"title": "SQL Left Join",
-				"fileName": "sql_join_left.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_join_left.asp.html",
-				"summary": "The SQL LEFT JOIN returns all rows from the left table and only matching rows from the right, with NULLs where no match exists. It uses an ON clause to specify the related column, and the OUTER keyword is optional. The lesson demonstrates retrieving all customers and their orders, including those without orders, by filtering for NULL values."
-			},
-			{
-				"title": "SQL Right Join",
-				"fileName": "sql_join_right.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_join_right.asp.html",
-				"summary": "SQL RIGHT JOIN returns all rows from the right table and only matching rows from the left, filling unmatched left columns with NULL. It uses the ON keyword to specify the join condition, and RIGHT OUTER JOIN is equivalent. The lesson demonstrates this with an example returning all employees and any matching orders."
-			},
-			{
-				"title": "SQL Full Join",
-				"fileName": "sql_join_full.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_join_full.asp.html",
-				"summary": "SQL FULL JOIN returns all rows from both tables, inserting NULLs where no match exists. It is equivalent to FULL OUTER JOIN and can produce large result sets. The example shows it combining all customers and orders, with NULLs for missing matches."
-			},
-			{
-				"title": "SQL Self Join",
-				"fileName": "sql_join_self.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_join_self.asp.html",
-				"summary": "A self join joins a table with itself using aliases to treat it as two separate tables. It is used to compare rows within the same table, such as matching customers from the same city. The example demonstrates selecting pairs of customers with different IDs but the same city."
-			},
-			{
-				"title": "SQL Union",
-				"fileName": "sql_union.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_union.asp.html",
-				"summary": "The SQL UNION operator combines results from multiple SELECT statements, automatically removing duplicates. It requires each SELECT to have the same number of columns with similar data types in the same order. Examples demonstrate filtering with WHERE, using UNION ALL to retain duplicates, and adding an alias column to distinguish source tables."
-			},
-			{
-				"title": "SQL Union All",
-				"fileName": "sql_union_all.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_union_all.asp.html",
-				"summary": "The SQL UNION ALL operator combines results from multiple SELECT statements, retaining all rows including duplicates. It requires each SELECT to have the same number of columns with similar data types in the same order. Examples demonstrate retrieving all countries (with duplicates) and filtering by country using WHERE."
-			},
-			{
-				"title": "SQL Group By",
-				"fileName": "sql_groupby.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_groupby.asp.html",
-				"summary": "The SQL GROUP BY statement groups rows with identical values into summary rows, typically used with aggregate functions like COUNT or SUM. Examples show counting customers per country, sorting results, and combining GROUP BY with JOIN to count orders per shipper. This enables data aggregation and analysis across categories."
-			},
-			{
-				"title": "SQL Having",
-				"fileName": "sql_having.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_having.asp.html",
-				"summary": "The SQL HAVING clause filters grouped data after aggregation, unlike WHERE which filters rows before grouping. It is used with GROUP BY to impose conditions on aggregate functions like COUNT. Examples include selecting countries with more than five customers or employees with over ten orders."
-			},
-			{
-				"title": "SQL Exists",
-				"fileName": "sql_exists.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_exists.asp.html",
-				"summary": "The SQL `EXISTS` operator checks whether a subquery returns any rows, evaluating to TRUE if at least one row exists. It is used in a `WHERE` clause to filter results based on the presence of related records. Examples demonstrate listing suppliers that have products meeting a price condition."
-			},
-			{
-				"title": "SQL Any",
-				"fileName": "sql_any_all.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_any_all.asp.html",
-				"summary": "The SQL ANY operator compares a value to every value returned by a subquery, returning TRUE if at least one match exists. It requires a standard comparison operator and is demonstrated with examples from the Products and OrderDetails tables, filtering products based on quantities in orders."
-			},
-			{
-				"title": "SQL All",
-				"fileName": "sql_all.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_all.asp.html",
-				"summary": "The SQL ALL operator compares a value to every value returned by a subquery, returning TRUE only if the condition holds for all values. It is typically used with WHERE or HAVING clauses and standard comparison operators. An example demonstrates checking if all products in OrderDetails have a specific quantity, which evaluates to FALSE if any record differs."
-			},
-			{
-				"title": "SQL Select Into",
-				"fileName": "sql_select_into.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_select_into.asp.html",
-				"summary": "The SQL SELECT INTO statement creates a new table and populates it with data from an existing table, useful for backups or temporary analysis. It can copy entire tables, specific columns, or filtered rows, and can even create an empty table with the same schema using a false condition. Note that primary keys, indexes, and NOT NULL constraints are not transferred."
-			},
-			{
-				"title": "SQL Insert Into Select",
-				"fileName": "sql_insert_into_select.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_insert_into_select.asp.html",
-				"summary": "The SQL INSERT INTO SELECT statement copies data from one table to another existing table, matching data types. It can copy all columns or specific columns, and conditions can filter the source data. Existing records in the target table remain unaffected. This is useful for merging data between tables."
-			},
-			{
-				"title": "SQL Case",
-				"fileName": "sql_case.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_case.asp.html",
-				"summary": "The SQL CASE expression acts like an if-then-else statement, evaluating conditions in order and returning the first match or a default value. Its syntax uses WHEN-THEN pairs, an optional ELSE, and ends with END. An example demonstrates creating a new column that categorizes product prices as Low, Medium, or High Cost."
-			},
-			{
-				"title": "SQL Null Functions",
-				"fileName": "sql_isnull.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_isnull.asp.html",
-				"summary": "SQL NULL functions like COALESCE (standard), IFNULL (MySQL), ISNULL (SQL Server), NVL (Oracle), and IsNull with IIf (MS Access) replace NULL values with a specified alternative to prevent calculation errors. These functions ensure that arithmetic operations or queries treat missing data as zero or another default value, maintaining accurate results across different database systems."
-			},
-			{
-				"title": "SQL Stored Procedures",
-				"fileName": "sql_stored_procedures.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_stored_procedures.asp.html",
-				"summary": "A stored procedure is a precompiled SQL code block that can be saved and reused, optionally accepting parameters. Key benefits include code reusability, improved performance, enhanced security, and easier maintenance. Procedures are created with `CREATE PROCEDURE`, executed via `EXEC`, and removed with `DROP PROCEDURE`."
-			},
-			{
-				"title": "SQL Comments",
-				"fileName": "sql_comments.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_comments.asp.html",
-				"summary": "SQL comments explain code or temporarily prevent execution during debugging, and are ignored by the database engine. The lesson covers single-line comments using `--` and multi-line comments using `/* */`, with examples of usage for explanations, disabling code, or ignoring parts of statements. Note that Microsoft Access does not support comments."
-			},
-			{
-				"title": "SQL Operators",
-				"fileName": "sql_operators.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_operators.asp.html",
-				"summary": "SQL operators are keywords and symbols used in statements like SELECT and WHERE to perform operations on data. They are categorized into arithmetic, comparison, compound, bitwise, and logical types. Examples include addition, equality checks, and conditions like AND, OR, and LIKE."
-			}
-		]
-	},
-	{
-		"topic": "SQL Database",
-		"lessons": [
-			{
-				"title": "SQL Create DB",
-				"fileName": "sql_create_db.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_create_db.asp.html",
-				"summary": "The lesson introduces the SQL CREATE DATABASE statement, which requires administrative privileges. It provides the syntax and an example creating a database named \"testDB.\" Additionally, it explains how to verify the new database using commands like SHOW DATABASES in MySQL or SELECT name FROM sys.databases in SQL Server."
-			},
-			{
-				"title": "SQL Drop DB",
-				"fileName": "sql_drop_db.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_drop_db.asp.html",
-				"summary": "The SQL `DROP DATABASE` statement permanently deletes an entire database, including all its tables, views, stored procedures, and data. It requires administrative privileges and cannot be undone. For example, `DROP DATABASE testDB;` removes the database, which can be verified with `SHOW DATABASES;` or equivalent commands."
-			},
-			{
-				"title": "SQL Backup DB",
-				"fileName": "sql_backup_db.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_backup_db.asp.html",
-				"summary": "The lesson explains the SQL Server `BACKUP DATABASE` statement for creating full backups, emphasizing storing backups on a separate drive. It also covers differential backups with the `WITH DIFFERENTIAL` clause, which backs up only changes since the last full backup for faster operation. Examples illustrate both methods."
-			},
-			{
-				"title": "SQL Create Table",
-				"fileName": "sql_create_table.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_create_table.asp.html",
-				"summary": "The SQL CREATE TABLE statement defines a new table's structure with columns, data types, and optional constraints like PRIMARY KEY or NOT NULL. An example creates a \"Persons\" table with integer and varchar columns. It also demonstrates creating a new table by copying data from an existing table using SELECT."
-			},
-			{
-				"title": "SQL Drop Table",
-				"fileName": "sql_drop_table.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_drop_table.asp.html",
-				"summary": "The SQL DROP TABLE statement permanently deletes an entire table and its data. It is recommended to use the IF EXISTS clause to avoid errors if the table does not exist. Dropping a table referenced by a foreign key constraint requires removing the constraint first. Unlike TRUNCATE, which only deletes records while preserving the table structure, DROP removes the table entirely."
-			},
-			{
-				"title": "SQL Alter Table",
-				"fileName": "sql_alter.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_alter.asp.html",
-				"summary": "The lesson explains the SQL `ALTER TABLE` statement, which modifies existing table structures by adding, dropping, renaming, or changing column data types and constraints. It covers syntax for adding columns, deleting columns, renaming columns/tables, and modifying data types, with examples for different database systems. The lesson also demonstrates adding constraints like CHECK and provides practical examples with a \"Persons\" table."
-			},
-			{
-				"title": "SQL Constraints",
-				"fileName": "sql_constraints.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_constraints.asp.html",
-				"summary": "SQL constraints enforce rules on table data to ensure accuracy and reliability, aborting actions that violate them. They can be defined during table creation or later with ALTER TABLE. Common constraint types include NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT, and CREATE INDEX for faster data retrieval."
-			},
-			{
-				"title": "SQL Not Null",
-				"fileName": "sql_notnull.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_notnull.asp.html",
-				"summary": "The SQL NOT NULL constraint ensures a column always contains a value, preventing NULL entries. It can be applied when creating a table by adding NOT NULL after the column's data type, or later via ALTER TABLE. To allow NULLs again, use ALTER TABLE to modify the column to accept NULL."
-			},
-			{
-				"title": "SQL Unique",
-				"fileName": "sql_unique.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_unique.asp.html",
-				"summary": "The SQL UNIQUE constraint ensures all values in a column are unique, with multiple allowed per table unlike PRIMARY KEY. It can be defined during table creation or altered later, including named constraints for single or multiple columns. Dropping a UNIQUE constraint is done via ALTER TABLE, using DROP INDEX or DROP CONSTRAINT depending on the database system."
-			},
-			{
-				"title": "SQL Primary Key",
-				"fileName": "sql_primarykey.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_primarykey.asp.html",
-				"summary": "The SQL PRIMARY KEY constraint uniquely identifies each record, combining UNIQUE and NOT NULL properties. A table can have only one primary key, which may be a single column or a composite of multiple columns. It is defined during CREATE TABLE or added via ALTER TABLE, and can be named or unnamed, with syntax for dropping it varying by database system."
-			},
-			{
-				"title": "SQL Foreign Key",
-				"fileName": "sql_foreignkey.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_foreignkey.asp.html",
-				"summary": "The lesson explains that a SQL FOREIGN KEY links two tables, ensuring referential integrity by requiring values in the child table to match a primary key in the parent table. It prevents inserting invalid data or deleting parent records with existing child references. The tutorial includes syntax for creating foreign keys during table creation, adding them via ALTER TABLE, and dropping them."
-			},
-			{
-				"title": "SQL Check",
-				"fileName": "sql_check.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_check.asp.html",
-				"summary": "The SQL CHECK constraint validates column values against a condition, aborting inserts or updates if false. It can be defined inline or as a named constraint on single or multiple columns during table creation or alteration via ALTER TABLE. Dropping a CHECK constraint uses ALTER TABLE with DROP CONSTRAINT or DROP CHECK, depending on the database system."
-			},
-			{
-				"title": "SQL Default",
-				"fileName": "sql_default.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_default.asp.html",
-				"summary": "The SQL DEFAULT constraint automatically assigns a specified default value to a column when no value is provided in a new record. It can be set during table creation or later via ALTER TABLE, supporting static values or system functions like current date. The lesson also demonstrates how to drop the constraint in various database systems."
-			},
-			{
-				"title": "SQL Create Index",
-				"fileName": "sql_create_index.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_create_index.asp.html",
-				"summary": "The CREATE INDEX statement speeds up data retrieval by creating indexes on table columns, though it slows table updates. Indexes can be non-unique (allowing duplicates) or unique (preventing duplicates). To remove an index, use DROP INDEX, with syntax varying by database system."
-			},
-			{
-				"title": "SQL Auto Increment",
-				"fileName": "sql_autoincrement.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_autoincrement.asp.html",
-				"summary": "SQL auto-increment fields automatically generate unique numeric primary key values for new records. The lesson covers implementation across databases: MySQL uses `AUTO_INCREMENT`, SQL Server uses `IDENTITY`, MS Access uses `AUTOINCREMENT`, and Oracle requires creating a `SEQUENCE` object with `nextval`. Each allows custom start values and increments, simplifying record insertion."
-			},
-			{
-				"title": "SQL Dates",
-				"fileName": "sql_dates.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_dates.asp.html",
-				"summary": "Working with SQL dates is challenging because the date format must match the database column's format. Different databases like MySQL and SQL Server have distinct date data types. When querying dates, the time component can cause mismatches, so it's best to avoid using time in dates unless necessary."
-			},
-			{
-				"title": "SQL Views",
-				"fileName": "sql_view.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_view.asp.html",
-				"summary": "An SQL view is a virtual table based on a SELECT query, storing only the query definition rather than data. Views can be created, modified (via ALTER or CREATE OR REPLACE), and dropped, always displaying real-time data from underlying tables. Examples demonstrate filtering rows and aggregating conditions within a view."
-			},
-			{
-				"title": "SQL Injection",
-				"fileName": "sql_injection.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_injection.asp.html",
-				"summary": "SQL injection is a web hacking technique where attackers insert malicious SQL code into user input fields, enabling them to read, modify, or delete database data. Examples demonstrate how simple inputs like `105 OR 1=1` or `\" OR \"\"=\"` can manipulate queries to return all records. Batched statements also allow destructive actions like dropping tables."
-			},
-			{
-				"title": "SQL Parameters",
-				"fileName": "sql_parameterized_queries.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_parameterized_queries.asp.html",
-				"summary": "SQL parameters (parameterized queries) prevent SQL injection by using placeholders instead of direct user input. Different databases use different markers (?, @, $), but all treat parameters as literal data, not executable code. Examples in JavaScript and ASP.NET show how to build and execute such queries safely."
-			},
-			{
-				"title": "SQL Prepared Statements",
-				"fileName": "sql_prepared_statements.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_prepared_statements.asp.html",
-				"summary": "SQL prepared statements enhance security by separating SQL query structure from user input, preventing SQL injection attacks. They work by first sending a query template with placeholders, then binding actual values later. This approach reduces parsing time, minimizes bandwidth, and leads to cleaner, safer code."
-			},
-			{
-				"title": "SQL Hosting",
-				"fileName": "sql_hosting.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_hosting.asp.html",
-				"summary": "SQL hosting enables websites to store and retrieve data via database systems offered by ISPs. Common options include MySQL (fast, inexpensive), Microsoft SQL Server (strong integration for high traffic), Oracle (scalable but costly), and PostgreSQL (free, open-source with advanced features). Each has distinct strengths for different hosting needs."
-			}
-		]
-	},
-	{
-		"topic": "SQL Cert",
-		"lessons": [
-			{
-				"title": "SQL Certificate",
-				"fileName": "sql_exam.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_exam.asp.html",
-				"summary": "The W3Schools SQL Certificate offers a flexible, online exam to validate SQL skills at intermediate, advanced, or professional levels. With a 60-minute adaptive test, three attempts, and no expiration, it provides"
-			}
-		]
-	},
-	{
-		"topic": "SQL References",
-		"lessons": [
-			{
-				"title": "SQL Data Types",
-				"fileName": "sql_datatypes.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_datatypes.asp.html",
-				"summary": "Data types define what values a column can hold (e.g., integer, string, date). Each database system (MySQL, SQL Server, MS Access) has its own set with subtle differences in names, sizes, and storage. Always consult specific documentation to ensure compatibility and correctness."
-			},
-			{
-				"title": "SQL Keywords",
-				"fileName": "sql_ref_keywords.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_ref_keywords.asp.html",
-				"summary": "This lesson is a comprehensive reference of SQL reserved words, listing keywords alphabetically with descriptions of their functions. It covers data definition (CREATE, ALTER, DROP), data manipulation (INSERT, UPDATE, DELETE), querying (SELECT, WHERE, JOIN), constraints (PRIMARY KEY, FOREIGN KEY), and more. The content serves as a quick lookup guide for SQL syntax and operations."
-			},
-			{
-				"title": "MySQL Functions",
-				"fileName": "sql_ref_mysql.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_ref_mysql.asp.html",
-				"summary": "This lesson provides a comprehensive reference of MySQL’s built-in functions, organized into four categories: string, numeric, date, and advanced functions. Each category lists functions with brief descriptions, covering common operations like string manipulation, mathematical calculations, date/time handling, and conditional or conversion logic. The content serves as a quick lookup guide for developers to utilize MySQL’s built-in capabilities."
-			},
-			{
-				"title": "SQL Server Functions",
-				"fileName": "sql_ref_sqlserver.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_ref_sqlserver.asp.html",
-				"summary": "The lesson covers SQL Server's extensive collection of built-in functions, organized into categories: string, math/numeric, date, and advanced. It provides a reference of functions for tasks like string manipulation, mathematical calculations, date operations, type conversion, and null handling."
-			},
-			{
-				"title": "MS Access Functions",
-				"fileName": "sql_ref_msaccess.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_ref_msaccess.asp.html",
-				"summary": "This lesson covers MS Access built-in functions, organized into string, numeric, date, and miscellaneous categories. It details how to manipulate text, perform calculations, handle dates, and check data types, providing a comprehensive reference for database operations."
-			},
-			{
-				"title": "SQL Quick Ref",
-				"fileName": "sql_quickref.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_quickref.asp.html",
-				"summary": "A concise reference sheet listing essential SQL statements (SELECT, INSERT, UPDATE, DELETE, JOINs, etc.) with their basic syntax. It serves as a quick lookup for common database operations, including filtering, aggregation, table modifications, and data definition commands."
-			}
-		]
-	},
-	{
-		"topic": "SQL Examples",
-		"lessons": [
-			{
-				"title": "SQL Examples",
-				"fileName": "sql_examples.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_examples.asp.html",
-				"summary": "This lesson provides a comprehensive set of SQL examples covering fundamental to advanced topics, including SELECT, filtering, aggregation, joins, subqueries, and database management. Each concept is illustrated with interactive code snippets and detailed explanations, making it an effective resource for hands‑on learning and certification preparation."
-			},
-			{
-				"title": "SQL Editor",
-				"fileName": "sql_editor.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_editor.asp.html",
-				"summary": "The lesson introduces an online SQL editor for editing and executing SQL statements directly in the browser, with instant result display. It also highlights W3Schools Spaces for building and publishing SQL database projects, and recommends the SQL Tutorial for beginners."
-			},
-			{
-				"title": "SQL Quiz",
-				"fileName": "sql_quiz.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_quiz.asp.html",
-				"summary": "This lesson offers a 25-question SQL quiz with no time limit, scoring one point per correct answer for a maximum of 25 points. It serves as an informal self-assessment tool to gauge SQL knowledge. The page also promotes W3Schools' coding certification course."
-			},
-			{
-				"title": "SQL Exercises",
-				"fileName": "sql_exercises.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_exercises.asp.html",
-				"summary": "This lesson offers 60 SQL exercises across 37 categories, from basic syntax and queries to advanced joins, functions, and database management. It uses multiple-choice and fill-in-the-blank questions, with solutions available. Completing the course leads to a certification."
-			},
-			{
-				"title": "SQL Server",
-				"fileName": "sql_server.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_server.asp.html",
-				"summary": "The lesson content is a promotional page for W3Schools Spaces, not an instructional SQL Server tutorial. It highlights hosting SQL Server on Python, cloud-based coding tools, and subscription plans. No actual SQL Server concepts are taught."
-			},
-			{
-				"title": "SQL Syllabus",
-				"fileName": "sql_syllabus.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_syllabus.asp.html",
-				"summary": "The W3Schools SQL syllabus offers a beginner-friendly, step-by-step tutorial covering core topics like database creation, queries, JOINs, and functions. It includes hands-on activities, a sandbox environment, and certification. The course is designed for various fields from IT to data science, requiring no prior programming experience."
-			},
-			{
-				"title": "SQL Study Plan",
-				"fileName": "sql_study_plan.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_study_plan.asp.html",
-				"summary": "The SQL study plan from W3Schools Academy helps teachers guide students from basic queries to advanced database management using customizable learning paths, timelines, and interactive content. It includes pre-built materials, progress tracking, auto-grading, and aligns with a certification exam, making it flexible for different skill levels and class paces."
-			},
-			{
-				"title": "SQL Bootcamp",
-				"fileName": "sql_bootcamp.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_bootcamp.asp.html",
-				"summary": "This 4-week live online bootcamp teaches SQL fundamentals for data analysis, database management, and automation. Led by an experienced instructor, it includes 18 hours of live sessions, cohort collaboration, and prepares you for the W3Schools SQL certification exam. The affordable $495 fee covers tuition and the exam."
-			},
-			{
-				"title": "SQL Training",
-				"fileName": "sql_training.asp.md",
-				"url": "https://www.w3schools.com/sql/sql_training.asp.html",
-				"summary": "W3Schools offers a self-paced SQL training course for organizations, leading to the Certified SQL Developer certification. The course covers database management, queries, joins, and security through interactive challenges and exams. It includes progress tracking, auto-grading, and lifetime certification, making it suitable for companies and schools to train employees or students."
-			}
-		]
-	}
+  {
+    "topic": "SQL Tutorial",
+    "lessons": [
+      {
+        "title": "SQL HOME",
+        "fileName": "default.asp.md",
+        "url": "https://www.w3schools.com/sql/default.asp.html",
+        "summary": "This lesson introduces SQL as the standard language for managing databases, covering MySQL, SQL Server, Oracle, and more. It features an online editor with live examples, exercises, quizzes, and progress tracking. The content also includes comprehensive references, data types, and a certification option."
+      },
+      {
+        "title": "SQL Intro",
+        "fileName": "sql_intro.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_intro.asp.html",
+        "summary": "SQL is a standardized language for managing relational databases, enabling tasks like querying, inserting, updating, and deleting data. While SQL follows ANSI/ISO standards, different database systems have proprietary extensions. For web sites, SQL works with RDBMS like MySQL and server-side scripting to retrieve and display data. Data in RDBMS is organized into tables with columns and rows, where each row is a record."
+      },
+      {
+        "title": "SQL Syntax",
+        "fileName": "sql_syntax.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_syntax.asp.html",
+        "summary": "SQL syntax uses easy-to-understand keywords for statements like SELECT. Databases consist of tables with rows and columns; SQL keywords are case-insensitive, and a semicolon often ends statements. Key commands include SELECT, UPDATE, DELETE, INSERT INTO, and various CREATE/ALTER/DROP operations."
+      },
+      {
+        "title": "SQL Select",
+        "fileName": "sql_select.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_select.asp.html",
+        "summary": "The SQL SELECT statement retrieves data from a database. It allows selecting specific columns by naming them, or all columns using the asterisk (`*`). The lesson includes syntax examples and a demo \"Customers\" table to illustrate these concepts."
+      },
+      {
+        "title": "SQL Select Distinct",
+        "fileName": "sql_distinct.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_distinct.asp.html",
+        "summary": "The SQL SELECT DISTINCT statement retrieves only unique values from a column, eliminating duplicates. It also demonstrates counting distinct values using COUNT(DISTINCT) and notes a workaround for Microsoft Access. This lesson is essential for filtering duplicate data in queries."
+      },
+      {
+        "title": "SQL Where",
+        "fileName": "sql_where.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_where.asp.html",
+        "summary": "The SQL WHERE clause filters records to extract only those meeting specific conditions, used in SELECT, UPDATE, and DELETE. It requires single quotes for text values but not for numeric fields. Various operators like =, >, <, BETWEEN, LIKE, and IN can be used for precise filtering."
+      },
+      {
+        "title": "SQL Order By",
+        "fileName": "sql_orderby.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_orderby.asp.html",
+        "summary": "The SQL ORDER BY clause sorts query results in ascending (default) or descending order using ASC or DESC. It supports sorting by single or multiple columns, with alphabetical ordering for text. Multiple columns allow sorting by primary then secondary criteria, and ASC/DESC can be mixed per column."
+      },
+      {
+        "title": "SQL And",
+        "fileName": "sql_and_or.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_and_or.asp.html",
+        "summary": "The SQL AND operator filters records where all specified conditions are true. It can be combined with OR, but parentheses are crucial for correct logic. Examples show selecting customers from Spain starting with 'G' or using multiple conditions like country, city, and ID."
+      },
+      {
+        "title": "SQL Or",
+        "fileName": "sql_or.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_or.asp.html",
+        "summary": "The SQL OR operator filters records where any specified condition is true, unlike AND which requires all conditions. It can be used with multiple conditions and combined with AND, but parentheses are crucial to control logical grouping and avoid incorrect results."
+      },
+      {
+        "title": "SQL Not",
+        "fileName": "sql_not.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_not.asp.html",
+        "summary": "The SQL `NOT` operator reverses a condition, returning records that do not match specified criteria. It can be combined with operators like `LIKE`, `BETWEEN`, `IN`, and comparison operators to exclude data, such as selecting customers not from Spain or names not starting with 'A'. The operator is essential for filtering out unwanted rows."
+      },
+      {
+        "title": "SQL Insert Into",
+        "fileName": "sql_insert.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_insert.asp.html",
+        "summary": "The SQL INSERT INTO statement adds new records to a table. It can be used in two ways: specifying column names and values, or omitting column names when inserting values for all columns in order. You can insert data into specific columns, and multiple rows can be added by separating value sets with commas."
+      },
+      {
+        "title": "SQL Null Values",
+        "fileName": "sql_null_values.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_null_values.asp.html",
+        "summary": "SQL NULL represents unknown or missing data, distinct from zero or empty strings. Unlike regular comparisons, NULL must be tested using `IS NULL` and `IS NOT NULL` operators. The lesson demonstrates querying for customers with NULL or non-NULL address fields in a database."
+      },
+      {
+        "title": "SQL Update",
+        "fileName": "sql_update.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_update.asp.html",
+        "summary": "The SQL UPDATE statement modifies existing records in a table. It is crucial to include a WHERE clause to specify which rows to update; omitting it updates all rows. Examples show updating a single record by CustomerID and updating multiple records where the country is Mexico. Always ensure proper filtering to avoid unintended data changes."
+      },
+      {
+        "title": "SQL Delete",
+        "fileName": "sql_delete.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_delete.asp.html",
+        "summary": "The lesson explains the SQL DELETE statement for removing records, emphasizing the critical role of the WHERE clause to avoid deleting all rows. It demonstrates deleting specific records, then shows how to delete all records while preserving the table structure. Finally, it distinguishes DELETE from DROP TABLE, which removes the entire table."
+      },
+      {
+        "title": "SQL Select Top",
+        "fileName": "sql_top.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_top.asp.html",
+        "summary": "The lesson explains how to limit query results using SELECT TOP (SQL Server/MS Access), LIMIT (MySQL), and FETCH FIRST (Oracle). It covers syntax variations, including TOP PERCENT, combining with WHERE, and sorting with ORDER BY before limiting rows."
+      },
+      {
+        "title": "SQL Aggregate Functions",
+        "fileName": "sql_aggregate_functions.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_aggregate_functions.asp.html",
+        "summary": "SQL aggregate functions perform calculations on sets of values to return a single result, commonly paired with the GROUP BY clause. The primary functions include MIN, MAX, COUNT, SUM, and AVG, with COUNT(*) being the only one that includes null values."
+      },
+      {
+        "title": "SQL Min()",
+        "fileName": "sql_min_max.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_min_max.asp.html",
+        "summary": "The SQL `MIN()` function returns the smallest value from a selected column, supporting numeric, string, and date types. It can be used with an alias (`AS`) for clarity, applied to date columns to find earliest records, and combined with `GROUP BY` to find minimum values per group."
+      },
+      {
+        "title": "SQL Max()",
+        "fileName": "sql_max.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_max.asp.html",
+        "summary": "The SQL `MAX()` function returns the largest value from a column, supporting numeric, string, and date types. It can be used with an alias (`AS`) for clear column naming, applied to date columns, and combined with `GROUP BY` to find maximums per group."
+      },
+      {
+        "title": "SQL Count()",
+        "fileName": "sql_count.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_count.asp.html",
+        "summary": "The SQL COUNT() function returns the number of rows matching a criterion. It can count all rows (COUNT(*)), non-null values in a column (COUNT(column)), or unique non-null values (COUNT(DISTINCT column)). It also supports WHERE conditions, aliases, and GROUP BY for grouped counts."
+      },
+      {
+        "title": "SQL Sum()",
+        "fileName": "sql_sum.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_sum.asp.html",
+        "summary": "The SQL SUM() function calculates the total of a numeric column, ignoring NULL values. It can be combined with WHERE for conditions, AS for aliases, and GROUP BY for totals per group. Expressions like multiplication or joins are also supported for complex calculations."
+      },
+      {
+        "title": "SQL Avg()",
+        "fileName": "sql_avg.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_avg.asp.html",
+        "summary": "The lesson explains the SQL `AVG()` function, which calculates the average of a numeric column while ignoring NULL values. It demonstrates basic syntax, filtering with `WHERE`, using aliases with `AS`, comparing against average via subqueries, and grouping averages with `GROUP BY`. Practical examples using a Products table illustrate each concept."
+      },
+      {
+        "title": "SQL Like",
+        "fileName": "sql_like.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_like.asp.html",
+        "summary": "The SQL LIKE operator enables pattern matching in WHERE clauses using wildcards: `%` (any number of characters) and `_` (single character). The lesson demonstrates how to search for patterns at the start, end, or anywhere within text, and how to combine wildcards for flexible queries. Examples illustrate filtering customers by names starting with specific letters or containing certain substrings."
+      },
+      {
+        "title": "SQL Wildcards",
+        "fileName": "sql_wildcards.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_wildcards.asp.html",
+        "summary": "The lesson covers SQL wildcard characters used with the LIKE operator to search for patterns in strings. It explains the most common wildcards: % (any number of characters), _ (single character), and [] for matching specific characters or ranges, along with examples from the Customers table. It also demonstrates combining wildcards and notes differences in Microsoft Access."
+      },
+      {
+        "title": "SQL In",
+        "fileName": "sql_in.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_in.asp.html",
+        "summary": "The SQL IN operator simplifies WHERE clauses by checking if a value matches any item in a list, replacing multiple OR conditions. It also supports NOT IN to exclude values and can be used with subqueries to filter based on results from another table."
+      },
+      {
+        "title": "SQL Between",
+        "fileName": "sql_between.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_between.asp.html",
+        "summary": "The SQL `BETWEEN` operator filters records within an inclusive range of numbers, text, or dates. It can be combined with `NOT` to exclude a range, or with `IN` for additional conditions. Examples demonstrate usage with prices, alphabetical text, and date ranges, ensuring correct format for the database."
+      },
+      {
+        "title": "SQL Aliases",
+        "fileName": "sql_alias.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_alias.asp.html",
+        "summary": "SQL aliases, created with the `AS` keyword, temporarily rename columns or tables for improved readability within a query. They support spaces when enclosed in brackets or quotes and can combine multiple columns into one alias. Table aliases simplify join queries by shortening table names, making complex SQL more concise and understandable."
+      },
+      {
+        "title": "SQL Joins",
+        "fileName": "sql_join.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_join.asp.html",
+        "summary": "The SQL JOIN clause combines rows from two or more tables based on a related column. The lesson covers four join types: INNER (matching rows only), LEFT (all left table rows), RIGHT (all right table rows), and FULL (all rows from both). An example demonstrates an INNER JOIN linking Orders and Customers via CustomerID to retrieve order details with customer names."
+      },
+      {
+        "title": "SQL Inner Join",
+        "fileName": "sql_join_inner.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_join_inner.asp.html",
+        "summary": "The INNER JOIN returns only rows with matching values in both tables, using the ON keyword to specify the condition. It is the default join type, so JOIN and INNER JOIN are interchangeable. Best practices include prefixing column names with the table name to avoid ambiguity. Multiple INNER JOIN clauses can be added to join more than two tables."
+      },
+      {
+        "title": "SQL Left Join",
+        "fileName": "sql_join_left.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_join_left.asp.html",
+        "summary": "The SQL LEFT JOIN returns all rows from the left table and only matching rows from the right, with NULLs where no match exists. It uses an ON clause to specify the related column, and the OUTER keyword is optional. The lesson demonstrates retrieving all customers and their orders, including those without orders, by filtering for NULL values."
+      },
+      {
+        "title": "SQL Right Join",
+        "fileName": "sql_join_right.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_join_right.asp.html",
+        "summary": "SQL RIGHT JOIN returns all rows from the right table and only matching rows from the left, filling unmatched left columns with NULL. It uses the ON keyword to specify the join condition, and RIGHT OUTER JOIN is equivalent. The lesson demonstrates this with an example returning all employees and any matching orders."
+      },
+      {
+        "title": "SQL Full Join",
+        "fileName": "sql_join_full.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_join_full.asp.html",
+        "summary": "SQL FULL JOIN returns all rows from both tables, inserting NULLs where no match exists. It is equivalent to FULL OUTER JOIN and can produce large result sets. The example shows it combining all customers and orders, with NULLs for missing matches."
+      },
+      {
+        "title": "SQL Self Join",
+        "fileName": "sql_join_self.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_join_self.asp.html",
+        "summary": "A self join joins a table with itself using aliases to treat it as two separate tables. It is used to compare rows within the same table, such as matching customers from the same city. The example demonstrates selecting pairs of customers with different IDs but the same city."
+      },
+      {
+        "title": "SQL Union",
+        "fileName": "sql_union.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_union.asp.html",
+        "summary": "The SQL UNION operator combines results from multiple SELECT statements, automatically removing duplicates. It requires each SELECT to have the same number of columns with similar data types in the same order. Examples demonstrate filtering with WHERE, using UNION ALL to retain duplicates, and adding an alias column to distinguish source tables."
+      },
+      {
+        "title": "SQL Union All",
+        "fileName": "sql_union_all.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_union_all.asp.html",
+        "summary": "The SQL UNION ALL operator combines results from multiple SELECT statements, retaining all rows including duplicates. It requires each SELECT to have the same number of columns with similar data types in the same order. Examples demonstrate retrieving all countries (with duplicates) and filtering by country using WHERE."
+      },
+      {
+        "title": "SQL Group By",
+        "fileName": "sql_groupby.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_groupby.asp.html",
+        "summary": "The SQL GROUP BY statement groups rows with identical values into summary rows, typically used with aggregate functions like COUNT or SUM. Examples show counting customers per country, sorting results, and combining GROUP BY with JOIN to count orders per shipper. This enables data aggregation and analysis across categories."
+      },
+      {
+        "title": "SQL Having",
+        "fileName": "sql_having.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_having.asp.html",
+        "summary": "The SQL HAVING clause filters grouped data after aggregation, unlike WHERE which filters rows before grouping. It is used with GROUP BY to impose conditions on aggregate functions like COUNT. Examples include selecting countries with more than five customers or employees with over ten orders."
+      },
+      {
+        "title": "SQL Exists",
+        "fileName": "sql_exists.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_exists.asp.html",
+        "summary": "The SQL `EXISTS` operator checks whether a subquery returns any rows, evaluating to TRUE if at least one row exists. It is used in a `WHERE` clause to filter results based on the presence of related records. Examples demonstrate listing suppliers that have products meeting a price condition."
+      },
+      {
+        "title": "SQL Any",
+        "fileName": "sql_any_all.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_any_all.asp.html",
+        "summary": "The SQL ANY operator compares a value to every value returned by a subquery, returning TRUE if at least one match exists. It requires a standard comparison operator and is demonstrated with examples from the Products and OrderDetails tables, filtering products based on quantities in orders."
+      },
+      {
+        "title": "SQL All",
+        "fileName": "sql_all.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_all.asp.html",
+        "summary": "The SQL ALL operator compares a value to every value returned by a subquery, returning TRUE only if the condition holds for all values. It is typically used with WHERE or HAVING clauses and standard comparison operators. An example demonstrates checking if all products in OrderDetails have a specific quantity, which evaluates to FALSE if any record differs."
+      },
+      {
+        "title": "SQL Select Into",
+        "fileName": "sql_select_into.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_select_into.asp.html",
+        "summary": "The SQL SELECT INTO statement creates a new table and populates it with data from an existing table, useful for backups or temporary analysis. It can copy entire tables, specific columns, or filtered rows, and can even create an empty table with the same schema using a false condition. Note that primary keys, indexes, and NOT NULL constraints are not transferred."
+      },
+      {
+        "title": "SQL Insert Into Select",
+        "fileName": "sql_insert_into_select.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_insert_into_select.asp.html",
+        "summary": "The SQL INSERT INTO SELECT statement copies data from one table to another existing table, matching data types. It can copy all columns or specific columns, and conditions can filter the source data. Existing records in the target table remain unaffected. This is useful for merging data between tables."
+      },
+      {
+        "title": "SQL Case",
+        "fileName": "sql_case.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_case.asp.html",
+        "summary": "The SQL CASE expression acts like an if-then-else statement, evaluating conditions in order and returning the first match or a default value. Its syntax uses WHEN-THEN pairs, an optional ELSE, and ends with END. An example demonstrates creating a new column that categorizes product prices as Low, Medium, or High Cost."
+      },
+      {
+        "title": "SQL Null Functions",
+        "fileName": "sql_isnull.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_isnull.asp.html",
+        "summary": "SQL NULL functions like COALESCE (standard), IFNULL (MySQL), ISNULL (SQL Server), NVL (Oracle), and IsNull with IIf (MS Access) replace NULL values with a specified alternative to prevent calculation errors. These functions ensure that arithmetic operations or queries treat missing data as zero or another default value, maintaining accurate results across different database systems."
+      },
+      {
+        "title": "SQL Stored Procedures",
+        "fileName": "sql_stored_procedures.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_stored_procedures.asp.html",
+        "summary": "A stored procedure is a precompiled SQL code block that can be saved and reused, optionally accepting parameters. Key benefits include code reusability, improved performance, enhanced security, and easier maintenance. Procedures are created with `CREATE PROCEDURE`, executed via `EXEC`, and removed with `DROP PROCEDURE`."
+      },
+      {
+        "title": "SQL Comments",
+        "fileName": "sql_comments.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_comments.asp.html",
+        "summary": "SQL comments explain code or temporarily prevent execution during debugging, and are ignored by the database engine. The lesson covers single-line comments using `--` and multi-line comments using `/* */`, with examples of usage for explanations, disabling code, or ignoring parts of statements. Note that Microsoft Access does not support comments."
+      },
+      {
+        "title": "SQL Operators",
+        "fileName": "sql_operators.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_operators.asp.html",
+        "summary": "SQL operators are keywords and symbols used in statements like SELECT and WHERE to perform operations on data. They are categorized into arithmetic, comparison, compound, bitwise, and logical types. Examples include addition, equality checks, and conditions like AND, OR, and LIKE."
+      }
+    ]
+  },
+  {
+    "topic": "SQL Database",
+    "lessons": [
+      {
+        "title": "SQL Create DB",
+        "fileName": "sql_create_db.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_create_db.asp.html",
+        "summary": "The lesson introduces the SQL CREATE DATABASE statement, which requires administrative privileges. It provides the syntax and an example creating a database named \"testDB.\" Additionally, it explains how to verify the new database using commands like SHOW DATABASES in MySQL or SELECT name FROM sys.databases in SQL Server."
+      },
+      {
+        "title": "SQL Drop DB",
+        "fileName": "sql_drop_db.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_drop_db.asp.html",
+        "summary": "The SQL `DROP DATABASE` statement permanently deletes an entire database, including all its tables, views, stored procedures, and data. It requires administrative privileges and cannot be undone. For example, `DROP DATABASE testDB;` removes the database, which can be verified with `SHOW DATABASES;` or equivalent commands."
+      },
+      {
+        "title": "SQL Backup DB",
+        "fileName": "sql_backup_db.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_backup_db.asp.html",
+        "summary": "The lesson explains the SQL Server `BACKUP DATABASE` statement for creating full backups, emphasizing storing backups on a separate drive. It also covers differential backups with the `WITH DIFFERENTIAL` clause, which backs up only changes since the last full backup for faster operation. Examples illustrate both methods."
+      },
+      {
+        "title": "SQL Create Table",
+        "fileName": "sql_create_table.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_create_table.asp.html",
+        "summary": "The SQL CREATE TABLE statement defines a new table's structure with columns, data types, and optional constraints like PRIMARY KEY or NOT NULL. An example creates a \"Persons\" table with integer and varchar columns. It also demonstrates creating a new table by copying data from an existing table using SELECT."
+      },
+      {
+        "title": "SQL Drop Table",
+        "fileName": "sql_drop_table.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_drop_table.asp.html",
+        "summary": "The SQL DROP TABLE statement permanently deletes an entire table and its data. It is recommended to use the IF EXISTS clause to avoid errors if the table does not exist. Dropping a table referenced by a foreign key constraint requires removing the constraint first. Unlike TRUNCATE, which only deletes records while preserving the table structure, DROP removes the table entirely."
+      },
+      {
+        "title": "SQL Alter Table",
+        "fileName": "sql_alter.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_alter.asp.html",
+        "summary": "The lesson explains the SQL `ALTER TABLE` statement, which modifies existing table structures by adding, dropping, renaming, or changing column data types and constraints. It covers syntax for adding columns, deleting columns, renaming columns/tables, and modifying data types, with examples for different database systems. The lesson also demonstrates adding constraints like CHECK and provides practical examples with a \"Persons\" table."
+      },
+      {
+        "title": "SQL Constraints",
+        "fileName": "sql_constraints.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_constraints.asp.html",
+        "summary": "SQL constraints enforce rules on table data to ensure accuracy and reliability, aborting actions that violate them. They can be defined during table creation or later with ALTER TABLE. Common constraint types include NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT, and CREATE INDEX for faster data retrieval."
+      },
+      {
+        "title": "SQL Not Null",
+        "fileName": "sql_notnull.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_notnull.asp.html",
+        "summary": "The SQL NOT NULL constraint ensures a column always contains a value, preventing NULL entries. It can be applied when creating a table by adding NOT NULL after the column's data type, or later via ALTER TABLE. To allow NULLs again, use ALTER TABLE to modify the column to accept NULL."
+      },
+      {
+        "title": "SQL Unique",
+        "fileName": "sql_unique.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_unique.asp.html",
+        "summary": "The SQL UNIQUE constraint ensures all values in a column are unique, with multiple allowed per table unlike PRIMARY KEY. It can be defined during table creation or altered later, including named constraints for single or multiple columns. Dropping a UNIQUE constraint is done via ALTER TABLE, using DROP INDEX or DROP CONSTRAINT depending on the database system."
+      },
+      {
+        "title": "SQL Primary Key",
+        "fileName": "sql_primarykey.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_primarykey.asp.html",
+        "summary": "The SQL PRIMARY KEY constraint uniquely identifies each record, combining UNIQUE and NOT NULL properties. A table can have only one primary key, which may be a single column or a composite of multiple columns. It is defined during CREATE TABLE or added via ALTER TABLE, and can be named or unnamed, with syntax for dropping it varying by database system."
+      },
+      {
+        "title": "SQL Foreign Key",
+        "fileName": "sql_foreignkey.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_foreignkey.asp.html",
+        "summary": "The lesson explains that a SQL FOREIGN KEY links two tables, ensuring referential integrity by requiring values in the child table to match a primary key in the parent table. It prevents inserting invalid data or deleting parent records with existing child references. The tutorial includes syntax for creating foreign keys during table creation, adding them via ALTER TABLE, and dropping them."
+      },
+      {
+        "title": "SQL Check",
+        "fileName": "sql_check.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_check.asp.html",
+        "summary": "The SQL CHECK constraint validates column values against a condition, aborting inserts or updates if false. It can be defined inline or as a named constraint on single or multiple columns during table creation or alteration via ALTER TABLE. Dropping a CHECK constraint uses ALTER TABLE with DROP CONSTRAINT or DROP CHECK, depending on the database system."
+      },
+      {
+        "title": "SQL Default",
+        "fileName": "sql_default.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_default.asp.html",
+        "summary": "The SQL DEFAULT constraint automatically assigns a specified default value to a column when no value is provided in a new record. It can be set during table creation or later via ALTER TABLE, supporting static values or system functions like current date. The lesson also demonstrates how to drop the constraint in various database systems."
+      },
+      {
+        "title": "SQL Create Index",
+        "fileName": "sql_create_index.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_create_index.asp.html",
+        "summary": "The CREATE INDEX statement speeds up data retrieval by creating indexes on table columns, though it slows table updates. Indexes can be non-unique (allowing duplicates) or unique (preventing duplicates). To remove an index, use DROP INDEX, with syntax varying by database system."
+      },
+      {
+        "title": "SQL Auto Increment",
+        "fileName": "sql_autoincrement.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_autoincrement.asp.html",
+        "summary": "SQL auto-increment fields automatically generate unique numeric primary key values for new records. The lesson covers implementation across databases: MySQL uses `AUTO_INCREMENT`, SQL Server uses `IDENTITY`, MS Access uses `AUTOINCREMENT`, and Oracle requires creating a `SEQUENCE` object with `nextval`. Each allows custom start values and increments, simplifying record insertion."
+      },
+      {
+        "title": "SQL Dates",
+        "fileName": "sql_dates.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_dates.asp.html",
+        "summary": "Working with SQL dates is challenging because the date format must match the database column's format. Different databases like MySQL and SQL Server have distinct date data types. When querying dates, the time component can cause mismatches, so it's best to avoid using time in dates unless necessary."
+      },
+      {
+        "title": "SQL Views",
+        "fileName": "sql_view.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_view.asp.html",
+        "summary": "An SQL view is a virtual table based on a SELECT query, storing only the query definition rather than data. Views can be created, modified (via ALTER or CREATE OR REPLACE), and dropped, always displaying real-time data from underlying tables. Examples demonstrate filtering rows and aggregating conditions within a view."
+      },
+      {
+        "title": "SQL Injection",
+        "fileName": "sql_injection.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_injection.asp.html",
+        "summary": "SQL injection is a web hacking technique where attackers insert malicious SQL code into user input fields, enabling them to read, modify, or delete database data. Examples demonstrate how simple inputs like `105 OR 1=1` or `\" OR \"\"=\"` can manipulate queries to return all records. Batched statements also allow destructive actions like dropping tables."
+      },
+      {
+        "title": "SQL Parameters",
+        "fileName": "sql_parameterized_queries.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_parameterized_queries.asp.html",
+        "summary": "SQL parameters (parameterized queries) prevent SQL injection by using placeholders instead of direct user input. Different databases use different markers (?, @, $), but all treat parameters as literal data, not executable code. Examples in JavaScript and ASP.NET show how to build and execute such queries safely."
+      },
+      {
+        "title": "SQL Prepared Statements",
+        "fileName": "sql_prepared_statements.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_prepared_statements.asp.html",
+        "summary": "SQL prepared statements enhance security by separating SQL query structure from user input, preventing SQL injection attacks. They work by first sending a query template with placeholders, then binding actual values later. This approach reduces parsing time, minimizes bandwidth, and leads to cleaner, safer code."
+      },
+      {
+        "title": "SQL Hosting",
+        "fileName": "sql_hosting.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_hosting.asp.html",
+        "summary": "SQL hosting enables websites to store and retrieve data via database systems offered by ISPs. Common options include MySQL (fast, inexpensive), Microsoft SQL Server (strong integration for high traffic), Oracle (scalable but costly), and PostgreSQL (free, open-source with advanced features). Each has distinct strengths for different hosting needs."
+      }
+    ]
+  },
+  {
+    "topic": "SQL Cert",
+    "lessons": [
+      {
+        "title": "SQL Certificate",
+        "fileName": "sql_exam.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_exam.asp.html",
+        "summary": "The W3Schools SQL Certificate offers a flexible, online exam to validate SQL skills at intermediate, advanced, or professional levels. With a 60-minute adaptive test, three attempts, and no expiration, it provides"
+      }
+    ]
+  },
+  {
+    "topic": "SQL References",
+    "lessons": [
+      {
+        "title": "SQL Data Types",
+        "fileName": "sql_datatypes.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_datatypes.asp.html",
+        "summary": "Data types define what values a column can hold (e.g., integer, string, date). Each database system (MySQL, SQL Server, MS Access) has its own set with subtle differences in names, sizes, and storage. Always consult specific documentation to ensure compatibility and correctness."
+      },
+      {
+        "title": "SQL Keywords",
+        "fileName": "sql_ref_keywords.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_ref_keywords.asp.html",
+        "summary": "This lesson is a comprehensive reference of SQL reserved words, listing keywords alphabetically with descriptions of their functions. It covers data definition (CREATE, ALTER, DROP), data manipulation (INSERT, UPDATE, DELETE), querying (SELECT, WHERE, JOIN), constraints (PRIMARY KEY, FOREIGN KEY), and more. The content serves as a quick lookup guide for SQL syntax and operations."
+      },
+      {
+        "title": "MySQL Functions",
+        "fileName": "sql_ref_mysql.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_ref_mysql.asp.html",
+        "summary": "This lesson provides a comprehensive reference of MySQL’s built-in functions, organized into four categories: string, numeric, date, and advanced functions. Each category lists functions with brief descriptions, covering common operations like string manipulation, mathematical calculations, date/time handling, and conditional or conversion logic. The content serves as a quick lookup guide for developers to utilize MySQL’s built-in capabilities."
+      },
+      {
+        "title": "SQL Server Functions",
+        "fileName": "sql_ref_sqlserver.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_ref_sqlserver.asp.html",
+        "summary": "The lesson covers SQL Server's extensive collection of built-in functions, organized into categories: string, math/numeric, date, and advanced. It provides a reference of functions for tasks like string manipulation, mathematical calculations, date operations, type conversion, and null handling."
+      },
+      {
+        "title": "MS Access Functions",
+        "fileName": "sql_ref_msaccess.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_ref_msaccess.asp.html",
+        "summary": "This lesson covers MS Access built-in functions, organized into string, numeric, date, and miscellaneous categories. It details how to manipulate text, perform calculations, handle dates, and check data types, providing a comprehensive reference for database operations."
+      },
+      {
+        "title": "SQL Quick Ref",
+        "fileName": "sql_quickref.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_quickref.asp.html",
+        "summary": "A concise reference sheet listing essential SQL statements (SELECT, INSERT, UPDATE, DELETE, JOINs, etc.) with their basic syntax. It serves as a quick lookup for common database operations, including filtering, aggregation, table modifications, and data definition commands."
+      }
+    ]
+  },
+  {
+    "topic": "SQL Examples",
+    "lessons": [
+      {
+        "title": "SQL Examples",
+        "fileName": "sql_examples.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_examples.asp.html",
+        "summary": "This lesson provides a comprehensive set of SQL examples covering fundamental to advanced topics, including SELECT, filtering, aggregation, joins, subqueries, and database management. Each concept is illustrated with interactive code snippets and detailed explanations, making it an effective resource for hands‑on learning and certification preparation."
+      },
+      {
+        "title": "SQL Editor",
+        "fileName": "sql_editor.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_editor.asp.html",
+        "summary": "The lesson introduces an online SQL editor for editing and executing SQL statements directly in the browser, with instant result display. It also highlights W3Schools Spaces for building and publishing SQL database projects, and recommends the SQL Tutorial for beginners."
+      },
+      {
+        "title": "SQL Quiz",
+        "fileName": "sql_quiz.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_quiz.asp.html",
+        "summary": "This lesson offers a 25-question SQL quiz with no time limit, scoring one point per correct answer for a maximum of 25 points. It serves as an informal self-assessment tool to gauge SQL knowledge. The page also promotes W3Schools' coding certification course."
+      },
+      {
+        "title": "SQL Exercises",
+        "fileName": "sql_exercises.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_exercises.asp.html",
+        "summary": "This lesson offers 60 SQL exercises across 37 categories, from basic syntax and queries to advanced joins, functions, and database management. It uses multiple-choice and fill-in-the-blank questions, with solutions available. Completing the course leads to a certification."
+      },
+      {
+        "title": "SQL Server",
+        "fileName": "sql_server.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_server.asp.html",
+        "summary": "The lesson content is a promotional page for W3Schools Spaces, not an instructional SQL Server tutorial. It highlights hosting SQL Server on Python, cloud-based coding tools, and subscription plans. No actual SQL Server concepts are taught."
+      },
+      {
+        "title": "SQL Syllabus",
+        "fileName": "sql_syllabus.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_syllabus.asp.html",
+        "summary": "The W3Schools SQL syllabus offers a beginner-friendly, step-by-step tutorial covering core topics like database creation, queries, JOINs, and functions. It includes hands-on activities, a sandbox environment, and certification. The course is designed for various fields from IT to data science, requiring no prior programming experience."
+      },
+      {
+        "title": "SQL Study Plan",
+        "fileName": "sql_study_plan.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_study_plan.asp.html",
+        "summary": "The SQL study plan from W3Schools Academy helps teachers guide students from basic queries to advanced database management using customizable learning paths, timelines, and interactive content. It includes pre-built materials, progress tracking, auto-grading, and aligns with a certification exam, making it flexible for different skill levels and class paces."
+      },
+      {
+        "title": "SQL Bootcamp",
+        "fileName": "sql_bootcamp.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_bootcamp.asp.html",
+        "summary": "This 4-week live online bootcamp teaches SQL fundamentals for data analysis, database management, and automation. Led by an experienced instructor, it includes 18 hours of live sessions, cohort collaboration, and prepares you for the W3Schools SQL certification exam. The affordable $495 fee covers tuition and the exam."
+      },
+      {
+        "title": "SQL Training",
+        "fileName": "sql_training.asp.md",
+        "url": "https://www.w3schools.com/sql/sql_training.asp.html",
+        "summary": "W3Schools offers a self-paced SQL training course for organizations, leading to the Certified SQL Developer certification. The course covers database management, queries, joins, and security through interactive challenges and exams. It includes progress tracking, auto-grading, and lifetime certification, making it suitable for companies and schools to train employees or students."
+      }
+    ]
+  }
 ]

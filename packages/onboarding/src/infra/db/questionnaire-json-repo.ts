@@ -1,38 +1,38 @@
-import type { BaseJsonDb } from "@u7/core/infra";
-import { JsonFileRepo } from "@u7/core/infra";
-import type { Questionnaire } from "#domain/questionnaire/entity";
-import { QuestionnaireSchema } from "#domain/questionnaire/entity";
-import type { QuestionnaireRepo } from "#domain/questionnaire/repo";
+import type { BaseJsonDb } from '@u7/core/infra';
+import { JsonFileRepo } from '@u7/core/infra';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import { QuestionnaireSchema } from '#domain/questionnaire/entity';
+import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 
 /**
  * JSON-реализация репозитория анкет.
  */
 export class QuestionnaireJsonRepo
-	extends JsonFileRepo<Questionnaire>
-	implements QuestionnaireRepo
+  extends JsonFileRepo<Questionnaire>
+  implements QuestionnaireRepo
 {
-	constructor(
-		filePath = "data/onboarding/questionnaires.json",
-		db?: BaseJsonDb,
-	) {
-		super(QuestionnaireSchema, filePath, db, "questionnaires");
-	}
+  constructor(
+    filePath = 'data/onboarding/questionnaires.json',
+    db?: BaseJsonDb,
+  ) {
+    super(QuestionnaireSchema, filePath, db, 'questionnaires');
+  }
 
-	async save(questionnaire: Questionnaire): Promise<void> {
-		const all = await this.readAll();
-		const idx = all.findIndex((q) => q.uuid === questionnaire.uuid);
-		if (idx !== -1) all[idx] = questionnaire;
-		else all.push(questionnaire);
-		await this.writeAll(all);
-	}
+  async save(questionnaire: Questionnaire): Promise<void> {
+    const all = await this.readAll();
+    const idx = all.findIndex((q) => q.uuid === questionnaire.uuid);
+    if (idx !== -1) all[idx] = questionnaire;
+    else all.push(questionnaire);
+    await this.writeAll(all);
+  }
 
-	async getByUuid(uuid: string): Promise<Questionnaire | undefined> {
-		const all = await this.readAll();
-		return all.find((q) => q.uuid === uuid);
-	}
+  async getByUuid(uuid: string): Promise<Questionnaire | undefined> {
+    const all = await this.readAll();
+    return all.find((q) => q.uuid === uuid);
+  }
 
-	async getByUserId(userId: string): Promise<Questionnaire[]> {
-		const all = await this.readAll();
-		return all.filter((q) => q.userId === userId);
-	}
+  async getByUserId(userId: string): Promise<Questionnaire[]> {
+    const all = await this.readAll();
+    return all.filter((q) => q.userId === userId);
+  }
 }

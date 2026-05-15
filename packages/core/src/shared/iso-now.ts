@@ -3,5 +3,5 @@
  * Формат: YYYY-MM-DDTHH:mm
  */
 export function isoNow(): string {
-	return new Date().toISOString().slice(0, 16);
+  return new Date().toISOString().slice(0, 16);
 }

@@ -1,0 +1,7 @@
+{
+  "id": "apimeta-refactor",
+  "name": "Рефакторинг типизации ApiModule и ApiApp",
+  "description": "Строгая типизация вызовов usecases со стороны контроллеров через ApiApp с использованием ApiModuleMeta и AppMeta",
+  "created_at": "2026-05-15",
+  "status": "planned"
+}

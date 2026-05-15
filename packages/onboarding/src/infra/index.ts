@@ -1,1 +1,1 @@
-export { QuestionnaireJsonRepo } from "./db/questionnaire-json-repo";
+export { QuestionnaireJsonRepo } from './db/questionnaire-json-repo';

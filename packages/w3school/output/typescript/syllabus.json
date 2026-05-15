@@ -1,299 +1,299 @@
 [
-	{
-		"topic": "TypeScript tutorial",
-		"lessons": [
-			{
-				"title": "TS HOME",
-				"fileName": "index.php.md",
-				"url": "https://www.w3schools.com/typescript/index.php.html",
-				"summary": "TypeScript is JavaScript with added syntax for types, making code more robust and maintainable. This tutorial provides hands-on learning with an interactive \"Try it Yourself\" editor that lets you edit and run TypeScript code directly in your browser. It is recommended to follow the lessons in the order presented in the left menu."
-			},
-			{
-				"title": "TS Introduction",
-				"fileName": "typescript_intro.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_intro.php.html",
-				"summary": "TypeScript is a syntactic superset of JavaScript that adds static typing, enabling developers to specify data types. It catches type errors at compile time, unlike JavaScript's loose typing. TypeScript code is transpiled to JavaScript using the official compiler, with built-in support in editors like VS Code."
-			},
-			{
-				"title": "TS Get Started",
-				"fileName": "typescript_getstarted.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_getstarted.php.html",
-				"summary": "TypeScript is transpiled to JavaScript using a compiler installed via npm. It can be installed locally as a dev dependency or globally, though local installation is best practice. Configuration is done with a `tsconfig.json` file, and a simple program is compiled with `npx tsc` and run with Node.js."
-			},
-			{
-				"title": "TS Simple Types",
-				"fileName": "typescript_simple_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_simple_types.php.html",
-				"summary": "TypeScript adds static typing to JavaScript, with five key primitive types: boolean, number, string, bigint, and symbol. These form the foundation for building complex types and support various literal forms like binary and hexadecimal numbers. TypeScript infers types when not explicitly declared."
-			},
-			{
-				"title": "TS Explicit & Inference",
-				"fileName": "typescript_explicit_inference.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_explicit_inference.php.html",
-				"summary": "The lesson explains TypeScript’s two typing approaches: explicit annotations (declaring types manually) and type inference (automatic type deduction from values). It provides guidelines—explicit types for functions and object literals, inference for simple assignments—and demonstrates how TypeScript catches type mismatches. The lesson also warns against the `any` type when inference fails, recommending explicit types or interfaces instead."
-			},
-			{
-				"title": "TS Special Types",
-				"fileName": "typescript_special_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_special_types.php.html",
-				"summary": "The lesson covers TypeScript's special types: `any` (disables type checking), `unknown` (type-safe alternative requiring narrowing), `never` (for values that never occur), and `undefined`/`null` (with strictNullChecks). These types enhance type safety for dynamic content, exhaustive checks, and optional values."
-			},
-			{
-				"title": "TS Arrays",
-				"fileName": "typescript_arrays.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_arrays.php.html",
-				"summary": "TypeScript arrays use specific type annotations like `string[]` to enforce element types. The `readonly` keyword prevents array modification, while type inference automatically deduces the array type from its values. These features ensure type safety and prevent common errors like adding incompatible elements."
-			},
-			{
-				"title": "TS Tuples",
-				"fileName": "typescript_tuples.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_tuples.php.html",
-				"summary": "A TypeScript tuple is a typed array with a fixed length and specific types for each index. Tuples enforce order and type safety; making them `readonly` prevents modification. Named tuples provide context for values, and tuples can be destructured like arrays."
-			},
-			{
-				"title": "TS Object Types",
-				"fileName": "typescript_object_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_object_types.php.html",
-				"summary": "The lesson explains how to define TypeScript object types using explicit property type annotations, with support for type inference, optional properties via `?`, and index signatures for dynamic keys. It also hints at reusable type definitions and utility types like `Record`."
-			},
-			{
-				"title": "TS Enums",
-				"fileName": "typescript_enums.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_enums.php.html",
-				"summary": "TypeScript enums define a set of named constants. Numeric enums auto-increment from 0 by default or from an initialized value, and can be fully specified. String enums provide readability by assigning explicit string values. Mixing string and numeric values is technically possible but discouraged."
-			},
-			{
-				"title": "TS Aliases & Interfaces",
-				"fileName": "typescript_aliases_and_interfaces.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_aliases_and_interfaces.php.html",
-				"summary": "Type aliases define custom names for any type, including primitives, unions, and intersections. Interfaces are restricted to object types and support declaration merging. Use interfaces for object shapes and public APIs, and type aliases for unions, intersections, and primitives. Both can be extended and implemented by classes."
-			},
-			{
-				"title": "TS Union Types",
-				"fileName": "typescript_union_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_union_types.php.html",
-				"summary": "Union types allow a value to be more than one type, using the `|` operator (e.g., `string | number`). This is useful for parameters or properties that can hold different types. However, you must narrow the type before using type-specific methods, or you'll get errors like `Property 'toUpperCase' does not exist on type 'string | number'`."
-			},
-			{
-				"title": "TS Functions",
-				"fileName": "typescript_functions.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_functions.php.html",
-				"summary": "TypeScript allows explicit typing of function parameters and return values, including `void` for no return and optional/default parameters with `?` or default values. Named and rest parameters follow similar typing rules, while type aliases define reusable function signatures, like arrow function types."
-			},
-			{
-				"title": "TS Casting",
-				"fileName": "typescript_casting.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_casting.php.html",
-				"summary": "TypeScript casting overrides a variable's type using the `as` keyword or angle brackets (`<>`), but does not change the underlying data. Casting with `<>` is not supported in TSX (React). To bypass TypeScript's type checks, first cast to `unknown` before the target type."
-			},
-			{
-				"title": "TS Classes",
-				"fileName": "typescript_classes.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_classes.php.html",
-				"summary": "TypeScript classes enforce type annotations for members and visibility modifiers (public, private, protected). They support parameter properties, readonly fields, and inheritance via `implements` (interfaces) and `extends`. The `override` keyword prevents accidental method overriding, while abstract classes define incomplete base classes that cannot be instantiated directly."
-			},
-			{
-				"title": "TS Basic Generics",
-				"fileName": "typescript_basic_generics.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_basic_generics.php.html",
-				"summary": "Generics in TypeScript allow creating reusable components using type variables. They enable functions, classes, and type aliases to work with various types while maintaining type safety. TypeScript can infer generic types, supports default values, and allows constraints via the `extends` keyword to limit permissible types."
-			},
-			{
-				"title": "TS Utility Types",
-				"fileName": "typescript_utility_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_utility_types.php.html",
-				"summary": "This lesson introduces TypeScript's built-in utility types that simplify common type manipulations, such as making object properties optional or required (Partial, Required), selecting or omitting keys (Pick, Omit), defining key-value mappings (Record), excluding union members (Exclude), and extracting function return types or parameters (ReturnType, Parameters). The Readonly utility prevents property reassignment at compile time."
-			},
-			{
-				"title": "TS Keyof",
-				"fileName": "typescript_keyof.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_keyof.php.html",
-				"summary": "`keyof` extracts the key type from an object type. With explicit keys, it produces a union of those keys, enabling type-safe property access. When used on index signatures, it yields the index type (e.g., `string`). This keyword ensures only valid property names are used."
-			},
-			{
-				"title": "TS Null",
-				"fileName": "typescript_null.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_null.php.html",
-				"summary": "This lesson covers TypeScript's null and undefined handling with `strictNullChecks` enabled. It explains using optional chaining (`?.`) and nullish coalescing (`??`) for safe property access and fallback values. It also warns about the unsafe null assertion operator (`!`) and mentions `noUncheckedIndexedAccess` for safer array indexing."
-			},
-			{
-				"title": "TS Definitely Typed",
-				"fileName": "typescript_definitely_typed.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_definitely_typed.php.html",
-				"summary": "Many npm packages lack built-in TypeScript types. The community-maintained Definitely Typed project provides type definitions for such packages, installed via `@types/package-name`. Once installed, TypeScript automatically recognizes these types, and editors often suggest them when types are missing."
-			},
-			{
-				"title": "TS 5 Updates",
-				"fileName": "typescript_5_updates.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_5_updates.php.html",
-				"summary": "TypeScript 5.x introduces template literal types for more precise string-based types, index signature labels for descriptive dynamic object typing, and support for native JavaScript private fields, enabling stricter and more flexible type safety."
-			},
-			{
-				"title": "TS Configuration",
-				"fileName": "typescript_config.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_config.php.html",
-				"summary": "The lesson explains the central role of `tsconfig.json` in TypeScript projects, covering key options like compilerOptions, include/exclude, and advanced features like extends and references for monorepos. It provides practical examples, common pitfalls, and best practices such as enabling `strict` for safer code and avoiding committing build output."
-			},
-			{
-				"title": "TS with Node.js",
-				"fileName": "typescript_nodejs.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_nodejs.php.html",
-				"summary": "The lesson guides setting up TypeScript with Node.js, covering project initialization, TypeScript configuration, and a typed Express server example. It demonstrates middleware typing, database integration with TypeORM, and development workflows including build scripts and debugging. Best practices emphasize strict typing, type safety, and separating development from production builds."
-			},
-			{
-				"title": "TS with React",
-				"fileName": "typescript_react.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_react.php.html",
-				"summary": "This lesson introduces TypeScript with React, highlighting benefits like type safety for props and state, better IDE support, and early error detection. It covers project setup with Vite, component typing, and common patterns including typed events, state management, refs, children, generic fetch helpers, and typed context with custom hooks."
-			},
-			{
-				"title": "TS Tooling",
-				"fileName": "typescript_tooling.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_tooling.php.html",
-				"summary": "This lesson covers the essential TypeScript tooling ecosystem, including linting with ESLint and formatting with Prettier, modern build tools like Vite and Webpack, and development environment setup in VS Code. It also introduces testing with Jest and React Testing Library, along with best practices and common pitfalls for efficient TypeScript development."
-			},
-			{
-				"title": "TS Advanced Types",
-				"fileName": "typescript_advanced_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_advanced_types.php.html",
-				"summary": "This lesson covers TypeScript's advanced type system, including mapped types for property transformation, conditional types with the `infer` keyword, template literal types for string patterns, utility types for common transformations, and recursive types for nested structures. It provides practical examples and best practices for building robust, type-safe applications."
-			},
-			{
-				"title": "TS Type Guards",
-				"fileName": "typescript_type_guards.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_type_guards.php.html",
-				"summary": "TypeScript Type Guards enable precise type narrowing within conditional blocks, improving type safety and code clarity. The lesson covers key patterns: `typeof` for primitives, `instanceof` for classes, user-defined predicates, discriminated unions, the `in` operator, and assertion functions. Each pattern helps TypeScript infer specific types at compile time while providing runtime validation where needed."
-			},
-			{
-				"title": "TS Conditional Types",
-				"fileName": "typescript_conditional_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_conditional_types.php.html",
-				"summary": "Conditional types enable type-level if-else logic using `T extends U ? X : Y` syntax. They distribute over unions, support type inference with `infer`, and include built-in utilities like `Extract` and `ReturnType`. Advanced patterns include recursive unwrapping and chained conditions for complex type transformations."
-			},
-			{
-				"title": "TS Mapped Types",
-				"fileName": "typescript_mapped_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_mapped_types.php.html",
-				"summary": "Mapped types in TypeScript allow transforming every property of an existing type using syntax `{ [P in K]: T }`. They enable built-in utilities like `Partial`, `Readonly`, `Pick`, and `Omit`, as well as custom transformations, modifier addition/removal, and combination with conditional types for advanced type filtering and key remapping."
-			},
-			{
-				"title": "TS Type Inference",
-				"fileName": "typescript_type_inference.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_type_inference.php.html",
-				"summary": "TypeScript’s type inference automatically deduces types from values and context, reducing verbosity while ensuring safety. It covers variable initialization, function returns, contextual typing, and object literals, with advanced patterns like const assertions and control flow narrowing. Best practices suggest letting inference handle simple cases while adding explicit types for public APIs, complex structures, and empty collections."
-			},
-			{
-				"title": "TS Literal Types",
-				"fileName": "typescript_literal_types.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_literal_types.php.html",
-				"summary": "TypeScript literal types restrict variables to exact values like specific strings, numbers, or booleans, enabling precise type safety and pattern matching. They support union combinations, template literal types for dynamic string patterns, and integration with objects for typed APIs. Best practices include using literals for fixed value sets and avoiding overly large unions that degrade performance."
-			},
-			{
-				"title": "TS Namespaces",
-				"fileName": "typescript_namespaces.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_namespaces.php.html",
-				"summary": "TypeScript namespaces organize code and prevent naming conflicts by grouping related functionality into named containers. They support nested hierarchies, aliases, and multi-file splitting with reference comments. While still useful for legacy code and global libraries, modern applications should prefer ES modules for better tree-shaking and modularity."
-			},
-			{
-				"title": "TS Index Signatures",
-				"fileName": "typescript_index_signatures.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_index_signatures.php.html",
-				"summary": "Index signatures in TypeScript allow typing objects with dynamic property names while ensuring type safety. They define value types for bracket notation access, support string and number keys, and can be combined with explicit properties or made readonly. Use them for flexible data structures like dictionaries or API responses when keys are unknown, but prefer fixed types or Record<K,T> when keys are known."
-			},
-			{
-				"title": "TS Declaration Merging",
-				"fileName": "typescript_declaration_merging.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_declaration_merging.php.html",
-				"summary": "Declaration merging in TypeScript allows combining multiple declarations with the same name into a single definition, enabling progressive enhancement of interfaces, namespaces, enums, and even classes with interfaces. It supports module augmentation to extend third-party types, while requiring careful handling of overload order and property compatibility. This feature improves type organization and extensibility without affecting runtime performance."
-			},
-			{
-				"title": "TS Async Programming",
-				"fileName": "typescript_async.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_async.php.html",
-				"summary": "This lesson explores TypeScript's async programming, demonstrating how generics add type safety to Promises and async/await. It covers typed callbacks, Promise combinations like `all` and `race`, robust error handling with custom error classes, and async generators, making asynchronous code more predictable and maintainable."
-			},
-			{
-				"title": "TS Decorators",
-				"fileName": "typescript_decorators.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_decorators.php.html",
-				"summary": "TypeScript decorators are a powerful feature for adding metadata and modifying classes and their members at design time, widely used in frameworks like Angular and NestJS. The lesson covers enabling decorators in `tsconfig.json`, the four types (class, method, property, parameter), decorator factories for customization, and real-world patterns. It also highlights best practices (single responsibility, type safety) and common pitfalls like evaluation order and missing configuration."
-			},
-			{
-				"title": "TS in JS Projects",
-				"fileName": "typescript_jsdoc.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_jsdoc.php.html",
-				"summary": "This lesson explains how to add TypeScript-style type checking to JavaScript files using JSDoc annotations, enabling gradual migration and type safety without converting to `.ts`. It covers setup with `// @ts-check`, defining types via `@typedef`, function typing, advanced patterns like generics and type imports, and best practices for effective use."
-			},
-			{
-				"title": "TS Migration",
-				"fileName": "typescript_migration.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_migration.php.html",
-				"summary": "This guide covers migrating JavaScript to TypeScript, emphasizing gradual migration with `allowJs` and `checkJs`. It details preparation, configuration, step-by-step renaming, type annotations, and tools like ts-migrate. Best practices include starting small, leveraging inference, and handling dynamic properties and `this` context for a smooth transition."
-			},
-			{
-				"title": "TS Error Handling",
-				"fileName": "typescript_error_handling.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_error_handling.php.html",
-				"summary": "The lesson covers robust error handling in TypeScript, from basic try/catch to custom error classes and type guards for safe error handling in asynchronous code and React error boundaries. It emphasizes best practices like never leaving catch blocks empty, using specific error types, and handling errors at the appropriate level to build reliable, maintainable applications."
-			},
-			{
-				"title": "TS Best Practices",
-				"fileName": "typescript_best_practices.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_best_practices.php.html",
-				"summary": "The lesson outlines essential TypeScript best practices for writing clean, maintainable, and type-safe code. It covers strict project configuration, proper use of type inference, interfaces vs types, async error handling, dependency injection for testability, and performance techniques like const assertions. Common pitfalls such as overusing `any`, redundant annotations, and ignoring null checks are addressed with safer alternatives."
-			}
-		]
-	},
-	{
-		"topic": "TypeScript Cert",
-		"lessons": [
-			{
-				"title": "TS Certificate",
-				"fileName": "typescript_exam.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_exam.php.html",
-				"summary": "The lesson promotes W3Schools’ HTML certification: a $95 online exam with no expiration, offering three achievement levels. It highlights flexible self-paced study, shareable verification links, and career benefits like adding credentials"
-			}
-		]
-	},
-	{
-		"topic": "TypeScript Exercises",
-		"lessons": [
-			{
-				"title": "TS Editor",
-				"fileName": "typescript_editor.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_editor.php.html",
-				"summary": "The lesson introduces an online TypeScript editor for editing code and viewing results live in the browser via a \"Try it Yourself\" button. It also promotes W3Schools Spaces for building and publishing projects, and recommends TypeScript, JavaScript, and Node.js tutorials for beginners."
-			},
-			{
-				"title": "TS Exercises",
-				"fileName": "typescript_exercises.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_exercises.php.html",
-				"summary": "This lesson provides a comprehensive set of TypeScript exercises across 39 categories, from fundamentals to advanced topics like generics, decorators, and migration. Each category contains 2-4 interactive multiple-choice and fill-in-the-blank questions, with hints and a \"Show Answer\" option for guidance. It's designed to test and reinforce skills learned in the corresponding tutorial."
-			},
-			{
-				"title": "TS Quiz",
-				"fileName": "typescript_quiz.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_quiz.php.html",
-				"summary": "The lesson presents a 25-question TypeScript quiz from W3Schools with no time limit, awarding 1 point per correct answer for a maximum score of 25. It is an informal test to assess knowledge, with a link to start and a recommendation to review the TypeScript tutorial for beginners."
-			},
-			{
-				"title": "TS Practice Problems",
-				"fileName": "typescript_practice.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_practice.php.html",
-				"summary": "This lesson provides a collection of TypeScript coding problems ranging from easy to hard, with a weekly challenge and instant feedback. Free problems include tasks like \"Say Hello\" and \"Celsius to Fahrenheit,\" while sign-in unlocks additional exercises, XP tracking, and progress tracking."
-			},
-			{
-				"title": "TS Syllabus",
-				"fileName": "typescript_syllabus.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_syllabus.php.html",
-				"summary": "The W3Schools TypeScript Syllabus offers a beginner-friendly, step-by-step tutorial covering fundamental to advanced concepts like types, arrays, functions, generics, and utility types. It includes lessons, exercises, quizzes, a browser-based sandbox for hands-on practice, and a certification exam. The course is designed for learners with basic JavaScript knowledge and supports teachers via W3Schools Academy."
-			},
-			{
-				"title": "TS Study Plan",
-				"fileName": "typescript_study_plan.php.md",
-				"url": "https://www.w3schools.com/typescript/typescript_study_plan.php.html",
-				"summary": "The TypeScript Study Plan from W3Schools Academy offers teachers customizable learning paths, interactive content, and flexible timelines for different student levels. It includes pre-built materials, progress tracking, auto-grading, and an aligned certification exam. The plan adapts to various paces (e.g., 3 weeks) and is accessible on any device, making teaching TypeScript structured and efficient."
-			}
-		]
-	}
+  {
+    "topic": "TypeScript tutorial",
+    "lessons": [
+      {
+        "title": "TS HOME",
+        "fileName": "index.php.md",
+        "url": "https://www.w3schools.com/typescript/index.php.html",
+        "summary": "TypeScript is JavaScript with added syntax for types, making code more robust and maintainable. This tutorial provides hands-on learning with an interactive \"Try it Yourself\" editor that lets you edit and run TypeScript code directly in your browser. It is recommended to follow the lessons in the order presented in the left menu."
+      },
+      {
+        "title": "TS Introduction",
+        "fileName": "typescript_intro.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_intro.php.html",
+        "summary": "TypeScript is a syntactic superset of JavaScript that adds static typing, enabling developers to specify data types. It catches type errors at compile time, unlike JavaScript's loose typing. TypeScript code is transpiled to JavaScript using the official compiler, with built-in support in editors like VS Code."
+      },
+      {
+        "title": "TS Get Started",
+        "fileName": "typescript_getstarted.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_getstarted.php.html",
+        "summary": "TypeScript is transpiled to JavaScript using a compiler installed via npm. It can be installed locally as a dev dependency or globally, though local installation is best practice. Configuration is done with a `tsconfig.json` file, and a simple program is compiled with `npx tsc` and run with Node.js."
+      },
+      {
+        "title": "TS Simple Types",
+        "fileName": "typescript_simple_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_simple_types.php.html",
+        "summary": "TypeScript adds static typing to JavaScript, with five key primitive types: boolean, number, string, bigint, and symbol. These form the foundation for building complex types and support various literal forms like binary and hexadecimal numbers. TypeScript infers types when not explicitly declared."
+      },
+      {
+        "title": "TS Explicit & Inference",
+        "fileName": "typescript_explicit_inference.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_explicit_inference.php.html",
+        "summary": "The lesson explains TypeScript’s two typing approaches: explicit annotations (declaring types manually) and type inference (automatic type deduction from values). It provides guidelines—explicit types for functions and object literals, inference for simple assignments—and demonstrates how TypeScript catches type mismatches. The lesson also warns against the `any` type when inference fails, recommending explicit types or interfaces instead."
+      },
+      {
+        "title": "TS Special Types",
+        "fileName": "typescript_special_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_special_types.php.html",
+        "summary": "The lesson covers TypeScript's special types: `any` (disables type checking), `unknown` (type-safe alternative requiring narrowing), `never` (for values that never occur), and `undefined`/`null` (with strictNullChecks). These types enhance type safety for dynamic content, exhaustive checks, and optional values."
+      },
+      {
+        "title": "TS Arrays",
+        "fileName": "typescript_arrays.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_arrays.php.html",
+        "summary": "TypeScript arrays use specific type annotations like `string[]` to enforce element types. The `readonly` keyword prevents array modification, while type inference automatically deduces the array type from its values. These features ensure type safety and prevent common errors like adding incompatible elements."
+      },
+      {
+        "title": "TS Tuples",
+        "fileName": "typescript_tuples.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_tuples.php.html",
+        "summary": "A TypeScript tuple is a typed array with a fixed length and specific types for each index. Tuples enforce order and type safety; making them `readonly` prevents modification. Named tuples provide context for values, and tuples can be destructured like arrays."
+      },
+      {
+        "title": "TS Object Types",
+        "fileName": "typescript_object_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_object_types.php.html",
+        "summary": "The lesson explains how to define TypeScript object types using explicit property type annotations, with support for type inference, optional properties via `?`, and index signatures for dynamic keys. It also hints at reusable type definitions and utility types like `Record`."
+      },
+      {
+        "title": "TS Enums",
+        "fileName": "typescript_enums.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_enums.php.html",
+        "summary": "TypeScript enums define a set of named constants. Numeric enums auto-increment from 0 by default or from an initialized value, and can be fully specified. String enums provide readability by assigning explicit string values. Mixing string and numeric values is technically possible but discouraged."
+      },
+      {
+        "title": "TS Aliases & Interfaces",
+        "fileName": "typescript_aliases_and_interfaces.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_aliases_and_interfaces.php.html",
+        "summary": "Type aliases define custom names for any type, including primitives, unions, and intersections. Interfaces are restricted to object types and support declaration merging. Use interfaces for object shapes and public APIs, and type aliases for unions, intersections, and primitives. Both can be extended and implemented by classes."
+      },
+      {
+        "title": "TS Union Types",
+        "fileName": "typescript_union_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_union_types.php.html",
+        "summary": "Union types allow a value to be more than one type, using the `|` operator (e.g., `string | number`). This is useful for parameters or properties that can hold different types. However, you must narrow the type before using type-specific methods, or you'll get errors like `Property 'toUpperCase' does not exist on type 'string | number'`."
+      },
+      {
+        "title": "TS Functions",
+        "fileName": "typescript_functions.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_functions.php.html",
+        "summary": "TypeScript allows explicit typing of function parameters and return values, including `void` for no return and optional/default parameters with `?` or default values. Named and rest parameters follow similar typing rules, while type aliases define reusable function signatures, like arrow function types."
+      },
+      {
+        "title": "TS Casting",
+        "fileName": "typescript_casting.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_casting.php.html",
+        "summary": "TypeScript casting overrides a variable's type using the `as` keyword or angle brackets (`<>`), but does not change the underlying data. Casting with `<>` is not supported in TSX (React). To bypass TypeScript's type checks, first cast to `unknown` before the target type."
+      },
+      {
+        "title": "TS Classes",
+        "fileName": "typescript_classes.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_classes.php.html",
+        "summary": "TypeScript classes enforce type annotations for members and visibility modifiers (public, private, protected). They support parameter properties, readonly fields, and inheritance via `implements` (interfaces) and `extends`. The `override` keyword prevents accidental method overriding, while abstract classes define incomplete base classes that cannot be instantiated directly."
+      },
+      {
+        "title": "TS Basic Generics",
+        "fileName": "typescript_basic_generics.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_basic_generics.php.html",
+        "summary": "Generics in TypeScript allow creating reusable components using type variables. They enable functions, classes, and type aliases to work with various types while maintaining type safety. TypeScript can infer generic types, supports default values, and allows constraints via the `extends` keyword to limit permissible types."
+      },
+      {
+        "title": "TS Utility Types",
+        "fileName": "typescript_utility_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_utility_types.php.html",
+        "summary": "This lesson introduces TypeScript's built-in utility types that simplify common type manipulations, such as making object properties optional or required (Partial, Required), selecting or omitting keys (Pick, Omit), defining key-value mappings (Record), excluding union members (Exclude), and extracting function return types or parameters (ReturnType, Parameters). The Readonly utility prevents property reassignment at compile time."
+      },
+      {
+        "title": "TS Keyof",
+        "fileName": "typescript_keyof.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_keyof.php.html",
+        "summary": "`keyof` extracts the key type from an object type. With explicit keys, it produces a union of those keys, enabling type-safe property access. When used on index signatures, it yields the index type (e.g., `string`). This keyword ensures only valid property names are used."
+      },
+      {
+        "title": "TS Null",
+        "fileName": "typescript_null.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_null.php.html",
+        "summary": "This lesson covers TypeScript's null and undefined handling with `strictNullChecks` enabled. It explains using optional chaining (`?.`) and nullish coalescing (`??`) for safe property access and fallback values. It also warns about the unsafe null assertion operator (`!`) and mentions `noUncheckedIndexedAccess` for safer array indexing."
+      },
+      {
+        "title": "TS Definitely Typed",
+        "fileName": "typescript_definitely_typed.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_definitely_typed.php.html",
+        "summary": "Many npm packages lack built-in TypeScript types. The community-maintained Definitely Typed project provides type definitions for such packages, installed via `@types/package-name`. Once installed, TypeScript automatically recognizes these types, and editors often suggest them when types are missing."
+      },
+      {
+        "title": "TS 5 Updates",
+        "fileName": "typescript_5_updates.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_5_updates.php.html",
+        "summary": "TypeScript 5.x introduces template literal types for more precise string-based types, index signature labels for descriptive dynamic object typing, and support for native JavaScript private fields, enabling stricter and more flexible type safety."
+      },
+      {
+        "title": "TS Configuration",
+        "fileName": "typescript_config.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_config.php.html",
+        "summary": "The lesson explains the central role of `tsconfig.json` in TypeScript projects, covering key options like compilerOptions, include/exclude, and advanced features like extends and references for monorepos. It provides practical examples, common pitfalls, and best practices such as enabling `strict` for safer code and avoiding committing build output."
+      },
+      {
+        "title": "TS with Node.js",
+        "fileName": "typescript_nodejs.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_nodejs.php.html",
+        "summary": "The lesson guides setting up TypeScript with Node.js, covering project initialization, TypeScript configuration, and a typed Express server example. It demonstrates middleware typing, database integration with TypeORM, and development workflows including build scripts and debugging. Best practices emphasize strict typing, type safety, and separating development from production builds."
+      },
+      {
+        "title": "TS with React",
+        "fileName": "typescript_react.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_react.php.html",
+        "summary": "This lesson introduces TypeScript with React, highlighting benefits like type safety for props and state, better IDE support, and early error detection. It covers project setup with Vite, component typing, and common patterns including typed events, state management, refs, children, generic fetch helpers, and typed context with custom hooks."
+      },
+      {
+        "title": "TS Tooling",
+        "fileName": "typescript_tooling.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_tooling.php.html",
+        "summary": "This lesson covers the essential TypeScript tooling ecosystem, including linting with ESLint and formatting with Prettier, modern build tools like Vite and Webpack, and development environment setup in VS Code. It also introduces testing with Jest and React Testing Library, along with best practices and common pitfalls for efficient TypeScript development."
+      },
+      {
+        "title": "TS Advanced Types",
+        "fileName": "typescript_advanced_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_advanced_types.php.html",
+        "summary": "This lesson covers TypeScript's advanced type system, including mapped types for property transformation, conditional types with the `infer` keyword, template literal types for string patterns, utility types for common transformations, and recursive types for nested structures. It provides practical examples and best practices for building robust, type-safe applications."
+      },
+      {
+        "title": "TS Type Guards",
+        "fileName": "typescript_type_guards.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_type_guards.php.html",
+        "summary": "TypeScript Type Guards enable precise type narrowing within conditional blocks, improving type safety and code clarity. The lesson covers key patterns: `typeof` for primitives, `instanceof` for classes, user-defined predicates, discriminated unions, the `in` operator, and assertion functions. Each pattern helps TypeScript infer specific types at compile time while providing runtime validation where needed."
+      },
+      {
+        "title": "TS Conditional Types",
+        "fileName": "typescript_conditional_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_conditional_types.php.html",
+        "summary": "Conditional types enable type-level if-else logic using `T extends U ? X : Y` syntax. They distribute over unions, support type inference with `infer`, and include built-in utilities like `Extract` and `ReturnType`. Advanced patterns include recursive unwrapping and chained conditions for complex type transformations."
+      },
+      {
+        "title": "TS Mapped Types",
+        "fileName": "typescript_mapped_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_mapped_types.php.html",
+        "summary": "Mapped types in TypeScript allow transforming every property of an existing type using syntax `{ [P in K]: T }`. They enable built-in utilities like `Partial`, `Readonly`, `Pick`, and `Omit`, as well as custom transformations, modifier addition/removal, and combination with conditional types for advanced type filtering and key remapping."
+      },
+      {
+        "title": "TS Type Inference",
+        "fileName": "typescript_type_inference.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_type_inference.php.html",
+        "summary": "TypeScript’s type inference automatically deduces types from values and context, reducing verbosity while ensuring safety. It covers variable initialization, function returns, contextual typing, and object literals, with advanced patterns like const assertions and control flow narrowing. Best practices suggest letting inference handle simple cases while adding explicit types for public APIs, complex structures, and empty collections."
+      },
+      {
+        "title": "TS Literal Types",
+        "fileName": "typescript_literal_types.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_literal_types.php.html",
+        "summary": "TypeScript literal types restrict variables to exact values like specific strings, numbers, or booleans, enabling precise type safety and pattern matching. They support union combinations, template literal types for dynamic string patterns, and integration with objects for typed APIs. Best practices include using literals for fixed value sets and avoiding overly large unions that degrade performance."
+      },
+      {
+        "title": "TS Namespaces",
+        "fileName": "typescript_namespaces.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_namespaces.php.html",
+        "summary": "TypeScript namespaces organize code and prevent naming conflicts by grouping related functionality into named containers. They support nested hierarchies, aliases, and multi-file splitting with reference comments. While still useful for legacy code and global libraries, modern applications should prefer ES modules for better tree-shaking and modularity."
+      },
+      {
+        "title": "TS Index Signatures",
+        "fileName": "typescript_index_signatures.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_index_signatures.php.html",
+        "summary": "Index signatures in TypeScript allow typing objects with dynamic property names while ensuring type safety. They define value types for bracket notation access, support string and number keys, and can be combined with explicit properties or made readonly. Use them for flexible data structures like dictionaries or API responses when keys are unknown, but prefer fixed types or Record<K,T> when keys are known."
+      },
+      {
+        "title": "TS Declaration Merging",
+        "fileName": "typescript_declaration_merging.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_declaration_merging.php.html",
+        "summary": "Declaration merging in TypeScript allows combining multiple declarations with the same name into a single definition, enabling progressive enhancement of interfaces, namespaces, enums, and even classes with interfaces. It supports module augmentation to extend third-party types, while requiring careful handling of overload order and property compatibility. This feature improves type organization and extensibility without affecting runtime performance."
+      },
+      {
+        "title": "TS Async Programming",
+        "fileName": "typescript_async.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_async.php.html",
+        "summary": "This lesson explores TypeScript's async programming, demonstrating how generics add type safety to Promises and async/await. It covers typed callbacks, Promise combinations like `all` and `race`, robust error handling with custom error classes, and async generators, making asynchronous code more predictable and maintainable."
+      },
+      {
+        "title": "TS Decorators",
+        "fileName": "typescript_decorators.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_decorators.php.html",
+        "summary": "TypeScript decorators are a powerful feature for adding metadata and modifying classes and their members at design time, widely used in frameworks like Angular and NestJS. The lesson covers enabling decorators in `tsconfig.json`, the four types (class, method, property, parameter), decorator factories for customization, and real-world patterns. It also highlights best practices (single responsibility, type safety) and common pitfalls like evaluation order and missing configuration."
+      },
+      {
+        "title": "TS in JS Projects",
+        "fileName": "typescript_jsdoc.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_jsdoc.php.html",
+        "summary": "This lesson explains how to add TypeScript-style type checking to JavaScript files using JSDoc annotations, enabling gradual migration and type safety without converting to `.ts`. It covers setup with `// @ts-check`, defining types via `@typedef`, function typing, advanced patterns like generics and type imports, and best practices for effective use."
+      },
+      {
+        "title": "TS Migration",
+        "fileName": "typescript_migration.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_migration.php.html",
+        "summary": "This guide covers migrating JavaScript to TypeScript, emphasizing gradual migration with `allowJs` and `checkJs`. It details preparation, configuration, step-by-step renaming, type annotations, and tools like ts-migrate. Best practices include starting small, leveraging inference, and handling dynamic properties and `this` context for a smooth transition."
+      },
+      {
+        "title": "TS Error Handling",
+        "fileName": "typescript_error_handling.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_error_handling.php.html",
+        "summary": "The lesson covers robust error handling in TypeScript, from basic try/catch to custom error classes and type guards for safe error handling in asynchronous code and React error boundaries. It emphasizes best practices like never leaving catch blocks empty, using specific error types, and handling errors at the appropriate level to build reliable, maintainable applications."
+      },
+      {
+        "title": "TS Best Practices",
+        "fileName": "typescript_best_practices.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_best_practices.php.html",
+        "summary": "The lesson outlines essential TypeScript best practices for writing clean, maintainable, and type-safe code. It covers strict project configuration, proper use of type inference, interfaces vs types, async error handling, dependency injection for testability, and performance techniques like const assertions. Common pitfalls such as overusing `any`, redundant annotations, and ignoring null checks are addressed with safer alternatives."
+      }
+    ]
+  },
+  {
+    "topic": "TypeScript Cert",
+    "lessons": [
+      {
+        "title": "TS Certificate",
+        "fileName": "typescript_exam.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_exam.php.html",
+        "summary": "The lesson promotes W3Schools’ HTML certification: a $95 online exam with no expiration, offering three achievement levels. It highlights flexible self-paced study, shareable verification links, and career benefits like adding credentials"
+      }
+    ]
+  },
+  {
+    "topic": "TypeScript Exercises",
+    "lessons": [
+      {
+        "title": "TS Editor",
+        "fileName": "typescript_editor.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_editor.php.html",
+        "summary": "The lesson introduces an online TypeScript editor for editing code and viewing results live in the browser via a \"Try it Yourself\" button. It also promotes W3Schools Spaces for building and publishing projects, and recommends TypeScript, JavaScript, and Node.js tutorials for beginners."
+      },
+      {
+        "title": "TS Exercises",
+        "fileName": "typescript_exercises.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_exercises.php.html",
+        "summary": "This lesson provides a comprehensive set of TypeScript exercises across 39 categories, from fundamentals to advanced topics like generics, decorators, and migration. Each category contains 2-4 interactive multiple-choice and fill-in-the-blank questions, with hints and a \"Show Answer\" option for guidance. It's designed to test and reinforce skills learned in the corresponding tutorial."
+      },
+      {
+        "title": "TS Quiz",
+        "fileName": "typescript_quiz.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_quiz.php.html",
+        "summary": "The lesson presents a 25-question TypeScript quiz from W3Schools with no time limit, awarding 1 point per correct answer for a maximum score of 25. It is an informal test to assess knowledge, with a link to start and a recommendation to review the TypeScript tutorial for beginners."
+      },
+      {
+        "title": "TS Practice Problems",
+        "fileName": "typescript_practice.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_practice.php.html",
+        "summary": "This lesson provides a collection of TypeScript coding problems ranging from easy to hard, with a weekly challenge and instant feedback. Free problems include tasks like \"Say Hello\" and \"Celsius to Fahrenheit,\" while sign-in unlocks additional exercises, XP tracking, and progress tracking."
+      },
+      {
+        "title": "TS Syllabus",
+        "fileName": "typescript_syllabus.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_syllabus.php.html",
+        "summary": "The W3Schools TypeScript Syllabus offers a beginner-friendly, step-by-step tutorial covering fundamental to advanced concepts like types, arrays, functions, generics, and utility types. It includes lessons, exercises, quizzes, a browser-based sandbox for hands-on practice, and a certification exam. The course is designed for learners with basic JavaScript knowledge and supports teachers via W3Schools Academy."
+      },
+      {
+        "title": "TS Study Plan",
+        "fileName": "typescript_study_plan.php.md",
+        "url": "https://www.w3schools.com/typescript/typescript_study_plan.php.html",
+        "summary": "The TypeScript Study Plan from W3Schools Academy offers teachers customizable learning paths, interactive content, and flexible timelines for different student levels. It includes pre-built materials, progress tracking, auto-grading, and an aligned certification exam. The plan adapts to various paces (e.g., 3 weeks) and is accessible on any device, making teaching TypeScript structured and efficient."
+      }
+    ]
+  }
 ]

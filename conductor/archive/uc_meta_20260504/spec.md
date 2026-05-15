@@ -66,7 +66,7 @@ interface UcMeta {
 async handle(command: unknown, actorId?: string): Promise<TMeta["output"]> {
   this.checkAuth(actorId);
   const validatedCommand = this.validateInput(command);
-  const result = await this.execute(validatedCommand, actorId as any);
+  const result = await this.execute(validatedCommand, actorId);
   return this.validateOutput(result);
 }
 ```
