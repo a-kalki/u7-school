@@ -5,6 +5,12 @@ import type {
   ValidationError,
 } from '@u7/core/domain';
 
+/** У пользователя уже есть активная анкета */
+export type QuestionnaireActiveUcError = ConflictError<
+  'QUESTIONNAIRE_ACTIVE',
+  { userId: string } | undefined
+>;
+
 /** Ошибка валидации ответа анкеты */
 export type QuestionnaireValidationUcError = ValidationError<
   'QUESTIONNAIRE_VALIDATION',
@@ -38,4 +44,5 @@ export type QuestionnaireModuleError =
   | QuestionnaireCompletedUcError
   | QuestionNotFoundUcError
   | QuestionnaireNotFoundUcError
+  | QuestionnaireActiveUcError
   | AccessDeniedUcError;

@@ -129,5 +129,27 @@ describe("StartQuestionnaireUc", () => {
         "Переданы некорректные данные",
       );
     });
+
+    test("отказывает, если у пользователя уже есть активная анкета", async () => {
+      const { getUserByUuid, uc } = setupUc();
+      const user = makeUser();
+
+      getUserByUuid.mockResolvedValueOnce(user);
+
+      // Мокаем repo.getByUserId чтобы вернуть активную анкету
+      const activeQuestionnaire = {
+        uuid: crypto.randomUUID(),
+        userId: user.uuid,
+        status: "in_progress" as const,
+        answers: [],
+        currentQuestionCode: "q1",
+        createdAt: "2026-05-01T12:00",
+      };
+      uc.resolve.questionnaireRepo.getByUserId = mock(async () => [activeQuestionnaire]);
+
+      await expect(uc.handle({ userId: user.uuid }, user.uuid)).rejects.toThrow(
+        "У пользователя уже есть активная анкета",
+      );
+    });
   });
 });
