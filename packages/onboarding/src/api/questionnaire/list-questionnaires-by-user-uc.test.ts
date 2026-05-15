@@ -1,19 +1,19 @@
-import { describe, expect, mock, test } from "bun:test";
-import type { User } from "@u7/user/domain";
-import { Role } from "@u7/user/domain";
-import type { Questionnaire } from "#domain/questionnaire/entity";
-import type { QuestionnaireRepo } from "#domain/questionnaire/repo";
-import { ListQuestionnairesByUserUc } from "./list-questionnaires-by-user-uc";
-import type { QuestionPoolService } from "#domain/index";
-import type { BaseJsonDb } from "packages/core/src/infra";
+import { describe, expect, mock, test } from 'bun:test';
+import type { User } from '@u7/user/domain';
+import { Role } from '@u7/user/domain';
+import type { BaseJsonDb } from 'packages/core/src/infra';
+import type { QuestionPoolService } from '#domain/index';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
+import { ListQuestionnairesByUserUc } from './list-questionnaires-by-user-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
     uuid: crypto.randomUUID(),
-    name: "Тест",
+    name: 'Тест',
     telegramId: 1,
     roles: [Role.GUEST],
-    createdAt: "2026-05-01T12:00",
+    createdAt: '2026-05-01T12:00',
     ...overrides,
   };
 }
@@ -22,15 +22,15 @@ function makeQuestionnaires(userId: string, count = 2): Questionnaire[] {
   return Array.from({ length: count }, (_, i) => ({
     uuid: crypto.randomUUID(),
     userId,
-    status: i === 0 ? "in_progress" : "completed",
+    status: i === 0 ? 'in_progress' : 'completed',
     answers: [],
-    currentQuestionCode: "q1",
-    createdAt: "2026-05-01T12:00",
+    currentQuestionCode: 'q1',
+    createdAt: '2026-05-01T12:00',
   }));
 }
 
 function setupUc(questionnaires: Questionnaire[] = []) {
-  const save = mock(async () => { });
+  const save = mock(async () => {});
   const getByUuid = mock(async () => undefined);
   const getByUserId = mock(async (_userId: string) =>
     questionnaires.filter((q) => q.userId === _userId),
@@ -61,18 +61,18 @@ function setupUc(questionnaires: Questionnaire[] = []) {
     includedQuestionCodes: [],
     userFacade,
     db: {
-      begin: () => { },
-      commit: async () => { },
-      rollback: () => { },
+      begin: () => {},
+      commit: async () => {},
+      rollback: () => {},
     } as BaseJsonDb,
   });
 
   return { getUserByUuid, uc };
 }
 
-describe("ListQuestionnairesByUserUc", () => {
-  describe("SUCCESS", () => {
-    test("владелец видит свои анкеты", async () => {
+describe('ListQuestionnairesByUserUc', () => {
+  describe('SUCCESS', () => {
+    test('владелец видит свои анкеты', async () => {
       const user = makeUser();
       const questionnaires = makeQuestionnaires(user.uuid, 2);
       const { getUserByUuid, uc } = setupUc(questionnaires);
@@ -83,7 +83,7 @@ describe("ListQuestionnairesByUserUc", () => {
       expect(result).toHaveLength(2);
     });
 
-    test("ADMIN видит анкеты любого пользователя", async () => {
+    test('ADMIN видит анкеты любого пользователя', async () => {
       const admin = makeUser({ roles: [Role.ADMIN] });
       const target = makeUser();
       const questionnaires = makeQuestionnaires(target.uuid, 3);
@@ -96,17 +96,17 @@ describe("ListQuestionnairesByUserUc", () => {
     });
   });
 
-  describe("FAIL", () => {
-    test("отклоняет при отсутствии авторизации", async () => {
+  describe('FAIL', () => {
+    test('отклоняет при отсутствии авторизации', async () => {
       const user = makeUser();
       const { uc } = setupUc();
 
       await expect(uc.handle({ userId: user.uuid })).rejects.toThrow(
-        "Требуется авторизация",
+        'Требуется авторизация',
       );
     });
 
-    test("отклоняет просмотр чужих анкет", async () => {
+    test('отклоняет просмотр чужих анкет', async () => {
       const user = makeUser();
       const other = makeUser();
       const { getUserByUuid, uc } = setupUc();
@@ -115,7 +115,7 @@ describe("ListQuestionnairesByUserUc", () => {
 
       await expect(
         uc.handle({ userId: other.uuid }, user.uuid),
-      ).rejects.toThrow("Недостаточно прав");
+      ).rejects.toThrow('Недостаточно прав');
     });
   });
 });

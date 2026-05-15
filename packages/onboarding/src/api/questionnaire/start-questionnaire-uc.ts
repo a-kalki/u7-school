@@ -1,3 +1,4 @@
+import { errConflict } from '@u7/core/domain';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {
   type StartQuestionnaireCmd,
@@ -6,9 +7,8 @@ import {
 } from '#domain/questionnaire/commands/start-questionnaire-cmd';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionnaireSchema } from '#domain/questionnaire/entity';
-import { errConflict } from '@u7/core/domain';
-import { QuestionnairePolicy } from '#domain/questionnaire/policy';
 import type { QuestionnaireActiveUcError } from '#domain/questionnaire/errors';
+import { QuestionnairePolicy } from '#domain/questionnaire/policy';
 import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
@@ -37,7 +37,9 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
       this.throwAccessDenied('Недостаточно прав для создания анкеты');
     }
 
-    const existing = await this.resolve.questionnaireRepo.getByUserId(command.userId);
+    const existing = await this.resolve.questionnaireRepo.getByUserId(
+      command.userId,
+    );
     const hasActive = existing.some((q) => q.status === 'in_progress');
     if (hasActive) {
       this.throwError(

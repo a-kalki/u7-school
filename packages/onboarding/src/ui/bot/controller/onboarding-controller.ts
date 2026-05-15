@@ -1,8 +1,8 @@
-import type { User } from "@u7/user/domain";
-import type { Question } from "#domain/questionnaire/question";
-import type { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
-import type { OnboardingBotApp } from "../app";
-import type { Questionnaire } from "#domain/questionnaire/entity";
+import type { User } from '@u7/user/domain';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import type { Question } from '#domain/questionnaire/question';
+import type { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
+import type { OnboardingBotApp } from '../app';
 
 /**
  * Описание inline-клавиатуры для вопроса с выбором ответа.
@@ -26,7 +26,7 @@ export interface StartResult {
  */
 export interface SubmitResult {
   nextQuestion: Question | null;
-  status: "in_progress" | "completed" | "abandoned";
+  status: 'in_progress' | 'completed' | 'abandoned';
   isCompleted: boolean;
 }
 
@@ -49,7 +49,7 @@ export class OnboardingController {
    */
   async start(userId: string, actorId: string): Promise<StartResult> {
     const questionnaire = await this.#app.execute(
-      "start-questionnaire",
+      'start-questionnaire',
       { userId },
       actorId,
     );
@@ -75,12 +75,12 @@ export class OnboardingController {
     actorId: string,
   ): Promise<SubmitResult> {
     const questionnaire = await this.#app.execute(
-      "submit-answer",
+      'submit-answer',
       { questionnaireUuid: uuid, questionCode, value },
       actorId,
     );
 
-    const isCompleted = questionnaire.status === "completed";
+    const isCompleted = questionnaire.status === 'completed';
 
     const nextQuestion =
       !isCompleted && questionnaire.currentQuestionCode
@@ -98,7 +98,7 @@ export class OnboardingController {
    * Прерывает прохождение анкеты.
    */
   async abandon(uuid: string, actorId: string): Promise<void> {
-    await this.#app.execute("abandon-questionnaire", { uuid }, actorId);
+    await this.#app.execute('abandon-questionnaire', { uuid }, actorId);
   }
 
   /**
@@ -109,7 +109,7 @@ export class OnboardingController {
     actorId: string,
   ): Promise<Question | null> {
     const questionnaire = await this.#app.execute(
-      "get-questionnaire",
+      'get-questionnaire',
       { uuid },
       actorId,
     );
@@ -126,21 +126,21 @@ export class OnboardingController {
    */
   async getAnswersPreview(uuid: string, actorId: string): Promise<string> {
     const questionnaire = await this.#app.execute(
-      "get-questionnaire",
+      'get-questionnaire',
       { uuid },
       actorId,
     );
 
     if (questionnaire.answers.length === 0) {
-      return "Пока нет ответов.";
+      return 'Пока нет ответов.';
     }
 
     return questionnaire.answers
       .map((a, i) => {
-        const value = a.textValue ?? a.answerCodes.join(", ") ?? "—";
+        const value = a.textValue ?? a.answerCodes.join(', ') ?? '—';
         return `${i + 1}. ${a.questionCode}: ${value}`;
       })
-      .join("\n");
+      .join('\n');
   }
 
   /**
@@ -150,15 +150,15 @@ export class OnboardingController {
   getStartFlow(
     user: User,
     _questionnaires: Questionnaire[],
-  ): "candidate" | "subscriber" | "guest" {
+  ): 'candidate' | 'subscriber' | 'guest' {
     const roles = user.roles;
-    if (roles.includes("CANDIDATE" as unknown as typeof roles[number])) {
-      return "candidate";
+    if (roles.includes('CANDIDATE' as unknown as (typeof roles)[number])) {
+      return 'candidate';
     }
-    if (roles.includes("SUBSCRIBER" as unknown as typeof roles[number])) {
-      return "subscriber";
+    if (roles.includes('SUBSCRIBER' as unknown as (typeof roles)[number])) {
+      return 'subscriber';
     }
-    return "guest";
+    return 'guest';
   }
 
   /**
@@ -178,12 +178,12 @@ export class OnboardingController {
    */
   async canRestart(userId: string, actorId: string): Promise<boolean> {
     const questionnaires = await this.#app.execute(
-      "list-questionnaires-by-user",
+      'list-questionnaires-by-user',
       { userId },
       actorId,
     );
 
-    return !questionnaires.some((q) => q.status === "in_progress");
+    return !questionnaires.some((q) => q.status === 'in_progress');
   }
 
   /**
@@ -193,11 +193,11 @@ export class OnboardingController {
     question: Question,
     selectedValues?: string[],
   ): KeyboardDescription | null {
-    if (question.type !== "choice") return null;
+    if (question.type !== 'choice') return null;
 
     const rows = question.answers.map((a) => [
       {
-        text: (selectedValues?.includes(a.answerCode) ? "✅ " : "") + a.answer,
+        text: (selectedValues?.includes(a.answerCode) ? '✅ ' : '') + a.answer,
         code: a.answerCode,
       },
     ]);

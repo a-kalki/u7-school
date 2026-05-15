@@ -1,13 +1,12 @@
-import { ApiApp } from "@u7/core/api";
-import { BaseJsonDb } from "@u7/core/infra";
-import { OnboardingApiModule, OnboardingController } from "@u7/onboarding";
-import { QuestionPoolService } from "@u7/onboarding/domain";
-import { QuestionnaireJsonRepo } from "@u7/onboarding/infra";
-import { UserApiModule } from "@u7/user/api";
-import { UserJsonRepo } from "@u7/user/infra";
-import { UserInProcFacade } from "@u7/user/infra";
-import type { BotConfig } from "./config";
-import type { OnboardingBotApp } from "@u7/onboarding";
+import { ApiApp } from '@u7/core/api';
+import { BaseJsonDb } from '@u7/core/infra';
+import type { OnboardingBotApp } from '@u7/onboarding';
+import { OnboardingApiModule, OnboardingController } from '@u7/onboarding';
+import { QuestionPoolService } from '@u7/onboarding/domain';
+import { QuestionnaireJsonRepo } from '@u7/onboarding/infra';
+import { UserApiModule } from '@u7/user/api';
+import { UserInProcFacade, UserJsonRepo } from '@u7/user/infra';
+import type { BotConfig } from './config';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.

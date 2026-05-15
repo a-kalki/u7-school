@@ -1,31 +1,31 @@
-import { describe, expect, mock, test } from "bun:test";
-import type { User } from "@u7/user/domain";
-import { Role } from "@u7/user/domain";
-import type { Questionnaire } from "#domain/questionnaire/entity";
-import type { Question } from "#domain/questionnaire/question";
-import { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
-import type { QuestionnaireRepo } from "#domain/questionnaire/repo";
-import { AbandonQuestionnaireUc } from "./abandon-questionnaire-uc";
-import type { BaseJsonDb } from "packages/core/src/infra";
+import { describe, expect, mock, test } from 'bun:test';
+import type { User } from '@u7/user/domain';
+import { Role } from '@u7/user/domain';
+import type { BaseJsonDb } from 'packages/core/src/infra';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import type { Question } from '#domain/questionnaire/question';
+import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
+import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
+import { AbandonQuestionnaireUc } from './abandon-questionnaire-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
     uuid: crypto.randomUUID(),
-    name: "Тест",
+    name: 'Тест',
     telegramId: 1,
     roles: [Role.GUEST],
-    createdAt: "2026-05-01T12:00",
+    createdAt: '2026-05-01T12:00',
     ...overrides,
   };
 }
 
 const testPool: Question[] = [
   {
-    question: "Первый вопрос",
-    questionCode: "q1",
-    type: "choice",
+    question: 'Первый вопрос',
+    questionCode: 'q1',
+    type: 'choice',
     multiple: false,
-    answers: [{ answer: "Да", answerCode: "yes" }],
+    answers: [{ answer: 'Да', answerCode: 'yes' }],
   },
 ];
 
@@ -34,17 +34,17 @@ function makeQuestionnaire(
 ): Questionnaire {
   return {
     uuid: crypto.randomUUID(),
-    userId: "owner-uuid",
-    status: "in_progress",
+    userId: 'owner-uuid',
+    status: 'in_progress',
     answers: [],
-    currentQuestionCode: "q1",
-    createdAt: "2026-05-01T12:00",
+    currentQuestionCode: 'q1',
+    createdAt: '2026-05-01T12:00',
     ...overrides,
   };
 }
 
 function setupUc(initialQuestionnaire?: Questionnaire) {
-  const save = mock(async () => { });
+  const save = mock(async () => {});
   const getByUuid = mock(async (uuid: string) =>
     initialQuestionnaire?.uuid === uuid ? initialQuestionnaire : undefined,
   );
@@ -77,18 +77,18 @@ function setupUc(initialQuestionnaire?: Questionnaire) {
     includedQuestionCodes: testPool.map((q) => q.questionCode),
     userFacade,
     db: {
-      begin: () => { },
-      commit: async () => { },
-      rollback: () => { },
+      begin: () => {},
+      commit: async () => {},
+      rollback: () => {},
     } as BaseJsonDb,
   });
 
   return { save, getUserByUuid, uc };
 }
 
-describe("AbandonQuestionnaireUc", () => {
-  describe("SUCCESS", () => {
-    test("владелец прерывает анкету", async () => {
+describe('AbandonQuestionnaireUc', () => {
+  describe('SUCCESS', () => {
+    test('владелец прерывает анкету', async () => {
       const q = makeQuestionnaire();
       const { getUserByUuid, save, uc } = setupUc(q);
       const user = makeUser({ uuid: q.userId });
@@ -96,11 +96,11 @@ describe("AbandonQuestionnaireUc", () => {
       getUserByUuid.mockResolvedValueOnce(user);
 
       const result = await uc.handle({ uuid: q.uuid }, user.uuid);
-      expect(result.status).toBe("abandoned");
+      expect(result.status).toBe('abandoned');
       expect(save).toHaveBeenCalledTimes(1);
     });
 
-    test("ADMIN прерывает чужую анкету", async () => {
+    test('ADMIN прерывает чужую анкету', async () => {
       const q = makeQuestionnaire();
       const { getUserByUuid, save, uc } = setupUc(q);
       const admin = makeUser({ roles: [Role.ADMIN] });
@@ -108,22 +108,22 @@ describe("AbandonQuestionnaireUc", () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       const result = await uc.handle({ uuid: q.uuid }, admin.uuid);
-      expect(result.status).toBe("abandoned");
+      expect(result.status).toBe('abandoned');
       expect(save).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe("FAIL", () => {
-    test("отклоняет при отсутствии авторизации", async () => {
+  describe('FAIL', () => {
+    test('отклоняет при отсутствии авторизации', async () => {
       const q = makeQuestionnaire();
       const { uc } = setupUc(q);
 
       await expect(uc.handle({ uuid: q.uuid })).rejects.toThrow(
-        "Требуется авторизация",
+        'Требуется авторизация',
       );
     });
 
-    test("отклоняет для несуществующей анкеты", async () => {
+    test('отклоняет для несуществующей анкеты', async () => {
       const { getUserByUuid, uc } = setupUc();
       const user = makeUser();
 
@@ -131,18 +131,18 @@ describe("AbandonQuestionnaireUc", () => {
 
       await expect(
         uc.handle({ uuid: crypto.randomUUID() }, user.uuid),
-      ).rejects.toThrow("Анкета не найдена");
+      ).rejects.toThrow('Анкета не найдена');
     });
 
-    test("отклоняет чужую анкету для обычного пользователя", async () => {
+    test('отклоняет чужую анкету для обычного пользователя', async () => {
       const q = makeQuestionnaire();
       const { getUserByUuid, uc } = setupUc(q);
-      const other = makeUser({ uuid: "other-uuid" });
+      const other = makeUser({ uuid: 'other-uuid' });
 
       getUserByUuid.mockResolvedValueOnce(other);
 
       await expect(uc.handle({ uuid: q.uuid }, other.uuid)).rejects.toThrow(
-        "Недостаточно прав",
+        'Недостаточно прав',
       );
     });
   });

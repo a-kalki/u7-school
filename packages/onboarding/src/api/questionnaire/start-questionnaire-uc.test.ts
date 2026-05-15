@@ -1,35 +1,35 @@
-import { describe, expect, mock, test } from "bun:test";
-import type { User } from "@u7/user/domain";
-import { Role } from "@u7/user/domain";
-import type { Question } from "#domain/questionnaire/question";
-import { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
-import type { QuestionnaireRepo } from "#domain/questionnaire/repo";
-import { StartQuestionnaireUc } from "./start-questionnaire-uc";
-import type { BaseJsonDb } from "packages/core/src/infra";
+import { describe, expect, mock, test } from 'bun:test';
+import type { User } from '@u7/user/domain';
+import { Role } from '@u7/user/domain';
+import type { BaseJsonDb } from 'packages/core/src/infra';
+import type { Question } from '#domain/questionnaire/question';
+import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
+import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
+import { StartQuestionnaireUc } from './start-questionnaire-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
     uuid: crypto.randomUUID(),
-    name: "Тест",
+    name: 'Тест',
     telegramId: 1,
     roles: [Role.GUEST],
-    createdAt: "2026-05-01T12:00",
+    createdAt: '2026-05-01T12:00',
     ...overrides,
   };
 }
 
 const testPool: Question[] = [
   {
-    question: "Первый вопрос",
-    questionCode: "q1",
-    type: "choice",
+    question: 'Первый вопрос',
+    questionCode: 'q1',
+    type: 'choice',
     multiple: false,
-    answers: [{ answer: "Да", answerCode: "yes" }],
+    answers: [{ answer: 'Да', answerCode: 'yes' }],
   },
 ];
 
 function setupUc() {
-  const save = mock(async () => { });
+  const save = mock(async () => {});
   const getByUuid = mock(async () => undefined);
   const getByUserId = mock(async () => []);
 
@@ -60,18 +60,18 @@ function setupUc() {
     includedQuestionCodes: testPool.map((q) => q.questionCode),
     userFacade,
     db: {
-      begin: () => { },
-      commit: async () => { },
-      rollback: () => { },
+      begin: () => {},
+      commit: async () => {},
+      rollback: () => {},
     } as BaseJsonDb,
   });
 
-  return { save, getUserByUuid, uc };
+  return { save, getUserByUuid, uc, repo };
 }
 
-describe("StartQuestionnaireUc", () => {
-  describe("SUCCESS", () => {
-    test("пользователь начинает анкету для себя", async () => {
+describe('StartQuestionnaireUc', () => {
+  describe('SUCCESS', () => {
+    test('пользователь начинает анкету для себя', async () => {
       const { getUserByUuid, save, uc } = setupUc();
       const user = makeUser();
 
@@ -80,12 +80,12 @@ describe("StartQuestionnaireUc", () => {
       const result = await uc.handle({ userId: user.uuid }, user.uuid);
 
       expect(result.userId).toBe(user.uuid);
-      expect(result.status).toBe("in_progress");
-      expect(result.currentQuestionCode).toBe("q1");
+      expect(result.status).toBe('in_progress');
+      expect(result.currentQuestionCode).toBe('q1');
       expect(save).toHaveBeenCalledTimes(1);
     });
 
-    test("ADMIN может начать анкету для другого", async () => {
+    test('ADMIN может начать анкету для другого', async () => {
       const { getUserByUuid, save, uc } = setupUc();
       const admin = makeUser({ roles: [Role.ADMIN] });
       const target = makeUser();
@@ -99,16 +99,16 @@ describe("StartQuestionnaireUc", () => {
     });
   });
 
-  describe("FAIL", () => {
-    test("отклоняет при отсутствии авторизации", async () => {
+  describe('FAIL', () => {
+    test('отклоняет при отсутствии авторизации', async () => {
       const { uc } = setupUc();
 
-      await expect(uc.handle({ userId: "any" })).rejects.toThrow(
-        "Требуется авторизация",
+      await expect(uc.handle({ userId: 'any' })).rejects.toThrow(
+        'Требуется авторизация',
       );
     });
 
-    test("отклоняет, если пользователь пытается создать анкету для другого", async () => {
+    test('отклоняет, если пользователь пытается создать анкету для другого', async () => {
       const { getUserByUuid, uc } = setupUc();
       const user = makeUser();
 
@@ -116,22 +116,22 @@ describe("StartQuestionnaireUc", () => {
 
       await expect(
         uc.handle({ userId: crypto.randomUUID() }, user.uuid),
-      ).rejects.toThrow("Недостаточно прав");
+      ).rejects.toThrow('Недостаточно прав');
     });
 
-    test("отклоняет невалидную команду", async () => {
+    test('отклоняет невалидную команду', async () => {
       const { getUserByUuid, uc } = setupUc();
       const user = makeUser();
 
       getUserByUuid.mockResolvedValueOnce(user);
 
-      await expect(uc.handle({ userId: "" }, user.uuid)).rejects.toThrow(
-        "Переданы некорректные данные",
+      await expect(uc.handle({ userId: '' }, user.uuid)).rejects.toThrow(
+        'Переданы некорректные данные',
       );
     });
 
-    test("отказывает, если у пользователя уже есть активная анкета", async () => {
-      const { getUserByUuid, uc } = setupUc();
+    test('отказывает, если у пользователя уже есть активная анкета', async () => {
+      const { getUserByUuid, uc, repo } = setupUc();
       const user = makeUser();
 
       getUserByUuid.mockResolvedValueOnce(user);
@@ -140,15 +140,15 @@ describe("StartQuestionnaireUc", () => {
       const activeQuestionnaire = {
         uuid: crypto.randomUUID(),
         userId: user.uuid,
-        status: "in_progress" as const,
+        status: 'in_progress' as const,
         answers: [],
-        currentQuestionCode: "q1",
-        createdAt: "2026-05-01T12:00",
+        currentQuestionCode: 'q1',
+        createdAt: '2026-05-01T12:00',
       };
-      uc.resolve.questionnaireRepo.getByUserId = mock(async () => [activeQuestionnaire]);
+      repo.getByUserId = mock(async () => [activeQuestionnaire]);
 
       await expect(uc.handle({ userId: user.uuid }, user.uuid)).rejects.toThrow(
-        "У пользователя уже есть активная анкета",
+        'У пользователя уже есть активная анкета',
       );
     });
   });

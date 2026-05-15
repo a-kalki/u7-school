@@ -1,19 +1,19 @@
-import { describe, expect, mock, test } from "bun:test";
-import type { User } from "@u7/user/domain";
-import { Role } from "@u7/user/domain";
-import type { Questionnaire } from "#domain/questionnaire/entity";
-import type { QuestionnaireRepo } from "#domain/questionnaire/repo";
-import { GetQuestionnaireUc } from "./get-questionnaire-uc";
-import type { BaseJsonDb } from "packages/core/src/infra";
-import type { QuestionPoolService } from "#domain/index";
+import { describe, expect, mock, test } from 'bun:test';
+import type { User } from '@u7/user/domain';
+import { Role } from '@u7/user/domain';
+import type { BaseJsonDb } from 'packages/core/src/infra';
+import type { QuestionPoolService } from '#domain/index';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
+import { GetQuestionnaireUc } from './get-questionnaire-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
     uuid: crypto.randomUUID(),
-    name: "Тест",
+    name: 'Тест',
     telegramId: 1,
     roles: [Role.GUEST],
-    createdAt: "2026-05-01T12:00",
+    createdAt: '2026-05-01T12:00',
     ...overrides,
   };
 }
@@ -23,17 +23,17 @@ function makeQuestionnaire(
 ): Questionnaire {
   return {
     uuid: crypto.randomUUID(),
-    userId: "owner-uuid",
-    status: "in_progress",
+    userId: 'owner-uuid',
+    status: 'in_progress',
     answers: [],
-    currentQuestionCode: "q1",
-    createdAt: "2026-05-01T12:00",
+    currentQuestionCode: 'q1',
+    createdAt: '2026-05-01T12:00',
     ...overrides,
   };
 }
 
 function setupUc(initialQuestionnaire?: Questionnaire) {
-  const save = mock(async () => { });
+  const save = mock(async () => {});
   const getByUuid = mock(async (uuid: string) =>
     initialQuestionnaire?.uuid === uuid ? initialQuestionnaire : undefined,
   );
@@ -64,18 +64,18 @@ function setupUc(initialQuestionnaire?: Questionnaire) {
     includedQuestionCodes: [],
     userFacade,
     db: {
-      begin: () => { },
-      commit: async () => { },
-      rollback: () => { },
+      begin: () => {},
+      commit: async () => {},
+      rollback: () => {},
     } as BaseJsonDb,
   });
 
   return { getUserByUuid, uc };
 }
 
-describe("GetQuestionnaireUc", () => {
-  describe("SUCCESS", () => {
-    test("владелец получает свою анкету", async () => {
+describe('GetQuestionnaireUc', () => {
+  describe('SUCCESS', () => {
+    test('владелец получает свою анкету', async () => {
       const q = makeQuestionnaire();
       const { getUserByUuid, uc } = setupUc(q);
       const user = makeUser({ uuid: q.userId });
@@ -86,7 +86,7 @@ describe("GetQuestionnaireUc", () => {
       expect(result.uuid).toBe(q.uuid);
     });
 
-    test("ADMIN получает чужую анкету", async () => {
+    test('ADMIN получает чужую анкету', async () => {
       const q = makeQuestionnaire();
       const { getUserByUuid, uc } = setupUc(q);
       const admin = makeUser({ roles: [Role.ADMIN] });
@@ -98,17 +98,17 @@ describe("GetQuestionnaireUc", () => {
     });
   });
 
-  describe("FAIL", () => {
-    test("отклоняет при отсутствии авторизации", async () => {
+  describe('FAIL', () => {
+    test('отклоняет при отсутствии авторизации', async () => {
       const q = makeQuestionnaire();
       const { uc } = setupUc(q);
 
       await expect(uc.handle({ uuid: q.uuid })).rejects.toThrow(
-        "Требуется авторизация",
+        'Требуется авторизация',
       );
     });
 
-    test("отклоняет для несуществующей анкеты", async () => {
+    test('отклоняет для несуществующей анкеты', async () => {
       const { getUserByUuid, uc } = setupUc();
       const user = makeUser();
 
@@ -116,18 +116,18 @@ describe("GetQuestionnaireUc", () => {
 
       await expect(
         uc.handle({ uuid: crypto.randomUUID() }, user.uuid),
-      ).rejects.toThrow("Анкета не найдена");
+      ).rejects.toThrow('Анкета не найдена');
     });
 
-    test("отклоняет чужую анкету для обычного пользователя", async () => {
+    test('отклоняет чужую анкету для обычного пользователя', async () => {
       const q = makeQuestionnaire();
       const { getUserByUuid, uc } = setupUc(q);
-      const other = makeUser({ uuid: "other-uuid" });
+      const other = makeUser({ uuid: 'other-uuid' });
 
       getUserByUuid.mockResolvedValueOnce(other);
 
       await expect(uc.handle({ uuid: q.uuid }, other.uuid)).rejects.toThrow(
-        "Нет доступа к анкете",
+        'Нет доступа к анкете',
       );
     });
   });

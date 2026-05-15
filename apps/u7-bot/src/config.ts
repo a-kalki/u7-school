@@ -1,25 +1,22 @@
-import * as v from "valibot";
+import * as v from 'valibot';
 
 /**
  * Схема валидации конфигурации бота.
  * Bun загружает .env автоматически — dotenv не требуется.
  */
 export const BotConfigSchema = v.object({
-  botToken: v.pipe(
-    v.string(),
-    v.nonEmpty("BOT_TOKEN не может быть пустым"),
-  ),
+  botToken: v.pipe(v.string(), v.nonEmpty('BOT_TOKEN не может быть пустым')),
   newsGroupUrl: v.pipe(
     v.string(),
-    v.nonEmpty("NEWS_GROUP_URL не может быть пустым"),
+    v.nonEmpty('NEWS_GROUP_URL не может быть пустым'),
   ),
   botAdminUuid: v.pipe(
     v.string(),
-    v.uuid("BOT_ADMIN_UUID должен быть валидным UUID"),
+    v.uuid('BOT_ADMIN_UUID должен быть валидным UUID'),
   ),
   dbDir: v.optional(
-    v.pipe(v.string(), v.nonEmpty("DB_DIR не может быть пустым")),
-    "./data",
+    v.pipe(v.string(), v.nonEmpty('DB_DIR не может быть пустым')),
+    './data',
   ),
 });
 
