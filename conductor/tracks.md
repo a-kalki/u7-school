@@ -4,6 +4,13 @@
 ---
 
 - [x] **Track: Telegram-бот onboarding (bot-onboarding)**
+  *Link: [./tracks/bot-onboarding_20260513/](./tracks/bot-onboarding_20260513/)*
+
+---
+
+- [ ] **Track: Onboarding Domain Evolution**
+  *Link: [./tracks/onboarding-domain_20260513/](./tracks/onboarding-domain_20260513/)*
+
   *Link: [$T1]($T1)*
 
 ---
