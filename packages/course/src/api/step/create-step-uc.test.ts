@@ -1,33 +1,33 @@
-import { describe, expect, mock, test } from "bun:test";
-import type { User, UserFacade } from "@u7/user/domain";
-import { Role } from "@u7/user/domain";
-import type { Course } from "#domain/course/entity";
-import type { CourseRepo } from "#domain/course/repo";
-import { Status } from "#domain/status";
-import type { Step } from "#domain/step/entity";
-import type { StepRepo } from "#domain/step/repo";
-import { CreateStepUc } from "./create-step-uc";
-import type { Lesson, LessonRepo } from "#domain/index";
+import { describe, expect, mock, test } from 'bun:test';
+import type { User, UserFacade } from '@u7/user/domain';
+import { Role } from '@u7/user/domain';
+import type { Course } from '#domain/course/entity';
+import type { CourseRepo } from '#domain/course/repo';
+import type { Lesson, LessonRepo } from '#domain/index';
+import { Status } from '#domain/status';
+import type { Step } from '#domain/step/entity';
+import type { StepRepo } from '#domain/step/repo';
+import { CreateStepUc } from './create-step-uc';
 
 function makeUser(r: Role[] = [Role.ADMIN]): User {
   return {
     uuid: crypto.randomUUID(),
-    name: "Т",
+    name: 'Т',
     telegramId: 1,
     roles: r,
-    createdAt: "2026-05-01T12:00",
+    createdAt: '2026-05-01T12:00',
   };
 }
 
 function makeCourse(authorId: string): Course {
   return {
     uuid: crypto.randomUUID(),
-    kind: "modules" as const,
-    title: "К",
-    description: "О",
+    kind: 'modules' as const,
+    title: 'К',
+    description: 'О',
     authorId,
     status: Status.DRAFT,
-    createdAt: "2026-05-01T12:00",
+    createdAt: '2026-05-01T12:00',
     modules: [],
   } as Course;
 }
@@ -37,11 +37,11 @@ function setupUc() {
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
   const courseRepo: CourseRepo = {
-    save: mock(async () => { }),
+    save: mock(async () => {}),
     getByUuid: courseGetByUuid,
     getAll: mock(async () => []),
   };
-  const stepSave = mock(async (_s: Step): Promise<void> => { });
+  const stepSave = mock(async (_s: Step): Promise<void> => {});
   const stepRepo: StepRepo = {
     save: stepSave,
     getByUuid: mock(async () => undefined),
@@ -56,14 +56,14 @@ function setupUc() {
       ({
         uuid: crypto.randomUUID(),
         courseId: crypto.randomUUID(),
-        title: "Урок",
+        title: 'Урок',
         status: Status.DRAFT,
-        createdAt: "2026-05-01T12:00",
+        createdAt: '2026-05-01T12:00',
         stepIds: [],
         mentorStepIds: [],
       }) as Lesson,
   );
-  const lessonSave = mock(async () => { });
+  const lessonSave = mock(async () => {});
 
   const userFacade: UserFacade = {
     getUserByUuid,
@@ -83,9 +83,9 @@ function setupUc() {
   return { courseGetByUuid, stepSave, getUserByUuid, uc };
 }
 
-describe("CreateStepUc", () => {
-  describe("SUCCESS", () => {
-    test("ADMIN создаёт текстовый шаг в своём курсе", async () => {
+describe('CreateStepUc', () => {
+  describe('SUCCESS', () => {
+    test('ADMIN создаёт текстовый шаг в своём курсе', async () => {
       const { courseGetByUuid, stepSave, getUserByUuid, uc } = setupUc();
       const admin = makeUser();
       const course = makeCourse(admin.uuid);
@@ -96,20 +96,20 @@ describe("CreateStepUc", () => {
         {
           courseId: course.uuid,
           lessonId: crypto.randomUUID(),
-          description: "Описание",
-          kind: "text",
-          content: "Шаг 1",
+          description: 'Описание',
+          kind: 'text',
+          content: 'Шаг 1',
         },
         admin.uuid,
       );
 
-      expect((result as Step).kind).toBe("text");
+      expect((result as Step).kind).toBe('text');
       expect(stepSave).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe("FAIL", () => {
-    test("отклоняет STUDENT", async () => {
+  describe('FAIL', () => {
+    test('отклоняет STUDENT', async () => {
       const { getUserByUuid, uc } = setupUc();
       getUserByUuid.mockResolvedValueOnce(makeUser([Role.STUDENT]));
 
@@ -118,16 +118,16 @@ describe("CreateStepUc", () => {
           {
             courseId: crypto.randomUUID(),
             lessonId: crypto.randomUUID(),
-            description: "Описание",
-            kind: "text",
-            content: "Ш",
+            description: 'Описание',
+            kind: 'text',
+            content: 'Ш',
           },
-          "actor-id",
+          'actor-id',
         ),
-      ).rejects.toThrow("Недостаточно прав для создания шага");
+      ).rejects.toThrow('Недостаточно прав для создания шага');
     });
 
-    test("отклоняет не автора курса", async () => {
+    test('отклоняет не автора курса', async () => {
       const { courseGetByUuid, getUserByUuid, uc } = setupUc();
       const mentor = makeUser([Role.MENTOR]);
       getUserByUuid.mockResolvedValueOnce(mentor);
@@ -138,13 +138,13 @@ describe("CreateStepUc", () => {
           {
             courseId: crypto.randomUUID(),
             lessonId: crypto.randomUUID(),
-            description: "Описание",
-            kind: "text",
-            content: "Ш",
+            description: 'Описание',
+            kind: 'text',
+            content: 'Ш',
           },
           mentor.uuid,
         ),
-      ).rejects.toThrow("Вы не являетесь автором курса");
+      ).rejects.toThrow('Вы не являетесь автором курса');
     });
   });
 });

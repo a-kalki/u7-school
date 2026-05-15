@@ -1,12 +1,12 @@
-import * as fs from "node:fs";
-import { dirname, join } from "node:path";
-import { stdin as input, stdout as output } from "node:process";
-import * as readline from "node:readline/promises";
-import { fileURLToPath } from "node:url";
-import type { ApiApp, UcDocType } from "@u7/core/api";
-import type * as v from "valibot";
-import { formatValibotErrors } from "./controller/format-valibot-errors";
-import type { CliAppMeta } from "./types";
+import * as fs from 'node:fs';
+import { dirname, join } from 'node:path';
+import { stdin as input, stdout as output } from 'node:process';
+import * as readline from 'node:readline/promises';
+import { fileURLToPath } from 'node:url';
+import type { ApiApp, UcDocType } from '@u7/core/api';
+import type * as v from 'valibot';
+import { formatValibotErrors } from './controller/format-valibot-errors';
+import type { CliAppMeta } from './types';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,29 +27,29 @@ interface ObjectSchemaLike {
 }
 
 function getTypeString(schemaProp: SchemaNode | undefined): string {
-  if (!schemaProp) return "unknown";
+  if (!schemaProp) return 'unknown';
 
-  if (schemaProp.type === "optional" && schemaProp.wrapped) {
+  if (schemaProp.type === 'optional' && schemaProp.wrapped) {
     return getTypeString(schemaProp.wrapped);
   }
 
   // handle valibot's pipe type
-  if (schemaProp.type === "pipe" && schemaProp.item) {
+  if (schemaProp.type === 'pipe' && schemaProp.item) {
     return getTypeString(schemaProp.item);
   }
 
-  let typeStr = schemaProp.type || "unknown";
+  let typeStr = schemaProp.type || 'unknown';
 
-  if (typeStr === "array") {
+  if (typeStr === 'array') {
     if (schemaProp.item) {
       typeStr = `array<${getTypeString(schemaProp.item)}>`;
     } else {
-      typeStr = "array";
+      typeStr = 'array';
     }
-  } else if (typeStr === "picklist" && schemaProp.options) {
-    typeStr = `picklist (${schemaProp.options.join(", ")})`;
-  } else if (typeStr === "enum" && schemaProp.enum) {
-    typeStr = `enum (${Object.values(schemaProp.enum).join(", ")})`;
+  } else if (typeStr === 'picklist' && schemaProp.options) {
+    typeStr = `picklist (${schemaProp.options.join(', ')})`;
+  } else if (typeStr === 'enum' && schemaProp.enum) {
+    typeStr = `enum (${Object.values(schemaProp.enum).join(', ')})`;
   }
 
   return typeStr;
@@ -57,18 +57,18 @@ function getTypeString(schemaProp: SchemaNode | undefined): string {
 
 function printSchemaPrompt(schema: ObjectSchemaLike | undefined) {
   if (!schema || !schema.entries) return;
-  console.log("\n```");
+  console.log('\n```');
   for (const [key, prop] of Object.entries(schema.entries)) {
     const p = prop as SchemaNode;
-    const isOptional = p.type === "optional";
-    const reqStr = isOptional ? "" : "*";
+    const isOptional = p.type === 'optional';
+    const reqStr = isOptional ? '' : '*';
 
     const typeStr = getTypeString(p);
     console.log(`${key}${reqStr}: ${typeStr}`);
   }
-  console.log("```");
-  console.log("\n---");
-  console.log("*: обязательные");
+  console.log('```');
+  console.log('\n---');
+  console.log('*: обязательные');
 }
 
 function parseKeyValueLines(
@@ -76,27 +76,27 @@ function parseKeyValueLines(
   schema: ObjectSchemaLike | undefined,
 ): Record<string, unknown> {
   const payload: Record<string, unknown> = {};
-  const lines = payloadStr.split("\n");
+  const lines = payloadStr.split('\n');
   for (const line of lines) {
-    const colonIdx = line.indexOf(":");
+    const colonIdx = line.indexOf(':');
     if (colonIdx === -1) continue;
     const key = line.substring(0, colonIdx).trim();
     const valStr = line.substring(colonIdx + 1).trim();
 
     const propSchema = schema?.entries?.[key];
     const actualProp =
-      propSchema?.type === "optional" ? propSchema.wrapped : propSchema;
+      propSchema?.type === 'optional' ? propSchema.wrapped : propSchema;
     const typeStr = actualProp?.type;
 
-    if (typeStr === "array") {
+    if (typeStr === 'array') {
       payload[key] = valStr
-        .split(",")
+        .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-    } else if (typeStr === "number") {
+    } else if (typeStr === 'number') {
       payload[key] = Number(valStr);
-    } else if (typeStr === "boolean") {
-      payload[key] = valStr === "true";
+    } else if (typeStr === 'boolean') {
+      payload[key] = valStr === 'true';
     } else {
       payload[key] = valStr;
     }
@@ -114,33 +114,33 @@ export class CliController {
 
   async run() {
     // Load and check about files
-    const appAboutPath = join(__dirname, "../about.md");
+    const appAboutPath = join(__dirname, '../about.md');
     if (!fs.existsSync(appAboutPath)) {
       throw new Error(
         `Файл about.md приложения не найден по пути: ${appAboutPath}`,
       );
     }
-    const appAbout = fs.readFileSync(appAboutPath, "utf-8");
+    const appAbout = fs.readFileSync(appAboutPath, 'utf-8');
 
     const moduleAbouts = new Map<string, string>();
     for (const mod of this.app.getModules()) {
       const modAboutPath = join(
         __dirname,
-        "../../../packages",
+        '../../../packages',
         mod.name,
-        "about.md",
+        'about.md',
       );
       if (!fs.existsSync(modAboutPath)) {
         throw new Error(
           `Модуль ${mod.name} не имеет файла about.md по пути: ${modAboutPath}`,
         );
       }
-      moduleAbouts.set(mod.name, fs.readFileSync(modAboutPath, "utf-8"));
+      moduleAbouts.set(mod.name, fs.readFileSync(modAboutPath, 'utf-8'));
     }
 
     console.log(appAbout);
-    console.log("\n=== u7 CLI ===");
-    console.log("Введите /app для справки\n");
+    console.log('\n=== u7 CLI ===');
+    console.log('Введите /app для справки\n');
 
     this.prompt();
     let buffer: string[] = [];
@@ -149,8 +149,8 @@ export class CliController {
     for await (const line of this.rl) {
       const text = line.trim();
 
-      if (text === "/quit" || text === "/exit") {
-        console.log("До свидания!");
+      if (text === '/quit' || text === '/exit') {
+        console.log('До свидания!');
         break;
       }
 
@@ -160,19 +160,19 @@ export class CliController {
           continue;
         }
 
-        if (text === "/app" || text === "/") {
+        if (text === '/app' || text === '/') {
           this.printHelp();
           this.prompt();
           continue;
         }
 
-        if (text === "/modules") {
+        if (text === '/modules') {
           this.printModules();
           this.prompt();
           continue;
         }
 
-        if (text.startsWith("/about")) {
+        if (text.startsWith('/about')) {
           const args = text.slice(6).trim();
           if (!args) {
             console.log(`\n--- О приложении ---\n`);
@@ -192,29 +192,29 @@ export class CliController {
           continue;
         }
 
-        if (text.startsWith("/login")) {
+        if (text.startsWith('/login')) {
           const args = text.slice(6).trim();
           await this.handleLogin(args || undefined);
           this.prompt();
           continue;
         }
 
-        if (text.startsWith("/logout")) {
+        if (text.startsWith('/logout')) {
           this.currentActor = null;
-          console.log("Вы вышли из системы.");
+          console.log('Вы вышли из системы.');
           this.prompt();
           continue;
         }
 
-        const parts = text.split("/").filter(Boolean);
+        const parts = text.split('/').filter(Boolean);
         // Формат: /module/usecase (2 части)
         // В старой системе было /module/aggregate/usecase (3 части), но сейчас UC напрямую в модуле
         // Поддержим оба варианта для совместимости: если 2 части - module/uc, если 3 части - module/agg/uc
 
-        let modName = "";
-        let ucName = "";
+        let modName = '';
+        let ucName = '';
 
-        if (parts.length >= 2 && text.startsWith("/")) {
+        if (parts.length >= 2 && text.startsWith('/')) {
           modName = parts[0] as string;
           ucName = parts[parts.length - 1] as string;
           buffer.push(text);
@@ -228,22 +228,22 @@ export class CliController {
             printSchemaPrompt(ucDoc.inputSchema as unknown as ObjectSchemaLike);
           }
 
-          process.stdout.write("... ");
+          process.stdout.write('... ');
           continue;
         }
 
-        console.log("Неизвестная команда. Введите /app для справки.");
+        console.log('Неизвестная команда. Введите /app для справки.');
         this.prompt();
       } else {
         // Режим буферизации данных
-        if (text === "") {
+        if (text === '') {
           await this.executeBuffer(buffer);
           buffer = [];
           isBuffering = false;
           this.prompt();
         } else {
           buffer.push(text);
-          process.stdout.write("... ");
+          process.stdout.write('... ');
         }
       }
     }
@@ -252,44 +252,44 @@ export class CliController {
   }
 
   private prompt() {
-    process.stdout.write("\n> ");
+    process.stdout.write('\n> ');
   }
 
   private printHelp() {
-    console.log("\n--- Меню ---");
-    console.log("- /modules  - Список модулей");
-    console.log("- /about [m] - О приложении или модуле m");
+    console.log('\n--- Меню ---');
+    console.log('- /modules  - Список модулей');
+    console.log('- /about [m] - О приложении или модуле m');
     if (this.currentActor) {
       console.log(
         `- Активный пользователь: ${this.currentActor.name} (${this.currentActor.uuid})`,
       );
-      console.log("- /logout   - Выйти");
+      console.log('- /logout   - Выйти');
     } else {
-      console.log("- /login    - Войти в систему");
+      console.log('- /login    - Войти в систему');
     }
   }
 
   private printModules() {
     const mods = this.app.getModules();
-    console.log("\n--- Доступные модули ---");
+    console.log('\n--- Доступные модули ---');
     for (const mod of mods) {
       console.log(`\nМодуль /${mod.name} (описание: /about ${mod.name})`);
       for (const uc of mod.getDocTypes()) {
         console.log(
-          `  /${mod.name}/${uc.arName ? `${uc.arName}/` : ""}${uc.ucName}`,
+          `  /${mod.name}/${uc.arName ? `${uc.arName}/` : ''}${uc.ucName}`,
         );
       }
     }
   }
 
   private async executeBuffer(buffer: string[]) {
-    const commandPath = buffer[0]?.trim() || "";
-    const parts = commandPath.split("/").filter(Boolean);
+    const commandPath = buffer[0]?.trim() || '';
+    const parts = commandPath.split('/').filter(Boolean);
 
     const modName = parts[0] as string;
     const ucName = parts[parts.length - 1] as string; // Берем последний кусок как usecase
 
-    const payloadStr = buffer.slice(1).join("\n").trim();
+    const payloadStr = buffer.slice(1).join('\n').trim();
     let payload = {};
 
     const mod = this.app.getModule(modName);
@@ -300,11 +300,11 @@ export class CliController {
 
     if (payloadStr) {
       // Пытаемся распарсить как JSON, иначе как key: value
-      if (payloadStr.startsWith("{")) {
+      if (payloadStr.startsWith('{')) {
         try {
           payload = JSON.parse(payloadStr);
         } catch (e) {
-          console.error("Ошибка парсинга JSON payload:", (e as Error).message);
+          console.error('Ошибка парсинга JSON payload:', (e as Error).message);
           return;
         }
       } else {
@@ -317,19 +317,19 @@ export class CliController {
 
     try {
       const result = await this.app.execute(
-        ucName as CliAppMeta["moduleMetas"]["ucMetas"]["ucName"],
+        ucName as CliAppMeta['moduleMetas']['ucMetas']['ucName'],
         payload,
         this.currentActor?.uuid,
       );
-      console.log("\nУспех:");
+      console.log('\nУспех:');
       console.log(JSON.stringify(result, null, 2));
     } catch (e: unknown) {
-      console.error("\nОшибка:");
+      console.error('\nОшибка:');
       if (
         e &&
-        typeof e === "object" &&
-        "name" in e &&
-        e.name === "AppException"
+        typeof e === 'object' &&
+        'name' in e &&
+        e.name === 'AppException'
       ) {
         const ex = e as {
           error?: {
@@ -340,7 +340,7 @@ export class CliController {
           message?: string;
         };
         if (
-          ex.error?.name === "INPUT_VALIDATION_ERROR" &&
+          ex.error?.name === 'INPUT_VALIDATION_ERROR' &&
           ex.error?.payload?.rawIssues
         ) {
           const formatted = formatValibotErrors(
@@ -352,9 +352,9 @@ export class CliController {
         }
       } else if (
         e &&
-        typeof e === "object" &&
-        "name" in e &&
-        e.name === "ValidationError"
+        typeof e === 'object' &&
+        'name' in e &&
+        e.name === 'ValidationError'
       ) {
         const formatted = formatValibotErrors(
           (e as { issues?: v.BaseIssue<unknown>[] }).issues ?? [],
@@ -368,34 +368,36 @@ export class CliController {
 
   private async handleLogin(args?: string) {
     try {
-      const result = (await this.app.execute("list-users", {}, this.currentActor?.uuid)) as {
+      const result = (await this.app.execute(
+        'list-users',
+        {},
+        this.currentActor?.uuid,
+      )) as {
         users: Array<{ uuid: string; name: string; telegramId: number }>;
       };
       const users = result.users;
 
       if (!users || users.length === 0) {
-        console.log("Нет пользователей. База пуста.");
+        console.log('Нет пользователей. База пуста.');
         return;
       }
 
       if (!args) {
-        console.log("Доступные пользователи:");
+        console.log('Доступные пользователи:');
         for (const u of users) {
           console.log(`- ${u.name} (uuid: ${u.uuid}, tg: ${u.telegramId})`);
         }
-        console.log("Введите /login <uuid> или /login tg: <telegramId>");
+        console.log('Введите /login <uuid> или /login tg: <telegramId>');
         return;
       }
 
       let targetUser = null;
-      if (args.startsWith("tg:")) {
+      if (args.startsWith('tg:')) {
         const tg = Number(args.slice(3).trim());
         targetUser = users.find((u) => u.telegramId === tg);
-      } else if (args.startsWith("name:")) {
+      } else if (args.startsWith('name:')) {
         const namePart = args.slice(5).trim().toLowerCase();
-        targetUser = users.find((u) =>
-          u.name.toLowerCase().includes(namePart),
-        );
+        targetUser = users.find((u) => u.name.toLowerCase().includes(namePart));
       } else {
         targetUser = users.find((u) => u.uuid === args);
       }
@@ -410,7 +412,7 @@ export class CliController {
       }
     } catch (e: unknown) {
       console.error(
-        "Ошибка при получении списка пользователей:",
+        'Ошибка при получении списка пользователей:',
         (e as Error).message,
       );
     }

@@ -1,4 +1,4 @@
-import type { UcMeta } from "../api/uc/use-case";
+import type { UcMeta } from '../api/uc/use-case';
 
 export interface ApiModuleMeta {
   name: string;

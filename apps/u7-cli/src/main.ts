@@ -1,10 +1,10 @@
-import { ApiApp } from "@u7/core/api";
-import { CourseApiModule } from "@u7/course/api";
-import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from "@u7/course/infra";
-import { UserApiModule } from "@u7/user/api";
-import { UserInProcFacade, UserJsonRepo } from "@u7/user/infra";
-import { CliController } from "./cli-controller";
-import type { CliAppMeta } from "./types";
+import { ApiApp } from '@u7/core/api';
+import { CourseApiModule } from '@u7/course/api';
+import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from '@u7/course/infra';
+import { UserApiModule } from '@u7/user/api';
+import { UserInProcFacade, UserJsonRepo } from '@u7/user/infra';
+import { CliController } from './cli-controller';
+import type { CliAppMeta } from './types';
 
 async function main() {
   // --- User Domain Module ---

@@ -1,5 +1,5 @@
-import type { ApiModuleMeta } from "#domain/index";
-import type { ApiModule } from "../module/api-module";
+import type { ApiModuleMeta } from '#domain/index';
+import type { ApiModule } from '../module/api-module';
 
 /**
  * Базовое приложение, хранящее модули и предоставляющее единый вход

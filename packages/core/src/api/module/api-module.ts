@@ -1,18 +1,18 @@
-import type { UcDocType, UseCase } from "#api/uc/use-case";
-import { errBadRequest, throwError } from "#domain/errors/error-helpers";
-import type { NoCommandFoundError } from "#domain/errors/errors";
-import type { ApiModuleMeta, ModuleCommand } from "#domain/types";
+import type { UcDocType, UseCase } from '#api/uc/use-case';
+import { errBadRequest, throwError } from '#domain/errors/error-helpers';
+import type { NoCommandFoundError } from '#domain/errors/errors';
+import type { ApiModuleMeta, ModuleCommand } from '#domain/types';
 
 export abstract class ApiModule<TMeta extends ApiModuleMeta, TResolve> {
-  abstract readonly name: TMeta["name"];
-  abstract readonly useCases: UseCase<ApiModuleMeta["ucMetas"], TResolve>[];
+  abstract readonly name: TMeta['name'];
+  abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
 
   protected resolve!: TResolve;
 
   // Кэш для быстрого поиска use-case по имени
   private useCaseMap = new Map<
     string,
-    UseCase<ApiModuleMeta["ucMetas"], TResolve>
+    UseCase<ApiModuleMeta['ucMetas'], TResolve>
   >();
 
   init(resolve: TResolve) {
@@ -40,7 +40,7 @@ export abstract class ApiModule<TMeta extends ApiModuleMeta, TResolve> {
   protected throwNoCommandFound(commandName: string): never {
     throwError(
       errBadRequest<NoCommandFoundError>(
-        "NO_COMMAND_FOUND",
+        'NO_COMMAND_FOUND',
         `Команда '${commandName}' не найдена в модуле '${this.name}'`,
         {
           commandName,
