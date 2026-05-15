@@ -4,14 +4,29 @@ import { stdin as input, stdout as output } from "node:process";
 import * as readline from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import type { ApiApp, UcDocType } from "@u7/core/api";
+import type * as v from "valibot";
 import { formatValibotErrors } from "./controller/format-valibot-errors";
 import type { CliAppMeta } from "./types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// biome-ignore lint/suspicious/noExplicitAny: recursive type resolution
-function getTypeString(schemaProp: any): string {
+/** Узел внутренней структуры схемы Valibot (duck-typing) */
+interface SchemaNode {
+  type?: string;
+  wrapped?: SchemaNode;
+  item?: SchemaNode;
+  options?: readonly string[];
+  enum?: Record<string, string>;
+  entries?: Record<string, SchemaNode>;
+}
+
+/** Схема-объект Valibot с полем entries */
+interface ObjectSchemaLike {
+  entries: Record<string, SchemaNode>;
+}
+
+function getTypeString(schemaProp: SchemaNode | undefined): string {
   if (!schemaProp) return "unknown";
 
   if (schemaProp.type === "optional" && schemaProp.wrapped) {
@@ -40,13 +55,11 @@ function getTypeString(schemaProp: any): string {
   return typeStr;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: any is needed to traverse unknown schema
-function printSchemaPrompt(schema: any) {
+function printSchemaPrompt(schema: ObjectSchemaLike | undefined) {
   if (!schema || !schema.entries) return;
   console.log("\n```");
   for (const [key, prop] of Object.entries(schema.entries)) {
-    // biome-ignore lint/suspicious/noExplicitAny: type needed
-    const p = prop as any;
+    const p = prop as SchemaNode;
     const isOptional = p.type === "optional";
     const reqStr = isOptional ? "" : "*";
 
@@ -58,10 +71,11 @@ function printSchemaPrompt(schema: any) {
   console.log("*: обязательные");
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: any is returned
-function parseKeyValueLines(payloadStr: string, schema: any): any {
-  // biome-ignore lint/suspicious/noExplicitAny: dynamic payload
-  const payload: any = {};
+function parseKeyValueLines(
+  payloadStr: string,
+  schema: ObjectSchemaLike | undefined,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = {};
   const lines = payloadStr.split("\n");
   for (const line of lines) {
     const colonIdx = line.indexOf(":");
@@ -211,7 +225,7 @@ export class CliController {
             ?.getDocTypes()
             .find((d: UcDocType) => d.ucName === ucName);
           if (ucDoc?.inputSchema) {
-            printSchemaPrompt(ucDoc.inputSchema);
+            printSchemaPrompt(ucDoc.inputSchema as unknown as ObjectSchemaLike);
           }
 
           process.stdout.write("... ");
@@ -294,7 +308,10 @@ export class CliController {
           return;
         }
       } else {
-        payload = parseKeyValueLines(payloadStr, inputSchema);
+        payload = parseKeyValueLines(
+          payloadStr,
+          inputSchema as unknown as ObjectSchemaLike,
+        );
       }
     }
 
@@ -314,13 +331,21 @@ export class CliController {
         "name" in e &&
         e.name === "AppException"
       ) {
-        // biome-ignore lint/suspicious/noExplicitAny: any used for matching
-        const ex = e as any;
+        const ex = e as {
+          error?: {
+            name?: string;
+            payload?: { rawIssues?: unknown[] };
+            message?: string;
+          };
+          message?: string;
+        };
         if (
           ex.error?.name === "INPUT_VALIDATION_ERROR" &&
           ex.error?.payload?.rawIssues
         ) {
-          const formatted = formatValibotErrors(ex.error.payload.rawIssues);
+          const formatted = formatValibotErrors(
+            ex.error.payload.rawIssues as v.BaseIssue<unknown>[],
+          );
           console.log(formatted);
         } else {
           console.log(ex.error?.message || ex.message);
@@ -331,8 +356,9 @@ export class CliController {
         "name" in e &&
         e.name === "ValidationError"
       ) {
-        // biome-ignore lint/suspicious/noExplicitAny: any used for matching
-        const formatted = formatValibotErrors((e as any).issues);
+        const formatted = formatValibotErrors(
+          (e as { issues?: v.BaseIssue<unknown>[] }).issues ?? [],
+        );
         console.log(formatted);
       } else {
         console.log((e as Error).message || String(e));
@@ -342,11 +368,9 @@ export class CliController {
 
   private async handleLogin(args?: string) {
     try {
-      const result = await this.app.execute(
-        "list-users",
-        {},
-        this.currentActor?.uuid,
-      );
+      const result = (await this.app.execute("list-users", {}, this.currentActor?.uuid)) as {
+        users: Array<{ uuid: string; name: string; telegramId: number }>;
+      };
       const users = result.users;
 
       if (!users || users.length === 0) {
@@ -366,17 +390,14 @@ export class CliController {
       let targetUser = null;
       if (args.startsWith("tg:")) {
         const tg = Number(args.slice(3).trim());
-        // biome-ignore lint/suspicious/noExplicitAny: allow any for dynamic API response
-        targetUser = users.find((u: any) => u.telegramId === tg);
+        targetUser = users.find((u) => u.telegramId === tg);
       } else if (args.startsWith("name:")) {
         const namePart = args.slice(5).trim().toLowerCase();
-        // biome-ignore lint/suspicious/noExplicitAny: allow any for dynamic API response
-        targetUser = users.find((u: any) =>
+        targetUser = users.find((u) =>
           u.name.toLowerCase().includes(namePart),
         );
       } else {
-        // biome-ignore lint/suspicious/noExplicitAny: allow any for dynamic API response
-        targetUser = users.find((u: any) => u.uuid === args);
+        targetUser = users.find((u) => u.uuid === args);
       }
 
       if (targetUser) {

@@ -33,11 +33,11 @@ export interface SubmitResult {
  * Не зависит от grammy/Telegram — только от API-модуля.
  */
 export class OnboardingController {
-  readonly #api: OnboardingBotApp;
+  readonly #app: OnboardingBotApp;
   readonly #poolService: QuestionPoolService;
 
-  constructor(api: OnboardingBotApp, poolService: QuestionPoolService) {
-    this.#api = api;
+  constructor(app: OnboardingBotApp, poolService: QuestionPoolService) {
+    this.#app = app;
     this.#poolService = poolService;
   }
 
@@ -46,7 +46,7 @@ export class OnboardingController {
    * Возвращает UUID анкеты и первый вопрос.
    */
   async start(userId: string, actorId: string): Promise<StartResult> {
-    const questionnaire = await this.#api.execute(
+    const questionnaire = await this.#app.execute(
       "start-questionnaire",
       { userId },
       actorId,
@@ -72,7 +72,7 @@ export class OnboardingController {
     value: string | string[],
     actorId: string,
   ): Promise<SubmitResult> {
-    const questionnaire = await this.#api.execute(
+    const questionnaire = await this.#app.execute(
       "submit-answer",
       { questionnaireUuid: uuid, questionCode, value },
       actorId,
@@ -96,7 +96,7 @@ export class OnboardingController {
    * Прерывает прохождение анкеты.
    */
   async abandon(uuid: string, actorId: string): Promise<void> {
-    await this.#api.execute("abandon-questionnaire", { uuid }, actorId);
+    await this.#app.execute("abandon-questionnaire", { uuid }, actorId);
   }
 
   /**
@@ -106,7 +106,7 @@ export class OnboardingController {
     uuid: string,
     actorId: string,
   ): Promise<Question | null> {
-    const questionnaire = await this.#api.execute(
+    const questionnaire = await this.#app.execute(
       "get-questionnaire",
       { uuid },
       actorId,
@@ -123,7 +123,7 @@ export class OnboardingController {
    * Возвращает текстовый предпросмотр всех ответов.
    */
   async getAnswersPreview(uuid: string, actorId: string): Promise<string> {
-    const questionnaire = await this.#api.execute(
+    const questionnaire = await this.#app.execute(
       "get-questionnaire",
       { uuid },
       actorId,
@@ -146,7 +146,7 @@ export class OnboardingController {
    * Новую анкету можно начать, если нет активной (in_progress).
    */
   async canRestart(userId: string, actorId: string): Promise<boolean> {
-    const questionnaires = await this.#api.execute(
+    const questionnaires = await this.#app.execute(
       "list-questionnaires-by-user",
       { userId },
       actorId,

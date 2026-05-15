@@ -1,17 +1,18 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
-import { ApiApp } from '@u7/core/api';
-import { BaseJsonDb } from '@u7/core/infra';
-import type { User } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
-import { UserJsonRepo } from '@u7/user/infra';
-import { OnboardingApiModule } from '#api/module';
-import type { Question } from '#domain/questionnaire/question';
-import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
-import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
-import type { OnboardingBotApp } from '../app';
-import { OnboardingController } from './onboarding-controller';
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { ApiApp } from "@u7/core/api";
+import { BaseJsonDb } from "@u7/core/infra";
+import type { User } from "@u7/user/domain";
+import { Role } from "@u7/user/domain";
+import { UserJsonRepo } from "@u7/user/infra";
+import { OnboardingApiModule } from "#api/module";
+import type { Question } from "#domain/questionnaire/question";
+import { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
+import { QuestionnaireJsonRepo } from "#infra/db/questionnaire-json-repo";
+import type { OnboardingBotApp } from "../app";
+import { OnboardingController } from "./onboarding-controller";
+import type { AppMeta } from "@u7/core/domain";
 
 let tmpDir: string;
 
@@ -22,33 +23,33 @@ function nextPath(prefix: string): string {
 function makeUser(overrides?: Partial<User>): User {
   return {
     uuid: crypto.randomUUID(),
-    name: 'Тест',
+    name: "Тест",
     telegramId: 1,
     roles: [Role.GUEST],
-    createdAt: '2024-01-01T00:00',
+    createdAt: "2024-01-01T00:00",
     ...overrides,
   };
 }
 
 const testPool: Question[] = [
   {
-    question: 'Первый вопрос',
-    questionCode: 'q1',
-    type: 'choice',
+    question: "Первый вопрос",
+    questionCode: "q1",
+    type: "choice",
     multiple: false,
     answers: [
-      { answer: 'Да', answerCode: 'yes' },
-      { answer: 'Нет', answerCode: 'no' },
+      { answer: "Да", answerCode: "yes" },
+      { answer: "Нет", answerCode: "no" },
     ],
   },
   {
-    question: 'Второй вопрос',
-    questionCode: 'q2',
-    type: 'text',
+    question: "Второй вопрос",
+    questionCode: "q2",
+    type: "text",
   },
 ];
 
-describe('OnboardingController', () => {
+describe("OnboardingController", () => {
   let db: BaseJsonDb;
   let questionnaireRepo: QuestionnaireJsonRepo;
   let userRepo: UserJsonRepo;
@@ -57,13 +58,13 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
 
   beforeEach(() => {
-    tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
+    tmpDir = mkdtempSync("/tmp/onboarding-controller-test-");
     db = new BaseJsonDb();
     questionnaireRepo = new QuestionnaireJsonRepo(
-      nextPath('questionnaires'),
+      nextPath("questionnaires"),
       db,
     );
-    userRepo = new UserJsonRepo(nextPath('users'), undefined, db);
+    userRepo = new UserJsonRepo(nextPath("users"), undefined, db);
     mod = new OnboardingApiModule();
     const poolService = new QuestionPoolService(testPool);
     mod.init({
@@ -91,7 +92,7 @@ describe('OnboardingController', () => {
       },
       db,
     });
-    apiApp = new ApiApp<any>() as OnboardingBotApp;
+    apiApp = new ApiApp<AppMeta>() as OnboardingBotApp;
     apiApp.register(mod);
     controller = new OnboardingController(apiApp, poolService);
   });
@@ -100,8 +101,8 @@ describe('OnboardingController', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  describe('start', () => {
-    test('создаёт анкету и возвращает первый вопрос', async () => {
+  describe("start", () => {
+    test("создаёт анкету и возвращает первый вопрос", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -109,12 +110,12 @@ describe('OnboardingController', () => {
 
       expect(result.questionnaireUuid).toBeTruthy();
       expect(result.firstQuestion).not.toBeNull();
-      expect(result.firstQuestion?.questionCode).toBe('q1');
+      expect(result.firstQuestion?.questionCode).toBe("q1");
     });
   });
 
-  describe('submitAnswer', () => {
-    test('обрабатывает ответ и возвращает следующий вопрос', async () => {
+  describe("submitAnswer", () => {
+    test("обрабатывает ответ и возвращает следующий вопрос", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -125,17 +126,17 @@ describe('OnboardingController', () => {
 
       const result = await controller.submitAnswer(
         questionnaireUuid,
-        'q1',
-        'yes',
+        "q1",
+        "yes",
         user.uuid,
       );
 
-      expect(result.status).toBe('in_progress');
+      expect(result.status).toBe("in_progress");
       expect(result.isCompleted).toBe(false);
-      expect(result.nextQuestion?.questionCode).toBe('q2');
+      expect(result.nextQuestion?.questionCode).toBe("q2");
     });
 
-    test('завершает анкету и добавляет роль', async () => {
+    test("завершает анкету и добавляет роль", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -144,15 +145,15 @@ describe('OnboardingController', () => {
         user.uuid,
       );
 
-      await controller.submitAnswer(questionnaireUuid, 'q1', 'yes', user.uuid);
+      await controller.submitAnswer(questionnaireUuid, "q1", "yes", user.uuid);
       const result = await controller.submitAnswer(
         questionnaireUuid,
-        'q2',
-        'hello',
+        "q2",
+        "hello",
         user.uuid,
       );
 
-      expect(result.status).toBe('completed');
+      expect(result.status).toBe("completed");
       expect(result.isCompleted).toBe(true);
       expect(result.nextQuestion).toBeNull();
 
@@ -161,8 +162,8 @@ describe('OnboardingController', () => {
     });
   });
 
-  describe('abandon', () => {
-    test('прерывает анкету', async () => {
+  describe("abandon", () => {
+    test("прерывает анкету", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -173,16 +174,16 @@ describe('OnboardingController', () => {
       await controller.abandon(questionnaireUuid, user.uuid);
 
       const result = await apiApp.execute(
-        'get-questionnaire',
+        "get-questionnaire",
         { uuid: questionnaireUuid },
         user.uuid,
       );
-      expect((result as { status: string }).status).toBe('abandoned');
+      expect((result as { status: string }).status).toBe("abandoned");
     });
   });
 
-  describe('getCurrentQuestion', () => {
-    test('возвращает текущий вопрос', async () => {
+  describe("getCurrentQuestion", () => {
+    test("возвращает текущий вопрос", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -195,12 +196,12 @@ describe('OnboardingController', () => {
         user.uuid,
       );
 
-      expect(question?.questionCode).toBe('q1');
+      expect(question?.questionCode).toBe("q1");
     });
   });
 
-  describe('getAnswersPreview', () => {
-    test('возвращает предпросмотр ответов', async () => {
+  describe("getAnswersPreview", () => {
+    test("возвращает предпросмотр ответов", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -208,17 +209,17 @@ describe('OnboardingController', () => {
         user.uuid,
         user.uuid,
       );
-      await controller.submitAnswer(questionnaireUuid, 'q1', 'yes', user.uuid);
+      await controller.submitAnswer(questionnaireUuid, "q1", "yes", user.uuid);
 
       const preview = await controller.getAnswersPreview(
         questionnaireUuid,
         user.uuid,
       );
-      expect(preview).toContain('q1');
-      expect(preview).toContain('yes');
+      expect(preview).toContain("q1");
+      expect(preview).toContain("yes");
     });
 
-    test('возвращает сообщение при отсутствии ответов', async () => {
+    test("возвращает сообщение при отсутствии ответов", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -230,12 +231,12 @@ describe('OnboardingController', () => {
         questionnaireUuid,
         user.uuid,
       );
-      expect(preview).toBe('Пока нет ответов.');
+      expect(preview).toBe("Пока нет ответов.");
     });
   });
 
-  describe('canRestart', () => {
-    test('возвращает true, если нет активной анкеты', async () => {
+  describe("canRestart", () => {
+    test("возвращает true, если нет активной анкеты", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -243,7 +244,7 @@ describe('OnboardingController', () => {
       expect(canRestart).toBe(true);
     });
 
-    test('возвращает false, если есть активная анкета', async () => {
+    test("возвращает false, если есть активная анкета", async () => {
       const user = makeUser();
       await userRepo.save(user);
 
@@ -253,16 +254,16 @@ describe('OnboardingController', () => {
     });
   });
 
-  describe('getKeyboard', () => {
-    test('строит клавиатуру для choice-вопроса', () => {
+  describe("getKeyboard", () => {
+    test("строит клавиатуру для choice-вопроса", () => {
       const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'choice',
+        question: "Тест?",
+        questionCode: "q1",
+        type: "choice",
         multiple: false,
         answers: [
-          { answer: 'Да', answerCode: 'yes' },
-          { answer: 'Нет', answerCode: 'no' },
+          { answer: "Да", answerCode: "yes" },
+          { answer: "Нет", answerCode: "no" },
         ],
       };
 
@@ -271,32 +272,32 @@ describe('OnboardingController', () => {
       expect(keyboard).not.toBeNull();
       expect(keyboard?.isMultiple).toBe(false);
       expect(keyboard?.rows).toHaveLength(2);
-      expect(keyboard?.rows[0]?.[0]?.code).toBe('yes');
+      expect(keyboard?.rows[0]?.[0]?.code).toBe("yes");
     });
 
-    test('добавляет галочки для выбранных значений', () => {
+    test("добавляет галочки для выбранных значений", () => {
       const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'choice',
+        question: "Тест?",
+        questionCode: "q1",
+        type: "choice",
         multiple: true,
         answers: [
-          { answer: 'A', answerCode: 'a' },
-          { answer: 'B', answerCode: 'b' },
+          { answer: "A", answerCode: "a" },
+          { answer: "B", answerCode: "b" },
         ],
       };
 
-      const keyboard = controller.getKeyboard(question, ['a']);
+      const keyboard = controller.getKeyboard(question, ["a"]);
 
-      expect(keyboard?.rows[0]?.[0]?.text).toBe('✅ A');
-      expect(keyboard?.rows[1]?.[0]?.text).toBe('B');
+      expect(keyboard?.rows[0]?.[0]?.text).toBe("✅ A");
+      expect(keyboard?.rows[1]?.[0]?.text).toBe("B");
     });
 
-    test('возвращает null для text-вопроса', () => {
+    test("возвращает null для text-вопроса", () => {
       const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'text',
+        question: "Тест?",
+        questionCode: "q1",
+        type: "text",
       };
 
       const keyboard = controller.getKeyboard(question);
