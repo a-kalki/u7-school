@@ -1,0 +1,8 @@
+{
+  "track_id": "stateless-bot_20260513",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-05-13T10:05:00Z",
+  "updated_at": "2026-05-13T10:05:00Z",
+  "description": "Stateless Bot & Controller: Удаление grammy/conversations, переписывание контроллера и хендлеров бота"
+}
