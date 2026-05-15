@@ -1,10 +1,4 @@
-[$T1=./tracks/bot-onboarding_20260513/]
 # Реестр треков
-
----
-
-- [x] **Track: Telegram-бот onboarding (bot-onboarding)**
-  *Link: [./tracks/bot-onboarding_20260513/](./tracks/bot-onboarding_20260513/)*
 
 ---
 
@@ -20,5 +14,10 @@
 
 ## Архив
 
+- [x] **Track: Telegram-бот onboarding (bot-onboarding)**
+  *Link: [./archive/bot-onboarding_20260513/](./archive/bot-onboarding_20260513/)*
+
+---
+
 - [x] **Track: Рефакторинг типизации ApiModule и ApiApp (apimeta-refactor)** — *архивирован*
-  *Link: [./tracks/archived/apimeta-refactor/index.md](./tracks/archived/apimeta-refactor/index.md)*
+  *Link: [./archive/apimeta-refactor/](./archive/apimeta-refactor/)*
