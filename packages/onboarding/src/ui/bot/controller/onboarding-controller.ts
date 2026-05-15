@@ -1,6 +1,8 @@
+import type { User } from "@u7/user/domain";
 import type { Question } from "#domain/questionnaire/question";
 import type { QuestionPoolService } from "#domain/questionnaire/question-pool-service";
 import type { OnboardingBotApp } from "../app";
+import type { Questionnaire } from "#domain/questionnaire/entity";
 
 /**
  * Описание inline-клавиатуры для вопроса с выбором ответа.
@@ -139,6 +141,35 @@ export class OnboardingController {
         return `${i + 1}. ${a.questionCode}: ${value}`;
       })
       .join("\n");
+  }
+
+  /**
+   * Определяет стартовый flow для пользователя на основе ролей и анкет.
+   * Приоритет: candidate > subscriber > guest
+   */
+  getStartFlow(
+    user: User,
+    _questionnaires: Questionnaire[],
+  ): "candidate" | "subscriber" | "guest" {
+    const roles = user.roles;
+    if (roles.includes("CANDIDATE" as unknown as typeof roles[number])) {
+      return "candidate";
+    }
+    if (roles.includes("SUBSCRIBER" as unknown as typeof roles[number])) {
+      return "subscriber";
+    }
+    return "guest";
+  }
+
+  /**
+   * Начинает новую анкету для пользователя.
+   * Пробрасывает ошибку QUESTIONNAIRE_ACTIVE, если уже есть активная.
+   */
+  async restartQuestionnaire(
+    userId: string,
+    actorId: string,
+  ): Promise<StartResult> {
+    return this.start(userId, actorId);
   }
 
   /**

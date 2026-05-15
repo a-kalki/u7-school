@@ -13,6 +13,7 @@ import { QuestionnaireJsonRepo } from "#infra/db/questionnaire-json-repo";
 import type { OnboardingBotApp } from "../app";
 import { OnboardingController } from "./onboarding-controller";
 import type { AppMeta } from "@u7/core/domain";
+import type { Questionnaire } from "#domain/questionnaire/entity";
 
 let tmpDir: string;
 
@@ -302,6 +303,55 @@ describe("OnboardingController", () => {
 
       const keyboard = controller.getKeyboard(question);
       expect(keyboard).toBeNull();
+    });
+  });
+
+  describe("getStartFlow", () => {
+    test("возвращает 'candidate' если есть роль CANDIDATE", () => {
+      const user = makeUser({ roles: [Role.GUEST, Role.CANDIDATE] });
+      const flow = controller.getStartFlow(user, []);
+      expect(flow).toBe("candidate");
+    });
+
+    test("возвращает 'candidate' если есть CANDIDATE и SUBSCRIBER", () => {
+      const user = makeUser({ roles: [Role.GUEST, Role.SUBSCRIBER, Role.CANDIDATE] });
+      const flow = controller.getStartFlow(user, []);
+      expect(flow).toBe("candidate");
+    });
+
+    test("возвращает 'subscriber' если есть SUBSCRIBER, но нет CANDIDATE", () => {
+      const user = makeUser({ roles: [Role.GUEST, Role.SUBSCRIBER] });
+      const flow = controller.getStartFlow(user, []);
+      expect(flow).toBe("subscriber");
+    });
+
+    test("возвращает 'guest' если только GUEST", () => {
+      const user = makeUser({ roles: [Role.GUEST] });
+      const flow = controller.getStartFlow(user, []);
+      expect(flow).toBe("guest");
+    });
+  });
+
+  describe("restartQuestionnaire", () => {
+    test("создаёт новую анкету, если нет активной", async () => {
+      const user = makeUser();
+      await userRepo.save(user);
+
+      const result = await controller.restartQuestionnaire(user.uuid, user.uuid);
+
+      expect(result.questionnaireUuid).toBeTruthy();
+      expect(result.firstQuestion).not.toBeNull();
+    });
+
+    test("пробрасывает ошибку QUESTIONNAIRE_ACTIVE при активной анкете", async () => {
+      const user = makeUser();
+      await userRepo.save(user);
+
+      await controller.start(user.uuid, user.uuid);
+
+      await expect(
+        controller.restartQuestionnaire(user.uuid, user.uuid),
+      ).rejects.toThrow("У пользователя уже есть активная анкета");
     });
   });
 });
