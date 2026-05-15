@@ -2,9 +2,9 @@
 
 ## Фаза 1: Базовые типы и абстракции (пакет `core`)
 - [x] Task: Переименовать `ModuleMeta` в `ApiModuleMeta` в `packages/core/src/domain/module/types.ts`. (b088c25)
-- [x] Task: Добавить generic-параметр (например, `TUcMetas extends UcMeta`) в `ApiModuleMeta` для строгой привязки списка `UcMeta` к модулю. (b088c25)
-- [x] Task: Создать интерфейс `AppMeta` (например, `AppMeta<TModules extends ApiModuleMeta<any>>`), который будет регистрировать список модулей приложения. (b088c25)
-- [x] Task: Обновить `ApiModule`, чтобы свойство `useCases` строго соответствовало переданному `ApiModuleMeta<TUcMetas>` (система типов должна требовать реализацию всех заявленных контрактов). (b088c25)
+- [x] Task: Убрать generic-параметр из `ApiModuleMeta`, оставив поле `ucMetas: UcMeta`, которое конкретные модули переопределяют union'ом своих `UcMeta`. (b088c25)
+- [x] Task: Создать интерфейс `AppMeta` с полем `moduleMetas: ApiModuleMeta`, которое конкретные приложения переопределяют union'ом модулей. (b088c25)
+- [x] Task: Обновить `ApiModule`, чтобы свойство `useCases` строго соответствовало `ApiModuleMeta` (система типов должна требовать реализацию всех заявленных контрактов). (b088c25)
 - [x] Task: Обновить `ApiApp` для поддержки `AppMeta`. Базовый `App` оставить без привязки к `AppMeta`. (b088c25)
 - [x] Task: В `ApiApp` реализовать type-safe метод `execute` (или `handle`). Продумать DX: если возможно, передавать только `UcMeta` (или выводить из имени), чтобы минимизировать параметры (например, отказаться от явной передачи имени модуля) с типизацией `attrs` и выводимым `Output`. (b088c25)
 - [x] Task: Conductor - User Manual Verification 'Фаза 1: Базовые типы и абстракции (пакет core)' (Protocol in workflow.md)

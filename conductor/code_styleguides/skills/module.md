@@ -11,13 +11,13 @@
 ## Иерархия типов
 
 ```
-AppMeta<TModules extends ApiModuleMeta<any>>
-  └─ ApiModuleMeta<TUcMetas extends UcMeta>
+AppMeta
+  └─ ApiModuleMeta
        └─ UcMeta
 ```
 
-- `AppMeta` — регистрирует список модулей приложения.
-- `ApiModuleMeta` — регистрирует набор `UcMeta`, принадлежащих модулю.
+- `AppMeta` — регистрирует модули приложения через поле `moduleMetas`.
+- `ApiModuleMeta` — регистрирует набор `UcMeta` через поле `ucMetas`.
 - `ApiModule` проверяет на уровне типов, что все `useCases` соответствуют заявленным `UcMeta`.
 - `ApiApp` предоставляет type-safe метод `execute(ucName, attrs, actorId)`, который автоматически находит нужный модуль и проверяет типы параметров и результата.
 
@@ -25,7 +25,7 @@ AppMeta<TModules extends ApiModuleMeta<any>>
 
 - `ApiModuleMeta` описывает контракт для модулей слоя `Api`.
 - Каждый модуль описывает свой тип `Resolver`.
-- `ApiModuleMeta` принимает дженерик `TUcMetas`, который объединяет все `UcMeta` модуля.
+- Конкретный модуль переопределяет поле `ucMetas`, объединяя все `UcMeta` модуля.
 
 ```typescript
 import type { ApiModuleMeta } from "@u7/core/domain";
@@ -36,9 +36,10 @@ import type { GetUserCmdMeta } from "./user/commands/get-user-cmd";
 
 export type UserUcMetas = CreateUserCmdMeta | GetUserCmdMeta;
 
-export interface UserApiModuleMeta extends ApiModuleMeta<UserUcMetas> {
+export interface UserApiModuleMeta extends ApiModuleMeta {
 	name: "user";
 	url: "/user";
+	ucMetas: UserUcMetas;
 }
 
 export interface UserApiModuleResolver {
@@ -73,7 +74,7 @@ export class UserApiModule extends ApiModule<
 
 ## Сборка ApiApp
 
-- `ApiApp` параметризуется `AppMeta`, который объединяет метаданные всех зарегистрированных модулей.
+- `ApiApp` параметризуется `AppMeta`, который переопределяет поле `moduleMetas` union'ом всех зарегистрированных модулей.
 - Метод `execute` принимает только `ucName` (без явного имени модуля) — модуль находится автоматически.
 - Типы `attrs` и возвращаемого значения выводятся из `UcMeta`.
 
@@ -81,14 +82,18 @@ export class UserApiModule extends ApiModule<
 import { ApiApp } from "@u7/core/api";
 import type { AppMeta } from "@u7/core/domain";
 import { UserApiModule } from "@u7/user/api";
+import { CourseApiModule } from "@u7/course/api";
 import type { UserApiModuleMeta } from "@u7/user/domain";
+import type { CourseApiModuleMeta } from "@u7/course/domain";
 
-export interface MyAppMeta extends AppMeta<UserApiModuleMeta> {
+export interface MyAppMeta extends AppMeta {
 	name: "my-app";
+	moduleMetas: UserApiModuleMeta | CourseApiModuleMeta;
 }
 
 const app = new ApiApp<MyAppMeta>();
 app.register(new UserApiModule());
+app.register(new CourseApiModule());
 
 // Type-safe вызов:
 const result = await app.execute("create-user", { name: "Иван", telegramId: 1 });
