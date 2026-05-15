@@ -3,8 +3,12 @@
 
 ---
 
-- [x] **Track: Рефакторинг типизации ApiModule и ApiApp (apimeta-refactor)**
-  *Link: [./tracks/apimeta-refactor/](./tracks/apimeta-refactor/index.md)*
-
-- [ ] **Track: Telegram-бот onboarding (bot-onboarding)**
+- [x] **Track: Telegram-бот onboarding (bot-onboarding)**
   *Link: [$T1]($T1)*
+
+---
+
+## Архив
+
+- [x] **Track: Рефакторинг типизации ApiModule и ApiApp (apimeta-refactor)** — *архивирован*
+  *Link: [./tracks/archived/apimeta-refactor/index.md](./tracks/archived/apimeta-refactor/index.md)*
