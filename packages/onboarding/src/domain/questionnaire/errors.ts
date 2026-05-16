@@ -1,32 +1,15 @@
 import type {
   AccessDeniedError,
+  BadRequestError,
   ConflictError,
+  InternalError,
   NotFoundError,
-  ValidationError,
 } from '@u7/core/domain';
 
 /** У пользователя уже есть активная анкета */
 export type QuestionnaireActiveUcError = ConflictError<
   'QUESTIONNAIRE_ACTIVE',
   { userId: string } | undefined
->;
-
-/** Ошибка валидации ответа анкеты */
-export type QuestionnaireValidationUcError = ValidationError<
-  'QUESTIONNAIRE_VALIDATION',
-  { questionCode: string; issues?: string[] } | undefined
->;
-
-/** Анкета уже завершена */
-export type QuestionnaireCompletedUcError = ConflictError<
-  'QUESTIONNAIRE_COMPLETED',
-  { uuid: string } | undefined
->;
-
-/** Вопрос не найден в пуле */
-export type QuestionNotFoundUcError = NotFoundError<
-  'QUESTION_NOT_FOUND',
-  { questionCode: string } | undefined
 >;
 
 /** Анкета не найдена */
@@ -38,11 +21,22 @@ export type QuestionnaireNotFoundUcError = NotFoundError<
 /** Доступ запрещён */
 export type AccessDeniedUcError = AccessDeniedError<'ACCESS_DENIED', undefined>;
 
+/** Некорректный запрос (не тот вопрос, неверный формат ответа) */
+export type BadRequestUcError = BadRequestError<
+  'BAD_REQUEST',
+  { message: string } | undefined
+>;
+
+/** Внутренняя ошибка (баг, повреждение данных) */
+export type InternalUcError = InternalError<
+  'INTERNAL_ERROR',
+  { message: string } | undefined
+>;
+
 /** Любая известная ошибка модуля questionnaire */
 export type QuestionnaireModuleError =
-  | QuestionnaireValidationUcError
-  | QuestionnaireCompletedUcError
-  | QuestionNotFoundUcError
-  | QuestionnaireNotFoundUcError
   | QuestionnaireActiveUcError
+  | QuestionnaireNotFoundUcError
+  | BadRequestUcError
+  | InternalUcError
   | AccessDeniedUcError;

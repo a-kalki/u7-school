@@ -1,17 +1,8 @@
-import {
-  Aggregate,
-  errConflict,
-  errValidation,
-  throwError,
-} from '@u7/core/domain';
+import { Aggregate } from '@u7/core/domain';
 import { isoNow } from '@u7/core/shared';
 import * as v from 'valibot';
 import type { AnswerEntry, Questionnaire, QuestionnaireArMeta } from './entity';
 import { QuestionnaireSchema } from './entity';
-import type {
-  QuestionnaireCompletedUcError,
-  QuestionnaireValidationUcError,
-} from './errors';
 import type { Question } from './question';
 import type { QuestionPoolService } from './question-pool-service';
 import type { QuestionnaireActionResponse } from './types';
@@ -149,13 +140,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     } catch (e) {
       if (e instanceof v.ValiError) {
         const qText = this.getQuestionText(questionCode);
-        throwError(
-          errValidation<QuestionnaireValidationUcError>(
-            'QUESTIONNAIRE_VALIDATION',
-            `Некорректный ответ на вопрос "${qText}"`,
-            { questionCode, issues: [e.message] },
-          ),
-        );
+        this.throwInternal(`Некорректный ответ на вопрос "${qText}"`);
       }
       throw e;
     }
@@ -251,13 +236,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   protected checkIsInProgress(): void {
     if (this.state.status !== 'in_progress') {
-      throwError(
-        errConflict<QuestionnaireCompletedUcError>(
-          'QUESTIONNAIRE_COMPLETED',
-          'Анкета уже завершена',
-          { uuid: this.state.uuid },
-        ),
-      );
+      this.throwBadRequest('Анкета уже завершена');
     }
   }
 
