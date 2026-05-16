@@ -2,7 +2,7 @@
 
 ---
 
-- [~] **Track: Onboarding Domain Evolution**
+- [x] **Track: Onboarding Domain Evolution**
   *Link: [./tracks/onboarding-domain_20260513/](./tracks/onboarding-domain_20260513/)*
 
 ---
