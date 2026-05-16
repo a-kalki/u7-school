@@ -2,9 +2,9 @@
 
 ## Фаза 1: Подготовка — ошибки, типы, команды
 
-- [ ] Task: Обновить типы QuestionnaireActionResponse
-    - [ ] Сделать `selectedAnswers` опциональным во всех вариантах
-    - [ ] Добавить `nextButton?: string` в вариант `wait_next`
+- [x] Task: Обновить типы QuestionnaireActionResponse `9af8b08`
+    - [x] Сделать `selectedAnswers` опциональным во всех вариантах
+    - [x] Добавить `nextButton?: string` в вариант `wait_next`
 
 - [ ] Task: Добавить BadRequestError и InternalError в ошибки модуля
     - [ ] Добавить `BadRequestError<'BAD_REQUEST', { message: string } | undefined>` в `errors.ts`
