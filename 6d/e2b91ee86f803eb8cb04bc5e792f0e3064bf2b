@@ -1,0 +1,1 @@
+Задача: Добавить BadRequestError и InternalError в ошибки модуля. Удалил QuestionnaireValidationUcError, QuestionnaireCompletedUcError, QuestionNotFoundUcError. Добавил BadRequestUcError и InternalUcError. Обновил агрегат: заменил errValidation → throwInternal, errConflict → throwBadRequest. Файлы: errors.ts, a-root.ts. 48 тестов проходят.
