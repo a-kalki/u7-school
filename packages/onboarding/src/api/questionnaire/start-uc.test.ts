@@ -4,7 +4,9 @@ import type { UserFacade } from '@u7/user/domain';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
-import { StartQuestionnaireUc } from './start-questionnaire-uc';
+import { StartUc } from './start-uc';
+
+const actorId = 'bot-admin-uuid';
 
 function setupUc(activeQuestionnaires: Questionnaire[] = []) {
   const save = mock(async () => {});
@@ -29,7 +31,7 @@ function setupUc(activeQuestionnaires: Questionnaire[] = []) {
     ['q1'],
   );
 
-  const uc = new StartQuestionnaireUc();
+  const uc = new StartUc();
   uc.init({
     questionnaireRepo: repo,
     questionPoolService: poolService,
@@ -40,10 +42,10 @@ function setupUc(activeQuestionnaires: Questionnaire[] = []) {
   return { uc, save };
 }
 
-describe('StartQuestionnaireUc', () => {
+describe('StartUc', () => {
   test('создаёт анкету и сохраняет', async () => {
     const { uc, save } = setupUc();
-    const result = await uc.handle({ telegramId: 12345 });
+    const result = await uc.handle({ telegramId: 12345 }, actorId);
     expect(result.telegramId).toBe(12345);
     expect(result.status).toBe('in_progress');
     expect(result.currentQuestionCode).toBe('q1');
@@ -65,7 +67,7 @@ describe('StartQuestionnaireUc', () => {
       createdAt: '2026-05-01T12:00',
     };
     const { uc } = setupUc([active]);
-    await expect(uc.handle({ telegramId: 12345 })).rejects.toThrow(
+    await expect(uc.handle({ telegramId: 12345 }, actorId)).rejects.toThrow(
       'У тебя уже есть активная анкета',
     );
   });

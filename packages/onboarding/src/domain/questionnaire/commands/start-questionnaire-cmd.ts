@@ -15,7 +15,7 @@ export type StartQuestionnaireCmd = v.InferOutput<
 
 /** Мета команды начала анкеты */
 export interface StartQuestionnaireCmdMeta {
-  ucName: 'start-questionnaire';
+  ucName: 'start';
   arMeta: QuestionnaireArMeta;
   input: StartQuestionnaireCmd;
   output: Questionnaire;

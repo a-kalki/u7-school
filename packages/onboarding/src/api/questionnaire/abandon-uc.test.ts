@@ -4,7 +4,7 @@ import type { UserFacade } from '@u7/user/domain';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
-import { AbandonQuestionnaireUc } from './abandon-questionnaire-uc';
+import { AbandonUc } from './abandon-uc';
 
 function setupUc(questionnaires: Questionnaire[] = []) {
   const getByTelegramId = mock(async () => questionnaires);
@@ -15,7 +15,7 @@ function setupUc(questionnaires: Questionnaire[] = []) {
     getByTelegramId,
   };
 
-  const uc = new AbandonQuestionnaireUc();
+  const uc = new AbandonUc();
   uc.init({
     questionnaireRepo: repo,
     questionPoolService: new QuestionPoolService([], []),
@@ -35,19 +35,19 @@ const activeQuestionnaire: Questionnaire = {
   createdAt: '2026-05-01T12:00',
 };
 
-describe('AbandonQuestionnaireUc', () => {
+describe('AbandonUc', () => {
   test('прерывает активную анкету по telegramId', async () => {
     const { uc, save } = setupUc([activeQuestionnaire]);
-    const result = await uc.handle({ telegramId: 12345 });
+    const result = await uc.handle({ telegramId: 12345 }, 'bot-uuid');
     expect(result.status).toBe('abandoned');
     expect(save).toHaveBeenCalledTimes(1);
   });
 
   test('отклоняет если нет активной анкеты', async () => {
     const { uc } = setupUc([]);
-    await expect(uc.handle({ telegramId: 99999 })).rejects.toThrow(
-      'У тебя нет активной анкеты',
-    );
+    await expect(
+      uc.handle({ telegramId: 99999 }, 'bot-uuid'),
+    ).rejects.toThrow('У тебя нет активной анкеты');
   });
 
   test('игнорирует завершённые анкеты', async () => {
@@ -57,8 +57,8 @@ describe('AbandonQuestionnaireUc', () => {
       status: 'completed',
     };
     const { uc } = setupUc([completed]);
-    await expect(uc.handle({ telegramId: 12345 })).rejects.toThrow(
-      'У тебя нет активной анкеты',
-    );
+    await expect(
+      uc.handle({ telegramId: 12345 }, 'bot-uuid'),
+    ).rejects.toThrow('У тебя нет активной анкеты');
   });
 });

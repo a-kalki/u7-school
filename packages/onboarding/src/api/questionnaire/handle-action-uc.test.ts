@@ -4,7 +4,7 @@ import { Role, type UserFacade } from '@u7/user/domain';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
-import { HandleOnboardingActionUc } from './handle-onboarding-action-uc';
+import { HandleActionUc } from './handle-action-uc';
 
 function setupUc(active?: Questionnaire) {
   const save = mock(async () => {});
@@ -47,7 +47,7 @@ function setupUc(active?: Questionnaire) {
     ensureUserWithRole: mock(async () => {}),
   } as unknown as UserFacade;
 
-  const uc = new HandleOnboardingActionUc();
+  const uc = new HandleActionUc();
   uc.init({
     questionnaireRepo: repo,
     questionPoolService: poolService,
@@ -60,7 +60,7 @@ function setupUc(active?: Questionnaire) {
 
 const actorId = 'bot-admin-uuid';
 
-describe('HandleOnboardingActionUc', () => {
+describe('HandleActionUc', () => {
   test('обрабатывает ответ и выдаёт роль CANDIDATE при завершении', async () => {
     const active: Questionnaire = {
       uuid: crypto.randomUUID(),
@@ -73,20 +73,13 @@ describe('HandleOnboardingActionUc', () => {
     const { uc, save, userFacade } = setupUc(active);
 
     const result = await uc.handle(
-      {
-        telegramId: 12345,
-        type: 'callback',
-        value: 'yes',
-      },
+      { telegramId: 12345, type: 'callback', value: 'yes' },
       actorId,
     );
 
     expect(result.type).toBe('completed');
     expect(save).toHaveBeenCalledTimes(1);
-    expect(userFacade.getUserByTelegramId).toHaveBeenCalledWith(
-      12345,
-      actorId,
-    );
+    expect(userFacade.getUserByTelegramId).toHaveBeenCalledWith(12345, actorId);
     expect(userFacade.addRoleToUser).toHaveBeenCalledWith(
       'user-uuid',
       Role.CANDIDATE,
@@ -97,10 +90,7 @@ describe('HandleOnboardingActionUc', () => {
   test('бросает ошибку если анкеты нет', async () => {
     const { uc } = setupUc();
     await expect(
-      uc.handle(
-        { telegramId: 999, type: 'callback', value: 'yes' },
-        actorId,
-      ),
+      uc.handle({ telegramId: 999, type: 'callback', value: 'yes' }, actorId),
     ).rejects.toThrow('У тебя нет активной анкеты');
   });
 
@@ -137,11 +127,7 @@ describe('HandleOnboardingActionUc', () => {
     );
 
     const result = await uc.handle(
-      {
-        telegramId: 12345,
-        type: 'callback',
-        value: 'yes',
-      },
+      { telegramId: 12345, type: 'callback', value: 'yes' },
       actorId,
     );
 
@@ -150,13 +136,7 @@ describe('HandleOnboardingActionUc', () => {
 
   test('обрабатывает текстовый ответ', async () => {
     const poolService = new QuestionPoolService(
-      [
-        {
-          question: 'Q1',
-          questionCode: 'q1',
-          type: 'text' as const,
-        },
-      ],
+      [{ question: 'Q1', questionCode: 'q1', type: 'text' as const }],
       ['q1'],
     );
 
@@ -177,7 +157,7 @@ describe('HandleOnboardingActionUc', () => {
       getByTelegramId,
     };
 
-    const uc = new HandleOnboardingActionUc();
+    const uc = new HandleActionUc();
     uc.init({
       questionnaireRepo: repo,
       questionPoolService: poolService,

@@ -14,7 +14,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
  * Принимает telegramId, ищет активную анкету и завершает её.
  * Не требует авторизации — используется ботом.
  */
-export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnaireCmdMeta> {
+export class AbandonUc extends OnboardingUseCase<AbandonQuestionnaireCmdMeta> {
   protected readonly ucName = 'abandon' as const;
   protected readonly ucLabel = 'Прервать анкету' as const;
   protected readonly arMeta = {
@@ -22,12 +22,14 @@ export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnai
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = AbandonQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
 
-  async execute(command: AbandonQuestionnaireCmd): Promise<Questionnaire> {
+  async execute(
+    command: AbandonQuestionnaireCmd,
+    _actorId: string,
+  ): Promise<Questionnaire> {
     const existing =
       await this.resolve.questionnaireRepo.getByTelegramId(command.telegramId);
     const active = existing.find((q) => q.status === 'in_progress');
@@ -40,10 +42,7 @@ export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnai
       );
     }
 
-    const ar = new QuestionnaireAr(
-      active,
-      this.resolve.questionPoolService,
-    );
+    const ar = new QuestionnaireAr(active, this.resolve.questionPoolService);
     ar.abandon();
 
     await this.resolve.questionnaireRepo.save(ar.state);

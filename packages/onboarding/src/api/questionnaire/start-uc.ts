@@ -15,23 +15,26 @@ import { OnboardingUseCase } from '../onboarding-uc';
  * Создаёт новую анкету для пользователя и возвращает её состояние.
  * Не требует авторизации — используется ботом.
  */
-export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCmdMeta> {
-  protected readonly ucName = 'start-questionnaire' as const;
+export class StartUc extends OnboardingUseCase<StartQuestionnaireCmdMeta> {
+  protected readonly ucName = 'start' as const;
   protected readonly ucLabel = 'Начать анкету' as const;
   protected readonly arMeta = {
     arName: 'Questionnaire' as const,
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = StartQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
 
-  async execute(command: StartQuestionnaireCmd): Promise<Questionnaire> {
-    const existing = (await this.resolve.questionnaireRepo.getByTelegramId(
-      command.telegramId,
-    )) as any[];
+  async execute(
+    command: StartQuestionnaireCmd,
+    _actorId: string,
+  ): Promise<Questionnaire> {
+    const existing =
+      await this.resolve.questionnaireRepo.getByTelegramId(
+        command.telegramId,
+      );
     const hasActive = existing.some((q) => q.status === 'in_progress');
     if (hasActive) {
       this.throwError(

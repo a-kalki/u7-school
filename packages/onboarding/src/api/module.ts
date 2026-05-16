@@ -3,9 +3,9 @@ import type {
   OnboardingApiModuleMeta,
   OnboardingApiModuleResolver,
 } from '#domain/module';
-import { AbandonQuestionnaireUc } from './questionnaire/abandon-questionnaire-uc';
-import { HandleOnboardingActionUc } from './questionnaire/handle-onboarding-action-uc';
-import { StartQuestionnaireUc } from './questionnaire/start-questionnaire-uc';
+import { AbandonUc } from './questionnaire/abandon-uc';
+import { HandleActionUc } from './questionnaire/handle-action-uc';
+import { StartUc } from './questionnaire/start-uc';
 
 export class OnboardingApiModule extends ApiModule<
   OnboardingApiModuleMeta,
@@ -13,8 +13,8 @@ export class OnboardingApiModule extends ApiModule<
 > {
   readonly name = 'onboarding' as const;
   readonly useCases = [
-    new StartQuestionnaireUc(),
-    new HandleOnboardingActionUc(),
-    new AbandonQuestionnaireUc(),
+    new StartUc(),
+    new HandleActionUc(),
+    new AbandonUc(),
   ];
 }

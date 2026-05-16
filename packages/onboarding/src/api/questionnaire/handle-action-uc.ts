@@ -15,7 +15,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
  * Инкапсулирует вызов агрегата и автоматическую выдачу ролей по завершении.
  * Не требует авторизации — используется ботом.
  */
-export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboardingActionCmdMeta> {
+export class HandleActionUc extends OnboardingUseCase<HandleOnboardingActionCmdMeta> {
   protected readonly ucName = 'handle-action' as const;
   protected readonly ucLabel = 'Обработать действие в анкете' as const;
   protected readonly arMeta = {
@@ -23,7 +23,6 @@ export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboarding
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = HandleOnboardingActionCmdSchema;
   protected readonly outputSchema = v.any();
@@ -34,7 +33,6 @@ export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboarding
   ): Promise<QuestionnaireActionResponse> {
     const { telegramId, type, value } = command;
 
-    // 1. Ищем активную анкету
     const existing =
       await this.resolve.questionnaireRepo.getByTelegramId(telegramId);
     const active = existing.find((q) => q.status === 'in_progress');
@@ -49,13 +47,10 @@ export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboarding
 
     const ar = new QuestionnaireAr(active, this.resolve.questionPoolService);
 
-    // 2. Обрабатываем действие
     const response = ar.handleAction({ type, value });
 
-    // 3. Сохраняем результат
     await this.resolve.questionnaireRepo.save(ar.state);
 
-    // 4. Если анкета завершена — выдаем роль CANDIDATE
     if (response.type === 'completed') {
       try {
         const user = await this.resolve.userFacade.getUserByTelegramId(

@@ -41,12 +41,12 @@ function setupModule(dbPath: string) {
 }
 
 describe('OnboardingApiModule', () => {
-  test('start-questionnaire: создаёт анкету', async () => {
+  test('start: создаёт анкету', async () => {
     const { module, db } = setupModule('/tmp/onboarding-test-1.json');
     db.begin();
 
     const result = (await module.handle({
-      name: 'start-questionnaire',
+      name: 'start',
       attrs: { telegramId: 10001 },
     })) as any;
 
@@ -61,7 +61,7 @@ describe('OnboardingApiModule', () => {
     db.begin();
 
     await module.handle({
-      name: 'start-questionnaire',
+      name: 'start',
       attrs: { telegramId: 10002 },
     });
 
@@ -80,7 +80,7 @@ describe('OnboardingApiModule', () => {
     db.begin();
 
     await module.handle({
-      name: 'start-questionnaire',
+      name: 'start',
       attrs: { telegramId: 10004 },
     });
 
