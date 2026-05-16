@@ -50,23 +50,22 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   /**
    * Универсальный метод обработки действий пользователя.
-   * @param questionCode Код вопроса, на который пришел ответ
-   * @param value Значение ответа или спец-команда 'NEXT'
+   * Агрегат сам знает текущий вопрос и проверяет корректность ответа.
    */
-  handleAction(
-    questionCode: string,
-    value: string | string[] | 'NEXT',
-  ): QuestionnaireActionResponse {
+  handleAction(action: {
+    type: 'callback' | 'text';
+    value: string;
+  }): QuestionnaireActionResponse {
     this.checkIsInProgress();
-    this.checkIsCurrentQuestionCode(questionCode);
 
+    const questionCode = this.currentQuestionCode;
     const question = this.getQuestion(questionCode);
 
-    // 1. Если пришла команда 'NEXT'
-    if (value === 'NEXT') {
+    // 1. Если пришла команда 'next' (сабмит черновиков)
+    if (action.value === 'next') {
       if (question.type !== 'choice' || !question.multiple) {
         this.throwBadRequest(
-          'Команда NEXT доступна только для вопросов с множественным выбором',
+          'Команда next доступна только для вопросов с множественным выбором',
         );
       }
       return this.submitCurrentQuestion();
@@ -74,15 +73,12 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
     // 2. Обработка текстового вопроса
     if (question.type === 'text') {
-      if (typeof value !== 'string') {
-        this.throwBadRequest('Для текстового вопроса ожидается строка');
-      }
-      return this.submitCurrentQuestion(value);
+      return this.submitCurrentQuestion(action.value);
     }
 
     // 3. Обработка вопроса с выбором
     if (question.type === 'choice') {
-      const answerCode = typeof value === 'string' ? value : value[0];
+      const answerCode = action.value;
 
       if (!answerCode) {
         this.throwBadRequest('Код ответа не может быть пустым');
@@ -98,18 +94,23 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
             : [...draft, answerCode];
 
         this.safeUpdate({ draftAnswers: newDraft });
-        return {
+
+        const response: QuestionnaireActionResponse = {
           type: 'wait_next',
           question,
           selectedAnswers: newDraft,
         };
+        if (newDraft.length > 0) {
+          response.nextButton = `next:${questionCode}`;
+        }
+        return response;
       } else {
         // Одиночный выбор - сабмитим сразу
         return this.submitCurrentQuestion(answerCode);
       }
     }
 
-    throw new Error(
+    this.throwInternal(
       `Неизвестный тип вопроса: ${(question as { type: string }).type}`,
     );
   }
@@ -197,7 +198,8 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       return { type: 'completed' };
     }
 
-    const question = this.getQuestion(this.currentQuestionCode);
+    const questionCode = this.currentQuestionCode;
+    const question = this.getQuestion(questionCode);
 
     if (
       question.type === 'choice' &&
@@ -208,6 +210,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
         type: 'wait_next',
         question,
         selectedAnswers: this.state.draftAnswers ?? [],
+        nextButton: `next:${questionCode}`,
       };
     }
 
@@ -237,18 +240,6 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   protected checkIsInProgress(): void {
     if (this.state.status !== 'in_progress') {
       this.throwBadRequest('Анкета уже завершена');
-    }
-  }
-
-  protected checkIsCurrentQuestionCode(questionCode: string): void {
-    if (this.state.currentQuestionCode !== questionCode) {
-      const expected = this.getQuestionText(
-        this.state.currentQuestionCode ?? '',
-      );
-      const received = this.getQuestionText(questionCode);
-      this.throwBadRequest(
-        `Ожидался вопрос "${expected}", получен "${received}"`,
-      );
     }
   }
 

@@ -56,7 +56,7 @@ describe('OnboardingApiModule', () => {
     db.rollback();
   });
 
-  test('handle-onboarding-action: обрабатывает ответ и завершает анкету', async () => {
+  test('handle-action: обрабатывает ответ и завершает анкету', async () => {
     const { module, db } = setupModule('/tmp/onboarding-test-2.json');
     db.begin();
 
@@ -66,8 +66,8 @@ describe('OnboardingApiModule', () => {
     });
 
     const result = (await module.handle({
-      name: 'handle-onboarding-action',
-      attrs: { telegramId: 10002, questionCode: 'q1', value: 'yes' },
+      name: 'handle-action',
+      attrs: { telegramId: 10002, type: 'callback', value: 'yes' },
     })) as any;
 
     expect(result.type).toBe('completed');

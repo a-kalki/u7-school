@@ -16,7 +16,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
  * Не требует авторизации — используется ботом.
  */
 export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboardingActionCmdMeta> {
-  protected readonly ucName = 'handle-onboarding-action' as const;
+  protected readonly ucName = 'handle-action' as const;
   protected readonly ucLabel = 'Обработать действие в анкете' as const;
   protected readonly arMeta = {
     arName: 'Questionnaire' as const,
@@ -32,7 +32,7 @@ export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboarding
     command: HandleOnboardingActionCmd,
     actorId: string,
   ): Promise<QuestionnaireActionResponse> {
-    const { telegramId, questionCode, value } = command;
+    const { telegramId, type, value } = command;
 
     // 1. Ищем активную анкету
     const existing =
@@ -41,7 +41,7 @@ export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboarding
 
     if (!active) {
       throwError(
-        errValidation('QUESTIONNAIRE_NOT_FOUND', 'У тебя нет активной анкеты', {
+        errValidation('BAD_REQUEST', 'У тебя нет активной анкеты', {
           telegramId: String(telegramId),
         }),
       );
@@ -50,7 +50,7 @@ export class HandleOnboardingActionUc extends OnboardingUseCase<HandleOnboarding
     const ar = new QuestionnaireAr(active, this.resolve.questionPoolService);
 
     // 2. Обрабатываем действие
-    const response = ar.handleAction(questionCode, value);
+    const response = ar.handleAction({ type, value });
 
     // 3. Сохраняем результат
     await this.resolve.questionnaireRepo.save(ar.state);
