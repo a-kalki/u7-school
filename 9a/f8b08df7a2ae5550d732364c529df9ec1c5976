@@ -1,0 +1,1 @@
+Задача: Обновить типы QuestionnaireActionResponse. Сделал selectedAnswers опциональным в new_question и completed, добавил nextButton?: string в wait_next. Файлы: packages/onboarding/src/domain/questionnaire/types.ts. Все 48 тестов проходят.
