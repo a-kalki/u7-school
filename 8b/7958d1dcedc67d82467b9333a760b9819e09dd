@@ -1,0 +1,1 @@
+Задача: Изменить AbandonQuestionnaireCmd с uuid на telegramId. Команда теперь принимает telegramId, usecase сам ищет активную анкету. Обновлены тесты usecase, модуля, временно пропущен тест cancel контроллера. Файлы: abandon-questionnaire-cmd.ts, abandon-questionnaire-uc.ts, abandon-questionnaire-uc.test.ts, module.test.ts, onboarding-controller.test.ts.
