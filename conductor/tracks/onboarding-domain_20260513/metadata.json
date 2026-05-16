@@ -1,8 +1,0 @@
-{
-  "track_id": "onboarding-domain_20260513",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-05-13T10:00:00Z",
-  "updated_at": "2026-05-13T10:00:00Z",
-  "description": "Onboarding Domain Evolution: Замена userId на telegramId, draftAnswers, toggle-draft-answer-uc"
-}
