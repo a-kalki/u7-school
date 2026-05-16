@@ -1,5 +1,5 @@
 import type { OnboardingController } from '@u7/onboarding';
-import { Bot } from 'grammy';
+import type { Bot } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
@@ -20,10 +20,10 @@ export function registerCancelHandler(
     }
 
     const response = await controller.handleUpdate({
-        type: 'command',
-        command: 'cancel',
-        telegramId,
-        name: ctx.from?.first_name || 'User',
+      type: 'command',
+      command: 'cancel',
+      telegramId,
+      name: ctx.from?.first_name || 'User',
     });
 
     await executeResponses(ctx, response);

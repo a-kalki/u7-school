@@ -1,8 +1,11 @@
-import type { OnboardingBotApp, OnboardingController } from '@u7/onboarding';
+import type {
+  OnboardingBotApp,
+  OnboardingController,
+  OnboardingState,
+} from '@u7/onboarding';
+import { Role } from '@u7/user/domain';
 import type { Bot } from 'grammy';
 import { InlineKeyboard } from 'grammy';
-import { Role } from '@u7/user/domain';
-import type { OnboardingState } from '@u7/onboarding';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
@@ -25,26 +28,39 @@ export function registerStartHandler(
 
     // Ищем пользователя по telegramId
     const user = await apiApp
-      .execute('get-user-by-telegram-id' as any, { telegramId }, config.botAdminUuid)
+      .execute(
+        'get-user-by-telegram-id' as any,
+        { telegramId },
+        config.botAdminUuid,
+      )
       .catch(() => undefined);
 
     // Убеждаемся что есть пользователь с ролью GUEST
-    await apiApp.execute('register-guest' as any, {
-      telegramId,
-      name: ctx.from?.first_name || 'Guest'
-    }, config.botAdminUuid);
+    await apiApp.execute(
+      'register-guest' as any,
+      {
+        telegramId,
+        name: ctx.from?.first_name || 'Guest',
+      },
+      config.botAdminUuid,
+    );
 
     const onboardingState = (await apiApp.execute(
-        'get-onboarding-state' as any,
-        { telegramId },
-        config.botAdminUuid
+      'get-onboarding-state' as any,
+      { telegramId },
+      config.botAdminUuid,
     )) as OnboardingState;
 
     if (onboardingState.status === 'in_progress') {
-        // Если уже в процессе - может стоит напомнить?
+      // Если уже в процессе - может стоит напомнить?
     }
 
-    const flow = user && (user as any).roles.includes('CANDIDATE') ? 'candidate' : (user && (user as any).roles.includes('SUBSCRIBER') ? 'subscriber' : 'guest');
+    const flow =
+      user && (user as any).roles.includes('CANDIDATE')
+        ? 'candidate'
+        : user && (user as any).roles.includes('SUBSCRIBER')
+          ? 'subscriber'
+          : 'guest';
 
     if (flow === 'candidate') {
       const keyboard = new InlineKeyboard()
@@ -104,22 +120,26 @@ export function registerStartHandler(
     if (!telegramId) return;
 
     const onboardingState = (await apiApp.execute(
-        'get-onboarding-state' as any,
-        { telegramId },
-        config.botAdminUuid
+      'get-onboarding-state' as any,
+      { telegramId },
+      config.botAdminUuid,
     )) as OnboardingState;
 
     if (onboardingState.status === 'in_progress') {
-      await apiApp.execute('abandon-questionnaire' as any, { uuid: onboardingState.questionnaireUuid }, config.botAdminUuid);
+      await apiApp.execute(
+        'abandon-questionnaire' as any,
+        { uuid: onboardingState.questionnaireUuid },
+        config.botAdminUuid,
+      );
     }
 
     // Начинаем заново
     const responses = await controller.handleUpdate({
-        type: 'callback',
-        data: 'become_student',
-        telegramId
+      type: 'callback',
+      data: 'become_student',
+      telegramId,
     } as any); // need to adjust BotUpdate for become_student if needed
-    
+
     // execution of responses... (this will be part of track 2 properly)
   });
 }

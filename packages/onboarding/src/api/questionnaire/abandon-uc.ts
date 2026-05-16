@@ -30,8 +30,9 @@ export class AbandonUc extends OnboardingUseCase<AbandonQuestionnaireCmdMeta> {
     command: AbandonQuestionnaireCmd,
     _actorId: string,
   ): Promise<Questionnaire> {
-    const existing =
-      await this.resolve.questionnaireRepo.getByTelegramId(command.telegramId);
+    const existing = await this.resolve.questionnaireRepo.getByTelegramId(
+      command.telegramId,
+    );
     const active = existing.find((q) => q.status === 'in_progress');
 
     if (!active) {

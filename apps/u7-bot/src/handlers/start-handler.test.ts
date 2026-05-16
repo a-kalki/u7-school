@@ -60,7 +60,8 @@ describe('registerStartHandler', () => {
       execute: mock(async (name: string) => {
         if (name === 'get-user-by-telegram-id') return undefined;
         if (name === 'ensure-user-with-role') return { uuid: 'user-uuid' };
-        if (name === 'get-onboarding-state') return { status: 'none_active', completedCount: 0 };
+        if (name === 'get-onboarding-state')
+          return { status: 'none_active', completedCount: 0 };
         throw new Error(`unexpected command: ${name}`);
       }),
     } as unknown as OnboardingBotApp;
@@ -89,7 +90,8 @@ describe('registerStartHandler', () => {
         if (name === 'get-user-by-telegram-id')
           return { uuid: 'u', roles: [Role.GUEST, Role.CANDIDATE] };
         if (name === 'ensure-user-with-role') return { uuid: 'u' };
-        if (name === 'get-onboarding-state') return { status: 'none_active', completedCount: 1 };
+        if (name === 'get-onboarding-state')
+          return { status: 'none_active', completedCount: 1 };
         throw new Error(`unexpected command: ${name}`);
       }),
     } as unknown as OnboardingBotApp;

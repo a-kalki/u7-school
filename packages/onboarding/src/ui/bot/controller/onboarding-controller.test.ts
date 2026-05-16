@@ -89,7 +89,6 @@ describe('OnboardingController', () => {
           await userRepo.save(updated);
           return updated;
         },
-        ensureUserWithRole: async () => {},
       },
       db,
     });
@@ -110,8 +109,7 @@ describe('OnboardingController', () => {
       data: 'become_student',
       telegramId: 12345,
       messageId: 1,
-      name: 'Ivan',
-    });
+    } as any);
     expect(response.sendMessage?.text).toContain('Q1');
   });
 
@@ -122,8 +120,7 @@ describe('OnboardingController', () => {
       data: 'become_student',
       telegramId: 12345,
       messageId: 1,
-      name: 'Ivan',
-    });
+    } as any);
 
     const toggleResponse = await controller.handleUpdate({
       type: 'callback',
@@ -143,8 +140,7 @@ describe('OnboardingController', () => {
       data: 'become_student',
       telegramId: 12345,
       messageId: 1,
-      name: 'Ivan',
-    });
+    } as any);
 
     const response = await controller.handleUpdate({
       type: 'command',

@@ -1,6 +1,7 @@
 // TODO: Удалить после рефакторинга контроллера (будущий трек)
 // import type { OnboardingState } from '#domain/questionnaire/commands/get-onboarding-state-cmd';
 type OnboardingState = any;
+
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { OnboardingBotApp } from '../app';
@@ -70,7 +71,7 @@ export class OnboardingController {
   ): Promise<BotResponse> {
     const questionCode = state.question.questionCode;
 
-    let actionValue: string | string[] | 'NEXT' | undefined;
+    let actionValue: string | undefined;
 
     if (update.type === 'callback') {
       actionValue = update.data === 'next' ? 'NEXT' : update.data;
@@ -81,12 +82,12 @@ export class OnboardingController {
     if (actionValue !== undefined) {
       try {
         const response = (await this.#app.execute(
-          'handle-onboarding-action' as any,
+          'handle-action' as any,
           {
             telegramId: update.telegramId,
-            questionCode,
+            type: update.type === 'message' ? 'text' : 'callback',
             value: actionValue,
-          },
+          } as any,
           this.#actorId,
         )) as QuestionnaireActionResponse;
 

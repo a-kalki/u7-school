@@ -32,7 +32,7 @@
 
 ## Фаза 2: Агрегат
 
-- [ ] Task: Изменить сигнатуру handleAction
+- [~] Task: Изменить сигнатуру handleAction
     - [ ] Убрать параметр `questionCode`
     - [ ] Принимать `{ type: 'callback' | 'text'; value: string }`
     - [ ] Агрегат сам получает `currentQuestionCode` из своего состояния
@@ -66,7 +66,7 @@
     - [ ] Удалить `get-questionnaire-uc.ts` + `get-questionnaire-uc.test.ts`
     - [ ] Удалить `list-questionnaires-by-telegram-id-uc.ts` + `list-questionnaires-by-telegram-id-uc.test.ts`
 
-- [ ] Task: Переименовать и обновить StartUc
+- [~] Task: Переименовать и обновить StartUc
     - [ ] Файл: `start-questionnaire-uc.ts` → `start-uc.ts`
     - [ ] Класс: `StartQuestionnaireUc` → `StartUc`
     - [ ] Принимает `actorId` в `execute()`

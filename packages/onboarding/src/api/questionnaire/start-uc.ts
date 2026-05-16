@@ -31,10 +31,9 @@ export class StartUc extends OnboardingUseCase<StartQuestionnaireCmdMeta> {
     command: StartQuestionnaireCmd,
     _actorId: string,
   ): Promise<Questionnaire> {
-    const existing =
-      await this.resolve.questionnaireRepo.getByTelegramId(
-        command.telegramId,
-      );
+    const existing = await this.resolve.questionnaireRepo.getByTelegramId(
+      command.telegramId,
+    );
     const hasActive = existing.some((q) => q.status === 'in_progress');
     if (hasActive) {
       this.throwError(

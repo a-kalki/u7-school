@@ -45,9 +45,9 @@ describe('AbandonUc', () => {
 
   test('отклоняет если нет активной анкеты', async () => {
     const { uc } = setupUc([]);
-    await expect(
-      uc.handle({ telegramId: 99999 }, 'bot-uuid'),
-    ).rejects.toThrow('У тебя нет активной анкеты');
+    await expect(uc.handle({ telegramId: 99999 }, 'bot-uuid')).rejects.toThrow(
+      'У тебя нет активной анкеты',
+    );
   });
 
   test('игнорирует завершённые анкеты', async () => {
@@ -57,8 +57,8 @@ describe('AbandonUc', () => {
       status: 'completed',
     };
     const { uc } = setupUc([completed]);
-    await expect(
-      uc.handle({ telegramId: 12345 }, 'bot-uuid'),
-    ).rejects.toThrow('У тебя нет активной анкеты');
+    await expect(uc.handle({ telegramId: 12345 }, 'bot-uuid')).rejects.toThrow(
+      'У тебя нет активной анкеты',
+    );
   });
 });

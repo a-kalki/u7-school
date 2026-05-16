@@ -27,10 +27,7 @@ class MockUserFacade implements UserFacade {
     return this.users.has(uuid);
   }
 
-  async ensureUserWithRole(
-    _telegramId: number,
-    _role: Role,
-  ): Promise<void> {
+  async ensureUserWithRole(_telegramId: number, _role: Role): Promise<void> {
     return;
   }
 

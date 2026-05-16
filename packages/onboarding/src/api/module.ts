@@ -12,9 +12,5 @@ export class OnboardingApiModule extends ApiModule<
   OnboardingApiModuleResolver
 > {
   readonly name = 'onboarding' as const;
-  readonly useCases = [
-    new StartUc(),
-    new HandleActionUc(),
-    new AbandonUc(),
-  ];
+  readonly useCases = [new StartUc(), new HandleActionUc(), new AbandonUc()];
 }

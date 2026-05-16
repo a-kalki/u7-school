@@ -28,4 +28,6 @@ export interface HandleOnboardingActionCmdMeta {
 }
 
 /** Ошибки команды обработки действия */
-export type HandleOnboardingActionCmdError = BadRequestUcError | InternalUcError;
+export type HandleOnboardingActionCmdError =
+  | BadRequestUcError
+  | InternalUcError;
