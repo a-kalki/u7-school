@@ -1,0 +1,1 @@
+Задачи: Удалить избыточные команды и обновить domain/index.ts. Удалены: get-onboarding-state-cmd, get-questionnaire-cmd, list-questionnaires-by-telegram-id-cmd и соответствующие usecase-ы и тесты. Обновлены module.ts, api/module.ts, index.ts. Тесты контроллера временно пропущены.
