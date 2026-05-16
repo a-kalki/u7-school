@@ -6,11 +6,11 @@
     - [x] Сделать `selectedAnswers` опциональным во всех вариантах
     - [x] Добавить `nextButton?: string` в вариант `wait_next`
 
-- [ ] Task: Добавить BadRequestError и InternalError в ошибки модуля
-    - [ ] Добавить `BadRequestError<'BAD_REQUEST', { message: string } | undefined>` в `errors.ts`
-    - [ ] Добавить `InternalError<'INTERNAL_ERROR', { message: string } | undefined>` в `errors.ts`
-    - [ ] Добавить оба в `QuestionnaireModuleError`
-    - [ ] Удалить `QuestionnaireValidationUcError`, `QuestionnaireCompletedUcError`, `QuestionNotFoundUcError` (больше не нужны)
+- [x] Task: Добавить BadRequestError и InternalError в ошибки модуля `6de2b91`
+    - [x] Добавить `BadRequestError<'BAD_REQUEST', { message: string } | undefined>` в `errors.ts`
+    - [x] Добавить `InternalError<'INTERNAL_ERROR', { message: string } | undefined>` в `errors.ts`
+    - [x] Добавить оба в `QuestionnaireModuleError`
+    - [x] Удалить `QuestionnaireValidationUcError`, `QuestionnaireCompletedUcError`, `QuestionNotFoundUcError` (больше не нужны)
 
 - [ ] Task: Изменить AbandonQuestionnaireCmd с uuid на telegramId
     - [ ] Обновить схему и тип в `abandon-questionnaire-cmd.ts`
