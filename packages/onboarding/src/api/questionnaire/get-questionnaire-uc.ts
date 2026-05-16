@@ -9,6 +9,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
  * Use-case получения анкеты по UUID.
+ * Не требует авторизации — используется ботом.
  */
 export class GetQuestionnaireUc extends OnboardingUseCase<GetQuestionnaireCmdMeta> {
   protected readonly ucName = 'get-questionnaire' as const;
@@ -18,6 +19,7 @@ export class GetQuestionnaireUc extends OnboardingUseCase<GetQuestionnaireCmdMet
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'query' as const;
+  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;

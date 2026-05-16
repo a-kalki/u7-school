@@ -1,8 +1,8 @@
 import type { OnboardingController } from '@u7/onboarding';
-import type { Bot } from 'grammy';
-import { InlineKeyboard } from 'grammy';
+import { Bot } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
+import { executeResponses } from '../ui-utils';
 
 /**
  * Регистрирует обработчик /cancel.
@@ -10,7 +10,7 @@ import type { BotContext } from '../context';
 export function registerCancelHandler(
   bot: Bot<BotContext>,
   controller: OnboardingController,
-  config: BotConfig,
+  _config: BotConfig,
 ) {
   bot.command('cancel', async (ctx) => {
     const telegramId = ctx.from?.id;
@@ -19,14 +19,13 @@ export function registerCancelHandler(
       return;
     }
 
-    await controller.handleUpdate({
+    const response = await controller.handleUpdate({
         type: 'command',
         command: 'cancel',
-        telegramId
+        telegramId,
+        name: ctx.from?.first_name || 'User',
     });
 
-    await ctx.reply('Опросник прерван. Данные удалены.', {
-      reply_markup: new InlineKeyboard().text('В меню', 'menu'),
-    });
+    await executeResponses(ctx, response);
   });
 }

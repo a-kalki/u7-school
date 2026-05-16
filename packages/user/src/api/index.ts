@@ -5,5 +5,5 @@ export { CreateUserUc } from './user/create-user-uc';
 export { GetUserByTelegramIdUc } from './user/get-user-by-telegram-id-uc';
 export { GetUserUc } from './user/get-user-uc';
 export { ListUsersUc } from './user/list-users-uc';
-export { RegisterUserUc } from './user/register-user-uc';
+export { RegisterGuestUc } from './user/register-guest-uc';
 export { UserUseCase } from './user-uc';

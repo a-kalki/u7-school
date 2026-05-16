@@ -1,10 +1,6 @@
-import type { ConversationFlavor } from '@grammyjs/conversations';
-import type { Context, SessionFlavor } from 'grammy';
-import type { BotSession } from './session';
+import type { Context } from 'grammy';
 
 /**
- * Контекст Grammy-бота с session и conversations.
+ * Контекст Grammy-бота.
  */
-export type BotContext = Context &
-  SessionFlavor<BotSession> &
-  ConversationFlavor<Context>;
+export type BotContext = Context;

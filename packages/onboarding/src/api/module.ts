@@ -4,12 +4,11 @@ import type {
   OnboardingApiModuleResolver,
 } from '#domain/module';
 import { AbandonQuestionnaireUc } from './questionnaire/abandon-questionnaire-uc';
+import { GetOnboardingStateUc } from './questionnaire/get-onboarding-state-uc';
 import { GetQuestionnaireUc } from './questionnaire/get-questionnaire-uc';
+import { HandleOnboardingActionUc } from './questionnaire/handle-onboarding-action-uc';
 import { ListQuestionnairesByTelegramIdUc } from './questionnaire/list-questionnaires-by-telegram-id-uc';
 import { StartQuestionnaireUc } from './questionnaire/start-questionnaire-uc';
-import { SubmitAnswerUc } from './questionnaire/submit-answer-uc';
-import { ToggleDraftAnswerUc } from './questionnaire/toggle-draft-answer-uc';
-import { GetOnboardingStateUc } from './questionnaire/get-onboarding-state-uc';
 
 export class OnboardingApiModule extends ApiModule<
   OnboardingApiModuleMeta,
@@ -18,19 +17,10 @@ export class OnboardingApiModule extends ApiModule<
   readonly name = 'onboarding' as const;
   readonly useCases = [
     new StartQuestionnaireUc(),
-    new SubmitAnswerUc(),
+    new HandleOnboardingActionUc(),
     new GetQuestionnaireUc(),
     new AbandonQuestionnaireUc(),
     new ListQuestionnairesByTelegramIdUc(),
-    new ToggleDraftAnswerUc(),
     new GetOnboardingStateUc(),
   ];
-
-  override init(resolver: OnboardingApiModuleResolver): void {
-    super.init(resolver);
-    // проверяем что коды вопросов текущей анкеты есть в общем пуле вопросов
-    resolver.questionPoolService.assertAllCodesExist(
-      resolver.includedQuestionCodes,
-    );
-  }
 }

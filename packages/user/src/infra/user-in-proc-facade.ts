@@ -52,14 +52,32 @@ export class UserInProcFacade implements UserFacade {
     }
   }
 
-  async ensureUserWithRole(telegramId: number, role: Role): Promise<void> {
+  async getUserByTelegramId(
+    telegramId: number,
+    actorId?: string,
+  ): Promise<User | undefined> {
     try {
-      await this.#userApi.handle({
-        name: 'ensure-user-with-role',
-        attrs: { telegramId, role },
+      const result = await this.#userApi.handle({
+        name: 'get-user-by-telegram-id',
+        attrs: { telegramId },
+        actorId,
       });
-    } catch (e) {
-      console.error('Failed to ensure user with role:', e);
+      return result as User;
+    } catch {
+      return undefined;
     }
+  }
+
+  async registerGuest(
+    telegramId: number,
+    name: string,
+    actorId?: string,
+  ): Promise<User> {
+    const result = await this.#userApi.handle({
+      name: 'register-guest',
+      attrs: { telegramId, name },
+      actorId,
+    });
+    return result as User;
   }
 }

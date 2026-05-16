@@ -7,5 +7,5 @@
 
 ---
 
-- [ ] **Track: Stateless Bot & Controller**
+- [x] **Track: Stateless Bot & Onboarding Refactoring**
   *Link: [./tracks/stateless-bot_20260513/](./tracks/stateless-bot_20260513/)*

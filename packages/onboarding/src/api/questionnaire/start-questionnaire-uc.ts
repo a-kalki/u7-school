@@ -13,6 +13,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
 /**
  * Use-case начала анкеты.
  * Создаёт новую анкету для пользователя и возвращает её состояние.
+ * Не требует авторизации — используется ботом.
  */
 export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCmdMeta> {
   protected readonly ucName = 'start-questionnaire' as const;
@@ -22,6 +23,7 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
+  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = StartQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
@@ -44,7 +46,6 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
     const ar = QuestionnaireAr.start(
       command.telegramId,
       this.resolve.questionPoolService,
-      this.resolve.includedQuestionCodes,
     );
     await this.resolve.questionnaireRepo.save(ar.state);
 

@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { ApiApp } from '@u7/core/api';
 import type { AppMeta } from '@u7/core/domain';
 import { BaseJsonDb } from '@u7/core/infra';
-import type { User } from '@u7/user/domain';
 import { Role } from '@u7/user/domain';
 import { UserJsonRepo } from '@u7/user/infra';
 import { OnboardingApiModule } from '#api/module';
@@ -28,54 +27,73 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
     db = new BaseJsonDb();
-    questionnaireRepo = new QuestionnaireJsonRepo(nextPath('questionnaires'), db);
+    questionnaireRepo = new QuestionnaireJsonRepo(
+      nextPath('questionnaires'),
+      db,
+    );
     userRepo = new UserJsonRepo(nextPath('users'), undefined, db);
     mod = new OnboardingApiModule();
-    const poolService = new QuestionPoolService([
-      {
-        question: 'Q1',
-        questionCode: 'q1',
-        type: 'choice',
-        multiple: false,
-        answers: [{ answer: 'Yes', answerCode: 'yes' }],
-      },
-    ]);
+
+    // Seed admin (нужно для HandleOnboardingActionUc при выдаче роли)
+    await userRepo.save({
+      uuid: botAdminUuid,
+      name: 'Admin',
+      telegramId: 1,
+      roles: [Role.ADMIN],
+      createdAt: '2024-01-01T00:00',
+    });
+
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Q1',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: false,
+          answers: [{ answer: 'Yes', answerCode: 'yes' }],
+        },
+      ],
+      ['q1'],
+    );
+
     mod.init({
       questionnaireRepo,
       questionPoolService: poolService,
-      includedQuestionCodes: ['q1'],
       userFacade: {
         getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
-        userExists: async (uuid: string) => (await userRepo.getByUuid(uuid)) !== undefined,
-        ensureUserWithRole: async (telegramId: number, role: Role) => {
-           const existing = await userRepo.getByTelegramId(telegramId);
-           if (existing) {
-             if (!existing.roles.includes(role)) {
-               await userRepo.save({ ...existing, roles: [...existing.roles, role] });
-             }
-           } else {
-             await userRepo.save({
-               uuid: crypto.randomUUID(),
-               name: 'Guest',
-               telegramId,
-               roles: [role],
-               createdAt: '2024-01-01T00:00',
-             });
-           }
+        userExists: async (uuid: string) =>
+          (await userRepo.getByUuid(uuid)) !== undefined,
+        getUserByTelegramId: async (telegramId: number) =>
+          userRepo.getByTelegramId(telegramId),
+        registerGuest: async (telegramId: number, name: string) => {
+          const user = {
+            uuid: crypto.randomUUID(),
+            name,
+            telegramId,
+            roles: [Role.GUEST],
+            createdAt: '2024-01-01T00:00',
+          };
+          await userRepo.save(user);
+          return user;
         },
         addRoleToUser: async (userId: string, role: Role) => {
           const user = await userRepo.getByUuid(userId);
           if (!user) return undefined;
-          const updated = { ...user, roles: [...new Set([...user.roles, role])] };
+          const updated = {
+            ...user,
+            roles: [...new Set([...user.roles, role])],
+          };
           await userRepo.save(updated);
           return updated;
-        }
+        },
+        ensureUserWithRole: async () => {},
       },
       db,
     });
+
     apiApp = new ApiApp<AppMeta>() as OnboardingBotApp;
     apiApp.register(mod);
     controller = new OnboardingController(apiApp, botAdminUuid);
@@ -85,41 +103,65 @@ describe('OnboardingController', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('handleUpdate: become_student starts questionnaire', async () => {
-    const responses = await controller.handleUpdate({
+  test('become_student starts questionnaire', async () => {
+    const response = await controller.handleUpdate({
       type: 'callback',
       data: 'become_student',
       telegramId: 12345,
       messageId: 1,
+      name: 'Ivan',
     });
-
-    expect(responses).toContainEqual({ type: 'answerCallback' });
-    expect(responses).toContainEqual(expect.objectContaining({
-      type: 'sendMessage',
-      text: expect.stringContaining('Q1'),
-    }));
+    expect(response.sendMessage?.text).toContain('Q1');
   });
 
-  test('handleUpdate: toggle answer and submit', async () => {
-    // Start
+  test('toggle answer and submit', async () => {
     await controller.handleUpdate({
       type: 'callback',
       data: 'become_student',
       telegramId: 12345,
       messageId: 1,
+      name: 'Ivan',
     });
 
-    // Toggle (should auto-submit for single choice)
-    const toggleResponses = await controller.handleUpdate({
+    const toggleResponse = await controller.handleUpdate({
       type: 'callback',
       data: 'yes',
       telegramId: 12345,
       messageId: 2,
     });
 
-    expect(toggleResponses).toContainEqual(expect.objectContaining({
-      type: 'sendMessage',
-      text: expect.stringContaining('Спасибо!'),
-    }));
+    expect(toggleResponse.editMessage?.text).toContain('Q1');
+    expect(toggleResponse.sendMessage?.text).toContain('Спасибо!');
+  });
+
+  test('cancel command', async () => {
+    await controller.handleUpdate({
+      type: 'callback',
+      data: 'become_student',
+      telegramId: 12345,
+      messageId: 1,
+      name: 'Ivan',
+    });
+
+    const response = await controller.handleUpdate({
+      type: 'command',
+      command: 'cancel',
+      telegramId: 12345,
+      name: 'Ivan',
+    });
+
+    expect(response.sendMessage?.text).toContain('прерван');
+  });
+
+  test('ignore updates when no active questionnaire', async () => {
+    const response = await controller.handleUpdate({
+      type: 'message',
+      text: 'hello',
+      telegramId: 999,
+      name: 'Ivan',
+    });
+
+    expect(response.sendMessage).toBeUndefined();
+    expect(response.editMessage).toBeUndefined();
   });
 });

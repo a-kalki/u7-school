@@ -1,10 +1,7 @@
 import * as v from 'valibot';
 import type { Questionnaire, QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
-import type {
-  AccessDeniedUcError,
-  QuestionnaireActiveUcError,
-} from '../errors';
+import type { QuestionnaireActiveUcError } from '../errors';
 
 /** Схема команды начала анкеты */
 export const StartQuestionnaireCmdSchema = v.object({
@@ -23,10 +20,10 @@ export interface StartQuestionnaireCmdMeta {
   input: StartQuestionnaireCmd;
   output: Questionnaire;
   errors: StartQuestionnaireCmdError;
+  /** Не требует авторизации — используется ботом */
   requiresAuth: false;
   type: 'command';
 }
 
 /** Ошибки команды начала анкеты */
-export type StartQuestionnaireCmdError =
-  | QuestionnaireActiveUcError;
+export type StartQuestionnaireCmdError = QuestionnaireActiveUcError;

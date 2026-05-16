@@ -1,7 +1,7 @@
 import { Aggregate } from '@u7/core/domain';
 import { isoNow } from '@u7/core/shared';
 import type { CreateUserCmd } from './commands/create-user-cmd';
-import type { RegisterUserCmd } from './commands/register-user-cmd';
+import type { RegisterGuestCmd } from './commands/register-guest-cmd';
 import type { User, UserArMeta } from './entity';
 import { UserSchema } from './entity';
 import { Role } from './roles';
@@ -37,7 +37,7 @@ export class UserAr extends Aggregate<UserArMeta> {
    * Фабричный метод регистрации пользователя при первом /start в боте.
    * Создаёт пользователя с ролью GUEST.
    */
-  static register(command: RegisterUserCmd): UserAr {
+  static register(command: RegisterGuestCmd): UserAr {
     const candidate: User = {
       uuid: crypto.randomUUID(),
       name: command.name,

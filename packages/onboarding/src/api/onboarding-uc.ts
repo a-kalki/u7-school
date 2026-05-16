@@ -15,8 +15,6 @@ export abstract class OnboardingUseCase<TMeta extends UcMeta> extends UseCase<
    * Получает анкету по UUID.
    * Выбрасывает ошибку, если не найдена.
    */
-  protected async getUser(userId: string) { return undefined; }
-
   protected async getQuestionnaire(uuid: string): Promise<Questionnaire> {
     const questionnaire = await this.resolve.questionnaireRepo.getByUuid(uuid);
     if (!questionnaire) {

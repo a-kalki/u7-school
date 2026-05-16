@@ -1,10 +1,7 @@
 import * as v from 'valibot';
 import type { Questionnaire, QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
-import type {
-  AccessDeniedUcError,
-  QuestionnaireNotFoundUcError,
-} from '../errors';
+import type { QuestionnaireNotFoundUcError } from '../errors';
 
 /** Схема команды получения анкеты */
 export const GetQuestionnaireCmdSchema = v.object({
@@ -23,10 +20,10 @@ export interface GetQuestionnaireCmdMeta {
   input: GetQuestionnaireCmd;
   output: Questionnaire;
   errors: GetQuestionnaireCmdError;
+  /** Не требует авторизации — используется ботом */
   requiresAuth: false;
   type: 'query';
 }
 
 /** Ошибки команды получения анкеты */
-export type GetQuestionnaireCmdError =
-  | QuestionnaireNotFoundUcError;
+export type GetQuestionnaireCmdError = QuestionnaireNotFoundUcError;

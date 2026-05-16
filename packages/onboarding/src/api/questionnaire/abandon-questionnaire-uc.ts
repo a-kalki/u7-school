@@ -10,6 +10,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
  * Use-case прерывания анкеты.
+ * Не требует авторизации — используется ботом.
  */
 export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnaireCmdMeta> {
   protected readonly ucName = 'abandon-questionnaire' as const;
@@ -19,6 +20,7 @@ export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnai
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
+  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = AbandonQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
@@ -29,7 +31,6 @@ export class AbandonQuestionnaireUc extends OnboardingUseCase<AbandonQuestionnai
     const ar = new QuestionnaireAr(
       questionnaire,
       this.resolve.questionPoolService,
-      this.resolve.includedQuestionCodes,
     );
     ar.abandon();
 

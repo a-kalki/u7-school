@@ -20,9 +20,16 @@ export interface UserFacade {
     actorId?: string,
   ): Promise<User | undefined>;
 
-  /** Убедиться, что существует пользователь с указанным telegramId и ролью (создаст, если нет) */
-  ensureUserWithRole(
+  /** Получить пользователя по Telegram ID */
+  getUserByTelegramId(
     telegramId: number,
-    role: Role,
-  ): Promise<void>;
+    actorId?: string,
+  ): Promise<User | undefined>;
+
+  /** Зарегистрировать гостя по telegramId и имени (создаст, если нет) */
+  registerGuest(
+    telegramId: number,
+    name: string,
+    actorId?: string,
+  ): Promise<User>;
 }

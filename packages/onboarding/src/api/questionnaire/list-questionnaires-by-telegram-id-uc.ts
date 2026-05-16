@@ -10,6 +10,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
  * Use-case списка анкет пользователя.
+ * Не требует авторизации — используется ботом.
  */
 export class ListQuestionnairesByTelegramIdUc extends OnboardingUseCase<ListQuestionnairesByTelegramIdCmdMeta> {
   protected readonly ucName = 'list-questionnaires-by-telegram-id' as const;
@@ -19,6 +20,7 @@ export class ListQuestionnairesByTelegramIdUc extends OnboardingUseCase<ListQues
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'query' as const;
+  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = ListQuestionnairesByTelegramIdCmdSchema;
   protected readonly outputSchema = v.array(QuestionnaireSchema);

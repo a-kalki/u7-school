@@ -1,7 +1,6 @@
 import * as v from 'valibot';
 import type { Questionnaire, QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
-import type { AccessDeniedUcError } from '../errors';
 
 /** Схема команды списка анкет пользователя */
 export const ListQuestionnairesByTelegramIdCmdSchema = v.object({
@@ -19,10 +18,8 @@ export interface ListQuestionnairesByTelegramIdCmdMeta {
   arMeta: QuestionnaireArMeta;
   input: ListQuestionnairesByTelegramIdCmd;
   output: Questionnaire[];
-  errors: ListQuestionnairesByTelegramIdCmdError;
+  errors: never;
+  /** Не требует авторизации — используется ботом */
   requiresAuth: false;
   type: 'query';
 }
-
-/** Ошибки команды списка анкет пользователя */
-export type ListQuestionnairesByTelegramIdCmdError = never;

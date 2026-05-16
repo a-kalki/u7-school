@@ -2,12 +2,11 @@ import type { ApiModuleMeta } from '@u7/core/domain';
 import type { BaseJsonDb } from '@u7/core/infra';
 import type { UserFacade } from '@u7/user/domain';
 import type { AbandonQuestionnaireCmdMeta } from './questionnaire/commands/abandon-questionnaire-cmd';
+import type { GetOnboardingStateCmdMeta } from './questionnaire/commands/get-onboarding-state-cmd';
 import type { GetQuestionnaireCmdMeta } from './questionnaire/commands/get-questionnaire-cmd';
+import type { HandleOnboardingActionCmdMeta } from './questionnaire/commands/handle-onboarding-action-cmd';
 import type { ListQuestionnairesByTelegramIdCmdMeta } from './questionnaire/commands/list-questionnaires-by-telegram-id-cmd';
 import type { StartQuestionnaireCmdMeta } from './questionnaire/commands/start-questionnaire-cmd';
-import type { SubmitAnswerCmdMeta } from './questionnaire/commands/submit-answer-cmd';
-import type { ToggleDraftAnswerCmdMeta } from './questionnaire/commands/toggle-draft-answer-cmd';
-import type { GetOnboardingStateCmdMeta } from './questionnaire/commands/get-onboarding-state-cmd';
 import type { QuestionPoolService } from './questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from './questionnaire/repo';
 
@@ -16,9 +15,8 @@ export type OnboardingUcMetas =
   | GetQuestionnaireCmdMeta
   | ListQuestionnairesByTelegramIdCmdMeta
   | StartQuestionnaireCmdMeta
-  | SubmitAnswerCmdMeta
-  | ToggleDraftAnswerCmdMeta
-  | GetOnboardingStateCmdMeta;
+  | GetOnboardingStateCmdMeta
+  | HandleOnboardingActionCmdMeta;
 
 /** Метаданные API-модуля onboarding */
 export interface OnboardingApiModuleMeta extends ApiModuleMeta {
@@ -37,8 +35,6 @@ export interface OnboardingApiModuleMeta extends ApiModuleMeta {
 export interface OnboardingApiModuleResolver {
   questionnaireRepo: QuestionnaireRepo;
   questionPoolService: QuestionPoolService;
-  /** Коды вопросов, включённых в текущую анкету (подмножество пула) */
-  includedQuestionCodes: string[];
   userFacade: UserFacade;
   db: BaseJsonDb;
 }

@@ -1,24 +1,31 @@
 import { describe, expect, test } from 'bun:test';
 import { BaseJsonDb } from '@u7/core/infra';
 import type { UserFacade } from '@u7/user/domain';
+import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import { OnboardingApiModule } from './module';
-import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 
-function setupModule() {
+function setupModule(dbPath: string) {
   const db = new BaseJsonDb();
-  const repo = new QuestionnaireJsonRepo('/tmp/onboarding-test.json', db);
-  const poolService = new QuestionPoolService([
-    {
-      question: 'Q1',
-      questionCode: 'q1',
-      type: 'choice',
-      multiple: false,
-      answers: [{ answer: 'Yes', answerCode: 'yes' }],
-    },
-  ]);
+  const repo = new QuestionnaireJsonRepo(dbPath, db);
+  const botAdminUuid = '00000000-0000-0000-0000-000000000000';
+  const poolService = new QuestionPoolService(
+    [
+      {
+        question: 'Q1',
+        questionCode: 'q1',
+        type: 'choice',
+        multiple: false,
+        answers: [{ answer: 'Yes', answerCode: 'yes' }],
+      },
+    ],
+    ['q1'],
+  );
 
   const userFacade = {
+    getUserByUuid: async () => ({ uuid: 'admin-uuid', roles: ['ADMIN'] }),
+    getUserByTelegramId: async () => ({ uuid: 'user-uuid', roles: ['GUEST'] }),
+    addRoleToUser: async () => {},
     ensureUserWithRole: async () => {},
   } as unknown as UserFacade;
 
@@ -26,7 +33,6 @@ function setupModule() {
   module.init({
     questionnaireRepo: repo,
     questionPoolService: poolService,
-    includedQuestionCodes: ['q1'],
     userFacade,
     db,
   });
@@ -36,56 +42,52 @@ function setupModule() {
 
 describe('OnboardingApiModule', () => {
   test('start-questionnaire: создаёт анкету', async () => {
-    const { module, db } = setupModule();
+    const { module, db } = setupModule('/tmp/onboarding-test-1.json');
     db.begin();
 
-    const result = await module.handle({
+    const result = (await module.handle({
       name: 'start-questionnaire',
-      attrs: { telegramId: 12345 },
-    }) as any;
+      attrs: { telegramId: 10001 },
+    })) as any;
 
-    expect(result.telegramId).toBe(12345);
+    expect(result.telegramId).toBe(10001);
     expect(result.status).toBe('in_progress');
 
     db.rollback();
   });
 
-  test('submit-answer: обрабатывает ответ и завершает анкету', async () => {
-    const { module, db } = setupModule();
+  test('handle-onboarding-action: обрабатывает ответ и завершает анкету', async () => {
+    const { module, db } = setupModule('/tmp/onboarding-test-2.json');
     db.begin();
 
-    const startResult = await module.handle({
+    await module.handle({
       name: 'start-questionnaire',
-      attrs: { telegramId: 12345 },
-    }) as any;
+      attrs: { telegramId: 10002 },
+    });
 
-    const submitResult = await module.handle({
-      name: 'submit-answer',
-      attrs: {
-        questionnaireUuid: startResult.uuid,
-        questionCode: 'q1',
-        value: 'yes',
-      },
-    }) as any;
+    const result = (await module.handle({
+      name: 'handle-onboarding-action',
+      attrs: { telegramId: 10002, questionCode: 'q1', value: 'yes' },
+    })) as any;
 
-    expect(submitResult.status).toBe('completed');
+    expect(result.type).toBe('completed');
 
     db.rollback();
   });
 
   test('get-questionnaire: возвращает анкету', async () => {
-    const { module, db } = setupModule();
+    const { module, db } = setupModule('/tmp/onboarding-test-3.json');
     db.begin();
 
-    const startResult = await module.handle({
+    const startResult = (await module.handle({
       name: 'start-questionnaire',
-      attrs: { telegramId: 12345 },
-    }) as any;
+      attrs: { telegramId: 10003 },
+    })) as any;
 
-    const getResult = await module.handle({
+    const getResult = (await module.handle({
       name: 'get-questionnaire',
       attrs: { uuid: startResult.uuid },
-    }) as any;
+    })) as any;
 
     expect(getResult.uuid).toBe(startResult.uuid);
 
@@ -93,18 +95,18 @@ describe('OnboardingApiModule', () => {
   });
 
   test('abandon-questionnaire: прерывает анкету', async () => {
-    const { module, db } = setupModule();
+    const { module, db } = setupModule('/tmp/onboarding-test-4.json');
     db.begin();
 
-    const startResult = await module.handle({
+    const startResult = (await module.handle({
       name: 'start-questionnaire',
-      attrs: { telegramId: 12345 },
-    }) as any;
+      attrs: { telegramId: 10004 },
+    })) as any;
 
-    const abandonResult = await module.handle({
+    const abandonResult = (await module.handle({
       name: 'abandon-questionnaire',
       attrs: { uuid: startResult.uuid },
-    }) as any;
+    })) as any;
 
     expect(abandonResult.status).toBe('abandoned');
 

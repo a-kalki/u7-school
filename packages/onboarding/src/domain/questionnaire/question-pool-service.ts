@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import * as v from 'valibot';
+import type { AnswerEntry } from './entity';
 import type { Question } from './question';
 import { QuestionSchema } from './question';
 
@@ -8,11 +9,58 @@ import { QuestionSchema } from './question';
 export class QuestionPoolService {
   private readonly pool: Question[];
   private readonly index: Map<string, Question>;
+  private readonly includedCodes: string[];
 
-  constructor(overridePool?: Question[]) {
+  constructor(overridePool?: Question[], includedCodes?: string[]) {
     const raw = overridePool ?? QuestionPoolService.loadDefaultPool();
     this.pool = this.validate(raw);
     this.index = new Map(this.pool.map((q) => [q.questionCode, q]));
+    this.includedCodes = includedCodes ?? this.pool.map((q) => q.questionCode);
+
+    this.assertAllCodesExist(this.includedCodes);
+  }
+
+  /**
+   * Определяет следующий вопрос с учётом ветвления.
+   * @param currentCode Код текущего вопроса (null если начало)
+   * @param answers Список уже полученных ответов
+   */
+  getNextQuestion(
+    currentCode: string | null,
+    answers: AnswerEntry[],
+  ): Question | null {
+    let foundCurrent = currentCode === null;
+
+    for (const code of this.includedCodes) {
+      if (!foundCurrent) {
+        if (code === currentCode) {
+          foundCurrent = true;
+        }
+        continue;
+      }
+
+      const question = this.getByCode(code);
+      if (!question) continue;
+
+      const condition = question.condition;
+      if (!condition) {
+        return question;
+      }
+
+      const conditionAnswer = answers.find(
+        (a: AnswerEntry) => a.questionCode === condition.questionCode,
+      );
+      if (conditionAnswer) {
+        const hasMatch = conditionAnswer.answerCodes.some((ac: string) =>
+          condition.answerCodes.includes(ac),
+        );
+        if (hasMatch) {
+          return question;
+        }
+      }
+    }
+
+    return null;
   }
 
   /** Все вопросы пула */

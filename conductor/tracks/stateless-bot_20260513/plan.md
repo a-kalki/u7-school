@@ -1,22 +1,31 @@
-# План реализации Stateless Bot & Controller
+# План реализации: Stateless Bot & Onboarding Refactoring
 
-- [ ] Task: 1. Определение контрактов UI
-    - [ ] Создать в `packages/onboarding/src/ui/bot/types.ts` типы `BotUpdate` (message, callback, command) и `BotResponse` (sendMessage, editMessage, answerCallback).
+- [x] Task: 1. Безопасность и Регистрация (User Module)
+    - [x] Изменить `EnsureUserWithRoleUc`: `requiresAuth: true`, роль `ADMIN`, убрать авторегистрацию.
+    - [x] Создать `RegisterGuestUc`: регистрация пользователя с ролью `GUEST` (принимает `telegramId`, `name`).
+    - [x] Обновить `UserInProcFacade`: передача `actorId`, добавление новых методов.
 
-- [ ] Task: 2. Рефакторинг OnboardingController
-    - [ ] Переписать тесты `onboarding-controller.test.ts` с учётом нового контракта `handleUpdate(update)`.
-    - [ ] Переписать `OnboardingController`:
-        - [ ] Запрашивать текущее состояние через `get-onboarding-state-uc`.
-        - [ ] Обрабатывать логику ответов (включая множественный выбор с черновиками).
-        - [ ] Формировать `BotResponse[]` на основе изменений.
+- [x] Task: 2. Рефакторинг Домена (Onboarding Module)
+    - [x] `QuestionnaireAr`:
+        - [x] Добавить `handleAction(questionCode, value | 'NEXT')`.
+        - [x] Реализовать внутреннюю логику переходов и черновиков.
+        - [x] Определить типы возвращаемого значения `QuestionnaireActionResponse`.
+    - [x] Написать тесты на `handleAction` (все типы вопросов).
 
-- [ ] Task: 3. Рефакторинг u7-bot
-    - [ ] Добавить глобальный фильтр для обработки сообщений только из приватных чатов (`chat.type === 'private'`).
-    - [ ] Удалить файлы `conversations/` из бота.
-    - [ ] Изменить `bot.ts`: убрать `bot.use(conversations())`.
-    - [ ] Реализовать глобальный middleware/handler в боте для перехвата сообщений:
-        - [ ] Если `update.message.text === '/cancel'` и есть активная анкета, прервать.
-        - [ ] Получать стейт, маршрутизировать события анкеты в контроллер и выполнять возвращённые `BotResponse`.
-    - [ ] Обновить `start-handler.ts`, `cancel-handler.ts` под новую парадигму.
+- [x] Task: 3. API и Универсальный UseCase (Onboarding Module)
+    - [x] Создать `HandleOnboardingActionUc`:
+        - [x] Вызывает `ar.handleAction`.
+        - [x] Если `status: completed` -> вызывает `UserFacade.addRoleToUser(..., 'STUDENT')`.
+        - [x] Возвращает `QuestionnaireActionResponse`.
+    - [x] Удалить старые UC (`SubmitAnswer`, `ToggleDraft`).
 
-- [ ] Task: Conductor - User Manual Verification 'Stateless Bot & Controller' (Protocol in workflow.md)
+- [x] Task: 4. Stateless Bot & Controller
+    - [x] Рефакторинг `OnboardingController`:
+        - [x] Использовать `HandleOnboardingActionUc`.
+        - [x] Формировать `BotResponse` (один объект с `editMessage` и `sendMessage`).
+    - [x] Обновить `u7-bot`:
+        - [x] Команда `/start` -> `RegisterGuestUc`.
+        - [x] Интеграция с контроллером через новый типизированный контракт.
+        - [x] Удалить `conversations`, `session`, зависимость `@grammyjs/conversations`.
+
+- [x] Task: Conductor - User Manual Verification 'Stateless Bot & Onboarding Refactoring' (Protocol in workflow.md)

@@ -5,6 +5,7 @@ import { Role } from '@u7/user/domain';
 import type { OnboardingState } from '@u7/onboarding';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
+import { executeResponses } from '../ui-utils';
 
 /**
  * Регистрирует обработчик /start с логикой определения flow пользователя.
@@ -28,7 +29,10 @@ export function registerStartHandler(
       .catch(() => undefined);
 
     // Убеждаемся что есть пользователь с ролью GUEST
-    await apiApp.execute('ensure-user-with-role' as any, { telegramId, role: Role.GUEST }, config.botAdminUuid);
+    await apiApp.execute('register-guest' as any, {
+      telegramId,
+      name: ctx.from?.first_name || 'Guest'
+    }, config.botAdminUuid);
 
     const onboardingState = (await apiApp.execute(
         'get-onboarding-state' as any,
@@ -79,7 +83,13 @@ export function registerStartHandler(
 
   bot.callbackQuery('become_student', async (ctx) => {
     await ctx.answerCallbackQuery();
-    await ctx.conversation.enter('onboarding');
+    const response = await controller.handleUpdate({
+      type: 'callback',
+      data: 'become_student',
+      telegramId: ctx.from.id,
+      messageId: ctx.callbackQuery.message?.message_id || 0,
+    });
+    await executeResponses(ctx, response);
   });
 
   bot.callbackQuery('menu', async (ctx) => {

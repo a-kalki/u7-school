@@ -1,10 +1,9 @@
 import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
+import type { QuestionnaireNotFoundUcError } from '../errors';
 import type { Question } from '../question';
 import { QuestionSchema } from '../question';
-
-import type { QuestionnaireNotFoundUcError } from '../errors';
 
 /** Схема команды получения состояния онбординга */
 export const GetOnboardingStateCmdSchema = v.object({
@@ -12,7 +11,9 @@ export const GetOnboardingStateCmdSchema = v.object({
 });
 
 /** Команда получения состояния онбординга */
-export type GetOnboardingStateCmd = v.InferOutput<typeof GetOnboardingStateCmdSchema>;
+export type GetOnboardingStateCmd = v.InferOutput<
+  typeof GetOnboardingStateCmdSchema
+>;
 
 export const OnboardingStateSchema = v.union([
   v.object({
@@ -35,7 +36,11 @@ export interface GetOnboardingStateCmdMeta {
   arMeta: QuestionnaireArMeta;
   input: GetOnboardingStateCmd;
   output: OnboardingState;
-  errors: QuestionnaireNotFoundUcError;
+  errors: GetOnboardingStateCmdError;
+  /** Не требует авторизации — используется ботом */
   requiresAuth: false;
   type: 'query';
 }
+
+/** Ошибки команды получения состояния онбординга */
+export type GetOnboardingStateCmdError = QuestionnaireNotFoundUcError;

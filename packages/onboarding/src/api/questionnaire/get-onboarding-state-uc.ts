@@ -1,4 +1,5 @@
 import { errNotFound } from '@u7/core/domain';
+import type { QuestionnaireNotFoundUcError } from '#domain/index';
 import {
   type GetOnboardingStateCmd,
   type GetOnboardingStateCmdMeta,
@@ -10,6 +11,7 @@ import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
  * Use-case получения текущего состояния онбординга пользователя (stateless bot support).
+ * Не требует авторизации — используется ботом.
  */
 export class GetOnboardingStateUc extends OnboardingUseCase<GetOnboardingStateCmdMeta> {
   protected readonly ucName = 'get-onboarding-state' as const;
@@ -19,6 +21,7 @@ export class GetOnboardingStateUc extends OnboardingUseCase<GetOnboardingStateCm
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'query' as const;
+  /** Не требует авторизации — используется ботом */
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetOnboardingStateCmdSchema;
   protected readonly outputSchema = OnboardingStateSchema;
@@ -28,23 +31,26 @@ export class GetOnboardingStateUc extends OnboardingUseCase<GetOnboardingStateCm
       command.telegramId,
     );
 
-    const active = (questionnaires as any[]).find((q) => q.status === 'in_progress');
-    
+    const active = questionnaires.find((q) => q.status === 'in_progress');
+
     if (!active) {
-      const completedCount = (questionnaires as any[]).filter((q) => q.status === 'completed').length;
+      const completedCount = questionnaires.filter(
+        (q) => q.status === 'completed',
+      ).length;
       return { status: 'none_active', completedCount };
     }
 
     if (!active.currentQuestionCode) {
-      // Это по идее невозможно для 'in_progress', но для TS:
       return { status: 'none_active', completedCount: 0 };
     }
 
-    const question = this.resolve.questionPoolService.getByCode(active.currentQuestionCode);
-    
+    const question = this.resolve.questionPoolService.getByCode(
+      active.currentQuestionCode,
+    );
+
     if (!question) {
       this.throwError(
-        errNotFound<any>(
+        errNotFound<QuestionnaireNotFoundUcError>(
           'QUESTIONNAIRE_NOT_FOUND',
           `Текущий вопрос ${active.currentQuestionCode} не найден в пуле`,
           { uuid: active.uuid },

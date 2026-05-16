@@ -33,10 +33,11 @@ export function createApiApp(config: BotConfig) {
 
   const onboardingModule = new OnboardingApiModule();
   const allQuestionCodes = poolService.getAll().map((q) => q.questionCode);
+  const activePoolService = new QuestionPoolService(undefined, allQuestionCodes);
+
   onboardingModule.init({
     questionnaireRepo,
-    questionPoolService: poolService,
-    includedQuestionCodes: allQuestionCodes,
+    questionPoolService: activePoolService,
     userFacade,
     db,
   });
@@ -45,5 +46,5 @@ export function createApiApp(config: BotConfig) {
   apiApp.register(userModule);
   apiApp.register(onboardingModule);
 
-  return { apiApp, userRepo, questionnaireRepo, poolService, userModule };
+  return { apiApp, userRepo, questionnaireRepo, poolService: activePoolService, userModule };
 }

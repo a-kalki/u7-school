@@ -2,11 +2,10 @@ import { ApiModule } from '@u7/core/api';
 import type { UserApiModuleMeta, UserApiModuleResolver } from '#domain/module';
 import { AddRoleToUserUc } from './user/add-role-to-user-uc';
 import { CreateUserUc } from './user/create-user-uc';
-import { EnsureUserWithRoleUc } from './user/ensure-user-with-role-uc';
 import { GetUserByTelegramIdUc } from './user/get-user-by-telegram-id-uc';
 import { GetUserUc } from './user/get-user-uc';
 import { ListUsersUc } from './user/list-users-uc';
-import { RegisterUserUc } from './user/register-user-uc';
+import { RegisterGuestUc } from './user/register-guest-uc';
 
 export class UserApiModule extends ApiModule<
   UserApiModuleMeta,
@@ -18,8 +17,7 @@ export class UserApiModule extends ApiModule<
     new GetUserUc(),
     new ListUsersUc(),
     new GetUserByTelegramIdUc(),
-    new RegisterUserUc(),
+    new RegisterGuestUc(),
     new AddRoleToUserUc(),
-    new EnsureUserWithRoleUc(),
   ];
 }
