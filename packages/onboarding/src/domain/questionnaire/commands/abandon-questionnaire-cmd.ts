@@ -1,11 +1,11 @@
 import * as v from 'valibot';
 import type { Questionnaire, QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
-import type { QuestionnaireNotFoundUcError } from '../errors';
+import type { BadRequestUcError } from '../errors';
 
 /** Схема команды прерывания анкеты */
 export const AbandonQuestionnaireCmdSchema = v.object({
-  uuid: QuestionnaireSchema.entries.uuid,
+  telegramId: QuestionnaireSchema.entries.telegramId,
 });
 
 /** Команда прерывания анкеты */
@@ -15,7 +15,7 @@ export type AbandonQuestionnaireCmd = v.InferOutput<
 
 /** Мета команды прерывания анкеты */
 export interface AbandonQuestionnaireCmdMeta {
-  ucName: 'abandon-questionnaire';
+  ucName: 'abandon';
   arMeta: QuestionnaireArMeta;
   input: AbandonQuestionnaireCmd;
   output: Questionnaire;
@@ -26,4 +26,4 @@ export interface AbandonQuestionnaireCmdMeta {
 }
 
 /** Ошибки команды прерывания анкеты */
-export type AbandonQuestionnaireCmdError = QuestionnaireNotFoundUcError;
+export type AbandonQuestionnaireCmdError = BadRequestUcError;

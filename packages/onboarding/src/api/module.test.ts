@@ -94,18 +94,18 @@ describe('OnboardingApiModule', () => {
     db.rollback();
   });
 
-  test('abandon-questionnaire: прерывает анкету', async () => {
+  test('abandon: прерывает анкету по telegramId', async () => {
     const { module, db } = setupModule('/tmp/onboarding-test-4.json');
     db.begin();
 
-    const startResult = (await module.handle({
+    await module.handle({
       name: 'start-questionnaire',
       attrs: { telegramId: 10004 },
-    })) as any;
+    });
 
     const abandonResult = (await module.handle({
-      name: 'abandon-questionnaire',
-      attrs: { uuid: startResult.uuid },
+      name: 'abandon',
+      attrs: { telegramId: 10004 },
     })) as any;
 
     expect(abandonResult.status).toBe('abandoned');

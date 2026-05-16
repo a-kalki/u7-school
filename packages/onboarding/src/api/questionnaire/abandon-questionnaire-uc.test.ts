@@ -6,13 +6,13 @@ import { QuestionPoolService } from '#domain/questionnaire/question-pool-service
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 import { AbandonQuestionnaireUc } from './abandon-questionnaire-uc';
 
-function setupUc(questionnaire?: Questionnaire) {
-  const getByUuid = mock(async () => questionnaire);
-  const save = mock(async () => { });
+function setupUc(questionnaires: Questionnaire[] = []) {
+  const getByTelegramId = mock(async () => questionnaires);
+  const save = mock(async () => {});
   const repo: QuestionnaireRepo = {
     save,
-    getByUuid,
-    getByTelegramId: mock(async () => []),
+    getByUuid: mock(async () => undefined),
+    getByTelegramId,
   };
 
   const uc = new AbandonQuestionnaireUc();
@@ -26,7 +26,7 @@ function setupUc(questionnaire?: Questionnaire) {
   return { uc, save };
 }
 
-const questionnaire: Questionnaire = {
+const activeQuestionnaire: Questionnaire = {
   uuid: '11111111-1111-1111-1111-111111111111',
   telegramId: 12345,
   status: 'in_progress',
@@ -36,15 +36,29 @@ const questionnaire: Questionnaire = {
 };
 
 describe('AbandonQuestionnaireUc', () => {
-  test('прерывает анкету', async () => {
-    const { uc, save } = setupUc(questionnaire);
-    const result = await uc.handle({ uuid: questionnaire.uuid });
+  test('прерывает активную анкету по telegramId', async () => {
+    const { uc, save } = setupUc([activeQuestionnaire]);
+    const result = await uc.handle({ telegramId: 12345 });
     expect(result.status).toBe('abandoned');
     expect(save).toHaveBeenCalledTimes(1);
   });
 
-  test('отклоняет для несуществующей анкеты', async () => {
-    const { uc } = setupUc(undefined);
-    await expect(uc.handle({ uuid: questionnaire.uuid })).rejects.toThrow();
+  test('отклоняет если нет активной анкеты', async () => {
+    const { uc } = setupUc([]);
+    await expect(uc.handle({ telegramId: 99999 })).rejects.toThrow(
+      'У тебя нет активной анкеты',
+    );
+  });
+
+  test('игнорирует завершённые анкеты', async () => {
+    const completed: Questionnaire = {
+      ...activeQuestionnaire,
+      uuid: '22222222-2222-2222-2222-222222222222',
+      status: 'completed',
+    };
+    const { uc } = setupUc([completed]);
+    await expect(uc.handle({ telegramId: 12345 })).rejects.toThrow(
+      'У тебя нет активной анкеты',
+    );
   });
 });
