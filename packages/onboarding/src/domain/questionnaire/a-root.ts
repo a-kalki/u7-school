@@ -42,16 +42,17 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
    * @param includedQuestionCodes — коды вопросов, включённых в анкету (подмножество пула)
    */
   static start(
-    userId: string,
+    telegramId: number,
     poolService: QuestionPoolService,
     includedQuestionCodes: string[],
   ): QuestionnaireAr {
     const state: Questionnaire = {
       uuid: crypto.randomUUID(),
-      userId,
+      telegramId,
       status: 'in_progress',
       answers: [],
       currentQuestionCode: null,
+      draftAnswers: [],
       createdAt: isoNow(),
     };
     const ar = new QuestionnaireAr(state, poolService, includedQuestionCodes);
@@ -63,31 +64,58 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     return this.state.status === 'completed';
   }
 
-  /** Принимает и валидирует ответ, переходит к следующему вопросу */
-  submitAnswer(questionCode: string, value: string[] | string): void {
-    if (this.state.status !== 'in_progress') {
-      throwError(
-        errConflict<QuestionnaireCompletedUcError>(
-          'QUESTIONNAIRE_COMPLETED',
-          'Анкета уже завершена',
-          { uuid: this.state.uuid },
-        ),
+  /**
+   * Добавляет или удаляет черновой ответ для текущего вопроса
+   */
+  toggleDraftAnswer(questionCode: string, answerCode: string): void {
+    this.checkIsInProgress();
+    this.checkIsCurrentQuestionCode(questionCode);
+    const question = this.getQuestion(questionCode);
+
+    if (question.type !== 'choice') {
+      this.throwBadRequest(
+        'Черновики поддерживаются только для вопросов с выбором',
       );
     }
 
-    if (this.state.currentQuestionCode !== questionCode) {
-      const expected = this.#getQuestionText(
-        this.state.currentQuestionCode ?? '',
-      );
-      const received = this.#getQuestionText(questionCode);
-      this.throwBadRequest(
-        `Ожидался вопрос "${expected}", получен "${received}"`,
-      );
+    const draft = this.state.draftAnswers ?? [];
+    const idx = draft.indexOf(answerCode);
+
+    let newDraft: string[];
+    if (idx >= 0) {
+      newDraft = draft.filter((c) => c !== answerCode);
+    } else {
+      // Для одиночного выбора - заменяем, для множественного - добавляем
+      if (question.multiple) {
+        newDraft = [...draft, answerCode];
+      } else {
+        newDraft = [answerCode];
+      }
+    }
+
+    this.safeUpdate({ draftAnswers: newDraft });
+  }
+
+  /** Принимает и валидирует ответ, переходит к следующему вопросу */
+  submitAnswer(questionCode: string, value?: string[] | string): void {
+    this.checkIsInProgress();
+    this.checkIsCurrentQuestionCode(questionCode);
+    const question = this.getQuestion(questionCode);
+
+    // Если значение не передано явно, пытаемся взять из черновика
+    let actualValue = value;
+    if (actualValue === undefined) {
+      const draft = this.state.draftAnswers ?? [];
+      if (question.type === 'choice' && !question.multiple) {
+        actualValue = draft[0];
+      } else {
+        actualValue = draft;
+      }
     }
 
     const schema = this.#poolService.buildValidationSchema(questionCode);
     try {
-      v.parse(schema, value);
+      v.parse(schema, actualValue);
     } catch (e) {
       if (e instanceof v.ValiError) {
         const qText = this.#getQuestionText(questionCode);
@@ -102,32 +130,25 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       throw e;
     }
 
-    const question = this.#poolService.getByCode(questionCode);
-    if (!question) {
-      this.throwBadRequest(
-        `Вопрос "${this.#getQuestionText(questionCode)}" не найден в пуле`,
-      );
-    }
-
     const entry: AnswerEntry = {
       questionCode,
       answerCodes:
         question.type === 'choice'
-          ? Array.isArray(value)
-            ? value
-            : [value]
+          ? Array.isArray(actualValue)
+            ? actualValue
+            : [actualValue as string]
           : [],
       textValue:
         question.type === 'text'
-          ? typeof value === 'string'
-            ? value
+          ? typeof actualValue === 'string'
+            ? actualValue
             : undefined
           : undefined,
       answeredAt: isoNow(),
     };
 
     this._state.answers.push(entry);
-    this.safeUpdate({});
+    this.safeUpdate({ draftAnswers: [] });
 
     this.getNextQuestion();
   }
@@ -189,5 +210,39 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   /** Все ответы */
   getAnswers(): AnswerEntry[] {
     return this.state.answers;
+  }
+
+  protected checkIsInProgress(): void {
+    if (this.state.status !== 'in_progress') {
+      throwError(
+        errConflict<QuestionnaireCompletedUcError>(
+          'QUESTIONNAIRE_COMPLETED',
+          'Анкета уже завершена',
+          { uuid: this.state.uuid },
+        ),
+      );
+    }
+  }
+
+  protected checkIsCurrentQuestionCode(questionCode: string): void {
+    if (this.state.currentQuestionCode !== questionCode) {
+      const expected = this.#getQuestionText(
+        this.state.currentQuestionCode ?? '',
+      );
+      const received = this.#getQuestionText(questionCode);
+      this.throwBadRequest(
+        `Ожидался вопрос "${expected}", получен "${received}"`,
+      );
+    }
+  }
+
+  protected getQuestion(questionCode: string): Question {
+    const question = this.#poolService.getByCode(questionCode);
+    if (!question) {
+      this.throwBadRequest(
+        `Вопрос "${this.#getQuestionText(questionCode)}" не найден в пуле`,
+      );
+    }
+    return question;
   }
 }

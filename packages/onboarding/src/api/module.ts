@@ -5,9 +5,11 @@ import type {
 } from '#domain/module';
 import { AbandonQuestionnaireUc } from './questionnaire/abandon-questionnaire-uc';
 import { GetQuestionnaireUc } from './questionnaire/get-questionnaire-uc';
-import { ListQuestionnairesByUserUc } from './questionnaire/list-questionnaires-by-user-uc';
+import { ListQuestionnairesByTelegramIdUc } from './questionnaire/list-questionnaires-by-telegram-id-uc';
 import { StartQuestionnaireUc } from './questionnaire/start-questionnaire-uc';
 import { SubmitAnswerUc } from './questionnaire/submit-answer-uc';
+import { ToggleDraftAnswerUc } from './questionnaire/toggle-draft-answer-uc';
+import { GetOnboardingStateUc } from './questionnaire/get-onboarding-state-uc';
 
 export class OnboardingApiModule extends ApiModule<
   OnboardingApiModuleMeta,
@@ -19,7 +21,9 @@ export class OnboardingApiModule extends ApiModule<
     new SubmitAnswerUc(),
     new GetQuestionnaireUc(),
     new AbandonQuestionnaireUc(),
-    new ListQuestionnairesByUserUc(),
+    new ListQuestionnairesByTelegramIdUc(),
+    new ToggleDraftAnswerUc(),
+    new GetOnboardingStateUc(),
   ];
 
   override init(resolver: OnboardingApiModuleResolver): void {

@@ -19,14 +19,11 @@ export function registerCancelHandler(
       return;
     }
 
-    const uuid = await controller.getActiveQuestionnaireUuid(
-      String(telegramId),
-      config.botAdminUuid,
-    );
-
-    if (uuid) {
-      await controller.abandon(uuid, config.botAdminUuid);
-    }
+    await controller.handleUpdate({
+        type: 'command',
+        command: 'cancel',
+        telegramId
+    });
 
     await ctx.reply('Опросник прерван. Данные удалены.', {
       reply_markup: new InlineKeyboard().text('В меню', 'menu'),

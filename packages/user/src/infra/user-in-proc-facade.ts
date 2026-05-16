@@ -51,4 +51,15 @@ export class UserInProcFacade implements UserFacade {
       return undefined;
     }
   }
+
+  async ensureUserWithRole(telegramId: number, role: Role): Promise<void> {
+    try {
+      await this.#userApi.handle({
+        name: 'ensure-user-with-role',
+        attrs: { telegramId, role },
+      });
+    } catch (e) {
+      console.error('Failed to ensure user with role:', e);
+    }
+  }
 }

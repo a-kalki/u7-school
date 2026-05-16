@@ -127,11 +127,6 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   ): Promise<TMeta['output']> | TMeta['output'];
 
   /**
-   * Получает актора (пользователя), выполняющего действие.
-   */
-  protected abstract getUser(userId: string): Promise<unknown>;
-
-  /**
    * Единый метод для выбрасывания ошибок.
    * Принимает только ошибки, объявленные в UcMeta.errors | BaseUcErrors.
    * Система типов блокирует передачу ошибок, не входящих в union.

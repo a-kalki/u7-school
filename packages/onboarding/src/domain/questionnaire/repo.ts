@@ -11,5 +11,5 @@ export interface QuestionnaireRepo {
   getByUuid(uuid: string): Promise<Questionnaire | undefined>;
 
   /** Получить все анкеты пользователя */
-  getByUserId(userId: string): Promise<Questionnaire[]>;
+  getByTelegramId(telegramId: number): Promise<Questionnaire[]>;
 }

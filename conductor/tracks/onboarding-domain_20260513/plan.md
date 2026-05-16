@@ -1,6 +1,6 @@
 # План реализации Onboarding Domain Evolution
 
-- [ ] Task: 1. Обновление домена Questionnaire
+- [~] Task: 1. Обновление домена Questionnaire
     - [ ] Обновить `entity.ts`: заменить `userId: string` на `telegramId: number`, добавить `draftAnswers?: string[]` в `QuestionnaireSchema`.
     - [ ] Обновить `a-root.ts`:
         - [ ] Заменить `userId` на `telegramId` в `QuestionnaireAr.start`.

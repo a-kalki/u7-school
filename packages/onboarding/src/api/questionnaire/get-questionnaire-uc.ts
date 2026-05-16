@@ -18,16 +18,12 @@ export class GetQuestionnaireUc extends OnboardingUseCase<GetQuestionnaireCmdMet
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'query' as const;
-  protected readonly requiresAuth = true as const;
+  protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
 
-  async execute(
-    command: GetQuestionnaireCmd,
-    actorId: string,
-  ): Promise<Questionnaire> {
-    const actor = await this.getActor(actorId);
+  async execute(command: GetQuestionnaireCmd): Promise<Questionnaire> {
     const questionnaire = await this.getQuestionnaire(command.uuid);
-    return this.getOutQuestionnaire(questionnaire, actor);
+    return questionnaire;
   }
 }

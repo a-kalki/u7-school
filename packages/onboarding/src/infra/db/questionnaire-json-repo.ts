@@ -31,8 +31,8 @@ export class QuestionnaireJsonRepo
     return all.find((q) => q.uuid === uuid);
   }
 
-  async getByUserId(userId: string): Promise<Questionnaire[]> {
+  async getByTelegramId(telegramId: number): Promise<Questionnaire[]> {
     const all = await this.readAll();
-    return all.filter((q) => q.userId === userId);
+    return all.filter((q) => q.telegramId === telegramId);
   }
 }

@@ -54,9 +54,16 @@ export class UserAr extends Aggregate<UserArMeta> {
    * Если роль уже есть — ничего не делает.
    */
   addRole(role: Role): void {
-    if (!this._state.roles.includes(role)) {
+    if (!this.hasRole(role)) {
       this._state.roles.push(role);
       this._state.updatedAt = isoNow();
     }
+  }
+
+  /**
+   * Проверяет наличие роли у пользователя.
+   */
+  hasRole(role: Role): boolean {
+    return this._state.roles.includes(role);
   }
 }

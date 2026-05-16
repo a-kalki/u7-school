@@ -16,18 +16,10 @@ export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
   UserApiModuleResolver
 > {
   /**
-   * Получает пользователя по его ID.
-   * Возвращает undefined, если пользователь не найден.
-   */
-  protected async getUser(userId: string): Promise<User | undefined> {
-    return this.resolve.userRepo.getByUuid(userId);
-  }
-
-  /**
    * Получает актора (пользователя) и выбрасывает ошибку, если не найден.
    */
   protected async getActor(actorId: string): Promise<User> {
-    const actor = await this.getUser(actorId);
+    const actor = await this.resolve.userRepo.getByUuid(actorId);
     if (!actor) {
       this.throwError(
         errNotFound<UserNotFoundUcError>(

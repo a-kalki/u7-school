@@ -8,7 +8,7 @@ import type {
 
 /** Схема команды начала анкеты */
 export const StartQuestionnaireCmdSchema = v.object({
-  userId: QuestionnaireSchema.entries.userId,
+  telegramId: QuestionnaireSchema.entries.telegramId,
 });
 
 /** Команда начала анкеты */
@@ -23,11 +23,10 @@ export interface StartQuestionnaireCmdMeta {
   input: StartQuestionnaireCmd;
   output: Questionnaire;
   errors: StartQuestionnaireCmdError;
-  requiresAuth: true;
+  requiresAuth: false;
   type: 'command';
 }
 
 /** Ошибки команды начала анкеты */
 export type StartQuestionnaireCmdError =
-  | AccessDeniedUcError
   | QuestionnaireActiveUcError;

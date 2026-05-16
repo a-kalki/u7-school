@@ -23,11 +23,10 @@ export interface AbandonQuestionnaireCmdMeta {
   input: AbandonQuestionnaireCmd;
   output: Questionnaire;
   errors: AbandonQuestionnaireCmdError;
-  requiresAuth: true;
+  requiresAuth: false;
   type: 'command';
 }
 
 /** Ошибки команды прерывания анкеты */
 export type AbandonQuestionnaireCmdError =
-  | QuestionnaireNotFoundUcError
-  | AccessDeniedUcError;
+  | QuestionnaireNotFoundUcError;

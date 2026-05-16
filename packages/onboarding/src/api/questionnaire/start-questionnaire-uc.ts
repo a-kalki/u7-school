@@ -8,7 +8,6 @@ import {
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionnaireSchema } from '#domain/questionnaire/entity';
 import type { QuestionnaireActiveUcError } from '#domain/questionnaire/errors';
-import { QuestionnairePolicy } from '#domain/questionnaire/policy';
 import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
@@ -23,36 +22,27 @@ export class StartQuestionnaireUc extends OnboardingUseCase<StartQuestionnaireCm
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = true as const;
+  protected readonly requiresAuth = false as const;
   protected readonly inputSchema = StartQuestionnaireCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
 
-  async execute(
-    command: StartQuestionnaireCmd,
-    actorId: string,
-  ): Promise<Questionnaire> {
-    const actor = await this.getActor(actorId);
-
-    if (!QuestionnairePolicy.canCreate(actor, command.userId)) {
-      this.throwAccessDenied('Недостаточно прав для создания анкеты');
-    }
-
-    const existing = await this.resolve.questionnaireRepo.getByUserId(
-      command.userId,
-    );
+  async execute(command: StartQuestionnaireCmd): Promise<Questionnaire> {
+    const existing = (await this.resolve.questionnaireRepo.getByTelegramId(
+      command.telegramId,
+    )) as any[];
     const hasActive = existing.some((q) => q.status === 'in_progress');
     if (hasActive) {
       this.throwError(
         errConflict<QuestionnaireActiveUcError>(
           'QUESTIONNAIRE_ACTIVE',
           'У тебя уже есть активная анкета',
-          { userId: command.userId },
+          { userId: String(command.telegramId) },
         ),
       );
     }
 
     const ar = QuestionnaireAr.start(
-      command.userId,
+      command.telegramId,
       this.resolve.questionPoolService,
       this.resolve.includedQuestionCodes,
     );

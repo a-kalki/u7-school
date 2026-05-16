@@ -7,7 +7,6 @@ import {
 } from '#domain/questionnaire/commands/submit-answer-cmd';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionnaireSchema } from '#domain/questionnaire/entity';
-import { QuestionnairePolicy } from '#domain/questionnaire/policy';
 import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
@@ -26,22 +25,14 @@ export class SubmitAnswerUc extends OnboardingUseCase<SubmitAnswerCmdMeta> {
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = true as const;
+  protected readonly requiresAuth = false as const;
   protected readonly inputSchema = SubmitAnswerCmdSchema;
   protected readonly outputSchema = QuestionnaireSchema;
 
-  async execute(
-    command: SubmitAnswerCmd,
-    actorId: string,
-  ): Promise<Questionnaire> {
-    const actor = await this.getActor(actorId);
+  async execute(command: SubmitAnswerCmd): Promise<Questionnaire> {
     const questionnaire = await this.getQuestionnaire(
       command.questionnaireUuid,
     );
-
-    if (!QuestionnairePolicy.canSubmitAnswer(actor, questionnaire)) {
-      this.throwAccessDenied('Недостаточно прав для отправки ответа');
-    }
 
     const ar = new QuestionnaireAr(
       questionnaire,
@@ -53,10 +44,9 @@ export class SubmitAnswerUc extends OnboardingUseCase<SubmitAnswerCmdMeta> {
 
     // Если анкета завершена — добавляем роль CANDIDATE
     if (ar.isCompleted()) {
-      await this.resolve.userFacade.addRoleToUser(
-        questionnaire.userId,
+      await this.resolve.userFacade.ensureUserWithRole(
+        questionnaire.telegramId,
         Role.CANDIDATE,
-        actorId,
       );
     }
 

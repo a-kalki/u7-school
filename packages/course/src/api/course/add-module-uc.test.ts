@@ -50,6 +50,7 @@ function setupUc() {
   const userFacade: UserFacade = {
     getUserByUuid,
     userExists,
+    ensureUserWithRole: mock(async () => undefined),
     addRoleToUser: mock(),
   };
   const uc = new AddModuleUc();

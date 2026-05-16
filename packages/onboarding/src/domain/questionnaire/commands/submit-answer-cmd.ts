@@ -15,10 +15,12 @@ export const SubmitAnswerCmdSchema = v.object({
     v.string(),
     v.nonEmpty('Код вопроса не может быть пустым'),
   ),
-  value: v.union([
-    v.pipe(v.string(), v.nonEmpty('Ответ не может быть пустым')),
-    v.array(v.pipe(v.string(), v.nonEmpty('Ответ не может быть пустым'))),
-  ]),
+  value: v.optional(
+    v.union([
+      v.pipe(v.string(), v.nonEmpty('Ответ не может быть пустым')),
+      v.array(v.pipe(v.string(), v.nonEmpty('Ответ не может быть пустым'))),
+    ]),
+  ),
 });
 
 /** Команда отправки ответа */
@@ -31,7 +33,7 @@ export interface SubmitAnswerCmdMeta {
   input: SubmitAnswerCmd;
   output: Questionnaire;
   errors: SubmitAnswerCmdError;
-  requiresAuth: true;
+  requiresAuth: false;
   type: 'command';
 }
 
@@ -39,5 +41,4 @@ export interface SubmitAnswerCmdMeta {
 export type SubmitAnswerCmdError =
   | QuestionnaireNotFoundUcError
   | QuestionnaireValidationUcError
-  | QuestionnaireCompletedUcError
-  | AccessDeniedUcError;
+  | QuestionnaireCompletedUcError;

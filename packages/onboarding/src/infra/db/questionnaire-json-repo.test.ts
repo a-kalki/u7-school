@@ -13,7 +13,7 @@ function nextPath(): string {
 function makeQuestionnaire(overrides?: Partial<Questionnaire>): Questionnaire {
   return {
     uuid: crypto.randomUUID(),
-    userId: crypto.randomUUID(),
+    telegramId: 12345,
     status: 'in_progress',
     answers: [],
     currentQuestionCode: 'q1',
@@ -68,24 +68,24 @@ describe('QuestionnaireJsonRepo', () => {
     });
   });
 
-  describe('getByUserId', () => {
+  describe('getByTelegramId', () => {
     test('возвращает анкеты пользователя', async () => {
-      const userId = crypto.randomUUID();
-      const q1 = makeQuestionnaire({ userId });
-      const q2 = makeQuestionnaire({ userId });
+      const telegramId = 999;
+      const q1 = makeQuestionnaire({ telegramId });
+      const q2 = makeQuestionnaire({ telegramId });
       const q3 = makeQuestionnaire();
       await repo.save(q1);
       await repo.save(q2);
       await repo.save(q3);
 
-      const found = await repo.getByUserId(userId);
+      const found = await repo.getByTelegramId(telegramId);
       expect(found).toHaveLength(2);
       expect(found.map((q) => q.uuid)).toContain(q1.uuid);
       expect(found.map((q) => q.uuid)).toContain(q2.uuid);
     });
 
-    test('возвращает пустой массив для несуществующего userId', async () => {
-      const found = await repo.getByUserId('non-existent');
+    test('возвращает пустой массив для несуществующего telegramId', async () => {
+      const found = await repo.getByTelegramId(0);
       expect(found).toEqual([]);
     });
   });

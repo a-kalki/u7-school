@@ -41,7 +41,7 @@ export function createApiApp(config: BotConfig) {
     db,
   });
 
-  const apiApp = new ApiApp() as OnboardingBotApp;
+  const apiApp = new ApiApp() as unknown as OnboardingBotApp;
   apiApp.register(userModule);
   apiApp.register(onboardingModule);
 

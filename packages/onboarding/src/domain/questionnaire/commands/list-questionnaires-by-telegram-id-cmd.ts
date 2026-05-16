@@ -4,25 +4,25 @@ import { QuestionnaireSchema } from '../entity';
 import type { AccessDeniedUcError } from '../errors';
 
 /** Схема команды списка анкет пользователя */
-export const ListQuestionnairesByUserCmdSchema = v.object({
-  userId: QuestionnaireSchema.entries.userId,
+export const ListQuestionnairesByTelegramIdCmdSchema = v.object({
+  telegramId: QuestionnaireSchema.entries.telegramId,
 });
 
 /** Команда списка анкет пользователя */
-export type ListQuestionnairesByUserCmd = v.InferOutput<
-  typeof ListQuestionnairesByUserCmdSchema
+export type ListQuestionnairesByTelegramIdCmd = v.InferOutput<
+  typeof ListQuestionnairesByTelegramIdCmdSchema
 >;
 
 /** Мета команды списка анкет пользователя */
-export interface ListQuestionnairesByUserCmdMeta {
-  ucName: 'list-questionnaires-by-user';
+export interface ListQuestionnairesByTelegramIdCmdMeta {
+  ucName: 'list-questionnaires-by-telegram-id';
   arMeta: QuestionnaireArMeta;
-  input: ListQuestionnairesByUserCmd;
+  input: ListQuestionnairesByTelegramIdCmd;
   output: Questionnaire[];
-  errors: ListQuestionnairesByUserCmdError;
-  requiresAuth: true;
+  errors: ListQuestionnairesByTelegramIdCmdError;
+  requiresAuth: false;
   type: 'query';
 }
 
 /** Ошибки команды списка анкет пользователя */
-export type ListQuestionnairesByUserCmdError = AccessDeniedUcError;
+export type ListQuestionnairesByTelegramIdCmdError = never;

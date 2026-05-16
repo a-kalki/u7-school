@@ -33,9 +33,8 @@ function makeMockBot(): Bot<BotContext> & {
 function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
   return {
     from: { id: 123, first_name: 'Тест' },
-    reply: mock(async () => {}),
+    reply: mock(async () => ({ message_id: 1 })),
     answerCallbackQuery: mock(async () => {}),
-    conversation: { enter: mock(async () => {}) },
     session: {},
     ...overrides,
   } as unknown as BotContext;
@@ -53,33 +52,16 @@ describe('registerStartHandler', () => {
     expect(bot.commands['start']).toBeDefined();
   });
 
-  test('регистрирует callback_query обработчики', () => {
+  test('/start убеждается в наличии пользователя GUEST', async () => {
     const bot = makeMockBot();
     const controller = {} as OnboardingController;
-    const apiApp = {} as OnboardingBotApp;
-    const config = { botAdminUuid: 'uuid', newsGroupUrl: 'url' } as any;
-
-    registerStartHandler(bot, controller, apiApp, config);
-
-    expect(bot.callbacks['be_in_the_know']).toBeDefined();
-    expect(bot.callbacks['become_student']).toBeDefined();
-    expect(bot.callbacks['menu']).toBeDefined();
-    expect(bot.callbacks['new_application']).toBeDefined();
-  });
-
-  test('/start создаёт нового пользователя, если не найден', async () => {
-    const bot = makeMockBot();
-    const controller = {
-      getStartFlow: mock(() => 'guest'),
-    } as unknown as OnboardingController;
 
     const apiApp = {
       execute: mock(async (name: string) => {
         if (name === 'get-user-by-telegram-id') return undefined;
-        if (name === 'register-user')
-          return { uuid: 'user-uuid', roles: [Role.GUEST] };
-        if (name === 'list-questionnaires-by-user') return [];
-        throw new Error('unexpected');
+        if (name === 'ensure-user-with-role') return { uuid: 'user-uuid' };
+        if (name === 'get-onboarding-state') return { status: 'none_active', completedCount: 0 };
+        throw new Error(`unexpected command: ${name}`);
       }),
     } as unknown as OnboardingBotApp;
 
@@ -91,8 +73,8 @@ describe('registerStartHandler', () => {
     await (bot.commands['start'] as any)(ctx);
 
     expect((apiApp as any).execute).toHaveBeenCalledWith(
-      'register-user',
-      { name: 'Тест', telegramId: 123 },
+      'ensure-user-with-role',
+      { telegramId: 123, role: Role.GUEST },
       'admin-uuid',
     );
     expect((ctx as any).reply).toHaveBeenCalled();
@@ -100,16 +82,15 @@ describe('registerStartHandler', () => {
 
   test('flow candidate показывает сообщение о новой заявке', async () => {
     const bot = makeMockBot();
-    const controller = {
-      getStartFlow: mock(() => 'candidate'),
-    } as unknown as OnboardingController;
+    const controller = {} as OnboardingController;
 
     const apiApp = {
       execute: mock(async (name: string) => {
         if (name === 'get-user-by-telegram-id')
           return { uuid: 'u', roles: [Role.GUEST, Role.CANDIDATE] };
-        if (name === 'list-questionnaires-by-user') return [];
-        throw new Error('unexpected');
+        if (name === 'ensure-user-with-role') return { uuid: 'u' };
+        if (name === 'get-onboarding-state') return { status: 'none_active', completedCount: 1 };
+        throw new Error(`unexpected command: ${name}`);
       }),
     } as unknown as OnboardingBotApp;
 
@@ -120,7 +101,6 @@ describe('registerStartHandler', () => {
     const ctx = makeMockContext();
     await (bot.commands['start'] as any)(ctx);
 
-    expect((controller as any).getStartFlow).toHaveBeenCalled();
     const replyCall = (ctx as any).reply.mock.calls[0];
     expect(replyCall[0]).toContain('уже заполняли заявку');
   });

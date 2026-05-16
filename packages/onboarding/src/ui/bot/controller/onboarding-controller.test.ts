@@ -8,8 +8,6 @@ import type { User } from '@u7/user/domain';
 import { Role } from '@u7/user/domain';
 import { UserJsonRepo } from '@u7/user/infra';
 import { OnboardingApiModule } from '#api/module';
-import type { Questionnaire } from '#domain/questionnaire/entity';
-import type { Question } from '#domain/questionnaire/question';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import type { OnboardingBotApp } from '../app';
@@ -21,35 +19,6 @@ function nextPath(prefix: string): string {
   return join(tmpDir, `${prefix}-${crypto.randomUUID()}.json`);
 }
 
-function makeUser(overrides?: Partial<User>): User {
-  return {
-    uuid: crypto.randomUUID(),
-    name: 'Тест',
-    telegramId: 1,
-    roles: [Role.GUEST],
-    createdAt: '2024-01-01T00:00',
-    ...overrides,
-  };
-}
-
-const testPool: Question[] = [
-  {
-    question: 'Первый вопрос',
-    questionCode: 'q1',
-    type: 'choice',
-    multiple: false,
-    answers: [
-      { answer: 'Да', answerCode: 'yes' },
-      { answer: 'Нет', answerCode: 'no' },
-    ],
-  },
-  {
-    question: 'Второй вопрос',
-    questionCode: 'q2',
-    type: 'text',
-  },
-];
-
 describe('OnboardingController', () => {
   let db: BaseJsonDb;
   let questionnaireRepo: QuestionnaireJsonRepo;
@@ -57,329 +26,100 @@ describe('OnboardingController', () => {
   let mod: OnboardingApiModule;
   let apiApp: OnboardingBotApp;
   let controller: OnboardingController;
+  const botAdminUuid = crypto.randomUUID();
 
   beforeEach(() => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
     db = new BaseJsonDb();
-    questionnaireRepo = new QuestionnaireJsonRepo(
-      nextPath('questionnaires'),
-      db,
-    );
+    questionnaireRepo = new QuestionnaireJsonRepo(nextPath('questionnaires'), db);
     userRepo = new UserJsonRepo(nextPath('users'), undefined, db);
     mod = new OnboardingApiModule();
-    const poolService = new QuestionPoolService(testPool);
+    const poolService = new QuestionPoolService([
+      {
+        question: 'Q1',
+        questionCode: 'q1',
+        type: 'choice',
+        multiple: false,
+        answers: [{ answer: 'Yes', answerCode: 'yes' }],
+      },
+    ]);
     mod.init({
       questionnaireRepo,
       questionPoolService: poolService,
-      includedQuestionCodes: testPool.map((q) => q.questionCode),
+      includedQuestionCodes: ['q1'],
       userFacade: {
         getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
-        userExists: async (uuid: string) => {
-          const u = await userRepo.getByUuid(uuid);
-          return u !== undefined;
+        userExists: async (uuid: string) => (await userRepo.getByUuid(uuid)) !== undefined,
+        ensureUserWithRole: async (telegramId: number, role: Role) => {
+           const existing = await userRepo.getByTelegramId(telegramId);
+           if (existing) {
+             if (!existing.roles.includes(role)) {
+               await userRepo.save({ ...existing, roles: [...existing.roles, role] });
+             }
+           } else {
+             await userRepo.save({
+               uuid: crypto.randomUUID(),
+               name: 'Guest',
+               telegramId,
+               roles: [role],
+               createdAt: '2024-01-01T00:00',
+             });
+           }
         },
         addRoleToUser: async (userId: string, role: Role) => {
           const user = await userRepo.getByUuid(userId);
           if (!user) return undefined;
-          const updated = {
-            ...user,
-            roles: user.roles.includes(role)
-              ? user.roles
-              : [...user.roles, role],
-          };
+          const updated = { ...user, roles: [...new Set([...user.roles, role])] };
           await userRepo.save(updated);
           return updated;
-        },
+        }
       },
       db,
     });
     apiApp = new ApiApp<AppMeta>() as OnboardingBotApp;
     apiApp.register(mod);
-    controller = new OnboardingController(apiApp, poolService);
+    controller = new OnboardingController(apiApp, botAdminUuid);
   });
 
   afterEach(() => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  describe('start', () => {
-    test('создаёт анкету и возвращает первый вопрос', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const result = await controller.start(user.uuid, user.uuid);
-
-      expect(result.questionnaireUuid).toBeTruthy();
-      expect(result.firstQuestion).not.toBeNull();
-      expect(result.firstQuestion?.questionCode).toBe('q1');
+  test('handleUpdate: become_student starts questionnaire', async () => {
+    const responses = await controller.handleUpdate({
+      type: 'callback',
+      data: 'become_student',
+      telegramId: 12345,
+      messageId: 1,
     });
+
+    expect(responses).toContainEqual({ type: 'answerCallback' });
+    expect(responses).toContainEqual(expect.objectContaining({
+      type: 'sendMessage',
+      text: expect.stringContaining('Q1'),
+    }));
   });
 
-  describe('submitAnswer', () => {
-    test('обрабатывает ответ и возвращает следующий вопрос', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const { questionnaireUuid } = await controller.start(
-        user.uuid,
-        user.uuid,
-      );
-
-      const result = await controller.submitAnswer(
-        questionnaireUuid,
-        'q1',
-        'yes',
-        user.uuid,
-      );
-
-      expect(result.status).toBe('in_progress');
-      expect(result.isCompleted).toBe(false);
-      expect(result.nextQuestion?.questionCode).toBe('q2');
+  test('handleUpdate: toggle answer and submit', async () => {
+    // Start
+    await controller.handleUpdate({
+      type: 'callback',
+      data: 'become_student',
+      telegramId: 12345,
+      messageId: 1,
     });
 
-    test('завершает анкету и добавляет роль', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const { questionnaireUuid } = await controller.start(
-        user.uuid,
-        user.uuid,
-      );
-
-      await controller.submitAnswer(questionnaireUuid, 'q1', 'yes', user.uuid);
-      const result = await controller.submitAnswer(
-        questionnaireUuid,
-        'q2',
-        'hello',
-        user.uuid,
-      );
-
-      expect(result.status).toBe('completed');
-      expect(result.isCompleted).toBe(true);
-      expect(result.nextQuestion).toBeNull();
-
-      const updated = await userRepo.getByUuid(user.uuid);
-      expect(updated?.roles).toContain(Role.CANDIDATE);
-    });
-  });
-
-  describe('abandon', () => {
-    test('прерывает анкету', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const { questionnaireUuid } = await controller.start(
-        user.uuid,
-        user.uuid,
-      );
-      await controller.abandon(questionnaireUuid, user.uuid);
-
-      const result = await apiApp.execute(
-        'get-questionnaire',
-        { uuid: questionnaireUuid },
-        user.uuid,
-      );
-      expect((result as { status: string }).status).toBe('abandoned');
-    });
-  });
-
-  describe('getCurrentQuestion', () => {
-    test('возвращает текущий вопрос', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const { questionnaireUuid } = await controller.start(
-        user.uuid,
-        user.uuid,
-      );
-      const question = await controller.getCurrentQuestion(
-        questionnaireUuid,
-        user.uuid,
-      );
-
-      expect(question?.questionCode).toBe('q1');
-    });
-  });
-
-  describe('getAnswersPreview', () => {
-    test('возвращает предпросмотр ответов', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const { questionnaireUuid } = await controller.start(
-        user.uuid,
-        user.uuid,
-      );
-      await controller.submitAnswer(questionnaireUuid, 'q1', 'yes', user.uuid);
-
-      const preview = await controller.getAnswersPreview(
-        questionnaireUuid,
-        user.uuid,
-      );
-      expect(preview).toContain('q1');
-      expect(preview).toContain('yes');
+    // Toggle (should auto-submit for single choice)
+    const toggleResponses = await controller.handleUpdate({
+      type: 'callback',
+      data: 'yes',
+      telegramId: 12345,
+      messageId: 2,
     });
 
-    test('возвращает сообщение при отсутствии ответов', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const { questionnaireUuid } = await controller.start(
-        user.uuid,
-        user.uuid,
-      );
-      const preview = await controller.getAnswersPreview(
-        questionnaireUuid,
-        user.uuid,
-      );
-      expect(preview).toBe('Пока нет ответов.');
-    });
-  });
-
-  describe('canRestart', () => {
-    test('возвращает true, если нет активной анкеты', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const canRestart = await controller.canRestart(user.uuid, user.uuid);
-      expect(canRestart).toBe(true);
-    });
-
-    test('возвращает false, если есть активная анкета', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      await controller.start(user.uuid, user.uuid);
-      const canRestart = await controller.canRestart(user.uuid, user.uuid);
-      expect(canRestart).toBe(false);
-    });
-  });
-
-  describe('getKeyboard', () => {
-    test('строит клавиатуру для choice-вопроса', () => {
-      const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'choice',
-        multiple: false,
-        answers: [
-          { answer: 'Да', answerCode: 'yes' },
-          { answer: 'Нет', answerCode: 'no' },
-        ],
-      };
-
-      const keyboard = controller.getKeyboard(question);
-
-      expect(keyboard).not.toBeNull();
-      expect(keyboard?.isMultiple).toBe(false);
-      expect(keyboard?.rows).toHaveLength(1);
-      expect(keyboard?.rows[0]).toHaveLength(2);
-      expect(keyboard?.rows[0]?.[0]?.text).toBe('1');
-      expect(keyboard?.rows[0]?.[0]?.code).toBe('yes');
-      expect(keyboard?.rows[0]?.[1]?.text).toBe('2');
-      expect(keyboard?.rows[0]?.[1]?.code).toBe('no');
-    });
-
-    test('возвращает кнопки-номера независимо от выбора', () => {
-      const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'choice',
-        multiple: true,
-        answers: [
-          { answer: 'A', answerCode: 'a' },
-          { answer: 'B', answerCode: 'b' },
-        ],
-      };
-
-      const keyboard = controller.getKeyboard(question, ['a']);
-
-      // Кнопки всегда номера, маркеры — в formatQuestionText
-      expect(keyboard?.rows[0]?.[0]?.text).toBe('1');
-      expect(keyboard?.rows[0]?.[1]?.text).toBe('2');
-    });
-
-    test('formatQuestionText добавляет маркеры [x]/[ ]', () => {
-      const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'choice',
-        multiple: true,
-        answers: [
-          { answer: 'A', answerCode: 'a' },
-          { answer: 'B', answerCode: 'b' },
-        ],
-      };
-
-      const text = controller.formatQuestionText(question, ['a']);
-
-      expect(text).toContain('[x] 1. A');
-      expect(text).toContain('[ ] 2. B');
-    });
-
-    test('возвращает null для text-вопроса', () => {
-      const question: Question = {
-        question: 'Тест?',
-        questionCode: 'q1',
-        type: 'text',
-      };
-
-      const keyboard = controller.getKeyboard(question);
-      expect(keyboard).toBeNull();
-    });
-  });
-
-  describe('getStartFlow', () => {
-    test("возвращает 'candidate' если есть роль CANDIDATE", () => {
-      const user = makeUser({ roles: [Role.GUEST, Role.CANDIDATE] });
-      const flow = controller.getStartFlow(user, []);
-      expect(flow).toBe('candidate');
-    });
-
-    test("возвращает 'candidate' если есть CANDIDATE и SUBSCRIBER", () => {
-      const user = makeUser({
-        roles: [Role.GUEST, Role.SUBSCRIBER, Role.CANDIDATE],
-      });
-      const flow = controller.getStartFlow(user, []);
-      expect(flow).toBe('candidate');
-    });
-
-    test("возвращает 'subscriber' если есть SUBSCRIBER, но нет CANDIDATE", () => {
-      const user = makeUser({ roles: [Role.GUEST, Role.SUBSCRIBER] });
-      const flow = controller.getStartFlow(user, []);
-      expect(flow).toBe('subscriber');
-    });
-
-    test("возвращает 'guest' если только GUEST", () => {
-      const user = makeUser({ roles: [Role.GUEST] });
-      const flow = controller.getStartFlow(user, []);
-      expect(flow).toBe('guest');
-    });
-  });
-
-  describe('restartQuestionnaire', () => {
-    test('создаёт новую анкету, если нет активной', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      const result = await controller.restartQuestionnaire(
-        user.uuid,
-        user.uuid,
-      );
-
-      expect(result.questionnaireUuid).toBeTruthy();
-      expect(result.firstQuestion).not.toBeNull();
-    });
-
-    test('пробрасывает ошибку QUESTIONNAIRE_ACTIVE при активной анкете', async () => {
-      const user = makeUser();
-      await userRepo.save(user);
-
-      await controller.start(user.uuid, user.uuid);
-
-      await expect(
-        controller.restartQuestionnaire(user.uuid, user.uuid),
-      ).rejects.toThrow('У тебя уже есть активная анкета');
-    });
+    expect(toggleResponses).toContainEqual(expect.objectContaining({
+      type: 'sendMessage',
+      text: expect.stringContaining('Спасибо!'),
+    }));
   });
 });

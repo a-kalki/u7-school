@@ -1,12 +1,36 @@
-import type { User } from '@u7/user/domain';
-import type { Questionnaire } from '#domain/questionnaire/entity';
 import type { Question } from '#domain/questionnaire/question';
-import type { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { OnboardingBotApp } from '../app';
+import type { OnboardingState } from '#domain/questionnaire/commands/get-onboarding-state-cmd';
 
 /**
- * Описание inline-клавиатуры для вопроса с выбором ответа.
- * Не зависит от Telegram/grammy — чистая структура данных.
+ * Входящие события от бота.
+ */
+export type BotUpdate =
+  | { type: 'message'; text: string; telegramId: number }
+  | { type: 'callback'; data: string; telegramId: number; messageId: number }
+  | { type: 'command'; command: string; telegramId: number };
+
+/**
+ * Инструкции для бота.
+ */
+export type BotResponse =
+  | {
+      type: 'sendMessage';
+      text: string;
+      keyboard?: KeyboardDescription;
+      parseMode?: 'MarkdownV2' | 'HTML';
+    }
+  | {
+      type: 'editMessage';
+      messageId: number;
+      text: string;
+      keyboard?: KeyboardDescription;
+      parseMode?: 'MarkdownV2' | 'HTML';
+    }
+  | { type: 'answerCallback'; text?: string };
+
+/**
+ * Описание inline-клавиатуры.
  */
 export interface KeyboardDescription {
   rows: { text: string; code: string }[][];
@@ -14,226 +38,227 @@ export interface KeyboardDescription {
 }
 
 /**
- * Результат начала анкеты.
- */
-export interface StartResult {
-  questionnaireUuid: string;
-  firstQuestion: Question | null;
-}
-
-/**
- * Результат отправки ответа.
- */
-export interface SubmitResult {
-  nextQuestion: Question | null;
-  status: 'in_progress' | 'completed' | 'abandoned';
-  isCompleted: boolean;
-}
-
-/**
  * Контроллер onboarding для Telegram-бота.
- * Не зависит от grammy/Telegram — только от API-модуля.
+ * Stateless — на каждый запрос получает актуальное состояние из API.
  */
 export class OnboardingController {
   readonly #app: OnboardingBotApp;
-  readonly #poolService: QuestionPoolService;
+  readonly #botAdminUuid: string;
 
-  constructor(app: OnboardingBotApp, poolService: QuestionPoolService) {
+  constructor(app: OnboardingBotApp, botAdminUuid: string) {
     this.#app = app;
-    this.#poolService = poolService;
+    this.#botAdminUuid = botAdminUuid;
   }
 
   /**
-   * Создаёт новую анкету для пользователя.
-   * Возвращает UUID анкеты и первый вопрос.
+   * Основной обработчик событий.
    */
-  async start(userId: string, actorId: string): Promise<StartResult> {
-    const questionnaire = await this.#app.execute(
-      'start-questionnaire',
-      { userId },
-      actorId,
-    );
+  async handleUpdate(update: BotUpdate): Promise<BotResponse[]> {
+    const { telegramId } = update;
 
-    const firstQuestion = questionnaire.currentQuestionCode
-      ? await this.getCurrentQuestion(questionnaire.uuid, actorId)
-      : null;
+    // Получаем текущее состояние
+    const state = await this.#getOnboardingState(telegramId);
 
-    return {
-      questionnaireUuid: questionnaire.uuid,
-      firstQuestion,
-    };
-  }
-
-  /**
-   * Отправляет ответ на текущий вопрос анкеты.
-   * Возвращает следующий вопрос и статус анкеты.
-   */
-  async submitAnswer(
-    uuid: string,
-    questionCode: string,
-    value: string | string[],
-    actorId: string,
-  ): Promise<SubmitResult> {
-    const questionnaire = await this.#app.execute(
-      'submit-answer',
-      { questionnaireUuid: uuid, questionCode, value },
-      actorId,
-    );
-
-    const isCompleted = questionnaire.status === 'completed';
-
-    const nextQuestion =
-      !isCompleted && questionnaire.currentQuestionCode
-        ? await this.getCurrentQuestion(uuid, actorId)
-        : null;
-
-    return {
-      nextQuestion,
-      status: questionnaire.status,
-      isCompleted,
-    };
-  }
-
-  /**
-   * Прерывает прохождение анкеты.
-   */
-  async abandon(uuid: string, actorId: string): Promise<void> {
-    await this.#app.execute('abandon-questionnaire', { uuid }, actorId);
-  }
-
-  /**
-   * Получает текущий вопрос анкеты с ответами.
-   */
-  async getCurrentQuestion(
-    uuid: string,
-    actorId: string,
-  ): Promise<Question | null> {
-    const questionnaire = await this.#app.execute(
-      'get-questionnaire',
-      { uuid },
-      actorId,
-    );
-
-    if (!questionnaire.currentQuestionCode) return null;
-
-    return (
-      this.#poolService.getByCode(questionnaire.currentQuestionCode) ?? null
-    );
-  }
-
-  /**
-   * Возвращает текстовый предпросмотр всех ответов.
-   */
-  async getAnswersPreview(uuid: string, actorId: string): Promise<string> {
-    const questionnaire = await this.#app.execute(
-      'get-questionnaire',
-      { uuid },
-      actorId,
-    );
-
-    if (questionnaire.answers.length === 0) {
-      return 'Пока нет ответов.';
+    // Если анкета в процессе — обрабатываем действия анкеты
+    if (state.status === 'in_progress') {
+      return this.#handleInProgress(update, state);
     }
 
-    return questionnaire.answers
-      .map((a, i) => {
-        const value = a.textValue ?? a.answerCodes.join(', ') ?? '—';
-        return `${i + 1}. ${a.questionCode}: ${value}`;
-      })
-      .join('\n');
+    // Если нет активной анкеты — обрабатываем команды меню
+    return this.#handleNoActive(update);
   }
 
-  /**
-   * Определяет стартовый flow для пользователя на основе ролей и анкет.
-   * Приоритет: candidate > subscriber > guest
-   */
-  getStartFlow(
-    user: User,
-    _questionnaires: Questionnaire[],
-  ): 'candidate' | 'subscriber' | 'guest' {
-    const roles = user.roles;
-    if (roles.includes('CANDIDATE' as unknown as (typeof roles)[number])) {
-      return 'candidate';
+  async #handleInProgress(
+    update: BotUpdate,
+    state: OnboardingState & { status: 'in_progress' },
+  ): Promise<BotResponse[]> {
+    if (update.type === 'command' && update.command === 'cancel') {
+      await this.#app.execute(
+        'abandon-questionnaire' as any,
+        { uuid: state.questionnaireUuid },
+        this.#botAdminUuid,
+      );
+      return [
+        {
+          type: 'sendMessage',
+          text: 'Опросник прерван. Данные удалены.',
+        },
+      ];
     }
-    if (roles.includes('SUBSCRIBER' as unknown as (typeof roles)[number])) {
-      return 'subscriber';
+
+    if (update.type === 'callback') {
+      const { data, messageId } = update;
+
+      if (data === 'next') {
+        try {
+          await this.#app.execute(
+            'submit-answer' as any,
+            {
+              questionnaireUuid: state.questionnaireUuid,
+              questionCode: state.question.questionCode,
+            },
+            this.#botAdminUuid,
+          );
+          
+          const nextState = await this.#getOnboardingState(update.telegramId);
+          return this.#renderState(nextState, messageId);
+        } catch (err) {
+          return [{ type: 'answerCallback', text: `Ошибка: ${(err as Error).message}` }];
+        }
+      }
+
+      // Переключение ответа
+      try {
+        await this.#app.execute(
+          'toggle-draft-answer' as any,
+          {
+            questionnaireUuid: state.questionnaireUuid,
+            questionCode: state.question.questionCode,
+            answerCode: data,
+          },
+          this.#botAdminUuid,
+        );
+        
+        // Если одиночный выбор — сразу сабмитим
+        if (state.question.type === 'choice' && !state.question.multiple) {
+            await this.#app.execute(
+                'submit-answer' as any,
+                {
+                  questionnaireUuid: state.questionnaireUuid,
+                  questionCode: state.question.questionCode,
+                },
+                this.#botAdminUuid,
+            );
+        }
+
+        const nextState = await this.#getOnboardingState(update.telegramId);
+        return this.#renderState(nextState, messageId);
+      } catch (err) {
+        return [{ type: 'answerCallback', text: `Ошибка: ${(err as Error).message}` }];
+      }
     }
-    return 'guest';
+
+    if (update.type === 'message' && state.question.type === 'text') {
+      try {
+        await this.#app.execute(
+          'submit-answer' as any,
+          {
+            questionnaireUuid: state.questionnaireUuid,
+            questionCode: state.question.questionCode,
+            value: update.text,
+          },
+          this.#botAdminUuid,
+        );
+        const nextState = await this.#getOnboardingState(update.telegramId);
+        return this.#renderState(nextState);
+      } catch (err) {
+        return [{ type: 'sendMessage', text: `Ошибка: ${(err as Error).message}` }];
+      }
+    }
+
+    return [];
   }
 
-  /**
-   * Начинает новую анкету для пользователя.
-   * Пробрасывает ошибку QUESTIONNAIRE_ACTIVE, если уже есть активная.
-   */
-  async restartQuestionnaire(
-    userId: string,
-    actorId: string,
-  ): Promise<StartResult> {
-    return this.start(userId, actorId);
+  async #handleNoActive(update: BotUpdate): Promise<BotResponse[]> {
+    if (update.type === 'command' && update.command === 'start') {
+      // Это должно обрабатываться в боте для показа главного меню
+      return [];
+    }
+    
+    if (update.type === 'callback' && update.data === 'become_student') {
+      try {
+        await this.#app.execute(
+          'start-questionnaire' as any,
+          { telegramId: update.telegramId },
+          this.#botAdminUuid,
+        );
+        const state = await this.#getOnboardingState(update.telegramId);
+        return [
+          { type: 'answerCallback' },
+          ...await this.#renderState(state)
+        ];
+      } catch (err) {
+        return [{ type: 'answerCallback', text: `Не удалось начать: ${(err as Error).message}` }];
+      }
+    }
+
+    return [];
   }
 
-  /**
-   * Проверяет, можно ли начать новую анкету.
-   * Новую анкету можно начать, если нет активной (in_progress).
-   */
-  async canRestart(userId: string, actorId: string): Promise<boolean> {
-    const questionnaires = await this.#app.execute(
-      'list-questionnaires-by-user',
-      { userId },
-      actorId,
-    );
-
-    return !questionnaires.some((q) => q.status === 'in_progress');
+  async #getOnboardingState(telegramId: number): Promise<OnboardingState> {
+    return (await this.#app.execute(
+      'get-onboarding-state' as any,
+      { telegramId },
+      this.#botAdminUuid,
+    )) as OnboardingState;
   }
 
-  /**
-   * Возвращает UUID активной (in_progress) анкеты пользователя.
-   */
-  async getActiveQuestionnaireUuid(
-    userId: string,
-    actorId: string,
-  ): Promise<string | undefined> {
-    const questionnaires = await this.#app.execute(
-      'list-questionnaires-by-user',
-      { userId },
-      actorId,
-    );
+  async #renderState(state: OnboardingState, editMessageId?: number): Promise<BotResponse[]> {
+    if (state.status === 'none_active') {
+      if (state.completedCount > 0) {
+        return [{ type: 'sendMessage', text: 'Спасибо! Твоя заявка принята. Присоединяйся к группе @u7_news' }];
+      }
+      return [];
+    }
 
-    const active = questionnaires.find((q) => q.status === 'in_progress');
-    return active?.uuid;
+    const { question, draftAnswers } = state;
+    const text = this.#formatQuestionMd(question, draftAnswers);
+    const keyboard = this.#getKeyboard(question, draftAnswers);
+
+    if (editMessageId) {
+      return [
+        { type: 'answerCallback' },
+        {
+          type: 'editMessage',
+          messageId: editMessageId,
+          text,
+          keyboard,
+          parseMode: 'MarkdownV2',
+        }
+      ];
+    }
+
+    return [
+      {
+        type: 'sendMessage',
+        text,
+        keyboard,
+        parseMode: 'MarkdownV2',
+      }
+    ];
   }
 
-  /**
-   * Строит описание inline-клавиатуры для вопроса с выбором ответа.
-   * Кнопки содержат только номера [1] [2] [3], коды ответов — в data.
-   */
-  getKeyboard(
-    question: Question,
-    selectedValues?: string[],
-  ): KeyboardDescription | null {
-    if (question.type !== 'choice') return null;
+  #formatQuestionMd(question: Question, selected: string[]): string {
+    const escapeMd = (t: string) => t.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+    
+    if (question.type !== 'choice') {
+      return `*${escapeMd(question.question)}*`;
+    }
+    
+    const lines = [`*${escapeMd(question.question)}*`, ''];
+    question.answers.forEach((a, i) => {
+      const marker = selected.includes(a.answerCode) ? '*\\[x\\]*' : '\\[ \\]';
+      lines.push(`${marker} ${i + 1}\\. ${escapeMd(a.answer)}`);
+    });
+    return lines.join('\n');
+  }
+
+  #getKeyboard(question: Question, selected: string[]): KeyboardDescription | undefined {
+    if (question.type !== 'choice') return undefined;
 
     const buttons = question.answers.map((a, i) => ({
       text: String(i + 1),
       code: a.answerCode,
     }));
 
+    const rows = [buttons];
+    if (question.multiple && selected.length > 0) {
+      rows.push([{ text: 'Далее -->', code: 'next' }]);
+    }
+
     return {
-      rows: [buttons],
+      rows,
       isMultiple: question.multiple,
     };
-  }
-
-  /**
-   * Форматирует текст вопроса с нумерованными вариантами и маркерами [x]/[ ].
-   */
-  formatQuestionText(question: Question, selectedValues?: string[]): string {
-    if (question.type !== 'choice') return question.question;
-    const lines: string[] = [question.question, ''];
-    question.answers.forEach((a, i) => {
-      const marker = selectedValues?.includes(a.answerCode) ? '[x]' : '[ ]';
-      lines.push(`${marker} ${i + 1}. ${a.answer}`);
-    });
-    return lines.join('\n');
   }
 }

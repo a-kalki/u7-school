@@ -1,229 +1,113 @@
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { describe, expect, test } from 'bun:test';
 import { BaseJsonDb } from '@u7/core/infra';
-import type { User } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
-import { UserJsonRepo } from '@u7/user/infra';
-import type { Question } from '#domain/questionnaire/question';
-import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
+import type { UserFacade } from '@u7/user/domain';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import { OnboardingApiModule } from './module';
+import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 
-let tmpDir: string;
+function setupModule() {
+  const db = new BaseJsonDb();
+  const repo = new QuestionnaireJsonRepo('/tmp/onboarding-test.json', db);
+  const poolService = new QuestionPoolService([
+    {
+      question: 'Q1',
+      questionCode: 'q1',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: 'Yes', answerCode: 'yes' }],
+    },
+  ]);
 
-function nextPath(prefix: string): string {
-  return join(tmpDir, `${prefix}-${crypto.randomUUID()}.json`);
+  const userFacade = {
+    ensureUserWithRole: async () => {},
+  } as unknown as UserFacade;
+
+  const module = new OnboardingApiModule();
+  module.init({
+    questionnaireRepo: repo,
+    questionPoolService: poolService,
+    includedQuestionCodes: ['q1'],
+    userFacade,
+    db,
+  });
+
+  return { module, repo, db };
 }
-
-function makeUser(overrides?: Partial<User>): User {
-  return {
-    uuid: crypto.randomUUID(),
-    name: 'Тест',
-    telegramId: 1,
-    roles: [Role.GUEST],
-    createdAt: '2024-01-01T00:00',
-    ...overrides,
-  };
-}
-
-const testPool: Question[] = [
-  {
-    question: 'Первый вопрос',
-    questionCode: 'q1',
-    type: 'choice',
-    multiple: false,
-    answers: [
-      { answer: 'Да', answerCode: 'yes' },
-      { answer: 'Нет', answerCode: 'no' },
-    ],
-  },
-  {
-    question: 'Второй вопрос',
-    questionCode: 'q2',
-    type: 'text',
-  },
-];
 
 describe('OnboardingApiModule', () => {
-  let db: BaseJsonDb;
-  let questionnaireRepo: QuestionnaireJsonRepo;
-  let userRepo: UserJsonRepo;
-  let mod: OnboardingApiModule;
-
-  beforeEach(() => {
-    tmpDir = mkdtempSync('/tmp/onboarding-api-test-');
-    db = new BaseJsonDb();
-    questionnaireRepo = new QuestionnaireJsonRepo(
-      nextPath('questionnaires'),
-      db,
-    );
-    userRepo = new UserJsonRepo(nextPath('users'), undefined, db);
-    mod = new OnboardingApiModule();
-    mod.init({
-      questionnaireRepo,
-      questionPoolService: new QuestionPoolService(testPool),
-      includedQuestionCodes: testPool.map((q) => q.questionCode),
-      userFacade: {
-        getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
-        userExists: async (uuid: string) => {
-          const u = await userRepo.getByUuid(uuid);
-          return u !== undefined;
-        },
-        addRoleToUser: async (userId: string, role: Role) => {
-          const user = await userRepo.getByUuid(userId);
-          if (!user) return undefined;
-          const updated = {
-            ...user,
-            roles: user.roles.includes(role)
-              ? user.roles
-              : [...user.roles, role],
-          };
-          await userRepo.save(updated);
-          return updated;
-        },
-      },
-      db,
-    });
-  });
-
-  afterEach(() => {
-    rmSync(tmpDir, { recursive: true, force: true });
-  });
-
   test('start-questionnaire: создаёт анкету', async () => {
-    const user = makeUser();
-    await userRepo.save(user);
+    const { module, db } = setupModule();
+    db.begin();
 
-    const result = await mod.handle({
+    const result = await module.handle({
       name: 'start-questionnaire',
-      attrs: { userId: user.uuid },
-      actorId: user.uuid,
-    });
+      attrs: { telegramId: 12345 },
+    }) as any;
 
-    expect((result as { status: string }).status).toBe('in_progress');
-    expect(
-      (result as { currentQuestionCode: string | null }).currentQuestionCode,
-    ).toBe('q1');
+    expect(result.telegramId).toBe(12345);
+    expect(result.status).toBe('in_progress');
+
+    db.rollback();
   });
 
   test('submit-answer: обрабатывает ответ и завершает анкету', async () => {
-    const user = makeUser();
-    await userRepo.save(user);
+    const { module, db } = setupModule();
+    db.begin();
 
-    const created = (await mod.handle({
+    const startResult = await module.handle({
       name: 'start-questionnaire',
-      attrs: { userId: user.uuid },
-      actorId: user.uuid,
-    })) as { uuid: string };
+      attrs: { telegramId: 12345 },
+    }) as any;
 
-    const result = await mod.handle({
+    const submitResult = await module.handle({
       name: 'submit-answer',
       attrs: {
-        questionnaireUuid: created.uuid,
+        questionnaireUuid: startResult.uuid,
         questionCode: 'q1',
         value: 'yes',
       },
-      actorId: user.uuid,
-    });
+    }) as any;
 
-    expect((result as { status: string }).status).toBe('in_progress');
+    expect(submitResult.status).toBe('completed');
 
-    const finalResult = await mod.handle({
-      name: 'submit-answer',
-      attrs: {
-        questionnaireUuid: created.uuid,
-        questionCode: 'q2',
-        value: 'hello',
-      },
-      actorId: user.uuid,
-    });
-
-    expect((finalResult as { status: string }).status).toBe('completed');
-
-    const updatedUser = await userRepo.getByUuid(user.uuid);
-    expect(updatedUser?.roles).toContain(Role.CANDIDATE);
+    db.rollback();
   });
 
-  test('get-questionnaire: возвращает анкету владельцу', async () => {
-    const user = makeUser();
-    await userRepo.save(user);
+  test('get-questionnaire: возвращает анкету', async () => {
+    const { module, db } = setupModule();
+    db.begin();
 
-    const created = (await mod.handle({
+    const startResult = await module.handle({
       name: 'start-questionnaire',
-      attrs: { userId: user.uuid },
-      actorId: user.uuid,
-    })) as { uuid: string };
+      attrs: { telegramId: 12345 },
+    }) as any;
 
-    const result = await mod.handle({
+    const getResult = await module.handle({
       name: 'get-questionnaire',
-      attrs: { uuid: created.uuid },
-      actorId: user.uuid,
-    });
+      attrs: { uuid: startResult.uuid },
+    }) as any;
 
-    expect((result as { uuid: string }).uuid).toBe(created.uuid);
-  });
+    expect(getResult.uuid).toBe(startResult.uuid);
 
-  test('get-questionnaire: отклоняет чужаку', async () => {
-    const user = makeUser();
-    const stranger = makeUser();
-    await userRepo.save(user);
-    await userRepo.save(stranger);
-
-    const created = (await mod.handle({
-      name: 'start-questionnaire',
-      attrs: { userId: user.uuid },
-      actorId: user.uuid,
-    })) as { uuid: string };
-
-    await expect(
-      mod.handle({
-        name: 'get-questionnaire',
-        attrs: { uuid: created.uuid },
-        actorId: stranger.uuid,
-      }),
-    ).rejects.toThrow('Нет доступа к анкете');
+    db.rollback();
   });
 
   test('abandon-questionnaire: прерывает анкету', async () => {
-    const user = makeUser();
-    await userRepo.save(user);
+    const { module, db } = setupModule();
+    db.begin();
 
-    const created = (await mod.handle({
+    const startResult = await module.handle({
       name: 'start-questionnaire',
-      attrs: { userId: user.uuid },
-      actorId: user.uuid,
-    })) as { uuid: string };
+      attrs: { telegramId: 12345 },
+    }) as any;
 
-    const result = await mod.handle({
+    const abandonResult = await module.handle({
       name: 'abandon-questionnaire',
-      attrs: { uuid: created.uuid },
-      actorId: user.uuid,
-    });
+      attrs: { uuid: startResult.uuid },
+    }) as any;
 
-    expect((result as { status: string }).status).toBe('abandoned');
-  });
+    expect(abandonResult.status).toBe('abandoned');
 
-  test('list-questionnaires-by-user: ADMIN видит все анкеты', async () => {
-    const admin = makeUser({ roles: [Role.ADMIN] });
-    const user = makeUser();
-    await userRepo.save(admin);
-    await userRepo.save(user);
-
-    await mod.handle({
-      name: 'start-questionnaire',
-      attrs: { userId: user.uuid },
-      actorId: user.uuid,
-    });
-
-    const result = await mod.handle({
-      name: 'list-questionnaires-by-user',
-      attrs: { userId: user.uuid },
-      actorId: admin.uuid,
-    });
-
-    const list = result as { userId: string }[];
-    expect(list.length).toBeGreaterThanOrEqual(1);
-    expect(list.some((q) => q.userId === user.uuid)).toBe(true);
+    db.rollback();
   });
 });

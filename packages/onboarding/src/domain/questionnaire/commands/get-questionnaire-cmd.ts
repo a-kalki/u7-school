@@ -23,11 +23,10 @@ export interface GetQuestionnaireCmdMeta {
   input: GetQuestionnaireCmd;
   output: Questionnaire;
   errors: GetQuestionnaireCmdError;
-  requiresAuth: true;
+  requiresAuth: false;
   type: 'query';
 }
 
 /** Ошибки команды получения анкеты */
 export type GetQuestionnaireCmdError =
-  | QuestionnaireNotFoundUcError
-  | AccessDeniedUcError;
+  | QuestionnaireNotFoundUcError;

@@ -19,4 +19,10 @@ export interface UserFacade {
     role: Role,
     actorId?: string,
   ): Promise<User | undefined>;
+
+  /** Убедиться, что существует пользователь с указанным telegramId и ролью (создаст, если нет) */
+  ensureUserWithRole(
+    telegramId: number,
+    role: Role,
+  ): Promise<void>;
 }

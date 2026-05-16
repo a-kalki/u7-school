@@ -33,11 +33,14 @@ export type QuestionnaireStatus = v.InferOutput<
 /** Схема состояния анкеты */
 export const QuestionnaireSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
-  userId: v.pipe(v.string(), v.nonEmpty('userId не может быть пустым')),
+  telegramId: v.pipe(v.number(), v.minValue(1, 'telegramId должен быть положительным числом')),
   status: QuestionnaireStatusSchema,
   answers: v.array(AnswerEntrySchema),
   currentQuestionCode: v.nullable(
     v.pipe(v.string(), v.nonEmpty('Код текущего вопроса не может быть пустым')),
+  ),
+  draftAnswers: v.optional(
+    v.array(v.pipe(v.string(), v.nonEmpty('Код чернового ответа не может быть пустым'))),
   ),
   createdAt: v.pipe(
     v.string(),
