@@ -75,25 +75,6 @@ describe('OnboardingApiModule', () => {
     db.rollback();
   });
 
-  test('get-questionnaire: возвращает анкету', async () => {
-    const { module, db } = setupModule('/tmp/onboarding-test-3.json');
-    db.begin();
-
-    const startResult = (await module.handle({
-      name: 'start-questionnaire',
-      attrs: { telegramId: 10003 },
-    })) as any;
-
-    const getResult = (await module.handle({
-      name: 'get-questionnaire',
-      attrs: { uuid: startResult.uuid },
-    })) as any;
-
-    expect(getResult.uuid).toBe(startResult.uuid);
-
-    db.rollback();
-  });
-
   test('abandon: прерывает анкету по telegramId', async () => {
     const { module, db } = setupModule('/tmp/onboarding-test-4.json');
     db.begin();

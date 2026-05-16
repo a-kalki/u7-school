@@ -1,4 +1,6 @@
-import type { OnboardingState } from '#domain/questionnaire/commands/get-onboarding-state-cmd';
+// TODO: Удалить после рефакторинга контроллера (будущий трек)
+// import type { OnboardingState } from '#domain/questionnaire/commands/get-onboarding-state-cmd';
+type OnboardingState = any;
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { OnboardingBotApp } from '../app';

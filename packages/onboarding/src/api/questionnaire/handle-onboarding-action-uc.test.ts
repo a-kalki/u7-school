@@ -7,7 +7,7 @@ import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 import { HandleOnboardingActionUc } from './handle-onboarding-action-uc';
 
 function setupUc(active?: Questionnaire) {
-  const save = mock(async () => { });
+  const save = mock(async () => {});
   const getByTelegramId = mock(async () => (active ? [active] : []));
 
   const repo: QuestionnaireRepo = {
@@ -44,7 +44,7 @@ function setupUc(active?: Questionnaire) {
     getUserByUuid: mock(async () => undefined),
     userExists: mock(async () => false),
     registerGuest: mock(async () => ({})),
-    ensureUserWithRole: mock(async () => { }),
+    ensureUserWithRole: mock(async () => {}),
   } as unknown as UserFacade;
 
   const uc = new HandleOnboardingActionUc();

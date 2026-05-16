@@ -4,10 +4,7 @@ import type {
   OnboardingApiModuleResolver,
 } from '#domain/module';
 import { AbandonQuestionnaireUc } from './questionnaire/abandon-questionnaire-uc';
-import { GetOnboardingStateUc } from './questionnaire/get-onboarding-state-uc';
-import { GetQuestionnaireUc } from './questionnaire/get-questionnaire-uc';
 import { HandleOnboardingActionUc } from './questionnaire/handle-onboarding-action-uc';
-import { ListQuestionnairesByTelegramIdUc } from './questionnaire/list-questionnaires-by-telegram-id-uc';
 import { StartQuestionnaireUc } from './questionnaire/start-questionnaire-uc';
 
 export class OnboardingApiModule extends ApiModule<
@@ -18,9 +15,6 @@ export class OnboardingApiModule extends ApiModule<
   readonly useCases = [
     new StartQuestionnaireUc(),
     new HandleOnboardingActionUc(),
-    new GetQuestionnaireUc(),
     new AbandonQuestionnaireUc(),
-    new ListQuestionnairesByTelegramIdUc(),
-    new GetOnboardingStateUc(),
   ];
 }
