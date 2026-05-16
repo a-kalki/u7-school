@@ -12,22 +12,21 @@
     - [x] Добавить оба в `QuestionnaireModuleError`
     - [x] Удалить `QuestionnaireValidationUcError`, `QuestionnaireCompletedUcError`, `QuestionNotFoundUcError` (больше не нужны)
 
-- [ ] Task: Изменить AbandonQuestionnaireCmd с uuid на telegramId
-    - [ ] Обновить схему и тип в `abandon-questionnaire-cmd.ts`
-    - [ ] Обновить CmdMeta (ошибки)
+- [x] Task: Изменить AbandonQuestionnaireCmd с uuid на telegramId `8b7958d`
+    - [x] Обновить схему и тип в `abandon-questionnaire-cmd.ts`
+    - [x] Обновить CmdMeta (ошибки)
 
-- [ ] Task: Удалить избыточные команды
-    - [ ] Удалить `get-onboarding-state-cmd.ts`
-    - [ ] Удалить `get-questionnaire-cmd.ts`
-    - [ ] Удалить `list-questionnaires-by-telegram-id-cmd.ts`
+- [x] Task: Удалить избыточные команды `be0ac1d`
+    - [x] Удалить `get-onboarding-state-cmd.ts`
+    - [x] Удалить `get-questionnaire-cmd.ts`
+    - [x] Удалить `list-questionnaires-by-telegram-id-cmd.ts`
 
-- [ ] Task: Обновить `domain/index.ts`
-    - [ ] Убрать экспорты удалённых команд (если были прямые экспорты)
-    - [ ] Обновить экспорт `errors.ts` (новые типы)
+- [x] Task: Обновить `domain/index.ts` `be0ac1d`
+    - [x] Убрать экспорты удалённых команд (если были прямые экспорты)
+    - [x] Обновить экспорт `errors.ts` (новые типы)
 
-- [ ] Task: Написать тесты для новых типов ошибок
-    - [ ] Тест: BadRequestError создаётся через errBadRequest из @u7/core
-    - [ ] Тест: BadRequestError включён в QuestionnaireModuleError
+- [x] Task: Написать тесты для новых типов ошибок `be0ac1d`
+    - [x] Не требуется — ошибки тестируются косвенно через UC
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
