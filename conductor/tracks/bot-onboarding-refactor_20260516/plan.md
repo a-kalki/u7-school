@@ -1,6 +1,6 @@
 # План реализации: Рефакторинг u7-bot + onboarding-controller
 
-## Фаза 1: Новый UC `get-current-question` (Onboarding)
+## Фаза 1: Новый UC `get-current-question` (Onboarding) [checkpoint: 3c139ab]
 
 - [x] Task: Создать команду `get-current-question-cmd.ts`
     - [x] Файл: `packages/onboarding/src/domain/questionnaire/commands/get-current-question-cmd.ts`
