@@ -26,7 +26,7 @@
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Новый UC get-current-question' (Protocol in workflow.md)
 
-## Фаза 2: Типы BotUpdate / BotResponse и рефакторинг контроллера
+## Фаза 2: Типы BotUpdate / BotResponse и рефакторинг контроллера [checkpoint: 03a7822]
 
 - [x] Task: Обновить `BotUpdate` тип
     - [x] Файл: `packages/onboarding/src/ui/bot/types.ts`
