@@ -7,6 +7,9 @@ import type { Question } from './question';
 import type { QuestionPoolService } from './question-pool-service';
 import type { QuestionnaireActionResponse } from './types';
 
+/** Префикс значения кнопки «Далее» */
+const NEXT_BUTTON_PREFIX = 'next:';
+
 /** Агрегат прохождения анкеты */
 export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   readonly #poolService: QuestionPoolService;
@@ -44,13 +47,34 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     return ar;
   }
 
+  // ── Публичные хелперы для nextButton ──
+
+  /** Форматирует текст кнопки «Далее» для переданного кода вопроса */
+  static getNextButtonText(questionCode: string): string {
+    return `${NEXT_BUTTON_PREFIX}${questionCode}`;
+  }
+
+  /** Проверяет, что значение — валидная кнопка «Далее» для текущего вопроса */
+  isValidNextButtonText(value: string): boolean {
+    return (
+      value === QuestionnaireAr.getNextButtonText(this.currentQuestionCode)
+    );
+  }
+
   isCompleted(): boolean {
     return this.state.status === 'completed';
   }
 
+  // ── Основной метод ──
+
   /**
    * Универсальный метод обработки действий пользователя.
    * Агрегат сам знает текущий вопрос и проверяет корректность ответа.
+   *
+   * Гарантирует целостность состояния при любых входных данных:
+   * - колбэки с предыдущих вопросов отклоняются
+   * - текстовый ввод на выборный вопрос отклоняется
+   * - кнопка «Далее» проверяется на соответствие текущему вопросу
    */
   handleAction(action: {
     type: 'callback' | 'text';
@@ -61,8 +85,24 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     const questionCode = this.currentQuestionCode;
     const question = this.getQuestion(questionCode);
 
-    // 1. Если пришла команда 'next' (сабмит черновиков)
-    if (action.value === 'next') {
+    // ── Ветка: текстовый ввод ──
+    if (action.type === 'text') {
+      if (question.type === 'text') {
+        return this.submitCurrentQuestion(action.value);
+      }
+      this.throwBadRequest('Ожидался ответ с выбором (нажатием кнопки)');
+    }
+
+    // ── Ветка: колбэк (нажатие кнопки) ──
+    // action.type === 'callback'
+
+    // 1. Кнопка «Далее» (сабмит черновиков)
+    if (action.value.startsWith(NEXT_BUTTON_PREFIX)) {
+      if (!this.isValidNextButtonText(action.value)) {
+        this.throwBadRequest(
+          'Кнопка «Далее» не соответствует текущему вопросу',
+        );
+      }
       if (question.type !== 'choice' || !question.multiple) {
         this.throwBadRequest(
           'Команда next доступна только для вопросов с множественным выбором',
@@ -71,12 +111,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       return this.submitCurrentQuestion();
     }
 
-    // 2. Обработка текстового вопроса
-    if (question.type === 'text') {
-      return this.submitCurrentQuestion(action.value);
-    }
-
-    // 3. Обработка вопроса с выбором
+    // 2. Выбор ответа
     if (question.type === 'choice') {
       const answerCode = action.value;
 
@@ -85,29 +120,16 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       }
 
       if (question.multiple) {
-        // Переключаем черновик
-        const draft = this.state.draftAnswers ?? [];
-        const idx = draft.indexOf(answerCode);
-        const newDraft: string[] =
-          idx >= 0
-            ? draft.filter((c) => c !== answerCode)
-            : [...draft, answerCode];
-
-        this.safeUpdate({ draftAnswers: newDraft });
-
-        const response: QuestionnaireActionResponse = {
-          type: 'wait_next',
-          question,
-          selectedAnswers: newDraft,
-        };
-        if (newDraft.length > 0) {
-          response.nextButton = `next:${questionCode}`;
-        }
-        return response;
-      } else {
-        // Одиночный выбор - сабмитим сразу
-        return this.submitCurrentQuestion(answerCode);
+        return this.toggleDraftAnswer(question, answerCode, questionCode);
       }
+
+      // Одиночный выбор — сабмитим сразу
+      return this.submitCurrentQuestion(answerCode);
+    }
+
+    // 3. Колбэк пришёл, но текущий вопрос — текстовый
+    if (question.type === 'text') {
+      this.throwBadRequest('Ожидался текстовый ответ');
     }
 
     this.throwInternal(
@@ -115,14 +137,39 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     );
   }
 
-  /** Принимает и валидирует ответ, переходит к следующему вопросу */
-  protected submitCurrentQuestion(
-    value?: string[] | string,
+  // ── Переключение черновиков (multiple choice) ──
+
+  private toggleDraftAnswer(
+    question: Question,
+    answerCode: string,
+    questionCode: string,
   ): QuestionnaireActionResponse {
+    const draft = this.state.draftAnswers ?? [];
+    const idx = draft.indexOf(answerCode);
+    const newDraft: string[] =
+      idx >= 0 ? draft.filter((c) => c !== answerCode) : [...draft, answerCode];
+
+    this.safeUpdate({ draftAnswers: newDraft });
+
+    const response: QuestionnaireActionResponse = {
+      type: 'wait_next',
+      question,
+      selectedAnswers: newDraft,
+    };
+    if (newDraft.length > 0) {
+      response.nextButton = QuestionnaireAr.getNextButtonText(questionCode);
+    }
+    return response;
+  }
+
+  // ── Сабмит текущего вопроса ──
+
+  /** Принимает и валидирует ответ, переходит к следующему вопросу */
+  protected submitCurrentQuestion(value?: string): QuestionnaireActionResponse {
     const questionCode = this.currentQuestionCode;
     const question = this.getQuestion(questionCode);
 
-    // Если значение не передано явно, берем из черновика
+    // Если значение не передано явно, берём из черновика
     let actualValue: string | string[] | undefined = value;
     if (actualValue === undefined) {
       const draft = this.state.draftAnswers ?? [];
@@ -164,15 +211,17 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     }
 
     this._state.answers.push(entry);
-    const lastQuestionSelectedAnswers = entry.answerCodes;
+    const lastSelected = entry.answerCodes;
     this.safeUpdate({ draftAnswers: [] });
 
-    return this.findAndSetNextQuestion(lastQuestionSelectedAnswers);
+    return this.findAndSetNextQuestion(lastSelected);
   }
+
+  // ── Переход к следующему вопросу ──
 
   /** Определяет следующий вопрос с учётом ветвления и обновляет стейт */
   protected findAndSetNextQuestion(
-    lastQuestionSelectedAnswers: string[],
+    lastSelectedAnswers: string[],
   ): QuestionnaireActionResponse {
     const nextQuestion = this.#poolService.getNextQuestion(
       this.state.currentQuestionCode,
@@ -184,13 +233,15 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       return {
         type: 'new_question',
         question: nextQuestion,
-        selectedAnswers: lastQuestionSelectedAnswers,
+        selectedAnswers: lastSelectedAnswers,
       };
     }
 
     this.safeUpdate({ status: 'completed', currentQuestionCode: null });
-    return { type: 'completed', selectedAnswers: lastQuestionSelectedAnswers };
+    return { type: 'completed', selectedAnswers: lastSelectedAnswers };
   }
+
+  // ── Состояние для UI ──
 
   /** Возвращает текущее состояние в виде ответа для UI */
   getQuestionnaireActionResponse(): QuestionnaireActionResponse {
@@ -210,7 +261,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
         type: 'wait_next',
         question,
         selectedAnswers: this.state.draftAnswers ?? [],
-        nextButton: `next:${questionCode}`,
+        nextButton: QuestionnaireAr.getNextButtonText(questionCode),
       };
     }
 
@@ -220,6 +271,8 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       selectedAnswers: this.state.draftAnswers ?? [],
     };
   }
+
+  // ── Завершение анкеты ──
 
   /** Прерывает анкету */
   abandon(): void {
@@ -236,6 +289,8 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   getAnswers(): AnswerEntry[] {
     return this.state.answers;
   }
+
+  // ── Защитные методы ──
 
   protected checkIsInProgress(): void {
     if (this.state.status !== 'in_progress') {

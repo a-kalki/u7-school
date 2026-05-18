@@ -3,6 +3,8 @@ import { QuestionnaireAr } from './a-root';
 import type { Question } from './question';
 import { QuestionPoolService } from './question-pool-service';
 
+// ── Test pool ──
+
 const testPool: Question[] = [
   {
     question: 'Первый вопрос',
@@ -48,7 +50,11 @@ function txt(value: string) {
   return { type: 'text' as const, value };
 }
 
+// ── Tests ──
+
 describe('QuestionnaireAr', () => {
+  // ── Жизненный цикл ──
+
   test('start создаёт анкету и определяет первый вопрос', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
@@ -74,7 +80,7 @@ describe('QuestionnaireAr', () => {
     expect(res.type).toBe('new_question');
     expect((res as any).question.questionCode).toBe('q4');
 
-    // q4 - множественный выбор. Переключаем черновики
+    // q4 — множественный выбор
     res = ar.handleAction(cb('a'));
     expect(res.type).toBe('wait_next');
     expect((res as any).selectedAnswers).toEqual(['a']);
@@ -84,8 +90,8 @@ describe('QuestionnaireAr', () => {
     expect(res.type).toBe('wait_next');
     expect((res as any).selectedAnswers).toEqual(['a', 'b']);
 
-    // Подтверждаем
-    res = ar.handleAction(cb('next'));
+    // Подтверждаем через next:<code>
+    res = ar.handleAction(cb('next:q4'));
     expect(res.type).toBe('completed');
 
     expect(ar.getCurrentState().status).toBe('completed');
@@ -101,20 +107,40 @@ describe('QuestionnaireAr', () => {
     expect(res.type).toBe('new_question');
   });
 
+  test('abandon прерывает анкету', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.abandon();
+    expect(ar.getCurrentState().status).toBe('abandoned');
+  });
+
+  test('ошибка при попытке ответить на завершённую анкету', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no'));
+    ar.handleAction(txt('hello'));
+    ar.handleAction(cb('a'));
+    ar.handleAction(cb('next:q4'));
+
+    expect(() => ar.handleAction(cb('a'))).toThrow('Анкета уже завершена');
+  });
+
+  // ── Валидация ответов ──
+
   test('валидация single choice — отклоняет неверный код', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
-
     expect(() => ar.handleAction(cb('invalid'))).toThrow();
   });
 
-  test('валидация multiple choice — отклоняет пустой массив при next', () => {
+  test('валидация multiple choice — отклоняет пустой черновик при next', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
     ar.handleAction(cb('no'));
     ar.handleAction(txt('hello'));
 
-    expect(() => ar.handleAction(cb('next'))).toThrow();
+    // q4 — множественный, черновик пуст, next должен упасть на валидации
+    expect(() => ar.handleAction(cb('next:q4'))).toThrow();
   });
 
   test('валидация text — отклоняет пустую строку', () => {
@@ -126,39 +152,99 @@ describe('QuestionnaireAr', () => {
     expect(() => ar.handleAction(txt(''))).toThrow();
   });
 
-  test('ошибка при попытке ответить на завершённую анкету', () => {
+  // ── nextButton ──
+
+  test('nextButton появляется при множественном выборе с черновиками', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
     ar.handleAction(cb('no'));
-    ar.handleAction(txt('hello'));
-    ar.handleAction(cb('a'));
-    ar.handleAction(cb('next'));
+    ar.handleAction(txt('test'));
 
-    expect(() => ar.handleAction(cb('a'))).toThrow('Анкета уже завершена');
+    expect(ar.getCurrentState().draftAnswers).toEqual([]);
+
+    const res = ar.handleAction(cb('a'));
+    expect(res.type).toBe('wait_next');
+    expect((res as any).nextButton).toBe('next:q4');
+    expect((res as any).selectedAnswers).toEqual(['a']);
+
+    // Сняли выбор — nextButton исчезает
+    const res2 = ar.handleAction(cb('a'));
+    expect(res2.type).toBe('wait_next');
+    expect(res2.selectedAnswers).toEqual([]);
+    expect((res2 as any).nextButton).toBeUndefined();
   });
 
-  test('abandon прерывает анкету', () => {
-    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
-    const ar = QuestionnaireAr.start(123456, pool);
-    ar.abandon();
-
-    expect(ar.getCurrentState().status).toBe('abandoned');
+  test('getNextButtonText форматирует корректно', () => {
+    expect(QuestionnaireAr.getNextButtonText('q1')).toBe('next:q1');
+    expect(QuestionnaireAr.getNextButtonText('source')).toBe('next:source');
   });
 
-  test('getAnswers возвращает все ответы', () => {
+  // ── Защита от колбэков с предыдущих вопросов ──
+
+  test('nextButton с чужим questionCode отклоняется', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
     ar.handleAction(cb('no'));
-    ar.handleAction(txt('hello'));
-    ar.handleAction(cb('a'));
-    ar.handleAction(cb('next'));
+    ar.handleAction(txt('test'));
 
-    const answers = ar.getAnswers();
-    expect(answers).toHaveLength(3);
-    expect(answers[0]?.questionCode).toBe('q1');
-    expect(answers[0]?.answerCodes).toEqual(['no']);
-    expect(answers[1]?.textValue).toBe('hello');
+    // Мы на q4, но нажали «Далее» с q1
+    expect(() => ar.handleAction(cb('next:q1'))).toThrow(
+      'Кнопка «Далее» не соответствует текущему вопросу',
+    );
   });
+
+  test('nextButton для single choice отклоняется', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+
+    expect(() => ar.handleAction(cb('next:q1'))).toThrow(
+      'Команда next доступна только для вопросов с множественным выбором',
+    );
+  });
+
+  test('nextButton для текстового вопроса отклоняется', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // перешли на q3 (текст)
+
+    expect(() => ar.handleAction(cb('next:q3'))).toThrow(
+      'Команда next доступна только для вопросов с множественным выбором',
+    );
+  });
+
+  // ── Несоответствие action.type и question.type ──
+
+  test('текстовый ввод на choice вопрос отклоняется', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+
+    expect(() => ar.handleAction(txt('hello'))).toThrow(
+      'Ожидался ответ с выбором (нажатием кнопки)',
+    );
+  });
+
+  test('текстовый ввод на choice+multiple вопрос отклоняется', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no'));
+    ar.handleAction(txt('test')); // перешли на q4
+
+    expect(() => ar.handleAction(txt('hello'))).toThrow(
+      'Ожидался ответ с выбором (нажатием кнопки)',
+    );
+  });
+
+  test('колбэк на текстовый вопрос отклоняется', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // перешли на q3 (текст)
+
+    expect(() => ar.handleAction(cb('yes'))).toThrow(
+      'Ожидался текстовый ответ',
+    );
+  });
+
+  // ── Черновики ──
 
   test('переключение черновиков (multiple choice)', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
@@ -175,31 +261,30 @@ describe('QuestionnaireAr', () => {
     ar.handleAction(cb('a'));
     expect(ar.getCurrentState().draftAnswers).toEqual(['b']);
 
-    const res = ar.handleAction(cb('next'));
+    const res = ar.handleAction(cb('next:q4'));
     expect(ar.getCurrentState().status).toBe('completed');
     expect(ar.getAnswers()[2]?.answerCodes).toEqual(['b']);
     expect(res.selectedAnswers).toEqual(['b']);
   });
 
-  test('ошибка: next для не-множественного вопроса', () => {
+  // ── Ответы ──
+
+  test('getAnswers возвращает все ответы', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no'));
+    ar.handleAction(txt('hello'));
+    ar.handleAction(cb('a'));
+    ar.handleAction(cb('next:q4'));
 
-    expect(() => ar.handleAction(cb('next'))).toThrow(
-      'Команда next доступна только для вопросов с множественным выбором',
-    );
+    const answers = ar.getAnswers();
+    expect(answers).toHaveLength(3);
+    expect(answers[0]?.questionCode).toBe('q1');
+    expect(answers[0]?.answerCodes).toEqual(['no']);
+    expect(answers[1]?.textValue).toBe('hello');
   });
 
-  test('ошибка: ответ на неверный тип (массив для текста нельзя передать)', () => {
-    // В новой сигнатуре value всегда string, массив передать невозможно.
-    // Тест проверяет что текстовая валидация работает.
-    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
-    const ar = QuestionnaireAr.start(123456, pool);
-    ar.handleAction(cb('no')); // перешли на q3 (текст)
-
-    // Пустая строка на текстовый вопрос
-    expect(() => ar.handleAction(txt(''))).toThrow();
-  });
+  // ── Ветвление ──
 
   test('getNextQuestion: корректная работа при отсутствии ответов на условия', () => {
     const pool = new QuestionPoolService(
@@ -218,38 +303,6 @@ describe('QuestionnaireAr', () => {
 
     const ar = QuestionnaireAr.start(123456, pool);
     const res = ar.handleAction(txt('hello'));
-
     expect(res.type).toBe('completed');
-  });
-
-  test('nextButton появляется при множественном выборе с черновиками', () => {
-    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
-    const ar = QuestionnaireAr.start(123456, pool);
-    ar.handleAction(cb('no'));
-    ar.handleAction(txt('test'));
-
-    // После перехода на q4 черновики пусты
-    expect(ar.getCurrentState().draftAnswers).toEqual([]);
-
-    // Выбрали один — появляется nextButton
-    const res = ar.handleAction(cb('a'));
-    expect(res.type).toBe('wait_next');
-    expect((res as any).nextButton).toBe('next:q4');
-    expect((res as any).selectedAnswers).toEqual(['a']);
-
-    // Сняли выбор — nextButton пропадает (draftAnswers пуст)
-    const res2 = ar.handleAction(cb('a'));
-    expect(res2.type).toBe('wait_next');
-    expect(res2.selectedAnswers).toEqual([]);
-  });
-
-  test('selectedAnswers опционально в new_question и completed', () => {
-    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
-    const ar = QuestionnaireAr.start(123456, pool);
-
-    // q1 single choice: сабмитим сразу, selectedAnswers опциональны
-    const res = ar.handleAction(cb('yes'));
-    expect(res.type).toBe('new_question');
-    // selectedAnswers может быть пустым массивом (answerCodes от single choice)
   });
 });
