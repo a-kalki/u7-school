@@ -21,14 +21,14 @@
 ### FR3: `/start` (бот)
 - Вызывает `userFacade.registerGuest(telegramId, name, botUuid)` — напрямую, без контроллера
 - `ctx.session.menu = 'main'`
-- Форвардит в контроллер: `controller.handleUpdate({ type: 'command', command: 'start', telegramId, name }, botUuid)`
-- Исполняет `BotResponse`
+- Бот **сам** показывает главное меню (приветствие + подсказки про `/link-to-school-group` и `/start-onboarding`)
+- **Не вызывает контроллер** — это не его зона
 
-### FR4: Контроллер — команда `start`
-- Возвращает дружелюбное меню верхнего уровня (статический текст):
-  - `/link-to-school-group` — присоединяйся к группе, чтобы быть в курсе новостей, читать отзывы и общаться со студентами
-  - `/start-onboarding` — заполни анкету, расскажи о своих целях и ожиданиях от обучения
-- Не делает API-вызовов — чистая статика
+### FR4: Контроллер — зона ответственности
+- Контроллер отвечает **только** за анкету (onboarding)
+- Принимает команды: `start` (начать/продолжить анкету), `cancel` (прервать)
+- Принимает события: `message` и `callback` для действий в анкете
+- **Не рендерит** главное меню — это зона бота
 
 ### FR5: `/link-to-school-group` (бот)
 - Обрабатывается ботом напрямую (без контроллера)
@@ -36,15 +36,15 @@
 
 ### FR6: `/start-onboarding` (бот)
 - `ctx.session.menu = 'onboarding'`
-- Форвардит: `controller.handleUpdate({ type: 'command', command: 'start-onboarding', telegramId, name }, botUuid)`
+- Форвардит: `controller.handleUpdate({ type: 'command', command: 'start', telegramId, name }, botUuid)`
+  - Контроллер понимает `start` как «начни/продолжи анкету» — он отвечает только за onboarding
 - Исполняет `BotResponse`
 
-### FR7: Контроллер — команда `start-onboarding`
+### FR7: Контроллер — команда `start`
 - Вызывает новый UC `get-current-question({ telegramId })`
   - **Есть активная** → UC возвращает `QuestionnaireActionResponse` с типом `new_question` или `wait_next`
-  - **Нет активной** → UC выбрасывает ошибку, контроллер ловит → вызывает `start-questionnaire` UC
+  - **Нет активной** → UC выбрасывает ошибку, контроллер ловит → вызывает `start` UC
 - Рендерит вопрос, клавиатуру
-- Сообщение-подсказка про `/cancel`
 
 ### FR8: Новый UC `get-current-question`
 - **Имя:** `get-current-question`
@@ -55,9 +55,11 @@
 - `requiresAuth: false`
 
 ### FR9: Контроллер — явные команды
-- Контроллер принимает команды: `start`, `start-onboarding`, `cancel`
+- Контроллер принимает команды: `start`, `cancel`
+  - `start` — начать новую анкету или продолжить активную
+  - `cancel` — прервать активную анкету
 - Контроллер НЕ знает про callback `become_student`
-- Все решения о маршрутизации — на боте (через `ctx.session.menu`)
+- Контроллер НЕ рендерит главное меню (это делает бот)
 
 ### FR10: Сигнал завершения анкеты
 - `BotResponse.questionnaireCompleted?: true`
