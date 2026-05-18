@@ -3,12 +3,15 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { ApiApp } from '@u7/core/api';
 import { BaseJsonDb } from '@u7/core/infra';
-import { Role } from '@u7/user/domain';
+import type { Logger } from '@u7/core/shared';
+import { Role, type UserFacade } from '@u7/user/domain';
 import { UserJsonRepo } from '@u7/user/infra';
 import { OnboardingApiModule } from '#api/module';
+import type { OnboardingApiModuleResolver } from '#domain/module';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import type { OnboardingBotApp } from '../app';
+import type { MessageDescription } from '../types';
 import { OnboardingController } from './onboarding-controller';
 
 let tmpDir: string;
@@ -25,6 +28,8 @@ describe('OnboardingController', () => {
   let apiApp: OnboardingBotApp;
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
+  let modResolve: OnboardingApiModuleResolver;
+  const logger = { error: () => { } } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
@@ -47,7 +52,7 @@ describe('OnboardingController', () => {
       ['q1'],
     );
 
-    mod = new OnboardingApiModule({
+    modResolve = {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: {
@@ -77,9 +82,11 @@ describe('OnboardingController', () => {
           await userRepo.save(updated);
           return updated;
         },
-      },
+      } as unknown as UserFacade,
       db,
-    });
+    };
+
+    mod = new OnboardingApiModule(modResolve);
 
     // Seed admin после инициализации модуля
     await userRepo.save({
@@ -91,7 +98,7 @@ describe('OnboardingController', () => {
     });
 
     apiApp = new ApiApp([mod]) as OnboardingBotApp;
-    controller = new OnboardingController(apiApp);
+    controller = new OnboardingController(apiApp, logger);
   });
 
   afterEach(() => {
@@ -236,12 +243,12 @@ describe('OnboardingController', () => {
     const mod2 = new OnboardingApiModule({
       questionnaireRepo,
       questionPoolService: poolService,
-      userFacade: (mod as any).userFacade,
+      userFacade: modResolve.userFacade,
       db,
     });
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
-    const ctrl2 = new OnboardingController(app2);
+    const ctrl2 = new OnboardingController(app2, logger);
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
@@ -262,14 +269,20 @@ describe('OnboardingController', () => {
 
     // Edit: должен содержать текст первого вопроса с [x] на 'Да' и БЕЗ клавиатуры
     expect(response.editMessage).toBeDefined();
-    expect(response.editMessage!.messageId).toBe(42);
-    expect(response.editMessage!.text).toContain('Первый вопрос');
-    expect(response.editMessage!.text).toContain('\\[x\\]');
-    expect(response.editMessage!.keyboard).toBeUndefined();
+    const editMessage = response.editMessage as MessageDescription & {
+      messageId: number;
+    };
+    expect(editMessage.messageId).toBe(42);
+    expect(editMessage.text).toContain('Первый вопрос');
+    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.keyboard).toBeUndefined();
 
     // Send: должен содержать текст второго вопроса
-    expect(response.sendMessage).toBeDefined();
-    expect(response.sendMessage!.text).toContain('Второй вопрос');
+    const sendMessage = response.sendMessage as MessageDescription & {
+      messageId: number;
+    };
+    expect(sendMessage).toBeDefined();
+    expect(sendMessage.text).toContain('Второй вопрос');
   });
 
   test('new_question: send использует question (новый вопрос)', async () => {
@@ -294,12 +307,12 @@ describe('OnboardingController', () => {
     const mod2 = new OnboardingApiModule({
       questionnaireRepo,
       questionPoolService: poolService,
-      userFacade: (mod as any).userFacade,
+      userFacade: modResolve.userFacade,
       db,
     });
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
-    const ctrl2 = new OnboardingController(app2);
+    const ctrl2 = new OnboardingController(app2, logger);
 
     await ctrl2.handleUpdate(
       { type: 'command', command: 'start', telegramId: 888, name: 'Иван' },
@@ -317,10 +330,16 @@ describe('OnboardingController', () => {
     );
 
     // Send — новый вопрос, edit — старый. Текст нового вопроса НЕ должен быть в edit
-    expect(response.editMessage!.text).toContain('Первый вопрос');
-    expect(response.sendMessage!.text).toContain('Второй вопрос');
+    const editMessage = response.editMessage as MessageDescription & {
+      messageId: number;
+    };
+    const sendMessage = response.sendMessage as MessageDescription & {
+      messageId: number;
+    };
+    expect(editMessage.text).toContain('Первый вопрос');
+    expect(sendMessage.text).toContain('Второй вопрос');
     // Новый вопрос не должен содержать [x] (черновиков нет)
-    expect(response.sendMessage!.text).not.toContain('\\[x\\]');
+    expect(sendMessage.text).not.toContain('\\[x\\]');
   });
 
   test('new_question: multiple choice с next — edit без клавиатуры', async () => {
@@ -348,12 +367,12 @@ describe('OnboardingController', () => {
     const mod2 = new OnboardingApiModule({
       questionnaireRepo,
       questionPoolService: poolService,
-      userFacade: (mod as any).userFacade,
+      userFacade: modResolve.userFacade,
       db,
     });
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
-    const ctrl2 = new OnboardingController(app2);
+    const ctrl2 = new OnboardingController(app2, logger);
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
@@ -379,15 +398,21 @@ describe('OnboardingController', () => {
     );
 
     // Edit: предыдущий вопрос с [x] на 'a', БЕЗ клавиатуры
-    expect(response.editMessage).toBeDefined();
-    expect(response.editMessage!.messageId).toBe(55);
-    expect(response.editMessage!.text).toContain('Множественный выбор');
-    expect(response.editMessage!.text).toContain('\\[x\\]');
-    expect(response.editMessage!.keyboard).toBeUndefined();
+    const editMessage = response.editMessage as MessageDescription & {
+      messageId: number;
+    };
+    const sendMessage = response.sendMessage as MessageDescription & {
+      messageId: number;
+    };
+    expect(editMessage).toBeDefined();
+    expect(editMessage.messageId).toBe(55);
+    expect(editMessage.text).toContain('Множественный выбор');
+    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.keyboard).toBeUndefined();
 
     // Send: новый вопрос
-    expect(response.sendMessage).toBeDefined();
-    expect(response.sendMessage!.text).toContain('Текстовый вопрос');
+    expect(sendMessage).toBeDefined();
+    expect(sendMessage.text).toContain('Текстовый вопрос');
   });
 
   test('completed: edit последнего вопроса, без клавиатуры', async () => {
@@ -407,12 +432,12 @@ describe('OnboardingController', () => {
     const mod2 = new OnboardingApiModule({
       questionnaireRepo,
       questionPoolService: poolService,
-      userFacade: (mod as any).userFacade,
+      userFacade: modResolve.userFacade,
       db,
     });
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
-    const ctrl2 = new OnboardingController(app2);
+    const ctrl2 = new OnboardingController(app2, logger);
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
@@ -432,14 +457,20 @@ describe('OnboardingController', () => {
     );
 
     // Edit предыдущего сообщения: последний вопрос с [x], без клавиатуры
-    expect(response.editMessage).toBeDefined();
-    expect(response.editMessage!.messageId).toBe(77);
-    expect(response.editMessage!.text).toContain('Последний вопрос');
-    expect(response.editMessage!.text).toContain('\\[x\\]');
-    expect(response.editMessage!.keyboard).toBeUndefined();
+    const editMessage = response.editMessage as MessageDescription & {
+      messageId: number;
+    };
+    const sendMessage = response.sendMessage as MessageDescription & {
+      messageId: number;
+    };
+    expect(editMessage).toBeDefined();
+    expect(editMessage.messageId).toBe(77);
+    expect(editMessage.text).toContain('Последний вопрос');
+    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.keyboard).toBeUndefined();
 
     // Send: сообщение о завершении
-    expect(response.sendMessage!.text).toContain('Спасибо');
+    expect(sendMessage.text).toContain('Спасибо');
     expect(response.questionnaireCompleted).toBe(true);
   });
 
@@ -463,12 +494,12 @@ describe('OnboardingController', () => {
     const mod2 = new OnboardingApiModule({
       questionnaireRepo,
       questionPoolService: poolService,
-      userFacade: (mod as any).userFacade,
+      userFacade: modResolve.userFacade,
       db,
     });
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
-    const ctrl2 = new OnboardingController(app2);
+    const ctrl2 = new OnboardingController(app2, logger);
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
@@ -488,12 +519,15 @@ describe('OnboardingController', () => {
     );
 
     // Edit должен быть (wait_next — редактируем текущее сообщение)
-    expect(response.editMessage).toBeDefined();
-    expect(response.editMessage!.messageId).toBe(33);
-    expect(response.editMessage!.text).toContain('Множественный выбор');
-    expect(response.editMessage!.text).toContain('\\[x\\]');
+    const editMessage = response.editMessage as MessageDescription & {
+      messageId: number;
+    };
+    expect(editMessage).toBeDefined();
+    expect(editMessage.messageId).toBe(33);
+    expect(editMessage.text).toContain('Множественный выбор');
+    expect(editMessage.text).toContain('\\[x\\]');
     // В wait_next клавиатура ДОЛЖНА быть (это режим редактирования чекбоксов)
-    expect(response.editMessage!.keyboard).toBeDefined();
+    expect(editMessage.keyboard).toBeDefined();
     // Send не должно быть (wait_next не отправляет новое сообщение)
     expect(response.sendMessage).toBeUndefined();
   });

@@ -1,3 +1,4 @@
+import type { Logger } from '@u7/core/shared';
 import type { OnboardingController } from '@u7/onboarding';
 import type { UserFacade } from '@u7/user/domain';
 import type { Bot } from 'grammy';
@@ -16,6 +17,7 @@ export function registerTopMenuHandler(
   userFacade: UserFacade,
   controller: OnboardingController,
   config: BotConfig,
+  logger: Logger,
 ) {
   bot.command('start', async (ctx) => {
     const telegramId = ctx.from?.id;
@@ -29,7 +31,10 @@ export function registerTopMenuHandler(
     try {
       await userFacade.registerGuest(telegramId, name, config.botAdminUuid);
     } catch (err) {
-      console.error('Ошибка registerGuest:', err);
+      logger.error('top-menu', 'Ошибка registerGuest', {
+        error: String(err),
+        telegramId,
+      });
     }
 
     ctx.session.menu = 'main';
@@ -45,6 +50,7 @@ export function registerTopMenuHandler(
   });
 
   bot.command('link_to_school_group', async (ctx) => {
+    logger.info('top-menu', `Запрос ссылки на группу от ${ctx.from?.id}`);
     await ctx.reply(
       `Присоединяйся к нашей новостной группе:\n${config.newsGroupUrl}`,
     );
@@ -61,16 +67,24 @@ export function registerTopMenuHandler(
 
     ctx.session.menu = 'onboarding';
 
-    const response = await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId,
-        name,
-      },
-      config.botAdminUuid,
-    );
+    try {
+      const response = await controller.handleUpdate(
+        {
+          type: 'command',
+          command: 'start',
+          telegramId,
+          name,
+        },
+        config.botAdminUuid,
+      );
 
-    await executeResponses(ctx, response);
+      await executeResponses(ctx, response);
+    } catch (err) {
+      logger.error('top-menu', 'Ошибка start_onboarding', {
+        error: String(err),
+        telegramId,
+      });
+      await ctx.reply('Произошла ошибка. Попробуйте позже.');
+    }
   });
 }

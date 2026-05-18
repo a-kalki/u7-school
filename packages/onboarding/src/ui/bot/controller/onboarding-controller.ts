@@ -1,4 +1,5 @@
 import type { AppException } from '@u7/core/domain';
+import type { Logger } from '@u7/core/shared';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { OnboardingBotApp } from '../app';
@@ -11,9 +12,11 @@ import type { BotResponse, BotUpdate, KeyboardDescription } from '../types';
  */
 export class OnboardingController {
   readonly #app: OnboardingBotApp;
+  readonly #logger: Logger;
 
-  constructor(app: OnboardingBotApp) {
+  constructor(app: OnboardingBotApp, logger: Logger) {
     this.#app = app;
+    this.#logger = logger;
   }
 
   /**
@@ -29,7 +32,14 @@ export class OnboardingController {
       // message или callback — форвардим в handle-action
       return this.#handleAction(update, botUuid);
     } catch (err) {
-      console.error('Необработанная ошибка в OnboardingController:', err);
+      this.#logger?.error(
+        'onboarding-controller',
+        'Необработанная ошибка в handleUpdate',
+        {
+          error: String(err),
+          telegramId: 'telegramId' in update ? update.telegramId : undefined,
+        },
+      );
       const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
       return {
         sendMessage: { text: `⚠️ Произошла ошибка: ${message}` },
@@ -133,6 +143,11 @@ export class OnboardingController {
       );
     } catch (err) {
       const ex = err as AppException;
+      this.#logger.error('onboarding-controller', 'Необработанная ошибка!', {
+        error: String(err),
+        telegramId: update.telegramId,
+        type: update.type,
+      });
       return { sendMessage: { text: `Ошибка: ${ex.message}` } };
     }
   }

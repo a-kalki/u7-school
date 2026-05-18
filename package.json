@@ -20,7 +20,10 @@
     "tslint:a": "bash -c 'bun run --cwd \"apps/${0}\" tslint'",
     "check": "bun run lint && bun run tslint && bun test",
     "check:p": "bash -c 'bun run --cwd \"packages/${0}\" check'",
-    "check:a": "bash -c 'bun run --cwd \"apps/${0}\" check'"
+    "check:a": "bash -c 'bun run --cwd \"apps/${0}\" check'",
+    "start:prod": "pm2 start pm2.config.cjs --env production",
+    "start:prod:stop": "pm2 stop pm2.config.cjs",
+    "start:prod:restart": "pm2 restart pm2.config.cjs --update-env"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",

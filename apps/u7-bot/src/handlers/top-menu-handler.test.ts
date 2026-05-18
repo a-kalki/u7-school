@@ -1,7 +1,19 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { Logger } from '@u7/core/shared';
 import type { UserFacade } from '@u7/user/domain';
 import type { BotContext } from '../context';
 import { registerTopMenuHandler } from './top-menu-handler';
+
+function makeMockLogger(): Logger {
+  return {
+    debug: mock(),
+    info: mock(),
+    warn: mock(),
+    error: mock(),
+    setLogLevel: mock(),
+    getLogLevel: mock(() => 0 as any),
+  };
+}
 
 function makeMockBot() {
   const commands: Record<string, (ctx: BotContext) => Promise<void>> = {};
@@ -38,8 +50,9 @@ describe('registerTopMenuHandler', () => {
     const bot = makeMockBot();
     const config = { botAdminUuid: 'uuid', newsGroupUrl: 'url' } as any;
     const userFacade = {} as UserFacade;
+    const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
 
     expect(bot.commands['start']).toBeDefined();
     expect(bot.commands['link_to_school_group']).toBeDefined();
@@ -52,8 +65,9 @@ describe('registerTopMenuHandler', () => {
       registerGuest: mock(async () => ({ uuid: 'user-uuid' })),
     } as unknown as UserFacade;
     const config = { botAdminUuid: 'admin-uuid' } as any;
+    const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
 
     const ctx = makeMockContext();
     await (bot.commands['start'] as any)(ctx);
@@ -73,8 +87,9 @@ describe('registerTopMenuHandler', () => {
       registerGuest: mock(async () => ({ uuid: 'user-uuid' })),
     } as unknown as UserFacade;
     const config = { botAdminUuid: 'admin-uuid' } as any;
+    const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
 
     const ctx = makeMockContext();
     await (bot.commands['start'] as any)(ctx);
@@ -92,8 +107,9 @@ describe('registerTopMenuHandler', () => {
       }),
     } as unknown as UserFacade;
     const config = { botAdminUuid: 'admin-uuid' } as any;
+    const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
 
     const ctx = makeMockContext();
     await (bot.commands['start'] as any)(ctx);

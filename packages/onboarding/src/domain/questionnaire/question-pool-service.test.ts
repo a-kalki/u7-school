@@ -5,21 +5,21 @@ import { QuestionPoolService } from './question-pool-service';
 
 describe('QuestionPoolService', () => {
   test('загружает корректный пул из JSON', () => {
-    const raw = QuestionPoolService.loadDefaultPool() as any[];
+    const raw = QuestionPoolService.loadDefaultPool();
     const service = new QuestionPoolService(
       raw,
-      raw.map((q: any) => q.questionCode),
+      raw.map((q) => q.questionCode),
     );
     const all = service.getAll();
-    expect(all.length).toBe(9);
-    expect(all[0]?.questionCode).toBe('how_found');
+    expect(all.length).toBe(11);
+    expect(all[0]?.questionCode).toBe('goal_text');
   });
 
   test('getByCode возвращает вопрос по коду', () => {
-    const raw = QuestionPoolService.loadDefaultPool() as any[];
+    const raw = QuestionPoolService.loadDefaultPool();
     const service = new QuestionPoolService(
       raw,
-      raw.map((q: any) => q.questionCode),
+      raw.map((q) => q.questionCode),
     );
     const q = service.getByCode('intensity');
     expect(q).toBeDefined();

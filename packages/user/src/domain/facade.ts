@@ -26,6 +26,13 @@ export interface UserFacade {
     actorId?: string,
   ): Promise<User | undefined>;
 
+  /** Удалить роль у пользователя */
+  removeRoleFromUser(
+    userId: string,
+    role: Role,
+    actorId?: string,
+  ): Promise<User | undefined>;
+
   /** Зарегистрировать гостя по telegramId и имени (создаст, если нет) */
   registerGuest(
     telegramId: number,

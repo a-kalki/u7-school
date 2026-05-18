@@ -1,5 +1,10 @@
 [
   {
+    "question": "Расскажи подробнее, чего ты хочешь достичь с помощью наших курсов? Какие у тебя ожидания и цели?",
+    "questionCode": "goal_text",
+    "type": "text"
+  },
+  {
     "question": "Как ты нашел нас?",
     "questionCode": "how_found",
     "type": "choice",
@@ -48,6 +53,26 @@
       {
         "answer": "Я все знаю, здесь потому что интересно посмотреть)",
         "answerCode": "advanced"
+      }
+    ]
+  },
+  {
+    "question": "Какой язык программирования тебе интересен?",
+    "questionCode": "language",
+    "type": "choice",
+    "multiple": false,
+    "answers": [
+      {
+        "answer": "JS/TS — распространнённый язык, набирающий популярность, является стандартом в web-разработке. Выбери, если хочешь развиваться во frontend, backend или fullstack.",
+        "answerCode": "js_ts"
+      },
+      {
+        "answer": "Python — лёгкий, удобный язык, широко используется в data science, машинном обучении, backend-разработке и автоматизации.",
+        "answerCode": "python"
+      },
+      {
+        "answer": "Пока не знаю / мне всё равно",
+        "answerCode": "unsure"
       }
     ]
   },
@@ -112,7 +137,7 @@
     ]
   },
   {
-    "question": "Какой день недели для тебя предпочтителен? (если 'Базовый')",
+    "question": "Какой день недели для тебя предпочтителен?",
     "questionCode": "base_days",
     "type": "choice",
     "multiple": true,
@@ -131,7 +156,7 @@
     ]
   },
   {
-    "question": "Какое время занятий для тебя предпочтительно? (если Базовый)",
+    "question": "Какое время занятий для тебя предпочтительно?",
     "questionCode": "base_time",
     "type": "choice",
     "multiple": true,
@@ -151,7 +176,7 @@
     ]
   },
   {
-    "question": "Какое время занятий для тебя предпочтительно? (если Интенсив)",
+    "question": "Какое время занятий для тебя предпочтительно?",
     "questionCode": "intensive_time",
     "type": "choice",
     "multiple": false,

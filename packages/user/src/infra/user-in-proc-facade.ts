@@ -52,6 +52,23 @@ export class UserInProcFacade implements UserFacade {
     }
   }
 
+  async removeRoleFromUser(
+    userId: string,
+    role: Role,
+    actorId?: string,
+  ): Promise<User | undefined> {
+    try {
+      const result = await this.#userApi.handle({
+        name: 'remove-role-to-user',
+        attrs: { userId, role },
+        actorId,
+      });
+      return result as User;
+    } catch {
+      return undefined;
+    }
+  }
+
   async getUserByTelegramId(
     telegramId: number,
     actorId?: string,

@@ -1,4 +1,5 @@
 import { ApiApp } from '@u7/core/api';
+import type { Logger } from '@u7/core/shared';
 import { BaseJsonDb } from '@u7/core/infra';
 import type { OnboardingBotApp } from '@u7/onboarding';
 import { OnboardingApiModule } from '@u7/onboarding';
@@ -12,7 +13,7 @@ import type { BotConfig } from './config';
  * Фабрика создания ApiApp и зависимостей для бота.
  * Возвращает apiApp (для контроллера) и userFacade (для бота).
  */
-export function createApiApp(config: BotConfig) {
+export function createApiApp(config: BotConfig, logger?: Logger) {
   const db = new BaseJsonDb();
 
   const userRepo = new UserJsonRepo(
@@ -43,8 +44,11 @@ export function createApiApp(config: BotConfig) {
     db,
   });
 
-  // ══ ApiApp: модули в конструкторе ══
-  const apiApp = new ApiApp([userModule, onboardingModule]) as OnboardingBotApp;
+  // ══ ApiApp: модули + опциональный логгер в конструкторе ══
+  const apiApp = new ApiApp(
+    [userModule, onboardingModule],
+    logger,
+  ) as OnboardingBotApp;
 
   return {
     apiApp,

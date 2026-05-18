@@ -61,6 +61,18 @@ export class UserAr extends Aggregate<UserArMeta> {
   }
 
   /**
+   * Идемпотентное удаление роли.
+   * Если роли нет — ничего не делает.
+   */
+  removeRole(role: Role): void {
+    const idx = this._state.roles.indexOf(role);
+    if (idx !== -1) {
+      this._state.roles.splice(idx, 1);
+      this._state.updatedAt = isoNow();
+    }
+  }
+
+  /**
    * Проверяет наличие роли у пользователя.
    */
   hasRole(role: Role): boolean {

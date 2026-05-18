@@ -43,6 +43,12 @@ export type {
   RegisterGuestCmdMeta,
 } from './user/commands/register-guest-cmd';
 export { RegisterGuestCmdSchema } from './user/commands/register-guest-cmd';
+export type {
+  RemoveRoleToUserCmd,
+  RemoveRoleToUserCmdError,
+  RemoveRoleToUserCmdMeta,
+} from './user/commands/remove-role-to-user-cmd';
+export { RemoveRoleToUserCmdSchema } from './user/commands/remove-role-to-user-cmd';
 export type { User, UserArMeta } from './user/entity';
 export { UserSchema } from './user/entity';
 export { UserPolicy } from './user/policy';

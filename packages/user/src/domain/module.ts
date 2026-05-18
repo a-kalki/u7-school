@@ -5,6 +5,7 @@ import type { GetUserByTelegramIdCmdMeta } from './user/commands/get-user-by-tel
 import type { GetUserCmdMeta } from './user/commands/get-user-cmd';
 import type { ListUsersCmdMeta } from './user/commands/list-users-cmd';
 import type { RegisterGuestCmdMeta } from './user/commands/register-guest-cmd';
+import type { RemoveRoleToUserCmdMeta } from './user/commands/remove-role-to-user-cmd';
 import type { UserRepo } from './user/repo';
 
 export type UserUcMetas =
@@ -13,7 +14,8 @@ export type UserUcMetas =
   | GetUserByTelegramIdCmdMeta
   | GetUserCmdMeta
   | ListUsersCmdMeta
-  | RegisterGuestCmdMeta;
+  | RegisterGuestCmdMeta
+  | RemoveRoleToUserCmdMeta;
 
 /** Метаданные API-модуля пользователей */
 export interface UserApiModuleMeta extends ApiModuleMeta {
