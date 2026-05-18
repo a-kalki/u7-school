@@ -31,10 +31,7 @@ class MockUserFacade implements UserFacade {
     return undefined;
   }
 
-  async registerGuest(
-    _telegramId: number,
-    _name: string,
-  ): Promise<User> {
+  async registerGuest(_telegramId: number, _name: string): Promise<User> {
     throw new Error('Not implemented in mock');
   }
 

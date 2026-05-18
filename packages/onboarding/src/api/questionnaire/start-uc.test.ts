@@ -46,7 +46,9 @@ describe('StartUc', () => {
   test('создаёт анкету и сохраняет', async () => {
     const { uc, save } = setupUc();
     const result = await uc.handle({ telegramId: 12345 }, actorId);
-    expect(result.type === 'completed' || result.type === 'new_question').toBe(true);
+    expect(result.type === 'completed' || result.type === 'new_question').toBe(
+      true,
+    );
     if (result.type !== 'completed') {
       expect(result.question.questionCode).toBe('q1');
     }

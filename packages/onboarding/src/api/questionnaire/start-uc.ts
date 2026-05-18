@@ -6,8 +6,8 @@ import {
   type StartQuestionnaireCmdMeta,
   StartQuestionnaireCmdSchema,
 } from '#domain/questionnaire/commands/start-questionnaire-cmd';
-import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { QuestionnaireActiveUcError } from '#domain/questionnaire/errors';
+import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import { OnboardingUseCase } from '../onboarding-uc';
 
 /**

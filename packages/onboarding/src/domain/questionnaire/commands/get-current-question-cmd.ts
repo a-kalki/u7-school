@@ -1,8 +1,8 @@
+import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
 import type { QuestionnaireNotFoundUcError } from '../errors';
 import type { QuestionnaireActionResponse } from '../types';
-import * as v from 'valibot';
 
 /** Схема команды получения текущего вопроса */
 export const GetCurrentQuestionCmdSchema = v.object({

@@ -112,7 +112,9 @@ describe('UserApiModule + UserJsonRepo', () => {
     const jsonFile = '/tmp/user-module-test-6.json';
     await Bun.$`rm -f ${jsonFile}`;
 
-    const mod = new UserApiModule({ userRepo: new UserJsonRepo(jsonFile, NO_SEED) });
+    const mod = new UserApiModule({
+      userRepo: new UserJsonRepo(jsonFile, NO_SEED),
+    });
 
     await expect(mod.handle({ name: 'unknown', attrs: {} })).rejects.toThrow(
       "Команда 'unknown' не найдена",

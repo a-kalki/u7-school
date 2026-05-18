@@ -92,9 +92,9 @@ describe('GetCurrentQuestionUc', () => {
   test('выбрасывает QUESTIONNAIRE_NOT_FOUND без активной анкеты', async () => {
     const { uc } = setupUc([]);
 
-    await expect(
-      uc.handle({ telegramId: 12345 }, actorId),
-    ).rejects.toThrow('У тебя нет активной анкеты');
+    await expect(uc.handle({ telegramId: 12345 }, actorId)).rejects.toThrow(
+      'У тебя нет активной анкеты',
+    );
   });
 
   test('отклоняет невалидную команду', async () => {

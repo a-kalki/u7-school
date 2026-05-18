@@ -219,5 +219,4 @@ export class OnboardingController {
       isMultiple: question.multiple,
     };
   }
-
 }

@@ -1,6 +1,6 @@
 import { errBadRequest, throwError } from '#domain/errors/error-helpers';
 import type { NoCommandFoundError } from '#domain/errors/errors';
-import type { AppMeta, ApiModuleMeta } from '#domain/types';
+import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import type { ApiModule } from '../module/api-module';
 import { App } from './app';
 
