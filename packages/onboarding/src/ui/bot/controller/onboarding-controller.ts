@@ -162,20 +162,28 @@ export class OnboardingController {
   ): BotResponse {
     const botRes: BotResponse = {};
 
-    // Для wait_next — только редактируем сообщение (переключение чекбоксов)
+    // Для wait_next — переключение чекбоксов или команда start
     if (response.type === 'wait_next') {
-      if (messageId) {
-        const text = this.#formatQuestionMd(
-          response.currentQuestion,
-          response.selectedAnswers,
-        );
-        const keyboard = this.#getKeyboard(
-          response.currentQuestion,
-          response.nextButton,
-        );
+      const text = this.#formatQuestionMd(
+        response.currentQuestion,
+        response.selectedAnswers,
+      );
+      const keyboard = this.#getKeyboard(
+        response.currentQuestion,
+        response.nextButton,
+      );
 
+      if (messageId) {
+        // Было нажатие на кнопку — редактируем текущее сообщение
         botRes.editMessage = {
           messageId,
+          text,
+          keyboard,
+          parseMode: 'MarkdownV2',
+        };
+      } else {
+        // Пришла команда (start_onboarding) — отправляем новый вопрос
+        botRes.sendMessage = {
           text,
           keyboard,
           parseMode: 'MarkdownV2',
