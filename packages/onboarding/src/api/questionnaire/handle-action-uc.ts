@@ -1,6 +1,7 @@
-import { errValidation, throwError } from '@u7/core/domain';
+import { errBadRequest } from '@u7/core/domain';
 import { Role } from '@u7/user/domain';
 import * as v from 'valibot';
+import type { BadRequestUcError } from '#domain/index';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {
   type HandleOnboardingActionCmd,
@@ -33,16 +34,15 @@ export class HandleActionUc extends OnboardingUseCase<HandleOnboardingActionCmdM
   ): Promise<QuestionnaireActionResponse> {
     const { telegramId, type, value } = command;
 
-    const existing =
-      await this.resolve.questionnaireRepo.getByTelegramId(telegramId);
-    const active = existing.find((q) => q.status === 'in_progress');
+    const active = await this.getActiveQuestionnaire(telegramId);
 
     if (!active) {
-      throwError(
-        errValidation('BAD_REQUEST', 'У тебя нет активной анкеты', {
-          telegramId: String(telegramId),
-        }),
+      const err = errBadRequest<BadRequestUcError>(
+        'BAD_REQUEST',
+        'У тебя нет активной анкеты',
+        { telegramId: String(telegramId) },
       );
+      this.throwError(err);
     }
 
     const ar = new QuestionnaireAr(active, this.resolve.questionPoolService);

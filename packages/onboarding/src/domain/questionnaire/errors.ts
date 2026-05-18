@@ -22,16 +22,10 @@ export type QuestionnaireNotFoundUcError = NotFoundError<
 export type AccessDeniedUcError = AccessDeniedError<'ACCESS_DENIED', undefined>;
 
 /** Некорректный запрос (не тот вопрос, неверный формат ответа) */
-export type BadRequestUcError = BadRequestError<
-  'BAD_REQUEST',
-  { message: string } | undefined
->;
+export type BadRequestUcError = BadRequestError<'BAD_REQUEST', unknown>;
 
 /** Внутренняя ошибка (баг, повреждение данных) */
-export type InternalUcError = InternalError<
-  'INTERNAL_ERROR',
-  { message: string } | undefined
->;
+export type InternalUcError = InternalError<'INTERNAL_ERROR', unknown>;
 
 /** Любая известная ошибка модуля questionnaire */
 export type QuestionnaireModuleError =

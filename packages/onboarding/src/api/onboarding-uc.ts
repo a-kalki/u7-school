@@ -28,4 +28,12 @@ export abstract class OnboardingUseCase<TMeta extends UcMeta> extends UseCase<
     }
     return questionnaire;
   }
+
+  protected async getActiveQuestionnaire(
+    telegramId: number,
+  ): Promise<Questionnaire | undefined> {
+    const existing =
+      await this.resolve.questionnaireRepo.getByTelegramId(telegramId);
+    return existing.find((q) => q.status === 'in_progress');
+  }
 }
