@@ -34,7 +34,7 @@ const mockController = {
 } as any;
 
 describe('registerTopMenuHandler', () => {
-  test('регистрирует обработчики /start, /link, /start-onboarding', () => {
+  test('регистрирует обработчики /start, /link, /start_onboarding', () => {
     const bot = makeMockBot();
     const config = { botAdminUuid: 'uuid', newsGroupUrl: 'url' } as any;
     const userFacade = {} as UserFacade;

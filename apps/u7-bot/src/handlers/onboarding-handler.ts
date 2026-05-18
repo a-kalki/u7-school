@@ -41,7 +41,7 @@ export function registerOnboardingHandler(
   bot.on('callback_query:data', async (ctx, next) => {
     if (ctx.session.menu !== 'onboarding') return next();
 
-    await ctx.answerCallbackQuery().catch(() => { });
+    await ctx.answerCallbackQuery().catch(() => {});
     const response = await controller.handleUpdate(
       {
         type: 'callback',
