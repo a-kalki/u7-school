@@ -1,0 +1,13 @@
+Задача Фазы 2: Типы BotUpdate/BotResponse и рефакторинг контроллера
+
+**Изменённые файлы:**
+- packages/onboarding/src/ui/bot/types.ts — добавлен questionnaireCompleted в BotResponse
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.ts — полная переработка:
+  - actorId удалён из конструктора, botUuid передаётся в handleUpdate
+  - Команды: start (статическое меню), start-onboarding (resume/start), cancel (abandon)
+  - Удалена обработка become_student callback
+  - questionnaireCompleted при завершении анкеты
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.test.ts — 6 новых тестов
+- packages/onboarding/src/api/questionnaire/get-current-question-uc.test.ts — фикс type narrowing
+
+**Причина:** Контроллер теперь единая точка входа; бот только маршрутизирует. botUuid передаётся per-request.
