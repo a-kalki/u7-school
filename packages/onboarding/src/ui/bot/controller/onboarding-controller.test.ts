@@ -102,23 +102,11 @@ describe('OnboardingController', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('команда start возвращает меню', async () => {
-    const response = await controller.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 12345, name: 'Иван' },
-      botAdminUuid,
-    );
-
-    expect(response.sendMessage?.text).toContain('Иван');
-    // MarkdownV2 экранирует спецсимволы
-    expect(response.sendMessage?.text).toContain('link\\-to');
-    expect(response.sendMessage?.text).toContain('start\\-onboarding');
-  });
-
-  test('команда start-onboarding начинает новую анкету', async () => {
+  test('команда start начинает новую анкету', async () => {
     const response = await controller.handleUpdate(
       {
         type: 'command',
-        command: 'start-onboarding',
+        command: 'start',
         telegramId: 12345,
         name: 'Иван',
       },
@@ -129,12 +117,12 @@ describe('OnboardingController', () => {
     expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
-  test('команда start-onboarding продолжает активную анкету', async () => {
+  test('команда start продолжает активную анкету', async () => {
     // Начинаем анкету
     await controller.handleUpdate(
       {
         type: 'command',
-        command: 'start-onboarding',
+        command: 'start',
         telegramId: 12345,
         name: 'Иван',
       },
@@ -145,7 +133,7 @@ describe('OnboardingController', () => {
     const response = await controller.handleUpdate(
       {
         type: 'command',
-        command: 'start-onboarding',
+        command: 'start',
         telegramId: 12345,
         name: 'Иван',
       },
@@ -161,7 +149,7 @@ describe('OnboardingController', () => {
     await controller.handleUpdate(
       {
         type: 'command',
-        command: 'start-onboarding',
+        command: 'start',
         telegramId: 12345,
         name: 'Иван',
       },
@@ -188,7 +176,7 @@ describe('OnboardingController', () => {
     await controller.handleUpdate(
       {
         type: 'command',
-        command: 'start-onboarding',
+        command: 'start',
         telegramId: 12345,
         name: 'Иван',
       },

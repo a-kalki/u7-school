@@ -37,9 +37,6 @@ export class OnboardingController {
   ): Promise<BotResponse> {
     switch (update.command) {
       case 'start':
-        return this.#renderStartMenu(update.name);
-
-      case 'start-onboarding':
         return this.#startOrResumeOnboarding(update.telegramId, botUuid);
 
       case 'cancel':
@@ -48,20 +45,6 @@ export class OnboardingController {
       default:
         return {};
     }
-  }
-
-  /** Статическое меню верхнего уровня */
-  #renderStartMenu(name: string): BotResponse {
-    return {
-      sendMessage: {
-        text: [
-          `Привет, ${name}! 👋\n`,
-          '🔗 /link\\-to\\-school\\-group — присоединяйся к группе, чтобы быть в курсе новостей, читать отзывы и общаться со студентами',
-          '📝 /start\\-onboarding — заполни анкету, расскажи о своих целях и ожиданиях от обучения',
-        ].join('\n'),
-        parseMode: 'MarkdownV2',
-      },
-    };
   }
 
   /** Начинает новую анкету или продолжает активную */
