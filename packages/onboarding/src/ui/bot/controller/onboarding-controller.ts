@@ -6,12 +6,17 @@ import type { OnboardingBotApp } from '../app';
 import type { BotResponse, BotUpdate, KeyboardDescription } from '../types';
 
 /**
+ * Экранирует текст для MarkdownV2 — экранирует все
+ * спецсимволы: _ * [ ] ( ) ~ ` > # + - = | { } . !
+ */
+function toMarkdown(text: string): string {
+  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+}
+
+/**
  * Контроллер onboarding для Telegram-бота.
  * Stateless — на каждый запрос получает актуальное состояние из API или выполняет действие.
  * botUuid передаётся в handleUpdate (не в конструктор) и используется как actorId.
- *
- * Все сообщения с разметкой используют HTML (parseMode: 'HTML'),
- * так как HTML в Telegram надёжнее MarkdownV2 — экранировать нужно только &, <, >.
  */
 export class OnboardingController {
   readonly #app: OnboardingBotApp;
@@ -44,9 +49,7 @@ export class OnboardingController {
         },
       );
       const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      return {
-        sendMessage: { text: `⚠️ Ошибка: ${message}` },
-      };
+      return { sendMessage: { text: `⚠️ Произошла ошибка: ${message}` } };
     }
   }
 
@@ -110,8 +113,10 @@ export class OnboardingController {
       return {
         questionnaireCompleted: true,
         sendMessage: {
-          text: 'Анкета прервана. Ты можешь начать заново через /start_onboarding',
-          parseMode: 'HTML',
+          text: toMarkdown(
+            'Анкета прервана. Ты можешь начать заново через /start-onboarding',
+          ),
+          parseMode: 'MarkdownV2',
         },
       };
     } catch (err) {
@@ -167,7 +172,7 @@ export class OnboardingController {
     // Для wait_next — только редактируем сообщение (переключение чекбоксов)
     if (response.type === 'wait_next') {
       if (messageId) {
-        const text = this.#formatQuestionHtml(
+        const text = this.#formatQuestionMd(
           response.currentQuestion,
           response.selectedAnswers,
         );
@@ -180,7 +185,7 @@ export class OnboardingController {
           messageId,
           text,
           keyboard,
-          parseMode: 'HTML',
+          parseMode: 'MarkdownV2',
         };
       }
       return botRes;
@@ -194,7 +199,7 @@ export class OnboardingController {
         response.previousSelectedAnswers &&
         messageId
       ) {
-        const text = this.#formatQuestionHtml(
+        const text = this.#formatQuestionMd(
           response.previousQuestion,
           response.previousSelectedAnswers,
         );
@@ -202,19 +207,19 @@ export class OnboardingController {
         botRes.editMessage = {
           messageId,
           text,
-          parseMode: 'HTML',
+          parseMode: 'MarkdownV2',
         };
       }
 
       // Send: новый вопрос
       const selected = response.selectedAnswers ?? [];
-      const text = this.#formatQuestionHtml(response.question, selected);
+      const text = this.#formatQuestionMd(response.question, selected);
       const keyboard = this.#getKeyboard(response.question);
 
       botRes.sendMessage = {
         text,
         keyboard,
-        parseMode: 'HTML',
+        parseMode: 'MarkdownV2',
       };
       return botRes;
     }
@@ -226,7 +231,7 @@ export class OnboardingController {
       response.previousSelectedAnswers &&
       messageId
     ) {
-      const text = this.#formatQuestionHtml(
+      const text = this.#formatQuestionMd(
         response.previousQuestion,
         response.previousSelectedAnswers,
       );
@@ -234,7 +239,7 @@ export class OnboardingController {
       botRes.editMessage = {
         messageId,
         text,
-        parseMode: 'HTML',
+        parseMode: 'MarkdownV2',
       };
     }
 
@@ -246,30 +251,18 @@ export class OnboardingController {
     return botRes;
   }
 
-  /** Экранирует текст для HTML (экранирует &, <, >) */
-  #escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
-  /** Форматирует вопрос и ответы в HTML-разметку для Telegram */
-  #formatQuestionHtml(question: Question, selected: string[]): string {
-    const questionText = `<b>${this.#escapeHtml(question.question)}</b>`;
-
+  /** Форматирует вопрос и ответы в MarkdownV2 */
+  #formatQuestionMd(question: Question, selected: string[]): string {
     if (question.type !== 'choice') {
-      return questionText;
+      return `*${toMarkdown(question.question)}*`;
     }
 
-    const lines = [questionText, ''];
+    const lines = [`*${toMarkdown(question.question)}*`, ''];
     let idx = 0;
     for (const a of question.answers) {
       idx++;
-      const marker = selected.includes(a.answerCode)
-        ? '<b>[x]</b>'
-        : '[ ]';
-      lines.push(`${idx}. ${marker} ${this.#escapeHtml(a.answer)}`);
+      const marker = selected.includes(a.answerCode) ? '*[x]*' : '[ ]';
+      lines.push(`${idx}\\. ${marker} ${toMarkdown(a.answer)}`);
     }
     return lines.join('\n');
   }
@@ -290,9 +283,6 @@ export class OnboardingController {
       rows.push([{ text: 'Далее -->', code: nextButton }]);
     }
 
-    return {
-      rows,
-      isMultiple: question.multiple,
-    };
+    return { rows, isMultiple: question.multiple };
   }
 }
