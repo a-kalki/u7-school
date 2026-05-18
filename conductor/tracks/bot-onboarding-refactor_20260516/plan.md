@@ -30,49 +30,37 @@
 
 - [x] Task: Обновить `BotUpdate` тип
     - [x] Файл: `packages/onboarding/src/ui/bot/types.ts`
-    - [x] Команды `start`, `start-onboarding`, `cancel` уже поддерживаются через `command: string`
+    - [x] Команды `start`, `cancel` уже поддерживаются через `command: string`
 
 - [x] Task: Обновить `BotResponse` тип
     - [x] Файл: `packages/onboarding/src/ui/bot/types.ts`
     - [x] Добавить поле `questionnaireCompleted?: true`
 
-- [x] Task: Переписать `OnboardingController` — убрать `actorId` из конструктора
-    - [x] Файл: `packages/onboarding/src/ui/bot/controller/onboarding-controller.ts`
-    - [x] Удалить поле `#actorId` и параметр конструктора
+- [x] Task: Переписать `OnboardingController` — убрать `actorId`, изменить команды
     - [x] `handleUpdate(update: BotUpdate, botUuid: string): Promise<BotResponse>`
-    - [x] Все вызовы `apiApp.execute` передают `botUuid` как `actorId`
+    - [x] Команда `start` → начать/продолжить анкету (StartUc возвращает QuestionnaireActionResponse)
+    - [x] Команда `cancel` → прервать анкету
+    - [x] Сообщения/callback'и → handle-action UC
+    - [x] Главное меню рендерит бот (не контроллер)
+    - [x] Удалён `become_student` callback
 
-- [x] Task: Реализовать обработку команды `start` в контроллере
-    - [x] Возвращает статическое меню (текст + пустая клавиатура/без клавиатуры)
-    - [x] Не делает API-вызовов
+- [x] Task: StartUc и AbandonUc → QuestionnaireActionResponse
+    - [x] StartUc возвращает `ar.getQuestionnaireActionResponse()` вместо `ar.state`
+    - [x] AbandonUc возвращает `{ type: 'completed' }` вместо `ar.state`
+    - [x] Убран лишний `get-current-question` после `start` в контроллере
+    - [x] Обновлены тесты
 
-- [x] Task: Реализовать обработку команды `start-onboarding` в контроллере
-    - [x] Вызывает `get-current-question` UC
-    - [x] Если ошибка `QUESTIONNAIRE_NOT_FOUND` → вызывает `start` UC
-    - [x] Рендерит вопрос/клавиатуру как раньше
+- [x] Task: safeHandleUpdate — try/catch обёртка
+    - [x] Файл: `packages/onboarding/src/ui/bot/controller/controller-executor.ts`
+    - [x] Гарантирует, что исключение контроллера не просочится в бота
+    - [x] Экспортирован из `@u7/onboarding`
 
-- [x] Task: Реализовать обработку команды `cancel` в контроллере
-    - [x] Вызывает `abandon` UC
-    - [x] Возвращает ответ с `questionnaireCompleted: true`
+- [x] Task: Написать/восстановить тесты
+    - [x] 6 тестов контроллера (start новая, start продолжение, ответ, cancel, ошибка)
+    - [x] Тесты StartUc и AbandonUc обновлены под новый выходной тип
+    - [x] module.test.ts обновлён
 
-- [x] Task: Удалить обработку `become_student` callback из контроллера
-    - [x] Убрать проверку `update.type === 'callback' && update.data === 'become_student'`
-    - [x] Убедиться, что все пути обрабатывают только команды + message/callback для анкеты
-
-- [x] Task: Добавить `questionnaireCompleted` в ответ при завершении анкеты
-    - [x] В `#renderActionResponse`: если `response.type === 'completed'` → `botRes.questionnaireCompleted = true`
-
-- [x] Task: Написать/восстановить тесты контроллера
-    - [x] Файл: `packages/onboarding/src/ui/bot/controller/onboarding-controller.test.ts`
-    - [x] Тест: команда `start` возвращает меню (статический текст)
-    - [x] Тест: `start-onboarding` с новой анкетой → возвращает первый вопрос
-    - [x] Тест: `start-onboarding` с активной анкетой → продолжает (resume)
-    - [x] Тест: ответ на вопрос → завершение анкеты
-    - [x] Тест: завершение анкеты → `questionnaireCompleted: true`
-    - [x] Тест: `cancel` → `questionnaireCompleted: true`
-    - [x] Тест: `botUuid` передаётся в `apiApp.execute`
-
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2: Типы и контроллер' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2: Типы и контроллер' (Protocol in workflow.md)
 
 ## Фаза 3: Рефакторинг Telegram-бота (`apps/u7-bot`)
 
