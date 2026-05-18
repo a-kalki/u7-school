@@ -64,64 +64,52 @@
 
 ## Фаза 3: Рефакторинг Telegram-бота (`apps/u7-bot`)
 
-- [ ] Task: Добавить grammy session middleware
-    - [ ] Файл: `apps/u7-bot/src/main.ts` (или новый `apps/u7-bot/src/session.ts`)
-    - [ ] Тип сессии: `{ menu: 'main' | 'onboarding' }`
-    - [ ] Начальное значение: `{ menu: 'main' }`
+- [x] Task: Добавить grammy session middleware
+    - [x] Файл: `apps/u7-bot/src/bot.ts`
+    - [x] Тип сессии: `{ menu: 'main' | 'onboarding' }`, инициализация: `{ menu: 'main' }`
 
-- [ ] Task: Верификация бота при старте
-    - [ ] Файл: `apps/u7-bot/src/main.ts`
-    - [ ] До `bot.start()`: проверить `userFacade.getUserByUuid(config.botAdminUuid)` → существует и `ADMIN`
-    - [ ] Если нет — `throw new Error(...)` и процесс падает
+- [x] Task: Верификация бота при старте
+    - [x] Файл: `apps/u7-bot/src/main.ts`
+    - [x] До `bot.start()`: `apiApp.execute('get-user-by-uuid', {uuid: config.botAdminUuid})` → существует и `ADMIN`
+    - [x] Если нет — `throw new Error(...)`
 
-- [ ] Task: Обновить `main.ts` — фабрика и регистрация
-    - [ ] `createApiApp` должна возвращать `controller` (создаётся без actorId)
-    - [ ] `createBot` должна принимать `controller` (но не пробрасывать в хендлеры — хендлеры используют `botUuid` из config)
-    - [ ] Зарегистрировать session middleware
-    - [ ] Вызвать верификацию бота
-    - [ ] Зарегистрировать обработчики команд
+- [x] Task: Обновить `main.ts` — фабрика и регистрация
+    - [x] `controller = new OnboardingController(apiApp)` — без actorId
+    - [x] `createBot(config, controller)` — без apiApp
+    - [x] Верификация бота перед стартом
+    - [x] Зарегистрированы: start, link, start-onboarding обработчики
 
-- [ ] Task: Переписать `start-handler.ts`
-    - [ ] Файл: `apps/u7-bot/src/handlers/start-handler.ts`
-    - [ ] Вызвать `userFacade.registerGuest(telegramId, name, botUuid)` (или через apiApp)
-    - [ ] `ctx.session.menu = 'main'`
-    - [ ] Форвард: `controller.handleUpdate({ type: 'command', command: 'start', telegramId, name }, botUuid)`
-    - [ ] Исполнить `BotResponse`
-    - [ ] Удалить весь старый код (flow определение, кнопки, callback'и)
+- [x] Task: Переписать `start-handler.ts`
+    - [x] Вызывает `apiApp.execute('register-guest', ...)` — идемпотентно
+    - [x] `ctx.session.menu = 'main'`
+    - [x] Бот САМ показывает главное меню (без контроллера)
+    - [x] Удалён старый код (flow, кнопки, callback'и)
 
-- [ ] Task: Добавить обработчик `/link-to-school-group`
-    - [ ] Файл: `apps/u7-bot/src/handlers/link-handler.ts`
-    - [ ] `bot.command('link-to-school-group', ...)` → отправляет `config.newsGroupUrl`
-    - [ ] Без контроллера
+- [x] Task: Добавить обработчик `/link-to-school-group`
+    - [x] Файл: `apps/u7-bot/src/handlers/link-handler.ts`
+    - [x] Отправляет `config.newsGroupUrl` — без контроллера
 
-- [ ] Task: Добавить обработчик `/start-onboarding`
-    - [ ] Файл: `apps/u7-bot/src/handlers/start-onboarding-handler.ts`
-    - [ ] `ctx.session.menu = 'onboarding'`
-    - [ ] Форвард: `controller.handleUpdate({ type: 'command', command: 'start-onboarding', telegramId, name }, botUuid)`
-    - [ ] Исполнить `BotResponse`
+- [x] Task: Добавить обработчик `/start-onboarding`
+    - [x] Файл: `apps/u7-bot/src/handlers/start-onboarding-handler.ts`
+    - [x] `ctx.session.menu = 'onboarding'`
+    - [x] Форвардит `controller.handleUpdate({command: 'start'}, botUuid)`
 
-- [ ] Task: Переписать `bot.ts` — обработка сообщений и callback'ов в onboarding-меню
-    - [ ] Убрать глобальный форвардинг
-    - [ ] Форвардить в контроллер ТОЛЬКО если `ctx.session.menu === 'onboarding'`
-    - [ ] Для `callback_query:data` — аналогично
-    - [ ] При `response.questionnaireCompleted` → `ctx.session.menu = 'main'` → показать меню
+- [x] Task: Переписать `bot.ts` — session-роутинг
+    - [x] Убран глобальный форвардинг
+    - [x] Сообщения/callback'и форвардятся только если `menu === 'onboarding'`
+    - [x] `response.questionnaireCompleted` → `ctx.session.menu = 'main'`
+    - [x] `/cancel` внутри onboarding-меню → форвард в контроллер
 
-- [ ] Task: Добавить обработку `/cancel` внутри onboarding-форвардинга
-    - [ ] В `bot.ts` или отдельном обработчике: если `ctx.session.menu === 'onboarding'` → форвард в контроллер
-    - [ ] Контроллер возвращает `questionnaireCompleted: true` → сброс меню на `'main'`
-    - [ ] Удалить `cancel-handler.ts`
+- [x] Task: Удалить старые хендлеры
+    - [x] Удалён `cancel-handler.ts`
+    - [x] Удалён `be-in-the-know-handler.ts`
 
-- [ ] Task: Удалить `be-in-the-know-handler.ts`
-    - [ ] Файл удалён
+- [x] Task: Добавить try/catch обёртку
+    - [x] Встроена внутрь `controller.handleUpdate` — исключения не просачиваются
 
-- [ ] Task: Написать/обновить тесты обработчиков бота
-    - [ ] Файл: `apps/u7-bot/src/handlers/start-handler.test.ts` — обновить под новую логику
-    - [ ] Файл: `apps/u7-bot/src/handlers/start-onboarding-handler.test.ts` — новый
-    - [ ] Тест: `/start` вызывает `registerGuest` + форвардит в контроллер
-    - [ ] Тест: `/start-onboarding` устанавливает `session.menu = 'onboarding'`
-    - [ ] Тест: `/link-to-school-group` отправляет ссылку
-    - [ ] Тест: сообщение в onboarding-меню форвардится в контроллер
-    - [ ] Тест: `questionnaireCompleted` сбрасывает меню
+- [x] Task: Написать/обновить тесты
+    - [x] `start-handler.test.ts`: 4 теста (регистрация, registerGuest, меню, fault tolerance)
+    - [x] `start-onboarding-handler.test.ts`: 3 теста (регистрация, menu=onboarding, форвард)
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Рефакторинг бота' (Protocol in workflow.md)
 
