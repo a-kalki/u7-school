@@ -274,7 +274,7 @@ describe('OnboardingController', () => {
     };
     expect(editMessage.messageId).toBe(42);
     expect(editMessage.text).toContain('Первый вопрос');
-    expect(editMessage.text).toContain('*\\[x\\]*');
+    expect(editMessage.text).toContain('\\(x\\)');
     expect(editMessage.keyboard).toBeUndefined();
 
     // Send: должен содержать текст второго вопроса
@@ -466,7 +466,7 @@ describe('OnboardingController', () => {
     expect(editMessage).toBeDefined();
     expect(editMessage.messageId).toBe(77);
     expect(editMessage.text).toContain('Последний вопрос');
-    expect(editMessage.text).toContain('*\\[x\\]*');
+    expect(editMessage.text).toContain('\\(x\\)');
     expect(editMessage.keyboard).toBeUndefined();
 
     // Send: сообщение о завершении

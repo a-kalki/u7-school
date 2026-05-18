@@ -254,7 +254,10 @@ export class OnboardingController {
     let idx = 0;
     for (const a of question.answers) {
       idx++;
-      const marker = selected.includes(a.answerCode) ? '*\\[x\\]*' : '\\[ \\]';
+      const checked = selected.includes(a.answerCode);
+      const marker = question.multiple
+        ? (checked ? '*\\[x\\]*' : '\\[ \\]')
+        : (checked ? '\\(x\\)' : '\\( \\)');
       lines.push(`${idx}\\. ${marker} ${escapeMarkdown(a.answer)}`);
     }
     return lines.join('\n');
