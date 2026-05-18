@@ -1,0 +1,16 @@
+fix(onboarding): Исправить рендеринг предыдущего вопроса при new_question
+
+**Изменения:**
+- types.ts: переименован question -> currentQuestion в wait_next, добавлены previousQuestion/previousSelectedAnswers в new_question и completed
+- a-root.ts: findAndSetNextQuestion захватывает предыдущий вопрос перед переходом
+- onboarding-controller.ts: edit использует previousQuestion + previousSelectedAnswers, без клавиатуры; wait_next использует currentQuestion
+- Добавлены тесты: 9 новых тестов (5 в a-root.test.ts, 4 в onboarding-controller.test.ts)
+
+**Файлы:**
+- packages/onboarding/src/domain/questionnaire/types.ts
+- packages/onboarding/src/domain/questionnaire/a-root.ts
+- packages/onboarding/src/domain/questionnaire/a-root.test.ts
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.ts
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.test.ts
+- packages/onboarding/src/api/questionnaire/get-current-question-uc.test.ts
+- packages/onboarding/src/api/questionnaire/start-uc.test.ts
