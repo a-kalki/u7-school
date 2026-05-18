@@ -29,7 +29,7 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
-  const logger = { error: () => { } } as unknown as Logger;
+  const logger = { error: () => {} } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
@@ -274,7 +274,7 @@ describe('OnboardingController', () => {
     };
     expect(editMessage.messageId).toBe(42);
     expect(editMessage.text).toContain('Первый вопрос');
-    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.text).toContain('<b>[x]</b>');
     expect(editMessage.keyboard).toBeUndefined();
 
     // Send: должен содержать текст второго вопроса
@@ -339,7 +339,7 @@ describe('OnboardingController', () => {
     expect(editMessage.text).toContain('Первый вопрос');
     expect(sendMessage.text).toContain('Второй вопрос');
     // Новый вопрос не должен содержать [x] (черновиков нет)
-    expect(sendMessage.text).not.toContain('\\[x\\]');
+    expect(sendMessage.text).not.toContain('[x]');
   });
 
   test('new_question: multiple choice с next — edit без клавиатуры', async () => {
@@ -407,7 +407,7 @@ describe('OnboardingController', () => {
     expect(editMessage).toBeDefined();
     expect(editMessage.messageId).toBe(55);
     expect(editMessage.text).toContain('Множественный выбор');
-    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.text).toContain('<b>[x]</b>');
     expect(editMessage.keyboard).toBeUndefined();
 
     // Send: новый вопрос
@@ -466,7 +466,7 @@ describe('OnboardingController', () => {
     expect(editMessage).toBeDefined();
     expect(editMessage.messageId).toBe(77);
     expect(editMessage.text).toContain('Последний вопрос');
-    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.text).toContain('<b>[x]</b>');
     expect(editMessage.keyboard).toBeUndefined();
 
     // Send: сообщение о завершении
@@ -525,7 +525,7 @@ describe('OnboardingController', () => {
     expect(editMessage).toBeDefined();
     expect(editMessage.messageId).toBe(33);
     expect(editMessage.text).toContain('Множественный выбор');
-    expect(editMessage.text).toContain('\\[x\\]');
+    expect(editMessage.text).toContain('<b>[x]</b>');
     // В wait_next клавиатура ДОЛЖНА быть (это режим редактирования чекбоксов)
     expect(editMessage.keyboard).toBeDefined();
     // Send не должно быть (wait_next не отправляет новое сообщение)

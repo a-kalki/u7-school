@@ -9,12 +9,15 @@ import type { BotResponse, BotUpdate, KeyboardDescription } from '../types';
  * Контроллер onboarding для Telegram-бота.
  * Stateless — на каждый запрос получает актуальное состояние из API или выполняет действие.
  * botUuid передаётся в handleUpdate (не в конструктор) и используется как actorId.
+ *
+ * Все сообщения с разметкой используют HTML (parseMode: 'HTML'),
+ * так как HTML в Telegram надёжнее MarkdownV2 — экранировать нужно только &, <, >.
  */
 export class OnboardingController {
   readonly #app: OnboardingBotApp;
-  readonly #logger: Logger;
+  readonly #logger: Logger | undefined;
 
-  constructor(app: OnboardingBotApp, logger: Logger) {
+  constructor(app: OnboardingBotApp, logger?: Logger) {
     this.#app = app;
     this.#logger = logger;
   }
@@ -42,7 +45,7 @@ export class OnboardingController {
       );
       const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
       return {
-        sendMessage: { text: `⚠️ Произошла ошибка: ${message}` },
+        sendMessage: { text: `⚠️ Ошибка: ${message}` },
       };
     }
   }
@@ -107,8 +110,8 @@ export class OnboardingController {
       return {
         questionnaireCompleted: true,
         sendMessage: {
-          text: 'Анкета прервана. Ты можешь начать заново через /start\\-onboarding',
-          parseMode: 'MarkdownV2',
+          text: 'Анкета прервана. Ты можешь начать заново через /start_onboarding',
+          parseMode: 'HTML',
         },
       };
     } catch (err) {
@@ -143,7 +146,7 @@ export class OnboardingController {
       );
     } catch (err) {
       const ex = err as AppException;
-      this.#logger.error('onboarding-controller', 'Необработанная ошибка!', {
+      this.#logger?.error('onboarding-controller', 'Ошибка в handleAction', {
         error: String(err),
         telegramId: update.telegramId,
         type: update.type,
@@ -164,7 +167,7 @@ export class OnboardingController {
     // Для wait_next — только редактируем сообщение (переключение чекбоксов)
     if (response.type === 'wait_next') {
       if (messageId) {
-        const text = this.#formatQuestionMd(
+        const text = this.#formatQuestionHtml(
           response.currentQuestion,
           response.selectedAnswers,
         );
@@ -177,7 +180,7 @@ export class OnboardingController {
           messageId,
           text,
           keyboard,
-          parseMode: 'MarkdownV2',
+          parseMode: 'HTML',
         };
       }
       return botRes;
@@ -191,7 +194,7 @@ export class OnboardingController {
         response.previousSelectedAnswers &&
         messageId
       ) {
-        const text = this.#formatQuestionMd(
+        const text = this.#formatQuestionHtml(
           response.previousQuestion,
           response.previousSelectedAnswers,
         );
@@ -199,19 +202,19 @@ export class OnboardingController {
         botRes.editMessage = {
           messageId,
           text,
-          parseMode: 'MarkdownV2',
+          parseMode: 'HTML',
         };
       }
 
       // Send: новый вопрос
       const selected = response.selectedAnswers ?? [];
-      const text = this.#formatQuestionMd(response.question, selected);
+      const text = this.#formatQuestionHtml(response.question, selected);
       const keyboard = this.#getKeyboard(response.question);
 
       botRes.sendMessage = {
         text,
         keyboard,
-        parseMode: 'MarkdownV2',
+        parseMode: 'HTML',
       };
       return botRes;
     }
@@ -223,7 +226,7 @@ export class OnboardingController {
       response.previousSelectedAnswers &&
       messageId
     ) {
-      const text = this.#formatQuestionMd(
+      const text = this.#formatQuestionHtml(
         response.previousQuestion,
         response.previousSelectedAnswers,
       );
@@ -231,7 +234,7 @@ export class OnboardingController {
       botRes.editMessage = {
         messageId,
         text,
-        parseMode: 'MarkdownV2',
+        parseMode: 'HTML',
       };
     }
 
@@ -243,20 +246,30 @@ export class OnboardingController {
     return botRes;
   }
 
-  #formatQuestionMd(question: Question, selected: string[]): string {
-    const escapeMd = (t: string) =>
-      t.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+  /** Экранирует текст для HTML (экранирует &, <, >) */
+  #escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  /** Форматирует вопрос и ответы в HTML-разметку для Telegram */
+  #formatQuestionHtml(question: Question, selected: string[]): string {
+    const questionText = `<b>${this.#escapeHtml(question.question)}</b>`;
 
     if (question.type !== 'choice') {
-      return `*${escapeMd(question.question)}*`;
+      return questionText;
     }
 
-    const lines = [`*${escapeMd(question.question)}*`, ''];
+    const lines = [questionText, ''];
     let idx = 0;
     for (const a of question.answers) {
       idx++;
-      const marker = selected.includes(a.answerCode) ? '*\\[x\\]*' : '\\[ \\]';
-      lines.push(`${idx}\\. ${marker} ${escapeMd(a.answer)}`);
+      const marker = selected.includes(a.answerCode)
+        ? '<b>[x]</b>'
+        : '[ ]';
+      lines.push(`${idx}. ${marker} ${this.#escapeHtml(a.answer)}`);
     }
     return lines.join('\n');
   }

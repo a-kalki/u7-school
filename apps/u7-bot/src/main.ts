@@ -29,6 +29,9 @@ if (config.adminTelegramIds.length > 0) {
   // Создаём временный bot только для TelegramLogger (он не запущен, только API)
   const tempBot = createBot(config);
   const telegramLogger = new TelegramLogger(tempBot, config.adminTelegramIds);
+  // INFO в Telegram — только от явно разрешённых источников
+  telegramLogger.setSourceLevel('main', LogLevel.INFO);
+  telegramLogger.setSourceLevel('top-menu', LogLevel.INFO);
   loggers.addLogger(telegramLogger);
   loggers.info(
     'main',
@@ -66,7 +69,7 @@ bot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => {});
+      .catch(() => { });
   }
 });
 

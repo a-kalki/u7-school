@@ -17,7 +17,8 @@ const LEVEL_LABEL: Record<LogLevel, string> = {
 };
 
 /** Источники, для которых INFO отправляется в Telegram */
-const TOP_LEVEL_SOURCES = ['top-menu', 'api-app'];
+const TOP_LEVEL_SOURCES: string[] = [];
+// По умолчанию пусто — администратор явно добавляет источники через setSourceLevel.
 
 /**
  * Логгер, отправляющий сообщения администраторам бота в Telegram.
@@ -31,7 +32,7 @@ const TOP_LEVEL_SOURCES = ['top-menu', 'api-app'];
 export class TelegramLogger implements Logger {
   readonly #bot: Bot<BotContext>;
   readonly #adminIds: number[];
-  #level: LogLevel = LogLevel.DEBUG;
+  #level: LogLevel = LogLevel.WARN; // по умолчанию — только WARN/ERROR; INFO — per-source
   readonly #sourceLevels = new Map<string, LogLevel>();
 
   constructor(bot: Bot<BotContext>, adminIds: number[]) {
