@@ -2,28 +2,27 @@
 
 ## Фаза 1: Новый UC `get-current-question` (Onboarding)
 
-- [ ] Task: Создать команду `get-current-question-cmd.ts`
-    - [ ] Файл: `packages/onboarding/src/domain/questionnaire/commands/get-current-question-cmd.ts`
-    - [ ] Схема: `{ telegramId: number }`
-    - [ ] Мета-тип с ошибкой `QuestionnaireNotFoundUcError`
-    - [ ] Экспорт из `commands/index.ts` (если есть) и `domain/questionnaire/index.ts`
+- [x] Task: Создать команду `get-current-question-cmd.ts`
+    - [x] Файл: `packages/onboarding/src/domain/questionnaire/commands/get-current-question-cmd.ts`
+    - [x] Схема: `{ telegramId: number }`
+    - [x] Мета-тип с ошибкой `QuestionnaireNotFoundUcError`
 
-- [ ] Task: Создать UC `get-current-question-uc.ts`
-    - [ ] Файл: `packages/onboarding/src/api/questionnaire/get-current-question-uc.ts`
-    - [ ] Имя: `get-current-question`, тип: `query`, `requiresAuth: false`
-    - [ ] Находит активную анкету по `telegramId`
-    - [ ] Если нет — выбрасывает `QUESTIONNAIRE_NOT_FOUND`
-    - [ ] Если есть — вызывает `QuestionnaireAr.getQuestionnaireActionResponse()` и возвращает `QuestionnaireActionResponse`
+- [x] Task: Создать UC `get-current-question-uc.ts`
+    - [x] Файл: `packages/onboarding/src/api/questionnaire/get-current-question-uc.ts`
+    - [x] Имя: `get-current-question`, тип: `query`, `requiresAuth: false`
+    - [x] Находит активную анкету по `telegramId`
+    - [x] Если нет — выбрасывает `QUESTIONNAIRE_NOT_FOUND`
+    - [x] Если есть — вызывает `QuestionnaireAr.getQuestionnaireActionResponse()` и возвращает `QuestionnaireActionResponse`
 
-- [ ] Task: Зарегистрировать UC в модуле и обновить экспорты
-    - [ ] `packages/onboarding/src/api/module.ts` — добавить `GetCurrentQuestionUc`
-    - [ ] `packages/onboarding/src/domain/module.ts` — добавить мета-тип в `OnboardingUcMetas`
-    - [ ] `packages/onboarding/src/api/index.ts` — экспорт UC
+- [x] Task: Зарегистрировать UC в модуле и обновить экспорты
+    - [x] `packages/onboarding/src/api/module.ts` — добавить `GetCurrentQuestionUc`
+    - [x] `packages/onboarding/src/domain/module.ts` — добавить мета-тип в `OnboardingUcMetas`
 
-- [ ] Task: Написать тесты для `GetCurrentQuestionUc`
-    - [ ] Файл: `packages/onboarding/src/api/questionnaire/get-current-question-uc.test.ts`
-    - [ ] Тест: возвращает `new_question` для активной анкеты
-    - [ ] Тест: выбрасывает `QUESTIONNAIRE_NOT_FOUND` без активной
+- [x] Task: Написать тесты для `GetCurrentQuestionUc`
+    - [x] Файл: `packages/onboarding/src/api/questionnaire/get-current-question-uc.test.ts`
+    - [x] Тест: возвращает `new_question` для активной анкеты
+    - [x] Тест: выбрасывает `QUESTIONNAIRE_NOT_FOUND` без активной
+    - [x] Тест: отклоняет невалидную команду
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1: Новый UC get-current-question' (Protocol in workflow.md)
 
