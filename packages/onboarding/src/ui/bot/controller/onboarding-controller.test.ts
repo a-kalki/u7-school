@@ -531,4 +531,61 @@ describe('OnboardingController', () => {
     // Send не должно быть (wait_next не отправляет новое сообщение)
     expect(response.sendMessage).toBeUndefined();
   });
+
+  test('wait_next: команда start рендерит sendMessage с Далее', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Множественный выбор',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: true,
+          answers: [
+            { answer: 'A', answerCode: 'a' },
+            { answer: 'B', answerCode: 'b' },
+          ],
+        },
+      ],
+      ['q1'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: modResolve.userFacade,
+      db,
+    });
+
+    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const ctrl2 = new OnboardingController(app2, logger);
+
+    // Начинаем анкету
+    await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 333, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    // Выбираем ответ → состояние wait_next
+    await ctrl2.handleUpdate(
+      { type: 'callback', data: 'a', telegramId: 333, messageId: 10 },
+      botAdminUuid,
+    );
+
+    // Повторный start_onboarding (без messageId)
+    const response = await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 333, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    // sendMessage с текущим вопросом и клавиатурой
+    expect(response.editMessage).toBeUndefined();
+    expect(response.sendMessage).toBeDefined();
+    expect(response.sendMessage?.text).toContain('Множественный выбор');
+    expect(response.sendMessage?.text).toContain('*\\[x\\]*');
+    // Клавиатура с ответами и кнопкой Далее
+    expect(response.sendMessage?.keyboard).toBeDefined();
+    expect(response.sendMessage?.keyboard?.rows.length).toBe(2);
+    expect(response.sendMessage?.keyboard?.rows[1]?.[0]?.text).toBe('Далее -->');
+    expect(response.sendMessage?.parseMode).toBe('MarkdownV2');
+  });
 });
