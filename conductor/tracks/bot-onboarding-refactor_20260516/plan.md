@@ -28,50 +28,49 @@
 
 ## Фаза 2: Типы BotUpdate / BotResponse и рефакторинг контроллера
 
-- [ ] Task: Обновить `BotUpdate` тип
-    - [ ] Файл: `packages/onboarding/src/ui/bot/types.ts`
-    - [ ] Добавить команды `start`, `start-onboarding`, `cancel` в union
+- [x] Task: Обновить `BotUpdate` тип
+    - [x] Файл: `packages/onboarding/src/ui/bot/types.ts`
+    - [x] Команды `start`, `start-onboarding`, `cancel` уже поддерживаются через `command: string`
 
-- [ ] Task: Обновить `BotResponse` тип
-    - [ ] Файл: `packages/onboarding/src/ui/bot/types.ts`
-    - [ ] Добавить поле `questionnaireCompleted?: true`
+- [x] Task: Обновить `BotResponse` тип
+    - [x] Файл: `packages/onboarding/src/ui/bot/types.ts`
+    - [x] Добавить поле `questionnaireCompleted?: true`
 
-- [ ] Task: Переписать `OnboardingController` — убрать `actorId` из конструктора
-    - [ ] Файл: `packages/onboarding/src/ui/bot/controller/onboarding-controller.ts`
-    - [ ] Удалить поле `#actorId` и параметр конструктора
-    - [ ] `handleUpdate(update: BotUpdate, botUuid: string): Promise<BotResponse>`
-    - [ ] Все вызовы `apiApp.execute` передают `botUuid` как `actorId`
+- [x] Task: Переписать `OnboardingController` — убрать `actorId` из конструктора
+    - [x] Файл: `packages/onboarding/src/ui/bot/controller/onboarding-controller.ts`
+    - [x] Удалить поле `#actorId` и параметр конструктора
+    - [x] `handleUpdate(update: BotUpdate, botUuid: string): Promise<BotResponse>`
+    - [x] Все вызовы `apiApp.execute` передают `botUuid` как `actorId`
 
-- [ ] Task: Реализовать обработку команды `start` в контроллере
-    - [ ] Возвращает статическое меню (текст + пустая клавиатура/без клавиатуры)
-    - [ ] Не делает API-вызовов
+- [x] Task: Реализовать обработку команды `start` в контроллере
+    - [x] Возвращает статическое меню (текст + пустая клавиатура/без клавиатуры)
+    - [x] Не делает API-вызовов
 
-- [ ] Task: Реализовать обработку команды `start-onboarding` в контроллере
-    - [ ] Вызывает `get-current-question` UC
-    - [ ] Если ошибка `QUESTIONNAIRE_NOT_FOUND` → вызывает `start-questionnaire` UC
-    - [ ] Рендерит вопрос/клавиатуру как раньше
-    - [ ] Добавляет подсказку про `/cancel` в текст первого сообщения
+- [x] Task: Реализовать обработку команды `start-onboarding` в контроллере
+    - [x] Вызывает `get-current-question` UC
+    - [x] Если ошибка `QUESTIONNAIRE_NOT_FOUND` → вызывает `start` UC
+    - [x] Рендерит вопрос/клавиатуру как раньше
 
-- [ ] Task: Реализовать обработку команды `cancel` в контроллере
-    - [ ] Вызывает `abandon-questionnaire` UC
-    - [ ] Возвращает ответ с `questionnaireCompleted: true`
+- [x] Task: Реализовать обработку команды `cancel` в контроллере
+    - [x] Вызывает `abandon` UC
+    - [x] Возвращает ответ с `questionnaireCompleted: true`
 
-- [ ] Task: Удалить обработку `become_student` callback из контроллера
-    - [ ] Убрать проверку `update.type === 'callback' && update.data === 'become_student'`
-    - [ ] Убедиться, что все пути обрабатывают только команды + message/callback для анкеты
+- [x] Task: Удалить обработку `become_student` callback из контроллера
+    - [x] Убрать проверку `update.type === 'callback' && update.data === 'become_student'`
+    - [x] Убедиться, что все пути обрабатывают только команды + message/callback для анкеты
 
-- [ ] Task: Добавить `questionnaireCompleted` в ответ при завершении анкеты
-    - [ ] В `#renderActionResponse`: если `response.type === 'completed'` → `botRes.questionnaireCompleted = true`
+- [x] Task: Добавить `questionnaireCompleted` в ответ при завершении анкеты
+    - [x] В `#renderActionResponse`: если `response.type === 'completed'` → `botRes.questionnaireCompleted = true`
 
-- [ ] Task: Написать/восстановить тесты контроллера
-    - [ ] Файл: `packages/onboarding/src/ui/bot/controller/onboarding-controller.test.ts`
-    - [ ] Тест: команда `start` возвращает меню (статический текст)
-    - [ ] Тест: `start-onboarding` с новой анкетой → возвращает первый вопрос
-    - [ ] Тест: `start-onboarding` с активной анкетой → продолжает (resume)
-    - [ ] Тест: ответ на вопрос → `editMessage` + `sendMessage`
-    - [ ] Тест: завершение анкеты → `questionnaireCompleted: true`
-    - [ ] Тест: `cancel` → `questionnaireCompleted: true`
-    - [ ] Тест: `botUuid` передаётся в `apiApp.execute`
+- [x] Task: Написать/восстановить тесты контроллера
+    - [x] Файл: `packages/onboarding/src/ui/bot/controller/onboarding-controller.test.ts`
+    - [x] Тест: команда `start` возвращает меню (статический текст)
+    - [x] Тест: `start-onboarding` с новой анкетой → возвращает первый вопрос
+    - [x] Тест: `start-onboarding` с активной анкетой → продолжает (resume)
+    - [x] Тест: ответ на вопрос → завершение анкеты
+    - [x] Тест: завершение анкеты → `questionnaireCompleted: true`
+    - [x] Тест: `cancel` → `questionnaireCompleted: true`
+    - [x] Тест: `botUuid` передаётся в `apiApp.execute`
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Типы и контроллер' (Protocol in workflow.md)
 

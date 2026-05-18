@@ -23,6 +23,8 @@ export type BotResponse = {
   editMessage?: MessageDescription & { messageId: number };
   /** Если задано, бот должен отправить новое сообщение */
   sendMessage?: MessageDescription;
+  /** Флаг завершения анкеты — сигнал боту сбросить меню на 'main' */
+  questionnaireCompleted?: true;
 };
 
 /**

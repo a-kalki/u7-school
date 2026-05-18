@@ -49,11 +49,11 @@ describe('OnboardingController', () => {
     const poolService = new QuestionPoolService(
       [
         {
-          question: 'Q1',
+          question: 'Первый вопрос',
           questionCode: 'q1',
           type: 'choice',
           multiple: false,
-          answers: [{ answer: 'Yes', answerCode: 'yes' }],
+          answers: [{ answer: 'Да', answerCode: 'yes' }],
         },
       ],
       ['q1'],
@@ -95,73 +95,132 @@ describe('OnboardingController', () => {
 
     apiApp = new ApiApp<AppMeta>() as OnboardingBotApp;
     apiApp.register(mod);
-    controller = new OnboardingController(apiApp, botAdminUuid);
+    controller = new OnboardingController(apiApp);
   });
 
   afterEach(() => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  // TODO: Восстановить после рефакторинга контроллера (будущий трек onboarding-controller-refactor)
-  test.skip('become_student starts questionnaire', async () => {
-    const response = await controller.handleUpdate({
-      type: 'callback',
-      data: 'become_student',
-      telegramId: 12345,
-      messageId: 1,
-    } as any);
-    expect(response.sendMessage?.text).toContain('Q1');
+  test('команда start возвращает меню', async () => {
+    const response = await controller.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 12345, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    expect(response.sendMessage?.text).toContain('Иван');
+    // MarkdownV2 экранирует спецсимволы
+    expect(response.sendMessage?.text).toContain('link\\-to');
+    expect(response.sendMessage?.text).toContain('start\\-onboarding');
   });
 
-  // TODO: Восстановить после рефакторинга контроллера (будущий трек onboarding-controller-refactor)
-  test.skip('toggle answer and submit', async () => {
-    await controller.handleUpdate({
-      type: 'callback',
-      data: 'become_student',
-      telegramId: 12345,
-      messageId: 1,
-    } as any);
+  test('команда start-onboarding начинает новую анкету', async () => {
+    const response = await controller.handleUpdate(
+      {
+        type: 'command',
+        command: 'start-onboarding',
+        telegramId: 12345,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
 
-    const toggleResponse = await controller.handleUpdate({
-      type: 'callback',
-      data: 'yes',
-      telegramId: 12345,
-      messageId: 2,
-    });
-
-    expect(toggleResponse.editMessage?.text).toContain('Q1');
-    expect(toggleResponse.sendMessage?.text).toContain('Спасибо!');
+    expect(response.sendMessage?.text).toContain('Первый вопрос');
+    expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
-  // TODO: Восстановить после рефакторинга контроллера (будущий трек onboarding-controller-refactor)
-  test.skip('cancel command', async () => {
-    await controller.handleUpdate({
-      type: 'callback',
-      data: 'become_student',
-      telegramId: 12345,
-      messageId: 1,
-    } as any);
+  test('команда start-onboarding продолжает активную анкету', async () => {
+    // Начинаем анкету
+    await controller.handleUpdate(
+      {
+        type: 'command',
+        command: 'start-onboarding',
+        telegramId: 12345,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
 
-    const response = await controller.handleUpdate({
-      type: 'command',
-      command: 'cancel',
-      telegramId: 12345,
-      name: 'Ivan',
-    });
+    // Повторный вызов — должен вернуть текущий вопрос
+    const response = await controller.handleUpdate(
+      {
+        type: 'command',
+        command: 'start-onboarding',
+        telegramId: 12345,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
 
-    expect(response.sendMessage?.text).toContain('прерван');
+    expect(response.sendMessage?.text).toContain('Первый вопрос');
+    expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
-  // TODO: Восстановить после рефакторинга контроллера (будущий трек onboarding-controller-refactor)
-  test.skip('ignore updates when no active questionnaire', async () => {
-    const response = await controller.handleUpdate({
-      type: 'message',
-      text: 'hello',
-      telegramId: 999,
-      name: 'Ivan',
-    });
+  test('ответ на вопрос завершает анкету', async () => {
+    // Начинаем анкету
+    await controller.handleUpdate(
+      {
+        type: 'command',
+        command: 'start-onboarding',
+        telegramId: 12345,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
 
-    expect(response.sendMessage).toBeUndefined();
-    expect(response.editMessage).toBeUndefined();
+    // Отвечаем на вопрос (callback)
+    const response = await controller.handleUpdate(
+      {
+        type: 'callback',
+        data: 'yes',
+        telegramId: 12345,
+        messageId: 1,
+      },
+      botAdminUuid,
+    );
+
+    expect(response.sendMessage?.text).toContain('Спасибо');
+    expect(response.questionnaireCompleted).toBe(true);
+  });
+
+  test('команда cancel прерывает анкету', async () => {
+    // Начинаем анкету
+    await controller.handleUpdate(
+      {
+        type: 'command',
+        command: 'start-onboarding',
+        telegramId: 12345,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
+
+    // Прерываем
+    const response = await controller.handleUpdate(
+      {
+        type: 'command',
+        command: 'cancel',
+        telegramId: 12345,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
+
+    expect(response.sendMessage?.text).toContain('прервана');
+    expect(response.questionnaireCompleted).toBe(true);
+  });
+
+  test('сообщение без активной анкеты возвращает ошибку', async () => {
+    const response = await controller.handleUpdate(
+      {
+        type: 'message',
+        text: 'привет',
+        telegramId: 999,
+        name: 'Иван',
+      },
+      botAdminUuid,
+    );
+
+    expect(response.sendMessage?.text).toContain('Ошибка');
   });
 });

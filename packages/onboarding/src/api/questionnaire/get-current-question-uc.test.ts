@@ -65,7 +65,9 @@ describe('GetCurrentQuestionUc', () => {
     const result = await uc.handle({ telegramId: 12345 }, actorId);
 
     expect(result.type).toBe('new_question');
-    expect(result.question.questionCode).toBe('q1');
+    if (result.type !== 'completed') {
+      expect(result.question.questionCode).toBe('q1');
+    }
     expect(getByTelegramId).toHaveBeenCalledWith(12345);
   });
 
@@ -81,7 +83,9 @@ describe('GetCurrentQuestionUc', () => {
     // Для одиночного выбора черновики возвращаются в поле selectedAnswers,
     // а тип ответа — new_question (wait_next только для множественного выбора)
     expect(result.type).toBe('new_question');
-    expect(result.question.questionCode).toBe('q1');
+    if (result.type !== 'completed') {
+      expect(result.question.questionCode).toBe('q1');
+    }
     expect(result.selectedAnswers).toEqual(['yes']);
   });
 
