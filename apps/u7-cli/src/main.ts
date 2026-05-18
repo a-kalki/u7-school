@@ -7,26 +7,18 @@ import { CliController } from './cli-controller';
 import type { CliAppMeta } from './types';
 
 async function main() {
-  // --- User Domain Module ---
   const userRepo = new UserJsonRepo();
-  const userApiModule = new UserApiModule();
-  userApiModule.init({ userRepo });
+  const userModule = new UserApiModule({ userRepo });
+  const userFacade = new UserInProcFacade(userModule);
 
-  // --- Course Domain Module ---
-  const userFacade = new UserInProcFacade(userApiModule);
-  const courseApiModule = new CourseApiModule();
-  courseApiModule.init({
+  const courseModule = new CourseApiModule({
     courseRepo: new CourseJsonRepo(),
     lessonRepo: new LessonJsonRepo(),
     stepRepo: new StepJsonRepo(),
     userFacade,
   });
 
-  // --- App ---
-  const app = new ApiApp<CliAppMeta>();
-  app.register(userApiModule);
-  app.register(courseApiModule);
-
+  const app = new ApiApp<CliAppMeta>([userModule, courseModule]);
   const controller = new CliController(app);
   await controller.run();
 }

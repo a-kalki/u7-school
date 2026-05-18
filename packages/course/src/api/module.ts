@@ -35,4 +35,9 @@ export class CourseApiModule extends ApiModule<
     new CreateStepUc(),
     new GetStepUc(),
   ];
+
+  constructor(resolve: CourseApiModuleResolver) {
+    super();
+    this.initResolve(resolve);
+  }
 }

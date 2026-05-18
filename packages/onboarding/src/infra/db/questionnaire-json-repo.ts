@@ -9,12 +9,8 @@ import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
  */
 export class QuestionnaireJsonRepo
   extends JsonFileRepo<Questionnaire>
-  implements QuestionnaireRepo
-{
-  constructor(
-    filePath = 'data/onboarding/questionnaires.json',
-    db?: BaseJsonDb,
-  ) {
+  implements QuestionnaireRepo {
+  constructor(filePath: string, db?: BaseJsonDb) {
     super(QuestionnaireSchema, filePath, db, 'questionnaires');
   }
 

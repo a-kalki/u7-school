@@ -1,7 +1,7 @@
 import { ApiApp } from '@u7/core/api';
 import { BaseJsonDb } from '@u7/core/infra';
 import type { OnboardingBotApp } from '@u7/onboarding';
-import { OnboardingApiModule, OnboardingController } from '@u7/onboarding';
+import { OnboardingApiModule } from '@u7/onboarding';
 import { QuestionPoolService } from '@u7/onboarding/domain';
 import { QuestionnaireJsonRepo } from '@u7/onboarding/infra';
 import { UserApiModule } from '@u7/user/api';
@@ -10,6 +10,7 @@ import type { BotConfig } from './config';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.
+ * Возвращает apiApp (для контроллера) и userFacade (для бота).
  */
 export function createApiApp(config: BotConfig) {
   const db = new BaseJsonDb();
@@ -19,41 +20,37 @@ export function createApiApp(config: BotConfig) {
     `${config.dbDir}/users/seed.json`,
     db,
   );
+
   const questionnaireRepo = new QuestionnaireJsonRepo(
-    `${config.dbDir}/questionnaires.json`,
+    `${config.dbDir}/questionnaires/questionnaires.json`,
     db,
   );
 
-  const poolService = new QuestionPoolService();
+  // ══ QuestionPoolService: явная загрузка пула ══
+  const rawPool = QuestionPoolService.loadDefaultPool() as any[];
+  const poolService = new QuestionPoolService(rawPool, []);
+  const allQuestionCodes = poolService.getAll().map((q) => q.questionCode);
+  const activePoolService = new QuestionPoolService(rawPool, allQuestionCodes);
 
-  const userModule = new UserApiModule();
-  userModule.init({ userRepo });
-
+  // ══ Модули: резолвер в конструкторе ══
+  const userModule = new UserApiModule({ userRepo });
   const userFacade = new UserInProcFacade(userModule);
 
-  const onboardingModule = new OnboardingApiModule();
-  const allQuestionCodes = poolService.getAll().map((q) => q.questionCode);
-  const activePoolService = new QuestionPoolService(
-    undefined,
-    allQuestionCodes,
-  );
-
-  onboardingModule.init({
+  const onboardingModule = new OnboardingApiModule({
     questionnaireRepo,
     questionPoolService: activePoolService,
     userFacade,
     db,
   });
 
-  const apiApp = new ApiApp() as unknown as OnboardingBotApp;
-  apiApp.register(userModule);
-  apiApp.register(onboardingModule);
+  // ══ ApiApp: модули в конструкторе ══
+  const apiApp = new ApiApp([userModule, onboardingModule]) as OnboardingBotApp;
 
   return {
     apiApp,
+    userFacade,
     userRepo,
     questionnaireRepo,
     poolService: activePoolService,
-    userModule,
   };
 }

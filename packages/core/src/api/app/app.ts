@@ -1,4 +1,4 @@
-import type { ApiModuleMeta } from '#domain/index';
+import type { ApiModuleMeta } from '#domain/types';
 import type { ApiModule } from '../module/api-module';
 
 /**
@@ -6,6 +6,15 @@ import type { ApiModule } from '../module/api-module';
  */
 export abstract class App {
   protected modules = new Map<string, ApiModule<ApiModuleMeta, unknown>>();
+
+  /**
+   * @param mods — список API-модулей приложения
+   */
+  constructor(mods: ApiModule<ApiModuleMeta, unknown>[] = []) {
+    for (const m of mods) {
+      this.modules.set(m.name, m);
+    }
+  }
 
   register(module: ApiModule<ApiModuleMeta, unknown>) {
     this.modules.set(module.name, module);

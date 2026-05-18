@@ -27,8 +27,15 @@ class MockUserFacade implements UserFacade {
     return this.users.has(uuid);
   }
 
-  async ensureUserWithRole(_telegramId: number, _role: Role): Promise<void> {
-    return;
+  async getUserByTelegramId(_telegramId: number): Promise<User | undefined> {
+    return undefined;
+  }
+
+  async registerGuest(
+    _telegramId: number,
+    _name: string,
+  ): Promise<User> {
+    throw new Error('Not implemented in mock');
   }
 
   async addRoleToUser(
@@ -67,8 +74,7 @@ function nextPath(prefix: string): string {
 
 /** Создаёт модуль с уникальными временными JSON-репозиториями */
 function setupModule(facade: MockUserFacade) {
-  const mod = new CourseApiModule();
-  mod.init({
+  const mod = new CourseApiModule({
     courseRepo: new CourseJsonRepo(nextPath('courses')),
     lessonRepo: new LessonJsonRepo(nextPath('lessons')),
     stepRepo: new StepJsonRepo(nextPath('steps')),

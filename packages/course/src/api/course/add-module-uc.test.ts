@@ -47,10 +47,9 @@ function setupUc() {
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
   const userExists = mock(async (_uuid: string): Promise<boolean> => false);
-  const userFacade: UserFacade = {
+  const userFacade: any = {
     getUserByUuid,
     userExists,
-    ensureUserWithRole: mock(async () => undefined),
     addRoleToUser: mock(),
   };
   const uc = new AddModuleUc();

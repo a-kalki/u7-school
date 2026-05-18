@@ -29,8 +29,7 @@ function setupModule(dbPath: string) {
     ensureUserWithRole: async () => {},
   } as unknown as UserFacade;
 
-  const module = new OnboardingApiModule();
-  module.init({
+  const module = new OnboardingApiModule({
     questionnaireRepo: repo,
     questionPoolService: poolService,
     userFacade,

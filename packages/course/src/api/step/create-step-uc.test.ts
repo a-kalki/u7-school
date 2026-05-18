@@ -65,10 +65,9 @@ function setupUc() {
   );
   const lessonSave = mock(async () => {});
 
-  const userFacade: UserFacade = {
+  const userFacade: any = {
     getUserByUuid,
     userExists: mock(async () => false),
-    ensureUserWithRole: mock(async () => undefined),
     addRoleToUser: mock(),
   };
   const uc = new CreateStepUc();

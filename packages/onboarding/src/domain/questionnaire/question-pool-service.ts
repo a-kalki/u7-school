@@ -11,11 +11,14 @@ export class QuestionPoolService {
   private readonly index: Map<string, Question>;
   private readonly includedCodes: string[];
 
-  constructor(overridePool?: Question[], includedCodes?: string[]) {
-    const raw = overridePool ?? QuestionPoolService.loadDefaultPool();
-    this.pool = this.validate(raw);
+  /**
+   * @param pool — полный пул вопросов (обязателен)
+   * @param includedCodes — коды вопросов, включённых в текущую версию анкеты (обязателен)
+   */
+  constructor(pool: Question[], includedCodes: string[]) {
+    this.pool = this.validate(pool);
     this.index = new Map(this.pool.map((q) => [q.questionCode, q]));
-    this.includedCodes = includedCodes ?? this.pool.map((q) => q.questionCode);
+    this.includedCodes = includedCodes;
 
     this.assertAllCodesExist(this.includedCodes);
   }
@@ -189,7 +192,12 @@ export class QuestionPoolService {
     return parsed;
   }
 
-  private static loadDefaultPool(): unknown[] {
+  /**
+   * Загружает дефолтный пул вопросов из question-pool.json.
+   * Используй как: `QuestionPoolService.loadDefaultPool()`,
+   * затем передай результат в конструктор.
+   */
+  static loadDefaultPool(): unknown[] {
     const path = resolve(import.meta.dirname, './question-pool.json');
     const content = readFileSync(path, 'utf-8');
     return JSON.parse(content) as unknown[];

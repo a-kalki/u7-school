@@ -54,12 +54,16 @@ interface TestModuleMeta extends ApiModuleMeta {
 class TestModule extends ApiModule<TestModuleMeta, { value: string }> {
   readonly name = 'TestModule';
   readonly useCases = [new TestUseCase()];
+
+  constructor(resolve: { value: string }) {
+    super();
+    this.initResolve(resolve);
+  }
 }
 
 describe('Module (Phase 4)', () => {
   test("модуль инициализируется с резолвером и передаёт его use-case'ам", async () => {
-    const module = new TestModule();
-    module.init({ value: 'resolved' });
+    const module = new TestModule({ value: 'resolved' });
 
     const result = await module.handle({
       name: 'test-cmd',
@@ -70,8 +74,7 @@ describe('Module (Phase 4)', () => {
   });
 
   test('модуль выбрасывает ошибку NO_COMMAND_FOUND для неизвестной команды', async () => {
-    const module = new TestModule();
-    module.init({ value: 'resolved' });
+    const module = new TestModule({ value: 'resolved' });
 
     let caught: unknown;
     try {
@@ -93,7 +96,7 @@ describe('Module (Phase 4)', () => {
   });
 
   test('модуль возвращает список команд (getCommands)', () => {
-    const module = new TestModule();
+    const module = new TestModule({ value: "test" });
     const commands = module.getDocTypes();
     expect(commands).toHaveLength(1);
     expect(commands[0]?.ucName).toBe('test-cmd');
@@ -101,7 +104,7 @@ describe('Module (Phase 4)', () => {
   });
 
   test('getCommands() агрегирует полные метаданные от getCommand()', () => {
-    const module = new TestModule();
+    const module = new TestModule({ value: "test" });
     const commands = module.getDocTypes();
 
     expect(commands).toHaveLength(1);

@@ -5,14 +5,16 @@ import { QuestionPoolService } from './question-pool-service';
 
 describe('QuestionPoolService', () => {
   test('загружает корректный пул из JSON', () => {
-    const service = new QuestionPoolService();
+    const raw = QuestionPoolService.loadDefaultPool() as any[];
+    const service = new QuestionPoolService(raw, raw.map((q: any) => q.questionCode));
     const all = service.getAll();
     expect(all.length).toBe(9);
     expect(all[0]?.questionCode).toBe('how_found');
   });
 
   test('getByCode возвращает вопрос по коду', () => {
-    const service = new QuestionPoolService();
+    const raw = QuestionPoolService.loadDefaultPool() as any[];
+    const service = new QuestionPoolService(raw, raw.map((q: any) => q.questionCode));
     const q = service.getByCode('intensity');
     expect(q).toBeDefined();
     expect(q?.questionCode).toBe('intensity');
@@ -25,7 +27,7 @@ describe('QuestionPoolService', () => {
         questionCode: 'text_q',
         type: 'text',
       },
-    ]);
+    ], ['text_q']);
     const schema = service.buildValidationSchema('text_q');
     expect(() => v.parse(schema, 'hello')).not.toThrow();
     expect(() => v.parse(schema, '')).toThrow();
@@ -48,7 +50,7 @@ describe('QuestionPoolService', () => {
         answers: [{ answer: 'B', answerCode: 'b' }],
       },
     ];
-    expect(() => new QuestionPoolService(pool)).toThrow(
+    expect(() => new QuestionPoolService(pool, ['dup'])).toThrow(
       'Дублирующийся questionCode: dup',
     );
   });
@@ -71,7 +73,7 @@ describe('QuestionPoolService', () => {
         answers: [{ answer: 'B', answerCode: 'b' }],
       },
     ];
-    expect(() => new QuestionPoolService(pool)).toThrow(
+    expect(() => new QuestionPoolService(pool, ['q2'])).toThrow(
       'condition в вопросе "q2" ссылается на несуществующий questionCode: missing',
     );
   });

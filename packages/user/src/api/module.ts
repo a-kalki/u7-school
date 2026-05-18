@@ -20,4 +20,9 @@ export class UserApiModule extends ApiModule<
     new RegisterGuestUc(),
     new AddRoleToUserUc(),
   ];
+
+  constructor(resolve: UserApiModuleResolver) {
+    super();
+    this.initResolve(resolve);
+  }
 }

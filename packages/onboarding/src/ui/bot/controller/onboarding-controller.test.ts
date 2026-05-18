@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { ApiApp } from '@u7/core/api';
-import type { AppMeta } from '@u7/core/domain';
 import { BaseJsonDb } from '@u7/core/infra';
 import { Role } from '@u7/user/domain';
 import { UserJsonRepo } from '@u7/user/infra';
@@ -35,17 +34,6 @@ describe('OnboardingController', () => {
       db,
     );
     userRepo = new UserJsonRepo(nextPath('users'), undefined, db);
-    mod = new OnboardingApiModule();
-
-    // Seed admin (нужно для HandleOnboardingActionUc при выдаче роли)
-    await userRepo.save({
-      uuid: botAdminUuid,
-      name: 'Admin',
-      telegramId: 1,
-      roles: [Role.ADMIN],
-      createdAt: '2024-01-01T00:00',
-    });
-
     const poolService = new QuestionPoolService(
       [
         {
@@ -59,7 +47,7 @@ describe('OnboardingController', () => {
       ['q1'],
     );
 
-    mod.init({
+    mod = new OnboardingApiModule({
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: {
@@ -93,8 +81,16 @@ describe('OnboardingController', () => {
       db,
     });
 
-    apiApp = new ApiApp<AppMeta>() as OnboardingBotApp;
-    apiApp.register(mod);
+    // Seed admin после инициализации модуля
+    await userRepo.save({
+      uuid: botAdminUuid,
+      name: 'Admin',
+      telegramId: 1,
+      roles: [Role.ADMIN],
+      createdAt: '2024-01-01T00:00',
+    });
+
+    apiApp = new ApiApp([mod]) as OnboardingBotApp;
     controller = new OnboardingController(apiApp);
   });
 

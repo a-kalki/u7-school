@@ -1,12 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { OnboardingBotApp } from '@u7/onboarding';
-import type { Bot } from 'grammy';
+import type { UserFacade } from '@u7/user/domain';
 import type { BotContext } from '../context';
-import { registerStartHandler } from './start-handler';
+import { registerTopMenuHandler } from './top-menu-handler';
 
-function makeMockBot(): Bot<BotContext> & {
-  commands: Record<string, (ctx: BotContext) => Promise<void>>;
-} {
+function makeMockBot() {
   const commands: Record<string, (ctx: BotContext) => Promise<void>> = {};
 
   const bot = {
@@ -30,32 +27,40 @@ function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
   } as unknown as BotContext;
 }
 
-describe('registerStartHandler', () => {
-  test('регистрирует обработчик /start', () => {
-    const bot = makeMockBot();
-    const apiApp = {} as OnboardingBotApp;
-    const config = { botAdminUuid: 'uuid', newsGroupUrl: 'url' } as any;
+const mockController = {
+  handleUpdate: mock(async () => ({
+    sendMessage: { text: 'Первый вопрос' },
+  })),
+} as any;
 
-    registerStartHandler(bot, apiApp, config);
+describe('registerTopMenuHandler', () => {
+  test('регистрирует обработчики /start, /link, /start-onboarding', () => {
+    const bot = makeMockBot();
+    const config = { botAdminUuid: 'uuid', newsGroupUrl: 'url' } as any;
+    const userFacade = {} as UserFacade;
+
+    registerTopMenuHandler(bot, userFacade, mockController, config);
 
     expect(bot.commands['start']).toBeDefined();
+    expect(bot.commands['link-to-school-group']).toBeDefined();
+    expect(bot.commands['start-onboarding']).toBeDefined();
   });
 
   test('/start вызывает registerGuest и показывает меню', async () => {
     const bot = makeMockBot();
-    const apiApp = {
-      execute: mock(async () => ({ uuid: 'user-uuid' })),
-    } as unknown as OnboardingBotApp;
-    const config = { botAdminUuid: 'admin-uuid', newsGroupUrl: 'url' } as any;
+    const userFacade = {
+      registerGuest: mock(async () => ({ uuid: 'user-uuid' })),
+    } as unknown as UserFacade;
+    const config = { botAdminUuid: 'admin-uuid' } as any;
 
-    registerStartHandler(bot, apiApp, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config);
 
     const ctx = makeMockContext();
     await (bot.commands['start'] as any)(ctx);
 
-    expect((apiApp as any).execute).toHaveBeenCalledWith(
-      'register-guest',
-      { telegramId: 123, name: 'Тест' },
+    expect(userFacade.registerGuest).toHaveBeenCalledWith(
+      123,
+      'Тест',
       'admin-uuid',
     );
     expect(ctx.session.menu).toBe('main');
@@ -64,39 +69,35 @@ describe('registerStartHandler', () => {
 
   test('/start показывает дружелюбное приветствие', async () => {
     const bot = makeMockBot();
-    const apiApp = {
-      execute: mock(async () => ({ uuid: 'user-uuid' })),
-    } as unknown as OnboardingBotApp;
-    const config = { botAdminUuid: 'admin-uuid', newsGroupUrl: 'url' } as any;
+    const userFacade = {
+      registerGuest: mock(async () => ({ uuid: 'user-uuid' })),
+    } as unknown as UserFacade;
+    const config = { botAdminUuid: 'admin-uuid' } as any;
 
-    registerStartHandler(bot, apiApp, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config);
 
     const ctx = makeMockContext();
     await (bot.commands['start'] as any)(ctx);
 
     const replyText = (ctx as any).reply.mock.calls[0][0] as string;
-    expect(replyText).toContain('Тест');
-    // MarkdownV2 экранирует дефисы
     expect(replyText).toContain('link\\-to\\-school\\-group');
     expect(replyText).toContain('start\\-onboarding');
   });
 
   test('/start не падает при ошибке registerGuest', async () => {
     const bot = makeMockBot();
-    const apiApp = {
-      execute: mock(async () => {
+    const userFacade = {
+      registerGuest: mock(async () => {
         throw new Error('DB Down');
       }),
-    } as unknown as OnboardingBotApp;
-    const config = { botAdminUuid: 'admin-uuid', newsGroupUrl: 'url' } as any;
+    } as unknown as UserFacade;
+    const config = { botAdminUuid: 'admin-uuid' } as any;
 
-    registerStartHandler(bot, apiApp, config);
+    registerTopMenuHandler(bot, userFacade, mockController, config);
 
     const ctx = makeMockContext();
-    // Не должно выбросить исключение
     await (bot.commands['start'] as any)(ctx);
 
-    // Меню всё равно показывается
     expect((ctx as any).reply).toHaveBeenCalled();
   });
 });

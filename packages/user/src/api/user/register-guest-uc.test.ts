@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { ApiApp } from '@u7/core/api';
-import type { AppMeta } from '@u7/core/domain';
 import { BaseJsonDb } from '@u7/core/infra';
 import { Role } from '#domain/user/roles';
 import { UserJsonRepo } from '#infra/db/user-json-repo';
@@ -12,7 +11,7 @@ describe('RegisterGuestUc', () => {
   let db: BaseJsonDb;
   let userRepo: UserJsonRepo;
   let mod: UserApiModule;
-  let apiApp: ApiApp<AppMeta>;
+  let apiApp: ApiApp<any>;
   let tmpDir: string;
   const adminUuid = '00000000-0000-4000-a000-000000000000';
 
@@ -20,10 +19,8 @@ describe('RegisterGuestUc', () => {
     tmpDir = mkdtempSync('/tmp/user-reg-test-');
     db = new BaseJsonDb();
     userRepo = new UserJsonRepo(join(tmpDir, 'users.json'), undefined, db);
-    mod = new UserApiModule();
-    mod.init({ userRepo });
-    apiApp = new ApiApp<AppMeta>();
-    apiApp.register(mod);
+    mod = new UserApiModule({ userRepo });
+    apiApp = new ApiApp([mod]);
 
     // Seed admin
     db.begin();

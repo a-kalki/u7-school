@@ -19,4 +19,9 @@ export class OnboardingApiModule extends ApiModule<
     new AbandonUc(),
     new GetCurrentQuestionUc(),
   ];
+
+  constructor(resolve: OnboardingApiModuleResolver) {
+    super();
+    this.initResolve(resolve);
+  }
 }

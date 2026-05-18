@@ -1,6 +1,7 @@
 import { errBadRequest, throwError } from '#domain/errors/error-helpers';
 import type { NoCommandFoundError } from '#domain/errors/errors';
-import type { AppMeta } from '#domain/types';
+import type { AppMeta, ApiModuleMeta } from '#domain/types';
+import type { ApiModule } from '../module/api-module';
 import { App } from './app';
 
 export type ExtractUcMetas<
@@ -9,9 +10,14 @@ export type ExtractUcMetas<
 > = Extract<TAppMeta['moduleMetas']['ucMetas'], { ucName: N }>;
 
 /**
- * Реализация приложения для backend-окружения
+ * Реализация приложения для backend-окружения.
+ * Принимает модули в конструкторе.
  */
 export class ApiApp<TMeta extends AppMeta> extends App {
+  constructor(modules: ApiModule<ApiModuleMeta, unknown>[]) {
+    super(modules);
+  }
+
   async execute<N extends TMeta['moduleMetas']['ucMetas']['ucName']>(
     ucName: N,
     attrs: ExtractUcMetas<TMeta, N>['input'],

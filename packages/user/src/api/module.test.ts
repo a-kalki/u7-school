@@ -12,8 +12,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     await Bun.$`rm -f ${jsonFile}`;
 
     const repo = new UserJsonRepo(jsonFile, NO_SEED);
-    const mod = new UserApiModule();
-    mod.init({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo });
 
     const admin: User = {
       uuid: crypto.randomUUID(),
@@ -48,8 +47,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule();
-    mod.init({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo });
 
     const result = await mod.handle({
       name: 'get-user',
@@ -74,8 +72,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule();
-    mod.init({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo });
 
     const result = await mod.handle({
       name: 'list-users',
@@ -100,8 +97,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule();
-    mod.init({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo });
 
     const result = await mod.handle({
       name: 'get-user-by-telegram-id',
@@ -116,8 +112,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     const jsonFile = '/tmp/user-module-test-6.json';
     await Bun.$`rm -f ${jsonFile}`;
 
-    const mod = new UserApiModule();
-    mod.init({ userRepo: new UserJsonRepo(jsonFile, NO_SEED) });
+    const mod = new UserApiModule({ userRepo: new UserJsonRepo(jsonFile, NO_SEED) });
 
     await expect(mod.handle({ name: 'unknown', attrs: {} })).rejects.toThrow(
       "Команда 'unknown' не найдена",

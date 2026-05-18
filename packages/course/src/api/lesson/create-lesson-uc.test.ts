@@ -74,10 +74,9 @@ function setupUc() {
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
-  const userFacade: UserFacade = {
+  const userFacade: any = {
     getUserByUuid,
     userExists: mock(async () => false),
-    ensureUserWithRole: mock(async () => undefined),
     addRoleToUser: mock(),
   };
   const uc = new CreateLessonUc();
