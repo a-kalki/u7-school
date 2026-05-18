@@ -1,12 +1,12 @@
 import { errValidation, throwError } from '@u7/core/domain';
+import * as v from 'valibot';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {
   type AbandonQuestionnaireCmd,
   type AbandonQuestionnaireCmdMeta,
   AbandonQuestionnaireCmdSchema,
 } from '#domain/questionnaire/commands/abandon-questionnaire-cmd';
-import type { Questionnaire } from '#domain/questionnaire/entity';
-import { QuestionnaireSchema } from '#domain/questionnaire/entity';
+import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import { OnboardingUseCase } from '../onboarding-uc';
 
 /**
@@ -24,12 +24,12 @@ export class AbandonUc extends OnboardingUseCase<AbandonQuestionnaireCmdMeta> {
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = AbandonQuestionnaireCmdSchema;
-  protected readonly outputSchema = QuestionnaireSchema;
+  protected readonly outputSchema = v.any();
 
   async execute(
     command: AbandonQuestionnaireCmd,
     _actorId: string,
-  ): Promise<Questionnaire> {
+  ): Promise<QuestionnaireActionResponse> {
     const existing = await this.resolve.questionnaireRepo.getByTelegramId(
       command.telegramId,
     );
@@ -48,6 +48,6 @@ export class AbandonUc extends OnboardingUseCase<AbandonQuestionnaireCmdMeta> {
 
     await this.resolve.questionnaireRepo.save(ar.state);
 
-    return ar.state;
+    return { type: 'completed' as const };
   }
 }

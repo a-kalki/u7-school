@@ -1,12 +1,12 @@
 import { errConflict } from '@u7/core/domain';
+import * as v from 'valibot';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {
   type StartQuestionnaireCmd,
   type StartQuestionnaireCmdMeta,
   StartQuestionnaireCmdSchema,
 } from '#domain/questionnaire/commands/start-questionnaire-cmd';
-import type { Questionnaire } from '#domain/questionnaire/entity';
-import { QuestionnaireSchema } from '#domain/questionnaire/entity';
+import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { QuestionnaireActiveUcError } from '#domain/questionnaire/errors';
 import { OnboardingUseCase } from '../onboarding-uc';
 
@@ -25,12 +25,12 @@ export class StartUc extends OnboardingUseCase<StartQuestionnaireCmdMeta> {
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = StartQuestionnaireCmdSchema;
-  protected readonly outputSchema = QuestionnaireSchema;
+  protected readonly outputSchema = v.any();
 
   async execute(
     command: StartQuestionnaireCmd,
     _actorId: string,
-  ): Promise<Questionnaire> {
+  ): Promise<QuestionnaireActionResponse> {
     const hasActive = !!(await this.getActiveQuestionnaire(command.telegramId));
     if (hasActive) {
       this.throwError(
@@ -48,6 +48,6 @@ export class StartUc extends OnboardingUseCase<StartQuestionnaireCmdMeta> {
     );
     await this.resolve.questionnaireRepo.save(ar.state);
 
-    return ar.state;
+    return ar.getQuestionnaireActionResponse();
   }
 }

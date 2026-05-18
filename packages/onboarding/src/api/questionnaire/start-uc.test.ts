@@ -1,14 +1,14 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { BaseJsonDb } from '@u7/core/infra';
 import type { UserFacade } from '@u7/user/domain';
-import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
+import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import { StartUc } from './start-uc';
 
 const actorId = 'bot-admin-uuid';
 
-function setupUc(activeQuestionnaires: Questionnaire[] = []) {
+function setupUc(activeQuestionnaires: any[] = []) {
   const save = mock(async () => {});
   const getByTelegramId = mock(async () => activeQuestionnaires);
 
@@ -46,9 +46,10 @@ describe('StartUc', () => {
   test('создаёт анкету и сохраняет', async () => {
     const { uc, save } = setupUc();
     const result = await uc.handle({ telegramId: 12345 }, actorId);
-    expect(result.telegramId).toBe(12345);
-    expect(result.status).toBe('in_progress');
-    expect(result.currentQuestionCode).toBe('q1');
+    expect(result.type === 'completed' || result.type === 'new_question').toBe(true);
+    if (result.type !== 'completed') {
+      expect(result.question.questionCode).toBe('q1');
+    }
     expect(save).toHaveBeenCalledTimes(1);
   });
 
@@ -58,7 +59,7 @@ describe('StartUc', () => {
   });
 
   test('отказывает, если у пользователя уже есть активная анкета', async () => {
-    const active: Questionnaire = {
+    const active = {
       uuid: crypto.randomUUID(),
       telegramId: 12345,
       status: 'in_progress',

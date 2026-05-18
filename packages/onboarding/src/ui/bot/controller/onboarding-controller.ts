@@ -65,20 +65,13 @@ export class OnboardingController {
       const ex = err as AppException;
       if (ex.error?.name === 'QUESTIONNAIRE_NOT_FOUND') {
         // Нет активной анкеты — начинаем новую
-        await this.#app.execute(
+        const startResponse = (await this.#app.execute(
           'start' as any,
-          { telegramId },
-          botUuid,
-        );
-
-        // Получаем первый вопрос
-        const response = (await this.#app.execute(
-          'get-current-question' as any,
           { telegramId },
           botUuid,
         )) as QuestionnaireActionResponse;
 
-        return this.#renderActionResponse(response);
+        return this.#renderActionResponse(startResponse);
       }
 
       return { sendMessage: { text: `Ошибка: ${ex.message}` } };

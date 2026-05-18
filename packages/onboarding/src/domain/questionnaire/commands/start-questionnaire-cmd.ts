@@ -1,7 +1,8 @@
 import * as v from 'valibot';
-import type { Questionnaire, QuestionnaireArMeta } from '../entity';
+import type { QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
 import type { QuestionnaireActiveUcError } from '../errors';
+import type { QuestionnaireActionResponse } from '../types';
 
 /** Схема команды начала анкеты */
 export const StartQuestionnaireCmdSchema = v.object({
@@ -18,7 +19,7 @@ export interface StartQuestionnaireCmdMeta {
   ucName: 'start';
   arMeta: QuestionnaireArMeta;
   input: StartQuestionnaireCmd;
-  output: Questionnaire;
+  output: QuestionnaireActionResponse;
   errors: StartQuestionnaireCmdError;
   /** Не требует авторизации — используется ботом */
   requiresAuth: false;

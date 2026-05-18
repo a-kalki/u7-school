@@ -39,7 +39,7 @@ describe('AbandonUc', () => {
   test('прерывает активную анкету по telegramId', async () => {
     const { uc, save } = setupUc([activeQuestionnaire]);
     const result = await uc.handle({ telegramId: 12345 }, 'bot-uuid');
-    expect(result.status).toBe('abandoned');
+    expect(result.type).toBe('completed');
     expect(save).toHaveBeenCalledTimes(1);
   });
 

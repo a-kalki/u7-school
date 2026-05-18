@@ -50,8 +50,8 @@ describe('OnboardingApiModule', () => {
       attrs: { telegramId: 10001 },
     })) as any;
 
-    expect(result.telegramId).toBe(10001);
-    expect(result.status).toBe('in_progress');
+    expect(result.type).toBe('new_question');
+    expect(result.question.questionCode).toBe('q1');
 
     db.rollback();
   });
@@ -89,7 +89,7 @@ describe('OnboardingApiModule', () => {
       attrs: { telegramId: 10004 },
     })) as any;
 
-    expect(abandonResult.status).toBe('abandoned');
+    expect(abandonResult.type).toBe('completed');
 
     db.rollback();
   });

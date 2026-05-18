@@ -1,7 +1,8 @@
 import * as v from 'valibot';
-import type { Questionnaire, QuestionnaireArMeta } from '../entity';
+import type { QuestionnaireArMeta } from '../entity';
 import { QuestionnaireSchema } from '../entity';
 import type { BadRequestUcError } from '../errors';
+import type { QuestionnaireActionResponse } from '../types';
 
 /** Схема команды прерывания анкеты */
 export const AbandonQuestionnaireCmdSchema = v.object({
@@ -18,7 +19,7 @@ export interface AbandonQuestionnaireCmdMeta {
   ucName: 'abandon';
   arMeta: QuestionnaireArMeta;
   input: AbandonQuestionnaireCmd;
-  output: Questionnaire;
+  output: QuestionnaireActionResponse;
   errors: AbandonQuestionnaireCmdError;
   /** Не требует авторизации — используется ботом */
   requiresAuth: false;
