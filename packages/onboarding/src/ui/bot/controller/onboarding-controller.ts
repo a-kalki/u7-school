@@ -237,9 +237,11 @@ export class OnboardingController {
     }
 
     const lines = [`*${escapeMd(question.question)}*`, ''];
+    let idx = 0;
     for (const a of question.answers) {
+      idx++;
       const marker = selected.includes(a.answerCode) ? '*\\[x\\]*' : '\\[ \\]';
-      lines.push(`${marker} ${escapeMd(a.answer)}`);
+      lines.push(`${idx}\\. ${marker} ${escapeMd(a.answer)}`);
     }
     return lines.join('\n');
   }
