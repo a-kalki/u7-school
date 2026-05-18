@@ -16,22 +16,32 @@ const LEVEL_LABEL: Record<LogLevel, string> = {
   [LogLevel.ERROR]: 'КРИТИЧЕСКАЯ ОШИБКА',
 };
 
+/** Источники, для которых INFO отправляется в Telegram */
+const TOP_LEVEL_SOURCES = ['top-menu', 'api-app'];
+
 /**
  * Логгер, отправляющий сообщения администраторам бота в Telegram.
  *
- * - INFO → отправляется (телеметрия верхнего уровня)
- * - WARN → отправляется
- * - ERROR → отправляется с пометкой КРИТИЧЕСКАЯ ОШИБКА
- * - DEBUG → не отправляется
+ * - WARN, ERROR — отправляются со всех источников
+ * - INFO — только от top-level источников (top-menu, api-app)
+ * - DEBUG — не отправляется
+ *
+ * Per-source уровни можно переопределить через setSourceLevel.
  */
 export class TelegramLogger implements Logger {
   readonly #bot: Bot<BotContext>;
   readonly #adminIds: number[];
   #level: LogLevel = LogLevel.DEBUG;
+  readonly #sourceLevels = new Map<string, LogLevel>();
 
   constructor(bot: Bot<BotContext>, adminIds: number[]) {
     this.#bot = bot;
     this.#adminIds = adminIds;
+
+    // По умолчанию: INFO только от top-level источников
+    for (const src of TOP_LEVEL_SOURCES) {
+      this.#sourceLevels.set(src, LogLevel.INFO);
+    }
   }
 
   setLogLevel(level: LogLevel): void {
@@ -40,6 +50,10 @@ export class TelegramLogger implements Logger {
 
   getLogLevel(): LogLevel {
     return this.#level;
+  }
+
+  setSourceLevel(source: string, level: LogLevel): void {
+    this.#sourceLevels.set(source, level);
   }
 
   debug(
@@ -55,7 +69,7 @@ export class TelegramLogger implements Logger {
     message: string,
     meta?: Record<string, unknown>,
   ): void {
-    if (LogLevel.INFO < this.#level) return;
+    if (LogLevel.INFO < this.#effectiveLevel(source)) return;
     this.#send(LogLevel.INFO, source, message, meta);
   }
 
@@ -64,7 +78,7 @@ export class TelegramLogger implements Logger {
     message: string,
     meta?: Record<string, unknown>,
   ): void {
-    if (LogLevel.WARN < this.#level) return;
+    if (LogLevel.WARN < this.#effectiveLevel(source)) return;
     this.#send(LogLevel.WARN, source, message, meta);
   }
 
@@ -73,8 +87,12 @@ export class TelegramLogger implements Logger {
     message: string,
     meta?: Record<string, unknown>,
   ): void {
-    if (LogLevel.ERROR < this.#level) return;
+    if (LogLevel.ERROR < this.#effectiveLevel(source)) return;
     this.#send(LogLevel.ERROR, source, message, meta);
+  }
+
+  #effectiveLevel(source: string): LogLevel {
+    return this.#sourceLevels.get(source) ?? this.#level;
   }
 
   #send(

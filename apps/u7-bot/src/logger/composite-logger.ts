@@ -20,6 +20,12 @@ export class CompositeLogger implements Logger {
     }
   }
 
+  setSourceLevel(source: string, level: LogLevel): void {
+    for (const l of this.#loggers) {
+      l.setSourceLevel(source, level);
+    }
+  }
+
   getLogLevel(): LogLevel {
     // Возвращаем минимальный из всех
     let min = LogLevel.ERROR;

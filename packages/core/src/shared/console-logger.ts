@@ -13,6 +13,7 @@ const LEVEL_LABELS: Record<LogLevel, string> = {
  */
 export class ConsoleLogger implements Logger {
   #level: LogLevel = LogLevel.DEBUG;
+  readonly #sourceLevels = new Map<string, LogLevel>();
 
   setLogLevel(level: LogLevel): void {
     this.#level = level;
@@ -20,6 +21,10 @@ export class ConsoleLogger implements Logger {
 
   getLogLevel(): LogLevel {
     return this.#level;
+  }
+
+  setSourceLevel(source: string, level: LogLevel): void {
+    this.#sourceLevels.set(source, level);
   }
 
   debug(source: string, message: string, meta?: Record<string, unknown>): void {
@@ -38,8 +43,12 @@ export class ConsoleLogger implements Logger {
     this.#log(LogLevel.ERROR, source, message, meta);
   }
 
+  #getEffectiveLevel(source: string): LogLevel {
+    return this.#sourceLevels.get(source) ?? this.#level;
+  }
+
   #log(level: LogLevel, source: string, message: string, meta?: Record<string, unknown>): void {
-    if (level < this.#level) return;
+    if (level < this.#getEffectiveLevel(source)) return;
 
     const ts = new Date().toISOString();
     const label = LEVEL_LABELS[level];
