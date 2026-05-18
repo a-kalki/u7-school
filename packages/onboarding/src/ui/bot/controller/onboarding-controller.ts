@@ -1,17 +1,10 @@
 import type { AppException } from '@u7/core/domain';
+import { escapeMarkdown } from '@u7/core/shared';
 import type { Logger } from '@u7/core/shared';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { OnboardingBotApp } from '../app';
 import type { BotResponse, BotUpdate, KeyboardDescription } from '../types';
-
-/**
- * Экранирует текст для MarkdownV2 — экранирует все
- * спецсимволы: _ * [ ] ( ) ~ ` > # + - = | { } . !
- */
-function toMarkdown(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-}
 
 /**
  * Контроллер onboarding для Telegram-бота.
@@ -113,7 +106,7 @@ export class OnboardingController {
       return {
         questionnaireCompleted: true,
         sendMessage: {
-          text: toMarkdown(
+          text: escapeMarkdown(
             'Анкета прервана. Ты можешь начать заново через /start-onboarding',
           ),
           parseMode: 'MarkdownV2',
@@ -254,15 +247,15 @@ export class OnboardingController {
   /** Форматирует вопрос и ответы в MarkdownV2 */
   #formatQuestionMd(question: Question, selected: string[]): string {
     if (question.type !== 'choice') {
-      return `*${toMarkdown(question.question)}*`;
+      return `*${escapeMarkdown(question.question)}*`;
     }
 
-    const lines = [`*${toMarkdown(question.question)}*`, ''];
+    const lines = [`*${escapeMarkdown(question.question)}*`, ''];
     let idx = 0;
     for (const a of question.answers) {
       idx++;
       const marker = selected.includes(a.answerCode) ? '*[x]*' : '[ ]';
-      lines.push(`${idx}\\. ${marker} ${toMarkdown(a.answer)}`);
+      lines.push(`${idx}\\. ${marker} ${escapeMarkdown(a.answer)}`);
     }
     return lines.join('\n');
   }
