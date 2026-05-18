@@ -1,0 +1,13 @@
+Контрольная точка Фазы 2: Типы и контроллер
+
+**Автоматические тесты:**
+- Команда: bun run test:p onboarding
+- Результат: 57 pass, 0 fail
+
+**Ручная верификация:**
+- Подтверждено пользователем: да
+
+**Файлы Фазы 2:**
+- packages/onboarding/src/ui/bot/types.ts (изменён — questionnaireCompleted)
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.ts (полная переработка)
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.test.ts (переписан — 6 тестов)
