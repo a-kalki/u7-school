@@ -1,0 +1,16 @@
+Контрольная точка Фазы 1: Новый UC get-current-question
+
+**Автоматические тесты:**
+- Команда: bun run test:p onboarding
+- Результат: 51 pass, 0 fail, 4 skip
+
+**Ручная верификация:**
+- Выполнена команда bun run test:p onboarding
+- Подтверждено пользователем: да
+
+**Файлы Фазы 1:**
+- packages/onboarding/src/domain/questionnaire/commands/get-current-question-cmd.ts (новый)
+- packages/onboarding/src/api/questionnaire/get-current-question-uc.ts (новый)
+- packages/onboarding/src/api/questionnaire/get-current-question-uc.test.ts (новый)
+- packages/onboarding/src/domain/module.ts (изменён)
+- packages/onboarding/src/api/module.ts (изменён)
