@@ -21,12 +21,20 @@ export class OnboardingController {
    * @param botUuid — UUID бота, используется как actorId для всех API-вызовов
    */
   async handleUpdate(update: BotUpdate, botUuid: string): Promise<BotResponse> {
-    if (update.type === 'command') {
-      return this.#handleCommand(update, botUuid);
-    }
+    try {
+      if (update.type === 'command') {
+        return this.#handleCommand(update, botUuid);
+      }
 
-    // message или callback — форвардим в handle-action
-    return this.#handleAction(update, botUuid);
+      // message или callback — форвардим в handle-action
+      return this.#handleAction(update, botUuid);
+    } catch (err) {
+      console.error('Необработанная ошибка в OnboardingController:', err);
+      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
+      return {
+        sendMessage: { text: `⚠️ Произошла ошибка: ${message}` },
+      };
+    }
   }
 
   // ── Обработка команд ──
@@ -54,22 +62,22 @@ export class OnboardingController {
   ): Promise<BotResponse> {
     try {
       // Пробуем получить текущий вопрос активной анкеты
-      const response = (await this.#app.execute(
-        'get-current-question' as any,
+      const response = await this.#app.execute(
+        'get-current-question',
         { telegramId },
         botUuid,
-      )) as QuestionnaireActionResponse;
+      );
 
       return this.#renderActionResponse(response);
     } catch (err) {
       const ex = err as AppException;
       if (ex.error?.name === 'QUESTIONNAIRE_NOT_FOUND') {
         // Нет активной анкеты — начинаем новую
-        const startResponse = (await this.#app.execute(
-          'start' as any,
+        const startResponse = await this.#app.execute(
+          'start',
           { telegramId },
           botUuid,
-        )) as QuestionnaireActionResponse;
+        );
 
         return this.#renderActionResponse(startResponse);
       }
@@ -84,15 +92,14 @@ export class OnboardingController {
     botUuid: string,
   ): Promise<BotResponse> {
     try {
-      await this.#app.execute(
-        'abandon' as any,
-        { telegramId },
-        botUuid,
-      );
+      await this.#app.execute('abandon', { telegramId }, botUuid);
 
       return {
         questionnaireCompleted: true,
-        sendMessage: { text: 'Анкета прервана. Ты можешь начать заново через /start\\-onboarding', parseMode: 'MarkdownV2' },
+        sendMessage: {
+          text: 'Анкета прервана. Ты можешь начать заново через /start\\-onboarding',
+          parseMode: 'MarkdownV2',
+        },
       };
     } catch (err) {
       const ex = err as AppException;
@@ -107,25 +114,22 @@ export class OnboardingController {
     botUuid: string,
   ): Promise<BotResponse> {
     try {
-      const actionValue =
-        update.type === 'message' ? update.text : update.data;
-      const actionType =
-        update.type === 'message' ? 'text' : 'callback';
+      const actionValue = update.type === 'message' ? update.text : update.data;
+      const actionType = update.type === 'message' ? 'text' : 'callback';
 
-    const response = (await this.#app.execute(
-        'handle-action' as any,
+      const response = await this.#app.execute(
+        'handle-action',
         {
           telegramId: update.telegramId,
           type: actionType,
           value: actionValue,
-        } as any,
+        },
         botUuid,
-      )) as QuestionnaireActionResponse;
+      );
 
       return this.#renderActionResponse(
         response,
         update.type === 'callback' ? update.messageId : undefined,
-        undefined /* lastQuestion больше не нужен — ответы рендерятся из response.selectedAnswers */,
       );
     } catch (err) {
       const ex = err as AppException;
@@ -139,17 +143,11 @@ export class OnboardingController {
   #renderActionResponse(
     response: QuestionnaireActionResponse,
     messageId?: number,
-    _lastQuestion?: Question,
   ): BotResponse {
     const botRes: BotResponse = {};
 
     // Обновляем предыдущее сообщение, если есть selectedAnswers и messageId
-    if (
-      response.type !== 'completed' &&
-      response.selectedAnswers &&
-      response.selectedAnswers.length > 0 &&
-      messageId
-    ) {
+    if ('question' in response && response.selectedAnswers && messageId) {
       const question = response.question;
       const text = this.#formatQuestionMd(question, response.selectedAnswers);
       const keyboard = this.#getKeyboard(question, response.selectedAnswers);
@@ -166,7 +164,7 @@ export class OnboardingController {
     if (response.type === 'completed') {
       botRes.questionnaireCompleted = true;
       botRes.sendMessage = {
-        text: 'Спасибо! Твоя заявка принята. Присоединяйся к группе @u7_news',
+        text: 'Спасибо! Твоя анкета принята.',
       };
     } else {
       const { question } = response;
@@ -221,4 +219,5 @@ export class OnboardingController {
       isMultiple: question.multiple,
     };
   }
+
 }

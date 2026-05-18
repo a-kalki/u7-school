@@ -1,6 +1,9 @@
-import type { Context } from 'grammy';
+import type { Context, SessionFlavor } from 'grammy';
 
-/**
- * Контекст Grammy-бота.
- */
-export type BotContext = Context;
+/** Данные сессии */
+export interface SessionData {
+  menu: 'main' | 'onboarding';
+}
+
+/** Контекст Grammy-бота с поддержкой сессий */
+export type BotContext = Context & SessionFlavor<SessionData>;
