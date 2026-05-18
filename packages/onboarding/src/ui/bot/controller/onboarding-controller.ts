@@ -117,11 +117,6 @@ export class OnboardingController {
       const actionValue = update.type === 'message' ? update.text : update.data;
       const actionType = update.type === 'message' ? 'text' : 'callback';
 
-      console.log({
-        telegramId: update.telegramId,
-        type: actionType,
-        value: actionValue,
-      });
       const response = await this.#app.execute(
         'handle-action',
         {
@@ -131,7 +126,6 @@ export class OnboardingController {
         },
         botUuid,
       );
-      console.log(response);
 
       return this.#renderActionResponse(
         response,
@@ -156,12 +150,11 @@ export class OnboardingController {
     if (response.type === 'wait_next') {
       if (messageId) {
         const text = this.#formatQuestionMd(
-          response.question,
+          response.currentQuestion,
           response.selectedAnswers,
         );
         const keyboard = this.#getKeyboard(
-          response.question,
-          response.selectedAnswers,
+          response.currentQuestion,
           response.nextButton,
         );
 
@@ -177,31 +170,28 @@ export class OnboardingController {
 
     // Для new_question — редактируем предыдущее (если есть) и отправляем новое
     if (response.type === 'new_question') {
+      // Edit: рендерим предыдущий вопрос с отмеченными ответами, БЕЗ клавиатуры
       if (
-        response.selectedAnswers &&
-        response.selectedAnswers.length > 0 &&
+        response.previousQuestion &&
+        response.previousSelectedAnswers &&
         messageId
       ) {
         const text = this.#formatQuestionMd(
-          response.question,
-          response.selectedAnswers,
-        );
-        const keyboard = this.#getKeyboard(
-          response.question,
-          response.selectedAnswers,
+          response.previousQuestion,
+          response.previousSelectedAnswers,
         );
 
         botRes.editMessage = {
           messageId,
           text,
-          keyboard,
           parseMode: 'MarkdownV2',
         };
       }
 
+      // Send: новый вопрос
       const selected = response.selectedAnswers ?? [];
       const text = this.#formatQuestionMd(response.question, selected);
-      const keyboard = this.#getKeyboard(response.question, selected);
+      const keyboard = this.#getKeyboard(response.question);
 
       botRes.sendMessage = {
         text,
@@ -212,6 +202,24 @@ export class OnboardingController {
     }
 
     // Для completed — сигнал завершения
+    // Edit: последний вопрос с отмеченными ответами, БЕЗ клавиатуры
+    if (
+      response.previousQuestion &&
+      response.previousSelectedAnswers &&
+      messageId
+    ) {
+      const text = this.#formatQuestionMd(
+        response.previousQuestion,
+        response.previousSelectedAnswers,
+      );
+
+      botRes.editMessage = {
+        messageId,
+        text,
+        parseMode: 'MarkdownV2',
+      };
+    }
+
     botRes.questionnaireCompleted = true;
     botRes.sendMessage = {
       text: 'Спасибо! Твоя анкета принята.',
@@ -238,7 +246,6 @@ export class OnboardingController {
 
   #getKeyboard(
     question: Question,
-    selected: string[],
     nextButton?: string,
   ): KeyboardDescription | undefined {
     if (question.type !== 'choice') return undefined;

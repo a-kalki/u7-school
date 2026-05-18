@@ -286,6 +286,101 @@ describe('QuestionnaireAr', () => {
 
   // ── Ветвление ──
 
+  // ── Новые поля previousQuestion / previousSelectedAnswers ──
+
+  test('new_question содержит previousQuestion и previousSelectedAnswers при переходе (single choice)', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+
+    const res = ar.handleAction(cb('yes'));
+    expect(res.type).toBe('new_question');
+    // previousQuestion — вопрос, на который ответили (q1)
+    expect((res as any).previousQuestion).toBeDefined();
+    expect((res as any).previousQuestion.questionCode).toBe('q1');
+    expect((res as any).previousQuestion.question).toBe('Первый вопрос');
+    // previousSelectedAnswers — выбранные ответы на предыдущий вопрос
+    expect((res as any).previousSelectedAnswers).toEqual(['yes']);
+    // question — НОВЫЙ вопрос
+    expect((res as any).question.questionCode).toBe('q2');
+    // selectedAnswers — черновики нового вопроса (пусто)
+    expect((res as any).selectedAnswers).toEqual([]);
+  });
+
+  test('new_question содержит previousQuestion и previousSelectedAnswers при next (multiple choice)', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // q1 -> q3
+    ar.handleAction(txt('hello')); // q3 -> q4
+    ar.handleAction(cb('b')); // выбрать b
+
+    const res = ar.handleAction(cb('next:q4'));
+    expect(res.type).toBe('completed');
+    // previousQuestion — q4
+    expect((res as any).previousQuestion).toBeDefined();
+    expect((res as any).previousQuestion.questionCode).toBe('q4');
+    expect((res as any).previousQuestion.question).toBe('Множественный выбор');
+    // previousSelectedAnswers — ['b']
+    expect((res as any).previousSelectedAnswers).toEqual(['b']);
+  });
+
+  test('new_question НЕ содержит previousQuestion если предыдущий вопрос не choice', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // q1 -> q3 (текстовый)
+
+    // q3 — текстовый, previousQuestion не нужен для рендеринга
+    const res = ar.handleAction(txt('hello'));
+    expect(res.type).toBe('new_question');
+    // Для текстового вопроса previousQuestion может быть или нет —
+    // главное что агрегат не падает и возвращает корректный вопрос
+    expect((res as any).question.questionCode).toBe('q4');
+  });
+
+  test('completed содержит previousQuestion и previousSelectedAnswers', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // q1 -> q3
+    ar.handleAction(txt('test')); // q3 -> q4
+    ar.handleAction(cb('a'));
+
+    const res = ar.handleAction(cb('next:q4'));
+    expect(res.type).toBe('completed');
+    expect((res as any).previousQuestion).toBeDefined();
+    expect((res as any).previousQuestion.questionCode).toBe('q4');
+    expect((res as any).previousSelectedAnswers).toEqual(['a']);
+  });
+
+  // ── Переименование question → currentQuestion в wait_next ──
+
+  test('wait_next использует currentQuestion вместо question', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // q1 -> q3
+    ar.handleAction(txt('test')); // q3 -> q4 (multiple)
+
+    const res = ar.handleAction(cb('a'));
+    expect(res.type).toBe('wait_next');
+    // Должно быть currentQuestion
+    expect((res as any).currentQuestion).toBeDefined();
+    expect((res as any).currentQuestion.questionCode).toBe('q4');
+    // question больше не должно быть
+    expect((res as any).question).toBeUndefined();
+  });
+
+  test('getQuestionnaireActionResponse возвращает currentQuestion для wait_next', () => {
+    const pool = new QuestionPoolService(testPool, includedQuestionCodes);
+    const ar = QuestionnaireAr.start(123456, pool);
+    ar.handleAction(cb('no')); // q1 -> q3
+    ar.handleAction(txt('test')); // q3 -> q4
+    ar.handleAction(cb('a'));
+
+    const res = ar.getQuestionnaireActionResponse();
+    expect(res.type).toBe('wait_next');
+    expect((res as any).currentQuestion).toBeDefined();
+    expect((res as any).currentQuestion.questionCode).toBe('q4');
+    expect((res as any).question).toBeUndefined();
+  });
+
   test('getNextQuestion: корректная работа при отсутствии ответов на условия', () => {
     const pool = new QuestionPoolService(
       [

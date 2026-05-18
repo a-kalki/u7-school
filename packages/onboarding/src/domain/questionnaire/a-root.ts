@@ -153,7 +153,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
     const response: QuestionnaireActionResponse = {
       type: 'wait_next',
-      question,
+      currentQuestion: question,
       selectedAnswers: newDraft,
     };
     if (newDraft.length > 0) {
@@ -228,17 +228,28 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       this.state.answers,
     );
 
+    const previousQuestion = this.state.currentQuestionCode
+      ? this.getQuestion(this.state.currentQuestionCode)
+      : undefined; // при старте анкеты вопроса ещё нет
+
     if (nextQuestion) {
       this.safeUpdate({ currentQuestionCode: nextQuestion.questionCode });
       return {
         type: 'new_question',
         question: nextQuestion,
-        selectedAnswers: lastSelectedAnswers,
+        selectedAnswers: [],
+        previousQuestion,
+        previousSelectedAnswers: lastSelectedAnswers,
       };
     }
 
     this.safeUpdate({ status: 'completed', currentQuestionCode: null });
-    return { type: 'completed', selectedAnswers: lastSelectedAnswers };
+    return {
+      type: 'completed',
+      selectedAnswers: lastSelectedAnswers,
+      previousQuestion,
+      previousSelectedAnswers: lastSelectedAnswers,
+    };
   }
 
   // ── Состояние для UI ──
@@ -259,7 +270,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     ) {
       return {
         type: 'wait_next',
-        question,
+        currentQuestion: question,
         selectedAnswers: this.state.draftAnswers ?? [],
         nextButton: QuestionnaireAr.getNextButtonText(questionCode),
       };

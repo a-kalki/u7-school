@@ -4,7 +4,7 @@ import type { Question } from './question';
 export type QuestionnaireActionResponse =
   | {
       type: 'wait_next';
-      question: Question;
+      currentQuestion: Question;
       selectedAnswers: string[];
       /** Кнопка «Далее», формат "next:<questionCode>" */
       nextButton?: string;
@@ -13,8 +13,16 @@ export type QuestionnaireActionResponse =
       type: 'new_question';
       question: Question;
       selectedAnswers?: string[];
+      /** Предыдущий вопрос (choice) — для рендеринга edit сообщения */
+      previousQuestion?: Question;
+      /** Ответы на предыдущий вопрос */
+      previousSelectedAnswers?: string[];
     }
   | {
       type: 'completed';
       selectedAnswers?: string[];
+      /** Предыдущий вопрос (choice) — для рендеринга edit сообщения */
+      previousQuestion?: Question;
+      /** Ответы на предыдущий вопрос */
+      previousSelectedAnswers?: string[];
     };

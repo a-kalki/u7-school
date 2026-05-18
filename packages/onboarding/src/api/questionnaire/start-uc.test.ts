@@ -49,7 +49,7 @@ describe('StartUc', () => {
     expect(result.type === 'completed' || result.type === 'new_question').toBe(
       true,
     );
-    if (result.type !== 'completed') {
+    if (result.type === 'new_question') {
       expect(result.question.questionCode).toBe('q1');
     }
     expect(save).toHaveBeenCalledTimes(1);

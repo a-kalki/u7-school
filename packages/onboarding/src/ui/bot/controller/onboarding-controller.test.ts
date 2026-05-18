@@ -207,4 +207,294 @@ describe('OnboardingController', () => {
 
     expect(response.sendMessage?.text).toContain('Ошибка');
   });
+
+  // ── Тесты с несколькими вопросами (переход new_question) ──
+
+  test('new_question: edit использует previousQuestion, без клавиатуры', async () => {
+    // Создаём контроллер с пулом из 2 вопросов
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Первый вопрос',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: false,
+          answers: [
+            { answer: 'Да', answerCode: 'yes' },
+            { answer: 'Нет', answerCode: 'no' },
+          ],
+        },
+        {
+          question: 'Второй вопрос',
+          questionCode: 'q2',
+          type: 'text',
+        },
+      ],
+      ['q1', 'q2'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: (mod as any).userFacade,
+      db,
+    });
+
+    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const ctrl2 = new OnboardingController(app2);
+
+    // Начинаем анкету
+    await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 777, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    // Отвечаем на q1 (callback) — должен быть переход на q2
+    const response = await ctrl2.handleUpdate(
+      {
+        type: 'callback',
+        data: 'yes',
+        telegramId: 777,
+        messageId: 42,
+      },
+      botAdminUuid,
+    );
+
+    // Edit: должен содержать текст первого вопроса с [x] на 'Да' и БЕЗ клавиатуры
+    expect(response.editMessage).toBeDefined();
+    expect(response.editMessage!.messageId).toBe(42);
+    expect(response.editMessage!.text).toContain('Первый вопрос');
+    expect(response.editMessage!.text).toContain('\\[x\\]');
+    expect(response.editMessage!.keyboard).toBeUndefined();
+
+    // Send: должен содержать текст второго вопроса
+    expect(response.sendMessage).toBeDefined();
+    expect(response.sendMessage!.text).toContain('Второй вопрос');
+  });
+
+  test('new_question: send использует question (новый вопрос)', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Первый вопрос',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: false,
+          answers: [{ answer: 'Да', answerCode: 'yes' }],
+        },
+        {
+          question: 'Второй вопрос',
+          questionCode: 'q2',
+          type: 'text',
+        },
+      ],
+      ['q1', 'q2'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: (mod as any).userFacade,
+      db,
+    });
+
+    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const ctrl2 = new OnboardingController(app2);
+
+    await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 888, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    const response = await ctrl2.handleUpdate(
+      {
+        type: 'callback',
+        data: 'yes',
+        telegramId: 888,
+        messageId: 10,
+      },
+      botAdminUuid,
+    );
+
+    // Send — новый вопрос, edit — старый. Текст нового вопроса НЕ должен быть в edit
+    expect(response.editMessage!.text).toContain('Первый вопрос');
+    expect(response.sendMessage!.text).toContain('Второй вопрос');
+    // Новый вопрос не должен содержать [x] (черновиков нет)
+    expect(response.sendMessage!.text).not.toContain('\\[x\\]');
+  });
+
+  test('new_question: multiple choice с next — edit без клавиатуры', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Множественный выбор',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: true,
+          answers: [
+            { answer: 'A', answerCode: 'a' },
+            { answer: 'B', answerCode: 'b' },
+          ],
+        },
+        {
+          question: 'Текстовый вопрос',
+          questionCode: 'q2',
+          type: 'text',
+        },
+      ],
+      ['q1', 'q2'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: (mod as any).userFacade,
+      db,
+    });
+
+    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const ctrl2 = new OnboardingController(app2);
+
+    // Начинаем анкету
+    await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 999, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    // Выбираем ответ 'a' (wait_next)
+    await ctrl2.handleUpdate(
+      { type: 'callback', data: 'a', telegramId: 999, messageId: 55 },
+      botAdminUuid,
+    );
+
+    // Нажимаем «Далее» — переход на q2
+    const response = await ctrl2.handleUpdate(
+      {
+        type: 'callback',
+        data: 'next:q1',
+        telegramId: 999,
+        messageId: 55,
+      },
+      botAdminUuid,
+    );
+
+    // Edit: предыдущий вопрос с [x] на 'a', БЕЗ клавиатуры
+    expect(response.editMessage).toBeDefined();
+    expect(response.editMessage!.messageId).toBe(55);
+    expect(response.editMessage!.text).toContain('Множественный выбор');
+    expect(response.editMessage!.text).toContain('\\[x\\]');
+    expect(response.editMessage!.keyboard).toBeUndefined();
+
+    // Send: новый вопрос
+    expect(response.sendMessage).toBeDefined();
+    expect(response.sendMessage!.text).toContain('Текстовый вопрос');
+  });
+
+  test('completed: edit последнего вопроса, без клавиатуры', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Последний вопрос',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: false,
+          answers: [{ answer: 'Готово', answerCode: 'done' }],
+        },
+      ],
+      ['q1'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: (mod as any).userFacade,
+      db,
+    });
+
+    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const ctrl2 = new OnboardingController(app2);
+
+    // Начинаем анкету
+    await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 111, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    // Отвечаем на последний вопрос (callback) — completed
+    const response = await ctrl2.handleUpdate(
+      {
+        type: 'callback',
+        data: 'done',
+        telegramId: 111,
+        messageId: 77,
+      },
+      botAdminUuid,
+    );
+
+    // Edit предыдущего сообщения: последний вопрос с [x], без клавиатуры
+    expect(response.editMessage).toBeDefined();
+    expect(response.editMessage!.messageId).toBe(77);
+    expect(response.editMessage!.text).toContain('Последний вопрос');
+    expect(response.editMessage!.text).toContain('\\[x\\]');
+    expect(response.editMessage!.keyboard).toBeUndefined();
+
+    // Send: сообщение о завершении
+    expect(response.sendMessage!.text).toContain('Спасибо');
+    expect(response.questionnaireCompleted).toBe(true);
+  });
+
+  test('wait_next: callback без перехода использует currentQuestion (без изменений)', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Множественный выбор',
+          questionCode: 'q1',
+          type: 'choice',
+          multiple: true,
+          answers: [
+            { answer: 'A', answerCode: 'a' },
+            { answer: 'B', answerCode: 'b' },
+          ],
+        },
+      ],
+      ['q1'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: (mod as any).userFacade,
+      db,
+    });
+
+    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const ctrl2 = new OnboardingController(app2);
+
+    // Начинаем анкету
+    await ctrl2.handleUpdate(
+      { type: 'command', command: 'start', telegramId: 222, name: 'Иван' },
+      botAdminUuid,
+    );
+
+    // Переключаем чекбокс (wait_next) — должно редактировать текущее сообщение
+    const response = await ctrl2.handleUpdate(
+      {
+        type: 'callback',
+        data: 'a',
+        telegramId: 222,
+        messageId: 33,
+      },
+      botAdminUuid,
+    );
+
+    // Edit должен быть (wait_next — редактируем текущее сообщение)
+    expect(response.editMessage).toBeDefined();
+    expect(response.editMessage!.messageId).toBe(33);
+    expect(response.editMessage!.text).toContain('Множественный выбор');
+    expect(response.editMessage!.text).toContain('\\[x\\]');
+    // В wait_next клавиатура ДОЛЖНА быть (это режим редактирования чекбоксов)
+    expect(response.editMessage!.keyboard).toBeDefined();
+    // Send не должно быть (wait_next не отправляет новое сообщение)
+    expect(response.sendMessage).toBeUndefined();
+  });
 });
