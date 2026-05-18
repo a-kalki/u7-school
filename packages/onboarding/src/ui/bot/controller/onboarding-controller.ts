@@ -144,11 +144,6 @@ export class OnboardingController {
       );
     } catch (err) {
       const ex = err as AppException;
-      this.#logger?.error('onboarding-controller', 'Ошибка в handleAction', {
-        error: String(err),
-        telegramId: update.telegramId,
-        type: update.type,
-      });
       return { sendMessage: { text: `Ошибка: ${ex.message}` } };
     }
   }
@@ -264,8 +259,12 @@ export class OnboardingController {
       idx++;
       const checked = selected.includes(a.answerCode);
       const marker = question.multiple
-        ? (checked ? '*\\[x\\]*' : '\\[ \\]')
-        : (checked ? '\\(x\\)' : '\\( \\)');
+        ? checked
+          ? '*\\[x\\]*'
+          : '\\[ \\]'
+        : checked
+          ? '\\(x\\)'
+          : '\\( \\)';
       lines.push(`${idx}\\. ${marker} ${escapeMarkdown(a.answer)}`);
     }
     return lines.join('\n');
