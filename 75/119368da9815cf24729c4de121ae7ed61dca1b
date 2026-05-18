@@ -1,0 +1,12 @@
+Задача Фазы 1: Новый UC get-current-question
+
+**Созданные файлы:**
+- packages/onboarding/src/domain/questionnaire/commands/get-current-question-cmd.ts — команда (query, requiresAuth: false, ошибка QUESTIONNAIRE_NOT_FOUND)
+- packages/onboarding/src/api/questionnaire/get-current-question-uc.ts — UC
+- packages/onboarding/src/api/questionnaire/get-current-question-uc.test.ts — 4 теста
+
+**Изменённые файлы:**
+- packages/onboarding/src/domain/module.ts — добавлен GetCurrentQuestionCmdMeta в OnboardingUcMetas
+- packages/onboarding/src/api/module.ts — зарегистрирован GetCurrentQuestionUc
+
+**Причина:** Контроллеру нужен способ узнать текущее состояние анкеты, не получая агрегат напрямую. UC возвращает QuestionnaireActionResponse (new_question/wait_next) или выбрасывает QUESTIONNAIRE_NOT_FOUND.
