@@ -104,15 +104,15 @@ export class TelegramLogger implements Logger {
     const emoji = LEVEL_EMOJI[level];
     const label = LEVEL_LABEL[level];
     const fullMessage = [
-      `${emoji} *${label}*`,
-      `*Источник:* \`${source}\``,
-      `*Сообщение:* ${message}`,
-      meta ? `*Мета:* \`${JSON.stringify(meta)}\`` : '',
+      `${emoji} <b>${this.#escapeHtml(label)}</b>`,
+      `<b>Источник:</b> <code>${this.#escapeHtml(source)}</code>`,
+      `<b>Сообщение:</b> ${this.#escapeHtml(message)}`,
+      meta ? `<b>Мета:</b> <code>${this.#escapeHtml(JSON.stringify(meta))}</code>` : '',
     ].join('\n');
 
     for (const adminId of this.#adminIds) {
       this.#bot.api
-        .sendMessage(adminId, fullMessage, { parse_mode: 'Markdown' })
+        .sendMessage(adminId, fullMessage, { parse_mode: 'HTML' })
         .catch((err) => {
           console.error(
             `[TelegramLogger] Не удалось отправить сообщение админу ${adminId}:`,
@@ -120,5 +120,12 @@ export class TelegramLogger implements Logger {
           );
         });
     }
+  }
+
+  #escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 }
