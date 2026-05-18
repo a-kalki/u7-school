@@ -8,8 +8,8 @@ import { executeResponses } from '../ui-utils';
 /**
  * Регистрирует обработчиков верхнего меню.
  * - /start: главное меню (бот рендерит сам)
- * - /link-to-school-group: приглашение в группу
- * - /start-onboarding: вход в анкету
+ * - /link_to_school_group: приглашение в группу
+ * - /start_onboarding: вход в анкету
  */
 export function registerTopMenuHandler(
   bot: Bot<BotContext>,
@@ -38,19 +38,19 @@ export function registerTopMenuHandler(
       [
         `Привет, ${name}! 👋`,
         '',
-        '🔗 /link-to-school-group — присоединяйся к группе, чтобы быть в курсе новостей, читать отзывы и общаться со студентами',
-        '📝 /start-onboarding — заполни анкету, расскажи о своих целях и ожиданиях от обучения',
+        '🔗 /link_to_school_group — присоединяйся к группе, чтобы быть в курсе новостей, читать отзывы и общаться со студентами',
+        '📝 /start_onboarding — заполни анкету, расскажи о своих целях и ожиданиях от обучения',
       ].join('\n'),
     );
   });
 
-  bot.command('link-to-school-group', async (ctx) => {
+  bot.command('link_to_school_group', async (ctx) => {
     await ctx.reply(
       `Присоединяйся к нашей новостной группе:\n${config.newsGroupUrl}`,
     );
   });
 
-  bot.command('start-onboarding', async (ctx) => {
+  bot.command('start_onboarding', async (ctx) => {
     const telegramId = ctx.from?.id;
     const name = ctx.from?.first_name || 'User';
 

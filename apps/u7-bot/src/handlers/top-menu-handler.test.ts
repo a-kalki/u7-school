@@ -42,8 +42,8 @@ describe('registerTopMenuHandler', () => {
     registerTopMenuHandler(bot, userFacade, mockController, config);
 
     expect(bot.commands['start']).toBeDefined();
-    expect(bot.commands['link-to-school-group']).toBeDefined();
-    expect(bot.commands['start-onboarding']).toBeDefined();
+    expect(bot.commands['link_to_school_group']).toBeDefined();
+    expect(bot.commands['start_onboarding']).toBeDefined();
   });
 
   test('/start вызывает registerGuest и показывает меню', async () => {
@@ -80,8 +80,8 @@ describe('registerTopMenuHandler', () => {
     await (bot.commands['start'] as any)(ctx);
 
     const replyText = (ctx as any).reply.mock.calls[0][0] as string;
-    expect(replyText).toContain('link-to-school-group');
-    expect(replyText).toContain('start-onboarding');
+    expect(replyText).toContain('link_to_school_group');
+    expect(replyText).toContain('start_onboarding');
   });
 
   test('/start не падает при ошибке registerGuest', async () => {

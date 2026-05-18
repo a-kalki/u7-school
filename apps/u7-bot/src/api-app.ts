@@ -27,7 +27,7 @@ export function createApiApp(config: BotConfig) {
   );
 
   // ══ QuestionPoolService: явная загрузка пула ══
-  const rawPool = QuestionPoolService.loadDefaultPool() as any[];
+  const rawPool = QuestionPoolService.loadDefaultPool();
   const poolService = new QuestionPoolService(rawPool, []);
   const allQuestionCodes = poolService.getAll().map((q) => q.questionCode);
   const activePoolService = new QuestionPoolService(rawPool, allQuestionCodes);

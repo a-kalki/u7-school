@@ -6,7 +6,7 @@ import { executeResponses } from '../ui-utils';
 
 /**
  * Регистрирует ВСЕ обработчики для onboarding-меню.
- * - /start-onboarding: вход в анкету
+ * - /start_onboarding: вход в анкету
  * - Сообщения и callback'и: форвард в контроллер
  * - /cancel: прерывание анкеты
  */
@@ -15,31 +15,6 @@ export function registerOnboardingHandler(
   controller: OnboardingController,
   config: BotConfig,
 ) {
-  // ══ /start-onboarding — вход в анкету ══
-  bot.command('start-onboarding', async (ctx) => {
-    const telegramId = ctx.from?.id;
-    const name = ctx.from?.first_name || 'User';
-
-    if (!telegramId) {
-      await ctx.reply('Не удалось определить пользователя.');
-      return;
-    }
-
-    ctx.session.menu = 'onboarding';
-
-    const response = await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId,
-        name,
-      },
-      config.botAdminUuid,
-    );
-
-    await executeResponses(ctx, response);
-  });
-
   // ══ Сообщения в onboarding-меню — форвард в контроллер ══
   bot.on('message:text', async (ctx, next) => {
     if (ctx.session.menu !== 'onboarding') return next();
@@ -66,7 +41,7 @@ export function registerOnboardingHandler(
   bot.on('callback_query:data', async (ctx, next) => {
     if (ctx.session.menu !== 'onboarding') return next();
 
-    await ctx.answerCallbackQuery().catch(() => {});
+    await ctx.answerCallbackQuery().catch(() => { });
     const response = await controller.handleUpdate(
       {
         type: 'callback',

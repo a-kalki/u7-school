@@ -197,9 +197,9 @@ export class QuestionPoolService {
    * Используй как: `QuestionPoolService.loadDefaultPool()`,
    * затем передай результат в конструктор.
    */
-  static loadDefaultPool(): unknown[] {
+  static loadDefaultPool(): Question[] {
     const path = resolve(import.meta.dirname, './question-pool.json');
     const content = readFileSync(path, 'utf-8');
-    return JSON.parse(content) as unknown[];
+    return JSON.parse(content) as Question[];
   }
 }

@@ -77,7 +77,7 @@
     - [x] `controller = new OnboardingController(apiApp)` — без actorId
     - [x] `createBot(config, controller)` — без apiApp
     - [x] Верификация бота перед стартом
-    - [x] Зарегистрированы: start, link, start-onboarding обработчики
+    - [x] Зарегистрированы: start, link, start_onboarding обработчики
 
 - [x] Task: Переписать `start-handler.ts`
     - [x] Вызывает `apiApp.execute('register-guest', ...)` — идемпотентно
@@ -85,11 +85,11 @@
     - [x] Бот САМ показывает главное меню (без контроллера)
     - [x] Удалён старый код (flow, кнопки, callback'и)
 
-- [x] Task: Добавить обработчик `/link-to-school-group`
+- [x] Task: Добавить обработчик `/link_to_school_group`
     - [x] Файл: `apps/u7-bot/src/handlers/link-handler.ts`
     - [x] Отправляет `config.newsGroupUrl` — без контроллера
 
-- [x] Task: Добавить обработчик `/start-onboarding`
+- [x] Task: Добавить обработчик `/start_onboarding`
     - [x] Файл: `apps/u7-bot/src/handlers/start-onboarding-handler.ts`
     - [x] `ctx.session.menu = 'onboarding'`
     - [x] Форвардит `controller.handleUpdate({command: 'start'}, botUuid)`

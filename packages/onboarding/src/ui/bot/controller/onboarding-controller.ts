@@ -117,6 +117,11 @@ export class OnboardingController {
       const actionValue = update.type === 'message' ? update.text : update.data;
       const actionType = update.type === 'message' ? 'text' : 'callback';
 
+      console.log({
+        telegramId: update.telegramId,
+        type: actionType,
+        value: actionValue,
+      });
       const response = await this.#app.execute(
         'handle-action',
         {
@@ -126,6 +131,7 @@ export class OnboardingController {
         },
         botUuid,
       );
+      console.log(response);
 
       return this.#renderActionResponse(
         response,
@@ -146,38 +152,70 @@ export class OnboardingController {
   ): BotResponse {
     const botRes: BotResponse = {};
 
-    // Обновляем предыдущее сообщение, если есть selectedAnswers и messageId
-    if ('question' in response && response.selectedAnswers && messageId) {
-      const question = response.question;
-      const text = this.#formatQuestionMd(question, response.selectedAnswers);
-      const keyboard = this.#getKeyboard(question, response.selectedAnswers);
+    // Для wait_next — только редактируем сообщение (переключение чекбоксов)
+    if (response.type === 'wait_next') {
+      if (messageId) {
+        const text = this.#formatQuestionMd(
+          response.question,
+          response.selectedAnswers,
+        );
+        const keyboard = this.#getKeyboard(
+          response.question,
+          response.selectedAnswers,
+          response.nextButton,
+        );
 
-      botRes.editMessage = {
-        messageId,
-        text,
-        keyboard,
-        parseMode: 'MarkdownV2',
-      };
+        botRes.editMessage = {
+          messageId,
+          text,
+          keyboard,
+          parseMode: 'MarkdownV2',
+        };
+      }
+      return botRes;
     }
 
-    // Формируем новое сообщение
-    if (response.type === 'completed') {
-      botRes.questionnaireCompleted = true;
-      botRes.sendMessage = {
-        text: 'Спасибо! Твоя анкета принята.',
-      };
-    } else {
-      const { question } = response;
+    // Для new_question — редактируем предыдущее (если есть) и отправляем новое
+    if (response.type === 'new_question') {
+      if (
+        response.selectedAnswers &&
+        response.selectedAnswers.length > 0 &&
+        messageId
+      ) {
+        const text = this.#formatQuestionMd(
+          response.question,
+          response.selectedAnswers,
+        );
+        const keyboard = this.#getKeyboard(
+          response.question,
+          response.selectedAnswers,
+        );
+
+        botRes.editMessage = {
+          messageId,
+          text,
+          keyboard,
+          parseMode: 'MarkdownV2',
+        };
+      }
+
       const selected = response.selectedAnswers ?? [];
-      const text = this.#formatQuestionMd(question, selected);
-      const keyboard = this.#getKeyboard(question, selected);
+      const text = this.#formatQuestionMd(response.question, selected);
+      const keyboard = this.#getKeyboard(response.question, selected);
 
       botRes.sendMessage = {
         text,
         keyboard,
         parseMode: 'MarkdownV2',
       };
+      return botRes;
     }
+
+    // Для completed — сигнал завершения
+    botRes.questionnaireCompleted = true;
+    botRes.sendMessage = {
+      text: 'Спасибо! Твоя анкета принята.',
+    };
 
     return botRes;
   }
@@ -201,6 +239,7 @@ export class OnboardingController {
   #getKeyboard(
     question: Question,
     selected: string[],
+    nextButton?: string,
   ): KeyboardDescription | undefined {
     if (question.type !== 'choice') return undefined;
 
@@ -210,8 +249,8 @@ export class OnboardingController {
     }));
 
     const rows = [buttons];
-    if (question.multiple && selected.length > 0) {
-      rows.push([{ text: 'Далее -->', code: 'next' }]);
+    if (nextButton) {
+      rows.push([{ text: 'Далее -->', code: nextButton }]);
     }
 
     return {

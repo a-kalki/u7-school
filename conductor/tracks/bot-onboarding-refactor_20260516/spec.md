@@ -10,7 +10,7 @@
 - Добавить `session` middleware от grammy в бота
 - Тип сессии: `{ menu: 'main' | 'onboarding' }`
 - `/start` → `menu = 'main'`
-- `/start-onboarding` → `menu = 'onboarding'`
+- `/start_onboarding` → `menu = 'onboarding'`
 - Завершение/отмена анкеты → `menu = 'main'`
 
 ### FR2: Верификация бота при старте
@@ -21,7 +21,7 @@
 ### FR3: `/start` (бот)
 - Вызывает `userFacade.registerGuest(telegramId, name, botUuid)` — напрямую, без контроллера
 - `ctx.session.menu = 'main'`
-- Бот **сам** показывает главное меню (приветствие + подсказки про `/link-to-school-group` и `/start-onboarding`)
+- Бот **сам** показывает главное меню (приветствие + подсказки про `/link_to_school_group` и `/start_onboarding`)
 - **Не вызывает контроллер** — это не его зона
 
 ### FR4: Контроллер — зона ответственности
@@ -30,11 +30,11 @@
 - Принимает события: `message` и `callback` для действий в анкете
 - **Не рендерит** главное меню — это зона бота
 
-### FR5: `/link-to-school-group` (бот)
+### FR5: `/link_to_school_group` (бот)
 - Обрабатывается ботом напрямую (без контроллера)
 - Отправляет `config.newsGroupUrl`
 
-### FR6: `/start-onboarding` (бот)
+### FR6: `/start_onboarding` (бот)
 - `ctx.session.menu = 'onboarding'`
 - Форвардит: `controller.handleUpdate({ type: 'command', command: 'start', telegramId, name }, botUuid)`
   - Контроллер понимает `start` как «начни/продолжи анкету» — он отвечает только за onboarding
@@ -77,7 +77,7 @@
 - Логика: если пользователь с `telegramId` есть → вернуть; нет → создать с `GUEST`
 
 ### FR13: Очистка бота
-- Удалить `be-in-the-know-handler.ts` → заменён на `/link-to-school-group`
+- Удалить `be-in-the-know-handler.ts` → заменён на `/link_to_school_group`
 - Удалить `cancel-handler.ts` → `/cancel` обрабатывается внутри onboarding-форвардинга
 - Переписать `start-handler.ts`
 - `bot.ts` — убрать глобальный форвардинг, решение принимается в хендлерах
@@ -91,9 +91,9 @@
 ## Критерии приёмки
 
 1. Бот стартует → проверяет bot → запускается
-2. `/start` → регистрация + меню с `/link-to-school-group` и `/start-onboarding`
-3. `/link-to-school-group` → ссылка на группу
-4. `/start-onboarding` → первый вопрос (новая анкета) или продолжение (активная)
+2. `/start` → регистрация + меню с `/link_to_school_group` и `/start_onboarding`
+3. `/link_to_school_group` → ссылка на группу
+4. `/start_onboarding` → первый вопрос (новая анкета) или продолжение (активная)
 5. Ответы в анкете → агрегат принимает, контроллер рендерит, бот исполняет
 6. `questionnaireCompleted` → возврат в меню через `controller.handleUpdate({ command: 'start' })`
 7. `/cancel` в анкете → прерывание, возврат в меню
