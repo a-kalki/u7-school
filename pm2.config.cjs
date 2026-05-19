@@ -15,8 +15,9 @@ module.exports = {
   apps: [
     {
       name: 'u7-bot',
-      script: 'apps/u7-bot/src/main.ts',
-      interpreter: 'bun',
+      script: '/home/admin/.bun/bin/bun',
+      args: 'run apps/u7-bot/src/main.ts',
+      interpreter: 'none',
       cwd: __dirname,
 
       // ══ Окружение ══

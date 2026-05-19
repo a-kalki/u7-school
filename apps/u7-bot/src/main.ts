@@ -151,6 +151,7 @@ if (config.botMode === 'webhook') {
   const handler = webhookCallback(bot, 'bun');
 
   Bun.serve({
+    hostname: "127.0.0.1",
     port: config.webhookPort,
     async fetch(req) {
       const url = new URL(req.url);
