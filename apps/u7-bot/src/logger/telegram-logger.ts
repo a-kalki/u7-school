@@ -1,4 +1,4 @@
-import { LogLevel, type Logger } from '@u7/core/shared';
+import { LogLevel, type Logger } from '@u7-scl/core/shared';
 import type { Bot } from 'grammy';
 import type { BotContext } from '../context';
 

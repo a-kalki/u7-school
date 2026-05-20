@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { User } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
+import type { User } from '@u7-scl/user/domain';
+import { Role } from '@u7-scl/user/domain';
 import { Status } from '../status';
 import { CoursePolicy } from './policy';
 

@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User, UserFacade } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
+import type { User, UserFacade } from '@u7-scl/user/domain';
+import { Role } from '@u7-scl/user/domain';
 import type { Course } from '#domain/course/entity';
 import type { CourseRepo } from '#domain/course/repo';
 import { Status } from '#domain/status';

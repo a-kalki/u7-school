@@ -1,4 +1,4 @@
-import { errNotFound } from '@u7/core/domain';
+import { errNotFound } from '@u7-scl/core/domain';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { LessonNotFoundUcError } from '#domain/lesson/commands/errors';
 import {

@@ -1,4 +1,4 @@
-import { FileMetadataSchema } from '@u7/core/domain';
+import { FileMetadataSchema } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { StatusSchema } from '../status';
 

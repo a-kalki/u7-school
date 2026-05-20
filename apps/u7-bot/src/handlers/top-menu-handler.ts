@@ -1,6 +1,6 @@
-import type { Logger } from '@u7/core/shared';
-import type { OnboardingController } from '@u7/onboarding';
-import type { UserFacade } from '@u7/user/domain';
+import type { Logger } from '@u7-scl/core/shared';
+import type { OnboardingController } from '@u7-scl/onboarding';
+import type { UserFacade } from '@u7-scl/user/domain';
 import type { Bot } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';

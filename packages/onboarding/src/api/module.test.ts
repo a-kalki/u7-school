@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { BaseJsonDb } from '@u7/core/infra';
-import type { UserFacade } from '@u7/user/domain';
+import { BaseJsonDb } from '@u7-scl/core/infra';
+import type { UserFacade } from '@u7-scl/user/domain';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import { OnboardingApiModule } from './module';

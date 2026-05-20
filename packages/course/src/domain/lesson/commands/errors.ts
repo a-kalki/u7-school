@@ -1,4 +1,4 @@
-import type { AccessDeniedError, NotFoundError } from '@u7/core/domain';
+import type { AccessDeniedError, NotFoundError } from '@u7-scl/core/domain';
 import type {
   CourseAccessDeniedUcError,
   CourseNotFoundUcError,

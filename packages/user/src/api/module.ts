@@ -1,4 +1,4 @@
-import { ApiModule } from '@u7/core/api';
+import { ApiModule } from '@u7-scl/core/api';
 import type { UserApiModuleMeta, UserApiModuleResolver } from '#domain/module';
 import { AddRoleToUserUc } from './user/add-role-to-user-uc';
 import { CreateUserUc } from './user/create-user-uc';

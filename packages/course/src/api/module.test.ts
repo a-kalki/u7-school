@@ -1,8 +1,8 @@
 import { afterAll, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { User, UserFacade } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
+import type { User, UserFacade } from '@u7-scl/user/domain';
+import { Role } from '@u7-scl/user/domain';
 import { Status } from '#domain/status';
 import { CourseJsonRepo } from '#infra/db/course-json-repo';
 import { LessonJsonRepo } from '#infra/db/lesson-json-repo';

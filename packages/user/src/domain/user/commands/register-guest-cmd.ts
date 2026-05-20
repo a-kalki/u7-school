@@ -1,4 +1,4 @@
-import type { AccessDeniedError } from '@u7/core/domain';
+import type { AccessDeniedError } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import type { User, UserArMeta } from '../entity';
 import { UserSchema } from '../entity';

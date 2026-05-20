@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { ApiApp } from '@u7/core/api';
-import { BaseJsonDb } from '@u7/core/infra';
-import type { Logger } from '@u7/core/shared';
-import { Role, type UserFacade } from '@u7/user/domain';
-import { UserJsonRepo } from '@u7/user/infra';
+import { ApiApp } from '@u7-scl/core/api';
+import { BaseJsonDb } from '@u7-scl/core/infra';
+import type { Logger } from '@u7-scl/core/shared';
+import { Role, type UserFacade } from '@u7-scl/user/domain';
+import { UserJsonRepo } from '@u7-scl/user/infra';
 import { OnboardingApiModule } from '#api/module';
 import type { OnboardingApiModuleResolver } from '#domain/module';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';

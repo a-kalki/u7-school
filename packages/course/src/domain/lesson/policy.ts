@@ -1,5 +1,5 @@
-import type { User } from '@u7/user/domain';
-import { UserPolicy } from '@u7/user/domain';
+import type { User } from '@u7-scl/user/domain';
+import { UserPolicy } from '@u7-scl/user/domain';
 import type { Course } from '../course/entity';
 import { CoursePolicy } from '../course/policy';
 import { Status } from '../status';

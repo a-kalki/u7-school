@@ -1,5 +1,5 @@
-import { Aggregate } from '@u7/core/domain';
-import { isoNow } from '@u7/core/shared';
+import { Aggregate } from '@u7-scl/core/domain';
+import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { AnswerEntry, Questionnaire, QuestionnaireArMeta } from './entity';
 import { QuestionnaireSchema } from './entity';

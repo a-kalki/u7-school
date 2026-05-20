@@ -1,4 +1,4 @@
-import { errNotFound } from '@u7/core/domain';
+import { errNotFound } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { User } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
+import type { User } from '@u7-scl/user/domain';
+import { Role } from '@u7-scl/user/domain';
 import { CourseAr } from './a-root';
 
 function makeActor(roles: Role[], uuid = 'actor-uuid'): User {

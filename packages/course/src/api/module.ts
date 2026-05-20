@@ -1,4 +1,4 @@
-import { ApiModule } from '@u7/core/api';
+import { ApiModule } from '@u7-scl/core/api';
 import type {
   CourseApiModuleMeta,
   CourseApiModuleResolver,

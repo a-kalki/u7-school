@@ -1,12 +1,12 @@
-import { ApiApp } from '@u7/core/api';
-import type { Logger } from '@u7/core/shared';
-import { BaseJsonDb } from '@u7/core/infra';
-import type { OnboardingBotApp } from '@u7/onboarding';
-import { OnboardingApiModule } from '@u7/onboarding';
-import { QuestionPoolService } from '@u7/onboarding/domain';
-import { QuestionnaireJsonRepo } from '@u7/onboarding/infra';
-import { UserApiModule } from '@u7/user/api';
-import { UserInProcFacade, UserJsonRepo } from '@u7/user/infra';
+import { ApiApp } from '@u7-scl/core/api';
+import type { Logger } from '@u7-scl/core/shared';
+import { BaseJsonDb } from '@u7-scl/core/infra';
+import type { OnboardingBotApp } from '@u7-scl/onboarding';
+import { OnboardingApiModule } from '@u7-scl/onboarding';
+import { QuestionPoolService } from '@u7-scl/onboarding/domain';
+import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
+import { UserApiModule } from '@u7-scl/user/api';
+import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
 
 /**

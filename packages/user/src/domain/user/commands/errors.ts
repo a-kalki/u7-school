@@ -2,7 +2,7 @@ import type {
   AccessDeniedError,
   ConflictError,
   NotFoundError,
-} from '@u7/core/domain';
+} from '@u7-scl/core/domain';
 
 /** Пользователь не найден */
 export type UserNotFoundUcError = NotFoundError<

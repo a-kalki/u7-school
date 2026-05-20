@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { stdin as input, stdout as output } from 'node:process';
 import * as readline from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
-import type { ApiApp, UcDocType } from '@u7/core/api';
+import type { ApiApp, UcDocType } from '@u7-scl/core/api';
 import type * as v from 'valibot';
 import { formatValibotErrors } from './controller/format-valibot-errors';
 import type { CliAppMeta } from './types';

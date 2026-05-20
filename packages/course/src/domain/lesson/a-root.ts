@@ -1,6 +1,6 @@
-import { Aggregate } from '@u7/core/domain';
-import { isoNow } from '@u7/core/shared';
-import type { User } from '@u7/user/domain';
+import { Aggregate } from '@u7-scl/core/domain';
+import { isoNow } from '@u7-scl/core/shared';
+import type { User } from '@u7-scl/user/domain';
 import type { Course } from '../course/entity';
 import { CoursePolicy } from '../course/policy';
 import { Status } from '../status';

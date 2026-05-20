@@ -1,5 +1,5 @@
-import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7/core/shared';
-import { OnboardingController } from '@u7/onboarding';
+import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7-scl/core/shared';
+import { OnboardingController } from '@u7-scl/onboarding';
 import { webhookCallback } from 'grammy';
 import { createApiApp } from './api-app';
 import { createBot } from './bot';

@@ -1,6 +1,6 @@
-import type { ApiModuleMeta } from '@u7/core/domain';
-import type { BaseJsonDb } from '@u7/core/infra';
-import type { UserFacade } from '@u7/user/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
+import type { BaseJsonDb } from '@u7-scl/core/infra';
+import type { UserFacade } from '@u7-scl/user/domain';
 import type { AddModuleCmdMeta } from './course/commands/add-module-cmd';
 import type { AddProjectCmdMeta } from './course/commands/add-project-cmd';
 import type { AddProjectToModuleCmdMeta } from './course/commands/add-project-to-module-cmd';

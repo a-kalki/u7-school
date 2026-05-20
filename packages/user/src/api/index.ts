@@ -1,4 +1,4 @@
-// API слой @u7/user
+// API слой @u7-scl/user
 export { UserApiModule } from './module';
 export { AddRoleToUserUc } from './user/add-role-to-user-uc';
 export { CreateUserUc } from './user/create-user-uc';

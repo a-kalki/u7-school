@@ -1,4 +1,4 @@
-// Shared слой @u7/core
+// Shared слой @u7-scl/core
 export { isoNow } from './iso-now';
 export type { Logger } from './logger';
 export { LogLevel, parseLogLevel } from './logger';

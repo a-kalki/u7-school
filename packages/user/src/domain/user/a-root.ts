@@ -1,5 +1,5 @@
-import { Aggregate } from '@u7/core/domain';
-import { isoNow } from '@u7/core/shared';
+import { Aggregate } from '@u7-scl/core/domain';
+import { isoNow } from '@u7-scl/core/shared';
 import type { CreateUserCmd } from './commands/create-user-cmd';
 import type { RegisterGuestCmd } from './commands/register-guest-cmd';
 import type { User, UserArMeta } from './entity';

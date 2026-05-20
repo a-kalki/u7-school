@@ -1,4 +1,4 @@
-import { isoNow } from '@u7/core/shared';
+import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import {
   errBadRequest,

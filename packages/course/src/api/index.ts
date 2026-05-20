@@ -1,4 +1,4 @@
-// API слой @u7/course
+// API слой @u7-scl/course
 
 export { AddModuleUc } from './course/add-module-uc';
 export { AddProjectToModuleUc } from './course/add-project-to-module-uc';

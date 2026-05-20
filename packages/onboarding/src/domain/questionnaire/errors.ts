@@ -4,7 +4,7 @@ import type {
   ConflictError,
   InternalError,
   NotFoundError,
-} from '@u7/core/domain';
+} from '@u7-scl/core/domain';
 
 /** У пользователя уже есть активная анкета */
 export type QuestionnaireActiveUcError = ConflictError<

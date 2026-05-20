@@ -1,4 +1,4 @@
-import { errNotFound } from '@u7/core/domain';
+import { errNotFound } from '@u7-scl/core/domain';
 import { UserUseCase } from '#api/user-uc';
 import { UserAr } from '#domain/user/a-root';
 import type { UserNotFoundUcError } from '#domain/user/commands/errors';

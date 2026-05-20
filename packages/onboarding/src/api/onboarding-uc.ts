@@ -1,5 +1,5 @@
-import { type UcMeta, UseCase } from '@u7/core/api';
-import { errNotFound } from '@u7/core/domain';
+import { type UcMeta, UseCase } from '@u7-scl/core/api';
+import { errNotFound } from '@u7-scl/core/domain';
 import type { OnboardingApiModuleResolver } from '#domain/module';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import type { QuestionnaireNotFoundUcError } from '#domain/questionnaire/errors';

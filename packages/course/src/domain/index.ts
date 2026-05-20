@@ -1,4 +1,4 @@
-// Domain слой @u7/course
+// Domain слой @u7-scl/course
 
 // Агрегат Course
 export { CourseAr } from './course/a-root';

@@ -20,16 +20,16 @@
     "noPropertyAccessFromIndexSignature": false,
     "baseUrl": ".",
     "paths": {
-      "@u7/user/domain": ["packages/user/src/domain/index.ts"],
-      "@u7/user/api": ["packages/user/src/api/index.ts"],
-      "@u7/user/ui": ["packages/user/src/ui/index.ts"],
-      "@u7/user/infra": ["packages/user/src/infra/index.ts"],
-      "@u7/core/domain": ["packages/core/src/domain/index.ts"],
-      "@u7/core/api": ["packages/core/src/api/index.ts"],
-      "@u7/core/ui": ["packages/core/src/ui/index.ts"],
-      "@u7/core/shared": ["packages/core/src/shared/index.ts"],
-      "@u7/course": ["packages/course/src/index.ts"],
-      "@u7/w3school": ["packages/w3school/src/index.ts"]
+      "@u7-scl/user/domain": ["packages/user/src/domain/index.ts"],
+      "@u7-scl/user/api": ["packages/user/src/api/index.ts"],
+      "@u7-scl/user/ui": ["packages/user/src/ui/index.ts"],
+      "@u7-scl/user/infra": ["packages/user/src/infra/index.ts"],
+      "@u7-scl/core/domain": ["packages/core/src/domain/index.ts"],
+      "@u7-scl/core/api": ["packages/core/src/api/index.ts"],
+      "@u7-scl/core/ui": ["packages/core/src/ui/index.ts"],
+      "@u7-scl/core/shared": ["packages/core/src/shared/index.ts"],
+      "@u7-scl/course": ["packages/course/src/index.ts"],
+      "@u7-scl/w3school": ["packages/w3school/src/index.ts"]
     }
   }
 }

@@ -1,6 +1,6 @@
-import type { ApiModuleMeta } from '@u7/core/domain';
-import type { BaseJsonDb } from '@u7/core/infra';
-import type { UserFacade } from '@u7/user/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
+import type { BaseJsonDb } from '@u7-scl/core/infra';
+import type { UserFacade } from '@u7-scl/user/domain';
 import type { AbandonQuestionnaireCmdMeta } from './questionnaire/commands/abandon-questionnaire-cmd';
 import type { GetCurrentQuestionCmdMeta } from './questionnaire/commands/get-current-question-cmd';
 import type { HandleOnboardingActionCmdMeta } from './questionnaire/commands/handle-onboarding-action-cmd';

@@ -18,60 +18,63 @@
       },
     },
     "apps/u7-bot": {
-      "name": "@u7/bot",
+      "name": "@u7-scl/bot",
       "version": "0.1.0",
       "dependencies": {
         "@google/genai": "^1.49.0",
-        "@u7/core": "workspace:*",
-        "@u7/course": "workspace:*",
-        "@u7/onboarding": "workspace:*",
-        "@u7/user": "workspace:*",
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/course": "workspace:*",
+        "@u7-scl/onboarding": "workspace:*",
+        "@u7-scl/user": "workspace:*",
         "elysia": "^1.4.27",
         "grammy": "^1.41.1",
         "valibot": "^1.2.0",
       },
     },
     "apps/u7-cli": {
-      "name": "@u7/cli",
+      "name": "@u7-scl/cli",
       "version": "0.1.0",
       "dependencies": {
-        "@u7/core": "workspace:*",
-        "@u7/course": "workspace:*",
-        "@u7/user": "workspace:*",
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/course": "workspace:*",
+        "@u7-scl/user": "workspace:*",
         "valibot": "^1.2.0",
       },
     },
     "packages/core": {
-      "name": "@u7/core",
+      "name": "@u7-scl/core",
       "version": "0.1.0",
     },
     "packages/course": {
-      "name": "@u7/course",
+      "name": "@u7-scl/course",
       "version": "0.1.0",
       "dependencies": {
-        "@u7/core": "workspace:*",
-        "@u7/user": "workspace:*",
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/user": "workspace:*",
         "valibot": "^1.0.0",
       },
     },
     "packages/onboarding": {
-      "name": "@u7/onboarding",
+      "name": "@u7-scl/onboarding",
       "version": "0.1.0",
       "dependencies": {
-        "@u7/core": "workspace:*",
-        "@u7/user": "workspace:*",
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/user": "workspace:*",
       },
     },
     "packages/user": {
-      "name": "@u7/user",
+      "name": "@u7-scl/user",
       "version": "0.1.0",
       "dependencies": {
-        "@u7/core": "workspace:*",
+        "@u7-scl/core": "workspace:*",
       },
     },
     "packages/w3school": {
-      "name": "@u7/w3school",
+      "name": "@u7-scl/w3school",
       "version": "0.1.0",
+      "bin": {
+        "w3s": "./src/cli/index.ts",
+      },
       "dependencies": {
         "cheerio": "^1.2.0",
         "turndown": "^7.2.4",
@@ -137,19 +140,19 @@
 
     "@types/retry": ["@types/retry@0.12.0", "", {}, "sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA=="],
 
-    "@u7/bot": ["@u7/bot@workspace:apps/u7-bot"],
+    "@u7-scl/bot": ["@u7-scl/bot@workspace:apps/u7-bot"],
 
-    "@u7/cli": ["@u7/cli@workspace:apps/u7-cli"],
+    "@u7-scl/cli": ["@u7-scl/cli@workspace:apps/u7-cli"],
 
-    "@u7/core": ["@u7/core@workspace:packages/core"],
+    "@u7-scl/core": ["@u7-scl/core@workspace:packages/core"],
 
-    "@u7/course": ["@u7/course@workspace:packages/course"],
+    "@u7-scl/course": ["@u7-scl/course@workspace:packages/course"],
 
-    "@u7/onboarding": ["@u7/onboarding@workspace:packages/onboarding"],
+    "@u7-scl/onboarding": ["@u7-scl/onboarding@workspace:packages/onboarding"],
 
-    "@u7/user": ["@u7/user@workspace:packages/user"],
+    "@u7-scl/user": ["@u7-scl/user@workspace:packages/user"],
 
-    "@u7/w3school": ["@u7/w3school@workspace:packages/w3school"],
+    "@u7-scl/w3school": ["@u7-scl/w3school@workspace:packages/w3school"],
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { CourseSchema, LessonSchema, ModuleSchema } from '@u7/course/domain';
+import { CourseSchema, LessonSchema, ModuleSchema } from '@u7-scl/course/domain';
 import * as v from 'valibot';
 
 describe('Course Domain Schemas', () => {

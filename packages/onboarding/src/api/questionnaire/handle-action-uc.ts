@@ -1,5 +1,5 @@
-import { errBadRequest } from '@u7/core/domain';
-import { Role } from '@u7/user/domain';
+import { errBadRequest } from '@u7-scl/core/domain';
+import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import type { BadRequestUcError } from '#domain/index';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';

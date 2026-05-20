@@ -1,6 +1,6 @@
-import type { Logger } from '@u7/core/shared';
-import type { UserFacade } from '@u7/user/domain';
-import { Role } from '@u7/user/domain';
+import type { Logger } from '@u7-scl/core/shared';
+import type { UserFacade } from '@u7-scl/user/domain';
+import { Role } from '@u7-scl/user/domain';
 import type { Bot } from 'grammy';
 import type { BotContext } from '../context';
 

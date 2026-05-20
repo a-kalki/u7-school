@@ -1,4 +1,4 @@
-import { errValidation, throwError } from '@u7/core/domain';
+import { errValidation, throwError } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { QuestionnaireAr } from '#domain/questionnaire/a-root';
 import {

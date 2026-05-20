@@ -1,5 +1,5 @@
-import { type UcMeta, UseCase } from '@u7/core/api';
-import { errAccessDenied, errNotFound } from '@u7/core/domain';
+import { type UcMeta, UseCase } from '@u7-scl/core/api';
+import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
 import type { UserApiModuleResolver } from '#domain/module';
 import type {
   AccessDeniedUcError,
@@ -9,7 +9,7 @@ import type { User } from '#domain/user/entity';
 
 /**
  * Базовый абстрактный класс для всех use-case'ов модуля пользователей.
- * Приватный для пакета @u7/user — не экспортируется наружу.
+ * Приватный для пакета @u7-scl/user — не экспортируется наружу.
  */
 export abstract class UserUseCase<TMeta extends UcMeta> extends UseCase<
   TMeta,

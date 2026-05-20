@@ -1,5 +1,5 @@
-import type { BaseJsonDb } from '@u7/core/infra';
-import { JsonFileRepo } from '@u7/core/infra';
+import type { BaseJsonDb } from '@u7-scl/core/infra';
+import { JsonFileRepo } from '@u7-scl/core/infra';
 import type { User } from '#domain/user/entity';
 import { UserSchema } from '#domain/user/entity';
 import type { UserListFilter, UserRepo } from '#domain/user/repo';

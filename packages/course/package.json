@@ -1,5 +1,5 @@
 {
-  "name": "@u7/course",
+  "name": "@u7-scl/course",
   "version": "0.1.0",
   "module": "src/index.ts",
   "type": "module",
@@ -12,8 +12,8 @@
     "check": "bun run lint && bun run tslint && bun test"
   },
   "dependencies": {
-    "@u7/core": "workspace:*",
-    "@u7/user": "workspace:*",
+    "@u7-scl/core": "workspace:*",
+    "@u7-scl/user": "workspace:*",
     "valibot": "^1.0.0"
   },
   "exports": {

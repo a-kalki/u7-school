@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { ApiApp } from '@u7/core/api';
-import { BaseJsonDb } from '@u7/core/infra';
+import { ApiApp } from '@u7-scl/core/api';
+import { BaseJsonDb } from '@u7-scl/core/infra';
 import { Role } from '#domain/user/roles';
 import { UserJsonRepo } from '#infra/db/user-json-repo';
 import { UserApiModule } from '../module';

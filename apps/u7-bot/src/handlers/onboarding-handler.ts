@@ -1,4 +1,4 @@
-import type { OnboardingController } from '@u7/onboarding';
+import type { OnboardingController } from '@u7-scl/onboarding';
 import type { Bot } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
@@ -62,13 +62,14 @@ export function registerOnboardingHandler(
   // ══ /cancel — только в onboarding-меню ══
   bot.command('cancel', async (ctx, next) => {
     if (ctx.session.menu !== 'onboarding') return next();
+    if (!ctx.from) return next();
 
     const response = await controller.handleUpdate(
       {
         type: 'command',
         command: 'cancel',
-        telegramId: ctx.from!.id,
-        name: ctx.from!.first_name || 'User',
+        telegramId: ctx.from.id,
+        name: ctx.from.first_name || 'User',
       },
       config.botAdminUuid,
     );

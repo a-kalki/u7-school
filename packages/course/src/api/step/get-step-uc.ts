@@ -1,4 +1,4 @@
-import { errNotFound } from '@u7/core/domain';
+import { errNotFound } from '@u7-scl/core/domain';
 import { StepAr } from '#domain/step/a-root';
 import type { StepNotFoundUcError } from '#domain/step/commands/errors';
 import {

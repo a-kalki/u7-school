@@ -1,6 +1,6 @@
-import { type UcMeta, UseCase } from '@u7/core/api';
-import { errAccessDenied, errNotFound } from '@u7/core/domain';
-import type { User } from '@u7/user/domain';
+import { type UcMeta, UseCase } from '@u7-scl/core/api';
+import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
+import type { User } from '@u7-scl/user/domain';
 import { CourseAr } from '#domain/course/a-root';
 import type {
   CourseAccessDeniedUcError,

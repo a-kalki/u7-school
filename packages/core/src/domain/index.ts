@@ -1,4 +1,4 @@
-// Domain слой @u7/core
+// Domain слой @u7-scl/core
 export type { ArMeta } from './ar/aggregate';
 export { Aggregate } from './ar/aggregate';
 export type { FileMetadata } from './common/file-metadata';

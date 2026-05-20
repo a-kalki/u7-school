@@ -1,4 +1,4 @@
-// Domain слой @u7/user
+// Domain слой @u7-scl/user
 export type { UserFacade } from './facade';
 export type { UserApiModuleMeta, UserApiModuleResolver } from './module';
 export { UserAr } from './user/a-root';

@@ -1,4 +1,4 @@
-import { JsonFileRepo } from '@u7/core/infra';
+import { JsonFileRepo } from '@u7-scl/core/infra';
 import type { Lesson } from '#domain/lesson/entity';
 import { LessonSchema } from '#domain/lesson/entity';
 import type { LessonRepo } from '#domain/lesson/repo';

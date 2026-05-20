@@ -1,4 +1,4 @@
-import { JsonFileRepo } from '@u7/core/infra';
+import { JsonFileRepo } from '@u7-scl/core/infra';
 import type { Course } from '#domain/course/entity';
 import { CourseSchema } from '#domain/course/entity';
 import type { CourseListFilter, CourseRepo } from '#domain/course/repo';

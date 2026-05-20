@@ -1,4 +1,4 @@
-import { Role, type User } from '@u7/user/domain';
+import { Role, type User } from '@u7-scl/user/domain';
 import type { Questionnaire } from './entity';
 
 /**

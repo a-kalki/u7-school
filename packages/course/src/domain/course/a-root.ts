@@ -1,6 +1,6 @@
-import { Aggregate } from '@u7/core/domain';
-import { isoNow } from '@u7/core/shared';
-import type { User } from '@u7/user/domain';
+import { Aggregate } from '@u7-scl/core/domain';
+import { isoNow } from '@u7-scl/core/shared';
+import type { User } from '@u7-scl/user/domain';
 import { Status } from '../status';
 import type { AddModuleCmd } from './commands/add-module-cmd';
 import type { AddProjectCmd } from './commands/add-project-cmd';

@@ -1,4 +1,4 @@
-// API слой @u7/core
+// API слой @u7-scl/core
 export { ApiApp, type ExtractUcMetas } from './app/api-app';
 export { App } from './app/app';
 export { ApiModule } from './module/api-module';

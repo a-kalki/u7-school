@@ -1,4 +1,4 @@
-import { type Logger, LogLevel } from '@u7/core/shared';
+import { type Logger, LogLevel } from '@u7-scl/core/shared';
 
 /**
  * Составной логгер — пробрасывает вызовы всем зарегистрированным логгерам.

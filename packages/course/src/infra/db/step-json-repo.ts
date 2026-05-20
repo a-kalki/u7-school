@@ -1,4 +1,4 @@
-import { JsonFileRepo } from '@u7/core/infra';
+import { JsonFileRepo } from '@u7-scl/core/infra';
 import type { Step } from '#domain/step/entity';
 import { StepSchema } from '#domain/step/entity';
 import type { StepRepo } from '#domain/step/repo';

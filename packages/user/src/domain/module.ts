@@ -1,4 +1,4 @@
-import type { ApiModuleMeta } from '@u7/core/domain';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { AddRoleToUserCmdMeta } from './user/commands/add-role-to-user-cmd';
 import type { CreateUserCmdMeta } from './user/commands/create-user-cmd';
 import type { GetUserByTelegramIdCmdMeta } from './user/commands/get-user-by-telegram-id-cmd';

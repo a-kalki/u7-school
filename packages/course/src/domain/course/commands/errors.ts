@@ -1,5 +1,5 @@
-import type { AccessDeniedError, NotFoundError } from '@u7/core/domain';
-import type { UserNotFoundUcError } from '@u7/user/domain';
+import type { AccessDeniedError, NotFoundError } from '@u7-scl/core/domain';
+import type { UserNotFoundUcError } from '@u7-scl/user/domain';
 
 /** Курс не найден */
 export type CourseNotFoundUcError = NotFoundError<

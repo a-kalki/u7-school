@@ -1,8 +1,8 @@
-import { ApiApp } from '@u7/core/api';
-import { CourseApiModule } from '@u7/course/api';
-import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from '@u7/course/infra';
-import { UserApiModule } from '@u7/user/api';
-import { UserInProcFacade, UserJsonRepo } from '@u7/user/infra';
+import { ApiApp } from '@u7-scl/core/api';
+import { CourseApiModule } from '@u7-scl/course/api';
+import { CourseJsonRepo, LessonJsonRepo, StepJsonRepo } from '@u7-scl/course/infra';
+import { UserApiModule } from '@u7-scl/user/api';
+import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import { CliController } from './cli-controller';
 import type { CliAppMeta } from './types';
 
