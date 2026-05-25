@@ -26,9 +26,14 @@ const controller = new OnboardingController(apiApp, logger);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
-  // Создаём временный bot только для TelegramLogger (он не запущен, только API)
-  const tempBot = createBot(config);
-  const telegramLogger = new TelegramLogger(tempBot, config.adminTelegramIds);
+  if (!config.loggerBotToken) {
+    throw new Error(
+      'LOGGER_BOT_TOKEN обязателен, когда указаны ADMIN_TELEGRAM_IDS',
+    );
+  }
+  // Создаём отдельный bot только для TelegramLogger (он не запущен, только API)
+  const loggerBot = createBot(config.loggerBotToken);
+  const telegramLogger = new TelegramLogger(loggerBot, config.adminTelegramIds);
   // INFO в Telegram — только от явно разрешённых источников
   telegramLogger.setSourceLevel('main', LogLevel.INFO);
   telegramLogger.setSourceLevel('top-menu', LogLevel.INFO);
@@ -56,10 +61,18 @@ if (config.adminTelegramIds.length > 0) {
   logger.info('main', 'Верификация бота пройдена: ADMIN подтверждён');
 }
 
-const bot = createBot(config);
+const bot = createBot(config.botToken);
 
-// ══ Логирование выбора команд из меню ══
-bot.use(async (ctx, next) => {
+// ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
+registerGroupHandlers(bot, userFacade, logger);
+
+// ══ Приватные чаты — через filter ══
+//   filter() возвращает потомка, который получает только апдейты
+//   из приватных чатов. Команды и сообщения из групп игнорируются.
+const privateBot = bot.filter((ctx) => ctx.chat?.type === 'private');
+
+// ══ Обработчик ошибок — только для приватных обработчиков ══
+privateBot.use(async (ctx, next) => {
   try {
     await next();
   } catch (err) {
@@ -69,11 +82,12 @@ bot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => { });
+      .catch(() => {});
   }
 });
 
-bot.command('start', async (ctx, next) => {
+// ══ Логирование команд (только приватные чаты) ══
+privateBot.command('start', async (ctx, next) => {
   logger.info(
     'top-menu',
     `Команда /start от пользователя ${ctx.from?.id} (${ctx.from?.first_name || '?'})`,
@@ -81,7 +95,7 @@ bot.command('start', async (ctx, next) => {
   await next();
 });
 
-bot.command('start_onboarding', async (ctx, next) => {
+privateBot.command('start_onboarding', async (ctx, next) => {
   logger.info(
     'top-menu',
     `Команда /start_onboarding от пользователя ${ctx.from?.id}`,
@@ -89,7 +103,7 @@ bot.command('start_onboarding', async (ctx, next) => {
   await next();
 });
 
-bot.command('link_to_school_group', async (ctx, next) => {
+privateBot.command('link_to_school_group', async (ctx, next) => {
   logger.info(
     'top-menu',
     `Команда /link_to_school_group от пользователя ${ctx.from?.id}`,
@@ -97,8 +111,8 @@ bot.command('link_to_school_group', async (ctx, next) => {
   await next();
 });
 
-// ══ Скрытая команда управления уровнем логирования ══
-bot.command('log_level', async (ctx) => {
+// ══ Скрытая команда управления уровнем логирования (только для админов) ══
+privateBot.command('log_level', async (ctx) => {
   const userId = ctx.from?.id;
   if (!userId || !config.adminTelegramIds.includes(userId)) {
     return; // Игнорируем — команда невидима для не-админов
@@ -128,10 +142,10 @@ bot.command('log_level', async (ctx) => {
   );
 });
 
-registerTopMenuHandler(bot, userFacade, controller, config, logger);
-registerOnboardingHandler(bot, controller, config);
-registerGroupHandlers(bot, userFacade, logger);
+registerTopMenuHandler(privateBot, userFacade, controller, config, logger);
+registerOnboardingHandler(privateBot, controller, config);
 
+// ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {
   logger.error('bot', 'Необработанная ошибка бота', { error: String(err) });
 });

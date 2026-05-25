@@ -30,6 +30,9 @@ export const BotConfigSchema = v.object({
   ),
   webhookPath: v.optional(v.pipe(v.string(), v.nonEmpty()), '/webhook'),
 
+  // ══ Токен для TelegramLogger (отдельный бот, чтобы не пересекался с основным) ══
+  loggerBotToken: v.optional(v.string(), ''),
+
   // ══ Администраторы для уведомлений ══
   adminTelegramIds: v.optional(
     v.pipe(
@@ -65,6 +68,7 @@ export function loadConfig(): BotConfig {
       : undefined,
     webhookPath: process.env.WEBHOOK_PATH,
     adminTelegramIds: process.env.ADMIN_TELEGRAM_IDS,
+    loggerBotToken: process.env.LOGGER_BOT_TOKEN,
     dbDir: process.env.DB_DIR,
   };
 

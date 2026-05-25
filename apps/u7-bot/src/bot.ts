@@ -1,13 +1,15 @@
 import { Bot, session } from 'grammy';
-import type { BotConfig } from './config';
 import type { BotContext } from './context';
 
 /**
  * Фабрика создания Grammy-бота.
- * Бот — чистый мост Telegram ↔ Контроллер.
+ *
+ * @param token — Telegram Bot API токен.
+ *               Для основного бота — BOT_TOKEN.
+ *               Для TelegramLogger — LOGGER_BOT_TOKEN.
  */
-export function createBot(config: BotConfig) {
-  const bot = new Bot<BotContext>(config.botToken);
+export function createBot(token: string) {
+  const bot = new Bot<BotContext>(token);
 
   // ══ Session middleware ══
   bot.use(
@@ -15,9 +17,6 @@ export function createBot(config: BotConfig) {
       initial: (): { menu: 'main' | 'onboarding' } => ({ menu: 'main' }),
     }),
   );
-
-  // ══ Только приватные чаты ══
-  bot.filter((ctx) => ctx.chat?.type === 'private');
 
   return bot;
 }

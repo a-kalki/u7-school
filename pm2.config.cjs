@@ -16,7 +16,7 @@ module.exports = {
     {
       name: 'u7-bot',
       script: '/home/admin/.bun/bin/bun',
-      args: 'run apps/u7-bot/src/main.ts',
+      args: 'run --env-file .env.production apps/u7-bot/src/main.ts',
       interpreter: 'none',
       cwd: __dirname,
 
