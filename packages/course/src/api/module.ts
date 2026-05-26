@@ -3,15 +3,15 @@ import type {
   CourseApiModuleMeta,
   CourseApiModuleResolver,
 } from '#domain/module';
+import { CreateLessonUc } from './lesson/create-lesson-uc';
+import { GetLessonUc } from './lesson/get-lesson-uc';
 import { AddProjectUc } from './module/add-project-uc';
 import { CreateModuleUc } from './module/create-module-uc';
 import { EnrichModuleUc } from './module/enrich-module-uc';
-import { GetModuleUc } from './module/get-module-uc';
 import { GetModuleSnapshotUc } from './module/get-module-snapshot-uc';
+import { GetModuleUc } from './module/get-module-uc';
 import { ListModulesUc } from './module/list-modules-uc';
 import { PublishModuleUc } from './module/publish-module-uc';
-import { CreateLessonUc } from './lesson/create-lesson-uc';
-import { GetLessonUc } from './lesson/get-lesson-uc';
 import { CreateStepUc } from './step/create-step-uc';
 import { GetStepUc } from './step/get-step-uc';
 

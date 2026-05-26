@@ -1,8 +1,8 @@
 import { errNotFound } from '@u7-scl/core/domain';
-import { ModulePolicy } from '#domain/module/policy';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { LessonNotFoundUcError } from '#domain/lesson/commands/errors';
+import { ModulePolicy } from '#domain/module/policy';
 import { StepAr } from '#domain/step/a-root';
 import {
   type CreateStepCmd,
@@ -39,7 +39,7 @@ export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
 
     const course = await this.getModule(command.moduleId);
     if (!ModulePolicy.canEdit(actor, course)) {
-      this.throwAccessDenied('Вы не являетесь автором курса');
+      this.throwAccessDenied('Вы не являетесь автором модуля');
     }
 
     const lessonState = await this.resolve.lessonRepo.getByUuid(

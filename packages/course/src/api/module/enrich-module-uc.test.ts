@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User, UserFacade } from '@u7-scl/user/domain';
+import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
@@ -39,19 +39,28 @@ function makeModule(authorId: string, overrides: Partial<Module> = {}): Module {
 function setupUc() {
   const save = mock(async (_module: Module): Promise<void> => {});
   const getByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
-  const getAll = mock(async (): Promise<Course[]> => []);
+  const getAll = mock(async (): Promise<Module[]> => []);
   const repo: ModuleRepo = { save, getByUuid, getAll };
 
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
   const userExists = mock(async (_uuid: string): Promise<boolean> => false);
-  const userFacade: any = {
+  const userFacade = {
     getUserByUuid,
     userExists,
     addRoleToUser: mock(),
+    getUserByTelegramId: mock(async () => undefined),
+    removeRoleFromUser: mock(),
+    registerGuest: mock(async () => ({
+      uuid: '',
+      name: '',
+      telegramId: 0,
+      roles: [],
+      createdAt: '',
+    })),
   };
 
   const uc = new EnrichModuleUc();
@@ -113,7 +122,7 @@ describe('EnrichModuleUc', () => {
 
       await expect(
         uc.handle({ moduleId: course.uuid, targetAudience: 'X' }, other.uuid),
-      ).rejects.toThrow('Недостаточно прав для редактирования курса');
+      ).rejects.toThrow('Недостаточно прав для редактирования модуля');
     });
 
     test('отклоняет несуществующий курс', async () => {
@@ -125,7 +134,7 @@ describe('EnrichModuleUc', () => {
 
       await expect(
         uc.handle({ moduleId: missingId, targetAudience: 'X' }, admin.uuid),
-      ).rejects.toThrow('Курс не найден');
+      ).rejects.toThrow('Модуль не найден');
     });
 
     test('отклоняет несуществующего пользователя', async () => {

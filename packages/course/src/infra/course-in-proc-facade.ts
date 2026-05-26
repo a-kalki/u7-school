@@ -2,7 +2,6 @@ import { CourseDs } from '#domain/course-ds';
 import type { CourseFacade } from '#domain/facade';
 import type { Lesson } from '#domain/lesson/entity';
 import type { CourseApiModuleResolver } from '#domain/module';
-import type { Module } from '#domain/module/entity';
 import type { ContentSnapshot } from '#domain/types';
 
 /**

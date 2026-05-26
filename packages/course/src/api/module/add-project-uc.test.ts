@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User, UserFacade } from '@u7-scl/user/domain';
+import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
@@ -38,18 +38,27 @@ function makeModule(authorId: string): Module {
 function setupUc() {
   const save = mock(async (_module: Module): Promise<void> => {});
   const getByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
-  const getAll = mock(async (): Promise<Course[]> => []);
+  const getAll = mock(async (): Promise<Module[]> => []);
   const repo: ModuleRepo = { save, getByUuid, getAll };
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
   const userExists = mock(async (_uuid: string): Promise<boolean> => false);
-  const userFacade: any = {
+  const userFacade = {
     getUserByUuid,
     userExists,
     addRoleToUser: mock(),
+    getUserByTelegramId: mock(async () => undefined),
+    removeRoleFromUser: mock(),
+    registerGuest: mock(async () => ({
+      uuid: '',
+      name: '',
+      telegramId: 0,
+      roles: [],
+      createdAt: '',
+    })),
   };
   const uc = new AddProjectUc();
   uc.init({
@@ -83,21 +92,6 @@ describe('AddProjectUc', () => {
   });
 
   describe('FAIL', () => {
-    test('отклоняет добавление в курс kind=modules', async () => {
-      const { getByUuid, getUserByUuid, uc } = setupUc();
-      const author = makeUser();
-      const course = {
-        ...makeModule(author.uuid),
-        projects: [],
-      };
-      getByUuid.mockResolvedValueOnce(course);
-      getUserByUuid.mockResolvedValueOnce(author);
-
-      await expect(
-        uc.handle({ moduleId: course.uuid, title: 'П' }, author.uuid),
-      ).rejects.toThrow("Нельзя добавить проект в курс с kind='modules'");
-    });
-
     test('отклоняет чужого редактора', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
       const course = makeModule('author-id');

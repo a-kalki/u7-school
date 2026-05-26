@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import type { Module } from './module/entity';
-import type { Lesson } from './lesson/entity';
-import { Status } from './status';
 import { CourseDs } from './course-ds';
+import type { Lesson } from './lesson/entity';
+import type { Module } from './module/entity';
+import { Status } from './status';
 
 function makeModule(overrides: Partial<Module> = {}): Module {
   return {
@@ -198,7 +198,10 @@ describe('CourseDs.buildSnapshot', () => {
 
     const lessons = [
       makeLesson(pubLessonId, 'Опубликованный урок', []),
-      { ...makeLesson(draftLessonId, 'DRAFT урок', []), status: Status.DRAFT } as Lesson,
+      {
+        ...makeLesson(draftLessonId, 'DRAFT урок', []),
+        status: Status.DRAFT,
+      } as Lesson,
     ];
 
     const snapshot = ds.buildSnapshot(module, lessons);

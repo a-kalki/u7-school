@@ -172,7 +172,7 @@ describe('ModuleAr', () => {
     });
   });
 
-  describe('filterPublished', () => {
+  describe('getVisibleFor', () => {
     test('фильтрует только корневые проекты', () => {
       const ar = ModuleAr.create('Модуль', 'Описание', authorId);
       ar.addProject(projectCmd);
@@ -182,6 +182,8 @@ describe('ModuleAr', () => {
       // Добавляем ещё один неопубликованный проект
       ar.addProject({ ...projectCmd, title: 'Черновик' });
 
+      // Автор видит только опубликованные проекты (через getVisibleFor)
+      ar.publish();
       const visible = ar.getVisibleFor();
       expect(visible?.projects).toHaveLength(1);
       expect(visible?.projects[0]?.title).toBe('Проект 1');

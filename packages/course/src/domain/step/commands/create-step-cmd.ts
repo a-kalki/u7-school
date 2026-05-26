@@ -1,9 +1,9 @@
 import * as v from 'valibot';
+import type { LessonNotFoundUcError } from '../../lesson/commands/errors';
 import type {
   ModuleAccessDeniedUcError,
   ModuleNotFoundUcError,
 } from '../../module/commands/errors';
-import type { LessonNotFoundUcError } from '../../lesson/commands/errors';
 import type { Step, StepArMeta } from '../entity';
 import { StepCommonSchema } from '../entity';
 import type { StepAccessDeniedUcError } from './errors';

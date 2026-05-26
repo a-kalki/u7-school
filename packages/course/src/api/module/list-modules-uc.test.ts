@@ -24,7 +24,7 @@ function makeModule(overrides: Partial<Module> = {}): Module {
 }
 
 function setupUc() {
-  const getAll = mock(async (): Promise<Course[]> => []);
+  const getAll = mock(async (): Promise<Module[]> => []);
   const repo: ModuleRepo = {
     save: mock(async () => {}),
     getByUuid: mock(async () => undefined),

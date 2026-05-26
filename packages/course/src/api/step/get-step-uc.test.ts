@@ -35,6 +35,7 @@ function makeStep(moduleId: string): Step {
   return {
     uuid: crypto.randomUUID(),
     moduleId,
+    kind: 'text' as const,
     description: 'Шаг',
     content: undefined,
     status: Status.PUBLISHED,
@@ -54,7 +55,7 @@ function setupUc() {
     getByCourseId: mock(async () => []),
   };
   const courseGetByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const getUserByUuid = mock(
     async (_userId: string, _actorId?: string): Promise<User | undefined> =>
@@ -77,10 +78,10 @@ describe('GetStepUc', () => {
   describe('SUCCESS', () => {
     test('возвращает PUBLISHED шаг без актора', async () => {
       const { getByUuid, courseGetByUuid, uc } = setupUc();
-      const courseId = crypto.randomUUID();
-      const step = makeStep(courseId);
+      const moduleId = crypto.randomUUID();
+      const step = makeStep(moduleId);
       getByUuid.mockResolvedValueOnce(step);
-      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: moduleId }));
       const result = await uc.handle({ uuid: step.uuid });
       expect((result as Step).description).toBe('Шаг');
     });
@@ -88,16 +89,16 @@ describe('GetStepUc', () => {
     test('автор видит DRAFT шаг с actorId', async () => {
       const { getByUuid, courseGetByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
-      const courseId = crypto.randomUUID();
-      const course = makeModule({
+      const moduleId = crypto.randomUUID();
+      const module = makeModule({
         uuid: moduleId,
         authorId: author.uuid,
         status: Status.DRAFT,
       });
-      const step = makeStep(courseId);
+      const step = makeStep(moduleId);
       step.status = Status.DRAFT;
       getByUuid.mockResolvedValueOnce(step);
-      courseGetByUuid.mockResolvedValueOnce(course);
+      courseGetByUuid.mockResolvedValueOnce(module);
       getUserByUuid.mockResolvedValueOnce(author);
 
       const result = await uc.handle({ uuid: step.uuid }, author.uuid);
@@ -116,11 +117,11 @@ describe('GetStepUc', () => {
 
     test('DRAFT шаг недоступен без актора (ACCESS_DENIED)', async () => {
       const { getByUuid, courseGetByUuid, uc } = setupUc();
-      const courseId = crypto.randomUUID();
-      const step = makeStep(courseId);
+      const moduleId = crypto.randomUUID();
+      const step = makeStep(moduleId);
       step.status = Status.DRAFT;
       getByUuid.mockResolvedValueOnce(step);
-      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: moduleId }));
       await expect(uc.handle({ uuid: step.uuid })).rejects.toThrow(
         'Нет доступа к шагу',
       );

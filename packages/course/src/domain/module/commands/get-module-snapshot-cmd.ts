@@ -1,11 +1,11 @@
 import * as v from 'valibot';
+import type { ContentSnapshot } from '../../types';
 import type { ModuleArMeta } from '../entity';
 import { ModuleSchema } from '../entity';
 import type {
   ModuleAccessDeniedUcError,
   ModuleNotFoundUcError,
 } from './errors';
-import type { ContentSnapshot } from '../../types';
 
 /** Схема валидации команды получения снимка модуля */
 export const GetModuleSnapshotCmdSchema = v.object({

@@ -1,10 +1,10 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User, UserFacade } from '@u7-scl/user/domain';
+import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Module } from '#domain/module/entity';
-import type { ModuleRepo } from '#domain/module/repo';
 import type { Lesson } from '#domain/lesson/entity';
 import type { LessonRepo } from '#domain/lesson/repo';
+import type { Module } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
 import { Status } from '#domain/status';
 import { CreateLessonUc } from './create-lesson-uc';
 
@@ -18,12 +18,11 @@ function makeUser(r: Role[] = [Role.ADMIN]): User {
   };
 }
 
-
 function makeModule(authorId: string): Module {
   return {
     uuid: crypto.randomUUID(),
-    title: "К",
-    description: "О",
+    title: 'К',
+    description: 'О',
     authorId,
     targetAudience: undefined,
     goal: undefined,
@@ -32,15 +31,22 @@ function makeModule(authorId: string): Module {
     additional: undefined,
     tags: [],
     status: Status.DRAFT,
-    createdAt: "2026-05-01T12:00",
-    projects: [],
+    createdAt: '2026-05-01T12:00',
+    projects: [
+      {
+        uuid: crypto.randomUUID(),
+        title: 'P',
+        lessonIds: [],
+        status: Status.DRAFT,
+      },
+    ],
   } as Module;
 }
 
 function setupUc() {
   const courseSave = mock(async () => {});
   const courseGetByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const courseRepo: ModuleRepo = {
     save: courseSave,
@@ -57,10 +63,19 @@ function setupUc() {
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
-  const userFacade: any = {
+  const userFacade = {
     getUserByUuid,
     userExists: mock(async () => false),
     addRoleToUser: mock(),
+    getUserByTelegramId: mock(async () => undefined),
+    removeRoleFromUser: mock(),
+    registerGuest: mock(async () => ({
+      uuid: '',
+      name: '',
+      telegramId: 0,
+      roles: [],
+      createdAt: '',
+    })),
   };
   const uc = new CreateLessonUc();
   uc.init({
@@ -78,16 +93,16 @@ describe('CreateLessonUc', () => {
       const { courseGetByUuid, courseSave, lessonSave, getUserByUuid, uc } =
         setupUc();
       const mentor = makeUser([Role.MENTOR]);
-      const course = makeModule(mentor.uuid, 'projects');
+      const module = makeModule(mentor.uuid);
       getUserByUuid.mockResolvedValueOnce(mentor);
-      courseGetByUuid.mockResolvedValueOnce(course);
+      courseGetByUuid.mockResolvedValueOnce(module);
 
       const projectId =
-        (course as { projects?: { uuid: string }[] }).projects?.[0]?.uuid ?? '';
+        (module as { projects?: { uuid: string }[] }).projects?.[0]?.uuid ?? '';
 
       const result = await uc.handle(
         {
-          moduleId: course.uuid,
+          moduleId: module.uuid,
           projectId,
           title: 'Урок 1',
         },
@@ -120,22 +135,22 @@ describe('CreateLessonUc', () => {
     test('отклоняет MENTOR не автора курса', async () => {
       const { courseGetByUuid, getUserByUuid, uc } = setupUc();
       const mentor = makeUser([Role.MENTOR]);
-      const course = makeModule(crypto.randomUUID(), 'projects');
+      const module = makeModule(crypto.randomUUID());
       getUserByUuid.mockResolvedValueOnce(mentor);
-      courseGetByUuid.mockResolvedValueOnce(course);
+      courseGetByUuid.mockResolvedValueOnce(module);
 
       await expect(
         uc.handle(
           {
-            moduleId: course.uuid,
+            moduleId: module.uuid,
             projectId:
-              (course as { projects?: { uuid: string }[] }).projects?.[0]
+              (module as { projects?: { uuid: string }[] }).projects?.[0]
                 ?.uuid ?? '',
             title: 'У',
           },
           mentor.uuid,
         ),
-      ).rejects.toThrow('Вы не являетесь автором курса');
+      ).rejects.toThrow('Вы не являетесь автором модуля');
     });
 
     test('отклоняет несуществующего пользователя', async () => {

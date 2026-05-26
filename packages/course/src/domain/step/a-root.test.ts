@@ -87,7 +87,7 @@ describe('StepAr', () => {
       authorId,
       status: Status.DRAFT,
       createdAt: '2026-05-01T12:00',
-      modules: [],
+      projects: [],
     };
 
     function makeActor(roles: Role[], uuid = 'other'): User {
@@ -108,7 +108,7 @@ describe('StepAr', () => {
         kind: 'text',
         content: 'Ш',
       });
-      expect(ar.getVisibleFor(undefined, course)).toBeNull();
+      expect(ar.getVisibleFor(undefined, module)).toBeNull();
     });
 
     test('без актора — PUBLISHED → шаг', () => {
@@ -120,7 +120,7 @@ describe('StepAr', () => {
         content: 'Ш',
       });
       const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });
-      expect(published.getVisibleFor(undefined, course)).not.toBeNull();
+      expect(published.getVisibleFor(undefined, module)).not.toBeNull();
     });
 
     test('автор видит DRAFT', () => {
@@ -132,7 +132,7 @@ describe('StepAr', () => {
         content: 'Ш',
       });
       expect(
-        ar.getVisibleFor(makeActor([Role.MENTOR], authorId), course),
+        ar.getVisibleFor(makeActor([Role.MENTOR], authorId), module),
       ).not.toBeNull();
     });
 
@@ -144,7 +144,7 @@ describe('StepAr', () => {
         kind: 'text',
         content: 'Ш',
       });
-      expect(ar.getVisibleFor(makeActor([Role.ADMIN]), course)).not.toBeNull();
+      expect(ar.getVisibleFor(makeActor([Role.ADMIN]), module)).not.toBeNull();
     });
 
     test('студент не видит DRAFT', () => {
@@ -155,7 +155,7 @@ describe('StepAr', () => {
         kind: 'text',
         content: 'Ш',
       });
-      expect(ar.getVisibleFor(makeActor([Role.STUDENT]), course)).toBeNull();
+      expect(ar.getVisibleFor(makeActor([Role.STUDENT]), module)).toBeNull();
     });
 
     test('студент видит PUBLISHED', () => {
@@ -168,7 +168,7 @@ describe('StepAr', () => {
       });
       const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });
       expect(
-        published.getVisibleFor(makeActor([Role.STUDENT]), course),
+        published.getVisibleFor(makeActor([Role.STUDENT]), module),
       ).not.toBeNull();
     });
   });

@@ -58,8 +58,9 @@ export class ModuleJsonRepo implements ModuleRepo {
         modules.sort((a, b) => {
           const va = a[field];
           const vb = b[field];
-          if (va! < vb!) return -1 * m;
-          if (va! > vb!) return 1 * m;
+          if (va == null || vb == null) return 0;
+          if (va < vb) return -1 * m;
+          if (va > vb) return 1 * m;
           return 0;
         });
       }

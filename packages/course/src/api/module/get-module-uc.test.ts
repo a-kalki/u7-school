@@ -31,7 +31,7 @@ function makeModule(overrides: Partial<Module> = {}): Module {
 
 function setupUc() {
   const getByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const getUserByUuid = mock(
     async (_userId: string, _actorId?: string): Promise<User | undefined> =>
@@ -99,7 +99,7 @@ describe('GetModuleUc', () => {
       const { getByUuid, uc } = setupUc();
       getByUuid.mockResolvedValueOnce(undefined);
       await expect(uc.handle({ uuid: crypto.randomUUID() })).rejects.toThrow(
-        'Курс не найден',
+        'Модуль не найден',
       );
     });
 
@@ -107,7 +107,7 @@ describe('GetModuleUc', () => {
       const { getByUuid, uc } = setupUc();
       getByUuid.mockResolvedValueOnce(makeModule({ status: Status.DRAFT }));
       await expect(uc.handle({ uuid: crypto.randomUUID() })).rejects.toThrow(
-        'Нет доступа к курсу',
+        'Нет доступа к модулю',
       );
     });
 
@@ -122,7 +122,7 @@ describe('GetModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(student);
       await expect(
         uc.handle({ uuid: course.uuid }, student.uuid),
-      ).rejects.toThrow('Нет доступа к курсу');
+      ).rejects.toThrow('Нет доступа к модулю');
     });
   });
 });

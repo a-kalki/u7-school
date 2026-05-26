@@ -153,7 +153,6 @@ describe('ModulePolicy', () => {
     });
   });
 
-
   describe('canAddProject', () => {
     test('автор может', () => {
       expect(
@@ -187,8 +186,7 @@ describe('ModulePolicy', () => {
     createdAt: '2026-05-01T12:00',
     projects: [],
   };
-  const publishedModule = { ...module, status: Status.PUBLISHED };
-
+  const _publishedModule = { ...module, status: Status.PUBLISHED };
 
   const project = {
     uuid: 'p-uuid',

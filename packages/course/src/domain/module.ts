@@ -1,6 +1,9 @@
 import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
+import type { CreateLessonCmdMeta } from './lesson/commands/create-lesson-cmd';
+import type { GetLessonCmdMeta } from './lesson/commands/get-lesson-cmd';
+import type { LessonRepo } from './lesson/repo';
 import type { AddProjectCmdMeta } from './module/commands/add-project-cmd';
 import type { CreateModuleCmdMeta } from './module/commands/create-module-cmd';
 import type { EnrichModuleCmdMeta } from './module/commands/enrich-module-cmd';
@@ -9,9 +12,6 @@ import type { GetModuleSnapshotCmdMeta } from './module/commands/get-module-snap
 import type { ListModulesCmdMeta } from './module/commands/list-modules-cmd';
 import type { PublishModuleCmdMeta } from './module/commands/publish-module-cmd';
 import type { ModuleRepo } from './module/repo';
-import type { CreateLessonCmdMeta } from './lesson/commands/create-lesson-cmd';
-import type { GetLessonCmdMeta } from './lesson/commands/get-lesson-cmd';
-import type { LessonRepo } from './lesson/repo';
 import type { CreateStepCmdMeta } from './step/commands/create-step-cmd';
 import type { GetStepCmdMeta } from './step/commands/get-step-cmd';
 import type { StepRepo } from './step/repo';

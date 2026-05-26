@@ -1,15 +1,15 @@
 import { type UcMeta, UseCase } from '@u7-scl/core/api';
 import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
 import type { User } from '@u7-scl/user/domain';
+import { LessonAr } from '#domain/lesson/a-root';
+import type { Lesson } from '#domain/lesson/entity';
+import type { CourseApiModuleResolver } from '#domain/module';
 import { ModuleAr } from '#domain/module/a-root';
 import type {
   ModuleAccessDeniedUcError,
   ModuleNotFoundUcError,
 } from '#domain/module/commands/errors';
 import type { Module } from '#domain/module/entity';
-import { LessonAr } from '#domain/lesson/a-root';
-import type { Lesson } from '#domain/lesson/entity';
-import type { CourseApiModuleResolver } from '#domain/module';
 import { StepAr } from '#domain/step/a-root';
 import type { Step } from '#domain/step/entity';
 

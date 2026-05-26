@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User, UserFacade } from '@u7-scl/user/domain';
+import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
@@ -19,19 +19,28 @@ function makeUser(overrides: Partial<User> = {}): User {
 function setupUc() {
   const save = mock(async (_module: Module): Promise<void> => {});
   const getByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
-  const getAll = mock(async (): Promise<Course[]> => []);
+  const getAll = mock(async (): Promise<Module[]> => []);
 
   const repo: ModuleRepo = { save, getByUuid, getAll };
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
   const userExists = mock(async (_uuid: string): Promise<boolean> => false);
-  const userFacade: any = {
+  const userFacade = {
     getUserByUuid,
     userExists,
     addRoleToUser: mock(),
+    getUserByTelegramId: mock(async () => undefined),
+    removeRoleFromUser: mock(),
+    registerGuest: mock(async () => ({
+      uuid: '',
+      name: '',
+      telegramId: 0,
+      roles: [],
+      createdAt: '',
+    })),
   };
 
   const uc = new CreateModuleUc();
@@ -62,12 +71,12 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(mentor);
 
       const course = await uc.handle(
-        { title: 'Курс Python', description: 'Описание',  },
+        { title: 'Курс Python', description: 'Описание' },
         mentor.uuid,
       );
 
       expect((course as Module).title).toBe('Курс Python');
-      expect((course as Module).kind).toBe('projects');
+      expect((course as Module).authorId).toBe(mentor.uuid);
       expect(save).toHaveBeenCalledTimes(1);
     });
   });
@@ -79,13 +88,10 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       const createCourseCb = async () =>
-        uc.handle(
-          { title: 'Курс JS', description: 'Описание',  },
-          admin.uuid,
-        );
+        uc.handle({ title: 'Курс JS', description: 'Описание' }, admin.uuid);
 
       await expect(createCourseCb()).rejects.toThrow(
-        'Недостаточно прав для создания курса',
+        'Недостаточно прав для создания модуля',
       );
     });
 
@@ -95,10 +101,7 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       await expect(
-        uc.handle(
-          { title: '', description: 'Описание',  },
-          admin.uuid,
-        ),
+        uc.handle({ title: '', description: 'Описание' }, admin.uuid),
       ).rejects.toThrow('Переданы некорректные данные');
     });
 
@@ -107,10 +110,7 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(undefined);
 
       await expect(
-        uc.handle(
-          { title: 'Курс', description: 'Описание',  },
-          'nonexistent',
-        ),
+        uc.handle({ title: 'Курс', description: 'Описание' }, 'nonexistent'),
       ).rejects.toThrow('Пользователь не найден');
     });
 
@@ -120,24 +120,8 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(student);
 
       await expect(
-        uc.handle(
-          { title: 'Курс', description: 'Описание',  },
-          student.uuid,
-        ),
-      ).rejects.toThrow('Недостаточно прав для создания курса');
-    });
-
-    test('отклоняет некорректный kind', async () => {
-      const { getUserByUuid, uc } = setupUc();
-      const admin = makeUser();
-      getUserByUuid.mockResolvedValueOnce(admin);
-
-      await expect(
-        uc.handle(
-          { title: 'Курс', description: 'Описание' } as never,
-          admin.uuid,
-        ),
-      ).rejects.toThrow('Переданы некорректные данные');
+        uc.handle({ title: 'Курс', description: 'Описание' }, student.uuid),
+      ).rejects.toThrow('Недостаточно прав для создания модуля');
     });
   });
 });

@@ -15,6 +15,7 @@ function makeStep(overrides: Partial<Step> = {}): Step {
   return {
     uuid: crypto.randomUUID(),
     moduleId: crypto.randomUUID(),
+    kind: 'text' as const,
     description: 'Тестовый шаг',
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',

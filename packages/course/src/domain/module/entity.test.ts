@@ -28,7 +28,7 @@ describe('ModuleSchema (новая, без kind)', () => {
 
   test('НЕ содержит поле kind', () => {
     // kind не должно быть в схеме — валидация с kind должна упасть
-    const withKind = { ...validModule,  };
+    const withKind = { ...validModule };
     // strictObject отклонит лишнее поле, но schema сейчас обычный object
     // Проверяем, что kind не является обязательным и не влияет на валидацию
     // Но главное — в типе Module нет поля kind
@@ -55,7 +55,10 @@ describe('ModuleSchema (новая, без kind)', () => {
   });
 
   test('отклоняет пустое описание', () => {
-    const result = v.safeParse(ModuleSchema, { ...validModule, description: '' });
+    const result = v.safeParse(ModuleSchema, {
+      ...validModule,
+      description: '',
+    });
     expect(result.success).toBe(false);
   });
 
@@ -75,7 +78,10 @@ describe('ModuleSchema (новая, без kind)', () => {
   });
 
   test('отклоняет некорректный UUID', () => {
-    const result = v.safeParse(ModuleSchema, { ...validModule, uuid: 'bad-uuid' });
+    const result = v.safeParse(ModuleSchema, {
+      ...validModule,
+      uuid: 'bad-uuid',
+    });
     expect(result.success).toBe(false);
   });
 });

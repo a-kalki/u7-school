@@ -34,11 +34,7 @@ export class CreateModuleUc extends CourseUseCase<CreateModuleCmdMeta> {
       this.throwAccessDenied('Недостаточно прав для создания модуля');
     }
 
-    const ar = ModuleAr.create(
-      command.title,
-      command.description,
-      actorId,
-    );
+    const ar = ModuleAr.create(command.title, command.description, actorId);
     await this.resolve.courseRepo.save(ar.state);
 
     return ar.state;

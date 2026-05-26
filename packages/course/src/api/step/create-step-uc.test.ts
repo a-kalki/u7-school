@@ -1,9 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User, UserFacade } from '@u7-scl/user/domain';
+import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
+import type { Lesson, LessonRepo } from '#domain/index';
 import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
-import type { Lesson, LessonRepo } from '#domain/index';
 import { Status } from '#domain/status';
 import type { Step } from '#domain/step/entity';
 import type { StepRepo } from '#domain/step/repo';
@@ -33,7 +33,7 @@ function makeModule(authorId: string): Module {
 
 function setupUc() {
   const courseGetByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const courseRepo: ModuleRepo = {
     save: mock(async () => {}),
@@ -55,6 +55,7 @@ function setupUc() {
       ({
         uuid: crypto.randomUUID(),
         moduleId: crypto.randomUUID(),
+        kind: 'text' as const,
         title: 'Урок',
         status: Status.DRAFT,
         createdAt: '2026-05-01T12:00',
@@ -64,10 +65,19 @@ function setupUc() {
   );
   const lessonSave = mock(async () => {});
 
-  const userFacade: any = {
+  const userFacade = {
     getUserByUuid,
     userExists: mock(async () => false),
     addRoleToUser: mock(),
+    getUserByTelegramId: mock(async () => undefined),
+    removeRoleFromUser: mock(),
+    registerGuest: mock(async () => ({
+      uuid: '',
+      name: '',
+      telegramId: 0,
+      roles: [],
+      createdAt: '',
+    })),
   };
   const uc = new CreateStepUc();
   uc.init({
@@ -87,13 +97,14 @@ describe('CreateStepUc', () => {
     test('ADMIN создаёт текстовый шаг в своём курсе', async () => {
       const { courseGetByUuid, stepSave, getUserByUuid, uc } = setupUc();
       const admin = makeUser();
-      const course = makeModule(admin.uuid);
+      const module = makeModule(admin.uuid);
       getUserByUuid.mockResolvedValueOnce(admin);
-      courseGetByUuid.mockResolvedValueOnce(course);
+      courseGetByUuid.mockResolvedValueOnce(module);
 
       const result = await uc.handle(
         {
-          moduleId: course.uuid,
+          moduleId: module.uuid,
+          kind: 'text' as const,
           lessonId: crypto.randomUUID(),
           description: 'Описание',
           content: 'Шаг 1',
@@ -115,6 +126,7 @@ describe('CreateStepUc', () => {
         uc.handle(
           {
             moduleId: crypto.randomUUID(),
+            kind: 'text' as const,
             lessonId: crypto.randomUUID(),
             description: 'Описание',
             content: 'Ш',
@@ -134,13 +146,14 @@ describe('CreateStepUc', () => {
         uc.handle(
           {
             moduleId: crypto.randomUUID(),
+            kind: 'text' as const,
             lessonId: crypto.randomUUID(),
             description: 'Описание',
             content: 'Ш',
           },
           mentor.uuid,
         ),
-      ).rejects.toThrow('Вы не являетесь автором курса');
+      ).rejects.toThrow('Вы не являетесь автором модуля');
     });
   });
 });

@@ -1,5 +1,3 @@
-import { ModuleAr } from '#domain/module/a-root';
-import { ModulePolicy } from '#domain/module/policy';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import {
@@ -10,6 +8,8 @@ import {
 import type { Lesson } from '#domain/lesson/entity';
 import { LessonSchema } from '#domain/lesson/entity';
 import { LessonPolicy } from '#domain/lesson/policy';
+import { ModuleAr } from '#domain/module/a-root';
+import { ModulePolicy } from '#domain/module/policy';
 import { CourseUseCase } from '../course-uc';
 
 /**
@@ -38,7 +38,7 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
 
     const courseState = await this.getModule(command.moduleId);
     if (!ModulePolicy.canEdit(actor, courseState)) {
-      this.throwAccessDenied('Вы не являетесь автором курса');
+      this.throwAccessDenied('Вы не являетесь автором модуля');
     }
 
     const courseAr = new ModuleAr(courseState);

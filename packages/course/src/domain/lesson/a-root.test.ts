@@ -63,37 +63,37 @@ describe('LessonAr', () => {
 
     test('без актора — DRAFT → null', () => {
       const ar = LessonAr.create(cmd);
-      expect(ar.getVisibleFor(undefined, course)).toBeNull();
+      expect(ar.getVisibleFor(undefined, module)).toBeNull();
     });
 
     test('без актора — PUBLISHED → урок', () => {
       const ar = LessonAr.create(cmd);
       const published = new LessonAr({ ...ar.state, status: Status.PUBLISHED });
-      expect(published.getVisibleFor(undefined, course)).not.toBeNull();
+      expect(published.getVisibleFor(undefined, module)).not.toBeNull();
     });
 
     test('автор видит DRAFT', () => {
       const ar = LessonAr.create(cmd);
       expect(
-        ar.getVisibleFor(makeActor([Role.MENTOR], authorId), course),
+        ar.getVisibleFor(makeActor([Role.MENTOR], authorId), module),
       ).not.toBeNull();
     });
 
     test('ADMIN видит DRAFT', () => {
       const ar = LessonAr.create(cmd);
-      expect(ar.getVisibleFor(makeActor([Role.ADMIN]), course)).not.toBeNull();
+      expect(ar.getVisibleFor(makeActor([Role.ADMIN]), module)).not.toBeNull();
     });
 
     test('студент не видит DRAFT', () => {
       const ar = LessonAr.create(cmd);
-      expect(ar.getVisibleFor(makeActor([Role.STUDENT]), course)).toBeNull();
+      expect(ar.getVisibleFor(makeActor([Role.STUDENT]), module)).toBeNull();
     });
 
     test('студент видит PUBLISHED', () => {
       const ar = LessonAr.create(cmd);
       const published = new LessonAr({ ...ar.state, status: Status.PUBLISHED });
       expect(
-        published.getVisibleFor(makeActor([Role.STUDENT]), course),
+        published.getVisibleFor(makeActor([Role.STUDENT]), module),
       ).not.toBeNull();
     });
   });

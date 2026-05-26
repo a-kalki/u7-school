@@ -1,13 +1,12 @@
-import { CourseDs } from '#domain/course-ds';
-import type { Module } from '#domain/module/entity';
-import type { Lesson } from '#domain/lesson/entity';
-import type { ContentSnapshot } from '#domain/types';
 import * as v from 'valibot';
+import { CourseDs } from '#domain/course-ds';
+import type { Lesson } from '#domain/lesson/entity';
 import type {
   GetModuleSnapshotCmd,
   GetModuleSnapshotCmdMeta,
 } from '#domain/module/commands/get-module-snapshot-cmd';
 import { GetModuleSnapshotCmdSchema } from '#domain/module/commands/get-module-snapshot-cmd';
+import type { ContentSnapshot } from '#domain/types';
 import { CourseUseCase } from '../course-uc';
 
 /**

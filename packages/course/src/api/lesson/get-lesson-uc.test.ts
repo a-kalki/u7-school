@@ -1,9 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Module } from '#domain/module/entity';
 import type { Lesson } from '#domain/lesson/entity';
 import type { LessonRepo } from '#domain/lesson/repo';
+import type { Module } from '#domain/module/entity';
 import { Status } from '#domain/status';
 import { GetLessonUc } from './get-lesson-uc';
 
@@ -57,7 +57,7 @@ function setupUc() {
     getByCourseId: mock(async () => []),
   };
   const courseGetByUuid = mock(
-    async (_uuid: string): Promise<Course | undefined> => undefined,
+    async (_uuid: string): Promise<Module | undefined> => undefined,
   );
   const getUserByUuid = mock(
     async (_userId: string, _actorId?: string): Promise<User | undefined> =>
@@ -80,10 +80,10 @@ describe('GetLessonUc', () => {
   describe('SUCCESS', () => {
     test('возвращает PUBLISHED урок без актора', async () => {
       const { getByUuid, courseGetByUuid, uc } = setupUc();
-      const courseId = crypto.randomUUID();
-      const lesson = makeLesson(courseId);
+      const moduleId = crypto.randomUUID();
+      const lesson = makeLesson(moduleId);
       getByUuid.mockResolvedValueOnce(lesson);
-      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: moduleId }));
       const result = await uc.handle({ uuid: lesson.uuid });
       expect((result as Lesson).title).toBe('Урок');
     });
@@ -91,16 +91,16 @@ describe('GetLessonUc', () => {
     test('автор видит DRAFT урок с actorId', async () => {
       const { getByUuid, courseGetByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
-      const courseId = crypto.randomUUID();
-      const course = makeModule({
+      const moduleId = crypto.randomUUID();
+      const module = makeModule({
         uuid: moduleId,
         authorId: author.uuid,
         status: Status.DRAFT,
       });
-      const lesson = makeLesson(courseId);
+      const lesson = makeLesson(moduleId);
       lesson.status = Status.DRAFT;
       getByUuid.mockResolvedValueOnce(lesson);
-      courseGetByUuid.mockResolvedValueOnce(course);
+      courseGetByUuid.mockResolvedValueOnce(module);
       getUserByUuid.mockResolvedValueOnce(author);
 
       const result = await uc.handle({ uuid: lesson.uuid }, author.uuid);
@@ -119,11 +119,11 @@ describe('GetLessonUc', () => {
 
     test('DRAFT урок недоступен без актора (ACCESS_DENIED)', async () => {
       const { getByUuid, courseGetByUuid, uc } = setupUc();
-      const courseId = crypto.randomUUID();
-      const lesson = makeLesson(courseId);
+      const moduleId = crypto.randomUUID();
+      const lesson = makeLesson(moduleId);
       lesson.status = Status.DRAFT;
       getByUuid.mockResolvedValueOnce(lesson);
-      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: moduleId }));
       await expect(uc.handle({ uuid: lesson.uuid })).rejects.toThrow(
         'Нет доступа к уроку',
       );

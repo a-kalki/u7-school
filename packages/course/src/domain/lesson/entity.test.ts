@@ -28,7 +28,7 @@ describe('LessonSchema', () => {
   test('принимает минимальный урок без опциональных полей', () => {
     const minimal = {
       uuid: validLesson.uuid,
-      moduleId: validLesson.courseId,
+      moduleId: validLesson.moduleId,
       title: 'Минимум',
       status: Status.DRAFT,
       createdAt: validLesson.createdAt,
