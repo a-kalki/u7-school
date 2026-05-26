@@ -1,0 +1,136 @@
+# План реализации: stream_domain_20260526
+
+## Фаза 0: Создание модуля @u7-scl/stream
+
+- [ ] Task: Создать структуру пакета
+    - [ ] `packages/stream/package.json` — имя, версия, зависимости (@u7-scl/core, valibot), exports/imports
+    - [ ] `packages/stream/tsconfig.json` — конфигурация TypeScript
+    - [ ] `packages/stream/src/` — корневая структура директорий
+    - [ ] `packages/stream/src/index.ts` — заглушка экспорта
+    - [ ] `packages/stream/src/domain/` — директория доменного слоя
+
+- [ ] Task: Conductor - User Manual Verification 'Создание модуля' (Protocol in workflow.md)
+
+---
+
+## Фаза 1: Фундамент — типы, статусы, схемы
+
+- [ ] Task: Написать тесты для StreamStatus и базовых типов
+    - [ ] Тест: StreamStatus содержит все значения (enrollment, active, completed, archived)
+    - [ ] Тест: StreamStatusSchema валидирует корректные значения
+    - [ ] Тест: StreamStatusSchema отклоняет некорректные значения
+
+- [ ] Task: Реализовать StreamStatus и базовые типы
+    - [ ] `status.ts` — enum StreamStatus + Valibot picklist
+    - [ ] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter
+
+- [ ] Task: Написать тесты для Valibot-схем
+    - [ ] Тест: ContentSnapshotSchema валидирует корректный снимок (проекты→уроки→stepIds)
+    - [ ] Тест: StreamSchema валидирует полный объект потока
+    - [ ] Тест: StreamSchema отклоняет объект без обязательных полей
+
+- [ ] Task: Реализовать Valibot-схемы Entity
+    - [ ] `stream/entity.ts` — StreamSchema, ContentSnapshotSchema, StreamArMeta
+    - [ ] `domain/index.ts` — публичный экспорт
+
+- [ ] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md)
+
+---
+
+## Фаза 2: Агрегат StreamAr
+
+- [ ] Task: Написать тесты для StreamAr.create
+    - [ ] Тест: создаёт поток с корректными полями и статусом enrollment
+    - [ ] Тест: contentSnapshot сохраняется корректно
+    - [ ] Тест: поля-снимки (goal, result и др.) копируются
+
+- [ ] Task: Реализовать StreamAr.create
+    - [ ] `stream/a-root.ts` — класс StreamAr extends Aggregate, static create
+    - [ ] `stream/commands/create-stream-cmd.ts` — CreateStreamCmd, схема, мета
+
+- [ ] Task: Написать тесты для StreamAr.findNextStep
+    - [ ] Тест: находит следующий шаг в том же уроке
+    - [ ] Тест: переходит к первому шагу следующего урока
+    - [ ] Тест: переходит к первому шагу следующего проекта
+    - [ ] Тест: возвращает null на последнем шаге всего потока
+    - [ ] Тест: выбрасывает ошибку если stepId не найден в снимке
+
+- [ ] Task: Реализовать StreamAr.findNextStep
+    - [ ] `stream/a-root.ts` — метод findNextStep с обходом дерева в глубину
+
+- [ ] Task: Conductor - User Manual Verification 'Агрегат StreamAr' (Protocol in workflow.md)
+
+---
+
+## Фаза 3: Агрегат StreamStudentAr
+
+- [ ] Task: Написать тесты для StreamStudentAr.enroll
+    - [ ] Тест: создаёт студента с корректными полями
+    - [ ] Тест: currentStepId должен быть передан при создании
+    - [ ] Тест: status = active, steps = []
+
+- [ ] Task: Реализовать StreamStudentAr.enroll
+    - [ ] `stream-student/entity.ts` — StreamStudentSchema, StepRecordSchema, StreamStudentArMeta
+    - [ ] `stream-student/a-root.ts` — класс StreamStudentAr, static enroll
+
+- [ ] Task: Написать тесты для StreamStudentAr.issueStep и completeStep
+    - [ ] Тест: issueStep добавляет StepRecord со статусом issued
+    - [ ] Тест: issueStep обновляет currentStepId
+    - [ ] Тест: issueStep выбрасывает ошибку если stepId уже выдан
+    - [ ] Тест: completeStep меняет статус StepRecord на completed
+    - [ ] Тест: completeStep проставляет completedAt
+    - [ ] Тест: completeStep выбрасывает ошибку если шаг не был выдан
+
+- [ ] Task: Реализовать StreamStudentAr.issueStep и completeStep
+    - [ ] `stream-student/a-root.ts` — методы issueStep, completeStep, complete
+
+- [ ] Task: Conductor - User Manual Verification 'Агрегат StreamStudentAr' (Protocol in workflow.md)
+
+---
+
+## Фаза 4: Domain Service StreamDs
+
+- [ ] Task: Написать тесты для StreamDs.completeStep
+    - [ ] Тест: завершает шаг, находит следующий, выдаёт его — уровень step
+    - [ ] Тест: при завершении последнего шага урока — уровень lesson
+    - [ ] Тест: при завершении последнего шага проекта — уровень project
+    - [ ] Тест: при завершении последнего шага потока — студент completed
+
+- [ ] Task: Реализовать StreamDs.completeStep
+    - [ ] `stream-ds.ts` — класс StreamDs, метод completeStep
+
+- [ ] Task: Conductor - User Manual Verification 'Domain Service StreamDs' (Protocol in workflow.md)
+
+---
+
+## Фаза 5: Policy и Repo-интерфейсы
+
+- [ ] Task: Написать тесты для StreamPolicy
+    - [ ] Тест: canCreate — true для MENTOR, false для STUDENT, GUEST
+    - [ ] Тест: canRead — true для всех при active/completed
+    - [ ] Тест: canRead — true для mentorId при любом статусе
+    - [ ] Тест: canEdit — true для mentorId и ADMIN
+
+- [ ] Task: Реализовать StreamPolicy
+    - [ ] `stream/policy.ts` — StreamPolicy
+
+- [ ] Task: Определить интерфейсы репозиториев
+    - [ ] `stream/repo.ts` — StreamRepo (save, getByUuid, getAll)
+    - [ ] `stream-student/repo.ts` — StreamStudentRepo (save, getByUuid, getByStream, getByUser)
+
+- [ ] Task: Финальная сборка — module.ts, index.ts
+    - [ ] `domain/module.ts` — StreamApiModuleMeta, StreamApiModuleResolver
+    - [ ] `domain/index.ts` — полный экспорт всех агрегатов, схем, типов
+    - [ ] `src/index.ts` — реэкспорт domain
+
+- [ ] Task: Conductor - User Manual Verification 'Policy и Repo-интерфейсы' (Protocol in workflow.md)
+
+---
+
+## Фаза 6: Контроль качества
+
+- [ ] Task: Запустить полную проверку качества
+    - [ ] `bun test` — все тесты проходят
+    - [ ] `bun run lint` — нет ошибок Biome
+    - [ ] `bun run tslint` — нет ошибок типов
+    - [ ] `bun test --coverage` — покрытие >80%
