@@ -1,0 +1,19 @@
+Задача: Переименование Course→Module в коде (Фазы 1-5)
+
+Сводка изменений:
+- entity.ts: ModuleSchema без kind, без discriminated union, Course→Module
+- a-root.ts: ModuleAr без kind, упрощены getProject и filterPublished
+- policy.ts: ModulePolicy, удалены canAddModule/canReadModule
+- repo.ts: ModuleRepo, ModuleListFilter без kind
+- commands: все файлы переименованы (create-course → create-module и т.д.)
+- course-uc.ts: методы getCourse→getModule, getOutCourse→getOutModule
+- course-ds.ts: импорты CourseAr→ModuleAr
+- use cases: переименованы и обновлены все классы и импорты
+- api/module.ts: обновлён список useCases (удалены add-module, add-project-to-module)
+- infra: ModuleJsonRepo без filter.kind, infra/index.ts обновлён
+- domain/index.ts: полный реэкспорт с новыми именами
+- api/index.ts: обновлённые экспорты
+- types: ModuleId вместо CourseId, CourseKind удалён
+- 115 тестов проходят, 40 падают (use-case тесты требуют обновления тестовых данных)
+
+Причина: Тотальное переименование Course→Module, упрощение агрегата (удаление kind), чистка старых команд.
