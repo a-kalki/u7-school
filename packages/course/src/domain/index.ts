@@ -55,6 +55,13 @@ export { ModulePolicy } from './module/policy';
 export type { ModuleListFilter, ModuleRepo } from './module/repo';
 export type { ModuleId as ModuleEntityId } from './module/types';
 
+export type {
+  GetModuleSnapshotCmd,
+  GetModuleSnapshotCmdError,
+  GetModuleSnapshotCmdMeta,
+} from './module/commands/get-module-snapshot-cmd';
+export { GetModuleSnapshotCmdSchema } from './module/commands/get-module-snapshot-cmd';
+
 // Агрегат Lesson
 export { LessonAr } from './lesson/a-root';
 export type {
@@ -114,7 +121,10 @@ export { StepCommonSchema, StepSchema } from './step/entity';
 export { StepPolicy } from './step/policy';
 export type { StepRepo } from './step/repo';
 
+export type { CourseFacade } from './facade';
 export type {
+  ContentSnapshot,
+  ContentSnapshotItem,
   ModuleId,
   LessonId,
   StepId,

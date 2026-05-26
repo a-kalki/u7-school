@@ -7,6 +7,7 @@ import { AddProjectUc } from './module/add-project-uc';
 import { CreateModuleUc } from './module/create-module-uc';
 import { EnrichModuleUc } from './module/enrich-module-uc';
 import { GetModuleUc } from './module/get-module-uc';
+import { GetModuleSnapshotUc } from './module/get-module-snapshot-uc';
 import { ListModulesUc } from './module/list-modules-uc';
 import { PublishModuleUc } from './module/publish-module-uc';
 import { CreateLessonUc } from './lesson/create-lesson-uc';
@@ -25,6 +26,7 @@ export class CourseApiModule extends ApiModule<
     new AddProjectUc(),
     new PublishModuleUc(),
     new GetModuleUc(),
+    new GetModuleSnapshotUc(),
     new ListModulesUc(),
     new CreateLessonUc(),
     new GetLessonUc(),

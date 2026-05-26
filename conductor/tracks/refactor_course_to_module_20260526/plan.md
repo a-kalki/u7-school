@@ -80,7 +80,7 @@
 
 ## Фаза 4: Snapshot API — CourseDs + Фасад + UseCase
 
-- [ ] Task: Написать тесты для CourseDs.buildSnapshot
+- [~] Task: Написать тесты для CourseDs.buildSnapshot
     - [ ] Тест: собирает проекты с lessonIds и stepIds
     - [ ] Тест: при пустом projects возвращает []
     - [ ] Тест: порядок проектов сохраняется

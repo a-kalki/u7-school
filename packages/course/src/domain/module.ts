@@ -5,6 +5,7 @@ import type { AddProjectCmdMeta } from './module/commands/add-project-cmd';
 import type { CreateModuleCmdMeta } from './module/commands/create-module-cmd';
 import type { EnrichModuleCmdMeta } from './module/commands/enrich-module-cmd';
 import type { GetModuleCmdMeta } from './module/commands/get-module-cmd';
+import type { GetModuleSnapshotCmdMeta } from './module/commands/get-module-snapshot-cmd';
 import type { ListModulesCmdMeta } from './module/commands/list-modules-cmd';
 import type { PublishModuleCmdMeta } from './module/commands/publish-module-cmd';
 import type { ModuleRepo } from './module/repo';
@@ -20,6 +21,7 @@ export type ModuleUcMetas =
   | CreateModuleCmdMeta
   | EnrichModuleCmdMeta
   | GetModuleCmdMeta
+  | GetModuleSnapshotCmdMeta
   | ListModulesCmdMeta
   | PublishModuleCmdMeta
   | CreateLessonCmdMeta

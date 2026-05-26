@@ -1,8 +1,11 @@
 import type { ModuleAr } from './module/a-root';
 import { LessonAr } from './lesson/a-root';
 import type { CreateLessonCmd } from './lesson/commands/create-lesson-cmd';
+import type { Lesson } from './lesson/entity';
 import { StepAr } from './step/a-root';
 import type { CreateStepCmd } from './step/commands/create-step-cmd';
+import type { Module } from './module/entity';
+import type { ContentSnapshot } from './types';
 
 /**
  * Domain Service модуля курсов.
@@ -35,5 +38,28 @@ export class CourseDs {
     lesson.addStep(step.state.uuid);
 
     return { lesson, step };
+  }
+
+  /**
+   * Собирает полный снимок контента модуля: проекты → уроки → stepIds.
+   * Используется для передачи структуры модуля в stream.
+   */
+  buildSnapshot(module: Module, lessons: Lesson[]): ContentSnapshot {
+    return module.projects.map((project) => {
+      const projectLessons = project.lessonIds
+        .map((lessonId) => lessons.find((l) => l.uuid === lessonId))
+        .filter((l): l is Lesson => l !== undefined)
+        .map((lesson) => ({
+          lessonId: lesson.uuid,
+          lessonTitle: lesson.title,
+          stepIds: lesson.stepIds,
+        }));
+
+      return {
+        projectId: project.uuid,
+        projectTitle: project.title,
+        lessons: projectLessons,
+      };
+    });
   }
 }
