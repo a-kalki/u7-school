@@ -87,15 +87,14 @@ function setupModule(facade: MockUserFacade) {
   return mod;
 }
 
-/** Создаёт курс от имени ментора и возвращает его uuid */
-async function createCourseAsMentor(
+/** Создаёт модуль от имени ментора и возвращает его uuid */
+async function createModuleAsMentor(
   mod: CourseApiModule,
   mentor: User,
-   = 'modules',
 ): Promise<string> {
   const result = await mod.handle({
     name: 'create-module',
-    attrs: { title: 'Курс', description: 'Описание', kind },
+    attrs: { title: 'Модуль', description: 'Описание' },
     actorId: mentor.uuid,
   });
   return (result as { uuid: string }).uuid;
@@ -106,7 +105,7 @@ describe('CourseApiModule', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('create-course: MENTOR создаёт курс', async () => {
+  test('create-module: MENTOR создаёт курс', async () => {
     const facade = new MockUserFacade();
     const mentor = makeMentor();
     facade.addUser(mentor);
@@ -121,7 +120,7 @@ describe('CourseApiModule', () => {
     expect((result as { title: string }).title).toBe('Курс JS');
   });
 
-  test('create-course: ADMIN не может создать курс', async () => {
+  test('create-module: ADMIN не может создать курс', async () => {
     const facade = new MockUserFacade();
     const admin = makeAdmin();
     facade.addUser(admin);
@@ -137,7 +136,7 @@ describe('CourseApiModule', () => {
     ).rejects.toThrow('Недостаточно прав для создания курса');
   });
 
-  test('enrich-course: ADMIN обогащает курс ментора', async () => {
+  test('enrich-module: ADMIN обогащает курс ментора', async () => {
     const facade = new MockUserFacade();
     const mentor = makeMentor();
     const admin = makeAdmin();
@@ -145,7 +144,7 @@ describe('CourseApiModule', () => {
     facade.addUser(admin);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor);
+    const courseId = await createModuleAsMentor(mod, mentor);
 
     const result = await mod.handle({
       name: 'enrich-module',
@@ -169,7 +168,7 @@ describe('CourseApiModule', () => {
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor);
+    const courseId = await createModuleAsMentor(mod, mentor);
 
     const result = await mod.handle({
       name: 'add-module',
@@ -188,7 +187,7 @@ describe('CourseApiModule', () => {
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor);
+    const courseId = await createModuleAsMentor(mod, mentor);
     const addModResult = await mod.handle({
       name: 'add-module',
       attrs: { courseId, title: 'Модуль 1' },
@@ -214,13 +213,13 @@ describe('CourseApiModule', () => {
     expect(res.modules[0]?.projects[0]?.title).toBe('Проект в модуле');
   });
 
-  test('publish-course: автор публикует курс', async () => {
+  test('publish-module: автор публикует курс', async () => {
     const facade = new MockUserFacade();
     const mentor = makeMentor();
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor);
+    const courseId = await createModuleAsMentor(mod, mentor);
 
     const result = await mod.handle({
       name: 'publish-module',
@@ -231,13 +230,13 @@ describe('CourseApiModule', () => {
     expect((result as { status: string }).status).toBe(Status.PUBLISHED);
   });
 
-  test('get-course: возвращает созданный курс', async () => {
+  test('get-module: возвращает созданный курс', async () => {
     const facade = new MockUserFacade();
     const mentor = makeMentor();
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor, 'projects');
+    const courseId = await createModuleAsMentor(mod, mentor, 'projects');
 
     const result = await mod.handle({
       name: 'get-module',
@@ -254,7 +253,7 @@ describe('CourseApiModule', () => {
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    await createCourseAsMentor(mod, mentor);
+    await createModuleAsMentor(mod, mentor);
 
     const result = await mod.handle({
       name: 'list-modules',
@@ -271,7 +270,7 @@ describe('CourseApiModule', () => {
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor, 'projects');
+    const courseId = await createModuleAsMentor(mod, mentor, 'projects');
 
     // Добавляем проект в курс
     const withProject = (await mod.handle({
@@ -296,7 +295,7 @@ describe('CourseApiModule', () => {
     facade.addUser(mentor);
 
     const mod = setupModule(facade);
-    const courseId = await createCourseAsMentor(mod, mentor, 'projects');
+    const courseId = await createModuleAsMentor(mod, mentor, 'projects');
 
     // Добавляем проект и урок
     const withProject = (await mod.handle({

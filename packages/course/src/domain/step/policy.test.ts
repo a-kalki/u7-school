@@ -18,7 +18,7 @@ function makeActor(roles: Role[], uuid = 'actor-uuid'): User {
 
 const authorId = '550e8400-e29b-41d4-a716-446655440000';
 
-function makeCourse(overrides: Partial<Course> = {}): Module {
+function makeModule(overrides: Partial<Module> = {}): Module {
   return {
     uuid: 'course-uuid',
     title: 'Курс',
@@ -28,12 +28,12 @@ function makeCourse(overrides: Partial<Course> = {}): Module {
     createdAt: '2026-05-01T12:00',
     projects: [],
     ...overrides,
-  } as Course;
+  } as Module;
 }
 
 const step: Step = {
   uuid: 'step-uuid',
-  courseId: 'course-uuid',
+  moduleId: 'course-uuid',
   description: 'Шаг',
   status: Status.DRAFT,
   createdAt: '2026-05-01T12:00',
@@ -53,7 +53,7 @@ describe('StepPolicy', () => {
   });
 
   describe('canRead', () => {
-    const course = makeCourse();
+    const course = makeModule();
 
     test('автор может читать DRAFT', () => {
       expect(
@@ -85,7 +85,7 @@ describe('StepPolicy', () => {
   });
 
   describe('canEdit', () => {
-    const course = makeCourse();
+    const course = makeModule();
 
     test('автор может редактировать', () => {
       expect(

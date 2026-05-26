@@ -1,8 +1,8 @@
 import type { AccessDeniedError, NotFoundError } from '@u7-scl/core/domain';
 import type {
-  CourseAccessDeniedUcError,
-  CourseNotFoundUcError,
-} from '../../course/commands/errors';
+  ModuleAccessDeniedUcError,
+  ModuleNotFoundUcError,
+} from '../../module/commands/errors';
 
 /** Урок не найден */
 export type LessonNotFoundUcError = NotFoundError<
@@ -20,5 +20,5 @@ export type LessonAccessDeniedUcError = AccessDeniedError<
 export type LessonModuleError =
   | LessonNotFoundUcError
   | LessonAccessDeniedUcError
-  | CourseNotFoundUcError
-  | CourseAccessDeniedUcError;
+  | ModuleNotFoundUcError
+  | ModuleAccessDeniedUcError;

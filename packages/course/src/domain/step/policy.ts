@@ -17,15 +17,15 @@ export const StepPolicy = {
   },
 
   /** Читать: ADMIN/автор курса → всё; иначе PUBLISHED. */
-  canRead(actor: User, target: Step, course: Module): boolean {
+  canRead(actor: User, target: Step, module: Module): boolean {
     return (
-      ModulePolicy.isAdminOrAuthor(actor, course) ||
+      ModulePolicy.isAdminOrAuthor(actor, module) ||
       target.status === Status.PUBLISHED
     );
   },
 
   /** Редактировать: только ADMIN или автор курса. */
-  canEdit(actor: User, _target: Step, course: Module): boolean {
-    return ModulePolicy.isAdminOrAuthor(actor, course);
+  canEdit(actor: User, _target: Step, module: Module): boolean {
+    return ModulePolicy.isAdminOrAuthor(actor, module);
   },
 };

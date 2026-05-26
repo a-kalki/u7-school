@@ -22,7 +22,7 @@ export class LessonAr extends Aggregate<LessonArMeta> {
   static create(command: CreateLessonCmd): LessonAr {
     const candidate: Lesson = {
       uuid: crypto.randomUUID(),
-      courseId: command.courseId,
+      moduleId: command.moduleId,
       title: command.title,
       additional: command.additional,
       estimatedMinutes: command.estimatedMinutes,
@@ -46,11 +46,11 @@ export class LessonAr extends Aggregate<LessonArMeta> {
    * - Автор/ADMIN курса: любой статус.
    * - Остальные: только PUBLISHED.
    */
-  getVisibleFor(actor: User | undefined, course: Module): Lesson | null {
+  getVisibleFor(actor: User | undefined, module: Module): Lesson | null {
     if (!actor) {
       return this.state.status === Status.PUBLISHED ? this.state : null;
     }
-    if (ModulePolicy.isAdminOrAuthor(actor, course)) return this.state;
+    if (ModulePolicy.isAdminOrAuthor(actor, module)) return this.state;
     return this.state.status === Status.PUBLISHED ? this.state : null;
   }
 }

@@ -1,10 +1,10 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { Course } from '#domain/course/entity';
-import type { CourseRepo } from '#domain/course/repo';
+import type { Module } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
 import { Status } from '#domain/status';
-import { ListCoursesUc } from './list-modules-uc';
+import { ListModulesUc } from './list-modules-uc';
 
-function makeCourse(overrides: Partial<Course> = {}): Course {
+function makeModule(overrides: Partial<Module> = {}): Module {
   return {
     uuid: crypto.randomUUID(),
     title: 'Курс',
@@ -20,17 +20,17 @@ function makeCourse(overrides: Partial<Course> = {}): Course {
     createdAt: '2026-05-01T12:00',
     projects: [],
     ...overrides,
-  } as Course;
+  } as Module;
 }
 
 function setupUc() {
   const getAll = mock(async (): Promise<Course[]> => []);
-  const repo: CourseRepo = {
+  const repo: ModuleRepo = {
     save: mock(async () => {}),
     getByUuid: mock(async () => undefined),
     getAll,
   };
-  const uc = new ListCoursesUc();
+  const uc = new ListModulesUc();
   uc.init({
     courseRepo: repo,
     lessonRepo: {} as never,
@@ -40,11 +40,11 @@ function setupUc() {
   return { getAll, uc };
 }
 
-describe('ListCoursesUc', () => {
+describe('ListModulesUc', () => {
   describe('SUCCESS', () => {
     test('возвращает список PUBLISHED курсов', async () => {
       const { getAll, uc } = setupUc();
-      getAll.mockResolvedValueOnce([makeCourse(), makeCourse()]);
+      getAll.mockResolvedValueOnce([makeModule(), makeModule()]);
       const result = await uc.handle({});
       expect(result).toHaveLength(2);
     });
@@ -52,8 +52,8 @@ describe('ListCoursesUc', () => {
     test('фильтрует DRAFT курсы без актора', async () => {
       const { getAll, uc } = setupUc();
       getAll.mockResolvedValueOnce([
-        makeCourse({ status: Status.PUBLISHED }),
-        makeCourse({ status: Status.DRAFT }),
+        makeModule({ status: Status.PUBLISHED }),
+        makeModule({ status: Status.DRAFT }),
       ]);
       const result = await uc.handle({});
       expect(result).toHaveLength(1);

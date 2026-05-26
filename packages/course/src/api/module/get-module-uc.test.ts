@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/module/entity';
+import type { Module } from '#domain/module/entity';
 import { Status } from '#domain/status';
 import { GetModuleUc } from './get-module-uc';
 
@@ -16,7 +16,7 @@ function makeUser(overrides: Partial<User> = {}): User {
   };
 }
 
-function makeCourse(overrides: Partial<Course> = {}): Course {
+function makeModule(overrides: Partial<Module> = {}): Module {
   return {
     uuid: crypto.randomUUID(),
     title: 'Курс',
@@ -26,7 +26,7 @@ function makeCourse(overrides: Partial<Course> = {}): Course {
     createdAt: '2026-05-01T12:00',
     projects: [],
     ...overrides,
-  } as Course;
+  } as Module;
 }
 
 function setupUc() {
@@ -51,46 +51,46 @@ describe('GetModuleUc', () => {
   describe('SUCCESS', () => {
     test('возвращает PUBLISHED курс без актора', async () => {
       const { getByUuid, uc } = setupUc();
-      const course = makeCourse();
+      const course = makeModule();
       getByUuid.mockResolvedValueOnce(course);
       const result = await uc.handle({ uuid: course.uuid });
-      expect((result as Course).title).toBe('Курс');
+      expect((result as Module).title).toBe('Курс');
     });
 
     test('автор видит свой DRAFT курс с actorId', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
-      const course = makeCourse({
+      const course = makeModule({
         authorId: author.uuid,
         status: Status.DRAFT,
       });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(author);
       const result = await uc.handle({ uuid: course.uuid }, author.uuid);
-      expect((result as Course).title).toBe('Курс');
+      expect((result as Module).title).toBe('Курс');
     });
 
     test('ADMIN видит чужой DRAFT курс', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
       const admin = makeUser({ roles: [Role.ADMIN] });
-      const course = makeCourse({
+      const course = makeModule({
         authorId: crypto.randomUUID(),
         status: Status.DRAFT,
       });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(admin);
       const result = await uc.handle({ uuid: course.uuid }, admin.uuid);
-      expect((result as Course).title).toBe('Курс');
+      expect((result as Module).title).toBe('Курс');
     });
 
     test('студент видит PUBLISHED курс с актором', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
       const student = makeUser({ roles: [Role.STUDENT] });
-      const course = makeCourse({ status: Status.PUBLISHED });
+      const course = makeModule({ status: Status.PUBLISHED });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(student);
       const result = await uc.handle({ uuid: course.uuid }, student.uuid);
-      expect((result as Course).title).toBe('Курс');
+      expect((result as Module).title).toBe('Курс');
     });
   });
 
@@ -105,7 +105,7 @@ describe('GetModuleUc', () => {
 
     test('DRAFT курс недоступен без актора (ACCESS_DENIED)', async () => {
       const { getByUuid, uc } = setupUc();
-      getByUuid.mockResolvedValueOnce(makeCourse({ status: Status.DRAFT }));
+      getByUuid.mockResolvedValueOnce(makeModule({ status: Status.DRAFT }));
       await expect(uc.handle({ uuid: crypto.randomUUID() })).rejects.toThrow(
         'Нет доступа к курсу',
       );
@@ -114,7 +114,7 @@ describe('GetModuleUc', () => {
     test('студент (не автор) не видит DRAFT курс даже с актором (ACCESS_DENIED)', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
       const student = makeUser({ roles: [Role.STUDENT] });
-      const course = makeCourse({
+      const course = makeModule({
         authorId: crypto.randomUUID(),
         status: Status.DRAFT,
       });

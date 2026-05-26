@@ -5,5 +5,5 @@ export interface LessonRepo {
   save(lesson: Lesson): Promise<void>;
   getByUuid(uuid: string): Promise<Lesson | undefined>;
   getByIds(ids: string[]): Promise<Lesson[]>;
-  getByCourseId(courseId: string): Promise<Lesson[]>;
+  getByCourseId(moduleId: string): Promise<Lesson[]>;
 }

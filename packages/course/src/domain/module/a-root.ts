@@ -3,7 +3,7 @@ import { isoNow } from '@u7-scl/core/shared';
 import type { User } from '@u7-scl/user/domain';
 import { Status } from '../status';
 import type { AddProjectCmd } from './commands/add-project-cmd';
-import type { EnrichCourseCmd } from './commands/enrich-course-cmd';
+import type { EnrichModuleCmd } from './commands/enrich-module-cmd';
 import type { Module, ModuleArMeta, Project } from './entity';
 import { ModuleSchema } from './entity';
 import { ModulePolicy } from './policy';
@@ -41,7 +41,7 @@ export class ModuleAr extends Aggregate<ModuleArMeta> {
   }
 
   /** Этап 2: обогащение дополнительными полями. */
-  enrich(command: EnrichCourseCmd): void {
+  enrich(command: EnrichModuleCmd): void {
     this.safeUpdate({
       targetAudience: command.targetAudience,
       goal: command.goal,
@@ -70,8 +70,7 @@ export class ModuleAr extends Aggregate<ModuleArMeta> {
 
   /** Публикация всего модуля. */
   publish(): void {
-    this._state.status = Status.PUBLISHED;
-    this.safeUpdate({});
+    this.safeUpdate({ status: Status.PUBLISHED });
   }
 
   /**

@@ -22,7 +22,7 @@ export class StepAr extends Aggregate<StepArMeta> {
   static create(command: CreateStepCmd): StepAr {
     const base = {
       uuid: crypto.randomUUID(),
-      courseId: command.courseId,
+      moduleId: command.moduleId,
       description: command.description,
       content: command.content,
       status: Status.DRAFT,
@@ -60,11 +60,11 @@ export class StepAr extends Aggregate<StepArMeta> {
    * Возвращает шаг, если он доступен для чтения данному актору.
    * null — если шаг недоступен.
    */
-  getVisibleFor(actor: User | undefined, course: Module): Step | null {
+  getVisibleFor(actor: User | undefined, module: Module): Step | null {
     if (!actor) {
       return this.state.status === Status.PUBLISHED ? this.state : null;
     }
-    if (ModulePolicy.isAdminOrAuthor(actor, course)) return this.state;
+    if (ModulePolicy.isAdminOrAuthor(actor, module)) return this.state;
     return this.state.status === Status.PUBLISHED ? this.state : null;
   }
 }

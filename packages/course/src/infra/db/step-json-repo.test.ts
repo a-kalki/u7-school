@@ -14,7 +14,7 @@ function filePath(): string {
 function makeStep(overrides: Partial<Step> = {}): Step {
   return {
     uuid: crypto.randomUUID(),
-    courseId: crypto.randomUUID(),
+    moduleId: crypto.randomUUID(),
     description: 'Тестовый шаг',
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',

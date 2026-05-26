@@ -35,7 +35,7 @@ describe('ModuleAr.getVisibleFor', () => {
     test('автор видит модуль целиком', () => {
       const ar = ModuleAr.create('Модуль', 'Описание', authorId);
       ar.addProject({
-        courseId: 'x',
+        moduleId: 'x',
         title: 'П1',
         goal: undefined,
         result: undefined,
@@ -59,7 +59,7 @@ describe('ModuleAr.getVisibleFor', () => {
     test('студент видит PUBLISHED проекты, DRAFT — нет', () => {
       const ar = ModuleAr.create('Модуль', 'Описание', authorId);
       ar.addProject({
-        courseId: 'x',
+        moduleId: 'x',
         title: 'П1',
         goal: undefined,
         result: undefined,
@@ -77,7 +77,7 @@ describe('ModuleAr.getVisibleFor', () => {
     test('студент не видит DRAFT проект в PUBLISHED модуле', () => {
       const ar = ModuleAr.create('Модуль', 'Описание', authorId);
       ar.addProject({
-        courseId: 'x',
+        moduleId: 'x',
         title: 'DRAFT проект',
         goal: undefined,
         result: undefined,

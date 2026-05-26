@@ -1,5 +1,5 @@
 import { errNotFound } from '@u7-scl/core/domain';
-import { CoursePolicy } from '#domain/module/policy';
+import { ModulePolicy } from '#domain/module/policy';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { LessonNotFoundUcError } from '#domain/lesson/commands/errors';
@@ -16,7 +16,7 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case создания шага.
- * Требует прав ADMIN/MENTOR + проверка авторства курса через CoursePolicy.
+ * Требует прав ADMIN/MENTOR + проверка авторства курса через ModulePolicy.
  */
 export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
   protected readonly ucName = 'create-step' as const;
@@ -37,8 +37,8 @@ export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
       this.throwAccessDenied('Недостаточно прав для создания шага');
     }
 
-    const course = await this.getCourse(command.courseId);
-    if (!CoursePolicy.canEdit(actor, course)) {
+    const course = await this.getModule(command.moduleId);
+    if (!ModulePolicy.canEdit(actor, course)) {
       this.throwAccessDenied('Вы не являетесь автором курса');
     }
 

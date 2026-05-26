@@ -18,14 +18,12 @@ function makeUser(r: Role[] = [Role.ADMIN]): User {
   };
 }
 
-function makeCourse(
-  authorId: string,
-   | 'projects' = 'projects',
-): Module {
-  const base = {
+
+function makeModule(authorId: string): Module {
+  return {
     uuid: crypto.randomUUID(),
-    title: 'К',
-    description: 'О',
+    title: "К",
+    description: "О",
     authorId,
     targetAudience: undefined,
     goal: undefined,
@@ -34,24 +32,9 @@ function makeCourse(
     additional: undefined,
     tags: [],
     status: Status.DRAFT,
-    createdAt: '2026-05-01T12:00',
-  };
-
-  if (kind === 'projects') {
-    return {
-      ...base,
-      ,
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'П',
-          status: Status.DRAFT,
-          lessonIds: [],
-        },
-      ],
-    } as Course;
-  }
-  return { ...base, projects: [] } as unknown as Course;
+    createdAt: "2026-05-01T12:00",
+    projects: [],
+  } as Module;
 }
 
 function setupUc() {
@@ -95,7 +78,7 @@ describe('CreateLessonUc', () => {
       const { courseGetByUuid, courseSave, lessonSave, getUserByUuid, uc } =
         setupUc();
       const mentor = makeUser([Role.MENTOR]);
-      const course = makeCourse(mentor.uuid, 'projects');
+      const course = makeModule(mentor.uuid, 'projects');
       getUserByUuid.mockResolvedValueOnce(mentor);
       courseGetByUuid.mockResolvedValueOnce(course);
 
@@ -104,7 +87,7 @@ describe('CreateLessonUc', () => {
 
       const result = await uc.handle(
         {
-          courseId: course.uuid,
+          moduleId: course.uuid,
           projectId,
           title: 'Урок 1',
         },
@@ -125,7 +108,7 @@ describe('CreateLessonUc', () => {
       await expect(
         uc.handle(
           {
-            courseId: crypto.randomUUID(),
+            moduleId: crypto.randomUUID(),
             projectId: crypto.randomUUID(),
             title: 'У',
           },
@@ -137,14 +120,14 @@ describe('CreateLessonUc', () => {
     test('отклоняет MENTOR не автора курса', async () => {
       const { courseGetByUuid, getUserByUuid, uc } = setupUc();
       const mentor = makeUser([Role.MENTOR]);
-      const course = makeCourse(crypto.randomUUID(), 'projects');
+      const course = makeModule(crypto.randomUUID(), 'projects');
       getUserByUuid.mockResolvedValueOnce(mentor);
       courseGetByUuid.mockResolvedValueOnce(course);
 
       await expect(
         uc.handle(
           {
-            courseId: course.uuid,
+            moduleId: course.uuid,
             projectId:
               (course as { projects?: { uuid: string }[] }).projects?.[0]
                 ?.uuid ?? '',
@@ -162,7 +145,7 @@ describe('CreateLessonUc', () => {
       await expect(
         uc.handle(
           {
-            courseId: crypto.randomUUID(),
+            moduleId: crypto.randomUUID(),
             projectId: crypto.randomUUID(),
             title: 'У',
           },

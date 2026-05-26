@@ -7,7 +7,7 @@ import type { Step } from '#domain/step/entity';
 import type { StepRepo } from '#domain/step/repo';
 import { GetStepUc } from './get-step-uc';
 
-function makeCourse(overrides: Partial<Course> = {}): Module {
+function makeModule(overrides: Partial<Module> = {}): Module {
   return {
     uuid: crypto.randomUUID(),
     title: 'Курс',
@@ -17,7 +17,7 @@ function makeCourse(overrides: Partial<Course> = {}): Module {
     createdAt: '2026-05-01T12:00',
     projects: [],
     ...overrides,
-  } as Course;
+  } as Module;
 }
 
 function makeUser(overrides: Partial<User> = {}): User {
@@ -31,7 +31,7 @@ function makeUser(overrides: Partial<User> = {}): User {
   };
 }
 
-function makeStep(courseId: string): Step {
+function makeStep(moduleId: string): Step {
   return {
     uuid: crypto.randomUUID(),
     courseId,
@@ -80,7 +80,7 @@ describe('GetStepUc', () => {
       const courseId = crypto.randomUUID();
       const step = makeStep(courseId);
       getByUuid.mockResolvedValueOnce(step);
-      courseGetByUuid.mockResolvedValueOnce(makeCourse({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
       const result = await uc.handle({ uuid: step.uuid });
       expect((result as Step).description).toBe('Шаг');
     });
@@ -89,7 +89,7 @@ describe('GetStepUc', () => {
       const { getByUuid, courseGetByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
       const courseId = crypto.randomUUID();
-      const course = makeCourse({
+      const course = makeModule({
         uuid: courseId,
         authorId: author.uuid,
         status: Status.DRAFT,
@@ -120,7 +120,7 @@ describe('GetStepUc', () => {
       const step = makeStep(courseId);
       step.status = Status.DRAFT;
       getByUuid.mockResolvedValueOnce(step);
-      courseGetByUuid.mockResolvedValueOnce(makeCourse({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
       await expect(uc.handle({ uuid: step.uuid })).rejects.toThrow(
         'Нет доступа к шагу',
       );

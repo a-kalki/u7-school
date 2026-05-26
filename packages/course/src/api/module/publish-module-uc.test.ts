@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/module/entity';
+import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
 import { Status } from '#domain/status';
 import { PublishModuleUc } from './publish-module-uc';
@@ -17,7 +17,7 @@ function makeUser(overrides: Partial<User> = {}): User {
   };
 }
 
-function makeCourse(authorId: string): Course {
+function makeModule(authorId: string): Module {
   return {
     uuid: crypto.randomUUID(),
     title: 'Курс',
@@ -32,11 +32,11 @@ function makeCourse(authorId: string): Course {
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',
     projects: [],
-  } as Course;
+  } as Module;
 }
 
 function setupUc() {
-  const save = mock(async (_course: Course): Promise<void> => {});
+  const save = mock(async (_module: Module): Promise<void> => {});
   const getByUuid = mock(
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
@@ -66,39 +66,39 @@ describe('PublishModuleUc', () => {
     test('автор публикует свой курс', async () => {
       const { getByUuid, getUserByUuid, save, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
-      const course = makeCourse(author.uuid);
+      const course = makeModule(author.uuid);
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(author);
 
-      const result = await uc.handle({ courseId: course.uuid }, author.uuid);
+      const result = await uc.handle({ moduleId: course.uuid }, author.uuid);
 
-      expect((result as Course).status).toBe(Status.PUBLISHED);
+      expect((result as Module).status).toBe(Status.PUBLISHED);
       expect(save).toHaveBeenCalledTimes(1);
     });
 
     test('ADMIN публикует чужой курс', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
       const admin = makeUser();
-      const course = makeCourse(crypto.randomUUID());
+      const course = makeModule(crypto.randomUUID());
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(admin);
 
-      const result = await uc.handle({ courseId: course.uuid }, admin.uuid);
+      const result = await uc.handle({ moduleId: course.uuid }, admin.uuid);
 
-      expect((result as Course).status).toBe(Status.PUBLISHED);
+      expect((result as Module).status).toBe(Status.PUBLISHED);
     });
   });
 
   describe('FAIL', () => {
     test('отклоняет публикацию не-автором без прав ADMIN', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
-      const course = makeCourse('author-id');
+      const course = makeModule('author-id');
       const other = makeUser({ roles: [Role.STUDENT] });
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(other);
 
       await expect(
-        uc.handle({ courseId: course.uuid }, other.uuid),
+        uc.handle({ moduleId: course.uuid }, other.uuid),
       ).rejects.toThrow('Недостаточно прав');
     });
 
@@ -110,7 +110,7 @@ describe('PublishModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       await expect(
-        uc.handle({ courseId: missingId }, admin.uuid),
+        uc.handle({ moduleId: missingId }, admin.uuid),
       ).rejects.toThrow('Курс не найден');
     });
   });

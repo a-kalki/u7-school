@@ -9,9 +9,10 @@ describe('StepAr', () => {
   describe('create', () => {
     test('создаёт text-шаг', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Описание',
       });
       expect(ar.state.kind).toBe('text');
@@ -20,9 +21,10 @@ describe('StepAr', () => {
 
     test('создаёт code-шаг', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'code',
         content: 'Код',
         code: 'console.log(1)',
       });
@@ -33,9 +35,10 @@ describe('StepAr', () => {
 
     test('создаёт code-шаг без language', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'code',
         content: 'Код',
         code: 'x',
       });
@@ -44,9 +47,10 @@ describe('StepAr', () => {
 
     test('создаёт file-шаг', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'file',
         content: 'Файл',
         fileName: 'doc.pdf',
         fileMimeType: 'application/pdf',
@@ -63,9 +67,10 @@ describe('StepAr', () => {
 
     test('не создаёт updatedAt при создании', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Описание',
       });
       expect(ar.state.updatedAt).toBeUndefined();
@@ -74,14 +79,15 @@ describe('StepAr', () => {
 
   describe('getVisibleFor', () => {
     const authorId = crypto.randomUUID();
-    const course: Module = {
+    const module: Module = {
       uuid: crypto.randomUUID(),
+      kind: 'modules' as const,
       title: 'Курс',
       description: 'Описание',
       authorId,
       status: Status.DRAFT,
       createdAt: '2026-05-01T12:00',
-      projects: [],
+      modules: [],
     };
 
     function makeActor(roles: Role[], uuid = 'other'): User {
@@ -96,9 +102,10 @@ describe('StepAr', () => {
 
     test('без актора — DRAFT → null', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Ш',
       });
       expect(ar.getVisibleFor(undefined, course)).toBeNull();
@@ -106,9 +113,10 @@ describe('StepAr', () => {
 
     test('без актора — PUBLISHED → шаг', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Ш',
       });
       const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });
@@ -117,9 +125,10 @@ describe('StepAr', () => {
 
     test('автор видит DRAFT', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Ш',
       });
       expect(
@@ -129,9 +138,10 @@ describe('StepAr', () => {
 
     test('ADMIN видит DRAFT', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Ш',
       });
       expect(ar.getVisibleFor(makeActor([Role.ADMIN]), course)).not.toBeNull();
@@ -139,9 +149,10 @@ describe('StepAr', () => {
 
     test('студент не видит DRAFT', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Ш',
       });
       expect(ar.getVisibleFor(makeActor([Role.STUDENT]), course)).toBeNull();
@@ -149,9 +160,10 @@ describe('StepAr', () => {
 
     test('студент видит PUBLISHED', () => {
       const ar = StepAr.create({
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
+        kind: 'text',
         content: 'Ш',
       });
       const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });

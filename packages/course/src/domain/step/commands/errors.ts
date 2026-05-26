@@ -1,8 +1,8 @@
 import type { AccessDeniedError, NotFoundError } from '@u7-scl/core/domain';
 import type {
-  CourseAccessDeniedUcError,
-  CourseNotFoundUcError,
-} from '../../course/commands/errors';
+  ModuleAccessDeniedUcError,
+  ModuleNotFoundUcError,
+} from '../../module/commands/errors';
 
 /** Шаг не найден */
 export type StepNotFoundUcError = NotFoundError<
@@ -20,5 +20,5 @@ export type StepAccessDeniedUcError = AccessDeniedError<
 export type StepModuleError =
   | StepNotFoundUcError
   | StepAccessDeniedUcError
-  | CourseNotFoundUcError
-  | CourseAccessDeniedUcError;
+  | ModuleNotFoundUcError
+  | ModuleAccessDeniedUcError;

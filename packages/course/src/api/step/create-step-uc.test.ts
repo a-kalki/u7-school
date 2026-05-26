@@ -19,7 +19,7 @@ function makeUser(r: Role[] = [Role.ADMIN]): User {
   };
 }
 
-function makeCourse(authorId: string): Module {
+function makeModule(authorId: string): Module {
   return {
     uuid: crypto.randomUUID(),
     title: 'К',
@@ -28,7 +28,7 @@ function makeCourse(authorId: string): Module {
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',
     projects: [],
-  } as Course;
+  } as Module;
 }
 
 function setupUc() {
@@ -54,7 +54,7 @@ function setupUc() {
     async () =>
       ({
         uuid: crypto.randomUUID(),
-        courseId: crypto.randomUUID(),
+        moduleId: crypto.randomUUID(),
         title: 'Урок',
         status: Status.DRAFT,
         createdAt: '2026-05-01T12:00',
@@ -87,13 +87,13 @@ describe('CreateStepUc', () => {
     test('ADMIN создаёт текстовый шаг в своём курсе', async () => {
       const { courseGetByUuid, stepSave, getUserByUuid, uc } = setupUc();
       const admin = makeUser();
-      const course = makeCourse(admin.uuid);
+      const course = makeModule(admin.uuid);
       getUserByUuid.mockResolvedValueOnce(admin);
       courseGetByUuid.mockResolvedValueOnce(course);
 
       const result = await uc.handle(
         {
-          courseId: course.uuid,
+          moduleId: course.uuid,
           lessonId: crypto.randomUUID(),
           description: 'Описание',
           content: 'Шаг 1',
@@ -114,7 +114,7 @@ describe('CreateStepUc', () => {
       await expect(
         uc.handle(
           {
-            courseId: crypto.randomUUID(),
+            moduleId: crypto.randomUUID(),
             lessonId: crypto.randomUUID(),
             description: 'Описание',
             content: 'Ш',
@@ -128,12 +128,12 @@ describe('CreateStepUc', () => {
       const { courseGetByUuid, getUserByUuid, uc } = setupUc();
       const mentor = makeUser([Role.MENTOR]);
       getUserByUuid.mockResolvedValueOnce(mentor);
-      courseGetByUuid.mockResolvedValueOnce(makeCourse(crypto.randomUUID()));
+      courseGetByUuid.mockResolvedValueOnce(makeModule(crypto.randomUUID()));
 
       await expect(
         uc.handle(
           {
-            courseId: crypto.randomUUID(),
+            moduleId: crypto.randomUUID(),
             lessonId: crypto.randomUUID(),
             description: 'Описание',
             content: 'Ш',

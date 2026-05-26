@@ -29,8 +29,8 @@ export class StepJsonRepo extends JsonFileRepo<Step> implements StepRepo {
     return all.filter((s) => ids.includes(s.uuid));
   }
 
-  async getByCourseId(courseId: string): Promise<Step[]> {
+  async getByCourseId(moduleId: string): Promise<Step[]> {
     const all = await this.readAll();
-    return all.filter((s) => s.courseId === courseId);
+    return all.filter((s) => s.moduleId === moduleId);
   }
 }

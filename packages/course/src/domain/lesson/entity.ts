@@ -4,7 +4,7 @@ import { StatusSchema } from '../status';
 /** Схема урока */
 export const LessonSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
-  courseId: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
+  moduleId: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   title: v.pipe(
     v.string(),
     v.trim(),

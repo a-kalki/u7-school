@@ -29,8 +29,8 @@ export class LessonJsonRepo extends JsonFileRepo<Lesson> implements LessonRepo {
     return all.filter((l) => ids.includes(l.uuid));
   }
 
-  async getByCourseId(courseId: string): Promise<Lesson[]> {
+  async getByCourseId(moduleId: string): Promise<Lesson[]> {
     const all = await this.readAll();
-    return all.filter((l) => l.courseId === courseId);
+    return all.filter((l) => l.moduleId === moduleId);
   }
 }

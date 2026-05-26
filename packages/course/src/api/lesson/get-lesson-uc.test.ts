@@ -7,7 +7,7 @@ import type { LessonRepo } from '#domain/lesson/repo';
 import { Status } from '#domain/status';
 import { GetLessonUc } from './get-lesson-uc';
 
-function makeCourse(overrides: Partial<Course> = {}): Module {
+function makeModule(overrides: Partial<Module> = {}): Module {
   return {
     uuid: crypto.randomUUID(),
     title: 'Курс',
@@ -17,7 +17,7 @@ function makeCourse(overrides: Partial<Course> = {}): Module {
     createdAt: '2026-05-01T12:00',
     projects: [],
     ...overrides,
-  } as Course;
+  } as Module;
 }
 
 function makeUser(overrides: Partial<User> = {}): User {
@@ -31,7 +31,7 @@ function makeUser(overrides: Partial<User> = {}): User {
   };
 }
 
-function makeLesson(courseId: string): Lesson {
+function makeLesson(moduleId: string): Lesson {
   return {
     uuid: crypto.randomUUID(),
     courseId,
@@ -83,7 +83,7 @@ describe('GetLessonUc', () => {
       const courseId = crypto.randomUUID();
       const lesson = makeLesson(courseId);
       getByUuid.mockResolvedValueOnce(lesson);
-      courseGetByUuid.mockResolvedValueOnce(makeCourse({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
       const result = await uc.handle({ uuid: lesson.uuid });
       expect((result as Lesson).title).toBe('Урок');
     });
@@ -92,7 +92,7 @@ describe('GetLessonUc', () => {
       const { getByUuid, courseGetByUuid, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
       const courseId = crypto.randomUUID();
-      const course = makeCourse({
+      const course = makeModule({
         uuid: courseId,
         authorId: author.uuid,
         status: Status.DRAFT,
@@ -123,7 +123,7 @@ describe('GetLessonUc', () => {
       const lesson = makeLesson(courseId);
       lesson.status = Status.DRAFT;
       getByUuid.mockResolvedValueOnce(lesson);
-      courseGetByUuid.mockResolvedValueOnce(makeCourse({ uuid: courseId }));
+      courseGetByUuid.mockResolvedValueOnce(makeModule({ uuid: courseId }));
       await expect(uc.handle({ uuid: lesson.uuid })).rejects.toThrow(
         'Нет доступа к уроку',
       );

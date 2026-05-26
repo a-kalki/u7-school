@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/module/entity';
+import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
 import { CreateModuleUc } from './create-module-uc';
 
@@ -17,7 +17,7 @@ function makeUser(overrides: Partial<User> = {}): User {
 }
 
 function setupUc() {
-  const save = mock(async (_course: Course): Promise<void> => {});
+  const save = mock(async (_module: Module): Promise<void> => {});
   const getByUuid = mock(
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
@@ -66,8 +66,8 @@ describe('CreateModuleUc', () => {
         mentor.uuid,
       );
 
-      expect((course as Course).title).toBe('Курс Python');
-      expect((course as Course).kind).toBe('projects');
+      expect((course as Module).title).toBe('Курс Python');
+      expect((course as Module).kind).toBe('projects');
       expect(save).toHaveBeenCalledTimes(1);
     });
   });

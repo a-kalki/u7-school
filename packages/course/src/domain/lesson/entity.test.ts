@@ -5,7 +5,7 @@ import { LessonSchema } from './entity';
 
 const validLesson = {
   uuid: '550e8400-e29b-41d4-a716-446655440000',
-  courseId: '660e8400-e29b-41d4-a716-446655440001',
+  moduleId: '660e8400-e29b-41d4-a716-446655440001',
   title: 'Введение',
   additional: 'Дополнительно',
   status: Status.DRAFT,
@@ -28,7 +28,7 @@ describe('LessonSchema', () => {
   test('принимает минимальный урок без опциональных полей', () => {
     const minimal = {
       uuid: validLesson.uuid,
-      courseId: validLesson.courseId,
+      moduleId: validLesson.courseId,
       title: 'Минимум',
       status: Status.DRAFT,
       createdAt: validLesson.createdAt,

@@ -86,7 +86,7 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
    * Бросает ACCESS_DENIED если урок не виден актору.
    */
   protected async getOutLesson(lesson: Lesson, actor?: User): Promise<Lesson> {
-    const module = await this.getModule(lesson.courseId);
+    const module = await this.getModule(lesson.moduleId);
     const ar = new LessonAr(lesson);
     const result = ar.getVisibleFor(actor, module);
     if (!result) {
@@ -108,7 +108,7 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
    * Бросает ACCESS_DENIED если шаг не виден актору.
    */
   protected async getOutStep(step: Step, actor?: User): Promise<Step> {
-    const module = await this.getModule(step.courseId);
+    const module = await this.getModule(step.moduleId);
     const ar = new StepAr(step);
     const result = ar.getVisibleFor(actor, module);
     if (!result) {

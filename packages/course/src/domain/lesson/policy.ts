@@ -15,15 +15,15 @@ export const LessonPolicy = {
   },
 
   /** Читать: ADMIN/автор курса → всё; иначе PUBLISHED. */
-  canRead(actor: User, target: Lesson, course: Module): boolean {
+  canRead(actor: User, target: Lesson, module: Module): boolean {
     return (
-      ModulePolicy.isAdminOrAuthor(actor, course) ||
+      ModulePolicy.isAdminOrAuthor(actor, module) ||
       target.status === Status.PUBLISHED
     );
   },
 
   /** Редактировать: только ADMIN или автор курса. */
-  canEdit(actor: User, _target: Lesson, course: Module): boolean {
-    return ModulePolicy.isAdminOrAuthor(actor, course);
+  canEdit(actor: User, _target: Lesson, module: Module): boolean {
+    return ModulePolicy.isAdminOrAuthor(actor, module);
   },
 };

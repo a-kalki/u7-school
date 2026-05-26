@@ -1,15 +1,15 @@
 import * as v from 'valibot';
 import type {
-  CourseAccessDeniedUcError,
-  CourseNotFoundUcError,
-} from '../../course/commands/errors';
+  ModuleAccessDeniedUcError,
+  ModuleNotFoundUcError,
+} from '../../module/commands/errors';
 import type { Lesson, LessonArMeta } from '../entity';
 import { LessonSchema } from '../entity';
 import type { LessonAccessDeniedUcError } from './errors';
 
 /** Схема валидации команды создания урока */
 export const CreateLessonCmdSchema = v.object({
-  courseId: LessonSchema.entries.courseId,
+  moduleId: LessonSchema.entries.moduleId,
   projectId: v.pipe(v.string(), v.uuid('Некорректный формат UUID проекта')),
   title: LessonSchema.entries.title,
   additional: LessonSchema.entries.additional,
@@ -33,5 +33,5 @@ export interface CreateLessonCmdMeta {
 /** Ошибки команды создания урока */
 export type CreateLessonCmdError =
   | LessonAccessDeniedUcError
-  | CourseAccessDeniedUcError
-  | CourseNotFoundUcError;
+  | ModuleAccessDeniedUcError
+  | ModuleNotFoundUcError;

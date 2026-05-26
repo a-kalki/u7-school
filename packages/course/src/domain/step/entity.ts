@@ -5,7 +5,7 @@ import { StatusSchema } from '../status';
 /** Общие поля для всех вариантов шага */
 export const StepCommonSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
-  courseId: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
+  moduleId: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   description: v.pipe(
     v.string(),
     v.trim(),

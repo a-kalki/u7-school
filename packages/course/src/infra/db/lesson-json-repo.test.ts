@@ -14,7 +14,7 @@ function filePath(): string {
 function makeLesson(overrides: Partial<Lesson> = {}): Lesson {
   return {
     uuid: crypto.randomUUID(),
-    courseId: crypto.randomUUID(),
+    moduleId: crypto.randomUUID(),
     title: 'Тестовый урок',
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',

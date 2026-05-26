@@ -6,7 +6,7 @@ import { Status } from '../status';
 import { LessonAr } from './a-root';
 
 const cmd = {
-  courseId: crypto.randomUUID(),
+  moduleId: crypto.randomUUID(),
   projectId: crypto.randomUUID(),
   title: 'Урок 1',
   additional: undefined,
@@ -41,7 +41,7 @@ describe('LessonAr', () => {
 
   describe('getVisibleFor', () => {
     const authorId = crypto.randomUUID();
-    const course: Module = {
+    const module: Module = {
       uuid: crypto.randomUUID(),
       title: 'Курс',
       description: 'Описание',

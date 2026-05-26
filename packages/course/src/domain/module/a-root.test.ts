@@ -5,7 +5,7 @@ import { ModuleAr } from './a-root';
 const authorId = crypto.randomUUID();
 
 const enrichCmd = {
-  courseId: 'unused',
+  moduleId: 'unused',
   targetAudience: 'Новички',
   goal: 'Научиться',
   result: 'Уметь',
@@ -15,7 +15,7 @@ const enrichCmd = {
 };
 
 const projectCmd = {
-  courseId: 'unused',
+  moduleId: 'unused',
   title: 'Проект 1',
   goal: undefined,
   result: undefined,

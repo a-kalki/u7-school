@@ -1,5 +1,5 @@
-import { CourseAr } from '#domain/module/a-root';
-import { CoursePolicy } from '#domain/module/policy';
+import { ModuleAr } from '#domain/module/a-root';
+import { ModulePolicy } from '#domain/module/policy';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import {
@@ -14,7 +14,7 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case создания урока.
- * Требует прав ADMIN/MENTOR + проверка авторства курса через CoursePolicy.
+ * Требует прав ADMIN/MENTOR + проверка авторства курса через ModulePolicy.
  * Использует CourseDs для координации Course + Lesson + транзакционное сохранение.
  */
 export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
@@ -36,14 +36,14 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
       this.throwAccessDenied('Недостаточно прав для создания урока');
     }
 
-    const courseState = await this.getCourse(command.courseId);
-    if (!CoursePolicy.canEdit(actor, courseState)) {
+    const courseState = await this.getModule(command.moduleId);
+    if (!ModulePolicy.canEdit(actor, courseState)) {
       this.throwAccessDenied('Вы не являетесь автором курса');
     }
 
-    const courseAr = new CourseAr(courseState);
+    const courseAr = new ModuleAr(courseState);
     const ds = new CourseDs();
-    const { course, lesson } = ds.createLesson(
+    const { module, lesson } = ds.createLesson(
       courseAr,
       command,
       command.projectId,
@@ -53,7 +53,7 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
     if (db) {
       db.begin();
       try {
-        await this.resolve.courseRepo.save(course.state);
+        await this.resolve.courseRepo.save(module.state);
         await this.resolve.lessonRepo.save(lesson.state);
         await db.commit();
       } catch (e) {
@@ -61,7 +61,7 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
         throw e;
       }
     } else {
-      await this.resolve.courseRepo.save(course.state);
+      await this.resolve.courseRepo.save(module.state);
       await this.resolve.lessonRepo.save(lesson.state);
     }
 
