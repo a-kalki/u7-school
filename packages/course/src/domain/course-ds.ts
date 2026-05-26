@@ -1,4 +1,4 @@
-import type { CourseAr } from './course/a-root';
+import type { ModuleAr } from './module/a-root';
 import { LessonAr } from './lesson/a-root';
 import type { CreateLessonCmd } from './lesson/commands/create-lesson-cmd';
 import { StepAr } from './step/a-root';
@@ -10,17 +10,17 @@ import type { CreateStepCmd } from './step/commands/create-step-cmd';
  */
 export class CourseDs {
   /**
-   * Создаёт урок и добавляет его в проект курса.
-   * Если проект не найден — CourseAr.addLessonToProject выбросит badRequest.
+   * Создаёт урок и добавляет его в проект модуля.
+   * Если проект не найден — ModuleAr.addLessonToProject выбросит badRequest.
    */
   createLesson(
-    course: CourseAr,
+    module: ModuleAr,
     cmd: CreateLessonCmd,
     projectId: string,
-  ): { course: CourseAr; lesson: LessonAr } {
+  ): { module: ModuleAr; lesson: LessonAr } {
     const lesson = LessonAr.create(cmd);
-    course.addLessonToProject(projectId, lesson.state.uuid);
-    return { course, lesson };
+    module.addLessonToProject(projectId, lesson.state.uuid);
+    return { module, lesson };
   }
 
   /**

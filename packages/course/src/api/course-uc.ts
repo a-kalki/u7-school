@@ -1,12 +1,12 @@
 import { type UcMeta, UseCase } from '@u7-scl/core/api';
 import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
 import type { User } from '@u7-scl/user/domain';
-import { CourseAr } from '#domain/course/a-root';
+import { ModuleAr } from '#domain/module/a-root';
 import type {
-  CourseAccessDeniedUcError,
-  CourseNotFoundUcError,
-} from '#domain/course/commands/errors';
-import type { Course } from '#domain/course/entity';
+  ModuleAccessDeniedUcError,
+  ModuleNotFoundUcError,
+} from '#domain/module/commands/errors';
+import type { Module } from '#domain/module/entity';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { Lesson } from '#domain/lesson/entity';
 import type { CourseApiModuleResolver } from '#domain/module';
@@ -20,26 +20,26 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
   TMeta,
   CourseApiModuleResolver
 > {
-  protected async getCourse(courseId: string): Promise<Course> {
-    const course = await this.resolve.courseRepo.getByUuid(courseId);
-    if (!course) {
+  protected async getModule(moduleId: string): Promise<Module> {
+    const module = await this.resolve.courseRepo.getByUuid(moduleId);
+    if (!module) {
       this.throwError(
-        errNotFound<CourseNotFoundUcError>(
-          'COURSE_NOT_FOUND',
-          'Курс не найден',
-          { uuid: courseId },
+        errNotFound<ModuleNotFoundUcError>(
+          'MODULE_NOT_FOUND',
+          'Модуль не найден',
+          { uuid: moduleId },
         ),
       );
     }
-    return course;
+    return module;
   }
 
   protected async getActor(actorId: string): Promise<User> {
     const actor = await this.getUser(actorId, actorId);
     if (!actor) {
       this.throwError(
-        errAccessDenied<CourseAccessDeniedUcError>(
-          'COURSE_ACCESS_DENIED',
+        errAccessDenied<ModuleAccessDeniedUcError>(
+          'MODULE_ACCESS_DENIED',
           'Пользователь не найден',
           undefined,
         ),
@@ -52,8 +52,8 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
     message = 'Недостаточно прав для выполнения действия',
   ): never {
     this.throwError(
-      errAccessDenied<CourseAccessDeniedUcError>(
-        'COURSE_ACCESS_DENIED',
+      errAccessDenied<ModuleAccessDeniedUcError>(
+        'MODULE_ACCESS_DENIED',
         message,
         undefined,
       ),
@@ -63,17 +63,17 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
   // ──────────────── Выходные хелперы ────────────────
 
   /**
-   * Возвращает курс в читаемом виде через CourseAr.getVisibleFor.
-   * Бросает ACCESS_DENIED если курс не виден актору.
+   * Возвращает модуль в читаемом виде через ModuleAr.getVisibleFor.
+   * Бросает ACCESS_DENIED если модуль не виден актору.
    */
-  protected getOutCourse(course: Course, actor?: User): Course {
-    const ar = new CourseAr(course);
+  protected getOutModule(module: Module, actor?: User): Module {
+    const ar = new ModuleAr(module);
     const result = ar.getVisibleFor(actor);
     if (!result) {
       this.throwError(
-        errAccessDenied<CourseAccessDeniedUcError>(
-          'COURSE_ACCESS_DENIED',
-          'Нет доступа к курсу',
+        errAccessDenied<ModuleAccessDeniedUcError>(
+          'MODULE_ACCESS_DENIED',
+          'Нет доступа к модулю',
           undefined,
         ),
       );
@@ -86,9 +86,9 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
    * Бросает ACCESS_DENIED если урок не виден актору.
    */
   protected async getOutLesson(lesson: Lesson, actor?: User): Promise<Lesson> {
-    const course = await this.getCourse(lesson.courseId);
+    const module = await this.getModule(lesson.courseId);
     const ar = new LessonAr(lesson);
-    const result = ar.getVisibleFor(actor, course);
+    const result = ar.getVisibleFor(actor, module);
     if (!result) {
       this.throwError(
         errAccessDenied(
@@ -108,9 +108,9 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
    * Бросает ACCESS_DENIED если шаг не виден актору.
    */
   protected async getOutStep(step: Step, actor?: User): Promise<Step> {
-    const course = await this.getCourse(step.courseId);
+    const module = await this.getModule(step.courseId);
     const ar = new StepAr(step);
-    const result = ar.getVisibleFor(actor, course);
+    const result = ar.getVisibleFor(actor, module);
     if (!result) {
       this.throwError(
         errAccessDenied('STEP_ACCESS_DENIED' as never, 'Нет доступа к шагу', {

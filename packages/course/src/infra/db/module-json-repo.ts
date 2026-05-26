@@ -1,54 +1,51 @@
 import { JsonFileRepo } from '@u7-scl/core/infra';
-import type { Course } from '#domain/course/entity';
-import { CourseSchema } from '#domain/course/entity';
-import type { CourseListFilter, CourseRepo } from '#domain/course/repo';
+import type { Module } from '#domain/module/entity';
+import { ModuleSchema } from '#domain/module/entity';
+import type { ModuleListFilter, ModuleRepo } from '#domain/module/repo';
 
 /**
- * JSON-файловая реализация репозитория курсов.
+ * JSON-файловая реализация репозитория модулей.
  * Хранит данные в JSON-файле через {@link JsonFileRepo}.
  */
-export class CourseJsonRepo implements CourseRepo {
-  readonly #repo: JsonFileRepo<Course>;
+export class ModuleJsonRepo implements ModuleRepo {
+  readonly #repo: JsonFileRepo<Module>;
 
-  constructor(filePath = 'data/courses/courses.json') {
-    this.#repo = new JsonFileRepo(CourseSchema, filePath);
+  constructor(filePath = 'data/courses/modules.json') {
+    this.#repo = new JsonFileRepo(ModuleSchema, filePath);
   }
 
-  async save(course: Course): Promise<void> {
+  async save(module: Module): Promise<void> {
     const all = await this.#repo.readAll();
-    const idx = all.findIndex((c) => c.uuid === course.uuid);
+    const idx = all.findIndex((c) => c.uuid === module.uuid);
     if (idx !== -1) {
-      all[idx] = course;
+      all[idx] = module;
     } else {
-      all.push(course);
+      all.push(module);
     }
     await this.#repo.writeAll(all);
   }
 
-  async getByUuid(uuid: string): Promise<Course | undefined> {
+  async getByUuid(uuid: string): Promise<Module | undefined> {
     const all = await this.#repo.readAll();
     return all.find((c) => c.uuid === uuid);
   }
 
-  async getAll(filter?: CourseListFilter): Promise<Course[]> {
-    let courses = await this.#repo.readAll();
+  async getAll(filter?: ModuleListFilter): Promise<Module[]> {
+    let modules = await this.#repo.readAll();
 
     if (filter) {
       if (filter.status) {
-        courses = courses.filter((c) => c.status === filter.status);
+        modules = modules.filter((c) => c.status === filter.status);
       }
       if (filter.authorId) {
-        courses = courses.filter((c) => c.authorId === filter.authorId);
+        modules = modules.filter((c) => c.authorId === filter.authorId);
       }
       if (filter.title) {
         const lower = filter.title.toLowerCase();
-        courses = courses.filter((c) => c.title.toLowerCase().includes(lower));
-      }
-      if (filter.kind) {
-        courses = courses.filter((c) => c.kind === filter.kind);
+        modules = modules.filter((c) => c.title.toLowerCase().includes(lower));
       }
       if (filter.tags && filter.tags.length > 0) {
-        courses = courses.filter((c) =>
+        modules = modules.filter((c) =>
           c.tags?.some((t) => filter.tags?.includes(t)),
         );
       }
@@ -58,21 +55,19 @@ export class CourseJsonRepo implements CourseRepo {
           'asc' | 'desc',
         ];
         const m = dir === 'asc' ? 1 : -1;
-        courses.sort((a, b) => {
+        modules.sort((a, b) => {
           const va = a[field];
           const vb = b[field];
-          // biome-ignore lint/style/noNonNullAssertion: guaranteed by split
           if (va! < vb!) return -1 * m;
-          // biome-ignore lint/style/noNonNullAssertion: guaranteed by split
           if (va! > vb!) return 1 * m;
           return 0;
         });
       }
       if (filter.limit !== undefined) {
-        courses = courses.slice(0, filter.limit);
+        modules = modules.slice(0, filter.limit);
       }
     }
 
-    return courses;
+    return modules;
   }
 }

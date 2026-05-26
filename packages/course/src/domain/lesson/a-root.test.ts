@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '../course/entity';
+import type { Module } from '../module/entity';
 import { Status } from '../status';
 import { LessonAr } from './a-root';
 
@@ -41,15 +41,14 @@ describe('LessonAr', () => {
 
   describe('getVisibleFor', () => {
     const authorId = crypto.randomUUID();
-    const course: Course = {
+    const course: Module = {
       uuid: crypto.randomUUID(),
-      kind: 'modules' as const,
       title: 'Курс',
       description: 'Описание',
       authorId,
       status: Status.DRAFT,
       createdAt: '2026-05-01T12:00',
-      modules: [],
+      projects: [],
     };
 
     function makeActor(roles: Role[], uuid = 'other'): User {

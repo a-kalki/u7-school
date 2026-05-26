@@ -23,7 +23,7 @@
 
 ## Фаза 1: Упрощение схемы entity (без kind)
 
-- [ ] Task: Написать тесты для новой ModuleSchema
+- [~] Task: Написать тесты для новой ModuleSchema
     - [ ] Тест: ModuleSchema валидирует объект с полями Common + projects
     - [ ] Тест: ModuleSchema НЕ содержит поле kind
     - [ ] Тест: ModuleSchema отклоняет объект без projects

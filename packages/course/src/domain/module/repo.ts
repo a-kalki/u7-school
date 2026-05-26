@@ -1,20 +1,19 @@
 import type { Status } from '../status';
-import type { Course } from './entity';
+import type { Module } from './entity';
 
-/** Параметры фильтрации и сортировки списка курсов */
-export interface CourseListFilter {
+/** Параметры фильтрации и сортировки списка модулей */
+export interface ModuleListFilter {
   status?: Status;
   authorId?: string;
   title?: string;
-  kind?: 'modules' | 'projects';
   tags?: string[];
   sort?: string;
   limit?: number;
 }
 
-/** Интерфейс репозитория курсов */
-export interface CourseRepo {
-  save(course: Course): Promise<void>;
-  getByUuid(uuid: string): Promise<Course | undefined>;
-  getAll(filter?: CourseListFilter): Promise<Course[]>;
+/** Интерфейс репозитория модулей */
+export interface ModuleRepo {
+  save(module: Module): Promise<void>;
+  getByUuid(uuid: string): Promise<Module | undefined>;
+  getAll(filter?: ModuleListFilter): Promise<Module[]>;
 }

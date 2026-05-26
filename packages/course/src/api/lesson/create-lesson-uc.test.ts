@@ -1,8 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
-import type { CourseRepo } from '#domain/course/repo';
+import type { Module } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
 import type { Lesson } from '#domain/lesson/entity';
 import type { LessonRepo } from '#domain/lesson/repo';
 import { Status } from '#domain/status';
@@ -20,8 +20,8 @@ function makeUser(r: Role[] = [Role.ADMIN]): User {
 
 function makeCourse(
   authorId: string,
-  kind: 'modules' | 'projects' = 'projects',
-): Course {
+   | 'projects' = 'projects',
+): Module {
   const base = {
     uuid: crypto.randomUUID(),
     title: 'К',
@@ -40,7 +40,7 @@ function makeCourse(
   if (kind === 'projects') {
     return {
       ...base,
-      kind: 'projects',
+      ,
       projects: [
         {
           uuid: crypto.randomUUID(),
@@ -51,7 +51,7 @@ function makeCourse(
       ],
     } as Course;
   }
-  return { ...base, kind: 'modules', modules: [] } as unknown as Course;
+  return { ...base, projects: [] } as unknown as Course;
 }
 
 function setupUc() {
@@ -59,7 +59,7 @@ function setupUc() {
   const courseGetByUuid = mock(
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
-  const courseRepo: CourseRepo = {
+  const courseRepo: ModuleRepo = {
     save: courseSave,
     getByUuid: courseGetByUuid,
     getAll: mock(async () => []),

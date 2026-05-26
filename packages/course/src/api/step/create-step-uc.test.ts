@@ -1,8 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
-import type { CourseRepo } from '#domain/course/repo';
+import type { Module } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
 import type { Lesson, LessonRepo } from '#domain/index';
 import { Status } from '#domain/status';
 import type { Step } from '#domain/step/entity';
@@ -19,16 +19,15 @@ function makeUser(r: Role[] = [Role.ADMIN]): User {
   };
 }
 
-function makeCourse(authorId: string): Course {
+function makeCourse(authorId: string): Module {
   return {
     uuid: crypto.randomUUID(),
-    kind: 'modules' as const,
     title: 'К',
     description: 'О',
     authorId,
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',
-    modules: [],
+    projects: [],
   } as Course;
 }
 
@@ -36,7 +35,7 @@ function setupUc() {
   const courseGetByUuid = mock(
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
-  const courseRepo: CourseRepo = {
+  const courseRepo: ModuleRepo = {
     save: mock(async () => {}),
     getByUuid: courseGetByUuid,
     getAll: mock(async () => []),
@@ -97,7 +96,6 @@ describe('CreateStepUc', () => {
           courseId: course.uuid,
           lessonId: crypto.randomUUID(),
           description: 'Описание',
-          kind: 'text',
           content: 'Шаг 1',
         },
         admin.uuid,
@@ -119,7 +117,6 @@ describe('CreateStepUc', () => {
             courseId: crypto.randomUUID(),
             lessonId: crypto.randomUUID(),
             description: 'Описание',
-            kind: 'text',
             content: 'Ш',
           },
           'actor-id',
@@ -139,7 +136,6 @@ describe('CreateStepUc', () => {
             courseId: crypto.randomUUID(),
             lessonId: crypto.randomUUID(),
             description: 'Описание',
-            kind: 'text',
             content: 'Ш',
           },
           mentor.uuid,

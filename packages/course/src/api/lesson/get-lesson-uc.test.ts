@@ -1,22 +1,21 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
+import type { Module } from '#domain/module/entity';
 import type { Lesson } from '#domain/lesson/entity';
 import type { LessonRepo } from '#domain/lesson/repo';
 import { Status } from '#domain/status';
 import { GetLessonUc } from './get-lesson-uc';
 
-function makeCourse(overrides: Partial<Course> = {}): Course {
+function makeCourse(overrides: Partial<Course> = {}): Module {
   return {
     uuid: crypto.randomUUID(),
-    kind: 'modules' as const,
     title: 'Курс',
     description: 'Описание',
     authorId: crypto.randomUUID(),
     status: Status.PUBLISHED,
     createdAt: '2026-05-01T12:00',
-    modules: [],
+    projects: [],
     ...overrides,
   } as Course;
 }

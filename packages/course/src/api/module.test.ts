@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { Status } from '#domain/status';
-import { CourseJsonRepo } from '#infra/db/course-json-repo';
+import { ModuleJsonRepo } from '#infra/db/module-json-repo';
 import { LessonJsonRepo } from '#infra/db/lesson-json-repo';
 import { StepJsonRepo } from '#infra/db/step-json-repo';
 import { CourseApiModule } from './module';
@@ -79,7 +79,7 @@ function nextPath(prefix: string): string {
 /** Создаёт модуль с уникальными временными JSON-репозиториями */
 function setupModule(facade: MockUserFacade) {
   const mod = new CourseApiModule({
-    courseRepo: new CourseJsonRepo(nextPath('courses')),
+    courseRepo: new ModuleJsonRepo(nextPath('courses')),
     lessonRepo: new LessonJsonRepo(nextPath('lessons')),
     stepRepo: new StepJsonRepo(nextPath('steps')),
     userFacade: facade,
@@ -91,10 +91,10 @@ function setupModule(facade: MockUserFacade) {
 async function createCourseAsMentor(
   mod: CourseApiModule,
   mentor: User,
-  kind: 'modules' | 'projects' = 'modules',
+   = 'modules',
 ): Promise<string> {
   const result = await mod.handle({
-    name: 'create-course',
+    name: 'create-module',
     attrs: { title: 'Курс', description: 'Описание', kind },
     actorId: mentor.uuid,
   });
@@ -113,7 +113,7 @@ describe('CourseApiModule', () => {
 
     const mod = setupModule(facade);
     const result = await mod.handle({
-      name: 'create-course',
+      name: 'create-module',
       attrs: { title: 'Курс JS', description: 'Описание', kind: 'modules' },
       actorId: mentor.uuid,
     });
@@ -130,7 +130,7 @@ describe('CourseApiModule', () => {
 
     await expect(
       mod.handle({
-        name: 'create-course',
+        name: 'create-module',
         attrs: { title: 'X', description: 'X', kind: 'modules' },
         actorId: admin.uuid,
       }),
@@ -148,7 +148,7 @@ describe('CourseApiModule', () => {
     const courseId = await createCourseAsMentor(mod, mentor);
 
     const result = await mod.handle({
-      name: 'enrich-course',
+      name: 'enrich-module',
       attrs: {
         courseId,
         targetAudience: 'Новички',
@@ -223,7 +223,7 @@ describe('CourseApiModule', () => {
     const courseId = await createCourseAsMentor(mod, mentor);
 
     const result = await mod.handle({
-      name: 'publish-course',
+      name: 'publish-module',
       attrs: { courseId },
       actorId: mentor.uuid,
     });
@@ -240,7 +240,7 @@ describe('CourseApiModule', () => {
     const courseId = await createCourseAsMentor(mod, mentor, 'projects');
 
     const result = await mod.handle({
-      name: 'get-course',
+      name: 'get-module',
       attrs: { uuid: courseId },
       actorId: mentor.uuid,
     });
@@ -257,7 +257,7 @@ describe('CourseApiModule', () => {
     await createCourseAsMentor(mod, mentor);
 
     const result = await mod.handle({
-      name: 'list-courses',
+      name: 'list-modules',
       attrs: {},
       actorId: mentor.uuid,
     });
@@ -318,7 +318,6 @@ describe('CourseApiModule', () => {
         courseId,
         lessonId: lesson.uuid,
         description: 'Описание',
-        kind: 'text',
         content: 'Шаг 1',
       },
       actorId: mentor.uuid,

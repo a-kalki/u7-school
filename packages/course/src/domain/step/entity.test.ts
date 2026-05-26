@@ -21,14 +21,13 @@ const validFile = {
 
 describe('StepSchema', () => {
   test('принимает text-шаг', () => {
-    const result = v.safeParse(StepSchema, { ...base, kind: 'text' });
+    const result = v.safeParse(StepSchema, { ...base: 'text' });
     expect(result.success).toBe(true);
   });
 
   test('принимает code-шаг', () => {
     const result = v.safeParse(StepSchema, {
       ...base,
-      kind: 'code',
       code: 'console.log(1)',
     });
     expect(result.success).toBe(true);
@@ -37,7 +36,6 @@ describe('StepSchema', () => {
   test('принимает code-шаг без language', () => {
     const result = v.safeParse(StepSchema, {
       ...base,
-      kind: 'code',
       code: 'x',
     });
     expect(result.success).toBe(true);
@@ -46,7 +44,6 @@ describe('StepSchema', () => {
   test('принимает file-шаг', () => {
     const result = v.safeParse(StepSchema, {
       ...base,
-      kind: 'file',
       file: validFile,
     });
     expect(result.success).toBe(true);
@@ -54,34 +51,33 @@ describe('StepSchema', () => {
 
   test('принимает file-шаг без description', () => {
     const { description: _d, ...fm } = validFile;
-    const result = v.safeParse(StepSchema, { ...base, kind: 'file', file: fm });
+    const result = v.safeParse(StepSchema, { ...base: 'file', file: fm });
     expect(result.success).toBe(true);
   });
 
   test('принимает text-шаг без опциональных content, updatedAt', () => {
-    const result = v.safeParse(StepSchema, { ...base, kind: 'text' });
+    const result = v.safeParse(StepSchema, { ...base: 'text' });
     expect(result.success).toBe(true);
   });
 
   test('отклоняет code-шаг без code', () => {
-    const result = v.safeParse(StepSchema, { ...base, kind: 'code' });
+    const result = v.safeParse(StepSchema, { ...base: 'code' });
     expect(result.success).toBe(false);
   });
 
   test('отклоняет file-шаг без file', () => {
-    const result = v.safeParse(StepSchema, { ...base, kind: 'file' });
+    const result = v.safeParse(StepSchema, { ...base: 'file' });
     expect(result.success).toBe(false);
   });
 
   test('отклоняет невалидный kind', () => {
-    const result = v.safeParse(StepSchema, { ...base, kind: 'video' });
+    const result = v.safeParse(StepSchema, { ...base: 'video' });
     expect(result.success).toBe(false);
   });
 
   test('отклоняет пустое описание', () => {
     const result = v.safeParse(StepSchema, {
       ...base,
-      kind: 'text',
       description: '',
     });
     expect(result.success).toBe(false);

@@ -1,5 +1,5 @@
-import { CourseAr } from '#domain/course/a-root';
-import { CoursePolicy } from '#domain/course/policy';
+import { CourseAr } from '#domain/module/a-root';
+import { CoursePolicy } from '#domain/module/policy';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import {

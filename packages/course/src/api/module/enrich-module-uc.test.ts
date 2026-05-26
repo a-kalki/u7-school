@@ -1,10 +1,10 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
-import type { CourseRepo } from '#domain/course/repo';
+import type { Course } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
 import { Status } from '#domain/status';
-import { PublishCourseUc } from './publish-course-uc';
+import { EnrichModuleUc } from './enrich-module-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
@@ -17,10 +17,9 @@ function makeUser(overrides: Partial<User> = {}): User {
   };
 }
 
-function makeCourse(authorId: string): Course {
+function makeCourse(authorId: string, overrides: Partial<Course> = {}): Course {
   return {
     uuid: crypto.randomUUID(),
-    kind: 'modules',
     title: 'Курс',
     description: 'Описание',
     authorId,
@@ -32,7 +31,8 @@ function makeCourse(authorId: string): Course {
     tags: [],
     status: Status.DRAFT,
     createdAt: '2026-05-01T12:00',
-    modules: [],
+    projects: [],
+    ...overrides,
   } as Course;
 }
 
@@ -42,7 +42,8 @@ function setupUc() {
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
   const getAll = mock(async (): Promise<Course[]> => []);
-  const repo: CourseRepo = { save, getByUuid, getAll };
+  const repo: ModuleRepo = { save, getByUuid, getAll };
+
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
@@ -52,55 +53,67 @@ function setupUc() {
     userExists,
     addRoleToUser: mock(),
   };
-  const uc = new PublishCourseUc();
+
+  const uc = new EnrichModuleUc();
   uc.init({
     courseRepo: repo,
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade,
   });
+
   return { save, getByUuid, getUserByUuid, repo, uc };
 }
 
-describe('PublishCourseUc', () => {
+describe('EnrichModuleUc', () => {
   describe('SUCCESS', () => {
-    test('автор публикует свой курс', async () => {
+    test('автор обогащает свой курс', async () => {
       const { getByUuid, getUserByUuid, save, uc } = setupUc();
       const author = makeUser({ roles: [Role.MENTOR] });
       const course = makeCourse(author.uuid);
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(author);
 
-      const result = await uc.handle({ courseId: course.uuid }, author.uuid);
+      const result = await uc.handle(
+        { courseId: course.uuid, targetAudience: 'Новички', goal: 'Научиться' },
+        author.uuid,
+      );
 
-      expect((result as Course).status).toBe(Status.PUBLISHED);
+      const res = result as Course;
+      expect(res.targetAudience).toBe('Новички');
+      expect(res.goal).toBe('Научиться');
       expect(save).toHaveBeenCalledTimes(1);
     });
 
-    test('ADMIN публикует чужой курс', async () => {
+    test('ADMIN обогащает чужой курс', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
-      const admin = makeUser();
-      const course = makeCourse(crypto.randomUUID());
+      const author = makeUser({ roles: [Role.MENTOR] });
+      const admin = makeUser({ roles: [Role.ADMIN] });
+      const course = makeCourse(author.uuid);
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(admin);
 
-      const result = await uc.handle({ courseId: course.uuid }, admin.uuid);
+      const result = await uc.handle(
+        { courseId: course.uuid, tags: ['js'] },
+        admin.uuid,
+      );
 
-      expect((result as Course).status).toBe(Status.PUBLISHED);
+      expect((result as Course).tags).toEqual(['js']);
     });
   });
 
   describe('FAIL', () => {
-    test('отклоняет публикацию не-автором без прав ADMIN', async () => {
+    test('отклоняет не-автора без прав ADMIN', async () => {
       const { getByUuid, getUserByUuid, uc } = setupUc();
-      const course = makeCourse('author-id');
+      const author = makeUser({ roles: [Role.MENTOR] });
       const other = makeUser({ roles: [Role.STUDENT] });
+      const course = makeCourse(author.uuid);
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(other);
 
       await expect(
-        uc.handle({ courseId: course.uuid }, other.uuid),
-      ).rejects.toThrow('Недостаточно прав');
+        uc.handle({ courseId: course.uuid, targetAudience: 'X' }, other.uuid),
+      ).rejects.toThrow('Недостаточно прав для редактирования курса');
     });
 
     test('отклоняет несуществующий курс', async () => {
@@ -111,8 +124,22 @@ describe('PublishCourseUc', () => {
       getUserByUuid.mockResolvedValueOnce(admin);
 
       await expect(
-        uc.handle({ courseId: missingId }, admin.uuid),
+        uc.handle({ courseId: missingId, targetAudience: 'X' }, admin.uuid),
       ).rejects.toThrow('Курс не найден');
+    });
+
+    test('отклоняет несуществующего пользователя', async () => {
+      const { getByUuid, getUserByUuid, uc } = setupUc();
+      const course = makeCourse('author-id');
+      getByUuid.mockResolvedValueOnce(course);
+      getUserByUuid.mockResolvedValueOnce(undefined);
+
+      await expect(
+        uc.handle(
+          { courseId: course.uuid, targetAudience: 'X' },
+          'nonexistent',
+        ),
+      ).rejects.toThrow('Пользователь не найден');
     });
   });
 });

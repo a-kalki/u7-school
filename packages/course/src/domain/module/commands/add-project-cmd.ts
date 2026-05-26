@@ -1,29 +1,29 @@
 import * as v from 'valibot';
-import type { Course, CourseArMeta } from '../entity';
-import { CourseCommonSchema, ProjectSchema } from '../entity';
+import type { Module, ModuleArMeta } from '../entity';
+import { ModuleSchema, ProjectSchema } from '../entity';
 import type {
-  CourseAccessDeniedUcError,
-  CourseNotFoundUcError,
+  ModuleAccessDeniedUcError,
+  ModuleNotFoundUcError,
 } from './errors';
 
-/** Схема валидации команды добавления проекта в курс */
+/** Схема валидации команды добавления проекта в модуль */
 export const AddProjectCmdSchema = v.object({
-  courseId: CourseCommonSchema.entries.uuid,
+  moduleId: ModuleSchema.entries.uuid,
   title: ProjectSchema.entries.title,
   goal: ProjectSchema.entries.goal,
   result: ProjectSchema.entries.result,
   additional: ProjectSchema.entries.additional,
 });
 
-/** Команда добавления проекта в курс */
+/** Команда добавления проекта в модуль */
 export type AddProjectCmd = v.InferOutput<typeof AddProjectCmdSchema>;
 
 /** Мета команды добавления проекта */
 export interface AddProjectCmdMeta {
   ucName: 'add-project';
-  arMeta: CourseArMeta;
+  arMeta: ModuleArMeta;
   input: AddProjectCmd;
-  output: Course;
+  output: Module;
   errors: AddProjectCmdError;
   requiresAuth: true;
   type: 'command';
@@ -31,5 +31,5 @@ export interface AddProjectCmdMeta {
 
 /** Ошибки команды добавления проекта */
 export type AddProjectCmdError =
-  | CourseAccessDeniedUcError
-  | CourseNotFoundUcError;
+  | ModuleAccessDeniedUcError
+  | ModuleNotFoundUcError;

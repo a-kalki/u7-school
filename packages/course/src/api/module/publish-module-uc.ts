@@ -1,31 +1,31 @@
 import { ModuleAr } from '#domain/module/a-root';
 import {
-  type AddProjectCmd,
-  type AddProjectCmdMeta,
-  AddProjectCmdSchema,
-} from '#domain/module/commands/add-project-cmd';
+  type PublishModuleCmd,
+  type PublishModuleCmdMeta,
+  PublishModuleCmdSchema,
+} from '#domain/module/commands/publish-module-cmd';
 import type { Module } from '#domain/module/entity';
 import { ModuleSchema } from '#domain/module/entity';
 import { ModulePolicy } from '#domain/module/policy';
 import { CourseUseCase } from '../course-uc';
 
 /**
- * Use-case добавления проекта в модуль.
- * Редактировать может автор или ADMIN.
+ * Use-case публикации модуля (этап 4).
+ * Публиковать может автор или ADMIN.
  */
-export class AddProjectUc extends CourseUseCase<AddProjectCmdMeta> {
-  protected readonly ucName = 'add-project' as const;
-  protected readonly ucLabel = 'Добавить проект в модуль' as const;
+export class PublishModuleUc extends CourseUseCase<PublishModuleCmdMeta> {
+  protected readonly ucName = 'publish-module' as const;
+  protected readonly ucLabel = 'Опубликовать модуль (этап 4)' as const;
   protected readonly arMeta = {
     arName: ModuleAr.arName as 'Module',
     arLabel: ModuleAr.arLabel as 'Модуль',
   };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;
-  protected readonly inputSchema = AddProjectCmdSchema;
+  protected readonly inputSchema = PublishModuleCmdSchema;
   protected readonly outputSchema = ModuleSchema;
 
-  async execute(command: AddProjectCmd, actorId: string): Promise<Module> {
+  async execute(command: PublishModuleCmd, actorId: string): Promise<Module> {
     const module = await this.getModule(command.moduleId);
     const actor = await this.getActor(actorId);
 
@@ -34,7 +34,7 @@ export class AddProjectUc extends CourseUseCase<AddProjectCmdMeta> {
     }
 
     const ar = new ModuleAr(module);
-    ar.addProject(command);
+    ar.publish();
     await this.resolve.courseRepo.save(ar.state);
 
     return ar.state;

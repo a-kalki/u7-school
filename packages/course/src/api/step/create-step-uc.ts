@@ -1,5 +1,5 @@
 import { errNotFound } from '@u7-scl/core/domain';
-import { CoursePolicy } from '#domain/course/policy';
+import { CoursePolicy } from '#domain/module/policy';
 import { CourseDs } from '#domain/course-ds';
 import { LessonAr } from '#domain/lesson/a-root';
 import type { LessonNotFoundUcError } from '#domain/lesson/commands/errors';

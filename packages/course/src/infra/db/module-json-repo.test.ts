@@ -1,9 +1,9 @@
 import { afterAll, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Course } from '#domain/course/entity';
+import type { Course } from '#domain/module/entity';
 import { Status } from '#domain/status';
-import { CourseJsonRepo } from './course-json-repo';
+import { ModuleJsonRepo } from './module-json-repo';
 
 const tmpDir = mkdtempSync('/tmp/course-repo-test-');
 
@@ -18,21 +18,20 @@ function makeCourse(overrides: Partial<Course> = {}): Course {
     description: 'Описание',
     authorId: crypto.randomUUID(),
     status: Status.DRAFT,
-    kind: 'modules',
     createdAt: '2026-05-01T12:00',
-    modules: [],
+    projects: [],
     ...overrides,
   } as Course;
 }
 
-describe('CourseJsonRepo', () => {
+describe('ModuleJsonRepo', () => {
   afterAll(() => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
   test('save и getByUuid', async () => {
     const path = coursePath();
-    const repo = new CourseJsonRepo(path);
+    const repo = new ModuleJsonRepo(path);
     const uuid = crypto.randomUUID();
     const course = makeCourse({ uuid } as Partial<Course>);
 
@@ -45,7 +44,7 @@ describe('CourseJsonRepo', () => {
 
   test('getByUuid возвращает undefined для несуществующего', async () => {
     const path = coursePath();
-    const repo = new CourseJsonRepo(path);
+    const repo = new ModuleJsonRepo(path);
 
     const found = await repo.getByUuid('550e8400-e29b-41d4-a716-446655440099');
     expect(found).toBeUndefined();
@@ -53,7 +52,7 @@ describe('CourseJsonRepo', () => {
 
   test('getAll возвращает все курсы', async () => {
     const path = join(tmpDir, 'courses-all.json');
-    const repo = new CourseJsonRepo(path);
+    const repo = new ModuleJsonRepo(path);
     const c1 = makeCourse({ uuid: crypto.randomUUID() } as Partial<Course>);
     const c2 = makeCourse({
       uuid: crypto.randomUUID(),
@@ -69,7 +68,7 @@ describe('CourseJsonRepo', () => {
 
   test('getAll с фильтром status', async () => {
     const path = join(tmpDir, 'courses-filter.json');
-    const repo = new CourseJsonRepo(path);
+    const repo = new ModuleJsonRepo(path);
     const draft = makeCourse({ uuid: crypto.randomUUID() } as Partial<Course>);
     const pubUuid = crypto.randomUUID();
     const published = makeCourse({
@@ -87,7 +86,7 @@ describe('CourseJsonRepo', () => {
 
   test('save перезаписывает существующий курс', async () => {
     const path = join(tmpDir, 'courses-update.json');
-    const repo = new CourseJsonRepo(path);
+    const repo = new ModuleJsonRepo(path);
     const uuid = crypto.randomUUID();
     const course = makeCourse({ uuid } as Partial<Course>);
     await repo.save(course);

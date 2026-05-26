@@ -1,8 +1,8 @@
 import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import type { User } from '@u7-scl/user/domain';
-import type { Course } from '../course/entity';
-import { CoursePolicy } from '../course/policy';
+import type { Module } from '../module/entity';
+import { ModulePolicy } from '../module/policy';
 import { Status } from '../status';
 import type { CreateLessonCmd } from './commands/create-lesson-cmd';
 import type { Lesson, LessonArMeta } from './entity';
@@ -46,11 +46,11 @@ export class LessonAr extends Aggregate<LessonArMeta> {
    * - Автор/ADMIN курса: любой статус.
    * - Остальные: только PUBLISHED.
    */
-  getVisibleFor(actor: User | undefined, course: Course): Lesson | null {
+  getVisibleFor(actor: User | undefined, course: Module): Lesson | null {
     if (!actor) {
       return this.state.status === Status.PUBLISHED ? this.state : null;
     }
-    if (CoursePolicy.isAdminOrAuthor(actor, course)) return this.state;
+    if (ModulePolicy.isAdminOrAuthor(actor, course)) return this.state;
     return this.state.status === Status.PUBLISHED ? this.state : null;
   }
 }

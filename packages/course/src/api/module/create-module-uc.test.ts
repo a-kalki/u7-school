@@ -1,9 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
-import type { CourseRepo } from '#domain/course/repo';
-import { CreateCourseUc } from './create-course-uc';
+import type { Course } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
+import { CreateModuleUc } from './create-module-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
@@ -23,7 +23,7 @@ function setupUc() {
   );
   const getAll = mock(async (): Promise<Course[]> => []);
 
-  const repo: CourseRepo = { save, getByUuid, getAll };
+  const repo: ModuleRepo = { save, getByUuid, getAll };
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
@@ -34,7 +34,7 @@ function setupUc() {
     addRoleToUser: mock(),
   };
 
-  const uc = new CreateCourseUc();
+  const uc = new CreateModuleUc();
   uc.init({
     courseRepo: repo,
     lessonRepo: {} as never,
@@ -54,7 +54,7 @@ function setupUc() {
   };
 }
 
-describe('CreateCourseUc', () => {
+describe('CreateModuleUc', () => {
   describe('SUCCESS', () => {
     test('MENTOR создаёт курс', async () => {
       const { getUserByUuid, save, uc } = setupUc();

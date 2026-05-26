@@ -2,12 +2,11 @@ import { describe, expect, mock, test } from 'bun:test';
 import type { Course } from '#domain/course/entity';
 import type { CourseRepo } from '#domain/course/repo';
 import { Status } from '#domain/status';
-import { ListCoursesUc } from './list-courses-uc';
+import { ListCoursesUc } from './list-modules-uc';
 
 function makeCourse(overrides: Partial<Course> = {}): Course {
   return {
     uuid: crypto.randomUUID(),
-    kind: 'modules',
     title: 'Курс',
     description: 'Описание',
     authorId: crypto.randomUUID(),
@@ -19,7 +18,7 @@ function makeCourse(overrides: Partial<Course> = {}): Course {
     tags: [],
     status: Status.PUBLISHED,
     createdAt: '2026-05-01T12:00',
-    modules: [],
+    projects: [],
     ...overrides,
   } as Course;
 }

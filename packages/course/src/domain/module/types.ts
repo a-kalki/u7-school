@@ -1,7 +1,4 @@
-/** Вспомогательные типы сущности Course */
+/** Вспомогательные типы сущности Module */
 
-/** Идентификатор курса (UUID) */
-export type CourseId = string;
-
-/** Тип курса (modules или projects) */
-export type CourseKind = 'modules' | 'projects';
+/** Идентификатор модуля (UUID) */
+export type ModuleId = string;

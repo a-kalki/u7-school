@@ -1,9 +1,9 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
+import type { Course } from '#domain/module/entity';
 import { Status } from '#domain/status';
-import { GetCourseUc } from './get-course-uc';
+import { GetModuleUc } from './get-module-uc';
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
@@ -19,13 +19,12 @@ function makeUser(overrides: Partial<User> = {}): User {
 function makeCourse(overrides: Partial<Course> = {}): Course {
   return {
     uuid: crypto.randomUUID(),
-    kind: 'modules' as const,
     title: 'Курс',
     description: 'Описание',
     authorId: crypto.randomUUID(),
     status: Status.PUBLISHED,
     createdAt: '2026-05-01T12:00',
-    modules: [],
+    projects: [],
     ...overrides,
   } as Course;
 }
@@ -38,7 +37,7 @@ function setupUc() {
     async (_userId: string, _actorId?: string): Promise<User | undefined> =>
       undefined,
   );
-  const uc = new GetCourseUc();
+  const uc = new GetModuleUc();
   uc.init({
     courseRepo: { getByUuid, getAll: mock(async () => []) } as never,
     lessonRepo: {} as never,
@@ -48,7 +47,7 @@ function setupUc() {
   return { getByUuid, getUserByUuid, uc };
 }
 
-describe('GetCourseUc', () => {
+describe('GetModuleUc', () => {
   describe('SUCCESS', () => {
     test('возвращает PUBLISHED курс без актора', async () => {
       const { getByUuid, uc } = setupUc();

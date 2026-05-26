@@ -1,76 +1,59 @@
 // Domain слой @u7-scl/course
 
-// Агрегат Course
-export { CourseAr } from './course/a-root';
-export type {
-  AddModuleCmd,
-  AddModuleCmdError,
-  AddModuleCmdMeta,
-} from './course/commands/add-module-cmd';
-export { AddModuleCmdSchema } from './course/commands/add-module-cmd';
+// Агрегат Module
+export { ModuleAr } from './module/a-root';
 export type {
   AddProjectCmd,
   AddProjectCmdError,
   AddProjectCmdMeta,
-} from './course/commands/add-project-cmd';
-export { AddProjectCmdSchema } from './course/commands/add-project-cmd';
+} from './module/commands/add-project-cmd';
+export { AddProjectCmdSchema } from './module/commands/add-project-cmd';
 export type {
-  AddProjectToModuleCmd,
-  AddProjectToModuleCmdError,
-  AddProjectToModuleCmdMeta,
-} from './course/commands/add-project-to-module-cmd';
-export { AddProjectToModuleCmdSchema } from './course/commands/add-project-to-module-cmd';
+  CreateModuleCmd,
+  CreateModuleCmdError,
+  CreateModuleCmdMeta,
+} from './module/commands/create-module-cmd';
+export { CreateModuleCmdSchema } from './module/commands/create-module-cmd';
 export type {
-  CreateCourseCmd,
-  CreateCourseCmdError,
-  CreateCourseCmdMeta,
-} from './course/commands/create-course-cmd';
-export { CreateCourseCmdSchema } from './course/commands/create-course-cmd';
+  EnrichModuleCmd,
+  EnrichModuleCmdError,
+  EnrichModuleCmdMeta,
+} from './module/commands/enrich-module-cmd';
+export { EnrichModuleCmdSchema } from './module/commands/enrich-module-cmd';
 export type {
-  EnrichCourseCmd,
-  EnrichCourseCmdError,
-  EnrichCourseCmdMeta,
-} from './course/commands/enrich-course-cmd';
-export { EnrichCourseCmdSchema } from './course/commands/enrich-course-cmd';
-export type {
-  CourseAccessDeniedUcError,
+  ModuleAccessDeniedUcError,
   CourseModuleError,
-  CourseNotFoundUcError,
-} from './course/commands/errors';
+  ModuleNotFoundUcError,
+} from './module/commands/errors';
 export type {
-  GetCourseCmd,
-  GetCourseCmdError,
-  GetCourseCmdMeta,
-} from './course/commands/get-course-cmd';
-export { GetCourseCmdSchema } from './course/commands/get-course-cmd';
+  GetModuleCmd,
+  GetModuleCmdError,
+  GetModuleCmdMeta,
+} from './module/commands/get-module-cmd';
+export { GetModuleCmdSchema } from './module/commands/get-module-cmd';
 export type {
-  ListCoursesCmd,
-  ListCoursesCmdMeta,
-} from './course/commands/list-courses-cmd';
-export { ListCoursesCmdSchema } from './course/commands/list-courses-cmd';
+  ListModulesCmd,
+  ListModulesCmdMeta,
+} from './module/commands/list-modules-cmd';
+export { ListModulesCmdSchema } from './module/commands/list-modules-cmd';
 export type {
-  PublishCourseCmd,
-  PublishCourseCmdError,
-  PublishCourseCmdMeta,
-} from './course/commands/publish-course-cmd';
-export { PublishCourseCmdSchema } from './course/commands/publish-course-cmd';
+  PublishModuleCmd,
+  PublishModuleCmdError,
+  PublishModuleCmdMeta,
+} from './module/commands/publish-module-cmd';
+export { PublishModuleCmdSchema } from './module/commands/publish-module-cmd';
 export type {
-  Course,
-  CourseArMeta,
-  CourseModules,
-  CourseProjects,
   Module,
+  ModuleArMeta,
   Project,
-} from './course/entity';
+} from './module/entity';
 export {
-  CourseCommonSchema,
-  CourseSchema,
   ModuleSchema,
   ProjectSchema,
-} from './course/entity';
-export { CoursePolicy } from './course/policy';
-export type { CourseListFilter, CourseRepo } from './course/repo';
-export type { CourseId as CourseEntityId, CourseKind } from './course/types';
+} from './module/entity';
+export { ModulePolicy } from './module/policy';
+export type { ModuleListFilter, ModuleRepo } from './module/repo';
+export type { ModuleId as ModuleEntityId } from './module/types';
 
 // Агрегат Lesson
 export { LessonAr } from './lesson/a-root';
@@ -132,7 +115,7 @@ export { StepPolicy } from './step/policy';
 export type { StepRepo } from './step/repo';
 
 export type {
-  CourseId,
+  ModuleId,
   LessonId,
   StepId,
 } from './types';

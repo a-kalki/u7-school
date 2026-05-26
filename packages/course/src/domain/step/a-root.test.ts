@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '../course/entity';
+import type { Module } from '../module/entity';
 import { Status } from '../status';
 import { StepAr } from './a-root';
 
@@ -12,7 +12,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Описание',
       });
       expect(ar.state.kind).toBe('text');
@@ -24,7 +23,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'code',
         content: 'Код',
         code: 'console.log(1)',
       });
@@ -38,7 +36,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'code',
         content: 'Код',
         code: 'x',
       });
@@ -50,7 +47,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'file',
         content: 'Файл',
         fileName: 'doc.pdf',
         fileMimeType: 'application/pdf',
@@ -70,7 +66,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Описание',
       });
       expect(ar.state.updatedAt).toBeUndefined();
@@ -79,15 +74,14 @@ describe('StepAr', () => {
 
   describe('getVisibleFor', () => {
     const authorId = crypto.randomUUID();
-    const course: Course = {
+    const course: Module = {
       uuid: crypto.randomUUID(),
-      kind: 'modules' as const,
       title: 'Курс',
       description: 'Описание',
       authorId,
       status: Status.DRAFT,
       createdAt: '2026-05-01T12:00',
-      modules: [],
+      projects: [],
     };
 
     function makeActor(roles: Role[], uuid = 'other'): User {
@@ -105,7 +99,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Ш',
       });
       expect(ar.getVisibleFor(undefined, course)).toBeNull();
@@ -116,7 +109,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Ш',
       });
       const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });
@@ -128,7 +120,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Ш',
       });
       expect(
@@ -141,7 +132,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Ш',
       });
       expect(ar.getVisibleFor(makeActor([Role.ADMIN]), course)).not.toBeNull();
@@ -152,7 +142,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Ш',
       });
       expect(ar.getVisibleFor(makeActor([Role.STUDENT]), course)).toBeNull();
@@ -163,7 +152,6 @@ describe('StepAr', () => {
         courseId: crypto.randomUUID(),
         lessonId: crypto.randomUUID(),
         description: 'Описание',
-        kind: 'text',
         content: 'Ш',
       });
       const published = new StepAr({ ...ar.state, status: Status.PUBLISHED });

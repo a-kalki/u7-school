@@ -1,8 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { Course } from '#domain/course/entity';
-import type { CourseRepo } from '#domain/course/repo';
+import type { Course } from '#domain/module/entity';
+import type { ModuleRepo } from '#domain/module/repo';
 import { Status } from '#domain/status';
 import { AddProjectUc } from './add-project-uc';
 
@@ -20,7 +20,6 @@ function makeUser(overrides: Partial<User> = {}): User {
 function makeCourse(authorId: string): Course {
   return {
     uuid: crypto.randomUUID(),
-    kind: 'projects',
     title: 'Курс',
     description: 'Описание',
     authorId,
@@ -42,7 +41,7 @@ function setupUc() {
     async (_uuid: string): Promise<Course | undefined> => undefined,
   );
   const getAll = mock(async (): Promise<Course[]> => []);
-  const repo: CourseRepo = { save, getByUuid, getAll };
+  const repo: ModuleRepo = { save, getByUuid, getAll };
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
@@ -89,8 +88,7 @@ describe('AddProjectUc', () => {
       const author = makeUser();
       const course = {
         ...makeCourse(author.uuid),
-        kind: 'modules' as const,
-        modules: [],
+        projects: [],
       };
       getByUuid.mockResolvedValueOnce(course);
       getUserByUuid.mockResolvedValueOnce(author);
