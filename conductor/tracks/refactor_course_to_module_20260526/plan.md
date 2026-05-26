@@ -17,7 +17,7 @@
     - [x] Удалить `api/module/add-module-uc.ts` и его тест
     - [x] Удалить `api/module/add-project-to-module-uc.ts` и его тест
 
-- [~] Task: Conductor - User Manual Verification 'Переименование файлов' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Переименование файлов' (Protocol in workflow.md)
 
 ---
 
