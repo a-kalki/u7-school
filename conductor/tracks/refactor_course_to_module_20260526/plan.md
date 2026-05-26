@@ -2,13 +2,13 @@
 
 ## Фаза 0: Переименование файлов и директорий
 
-- [x] Task: Переименовать директорию domain/course → domain/module
+- [x] Task: (6235043) Переименовать директорию domain/course → domain/module
     - [x] `mv packages/course/src/domain/course packages/course/src/domain/module`
 
-- [x] Task: Переименовать директорию api/course → api/module
+- [x] Task: (6235043) Переименовать директорию api/course → api/module
     - [x] `mv packages/course/src/api/course packages/course/src/api/module`
 
-- [x] Task: Переименовать и удалить файлы
+- [x] Task: (6235043) Переименовать и удалить файлы
     - [x] `domain/course-ds.ts` → `domain/module-ds.ts`
     - [x] `api/course-uc.ts` → `api/module-uc.ts`
     - [x] `infra/db/course-json-repo.ts` → `infra/db/module-json-repo.ts`
