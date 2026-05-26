@@ -17,7 +17,7 @@
     - [x] Удалить `api/module/add-module-uc.ts` и его тест
     - [x] Удалить `api/module/add-project-to-module-uc.ts` и его тест
 
-- [ ] Task: Conductor - User Manual Verification 'Переименование файлов' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Переименование файлов' (Protocol in workflow.md)
 
 ---
 
@@ -113,8 +113,8 @@
 
 ## Фаза 5: Переименование API слоя
 
-- [ ] Task: Переименовать базовый класс CourseUseCase → ModuleUseCase
-    - [ ] `api/module-uc.ts` — `ModuleUseCase`, методы `getModule`, `getOutModule`
+- [ ] Task: Обновить базовый класс CourseUseCase (имя класса не менять)
+    - [ ] `api/course-uc.ts` — обновить импорты, методы `getCourse` → `getModule`, `getOutCourse` → `getOutModule`
     - [ ] Обновить все импорты в use cases
 
 - [ ] Task: Обновить use cases

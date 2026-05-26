@@ -31,7 +31,6 @@
 | `CourseRepo` | `ModuleRepo` |
 | `CourseListFilter` | `ModuleListFilter` |
 | `CourseSchema` | `ModuleSchema` |
-| `CourseUseCase` (базовый класс) | `ModuleUseCase` |
 | `CourseApiModule` | `ModuleApiModule` |
 | `CourseApiModuleMeta` | `ModuleApiModuleMeta` |
 | `CourseApiModuleResolver` | `ModuleApiModuleResolver` |
@@ -42,12 +41,14 @@
 | `domain/course/` | `domain/module/` |
 | `api/course/` | `api/module/` |
 | `infra/db/course-json-repo.ts` | `infra/db/module-json-repo.ts` |
-| `api/course-uc.ts` | `api/module-uc.ts` |
+| `api/course-uc.ts` | не переименовывается |
 
-**НЕ переименовываются** (уровень модуля):
+**НЕ переименовываются** (уровень модуля — наследуют имя от пакета `@u7-scl/course`):
 - `CourseDs` — domain service (остаётся)
+- `CourseUseCase` — базовый класс UC (остаётся)
 - `CourseFacade` — фасад (остаётся)
 - `CourseInProcFacade` — реализация фасада (остаётся)
+- `api/course-uc.ts` — файл базового UC (остаётся)
 
 ### FR-3: Удаление методов, связанных со старыми modules
 - Удалить из `ModuleAr`: `addModule()`, `addProjectToModule()`, `publishModule()`
