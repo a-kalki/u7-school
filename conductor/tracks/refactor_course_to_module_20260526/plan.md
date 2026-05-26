@@ -161,12 +161,12 @@
 
 ## Фаза 7: Обновление трека stream_domain_20260526
 
-- [ ] Task: Обновить stream_domain_20260526/spec.md
+- [x] Task: Обновить stream_domain_20260526/spec.md
     - [ ] Удалить `targetType`, оставить всегда course (module)
     - [ ] `CourseAr` → `ModuleAr`, ссылаться на `ContentSnapshot` и `CourseFacade` из `@u7-scl/course`
     - [ ] Обновить модель данных Stream
 
-- [ ] Task: Обновить stream_domain_20260526/plan.md
+- [x] Task: Обновить stream_domain_20260526/plan.md
     - [ ] Синхронизировать задачи с обновлённой spec
 
 - [ ] Task: Conductor - User Manual Verification 'Обновление трека stream' (Protocol in workflow.md)
