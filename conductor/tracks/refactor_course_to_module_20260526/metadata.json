@@ -1,0 +1,8 @@
+{
+  "track_id": "refactor_course_to_module_20260526",
+  "type": "refactor",
+  "status": "new",
+  "created_at": "2026-05-26T12:00:00Z",
+  "updated_at": "2026-05-26T12:00:00Z",
+  "description": "Рефакторинг модуля course: удаление kind, переименование CourseAr → ModuleAr, Snapshot API"
+}

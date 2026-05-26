@@ -11,3 +11,8 @@
 *Link: [./tracks/stream_domain_20260526/](./tracks/stream_domain_20260526/)*
 
 ---
+
+- [ ] **Track: Рефакторинг CourseAr → ModuleAr, удаление kind, Snapshot API**
+*Link: [./tracks/refactor_course_to_module_20260526/](./tracks/refactor_course_to_module_20260526/)*
+
+---
