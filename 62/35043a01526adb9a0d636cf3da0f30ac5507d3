@@ -1,0 +1,12 @@
+Задача: Переименование файлов и директорий (Фаза 0)
+
+Сводка изменений:
+- Директория domain/course переименована в domain/module
+- Директория api/course переименована в api/module
+- Файл domain/course-ds.ts переименован в domain/module-ds.ts
+- Файл api/course-uc.ts переименован в api/module-uc.ts
+- Файлы infra/db/course-json-repo.* переименованы в module-json-repo.*
+- Удалены устаревшие команды: add-module-cmd.ts, add-project-to-module-cmd.ts
+- Удалены устаревшие use cases: add-module-uc.ts, add-project-to-module-uc.ts и их тесты
+
+Причина: Подготовка структуры к тотальному переименованию Course → Module.
