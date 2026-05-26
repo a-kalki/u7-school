@@ -12,7 +12,7 @@
 
 ---
 
-- [ ] **Track: Рефакторинг CourseAr → ModuleAr, удаление kind, Snapshot API**
+- [~] **Track: Рефакторинг CourseAr → ModuleAr, удаление kind, Snapshot API**
 *Link: [./tracks/refactor_course_to_module_20260526/](./tracks/refactor_course_to_module_20260526/)*
 
 ---

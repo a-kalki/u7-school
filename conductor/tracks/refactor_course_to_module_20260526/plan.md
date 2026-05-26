@@ -2,20 +2,20 @@
 
 ## Фаза 0: Переименование файлов и директорий
 
-- [ ] Task: Переименовать директорию domain/course → domain/module
-    - [ ] `mv packages/course/src/domain/course packages/course/src/domain/module`
+- [x] Task: Переименовать директорию domain/course → domain/module
+    - [x] `mv packages/course/src/domain/course packages/course/src/domain/module`
 
-- [ ] Task: Переименовать директорию api/course → api/module
-    - [ ] `mv packages/course/src/api/course packages/course/src/api/module`
+- [x] Task: Переименовать директорию api/course → api/module
+    - [x] `mv packages/course/src/api/course packages/course/src/api/module`
 
-- [ ] Task: Переименовать и удалить файлы
-    - [ ] `domain/course-ds.ts` → `domain/module-ds.ts`
-    - [ ] `api/course-uc.ts` → `api/module-uc.ts`
-    - [ ] `infra/db/course-json-repo.ts` → `infra/db/module-json-repo.ts`
-    - [ ] Удалить `domain/module/commands/add-module-cmd.ts`
-    - [ ] Удалить `domain/module/commands/add-project-to-module-cmd.ts`
-    - [ ] Удалить `api/module/add-module-uc.ts` и его тест
-    - [ ] Удалить `api/module/add-project-to-module-uc.ts` и его тест
+- [x] Task: Переименовать и удалить файлы
+    - [x] `domain/course-ds.ts` → `domain/module-ds.ts`
+    - [x] `api/course-uc.ts` → `api/module-uc.ts`
+    - [x] `infra/db/course-json-repo.ts` → `infra/db/module-json-repo.ts`
+    - [x] Удалить `domain/module/commands/add-module-cmd.ts`
+    - [x] Удалить `domain/module/commands/add-project-to-module-cmd.ts`
+    - [x] Удалить `api/module/add-module-uc.ts` и его тест
+    - [x] Удалить `api/module/add-project-to-module-uc.ts` и его тест
 
 - [ ] Task: Conductor - User Manual Verification 'Переименование файлов' (Protocol in workflow.md)
 
