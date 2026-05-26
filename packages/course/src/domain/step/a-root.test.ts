@@ -81,7 +81,7 @@ describe('StepAr', () => {
     const authorId = crypto.randomUUID();
     const module: Module = {
       uuid: crypto.randomUUID(),
-      kind: 'modules' as const,
+      // kind removed as const,
       title: 'Курс',
       description: 'Описание',
       authorId,

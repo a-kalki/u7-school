@@ -34,7 +34,7 @@ function makeUser(overrides: Partial<User> = {}): User {
 function makeStep(moduleId: string): Step {
   return {
     uuid: crypto.randomUUID(),
-    courseId,
+    moduleId,
     description: 'Шаг',
     content: undefined,
     status: Status.PUBLISHED,
@@ -90,7 +90,7 @@ describe('GetStepUc', () => {
       const author = makeUser({ roles: [Role.MENTOR] });
       const courseId = crypto.randomUUID();
       const course = makeModule({
-        uuid: courseId,
+        uuid: moduleId,
         authorId: author.uuid,
         status: Status.DRAFT,
       });

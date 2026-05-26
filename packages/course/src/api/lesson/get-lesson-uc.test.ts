@@ -34,7 +34,7 @@ function makeUser(overrides: Partial<User> = {}): User {
 function makeLesson(moduleId: string): Lesson {
   return {
     uuid: crypto.randomUUID(),
-    courseId,
+    moduleId,
     title: 'Урок',
     additional: undefined,
     status: Status.PUBLISHED,
@@ -93,7 +93,7 @@ describe('GetLessonUc', () => {
       const author = makeUser({ roles: [Role.MENTOR] });
       const courseId = crypto.randomUUID();
       const course = makeModule({
-        uuid: courseId,
+        uuid: moduleId,
         authorId: author.uuid,
         status: Status.DRAFT,
       });

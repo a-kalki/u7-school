@@ -113,7 +113,7 @@ describe('CourseApiModule', () => {
     const mod = setupModule(facade);
     const result = await mod.handle({
       name: 'create-module',
-      attrs: { title: 'Курс JS', description: 'Описание', kind: 'modules' },
+      attrs: { title: 'Курс JS', description: 'Описание',  },
       actorId: mentor.uuid,
     });
 
@@ -130,7 +130,7 @@ describe('CourseApiModule', () => {
     await expect(
       mod.handle({
         name: 'create-module',
-        attrs: { title: 'X', description: 'X', kind: 'modules' },
+        attrs: { title: 'X', description: 'X',  },
         actorId: admin.uuid,
       }),
     ).rejects.toThrow('Недостаточно прав для создания курса');
@@ -149,7 +149,7 @@ describe('CourseApiModule', () => {
     const result = await mod.handle({
       name: 'enrich-module',
       attrs: {
-        courseId,
+        moduleId,
         targetAudience: 'Новички',
         goal: 'Научиться',
         tags: ['js'],
@@ -172,7 +172,7 @@ describe('CourseApiModule', () => {
 
     const result = await mod.handle({
       name: 'add-module',
-      attrs: { courseId, title: 'Модуль 1' },
+      attrs: { moduleId, title: 'Модуль 1' },
       actorId: mentor.uuid,
     });
 
@@ -190,7 +190,7 @@ describe('CourseApiModule', () => {
     const courseId = await createModuleAsMentor(mod, mentor);
     const addModResult = await mod.handle({
       name: 'add-module',
-      attrs: { courseId, title: 'Модуль 1' },
+      attrs: { moduleId, title: 'Модуль 1' },
       actorId: mentor.uuid,
     });
     const moduleUuid = (addModResult as { modules: { uuid: string }[] })
@@ -199,7 +199,7 @@ describe('CourseApiModule', () => {
     const result = await mod.handle({
       name: 'add-project-to-module',
       attrs: {
-        courseId,
+        moduleId,
         moduleUuid,
         title: 'Проект в модуле',
       },
@@ -275,14 +275,14 @@ describe('CourseApiModule', () => {
     // Добавляем проект в курс
     const withProject = (await mod.handle({
       name: 'add-project',
-      attrs: { courseId, title: 'Проект 1' },
+      attrs: { moduleId, title: 'Проект 1' },
       actorId: mentor.uuid,
     })) as { projects?: { uuid: string }[] };
     const projectId = withProject.projects?.[0]?.uuid ?? '';
 
     const result = await mod.handle({
       name: 'create-lesson',
-      attrs: { courseId, projectId, title: 'Урок 1' },
+      attrs: { moduleId, projectId, title: 'Урок 1' },
       actorId: mentor.uuid,
     });
 
@@ -300,21 +300,21 @@ describe('CourseApiModule', () => {
     // Добавляем проект и урок
     const withProject = (await mod.handle({
       name: 'add-project',
-      attrs: { courseId, title: 'Проект 1' },
+      attrs: { moduleId, title: 'Проект 1' },
       actorId: mentor.uuid,
     })) as { projects?: { uuid: string }[] };
     const projectId = withProject.projects?.[0]?.uuid ?? '';
 
     const lesson = (await mod.handle({
       name: 'create-lesson',
-      attrs: { courseId, projectId, title: 'Урок 1' },
+      attrs: { moduleId, projectId, title: 'Урок 1' },
       actorId: mentor.uuid,
     })) as { uuid: string };
 
     const result = await mod.handle({
       name: 'create-step',
       attrs: {
-        courseId,
+        moduleId,
         lessonId: lesson.uuid,
         description: 'Описание',
         content: 'Шаг 1',

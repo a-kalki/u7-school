@@ -62,7 +62,7 @@ describe('CreateModuleUc', () => {
       getUserByUuid.mockResolvedValueOnce(mentor);
 
       const course = await uc.handle(
-        { title: 'Курс Python', description: 'Описание', kind: 'projects' },
+        { title: 'Курс Python', description: 'Описание',  },
         mentor.uuid,
       );
 
@@ -80,7 +80,7 @@ describe('CreateModuleUc', () => {
 
       const createCourseCb = async () =>
         uc.handle(
-          { title: 'Курс JS', description: 'Описание', kind: 'modules' },
+          { title: 'Курс JS', description: 'Описание',  },
           admin.uuid,
         );
 
@@ -96,7 +96,7 @@ describe('CreateModuleUc', () => {
 
       await expect(
         uc.handle(
-          { title: '', description: 'Описание', kind: 'modules' },
+          { title: '', description: 'Описание',  },
           admin.uuid,
         ),
       ).rejects.toThrow('Переданы некорректные данные');
@@ -108,7 +108,7 @@ describe('CreateModuleUc', () => {
 
       await expect(
         uc.handle(
-          { title: 'Курс', description: 'Описание', kind: 'modules' },
+          { title: 'Курс', description: 'Описание',  },
           'nonexistent',
         ),
       ).rejects.toThrow('Пользователь не найден');
@@ -121,7 +121,7 @@ describe('CreateModuleUc', () => {
 
       await expect(
         uc.handle(
-          { title: 'Курс', description: 'Описание', kind: 'modules' },
+          { title: 'Курс', description: 'Описание',  },
           student.uuid,
         ),
       ).rejects.toThrow('Недостаточно прав для создания курса');
@@ -134,7 +134,7 @@ describe('CreateModuleUc', () => {
 
       await expect(
         uc.handle(
-          { title: 'Курс', description: 'Описание', kind: 'invalid' as never },
+          { title: 'Курс', description: 'Описание' } as never,
           admin.uuid,
         ),
       ).rejects.toThrow('Переданы некорректные данные');
