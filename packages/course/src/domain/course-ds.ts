@@ -1,3 +1,4 @@
+import { Status } from './status';
 import type { ModuleAr } from './module/a-root';
 import { LessonAr } from './lesson/a-root';
 import type { CreateLessonCmd } from './lesson/commands/create-lesson-cmd';
@@ -45,21 +46,26 @@ export class CourseDs {
    * Используется для передачи структуры модуля в stream.
    */
   buildSnapshot(module: Module, lessons: Lesson[]): ContentSnapshot {
-    return module.projects.map((project) => {
-      const projectLessons = project.lessonIds
-        .map((lessonId) => lessons.find((l) => l.uuid === lessonId))
-        .filter((l): l is Lesson => l !== undefined)
-        .map((lesson) => ({
-          lessonId: lesson.uuid,
-          lessonTitle: lesson.title,
-          stepIds: lesson.stepIds,
-        }));
+    // Только опубликованные проекты
+    return module.projects
+      .filter((p) => p.status === Status.PUBLISHED)
+      .map((project) => {
+        const projectLessons = project.lessonIds
+          .map((lessonId) => lessons.find((l) => l.uuid === lessonId))
+          .filter((l): l is Lesson => l !== undefined)
+          // Только опубликованные уроки
+          .filter((l) => l.status === Status.PUBLISHED)
+          .map((lesson) => ({
+            lessonId: lesson.uuid,
+            lessonTitle: lesson.title,
+            stepIds: lesson.stepIds,
+          }));
 
-      return {
-        projectId: project.uuid,
-        projectTitle: project.title,
-        lessons: projectLessons,
-      };
-    });
+        return {
+          projectId: project.uuid,
+          projectTitle: project.title,
+          lessons: projectLessons,
+        };
+      });
   }
 }

@@ -80,30 +80,30 @@
 
 ## Фаза 4: Snapshot API — CourseDs + Фасад + UseCase
 
-- [~] Task: Написать тесты для CourseDs.buildSnapshot
+- [x] Task: Написать тесты для CourseDs.buildSnapshot
     - [ ] Тест: собирает проекты с lessonIds и stepIds
     - [ ] Тест: при пустом projects возвращает []
     - [ ] Тест: порядок проектов сохраняется
 
-- [ ] Task: Реализовать CourseDs.buildSnapshot
+- [x] Task: Реализовать CourseDs.buildSnapshot
     - [ ] Файл `module-ds.ts`, класс `CourseDs`
     - [ ] Добавить тип `ContentSnapshot` в `domain/types.ts`
     - [ ] Метод `buildSnapshot(module: Module, lessons: Lesson[]): ContentSnapshot`
 
-- [ ] Task: Написать тесты для get-module-snapshot-uc
+- [x] Task: Написать тесты для get-module-snapshot-uc
     - [ ] Тест: возвращает полный снимок (проекты → уроки → stepIds)
     - [ ] Тест: выбрасывает ошибку если модуль не найден
     - [ ] Тест: выбрасывает ошибку если нет доступа
 
-- [ ] Task: Реализовать get-module-snapshot-uc
+- [x] Task: Реализовать get-module-snapshot-uc
     - [ ] `domain/module/commands/get-module-snapshot-cmd.ts` — команда и метатип
     - [ ] `api/module/get-module-snapshot-uc.ts` — use case
     - [ ] Собирает уроки и шаги через репозитории, вызывает `CourseDs.buildSnapshot()`
 
-- [ ] Task: Создать фасадный интерфейс CourseFacade
+- [x] Task: Создать фасадный интерфейс CourseFacade
     - [ ] `domain/facade.ts` — `CourseFacade` интерфейс с методом `getModuleSnapshot(moduleId: string): Promise<ContentSnapshot>`
 
-- [ ] Task: Реализовать CourseInProcFacade
+- [x] Task: Реализовать CourseInProcFacade
     - [ ] `infra/course-in-proc-facade.ts` — реализация через резолвер (репозитории + CourseDs)
     - [ ] Тест для фасада
 

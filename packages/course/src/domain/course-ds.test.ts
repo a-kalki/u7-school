@@ -10,7 +10,7 @@ function makeModule(overrides: Partial<Module> = {}): Module {
     title: 'Модуль',
     description: 'Описание',
     authorId: crypto.randomUUID(),
-    status: Status.DRAFT,
+    status: Status.PUBLISHED,
     createdAt: '2026-05-01T12:00',
     projects: [],
     ...overrides,
@@ -26,7 +26,7 @@ function makeLesson(
     uuid: lessonId,
     moduleId: crypto.randomUUID(),
     title,
-    status: Status.DRAFT,
+    status: Status.PUBLISHED,
     createdAt: '2026-05-01T12:00',
     stepIds,
     mentorStepIds: [],
@@ -47,13 +47,13 @@ describe('CourseDs.buildSnapshot', () => {
         {
           uuid: crypto.randomUUID(),
           title: 'Проект 1',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [lessonId1],
         },
         {
           uuid: crypto.randomUUID(),
           title: 'Проект 2',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [lessonId2],
         },
       ],
@@ -89,19 +89,19 @@ describe('CourseDs.buildSnapshot', () => {
         {
           uuid: crypto.randomUUID(),
           title: 'Первый',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [],
         },
         {
           uuid: crypto.randomUUID(),
           title: 'Второй',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [],
         },
         {
           uuid: crypto.randomUUID(),
           title: 'Третий',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [],
         },
       ],
@@ -121,7 +121,7 @@ describe('CourseDs.buildSnapshot', () => {
         {
           uuid: crypto.randomUUID(),
           title: 'Проект без уроков',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [],
         },
       ],
@@ -139,7 +139,7 @@ describe('CourseDs.buildSnapshot', () => {
         {
           uuid: crypto.randomUUID(),
           title: 'Проект',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [lessonId],
         },
       ],
@@ -160,7 +160,7 @@ describe('CourseDs.buildSnapshot', () => {
         {
           uuid: crypto.randomUUID(),
           title: 'Проект',
-          status: Status.DRAFT,
+          status: Status.PUBLISHED,
           lessonIds: [lessonId1, lessonId2],
         },
       ],
@@ -173,5 +173,41 @@ describe('CourseDs.buildSnapshot', () => {
 
     const snapshot = ds.buildSnapshot(module, lessons);
     expect(snapshot[0]?.lessons).toHaveLength(2);
+  });
+
+  test('DRAFT проекты и уроки не попадают в снимок', () => {
+    const pubLessonId = crypto.randomUUID();
+    const draftLessonId = crypto.randomUUID();
+
+    const module = makeModule({
+      projects: [
+        {
+          uuid: crypto.randomUUID(),
+          title: 'Опубликованный проект',
+          status: Status.PUBLISHED,
+          lessonIds: [pubLessonId, draftLessonId],
+        },
+        {
+          uuid: crypto.randomUUID(),
+          title: 'DRAFT проект',
+          status: Status.DRAFT,
+          lessonIds: [pubLessonId],
+        },
+      ],
+    });
+
+    const lessons = [
+      makeLesson(pubLessonId, 'Опубликованный урок', []),
+      { ...makeLesson(draftLessonId, 'DRAFT урок', []), status: Status.DRAFT } as Lesson,
+    ];
+
+    const snapshot = ds.buildSnapshot(module, lessons);
+
+    // Только один PUBLISHED проект
+    expect(snapshot).toHaveLength(1);
+    expect(snapshot[0]?.projectTitle).toBe('Опубликованный проект');
+    // Только один PUBLISHED урок
+    expect(snapshot[0]?.lessons).toHaveLength(1);
+    expect(snapshot[0]?.lessons[0]?.lessonTitle).toBe('Опубликованный урок');
   });
 });
