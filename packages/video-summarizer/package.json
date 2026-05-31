@@ -1,0 +1,10 @@
+{
+  "name": "@u7-scl/video-summarizer",
+  "version": "0.1.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "summarize": "bun run src/run.ts"
+  }
+}
