@@ -1,0 +1,8 @@
+Задача: Реализовать StreamStatus и базовые типы
+Сводка изменений: Определен enum StreamStatus и Valibot-схема StreamStatusSchema, добавлены типы StreamId, StreamStudentId, StepRecordStatus и интерфейс StreamListFilter. Написаны и запущены модульные тесты, подтверждающие корректность валидации.
+Список созданных/измененных файлов:
+- packages/stream/src/domain/status.ts (создан)
+- packages/stream/src/domain/status.test.ts (создан)
+- packages/stream/src/domain/types.ts (создан)
+- packages/stream/src/domain/index.ts (изменен)
+Основная причина изменений: Сформировать фундамент типов и статусов для доменного слоя учебных потоков.
