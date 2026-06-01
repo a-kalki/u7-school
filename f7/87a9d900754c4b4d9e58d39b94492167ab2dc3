@@ -1,0 +1,13 @@
+Задача: Написать тесты и реализовать ядро маршрутизации StreamController.handleUpdate (Фаза 1)
+
+Сводка изменений:
+- Добавлена маршрутизация для callback stream:view:<id> → handleStreamView
+- Добавлена маршрутизация для callback progress:<streamId> → handleProgress
+- Добавлены заглушки методов handleStreamView и handleProgress
+- Написаны тесты: неизвестная команда, неизвестный callback, stream:view, my_study через handleUpdate, enroll через handleUpdate, complete через handleUpdate
+
+Изменённые файлы:
+- packages/stream/src/ui/bot/controller/stream-controller.ts
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts
+
+Причина: Реализация полной маршрутизации команд и callback'ов согласно плану фазы 1.
