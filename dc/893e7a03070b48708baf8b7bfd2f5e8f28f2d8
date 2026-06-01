@@ -1,0 +1,10 @@
+**Задача: Написать тесты для StreamDs.completeStep + Реализовать определение уровней**
+
+**Изменения:**
+- `packages/stream/src/domain/stream/a-root.ts`: добавлен метод `findStepContext` для определения контекста шага (урок, проект, позиция)
+- `packages/stream/src/domain/stream/a-root.test.ts`: добавлены 4 теста `findStepContext`
+- `packages/stream/src/domain/stream-ds.ts`: переписан `completeStep` с определением уровней step/lesson/project/stream
+- `packages/stream/src/domain/stream-ds.test.ts`: добавлено 4 теста для многопроектного снимка (все уровни)
+
+**Причина:** FT-1 требует, чтобы StreamDs определял уровни завершения (step/lesson/project/stream) вместо всегда `step`.
+**Результат:** 69 тестов проходят, покрытие 100%.
