@@ -2,15 +2,15 @@
 
 ## Фаза 1: StreamDs.completeStep — определение уровней lesson/project
 
-- [ ] Task: Написать тесты для StreamDs.completeStep с определением уровней
-    - [ ] Тест: уровень `step` — следующий шаг в том же уроке
-    - [ ] Тест: уровень `lesson` — переход на следующий урок (возвращает completedLessonId)
-    - [ ] Тест: уровень `project` — переход на следующий проект (возвращает completedProjectId)
-    - [ ] Тест: уровень `stream` — последний шаг, студент completed
+- [x] Task: Написать тесты для StreamDs.completeStep с определением уровней `dc893e7`
+    - [x] Тест: уровень `step` — следующий шаг в том же уроке
+    - [x] Тест: уровень `lesson` — переход на следующий урок (возвращает completedLessonId)
+    - [x] Тест: уровень `project` — переход на следующий проект (возвращает completedProjectId)
+    - [x] Тест: уровень `stream` — последний шаг, студент completed
 
-- [ ] Task: Реализовать определение уровней в StreamDs.completeStep
-    - [ ] Добавить методы `findLessonByStepId` и `findProjectByLessonId` в StreamAr
-    - [ ] Обновить `StreamDs.completeStep` для возврата корректного CompletionResult
+- [x] Task: Реализовать определение уровней в StreamDs.completeStep `dc893e7`
+    - [x] Добавить методы `findLessonByStepId` и `findProjectByLessonId` в StreamAr
+    - [x] Обновить `StreamDs.completeStep` для возврата корректного CompletionResult
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
