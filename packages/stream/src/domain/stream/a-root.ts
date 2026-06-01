@@ -88,6 +88,20 @@ export class StreamAr extends Aggregate<StreamArMeta> {
   }
 
   /**
+   * Возвращает ID первого шага в потоке.
+   */
+  getFirstStepId(): string | null {
+    for (const project of this._state.contentSnapshot) {
+      for (const lesson of project.lessons) {
+        if (lesson.stepIds.length > 0) {
+          return lesson.stepIds[0] ?? null;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
    * Нахождение следующего шага в снимке контента потока.
    * Обходит дерево контента в глубину и возвращает UUID следующего шага.
    */

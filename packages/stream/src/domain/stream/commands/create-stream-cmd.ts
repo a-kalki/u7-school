@@ -1,6 +1,8 @@
 import * as v from 'valibot';
+import type { UcMeta } from '@u7-scl/core/api';
 import type { Stream, StreamArMeta } from '../entity';
 import { StreamSchema } from '../entity';
+import type { StreamUcErrors } from '../../../api/errors';
 
 /** Схема валидации команды создания потока */
 export const CreateStreamCmdSchema = v.object({
@@ -20,12 +22,12 @@ export const CreateStreamCmdSchema = v.object({
 /** Команда создания потока */
 export type CreateStreamCmd = v.InferOutput<typeof CreateStreamCmdSchema>;
 
-export interface CreateStreamCmdMeta {
+export interface CreateStreamCmdMeta extends UcMeta {
   ucName: 'create-stream';
   arMeta: StreamArMeta;
   input: CreateStreamCmd;
   output: Stream;
-  errors: never; // В рамках MVP ошибки usecase отсутствуют
+  errors: StreamUcErrors;
   requiresAuth: true;
   type: 'command';
 }

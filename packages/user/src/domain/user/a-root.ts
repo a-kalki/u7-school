@@ -73,6 +73,14 @@ export class UserAr extends Aggregate<UserArMeta> {
   }
 
   /**
+   * Устанавливает единственную роль пользователя.
+   */
+  setRole(role: Role): void {
+    this._state.roles = [role];
+    this._state.updatedAt = isoNow();
+  }
+
+  /**
    * Проверяет наличие роли у пользователя.
    */
   hasRole(role: Role): boolean {

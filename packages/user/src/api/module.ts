@@ -7,6 +7,7 @@ import { GetUserUc } from './user/get-user-uc';
 import { ListUsersUc } from './user/list-users-uc';
 import { RegisterGuestUc } from './user/register-guest-uc';
 import { RemoveRoleToUserUc } from './user/remove-role-to-user-uc';
+import { UpdateUserRoleUc } from './user/update-user-role-uc';
 
 export class UserApiModule extends ApiModule<
   UserApiModuleMeta,
@@ -21,6 +22,7 @@ export class UserApiModule extends ApiModule<
     new RegisterGuestUc(),
     new AddRoleToUserUc(),
     new RemoveRoleToUserUc(),
+    new UpdateUserRoleUc(),
   ];
 
   constructor(resolve: UserApiModuleResolver) {

@@ -2,8 +2,8 @@ import type { StreamAr } from './stream/a-root';
 import type { StreamStudentAr } from './stream-student/a-root';
 import type { CompletionResult } from './types';
 
-export class StreamDs {
-  static completeStep(
+export const StreamDs = {
+  completeStep(
     stream: StreamAr,
     student: StreamStudentAr,
     stepId: string,
@@ -19,5 +19,5 @@ export class StreamDs {
 
     student.complete();
     return { level: 'stream', completed: true };
-  }
-}
+  },
+};

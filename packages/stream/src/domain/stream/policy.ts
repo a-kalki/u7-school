@@ -1,25 +1,34 @@
-import { Role } from '@u7-scl/user/domain';
+import { type User, UserPolicy } from '@u7-scl/user/domain';
+import { StreamStatus } from '#domain/status';
 import type { Stream } from './entity';
 
 export const StreamPolicy = {
-  canCreate(actor: { roles: Role[] }): boolean {
-    return (
-      actor.roles.includes(Role.MENTOR) || actor.roles.includes(Role.ADMIN)
-    );
+  canCreate(actor: User): boolean {
+    return UserPolicy.isMentor(actor);
   },
 
-  canRead(actor: { uuid: string; roles: Role[] }, stream: Stream): boolean {
-    if (stream.status === 'active' || stream.status === 'completed')
-      return true;
-    return actor.roles.includes(Role.ADMIN) || actor.uuid === stream.mentorId;
+  canRead(actor: User, stream: Stream): boolean {
+    if (this.isActive(stream) || this.isComplete(stream)) return true;
+    return UserPolicy.isAdmin(actor) || this.isMentor(actor, stream);
   },
 
-  canEdit(actor: { uuid: string; roles: Role[] }, stream: Stream): boolean {
-    return actor.roles.includes(Role.ADMIN) || actor.uuid === stream.mentorId;
+  canEdit(actor: User, stream: Stream): boolean {
+    return UserPolicy.isAdmin(actor) || this.isMentor(actor, stream);
   },
 
-  canEnroll(actor: { roles: Role[] }): boolean {
-    const roles = actor.roles;
-    return roles.includes(Role.GUEST) || roles.includes(Role.CANDIDATE);
+  canEnroll(actor: User): boolean {
+    return UserPolicy.isGuest(actor) || UserPolicy.isCandidate(actor);
+  },
+
+  isMentor(actor: User, stream: Stream): boolean {
+    return actor.uuid === stream.mentorId;
+  },
+
+  isComplete(stream: Stream): boolean {
+    return stream.status === StreamStatus.COMPLETED;
+  },
+
+  isActive(stream: Stream): boolean {
+    return stream.status === StreamStatus.ACTIVE;
   },
 };

@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { StreamStatus } from './status';
 import { StreamAr } from './stream/a-root';
 import type { ContentSnapshot } from './stream/entity';
 import { StreamDs } from './stream-ds';
 import { StreamStudentAr } from './stream-student/a-root';
 
-const mockStreamId = '11111111-1111-4111-8111-111111111111';
+const _mockStreamId = '11111111-1111-4111-8111-111111111111';
 const mockUserId = '22222222-2222-4222-8222-222222222222';
 const mockMentorId = '33333333-3333-4333-8333-333333333333';
 const mockModuleId = '44444444-4444-4444-8444-444444444444';

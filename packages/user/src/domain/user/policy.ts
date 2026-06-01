@@ -14,6 +14,18 @@ export const UserPolicy = {
     return actor.roles.includes(Role.MENTOR);
   },
 
+  isSubscriber(actor: User): boolean {
+    return actor.roles.includes(Role.SUBSCRIBER);
+  },
+
+  isCandidate(actor: User): boolean {
+    return actor.roles.includes(Role.CANDIDATE);
+  },
+
+  isGuest(actor: User): boolean {
+    return actor.roles.includes(Role.GUEST);
+  },
+
   isStudent(actor: User): boolean {
     return actor.roles.includes(Role.STUDENT);
   },

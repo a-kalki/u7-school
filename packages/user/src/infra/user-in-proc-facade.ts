@@ -7,6 +7,7 @@ import type { Role } from '#domain/user/roles';
  * In-process реализация фасада пользователей.
  * Принимает UserApiModule и делегирует вызовы его API.
  */
+// TODO: Test edit
 export class UserInProcFacade implements UserFacade {
   readonly #userApi: UserApiModule;
 
@@ -33,6 +34,23 @@ export class UserInProcFacade implements UserFacade {
   async userExists(uuid: string, actorId?: string): Promise<boolean> {
     const user = await this.getUserByUuid(uuid, actorId);
     return user !== undefined;
+  }
+
+  async updateUserRole(
+    userId: string,
+    role: Role,
+    actorId?: string,
+  ): Promise<User | undefined> {
+    try {
+      const result = await this.#userApi.handle({
+        name: 'update-user-role',
+        attrs: { userId, role },
+        actorId,
+      });
+      return result as User;
+    } catch {
+      return undefined;
+    }
   }
 
   async addRoleToUser(

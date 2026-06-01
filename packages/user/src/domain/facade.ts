@@ -20,6 +20,13 @@ export interface UserFacade {
     actorId?: string,
   ): Promise<User | undefined>;
 
+  /** Обновить роль пользователя (заменить все роли на одну) */
+  updateUserRole(
+    userId: string,
+    role: Role,
+    actorId?: string,
+  ): Promise<User | undefined>;
+
   /** Получить пользователя по Telegram ID */
   getUserByTelegramId(
     telegramId: number,

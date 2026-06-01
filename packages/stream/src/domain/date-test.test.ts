@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test';
+import { expect, test } from 'bun:test';
 import * as v from 'valibot';
 
 test('isoDateTime валидация', () => {
