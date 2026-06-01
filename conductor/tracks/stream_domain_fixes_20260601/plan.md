@@ -14,7 +14,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) `e6e66f9`
 
-## Фаза 2: ActivateStreamUc — выдача первого шага студентам
+## Фаза 2: ActivateStreamUc — выдача первого шага студентам [checkpoint: 5cac874]
 
 - [x] Task: Написать тесты для активации студентов в ActivateStreamUc `8460425`
     - [x] Тест: успешная активация — поток active, студентам выдан первый шаг
@@ -27,7 +27,7 @@
     - [x] Для каждого студента без шагов — выдать первый шаг
     - [x] Сохранить всех студентов
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) `5cac874`
 
 ## Фаза 3: Новые UseCases и проверки авторизации
 
