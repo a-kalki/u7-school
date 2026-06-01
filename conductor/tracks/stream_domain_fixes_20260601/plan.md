@@ -67,19 +67,19 @@
 - [x] Task: Добавить проверки авторизации в ActivateStreamUc, ArchiveStreamUc, CompleteStreamUc, GetStudentProgressUc `8f330a8`
     - [ ] ActivateStreamUc: StreamPolicy.canEdit(actor, stream)
     - [ ] ArchiveStreamUc: StreamPolicy.canEdit(actor, stream)
-    - [ ] CompleteStreamUc: StreamPolicy.canEdit(actor, stream)
-    - [ ] GetStudentProgressUc: StudentPolicy.canViewProgress(actor, student) + ментор потока
+    - [x] CompleteStreamUc: StreamPolicy.canEdit(actor, stream)
+    - [x] GetStudentProgressUc: StudentPolicy.canViewProgress(actor, student) + ментор потока
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `20a511f`
 
 ## Фаза 4: EnrollStudentUc — проверка существующей активной записи
 
-- [ ] Task: Написать тесты для проверки активной записи в EnrollStudentUc
-    - [ ] Тест: ошибка если у пользователя уже есть активный поток
-    - [ ] Тест: успешная запись если предыдущие записи archived/completed
+- [x] Task: Написать тесты для проверки активной записи в EnrollStudentUc `4c7e2ca`
+    - [x] Тест: ошибка если у пользователя уже есть активный поток
+    - [x] Тест: успешная запись если предыдущие записи archived/completed
 
-- [ ] Task: Реализовать проверку активной записи в EnrollStudentUc
-    - [ ] Перед созданием StudentAr проверить `StudentRepo.getByUser`
-    - [ ] Если есть запись со статусом `active` — ошибка
+- [x] Task: Реализовать проверку активной записи в EnrollStudentUc `4c7e2ca`
+    - [x] Перед созданием StudentAr проверить `StudentRepo.getByUser`
+    - [x] Если есть запись со статусом `active` — ошибка
 
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
