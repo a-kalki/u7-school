@@ -56,15 +56,15 @@
     - [x] `stream/commands/complete-stream-cmd.ts` — CompleteStreamCmd
     - [x] `stream/commands/archive-stream-cmd.ts` — ArchiveStreamCmd
 
-- [ ] Task: Написать тесты для StreamAr.findNextStep
-    - [ ] Тест: находит следующий шаг в том же уроке
-    - [ ] Тест: переходит к первому шагу следующего урока
-    - [ ] Тест: переходит к первому шагу следующего проекта
-    - [ ] Тест: возвращает null на последнем шаге всего потока
-    - [ ] Тест: выбрасывает ошибку если stepId не найден в снимке
+- [x] Task: Написать тесты для StreamAr.findNextStep (ffc8f56)
+    - [x] Тест: находит следующий шаг в том же уроке
+    - [x] Тест: переходит к первому шагу следующего урока
+    - [x] Тест: переходит к первому шагу следующего проекта
+    - [x] Тест: возвращает null на последнем шаге всего потока
+    - [x] Тест: выбрасывает ошибку если stepId не найден в снимке
 
-- [ ] Task: Реализовать StreamAr.findNextStep
-    - [ ] `stream/a-root.ts` — метод findNextStep с обходом дерева в глубину
+- [x] Task: Реализовать StreamAr.findNextStep (ffc8f56)
+    - [x] `stream/a-root.ts` — метод findNextStep с обходом дерева в глубину
 
 - [ ] Task: Conductor - User Manual Verification 'Агрегат StreamAr' (Protocol in workflow.md)
 
