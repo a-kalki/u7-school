@@ -1,7 +1,11 @@
-import { BotController, type BotResponse, type BotUpdate } from '@u7-scl/core/ui';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import { escapeMarkdown } from '@u7-scl/core/shared';
+import {
+  BotController,
+  type BotResponse,
+  type BotUpdate,
+} from '@u7-scl/core/ui';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { OnboardingBotApp } from '../app';

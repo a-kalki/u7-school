@@ -23,11 +23,7 @@ export const CreateStreamCmdSchema = v.object({
 export type CreateStreamCmd = v.InferOutput<typeof CreateStreamCmdSchema>;
 
 export interface CreateStreamCmdMeta extends UcMeta {
-  ucName: 'create-stream';
-  arMeta: StreamArMeta;
+  name: 'create-stream';
+  label: 'Создать поток';
   input: CreateStreamCmd;
-  output: Stream;
-  errors: StreamUcErrors;
-  requiresAuth: true;
-  type: 'command';
 }

@@ -7,16 +7,10 @@ import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
 
-/**
- * Регистрирует обработчиков верхнего меню.
- * - /start: главное меню (бот рендерит сам)
- * - /link_to_school_group: приглашение в группу
- * - /start_onboarding: вход в анкету
- */
 export function registerTopMenuHandler(
   bot: Bot<BotContext>,
   userFacade: UserFacade,
-  _onboardingController: OnboardingController,
+  onboardingController: OnboardingController,
   streamController: StreamController,
   config: BotConfig,
   logger: Logger,
@@ -47,6 +41,8 @@ export function registerTopMenuHandler(
         '',
         '🔗 /link_to_school_group — присоединяйся к группе, чтобы быть в курсе новостей, читать отзывы и общаться со студентами',
         '📝 /start_onboarding — заполни анкету, расскажи о своих целях и ожиданиях от обучения',
+        '📚 /streams — список учебных потоков',
+        '📖 /my_study — моя учеба',
       ].join('\n'),
     );
   });
@@ -69,7 +65,7 @@ export function registerTopMenuHandler(
           command: 'streams',
           telegramId,
         },
-        config.botAdminUuid,
+        telegramId.toString(),
       );
       await executeResponses(ctx, response);
     } catch (err) {
@@ -78,6 +74,29 @@ export function registerTopMenuHandler(
         telegramId,
       });
       await ctx.reply('Произошла ошибка при получении потоков.');
+    }
+  });
+
+  bot.command('my_study', async (ctx) => {
+    const telegramId = ctx.from?.id;
+    if (!telegramId) return;
+
+    try {
+      const response = await streamController.handleUpdate(
+        {
+          type: 'command',
+          command: 'my_study',
+          telegramId,
+        },
+        telegramId.toString(),
+      );
+      await executeResponses(ctx, response);
+    } catch (err) {
+      logger.error('top-menu', 'Ошибка /my_study', {
+        error: String(err),
+        telegramId,
+      });
+      await ctx.reply('Произошла ошибка при получении данных об обучении.');
     }
   });
 
@@ -93,7 +112,7 @@ export function registerTopMenuHandler(
     ctx.session.menu = 'onboarding';
 
     try {
-      const response = await controller.handleUpdate(
+      const response = await onboardingController.handleUpdate(
         {
           type: 'command',
           command: 'start',

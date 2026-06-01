@@ -50,6 +50,7 @@ export abstract class Aggregate<TMeta extends ArMeta> {
   protected validateState(state: TMeta['state']): TMeta['state'] {
     const result = v.safeParse(this.schema, state);
     if (!result.success) {
+      console.log('Validation issues:', v.flatten(result.issues));
       this.throwInvariant(
         { issues: v.flatten(result.issues) },
         'Нарушены инварианты агрегата',

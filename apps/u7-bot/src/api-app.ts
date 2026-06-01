@@ -10,6 +10,7 @@ import {
   StreamJsonRepo,
   StreamStudentJsonRepo,
 } from '@u7-scl/stream';
+import { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
@@ -66,6 +67,8 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     courseFacade: { getModuleSnapshot: async () => [] },
   });
 
+  const streamController = new StreamController(streamModule);
+
   // ══ ApiApp: модули + опциональный логгер в конструкторе ══
   const apiApp = new ApiApp(
     [userModule, onboardingModule, streamModule],
@@ -79,5 +82,6 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     questionnaireRepo,
     poolService: activePoolService,
     streamModule,
+    streamController,
   };
 }

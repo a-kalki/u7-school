@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { StreamStatusSchema } from '../status';
+import type { ArMeta } from '@u7-scl/core/domain';
 
 /** Схема шага внутри снимка контента */
 export const LessonSnapshotSchema = v.object({
@@ -68,7 +69,7 @@ export const StreamSchema = v.object({
 
 export type Stream = v.InferOutput<typeof StreamSchema>;
 
-export interface StreamArMeta {
+export interface StreamArMeta extends ArMeta {
   name: 'Stream';
   label: 'Поток';
   state: Stream;

@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import type { ArMeta } from '@u7-scl/core/domain';
 
 /** Схема записи о прохождении конкретного шага */
 export const StepRecordSchema = v.object({
@@ -47,7 +48,7 @@ export const StreamStudentSchema = v.object({
 
 export type StreamStudent = v.InferOutput<typeof StreamStudentSchema>;
 
-export interface StreamStudentArMeta {
+export interface StreamStudentArMeta extends ArMeta {
   name: 'StreamStudent';
   label: 'Студент потока';
   state: StreamStudent;

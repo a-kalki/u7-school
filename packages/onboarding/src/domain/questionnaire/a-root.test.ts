@@ -2,6 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { QuestionnaireAr } from './a-root';
 import type { Question } from './question';
 import { QuestionPoolService } from './question-pool-service';
+import type {
+  CompletedResponse,
+  NewQuestionResponse,
+  QuestionnaireActionResponse,
+  WaitNextResponse,
+} from './types';
 
 // ── Test pool ──
 
@@ -67,31 +73,32 @@ describe('QuestionnaireAr', () => {
   test('прохождение полной анкеты с ветвлением (yes → q2 → q3 → q4)', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
+    let res: QuestionnaireActionResponse;
 
-    let res = ar.handleAction(cb('yes'));
+    res = ar.handleAction(cb('yes')) as NewQuestionResponse;
     expect(res.type).toBe('new_question');
-    expect((res as any).question.questionCode).toBe('q2');
+    expect(res.question.questionCode).toBe('q2');
 
-    res = ar.handleAction(cb('ok'));
+    res = ar.handleAction(cb('ok')) as NewQuestionResponse;
     expect(res.type).toBe('new_question');
-    expect((res as any).question.questionCode).toBe('q3');
+    expect(res.question.questionCode).toBe('q3');
 
-    res = ar.handleAction(txt('hello'));
+    res = ar.handleAction(txt('hello')) as NewQuestionResponse;
     expect(res.type).toBe('new_question');
-    expect((res as any).question.questionCode).toBe('q4');
+    expect(res.question.questionCode).toBe('q4');
 
     // q4 — множественный выбор
-    res = ar.handleAction(cb('a'));
+    res = ar.handleAction(cb('a')) as WaitNextResponse;
     expect(res.type).toBe('wait_next');
-    expect((res as any).selectedAnswers).toEqual(['a']);
-    expect((res as any).nextButton).toBe('next:q4');
+    expect(res.selectedAnswers).toEqual(['a']);
+    expect(res.nextButton).toBe('next:q4');
 
     res = ar.handleAction(cb('b'));
     expect(res.type).toBe('wait_next');
-    expect((res as any).selectedAnswers).toEqual(['a', 'b']);
+    expect(res.selectedAnswers).toEqual(['a', 'b']);
 
     // Подтверждаем через next:<code>
-    res = ar.handleAction(cb('next:q4'));
+    res = ar.handleAction(cb('next:q4')) as CompletedResponse;
     expect(res.type).toBe('completed');
 
     expect(ar.getCurrentState().status).toBe('completed');
@@ -162,16 +169,16 @@ describe('QuestionnaireAr', () => {
 
     expect(ar.getCurrentState().draftAnswers).toEqual([]);
 
-    const res = ar.handleAction(cb('a'));
+    const res = ar.handleAction(cb('a')) as WaitNextResponse;
     expect(res.type).toBe('wait_next');
-    expect((res as any).nextButton).toBe('next:q4');
-    expect((res as any).selectedAnswers).toEqual(['a']);
+    expect(res.nextButton).toBe('next:q4');
+    expect(res.selectedAnswers).toEqual(['a']);
 
     // Сняли выбор — nextButton исчезает
-    const res2 = ar.handleAction(cb('a'));
+    const res2 = ar.handleAction(cb('a')) as WaitNextResponse;
     expect(res2.type).toBe('wait_next');
     expect(res2.selectedAnswers).toEqual([]);
-    expect((res2 as any).nextButton).toBeUndefined();
+    expect(res2.nextButton).toBeUndefined();
   });
 
   test('getNextButtonText форматирует корректно', () => {
@@ -292,18 +299,18 @@ describe('QuestionnaireAr', () => {
     const pool = new QuestionPoolService(testPool, includedQuestionCodes);
     const ar = QuestionnaireAr.start(123456, pool);
 
-    const res = ar.handleAction(cb('yes'));
+    const res = ar.handleAction(cb('yes')) as NewQuestionResponse;
     expect(res.type).toBe('new_question');
     // previousQuestion — вопрос, на который ответили (q1)
-    expect((res as any).previousQuestion).toBeDefined();
-    expect((res as any).previousQuestion.questionCode).toBe('q1');
-    expect((res as any).previousQuestion.question).toBe('Первый вопрос');
+    expect(res.previousQuestion).toBeDefined();
+    expect(res.previousQuestion?.questionCode).toBe('q1');
+    expect(res.previousQuestion?.question).toBe('Первый вопрос');
     // previousSelectedAnswers — выбранные ответы на предыдущий вопрос
-    expect((res as any).previousSelectedAnswers).toEqual(['yes']);
+    expect(res.previousSelectedAnswers).toEqual(['yes']);
     // question — НОВЫЙ вопрос
-    expect((res as any).question.questionCode).toBe('q2');
+    expect(res.question.questionCode).toBe('q2');
     // selectedAnswers — черновики нового вопроса (пусто)
-    expect((res as any).selectedAnswers).toEqual([]);
+    expect(res.selectedAnswers).toEqual([]);
   });
 
   test('new_question содержит previousQuestion и previousSelectedAnswers при next (multiple choice)', () => {
@@ -313,14 +320,14 @@ describe('QuestionnaireAr', () => {
     ar.handleAction(txt('hello')); // q3 -> q4
     ar.handleAction(cb('b')); // выбрать b
 
-    const res = ar.handleAction(cb('next:q4'));
+    const res = ar.handleAction(cb('next:q4')) as CompletedResponse;
     expect(res.type).toBe('completed');
     // previousQuestion — q4
-    expect((res as any).previousQuestion).toBeDefined();
-    expect((res as any).previousQuestion.questionCode).toBe('q4');
-    expect((res as any).previousQuestion.question).toBe('Множественный выбор');
+    expect(res.previousQuestion).toBeDefined();
+    expect(res.previousQuestion?.questionCode).toBe('q4');
+    expect(res.previousQuestion?.question).toBe('Множественный выбор');
     // previousSelectedAnswers — ['b']
-    expect((res as any).previousSelectedAnswers).toEqual(['b']);
+    expect(res.previousSelectedAnswers).toEqual(['b']);
   });
 
   test('new_question НЕ содержит previousQuestion если предыдущий вопрос не choice', () => {
@@ -329,11 +336,11 @@ describe('QuestionnaireAr', () => {
     ar.handleAction(cb('no')); // q1 -> q3 (текстовый)
 
     // q3 — текстовый, previousQuestion не нужен для рендеринга
-    const res = ar.handleAction(txt('hello'));
+    const res = ar.handleAction(txt('hello')) as NewQuestionResponse;
     expect(res.type).toBe('new_question');
     // Для текстового вопроса previousQuestion может быть или нет —
     // главное что агрегат не падает и возвращает корректный вопрос
-    expect((res as any).question.questionCode).toBe('q4');
+    expect(res.question?.questionCode).toBe('q4');
   });
 
   test('completed содержит previousQuestion и previousSelectedAnswers', () => {
@@ -343,11 +350,11 @@ describe('QuestionnaireAr', () => {
     ar.handleAction(txt('test')); // q3 -> q4
     ar.handleAction(cb('a'));
 
-    const res = ar.handleAction(cb('next:q4'));
+    const res = ar.handleAction(cb('next:q4')) as CompletedResponse;
     expect(res.type).toBe('completed');
-    expect((res as any).previousQuestion).toBeDefined();
-    expect((res as any).previousQuestion.questionCode).toBe('q4');
-    expect((res as any).previousSelectedAnswers).toEqual(['a']);
+    expect(res.previousQuestion).toBeDefined();
+    expect(res.previousQuestion?.questionCode).toBe('q4');
+    expect(res.previousSelectedAnswers).toEqual(['a']);
   });
 
   // ── Переименование question → currentQuestion в wait_next ──
@@ -358,13 +365,13 @@ describe('QuestionnaireAr', () => {
     ar.handleAction(cb('no')); // q1 -> q3
     ar.handleAction(txt('test')); // q3 -> q4 (multiple)
 
-    const res = ar.handleAction(cb('a'));
+    const res = ar.handleAction(cb('a')) as WaitNextResponse;
     expect(res.type).toBe('wait_next');
     // Должно быть currentQuestion
-    expect((res as any).currentQuestion).toBeDefined();
-    expect((res as any).currentQuestion.questionCode).toBe('q4');
+    expect(res.currentQuestion).toBeDefined();
+    expect(res.currentQuestion.questionCode).toBe('q4');
     // question больше не должно быть
-    expect((res as any).question).toBeUndefined();
+    expect((res as { question?: unknown }).question).toBeUndefined();
   });
 
   test('getQuestionnaireActionResponse возвращает currentQuestion для wait_next', () => {
@@ -374,11 +381,10 @@ describe('QuestionnaireAr', () => {
     ar.handleAction(txt('test')); // q3 -> q4
     ar.handleAction(cb('a'));
 
-    const res = ar.getQuestionnaireActionResponse();
+    const res = ar.getQuestionnaireActionResponse() as WaitNextResponse;
     expect(res.type).toBe('wait_next');
-    expect((res as any).currentQuestion).toBeDefined();
-    expect((res as any).currentQuestion.questionCode).toBe('q4');
-    expect((res as any).question).toBeUndefined();
+    expect(res.currentQuestion).toBeDefined();
+    expect(res.currentQuestion.questionCode).toBe('q4');
   });
 
   test('getNextQuestion: корректная работа при отсутствии ответов на условия', () => {

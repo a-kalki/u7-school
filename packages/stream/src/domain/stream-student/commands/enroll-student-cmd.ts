@@ -14,11 +14,7 @@ export const EnrollStudentCmdSchema = v.object({
 export type EnrollStudentCmd = v.InferOutput<typeof EnrollStudentCmdSchema>;
 
 export interface EnrollStudentCmdMeta extends UcMeta {
-  ucName: 'enroll-student';
+  name: 'enroll-student';
+  label: 'Зачислить студента';
   input: EnrollStudentCmd;
-  output: undefined;
-  errors: StreamUcErrors;
-  requiresAuth: true;
-  type: 'command';
-  arMeta: StreamStudentArMeta;
 }
