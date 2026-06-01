@@ -1,0 +1,10 @@
+Задача: Реализовать StreamAr.create и методы статусов
+Сводка изменений: Реализован доменный агрегат StreamAr с фабричным методом create, а также методами управления статусами activate(), complete() и archive(). Созданы схемы и типы команд CreateStreamCmd, ActivateStreamCmd, CompleteStreamCmd, ArchiveStreamCmd. Написаны и запущены тесты для проверки корректности переходов статусов.
+Список созданных/измененных файлов:
+- packages/stream/src/domain/stream/a-root.ts (создан)
+- packages/stream/src/domain/stream/a-root.test.ts (создан)
+- packages/stream/src/domain/stream/commands/create-stream-cmd.ts (создан)
+- packages/stream/src/domain/stream/commands/activate-stream-cmd.ts (создан)
+- packages/stream/src/domain/stream/commands/complete-stream-cmd.ts (создан)
+- packages/stream/src/domain/stream/commands/archive-stream-cmd.ts (создан)
+Основная причина изменений: Обеспечить доменную логику создания учебного потока и безопасные переходы между его жизненными статусами.
