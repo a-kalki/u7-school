@@ -4,8 +4,8 @@
  */
 
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
-import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
+import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
@@ -53,8 +53,7 @@ async function main() {
     moduleId: module.uuid,
     targetAudience:
       'Новички в программировании, а также те, кто уже знает другой язык и хочет изучить JavaScript дополнительно',
-    goal:
-      'Освоить базовый синтаксис JavaScript и написать свою первую несложную программу',
+    goal: 'Освоить базовый синтаксис JavaScript и написать свою первую несложную программу',
     result:
       'Ты напишешь функцию, которая использует циклы и условные конструкции — первый шаг к настоящему коду',
     tags: ['js', 'javascript', 'основы', 'новичкам'],

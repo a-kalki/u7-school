@@ -8,7 +8,7 @@ import { OnboardingApiModule } from './module';
 function setupModule(dbPath: string) {
   const db = new BaseJsonDb();
   const repo = new QuestionnaireJsonRepo(dbPath, db);
-  const botAdminUuid = '00000000-0000-0000-0000-000000000000';
+  const _botAdminUuid = '00000000-0000-0000-0000-000000000000';
   const poolService = new QuestionPoolService(
     [
       {

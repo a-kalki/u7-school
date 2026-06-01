@@ -1,4 +1,4 @@
-import { LogLevel, type Logger } from '@u7-scl/core/shared';
+import { type Logger, LogLevel } from '@u7-scl/core/shared';
 import type { Bot } from 'grammy';
 import type { BotContext } from '../context';
 
@@ -65,29 +65,17 @@ export class TelegramLogger implements Logger {
     // Не отправляем DEBUG в Telegram
   }
 
-  info(
-    source: string,
-    message: string,
-    meta?: Record<string, unknown>,
-  ): void {
+  info(source: string, message: string, meta?: Record<string, unknown>): void {
     if (LogLevel.INFO < this.#effectiveLevel(source)) return;
     this.#send(LogLevel.INFO, source, message, meta);
   }
 
-  warn(
-    source: string,
-    message: string,
-    meta?: Record<string, unknown>,
-  ): void {
+  warn(source: string, message: string, meta?: Record<string, unknown>): void {
     if (LogLevel.WARN < this.#effectiveLevel(source)) return;
     this.#send(LogLevel.WARN, source, message, meta);
   }
 
-  error(
-    source: string,
-    message: string,
-    meta?: Record<string, unknown>,
-  ): void {
+  error(source: string, message: string, meta?: Record<string, unknown>): void {
     if (LogLevel.ERROR < this.#effectiveLevel(source)) return;
     this.#send(LogLevel.ERROR, source, message, meta);
   }
@@ -108,7 +96,9 @@ export class TelegramLogger implements Logger {
       `${emoji} <b>${this.#escapeHtml(label)}</b>`,
       `<b>Источник:</b> <code>${this.#escapeHtml(source)}</code>`,
       `<b>Сообщение:</b> ${this.#escapeHtml(message)}`,
-      meta ? `<b>Мета:</b> <code>${this.#escapeHtml(JSON.stringify(meta))}</code>` : '',
+      meta
+        ? `<b>Мета:</b> <code>${this.#escapeHtml(JSON.stringify(meta))}</code>`
+        : '',
     ].join('\n');
 
     for (const adminId of this.#adminIds) {

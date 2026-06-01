@@ -2,28 +2,28 @@
  * Суммаризация YouTube-видео из папки youtube/.
  * Запуск: bun run packages/video-summarizer/src/run-youtube.ts
  */
-import { uploadVideo, generateContent } from "./gemini";
-import { SUMMARIZE_YOUTUBE_PROMPT } from "./prompt-youtube";
-import path from "node:path";
-import fs from "node:fs";
 
-const VIDEO_DIR =
-  "/home/nur/Videos/Основы js/dist/Основы js/Модуль 1/youtube";
-const OUTPUT_DIR = path.resolve(import.meta.dirname, "..", "output", "youtube");
+import fs from 'node:fs';
+import path from 'node:path';
+import { generateContent, uploadVideo } from './gemini';
+import { SUMMARIZE_YOUTUBE_PROMPT } from './prompt-youtube';
+
+const VIDEO_DIR = '/home/nur/Videos/Основы js/dist/Основы js/Модуль 1/youtube';
+const OUTPUT_DIR = path.resolve(import.meta.dirname, '..', 'output', 'youtube');
 
 const apiKey = Bun.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 if (!apiKey) {
-  console.error("❌ Переменная GEMINI_API_KEY не установлена");
+  console.error('❌ Переменная GEMINI_API_KEY не установлена');
   process.exit(1);
 }
 
 const allVideos = fs
   .readdirSync(VIDEO_DIR)
-  .filter((f) => f.endsWith(".mp4"))
+  .filter((f) => f.endsWith('.mp4'))
   .sort();
 
 if (allVideos.length === 0) {
-  console.error("❌ Видео не найдены");
+  console.error('❌ Видео не найдены');
   process.exit(1);
 }
 
@@ -41,23 +41,23 @@ for (let i = 0; i < allVideos.length; i++) {
   console.log(`[${i + 1}/${allVideos.length}] ${video} (${sizeMB} МБ)`);
 
   try {
-    console.log("  Загружаю в Gemini...");
+    console.log('  Загружаю в Gemini...');
     const file = await uploadVideo(videoPath, apiKey);
 
-    console.log("  Суммаризирую + разбиваю на части...");
+    console.log('  Суммаризирую + разбиваю на части...');
     const summary = await generateContent(
       file,
       SUMMARIZE_YOUTUBE_PROMPT,
       apiKey,
     );
 
-    const outName = video.replace(/\.mp4$/, ".md");
+    const outName = video.replace(/\.mp4$/, '.md');
     const outPath = path.join(OUTPUT_DIR, outName);
-    fs.writeFileSync(outPath, summary, "utf-8");
+    fs.writeFileSync(outPath, summary, 'utf-8');
     console.log(`  ✅ Сохранено: ${outPath}\n`);
   } catch (err: any) {
     console.error(`  ❌ Ошибка: ${err.message}\n`);
   }
 }
 
-console.log("🏁 Готово!");
+console.log('🏁 Готово!');

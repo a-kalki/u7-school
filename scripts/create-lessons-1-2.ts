@@ -9,8 +9,8 @@
  */
 
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
-import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
+import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
@@ -78,8 +78,7 @@ async function main() {
     lessonId: l1.uuid,
     description: '💻 Выражение в консоли',
     kind: 'code',
-    content:
-      'Набери в консоли браузера эти команды и посмотри, что получится:',
+    content: 'Набери в консоли браузера эти команды и посмотри, что получится:',
     code: `// Простое выражение
 console.log('Привет, мир!');
 
@@ -215,8 +214,7 @@ console.log(oldWay);
     moduleId: MODULE_UUID,
     projectId: PROJECT1_UUID,
     title: 'Математические операторы, Типы данных',
-    additional:
-      'Арифметика, number, string, boolean, null, undefined, typeof',
+    additional: 'Арифметика, number, string, boolean, null, undefined, typeof',
     estimatedMinutes: 40,
   })) as unknown as { uuid: string };
   console.log(`  ✅ Урок 2 создан: ${l2.uuid}`);
@@ -276,8 +274,7 @@ console.log(10 ** 2);    // ?`,
     lessonId: l2.uuid,
     description: '💻 Конкатенация строк',
     kind: 'code',
-    content:
-      'Строки можно склеивать (конкатенировать) оператором +. Попробуй:',
+    content: 'Строки можно склеивать (конкатенировать) оператором +. Попробуй:',
     code: `// Простая конкатенация
 console.log('Hello' + ' ' + 'World');
 

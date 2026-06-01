@@ -7,3 +7,4 @@ export * from './domain';
 export * from './infra';
 // Shared
 export * from './shared';
+export * from './ui';

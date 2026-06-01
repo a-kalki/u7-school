@@ -1,4 +1,4 @@
-import { LogLevel, type Logger } from './logger';
+import { type Logger, LogLevel } from './logger';
 
 const LEVEL_LABELS: Record<LogLevel, string> = {
   [LogLevel.DEBUG]: 'DEBUG',
@@ -47,7 +47,12 @@ export class ConsoleLogger implements Logger {
     return this.#sourceLevels.get(source) ?? this.#level;
   }
 
-  #log(level: LogLevel, source: string, message: string, meta?: Record<string, unknown>): void {
+  #log(
+    level: LogLevel,
+    source: string,
+    message: string,
+    meta?: Record<string, unknown>,
+  ): void {
     if (level < this.#getEffectiveLevel(source)) return;
 
     const ts = new Date().toISOString();

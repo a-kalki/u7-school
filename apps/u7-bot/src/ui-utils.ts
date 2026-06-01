@@ -18,7 +18,7 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       : undefined;
 
     await ctx.api
-      .editMessageText(ctx.chat!.id, edit.messageId, edit.text, {
+      .editMessageText(ctx.chat?.id, edit.messageId, edit.text, {
         reply_markup: keyboard,
         parse_mode: edit.parseMode,
       })

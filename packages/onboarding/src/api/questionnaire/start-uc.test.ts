@@ -3,7 +3,6 @@ import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
-import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import { StartUc } from './start-uc';
 
 const actorId = 'bot-admin-uuid';

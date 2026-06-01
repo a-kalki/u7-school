@@ -1,5 +1,4 @@
 import { type UcMeta, UseCase } from '@u7-scl/core/api';
-import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
 import type { User } from '@u7-scl/user/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
 import type { Stream } from '#domain/stream/entity';

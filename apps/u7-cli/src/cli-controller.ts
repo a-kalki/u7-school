@@ -104,6 +104,7 @@ function parseKeyValueLines(
   return payload;
 }
 
+// TODO: [Refactor] Вынести общую логику текстового UI (bot/cli) в BaseTextController в packages/core
 export class CliController {
   private currentActor: { uuid: string; name: string } | null = null;
   private rl: readline.Interface;

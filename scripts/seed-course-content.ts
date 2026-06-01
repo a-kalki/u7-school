@@ -6,12 +6,13 @@
  */
 
 import { CourseApiModule } from '@u7-scl/course/api';
+import {
+  LessonJsonRepo,
+  ModuleJsonRepo,
+  StepJsonRepo,
+} from '@u7-scl/course/infra';
 import { UserApiModule } from '@u7-scl/user/api';
-import { UserInProcFacade } from '@u7-scl/user/infra';
-import { ModuleJsonRepo } from '@u7-scl/course/infra';
-import { LessonJsonRepo } from '@u7-scl/course/infra';
-import { StepJsonRepo } from '@u7-scl/course/infra';
-import { UserJsonRepo } from '@u7-scl/user/infra';
+import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 
 const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
@@ -39,7 +40,8 @@ async function main() {
   console.log('🔄 Создаём модуль "Основы JS"...');
   const module = (await h('create-module', {
     title: 'Основы JS',
-    description: 'Изучаем синтаксис языка JavaScript с нуля. Научишься писать первые программы, работать с данными и управлять логикой кода.',
+    description:
+      'Изучаем синтаксис языка JavaScript с нуля. Научишься писать первые программы, работать с данными и управлять логикой кода.',
   })) as { uuid: string; projects: { uuid: string; title: string }[] };
   console.log(`  ✅ Модуль создан: ${module.uuid}`);
 
@@ -47,11 +49,15 @@ async function main() {
   console.log('🔄 Обогащаем модуль...');
   await h('enrich-module', {
     moduleId: module.uuid,
-    targetAudience: 'Новички в программировании, которые хотят начать писать на JavaScript',
+    targetAudience:
+      'Новички в программировании, которые хотят начать писать на JavaScript',
     goal: 'Освоить базовый синтаксис JavaScript: переменные, типы данных, операторы, условия, циклы, функции, массивы и объекты',
-    result: 'Сможешь писать простые скрипты, работать с переменными, функциями, массивами и объектами. Понимать чужой код и уверенно использовать базовые конструкции языка.',
-    rules: '— Будь вежлив и уважительно относись к другим студентам\n— Выполняй задания самостоятельно\n— Если что-то непонятно — спрашивай ментора',
-    additional: 'Этот курс — твой первый шаг в мир JavaScript. Не бойся ошибаться, на ошибках учатся! 💪',
+    result:
+      'Сможешь писать простые скрипты, работать с переменными, функциями, массивами и объектами. Понимать чужой код и уверенно использовать базовые конструкции языка.',
+    rules:
+      '— Будь вежлив и уважительно относись к другим студентам\n— Выполняй задания самостоятельно\n— Если что-то непонятно — спрашивай ментора',
+    additional:
+      'Этот курс — твой первый шаг в мир JavaScript. Не бойся ошибаться, на ошибках учатся! 💪',
     tags: ['javascript', 'js', 'основы', 'новичкам'],
   });
   console.log('  ✅ Модуль обогащён');
@@ -64,7 +70,9 @@ async function main() {
     goal: 'Познакомиться с языком, научиться объявлять переменные и работать с базовыми типами данных',
     result: 'Умеешь объявлять переменные, знаешь типы данных и операторы',
   })) as { projects: { uuid: string; title: string }[] };
-  const p1uuid = p1.projects.find(p => p.title === 'Введение в JavaScript')!.uuid;
+  const p1uuid = p1.projects.find(
+    (p) => p.title === 'Введение в JavaScript',
+  )?.uuid;
   console.log(`  ✅ Проект создан: ${p1uuid}`);
 
   // Урок 1.1: Переменные и типы данных
@@ -100,7 +108,8 @@ async function main() {
     lessonId: l1_1.uuid,
     description: 'Объявление переменных: let и const',
     kind: 'code',
-    content: 'Переменные — это «коробки» для хранения данных. В JS их объявляют двумя способами:\n\n**let** — переменная, которую можно изменить\n**const** — константа, которую нельзя перезаписать',
+    content:
+      'Переменные — это «коробки» для хранения данных. В JS их объявляют двумя способами:\n\n**let** — переменная, которую можно изменить\n**const** — константа, которую нельзя перезаписать',
     code: `// Объявляем переменную с let
 let name = 'Аня';
 console.log(name); // Аня
@@ -121,7 +130,8 @@ console.log(birthYear); // 1990
     lessonId: l1_1.uuid,
     description: 'Типы данных',
     kind: 'code',
-    content: 'В JavaScript есть несколько базовых типов данных:\n\n**String** — строка (текст)\n**Number** — число\n**Boolean** — true/false\n**null** — ничего\n**undefined** — значение не назначено',
+    content:
+      'В JavaScript есть несколько базовых типов данных:\n\n**String** — строка (текст)\n**Number** — число\n**Boolean** — true/false\n**null** — ничего\n**undefined** — значение не назначено',
     code: `// Строка (String)
 const greeting = 'Привет, мир!';
 const name = "Аня";
@@ -228,7 +238,9 @@ console.log(!hasLicense); // false`,
     goal: 'Научиться управлять выполнением кода с помощью условий и циклов',
     result: 'Умеешь писать ветвления и циклы для решения задач',
   })) as { projects: { uuid: string; title: string }[] };
-  const p2uuid = p2.projects.find(p => p.title === 'Управление потоком')!.uuid;
+  const p2uuid = p2.projects.find(
+    (p) => p.title === 'Управление потоком',
+  )?.uuid;
   console.log(`  ✅ Проект создан: ${p2uuid}`);
 
   // Урок 2.1: Условные конструкции
@@ -247,7 +259,8 @@ console.log(!hasLicense); // false`,
     lessonId: l2_1.uuid,
     description: 'if / else if / else',
     kind: 'code',
-    content: 'Условные конструкции позволяют выполнять разный код в зависимости от условий.',
+    content:
+      'Условные конструкции позволяют выполнять разный код в зависимости от условий.',
     code: `const temperature = 25;
 
 if (temperature > 30) {
@@ -268,7 +281,8 @@ if (temperature > 30) {
     lessonId: l2_1.uuid,
     description: 'switch',
     kind: 'code',
-    content: 'switch — альтернатива if, когда нужно сравнить одну переменную со множеством значений.',
+    content:
+      'switch — альтернатива if, когда нужно сравнить одну переменную со множеством значений.',
     code: `const day = 3;
 let dayName;
 
@@ -301,7 +315,8 @@ console.log(dayName); // Среда`,
     lessonId: l2_1.uuid,
     description: 'Тернарный оператор',
     kind: 'code',
-    content: 'Тернарный оператор — короткая запись if/else в одну строку.\n\n**Синтаксис:** условие ? значениеЕслиTrue : значениеЕслиFalse',
+    content:
+      'Тернарный оператор — короткая запись if/else в одну строку.\n\n**Синтаксис:** условие ? значениеЕслиTrue : значениеЕслиFalse',
     code: `const age = 20;
 const canVote = age >= 18 ? 'Можно голосовать' : 'Ещё рано';
 console.log(canVote); // Можно голосовать
@@ -332,7 +347,8 @@ if (age >= 18) {
     lessonId: l2_2.uuid,
     description: 'Цикл for',
     kind: 'code',
-    content: 'Цикл for повторяет код заданное количество раз.\n\n**Синтаксис:** for (начало; условие; шаг) { тело }',
+    content:
+      'Цикл for повторяет код заданное количество раз.\n\n**Синтаксис:** for (начало; условие; шаг) { тело }',
     code: `// Выводим числа от 1 до 5
 for (let i = 1; i <= 5; i++) {
   console.log('Шаг:', i);
@@ -358,7 +374,8 @@ console.log('Сумма:', sum); // 5050`,
     lessonId: l2_2.uuid,
     description: 'Цикл while и do...while',
     kind: 'code',
-    content: 'while — выполняется пока условие true.\ndo...while — выполняется хотя бы один раз, даже если условие false.',
+    content:
+      'while — выполняется пока условие true.\ndo...while — выполняется хотя бы один раз, даже если условие false.',
     code: `// while
 let i = 0;
 while (i < 3) {
@@ -412,9 +429,10 @@ for (const char of word) {
     moduleId: module.uuid,
     title: 'Функции',
     goal: 'Научиться создавать и использовать функции для организации кода',
-    result: 'Умеешь объявлять функции, передавать параметры и возвращать результаты',
+    result:
+      'Умеешь объявлять функции, передавать параметры и возвращать результаты',
   })) as { projects: { uuid: string; title: string }[] };
-  const p3uuid = p3.projects.find(p => p.title === 'Функции')!.uuid;
+  const p3uuid = p3.projects.find((p) => p.title === 'Функции')?.uuid;
   console.log(`  ✅ Проект создан: ${p3uuid}`);
 
   // Урок 3.1: Основы функций
@@ -433,7 +451,8 @@ for (const char of word) {
     lessonId: l3_1.uuid,
     description: 'Объявление и вызов функции',
     kind: 'code',
-    content: 'Функция — это блок кода, который можно вызвать по имени.\n\n**Синтаксис:** function имя(параметры) { тело }',
+    content:
+      'Функция — это блок кода, который можно вызвать по имени.\n\n**Синтаксис:** function имя(параметры) { тело }',
     code: `// Объявляем функцию
 function greet() {
   console.log('Привет, мир!');
@@ -484,7 +503,8 @@ introduce('Аня', 25, 'Москва');
     lessonId: l3_1.uuid,
     description: 'return — возврат значения',
     kind: 'code',
-    content: 'Функция может вернуть результат через return. После return код не выполняется.',
+    content:
+      'Функция может вернуть результат через return. После return код не выполняется.',
     code: `// Функция возвращает результат
 function add(a, b) {
   return a + b;
@@ -532,7 +552,8 @@ console.log(divide(10, 0)); // На ноль делить нельзя!`,
     lessonId: l3_2.uuid,
     description: 'Стрелочные функции',
     kind: 'code',
-    content: 'Стрелочные функции — более короткий синтаксис для объявления функций.\n\n**Синтаксис:** (параметры) => выражение',
+    content:
+      'Стрелочные функции — более короткий синтаксис для объявления функций.\n\n**Синтаксис:** (параметры) => выражение',
     code: `// Обычная функция
 function add(a, b) {
   return a + b;
@@ -563,7 +584,8 @@ console.log(max(10, 20)); // 20`,
     lessonId: l3_2.uuid,
     description: 'Callback-функции',
     kind: 'code',
-    content: 'Callback — это функция, переданная в другую функцию как аргумент.\n\nЭто основа асинхронного программирования в JS.',
+    content:
+      'Callback — это функция, переданная в другую функцию как аргумент.\n\nЭто основа асинхронного программирования в JS.',
     code: `// Функция принимает callback
 function processUser(name, callback) {
   const message = \`Привет, \${name}!\`;
@@ -594,7 +616,8 @@ console.log(product); // 50`,
     lessonId: l3_2.uuid,
     description: 'Методы массивов с колбэками',
     kind: 'code',
-    content: 'Многие методы массивов принимают колбэки. Это делает код лаконичным.',
+    content:
+      'Многие методы массивов принимают колбэки. Это делает код лаконичным.',
     code: `const numbers = [1, 2, 3, 4, 5];
 
 // map — преобразует каждый элемент
@@ -627,7 +650,7 @@ console.log(hasTen); // false`,
     goal: 'Освоить работу с коллекциями данных — массивами и объектами',
     result: 'Умеешь создавать и управлять массивами и объектами',
   })) as { projects: { uuid: string; title: string }[] };
-  const p4uuid = p4.projects.find(p => p.title === 'Массивы и объекты')!.uuid;
+  const p4uuid = p4.projects.find((p) => p.title === 'Массивы и объекты')?.uuid;
   console.log(`  ✅ Проект создан: ${p4uuid}`);
 
   // Урок 4.1: Массивы
@@ -646,7 +669,8 @@ console.log(hasTen); // false`,
     lessonId: l4_1.uuid,
     description: 'Создание и доступ к элементам',
     kind: 'code',
-    content: 'Массив — упорядоченная коллекция элементов. Элементы нумеруются с 0.',
+    content:
+      'Массив — упорядоченная коллекция элементов. Элементы нумеруются с 0.',
     code: `// Создание массива
 const fruits = ['🍎', '🍊', '🍋'];
 const numbers = [1, 2, 3, 4, 5];
@@ -708,7 +732,8 @@ console.log(stack.includes('z')); // false`,
     lessonId: l4_1.uuid,
     description: 'Перебор и трансформация',
     kind: 'code',
-    content: 'Современные методы для работы с массивами: forEach, map, filter, reduce.',
+    content:
+      'Современные методы для работы с массивами: forEach, map, filter, reduce.',
     code: `const numbers = [1, 2, 3, 4, 5];
 
 // forEach — просто перебрать
@@ -752,7 +777,8 @@ console.log(result); // 90`,
     lessonId: l4_2.uuid,
     description: 'Создание и свойства объектов',
     kind: 'code',
-    content: 'Объект — коллекция пар ключ-значение. Ключи — строки, значения — любые типы.',
+    content:
+      'Объект — коллекция пар ключ-значение. Ключи — строки, значения — любые типы.',
     code: `// Создание объекта
 const user = {
   name: 'Аня',

@@ -15,8 +15,8 @@ export class CreateStreamUc extends StreamUseCase<CreateStreamCmdMeta> {
   protected readonly ucName = 'create-stream' as const;
   protected readonly ucLabel = 'Создать поток' as const;
   protected readonly arMeta = {
-    arName: StreamAr.arName as "Stream",
-    arLabel: StreamAr.arLabel as "Поток",
+    arName: StreamAr.arName as 'Stream',
+    arLabel: StreamAr.arLabel as 'Поток',
   };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;

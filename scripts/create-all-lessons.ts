@@ -7,13 +7,17 @@
 
 import { ApiApp } from '@u7-scl/core/api';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
-import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
+import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
 import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade.ts';
-import lessonsPlan from '../proposed-lessons.json' assert { type: 'json' };
+import lessonsPlan from '../proposed-lessons.json';
+assert;
+{
+  type: 'json';
+}
 
 const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 

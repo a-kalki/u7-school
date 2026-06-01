@@ -11,7 +11,9 @@ export const RemoveRoleToUserCmdSchema = v.object({
 });
 
 /** Команда удаления роли у пользователя */
-export type RemoveRoleToUserCmd = v.InferOutput<typeof RemoveRoleToUserCmdSchema>;
+export type RemoveRoleToUserCmd = v.InferOutput<
+  typeof RemoveRoleToUserCmdSchema
+>;
 
 /** Мета команды удаления роли у пользователя */
 export interface RemoveRoleToUserCmdMeta {
@@ -25,4 +27,6 @@ export interface RemoveRoleToUserCmdMeta {
 }
 
 /** Ошибки команды удаления роли у пользователя */
-export type RemoveRoleToUserCmdError = UserNotFoundUcError | AccessDeniedUcError;
+export type RemoveRoleToUserCmdError =
+  | UserNotFoundUcError
+  | AccessDeniedUcError;

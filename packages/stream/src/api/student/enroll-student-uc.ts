@@ -1,8 +1,8 @@
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
+import { StreamAr } from '#domain/stream/a-root';
 import { StreamPolicy } from '#domain/stream/policy';
 import { StreamStudentAr } from '#domain/stream-student/a-root';
-import { StreamAr } from '#domain/stream/a-root';
 import {
   type EnrollStudentCmd,
   type EnrollStudentCmdMeta,

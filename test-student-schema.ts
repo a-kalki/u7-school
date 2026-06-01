@@ -1,5 +1,5 @@
-import { StreamStudentSchema } from './packages/stream/src/domain/stream-student/entity';
 import * as v from 'valibot';
+import { StreamStudentSchema } from './packages/stream/src/domain/stream-student/entity';
 
 const data = {
   uuid: crypto.randomUUID(),

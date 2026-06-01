@@ -1,6 +1,6 @@
 import { ApiApp } from '@u7-scl/core/api';
-import type { Logger } from '@u7-scl/core/shared';
 import { BaseJsonDb } from '@u7-scl/core/infra';
+import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingBotApp } from '@u7-scl/onboarding';
 import { OnboardingApiModule } from '@u7-scl/onboarding';
 import { QuestionPoolService } from '@u7-scl/onboarding/domain';

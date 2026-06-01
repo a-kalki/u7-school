@@ -585,7 +585,9 @@ describe('OnboardingController', () => {
     // Клавиатура с ответами и кнопкой Далее
     expect(response.sendMessage?.keyboard).toBeDefined();
     expect(response.sendMessage?.keyboard?.rows.length).toBe(2);
-    expect(response.sendMessage?.keyboard?.rows[1]?.[0]?.text).toBe('Далее -->');
+    expect(response.sendMessage?.keyboard?.rows[1]?.[0]?.text).toBe(
+      'Далее -->',
+    );
     expect(response.sendMessage?.parseMode).toBe('MarkdownV2');
   });
 });

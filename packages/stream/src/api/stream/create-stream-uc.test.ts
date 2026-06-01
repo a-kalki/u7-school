@@ -1,19 +1,33 @@
+import { describe, expect, mock, test } from 'bun:test';
 import { isoNow } from '@u7-scl/core/shared';
-import { describe, expect, test, mock } from 'bun:test';
-import { CreateStreamUc } from './create-stream-uc';
 import { Role } from '@u7-scl/user/domain';
+import { CreateStreamUc } from './create-stream-uc';
 
 describe('CreateStreamUc', () => {
   test('успешно создает поток MENTOR-ом', async () => {
     const mockRepo = { save: mock(() => Promise.resolve()) };
-    const mockCourseFacade = { getModuleSnapshot: mock(() => Promise.resolve([])) };
-    const mockUserFacade = { 
-      getUserByUuid: mock(() => Promise.resolve({ uuid: 'm1', name: 'Mentor', telegramId: 1, roles: [Role.MENTOR], createdAt: isoNow() })) 
+    const mockCourseFacade = {
+      getModuleSnapshot: mock(() => Promise.resolve([])),
+    };
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'm1',
+          name: 'Mentor',
+          telegramId: 1,
+          roles: [Role.MENTOR],
+          createdAt: isoNow(),
+        }),
+      ),
     };
 
     const uc = new CreateStreamUc();
     // @ts-expect-error - упрощенный DI для теста
-    uc.init({ streamRepo: mockRepo, courseFacade: mockCourseFacade, userFacade: mockUserFacade });
+    uc.init({
+      streamRepo: mockRepo,
+      courseFacade: mockCourseFacade,
+      userFacade: mockUserFacade,
+    });
 
     const cmd = {
       title: 'Новый курс',
@@ -35,8 +49,16 @@ describe('CreateStreamUc', () => {
   });
 
   test('бросает ошибку, если GUEST пытается создать поток', async () => {
-    const mockUserFacade = { 
-      getUserByUuid: mock(() => Promise.resolve({ uuid: 'g1', name: 'Guest', telegramId: 2, roles: [Role.GUEST], createdAt: isoNow() })) 
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'g1',
+          name: 'Guest',
+          telegramId: 2,
+          roles: [Role.GUEST],
+          createdAt: isoNow(),
+        }),
+      ),
     };
 
     const uc = new CreateStreamUc();

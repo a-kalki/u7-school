@@ -7,13 +7,17 @@
 
 import { ApiApp } from '@u7-scl/core/api';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
-import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
+import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
 import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade.ts';
-import stepsPlan from '../proposed-steps.json' assert { type: 'json' };
+import stepsPlan from '../proposed-steps.json';
+assert;
+{
+  type: 'json';
+}
 
 const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
@@ -87,7 +91,7 @@ async function main() {
       process.stdout.write(`  ➜ [${step.order}] ${step.description}... `);
 
       try {
-        const result = await app.execute('create-step', params, NUR_UUID);
+        const _result = await app.execute('create-step', params, NUR_UUID);
         console.log(`✅`);
         totalCreated++;
       } catch (e: unknown) {
