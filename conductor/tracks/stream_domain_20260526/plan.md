@@ -92,22 +92,22 @@
 - [ ] Task: Реализовать StreamStudentAr.issueStep и completeStep
     - [ ] `stream-student/a-root.ts` — методы issueStep, completeStep, complete
 
-- [ ] Task: Conductor - User Manual Verification 'Агрегат StreamStudentAr' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Агрегат StreamStudentAr' (Protocol in workflow.md)
 
 ---
 
-## Фаза 4: Domain Service StreamDs
+## Фаза 4: Domain Service StreamDs [checkpoint: d5ed535]
 
-- [ ] Task: Написать тесты для StreamDs.completeStep
-    - [ ] Тест: завершает шаг, находит следующий, выдаёт его — уровень step
-    - [ ] Тест: при завершении последнего шага урока — уровень lesson
-    - [ ] Тест: при завершении последнего шага проекта — уровень project
+- [x] Task: Написать тесты для StreamDs.completeStep (8f0ee68)
+    - [x] Тест: завершает шаг, находит следующий, выдаёт его — уровень step
+    - [x] Тест: при завершении последнего шага урока — уровень lesson
+    - [x] Тест: при завершении последнего шага проекта — уровень project
     - [ ] Тест: при завершении последнего шага потока — студент completed
 
-- [ ] Task: Реализовать StreamDs.completeStep
-    - [ ] `stream-ds.ts` — класс StreamDs, метод completeStep
+- [x] Task: Реализовать StreamDs.completeStep (8f0ee68)
+    - [x] `stream-ds.ts` — класс StreamDs, метод completeStep
 
-- [ ] Task: Conductor - User Manual Verification 'Domain Service StreamDs' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Domain Service StreamDs' (Protocol in workflow.md) (d5ed535)
 
 ---
 
