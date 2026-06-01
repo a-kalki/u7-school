@@ -1,0 +1,8 @@
+**Задача: Проверка активной записи в EnrollStudentUc**
+
+**Изменения:**
+- `errors.ts`: добавлен StreamConflictUcError
+- `enroll-student-uc.ts`: проверка getByUser на active записи перед зачислением
+- `enroll-student-uc.test.ts`: 2 новых теста (конфликт активной записи, успех при archived/completed)
+
+**Причина:** FT-7 — предотвращение дублирующего обучения.
