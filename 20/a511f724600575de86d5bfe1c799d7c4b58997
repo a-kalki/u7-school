@@ -1,0 +1,16 @@
+**Отчёт о верификации Фазы 3: Новые UC + Проверки авторизации**
+
+**Автоматические тесты:**
+- Команда: `bun run test:p stream`
+- Результат: 89 pass, 0 fail
+
+**Новые UC:**
+- GetStreamUc — получение потока по UUID
+- GetStudentByUserUc — поиск активной записи студента
+- ListStreamStudentsUc — список студентов потока (с проверкой прав)
+
+**Авторизация:**
+- Activate/Archive/Complete — StreamPolicy.canEdit
+- GetStudentProgress — StudentPolicy.canViewProgress + ментор потока
+
+**Подтверждение пользователя:** да
