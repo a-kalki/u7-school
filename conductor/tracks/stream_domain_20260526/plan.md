@@ -37,7 +37,7 @@
 
 ---
 
-## Фаза 2: Агрегат StreamAr
+## Фаза 2: Агрегат StreamAr [checkpoint: 86513e4]
 
 - [x] Task: Написать тесты для StreamAr.create (9054756)
     - [x] Тест: создаёт поток с корректными полями, статусом enrollment и опциональным telegramGroupId
@@ -66,7 +66,7 @@
 - [x] Task: Реализовать StreamAr.findNextStep (ffc8f56)
     - [x] `stream/a-root.ts` — метод findNextStep с обходом дерева в глубину
 
-- [ ] Task: Conductor - User Manual Verification 'Агрегат StreamAr' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Агрегат StreamAr' (Protocol in workflow.md) (86513e4)
 
 ---
 
