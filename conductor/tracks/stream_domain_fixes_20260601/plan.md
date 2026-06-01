@@ -72,7 +72,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `20a511f`
 
-## Фаза 4: EnrollStudentUc — проверка существующей активной записи
+## Фаза 4: EnrollStudentUc — проверка существующей активной записи [checkpoint: ce2a406]
 
 - [x] Task: Написать тесты для проверки активной записи в EnrollStudentUc `4c7e2ca`
     - [x] Тест: ошибка если у пользователя уже есть активный поток
@@ -82,4 +82,4 @@
     - [x] Перед созданием StudentAr проверить `StudentRepo.getByUser`
     - [x] Если есть запись со статусом `active` — ошибка
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) `ce2a406`
