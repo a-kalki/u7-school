@@ -29,7 +29,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) `5cac874`
 
-## Фаза 3: Новые UseCases и проверки авторизации
+## Фаза 3: Новые UseCases и проверки авторизации [checkpoint: 20a511f]
 
 - [x] Task: Написать тесты для GetStreamUc `TBD`
     - [x] Тест: возвращает поток по streamId
@@ -70,7 +70,7 @@
     - [ ] CompleteStreamUc: StreamPolicy.canEdit(actor, stream)
     - [ ] GetStudentProgressUc: StudentPolicy.canViewProgress(actor, student) + ментор потока
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `20a511f`
 
 ## Фаза 4: EnrollStudentUc — проверка существующей активной записи
 
