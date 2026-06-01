@@ -14,3 +14,10 @@ export interface StreamListFilter {
   status?: StreamStatus;
   mentorId?: string;
 }
+
+/** Результат завершения шага/уровня */
+export type CompletionResult =
+  | { level: 'step'; currentStepId: string }
+  | { level: 'lesson'; currentStepId: string; completedLessonId: string }
+  | { level: 'project'; currentStepId: string; completedProjectId: string }
+  | { level: 'stream'; completed: true };
