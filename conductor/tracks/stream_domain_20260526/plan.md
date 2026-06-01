@@ -2,7 +2,7 @@
 
 ## Фаза 0: Создание модуля @u7-scl/stream
 
-- [ ] Task: Создать структуру пакета
+- [x] Task: Создать структуру пакета (a6cbad3)
     - [ ] `packages/stream/package.json` — имя, версия, зависимости (@u7-scl/core, valibot), exports/imports
     - [ ] `packages/stream/tsconfig.json` — конфигурация TypeScript
     - [ ] `packages/stream/src/` — корневая структура директорий
