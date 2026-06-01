@@ -1,0 +1,6 @@
+Задача: Реализовать Valibot-схемы Entity
+Сводка изменений: Реализованы схемы LessonSnapshotSchema, ProjectSnapshotSchema, ContentSnapshotSchema для снимка дерева контента курса, а также StreamSchema для полного объекта потока курсов. Написаны и успешно выполнены тесты валидации схем.
+Список созданных/измененных файлов:
+- packages/stream/src/domain/stream/entity.ts (создан)
+- packages/stream/src/domain/stream/entity.test.ts (создан)
+Основная причина изменений: Создать строго валидируемые схемы данных для сущности Stream и её снимка контента.
