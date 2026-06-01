@@ -1,6 +1,6 @@
 # План реализации: stream_domain_fixes
 
-## Фаза 1: StreamDs.completeStep — определение уровней lesson/project
+## Фаза 1: StreamDs.completeStep — определение уровней lesson/project [checkpoint: e6e66f9]
 
 - [x] Task: Написать тесты для StreamDs.completeStep с определением уровней `dc893e7`
     - [x] Тест: уровень `step` — следующий шаг в том же уроке
@@ -12,7 +12,7 @@
     - [x] Добавить методы `findLessonByStepId` и `findProjectByLessonId` в StreamAr
     - [x] Обновить `StreamDs.completeStep` для возврата корректного CompletionResult
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) `e6e66f9`
 
 ## Фаза 2: ActivateStreamUc — выдача первого шага студентам
 
