@@ -1,6 +1,6 @@
 # План реализации: stream_domain_20260526
 
-## Фаза 0: Создание модуля @u7-scl/stream
+## Фаза 0: Создание модуля @u7-scl/stream [checkpoint: 20e7fb5]
 
 - [x] Task: Создать структуру пакета (a6cbad3)
     - [ ] `packages/stream/package.json` — имя, версия, зависимости (@u7-scl/core, valibot), exports/imports
@@ -9,7 +9,7 @@
     - [ ] `packages/stream/src/index.ts` — заглушка экспорта
     - [ ] `packages/stream/src/domain/` — директория доменного слоя
 
-- [ ] Task: Conductor - User Manual Verification 'Создание модуля' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Создание модуля' (Protocol in workflow.md) (20e7fb5)
 
 ---
 
