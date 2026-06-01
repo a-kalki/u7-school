@@ -24,11 +24,17 @@ export class StreamController extends BotController {
         const parts = data.split(':');
         const action = parts[0];
 
+        if (action === 'stream' && parts[1] === 'view' && parts[2]) {
+          return this.handleStreamView(actorId, parts[2]);
+        }
         if (action === 'enroll' && parts[1]) {
           return this.handleEnroll(actorId, parts[1]);
         }
         if (action === 'complete' && parts[1] && parts[2] && parts[3]) {
           return this.handleCompleteStep(actorId, parts[1], parts[2], parts[3]);
+        }
+        if (action === 'progress' && parts[1]) {
+          return this.handleProgress(actorId, parts[1]);
         }
       }
 
@@ -96,6 +102,30 @@ export class StreamController extends BotController {
     return {
       sendMessage: {
         text: `✅ Шаг завершён!\n${this.escapeMarkdown(JSON.stringify(result))}`,
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
+
+  async handleStreamView(
+    _actorId: string,
+    _streamId: string,
+  ): Promise<BotResponse> {
+    return {
+      sendMessage: {
+        text: '📋 Карточка потока',
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
+
+  async handleProgress(
+    _actorId: string,
+    _streamId: string,
+  ): Promise<BotResponse> {
+    return {
+      sendMessage: {
+        text: '📊 Прогресс',
         parseMode: 'MarkdownV2',
       },
     };
