@@ -22,7 +22,7 @@
 
 - [ ] Task: Реализовать StreamStatus и базовые типы
     - [ ] `status.ts` — enum StreamStatus + Valibot picklist
-    - [ ] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter
+    - [ ] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter ({ status?: StreamStatus, mentorId?: string })
 
 - [ ] Task: Написать тесты для Valibot-схем
     - [ ] Тест: ContentSnapshotSchema валидирует корректный снимок (проекты→уроки→stepIds)
@@ -40,13 +40,21 @@
 ## Фаза 2: Агрегат StreamAr
 
 - [ ] Task: Написать тесты для StreamAr.create
-    - [ ] Тест: создаёт поток с корректными полями и статусом enrollment
+    - [ ] Тест: создаёт поток с корректными полями, статусом enrollment и опциональным telegramGroupId
     - [ ] Тест: contentSnapshot сохраняется корректно
     - [ ] Тест: поля-снимки (goal, result и др.) копируются
+    - [ ] Тест: activate() переводит поток из enrollment в active
+    - [ ] Тест: activate() из некорректных статусов выбрасывает ошибку
+    - [ ] Тест: complete() переводит поток в completed
+    - [ ] Тест: archive() переводит поток в archived
 
-- [ ] Task: Реализовать StreamAr.create
+- [ ] Task: Реализовать StreamAr.create и методы статусов
     - [ ] `stream/a-root.ts` — класс StreamAr extends Aggregate, static create
+    - [ ] `stream/a-root.ts` — методы activate(), complete(), archive()
     - [ ] `stream/commands/create-stream-cmd.ts` — CreateStreamCmd, схема, мета
+    - [ ] `stream/commands/activate-stream-cmd.ts` — ActivateStreamCmd
+    - [ ] `stream/commands/complete-stream-cmd.ts` — CompleteStreamCmd
+    - [ ] `stream/commands/archive-stream-cmd.ts` — ArchiveStreamCmd
 
 - [ ] Task: Написать тесты для StreamAr.findNextStep
     - [ ] Тест: находит следующий шаг в том же уроке
@@ -110,9 +118,10 @@
     - [ ] Тест: canRead — true для всех при active/completed
     - [ ] Тест: canRead — true для mentorId при любом статусе
     - [ ] Тест: canEdit — true для mentorId и ADMIN
+    - [ ] Тест: canEnroll — true для GUEST и CANDIDATE, false для STUDENT, MENTOR и ADMIN
 
 - [ ] Task: Реализовать StreamPolicy
-    - [ ] `stream/policy.ts` — StreamPolicy
+    - [ ] `stream/policy.ts` — StreamPolicy с поддержкой canEnroll
 
 - [ ] Task: Определить интерфейсы репозиториев
     - [ ] `stream/repo.ts` — StreamRepo (save, getByUuid, getAll)
@@ -122,6 +131,7 @@
     - [ ] `domain/module.ts` — StreamApiModuleMeta, StreamApiModuleResolver
     - [ ] `domain/index.ts` — полный экспорт всех агрегатов, схем, типов
     - [ ] `src/index.ts` — реэкспорт domain
+    - [ ] Перенести `user-stories.md` из папки трека в `packages/stream/src/user-stories.md`
 
 - [ ] Task: Conductor - User Manual Verification 'Policy и Repo-интерфейсы' (Protocol in workflow.md)
 
