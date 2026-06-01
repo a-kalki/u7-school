@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
+import { StudentAr } from '#domain/student/a-root';
 import {
   type ActivateStreamCmd,
   type ActivateStreamCmdMeta,
@@ -20,8 +21,26 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
     const streamEntity = await this.getStream(command.streamId);
     const streamAr = new StreamAr(streamEntity);
 
+    // 1. Активировать поток
     streamAr.activate();
-
     await this.resolve.streamRepo.save(streamAr.state);
+
+    // 2. Найти первый шаг
+    const firstStepId = streamAr.getFirstStepId();
+    if (!firstStepId) return;
+
+    // 3. Загрузить студентов потока
+    const studentRepo = this.resolve.streamStudentRepo;
+    const students = await studentRepo.getByStream(command.streamId);
+
+    // 4. Выдать первый шаг студентам без выданных шагов
+    for (const entity of students) {
+      // Пропускаем студентов, у которых уже есть выданные шаги
+      if (entity.steps.length > 0) continue;
+
+      const studentAr = new StudentAr(entity);
+      studentAr.issueStep(firstStepId);
+      await studentRepo.save(studentAr.state);
+    }
   }
 }
