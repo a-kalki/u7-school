@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { Role } from '@u7-scl/user/domain';
 import { StreamStatus } from '../status';
 import { StreamPolicy } from './policy';
-import { Role } from '@u7-scl/user/domain';
 
 const mentorId = 'm1';
 const studentId = 's1';

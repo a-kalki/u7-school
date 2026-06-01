@@ -1,5 +1,5 @@
 import type { StreamAr } from './stream/a-root';
-import { StreamStudentAr } from './stream-student/a-root';
+import type { StreamStudentAr } from './stream-student/a-root';
 import type { CompletionResult } from './types';
 
 export class StreamDs {

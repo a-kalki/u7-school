@@ -111,29 +111,29 @@
 
 ---
 
-## Фаза 5: Policy и Repo-интерфейсы
+## Фаза 5: Policy и Repo-интерфейсы [checkpoint: 73c880c]
 
-- [ ] Task: Написать тесты для StreamPolicy
-    - [ ] Тест: canCreate — true для MENTOR, false для STUDENT, GUEST
-    - [ ] Тест: canRead — true для всех при active/completed
-    - [ ] Тест: canRead — true для mentorId при любом статусе
-    - [ ] Тест: canEdit — true для mentorId и ADMIN
-    - [ ] Тест: canEnroll — true для GUEST и CANDIDATE, false для STUDENT, MENTOR и ADMIN
+- [x] Task: Написать тесты для StreamPolicy (27f8913) (27f8913)
+    - [x] Тест: canCreate — true для MENTOR, false для STUDENT, GUEST
+    - [x] Тест: canRead — true для всех при active/completed
+    - [x] Тест: canRead — true для mentorId при любом статусе
+    - [x] Тест: canEdit — true для mentorId и ADMIN
+    - [x] Тест: canEnroll — true для GUEST и CANDIDATE, false для STUDENT, MENTOR и ADMIN
 
-- [ ] Task: Реализовать StreamPolicy
-    - [ ] `stream/policy.ts` — StreamPolicy с поддержкой canEnroll
+- [x] Task: Реализовать StreamPolicy (27f8913) (27f8913)
+    - [x] `stream/policy.ts` — StreamPolicy с поддержкой canEnroll
 
-- [ ] Task: Определить интерфейсы репозиториев
-    - [ ] `stream/repo.ts` — StreamRepo (save, getByUuid, getAll)
-    - [ ] `stream-student/repo.ts` — StreamStudentRepo (save, getByUuid, getByStream, getByUser)
+- [x] Task: Определить интерфейсы репозиториев (27f8913)
+    - [x] `stream/repo.ts` — StreamRepo (save, getByUuid, getAll)
+    - [x] `stream-student/repo.ts` — StreamStudentRepo (save, getByUuid, getByStream, getByUser)
 
-- [ ] Task: Финальная сборка — module.ts, index.ts
-    - [ ] `domain/module.ts` — StreamApiModuleMeta, StreamApiModuleResolver
-    - [ ] `domain/index.ts` — полный экспорт всех агрегатов, схем, типов
-    - [ ] `src/index.ts` — реэкспорт domain
-    - [ ] Перенести `user-stories.md` из папки трека в `packages/stream/src/user-stories.md`
+- [x] Task: Финальная сборка — module.ts, index.ts (27f8913)
+    - [x] `domain/module.ts` — StreamApiModuleMeta, StreamApiModuleResolver
+    - [x] `domain/index.ts` — полный экспорт всех агрегатов, схем, типов
+    - [x] `src/index.ts` — реэкспорт domain
+    - [x] Перенести `user-stories.md` из папки трека в `packages/stream/src/user-stories.md`
 
-- [ ] Task: Conductor - User Manual Verification 'Policy и Repo-интерфейсы' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Policy и Repo-интерфейсы' (Protocol in workflow.md) (73c880c)
 
 ---
 
