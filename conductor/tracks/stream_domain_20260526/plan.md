@@ -13,7 +13,7 @@
 
 ---
 
-## Фаза 1: Фундамент — типы, статусы, схемы
+## Фаза 1: Фундамент — типы, статусы, схемы [checkpoint: b3acdc7]
 
 - [x] Task: Написать тесты для StreamStatus и базовых типов (35882f0)
     - [x] Тест: StreamStatus содержит все значения (enrollment, active, completed, archived)
@@ -33,7 +33,7 @@
     - [x] `stream/entity.ts` — StreamSchema, ContentSnapshotSchema, StreamArMeta
     - [x] `domain/index.ts` — публичный экспорт
 
-- [ ] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md) (b3acdc7)
 
 ---
 
