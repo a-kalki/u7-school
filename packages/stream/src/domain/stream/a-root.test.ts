@@ -195,4 +195,83 @@ describe('StreamAr', () => {
       );
     });
   });
+
+  describe('findStepContext', () => {
+    const snapshot: ContentSnapshot = [
+      {
+        projectId: '11111111-1111-4111-8111-111111111111',
+        projectTitle: 'Проект 1',
+        lessons: [
+          {
+            lessonId: '11111111-1111-4222-8222-111111111111',
+            lessonTitle: 'Урок 1.1',
+            stepIds: [
+              '11111111-1111-4333-8333-111111111111',
+              '22222222-2222-4333-8333-222222222222',
+            ],
+          },
+          {
+            lessonId: '22222222-2222-4222-8222-222222222222',
+            lessonTitle: 'Урок 1.2',
+            stepIds: ['33333333-3333-4333-8333-333333333333'],
+          },
+        ],
+      },
+      {
+        projectId: '22222222-2222-4111-8111-222222222222',
+        projectTitle: 'Проект 2',
+        lessons: [
+          {
+            lessonId: '33333333-3333-4222-8222-333333333333',
+            lessonTitle: 'Урок 2.1',
+            stepIds: ['44444444-4444-4444-8444-444444444444'],
+          },
+        ],
+      },
+    ];
+
+    const s_first = '11111111-1111-4333-8333-111111111111';
+    const s_lastInLesson = '22222222-2222-4333-8333-222222222222';
+    const s_lastInProject = '33333333-3333-4333-8333-333333333333';
+
+    test('определяет шаг не последним в уроке и не последним уроке', () => {
+      const ar = StreamAr.create(mockCreateCmd, snapshot);
+      const ctx = ar.findStepContext(s_first);
+      expect(ctx).toEqual({
+        lessonId: '11111111-1111-4222-8222-111111111111',
+        projectId: '11111111-1111-4111-8111-111111111111',
+        isLastStepInLesson: false,
+        isLastLessonInProject: false,
+      });
+    });
+
+    test('определяет последний шаг урока, но не последний урок', () => {
+      const ar = StreamAr.create(mockCreateCmd, snapshot);
+      const ctx = ar.findStepContext(s_lastInLesson);
+      expect(ctx).toEqual({
+        lessonId: '11111111-1111-4222-8222-111111111111',
+        projectId: '11111111-1111-4111-8111-111111111111',
+        isLastStepInLesson: true,
+        isLastLessonInProject: false,
+      });
+    });
+
+    test('определяет последний шаг последнего урока в проекте', () => {
+      const ar = StreamAr.create(mockCreateCmd, snapshot);
+      const ctx = ar.findStepContext(s_lastInProject);
+      expect(ctx).toEqual({
+        lessonId: '22222222-2222-4222-8222-222222222222',
+        projectId: '11111111-1111-4111-8111-111111111111',
+        isLastStepInLesson: true,
+        isLastLessonInProject: true,
+      });
+    });
+
+    test('выбрасывает ошибку если шаг не найден', () => {
+      const ar = StreamAr.create(mockCreateCmd, snapshot);
+      expect(() => ar.findStepContext('99999999-9999-4999-8999-999999999999')).toThrow(
+        'Шаг не найден в структуре потока',
+      );
+    });
+  });
 });

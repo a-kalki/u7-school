@@ -127,4 +127,29 @@ export class StreamAr extends Aggregate<StreamArMeta> {
 
     return allStepIds[index + 1] ?? null;
   }
+
+  /**
+   * Контекст шага в дереве контента.
+   * Определяет, является ли шаг последним в уроке, и является ли урок последним в проекте.
+   */
+  findStepContext(
+    stepId: string,
+  ): { lessonId: string; projectId: string; isLastStepInLesson: boolean; isLastLessonInProject: boolean } {
+    for (const project of this._state.contentSnapshot) {
+      for (let li = 0; li < project.lessons.length; li++) {
+        const lesson = project.lessons[li]!;
+        for (let si = 0; si < lesson.stepIds.length; si++) {
+          if (lesson.stepIds[si] === stepId) {
+            return {
+              lessonId: lesson.lessonId,
+              projectId: project.projectId,
+              isLastStepInLesson: si === lesson.stepIds.length - 1,
+              isLastLessonInProject: li === project.lessons.length - 1,
+            };
+          }
+        }
+      }
+    }
+    this.throwBadRequest('Шаг не найден в структуре потока');
+  }
 }
