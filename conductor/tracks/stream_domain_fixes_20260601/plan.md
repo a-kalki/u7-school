@@ -58,13 +58,13 @@
     - [x] Проверка прав: ментор потока или админ
     - [x] Зарегистрировать в StreamApiModule
 
-- [ ] Task: Написать тесты для проверок авторизации в существующих UC
-    - [ ] Тест: ActivateStreamUc — запрет для не-ментора
-    - [ ] Тест: ArchiveStreamUc — запрет для не-ментора
-    - [ ] Тест: CompleteStreamUc — запрет для не-ментора
-    - [ ] Тест: GetStudentProgressUc — запрет для чужого студента
+- [x] Task: Написать тесты для проверок авторизации в существующих UC `8f330a8`
+    - [x] Тест: ActivateStreamUc — запрет для не-ментора
+    - [x] Тест: ArchiveStreamUc — запрет для не-ментора
+    - [x] Тест: CompleteStreamUc — запрет для не-ментора
+    - [x] Тест: GetStudentProgressUc — запрет для чужого студента
 
-- [ ] Task: Добавить проверки авторизации в ActivateStreamUc, ArchiveStreamUc, CompleteStreamUc, GetStudentProgressUc
+- [x] Task: Добавить проверки авторизации в ActivateStreamUc, ArchiveStreamUc, CompleteStreamUc, GetStudentProgressUc `8f330a8`
     - [ ] ActivateStreamUc: StreamPolicy.canEdit(actor, stream)
     - [ ] ArchiveStreamUc: StreamPolicy.canEdit(actor, stream)
     - [ ] CompleteStreamUc: StreamPolicy.canEdit(actor, stream)
