@@ -21,6 +21,6 @@ export class ListStreamsUc extends StreamUseCase<ListStreamsCmdMeta> {
 
   async execute(command: ListStreamsCmd): Promise<Stream[]> {
     const repo = this.resolve.streamRepo;
-    return repo.list(command);
+    return repo.getAll(command);
   }
 }

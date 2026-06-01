@@ -20,7 +20,7 @@ export const StepRecordSchema = v.object({
 export type StepRecord = v.InferOutput<typeof StepRecordSchema>;
 
 /** Схема сущности записи студента на поток */
-export const StreamStudentSchema = v.object({
+export const StudentSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID студента')),
   streamId: v.pipe(v.string(), v.uuid('Некорректный формат UUID потока')),
   userId: v.pipe(v.string(), v.uuid('Некорректный формат UUID пользователя')),
@@ -46,10 +46,10 @@ export const StreamStudentSchema = v.object({
   ),
 });
 
-export type StreamStudent = v.InferOutput<typeof StreamStudentSchema>;
+export type Student = v.InferOutput<typeof StudentSchema>;
 
-export interface StreamStudentArMeta extends ArMeta {
-  name: 'StreamStudent';
+export interface StudentArMeta extends ArMeta {
+  name: 'Student';
   label: 'Студент потока';
-  state: StreamStudent;
+  state: Student;
 }

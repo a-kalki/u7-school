@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { StreamAr } from './stream/a-root';
 import type { ContentSnapshot } from './stream/entity';
 import { StreamDs } from './stream-ds';
-import { StreamStudentAr } from './stream-student/a-root';
+import { StudentAr } from './student/a-root';
 
 const _mockStreamId = '11111111-1111-4111-8111-111111111111';
 const mockUserId = '22222222-2222-4222-8222-222222222222';
@@ -38,7 +38,7 @@ describe('StreamDs.completeStep', () => {
   test('завершает шаг, находит следующий и выдаёт его (уровень step)', () => {
     const stream = StreamAr.create(mockCreateCmd, snapshot);
     stream.activate();
-    const student = StreamStudentAr.enroll(
+    const student = StudentAr.enroll(
       stream.state.uuid,
       mockUserId,
       '77777777-7777-4777-8777-777777777777',
@@ -70,7 +70,7 @@ describe('StreamDs.completeStep', () => {
   test('при завершении последнего шага потока — студент completed', () => {
     const stream = StreamAr.create(mockCreateCmd, snapshot);
     stream.activate();
-    const student = StreamStudentAr.enroll(
+    const student = StudentAr.enroll(
       stream.state.uuid,
       mockUserId,
       '88888888-8888-4888-8888-888888888888',

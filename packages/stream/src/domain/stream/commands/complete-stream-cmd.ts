@@ -12,7 +12,7 @@ export interface CompleteStreamCmdMeta {
   ucName: 'complete-stream';
   arMeta: StreamArMeta;
   input: CompleteStreamCmd;
-  output: Stream;
+  output: void;
   errors: never;
   requiresAuth: true;
   type: 'command';

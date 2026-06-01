@@ -2,12 +2,12 @@ import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
 import { StreamPolicy } from '#domain/stream/policy';
-import { StreamStudentAr } from '#domain/stream-student/a-root';
+import { StudentAr } from '#domain/student/a-root';
 import {
   type EnrollStudentCmd,
   type EnrollStudentCmdMeta,
   EnrollStudentCmdSchema,
-} from '#domain/stream-student/commands/enroll-student-cmd';
+} from '#domain/student/commands/enroll-student-cmd';
 import { StreamUseCase } from '../stream-uc';
 
 /**
@@ -17,8 +17,8 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
   protected readonly ucName = 'enroll-student' as const;
   protected readonly ucLabel = 'Зачислить студента' as const;
   protected readonly arMeta = {
-    arName: StreamStudentAr.arName as 'StreamStudent',
-    arLabel: StreamStudentAr.arLabel as 'Студент потока',
+    arName: StudentAr.arName as 'Student',
+    arLabel: StudentAr.arLabel as 'Студент потока',
   };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;
@@ -48,7 +48,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     }
 
     // 2. Создание записи студента
-    const studentAr = StreamStudentAr.enroll(
+    const studentAr = StudentAr.enroll(
       command.streamId,
       command.userId,
       firstStepId,

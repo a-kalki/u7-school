@@ -1,18 +1,18 @@
 import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import type { StepRecord, StreamStudent, StreamStudentArMeta } from './entity';
-import { StreamStudentSchema } from './entity';
+import type { StepRecord, Student, StudentArMeta } from './entity';
+import { StudentSchema } from './entity';
 
 /**
  * Агрегат StreamStudent — представляет запись студента на учебном потоке.
  * Управляет выдачей и завершением шагов для конкретного студента.
  */
-export class StreamStudentAr extends Aggregate<StreamStudentArMeta> {
-  static readonly arName = 'StreamStudent';
+export class StudentAr extends Aggregate<StudentArMeta> {
+  static readonly arName = 'Student';
   static readonly arLabel = 'Студент потока';
 
-  constructor(state: StreamStudent) {
-    super(state, StreamStudentSchema);
+  constructor(state: Student) {
+    super(state, StudentSchema);
   }
 
   /**
@@ -22,8 +22,8 @@ export class StreamStudentAr extends Aggregate<StreamStudentArMeta> {
     streamId: string,
     userId: string,
     currentStepId: string,
-  ): StreamStudentAr {
-    const candidate: StreamStudent = {
+  ): StudentAr {
+    const candidate: Student = {
       uuid: crypto.randomUUID(),
       streamId,
       userId,
@@ -34,7 +34,7 @@ export class StreamStudentAr extends Aggregate<StreamStudentArMeta> {
       createdAt: isoNow(),
     };
 
-    return new StreamStudentAr(candidate);
+    return new StudentAr(candidate);
   }
 
   /**

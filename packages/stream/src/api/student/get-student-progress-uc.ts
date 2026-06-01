@@ -1,36 +1,30 @@
 import * as v from 'valibot';
+import { StudentAr } from '#domain/student/a-root';
+import {
+  type GetStudentProgressCmd,
+  type GetStudentProgressCmdMeta,
+  GetStudentProgressCmdSchema,
+} from '#domain/student/commands/get-student-progress-cmd';
+import type { Student } from '#domain/student/entity';
+import { StudentSchema } from '#domain/student/entity';
 import { StreamUseCase } from '../stream-uc';
-
-export const GetStudentProgressCmdSchema = v.object({
-  studentId: v.pipe(v.string(), v.uuid('Некорректный UUID студента')),
-});
-
-export type GetStudentProgressCmd = v.InferOutput<
-  typeof GetStudentProgressCmdSchema
->;
-
-export interface GetStudentProgressCmdMeta {
-  name: 'get-student-progress';
-  label: 'Получить прогресс студента';
-  input: GetStudentProgressCmd;
-}
 
 export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMeta> {
   protected readonly ucName = 'get-student-progress' as const;
   protected readonly ucLabel = 'Получить прогресс студента' as const;
   protected readonly arMeta = {
-    arName: 'StreamStudent',
-    arLabel: 'Студент потока',
+    arName: StudentAr.arName as 'Student',
+    arLabel: StudentAr.arLabel as 'Студент потока',
   };
   protected readonly type = 'query' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = GetStudentProgressCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = StudentSchema;
 
   async execute(
     command: GetStudentProgressCmd,
     _actorId: string,
-  ): Promise<any> {
+  ): Promise<Student> {
     const student = await this.resolve.streamStudentRepo.getByUuid(
       command.studentId,
     );

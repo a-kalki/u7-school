@@ -12,7 +12,7 @@ export interface ArchiveStreamCmdMeta {
   ucName: 'archive-stream';
   arMeta: StreamArMeta;
   input: ArchiveStreamCmd;
-  output: Stream;
+  output: void;
   errors: never;
   requiresAuth: true;
   type: 'command';

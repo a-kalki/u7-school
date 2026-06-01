@@ -2,6 +2,8 @@ import { describe, expect, mock, test } from 'bun:test';
 import { Role } from '@u7-scl/user/domain';
 import { EnrollStudentUc } from './enroll-student-uc';
 
+const mockDate = '2026-06-01T10:00';
+
 describe('EnrollStudentUc', () => {
   test('успешно зачисляет GUEST', async () => {
     const mockStreamRepo = {
@@ -12,7 +14,7 @@ describe('EnrollStudentUc', () => {
           description: 'Description',
           mentorId: '22222222-2222-4222-8222-222222222222',
           moduleId: '33333333-3333-4333-8333-333333333333',
-          startDate: '2026-06-01T10:00',
+          startDate: mockDate,
           status: 'enrollment',
           contentSnapshot: [
             {
@@ -27,11 +29,18 @@ describe('EnrollStudentUc', () => {
               ],
             },
           ],
-          createdAt: '2026-06-01T10:00',
+          createdAt: mockDate,
         }),
       ),
+      save: mock(() => Promise.resolve()),
+      getAll: mock(() => Promise.resolve([])),
     };
-    const mockStudentRepo = { save: mock(() => Promise.resolve()) };
+    const mockStudentRepo = {
+      save: mock(() => Promise.resolve()),
+      getByUuid: mock(() => Promise.resolve(undefined)),
+      getByStream: mock(() => Promise.resolve([])),
+      getByUser: mock(() => Promise.resolve([])),
+    };
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
@@ -39,18 +48,23 @@ describe('EnrollStudentUc', () => {
           name: 'Guest',
           telegramId: 2,
           roles: [Role.GUEST],
-          createdAt: '2026-06-01T10:00',
+          createdAt: mockDate,
         }),
       ),
       updateUserRole: mock(() => Promise.resolve({})),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve(undefined)),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
+      registerGuest: mock(() => Promise.resolve({} as any)),
     };
 
     const uc = new EnrollStudentUc();
-    // @ts-expect-error
     uc.init({
-      streamRepo: mockStreamRepo,
-      streamStudentRepo: mockStudentRepo,
-      userFacade: mockUserFacade,
+      streamRepo: mockStreamRepo as any,
+      streamStudentRepo: mockStudentRepo as any,
+      userFacade: mockUserFacade as any,
+      courseFacade: {} as any,
     });
 
     await uc.execute(
@@ -76,14 +90,24 @@ describe('EnrollStudentUc', () => {
           name: 'Student',
           telegramId: 3,
           roles: [Role.STUDENT],
-          createdAt: '2026-06-01T10:00',
+          createdAt: mockDate,
         }),
       ),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve(undefined)),
+      updateUserRole: mock(() => Promise.resolve(undefined)),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
+      registerGuest: mock(() => Promise.resolve({} as any)),
     };
 
     const uc = new EnrollStudentUc();
-    // @ts-expect-error
-    uc.init({ userFacade: mockUserFacade });
+    uc.init({
+      userFacade: mockUserFacade as any,
+      streamRepo: {} as any,
+      streamStudentRepo: {} as any,
+      courseFacade: {} as any,
+    });
 
     await expect(
       uc.execute(

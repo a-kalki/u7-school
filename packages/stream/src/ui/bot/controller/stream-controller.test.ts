@@ -4,20 +4,13 @@ import { StreamController } from './stream-controller';
 
 describe('StreamController', () => {
   const mockStreamApi = {
-    useCases: [
-      { ucName: 'list-streams', execute: mock(() => Promise.resolve([])) },
-      { ucName: 'enroll-student', execute: mock(() => Promise.resolve()) },
-      {
-        ucName: 'get-student-progress',
-        execute: mock(() => Promise.resolve({ currentStepId: 's1' })),
-      },
-      {
-        ucName: 'complete-step',
-        execute: mock(() =>
-          Promise.resolve({ level: 'step', currentStepId: 's2' }),
-        ),
-      },
-    ],
+    handle: mock((cmd: any) => {
+      if (cmd.name === 'list-streams') return Promise.resolve([]);
+      if (cmd.name === 'enroll-student') return Promise.resolve(undefined);
+      if (cmd.name === 'get-student-progress') return Promise.resolve({ currentStepId: 's1' });
+      if (cmd.name === 'complete-step') return Promise.resolve({ level: 'step', currentStepId: 's2' });
+      return Promise.resolve(undefined);
+    }),
   } as unknown as StreamApiModule;
 
   test('handleUpdate обрабатывает команду streams', async () => {
@@ -29,9 +22,15 @@ describe('StreamController', () => {
     expect(response.sendMessage?.text).toContain('Список потоков');
   });
 
-  test('handleMyStudy возвращает прогресс', async () => {
+  test('handleEnroll выполняет зачисление', async () => {
     const controller = new StreamController(mockStreamApi);
-    const response = await controller.handleMyStudy('stu1');
-    expect(response.sendMessage?.text).toContain('Ваш прогресс');
+    const response = await controller.handleEnroll('u1', 's1');
+    expect(response.sendMessage?.text).toContain('записаны');
+  });
+
+  test('handleCompleteStep выполняет завершение шага', async () => {
+    const controller = new StreamController(mockStreamApi);
+    const response = await controller.handleCompleteStep('u1', 'stu1', 's1', 'step1');
+    expect(response.sendMessage?.text).toContain('Шаг завершён');
   });
 });

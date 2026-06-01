@@ -1,14 +1,9 @@
-import type { AppError } from '@u7-scl/core/domain';
+import type { NotFoundError, AccessDeniedError } from '@u7-scl/core/domain';
 
-export type StreamNotFoundUcError = AppError<
+export type StreamNotFoundUcError = NotFoundError<
   'STREAM_NOT_FOUND',
-  'domain',
-  'not_found'
+  { uuid: string }
 >;
-export type StreamAccessDeniedUcError = AppError<
-  'STREAM_ACCESS_DENIED',
-  'domain',
-  'unauthorized'
->;
+export type StreamAccessDeniedUcError = AccessDeniedError<'STREAM_ACCESS_DENIED'>;
 
 export type StreamUcErrors = StreamNotFoundUcError | StreamAccessDeniedUcError;

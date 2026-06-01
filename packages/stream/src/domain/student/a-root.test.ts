@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { StreamStudentAr } from './a-root';
+import { StudentAr } from './a-root';
 
 const mockStreamId = '11111111-1111-4111-8111-111111111111';
 const mockUserId = '22222222-2222-4222-8222-222222222222';
 const mockStepId = '33333333-3333-4333-8333-333333333333';
 
-describe('StreamStudentAr', () => {
+describe('StudentAr', () => {
   describe('enroll', () => {
     test('создаёт студента с корректными полями, статусом active и пустыми шагами', () => {
-      const ar = StreamStudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
 
       expect(ar.state.streamId).toBe(mockStreamId);
       expect(ar.state.userId).toBe(mockUserId);
@@ -25,14 +25,14 @@ describe('StreamStudentAr', () => {
 
     test('currentStepId должен быть передан при создании', () => {
       expect(() =>
-        StreamStudentAr.enroll(mockStreamId, mockUserId, ''),
+        StudentAr.enroll(mockStreamId, mockUserId, ''),
       ).toThrow();
     });
   });
 
   describe('issueStep', () => {
     test('добавляет StepRecord со статусом issued и обновляет currentStepId', () => {
-      const ar = StreamStudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       ar.issueStep(nextStepId);
@@ -48,7 +48,7 @@ describe('StreamStudentAr', () => {
     });
 
     test('выбрасывает ошибку если stepId уже выдан', () => {
-      const ar = StreamStudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       ar.issueStep(nextStepId);
@@ -59,7 +59,7 @@ describe('StreamStudentAr', () => {
 
   describe('completeStep', () => {
     test('меняет статус StepRecord на completed и проставляет completedAt', () => {
-      const ar = StreamStudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       ar.issueStep(nextStepId);
@@ -74,7 +74,7 @@ describe('StreamStudentAr', () => {
     });
 
     test('выбрасывает ошибку если шаг не был выдан', () => {
-      const ar = StreamStudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       expect(() => ar.completeStep(nextStepId)).toThrow();
@@ -83,7 +83,7 @@ describe('StreamStudentAr', () => {
 
   describe('complete', () => {
     test('меняет статус студента на completed', () => {
-      const ar = StreamStudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       expect(ar.state.status).toBe('active');
 
       ar.complete();

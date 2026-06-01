@@ -12,7 +12,7 @@ export interface ActivateStreamCmdMeta {
   ucName: 'activate-stream';
   arMeta: StreamArMeta;
   input: ActivateStreamCmd;
-  output: Stream;
+  output: void;
   errors: never;
   requiresAuth: true;
   type: 'command';

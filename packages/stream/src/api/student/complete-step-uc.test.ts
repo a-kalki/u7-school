@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { CompleteStepUc } from './complete-step-uc';
 
+const mockDate = '2026-06-01T10:00';
+
 describe('CompleteStepUc', () => {
   test('успешно завершает шаг', async () => {
     const mockStreamRepo = {
@@ -11,7 +13,7 @@ describe('CompleteStepUc', () => {
           description: 'Desc',
           mentorId: '22222222-2222-4222-8222-222222222222',
           moduleId: '33333333-3333-4333-8333-333333333333',
-          startDate: '2026-06-01T10:00',
+          startDate: mockDate,
           status: 'active',
           contentSnapshot: [
             {
@@ -29,9 +31,11 @@ describe('CompleteStepUc', () => {
               ],
             },
           ],
-          createdAt: '2026-06-01T10:00',
+          createdAt: mockDate,
         }),
       ),
+      save: mock(() => Promise.resolve()),
+      getAll: mock(() => Promise.resolve([])),
     };
     const mockStudentRepo = {
       getByUuid: mock(() =>
@@ -45,21 +49,24 @@ describe('CompleteStepUc', () => {
             {
               stepId: '66666666-6666-4666-8666-666666666666',
               status: 'issued',
-              issuedAt: '2026-06-01T10:00',
+              issuedAt: mockDate,
             },
           ],
-          enrolledAt: '2026-06-01T10:00',
-          createdAt: '2026-06-01T10:00',
+          enrolledAt: mockDate,
+          createdAt: mockDate,
         }),
       ),
       save: mock(() => Promise.resolve()),
+      getByStream: mock(() => Promise.resolve([])),
+      getByUser: mock(() => Promise.resolve([])),
     };
 
     const uc = new CompleteStepUc();
-    // @ts-expect-error
     uc.init({
-      streamRepo: mockStreamRepo,
-      streamStudentRepo: mockStudentRepo,
+      streamRepo: mockStreamRepo as any,
+      streamStudentRepo: mockStudentRepo as any,
+      userFacade: {} as any,
+      courseFacade: {} as any,
     });
 
     const result = await uc.execute(
@@ -72,7 +79,9 @@ describe('CompleteStepUc', () => {
     );
 
     expect(result.level).toBe('step');
-    expect(result.currentStepId).toBe('77777777-7777-4777-8777-777777777777');
+    if (result.level === 'step') {
+      expect(result.currentStepId).toBe('77777777-7777-4777-8777-777777777777');
+    }
     expect(mockStudentRepo.save).toHaveBeenCalled();
   });
 });

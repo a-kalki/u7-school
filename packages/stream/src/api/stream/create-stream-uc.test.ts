@@ -5,7 +5,11 @@ import { CreateStreamUc } from './create-stream-uc';
 
 describe('CreateStreamUc', () => {
   test('успешно создает поток MENTOR-ом', async () => {
-    const mockRepo = { save: mock(() => Promise.resolve()) };
+    const mockRepo = {
+      save: mock(() => Promise.resolve()),
+      getByUuid: mock(() => Promise.resolve(undefined)),
+      getAll: mock(() => Promise.resolve([])),
+    };
     const mockCourseFacade = {
       getModuleSnapshot: mock(() => Promise.resolve([])),
     };
@@ -19,14 +23,20 @@ describe('CreateStreamUc', () => {
           createdAt: isoNow(),
         }),
       ),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve(undefined)),
+      updateUserRole: mock(() => Promise.resolve(undefined)),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
+      registerGuest: mock(() => Promise.resolve({} as any)),
     };
 
     const uc = new CreateStreamUc();
-    // @ts-expect-error - упрощенный DI для теста
     uc.init({
-      streamRepo: mockRepo,
-      courseFacade: mockCourseFacade,
-      userFacade: mockUserFacade,
+      streamRepo: mockRepo as any,
+      courseFacade: mockCourseFacade as any,
+      userFacade: mockUserFacade as any,
+      streamStudentRepo: {} as any,
     });
 
     const cmd = {
@@ -59,11 +69,21 @@ describe('CreateStreamUc', () => {
           createdAt: isoNow(),
         }),
       ),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve(undefined)),
+      updateUserRole: mock(() => Promise.resolve(undefined)),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
+      registerGuest: mock(() => Promise.resolve({} as any)),
     };
 
     const uc = new CreateStreamUc();
-    // @ts-expect-error
-    uc.init({ userFacade: mockUserFacade });
+    uc.init({
+      userFacade: mockUserFacade as any,
+      streamRepo: {} as any,
+      courseFacade: {} as any,
+      streamStudentRepo: {} as any,
+    });
 
     await expect(uc.execute({} as any, 'g1')).rejects.toThrow();
   });

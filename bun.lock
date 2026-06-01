@@ -62,12 +62,26 @@
         "@u7-scl/user": "workspace:*",
       },
     },
+    "packages/stream": {
+      "name": "@u7-scl/stream",
+      "version": "0.1.0",
+      "dependencies": {
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/course": "workspace:*",
+        "@u7-scl/user": "workspace:*",
+        "valibot": "^1.0.0",
+      },
+    },
     "packages/user": {
       "name": "@u7-scl/user",
       "version": "0.1.0",
       "dependencies": {
         "@u7-scl/core": "workspace:*",
       },
+    },
+    "packages/video-summarizer": {
+      "name": "@u7-scl/video-summarizer",
+      "version": "0.1.0",
     },
     "packages/w3school": {
       "name": "@u7-scl/w3school",
@@ -150,7 +164,11 @@
 
     "@u7-scl/onboarding": ["@u7-scl/onboarding@workspace:packages/onboarding"],
 
+    "@u7-scl/stream": ["@u7-scl/stream@workspace:packages/stream"],
+
     "@u7-scl/user": ["@u7-scl/user@workspace:packages/user"],
+
+    "@u7-scl/video-summarizer": ["@u7-scl/video-summarizer@workspace:packages/video-summarizer"],
 
     "@u7-scl/w3school": ["@u7-scl/w3school@workspace:packages/w3school"],
 

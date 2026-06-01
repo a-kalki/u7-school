@@ -1,23 +1,16 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
+import {
+  type ArchiveStreamCmd,
+  type ArchiveStreamCmdMeta,
+  ArchiveStreamCmdSchema,
+} from '#domain/stream/commands/archive-stream-cmd';
 import { StreamUseCase } from '../stream-uc';
-
-export const ArchiveStreamCmdSchema = v.object({
-  streamId: v.pipe(v.string(), v.uuid('Некорректный UUID потока')),
-});
-
-export type ArchiveStreamCmd = v.InferOutput<typeof ArchiveStreamCmdSchema>;
-
-export interface ArchiveStreamCmdMeta {
-  name: 'archive-stream';
-  label: 'Архивировать поток';
-  input: ArchiveStreamCmd;
-}
 
 export class ArchiveStreamUc extends StreamUseCase<ArchiveStreamCmdMeta> {
   protected readonly ucName = 'archive-stream' as const;
   protected readonly ucLabel = 'Архивировать поток' as const;
-  protected readonly arMeta = { arName: 'Stream', arLabel: 'Поток' };
+  protected readonly arMeta = { arName: 'Stream' as const, arLabel: 'Поток' as const };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = ArchiveStreamCmdSchema;
