@@ -111,7 +111,6 @@ describe('OnboardingController', () => {
         type: 'command',
         command: 'start',
         telegramId: 12345,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -127,7 +126,6 @@ describe('OnboardingController', () => {
         type: 'command',
         command: 'start',
         telegramId: 12345,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -138,7 +136,6 @@ describe('OnboardingController', () => {
         type: 'command',
         command: 'start',
         telegramId: 12345,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -154,7 +151,6 @@ describe('OnboardingController', () => {
         type: 'command',
         command: 'start',
         telegramId: 12345,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -181,7 +177,6 @@ describe('OnboardingController', () => {
         type: 'command',
         command: 'start',
         telegramId: 12345,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -192,7 +187,6 @@ describe('OnboardingController', () => {
         type: 'command',
         command: 'cancel',
         telegramId: 12345,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -207,7 +201,6 @@ describe('OnboardingController', () => {
         type: 'message',
         text: 'привет',
         telegramId: 999,
-        name: 'Иван',
       },
       botAdminUuid,
     );
@@ -252,7 +245,7 @@ describe('OnboardingController', () => {
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 777, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 777 },
       botAdminUuid,
     );
 
@@ -315,7 +308,7 @@ describe('OnboardingController', () => {
     const ctrl2 = new OnboardingController(app2, logger);
 
     await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 888, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 888 },
       botAdminUuid,
     );
 
@@ -376,7 +369,7 @@ describe('OnboardingController', () => {
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 999, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 999 },
       botAdminUuid,
     );
 
@@ -441,7 +434,7 @@ describe('OnboardingController', () => {
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 111, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 111 },
       botAdminUuid,
     );
 
@@ -503,7 +496,7 @@ describe('OnboardingController', () => {
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 222, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 222 },
       botAdminUuid,
     );
 
@@ -561,7 +554,7 @@ describe('OnboardingController', () => {
 
     // Начинаем анкету
     await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 333, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 333 },
       botAdminUuid,
     );
 
@@ -573,7 +566,7 @@ describe('OnboardingController', () => {
 
     // Повторный start_onboarding (без messageId)
     const response = await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 333, name: 'Иван' },
+      { type: 'command', command: 'start', telegramId: 333 },
       botAdminUuid,
     );
 

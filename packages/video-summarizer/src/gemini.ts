@@ -67,7 +67,7 @@ export async function uploadVideo(
     throw new Error(`Upload failed [${uploadResp.status}]: ${err}`);
   }
 
-  let file: UploadedFile = await uploadResp.json();
+  let file: UploadedFile = await uploadResp.json() as UploadedFile;
   // Ответ может быть в поле file
   if ((file as any).file) {
     file = (file as any).file;
@@ -83,7 +83,7 @@ export async function uploadVideo(
     if (!statusResp.ok) {
       throw new Error(`Status check failed [${statusResp.status}]`);
     }
-    file = await statusResp.json();
+    file = await statusResp.json() as UploadedFile;
     attempts++;
     if (file.state === 'PROCESSING') {
       console.log(`  Ожидание обработки... (попытка ${attempts})`);
@@ -135,7 +135,7 @@ export async function generateContent(
     throw new Error(`GenerateContent failed [${resp.status}]: ${err}`);
   }
 
-  const data = await resp.json();
+  const data = await resp.json() as any;
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!text) {

@@ -13,6 +13,13 @@ const tmpDir = mkdtempSync('/tmp/course-api-module-test-');
 
 /** In-memory заглушка фасада пользователей для тестов */
 class MockUserFacade implements UserFacade {
+  updateUserRole(
+    _userId: string,
+    _role: Role,
+    _actorId?: string,
+  ): Promise<User | undefined> {
+    return Promise.resolve(undefined);
+  }
   removeRoleFromUser(
     _userId: string,
     _role: Role,

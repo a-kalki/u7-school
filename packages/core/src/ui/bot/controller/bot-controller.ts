@@ -1,4 +1,4 @@
-import type { BotResponse, BotUpdate } from './types';
+import type { BotResponse, BotUpdate } from '../types';
 
 /**
  * Базовый контроллер для Telegram-бота.

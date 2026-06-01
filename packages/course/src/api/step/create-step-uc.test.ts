@@ -71,6 +71,7 @@ function setupUc() {
     addRoleToUser: mock(),
     getUserByTelegramId: mock(async () => undefined),
     removeRoleFromUser: mock(),
+    updateUserRole: mock(),
     registerGuest: mock(async () => ({
       uuid: '',
       name: '',

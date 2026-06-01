@@ -109,6 +109,6 @@ async function callGeminiText(prompt: string, apiKey: string): Promise<string> {
     throw new Error(`[${resp.status}] ${await resp.text()}`);
   }
 
-  const data = await resp.json();
+  const data = await resp.json() as any;
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? 'Пустой ответ';
 }

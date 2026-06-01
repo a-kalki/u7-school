@@ -64,7 +64,7 @@ async function callGemini(prompt: string): Promise<string> {
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
   });
   if (!resp.ok) throw new Error(`[${resp.status}] ${await resp.text()}`);
-  const data = await resp.json();
+  const data = await resp.json() as any;
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 }
 
