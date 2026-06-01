@@ -24,14 +24,14 @@
     - [x] `status.ts` — enum StreamStatus + Valibot picklist
     - [x] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter ({ status?: StreamStatus, mentorId?: string })
 
-- [ ] Task: Написать тесты для Valibot-схем
-    - [ ] Тест: ContentSnapshotSchema валидирует корректный снимок (проекты→уроки→stepIds)
-    - [ ] Тест: StreamSchema валидирует полный объект потока
-    - [ ] Тест: StreamSchema отклоняет объект без обязательных полей
+- [x] Task: Написать тесты для Valibot-схем (17ba57a)
+    - [x] Тест: ContentSnapshotSchema валидирует корректный снимок (проекты→уроки→stepIds)
+    - [x] Тест: StreamSchema валидирует полный объект потока
+    - [x] Тест: StreamSchema отклоняет объект без обязательных полей
 
-- [ ] Task: Реализовать Valibot-схемы Entity
-    - [ ] `stream/entity.ts` — StreamSchema, ContentSnapshotSchema, StreamArMeta
-    - [ ] `domain/index.ts` — публичный экспорт
+- [x] Task: Реализовать Valibot-схемы Entity (17ba57a)
+    - [x] `stream/entity.ts` — StreamSchema, ContentSnapshotSchema, StreamArMeta
+    - [x] `domain/index.ts` — публичный экспорт
 
 - [ ] Task: Conductor - User Manual Verification 'Фундамент' (Protocol in workflow.md)
 
