@@ -2,7 +2,7 @@
 
 ## Фаза 1: StreamController — ядро маршрутизации
 
-- [ ] Task: Написать тесты для маршрутизации StreamController.handleUpdate
+- [x] Task: Написать тесты для маршрутизации StreamController.handleUpdate [f787a9d]
     - [ ] Тест: команда `streams` → handleListStreams
     - [ ] Тест: команда `my_study` → handleMyStudy
     - [ ] Тест: callback `stream:view:<id>` → handleStreamView
@@ -10,7 +10,7 @@
     - [ ] Тест: callback `complete:<studentId>:<streamId>:<stepId>` → handleCompleteStep
     - [ ] Тест: неизвестная команда → сообщение об ошибке
 
-- [ ] Task: Реализовать StreamController.handleUpdate с полной маршрутизацией
+- [x] Task: Реализовать StreamController.handleUpdate с полной маршрутизацией [f787a9d]
     - [ ] Парсинг callback_data: `stream:view`, `stream:enroll`, `complete`, `progress`
     - [ ] Делегирование частным методам без доменной логики
 
