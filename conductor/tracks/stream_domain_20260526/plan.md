@@ -15,14 +15,14 @@
 
 ## Фаза 1: Фундамент — типы, статусы, схемы
 
-- [ ] Task: Написать тесты для StreamStatus и базовых типов
-    - [ ] Тест: StreamStatus содержит все значения (enrollment, active, completed, archived)
-    - [ ] Тест: StreamStatusSchema валидирует корректные значения
-    - [ ] Тест: StreamStatusSchema отклоняет некорректные значения
+- [x] Task: Написать тесты для StreamStatus и базовых типов (35882f0)
+    - [x] Тест: StreamStatus содержит все значения (enrollment, active, completed, archived)
+    - [x] Тест: StreamStatusSchema валидирует корректные значения
+    - [x] Тест: StreamStatusSchema отклоняет некорректные значения
 
-- [ ] Task: Реализовать StreamStatus и базовые типы
-    - [ ] `status.ts` — enum StreamStatus + Valibot picklist
-    - [ ] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter ({ status?: StreamStatus, mentorId?: string })
+- [x] Task: Реализовать StreamStatus и базовые типы (35882f0)
+    - [x] `status.ts` — enum StreamStatus + Valibot picklist
+    - [x] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter ({ status?: StreamStatus, mentorId?: string })
 
 - [ ] Task: Написать тесты для Valibot-схем
     - [ ] Тест: ContentSnapshotSchema валидирует корректный снимок (проекты→уроки→stepIds)
