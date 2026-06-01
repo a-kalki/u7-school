@@ -1,0 +1,8 @@
+{
+  "track_id": "stream_domain_fixes_20260601",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-01T19:00:00Z",
+  "updated_at": "2026-06-01T19:00:00Z",
+  "description": "Исправления и дополнения доменного слоя модуля stream: уровни lesson/project в StreamDs, активация студентов, новые UC, проверки авторизации"
+}
