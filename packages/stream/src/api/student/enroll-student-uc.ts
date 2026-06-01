@@ -1,5 +1,6 @@
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
+import { errConflict } from '@u7-scl/core/domain';
 import { StreamAr } from '#domain/stream/a-root';
 import { StreamPolicy } from '#domain/stream/policy';
 import { StudentAr } from '#domain/student/a-root';
@@ -9,6 +10,7 @@ import {
   EnrollStudentCmdSchema,
 } from '#domain/student/commands/enroll-student-cmd';
 import { StreamUseCase } from '../stream-uc';
+import type { StreamConflictUcError, StreamUcErrors } from '../errors';
 
 /**
  * Use-case зачисления студента на поток.
@@ -37,6 +39,19 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // 1. Проверка, не учится ли уже (политика)
     if (!StreamPolicy.canEnroll(actor)) {
       this.throwAccessDenied('Вы не можете записаться на этот поток');
+    }
+
+    // 1.5 Проверка, нет ли уже активной записи в другом потоке
+    const activeRecords = await studentRepo.getByUser(command.userId);
+    const hasActive = activeRecords.some((r) => r.status === 'active');
+    if (hasActive) {
+      this.throwError(
+        errConflict<StreamConflictUcError>(
+          'STREAM_CONFLICT',
+          'Вы уже проходите обучение в другом потоке',
+          { userId: command.userId },
+        ) as StreamUcErrors,
+      );
     }
 
     const streamEntity = await this.getStream(command.streamId);
