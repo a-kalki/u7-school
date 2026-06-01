@@ -1,0 +1,8 @@
+**Задача: Проверки авторизации в 4 UC**
+
+**Изменения (7 файлов):**
+- ActivateStreamUc, ArchiveStreamUc, CompleteStreamUc: добавлен StreamPolicy.canEdit
+- GetStudentProgressUc: StudentPolicy.canViewProgress + проверка ментора потока
+- Тесты авторизации: archive, complete, get-student-progress (3 файла, 7 тестов)
+
+**Причина:** FT-6 — проверка прав актора для управляющих операций.
