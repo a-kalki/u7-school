@@ -20,7 +20,7 @@
     - [x] Тест: StreamStatusSchema валидирует корректные значения
     - [x] Тест: StreamStatusSchema отклоняет некорректные значения
 
-- [x] Task: Реализовать StreamStatus и базовые типы (35882f0)
+- [x] Task: Реализовать StreamStatus и базовые типы (35882f0) (9446297)
     - [x] `status.ts` — enum StreamStatus + Valibot picklist
     - [x] `types.ts` — StreamId, StreamStudentId, StepRecordStatus, StreamListFilter ({ status?: StreamStatus, mentorId?: string })
 
@@ -72,7 +72,7 @@
 
 ## Фаза 3: Агрегат StreamStudentAr
 
-- [ ] Task: Написать тесты для StreamStudentAr.enroll
+- [~] Task: Написать тесты для StreamStudentAr.enroll
     - [ ] Тест: создаёт студента с корректными полями
     - [ ] Тест: currentStepId должен быть передан при создании
     - [ ] Тест: status = active, steps = []
@@ -81,7 +81,7 @@
     - [ ] `stream-student/entity.ts` — StreamStudentSchema, StepRecordSchema, StreamStudentArMeta
     - [ ] `stream-student/a-root.ts` — класс StreamStudentAr, static enroll
 
-- [ ] Task: Написать тесты для StreamStudentAr.issueStep и completeStep
+- [~] Task: Написать тесты для StreamStudentAr.issueStep и completeStep
     - [ ] Тест: issueStep добавляет StepRecord со статусом issued
     - [ ] Тест: issueStep обновляет currentStepId
     - [ ] Тест: issueStep выбрасывает ошибку если stepId уже выдан
