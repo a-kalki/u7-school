@@ -5,6 +5,11 @@ import type { OnboardingBotApp } from '@u7-scl/onboarding';
 import { OnboardingApiModule } from '@u7-scl/onboarding';
 import { QuestionPoolService } from '@u7-scl/onboarding/domain';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
+import {
+  StreamApiModule,
+  StreamJsonRepo,
+  StreamStudentJsonRepo,
+} from '@u7-scl/stream';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
@@ -27,6 +32,15 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     db,
   );
 
+  const streamRepo = new StreamJsonRepo(
+    `${config.dbDir}/streams/streams.json`,
+    db,
+  );
+  const streamStudentRepo = new StreamStudentJsonRepo(
+    `${config.dbDir}/streams/students.json`,
+    db,
+  );
+
   // ══ QuestionPoolService: явная загрузка пула ══
   const rawPool = QuestionPoolService.loadDefaultPool();
   const poolService = new QuestionPoolService(rawPool, []);
@@ -44,9 +58,17 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     db,
   });
 
+  const streamModule = new StreamApiModule({
+    streamRepo,
+    streamStudentRepo,
+    userFacade,
+    // TODO: [Technical Debt] Реализовать полноценный CourseFacade, используя реальные репозитории модуля course
+    courseFacade: { getModuleSnapshot: async () => [] },
+  });
+
   // ══ ApiApp: модули + опциональный логгер в конструкторе ══
   const apiApp = new ApiApp(
-    [userModule, onboardingModule],
+    [userModule, onboardingModule, streamModule],
     logger,
   ) as OnboardingBotApp;
 
@@ -56,5 +78,6 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     userRepo,
     questionnaireRepo,
     poolService: activePoolService,
+    streamModule,
   };
 }

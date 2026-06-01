@@ -1,4 +1,4 @@
-import type { BotResponse } from '@u7-scl/onboarding';
+import type { BotResponse } from '@u7-scl/core/ui';
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from './context';
 

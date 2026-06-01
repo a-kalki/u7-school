@@ -1,21 +1,23 @@
+import { BotController, type BotResponse, type BotUpdate } from '@u7-scl/core/ui';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import { escapeMarkdown } from '@u7-scl/core/shared';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { OnboardingBotApp } from '../app';
-import type { BotResponse, BotUpdate, KeyboardDescription } from '../types';
+import type { KeyboardDescription } from '../types';
 
 /**
  * Контроллер onboarding для Telegram-бота.
  * Stateless — на каждый запрос получает актуальное состояние из API или выполняет действие.
  * botUuid передаётся в handleUpdate (не в конструктор) и используется как actorId.
  */
-export class OnboardingController {
+export class OnboardingController extends BotController {
   readonly #app: OnboardingBotApp;
   readonly #logger: Logger | undefined;
 
   constructor(app: OnboardingBotApp, logger?: Logger) {
+    super();
     this.#app = app;
     this.#logger = logger;
   }
@@ -27,11 +29,11 @@ export class OnboardingController {
   async handleUpdate(update: BotUpdate, botUuid: string): Promise<BotResponse> {
     try {
       if (update.type === 'command') {
-        return this.#handleCommand(update, botUuid);
+        return await this.#handleCommand(update, botUuid);
       }
 
       // message или callback — форвардим в handle-action
-      return this.#handleAction(update, botUuid);
+      return await this.#handleAction(update, botUuid);
     } catch (err) {
       this.#logger?.error(
         'onboarding-controller',
@@ -41,8 +43,7 @@ export class OnboardingController {
           telegramId: 'telegramId' in update ? update.telegramId : undefined,
         },
       );
-      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      return { sendMessage: { text: `⚠️ Произошла ошибка: ${message}` } };
+      return this.handleError(err);
     }
   }
 
@@ -54,10 +55,10 @@ export class OnboardingController {
   ): Promise<BotResponse> {
     switch (update.command) {
       case 'start':
-        return this.#startOrResumeOnboarding(update.telegramId, botUuid);
+        return await this.#startOrResumeOnboarding(update.telegramId, botUuid);
 
       case 'cancel':
-        return this.#cancelOnboarding(update.telegramId, botUuid);
+        return await this.#cancelOnboarding(update.telegramId, botUuid);
 
       default:
         return {};
@@ -91,7 +92,7 @@ export class OnboardingController {
         return this.#renderActionResponse(startResponse);
       }
 
-      return { sendMessage: { text: `Ошибка: ${ex.message}` } };
+      return this.handleError(err);
     }
   }
 
@@ -106,15 +107,14 @@ export class OnboardingController {
       return {
         questionnaireCompleted: true,
         sendMessage: {
-          text: escapeMarkdown(
+          text: this.escapeMarkdown(
             'Анкета прервана. Ты можешь начать заново через /start_onboarding',
           ),
           parseMode: 'MarkdownV2',
         },
       };
     } catch (err) {
-      const ex = err as AppException;
-      return { sendMessage: { text: `Ошибка: ${ex.message}` } };
+      return this.handleError(err);
     }
   }
 
@@ -143,8 +143,7 @@ export class OnboardingController {
         update.type === 'callback' ? update.messageId : undefined,
       );
     } catch (err) {
-      const ex = err as AppException;
-      return { sendMessage: { text: `Ошибка: ${ex.message}` } };
+      return this.handleError(err);
     }
   }
 
@@ -250,10 +249,10 @@ export class OnboardingController {
   /** Форматирует вопрос и ответы в MarkdownV2 */
   #formatQuestionMd(question: Question, selected: string[]): string {
     if (question.type !== 'choice') {
-      return `*${escapeMarkdown(question.question)}*`;
+      return `*${this.escapeMarkdown(question.question)}*`;
     }
 
-    const lines = [`*${escapeMarkdown(question.question)}*`, ''];
+    const lines = [`*${this.escapeMarkdown(question.question)}*`, ''];
     let idx = 0;
     for (const a of question.answers) {
       idx++;
@@ -265,7 +264,7 @@ export class OnboardingController {
         : checked
           ? '\\(x\\)'
           : '\\( \\)';
-      lines.push(`${idx}\\. ${marker} ${escapeMarkdown(a.answer)}`);
+      lines.push(`${idx}\\. ${marker} ${this.escapeMarkdown(a.answer)}`);
     }
     return lines.join('\n');
   }

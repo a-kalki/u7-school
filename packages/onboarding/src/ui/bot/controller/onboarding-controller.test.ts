@@ -212,7 +212,7 @@ describe('OnboardingController', () => {
       botAdminUuid,
     );
 
-    expect(response.sendMessage?.text).toContain('Ошибка');
+    expect(response.sendMessage?.text.toLowerCase()).toContain('ошибка');
   });
 
   // ── Тесты с несколькими вопросами (переход new_question) ──

@@ -25,7 +25,6 @@ export function registerOnboardingHandler(
         type: 'message',
         text: ctx.message.text,
         telegramId: ctx.from.id,
-        name: ctx.from.first_name,
       },
       config.botAdminUuid,
     );
@@ -69,7 +68,6 @@ export function registerOnboardingHandler(
         type: 'command',
         command: 'cancel',
         telegramId: ctx.from.id,
-        name: ctx.from.first_name || 'User',
       },
       config.botAdminUuid,
     );

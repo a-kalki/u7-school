@@ -1,11 +1,13 @@
 import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7-scl/core/shared';
 import { OnboardingController } from '@u7-scl/onboarding';
+import { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
 import { webhookCallback } from 'grammy';
 import { createApiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { registerOnboardingHandler } from './handlers/onboarding-handler';
+import { registerStreamHandler } from './handlers/stream-handler';
 import { registerTopMenuHandler } from './handlers/top-menu-handler';
 import { CompositeLogger, TelegramLogger } from './logger';
 
@@ -21,8 +23,9 @@ const loggers: CompositeLogger = new CompositeLogger([consoleLogger]);
 // (TelegramLogger понадобится bot, который мы создадим ниже)
 const logger = loggers;
 
-const { apiApp, userFacade } = createApiApp(config, logger);
-const controller = new OnboardingController(apiApp, logger);
+const { apiApp, userFacade, streamModule } = createApiApp(config, logger);
+const onboardingController = new OnboardingController(apiApp, logger);
+const streamController = new StreamController(streamModule);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -142,8 +145,16 @@ privateBot.command('log_level', async (ctx) => {
   );
 });
 
-registerTopMenuHandler(privateBot, userFacade, controller, config, logger);
-registerOnboardingHandler(privateBot, controller, config);
+registerTopMenuHandler(
+  privateBot,
+  userFacade,
+  onboardingController,
+  streamController,
+  config,
+  logger,
+);
+registerOnboardingHandler(privateBot, onboardingController, config);
+registerStreamHandler(privateBot, streamController, userFacade, config);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {

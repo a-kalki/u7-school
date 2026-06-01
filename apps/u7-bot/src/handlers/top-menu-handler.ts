@@ -1,5 +1,6 @@
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
+import type { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { Bot } from 'grammy';
 import type { BotConfig } from '../config';
@@ -15,7 +16,8 @@ import { executeResponses } from '../ui-utils';
 export function registerTopMenuHandler(
   bot: Bot<BotContext>,
   userFacade: UserFacade,
-  controller: OnboardingController,
+  _onboardingController: OnboardingController,
+  streamController: StreamController,
   config: BotConfig,
   logger: Logger,
 ) {
@@ -54,6 +56,29 @@ export function registerTopMenuHandler(
     await ctx.reply(
       `Присоединяйся к нашей новостной группе:\n${config.newsGroupUrl}`,
     );
+  });
+
+  bot.command('streams', async (ctx) => {
+    const telegramId = ctx.from?.id;
+    if (!telegramId) return;
+
+    try {
+      const response = await streamController.handleUpdate(
+        {
+          type: 'command',
+          command: 'streams',
+          telegramId,
+        },
+        config.botAdminUuid,
+      );
+      await executeResponses(ctx, response);
+    } catch (err) {
+      logger.error('top-menu', 'Ошибка /streams', {
+        error: String(err),
+        telegramId,
+      });
+      await ctx.reply('Произошла ошибка при получении потоков.');
+    }
   });
 
   bot.command('start_onboarding', async (ctx) => {
