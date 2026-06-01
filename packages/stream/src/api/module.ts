@@ -7,9 +7,12 @@ import { ActivateStreamUc } from './stream/activate-stream-uc';
 import { ArchiveStreamUc } from './stream/archive-stream-uc';
 import { CompleteStreamUc } from './stream/complete-stream-uc';
 import { CreateStreamUc } from './stream/create-stream-uc';
+import { GetStreamUc } from './stream/get-stream-uc';
 import { ListStreamsUc } from './stream/list-streams-uc';
+import { ListStreamStudentsUc } from './stream/list-stream-students-uc';
 import { CompleteStepUc } from './student/complete-step-uc';
 import { EnrollStudentUc } from './student/enroll-student-uc';
+import { GetStudentByUserUc } from './student/get-student-by-user-uc';
 import { GetStudentProgressUc } from './student/get-student-progress-uc';
 
 export class StreamApiModule extends ApiModule<
@@ -19,11 +22,14 @@ export class StreamApiModule extends ApiModule<
   readonly name = 'stream' as const;
   readonly useCases = [
     new CreateStreamUc(),
+    new GetStreamUc(),
     new ListStreamsUc(),
+    new ListStreamStudentsUc(),
     new ActivateStreamUc(),
     new CompleteStreamUc(),
     new ArchiveStreamUc(),
     new EnrollStudentUc(),
+    new GetStudentByUserUc(),
     new CompleteStepUc(),
     new GetStudentProgressUc(),
   ];

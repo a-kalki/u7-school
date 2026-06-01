@@ -31,32 +31,32 @@
 
 ## Фаза 3: Новые UseCases и проверки авторизации
 
-- [ ] Task: Написать тесты для GetStreamUc
-    - [ ] Тест: возвращает поток по streamId
-    - [ ] Тест: ошибка если поток не найден
+- [x] Task: Написать тесты для GetStreamUc `TBD`
+    - [x] Тест: возвращает поток по streamId
+    - [x] Тест: ошибка если поток не найден
 
-- [ ] Task: Реализовать GetStreamUc
-    - [ ] Создать `api/stream/get-stream-uc.ts` с командой и схемой
-    - [ ] Зарегистрировать в StreamApiModule
+- [x] Task: Реализовать GetStreamUc `TBD`
+    - [x] Создать `api/stream/get-stream-uc.ts` с командой и схемой
+    - [x] Зарегистрировать в StreamApiModule
 
-- [ ] Task: Написать тесты для GetStudentByUserUc
-    - [ ] Тест: возвращает активную запись студента
-    - [ ] Тест: ошибка если активная запись не найдена
+- [x] Task: Написать тесты для GetStudentByUserUc `TBD`
+    - [x] Тест: возвращает активную запись студента
+    - [x] Тест: ошибка если активная запись не найдена
 
-- [ ] Task: Реализовать GetStudentByUserUc
-    - [ ] Создать `api/student/get-student-by-user-uc.ts` с командой и схемой
-    - [ ] Использовать `StudentRepo.getByUser` + фильтр по `status === 'active'`
-    - [ ] Зарегистрировать в StreamApiModule
+- [x] Task: Реализовать GetStudentByUserUc `TBD`
+    - [x] Создать `api/student/get-student-by-user-uc.ts` с командой и схемой
+    - [x] Использовать `StudentRepo.getByUser` + фильтр по `status === 'active'`
+    - [x] Зарегистрировать в StreamApiModule
 
-- [ ] Task: Написать тесты для ListStreamStudentsUc
-    - [ ] Тест: возвращает список студентов потока
-    - [ ] Тест: пустой список если студентов нет
-    - [ ] Тест: доступ запрещён для не-ментора и не-админа
+- [x] Task: Написать тесты для ListStreamStudentsUc `TBD`
+    - [x] Тест: возвращает список студентов потока
+    - [x] Тест: пустой список если студентов нет
+    - [x] Тест: доступ запрещён для не-ментора и не-админа
 
-- [ ] Task: Реализовать ListStreamStudentsUc
-    - [ ] Создать `api/stream/list-stream-students-uc.ts` с командой и схемой
-    - [ ] Проверка прав: ментор потока или админ
-    - [ ] Зарегистрировать в StreamApiModule
+- [x] Task: Реализовать ListStreamStudentsUc `TBD`
+    - [x] Создать `api/stream/list-stream-students-uc.ts` с командой и схемой
+    - [x] Проверка прав: ментор потока или админ
+    - [x] Зарегистрировать в StreamApiModule
 
 - [ ] Task: Написать тесты для проверок авторизации в существующих UC
     - [ ] Тест: ActivateStreamUc — запрет для не-ментора
