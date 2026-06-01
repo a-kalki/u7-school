@@ -127,4 +127,72 @@ describe('StreamAr', () => {
       expect(() => ar.archive()).toThrow();
     });
   });
+
+  describe('findNextStep', () => {
+    const complexSnapshot: ContentSnapshot = [
+      {
+        projectId: '11111111-1111-4111-8111-111111111111',
+        projectTitle: 'Проект 1',
+        lessons: [
+          {
+            lessonId: '11111111-1111-4222-8222-111111111111',
+            lessonTitle: 'Урок 1.1',
+            stepIds: [
+              '11111111-1111-4333-8333-111111111111',
+              '22222222-2222-4333-8333-222222222222',
+            ],
+          },
+          {
+            lessonId: '22222222-2222-4222-8222-222222222222',
+            lessonTitle: 'Урок 1.2',
+            stepIds: ['33333333-3333-4333-8333-333333333333'],
+          },
+        ],
+      },
+      {
+        projectId: '22222222-2222-4111-8111-222222222222',
+        projectTitle: 'Проект 2',
+        lessons: [
+          {
+            lessonId: '33333333-3333-4222-8222-333333333333',
+            lessonTitle: 'Урок 2.1',
+            stepIds: ['44444444-4444-4444-8444-444444444444'],
+          },
+        ],
+      },
+    ];
+
+    const s1 = '11111111-1111-4333-8333-111111111111';
+    const s2 = '22222222-2222-4333-8333-222222222222';
+    const s3 = '33333333-3333-4333-8333-333333333333';
+    const s4 = '44444444-4444-4444-8444-444444444444';
+    const sUnknown = '99999999-9999-4999-8999-999999999999';
+
+    test('находит следующий шаг в том же уроке', () => {
+      const ar = StreamAr.create(mockCreateCmd, complexSnapshot);
+      expect(ar.findNextStep(s1)).toBe(s2);
+    });
+
+    test('переходит к первому шагу следующего урока в том же проекте', () => {
+      const ar = StreamAr.create(mockCreateCmd, complexSnapshot);
+      expect(ar.findNextStep(s2)).toBe(s3);
+    });
+
+    test('переходит к первому шагу следующего проекта', () => {
+      const ar = StreamAr.create(mockCreateCmd, complexSnapshot);
+      expect(ar.findNextStep(s3)).toBe(s4);
+    });
+
+    test('возвращает null на последнем шаге всего потока', () => {
+      const ar = StreamAr.create(mockCreateCmd, complexSnapshot);
+      expect(ar.findNextStep(s4)).toBeNull();
+    });
+
+    test('выбрасывает ошибку если stepId не найден в снимке', () => {
+      const ar = StreamAr.create(mockCreateCmd, complexSnapshot);
+      expect(() => ar.findNextStep(sUnknown)).toThrow(
+        'Шаг не найден в структуре потока',
+      );
+    });
+  });
 });

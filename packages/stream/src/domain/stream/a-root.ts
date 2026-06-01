@@ -89,9 +89,28 @@ export class StreamAr extends Aggregate<StreamArMeta> {
 
   /**
    * Нахождение следующего шага в снимке контента потока.
-   * Будет реализовано на следующем шаге.
+   * Обходит дерево контента в глубину и возвращает UUID следующего шага.
    */
-  findNextStep(_currentStepId: string): string | null {
-    return null;
+  findNextStep(currentStepId: string): string | null {
+    const allStepIds: string[] = [];
+
+    for (const project of this._state.contentSnapshot) {
+      for (const lesson of project.lessons) {
+        for (const stepId of lesson.stepIds) {
+          allStepIds.push(stepId);
+        }
+      }
+    }
+
+    const index = allStepIds.indexOf(currentStepId);
+    if (index === -1) {
+      this.throwBadRequest('Шаг не найден в структуре потока');
+    }
+
+    if (index === allStepIds.length - 1) {
+      return null;
+    }
+
+    return allStepIds[index + 1] ?? null;
   }
 }
