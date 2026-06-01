@@ -1,0 +1,9 @@
+**Задачи: GetStreamUc, GetStudentByUserUc, ListStreamStudentsUc**
+
+**Изменения (12 файлов):**
+- Новые команды: get-stream-cmd.ts, get-student-by-user-cmd.ts, list-stream-students-cmd.ts
+- Новые UC: GetStreamUc, GetStudentByUserUc, ListStreamStudentsUc
+- Тесты для каждого UC (7 тестов)
+- Регистрация в StreamApiModule и StreamApiModuleMeta
+
+**Причина:** FT-3..FT-5 — три недостающих UC для полного покрытия user stories.
