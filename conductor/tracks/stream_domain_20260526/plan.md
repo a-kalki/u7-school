@@ -39,22 +39,22 @@
 
 ## Фаза 2: Агрегат StreamAr
 
-- [ ] Task: Написать тесты для StreamAr.create
-    - [ ] Тест: создаёт поток с корректными полями, статусом enrollment и опциональным telegramGroupId
-    - [ ] Тест: contentSnapshot сохраняется корректно
-    - [ ] Тест: поля-снимки (goal, result и др.) копируются
-    - [ ] Тест: activate() переводит поток из enrollment в active
-    - [ ] Тест: activate() из некорректных статусов выбрасывает ошибку
-    - [ ] Тест: complete() переводит поток в completed
-    - [ ] Тест: archive() переводит поток в archived
+- [x] Task: Написать тесты для StreamAr.create (9054756)
+    - [x] Тест: создаёт поток с корректными полями, статусом enrollment и опциональным telegramGroupId
+    - [x] Тест: contentSnapshot сохраняется корректно
+    - [x] Тест: поля-снимки (goal, result и др.) копируются
+    - [x] Тест: activate() переводит поток из enrollment в active
+    - [x] Тест: activate() из некорректных статусов выбрасывает ошибку
+    - [x] Тест: complete() переводит поток в completed
+    - [x] Тест: archive() переводит поток в archived
 
-- [ ] Task: Реализовать StreamAr.create и методы статусов
-    - [ ] `stream/a-root.ts` — класс StreamAr extends Aggregate, static create
-    - [ ] `stream/a-root.ts` — методы activate(), complete(), archive()
-    - [ ] `stream/commands/create-stream-cmd.ts` — CreateStreamCmd, схема, мета
-    - [ ] `stream/commands/activate-stream-cmd.ts` — ActivateStreamCmd
-    - [ ] `stream/commands/complete-stream-cmd.ts` — CompleteStreamCmd
-    - [ ] `stream/commands/archive-stream-cmd.ts` — ArchiveStreamCmd
+- [x] Task: Реализовать StreamAr.create и методы статусов (9054756)
+    - [x] `stream/a-root.ts` — класс StreamAr extends Aggregate, static create
+    - [x] `stream/a-root.ts` — методы activate(), complete(), archive()
+    - [x] `stream/commands/create-stream-cmd.ts` — CreateStreamCmd, схема, мета
+    - [x] `stream/commands/activate-stream-cmd.ts` — ActivateStreamCmd
+    - [x] `stream/commands/complete-stream-cmd.ts` — CompleteStreamCmd
+    - [x] `stream/commands/archive-stream-cmd.ts` — ArchiveStreamCmd
 
 - [ ] Task: Написать тесты для StreamAr.findNextStep
     - [ ] Тест: находит следующий шаг в том же уроке
