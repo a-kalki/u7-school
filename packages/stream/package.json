@@ -1,0 +1,25 @@
+{
+  "name": "@u7-scl/stream",
+  "version": "0.1.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "bun test",
+    "lint": "bunx biome check .",
+    "tslint": "tsc --noEmit",
+    "format": "bunx biome check . --write",
+    "check": "bun run lint && bun run tslint && bun test"
+  },
+  "dependencies": {
+    "@u7-scl/core": "workspace:*",
+    "@u7-scl/user": "workspace:*",
+    "valibot": "^1.0.0"
+  },
+  "exports": {
+    "./domain": "./src/domain/index.ts"
+  },
+  "imports": {
+    "#domain/*": "./src/domain/*.ts"
+  }
+}
