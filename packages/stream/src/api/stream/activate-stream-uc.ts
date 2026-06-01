@@ -1,17 +1,20 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
-import { StudentAr } from '#domain/student/a-root';
 import {
   type ActivateStreamCmd,
   type ActivateStreamCmdMeta,
   ActivateStreamCmdSchema,
 } from '#domain/stream/commands/activate-stream-cmd';
+import { StudentAr } from '#domain/student/a-root';
 import { StreamUseCase } from '../stream-uc';
 
 export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
   protected readonly ucName = 'activate-stream' as const;
   protected readonly ucLabel = 'Активировать поток' as const;
-  protected readonly arMeta = { arName: 'Stream' as const, arLabel: 'Поток' as const };
+  protected readonly arMeta = {
+    arName: 'Stream' as const,
+    arLabel: 'Поток' as const,
+  };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = ActivateStreamCmdSchema;
