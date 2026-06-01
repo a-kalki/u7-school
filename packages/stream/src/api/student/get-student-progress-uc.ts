@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { StudentAr } from '#domain/student/a-root';
+import { StudentPolicy } from '#domain/student/policy';
 import {
   type GetStudentProgressCmd,
   type GetStudentProgressCmdMeta,
@@ -23,7 +24,7 @@ export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMet
 
   async execute(
     command: GetStudentProgressCmd,
-    _actorId: string,
+    actorId: string,
   ): Promise<Student> {
     const student = await this.resolve.streamStudentRepo.getByUuid(
       command.studentId,
@@ -31,6 +32,27 @@ export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMet
     if (!student) {
       this.throwAccessDenied('Студент не найден');
     }
+
+    // Проверка прав: сам студент, ментор потока или админ
+    const actor = await this.getActor(actorId);
+    const canView =
+      StudentPolicy.canViewProgress(actor, student) ||
+      (await this.isStreamMentor(student.streamId, actorId));
+
+    if (!canView) {
+      this.throwAccessDenied();
+    }
+
     return student;
+  }
+
+  /** Проверяет, является ли актор ментором потока */
+  private async isStreamMentor(
+    streamId: string,
+    actorId: string,
+  ): Promise<boolean> {
+    const stream = await this.resolve.streamRepo.getByUuid(streamId);
+    if (!stream) return false;
+    return stream.mentorId === actorId;
   }
 }

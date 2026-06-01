@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
+import { StreamPolicy } from '#domain/stream/policy';
 import {
   type CompleteStreamCmd,
   type CompleteStreamCmdMeta,
@@ -16,8 +17,15 @@ export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
   protected readonly inputSchema = CompleteStreamCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: CompleteStreamCmd, _actorId: string): Promise<void> {
+  async execute(command: CompleteStreamCmd, actorId: string): Promise<void> {
     const streamEntity = await this.getStream(command.streamId);
+
+    // Проверка прав: ментор потока или админ
+    const actor = await this.getActor(actorId);
+    if (!StreamPolicy.canEdit(actor, streamEntity)) {
+      this.throwAccessDenied();
+    }
+
     const streamAr = new StreamAr(streamEntity);
 
     streamAr.complete();

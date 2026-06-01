@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
+import { StreamPolicy } from '#domain/stream/policy';
 import {
   type ActivateStreamCmd,
   type ActivateStreamCmdMeta,
@@ -20,9 +21,15 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
   protected readonly inputSchema = ActivateStreamCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: ActivateStreamCmd, _actorId: string): Promise<void> {
+  async execute(command: ActivateStreamCmd, actorId: string): Promise<void> {
     const streamEntity = await this.getStream(command.streamId);
     const streamAr = new StreamAr(streamEntity);
+
+    // Проверка прав: ментор потока или админ
+    const actor = await this.getActor(actorId);
+    if (!StreamPolicy.canEdit(actor, streamEntity)) {
+      this.throwAccessDenied();
+    }
 
     // 1. Активировать поток
     streamAr.activate();
