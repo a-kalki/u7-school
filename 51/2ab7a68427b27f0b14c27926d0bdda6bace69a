@@ -1,0 +1,9 @@
+Отчёт о верификации Фазы 2
+
+Команда: CI=true bun test — 580 pass, 2 fail (предсуществующие)
+Ручная верификация: bun run test:p stream — 106 pass
+Подтверждение: да
+
+Изменённые файлы:
+- packages/stream/src/ui/bot/controller/stream-controller.ts
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts
