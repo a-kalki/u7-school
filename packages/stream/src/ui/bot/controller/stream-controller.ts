@@ -45,14 +45,43 @@ export class StreamController extends BotController {
   }
 
   async handleListStreams(): Promise<BotResponse> {
-    const streams = await this.streamApi.handle({
+    const streams = (await this.streamApi.handle({
       name: 'list-streams',
       attrs: {},
-    });
+    })) as Array<{
+      uuid: string;
+      title: string;
+      status: string;
+    }>;
+
+    if (streams.length === 0) {
+      return {
+        sendMessage: {
+          text: '📚 Нет доступных потоков',
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
+
+    const statusEmoji: Record<string, string> = {
+      enrollment: '🟢',
+      active: '🔵',
+      completed: '⚪',
+      archived: '⚪',
+    };
+
+    const rows = streams.map((s) => [
+      {
+        text: `${statusEmoji[s.status] ?? '❓'} ${this.escapeMarkdown(s.title)}`,
+        code: `stream:view:${s.uuid}`,
+      },
+    ]);
+
     return {
       sendMessage: {
-        text: `📚 Список потоков:\n${this.escapeMarkdown(JSON.stringify(streams))}`,
+        text: '📚 *Потоки школы*',
         parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
       },
     };
   }
