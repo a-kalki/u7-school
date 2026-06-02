@@ -1,0 +1,12 @@
+Задача: Тесты и реализация handleStreamView (Фаза 2)
+
+Сводка изменений:
+- Реализована карточка потока: название, описание, дата, статус, количество студентов
+- Условные кнопки: «Записаться» только для enrollment
+- Форматирование даты DD.MM.YYYY
+- MarkdownV2 с экранированием спецсимволов
+- 4 теста: карточка, кнопка записи, скрытие на active, количество студентов
+
+Изменённые файлы:
+- packages/stream/src/ui/bot/controller/stream-controller.ts
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts
