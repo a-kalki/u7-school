@@ -1,8 +1,8 @@
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
 import type { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
-import type { UserFacade } from '@u7-scl/user/domain';
-import type { Bot } from 'grammy';
+import { Role, type UserFacade } from '@u7-scl/user/domain';
+import { InlineKeyboard, type Bot } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
@@ -24,8 +24,14 @@ export function registerTopMenuHandler(
       return;
     }
 
+    let userRoles: Role[] = [];
     try {
-      await userFacade.registerGuest(telegramId, name, config.botAdminUuid);
+      const user = await userFacade.registerGuest(
+        telegramId,
+        name,
+        config.botAdminUuid,
+      );
+      userRoles = (user as any).roles ?? [];
     } catch (err) {
       logger.error('top-menu', 'Ошибка registerGuest', {
         error: String(err),
@@ -35,16 +41,30 @@ export function registerTopMenuHandler(
 
     ctx.session.menu = 'main';
 
-    await ctx.reply(
-      [
-        `Привет, ${name}! 👋`,
-        '',
-        '🔗 /link_to_school_group — присоединяйся к группе, чтобы быть в курсе новостей, читать отзывы и общаться со студентами',
-        '📝 /start_onboarding — заполни анкету, расскажи о своих целях и ожиданиях от обучения',
-        '📚 /streams — список учебных потоков',
-        '📖 /my_study — моя учеба',
-      ].join('\n'),
+    const buttons = [
+      ['📚 Наши потоки', 'menu:streams'],
+      ['📝 Анкета', 'menu:onboarding'],
+    ];
+
+    if (userRoles.includes(Role.STUDENT)) {
+      buttons.push(['📖 Моя учёба', 'menu:my_study']);
+    }
+    if (
+      userRoles.includes(Role.MENTOR) ||
+      userRoles.includes(Role.ADMIN)
+    ) {
+      buttons.push(['🛠️ Панель ментора', 'menu:mentor']);
+    }
+
+    const keyboard = InlineKeyboard.from(
+      buttons.map(([text, data]) => [
+        { text, callback_data: data },
+      ]),
     );
+
+    await ctx.reply(`Привет, ${name}! 👋\n\nВыберите действие:`, {
+      reply_markup: keyboard,
+    });
   });
 
   bot.command('link_to_school_group', async (ctx) => {
@@ -130,5 +150,132 @@ export function registerTopMenuHandler(
       });
       await ctx.reply('Произошла ошибка. Попробуйте позже.');
     }
+  });
+
+  // ── Менторская команда ──
+  bot.command('mentor', async (ctx) => {
+    const telegramId = ctx.from?.id;
+    if (!telegramId) return;
+
+    try {
+      const response = await streamController.handleUpdate(
+        { type: 'command', command: 'mentor', telegramId },
+        telegramId.toString(),
+      );
+      await executeResponses(ctx, response);
+    } catch (err) {
+      logger.error('top-menu', 'Ошибка /mentor', {
+        error: String(err),
+        telegramId,
+      });
+      await ctx.reply('Произошла ошибка при получении панели ментора.');
+    }
+  });
+
+  // ── Обработка callback'ов от inline-меню ──
+  bot.on('callback_query:data', async (ctx) => {
+    const data = ctx.callbackQuery.data;
+    const telegramId = ctx.from?.id;
+    const messageId = ctx.callbackQuery.message?.message_id;
+
+    if (!telegramId || !messageId) return;
+
+    // Маршрутизация кнопок главного меню
+    if (data === 'menu:streams') {
+      try {
+        const response = await streamController.handleUpdate(
+          {
+            type: 'command',
+            command: 'streams',
+            telegramId,
+          },
+          telegramId.toString(),
+        );
+        await executeResponses(ctx, response);
+      } catch (err) {
+        logger.error('top-menu', 'Ошибка menu:streams', {
+          error: String(err),
+        });
+      }
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    if (data === 'menu:my_study') {
+      try {
+        const response = await streamController.handleUpdate(
+          {
+            type: 'command',
+            command: 'my_study',
+            telegramId,
+          },
+          telegramId.toString(),
+        );
+        await executeResponses(ctx, response);
+      } catch (err) {
+        logger.error('top-menu', 'Ошибка menu:my_study', {
+          error: String(err),
+        });
+      }
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    if (data === 'menu:mentor') {
+      try {
+        const response = await streamController.handleUpdate(
+          {
+            type: 'command',
+            command: 'mentor',
+            telegramId,
+          },
+          telegramId.toString(),
+        );
+        await executeResponses(ctx, response);
+      } catch (err) {
+        logger.error('top-menu', 'Ошибка menu:mentor', {
+          error: String(err),
+        });
+      }
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    if (data === 'menu:onboarding') {
+      try {
+        const response = await onboardingController.handleUpdate(
+          {
+            type: 'command',
+            command: 'start',
+            telegramId,
+            name: ctx.from?.first_name || 'User',
+          },
+          config.botAdminUuid,
+        );
+        ctx.session.menu = 'onboarding';
+        await executeResponses(ctx, response);
+      } catch (err) {
+        logger.error('top-menu', 'Ошибка menu:onboarding', {
+          error: String(err),
+        });
+      }
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    // Все остальные callback'ы (stream:view, enroll:, complete:, progress:, stream:activate:, stream:students:)
+    try {
+      const response = await streamController.handleUpdate(
+        { type: 'callback', data, telegramId, messageId },
+        telegramId.toString(),
+      );
+      await executeResponses(ctx, response);
+    } catch (err) {
+      logger.error('top-menu', 'Ошибка callback', {
+        error: String(err),
+        data,
+      });
+    }
+    await ctx.answerCallbackQuery();
   });
 }

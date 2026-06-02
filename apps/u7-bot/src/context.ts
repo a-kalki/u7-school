@@ -2,7 +2,7 @@ import type { Context, SessionFlavor } from 'grammy';
 
 /** Данные сессии */
 export interface SessionData {
-  menu: 'main' | 'onboarding';
+  menu: 'main' | 'onboarding' | 'create_stream';
 }
 
 /** Контекст Grammy-бота с поддержкой сессий */

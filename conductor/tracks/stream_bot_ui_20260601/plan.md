@@ -122,15 +122,15 @@
 
 ## Фаза 5: Интеграция с u7-bot (top-menu-handler.ts)
 
-- [ ] Task: Написать тесты для динамических кнопок меню
+- [x] Task: Написать тесты для динамических кнопок меню
     - [ ] Тест: GUEST видит `📚 Наши потоки`, не видит `📖 Моя учёба`
     - [ ] Тест: STUDENT видит `📚 Наши потоки` + `📖 Моя учёба`
     - [ ] Тест: MENTOR видит все три кнопки
 
-- [ ] Task: Интегрировать кнопки в top-menu-handler.ts
+- [x] Task: Интегрировать кнопки в top-menu-handler.ts
     - [ ] `📚 Наши потоки` — всем ролям
     - [ ] `📖 Моя учёба` — только STUDENT
     - [ ] `🛠️ Панель ментора` — только MENTOR/ADMIN
     - [ ] Существующие команды → кнопки
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md) [aaaeb7b]

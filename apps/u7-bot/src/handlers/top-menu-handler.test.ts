@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
+import type { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { Bot } from 'grammy';
 import type { BotConfig } from '../config';
@@ -32,6 +33,11 @@ function makeMockBot(): MockBot {
         commands[name] = handler;
       },
     ),
+    on: mock(
+      (_event: string, handler: (ctx: BotContext) => Promise<void>) => {
+        // сохраняем для тестов
+      },
+    ) as any,
     commands,
   } as unknown as MockBot;
 
@@ -55,6 +61,12 @@ const mockController = {
   })),
 } as unknown as OnboardingController;
 
+const mockStreamController = {
+  handleUpdate: mock(async () => ({
+    sendMessage: { text: 'Ответ' },
+  })),
+} as unknown as StreamController;
+
 describe('registerTopMenuHandler', () => {
   test('регистрирует обработчики /start, /link, /start_onboarding', () => {
     const bot = makeMockBot();
@@ -62,7 +74,7 @@ describe('registerTopMenuHandler', () => {
     const userFacade = {} as UserFacade;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
+    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
 
     expect(bot.commands.start).toBeDefined();
     expect(bot.commands.link_to_school_group).toBeDefined();
@@ -72,12 +84,12 @@ describe('registerTopMenuHandler', () => {
   test('/start вызывает registerGuest и показывает меню', async () => {
     const bot = makeMockBot();
     const userFacade = {
-      registerGuest: mock(async () => ({ uuid: 'user-uuid' })),
+      registerGuest: mock(async () => ({ uuid: 'user-uuid', roles: [] })),
     } as unknown as UserFacade;
     const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
+    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
 
     const ctx = makeMockContext();
     await bot.commands.start?.(ctx);
@@ -91,26 +103,22 @@ describe('registerTopMenuHandler', () => {
     expect(ctx.reply).toHaveBeenCalled();
   });
 
-  test('/start показывает дружелюбное приветствие', async () => {
+  test('/start показывает дружелюбное приветствие с кнопками', async () => {
     const bot = makeMockBot();
     const userFacade = {
-      registerGuest: mock(async () => ({ uuid: 'user-uuid' })),
+      registerGuest: mock(async () => ({ uuid: 'user-uuid', roles: [] })),
     } as unknown as UserFacade;
     const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
+    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
 
     const ctx = makeMockContext();
     await bot.commands.start?.(ctx);
 
-    const replyText = (
-      ctx.reply as unknown as {
-        mock: { calls: Array<[string]> };
-      }
-    ).mock.calls[0]?.[0];
-    expect(replyText).toContain('link_to_school_group');
-    expect(replyText).toContain('start_onboarding');
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    expect(replyCall[0]).toContain('Привет');
+    expect(replyCall[1].reply_markup).toBeDefined();
   });
 
   test('/start не падает при ошибке registerGuest', async () => {
@@ -123,11 +131,102 @@ describe('registerTopMenuHandler', () => {
     const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, config, logger);
+    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
 
     const ctx = makeMockContext();
     await bot.commands.start?.(ctx);
 
     expect(ctx.reply).toHaveBeenCalled();
+  });
+
+  test('/start: GUEST видит 📚 Наши потоки, не видит 📖 Моя учёба', async () => {
+    const bot = makeMockBot();
+    const userFacade = {
+      registerGuest: mock(async () => ({ uuid: 'u1', roles: [] })),
+    } as unknown as UserFacade;
+    const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
+    const logger = makeMockLogger();
+
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
+
+    const ctx = makeMockContext();
+    await bot.commands.start?.(ctx);
+
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    const keyboard = replyCall[1].reply_markup;
+    const btnTexts: string[] = keyboard.inline_keyboard.flat().map(
+      (b: any) => b.text,
+    );
+    expect(btnTexts.some((t) => t.includes('Моя учёба'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Наши потоки'))).toBe(true);
+  });
+
+  test('/start: STUDENT видит 📖 Моя учёба', async () => {
+    const bot = makeMockBot();
+    const userFacade = {
+      registerGuest: mock(async () => ({
+        uuid: 'u1',
+        roles: ['STUDENT'],
+      })),
+    } as unknown as UserFacade;
+    const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
+    const logger = makeMockLogger();
+
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
+
+    const ctx = makeMockContext();
+    await bot.commands.start?.(ctx);
+
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    const keyboard = replyCall[1].reply_markup;
+    const btnTexts: string[] = keyboard.inline_keyboard.flat().map(
+      (b: any) => b.text,
+    );
+    expect(btnTexts.some((t) => t.includes('Моя учёба'))).toBe(true);
+  });
+
+  test('/start: MENTOR видит 🛠️ Панель ментора', async () => {
+    const bot = makeMockBot();
+    const userFacade = {
+      registerGuest: mock(async () => ({
+        uuid: 'u1',
+        roles: ['MENTOR'],
+      })),
+    } as unknown as UserFacade;
+    const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
+    const logger = makeMockLogger();
+
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
+
+    const ctx = makeMockContext();
+    await bot.commands.start?.(ctx);
+
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    const keyboard = replyCall[1].reply_markup;
+    const btnTexts: string[] = keyboard.inline_keyboard.flat().map(
+      (b: any) => b.text,
+    );
+    expect(btnTexts.some((t) => t.includes('Панель ментора'))).toBe(true);
   });
 });
