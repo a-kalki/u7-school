@@ -1,0 +1,8 @@
+Фаза 3 завершена: запись на поток, моя учёба, шаги, прогресс
+
+Изменения:
+- handleEnroll: telegramGroupId, ссылка на чат
+- handleMyStudy: contentSnapshot, поиск шага
+- handleCompleteStep: уровни step/lesson/project/stream
+- handleProgress: прогресс-бар
+- await в handleUpdate для обработки ошибок
