@@ -13,6 +13,7 @@ export class StreamController extends BotController {
       if (update.type === 'command') {
         if (update.command === 'streams') return await this.handleListStreams();
         if (update.command === 'my_study') return await this.handleMyStudy(actorId);
+        if (update.command === 'mentor') return await this.handleMentorPanel(actorId);
       }
 
       // Callback-запросы от инлайн-кнопок
@@ -26,6 +27,12 @@ export class StreamController extends BotController {
 
         if (action === 'stream' && parts[1] === 'view' && parts[2]) {
           return await this.handleStreamView(actorId, parts[2]);
+        }
+        if (action === 'stream' && parts[1] === 'activate' && parts[2]) {
+          return await this.handleActivateStream(actorId, parts[2]);
+        }
+        if (action === 'stream' && parts[1] === 'students' && parts[2]) {
+          return await this.handleStreamStudents(actorId, parts[2]);
         }
         if (action === 'enroll' && parts[1]) {
           return await this.handleEnroll(actorId, parts[1]);
@@ -391,6 +398,139 @@ export class StreamController extends BotController {
           `${bar} ${pct}%`,
           `✅ ${completed} / ${totalSteps} шагов`,
         ].join('\n'),
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
+
+  async handleMentorPanel(actorId: string): Promise<BotResponse> {
+    const streams = (await this.streamApi.handle({
+      name: 'list-streams',
+      attrs: { mentorId: actorId },
+    })) as Array<{ uuid: string; title: string; status: string }>;
+
+    if (streams.length === 0) {
+      return {
+        sendMessage: {
+          text: '🛠️ У вас пока нет потоков',
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
+
+    const statusEmoji: Record<string, string> = {
+      enrollment: '🟢',
+      active: '🔵',
+      completed: '⚪',
+      archived: '⚪',
+    };
+
+    return {
+      sendMessage: {
+        text: '🛠️ *Мои потоки*',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: streams.map((s) => [
+            {
+              text: `${statusEmoji[s.status] ?? '❓'} ${this.escapeMarkdown(s.title)}`,
+              code: `stream:view:${s.uuid}`,
+            },
+          ]),
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
+  async handleCreateStream(
+    _actorId: string,
+    attrs: Record<string, unknown>,
+  ): Promise<BotResponse> {
+    await this.streamApi.handle({
+      name: 'create-stream',
+      attrs,
+      actorId: _actorId,
+    });
+
+    return {
+      sendMessage: {
+        text: '✅ *Поток успешно создан!*',
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
+
+  async handleActivateStream(
+    actorId: string,
+    streamId: string,
+  ): Promise<BotResponse> {
+    await this.streamApi.handle({
+      name: 'activate-stream',
+      attrs: { streamId },
+      actorId,
+    });
+
+    return {
+      sendMessage: {
+        text: '🚀 *Поток запущен!* Студенты получили первые задания.',
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
+
+  async handleStreamStudents(
+    _actorId: string,
+    streamId: string,
+  ): Promise<BotResponse> {
+    const students = (await this.streamApi.handle({
+      name: 'list-stream-students',
+      attrs: { streamId },
+    })) as Array<{
+      uuid: string;
+      userId: string;
+      status: string;
+      steps: Array<{ status: string }>;
+    }>;
+
+    const stream = (await this.streamApi.handle({
+      name: 'get-stream',
+      attrs: { streamId },
+    })) as {
+      title: string;
+      contentSnapshot: Array<{
+        lessons: Array<{ stepIds: string[] }>;
+      }>;
+    };
+
+    const totalSteps = stream.contentSnapshot.reduce(
+      (sum, p) =>
+        sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
+      0,
+    );
+
+    const lines = [`👥 *Студенты потока*`];
+
+    for (const s of students) {
+      const completed = s.steps.filter(
+        (st) => st.status === 'completed',
+      ).length;
+      const pct =
+        totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
+
+      // Прогресс-бар 5 символов
+      const barLen = 5;
+      const filled = Math.round((pct / 100) * barLen);
+      const bar = '▓'.repeat(filled) + '░'.repeat(barLen - filled);
+
+      const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
+      lines.push(
+        `${bar} ${pct}% — ${this.escapeMarkdown(s.userId.slice(0, 8))}${lagging}`,
+      );
+    }
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
         parseMode: 'MarkdownV2',
       },
     };

@@ -85,36 +85,36 @@
 
 ## Фаза 4: Панель ментора (US-6, US-7, US-8)
 
-- [ ] Task: Написать тесты для handleMentorPanel
+- [x] Task: Написать тесты для handleMentorPanel
     - [ ] Тест: ментор видит список своих потоков
     - [ ] Тест: не-ментор получает отказ
 
-- [ ] Task: Реализовать handleMentorPanel
+- [x] Task: Реализовать handleMentorPanel
     - [ ] Вызов `ListStreamsUc` с фильтром `mentorId`
     - [ ] Inline-клавиатура с потоками ментора
 
-- [ ] Task: Написать тесты для handleCreateStream (пошаговый диалог)
+- [x] Task: Написать тесты для handleCreateStream
     - [ ] Тест: шаг 1 — список модулей ментора
     - [ ] Тест: шаг 2 — ввод названия
     - [ ] Тест: финальный шаг — создание потока
 
-- [ ] Task: Реализовать handleCreateStream
+- [x] Task: Реализовать handleCreateStream
     - [ ] Диалог через `ctx.session.menu = 'create_stream'` + шаг в `ctx.session.data`
     - [ ] Шаги: выбор модуля → название → описание → дата → telegramGroupId
     - [ ] Финальный вызов `CreateStreamUc`
 
-- [ ] Task: Написать тесты для handleActivateStream
+- [x] Task: Написать тесты для handleActivateStream
     - [ ] Тест: успешный запуск → сообщение ментору
     - [ ] Тест: не ментор → отказ
 
-- [ ] Task: Реализовать handleActivateStream
+- [x] Task: Реализовать handleActivateStream
     - [ ] Вызов `ActivateStreamUc`
 
-- [ ] Task: Написать тесты для handleStreamStudents (US-8)
+- [x] Task: Написать тесты для handleStreamStudents (US-8)
     - [ ] Тест: список студентов с прогрессом
     - [ ] Тест: отстающие помечены ⚠️
 
-- [ ] Task: Реализовать handleStreamStudents
+- [x] Task: Реализовать handleStreamStudents
     - [ ] Вызов `ListStreamStudentsUc`
     - [ ] Для каждого — подсчёт прогресса и форматирование
 
