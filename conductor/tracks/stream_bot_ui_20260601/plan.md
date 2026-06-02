@@ -16,7 +16,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) [95382e2]
 
-## Фаза 2: Витрина и карточка потока (US-1, US-2)
+## Фаза 2: Витрина и карточка потока (US-1, US-2) [checkpoint: 512ab7a]
 
 - [x] Task: Написать тесты для handleListStreams [5d2ea59]
     - [ ] Тест: возвращает inline-клавиатуру со списком потоков
@@ -40,7 +40,7 @@
     - [ ] Форматирование карточки MarkdownV2
     - [ ] Условные кнопки в зависимости от роли актора и статуса потока
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) [512ab7a]
 
 ## Фаза 3: Запись на поток (US-3) и Моя учёба (US-4, US-5)
 
