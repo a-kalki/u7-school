@@ -1,0 +1,15 @@
+Отчёт о верификации Фазы 1
+
+Команда автоматического тестирования: CI=true bun test
+Результат: 571 pass, 2 fail (предсуществующие в top-menu-handler.test.ts)
+
+Шаги ручной верификации:
+1. bun run test:p stream — 97 pass, все тесты StreamController пройдены
+2. bun run tslint:p stream — ошибок в stream-controller.ts нет
+
+Подтверждение пользователя: да
+
+Изменённые файлы:
+- packages/stream/src/ui/bot/controller/stream-controller.ts (маршрутизация)
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts (тесты)
+- conductor/tracks/stream_bot_ui_20260601/plan.md (статусы задач)
