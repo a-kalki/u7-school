@@ -83,7 +83,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) [aae696e]
 
-## Фаза 4: Панель ментора (US-6, US-7, US-8)
+## Фаза 4: Панель ментора (US-6, US-7, US-8) [checkpoint: aaaeb7b]
 
 - [x] Task: Написать тесты для handleMentorPanel
     - [ ] Тест: ментор видит список своих потоков
@@ -118,7 +118,7 @@
     - [ ] Вызов `ListStreamStudentsUc`
     - [ ] Для каждого — подсчёт прогресса и форматирование
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) [aaaeb7b]
 
 ## Фаза 5: Интеграция с u7-bot (top-menu-handler.ts)
 
