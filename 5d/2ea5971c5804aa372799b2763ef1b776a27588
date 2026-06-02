@@ -1,0 +1,13 @@
+Задача: Тесты и реализация handleListStreams (Фаза 2)
+
+Сводка изменений:
+- Реализован handleListStreams с inline-клавиатурой
+- Эмодзи статусов: 🟢 enrollment, 🔵 active, ⚪ completed/archived
+- Пустой список → сообщение «Нет доступных потоков»
+- callback_data: stream:view:<uuid>
+- 5 новых тестов на все сценарии
+
+Изменённые файлы:
+- packages/stream/src/ui/bot/controller/stream-controller.ts
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts
+- conductor/tracks/stream_bot_ui_20260601/plan.md
