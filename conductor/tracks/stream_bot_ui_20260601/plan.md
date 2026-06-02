@@ -42,7 +42,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) [512ab7a]
 
-## Фаза 3: Запись на поток (US-3) и Моя учёба (US-4, US-5)
+## Фаза 3: Запись на поток (US-3) и Моя учёба (US-4, US-5) [checkpoint: aae696e]
 
 - [x] Task: Написать тесты для handleEnroll
     - [ ] Тест: успешная запись → сообщение с поздравлением
@@ -81,7 +81,7 @@
     - [ ] Подсчёт прогресса: completed / всего шагов
     - [ ] Форматирование с прогресс-баром
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) [aae696e]
 
 ## Фаза 4: Панель ментора (US-6, US-7, US-8)
 
