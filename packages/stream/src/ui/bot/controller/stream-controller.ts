@@ -11,8 +11,8 @@ export class StreamController extends BotController {
     try {
       // Текстовые команды бота
       if (update.type === 'command') {
-        if (update.command === 'streams') return this.handleListStreams();
-        if (update.command === 'my_study') return this.handleMyStudy(actorId);
+        if (update.command === 'streams') return await this.handleListStreams();
+        if (update.command === 'my_study') return await this.handleMyStudy(actorId);
       }
 
       // Callback-запросы от инлайн-кнопок
@@ -25,16 +25,16 @@ export class StreamController extends BotController {
         const action = parts[0];
 
         if (action === 'stream' && parts[1] === 'view' && parts[2]) {
-          return this.handleStreamView(actorId, parts[2]);
+          return await this.handleStreamView(actorId, parts[2]);
         }
         if (action === 'enroll' && parts[1]) {
-          return this.handleEnroll(actorId, parts[1]);
+          return await this.handleEnroll(actorId, parts[1]);
         }
         if (action === 'complete' && parts[1] && parts[2] && parts[3]) {
-          return this.handleCompleteStep(actorId, parts[1], parts[2], parts[3]);
+          return await this.handleCompleteStep(actorId, parts[1], parts[2], parts[3]);
         }
         if (action === 'progress' && parts[1]) {
-          return this.handleProgress(actorId, parts[1]);
+          return await this.handleProgress(actorId, parts[1]);
         }
       }
 
@@ -87,31 +87,144 @@ export class StreamController extends BotController {
   }
 
   async handleMyStudy(actorId: string): Promise<BotResponse> {
-    // Получаем студента по actorId (userId)
-    const students = await this.streamApi.handle({
-      name: 'list-streams', // временно, нужен UC поиска студента по userId
-      attrs: {},
-    });
-    return {
-      sendMessage: {
-        text: `📖 Прогресс:\n${this.escapeMarkdown(JSON.stringify(students))}`,
-        parseMode: 'MarkdownV2',
-      },
-    };
+    try {
+      const student = (await this.streamApi.handle({
+        name: 'get-student-by-user',
+        attrs: { userId: actorId },
+        actorId,
+      })) as {
+        uuid: string;
+        streamId: string;
+        userId: string;
+        status: string;
+        currentStepId: string;
+      } | undefined;
+
+      if (!student) {
+        return {
+          sendMessage: {
+            text: '📖 Вы не записаны ни на один поток',
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+
+      if (student.status === 'completed') {
+        return {
+          sendMessage: {
+            text: '🎉 *Поздравляем!* Вы завершили обучение в потоке!',
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+
+      const stream = (await this.streamApi.handle({
+        name: 'get-stream',
+        attrs: { streamId: student.streamId },
+      })) as {
+        title: string;
+        contentSnapshot: Array<{
+          projectTitle: string;
+          lessons: Array<{
+            lessonTitle: string;
+            stepIds: string[];
+          }>;
+        }>;
+      };
+
+      const stepLabel = this.#findStepLabel(
+        stream.contentSnapshot,
+        student.currentStepId,
+      );
+
+      return {
+        sendMessage: {
+          text: [
+            `📖 *Моя учёба* — _${this.escapeMarkdown(stream.title)}_`,
+            '',
+            `📌 Текущее задание: ${stepLabel}`,
+          ].join('\n'),
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [
+              [
+                {
+                  text: '✅ Выполнено',
+                  code: `complete:${student.uuid}:${student.streamId}:${student.currentStepId}`,
+                },
+              ],
+              [
+                {
+                  text: '📊 Мой прогресс',
+                  code: `progress:${student.streamId}`,
+                },
+              ],
+            ],
+            isMultiple: false,
+          },
+        },
+      };
+    } catch (err: any) {
+      if (err?.error?.name === 'STREAM_NOT_FOUND') {
+        return {
+          sendMessage: {
+            text: '📖 Вы не записаны ни на один поток',
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+      return this.handleError(err);
+    }
+  }
+
+  #findStepLabel(
+    snapshot: Array<{
+      projectTitle: string;
+      lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
+    }>,
+    stepId: string,
+  ): string {
+    for (const project of snapshot) {
+      for (const lesson of project.lessons) {
+        const idx = lesson.stepIds.indexOf(stepId);
+        if (idx !== -1) {
+          return `Шаг ${idx + 1} / ${this.escapeMarkdown(lesson.lessonTitle)}`;
+        }
+      }
+    }
+    return `Шаг (${this.escapeMarkdown(stepId.slice(0, 8))}...)`;
   }
 
   async handleEnroll(
     actorId: string,
     streamId: string,
   ): Promise<BotResponse> {
+    // Получаем поток для ссылки на чат
+    const stream = (await this.streamApi.handle({
+      name: 'get-stream',
+      attrs: { streamId },
+    })) as { title: string; telegramGroupId?: string } | undefined;
+
     await this.streamApi.handle({
       name: 'enroll-student',
       attrs: { streamId, userId: actorId },
       actorId,
     });
+
+    const lines = ['🎉 *Вы успешно записаны на поток!*', ''];
+    if (stream?.title) {
+      lines.push(`📋 _${this.escapeMarkdown(stream.title)}_`);
+    }
+    if (stream?.telegramGroupId) {
+      lines.push('');
+      lines.push(
+        `📢 [Присоединяйтесь к чату группы](${stream.telegramGroupId})`,
+      );
+    }
+
     return {
       sendMessage: {
-        text: '🎉 Вы успешно записаны на поток!',
+        text: lines.join('\n'),
         parseMode: 'MarkdownV2',
       },
     };
@@ -123,14 +236,28 @@ export class StreamController extends BotController {
     streamId: string,
     stepId: string,
   ): Promise<BotResponse> {
-    const result = await this.streamApi.handle({
+    const result = (await this.streamApi.handle({
       name: 'complete-step',
       attrs: { studentId, streamId, stepId },
       actorId,
-    });
+    })) as {
+      level: 'step' | 'lesson' | 'project' | 'stream';
+      currentStepId?: string;
+      completedLessonId?: string;
+      completedProjectId?: string;
+      completed?: boolean;
+    };
+
+    const levelMessages: Record<string, string> = {
+      step: '✅ Шаг выполнен! Следующее задание уже ждёт.',
+      lesson: '🎉 Урок завершён! Отличная работа!',
+      project: '🚀 Проект завершён! Ты на шаг ближе к финишу!',
+      stream: '🏆 *Поток полностью завершён!* Поздравляем с успешным окончанием обучения!',
+    };
+
     return {
       sendMessage: {
-        text: `✅ Шаг завершён!\n${this.escapeMarkdown(JSON.stringify(result))}`,
+        text: levelMessages[result.level] ?? '✅ Задание выполнено!',
         parseMode: 'MarkdownV2',
       },
     };
@@ -221,12 +348,49 @@ export class StreamController extends BotController {
   }
 
   async handleProgress(
-    _actorId: string,
-    _streamId: string,
+    actorId: string,
+    streamId: string,
   ): Promise<BotResponse> {
+    const student = (await this.streamApi.handle({
+      name: 'get-student-by-user',
+      attrs: { userId: actorId },
+      actorId,
+    })) as {
+      steps: Array<{ status: string }>;
+    };
+
+    const stream = (await this.streamApi.handle({
+      name: 'get-stream',
+      attrs: { streamId },
+    })) as {
+      title: string;
+      contentSnapshot: Array<{
+        lessons: Array<{ stepIds: string[] }>;
+      }>;
+    };
+
+    const totalSteps = stream.contentSnapshot.reduce(
+      (sum, p) =>
+        sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
+      0,
+    );
+    const completed = student.steps.filter(
+      (s) => s.status === 'completed',
+    ).length;
+    const pct = totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
+
+    const barLength = 10;
+    const filled = Math.round((pct / 100) * barLength);
+    const bar = '▓'.repeat(filled) + '░'.repeat(barLength - filled);
+
     return {
       sendMessage: {
-        text: '📊 Прогресс',
+        text: [
+          `📊 *Прогресс* — _${this.escapeMarkdown(stream.title)}_`,
+          '',
+          `${bar} ${pct}%`,
+          `✅ ${completed} / ${totalSteps} шагов`,
+        ].join('\n'),
         parseMode: 'MarkdownV2',
       },
     };

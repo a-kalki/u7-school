@@ -49,10 +49,64 @@ describe('StreamController', () => {
     expect(response.sendMessage?.text).toContain('записаны');
   });
 
+  test('handleEnroll с telegramGroupId показывает ссылку на чат', async () => {
+    const mockWithGroup = {
+      handle: mock((cmd: any) => {
+        if (cmd.name === 'get-stream')
+          return Promise.resolve({
+            uuid: 's1',
+            title: 'Поток',
+            description: '...',
+            status: 'enrollment',
+            startDate: '2026-06-01T00:00:00.000Z',
+            mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+            moduleId: 'modmodmo-modm-odmo-dmod-modmodmodmo',
+            contentSnapshot: [],
+            createdAt: '2026-05-01T00:00:00.000Z',
+            telegramGroupId: 'https://t.me/joinchat/ABC',
+          });
+        if (cmd.name === 'enroll-student') return Promise.resolve(undefined);
+        return Promise.resolve(undefined);
+      }),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockWithGroup);
+    const response = await controller.handleEnroll('u1', 's1');
+    expect(response.sendMessage?.text).toContain('записаны');
+    expect(response.sendMessage?.text).toContain('ABC');
+  });
+
+  test('handleEnroll выбрасывает ошибку при отказе', async () => {
+    const mockWithError = {
+      handle: async (cmd: any) => {
+        if (cmd.name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '...',
+            status: 'enrollment',
+            startDate: '2026-06-01T00:00:00.000Z',
+            mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+            moduleId: 'modmodmo-modm-odmo-dmod-modmodmodmo',
+            contentSnapshot: [],
+            createdAt: '2026-05-01T00:00:00.000Z',
+          };
+        if (cmd.name === 'enroll-student')
+          throw new Error('Доступ запрещён');
+        return undefined;
+      },
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockWithError);
+    const response = await controller.handleUpdate(
+      { type: 'callback', data: 'enroll:s1', telegramId: 1, messageId: 42 },
+      'u1',
+    );
+    expect(response.sendMessage?.text).toContain('ошибка');
+  });
+
   test('handleCompleteStep выполняет завершение шага', async () => {
     const controller = new StreamController(mockStreamApi);
     const response = await controller.handleCompleteStep('u1', 'stu1', 's1', 'step1');
-    expect(response.sendMessage?.text).toContain('Шаг завершён');
+    expect(response.sendMessage?.text).toContain('Шаг выполнен');
   });
 
   test('handleUpdate: неизвестная команда возвращает ошибку', async () => {
@@ -99,7 +153,7 @@ describe('StreamController', () => {
       { type: 'command', command: 'my_study', telegramId: 1 },
       'u1',
     );
-    expect(response.sendMessage?.text).toContain('Прогресс');
+    expect(response.sendMessage?.text).toContain('не записаны');
   });
 
   test('handleUpdate: callback enroll:<streamId> маршрутизирует на handleEnroll', async () => {
@@ -127,7 +181,7 @@ describe('StreamController', () => {
       },
       'u1',
     );
-    expect(response.sendMessage?.text).toContain('Шаг завершён');
+    expect(response.sendMessage?.text).toContain('Шаг выполнен');
   });
 });
 
@@ -313,5 +367,202 @@ describe('StreamController handleStreamView', () => {
     );
 
     expect(response.sendMessage?.text).toContain('12');
+  });
+});
+
+describe('StreamController handleMyStudy', () => {
+  const mockStudent = {
+    uuid: 'student-uuid-student-uuid-student',
+    streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    userId: 'u1',
+    enrolledAt: '2026-06-01T00:00:00.000Z',
+    status: 'active' as const,
+    currentStepId: 'step-1',
+    steps: [{ stepId: 'step-1', status: 'issued' as const, issuedAt: '2026-06-01T00:00:00.000Z' }],
+    createdAt: '2026-06-01T00:00:00.000Z',
+  };
+
+  const mockStream = {
+    uuid: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    title: 'Python',
+    description: 'Курс',
+    status: 'active',
+    startDate: '2026-06-01T00:00:00.000Z',
+    mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+    moduleId: 'modmodmo-modm-odmo-dmod-modmodmodmo',
+    contentSnapshot: [
+      {
+        projectId: 'p1',
+        projectTitle: 'Основы',
+        lessons: [
+          {
+            lessonId: 'l1',
+            lessonTitle: 'Введение',
+            stepIds: ['step-1', 'step-2'],
+          },
+        ],
+      },
+    ],
+    createdAt: '2026-05-01T00:00:00.000Z',
+  };
+
+  const completedStudent = { ...mockStudent, status: 'completed' as const };
+
+  test('активный студент — текущий шаг с кнопкой Выполнено', async () => {
+    const mockApi = {
+      handle: mock((cmd: any) => {
+        if (cmd.name === 'get-student-by-user') return Promise.resolve(mockStudent);
+        if (cmd.name === 'get-stream') return Promise.resolve(mockStream);
+        return Promise.resolve(undefined);
+      }),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleMyStudy('u1');
+
+    expect(response.sendMessage?.text).toContain('Python');
+    expect(response.sendMessage?.keyboard).toBeDefined();
+    const btnTexts = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+  });
+
+  test('нет активной записи — сообщение «Вы не записаны»', async () => {
+    const mockApi = {
+      handle: mock((cmd: any) => {
+        if (cmd.name === 'get-student-by-user') {
+          const err: any = new Error('STREAM_NOT_FOUND');
+          err.error = { name: 'STREAM_NOT_FOUND' };
+          throw err;
+        }
+        return Promise.resolve(undefined);
+      }),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleMyStudy('u1');
+
+    expect(response.sendMessage?.text).toContain('не записаны');
+  });
+
+  test('студент завершил поток — поздравление', async () => {
+    const mockApi = {
+      handle: mock((cmd: any) => {
+        if (cmd.name === 'get-student-by-user') return Promise.resolve(completedStudent);
+        if (cmd.name === 'get-stream') return Promise.resolve(mockStream);
+        return Promise.resolve(undefined);
+      }),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleMyStudy('u1');
+
+    expect(response.sendMessage?.text).toContain('завершил');
+  });
+});
+
+describe('StreamController handleCompleteStep', () => {
+  test('уровень step — новый шаг с кнопкой', async () => {
+    const mockApi = {
+      handle: mock((_cmd: any) =>
+        Promise.resolve({ level: 'step', currentStepId: 'step-2' }),
+      ),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-1');
+
+    expect(response.sendMessage?.text).toContain('Шаг');
+  });
+
+  test('уровень lesson — поздравление с уроком', async () => {
+    const mockApi = {
+      handle: mock((_cmd: any) =>
+        Promise.resolve({
+          level: 'lesson',
+          currentStepId: 'step-5',
+          completedLessonId: 'l1',
+        }),
+      ),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-4');
+
+    expect(response.sendMessage?.text).toContain('Урок');
+  });
+
+  test('уровень project — поздравление с проектом', async () => {
+    const mockApi = {
+      handle: mock((_cmd: any) =>
+        Promise.resolve({
+          level: 'project',
+          currentStepId: 'step-10',
+          completedProjectId: 'p1',
+        }),
+      ),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-9');
+
+    expect(response.sendMessage?.text).toContain('Проект');
+  });
+
+  test('уровень stream — финальное поздравление', async () => {
+    const mockApi = {
+      handle: mock((_cmd: any) =>
+        Promise.resolve({ level: 'stream', completed: true }),
+      ),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-last');
+
+    expect(response.sendMessage?.text).toContain('Поток');
+    expect(response.sendMessage?.text).toContain('🏆');
+  });
+});
+
+describe('StreamController handleProgress', () => {
+  test('прогресс-бар и статистика', async () => {
+    const mockApi = {
+      handle: mock((cmd: any) => {
+        if (cmd.name === 'get-student-by-user')
+          return Promise.resolve({
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-3',
+            steps: [
+              { stepId: 'step-1', status: 'completed', issuedAt: '2026-06-01T00:00:00.000Z', completedAt: '2026-06-01T00:00:00.000Z' },
+              { stepId: 'step-2', status: 'completed', issuedAt: '2026-06-01T00:00:00.000Z', completedAt: '2026-06-01T00:00:00.000Z' },
+              { stepId: 'step-3', status: 'issued', issuedAt: '2026-06-01T00:00:00.000Z' },
+            ],
+            createdAt: '2026-06-01T00:00:00.000Z',
+            enrolledAt: '2026-06-01T00:00:00.000Z',
+          });
+        if (cmd.name === 'get-stream')
+          return Promise.resolve({
+            uuid: 's1',
+            title: 'Python',
+            status: 'active',
+            contentSnapshot: [
+              {
+                projectId: 'p1',
+                projectTitle: 'Основы',
+                lessons: [
+                  { lessonId: 'l1', lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
+                  { lessonId: 'l2', lessonTitle: 'Продвинутый', stepIds: ['step-3', 'step-4'] },
+                ],
+              },
+            ],
+            startDate: '2026-06-01T00:00:00.000Z',
+            description: '...',
+            mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+            moduleId: 'modmodmo-modm-odmo-dmod-modmodmodmo',
+            createdAt: '2026-05-01T00:00:00.000Z',
+          });
+        return Promise.resolve(undefined);
+      }),
+    } as unknown as StreamApiModule;
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleProgress('u1', 's1');
+
+    expect(response.sendMessage?.text).toContain('Прогресс');
+    expect(response.sendMessage?.text).toContain('50');
   });
 });

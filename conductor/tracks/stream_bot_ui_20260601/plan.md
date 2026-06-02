@@ -44,39 +44,39 @@
 
 ## Фаза 3: Запись на поток (US-3) и Моя учёба (US-4, US-5)
 
-- [ ] Task: Написать тесты для handleEnroll
+- [x] Task: Написать тесты для handleEnroll
     - [ ] Тест: успешная запись → сообщение с поздравлением
     - [ ] Тест: ошибка доступа → сообщение об ошибке
 
-- [ ] Task: Реализовать handleEnroll
+- [x] Task: Реализовать handleEnroll
     - [ ] Вызов `EnrollStudentUc`
     - [ ] Форматирование ответа с поздравлением и ссылкой на чат
 
-- [ ] Task: Написать тесты для handleMyStudy
+- [x] Task: Написать тесты для handleMyStudy
     - [ ] Тест: активный студент → текущий шаг с заданием и кнопкой «Выполнено»
     - [ ] Тест: нет активной записи → сообщение «Вы не записаны»
     - [ ] Тест: поток завершён → поздравительное сообщение
 
-- [ ] Task: Реализовать handleMyStudy
+- [x] Task: Реализовать handleMyStudy
     - [ ] Вызов `GetStudentByUserUc` (найти активную запись)
     - [ ] Вызов `GetStreamUc` (получить contentSnapshot)
     - [ ] Поиск шага в contentSnapshot для отображения задания
     - [ ] callback_data: `complete:<studentId>:<streamId>:<stepId>`
 
-- [ ] Task: Написать тесты для handleCompleteStep
+- [x] Task: Написать тесты для handleCompleteStep
     - [ ] Тест: уровень `step` → новый шаг с кнопкой
     - [ ] Тест: уровень `lesson` → поздравление + новый шаг
     - [ ] Тест: уровень `project` → поздравление + новый шаг
     - [ ] Тест: уровень `stream` → финальное поздравление
 
-- [ ] Task: Реализовать handleCompleteStep
+- [x] Task: Реализовать handleCompleteStep
     - [ ] Вызов `CompleteStepUc`
     - [ ] Ветвление по `CompletionResult.level` — форматирование ответа
 
-- [ ] Task: Написать тесты для handleProgress (US-5)
+- [x] Task: Написать тесты для handleProgress (US-5)
     - [ ] Тест: прогресс-бар и статистика
 
-- [ ] Task: Реализовать handleProgress
+- [x] Task: Реализовать handleProgress
     - [ ] Вызов `GetStudentByUserUc` + `GetStreamUc`
     - [ ] Подсчёт прогресса: completed / всего шагов
     - [ ] Форматирование с прогресс-баром
