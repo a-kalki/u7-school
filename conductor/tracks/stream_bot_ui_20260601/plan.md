@@ -18,12 +18,12 @@
 
 ## Фаза 2: Витрина и карточка потока (US-1, US-2)
 
-- [x] Task: Написать тесты для handleListStreams
+- [x] Task: Написать тесты для handleListStreams [5d2ea59]
     - [ ] Тест: возвращает inline-клавиатуру со списком потоков
     - [ ] Тест: пустой список → сообщение «Нет доступных потоков»
     - [ ] Тест: статус потока отображается эмодзи (🟢/🔵/⚪)
 
-- [x] Task: Реализовать handleListStreams
+- [x] Task: Реализовать handleListStreams [5d2ea59]
     - [ ] Вызов `ListStreamsUc`
     - [ ] Форматирование inline-кнопок с названиями и статусами
     - [ ] callback_data: `stream:view:<uuid>`
