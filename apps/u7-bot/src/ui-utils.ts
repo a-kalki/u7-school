@@ -25,9 +25,10 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       .catch(() => {}); // Игнорируем ошибки если контент не изменился
   }
 
-  // 2. Затем отправляем новое
-  if (res.sendMessage) {
-    const send = res.sendMessage;
+  // 2. Затем отправляем новые сообщения
+  const toSend = res.sendMessages ?? (res.sendMessage ? [res.sendMessage] : []);
+
+  for (const send of toSend) {
     const keyboard = send.keyboard
       ? new InlineKeyboard(
           send.keyboard.rows.map((row) =>

@@ -20,6 +20,8 @@ export interface EditMessageDescription {
 
 export interface BotResponse {
   sendMessage?: SendMessageDescription;
+  /** Несколько сообщений подряд (welcome + вопрос и т.п.) */
+  sendMessages?: SendMessageDescription[];
   editMessage?: EditMessageDescription;
   questionnaireCompleted?: boolean;
 }

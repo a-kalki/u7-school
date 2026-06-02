@@ -23,6 +23,10 @@ import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
+import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
+import { StreamApiModule } from '../packages/stream/src/api/module.ts';
+import { StreamJsonRepo } from '../packages/stream/src/infra/db/stream-json-repo.ts';
+import { StudentJsonRepo } from '../packages/stream/src/infra/db/student-json-repo.ts';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
 import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade.ts';
@@ -80,17 +84,30 @@ async function main() {
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
   const userRepo = new UserJsonRepo();
+  const streamRepo = new StreamJsonRepo('data/streams/streams.json');
+  const studentRepo = new StudentJsonRepo('data/streams/students.json');
+
   const userModule = new UserApiModule({ userRepo });
   const userFacade = new UserInProcFacade(userModule);
 
-  const courseModule = new CourseApiModule({
+  const courseResolve = {
     courseRepo: moduleRepo,
     lessonRepo,
     stepRepo,
     userFacade,
+  };
+
+  const courseModule = new CourseApiModule(courseResolve);
+  const courseFacade = new CourseInProcFacade(courseResolve);
+
+  const streamModule = new StreamApiModule({
+    streamRepo,
+    streamStudentRepo: studentRepo,
+    userFacade,
+    courseFacade,
   });
 
-  const app = new ApiApp([userModule, courseModule]);
+  const app = new ApiApp([userModule, courseModule, streamModule]);
 
   // ─── Вызов UseCase ────────────────────────────────
   try {

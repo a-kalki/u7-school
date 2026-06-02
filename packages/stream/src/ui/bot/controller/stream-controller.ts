@@ -217,7 +217,7 @@ export class StreamController extends BotController {
     const stream = (await this.streamApi.handle({
       name: 'get-stream',
       attrs: { streamId },
-    })) as { title: string; telegramGroupId?: string } | undefined;
+    })) as { title: string; telegramGroupId?: string; telegramGroupInvite?: string } | undefined;
 
     await this.streamApi.handle({
       name: 'enroll-student',
@@ -233,6 +233,12 @@ export class StreamController extends BotController {
       lines.push('');
       lines.push(
         `📢 [Присоединяйтесь к чату группы](${stream.telegramGroupId})`,
+      );
+    }
+    if (stream?.telegramGroupInvite) {
+      lines.push('');
+      lines.push(
+        `🔗 [Присоединиться к группе потока](${stream.telegramGroupInvite})`,
       );
     }
 
@@ -297,6 +303,7 @@ export class StreamController extends BotController {
       additional?: string;
       targetAudience?: string;
       telegramGroupId?: string;
+      telegramGroupInvite?: string;
     };
 
     const students = (await this.streamApi.handle({
@@ -322,6 +329,10 @@ export class StreamController extends BotController {
       `👥 Студентов: ${students.length}`,
       `📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
     ];
+
+    if (stream.telegramGroupInvite) {
+      lines.push('', `🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
+    }
 
     const text = lines.join('\n');
 

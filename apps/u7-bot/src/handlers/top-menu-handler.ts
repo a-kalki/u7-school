@@ -15,6 +15,14 @@ export function registerTopMenuHandler(
   config: BotConfig,
   logger: Logger,
 ) {
+  /** Возвращает UUID пользователя по telegramId или null, если пользователь не найден */
+  async function resolveUserUuid(
+    telegramId: number,
+  ): Promise<string | null> {
+    const user = await userFacade.getUserByTelegramId(telegramId);
+    return user?.uuid ?? null;
+  }
+
   bot.command('start', async (ctx) => {
     const telegramId = ctx.from?.id;
     const name = ctx.from?.first_name || 'Гость';
@@ -41,22 +49,18 @@ export function registerTopMenuHandler(
 
     ctx.session.menu = 'main';
 
-    const buttons = [
-      ['📚 Наши потоки', 'menu:streams'],
-      ['📝 Анкета', 'menu:onboarding'],
-    ];
+    const keyboard = new InlineKeyboard();
+    keyboard.text('📚 Наши потоки', 'menu:streams').row();
+    keyboard.text('📝 Заполнить анкету', 'menu:onboarding').row();
 
     if (userRoles.includes(Role.STUDENT)) {
-      buttons.push(['📖 Моя учёба', 'menu:my_study']);
+      keyboard.text('📖 Моя учёба', 'menu:my_study').row();
     }
     if (userRoles.includes(Role.MENTOR) || userRoles.includes(Role.ADMIN)) {
-      buttons.push(['🛠️ Панель ментора', 'menu:mentor']);
+      keyboard.text('🛠️ Панель ментора', 'menu:mentor').row();
     }
 
-    const keyboard = new InlineKeyboard();
-    for (const [text, data] of buttons) {
-      keyboard.text(text ?? '', data ?? '');
-    }
+    keyboard.text('🏫 Школьное сообщество', 'menu:school_group').row();
 
     await ctx.reply(`Привет, ${name}! 👋\n\nВыберите действие:`, {
       reply_markup: keyboard,
@@ -74,14 +78,16 @@ export function registerTopMenuHandler(
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
 
+    const actorId = await resolveUserUuid(telegramId);
+    if (!actorId) {
+      await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+      return;
+    }
+
     try {
       const response = await streamController.handleUpdate(
-        {
-          type: 'command',
-          command: 'streams',
-          telegramId,
-        },
-        telegramId.toString(),
+        { type: 'command', command: 'streams', telegramId },
+        actorId,
       );
       await executeResponses(ctx, response);
     } catch (err) {
@@ -97,14 +103,16 @@ export function registerTopMenuHandler(
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
 
+    const actorId = await resolveUserUuid(telegramId);
+    if (!actorId) {
+      await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+      return;
+    }
+
     try {
       const response = await streamController.handleUpdate(
-        {
-          type: 'command',
-          command: 'my_study',
-          telegramId,
-        },
-        telegramId.toString(),
+        { type: 'command', command: 'my_study', telegramId },
+        actorId,
       );
       await executeResponses(ctx, response);
     } catch (err) {
@@ -153,10 +161,16 @@ export function registerTopMenuHandler(
     const telegramId = ctx.from?.id;
     if (!telegramId) return;
 
+    const actorId = await resolveUserUuid(telegramId);
+    if (!actorId) {
+      await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+      return;
+    }
+
     try {
       const response = await streamController.handleUpdate(
         { type: 'command', command: 'mentor', telegramId },
-        telegramId.toString(),
+        actorId,
       );
       await executeResponses(ctx, response);
     } catch (err) {
@@ -169,23 +183,38 @@ export function registerTopMenuHandler(
   });
 
   // ── Обработка callback'ов от inline-меню ──
-  bot.on('callback_query:data', async (ctx) => {
+  bot.on('callback_query:data', async (ctx, next) => {
     const data = ctx.callbackQuery.data;
     const telegramId = ctx.from?.id;
     const messageId = ctx.callbackQuery.message?.message_id;
 
     if (!telegramId || !messageId) return;
 
+    // Если мы в onboarding-меню, а callback не наш — передаём onboarding-обработчику
+    if (
+      ctx.session.menu === 'onboarding' &&
+      data !== 'menu:streams' &&
+      data !== 'menu:my_study' &&
+      data !== 'menu:mentor' &&
+      data !== 'menu:school_group' &&
+      data !== 'menu:onboarding'
+    ) {
+      await next();
+      return;
+    }
+
     // Маршрутизация кнопок главного меню
     if (data === 'menu:streams') {
       try {
+        const actorId = await resolveUserUuid(telegramId);
+        if (!actorId) {
+          await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+          await ctx.answerCallbackQuery();
+          return;
+        }
         const response = await streamController.handleUpdate(
-          {
-            type: 'command',
-            command: 'streams',
-            telegramId,
-          },
-          telegramId.toString(),
+          { type: 'command', command: 'streams', telegramId },
+          actorId,
         );
         await executeResponses(ctx, response);
       } catch (err) {
@@ -199,13 +228,15 @@ export function registerTopMenuHandler(
 
     if (data === 'menu:my_study') {
       try {
+        const actorId = await resolveUserUuid(telegramId);
+        if (!actorId) {
+          await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+          await ctx.answerCallbackQuery();
+          return;
+        }
         const response = await streamController.handleUpdate(
-          {
-            type: 'command',
-            command: 'my_study',
-            telegramId,
-          },
-          telegramId.toString(),
+          { type: 'command', command: 'my_study', telegramId },
+          actorId,
         );
         await executeResponses(ctx, response);
       } catch (err) {
@@ -219,13 +250,15 @@ export function registerTopMenuHandler(
 
     if (data === 'menu:mentor') {
       try {
+        const actorId = await resolveUserUuid(telegramId);
+        if (!actorId) {
+          await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+          await ctx.answerCallbackQuery();
+          return;
+        }
         const response = await streamController.handleUpdate(
-          {
-            type: 'command',
-            command: 'mentor',
-            telegramId,
-          },
-          telegramId.toString(),
+          { type: 'command', command: 'mentor', telegramId },
+          actorId,
         );
         await executeResponses(ctx, response);
       } catch (err) {
@@ -233,6 +266,30 @@ export function registerTopMenuHandler(
           error: String(err),
         });
       }
+      await ctx.answerCallbackQuery();
+      return;
+    }
+
+    if (data === 'menu:school_group') {
+      const schoolGroupMsg = [
+        '🏫 <b>Школьное сообщество</b> — это группа, где:',
+        '',
+        '• Публикуются объявления и новости',
+        '• Можно прочитать или запросить отзывы у студентов',
+        '• Просто пообщаться с менторами и студентами',
+        '',
+        'Подписывайся, чтобы ничего не пропустить! 👇',
+      ].join('\n');
+
+      const joinKeyboard = new InlineKeyboard().url(
+        '🔗 Перейти в сообщество',
+        config.newsGroupUrl,
+      );
+
+      await ctx.reply(schoolGroupMsg, {
+        parse_mode: 'HTML',
+        reply_markup: joinKeyboard,
+      });
       await ctx.answerCallbackQuery();
       return;
     }
@@ -261,9 +318,15 @@ export function registerTopMenuHandler(
 
     // Все остальные callback'ы (stream:view, enroll:, complete:, progress:, stream:activate:, stream:students:)
     try {
+      const actorId = await resolveUserUuid(telegramId);
+      if (!actorId) {
+        await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+        await ctx.answerCallbackQuery();
+        return;
+      }
       const response = await streamController.handleUpdate(
         { type: 'callback', data, telegramId, messageId },
-        telegramId.toString(),
+        actorId,
       );
       await executeResponses(ctx, response);
     } catch (err) {

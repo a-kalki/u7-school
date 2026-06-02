@@ -92,7 +92,19 @@ export class OnboardingController extends BotController {
           botUuid,
         );
 
-        return this.#renderActionResponse(startResponse);
+        const questionRes = this.#renderActionResponse(startResponse);
+
+        // Отделяем приветствие от первого вопроса
+        return {
+          sendMessages: [
+            {
+              text:
+                'Заполни анкету чтобы мы могли понять твои ожидания от курсов. Ты можешь всегда отменить и вернуться в основное меню набрав команды /cancel.',
+            },
+            ...(questionRes.sendMessage ? [questionRes.sendMessage] : []),
+          ],
+          editMessage: questionRes.editMessage,
+        };
       }
 
       return this.handleError(err);
@@ -111,7 +123,7 @@ export class OnboardingController extends BotController {
         questionnaireCompleted: true,
         sendMessage: {
           text: this.escapeMarkdown(
-            'Анкета прервана. Ты можешь начать заново через /start_onboarding',
+            'Анкета прервана. Ты можешь начать заново через /start_onboarding или нажав кнопку «Заполнить анкету» в главном меню.',
           ),
           parseMode: 'MarkdownV2',
         },

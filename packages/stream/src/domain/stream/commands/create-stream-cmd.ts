@@ -12,6 +12,7 @@ export const CreateStreamCmdSchema = v.object({
   moduleId: StreamSchema.entries.moduleId,
   startDate: StreamSchema.entries.startDate,
   telegramGroupId: StreamSchema.entries.telegramGroupId,
+  telegramGroupInvite: StreamSchema.entries.telegramGroupInvite,
   goal: StreamSchema.entries.goal,
   result: StreamSchema.entries.result,
   rules: StreamSchema.entries.rules,

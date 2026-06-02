@@ -115,8 +115,12 @@ describe('OnboardingController', () => {
       botAdminUuid,
     );
 
-    expect(response.sendMessage?.text).toContain('Первый вопрос');
-    expect(response.sendMessage?.keyboard).toBeDefined();
+    // Приветствие + первый вопрос через sendMessages
+    expect(response.sendMessages).toBeDefined();
+    expect(response.sendMessages!.length).toBe(2);
+    expect(response.sendMessages![0].text).toContain('Заполни анкету');
+    expect(response.sendMessages![1].text).toContain('Первый вопрос');
+    expect(response.sendMessages![1].keyboard).toBeDefined();
   });
 
   test('команда start продолжает активную анкету', async () => {
@@ -192,6 +196,7 @@ describe('OnboardingController', () => {
     );
 
     expect(response.sendMessage?.text).toContain('прервана');
+    expect(response.sendMessage?.text).toContain('Заполнить анкету');
     expect(response.questionnaireCompleted).toBe(true);
   });
 

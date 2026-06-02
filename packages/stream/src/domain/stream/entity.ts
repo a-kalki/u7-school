@@ -49,6 +49,7 @@ export const StreamSchema = v.object({
   ),
   status: StreamStatusSchema,
   telegramGroupId: v.optional(v.string()),
+  telegramGroupInvite: v.optional(v.string()),
 
   goal: v.optional(v.string()),
   result: v.optional(v.string()),
