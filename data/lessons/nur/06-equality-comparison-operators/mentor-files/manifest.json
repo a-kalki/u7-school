@@ -1,0 +1,16 @@
+[
+  {
+    "order": 1,
+    "kind": "file",
+    "description": "Граничные случаи сравнения: null, undefined, NaN и разные типы\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. Сравнение строки и числа — JS приводит строку к числу\n2. 'abc' < 5 → false (NaN < 5 → false — NaN всегда false в сравнениях)\n3. null == undefined → true, но null === undefined → false\n4. null >= 0 → true, но null == 0 → false — историческая особенность\n5. NaN === NaN → false (IEEE 754). Number.isNaN() — правильная проверка\n6. Попроси предсказать каждый результат, потом объясни причины\n7. Вывод: строгое === всегда предсказуемо; == таит сюрпризы",
+    "fileName": "01-comparison-edge-cases.js",
+    "fileMimeType": "text/javascript"
+  },
+  {
+    "order": 2,
+    "kind": "file",
+    "description": "Отрицание, двойное отрицание, truthy/falsy\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. !! — приводит к boolean без изменения смысла (!!0 = false, !!1 = true)\n2. 6 falsy-значений: false, 0, '', null, undefined, NaN\n3. [] и {} — truthy! Это частая ошибка: if ([]) выполняется\n4. Ловушка с !: if (!name) при name = \"\" — истина, но при name = \"0\" — ложь\n5. Попроси составить таблицу: значение → ! → !! и объяснить\n6. Практическое применение: проверка что переменная не пустая",
+    "fileName": "02-negation-pitfalls.js",
+    "fileMimeType": "text/javascript"
+  }
+]

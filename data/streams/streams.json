@@ -1,0 +1,223 @@
+[
+  {
+    "uuid": "8ae94921-8af6-4fb6-ad1d-60bd2f8ee394",
+    "title": "Основы JS — Поток 1",
+    "description": "Первый поток обучения по основам JavaScript",
+    "mentorId": "8d9a56f6-51e7-49f0-ba58-2832b157e718",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "startDate": "2026-06-05T00:00",
+    "status": "enrollment",
+    "telegramGroupId": "-3960918937",
+    "telegramGroupInvite": "https://t.me/+6xeqTYm2831lODZi",
+    "goal": "Научиться основам программирования на JS",
+    "result": "Сможешь писать простые программы на JavaScript",
+    "targetAudience": "Новички без опыта",
+    "contentSnapshot": [
+      {
+        "projectId": "a1995ea3-1e8b-4cff-bc0c-bd19ff81acbe",
+        "projectTitle": "Расчёт зарплаты: ИПН и пенсионные отчисления",
+        "lessons": [
+          {
+            "lessonId": "ca2d4223-f6bc-4492-b7d0-0a2a90195a93",
+            "lessonTitle": "Введение в программирование",
+            "stepIds": [
+              "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
+              "4890a068-1335-4115-931a-b6f4ee5ea7e5",
+              "255b3046-e46a-4e27-8794-5bf704691dc7",
+              "1809238e-2942-4a09-96a4-c582a09097e1"
+            ]
+          },
+          {
+            "lessonId": "b20a71d5-f8ec-4f86-be96-da26d91b0920",
+            "lessonTitle": "Переменные",
+            "stepIds": [
+              "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
+              "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
+              "5c443053-4784-4a0d-a0a1-6be99790f533",
+              "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea"
+            ]
+          },
+          {
+            "lessonId": "4ac0dcde-6ffd-4696-b86c-9a5f3e09b0b1",
+            "lessonTitle": "Математические операторы",
+            "stepIds": [
+              "c0ec0938-0600-47e5-b363-b21eda469e7d",
+              "f033237c-e51e-4f3f-b175-e79ca0953c7a",
+              "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
+              "6d2200a1-3463-4fd3-a513-952d93b73ec3"
+            ]
+          },
+          {
+            "lessonId": "8c7fcf69-0b43-421f-842d-e870c82b08c7",
+            "lessonTitle": "Типы данных",
+            "stepIds": [
+              "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
+              "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
+              "e1a29ce7-2653-45ec-b863-0ca585e62e02",
+              "35eb70f1-13a2-4aaa-b066-d60603505e5b"
+            ]
+          },
+          {
+            "lessonId": "9488adfb-a922-4b88-bd65-bf2dd3322a38",
+            "lessonTitle": "Типы данных, исключения и особые случаи",
+            "stepIds": []
+          },
+          {
+            "lessonId": "7c9ecad0-a0b9-442d-bbb8-435711410b16",
+            "lessonTitle": "Операторы равенства, сравнения и отрицания",
+            "stepIds": []
+          },
+          {
+            "lessonId": "9cca33dc-2941-4c09-843b-899e8c0b2e23",
+            "lessonTitle": "Логические операторы",
+            "stepIds": []
+          },
+          {
+            "lessonId": "63a60f0c-0517-45d3-9a0f-fa1775de46d6",
+            "lessonTitle": "Ветвление",
+            "stepIds": []
+          },
+          {
+            "lessonId": "48c56d93-4478-46e8-ad7f-d3e6b0e72ab6",
+            "lessonTitle": "Тернарный оператор",
+            "stepIds": []
+          },
+          {
+            "lessonId": "f488d12f-3527-4d6a-b76c-b43cf8e613bc",
+            "lessonTitle": "Неявное преобразование типов",
+            "stepIds": []
+          },
+          {
+            "lessonId": "8904e749-aa3c-403e-a167-c55cc3adbf34",
+            "lessonTitle": "Явное приведение типов",
+            "stepIds": []
+          },
+          {
+            "lessonId": "c12eff68-e3e6-45c1-9087-212a2aad8bea",
+            "lessonTitle": "Практика: расчёт зарплаты одному сотруднику",
+            "stepIds": []
+          }
+        ]
+      },
+      {
+        "projectId": "89e10c4d-a4c8-4e3c-a6af-6be2f075ae11",
+        "projectTitle": "Расчёт зарплаты: групповая обработка",
+        "lessons": [
+          {
+            "lessonId": "02883279-460a-4506-bd75-c430979edd48",
+            "lessonTitle": "Секреты логических операторов и нулевое слияние",
+            "stepIds": []
+          },
+          {
+            "lessonId": "ea72f1e8-830c-4295-bee3-39fd281f6198",
+            "lessonTitle": "Приоритеты выполнения операторов",
+            "stepIds": []
+          },
+          {
+            "lessonId": "f95b3b36-747b-4fa0-b1dc-6694ebb5b8b0",
+            "lessonTitle": "Структура данных: последовательность (Array, Set)",
+            "stepIds": []
+          },
+          {
+            "lessonId": "5c565f93-fbbe-4557-aafd-593e1c0e643a",
+            "lessonTitle": "Структура данных: ключ-значение (Object, Map)",
+            "stepIds": []
+          },
+          {
+            "lessonId": "1b251809-225b-4c0c-bbc4-fb29f87715e9",
+            "lessonTitle": "Циклы: концепция и основы for",
+            "stepIds": []
+          },
+          {
+            "lessonId": "c9cfacbd-e8de-4463-9cfb-df5e14e6f8c4",
+            "lessonTitle": "Циклы: for для перебора строк",
+            "stepIds": []
+          },
+          {
+            "lessonId": "106fb6e4-e7dd-43fa-92a9-18b7f41f75c4",
+            "lessonTitle": "Циклы: while и do-while",
+            "stepIds": []
+          },
+          {
+            "lessonId": "939f7cc7-e463-40ca-aa40-8887a381b43d",
+            "lessonTitle": "Операторы in, for…in, for…of",
+            "stepIds": []
+          },
+          {
+            "lessonId": "fdcdf925-bf8b-40ca-9b38-142c72f5d761",
+            "lessonTitle": "Практика: групповая обработка зарплаты",
+            "stepIds": []
+          }
+        ]
+      },
+      {
+        "projectId": "bc8bd32e-2e25-4ac9-a5a7-eec2b679a966",
+        "projectTitle": "Рисуем ёлку в консоли",
+        "lessons": [
+          {
+            "lessonId": "0f2c505f-9429-4f62-9b02-42ce1f82f4a2",
+            "lessonTitle": "Функция: синтаксис, параметры и return",
+            "stepIds": []
+          },
+          {
+            "lessonId": "1e05bfc1-b8fc-40b7-856f-44b2fcb6cc2f",
+            "lessonTitle": "Функция: return, предикаты и методы реализации",
+            "stepIds": []
+          },
+          {
+            "lessonId": "7aeb05d4-db78-4985-aa12-b88bfc13abfd",
+            "lessonTitle": "Функция: чёрный ящик, контракт, декомпозиция",
+            "stepIds": []
+          },
+          {
+            "lessonId": "82a3045a-7d57-4e54-a314-ba094d58416c",
+            "lessonTitle": "Функции: тип, свойства и стили объявления",
+            "stepIds": []
+          },
+          {
+            "lessonId": "edf3078d-8878-4aae-9028-6199cd971675",
+            "lessonTitle": "Практика: рисуем ёлку в консоли",
+            "stepIds": []
+          }
+        ]
+      },
+      {
+        "projectId": "4a945000-1959-4d45-94e9-22f9183f843a",
+        "projectTitle": "Написать через тесты реализацию функции reverseText",
+        "lessons": [
+          {
+            "lessonId": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
+            "lessonTitle": "Функции: аргументы, передача по значению и ссылке",
+            "stepIds": []
+          },
+          {
+            "lessonId": "0f46b1eb-4078-4e25-ba2d-3176ec1f1bbc",
+            "lessonTitle": "Функции: продвинутые возможности",
+            "stepIds": []
+          },
+          {
+            "lessonId": "9809147c-c662-4e82-8011-855bc995c632",
+            "lessonTitle": "Анонимные и стрелочные функции",
+            "stepIds": []
+          },
+          {
+            "lessonId": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+            "lessonTitle": "Callback-функции (колбэки)",
+            "stepIds": []
+          },
+          {
+            "lessonId": "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
+            "lessonTitle": "Рекурсия",
+            "stepIds": []
+          },
+          {
+            "lessonId": "9a055767-a082-457c-b5ce-25e94331b251",
+            "lessonTitle": "Практика: reverseText через TDD",
+            "stepIds": []
+          }
+        ]
+      }
+    ],
+    "createdAt": "2026-06-02T08:16"
+  }
+]
