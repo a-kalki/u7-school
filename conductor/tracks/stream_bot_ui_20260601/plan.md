@@ -1,6 +1,6 @@
 # План реализации: stream_bot_ui
 
-## Фаза 1: StreamController — ядро маршрутизации
+## Фаза 1: StreamController — ядро маршрутизации [checkpoint: 95382e2]
 
 - [x] Task: Написать тесты для маршрутизации StreamController.handleUpdate [f787a9d]
     - [ ] Тест: команда `streams` → handleListStreams
@@ -14,7 +14,7 @@
     - [ ] Парсинг callback_data: `stream:view`, `stream:enroll`, `complete`, `progress`
     - [ ] Делегирование частным методам без доменной логики
 
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) [95382e2]
 
 ## Фаза 2: Витрина и карточка потока (US-1, US-2)
 
