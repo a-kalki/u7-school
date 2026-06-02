@@ -1,8 +1,8 @@
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
-import type { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
+import type { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
-import { InlineKeyboard, type Bot } from 'grammy';
+import { type Bot, InlineKeyboard } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
@@ -31,7 +31,7 @@ export function registerTopMenuHandler(
         name,
         config.botAdminUuid,
       );
-      userRoles = (user as any).roles ?? [];
+      userRoles = user.roles ?? [];
     } catch (err) {
       logger.error('top-menu', 'Ошибка registerGuest', {
         error: String(err),
@@ -49,18 +49,14 @@ export function registerTopMenuHandler(
     if (userRoles.includes(Role.STUDENT)) {
       buttons.push(['📖 Моя учёба', 'menu:my_study']);
     }
-    if (
-      userRoles.includes(Role.MENTOR) ||
-      userRoles.includes(Role.ADMIN)
-    ) {
+    if (userRoles.includes(Role.MENTOR) || userRoles.includes(Role.ADMIN)) {
       buttons.push(['🛠️ Панель ментора', 'menu:mentor']);
     }
 
-    const keyboard = InlineKeyboard.from(
-      buttons.map(([text, data]) => [
-        { text, callback_data: data },
-      ]),
-    );
+    const keyboard = new InlineKeyboard();
+    for (const [text, data] of buttons) {
+      keyboard.text(text ?? '', data ?? '');
+    }
 
     await ctx.reply(`Привет, ${name}! 👋\n\nВыберите действие:`, {
       reply_markup: keyboard,

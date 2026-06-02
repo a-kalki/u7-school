@@ -1,6 +1,4 @@
-import * as v from 'valibot';
 import { StudentAr } from '#domain/student/a-root';
-import { StudentPolicy } from '#domain/student/policy';
 import {
   type GetStudentProgressCmd,
   type GetStudentProgressCmdMeta,
@@ -8,6 +6,7 @@ import {
 } from '#domain/student/commands/get-student-progress-cmd';
 import type { Student } from '#domain/student/entity';
 import { StudentSchema } from '#domain/student/entity';
+import { StudentPolicy } from '#domain/student/policy';
 import { StreamUseCase } from '../stream-uc';
 
 export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMeta> {

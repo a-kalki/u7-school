@@ -25,6 +25,7 @@
         "@u7-scl/core": "workspace:*",
         "@u7-scl/course": "workspace:*",
         "@u7-scl/onboarding": "workspace:*",
+        "@u7-scl/stream": "workspace:*",
         "@u7-scl/user": "workspace:*",
         "elysia": "^1.4.27",
         "grammy": "^1.41.1",

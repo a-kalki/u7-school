@@ -1,5 +1,5 @@
-import * as v from 'valibot';
 import type { ArMeta } from '@u7-scl/core/domain';
+import * as v from 'valibot';
 
 /** Схема записи о прохождении конкретного шага */
 export const StepRecordSchema = v.object({

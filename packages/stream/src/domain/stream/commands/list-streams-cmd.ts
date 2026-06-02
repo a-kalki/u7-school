@@ -1,8 +1,8 @@
 import type { UcMeta } from '@u7-scl/core/api';
 import * as v from 'valibot';
 import type { StreamUcErrors } from '../../../api/errors';
-import type { StreamSchema } from '../entity';
 import { StreamStatusSchema } from '../../status';
+import type { StreamSchema } from '../entity';
 
 /** Схема фильтрации потоков */
 export const ListStreamsCmdSchema = v.object({

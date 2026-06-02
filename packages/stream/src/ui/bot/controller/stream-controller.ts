@@ -12,8 +12,10 @@ export class StreamController extends BotController {
       // Текстовые команды бота
       if (update.type === 'command') {
         if (update.command === 'streams') return await this.handleListStreams();
-        if (update.command === 'my_study') return await this.handleMyStudy(actorId);
-        if (update.command === 'mentor') return await this.handleMentorPanel(actorId);
+        if (update.command === 'my_study')
+          return await this.handleMyStudy(actorId);
+        if (update.command === 'mentor')
+          return await this.handleMentorPanel(actorId);
       }
 
       // Callback-запросы от инлайн-кнопок
@@ -38,7 +40,12 @@ export class StreamController extends BotController {
           return await this.handleEnroll(actorId, parts[1]);
         }
         if (action === 'complete' && parts[1] && parts[2] && parts[3]) {
-          return await this.handleCompleteStep(actorId, parts[1], parts[2], parts[3]);
+          return await this.handleCompleteStep(
+            actorId,
+            parts[1],
+            parts[2],
+            parts[3],
+          );
         }
         if (action === 'progress' && parts[1]) {
           return await this.handleProgress(actorId, parts[1]);
@@ -99,13 +106,15 @@ export class StreamController extends BotController {
         name: 'get-student-by-user',
         attrs: { userId: actorId },
         actorId,
-      })) as {
-        uuid: string;
-        streamId: string;
-        userId: string;
-        status: string;
-        currentStepId: string;
-      } | undefined;
+      })) as
+        | {
+            uuid: string;
+            streamId: string;
+            userId: string;
+            status: string;
+            currentStepId: string;
+          }
+        | undefined;
 
       if (!student) {
         return {
@@ -171,8 +180,9 @@ export class StreamController extends BotController {
           },
         },
       };
-    } catch (err: any) {
-      if (err?.error?.name === 'STREAM_NOT_FOUND') {
+    } catch (err: unknown) {
+      const ex = err as { error?: { name?: string } };
+      if (ex?.error?.name === 'STREAM_NOT_FOUND') {
         return {
           sendMessage: {
             text: '📖 Вы не записаны ни на один поток',
@@ -202,10 +212,7 @@ export class StreamController extends BotController {
     return `Шаг (${this.escapeMarkdown(stepId.slice(0, 8))}...)`;
   }
 
-  async handleEnroll(
-    actorId: string,
-    streamId: string,
-  ): Promise<BotResponse> {
+  async handleEnroll(actorId: string, streamId: string): Promise<BotResponse> {
     // Получаем поток для ссылки на чат
     const stream = (await this.streamApi.handle({
       name: 'get-stream',
@@ -259,7 +266,8 @@ export class StreamController extends BotController {
       step: '✅ Шаг выполнен! Следующее задание уже ждёт.',
       lesson: '🎉 Урок завершён! Отличная работа!',
       project: '🚀 Проект завершён! Ты на шаг ближе к финишу!',
-      stream: '🏆 *Поток полностью завершён!* Поздравляем с успешным окончанием обучения!',
+      stream:
+        '🏆 *Поток полностью завершён!* Поздравляем с успешным окончанием обучения!',
     };
 
     return {
@@ -377,8 +385,7 @@ export class StreamController extends BotController {
     };
 
     const totalSteps = stream.contentSnapshot.reduce(
-      (sum, p) =>
-        sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
+      (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
       0,
     );
     const completed = student.steps.filter(
@@ -503,8 +510,7 @@ export class StreamController extends BotController {
     };
 
     const totalSteps = stream.contentSnapshot.reduce(
-      (sum, p) =>
-        sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
+      (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
       0,
     );
 

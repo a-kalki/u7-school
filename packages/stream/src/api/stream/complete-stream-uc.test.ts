@@ -9,20 +9,56 @@ const mentorId = '33333333-3333-4333-8333-333333333333';
 const modId = '44444444-4444-4444-8444-444444444444';
 
 const mockStream = {
-  uuid: streamId, title: 'T', description: 'D', mentorId, moduleId: modId,
-  startDate: '2026-06-01T12:00', status: StreamStatus.ACTIVE,
-  contentSnapshot: [], createdAt: isoNow(),
+  uuid: streamId,
+  title: 'T',
+  description: 'D',
+  mentorId,
+  moduleId: modId,
+  startDate: '2026-06-01T12:00',
+  status: StreamStatus.ACTIVE,
+  contentSnapshot: [],
+  createdAt: isoNow(),
 };
 
-const mentor = { uuid: mentorId, name: 'M', telegramId: 1, roles: [Role.MENTOR], createdAt: isoNow() };
-const guest = { uuid: 'gggggggg-gggg-4ggg-8ggg-gggggggggggg', name: 'G', telegramId: 2, roles: [Role.GUEST], createdAt: isoNow() };
+const mentor = {
+  uuid: mentorId,
+  name: 'M',
+  telegramId: 1,
+  roles: [Role.MENTOR],
+  createdAt: isoNow(),
+};
+const guest = {
+  uuid: 'gggggggg-gggg-4ggg-8ggg-gggggggggggg',
+  name: 'G',
+  telegramId: 2,
+  roles: [Role.GUEST],
+  createdAt: isoNow(),
+};
 
-const baseResolve = (u: any = mentor) => ({
-  streamRepo: { getByUuid: mock(() => Promise.resolve(mockStream)), save: mock(() => Promise.resolve()), getAll: mock(() => Promise.resolve([])) },
-  streamStudentRepo: { save: mock(() => Promise.resolve()), getByUuid: mock(() => Promise.resolve(undefined)), getByStream: mock(() => Promise.resolve([])), getByUser: mock(() => Promise.resolve([])) },
-  userFacade: { getUserByUuid: mock(() => Promise.resolve(u)), userExists: mock(() => Promise.resolve(true)), addRoleToUser: mock(() => Promise.resolve()), updateUserRole: mock(() => Promise.resolve()), getUserByTelegramId: mock(() => Promise.resolve(undefined)), removeRoleFromUser: mock(() => Promise.resolve()), registerGuest: mock(() => Promise.resolve({})) },
-  courseFacade: { getModuleSnapshot: mock(() => Promise.resolve([])) },
-}) as any;
+const baseResolve = (u: any = mentor) =>
+  ({
+    streamRepo: {
+      getByUuid: mock(() => Promise.resolve(mockStream)),
+      save: mock(() => Promise.resolve()),
+      getAll: mock(() => Promise.resolve([])),
+    },
+    streamStudentRepo: {
+      save: mock(() => Promise.resolve()),
+      getByUuid: mock(() => Promise.resolve(undefined)),
+      getByStream: mock(() => Promise.resolve([])),
+      getByUser: mock(() => Promise.resolve([])),
+    },
+    userFacade: {
+      getUserByUuid: mock(() => Promise.resolve(u)),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve()),
+      updateUserRole: mock(() => Promise.resolve()),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+      registerGuest: mock(() => Promise.resolve({})),
+    },
+    courseFacade: { getModuleSnapshot: mock(() => Promise.resolve([])) },
+  }) as any;
 
 describe('CompleteStreamUc', () => {
   test('ментор завершает поток', async () => {
@@ -34,6 +70,8 @@ describe('CompleteStreamUc', () => {
   test('запрет для не-ментора', async () => {
     const uc = new CompleteStreamUc();
     uc.init(baseResolve(guest));
-    await expect(uc.execute({ streamId }, guest.uuid)).rejects.toThrow('Недостаточно прав');
+    await expect(uc.execute({ streamId }, guest.uuid)).rejects.toThrow(
+      'Недостаточно прав',
+    );
   });
 });

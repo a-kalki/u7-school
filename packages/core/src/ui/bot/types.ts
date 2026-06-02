@@ -25,6 +25,6 @@ export interface BotResponse {
 }
 
 export type BotUpdate =
-  | { type: 'command'; command: string; telegramId: number }
+  | { type: 'command'; command: string; telegramId: number; name?: string }
   | { type: 'message'; text: string; telegramId: number }
   | { type: 'callback'; data: string; telegramId: number; messageId: number };

@@ -24,9 +24,7 @@ describe('StudentAr', () => {
     });
 
     test('currentStepId должен быть передан при создании', () => {
-      expect(() =>
-        StudentAr.enroll(mockStreamId, mockUserId, ''),
-      ).toThrow();
+      expect(() => StudentAr.enroll(mockStreamId, mockUserId, '')).toThrow();
     });
   });
 

@@ -10,7 +10,7 @@ import {
   StreamJsonRepo,
   StreamStudentJsonRepo,
 } from '@u7-scl/stream';
-import { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
+import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';

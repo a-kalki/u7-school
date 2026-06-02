@@ -27,8 +27,10 @@ describe('StreamController', () => {
         });
       if (cmd.name === 'list-stream-students') return Promise.resolve([]);
       if (cmd.name === 'enroll-student') return Promise.resolve(undefined);
-      if (cmd.name === 'get-student-progress') return Promise.resolve({ currentStepId: 's1' });
-      if (cmd.name === 'complete-step') return Promise.resolve({ level: 'step', currentStepId: 's2' });
+      if (cmd.name === 'get-student-progress')
+        return Promise.resolve({ currentStepId: 's1' });
+      if (cmd.name === 'complete-step')
+        return Promise.resolve({ level: 'step', currentStepId: 's2' });
       return Promise.resolve(undefined);
     }),
   } as unknown as StreamApiModule;
@@ -90,8 +92,7 @@ describe('StreamController', () => {
             contentSnapshot: [],
             createdAt: '2026-05-01T00:00:00.000Z',
           };
-        if (cmd.name === 'enroll-student')
-          throw new Error('Доступ запрещён');
+        if (cmd.name === 'enroll-student') throw new Error('Доступ запрещён');
         return undefined;
       },
     } as unknown as StreamApiModule;
@@ -105,7 +106,12 @@ describe('StreamController', () => {
 
   test('handleCompleteStep выполняет завершение шага', async () => {
     const controller = new StreamController(mockStreamApi);
-    const response = await controller.handleCompleteStep('u1', 'stu1', 's1', 'step1');
+    const response = await controller.handleCompleteStep(
+      'u1',
+      'stu1',
+      's1',
+      'step1',
+    );
     expect(response.sendMessage?.text).toContain('Шаг выполнен');
   });
 
@@ -230,12 +236,14 @@ describe('StreamController handleListStreams', () => {
     const response = await controller.handleListStreams();
 
     expect(response.sendMessage?.keyboard).toBeDefined();
-    expect(response.sendMessage?.keyboard?.rows.length).toBe(3);
+    expect(response.sendMessage!.keyboard!.rows.length).toBe(3);
     // Каждая кнопка содержит название потока
-    const firstBtn = response.sendMessage?.keyboard?.rows[0][0];
+    const firstBtn = response.sendMessage?.keyboard?.rows[0][0]!;
     expect(firstBtn?.text).toContain('Поток Набора');
     // callback_data должен быть stream:view:<uuid>
-    expect(firstBtn?.code).toBe('stream:view:11111111-1111-1111-1111-111111111111');
+    expect(firstBtn?.code).toBe(
+      'stream:view:11111111-1111-1111-1111-111111111111',
+    );
   });
 
   test('пустой список → сообщение «Нет доступных потоков»', async () => {
@@ -256,7 +264,7 @@ describe('StreamController handleListStreams', () => {
     const controller = new StreamController(mockApi);
     const response = await controller.handleListStreams();
 
-    expect(response.sendMessage?.keyboard?.rows[0][0].text).toContain('🟢');
+    expect(response.sendMessage?.keyboard?.rows[0]?.[0]?.text!).toContain('🟢');
   });
 
   test('статус потока отображается эмодзи: 🔵 для активного', async () => {
@@ -266,7 +274,7 @@ describe('StreamController handleListStreams', () => {
     const controller = new StreamController(mockApi);
     const response = await controller.handleListStreams();
 
-    expect(response.sendMessage?.keyboard?.rows[0][0].text).toContain('🔵');
+    expect(response.sendMessage?.keyboard?.rows[0]?.[0]?.text!).toContain('🔵');
   });
 
   test('статус потока отображается эмодзи: ⚪ для завершённого', async () => {
@@ -276,7 +284,7 @@ describe('StreamController handleListStreams', () => {
     const controller = new StreamController(mockApi);
     const response = await controller.handleListStreams();
 
-    expect(response.sendMessage?.keyboard?.rows[0][0].text).toContain('⚪');
+    expect(response.sendMessage?.keyboard?.rows[0]?.[0]?.text!).toContain('⚪');
   });
 });
 
@@ -299,10 +307,7 @@ describe('StreamController handleStreamView', () => {
     status: 'active' as const,
   };
 
-  const makeMockApi = (
-    stream: typeof sampleStream,
-    studentCount: number,
-  ) =>
+  const makeMockApi = (stream: Record<string, unknown>, studentCount: number) =>
     ({
       handle: mock((cmd: any) => {
         if (cmd.name === 'get-stream') return Promise.resolve(stream);
@@ -321,10 +326,7 @@ describe('StreamController handleStreamView', () => {
   test('карточка с названием, описанием, датой', async () => {
     const mockApi = makeMockApi(sampleStream, 0);
     const controller = new StreamController(mockApi);
-    const response = await controller.handleStreamView(
-      'u1',
-      sampleStream.uuid,
-    );
+    const response = await controller.handleStreamView('u1', sampleStream.uuid);
 
     expect(response.sendMessage?.text).toContain('Python Advanced');
     expect(response.sendMessage?.text).toContain('Продвинутый курс');
@@ -334,24 +336,18 @@ describe('StreamController handleStreamView', () => {
   test('на enrollment — кнопка «Записаться»', async () => {
     const mockApi = makeMockApi(sampleStream, 0);
     const controller = new StreamController(mockApi);
-    const response = await controller.handleStreamView(
-      'u1',
-      sampleStream.uuid,
-    );
+    const response = await controller.handleStreamView('u1', sampleStream.uuid);
 
     const keyboard = response.sendMessage?.keyboard;
     expect(keyboard).toBeDefined();
-    const btnTexts = keyboard!.rows.flat().map((b) => b.text);
+    const btnTexts = keyboard?.rows.flat().map((b) => b.text);
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
   });
 
   test('на active — кнопка «Записаться» скрыта', async () => {
     const mockApi = makeMockApi(activeStream, 5);
     const controller = new StreamController(mockApi);
-    const response = await controller.handleStreamView(
-      'u1',
-      activeStream.uuid,
-    );
+    const response = await controller.handleStreamView('u1', activeStream.uuid);
 
     const keyboard = response.sendMessage?.keyboard;
     const btnTexts = keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -361,10 +357,7 @@ describe('StreamController handleStreamView', () => {
   test('отображает количество студентов', async () => {
     const mockApi = makeMockApi(sampleStream, 12);
     const controller = new StreamController(mockApi);
-    const response = await controller.handleStreamView(
-      'u1',
-      sampleStream.uuid,
-    );
+    const response = await controller.handleStreamView('u1', sampleStream.uuid);
 
     expect(response.sendMessage?.text).toContain('12');
   });
@@ -378,7 +371,13 @@ describe('StreamController handleMyStudy', () => {
     enrolledAt: '2026-06-01T00:00:00.000Z',
     status: 'active' as const,
     currentStepId: 'step-1',
-    steps: [{ stepId: 'step-1', status: 'issued' as const, issuedAt: '2026-06-01T00:00:00.000Z' }],
+    steps: [
+      {
+        stepId: 'step-1',
+        status: 'issued' as const,
+        issuedAt: '2026-06-01T00:00:00.000Z',
+      },
+    ],
     createdAt: '2026-06-01T00:00:00.000Z',
   };
 
@@ -411,7 +410,8 @@ describe('StreamController handleMyStudy', () => {
   test('активный студент — текущий шаг с кнопкой Выполнено', async () => {
     const mockApi = {
       handle: mock((cmd: any) => {
-        if (cmd.name === 'get-student-by-user') return Promise.resolve(mockStudent);
+        if (cmd.name === 'get-student-by-user')
+          return Promise.resolve(mockStudent);
         if (cmd.name === 'get-stream') return Promise.resolve(mockStream);
         return Promise.resolve(undefined);
       }),
@@ -421,7 +421,8 @@ describe('StreamController handleMyStudy', () => {
 
     expect(response.sendMessage?.text).toContain('Python');
     expect(response.sendMessage?.keyboard).toBeDefined();
-    const btnTexts = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
@@ -445,7 +446,8 @@ describe('StreamController handleMyStudy', () => {
   test('студент завершил поток — поздравление', async () => {
     const mockApi = {
       handle: mock((cmd: any) => {
-        if (cmd.name === 'get-student-by-user') return Promise.resolve(completedStudent);
+        if (cmd.name === 'get-student-by-user')
+          return Promise.resolve(completedStudent);
         if (cmd.name === 'get-stream') return Promise.resolve(mockStream);
         return Promise.resolve(undefined);
       }),
@@ -465,7 +467,12 @@ describe('StreamController handleCompleteStep', () => {
       ),
     } as unknown as StreamApiModule;
     const controller = new StreamController(mockApi);
-    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-1');
+    const response = await controller.handleCompleteStep(
+      'u1',
+      'st1',
+      's1',
+      'step-1',
+    );
 
     expect(response.sendMessage?.text).toContain('Шаг');
   });
@@ -481,7 +488,12 @@ describe('StreamController handleCompleteStep', () => {
       ),
     } as unknown as StreamApiModule;
     const controller = new StreamController(mockApi);
-    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-4');
+    const response = await controller.handleCompleteStep(
+      'u1',
+      'st1',
+      's1',
+      'step-4',
+    );
 
     expect(response.sendMessage?.text).toContain('Урок');
   });
@@ -497,7 +509,12 @@ describe('StreamController handleCompleteStep', () => {
       ),
     } as unknown as StreamApiModule;
     const controller = new StreamController(mockApi);
-    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-9');
+    const response = await controller.handleCompleteStep(
+      'u1',
+      'st1',
+      's1',
+      'step-9',
+    );
 
     expect(response.sendMessage?.text).toContain('Проект');
   });
@@ -509,7 +526,12 @@ describe('StreamController handleCompleteStep', () => {
       ),
     } as unknown as StreamApiModule;
     const controller = new StreamController(mockApi);
-    const response = await controller.handleCompleteStep('u1', 'st1', 's1', 'step-last');
+    const response = await controller.handleCompleteStep(
+      'u1',
+      'st1',
+      's1',
+      'step-last',
+    );
 
     expect(response.sendMessage?.text).toContain('Поток');
     expect(response.sendMessage?.text).toContain('🏆');
@@ -528,9 +550,23 @@ describe('StreamController handleProgress', () => {
             status: 'active',
             currentStepId: 'step-3',
             steps: [
-              { stepId: 'step-1', status: 'completed', issuedAt: '2026-06-01T00:00:00.000Z', completedAt: '2026-06-01T00:00:00.000Z' },
-              { stepId: 'step-2', status: 'completed', issuedAt: '2026-06-01T00:00:00.000Z', completedAt: '2026-06-01T00:00:00.000Z' },
-              { stepId: 'step-3', status: 'issued', issuedAt: '2026-06-01T00:00:00.000Z' },
+              {
+                stepId: 'step-1',
+                status: 'completed',
+                issuedAt: '2026-06-01T00:00:00.000Z',
+                completedAt: '2026-06-01T00:00:00.000Z',
+              },
+              {
+                stepId: 'step-2',
+                status: 'completed',
+                issuedAt: '2026-06-01T00:00:00.000Z',
+                completedAt: '2026-06-01T00:00:00.000Z',
+              },
+              {
+                stepId: 'step-3',
+                status: 'issued',
+                issuedAt: '2026-06-01T00:00:00.000Z',
+              },
             ],
             createdAt: '2026-06-01T00:00:00.000Z',
             enrolledAt: '2026-06-01T00:00:00.000Z',
@@ -545,8 +581,16 @@ describe('StreamController handleProgress', () => {
                 projectId: 'p1',
                 projectTitle: 'Основы',
                 lessons: [
-                  { lessonId: 'l1', lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
-                  { lessonId: 'l2', lessonTitle: 'Продвинутый', stepIds: ['step-3', 'step-4'] },
+                  {
+                    lessonId: 'l1',
+                    lessonTitle: 'Введение',
+                    stepIds: ['step-1', 'step-2'],
+                  },
+                  {
+                    lessonId: 'l2',
+                    lessonTitle: 'Продвинутый',
+                    stepIds: ['step-3', 'step-4'],
+                  },
                 ],
               },
             ],
@@ -638,8 +682,18 @@ describe('StreamController handleStreamStudents', () => {
       status: 'active',
       currentStepId: 'step-3',
       steps: [
-        { stepId: 'step-1', status: 'completed', issuedAt: '2026-06-01T00:00:00.000Z', completedAt: '2026-06-01T00:00:00.000Z' },
-        { stepId: 'step-2', status: 'completed', issuedAt: '2026-06-01T00:00:00.000Z', completedAt: '2026-06-01T00:00:00.000Z' },
+        {
+          stepId: 'step-1',
+          status: 'completed',
+          issuedAt: '2026-06-01T00:00:00.000Z',
+          completedAt: '2026-06-01T00:00:00.000Z',
+        },
+        {
+          stepId: 'step-2',
+          status: 'completed',
+          issuedAt: '2026-06-01T00:00:00.000Z',
+          completedAt: '2026-06-01T00:00:00.000Z',
+        },
       ],
       enrolledAt: '2026-06-01T00:00:00.000Z',
       createdAt: '2026-06-01T00:00:00.000Z',

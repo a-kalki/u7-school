@@ -132,12 +132,16 @@ export class StreamAr extends Aggregate<StreamArMeta> {
    * Контекст шага в дереве контента.
    * Определяет, является ли шаг последним в уроке, и является ли урок последним в проекте.
    */
-  findStepContext(
-    stepId: string,
-  ): { lessonId: string; projectId: string; isLastStepInLesson: boolean; isLastLessonInProject: boolean } {
+  findStepContext(stepId: string): {
+    lessonId: string;
+    projectId: string;
+    isLastStepInLesson: boolean;
+    isLastLessonInProject: boolean;
+  } {
     for (const project of this._state.contentSnapshot) {
       for (let li = 0; li < project.lessons.length; li++) {
-        const lesson = project.lessons[li]!;
+        const lesson = project.lessons[li];
+        if (!lesson) continue;
         for (let si = 0; si < lesson.stepIds.length; si++) {
           if (lesson.stepIds[si] === stepId) {
             return {

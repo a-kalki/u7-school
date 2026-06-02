@@ -1,17 +1,20 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
-import { StreamPolicy } from '#domain/stream/policy';
 import {
   type CompleteStreamCmd,
   type CompleteStreamCmdMeta,
   CompleteStreamCmdSchema,
 } from '#domain/stream/commands/complete-stream-cmd';
+import { StreamPolicy } from '#domain/stream/policy';
 import { StreamUseCase } from '../stream-uc';
 
 export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
   protected readonly ucName = 'complete-stream' as const;
   protected readonly ucLabel = 'Завершить поток' as const;
-  protected readonly arMeta = { arName: 'Stream' as const, arLabel: 'Поток' as const };
+  protected readonly arMeta = {
+    arName: 'Stream' as const,
+    arLabel: 'Поток' as const,
+  };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = CompleteStreamCmdSchema;

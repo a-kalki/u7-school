@@ -269,9 +269,9 @@ describe('StreamAr', () => {
 
     test('выбрасывает ошибку если шаг не найден', () => {
       const ar = StreamAr.create(mockCreateCmd, snapshot);
-      expect(() => ar.findStepContext('99999999-9999-4999-8999-999999999999')).toThrow(
-        'Шаг не найден в структуре потока',
-      );
+      expect(() =>
+        ar.findStepContext('99999999-9999-4999-8999-999999999999'),
+      ).toThrow('Шаг не найден в структуре потока');
     });
   });
 });

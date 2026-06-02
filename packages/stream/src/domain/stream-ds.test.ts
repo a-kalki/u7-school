@@ -43,9 +43,7 @@ const multiSnapshot: ContentSnapshot = [
       {
         lessonId: '99999999-9999-4999-8999-999999999999',
         lessonTitle: 'У1.2',
-        stepIds: [
-          'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-        ],
+        stepIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
       },
     ],
   },
@@ -56,9 +54,7 @@ const multiSnapshot: ContentSnapshot = [
       {
         lessonId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
         lessonTitle: 'У2.1',
-        stepIds: [
-          'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
-        ],
+        stepIds: ['dddddddd-dddd-4ddd-8ddd-dddddddddddd'],
       },
     ],
   },

@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { Stream, StreamArMeta } from '../entity';
+import type { StreamArMeta } from '../entity';
 import { StreamSchema } from '../entity';
 
 export const ArchiveStreamCmdSchema = v.object({
@@ -12,7 +12,7 @@ export interface ArchiveStreamCmdMeta {
   ucName: 'archive-stream';
   arMeta: StreamArMeta;
   input: ArchiveStreamCmd;
-  output: void;
+  output: undefined;
   errors: never;
   requiresAuth: true;
   type: 'command';

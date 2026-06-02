@@ -1,11 +1,11 @@
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
-import { StreamPolicy } from '#domain/stream/policy';
 import {
   type ActivateStreamCmd,
   type ActivateStreamCmdMeta,
   ActivateStreamCmdSchema,
 } from '#domain/stream/commands/activate-stream-cmd';
+import { StreamPolicy } from '#domain/stream/policy';
 import { StudentAr } from '#domain/student/a-root';
 import { StreamUseCase } from '../stream-uc';
 

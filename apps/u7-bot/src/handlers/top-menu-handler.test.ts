@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
-import type { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
+import type { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { Bot } from 'grammy';
 import type { BotConfig } from '../config';
@@ -33,11 +33,9 @@ function makeMockBot(): MockBot {
         commands[name] = handler;
       },
     ),
-    on: mock(
-      (_event: string, handler: (ctx: BotContext) => Promise<void>) => {
-        // сохраняем для тестов
-      },
-    ) as any,
+    on: mock((_event: string, _handler: (ctx: BotContext) => Promise<void>) => {
+      // сохраняем для тестов
+    }) as any,
     commands,
   } as unknown as MockBot;
 
@@ -74,7 +72,14 @@ describe('registerTopMenuHandler', () => {
     const userFacade = {} as UserFacade;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
 
     expect(bot.commands.start).toBeDefined();
     expect(bot.commands.link_to_school_group).toBeDefined();
@@ -89,7 +94,14 @@ describe('registerTopMenuHandler', () => {
     const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
 
     const ctx = makeMockContext();
     await bot.commands.start?.(ctx);
@@ -111,7 +123,14 @@ describe('registerTopMenuHandler', () => {
     const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
 
     const ctx = makeMockContext();
     await bot.commands.start?.(ctx);
@@ -131,7 +150,14 @@ describe('registerTopMenuHandler', () => {
     const config = { botAdminUuid: 'admin-uuid' } as unknown as BotConfig;
     const logger = makeMockLogger();
 
-    registerTopMenuHandler(bot, userFacade, mockController, mockStreamController, config, logger);
+    registerTopMenuHandler(
+      bot,
+      userFacade,
+      mockController,
+      mockStreamController,
+      config,
+      logger,
+    );
 
     const ctx = makeMockContext();
     await bot.commands.start?.(ctx);
@@ -161,9 +187,9 @@ describe('registerTopMenuHandler', () => {
 
     const replyCall = (ctx.reply as any).mock.calls[0];
     const keyboard = replyCall[1].reply_markup;
-    const btnTexts: string[] = keyboard.inline_keyboard.flat().map(
-      (b: any) => b.text,
-    );
+    const btnTexts: string[] = keyboard.inline_keyboard
+      .flat()
+      .map((b: any) => b.text);
     expect(btnTexts.some((t) => t.includes('Моя учёба'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Наши потоки'))).toBe(true);
   });
@@ -193,9 +219,9 @@ describe('registerTopMenuHandler', () => {
 
     const replyCall = (ctx.reply as any).mock.calls[0];
     const keyboard = replyCall[1].reply_markup;
-    const btnTexts: string[] = keyboard.inline_keyboard.flat().map(
-      (b: any) => b.text,
-    );
+    const btnTexts: string[] = keyboard.inline_keyboard
+      .flat()
+      .map((b: any) => b.text);
     expect(btnTexts.some((t) => t.includes('Моя учёба'))).toBe(true);
   });
 
@@ -224,9 +250,9 @@ describe('registerTopMenuHandler', () => {
 
     const replyCall = (ctx.reply as any).mock.calls[0];
     const keyboard = replyCall[1].reply_markup;
-    const btnTexts: string[] = keyboard.inline_keyboard.flat().map(
-      (b: any) => b.text,
-    );
+    const btnTexts: string[] = keyboard.inline_keyboard
+      .flat()
+      .map((b: any) => b.text);
     expect(btnTexts.some((t) => t.includes('Панель ментора'))).toBe(true);
   });
 });

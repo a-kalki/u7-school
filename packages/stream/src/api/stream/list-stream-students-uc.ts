@@ -1,10 +1,10 @@
-import { StudentSchema } from '#domain/student/entity';
-import { StreamPolicy } from '#domain/stream/policy';
 import {
   type ListStreamStudentsCmd,
   type ListStreamStudentsCmdMeta,
   ListStreamStudentsCmdSchema,
 } from '#domain/stream/commands/list-stream-students-cmd';
+import { StreamPolicy } from '#domain/stream/policy';
+import { StudentSchema } from '#domain/student/entity';
 import { StreamUseCase } from '../stream-uc';
 
 export class ListStreamStudentsUc extends StreamUseCase<ListStreamStudentsCmdMeta> {

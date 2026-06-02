@@ -1,8 +1,8 @@
 import type { UcMeta } from '@u7-scl/core/api';
 import * as v from 'valibot';
 import type { StreamUcErrors } from '../../../api/errors';
-import type { StudentSchema } from '../entity';
 import { StreamSchema } from '../../stream/entity';
+import type { StudentSchema } from '../entity';
 
 export const ListStreamStudentsCmdSchema = v.object({
   streamId: StreamSchema.entries.uuid,

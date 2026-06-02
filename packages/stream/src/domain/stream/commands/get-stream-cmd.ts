@@ -1,7 +1,6 @@
 import type { UcMeta } from '@u7-scl/core/api';
 import * as v from 'valibot';
 import type { StreamUcErrors } from '../../../api/errors';
-import type { StreamSchema } from '../entity';
 import { StreamSchema } from '../entity';
 
 export const GetStreamCmdSchema = v.object({

@@ -17,7 +17,7 @@ export interface EnrollStudentCmdMeta extends UcMeta {
   ucName: 'enroll-student';
   arMeta: StudentArMeta;
   input: EnrollStudentCmd;
-  output: void;
+  output: undefined;
   errors: StreamUcErrors;
   requiresAuth: true;
   type: 'command';

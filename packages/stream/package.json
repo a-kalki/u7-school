@@ -18,7 +18,8 @@
     "valibot": "^1.0.0"
   },
   "exports": {
-    "./domain": "./src/domain/index.ts"
+    "./domain": "./src/domain/index.ts",
+    "./ui/bot/controller/stream-controller": "./src/ui/bot/controller/stream-controller.ts"
   },
   "imports": {
     "#domain/*": "./src/domain/*.ts"

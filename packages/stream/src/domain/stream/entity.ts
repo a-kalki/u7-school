@@ -1,6 +1,6 @@
+import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { StreamStatusSchema } from '../status';
-import type { ArMeta } from '@u7-scl/core/domain';
 
 /** Схема шага внутри снимка контента */
 export const LessonSnapshotSchema = v.object({

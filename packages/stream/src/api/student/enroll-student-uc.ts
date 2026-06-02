@@ -1,6 +1,6 @@
+import { errConflict } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
-import { errConflict } from '@u7-scl/core/domain';
 import { StreamAr } from '#domain/stream/a-root';
 import { StreamPolicy } from '#domain/stream/policy';
 import { StudentAr } from '#domain/student/a-root';
@@ -9,8 +9,8 @@ import {
   type EnrollStudentCmdMeta,
   EnrollStudentCmdSchema,
 } from '#domain/student/commands/enroll-student-cmd';
-import { StreamUseCase } from '../stream-uc';
 import type { StreamConflictUcError, StreamUcErrors } from '../errors';
+import { StreamUseCase } from '../stream-uc';
 
 /**
  * Use-case зачисления студента на поток.

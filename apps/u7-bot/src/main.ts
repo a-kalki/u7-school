@@ -1,6 +1,5 @@
 import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7-scl/core/shared';
 import { OnboardingController } from '@u7-scl/onboarding';
-import { StreamController } from '@u7-scl/stream/src/ui/bot/controller/stream-controller';
 import { webhookCallback } from 'grammy';
 import { createApiApp } from './api-app';
 import { createBot } from './bot';
@@ -23,9 +22,8 @@ const loggers: CompositeLogger = new CompositeLogger([consoleLogger]);
 // (TelegramLogger понадобится bot, который мы создадим ниже)
 const logger = loggers;
 
-const { apiApp, userFacade, streamModule } = createApiApp(config, logger);
+const { apiApp, userFacade, streamController } = createApiApp(config, logger);
 const onboardingController = new OnboardingController(apiApp, logger);
-const streamController = new StreamController(streamModule);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
