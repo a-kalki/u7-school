@@ -1,0 +1,32 @@
+[
+  {
+    "uuid": "8d9a56f6-51e7-49f0-ba58-2832b157e718",
+    "name": "Nur",
+    "telegramId": 773084180,
+    "roles": [
+      "ADMIN",
+      "MENTOR",
+      "CANDIDATE"
+    ],
+    "createdAt": "2026-05-08T13:27",
+    "updatedAt": "2026-05-16T18:39"
+  },
+  {
+    "uuid": "ae00f3f6-1392-4b98-b178-41c27e794b7f",
+    "name": "U7 School Test Bot",
+    "telegramId": 8781337572,
+    "roles": [
+      "ADMIN"
+    ],
+    "createdAt": "2026-05-15T14:31"
+  },
+  {
+    "uuid": "db5b50bc-50b6-476b-a64e-b2eb513a49cf",
+    "name": "U7 School Bot",
+    "telegramId": 8894575137,
+    "roles": [
+      "ADMIN"
+    ],
+    "createdAt": "2026-05-15T14:52"
+  }
+]

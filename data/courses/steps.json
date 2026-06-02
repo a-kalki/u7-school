@@ -1,0 +1,347 @@
+[
+  {
+    "uuid": "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Введение в программирование",
+    "content": "Посмотри видео «Введение в программирование» по ссылке:\n\n👉 [01. Введение в программирование.mp4](https://drive.google.com/file/d/1jByuEZZAr5OeI5VTGL-eNvhcGCFi16r6)\n\nИз этого видео ты узнаешь:\n- Что такое код, программа и интерпретатор\n- Как выполняется код (поток выполнения)\n- Кто такой программист и чем он занимается\n- Аналогию с рецептом из жизни",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "4890a068-1335-4115-931a-b6f4ee5ea7e5",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что выведет код?",
+    "content": "Как ты думаешь, что будет, если выполнить в консоли следующий код:\n\n```js\nconsole.log('Первый');\nconsole.log('Второй');\nconsole.log('Третий');\n```\n\nОтветь на вопрос, а затем проверь правильность, выполнив код в консоли браузера (F12) или через `bun`.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "255b3046-e46a-4e27-8794-5bf704691dc7",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: твой первый скрипт",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "code",
+    "code": "// Напиши программу, которая выводит:\n// 1. Твоё имя\n// 2. Твой любимый цвет\n// 3. Сколько тебе лет\n//\n// Используй console.log() для каждого пункта.\n\nconsole.log('Твоё имя');\nconsole.log('Твой любимый цвет');\nconsole.log(25);\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "1809238e-2942-4a09-96a4-c582a09097e1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что будет при ошибке?",
+    "content": "Как ты думаешь, что произойдёт, если выполнить этот код:\n\n```js\nconsole.log('Старт');\nconsol.log('Ошибка');        // опечатка в console\nconsole.log('Финиш');\n```\n\nОтветь на вопрос: выполнится ли третья строка? Почему? Проверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Переменные",
+    "content": "Посмотри видео «Переменные» по ссылке:\n\n👉 [02. Переменные.mp4](https://drive.google.com/file/d/1RqUAfBfK6ZyMFblVVUr4gEmtRvrNRAqv)\n\nИз этого видео ты узнаешь:\n- Что такое переменная и зачем она нужна\n- Как создать переменную через let, const и var (почему var — устарел)\n- Как работает оператор присваивания =\n- Что такое undefined",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: let vs const",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "code",
+    "code": "// Попробуй выполнить этот код в консоли.\n// Как ты думаешь, что произойдёт?\n\nlet city = 'Алматы';\ncity = 'Астана';\nconsole.log('Город:', city);\n\nconst country = 'Казахстан';\ncountry = 'Россия';\nconsole.log('Страна:', country);\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "5c443053-4784-4a0d-a0a1-6be99790f533",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: необъявленная переменная",
+    "content": "Как ты думаешь, что будет, если выполнить этот код:\n\n```js\nconsole.log(message);\nlet message = 'Привет';\n```\n\nА если заменить `let` на `var`? Проверь оба варианта в консоли.\n\nОбрати внимание: **мы не используем `var`** в современном JS. Пример с `var` нужен только чтобы показать, почему он плох — его поведение отличается и может привести к неочевидным ошибкам. Всегда используй `let` или `const`.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: undefined vs ошибка",
+    "content": "Чем отличаются эти два случая?\n\n```js\n// Случай А\nlet a;\nconsole.log(a);\n\n// Случай Б\nconsole.log(b);\n```\n\nКакой из них вызовет ошибку, а какой выведет `undefined`? Проверь.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "c0ec0938-0600-47e5-b363-b21eda469e7d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Математические операторы",
+    "content": "Посмотри видео «Математические операторы» по ссылке:\n\n👉 [03. Математические операторы.mp4](https://drive.google.com/file/d/1NWKE6DDnQ98YOA94bk23smxQjERX2dbb)\n\nИз этого видео ты узнаешь:\n- Стандартные и дополнительные математические операторы (%, **)\n- Порядок выполнения в строке присваивания\n- Сокращённый синтаксис (+=, -=, *=, и т.д.)\n- Префиксный и постфиксный инкремент/декремент",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "f033237c-e51e-4f3f-b175-e79ca0953c7a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что выведут операции?",
+    "content": "Как ты думаешь, что выведет каждый `console.log`?\n\n```js\nconsole.log(10 % 3);\nconsole.log(2 ** 4);\nconsole.log(15 % 5);\n```\n\nПроверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: сокращённый синтаксис",
+    "content": "Как ты думаешь, каким будет финальное значение `x`?\n\n```js\nlet x = 5;\nx += 3;\nx *= 2;\nx -= 4;\nconsole.log(x);\n```\n\nПопробуй понять без запуска, затем проверь.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "6d2200a1-3463-4fd3-a513-952d93b73ec3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: префиксный vs постфиксный",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "code",
+    "code": "// Как ты думаешь, что выведет каждый console.log?\n\nlet a = 5;\nlet b = 5;\n\nconsole.log('префиксный:', ++a);\nconsole.log('постфиксный:', b++);\nconsole.log('a после:', a);\nconsole.log('b после:', b);\n\n// Объясни разницу.\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Типы данных",
+    "content": "Посмотри видео «Типы данных» по ссылке:\n\n👉 [04. Типы данных.mp4](https://drive.google.com/file/d/1akcBsN2F1ACOcqrY1_4a_4AQdaJmxAFr)\n\nИз этого видео ты узнаешь:\n- Основные типы данных в JS: number, string, boolean, object, null, undefined\n- Оператор typeof\n- Как работает интерполяция строк (обратные кавычки)\n- Что такое исключение (exception)",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что вернёт typeof?",
+    "content": "Как ты думаешь, что вернёт `typeof` для каждого значения?\n\n```js\nconsole.log(typeof 'hello');\nconsole.log(typeof 123);\nconsole.log(typeof true);\nconsole.log(typeof undefined);\nconsole.log(typeof null);   // обрати внимание на эту строку!\nconsole.log(typeof { name: 'Алиса' });\nconsole.log(typeof NaN);\n```\n\nОбрати внимание на `typeof null` — запомни эту особенсть.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "e1a29ce7-2653-45ec-b863-0ca585e62e02",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: строка + число",
+    "content": "Как ты думаешь, что будет, если сложить строку и число?\n\n```js\nconsole.log('5' + 3);\nconsole.log(5 + '3');\nconsole.log('Привет' + 42);\n```\n\nА если использовать другие операторы?\n\n```js\nconsole.log('5' - 3);\nconsole.log('10' * 2);\nconsole.log('10' / '2');\n```\n\nПроверь все примеры в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "35eb70f1-13a2-4aaa-b066-d60603505e5b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: интерполяция строк",
+    "content": "Как ты думаешь, что выведет этот код?\n\n```js\nlet name = 'Дамир';\nlet age = 25;\n\nlet message = `Меня зовут ${name}, мне ${age} лет.`;\nconsole.log(message);\n\n// А если выражение?\nlet result = `2 + 2 = ${2 + 2}`;\nconsole.log(result);\n```\n\nПроверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "b6a8a0be-7d63-49d0-a43b-fc4315dbee7b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Типы данных, исключения и особые случаи",
+    "content": "Посмотри видео по ссылке:\n\n👉 [05. Типы данных, исключения и особые случаи.mp4](https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp)\n\nИз этого видео ты узнаешь:\n- Как ведёт себя оператор + со строками и числами\n- Что будет, если применить арифметику к строкам\n- Что такое методы строк (на примере toUpperCase)\n- Что такое исключение (TypeError) и как оно останавливает поток",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "9a8edd25-b1da-46e7-bfcb-f0247de71ed5",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: конкатенация vs сложение",
+    "content": "Как ты думаешь, что выведет каждый console.log?\n\n```js\nconsole.log(5 + 3);\nconsole.log('5' + 3);\nconsole.log('5' + '3');\n```\n\nПроверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "1b1021c2-0e9e-41ec-80e7-3dd4ae64c9fe",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: арифметика со строками",
+    "content": "Что будет, если выполнить эти примеры?\n\n```js\nconsole.log('10' / 2);\nconsole.log('10' * '2');\nconsole.log(5 - '3');\nconsole.log('5' - 3);\nconsole.log('abc' / 5);\nconsole.log('123' - '23');\n```\n\nОбрати внимание на 'abc' / 5. Почему результат - NaN? Проверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "3ad71cd2-22ed-4f4f-a037-7f3ed564a42c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: TypeError - остановка потока",
+    "content": "Как ты думаешь, что произойдёт?\n\n```js\nlet name = 'Алия';\nlet age = 25;\n\nconsole.log(name.toUpperCase());\nconsole.log(age.toUpperCase());\nconsole.log('Эта строка выполнится?');\n```\n\nСколько строк выполнится до остановки? Проверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "105d9c41-a895-4dd4-882d-04384a767c9d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Операторы равенства, сравнения и отрицания",
+    "content": "Посмотри видео по ссылке:\n\n👉 [06. Операторы равенства, сравнения и отрицания.mp4](https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn)\n\nИз этого видео ты узнаешь:\n- Чем отличается строгое равенство (===) от нестрогого (==)\n- Какие бывают операторы сравнения: <, >, <=, >=\n- Как работает оператор отрицания !\n- Почему стоит всегда использовать === и !===",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "00efb694-a917-4a11-8698-964440491169",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: строгое vs нестрогое",
+    "content": "Как ты думаешь, что вернёт каждый оператор?\n\n```js\nconsole.log(5 === 5);\nconsole.log(5 === '5');\nconsole.log(5 == '5');\nconsole.log(true === 1);\nconsole.log(true == 1);\n```\n\nНе применяй нестрогое равенство (неравенство). Проверь код в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "6ab959df-498e-41a5-b0f1-8b62a01aad56",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: операторы сравнения",
+    "content": "Предскажи результат:\n\n```js\nlet x = 10;\nlet y = 20;\n\nconsole.log(x > y);\nconsole.log(x < y);\nconsole.log(x >= 10);\nconsole.log(y <= 15);\nconsole.log(x !== y);\n```\n\nКакой тип возвращают все эти операторы? Проверь.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "54996992-d801-4b62-97c7-5ae211487e76",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: отрицание",
+    "content": "Что выведет каждый console.log?\n\n```js\nlet isReady = true;\n\nconsole.log(!isReady);\nconsole.log(!false);\nconsole.log(!(5 > 3));\nconsole.log(!(10 === '10'));\n```\n\nА теперь попробуй сам: напиши выражение с === и !, которое проверяет, что число НЕ равно 0.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "6e6b63e3-32b3-49b9-b075-c214062223d2",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Логические операторы",
+    "content": "Посмотри видео по ссылке:\n\n👉 [07. Логические операторы.mp4](https://drive.google.com/file/d/1uzeUR5lpZqG15YOHqOys33nRURHH5B-u)\n\nИз этого видео ты узнаешь:\n- Как работают логические операторы И (&&) и ИЛИ (||)\n- Таблицы истинности\n- Как составлять сложные логические выражения\n- Практический пример: проверка трудоспособного возраста",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "dc626cec-82f1-4597-bf55-5822b8728e88",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: таблицы истинности",
+    "content": "Предскажи результат:\n\n```js\nconsole.log(true || true);\nconsole.log(true || false);\nconsole.log(false || true);\nconsole.log(false || false);\n\nconsole.log(true && true);\nconsole.log(true && false);\nconsole.log(false && true);\nconsole.log(false && false);\n```\n\nОбъясни когда ИЛИ даёт true, а когда И даёт true. Проверь.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "1f7b6291-5adc-4f4a-a2ca-d451a3b4de5f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: проверка диапазона",
+    "content": "Как ты думаешь, что вернёт каждое выражение?\n\n```js\nlet age = 25;\nconsole.log(age >= 18 && age <= 65);\n\nlet age2 = 15;\nconsole.log(age2 >= 18 && age2 <= 65);\n\nlet temp = 30;\nconsole.log(temp < 0 || temp > 35);\n\nlet temp2 = -5;\nconsole.log(temp2 < 0 || temp2 > 35);\n```\n\nОбъясни смысл каждого условия словами. Проверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "58a9d484-e6f0-4000-b860-bc9a860f74ca",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Ветвление",
+    "content": "Посмотри видео по ссылке:\n\n👉 [08. Ветвление.mp4](https://drive.google.com/file/d/1OJrLNr2c2MGBRLGUzFylbCkFyunPpX45)\n\nИз этого видео ты узнаешь:\n- Что такое ветвление и зачем оно нужно\n- Как работает оператор if\n- Как добавить else if и else\n- Что такое однострочный if без фигурных скобок",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "108e5446-3d3e-44bb-aabc-0fc7fd779dd9",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: if - предскажи результат",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "code",
+    "code": "// Как ты думаешь, что выведет код?\nlet x = 10;\n\nif (x > 5) {\n  console.log('Больше пяти');\n}\n\nif (x > 20) {\n  console.log('Больше двадцати');\n}\n\nconsole.log('Готово');\n\n// А если x = 3?\n// Закомментируй верхний код и перепиши x = 3. Что изменится?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "2b0d5ae7-69ae-4ff3-be48-3deb5c6b1484",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: else - положительное или отрицательное",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "code",
+    "code": "// Предскажи что выведет для i = -5, i = 0, i = 7\nlet i = -5;\n\nif (i > 0) {\n  console.log(i + ' положительное');\n} else if (i === 0) {\n  console.log('ноль');\n} else {\n  console.log(i + ' отрицательное');\n}\n\n// Поменяй i на 0, потом на 7. Какой блок выполнится в каждом случае?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "c187ccc4-650d-4b0e-b538-506fcb8373d6",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: своя проверка",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Спрашивает возраст через prompt()\n// 2. Если возраст >= 18 - выводит «Взрослый»\n// 3. Если возраст >= 12 и < 18 - выводит «Подросток»\n// 4. Иначе - выводит «Ребёнок»\n//\n// Используй if / else if / else\n// Подсказка: prompt() возвращает строку, используй Number() для преобразования\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "ccb8d815-617d-4f1d-bacc-96be9738686f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: математика с переменными",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Объяви две числовые переменные (a и b)\n// 2. Выведи в консоль:\n//    - сумму a + b\n//    - разность a - b\n//    - произведение a * b\n//    - частное a / b\n//    - остаток от деления a % b\n//    - a в степени b (a ** b)\n//\n// Пример: a = 10, b = 3\n// Ожидаемый вывод:\n//   10 + 3 = 13\n//   10 - 3 = 7\n//   10 * 3 = 30\n//   10 / 3 = 3.333...\n//   10 % 3 = 1\n//   10 ** 3 = 1000\n\nlet a = 10;\nlet b = 3;\n// ... напиши код ниже",
+    "language": "javascript"
+  },
+  {
+    "uuid": "d6745add-0842-42a2-aa12-1502e24b68f1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: типы через интерполяцию",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Объяви переменную name со строкой (твоё имя)\n// 2. Объяви переменную age с числом (твой возраст)\n// 3. Выведи через интерполяцию строк (обратные кавычки ``):\n//    \"Меня зовут [name], тип: [typeof name]\"\n//    \"Мне [age] лет, тип: [typeof age]\"\n//\n// Дополнительно: объяви isStudent = true и выведи её тип.\n// Сделай вывод аккуратным.\n\nlet name = 'Дамир';\nlet age = 25;\nlet isStudent = true;\n// ... напиши код ниже",
+    "language": "javascript"
+  },
+  {
+    "uuid": "33f82348-b3dd-424c-8253-047be1d7e1b3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: метод строки и TypeError",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Объяви переменную word = 'JavaScript'\n// 2. Выведи word в верхнем регистре: word.toUpperCase()\n// 3. Теперь объяви num = 123\n// 4. Попробуй вызвать num.toUpperCase() — что произойдёт?\n// 5. Объясни в комментарии, почему возникла ошибка\n//\n// Подсказка: toUpperCase() — метод, который есть только у строк\n\nlet word = 'JavaScript';\nconsole.log(word.toUpperCase());\n\nlet num = 123;\n// console.log(num.toUpperCase());\n// ↑ раскомментируй эту строку и посмотри на ошибку\n// Напиши ниже объяснение: почему ошибка?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "001dbdbb-649b-41d2-917c-e231e9465fbd",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: проверяем возраст",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Запроси возраст через prompt() — сохрани в переменную age\n// 2. Преобразуй строку в число: Number(age)\n// 3. Выведи:\n//    - \"Совершеннолетний: true/false\"  (>= 18)\n//    - \"Подросток: true/false\"         (>= 12 и < 18)\n//    - \"Пенсионер: true/false\"         (>= 65)\n//    - \"Может водить машину: true/false\" (>= 18)\n//\n// Используй операторы сравнения и строгое равенство.\n\nlet ageInput = prompt('Сколько тебе лет?');\nlet age = Number(ageInput);\n// ... напиши код ниже\nconsole.log('Совершеннолетний:', age >= 18);\nconsole.log('Подросток:', age >= 12 && age < 18);\nconsole.log('Пенсионер:', age >= 65);\nconsole.log('Может водить:', age >= 18);",
+    "language": "javascript"
+  },
+  {
+    "uuid": "53df1181-366c-48d6-8f17-e38e08fe65cc",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: можно ли гулять?",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() температуру на улице\n// 2. Запроси через prompt() идёт ли дождь (введи true или false)\n//    Подсказка: строку 'true' можно сравнить === 'true'\n// 3. Выведи \"Можно гулять: true/false\"\n//\n// Гулять можно, если:\n//   - температура > 0 И температура < 35\n//   - И дождя НЕТ (!isRaining)\n//\n// Используй логические операторы &&, ||, !\n\nlet tempInput = prompt('Какая температура на улице?');\nlet temp = Number(tempInput);\nlet rainInput = prompt('Идёт дождь? (true/false)');\nlet isRaining = rainInput === 'true';\n\nlet canWalk = temp > 0 && temp < 35 && !isRaining;\nconsole.log('Можно гулять:', canWalk);\n\n// А если температура ниже 0 — можно? А если > 35?\n// Допиши условие: можно гулять ещё и если облачно, но без дождя.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "e6bda4c1-59a4-4930-98f4-d2d064d4b937",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: оценка в букву",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() число — оценку от 0 до 100\n// 2. Преобразуй строку в число\n// 3. Через if / else if / else выведи букву:\n//    - 90 и выше → \"A\"\n//    - 75 и выше → \"B\"\n//    - 50 и выше → \"C\"\n//    - ниже 50   → \"D\"\n// 4. Если число меньше 0 или больше 100 — выведи \"Ошибка: неверная оценка\"\n//\n// Используй строгое сравнение === и логические операторы.\n\nlet scoreInput = prompt('Введи оценку от 0 до 100:');\nlet score = Number(scoreInput);\n// ... напиши код ниже\n// Пример:\n// if (score >= 90) { console.log('A'); }\n// else if (...) { ... }\n// else { ... }",
+    "language": "javascript"
+  }
+]

@@ -1,0 +1,361 @@
+[
+  {
+    "topic": "Git Tutorial",
+    "lessons": [
+      {
+        "title": "Git HOME",
+        "fileName": "default.md",
+        "url": "https://www.w3schools.com/git/default.asp",
+        "summary": "This tutorial introduces Git as an essential tool for version control, file management, and collaborative development. It provides a beginner-friendly guide to terminal commands and remote repositories, encouraging hands-on practice through examples and quizzes to build practical skills."
+      },
+      {
+        "title": "Git Intro",
+        "fileName": "git_intro.md",
+        "url": "https://www.w3schools.com/git/git_intro.asp",
+        "summary": "Git is a powerful version control system that enables developers to track code changes, manage project history, and collaborate efficiently. This lesson covers essential concepts like repositories, commits, and branching, explaining how to manage local project versions and sync them remotely."
+      },
+      {
+        "title": "Git Install",
+        "fileName": "git_install.md",
+        "url": "https://www.w3schools.com/git/git_install.asp",
+        "summary": "This lesson provides a comprehensive guide to installing Git across Windows, macOS, and Linux platforms. It covers essential configuration steps, such as setting up the PATH environment, choosing a default text editor, and verifying the installation to ensure Git is ready for use."
+      },
+      {
+        "title": "Git Config",
+        "fileName": "git_config.md",
+        "url": "https://www.w3schools.com/git/git_config.asp",
+        "summary": "This lesson explains how to configure your identity in Git by setting your name and email, which are essential for tracking commits. It also covers how to manage configuration levels—local, global, and system—and how to view or modify these settings to customize your Git environment."
+      },
+      {
+        "title": "Git Get Started",
+        "fileName": "git_getstarted.md",
+        "url": "https://www.w3schools.com/git/git_getstarted.asp",
+        "summary": "This lesson introduces the fundamentals of starting a Git project by creating a directory and initializing a repository. It explains the role of the hidden .git folder in tracking project history and provides essential troubleshooting tips for common setup issues."
+      },
+      {
+        "title": "Git New Files",
+        "fileName": "git_new_files.md",
+        "url": "https://www.w3schools.com/git/git_new_files.asp",
+        "summary": "This lesson explains how to identify new files within a Git repository. It demonstrates how to use the `ls` command to list directory contents and `git status` to distinguish between tracked and untracked files, emphasizing that Git must be explicitly told to watch new project files."
+      },
+      {
+        "title": "Git Staging",
+        "fileName": "git_staging_environment.md",
+        "url": "https://www.w3schools.com/git/git_staging_environment.asp",
+        "summary": "The Git staging area acts as a preparatory space, allowing you to selectively choose which changes to include in your next commit. By using commands like `git add` to stage files and `git restore` to unstage them, you gain precise control over your project's version history."
+      },
+      {
+        "title": "Git Commit",
+        "fileName": "git_commit.md",
+        "url": "https://www.w3schools.com/git/git_commit.asp",
+        "summary": "A Git commit acts as a project save point, capturing a snapshot of your files along with a descriptive message. This lesson covers essential commit commands, best practices for writing meaningful messages, and techniques for managing history or correcting common mistakes using tools like git log and amend."
+      },
+      {
+        "title": "Git Tagging",
+        "fileName": "git_tagging.md",
+        "url": "https://www.w3schools.com/git/git_tagging.asp",
+        "summary": "Git tagging allows you to create permanent bookmarks for specific commits, which is essential for marking releases, milestones, and deployments. This lesson covers how to create, list, manage, and share both lightweight and annotated tags, emphasizing best practices for version control."
+      },
+      {
+        "title": "Git Stash",
+        "fileName": "git_stash.md",
+        "url": "https://www.w3schools.com/git/git_stash.asp",
+        "summary": "Git stash is a powerful tool that allows developers to temporarily save uncommitted changes, providing a clean working directory for switching tasks or branches. This lesson covers essential commands for managing, applying, and organizing stashed work to maintain an efficient workflow."
+      },
+      {
+        "title": "Git History",
+        "fileName": "git_history.md",
+        "url": "https://www.w3schools.com/git/git_history.asp",
+        "summary": "This lesson explores how to track project evolution using Git history commands. It covers essential tools like `git log` for viewing commit records and `git diff` for comparing changes, while emphasizing best practices for maintaining a clear and meaningful project timeline."
+      },
+      {
+        "title": "Git Help",
+        "fileName": "git_help.md",
+        "url": "https://www.w3schools.com/git/git_help.asp",
+        "summary": "This lesson introduces Git's built-in documentation tools, which allow users to access manual pages and command summaries directly from the terminal. By using commands like `git help` and the `--help` flag, developers can efficiently troubleshoot and learn Git features without leaving their workflow."
+      },
+      {
+        "title": "Git Branch",
+        "fileName": "git_branch.md",
+        "url": "https://www.w3schools.com/git/git_branch.asp",
+        "summary": "Git branches provide isolated workspaces that allow developers to experiment, fix bugs, or build new features without impacting the main project. By enabling seamless switching and parallel development, branching ensures code integrity and simplifies complex workflows through merging and cleanup."
+      },
+      {
+        "title": "Git Merge",
+        "fileName": "git_branch_merge.md",
+        "url": "https://www.w3schools.com/git/git_branch_merge.asp",
+        "summary": "This lesson explains how to combine branch changes using `git merge`, covering fast-forward, no-fast-forward, and squash strategies. It also provides essential guidance on resolving merge conflicts and following best practices to maintain a clean and organized project history."
+      },
+      {
+        "title": "Git Workflow",
+        "fileName": "git_workflow.md",
+        "url": "https://www.w3schools.com/git/git_workflow.asp",
+        "summary": "This lesson outlines the fundamental Git workflow, detailing the transition of code from the working directory through the staging area to the local repository. It covers essential commands for tracking, committing, and pushing changes, while providing best practices for version control and recovery."
+      },
+      {
+        "title": "Git Best Practices",
+        "fileName": "git_best_practices.md",
+        "url": "https://www.w3schools.com/git/git_best_practices.asp",
+        "summary": "This lesson outlines essential Git workflows, including frequent, descriptive commits, effective branching strategies, and repository maintenance. By following these best practices, such as using .gitignore and tagging releases, developers can ensure a cleaner, more collaborative project history."
+      },
+      {
+        "title": "Git Glossary",
+        "fileName": "git_glossary.md",
+        "url": "https://www.w3schools.com/git/git_glossary.asp",
+        "summary": "This Git glossary provides a concise reference for essential version control terminology and concepts. It defines key commands and workflows, such as branching, merging, and remote repository management, serving as a practical guide for developers to navigate Git effectively."
+      }
+    ]
+  },
+  {
+    "topic": "Git and GitHub",
+    "lessons": [
+      {
+        "title": "GitHub Get Started",
+        "fileName": "git_remote_getstarted.md",
+        "url": "https://www.w3schools.com/git/git_remote_getstarted.asp",
+        "summary": "This lesson introduces the fundamentals of GitHub, guiding learners through the essential processes of repository management and version control. It provides a foundational understanding of how to host, track, and collaborate on code projects effectively using the platform's core features."
+      },
+      {
+        "title": "Git What is SSH?",
+        "fileName": "git_security_ssh.md",
+        "url": "https://www.w3schools.com/git/git_security_ssh.asp",
+        "summary": "SSH provides a secure method for connecting to remote Git repositories using public and private key pairs. This lesson covers the essential commands to generate, manage, and troubleshoot these keys, ensuring safe authentication while emphasizing the importance of keeping your private key secure."
+      },
+      {
+        "title": "GitHub Add SSH",
+        "fileName": "git_remote_add_ssh.md",
+        "url": "https://www.w3schools.com/git/git_remote_add_ssh.asp",
+        "summary": "This lesson guides users through the process of configuring SSH keys to establish a secure, passwordless connection between their local machine and GitHub. By generating and adding an SSH key to their account, developers can efficiently authenticate and manage repositories securely."
+      },
+      {
+        "title": "GitHub Set Remote",
+        "fileName": "git_set_remote.md",
+        "url": "https://www.w3schools.com/git/git_set_remote.asp",
+        "summary": "This lesson explains how to link a local Git repository to a remote GitHub repository using the `git remote add` command. It guides users through the process of establishing this connection, enabling them to push local code changes to the cloud for version control and collaboration."
+      },
+      {
+        "title": "GitHub Edit Code",
+        "fileName": "git_remote_edit_code.md",
+        "url": "https://www.w3schools.com/git/git_remote_edit_code.asp",
+        "summary": "This lesson provides a practical guide on how to modify code directly within the GitHub interface. It covers the essential steps for editing files, committing changes, and managing version control workflows without needing to use a local development environment."
+      },
+      {
+        "title": "Pull from GitHub",
+        "fileName": "git_pull_from_remote.md",
+        "url": "https://www.w3schools.com/git/git_pull_from_remote.asp",
+        "summary": "This lesson explains how to synchronize a local repository with changes from GitHub. It details the use of the `fetch` and `merge` commands, and demonstrates how the `pull` command combines both to efficiently update your local files."
+      },
+      {
+        "title": "Push to GitHub",
+        "fileName": "git_push_to_remote.md",
+        "url": "https://www.w3schools.com/git/git_push_to_remote.asp",
+        "summary": "This lesson explains how to synchronize local commits with a remote GitHub repository using the `git push` command. It covers essential techniques, including basic pushing, force pushing with safety considerations, and managing tags, while providing troubleshooting tips for common errors."
+      },
+      {
+        "title": "GitHub Branch",
+        "fileName": "git_remote_branch.md",
+        "url": "https://www.w3schools.com/git/git_remote_branch.asp",
+        "summary": "This lesson introduces the concept of GitHub branches as independent lines of development within a repository. It explains how branching allows developers to work on new features or bug fixes in isolation without affecting the main codebase, facilitating efficient collaboration and version control."
+      },
+      {
+        "title": "Pull Branch from GitHub",
+        "fileName": "git_branch_pull_from_remote.md",
+        "url": "https://www.w3schools.com/git/git_branch_pull_from_remote.asp",
+        "summary": "This lesson explains how to synchronize your local repository with GitHub by pulling updates and identifying remote branches. It demonstrates using the `git branch -a` command to locate remote branches and the `git checkout` command to switch to and track them in your local environment."
+      },
+      {
+        "title": "Push Branch to GitHub",
+        "fileName": "git_branch_push_to_remote.md",
+        "url": "https://www.w3schools.com/git/git_branch_push_to_remote.asp",
+        "summary": "This lesson provides a practical guide on pushing local Git branches to GitHub, covering essential commands for tracking, force pushing, and deleting remote branches. It also includes instructions for pushing tags and troubleshooting common synchronization errors."
+      },
+      {
+        "title": "GitHub Flow",
+        "fileName": "git_github_flow.md",
+        "url": "https://www.w3schools.com/git/git_github_flow.asp",
+        "summary": "GitHub Flow is a streamlined, collaborative workflow that enables teams to develop features safely by using branches, pull requests, and code reviews. By ensuring the main branch remains deployable, this process facilitates continuous integration, effective communication, and reliable code delivery."
+      },
+      {
+        "title": "GitHub Pages",
+        "fileName": "git_remote_pages.md",
+        "url": "https://www.w3schools.com/git/git_remote_pages.asp",
+        "summary": "GitHub Pages is a static site hosting service that allows users to deploy websites directly from a GitHub repository. It simplifies the publishing process by automatically building and hosting projects, making it an ideal tool for showcasing portfolios, documentation, or personal blogs."
+      },
+      {
+        "title": "Git GUI Clients",
+        "fileName": "git_gui_clients.md",
+        "url": "https://www.w3schools.com/git/git_gui_clients.asp",
+        "summary": "Git GUI clients simplify version control by replacing command-line inputs with intuitive visual interfaces. This lesson explores popular tools like GitHub Desktop, GitKraken, and VS Code, highlighting how they help users manage branches, commits, and merge conflicts with ease."
+      }
+    ]
+  },
+  {
+    "topic": "Git Contribute",
+    "lessons": [
+      {
+        "title": "GitHub Fork",
+        "fileName": "git_remote_fork.md",
+        "url": "https://www.w3schools.com/git/git_remote_fork.asp",
+        "summary": "A GitHub fork creates a personal copy of a repository under your own account, allowing you to propose changes without affecting the original project. This process is essential for open-source collaboration, enabling developers to experiment, fix bugs, and submit pull requests for review."
+      },
+      {
+        "title": "Git Clone from GitHub",
+        "fileName": "git_clone.md",
+        "url": "https://www.w3schools.com/git/git_clone.asp",
+        "summary": "This lesson explains how to use the `git clone` command to create a local copy of a remote GitHub repository. It covers the essential steps for authentication and repository synchronization, enabling developers to begin collaborating on projects directly from their local machines."
+      },
+      {
+        "title": "GitHub Send Pull Request",
+        "fileName": "git_remote_send_pull_request.md",
+        "url": "https://www.w3schools.com/git/git_remote_send_pull_request.asp",
+        "summary": "This lesson outlines the essential workflow for submitting a pull request on GitHub. It guides users through the process of proposing code changes, facilitating collaborative review, and successfully merging contributions into a repository."
+      }
+    ]
+  },
+  {
+    "topic": "Git Undo",
+    "lessons": [
+      {
+        "title": "Git Revert",
+        "fileName": "git_revert.md",
+        "url": "https://www.w3schools.com/git/git_revert.asp",
+        "summary": "The `git revert` command safely undoes previous changes by creating a new commit that reverses them, preserving your project's history. This method is ideal for shared repositories where maintaining an accurate log is essential. Use `git log` to identify target commits for reversal."
+      },
+      {
+        "title": "Git Reset",
+        "fileName": "git_reset.md",
+        "url": "https://www.w3schools.com/git/git_reset.asp",
+        "summary": "The `git reset` command allows you to move your branch pointer to a previous commit to undo changes or clean up history. Depending on the chosen mode—soft, mixed, or hard—you can either preserve your work in the staging area, keep it in your working directory, or discard it entirely."
+      },
+      {
+        "title": "Git Amend",
+        "fileName": "git_amend.md",
+        "url": "https://www.w3schools.com/git/git_amend.asp",
+        "summary": "The Git Amend command allows developers to modify their most recent commit by updating the message or adjusting included files. This tool is ideal for fixing minor errors, though it should be used cautiously to avoid disrupting shared remote repository history."
+      },
+      {
+        "title": "Git Rebase",
+        "fileName": "git_rebase.md",
+        "url": "https://www.w3schools.com/git/git_rebase.asp",
+        "summary": "Git rebase is a powerful tool for maintaining a clean, linear project history by moving or combining commits. It allows developers to reorder, squash, or edit their work, though it should be used cautiously to avoid rewriting history on shared branches."
+      },
+      {
+        "title": "Git Reflog",
+        "fileName": "git_reflog.md",
+        "url": "https://www.w3schools.com/git/git_reflog.asp",
+        "summary": "Git reflog is a powerful tool that tracks the history of HEAD and branch movements, allowing you to view past states of your repository. It is essential for recovering lost commits or undoing accidental resets. By referencing specific log entries, you can safely restore your project to a previous point in time."
+      },
+      {
+        "title": "Git Recovery",
+        "fileName": "git_recovery.md",
+        "url": "https://www.w3schools.com/git/git_recovery.asp",
+        "summary": "Git recovery allows developers to restore lost commits, branches, and files by leveraging Git's internal history. By utilizing tools like `git reflog` to track changes and `git restore` for file recovery, users can effectively undo accidental deletions or hard resets to regain their work."
+      }
+    ]
+  },
+  {
+    "topic": "Git Advanced",
+    "lessons": [
+      {
+        "title": "Git .gitignore",
+        "fileName": "git_ignore.md",
+        "url": "https://www.w3schools.com/git/git_ignore.asp",
+        "summary": "The `.gitignore` file allows developers to exclude specific files and folders from Git tracking, helping maintain a clean repository. By using patterns, wildcards, and negations, users can effectively manage project clutter while ensuring sensitive or unnecessary data remains untracked."
+      },
+      {
+        "title": "Git .gitattributes",
+        "fileName": "git_gitattributes.md",
+        "url": "https://www.w3schools.com/git/git_gitattributes.asp",
+        "summary": "The `.gitattributes` file allows teams to standardize repository settings by defining how Git handles specific files. It is used to manage line endings, mark binary files, enable Git LFS, and configure custom diff or merge tools, ensuring consistent behavior across all development environments."
+      },
+      {
+        "title": "Git Large File Storage (LFS)",
+        "fileName": "git_lfs.md",
+        "url": "https://www.w3schools.com/git/git_lfs.asp",
+        "summary": "Git Large File Storage (LFS) is an extension that optimizes repository performance by replacing large files with lightweight pointer files while storing the actual data on a separate server. This guide covers the installation, tracking process, and best practices for managing binary assets efficiently."
+      },
+      {
+        "title": "Git Signing Commits/Tags",
+        "fileName": "git_signing.md",
+        "url": "https://www.w3schools.com/git/git_signing.asp",
+        "summary": "Commit signing uses GPG keys to verify your identity and ensure code integrity, earning a \"Verified\" badge on platforms like GitHub. This lesson covers generating GPG keys, configuring Git to use them, and signing commits or tags to build trust and meet security requirements in your projects."
+      },
+      {
+        "title": "Git Cherrypick & Patch",
+        "fileName": "git_cherrypick_patch.md",
+        "url": "https://www.w3schools.com/git/git_cherrypick_patch.asp",
+        "summary": "This lesson explains how to use Git cherry-pick to copy specific commits between branches and how to use patches for sharing changes across repositories. It covers essential commands, conflict resolution, and best practices for maintaining clean commit history and effective version control."
+      },
+      {
+        "title": "Git Merge Conflicts",
+        "fileName": "git_merge_conflicts.md",
+        "url": "https://www.w3schools.com/git/git_merge_conflicts.asp",
+        "summary": "A merge conflict occurs when Git cannot automatically reconcile changes made to the same file lines in different branches. To resolve this, you must manually edit the conflict markers, stage the corrected files, and commit the changes to finalize the merge."
+      },
+      {
+        "title": "Git CI/CD",
+        "fileName": "git_cicd.md",
+        "url": "https://www.w3schools.com/git/git_cicd.asp",
+        "summary": "CI/CD automates the testing and deployment of code by triggering workflows upon every Git push. This lesson covers core concepts like jobs, steps, and runners, while providing practical guidance on using tools like GitHub Actions to improve software quality and delivery speed."
+      },
+      {
+        "title": "Git Hooks",
+        "fileName": "git_hooks.md",
+        "url": "https://www.w3schools.com/git/git_hooks.asp",
+        "summary": "Git hooks are automated scripts triggered by specific events, such as committing or pushing code, to enforce standards and run tests. Located in the `.git/hooks` directory, these client-side and server-side tools help streamline workflows by catching errors early and automating repetitive tasks."
+      },
+      {
+        "title": "Git Submodules",
+        "fileName": "git_submodules.md",
+        "url": "https://www.w3schools.com/git/git_submodules.asp",
+        "summary": "Git submodules allow you to embed external repositories within a project while maintaining independent commit histories. This lesson covers essential workflows, including adding, updating, and removing submodules, while emphasizing best practices for managing dependencies at specific versions."
+      },
+      {
+        "title": "Git Remote Advanced",
+        "fileName": "git_remote_advanced.md",
+        "url": "https://www.w3schools.com/git/git_remote_advanced.asp",
+        "summary": "This lesson covers advanced Git remote management, focusing on how to add, remove, rename, and track multiple remote repositories. It explains the practical benefits of using remotes for collaboration and mirroring, while providing essential commands and troubleshooting tips for effective workflow."
+      }
+    ]
+  },
+  {
+    "topic": "Git Cert",
+    "lessons": [
+      {
+        "title": "Git Certificate",
+        "fileName": "git_exam.md",
+        "url": "https://www.w3schools.com/git/git_exam.asp",
+        "summary": "The W3Schools HTML Certification offers a flexible, online assessment for developers to validate their skills and enhance their professional portfolios. Candidates can study at their own pace and earn a permanent, verifiable credential to demonstrate their expertise to employers."
+      }
+    ]
+  },
+  {
+    "topic": "Git Exercises",
+    "lessons": [
+      {
+        "title": "Git Exercises",
+        "fileName": "git_exercises.md",
+        "url": "https://www.w3schools.com/git/git_exercises.asp",
+        "summary": "This comprehensive collection of Git exercises offers hands-on practice across 40 categories, ranging from basic installation to advanced topics like CI/CD and submodules. Through multiple-choice and fill-in-the-blank questions, learners can test their knowledge and reinforce core version control skills."
+      },
+      {
+        "title": "Git Quiz",
+        "fileName": "git_quiz.md",
+        "url": "https://www.w3schools.com/git/git_quiz.asp",
+        "summary": "This Git quiz provides an unofficial assessment consisting of 25 questions to help learners evaluate their version control knowledge. It serves as a self-check tool, with a maximum score of 25 points, and recommends the W3Schools Git tutorial for those needing further study."
+      },
+      {
+        "title": "Git Syllabus",
+        "fileName": "git_syllabus.md",
+        "url": "https://www.w3schools.com/git/git_syllabus.asp",
+        "summary": "This comprehensive W3Schools Git tutorial offers a beginner-friendly, step-by-step guide to version control, covering everything from basic commands to advanced collaboration. The syllabus includes interactive exercises, a browser-based sandbox environment, and an optional certification program."
+      },
+      {
+        "title": "Git Study Plan",
+        "fileName": "git_study_plan.md",
+        "url": "https://www.w3schools.com/git/git_study_plan.asp",
+        "summary": "The W3Schools Academy Git study plan provides educators with a flexible, customizable framework for teaching version control. It offers comprehensive teaching materials, interactive exercises, and progress-tracking tools to support diverse learning styles and classroom timelines."
+      }
+    ]
+  }
+]
