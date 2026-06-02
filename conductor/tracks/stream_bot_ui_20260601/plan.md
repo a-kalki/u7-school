@@ -120,7 +120,7 @@
 
 - [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) [aaaeb7b]
 
-## Фаза 5: Интеграция с u7-bot (top-menu-handler.ts)
+## Фаза 5: Интеграция с u7-bot (top-menu-handler.ts) [checkpoint: 0bf210d]
 
 - [x] Task: Написать тесты для динамических кнопок меню
     - [ ] Тест: GUEST видит `📚 Наши потоки`, не видит `📖 Моя учёба`
