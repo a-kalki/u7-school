@@ -13,6 +13,19 @@ describe('StreamController', () => {
             status: 'enrollment',
           },
         ]);
+      if (cmd.name === 'get-stream')
+        return Promise.resolve({
+          uuid: 'abc-123',
+          title: 'Тестовый Поток',
+          description: 'Описание',
+          status: 'enrollment',
+          startDate: '2026-06-01T00:00:00.000Z',
+          mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+          moduleId: 'modmodmo-modm-odmo-dmod-modmodmodmo',
+          contentSnapshot: [],
+          createdAt: '2026-05-01T00:00:00.000Z',
+        });
+      if (cmd.name === 'list-stream-students') return Promise.resolve([]);
       if (cmd.name === 'enroll-student') return Promise.resolve(undefined);
       if (cmd.name === 'get-student-progress') return Promise.resolve({ currentStepId: 's1' });
       if (cmd.name === 'complete-step') return Promise.resolve({ level: 'step', currentStepId: 's2' });
@@ -210,5 +223,95 @@ describe('StreamController handleListStreams', () => {
     const response = await controller.handleListStreams();
 
     expect(response.sendMessage?.keyboard?.rows[0][0].text).toContain('⚪');
+  });
+});
+
+describe('StreamController handleStreamView', () => {
+  const sampleStream = {
+    uuid: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    title: 'Python Advanced',
+    description: 'Продвинутый курс по Python',
+    mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+    moduleId: 'modmodmo-modm-odmo-dmod-modmodmodmo',
+    startDate: '2026-06-01T00:00:00.000Z',
+    status: 'enrollment' as const,
+    contentSnapshot: [],
+    createdAt: '2026-05-01T00:00:00.000Z',
+  };
+
+  const activeStream = {
+    ...sampleStream,
+    uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+    status: 'active' as const,
+  };
+
+  const makeMockApi = (
+    stream: typeof sampleStream,
+    studentCount: number,
+  ) =>
+    ({
+      handle: mock((cmd: any) => {
+        if (cmd.name === 'get-stream') return Promise.resolve(stream);
+        if (cmd.name === 'list-stream-students')
+          return Promise.resolve(
+            Array.from({ length: studentCount }, (_, i) => ({
+              uuid: `student-${i}`,
+              userId: `user-${i}`,
+              status: 'active',
+            })),
+          );
+        return Promise.resolve(undefined);
+      }),
+    }) as unknown as StreamApiModule;
+
+  test('карточка с названием, описанием, датой', async () => {
+    const mockApi = makeMockApi(sampleStream, 0);
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleStreamView(
+      'u1',
+      sampleStream.uuid,
+    );
+
+    expect(response.sendMessage?.text).toContain('Python Advanced');
+    expect(response.sendMessage?.text).toContain('Продвинутый курс');
+    expect(response.sendMessage?.text).toContain('01\\.06\\.2026');
+  });
+
+  test('на enrollment — кнопка «Записаться»', async () => {
+    const mockApi = makeMockApi(sampleStream, 0);
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleStreamView(
+      'u1',
+      sampleStream.uuid,
+    );
+
+    const keyboard = response.sendMessage?.keyboard;
+    expect(keyboard).toBeDefined();
+    const btnTexts = keyboard!.rows.flat().map((b) => b.text);
+    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
+  });
+
+  test('на active — кнопка «Записаться» скрыта', async () => {
+    const mockApi = makeMockApi(activeStream, 5);
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleStreamView(
+      'u1',
+      activeStream.uuid,
+    );
+
+    const keyboard = response.sendMessage?.keyboard;
+    const btnTexts = keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
+  });
+
+  test('отображает количество студентов', async () => {
+    const mockApi = makeMockApi(sampleStream, 12);
+    const controller = new StreamController(mockApi);
+    const response = await controller.handleStreamView(
+      'u1',
+      sampleStream.uuid,
+    );
+
+    expect(response.sendMessage?.text).toContain('12');
   });
 });

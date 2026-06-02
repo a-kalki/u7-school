@@ -28,13 +28,13 @@
     - [ ] Форматирование inline-кнопок с названиями и статусами
     - [ ] callback_data: `stream:view:<uuid>`
 
-- [ ] Task: Написать тесты для handleStreamView (карточка)
+- [x] Task: Написать тесты для handleStreamView (карточка)
     - [ ] Тест: карточка с названием, ментором, описанием, датой
     - [ ] Тест: для GUEST на enrollment — кнопки «Записаться» и «Программа»
     - [ ] Тест: для STUDENT — кнопка «Записаться» скрыта
     - [ ] Тест: для MENTOR — статусная плашка вместо кнопки записи
 
-- [ ] Task: Реализовать handleStreamView
+- [x] Task: Реализовать handleStreamView
     - [ ] Вызов `GetStreamUc` (получить поток)
     - [ ] Вызов `ListStreamStudentsUc` (подсчёт студентов)
     - [ ] Форматирование карточки MarkdownV2

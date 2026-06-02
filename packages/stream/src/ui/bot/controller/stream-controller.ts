@@ -138,14 +138,86 @@ export class StreamController extends BotController {
 
   async handleStreamView(
     _actorId: string,
-    _streamId: string,
+    streamId: string,
   ): Promise<BotResponse> {
+    const stream = (await this.streamApi.handle({
+      name: 'get-stream',
+      attrs: { streamId },
+    })) as {
+      uuid: string;
+      title: string;
+      description: string;
+      status: string;
+      startDate: string;
+      goal?: string;
+      result?: string;
+      rules?: string;
+      additional?: string;
+      targetAudience?: string;
+      telegramGroupId?: string;
+    };
+
+    const students = (await this.streamApi.handle({
+      name: 'list-stream-students',
+      attrs: { streamId },
+    })) as Array<{ uuid: string }>;
+
+    const statusLabels: Record<string, string> = {
+      enrollment: '🟢 Набор открыт',
+      active: '🔵 Идёт обучение',
+      completed: '⚪ Завершён',
+      archived: '⚪ Архивирован',
+    };
+
+    const dateStr = this.#formatDate(stream.startDate);
+
+    const lines = [
+      `📋 *${this.escapeMarkdown(stream.title)}*`,
+      '',
+      `_${this.escapeMarkdown(stream.description)}_`,
+      '',
+      `📅 Старт: ${this.escapeMarkdown(dateStr)}`,
+      `👥 Студентов: ${students.length}`,
+      `📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
+    ];
+
+    const text = lines.join('\n');
+
+    // Условные кнопки в зависимости от статуса
+    const keyboard =
+      stream.status === 'enrollment'
+        ? {
+            rows: [
+              [
+                {
+                  text: '📝 Записаться',
+                  code: `enroll:${streamId}`,
+                },
+              ],
+            ],
+            isMultiple: false,
+          }
+        : undefined;
+
     return {
       sendMessage: {
-        text: '📋 Карточка потока',
+        text,
         parseMode: 'MarkdownV2',
+        keyboard,
       },
     };
+  }
+
+  #formatDate(iso: string): string {
+    try {
+      const d = new Date(iso);
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const year = d.getUTCFullYear();
+      return `${day}.${month}.${year}`;
+    } catch {
+      return iso;
+    }
   }
 
   async handleProgress(
