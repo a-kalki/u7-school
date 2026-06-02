@@ -12,7 +12,7 @@ export type GetStreamCmd = v.InferOutput<typeof GetStreamCmdSchema>;
 export interface GetStreamCmdMeta extends UcMeta {
   ucName: 'get-stream';
   input: GetStreamCmd;
-  output: ReturnType<typeof StreamSchema>;
+  output: v.InferOutput<typeof StreamSchema>;
   errors: StreamUcErrors;
   requiresAuth: false;
   type: 'query';

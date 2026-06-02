@@ -2,13 +2,13 @@ import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
 import type { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
-import { type Bot, InlineKeyboard } from 'grammy';
+import { type Composer, InlineKeyboard } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
 
 export function registerTopMenuHandler(
-  bot: Bot<BotContext>,
+  bot: Composer<BotContext>,
   userFacade: UserFacade,
   onboardingController: OnboardingController,
   streamController: StreamController,

@@ -20,7 +20,10 @@ export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
   protected readonly inputSchema = CompleteStreamCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: CompleteStreamCmd, actorId: string): Promise<void> {
+  async execute(
+    command: CompleteStreamCmd,
+    actorId: string,
+  ): Promise<undefined> {
     const streamEntity = await this.getStream(command.streamId);
 
     // Проверка прав: ментор потока или админ
@@ -34,5 +37,6 @@ export class CompleteStreamUc extends StreamUseCase<CompleteStreamCmdMeta> {
     streamAr.complete();
 
     await this.resolve.streamRepo.save(streamAr.state);
+    return undefined;
   }
 }

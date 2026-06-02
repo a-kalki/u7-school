@@ -34,7 +34,7 @@ export class GetStudentByUserUc extends StreamUseCase<GetStudentByUserCmdMeta> {
         errNotFound<StreamNotFoundUcError>(
           'STREAM_NOT_FOUND',
           'Активная запись студента не найдена',
-          { userId: command.userId },
+          { uuid: command.userId },
         ) as StreamUcErrors,
       );
     }

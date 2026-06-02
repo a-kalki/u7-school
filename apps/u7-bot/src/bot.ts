@@ -1,5 +1,5 @@
 import { Bot, session } from 'grammy';
-import type { BotContext } from './context';
+import type { BotContext, SessionData } from './context';
 
 /**
  * Фабрика создания Grammy-бота.
@@ -14,7 +14,7 @@ export function createBot(token: string) {
   // ══ Session middleware ══
   bot.use(
     session({
-      initial: (): { menu: 'main' | 'onboarding' } => ({ menu: 'main' }),
+      initial: (): SessionData => ({ menu: 'main' }),
     }),
   );
 

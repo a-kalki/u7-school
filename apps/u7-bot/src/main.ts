@@ -83,7 +83,7 @@ privateBot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => {});
+      .catch(() => { });
   }
 });
 

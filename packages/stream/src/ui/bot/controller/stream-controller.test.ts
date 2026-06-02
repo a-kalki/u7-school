@@ -238,10 +238,10 @@ describe('StreamController handleListStreams', () => {
     expect(response.sendMessage?.keyboard).toBeDefined();
     expect(response.sendMessage!.keyboard!.rows.length).toBe(3);
     // Каждая кнопка содержит название потока
-    const firstBtn = response.sendMessage?.keyboard?.rows[0][0]!;
-    expect(firstBtn?.text).toContain('Поток Набора');
+    const firstBtn = response.sendMessage!.keyboard!.rows[0]![0]!;
+    expect(firstBtn.text).toContain('Поток Набора');
     // callback_data должен быть stream:view:<uuid>
-    expect(firstBtn?.code).toBe(
+    expect(firstBtn.code).toBe(
       'stream:view:11111111-1111-1111-1111-111111111111',
     );
   });
@@ -340,7 +340,7 @@ describe('StreamController handleStreamView', () => {
 
     const keyboard = response.sendMessage?.keyboard;
     expect(keyboard).toBeDefined();
-    const btnTexts = keyboard?.rows.flat().map((b) => b.text);
+    const btnTexts = keyboard!.rows.flat().map((b) => b.text);
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
   });
 

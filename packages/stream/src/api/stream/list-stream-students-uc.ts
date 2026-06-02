@@ -1,3 +1,4 @@
+import * as v from 'valibot';
 import {
   type ListStreamStudentsCmd,
   type ListStreamStudentsCmdMeta,
@@ -17,7 +18,7 @@ export class ListStreamStudentsUc extends StreamUseCase<ListStreamStudentsCmdMet
   protected readonly type = 'query' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = ListStreamStudentsCmdSchema;
-  protected readonly outputSchema = StudentSchema;
+  protected readonly outputSchema = v.array(StudentSchema);
 
   async execute(
     command: ListStreamStudentsCmd,

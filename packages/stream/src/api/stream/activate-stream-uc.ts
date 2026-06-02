@@ -21,7 +21,10 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
   protected readonly inputSchema = ActivateStreamCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: ActivateStreamCmd, actorId: string): Promise<void> {
+  async execute(
+    command: ActivateStreamCmd,
+    actorId: string,
+  ): Promise<undefined> {
     const streamEntity = await this.getStream(command.streamId);
     const streamAr = new StreamAr(streamEntity);
 
@@ -52,5 +55,6 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
       studentAr.issueStep(firstStepId);
       await studentRepo.save(studentAr.state);
     }
+    return undefined;
   }
 }

@@ -2,13 +2,12 @@ import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingBotApp } from '@u7-scl/onboarding';
-import { OnboardingApiModule } from '@u7-scl/onboarding';
-import { QuestionPoolService } from '@u7-scl/onboarding/domain';
+import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import {
   StreamApiModule,
   StreamJsonRepo,
-  StreamStudentJsonRepo,
+  StudentJsonRepo,
 } from '@u7-scl/stream';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { UserApiModule } from '@u7-scl/user/api';
@@ -33,13 +32,9 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     db,
   );
 
-  const streamRepo = new StreamJsonRepo(
-    `${config.dbDir}/streams/streams.json`,
-    db,
-  );
-  const streamStudentRepo = new StreamStudentJsonRepo(
+  const streamRepo = new StreamJsonRepo(`${config.dbDir}/streams/streams.json`);
+  const streamStudentRepo = new StudentJsonRepo(
     `${config.dbDir}/streams/students.json`,
-    db,
   );
 
   // ══ QuestionPoolService: явная загрузка пула ══

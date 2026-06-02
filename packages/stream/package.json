@@ -19,7 +19,8 @@
   },
   "exports": {
     "./domain": "./src/domain/index.ts",
-    "./ui/bot/controller/stream-controller": "./src/ui/bot/controller/stream-controller.ts"
+    "./ui/bot/controller/stream-controller": "./src/ui/bot/controller/stream-controller.ts",
+    ".": "./src/index.ts"
   },
   "imports": {
     "#domain/*": "./src/domain/*.ts"

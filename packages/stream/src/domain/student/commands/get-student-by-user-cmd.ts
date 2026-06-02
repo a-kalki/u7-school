@@ -14,7 +14,7 @@ export type GetStudentByUserCmd = v.InferOutput<
 export interface GetStudentByUserCmdMeta extends UcMeta {
   ucName: 'get-student-by-user';
   input: GetStudentByUserCmd;
-  output: ReturnType<typeof StudentSchema>;
+  output: v.InferOutput<typeof StudentSchema>;
   errors: StreamUcErrors;
   requiresAuth: true;
   type: 'query';

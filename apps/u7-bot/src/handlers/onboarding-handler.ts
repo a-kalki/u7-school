@@ -1,5 +1,5 @@
 import type { OnboardingController } from '@u7-scl/onboarding';
-import type { Bot } from 'grammy';
+import type { Composer } from 'grammy';
 import type { BotConfig } from '../config';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
@@ -11,7 +11,7 @@ import { executeResponses } from '../ui-utils';
  * - /cancel: прерывание анкеты
  */
 export function registerOnboardingHandler(
-  bot: Bot<BotContext>,
+  bot: Composer<BotContext>,
   controller: OnboardingController,
   config: BotConfig,
 ) {

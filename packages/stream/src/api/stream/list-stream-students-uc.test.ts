@@ -93,8 +93,8 @@ describe('ListStreamStudentsUc', () => {
 
     const result = await uc.execute({ streamId }, mentorId);
     expect(result).toHaveLength(2);
-    expect(result[0].userId).toBe('u1');
-    expect(result[1].userId).toBe('u2');
+    expect(result[0]!.userId).toBe('u1');
+    expect(result[1]!.userId).toBe('u2');
   });
 
   test('пустой список если студентов нет', async () => {

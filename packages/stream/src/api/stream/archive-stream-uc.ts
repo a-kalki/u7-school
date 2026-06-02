@@ -20,7 +20,10 @@ export class ArchiveStreamUc extends StreamUseCase<ArchiveStreamCmdMeta> {
   protected readonly inputSchema = ArchiveStreamCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(command: ArchiveStreamCmd, actorId: string): Promise<void> {
+  async execute(
+    command: ArchiveStreamCmd,
+    actorId: string,
+  ): Promise<undefined> {
     const streamEntity = await this.getStream(command.streamId);
 
     // Проверка прав: ментор потока или админ
@@ -34,5 +37,6 @@ export class ArchiveStreamUc extends StreamUseCase<ArchiveStreamCmdMeta> {
     streamAr.archive();
 
     await this.resolve.streamRepo.save(streamAr.state);
+    return undefined;
   }
 }
