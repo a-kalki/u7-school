@@ -147,8 +147,14 @@
     "additional": "Компактная замена if-else: условие ? значениеЕслиДа : значениеЕслиНет",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T11:13",
     "estimatedMinutes": 12,
-    "stepIds": [],
+    "stepIds": [
+      "480d9bc2-b7b1-415b-9b29-021c1919047e",
+      "03401d6c-9e96-4574-90c5-158acd303d23",
+      "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
+      "42e1f374-0701-407f-b713-47e61305ee76"
+    ],
     "mentorStepIds": []
   },
   {
@@ -158,8 +164,13 @@
     "additional": "Автоматическое приведение типов (coercion) в математике и условиях, falsy-значения, опасность ==",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T11:14",
     "estimatedMinutes": 8,
-    "stepIds": [],
+    "stepIds": [
+      "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
+      "6d04a894-cb14-41c0-874f-48aa715e2aec",
+      "5074ee40-5157-48f0-abf7-258a8b514bf6"
+    ],
     "mentorStepIds": []
   },
   {
@@ -169,8 +180,14 @@
     "additional": "Преобразование в строку (String, .toString), в число (Number, parseInt), в boolean (!!, Boolean); 6 falsy-значений",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T11:13",
     "estimatedMinutes": 15,
-    "stepIds": [],
+    "stepIds": [
+      "134a218c-6d72-445e-af0b-1a83334c7679",
+      "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
+      "97253c78-739e-473f-97e2-f932f7371092",
+      "e14689af-20e9-43c3-bf6b-ee3f51a3566a"
+    ],
     "mentorStepIds": []
   },
   {
@@ -180,8 +197,12 @@
     "additional": "Применяем полученные знания чтобы начинать приобретать навык программирования. Сделай программу расчёта ИПН и ОПВ. Программа принимает имя и зарплату, выводит детальный расчёт с удержаниями и суммой на руки",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
+    "updatedAt": "2026-06-04T11:14",
     "estimatedMinutes": 100,
-    "stepIds": [],
+    "stepIds": [
+      "96120ed5-7f84-422b-b538-ce017739cd92",
+      "399e4f37-e95e-4900-842d-cb31b012a87e"
+    ],
     "mentorStepIds": []
   },
   {
