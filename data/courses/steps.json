@@ -343,5 +343,151 @@
     "kind": "code",
     "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() число — оценку от 0 до 100\n// 2. Преобразуй строку в число\n// 3. Через if / else if / else выведи букву:\n//    - 90 и выше → \"A\"\n//    - 75 и выше → \"B\"\n//    - 50 и выше → \"C\"\n//    - ниже 50   → \"D\"\n// 4. Если число меньше 0 или больше 100 — выведи \"Ошибка: неверная оценка\"\n//\n// Используй строгое сравнение === и логические операторы.\n\nlet scoreInput = prompt('Введи оценку от 0 до 100:');\nlet score = Number(scoreInput);\n// ... напиши код ниже\n// Пример:\n// if (score >= 90) { console.log('A'); }\n// else if (...) { ... }\n// else { ... }",
     "language": "javascript"
+  },
+  {
+    "uuid": "480d9bc2-b7b1-415b-9b29-021c1919047e",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Тернарный оператор",
+    "content": "Посмотри видео по ссылке:\n\n👉 [09. Тернарный оператор.mp4](https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv)\n\nИз этого видео ты узнаешь:\n- Чем отличается цепочка if-else if-else от последовательных if\n- Как работает тернарный оператор ? :\n- Когда удобно использовать тернарник вместо if-else",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "03401d6c-9e96-4574-90c5-158acd303d23",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: if-else цепочка → тернарный",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Перепиши этот if-else в одну строку с тернарным оператором\n\nlet age = 20;\nlet category;\nif (age >= 18) {\n  category = 'взрослый';\n} else {\n  category = 'ребёнок';\n}\nconsole.log(category);\n\n// А теперь для этого кода с else if:\nlet score = 75;\nlet grade;\nif (score >= 90) {\n  grade = 'A';\n} else if (score >= 75) {\n  grade = 'B';\n} else {\n  grade = 'C';\n}\nconsole.log(grade);\n// Подсказка: тернарники можно вкладывать, но это снижает читаемость",
+    "language": "javascript"
+  },
+  {
+    "uuid": "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: последовательные if vs цепочка",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что выведет этот код? Почему?\nlet x = 5;\n\nif (x > 0) {\n  console.log('Положительное');\n}\nif (x > 3) {\n  console.log('Больше трёх');\n}\nif (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n\n// ? Сколько сообщений выведется? Все три?\n// А теперь замени второй и третий if на else if:\nif (x > 3) {\n  console.log('Больше трёх');\n} else if (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n// ? Сколько выведется теперь? В чём разница?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "42e1f374-0701-407f-b713-47e61305ee76",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: тернарник с prompt",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число\n// 2. Преобразует строку в число\n// 3. С помощью тернарного оператора присваивает переменной result:\n//    - 'Чётное', если число делится на 2 без остатка\n//    - 'Нечётное', если иначе\n// 4. Выводит result в консоль\n//\n// Используй % для проверки чётности\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Неявное преобразование типов",
+    "content": "Посмотри видео по ссылке:\n\n👉 [10. Неявное преобразование типов.mp4](https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn)\n\nИз этого видео ты узнаешь:\n- Как JavaScript автоматически преобразует типы\n- Почему + ведёт себя иначе, чем -, *, /\n- Что такое truthy и falsy значения\n- Почему == может быть опасным",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "6d04a894-cb14-41c0-874f-48aa715e2aec",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: неявное приведение в математике",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что выведет каждый console.log? Объясни почему.\n\nconsole.log('5' + 3);\nconsole.log('5' - 3);\nconsole.log('5' * '3');\nconsole.log('10' / '2');\nconsole.log(true + 1);\nconsole.log(false + 5);\nconsole.log('5' + true);\n\n// ? Почему + работает не так, как -, * и / ?\n// Проверь в консоли.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "5074ee40-5157-48f0-abf7-258a8b514bf6",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: truthy/falsy в условиях",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Предскажи, что выведет каждая проверка:\n\nlet a = 0;\nif (a) {\n  console.log('a — truthy');\n} else {\n  console.log('a — falsy');\n}\n\nlet b = '0';\nif (b) {\n  console.log('b — truthy');\n} else {\n  console.log('b — falsy');\n}\n\nlet c = '';\nif (c) {\n  console.log('c — truthy');\n} else {\n  console.log('c — falsy');\n}\n\nlet d = [];\nif (d) {\n  console.log('d — truthy');\n} else {\n  console.log('d — falsy');\n}\n\n// ? Какие ещё falsy значения ты знаешь? Проверь их.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "134a218c-6d72-445e-af0b-1a83334c7679",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Явное приведение типов",
+    "content": "Посмотри видео по ссылке:\n\n👉 [11. Явное приведение типов.mp4](https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp)\n\nИз этого видео ты узнаешь:\n- Чем явное приведение отличается от неявного\n- Как преобразовывать строки в числа: Number(), +, parseInt, parseFloat\n- Как преобразовывать в строку: String(), .toString()\n- Как приводить к boolean: !! и Boolean()\n- Все falsy значения: false, 0, '', null, undefined, NaN",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: строки → числа",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что выведет каждый вызов? Попробуй предсказать.\n\nconsole.log(Number('123'));\nconsole.log(Number('12.5'));\nconsole.log(Number('abc'));\nconsole.log(Number(''));\nconsole.log(+'42');\nconsole.log(+'-3.14');\nconsole.log(parseInt('12.7'));\nconsole.log(parseFloat('12.7abc'));\nconsole.log(parseInt('100px'));\nconsole.log(parseInt('abc123'));\n\n// ? Какая разница между Number() и parseInt/parseFloat?\n// Проверь в консоли.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "97253c78-739e-473f-97e2-f932f7371092",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: всё → boolean",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что вернёт двойное отрицание для этих значений?\n\nconsole.log(!!'hello');\nconsole.log(!!'');\nconsole.log(!!0);\nconsole.log(!!1);\nconsole.log(!!null);\nconsole.log(!!undefined);\nconsole.log(!!NaN);\nconsole.log(!![]);\nconsole.log(!!{});\nconsole.log(!!'false');\n\n// ? Почему 'false' — truthy? Ведь это строка 'false', не false!\n// ? Сколько всего falsy значений в JS? Назови их.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "e14689af-20e9-43c3-bf6b-ee3f51a3566a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: 10% от числа",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число (строку)\n// 2. Явно преобразует строку в число через Number()\n// 3. Вычисляет 10% от этого числа\n// 4. Выводит: '10% от X равно Y'\n//\n// Дополнительно: если пользователь ввёл не число (Number() вернул NaN),\n// выведи 'Ошибка: введите число'\n//\n// Используй Number() и проверку Number.isNaN()",
+    "language": "javascript"
+  },
+  {
+    "uuid": "96120ed5-7f84-422b-b538-ce017739cd92",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Постановка задачи: расчёт зарплаты",
+    "content": "В этом уроке ты самостоятельно напишешь программу расчёта зарплаты для одного сотрудника.\n\n**Условия:**\n- Оклад сотрудника — получаешь от пользователя через prompt() размер оклада и сколько дней он отработал в этом месяце\n- ИПН (Индивидуальный подоходный налог) — 10% от оклада\n- ОПВ (Обязательные пенсионные взносы) — 10% от оклада\n- Если сотрудник отработал больше 20 дней в месяце — начисляется премия 15% от оклада;\n- Итоговая зарплата = оклад - ИПН - ОПВ + премия (если есть)\n\nТвоя задача: вычислить итоговую зарплату и вывести отчёт.\n// Выведи отчёт в таком формате:\n//   Оклад: 200000 тг\n//   ИПН (10%): 20000 тг\n//   ОПВ (10%): 20000 тг\n//   Премия: 30000 тг\n//   Итог: 190000 тг.\n// Используй константы для налоговых ставок: const IPN_RATE = 0.1;\n// Процент — это часть от 1: 10% = 0.1, 15% = 0.15\n\nconst IPN_RATE = 0.1;\nconst OPV_RATE = 0.1;\nconst BONUS_RATE = 0.15;",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "399e4f37-e95e-4900-842d-cb31b012a87e",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: тестирование с разными данными",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Протестируй свою программу на разных данных.\n//\n// Тест 1: oklad = 150000, daysWorked = 15 (без премии)\n// Ожидание: ИПН=15000, ОПВ=15000, премия=0, итог=120000\n//\n// Тест 2: oklad = 300000, daysWorked = 25 (с премией)\n// Ожидание: ИПН=30000, ОПВ=30000, премия=45000, итог=285000\n//\n// Тест 3: oklad = 200000, daysWorked = 20 (ровно 20 — без премии, т.к. > 20).",
+    "language": "javascript"
+  },
+  {
+    "uuid": "df0ca70d-c588-4728-81c1-ecdb48ac9307",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: проверка возраста",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:14",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() возраст\n// 2. Преобразует строку в число\n// 3. Выводит:\n//    - 'Взрослый', если возраст >= 18\n//    - 'Несовершеннолетний', если возраст < 18\n// 4. Дополнительно: если пользователь ввёл 0 или отрицательное — выведи 'Ошибка'\n//\n// Используй if-else и приведения типов.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "df39db8b-3c84-480b-9f0d-7dfcd716af9b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: программа расчёта",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:14",
+    "kind": "code",
+    "code": "// Напиши программу, которая рассчитывает зарплату сотрудника.\n//\n// Дано:\n// let oklad = 200000;\n// let daysWorked = 22;  // количество отработанных дней\n//\n// Правила:\n// 1. ИПН = 10% от оклада\n// 2. ОПВ = 10% от оклада\n// 3. Если daysWorked > 20, то премия = 15% от оклада, иначе премия = 0\n// 4. Итог = оклад - ИПН - ОПВ + премия\n//\n// Выведи отчёт в таком формате:\n//   Оклад: 200000 тг\n//   ИПН (10%): 20000 тг\n//   ОПВ (10%): 20000 тг\n//   Премия: 30000 тг\n//   Итог: 190000 тг\n//\n// Используй константы для налоговых ставок: const IPN_RATE = 0.1;\n// Процент — это часть от 1: 10% = 0.1, 15% = 0.15\n\nconst IPN_RATE = 0.1;\nconst OPV_RATE = 0.1;\nconst BONUS_RATE = 0.15;\n// ... напиши код ниже",
+    "language": "javascript"
   }
 ]

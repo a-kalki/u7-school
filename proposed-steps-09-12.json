@@ -1,0 +1,112 @@
+{
+  "guideRef": ".pi/guides/lesson-design.md",
+  "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+  "lessons": {
+    "09": {
+      "lessonId": "48c56d93-4478-46e8-ad7f-d3e6b0e72ab6",
+      "title": "Тернарный оператор",
+      "videoUrl": "https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv",
+      "steps": [
+        {
+          "order": 1,
+          "kind": "text",
+          "description": "Видео: Тернарный оператор",
+          "content": "Посмотри видео по ссылке:\n\n👉 [09. Тернарный оператор.mp4](https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv)\n\nИз этого видео ты узнаешь:\n- Чем отличается цепочка if-else if-else от последовательных if\n- Как работает тернарный оператор ? :\n- Когда удобно использовать тернарник вместо if-else"
+        },
+        {
+          "order": 2,
+          "kind": "code",
+          "description": "Самостоятельно: if-else цепочка → тернарный",
+          "code": "// Перепиши этот if-else в одну строку с тернарным оператором\n\nlet age = 20;\nlet category;\nif (age >= 18) {\n  category = 'взрослый';\n} else {\n  category = 'ребёнок';\n}\nconsole.log(category);\n\n// А теперь для этого кода с else if:\nlet score = 75;\nlet grade;\nif (score >= 90) {\n  grade = 'A';\n} else if (score >= 75) {\n  grade = 'B';\n} else {\n  grade = 'C';\n}\nconsole.log(grade);\n// Подсказка: тернарники можно вкладывать, но это снижает читаемость"
+        },
+        {
+          "order": 3,
+          "kind": "code",
+          "description": "Самостоятельно: последовательные if vs цепочка",
+          "code": "// Что выведет этот код? Почему?\nlet x = 5;\n\nif (x > 0) {\n  console.log('Положительное');\n}\nif (x > 3) {\n  console.log('Больше трёх');\n}\nif (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n\n// ? Сколько сообщений выведется? Все три?\n// А теперь замени второй и третий if на else if:\nif (x > 3) {\n  console.log('Больше трёх');\n} else if (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n// ? Сколько выведется теперь? В чём разница?"
+        },
+        {
+          "order": 4,
+          "kind": "code",
+          "description": "Самостоятельно: тернарник с prompt",
+          "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число\n// 2. Преобразует строку в число\n// 3. С помощью тернарного оператора присваивает переменной result:\n//    - 'Чётное', если число делится на 2 без остатка\n//    - 'Нечётное', если иначе\n// 4. Выводит result в консоль\n//\n// Используй % для проверки чётности\n"
+        }
+      ]
+    },
+    "10": {
+      "lessonId": "f488d12f-3527-4d6a-b76c-b43cf8e613bc",
+      "title": "Неявное преобразование типов",
+      "videoUrl": "https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn",
+      "steps": [
+        {
+          "order": 1,
+          "kind": "text",
+          "description": "Видео: Неявное преобразование типов",
+          "content": "Посмотри видео по ссылке:\n\n👉 [10. Неявное преобразование типов.mp4](https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn)\n\nИз этого видео ты узнаешь:\n- Как JavaScript автоматически преобразует типы\n- Почему + ведёт себя иначе, чем -, *, /\n- Что такое truthy и falsy значения\n- Почему == может быть опасным"
+        },
+        {
+          "order": 2,
+          "kind": "code",
+          "description": "Самостоятельно: неявное приведение в математике",
+          "code": "// Что выведет каждый console.log? Объясни почему.\n\nconsole.log('5' + 3);\nconsole.log('5' - 3);\nconsole.log('5' * '3');\nconsole.log('10' / '2');\nconsole.log(true + 1);\nconsole.log(false + 5);\nconsole.log('5' + true);\n\n// ? Почему + работает не так, как -, * и / ?\n// Проверь в консоли."
+        },
+        {
+          "order": 3,
+          "kind": "code",
+          "description": "Самостоятельно: truthy/falsy в условиях",
+          "code": "// Предскажи, что выведет каждая проверка:\n\nlet a = 0;\nif (a) {\n  console.log('a — truthy');\n} else {\n  console.log('a — falsy');\n}\n\nlet b = '0';\nif (b) {\n  console.log('b — truthy');\n} else {\n  console.log('b — falsy');\n}\n\nlet c = '';\nif (c) {\n  console.log('c — truthy');\n} else {\n  console.log('c — falsy');\n}\n\nlet d = [];\nif (d) {\n  console.log('d — truthy');\n} else {\n  console.log('d — falsy');\n}\n\n// ? Какие ещё falsy значения ты знаешь? Проверь их."
+        }
+      ]
+    },
+    "11": {
+      "lessonId": "8904e749-aa3c-403e-a167-c55cc3adbf34",
+      "title": "Явное приведение типов",
+      "videoUrl": "https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp",
+      "steps": [
+        {
+          "order": 1,
+          "kind": "text",
+          "description": "Видео: Явное приведение типов",
+          "content": "Посмотри видео по ссылке:\n\n👉 [11. Явное приведение типов.mp4](https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp)\n\nИз этого видео ты узнаешь:\n- Чем явное приведение отличается от неявного\n- Как преобразовывать строки в числа: Number(), +, parseInt, parseFloat\n- Как преобразовывать в строку: String(), .toString()\n- Как приводить к boolean: !! и Boolean()\n- Все falsy значения: false, 0, '', null, undefined, NaN"
+        },
+        {
+          "order": 2,
+          "kind": "code",
+          "description": "Самостоятельно: строки → числа",
+          "code": "// Что выведет каждый вызов? Попробуй предсказать.\n\nconsole.log(Number('123'));\nconsole.log(Number('12.5'));\nconsole.log(Number('abc'));\nconsole.log(Number(''));\nconsole.log(+'42');\nconsole.log(+'-3.14');\nconsole.log(parseInt('12.7'));\nconsole.log(parseFloat('12.7abc'));\nconsole.log(parseInt('100px'));\nconsole.log(parseInt('abc123'));\n\n// ? Какая разница между Number() и parseInt/parseFloat?\n// Проверь в консоли."
+        },
+        {
+          "order": 3,
+          "kind": "code",
+          "description": "Самостоятельно: всё → boolean",
+          "code": "// Что вернёт двойное отрицание для этих значений?\n\nconsole.log(!!'hello');\nconsole.log(!!'');\nconsole.log(!!0);\nconsole.log(!!1);\nconsole.log(!!null);\nconsole.log(!!undefined);\nconsole.log(!!NaN);\nconsole.log(!![]);\nconsole.log(!!{});\nconsole.log(!!'false');\n\n// ? Почему 'false' — truthy? Ведь это строка 'false', не false!\n// ? Сколько всего falsy значений в JS? Назови их."
+        },
+        {
+          "order": 4,
+          "kind": "code",
+          "description": "Самостоятельно: 10% от числа",
+          "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число (строку)\n// 2. Явно преобразует строку в число через Number()\n// 3. Вычисляет 10% от этого числа\n// 4. Выводит: '10% от X равно Y'\n//\n// Дополнительно: если пользователь ввёл не число (Number() вернул NaN),\n// выведи 'Ошибка: введите число'\n//\n// Используй Number() и проверку Number.isNaN()"
+        }
+      ]
+    },
+    "12": {
+      "lessonId": "c12eff68-e3e6-45c1-9087-212a2aad8bea",
+      "title": "Практика: расчёт зарплаты одному сотруднику",
+      "videoUrl": null,
+      "steps": [
+        {
+          "order": 1,
+          "kind": "text",
+          "description": "Постановка задачи: расчёт зарплаты",
+          "content": "В этом уроке ты самостоятельно напишешь программу расчёта зарплаты для одного сотрудника.\n\n**Условия:**\n- Оклад сотрудника — получаешь от пользователя через prompt() размер оклада и сколько дней он отработал в этом месяце\n- ИПН (Индивидуальный подоходный налог) — 10% от оклада\n- ОПВ (Обязательные пенсионные взносы) — 10% от оклада\n- Если сотрудник отработал больше 20 дней в месяце — начисляется премия 15% от оклада;\n- Итоговая зарплата = оклад - ИПН - ОПВ + премия (если есть)\n\nТвоя задача: вычислить итоговую зарплату и вывести отчёт.\n// Выведи отчёт в таком формате:\n//   Оклад: 200000 тг\n//   ИПН (10%): 20000 тг\n//   ОПВ (10%): 20000 тг\n//   Премия: 30000 тг\n//   Итог: 190000 тг.\n// Используй константы для налоговых ставок: const IPN_RATE = 0.1;\n// Процент — это часть от 1: 10% = 0.1, 15% = 0.15\n\nconst IPN_RATE = 0.1;\nconst OPV_RATE = 0.1;\nconst BONUS_RATE = 0.15;"
+        },
+        {
+          "order": 2,
+          "kind": "code",
+          "description": "Самостоятельно: тестирование с разными данными",
+          "code": "// Протестируй свою программу на разных данных.\n//\n// Тест 1: oklad = 150000, daysWorked = 15 (без премии)\n// Ожидание: ИПН=15000, ОПВ=15000, премия=0, итог=120000\n//\n// Тест 2: oklad = 300000, daysWorked = 25 (с премией)\n// Ожидание: ИПН=30000, ОПВ=30000, премия=45000, итог=285000\n//\n// Тест 3: oklad = 200000, daysWorked = 20 (ровно 20 — без премии, т.к. > 20)."
+        }
+      ]
+    }
+  }
+}
