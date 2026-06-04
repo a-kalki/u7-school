@@ -387,7 +387,7 @@
     "uuid": "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "description": "Видео: Неявное преобразование типов",
-    "content": "Посмотри видео по ссылке:\n\n👉 [10. Неявное преобразование типов.mp4](https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn)\n\nИз этого видео ты узнаешь:\n- Как JavaScript автоматически преобразует типы\n- Почему + ведёт себя иначе, чем -, *, /\n- Что такое truthy и falsy значения\n- Почему == может быть опасным",
+    "content": "Посмотри видео по ссылке:\n\n👉 [10. Неявное преобразование типов.mp4](https://drive.google.com/file/d/1dMrVgB_7EcE2_u3Z7jep-onLjX-72J2D)\n\nИз этого видео ты узнаешь:\n- Как JavaScript автоматически преобразует типы\n- Почему + ведёт себя иначе, чем -, *, /\n- Что такое truthy и falsy значения\n- Почему == может быть опасным",
     "status": "draft",
     "createdAt": "2026-06-04T11:13",
     "kind": "text"
@@ -416,7 +416,7 @@
     "uuid": "134a218c-6d72-445e-af0b-1a83334c7679",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "description": "Видео: Явное приведение типов",
-    "content": "Посмотри видео по ссылке:\n\n👉 [11. Явное приведение типов.mp4](https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp)\n\nИз этого видео ты узнаешь:\n- Чем явное приведение отличается от неявного\n- Как преобразовывать строки в числа: Number(), +, parseInt, parseFloat\n- Как преобразовывать в строку: String(), .toString()\n- Как приводить к boolean: !! и Boolean()\n- Все falsy значения: false, 0, '', null, undefined, NaN",
+    "content": "Посмотри видео по ссылке:\n\n👉 [11. Явное приведение типов.mp4](https://drive.google.com/file/d/1jkL1NrdmkIyWHqOv9jcu6yvmRaY4glT7)\n\nИз этого видео ты узнаешь:\n- Чем явное приведение отличается от неявного\n- Как преобразовывать строки в числа: Number(), +, parseInt, parseFloat\n- Как преобразовывать в строку: String(), .toString()\n- Как приводить к boolean: !! и Boolean()\n- Все falsy значения: false, 0, '', null, undefined, NaN",
     "status": "draft",
     "createdAt": "2026-06-04T11:13",
     "kind": "text"
