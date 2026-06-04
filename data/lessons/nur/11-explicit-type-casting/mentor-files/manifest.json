@@ -1,0 +1,16 @@
+[
+  {
+    "order": 1,
+    "kind": "file",
+    "description": "parseInt vs Number, toString с основанием, .toString() на null/undefined\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. parseInt читает до первого не-цифрового символа, Number требует чтобы вся строка была числом\n2. parseInt('0x1A') → 26 (шестнадцатеричная), но parseInt('0o10') → 0 (восьмеричный 0o не понимает)\n3. Number('0x1A') → 26 — Number понимает 0x, но не 0o\n4. toString(16) — переводит число в строку нужной системы счисления\n5. .toString() на null и undefined — TypeError. Всегда проверяй перед вызовом\n6. Унарный + — быстрый способ привести к числу, но +'abc' → NaN\n7. Попроси предсказать каждый результат до запуска",
+    "fileName": "01-number-parsing.js",
+    "fileMimeType": "text/javascript"
+  },
+  {
+    "order": 2,
+    "kind": "file",
+    "description": "new Boolean(false) — truthy!, new String vs примитив, Boolean() с типами\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. new Boolean(false) — объект, а объекты всегда truthy! if(new Boolean(false)) выполнится\n2. new Boolean() и new String() создают объекты-обёртки, не примитивы\n3. s2 === 'hello' → false, хотя s2 == 'hello' → true. Строгое равенство с объектами\n4. Boolean([]) → true (массив — объект), Boolean([0]) → true (даже если внутри 0)\n5. Boolean(Number('abc')) → false (Number('abc') = NaN, NaN falsy)\n6. Не используй new Boolean / new String — всегда используй примитивы\n7. Вывод: конструкторы с new дают объекты, а не ожидаемые типы",
+    "fileName": "02-boolean-pitfalls.js",
+    "fileMimeType": "text/javascript"
+  }
+]
