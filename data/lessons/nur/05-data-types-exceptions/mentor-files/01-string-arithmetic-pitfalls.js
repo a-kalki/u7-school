@@ -31,13 +31,22 @@ console.log('');
 
 // ============================================================
 
-console.log('=== Блок 3: NaN "заразен" ===');
+console.log('=== Блок 3: NaN в реальном коде — опасность и проверка ===');
 
-let f = 10 + NaN;
-console.log('10 + NaN =', f);
-// ? NaN + число = ?
+// Представь: считаем зарплату
+let salary = '200000';  // строка из базы
+let bonus = undefined;   // премия не назначена
 
-let g = NaN + NaN;
-console.log('NaN + NaN =', g);
-// ? NaN + NaN = NaN. А NaN === NaN?
-// ? Проверь: NaN === NaN — что выведет? Обсудите почему.
+let total = Number(salary) + Number(bonus);
+console.log('salary + bonus =', total);
+// ? Number(undefined) = NaN. Итог — NaN. Ошибка!
+
+// Как проверить?
+console.log('Number.isNaN(total) =', Number.isNaN(total));
+// ? Number.isNaN() — правильный способ проверки
+
+if (Number.isNaN(total)) {
+  console.log('Ошибка расчёта: проверьте данные сотрудника');
+}
+
+// А if (total === NaN) — сработает? Почему нет?

@@ -1,49 +1,61 @@
-console.log('=== Блок 1: Сравнение разных типов ===');
+console.log('=== Блок 1: Сравнение строки и числа ===');
 
-console.log('"5" > 3 =', '5' > 3);
-// ? Строка и число — JS приводит строку к числу. Как думаешь, что будет?
+// В реальной жизни данные из prompt() всегда строки
+let userInput = '25';
+let ageLimit = 18;
 
-console.log('"abc" < 5 =', 'abc' < 5);
-// ? 'abc' нельзя привести к числу → NaN. А NaN < 5 — что будет?
+console.log('userInput > ageLimit =', userInput > ageLimit);
+// ? userInput — строка '25', ageLimit — число 18. JS приводит строку к числу. Что будет?
 
-console.log('"" == 0 =', '' == 0);
-// ? Пустая строка приводится к 0 при нестрогом сравнении
-
-console.log('"" === 0 =', '' === 0);
-// ? А при строгом?
-
-console.log('');
-
-// ============================================================
-
-console.log('=== Блок 2: null и undefined ===');
-
-console.log('null == undefined =', null == undefined);
-// ? По спецификации JS это true (при нестрогом равенстве)
-
-console.log('null === undefined =', null === undefined);
-// ? Но типы разные — строгое равенство вернёт false
-
-console.log('null >= 0 =', null >= 0);
-// ? null преобразуется в 0 для <, >, <=, >=. Но null == 0 — false!
-// ? Как такое может быть? (историческая особенность JS)
-
-console.log('null > 0 =', null > 0);
+let price = '1500';
+let budget = 2000;
+console.log('price <= budget =', price <= budget);
+// ? Сравнение строки и числа — работает, но лучше явно приводить Number()
 
 console.log('');
 
 // ============================================================
 
-console.log('=== Блок 3: NaN и равенство ===');
+console.log('=== Блок 2: Сравнение объектов — всегда false ===');
 
-console.log('NaN === NaN =', NaN === NaN);
-// ? NaN не равен ничему, даже самому себе. Это правило IEEE 754.
+let cart1 = { items: 3 };
+let cart2 = { items: 3 };
+console.log('cart1 === cart2 =', cart1 === cart2);
+// ? Два одинаковых объекта — но это разные объекты в памяти. Сравнение даёт false
 
-console.log('NaN !== NaN =', NaN !== NaN);
-// ? Поэтому это true — единственный случай когда !== даёт true на одинаковых значениях
+let copy = cart1;
+console.log('cart1 === copy =', cart1 === copy);
+// ? А здесь true — потому что это ссылка на один и тот же объект
 
-let x = NaN;
-console.log('x === NaN =', x === NaN);
-// ? Как же тогда проверить, что значение — NaN?
-// ? Подсказка: есть специальный метод Number.isNaN()
-console.log('Number.isNaN(x) =', Number.isNaN(x));
+// Практический пример:
+function checkStock(product) {
+  return product === 'phone';  // так правильно
+}
+// Неправильно: if (product === undefined) — используй typeof или === null
+
+console.log('');
+
+// ============================================================
+
+console.log('=== Блок 3: Строгий vs нестрогий — реальная ловушка ===');
+
+// Представь: пользователь вводит 0 в поле «количество товаров»
+let qty = '0';  // пришло из поля ввода
+
+if (qty == false) {
+  console.log('Товаров нет (через ==)');  // это выполнится!
+}
+if (qty === false) {
+  console.log('Товаров нет (через ===)');  // не выполнится — типы разные
+}
+
+// А теперь число:
+let count = 0;
+if (count == false) {
+  console.log('count == false — true');   // тоже выполнится
+}
+if (count === false) {
+  console.log('count === false — false'); // не выполнится
+}
+
+console.log('Вывод: === всегда проверяет и значение, и тип. Используй только ===.');

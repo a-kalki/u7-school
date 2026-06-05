@@ -1,57 +1,62 @@
-console.log('=== Блок 1: == с объектами и примитивами ===');
+console.log('=== Блок 1: == с числами и строками — ловушка ===');
 
-console.log('[] == false =', [] == false);
-// ? Пустой массив приводится к '' (пустая строка), потом к 0, false→0. true!
+let userAge = '18';  // пришло из prompt()
 
-console.log('[] == 0 =', [] == 0);
-// ? [] → '' → 0. 0 == 0 → true
+if (userAge == 18) {
+  console.log('Возраст 18 — через == true');
+}
+// ? == приводит строку к числу, поэтому true. Кажется удобным, но...
 
-console.log('[] == "" =', [] == '');
-// ? [] → '' (toString). '' == '' → true
+if (userAge === 18) {
+  console.log('Возраст 18 — через === true');
+} else {
+  console.log('Возраст 18 — через === false');
+}
+// ? === не приводит типы — строка !== число. Результат false.
 
-console.log('[1] == 1 =', [1] == 1);
-// ? [1] → '1' (toString) → 1 (Number). 1 == 1 → true
-
-console.log('"1" == true =', '1' == true);
-// ? true → 1, '1' → 1. 1 == 1 → true
+// А если пользователь ввёл не число?
+let input = 'abc';
+if (input == 0) {
+  console.log('"abc" == 0 — true?');
+}
+// ? 'abc' → NaN, NaN == 0 → false. Но unexpected!
 
 console.log('');
 
 // ============================================================
 
-console.log('=== Блок 2: null, undefined и == ===');
+console.log('=== Блок 2: == с null и undefined — скрытый баг ===');
 
-console.log('null == undefined =', null == undefined);
-// ? Спецификация: только null и undefined равны друг другу через ==
+let user = null;  // пользователь не найден в базе
 
-console.log('null == 0 =', null == 0);
-// ? Вопреки ожиданиям: null НЕ преобразуется в 0 для ==
-// ? null преобразуется в 0 только для >, <, >=, <=
+if (user == undefined) {
+  console.log('Пользователь не найден (==)');
+}
+// ? null == undefined → true. Но это скрывает разницу между null и undefined
 
-console.log('null >= 0 =', null >= 0);
-// ? А здесь null → 0. 0 >= 0 → true
-// ? Парадокс: null >= 0 true, null <= 0 true, но null == 0 false!
-
-console.log('undefined == 0 =', undefined == 0);
-// ? undefined при == преобразуется только к null, больше ни к чему
+if (user === undefined) {
+  console.log('Пользователь не найден (===)');
+} else {
+  console.log('Пользователь null, не undefined');
+}
+// ? === различает null и undefined. Лучше проверять: user === null
 
 console.log('');
 
 // ============================================================
 
-console.log('=== Блок 3: Практический вывод ===');
+console.log('=== Блок 3: Практика — проверка наличия значения ===');
 
-// Эти примеры показывают, почему == непредсказуем
-// Лучше всегда использовать ===
-
-let input = '0';  // пользователь ввёл 0 как строку
-if (input == false) {
-  console.log('==: ввели false?');  // это выполнится! '0' → 0, 0 == false → true
+function getDiscount(price) {
+  // Если price не указано (undefined) — вернуть 0
+  // Если price = 0 — это допустимое значение (бесплатно)
+  if (price == false) {
+    return 0;  // баг: price = 0 вернёт 0, но price = undefined тоже вернёт 0
+  }
+  return price * 0.1;
 }
 
-if (input === false) {
-  console.log('===: ввели false?');  // не выполнится — типы разные
-}
-
-console.log('');
-console.log('Вывод: == таит сюрпризы. === всегда предсказуем.');
+console.log('getDiscount(undefined) =', getDiscount(undefined));
+console.log('getDiscount(0) =', getDiscount(0));
+console.log('getDiscount(1000) =', getDiscount(1000));
+// ? Из-за == не видно разницы между undefined и 0. Правильно: price === undefined

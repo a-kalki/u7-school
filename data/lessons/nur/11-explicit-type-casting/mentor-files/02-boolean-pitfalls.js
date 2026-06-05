@@ -1,65 +1,57 @@
-console.log('=== Блок 1: new Boolean() — объект-ловушка ===');
+console.log('=== Блок 1: Boolean() для проверки наличия значения ===');
 
-let flag1 = false;
-let flag2 = new Boolean(false);
+// Реальный пример: проверка заполнил ли пользователь форму
+let name = 'Алия';
+let age = 0;  // 0 лет — младенец, но это валидное значение
 
-console.log('typeof flag1 =', typeof flag1);
-// ? boolean — примитив
+console.log('Boolean(name) =', Boolean(name));
+// ? Непустая строка → true
 
-console.log('typeof flag2 =', typeof flag2);
-// ? object! new Boolean() создаёт объект-обёртку
+console.log('Boolean(age) =', Boolean(age));
+// ? 0 → false! Хотя возраст = 0 — это осмысленное значение
+// Проблема: if (age) {...} не сработает при age = 0
+// Правильно: if (age !== null && age !== undefined)
 
-console.log('flag1 == false =', flag1 == false);
-// ? true, примитив сравнивается с примитивом
+console.log('');
 
-console.log('flag2 == false =', flag2 == false);
-// ? true — объект приводится к примитиву через ==
+// ============================================================
 
-console.log('flag2 === false =', flag2 === false);
-// ? false! Объект и примитив — разные типы
+console.log('=== Блок 2: Проверка наличия товаров в корзине ===');
 
-if (flag2) {
-  console.log('if(flag2) — выполнится, ведь объект всегда truthy!');
+let cart = ['яблоко', 'банан', 'груша'];
+console.log('Boolean(cart) =', Boolean(cart));
+// ? Массив — объект → true. Даже пустой массив — true!
+
+let emptyCart = [];
+console.log('Boolean(emptyCart) =', Boolean(emptyCart));
+// ? Тоже true! Но корзина-то пуста!
+
+// Правильная проверка:
+console.log('cart.length > 0 =', cart.length > 0);
+console.log('emptyCart.length > 0 =', emptyCart.length > 0);
+// ? Вот так правильно. Нельзя полагаться на Boolean() для массивов
+
+console.log('');
+
+// ============================================================
+
+console.log('=== Блок 3: !! для быстрого приведения к boolean ===');
+
+// !! (двойное отрицание) — короткий способ получить boolean
+// Используется в реальном коде, но с осторожностью
+
+function canCheckout(cart) {
+  // Проверка: есть ли товары и известен ли адрес
+  let hasItems = cart.length > 0;
+  let hasAddress = true;  // представим, что адрес есть
+
+  // !! даёт гарантированный boolean, даже если пришло что-то другое
+  return !!(hasItems && hasAddress);
 }
-// ? Вот ловушка: new Boolean(false) — объект, а объекты truthy
-// ? Поэтому if (new Boolean(false)) выполняется, хотя логически это false!
 
-console.log('');
+console.log('Можно оформить заказ:', canCheckout(['яблоко']));
 
-// ============================================================
-
-console.log('=== Блок 2: String() и new String() ===');
-
-let s1 = 'hello';
-let s2 = new String('hello');
-
-console.log('typeof s1 =', typeof s1);
-console.log('typeof s2 =', typeof s2);
-// ? Та же история: s2 — объект, а не строка
-
-console.log('s1 === "hello" =', s1 === 'hello');
-console.log('s2 === "hello" =', s2 === 'hello');
-// ? true vs false — объектная обёртка не равна примитиву
-
-console.log('');
-
-// ============================================================
-
-console.log('=== Блок 3: Boolean() со сложными типами ===');
-
-console.log('Boolean([]) =', Boolean([]));
-// ? Пустой массив — truthy. Неожиданно для новичков
-
-console.log('Boolean([0]) =', Boolean([0]));
-// ? [0] — это массив с одним элементом 0.
-// ? Массив — объект, объект — truthy. Несмотря на то, что внутри 0!
-
-console.log('Boolean({}) =', Boolean({}));
-// ? Пустой объект — truthy
-
-// А что с Number и String?
-console.log('Boolean(Number("abc")) =', Boolean(Number('abc')));
-// ? Number('abc') = NaN, а NaN — falsy
-
-console.log('Boolean(String("")) =', Boolean(String('')));
-// ? String('') — это примитив '' (пустая строка), falsy
+// !! полезен когда нужно сохранить именно true/false, а не truthy/falsy
+let userName = 'Дамир';
+let hasName = !!userName;
+console.log('hasName:', hasName, '(тип:', typeof hasName + ')');

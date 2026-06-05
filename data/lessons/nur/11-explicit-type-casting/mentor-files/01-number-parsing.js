@@ -1,65 +1,53 @@
-console.log('=== Блок 1: parseInt vs Number — разное поведение ===');
+console.log('=== Блок 1: Number() vs parseInt() — разное поведение ===');
 
-console.log('parseInt("100px") =', parseInt('100px'));
-// ? parseInt читает цифры до первого не-цифрового символа
+// Реальный пример: парсинг цены из строки
+let priceStr = '1500 тг';
 
+console.log('Number("1500 тг") =', Number('1500 тг'));
+// ? Number требует, чтобы вся строка была числом. Пробел и 'тг' → NaN
+
+console.log('parseInt("1500 тг") =', parseInt('1500 тг'));
+// ? parseInt читает число до первого не-цифрового символа. Результат 1500
+
+let width = '100px';
 console.log('Number("100px") =', Number('100px'));
-// ? Number требует, чтобы вся строка была числом. Иначе NaN
-
-console.log('parseInt("0x1A") =', parseInt('0x1A'));
-// ? parseInt('0x..') определяет как шестнадцатеричное — результат 26
-
-console.log('Number("0x1A") =', Number('0x1A'));
-// ? Number тоже понимает 0x — результат 26
-
-console.log('parseInt("0o10") =', parseInt('0o10'));
-// ? parseInt НЕ понимает восьмеричный 0o. Результат 0 (только '0')
-
-console.log('parseInt("  10") =', parseInt('  10'));
-// ? parseInt игнорирует пробелы
+console.log('parseInt("100px") =', parseInt('100px'));
+// ? Для CSS значений вроде '100px' — parseInt удобен
 
 console.log('');
 
 // ============================================================
 
-console.log('=== Блок 2: .toString() — не для всех ===');
+console.log('=== Блок 2: parseInt и разные системы счисления ===');
 
-let num = 255;
-console.log('num.toString() =', num.toString());
-// ? У чисел .toString() есть
+// По умолчанию parseInt('010') может повести себя неожиданно в старых браузерах
+console.log('parseInt("010") =', parseInt('010'));
+// ? В современном JS: '010' → 10. Но в старых браузерах могло быть 8 (восьмеричная)
+// ? Безопасно: parseInt('010', 10) — явно указываем десятичную систему
 
-console.log('num.toString(16) =', num.toString(16));
-// ? toString можно вызвать с основанием системы счисления — получим hex
-
-let bool = true;
-console.log('bool.toString() =', bool.toString());
-
-// А теперь проблемные случаи:
-let un;
-// console.log(un.toString());
-// ? Раскомментируй. Что будет? TypeError: Cannot read properties of undefined
-
-let nl = null;
-// console.log(nl.toString());
-// ? И здесь та же ошибка. toString нет у null и undefined
+let year = '2024';
+console.log('parseInt("2024", 10) =', parseInt(year, 10));
+// ? Всегда передавай 10 как второй аргумент — это явно указывает десятичную систему
 
 console.log('');
 
 // ============================================================
 
-console.log('=== Блок 3: Унарный + и -  ===');
+console.log('=== Блок 3: Проверка результата Number() ===');
 
-console.log('+"42" =', +'42');
-console.log('+"-3.14" =', +'-3.14');
-console.log('+true =', +true);
-// ? + превращает в число. true → 1
+function calculateTotal(priceStr, qtyStr) {
+  let price = Number(priceStr);
+  let qty = Number(qtyStr);
 
-console.log('+false =', +false);
-// ? false → 0
+  // Проверка: если хоть одно NaN — возвращаем ошибку
+  if (Number.isNaN(price) || Number.isNaN(qty)) {
+    return 'Ошибка: неверный ввод';
+  }
 
-console.log('+"abc" =', +'abc');
-// ? Не число → NaN
+  return price * qty;
+}
 
-console.log('-10 + "5" =', -10 + '5');
-// ? Не путай с -10 + 5: здесь + определяет конкатенацию, потому что "5" строка
-// ? А -10 - "5" = -15
+console.log('1500 тг × 3 шт:', calculateTotal('1500', '3'));
+console.log('не число × 5 шт:', calculateTotal('abc', '5'));
+console.log('пустая строка × 2:', calculateTotal('', '2'));
+// ? '' → Number('') = 0. Пустая строка — falsy, но Number даёт 0. Будь внимателен!

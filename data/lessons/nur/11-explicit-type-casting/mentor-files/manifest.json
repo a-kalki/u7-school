@@ -2,14 +2,14 @@
   {
     "order": 1,
     "kind": "file",
-    "description": "parseInt vs Number, toString с основанием, .toString() на null/undefined\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. parseInt читает до первого не-цифрового символа, Number требует чтобы вся строка была числом\n2. parseInt('0x1A') → 26 (шестнадцатеричная), но parseInt('0o10') → 0 (восьмеричный 0o не понимает)\n3. Number('0x1A') → 26 — Number понимает 0x, но не 0o\n4. toString(16) — переводит число в строку нужной системы счисления\n5. .toString() на null и undefined — TypeError. Всегда проверяй перед вызовом\n6. Унарный + — быстрый способ привести к числу, но +'abc' → NaN\n7. Попроси предсказать каждый результат до запуска",
+    "description": "Number() vs parseInt(), проверка результата, NaN в расчётах\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. Реальные примеры: парсинг цены '1500 тг', CSS-значения '100px'\n2. Number('1500 тг') → NaN (вся строка должна быть числом)\n3. parseInt('1500 тг') → 1500 (читает до первого не-цифрового символа)\n4. parseInt('010', 10) — всегда передавай 10 как основание для десятичной системы\n5. Number.isNaN() — проверка результата. isNaN() — ненадёжна\n6. Пример: функция расчёта суммы с проверкой на NaN\n7. Попроси найти баг: Number('') → 0. Пустая строка — не NaN, но данные невалидны!",
     "fileName": "01-number-parsing.js",
     "fileMimeType": "text/javascript"
   },
   {
     "order": 2,
     "kind": "file",
-    "description": "new Boolean(false) — truthy!, new String vs примитив, Boolean() с типами\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. new Boolean(false) — объект, а объекты всегда truthy! if(new Boolean(false)) выполнится\n2. new Boolean() и new String() создают объекты-обёртки, не примитивы\n3. s2 === 'hello' → false, хотя s2 == 'hello' → true. Строгое равенство с объектами\n4. Boolean([]) → true (массив — объект), Boolean([0]) → true (даже если внутри 0)\n5. Boolean(Number('abc')) → false (Number('abc') = NaN, NaN falsy)\n6. Не используй new Boolean / new String — всегда используй примитивы\n7. Вывод: конструкторы с new дают объекты, а не ожидаемые типы",
+    "description": "Boolean() для проверок, !! для гарантии boolean, ловушки с массивами\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. Реальная проблема: age = 0 — валидное значение, но Boolean(0) → false\n2. Правильная проверка: if (age !== null && age !== undefined)\n3. if (cart) → true даже для пустого массива! (массив — объект → truthy)\n4. Правильная проверка: if (cart.length > 0)\n5. !! — короткий способ гарантировать boolean. Используется в return из функций\n6. Вывод: не полагайся на truthy/falsy для массивов и числа 0",
     "fileName": "02-boolean-pitfalls.js",
     "fileMimeType": "text/javascript"
   }
