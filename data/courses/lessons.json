@@ -298,6 +298,7 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 13,
     "stepIds": [
+      "bbe9160f-c3b0-4295-a01c-9c600e33acff",
       "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
       "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
       "654bff87-1e71-474a-89e4-434800c51252"
@@ -314,6 +315,7 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 11,
     "stepIds": [
+      "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
       "e03b00d0-91ca-4854-a88b-eb34f360a023",
       "049d3a91-83fe-4923-87ae-d18c25bac2d1",
       "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
@@ -330,6 +332,7 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 11,
     "stepIds": [
+      "5281a902-3c37-4849-8dcd-61b5b78eda4c",
       "c72cd020-2d06-4afd-af9e-ce98439db3d1",
       "96668db2-ddb6-49de-acc2-86114510fc7b",
       "1220c276-da6a-4d3b-8df5-0700faedb991"
