@@ -367,7 +367,10 @@
     "estimatedMinutes": 100,
     "stepIds": [
       "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
-      "f1d75442-17a8-4353-bafb-a658cc6ef1af"
+      "b7e3a9c1-5d4f-4e8a-9b2c-6a1d8f3e7c0a",
+      "c8f4b0d2-6e5a-4f9b-ac3d-7b2e9f4d8d1b",
+      "d9a5c1e3-7f6b-4a0c-bd4e-8c3f0a5e9e2c",
+      "e0b6d2f4-8a7c-4b1d-ce5f-9d4a1b6f0f3d"
     ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-04T14:00"
