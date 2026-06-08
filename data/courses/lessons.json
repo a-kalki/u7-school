@@ -197,7 +197,7 @@
     "additional": "Применяем полученные знания чтобы начинать приобретать навык программирования. Сделай программу расчёта ИПН и ОПВ. Программа принимает имя и зарплату, выводит детальный расчёт с удержаниями и суммой на руки",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:14",
+    "updatedAt": "2026-06-04T11:20",
     "estimatedMinutes": 100,
     "stepIds": [
       "96120ed5-7f84-422b-b538-ce017739cd92",
@@ -213,8 +213,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 12,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "e8a97c5c-5382-4478-acbd-3667dbd17a02",
+      "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
+      "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
+      "88b8d422-818a-41da-8eff-a4627bc6a062"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T11:30"
   },
   {
     "uuid": "ea72f1e8-830c-4295-bee3-39fd281f6198",
@@ -224,8 +230,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 17,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "f3a2afd3-c7a8-4561-adb9-09e47efe0a6f",
+      "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
+      "002293aa-017c-4a54-8068-b660f5860fd3",
+      "05b240e9-a0be-45f2-8a83-2987899ee46f"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T12:00"
   },
   {
     "uuid": "f95b3b36-747b-4fa0-b1dc-6694ebb5b8b0",
@@ -235,8 +247,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
+      "ced1559c-c4ac-4262-9770-631df6120c36",
+      "04cefc9e-10c6-41f5-8809-5c5531c875fc",
+      "9058da50-2a57-400d-8fa1-cc48d8e4ff26"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T12:30"
   },
   {
     "uuid": "5c565f93-fbbe-4557-aafd-593e1c0e643a",
@@ -246,8 +264,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "7c60fa67-801c-453d-bde3-0b9b4614b941",
+      "5951c89e-98a8-4e12-8714-baa559db1030",
+      "59037452-2328-4b39-872f-df4d0ff1ded6",
+      "9d9958a6-c770-4986-a7ae-e29cd2b619ce"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T13:00"
   },
   {
     "uuid": "1b251809-225b-4c0c-bbc4-fb29f87715e9",
@@ -257,8 +281,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 13,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "1b8253a6-61fe-464b-ab29-5e6d4b6c933e",
+      "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
+      "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
+      "654bff87-1e71-474a-89e4-434800c51252"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T13:30"
   },
   {
     "uuid": "c9cfacbd-e8de-4463-9cfb-df5e14e6f8c4",
@@ -268,8 +298,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 11,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "8faea6a4-3646-4cba-a52d-e8292572a6c3",
+      "e03b00d0-91ca-4854-a88b-eb34f360a023",
+      "049d3a91-83fe-4923-87ae-d18c25bac2d1",
+      "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T13:30"
   },
   {
     "uuid": "106fb6e4-e7dd-43fa-92a9-18b7f41f75c4",
@@ -279,8 +315,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 11,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "2c4dca19-3a38-43e5-bcc0-1e2344cfaf63",
+      "c72cd020-2d06-4afd-af9e-ce98439db3d1",
+      "96668db2-ddb6-49de-acc2-86114510fc7b",
+      "1220c276-da6a-4d3b-8df5-0700faedb991"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T13:30"
   },
   {
     "uuid": "939f7cc7-e463-40ca-aa40-8887a381b43d",
@@ -290,8 +332,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "987feb27-9278-48e9-95c1-56643a677ec7",
+      "2ef8c97e-c6af-479d-8d36-40a848d1a74e",
+      "bbafb6a6-6904-46f5-a50f-08ab6842a646",
+      "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T13:30"
   },
   {
     "uuid": "fdcdf925-bf8b-40ca-9b38-142c72f5d761",
@@ -301,8 +349,12 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 100,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
+      "f1d75442-17a8-4353-bafb-a658cc6ef1af"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-04T14:00"
   },
   {
     "uuid": "0f2c505f-9429-4f62-9b02-42ce1f82f4a2",
@@ -349,13 +401,13 @@
     "mentorStepIds": []
   },
   {
-    "uuid": "edf3078d-8878-4aae-9028-6199cd971675",
+    "uuid": "c98897a7-9515-4049-addb-e1747e487cb8",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Практика: рисуем ёлку в консоли",
-    "additional": "Пишем функцию drawTree(height), используя вложенные циклы и работу со строками. Декомпозиция на helper-функции для построения ярусов, пробелов и вывода. Применение for для перебора строк.",
+    "title": "Практика: расчёт зарплаты через функции",
+    "additional": "Усложнение проекта 2: пишем функции calcEmployee и calcDepartment через функции",
     "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 120,
+    "createdAt": "2026-06-04T14:30",
+    "estimatedMinutes": 60,
     "stepIds": [],
     "mentorStepIds": []
   },
@@ -411,6 +463,28 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
+    "stepIds": [],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Модули: import и export",
+    "additional": "Разделение кода на модули, синтаксис export/import, default vs named exports, реэкспорт",
+    "status": "published",
+    "createdAt": "2026-05-31T05:30",
+    "estimatedMinutes": 15,
+    "stepIds": [],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "edf3078d-8878-4aae-9028-6199cd971675",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Практика: рисуем ёлку в консоли",
+    "additional": "Пишем функцию drawTree(height), используя вложенные циклы и работу со строками. Декомпозиция на helper-функции для построения ярусов, пробелов и вывода. Применение for для перебора строк.",
+    "status": "published",
+    "createdAt": "2026-05-31T05:30",
+    "estimatedMinutes": 120,
     "stepIds": [],
     "mentorStepIds": []
   },
