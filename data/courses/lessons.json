@@ -214,7 +214,7 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 12,
     "stepIds": [
-      "e8a97c5c-5382-4478-acbd-3667dbd17a02",
+      "cb4b397e-96b7-41e7-9536-215719c19cf9",
       "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
       "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
       "88b8d422-818a-41da-8eff-a4627bc6a062"
@@ -231,7 +231,7 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 17,
     "stepIds": [
-      "f3a2afd3-c7a8-4561-adb9-09e47efe0a6f",
+      "3d56934c-32a3-43b1-b309-edaaef875be1",
       "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
       "002293aa-017c-4a54-8068-b660f5860fd3",
       "05b240e9-a0be-45f2-8a83-2987899ee46f"
@@ -242,15 +242,15 @@
   {
     "uuid": "f95b3b36-747b-4fa0-b1dc-6694ebb5b8b0",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Структура данных: последовательность (Array, Set)",
-    "additional": "Упорядоченные коллекции: Array (push/pop, shift/unshift, length) и Set (уникальные значения, has за O(1))",
+    "title": "Структура данных: Array (массив)",
+    "additional": "Массивы: создание, методы push/pop/shift/unshift, перебор",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
     "stepIds": [
       "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
       "ced1559c-c4ac-4262-9770-631df6120c36",
-      "04cefc9e-10c6-41f5-8809-5c5531c875fc",
+      "989b5634-e1ab-41c2-84a0-710c629dd825",
       "9058da50-2a57-400d-8fa1-cc48d8e4ff26"
     ],
     "mentorStepIds": [],
@@ -259,19 +259,35 @@
   {
     "uuid": "5c565f93-fbbe-4557-aafd-593e1c0e643a",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Структура данных: ключ-значение (Object, Map)",
-    "additional": "Object и Map: доступ через . и [], ключи-строки vs произвольные ключи, проверка in, порядок вставки, когда что выбирать",
+    "title": "Структура данных: Object (объект)",
+    "additional": "Объекты: создание, доступ через точку и скобки, перебор свойств",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
     "stepIds": [
       "7c60fa67-801c-453d-bde3-0b9b4614b941",
       "5951c89e-98a8-4e12-8714-baa559db1030",
-      "59037452-2328-4b39-872f-df4d0ff1ded6",
+      "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
       "9d9958a6-c770-4986-a7ae-e29cd2b619ce"
     ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-04T13:00"
+  },
+  {
+    "uuid": "0065e74e-e22b-4906-939c-17670cad2cfd",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Структура данных: Map и Set",
+    "additional": "Map (ключ-значение с любыми ключами) и Set (коллекция уникальных значений)",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "ae9c1467-f772-4624-99ef-4733e0f69c9f",
+      "04cefc9e-10c6-41f5-8809-5c5531c875fc",
+      "59037452-2328-4b39-872f-df4d0ff1ded6",
+      "8701de55-25d0-4953-84b0-50e9119a3c5f"
+    ],
+    "mentorStepIds": []
   },
   {
     "uuid": "1b251809-225b-4c0c-bbc4-fb29f87715e9",
@@ -282,7 +298,6 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 13,
     "stepIds": [
-      "1b8253a6-61fe-464b-ab29-5e6d4b6c933e",
       "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
       "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
       "654bff87-1e71-474a-89e4-434800c51252"
@@ -299,7 +314,6 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 11,
     "stepIds": [
-      "8faea6a4-3646-4cba-a52d-e8292572a6c3",
       "e03b00d0-91ca-4854-a88b-eb34f360a023",
       "049d3a91-83fe-4923-87ae-d18c25bac2d1",
       "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
@@ -316,7 +330,6 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 11,
     "stepIds": [
-      "2c4dca19-3a38-43e5-bcc0-1e2344cfaf63",
       "c72cd020-2d06-4afd-af9e-ce98439db3d1",
       "96668db2-ddb6-49de-acc2-86114510fc7b",
       "1220c276-da6a-4d3b-8df5-0700faedb991"

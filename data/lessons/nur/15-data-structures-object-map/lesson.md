@@ -1,6 +1,4 @@
-# Структура данных: ключ-значение (Object, Map)
-
-## Объект (Object)
+# Структура данных: Object (объект)
 
 Объект — коллекция пар «ключ: значение». Ключ — всегда строка (или символ). Используется для хранения именованных коллекций.
 
@@ -70,81 +68,16 @@ for (let key in user) {
 ### const и объекты
 `const user = { name: "John" }` — саму переменную переприсвоить нельзя, но свойства менять можно (`user.name = "Pete"`). `const` защищает переменную, а не содержимое объекта.
 
----
-
-## Map
-
-Map — коллекция пар ключ-значение, где **ключом может быть любое значение** (объект, число, строка, boolean). В отличие от Object, сохраняет тип ключа.
-
-### Создание и методы
+### Object.keys, values, entries
 ```javascript
-let map = new Map();
-
-// из массива пар [ключ, значение]
-let map = new Map([
-  ['1', 'str1'],
-  [1, 'num1'],
-  [true, 'bool1']
-]);
-```
-
-| Метод | Описание |
-|---|---|
-| `map.set(key, value)` | Запись по ключу. Возвращает map → можно чейнить |
-| `map.get(key)` | Возвращает значение или `undefined` |
-| `map.has(key)` | Проверяет наличие ключа |
-| `map.delete(key)` | Удаляет пару |
-| `map.clear()` | Очищает коллекцию |
-| `map.size` | Количество элементов |
-
-### Ключи-объекты (главное отличие от Object)
-```javascript
-let john = { name: "John" };
-let map = new Map();
-map.set(john, 123);
-map.get(john); // 123 — работает!
-
-// В Object: все ключи-объекты приводятся к "[object Object]"
-```
-
-### Перебор Map
-```javascript
-// for..of по умолчанию: пары [ключ, значение]
-for (let [key, value] of map) { ... }
-
-map.keys()     // итерируемый объект ключей
-map.values()   // итерируемый объект значений
-map.entries()  // итерируемый объект пар [ключ, значение]
-
-map.forEach((value, key) => { ... });
-```
-Перебор идёт в порядке вставки (в отличие от Object, где порядок не гарантирован для числовых ключей).
-
-### Взаимодействие с Object
-```javascript
-// Object → Map
-let map = new Map(Object.entries(obj));
-
-// Map → Object
-let obj = Object.fromEntries(map);  // или map.entries()
+const salaries = { Иванов: 500_000, Петрова: 450_000 };
+console.log(Object.keys(salaries));    // ['Иванов', 'Петрова']
+console.log(Object.values(salaries));  // [500000, 450000]
+console.log(Object.entries(salaries)); // [['Иванов', 500000], ['Петрова', 450000]]
 ```
 
 ---
 
-## Сравнение Object и Map
+## Источники
 
-| Характеристика | Object | Map |
-|---|---|---|
-| Тип ключа | Только строка/символ | Любой тип |
-| Порядок свойств | Не гарантирован (кроме особых случаев) | Порядок вставки |
-| Размер | `Object.keys(obj).length` | `map.size` |
-| Производительность | Быстрее для мелких объектов | Оптимизирован для частых добавлений/удалений |
-| Итерация | `for...in` + проверка `hasOwnProperty` | Встроенный итератор (for..of) |
-| Прототип | Имеет (может мешать) | Нет |
-
----
-
-## Источники на learn.javascript.ru
-
-- [Объекты](https://learn.javascript.ru/object) — создание, свойства, доступ, for…in, оператор in
-- [Map и Set](https://learn.javascript.ru/map-set) — Map: коллекция ключ-значение с любым типом ключа
+- [Объекты на learn.javascript.ru](https://learn.javascript.ru/object)
