@@ -13,6 +13,9 @@
   - [DDD Infra](../.pi/skills/ddd-infra/SKILL.md) — реализации репозиториев
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
 
+## Гайды по контенту курса
+- [Наполнение уроков шагами](./guides/lesson-design.md)
+
 ## Управление
 - [Реестр треков](./tracks.md)
 - [Директория треков](./tracks/)
