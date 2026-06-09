@@ -1,0 +1,9 @@
+[
+  {
+    "order": 1,
+    "kind": "file",
+    "description": "Map и Set: Set.has (O(1)), Map с ключами-объектами, Object ↔ Map, когда выбирать что\n\nПодсказки для ментора:\n1. Блок 1 — Set: уникальные ID, проверка дубликатов\n2. Блок 2 — Set.has vs Array.indexOf: O(1) vs O(n)\n3. Блок 3 — Map с ключами-объектами (user1 vs user3 — разные объекты)\n4. Блок 4 — Object.entries → Map, Map → Object.fromEntries\n5. Блок 5 — выбор: Object для статики, Map для динамики\n6. Вывод: Map — динамические/нестроковые ключи, Set — быстрая проверка наличия",
+    "fileName": "01-map-set.js",
+    "fileMimeType": "text/javascript"
+  }
+]

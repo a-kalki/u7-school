@@ -30,7 +30,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 # runtime/generated data (users db, seeds, etc.)
-data
+data/questionnaires/
+data/streams/
+data/users/
 
 # w3school downloaded course files (generated, should not be committed)
 packages/w3school/www.w3schools.com/
