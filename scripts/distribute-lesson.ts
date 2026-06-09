@@ -27,7 +27,8 @@ const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 const MODULE_ID = 'e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa';
 
 const BOT_TOKEN = '8894575137:AAGUFIhq2HbO9CLzWsfs22iYJ8vhw082LKs';
-const CHAT_ID = '-1003960918937';
+const DEFAULT_CHAT_ID = '-1003960918937'; // группа потока
+const MENTOR_CHAT_ID = '773084180';        // личка ментора
 
 function escapeHtml(text: string): string {
   return text
@@ -73,6 +74,8 @@ async function main() {
   const args = process.argv.slice(2);
   const lessonIdArg = args[0];
   const stepNumberArg = args[1] ? parseInt(args[1], 10) : undefined;
+  let chatId = args[2] || DEFAULT_CHAT_ID;
+  if (chatId === '--me') chatId = MENTOR_CHAT_ID;
 
   if (!lessonIdArg || !parseLessonId(lessonIdArg)) {
     console.error('❌ Укажи урок: bun run scripts/distribute-lesson.ts p<проект>-l<урок> [номер_шага]');
@@ -178,7 +181,7 @@ async function main() {
       htmlLines.push(mdToHtml(step.content));
     }
 
-    const ok = await sendToTelegram(BOT_TOKEN, CHAT_ID, htmlLines.join('\n'));
+    const ok = await sendToTelegram(BOT_TOKEN, chatId, htmlLines.join('\n'));
 
     if (!ok) {
       const plain = [
@@ -191,7 +194,7 @@ async function main() {
       await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: plain.join('\n') }),
+        body: JSON.stringify({ chat_id: chatId, text: plain.join('\n') }),
       });
     }
 
