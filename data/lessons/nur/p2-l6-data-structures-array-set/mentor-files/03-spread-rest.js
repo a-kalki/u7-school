@@ -14,7 +14,7 @@ console.log([...a, ...b]);
 console.log([0, ...a, 99]);
 
 // Rest — собирает оставшиеся в переменную
-const [first, second, ...rest] = [10, 20, 30, 40];
+const [first, _second, ...rest] = [10, 20, 30, 40];
 console.log(first);
 console.log(rest);
 

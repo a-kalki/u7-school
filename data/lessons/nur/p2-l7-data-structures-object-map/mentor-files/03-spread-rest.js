@@ -19,7 +19,12 @@ const updated = { ...emp, salary: 550000, bonus: 50000 };
 console.log(updated);
 
 // Rest — собирает оставшиеся поля
-const { name, ...rest } = { name: 'Алия', age: 28, city: 'Алматы', role: 'mentor' };
+const { name, ...rest } = {
+  name: 'Алия',
+  age: 28,
+  city: 'Алматы',
+  role: 'mentor',
+};
 console.log(name);
 console.log(rest);
 

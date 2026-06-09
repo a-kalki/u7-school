@@ -14,7 +14,7 @@ for (const idx in arr) {
 for (const val of arr) {
   console.log(val);
 }
- 
+
 for (const char of 'Hello') {
   console.log(char);
 }

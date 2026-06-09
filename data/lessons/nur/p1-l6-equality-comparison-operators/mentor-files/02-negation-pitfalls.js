@@ -31,10 +31,10 @@ console.log('');
 
 console.log('=== Блок 3: Отрицание в условиях (ловушка) ===');
 
-let age = 0;
+const age = 0;
 console.log('!age =', !age);
 
-let name = '';
+const name = '';
 if (!name) {
   console.log('Имя не указано');
 }

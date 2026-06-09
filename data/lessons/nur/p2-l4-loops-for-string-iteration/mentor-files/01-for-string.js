@@ -13,7 +13,10 @@ console.log(countO);
 const str = 'javascript';
 let found = -1;
 for (let i = 0; i < str.length; i++) {
-  if (str[i] === 's') { found = i; break; }
+  if (str[i] === 's') {
+    found = i;
+    break;
+  }
 }
 console.log(found);
 

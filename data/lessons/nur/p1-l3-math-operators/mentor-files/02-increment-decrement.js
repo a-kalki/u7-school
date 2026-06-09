@@ -16,11 +16,11 @@ console.log('');
 // ============================================================
 console.log('=== Блок 3: В выражениях ===');
 let m = 2;
-let n = ++m + 3;
+const n = ++m + 3;
 console.log('m =', m, ', n =', n);
 
 let p = 2;
-let q = p++ + 3;
+const q = p++ + 3;
 console.log('p =', p, ', q =', q);
 
 console.log('');
@@ -29,7 +29,7 @@ console.log('');
 console.log('=== Блок 4: Сложное выражение — когнитивная нагрузка ===');
 let x = 3;
 let y = 5;
-let r = ++x + y-- - --x + y++;
+const r = ++x + y-- - --x + y++;
 console.log('x =', x, ', y =', y, ', r =', r);
 
 console.log('');
@@ -38,12 +38,12 @@ console.log('=== А теперь читаемая альтернатива ===')
 x = 3;
 y = 5;
 ++x;
-let s1 = x;
-let s2 = y;
+const s1 = x;
+const s2 = y;
 y--;
 --x;
-let s3 = x;
-let s4 = y;
+const s3 = x;
+const s4 = y;
 y++;
-let result = s1 + s2 - s3 + s4;
+const result = s1 + s2 - s3 + s4;
 console.log('Результат:', result);

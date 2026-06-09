@@ -16,9 +16,7 @@ export function registerTopMenuHandler(
   logger: Logger,
 ) {
   /** Возвращает UUID пользователя по telegramId или null, если пользователь не найден */
-  async function resolveUserUuid(
-    telegramId: number,
-  ): Promise<string | null> {
+  async function resolveUserUuid(telegramId: number): Promise<string | null> {
     const user = await userFacade.getUserByTelegramId(telegramId);
     return user?.uuid ?? null;
   }
@@ -208,7 +206,9 @@ export function registerTopMenuHandler(
       try {
         const actorId = await resolveUserUuid(telegramId);
         if (!actorId) {
-          await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+          await ctx.reply(
+            'Пользователь не найден. Пожалуйста, нажмите /start.',
+          );
           await ctx.answerCallbackQuery();
           return;
         }
@@ -230,7 +230,9 @@ export function registerTopMenuHandler(
       try {
         const actorId = await resolveUserUuid(telegramId);
         if (!actorId) {
-          await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+          await ctx.reply(
+            'Пользователь не найден. Пожалуйста, нажмите /start.',
+          );
           await ctx.answerCallbackQuery();
           return;
         }
@@ -252,7 +254,9 @@ export function registerTopMenuHandler(
       try {
         const actorId = await resolveUserUuid(telegramId);
         if (!actorId) {
-          await ctx.reply('Пользователь не найден. Пожалуйста, нажмите /start.');
+          await ctx.reply(
+            'Пользователь не найден. Пожалуйста, нажмите /start.',
+          );
           await ctx.answerCallbackQuery();
           return;
         }

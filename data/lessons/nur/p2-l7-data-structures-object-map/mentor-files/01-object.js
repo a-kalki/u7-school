@@ -1,6 +1,6 @@
 const user = { name: 'John', age: 30 };
 console.log(user.name);
-console.log(user['age']);
+console.log(user.age);
 
 user['likes birds'] = true;
 console.log(user['likes birds']);

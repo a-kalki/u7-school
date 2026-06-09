@@ -17,13 +17,20 @@ const workDays = {
 };
 
 const WORK_DAYS_IN_MONTH = 22;
-const OPV_RATE = 0.10;
-const IPN_RATE = 0.10;
+const OPV_RATE = 0.1;
+const IPN_RATE = 0.1;
 
 // === Этап 1: данные и проверка структуры ===
 console.log('=== Сотрудники отдела маркетинга ===');
 for (const name of employees) {
-  console.log(name + ': оклад ' + salaries[name] + ', отработано ' + workDays[name] + ' дней');
+  console.log(
+    name +
+      ': оклад ' +
+      salaries[name] +
+      ', отработано ' +
+      workDays[name] +
+      ' дней',
+  );
 }
 
 // === Этап 2 + 3: расчёт для каждого + итоги ===
@@ -36,12 +43,24 @@ let totalPay = 0;
 let fullMonthCount = 0;
 
 for (const name of employees) {
-  const accrued = Math.round((salaries[name] / WORK_DAYS_IN_MONTH) * workDays[name]);
+  const accrued = Math.round(
+    (salaries[name] / WORK_DAYS_IN_MONTH) * workDays[name],
+  );
   const opv = Math.round(accrued * OPV_RATE);
   const ipn = Math.round((accrued - opv) * IPN_RATE);
   const pay = accrued - opv - ipn;
 
-  console.log(name + ': начислено ' + accrued + ', ОПВ ' + opv + ', ИПН ' + ipn + ', на руки ' + pay);
+  console.log(
+    name +
+      ': начислено ' +
+      accrued +
+      ', ОПВ ' +
+      opv +
+      ', ИПН ' +
+      ipn +
+      ', на руки ' +
+      pay,
+  );
 
   totalAccrued += accrued;
   totalOpv += opv;
@@ -54,8 +73,8 @@ for (const name of employees) {
 }
 
 console.log('\n=== Итоги по отделу ===');
-console.log('Общий фонд оплаты: ' + totalAccrued + ' тг');
-console.log('Всего удержано ОПВ: ' + totalOpv + ' тг');
-console.log('Всего удержано ИПН: ' + totalIpn + ' тг');
-console.log('Всего к выплате:   ' + totalPay + ' тг');
-console.log('Полный месяц: ' + fullMonthCount + ' сотрудников');
+console.log(`Общий фонд оплаты: ${totalAccrued} тг`);
+console.log(`Всего удержано ОПВ: ${totalOpv} тг`);
+console.log(`Всего удержано ИПН: ${totalIpn} тг`);
+console.log(`Всего к выплате:   ${totalPay} тг`);
+console.log(`Полный месяц: ${fullMonthCount} сотрудников`);

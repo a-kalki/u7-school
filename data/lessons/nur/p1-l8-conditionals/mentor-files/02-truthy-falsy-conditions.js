@@ -18,14 +18,14 @@ console.log('');
 
 console.log('=== Блок 2: Строки и другие типы в условиях ===');
 
-let name = '';
+const name = '';
 if (name) {
   console.log('Имя указано');
 } else {
   console.log('Имя не указано — пустая строка falsy');
 }
 
-let arr = [];
+const arr = [];
 if (arr) {
   console.log('if([]) — truthy! Пустой массив — true');
 }
@@ -46,6 +46,6 @@ console.log('=== Блок 3: Ловушка с = вместо === ===');
 let score = 0;
 
 // Опечатка — присваивание вместо сравнения
-if (score = 10) {
+if ((score = 10)) {
   console.log('Отлично!');
 }

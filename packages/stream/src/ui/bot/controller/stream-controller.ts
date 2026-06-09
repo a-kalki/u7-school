@@ -217,7 +217,13 @@ export class StreamController extends BotController {
     const stream = (await this.streamApi.handle({
       name: 'get-stream',
       attrs: { streamId },
-    })) as { title: string; telegramGroupId?: string; telegramGroupInvite?: string } | undefined;
+    })) as
+      | {
+          title: string;
+          telegramGroupId?: string;
+          telegramGroupInvite?: string;
+        }
+      | undefined;
 
     await this.streamApi.handle({
       name: 'enroll-student',

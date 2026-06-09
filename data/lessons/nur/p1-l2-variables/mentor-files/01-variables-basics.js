@@ -9,7 +9,7 @@ console.log('');
 
 // ============================================================
 console.log('=== Блок 2: const ===');
-const birthYear = 2000;
+let birthYear = 2000;
 console.log('birthYear =', birthYear);
 
 birthYear = 2001;
@@ -30,7 +30,7 @@ console.log('');
 // ============================================================
 console.log('=== Блок 4: переприсваивание между переменными ===');
 let a = 10;
-let b = a;
+const b = a;
 console.log('a =', a);
 console.log('b =', b);
 

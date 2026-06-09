@@ -7,7 +7,7 @@ console.log('typeof null:', typeof null);
 console.log('typeof {name: "Алиса"}:', typeof { name: 'Алиса' });
 console.log('typeof [1, 2, 3]:', typeof [1, 2, 3]);
 console.log('typeof NaN:', typeof NaN);
-console.log('typeof function(){}:', typeof function() { });
+console.log('typeof function(){}:', typeof (() => {}));
 console.log('');
 
 // ============================================================

@@ -1,8 +1,8 @@
 console.log('=== Блок 1: Boolean() для проверки наличия значения ===');
 
 // Реальный пример: проверка заполнил ли пользователь форму
-let name = 'Алия';
-let age = 0;  // 0 лет — младенец, но это валидное значение
+const name = 'Алия';
+const age = 0; // 0 лет — младенец, но это валидное значение
 
 console.log('Boolean(name) =', Boolean(name));
 
@@ -14,10 +14,10 @@ console.log('');
 
 console.log('=== Блок 2: Проверка наличия товаров в корзине ===');
 
-let cart = ['яблоко', 'банан', 'груша'];
+const cart = ['яблоко', 'банан', 'груша'];
 console.log('Boolean(cart) =', Boolean(cart));
 
-let emptyCart = [];
+const emptyCart = [];
 console.log('Boolean(emptyCart) =', Boolean(emptyCart));
 
 // Правильная проверка:
@@ -35,8 +35,8 @@ console.log('=== Блок 3: !! для быстрого приведения к 
 
 function canCheckout(cart) {
   // Проверка: есть ли товары и известен ли адрес
-  let hasItems = cart.length > 0;
-  let hasAddress = true;  // представим, что адрес есть
+  const hasItems = cart.length > 0;
+  const hasAddress = true; // представим, что адрес есть
 
   // !! даёт гарантированный boolean, даже если пришло что-то другое
   return !!(hasItems && hasAddress);
@@ -45,6 +45,6 @@ function canCheckout(cart) {
 console.log('Можно оформить заказ:', canCheckout(['яблоко']));
 
 // !! полезен когда нужно сохранить именно true/false, а не truthy/falsy
-let userName = 'Дамир';
-let hasName = !!userName;
-console.log('hasName:', hasName, '(тип:', typeof hasName + ')');
+const userName = 'Дамир';
+const hasName = !!userName;
+console.log('hasName:', hasName, '(тип:', `${typeof hasName})`);

@@ -1,15 +1,15 @@
 console.log('=== Блок 1: Number() vs parseInt() — разное поведение ===');
 
 // Реальный пример: парсинг цены из строки
-let priceStr = '1500 тг';
+const _priceStr = '1500 тг';
 
 console.log('Number("1500 тг") =', Number('1500 тг'));
 
-console.log('parseInt("1500 тг") =', parseInt('1500 тг'));
+console.log('parseInt("1500 тг") =', parseInt('1500 тг', 10));
 
-let width = '100px';
+const _width = '100px';
 console.log('Number("100px") =', Number('100px'));
-console.log('parseInt("100px") =', parseInt('100px'));
+console.log('parseInt("100px") =', parseInt('100px', 10));
 
 console.log('');
 
@@ -18,9 +18,9 @@ console.log('');
 console.log('=== Блок 2: parseInt и разные системы счисления ===');
 
 // По умолчанию parseInt('010') может повести себя неожиданно в старых браузерах
-console.log('parseInt("010") =', parseInt('010'));
+console.log('parseInt("010") =', parseInt('010', 10));
 
-let year = '2024';
+const year = '2024';
 console.log('parseInt("2024", 10) =', parseInt(year, 10));
 
 console.log('');
@@ -30,8 +30,8 @@ console.log('');
 console.log('=== Блок 3: Проверка результата Number() ===');
 
 function calculateTotal(priceStr, qtyStr) {
-  let price = Number(priceStr);
-  let qty = Number(qtyStr);
+  const price = Number(priceStr);
+  const qty = Number(qtyStr);
 
   // Проверка: если хоть одно NaN — возвращаем ошибку
   if (Number.isNaN(price) || Number.isNaN(qty)) {

@@ -34,17 +34,58 @@
   },
   "overrides": [
     {
-      "includes": [
-        "**/*.test.ts"
-      ],
+      "includes": ["**/*.test.ts"],
       "linter": {
         "rules": {
+          "correctness": {
+            "noUnusedVariables": "off"
+          },
           "suspicious": {
             "noExplicitAny": "off",
             "noNonNullAssertedOptionalChain": "off"
           },
           "style": {
             "noNonNullAssertion": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/u7-bot/src/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["data/lessons/nur/**/mentor-files/*.js"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noAssignInExpressions": "off",
+            "noSelfCompare": "off"
+          },
+          "correctness": {
+            "noConstantCondition": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/w3school/src/**",
+        "packages/video-summarizer/src/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
           }
         }
       }

@@ -98,8 +98,7 @@ export class OnboardingController extends BotController {
         return {
           sendMessages: [
             {
-              text:
-                'Заполни анкету чтобы мы могли понять твои ожидания от курсов. Ты можешь всегда отменить и вернуться в основное меню набрав команды /cancel.',
+              text: 'Заполни анкету чтобы мы могли понять твои ожидания от курсов. Ты можешь всегда отменить и вернуться в основное меню набрав команды /cancel.',
             },
             ...(questionRes.sendMessage ? [questionRes.sendMessage] : []),
           ],

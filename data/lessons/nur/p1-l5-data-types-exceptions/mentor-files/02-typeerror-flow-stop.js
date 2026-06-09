@@ -1,12 +1,12 @@
 console.log('=== Блок 1: toUpperCase на разных типах ===');
 
-let str = 'hello';
+const str = 'hello';
 console.log('строка:', str.toUpperCase());
 
-let num = 123;
+const _num = 123;
 // console.log(num.toUpperCase());
 
-let val = null;
+const _val = null;
 // console.log(val.toUpperCase());
 
 console.log('');
@@ -26,7 +26,7 @@ console.log('');
 
 console.log('=== Блок 3: Самостоятельная проверка — другие методы ===');
 
-let word = 'JavaScript';
+const _word = 'JavaScript';
 // ? Вызови word.toLowerCase(), word.length, word[0]
 // ? Теперь сделай то же самое с числом 2024
 // ? Какие методы работают с числами? Какие нет?

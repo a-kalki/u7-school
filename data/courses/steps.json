@@ -719,7 +719,8 @@
     "kind": "code",
     "code": "// Отдел маркетинга — объединяем всё: объект окладов и массив сотрудников.\n// Используй for...in для объекта и for...of для массива.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\n// 1. Выведи всех сотрудников через for...of\nconsole.log('=== Сотрудники отдела ===');\nfor (let name of employees) {\n  console.log(name);\n}\n\n// 2. Выведи оклады через for...in\nconsole.log('\\n=== Оклады ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// 3. Найди сотрудника с максимальным окладом\nlet maxName = '';\nlet maxSalary = 0;\nfor (let name in salaries) {\n  if (salaries[name] > maxSalary) {\n    maxSalary = salaries[name];\n    maxName = name;\n  }\n}\nconsole.log('\\nМаксимальный оклад: ' + maxName + ' — ' + maxSalary + ' тг');\n\n// ---\n// Дополнительно: проверь, все ли сотрудники из массива employees\n// есть в объекте salaries (используй оператор in)\n// Если кого-то нет — выведи предупреждение",
     "language": "javascript"
-  },  {
+  },
+  {
     "uuid": "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "description": "Проект: расчёт зарплаты по отделу — постановка задачи",

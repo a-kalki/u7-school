@@ -30,7 +30,7 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
-  const logger = { error: () => { } } as unknown as Logger;
+  const logger = { error: () => {} } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
