@@ -62,4 +62,4 @@
 *   **`while`:** Цикл, повторяющий блок кода, пока условие истинно (проверяется в начале).
 *   **`do...while`:** Цикл, выполняющий блок кода один раз, а затем повторяющий его, пока условие истинно (проверяется в конце).
 
-**Видео:** [p2-l8. Циклы while и do-while.mp4](https://drive.google.com/file/d/1BfOC0xkSyl9pvrE1SlKpq8T5MZG4tc8I)
+**Видео:** [p2-l5. Циклы while и do-while.mp4](https://drive.google.com/file/d/1BfOC0xkSyl9pvrE1SlKpq8T5MZG4tc8I)

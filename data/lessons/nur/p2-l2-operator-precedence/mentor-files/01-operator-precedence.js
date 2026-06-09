@@ -1,0 +1,15 @@
+console.log(2 + 2 * 2);
+console.log((2 + 2) * 2);
+console.log(!2 * 2);
+console.log(4 ** 3 * 2);
+console.log(2 ** 3 ** 2);
+console.log(10 + 2 * 3);
+console.log(10 % 3 + 1);
+console.log(2 + 2 < 3);
+console.log(2 < 1 === false);
+console.log(5 === 6 || 7);
+console.log(0 && 6 || 8);
+console.log(1 && 0 || 2);
+console.log(0 || 1 && 2);
+console.log(1 || 0 ? 2 : 3);
+console.log('hello' + 2 % 3);

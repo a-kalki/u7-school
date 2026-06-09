@@ -46,4 +46,4 @@ for (let i = 0; i < h.length; i += 1) {
 *   Свойство `.length` строки определяет верхнюю границу для счетчика цикла.
 *   Доступ к `string[index]` позволяет получить отдельный символ.
 
-**Видео:** [p2-l7. Циклы for для перебора строк.mp4](https://drive.google.com/file/d/1duCzul9gzg6A1mzMGn9q71nTSFesMMc5)
+**Видео:** [p2-l4. Циклы for для перебора строк.mp4](https://drive.google.com/file/d/1duCzul9gzg6A1mzMGn9q71nTSFesMMc5)

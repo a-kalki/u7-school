@@ -42,4 +42,4 @@ for (let i = 0; i < 3; i += 1) {
 *   Оператор `for` удобен, когда количество итераций известно заранее.
 *   `for` объединяет инициализацию, условие и обновление счетчика в одной строке.
 
-**Видео:** [p2-l6. Циклы концепция и основы for.mp4](https://drive.google.com/file/d/1P20wsPxpwQVit8WI_NwzjF8mafC0rTZw)
+**Видео:** [p2-l3. Циклы концепция и основы for.mp4](https://drive.google.com/file/d/1P20wsPxpwQVit8WI_NwzjF8mafC0rTZw)

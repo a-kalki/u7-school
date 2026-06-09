@@ -22,7 +22,6 @@ console.log('"10" - "5" =', a - b);
 console.log('"10" * "5" =', a * b);
 console.log('"10" / "5" =', a / b);
 
-// А если строка не число?
 let c = 'abc';
 console.log('"abc" * 1 =', c * 1);
 

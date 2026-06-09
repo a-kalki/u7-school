@@ -42,10 +42,10 @@ function say(msg) {
 }
 
 let sc1 = false && say('никогда');
-console.log('false && say(...) — выполнился ли say?');
+console.log(sc1);
 
 let sc2 = true || say('тоже нет');
-console.log('true || say(...) — выполнился ли say?');
+console.log(sc2);
 
 let sc3 = false || say('а вот это да');
-console.log('false || say(...) — выполнился ли say?');
+console.log(sc3);
