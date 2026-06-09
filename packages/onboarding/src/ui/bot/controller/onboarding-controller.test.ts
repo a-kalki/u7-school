@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
+import type { SendMessageDescription } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { UserJsonRepo } from '@u7-scl/user/infra';
 import { OnboardingApiModule } from '#api/module';
@@ -29,7 +30,7 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
-  const logger = { error: () => {} } as unknown as Logger;
+  const logger = { error: () => { } } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
@@ -116,11 +117,12 @@ describe('OnboardingController', () => {
     );
 
     // Приветствие + первый вопрос через sendMessages
-    expect(response.sendMessages).toBeDefined();
-    expect(response.sendMessages!.length).toBe(2);
-    expect(response.sendMessages![0].text).toContain('Заполни анкету');
-    expect(response.sendMessages![1].text).toContain('Первый вопрос');
-    expect(response.sendMessages![1].keyboard).toBeDefined();
+    const messages = response.sendMessages as SendMessageDescription[];
+    expect(messages).toBeDefined();
+    expect(messages.length).toBe(2);
+    expect(messages[0]!.text).toContain('Заполни анкету');
+    expect(messages[1]!.text).toContain('Первый вопрос');
+    expect(messages[1]!.keyboard).toBeDefined();
   });
 
   test('команда start продолжает активную анкету', async () => {

@@ -20,10 +20,10 @@
 
 import { ApiApp } from '@u7-scl/core/api';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
+import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
-import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
 import { StreamApiModule } from '../packages/stream/src/api/module.ts';
 import { StreamJsonRepo } from '../packages/stream/src/infra/db/stream-json-repo.ts';
 import { StudentJsonRepo } from '../packages/stream/src/infra/db/student-json-repo.ts';

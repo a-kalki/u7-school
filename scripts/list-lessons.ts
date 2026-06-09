@@ -6,7 +6,7 @@
  *   bun run scripts/list-lessons.ts 2           # только проект 2
  */
 
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
 interface LessonEntry {
   uuid: string;
@@ -36,22 +36,28 @@ const mod = JSON.parse(readFileSync('data/courses/modules.json', 'utf-8')).find(
   (m: ModuleData) => m.uuid === 'e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa',
 );
 
-const lessons: LessonEntry[] = JSON.parse(readFileSync('data/courses/lessons.json', 'utf-8'));
+const lessons: LessonEntry[] = JSON.parse(
+  readFileSync('data/courses/lessons.json', 'utf-8'),
+);
 
 const lessonByUuid: Record<string, LessonEntry> = {};
 for (const l of lessons) lessonByUuid[l.uuid] = l;
 
 // Сканируем папки для поиска mentor-файлов
-const dirs = readdirSync('data/lessons/nur').filter(d => /^p\d+-l\d+-/.test(d));
+const dirs = readdirSync('data/lessons/nur').filter((d) =>
+  /^p\d+-l\d+-/.test(d),
+);
 
 function countMentorFiles(pNlM: string): number {
-  const dir = dirs.find(d => d.startsWith(pNlM + '-'));
+  const dir = dirs.find((d) => d.startsWith(`${pNlM}-`));
   if (!dir) return 0;
   const path = `data/lessons/nur/${dir}/mentor-files/manifest.json`;
   if (!existsSync(path)) return 0;
   try {
     const raw = JSON.parse(readFileSync(path, 'utf-8'));
-    const files = Array.isArray(raw) ? raw : (raw as ManifestFile).files ?? [];
+    const files = Array.isArray(raw)
+      ? raw
+      : ((raw as ManifestFile).files ?? []);
     return files.length;
   } catch {
     return 0;
@@ -68,7 +74,9 @@ function main() {
 
     if (filterProject !== undefined && filterProject !== N) continue;
 
-    console.log(`\n📦 Проект ${N}: ${project.title} (${project.lessonIds.length} уроков)`);
+    console.log(
+      `\n📦 Проект ${N}: ${project.title} (${project.lessonIds.length} уроков)`,
+    );
 
     for (let li = 0; li < project.lessonIds.length; li++) {
       const uuid = project.lessonIds[li];
