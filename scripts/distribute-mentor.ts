@@ -68,8 +68,9 @@ function parseLessonId(arg: string): { project: number; lesson: number } | null 
 async function main() {
   const args = process.argv.slice(2);
   const lessonIdArg = args[0];
-  const fileNumberArg = args[1] ? parseInt(args[1], 10) : undefined;
-  let chatId = args[2] || DEFAULT_CHAT_ID;
+  const fileNumberArg = args[1] && /^\d+$/.test(args[1]) ? parseInt(args[1], 10) : undefined;
+  // chat_id: если второй аргумент не число, то это chat_id; иначе третий аргумент
+  let chatId = args[1] && !/^\d+$/.test(args[1]) ? args[1] : (args[2] || DEFAULT_CHAT_ID);
   if (chatId === '--me') chatId = DEFAULT_CHAT_ID;
 
   if (!lessonIdArg || !parseLessonId(lessonIdArg)) {
