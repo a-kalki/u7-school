@@ -5,4 +5,3 @@ export { isoNow } from './iso-now';
 export type { Logger } from './logger';
 export { LogLevel, parseLogLevel } from './logger';
 export { escapeMarkdown } from './markdown';
-export { mdToHtml } from './md-to-html';

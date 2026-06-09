@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.51.0",
-    "markdown-it": "^14.2.0",
+    "markdown-to-telegram": "^0.0.7",
     "openai": "^6.35.0",
     "valibot": "^1.0.0"
   }

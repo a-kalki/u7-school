@@ -10,7 +10,7 @@
  */
 
 import { ApiApp } from '@u7-scl/core/api';
-import { mdToHtml } from '@u7-scl/core/shared';
+import { convert } from 'markdown-to-telegram';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
@@ -26,11 +26,9 @@ const BOT_TOKEN = '8894575137:AAGUFIhq2HbO9CLzWsfs22iYJ8vhw082LKs';
 const DEFAULT_CHAT_ID = '-1003960918937';
 const MENTOR_CHAT_ID = '773084180';
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+/** Экранирует текст для Telegram MarkdownV2 (заголовки, описания — без разметки) */
+function escapeMarkdownV2(text: string): string {
+  return text.replace(/[_*[\]()~>#+\-=|{}.!]/g, '\\$&');
 }
 
 async function sendToTelegram(
@@ -39,7 +37,7 @@ async function sendToTelegram(
   text: string,
 ): Promise<boolean> {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  const body = { chat_id: chatId, text, parse_mode: 'HTML' };
+  const body = { chat_id: chatId, text, parse_mode: 'MarkdownV2' };
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -196,22 +194,25 @@ async function main() {
     console.log(`  ${'─'.repeat(50)}`);
     console.log(`  [${order}/${total}] ${kind} ${step.description ?? '—'}`);
 
-    const htmlLines: string[] = [
-      `<b>📚 ${lessonIdArg}: ${escapeHtml(lesson.lessonTitle)}</b>`,
+    const lines: string[] = [
+      `**📚 ${escapeMarkdownV2(lessonIdArg)}: ${escapeMarkdownV2(lesson.lessonTitle)}**`,
       '',
-      `<b>Шаг ${order}:</b> ${escapeHtml(step.description ?? '')}`,
+      `**Шаг ${order}:** ${escapeMarkdownV2(step.description ?? '')}`,
       '',
     ];
 
     if (step.kind === 'code' && step.code) {
-      htmlLines.push('<pre><code class="language-javascript">');
-      htmlLines.push(escapeHtml(step.code));
-      htmlLines.push('</code></pre>');
+      lines.push('```');
+      lines.push(step.code);
+      lines.push('```');
     } else if (step.kind === 'text' && step.content) {
-      htmlLines.push(mdToHtml(step.content));
+      let text = convert(step.content);
+      // Убираем пустую строку перед списком
+      text = text.replace(/\n\n(?=•)/g, '\n');
+      lines.push(text);
     }
 
-    const ok = await sendToTelegram(BOT_TOKEN, chatId, htmlLines.join('\n'));
+    const ok = await sendToTelegram(BOT_TOKEN, chatId, lines.join('\n'));
 
     if (!ok) {
       const plain = [
