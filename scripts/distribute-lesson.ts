@@ -13,6 +13,7 @@
  * С номером шага — шлёт только один шаг и завершается.
  */
 
+import { mdToHtml } from '@u7-scl/core/shared';
 import { ApiApp } from '@u7-scl/core/api';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
@@ -174,7 +175,7 @@ async function main() {
       htmlLines.push(escapeHtml(step.code));
       htmlLines.push('</code></pre>');
     } else if (step.kind === 'text' && step.content) {
-      htmlLines.push(escapeHtml(step.content));
+      htmlLines.push(mdToHtml(step.content));
     }
 
     const ok = await sendToTelegram(BOT_TOKEN, CHAT_ID, htmlLines.join('\n'));
