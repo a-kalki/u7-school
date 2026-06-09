@@ -1,14 +1,16 @@
 /**
- * distribute-lesson.ts — временный скрипт для рассылки шагов урока в Telegram-группу потока.
+ * distribute-lesson.ts — рассылка шагов урока в Telegram-группу потока.
  *
  * Использование:
- *   bun run scripts/distribute-lesson.ts <номер_урока>
+ *   bun run scripts/distribute-lesson.ts p<проект>-l<урок> [номер_шага]
  *
- * Пример:
- *   bun run scripts/distribute-lesson.ts 3   # шаги урока 03
- *   bun run scripts/distribute-lesson.ts 1   # шаги урока 01
+ * Примеры:
+ *   bun run scripts/distribute-lesson.ts p2-l3        # все шаги урока
+ *   bun run scripts/distribute-lesson.ts p2-l3 2      # только шаг 2
+ *   bun run scripts/distribute-lesson.ts p1-l12       # все шаги
  *
- * Перед каждым следующим шагом ждёт Enter — подтверди что предыдущий доставлен.
+ * Без номера шага — шлёт все шаги с подтверждением после каждого.
+ * С номером шага — шлёт только один шаг и завершается.
  */
 
 import { ApiApp } from '@u7-scl/core/api';
@@ -23,11 +25,9 @@ import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade
 const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 const MODULE_ID = 'e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa';
 
-// Telegram
 const BOT_TOKEN = '8894575137:AAGUFIhq2HbO9CLzWsfs22iYJ8vhw082LKs';
 const CHAT_ID = '-1003960918937';
 
-/** Экранирует спецсимволы HTML: & < > */
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -35,19 +35,9 @@ function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;');
 }
 
-async function sendToTelegram(
-  token: string,
-  chatId: string,
-  text: string,
-): Promise<boolean> {
+async function sendToTelegram(token: string, chatId: string, text: string): Promise<boolean> {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-  const body = {
-    chat_id: chatId,
-    text,
-    parse_mode: 'HTML',
-  };
-
+  const body = { chat_id: chatId, text, parse_mode: 'HTML' };
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -56,28 +46,43 @@ async function sendToTelegram(
     });
     const data = await res.json() as { ok: boolean; description?: string };
     if (!data.ok) {
-      console.log(`  ❌ Telegram ошибка: ${data.description}`);
+      console.log(`  ❌ Telegram: ${data.description}`);
       return false;
     }
     return true;
   } catch (e) {
-    console.log(`  ❌ Сетевая ошибка: ${e}`);
+    console.log(`  ❌ Сеть: ${e}`);
     return false;
   }
 }
 
+function waitEnter(): Promise<string> {
+  return new Promise((resolve) => {
+    process.stdin.once('data', (data) => resolve(data.toString().trim()));
+  });
+}
+
+function parseLessonId(arg: string): { project: number; lesson: number } | null {
+  const m = arg.match(/^p(\d+)-l(\d+)$/);
+  if (!m) return null;
+  return { project: parseInt(m[1]), lesson: parseInt(m[2]) };
+}
+
 async function main() {
   const args = process.argv.slice(2);
-  const lessonNumberStr = args[0];
+  const lessonIdArg = args[0];
+  const stepNumberArg = args[1] ? parseInt(args[1], 10) : undefined;
 
-  if (!lessonNumberStr || !/^\d+$/.test(lessonNumberStr)) {
-    console.error('❌ Укажи номер урока: bun run scripts/distribute-lesson.ts <число>');
+  if (!lessonIdArg || !parseLessonId(lessonIdArg)) {
+    console.error('❌ Укажи урок: bun run scripts/distribute-lesson.ts p<проект>-l<урок> [номер_шага]');
     process.exit(1);
   }
 
-  const lessonNumber = parseInt(lessonNumberStr, 10);
+  const { project: N, lesson: M } = parseLessonId(lessonIdArg)!;
+  const projectIndex = N - 1;
+  const lessonIndex = M - 1;
 
-  // ══ Инициализация ApiApp ══
+  // ══ ApiApp ══
   const moduleRepo = new ModuleJsonRepo();
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
@@ -87,7 +92,7 @@ async function main() {
   const courseModule = new CourseApiModule({ courseRepo: moduleRepo, lessonRepo, stepRepo, userFacade });
   const app = new ApiApp([userModule, courseModule]);
 
-  // ══ Получаем модуль и собираем все lessonIds по порядку ══
+  // ══ Snapshot → проект → урок ══
   const snapshot = (await app.execute(
     'get-module-snapshot',
     { moduleId: MODULE_ID },
@@ -97,23 +102,21 @@ async function main() {
     lessons: Array<{ lessonId: string; lessonTitle: string }>;
   }>;
 
-  const allLessons: Array<{ lessonId: string; title: string }> = [];
-  for (const project of snapshot) {
-    for (const lesson of project.lessons) {
-      allLessons.push({ lessonId: lesson.lessonId, title: lesson.lessonTitle });
-    }
-  }
-
-  const lessonIndex = lessonNumber - 1;
-  if (lessonIndex < 0 || lessonIndex >= allLessons.length) {
-    console.error(`❌ Урок ${lessonNumber} не найден. Всего уроков: ${allLessons.length}`);
+  if (projectIndex < 0 || projectIndex >= snapshot.length) {
+    console.error(`❌ Проект ${N} не найден. Всего проектов: ${snapshot.length}`);
     process.exit(1);
   }
 
-  const lesson = allLessons[lessonIndex];
-  console.log(`📖 Урок ${String(lessonNumber).padStart(2, '0')}: ${lesson.title}`);
+  const project = snapshot[projectIndex];
+  if (lessonIndex < 0 || lessonIndex >= project.lessons.length) {
+    console.error(`❌ Урок ${lessonIdArg} не найден. В проекте ${N} уроков: ${project.lessons.length}`);
+    process.exit(1);
+  }
 
-  // ══ Получаем шаги урока ══
+  const lesson = project.lessons[lessonIndex];
+  console.log(`📖 ${lessonIdArg}: ${lesson.lessonTitle}`);
+
+  // ══ Шаги урока ══
   const lessonData = (await app.execute(
     'get-lesson',
     { uuid: lesson.lessonId },
@@ -125,11 +128,21 @@ async function main() {
     process.exit(0);
   }
 
-  console.log(`  Всего шагов: ${lessonData.stepIds.length}\n`);
+  console.log(`  Всего шагов: ${lessonData.stepIds.length}`);
 
-  // ══ Для каждого шага: получаем → форматируем → отправляем → ждём ══
-  for (let i = 0; i < lessonData.stepIds.length; i++) {
-    const stepId = lessonData.stepIds[i];
+  // ══ Фильтр по номеру шага ══
+  const stepIds = stepNumberArg !== undefined
+    ? lessonData.stepIds.filter((_, i) => (i + 1) === stepNumberArg || (i + 1) === stepNumberArg)
+    : lessonData.stepIds;
+
+  if (stepIds.length === 0) {
+    console.log(`  ⚠️ Шаг #${stepNumberArg} не найден`);
+    process.exit(0);
+  }
+
+  // ══ Отправка ══
+  for (let i = 0; i < stepIds.length; i++) {
+    const stepId = stepIds[i];
     const step = (await app.execute(
       'get-step',
       { uuid: stepId },
@@ -142,18 +155,17 @@ async function main() {
       order?: number;
     };
 
-    const order = step.order ?? i + 1;
+    const order = step.order ?? (lessonData.stepIds.indexOf(stepId) + 1);
+    const total = lessonData.stepIds.length;
     const kind = step.kind === 'code' ? '📝' : '📄';
-    const desc = step.description || '—';
 
     console.log(`  ${'─'.repeat(50)}`);
-    console.log(`  [${order}/${lessonData.stepIds.length}] ${kind} ${desc}`);
+    console.log(`  [${order}/${total}] ${kind} ${step.description || '—'}`);
 
-    // ══ Форматируем в HTML ══
     const htmlLines: string[] = [
-      `<b>📚 Урок ${String(lessonNumber).padStart(2, '0')}: ${escapeHtml(lesson.title)}</b>`,
+      `<b>📚 ${lessonIdArg}: ${escapeHtml(lesson.lessonTitle)}</b>`,
       '',
-      `<b>Шаг ${order}:</b> ${escapeHtml(desc)}`,
+      `<b>Шаг ${order}:</b> ${escapeHtml(step.description || '')}`,
       '',
     ];
 
@@ -165,45 +177,41 @@ async function main() {
       htmlLines.push(escapeHtml(step.content));
     }
 
-    const message = htmlLines.join('\n');
-
-    // ══ Отправляем (HTML — надёжный, fallback не нужен) ══
-    const ok = await sendToTelegram(BOT_TOKEN, CHAT_ID, message);
+    const ok = await sendToTelegram(BOT_TOKEN, CHAT_ID, htmlLines.join('\n'));
 
     if (!ok) {
-      console.log('  ⚠️ Пробую без HTML...');
-      const plainLines = [
-        `Урок ${String(lessonNumber).padStart(2, '0')}: ${lesson.title}`,
-        `Шаг ${order}: ${desc}`,
+      const plain = [
+        `${lessonIdArg}: ${lesson.lessonTitle}`,
+        `Шаг ${order}: ${step.description || ''}`,
         '',
       ];
-      if (step.kind === 'code' && step.code) {
-        plainLines.push(step.code);
-      } else if (step.kind === 'text' && step.content) {
-        plainLines.push(step.content);
-      }
+      if (step.kind === 'code' && step.code) plain.push(step.code);
+      else if (step.kind === 'text' && step.content) plain.push(step.content);
       await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: plainLines.join('\n') }),
+        body: JSON.stringify({ chat_id: CHAT_ID, text: plain.join('\n') }),
       });
     }
 
-    // ══ Ждём подтверждения перед следующим шагом ══
-    if (i < lessonData.stepIds.length - 1) {
-      console.log('\n  ⏎ Нажми Enter, чтобы отправить следующий шаг (или q + Enter — выйти)...');
-      const input = await new Promise<string>((resolve) => {
-        process.stdin.once('data', (data) => resolve(data.toString().trim()));
-      });
+    // Если указан номер шага — выходим без ожидания
+    if (stepNumberArg !== undefined) {
+      console.log('  ✅ Отправлено');
+      process.exit(0);
+    }
+
+    if (i < stepIds.length - 1) {
+      console.log('\n  ⏎ Enter — следующий (q — выход)...');
+      const input = await waitEnter();
       if (input.toLowerCase() === 'q') {
-        console.log('  ⏹ Отменено.');
+        console.log('  ⏹ Отменено');
         process.exit(0);
       }
     }
   }
 
   console.log(`\n  ${'═'.repeat(50)}`);
-  console.log('  ✅ Все шаги отправлены!');
+  console.log('  ✅ Все шаги отправлены');
   process.exit(0);
 }
 

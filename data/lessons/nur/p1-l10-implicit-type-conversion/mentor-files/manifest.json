@@ -1,16 +1,19 @@
-[
-  {
-    "order": 1,
-    "kind": "file",
-    "description": "Неявное приведение в реальных сценариях: + с числами и строками, truthy/falsy ловушки\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. Реальный баг: price1 + price2 = '1000500' — потому что price2 строка\n2. -, *, / — всегда приводят к числу. + — конкатенация, если операнд строка\n3. if (cart) для пустого массива — truthy! Правильно: if (cart.length > 0)\n4. if (discount) при discount = 0 — falsy, но 0% скидки — осмысленное значение\n5. Правильные проверки: if (cart.length > 0), if (discount > 0)\n6. Попроси предсказать каждый результат до запуска\n7. Вывод: всегда явно проверяй то, что хочешь проверить",
-    "fileName": "01-coercion-pitfalls.js",
-    "fileMimeType": "text/javascript"
-  },
-  {
-    "order": 2,
-    "kind": "file",
-    "description": "== vs === с вводом пользователя, null/undefined, практические ловушки\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. userAge == 18 — true со строкой '18', т.к. == приводит. === — false\n2. null == undefined → true (скрывает разницу). null === undefined → false\n3. Ловушка: if (price == false) — true для price = 0 И для price = undefined\n4. Правильная проверка: price === undefined — проверяет именно undefined\n5. === всегда предсказуем. Используй только === для сравнений\n6. Практическое задание: найди баг в функции getDiscount\n7. Вывод: == плох тем, что его поведение неочевидно",
-    "fileName": "02-equality-nuances.js",
-    "fileMimeType": "text/javascript"
-  }
-]
+{
+  "lessonUuid": "f488d12f-3527-4d6a-b76c-b43cf8e613bc",
+  "files": [
+    {
+      "order": 1,
+      "kind": "file",
+      "description": "Неявное приведение в реальных сценариях: + с числами и строками, truthy/falsy ловушки\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. Реальный баг: price1 + price2 = '1000500' — потому что price2 строка\n2. -, *, / — всегда приводят к числу. + — конкатенация, если операнд строка\n3. if (cart) для пустого массива — truthy! Правильно: if (cart.length > 0)\n4. if (discount) при discount = 0 — falsy, но 0% скидки — осмысленное значение\n5. Правильные проверки: if (cart.length > 0), if (discount > 0)\n6. Попроси предсказать каждый результат до запуска\n7. Вывод: всегда явно проверяй то, что хочешь проверить",
+      "fileName": "01-coercion-pitfalls.js",
+      "fileMimeType": "text/javascript"
+    },
+    {
+      "order": 2,
+      "kind": "file",
+      "description": "== vs === с вводом пользователя, null/undefined, практические ловушки\n\nСкачай файл, открой в проекторе. Подсказки для ментора:\n1. userAge == 18 — true со строкой '18', т.к. == приводит. === — false\n2. null == undefined → true (скрывает разницу). null === undefined → false\n3. Ловушка: if (price == false) — true для price = 0 И для price = undefined\n4. Правильная проверка: price === undefined — проверяет именно undefined\n5. === всегда предсказуем. Используй только === для сравнений\n6. Практическое задание: найди баг в функции getDiscount\n7. Вывод: == плох тем, что его поведение неочевидно",
+      "fileName": "02-equality-nuances.js",
+      "fileMimeType": "text/javascript"
+    }
+  ]
+}
