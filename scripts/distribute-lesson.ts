@@ -31,6 +31,52 @@ function escapeMarkdownV2(text: string): string {
   return text.replace(/[_*[\]()~>#+\-=|{}.!]/g, '\\$&');
 }
 
+/**
+ * Экранирует зарезервированные символы MarkdownV2 в тексте,
+ * не трогая содержимое кодовых блоков (```...```) и инлайн-кода (`...`).
+ * Применяется к исходному Markdown ДО convert(), чтобы символы
+ * внутри таблиц (которые convert() не экранирует) были защищены.
+ */
+function escapeReservedInMd(text: string): string {
+  // Символы, которые нужно экранировать для Telegram MarkdownV2
+  // (convert() сам экранирует их вне таблиц, но внутри таблиц — нет)
+  const reserved = /[|+]/g;
+  const parts: string[] = [];
+  let remaining = text;
+
+  while (remaining.length > 0) {
+    // Ищем начало кодового блока (```) или инлайн-кода (`)
+    const fenceMatch = remaining.match(/```|`/);
+    if (!fenceMatch || fenceMatch.index === undefined) {
+      // Нет кода до конца — экранируем оставшееся
+      parts.push(remaining.replace(reserved, '\\$&'));
+      break;
+    }
+
+    const idx = fenceMatch.index;
+    const marker = fenceMatch[0];
+
+    // Текст до маркера — экранируем
+    parts.push(remaining.slice(0, idx).replace(reserved, '\\$&'));
+    remaining = remaining.slice(idx);
+
+    // Ищем закрывающий маркер
+    const closeIdx = remaining.indexOf(marker, marker.length);
+    if (closeIdx === -1) {
+      // Непарный маркер — экранируем оставшееся и выходим
+      parts.push(remaining.replace(reserved, '\\$&'));
+      break;
+    }
+
+    // Кодовый блок оставляем как есть (включая маркеры)
+    const codeBlock = remaining.slice(0, closeIdx + marker.length);
+    parts.push(codeBlock);
+    remaining = remaining.slice(closeIdx + marker.length);
+  }
+
+  return parts.join('');
+}
+
 async function sendToTelegram(
   token: string,
   chatId: string,
@@ -206,7 +252,9 @@ async function main() {
       lines.push(step.code);
       lines.push('```');
     } else if (step.kind === 'text' && step.content) {
-      let text = convert(step.content);
+      // Экранируем проблемные символы ДО convert (в таблицах convert их пропускает)
+      const sanitized = escapeReservedInMd(step.content);
+      let text = convert(sanitized);
       // Убираем пустую строку перед списком
       text = text.replace(/\n\n(?=•)/g, '\n');
       lines.push(text);
