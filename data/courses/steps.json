@@ -1,856 +1,853 @@
-{
-  "$schema": "../schemas/Step.schema.json",
-  "items": [
-    {
-      "uuid": "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Введение в программирование",
-      "content": "Посмотри видео «Введение в программирование» по ссылке:\n\n👉 [Введение в программирование.mp4](https://drive.google.com/file/d/1jByuEZZAr5OeI5VTGL-eNvhcGCFi16r6)\n\nИз этого видео ты узнаешь:\n- Что такое код, программа и интерпретатор\n- Как выполняется код (поток выполнения)\n- Кто такой программист и чем он занимается\n- Аналогию с рецептом из жизни",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "4890a068-1335-4115-931a-b6f4ee5ea7e5",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: что выведет код?",
-      "content": "Как ты думаешь, что будет, если выполнить в консоли следующий код:\n\n```js\nconsole.log('Первый');\nconsole.log('Второй');\nconsole.log('Третий');\n```\n\nОтветь на вопрос, а затем проверь правильность, выполнив код в консоли браузера (F12) или через `bun`.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "255b3046-e46a-4e27-8794-5bf704691dc7",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: твой первый скрипт",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "code",
-      "code": "// Напиши программу, которая выводит:\n// 1. Твоё имя\n// 2. Твой любимый цвет\n// 3. Сколько тебе лет\n//\n// Используй console.log() для каждого пункта.\n\nconsole.log('Твоё имя');\nconsole.log('Твой любимый цвет');\nconsole.log(25);\n",
-      "language": "javascript"
-    },
-    {
-      "uuid": "1809238e-2942-4a09-96a4-c582a09097e1",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: что будет при ошибке?",
-      "content": "Как ты думаешь, что произойдёт, если выполнить этот код:\n\n```js\nconsole.log('Старт');\nconsol.log('Ошибка');        // опечатка в console\nconsole.log('Финиш');\n```\n\nОтветь на вопрос: выполнится ли третья строка? Почему? Проверь в консоли.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Переменные",
-      "content": "Посмотри видео «Переменные» по ссылке:\n\n👉 [Переменные.mp4](https://drive.google.com/file/d/1RqUAfBfK6ZyMFblVVUr4gEmtRvrNRAqv)\n\nИз этого видео ты узнаешь:\n- Что такое переменная и зачем она нужна\n- Как создать переменную через let, const и var (почему var — устарел)\n- Как работает оператор присваивания =\n- Что такое undefined",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: let vs const",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "code",
-      "code": "// Попробуй выполнить этот код в консоли.\n// Как ты думаешь, что произойдёт?\n\nlet city = 'Алматы';\ncity = 'Астана';\nconsole.log('Город:', city);\n\nconst country = 'Казахстан';\ncountry = 'Россия';\nconsole.log('Страна:', country);\n",
-      "language": "javascript"
-    },
-    {
-      "uuid": "5c443053-4784-4a0d-a0a1-6be99790f533",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: необъявленная переменная",
-      "content": "Как ты думаешь, что будет, если выполнить этот код:\n\n```js\nconsole.log(message);\nlet message = 'Привет';\n```\n\nА если заменить `let` на `var`? Проверь оба варианта в консоли.\n\nОбрати внимание: **мы не используем `var`** в современном JS. Пример с `var` нужен только чтобы показать, почему он плох — его поведение отличается и может привести к неочевидным ошибкам. Всегда используй `let` или `const`.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: undefined vs ошибка",
-      "content": "Чем отличаются эти два случая?\n\n```js\n// Случай А\nlet a;\nconsole.log(a);\n\n// Случай Б\nconsole.log(b);\n```\n\nКакой из них вызовет ошибку, а какой выведет `undefined`? Проверь.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "c0ec0938-0600-47e5-b363-b21eda469e7d",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Математические операторы",
-      "content": "Посмотри видео «Математические операторы» по ссылке:\n\n👉 [Математические операторы.mp4](https://drive.google.com/file/d/1NWKE6DDnQ98YOA94bk23smxQjERX2dbb)\n\nИз этого видео ты узнаешь:\n- Стандартные и дополнительные математические операторы (%, **)\n- Порядок выполнения в строке присваивания\n- Сокращённый синтаксис (+=, -=, *=, и т.д.)\n- Префиксный и постфиксный инкремент/декремент",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "f033237c-e51e-4f3f-b175-e79ca0953c7a",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: что выведут операции?",
-      "content": "Как ты думаешь, что выведет каждый `console.log`?\n\n```js\nconsole.log(10 % 3);\nconsole.log(2 ** 4);\nconsole.log(15 % 5);\n```\n\nПроверь в консоли.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: сокращённый синтаксис",
-      "content": "Как ты думаешь, каким будет финальное значение `x`?\n\n```js\nlet x = 5;\nx += 3;\nx *= 2;\nx -= 4;\nconsole.log(x);\n```\n\nПопробуй понять без запуска, затем проверь.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "6d2200a1-3463-4fd3-a513-952d93b73ec3",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: префиксный vs постфиксный",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "code",
-      "code": "// Как ты думаешь, что выведет каждый console.log?\n\nlet a = 5;\nlet b = 5;\n\nconsole.log('префиксный:', ++a);\nconsole.log('постфиксный:', b++);\nconsole.log('a после:', a);\nconsole.log('b после:', b);\n\n// Объясни разницу.\n",
-      "language": "javascript"
-    },
-    {
-      "uuid": "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Типы данных",
-      "content": "Посмотри видео «Типы данных» по ссылке:\n\n👉 [Типы данных.mp4](https://drive.google.com/file/d/1akcBsN2F1ACOcqrY1_4a_4AQdaJmxAFr)\n\nИз этого видео ты узнаешь:\n- Основные типы данных в JS: number, string, boolean, object, null, undefined\n- Оператор typeof\n- Как работает интерполяция строк (обратные кавычки)\n- Что такое исключение (exception)",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: что вернёт typeof?",
-      "content": "Как ты думаешь, что вернёт `typeof` для каждого значения?\n\n```js\nconsole.log(typeof 'hello');\nconsole.log(typeof 123);\nconsole.log(typeof true);\nconsole.log(typeof undefined);\nconsole.log(typeof null);   // обрати внимание на эту строку!\nconsole.log(typeof { name: 'Алиса' });\nconsole.log(typeof NaN);\n```\n\nОбрати внимание на `typeof null` — запомни эту особенсть.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "e1a29ce7-2653-45ec-b863-0ca585e62e02",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: строка + число",
-      "content": "Как ты думаешь, что будет, если сложить строку и число?\n\n```js\nconsole.log('5' + 3);\nconsole.log(5 + '3');\nconsole.log('Привет' + 42);\n```\n\nА если использовать другие операторы?\n\n```js\nconsole.log('5' - 3);\nconsole.log('10' * 2);\nconsole.log('10' / '2');\n```\n\nПроверь все примеры в консоли.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "35eb70f1-13a2-4aaa-b066-d60603505e5b",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: интерполяция строк",
-      "content": "Как ты думаешь, что выведет этот код?\n\n```js\nlet name = 'Дамир';\nlet age = 25;\n\nlet message = `Меня зовут ${name}, мне ${age} лет.`;\nconsole.log(message);\n\n// А если выражение?\nlet result = `2 + 2 = ${2 + 2}`;\nconsole.log(result);\n```\n\nПроверь в консоли.",
-      "status": "published",
-      "createdAt": "2026-05-31T20:16",
-      "kind": "text"
-    },
-    {
-      "uuid": "b6a8a0be-7d63-49d0-a43b-fc4315dbee7b",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Типы данных, исключения и особые случаи",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Типы данных, исключения и особые случаи.mp4](https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp)\n\nИз этого видео ты узнаешь:\n- Как ведёт себя оператор + со строками и числами\n- Что будет, если применить арифметику к строкам\n- Что такое методы строк (на примере toUpperCase)\n- Что такое исключение (TypeError) и как оно останавливает поток",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "9a8edd25-b1da-46e7-bfcb-f0247de71ed5",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: конкатенация vs сложение",
-      "content": "Как ты думаешь, что выведет каждый console.log?\n\n```js\nconsole.log(5 + 3);\nconsole.log('5' + 3);\nconsole.log('5' + '3');\n```\n\nПроверь в консоли.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "1b1021c2-0e9e-41ec-80e7-3dd4ae64c9fe",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: арифметика со строками",
-      "content": "Что будет, если выполнить эти примеры?\n\n```js\nconsole.log('10' / 2);\nconsole.log('10' * '2');\nconsole.log(5 - '3');\nconsole.log('5' - 3);\nconsole.log('abc' / 5);\nconsole.log('123' - '23');\n```\n\nОбрати внимание на 'abc' / 5. Почему результат - NaN? Проверь в консоли.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "3ad71cd2-22ed-4f4f-a037-7f3ed564a42c",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: TypeError - остановка потока",
-      "content": "Как ты думаешь, что произойдёт?\n\n```js\nlet name = 'Алия';\nlet age = 25;\n\nconsole.log(name.toUpperCase());\nconsole.log(age.toUpperCase());\nconsole.log('Эта строка выполнится?');\n```\n\nСколько строк выполнится до остановки? Проверь в консоли.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "105d9c41-a895-4dd4-882d-04384a767c9d",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Операторы равенства, сравнения и отрицания",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Операторы равенства, сравнения и отрицания.mp4](https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn)\n\nИз этого видео ты узнаешь:\n- Чем отличается строгое равенство (===) от нестрогого (==)\n- Какие бывают операторы сравнения: <, >, <=, >=\n- Как работает оператор отрицания !\n- Почему стоит всегда использовать === и !===",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "00efb694-a917-4a11-8698-964440491169",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: строгое vs нестрогое",
-      "content": "Как ты думаешь, что вернёт каждый оператор?\n\n```js\nconsole.log(5 === 5);\nconsole.log(5 === '5');\nconsole.log(5 == '5');\nconsole.log(true === 1);\nconsole.log(true == 1);\n```\n\nНе применяй нестрогое равенство (неравенство). Проверь код в консоли.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "6ab959df-498e-41a5-b0f1-8b62a01aad56",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: операторы сравнения",
-      "content": "Предскажи результат:\n\n```js\nlet x = 10;\nlet y = 20;\n\nconsole.log(x > y);\nconsole.log(x < y);\nconsole.log(x >= 10);\nconsole.log(y <= 15);\nconsole.log(x !== y);\n```\n\nКакой тип возвращают все эти операторы? Проверь.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "54996992-d801-4b62-97c7-5ae211487e76",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: отрицание",
-      "content": "Что выведет каждый console.log?\n\n```js\nlet isReady = true;\n\nconsole.log(!isReady);\nconsole.log(!false);\nconsole.log(!(5 > 3));\nconsole.log(!(10 === '10'));\n```\n\nА теперь попробуй сам: напиши выражение с === и !, которое проверяет, что число НЕ равно 0.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "6e6b63e3-32b3-49b9-b075-c214062223d2",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Логические операторы",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Логические операторы.mp4](https://drive.google.com/file/d/1uzeUR5lpZqG15YOHqOys33nRURHH5B-u)\n\nИз этого видео ты узнаешь:\n- Как работают логические операторы И (&&) и ИЛИ (||)\n- Таблицы истинности\n- Как составлять сложные логические выражения\n- Практический пример: проверка трудоспособного возраста",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "dc626cec-82f1-4597-bf55-5822b8728e88",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: таблицы истинности",
-      "content": "Предскажи результат:\n\n```js\nconsole.log(true || true);\nconsole.log(true || false);\nconsole.log(false || true);\nconsole.log(false || false);\n\nconsole.log(true && true);\nconsole.log(true && false);\nconsole.log(false && true);\nconsole.log(false && false);\n```\n\nОбъясни когда ИЛИ даёт true, а когда И даёт true. Проверь.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "1f7b6291-5adc-4f4a-a2ca-d451a3b4de5f",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: проверка диапазона",
-      "content": "Как ты думаешь, что вернёт каждое выражение?\n\n```js\nlet age = 25;\nconsole.log(age >= 18 && age <= 65);\n\nlet age2 = 15;\nconsole.log(age2 >= 18 && age2 <= 65);\n\nlet temp = 30;\nconsole.log(temp < 0 || temp > 35);\n\nlet temp2 = -5;\nconsole.log(temp2 < 0 || temp2 > 35);\n```\n\nОбъясни смысл каждого условия словами. Проверь в консоли.",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "58a9d484-e6f0-4000-b860-bc9a860f74ca",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Ветвление",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Ветвление.mp4](https://drive.google.com/file/d/1OJrLNr2c2MGBRLGUzFylbCkFyunPpX45)\n\nИз этого видео ты узнаешь:\n- Что такое ветвление и зачем оно нужно\n- Как работает оператор if\n- Как добавить else if и else\n- Что такое однострочный if без фигурных скобок",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "text"
-    },
-    {
-      "uuid": "108e5446-3d3e-44bb-aabc-0fc7fd779dd9",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: if - предскажи результат",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "code",
-      "code": "// Как ты думаешь, что выведет код?\nlet x = 10;\n\nif (x > 5) {\n  console.log('Больше пяти');\n}\n\nif (x > 20) {\n  console.log('Больше двадцати');\n}\n\nconsole.log('Готово');\n\n// А если x = 3?\n// Закомментируй верхний код и перепиши x = 3. Что изменится?",
-      "language": "javascript"
-    },
-    {
-      "uuid": "2b0d5ae7-69ae-4ff3-be48-3deb5c6b1484",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: else - положительное или отрицательное",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "code",
-      "code": "// Предскажи что выведет для i = -5, i = 0, i = 7\nlet i = -5;\n\nif (i > 0) {\n  console.log(i + ' положительное');\n} else if (i === 0) {\n  console.log('ноль');\n} else {\n  console.log(i + ' отрицательное');\n}\n\n// Поменяй i на 0, потом на 7. Какой блок выполнится в каждом случае?",
-      "language": "javascript"
-    },
-    {
-      "uuid": "c187ccc4-650d-4b0e-b538-506fcb8373d6",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: своя проверка",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:02",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n// 1. Спрашивает возраст через prompt()\n// 2. Если возраст >= 18 - выводит «Взрослый»\n// 3. Если возраст >= 12 и < 18 - выводит «Подросток»\n// 4. Иначе - выводит «Ребёнок»\n//\n// Используй if / else if / else\n// Подсказка: prompt() возвращает строку, используй Number() для преобразования\n",
-      "language": "javascript"
-    },
-    {
-      "uuid": "ccb8d815-617d-4f1d-bacc-96be9738686f",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: математика с переменными",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:31",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n//\n// 1. Объяви две числовые переменные (a и b)\n// 2. Выведи в консоль:\n//    - сумму a + b\n//    - разность a - b\n//    - произведение a * b\n//    - частное a / b\n//    - остаток от деления a % b\n//    - a в степени b (a ** b)\n//\n// Пример: a = 10, b = 3\n// Ожидаемый вывод:\n//   10 + 3 = 13\n//   10 - 3 = 7\n//   10 * 3 = 30\n//   10 / 3 = 3.333...\n//   10 % 3 = 1\n//   10 ** 3 = 1000\n\nlet a = 10;\nlet b = 3;\n// ... напиши код ниже",
-      "language": "javascript"
-    },
-    {
-      "uuid": "d6745add-0842-42a2-aa12-1502e24b68f1",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: типы через интерполяцию",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:31",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n//\n// 1. Объяви переменную name со строкой (твоё имя)\n// 2. Объяви переменную age с числом (твой возраст)\n// 3. Выведи через интерполяцию строк (обратные кавычки ``):\n//    \"Меня зовут [name], тип: [typeof name]\"\n//    \"Мне [age] лет, тип: [typeof age]\"\n//\n// Дополнительно: объяви isStudent = true и выведи её тип.\n// Сделай вывод аккуратным.\n\nlet name = 'Дамир';\nlet age = 25;\nlet isStudent = true;\n// ... напиши код ниже",
-      "language": "javascript"
-    },
-    {
-      "uuid": "33f82348-b3dd-424c-8253-047be1d7e1b3",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: метод строки и TypeError",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:31",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n//\n// 1. Объяви переменную word = 'JavaScript'\n// 2. Выведи word в верхнем регистре: word.toUpperCase()\n// 3. Теперь объяви num = 123\n// 4. Попробуй вызвать num.toUpperCase() — что произойдёт?\n// 5. Объясни в комментарии, почему возникла ошибка\n//\n// Подсказка: toUpperCase() — метод, который есть только у строк\n\nlet word = 'JavaScript';\nconsole.log(word.toUpperCase());\n\nlet num = 123;\n// console.log(num.toUpperCase());\n// ↑ раскомментируй эту строку и посмотри на ошибку\n// Напиши ниже объяснение: почему ошибка?",
-      "language": "javascript"
-    },
-    {
-      "uuid": "001dbdbb-649b-41d2-917c-e231e9465fbd",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: проверяем возраст",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:31",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n//\n// 1. Запроси возраст через prompt() — сохрани в переменную age\n// 2. Преобразуй строку в число: Number(age)\n// 3. Выведи:\n//    - \"Совершеннолетний: true/false\"  (>= 18)\n//    - \"Подросток: true/false\"         (>= 12 и < 18)\n//    - \"Пенсионер: true/false\"         (>= 65)\n//    - \"Может водить машину: true/false\" (>= 18)\n//\n// Используй операторы сравнения и строгое равенство.\n\nlet ageInput = prompt('Сколько тебе лет?');\nlet age = Number(ageInput);\n// ... напиши код ниже\nconsole.log('Совершеннолетний:', age >= 18);\nconsole.log('Подросток:', age >= 12 && age < 18);\nconsole.log('Пенсионер:', age >= 65);\nconsole.log('Может водить:', age >= 18);",
-      "language": "javascript"
-    },
-    {
-      "uuid": "53df1181-366c-48d6-8f17-e38e08fe65cc",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: можно ли гулять?",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:31",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() температуру на улице\n// 2. Запроси через prompt() идёт ли дождь (введи true или false)\n//    Подсказка: строку 'true' можно сравнить === 'true'\n// 3. Выведи \"Можно гулять: true/false\"\n//\n// Гулять можно, если:\n//   - температура > 0 И температура < 35\n//   - И дождя НЕТ (!isRaining)\n//\n// Используй логические операторы &&, ||, !\n\nlet tempInput = prompt('Какая температура на улице?');\nlet temp = Number(tempInput);\nlet rainInput = prompt('Идёт дождь? (true/false)');\nlet isRaining = rainInput === 'true';\n\nlet canWalk = temp > 0 && temp < 35 && !isRaining;\nconsole.log('Можно гулять:', canWalk);\n\n// А если температура ниже 0 — можно? А если > 35?\n// Допиши условие: можно гулять ещё и если облачно, но без дождя.",
-      "language": "javascript"
-    },
-    {
-      "uuid": "e6bda4c1-59a4-4930-98f4-d2d064d4b937",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: оценка в букву",
-      "status": "draft",
-      "createdAt": "2026-06-02T16:31",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() число — оценку от 0 до 100\n// 2. Преобразуй строку в число\n// 3. Через if / else if / else выведи букву:\n//    - 90 и выше → \"A\"\n//    - 75 и выше → \"B\"\n//    - 50 и выше → \"C\"\n//    - ниже 50   → \"D\"\n// 4. Если число меньше 0 или больше 100 — выведи \"Ошибка: неверная оценка\"\n//\n// Используй строгое сравнение === и логические операторы.\n\nlet scoreInput = prompt('Введи оценку от 0 до 100:');\nlet score = Number(scoreInput);\n// ... напиши код ниже\n// Пример:\n// if (score >= 90) { console.log('A'); }\n// else if (...) { ... }\n// else { ... }",
-      "language": "javascript"
-    },
-    {
-      "uuid": "480d9bc2-b7b1-415b-9b29-021c1919047e",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Тернарный оператор",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Тернарный оператор.mp4](https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv)\n\nИз этого видео ты узнаешь:\n- Чем отличается цепочка if-else if-else от последовательных if\n- Как работает тернарный оператор ? :\n- Когда удобно использовать тернарник вместо if-else",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "text"
-    },
-    {
-      "uuid": "03401d6c-9e96-4574-90c5-158acd303d23",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: if-else цепочка → тернарный",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Перепиши этот if-else в одну строку с тернарным оператором\n\nlet age = 20;\nlet category;\nif (age >= 18) {\n  category = 'взрослый';\n} else {\n  category = 'ребёнок';\n}\nconsole.log(category);\n\n// А теперь для этого кода с else if:\nlet score = 75;\nlet grade;\nif (score >= 90) {\n  grade = 'A';\n} else if (score >= 75) {\n  grade = 'B';\n} else {\n  grade = 'C';\n}\nconsole.log(grade);\n// Подсказка: тернарники можно вкладывать, но это снижает читаемость",
-      "language": "javascript"
-    },
-    {
-      "uuid": "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: последовательные if vs цепочка",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Что выведет этот код? Почему?\nlet x = 5;\n\nif (x > 0) {\n  console.log('Положительное');\n}\nif (x > 3) {\n  console.log('Больше трёх');\n}\nif (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n\n// ? Сколько сообщений выведется? Все три?\n// А теперь замени второй и третий if на else if:\nif (x > 3) {\n  console.log('Больше трёх');\n} else if (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n// ? Сколько выведется теперь? В чём разница?",
-      "language": "javascript"
-    },
-    {
-      "uuid": "42e1f374-0701-407f-b713-47e61305ee76",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: тернарник с prompt",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число\n// 2. Преобразует строку в число\n// 3. С помощью тернарного оператора присваивает переменной result:\n//    - 'Чётное', если число делится на 2 без остатка\n//    - 'Нечётное', если иначе\n// 4. Выводит result в консоль\n//\n// Используй % для проверки чётности\n",
-      "language": "javascript"
-    },
-    {
-      "uuid": "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Неявное преобразование типов",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Неявное преобразование типов.mp4](https://drive.google.com/file/d/1dMrVgB_7EcE2_u3Z7jep-onLjX-72J2D)\n\nИз этого видео ты узнаешь:\n- Как JavaScript автоматически преобразует типы\n- Почему + ведёт себя иначе, чем -, *, /\n- Что такое truthy и falsy значения\n- Почему == может быть опасным",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "text"
-    },
-    {
-      "uuid": "6d04a894-cb14-41c0-874f-48aa715e2aec",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: неявное приведение в математике",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Что выведет каждый console.log? Объясни почему.\n\nconsole.log('5' + 3);\nconsole.log('5' - 3);\nconsole.log('5' * '3');\nconsole.log('10' / '2');\nconsole.log(true + 1);\nconsole.log(false + 5);\nconsole.log('5' + true);\n\n// ? Почему + работает не так, как -, * и / ?\n// Проверь в консоли.",
-      "language": "javascript"
-    },
-    {
-      "uuid": "5074ee40-5157-48f0-abf7-258a8b514bf6",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: truthy/falsy в условиях",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Предскажи, что выведет каждая проверка:\n\nlet a = 0;\nif (a) {\n  console.log('a — truthy');\n} else {\n  console.log('a — falsy');\n}\n\nlet b = '0';\nif (b) {\n  console.log('b — truthy');\n} else {\n  console.log('b — falsy');\n}\n\nlet c = '';\nif (c) {\n  console.log('c — truthy');\n} else {\n  console.log('c — falsy');\n}\n\nlet d = [];\nif (d) {\n  console.log('d — truthy');\n} else {\n  console.log('d — falsy');\n}\n\n// ? Какие ещё falsy значения ты знаешь? Проверь их.",
-      "language": "javascript"
-    },
-    {
-      "uuid": "134a218c-6d72-445e-af0b-1a83334c7679",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Явное приведение типов",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Явное приведение типов.mp4](https://drive.google.com/file/d/1jkL1NrdmkIyWHqOv9jcu6yvmRaY4glT7)\n\nИз этого видео ты узнаешь:\n- Чем явное приведение отличается от неявного\n- Как преобразовывать строки в числа: Number(), +, parseInt, parseFloat\n- Как преобразовывать в строку: String(), .toString()\n- Как приводить к boolean: !! и Boolean()\n- Все falsy значения: false, 0, '', null, undefined, NaN",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "text"
-    },
-    {
-      "uuid": "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: строки → числа",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Что выведет каждый вызов? Попробуй предсказать.\n\nconsole.log(Number('123'));\nconsole.log(Number('12.5'));\nconsole.log(Number('abc'));\nconsole.log(Number(''));\nconsole.log(+'42');\nconsole.log(+'-3.14');\nconsole.log(parseInt('12.7'));\nconsole.log(parseFloat('12.7abc'));\nconsole.log(parseInt('100px'));\nconsole.log(parseInt('abc123'));\n\n// ? Какая разница между Number() и parseInt/parseFloat?\n// Проверь в консоли.",
-      "language": "javascript"
-    },
-    {
-      "uuid": "97253c78-739e-473f-97e2-f932f7371092",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: всё → boolean",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Что вернёт двойное отрицание для этих значений?\n\nconsole.log(!!'hello');\nconsole.log(!!'');\nconsole.log(!!0);\nconsole.log(!!1);\nconsole.log(!!null);\nconsole.log(!!undefined);\nconsole.log(!!NaN);\nconsole.log(!![]);\nconsole.log(!!{});\nconsole.log(!!'false');\n\n// ? Почему 'false' — truthy? Ведь это строка 'false', не false!\n// ? Сколько всего falsy значений в JS? Назови их.",
-      "language": "javascript"
-    },
-    {
-      "uuid": "e14689af-20e9-43c3-bf6b-ee3f51a3566a",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: 10% от числа",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "code",
-      "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число (строку)\n// 2. Явно преобразует строку в число через Number()\n// 3. Вычисляет 10% от этого числа\n// 4. Выводит: '10% от X равно Y'\n//\n// Дополнительно: если пользователь ввёл не число (Number() вернул NaN),\n// выведи 'Ошибка: введите число'\n//\n// Используй Number() и проверку Number.isNaN()",
-      "language": "javascript"
-    },
-    {
-      "uuid": "96120ed5-7f84-422b-b538-ce017739cd92",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Проект: Расчёт зарплаты — постановка задачи",
-      "content": "### Что нужно сделать\n\nНапиши программу, которая рассчитывает зарплату сотрудника. Программа запрашивает через `prompt()` три значения:\n\n1. **Имя сотрудника** (строка)\n2. **Начисленную зарплату** (число, тенге)\n3. **Количество отработанных дней** в месяце (число)\n\n### Константы (задай жёстко в коде)\n\n```js\nconst OPV_RATE = 0.10;        // 10% — пенсионные отчисления\nconst IPN_RATE = 0.10;        // 10% — подоходный налог\nconst BONUS_RATE = 0.15;      // 15% — премия\nconst BONUS_DAYS = 20;        // порог дней для премии\n```\n\n### Что должна учитывать программа\n\n- **Премия:** если отработано больше 20 дней — сотрудник получает премию 15% от начисленной зарплаты. Иначе премия = 0.\n- **Отчисления:** от базы (зарплата + премия) удерживаются пенсионные (10%) и подоходный налог (10%).\n- **На руки:** база минус оба удержания.\n\nФормулы придумай самостоятельно, опираясь на условия выше.\n\n### Формат вывода\n\nПрограмма должна вывести в консоль отформатированный результат (используй интерполяцию строк):\n\n```\nИмя сотрудника: Алия\nНачислено: 100000 тг\nОтработано дней: 22\nПремия (15%): 15000 тг\nБаза для удержаний: 115000 тг\n────────\nОПВ (10%): 11500 тг\nИПН (10%): 11500 тг\n────────\nНа руки: 92000 тг\n```\n\n### Требования\n\n- Пиши код самостоятельно, без подсказок\n- Используй только изученное: `let`, `const`, `prompt()`, математические операторы, `if/else`, тернарный оператор, приведение типов, интерполяцию строк\n- Проверь программу на тестовых данных из **следующего шага**",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "text"
-    },
-    {
-      "uuid": "399e4f37-e95e-4900-842d-cb31b012a87e",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Проект: Расчёт зарплаты — проверь на тестах",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:13",
-      "kind": "text",
-      "content": "Запусти программу с каждым набором данных. Сверь результат с ожидаемым. Если не совпадает — ищи ошибку.\n\n> **Подсказка:** чтобы `prompt()` вернул число, оберни в `Number()`:\n> `const salary = Number(prompt('Введите зарплату:'));`\n\n---\n\n### Тест 1 — С премией\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Алия |\n| Зарплата | 100 000 |\n| Дней | 22 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 15 000 тг |\n| База | 115 000 тг |\n| ОПВ (10%) | 11 500 тг |\n| ИПН (10%) | 11 500 тг |\n| На руки | **92 000 тг** |\n\n---\n\n### Тест 2 — Без премии (ровно 20 дней)\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Болат |\n| Зарплата | 80 000 |\n| Дней | 20 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 0 тг |\n| База | 80 000 тг |\n| ОПВ (10%) | 8 000 тг |\n| ИПН (10%) | 8 000 тг |\n| На руки | **64 000 тг** |\n\n---\n\n### Тест 3 — Без премии, мало дней\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Гульжан |\n| Зарплата | 40 000 |\n| Дней | 15 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 0 тг |\n| База | 40 000 тг |\n| ОПВ (10%) | 4 000 тг |\n| ИПН (10%) | 4 000 тг |\n| На руки | **32 000 тг** |\n\n---\n\n### Тест 4 — С премией, другая зарплата\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Дамир |\n| Зарплата | 50 000 |\n| Дней | 22 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 7 500 тг |\n| База | 57 500 тг |\n| ОПВ (10%) | 5 750 тг |\n| ИПН (10%) | 5 750 тг |\n| На руки | **46 000 тг** |\n\n---\n\nВсе 4 теста прошли — проект готов. Если расхождение — проверь условие премии (`дней > 20`, не `>=`) и порядок вычислений."
-    },
-    {
-      "uuid": "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: что вернут || и &&?",
-      "content": "Как ты думаешь, что вернёт каждый console.log? Объясни почему.\n\n```js\nconsole.log(1 || 0);\nconsole.log(0 || 5);\nconsole.log(null || 'default');\nconsole.log('' || 'альтернатива');\nconsole.log(1 && 0);\nconsole.log(0 && 5);\nconsole.log('cat' && 'dog');\nconsole.log(null && 'hello');\n```\n\nОтветь на вопрос, а затем проверь, выполнив код в консоли браузера (F12) или через `bun run`.",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: ?? и || — в чём разница?",
-      "content": "Предскажи результат каждого выражения, а затем проверь в консоли, выполнив код через `bun run`.\n\n```js\nlet a;\nconsole.log(a ?? 'по умолчанию');  // undefined — что вернёт ??\nconsole.log(a || 'по умолчанию');  // а ||?\n\nlet b = 0;\nconsole.log(b ?? 100);            // 0 — что вернёт ??\nconsole.log(b || 100);            // а ||?\n\nlet c = '';\nconsole.log(c ?? 'пусто');        // '' — что вернёт ??\nconsole.log(c || 'пусто');        // а ||?\n\nlet d = null;\nconsole.log(d ?? 'запасной');     // null — что вернёт ??\nconsole.log(d || 'запасной');     // а ||?\n```\n\n**Вопрос:** какой оператор безопаснее использовать для числовых настроек, если `0` — допустимое значение?",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "88b8d422-818a-41da-8eff-a4627bc6a062",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: значения по умолчанию для отдела",
-      "status": "draft",
-      "createdAt": "2026-06-04T11:30",
-      "kind": "code",
-      "code": "// Маркетинговый отдел получает данные о сотрудниках.\n// Данные могут быть неполными — используй ??\n// для подстановки значений по умолчанию.\n\nconst DEFAULT_SALARY = 300000;\nconst WORK_DAYS_IN_MONTH = 22;\n\n// Этим данным можно доверять — они точно пришли из БД\nconst name = 'Иванов';\n\n// А эти данные могли быть не заполнены в системе.\n// salaryRaw — null (не указан), daysRaw — undefined (нет данных)\nconst salaryRaw = null;\nconst daysRaw = undefined;\n\n// 1. Используй ?? для подстановки значений по умолчанию\n//    salary = salaryRaw ?? ???\n//    days = daysRaw ?? ???\n\nconst salary = salaryRaw ?? DEFAULT_SALARY;\nconst days = daysRaw ?? WORK_DAYS_IN_MONTH;\n\n// 2. Посчитай зарплату за отработанные дни:\n//    salaryPerDay = salary / WORK_DAYS_IN_MONTH\n//    daySalary = Math.round(salaryPerDay * days)\n\nconst salaryPerDay = salary / WORK_DAYS_IN_MONTH;\nconst daySalary = Math.round(salaryPerDay * days);\n\n// 3. Выведи результат\nconsole.log('Сотрудник: ' + name + ', начислено: ' + daySalary + ' тенге');\n\n\n// ---\n// Дополнительно: замени ?? на || — заметил разницу?\n// Как поведёт себя ||, если salaryRaw = 0 (а не null)?\n// Проверь оба варианта.",
-      "language": "javascript"
-    },
-    {
-      "uuid": "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: предскажи порядок операций",
-      "content": "Как ты думаешь, что выведет каждый console.log? Сначала ответь, потом проверь.\n\n```js\nconsole.log(2 + 2 * 2);\nconsole.log((2 + 2) * 2);\nconsole.log(10 - 2 + 3);\nconsole.log(4 ** 3 * 2);\nconsole.log(2 + 2 < 3);\nconsole.log(2 < 1 === false);\nconsole.log(!2 * 2);\nconsole.log(0 && 6 || 8);\n```\n\n**Вопрос:** почему результаты отличаются? Какой оператор имеет самый высокий приоритет?",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "002293aa-017c-4a54-8068-b660f5860fd3",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: ассоциативность и подводные камни",
-      "content": "Предскажи результат — обрати внимание на ассоциативность (порядок при одинаковом приоритете).\n\n```js\n// Возведение в степень — право-ассоциативно\nconsole.log(2 ** 3 ** 2);\n\n// Присваивание — право-ассоциативно\nlet a, b;\na = b = 5;\nconsole.log('a:', a, 'b:', b);\n\n// Цепочка сравнений — не работает как в математике!\nconsole.log(3 < 5 < 2);\n```\n\n**Вопрос:** почему `3 < 5 < 2` даёт `true`, хотя в математике это false?(подсказка: `3 < 5` → `true`, а `true < 2` → ...)",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "05b240e9-a0be-45f2-8a83-2987899ee46f",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: исправь ошибку приоритетов в расчёте",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:00",
-      "kind": "code",
-      "code": "// В отделе маркетинга считают зарплату по формуле:\n// наРуки = (оклад + премия) - ОПВ - ИПН\n//\n// Но в коде закралась ошибка приоритетов — платежная ведомость\n// показывает неверные суммы. Найди и исправь ошибку.\n\nconst salary = 500000;\nconst bonusRate = 0.15;\nconst OPV_RATE = 0.1;\nconst IPN_RATE = 0.1;\n\n// ❌ ТАК НЕПРАВИЛЬНО — приоритеты сбивают расчёт!\n// salary + salary * bonusRate — это то же самое?\nconst totalWrong = salary + salary * bonusRate;\nconst opvWrong = totalWrong * OPV_RATE;\nconst ipnWrong = (totalWrong - opvWrong) * IPN_RATE;\nconst netWrong = totalWrong - opvWrong - ipnWrong;\nconsole.log('❌ Неправильно: на руки', netWrong, 'тг');\n\n// ✅ ИСПРАВЛЕНИЕ — используй скобки явно\n// База = оклад + премия. Премия = оклад * 0.15\n// totalCorrect = ???\n// OPV = totalCorrect * 0.1\n// IPN = (totalCorrect - OPV) * 0.1\n// netCorrect = totalCorrect - OPV - IPN\n\nconst totalCorrect = salary + (salary * bonusRate);\nconst opvCorrect = totalCorrect * OPV_RATE;\nconst ipnCorrect = (totalCorrect - opvCorrect) * IPN_RATE;\nconst netCorrect = totalCorrect - opvCorrect - ipnCorrect;\nconsole.log('✅ Исправлено: на руки', netCorrect, 'тг');\n\n// Какая разница и почему?\n// Подсказка: в wrong варианте salary + salary * bonusRate — умножение раньше сложения\n\n// ---\n// Дополнительно: перепиши формулу так, чтобы было понятно без скобок\n// Используй промежуточные переменные:\n// bonus = salary * bonusRate\n// base = salary + bonus\n// ... и так далее",
-      "language": "javascript"
-    },
-    {
-      "uuid": "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Чтение: Array",
-      "content": "Прочитай текстовый урок: 👉 [Массивы](https://learn.javascript.ru/array)\n\nИз этого урока ты узнаешь:\n- Как создавать массивы\n- Методы push/pop/shift/unshift\n- Как получить длину массива и обратиться к элементу\n- Что такое разреженные массивы",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "ced1559c-c4ac-4262-9770-631df6120c36",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: методы массива",
-      "content": "Как ты думаешь, что выведет каждый console.log? Сначала ответь, потом проверь через `bun run`.\n\n```js\nlet arr = ['a', 'b', 'c'];\narr.push('d');\nconsole.log(arr.length);\n\narr.pop();\nconsole.log(arr);\n\narr.unshift('x');\nconsole.log(arr);\n\narr.shift();\nconsole.log(arr);\n\nconsole.log(arr.at(-1));\n```\n\n**Вопрос:** какие методы работают быстро, а какие медленно? Почему?",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "04cefc9e-10c6-41f5-8809-5c5531c875fc",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: Set — уникальные значения",
-      "content": "Предскажи что выведет каждый console.log:\n\n```js\nlet set = new Set([1, 2, 3, 1, 2]);\nconsole.log(set.size);\nconsole.log(set.has(3));\nconsole.log(set.has(5));\n\nset.add(4);\nset.add(2);  // дубликат\nconsole.log(set.size);\n\nlet arr = [...set];\nconsole.log(arr);\n```\n\n**Вопрос:** сколько элементов в Set после добавления дубликатов? Как превратить Set обратно в массив?",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "9058da50-2a57-400d-8fa1-cc48d8e4ff26",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: список отдела маркетинга",
-      "status": "draft",
-      "createdAt": "2026-06-04T12:30",
-      "kind": "code",
-      "code": "// В отделе маркетинга 4 сотрудника. Напиши программу, которая:\n// 1. Создаёт массив сотрудников\n// 2. Добавляет нового сотрудника\n// 3. Удаляет уволенного сотрудника\n// 4. Выводит итоговый список\n\n// Исходный список\nconst team = ['Иванов', 'Петрова', 'Сидоров'];\nconsole.log('Отдел:', team);\n\n// К нам пришёл новый сотрудник — Козлова\n// Используй push, чтобы добавить её в конец\nteam.push('Козлова');\nconsole.log('После приёма:', team);\n\n// Петрова уволилась — удали её через shift или indexOf + splice\n// Петрова — второй элемент (индекс 1)\n// Подсказка: arr.splice(индекс, количество)\nteam.splice(1, 1);\nconsole.log('После увольнения:', team);\n\n// Используй Set, чтобы убедиться, что в отделе нет дубликатов\n// (мало ли, случайно добавили того же человека дважды)\nconst uniqueTeam = [...new Set(team)];\nconsole.log('Уникальные:', uniqueTeam);\n\n// Выведи итоговую численность отдела\nconsole.log('Численность:', team.length);\n\n// ---\n// Дополнительно: попробуй добавить сотрудника дважды и проверь,\n// что Set отфильтрует дубликат",
-      "language": "javascript"
-    },
-    {
-      "uuid": "7c60fa67-801c-453d-bde3-0b9b4614b941",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Чтение: Object",
-      "content": "Прочитай текстовый урок: 👉 [Объекты](https://learn.javascript.ru/object)\n\nИз этого урока ты узнаешь:\n- Как создавать объекты\n- Как получать и менять свойства\n- Чем доступ через точку отличается от скобок\n- Как удалять свойства (delete)\n- Как проверить существование свойства (in)",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "5951c89e-98a8-4e12-8714-baa559db1030",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: доступ к свойствам объекта",
-      "content": "Как ты думаешь, что выведет каждый console.log? Сначала ответь, потом проверь.\n\n```js\nlet user = { name: 'Алия', age: 30 };\nconsole.log(user.name);\nconsole.log(user['age']);\n\nlet key = 'name';\nconsole.log(user[key]);\n\nuser.city = 'Алматы';\nconsole.log(user.city);\n\ndelete user.age;\nconsole.log(user.age);\n\nconsole.log('name' in user);\nconsole.log('age' in user);\n```\n\n**Вопрос:** чем отличается `user.name` от `user['name']`? Когда какой синтаксис удобнее?",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "59037452-2328-4b39-872f-df4d0ff1ded6",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: Map — ключи любого типа",
-      "content": "Предскажи что выведет каждый console.log. Обрати внимание на разницу между Object и Map.\n\n```js\nlet obj = {};\nlet map = new Map();\n\nobj[0] = 'ноль';\nobj['0'] = 'ноль строка';\nconsole.log(obj);\n// ? Сколько свойств в obj? Почему?\n\nmap.set(0, 'ноль');\nmap.set('0', 'ноль строка');\nconsole.log(map.size);\n// ? Сколько записей в map?\n\nlet john = { name: 'John' };\nobj[john] = 123;\nconsole.log(obj);\n// ? Какой ключ получился?\n\nmap.set(john, 123);\nconsole.log(map.get(john));\n// ? А тут?\n```\n\n**Вопрос:** в чём принципиальное отличие Map от Object? Зачем нужен Map, если есть Object?",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "9d9958a6-c770-4986-a7ae-e29cd2b619ce",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: оклады отдела как объект",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:00",
-      "kind": "code",
-      "code": "// Отдел маркетинга. Данные по окладам хранятся в объекте.\n// Напиши программу, которая:\n// 1. Создаёт объект окладов сотрудников\n// 2. Добавляет нового сотрудника\n// 3. Выводит оклад каждого через for...in\n// 4. Считает общий фонд оплаты труда\n\n// Исходные оклады\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n};\n\n// 1. Добавь Козлову с окладом 520000\nsalaries.Козлова = 520000;\n\n// 2. Выведи оклады всех сотрудников через for...in\n//    Используй интерполяцию: 'Имя: оклад тг'\nconsole.log('=== Оклады сотрудников ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// 3. Посчитай и выведи общий фонд оплаты труда (ФОТ)\n//    Пройди по всем ключам salaries и суммируй\nlet total = 0;\nfor (let name in salaries) {\n  total += salaries[name];\n}\nconsole.log('ФОТ отдела: ' + total + ' тг');\n\n// 4. Проверь, есть ли сотрудник с фамилией 'Иванов'\nconsole.log('Иванов в штате:', 'Иванов' in salaries);\n\n// ---\n// Дополнительно: перепиши то же самое через Map.\n// Заметил разницу в синтаксисе? Что удобнее для этого кейса?",
-      "language": "javascript"
-    },
-    {
-      "uuid": "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: предскажи работу for",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Как ты думаешь, что выведет каждый цикл?\n\n```js\nfor (let i = 0; i < 3; i++) {\n  console.log(i);\n}\n\nlet sum = 0;\nfor (let i = 1; i <= 5; i++) {\n  sum += i;\n}\nconsole.log(sum);\n\nfor (let i = 10; i > 0; i -= 3) {\n  console.log(i);\n}\n```\n\n**Вопрос:** сколько раз выполнится тело цикла? Когда остановится?"
-    },
-    {
-      "uuid": "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: предскажи — break и continue",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Предскажи результат:\n\n```js\nfor (let i = 0; i < 10; i++) {\n  if (i === 5) break;\n  console.log(i);\n}\n\nfor (let i = 0; i < 5; i++) {\n  if (i === 2) continue;\n  console.log(i);\n}\n```\n\n**Вопрос:** чем отличается break от continue?"
-    },
-    {
-      "uuid": "654bff87-1e71-474a-89e4-434800c51252",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: напечатай список отдела через цикл",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "code",
-      "code": "// Отдел маркетинга. Напечатай всех сотрудников через цикл.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = [500000, 450000, 480000, 520000];\n\n// Используй for для вывода:\n// 1. Иванов: 500000 тг\n// 2. Петрова: 450000 тг\n// ...\n\n// Твой код:\nfor (let i = 0; i < employees.length; i++) {\n  console.log((i + 1) + '. ' + employees[i] + ': ' + salaries[i] + ' тг');\n}\n\n// ---\n// Дополнительно: посчитай среднюю зарплату по отделу\nlet total = 0;\nfor (let i = 0; i < salaries.length; i++) {\n  total += salaries[i];\n}\nconsole.log('Средняя: ' + (total / salaries.length) + ' тг');",
-      "language": "javascript"
-    },
-    {
-      "uuid": "e03b00d0-91ca-4854-a88b-eb34f360a023",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: перебор строки по символам",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Предскажи, что выведет код. Затем проверь.\n\n```js\nlet name = 'Алия';\nfor (let i = 0; i < name.length; i++) {\n  console.log(i + ': ' + name[i]);\n}\n\nlet word = 'JavaScript';\nlet result = '';\nfor (let i = word.length - 1; i >= 0; i--) {\n  result += word[i];\n}\nconsole.log(result);\n```\n\n**Вопрос:** что делает второй цикл? Как называется такой алгоритм?"
-    },
-    {
-      "uuid": "049d3a91-83fe-4923-87ae-d18c25bac2d1",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: for с шагом по строке",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Предскажи результат. Обрати внимание на шаг цикла.\n\n```js\nlet text = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';\n\nfor (let i = 0; i < text.length; i += 2) {\n  console.log(text[i]);\n}\n```\n\n**Вопрос:** какие символы выведутся? Как изменить код, чтобы выводились только гласные?"
-    },
-    {
-      "uuid": "0eea84f0-929c-4c35-81a0-2ec247e6b0fa",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: форматирование ФИО",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "code",
-      "code": "// В отдел пришли данные с ошибкой: имена написаны в разном регистре.\n// Нужно привести все имена к формату: первая буква заглавная, остальные строчные.\n\nconst names = ['иванов', 'ПЕТРОВА', 'сИдОрОв', 'КОЗЛОВА'];\n\nfor (let i = 0; i < names.length; i++) {\n  const original = names[i];\n  // Сделай первую букву заглавной, остальные — строчными\n  // Подсказка: используй str[0], str.slice(1), .toUpperCase(), .toLowerCase()\n  const formatted = original[0].toUpperCase() + original.slice(1).toLowerCase();\n  console.log(original + ' → ' + formatted);\n}\n\n// ---\n// Дополнительно: посчитай, сколько имён начинается на букву 'К' (учти регистр)",
-      "language": "javascript"
-    },
-    {
-      "uuid": "c72cd020-2d06-4afd-af9e-ce98439db3d1",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: while vs do-while",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Предскажи результат. Чем отличаются два цикла?\n\n```js\nlet i = 0;\nwhile (i < 3) {\n  console.log('while:', i);\n  i++;\n}\n\nlet j = 0;\ndo {\n  console.log('do-while:', j);\n  j++;\n} while (j < 3);\n\n// А теперь — что выведет каждый, если условие сразу ложно?\nlet a = 10;\nwhile (a < 3) {\n  console.log('while-rare:', a);\n  a++;\n}\n\nlet b = 10;\ndo {\n  console.log('do-rare:', b);\n  b++;\n} while (b < 3);\n```\n\n**Вопрос:** сколько раз выполнится while? А do-while? Почему?"
-    },
-    {
-      "uuid": "96668db2-ddb6-49de-acc2-86114510fc7b",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: бесконечный цикл и break",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Как ты думаешь, что произойдёт? Сколько раз выполнится тело?\n\n```js\nlet i = 0;\nwhile (true) {\n  console.log('Итерация', i);\n  i++;\n  if (i >= 5) break;\n}\nconsole.log('Цикл завершён, i =', i);\n```\n\n**Вопрос:** почему используется while(true)? Как безопасно остановить бесконечный цикл?"
-    },
-    {
-      "uuid": "1220c276-da6a-4d3b-8df5-0700faedb991",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: поиск сотрудника с окладом > порога",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "code",
-      "code": "// В отделе маркетинга ищем сотрудников с окладом выше 480 000 тг.\n// Используй while. Как только нашёл — остановись (break).\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = [500000, 450000, 480000, 520000];\n\nconst threshold = 480000;\nlet found = false;\nlet i = 0;\n\nwhile (i < employees.length) {\n  if (salaries[i] > threshold) {\n    console.log('Найден: ' + employees[i] + ' — ' + salaries[i] + ' тг');\n    found = true;\n    break;\n  }\n  i++;\n}\n\nif (!found) {\n  console.log('Сотрудников с окладом больше ' + threshold + ' не найдено');\n}\n\n// ---\n// Дополнительно: перепиши то же самое через for.\n// Какой цикл удобнее для этой задачи? Почему?",
-      "language": "javascript"
-    },
-    {
-      "uuid": "987feb27-9278-48e9-95c1-56643a677ec7",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Чтение: for…in и for…of",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Прочитай текстовый урок: 👉 [Массивы (раздел про for..of)](https://learn.javascript.ru/array), 👉 [Объекты (раздел про for..in)](https://learn.javascript.ru/object)\n\nИз этого урока ты узнаешь:\n- Чем for...in отличается от for...of\n- Когда использовать for...in (объекты), а когда for...of (массивы, строки)\n- Оператор in для проверки существования свойства"
-    },
-    {
-      "uuid": "2ef8c97e-c6af-479d-8d36-40a848d1a74e",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: for…in для объекта",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Предскажи, что выведет каждый цикл. Зачем нужен for...in?\n\n```js\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n};\n\nfor (let key in salaries) {\n  console.log(key + ': ' + salaries[key] + ' тг');\n}\n\nconsole.log('in check:', 'Иванов' in salaries, 'Смирнов' in salaries);\n```\n\n**Вопрос:** что выведет for...in? Можно ли то же самое сделать через for...of?"
-    },
-    {
-      "uuid": "bbafb6a6-6904-46f5-a50f-08ab6842a646",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: for…of для массива",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "text",
-      "content": "Предскажи результат. Чем for...of отличается от for...in?\n\n```js\nconst employees = ['Иванов', 'Петрова', 'Сидоров'];\n\n// for...of — перебор значений\nfor (let name of employees) {\n  console.log(name);\n}\n\n// for...in на массиве — перебор индексов\nfor (let idx in employees) {\n  console.log(idx, typeof idx);\n}\n\n// Строки тоже итерируемые\nlet word = 'JS';\nfor (let ch of word) {\n  console.log(ch);\n}\n```\n\n**Вопрос:** почему for...in на массиве возвращает строки? Какой цикл рекомендуется для массивов?"
-    },
-    {
-      "uuid": "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: разбор данных отдела (for…in + for…of)",
-      "status": "draft",
-      "createdAt": "2026-06-04T13:30",
-      "kind": "code",
-      "code": "// Отдел маркетинга — объединяем всё: объект окладов и массив сотрудников.\n// Используй for...in для объекта и for...of для массива.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\n// 1. Выведи всех сотрудников через for...of\nconsole.log('=== Сотрудники отдела ===');\nfor (let name of employees) {\n  console.log(name);\n}\n\n// 2. Выведи оклады через for...in\nconsole.log('\\n=== Оклады ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// 3. Найди сотрудника с максимальным окладом\nlet maxName = '';\nlet maxSalary = 0;\nfor (let name in salaries) {\n  if (salaries[name] > maxSalary) {\n    maxSalary = salaries[name];\n    maxName = name;\n  }\n}\nconsole.log('\\nМаксимальный оклад: ' + maxName + ' — ' + maxSalary + ' тг');\n\n// ---\n// Дополнительно: проверь, все ли сотрудники из массива employees\n// есть в объекте salaries (используй оператор in)\n// Если кого-то нет — выведи предупреждение",
-      "language": "javascript"
-    },
-    {
-      "uuid": "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Проект: расчёт зарплаты по отделу — постановка задачи",
-      "content": "### Что нужно сделать\n\nТы будешь писать программу для расчёта зарплаты **всего отдела маркетинга**.\n\nВ отделе 4 сотрудника. Данные — массив (список имён) и два объекта (оклады и табель).\n\nЗадача разбита на **4 этапа**. Проходи их по порядку — каждый завершай запуском и проверкой результата.\n\n---\n\n### Исходные данные\n\n```js\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n```\n\n### Формулы (для справки)\n\n1. **Начислено** = `(оклад / WORK_DAYS_IN_MONTH) × отработанные дни`\n2. **ОПВ** = 10% от начисленного\n3. **ИПН** = 10% от (начисленное − ОПВ)\n4. **На руки** = начисленное − ОПВ − ИПН\n\nВсе суммы округляй через `Math.round()`.\n\n### Этапы\n\n| Этап | Что делаешь |\n|------|-------------|\n| **1** | Данные + проверка: выводишь сотрудников, оклады, проверяешь табель |\n| **2** | Расчёт для каждого: добавляешь в цикл формулы |\n| **3** | Итоги по отделу: сумматоры и подсчёт полного месяца |\n| **4** | Проверка по тестам |\n\nПереходи к **Этапу 1**.",
-      "status": "draft",
-      "createdAt": "2026-06-04T14:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "b7e3a9c1-5d4f-4e8a-9b2c-6a1d8f3e7c0a",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: Этап 1: данные и проверка структуры",
-      "status": "draft",
-      "createdAt": "2026-06-04T14:00",
-      "kind": "code",
-      "code": "// Этап 1: объяви данные, выведи сотрудников, оклады, проверь табель.\n// Скопируй и запусти. Убедись, что все данные на месте.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n\n// --- Выведи список сотрудников ---\nconsole.log('=== Сотрудники отдела ===');\nfor (let name of employees) {\n  console.log(name);\n}\n\n// --- Выведи их оклады через for...in ---\nconsole.log('\\n=== Оклады ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// --- Проверь табель (оператор in) ---\nconsole.log('\\n=== Проверка табеля ===');\nfor (let name of employees) {\n  if (name in workDays) {\n    console.log(name + ': отработал ' + workDays[name] + ' дней');\n  } else {\n    console.log('ВНИМАНИЕ: ' + name + ' нет в табеле!');\n  }\n}\n\n/*\n  Ожидаемый вывод:\n\n  === Сотрудники отдела ===\n  Иванов\n  Петрова\n  Сидоров\n  Козлова\n\n  === Оклады ===\n  Иванов: 500000 тг\n  Петрова: 450000 тг\n  Сидоров: 480000 тг\n  Козлова: 520000 тг\n\n  === Проверка табеля ===\n  Иванов: отработал 20 дней\n  Петрова: отработал 18 дней\n  Сидоров: отработал 22 дней\n  Козлова: отработал 20 дней\n*/",
-      "language": "javascript"
-    },
-    {
-      "uuid": "c8f4b0d2-6e5a-4f9b-ac3d-7b2e9f4d8d1b",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: Этап 2: расчёт для каждого сотрудника",
-      "status": "draft",
-      "createdAt": "2026-06-04T14:00",
-      "kind": "code",
-      "code": "// Этап 2: добавь расчёт зарплаты в цикле.\n// Возьми код из этапа 1 и ДОПИШИ внутрь цикла формулы.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n\nconsole.log('=== Расчёт зарплаты ===');\n\nfor (let name of employees) {\n  // Проверь, что сотрудник есть в обоих объектах\n  if (!(name in salaries) || !(name in workDays)) {\n    console.log(name + ': недостаточно данных для расчёта');\n    continue;\n  }\n\n  // --- Напиши свой код расчёта ---\n  // 1. Достань оклад и дни из объектов\n  // 2. Рассчитай начисленную сумму: (оклад / WORK_DAYS_IN_MONTH) * дни\n  // 3. Рассчитай ОПВ: 10% от начисленного\n  // 4. Рассчитай ИПН: 10% от (начисленное минус ОПВ)\n  // 5. Рассчитай сумму на руки\n  // 6. Выведи строку как в примере\n  // Не забудь Math.round()!\n\n  // const salary = ...\n  // const days = ...\n  // const accrued = ...\n  // const opv = ...\n  // const ipn = ...\n  // const net = ...\n  // console.log(...)\n}\n\n/*\n  Ожидаемый вывод:\n\n  === Расчёт зарплаты ===\n  Иванов: начислено 454545 тг, ОПВ 45455 тг, ИПН 40909 тг, на руки 368182 тг\n  Петрова: начислено 368182 тг, ОПВ 36818 тг, ИПН 33136 тг, на руки 298227 тг\n  Сидоров: начислено 480000 тг, ОПВ 48000 тг, ИПН 43200 тг, на руки 388800 тг\n  Козлова: начислено 472727 тг, ОПВ 47273 тг, ИПН 42545 тг, на руки 382909 тг\n*/",
-      "language": "javascript"
-    },
-    {
-      "uuid": "d9a5c1e3-7f6b-4a0c-bd4e-8c3f0a5e9e2c",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: Этап 3: итоги по отделу",
-      "status": "draft",
-      "createdAt": "2026-06-04T14:00",
-      "kind": "code",
-      "code": "// Этап 3: добавь подсчёт итогов по отделу.\n// Возьми код из этапа 2 и ДОПИШИ сумматоры.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n\n// --- Сумматоры (объяви ДО цикла) ---\n// let totalAccrued = 0;\n// let totalOpv = 0;\n// let totalIpn = 0;\n// let totalNet = 0;\n// let fullMonthCount = 0;\n\nconsole.log('=== Расчёт зарплаты ===');\n\nfor (let name of employees) {\n  if (!(name in salaries) || !(name in workDays)) {\n    console.log(name + ': недостаточно данных для расчёта');\n    continue;\n  }\n\n  const salary = salaries[name];\n  const days = workDays[name];\n  const accrued = Math.round((salary / WORK_DAYS_IN_MONTH) * days);\n  const opv = Math.round(accrued * OPV_RATE);\n  const ipn = Math.round((accrued - opv) * IPN_RATE);\n  const net = accrued - opv - ipn;\n\n  // --- Добавь значения в сумматоры ---\n  // totalAccrued += ...\n  // totalOpv += ...\n  // totalIpn += ...\n  // totalNet += ...\n\n  // --- Посчитай полный месяц через === ---\n  // if (days === WORK_DAYS_IN_MONTH) { ... }\n\n  console.log(name + ': начислено ' + accrued + ' тг, ОПВ ' + opv + ' тг, ИПН ' + ipn + ' тг, на руки ' + net + ' тг');\n}\n\n// --- Выведи итоги ---\nconsole.log('\\n=== ИТОГИ ПО ОТДЕЛУ ===');\n// console.log('Общий фонд оплаты: ' + totalAccrued.toLocaleString() + ' тг');\n// console.log('Всего удержано ОПВ: ' + totalOpv.toLocaleString() + ' тг');\n// console.log('Всего удержано ИПН: ' + totalIpn.toLocaleString() + ' тг');\n// console.log('Всего к выплате: ' + totalNet.toLocaleString() + ' тг');\n// console.log('Сотрудников, отработавших полный месяц: ' + fullMonthCount);\n\n/*\n  Ожидаемый вывод:\n\n  === Расчёт зарплаты ===\n  Иванов: начислено 454545 тг, ОПВ 45455 тг, ИПН 40909 тг, на руки 368182 тг\n  Петрова: начислено 368182 тг, ОПВ 36818 тг, ИПН 33136 тг, на руки 298227 тг\n  Сидоров: начислено 480000 тг, ОПВ 48000 тг, ИПН 43200 тг, на руки 388800 тг\n  Козлова: начислено 472727 тг, ОПВ 47273 тг, ИПН 42545 тг, на руки 382909 тг\n\n  === ИТОГИ ПО ОТДЕЛУ ===\n  Общий фонд оплаты: 1,775,455 тг\n  Всего удержано ОПВ: 177,545 тг\n  Всего удержано ИПН: 159,791 тг\n  Всего к выплате: 1,438,118 тг\n  Сотрудников, отработавших полный месяц: 1\n*/",
-      "language": "javascript"
-    },
-    {
-      "uuid": "e0b6d2f4-8a7c-4b1d-ce5f-9d4a1b6f0f3d",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Проект: проверь на тестах",
-      "content": "Запусти готовую программу. Сверь результат с ожидаемым. Если не совпадает — ищи ошибку.\n\n> **Подсказка:** проверь порядок вычислений — приоритет операторов (скобки!) и округление через `Math.round()`.\n\n---\n\n### Тест 1 — Каждый сотрудник\n\n| Сотрудник | Начислено | ОПВ | ИПН | На руки |\n|-----------|-----------|-----|-----|---------|\n| Иванов | 454 545 | 45 455 | 40 909 | **368 182** |\n| Петрова | 368 182 | 36 818 | 33 136 | **298 227** |\n| Сидоров | 480 000 | 48 000 | 43 200 | **388 800** |\n| Козлова | 472 727 | 47 273 | 42 545 | **382 909** |\n\n---\n\n### Тест 2 — Итоговые суммы\n\n| Показатель | Ожидание |\n|------------|----------|\n| Общий фонд оплаты | 1 775 455 тг |\n| Всего удержано ОПВ | 177 545 тг |\n| Всего удержано ИПН | 159 791 тг |\n| Всего к выплате | **1 438 118 тг** |\n| Полный месяц | 1 (Сидоров) |\n\n---\n\n### Тест 3 — Другие данные\n\nПопробуй запустить с изменёнными данными (добавь 5-го сотрудника, поменяй дни) — программа не должна ломаться.\n\n### Тест 4 — Граничные случаи\n\nЧто будет, если:\n- Сотрудника нет в объекте `workDays`?\n- Оклад равен 0?\n- Отработанные дни = 0?\n\nПроверь вручную — программа должна корректно обрабатывать такие ситуации благодаря `in`.",
-      "status": "draft",
-      "createdAt": "2026-06-04T14:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "ae9c1467-f772-4624-99ef-4733e0f69c9f",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Чтение: Map и Set",
-      "content": "Прочитай текстовый урок: 👉 [Map и Set](https://learn.javascript.ru/map-set)\n\nИз этого урока ты узнаешь:\n- Как работает Map: set, get, has, delete, size\n- Какие ключи могут быть в Map (не только строки)\n- Как работает Set: add, has, delete, size\n- Как перебирать Map и Set\n- Чем Map отличается от Object\n- Когда использовать Set вместо массива",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "8701de55-25d0-4953-84b0-50e9119a3c5f",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: используем Map и Set для отдела",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "code",
-      "code": "// Отдел маркетинга. Некоторые сотрудники — на внештатном контракте.\n// Используем Map для хранения ставки (почасовая / месячная)\n// Используем Set для отслеживания отсутствующих\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\n// 1. Создай Map contractType, где:\n//    Иванов → 'monthly', Петрова → 'hourly', Сидоров → 'monthly', Козлова → 'hourly'\n\n// 2. Выведи всех, у кого hourly ставка (через for...of)\n\n// 3. Создай Set absentToday с отсутствующими сегодня: Петрова, Козлова\n\n// 4. Выведи список присутствующих (employees, которых нет в absentToday)\n\n// 5. Петрова вернулась — удали её из absentToday, выведи обновлённый список отсутствующих\n",
-      "language": "javascript"
-    },
-    {
-      "uuid": "989b5634-e1ab-41c2-84a0-710c629dd825",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: граничные случаи массивов",
-      "content": "Как ты думаешь, что выведет каждый console.log? Объясни почему.\n\n```js\nconst arr = ['a', 'b', 'c'];\narr[5] = 'f';\nconsole.log(arr.length);\nconsole.log(arr);\n\nconst empty = [];\nempty[0] = 'первый';\nempty[99] = 'последний';\nconsole.log(empty.length);\n\nconst arr2 = [1, 2, 3];\narr2.length = 2;\nconsole.log(arr2);\nconsole.log(arr2[2]);\n\nconst arr3 = [1, 2, 3];\narr3.length = 5;\nconsole.log(arr3);\nconsole.log(arr3[4]);\n```\n\nПроверь в консоли.",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Самостоятельно: Object.keys, values, for...in",
-      "content": "Как ты думаешь, что выведет каждый console.log?\n\n```js\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n};\n\nconsole.log(Object.keys(salaries));\nconsole.log(Object.values(salaries));\n\nlet total = 0;\nfor (let name in salaries) {\n  total += salaries[name];\n}\nconsole.log('ФОТ:', total);\n\n// А что если добавить свойство через точку?\nsalaries.Козлова = 520000;\nconsole.log(Object.keys(salaries).length);\nconsole.log(salaries['Козлова']);\n```\n\nПроверь в консоли.",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "cb4b397e-96b7-41e7-9536-215719c19cf9",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Секреты логических операторов и нулевое слияние",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Секреты логических операторов и нулевое слияние.mp4](https://drive.google.com/file/d/1OPtSM0YlUMiX3dggTs9c2hD1evEsBQl2)\n\nИз этого видео ты узнаешь:\n- Что операторы || и && возвращают не true/false, а значения операндов\n- Что такое короткое замыкание (short-circuit)\n- Как работает оператор ?? (нулевое слияние)\n- Чем ?? отличается от ||",
-      "status": "published",
-      "createdAt": "2026-06-04T11:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "3d56934c-32a3-43b1-b309-edaaef875be1",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Приоритеты выполнения операторов",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Приоритеты выполнения операторов.mp4](https://drive.google.com/file/d/1gXLHWGdvXv7Webd-g4xKLxZvZh1UTlyA)\n\nИз этого видео ты узнаешь:\n- Как интерпретатор решает, какую операцию выполнить первой\n- Полную таблицу приоритетов: от `()` до присваивания\n- Что такое ассоциативность (лево- и правосторонняя)\n- Почему лучше всегда использовать скобки или разбивать на шаги",
-      "status": "published",
-      "createdAt": "2026-06-04T11:30",
-      "kind": "text"
-    },
-    {
-      "uuid": "bbe9160f-c3b0-4295-a01c-9c600e33acff",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Циклы — концепция и основы for",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Циклы — концепция и основы for.mp4](https://drive.google.com/file/d/1P20wsPxpwQVit8WI_NwzjF8mafC0rTZw)\n\nИз этого видео ты узнаешь:\n- Что такое цикл и зачем он нужен\n- Синтаксис for (инициализация; условие; обновление)\n- Как выполняется каждая итерация",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Циклы — for для перебора строк",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Циклы — for для перебора строк.mp4](https://drive.google.com/file/d/1duCzul9gzg6A1mzMGn9q71nTSFesMMc5)\n\nИз этого видео ты узнаешь:\n- Что строка — это коллекция символов с доступом по индексу\n- Как перебрать строку посимвольно через for\n- Как использовать str.length и str[i]",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "text"
-    },
-    {
-      "uuid": "5281a902-3c37-4849-8dcd-61b5b78eda4c",
-      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-      "description": "Видео: Циклы — while и do-while",
-      "content": "Посмотри видео по ссылке:\n\n👉 [Циклы — while и do-while.mp4](https://drive.google.com/file/d/1BfOC0xkSyl9pvrE1SlKpq8T5MZG4tc8I)\n\nИз этого видео ты узнаешь:\n- Как работает while (проверка до итерации)\n- Как работает do-while (тело выполняется хотя бы раз)\n- Когда выбирать for, а когда while",
-      "status": "published",
-      "createdAt": "2026-06-04T15:00",
-      "kind": "text"
-    }
-  ]
-}
+[
+  {
+    "uuid": "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Введение в программирование",
+    "content": "Посмотри видео «Введение в программирование» по ссылке:\n\n👉 [Введение в программирование.mp4](https://drive.google.com/file/d/1jByuEZZAr5OeI5VTGL-eNvhcGCFi16r6)\n\nИз этого видео ты узнаешь:\n- Что такое код, программа и интерпретатор\n- Как выполняется код (поток выполнения)\n- Кто такой программист и чем он занимается\n- Аналогию с рецептом из жизни",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "4890a068-1335-4115-931a-b6f4ee5ea7e5",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что выведет код?",
+    "content": "Как ты думаешь, что будет, если выполнить в консоли следующий код:\n\n```js\nconsole.log('Первый');\nconsole.log('Второй');\nconsole.log('Третий');\n```\n\nОтветь на вопрос, а затем проверь правильность, выполнив код в консоли браузера (F12) или через `bun`.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "255b3046-e46a-4e27-8794-5bf704691dc7",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: твой первый скрипт",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "code",
+    "code": "// Напиши программу, которая выводит:\n// 1. Твоё имя\n// 2. Твой любимый цвет\n// 3. Сколько тебе лет\n//\n// Используй console.log() для каждого пункта.\n\nconsole.log('Твоё имя');\nconsole.log('Твой любимый цвет');\nconsole.log(25);\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "1809238e-2942-4a09-96a4-c582a09097e1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что будет при ошибке?",
+    "content": "Как ты думаешь, что произойдёт, если выполнить этот код:\n\n```js\nconsole.log('Старт');\nconsol.log('Ошибка');        // опечатка в console\nconsole.log('Финиш');\n```\n\nОтветь на вопрос: выполнится ли третья строка? Почему? Проверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Переменные",
+    "content": "Посмотри видео «Переменные» по ссылке:\n\n👉 [Переменные.mp4](https://drive.google.com/file/d/1RqUAfBfK6ZyMFblVVUr4gEmtRvrNRAqv)\n\nИз этого видео ты узнаешь:\n- Что такое переменная и зачем она нужна\n- Как создать переменную через let, const и var (почему var — устарел)\n- Как работает оператор присваивания =\n- Что такое undefined",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: let vs const",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "code",
+    "code": "// Попробуй выполнить этот код в консоли.\n// Как ты думаешь, что произойдёт?\n\nlet city = 'Алматы';\ncity = 'Астана';\nconsole.log('Город:', city);\n\nconst country = 'Казахстан';\ncountry = 'Россия';\nconsole.log('Страна:', country);\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "5c443053-4784-4a0d-a0a1-6be99790f533",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: необъявленная переменная",
+    "content": "Как ты думаешь, что будет, если выполнить этот код:\n\n```js\nconsole.log(message);\nlet message = 'Привет';\n```\n\nА если заменить `let` на `var`? Проверь оба варианта в консоли.\n\nОбрати внимание: **мы не используем `var`** в современном JS. Пример с `var` нужен только чтобы показать, почему он плох — его поведение отличается и может привести к неочевидным ошибкам. Всегда используй `let` или `const`.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: undefined vs ошибка",
+    "content": "Чем отличаются эти два случая?\n\n```js\n// Случай А\nlet a;\nconsole.log(a);\n\n// Случай Б\nconsole.log(b);\n```\n\nКакой из них вызовет ошибку, а какой выведет `undefined`? Проверь.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "c0ec0938-0600-47e5-b363-b21eda469e7d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Математические операторы",
+    "content": "Посмотри видео «Математические операторы» по ссылке:\n\n👉 [Математические операторы.mp4](https://drive.google.com/file/d/1NWKE6DDnQ98YOA94bk23smxQjERX2dbb)\n\nИз этого видео ты узнаешь:\n- Стандартные и дополнительные математические операторы (%, **)\n- Порядок выполнения в строке присваивания\n- Сокращённый синтаксис (+=, -=, *=, и т.д.)\n- Префиксный и постфиксный инкремент/декремент",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "f033237c-e51e-4f3f-b175-e79ca0953c7a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что выведут операции?",
+    "content": "Как ты думаешь, что выведет каждый `console.log`?\n\n```js\nconsole.log(10 % 3);\nconsole.log(2 ** 4);\nconsole.log(15 % 5);\n```\n\nПроверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: сокращённый синтаксис",
+    "content": "Как ты думаешь, каким будет финальное значение `x`?\n\n```js\nlet x = 5;\nx += 3;\nx *= 2;\nx -= 4;\nconsole.log(x);\n```\n\nПопробуй понять без запуска, затем проверь.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "6d2200a1-3463-4fd3-a513-952d93b73ec3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: префиксный vs постфиксный",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "code",
+    "code": "// Как ты думаешь, что выведет каждый console.log?\n\nlet a = 5;\nlet b = 5;\n\nconsole.log('префиксный:', ++a);\nconsole.log('постфиксный:', b++);\nconsole.log('a после:', a);\nconsole.log('b после:', b);\n\n// Объясни разницу.\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Типы данных",
+    "content": "Посмотри видео «Типы данных» по ссылке:\n\n👉 [Типы данных.mp4](https://drive.google.com/file/d/1akcBsN2F1ACOcqrY1_4a_4AQdaJmxAFr)\n\nИз этого видео ты узнаешь:\n- Основные типы данных в JS: number, string, boolean, object, null, undefined\n- Оператор typeof\n- Как работает интерполяция строк (обратные кавычки)\n- Что такое исключение (exception)",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что вернёт typeof?",
+    "content": "Как ты думаешь, что вернёт `typeof` для каждого значения?\n\n```js\nconsole.log(typeof 'hello');\nconsole.log(typeof 123);\nconsole.log(typeof true);\nconsole.log(typeof undefined);\nconsole.log(typeof null);   // обрати внимание на эту строку!\nconsole.log(typeof { name: 'Алиса' });\nconsole.log(typeof NaN);\n```\n\nОбрати внимание на `typeof null` — запомни эту особенсть.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "e1a29ce7-2653-45ec-b863-0ca585e62e02",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: строка + число",
+    "content": "Как ты думаешь, что будет, если сложить строку и число?\n\n```js\nconsole.log('5' + 3);\nconsole.log(5 + '3');\nconsole.log('Привет' + 42);\n```\n\nА если использовать другие операторы?\n\n```js\nconsole.log('5' - 3);\nconsole.log('10' * 2);\nconsole.log('10' / '2');\n```\n\nПроверь все примеры в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "35eb70f1-13a2-4aaa-b066-d60603505e5b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: интерполяция строк",
+    "content": "Как ты думаешь, что выведет этот код?\n\n```js\nlet name = 'Дамир';\nlet age = 25;\n\nlet message = `Меня зовут ${name}, мне ${age} лет.`;\nconsole.log(message);\n\n// А если выражение?\nlet result = `2 + 2 = ${2 + 2}`;\nconsole.log(result);\n```\n\nПроверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-05-31T20:16",
+    "kind": "text"
+  },
+  {
+    "uuid": "b6a8a0be-7d63-49d0-a43b-fc4315dbee7b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Типы данных, исключения и особые случаи",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Типы данных, исключения и особые случаи.mp4](https://drive.google.com/file/d/1GyfHCToSCkDQeJ9wUD0GFNqlj0wBC8kp)\n\nИз этого видео ты узнаешь:\n- Как ведёт себя оператор + со строками и числами\n- Что будет, если применить арифметику к строкам\n- Что такое методы строк (на примере toUpperCase)\n- Что такое исключение (TypeError) и как оно останавливает поток",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "9a8edd25-b1da-46e7-bfcb-f0247de71ed5",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: конкатенация vs сложение",
+    "content": "Как ты думаешь, что выведет каждый console.log?\n\n```js\nconsole.log(5 + 3);\nconsole.log('5' + 3);\nconsole.log('5' + '3');\n```\n\nПроверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "1b1021c2-0e9e-41ec-80e7-3dd4ae64c9fe",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: арифметика со строками",
+    "content": "Что будет, если выполнить эти примеры?\n\n```js\nconsole.log('10' / 2);\nconsole.log('10' * '2');\nconsole.log(5 - '3');\nconsole.log('5' - 3);\nconsole.log('abc' / 5);\nconsole.log('123' - '23');\n```\n\nОбрати внимание на 'abc' / 5. Почему результат - NaN? Проверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "3ad71cd2-22ed-4f4f-a037-7f3ed564a42c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: TypeError - остановка потока",
+    "content": "Как ты думаешь, что произойдёт?\n\n```js\nlet name = 'Алия';\nlet age = 25;\n\nconsole.log(name.toUpperCase());\nconsole.log(age.toUpperCase());\nconsole.log('Эта строка выполнится?');\n```\n\nСколько строк выполнится до остановки? Проверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "105d9c41-a895-4dd4-882d-04384a767c9d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Операторы равенства, сравнения и отрицания",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Операторы равенства, сравнения и отрицания.mp4](https://drive.google.com/file/d/1CxlX5jYwW4YNz_s8tGRLLztfnkO6xXDn)\n\nИз этого видео ты узнаешь:\n- Чем отличается строгое равенство (===) от нестрогого (==)\n- Какие бывают операторы сравнения: <, >, <=, >=\n- Как работает оператор отрицания !\n- Почему стоит всегда использовать === и !===",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "00efb694-a917-4a11-8698-964440491169",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: строгое vs нестрогое",
+    "content": "Как ты думаешь, что вернёт каждый оператор?\n\n```js\nconsole.log(5 === 5);\nconsole.log(5 === '5');\nconsole.log(5 == '5');\nconsole.log(true === 1);\nconsole.log(true == 1);\n```\n\nНе применяй нестрогое равенство (неравенство). Проверь код в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "6ab959df-498e-41a5-b0f1-8b62a01aad56",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: операторы сравнения",
+    "content": "Предскажи результат:\n\n```js\nlet x = 10;\nlet y = 20;\n\nconsole.log(x > y);\nconsole.log(x < y);\nconsole.log(x >= 10);\nconsole.log(y <= 15);\nconsole.log(x !== y);\n```\n\nКакой тип возвращают все эти операторы? Проверь.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "54996992-d801-4b62-97c7-5ae211487e76",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: отрицание",
+    "content": "Что выведет каждый console.log?\n\n```js\nlet isReady = true;\n\nconsole.log(!isReady);\nconsole.log(!false);\nconsole.log(!(5 > 3));\nconsole.log(!(10 === '10'));\n```\n\nА теперь попробуй сам: напиши выражение с === и !, которое проверяет, что число НЕ равно 0.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "6e6b63e3-32b3-49b9-b075-c214062223d2",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Логические операторы",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Логические операторы.mp4](https://drive.google.com/file/d/1uzeUR5lpZqG15YOHqOys33nRURHH5B-u)\n\nИз этого видео ты узнаешь:\n- Как работают логические операторы И (&&) и ИЛИ (||)\n- Таблицы истинности\n- Как составлять сложные логические выражения\n- Практический пример: проверка трудоспособного возраста",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "dc626cec-82f1-4597-bf55-5822b8728e88",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: таблицы истинности",
+    "content": "Предскажи результат:\n\n```js\nconsole.log(true || true);\nconsole.log(true || false);\nconsole.log(false || true);\nconsole.log(false || false);\n\nconsole.log(true && true);\nconsole.log(true && false);\nconsole.log(false && true);\nconsole.log(false && false);\n```\n\nОбъясни когда ИЛИ даёт true, а когда И даёт true. Проверь.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "1f7b6291-5adc-4f4a-a2ca-d451a3b4de5f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: проверка диапазона",
+    "content": "Как ты думаешь, что вернёт каждое выражение?\n\n```js\nlet age = 25;\nconsole.log(age >= 18 && age <= 65);\n\nlet age2 = 15;\nconsole.log(age2 >= 18 && age2 <= 65);\n\nlet temp = 30;\nconsole.log(temp < 0 || temp > 35);\n\nlet temp2 = -5;\nconsole.log(temp2 < 0 || temp2 > 35);\n```\n\nОбъясни смысл каждого условия словами. Проверь в консоли.",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "58a9d484-e6f0-4000-b860-bc9a860f74ca",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Ветвление",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Ветвление.mp4](https://drive.google.com/file/d/1OJrLNr2c2MGBRLGUzFylbCkFyunPpX45)\n\nИз этого видео ты узнаешь:\n- Что такое ветвление и зачем оно нужно\n- Как работает оператор if\n- Как добавить else if и else\n- Что такое однострочный if без фигурных скобок",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "text"
+  },
+  {
+    "uuid": "108e5446-3d3e-44bb-aabc-0fc7fd779dd9",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: if - предскажи результат",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "code",
+    "code": "// Как ты думаешь, что выведет код?\nlet x = 10;\n\nif (x > 5) {\n  console.log('Больше пяти');\n}\n\nif (x > 20) {\n  console.log('Больше двадцати');\n}\n\nconsole.log('Готово');\n\n// А если x = 3?\n// Закомментируй верхний код и перепиши x = 3. Что изменится?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "2b0d5ae7-69ae-4ff3-be48-3deb5c6b1484",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: else - положительное или отрицательное",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "code",
+    "code": "// Предскажи что выведет для i = -5, i = 0, i = 7\nlet i = -5;\n\nif (i > 0) {\n  console.log(i + ' положительное');\n} else if (i === 0) {\n  console.log('ноль');\n} else {\n  console.log(i + ' отрицательное');\n}\n\n// Поменяй i на 0, потом на 7. Какой блок выполнится в каждом случае?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "c187ccc4-650d-4b0e-b538-506fcb8373d6",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: своя проверка",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:02",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Спрашивает возраст через prompt()\n// 2. Если возраст >= 18 - выводит «Взрослый»\n// 3. Если возраст >= 12 и < 18 - выводит «Подросток»\n// 4. Иначе - выводит «Ребёнок»\n//\n// Используй if / else if / else\n// Подсказка: prompt() возвращает строку, используй Number() для преобразования\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "ccb8d815-617d-4f1d-bacc-96be9738686f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: математика с переменными",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Объяви две числовые переменные (a и b)\n// 2. Выведи в консоль:\n//    - сумму a + b\n//    - разность a - b\n//    - произведение a * b\n//    - частное a / b\n//    - остаток от деления a % b\n//    - a в степени b (a ** b)\n//\n// Пример: a = 10, b = 3\n// Ожидаемый вывод:\n//   10 + 3 = 13\n//   10 - 3 = 7\n//   10 * 3 = 30\n//   10 / 3 = 3.333...\n//   10 % 3 = 1\n//   10 ** 3 = 1000\n\nlet a = 10;\nlet b = 3;\n// ... напиши код ниже",
+    "language": "javascript"
+  },
+  {
+    "uuid": "d6745add-0842-42a2-aa12-1502e24b68f1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: типы через интерполяцию",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Объяви переменную name со строкой (твоё имя)\n// 2. Объяви переменную age с числом (твой возраст)\n// 3. Выведи через интерполяцию строк (обратные кавычки ``):\n//    \"Меня зовут [name], тип: [typeof name]\"\n//    \"Мне [age] лет, тип: [typeof age]\"\n//\n// Дополнительно: объяви isStudent = true и выведи её тип.\n// Сделай вывод аккуратным.\n\nlet name = 'Дамир';\nlet age = 25;\nlet isStudent = true;\n// ... напиши код ниже",
+    "language": "javascript"
+  },
+  {
+    "uuid": "33f82348-b3dd-424c-8253-047be1d7e1b3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: метод строки и TypeError",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Объяви переменную word = 'JavaScript'\n// 2. Выведи word в верхнем регистре: word.toUpperCase()\n// 3. Теперь объяви num = 123\n// 4. Попробуй вызвать num.toUpperCase() — что произойдёт?\n// 5. Объясни в комментарии, почему возникла ошибка\n//\n// Подсказка: toUpperCase() — метод, который есть только у строк\n\nlet word = 'JavaScript';\nconsole.log(word.toUpperCase());\n\nlet num = 123;\n// console.log(num.toUpperCase());\n// ↑ раскомментируй эту строку и посмотри на ошибку\n// Напиши ниже объяснение: почему ошибка?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "001dbdbb-649b-41d2-917c-e231e9465fbd",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: проверяем возраст",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Запроси возраст через prompt() — сохрани в переменную age\n// 2. Преобразуй строку в число: Number(age)\n// 3. Выведи:\n//    - \"Совершеннолетний: true/false\"  (>= 18)\n//    - \"Подросток: true/false\"         (>= 12 и < 18)\n//    - \"Пенсионер: true/false\"         (>= 65)\n//    - \"Может водить машину: true/false\" (>= 18)\n//\n// Используй операторы сравнения и строгое равенство.\n\nlet ageInput = prompt('Сколько тебе лет?');\nlet age = Number(ageInput);\n// ... напиши код ниже\nconsole.log('Совершеннолетний:', age >= 18);\nconsole.log('Подросток:', age >= 12 && age < 18);\nconsole.log('Пенсионер:', age >= 65);\nconsole.log('Может водить:', age >= 18);",
+    "language": "javascript"
+  },
+  {
+    "uuid": "53df1181-366c-48d6-8f17-e38e08fe65cc",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: можно ли гулять?",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() температуру на улице\n// 2. Запроси через prompt() идёт ли дождь (введи true или false)\n//    Подсказка: строку 'true' можно сравнить === 'true'\n// 3. Выведи \"Можно гулять: true/false\"\n//\n// Гулять можно, если:\n//   - температура > 0 И температура < 35\n//   - И дождя НЕТ (!isRaining)\n//\n// Используй логические операторы &&, ||, !\n\nlet tempInput = prompt('Какая температура на улице?');\nlet temp = Number(tempInput);\nlet rainInput = prompt('Идёт дождь? (true/false)');\nlet isRaining = rainInput === 'true';\n\nlet canWalk = temp > 0 && temp < 35 && !isRaining;\nconsole.log('Можно гулять:', canWalk);\n\n// А если температура ниже 0 — можно? А если > 35?\n// Допиши условие: можно гулять ещё и если облачно, но без дождя.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "e6bda4c1-59a4-4930-98f4-d2d064d4b937",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: оценка в букву",
+    "status": "draft",
+    "createdAt": "2026-06-02T16:31",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n//\n// 1. Запроси через prompt() число — оценку от 0 до 100\n// 2. Преобразуй строку в число\n// 3. Через if / else if / else выведи букву:\n//    - 90 и выше → \"A\"\n//    - 75 и выше → \"B\"\n//    - 50 и выше → \"C\"\n//    - ниже 50   → \"D\"\n// 4. Если число меньше 0 или больше 100 — выведи \"Ошибка: неверная оценка\"\n//\n// Используй строгое сравнение === и логические операторы.\n\nlet scoreInput = prompt('Введи оценку от 0 до 100:');\nlet score = Number(scoreInput);\n// ... напиши код ниже\n// Пример:\n// if (score >= 90) { console.log('A'); }\n// else if (...) { ... }\n// else { ... }",
+    "language": "javascript"
+  },
+  {
+    "uuid": "480d9bc2-b7b1-415b-9b29-021c1919047e",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Тернарный оператор",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Тернарный оператор.mp4](https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv)\n\nИз этого видео ты узнаешь:\n- Чем отличается цепочка if-else if-else от последовательных if\n- Как работает тернарный оператор ? :\n- Когда удобно использовать тернарник вместо if-else",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "03401d6c-9e96-4574-90c5-158acd303d23",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: if-else цепочка → тернарный",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Перепиши этот if-else в одну строку с тернарным оператором\n\nlet age = 20;\nlet category;\nif (age >= 18) {\n  category = 'взрослый';\n} else {\n  category = 'ребёнок';\n}\nconsole.log(category);\n\n// А теперь для этого кода с else if:\nlet score = 75;\nlet grade;\nif (score >= 90) {\n  grade = 'A';\n} else if (score >= 75) {\n  grade = 'B';\n} else {\n  grade = 'C';\n}\nconsole.log(grade);\n// Подсказка: тернарники можно вкладывать, но это снижает читаемость",
+    "language": "javascript"
+  },
+  {
+    "uuid": "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: последовательные if vs цепочка",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что выведет этот код? Почему?\nlet x = 5;\n\nif (x > 0) {\n  console.log('Положительное');\n}\nif (x > 3) {\n  console.log('Больше трёх');\n}\nif (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n\n// ? Сколько сообщений выведется? Все три?\n// А теперь замени второй и третий if на else if:\nif (x > 3) {\n  console.log('Больше трёх');\n} else if (x > 0 && x < 10) {\n  console.log('В диапазоне 0-10');\n}\n// ? Сколько выведется теперь? В чём разница?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "42e1f374-0701-407f-b713-47e61305ee76",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: тернарник с prompt",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число\n// 2. Преобразует строку в число\n// 3. С помощью тернарного оператора присваивает переменной result:\n//    - 'Чётное', если число делится на 2 без остатка\n//    - 'Нечётное', если иначе\n// 4. Выводит result в консоль\n//\n// Используй % для проверки чётности\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Неявное преобразование типов",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Неявное преобразование типов.mp4](https://drive.google.com/file/d/1dMrVgB_7EcE2_u3Z7jep-onLjX-72J2D)\n\nИз этого видео ты узнаешь:\n- Как JavaScript автоматически преобразует типы\n- Почему + ведёт себя иначе, чем -, *, /\n- Что такое truthy и falsy значения\n- Почему == может быть опасным",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "6d04a894-cb14-41c0-874f-48aa715e2aec",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: неявное приведение в математике",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что выведет каждый console.log? Объясни почему.\n\nconsole.log('5' + 3);\nconsole.log('5' - 3);\nconsole.log('5' * '3');\nconsole.log('10' / '2');\nconsole.log(true + 1);\nconsole.log(false + 5);\nconsole.log('5' + true);\n\n// ? Почему + работает не так, как -, * и / ?\n// Проверь в консоли.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "5074ee40-5157-48f0-abf7-258a8b514bf6",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: truthy/falsy в условиях",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Предскажи, что выведет каждая проверка:\n\nlet a = 0;\nif (a) {\n  console.log('a — truthy');\n} else {\n  console.log('a — falsy');\n}\n\nlet b = '0';\nif (b) {\n  console.log('b — truthy');\n} else {\n  console.log('b — falsy');\n}\n\nlet c = '';\nif (c) {\n  console.log('c — truthy');\n} else {\n  console.log('c — falsy');\n}\n\nlet d = [];\nif (d) {\n  console.log('d — truthy');\n} else {\n  console.log('d — falsy');\n}\n\n// ? Какие ещё falsy значения ты знаешь? Проверь их.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "134a218c-6d72-445e-af0b-1a83334c7679",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Явное приведение типов",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Явное приведение типов.mp4](https://drive.google.com/file/d/1jkL1NrdmkIyWHqOv9jcu6yvmRaY4glT7)\n\nИз этого видео ты узнаешь:\n- Чем явное приведение отличается от неявного\n- Как преобразовывать строки в числа: Number(), +, parseInt, parseFloat\n- Как преобразовывать в строку: String(), .toString()\n- Как приводить к boolean: !! и Boolean()\n- Все falsy значения: false, 0, '', null, undefined, NaN",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: строки → числа",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что выведет каждый вызов? Попробуй предсказать.\n\nconsole.log(Number('123'));\nconsole.log(Number('12.5'));\nconsole.log(Number('abc'));\nconsole.log(Number(''));\nconsole.log(+'42');\nconsole.log(+'-3.14');\nconsole.log(parseInt('12.7'));\nconsole.log(parseFloat('12.7abc'));\nconsole.log(parseInt('100px'));\nconsole.log(parseInt('abc123'));\n\n// ? Какая разница между Number() и parseInt/parseFloat?\n// Проверь в консоли.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "97253c78-739e-473f-97e2-f932f7371092",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: всё → boolean",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Что вернёт двойное отрицание для этих значений?\n\nconsole.log(!!'hello');\nconsole.log(!!'');\nconsole.log(!!0);\nconsole.log(!!1);\nconsole.log(!!null);\nconsole.log(!!undefined);\nconsole.log(!!NaN);\nconsole.log(!![]);\nconsole.log(!!{});\nconsole.log(!!'false');\n\n// ? Почему 'false' — truthy? Ведь это строка 'false', не false!\n// ? Сколько всего falsy значений в JS? Назови их.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "e14689af-20e9-43c3-bf6b-ee3f51a3566a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: 10% от числа",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "code",
+    "code": "// Напиши программу, которая:\n// 1. Запрашивает через prompt() число (строку)\n// 2. Явно преобразует строку в число через Number()\n// 3. Вычисляет 10% от этого числа\n// 4. Выводит: '10% от X равно Y'\n//\n// Дополнительно: если пользователь ввёл не число (Number() вернул NaN),\n// выведи 'Ошибка: введите число'\n//\n// Используй Number() и проверку Number.isNaN()",
+    "language": "javascript"
+  },
+  {
+    "uuid": "96120ed5-7f84-422b-b538-ce017739cd92",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Проект: Расчёт зарплаты — постановка задачи",
+    "content": "### Что нужно сделать\n\nНапиши программу, которая рассчитывает зарплату сотрудника. Программа запрашивает через `prompt()` три значения:\n\n1. **Имя сотрудника** (строка)\n2. **Начисленную зарплату** (число, тенге)\n3. **Количество отработанных дней** в месяце (число)\n\n### Константы (задай жёстко в коде)\n\n```js\nconst OPV_RATE = 0.10;        // 10% — пенсионные отчисления\nconst IPN_RATE = 0.10;        // 10% — подоходный налог\nconst BONUS_RATE = 0.15;      // 15% — премия\nconst BONUS_DAYS = 20;        // порог дней для премии\n```\n\n### Что должна учитывать программа\n\n- **Премия:** если отработано больше 20 дней — сотрудник получает премию 15% от начисленной зарплаты. Иначе премия = 0.\n- **Отчисления:** от базы (зарплата + премия) удерживаются пенсионные (10%) и подоходный налог (10%).\n- **На руки:** база минус оба удержания.\n\nФормулы придумай самостоятельно, опираясь на условия выше.\n\n### Формат вывода\n\nПрограмма должна вывести в консоль отформатированный результат (используй интерполяцию строк):\n\n```\nИмя сотрудника: Алия\nНачислено: 100000 тг\nОтработано дней: 22\nПремия (15%): 15000 тг\nБаза для удержаний: 115000 тг\n────────\nОПВ (10%): 11500 тг\nИПН (10%): 11500 тг\n────────\nНа руки: 92000 тг\n```\n\n### Требования\n\n- Пиши код самостоятельно, без подсказок\n- Используй только изученное: `let`, `const`, `prompt()`, математические операторы, `if/else`, тернарный оператор, приведение типов, интерполяцию строк\n- Проверь программу на тестовых данных из **следующего шага**",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text"
+  },
+  {
+    "uuid": "399e4f37-e95e-4900-842d-cb31b012a87e",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Проект: Расчёт зарплаты — проверь на тестах",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:13",
+    "kind": "text",
+    "content": "Запусти программу с каждым набором данных. Сверь результат с ожидаемым. Если не совпадает — ищи ошибку.\n\n> **Подсказка:** чтобы `prompt()` вернул число, оберни в `Number()`:\n> `const salary = Number(prompt('Введите зарплату:'));`\n\n---\n\n### Тест 1 — С премией\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Алия |\n| Зарплата | 100 000 |\n| Дней | 22 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 15 000 тг |\n| База | 115 000 тг |\n| ОПВ (10%) | 11 500 тг |\n| ИПН (10%) | 11 500 тг |\n| На руки | **92 000 тг** |\n\n---\n\n### Тест 2 — Без премии (ровно 20 дней)\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Болат |\n| Зарплата | 80 000 |\n| Дней | 20 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 0 тг |\n| База | 80 000 тг |\n| ОПВ (10%) | 8 000 тг |\n| ИПН (10%) | 8 000 тг |\n| На руки | **64 000 тг** |\n\n---\n\n### Тест 3 — Без премии, мало дней\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Гульжан |\n| Зарплата | 40 000 |\n| Дней | 15 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 0 тг |\n| База | 40 000 тг |\n| ОПВ (10%) | 4 000 тг |\n| ИПН (10%) | 4 000 тг |\n| На руки | **32 000 тг** |\n\n---\n\n### Тест 4 — С премией, другая зарплата\n\n| Ввод | Значение |\n|------|----------|\n| Имя | Дамир |\n| Зарплата | 50 000 |\n| Дней | 22 |\n\n| Показатель | Ожидаемый результат |\n|------------|---------------------|\n| Премия (15%) | 7 500 тг |\n| База | 57 500 тг |\n| ОПВ (10%) | 5 750 тг |\n| ИПН (10%) | 5 750 тг |\n| На руки | **46 000 тг** |\n\n---\n\nВсе 4 теста прошли — проект готов. Если расхождение — проверь условие премии (`дней > 20`, не `>=`) и порядок вычислений."
+  },
+  {
+    "uuid": "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: что вернут || и &&?",
+    "content": "Как ты думаешь, что вернёт каждый console.log? Объясни почему.\n\n```js\nconsole.log(1 || 0);\nconsole.log(0 || 5);\nconsole.log(null || 'default');\nconsole.log('' || 'альтернатива');\nconsole.log(1 && 0);\nconsole.log(0 && 5);\nconsole.log('cat' && 'dog');\nconsole.log(null && 'hello');\n```\n\nОтветь на вопрос, а затем проверь, выполнив код в консоли браузера (F12) или через `bun run`.",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: ?? и || — в чём разница?",
+    "content": "Предскажи результат каждого выражения, а затем проверь в консоли, выполнив код через `bun run`.\n\n```js\nlet a;\nconsole.log(a ?? 'по умолчанию');  // undefined — что вернёт ??\nconsole.log(a || 'по умолчанию');  // а ||?\n\nlet b = 0;\nconsole.log(b ?? 100);            // 0 — что вернёт ??\nconsole.log(b || 100);            // а ||?\n\nlet c = '';\nconsole.log(c ?? 'пусто');        // '' — что вернёт ??\nconsole.log(c || 'пусто');        // а ||?\n\nlet d = null;\nconsole.log(d ?? 'запасной');     // null — что вернёт ??\nconsole.log(d || 'запасной');     // а ||?\n```\n\n**Вопрос:** какой оператор безопаснее использовать для числовых настроек, если `0` — допустимое значение?",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "88b8d422-818a-41da-8eff-a4627bc6a062",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: значения по умолчанию для отдела",
+    "status": "draft",
+    "createdAt": "2026-06-04T11:30",
+    "kind": "code",
+    "code": "// Маркетинговый отдел получает данные о сотрудниках.\n// Данные могут быть неполными — используй ??\n// для подстановки значений по умолчанию.\n\nconst DEFAULT_SALARY = 300000;\nconst WORK_DAYS_IN_MONTH = 22;\n\n// Этим данным можно доверять — они точно пришли из БД\nconst name = 'Иванов';\n\n// А эти данные могли быть не заполнены в системе.\n// salaryRaw — null (не указан), daysRaw — undefined (нет данных)\nconst salaryRaw = null;\nconst daysRaw = undefined;\n\n// 1. Используй ?? для подстановки значений по умолчанию\n//    salary = salaryRaw ?? ???\n//    days = daysRaw ?? ???\n\nconst salary = salaryRaw ?? DEFAULT_SALARY;\nconst days = daysRaw ?? WORK_DAYS_IN_MONTH;\n\n// 2. Посчитай зарплату за отработанные дни:\n//    salaryPerDay = salary / WORK_DAYS_IN_MONTH\n//    daySalary = Math.round(salaryPerDay * days)\n\nconst salaryPerDay = salary / WORK_DAYS_IN_MONTH;\nconst daySalary = Math.round(salaryPerDay * days);\n\n// 3. Выведи результат\nconsole.log('Сотрудник: ' + name + ', начислено: ' + daySalary + ' тенге');\n\n\n// ---\n// Дополнительно: замени ?? на || — заметил разницу?\n// Как поведёт себя ||, если salaryRaw = 0 (а не null)?\n// Проверь оба варианта.",
+    "language": "javascript"
+  },
+  {
+    "uuid": "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: предскажи порядок операций",
+    "content": "Как ты думаешь, что выведет каждый console.log? Сначала ответь, потом проверь.\n\n```js\nconsole.log(2 + 2 * 2);\nconsole.log((2 + 2) * 2);\nconsole.log(10 - 2 + 3);\nconsole.log(4 ** 3 * 2);\nconsole.log(2 + 2 < 3);\nconsole.log(2 < 1 === false);\nconsole.log(!2 * 2);\nconsole.log(0 && 6 || 8);\n```\n\n**Вопрос:** почему результаты отличаются? Какой оператор имеет самый высокий приоритет?",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "002293aa-017c-4a54-8068-b660f5860fd3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: ассоциативность и подводные камни",
+    "content": "Предскажи результат — обрати внимание на ассоциативность (порядок при одинаковом приоритете).\n\n```js\n// Возведение в степень — право-ассоциативно\nconsole.log(2 ** 3 ** 2);\n\n// Присваивание — право-ассоциативно\nlet a, b;\na = b = 5;\nconsole.log('a:', a, 'b:', b);\n\n// Цепочка сравнений — не работает как в математике!\nconsole.log(3 < 5 < 2);\n```\n\n**Вопрос:** почему `3 < 5 < 2` даёт `true`, хотя в математике это false?(подсказка: `3 < 5` → `true`, а `true < 2` → ...)",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "05b240e9-a0be-45f2-8a83-2987899ee46f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: исправь ошибку приоритетов в расчёте",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:00",
+    "kind": "code",
+    "code": "// В отделе маркетинга считают зарплату по формуле:\n// наРуки = (оклад + премия) - ОПВ - ИПН\n//\n// Но в коде закралась ошибка приоритетов — платежная ведомость\n// показывает неверные суммы. Найди и исправь ошибку.\n\nconst salary = 500000;\nconst bonusRate = 0.15;\nconst OPV_RATE = 0.1;\nconst IPN_RATE = 0.1;\n\n// ❌ ТАК НЕПРАВИЛЬНО — приоритеты сбивают расчёт!\n// salary + salary * bonusRate — это то же самое?\nconst totalWrong = salary + salary * bonusRate;\nconst opvWrong = totalWrong * OPV_RATE;\nconst ipnWrong = (totalWrong - opvWrong) * IPN_RATE;\nconst netWrong = totalWrong - opvWrong - ipnWrong;\nconsole.log('❌ Неправильно: на руки', netWrong, 'тг');\n\n// ✅ ИСПРАВЛЕНИЕ — используй скобки явно\n// База = оклад + премия. Премия = оклад * 0.15\n// totalCorrect = ???\n// OPV = totalCorrect * 0.1\n// IPN = (totalCorrect - OPV) * 0.1\n// netCorrect = totalCorrect - OPV - IPN\n\nconst totalCorrect = salary + (salary * bonusRate);\nconst opvCorrect = totalCorrect * OPV_RATE;\nconst ipnCorrect = (totalCorrect - opvCorrect) * IPN_RATE;\nconst netCorrect = totalCorrect - opvCorrect - ipnCorrect;\nconsole.log('✅ Исправлено: на руки', netCorrect, 'тг');\n\n// Какая разница и почему?\n// Подсказка: в wrong варианте salary + salary * bonusRate — умножение раньше сложения\n\n// ---\n// Дополнительно: перепиши формулу так, чтобы было понятно без скобок\n// Используй промежуточные переменные:\n// bonus = salary * bonusRate\n// base = salary + bonus\n// ... и так далее",
+    "language": "javascript"
+  },
+  {
+    "uuid": "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Чтение: Array",
+    "content": "Прочитай текстовый урок: 👉 [Массивы](https://learn.javascript.ru/array)\n\nИз этого урока ты узнаешь:\n- Как создавать массивы\n- Методы push/pop/shift/unshift\n- Как получить длину массива и обратиться к элементу\n- Что такое разреженные массивы",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "ced1559c-c4ac-4262-9770-631df6120c36",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: методы массива",
+    "content": "Как ты думаешь, что выведет каждый console.log? Сначала ответь, потом проверь через `bun run`.\n\n```js\nlet arr = ['a', 'b', 'c'];\narr.push('d');\nconsole.log(arr.length);\n\narr.pop();\nconsole.log(arr);\n\narr.unshift('x');\nconsole.log(arr);\n\narr.shift();\nconsole.log(arr);\n\nconsole.log(arr.at(-1));\n```\n\n**Вопрос:** какие методы работают быстро, а какие медленно? Почему?",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "04cefc9e-10c6-41f5-8809-5c5531c875fc",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: Set — уникальные значения",
+    "content": "Предскажи что выведет каждый console.log:\n\n```js\nlet set = new Set([1, 2, 3, 1, 2]);\nconsole.log(set.size);\nconsole.log(set.has(3));\nconsole.log(set.has(5));\n\nset.add(4);\nset.add(2);  // дубликат\nconsole.log(set.size);\n\nlet arr = [...set];\nconsole.log(arr);\n```\n\n**Вопрос:** сколько элементов в Set после добавления дубликатов? Как превратить Set обратно в массив?",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "9058da50-2a57-400d-8fa1-cc48d8e4ff26",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: список отдела маркетинга",
+    "status": "draft",
+    "createdAt": "2026-06-04T12:30",
+    "kind": "code",
+    "code": "// В отделе маркетинга 4 сотрудника. Напиши программу, которая:\n// 1. Создаёт массив сотрудников\n// 2. Добавляет нового сотрудника\n// 3. Удаляет уволенного сотрудника\n// 4. Выводит итоговый список\n\n// Исходный список\nconst team = ['Иванов', 'Петрова', 'Сидоров'];\nconsole.log('Отдел:', team);\n\n// К нам пришёл новый сотрудник — Козлова\n// Используй push, чтобы добавить её в конец\nteam.push('Козлова');\nconsole.log('После приёма:', team);\n\n// Петрова уволилась — удали её через shift или indexOf + splice\n// Петрова — второй элемент (индекс 1)\n// Подсказка: arr.splice(индекс, количество)\nteam.splice(1, 1);\nconsole.log('После увольнения:', team);\n\n// Используй Set, чтобы убедиться, что в отделе нет дубликатов\n// (мало ли, случайно добавили того же человека дважды)\nconst uniqueTeam = [...new Set(team)];\nconsole.log('Уникальные:', uniqueTeam);\n\n// Выведи итоговую численность отдела\nconsole.log('Численность:', team.length);\n\n// ---\n// Дополнительно: попробуй добавить сотрудника дважды и проверь,\n// что Set отфильтрует дубликат",
+    "language": "javascript"
+  },
+  {
+    "uuid": "7c60fa67-801c-453d-bde3-0b9b4614b941",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Чтение: Object",
+    "content": "Прочитай текстовый урок: 👉 [Объекты](https://learn.javascript.ru/object)\n\nИз этого урока ты узнаешь:\n- Как создавать объекты\n- Как получать и менять свойства\n- Чем доступ через точку отличается от скобок\n- Как удалять свойства (delete)\n- Как проверить существование свойства (in)",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "5951c89e-98a8-4e12-8714-baa559db1030",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: доступ к свойствам объекта",
+    "content": "Как ты думаешь, что выведет каждый console.log? Сначала ответь, потом проверь.\n\n```js\nlet user = { name: 'Алия', age: 30 };\nconsole.log(user.name);\nconsole.log(user['age']);\n\nlet key = 'name';\nconsole.log(user[key]);\n\nuser.city = 'Алматы';\nconsole.log(user.city);\n\ndelete user.age;\nconsole.log(user.age);\n\nconsole.log('name' in user);\nconsole.log('age' in user);\n```\n\n**Вопрос:** чем отличается `user.name` от `user['name']`? Когда какой синтаксис удобнее?",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "59037452-2328-4b39-872f-df4d0ff1ded6",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: Map — ключи любого типа",
+    "content": "Предскажи что выведет каждый console.log. Обрати внимание на разницу между Object и Map.\n\n```js\nlet obj = {};\nlet map = new Map();\n\nobj[0] = 'ноль';\nobj['0'] = 'ноль строка';\nconsole.log(obj);\n// ? Сколько свойств в obj? Почему?\n\nmap.set(0, 'ноль');\nmap.set('0', 'ноль строка');\nconsole.log(map.size);\n// ? Сколько записей в map?\n\nlet john = { name: 'John' };\nobj[john] = 123;\nconsole.log(obj);\n// ? Какой ключ получился?\n\nmap.set(john, 123);\nconsole.log(map.get(john));\n// ? А тут?\n```\n\n**Вопрос:** в чём принципиальное отличие Map от Object? Зачем нужен Map, если есть Object?",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "9d9958a6-c770-4986-a7ae-e29cd2b619ce",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: оклады отдела как объект",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:00",
+    "kind": "code",
+    "code": "// Отдел маркетинга. Данные по окладам хранятся в объекте.\n// Напиши программу, которая:\n// 1. Создаёт объект окладов сотрудников\n// 2. Добавляет нового сотрудника\n// 3. Выводит оклад каждого через for...in\n// 4. Считает общий фонд оплаты труда\n\n// Исходные оклады\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n};\n\n// 1. Добавь Козлову с окладом 520000\nsalaries.Козлова = 520000;\n\n// 2. Выведи оклады всех сотрудников через for...in\n//    Используй интерполяцию: 'Имя: оклад тг'\nconsole.log('=== Оклады сотрудников ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// 3. Посчитай и выведи общий фонд оплаты труда (ФОТ)\n//    Пройди по всем ключам salaries и суммируй\nlet total = 0;\nfor (let name in salaries) {\n  total += salaries[name];\n}\nconsole.log('ФОТ отдела: ' + total + ' тг');\n\n// 4. Проверь, есть ли сотрудник с фамилией 'Иванов'\nconsole.log('Иванов в штате:', 'Иванов' in salaries);\n\n// ---\n// Дополнительно: перепиши то же самое через Map.\n// Заметил разницу в синтаксисе? Что удобнее для этого кейса?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: предскажи работу for",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Как ты думаешь, что выведет каждый цикл?\n\n```js\nfor (let i = 0; i < 3; i++) {\n  console.log(i);\n}\n\nlet sum = 0;\nfor (let i = 1; i <= 5; i++) {\n  sum += i;\n}\nconsole.log(sum);\n\nfor (let i = 10; i > 0; i -= 3) {\n  console.log(i);\n}\n```\n\n**Вопрос:** сколько раз выполнится тело цикла? Когда остановится?"
+  },
+  {
+    "uuid": "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: предскажи — break и continue",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Предскажи результат:\n\n```js\nfor (let i = 0; i < 10; i++) {\n  if (i === 5) break;\n  console.log(i);\n}\n\nfor (let i = 0; i < 5; i++) {\n  if (i === 2) continue;\n  console.log(i);\n}\n```\n\n**Вопрос:** чем отличается break от continue?"
+  },
+  {
+    "uuid": "654bff87-1e71-474a-89e4-434800c51252",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: напечатай список отдела через цикл",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "code",
+    "code": "// Отдел маркетинга. Напечатай всех сотрудников через цикл.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = [500000, 450000, 480000, 520000];\n\n// Используй for для вывода:\n// 1. Иванов: 500000 тг\n// 2. Петрова: 450000 тг\n// ...\n\n// Твой код:\nfor (let i = 0; i < employees.length; i++) {\n  console.log((i + 1) + '. ' + employees[i] + ': ' + salaries[i] + ' тг');\n}\n\n// ---\n// Дополнительно: посчитай среднюю зарплату по отделу\nlet total = 0;\nfor (let i = 0; i < salaries.length; i++) {\n  total += salaries[i];\n}\nconsole.log('Средняя: ' + (total / salaries.length) + ' тг');",
+    "language": "javascript"
+  },
+  {
+    "uuid": "e03b00d0-91ca-4854-a88b-eb34f360a023",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: перебор строки по символам",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Предскажи, что выведет код. Затем проверь.\n\n```js\nlet name = 'Алия';\nfor (let i = 0; i < name.length; i++) {\n  console.log(i + ': ' + name[i]);\n}\n\nlet word = 'JavaScript';\nlet result = '';\nfor (let i = word.length - 1; i >= 0; i--) {\n  result += word[i];\n}\nconsole.log(result);\n```\n\n**Вопрос:** что делает второй цикл? Как называется такой алгоритм?"
+  },
+  {
+    "uuid": "049d3a91-83fe-4923-87ae-d18c25bac2d1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: for с шагом по строке",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Предскажи результат. Обрати внимание на шаг цикла.\n\n```js\nlet text = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';\n\nfor (let i = 0; i < text.length; i += 2) {\n  console.log(text[i]);\n}\n```\n\n**Вопрос:** какие символы выведутся? Как изменить код, чтобы выводились только гласные?"
+  },
+  {
+    "uuid": "0eea84f0-929c-4c35-81a0-2ec247e6b0fa",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: форматирование ФИО",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "code",
+    "code": "// В отдел пришли данные с ошибкой: имена написаны в разном регистре.\n// Нужно привести все имена к формату: первая буква заглавная, остальные строчные.\n\nconst names = ['иванов', 'ПЕТРОВА', 'сИдОрОв', 'КОЗЛОВА'];\n\nfor (let i = 0; i < names.length; i++) {\n  const original = names[i];\n  // Сделай первую букву заглавной, остальные — строчными\n  // Подсказка: используй str[0], str.slice(1), .toUpperCase(), .toLowerCase()\n  const formatted = original[0].toUpperCase() + original.slice(1).toLowerCase();\n  console.log(original + ' → ' + formatted);\n}\n\n// ---\n// Дополнительно: посчитай, сколько имён начинается на букву 'К' (учти регистр)",
+    "language": "javascript"
+  },
+  {
+    "uuid": "c72cd020-2d06-4afd-af9e-ce98439db3d1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: while vs do-while",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Предскажи результат. Чем отличаются два цикла?\n\n```js\nlet i = 0;\nwhile (i < 3) {\n  console.log('while:', i);\n  i++;\n}\n\nlet j = 0;\ndo {\n  console.log('do-while:', j);\n  j++;\n} while (j < 3);\n\n// А теперь — что выведет каждый, если условие сразу ложно?\nlet a = 10;\nwhile (a < 3) {\n  console.log('while-rare:', a);\n  a++;\n}\n\nlet b = 10;\ndo {\n  console.log('do-rare:', b);\n  b++;\n} while (b < 3);\n```\n\n**Вопрос:** сколько раз выполнится while? А do-while? Почему?"
+  },
+  {
+    "uuid": "96668db2-ddb6-49de-acc2-86114510fc7b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: бесконечный цикл и break",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Как ты думаешь, что произойдёт? Сколько раз выполнится тело?\n\n```js\nlet i = 0;\nwhile (true) {\n  console.log('Итерация', i);\n  i++;\n  if (i >= 5) break;\n}\nconsole.log('Цикл завершён, i =', i);\n```\n\n**Вопрос:** почему используется while(true)? Как безопасно остановить бесконечный цикл?"
+  },
+  {
+    "uuid": "1220c276-da6a-4d3b-8df5-0700faedb991",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: поиск сотрудника с окладом > порога",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "code",
+    "code": "// В отделе маркетинга ищем сотрудников с окладом выше 480 000 тг.\n// Используй while. Как только нашёл — остановись (break).\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = [500000, 450000, 480000, 520000];\n\nconst threshold = 480000;\nlet found = false;\nlet i = 0;\n\nwhile (i < employees.length) {\n  if (salaries[i] > threshold) {\n    console.log('Найден: ' + employees[i] + ' — ' + salaries[i] + ' тг');\n    found = true;\n    break;\n  }\n  i++;\n}\n\nif (!found) {\n  console.log('Сотрудников с окладом больше ' + threshold + ' не найдено');\n}\n\n// ---\n// Дополнительно: перепиши то же самое через for.\n// Какой цикл удобнее для этой задачи? Почему?",
+    "language": "javascript"
+  },
+  {
+    "uuid": "987feb27-9278-48e9-95c1-56643a677ec7",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Чтение: for…in и for…of",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Прочитай текстовый урок: 👉 [Массивы (раздел про for..of)](https://learn.javascript.ru/array), 👉 [Объекты (раздел про for..in)](https://learn.javascript.ru/object)\n\nИз этого урока ты узнаешь:\n- Чем for...in отличается от for...of\n- Когда использовать for...in (объекты), а когда for...of (массивы, строки)\n- Оператор in для проверки существования свойства"
+  },
+  {
+    "uuid": "2ef8c97e-c6af-479d-8d36-40a848d1a74e",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: for…in для объекта",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Предскажи, что выведет каждый цикл. Зачем нужен for...in?\n\n```js\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n};\n\nfor (let key in salaries) {\n  console.log(key + ': ' + salaries[key] + ' тг');\n}\n\nconsole.log('in check:', 'Иванов' in salaries, 'Смирнов' in salaries);\n```\n\n**Вопрос:** что выведет for...in? Можно ли то же самое сделать через for...of?"
+  },
+  {
+    "uuid": "bbafb6a6-6904-46f5-a50f-08ab6842a646",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: for…of для массива",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "text",
+    "content": "Предскажи результат. Чем for...of отличается от for...in?\n\n```js\nconst employees = ['Иванов', 'Петрова', 'Сидоров'];\n\n// for...of — перебор значений\nfor (let name of employees) {\n  console.log(name);\n}\n\n// for...in на массиве — перебор индексов\nfor (let idx in employees) {\n  console.log(idx, typeof idx);\n}\n\n// Строки тоже итерируемые\nlet word = 'JS';\nfor (let ch of word) {\n  console.log(ch);\n}\n```\n\n**Вопрос:** почему for...in на массиве возвращает строки? Какой цикл рекомендуется для массивов?"
+  },
+  {
+    "uuid": "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: разбор данных отдела (for…in + for…of)",
+    "status": "draft",
+    "createdAt": "2026-06-04T13:30",
+    "kind": "code",
+    "code": "// Отдел маркетинга — объединяем всё: объект окладов и массив сотрудников.\n// Используй for...in для объекта и for...of для массива.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\n// 1. Выведи всех сотрудников через for...of\nconsole.log('=== Сотрудники отдела ===');\nfor (let name of employees) {\n  console.log(name);\n}\n\n// 2. Выведи оклады через for...in\nconsole.log('\\n=== Оклады ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// 3. Найди сотрудника с максимальным окладом\nlet maxName = '';\nlet maxSalary = 0;\nfor (let name in salaries) {\n  if (salaries[name] > maxSalary) {\n    maxSalary = salaries[name];\n    maxName = name;\n  }\n}\nconsole.log('\\nМаксимальный оклад: ' + maxName + ' — ' + maxSalary + ' тг');\n\n// ---\n// Дополнительно: проверь, все ли сотрудники из массива employees\n// есть в объекте salaries (используй оператор in)\n// Если кого-то нет — выведи предупреждение",
+    "language": "javascript"
+  },
+  {
+    "uuid": "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Проект: расчёт зарплаты по отделу — постановка задачи",
+    "content": "### Что нужно сделать\n\nТы будешь писать программу для расчёта зарплаты **всего отдела маркетинга**.\n\nВ отделе 4 сотрудника. Данные — массив (список имён) и два объекта (оклады и табель).\n\nЗадача разбита на **4 этапа**. Проходи их по порядку — каждый завершай запуском и проверкой результата.\n\n---\n\n### Исходные данные\n\n```js\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n```\n\n### Формулы (для справки)\n\n1. **Начислено** = `(оклад / WORK_DAYS_IN_MONTH) × отработанные дни`\n2. **ОПВ** = 10% от начисленного\n3. **ИПН** = 10% от (начисленное − ОПВ)\n4. **На руки** = начисленное − ОПВ − ИПН\n\nВсе суммы округляй через `Math.round()`.\n\n### Этапы\n\n| Этап | Что делаешь |\n|------|-------------|\n| **1** | Данные + проверка: выводишь сотрудников, оклады, проверяешь табель |\n| **2** | Расчёт для каждого: добавляешь в цикл формулы |\n| **3** | Итоги по отделу: сумматоры и подсчёт полного месяца |\n| **4** | Проверка по тестам |\n\nПереходи к **Этапу 1**.",
+    "status": "draft",
+    "createdAt": "2026-06-04T14:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "b7e3a9c1-5d4f-4e8a-9b2c-6a1d8f3e7c0a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: Этап 1: данные и проверка структуры",
+    "status": "draft",
+    "createdAt": "2026-06-04T14:00",
+    "kind": "code",
+    "code": "// Этап 1: объяви данные, выведи сотрудников, оклады, проверь табель.\n// Скопируй и запусти. Убедись, что все данные на месте.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n\n// --- Выведи список сотрудников ---\nconsole.log('=== Сотрудники отдела ===');\nfor (let name of employees) {\n  console.log(name);\n}\n\n// --- Выведи их оклады через for...in ---\nconsole.log('\\n=== Оклады ===');\nfor (let name in salaries) {\n  console.log(name + ': ' + salaries[name] + ' тг');\n}\n\n// --- Проверь табель (оператор in) ---\nconsole.log('\\n=== Проверка табеля ===');\nfor (let name of employees) {\n  if (name in workDays) {\n    console.log(name + ': отработал ' + workDays[name] + ' дней');\n  } else {\n    console.log('ВНИМАНИЕ: ' + name + ' нет в табеле!');\n  }\n}\n\n/*\n  Ожидаемый вывод:\n\n  === Сотрудники отдела ===\n  Иванов\n  Петрова\n  Сидоров\n  Козлова\n\n  === Оклады ===\n  Иванов: 500000 тг\n  Петрова: 450000 тг\n  Сидоров: 480000 тг\n  Козлова: 520000 тг\n\n  === Проверка табеля ===\n  Иванов: отработал 20 дней\n  Петрова: отработал 18 дней\n  Сидоров: отработал 22 дней\n  Козлова: отработал 20 дней\n*/",
+    "language": "javascript"
+  },
+  {
+    "uuid": "c8f4b0d2-6e5a-4f9b-ac3d-7b2e9f4d8d1b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: Этап 2: расчёт для каждого сотрудника",
+    "status": "draft",
+    "createdAt": "2026-06-04T14:00",
+    "kind": "code",
+    "code": "// Этап 2: добавь расчёт зарплаты в цикле.\n// Возьми код из этапа 1 и ДОПИШИ внутрь цикла формулы.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n\nconsole.log('=== Расчёт зарплаты ===');\n\nfor (let name of employees) {\n  // Проверь, что сотрудник есть в обоих объектах\n  if (!(name in salaries) || !(name in workDays)) {\n    console.log(name + ': недостаточно данных для расчёта');\n    continue;\n  }\n\n  // --- Напиши свой код расчёта ---\n  // 1. Достань оклад и дни из объектов\n  // 2. Рассчитай начисленную сумму: (оклад / WORK_DAYS_IN_MONTH) * дни\n  // 3. Рассчитай ОПВ: 10% от начисленного\n  // 4. Рассчитай ИПН: 10% от (начисленное минус ОПВ)\n  // 5. Рассчитай сумму на руки\n  // 6. Выведи строку как в примере\n  // Не забудь Math.round()!\n\n  // const salary = ...\n  // const days = ...\n  // const accrued = ...\n  // const opv = ...\n  // const ipn = ...\n  // const net = ...\n  // console.log(...)\n}\n\n/*\n  Ожидаемый вывод:\n\n  === Расчёт зарплаты ===\n  Иванов: начислено 454545 тг, ОПВ 45455 тг, ИПН 40909 тг, на руки 368182 тг\n  Петрова: начислено 368182 тг, ОПВ 36818 тг, ИПН 33136 тг, на руки 298227 тг\n  Сидоров: начислено 480000 тг, ОПВ 48000 тг, ИПН 43200 тг, на руки 388800 тг\n  Козлова: начислено 472727 тг, ОПВ 47273 тг, ИПН 42545 тг, на руки 382909 тг\n*/",
+    "language": "javascript"
+  },
+  {
+    "uuid": "d9a5c1e3-7f6b-4a0c-bd4e-8c3f0a5e9e2c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: Этап 3: итоги по отделу",
+    "status": "draft",
+    "createdAt": "2026-06-04T14:00",
+    "kind": "code",
+    "code": "// Этап 3: добавь подсчёт итогов по отделу.\n// Возьми код из этапа 2 и ДОПИШИ сумматоры.\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n  Козлова: 520000,\n};\n\nconst workDays = {\n  Иванов: 20,\n  Петрова: 18,\n  Сидоров: 22,\n  Козлова: 20,\n};\n\nconst WORK_DAYS_IN_MONTH = 22;\nconst OPV_RATE = 0.10;\nconst IPN_RATE = 0.10;\n\n// --- Сумматоры (объяви ДО цикла) ---\n// let totalAccrued = 0;\n// let totalOpv = 0;\n// let totalIpn = 0;\n// let totalNet = 0;\n// let fullMonthCount = 0;\n\nconsole.log('=== Расчёт зарплаты ===');\n\nfor (let name of employees) {\n  if (!(name in salaries) || !(name in workDays)) {\n    console.log(name + ': недостаточно данных для расчёта');\n    continue;\n  }\n\n  const salary = salaries[name];\n  const days = workDays[name];\n  const accrued = Math.round((salary / WORK_DAYS_IN_MONTH) * days);\n  const opv = Math.round(accrued * OPV_RATE);\n  const ipn = Math.round((accrued - opv) * IPN_RATE);\n  const net = accrued - opv - ipn;\n\n  // --- Добавь значения в сумматоры ---\n  // totalAccrued += ...\n  // totalOpv += ...\n  // totalIpn += ...\n  // totalNet += ...\n\n  // --- Посчитай полный месяц через === ---\n  // if (days === WORK_DAYS_IN_MONTH) { ... }\n\n  console.log(name + ': начислено ' + accrued + ' тг, ОПВ ' + opv + ' тг, ИПН ' + ipn + ' тг, на руки ' + net + ' тг');\n}\n\n// --- Выведи итоги ---\nconsole.log('\\n=== ИТОГИ ПО ОТДЕЛУ ===');\n// console.log('Общий фонд оплаты: ' + totalAccrued.toLocaleString() + ' тг');\n// console.log('Всего удержано ОПВ: ' + totalOpv.toLocaleString() + ' тг');\n// console.log('Всего удержано ИПН: ' + totalIpn.toLocaleString() + ' тг');\n// console.log('Всего к выплате: ' + totalNet.toLocaleString() + ' тг');\n// console.log('Сотрудников, отработавших полный месяц: ' + fullMonthCount);\n\n/*\n  Ожидаемый вывод:\n\n  === Расчёт зарплаты ===\n  Иванов: начислено 454545 тг, ОПВ 45455 тг, ИПН 40909 тг, на руки 368182 тг\n  Петрова: начислено 368182 тг, ОПВ 36818 тг, ИПН 33136 тг, на руки 298227 тг\n  Сидоров: начислено 480000 тг, ОПВ 48000 тг, ИПН 43200 тг, на руки 388800 тг\n  Козлова: начислено 472727 тг, ОПВ 47273 тг, ИПН 42545 тг, на руки 382909 тг\n\n  === ИТОГИ ПО ОТДЕЛУ ===\n  Общий фонд оплаты: 1,775,455 тг\n  Всего удержано ОПВ: 177,545 тг\n  Всего удержано ИПН: 159,791 тг\n  Всего к выплате: 1,438,118 тг\n  Сотрудников, отработавших полный месяц: 1\n*/",
+    "language": "javascript"
+  },
+  {
+    "uuid": "e0b6d2f4-8a7c-4b1d-ce5f-9d4a1b6f0f3d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Проект: проверь на тестах",
+    "content": "Запусти готовую программу. Сверь результат с ожидаемым. Если не совпадает — ищи ошибку.\n\n> **Подсказка:** проверь порядок вычислений — приоритет операторов (скобки!) и округление через `Math.round()`.\n\n---\n\n### Тест 1 — Каждый сотрудник\n\n| Сотрудник | Начислено | ОПВ | ИПН | На руки |\n|-----------|-----------|-----|-----|---------|\n| Иванов | 454 545 | 45 455 | 40 909 | **368 182** |\n| Петрова | 368 182 | 36 818 | 33 136 | **298 227** |\n| Сидоров | 480 000 | 48 000 | 43 200 | **388 800** |\n| Козлова | 472 727 | 47 273 | 42 545 | **382 909** |\n\n---\n\n### Тест 2 — Итоговые суммы\n\n| Показатель | Ожидание |\n|------------|----------|\n| Общий фонд оплаты | 1 775 455 тг |\n| Всего удержано ОПВ | 177 545 тг |\n| Всего удержано ИПН | 159 791 тг |\n| Всего к выплате | **1 438 118 тг** |\n| Полный месяц | 1 (Сидоров) |\n\n---\n\n### Тест 3 — Другие данные\n\nПопробуй запустить с изменёнными данными (добавь 5-го сотрудника, поменяй дни) — программа не должна ломаться.\n\n### Тест 4 — Граничные случаи\n\nЧто будет, если:\n- Сотрудника нет в объекте `workDays`?\n- Оклад равен 0?\n- Отработанные дни = 0?\n\nПроверь вручную — программа должна корректно обрабатывать такие ситуации благодаря `in`.",
+    "status": "draft",
+    "createdAt": "2026-06-04T14:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "ae9c1467-f772-4624-99ef-4733e0f69c9f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Чтение: Map и Set",
+    "content": "Прочитай текстовый урок: 👉 [Map и Set](https://learn.javascript.ru/map-set)\n\nИз этого урока ты узнаешь:\n- Как работает Map: set, get, has, delete, size\n- Какие ключи могут быть в Map (не только строки)\n- Как работает Set: add, has, delete, size\n- Как перебирать Map и Set\n- Чем Map отличается от Object\n- Когда использовать Set вместо массива",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "8701de55-25d0-4953-84b0-50e9119a3c5f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: используем Map и Set для отдела",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "code",
+    "code": "// Отдел маркетинга. Некоторые сотрудники — на внештатном контракте.\n// Используем Map для хранения ставки (почасовая / месячная)\n// Используем Set для отслеживания отсутствующих\n\nconst employees = ['Иванов', 'Петрова', 'Сидоров', 'Козлова'];\n\n// 1. Создай Map contractType, где:\n//    Иванов → 'monthly', Петрова → 'hourly', Сидоров → 'monthly', Козлова → 'hourly'\n\n// 2. Выведи всех, у кого hourly ставка (через for...of)\n\n// 3. Создай Set absentToday с отсутствующими сегодня: Петрова, Козлова\n\n// 4. Выведи список присутствующих (employees, которых нет в absentToday)\n\n// 5. Петрова вернулась — удали её из absentToday, выведи обновлённый список отсутствующих\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "989b5634-e1ab-41c2-84a0-710c629dd825",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: граничные случаи массивов",
+    "content": "Как ты думаешь, что выведет каждый console.log? Объясни почему.\n\n```js\nconst arr = ['a', 'b', 'c'];\narr[5] = 'f';\nconsole.log(arr.length);\nconsole.log(arr);\n\nconst empty = [];\nempty[0] = 'первый';\nempty[99] = 'последний';\nconsole.log(empty.length);\n\nconst arr2 = [1, 2, 3];\narr2.length = 2;\nconsole.log(arr2);\nconsole.log(arr2[2]);\n\nconst arr3 = [1, 2, 3];\narr3.length = 5;\nconsole.log(arr3);\nconsole.log(arr3[4]);\n```\n\nПроверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Самостоятельно: Object.keys, values, for...in",
+    "content": "Как ты думаешь, что выведет каждый console.log?\n\n```js\nconst salaries = {\n  Иванов: 500000,\n  Петрова: 450000,\n  Сидоров: 480000,\n};\n\nconsole.log(Object.keys(salaries));\nconsole.log(Object.values(salaries));\n\nlet total = 0;\nfor (let name in salaries) {\n  total += salaries[name];\n}\nconsole.log('ФОТ:', total);\n\n// А что если добавить свойство через точку?\nsalaries.Козлова = 520000;\nconsole.log(Object.keys(salaries).length);\nconsole.log(salaries['Козлова']);\n```\n\nПроверь в консоли.",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "cb4b397e-96b7-41e7-9536-215719c19cf9",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Секреты логических операторов и нулевое слияние",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Секреты логических операторов и нулевое слияние.mp4](https://drive.google.com/file/d/1OPtSM0YlUMiX3dggTs9c2hD1evEsBQl2)\n\nИз этого видео ты узнаешь:\n- Что операторы || и && возвращают не true/false, а значения операндов\n- Что такое короткое замыкание (short-circuit)\n- Как работает оператор ?? (нулевое слияние)\n- Чем ?? отличается от ||",
+    "status": "published",
+    "createdAt": "2026-06-04T11:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "3d56934c-32a3-43b1-b309-edaaef875be1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Приоритеты выполнения операторов",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Приоритеты выполнения операторов.mp4](https://drive.google.com/file/d/1gXLHWGdvXv7Webd-g4xKLxZvZh1UTlyA)\n\nИз этого видео ты узнаешь:\n- Как интерпретатор решает, какую операцию выполнить первой\n- Полную таблицу приоритетов: от `()` до присваивания\n- Что такое ассоциативность (лево- и правосторонняя)\n- Почему лучше всегда использовать скобки или разбивать на шаги",
+    "status": "published",
+    "createdAt": "2026-06-04T11:30",
+    "kind": "text"
+  },
+  {
+    "uuid": "bbe9160f-c3b0-4295-a01c-9c600e33acff",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Циклы — концепция и основы for",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Циклы — концепция и основы for.mp4](https://drive.google.com/file/d/1P20wsPxpwQVit8WI_NwzjF8mafC0rTZw)\n\nИз этого видео ты узнаешь:\n- Что такое цикл и зачем он нужен\n- Синтаксис for (инициализация; условие; обновление)\n- Как выполняется каждая итерация",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Циклы — for для перебора строк",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Циклы — for для перебора строк.mp4](https://drive.google.com/file/d/1duCzul9gzg6A1mzMGn9q71nTSFesMMc5)\n\nИз этого видео ты узнаешь:\n- Что строка — это коллекция символов с доступом по индексу\n- Как перебрать строку посимвольно через for\n- Как использовать str.length и str[i]",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "5281a902-3c37-4849-8dcd-61b5b78eda4c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Видео: Циклы — while и do-while",
+    "content": "Посмотри видео по ссылке:\n\n👉 [Циклы — while и do-while.mp4](https://drive.google.com/file/d/1BfOC0xkSyl9pvrE1SlKpq8T5MZG4tc8I)\n\nИз этого видео ты узнаешь:\n- Как работает while (проверка до итерации)\n- Как работает do-while (тело выполняется хотя бы раз)\n- Когда выбирать for, а когда while",
+    "status": "published",
+    "createdAt": "2026-06-04T15:00",
+    "kind": "text"
+  }
+]
