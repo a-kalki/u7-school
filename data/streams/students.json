@@ -1,1 +1,4 @@
-[]
+{
+  "$schema": "../schemas/Student.schema.json",
+  "items": []
+}

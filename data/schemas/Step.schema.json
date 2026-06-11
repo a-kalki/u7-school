@@ -1,0 +1,185 @@
+{
+  "title": "Step",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moduleId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "published",
+            "archived"
+          ],
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "const": "text"
+        }
+      },
+      "required": [
+        "uuid",
+        "moduleId",
+        "description",
+        "status",
+        "createdAt",
+        "kind"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moduleId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "published",
+            "archived"
+          ],
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "const": "code"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "moduleId",
+        "description",
+        "status",
+        "createdAt",
+        "kind",
+        "code"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "moduleId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "published",
+            "archived"
+          ],
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "const": "file"
+        },
+        "file": {
+          "type": "object",
+          "properties": {
+            "uuid": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "mimeType": {
+              "type": "string",
+              "minLength": 1
+            },
+            "size": {
+              "type": "number",
+              "minimum": 0
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uuid",
+            "name",
+            "mimeType",
+            "size"
+          ]
+        }
+      },
+      "required": [
+        "uuid",
+        "moduleId",
+        "description",
+        "status",
+        "createdAt",
+        "kind",
+        "file"
+      ]
+    }
+  ]
+}

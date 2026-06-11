@@ -1,521 +1,524 @@
-[
-  {
-    "uuid": "ca2d4223-f6bc-4492-b7d0-0a2a90195a93",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Введение в программирование",
-    "additional": "Код, программа, интерпретатор, поток выполнения — что такое программирование и зачем учить JavaScript",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-05-31T20:16",
-    "estimatedMinutes": 11,
-    "stepIds": [
-      "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
-      "4890a068-1335-4115-931a-b6f4ee5ea7e5",
-      "255b3046-e46a-4e27-8794-5bf704691dc7",
-      "1809238e-2942-4a09-96a4-c582a09097e1"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "b20a71d5-f8ec-4f86-be96-da26d91b0920",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Переменные",
-    "additional": "Создание переменных через let и const, присваивание, область видимости, предпочтение const",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-05-31T20:16",
-    "estimatedMinutes": 13,
-    "stepIds": [
-      "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
-      "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
-      "5c443053-4784-4a0d-a0a1-6be99790f533",
-      "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "4ac0dcde-6ffd-4696-b86c-9a5f3e09b0b1",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Математические операторы",
-    "additional": "Базовые и дополнительные операторы: +, -, *, /, %, **, сокращённый синтаксис, инкремент/декремент",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
-    "estimatedMinutes": 14,
-    "stepIds": [
-      "c0ec0938-0600-47e5-b363-b21eda469e7d",
-      "f033237c-e51e-4f3f-b175-e79ca0953c7a",
-      "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
-      "6d2200a1-3463-4fd3-a513-952d93b73ec3",
-      "ccb8d815-617d-4f1d-bacc-96be9738686f"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "8c7fcf69-0b43-421f-842d-e870c82b08c7",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Типы данных",
-    "additional": "Основные типы JS: number, string, boolean, object, null, undefined; оператор typeof, интерполяция строк",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
-    "estimatedMinutes": 19,
-    "stepIds": [
-      "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
-      "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
-      "e1a29ce7-2653-45ec-b863-0ca585e62e02",
-      "35eb70f1-13a2-4aaa-b066-d60603505e5b",
-      "d6745add-0842-42a2-aa12-1502e24b68f1"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "9488adfb-a922-4b88-bd65-bf2dd3322a38",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Типы данных, исключения и особые случаи",
-    "additional": "Конкатенация строк через +, арифметика со строками, TypeError при несовместимых операциях",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
-    "estimatedMinutes": 11,
-    "stepIds": [
-      "b6a8a0be-7d63-49d0-a43b-fc4315dbee7b",
-      "9a8edd25-b1da-46e7-bfcb-f0247de71ed5",
-      "1b1021c2-0e9e-41ec-80e7-3dd4ae64c9fe",
-      "3ad71cd2-22ed-4f4f-a037-7f3ed564a42c",
-      "33f82348-b3dd-424c-8253-047be1d7e1b3"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "7c9ecad0-a0b9-442d-bbb8-435711410b16",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Операторы равенства, сравнения и отрицания",
-    "additional": "Строгое === и нестрогое == равенство, операторы < > <= >=, отрицание !; всегда используйте ===",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
-    "estimatedMinutes": 9,
-    "stepIds": [
-      "105d9c41-a895-4dd4-882d-04384a767c9d",
-      "00efb694-a917-4a11-8698-964440491169",
-      "6ab959df-498e-41a5-b0f1-8b62a01aad56",
-      "54996992-d801-4b62-97c7-5ae211487e76",
-      "001dbdbb-649b-41d2-917c-e231e9465fbd"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "9cca33dc-2941-4c09-843b-899e8c0b2e23",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Логические операторы",
-    "additional": "ИЛИ ||, И &&, таблицы истинности, составные условия, практическое применение в проверках",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
-    "estimatedMinutes": 17,
-    "stepIds": [
-      "6e6b63e3-32b3-49b9-b075-c214062223d2",
-      "dc626cec-82f1-4597-bf55-5822b8728e88",
-      "1f7b6291-5adc-4f4a-a2ca-d451a3b4de5f",
-      "53df1181-366c-48d6-8f17-e38e08fe65cc"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "63a60f0c-0517-45d3-9a0f-fa1775de46d6",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Ветвление",
-    "additional": "if / else if / else, цепочки условий, однострочный синтаксис, выполнение только первого истинного блока",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-02T16:31",
-    "estimatedMinutes": 21,
-    "stepIds": [
-      "58a9d484-e6f0-4000-b860-bc9a860f74ca",
-      "108e5446-3d3e-44bb-aabc-0fc7fd779dd9",
-      "2b0d5ae7-69ae-4ff3-be48-3deb5c6b1484",
-      "c187ccc4-650d-4b0e-b538-506fcb8373d6",
-      "e6bda4c1-59a4-4930-98f4-d2d064d4b937"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "48c56d93-4478-46e8-ad7f-d3e6b0e72ab6",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Тернарный оператор",
-    "additional": "Компактная замена if-else: условие ? значениеЕслиДа : значениеЕслиНет",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:13",
-    "estimatedMinutes": 12,
-    "stepIds": [
-      "480d9bc2-b7b1-415b-9b29-021c1919047e",
-      "03401d6c-9e96-4574-90c5-158acd303d23",
-      "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
-      "42e1f374-0701-407f-b713-47e61305ee76"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "f488d12f-3527-4d6a-b76c-b43cf8e613bc",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Неявное преобразование типов",
-    "additional": "Автоматическое приведение типов (coercion) в математике и условиях, falsy-значения, опасность ==",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:14",
-    "estimatedMinutes": 8,
-    "stepIds": [
-      "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
-      "6d04a894-cb14-41c0-874f-48aa715e2aec",
-      "5074ee40-5157-48f0-abf7-258a8b514bf6"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "8904e749-aa3c-403e-a167-c55cc3adbf34",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Явное приведение типов",
-    "additional": "Преобразование в строку (String, .toString), в число (Number, parseInt), в boolean (!!, Boolean); 6 falsy-значений",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:13",
-    "estimatedMinutes": 15,
-    "stepIds": [
-      "134a218c-6d72-445e-af0b-1a83334c7679",
-      "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
-      "97253c78-739e-473f-97e2-f932f7371092",
-      "e14689af-20e9-43c3-bf6b-ee3f51a3566a"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "c12eff68-e3e6-45c1-9087-212a2aad8bea",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Практика: расчёт зарплаты одному сотруднику",
-    "additional": "Применяем полученные знания чтобы начинать приобретать навык программирования. Сделай программу расчёта ИПН и ОПВ. Программа принимает имя и зарплату, выводит детальный расчёт с удержаниями и суммой на руки",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-06-04T11:20",
-    "estimatedMinutes": 100,
-    "stepIds": [
-      "96120ed5-7f84-422b-b538-ce017739cd92",
-      "399e4f37-e95e-4900-842d-cb31b012a87e"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "02883279-460a-4506-bd75-c430979edd48",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Секреты логических операторов и нулевое слияние",
-    "additional": "Поведение || и && с небулевыми значениями, короткое замыкание, оператор ?? (нулевое слияние) и его отличие от ||",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 12,
-    "stepIds": [
-      "cb4b397e-96b7-41e7-9536-215719c19cf9",
-      "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
-      "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
-      "88b8d422-818a-41da-8eff-a4627bc6a062"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T11:30"
-  },
-  {
-    "uuid": "ea72f1e8-830c-4295-bee3-39fd281f6198",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Приоритеты выполнения операторов",
-    "additional": "Таблица приоритетов от () до присваивания, ассоциативность, рекомендации по скобкам и разбивке выражений",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 17,
-    "stepIds": [
-      "3d56934c-32a3-43b1-b309-edaaef875be1",
-      "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
-      "002293aa-017c-4a54-8068-b660f5860fd3",
-      "05b240e9-a0be-45f2-8a83-2987899ee46f"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T12:00"
-  },
-  {
-    "uuid": "f95b3b36-747b-4fa0-b1dc-6694ebb5b8b0",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Структура данных: Array (массив)",
-    "additional": "Массивы: создание, методы push/pop/shift/unshift, перебор",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [
-      "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
-      "ced1559c-c4ac-4262-9770-631df6120c36",
-      "989b5634-e1ab-41c2-84a0-710c629dd825",
-      "9058da50-2a57-400d-8fa1-cc48d8e4ff26"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T12:30"
-  },
-  {
-    "uuid": "5c565f93-fbbe-4557-aafd-593e1c0e643a",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Структура данных: Object (объект)",
-    "additional": "Объекты: создание, доступ через точку и скобки, перебор свойств",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [
-      "7c60fa67-801c-453d-bde3-0b9b4614b941",
-      "5951c89e-98a8-4e12-8714-baa559db1030",
-      "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
-      "9d9958a6-c770-4986-a7ae-e29cd2b619ce"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:00"
-  },
-  {
-    "uuid": "0065e74e-e22b-4906-939c-17670cad2cfd",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Структура данных: Map и Set",
-    "additional": "Map (ключ-значение с любыми ключами) и Set (коллекция уникальных значений)",
-    "status": "published",
-    "createdAt": "2026-06-04T15:00",
-    "estimatedMinutes": 30,
-    "stepIds": [
-      "ae9c1467-f772-4624-99ef-4733e0f69c9f",
-      "04cefc9e-10c6-41f5-8809-5c5531c875fc",
-      "59037452-2328-4b39-872f-df4d0ff1ded6",
-      "8701de55-25d0-4953-84b0-50e9119a3c5f"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "1b251809-225b-4c0c-bbc4-fb29f87715e9",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Циклы: концепция и основы for",
-    "additional": "Синтаксис for (инициализация; условие; обновление), поток выполнения, когда количество итераций известно",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 13,
-    "stepIds": [
-      "bbe9160f-c3b0-4295-a01c-9c600e33acff",
-      "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
-      "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
-      "654bff87-1e71-474a-89e4-434800c51252"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
-  },
-  {
-    "uuid": "c9cfacbd-e8de-4463-9cfb-df5e14e6f8c4",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Циклы: for для перебора строк",
-    "additional": "Строка как коллекция символов с доступом по индексу, свойство length, стандартный паттерн for для посимвольного анализа",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 11,
-    "stepIds": [
-      "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
-      "e03b00d0-91ca-4854-a88b-eb34f360a023",
-      "049d3a91-83fe-4923-87ae-d18c25bac2d1",
-      "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
-  },
-  {
-    "uuid": "106fb6e4-e7dd-43fa-92a9-18b7f41f75c4",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Циклы: while и do-while",
-    "additional": "While с предусловием, do-while с постусловием, выбор цикла по семантике, опасность бесконечных циклов",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 11,
-    "stepIds": [
-      "5281a902-3c37-4849-8dcd-61b5b78eda4c",
-      "c72cd020-2d06-4afd-af9e-ce98439db3d1",
-      "96668db2-ddb6-49de-acc2-86114510fc7b",
-      "1220c276-da6a-4d3b-8df5-0700faedb991"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
-  },
-  {
-    "uuid": "939f7cc7-e463-40ca-aa40-8887a381b43d",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Операторы in, for…in, for…of",
-    "additional": "Проверка свойств через in, перебор ключей for...in (для объектов), перебор значений for...of (для массивов/строк/Map/Set)",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [
-      "987feb27-9278-48e9-95c1-56643a677ec7",
-      "2ef8c97e-c6af-479d-8d36-40a848d1a74e",
-      "bbafb6a6-6904-46f5-a50f-08ab6842a646",
-      "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T13:30"
-  },
-  {
-    "uuid": "fdcdf925-bf8b-40ca-9b38-142c72f5d761",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Практика: групповая обработка зарплаты",
-    "additional": "Дорабатываем программу: массив сотрудников, циклы for/while/for...of для обработки каждого, подсчёт общих удержаний и выплат по всем сотрудникам, объекты для хранения данных.",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 100,
-    "stepIds": [
-      "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
-      "b7e3a9c1-5d4f-4e8a-9b2c-6a1d8f3e7c0a",
-      "c8f4b0d2-6e5a-4f9b-ac3d-7b2e9f4d8d1b",
-      "d9a5c1e3-7f6b-4a0c-bd4e-8c3f0a5e9e2c",
-      "e0b6d2f4-8a7c-4b1d-ce5f-9d4a1b6f0f3d"
-    ],
-    "mentorStepIds": [],
-    "updatedAt": "2026-06-04T14:00"
-  },
-  {
-    "uuid": "0f2c505f-9429-4f62-9b02-42ce1f82f4a2",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Функция: синтаксис, параметры и return",
-    "additional": "Объявление функции, параметры (гибкость), return (значение + завершение), предикаты, параметры по умолчанию",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 22,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "1e05bfc1-b8fc-40b7-856f-44b2fcb6cc2f",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Функция: return, предикаты и методы реализации",
-    "additional": "Досрочный return для валидации, неявный undefined, предикаты-вопросы (isSomething)",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 20,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "7aeb05d4-db78-4985-aa12-b88bfc13abfd",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Функция: чёрный ящик, контракт, декомпозиция",
-    "additional": "Принцип чёрного ящика, контракт функции (имя + параметры + возврат), декомпозиция сложной задачи на подзадачи",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 12,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "82a3045a-7d57-4e54-a314-ba094d58416c",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Функции: тип, свойства и стили объявления",
-    "additional": "Функции как объекты, три стиля (Function Declaration, Expression, Arrow), first-class citizens, хоистинг",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 12,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "c98897a7-9515-4049-addb-e1747e487cb8",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Практика: расчёт зарплаты через функции",
-    "additional": "Усложнение проекта 2: пишем функции calcEmployee и calcDepartment через функции",
-    "status": "published",
-    "createdAt": "2026-06-04T14:30",
-    "estimatedMinutes": 60,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Функции: аргументы, передача по значению и ссылке",
-    "additional": "Параметры vs аргументы, пропущенные аргументы → undefined, простые типы по значению, сложные по ссылке",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 14,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "0f46b1eb-4078-4e25-ba2d-3176ec1f1bbc",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Функции: продвинутые возможности",
-    "additional": "Вложенные функции, замыкания (closures), колбэки, функция возвращающая функцию, ленивые вычисления",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "9809147c-c662-4e82-8011-855bc995c632",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Анонимные и стрелочные функции",
-    "additional": "Function Expression (анонимные), стрелочные функции (краткий синтаксис, неявный return), отличия от function (this, arguments, new)",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Callback-функции (колбэки)",
-    "additional": "Синхронные колбэки (map, filter, forEach), асинхронные (setTimeout), error-first callback, Callback Hell",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Рекурсия",
-    "additional": "База и шаг рекурсии, контекст выполнения и стек вызовов, рекурсивный обход вложенных структур, итеративно vs рекурсивно",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Модули: import и export",
-    "additional": "Разделение кода на модули, синтаксис export/import, default vs named exports, реэкспорт",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "edf3078d-8878-4aae-9028-6199cd971675",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Практика: рисуем ёлку в консоли",
-    "additional": "Пишем функцию drawTree(height), используя вложенные циклы и работу со строками. Декомпозиция на helper-функции для построения ярусов, пробелов и вывода. Применение for для перебора строк.",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 120,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "9a055767-a082-457c-b5ce-25e94331b251",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Практика: reverseText через TDD",
-    "additional": "Практикуем TDD. Пишем тесты до реализации для reverseText: базовые случаи (пустая строка, один символ), граничные. Реализуем через цикл, затем через рекурсию. Callback-функции для тестов, стрелочные функции.",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 40,
-    "stepIds": [],
-    "mentorStepIds": []
-  }
-]
+{
+  "$schema": "../schemas/Lesson.schema.json",
+  "items": [
+    {
+      "uuid": "ca2d4223-f6bc-4492-b7d0-0a2a90195a93",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Введение в программирование",
+      "additional": "Код, программа, интерпретатор, поток выполнения — что такое программирование и зачем учить JavaScript",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-05-31T20:16",
+      "estimatedMinutes": 11,
+      "stepIds": [
+        "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
+        "4890a068-1335-4115-931a-b6f4ee5ea7e5",
+        "255b3046-e46a-4e27-8794-5bf704691dc7",
+        "1809238e-2942-4a09-96a4-c582a09097e1"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "b20a71d5-f8ec-4f86-be96-da26d91b0920",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Переменные",
+      "additional": "Создание переменных через let и const, присваивание, область видимости, предпочтение const",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-05-31T20:16",
+      "estimatedMinutes": 13,
+      "stepIds": [
+        "838f72ea-fb3f-4165-b43f-f3c7d3182e22",
+        "889872d5-0fc8-4dc4-a0ab-8b803d79927c",
+        "5c443053-4784-4a0d-a0a1-6be99790f533",
+        "d1e96ebd-9e4c-4a77-b797-b3c4819e8eea"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "4ac0dcde-6ffd-4696-b86c-9a5f3e09b0b1",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Математические операторы",
+      "additional": "Базовые и дополнительные операторы: +, -, *, /, %, **, сокращённый синтаксис, инкремент/декремент",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-02T16:31",
+      "estimatedMinutes": 14,
+      "stepIds": [
+        "c0ec0938-0600-47e5-b363-b21eda469e7d",
+        "f033237c-e51e-4f3f-b175-e79ca0953c7a",
+        "37eb9fea-b4ec-42f7-b5c9-0ea5e74ee0de",
+        "6d2200a1-3463-4fd3-a513-952d93b73ec3",
+        "ccb8d815-617d-4f1d-bacc-96be9738686f"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "8c7fcf69-0b43-421f-842d-e870c82b08c7",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Типы данных",
+      "additional": "Основные типы JS: number, string, boolean, object, null, undefined; оператор typeof, интерполяция строк",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-02T16:31",
+      "estimatedMinutes": 19,
+      "stepIds": [
+        "c7e7afbb-a97f-42b1-a5fc-f47f5f132e6d",
+        "f6b252fc-cc8c-4b22-96e0-71a7ceead03f",
+        "e1a29ce7-2653-45ec-b863-0ca585e62e02",
+        "35eb70f1-13a2-4aaa-b066-d60603505e5b",
+        "d6745add-0842-42a2-aa12-1502e24b68f1"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "9488adfb-a922-4b88-bd65-bf2dd3322a38",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Типы данных, исключения и особые случаи",
+      "additional": "Конкатенация строк через +, арифметика со строками, TypeError при несовместимых операциях",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-02T16:31",
+      "estimatedMinutes": 11,
+      "stepIds": [
+        "b6a8a0be-7d63-49d0-a43b-fc4315dbee7b",
+        "9a8edd25-b1da-46e7-bfcb-f0247de71ed5",
+        "1b1021c2-0e9e-41ec-80e7-3dd4ae64c9fe",
+        "3ad71cd2-22ed-4f4f-a037-7f3ed564a42c",
+        "33f82348-b3dd-424c-8253-047be1d7e1b3"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "7c9ecad0-a0b9-442d-bbb8-435711410b16",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Операторы равенства, сравнения и отрицания",
+      "additional": "Строгое === и нестрогое == равенство, операторы < > <= >=, отрицание !; всегда используйте ===",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-02T16:31",
+      "estimatedMinutes": 9,
+      "stepIds": [
+        "105d9c41-a895-4dd4-882d-04384a767c9d",
+        "00efb694-a917-4a11-8698-964440491169",
+        "6ab959df-498e-41a5-b0f1-8b62a01aad56",
+        "54996992-d801-4b62-97c7-5ae211487e76",
+        "001dbdbb-649b-41d2-917c-e231e9465fbd"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "9cca33dc-2941-4c09-843b-899e8c0b2e23",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Логические операторы",
+      "additional": "ИЛИ ||, И &&, таблицы истинности, составные условия, практическое применение в проверках",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-02T16:31",
+      "estimatedMinutes": 17,
+      "stepIds": [
+        "6e6b63e3-32b3-49b9-b075-c214062223d2",
+        "dc626cec-82f1-4597-bf55-5822b8728e88",
+        "1f7b6291-5adc-4f4a-a2ca-d451a3b4de5f",
+        "53df1181-366c-48d6-8f17-e38e08fe65cc"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "63a60f0c-0517-45d3-9a0f-fa1775de46d6",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Ветвление",
+      "additional": "if / else if / else, цепочки условий, однострочный синтаксис, выполнение только первого истинного блока",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-02T16:31",
+      "estimatedMinutes": 21,
+      "stepIds": [
+        "58a9d484-e6f0-4000-b860-bc9a860f74ca",
+        "108e5446-3d3e-44bb-aabc-0fc7fd779dd9",
+        "2b0d5ae7-69ae-4ff3-be48-3deb5c6b1484",
+        "c187ccc4-650d-4b0e-b538-506fcb8373d6",
+        "e6bda4c1-59a4-4930-98f4-d2d064d4b937"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "48c56d93-4478-46e8-ad7f-d3e6b0e72ab6",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Тернарный оператор",
+      "additional": "Компактная замена if-else: условие ? значениеЕслиДа : значениеЕслиНет",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-04T11:13",
+      "estimatedMinutes": 12,
+      "stepIds": [
+        "480d9bc2-b7b1-415b-9b29-021c1919047e",
+        "03401d6c-9e96-4574-90c5-158acd303d23",
+        "6d73cd0c-2da9-4983-9eee-b9fccea0c93b",
+        "42e1f374-0701-407f-b713-47e61305ee76"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "f488d12f-3527-4d6a-b76c-b43cf8e613bc",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Неявное преобразование типов",
+      "additional": "Автоматическое приведение типов (coercion) в математике и условиях, falsy-значения, опасность ==",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-04T11:14",
+      "estimatedMinutes": 8,
+      "stepIds": [
+        "35ca17ea-3a7c-445b-ac23-b1c9d9b296d4",
+        "6d04a894-cb14-41c0-874f-48aa715e2aec",
+        "5074ee40-5157-48f0-abf7-258a8b514bf6"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "8904e749-aa3c-403e-a167-c55cc3adbf34",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Явное приведение типов",
+      "additional": "Преобразование в строку (String, .toString), в число (Number, parseInt), в boolean (!!, Boolean); 6 falsy-значений",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-04T11:13",
+      "estimatedMinutes": 15,
+      "stepIds": [
+        "134a218c-6d72-445e-af0b-1a83334c7679",
+        "491e9e3d-f988-4e16-80d7-b2277a59dbc3",
+        "97253c78-739e-473f-97e2-f932f7371092",
+        "e14689af-20e9-43c3-bf6b-ee3f51a3566a"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "c12eff68-e3e6-45c1-9087-212a2aad8bea",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Практика: расчёт зарплаты одному сотруднику",
+      "additional": "Применяем полученные знания чтобы начинать приобретать навык программирования. Сделай программу расчёта ИПН и ОПВ. Программа принимает имя и зарплату, выводит детальный расчёт с удержаниями и суммой на руки",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "updatedAt": "2026-06-04T11:20",
+      "estimatedMinutes": 100,
+      "stepIds": [
+        "96120ed5-7f84-422b-b538-ce017739cd92",
+        "399e4f37-e95e-4900-842d-cb31b012a87e"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "02883279-460a-4506-bd75-c430979edd48",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Секреты логических операторов и нулевое слияние",
+      "additional": "Поведение || и && с небулевыми значениями, короткое замыкание, оператор ?? (нулевое слияние) и его отличие от ||",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 12,
+      "stepIds": [
+        "cb4b397e-96b7-41e7-9536-215719c19cf9",
+        "a76055d1-ffc4-4bfe-ab5e-d5c26b462ba0",
+        "6fa06a5f-3387-4818-a2e7-9b28a5425d01",
+        "88b8d422-818a-41da-8eff-a4627bc6a062"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T11:30"
+    },
+    {
+      "uuid": "ea72f1e8-830c-4295-bee3-39fd281f6198",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Приоритеты выполнения операторов",
+      "additional": "Таблица приоритетов от () до присваивания, ассоциативность, рекомендации по скобкам и разбивке выражений",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 17,
+      "stepIds": [
+        "3d56934c-32a3-43b1-b309-edaaef875be1",
+        "489cfe6f-6a67-4beb-9cad-4b8472ff0d39",
+        "002293aa-017c-4a54-8068-b660f5860fd3",
+        "05b240e9-a0be-45f2-8a83-2987899ee46f"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T12:00"
+    },
+    {
+      "uuid": "f95b3b36-747b-4fa0-b1dc-6694ebb5b8b0",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Структура данных: Array (массив)",
+      "additional": "Массивы: создание, методы push/pop/shift/unshift, перебор",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [
+        "0f8b08d8-1aa8-42a9-aa56-a1552460abfd",
+        "ced1559c-c4ac-4262-9770-631df6120c36",
+        "989b5634-e1ab-41c2-84a0-710c629dd825",
+        "9058da50-2a57-400d-8fa1-cc48d8e4ff26"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T12:30"
+    },
+    {
+      "uuid": "5c565f93-fbbe-4557-aafd-593e1c0e643a",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Структура данных: Object (объект)",
+      "additional": "Объекты: создание, доступ через точку и скобки, перебор свойств",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [
+        "7c60fa67-801c-453d-bde3-0b9b4614b941",
+        "5951c89e-98a8-4e12-8714-baa559db1030",
+        "d3b550f2-f3e2-4b2d-b518-0cc47a9f6f52",
+        "9d9958a6-c770-4986-a7ae-e29cd2b619ce"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T13:00"
+    },
+    {
+      "uuid": "0065e74e-e22b-4906-939c-17670cad2cfd",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Структура данных: Map и Set",
+      "additional": "Map (ключ-значение с любыми ключами) и Set (коллекция уникальных значений)",
+      "status": "published",
+      "createdAt": "2026-06-04T15:00",
+      "estimatedMinutes": 30,
+      "stepIds": [
+        "ae9c1467-f772-4624-99ef-4733e0f69c9f",
+        "04cefc9e-10c6-41f5-8809-5c5531c875fc",
+        "59037452-2328-4b39-872f-df4d0ff1ded6",
+        "8701de55-25d0-4953-84b0-50e9119a3c5f"
+      ],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "1b251809-225b-4c0c-bbc4-fb29f87715e9",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Циклы: концепция и основы for",
+      "additional": "Синтаксис for (инициализация; условие; обновление), поток выполнения, когда количество итераций известно",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 13,
+      "stepIds": [
+        "bbe9160f-c3b0-4295-a01c-9c600e33acff",
+        "3b5f8fbd-6f6b-4688-8862-6cf1a79c57ab",
+        "c367fd4f-16f6-4341-b7c2-9f3e66fc395a",
+        "654bff87-1e71-474a-89e4-434800c51252"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T13:30"
+    },
+    {
+      "uuid": "c9cfacbd-e8de-4463-9cfb-df5e14e6f8c4",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Циклы: for для перебора строк",
+      "additional": "Строка как коллекция символов с доступом по индексу, свойство length, стандартный паттерн for для посимвольного анализа",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 11,
+      "stepIds": [
+        "abb26249-f069-4e9b-a0b3-a48a1fec27a8",
+        "e03b00d0-91ca-4854-a88b-eb34f360a023",
+        "049d3a91-83fe-4923-87ae-d18c25bac2d1",
+        "0eea84f0-929c-4c35-81a0-2ec247e6b0fa"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T13:30"
+    },
+    {
+      "uuid": "106fb6e4-e7dd-43fa-92a9-18b7f41f75c4",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Циклы: while и do-while",
+      "additional": "While с предусловием, do-while с постусловием, выбор цикла по семантике, опасность бесконечных циклов",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 11,
+      "stepIds": [
+        "5281a902-3c37-4849-8dcd-61b5b78eda4c",
+        "c72cd020-2d06-4afd-af9e-ce98439db3d1",
+        "96668db2-ddb6-49de-acc2-86114510fc7b",
+        "1220c276-da6a-4d3b-8df5-0700faedb991"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T13:30"
+    },
+    {
+      "uuid": "939f7cc7-e463-40ca-aa40-8887a381b43d",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Операторы in, for…in, for…of",
+      "additional": "Проверка свойств через in, перебор ключей for...in (для объектов), перебор значений for...of (для массивов/строк/Map/Set)",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [
+        "987feb27-9278-48e9-95c1-56643a677ec7",
+        "2ef8c97e-c6af-479d-8d36-40a848d1a74e",
+        "bbafb6a6-6904-46f5-a50f-08ab6842a646",
+        "0f9136e0-5fc5-4a4f-a00c-5af2a918f1f1"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T13:30"
+    },
+    {
+      "uuid": "fdcdf925-bf8b-40ca-9b38-142c72f5d761",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Практика: групповая обработка зарплаты",
+      "additional": "Дорабатываем программу: массив сотрудников, циклы for/while/for...of для обработки каждого, подсчёт общих удержаний и выплат по всем сотрудникам, объекты для хранения данных.",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 100,
+      "stepIds": [
+        "8ca3dc65-99c1-45b8-977b-3680f93b0c2d",
+        "b7e3a9c1-5d4f-4e8a-9b2c-6a1d8f3e7c0a",
+        "c8f4b0d2-6e5a-4f9b-ac3d-7b2e9f4d8d1b",
+        "d9a5c1e3-7f6b-4a0c-bd4e-8c3f0a5e9e2c",
+        "e0b6d2f4-8a7c-4b1d-ce5f-9d4a1b6f0f3d"
+      ],
+      "mentorStepIds": [],
+      "updatedAt": "2026-06-04T14:00"
+    },
+    {
+      "uuid": "0f2c505f-9429-4f62-9b02-42ce1f82f4a2",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Функция: синтаксис, параметры и return",
+      "additional": "Объявление функции, параметры (гибкость), return (значение + завершение), предикаты, параметры по умолчанию",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 22,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "1e05bfc1-b8fc-40b7-856f-44b2fcb6cc2f",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Функция: return, предикаты и методы реализации",
+      "additional": "Досрочный return для валидации, неявный undefined, предикаты-вопросы (isSomething)",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 20,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "7aeb05d4-db78-4985-aa12-b88bfc13abfd",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Функция: чёрный ящик, контракт, декомпозиция",
+      "additional": "Принцип чёрного ящика, контракт функции (имя + параметры + возврат), декомпозиция сложной задачи на подзадачи",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 12,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "82a3045a-7d57-4e54-a314-ba094d58416c",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Функции: тип, свойства и стили объявления",
+      "additional": "Функции как объекты, три стиля (Function Declaration, Expression, Arrow), first-class citizens, хоистинг",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 12,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "c98897a7-9515-4049-addb-e1747e487cb8",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Практика: расчёт зарплаты через функции",
+      "additional": "Усложнение проекта 2: пишем функции calcEmployee и calcDepartment через функции",
+      "status": "published",
+      "createdAt": "2026-06-04T14:30",
+      "estimatedMinutes": 60,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Функции: аргументы, передача по значению и ссылке",
+      "additional": "Параметры vs аргументы, пропущенные аргументы → undefined, простые типы по значению, сложные по ссылке",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 14,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "0f46b1eb-4078-4e25-ba2d-3176ec1f1bbc",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Функции: продвинутые возможности",
+      "additional": "Вложенные функции, замыкания (closures), колбэки, функция возвращающая функцию, ленивые вычисления",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "9809147c-c662-4e82-8011-855bc995c632",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Анонимные и стрелочные функции",
+      "additional": "Function Expression (анонимные), стрелочные функции (краткий синтаксис, неявный return), отличия от function (this, arguments, new)",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Callback-функции (колбэки)",
+      "additional": "Синхронные колбэки (map, filter, forEach), асинхронные (setTimeout), error-first callback, Callback Hell",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Рекурсия",
+      "additional": "База и шаг рекурсии, контекст выполнения и стек вызовов, рекурсивный обход вложенных структур, итеративно vs рекурсивно",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Модули: import и export",
+      "additional": "Разделение кода на модули, синтаксис export/import, default vs named exports, реэкспорт",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 15,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "edf3078d-8878-4aae-9028-6199cd971675",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Практика: рисуем ёлку в консоли",
+      "additional": "Пишем функцию drawTree(height), используя вложенные циклы и работу со строками. Декомпозиция на helper-функции для построения ярусов, пробелов и вывода. Применение for для перебора строк.",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 120,
+      "stepIds": [],
+      "mentorStepIds": []
+    },
+    {
+      "uuid": "9a055767-a082-457c-b5ce-25e94331b251",
+      "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+      "title": "Практика: reverseText через TDD",
+      "additional": "Практикуем TDD. Пишем тесты до реализации для reverseText: базовые случаи (пустая строка, один символ), граничные. Реализуем через цикл, затем через рекурсию. Callback-функции для тестов, стрелочные функции.",
+      "status": "published",
+      "createdAt": "2026-05-31T05:30",
+      "estimatedMinutes": 40,
+      "stepIds": [],
+      "mentorStepIds": []
+    }
+  ]
+}

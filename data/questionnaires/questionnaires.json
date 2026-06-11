@@ -1,470 +1,473 @@
-[
-  {
-    "uuid": "74a21739-b6cb-4ea0-9b32-97654594dd98",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "Стать программистом.",
-        "answeredAt": "2026-05-18T17:12"
-      }
-    ],
-    "currentQuestionCode": "how_found",
-    "draftAnswers": [
-      "telegram"
-    ],
-    "createdAt": "2026-05-18T17:12",
-    "updatedAt": "2026-05-18T17:22"
-  },
-  {
-    "uuid": "f3ec3573-43c0-474c-8300-45b5c6345dd9",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "Стать программистом",
-        "answeredAt": "2026-05-18T17:36"
-      }
-    ],
-    "currentQuestionCode": "how_found",
-    "draftAnswers": [],
-    "createdAt": "2026-05-18T17:35",
-    "updatedAt": "2026-05-18T17:36"
-  },
-  {
-    "uuid": "d225cdb3-8cbe-40b7-86e0-3e58c7846497",
-    "telegramId": 773084180,
-    "status": "completed",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "Стать программистом",
-        "answeredAt": "2026-05-18T17:38"
-      },
-      {
-        "questionCode": "how_found",
-        "answerCodes": [
-          "banners"
-        ],
-        "answeredAt": "2026-05-18T17:44"
-      },
-      {
-        "questionCode": "interest_reason",
-        "answerCodes": [
-          "reviews"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "experience",
-        "answerCodes": [
-          "beginner"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "language",
-        "answerCodes": [
-          "js_ts"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "format",
-        "answerCodes": [
-          "offline"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "goals",
-        "answerCodes": [
-          "lowcode"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "intensity",
-        "answerCodes": [
-          "base"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "base_days",
-        "answerCodes": [
-          "any"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      },
-      {
-        "questionCode": "base_time",
-        "answerCodes": [
-          "any"
-        ],
-        "answeredAt": "2026-05-18T17:51"
-      }
-    ],
-    "currentQuestionCode": null,
-    "draftAnswers": [],
-    "createdAt": "2026-05-18T17:38",
-    "updatedAt": "2026-05-18T17:51"
-  },
-  {
-    "uuid": "74ea0166-5651-4dd9-9f62-f61a9393a521",
-    "telegramId": 773084180,
-    "status": "completed",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "fdf",
-        "answeredAt": "2026-05-18T17:52"
-      },
-      {
-        "questionCode": "how_found",
-        "answerCodes": [
-          "friends",
-          "telegram"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "interest_reason",
-        "answerCodes": [
-          "free",
-          "reviews"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "experience",
-        "answerCodes": [
-          "beginner"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "language",
-        "answerCodes": [
-          "js_ts"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "format",
-        "answerCodes": [
-          "offline"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "goals",
-        "answerCodes": [
-          "lowcode"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "intensity",
-        "answerCodes": [
-          "intensive"
-        ],
-        "answeredAt": "2026-05-18T17:54"
-      },
-      {
-        "questionCode": "intensive_time",
-        "answerCodes": [
-          "any"
-        ],
-        "answeredAt": "2026-05-18T17:55"
-      }
-    ],
-    "currentQuestionCode": null,
-    "draftAnswers": [],
-    "createdAt": "2026-05-18T17:52",
-    "updatedAt": "2026-05-18T17:55"
-  },
-  {
-    "uuid": "0429c4f9-53bf-4d98-90f7-2878a09f9341",
-    "telegramId": 773084180,
-    "status": "completed",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "Пока не знаю",
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "how_found",
-        "answerCodes": [
-          "telegram"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "interest_reason",
-        "answerCodes": [
-          "friend_review"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "experience",
-        "answerCodes": [
-          "some_knowledge"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "language",
-        "answerCodes": [
-          "python"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "format",
-        "answerCodes": [
-          "online_other_city"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "goals",
-        "answerCodes": [
-          "fullstack"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "intensity",
-        "answerCodes": [
-          "base"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "base_days",
-        "answerCodes": [
-          "tue"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      },
-      {
-        "questionCode": "base_time",
-        "answerCodes": [
-          "9_11"
-        ],
-        "answeredAt": "2026-05-20T06:41"
-      }
-    ],
-    "currentQuestionCode": null,
-    "draftAnswers": [],
-    "createdAt": "2026-05-20T06:41",
-    "updatedAt": "2026-05-20T06:41"
-  },
-  {
-    "uuid": "30668041-7041-4dd7-bd25-f599e87caf52",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [],
-    "currentQuestionCode": "goal_text",
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T05:48",
-    "updatedAt": "2026-06-02T05:49"
-  },
-  {
-    "uuid": "3b93d0ec-c106-404f-963f-d49e33cae3c3",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [],
-    "currentQuestionCode": "goal_text",
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T06:01",
-    "updatedAt": "2026-06-02T06:01"
-  },
-  {
-    "uuid": "1f8c25c2-7a09-4dd8-b4c7-12b876ed25b0",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [],
-    "currentQuestionCode": "goal_text",
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T06:08",
-    "updatedAt": "2026-06-02T06:08"
-  },
-  {
-    "uuid": "0579d72f-c70c-4016-9f99-31e3784e5f33",
-    "telegramId": 773084180,
-    "status": "completed",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "Начать программирование.",
-        "answeredAt": "2026-06-02T06:30"
-      },
-      {
-        "questionCode": "how_found",
-        "answerCodes": [
-          "instagram"
-        ],
-        "answeredAt": "2026-06-02T06:45"
-      },
-      {
-        "questionCode": "interest_reason",
-        "answerCodes": [
-          "free",
-          "professionals"
-        ],
-        "answeredAt": "2026-06-02T06:45"
-      },
-      {
-        "questionCode": "experience",
-        "answerCodes": [
-          "tried_alone"
-        ],
-        "answeredAt": "2026-06-02T06:45"
-      },
-      {
-        "questionCode": "language",
-        "answerCodes": [
-          "js_ts"
-        ],
-        "answeredAt": "2026-06-02T06:46"
-      },
-      {
-        "questionCode": "format",
-        "answerCodes": [
-          "offline"
-        ],
-        "answeredAt": "2026-06-02T06:46"
-      },
-      {
-        "questionCode": "goals",
-        "answerCodes": [
-          "undecided"
-        ],
-        "answeredAt": "2026-06-02T06:46"
-      },
-      {
-        "questionCode": "intensity",
-        "answerCodes": [
-          "intensive"
-        ],
-        "answeredAt": "2026-06-02T06:49"
-      },
-      {
-        "questionCode": "intensive_time",
-        "answerCodes": [
-          "before_noon"
-        ],
-        "answeredAt": "2026-06-02T06:49"
-      }
-    ],
-    "currentQuestionCode": null,
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T06:30",
-    "updatedAt": "2026-06-02T06:49"
-  },
-  {
-    "uuid": "e99b602e-c335-44b1-8534-15d949c63b78",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [],
-    "currentQuestionCode": "goal_text",
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T06:51",
-    "updatedAt": "2026-06-02T06:51"
-  },
-  {
-    "uuid": "23ad2ffe-4a3c-4214-84dc-7a7f84ea7993",
-    "telegramId": 773084180,
-    "status": "abandoned",
-    "answers": [],
-    "currentQuestionCode": "goal_text",
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T06:55",
-    "updatedAt": "2026-06-02T06:55"
-  },
-  {
-    "uuid": "abe402fb-2081-442a-95dd-80228ee81206",
-    "telegramId": 773084180,
-    "status": "completed",
-    "answers": [
-      {
-        "questionCode": "goal_text",
-        "answerCodes": [],
-        "textValue": "Стать программистом",
-        "answeredAt": "2026-06-02T06:55"
-      },
-      {
-        "questionCode": "how_found",
-        "answerCodes": [
-          "instagram"
-        ],
-        "answeredAt": "2026-06-02T06:55"
-      },
-      {
-        "questionCode": "interest_reason",
-        "answerCodes": [
-          "professionals"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      },
-      {
-        "questionCode": "experience",
-        "answerCodes": [
-          "beginner"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      },
-      {
-        "questionCode": "language",
-        "answerCodes": [
-          "js_ts"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      },
-      {
-        "questionCode": "format",
-        "answerCodes": [
-          "offline"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      },
-      {
-        "questionCode": "goals",
-        "answerCodes": [
-          "fullstack"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      },
-      {
-        "questionCode": "intensity",
-        "answerCodes": [
-          "intensive"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      },
-      {
-        "questionCode": "intensive_time",
-        "answerCodes": [
-          "any"
-        ],
-        "answeredAt": "2026-06-02T06:56"
-      }
-    ],
-    "currentQuestionCode": null,
-    "draftAnswers": [],
-    "createdAt": "2026-06-02T06:55",
-    "updatedAt": "2026-06-02T06:56"
-  }
-]
+{
+  "$schema": "../schemas/Questionnaire.schema.json",
+  "items": [
+    {
+      "uuid": "74a21739-b6cb-4ea0-9b32-97654594dd98",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "Стать программистом.",
+          "answeredAt": "2026-05-18T17:12"
+        }
+      ],
+      "currentQuestionCode": "how_found",
+      "draftAnswers": [
+        "telegram"
+      ],
+      "createdAt": "2026-05-18T17:12",
+      "updatedAt": "2026-05-18T17:22"
+    },
+    {
+      "uuid": "f3ec3573-43c0-474c-8300-45b5c6345dd9",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "Стать программистом",
+          "answeredAt": "2026-05-18T17:36"
+        }
+      ],
+      "currentQuestionCode": "how_found",
+      "draftAnswers": [],
+      "createdAt": "2026-05-18T17:35",
+      "updatedAt": "2026-05-18T17:36"
+    },
+    {
+      "uuid": "d225cdb3-8cbe-40b7-86e0-3e58c7846497",
+      "telegramId": 773084180,
+      "status": "completed",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "Стать программистом",
+          "answeredAt": "2026-05-18T17:38"
+        },
+        {
+          "questionCode": "how_found",
+          "answerCodes": [
+            "banners"
+          ],
+          "answeredAt": "2026-05-18T17:44"
+        },
+        {
+          "questionCode": "interest_reason",
+          "answerCodes": [
+            "reviews"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "experience",
+          "answerCodes": [
+            "beginner"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "language",
+          "answerCodes": [
+            "js_ts"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "format",
+          "answerCodes": [
+            "offline"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "goals",
+          "answerCodes": [
+            "lowcode"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "intensity",
+          "answerCodes": [
+            "base"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "base_days",
+          "answerCodes": [
+            "any"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        },
+        {
+          "questionCode": "base_time",
+          "answerCodes": [
+            "any"
+          ],
+          "answeredAt": "2026-05-18T17:51"
+        }
+      ],
+      "currentQuestionCode": null,
+      "draftAnswers": [],
+      "createdAt": "2026-05-18T17:38",
+      "updatedAt": "2026-05-18T17:51"
+    },
+    {
+      "uuid": "74ea0166-5651-4dd9-9f62-f61a9393a521",
+      "telegramId": 773084180,
+      "status": "completed",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "fdf",
+          "answeredAt": "2026-05-18T17:52"
+        },
+        {
+          "questionCode": "how_found",
+          "answerCodes": [
+            "friends",
+            "telegram"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "interest_reason",
+          "answerCodes": [
+            "free",
+            "reviews"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "experience",
+          "answerCodes": [
+            "beginner"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "language",
+          "answerCodes": [
+            "js_ts"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "format",
+          "answerCodes": [
+            "offline"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "goals",
+          "answerCodes": [
+            "lowcode"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "intensity",
+          "answerCodes": [
+            "intensive"
+          ],
+          "answeredAt": "2026-05-18T17:54"
+        },
+        {
+          "questionCode": "intensive_time",
+          "answerCodes": [
+            "any"
+          ],
+          "answeredAt": "2026-05-18T17:55"
+        }
+      ],
+      "currentQuestionCode": null,
+      "draftAnswers": [],
+      "createdAt": "2026-05-18T17:52",
+      "updatedAt": "2026-05-18T17:55"
+    },
+    {
+      "uuid": "0429c4f9-53bf-4d98-90f7-2878a09f9341",
+      "telegramId": 773084180,
+      "status": "completed",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "Пока не знаю",
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "how_found",
+          "answerCodes": [
+            "telegram"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "interest_reason",
+          "answerCodes": [
+            "friend_review"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "experience",
+          "answerCodes": [
+            "some_knowledge"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "language",
+          "answerCodes": [
+            "python"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "format",
+          "answerCodes": [
+            "online_other_city"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "goals",
+          "answerCodes": [
+            "fullstack"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "intensity",
+          "answerCodes": [
+            "base"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "base_days",
+          "answerCodes": [
+            "tue"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        },
+        {
+          "questionCode": "base_time",
+          "answerCodes": [
+            "9_11"
+          ],
+          "answeredAt": "2026-05-20T06:41"
+        }
+      ],
+      "currentQuestionCode": null,
+      "draftAnswers": [],
+      "createdAt": "2026-05-20T06:41",
+      "updatedAt": "2026-05-20T06:41"
+    },
+    {
+      "uuid": "30668041-7041-4dd7-bd25-f599e87caf52",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [],
+      "currentQuestionCode": "goal_text",
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T05:48",
+      "updatedAt": "2026-06-02T05:49"
+    },
+    {
+      "uuid": "3b93d0ec-c106-404f-963f-d49e33cae3c3",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [],
+      "currentQuestionCode": "goal_text",
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T06:01",
+      "updatedAt": "2026-06-02T06:01"
+    },
+    {
+      "uuid": "1f8c25c2-7a09-4dd8-b4c7-12b876ed25b0",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [],
+      "currentQuestionCode": "goal_text",
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T06:08",
+      "updatedAt": "2026-06-02T06:08"
+    },
+    {
+      "uuid": "0579d72f-c70c-4016-9f99-31e3784e5f33",
+      "telegramId": 773084180,
+      "status": "completed",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "Начать программирование.",
+          "answeredAt": "2026-06-02T06:30"
+        },
+        {
+          "questionCode": "how_found",
+          "answerCodes": [
+            "instagram"
+          ],
+          "answeredAt": "2026-06-02T06:45"
+        },
+        {
+          "questionCode": "interest_reason",
+          "answerCodes": [
+            "free",
+            "professionals"
+          ],
+          "answeredAt": "2026-06-02T06:45"
+        },
+        {
+          "questionCode": "experience",
+          "answerCodes": [
+            "tried_alone"
+          ],
+          "answeredAt": "2026-06-02T06:45"
+        },
+        {
+          "questionCode": "language",
+          "answerCodes": [
+            "js_ts"
+          ],
+          "answeredAt": "2026-06-02T06:46"
+        },
+        {
+          "questionCode": "format",
+          "answerCodes": [
+            "offline"
+          ],
+          "answeredAt": "2026-06-02T06:46"
+        },
+        {
+          "questionCode": "goals",
+          "answerCodes": [
+            "undecided"
+          ],
+          "answeredAt": "2026-06-02T06:46"
+        },
+        {
+          "questionCode": "intensity",
+          "answerCodes": [
+            "intensive"
+          ],
+          "answeredAt": "2026-06-02T06:49"
+        },
+        {
+          "questionCode": "intensive_time",
+          "answerCodes": [
+            "before_noon"
+          ],
+          "answeredAt": "2026-06-02T06:49"
+        }
+      ],
+      "currentQuestionCode": null,
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T06:30",
+      "updatedAt": "2026-06-02T06:49"
+    },
+    {
+      "uuid": "e99b602e-c335-44b1-8534-15d949c63b78",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [],
+      "currentQuestionCode": "goal_text",
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T06:51",
+      "updatedAt": "2026-06-02T06:51"
+    },
+    {
+      "uuid": "23ad2ffe-4a3c-4214-84dc-7a7f84ea7993",
+      "telegramId": 773084180,
+      "status": "abandoned",
+      "answers": [],
+      "currentQuestionCode": "goal_text",
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T06:55",
+      "updatedAt": "2026-06-02T06:55"
+    },
+    {
+      "uuid": "abe402fb-2081-442a-95dd-80228ee81206",
+      "telegramId": 773084180,
+      "status": "completed",
+      "answers": [
+        {
+          "questionCode": "goal_text",
+          "answerCodes": [],
+          "textValue": "Стать программистом",
+          "answeredAt": "2026-06-02T06:55"
+        },
+        {
+          "questionCode": "how_found",
+          "answerCodes": [
+            "instagram"
+          ],
+          "answeredAt": "2026-06-02T06:55"
+        },
+        {
+          "questionCode": "interest_reason",
+          "answerCodes": [
+            "professionals"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        },
+        {
+          "questionCode": "experience",
+          "answerCodes": [
+            "beginner"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        },
+        {
+          "questionCode": "language",
+          "answerCodes": [
+            "js_ts"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        },
+        {
+          "questionCode": "format",
+          "answerCodes": [
+            "offline"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        },
+        {
+          "questionCode": "goals",
+          "answerCodes": [
+            "fullstack"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        },
+        {
+          "questionCode": "intensity",
+          "answerCodes": [
+            "intensive"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        },
+        {
+          "questionCode": "intensive_time",
+          "answerCodes": [
+            "any"
+          ],
+          "answeredAt": "2026-06-02T06:56"
+        }
+      ],
+      "currentQuestionCode": null,
+      "draftAnswers": [],
+      "createdAt": "2026-06-02T06:55",
+      "updatedAt": "2026-06-02T06:56"
+    }
+  ]
+}
