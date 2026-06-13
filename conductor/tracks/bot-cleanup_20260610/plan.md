@@ -1,6 +1,6 @@
 # План реализации: Чистка и финализация
 
-## Фаза 1: Удаление старых handler'ов
+## Фаза 1: Удаление старых handler'ов [checkpoint: 75cf020]
 
 - [x] Task: Удалить top-menu-handler.ts и его тесты `ab09312`
     - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.ts`
