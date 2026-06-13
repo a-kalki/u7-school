@@ -1,0 +1,144 @@
+import { beforeEach, describe, expect, test } from 'bun:test';
+import type { AppMeta, ApiModuleMeta } from '#domain/types';
+import type { BotResponse, BotUpdate, SessionData } from './types';
+import { BotUserStory } from './bot-user-story';
+
+// Тестовый тип метаданных
+type TestAppMeta = AppMeta & {
+  moduleMetas: ApiModuleMeta & {
+    ucMetas:
+      | { ucName: 'test-cmd'; input: { x: number }; output: { y: number } };
+  };
+};
+
+// Конкретная реализация для тестов
+class TestStory extends BotUserStory<TestAppMeta> {
+  readonly name = 'test_story';
+
+  async handleCallback(
+    action: string,
+    _actor: string,
+    _session: SessionData,
+  ): Promise<BotResponse> {
+    return { sendMessage: { text: `callback: ${action}` } };
+  }
+
+  async handleMessage(
+    update: BotUpdate,
+    _actor: string,
+    _session: SessionData,
+  ): Promise<BotResponse> {
+    if (update.type === 'message') {
+      return { sendMessage: { text: `echo: ${update.text}` } };
+    }
+    return { sendMessage: { text: 'ok' } };
+  }
+}
+
+describe('BotUserStory', () => {
+  let story: TestStory;
+
+  beforeEach(() => {
+    story = new TestStory();
+  });
+
+  describe('cb', () => {
+    test('добавляет префикс имени стори', () => {
+      expect(story.cb('some_action')).toBe('test_story:some_action');
+    });
+
+    test('работает с пустым действием', () => {
+      expect(story.cb('')).toBe('test_story:');
+    });
+  });
+
+  describe('stripPrefix', () => {
+    test('убирает префикс имени стори', () => {
+      expect(story.stripPrefix('test_story:some_action')).toBe('some_action');
+    });
+
+    test('не трогает данные без префикса', () => {
+      expect(story.stripPrefix('other_story:action')).toBe(
+        'other_story:action',
+      );
+    });
+
+    test('не трогает частичное совпадение', () => {
+      expect(story.stripPrefix('test_story_extra:action')).toBe(
+        'test_story_extra:action',
+      );
+    });
+  });
+
+  describe('shrink / expand', () => {
+    test('shrink сохраняет значение и возвращает ключ', () => {
+      const key = story.shrink('k1', 'очень длинное значение');
+      expect(key).toBe('k1');
+    });
+
+    test('expand восстанавливает значение', () => {
+      story.shrink('k1', 'очень длинное значение');
+      expect(story.expand('k1')).toBe('очень длинное значение');
+    });
+
+    test('expand возвращает undefined для неизвестного ключа', () => {
+      expect(story.expand('unknown')).toBeUndefined();
+    });
+  });
+
+  describe('reset', () => {
+    test('очищает shortIds', () => {
+      story.shrink('k1', 'value1');
+      story.shrink('k2', 'value2');
+      expect(story.expand('k1')).toBe('value1');
+
+      story.reset();
+      expect(story.expand('k1')).toBeUndefined();
+      expect(story.expand('k2')).toBeUndefined();
+    });
+  });
+
+  describe('handleStart', () => {
+    test('по умолчанию возвращает null', async () => {
+      const result = await story.handleStart('user1');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('handleCancel', () => {
+    test('по умолчанию возвращает releaseInput', async () => {
+      const result = await story.handleCancel('user1', {
+        activeHandler: null,
+      });
+      expect(result.releaseInput).toBe(true);
+    });
+  });
+
+  describe('handleTimeout', () => {
+    test('по умолчанию возвращает releaseInput и сообщение', async () => {
+      const result = await story.handleTimeout('user1', {
+        activeHandler: null,
+      });
+      expect(result.releaseInput).toBe(true);
+      expect(result.sendMessage?.text).toContain('истекло');
+    });
+  });
+
+  describe('конкретная реализация', () => {
+    test('handleCallback передаёт action', async () => {
+      const resp = await story.handleCallback('my_action', 'u1', {
+        activeHandler: null,
+      });
+      expect(resp.sendMessage?.text).toBe('callback: my_action');
+    });
+
+    test('handleMessage обрабатывает текстовые сообщения', async () => {
+      const resp = await story.handleMessage(
+        { type: 'message', text: 'привет', telegramId: 123 },
+        'u1',
+        { activeHandler: null },
+      );
+      expect(resp.sendMessage?.text).toBe('echo: привет');
+    });
+  });
+});
