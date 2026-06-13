@@ -577,4 +577,70 @@ describe('registerDispatcher', () => {
     // handleCallback не должен вызываться
     expect(ctrl.handleCallbackCalls.length).toBe(0);
   });
+
+  test('интеграционный: полный цикл /start → callback → captureInput → /cancel', async () => {
+    const bot = makeMockBot();
+    const userFacade = makeMockUserFacade(makeUser({ name: 'Тест' }));
+
+    const ctrl = new MockController();
+    ctrl.name = 'main';
+    ctrl.setStartResult([
+      { text: 'Начать', action: 'main:start-action', priority: 1 },
+    ]);
+    ctrl.setCallbackResult({
+      sendMessage: { text: 'Введите имя:' },
+      captureInput: { path: 'ask-name', ttlSeconds: 60 },
+    });
+    ctrl.setMessageResult({
+      releaseInput: true,
+      sendMessage: { text: 'Спасибо! Имя получено.' },
+    });
+    ctrl.setCancelResult({ releaseInput: true });
+
+    registerDispatcher(bot, [ctrl], userFacade, 'admin-uuid');
+
+    // Шаг 1: /start
+    const ctx1 = makeMockContext();
+    await bot.commands.start!(ctx1);
+    expect(ctx1.reply).toHaveBeenCalled();
+    const startCall = (ctx1.reply as any).mock.calls[0];
+    expect(startCall[0]).toContain('Привет');
+    expect(startCall[0]).toContain('Тест');
+    expect(startCall[1].reply_markup).toBeDefined();
+    const startBtns: string[] = startCall[1].reply_markup.inline_keyboard
+      .flat()
+      .map((b: any) => b.text);
+    expect(startBtns).toContain('Начать');
+
+    // Шаг 2: callback → captureInput
+    const cbHandler = bot.listeners['callback_query:data']![0]!;
+    const ctx2 = makeMockContext();
+    (ctx2.reply as any).mockClear?.();
+    ctx2.callbackQuery!.data = 'main:start-action';
+    await cbHandler(ctx2);
+    expect(ctx2.session.activeHandler).not.toBeNull();
+    expect(ctx2.session.activeHandler!.path).toBe('main/ask-name');
+    expect(ctx2.reply).toHaveBeenCalled();
+
+    // Шаг 3: message → handleMessage
+    const msgHandler = bot.listeners['message:text']![0]!;
+    const ctx3 = makeMockContext();
+    (ctx3.reply as any).mockClear?.();
+    ctx3.session.activeHandler = { path: 'main/ask-name' };
+    ctx3.message!.text = 'Иван';
+    const nextSpy = mock(async () => {});
+    await msgHandler(ctx3, nextSpy);
+    expect(nextSpy).not.toHaveBeenCalled(); // сообщение перехвачено
+    expect(ctrl.handleMessageCalls.length).toBe(1);
+    expect(ctx3.session.activeHandler).toBeNull(); // releaseInput очистил
+    expect(ctx3.reply).toHaveBeenCalled();
+
+    // Шаг 4: /cancel без активного обработчика (уже очищен)
+    const ctx4 = makeMockContext();
+    (ctx4.reply as any).mockClear?.();
+    ctx4.session.activeHandler = null;
+    await bot.commands.cancel!(ctx4);
+    const cancelCall = (ctx4.reply as any).mock.calls[0];
+    expect(cancelCall[0]).toContain('Нечего отменять');
+  });
 });
