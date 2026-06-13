@@ -41,7 +41,7 @@
     - [x] Тест: `findStory` находит по имени
     - [x] Тест: `handleCancel` делегирует активной стори
 
-## Фаза 4: ControllerRegistry и экспорты
+## Фаза 4: ControllerRegistry и экспорты [checkpoint: 3d52e0c]
 
 - [x] Task: Создать ControllerRegistry `e9e1ad0`
     - [x] register с проверкой уникальности имени
