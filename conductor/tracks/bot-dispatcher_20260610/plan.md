@@ -2,20 +2,20 @@
 
 ## Фаза 1: Обновление типов сессии и контекста
 
-- [ ] Task: Обновить SessionData — добавить activeHandler, удалить menu
-    - [ ] В `apps/u7-bot/src/context.ts`
-- [ ] Task: Написать тесты на новый SessionData
-    - [ ] Тест: activeHandler создаётся и очищается
+- [x] Task: Обновить SessionData — добавить activeHandler, удалить menu (65dee6f)
+    - [x] В `apps/u7-bot/src/context.ts`
+- [x] Task: Написать тесты на новый SessionData (65dee6f)
+    - [x] Тест: activeHandler создаётся и очищается (покрыто в тестах диспетчера)
 
 ## Фаза 2: Резолвер пользователя
 
-- [ ] Task: Создать resolveUser(telegramId, name?) в dispatcher
-    - [ ] Вызов `userFacade.getUserByTelegramId`
-    - [ ] Fallback: `userFacade.registerGuest`
-    - [ ] Возвращает `User`
-- [ ] Task: Написать тесты на resolveUser
-    - [ ] Тест: существующий пользователь
-    - [ ] Тест: новый гость
+- [x] Task: Создать resolveUser(telegramId, name?) в dispatcher (65dee6f)
+    - [x] Вызов `userFacade.getUserByTelegramId`
+    - [x] Fallback: `userFacade.registerGuest`
+    - [x] Возвращает `User`
+- [x] Task: Написать тесты на resolveUser (65dee6f)
+    - [x] Тест: существующий пользователь
+    - [x] Тест: новый гость
 
 ## Фаза 3: Основной диспетчер
 
