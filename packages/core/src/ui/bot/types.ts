@@ -24,6 +24,12 @@ export interface BotResponse {
   sendMessages?: SendMessageDescription[];
   editMessage?: EditMessageDescription;
   questionnaireCompleted?: boolean;
+  /** Захват ввода — следующие сообщения пользователя пойдут в указанный обработчик */
+  captureInput?: { path: string; context?: unknown; ttlSeconds?: number };
+  /** Освобождение захваченного ввода */
+  releaseInput?: boolean;
+  /** Делегирование обработки другому обработчику */
+  delegate?: { path: string };
 }
 
 export type BotUpdate =

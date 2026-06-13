@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { BotUpdate } from './types';
+import type { BotResponse, BotUpdate } from './types';
 
 describe('BotUpdate', () => {
   test('поддерживает тип document', () => {
@@ -47,5 +47,44 @@ describe('BotUpdate', () => {
     expect(cmd.type).toBe('command');
     expect(msg.type).toBe('message');
     expect(cb.type).toBe('callback');
+  });
+});
+
+describe('BotResponse', () => {
+  test('поддерживает captureInput', () => {
+    const resp: BotResponse = {
+      captureInput: { path: '/some/path', context: { foo: 42 }, ttlSeconds: 300 },
+    };
+    expect(resp.captureInput?.path).toBe('/some/path');
+    expect(resp.captureInput?.context).toEqual({ foo: 42 });
+    expect(resp.captureInput?.ttlSeconds).toBe(300);
+  });
+
+  test('captureInput с минимальными полями', () => {
+    const resp: BotResponse = {
+      captureInput: { path: '/another' },
+    };
+    expect(resp.captureInput?.path).toBe('/another');
+    expect(resp.captureInput?.context).toBeUndefined();
+    expect(resp.captureInput?.ttlSeconds).toBeUndefined();
+  });
+
+  test('поддерживает releaseInput', () => {
+    const resp: BotResponse = { releaseInput: true };
+    expect(resp.releaseInput).toBe(true);
+  });
+
+  test('поддерживает delegate', () => {
+    const resp: BotResponse = { delegate: { path: '/delegated' } };
+    expect(resp.delegate?.path).toBe('/delegated');
+  });
+
+  test('всё ещё поддерживает существующие поля', () => {
+    const resp: BotResponse = {
+      sendMessage: { text: 'Hello' },
+      questionnaireCompleted: true,
+    };
+    expect(resp.sendMessage?.text).toBe('Hello');
+    expect(resp.questionnaireCompleted).toBe(true);
   });
 });
