@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type { BotResponse, BotUpdate, MainMenuAction, SessionData } from './types';
 
 describe('BotUpdate', () => {
   test('поддерживает тип document', () => {
@@ -115,5 +115,30 @@ describe('SessionData', () => {
     expect(session.activeHandler?.path).toBe('/simple');
     expect(session.activeHandler?.context).toBeUndefined();
     expect(session.activeHandler?.expiresAt).toBeUndefined();
+  });
+});
+
+describe('MainMenuAction', () => {
+  test('содержит text, action и priority', () => {
+    const item: MainMenuAction = {
+      text: 'Мои курсы',
+      action: '/courses/list',
+      priority: 10,
+    };
+    expect(item.text).toBe('Мои курсы');
+    expect(item.action).toBe('/courses/list');
+    expect(item.priority).toBe(10);
+  });
+
+  test('порядок по priority', () => {
+    const items: MainMenuAction[] = [
+      { text: 'B', action: '/b', priority: 20 },
+      { text: 'A', action: '/a', priority: 10 },
+      { text: 'C', action: '/c', priority: 30 },
+    ];
+    const sorted = [...items].sort((a, b) => a.priority - b.priority);
+    expect(sorted[0]!.text).toBe('A');
+    expect(sorted[1]!.text).toBe('B');
+    expect(sorted[2]!.text).toBe('C');
   });
 });

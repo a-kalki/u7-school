@@ -41,6 +41,13 @@ export interface SessionData {
   } | null;
 }
 
+/** Элемент главного меню бота */
+export interface MainMenuAction {
+  text: string;
+  action: string;
+  priority: number;
+}
+
 export type BotUpdate =
   | { type: 'command'; command: string; telegramId: number; name?: string }
   | { type: 'message'; text: string; telegramId: number }
