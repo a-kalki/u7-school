@@ -16,6 +16,7 @@ import type { KeyboardDescription } from '../types';
  * botUuid передаётся в handleUpdate (не в конструктор) и используется как actorId.
  */
 export class OnboardingController extends BotController {
+  readonly name = 'onboarding';
   readonly #app: OnboardingBotApp;
   readonly #logger: Logger | undefined;
 
@@ -36,7 +37,10 @@ export class OnboardingController extends BotController {
       }
 
       // message или callback — форвардим в handle-action
-      return await this.#handleAction(update, botUuid);
+      if (update.type === 'message' || update.type === 'callback') {
+        return await this.#handleAction(update, botUuid);
+      }
+      return {};
     } catch (err) {
       this.#logger?.error(
         'onboarding-controller',

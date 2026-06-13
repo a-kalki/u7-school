@@ -14,7 +14,7 @@ export function createBot(token: string) {
   // ══ Session middleware ══
   bot.use(
     session({
-      initial: (): SessionData => ({ menu: 'main' }),
+      initial: (): SessionData => ({ activeHandler: null }),
     }),
   );
 

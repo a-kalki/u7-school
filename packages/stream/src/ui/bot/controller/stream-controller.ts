@@ -3,6 +3,8 @@ import { BotController } from '@u7-scl/core/ui';
 import type { StreamApiModule } from '../../../api/module';
 
 export class StreamController extends BotController {
+  readonly name = 'stream';
+
   constructor(private readonly streamApi: StreamApiModule) {
     super();
   }
