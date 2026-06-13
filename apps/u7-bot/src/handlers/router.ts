@@ -1,4 +1,4 @@
-import { BotDispatcher } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
 import type { Logger } from '@u7-scl/core/shared';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { InlineKeyboard, type Composer } from 'grammy';
@@ -23,17 +23,17 @@ export async function resolveUser(
 }
 
 /**
- * Регистрирует Grammy-обработчики, делегируя логику в BotDispatcher.
+ * Подключает Grammy-обработчики к BotRouter.
  *
  * @param bot — Grammy-композер (обычно privateBot.filter(...))
- * @param dispatcher — универсальный диспетчер из core
+ * @param router — роутер из core
  * @param userFacade — фасад модуля пользователей
  * @param botAdminUuid — UUID администратора бота
  * @param logger — опциональный логгер
  */
-export function registerDispatcher(
+export function connectRouter(
   bot: Composer<BotContext>,
-  dispatcher: BotDispatcher,
+  router: BotRouter,
   userFacade: UserFacade,
   botAdminUuid: string,
   logger?: Logger,
@@ -50,7 +50,7 @@ export function registerDispatcher(
         ctx.from?.first_name,
       );
     } catch (err) {
-      logger?.error('dispatcher', 'Ошибка resolveUser', {
+      logger?.error('router', 'Ошибка resolveUser', {
         error: String(err),
         telegramId,
       });
@@ -70,7 +70,7 @@ export function registerDispatcher(
 
     ctx.session.activeHandler = null;
 
-    const items = await dispatcher.collectMainMenu(user);
+    const items = await router.collectMainMenu(user);
 
     const keyboard = new InlineKeyboard();
     for (const item of items) {
@@ -89,7 +89,7 @@ export function registerDispatcher(
     const user = await resolveActor(ctx);
     if (!user) return;
 
-    const response = await dispatcher.handleCancel(user, ctx.session);
+    const response = await router.handleCancel(user, ctx.session);
 
     if (response === null) {
       await ctx.reply('Нечего отменять. Нажмите /start');
@@ -108,7 +108,7 @@ export function registerDispatcher(
 
     const data = ctx.callbackQuery.data;
 
-    const response = await dispatcher.handleCallback(data, user, ctx.session);
+    const response = await router.handleCallback(data, user, ctx.session);
 
     // Проверка на «чужой callback» — показываем alert
     if (
@@ -143,7 +143,7 @@ export function registerDispatcher(
       telegramId: ctx.from!.id,
     };
 
-    const response = await dispatcher.handleMessage(
+    const response = await router.handleMessage(
       update,
       user,
       ctx.session,

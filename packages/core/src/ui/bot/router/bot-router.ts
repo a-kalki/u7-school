@@ -26,14 +26,14 @@ export function extractRestData(data: string): string {
 }
 
 /**
- * Универсальный диспетчер бота.
- * Хранит контроллеры и маршрутизирует события.
+ * Роутер бота.
+ * Хранит контроллеры и маршрутизирует события к нужному контроллеру.
  * Не зависит от Grammy — работает с абстрактными типами.
  *
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class BotDispatcher<
+export class BotRouter<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
 > {
@@ -124,7 +124,6 @@ export class BotDispatcher<
 
     // Делегирование (один уровень, без рекурсии)
     if (response.delegate) {
-      // Возвращаем составной ответ: sendMessage из основного + результат делегата
       const delegateResponse = await controller.handleCallback(
         response.delegate.path,
         actor,
@@ -254,10 +253,8 @@ export class BotDispatcher<
   /** Объединяет основной ответ и ответ делегата */
   #mergeResponses(main: BotResponse, delegate: BotResponse): BotResponse {
     const result: BotResponse = { ...delegate };
-    // sendMessage из основного ответа приоритетнее (промежуточное сообщение)
     if (main.sendMessage) {
       result.sendMessage = main.sendMessage;
-      // Если делегат тоже хочет отправить — кладём в sendMessages
       if (delegate.sendMessage && delegate.sendMessage !== main.sendMessage) {
         result.sendMessages = [
           main.sendMessage,
@@ -266,7 +263,6 @@ export class BotDispatcher<
         result.sendMessage = undefined;
       }
     }
-    // editMessage из основного ответа приоритетнее
     if (main.editMessage) {
       result.editMessage = main.editMessage;
     }

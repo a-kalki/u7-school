@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  BotDispatcher,
+  BotRouter,
   extractControllerName,
   extractRestData,
-} from './bot-dispatcher';
+} from './bot-router';
 import { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -101,14 +101,14 @@ describe('extractRestData', () => {
   });
 });
 
-// ── BotDispatcher ──
+// ── BotRouter ──
 
-describe('BotDispatcher', () => {
+describe('BotRouter', () => {
   test('создаётся с контроллерами, доступ по имени', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     expect(disp.size).toBe(1);
     expect(disp.getController('stream')).toBe(ctrl);
     expect(disp.getController('unknown')).toBeUndefined();
@@ -120,7 +120,7 @@ describe('BotDispatcher', () => {
     const c2 = new TestController();
     c2.name = 'dup';
 
-    expect(() => new BotDispatcher([c1, c2])).toThrow(
+    expect(() => new BotRouter([c1, c2])).toThrow(
       'Дубликат имени контроллера: dup',
     );
   });
@@ -138,7 +138,7 @@ describe('BotDispatcher', () => {
       { text: 'А', action: 'ctrl2:a', priority: 5 },
     ]);
 
-    const disp = new BotDispatcher([c1, c2]);
+    const disp = new BotRouter([c1, c2]);
     const items = await disp.collectMainMenu(makeActor());
 
     expect(items).toHaveLength(2);
@@ -151,7 +151,7 @@ describe('BotDispatcher', () => {
     ctrl.name = 'stream';
     ctrl.withCallbackResult({ sendMessage: { text: 'ok' } });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession();
     const actor = makeActor();
 
@@ -166,7 +166,7 @@ describe('BotDispatcher', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const res = await disp.handleCallback(
       'unknown:action',
       makeActor(),
@@ -181,7 +181,7 @@ describe('BotDispatcher', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const res = await disp.handleCallback(
       'nodata',
       makeActor(),
@@ -198,7 +198,7 @@ describe('BotDispatcher', () => {
     const c2 = new TestController();
     c2.name = 'stream';
 
-    const disp = new BotDispatcher([c1, c2]);
+    const disp = new BotRouter([c1, c2]);
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
@@ -222,7 +222,7 @@ describe('BotDispatcher', () => {
       captureInput: { path: 'ask-name', ttlSeconds: 30 },
     });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession();
 
     await disp.handleCallback('onboarding:start', makeActor(), session);
@@ -237,7 +237,7 @@ describe('BotDispatcher', () => {
     ctrl.name = 'onboarding';
     ctrl.withCallbackResult({ releaseInput: true });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
@@ -255,7 +255,7 @@ describe('BotDispatcher', () => {
       delegate: { path: 'final' },
     });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession();
 
     const res = await disp.handleCallback('stream:step1', makeActor(), session);
@@ -270,7 +270,7 @@ describe('BotDispatcher', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const res = await disp.handleMessage(
       { type: 'message', text: 'hello', telegramId: 1 },
       makeActor(),
@@ -286,7 +286,7 @@ describe('BotDispatcher', () => {
     ctrl.name = 'onboarding';
     ctrl.withMessageResult({ sendMessage: { text: 'Принято' } });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
@@ -303,7 +303,7 @@ describe('BotDispatcher', () => {
     ctrl.name = 'onboarding';
     ctrl.withMessageResult({ releaseInput: true });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
@@ -325,7 +325,7 @@ describe('BotDispatcher', () => {
       sendMessage: { text: 'Время истекло' },
     });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession({
       activeHandler: {
         path: 'onboarding/ask-name',
@@ -348,7 +348,7 @@ describe('BotDispatcher', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const res = await disp.handleCancel(makeActor(), makeSession());
 
     expect(res).toBeNull();
@@ -362,7 +362,7 @@ describe('BotDispatcher', () => {
       sendMessage: { text: 'Отменено' },
     });
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
@@ -378,7 +378,7 @@ describe('BotDispatcher', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const disp = new BotDispatcher([ctrl]);
+    const disp = new BotRouter([ctrl]);
     const res = await disp.handleTimeout(makeActor(), makeSession());
 
     expect(res).toBeNull();

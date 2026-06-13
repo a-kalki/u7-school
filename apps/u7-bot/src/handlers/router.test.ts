@@ -1,11 +1,11 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { BotController, BotDispatcher } from '@u7-scl/core/ui';
+import { BotController, BotRouter } from '@u7-scl/core/ui';
 import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
 import type { Logger } from '@u7-scl/core/shared';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
-import { registerDispatcher, resolveUser } from './dispatcher';
+import { connectRouter, resolveUser } from './router';
 
 // ── Вспомогательные фабрики ──
 
@@ -178,9 +178,9 @@ describe('resolveUser', () => {
   });
 });
 
-// ── registerDispatcher (Grammy-адаптер) ──
+// ── connectRouter (Grammy-адаптер) ──
 
-describe('registerDispatcher', () => {
+describe('connectRouter', () => {
   test('/start агрегирует кнопки от контроллеров', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser({ name: 'Тест' }));
@@ -197,8 +197,8 @@ describe('registerDispatcher', () => {
       { text: 'Кнопка 2', action: 'ctrl2:act2', priority: 5 },
     ]);
 
-    const dispatcher = new BotDispatcher([ctrl1, ctrl2]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl1, ctrl2]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     await bot.commands.start!(ctx);
@@ -223,8 +223,8 @@ describe('registerDispatcher', () => {
     ctrl.name = 'ctrl';
     ctrl.setStartResult([]);
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     ctx.session.activeHandler = { path: 'ctrl/some' };
@@ -242,8 +242,8 @@ describe('registerDispatcher', () => {
     ctrl.name = 'stream';
     ctrl.setCallbackResult({ sendMessage: { text: 'Ответ от stream' } });
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     expect(handler).toBeDefined();
@@ -265,8 +265,8 @@ describe('registerDispatcher', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     const ctx = makeMockContext();
@@ -289,8 +289,8 @@ describe('registerDispatcher', () => {
     ctrl.name = 'stream';
     ctrl.setCancelResult({ releaseInput: true, sendMessage: { text: 'Отменено' } });
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     ctx.session.activeHandler = { path: 'stream/some-path' };
@@ -308,8 +308,8 @@ describe('registerDispatcher', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     ctx.session.activeHandler = null;
@@ -333,8 +333,8 @@ describe('registerDispatcher', () => {
     });
     ctrl.setMessageResult({ sendMessage: { text: 'Имя получено' } });
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     // Сначала callback, который захватывает ввод
     const cbHandler = bot.listeners['callback_query:data']?.[0];
@@ -369,8 +369,8 @@ describe('registerDispatcher', () => {
       sendMessage: { text: 'Готово' },
     });
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -391,8 +391,8 @@ describe('registerDispatcher', () => {
     const ctrl2 = new MockController();
     ctrl2.name = 'stream';
 
-    const dispatcher = new BotDispatcher([ctrl1, ctrl2]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl1, ctrl2]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     const ctx = makeMockContext();
@@ -422,8 +422,8 @@ describe('registerDispatcher', () => {
       sendMessage: { text: 'Время истекло' },
     });
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -446,8 +446,8 @@ describe('registerDispatcher', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -468,8 +468,8 @@ describe('registerDispatcher', () => {
     const ctrl = new MockController();
     ctrl.name = 'onboarding';
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -502,8 +502,8 @@ describe('registerDispatcher', () => {
     });
     ctrl.setCancelResult({ releaseInput: true });
 
-    const dispatcher = new BotDispatcher([ctrl]);
-    registerDispatcher(bot, dispatcher, userFacade, 'admin-uuid');
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
 
     // Шаг 1: /start
     const ctx1 = makeMockContext();

@@ -1,13 +1,14 @@
 import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7-scl/core/shared';
+import { BotRouter } from '@u7-scl/core/ui';
 import { OnboardingController } from '@u7-scl/onboarding';
 import { webhookCallback } from 'grammy';
 import { createApiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
+import { connectRouter } from './handlers/router';
 import { registerGroupHandlers } from './handlers/group-handler';
-import { BotDispatcher } from '@u7-scl/core/ui';
-import { registerDispatcher } from './handlers/dispatcher';
 import { CompositeLogger, TelegramLogger } from './logger';
+import { UserPolicy } from '@u7-scl/user/domain';
 
 const config = loadConfig();
 
@@ -52,8 +53,7 @@ if (config.adminTelegramIds.length > 0) {
       `BOT_ADMIN_UUID не найден: пользователь ${config.botAdminUuid} не существует`,
     );
   }
-  const roles = adminUser.roles as string[] | undefined;
-  if (!roles || !roles.includes('ADMIN')) {
+  if (!UserPolicy.isAdmin(adminUser)) {
     throw new Error(
       `BOT_ADMIN_UUID имеет недостаточные права: у пользователя ${config.botAdminUuid} нет роли ADMIN`,
     );
@@ -82,7 +82,7 @@ privateBot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => {});
+      .catch(() => { });
   }
 });
 
@@ -146,14 +146,11 @@ privateBot.command('log_level', async (ctx) => {
 onboardingController.init(apiApp);
 streamController.init(apiApp);
 
-// Универсальный диспетчер — заменяет старые handler'ы
-const dispatcher = new BotDispatcher([
-  onboardingController,
-  streamController,
-]);
-registerDispatcher(
+// Универсальный роутер — заменяет старые handler'ы
+const router = new BotRouter([onboardingController, streamController]);
+connectRouter(
   privateBot,
-  dispatcher,
+  router,
   userFacade,
   config.botAdminUuid,
   logger,
