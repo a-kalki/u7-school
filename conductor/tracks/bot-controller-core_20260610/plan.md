@@ -1,6 +1,6 @@
 # План реализации: Базовые классы контроллеров в core
 
-## Фаза 1: Типы и интерфейсы
+## Фаза 1: Типы и интерфейсы [checkpoint: bc861c2]
 
 - [x] Task: Расширить BotUpdate новыми типами (document, photo, voice) `6aebd9f`
     - [x] Добавить типы в `packages/core/src/ui/bot/types.ts`
