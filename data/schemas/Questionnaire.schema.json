@@ -11,11 +11,7 @@
       "minimum": 1
     },
     "status": {
-      "enum": [
-        "in_progress",
-        "completed",
-        "abandoned"
-      ],
+      "enum": ["in_progress", "completed", "abandoned"],
       "type": "string"
     },
     "answers": {
@@ -43,11 +39,7 @@
             "format": "date-time"
           }
         },
-        "required": [
-          "questionCode",
-          "answerCodes",
-          "answeredAt"
-        ]
+        "required": ["questionCode", "answerCodes", "answeredAt"]
       }
     },
     "currentQuestionCode": {

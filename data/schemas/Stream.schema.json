@@ -27,12 +27,7 @@
       "format": "date-time"
     },
     "status": {
-      "enum": [
-        "enrollment",
-        "active",
-        "completed",
-        "archived"
-      ],
+      "enum": ["enrollment", "active", "completed", "archived"],
       "type": "string"
     },
     "telegramGroupId": {
@@ -90,19 +85,11 @@
                   }
                 }
               },
-              "required": [
-                "lessonId",
-                "lessonTitle",
-                "stepIds"
-              ]
+              "required": ["lessonId", "lessonTitle", "stepIds"]
             }
           }
         },
-        "required": [
-          "projectId",
-          "projectTitle",
-          "lessons"
-        ]
+        "required": ["projectId", "projectTitle", "lessons"]
       }
     },
     "createdAt": {

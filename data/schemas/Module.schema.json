@@ -40,11 +40,7 @@
       }
     },
     "status": {
-      "enum": [
-        "draft",
-        "published",
-        "archived"
-      ],
+      "enum": ["draft", "published", "archived"],
       "type": "string"
     },
     "projects": {
@@ -70,11 +66,7 @@
             "type": "string"
           },
           "status": {
-            "enum": [
-              "draft",
-              "published",
-              "archived"
-            ],
+            "enum": ["draft", "published", "archived"],
             "type": "string"
           },
           "lessonIds": {
@@ -85,12 +77,7 @@
             }
           }
         },
-        "required": [
-          "uuid",
-          "title",
-          "status",
-          "lessonIds"
-        ]
+        "required": ["uuid", "title", "status", "lessonIds"]
       }
     },
     "createdAt": {

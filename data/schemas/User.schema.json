@@ -38,11 +38,5 @@
       "format": "date-time"
     }
   },
-  "required": [
-    "uuid",
-    "name",
-    "telegramId",
-    "roles",
-    "createdAt"
-  ]
+  "required": ["uuid", "name", "telegramId", "roles", "createdAt"]
 }

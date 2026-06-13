@@ -1,7 +1,12 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
 import { stringUtility } from '#shared/string-utility';
-import type { BotResponse, BotUpdate, MainMenuAction, SessionData } from './types';
+import type {
+  BotResponse,
+  BotUpdate,
+  MainMenuAction,
+  SessionData,
+} from './types';
 
 /**
  * Абстрактный класс для пользовательского сценария внутри контроллера.
@@ -30,36 +35,6 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
   /** Сброс временных данных сценария */
   reset(): void {
     this.shortIds.clear();
-  }
-
-  /** Генерирует callback_data с префиксом сценария */
-  cb(action: string): string {
-    return `${this.name}:${action}`;
-  }
-
-  /** Убирает префикс сценария из callback_data */
-  stripPrefix(data: string): string {
-    const prefix = `${this.name}:`;
-    if (data.startsWith(prefix)) {
-      return data.slice(prefix.length);
-    }
-    return data;
-  }
-
-  /**
-   * Сжимает длинное значение в короткий ключ для callback_data.
-   * Автоматически генерирует 6-символьный hex-ключ.
-   * @returns сгенерированный ключ
-   */
-  shrink(value: string): string {
-    const key = stringUtility.random('hhhhhh', '');
-    this.shortIds.set(key, value);
-    return key;
-  }
-
-  /** Восстанавливает значение по короткому ключу */
-  expand(key: string): string | undefined {
-    return this.shortIds.get(key);
   }
 
   /** Обработка callback — абстрактный, реализуется в наследниках */
@@ -107,5 +82,35 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
       releaseInput: true,
       sendMessage: { text: '⏰ Время ожидания истекло.' },
     };
+  }
+
+  /** Генерирует callback_data с префиксом сценария */
+  protected cb(action: string): string {
+    return `${this.name}:${action}`;
+  }
+
+  /** Убирает префикс сценария из callback_data */
+  protected stripPrefix(data: string): string {
+    const prefix = `${this.name}:`;
+    if (data.startsWith(prefix)) {
+      return data.slice(prefix.length);
+    }
+    return data;
+  }
+
+  /**
+   * Сжимает длинное значение в короткий ключ для callback_data.
+   * Автоматически генерирует 6-символьный hex-ключ.
+   * @returns сгенерированный ключ
+   */
+  protected shrink(value: string): string {
+    const key = stringUtility.random('hhhhhhhh', '');
+    this.shortIds.set(key, value);
+    return key;
+  }
+
+  /** Восстанавливает значение по короткому ключу */
+  protected expand(key: string): string | undefined {
+    return this.shortIds.get(key);
   }
 }

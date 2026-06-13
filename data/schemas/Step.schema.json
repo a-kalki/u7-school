@@ -20,11 +20,7 @@
           "type": "string"
         },
         "status": {
-          "enum": [
-            "draft",
-            "published",
-            "archived"
-          ],
+          "enum": ["draft", "published", "archived"],
           "type": "string"
         },
         "createdAt": {
@@ -67,11 +63,7 @@
           "type": "string"
         },
         "status": {
-          "enum": [
-            "draft",
-            "published",
-            "archived"
-          ],
+          "enum": ["draft", "published", "archived"],
           "type": "string"
         },
         "createdAt": {
@@ -122,11 +114,7 @@
           "type": "string"
         },
         "status": {
-          "enum": [
-            "draft",
-            "published",
-            "archived"
-          ],
+          "enum": ["draft", "published", "archived"],
           "type": "string"
         },
         "createdAt": {
@@ -163,12 +151,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "uuid",
-            "name",
-            "mimeType",
-            "size"
-          ]
+          "required": ["uuid", "name", "mimeType", "size"]
         }
       },
       "required": [

@@ -26,8 +26,7 @@ const randomGenerators: Record<string, () => string | number> = {
       : random(DECIMAL_BASE).toString();
   },
   Z: (): string => {
-    const offset =
-      Math.random() > 0.5 ? CODE_OF_A_UPPER : CODE_OF_A_LOWER;
+    const offset = Math.random() > 0.5 ? CODE_OF_A_UPPER : CODE_OF_A_LOWER;
     return String.fromCharCode(random(ALPHABET_COUNT) + offset);
   },
 };
@@ -130,9 +129,7 @@ class StringUtility {
     if (text === '') return '';
     const cb = (prev: string, curr: string): string =>
       prev +
-      (StringUtility.isTitle(curr)
-        ? `${caseChar}${curr.toLowerCase()}`
-        : curr);
+      (StringUtility.isTitle(curr) ? `${caseChar}${curr.toLowerCase()}` : curr);
     return isSuper
       ? this.reduce(text.substring(1), cb, text[0]!.toLowerCase())
       : this.reduce(text, cb);
@@ -186,10 +183,7 @@ class StringUtility {
     bracketCount = 2,
   ): string {
     const [openBracket, closeBracket] = brackets;
-    const escapedTemplate = tmpl.replace(
-      /[-/\\^$*+?.()|[\]{}]/g,
-      '\\$&',
-    );
+    const escapedTemplate = tmpl.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
     const openBrackets = openBracket
       .repeat(bracketCount)
       .replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -208,11 +202,7 @@ class StringUtility {
   }
 
   /** Применяет редуктор к каждому символу строки */
-  reduce<T>(
-    text: string,
-    cb: (prev: T, char: string) => T,
-    initial?: T,
-  ): T {
+  reduce<T>(text: string, cb: (prev: T, char: string) => T, initial?: T): T {
     let result: T;
     let startIndex: number;
     if (initial !== undefined) {

@@ -18,11 +18,7 @@
       "type": "string"
     },
     "status": {
-      "enum": [
-        "draft",
-        "published",
-        "archived"
-      ],
+      "enum": ["draft", "published", "archived"],
       "type": "string"
     },
     "createdAt": {

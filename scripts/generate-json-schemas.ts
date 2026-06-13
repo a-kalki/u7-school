@@ -11,17 +11,16 @@
  *   { "$schema": "../schemas/Questionnaire.schema.json", "items": [...] }
  */
 
-import { toJsonSchema } from '@valibot/to-json-schema';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
-import { QuestionnaireSchema } from '../packages/onboarding/src/domain/questionnaire/entity';
-import { StudentSchema } from '../packages/stream/src/domain/student/entity';
-import { StreamSchema } from '../packages/stream/src/domain/stream/entity';
-import { UserSchema } from '../packages/user/src/domain/user/entity';
-import { ModuleSchema } from '../packages/course/src/domain/module/entity';
+import { toJsonSchema } from '@valibot/to-json-schema';
 import { LessonSchema } from '../packages/course/src/domain/lesson/entity';
+import { ModuleSchema } from '../packages/course/src/domain/module/entity';
 import { StepSchema } from '../packages/course/src/domain/step/entity';
+import { QuestionnaireSchema } from '../packages/onboarding/src/domain/questionnaire/entity';
+import { StreamSchema } from '../packages/stream/src/domain/stream/entity';
+import { StudentSchema } from '../packages/stream/src/domain/student/entity';
+import { UserSchema } from '../packages/user/src/domain/user/entity';
 
 const OUT_DIR = 'data/schemas';
 
@@ -50,7 +49,10 @@ function generate() {
       // Убираем дублирующийся $schema, если toJsonSchema уже проставил
       const { $schema: _, ...rest } = jsonSchema;
 
-      fs.writeFileSync(outPath, JSON.stringify({ title: name, ...rest }, null, 2));
+      fs.writeFileSync(
+        outPath,
+        JSON.stringify({ title: name, ...rest }, null, 2),
+      );
       console.log(`✅ ${name}.schema.json`);
     } catch (err) {
       console.error(`❌ ${name}: ${(err as Error).message}`);

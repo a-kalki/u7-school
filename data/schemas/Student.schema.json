@@ -19,11 +19,7 @@
       "format": "date-time"
     },
     "status": {
-      "enum": [
-        "active",
-        "completed",
-        "dropped"
-      ],
+      "enum": ["active", "completed", "dropped"],
       "type": "string"
     },
     "currentStepId": {
@@ -40,10 +36,7 @@
             "format": "uuid"
           },
           "status": {
-            "enum": [
-              "issued",
-              "completed"
-            ],
+            "enum": ["issued", "completed"],
             "type": "string"
           },
           "issuedAt": {
@@ -55,11 +48,7 @@
             "format": "date-time"
           }
         },
-        "required": [
-          "stepId",
-          "status",
-          "issuedAt"
-        ]
+        "required": ["stepId", "status", "issuedAt"]
       }
     },
     "createdAt": {
