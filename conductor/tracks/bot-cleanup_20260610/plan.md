@@ -5,8 +5,8 @@
 - [x] Task: Удалить top-menu-handler.ts и его тесты `ab09312`
     - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.ts`
     - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.test.ts`
-- [ ] Task: Удалить onboarding-handler.ts
-    - [ ] Удалить `apps/u7-bot/src/handlers/onboarding-handler.ts`
+- [x] Task: Удалить onboarding-handler.ts `5d298d5`
+    - [x] Удалить `apps/u7-bot/src/handlers/onboarding-handler.ts`
 - [ ] Task: Удалить stream-handler.ts
     - [ ] Удалить `apps/u7-bot/src/handlers/stream-handler.ts`
 
