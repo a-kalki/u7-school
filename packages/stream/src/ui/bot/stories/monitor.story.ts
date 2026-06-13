@@ -76,11 +76,11 @@ export class MonitorStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  async handleMessage(): Promise<BotResponse> {
+  override async handleMessage(): Promise<BotResponse> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  async handleStart(): Promise<null> {
+  override async handleStart(_actor: unknown): Promise<null> {
     return null;
   }
 

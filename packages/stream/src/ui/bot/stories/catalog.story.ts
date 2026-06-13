@@ -62,7 +62,7 @@ export class CatalogStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  async handleMessage(
+  override async handleMessage(
     _update: BotUpdate,
     _actor: unknown,
     _session: SessionData,
@@ -70,7 +70,7 @@ export class CatalogStory extends BotUserStory<StreamAppMeta> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  async handleStart(_actor: unknown): Promise<MainMenuAction | null> {
+  override async handleStart(_actor: unknown): Promise<MainMenuAction | null> {
     return {
       text: '📚 Наши потоки',
       action: this.cb('list'),

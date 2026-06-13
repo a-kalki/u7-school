@@ -60,7 +60,7 @@ export class LearningStory extends BotUserStory<StreamAppMeta> {
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
-  async handleMessage(
+  override async handleMessage(
     _update: BotUpdate,
     _actor: unknown,
     _session: SessionData,
@@ -68,7 +68,7 @@ export class LearningStory extends BotUserStory<StreamAppMeta> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  async handleStart(actor: unknown): Promise<MainMenuAction | null> {
+  override async handleStart(actor: unknown): Promise<MainMenuAction | null> {
     const a = actor as Actor;
     if (a.roles.includes('STUDENT')) {
       return {

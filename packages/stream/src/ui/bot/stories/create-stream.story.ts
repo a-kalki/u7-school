@@ -92,7 +92,7 @@ export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
     }
   }
 
-  async handleCancel(
+  override async handleCancel(
     _actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
@@ -102,7 +102,7 @@ export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  async handleTimeout(
+  override async handleTimeout(
     _actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
@@ -112,7 +112,7 @@ export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  async handleStart(actor: unknown): Promise<MainMenuAction | null> {
+  override async handleStart(actor: unknown): Promise<MainMenuAction | null> {
     const a = actor as Actor;
     if (a.roles.includes('MENTOR') || a.roles.includes('ADMIN')) {
       return {
