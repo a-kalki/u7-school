@@ -1,0 +1,1 @@
+Задача: Определить StreamAppMeta в domain/module.ts. Создан тип StreamAppMeta (name:'stream-bot', moduleMetas: StreamApiModuleMeta | UserApiModuleMeta). Добавлен тест на компиляцию типов. Файлы: domain/module.ts, domain/index.ts, domain/stream-app-meta.test.ts
