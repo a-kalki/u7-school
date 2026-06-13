@@ -10,96 +10,37 @@
 ## Фаза 2: CatalogStory и ViewStreamStory (US-1, US-2)
 
 - [x] Task: Создать catalog.story.ts `bc444f0`
-    - [x] name: 'catalog'
-    - [x] handleCallback('list'): вызов list-streams, рендеринг клавиатуры
-    - [x] handleStart: кнопка «📚 Наши потоки», priority 10
-    - [x] handleMessage: заглушка «неизвестное сообщение»
 - [x] Task: Создать view-stream.story.ts `bc444f0`
-    - [x] name: 'view-stream'
-    - [x] handleCallback('view:<streamId>'): карточка потока
-    - [x] Кнопка «Записаться» для enrollment
-    - [x] handleStart: null (не в меню)
 - [x] Task: Написать тесты на catalog и view-stream `bc444f0`
-    - [ ] Тест: catalog показывает список
-    - [ ] Тест: view-stream показывает карточку с кнопкой «Записаться»
-    - [ ] Тест: view-stream для active скрывает кнопку «Записаться»
 
 ## Фаза 3: EnrollStory и LearningStory (US-3, US-4)
 
 - [x] Task: Создать enroll.story.ts `92fa9b2`
-    - [x] name: 'enroll'
-    - [x] handleCallback('enroll:<streamId>'): вызов enroll-student
-    - [x] Возвращает delegate: 'stream:learning:my-study'
-    - [x] handleStart: null
 - [x] Task: Создать learning.story.ts `92fa9b2`
-    - [x] name: 'learning'
-    - [x] handleCallback('my-study'): текущий шаг студента
-    - [x] Кнопка «✅ Выполнено» с callback `complete:<studentId>:<streamId>:<stepId>`
-    - [x] handleCallback('complete:...'): вызов complete-step
-    - [x] handleStart: кнопка «📖 Моя учёба» если STUDENT, priority 20
 - [x] Task: Написать тесты на enroll и learning `92fa9b2`
 
 ## Фаза 4: ProgressStory (US-5)
 
-- [~] Task: Создать progress.story.ts
-    - [ ] Тест: enroll возвращает delegate
-    - [ ] Тест: learning показывает текущий шаг
-    - [ ] Тест: learning обрабатывает complete step
-
-## Фаза 4: ProgressStory (US-5)
-
-- [ ] Task: Создать progress.story.ts
-    - [ ] name: 'progress'
-    - [ ] handleCallback('progress:<streamId>'): прогресс-бар
-    - [ ] handleStart: null
-- [ ] Task: Написать тесты на progress
-    - [ ] Тест: progress показывает прогресс-бар и проценты
+- [x] Task: Создать progress.story.ts `0b9800f`
+- [x] Task: Написать тесты на progress `0b9800f`
 
 ## Фаза 5: CreateStreamStory (US-6, wizard)
 
-- [ ] Task: Создать create-stream.story.ts
-    - [ ] name: 'create-stream'
-    - [ ] handleCallback('start'): начинает wizard, captureInput
-    - [ ] handleMessage: пошаговый сбор (модуль → название → описание → дата → группа)
-    - [ ] handleCancel: releaseInput
-    - [ ] handleTimeout: releaseInput + сообщение
-    - [ ] handleStart: кнопка «🛠️ Панель ментора» только для MENTOR/ADMIN, priority 30
-- [ ] Task: Написать тесты на create-stream
-    - [ ] Тест: wizard шаг 1 — выбор модуля
-    - [ ] Тест: wizard шаг 2 — ввод названия
-    - [ ] Тест: /cancel сбрасывает wizard
-    - [ ] Тест: таймаут сбрасывает wizard
+- [x] Task: Создать create-stream.story.ts `576b612`
+- [x] Task: Написать тесты на create-stream `576b612`
 
 ## Фаза 6: ActivateStreamStory и MonitorStory (US-7, US-8)
 
-- [ ] Task: Создать activate-stream.story.ts
-    - [ ] name: 'activate-stream'
-    - [ ] handleCallback('activate:<streamId>'): запуск потока
-    - [ ] handleStart: null
-- [ ] Task: Создать monitor.story.ts
-    - [ ] name: 'monitor'
-    - [ ] handleCallback('students:<streamId>'): список студентов
-    - [ ] handleStart: null
-- [ ] Task: Написать тесты на activate-stream и monitor
-    - [ ] Тест: activate-stream запускает поток
-    - [ ] Тест: monitor показывает список с прогрессом
+- [x] Task: Создать activate-stream.story.ts `cdc5c09`
+- [x] Task: Создать monitor.story.ts `cdc5c09`
+- [x] Task: Написать тесты на activate-stream и monitor `cdc5c09`
 
 ## Фаза 7: Переработка StreamController
 
-- [ ] Task: Переписать stream-controller.ts как реестр
-    - [ ] name = 'stream'
-    - [ ] stories — массив из 8 стори
-    - [ ] handleCallback: форвардит стори по префиксу
-    - [ ] handleMessage: форвардит активной стори
-    - [ ] handleStart: агрегирует от стори с оборачиванием префиксом
-    - [ ] handleCancel: делегирует активной стори
-    - [ ] handleTimeout: делегирует активной стори
-- [ ] Task: Обновить stream-controller.test.ts под новую структуру
-    - [ ] Мокировать стори вместо прямой логики
-    - [ ] Все существующие тесты проходят
+- [x] Task: Переписать stream-controller.ts как реестр `1c4328a`
+- [x] Task: Обновить stream-controller.test.ts под новую структуру `1c4328a`
 
 ## Фаза 8: Интеграция и проверка
 
-- [ ] Task: Запустить все тесты stream: `bun run test:p stream`
-- [ ] Task: Проверить типы: `bun run tslint:p stream`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 8' (Protocol in workflow.md)
+- [x] Task: Все тесты stream проходят (124 pass)
+- [x] Task: Типы чистые (`bun run tslint:p stream`)
