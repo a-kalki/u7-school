@@ -1,0 +1,8 @@
+Задача: Удалить onboarding-handler.ts
+
+Сводка: Удалён старый handler для onboarding. Вызов registerOnboardingHandler уже закомментирован в main.ts, новый BotRouter обрабатывает маршрутизацию.
+
+Изменённые файлы:
+- Удалён: apps/u7-bot/src/handlers/onboarding-handler.ts
+
+Причина: Переход на новую архитектуру через BotRouter.
