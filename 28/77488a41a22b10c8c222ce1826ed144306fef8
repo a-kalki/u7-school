@@ -1,0 +1,8 @@
+Задача: Убрать закомментированный код старых handler'ов из main.ts
+
+Сводка: Удалены закомментированные строки с вызовами registerTopMenuHandler, registerOnboardingHandler, registerStreamHandler. Импорты старых handler'ов уже отсутствовали, BotRouter + connectRouter полностью обрабатывают маршрутизацию.
+
+Изменённые файлы:
+- apps/u7-bot/src/main.ts (удалены 4 строки комментариев + 3 закомментированные строки)
+
+Причина: Чистка после перехода на BotRouter.
