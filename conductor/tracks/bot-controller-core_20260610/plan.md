@@ -15,17 +15,17 @@
 
 ## Фаза 2: BotUserStory
 
-- [ ] Task: Создать абстрактный класс BotUserStory<TAppMeta>
-    - [ ] Поле `name`, `api`, `shortIds`
-    - [ ] Методы: `init`, `reset`, `cb`, `stripPrefix`, `shrink`, `expand`
-    - [ ] Абстрактные: `handleCallback`, `handleMessage`
-    - [ ] С реализацией по умолчанию: `handleStart`, `handleCancel`, `handleTimeout`
-- [ ] Task: Написать тесты на BotUserStory
-    - [ ] Тест: `cb` добавляет префикс
-    - [ ] Тест: `stripPrefix` убирает префикс
-    - [ ] Тест: `shrink`/`expand` работают
-    - [ ] Тест: `handleStart` по умолчанию возвращает null
-    - [ ] Тест: `handleCancel` по умолчанию возвращает releaseInput
+- [x] Task: Создать абстрактный класс BotUserStory<TAppMeta> `19ea27c`
+    - [x] Поле `name`, `api`, `shortIds`
+    - [x] Методы: `init`, `reset`, `cb`, `stripPrefix`, `shrink`, `expand`
+    - [x] Абстрактные: `handleCallback`, `handleMessage`
+    - [x] С реализацией по умолчанию: `handleStart`, `handleCancel`, `handleTimeout`
+- [x] Task: Написать тесты на BotUserStory `19ea27c`
+    - [x] Тест: `cb` добавляет префикс
+    - [x] Тест: `stripPrefix` убирает префикс
+    - [x] Тест: `shrink`/`expand` работают
+    - [x] Тест: `handleStart` по умолчанию возвращает null
+    - [x] Тест: `handleCancel` по умолчанию возвращает releaseInput
 
 ## Фаза 3: Обновлённый BotController
 
