@@ -1,0 +1,9 @@
+Задача: Удалить top-menu-handler.ts и его тест
+
+Сводка: Удалены старые handler-файлы, которые больше не используются. Все вызовы registerTopMenuHandler были закомментированы в main.ts, новый BotRouter уже обрабатывает маршрутизацию.
+
+Изменённые файлы:
+- Удалён: apps/u7-bot/src/handlers/top-menu-handler.ts
+- Удалён: apps/u7-bot/src/handlers/top-menu-handler.test.ts
+
+Причина: Переход на новую архитектуру через BotRouter, старые handler'ы стали не нужны.
