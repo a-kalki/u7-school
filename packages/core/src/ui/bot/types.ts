@@ -29,4 +29,7 @@ export interface BotResponse {
 export type BotUpdate =
   | { type: 'command'; command: string; telegramId: number; name?: string }
   | { type: 'message'; text: string; telegramId: number }
-  | { type: 'callback'; data: string; telegramId: number; messageId: number };
+  | { type: 'callback'; data: string; telegramId: number; messageId: number }
+  | { type: 'document'; fileId: string; telegramId: number }
+  | { type: 'photo'; fileId: string; telegramId: number }
+  | { type: 'voice'; fileId: string; telegramId: number };
