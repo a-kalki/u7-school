@@ -2,8 +2,8 @@
 
 ## Фаза 1: Типы и интерфейсы
 
-- [ ] Task: Расширить BotUpdate новыми типами (document, photo, voice)
-    - [ ] Добавить типы в `packages/core/src/ui/bot/types.ts`
+- [x] Task: Расширить BotUpdate новыми типами (document, photo, voice) `6aebd9f`
+    - [x] Добавить типы в `packages/core/src/ui/bot/types.ts`
 - [ ] Task: Расширить BotResponse полями captureInput, releaseInput, delegate
     - [ ] Добавить `captureInput?: { path, context?, ttlSeconds? }`
     - [ ] Добавить `releaseInput?: boolean`
