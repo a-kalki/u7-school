@@ -7,8 +7,8 @@
     - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.test.ts`
 - [x] Task: Удалить onboarding-handler.ts `5d298d5`
     - [x] Удалить `apps/u7-bot/src/handlers/onboarding-handler.ts`
-- [ ] Task: Удалить stream-handler.ts
-    - [ ] Удалить `apps/u7-bot/src/handlers/stream-handler.ts`
+- [x] Task: Удалить stream-handler.ts `acaff0c`
+    - [x] Удалить `apps/u7-bot/src/handlers/stream-handler.ts`
 
 ## Фаза 2: Обновление main.ts
 
