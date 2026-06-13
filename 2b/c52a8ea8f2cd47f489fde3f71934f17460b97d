@@ -1,0 +1,12 @@
+Фаза 4: Интеграция диспетчера в main.ts
+
+**Изменения:**
+- Заменены импорты старых handler'ов на registerDispatcher
+- Добавлены вызовы onboardingController.init(apiApp) и streamController.init(apiApp)
+- registerDispatcher регистрирует оба контроллера для приватных чатов
+- Старые вызовы handler'ов закомментированы (не удалены)
+- bot.ts не требует изменений (сессия уже обновлена в Фазе 1)
+- group-handler.ts остаётся без изменений (групповые события не через диспетчер)
+
+**Изменённые файлы:**
+- apps/u7-bot/src/main.ts
