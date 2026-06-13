@@ -8,8 +8,8 @@
     - [x] Добавить `captureInput?: { path, context?, ttlSeconds? }`
     - [x] Добавить `releaseInput?: boolean`
     - [x] Добавить `delegate?: { path }`
-- [ ] Task: Создать SessionData с activeHandler
-    - [ ] Интерфейс `SessionData` в `types.ts`
+- [x] Task: Создать SessionData с activeHandler `b41e3c0`
+    - [x] Интерфейс `SessionData` в `types.ts`
 - [ ] Task: Создать MainMenuAction
     - [ ] Интерфейс `{ text, action, priority }` в `types.ts`
 
