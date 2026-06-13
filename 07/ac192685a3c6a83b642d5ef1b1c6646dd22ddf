@@ -1,0 +1,34 @@
+Фаза 3: Реализация registerDispatcher
+
+**Реализовано:**
+- registerDispatcher(bot, controllers, userFacade, botAdminUuid, logger?)
+- Хранение контроллеров в Map с проверкой уникальности имени
+- Обработка /start: сборка MainMenuAction[], сортировка по priority, InlineKeyboard
+- Обработка /cancel: форвард активному контроллеру, иначе «Нечего отменять»
+- Обработка callback_query:data: извлечение префикса контроллера, маршрутизация
+- Обработка message:text: форвард активному обработчику через handleMessage
+- captureInput: сохранение activeHandler с path/context/expiresAt
+- releaseInput: очистка activeHandler
+- delegate: sendMessage + форвард делегату (один уровень)
+- Чужой callback: отказ с show_alert и подсказкой /cancel
+- Таймаут: проверка expiresAt → handleTimeout
+- Команды пропускаются через next()
+
+**Тесты (18):**
+- /start агрегирует кнопки (сортировка)
+- callback маршрутизируется по префиксу
+- неизвестный префикс → ошибка
+- /cancel с/без активного обработчика
+- captureInput → сообщения идут в контроллер
+- releaseInput → сессия очищается
+- чужой callback → отказ
+- таймаут → handleTimeout
+- сообщение без обработчика → next()
+- сообщение-команда → next()
+- делегирование
+- дубликат имени → ошибка
+- callback без ':' → пропуск
+
+**Изменённые файлы:**
+- apps/u7-bot/src/handlers/dispatcher.ts (полная реализация)
+- apps/u7-bot/src/handlers/dispatcher.test.ts (18 тестов)
