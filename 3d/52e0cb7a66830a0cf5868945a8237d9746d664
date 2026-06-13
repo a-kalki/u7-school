@@ -1,0 +1,6 @@
+Отчёт о верификации Фазы 4
+Автоматические тесты: bun test packages/core/src/ — 129 pass, 0 fail
+Проверка типов: bun run tslint:p core — без ошибок
+Ручная верификация: Подтверждена пользователем
+Файлы фазы: controller-registry.ts (новый), controller-registry.test.ts (новый), ui/index.ts
+Изменения: ControllerRegistry с проверкой уникальности, убран handleUpdate и обратная совместимость
