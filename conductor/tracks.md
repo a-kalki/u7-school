@@ -2,9 +2,6 @@
 
 ---
 
-- [x] **Track: Универсальный диспетчер бота, авто-маршрутизация, удаление menu из сессии**
-*Link: [./tracks/bot-dispatcher_20260610/](./tracks/bot-dispatcher_20260610/)*
-
 - [ ] **Track: Миграция StreamController на 8 BotUserStory-классов (US-1...US-8)**
 *Link: [./tracks/stream-user-stories_20260610/](./tracks/stream-user-stories_20260610/)*
 
