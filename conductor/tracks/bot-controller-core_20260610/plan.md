@@ -43,12 +43,12 @@
 
 ## Фаза 4: ControllerRegistry и экспорты
 
-- [ ] Task: Создать ControllerRegistry
-    - [ ] register с проверкой уникальности имени
-    - [ ] get, getAll
-- [ ] Task: Написать тесты на ControllerRegistry
-    - [ ] Тест: успешная регистрация
-    - [ ] Тест: ошибка при дубликате имени
-- [ ] Task: Обновить экспорты в `packages/core/src/ui/index.ts`
-    - [ ] Экспортировать все новые классы и типы
+- [x] Task: Создать ControllerRegistry `e9e1ad0`
+    - [x] register с проверкой уникальности имени
+    - [x] get, getAll
+- [x] Task: Написать тесты на ControllerRegistry `e9e1ad0`
+    - [x] Тест: успешная регистрация
+    - [x] Тест: ошибка при дубликате имени
+- [x] Task: Обновить экспорты в `packages/core/src/ui/index.ts` `e9e1ad0`
+    - [x] Экспортировать все новые классы и типы
 - [ ] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
