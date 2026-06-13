@@ -13,7 +13,7 @@
 - [x] Task: Создать MainMenuAction `4bd65eb`
     - [x] Интерфейс `{ text, action, priority }` в `types.ts`
 
-## Фаза 2: BotUserStory
+## Фаза 2: BotUserStory [checkpoint: 5813f48]
 
 - [x] Task: Создать абстрактный класс BotUserStory<TAppMeta> `19ea27c`
     - [x] Поле `name`, `api`, `shortIds`
