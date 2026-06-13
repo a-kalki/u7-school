@@ -1,0 +1,1 @@
+Задача: Создать EnrollStory (US-3) и LearningStory (US-4). EnrollStory: handleCallback('enroll:<streamId>') вызывает enroll-student, возвращает delegate на learning. LearningStory: handleCallback('my-study') показывает текущий шаг, handleCallback('complete:...') завершает шаг, handleStart показывает кнопку только для STUDENT.
