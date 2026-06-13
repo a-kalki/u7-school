@@ -1,4 +1,5 @@
 import type { CourseFacade } from '@u7-scl/course/domain';
+import type { UserApiModuleMeta } from '@u7-scl/user/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { ActivateStreamCmdMeta } from './stream/commands/activate-stream-cmd';
 import type { ArchiveStreamCmdMeta } from './stream/commands/archive-stream-cmd';
@@ -36,4 +37,10 @@ export interface StreamApiModuleMeta {
     | EnrollStudentCmdMeta
     | GetStudentByUserCmdMeta
     | GetStudentProgressCmdMeta;
+}
+
+/** Метаданные Telegram-бота stream — объединяет модули stream и user */
+export interface StreamAppMeta {
+  name: 'stream-bot';
+  moduleMetas: StreamApiModuleMeta | UserApiModuleMeta;
 }

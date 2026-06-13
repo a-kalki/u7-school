@@ -1,4 +1,5 @@
 // Будущий экспорт доменного слоя потока курсов
+export * from './module';
 export * from './status';
 export * from './stream/a-root';
 export * from './stream/entity';
