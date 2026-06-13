@@ -2,10 +2,10 @@
 
 ## Фаза 1: Подготовка — StreamAppMeta
 
-- [ ] Task: Определить StreamAppMeta в domain/module.ts
-    - [ ] Union тип: StreamApiModuleMeta | UserApiModuleMeta
-    - [ ] name: 'stream-bot'
-- [ ] Task: Написать тест на StreamAppMeta (компиляция типов)
+- [x] Task: Определить StreamAppMeta в domain/module.ts `8435acd`
+    - [x] Union тип: StreamApiModuleMeta | UserApiModuleMeta
+    - [x] name: 'stream-bot'
+- [x] Task: Написать тест на StreamAppMeta (компиляция типов) `8435acd`
 
 ## Фаза 2: CatalogStory и ViewStreamStory (US-1, US-2)
 
