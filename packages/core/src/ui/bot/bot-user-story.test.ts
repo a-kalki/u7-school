@@ -1,17 +1,20 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
-import type { AppMeta, ApiModuleMeta } from '#domain/types';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from './bot-user-story';
+import type { BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
-    ucMetas:
-      | { ucName: 'test-cmd'; input: { x: number }; output: { y: number } };
+    ucMetas: {
+      ucName: 'test-cmd';
+      input: { x: number };
+      output: { y: number };
+    };
   };
 };
 
-// Конкретная реализация для тестов
+// Конкретная реализация для тестов — экспонирует protected-методы как публичные
 class TestStory extends BotUserStory<TestAppMeta> {
   readonly name = 'test_story';
 
@@ -32,6 +35,23 @@ class TestStory extends BotUserStory<TestAppMeta> {
       return { sendMessage: { text: `echo: ${update.text}` } };
     }
     return { sendMessage: { text: 'ok' } };
+  }
+
+  // Экспонируем protected-методы для тестирования
+  public override cb(action: string): string {
+    return super.cb(action);
+  }
+
+  public override stripPrefix(data: string): string {
+    return super.stripPrefix(data);
+  }
+
+  public override shrink(value: string): string {
+    return super.shrink(value);
+  }
+
+  public override expand(key: string): string | undefined {
+    return super.expand(key);
   }
 }
 
@@ -71,10 +91,10 @@ describe('BotUserStory', () => {
   });
 
   describe('shrink / expand', () => {
-    test('shrink генерирует 6-символьный hex-ключ и сохраняет значение', () => {
+    test('shrink генерирует 8-символьный hex-ключ и сохраняет значение', () => {
       const key = story.shrink('очень длинное значение');
-      // ключ — 6 hex-символов
-      expect(key).toMatch(/^[0-9a-f]{6}$/);
+      // ключ — 8 hex-символов
+      expect(key).toMatch(/^[0-9a-f]{8}$/);
     });
 
     test('expand восстанавливает значение по ключу', () => {
