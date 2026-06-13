@@ -9,17 +9,17 @@
 
 ## Фаза 2: CatalogStory и ViewStreamStory (US-1, US-2)
 
-- [ ] Task: Создать catalog.story.ts
-    - [ ] name: 'catalog'
-    - [ ] handleCallback('list'): вызов list-streams, рендеринг клавиатуры
-    - [ ] handleStart: кнопка «📚 Наши потоки», priority 10
-    - [ ] handleMessage: заглушка «неизвестное сообщение»
-- [ ] Task: Создать view-stream.story.ts
-    - [ ] name: 'view-stream'
-    - [ ] handleCallback('view:<streamId>'): карточка потока
-    - [ ] Кнопка «Записаться» для enrollment
-    - [ ] handleStart: null (не в меню)
-- [ ] Task: Написать тесты на catalog и view-stream
+- [x] Task: Создать catalog.story.ts `bc444f0`
+    - [x] name: 'catalog'
+    - [x] handleCallback('list'): вызов list-streams, рендеринг клавиатуры
+    - [x] handleStart: кнопка «📚 Наши потоки», priority 10
+    - [x] handleMessage: заглушка «неизвестное сообщение»
+- [x] Task: Создать view-stream.story.ts `bc444f0`
+    - [x] name: 'view-stream'
+    - [x] handleCallback('view:<streamId>'): карточка потока
+    - [x] Кнопка «Записаться» для enrollment
+    - [x] handleStart: null (не в меню)
+- [x] Task: Написать тесты на catalog и view-stream `bc444f0`
     - [ ] Тест: catalog показывает список
     - [ ] Тест: view-stream показывает карточку с кнопкой «Записаться»
     - [ ] Тест: view-stream для active скрывает кнопку «Записаться»
