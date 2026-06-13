@@ -2,9 +2,9 @@
 
 ## Фаза 1: Удаление старых handler'ов
 
-- [ ] Task: Удалить top-menu-handler.ts и его тесты
-    - [ ] Удалить `apps/u7-bot/src/handlers/top-menu-handler.ts`
-    - [ ] Удалить `apps/u7-bot/src/handlers/top-menu-handler.test.ts`
+- [x] Task: Удалить top-menu-handler.ts и его тесты `ab09312`
+    - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.ts`
+    - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.test.ts`
 - [ ] Task: Удалить onboarding-handler.ts
     - [ ] Удалить `apps/u7-bot/src/handlers/onboarding-handler.ts`
 - [ ] Task: Удалить stream-handler.ts
