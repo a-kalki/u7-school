@@ -1,0 +1,7 @@
+Отчёт о верификации Фазы 3
+Автоматические тесты: CI=true bun test — 662 pass, 0 fail
+Проверка типов: bun run tslint:p core — без ошибок
+Ручная верификация: Подтверждена пользователем
+Файлы фазы: packages/core/src/ui/bot/controller/bot-controller.ts (переписан), bot-controller.test.ts (новый)
+Изменения: BotController<TAppMeta, TActor> — name, stories, init/reset, handleCallback/handleMessage (делегирование стори + fallback), handleStart (агрегация меню), handleCancel/handleTimeout, cb/stripPrefix/findStory
+TActor extends { telegramId: number } — минимальное ограничение
