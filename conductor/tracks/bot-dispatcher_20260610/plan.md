@@ -40,12 +40,12 @@
 
 ## Фаза 4: Интеграция в main.ts
 
-- [ ] Task: Обновить main.ts — регистрация контроллеров в диспетчере
-    - [ ] Убрать прямые импорты контроллеров в handler'ы
-    - [ ] Передать StreamController и OnboardingController в диспетчер
-    - [ ] Вызвать registerDispatcher вместо старых handler'ов
-- [ ] Task: Проверить, что bot.ts не требует изменений
-- [ ] Task: Убедиться, что старые handler'ы ЕЩЁ не удалены (удаление — в треке bot-cleanup)
+- [x] Task: Обновить main.ts — регистрация контроллеров в диспетчере (2bc52a8)
+    - [x] Убрать прямые импорты контроллеров в handler'ы
+    - [x] Передать StreamController и OnboardingController в диспетчер
+    - [x] Вызвать registerDispatcher вместо старых handler'ов
+- [x] Task: Проверить, что bot.ts не требует изменений
+- [x] Task: Убедиться, что старые handler'ы ЕЩЁ не удалены (удаление — в треке bot-cleanup)
 
 ## Фаза 5: Интеграционное тестирование
 
