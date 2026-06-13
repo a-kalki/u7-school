@@ -1,0 +1,10 @@
+Задача: Мигрировать OnboardingController под новый BotController (без UserStory)
+
+Изменения:
+- onboarding-controller.ts: удалён handleUpdate, добавлены handleCallback/handleMessage/handleStart/handleCancel
+- onboarding-controller.test.ts: все 19 старых тестов адаптированы под новый интерфейс, добавлено 9 новых тестов
+- Логика анкеты вшита в контроллер (без UserStory — процесс небольшой)
+- captureInput/releaseInput вместо menu
+- Callback-формат: onboarding:start_questionnaire, onboarding:answer:<code>, onboarding:next:<code>
+- messageId достаётся из session.activeHandler.context
+- Все 70 тестов проходят, типы и линтер чисты
