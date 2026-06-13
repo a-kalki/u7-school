@@ -1,0 +1,18 @@
+Фазы 1-2: Обновление SessionData и resolveUser
+
+**Фаза 1: Обновление SessionData**
+- context.ts: заменён menu на activeHandler (с временным menu? для обратной совместимости)
+- bot.ts: инициализация сессии с activeHandler: null
+- stream-controller.ts, onboarding-controller.ts: добавлен обязательный name
+
+**Фаза 2: resolveUser**
+- dispatcher.ts: resolveUser(telegramId, name?) резолвит User через getUserByTelegramId, fallback на registerGuest
+- dispatcher.test.ts: 4 теста — существующий пользователь, новый гость, имя по умолчанию, проброс ошибки
+
+**Изменённые файлы:**
+- apps/u7-bot/src/context.ts
+- apps/u7-bot/src/bot.ts
+- apps/u7-bot/src/handlers/dispatcher.ts (новый)
+- apps/u7-bot/src/handlers/dispatcher.test.ts (новый)
+- packages/stream/src/ui/bot/controller/stream-controller.ts
+- packages/onboarding/src/ui/bot/controller/onboarding-controller.ts
