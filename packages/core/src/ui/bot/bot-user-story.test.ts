@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from './bot-user-story';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type {
+  BotActor,
+  BotResponse,
+  BotUpdate,
+  MainMenuAction,
+  SessionData,
+} from './types';
 
 // Тестовый тип метаданных
 type TestAppMeta = AppMeta & {
@@ -14,13 +20,21 @@ type TestAppMeta = AppMeta & {
   };
 };
 
+// Тестовый актор
+const testActor: BotActor = {
+  telegramId: 123,
+  uuid: 'uuid-1',
+  name: 'Тестовый',
+  roles: ['STUDENT'],
+};
+
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
 class TestStory extends BotUserStory<TestAppMeta> {
   readonly name = 'test_story';
 
   async handleCallback(
     action: string,
-    _actor: string,
+    _actor: BotActor,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `callback: ${action}` } };
@@ -28,7 +42,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleMessage(
     update: BotUpdate,
-    _actor: string,
+    _actor: BotActor,
     _session: SessionData,
   ): Promise<BotResponse> {
     if (update.type === 'message') {
@@ -93,7 +107,6 @@ describe('BotUserStory', () => {
   describe('shrink / expand', () => {
     test('shrink генерирует 8-символьный hex-ключ и сохраняет значение', () => {
       const key = story.shrink('очень длинное значение');
-      // ключ — 8 hex-символов
       expect(key).toMatch(/^[0-9a-f]{8}$/);
     });
 
@@ -127,14 +140,14 @@ describe('BotUserStory', () => {
 
   describe('handleStart', () => {
     test('по умолчанию возвращает null', async () => {
-      const result = await story.handleStart('user1');
+      const result = await story.handleStart(testActor);
       expect(result).toBeNull();
     });
   });
 
   describe('handleCancel', () => {
     test('по умолчанию возвращает releaseInput', async () => {
-      const result = await story.handleCancel('user1', {
+      const result = await story.handleCancel(testActor, {
         activeHandler: null,
       });
       expect(result.releaseInput).toBe(true);
@@ -143,7 +156,7 @@ describe('BotUserStory', () => {
 
   describe('handleTimeout', () => {
     test('по умолчанию возвращает releaseInput и сообщение', async () => {
-      const result = await story.handleTimeout('user1', {
+      const result = await story.handleTimeout(testActor, {
         activeHandler: null,
       });
       expect(result.releaseInput).toBe(true);
@@ -153,7 +166,7 @@ describe('BotUserStory', () => {
 
   describe('конкретная реализация', () => {
     test('handleCallback передаёт action', async () => {
-      const resp = await story.handleCallback('my_action', 'u1', {
+      const resp = await story.handleCallback('my_action', testActor, {
         activeHandler: null,
       });
       expect(resp.sendMessage?.text).toBe('callback: my_action');
@@ -162,7 +175,7 @@ describe('BotUserStory', () => {
     test('handleMessage обрабатывает текстовые сообщения', async () => {
       const resp = await story.handleMessage(
         { type: 'message', text: 'привет', telegramId: 123 },
-        'u1',
+        testActor,
         { activeHandler: null },
       );
       expect(resp.sendMessage?.text).toBe('echo: привет');

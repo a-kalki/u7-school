@@ -2,7 +2,13 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotController } from './bot-controller';
 import { BotUserStory } from '../bot-user-story';
-import type { BotResponse, BotUpdate, MainMenuAction, SessionData } from '../types';
+import type {
+  BotActor,
+  BotResponse,
+  BotUpdate,
+  MainMenuAction,
+  SessionData,
+} from '../types';
 
 // Тестовый тип метаданных
 type TestAppMeta = AppMeta & {
@@ -13,6 +19,14 @@ type TestAppMeta = AppMeta & {
       output: { y: number };
     };
   };
+};
+
+// Тестовый актор
+const testActor: BotActor = {
+  telegramId: 123,
+  uuid: 'uuid-1',
+  name: 'Тестовый',
+  roles: ['STUDENT'],
 };
 
 // Тестовая стори
@@ -29,7 +43,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleCallback(
     _action: string,
-    _actor: string,
+    _actor: BotActor,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `story_callback:${this.name}` } };
@@ -37,7 +51,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleMessage(
     _update: BotUpdate,
-    _actor: string,
+    _actor: BotActor,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `story_message:${this.name}` } };
@@ -54,7 +68,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
   }
 
   override async handleStart(
-    _actor: string,
+    _actor: BotActor,
   ): Promise<MainMenuAction | null> {
     return this.handleStartResult;
   }
@@ -63,11 +77,6 @@ class TestStory extends BotUserStory<TestAppMeta> {
 // Конкретный контроллер для тестов
 class TestController extends BotController<TestAppMeta> {
   readonly name = 'test_ctrl';
-
-  constructor() {
-    super();
-    // stories — protected, задаём через (this as any) в тестах
-  }
 
   // Экспонируем protected-методы
   public override cb(action: string): string {
@@ -138,10 +147,9 @@ describe('BotController', () => {
         priority: 10,
       };
 
-      const result = await ctrl.handleStart('user1');
+      const result = await ctrl.handleStart(testActor);
 
       expect(result).toHaveLength(2);
-      // Сортировка по priority: сначала story2 (10), потом story1 (20)
       expect(result[0]!.text).toBe('Кнопка 2');
       expect(result[0]!.action).toBe('test_ctrl:act2');
       expect(result[1]!.text).toBe('Кнопка 1');
@@ -156,7 +164,7 @@ describe('BotController', () => {
         priority: 5,
       };
 
-      const result = await ctrl.handleStart('user1');
+      const result = await ctrl.handleStart(testActor);
       expect(result).toHaveLength(1);
       expect(result[0]!.text).toBe('Кнопка');
     });
@@ -175,19 +183,18 @@ describe('BotController', () => {
 
   describe('handleCancel', () => {
     test('без активного обработчика — освобождает ввод', async () => {
-      const result = await ctrl.handleCancel('user1', {
+      const result = await ctrl.handleCancel(testActor, {
         activeHandler: null,
       });
       expect(result.releaseInput).toBe(true);
     });
 
     test('с активным обработчиком — делегирует стори', async () => {
-      const result = await ctrl.handleCancel('user1', {
+      const result = await ctrl.handleCancel(testActor, {
         activeHandler: {
           path: '/test_ctrl/story_one',
         },
       });
-      // handleCancel по умолчанию в BotUserStory возвращает releaseInput
       expect(result.releaseInput).toBe(true);
     });
   });
@@ -196,7 +203,7 @@ describe('BotController', () => {
     test('делегирует в стори по префиксу в data', async () => {
       const result = await ctrl.handleCallback(
         'story_one:some_action',
-        'user1',
+        testActor,
         { activeHandler: null },
       );
       expect(result.sendMessage?.text).toBe('story_callback:story_one');
@@ -205,7 +212,7 @@ describe('BotController', () => {
     test('без совпадения стори — fallback на handleUpdate', async () => {
       const result = await ctrl.handleCallback(
         'unknown:action',
-        'user1',
+        testActor,
         { activeHandler: null },
       );
       expect(result.sendMessage?.text).toBe('fallback_update');
@@ -216,7 +223,7 @@ describe('BotController', () => {
     test('с активной стори — делегирует ей', async () => {
       const result = await ctrl.handleMessage(
         { type: 'message', text: 'привет', telegramId: 123 },
-        'user1',
+        testActor,
         {
           activeHandler: { path: '/test_ctrl/story_one' },
         },
@@ -227,7 +234,7 @@ describe('BotController', () => {
     test('без активной стори — fallback на handleUpdate', async () => {
       const result = await ctrl.handleMessage(
         { type: 'message', text: 'привет', telegramId: 123 },
-        'user1',
+        testActor,
         { activeHandler: null },
       );
       expect(result.sendMessage?.text).toBe('fallback_update');

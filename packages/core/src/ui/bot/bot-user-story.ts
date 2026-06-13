@@ -2,6 +2,7 @@ import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
 import { stringUtility } from '#shared/string-utility';
 import type {
+  BotActor,
   BotResponse,
   BotUpdate,
   MainMenuAction,
@@ -13,8 +14,12 @@ import type {
  * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
  *
  * @typeParam TAppMeta - тип метаданных приложения, должен расширять AppMeta
+ * @typeParam TActor - тип актора (пользователя), должен расширять BotActor
  */
-export abstract class BotUserStory<TAppMeta extends AppMeta> {
+export abstract class BotUserStory<
+  TAppMeta extends AppMeta,
+  TActor extends BotActor = BotActor,
+> {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
@@ -40,14 +45,14 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
   /** Обработка callback — абстрактный, реализуется в наследниках */
   abstract handleCallback(
     action: string,
-    actor: string,
+    actor: TActor,
     session: SessionData,
   ): Promise<BotResponse>;
 
   /** Обработка сообщений — абстрактный, реализуется в наследниках */
   abstract handleMessage(
     update: BotUpdate,
-    actor: string,
+    actor: TActor,
     session: SessionData,
   ): Promise<BotResponse>;
 
@@ -55,7 +60,7 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
    * Кнопка в главном меню.
    * По умолчанию возвращает null — сценарий не показывается в меню.
    */
-  async handleStart(_actor: string): Promise<MainMenuAction | null> {
+  async handleStart(_actor: TActor): Promise<MainMenuAction | null> {
     return null;
   }
 
@@ -64,7 +69,7 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
    * По умолчанию освобождает ввод.
    */
   async handleCancel(
-    _actor: string,
+    _actor: TActor,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { releaseInput: true };
@@ -75,7 +80,7 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
    * По умолчанию освобождает ввод и показывает сообщение.
    */
   async handleTimeout(
-    _actor: string,
+    _actor: TActor,
     _session: SessionData,
   ): Promise<BotResponse> {
     return {

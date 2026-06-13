@@ -41,6 +41,14 @@ export interface SessionData {
   } | null;
 }
 
+/** Минимальный интерфейс актора (пользователя) для бота */
+export interface BotActor {
+  telegramId: number;
+  uuid: string;
+  name: string;
+  roles: string[];
+}
+
 /** Элемент главного меню бота */
 export interface MainMenuAction {
   text: string;

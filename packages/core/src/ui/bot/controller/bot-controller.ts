@@ -1,13 +1,14 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
 import { escapeMarkdown } from '#shared/markdown';
+import type { BotUserStory } from '../bot-user-story';
 import type {
+  BotActor,
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from '../types';
-import { BotUserStory } from '../bot-user-story';
 
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
@@ -16,15 +17,17 @@ import { BotUserStory } from '../bot-user-story';
  * продолжают работать — новые методы делегируют в `handleUpdate` по умолчанию.
  *
  * @typeParam TAppMeta — тип метаданных приложения
+ * @typeParam TActor — тип актора (пользователя), должен расширять BotActor
  */
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
+  TActor extends BotActor = BotActor,
 > {
   /** Уникальное имя контроллера */
   abstract readonly name: string;
 
   /** Зарегистрированные пользовательские сценарии */
-  protected readonly stories: BotUserStory<TAppMeta>[] = [];
+  protected readonly stories: BotUserStory<TAppMeta, TActor>[] = [];
 
   /** Ссылка на API приложения (устанавливается в init) */
   protected api!: ApiApp<TAppMeta>;
@@ -65,7 +68,7 @@ export abstract class BotController<
    */
   async handleCallback(
     data: string,
-    actor: string,
+    actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
     // Пробуем найти стори по префиксу в data
@@ -79,7 +82,7 @@ export abstract class BotController<
     // Нет стори — fallback на handleUpdate
     return this.handleUpdate(
       { type: 'callback', data: this.cb(data), telegramId: 0, messageId: 0 },
-      actor,
+      String(actor.telegramId),
     );
   }
 
@@ -89,7 +92,7 @@ export abstract class BotController<
    */
   async handleMessage(
     update: BotUpdate,
-    actor: string,
+    actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
     // Если есть активный обработчик в сессии — делегируем в стори
@@ -100,13 +103,13 @@ export abstract class BotController<
         return story.handleMessage(update, actor, session);
       }
     }
-    return this.handleUpdate(update, actor);
+    return this.handleUpdate(update, String(actor.telegramId));
   }
 
   /**
    * Главное меню — агрегирует кнопки от всех стори.
    */
-  async handleStart(actor: string): Promise<MainMenuAction[]> {
+  async handleStart(actor: TActor): Promise<MainMenuAction[]> {
     const items: MainMenuAction[] = [];
     for (const story of this.stories) {
       const item = await story.handleStart(actor);
@@ -125,7 +128,7 @@ export abstract class BotController<
    * Делегирует активной стори или освобождает ввод.
    */
   async handleCancel(
-    actor: string,
+    actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
     const activePath = session.activeHandler?.path;
@@ -143,7 +146,7 @@ export abstract class BotController<
    * Делегирует активной стори или освобождает ввод.
    */
   async handleTimeout(
-    actor: string,
+    actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
     const activePath = session.activeHandler?.path;
@@ -176,14 +179,16 @@ export abstract class BotController<
   }
 
   /** Поиск стори по имени */
-  protected findStory(name: string): BotUserStory<TAppMeta> | undefined {
+  protected findStory(
+    name: string,
+  ): BotUserStory<TAppMeta, TActor> | undefined {
     return this.stories.find((s) => s.name === name);
   }
 
   /** Поиск стори по пути из activeHandler */
   private findStoryByPath(
     path: string,
-  ): BotUserStory<TAppMeta> | undefined {
+  ): BotUserStory<TAppMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
       return this.findStory(parts[1]!);
