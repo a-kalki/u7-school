@@ -12,9 +12,14 @@ describe('EnrollStory', () => {
     const mockApi = {
       execute: mock(async (name: string, attrs: unknown) => {
         if (name === 'get-stream')
-          return { uuid: 's1', title: 'Поток', description: '', status: 'enrollment', startDate: '' };
-        if (name === 'enroll-student')
-          return undefined;
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            status: 'enrollment',
+            startDate: '',
+          };
+        if (name === 'enroll-student') return undefined;
         return undefined;
       }),
     } as unknown as ApiApp<StreamAppMeta>;

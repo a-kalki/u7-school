@@ -1,3 +1,4 @@
+import type { AppMeta } from '#domain/types';
 import type { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -5,7 +6,6 @@ import type {
   MainMenuAction,
   SessionData,
 } from '../types';
-import type { AppMeta } from '#domain/types';
 
 /**
  * Извлекает имя контроллера из callback_data (первый сегмент до «:»).
@@ -33,10 +33,7 @@ export function extractRestData(data: string): string {
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class BotRouter<
-  TAppMeta extends AppMeta = AppMeta,
-  TActor = unknown,
-> {
+export class BotRouter<TAppMeta extends AppMeta = AppMeta, TActor = unknown> {
   private readonly controllers = new Map<
     string,
     BotController<TAppMeta, TActor>
@@ -150,10 +147,7 @@ export class BotRouter<
     if (!activeHandler) return null;
 
     // Проверка таймаута
-    if (
-      activeHandler.expiresAt &&
-      Date.now() > activeHandler.expiresAt
-    ) {
+    if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
       return this.handleTimeout(actor, session);
     }
 

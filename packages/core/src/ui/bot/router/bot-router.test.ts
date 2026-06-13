@@ -1,9 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  BotRouter,
-  extractControllerName,
-  extractRestData,
-} from './bot-router';
 import { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -11,12 +6,20 @@ import type {
   MainMenuAction,
   SessionData,
 } from '../types';
+import {
+  BotRouter,
+  extractControllerName,
+  extractRestData,
+} from './bot-router';
 
 // ── Тестовый контроллер ──
 
 type TestActor = { id: string; name: string };
 
-class TestController extends BotController<import('#domain/types').AppMeta, TestActor> {
+class TestController extends BotController<
+  import('#domain/types').AppMeta,
+  TestActor
+> {
   name = '';
 
   private _startResult: MainMenuAction[] = [];
@@ -26,38 +29,75 @@ class TestController extends BotController<import('#domain/types').AppMeta, Test
   private _timeoutResult: BotResponse = { releaseInput: true };
 
   handleStartCalls: TestActor[] = [];
-  handleCallbackCalls: Array<{ data: string; actor: TestActor; session: SessionData }> = [];
-  handleMessageCalls: Array<{ update: BotUpdate; actor: TestActor; session: SessionData }> = [];
+  handleCallbackCalls: Array<{
+    data: string;
+    actor: TestActor;
+    session: SessionData;
+  }> = [];
+  handleMessageCalls: Array<{
+    update: BotUpdate;
+    actor: TestActor;
+    session: SessionData;
+  }> = [];
   handleCancelCalls: Array<{ actor: TestActor; session: SessionData }> = [];
   handleTimeoutCalls: Array<{ actor: TestActor; session: SessionData }> = [];
 
-  withStartResult(items: MainMenuAction[]): this { this._startResult = items; return this; }
-  withCallbackResult(res: BotResponse): this { this._callbackResult = res; return this; }
-  withMessageResult(res: BotResponse): this { this._messageResult = res; return this; }
-  withCancelResult(res: BotResponse): this { this._cancelResult = res; return this; }
-  withTimeoutResult(res: BotResponse): this { this._timeoutResult = res; return this; }
+  withStartResult(items: MainMenuAction[]): this {
+    this._startResult = items;
+    return this;
+  }
+  withCallbackResult(res: BotResponse): this {
+    this._callbackResult = res;
+    return this;
+  }
+  withMessageResult(res: BotResponse): this {
+    this._messageResult = res;
+    return this;
+  }
+  withCancelResult(res: BotResponse): this {
+    this._cancelResult = res;
+    return this;
+  }
+  withTimeoutResult(res: BotResponse): this {
+    this._timeoutResult = res;
+    return this;
+  }
 
   override async handleStart(actor: TestActor): Promise<MainMenuAction[]> {
     this.handleStartCalls.push(actor);
     return this._startResult;
   }
 
-  override async handleCallback(data: string, actor: TestActor, session: SessionData): Promise<BotResponse> {
+  override async handleCallback(
+    data: string,
+    actor: TestActor,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleCallbackCalls.push({ data, actor, session });
     return this._callbackResult;
   }
 
-  override async handleMessage(update: BotUpdate, actor: TestActor, session: SessionData): Promise<BotResponse> {
+  override async handleMessage(
+    update: BotUpdate,
+    actor: TestActor,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleMessageCalls.push({ update, actor, session });
     return this._messageResult;
   }
 
-  override async handleCancel(actor: TestActor, session: SessionData): Promise<BotResponse> {
+  override async handleCancel(
+    actor: TestActor,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleCancelCalls.push({ actor, session });
     return this._cancelResult;
   }
 
-  override async handleTimeout(actor: TestActor, session: SessionData): Promise<BotResponse> {
+  override async handleTimeout(
+    actor: TestActor,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleTimeoutCalls.push({ actor, session });
     return this._timeoutResult;
   }
@@ -128,15 +168,11 @@ describe('BotRouter', () => {
   test('collectMainMenu агрегирует и сортирует', async () => {
     const c1 = new TestController();
     c1.name = 'ctrl1';
-    c1.withStartResult([
-      { text: 'Б', action: 'ctrl1:b', priority: 10 },
-    ]);
+    c1.withStartResult([{ text: 'Б', action: 'ctrl1:b', priority: 10 }]);
 
     const c2 = new TestController();
     c2.name = 'ctrl2';
-    c2.withStartResult([
-      { text: 'А', action: 'ctrl2:a', priority: 5 },
-    ]);
+    c2.withStartResult([{ text: 'А', action: 'ctrl2:a', priority: 5 }]);
 
     const disp = new BotRouter([c1, c2]);
     const items = await disp.collectMainMenu(makeActor());
@@ -182,11 +218,7 @@ describe('BotRouter', () => {
     ctrl.name = 'stream';
 
     const disp = new BotRouter([ctrl]);
-    const res = await disp.handleCallback(
-      'nodata',
-      makeActor(),
-      makeSession(),
-    );
+    const res = await disp.handleCallback('nodata', makeActor(), makeSession());
 
     expect(ctrl.handleCallbackCalls).toHaveLength(0);
     expect(res.sendMessage?.text).toContain('Неизвестный формат');

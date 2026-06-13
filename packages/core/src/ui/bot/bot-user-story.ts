@@ -15,10 +15,7 @@ import type {
  * @typeParam TAppMeta - тип метаданных приложения, должен расширять AppMeta
  * @typeParam TActor - тип актора (пользователя). Минимально требуется поле telegramId.
  */
-export abstract class BotUserStory<
-  TAppMeta extends AppMeta,
-  TActor = unknown,
-> {
+export abstract class BotUserStory<TAppMeta extends AppMeta, TActor = unknown> {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 

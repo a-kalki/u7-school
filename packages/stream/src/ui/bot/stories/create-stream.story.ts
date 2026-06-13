@@ -195,10 +195,7 @@ export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  #handleTitleInput(
-    ctx: CreateStreamWizardContext,
-    text: string,
-  ): BotResponse {
+  #handleTitleInput(ctx: CreateStreamWizardContext, text: string): BotResponse {
     return {
       sendMessage: { text: '📄 Введите описание потока:' },
       captureInput: {
@@ -223,10 +220,7 @@ export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  #handleDateInput(
-    ctx: CreateStreamWizardContext,
-    text: string,
-  ): BotResponse {
+  #handleDateInput(ctx: CreateStreamWizardContext, text: string): BotResponse {
     return {
       sendMessage: {
         text: '🔗 Введите ссылку на Telegram-группу потока:',

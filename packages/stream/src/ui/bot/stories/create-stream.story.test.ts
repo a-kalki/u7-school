@@ -22,9 +22,7 @@ describe('CreateStreamStory', () => {
 
   test('handleMessage: шаг 1 — выбор модуля (мок)', async () => {
     const mockApi = {
-      execute: mock((_name: string) => [
-        { uuid: 'mod1', title: 'Модуль 1' },
-      ]),
+      execute: mock((_name: string) => [{ uuid: 'mod1', title: 'Модуль 1' }]),
     } as unknown as ApiApp<StreamAppMeta>;
 
     const story = new CreateStreamStory();
@@ -60,11 +58,9 @@ describe('CreateStreamStory', () => {
       telegramGroupId: '',
     };
 
-    const response = await story.handleCallback(
-      'module:mod1',
-      mentor,
-      { activeHandler: { path: 'stream/create-stream/wizard', context: ctx } },
-    );
+    const response = await story.handleCallback('module:mod1', mentor, {
+      activeHandler: { path: 'stream/create-stream/wizard', context: ctx },
+    });
 
     expect(response.captureInput).toBeDefined();
     const newCtx = response.captureInput?.context as {

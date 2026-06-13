@@ -52,7 +52,8 @@ describe('LearningStory', () => {
     expect(response.sendMessage?.text).toContain('Python');
     expect(response.sendMessage?.text).toContain('Моя учёба');
     // Кнопка «Выполнено»
-    const btnTexts = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
@@ -70,7 +71,10 @@ describe('LearningStory', () => {
 
   test('handleCallback("complete:...") выполняет завершение шага', async () => {
     const mockApi = {
-      execute: mock((_name: string) => ({ level: 'step', currentStepId: 'step-2' })),
+      execute: mock((_name: string) => ({
+        level: 'step',
+        currentStepId: 'step-2',
+      })),
     } as unknown as ApiApp<StreamAppMeta>;
 
     const story = new LearningStory();

@@ -1,4 +1,8 @@
-import type { BotResponse, KeyboardDescription, SessionData } from '@u7-scl/core/ui';
+import type {
+  BotResponse,
+  KeyboardDescription,
+  SessionData,
+} from '@u7-scl/core/ui';
 import { BotUserStory } from '@u7-scl/core/ui';
 import type { StreamAppMeta } from '../../../domain/module';
 

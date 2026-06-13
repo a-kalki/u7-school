@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
-import { StreamController } from './stream-controller';
 import type { StreamAppMeta } from '../../../domain/module';
+import { StreamController } from './stream-controller';
 
 describe('StreamController (реестр)', () => {
   const mockApi = {
@@ -78,9 +78,7 @@ describe('StreamController (реестр)', () => {
     const items = await controller.handleStart(actor);
 
     for (let i = 1; i < items.length; i++) {
-      expect(items[i]!.priority).toBeGreaterThanOrEqual(
-        items[i - 1]!.priority,
-      );
+      expect(items[i]!.priority).toBeGreaterThanOrEqual(items[i - 1]!.priority);
     }
   });
 

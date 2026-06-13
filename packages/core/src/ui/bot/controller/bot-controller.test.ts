@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
-import { BotController } from './bot-controller';
 import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -8,6 +7,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from '../types';
+import { BotController } from './bot-controller';
 
 // Тестовый тип метаданных
 type TestAppMeta = AppMeta & {
@@ -195,11 +195,9 @@ describe('BotController', () => {
     });
 
     test('без совпадения стори — возвращает ошибку', async () => {
-      const result = await ctrl.handleCallback(
-        'unknown:action',
-        testActor,
-        { activeHandler: null },
-      );
+      const result = await ctrl.handleCallback('unknown:action', testActor, {
+        activeHandler: null,
+      });
       expect(result.sendMessage?.text).toBe('⚠️ Неизвестная команда');
     });
   });

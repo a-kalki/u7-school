@@ -1,7 +1,7 @@
-import { BotRouter } from '@u7-scl/core/ui';
 import type { Logger } from '@u7-scl/core/shared';
+import type { BotRouter } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
-import { InlineKeyboard, type Composer } from 'grammy';
+import { type Composer, InlineKeyboard } from 'grammy';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
 
@@ -111,9 +111,7 @@ export function connectRouter(
     const response = await router.handleCallback(data, user, ctx.session);
 
     // Проверка на «чужой callback» — показываем alert
-    if (
-      response.sendMessage?.text?.includes('завершите текущее действие')
-    ) {
+    if (response.sendMessage?.text?.includes('завершите текущее действие')) {
       await ctx
         .answerCallbackQuery({
           text: 'Сначала завершите текущее действие (/cancel)',
@@ -143,11 +141,7 @@ export function connectRouter(
       telegramId: ctx.from!.id,
     };
 
-    const response = await router.handleMessage(
-      update,
-      user,
-      ctx.session,
-    );
+    const response = await router.handleMessage(update, user, ctx.session);
 
     if (response === null) {
       // Нет активного обработчика — пропускаем

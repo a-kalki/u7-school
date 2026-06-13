@@ -16,10 +16,7 @@ describe('ViewStreamStory', () => {
     startDate: '2026-06-01T00:00:00.000Z',
   };
 
-  const makeMockApi = (
-    stream: Record<string, unknown>,
-    studentCount: number,
-  ) =>
+  const makeMockApi = (stream: Record<string, unknown>, studentCount: number) =>
     ({
       execute: mock((name: string) => {
         if (name === 'get-stream') return stream;

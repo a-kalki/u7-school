@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { BotController, BotRouter } from '@u7-scl/core/ui';
-import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
 import type { Logger } from '@u7-scl/core/shared';
+import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
+import { BotController, BotRouter } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
@@ -23,12 +23,18 @@ function makeMockLogger(): Logger {
 
 type MockBot = Composer<BotContext> & {
   commands: Record<string, (ctx: BotContext) => Promise<void>>;
-  listeners: Record<string, ((ctx: BotContext, next?: () => Promise<void>) => Promise<void>)[]>;
+  listeners: Record<
+    string,
+    ((ctx: BotContext, next?: () => Promise<void>) => Promise<void>)[]
+  >;
 };
 
 function makeMockBot(): MockBot {
   const commands: Record<string, (ctx: BotContext) => Promise<void>> = {};
-  const listeners: Record<string, ((ctx: BotContext, next?: () => Promise<void>) => Promise<void>)[]> = {};
+  const listeners: Record<
+    string,
+    ((ctx: BotContext, next?: () => Promise<void>) => Promise<void>)[]
+  > = {};
 
   const bot = {
     command: mock(
@@ -58,18 +64,31 @@ function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
   return {
     from: { id: 123, first_name: 'Тест', is_bot: false } as BotContext['from'],
     chat: { id: 123, type: 'private' } as BotContext['chat'],
-    message: { message_id: 1, text: '', date: 0, chat: { id: 123, type: 'private' } } as BotContext['message'],
+    message: {
+      message_id: 1,
+      text: '',
+      date: 0,
+      chat: { id: 123, type: 'private' },
+    } as BotContext['message'],
     callbackQuery: {
       id: 'cq-1',
       data: '',
-      from: { id: 123, first_name: 'Тест', is_bot: false } as NonNullable<BotContext['from']>,
+      from: { id: 123, first_name: 'Тест', is_bot: false } as NonNullable<
+        BotContext['from']
+      >,
       chat_instance: 'ci-1',
     } as BotContext['callbackQuery'],
-    reply: mock(async () => ({ message_id: 99 })) as unknown as BotContext['reply'],
+    reply: mock(async () => ({
+      message_id: 99,
+    })) as unknown as BotContext['reply'],
     api: {
-      editMessageText: mock(async () => ({ message_id: 1 })) as unknown as BotContext['api']['editMessageText'],
+      editMessageText: mock(async () => ({
+        message_id: 1,
+      })) as unknown as BotContext['api']['editMessageText'],
     } as BotContext['api'],
-    answerCallbackQuery: mock(async () => {}) as unknown as BotContext['answerCallbackQuery'],
+    answerCallbackQuery: mock(
+      async () => {},
+    ) as unknown as BotContext['answerCallbackQuery'],
     session: { activeHandler: null } as SessionData,
     ...overrides,
   } as unknown as BotContext;
@@ -113,33 +132,57 @@ class MockController extends BotController {
   handleCancelCalls: unknown[][] = [];
   handleTimeoutCalls: unknown[][] = [];
 
-  setStartResult(items: MainMenuAction[]) { this._startResult = items; }
-  setCallbackResult(res: BotResponse) { this._callbackResult = res; }
-  setMessageResult(res: BotResponse) { this._messageResult = res; }
-  setCancelResult(res: BotResponse) { this._cancelResult = res; }
-  setTimeoutResult(res: BotResponse) { this._timeoutResult = res; }
+  setStartResult(items: MainMenuAction[]) {
+    this._startResult = items;
+  }
+  setCallbackResult(res: BotResponse) {
+    this._callbackResult = res;
+  }
+  setMessageResult(res: BotResponse) {
+    this._messageResult = res;
+  }
+  setCancelResult(res: BotResponse) {
+    this._cancelResult = res;
+  }
+  setTimeoutResult(res: BotResponse) {
+    this._timeoutResult = res;
+  }
 
   override async handleStart(actor: unknown): Promise<MainMenuAction[]> {
     this.handleStartCalls.push([actor]);
     return this._startResult;
   }
 
-  override async handleCallback(data: string, actor: unknown, session: SessionData): Promise<BotResponse> {
+  override async handleCallback(
+    data: string,
+    actor: unknown,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleCallbackCalls.push([data, actor, session]);
     return this._callbackResult;
   }
 
-  override async handleMessage(update: unknown, actor: unknown, session: SessionData): Promise<BotResponse> {
+  override async handleMessage(
+    update: unknown,
+    actor: unknown,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleMessageCalls.push([update, actor, session]);
     return this._messageResult;
   }
 
-  override async handleCancel(actor: unknown, session: SessionData): Promise<BotResponse> {
+  override async handleCancel(
+    actor: unknown,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleCancelCalls.push([actor, session]);
     return this._cancelResult;
   }
 
-  override async handleTimeout(actor: unknown, session: SessionData): Promise<BotResponse> {
+  override async handleTimeout(
+    actor: unknown,
+    session: SessionData,
+  ): Promise<BotResponse> {
     this.handleTimeoutCalls.push([actor, session]);
     return this._timeoutResult;
   }
@@ -162,7 +205,11 @@ describe('resolveUser', () => {
   });
 
   test('регистрирует гостя, если пользователь не найден', async () => {
-    const newGuest = makeUser({ uuid: 'new-guest', telegramId: 888, name: 'Гость' });
+    const newGuest = makeUser({
+      uuid: 'new-guest',
+      telegramId: 888,
+      name: 'Гость',
+    });
     const registerGuestMock = mock(async () => newGuest);
     const userFacade: UserFacade = {
       ...makeMockUserFacade(),
@@ -210,7 +257,9 @@ describe('connectRouter', () => {
 
     // Проверяем сортировку
     const keyboard = replyCall[1].reply_markup;
-    const btnTexts: string[] = keyboard.inline_keyboard.flat().map((b: any) => b.text);
+    const btnTexts: string[] = keyboard.inline_keyboard
+      .flat()
+      .map((b: any) => b.text);
     expect(btnTexts[0]).toBe('Кнопка 2');
     expect(btnTexts[1]).toBe('Кнопка 1');
   });
@@ -287,7 +336,10 @@ describe('connectRouter', () => {
 
     const ctrl = new MockController();
     ctrl.name = 'stream';
-    ctrl.setCancelResult({ releaseInput: true, sendMessage: { text: 'Отменено' } });
+    ctrl.setCancelResult({
+      releaseInput: true,
+      sendMessage: { text: 'Отменено' },
+    });
 
     const router = new BotRouter([ctrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
@@ -377,7 +429,10 @@ describe('connectRouter', () => {
     ctx.session.activeHandler = { path: 'onboarding/ask-name' };
     ctx.message!.text = 'Иван';
 
-    await msgHandler!(ctx, mock(async () => {}));
+    await msgHandler!(
+      ctx,
+      mock(async () => {}),
+    );
 
     expect(ctx.session.activeHandler).toBeNull();
   });
@@ -433,7 +488,10 @@ describe('connectRouter', () => {
     };
     ctx.message!.text = 'Любое сообщение';
 
-    await msgHandler!(ctx, mock(async () => {}));
+    await msgHandler!(
+      ctx,
+      mock(async () => {}),
+    );
 
     expect(ctrl.handleTimeoutCalls.length).toBe(1);
     expect(ctx.session.activeHandler).toBeNull();

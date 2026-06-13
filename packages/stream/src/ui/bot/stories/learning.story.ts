@@ -1,4 +1,9 @@
-import type { BotResponse, BotUpdate, MainMenuAction, SessionData } from '@u7-scl/core/ui';
+import type {
+  BotResponse,
+  BotUpdate,
+  MainMenuAction,
+  SessionData,
+} from '@u7-scl/core/ui';
 import { BotUserStory } from '@u7-scl/core/ui';
 import type { StreamAppMeta } from '../../../domain/module';
 
@@ -145,10 +150,7 @@ export class LearningStory extends BotUserStory<StreamAppMeta> {
     };
   }
 
-  async #handleComplete(
-    action: string,
-    _a: Actor,
-  ): Promise<BotResponse> {
+  async #handleComplete(action: string, _a: Actor): Promise<BotResponse> {
     const parts = action.split(':');
     // Формат: complete:<studentId>:<streamId>:<stepId>
     const studentId = parts[1]!;
