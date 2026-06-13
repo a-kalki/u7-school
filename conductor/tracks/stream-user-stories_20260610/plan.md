@@ -26,18 +26,22 @@
 
 ## Фаза 3: EnrollStory и LearningStory (US-3, US-4)
 
-- [ ] Task: Создать enroll.story.ts
-    - [ ] name: 'enroll'
-    - [ ] handleCallback('enroll:<streamId>'): вызов enroll-student
-    - [ ] Возвращает delegate: 'stream:learning:my-study'
-    - [ ] handleStart: null
-- [ ] Task: Создать learning.story.ts
-    - [ ] name: 'learning'
-    - [ ] handleCallback('my-study'): текущий шаг студента
-    - [ ] Кнопка «✅ Выполнено» с callback `complete:<studentId>:<streamId>:<stepId>`
-    - [ ] handleCallback('complete:...'): вызов complete-step
-    - [ ] handleStart: кнопка «📖 Моя учёба» если STUDENT, priority 20
-- [ ] Task: Написать тесты на enroll и learning
+- [x] Task: Создать enroll.story.ts `92fa9b2`
+    - [x] name: 'enroll'
+    - [x] handleCallback('enroll:<streamId>'): вызов enroll-student
+    - [x] Возвращает delegate: 'stream:learning:my-study'
+    - [x] handleStart: null
+- [x] Task: Создать learning.story.ts `92fa9b2`
+    - [x] name: 'learning'
+    - [x] handleCallback('my-study'): текущий шаг студента
+    - [x] Кнопка «✅ Выполнено» с callback `complete:<studentId>:<streamId>:<stepId>`
+    - [x] handleCallback('complete:...'): вызов complete-step
+    - [x] handleStart: кнопка «📖 Моя учёба» если STUDENT, priority 20
+- [x] Task: Написать тесты на enroll и learning `92fa9b2`
+
+## Фаза 4: ProgressStory (US-5)
+
+- [~] Task: Создать progress.story.ts
     - [ ] Тест: enroll возвращает delegate
     - [ ] Тест: learning показывает текущий шаг
     - [ ] Тест: learning обрабатывает complete step
