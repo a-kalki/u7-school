@@ -1,5 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
+import { stringUtility } from '#shared/string-utility';
 import type { BotResponse, BotUpdate, MainMenuAction, SessionData } from './types';
 
 /**
@@ -45,8 +46,13 @@ export abstract class BotUserStory<TAppMeta extends AppMeta> {
     return data;
   }
 
-  /** Сжимает длинное значение в короткий ключ для callback_data */
-  shrink(key: string, value: string): string {
+  /**
+   * Сжимает длинное значение в короткий ключ для callback_data.
+   * Автоматически генерирует 6-символьный hex-ключ.
+   * @returns сгенерированный ключ
+   */
+  shrink(value: string): string {
+    const key = stringUtility.random('hhhhhh', '');
     this.shortIds.set(key, value);
     return key;
   }

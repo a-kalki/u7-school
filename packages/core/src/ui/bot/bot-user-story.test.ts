@@ -71,14 +71,21 @@ describe('BotUserStory', () => {
   });
 
   describe('shrink / expand', () => {
-    test('shrink сохраняет значение и возвращает ключ', () => {
-      const key = story.shrink('k1', 'очень длинное значение');
-      expect(key).toBe('k1');
+    test('shrink генерирует 6-символьный hex-ключ и сохраняет значение', () => {
+      const key = story.shrink('очень длинное значение');
+      // ключ — 6 hex-символов
+      expect(key).toMatch(/^[0-9a-f]{6}$/);
     });
 
-    test('expand восстанавливает значение', () => {
-      story.shrink('k1', 'очень длинное значение');
-      expect(story.expand('k1')).toBe('очень длинное значение');
+    test('expand восстанавливает значение по ключу', () => {
+      const key = story.shrink('значение');
+      expect(story.expand(key)).toBe('значение');
+    });
+
+    test('shrink генерирует уникальные ключи', () => {
+      const key1 = story.shrink('a');
+      const key2 = story.shrink('b');
+      expect(key1).not.toBe(key2);
     });
 
     test('expand возвращает undefined для неизвестного ключа', () => {
@@ -88,13 +95,13 @@ describe('BotUserStory', () => {
 
   describe('reset', () => {
     test('очищает shortIds', () => {
-      story.shrink('k1', 'value1');
-      story.shrink('k2', 'value2');
-      expect(story.expand('k1')).toBe('value1');
+      const key1 = story.shrink('value1');
+      const key2 = story.shrink('value2');
+      expect(story.expand(key1)).toBe('value1');
 
       story.reset();
-      expect(story.expand('k1')).toBeUndefined();
-      expect(story.expand('k2')).toBeUndefined();
+      expect(story.expand(key1)).toBeUndefined();
+      expect(story.expand(key2)).toBeUndefined();
     });
   });
 
