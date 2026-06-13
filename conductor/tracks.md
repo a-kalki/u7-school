@@ -2,7 +2,7 @@
 
 ---
 
-- [ ] **Track: Базовые классы BotController, BotUserStory и ControllerRegistry в core**
+- [~] **Track: Базовые классы BotController, BotUserStory и ControllerRegistry в core**
 *Link: [./tracks/bot-controller-core_20260610/](./tracks/bot-controller-core_20260610/)*
 
 - [ ] **Track: Универсальный диспетчер бота, авто-маршрутизация, удаление menu из сессии**

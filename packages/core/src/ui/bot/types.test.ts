@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { BotResponse, BotUpdate, MainMenuAction, SessionData } from './types';
+import type {
+  BotResponse,
+  BotUpdate,
+  MainMenuAction,
+  SessionData,
+} from './types';
 
 describe('BotUpdate', () => {
   test('поддерживает тип document', () => {
@@ -36,7 +41,11 @@ describe('BotUpdate', () => {
   });
 
   test('всё ещё поддерживает существующие типы', () => {
-    const cmd: BotUpdate = { type: 'command', command: '/start', telegramId: 1 };
+    const cmd: BotUpdate = {
+      type: 'command',
+      command: '/start',
+      telegramId: 1,
+    };
     const msg: BotUpdate = { type: 'message', text: 'привет', telegramId: 2 };
     const cb: BotUpdate = {
       type: 'callback',
@@ -53,7 +62,11 @@ describe('BotUpdate', () => {
 describe('BotResponse', () => {
   test('поддерживает captureInput', () => {
     const resp: BotResponse = {
-      captureInput: { path: '/some/path', context: { foo: 42 }, ttlSeconds: 300 },
+      captureInput: {
+        path: '/some/path',
+        context: { foo: 42 },
+        ttlSeconds: 300,
+      },
     };
     expect(resp.captureInput?.path).toBe('/some/path');
     expect(resp.captureInput?.context).toEqual({ foo: 42 });
