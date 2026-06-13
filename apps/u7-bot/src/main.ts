@@ -1,14 +1,14 @@
 import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7-scl/core/shared';
 import { BotRouter } from '@u7-scl/core/ui';
 import { OnboardingController } from '@u7-scl/onboarding';
+import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
 import { createApiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
-import { connectRouter } from './handlers/router';
 import { registerGroupHandlers } from './handlers/group-handler';
+import { connectRouter } from './handlers/router';
 import { CompositeLogger, TelegramLogger } from './logger';
-import { UserPolicy } from '@u7-scl/user/domain';
 
 const config = loadConfig();
 
@@ -82,7 +82,7 @@ privateBot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => { });
+      .catch(() => {});
   }
 });
 
@@ -148,18 +148,7 @@ streamController.init(apiApp);
 
 // Универсальный роутер — заменяет старые handler'ы
 const router = new BotRouter([onboardingController, streamController]);
-connectRouter(
-  privateBot,
-  router,
-  userFacade,
-  config.botAdminUuid,
-  logger,
-);
-
-// Старые handler'ы отключены (будут удалены в треке bot-cleanup):
-// registerTopMenuHandler(privateBot, userFacade, onboardingController, streamController, config, logger);
-// registerOnboardingHandler(privateBot, onboardingController, config);
-// registerStreamHandler(privateBot, streamController, userFacade, config);
+connectRouter(privateBot, router, userFacade, config.botAdminUuid, logger);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {
