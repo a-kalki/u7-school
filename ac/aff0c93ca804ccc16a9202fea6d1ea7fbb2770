@@ -1,0 +1,8 @@
+Задача: Удалить stream-handler.ts
+
+Сводка: Удалён старый handler для stream-контроллера. Все вызовы registerStreamHandler закомментированы в main.ts, маршрутизация через BotRouter.
+
+Изменённые файлы:
+- Удалён: apps/u7-bot/src/handlers/stream-handler.ts
+
+Причина: Переход на BotRouter, старые handler'ы не нужны.
