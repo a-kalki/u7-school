@@ -1,0 +1,4 @@
+Задача: Расширить BotResponse полями captureInput, releaseInput, delegate
+Сводка: Добавлены поля captureInput (path, context?, ttlSeconds?), releaseInput (boolean), delegate (path) в интерфейс BotResponse.
+Файлы: packages/core/src/ui/bot/types.ts, packages/core/src/ui/bot/types.test.ts
+Причина: Поддержка захвата/освобождения ввода и делегирования между обработчиками.
