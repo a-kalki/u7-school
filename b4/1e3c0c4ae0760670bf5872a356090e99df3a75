@@ -1,0 +1,4 @@
+Задача: Создать SessionData с activeHandler
+Сводка: Добавлен интерфейс SessionData с полем activeHandler (path, context?, expiresAt? | null) для отслеживания активного обработчика в сессии.
+Файлы: packages/core/src/ui/bot/types.ts, packages/core/src/ui/bot/types.test.ts
+Причина: Необходимо для реализации captureInput/releaseInput и таймаутов.
