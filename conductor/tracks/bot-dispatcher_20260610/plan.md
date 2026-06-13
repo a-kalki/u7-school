@@ -49,6 +49,6 @@
 
 ## Фаза 5: Интеграционное тестирование
 
-- [ ] Task: Написать интеграционный тест: полный цикл /start → callback → captureInput → /cancel
-- [ ] Task: Запустить все тесты: `bun test`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
+- [x] Task: Написать интеграционный тест: полный цикл /start → callback → captureInput → /cancel (b07f7b5)
+- [x] Task: Запустить все тесты: `bun test` (680 pass, 0 fail)
+- [x] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md) (2a07c3e)
