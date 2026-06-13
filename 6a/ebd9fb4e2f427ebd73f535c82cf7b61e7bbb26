@@ -1,0 +1,4 @@
+Задача: Расширить BotUpdate новыми типами (document, photo, voice)
+Сводка: Добавлены union-варианты document, photo, voice с полями fileId и telegramId в тип BotUpdate.
+Файлы: packages/core/src/ui/bot/types.ts (добавлены 3 новых варианта), packages/core/src/ui/bot/types.test.ts (новый файл — 4 теста)
+Причина: Поддержка приёма файлов от Telegram (документы, фото, голосовые сообщения).
