@@ -4,10 +4,10 @@
 
 - [x] Task: Расширить BotUpdate новыми типами (document, photo, voice) `6aebd9f`
     - [x] Добавить типы в `packages/core/src/ui/bot/types.ts`
-- [ ] Task: Расширить BotResponse полями captureInput, releaseInput, delegate
-    - [ ] Добавить `captureInput?: { path, context?, ttlSeconds? }`
-    - [ ] Добавить `releaseInput?: boolean`
-    - [ ] Добавить `delegate?: { path }`
+- [x] Task: Расширить BotResponse полями captureInput, releaseInput, delegate `21b1a04`
+    - [x] Добавить `captureInput?: { path, context?, ttlSeconds? }`
+    - [x] Добавить `releaseInput?: boolean`
+    - [x] Добавить `delegate?: { path }`
 - [ ] Task: Создать SessionData с activeHandler
     - [ ] Интерфейс `SessionData` в `types.ts`
 - [ ] Task: Создать MainMenuAction
