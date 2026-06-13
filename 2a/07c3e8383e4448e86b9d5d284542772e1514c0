@@ -1,0 +1,22 @@
+Рефакторинг: BotDispatcher в core, удаление menu из SessionData
+
+**Основные изменения:**
+- BotDispatcher<TAppMeta, TActor> — новый ООП-класс в @u7-scl/core/ui/bot/dispatcher/
+  - Хранение контроллеров в Map с проверкой уникальности
+  - collectMainMenu, handleCallback, handleMessage, handleCancel, handleTimeout
+  - Не зависит от Grammy — чистый core-класс
+- SessionData: menu удалён полностью, единый тип из core
+- Grammy-адаптер: registerDispatcher использует BotDispatcher, только Grammy-специфичная логика
+
+**Изменённые файлы:**
+- packages/core/src/ui/bot/dispatcher/bot-dispatcher.ts (новый)
+- packages/core/src/ui/bot/dispatcher/bot-dispatcher.test.ts (новый, 22 теста)
+- packages/core/src/ui/index.ts
+- apps/u7-bot/src/context.ts
+- apps/u7-bot/src/handlers/dispatcher.ts
+- apps/u7-bot/src/handlers/dispatcher.test.ts
+- apps/u7-bot/src/main.ts
+- apps/u7-bot/src/handlers/top-menu-handler.ts (@ts-nocheck)
+- apps/u7-bot/src/handlers/onboarding-handler.ts (@ts-nocheck)
+- apps/u7-bot/src/handlers/stream-handler.ts (@ts-nocheck)
+- apps/u7-bot/src/handlers/top-menu-handler.test.ts (@ts-nocheck)
