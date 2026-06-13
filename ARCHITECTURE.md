@@ -342,9 +342,9 @@ class ControllerRegistry {
 
 ---
 
-## Этапы реализации
+## Этапы реализации ✅ (все завершены — 2026-06-10)
 
-### Этап 1: Базовые классы в core
+### Этап 1: Базовые классы в core ✅
 
 **Файлы:**
 - `packages/core/src/ui/bot/controller/bot-controller.ts` — обновить
@@ -359,7 +359,7 @@ class ControllerRegistry {
 - Добавляем `SessionData` с `activeHandler`
 - `ControllerRegistry` — Map-based реестр с проверкой уникальности имён
 
-### Этап 2: Рефакторинг бота
+### Этап 2: Рефакторинг бота ✅
 
 **Файлы:**
 - `apps/u7-bot/src/context.ts` — новая `SessionData`
@@ -378,7 +378,7 @@ class ControllerRegistry {
 - `captureInput`/`releaseInput` управляют `session.activeHandler`
 - Удаляем `menu` из `SessionData`
 
-### Этап 3: Миграция StreamController на BotUserStory
+### Этап 3: Миграция StreamController на BotUserStory ✅
 
 **Файлы:**
 - `packages/stream/src/ui/bot/stories/catalog.story.ts` — новый (US-1: список потоков)
@@ -398,7 +398,7 @@ class ControllerRegistry {
 - US-6 (создание потока) использует `captureInput` для пошагового wizard'а
 - Проверка: все тесты `stream-controller.test.ts` должны проходить
 
-### Этап 4: Миграция OnboardingController (без UserStory)
+### Этап 4: Миграция OnboardingController (без UserStory) ✅
 
 **Файлы:**
 - `packages/onboarding/src/ui/bot/controller/onboarding-controller.ts` — переписать под новый `BotController`
@@ -410,7 +410,7 @@ class ControllerRegistry {
 - Состояние анкеты — через `captureInput`, вместо `menu: 'onboarding'`
 - Проверка: существующие тесты `onboarding-controller.test.ts` проходят
 
-### Этап 5: Чистка и финализация
+### Этап 5: Чистка и финализация ✅
 
 **Файлы:**
 - `apps/u7-bot/src/handlers/top-menu-handler.ts` — удалить
