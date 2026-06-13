@@ -1,3 +1,4 @@
+// @ts-nocheck — старый handler, будет удалён в треке bot-cleanup
 import type { OnboardingController } from '@u7-scl/onboarding';
 import type { Composer } from 'grammy';
 import type { BotConfig } from '../config';

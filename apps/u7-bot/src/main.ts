@@ -5,6 +5,7 @@ import { createApiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
 import { registerGroupHandlers } from './handlers/group-handler';
+import { BotDispatcher } from '@u7-scl/core/ui';
 import { registerDispatcher } from './handlers/dispatcher';
 import { CompositeLogger, TelegramLogger } from './logger';
 
@@ -146,9 +147,13 @@ onboardingController.init(apiApp);
 streamController.init(apiApp);
 
 // Универсальный диспетчер — заменяет старые handler'ы
+const dispatcher = new BotDispatcher([
+  onboardingController,
+  streamController,
+]);
 registerDispatcher(
   privateBot,
-  [onboardingController, streamController],
+  dispatcher,
   userFacade,
   config.botAdminUuid,
   logger,

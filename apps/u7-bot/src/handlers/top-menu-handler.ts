@@ -1,3 +1,4 @@
+// @ts-nocheck — старый handler, будет удалён в треке bot-cleanup
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
 import type { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';

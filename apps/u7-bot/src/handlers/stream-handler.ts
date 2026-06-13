@@ -1,3 +1,4 @@
+// @ts-nocheck — старый handler, будет удалён в треке bot-cleanup
 import type { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';

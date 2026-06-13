@@ -1,3 +1,4 @@
+// @ts-nocheck — старый тест, будет удалён в треке bot-cleanup
 import { describe, expect, mock, test } from 'bun:test';
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingController } from '@u7-scl/onboarding';
