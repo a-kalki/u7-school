@@ -2,7 +2,6 @@ import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
 import { stringUtility } from '#shared/string-utility';
 import type {
-  BotActor,
   BotResponse,
   BotUpdate,
   MainMenuAction,
@@ -14,11 +13,11 @@ import type {
  * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
  *
  * @typeParam TAppMeta - тип метаданных приложения, должен расширять AppMeta
- * @typeParam TActor - тип актора (пользователя), должен расширять BotActor
+ * @typeParam TActor - тип актора (пользователя). Минимально требуется поле telegramId.
  */
 export abstract class BotUserStory<
   TAppMeta extends AppMeta,
-  TActor extends BotActor = BotActor,
+  TActor = { telegramId: number },
 > {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;

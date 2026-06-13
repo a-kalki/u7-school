@@ -3,7 +3,6 @@ import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotController } from './bot-controller';
 import { BotUserStory } from '../bot-user-story';
 import type {
-  BotActor,
   BotResponse,
   BotUpdate,
   MainMenuAction,
@@ -21,12 +20,9 @@ type TestAppMeta = AppMeta & {
   };
 };
 
-// Тестовый актор
-const testActor: BotActor = {
+// Тестовый актор — минимально содержит telegramId
+const testActor = {
   telegramId: 123,
-  uuid: 'uuid-1',
-  name: 'Тестовый',
-  roles: ['STUDENT'],
 };
 
 // Тестовая стори
@@ -43,7 +39,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleCallback(
     _action: string,
-    _actor: BotActor,
+    _actor: { telegramId: number },
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `story_callback:${this.name}` } };
@@ -51,7 +47,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleMessage(
     _update: BotUpdate,
-    _actor: BotActor,
+    _actor: { telegramId: number },
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `story_message:${this.name}` } };
@@ -68,7 +64,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
   }
 
   override async handleStart(
-    _actor: BotActor,
+    _actor: { telegramId: number },
   ): Promise<MainMenuAction | null> {
     return this.handleStartResult;
   }

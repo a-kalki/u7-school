@@ -3,7 +3,6 @@ import type { AppMeta } from '#domain/types';
 import { escapeMarkdown } from '#shared/markdown';
 import type { BotUserStory } from '../bot-user-story';
 import type {
-  BotActor,
   BotResponse,
   BotUpdate,
   MainMenuAction,
@@ -17,11 +16,11 @@ import type {
  * продолжают работать — новые методы делегируют в `handleUpdate` по умолчанию.
  *
  * @typeParam TAppMeta — тип метаданных приложения
- * @typeParam TActor — тип актора (пользователя), должен расширять BotActor
+ * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
  */
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
-  TActor extends BotActor = BotActor,
+  TActor extends { telegramId: number } = { telegramId: number },
 > {
   /** Уникальное имя контроллера */
   abstract readonly name: string;

@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from './bot-user-story';
 import type {
-  BotActor,
   BotResponse,
   BotUpdate,
   MainMenuAction,
@@ -20,12 +19,9 @@ type TestAppMeta = AppMeta & {
   };
 };
 
-// Тестовый актор
-const testActor: BotActor = {
+// Тестовый актор — минимально содержит telegramId
+const testActor = {
   telegramId: 123,
-  uuid: 'uuid-1',
-  name: 'Тестовый',
-  roles: ['STUDENT'],
 };
 
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
@@ -34,7 +30,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleCallback(
     action: string,
-    _actor: BotActor,
+    _actor: { telegramId: number },
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `callback: ${action}` } };
@@ -42,7 +38,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleMessage(
     update: BotUpdate,
-    _actor: BotActor,
+    _actor: { telegramId: number },
     _session: SessionData,
   ): Promise<BotResponse> {
     if (update.type === 'message') {
