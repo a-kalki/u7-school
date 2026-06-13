@@ -17,7 +17,7 @@
     - [ ] Убрать `registerOnboardingHandler`
     - [ ] Убрать `registerStreamHandler`
 - [ ] Task: Оставить только registerDispatcher
-    - [ ] Создать ControllerRegistry
+- [ ] Task: Перенести register/dispatch логику из main.ts в диспетчер
     - [ ] Зарегистрировать StreamController и OnboardingController
     - [ ] Вызвать registerDispatcher
 - [ ] Task: Проверить, что все импорты чистые (нет неиспользуемых)

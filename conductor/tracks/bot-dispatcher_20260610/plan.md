@@ -19,7 +19,8 @@
 
 ## Фаза 3: Основной диспетчер
 
-- [ ] Task: Создать registerDispatcher(bot, registry, userFacade, logger)
+- [ ] Task: Создать registerDispatcher(bot, controllers, userFacade, logger)
+    - [ ] Диспетчер хранит контроллеры во внутренней Map с проверкой уникальности имени
     - [ ] Обработка `/start` — сбор handleStart со всех контроллеров
     - [ ] Обработка `/cancel` — форвард активному контроллеру
     - [ ] Обработка callback — маршрутизация по префиксу
@@ -39,9 +40,9 @@
 
 ## Фаза 4: Интеграция в main.ts
 
-- [ ] Task: Обновить main.ts — ControllerRegistry вместо прямых вызовов
+- [ ] Task: Обновить main.ts — регистрация контроллеров в диспетчере
     - [ ] Убрать прямые импорты контроллеров в handler'ы
-    - [ ] Зарегистрировать StreamController и OnboardingController в registry
+    - [ ] Передать StreamController и OnboardingController в диспетчер
     - [ ] Вызвать registerDispatcher вместо старых handler'ов
 - [ ] Task: Проверить, что bot.ts не требует изменений
 - [ ] Task: Убедиться, что старые handler'ы ЕЩЁ не удалены (удаление — в треке bot-cleanup)

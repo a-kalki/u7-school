@@ -14,7 +14,7 @@
 ### FR-2: main.ts — только dispatcher
 - Убрать вызовы `registerTopMenuHandler`, `registerOnboardingHandler`, `registerStreamHandler`
 - Оставить только `registerDispatcher(bot, registry, userFacade, logger)`
-- Все контроллеры регистрируются в `ControllerRegistry` перед вызовом dispatcher
+- Все контроллеры регистрируются в диспетчере перед вызовом
 
 ### FR-3: Финальное тестирование
 - `bun test` — все тесты проходят

@@ -31,18 +31,13 @@
 - `cb(action)`, `stripPrefix(data)` — хелперы префиксов
 - `shrink(key, value)`, `expand(key)` — short ID
 
-### FR-3: Расширенные типы
+## Нефункциональные требования
 - `BotUpdate` — добавить `document`, `photo`, `voice`
 - `BotResponse` — добавить `captureInput`, `releaseInput`, `delegate`
 - `SessionData` — с `activeHandler: { path, context, expiresAt } | null`
 - `MainMenuAction` — `{ text, action, priority }`
 
-### FR-4: `ControllerRegistry`
-- `register(controller)` — с проверкой уникальности имени
-- `get(name)` — поиск
-- `getAll()` — все контроллеры
-
-## Нефункциональные требования
+### FR-3: Расширенные типы
 - Все классы и типы в `packages/core/src/ui/bot/`
 - Обратная совместимость: старый `BotController` и `handleUpdate` работают до миграции
 - Дженерик `TAppMeta extends AppMeta` для типобезопасных вызовов API
@@ -50,8 +45,7 @@
 ## Критерии приёмки
 1. `BotUserStory` и обновлённый `BotController` компилируются без ошибок
 2. Типы `BotResponse`, `SessionData`, `MainMenuAction` экспортируются из `@u7-scl/core/ui`
-3. `ControllerRegistry` выбрасывает ошибку при дублировании имени
-4. Существующие тесты `core` проходят
+3. Существующие тесты `core` проходят
 
 ## За рамками
 - Миграция конкретных контроллеров (stream, onboarding) — это отдельные треки
