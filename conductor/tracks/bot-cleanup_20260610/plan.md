@@ -12,15 +12,15 @@
 
 ## Фаза 2: Обновление main.ts
 
-- [ ] Task: Убрать импорты старых handler'ов
-    - [ ] Убрать `registerTopMenuHandler`
-    - [ ] Убрать `registerOnboardingHandler`
-    - [ ] Убрать `registerStreamHandler`
-- [ ] Task: Оставить только registerDispatcher
-- [ ] Task: Перенести register/dispatch логику из main.ts в диспетчер
-    - [ ] Зарегистрировать StreamController и OnboardingController
-    - [ ] Вызвать registerDispatcher
-- [ ] Task: Проверить, что все импорты чистые (нет неиспользуемых)
+- [x] Task: Убрать импорты старых handler'ов
+    - [x] Убрать `registerTopMenuHandler` (уже отсутствовали)
+    - [x] Убрать `registerOnboardingHandler` (уже отсутствовали)
+    - [x] Убрать `registerStreamHandler` (уже отсутствовали)
+- [x] Task: Оставить только registerDispatcher (уже сделано — BotRouter + connectRouter)
+- [x] Task: Перенести register/dispatch логику из main.ts в диспетчер (уже сделано в router.ts)
+    - [x] Зарегистрировать StreamController и OnboardingController
+    - [x] Вызвать registerDispatcher
+- [x] Task: Проверить, что все импорты чистые и убрать закомментированный код `2877488`
 
 ## Фаза 3: Финальная проверка качества
 
