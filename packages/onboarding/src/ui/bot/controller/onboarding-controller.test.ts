@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
-import type { SendMessageDescription } from '@u7-scl/core/ui';
+import type { SendMessageDescription, SessionData } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { UserJsonRepo } from '@u7-scl/user/infra';
 import { OnboardingApiModule } from '#api/module';
@@ -14,6 +14,12 @@ import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import type { OnboardingBotApp } from '../app';
 import type { MessageDescription } from '../types';
 import { OnboardingController } from './onboarding-controller';
+
+/** Актор для тестов */
+interface TestActor {
+  uuid: string;
+  telegramId: number;
+}
 
 let tmpDir: string;
 
@@ -106,14 +112,40 @@ describe('OnboardingController', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('команда start начинает новую анкету', async () => {
-    const response = await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId: 12345,
+  const actor: TestActor = { uuid: botAdminUuid, telegramId: 12345 };
+
+  /** Чистая сессия */
+  function emptySession(): SessionData {
+    return { activeHandler: null };
+  }
+
+  /** Сессия с captureInput и опциональным messageId */
+  function capSession(messageId?: number): SessionData {
+    return {
+      activeHandler: {
+        path: 'onboarding/questionnaire',
+        context: messageId !== undefined ? { messageId } : undefined,
+        expiresAt: Date.now() + 600_000,
       },
-      botAdminUuid,
+    };
+  }
+
+  // ── Базовые тесты ──
+
+  test('handleStart: возвращает кнопку «Заполнить анкету»', async () => {
+    const items = await controller.handleStart(actor);
+
+    expect(items).toHaveLength(1);
+    expect(items[0]!.text).toBe('📝 Заполнить анкету');
+    expect(items[0]!.action).toBe('onboarding:start_questionnaire');
+    expect(items[0]!.priority).toBe(50);
+  });
+
+  test('start_questionnaire начинает новую анкету', async () => {
+    const response = await controller.handleCallback(
+      'start_questionnaire',
+      actor,
+      emptySession(),
     );
 
     // Приветствие + первый вопрос через sendMessages
@@ -123,27 +155,24 @@ describe('OnboardingController', () => {
     expect(messages[0]!.text).toContain('Заполни анкету');
     expect(messages[1]!.text).toContain('Первый вопрос');
     expect(messages[1]!.keyboard).toBeDefined();
+    // Захват ввода
+    expect(response.captureInput).toBeDefined();
+    expect(response.captureInput!.path).toBe('questionnaire');
   });
 
-  test('команда start продолжает активную анкету', async () => {
+  test('start_questionnaire продолжает активную анкету', async () => {
     // Начинаем анкету
-    await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId: 12345,
-      },
-      botAdminUuid,
+    await controller.handleCallback(
+      'start_questionnaire',
+      actor,
+      emptySession(),
     );
 
     // Повторный вызов — должен вернуть текущий вопрос
-    const response = await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId: 12345,
-      },
-      botAdminUuid,
+    const response = await controller.handleCallback(
+      'start_questionnaire',
+      actor,
+      emptySession(),
     );
 
     expect(response.sendMessage?.text).toContain('Первый вопрос');
@@ -152,73 +181,61 @@ describe('OnboardingController', () => {
 
   test('ответ на вопрос завершает анкету', async () => {
     // Начинаем анкету
-    await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId: 12345,
-      },
-      botAdminUuid,
+    await controller.handleCallback(
+      'start_questionnaire',
+      actor,
+      emptySession(),
     );
 
     // Отвечаем на вопрос (callback)
-    const response = await controller.handleUpdate(
-      {
-        type: 'callback',
-        data: 'yes',
-        telegramId: 12345,
-        messageId: 1,
-      },
-      botAdminUuid,
+    const response = await controller.handleCallback(
+      'answer:yes',
+      actor,
+      capSession(1),
     );
 
     expect(response.sendMessage?.text).toContain('Спасибо');
     expect(response.questionnaireCompleted).toBe(true);
+    expect(response.releaseInput).toBe(true);
   });
 
-  test('команда cancel прерывает анкету', async () => {
+  test('cancel прерывает анкету', async () => {
     // Начинаем анкету
-    await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'start',
-        telegramId: 12345,
-      },
-      botAdminUuid,
+    await controller.handleCallback(
+      'start_questionnaire',
+      actor,
+      emptySession(),
     );
 
     // Прерываем
-    const response = await controller.handleUpdate(
-      {
-        type: 'command',
-        command: 'cancel',
-        telegramId: 12345,
-      },
-      botAdminUuid,
-    );
+    const response = await controller.handleCancel(actor, capSession(1));
 
     expect(response.sendMessage?.text).toContain('прервана');
     expect(response.sendMessage?.text).toContain('Заполнить анкету');
     expect(response.questionnaireCompleted).toBe(true);
+    expect(response.releaseInput).toBe(true);
   });
 
   test('сообщение без активной анкеты возвращает ошибку', async () => {
-    const response = await controller.handleUpdate(
-      {
-        type: 'message',
-        text: 'привет',
-        telegramId: 999,
-      },
-      botAdminUuid,
+    const response = await controller.handleMessage(
+      { type: 'message', text: 'привет', telegramId: 999 },
+      actor,
+      emptySession(),
     );
 
-    expect(response.sendMessage?.text.toLowerCase()).toContain('ошибка');
+    expect(response.sendMessage?.text.toLowerCase()).toContain('неизвестное');
+  });
+
+  test('cancel без активной анкеты — просто releaseInput', async () => {
+    const response = await controller.handleCancel(actor, emptySession());
+
+    expect(response.releaseInput).toBe(true);
+    expect(response.sendMessage).toBeUndefined();
   });
 
   // ── Тесты с несколькими вопросами (переход new_question) ──
 
   test('new_question: edit использует previousQuestion, без клавиатуры', async () => {
-    // Создаём контроллер с пулом из 2 вопросов
     const poolService = new QuestionPoolService(
       [
         {
@@ -249,22 +266,16 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
     const ctrl2 = new OnboardingController(app2, logger);
+    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 777 };
 
     // Начинаем анкету
-    await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 777 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
     // Отвечаем на q1 (callback) — должен быть переход на q2
-    const response = await ctrl2.handleUpdate(
-      {
-        type: 'callback',
-        data: 'yes',
-        telegramId: 777,
-        messageId: 42,
-      },
-      botAdminUuid,
+    const response = await ctrl2.handleCallback(
+      'answer:yes',
+      actor2,
+      capSession(42),
     );
 
     // Edit: должен содержать текст первого вопроса с [x] на 'Да' и БЕЗ клавиатуры
@@ -313,20 +324,14 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
     const ctrl2 = new OnboardingController(app2, logger);
+    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 888 };
 
-    await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 888 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
-    const response = await ctrl2.handleUpdate(
-      {
-        type: 'callback',
-        data: 'yes',
-        telegramId: 888,
-        messageId: 10,
-      },
-      botAdminUuid,
+    const response = await ctrl2.handleCallback(
+      'answer:yes',
+      actor2,
+      capSession(10),
     );
 
     // Send — новый вопрос, edit — старый. Текст нового вопроса НЕ должен быть в edit
@@ -373,28 +378,19 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
     const ctrl2 = new OnboardingController(app2, logger);
+    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 999 };
 
     // Начинаем анкету
-    await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 999 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
     // Выбираем ответ 'a' (wait_next)
-    await ctrl2.handleUpdate(
-      { type: 'callback', data: 'a', telegramId: 999, messageId: 55 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('answer:a', actor2, capSession(55));
 
     // Нажимаем «Далее» — переход на q2
-    const response = await ctrl2.handleUpdate(
-      {
-        type: 'callback',
-        data: 'next:q1',
-        telegramId: 999,
-        messageId: 55,
-      },
-      botAdminUuid,
+    const response = await ctrl2.handleCallback(
+      'next:q1',
+      actor2,
+      capSession(55),
     );
 
     // Edit: предыдущий вопрос с [x] на 'a', БЕЗ клавиатуры
@@ -438,22 +434,16 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
     const ctrl2 = new OnboardingController(app2, logger);
+    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 111 };
 
     // Начинаем анкету
-    await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 111 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
     // Отвечаем на последний вопрос (callback) — completed
-    const response = await ctrl2.handleUpdate(
-      {
-        type: 'callback',
-        data: 'done',
-        telegramId: 111,
-        messageId: 77,
-      },
-      botAdminUuid,
+    const response = await ctrl2.handleCallback(
+      'answer:done',
+      actor2,
+      capSession(77),
     );
 
     // Edit предыдущего сообщения: последний вопрос с [x], без клавиатуры
@@ -472,6 +462,7 @@ describe('OnboardingController', () => {
     // Send: сообщение о завершении
     expect(sendMessage.text).toContain('Спасибо');
     expect(response.questionnaireCompleted).toBe(true);
+    expect(response.releaseInput).toBe(true);
   });
 
   test('wait_next: callback без перехода использует currentQuestion (без изменений)', async () => {
@@ -500,22 +491,16 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
     const ctrl2 = new OnboardingController(app2, logger);
+    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 222 };
 
     // Начинаем анкету
-    await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 222 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
     // Переключаем чекбокс (wait_next) — должно редактировать текущее сообщение
-    const response = await ctrl2.handleUpdate(
-      {
-        type: 'callback',
-        data: 'a',
-        telegramId: 222,
-        messageId: 33,
-      },
-      botAdminUuid,
+    const response = await ctrl2.handleCallback(
+      'answer:a',
+      actor2,
+      capSession(33),
     );
 
     // Edit должен быть (wait_next — редактируем текущее сообщение)
@@ -532,7 +517,7 @@ describe('OnboardingController', () => {
     expect(response.sendMessage).toBeUndefined();
   });
 
-  test('wait_next: команда start рендерит sendMessage с Далее', async () => {
+  test('wait_next: start рендерит sendMessage с Далее', async () => {
     const poolService = new QuestionPoolService(
       [
         {
@@ -558,23 +543,19 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as OnboardingBotApp;
     const ctrl2 = new OnboardingController(app2, logger);
+    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 333 };
 
     // Начинаем анкету
-    await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 333 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
     // Выбираем ответ → состояние wait_next
-    await ctrl2.handleUpdate(
-      { type: 'callback', data: 'a', telegramId: 333, messageId: 10 },
-      botAdminUuid,
-    );
+    await ctrl2.handleCallback('answer:a', actor2, capSession(10));
 
-    // Повторный start_onboarding (без messageId)
-    const response = await ctrl2.handleUpdate(
-      { type: 'command', command: 'start', telegramId: 333 },
-      botAdminUuid,
+    // Повторный start (без messageId в сессии)
+    const response = await ctrl2.handleCallback(
+      'start_questionnaire',
+      actor2,
+      emptySession(),
     );
 
     // sendMessage с текущим вопросом и клавиатурой
