@@ -27,7 +27,7 @@
     - [x] Тест: `handleStart` по умолчанию возвращает null
     - [x] Тест: `handleCancel` по умолчанию возвращает releaseInput
 
-## Фаза 3: Обновлённый BotController
+## Фаза 3: Обновлённый BotController [checkpoint: ce1c9d7]
 
 - [x] Task: Обновить BotController<TAppMeta> `c332b7e`
     - [x] Добавить `name`, `stories`
