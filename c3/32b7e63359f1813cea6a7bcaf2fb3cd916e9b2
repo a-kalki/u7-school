@@ -1,0 +1,4 @@
+Задача: Обновить BotController<TAppMeta>
+Сводка: BotController стал дженерик-классом. Добавлены name, stories, методы init/reset, handleCallback/handleMessage (с делегированием в стори), handleStart (агрегация меню), handleCancel/handleTimeout, хелперы cb/stripPrefix/findStory. Обратная совместимость через handleUpdate сохранена.
+Файлы: packages/core/src/ui/bot/controller/bot-controller.ts (переписан), packages/core/src/ui/bot/controller/bot-controller.test.ts (новый — 15 тестов)
+Причина: Поддержка UserStory в контроллерах, делегирование callback/сообщений, агрегация главного меню.
