@@ -10,8 +10,8 @@
     - [x] Добавить `delegate?: { path }`
 - [x] Task: Создать SessionData с activeHandler `b41e3c0`
     - [x] Интерфейс `SessionData` в `types.ts`
-- [ ] Task: Создать MainMenuAction
-    - [ ] Интерфейс `{ text, action, priority }` в `types.ts`
+- [x] Task: Создать MainMenuAction `4bd65eb`
+    - [x] Интерфейс `{ text, action, priority }` в `types.ts`
 
 ## Фаза 2: BotUserStory
 
