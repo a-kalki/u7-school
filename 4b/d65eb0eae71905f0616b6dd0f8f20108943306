@@ -1,0 +1,4 @@
+Задача: Создать MainMenuAction
+Сводка: Добавлен интерфейс MainMenuAction с полями text, action, priority для элементов главного меню бота.
+Файлы: packages/core/src/ui/bot/types.ts, packages/core/src/ui/bot/types.test.ts
+Причина: Необходим для агрегации главного меню из контроллеров.
