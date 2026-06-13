@@ -29,17 +29,17 @@
 
 ## Фаза 3: Обновлённый BotController
 
-- [ ] Task: Обновить BotController<TAppMeta>
-    - [ ] Добавить `name`, `stories`
-    - [ ] Методы: `init`, `handleCallback`, `handleMessage`, `handleStart`, `handleCancel`, `handleTimeout`, `reset`
-    - [ ] Хелперы: `cb`, `stripPrefix`, `findStory`
-    - [ ] Делегирование в story по префиксу callback
-- [ ] Task: Написать тесты на BotController
-    - [ ] Тест: `init` вызывает `init` у всех стори
-    - [ ] Тест: `reset` вызывает `reset` у всех стори
-    - [ ] Тест: `handleStart` агрегирует от всех стори с префиксами
-    - [ ] Тест: `findStory` находит по имени
-    - [ ] Тест: `handleCancel` делегирует активной стори
+- [x] Task: Обновить BotController<TAppMeta> `c332b7e`
+    - [x] Добавить `name`, `stories`
+    - [x] Методы: `init`, `handleCallback`, `handleMessage`, `handleStart`, `handleCancel`, `handleTimeout`, `reset`
+    - [x] Хелперы: `cb`, `stripPrefix`, `findStory`
+    - [x] Делегирование в story по префиксу callback
+- [x] Task: Написать тесты на BotController `c332b7e`
+    - [x] Тест: `init` вызывает `init` у всех стори
+    - [x] Тест: `reset` вызывает `reset` у всех стори
+    - [x] Тест: `handleStart` агрегирует от всех стори с префиксами
+    - [x] Тест: `findStory` находит по имени
+    - [x] Тест: `handleCancel` делегирует активной стори
 
 ## Фаза 4: ControllerRegistry и экспорты
 
