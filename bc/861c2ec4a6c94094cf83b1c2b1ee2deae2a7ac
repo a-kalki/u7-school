@@ -1,0 +1,5 @@
+Отчёт о верификации Фазы 1
+Автоматические тесты: CI=true bun test — 614 pass, 0 fail
+Проверка типов: bun run tslint:p core — без ошибок
+Ручная верификация: Подтверждена пользователем
+Файлы фазы: packages/core/src/ui/bot/types.ts, packages/core/src/ui/bot/types.test.ts
