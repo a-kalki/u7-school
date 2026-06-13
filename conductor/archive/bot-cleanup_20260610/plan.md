@@ -1,0 +1,49 @@
+# План реализации: Чистка и финализация
+
+## Фаза 1: Удаление старых handler'ов [checkpoint: 75cf020]
+
+- [x] Task: Удалить top-menu-handler.ts и его тесты `ab09312`
+    - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.ts`
+    - [x] Удалить `apps/u7-bot/src/handlers/top-menu-handler.test.ts`
+- [x] Task: Удалить onboarding-handler.ts `5d298d5`
+    - [x] Удалить `apps/u7-bot/src/handlers/onboarding-handler.ts`
+- [x] Task: Удалить stream-handler.ts `acaff0c`
+    - [x] Удалить `apps/u7-bot/src/handlers/stream-handler.ts`
+
+## Фаза 2: Обновление main.ts
+
+- [x] Task: Убрать импорты старых handler'ов
+    - [x] Убрать `registerTopMenuHandler` (уже отсутствовали)
+    - [x] Убрать `registerOnboardingHandler` (уже отсутствовали)
+    - [x] Убрать `registerStreamHandler` (уже отсутствовали)
+- [x] Task: Оставить только registerDispatcher (уже сделано — BotRouter + connectRouter)
+- [x] Task: Перенести register/dispatch логику из main.ts в диспетчер (уже сделано в router.ts)
+    - [x] Зарегистрировать StreamController и OnboardingController
+    - [x] Вызвать registerDispatcher
+- [x] Task: Проверить, что все импорты чистые и убрать закомментированный код `2877488`
+
+## Фаза 3: Финальная проверка качества
+
+- [x] Task: Запустить все тесты: `bun test`
+    - [x] Все тесты проходят (698 pass, 0 fail)
+- [x] Task: Проверить покрытие: `bun test --coverage`
+    - [x] >80% (изменения — только удаления)
+- [x] Task: Проверить линтер: `bun run lint`
+    - [x] 28 предсуществующих warning'ов в string-utility.ts (не наш трек)
+- [x] Task: Проверить типы: `bun run tslint`
+    - [x] 11 предсуществующих ошибок в generate-json-schemas.ts (не наш трек)
+- [x] Task: Полная проверка: `bun run check`
+    - [x] Все ошибки предсуществующие, новых нет
+
+## Фаза 4: Обновление документации
+
+- [x] Task: Обновить ARCHITECTURE.md — отметить завершение этапов `25e297e`
+- [x] Task: Проверить, что все треки задокументированы (все архивные треки имеют summary.md)
+
+## Фаза 5: Ручная верификация
+
+- [ ] Task: Запустить бота: `bun run dev`
+- [ ] Task: Проверить /start — меню с кнопками от всех контроллеров
+- [ ] Task: Проверить callback потоков — список, карточка, запись
+- [ ] Task: Проверить анкету — запуск, ответы, /cancel
+- [ ] Task: Conductor - User Manual Verification 'Фаза 5' (Protocol in workflow.md)
