@@ -17,7 +17,7 @@ import type {
  */
 export abstract class BotUserStory<
   TAppMeta extends AppMeta,
-  TActor = { telegramId: number },
+  TActor = unknown,
 > {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;

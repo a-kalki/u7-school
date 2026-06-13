@@ -1,6 +1,5 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
-import { escapeMarkdown } from '#shared/markdown';
 import type { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -12,15 +11,12 @@ import type {
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
  *
- * Обратная совместимость: старые контроллеры, переопределяющие только `handleUpdate`,
- * продолжают работать — новые методы делегируют в `handleUpdate` по умолчанию.
- *
  * @typeParam TAppMeta — тип метаданных приложения
- * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
+ * @typeParam TActor — тип актора (пользователя)
  */
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
-  TActor extends { telegramId: number } = { telegramId: number },
+  TActor = unknown,
 > {
   /** Уникальное имя контроллера */
   abstract readonly name: string;
@@ -49,28 +45,17 @@ export abstract class BotController<
     }
   }
 
-  // ── Основные обработчики (обратная совместимость через handleUpdate) ──
-
-  /**
-   * Обработчик любого обновления от Telegram.
-   * Абстрактный — старые контроллеры должны переопределять его.
-   * Новые контроллеры могут переопределять handleCallback/handleMessage напрямую.
-   */
-  abstract handleUpdate(
-    update: BotUpdate,
-    actorId: string,
-  ): Promise<BotResponse>;
+  // ── Обработчики ──
 
   /**
    * Обработка callback (data без префикса контроллера).
-   * По умолчанию делегирует в handleUpdate для обратной совместимости.
+   * Делегирует в стори по префиксу в callback_data.
    */
   async handleCallback(
     data: string,
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
-    // Пробуем найти стори по префиксу в data
     for (const story of this.stories) {
       const prefix = `${story.name}:`;
       if (data.startsWith(prefix)) {
@@ -78,23 +63,18 @@ export abstract class BotController<
         return story.handleCallback(action, actor, session);
       }
     }
-    // Нет стори — fallback на handleUpdate
-    return this.handleUpdate(
-      { type: 'callback', data: this.cb(data), telegramId: 0, messageId: 0 },
-      String(actor.telegramId),
-    );
+    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
   /**
    * Обработка сообщений (когда контроллер активен через captureInput).
-   * По умолчанию делегирует в handleUpdate для обратной совместимости.
+   * Делегирует активной стори по activeHandler.path.
    */
   async handleMessage(
     update: BotUpdate,
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
-    // Если есть активный обработчик в сессии — делегируем в стори
     const activePath = session.activeHandler?.path;
     if (activePath) {
       const story = this.findStoryByPath(activePath);
@@ -102,7 +82,7 @@ export abstract class BotController<
         return story.handleMessage(update, actor, session);
       }
     }
-    return this.handleUpdate(update, String(actor.telegramId));
+    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
   /**
@@ -195,10 +175,10 @@ export abstract class BotController<
     return undefined;
   }
 
-  // ── Утилиты (сохранены для обратной совместимости) ──
+  // ── Утилиты ──
 
   protected escapeMarkdown(text: string): string {
-    return escapeMarkdown(text);
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
   }
 
   protected handleError(err: unknown): BotResponse {

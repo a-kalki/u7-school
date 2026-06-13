@@ -20,10 +20,8 @@ type TestAppMeta = AppMeta & {
   };
 };
 
-// Тестовый актор — минимально содержит telegramId
-const testActor = {
-  telegramId: 123,
-};
+// Тестовый актор
+const testActor = { telegramId: 123 };
 
 // Тестовая стори
 class TestStory extends BotUserStory<TestAppMeta> {
@@ -39,7 +37,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleCallback(
     _action: string,
-    _actor: { telegramId: number },
+    _actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `story_callback:${this.name}` } };
@@ -47,7 +45,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 
   async handleMessage(
     _update: BotUpdate,
-    _actor: { telegramId: number },
+    _actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: `story_message:${this.name}` } };
@@ -63,9 +61,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
     this.resetCalled = true;
   }
 
-  override async handleStart(
-    _actor: { telegramId: number },
-  ): Promise<MainMenuAction | null> {
+  override async handleStart(_actor: unknown): Promise<MainMenuAction | null> {
     return this.handleStartResult;
   }
 }
@@ -91,13 +87,6 @@ class TestController extends BotController<TestAppMeta> {
 
   addStory(story: TestStory): void {
     (this as unknown as { stories: TestStory[] }).stories.push(story);
-  }
-
-  async handleUpdate(
-    _update: BotUpdate,
-    _actorId: string,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: 'fallback_update' } };
   }
 }
 
@@ -205,13 +194,13 @@ describe('BotController', () => {
       expect(result.sendMessage?.text).toBe('story_callback:story_one');
     });
 
-    test('без совпадения стори — fallback на handleUpdate', async () => {
+    test('без совпадения стори — возвращает ошибку', async () => {
       const result = await ctrl.handleCallback(
         'unknown:action',
         testActor,
         { activeHandler: null },
       );
-      expect(result.sendMessage?.text).toBe('fallback_update');
+      expect(result.sendMessage?.text).toBe('⚠️ Неизвестная команда');
     });
   });
 
@@ -227,13 +216,13 @@ describe('BotController', () => {
       expect(result.sendMessage?.text).toBe('story_message:story_one');
     });
 
-    test('без активной стори — fallback на handleUpdate', async () => {
+    test('без активной стори — возвращает ошибку', async () => {
       const result = await ctrl.handleMessage(
         { type: 'message', text: 'привет', telegramId: 123 },
         testActor,
         { activeHandler: null },
       );
-      expect(result.sendMessage?.text).toBe('fallback_update');
+      expect(result.sendMessage?.text).toBe('⚠️ Неизвестная команда');
     });
   });
 

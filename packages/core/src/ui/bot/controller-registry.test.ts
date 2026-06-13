@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { BotController } from './controller/bot-controller';
 import { ControllerRegistry } from './controller-registry';
-import type { BotResponse, BotUpdate } from './types';
 
 // Минимальная реализация контроллера для тестов
 class TestCtrl extends BotController {
@@ -10,13 +9,6 @@ class TestCtrl extends BotController {
   constructor(name: string) {
     super();
     this.name = name;
-  }
-
-  async handleUpdate(
-    _update: BotUpdate,
-    _actorId: string,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: 'ok' } };
   }
 }
 
