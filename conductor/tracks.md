@@ -2,9 +2,6 @@
 
 ---
 
-- [x] **Track: Миграция StreamController на 8 BotUserStory-классов (US-1...US-8)**
-*Link: [./tracks/stream-user-stories_20260610/](./tracks/stream-user-stories_20260610/)*
-
 - [ ] **Track: Миграция OnboardingController под новый BotController (без UserStory)**
 *Link: [./tracks/onboarding-migrate_20260610/](./tracks/onboarding-migrate_20260610/)*
 
