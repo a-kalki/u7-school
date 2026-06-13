@@ -1,0 +1,4 @@
+Задача: Создать абстрактный класс BotUserStory<TAppMeta>
+Сводка: Создан абстрактный класс с полями name, api, shortIds; методами init, reset, cb, stripPrefix, shrink, expand; абстрактными handleCallback, handleMessage; с реализацией по умолчанию handleStart, handleCancel, handleTimeout.
+Файлы: packages/core/src/ui/bot/bot-user-story.ts (новый), packages/core/src/ui/bot/bot-user-story.test.ts (новый — 14 тестов)
+Причина: Инкапсуляция отдельных пользовательских сценариев внутри сложных контроллеров.
