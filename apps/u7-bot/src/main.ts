@@ -5,9 +5,7 @@ import { createApiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
 import { registerGroupHandlers } from './handlers/group-handler';
-import { registerOnboardingHandler } from './handlers/onboarding-handler';
-import { registerStreamHandler } from './handlers/stream-handler';
-import { registerTopMenuHandler } from './handlers/top-menu-handler';
+import { registerDispatcher } from './handlers/dispatcher';
 import { CompositeLogger, TelegramLogger } from './logger';
 
 const config = loadConfig();
@@ -143,16 +141,23 @@ privateBot.command('log_level', async (ctx) => {
   );
 });
 
-registerTopMenuHandler(
+// Инициализация контроллеров (новый API BotController)
+onboardingController.init(apiApp);
+streamController.init(apiApp);
+
+// Универсальный диспетчер — заменяет старые handler'ы
+registerDispatcher(
   privateBot,
+  [onboardingController, streamController],
   userFacade,
-  onboardingController,
-  streamController,
-  config,
+  config.botAdminUuid,
   logger,
 );
-registerOnboardingHandler(privateBot, onboardingController, config);
-registerStreamHandler(privateBot, streamController, userFacade, config);
+
+// Старые handler'ы отключены (будут удалены в треке bot-cleanup):
+// registerTopMenuHandler(privateBot, userFacade, onboardingController, streamController, config, logger);
+// registerOnboardingHandler(privateBot, onboardingController, config);
+// registerStreamHandler(privateBot, streamController, userFacade, config);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {
