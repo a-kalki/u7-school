@@ -1,0 +1,4 @@
+Задача: Создать ControllerRegistry
+Сводка: ControllerRegistry с методами register (проверка уникальности), get, getAll. Экспортирован из @u7-scl/core/ui.
+Файлы: packages/core/src/ui/bot/controller-registry.ts (новый), controller-registry.test.ts (новый — 7 тестов), packages/core/src/ui/index.ts
+Причина: Централизованное управление контроллерами бота.
