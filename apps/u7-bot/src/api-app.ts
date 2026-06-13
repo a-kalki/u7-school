@@ -65,10 +65,10 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const streamController = new StreamController(streamModule);
 
   // ══ ApiApp: модули + опциональный логгер в конструкторе ══
-  const apiApp = new ApiApp(
+  const apiApp: OnboardingBotApp = new ApiApp(
     [userModule, onboardingModule, streamModule],
     logger,
-  ) as OnboardingBotApp;
+  );
 
   return {
     apiApp,
