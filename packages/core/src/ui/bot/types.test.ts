@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { BotResponse, BotUpdate } from './types';
+import type { BotResponse, BotUpdate, SessionData } from './types';
 
 describe('BotUpdate', () => {
   test('поддерживает тип document', () => {
@@ -86,5 +86,34 @@ describe('BotResponse', () => {
     };
     expect(resp.sendMessage?.text).toBe('Hello');
     expect(resp.questionnaireCompleted).toBe(true);
+  });
+});
+
+describe('SessionData', () => {
+  test('содержит активный обработчик', () => {
+    const session: SessionData = {
+      activeHandler: {
+        path: '/controller/story',
+        context: { step: 2 },
+        expiresAt: Date.now() + 60_000,
+      },
+    };
+    expect(session.activeHandler?.path).toBe('/controller/story');
+    expect(session.activeHandler?.context).toEqual({ step: 2 });
+    expect(typeof session.activeHandler?.expiresAt).toBe('number');
+  });
+
+  test('activeHandler может быть null', () => {
+    const session: SessionData = { activeHandler: null };
+    expect(session.activeHandler).toBeNull();
+  });
+
+  test('context и expiresAt опциональны', () => {
+    const session: SessionData = {
+      activeHandler: { path: '/simple' },
+    };
+    expect(session.activeHandler?.path).toBe('/simple');
+    expect(session.activeHandler?.context).toBeUndefined();
+    expect(session.activeHandler?.expiresAt).toBeUndefined();
   });
 });

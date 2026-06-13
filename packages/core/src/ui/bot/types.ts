@@ -32,6 +32,15 @@ export interface BotResponse {
   delegate?: { path: string };
 }
 
+/** Данные сессии пользователя с отслеживанием активного обработчика */
+export interface SessionData {
+  activeHandler: {
+    path: string;
+    context?: unknown;
+    expiresAt?: number;
+  } | null;
+}
+
 export type BotUpdate =
   | { type: 'command'; command: string; telegramId: number; name?: string }
   | { type: 'message'; text: string; telegramId: number }
