@@ -1,0 +1,20 @@
+**Отчёт о верификации Фазы 1**
+
+**Автоматические тесты:** `CI=true bun test packages/app/ packages/core/`
+- packages/app: 36 pass / 0 fail
+- packages/core: 145 pass / 0 fail
+
+**Ручная верификация:**
+1. `cd packages/app && bun x tsc --noEmit` — компиляция чистая
+2. Экспорты domain: Role, RoleSchema, UserSchema; ui: U7BotController, U7BotUserStory
+3. `grep -r "@u7-scl/app" packages/core/` — пусто (core не зависит от app ✅)
+4. Всего 181 тест проходит
+
+**Подтверждение пользователя:** да
+
+**Созданные артефакты Фазы 1:**
+- Пакет `@u7-scl/app` с package.json, tsconfig.json
+- domain/: user.ts (User, Role, схемы), u7-bot-app-meta.ts (U7BotAppMeta, U7AppResolver)
+- ui/: u7-bot-controller.ts (U7BotController), u7-bot-user-story.ts (U7BotUserStory)
+- 36 тестов (user.test.ts — 30, domain-types.test.ts — 1, ui-components.test.ts — 2, app-init.test.ts — 3)
+- core/domain/types.ts: добавлены AppEnvMode, AppResolver, ModuleResolver
