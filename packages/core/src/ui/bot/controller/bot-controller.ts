@@ -190,7 +190,7 @@ export abstract class BotController<
   ): BotUserStory<TAppMeta, TModuleMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
-      return this.findStory(parts[1]!);
+      return this.findStory(parts[1] ?? '');
     }
     return undefined;
   }

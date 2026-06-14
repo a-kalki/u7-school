@@ -1,7 +1,7 @@
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
-import { ConsoleLogger } from '@u7-scl/core/shared';
 import type { Logger } from '@u7-scl/core/shared';
+import { ConsoleLogger } from '@u7-scl/core/shared';
 import type { OnboardingBotApp } from '@u7-scl/onboarding';
 import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
@@ -70,9 +70,11 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const streamController = new StreamController(streamModule);
 
   // ══ ApiApp: модули ══
-  const apiApp: OnboardingBotApp = new ApiApp(
-    [userModule, onboardingModule, streamModule],
-  );
+  const apiApp: OnboardingBotApp = new ApiApp([
+    userModule,
+    onboardingModule,
+    streamModule,
+  ]);
 
   return {
     apiApp,

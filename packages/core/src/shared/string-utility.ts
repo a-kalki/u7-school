@@ -65,7 +65,7 @@ class StringUtility {
             if (!(char in randomGenerators)) {
               throw new Error(`Недопустимый символ формата: ${char}`);
             }
-            return randomGenerators[char]!();
+            return randomGenerators[char]?.() ?? '';
           })
           .join(''),
       )
@@ -81,7 +81,7 @@ class StringUtility {
   trimStart(target: string, chars: string): string {
     let start = 0;
     const end = target.length;
-    while (start < end && chars.includes(target[start]!)) {
+    while (start < end && chars.includes(target[start] ?? '')) {
       start += 1;
     }
     return target.substring(start, end);
@@ -90,7 +90,7 @@ class StringUtility {
   /** Удаляет указанные символы с конца строки */
   trimEnd(target: string, chars: string): string {
     let end = target.length;
-    while (end > 0 && chars.includes(target[end - 1]!)) {
+    while (end > 0 && chars.includes(target[end - 1] ?? '')) {
       end -= 1;
     }
     return target.substring(0, end);
@@ -98,7 +98,9 @@ class StringUtility {
 
   /** Делает первую букву заглавной */
   makeFirstLetterUppercase(str: string): string {
-    return str.length > 0 ? str[0]!.toUpperCase() + str.substring(1) : str;
+    return str.length > 0
+      ? (str[0] ?? '').toUpperCase() + str.substring(1)
+      : str;
   }
 
   /** camelCase → kebab-case */

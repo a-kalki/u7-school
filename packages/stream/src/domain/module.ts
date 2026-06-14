@@ -1,5 +1,5 @@
-import type { CourseFacade } from '@u7-scl/course/domain';
 import type { ModuleResolver } from '@u7-scl/core/domain';
+import type { CourseFacade } from '@u7-scl/course/domain';
 import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
 import type { ActivateStreamCmdMeta } from './stream/commands/activate-stream-cmd';
 import type { ArchiveStreamCmdMeta } from './stream/commands/archive-stream-cmd';
@@ -26,15 +26,15 @@ export interface StreamApiModuleMeta {
   name: 'stream';
   url: '/stream';
   ucMetas:
-  | ActivateStreamCmdMeta
-  | ArchiveStreamCmdMeta
-  | CompleteStreamCmdMeta
-  | CreateStreamCmdMeta
-  | ListStreamsCmdMeta
-  | ListStreamStudentsCmdMeta
-  | GetStreamCmdMeta
-  | CompleteStepCmdMeta
-  | EnrollStudentCmdMeta
-  | GetStudentByUserCmdMeta
-  | GetStudentProgressCmdMeta;
+    | ActivateStreamCmdMeta
+    | ArchiveStreamCmdMeta
+    | CompleteStreamCmdMeta
+    | CreateStreamCmdMeta
+    | ListStreamsCmdMeta
+    | ListStreamStudentsCmdMeta
+    | GetStreamCmdMeta
+    | CompleteStepCmdMeta
+    | EnrollStudentCmdMeta
+    | GetStudentByUserCmdMeta
+    | GetStudentProgressCmdMeta;
 }

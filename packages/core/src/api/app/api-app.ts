@@ -10,7 +10,8 @@ import { App } from './app';
 
 export class ApiApp<TMeta extends AppMeta>
   extends App
-  implements ApiExecutor<TMeta> {
+  implements ApiExecutor<TMeta>
+{
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],

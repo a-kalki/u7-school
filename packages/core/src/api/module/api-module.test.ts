@@ -1,10 +1,10 @@
-import { describe, expect, test, mock } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 import * as v from 'valibot';
 import type { UcMeta } from '../../api/uc/use-case';
 import { UseCase } from '../../api/uc/use-case';
 import type { ArMeta } from '../../domain/ar/aggregate';
-import { AppException, type NoCommandFoundError } from '../../domain/errors/errors';
-import type { ApiModuleMeta, AppResolver, ModuleResolver } from '../../domain/types';
+import { AppException } from '../../domain/errors/errors';
+import type { ApiModuleMeta, ModuleResolver } from '../../domain/types';
 import { ApiModule } from './api-module';
 
 // ══ Тестовые типы ══
@@ -112,6 +112,7 @@ describe('ApiModule (рефакторинг)', () => {
 
       let caught: unknown;
       try {
+        // @ts-expect-error: неизвестная команда, будет ошибка линтера
         await module.execute('unknown-cmd' as never, {});
       } catch (e) {
         caught = e;
@@ -172,7 +173,9 @@ describe('ApiModule (рефакторинг)', () => {
       await module.execute('test-cmd', { foo: 'log-test' });
 
       // Проверяем, что info был вызван (запись лога выполнения)
-      const infoMock = (resolve.appResolver.logger.info as ReturnType<typeof mock>);
+      const infoMock = resolve.appResolver.logger.info as ReturnType<
+        typeof mock
+      >;
       expect(infoMock).toHaveBeenCalled();
     });
   });

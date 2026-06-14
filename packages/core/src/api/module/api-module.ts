@@ -20,7 +20,8 @@ import type { Logger } from '#shared/logger';
 export abstract class ApiModule<
   TMeta extends ApiModuleMeta,
   TResolve extends ModuleResolver,
-> implements ApiExecutor<TMeta> {
+> implements ApiExecutor<TMeta>
+{
   abstract readonly name: TMeta['name'];
   abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
 

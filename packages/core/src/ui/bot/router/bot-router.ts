@@ -33,7 +33,11 @@ export function extractRestData(data: string): string {
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class BotRouter<TAppMeta extends AppMeta = AppMeta, TModuleMeta extends ApiModuleMeta = ApiModuleMeta, TActor = unknown> {
+export class BotRouter<
+  TAppMeta extends AppMeta = AppMeta,
+  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
+  TActor = unknown,
+> {
   private readonly controllers = new Map<
     string,
     BotController<TAppMeta, TModuleMeta, TActor>
@@ -49,7 +53,9 @@ export class BotRouter<TAppMeta extends AppMeta = AppMeta, TModuleMeta extends A
   }
 
   /** Возвращает контроллер по имени */
-  getController(name: string): BotController<TAppMeta, TModuleMeta, TActor> | undefined {
+  getController(
+    name: string,
+  ): BotController<TAppMeta, TModuleMeta, TActor> | undefined {
     return this.controllers.get(name);
   }
 
@@ -152,7 +158,7 @@ export class BotRouter<TAppMeta extends AppMeta = AppMeta, TModuleMeta extends A
     }
 
     const [ctrlName] = activeHandler.path.split('/');
-    const controller = this.controllers.get(ctrlName!);
+    const controller = this.controllers.get(ctrlName ?? '');
     if (!controller) return null;
 
     const response = await controller.handleMessage(update, actor, session);
@@ -177,20 +183,20 @@ export class BotRouter<TAppMeta extends AppMeta = AppMeta, TModuleMeta extends A
     const activeHandler = session.activeHandler;
     if (!activeHandler) return null;
 
-    const [ctrlName] = activeHandler.path.split('/');
-    const controller = this.controllers.get(ctrlName!);
-    if (!controller) {
+    const [ctrlName2] = activeHandler.path.split('/');
+    const controller2 = this.controllers.get(ctrlName2 ?? '');
+    if (!controller2) {
       session.activeHandler = null;
       return { releaseInput: true };
     }
 
-    const response = await controller.handleCancel(actor, session);
+    const response2 = await controller2.handleCancel(actor, session);
 
-    if (response.releaseInput) {
+    if (response2.releaseInput) {
       session.activeHandler = null;
     }
 
-    return response;
+    return response2;
   }
 
   // ── Обработка таймаута ──
@@ -203,23 +209,23 @@ export class BotRouter<TAppMeta extends AppMeta = AppMeta, TModuleMeta extends A
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse | null> {
-    const activeHandler = session.activeHandler;
-    if (!activeHandler) return null;
+    const activeHandler3 = session.activeHandler;
+    if (!activeHandler3) return null;
 
-    const [ctrlName] = activeHandler.path.split('/');
-    const controller = this.controllers.get(ctrlName!);
-    if (!controller) {
+    const [ctrlName3] = activeHandler3.path.split('/');
+    const controller3 = this.controllers.get(ctrlName3 ?? '');
+    if (!controller3) {
       session.activeHandler = null;
       return { releaseInput: true };
     }
 
-    const response = await controller.handleTimeout(actor, session);
+    const response3 = await controller3.handleTimeout(actor, session);
 
-    if (response.releaseInput) {
+    if (response3.releaseInput) {
       session.activeHandler = null;
     }
 
-    return response;
+    return response3;
   }
 
   // ── Приватные хелперы ──

@@ -1,5 +1,5 @@
-import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
 import type { ApiModule } from '@u7-scl/core/api';
+import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
 import { BotController } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, User } from '../domain';
 

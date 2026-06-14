@@ -40,8 +40,8 @@ export interface ModuleResolver {
 export type GetUcNamesFromMeta<TMeta> = TMeta extends AppMeta
   ? TMeta['moduleMetas']['ucMetas']['ucName']
   : TMeta extends ApiModuleMeta
-  ? TMeta['ucMetas']['ucName']
-  : never;
+    ? TMeta['ucMetas']['ucName']
+    : never;
 
 /** Извлекает метаданные конкретного use-case по имени */
 export type ExtractUcMetaFromMeta<
@@ -50,8 +50,8 @@ export type ExtractUcMetaFromMeta<
 > = TMeta extends AppMeta
   ? Extract<TMeta['moduleMetas']['ucMetas'], { ucName: N }>
   : TMeta extends ApiModuleMeta
-  ? Extract<TMeta['ucMetas'], { ucName: N }>
-  : never;
+    ? Extract<TMeta['ucMetas'], { ucName: N }>
+    : never;
 
 /**
  * Универсальный интерфейс выполнения команд.

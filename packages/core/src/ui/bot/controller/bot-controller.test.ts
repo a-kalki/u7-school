@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
-import type { ApiModule } from '#api/module/api-module';
 import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -11,7 +10,13 @@ import type {
 import { BotController } from './bot-controller';
 
 // Тестовый тип метаданных
-type TestModuleMeta = ApiModuleMeta & { ucMetas: { ucName: "test-mod-cmd"; input: {}; output: {}; } };
+type TestModuleMeta = ApiModuleMeta & {
+  ucMetas: {
+    ucName: 'test-mod-cmd';
+    input: Record<string, never>;
+    output: Record<string, never>;
+  };
+};
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
     ucMetas: {
@@ -73,7 +78,12 @@ class TestController extends BotController<TestAppMeta, TestModuleMeta> {
   readonly name = 'test_ctrl';
 
   constructor() {
-    super({} as import('#api/module/api-module').ApiModule<TestModuleMeta, import('#domain/types').ModuleResolver>);
+    super(
+      {} as import('#api/module/api-module').ApiModule<
+        TestModuleMeta,
+        import('#domain/types').ModuleResolver
+      >,
+    );
   }
 
   // Экспонируем protected-методы

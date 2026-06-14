@@ -1,15 +1,16 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from './bot-user-story';
-import type {
-  BotResponse,
-  BotUpdate,
-  MainMenuAction,
-  SessionData,
-} from './types';
+import type { BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
-type TestModuleMeta = ApiModuleMeta & { ucMetas: { ucName: "test-mod-cmd"; input: {}; output: {}; } };
+type TestModuleMeta = ApiModuleMeta & {
+  ucMetas: {
+    ucName: 'test-mod-cmd';
+    input: Record<string, never>;
+    output: Record<string, never>;
+  };
+};
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
     ucMetas: {

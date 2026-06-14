@@ -9,12 +9,12 @@ import type { UserApiModuleMeta } from '@u7-scl/user/domain';
 export interface U7BotAppMeta extends AppMeta {
   name: 'u7-bot-app';
   moduleMetas:
-  | UserApiModuleMeta
-  | OnboardingApiModuleMeta
-  | StreamApiModuleMeta;
+    | UserApiModuleMeta
+    | OnboardingApiModuleMeta
+    | StreamApiModuleMeta;
 }
 
 /**
  * Резолвер уровня приложения U7.
  */
-export interface U7AppResolver extends AppResolver { }
+export interface U7AppResolver extends AppResolver {}
