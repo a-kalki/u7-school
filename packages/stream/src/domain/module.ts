@@ -1,4 +1,5 @@
 import type { CourseFacade } from '@u7-scl/course/domain';
+import type { ModuleResolver } from '@u7-scl/core/domain';
 import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
 import type { ActivateStreamCmdMeta } from './stream/commands/activate-stream-cmd';
 import type { ArchiveStreamCmdMeta } from './stream/commands/archive-stream-cmd';
@@ -14,7 +15,7 @@ import type { GetStudentByUserCmdMeta } from './student/commands/get-student-by-
 import type { GetStudentProgressCmdMeta } from './student/commands/get-student-progress-cmd';
 import type { StudentRepo } from './student/repo';
 
-export interface StreamApiModuleResolver {
+export interface StreamApiModuleResolver extends ModuleResolver {
   streamRepo: StreamRepo;
   streamStudentRepo: StudentRepo;
   userFacade: UserFacade;

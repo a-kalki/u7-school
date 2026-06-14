@@ -1,5 +1,5 @@
-import { BotUserStory } from '@u7-scl/core/ui';
 import type { ApiModuleMeta } from '@u7-scl/core/domain';
+import { BotUserStory } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, User } from '../domain';
 
 /**
@@ -9,18 +9,11 @@ import type { U7BotAppMeta, User } from '../domain';
  * открытым только `TMeta` — метаданные модуля, к которому
  * принадлежит сценарий.
  *
- * Здесь в будущем будет инкапсулирована общая логика
- * всех сценариев U7-бота:
- * - форматирование сообщений в стиле U7
- * - общие клавиатуры и кнопки
- * - трекинг действий
- * - и т.д.
- *
  * @typeParam TMeta — метаданные API-модуля
  */
 export abstract class U7BotUserStory<
   TMeta extends ApiModuleMeta,
-> extends BotUserStory<U7BotAppMeta, User> {
-  // Будет расширен в Фазе 2 (добавление moduleApi и apiApp)
-  // Пока наследует поведение BotUserStory без изменений
+> extends BotUserStory<U7BotAppMeta, TMeta, User> {
+  // Наследует поведение BotUserStory без изменений.
+  // При необходимости здесь будет инкапсулирована общая логика сценариев U7-бота.
 }

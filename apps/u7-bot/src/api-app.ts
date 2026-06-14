@@ -1,5 +1,6 @@
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
+import { ConsoleLogger } from '@u7-scl/core/shared';
 import type { Logger } from '@u7-scl/core/shared';
 import type { OnboardingBotApp } from '@u7-scl/onboarding';
 import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
@@ -20,6 +21,9 @@ import type { BotConfig } from './config';
  */
 export function createApiApp(config: BotConfig, logger?: Logger) {
   const db = new BaseJsonDb();
+
+  const appLogger = logger ?? new ConsoleLogger();
+  const appResolver = { logger: appLogger, mode: 'development' as const };
 
   const userRepo = new UserJsonRepo(
     `${config.dbDir}/users/users.json`,
@@ -44,7 +48,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const activePoolService = new QuestionPoolService(rawPool, allQuestionCodes);
 
   // ══ Модули: резолвер в конструкторе ══
-  const userModule = new UserApiModule({ userRepo });
+  const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
   const onboardingModule = new OnboardingApiModule({
@@ -52,22 +56,22 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     questionPoolService: activePoolService,
     userFacade,
     db,
+    appResolver,
   });
 
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo,
     userFacade,
-    // TODO: [Technical Debt] Реализовать полноценный CourseFacade, используя реальные репозитории модуля course
     courseFacade: { getModuleSnapshot: async () => [] },
+    appResolver,
   });
 
-  const streamController = new StreamController();
+  const streamController = new StreamController(streamModule);
 
-  // ══ ApiApp: модули + опциональный логгер в конструкторе ══
+  // ══ ApiApp: модули ══
   const apiApp: OnboardingBotApp = new ApiApp(
     [userModule, onboardingModule, streamModule],
-    logger,
   );
 
   return {

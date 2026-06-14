@@ -1,6 +1,11 @@
 import type { ApiApp } from '#api/app/api-app';
-import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
 import type { ApiModule } from '#api/module/api-module';
+import type {
+  ApiExecutor,
+  ApiModuleMeta,
+  AppMeta,
+  ModuleResolver,
+} from '#domain/types';
 import type { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -25,19 +30,20 @@ export abstract class BotController<
   abstract readonly name: string;
 
   /** Зарегистрированные пользовательские сценарии */
-  protected readonly stories: BotUserStory<TAppMeta, TModuleMeta, TActor>[] = [];
+  protected readonly stories: BotUserStory<TAppMeta, TModuleMeta, TActor>[] =
+    [];
 
   /** API своего модуля (для внутренних вызовов) */
   protected readonly moduleApi: ApiExecutor<TModuleMeta>;
 
   /** API приложения (для внешних вызовов к другим модулям) */
-  protected apiApp!: ApiApp<TAppMeta>;
+  protected appApi!: ApiApp<TAppMeta>;
 
   /**
    * @param moduleApi — API-модуль, к которому привязан контроллер.
    *   Используется для внутренних вызовов к своему модулю.
    */
-  constructor(moduleApi: ApiModule<TModuleMeta, any>) {
+  constructor(moduleApi: ApiModule<TModuleMeta, ModuleResolver>) {
     this.moduleApi = moduleApi;
   }
 
@@ -45,10 +51,10 @@ export abstract class BotController<
    * Инициализация контроллера — вызывается при старте бота.
    * Сохраняет ссылку на ApiApp и инициализирует все зарегистрированные стори.
    */
-  init(apiApp: ApiApp<TAppMeta>): void {
-    this.apiApp = apiApp;
+  init(appApi: ApiApp<TAppMeta>): void {
+    this.appApi = appApi;
     for (const story of this.stories) {
-      story.init(this.moduleApi, apiApp);
+      story.init(this.moduleApi, appApi);
     }
   }
 

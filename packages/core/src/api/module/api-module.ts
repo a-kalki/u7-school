@@ -7,11 +7,9 @@ import type {
   AppEnvMode,
   ExtractUcMetaFromMeta,
   GetUcNamesFromMeta,
-  ModuleCommand,
   ModuleResolver,
 } from '#domain/types';
 import type { Logger } from '#shared/logger';
-import { ConsoleLogger, LogLevel } from '#shared/console-logger';
 
 /**
  * Абстрактный API-модуль.
@@ -28,23 +26,15 @@ export abstract class ApiModule<
 
   protected resolve!: TResolve;
 
-  /** Логгер, извлечённый из resolve.appResolver */
   logger!: Logger;
 
-  /** Режим работы приложения, извлечённый из resolve.appResolver */
   mode!: AppEnvMode;
 
-  // Кэш для быстрого поиска use-case по имени
   private useCaseMap = new Map<
     string,
     UseCase<ApiModuleMeta['ucMetas'], TResolve>
   >();
 
-  /**
-   * Вызывается наследником в конструкторе после super().
-   * Инициализирует все use-case'ы переданным резолвером,
-   * а также извлекает logger и mode из resolve.appResolver.
-   */
   protected init(resolve: TResolve) {
     this.resolve = resolve;
     this.logger = resolve.appResolver.logger;
@@ -62,40 +52,26 @@ export abstract class ApiModule<
 
   /**
    * Выполняет команду с полной типизацией ввода/вывода.
-   * Реализует интерфейс ApiExecutor<TMeta>.
    */
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
     actorId?: string,
   ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']> {
-    return this.handle({
-      name: ucName,
-      attrs,
-      actorId,
-    }) as Promise<ExtractUcMetaFromMeta<TMeta, N>['output']>;
-  }
-
-  /**
-   * Обрабатывает команду: находит use-case, выполняет и логирует.
-   * Замер времени и телеметрия происходят здесь — единая точка
-   * для вызовов как через ApiApp, так и напрямую через модуль.
-   */
-  async handle(command: ModuleCommand): Promise<unknown> {
     const start = performance.now();
 
-    const uc = this.useCaseMap.get(command.name);
+    const uc = this.useCaseMap.get(ucName);
 
     if (!uc) {
-      this.throwNoCommandFound(command.name);
+      this.throwNoCommandFound(ucName);
     }
 
-    const result = await uc.handle(command.attrs, command.actorId);
+    const result = await uc.handle(attrs, actorId);
 
     const elapsed = (performance.now() - start).toFixed(1);
     this.logger.info(
       this.constructor.name,
-      `Обработан запрос ${String(command.name)} за ${elapsed}ms`,
+      `Обработан запрос ${String(ucName)} за ${elapsed}ms`,
     );
 
     return result;

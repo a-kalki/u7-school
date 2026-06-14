@@ -120,6 +120,10 @@ function makeMockUserFacade(user?: User): UserFacade {
 class MockController extends BotController {
   name = 'mock';
 
+  constructor() {
+    super({} as never);
+  }
+
   private _startResult: MainMenuAction[] = [];
   private _callbackResult: BotResponse = {};
   private _messageResult: BotResponse = {};

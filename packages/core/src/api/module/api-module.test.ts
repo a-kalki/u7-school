@@ -98,14 +98,11 @@ import { LogLevel } from '../../shared/logger';
 // ══ Тесты ══
 
 describe('ApiModule (рефакторинг)', () => {
-  describe('handle() — базовая функциональность', () => {
+  describe('execute() — базовая функциональность', () => {
     test("модуль инициализируется и передаёт resolve use-case'ам", async () => {
       const module = new TestModule(makeResolve('resolved'));
 
-      const result = await module.handle({
-        name: 'test-cmd',
-        attrs: { foo: 'hello' },
-      });
+      const result = await module.execute('test-cmd', { foo: 'hello' });
 
       expect(result).toEqual({ bar: 'hello-resolved' });
     });
@@ -115,10 +112,7 @@ describe('ApiModule (рефакторинг)', () => {
 
       let caught: unknown;
       try {
-        await module.handle({
-          name: 'unknown-cmd',
-          attrs: {},
-        });
+        await module.execute('unknown-cmd' as never, {});
       } catch (e) {
         caught = e;
       }
@@ -175,10 +169,7 @@ describe('ApiModule (рефакторинг)', () => {
       const resolve = makeResolve('test');
       const module = new TestModule(resolve);
 
-      await module.handle({
-        name: 'test-cmd',
-        attrs: { foo: 'log-test' },
-      });
+      await module.execute('test-cmd', { foo: 'log-test' });
 
       // Проверяем, что info был вызван (запись лога выполнения)
       const infoMock = (resolve.appResolver.logger.info as ReturnType<typeof mock>);

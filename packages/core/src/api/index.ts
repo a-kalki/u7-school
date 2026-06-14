@@ -1,5 +1,5 @@
 // API слой @u7-scl/core
-export { ApiApp, type ExtractUcMetas } from './app/api-app';
+export { ApiApp } from './app/api-app';
 export { App } from './app/app';
 export { ApiModule } from './module/api-module';
 export type { UcDocType, UcMeta } from './uc/use-case';

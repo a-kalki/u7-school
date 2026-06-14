@@ -1,4 +1,4 @@
-import type { ApiModuleMeta } from '@u7-scl/core/domain';
+import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { AbandonQuestionnaireCmdMeta } from './questionnaire/commands/abandon-questionnaire-cmd';
@@ -28,7 +28,7 @@ export interface OnboardingApiModuleMeta extends ApiModuleMeta {
  * Это подмножество общего пула (`questionPoolService`).
  * Например, пул может содержать 50 вопросов, а в анкету включено только 10.
  */
-export interface OnboardingApiModuleResolver {
+export interface OnboardingApiModuleResolver extends ModuleResolver {
   questionnaireRepo: QuestionnaireRepo;
   questionPoolService: QuestionPoolService;
   userFacade: UserFacade;

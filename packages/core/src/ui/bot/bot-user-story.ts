@@ -28,7 +28,7 @@ export abstract class BotUserStory<
   protected moduleApi!: ApiExecutor<TModuleMeta>;
 
   /** API приложения — для вызовов к другим модулям */
-  protected apiApp!: ApiApp<TAppMeta>;
+  protected appApi!: ApiApp<TAppMeta>;
 
   /** Хранилище для сжатия длинных callback_data */
   protected readonly shortIds = new Map<string, string>();
@@ -37,12 +37,9 @@ export abstract class BotUserStory<
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API модуля и API приложения.
    */
-  init(
-    moduleApi: ApiExecutor<TModuleMeta>,
-    apiApp: ApiApp<TAppMeta>,
-  ): void {
+  init(moduleApi: ApiExecutor<TModuleMeta>, appApi: ApiApp<TAppMeta>): void {
     this.moduleApi = moduleApi;
-    this.apiApp = apiApp;
+    this.appApi = appApi;
   }
 
   /** Сброс временных данных сценария */

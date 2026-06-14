@@ -1,4 +1,4 @@
-import type { AppMeta } from '#domain/types';
+import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import type { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -33,13 +33,13 @@ export function extractRestData(data: string): string {
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class BotRouter<TAppMeta extends AppMeta = AppMeta, TActor = unknown> {
+export class BotRouter<TAppMeta extends AppMeta = AppMeta, TModuleMeta extends ApiModuleMeta = ApiModuleMeta, TActor = unknown> {
   private readonly controllers = new Map<
     string,
-    BotController<TAppMeta, TActor>
+    BotController<TAppMeta, TModuleMeta, TActor>
   >();
 
-  constructor(controllers: BotController<TAppMeta, TActor>[]) {
+  constructor(controllers: BotController<TAppMeta, TModuleMeta, TActor>[]) {
     for (const c of controllers) {
       if (this.controllers.has(c.name)) {
         throw new Error(`Дубликат имени контроллера: ${c.name}`);
@@ -49,7 +49,7 @@ export class BotRouter<TAppMeta extends AppMeta = AppMeta, TActor = unknown> {
   }
 
   /** Возвращает контроллер по имени */
-  getController(name: string): BotController<TAppMeta, TActor> | undefined {
+  getController(name: string): BotController<TAppMeta, TModuleMeta, TActor> | undefined {
     return this.controllers.get(name);
   }
 

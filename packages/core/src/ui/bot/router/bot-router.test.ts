@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { ApiModule } from '#api/module/api-module';
-import type { ApiModuleMeta } from '#domain/types';
+import type { ApiModuleMeta, ModuleResolver } from '#domain/types';
 import { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -26,7 +26,7 @@ class TestController extends BotController<
   name = '';
 
   constructor() {
-    super({} as ApiModule<ApiModuleMeta, any>);
+    super({} as ApiModule<ApiModuleMeta, ModuleResolver>);
   }
 
   private _startResult: MainMenuAction[] = [];

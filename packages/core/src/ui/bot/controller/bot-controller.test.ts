@@ -72,6 +72,10 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
 class TestController extends BotController<TestAppMeta, TestModuleMeta> {
   readonly name = 'test_ctrl';
 
+  constructor() {
+    super({} as import('#api/module/api-module').ApiModule<TestModuleMeta, import('#domain/types').ModuleResolver>);
+  }
+
   // Экспонируем protected-методы
   public override cb(action: string): string {
     return super.cb(action);

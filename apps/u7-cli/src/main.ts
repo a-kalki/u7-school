@@ -1,4 +1,6 @@
 import { ApiApp } from '@u7-scl/core/api';
+import type { AppResolver } from '@u7-scl/core/domain';
+import { ConsoleLogger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   LessonJsonRepo,
@@ -11,8 +13,12 @@ import { CliController } from './cli-controller';
 import type { CliAppMeta } from './types';
 
 async function main() {
+  const logger = new ConsoleLogger();
+  logger.setLogLevel(LogLevel.DEBUG);
+  const appResolver: AppResolver = { logger, mode: 'development' };
+
   const userRepo = new UserJsonRepo();
-  const userModule = new UserApiModule({ userRepo });
+  const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
   const courseModule = new CourseApiModule({
@@ -20,6 +26,7 @@ async function main() {
     lessonRepo: new LessonJsonRepo(),
     stepRepo: new StepJsonRepo(),
     userFacade,
+    appResolver,
   });
 
   const app = new ApiApp<CliAppMeta>([userModule, courseModule]);
