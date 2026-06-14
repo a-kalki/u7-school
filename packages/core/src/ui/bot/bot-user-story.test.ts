@@ -9,6 +9,7 @@ import type {
 } from './types';
 
 // Тестовый тип метаданных
+type TestModuleMeta = ApiModuleMeta & { ucMetas: { ucName: "test-mod-cmd"; input: {}; output: {}; } };
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
     ucMetas: {
@@ -25,7 +26,7 @@ const testActor = {
 };
 
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
-class TestStory extends BotUserStory<TestAppMeta> {
+class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
   readonly name = 'test_story';
 
   async handleCallback(

@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import type { ApiModule } from '#api/module/api-module';
+import type { ApiModuleMeta } from '#domain/types';
 import { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -18,9 +20,14 @@ type TestActor = { id: string; name: string };
 
 class TestController extends BotController<
   import('#domain/types').AppMeta,
+  ApiModuleMeta,
   TestActor
 > {
   name = '';
+
+  constructor() {
+    super({} as ApiModule<ApiModuleMeta, any>);
+  }
 
   private _startResult: MainMenuAction[] = [];
   private _callbackResult: BotResponse = {};

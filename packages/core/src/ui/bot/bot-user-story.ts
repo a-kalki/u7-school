@@ -1,5 +1,5 @@
 import type { ApiApp } from '#api/app/api-app';
-import type { AppMeta } from '#domain/types';
+import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
 import { stringUtility } from '#shared/string-utility';
 import type {
   BotResponse,
@@ -12,25 +12,37 @@ import type {
  * Абстрактный класс для пользовательского сценария внутри контроллера.
  * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
  *
- * @typeParam TAppMeta - тип метаданных приложения, должен расширять AppMeta
- * @typeParam TActor - тип актора (пользователя). Минимально требуется поле telegramId.
+ * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
+ * @typeParam TModuleMeta — тип метаданных модуля, к которому принадлежит сценарий
+ * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
  */
-export abstract class BotUserStory<TAppMeta extends AppMeta, TActor = unknown> {
+export abstract class BotUserStory<
+  TAppMeta extends AppMeta = AppMeta,
+  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
+  TActor = unknown,
+> {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
-  /** Ссылка на API приложения (устанавливается в init) */
-  protected api!: ApiApp<TAppMeta>;
+  /** API своего модуля — для внутренних вызовов (строгая типизация) */
+  protected moduleApi!: ApiExecutor<TModuleMeta>;
+
+  /** API приложения — для вызовов к другим модулям */
+  protected apiApp!: ApiApp<TAppMeta>;
 
   /** Хранилище для сжатия длинных callback_data */
   protected readonly shortIds = new Map<string, string>();
 
   /**
-   * Инициализация сценария — вызывается при старте контроллера.
-   * Сохраняет ссылку на API.
+   * Инициализация сценария — вызывается контроллером при старте бота.
+   * Сохраняет ссылки на API модуля и API приложения.
    */
-  init(api: ApiApp<TAppMeta>): void {
-    this.api = api;
+  init(
+    moduleApi: ApiExecutor<TModuleMeta>,
+    apiApp: ApiApp<TAppMeta>,
+  ): void {
+    this.moduleApi = moduleApi;
+    this.apiApp = apiApp;
   }
 
   /** Сброс временных данных сценария */

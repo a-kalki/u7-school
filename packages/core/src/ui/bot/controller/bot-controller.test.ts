@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import type { ApiModule } from '#api/module/api-module';
 import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -10,6 +11,7 @@ import type {
 import { BotController } from './bot-controller';
 
 // Тестовый тип метаданных
+type TestModuleMeta = ApiModuleMeta & { ucMetas: { ucName: "test-mod-cmd"; input: {}; output: {}; } };
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
     ucMetas: {
@@ -24,7 +26,7 @@ type TestAppMeta = AppMeta & {
 const testActor = { telegramId: 123 };
 
 // Тестовая стори
-class TestStory extends BotUserStory<TestAppMeta> {
+class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
   readonly name: string;
   initCalled = false;
   resetCalled = false;
@@ -51,8 +53,8 @@ class TestStory extends BotUserStory<TestAppMeta> {
     return { sendMessage: { text: `story_message:${this.name}` } };
   }
 
-  override init(api: unknown): void {
-    super.init(api as never);
+  override init(moduleApi: unknown, apiApp: unknown): void {
+    super.init(moduleApi as never, apiApp as never);
     this.initCalled = true;
   }
 
@@ -67,7 +69,7 @@ class TestStory extends BotUserStory<TestAppMeta> {
 }
 
 // Конкретный контроллер для тестов
-class TestController extends BotController<TestAppMeta> {
+class TestController extends BotController<TestAppMeta, TestModuleMeta> {
   readonly name = 'test_ctrl';
 
   // Экспонируем protected-методы
@@ -81,12 +83,12 @@ class TestController extends BotController<TestAppMeta> {
 
   public override findStory(
     name: string,
-  ): BotUserStory<TestAppMeta> | undefined {
+  ): BotUserStory<TestAppMeta, TestModuleMeta> | undefined {
     return super.findStory(name);
   }
 
   addStory(story: TestStory): void {
-    (this as unknown as { stories: TestStory[] }).stories.push(story);
+    (this.stories as unknown as TestStory[]).push(story);
   }
 }
 

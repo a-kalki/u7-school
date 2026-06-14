@@ -1,5 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
-import type { AppMeta } from '#domain/types';
+import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
+import type { ApiModule } from '#api/module/api-module';
 import type { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -11,30 +12,43 @@ import type {
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
  *
- * @typeParam TAppMeta — тип метаданных приложения
+ * @typeParam TAppMeta — тип метаданных приложения (по умолчанию AppMeta)
+ * @typeParam TModuleMeta — тип метаданных модуля, к которому привязан контроллер
  * @typeParam TActor — тип актора (пользователя)
  */
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
+  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
 > {
   /** Уникальное имя контроллера */
   abstract readonly name: string;
 
   /** Зарегистрированные пользовательские сценарии */
-  protected readonly stories: BotUserStory<TAppMeta, TActor>[] = [];
+  protected readonly stories: BotUserStory<TAppMeta, TModuleMeta, TActor>[] = [];
 
-  /** Ссылка на API приложения (устанавливается в init) */
-  protected api!: ApiApp<TAppMeta>;
+  /** API своего модуля (для внутренних вызовов) */
+  protected readonly moduleApi: ApiExecutor<TModuleMeta>;
+
+  /** API приложения (для внешних вызовов к другим модулям) */
+  protected apiApp!: ApiApp<TAppMeta>;
+
+  /**
+   * @param moduleApi — API-модуль, к которому привязан контроллер.
+   *   Используется для внутренних вызовов к своему модулю.
+   */
+  constructor(moduleApi: ApiModule<TModuleMeta, any>) {
+    this.moduleApi = moduleApi;
+  }
 
   /**
    * Инициализация контроллера — вызывается при старте бота.
-   * Инициализирует все зарегистрированные стори.
+   * Сохраняет ссылку на ApiApp и инициализирует все зарегистрированные стори.
    */
-  init(api: ApiApp<TAppMeta>): void {
-    this.api = api;
+  init(apiApp: ApiApp<TAppMeta>): void {
+    this.apiApp = apiApp;
     for (const story of this.stories) {
-      story.init(api);
+      story.init(this.moduleApi, apiApp);
     }
   }
 
@@ -160,14 +174,14 @@ export abstract class BotController<
   /** Поиск стори по имени */
   protected findStory(
     name: string,
-  ): BotUserStory<TAppMeta, TActor> | undefined {
+  ): BotUserStory<TAppMeta, TModuleMeta, TActor> | undefined {
     return this.stories.find((s) => s.name === name);
   }
 
   /** Поиск стори по пути из activeHandler */
   private findStoryByPath(
     path: string,
-  ): BotUserStory<TAppMeta, TActor> | undefined {
+  ): BotUserStory<TAppMeta, TModuleMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
       return this.findStory(parts[1]!);
