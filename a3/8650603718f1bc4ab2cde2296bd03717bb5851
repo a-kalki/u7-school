@@ -1,0 +1,9 @@
+**Задача: Определение доменных типов в @u7-scl/app/domain**
+
+**Изменения:**
+- Создан user.ts — перенесены Role, RoleSchema, User, UserSchema, UserArMeta
+- Создан u7-bot-app-meta.ts — определены U7BotAppMeta, U7AppResolver
+- Обновлён domain/index.ts — экспорт всех доменных типов
+- Написан domain-types.test.ts (4 теста: экспорт схем, импорт типов, валидация UserSchema)
+
+**Созданные файлы:** packages/app/src/domain/user.ts, packages/app/src/domain/u7-bot-app-meta.ts, packages/app/src/domain/domain-types.test.ts
