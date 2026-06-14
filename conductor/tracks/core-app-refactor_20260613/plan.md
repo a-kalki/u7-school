@@ -20,7 +20,7 @@
   - [x] Создать `packages/app/src/index.ts`
 - [x] **Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)**
 
-## Фаза 2: Рефакторинг ядра (`@u7-scl/core`) [checkpoint: adcb806]
+## Фаза 2: Рефакторинг ядра (`@u7-scl/core`) [checkpoint: f5ddbb7]
 В этой фазе мы переведем ядро на использование `AppResolver`, внедрим `ApiExecutor` и перенесем телеметрию в модули.
 
 - [x] **Task: Обновление типов в `core`** `93e6bda`
