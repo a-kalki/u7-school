@@ -7,11 +7,11 @@
   - [x] Создать директорию `packages/app/src`
   - [x] Создать и настроить `packages/app/package.json` и `packages/app/tsconfig.json`
   - [x] Зарегистрировать пути для `@u7-scl/app/*` в корневом `tsconfig.json`
-- [ ] **Task: Определение доменных типов и схем в `@u7-scl/app/domain`**
-  - [ ] Перенести определение `Role` и `RoleSchema` из `packages/user/src/domain/user/roles.ts` в `packages/app/src/domain/user.ts` (или аналогичный файл)
-  - [ ] Перенести определение `User` и `UserSchema` из `packages/user/src/domain/user/entity.ts` в `packages/app/src/domain/user.ts`
-  - [ ] Создать `packages/app/src/domain/u7-bot-app-meta.ts` и объявить `U7BotAppMeta` и `U7AppResolver`
-  - [ ] Создать индексный файл экспорта `packages/app/src/domain/index.ts`
+- [x] **Task: Определение доменных типов и схем в `@u7-scl/app/domain`** `a386506`
+  - [x] Перенести определение `Role` и `RoleSchema` из `packages/user/src/domain/user/roles.ts` в `packages/app/src/domain/user.ts` (или аналогичный файл)
+  - [x] Перенести определение `User` и `UserSchema` из `packages/user/src/domain/user/entity.ts` в `packages/app/src/domain/user.ts`
+  - [x] Создать `packages/app/src/domain/u7-bot-app-meta.ts` и объявить `U7BotAppMeta` и `U7AppResolver`
+  - [x] Создать индексный файл экспорта `packages/app/src/domain/index.ts`
 - [ ] **Task: Определение UI-компонентов в `@u7-scl/app/ui`**
   - [ ] Создать `packages/app/src/ui/u7-bot-controller.ts` и объявить `U7BotController`
   - [ ] Создать `packages/app/src/ui/u7-bot-user-story.ts` и объявить `U7BotUserStory`
