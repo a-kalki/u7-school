@@ -56,17 +56,18 @@
   - [ ] Перевести `StreamController` на наследование от `U7BotController<StreamApiModuleMeta>`
   - [ ] Перевести сценарии (`CatalogStory` и др.) на наследование от `U7BotUserStory<StreamApiModuleMeta>`
   - [ ] Заменить вызовы `this.api.execute` на `this.moduleApi.execute` и удалить `as unknown as StreamItem[]`
-- [ ] **Task: Исправление опечаток и других модулей**
-  - [ ] Исправить опечатку `initResolve` в `packages/course/src/api/module.ts`
+- [x] **Task: Исправление опечаток и других модулей** `47960fd`
+  - [x] Исправить опечатку `initResolve` в `packages/course/src/api/module.ts`
+  - [x] Исправить `CourseApiModuleResolver` — добавить `ModuleResolver`
 - [x] **Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)**
 
 ## Фаза 4: Сборка, запуск и верификация приложения
 Финальная сборка приложения и запуск тестов.
 
-- [ ] **Task: Адаптация точки входа в `apps/u7-bot`**
-  - [ ] В `apps/u7-bot/src/api-app.ts` настроить передачу `appResolver` при создании `ApiApp`
-  - [ ] В `apps/u7-bot/src/main.ts` обновить создание контроллеров с передачей модулей в конструктор
-- [ ] **Task: Верификация сборки и тестов**
-  - [ ] Запустить `bun x tsc --noEmit` и убедиться в отсутствии ошибок во всех пакетах
-  - [ ] Запустить `bun test` и проверить прохождение тестов ядра и модулей
+- [x] **Task: Адаптация точки входа в `apps/u7-bot`** `47960fd`
+  - [x] В `apps/u7-bot/src/api-app.ts` настроить передачу `appResolver` при создании `ApiApp`
+  - [x] В `apps/u7-bot/src/main.ts` обновить создание контроллеров с передачей модулей в конструктор
+- [x] **Task: Верификация сборки и тестов** `47960fd`
+  - [x] Запустить `bun x tsc --noEmit` и убедиться в отсутствии ошибок во всех пакетах
+  - [x] Запустить `bun test` и проверить прохождение тестов ядра и модулей
 - [x] **Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)**
