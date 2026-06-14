@@ -20,13 +20,13 @@
   - [x] Создать `packages/app/src/index.ts`
 - [x] **Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)**
 
-## Фаза 2: Рефакторинг ядра (`@u7-scl/core`)
+## Фаза 2: Рефакторинг ядра (`@u7-scl/core`) [checkpoint: adcb806]
 В этой фазе мы переведем ядро на использование `AppResolver`, внедрим `ApiExecutor` и перенесем телеметрию в модули.
 
-- [ ] **Task: Обновление типов в `core`**
-  - [ ] В `packages/core/src/domain/types.ts` добавить `AppEnvMode`, `AppResolver` и `ModuleResolver`
-  - [ ] Там же добавить `GetUcNamesFromMeta`, `ExtractUcMetaFromMeta` и интерфейс `ApiExecutor<TMeta>`
-- [ ] **Task: Рефакторинг `ApiModule`**
+- [x] **Task: Обновление типов в `core`** `93e6bda`
+  - [x] В `packages/core/src/domain/types.ts` добавить `AppEnvMode`, `AppResolver` и `ModuleResolver`
+  - [x] Там же добавить `GetUcNamesFromMeta`, `ExtractUcMetaFromMeta` и интерфейс `ApiExecutor<TMeta>`
+- [~] **Task: Рефакторинг `ApiModule`**
   - [ ] В `packages/core/src/api/module/api-module.ts` реализовать `ApiExecutor`
   - [ ] Обновить второй дженерик: `TResolve extends ModuleResolver`
   - [ ] В методе `init` извлекать `logger` и `mode` из `resolve.appResolver`
@@ -36,7 +36,7 @@
   - [ ] В `packages/core/src/api/app/api-app.ts` реализовать `ApiExecutor`
   - [ ] Переписать конструктор на прием `ApiAppResolver` (или напрямую `AppResolver`)
   - [ ] Убрать дублирующийся замер времени и логгер из метода `execute`
-- [ ] **Task: Рефакторинг `BotController` и `BotUserStory`**
+- [~] **Task: Рефакторинг `BotController` и `BotUserStory`**
   - [ ] В `packages/core/src/ui/bot/controller/bot-controller.ts` добавить дженерик `TModuleMeta` и обновить конструктор/метод `init`
   - [ ] В `packages/core/src/ui/bot/bot-user-story.ts` обновить дженерики и метод `init`
 - [x] **Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)**
