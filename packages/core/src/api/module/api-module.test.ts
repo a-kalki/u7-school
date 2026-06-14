@@ -57,7 +57,7 @@ class TestModule extends ApiModule<TestModuleMeta, { value: string }> {
 
   constructor(resolve: { value: string }) {
     super();
-    this.initResolve(resolve);
+    this.init(resolve);
   }
 }
 

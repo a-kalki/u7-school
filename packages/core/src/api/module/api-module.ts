@@ -19,7 +19,7 @@ export abstract class ApiModule<TMeta extends ApiModuleMeta, TResolve> {
    * Вызывается наследником в конструкторе после super().
    * Инициализирует все use-case'ы переданным резолвером.
    */
-  protected initResolve(resolve: TResolve) {
+  protected init(resolve: TResolve) {
     this.resolve = resolve;
     for (const uc of this.useCases) {
       uc.init(resolve);
