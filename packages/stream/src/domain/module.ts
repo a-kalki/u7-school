@@ -25,21 +25,15 @@ export interface StreamApiModuleMeta {
   name: 'stream';
   url: '/stream';
   ucMetas:
-    | ActivateStreamCmdMeta
-    | ArchiveStreamCmdMeta
-    | CompleteStreamCmdMeta
-    | CreateStreamCmdMeta
-    | ListStreamsCmdMeta
-    | ListStreamStudentsCmdMeta
-    | GetStreamCmdMeta
-    | CompleteStepCmdMeta
-    | EnrollStudentCmdMeta
-    | GetStudentByUserCmdMeta
-    | GetStudentProgressCmdMeta;
-}
-
-/** Метаданные Telegram-бота stream — объединяет модули stream и user */
-export interface StreamAppMeta {
-  name: 'stream-bot';
-  moduleMetas: StreamApiModuleMeta | UserApiModuleMeta;
+  | ActivateStreamCmdMeta
+  | ArchiveStreamCmdMeta
+  | CompleteStreamCmdMeta
+  | CreateStreamCmdMeta
+  | ListStreamsCmdMeta
+  | ListStreamStudentsCmdMeta
+  | GetStreamCmdMeta
+  | CompleteStepCmdMeta
+  | EnrollStudentCmdMeta
+  | GetStudentByUserCmdMeta
+  | GetStudentProgressCmdMeta;
 }

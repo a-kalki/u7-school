@@ -11,7 +11,7 @@ import { OnboardingApiModule } from '#api/module';
 import type { OnboardingApiModuleResolver } from '#domain/module';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
-import type { OnboardingBotApp } from '../app';
+import type { U7BotApp } from '../app';
 import type { MessageDescription } from '../types';
 import { OnboardingController } from './onboarding-controller';
 
@@ -32,11 +32,11 @@ describe('OnboardingController', () => {
   let questionnaireRepo: QuestionnaireJsonRepo;
   let userRepo: UserJsonRepo;
   let mod: OnboardingApiModule;
-  let apiApp: OnboardingBotApp;
+  let apiApp: U7BotApp;
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
-  const logger = { error: () => {} } as unknown as Logger;
+  const logger = { error: () => { } } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
@@ -104,7 +104,7 @@ describe('OnboardingController', () => {
       createdAt: '2024-01-01T00:00',
     });
 
-    apiApp = new ApiApp([mod]) as OnboardingBotApp;
+    apiApp = new ApiApp([mod]) as U7BotApp;
     controller = new OnboardingController(apiApp, logger);
   });
 
@@ -264,7 +264,7 @@ describe('OnboardingController', () => {
       db,
     });
 
-    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const app2 = new ApiApp([mod2]) as U7BotApp;
     const ctrl2 = new OnboardingController(app2, logger);
     const actor2: TestActor = { uuid: botAdminUuid, telegramId: 777 };
 
@@ -322,7 +322,7 @@ describe('OnboardingController', () => {
       db,
     });
 
-    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const app2 = new ApiApp([mod2]) as U7BotApp;
     const ctrl2 = new OnboardingController(app2, logger);
     const actor2: TestActor = { uuid: botAdminUuid, telegramId: 888 };
 
@@ -376,7 +376,7 @@ describe('OnboardingController', () => {
       db,
     });
 
-    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const app2 = new ApiApp([mod2]) as U7BotApp;
     const ctrl2 = new OnboardingController(app2, logger);
     const actor2: TestActor = { uuid: botAdminUuid, telegramId: 999 };
 
@@ -432,7 +432,7 @@ describe('OnboardingController', () => {
       db,
     });
 
-    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const app2 = new ApiApp([mod2]) as U7BotApp;
     const ctrl2 = new OnboardingController(app2, logger);
     const actor2: TestActor = { uuid: botAdminUuid, telegramId: 111 };
 
@@ -489,7 +489,7 @@ describe('OnboardingController', () => {
       db,
     });
 
-    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const app2 = new ApiApp([mod2]) as U7BotApp;
     const ctrl2 = new OnboardingController(app2, logger);
     const actor2: TestActor = { uuid: botAdminUuid, telegramId: 222 };
 
@@ -541,7 +541,7 @@ describe('OnboardingController', () => {
       db,
     });
 
-    const app2 = new ApiApp([mod2]) as OnboardingBotApp;
+    const app2 = new ApiApp([mod2]) as U7BotApp;
     const ctrl2 = new OnboardingController(app2, logger);
     const actor2: TestActor = { uuid: botAdminUuid, telegramId: 333 };
 

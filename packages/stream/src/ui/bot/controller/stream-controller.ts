@@ -1,5 +1,4 @@
 import { BotController } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
 import { ActivateStreamStory } from '../stories/activate-stream.story';
 import { CatalogStory } from '../stories/catalog.story';
 import { CreateStreamStory } from '../stories/create-stream.story';

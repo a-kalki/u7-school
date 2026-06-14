@@ -9,7 +9,7 @@ import {
 } from '@u7-scl/core/ui';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
-import type { OnboardingBotApp, OnboardingBotAppMeta } from '../app';
+import type { U7BotApp, U7BotAppMeta } from '../app';
 import type { KeyboardDescription } from '../types';
 
 /** Минимальный интерфейс актора для onboarding */
@@ -23,14 +23,14 @@ interface OnboardingActor {
  * Вшивает всю логику анкеты напрямую, без UserStory (процесс небольшой).
  */
 export class OnboardingController extends BotController<
-  OnboardingBotAppMeta,
+  U7BotAppMeta,
   OnboardingActor
 > {
   override readonly name = 'onboarding';
   override readonly stories = [];
   readonly #logger: Logger | undefined;
 
-  constructor(app: OnboardingBotApp, logger?: Logger) {
+  constructor(app: U7BotApp, logger?: Logger) {
     super();
     this.api = app;
     this.#logger = logger;

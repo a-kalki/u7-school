@@ -62,7 +62,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     courseFacade: { getModuleSnapshot: async () => [] },
   });
 
-  const streamController = new StreamController(streamModule);
+  const streamController = new StreamController();
 
   // ══ ApiApp: модули + опциональный логгер в конструкторе ══
   const apiApp: OnboardingBotApp = new ApiApp(

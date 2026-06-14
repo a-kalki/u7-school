@@ -29,7 +29,7 @@ export type AppEnvMode = 'test' | 'development' | 'production';
  */
 export interface AppResolver {
   logger: Logger;
-  mode: AppEnvMode;
+  envMode: AppEnvMode;
 }
 
 /**
