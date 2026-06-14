@@ -1,0 +1,9 @@
+**Задача: Определение UI-компонентов в @u7-scl/app/ui**
+
+**Изменения:**
+- Создан u7-bot-controller.ts — U7BotController<TMeta> extends BotController<U7BotAppMeta, User>
+- Создан u7-bot-user-story.ts — U7BotUserStory<TMeta> extends BotUserStory<U7BotAppMeta, User>
+- Обновлён ui/index.ts — экспорт обоих классов
+- Написан ui-components.test.ts (2 теста: импорт U7BotController и U7BotUserStory)
+
+**Созданные файлы:** packages/app/src/ui/u7-bot-controller.ts, packages/app/src/ui/u7-bot-user-story.ts, packages/app/src/ui/ui-components.test.ts
