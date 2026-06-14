@@ -1,37 +1,35 @@
 import { errBadRequest, throwError } from '#domain/errors/error-helpers';
 import type { NoCommandFoundError } from '#domain/errors/errors';
-import type { ApiModuleMeta, AppMeta } from '#domain/types';
-import { ConsoleLogger } from '#shared/console-logger';
-import { type Logger, LogLevel } from '#shared/logger';
+import type {
+  ApiExecutor,
+  ApiModuleMeta,
+  AppMeta,
+  ExtractUcMetaFromMeta,
+  GetUcNamesFromMeta,
+} from '#domain/types';
 import type { ApiModule } from '../module/api-module';
 import { App } from './app';
 
-export type ExtractUcMetas<
-  TAppMeta extends AppMeta,
-  N extends string,
-> = Extract<TAppMeta['moduleMetas']['ucMetas'], { ucName: N }>;
-
 /**
- * Реализация приложения для backend-окружения.
- * Принимает модули в конструкторе.
- * Опционально принимает логгер для телеметрии запросов.
+ * Реализация приложения.
+ * Принимает модули в конструкторе и реализует ApiExecutor.
+ *
+ * Логирование выполнения команд делегировано в ApiModule.handle —
+ * здесь остаётся только диспетчеризация.
  */
-export class ApiApp<TMeta extends AppMeta> extends App {
-  readonly #logger: Logger;
-
-  constructor(modules: ApiModule<ApiModuleMeta, unknown>[], logger?: Logger) {
+export class ApiApp<TMeta extends AppMeta>
+  extends App
+  implements ApiExecutor<TMeta>
+{
+  constructor(modules: ApiModule<ApiModuleMeta, any>[]) {
     super(modules);
-    this.#logger = logger ?? new ConsoleLogger();
-    this.#logger.setLogLevel(LogLevel.DEBUG);
   }
 
-  async execute<N extends TMeta['moduleMetas']['ucMetas']['ucName']>(
+  async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
-    attrs: ExtractUcMetas<TMeta, N>['input'],
+    attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
     actorId?: string,
-  ): Promise<ExtractUcMetas<TMeta, N>['output']> {
-    const start = performance.now();
-
+  ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']> {
     const module = this.getModules().find((m) => m.hasCommand(ucName));
     if (!module) {
       return throwError(
@@ -43,18 +41,11 @@ export class ApiApp<TMeta extends AppMeta> extends App {
       );
     }
 
-    const result = (await module.handle({
+    // Делегируем выполнение модулю — логирование происходит внутри module.handle
+    return module.handle({
       name: ucName,
       attrs,
       actorId,
-    })) as Promise<ExtractUcMetas<TMeta, N>['output']>;
-
-    const elapsed = (performance.now() - start).toFixed(1);
-    this.#logger.info(
-      this.constructor.name,
-      `Обработан запрос ${String(ucName)} за ${elapsed}ms`,
-    );
-
-    return result;
+    }) as Promise<ExtractUcMetaFromMeta<TMeta, N>['output']>;
   }
 }
