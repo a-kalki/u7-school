@@ -1,0 +1,12 @@
+**Задача: Инициализация пакета @u7-scl/app**
+
+**Изменения:**
+- Создан пакет packages/app с package.json, tsconfig.json
+- Настроены exports: ., ./domain, ./ui, ./shared, ./api
+- Зарегистрированы пути @u7-scl/app/* в корневом tsconfig.json
+- Созданы индексные файлы: src/index.ts, src/domain/index.ts, src/ui/index.ts
+- Написан тест app-init.test.ts (3 теста — проверка доступности экспортов)
+
+**Созданные файлы:** packages/app/package.json, packages/app/tsconfig.json, packages/app/src/index.ts, packages/app/src/domain/index.ts, packages/app/src/ui/index.ts, packages/app/src/app-init.test.ts
+
+**Изменённые файлы:** tsconfig.json
