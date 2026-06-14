@@ -1,0 +1,14 @@
+**Исправления по обратной связи:**
+
+1. **Разделение тестов:**
+   - user.test.ts — 30 тестов валидации User и Roles (перенесены из packages/user)
+   - domain-types.test.ts — только мета-типы приложения
+
+2. **U7BotAppMeta с явными доменными модулями:**
+   - Импортирует UserApiModuleMeta из @u7-scl/user/domain
+   - Импортирует OnboardingApiModuleMeta из @u7-scl/onboarding/domain
+   - Импортирует StreamApiModuleMeta из @u7-scl/stream
+   - moduleMetas — явный union трёх типов
+
+3. **Добавлен AppResolver в core** (необходим для U7AppResolver):
+   - packages/core/src/domain/types.ts: AppEnvMode, AppResolver, ModuleResolver
