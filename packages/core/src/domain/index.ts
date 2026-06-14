@@ -36,4 +36,4 @@ export type {
   ValidationIssues,
 } from './errors/errors';
 export { AppException } from './errors/errors';
-export type { ApiModuleMeta, AppEnvMode, AppMeta, AppResolver, ModuleCommand, ModuleResolver } from './types';
+export type { ApiExecutor, ApiModuleMeta, AppEnvMode, AppMeta, AppResolver, ExtractUcMetaFromMeta, GetUcNamesFromMeta, ModuleCommand, ModuleResolver } from './types';

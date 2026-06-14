@@ -29,7 +29,7 @@ export type AppEnvMode = 'test' | 'development' | 'production';
  */
 export interface AppResolver {
   logger: Logger;
-  envMode: AppEnvMode;
+  mode: AppEnvMode;
 }
 
 /**
@@ -38,4 +38,36 @@ export interface AppResolver {
  */
 export interface ModuleResolver {
   appResolver: AppResolver;
+}
+
+// ══ Универсальный исполнитель команд ══
+
+/** Извлекает имена use-case из метаданных (AppMeta или ApiModuleMeta) */
+export type GetUcNamesFromMeta<TMeta> = TMeta extends AppMeta
+  ? TMeta['moduleMetas']['ucMetas']['ucName']
+  : TMeta extends ApiModuleMeta
+    ? TMeta['ucMetas']['ucName']
+    : never;
+
+/** Извлекает метаданные конкретного use-case по имени */
+export type ExtractUcMetaFromMeta<
+  TMeta,
+  N extends string,
+> = TMeta extends AppMeta
+  ? Extract<TMeta['moduleMetas']['ucMetas'], { ucName: N }>
+  : TMeta extends ApiModuleMeta
+    ? Extract<TMeta['ucMetas'], { ucName: N }>
+    : never;
+
+/**
+ * Универсальный интерфейс выполнения команд.
+ * Реализуется как ApiApp (для вызовов уровня приложения),
+ * так и ApiModule (для вызовов внутри модуля).
+ */
+export interface ApiExecutor<TMeta> {
+  execute<N extends GetUcNamesFromMeta<TMeta>>(
+    ucName: N,
+    attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],
+    actorId?: string,
+  ): Promise<ExtractUcMetaFromMeta<TMeta, N>['output']>;
 }
