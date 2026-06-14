@@ -1,6 +1,6 @@
 # План реализации: Рефакторинг ядра и интеграция модулей через пакет `@u7-scl/app`
 
-## Фаза 1: Инфраструктурная подготовка и создание пакета `@u7-scl/app`
+## Фаза 1: Инфраструктурная подготовка и создание пакета `@u7-scl/app` [checkpoint: 9cadab4]
 В этой фазе мы создадим новый пакет, пропишем пути в `tsconfig.json` и определим базовые интерфейсы контрактов приложения.
 
 - [x] **Task: Инициализация пакета `@u7-scl/app`** `b2e8742`
@@ -18,7 +18,7 @@
   - [x] Создать индексный файл экспорта `packages/app/src/ui/index.ts`
 - [x] **Task: Корневой экспорт пакета** `b2e8742`
   - [x] Создать `packages/app/src/index.ts`
-- [ ] **Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)**
 
 ## Фаза 2: Рефакторинг ядра (`@u7-scl/core`)
 В этой фазе мы переведем ядро на использование `AppResolver`, внедрим `ApiExecutor` и перенесем телеметрию в модули.
@@ -39,7 +39,7 @@
 - [ ] **Task: Рефакторинг `BotController` и `BotUserStory`**
   - [ ] В `packages/core/src/ui/bot/controller/bot-controller.ts` добавить дженерик `TModuleMeta` и обновить конструктор/метод `init`
   - [ ] В `packages/core/src/ui/bot/bot-user-story.ts` обновить дженерики и метод `init`
-- [ ] **Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)**
 
 ## Фаза 3: Адаптация доменных модулей к новым интерфейсам
 В этой фазе мы перенастроим модули `user`, `stream` и `onboarding` на новые контракты и уберем принудительные приведения типов.
@@ -58,7 +58,7 @@
   - [ ] Заменить вызовы `this.api.execute` на `this.moduleApi.execute` и удалить `as unknown as StreamItem[]`
 - [ ] **Task: Исправление опечаток и других модулей**
   - [ ] Исправить опечатку `initResolve` в `packages/course/src/api/module.ts`
-- [ ] **Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)**
 
 ## Фаза 4: Сборка, запуск и верификация приложения
 Финальная сборка приложения и запуск тестов.
@@ -69,4 +69,4 @@
 - [ ] **Task: Верификация сборки и тестов**
   - [ ] Запустить `bun x tsc --noEmit` и убедиться в отсутствии ошибок во всех пакетах
   - [ ] Запустить `bun test` и проверить прохождение тестов ядра и модулей
-- [ ] **Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)**
