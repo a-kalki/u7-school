@@ -12,12 +12,12 @@
   - [x] Перенести определение `User` и `UserSchema` из `packages/user/src/domain/user/entity.ts` в `packages/app/src/domain/user.ts`
   - [x] Создать `packages/app/src/domain/u7-bot-app-meta.ts` и объявить `U7BotAppMeta` и `U7AppResolver`
   - [x] Создать индексный файл экспорта `packages/app/src/domain/index.ts`
-- [ ] **Task: Определение UI-компонентов в `@u7-scl/app/ui`**
-  - [ ] Создать `packages/app/src/ui/u7-bot-controller.ts` и объявить `U7BotController`
-  - [ ] Создать `packages/app/src/ui/u7-bot-user-story.ts` и объявить `U7BotUserStory`
-  - [ ] Создать индексный файл экспорта `packages/app/src/ui/index.ts`
-- [ ] **Task: Корневой экспорт пакета**
-  - [ ] Создать `packages/app/src/index.ts`
+- [x] **Task: Определение UI-компонентов `79f964c` в `@u7-scl/app/ui`**
+  - [x] Создать `packages/app/src/ui/u7-bot-controller.ts` и объявить `U7BotController`
+  - [x] Создать `packages/app/src/ui/u7-bot-user-story.ts` и объявить `U7BotUserStory`
+  - [x] Создать индексный файл экспорта `packages/app/src/ui/index.ts`
+- [x] **Task: Корневой экспорт пакета** `b2e8742`
+  - [x] Создать `packages/app/src/index.ts`
 - [ ] **Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)**
 
 ## Фаза 2: Рефакторинг ядра (`@u7-scl/core`)
