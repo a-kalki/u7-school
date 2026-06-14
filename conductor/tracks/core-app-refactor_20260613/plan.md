@@ -3,10 +3,10 @@
 ## Фаза 1: Инфраструктурная подготовка и создание пакета `@u7-scl/app`
 В этой фазе мы создадим новый пакет, пропишем пути в `tsconfig.json` и определим базовые интерфейсы контрактов приложения.
 
-- [ ] **Task: Инициализация пакета `@u7-scl/app`**
-  - [ ] Создать директорию `packages/app/src`
-  - [ ] Создать и настроить `packages/app/package.json` и `packages/app/tsconfig.json`
-  - [ ] Зарегистрировать пути для `@u7-scl/app/*` в корневом `tsconfig.json`
+- [x] **Task: Инициализация пакета `@u7-scl/app`** `b2e8742`
+  - [x] Создать директорию `packages/app/src`
+  - [x] Создать и настроить `packages/app/package.json` и `packages/app/tsconfig.json`
+  - [x] Зарегистрировать пути для `@u7-scl/app/*` в корневом `tsconfig.json`
 - [ ] **Task: Определение доменных типов и схем в `@u7-scl/app/domain`**
   - [ ] Перенести определение `Role` и `RoleSchema` из `packages/user/src/domain/user/roles.ts` в `packages/app/src/domain/user.ts` (или аналогичный файл)
   - [ ] Перенести определение `User` и `UserSchema` из `packages/user/src/domain/user/entity.ts` в `packages/app/src/domain/user.ts`
