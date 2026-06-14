@@ -1,0 +1,17 @@
+{
+  "name": "@u7-scl/app",
+  "version": "0.1.0",
+  "module": "./src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./domain": "./src/domain/index.ts",
+    "./ui": "./src/ui/index.ts",
+    "./shared": "./src/shared/index.ts",
+    "./api": "./src/api/index.ts"
+  },
+  "dependencies": {
+    "@u7-scl/core": "workspace:*"
+  }
+}
