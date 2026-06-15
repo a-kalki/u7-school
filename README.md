@@ -69,7 +69,7 @@ u7-school — это современная LMS (Learning Management System), п
    ```env
    # ══ Обязательные для u7-bot ══
    BOT_TOKEN=your_telegram_bot_token
-   BOT_ADMIN_UUID=uuid_пользователя_с_ролью_ADMIN
+   BOT_ADMIN_UUID=uuid_бота_пользователя
    NEWS_GROUP_URL=https://t.me/your_school_group
 
    # ══ Опциональные для u7-bot ══
@@ -85,20 +85,30 @@ u7-school — это современная LMS (Learning Management System), п
    GEMINI_API_KEY=your_gemini_key
    DEEPSEEK_API_KEY=your_deepseek_key
    ```
-4. Начальный пользователь с правами admin:
-    Создайте файл `data/users/users.json` с содержимым:
+4. Начальные пользователи:
+    Создайте файл `data/users/users.json` с двумя пользователями — живым админом и системным бот-пользователем:
     ```json
     [
       {
-        "uuid": "39549ec2-68c3-4bfe-8594-6e9874d418cd",
-        "name": "Fox",
+        "uuid": "550e8400-e29b-41d4-a716-446655440001",
+        "name": "Никита",
         "telegramId": 123456789,
         "roles": ["ADMIN", "MENTOR"],
+        "createdAt": "2026-05-13T12:56:00Z"
+      },
+      {
+        "uuid": "550e8400-e29b-41d4-a716-446655440002",
+        "name": "U7 Bot",
+        "telegramId": 0,
+        "roles": ["ADMIN"],
         "createdAt": "2026-05-13T12:56:00Z"
       }
     ]
     ```
-    Замените `uuid`, `name`, `telegramId` на свои. Укажите этот же `uuid` в `BOT_ADMIN_UUID`.
+    - **Первый** — живой администратор (вы). Используется для CLI и ручных операций.
+    - **Второй** — системный бот-пользователь. Бот выполняет операции от его имени, что даёт чистый аудит: видно, сделал операцию человек или бот.
+    - Замените `uuid`, `name`, `telegramId` на свои.
+    - `BOT_ADMIN_UUID` в `.env` должен указывать на **UUID бот-пользователя** (второй записи).
 
 ## Развертывание и работа
 
