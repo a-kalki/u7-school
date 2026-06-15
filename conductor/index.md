@@ -16,6 +16,14 @@
 ## Гайды по контенту курса
 - [Наполнение уроков шагами](./guides/lesson-design.md)
 
+## Learning Skills (верификация понимания)
+Навыки, которые проверяют, что разработчик понимает внесённые изменения, а не просто принимает диффы.
+- [post-task-debrief](../.pi/skills/post-task-debrief/SKILL.md) — разбор после значимой задачи (domain/api слои)
+- [arch-boundary-check](../.pi/skills/arch-boundary-check/SKILL.md) — проверка архитектурных границ при сквозных изменениях
+- [content-integrity-check](../.pi/skills/content-integrity-check/SKILL.md) — проверка целостности учебного контента
+- [Реестр дебрифингов](../data/debrief/registry.md) — таблица всех разборов
+- [Логи дебрифингов](../data/debrief/logs/) — подробные Q&A
+
 ## Управление
 - [Реестр треков](./tracks.md)
 - [Директория треков](./tracks/)
