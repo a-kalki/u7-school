@@ -1,4 +1,4 @@
-# Track core-app-refactor_20260613 Context
+# Track stream_guest_student_20260613 Context
 
 - [Спецификация](./spec.md)
 - [План реализации](./plan.md)
