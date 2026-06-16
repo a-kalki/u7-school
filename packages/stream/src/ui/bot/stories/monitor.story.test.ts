@@ -203,7 +203,7 @@ describe('MonitorStory', () => {
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Иван Иванов');
-    expect(text).toContain('@ivanov');
+    expect(text).toContain('ID 111');
     expect(text).toContain('Переменные');
     expect(text).toContain('50');
 

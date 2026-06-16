@@ -109,14 +109,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Получаем пользователя
     let userName = student.userId.slice(0, 8);
-    let telegramUsername = '';
     let telegramId = 0;
     try {
       const user = await this.appApi.execute('get-user', {
         uuid: student.userId,
       });
       userName = user.name;
-      telegramUsername = (user as any).telegramUsername ?? '';
       telegramId = user.telegramId;
     } catch {
       // Пользователь не найден
@@ -133,8 +131,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const completed = student.steps.filter(
       (st) => st.status === 'completed',
     ).length;
-    const pct =
-      totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
+    const pct = totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
 
     const statusLabels: Record<string, string> = {
       active: '🟢 Активен',
@@ -145,9 +142,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const lines = [
       `👤 *${this.escapeMarkdown(userName)}*`,
       '',
-      `📱 Telegram: ${telegramUsername ? `@${this.escapeMarkdown(telegramUsername)}` : `ID ${telegramId}`}`,
+      `📱 Telegram: ID ${telegramId}`,
       `📊 Статус: ${statusLabels[student.status] ?? student.status}`,
-      `📈 Прогресс: ${completed} из ${totalSteps} шагов \(${pct}%\)`,
+      `📈 Прогресс: ${completed} из ${totalSteps} шагов (${pct}%)`,
     ];
 
     // Текущий проект/урок из прогресса
@@ -159,9 +156,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
             lines.push(
               `📁 Проект: ${this.escapeMarkdown(project.projectTitle)}`,
             );
-            lines.push(
-              `📝 Урок: ${this.escapeMarkdown(lesson.lessonTitle)}`,
-            );
+            lines.push(`📝 Урок: ${this.escapeMarkdown(lesson.lessonTitle)}`);
           }
         }
       }
