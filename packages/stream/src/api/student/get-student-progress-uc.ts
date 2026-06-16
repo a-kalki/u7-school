@@ -1,3 +1,4 @@
+import { StreamPolicy } from '#domain/index';
 import { StudentAr } from '#domain/student/a-root';
 import {
   type GetStudentProgressCmd,
@@ -7,6 +8,7 @@ import {
 import type { Student } from '#domain/student/entity';
 import { StudentSchema } from '#domain/student/entity';
 import { StudentPolicy } from '#domain/student/policy';
+import type { User } from '@u7-scl/user/domain';
 import { StreamUseCase } from '../stream-uc';
 
 export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMeta> {
@@ -36,7 +38,7 @@ export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMet
     const actor = await this.getActor(actorId);
     const canView =
       StudentPolicy.canViewProgress(actor, student) ||
-      (await this.isStreamMentor(student.streamId, actorId));
+      (await this.isStreamMentor(student.streamId, actor));
 
     if (!canView) {
       this.throwAccessDenied();
@@ -48,10 +50,10 @@ export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMet
   /** Проверяет, является ли актор ментором потока */
   private async isStreamMentor(
     streamId: string,
-    actorId: string,
+    actor: User,
   ): Promise<boolean> {
     const stream = await this.resolve.streamRepo.getByUuid(streamId);
     if (!stream) return false;
-    return stream.mentorId === actorId;
+    return StreamPolicy.isMentor(actor, stream);
   }
 }

@@ -4,6 +4,7 @@ import { StreamStatus } from '../status';
 import type { CreateStreamCmd } from './commands/create-stream-cmd';
 import type { ContentSnapshot, Stream, StreamArMeta } from './entity';
 import { StreamSchema } from './entity';
+import { StreamPolicy } from './policy';
 
 /**
  * Агрегат Stream — корень учебного потока.
@@ -78,7 +79,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
    * Отправка потока в архив.
    */
   archive(): void {
-    if (this._state.status === StreamStatus.ARCHIVED) {
+    if (StreamPolicy.isArchived(this._state)) {
       this.throwBadRequest('Поток уже находится в архиве.');
     }
 

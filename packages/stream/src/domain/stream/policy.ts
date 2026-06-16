@@ -31,4 +31,8 @@ export const StreamPolicy = {
   isActive(stream: Stream): boolean {
     return stream.status === StreamStatus.ACTIVE;
   },
+
+  isArchived(stream: Stream): boolean {
+    return stream.status === StreamStatus.ARCHIVED;
+  },
 };
