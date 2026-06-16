@@ -4,4 +4,5 @@
 | 2 | 2026-06-16 | stream_guest_student_20260613 | 1531cf4 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-06-16-us1-catalog-filter.md) |
 | 3 | 2026-06-16 | stream_mentor_20260613 | 1fc9762 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-06-16-us6-preview.md) |
 | 4 | 2026-06-16 | stream_mentor_20260613 | 50b884b | post-task-debrief | 3/4 ✓ | [лог](logs/2026-06-16-us7-mentor-buttons.md) |
-**Всего:** 4
+| 5 | 2026-06-16 | stream_mentor_20260613 | ef14762 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-06-16-us8-monitor-detail.md) |
+**Всего:** 5
