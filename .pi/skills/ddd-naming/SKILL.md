@@ -52,6 +52,8 @@ description: Соглашения об именовании файлов, пап
 | БД (реализация) | `<ModuleName><Type>Db` | `UserSqliteDb` |
 | Фасад (интерфейс) | `<ModuleName>Facade` | `UserFacade` |
 | Фасад (реализация) | `<ModuleName><Type>Facade` | `UserRestFacade` |
+| Пользовательский сценарий | `<StoryName>Story` | `CatalogStory` |
+| Контроллер (бот) | `<ModuleName>Controller` | `StreamController` |
 
 ---
 
@@ -89,6 +91,12 @@ description: Соглашения об именовании файлов, пап
     - <module>-facade.ts
     - <контроллер>.ts — точка входа (rest, bot, cli)
   - ui/              — логика и объекты фронта
+    - bot/            — интерфейс Telegram-бота
+      - controller/   — контроллеры
+        - <module>-controller.ts
+      - stories/      — пользовательские сценарии
+        - <name>.story.ts
+        - <name>.story.test.ts
     - auto-ui/       — автогенерация текстового UI
       - module.ts    — AutoUiModule
 ```

@@ -6,13 +6,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
-import { StreamStatus } from '#domain/status';
-
-interface StreamItem {
-  uuid: string;
-  title: string;
-  status: string;
-}
+import { StreamStatus } from '../../../domain/status';
 
 /**
  * US-1: Просмотр витрины потоков (Каталог).
@@ -42,7 +36,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Объединяем и дедуплицируем по uuid
     const seen = new Set<string>();
-    const streams: StreamItem[] = [];
+    const streams: typeof enrollmentStreams = [];
     for (const s of [...enrollmentStreams, ...activeStreams]) {
       if (!seen.has(s.uuid)) {
         seen.add(s.uuid);
