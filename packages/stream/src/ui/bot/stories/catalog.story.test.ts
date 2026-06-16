@@ -46,6 +46,64 @@ describe('CatalogStory', () => {
     expect(item?.action).toBe('catalog:list');
   });
 
+  test('handleCallback("list") фильтрует только enrollment и active', async () => {
+    const allStreams: Record<string, unknown[]> = {
+      enrollment: [
+        {
+          uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
+          title: 'Поток Набора',
+          status: 'enrollment',
+        },
+      ],
+      active: [
+        {
+          uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+          title: 'Активный Поток',
+          status: 'active',
+        },
+      ],
+      completed: [
+        {
+          uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+          title: 'Завершённый',
+          status: 'completed',
+        },
+      ],
+      archived: [
+        {
+          uuid: 'r-r-r-r-r-r-r-r-r-r-r-r-r-r-r-r',
+          title: 'Архивный',
+          status: 'archived',
+        },
+      ],
+    };
+
+    const mockApi = {
+      execute: mock(async (_name: string, attrs: unknown) => {
+        const cmd = attrs as { status?: string };
+        if (cmd?.status) {
+          return allStreams[cmd.status] ?? [];
+        }
+        return Object.values(allStreams).flat();
+      }),
+    } as unknown as ApiApp<U7BotAppMeta>;
+
+    const story = new CatalogStory();
+    story.init(mockApi);
+
+    const response = await story.handleCallback('list', actor, session);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    // Должны быть только enrollment и active
+    expect(btnTexts.some((t) => t.includes('Поток Набора'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Активный Поток'))).toBe(true);
+
+    // Не должно быть completed и archived
+    expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(false);
+  });
+
   test('handleMessage возвращает заглушку', async () => {
     const story = new CatalogStory();
     const response = await story.handleMessage(

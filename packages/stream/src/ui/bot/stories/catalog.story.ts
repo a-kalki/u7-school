@@ -29,10 +29,25 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Неизвестная команда каталога' } };
     }
 
-    const streams = (await this.moduleApi.execute(
-      'list-streams',
-      {},
-    )) as unknown as StreamItem[];
+    // Запрашиваем потоки со статусами enrollment и active
+    const [enrollmentStreams, activeStreams] = await Promise.all([
+      this.moduleApi.execute('list-streams', {
+        status: 'enrollment',
+      }) as unknown as StreamItem[],
+      this.moduleApi.execute('list-streams', {
+        status: 'active',
+      }) as unknown as StreamItem[],
+    ]);
+
+    // Объединяем и дедуплицируем по uuid
+    const seen = new Set<string>();
+    const streams: StreamItem[] = [];
+    for (const s of [...enrollmentStreams, ...activeStreams]) {
+      if (!seen.has(s.uuid)) {
+        seen.add(s.uuid);
+        streams.push(s);
+      }
+    }
 
     if (streams.length === 0) {
       return {
