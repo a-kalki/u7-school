@@ -5,13 +5,9 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
+import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
-
-/** Упрощённый интерфейс актора */
-interface Actor {
-  uuid: string;
-  roles: string[];
-}
+import { UserPolicy } from '@u7-scl/user/domain';
 
 /** Контекст wizard-а создания потока */
 interface CreateStreamWizardContext {
@@ -21,11 +17,6 @@ interface CreateStreamWizardContext {
   description: string;
   startDate: string;
   telegramGroupId: string;
-}
-
-interface ModuleItem {
-  uuid: string;
-  title: string;
 }
 
 const WIZARD_PATH = 'create-stream/wizard';
@@ -44,7 +35,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    actor: unknown,
+    _actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     // Старт wizard-а
@@ -62,7 +53,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleMessage(
     update: BotUpdate,
-    actor: unknown,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     if (update.type !== 'message') {
@@ -93,7 +84,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   override async handleCancel(
-    _actor: unknown,
+    _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     return {
@@ -103,7 +94,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   override async handleTimeout(
-    _actor: unknown,
+    _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     return {
@@ -112,9 +103,8 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  override async handleStart(actor: unknown): Promise<MainMenuAction | null> {
-    const a = actor as Actor;
-    if (a.roles.includes('MENTOR') || a.roles.includes('ADMIN')) {
+  override async handleStart(actor: User): Promise<MainMenuAction | null> {
+    if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) {
       return {
         text: '🛠️ Панель ментора',
         action: this.cb('start'),
@@ -148,11 +138,8 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async #handleModuleMessage(
     ctx: CreateStreamWizardContext,
-    text: string,
+    _text: string,
   ): Promise<BotResponse> {
-    // Пытаемся найти модули по названию или используем текст как moduleId
-    // В реальном коде здесь будет запрос к CourseFacade
-    // Пока упрощённо: ждём, что пользователь нажмёт кнопку
     return {
       sendMessage: {
         text: '📦 Выберите модуль из списка или нажмите кнопку ниже.',
@@ -235,14 +222,13 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   async #handleGroupInput(
     ctx: CreateStreamWizardContext,
     text: string,
-    actor: unknown,
+    actor: User,
   ): Promise<BotResponse> {
     const fullCtx: CreateStreamWizardContext = {
       ...ctx,
       step: 5,
       telegramGroupId: text,
     };
-    const a = actor as Actor;
 
     await this.moduleApi.execute('create-stream', {
       title: fullCtx.title,
@@ -250,7 +236,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       moduleId: fullCtx.moduleId,
       startDate: fullCtx.startDate,
       telegramGroupId: fullCtx.telegramGroupId,
-      mentorId: a.uuid,
+      mentorId: actor.uuid,
     });
 
     return {

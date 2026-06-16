@@ -5,9 +5,9 @@ import type {
   KeyboardDescription,
   SessionData,
 } from '@u7-scl/core/ui';
-import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Stream } from '../../../domain/stream/entity';
+import { StreamPolicy } from '../../../domain/stream/policy';
 
 /**
  * US-2: Детальная карточка потока.
@@ -151,12 +151,11 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
-    const isGuestCandidate =
-      UserPolicy.isCandidate(actor) || UserPolicy.isGuest(actor);
+    const canEnroll = StreamPolicy.canEnroll(actor);
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     // Кнопка «Записаться» только для GUEST/CANDIDATE на enrollment
-    if (stream.status === 'enrollment' && isGuestCandidate) {
+    if (stream.status === 'enrollment' && canEnroll) {
       rows.push([
         {
           text: '📝 Записаться',
@@ -176,7 +175,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Кнопка «Уведомить о наборе» для GUEST/CANDIDATE на active
-    if (stream.status === 'active' && isGuestCandidate) {
+    if (stream.status === 'active' && canEnroll) {
       rows.push([
         {
           text: '🔔 Уведомить о наборе',

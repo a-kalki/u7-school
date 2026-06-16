@@ -99,30 +99,42 @@ async handleCallback(action: string, actor: unknown, session: SessionData): Prom
 }
 ```
 
-### 4.1 Проверка ролей через UserPolicy
+### 4.1 Проверка прав через Policy-объекты
 
-Для проверки ролей актора используй `UserPolicy` из `@u7-scl/user/domain`:
+**Всегда** используй Policy-объекты вместо ручной проверки ролей или полей.
+Policy централизует бизнес-правила и гарантирует консистентность.
+
+#### UserPolicy (`@u7-scl/user/domain`)
 
 ```typescript
 import { UserPolicy } from '@u7-scl/user/domain';
 
 // ✅ Правильно
-const isGuestCandidate = UserPolicy.isCandidate(actor) || UserPolicy.isGuest(actor);
 if (UserPolicy.isStudent(actor)) { ... }
+if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) { ... }
 
-// ❌ Неправильно — ручная проверка ролей
+// ❌ Неправильно — ручная проверка
 if (actor.roles.includes('STUDENT')) { ... }
-if (actor.roles.some((r) => ['GUEST', 'CANDIDATE'].includes(r))) { ... }
+if (actor.roles.includes('MENTOR') || actor.roles.includes('ADMIN')) { ... }
 ```
 
-Доступные методы `UserPolicy`:
-- `isGuest(actor)`
-- `isCandidate(actor)`
-- `isStudent(actor)`
-- `isMentor(actor)`
-- `isAdmin(actor)`
-- `canCreate(actor)`
-- `canAddRole(actor)`
+#### StreamPolicy (внутри пакета stream)
+
+```typescript
+import { StreamPolicy } from '../../../domain/stream/policy';
+
+// ✅ Правильно — использовать готовые методы
+if (StreamPolicy.canEnroll(actor)) { /* показать кнопку «Записаться» */ }
+if (StreamPolicy.isMentor(actor, stream)) { /* менторские кнопки */ }
+
+// ❌ Неправильно — дублировать логику политики
+const isGuestCandidate = UserPolicy.isGuest(actor) || UserPolicy.isCandidate(actor);
+```
+
+Доступные Policy-объекты:
+- **UserPolicy** — `isGuest`, `isCandidate`, `isStudent`, `isMentor`, `isAdmin`, `canCreate`, `canAddRole`
+- **StreamPolicy** — `canCreate`, `canRead`, `canEnroll`, `isMentor`, `isActive`, `isComplete`
+- **StudentPolicy** — `canViewProgress`, `canCompleteStep`
 
 ---
 
