@@ -4,8 +4,8 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 interface StreamItem {
   uuid: string;
@@ -17,7 +17,7 @@ interface StreamItem {
  * US-1: Просмотр витрины потоков (Каталог).
  * Показывает список активных потоков и потоков с открытым набором.
  */
-export class CatalogStory extends BotUserStory<StreamAppMeta> {
+export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'catalog';
 
   async handleCallback(

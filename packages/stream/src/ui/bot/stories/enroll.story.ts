@@ -1,6 +1,6 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 /** Упрощённый интерфейс актора для проверки ролей */
 interface Actor {
@@ -12,7 +12,7 @@ interface Actor {
  * US-3: Запись на поток (Регистрация).
  * Выполняет enroll-student, показывает результат и делегирует на learning.
  */
-export class EnrollStory extends BotUserStory<StreamAppMeta> {
+export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'enroll';
 
   async handleCallback(

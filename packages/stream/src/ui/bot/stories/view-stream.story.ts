@@ -3,8 +3,8 @@ import type {
   KeyboardDescription,
   SessionData,
 } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 interface StreamDetail {
   uuid: string;
@@ -25,7 +25,7 @@ interface StreamDetail {
  * US-2: Детальная карточка потока.
  * Показывает описание, статус, дату старта, количество студентов.
  */
-export class ViewStreamStory extends BotUserStory<StreamAppMeta> {
+export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'view-stream';
 
   async handleCallback(

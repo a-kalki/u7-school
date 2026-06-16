@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { LearningStory } from './learning.story';
 
 describe('LearningStory', () => {
@@ -43,7 +43,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as ApiApp<StreamAppMeta>;
+    } as unknown as ApiApp<U7BotAppMeta>;
 
     const story = new LearningStory();
     story.init(mockApi);
@@ -60,7 +60,7 @@ describe('LearningStory', () => {
   test('handleCallback("my-study") — студент не записан', async () => {
     const mockApi = {
       execute: mock((_name: string) => undefined),
-    } as unknown as ApiApp<StreamAppMeta>;
+    } as unknown as ApiApp<U7BotAppMeta>;
 
     const story = new LearningStory();
     story.init(mockApi);
@@ -75,7 +75,7 @@ describe('LearningStory', () => {
         level: 'step',
         currentStepId: 'step-2',
       })),
-    } as unknown as ApiApp<StreamAppMeta>;
+    } as unknown as ApiApp<U7BotAppMeta>;
 
     const story = new LearningStory();
     story.init(mockApi);

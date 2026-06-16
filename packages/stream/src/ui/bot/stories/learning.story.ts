@@ -4,8 +4,8 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 /** Упрощённый интерфейс актора для проверки ролей */
 interface Actor {
@@ -42,7 +42,7 @@ interface CompleteStepResult {
  * US-4: Прохождение обучения (активная фаза).
  * Показывает текущий шаг, обрабатывает завершение шага.
  */
-export class LearningStory extends BotUserStory<StreamAppMeta> {
+export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'learning';
 
   async handleCallback(

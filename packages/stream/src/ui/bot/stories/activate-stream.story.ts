@@ -1,12 +1,12 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 /**
  * US-7: Запуск потока (старт обучения).
  * Ментор активирует поток — студенты получают первый шаг.
  */
-export class ActivateStreamStory extends BotUserStory<StreamAppMeta> {
+export class ActivateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'activate-stream';
 
   async handleCallback(

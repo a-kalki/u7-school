@@ -1,14 +1,14 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { CatalogStory } from './catalog.story';
 
 describe('CatalogStory', () => {
   const makeMockApi = (streams: unknown[]) =>
     ({
       execute: mock(async (_name: string) => streams),
-    }) as unknown as ApiApp<StreamAppMeta>;
+    }) as unknown as ApiApp<U7BotAppMeta>;
 
   const session: SessionData = { activeHandler: null };
   const actor = { uuid: 'user-1', telegramId: 123, roles: ['GUEST'] };

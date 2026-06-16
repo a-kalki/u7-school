@@ -4,8 +4,8 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 /** Упрощённый интерфейс актора */
 interface Actor {
@@ -39,7 +39,7 @@ const WIZARD_PATH = 'create-stream/wizard';
  * Шаг 4: ссылка на Telegram-группу (текст)
  * Шаг 5: финальное создание
  */
-export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
+export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'create-stream';
 
   async handleCallback(

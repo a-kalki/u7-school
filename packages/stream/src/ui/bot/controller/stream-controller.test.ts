@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { StreamController } from './stream-controller';
 
 describe('StreamController (реестр)', () => {
@@ -19,7 +19,7 @@ describe('StreamController (реестр)', () => {
       return undefined;
     }),
   } as any;
-  const mockApi = mockModuleApi as unknown as ApiApp<StreamAppMeta>;
+  const mockApi = mockModuleApi as unknown as ApiApp<U7BotAppMeta>;
 
   const makeController = () => new StreamController(mockModuleApi);
 

@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { ViewStreamStory } from './view-stream.story';
 
 describe('ViewStreamStory', () => {
@@ -26,7 +26,7 @@ describe('ViewStreamStory', () => {
           }));
         return undefined;
       }),
-    }) as unknown as ApiApp<StreamAppMeta>;
+    }) as unknown as ApiApp<U7BotAppMeta>;
 
   test('handleCallback("view:<id>") показывает карточку потока', async () => {
     const story = new ViewStreamStory();

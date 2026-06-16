@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { ProgressStory } from './progress.story';
 
 describe('ProgressStory', () => {
@@ -42,7 +42,7 @@ describe('ProgressStory', () => {
           };
         return undefined;
       }),
-    } as unknown as ApiApp<StreamAppMeta>;
+    } as unknown as ApiApp<U7BotAppMeta>;
 
     const story = new ProgressStory();
     story.init(mockApi);

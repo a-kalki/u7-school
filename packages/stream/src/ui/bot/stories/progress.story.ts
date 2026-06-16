@@ -1,6 +1,6 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { BotUserStory } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { StreamApiModuleMeta } from '../../../domain/module';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 
 interface StudentProgress {
   steps: Array<{ status: string }>;
@@ -17,7 +17,7 @@ interface StreamSnapshot {
  * US-5: Просмотр прогресса студента.
  * Показывает прогресс-бар и проценты завершения.
  */
-export class ProgressStory extends BotUserStory<StreamAppMeta> {
+export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'progress';
 
   async handleCallback(

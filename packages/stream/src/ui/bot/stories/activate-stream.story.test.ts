@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { StreamAppMeta } from '../../../domain/module';
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { ActivateStreamStory } from './activate-stream.story';
 
 describe('ActivateStreamStory', () => {
@@ -11,7 +11,7 @@ describe('ActivateStreamStory', () => {
   test('handleCallback("activate:<id>") запускает поток', async () => {
     const mockApi = {
       execute: mock((_name: string) => undefined),
-    } as unknown as ApiApp<StreamAppMeta>;
+    } as unknown as ApiApp<U7BotAppMeta>;
 
     const story = new ActivateStreamStory();
     story.init(mockApi);
