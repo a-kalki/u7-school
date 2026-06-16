@@ -9,11 +9,15 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
-import { StreamApiModule, StreamJsonRepo, StudentJsonRepo } from '@u7-scl/stream';
+import {
+  StreamApiModule,
+  StreamJsonRepo,
+  StudentJsonRepo,
+} from '@u7-scl/stream';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
-import { loadFixtures, cleanupFixtures } from './fixture-loader';
 import type { FixturePaths } from './fixture-loader';
+import { cleanupFixtures, loadFixtures } from './fixture-loader';
 
 export interface TestApp {
   /** Полноценный ApiApp со всеми модулями */

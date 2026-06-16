@@ -11,26 +11,34 @@
  *   3. Даёт ему все роли: GUEST, CANDIDATE, STUDENT, MENTOR, ADMIN
  *   4. Привязывает студента в потоке к этому же пользователю
  */
-import { mkdir, copyFile, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 
-const FIXTURES_DIR = path.resolve(import.meta.dir, '../../../tests/bot-e2e/fixtures/templates');
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { Role, type User } from '@u7-scl/user/domain';
+
+const FIXTURES_DIR = path.resolve(
+  import.meta.dir,
+  '../../../tests/bot-e2e/fixtures/templates',
+);
 const DATA_DIR = path.resolve(import.meta.dir, '../../../data-fixtures');
 
 const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
-const STUDENT_UUID = '33333333-3333-3333-3333-333333333333';
 
 async function main() {
   const devTelegramId = process.env.DEV_TELEGRAM_ID;
   if (!devTelegramId) {
     console.error('❌ Укажи DEV_TELEGRAM_ID — твой реальный Telegram ID');
-    console.error('   Пример: DEV_TELEGRAM_ID=123456789 bun run apps/u7-bot/scripts/seed-fixtures.ts');
+    console.error(
+      '   Пример: DEV_TELEGRAM_ID=123456789 bun run apps/u7-bot/scripts/seed-fixtures.ts',
+    );
     process.exit(1);
   }
 
   const id = Number(devTelegramId);
   if (Number.isNaN(id) || id <= 0) {
-    console.error('❌ DEV_TELEGRAM_ID должен быть числом (твой Telegram user ID)');
+    console.error(
+      '❌ DEV_TELEGRAM_ID должен быть числом (твой Telegram user ID)',
+    );
     process.exit(1);
   }
 
@@ -48,7 +56,9 @@ async function main() {
   console.log('✅ Готово! Запускай бота:');
   console.log('   DB_DIR=./data-fixtures bun run apps/u7-bot/src/main.ts');
   console.log('');
-  console.log('📋 Роли dev-пользователя: GUEST, CANDIDATE, STUDENT, MENTOR, ADMIN');
+  console.log(
+    '📋 Роли dev-пользователя: GUEST, CANDIDATE, STUDENT, MENTOR, ADMIN',
+  );
   console.log('📋 Ты ментор потоков: JS Core Поток 1–4');
   console.log('📋 Ты студент в потоке: JS Core Поток 2 (Активный)');
 }
@@ -77,9 +87,9 @@ async function copyFixtures() {
 async function patchUsers(devId: number) {
   const usersPath = path.join(DATA_DIR, 'users', 'users.json');
   const raw = await readFile(usersPath, 'utf-8');
-  const users = JSON.parse(raw);
+  const users = JSON.parse(raw) as User[];
 
-  const mentor = users.find((u: any) => u.uuid === MENTOR_UUID);
+  const mentor = users.find((u) => u.uuid === MENTOR_UUID);
   if (!mentor) {
     console.error('❌ Ментор не найден в users.json');
     process.exit(1);
@@ -87,12 +97,18 @@ async function patchUsers(devId: number) {
 
   // Привязываем ментора к dev-аккаунту и даём все роли
   mentor.telegramId = devId;
-  mentor.roles = ['GUEST', 'CANDIDATE', 'STUDENT', 'MENTOR', 'ADMIN'];
+  mentor.roles = [
+    Role.GUEST,
+    Role.CANDIDATE,
+    Role.STUDENT,
+    Role.MENTOR,
+    Role.ADMIN,
+  ];
   mentor.name = 'Dev';
 
   // Удаляем остальных пользователей, чтобы избежать конфликтов
   // (оставляем только ментора — он теперь единственный пользователь)
-  const filtered = users.filter((u: any) => u.uuid === MENTOR_UUID);
+  const filtered = users.filter((u) => u.uuid === MENTOR_UUID);
 
   await writeFile(usersPath, JSON.stringify(filtered, null, 2));
   console.log('👤 Пользователь настроен: все роли на одном аккаунте');

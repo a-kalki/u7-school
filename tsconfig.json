@@ -34,7 +34,9 @@
       "@u7-scl/course/infra": ["packages/course/src/infra/index.ts"],
       "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
       "@u7-scl/stream": ["packages/stream/src/index.ts"],
-      "@u7-scl/stream/ui/bot/controller/stream-controller": ["packages/stream/src/ui/bot/controller/stream-controller.ts"],
+      "@u7-scl/stream/ui/bot/controller/stream-controller": [
+        "packages/stream/src/ui/bot/controller/stream-controller.ts"
+      ],
       "@u7-scl/onboarding": ["packages/onboarding/src/index.ts"],
       "@u7-scl/w3school": ["packages/w3school/src/index.ts"],
       "@u7-scl/app": ["packages/app/src/index.ts"],

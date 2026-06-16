@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import type { U7BotApp } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
@@ -11,7 +12,6 @@ import { OnboardingApiModule } from '#api/module';
 import type { OnboardingApiModuleResolver } from '#domain/module';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
-import type { U7BotApp } from '@u7-scl/app/domain';
 import type { MessageDescription } from '../types';
 import { OnboardingController } from './onboarding-controller';
 

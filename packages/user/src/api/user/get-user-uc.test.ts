@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { UserApiModuleResolver } from '#domain/module';
 import type { User } from '#domain/user/entity';
 import type { UserRepo } from '#domain/user/repo';
-import type { UserApiModuleResolver } from '#domain/module';
 import { Role } from '#domain/user/roles';
 import { GetUserUc } from './get-user-uc';
 

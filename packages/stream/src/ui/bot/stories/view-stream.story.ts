@@ -60,9 +60,13 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
     let studentCount = 0;
     try {
-      const students = await this.moduleApi.execute('list-stream-students', {
-        streamId,
-      }, actor.uuid);
+      const students = await this.moduleApi.execute(
+        'list-stream-students',
+        {
+          streamId,
+        },
+        actor.uuid,
+      );
       studentCount = students.length;
     } catch {
       // Для не-менторов список студентов недоступен — показываем 0

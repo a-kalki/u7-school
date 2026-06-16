@@ -1,7 +1,7 @@
-import type { OnboardingApiModuleResolver } from '#domain/module';
 import { describe, expect, mock, test } from 'bun:test';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
+import type { OnboardingApiModuleResolver } from '#domain/module';
 import type { Questionnaire } from '#domain/questionnaire/entity';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';

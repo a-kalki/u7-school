@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/user/domain';
 import { StreamPolicy } from '#domain/index';
 import { StudentAr } from '#domain/student/a-root';
 import {
@@ -8,7 +9,6 @@ import {
 import type { Student } from '#domain/student/entity';
 import { StudentSchema } from '#domain/student/entity';
 import { StudentPolicy } from '#domain/student/policy';
-import type { User } from '@u7-scl/user/domain';
 import { StreamUseCase } from '../stream-uc';
 
 export class GetStudentProgressUc extends StreamUseCase<GetStudentProgressCmdMeta> {

@@ -1,6 +1,6 @@
 import type { ModuleResolver } from '@u7-scl/core/domain';
 import type { CourseFacade } from '@u7-scl/course/domain';
-import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
+import type { UserFacade } from '@u7-scl/user/domain';
 import type { ActivateStreamCmdMeta } from './stream/commands/activate-stream-cmd';
 import type { ArchiveStreamCmdMeta } from './stream/commands/archive-stream-cmd';
 import type { CompleteStreamCmdMeta } from './stream/commands/complete-stream-cmd';

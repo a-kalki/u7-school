@@ -1,3 +1,4 @@
+import type { U7BotApp, U7BotAppMeta } from '@u7-scl/app/domain';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import {
@@ -9,7 +10,6 @@ import {
 } from '@u7-scl/core/ui';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
-import type { U7BotApp, U7BotAppMeta } from '@u7-scl/app/domain';
 import type { KeyboardDescription } from '../types';
 
 /** Минимальный интерфейс актора для onboarding */

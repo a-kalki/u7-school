@@ -1,6 +1,6 @@
-import { getGlobalLogger } from '@u7-scl/core/shared';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import { JsonFileRepo } from '@u7-scl/core/infra';
+import { getGlobalLogger } from '@u7-scl/core/shared';
 import type { User } from '#domain/user/entity';
 import { UserSchema } from '#domain/user/entity';
 import type { UserListFilter, UserRepo } from '#domain/user/repo';

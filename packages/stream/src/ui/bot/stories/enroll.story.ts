@@ -23,10 +23,14 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Получаем поток для названия, даты старта и ссылки на чат
     const stream = await this.moduleApi.execute('get-stream', { streamId });
 
-    await this.moduleApi.execute('enroll-student', {
-      streamId,
-      userId: actor.uuid,
-    }, actor.uuid);
+    await this.moduleApi.execute(
+      'enroll-student',
+      {
+        streamId,
+        userId: actor.uuid,
+      },
+      actor.uuid,
+    );
 
     const dateStr = this.formatDate(stream.startDate);
 

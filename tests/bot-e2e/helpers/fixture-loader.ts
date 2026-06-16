@@ -1,5 +1,5 @@
+import { copyFile, mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
-import { mkdir, copyFile, rm } from 'node:fs/promises';
 
 /** Путь к неизменяемым шаблонам фикстур */
 const TEMPLATES_DIR = path.resolve(import.meta.dir, '../fixtures/templates');
@@ -31,10 +31,7 @@ export interface FixturePaths {
  */
 export async function loadFixtures(tag?: string): Promise<FixturePaths> {
   const suffix = tag ? `-${tag.replace(/[^a-z0-9]/gi, '-')}` : '';
-  const tmpDir = path.join(
-    '/tmp',
-    `u7-bot-e2e-${Date.now()}${suffix}`,
-  );
+  const tmpDir = path.join('/tmp', `u7-bot-e2e-${Date.now()}${suffix}`);
 
   return copyTemplates(tmpDir);
 }
@@ -45,7 +42,9 @@ export async function loadFixtures(tag?: string): Promise<FixturePaths> {
  */
 export async function cleanupFixtures(fixtures: FixturePaths): Promise<void> {
   if (process.env.KEEP_FIXTURES === '1') {
-    console.log(`[fixture-loader] KEEP_FIXTURES=1 — сохраняем: ${fixtures.dbDir}`);
+    console.log(
+      `[fixture-loader] KEEP_FIXTURES=1 — сохраняем: ${fixtures.dbDir}`,
+    );
     return;
   }
   try {

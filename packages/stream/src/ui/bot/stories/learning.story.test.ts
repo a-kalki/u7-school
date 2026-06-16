@@ -42,8 +42,16 @@ describe('LearningStory', () => {
       {
         projectTitle: 'Основы',
         lessons: [
-          { lessonId: 'lesson-uuid-1', lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
-          { lessonId: 'lesson-uuid-2', lessonTitle: 'Переменные', stepIds: ['step-3', 'step-4'] },
+          {
+            lessonId: 'lesson-uuid-1',
+            lessonTitle: 'Введение',
+            stepIds: ['step-1', 'step-2'],
+          },
+          {
+            lessonId: 'lesson-uuid-2',
+            lessonTitle: 'Переменные',
+            stepIds: ['step-3', 'step-4'],
+          },
         ],
       },
     ],

@@ -1,10 +1,10 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { BotRouter } from '@u7-scl/core/ui';
 import type { SessionData } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
 import type { TestApp } from '../../helpers/test-app';
+import { createTestApp } from '../../helpers/test-app';
 
 const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
 const ACTIVE_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
@@ -65,7 +65,8 @@ describe('ViewStreamStory e2e', () => {
     expect(text).toContain('JS Core');
     expect(text).toContain('Ментор');
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
     expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад'))).toBe(true);
@@ -79,7 +80,8 @@ describe('ViewStreamStory e2e', () => {
       session,
     );
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
     expect(btns.some((t) => t.includes('Уведомить'))).toBe(true);
   });
@@ -91,7 +93,8 @@ describe('ViewStreamStory e2e', () => {
       session,
     );
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
     expect(btns.some((t) => t.includes('Уведомить'))).toBe(false);
     expect(btns.some((t) => t.includes('Программа'))).toBe(false);
@@ -109,7 +112,8 @@ describe('ViewStreamStory e2e', () => {
       session,
     );
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
   });
 
@@ -124,7 +128,8 @@ describe('ViewStreamStory e2e', () => {
       session,
     );
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
   });
 
@@ -139,7 +144,8 @@ describe('ViewStreamStory e2e', () => {
       session,
     );
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Запустить'))).toBe(true);
     expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btns.some((t) => t.includes('В архив'))).toBe(true);
@@ -153,7 +159,8 @@ describe('ViewStreamStory e2e', () => {
       session,
     );
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Завершить'))).toBe(true);
     expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btns.some((t) => t.includes('В архив'))).toBe(true);
@@ -176,7 +183,8 @@ describe('ViewStreamStory e2e', () => {
     expect(text).toContain('Переменные и типы');
     expect(text).toContain('Условные операторы');
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Назад к потоку'))).toBe(true);
   });
 

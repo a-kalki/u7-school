@@ -327,14 +327,18 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
-    await this.moduleApi.execute('create-stream', {
-      title: context.title,
-      description: context.description,
-      moduleId: context.moduleId,
-      startDate: context.startDate,
-      telegramGroupId: context.telegramGroupId,
-      mentorId: actor.uuid,
-    }, actor.uuid);
+    await this.moduleApi.execute(
+      'create-stream',
+      {
+        title: context.title,
+        description: context.description,
+        moduleId: context.moduleId,
+        startDate: context.startDate,
+        telegramGroupId: context.telegramGroupId,
+        mentorId: actor.uuid,
+      },
+      actor.uuid,
+    );
 
     return {
       releaseInput: true,

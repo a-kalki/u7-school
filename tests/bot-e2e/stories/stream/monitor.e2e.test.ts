@@ -1,10 +1,10 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { BotRouter } from '@u7-scl/core/ui';
 import type { SessionData } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
 import type { TestApp } from '../../helpers/test-app';
+import { createTestApp } from '../../helpers/test-app';
 
 const ACTIVE_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const STUDENT_ID = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
@@ -56,7 +56,8 @@ describe('MonitorStory e2e', () => {
     expect(text).toContain('Студенты потока');
     expect(text).toContain('Активный');
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     // Имя студента из фикстур — «Студент», отображается в кнопке с прогрессом
     expect(btns.some((t) => t.includes('Студент'))).toBe(true);
     expect(btns.some((t) => t.includes('%'))).toBe(true);
@@ -74,7 +75,8 @@ describe('MonitorStory e2e', () => {
     expect(text).toContain('Telegram');
     expect(text).toContain('Прогресс');
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Написать'))).toBe(true);
     expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);

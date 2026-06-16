@@ -1,5 +1,5 @@
-import type { CourseApiModuleResolver } from '#domain/module';
 import { describe, expect, mock, test } from 'bun:test';
+import type { CourseApiModuleResolver } from '#domain/module';
 import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
 import { Status } from '#domain/status';

@@ -1,10 +1,10 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { BotRouter } from '@u7-scl/core/ui';
 import type { SessionData } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
 import type { TestApp } from '../../helpers/test-app';
+import { createTestApp } from '../../helpers/test-app';
 
 /**
  * US-4: Прохождение обучения (активная фаза).
@@ -59,7 +59,8 @@ describe('LearningStory e2e', () => {
     expect(text).toContain('JS Core');
     expect(text).toContain('Текущее задание');
 
-    const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Выполнено'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
   });
@@ -89,8 +90,8 @@ describe('LearningStory e2e', () => {
     );
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Переменные и типы');  // завершённый урок
-    expect(text).toContain('Условные операторы');  // новый урок
+    expect(text).toContain('Переменные и типы'); // завершённый урок
+    expect(text).toContain('Условные операторы'); // новый урок
   });
 
   test('завершение шага в новом уроке — level=step', async () => {

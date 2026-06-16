@@ -53,7 +53,12 @@ describe('MonitorStory', () => {
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
-          return { uuid: 'user-1', name: 'Иван', telegramId: 111, roles: [Role.STUDENT] };
+          return {
+            uuid: 'user-1',
+            name: 'Иван',
+            telegramId: 111,
+            roles: [Role.STUDENT],
+          };
         return undefined;
       }),
     } as unknown as U7BotApp;
@@ -113,9 +118,19 @@ describe('MonitorStory', () => {
     const appApi = {
       execute: mock((name: string, params: any) => {
         if (name === 'get-user' && params?.uuid === 'user-1')
-          return { uuid: 'user-1', name: 'Иван Иванов', telegramId: 111, roles: [Role.STUDENT] };
+          return {
+            uuid: 'user-1',
+            name: 'Иван Иванов',
+            telegramId: 111,
+            roles: [Role.STUDENT],
+          };
         if (name === 'get-user' && params?.uuid === 'user-2')
-          return { uuid: 'user-2', name: 'Петр Петров', telegramId: 222, roles: [Role.STUDENT] };
+          return {
+            uuid: 'user-2',
+            name: 'Петр Петров',
+            telegramId: 222,
+            roles: [Role.STUDENT],
+          };
         return undefined;
       }),
     } as unknown as U7BotApp;

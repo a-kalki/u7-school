@@ -383,7 +383,13 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 22,
-    "stepIds": [],
+    "stepIds": [
+      "edd602f9-d5e6-4385-bb04-b3a700b73ce7",
+      "59504287-3591-4d88-b021-9ca77354d64c",
+      "a5c2a8f6-f8a4-4a48-818f-89051a99b3a5",
+      "10992767-81da-43a1-81ef-af5aa1ba9c48",
+      "3243752c-9f00-4977-973d-96ba980667ca"
+    ],
     "mentorStepIds": []
   },
   {
@@ -394,7 +400,12 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 20,
-    "stepIds": [],
+    "stepIds": [
+      "d79cea8b-aa77-4f15-a9e7-027c36d1d47a",
+      "599b049a-6be4-452c-8e2a-f59ad2986376",
+      "58612131-3e04-4e54-ad7a-ddc68c5bfc68",
+      "9a9ff87f-f376-4f01-b62c-92a4a09a6b64"
+    ],
     "mentorStepIds": []
   },
   {
@@ -405,7 +416,11 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 12,
-    "stepIds": [],
+    "stepIds": [
+      "75d0daf2-1f94-445b-9703-a836e10d63a1",
+      "f5df7378-742f-455d-9362-3694d24e2635",
+      "78cdd485-7e09-47d0-acda-2bc68bc1963f"
+    ],
     "mentorStepIds": []
   },
   {
@@ -416,7 +431,12 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 12,
-    "stepIds": [],
+    "stepIds": [
+      "02feb345-e538-4bd0-9242-d52a1fb1c1b2",
+      "203e3603-89cc-4a95-a5ce-15e3d60ef1cd",
+      "7dff7703-c1d2-4d64-8e9c-61ba2f9bcff8",
+      "d676d81a-0c6f-4a7c-81ca-05c3c5233215"
+    ],
     "mentorStepIds": []
   },
   {

@@ -1,10 +1,11 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { BotRouter } from '@u7-scl/core/ui';
 import type { SessionData } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
+import { StreamStatus } from '@u7-scl/stream';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
 import type { TestApp } from '../../helpers/test-app';
+import { createTestApp } from '../../helpers/test-app';
 
 const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
 
@@ -50,7 +51,7 @@ describe('ActivateStreamStory e2e', () => {
     const stream = await app.streamModule.execute('get-stream', {
       streamId: ENROLLMENT_ID,
     });
-    expect(stream.status).toBe('active');
+    expect(stream.status).toBe(StreamStatus.ACTIVE);
   });
 
   test('гость — ошибка доступа при попытке активации', async () => {

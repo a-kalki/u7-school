@@ -221,14 +221,18 @@ describe('CreateStreamStory', () => {
       activeHandler: { path: 'stream/create-stream/wizard', context: ctx },
     });
 
-    expect(moduleApi.execute).toHaveBeenCalledWith('create-stream', {
-      title: 'Мой поток',
-      description: 'Описание',
-      moduleId: 'mod-1',
-      startDate: '2026-07-01',
-      telegramGroupId: '@group',
-      mentorId: 'mentor-1',
-    }, 'mentor-1');
+    expect(moduleApi.execute).toHaveBeenCalledWith(
+      'create-stream',
+      {
+        title: 'Мой поток',
+        description: 'Описание',
+        moduleId: 'mod-1',
+        startDate: '2026-07-01',
+        telegramGroupId: '@group',
+        mentorId: 'mentor-1',
+      },
+      'mentor-1',
+    );
     expect(response.releaseInput).toBe(true);
     expect(response.sendMessage?.text).toContain('успешно создан');
   });

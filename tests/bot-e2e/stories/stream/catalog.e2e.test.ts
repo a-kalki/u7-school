@@ -1,10 +1,10 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { BotRouter } from '@u7-scl/core/ui';
 import type { SessionData } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
 import type { TestApp } from '../../helpers/test-app';
+import { createTestApp } from '../../helpers/test-app';
 
 /**
  * US-1: Просмотр витрины потоков (Каталог).
@@ -61,11 +61,15 @@ describe('CatalogStory e2e', () => {
 
   test('гость — завершённые и архивные потоки не показываются', async () => {
     const btnTexts =
-      (await router.handleCallback('stream:catalog:list', guest, session))
-        .sendMessage?.keyboard?.rows.flat()
+      (
+        await router.handleCallback('stream:catalog:list', guest, session)
+      ).sendMessage?.keyboard?.rows
+        .flat()
         .map((b) => b.text) ?? [];
 
-    expect(btnTexts.filter((t) => t.includes('Завершён') || t.includes('Архив'))).toHaveLength(0);
+    expect(
+      btnTexts.filter((t) => t.includes('Завершён') || t.includes('Архив')),
+    ).toHaveLength(0);
   });
 
   // ── Студент ──

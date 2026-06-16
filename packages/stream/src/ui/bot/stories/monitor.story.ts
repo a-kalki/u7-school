@@ -42,9 +42,13 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные методы ──
 
   async #handleStudents(streamId: string, actor: User): Promise<BotResponse> {
-    const students = await this.moduleApi.execute('list-stream-students', {
-      streamId,
-    }, actor.uuid);
+    const students = await this.moduleApi.execute(
+      'list-stream-students',
+      {
+        streamId,
+      },
+      actor.uuid,
+    );
 
     const stream = await this.moduleApi.execute('get-stream', {
       streamId,

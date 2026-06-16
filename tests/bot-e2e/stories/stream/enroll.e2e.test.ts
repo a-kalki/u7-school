@@ -1,10 +1,10 @@
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { BotRouter } from '@u7-scl/core/ui';
 import type { SessionData } from '@u7-scl/core/ui';
+import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
 import type { TestApp } from '../../helpers/test-app';
+import { createTestApp } from '../../helpers/test-app';
 
 const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
 const ACTIVE_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
@@ -64,9 +64,13 @@ describe('EnrollStory e2e', () => {
   });
 
   test('после записи — студент найден через get-student-by-user', async () => {
-    const studentRecord = await app.streamModule.execute('get-student-by-user', {
-      userId: candidate.uuid,
-    }, candidate.uuid);
+    const studentRecord = await app.streamModule.execute(
+      'get-student-by-user',
+      {
+        userId: candidate.uuid,
+      },
+      candidate.uuid,
+    );
     expect(studentRecord).toBeDefined();
     expect(studentRecord.status).toBe('active');
     expect(studentRecord.streamId).toBe(ENROLLMENT_ID);
@@ -98,7 +102,8 @@ describe('EnrollStory e2e', () => {
       session,
     );
 
-    const btns = viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns =
+      viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     // На active потоке нет кнопки «Записаться» для гостя
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
   });

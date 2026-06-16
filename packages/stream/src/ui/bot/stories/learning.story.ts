@@ -59,9 +59,13 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   async #handleMyStudy(actor: User): Promise<BotResponse> {
     let student: Student;
     try {
-      student = await this.moduleApi.execute('get-student-by-user', {
-        userId: actor.uuid,
-      }, actor.uuid);
+      student = await this.moduleApi.execute(
+        'get-student-by-user',
+        {
+          userId: actor.uuid,
+        },
+        actor.uuid,
+      );
     } catch {
       return {
         sendMessage: {
@@ -127,11 +131,15 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.sendUnknownError();
     }
 
-    const result = await this.moduleApi.execute('complete-step', {
-      studentId,
-      streamId,
-      stepId,
-    }, actor.uuid);
+    const result = await this.moduleApi.execute(
+      'complete-step',
+      {
+        studentId,
+        streamId,
+        stepId,
+      },
+      actor.uuid,
+    );
 
     // Если переход на новый урок/проект — получаем названия
     if (result.level === 'lesson' || result.level === 'project') {
@@ -205,7 +213,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   #findStepLabel(
     snapshot: Array<{
       projectTitle: string;
-      lessons: Array<{ lessonId: string; lessonTitle: string; stepIds: string[] }>;
+      lessons: Array<{
+        lessonId: string;
+        lessonTitle: string;
+        stepIds: string[];
+      }>;
     }>,
     stepId: string,
   ): string {
@@ -223,7 +235,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   #findLessonTitle(
     snapshot: Array<{
       projectTitle: string;
-      lessons: Array<{ lessonId: string; lessonTitle: string; stepIds: string[] }>;
+      lessons: Array<{
+        lessonId: string;
+        lessonTitle: string;
+        stepIds: string[];
+      }>;
     }>,
     lessonId: string,
   ): string {
@@ -240,7 +256,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   #findLessonTitleByStep(
     snapshot: Array<{
       projectTitle: string;
-      lessons: Array<{ lessonId: string; lessonTitle: string; stepIds: string[] }>;
+      lessons: Array<{
+        lessonId: string;
+        lessonTitle: string;
+        stepIds: string[];
+      }>;
     }>,
     stepId: string,
   ): string {
@@ -258,7 +278,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     snapshot: Array<{
       projectId: string;
       projectTitle: string;
-      lessons: Array<{ lessonId: string; lessonTitle: string; stepIds: string[] }>;
+      lessons: Array<{
+        lessonId: string;
+        lessonTitle: string;
+        stepIds: string[];
+      }>;
     }>,
     projectId: string,
   ): string {
@@ -274,7 +298,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     snapshot: Array<{
       projectId: string;
       projectTitle: string;
-      lessons: Array<{ lessonId: string; lessonTitle: string; stepIds: string[] }>;
+      lessons: Array<{
+        lessonId: string;
+        lessonTitle: string;
+        stepIds: string[];
+      }>;
     }>,
     stepId: string,
   ): string {

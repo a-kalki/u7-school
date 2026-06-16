@@ -22,7 +22,10 @@ describe('RegisterGuestUc', () => {
     userRepo = new UserJsonRepo(join(tmpDir, 'users.json'), undefined, db);
     mod = new UserApiModule({
       userRepo,
-      appResolver: { logger: console, mode: 'test' as const } as unknown as AppResolver,
+      appResolver: {
+        logger: console,
+        mode: 'test' as const,
+      } as unknown as AppResolver,
     });
     apiApp = new ApiApp([mod]);
 
