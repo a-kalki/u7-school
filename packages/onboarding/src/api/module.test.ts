@@ -5,10 +5,21 @@ import { QuestionPoolService } from '#domain/questionnaire/question-pool-service
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import { OnboardingApiModule } from './module';
 
+const appResolver = { logger: console, mode: 'test' as const };
+
+const mockUserFacade = {
+  getUserByUuid: async () => ({ uuid: 'admin-uuid', roles: ['ADMIN'] }),
+  getUserByTelegramId: async () => ({ uuid: 'user-uuid', roles: ['GUEST'] }),
+  addRoleToUser: async () => {},
+  userExists: async () => true,
+  registerGuest: async () => ({ uuid: 'guest-uuid', roles: ['GUEST'] }),
+  updateUserRole: async () => {},
+  removeRoleFromUser: async () => {},
+} as unknown as UserFacade;
+
 function setupModule(dbPath: string) {
   const db = new BaseJsonDb();
   const repo = new QuestionnaireJsonRepo(dbPath, db);
-  const _botAdminUuid = '00000000-0000-0000-0000-000000000000';
   const poolService = new QuestionPoolService(
     [
       {
@@ -22,18 +33,12 @@ function setupModule(dbPath: string) {
     ['q1'],
   );
 
-  const userFacade = {
-    getUserByUuid: async () => ({ uuid: 'admin-uuid', roles: ['ADMIN'] }),
-    getUserByTelegramId: async () => ({ uuid: 'user-uuid', roles: ['GUEST'] }),
-    addRoleToUser: async () => {},
-    ensureUserWithRole: async () => {},
-  } as unknown as UserFacade;
-
   const module = new OnboardingApiModule({
     questionnaireRepo: repo,
     questionPoolService: poolService,
-    userFacade,
+    userFacade: mockUserFacade,
     db,
+    appResolver,
   });
 
   return { module, repo, db };
@@ -44,9 +49,8 @@ describe('OnboardingApiModule', () => {
     const { module, db } = setupModule('/tmp/onboarding-test-1.json');
     db.begin();
 
-    const result = (await module.handle({
-      name: 'start',
-      attrs: { telegramId: 10001 },
+    const result = (await module.execute('start', {
+      telegramId: 10001,
     })) as any;
 
     expect(result.type).toBe('new_question');
@@ -59,14 +63,12 @@ describe('OnboardingApiModule', () => {
     const { module, db } = setupModule('/tmp/onboarding-test-2.json');
     db.begin();
 
-    await module.handle({
-      name: 'start',
-      attrs: { telegramId: 10002 },
-    });
+    await module.execute('start', { telegramId: 10002 });
 
-    const result = (await module.handle({
-      name: 'handle-action',
-      attrs: { telegramId: 10002, type: 'callback', value: 'yes' },
+    const result = (await module.execute('handle-action', {
+      telegramId: 10002,
+      type: 'callback',
+      value: 'yes',
     })) as any;
 
     expect(result.type).toBe('completed');
@@ -78,14 +80,10 @@ describe('OnboardingApiModule', () => {
     const { module, db } = setupModule('/tmp/onboarding-test-4.json');
     db.begin();
 
-    await module.handle({
-      name: 'start',
-      attrs: { telegramId: 10004 },
-    });
+    await module.execute('start', { telegramId: 10004 });
 
-    const abandonResult = (await module.handle({
-      name: 'abandon',
-      attrs: { telegramId: 10004 },
+    const abandonResult = (await module.execute('abandon', {
+      telegramId: 10004,
     })) as any;
 
     expect(abandonResult.type).toBe('completed');

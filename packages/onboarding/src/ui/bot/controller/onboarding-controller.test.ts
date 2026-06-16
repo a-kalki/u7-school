@@ -36,7 +36,7 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
-  const logger = { error: () => {} } as unknown as Logger;
+  const logger = { error: () => {}, info: () => {}, warn: () => {} } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');
@@ -91,6 +91,7 @@ describe('OnboardingController', () => {
         },
       } as unknown as UserFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     };
 
     mod = new OnboardingApiModule(modResolve);
@@ -262,6 +263,7 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
@@ -320,6 +322,7 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
@@ -374,6 +377,7 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
@@ -430,6 +434,7 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
@@ -487,6 +492,7 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
@@ -539,6 +545,7 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
+      appResolver: { logger, mode: 'test' as const },
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;

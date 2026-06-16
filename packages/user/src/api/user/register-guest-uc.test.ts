@@ -19,7 +19,7 @@ describe('RegisterGuestUc', () => {
     tmpDir = mkdtempSync('/tmp/user-reg-test-');
     db = new BaseJsonDb();
     userRepo = new UserJsonRepo(join(tmpDir, 'users.json'), undefined, db);
-    mod = new UserApiModule({ userRepo });
+    mod = new UserApiModule({ userRepo, appResolver: { logger: console, mode: 'test' as const } });
     apiApp = new ApiApp([mod]);
 
     // Seed admin

@@ -5,6 +5,7 @@ import { UserJsonRepo } from '#infra/db/user-json-repo';
 import { UserApiModule } from './module';
 
 const NO_SEED = '/nonexistent-seed.json';
+const appResolver = { logger: console, mode: 'test' as const };
 
 describe('UserApiModule + UserJsonRepo', () => {
   test('user.create: создаёт пользователя если есть права ADMIN', async () => {
@@ -12,7 +13,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     await Bun.$`rm -f ${jsonFile}`;
 
     const repo = new UserJsonRepo(jsonFile, NO_SEED);
-    const mod = new UserApiModule({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo, appResolver });
 
     const admin: User = {
       uuid: crypto.randomUUID(),
@@ -23,11 +24,11 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(admin);
 
-    const result = await mod.handle({
-      name: 'create-user',
-      attrs: { name: 'Студент', telegramId: 2, roles: [Role.STUDENT] },
-      actorId: admin.uuid,
-    });
+    const result = await mod.execute(
+      'create-user',
+      { name: 'Студент', telegramId: 2, roles: [Role.STUDENT] },
+      admin.uuid,
+    );
     expect((result as User).roles).toEqual([Role.STUDENT]);
 
     await Bun.$`rm -f ${jsonFile}`;
@@ -47,12 +48,9 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo, appResolver });
 
-    const result = await mod.handle({
-      name: 'get-user',
-      attrs: { uuid: user.uuid },
-    });
+    const result = await mod.execute('get-user', { uuid: user.uuid });
     expect((result as User).name).toBe('Иван');
 
     await Bun.$`rm -f ${jsonFile}`;
@@ -72,12 +70,9 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo, appResolver });
 
-    const result = await mod.handle({
-      name: 'list-users',
-      attrs: {},
-    });
+    const result = await mod.execute('list-users', {});
     expect((result as { users: User[] }).users).toHaveLength(1);
 
     await Bun.$`rm -f ${jsonFile}`;
@@ -97,11 +92,10 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule({ userRepo: repo });
+    const mod = new UserApiModule({ userRepo: repo, appResolver });
 
-    const result = await mod.handle({
-      name: 'get-user-by-telegram-id',
-      attrs: { telegramId: 12345 },
+    const result = await mod.execute('get-user-by-telegram-id', {
+      telegramId: 12345,
     });
     expect((result as User).name).toBe('Иван');
 
@@ -114,11 +108,12 @@ describe('UserApiModule + UserJsonRepo', () => {
 
     const mod = new UserApiModule({
       userRepo: new UserJsonRepo(jsonFile, NO_SEED),
+      appResolver,
     });
 
-    await expect(mod.handle({ name: 'unknown', attrs: {} })).rejects.toThrow(
-      "Команда 'unknown' не найдена",
-    );
+    await expect(
+      mod.execute('unknown' as any, {} as any),
+    ).rejects.toThrow("Команда 'unknown' не найдена");
 
     await Bun.$`rm -f ${jsonFile}`;
   });
