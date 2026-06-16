@@ -8,9 +8,9 @@
   - [x] Создать `CourseInProcFacade` с резолвером, содержащим оба репо
   - [x] Передать фасад в `StreamApiModule` вместо заглушки
 
-- [ ] Task: Проверить, что `CreateStreamUc` получает `contentSnapshot`
-  - [ ] Добавить тестовый модуль и урок в seed-файлы
-  - [ ] Убедиться, что `create-stream` UC возвращает поток с непустым снапшотом
+- [x] Task: Проверить, что `CreateStreamUc` получает `contentSnapshot` `6b00ffa`
+  - [x] Добавить тестовый модуль и урок в seed-файлы
+  - [x] Убедиться, что `create-stream` UC возвращает поток с непустым снапшотом
 
 - [ ] Task: Conductor - Ручная верификация 'Подключение CourseFacade'
 
