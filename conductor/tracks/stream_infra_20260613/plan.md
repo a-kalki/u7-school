@@ -2,11 +2,11 @@
 
 ## Фаза 1: Подключение CourseFacade
 
-- [ ] Task: Инициализировать CourseJsonRepo и LessonJsonRepo в `api-app.ts`
-  - [ ] Создать `ModuleJsonRepo` и `LessonJsonRepo` с seed-файлами в `dbDir/course/`
-  - [ ] Создать пустые seed-файлы `modules.json` и `lessons.json`
-  - [ ] Создать `CourseInProcFacade` с резолвером, содержащим оба репо
-  - [ ] Передать фасад в `StreamApiModule` вместо заглушки
+- [x] Task: Инициализировать CourseJsonRepo и LessonJsonRepo в `api-app.ts` `6927b35`
+  - [x] Создать `ModuleJsonRepo` и `LessonJsonRepo` с seed-файлами в `dbDir/course/`
+  - [x] Создать пустые seed-файлы `modules.json` и `lessons.json`
+  - [x] Создать `CourseInProcFacade` с резолвером, содержащим оба репо
+  - [x] Передать фасад в `StreamApiModule` вместо заглушки
 
 - [ ] Task: Проверить, что `CreateStreamUc` получает `contentSnapshot`
   - [ ] Добавить тестовый модуль и урок в seed-файлы
