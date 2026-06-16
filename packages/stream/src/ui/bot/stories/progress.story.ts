@@ -33,11 +33,11 @@ export class ProgressStory extends BotUserStory<StreamAppMeta> {
     const streamId = parts[1]!;
     const a = actor as { uuid: string };
 
-    const student = (await this.api.execute('get-student-by-user', {
+    const student = (await this.moduleApi.execute('get-student-by-user', {
       userId: a.uuid,
     })) as unknown as StudentProgress;
 
-    const stream = (await this.api.execute('get-stream', {
+    const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as unknown as StreamSnapshot;
 

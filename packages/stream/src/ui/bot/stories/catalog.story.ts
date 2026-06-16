@@ -29,7 +29,7 @@ export class CatalogStory extends BotUserStory<StreamAppMeta> {
       return { sendMessage: { text: '⚠️ Неизвестная команда каталога' } };
     }
 
-    const streams = (await this.api.execute(
+    const streams = (await this.moduleApi.execute(
       'list-streams',
       {},
     )) as unknown as StreamItem[];

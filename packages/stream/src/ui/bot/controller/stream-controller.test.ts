@@ -4,7 +4,7 @@ import type { StreamAppMeta } from '../../../domain/module';
 import { StreamController } from './stream-controller';
 
 describe('StreamController (реестр)', () => {
-  const mockApi = {
+  const mockModuleApi = {
     execute: mock((name: string, _attrs: unknown) => {
       if (name === 'list-streams') return [];
       if (name === 'get-stream')
@@ -18,22 +18,25 @@ describe('StreamController (реестр)', () => {
       if (name === 'list-stream-students') return [];
       return undefined;
     }),
-  } as unknown as ApiApp<StreamAppMeta>;
+  } as any;
+  const mockApi = mockModuleApi as unknown as ApiApp<StreamAppMeta>;
+
+  const makeController = () => new StreamController(mockModuleApi);
 
   test('имя контроллера — stream', () => {
-    const controller = new StreamController();
+    const controller = makeController();
     expect(controller.name).toBe('stream');
   });
 
   test('содержит 8 stories', () => {
-    const controller = new StreamController();
+    const controller = makeController();
     // stories — protected, используем доступ через прототип
     const stories = (controller as unknown as { stories: unknown[] }).stories;
     expect(stories.length).toBe(8);
   });
 
   test('handleStart агрегирует кнопки от stories', async () => {
-    const controller = new StreamController();
+    const controller = makeController();
     controller.init(mockApi);
 
     const actor = { uuid: 'u1', roles: ['GUEST'] };
@@ -46,7 +49,7 @@ describe('StreamController (реестр)', () => {
   });
 
   test('handleStart — STUDENT видит catalog + learning', async () => {
-    const controller = new StreamController();
+    const controller = makeController();
     controller.init(mockApi);
 
     const actor = { uuid: 'u1', roles: ['STUDENT'] };
@@ -59,7 +62,7 @@ describe('StreamController (реестр)', () => {
   });
 
   test('handleStart — MENTOR видит catalog + панель ментора', async () => {
-    const controller = new StreamController();
+    const controller = makeController();
     controller.init(mockApi);
 
     const actor = { uuid: 'u1', roles: ['MENTOR'] };
@@ -71,7 +74,7 @@ describe('StreamController (реестр)', () => {
   });
 
   test('handleStart сортирует по priority', async () => {
-    const controller = new StreamController();
+    const controller = makeController();
     controller.init(mockApi);
 
     const actor = { uuid: 'u1', roles: ['STUDENT'] };
@@ -83,7 +86,7 @@ describe('StreamController (реестр)', () => {
   });
 
   test('handleCallback форвардит по префиксу story', async () => {
-    const controller = new StreamController();
+    const controller = makeController();
     controller.init(mockApi);
 
     const actor = { uuid: 'u1', roles: ['GUEST'] };
@@ -107,7 +110,7 @@ describe('StreamController (реестр)', () => {
   });
 
   test('handleCallback — неизвестный префикс', async () => {
-    const controller = new StreamController();
+    const controller = makeController();
     const actor = { uuid: 'u1', roles: ['GUEST'] };
     const session = { activeHandler: null };
 

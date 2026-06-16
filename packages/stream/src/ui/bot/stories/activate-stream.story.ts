@@ -20,7 +20,7 @@ export class ActivateStreamStory extends BotUserStory<StreamAppMeta> {
     }
 
     const streamId = parts[1]!;
-    await this.api.execute('activate-stream', { streamId });
+    await this.moduleApi.execute('activate-stream', { streamId });
 
     return {
       sendMessage: {

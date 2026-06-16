@@ -36,11 +36,11 @@ export class MonitorStory extends BotUserStory<StreamAppMeta> {
 
     const streamId = parts[1]!;
 
-    const students = (await this.api.execute('list-stream-students', {
+    const students = (await this.moduleApi.execute('list-stream-students', {
       streamId,
     })) as unknown as StudentInfo[];
 
-    const stream = (await this.api.execute('get-stream', {
+    const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as unknown as StreamInfo;
 

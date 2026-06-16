@@ -244,7 +244,7 @@ export class CreateStreamStory extends BotUserStory<StreamAppMeta> {
     };
     const a = actor as Actor;
 
-    await this.api.execute('create-stream', {
+    await this.moduleApi.execute('create-stream', {
       title: fullCtx.title,
       description: fullCtx.description,
       moduleId: fullCtx.moduleId,

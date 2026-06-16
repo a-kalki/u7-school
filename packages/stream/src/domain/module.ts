@@ -1,4 +1,4 @@
-import type { ModuleResolver } from '@u7-scl/core/domain';
+import type { AppMeta, ModuleResolver } from '@u7-scl/core/domain';
 import type { CourseFacade } from '@u7-scl/course/domain';
 import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
 import type { ActivateStreamCmdMeta } from './stream/commands/activate-stream-cmd';
@@ -37,4 +37,10 @@ export interface StreamApiModuleMeta {
     | EnrollStudentCmdMeta
     | GetStudentByUserCmdMeta
     | GetStudentProgressCmdMeta;
+}
+
+/** Метаданные приложения stream-bot */
+export interface StreamAppMeta extends AppMeta {
+  name: 'stream-bot';
+  moduleMetas: StreamApiModuleMeta | UserApiModuleMeta;
 }

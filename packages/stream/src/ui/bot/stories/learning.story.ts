@@ -88,7 +88,7 @@ export class LearningStory extends BotUserStory<StreamAppMeta> {
   // ── Приватные методы ──
 
   async #handleMyStudy(a: Actor): Promise<BotResponse> {
-    const student = (await this.api.execute('get-student-by-user', {
+    const student = (await this.moduleApi.execute('get-student-by-user', {
       userId: a.uuid,
     })) as unknown as StudentInfo | undefined;
 
@@ -110,7 +110,7 @@ export class LearningStory extends BotUserStory<StreamAppMeta> {
       };
     }
 
-    const stream = (await this.api.execute('get-stream', {
+    const stream = (await this.moduleApi.execute('get-stream', {
       streamId: student.streamId,
     })) as unknown as StreamInfo;
 
@@ -157,7 +157,7 @@ export class LearningStory extends BotUserStory<StreamAppMeta> {
     const streamId = parts[2]!;
     const stepId = parts[3]!;
 
-    const result = (await this.api.execute('complete-step', {
+    const result = (await this.moduleApi.execute('complete-step', {
       studentId,
       streamId,
       stepId,

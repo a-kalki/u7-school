@@ -29,7 +29,7 @@ export class EnrollStory extends BotUserStory<StreamAppMeta> {
     const a = actor as Actor;
 
     // Получаем поток для ссылки на чат
-    const stream = (await this.api.execute('get-stream', {
+    const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as unknown as {
       title: string;
@@ -37,7 +37,7 @@ export class EnrollStory extends BotUserStory<StreamAppMeta> {
       telegramGroupInvite?: string;
     };
 
-    await this.api.execute('enroll-student', { streamId, userId: a.uuid });
+    await this.moduleApi.execute('enroll-student', { streamId, userId: a.uuid });
 
     const lines = ['🎉 *Вы успешно записаны на поток!*', ''];
     if (stream?.title) {
