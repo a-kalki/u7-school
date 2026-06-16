@@ -1,8 +1,0 @@
-{
-  "track_id": "stream_infra_20260613",
-  "type": "chore",
-  "status": "new",
-  "created_at": "2026-06-15T02:29:31Z",
-  "updated_at": "2026-06-15T02:29:31Z",
-  "description": "Stream: подключить CourseFacade и починить тесты сторис"
-}
