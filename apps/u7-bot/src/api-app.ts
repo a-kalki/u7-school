@@ -1,10 +1,8 @@
+import type { U7BotApp } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import { ConsoleLogger } from '@u7-scl/core/shared';
-import type { OnboardingBotApp } from '@u7-scl/onboarding';
-import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
-import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   CourseInProcFacade,
@@ -12,6 +10,8 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
+import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
+import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import {
   StreamApiModule,
   StreamJsonRepo,
@@ -59,12 +59,8 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const userFacade = new UserInProcFacade(userModule);
 
   // ══ Course: репозитории, модуль и фасад ══
-  const courseRepo = new ModuleJsonRepo(
-    `${config.dbDir}/courses/modules.json`,
-  );
-  const lessonRepo = new LessonJsonRepo(
-    `${config.dbDir}/courses/lessons.json`,
-  );
+  const courseRepo = new ModuleJsonRepo(`${config.dbDir}/courses/modules.json`);
+  const lessonRepo = new LessonJsonRepo(`${config.dbDir}/courses/lessons.json`);
   const stepRepo = new StepJsonRepo(`${config.dbDir}/courses/steps.json`);
 
   const courseModule = new CourseApiModule({
@@ -97,10 +93,11 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const streamController = new StreamController(streamModule);
 
   // ══ ApiApp: модули ══
-  const apiApp: OnboardingBotApp = new ApiApp([
+  const apiApp: U7BotApp = new ApiApp([
     userModule,
     onboardingModule,
     streamModule,
+    courseModule,
   ]);
 
   return {

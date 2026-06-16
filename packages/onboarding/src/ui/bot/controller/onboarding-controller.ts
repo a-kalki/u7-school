@@ -9,7 +9,7 @@ import {
 } from '@u7-scl/core/ui';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
-import type { U7BotApp, U7BotAppMeta } from '../app';
+import type { U7BotApp, U7BotAppMeta } from '@u7-scl/app/domain';
 import type { KeyboardDescription } from '../types';
 
 /** Минимальный интерфейс актора для onboarding */

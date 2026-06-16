@@ -6,6 +6,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
+import { Status } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
@@ -74,7 +75,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     switch (context.step) {
       case 0:
-        return this.#handleModuleMessage(context, actor);
+        return this.#handleModuleMessage(context);
       case 1:
         return this.#handleTitleInput(context, update.text);
       case 2:
@@ -149,12 +150,10 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async #handleModuleMessage(
     ctx: CreateStreamWizardContext,
-    actor: User,
   ): Promise<BotResponse> {
-    // Загружаем опубликованные модули ментора через appApi (модуль course)
+    // Загружаем все опубликованные модули через appApi (модуль course)
     const modules = await this.appApi.execute('list-modules', {
-      authorId: actor.uuid,
-      status: 'published',
+      status: Status.PUBLISHED,
     });
 
     if (!modules || modules.length === 0) {

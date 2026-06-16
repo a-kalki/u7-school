@@ -1,4 +1,6 @@
+import type { ApiApp } from '@u7-scl/core/api';
 import type { AppMeta, AppResolver } from '@u7-scl/core/domain';
+import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
 import type { OnboardingApiModuleMeta } from '@u7-scl/onboarding/domain';
 import type { StreamApiModuleMeta } from '@u7-scl/stream';
 import type { UserApiModuleMeta } from '@u7-scl/user/domain';
@@ -11,8 +13,12 @@ export interface U7BotAppMeta extends AppMeta {
   moduleMetas:
     | UserApiModuleMeta
     | OnboardingApiModuleMeta
-    | StreamApiModuleMeta;
+    | StreamApiModuleMeta
+    | CourseApiModuleMeta;
 }
+
+/** Тип API-приложения U7 бота */
+export type U7BotApp = ApiApp<U7BotAppMeta>;
 
 /**
  * Резолвер уровня приложения U7.

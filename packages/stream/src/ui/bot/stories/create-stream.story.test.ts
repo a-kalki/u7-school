@@ -1,5 +1,4 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { SessionData } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/app/domain';
 import { CreateStreamStory } from './create-stream.story';
 
@@ -31,16 +30,32 @@ describe('CreateStreamStory', () => {
     expect(ctx?.step).toBe(0);
   });
 
-  test('handleMessage: шаг 0 — загружает модули ментора через appApi и показывает inline-кнопки', async () => {
+  test('handleMessage: шаг 0 — загружает все опубликованные модули через appApi и показывает inline-кнопки', async () => {
     const moduleApi = {
       execute: mock(() => undefined),
     };
     const appApiWithModules = {
-      execute: mock((name: string, cmd: Record<string, unknown>) => {
+      execute: mock((name: string, _cmd: Record<string, unknown>) => {
         if (name === 'list-modules')
           return [
-            { uuid: 'mod-1', title: 'Основы JavaScript', description: '', authorId: 'mentor-1', status: 'published', projects: [], createdAt: '2026-01-01T00:00:00.000Z' },
-            { uuid: 'mod-2', title: 'Продвинутый Python', description: '', authorId: 'mentor-1', status: 'published', projects: [], createdAt: '2026-01-01T00:00:00.000Z' },
+            {
+              uuid: 'mod-1',
+              title: 'Основы JavaScript',
+              description: '',
+              authorId: 'mentor-1',
+              status: 'published',
+              projects: [],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+            {
+              uuid: 'mod-2',
+              title: 'Продвинутый Python',
+              description: '',
+              authorId: 'mentor-1',
+              status: 'published',
+              projects: [],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
           ];
         return undefined;
       }),
@@ -65,7 +80,6 @@ describe('CreateStreamStory', () => {
     );
 
     expect(appApiWithModules.execute).toHaveBeenCalledWith('list-modules', {
-      authorId: 'mentor-1',
       status: 'published',
     });
     expect(response.sendMessage?.keyboard).toBeDefined();
@@ -180,7 +194,8 @@ describe('CreateStreamStory', () => {
   test('handleCallback("confirm"): нажатие «Создать» вызывает create-stream и освобождает input', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
-        if (name === 'create-stream') return { uuid: 'new-stream', title: 'Мой поток' };
+        if (name === 'create-stream')
+          return { uuid: 'new-stream', title: 'Мой поток' };
         return undefined;
       }),
     };

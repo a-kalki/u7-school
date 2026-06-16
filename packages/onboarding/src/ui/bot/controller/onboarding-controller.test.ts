@@ -11,7 +11,7 @@ import { OnboardingApiModule } from '#api/module';
 import type { OnboardingApiModuleResolver } from '#domain/module';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
-import type { U7BotApp } from '../app';
+import type { U7BotApp } from '@u7-scl/app/domain';
 import type { MessageDescription } from '../types';
 import { OnboardingController } from './onboarding-controller';
 
@@ -36,7 +36,11 @@ describe('OnboardingController', () => {
   let controller: OnboardingController;
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
-  const logger = { error: () => {}, info: () => {}, warn: () => {} } as unknown as Logger;
+  const logger = {
+    error: () => {},
+    info: () => {},
+    warn: () => {},
+  } as unknown as Logger;
 
   beforeEach(async () => {
     tmpDir = mkdtempSync('/tmp/onboarding-controller-test-');

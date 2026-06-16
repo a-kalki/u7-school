@@ -18,7 +18,7 @@
   - [x] «Создать» вызывает `this.moduleApi.execute('create-stream', ...)` и освобождает input
     - commit: 1fc9762
 
-- [ ] Task: Conductor - Ручная верификация 'Создание потока с модулями'
+- [x] Task: Conductor - Ручная верификация 'Создание потока с модулями'
 
 ## Фаза 2: US-7 — Менторские кнопки в ViewStreamStory
 
