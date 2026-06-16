@@ -1,3 +1,4 @@
+import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,
   BotUpdate,
@@ -5,7 +6,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
-import { U7BotUserStory } from '@u7-scl/app/ui';
+import { StreamStatus } from '#domain/status';
 
 interface StreamItem {
   uuid: string;
@@ -32,11 +33,11 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Запрашиваем потоки со статусами enrollment и active
     const [enrollmentStreams, activeStreams] = await Promise.all([
       this.moduleApi.execute('list-streams', {
-        status: 'enrollment',
-      }) as unknown as StreamItem[],
+        status: StreamStatus.ENROLLMENT,
+      }),
       this.moduleApi.execute('list-streams', {
-        status: 'active',
-      }) as unknown as StreamItem[],
+        status: StreamStatus.ACTIVE,
+      }),
     ]);
 
     // Объединяем и дедуплицируем по uuid

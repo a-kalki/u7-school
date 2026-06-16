@@ -6,12 +6,19 @@ import type {
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 
+/** Упрощённый интерфейс актора для проверки ролей */
+interface Actor {
+  uuid: string;
+  roles: string[];
+}
+
 interface StreamDetail {
   uuid: string;
   title: string;
   description: string;
   status: string;
   startDate: string;
+  mentorId: string;
   goal?: string;
   result?: string;
   rules?: string;
@@ -19,27 +26,55 @@ interface StreamDetail {
   targetAudience?: string;
   telegramGroupId?: string;
   telegramGroupInvite?: string;
+  contentSnapshot?: Array<{
+    projectTitle: string;
+    lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
+  }>;
+}
+
+interface UserInfo {
+  uuid: string;
+  name: string;
+  roles: string[];
 }
 
 /**
  * US-2: Детальная карточка потока.
- * Показывает описание, статус, дату старта, количество студентов.
+ * Показывает описание, статус, дату старта, имя ментора и ролевые кнопки.
  */
 export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'view-stream';
 
   async handleCallback(
     action: string,
-    _actor: unknown,
+    actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
     const parts = action.split(':');
+
+    // Показ программы курса
+    if (parts[0] === 'program' && parts[1]) {
+      return this.#handleProgram(parts[1]!);
+    }
+
     if (parts[0] !== 'view' || !parts[1]) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    const streamId = parts[1]!;
+    return this.#handleView(parts[1]!, actor as Actor);
+  }
 
+  override async handleMessage(): Promise<BotResponse> {
+    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+  }
+
+  override async handleStart(_actor: unknown): Promise<null> {
+    return null;
+  }
+
+  // ── Приватные методы ──
+
+  async #handleView(streamId: string, a: Actor): Promise<BotResponse> {
     const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as unknown as StreamDetail;
@@ -47,6 +82,17 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     const students = (await this.moduleApi.execute('list-stream-students', {
       streamId,
     })) as unknown as Array<{ uuid: string }>;
+
+    // Получаем имя ментора
+    let mentorName = '';
+    try {
+      const mentor = (await this.moduleApi.execute('get-user', {
+        userId: stream.mentorId,
+      })) as unknown as UserInfo;
+      mentorName = mentor.name;
+    } catch {
+      // Ментор не найден — оставляем имя пустым
+    }
 
     const statusLabels: Record<string, string> = {
       enrollment: '🟢 Набор открыт',
@@ -62,6 +108,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       `_${this.escapeMarkdown(stream.description)}_`,
       '',
+      `👤 Ментор: ${this.escapeMarkdown(mentorName)}`,
       `📅 Старт: ${this.escapeMarkdown(dateStr)}`,
       `👥 Студентов: ${students.length}`,
       `📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
@@ -72,38 +119,119 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const text = lines.join('\n');
-
-    // Кнопка «Записаться» только для enrollment
-    const keyboard: KeyboardDescription | undefined =
-      stream.status === 'enrollment'
-        ? {
-            rows: [
-              [
-                {
-                  text: '📝 Записаться',
-                  code: `enroll:enroll:${streamId}`,
-                },
-              ],
-            ],
-            isMultiple: false,
-          }
-        : undefined;
+    const keyboard = this.#buildKeyboard(stream, a);
 
     return {
       sendMessage: {
         text,
         parseMode: 'MarkdownV2',
-        keyboard,
+        keyboard: keyboard.rows.length > 0 ? keyboard : undefined,
       },
     };
   }
 
-  override async handleMessage(): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+  async #handleProgram(streamId: string): Promise<BotResponse> {
+    const stream = (await this.moduleApi.execute('get-stream', {
+      streamId,
+    })) as unknown as StreamDetail;
+
+    const snapshot = stream.contentSnapshot;
+    if (!snapshot || snapshot.length === 0) {
+      return {
+        sendMessage: {
+          text: '📖 *Программа курса*\n\nПрограмма пока не загружена.',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [
+              [
+                {
+                  text: '⬅️ Назад к потоку',
+                  code: `view-stream:view:${streamId}`,
+                },
+              ],
+            ],
+            isMultiple: false,
+          },
+        },
+      };
+    }
+
+    const lines: string[] = ['📖 *Программа курса*', ''];
+
+    for (const project of snapshot) {
+      lines.push(`📁 ${this.escapeMarkdown(project.projectTitle)}`);
+      for (const lesson of project.lessons) {
+        lines.push(`  📝 ${this.escapeMarkdown(lesson.lessonTitle)}`);
+      }
+    }
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: '⬅️ Назад к потоку',
+                code: `view-stream:view:${streamId}`,
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
   }
 
-  override async handleStart(_actor: unknown): Promise<null> {
-    return null;
+  #buildKeyboard(
+    stream: StreamDetail,
+    a: Actor,
+  ): KeyboardDescription {
+    const isGuestCandidate = a.roles.some((r) =>
+      ['GUEST', 'CANDIDATE'].includes(r),
+    );
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    // Кнопка «Записаться» только для GUEST/CANDIDATE на enrollment
+    if (stream.status === 'enrollment' && isGuestCandidate) {
+      rows.push([
+        {
+          text: '📝 Записаться',
+          code: `enroll:enroll:${stream.uuid}`,
+        },
+      ]);
+    }
+
+    // Кнопка «Программа курса» для всех на enrollment
+    if (stream.status === 'enrollment') {
+      rows.push([
+        {
+          text: '📖 Программа курса',
+          code: `view-stream:program:${stream.uuid}`,
+        },
+      ]);
+    }
+
+    // Кнопка «Уведомить о наборе» для GUEST/CANDIDATE на active
+    if (stream.status === 'active' && isGuestCandidate) {
+      rows.push([
+        {
+          text: '🔔 Уведомить о наборе',
+          code: `view-stream:notify:${stream.uuid}`,
+        },
+      ]);
+    }
+
+    // Кнопка «Назад к списку» всегда
+    rows.push([
+      {
+        text: '⬅️ Назад к списку',
+        code: 'catalog:list',
+      },
+    ]);
+
+    return { rows, isMultiple: false };
   }
 
   #formatDate(iso: string): string {
