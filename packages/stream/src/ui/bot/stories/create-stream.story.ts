@@ -1,13 +1,13 @@
+import type { User } from '@u7-scl/app/domain';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '../../../domain/module';
-import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/app/ui';
 import { UserPolicy } from '@u7-scl/user/domain';
+import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /** Контекст wizard-а создания потока */
 interface CreateStreamWizardContext {
@@ -23,19 +23,19 @@ const WIZARD_PATH = 'create-stream/wizard';
 
 /**
  * US-6: Пошаговый wizard создания потока.
- * Шаг 0: выбор модуля
+ * Шаг 0: выбор модуля (реальный список через appApi)
  * Шаг 1: название потока (текст)
  * Шаг 2: описание (текст)
  * Шаг 3: дата старта (текст, YYYY-MM-DD)
  * Шаг 4: ссылка на Telegram-группу (текст)
- * Шаг 5: финальное создание
+ * Шаг 5: превью и подтверждение
  */
 export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'create-stream';
 
   async handleCallback(
     action: string,
-    _actor: User,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     // Старт wizard-а
@@ -46,6 +46,11 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Клик по кнопке выбора модуля: module:<moduleId>
     if (action.startsWith('module:')) {
       return this.#onModuleSelected(action, session);
+    }
+
+    // Подтверждение создания на шаге превью
+    if (action === 'confirm') {
+      return this.#handleConfirm(actor, session);
     }
 
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -69,7 +74,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     switch (context.step) {
       case 0:
-        return this.#handleModuleMessage(context, update.text);
+        return this.#handleModuleMessage(context, actor);
       case 1:
         return this.#handleTitleInput(context, update.text);
       case 2:
@@ -78,6 +83,12 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         return this.#handleDateInput(context, update.text);
       case 4:
         return this.#handleGroupInput(context, update.text, actor);
+      case 5:
+        return {
+          sendMessage: {
+            text: '👆 Используйте кнопки выше для подтверждения или изменения.',
+          },
+        };
       default:
         return { sendMessage: { text: '⚠️ Неизвестный шаг wizard-а' } };
     }
@@ -119,7 +130,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   #startWizard(): BotResponse {
     return {
       sendMessage: {
-        text: '🆕 *Создание нового потока*\n\nОтправьте название модуля или ID модуля.',
+        text: '🆕 *Создание нового потока*\n\nЗагружаю список ваших модулей...',
         parseMode: 'MarkdownV2',
       },
       captureInput: {
@@ -138,13 +149,44 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async #handleModuleMessage(
     ctx: CreateStreamWizardContext,
-    _text: string,
+    actor: User,
   ): Promise<BotResponse> {
+    // Загружаем опубликованные модули ментора через appApi (модуль course)
+    const modules = await this.appApi.execute('list-modules', {
+      authorId: actor.uuid,
+      status: 'published',
+    });
+
+    if (!modules || modules.length === 0) {
+      return {
+        sendMessage: {
+          text: '📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей. Создайте модуль в конструкторе курсов.',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[{ text: '🔄 Обновить список', code: this.cb('start') }]],
+            isMultiple: false,
+          },
+        },
+        captureInput: {
+          path: WIZARD_PATH,
+          context: ctx,
+        },
+      };
+    }
+
+    const rows = modules.map((m: { uuid: string; title: string }) => [
+      {
+        text: m.title,
+        code: `create-stream:module:${m.uuid}`,
+      },
+    ]);
+
     return {
       sendMessage: {
-        text: '📦 Выберите модуль из списка или нажмите кнопку ниже.',
+        text: '📦 *Выберите модуль курса:*',
+        parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [[{ text: '🔄 Обновить список', code: this.cb('start') }]],
+          rows,
           isMultiple: false,
         },
       },
@@ -159,7 +201,10 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     action: string,
     session: SessionData,
   ): Promise<BotResponse> {
-    const moduleId = action.split(':')[1]!;
+    const moduleId = action.split(':')[1];
+    if (!moduleId) {
+      return this.sendUnknownError();
+    }
     const ctx: CreateStreamWizardContext = {
       ...((session.activeHandler?.context as CreateStreamWizardContext) ?? {
         step: 0,
@@ -222,7 +267,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   async #handleGroupInput(
     ctx: CreateStreamWizardContext,
     text: string,
-    actor: User,
+    _actor: User,
   ): Promise<BotResponse> {
     const fullCtx: CreateStreamWizardContext = {
       ...ctx,
@@ -230,12 +275,65 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       telegramGroupId: text,
     };
 
+    return this.#showPreview(fullCtx);
+  }
+
+  // ── Шаг превью ──
+
+  #showPreview(ctx: CreateStreamWizardContext): BotResponse {
+    const lines = [
+      '📋 *Превью потока*',
+      '',
+      `*Название:* ${this.escapeMarkdown(ctx.title)}`,
+      `*Описание:* ${this.escapeMarkdown(ctx.description)}`,
+      `*Дата старта:* ${this.escapeMarkdown(ctx.startDate)}`,
+      `*Группа:* ${this.escapeMarkdown(ctx.telegramGroupId)}`,
+      '',
+      'Всё верно?',
+    ];
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              { text: '✅ Создать', code: this.cb('confirm') },
+              { text: '⬅️ Изменить', code: this.cb('start') },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+      captureInput: {
+        path: WIZARD_PATH,
+        context: ctx,
+      },
+    };
+  }
+
+  async #handleConfirm(
+    actor: User,
+    session: SessionData,
+  ): Promise<BotResponse> {
+    const context = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!context) {
+      return {
+        sendMessage: {
+          text: '⚠️ Контекст wizard-а потерян. Начните заново.',
+        },
+      };
+    }
+
     await this.moduleApi.execute('create-stream', {
-      title: fullCtx.title,
-      description: fullCtx.description,
-      moduleId: fullCtx.moduleId,
-      startDate: fullCtx.startDate,
-      telegramGroupId: fullCtx.telegramGroupId,
+      title: context.title,
+      description: context.description,
+      moduleId: context.moduleId,
+      startDate: context.startDate,
+      telegramGroupId: context.telegramGroupId,
       mentorId: actor.uuid,
     });
 
