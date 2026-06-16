@@ -1,6 +1,6 @@
 # План реализации: Stream Infra
 
-## Фаза 1: Подключение CourseFacade
+## Фаза 1: Подключение CourseFacade [checkpoint: 3f3cdc9]
 
 - [x] Task: Инициализировать CourseJsonRepo и LessonJsonRepo в `api-app.ts` `6927b35`
   - [x] Создать `ModuleJsonRepo` и `LessonJsonRepo` с seed-файлами в `dbDir/course/`
@@ -12,7 +12,7 @@
   - [x] Добавить тестовый модуль и урок в seed-файлы
   - [x] Убедиться, что `create-stream` UC возвращает поток с непустым снапшотом
 
-- [ ] Task: Conductor - Ручная верификация 'Подключение CourseFacade'
+- [x] Task: Conductor - Ручная верификация 'Подключение CourseFacade'
 
 ## Фаза 2: Починка тестов сторис
 
