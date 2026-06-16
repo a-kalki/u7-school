@@ -15,12 +15,10 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const parts = action.split(':');
-    if (parts[0] !== 'progress' || !parts[1]) {
+    const [cmd, streamId] = action.split(':');
+    if (cmd !== 'progress' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
-
-    const streamId = parts[1]!;
     const a = actor as User;
 
     const student = await this.moduleApi.execute('get-student-by-user', {
@@ -125,7 +123,4 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
   }
 
-  private escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 }

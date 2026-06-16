@@ -15,12 +15,10 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const parts = action.split(':');
-    if (parts[0] !== 'enroll' || !parts[1]) {
+    const [cmd, streamId] = action.split(':');
+    if (cmd !== 'enroll' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
-
-    const streamId = parts[1]!;
     const a = actor as User;
 
     // Получаем поток для названия, даты старта и ссылки на чат
@@ -73,7 +71,4 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
   }
 
-  private escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 }

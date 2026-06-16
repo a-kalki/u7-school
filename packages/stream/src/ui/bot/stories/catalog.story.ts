@@ -93,7 +93,4 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  private escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 }

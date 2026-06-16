@@ -15,9 +15,31 @@
 
 ---
 
-## 2. Доступ к API
+## 2. Парсинг callback data
 
-### 2.1 `this.moduleApi` — API своего модуля
+Используй **деструктуризацию** `split(':')` вместо доступа по индексу `parts[0]`, `parts[1]!`.
+Это делает код читаемым и убирает необходимость `!` (non-null assertion):
+
+```typescript
+// ✅ Правильно — деструктуризация с осмысленными именами
+const [cmd, streamId] = action.split(':');
+if (cmd !== 'enroll' || !streamId) {
+  return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+}
+
+// Для callback с тремя и более частями — пропускай префикс через запятую:
+const [, studentId, streamId, stepId] = action.split(':');
+
+// ❌ Неправильно
+const parts = action.split(':');
+const streamId = parts[1]!;
+```
+
+---
+
+## 3. Доступ к API
+
+### 3.1 `this.moduleApi` — API своего модуля
 Для вызовов команд **своего** модуля (строгая типизация через `TModuleMeta`):
 
 ```typescript
@@ -26,7 +48,7 @@ const stream = await this.moduleApi.execute('get-stream', { streamId });
 const students = await this.moduleApi.execute('list-stream-students', { streamId });
 ```
 
-### 2.2 `this.appApi` — API приложения (межмодульные вызовы)
+### 3.2 `this.appApi` — API приложения (межмодульные вызовы)
 Для вызовов команд **других** модулей:
 
 ```typescript
@@ -34,7 +56,7 @@ const students = await this.moduleApi.execute('list-stream-students', { streamId
 const mentor = await this.appApi.execute('get-user', { uuid: stream.mentorId });
 ```
 
-### 2.3 Категорически запрещено
+### 3.3 Категорически запрещено
 - **НЕ используй `as unknown as`** для результатов `execute()`. Вызовы строго типизированы. Если TypeScript ругается — проблема в типах команд/меты, а не в сторис.
 - **НЕ создавай локальные интерфейсы** для Actor (`{ uuid, roles }`). Используй `User` из `@u7-scl/app/domain`.
 - **НЕ дублируй use-case'ы** в своём модуле для вызова фасадов других модулей. Используй `this.appApi.execute()`.
@@ -54,7 +76,7 @@ const a = actor as Actor;
 
 ---
 
-## 3. Тип актора (Actor)
+## 4. Тип актора (Actor)
 
 Актор всегда имеет тип `User` из `@u7-scl/app/domain` (реэкспорт из `@u7-scl/user/domain`):
 
@@ -70,7 +92,7 @@ async handleCallback(action: string, actor: unknown, session: SessionData): Prom
 
 ---
 
-## 4. Инициализация
+## 5. Инициализация
 
 `init(moduleApi, appApi)` — вызывается контроллером при старте. Принимает **два** аргумента:
 
@@ -81,7 +103,7 @@ story.init(moduleApi, appApi);
 
 ---
 
-## 5. Тестирование
+## 6. Тестирование
 
 В тестах используй полный объект `User` для актора:
 
@@ -106,7 +128,7 @@ story.init(moduleApi as any, appApi as any);
 
 ---
 
-## 6. Структура файла сторис
+## 7. Структура файла сторис
 
 ```
 ui/bot/stories/
@@ -116,7 +138,36 @@ ui/bot/stories/
 
 ---
 
-## 7. Связанные styleguide-файлы
+## 8. Форматирование текста (MarkdownV2)
+
+### 8.1 `this.escapeMarkdown()` — унаследованный метод
+
+`BotUserStory` предоставляет protected-метод `escapeMarkdown(text: string): string`.
+**НЕ дублируй** его в сторис — используй унаследованный.
+
+```typescript
+// ✅ Правильно — используем унаследованный метод
+lines.push(`📋 ${this.escapeMarkdown(stream.title)}`);
+
+// ❌ Неправильно — дублирование метода в каждой сторис
+private escapeMarkdown(text: string): string {
+  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+}
+```
+
+Метод экранирует спецсимволы MarkdownV2: `_ * [ ] ( ) ~ \` > # + - = | { } . !`
+
+### 8.2 Пакет `markdown-to-telegram`
+
+В проекте установлен пакет [`markdown-to-telegram`](https://www.npmjs.com/package/markdown-to-telegram) (v0.0.7) —
+конвертирует стандартный Markdown в Telegram MarkdownV2.
+
+**Пока не используется** в проекте. При необходимости форматирования больших блоков текста
+(например, контента уроков) — используй `convert()` из этого пакета вместо ручной вставки `*жирный*`, `_курсив_`.
+
+---
+
+## 9. Связанные styleguide-файлы
 
 - [DDD API](../api.md) — UseCase, Command, Module
 - [DDD Naming](../naming.md) — соглашения об именовании

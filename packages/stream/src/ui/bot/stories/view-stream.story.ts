@@ -20,18 +20,18 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const parts = action.split(':');
+    const [cmd, streamId] = action.split(':');
 
     // Показ программы курса
-    if (parts[0] === 'program' && parts[1]) {
-      return this.#handleProgram(parts[1]!);
+    if (cmd === 'program' && streamId) {
+      return this.#handleProgram(streamId);
     }
 
-    if (parts[0] !== 'view' || !parts[1]) {
+    if (cmd !== 'view' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    return this.#handleView(parts[1]!, actor as User);
+    return this.#handleView(streamId, actor as User);
   }
 
   override async handleMessage(): Promise<BotResponse> {
@@ -208,7 +208,4 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
   }
 
-  private escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 }

@@ -122,11 +122,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   async #handleComplete(action: string): Promise<BotResponse> {
-    const parts = action.split(':');
     // Формат: complete:<studentId>:<streamId>:<stepId>
-    const studentId = parts[1]!;
-    const streamId = parts[2]!;
-    const stepId = parts[3]!;
+    const [, studentId, streamId, stepId] = action.split(':');
 
     const result = await this.moduleApi.execute('complete-step', {
       studentId,
@@ -287,7 +284,4 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     return 'проект';
   }
 
-  private escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 }

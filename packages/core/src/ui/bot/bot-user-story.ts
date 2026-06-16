@@ -1,5 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
+import { escapeMarkdown } from '#shared/markdown';
 import { stringUtility } from '#shared/string-utility';
 import type {
   BotResponse,
@@ -122,5 +123,13 @@ export abstract class BotUserStory<
   /** Восстанавливает значение по короткому ключу */
   protected expand(key: string): string | undefined {
     return this.shortIds.get(key);
+  }
+
+  /**
+   * Экранирует спецсимволы MarkdownV2 для Telegram.
+   * Делегирует в утилиту из @u7-scl/core/shared.
+   */
+  protected escapeMarkdown(text: string): string {
+    return escapeMarkdown(text);
   }
 }

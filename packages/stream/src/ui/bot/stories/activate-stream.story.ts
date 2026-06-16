@@ -14,12 +14,10 @@ export class ActivateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     _actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const parts = action.split(':');
-    if (parts[0] !== 'activate' || !parts[1]) {
+    const [cmd, streamId] = action.split(':');
+    if (cmd !== 'activate' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
-
-    const streamId = parts[1]!;
     await this.moduleApi.execute('activate-stream', { streamId });
 
     return {

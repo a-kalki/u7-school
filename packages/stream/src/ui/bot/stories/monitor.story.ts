@@ -2,21 +2,6 @@ import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 
-interface StudentInfo {
-  uuid: string;
-  userId: string;
-  status: string;
-  steps: Array<{ status: string }>;
-}
-
-interface StreamInfo {
-  uuid: string;
-  title: string;
-  contentSnapshot: Array<{
-    lessons: Array<{ stepIds: string[] }>;
-  }>;
-}
-
 /**
  * US-8: Мониторинг прогресса группы.
  * Ментор видит список студентов потока и их прогресс.
@@ -29,20 +14,18 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     _actor: unknown,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const parts = action.split(':');
-    if (parts[0] !== 'students' || !parts[1]) {
+    const [cmd, streamId] = action.split(':');
+    if (cmd !== 'students' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    const streamId = parts[1]!;
-
-    const students = (await this.moduleApi.execute('list-stream-students', {
+    const students = await this.moduleApi.execute('list-stream-students', {
       streamId,
-    })) as unknown as StudentInfo[];
+    });
 
-    const stream = (await this.moduleApi.execute('get-stream', {
+    const stream = await this.moduleApi.execute('get-stream', {
       streamId,
-    })) as unknown as StreamInfo;
+    });
 
     const totalSteps = stream.contentSnapshot.reduce(
       (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
@@ -84,7 +67,4 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     return null;
   }
 
-  private escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 }
