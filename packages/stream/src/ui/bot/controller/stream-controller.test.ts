@@ -99,9 +99,7 @@ describe('StreamController (реестр)', () => {
     const items = await controller.handleStart(studentActor);
 
     for (let i = 1; i < items.length; i++) {
-      expect(items[i]!.priority).toBeGreaterThanOrEqual(
-        items[i - 1]!.priority,
-      );
+      expect(items[i]!.priority).toBeGreaterThanOrEqual(items[i - 1]!.priority);
     }
   });
 

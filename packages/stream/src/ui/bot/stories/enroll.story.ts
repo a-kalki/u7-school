@@ -1,6 +1,6 @@
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
+import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
@@ -57,5 +57,4 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
   override async handleStart(_actor: User): Promise<null> {
     return null;
   }
-
 }

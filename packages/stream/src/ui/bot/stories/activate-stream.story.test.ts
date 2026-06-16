@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { SessionData } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/app/domain';
+import type { SessionData } from '@u7-scl/core/ui';
 import { ActivateStreamStory } from './activate-stream.story';
 
 describe('ActivateStreamStory', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import { EnrollStory } from './enroll.story';
 
 describe('EnrollStory', () => {

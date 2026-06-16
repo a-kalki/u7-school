@@ -38,5 +38,3 @@ export interface StreamApiModuleMeta {
     | GetStudentByUserCmdMeta
     | GetStudentProgressCmdMeta;
 }
-
-

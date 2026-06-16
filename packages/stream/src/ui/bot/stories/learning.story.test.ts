@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import { LearningStory } from './learning.story';
 
 describe('LearningStory', () => {
@@ -62,7 +62,11 @@ describe('LearningStory', () => {
 
     const story = new LearningStory();
     story.init(moduleApi as any, appApi as any);
-    const response = await story.handleCallback('my-study', studentActor, session);
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
 
     expect(response.sendMessage?.text).toContain('Python');
     expect(response.sendMessage?.text).toContain('Моя учёба');
@@ -83,7 +87,11 @@ describe('LearningStory', () => {
 
     const story = new LearningStory();
     story.init(moduleApi as any, appApi as any);
-    const response = await story.handleCallback('my-study', studentActor, session);
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
 
     expect(response.sendMessage?.text).toContain('не записаны');
   });

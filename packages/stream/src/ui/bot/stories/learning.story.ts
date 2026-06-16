@@ -1,13 +1,14 @@
+import type { User } from '@u7-scl/app/domain';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { User } from '@u7-scl/app/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
+import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
-import { U7BotUserStory } from '@u7-scl/app/ui';
 
 /**
  * US-4: Прохождение обучения (активная фаза).
@@ -56,7 +57,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные методы ──
 
   async #handleMyStudy(actor: User): Promise<BotResponse> {
-    let student;
+    let student: Student;
     try {
       student = await this.moduleApi.execute('get-student-by-user', {
         userId: actor.uuid,
@@ -122,6 +123,9 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   async #handleComplete(action: string): Promise<BotResponse> {
     // Формат: complete:<studentId>:<streamId>:<stepId>
     const [, studentId, streamId, stepId] = action.split(':');
+    if (!studentId || !streamId || !stepId) {
+      return this.sendUnknownError();
+    }
 
     const result = await this.moduleApi.execute('complete-step', {
       studentId,
@@ -281,5 +285,4 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
     return 'проект';
   }
-
 }

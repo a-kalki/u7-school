@@ -93,5 +93,4 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       priority: 10,
     };
   }
-
 }

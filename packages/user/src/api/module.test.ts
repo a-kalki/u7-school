@@ -111,9 +111,9 @@ describe('UserApiModule + UserJsonRepo', () => {
       appResolver,
     });
 
-    await expect(
-      mod.execute('unknown' as any, {} as any),
-    ).rejects.toThrow("Команда 'unknown' не найдена");
+    await expect(mod.execute('unknown' as any, {} as any)).rejects.toThrow(
+      "Команда 'unknown' не найдена",
+    );
 
     await Bun.$`rm -f ${jsonFile}`;
   });

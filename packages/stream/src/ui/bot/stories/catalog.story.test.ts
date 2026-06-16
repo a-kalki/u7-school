@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import { CatalogStory } from './catalog.story';
 
 describe('CatalogStory', () => {
@@ -57,7 +57,10 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") фильтрует только enrollment и active', async () => {
-    const allStreams: Record<string, Array<{ uuid: string; title: string; status: string }>> = {
+    const allStreams: Record<
+      string,
+      Array<{ uuid: string; title: string; status: string }>
+    > = {
       enrollment: [
         {
           uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',

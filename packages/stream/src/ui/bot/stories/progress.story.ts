@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
@@ -91,10 +92,7 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   #findCurrentContext(
-    snapshot: Array<{
-      projectTitle: string;
-      lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
-    }>,
+    snapshot: ContentSnapshot,
     stepId: string,
   ): { projectTitle: string; lessonTitle: string } {
     for (const project of snapshot) {
@@ -109,5 +107,4 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
     return { projectTitle: '—', lessonTitle: '—' };
   }
-
 }
