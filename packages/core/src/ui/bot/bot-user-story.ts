@@ -148,4 +148,12 @@ export abstract class BotUserStory<
       return iso;
     }
   }
+
+  protected sendUnknownError(): BotResponse {
+    return {
+      sendMessage: {
+        text: 'Произошла неизвестная ошибка. Попробуйте начать с команды /start.',
+      },
+    };
+  }
 }
