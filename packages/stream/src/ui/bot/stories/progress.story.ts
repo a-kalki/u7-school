@@ -1,21 +1,11 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { User } from '@u7-scl/app/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 
-interface StudentProgress {
-  steps: Array<{ status: string }>;
-}
-
-interface StreamSnapshot {
-  title: string;
-  contentSnapshot: Array<{
-    lessons: Array<{ stepIds: string[] }>;
-  }>;
-}
-
 /**
  * US-5: Просмотр прогресса студента.
- * Показывает прогресс-бар и проценты завершения.
+ * Показывает прогресс-бар, имя ментора, дату старта, чат, текущий проект и урок.
  */
 export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'progress';
@@ -31,16 +21,25 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const streamId = parts[1]!;
-    const a = actor as { uuid: string };
+    const a = actor as User;
 
-    const student = (await this.moduleApi.execute('get-student-by-user', {
+    const student = await this.moduleApi.execute('get-student-by-user', {
       userId: a.uuid,
-    })) as unknown as StudentProgress;
+    });
+    const stream = await this.moduleApi.execute('get-stream', { streamId });
 
-    const stream = (await this.moduleApi.execute('get-stream', {
-      streamId,
-    })) as unknown as StreamSnapshot;
+    // Имя ментора
+    let mentorName = '';
+    try {
+      const mentor = await this.appApi.execute('get-user', {
+        uuid: stream.mentorId,
+      });
+      mentorName = mentor.name;
+    } catch {
+      // Ментор не найден
+    }
 
+    // Прогресс
     const totalSteps = stream.contentSnapshot.reduce(
       (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
       0,
@@ -54,14 +53,33 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     const filled = Math.round((pct / 100) * barLength);
     const bar = '▓'.repeat(filled) + '░'.repeat(barLength - filled);
 
+    // Текущий проект и урок
+    const { projectTitle, lessonTitle } = this.#findCurrentContext(
+      stream.contentSnapshot,
+      student.currentStepId,
+    );
+
+    const dateStr = this.#formatDate(stream.startDate);
+
+    const lines = [
+      `📊 *Прогресс* — _${this.escapeMarkdown(stream.title)}_`,
+      '',
+      `👤 Ментор: ${this.escapeMarkdown(mentorName)}`,
+      `📅 Старт: ${this.escapeMarkdown(dateStr)}`,
+      `📁 Проект: ${this.escapeMarkdown(projectTitle)}`,
+      `📝 Урок: ${this.escapeMarkdown(lessonTitle)}`,
+      '',
+      `${bar} ${pct}%`,
+      `✅ ${completed} / ${totalSteps} шагов`,
+    ];
+
+    if (stream.telegramGroupInvite) {
+      lines.push('', `🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
+    }
+
     return {
       sendMessage: {
-        text: [
-          `📊 *Прогресс* — _${this.escapeMarkdown(stream.title)}_`,
-          '',
-          `${bar} ${pct}%`,
-          `✅ ${completed} / ${totalSteps} шагов`,
-        ].join('\n'),
+        text: lines.join('\n'),
         parseMode: 'MarkdownV2',
       },
     };
@@ -73,6 +91,38 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleStart(_actor: unknown): Promise<null> {
     return null;
+  }
+
+  #findCurrentContext(
+    snapshot: Array<{
+      projectTitle: string;
+      lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
+    }>,
+    stepId: string,
+  ): { projectTitle: string; lessonTitle: string } {
+    for (const project of snapshot) {
+      for (const lesson of project.lessons) {
+        if (lesson.stepIds.includes(stepId)) {
+          return {
+            projectTitle: project.projectTitle,
+            lessonTitle: lesson.lessonTitle,
+          };
+        }
+      }
+    }
+    return { projectTitle: '—', lessonTitle: '—' };
+  }
+
+  #formatDate(iso: string): string {
+    try {
+      const d = new Date(iso);
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const year = d.getUTCFullYear();
+      return `${day}.${month}.${year}`;
+    } catch {
+      return iso;
+    }
   }
 
   private escapeMarkdown(text: string): string {

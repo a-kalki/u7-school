@@ -1,16 +1,11 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { User } from '@u7-scl/app/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 
-/** Упрощённый интерфейс актора для проверки ролей */
-interface Actor {
-  uuid: string;
-  roles: string[];
-}
-
 /**
  * US-3: Запись на поток (Регистрация).
- * Выполняет enroll-student, показывает результат и делегирует на learning.
+ * Выполняет enroll-student, показывает результат с датой старта и делегирует на learning.
  */
 export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'enroll';
@@ -26,26 +21,27 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const streamId = parts[1]!;
-    const a = actor as Actor;
+    const a = actor as User;
 
-    // Получаем поток для ссылки на чат
-    const stream = (await this.moduleApi.execute('get-stream', {
+    // Получаем поток для названия, даты старта и ссылки на чат
+    const stream = await this.moduleApi.execute('get-stream', { streamId });
+
+    await this.moduleApi.execute('enroll-student', {
       streamId,
-    })) as unknown as {
-      title: string;
-      telegramGroupId?: string;
-      telegramGroupInvite?: string;
-    };
+      userId: a.uuid,
+    });
 
-    await this.moduleApi.execute('enroll-student', { streamId, userId: a.uuid });
+    const dateStr = this.#formatDate(stream.startDate);
 
-    const lines = ['🎉 *Вы успешно записаны на поток!*', ''];
-    if (stream?.title) {
-      lines.push(`📋 _${this.escapeMarkdown(stream.title)}_`);
-    }
-    if (stream?.telegramGroupInvite) {
-      lines.push('');
-      lines.push(`🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
+    const lines = [
+      '🎉 *Вы успешно записаны на поток!*',
+      '',
+      `📋 _${this.escapeMarkdown(stream.title)}_`,
+      `📅 Обучение начнётся: ${this.escapeMarkdown(dateStr)}`,
+    ];
+
+    if (stream.telegramGroupInvite) {
+      lines.push('', `🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
     }
 
     return {
@@ -63,6 +59,18 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleStart(_actor: unknown): Promise<null> {
     return null;
+  }
+
+  #formatDate(iso: string): string {
+    try {
+      const d = new Date(iso);
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const year = d.getUTCFullYear();
+      return `${day}.${month}.${year}`;
+    } catch {
+      return iso;
+    }
   }
 
   private escapeMarkdown(text: string): string {
