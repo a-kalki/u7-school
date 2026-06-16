@@ -42,34 +42,37 @@
 
 ## Фаза 3: US-3 — Дата старта в EnrollStory
 
-- [ ] Task: Написать тест: EnrollStory показывает startDate в сообщении
+- [x] Task: Написать тест: EnrollStory показывает startDate в сообщении
 
-- [ ] Task: Реализовать показ startDate
-  - [ ] Из ответа `get-stream` взять `startDate`
-  - [ ] Отформатировать и вывести в сообщении
+- [x] Task: Реализовать показ startDate
+  - [x] Из ответа `get-stream` взять `startDate`
+  - [x] Отформатировать и вывести в сообщении
+  `[8b37b65]`
 
 - [ ] Task: Conductor - Ручная верификация 'Дата старта'
 
 ## Фаза 4: US-4 — Названия уроков/проектов в LearningStory
 
-- [ ] Task: Написать тест: LearningStory показывает названия в переходах
-  - [ ] Уровень `lesson` → сообщение содержит `completedLessonTitle` и `nextLessonTitle`
-  - [ ] Уровень `project` → сообщение содержит названия проектов
+- [x] Task: Написать тест: LearningStory показывает названия в переходах
+  - [x] Уровень `lesson` → сообщение содержит `completedLessonTitle` и `nextLessonTitle`
+  - [x] Уровень `project` → сообщение содержит названия проектов
 
-- [ ] Task: Реализовать названия в переходах
-  - [ ] После `complete-step` запросить `get-stream` для `contentSnapshot`
-  - [ ] По `completedLessonId`/`completedProjectId` и `currentStepId` найти названия
-  - [ ] Сформировать сообщения: «Урок {Old} завершён. Начинаем: {New}»
+- [x] Task: Реализовать названия в переходах
+  - [x] После `complete-step` запросить `get-stream` для `contentSnapshot`
+  - [x] По `completedLessonId`/`completedProjectId` и `currentStepId` найти названия
+  - [x] Сформировать сообщения: «Урок {Old} завершён. Начинаем: {New}»
+  `[8b37b65]`
 
 - [ ] Task: Conductor - Ручная верификация 'Названия в переходах'
 
 ## Фаза 5: US-5 — Полные данные в ProgressStory
 
-- [ ] Task: Написать тест: ProgressStory показывает ментора, дату, чат, проект/урок
+- [x] Task: Написать тест: ProgressStory показывает ментора, дату, чат, проект/урок
 
-- [ ] Task: Реализовать полные данные в ProgressStory
-  - [ ] Имя ментора — через `get-user` (ментор определяется по `stream.mentorId`)
-  - [ ] Дата старта, ссылка на чат — из `get-stream`
-  - [ ] Текущий проект/урок — из `contentSnapshot` по `currentStepId` студента
+- [x] Task: Реализовать полные данные в ProgressStory
+  - [x] Имя ментора — через `get-user` (ментор определяется по `stream.mentorId`)
+  - [x] Дата старта, ссылка на чат — из `get-stream`
+  - [x] Текущий проект/урок — из `contentSnapshot` по `currentStepId` студента
+  `[8b37b65]`
 
 - [ ] Task: Conductor - Ручная верификация 'Полный прогресс'
