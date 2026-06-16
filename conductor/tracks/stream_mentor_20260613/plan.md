@@ -20,7 +20,7 @@
 
 - [x] Task: Conductor - Ручная верификация 'Создание потока с модулями'
 
-## Фаза 2: US-7 — Менторские кнопки в ViewStreamStory
+## Фаза 2: US-7 — Менторские кнопки в ViewStreamStory [checkpoint: 6d64999]
 
 - [x] Task: Написать тест: ViewStreamStory показывает менторские кнопки
   - [x] MENTOR на своём enrollment → видит «Запустить», «Студенты», «В архив»
