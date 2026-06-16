@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
 import { ViewStreamStory } from './view-stream.story';
 
 describe('ViewStreamStory', () => {
@@ -219,5 +219,136 @@ describe('ViewStreamStory', () => {
     const story = new ViewStreamStory();
     const item = await story.handleStart(guestActor);
     expect(item).toBeNull();
+  });
+
+  // ── US-7: Менторские кнопки ──
+
+  const mentorActor: User = {
+    uuid: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+    name: 'Алексей Смирнов',
+    telegramId: 999,
+    roles: ['MENTOR'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  const otherMentorActor: User = {
+    uuid: 'o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o',
+    name: 'Другой Ментор',
+    telegramId: 888,
+    roles: ['MENTOR'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  test('MENTOR на своём enrollment — кнопки «Запустить», «Студенты», «В архив»', async () => {
+    const { moduleApi, appApi } = makeMockApi(sampleStream, 5);
+    const story = new ViewStreamStory();
+    story.init(moduleApi as any, appApi as any);
+
+    const response = await story.handleCallback(
+      'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
+    // Ментор не видит «Записаться» на своём потоке
+    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
+  });
+
+  test('MENTOR на своём active — кнопки «Завершить», «Студенты», «В архив»', async () => {
+    const activeStream = { ...sampleStream, status: 'active' };
+    const { moduleApi, appApi } = makeMockApi(activeStream, 8);
+    const story = new ViewStreamStory();
+    story.init(moduleApi as any, appApi as any);
+
+    const response = await story.handleCallback(
+      'view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+      mentorActor,
+      session,
+    );
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+  });
+
+  test('MENTOR на чужом потоке — НЕ видит менторских кнопок', async () => {
+    const { moduleApi, appApi } = makeMockApi(sampleStream, 3);
+    const story = new ViewStreamStory();
+    story.init(moduleApi as any, appApi as any);
+
+    const response = await story.handleCallback(
+      'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      otherMentorActor,
+      session,
+    );
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
+  });
+
+  test('кнопка «Завершить» вызывает complete-stream', async () => {
+    const { moduleApi, appApi } = makeMockApi(
+      { ...sampleStream, status: 'active' },
+      0,
+    );
+    const story = new ViewStreamStory();
+    story.init(moduleApi as any, appApi as any);
+
+    await story.handleCallback(
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+
+    expect(moduleApi.execute).toHaveBeenCalledWith('complete-stream', {
+      streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    });
+  });
+
+  test('кнопка «В архив» вызывает archive-stream', async () => {
+    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
+    const story = new ViewStreamStory();
+    story.init(moduleApi as any, appApi as any);
+
+    await story.handleCallback(
+      'archive:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+
+    expect(moduleApi.execute).toHaveBeenCalledWith('archive-stream', {
+      streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    });
+  });
+
+  test('GUEST на потоке ментора — НЕ видит менторских кнопок', async () => {
+    const { moduleApi, appApi } = makeMockApi(sampleStream, 3);
+    const story = new ViewStreamStory();
+    story.init(moduleApi as any, appApi as any);
+
+    const response = await story.handleCallback(
+      'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      guestActor,
+      session,
+    );
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
   });
 });

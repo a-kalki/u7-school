@@ -5,6 +5,7 @@ import type {
   KeyboardDescription,
   SessionData,
 } from '@u7-scl/core/ui';
+import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Stream } from '../../../domain/stream/entity';
 import { StreamPolicy } from '../../../domain/stream/policy';
@@ -26,6 +27,16 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Показ программы курса
     if (cmd === 'program' && streamId) {
       return this.#handleProgram(streamId);
+    }
+
+    // Завершение потока (ментор)
+    if (cmd === 'complete' && streamId) {
+      return this.#handleComplete(streamId);
+    }
+
+    // Архивирование потока (ментор)
+    if (cmd === 'archive' && streamId) {
+      return this.#handleArchive(streamId);
     }
 
     if (cmd !== 'view' || !streamId) {
@@ -152,36 +163,76 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
+    const isOwnerMentor =
+      UserPolicy.isMentor(actor) && StreamPolicy.isMentor(actor, stream);
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
-    // Кнопка «Записаться» только для GUEST/CANDIDATE на enrollment
-    if (stream.status === 'enrollment' && canEnroll) {
+    // ── Менторские кнопки (только владелец потока с ролью MENTOR) ──
+    if (isOwnerMentor) {
+      if (stream.status === 'enrollment') {
+        rows.push([
+          {
+            text: '🚀 Запустить',
+            code: `activate-stream:activate:${stream.uuid}`,
+          },
+        ]);
+      }
+
+      if (stream.status === 'active') {
+        rows.push([
+          {
+            text: '✅ Завершить',
+            code: `view-stream:complete:${stream.uuid}`,
+          },
+        ]);
+      }
+
       rows.push([
         {
-          text: '📝 Записаться',
-          code: `enroll:enroll:${stream.uuid}`,
+          text: '👥 Студенты',
+          code: `monitor:students:${stream.uuid}`,
+        },
+      ]);
+
+      rows.push([
+        {
+          text: '📁 В архив',
+          code: `view-stream:archive:${stream.uuid}`,
         },
       ]);
     }
 
-    // Кнопка «Программа курса» для всех на enrollment
-    if (stream.status === 'enrollment') {
-      rows.push([
-        {
-          text: '📖 Программа курса',
-          code: `view-stream:program:${stream.uuid}`,
-        },
-      ]);
-    }
+    // ── Гостевые кнопки ──
+    if (!isOwnerMentor) {
+      // Кнопка «Записаться» только для GUEST/CANDIDATE на enrollment
+      if (stream.status === 'enrollment' && canEnroll) {
+        rows.push([
+          {
+            text: '📝 Записаться',
+            code: `enroll:enroll:${stream.uuid}`,
+          },
+        ]);
+      }
 
-    // Кнопка «Уведомить о наборе» для GUEST/CANDIDATE на active
-    if (stream.status === 'active' && canEnroll) {
-      rows.push([
-        {
-          text: '🔔 Уведомить о наборе',
-          code: `view-stream:notify:${stream.uuid}`,
-        },
-      ]);
+      // Кнопка «Программа курса» для всех на enrollment
+      if (stream.status === 'enrollment') {
+        rows.push([
+          {
+            text: '📖 Программа курса',
+            code: `view-stream:program:${stream.uuid}`,
+          },
+        ]);
+      }
+
+      // Кнопка «Уведомить о наборе» для GUEST/CANDIDATE на active
+      if (stream.status === 'active' && canEnroll) {
+        rows.push([
+          {
+            text: '🔔 Уведомить о наборе',
+            code: `view-stream:notify:${stream.uuid}`,
+          },
+        ]);
+      }
     }
 
     // Кнопка «Назад к списку» всегда
@@ -195,4 +246,25 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     return { rows, isMultiple: false };
   }
 
+  // ── Менторские действия ──
+
+  async #handleComplete(streamId: string): Promise<BotResponse> {
+    await this.moduleApi.execute('complete-stream', { streamId });
+    return {
+      sendMessage: {
+        text: '✅ *Поток завершён!* Обучение окончено.',
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
+
+  async #handleArchive(streamId: string): Promise<BotResponse> {
+    await this.moduleApi.execute('archive-stream', { streamId });
+    return {
+      sendMessage: {
+        text: '📁 *Поток перемещён в архив.*',
+        parseMode: 'MarkdownV2',
+      },
+    };
+  }
 }
