@@ -186,22 +186,30 @@ ui/bot/stories/
 
 ## 8. Форматирование текста (MarkdownV2)
 
-### 8.1 `this.escapeMarkdown()` — унаследованный метод
+### 8.1 Унаследованные protected-методы
 
-`BotUserStory` предоставляет protected-метод `escapeMarkdown(text: string): string`.
-**НЕ дублируй** его в сторис — используй унаследованный.
+`BotUserStory` предоставляет protected-методы, доступные во всех сторис.
+**НЕ дублируй** их — используй унаследованные.
+
+#### `this.escapeMarkdown(text)`
+Экранирует спецсимволы MarkdownV2: `_ * [ ] ( ) ~ \` > # + - = | { } . !`
 
 ```typescript
-// ✅ Правильно — используем унаследованный метод
 lines.push(`📋 ${this.escapeMarkdown(stream.title)}`);
-
-// ❌ Неправильно — дублирование метода в каждой сторис
-private escapeMarkdown(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-}
 ```
 
-Метод экранирует спецсимволы MarkdownV2: `_ * [ ] ( ) ~ \` > # + - = | { } . !`
+#### `this.formatDate(iso)`
+Форматирует ISO-дату в `дд.мм.гггг`. При ошибке возвращает исходную строку.
+
+```typescript
+const dateStr = this.formatDate(stream.startDate); // '01.07.2026'
+```
+
+```typescript
+// ❌ Неправильно — дублирование в каждой сторис
+#formatDate(iso: string): string { ... }
+private escapeMarkdown(text: string): string { ... }
+```
 
 ### 8.2 Пакет `markdown-to-telegram`
 

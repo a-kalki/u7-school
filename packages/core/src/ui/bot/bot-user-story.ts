@@ -132,4 +132,20 @@ export abstract class BotUserStory<
   protected escapeMarkdown(text: string): string {
     return escapeMarkdown(text);
   }
+
+  /**
+   * Форматирует ISO-дату в читаемый вид (дд.мм.гггг).
+   * При ошибке парсинга возвращает исходную строку.
+   */
+  protected formatDate(iso: string): string {
+    try {
+      const d = new Date(iso);
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const year = d.getUTCFullYear();
+      return `${day}.${month}.${year}`;
+    } catch {
+      return iso;
+    }
+  }
 }

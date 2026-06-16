@@ -28,7 +28,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
       userId: actor.uuid,
     });
 
-    const dateStr = this.#formatDate(stream.startDate);
+    const dateStr = this.formatDate(stream.startDate);
 
     const lines = [
       '🎉 *Вы успешно записаны на поток!*',
@@ -58,15 +58,4 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     return null;
   }
 
-  #formatDate(iso: string): string {
-    try {
-      const d = new Date(iso);
-      const day = String(d.getUTCDate()).padStart(2, '0');
-      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const year = d.getUTCFullYear();
-      return `${day}.${month}.${year}`;
-    } catch {
-      return iso;
-    }
-  }
 }
