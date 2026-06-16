@@ -22,15 +22,16 @@
 
 ## Фаза 2: US-7 — Менторские кнопки в ViewStreamStory
 
-- [ ] Task: Написать тест: ViewStreamStory показывает менторские кнопки
-  - [ ] MENTOR на своём enrollment → видит «Запустить», «Студенты», «В архив»
-  - [ ] MENTOR на своём active → видит «Завершить», «Студенты», «В архив»
-  - [ ] MENTOR на чужом потоке → не видит менторских кнопок
+- [x] Task: Написать тест: ViewStreamStory показывает менторские кнопки
+  - [x] MENTOR на своём enrollment → видит «Запустить», «Студенты», «В архив»
+  - [x] MENTOR на своём active → видит «Завершить», «Студенты», «В архив»
+  - [x] MENTOR на чужом потоке → не видит менторских кнопок
 
-- [ ] Task: Реализовать менторские кнопки
-  - [ ] В `handleCallback('view:<id>')` проверить `actorId === stream.mentorId`
-  - [ ] Добавить менторские кнопки в зависимости от статуса потока
-  - [ ] Callback'ы: `activate-stream:activate:<id>`, `monitor:students:<id>`
+- [x] Task: Реализовать менторские кнопки
+  - [x] В `handleCallback('view:<id>')` проверить `actorId === stream.mentorId`
+  - [x] Добавить менторские кнопки в зависимости от статуса потока
+  - [x] Callback'ы: `activate-stream:activate:<id>`, `monitor:students:<id>`
+    - commit: 50b884b
 
 - [ ] Task: Conductor - Ручная верификация 'Менторские кнопки'
 
