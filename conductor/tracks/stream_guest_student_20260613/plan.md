@@ -2,14 +2,14 @@
 
 ## Фаза 1: US-1 — Фильтр статусов в CatalogStory
 
-- [ ] Task: Написать тест: CatalogStory фильтрует по enrollment + active
-  - [ ] Мок API возвращает потоки со всеми статусами
-  - [ ] Проверить, что в результате только enrollment и active
+- [x] Task: Написать тест: CatalogStory фильтрует по enrollment + active
+  - [x] Мок API возвращает потоки со всеми статусами
+  - [x] Проверить, что в результате только enrollment и active
 
-- [ ] Task: Реализовать фильтр по статусам в CatalogStory
-  - [ ] Передавать `{ status: 'enrollment' }` и `{ status: 'active' }` в `list-streams`
-  - [ ] Объединять результаты двух запросов
-  - [ ] Или добавить поддержку массива статусов в `ListStreamsCmd`
+- [x] Task: Реализовать фильтр по статусам в CatalogStory
+  - [x] Передавать `{ status: 'enrollment' }` и `{ status: 'active' }` в `list-streams`
+  - [x] Объединять результаты двух запросов
+  `[1531cf4]`
 
 - [ ] Task: Conductor - Ручная верификация 'Фильтр статусов'
 
