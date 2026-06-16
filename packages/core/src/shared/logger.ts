@@ -40,6 +40,20 @@ export interface Logger {
   setSourceLevel(source: string, level: LogLevel): void;
 }
 
+// ══ Глобальный логгер (для кода без доступа к DI) ══
+
+let globalLogger: Logger | undefined;
+
+/** Установить глобальный логгер (вызывается при старте приложения) */
+export function setGlobalLogger(logger: Logger): void {
+  globalLogger = logger;
+}
+
+/** Получить глобальный логгер (может быть undefined) */
+export function getGlobalLogger(): Logger | undefined {
+  return globalLogger;
+}
+
 /** Парсит строковое представление уровня */
 export function parseLogLevel(value: string): LogLevel | undefined {
   const map: Record<string, LogLevel> = {

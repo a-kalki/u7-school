@@ -66,7 +66,11 @@ export class HandleActionUc extends OnboardingUseCase<HandleOnboardingActionCmdM
           );
         }
       } catch (e) {
-        console.error('Failed to grant CANDIDATE role after onboarding:', e);
+        this.resolve.appResolver.logger.error(
+          'onboarding',
+          'Не удалось выдать роль CANDIDATE после onboarding',
+          { error: String(e) },
+        );
       }
     }
 

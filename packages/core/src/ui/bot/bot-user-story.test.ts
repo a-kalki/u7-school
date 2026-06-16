@@ -103,9 +103,10 @@ describe('BotUserStory', () => {
   });
 
   describe('shrink / expand', () => {
-    test('shrink генерирует 8-символьный hex-ключ и сохраняет значение', () => {
+    test('shrink использует первые 8 символов значения как ключ', () => {
       const key = story.shrink('очень длинное значение');
-      expect(key).toMatch(/^[0-9a-f]{8}$/);
+      // Берутся первые 8 символов строки
+      expect(key).toBe('очень дл');
     });
 
     test('expand восстанавливает значение по ключу', () => {
@@ -113,10 +114,20 @@ describe('BotUserStory', () => {
       expect(story.expand(key)).toBe('значение');
     });
 
-    test('shrink генерирует уникальные ключи', () => {
-      const key1 = story.shrink('a');
-      const key2 = story.shrink('b');
+    test('shrink: разные значения с разным префиксом дают разные ключи', () => {
+      const key1 = story.shrink('abcdefgh');
+      const key2 = story.shrink('bbcdefgh');
       expect(key1).not.toBe(key2);
+    });
+
+    test('shrink: коллизия по префиксу добавляет суффикс', () => {
+      // Два значения с одинаковыми первыми 8 символами
+      const key1 = story.shrink('12345678-aaaa');
+      const key2 = story.shrink('12345678-bbbb');
+      // Второй ключ должен отличаться от первого (добавлен суффикс)
+      expect(key1).toBe('12345678');
+      expect(key2).not.toBe(key1);
+      expect(key2).toMatch(/^12345678-/);
     });
 
     test('expand возвращает undefined для неизвестного ключа', () => {

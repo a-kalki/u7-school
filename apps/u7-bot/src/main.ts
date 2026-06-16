@@ -1,4 +1,9 @@
-import { ConsoleLogger, LogLevel, parseLogLevel } from '@u7-scl/core/shared';
+import {
+  ConsoleLogger,
+  LogLevel,
+  parseLogLevel,
+  setGlobalLogger,
+} from '@u7-scl/core/shared';
 import { BotRouter } from '@u7-scl/core/ui';
 import { OnboardingController } from '@u7-scl/onboarding';
 import { UserPolicy } from '@u7-scl/user/domain';
@@ -17,6 +22,7 @@ const consoleLogger = new ConsoleLogger();
 consoleLogger.setLogLevel(LogLevel.DEBUG);
 
 const loggers: CompositeLogger = new CompositeLogger([consoleLogger]);
+setGlobalLogger(loggers);
 
 // ══ TelegramLogger создадим после createBot, но пока есть только consoleLogger ══
 // (TelegramLogger понадобится bot, который мы создадим ниже)
@@ -82,7 +88,7 @@ privateBot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => {});
+      .catch(() => { });
   }
 });
 

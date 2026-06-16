@@ -14,21 +14,21 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    _actor: User,
+    actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     const [cmd, id] = action.split(':');
 
     // Детальная карточка студента
     if (cmd === 'detail' && id) {
-      return this.#handleDetail(id);
+      return this.#handleDetail(id, actor);
     }
 
     if (cmd !== 'students' || !id) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    return this.#handleStudents(id);
+    return this.#handleStudents(id, actor);
   }
 
   override async handleMessage(): Promise<BotResponse> {
@@ -41,10 +41,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Приватные методы ──
 
-  async #handleStudents(streamId: string): Promise<BotResponse> {
+  async #handleStudents(streamId: string, actor: User): Promise<BotResponse> {
     const students = await this.moduleApi.execute('list-stream-students', {
       streamId,
-    });
+    }, actor.uuid);
 
     const stream = await this.moduleApi.execute('get-stream', {
       streamId,
@@ -99,12 +99,13 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  async #handleDetail(studentId: string): Promise<BotResponse> {
+  async #handleDetail(studentId: string, actor: User): Promise<BotResponse> {
     const student: Student = await this.moduleApi.execute(
       'get-student-progress',
       {
         studentId,
       },
+      actor.uuid,
     );
 
     // Получаем пользователя

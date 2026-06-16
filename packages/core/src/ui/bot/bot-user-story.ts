@@ -1,7 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
 import { escapeMarkdown } from '#shared/markdown';
-import { stringUtility } from '#shared/string-utility';
 import type {
   BotResponse,
   BotUpdate,
@@ -110,12 +109,18 @@ export abstract class BotUserStory<
   }
 
   /**
-   * Сжимает длинное значение в короткий ключ для callback_data.
-   * Автоматически генерирует 6-символьный hex-ключ.
-   * @returns сгенерированный ключ
+   * Сжимает и возвращает длинное значение в короткий ключ для callback_data.
+   * Использует первые 8 символов значения (для UUID — первый сегмент).
+   * При коллизии (разные значения с одинаковым префиксом) добавляет цифровой суффикс.
    */
   protected shrink(value: string): string {
-    const key = stringUtility.random('hhhhhhhh', '');
+    let key = value.slice(0, 8);
+
+    const existing = this.shortIds.get(key);
+    if (existing !== undefined && existing !== value) {
+      key = `${key}-${this.shortIds.size}`;
+    }
+
     this.shortIds.set(key, value);
     return key;
   }
@@ -127,7 +132,6 @@ export abstract class BotUserStory<
 
   /**
    * Экранирует спецсимволы MarkdownV2 для Telegram.
-   * Делегирует в утилиту из @u7-scl/core/shared.
    */
   protected escapeMarkdown(text: string): string {
     return escapeMarkdown(text);
@@ -135,7 +139,6 @@ export abstract class BotUserStory<
 
   /**
    * Форматирует ISO-дату в читаемый вид (дд.мм.гггг).
-   * При ошибке парсинга возвращает исходную строку.
    */
   protected formatDate(iso: string): string {
     try {

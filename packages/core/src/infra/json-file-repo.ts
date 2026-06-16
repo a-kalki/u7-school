@@ -1,5 +1,6 @@
 import type { GenericSchema } from 'valibot';
 import * as v from 'valibot';
+import { getGlobalLogger } from '#shared/logger';
 import type { BaseJsonDb } from './base-json-db';
 
 /**
@@ -101,9 +102,10 @@ export class JsonFileRepo<T> {
       if (parsed.success) {
         result.push(parsed.output);
       } else {
-        console.warn(
-          `[JsonFileRepo] Пропущена невалидная запись в файле ${this.#filePath}:`,
-          v.flatten(parsed.issues),
+        getGlobalLogger()?.warn(
+          'json-repo',
+          `Пропущена невалидная запись в файле ${this.#filePath}`,
+          { issues: v.flatten(parsed.issues) },
         );
       }
     }

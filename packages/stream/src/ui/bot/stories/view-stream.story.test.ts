@@ -299,7 +299,7 @@ describe('ViewStreamStory', () => {
 
     expect(moduleApi.execute).toHaveBeenCalledWith('complete-stream', {
       streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-    });
+    }, mentorActor.uuid);
   });
 
   test('кнопка «В архив» вызывает archive-stream', async () => {
@@ -313,7 +313,7 @@ describe('ViewStreamStory', () => {
 
     expect(moduleApi.execute).toHaveBeenCalledWith('archive-stream', {
       streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-    });
+    }, mentorActor.uuid);
   });
 
   test('GUEST на потоке ментора — НЕ видит менторских кнопок', async () => {

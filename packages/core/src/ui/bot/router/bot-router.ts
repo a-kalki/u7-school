@@ -163,9 +163,8 @@ export class BotRouter<
 
     const response = await controller.handleMessage(update, actor, session);
 
-    if (response.releaseInput) {
-      session.activeHandler = null;
-    }
+    // Обновление activeHandler — важно для wizard-ов с многошаговым текстовым вводом
+    this.#applyCapturedInput(session, ctrlName ?? '', response);
 
     return response;
   }

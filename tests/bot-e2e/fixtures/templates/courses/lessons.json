@@ -1,0 +1,26 @@
+[
+  {
+    "uuid": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
+    "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
+    "title": "Переменные и типы",
+    "status": "published",
+    "stepIds": [
+      "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
+      "d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"
+    ],
+    "mentorStepIds": [],
+    "createdAt": "2026-06-01T01:00"
+  },
+  {
+    "uuid": "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1",
+    "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
+    "title": "Условные операторы",
+    "status": "published",
+    "stepIds": [
+      "d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2",
+      "d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3"
+    ],
+    "mentorStepIds": [],
+    "createdAt": "2026-06-01T02:00"
+  }
+]

@@ -23,7 +23,7 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const student = await this.moduleApi.execute('get-student-by-user', {
       userId: actor.uuid,
-    });
+    }, actor.uuid);
     const stream = await this.moduleApi.execute('get-stream', { streamId });
 
     // Имя ментора

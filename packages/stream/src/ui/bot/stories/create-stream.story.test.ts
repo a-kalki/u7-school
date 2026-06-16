@@ -228,7 +228,7 @@ describe('CreateStreamStory', () => {
       startDate: '2026-07-01',
       telegramGroupId: '@group',
       mentorId: 'mentor-1',
-    });
+    }, 'mentor-1');
     expect(response.releaseInput).toBe(true);
     expect(response.sendMessage?.text).toContain('успешно создан');
   });

@@ -31,12 +31,12 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Завершение потока (ментор)
     if (cmd === 'complete' && streamId) {
-      return this.#handleComplete(streamId);
+      return this.#handleComplete(streamId, actor);
     }
 
     // Архивирование потока (ментор)
     if (cmd === 'archive' && streamId) {
-      return this.#handleArchive(streamId);
+      return this.#handleArchive(streamId, actor);
     }
 
     if (cmd !== 'view' || !streamId) {
@@ -58,9 +58,15 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async #handleView(streamId: string, actor: User): Promise<BotResponse> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
-    const students = await this.moduleApi.execute('list-stream-students', {
-      streamId,
-    });
+    let studentCount = 0;
+    try {
+      const students = await this.moduleApi.execute('list-stream-students', {
+        streamId,
+      }, actor.uuid);
+      studentCount = students.length;
+    } catch {
+      // Для не-менторов список студентов недоступен — показываем 0
+    }
 
     // Получаем имя ментора через appApi (модуль user)
     let mentorName = '';
@@ -89,7 +95,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       `👤 Ментор: ${this.escapeMarkdown(mentorName)}`,
       `📅 Старт: ${this.escapeMarkdown(dateStr)}`,
-      `👥 Студентов: ${students.length}`,
+      `👥 Студентов: ${studentCount}`,
       `📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
     ];
 
@@ -248,8 +254,8 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Менторские действия ──
 
-  async #handleComplete(streamId: string): Promise<BotResponse> {
-    await this.moduleApi.execute('complete-stream', { streamId });
+  async #handleComplete(streamId: string, actor: User): Promise<BotResponse> {
+    await this.moduleApi.execute('complete-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
         text: '✅ *Поток завершён!* Обучение окончено.',
@@ -258,8 +264,8 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  async #handleArchive(streamId: string): Promise<BotResponse> {
-    await this.moduleApi.execute('archive-stream', { streamId });
+  async #handleArchive(streamId: string, actor: User): Promise<BotResponse> {
+    await this.moduleApi.execute('archive-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
         text: '📁 *Поток перемещён в архив.*',

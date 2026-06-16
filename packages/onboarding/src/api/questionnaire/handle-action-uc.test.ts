@@ -54,6 +54,18 @@ function setupUc(active?: Questionnaire) {
     questionPoolService: poolService,
     userFacade: userFacade,
     db: {} as BaseJsonDb,
+    appResolver: {
+      logger: {
+        debug: () => {},
+        info: () => {},
+        warn: () => {},
+        error: () => {},
+        setLogLevel: () => {},
+        getLogLevel: () => 0,
+        setSourceLevel: () => {},
+      },
+      mode: 'development' as const,
+    },
   } as unknown as OnboardingApiModuleResolver);
 
   return { uc, save, userFacade };

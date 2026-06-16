@@ -1,3 +1,4 @@
+import { getGlobalLogger } from '@u7-scl/core/shared';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import { JsonFileRepo } from '@u7-scl/core/infra';
 import type { User } from '#domain/user/entity';
@@ -46,15 +47,17 @@ export class UserJsonRepo implements UserRepo {
     try {
       seedData = await seedFile.json();
     } catch {
-      console.warn(
-        `[UserJsonRepo] Не удалось распарсить seed-файл ${this.#seedPath}`,
+      getGlobalLogger()?.warn(
+        'user-repo',
+        `Не удалось распарсить seed-файл ${this.#seedPath}`,
       );
       return;
     }
 
     if (!Array.isArray(seedData)) {
-      console.warn(
-        `[UserJsonRepo] Seed-файл ${this.#seedPath} должен быть массивом`,
+      getGlobalLogger()?.warn(
+        'user-repo',
+        `Seed-файл ${this.#seedPath} должен быть массивом`,
       );
       return;
     }

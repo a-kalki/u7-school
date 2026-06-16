@@ -1,0 +1,25 @@
+[
+  {
+    "uuid": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
+    "title": "JavaScript Основы",
+    "description": "Изучаем синтаксис языка JavaScript с нуля",
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "status": "published",
+    "targetAudience": "Новички в программировании",
+    "goal": "Научиться писать код на JavaScript",
+    "result": "Вы будете уметь писать базовые программы",
+    "rules": "Будьте вежливы, усердно трудитесь",
+    "projects": [
+      {
+        "uuid": "b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0",
+        "title": "Введение",
+        "status": "published",
+        "lessonIds": [
+          "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
+          "c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"
+        ]
+      }
+    ],
+    "createdAt": "2026-06-01T00:00"
+  }
+]

@@ -26,7 +26,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     await this.moduleApi.execute('enroll-student', {
       streamId,
       userId: actor.uuid,
-    });
+    }, actor.uuid);
 
     const dateStr = this.formatDate(stream.startDate);
 

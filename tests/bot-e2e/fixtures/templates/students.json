@@ -1,0 +1,18 @@
+[
+  {
+    "uuid": "f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0",
+    "streamId": "e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1",
+    "userId": "33333333-3333-3333-3333-333333333333",
+    "enrolledAt": "2026-06-01T00:00",
+    "status": "active",
+    "currentStepId": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
+    "steps": [
+      {
+        "stepId": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
+        "status": "issued",
+        "issuedAt": "2026-06-01T00:00"
+      }
+    ],
+    "createdAt": "2026-06-01T00:00"
+  }
+]

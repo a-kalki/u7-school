@@ -42,8 +42,8 @@ describe('LearningStory', () => {
       {
         projectTitle: 'Основы',
         lessons: [
-          { lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
-          { lessonTitle: 'Переменные', stepIds: ['step-3', 'step-4'] },
+          { lessonId: 'lesson-uuid-1', lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
+          { lessonId: 'lesson-uuid-2', lessonTitle: 'Переменные', stepIds: ['step-3', 'step-4'] },
         ],
       },
     ],
@@ -123,7 +123,7 @@ describe('LearningStory', () => {
         if (name === 'complete-step')
           return {
             level: 'lesson',
-            completedLessonId: 'step-2',
+            completedLessonId: 'lesson-uuid-1',
             currentStepId: 'step-3',
           };
         if (name === 'get-stream') return mockStream;

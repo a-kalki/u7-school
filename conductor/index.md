@@ -12,6 +12,8 @@
   - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module
   - [DDD Infra](../.pi/skills/ddd-infra/SKILL.md) — реализации репозиториев
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
+  - [Тестирование](./code_styleguides/testing.md) — общие правила
+  - [E2E-тестирование](./code_styleguides/skills/bot-e2e-testing.md) — архитектура e2e-тестов бота
 
 ## Гайды по контенту курса
 - [Наполнение уроков шагами](./guides/lesson-design.md)

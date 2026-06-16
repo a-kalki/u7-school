@@ -334,7 +334,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       startDate: context.startDate,
       telegramGroupId: context.telegramGroupId,
       mentorId: actor.uuid,
-    });
+    }, actor.uuid);
 
     return {
       releaseInput: true,
