@@ -78,17 +78,51 @@ const a = actor as Actor;
 
 ## 4. Тип актора (Actor)
 
-Актор всегда имеет тип `User` из `@u7-scl/app/domain` (реэкспорт из `@u7-scl/user/domain`):
+Актор всегда имеет тип `User` из `@u7-scl/app/domain` (реэкспорт из `@u7-scl/user/domain`).
+
+**Всегда** указывай `actor: User` в сигнатурах `handleCallback`, `handleMessage`, `handleStart`.
+Дженерик `U7BotUserStory` уже закрывает `TActor = User` — не нужно использовать `unknown` и каст:
 
 ```typescript
 import type { User } from '@u7-scl/app/domain';
 
-// В handleCallback / handleMessage:
+// ✅ Правильно — actor типизирован через дженерик
+async handleCallback(action: string, actor: User, session: SessionData): Promise<BotResponse> {
+  const student = await this.moduleApi.execute('get-student-by-user', {
+    userId: actor.uuid,
+  });
+}
+
+// ❌ Неправильно — unknown + ручной каст
 async handleCallback(action: string, actor: unknown, session: SessionData): Promise<BotResponse> {
   const a = actor as User;
-  // a.uuid, a.name, a.telegramId, a.roles, a.createdAt, a.updatedAt
 }
 ```
+
+### 4.1 Проверка ролей через UserPolicy
+
+Для проверки ролей актора используй `UserPolicy` из `@u7-scl/user/domain`:
+
+```typescript
+import { UserPolicy } from '@u7-scl/user/domain';
+
+// ✅ Правильно
+const isGuestCandidate = UserPolicy.isCandidate(actor) || UserPolicy.isGuest(actor);
+if (UserPolicy.isStudent(actor)) { ... }
+
+// ❌ Неправильно — ручная проверка ролей
+if (actor.roles.includes('STUDENT')) { ... }
+if (actor.roles.some((r) => ['GUEST', 'CANDIDATE'].includes(r))) { ... }
+```
+
+Доступные методы `UserPolicy`:
+- `isGuest(actor)`
+- `isCandidate(actor)`
+- `isStudent(actor)`
+- `isMentor(actor)`
+- `isAdmin(actor)`
+- `canCreate(actor)`
+- `canAddRole(actor)`
 
 ---
 

@@ -1,3 +1,4 @@
+import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,
@@ -17,7 +18,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    _actor: unknown,
+    _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     if (action !== 'list') {
@@ -79,13 +80,13 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleMessage(
     _update: BotUpdate,
-    _actor: unknown,
+    _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  override async handleStart(_actor: unknown): Promise<MainMenuAction | null> {
+  override async handleStart(_actor: User): Promise<MainMenuAction | null> {
     return {
       text: '📚 Наши потоки',
       action: this.cb('list'),

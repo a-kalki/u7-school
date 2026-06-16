@@ -1,7 +1,7 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/app/domain';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
+import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US-3: Запись на поток (Регистрация).
@@ -12,21 +12,20 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    actor: unknown,
+    actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     const [cmd, streamId] = action.split(':');
     if (cmd !== 'enroll' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
-    const a = actor as User;
 
     // Получаем поток для названия, даты старта и ссылки на чат
     const stream = await this.moduleApi.execute('get-stream', { streamId });
 
     await this.moduleApi.execute('enroll-student', {
       streamId,
-      userId: a.uuid,
+      userId: actor.uuid,
     });
 
     const dateStr = this.#formatDate(stream.startDate);
@@ -55,7 +54,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  override async handleStart(_actor: unknown): Promise<null> {
+  override async handleStart(_actor: User): Promise<null> {
     return null;
   }
 
@@ -70,5 +69,4 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
       return iso;
     }
   }
-
 }

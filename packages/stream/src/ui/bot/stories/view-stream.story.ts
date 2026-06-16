@@ -1,12 +1,13 @@
+import type { User } from '@u7-scl/app/domain';
+import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,
   KeyboardDescription,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { User } from '@u7-scl/app/domain';
+import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Stream } from '../../../domain/stream/entity';
-import { U7BotUserStory } from '@u7-scl/app/ui';
 
 /**
  * US-2: Детальная карточка потока.
@@ -17,7 +18,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    actor: unknown,
+    actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     const [cmd, streamId] = action.split(':');
@@ -31,20 +32,20 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    return this.#handleView(streamId, actor as User);
+    return this.#handleView(streamId, actor);
   }
 
   override async handleMessage(): Promise<BotResponse> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  override async handleStart(_actor: unknown): Promise<null> {
+  override async handleStart(_actor: User): Promise<null> {
     return null;
   }
 
   // ── Приватные методы ──
 
-  async #handleView(streamId: string, a: User): Promise<BotResponse> {
+  async #handleView(streamId: string, actor: User): Promise<BotResponse> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
     const students = await this.moduleApi.execute('list-stream-students', {
       streamId,
@@ -86,7 +87,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const text = lines.join('\n');
-    const keyboard = this.#buildKeyboard(stream, a);
+    const keyboard = this.#buildKeyboard(stream, actor);
 
     return {
       sendMessage: {
@@ -149,10 +150,9 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  #buildKeyboard(stream: Stream, a: User): KeyboardDescription {
-    const isGuestCandidate = a.roles.some((r) =>
-      ['GUEST', 'CANDIDATE'].includes(r),
-    );
+  #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
+    const isGuestCandidate =
+      UserPolicy.isCandidate(actor) || UserPolicy.isGuest(actor);
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     // Кнопка «Записаться» только для GUEST/CANDIDATE на enrollment
@@ -207,5 +207,4 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return iso;
     }
   }
-
 }

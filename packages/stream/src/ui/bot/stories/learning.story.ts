@@ -5,6 +5,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/app/domain';
+import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 
@@ -17,11 +18,9 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    actor: unknown,
+    actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const a = actor as User;
-
     // Завершение шага: complete:<studentId>:<streamId>:<stepId>
     if (action.startsWith('complete:')) {
       return this.#handleComplete(action);
@@ -29,7 +28,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Показ текущего шага
     if (action === 'my-study') {
-      return this.#handleMyStudy(a);
+      return this.#handleMyStudy(actor);
     }
 
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -37,15 +36,14 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleMessage(
     _update: BotUpdate,
-    _actor: unknown,
+    _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  override async handleStart(actor: unknown): Promise<MainMenuAction | null> {
-    const a = actor as User;
-    if (a.roles.includes('STUDENT')) {
+  override async handleStart(actor: User): Promise<MainMenuAction | null> {
+    if (UserPolicy.isStudent(actor)) {
       return {
         text: '📖 Моя учёба',
         action: this.cb('my-study'),
@@ -57,11 +55,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Приватные методы ──
 
-  async #handleMyStudy(a: User): Promise<BotResponse> {
+  async #handleMyStudy(actor: User): Promise<BotResponse> {
     let student;
     try {
       student = await this.moduleApi.execute('get-student-by-user', {
-        userId: a.uuid,
+        userId: actor.uuid,
       });
     } catch {
       return {

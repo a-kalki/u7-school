@@ -1,4 +1,5 @@
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { User } from '@u7-scl/app/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 
@@ -11,7 +12,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   async handleCallback(
     action: string,
-    _actor: unknown,
+    _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     const [cmd, streamId] = action.split(':');
@@ -63,7 +64,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  override async handleStart(_actor: unknown): Promise<null> {
+  override async handleStart(_actor: User): Promise<null> {
     return null;
   }
 
