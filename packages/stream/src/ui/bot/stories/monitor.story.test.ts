@@ -1,15 +1,20 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { ApiApp } from '@u7-scl/core/api';
 import type { SessionData } from '@u7-scl/core/ui';
-import type { U7BotAppMeta } from '@u7-scl/app/domain';
+import type { User } from '@u7-scl/app/domain';
 import { MonitorStory } from './monitor.story';
 
 describe('MonitorStory', () => {
-  const actor = { uuid: 'mentor-1', roles: ['MENTOR'] };
+  const actor: User = {
+    uuid: 'mentor-1',
+    name: 'Ментор',
+    telegramId: 123,
+    roles: ['MENTOR'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
   const session: SessionData = { activeHandler: null };
 
   test('handleCallback("students:<id>") показывает список с прогрессом', async () => {
-    const mockApi = {
+    const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -42,10 +47,11 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as ApiApp<U7BotAppMeta>;
+    };
+    const appApi = { execute: mock(() => undefined) };
 
     const story = new MonitorStory();
-    story.init(mockApi);
+    story.init(moduleApi as any, appApi as any);
     const response = await story.handleCallback('students:s1', actor, session);
 
     expect(response.sendMessage?.text).toContain('Студенты');

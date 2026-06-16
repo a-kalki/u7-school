@@ -1,6 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { ApiApp } from '@u7-scl/core/api';
-import type { U7BotAppMeta } from '@u7-scl/app/domain';
+import type { User } from '@u7-scl/app/domain';
 import { StreamController } from './stream-controller';
 
 describe('StreamController (реестр)', () => {
@@ -19,9 +18,34 @@ describe('StreamController (реестр)', () => {
       return undefined;
     }),
   } as any;
-  const mockApi = mockModuleApi as unknown as ApiApp<U7BotAppMeta>;
+
+  const mockAppApi = {
+    execute: mock(() => undefined),
+  } as any;
 
   const makeController = () => new StreamController(mockModuleApi);
+
+  const guestActor: User = {
+    uuid: 'u1',
+    name: 'Гость',
+    telegramId: 123,
+    roles: ['GUEST'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+  const studentActor: User = {
+    uuid: 'u2',
+    name: 'Студент',
+    telegramId: 456,
+    roles: ['STUDENT'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+  const mentorActor: User = {
+    uuid: 'u3',
+    name: 'Ментор',
+    telegramId: 789,
+    roles: ['MENTOR'],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
 
   test('имя контроллера — stream', () => {
     const controller = makeController();
@@ -30,19 +54,16 @@ describe('StreamController (реестр)', () => {
 
   test('содержит 8 stories', () => {
     const controller = makeController();
-    // stories — protected, используем доступ через прототип
     const stories = (controller as unknown as { stories: unknown[] }).stories;
     expect(stories.length).toBe(8);
   });
 
   test('handleStart агрегирует кнопки от stories', async () => {
     const controller = makeController();
-    controller.init(mockApi);
+    controller.init(mockAppApi);
 
-    const actor = { uuid: 'u1', roles: ['GUEST'] };
-    const items = await controller.handleStart(actor);
+    const items = await controller.handleStart(guestActor);
 
-    // GUEST должен видеть только catalog
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);
     expect(texts).toContain('📚 Наши потоки');
@@ -50,10 +71,9 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart — STUDENT видит catalog + learning', async () => {
     const controller = makeController();
-    controller.init(mockApi);
+    controller.init(mockAppApi);
 
-    const actor = { uuid: 'u1', roles: ['STUDENT'] };
-    const items = await controller.handleStart(actor);
+    const items = await controller.handleStart(studentActor);
 
     expect(items.length).toBeGreaterThanOrEqual(2);
     const texts = items.map((i) => i.text);
@@ -63,10 +83,9 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart — MENTOR видит catalog + панель ментора', async () => {
     const controller = makeController();
-    controller.init(mockApi);
+    controller.init(mockAppApi);
 
-    const actor = { uuid: 'u1', roles: ['MENTOR'] };
-    const items = await controller.handleStart(actor);
+    const items = await controller.handleStart(mentorActor);
 
     const texts = items.map((i) => i.text);
     expect(texts).toContain('📚 Наши потоки');
@@ -75,35 +94,33 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart сортирует по priority', async () => {
     const controller = makeController();
-    controller.init(mockApi);
+    controller.init(mockAppApi);
 
-    const actor = { uuid: 'u1', roles: ['STUDENT'] };
-    const items = await controller.handleStart(actor);
+    const items = await controller.handleStart(studentActor);
 
     for (let i = 1; i < items.length; i++) {
-      expect(items[i]!.priority).toBeGreaterThanOrEqual(items[i - 1]!.priority);
+      expect(items[i]!.priority).toBeGreaterThanOrEqual(
+        items[i - 1]!.priority,
+      );
     }
   });
 
   test('handleCallback форвардит по префиксу story', async () => {
     const controller = makeController();
-    controller.init(mockApi);
+    controller.init(mockAppApi);
 
-    const actor = { uuid: 'u1', roles: ['GUEST'] };
     const session = { activeHandler: null };
 
-    // catalog:list
     const response1 = await controller.handleCallback(
       'catalog:list',
-      actor,
+      guestActor,
       session,
     );
     expect(response1.sendMessage?.text).toBeDefined();
 
-    // view-stream:view:uuid
     const response2 = await controller.handleCallback(
       'view-stream:view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      actor,
+      guestActor,
       session,
     );
     expect(response2.sendMessage?.text).toBeDefined();
@@ -111,12 +128,11 @@ describe('StreamController (реестр)', () => {
 
   test('handleCallback — неизвестный префикс', async () => {
     const controller = makeController();
-    const actor = { uuid: 'u1', roles: ['GUEST'] };
     const session = { activeHandler: null };
 
     const response = await controller.handleCallback(
       'unknown:action',
-      actor,
+      guestActor,
       session,
     );
     expect(response.sendMessage?.text).toContain('Неизвестная');
