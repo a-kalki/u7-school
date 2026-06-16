@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User } from '@u7-scl/app/domain';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { MonitorStory } from './monitor.story';
 
 describe('MonitorStory', () => {
@@ -8,7 +10,7 @@ describe('MonitorStory', () => {
     uuid: 'mentor-1',
     name: 'Ментор',
     telegramId: 123,
-    roles: ['MENTOR'],
+    roles: [Role.MENTOR],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
   const session: SessionData = { activeHandler: null };
@@ -47,17 +49,18 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
-          return { uuid: 'user-1', name: 'Иван', telegramId: 111, roles: ['STUDENT'] };
+          return { uuid: 'user-1', name: 'Иван', telegramId: 111, roles: [Role.STUDENT] };
         return undefined;
       }),
-    };
+    } as unknown as U7BotApp;
 
     const story = new MonitorStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
+
     const response = await story.handleCallback('students:s1', actor, session);
 
     expect(response.sendMessage?.text).toContain('Студенты');
@@ -106,19 +109,20 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock((name: string, params: any) => {
         if (name === 'get-user' && params?.uuid === 'user-1')
-          return { uuid: 'user-1', name: 'Иван Иванов', telegramId: 111, roles: ['STUDENT'] };
+          return { uuid: 'user-1', name: 'Иван Иванов', telegramId: 111, roles: [Role.STUDENT] };
         if (name === 'get-user' && params?.uuid === 'user-2')
-          return { uuid: 'user-2', name: 'Петр Петров', telegramId: 222, roles: ['STUDENT'] };
+          return { uuid: 'user-2', name: 'Петр Петров', telegramId: 222, roles: [Role.STUDENT] };
         return undefined;
       }),
-    };
+    } as unknown as U7BotApp;
 
     const story = new MonitorStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
+
     const response = await story.handleCallback('students:s1', actor, session);
 
     const btnTexts =
@@ -181,7 +185,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
@@ -190,15 +194,16 @@ describe('MonitorStory', () => {
             name: 'Иван Иванов',
             telegramId: 111,
             telegramUsername: 'ivanov',
-            roles: ['STUDENT'],
+            roles: [Role.STUDENT],
             createdAt: '2026-01-01T00:00:00.000Z',
           };
         return undefined;
       }),
-    };
+    } as unknown as U7BotApp;
 
     const story = new MonitorStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
+
     const response = await story.handleCallback('detail:st1', actor, session);
 
     const text = response.sendMessage?.text ?? '';

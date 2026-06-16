@@ -1,7 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
-import type { ApiApp } from '@u7-scl/core/api';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
+import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { CatalogStory } from './catalog.story';
 
 describe('CatalogStory', () => {
@@ -10,9 +11,13 @@ describe('CatalogStory', () => {
     uuid: 'user-1',
     name: 'Гость',
     telegramId: 123,
-    roles: ['GUEST'],
+    roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
+
+  const emptyAppApi = {
+    execute: mock(() => undefined),
+  } as unknown as U7BotApp;
 
   test('handleCallback("list") показывает список потоков', async () => {
     const moduleApi = {
@@ -23,11 +28,10 @@ describe('CatalogStory', () => {
           status: 'enrollment',
         },
       ]),
-    };
-    const appApi = { execute: mock(() => undefined) };
+    } as unknown as StreamApiModule;
 
     const story = new CatalogStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('list', actor, session);
     expect(response.sendMessage?.text).toContain('Потоки школы');
@@ -37,11 +41,10 @@ describe('CatalogStory', () => {
   test('handleCallback("list") с пустым списком', async () => {
     const moduleApi = {
       execute: mock(async () => []),
-    };
-    const appApi = { execute: mock(() => undefined) };
+    } as unknown as StreamApiModule;
 
     const story = new CatalogStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('list', actor, session);
     expect(response.sendMessage?.text).toContain('Нет доступных потоков');
@@ -99,11 +102,10 @@ describe('CatalogStory', () => {
         }
         return Object.values(allStreams).flat();
       }),
-    };
-    const appApi = { execute: mock(() => undefined) };
+    } as unknown as StreamApiModule;
 
     const story = new CatalogStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('list', actor, session);
     const btnTexts =

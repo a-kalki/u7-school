@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import type { AppResolver } from '@u7-scl/core/domain';
 import type { User } from '#domain/user/entity';
 import { Role } from '#domain/user/roles';
 import { UserJsonRepo } from '#infra/db/user-json-repo';
 import { UserApiModule } from './module';
 
 const NO_SEED = '/nonexistent-seed.json';
-const appResolver = { logger: console, mode: 'test' as const };
+const appResolver = {
+  logger: console,
+  mode: 'test' as const,
+} as unknown as AppResolver;
 
 describe('UserApiModule + UserJsonRepo', () => {
   test('user.create: создаёт пользователя если есть права ADMIN', async () => {

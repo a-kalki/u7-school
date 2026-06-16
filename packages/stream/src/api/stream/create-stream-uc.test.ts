@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { isoNow } from '@u7-scl/core/shared';
 import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModuleResolver } from '#domain/module';
 import { CreateStreamUc } from './create-stream-uc';
 
 describe('CreateStreamUc', () => {
@@ -33,11 +34,11 @@ describe('CreateStreamUc', () => {
 
     const uc = new CreateStreamUc();
     uc.init({
-      streamRepo: mockRepo as any,
-      courseFacade: mockCourseFacade as any,
-      userFacade: mockUserFacade as any,
-      streamStudentRepo: {} as any,
-    });
+      streamRepo: mockRepo,
+      courseFacade: mockCourseFacade,
+      userFacade: mockUserFacade,
+      streamStudentRepo: {},
+    } as unknown as StreamApiModuleResolver);
 
     const cmd = {
       title: 'Новый курс',
@@ -79,11 +80,11 @@ describe('CreateStreamUc', () => {
 
     const uc = new CreateStreamUc();
     uc.init({
-      userFacade: mockUserFacade as any,
-      streamRepo: {} as any,
-      courseFacade: {} as any,
-      streamStudentRepo: {} as any,
-    });
+      userFacade: mockUserFacade,
+      streamRepo: {},
+      courseFacade: {},
+      streamStudentRepo: {},
+    } as unknown as StreamApiModuleResolver);
 
     await expect(uc.execute({} as any, 'g1')).rejects.toThrow();
   });

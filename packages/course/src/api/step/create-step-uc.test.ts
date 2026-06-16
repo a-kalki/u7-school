@@ -1,3 +1,4 @@
+import type { CourseApiModuleResolver } from '#domain/module';
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
@@ -89,7 +90,7 @@ function setupUc() {
     } as unknown as LessonRepo,
     stepRepo,
     userFacade,
-  });
+  } as unknown as CourseApiModuleResolver);
   return { courseGetByUuid, stepSave, getUserByUuid, uc };
 }
 

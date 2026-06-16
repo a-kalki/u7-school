@@ -19,6 +19,9 @@
  */
 
 import { ApiApp } from '@u7-scl/core/api';
+import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
+import type { StreamApiModuleResolver } from '../packages/stream/src/domain/module.ts';
+import type { UserApiModuleResolver } from '../packages/user/src/domain/module.ts';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
@@ -87,7 +90,7 @@ async function main() {
   const streamRepo = new StreamJsonRepo('data/streams/streams.json');
   const studentRepo = new StudentJsonRepo('data/streams/students.json');
 
-  const userModule = new UserApiModule({ userRepo });
+  const userModule = new UserApiModule({ userRepo } as unknown as UserApiModuleResolver);
   const userFacade = new UserInProcFacade(userModule);
 
   const courseResolve = {
@@ -97,15 +100,17 @@ async function main() {
     userFacade,
   };
 
-  const courseModule = new CourseApiModule(courseResolve);
-  const courseFacade = new CourseInProcFacade(courseResolve);
+  const courseModule = new CourseApiModule(
+    courseResolve as unknown as CourseApiModuleResolver,
+  );
+  const courseFacade = new CourseInProcFacade(courseModule);
 
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo: studentRepo,
     userFacade,
     courseFacade,
-  });
+  } as unknown as StreamApiModuleResolver);
 
   const app = new ApiApp([userModule, courseModule, streamModule]);
 

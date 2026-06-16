@@ -1,3 +1,4 @@
+import type { OnboardingApiModuleResolver } from '#domain/module';
 import { describe, expect, mock, test } from 'bun:test';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
@@ -21,7 +22,7 @@ function setupUc(questionnaires: Questionnaire[] = []) {
     questionPoolService: new QuestionPoolService([], []),
     userFacade: {} as unknown as UserFacade,
     db: {} as BaseJsonDb,
-  });
+  } as unknown as OnboardingApiModuleResolver);
 
   return { uc, save };
 }

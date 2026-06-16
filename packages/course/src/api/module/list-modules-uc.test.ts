@@ -1,3 +1,4 @@
+import type { CourseApiModuleResolver } from '#domain/module';
 import { describe, expect, mock, test } from 'bun:test';
 import type { Module } from '#domain/module/entity';
 import type { ModuleRepo } from '#domain/module/repo';
@@ -36,7 +37,7 @@ function setupUc() {
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade: {} as never,
-  });
+  } as unknown as CourseApiModuleResolver);
   return { getAll, uc };
 }
 

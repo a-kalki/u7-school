@@ -20,11 +20,7 @@ export class UserInProcFacade implements UserFacade {
     actorId?: string,
   ): Promise<User | undefined> {
     try {
-      const result = await this.#userApi.handle({
-        name: 'get-user',
-        attrs: { uuid },
-        actorId,
-      });
+      const result = await this.#userApi.execute('get-user', { uuid }, actorId);
       return result as User;
     } catch {
       return undefined;
@@ -42,11 +38,11 @@ export class UserInProcFacade implements UserFacade {
     actorId?: string,
   ): Promise<User | undefined> {
     try {
-      const result = await this.#userApi.handle({
-        name: 'update-user-role',
-        attrs: { userId, role },
+      const result = await this.#userApi.execute(
+        'add-role-to-user',
+        { userId, role },
         actorId,
-      });
+      );
       return result as User;
     } catch {
       return undefined;
@@ -59,11 +55,11 @@ export class UserInProcFacade implements UserFacade {
     actorId?: string,
   ): Promise<User | undefined> {
     try {
-      const result = await this.#userApi.handle({
-        name: 'add-role-to-user',
-        attrs: { userId, role },
+      const result = await this.#userApi.execute(
+        'add-role-to-user',
+        { userId, role },
         actorId,
-      });
+      );
       return result as User;
     } catch {
       return undefined;
@@ -76,11 +72,11 @@ export class UserInProcFacade implements UserFacade {
     actorId?: string,
   ): Promise<User | undefined> {
     try {
-      const result = await this.#userApi.handle({
-        name: 'remove-role-to-user',
-        attrs: { userId, role },
+      const result = await this.#userApi.execute(
+        'remove-role-to-user',
+        { userId, role },
         actorId,
-      });
+      );
       return result as User;
     } catch {
       return undefined;
@@ -92,11 +88,11 @@ export class UserInProcFacade implements UserFacade {
     actorId?: string,
   ): Promise<User | undefined> {
     try {
-      const result = await this.#userApi.handle({
-        name: 'get-user-by-telegram-id',
-        attrs: { telegramId },
+      const result = await this.#userApi.execute(
+        'get-user-by-telegram-id',
+        { telegramId },
         actorId,
-      });
+      );
       return result as User;
     } catch {
       return undefined;
@@ -108,11 +104,11 @@ export class UserInProcFacade implements UserFacade {
     name: string,
     actorId?: string,
   ): Promise<User> {
-    const result = await this.#userApi.handle({
-      name: 'register-guest',
-      attrs: { telegramId, name },
+    const result = await this.#userApi.execute(
+      'register-guest',
+      { telegramId, name },
       actorId,
-    });
+    );
     return result as User;
   }
 }

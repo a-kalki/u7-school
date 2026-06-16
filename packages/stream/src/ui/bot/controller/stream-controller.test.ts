@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import { Role } from '@u7-scl/user/domain';
 import { StreamController } from './stream-controller';
 
 describe('StreamController (реестр)', () => {
@@ -29,21 +30,21 @@ describe('StreamController (реестр)', () => {
     uuid: 'u1',
     name: 'Гость',
     telegramId: 123,
-    roles: ['GUEST'],
+    roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
   const studentActor: User = {
     uuid: 'u2',
     name: 'Студент',
     telegramId: 456,
-    roles: ['STUDENT'],
+    roles: [Role.STUDENT],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
   const mentorActor: User = {
     uuid: 'u3',
     name: 'Ментор',
     telegramId: 789,
-    roles: ['MENTOR'],
+    roles: [Role.MENTOR],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 

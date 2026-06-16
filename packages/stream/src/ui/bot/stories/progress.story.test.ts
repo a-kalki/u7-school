@@ -1,7 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
-import type { ApiApp } from '@u7-scl/core/api';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { ProgressStory } from './progress.story';
 
 describe('ProgressStory', () => {
@@ -10,7 +11,7 @@ describe('ProgressStory', () => {
     uuid: 'user-1',
     name: 'Студент',
     telegramId: 123,
-    roles: ['STUDENT'],
+    roles: [Role.STUDENT],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
@@ -52,21 +53,22 @@ describe('ProgressStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
           return {
             uuid: 'm1',
             name: 'Алексей Смирнов',
-            roles: ['MENTOR'],
+            roles: [Role.MENTOR],
           };
         return undefined;
       }),
-    };
+    } as unknown as U7BotApp;
 
     const story = new ProgressStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
+
     const response = await story.handleCallback('progress:s1', actor, session);
 
     const text = response.sendMessage?.text ?? '';

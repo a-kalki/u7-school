@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import type { AppResolver } from '@u7-scl/core/domain';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import { OnboardingApiModule } from './module';
 
-const appResolver = { logger: console, mode: 'test' as const };
+const appResolver = {
+  logger: console,
+  mode: 'test' as const,
+} as unknown as AppResolver;
 
 const mockUserFacade = {
   getUserByUuid: async () => ({ uuid: 'admin-uuid', roles: ['ADMIN'] }),

@@ -1,7 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
-import type { ApiApp } from '@u7-scl/core/api';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { EnrollStory } from './enroll.story';
 
 describe('EnrollStory', () => {
@@ -9,7 +10,7 @@ describe('EnrollStory', () => {
     uuid: 'user-1',
     name: 'Гость',
     telegramId: 123,
-    roles: ['GUEST'],
+    roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
   const session: SessionData = { activeHandler: null };
@@ -29,13 +30,14 @@ describe('EnrollStory', () => {
         if (name === 'enroll-student') return undefined;
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock(() => undefined),
-    };
+    } as unknown as U7BotApp;
 
     const story = new EnrollStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
+
     const response = await story.handleCallback('enroll:s1', actor, session);
 
     expect(response.sendMessage?.text).toContain('записаны');

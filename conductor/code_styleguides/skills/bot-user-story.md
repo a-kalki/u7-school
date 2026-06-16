@@ -141,25 +141,111 @@ story.init(moduleApi, appApi);
 
 ## 6. Тестирование
 
-В тестах используй полный объект `User` для актора:
+### 6.1 Актор
+
+В тестах используй полный объект `User` для актора. Роли — только через enum `Role`, не строковые литералы:
 
 ```typescript
 import type { User } from '@u7-scl/app/domain';
+import { Role } from '@u7-scl/user/domain';
 
 const guestActor: User = {
   uuid: 'user-1',
   name: 'Гость',
   telegramId: 123,
-  roles: ['GUEST'],
+  roles: [Role.GUEST],
   createdAt: '2026-01-01T00:00',
 };
 ```
 
-Моки для `moduleApi` и `appApi` передаются в `init` отдельно:
+### 6.2 Моки API: `as unknown as <тип>`
+
+**Категорически запрещено** использовать `as any` для моков API. Каждый мок
+приводится явно через `as unknown as <реальный API-тип>`.
+
+Для `moduleApi` — тип `StreamApiModule` (импорт из `packages/stream/src/api`).
+Для `appApi` — тип `U7BotApp` (импорт из `@u7-scl/app/domain`).
+
+**НЕ создавай общих хелперов** (типа `test-helpers.ts`) для создания сторис.
+Каждый тест или группа тестов явно создаёт моки, сторис и вызывает `init()`.
+Это делает тесты самодостаточными — видно всё в одном месте, не нужно прыгать
+по файлам чтобы понять что передаётся в `init()`.
 
 ```typescript
+// ✅ Правильно — явное приведение к реальному типу
+import type { U7BotApp } from '@u7-scl/app/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
+
+const moduleApi = {
+  execute: mock((name: string) => {
+    if (name === 'get-stream') return sampleStream;
+    return undefined;
+  }),
+} as unknown as StreamApiModule;
+
+const appApi = {
+  execute: mock((name: string) => {
+    if (name === 'get-user') return { uuid: 'm1', name: 'Ментор', roles: [Role.MENTOR] };
+    return undefined;
+  }),
+} as unknown as U7BotApp;
+
 const story = new ViewStreamStory();
+story.init(moduleApi, appApi);
+
+// ❌ Неправильно — as any скрывает тип
 story.init(moduleApi as any, appApi as any);
+```
+
+### 6.3 Группировка через локальный хелпер
+
+Если несколько тестов используют одинаковые моки — вынеси создание в локальную
+функцию внутри `describe`. Это допустимо и поощряется:
+
+```typescript
+describe('ViewStreamStory', () => {
+  const makeViewStory = (
+    stream: Record<string, unknown>,
+    studentCount: number,
+  ) => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-stream') return stream;
+        if (name === 'list-stream-students')
+          return Array.from({ length: studentCount }, (_, i) => ({
+            uuid: `student-${i}`,
+          }));
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user')
+          return { uuid: 'm1', name: 'Ментор', roles: [Role.MENTOR] };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+    const story = new ViewStreamStory();
+    story.init(moduleApi, appApi);
+    return { story, moduleApi, appApi };
+  };
+
+  test('пример', async () => {
+    const { story } = makeViewStory(sampleStream, 5);
+    // ...
+  });
+});
+```
+
+### 6.4 Тесты без вызовов API
+
+Если тест не делает вызовов `moduleApi` или `appApi` (например, `handleStart`),
+`init()` **не нужен** — просто создай экземпляр сторис напрямую:
+
+```typescript
+// ✅ Правильно — нет вызовов API, init не нужен
+const story = new CatalogStory();
+const item = await story.handleStart(actor);
 ```
 
 ---
@@ -168,8 +254,8 @@ story.init(moduleApi as any, appApi as any);
 
 ```
 ui/bot/stories/
-  <story-name>.story.ts       — реализация сценария
-  <story-name>.story.test.ts  — тесты
+  <story-name>.story.ts        — реализация сценария
+  <story-name>.story.test.ts   — тесты
 ```
 
 ---

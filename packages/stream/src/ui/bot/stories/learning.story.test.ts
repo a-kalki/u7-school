@@ -1,7 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
-import type { ApiApp } from '@u7-scl/core/api';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { LearningStory } from './learning.story';
 
 describe('LearningStory', () => {
@@ -11,7 +12,7 @@ describe('LearningStory', () => {
     uuid: 'user-1',
     name: 'Студент',
     telegramId: 123,
-    roles: ['STUDENT'],
+    roles: [Role.STUDENT],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
@@ -19,7 +20,7 @@ describe('LearningStory', () => {
     uuid: 'user-2',
     name: 'Гость',
     telegramId: 456,
-    roles: ['GUEST'],
+    roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
@@ -48,6 +49,10 @@ describe('LearningStory', () => {
     ],
   };
 
+  const emptyAppApi = {
+    execute: mock(() => undefined),
+  } as unknown as U7BotApp;
+
   test('handleCallback("my-study") показывает текущий шаг', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
@@ -55,13 +60,11 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    };
-    const appApi = {
-      execute: mock(() => undefined),
-    };
+    } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
+
     const response = await story.handleCallback(
       'my-study',
       studentActor,
@@ -80,13 +83,11 @@ describe('LearningStory', () => {
       execute: mock(() => {
         throw new Error('not found');
       }),
-    };
-    const appApi = {
-      execute: mock(() => undefined),
-    };
+    } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
+
     const response = await story.handleCallback(
       'my-study',
       studentActor,
@@ -102,13 +103,11 @@ describe('LearningStory', () => {
         level: 'step',
         currentStepId: 'step-2',
       })),
-    };
-    const appApi = {
-      execute: mock(() => undefined),
-    };
+    } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
+
     const response = await story.handleCallback(
       'complete:stu1:s1:step1',
       studentActor,
@@ -130,13 +129,11 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    };
-    const appApi = {
-      execute: mock(() => undefined),
-    };
+    } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, emptyAppApi);
+
     const response = await story.handleCallback(
       'complete:stu1:s1:step2',
       studentActor,

@@ -1,7 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { U7BotAppMeta, User } from '@u7-scl/app/domain';
-import type { ApiApp } from '@u7-scl/core/api';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { ViewStreamStory } from './view-stream.story';
 
 describe('ViewStreamStory', () => {
@@ -10,14 +11,14 @@ describe('ViewStreamStory', () => {
     uuid: 'user-1',
     name: 'Гость',
     telegramId: 123,
-    roles: ['GUEST'],
+    roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
   const studentActor: User = {
     uuid: 'user-2',
     name: 'Студент',
     telegramId: 456,
-    roles: ['STUDENT'],
+    roles: [Role.STUDENT],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
@@ -30,7 +31,11 @@ describe('ViewStreamStory', () => {
     mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
   };
 
-  const makeMockApi = (
+  /**
+   * Создаёт моки и сторис одним вызовом.
+   * Возвращает story, moduleApi, appApi с правильными типами.
+   */
+  const makeViewStory = (
     stream: Record<string, unknown>,
     studentCount: number,
     mentorName = 'Алексей Смирнов',
@@ -44,21 +49,21 @@ describe('ViewStreamStory', () => {
           }));
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
-          return { uuid: 'm1', name: mentorName, roles: ['MENTOR'] };
+          return { uuid: 'm1', name: mentorName, roles: [Role.MENTOR] };
         return undefined;
       }),
-    };
-    return { moduleApi, appApi };
+    } as unknown as U7BotApp;
+    const story = new ViewStreamStory();
+    story.init(moduleApi, appApi);
+    return { story, moduleApi, appApi };
   };
 
   test('handleCallback("view:<id>") показывает карточку потока', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -70,9 +75,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('на enrollment — кнопка «Записаться»', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -86,9 +89,7 @@ describe('ViewStreamStory', () => {
 
   test('на active — кнопка «Записаться» скрыта', async () => {
     const activeStream = { ...sampleStream, status: 'active' };
-    const { moduleApi, appApi } = makeMockApi(activeStream, 5);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(activeStream, 5);
 
     const response = await story.handleCallback(
       'view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
@@ -101,9 +102,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('GUEST на enrollment — кнопки «Записаться», «Программа», «Назад»', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -120,9 +119,7 @@ describe('ViewStreamStory', () => {
 
   test('GUEST на active — кнопки «Уведомить», «Назад» без «Записаться»', async () => {
     const activeStream = { ...sampleStream, status: 'active' };
-    const { moduleApi, appApi } = makeMockApi(activeStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(activeStream, 0);
 
     const response = await story.handleCallback(
       'view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
@@ -138,9 +135,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('STUDENT на enrollment — НЕ видит «Записаться»', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -154,9 +149,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('показывает имя ментора в карточке', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -188,13 +181,13 @@ describe('ViewStreamStory', () => {
         if (name === 'get-stream') return streamWithContent;
         return undefined;
       }),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock(() => undefined),
-    };
+    } as unknown as U7BotApp;
 
     const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
 
     const response = await story.handleCallback(
       'program:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -227,7 +220,7 @@ describe('ViewStreamStory', () => {
     uuid: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
     name: 'Алексей Смирнов',
     telegramId: 999,
-    roles: ['MENTOR'],
+    roles: [Role.MENTOR],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
@@ -235,14 +228,12 @@ describe('ViewStreamStory', () => {
     uuid: 'o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o',
     name: 'Другой Ментор',
     telegramId: 888,
-    roles: ['MENTOR'],
+    roles: [Role.MENTOR],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
   test('MENTOR на своём enrollment — кнопки «Запустить», «Студенты», «В архив»', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 5);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 5);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -261,9 +252,7 @@ describe('ViewStreamStory', () => {
 
   test('MENTOR на своём active — кнопки «Завершить», «Студенты», «В архив»', async () => {
     const activeStream = { ...sampleStream, status: 'active' };
-    const { moduleApi, appApi } = makeMockApi(activeStream, 8);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(activeStream, 8);
 
     const response = await story.handleCallback(
       'view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
@@ -280,9 +269,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('MENTOR на чужом потоке — НЕ видит менторских кнопок', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 3);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 3);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -299,12 +286,10 @@ describe('ViewStreamStory', () => {
   });
 
   test('кнопка «Завершить» вызывает complete-stream', async () => {
-    const { moduleApi, appApi } = makeMockApi(
+    const { story, moduleApi } = makeViewStory(
       { ...sampleStream, status: 'active' },
       0,
     );
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
 
     await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -318,9 +303,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('кнопка «В архив» вызывает archive-stream', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 0);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story, moduleApi } = makeViewStory(sampleStream, 0);
 
     await story.handleCallback(
       'archive:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -334,9 +317,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('GUEST на потоке ментора — НЕ видит менторских кнопок', async () => {
-    const { moduleApi, appApi } = makeMockApi(sampleStream, 3);
-    const story = new ViewStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    const { story } = makeViewStory(sampleStream, 3);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',

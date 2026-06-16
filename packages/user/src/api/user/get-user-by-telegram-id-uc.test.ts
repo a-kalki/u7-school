@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '#domain/user/entity';
 import type { UserRepo } from '#domain/user/repo';
+import type { UserApiModuleResolver } from '#domain/module';
 import { Role } from '#domain/user/roles';
 import { GetUserByTelegramIdUc } from './get-user-by-telegram-id-uc';
 
@@ -23,7 +24,7 @@ function setupUc() {
     isEmpty,
   };
   const uc = new GetUserByTelegramIdUc();
-  uc.init({ userRepo: repo });
+  uc.init({ userRepo: repo } as unknown as UserApiModuleResolver);
 
   return { getByTelegramId, uc };
 }

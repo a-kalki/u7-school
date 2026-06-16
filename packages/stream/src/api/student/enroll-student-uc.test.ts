@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModuleResolver } from '#domain/module';
 import { EnrollStudentUc } from './enroll-student-uc';
 
 const mockDate = '2026-06-01T10:00';
@@ -61,11 +62,11 @@ describe('EnrollStudentUc', () => {
 
     const uc = new EnrollStudentUc();
     uc.init({
-      streamRepo: mockStreamRepo as any,
-      streamStudentRepo: mockStudentRepo as any,
-      userFacade: mockUserFacade as any,
-      courseFacade: {} as any,
-    });
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
       {
@@ -103,11 +104,11 @@ describe('EnrollStudentUc', () => {
 
     const uc = new EnrollStudentUc();
     uc.init({
-      userFacade: mockUserFacade as any,
-      streamRepo: {} as any,
-      streamStudentRepo: {} as any,
-      courseFacade: {} as any,
-    });
+      userFacade: mockUserFacade,
+      streamRepo: {},
+      streamStudentRepo: {},
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
 
     await expect(
       uc.execute(
@@ -160,11 +161,11 @@ describe('EnrollStudentUc', () => {
 
     const uc = new EnrollStudentUc();
     uc.init({
-      userFacade: mockUserFacade as any,
-      streamRepo: {} as any,
-      streamStudentRepo: mockStudentRepo as any,
-      courseFacade: {} as any,
-    });
+      userFacade: mockUserFacade,
+      streamRepo: {},
+      streamStudentRepo: mockStudentRepo,
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
 
     await expect(
       uc.execute(
@@ -246,11 +247,11 @@ describe('EnrollStudentUc', () => {
 
     const uc = new EnrollStudentUc();
     uc.init({
-      streamRepo: mockStreamRepo as any,
-      streamStudentRepo: mockStudentRepo as any,
-      userFacade: mockUserFacade as any,
-      courseFacade: {} as any,
-    });
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
       {

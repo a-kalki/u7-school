@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { StreamApiModuleResolver } from '#domain/module';
 import { CompleteStepUc } from './complete-step-uc';
 
 const mockDate = '2026-06-01T10:00';
@@ -63,11 +64,11 @@ describe('CompleteStepUc', () => {
 
     const uc = new CompleteStepUc();
     uc.init({
-      streamRepo: mockStreamRepo as any,
-      streamStudentRepo: mockStudentRepo as any,
-      userFacade: {} as any,
-      courseFacade: {} as any,
-    });
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: {},
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
 
     const result = await uc.execute(
       {

@@ -11,6 +11,8 @@
 
 import { ApiApp } from '@u7-scl/core/api';
 import { convert } from 'markdown-to-telegram';
+import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
+import type { UserApiModuleResolver } from '../packages/user/src/domain/module.ts';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
@@ -146,14 +148,14 @@ async function main() {
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
   const userRepo = new UserJsonRepo();
-  const userModule = new UserApiModule({ userRepo });
+  const userModule = new UserApiModule({ userRepo } as unknown as UserApiModuleResolver);
   const userFacade = new UserInProcFacade(userModule);
   const courseModule = new CourseApiModule({
     courseRepo: moduleRepo,
     lessonRepo,
     stepRepo,
     userFacade,
-  });
+  } as unknown as CourseApiModuleResolver);
   // biome-ignore lint/suspicious/noExplicitAny: скрипт использует динамические команды
   const app: ApiApp<any> = new ApiApp([userModule, courseModule]);
 

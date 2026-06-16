@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import type { AppResolver } from '@u7-scl/core/domain';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { Status } from '#domain/status';
@@ -10,7 +11,10 @@ import { StepJsonRepo } from '#infra/db/step-json-repo';
 import { CourseApiModule } from './module';
 
 const tmpDir = mkdtempSync('/tmp/course-api-module-test-');
-const appResolver = { logger: console, mode: 'test' as const };
+const appResolver = {
+  logger: console,
+  mode: 'test' as const,
+} as unknown as AppResolver;
 
 /** In-memory заглушка фасада пользователей для тестов */
 class MockUserFacade implements UserFacade {

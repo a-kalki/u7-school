@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '#domain/user/entity';
 import type { UserRepo } from '#domain/user/repo';
+import type { UserApiModuleResolver } from '#domain/module';
 import { Role } from '#domain/user/roles';
 import { CreateUserUc } from './create-user-uc';
 
@@ -31,7 +32,7 @@ function setupUc() {
     isEmpty,
   };
   const uc = new CreateUserUc();
-  uc.init({ userRepo: repo });
+  uc.init({ userRepo: repo } as unknown as UserApiModuleResolver);
 
   return {
     save,

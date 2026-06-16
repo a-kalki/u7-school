@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { User } from '@u7-scl/app/domain';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModule } from 'packages/stream/src/api';
 import { ActivateStreamStory } from './activate-stream.story';
 
 describe('ActivateStreamStory', () => {
@@ -8,7 +10,7 @@ describe('ActivateStreamStory', () => {
     uuid: 'mentor-1',
     name: 'Ментор',
     telegramId: 123,
-    roles: ['MENTOR'],
+    roles: [Role.MENTOR],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
   const session: SessionData = { activeHandler: null };
@@ -16,13 +18,14 @@ describe('ActivateStreamStory', () => {
   test('handleCallback("activate:<id>") запускает поток', async () => {
     const moduleApi = {
       execute: mock((_name: string) => undefined),
-    };
+    } as unknown as StreamApiModule;
     const appApi = {
       execute: mock(() => undefined),
-    };
+    } as unknown as U7BotApp;
 
     const story = new ActivateStreamStory();
-    story.init(moduleApi as any, appApi as any);
+    story.init(moduleApi, appApi);
+
     const response = await story.handleCallback('activate:s1', actor, session);
 
     expect(response.sendMessage?.text).toContain('запущен');
