@@ -2,7 +2,7 @@
 
 ---
 
-- [ ] **Track: Stream Infra — подключение CourseFacade и починка тестов**
+- [~] **Track: Stream Infra — подключение CourseFacade и починка тестов**
 *Link: [./tracks/stream_infra_20260613/](./tracks/stream_infra_20260613/)*
 
 - [ ] **Track: Stream Guest & Student — US-1..US-5: витрина, карточка, запись, обучение, прогресс**
