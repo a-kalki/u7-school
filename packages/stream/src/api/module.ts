@@ -35,7 +35,7 @@ export class StreamApiModule extends ApiModule<
   ];
 
   constructor(resolve: StreamApiModuleResolver) {
-    super();
-    this.init(resolve);
+    super(resolve);
+    this.init();
   }
 }

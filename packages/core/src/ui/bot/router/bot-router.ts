@@ -1,3 +1,4 @@
+import type { ApiApp } from '#api/app/api-app';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import type { BotController } from '../controller/bot-controller';
 import type {
@@ -49,6 +50,16 @@ export class BotRouter<
         throw new Error(`Дубликат имени контроллера: ${c.name}`);
       }
       this.controllers.set(c.name, c);
+    }
+  }
+
+  /**
+   * Каскадная инициализация: вызывает init(apiApp) у каждого контроллера.
+   * Контроллеры, в свою очередь, каскадно инициализируют свои UserStory.
+   */
+  init(apiApp: ApiApp<TAppMeta>): void {
+    for (const controller of this.controllers.values()) {
+      controller.init(apiApp);
     }
   }
 

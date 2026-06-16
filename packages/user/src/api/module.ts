@@ -26,7 +26,7 @@ export class UserApiModule extends ApiModule<
   ];
 
   constructor(resolve: UserApiModuleResolver) {
-    super();
-    this.init(resolve);
+    super(resolve);
+    this.init();
   }
 }

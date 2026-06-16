@@ -35,7 +35,7 @@ export class CourseApiModule extends ApiModule<
   ];
 
   constructor(resolve: CourseApiModuleResolver) {
-    super();
-    this.init(resolve);
+    super(resolve);
+    this.init();
   }
 }

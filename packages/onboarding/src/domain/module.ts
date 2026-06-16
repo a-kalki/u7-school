@@ -1,4 +1,8 @@
-import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
+import type {
+  ApiModuleMeta,
+  AppResolver,
+  ModuleResolver,
+} from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { AbandonQuestionnaireCmdMeta } from './questionnaire/commands/abandon-questionnaire-cmd';
@@ -33,4 +37,5 @@ export interface OnboardingApiModuleResolver extends ModuleResolver {
   questionPoolService: QuestionPoolService;
   userFacade: UserFacade;
   db: BaseJsonDb;
+  appResolver: AppResolver;
 }

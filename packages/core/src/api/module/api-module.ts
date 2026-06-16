@@ -36,13 +36,22 @@ export abstract class ApiModule<
     UseCase<ApiModuleMeta['ucMetas'], TResolve>
   >();
 
-  protected init(resolve: TResolve) {
+  constructor(resolve: TResolve) {
     this.resolve = resolve;
-    this.logger = resolve.appResolver.logger;
-    this.mode = resolve.appResolver.mode;
+  }
 
+  /**
+   * Инициализация модуля: логгер, режим, use-case'ы.
+   * Вызывается из ApiApp.init() каскадно после создания всех модулей.
+   * Безопасен для повторных вызовов — сбрасывает useCaseMap и переинициализирует.
+   */
+  init(): void {
+    this.logger = this.resolve.appResolver.logger;
+    this.mode = this.resolve.appResolver.mode;
+
+    this.useCaseMap.clear();
     for (const uc of this.useCases) {
-      uc.init(resolve);
+      uc.init(this.resolve);
       this.useCaseMap.set(uc.getUcName(), uc);
     }
   }

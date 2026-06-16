@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { U7BotApp } from '@u7-scl/app/domain';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
@@ -14,12 +14,6 @@ import { QuestionPoolService } from '#domain/questionnaire/question-pool-service
 import { QuestionnaireJsonRepo } from '#infra/db/questionnaire-json-repo';
 import type { MessageDescription } from '../types';
 import { OnboardingController } from './onboarding-controller';
-
-/** Актор для тестов */
-interface TestActor {
-  uuid: string;
-  telegramId: number;
-}
 
 let tmpDir: string;
 
@@ -37,9 +31,9 @@ describe('OnboardingController', () => {
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
   const logger = {
-    error: () => {},
-    info: () => {},
-    warn: () => {},
+    error: () => { },
+    info: () => { },
+    warn: () => { },
   } as unknown as Logger;
 
   beforeEach(async () => {
@@ -110,14 +104,20 @@ describe('OnboardingController', () => {
     });
 
     apiApp = new ApiApp([mod]) as U7BotApp;
-    controller = new OnboardingController(apiApp, logger);
+    controller = new OnboardingController(mod);
   });
 
   afterEach(() => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  const actor: TestActor = { uuid: botAdminUuid, telegramId: 12345 };
+  const actor: User = {
+    uuid: botAdminUuid,
+    name: 'Test',
+    telegramId: 12345,
+    roles: [Role.GUEST],
+    createdAt: '2024-01-01T00:00:00.000Z',
+  };
 
   /** Чистая сессия */
   function emptySession(): SessionData {
@@ -271,8 +271,14 @@ describe('OnboardingController', () => {
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
-    const ctrl2 = new OnboardingController(app2, logger);
-    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 777 };
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test2',
+      telegramId: 777,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
 
     // Начинаем анкету
     await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
@@ -330,8 +336,14 @@ describe('OnboardingController', () => {
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
-    const ctrl2 = new OnboardingController(app2, logger);
-    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 888 };
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test3',
+      telegramId: 888,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
 
     await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
 
@@ -385,8 +397,14 @@ describe('OnboardingController', () => {
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
-    const ctrl2 = new OnboardingController(app2, logger);
-    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 999 };
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test4',
+      telegramId: 999,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
 
     // Начинаем анкету
     await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
@@ -442,8 +460,14 @@ describe('OnboardingController', () => {
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
-    const ctrl2 = new OnboardingController(app2, logger);
-    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 111 };
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test5',
+      telegramId: 111,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
 
     // Начинаем анкету
     await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
@@ -500,8 +524,14 @@ describe('OnboardingController', () => {
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
-    const ctrl2 = new OnboardingController(app2, logger);
-    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 222 };
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test6',
+      telegramId: 222,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
 
     // Начинаем анкету
     await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
@@ -553,8 +583,14 @@ describe('OnboardingController', () => {
     });
 
     const app2 = new ApiApp([mod2]) as U7BotApp;
-    const ctrl2 = new OnboardingController(app2, logger);
-    const actor2: TestActor = { uuid: botAdminUuid, telegramId: 333 };
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test7',
+      telegramId: 333,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
 
     // Начинаем анкету
     await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());

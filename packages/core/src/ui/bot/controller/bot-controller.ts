@@ -39,18 +39,10 @@ export abstract class BotController<
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /**
-   * @param moduleApi — API-модуль, к которому привязан контроллер.
-   *   Используется для внутренних вызовов к своему модулю.
-   */
   constructor(moduleApi: ApiModule<TModuleMeta, ModuleResolver>) {
     this.moduleApi = moduleApi;
   }
 
-  /**
-   * Инициализация контроллера — вызывается при старте бота.
-   * Сохраняет ссылку на ApiApp и инициализирует все зарегистрированные стори.
-   */
   init(appApi: ApiApp<TAppMeta>): void {
     this.appApi = appApi;
     for (const story of this.stories) {

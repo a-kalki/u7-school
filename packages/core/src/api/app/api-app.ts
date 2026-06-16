@@ -12,6 +12,16 @@ export class ApiApp<TMeta extends AppMeta>
   extends App
   implements ApiExecutor<TMeta>
 {
+  /**
+   * Каскадная инициализация: вызывает init() у каждого модуля.
+   * Должна вызываться после создания ApiApp и всех модулей.
+   */
+  init(): void {
+    for (const module of this.getModules()) {
+      module.init();
+    }
+  }
+
   async execute<N extends GetUcNamesFromMeta<TMeta>>(
     ucName: N,
     attrs: ExtractUcMetaFromMeta<TMeta, N>['input'],

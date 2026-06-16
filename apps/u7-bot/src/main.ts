@@ -4,8 +4,6 @@ import {
   parseLogLevel,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import { BotRouter } from '@u7-scl/core/ui';
-import { OnboardingController } from '@u7-scl/onboarding';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
 import { createApiApp } from './api-app';
@@ -28,8 +26,7 @@ setGlobalLogger(loggers);
 // (TelegramLogger понадобится bot, который мы создадим ниже)
 const logger = loggers;
 
-const { apiApp, userFacade, streamController } = createApiApp(config, logger);
-const onboardingController = new OnboardingController(apiApp, logger);
+const { userFacade, router } = createApiApp(config, logger);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -88,7 +85,7 @@ privateBot.use(async (ctx, next) => {
     });
     await ctx
       .reply('Произошла внутренняя ошибка. Попробуйте позже.')
-      .catch(() => {});
+      .catch(() => { });
   }
 });
 
@@ -148,13 +145,8 @@ privateBot.command('log_level', async (ctx) => {
   );
 });
 
-// Инициализация контроллеров (новый API BotController)
-onboardingController.init(apiApp);
-streamController.init(apiApp);
-
-// Универсальный роутер — заменяет старые handler'ы
-const router = new BotRouter([onboardingController, streamController]);
-connectRouter(privateBot, router, userFacade, config.botAdminUuid, logger);
+// Универсальный роутер — приватные чаты
+connectRouter(privateBot, router, userFacade, config.botAdminUuid, loggers);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {

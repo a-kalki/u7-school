@@ -21,7 +21,7 @@ export class OnboardingApiModule extends ApiModule<
   ];
 
   constructor(resolve: OnboardingApiModuleResolver) {
-    super();
-    this.init(resolve);
+    super(resolve);
+    this.init();
   }
 }

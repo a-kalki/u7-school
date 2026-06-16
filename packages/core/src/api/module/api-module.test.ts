@@ -68,8 +68,8 @@ class TestModule extends ApiModule<TestModuleMeta, TestResolve> {
   readonly useCases = [new TestUseCase()];
 
   constructor(resolve: TestResolve) {
-    super();
-    this.init(resolve);
+    super(resolve);
+    this.init();
   }
 }
 

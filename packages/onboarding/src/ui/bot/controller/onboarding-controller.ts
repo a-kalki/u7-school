@@ -1,46 +1,36 @@
-import type { U7BotApp, U7BotAppMeta } from '@u7-scl/app/domain';
+import { U7BotController } from '@u7-scl/app/ui';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
-import {
-  BotController,
-  type BotResponse,
-  type BotUpdate,
-  type MainMenuAction,
-  type SessionData,
+import type {
+  BotResponse,
+  BotUpdate,
+  BotUserStory,
+  MainMenuAction,
+  SessionData,
 } from '@u7-scl/core/ui';
+import type { User } from '@u7-scl/user/domain';
+import type { OnboardingApiModuleMeta } from '#domain/module';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { KeyboardDescription } from '../types';
-
-/** Минимальный интерфейс актора для onboarding */
-interface OnboardingActor {
-  uuid: string;
-  telegramId: number;
-}
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 
 /**
  * Контроллер onboarding для Telegram-бота.
  * Вшивает всю логику анкеты напрямую, без UserStory (процесс небольшой).
  */
-export class OnboardingController extends BotController<
-  U7BotAppMeta,
-  OnboardingActor
-> {
+export class OnboardingController extends U7BotController<OnboardingApiModuleMeta> {
   override readonly name = 'onboarding';
-  override readonly stories = [];
+  override readonly stories: BotUserStory<
+    U7BotAppMeta,
+    OnboardingApiModuleMeta,
+    User
+  >[] = [];
   readonly #logger: Logger | undefined;
-
-  constructor(app: U7BotApp, logger?: Logger) {
-    super();
-    this.api = app;
-    this.#logger = logger;
-  }
 
   // ── Главное меню ──
 
-  override async handleStart(
-    _actor: OnboardingActor,
-  ): Promise<MainMenuAction[]> {
+  override async handleStart(_actor: User): Promise<MainMenuAction[]> {
     return [
       {
         text: '📝 Заполнить анкету',
@@ -54,7 +44,7 @@ export class OnboardingController extends BotController<
 
   override async handleCallback(
     data: string,
-    actor: OnboardingActor,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     try {
@@ -92,7 +82,7 @@ export class OnboardingController extends BotController<
 
   override async handleMessage(
     update: BotUpdate,
-    actor: OnboardingActor,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     try {
@@ -125,7 +115,7 @@ export class OnboardingController extends BotController<
   // ── Отмена ──
 
   override async handleCancel(
-    actor: OnboardingActor,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     // Если нет активного обработчика — просто освобождаем ввод
@@ -134,7 +124,7 @@ export class OnboardingController extends BotController<
     }
 
     try {
-      await this.api.execute(
+      await this.moduleApi.execute(
         'abandon',
         { telegramId: actor.telegramId },
         actor.uuid,
@@ -159,12 +149,12 @@ export class OnboardingController extends BotController<
 
   /** Начинает новую анкету или продолжает активную */
   async #startOrResumeOnboarding(
-    actor: OnboardingActor,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     try {
       // Пробуем получить текущий вопрос активной анкеты
-      const response = await this.api.execute(
+      const response = await this.moduleApi.execute(
         'get-current-question',
         { telegramId: actor.telegramId },
         actor.uuid,
@@ -175,7 +165,7 @@ export class OnboardingController extends BotController<
       const ex = err as AppException;
       if (ex.error?.name === 'QUESTIONNAIRE_NOT_FOUND') {
         // Нет активной анкеты — начинаем новую
-        const startResponse = await this.api.execute(
+        const startResponse = await this.moduleApi.execute(
           'start',
           { telegramId: actor.telegramId },
           actor.uuid,
@@ -206,11 +196,11 @@ export class OnboardingController extends BotController<
   async #handleOnboardingAction(
     type: 'callback' | 'text',
     value: string,
-    actor: OnboardingActor,
+    actor: User,
     session: SessionData,
   ): Promise<BotResponse> {
     try {
-      const response = await this.api.execute(
+      const response = await this.moduleApi.execute(
         'handle-action',
         {
           telegramId: actor.telegramId,

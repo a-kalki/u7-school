@@ -10,7 +10,11 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
-import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
+import {
+  OnboardingApiModule,
+  OnboardingController,
+  QuestionPoolService,
+} from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import {
   StreamApiModule,
@@ -21,6 +25,7 @@ import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-contro
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
+import { BotRouter } from '@u7-scl/core/ui';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.
@@ -82,6 +87,8 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     appResolver,
   });
 
+  const onboardingController = new OnboardingController(onboardingModule);
+
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo,
@@ -100,6 +107,15 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     courseModule,
   ]);
 
+  // Каскадная инициализация: ApiApp → модули
+  apiApp.init();
+
+  // Универсальный роутер — заменяет старые handler'ы
+  const router = new BotRouter([onboardingController, streamController]);
+
+  // Каскадная инициализация: BotRouter → контроллеры → стори
+  router.init(apiApp);
+
   return {
     apiApp,
     userFacade,
@@ -108,5 +124,8 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     poolService: activePoolService,
     streamModule,
     streamController,
+    onboardingModule,
+    onboardingController,
+    router,
   };
 }
