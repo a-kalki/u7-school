@@ -1,0 +1,28 @@
+[
+  {
+    "uuid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "title": "Тестовый модуль",
+    "description": "Тестовый модуль для проверки CourseFacade",
+    "authorId": "00000000-0000-4000-8000-000000000001",
+    "targetAudience": "Разработчики",
+    "goal": "Проверить работу CourseFacade",
+    "result": "CourseFacade работает корректно",
+    "rules": "Стандартные правила",
+    "additional": "",
+    "tags": ["тест"],
+    "status": "published",
+    "projects": [
+      {
+        "uuid": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        "title": "Тестовый проект",
+        "goal": "Проверить проект",
+        "result": "Проект работает",
+        "additional": "",
+        "status": "published",
+        "lessonIds": ["bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"]
+      }
+    ],
+    "createdAt": "2026-01-01T00:00",
+    "updatedAt": "2026-01-01T00:00"
+  }
+]

@@ -6,6 +6,12 @@ import type { OnboardingBotApp } from '@u7-scl/onboarding';
 import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import {
+  CourseInProcFacade,
+  LessonJsonRepo,
+  ModuleJsonRepo,
+  StepJsonRepo,
+} from '@u7-scl/course/infra';
+import {
   StreamApiModule,
   StreamJsonRepo,
   StudentJsonRepo,
@@ -51,6 +57,24 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
+  // ══ Course: репозитории и фасад ══
+  const courseRepo = new ModuleJsonRepo(
+    `${config.dbDir}/course/modules.json`,
+  );
+  const lessonRepo = new LessonJsonRepo(
+    `${config.dbDir}/course/lessons.json`,
+  );
+  const stepRepo = new StepJsonRepo(`${config.dbDir}/course/steps.json`);
+
+  const courseFacade = new CourseInProcFacade({
+    db,
+    courseRepo,
+    lessonRepo,
+    stepRepo,
+    userFacade,
+    appResolver,
+  });
+
   const onboardingModule = new OnboardingApiModule({
     questionnaireRepo,
     questionPoolService: activePoolService,
@@ -63,7 +87,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     streamRepo,
     streamStudentRepo,
     userFacade,
-    courseFacade: { getModuleSnapshot: async () => [] },
+    courseFacade,
     appResolver,
   });
 
