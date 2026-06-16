@@ -133,7 +133,7 @@ class StringUtility {
       prev +
       (StringUtility.isTitle(curr) ? `${caseChar}${curr.toLowerCase()}` : curr);
     return isSuper
-      ? this.reduce(text.substring(1), cb, text[0]!.toLowerCase())
+      ? this.reduce(text.substring(1), cb, text.charAt(0).toLowerCase())
       : this.reduce(text, cb);
   }
 
@@ -164,11 +164,11 @@ class StringUtility {
   ): string {
     if (text === '') return '';
     const cb = (prev: string, curr: string): string =>
-      prev[prev.length - 1]! === char
+      prev.charAt(prev.length - 1) === char
         ? prev.substring(0, prev.length - 1) + curr.toUpperCase()
         : prev + curr;
     return isSuper
-      ? this.reduce(text.substring(1), cb, text[0]!.toUpperCase())
+      ? this.reduce(text.substring(1), cb, text.charAt(0).toUpperCase())
       : this.reduce(text, cb);
   }
 
@@ -218,7 +218,7 @@ class StringUtility {
       startIndex = 0;
     }
     for (let i = startIndex; i < text.length; i++) {
-      result = cb(result, text[i]!);
+      result = cb(result, text.charAt(i));
     }
     return result;
   }

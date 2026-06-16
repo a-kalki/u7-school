@@ -3,7 +3,7 @@
 
 // Простая функция — приветствие
 function greet(name) {
-  return 'Привет, ' + name + '!';
+  return `Привет, ${name}!`;
 }
 
 console.log(greet('Алия'));
@@ -11,7 +11,7 @@ console.log(greet('Данияр'));
 
 // Функция без return — что вернёт?
 function sayHello(name) {
-  console.log('Здравствуй, ' + name);
+  console.log(`Здравствуй, ${name}`);
 }
 
 const result = sayHello('Ерлан');
@@ -19,7 +19,7 @@ console.log(result);
 
 // Функция с несколькими параметрами — форматирование цены
 function formatPrice(amount, currency) {
-  return amount + ' ' + currency;
+  return `${amount} ${currency}`;
 }
 
 console.log(formatPrice(1500, '₸'));

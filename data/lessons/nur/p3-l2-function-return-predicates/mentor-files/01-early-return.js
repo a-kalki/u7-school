@@ -3,7 +3,7 @@
 
 // Без валидации — может сломаться
 function getFullName(first, last) {
-  return first + ' ' + last;
+  return `${first} ${last}`;
 }
 
 console.log(getFullName('Нурсултан', 'Назарбаев'));
@@ -14,7 +14,7 @@ function getFullNameSafe(first, last) {
   if (first === '' || last === '') {
     return 'Имя не указано';
   }
-  return first + ' ' + last;
+  return `${first} ${last}`;
 }
 
 console.log(getFullNameSafe('Айжан', 'Тулегенова'));

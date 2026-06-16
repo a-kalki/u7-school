@@ -3,7 +3,7 @@
 
 // Функция с параметром по умолчанию
 function greet(name, greeting = 'Здравствуйте') {
-  return greeting + ', ' + name + '!';
+  return `${greeting}, ${name}!`;
 }
 
 console.log(greet('Айгуль'));

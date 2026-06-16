@@ -19,7 +19,7 @@ console.log(addArrow(3, 7));
 console.log(addShort(3, 7));
 
 // Один параметр — скобки можно опустить
-const greet = (name) => 'Сәлем, ' + name + '!';
+const greet = (name) => `Сәлем, ${name}!`;
 console.log(greet('Айжан'));
 console.log(greet('Данияр'));
 
@@ -31,7 +31,7 @@ console.log(getYear());
 const getDiscountLabel = (price, percent) => {
   const discount = Math.round((price * percent) / 100);
   const final = price - discount;
-  return 'Цена: ' + price + ' → скидка ' + percent + '% = ' + final + ' ₸';
+  return `Цена: ${price} → скидка ${percent}% = ${final} ₸`;
 };
 
 console.log(getDiscountLabel(5000, 20));

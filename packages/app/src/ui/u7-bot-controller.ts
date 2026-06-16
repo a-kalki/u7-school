@@ -1,5 +1,3 @@
-import type { ApiModule } from '@u7-scl/core/api';
-import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
 import { BotController } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, User } from '../domain';
 
@@ -13,8 +11,4 @@ import type { U7BotAppMeta, User } from '../domain';
  */
 export abstract class U7BotController<
   TMeta extends ApiModuleMeta,
-> extends BotController<U7BotAppMeta, TMeta, User> {
-  constructor(moduleApi: ApiModule<TMeta, ModuleResolver>) {
-    super(moduleApi);
-  }
-}
+> extends BotController<U7BotAppMeta, TMeta, User> {}

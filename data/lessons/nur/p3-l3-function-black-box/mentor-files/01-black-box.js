@@ -6,19 +6,19 @@ function formatDate(day, month, year) {
   let d = day;
   let m = month;
   if (day < 10) {
-    d = '0' + day;
+    d = `0${day}`;
   }
   if (month < 10) {
-    m = '0' + month;
+    m = `0${month}`;
   }
-  return d + '.' + m + '.' + year;
+  return `${d}.${m}.${year}`;
 }
 
 // Другая реализация — через тернарный оператор
 function formatDateV2(day, month, year) {
-  const d = day < 10 ? '0' + day : '' + day;
-  const m = month < 10 ? '0' + month : '' + month;
-  return d + '.' + m + '.' + year;
+  const d = day < 10 ? `0${day}` : `${day}`;
+  const m = month < 10 ? `0${month}` : `${month}`;
+  return `${d}.${m}.${year}`;
 }
 
 // Снаружи поведение одинаковое — клиенту не важно КАК
@@ -29,7 +29,7 @@ console.log(formatDateV2(15, 12, 2025));
 
 // Плохой чёрный ящик: имя не говорит ЧТО, параметры неясны
 function fd(d, m, y) {
-  return d + '.' + m + '.' + y;
+  return `${d}.${m}.${y}`;
 }
 
 console.log(fd(1, 1, 2024)); // Что такое fd? Непонятно.

@@ -34,7 +34,7 @@ function calcTotal(price, qty, discount) {
 
 const calcTax = (total, rate) => (total * rate) / 100;
 
-const formatReceipt = (total, tax) => 'Итого: ' + (total + tax) + ' ₸';
+const formatReceipt = (total, tax) => `Итого: ${total + tax} ₸`;
 
 const orderTotal = calcTotal(1500, 3, 200);
 const orderTax = calcTax(orderTotal, 12);
