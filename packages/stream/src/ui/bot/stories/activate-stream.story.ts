@@ -1,7 +1,7 @@
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/app/domain';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import { U7BotUserStory } from '@u7-scl/app/ui';
+import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US-7: Запуск потока (старт обучения).
@@ -23,7 +23,7 @@ export class ActivateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: '🚀 *Поток запущен!* Студенты получили первые задания.',
+        text: '🚀 *Поток запущен!* Первые задания выданы студентам. Они увидят их в разделе «📖 Моя учёба».',
         parseMode: 'MarkdownV2',
       },
     };

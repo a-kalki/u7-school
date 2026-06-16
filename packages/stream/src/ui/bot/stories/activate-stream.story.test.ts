@@ -26,6 +26,7 @@ describe('ActivateStreamStory', () => {
     const response = await story.handleCallback('activate:s1', actor, session);
 
     expect(response.sendMessage?.text).toContain('запущен');
+    expect(response.sendMessage?.text).toContain('Моя учёба');
   });
 
   test('handleStart возвращает null', async () => {
