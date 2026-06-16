@@ -15,27 +15,28 @@
 
 ## Фаза 2: US-2 — Ролевые кнопки в ViewStreamStory
 
-- [ ] Task: Написать тест: ViewStreamStory показывает ролевые кнопки
-  - [ ] GUEST на enrollment → видит «Записаться», «Программа», «Назад»
-  - [ ] GUEST на active → видит «Уведомить», «Назад»
-  - [ ] STUDENT на enrollment → НЕ видит «Записаться»
+- [x] Task: Написать тест: ViewStreamStory показывает ролевые кнопки
+  - [x] GUEST на enrollment → видит «Записаться», «Программа», «Назад»
+  - [x] GUEST на active → видит «Уведомить», «Назад»
+  - [x] STUDENT на enrollment → НЕ видит «Записаться»
 
-- [ ] Task: Реализовать ролевые кнопки в ViewStreamStory
-  - [ ] Кастить actor к `{ uuid: string; roles: string[] }`
-  - [ ] По роли и статусу потока определять набор кнопок
+- [x] Task: Реализовать ролевые кнопки в ViewStreamStory
+  - [x] Кастить actor к `{ uuid: string; roles: string[] }`
+  - [x] По роли и статусу потока определять набор кнопок
 
-- [ ] Task: Написать тест: ViewStreamStory показывает имя ментора
+- [x] Task: Написать тест: ViewStreamStory показывает имя ментора
 
-- [ ] Task: Реализовать показ имени ментора
-  - [ ] Через API: добавить use-case `get-user` в StreamApiModule или расширить `get-stream`
-  - [ ] Вывести имя ментора в карточке
+- [x] Task: Реализовать показ имени ментора
+  - [x] Через API: добавить use-case `get-user` в StreamApiModule
+  - [x] Вывести имя ментора в карточке
 
-- [ ] Task: Написать тест: кнопка «Программа курса» показывает contentSnapshot
+- [x] Task: Написать тест: кнопка «Программа курса» показывает contentSnapshot
 
-- [ ] Task: Реализовать кнопку «Программа курса»
-  - [ ] Новый callback `view-stream:program:<streamId>`
-  - [ ] Рендерить сжатый `contentSnapshot` (проекты → уроки, без шагов)
-  - [ ] Кнопка «⬅️ Назад к потоку» под программой
+- [x] Task: Реализовать кнопку «Программа курса»
+  - [x] Новый callback `view-stream:program:<streamId>`
+  - [x] Рендерить сжатый `contentSnapshot` (проекты → уроки, без шагов)
+  - [x] Кнопка «⬅️ Назад к потоку» под программой
+  `[8c7ef27]`
 
 - [ ] Task: Conductor - Ручная верификация 'Ролевые кнопки и программа'
 
