@@ -107,8 +107,11 @@ async function patchUsers(devId: number) {
   mentor.name = 'Dev';
 
   // Удаляем остальных пользователей, чтобы избежать конфликтов
-  // (оставляем только ментора — он теперь единственный пользователь)
-  const filtered = users.filter((u) => u.uuid === MENTOR_UUID);
+  // Оставляем ментора (dev-аккаунт) и бот-админа (для верификации BOT_ADMIN_UUID)
+  const ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f';
+  const filtered = users.filter(
+    (u) => u.uuid === MENTOR_UUID || u.uuid === ADMIN_UUID,
+  );
 
   await writeFile(usersPath, JSON.stringify(filtered, null, 2));
   console.log('👤 Пользователь настроен: все роли на одном аккаунте');

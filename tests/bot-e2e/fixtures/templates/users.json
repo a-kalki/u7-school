@@ -33,5 +33,12 @@
     "telegramId": 1005,
     "roles": ["ADMIN"],
     "createdAt": "2026-01-05T00:00"
+  },
+  {
+    "uuid": "ae00f3f6-1392-4b98-b178-41c27e794b7f",
+    "name": "Бот-админ",
+    "telegramId": 0,
+    "roles": ["ADMIN"],
+    "createdAt": "2026-01-06T00:00"
   }
 ]
