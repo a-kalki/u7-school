@@ -1,5 +1,13 @@
 /** Общие типы для UI-слоя Telegram-бота */
 
+/**
+ * Описание inline-клавиатуры.
+ *
+ * Конвенция: текст кнопок (`rows[].text`) — всегда plain text.
+ * Telegram НЕ парсит MarkdownV2 в кнопках, поэтому экранирование
+ * `escapeMarkdown()` для текста кнопок не нужно и портит отображение
+ * (будут видны бэкслеши).
+ */
 export interface KeyboardDescription {
   rows: { text: string; code: string }[][];
   isMultiple: boolean;

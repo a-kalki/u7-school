@@ -64,7 +64,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Кросс-стори колбэки: ссылаемся на ViewStreamStory
     const rows = streams.map((s) => [
       {
-        text: `${statusEmoji[s.status] ?? '❓'} ${this.escapeMarkdown(s.title)}`,
+        text: `${statusEmoji[s.status] ?? '❓'} ${s.title}`,
         code: this.cbFor('view-stream', 'view', s.uuid),
       },
     ]);
