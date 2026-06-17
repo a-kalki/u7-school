@@ -37,7 +37,7 @@
   {
     "uuid": "ae00f3f6-1392-4b98-b178-41c27e794b7f",
     "name": "Бот-админ",
-    "telegramId": 0,
+    "telegramId": 8781337572,
     "roles": ["ADMIN"],
     "createdAt": "2026-01-06T00:00"
   }

@@ -108,9 +108,9 @@ async function patchUsers(devId: number) {
 
   // Удаляем остальных пользователей, чтобы избежать конфликтов
   // Оставляем ментора (dev-аккаунт) и бот-админа (для верификации BOT_ADMIN_UUID)
-  const ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f';
+  const BOT_ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f';
   const filtered = users.filter(
-    (u) => u.uuid === MENTOR_UUID || u.uuid === ADMIN_UUID,
+    (u) => u.uuid === MENTOR_UUID || u.uuid === BOT_ADMIN_UUID,
   );
 
   await writeFile(usersPath, JSON.stringify(filtered, null, 2));
