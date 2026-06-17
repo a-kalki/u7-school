@@ -24,6 +24,63 @@ function makeMockContext(
   } as unknown as BotContext;
 }
 
+// ── А4: Задержка sendMessages ──
+
+describe('executeResponses — sendDelayMs', () => {
+  test('сообщения отправляются с указанной задержкой (sendDelayMs: 100)', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessages: [
+        { text: 'Первое' },
+        { text: 'Второе' },
+      ],
+      sendDelayMs: 100,
+    };
+
+    const start = performance.now();
+    await executeResponses(ctx, response);
+    const elapsed = performance.now() - start;
+
+    // Между 2 сообщениями — 1 пауза ≥ 100ms
+    expect(elapsed).toBeGreaterThanOrEqual(90);
+  });
+
+  test('дефолтная задержка = 1000 мс', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessages: [
+        { text: 'Первое' },
+        { text: 'Второе' },
+      ],
+    };
+
+    const start = performance.now();
+    await executeResponses(ctx, response);
+    const elapsed = performance.now() - start;
+
+    // Между 2 сообщениями — 1 пауза ≥ 1000ms
+    expect(elapsed).toBeGreaterThanOrEqual(900);
+  });
+
+  test('sendDelayMs: 0 — без задержки', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessages: [
+        { text: 'Первое' },
+        { text: 'Второе' },
+      ],
+      sendDelayMs: 0,
+    };
+
+    const start = performance.now();
+    await executeResponses(ctx, response);
+    const elapsed = performance.now() - start;
+
+    // Практически мгновенно
+    expect(elapsed).toBeLessThan(50);
+  });
+});
+
 // ── А2: Хранение предыдущего сообщения в контексте ──
 
 // ── А1: Удаление старых кнопок при навигации ──

@@ -3,6 +3,8 @@ import { validateMarkdownV2 } from '@u7-scl/core/shared';
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from './context';
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 /**
  * Выполняет инструкции контроллера (отправка/редактирование сообщений).
  */
@@ -46,7 +48,8 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
   // 2. Затем отправляем новые сообщения
   const toSend = res.sendMessages ?? (res.sendMessage ? [res.sendMessage] : []);
 
-  for (const send of toSend) {
+  for (let i = 0; i < toSend.length; i++) {
+    const send = toSend[i]!;
     const keyboard = send.keyboard
       ? new InlineKeyboard(
           send.keyboard.rows.map((row) =>
@@ -66,6 +69,12 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       parseMode: send.parseMode,
       messageId: sent.message_id,
     };
+
+    // А4: задержка между сообщениями (кроме последнего)
+    if (i < toSend.length - 1) {
+      const delay = res.sendDelayMs ?? 1000;
+      await sleep(delay);
+    }
   }
 }
 

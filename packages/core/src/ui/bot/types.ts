@@ -24,6 +24,8 @@ export interface BotResponse {
   sendMessages?: SendMessageDescription[];
   editMessage?: EditMessageDescription;
   questionnaireCompleted?: boolean;
+  /** Задержка между сообщениями в sendMessages (мс), по умолчанию 1000 */
+  sendDelayMs?: number;
   /** Убрать клавиатуру у предыдущего сообщения бота перед отправкой нового */
   removePrevKeyboard?: boolean;
   /** Захват ввода — следующие сообщения пользователя пойдут в указанный обработчик */
