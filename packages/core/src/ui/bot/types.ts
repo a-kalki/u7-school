@@ -24,6 +24,8 @@ export interface BotResponse {
   sendMessages?: SendMessageDescription[];
   editMessage?: EditMessageDescription;
   questionnaireCompleted?: boolean;
+  /** Убрать клавиатуру у предыдущего сообщения бота перед отправкой нового */
+  removePrevKeyboard?: boolean;
   /** Захват ввода — следующие сообщения пользователя пойдут в указанный обработчик */
   captureInput?: { path: string; context?: unknown; ttlSeconds?: number };
   /** Освобождение захваченного ввода */

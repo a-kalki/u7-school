@@ -30,6 +30,19 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       .catch(() => {}); // Игнорируем ошибки если контент не изменился
   }
 
+  // 1.5. Если нужно — убираем клавиатуру у предыдущего сообщения
+  if (res.removePrevKeyboard && ctx.session.lastBotMessage) {
+    const prev = ctx.session.lastBotMessage;
+    await ctx.api
+      .editMessageText(ctx.chat?.id ?? 0, prev.messageId, prev.text, {
+        reply_markup: undefined,
+        parse_mode: prev.parseMode,
+      })
+      .catch(() => {});
+    // Обновляем lastBotMessage: клавиатура больше не актуальна
+    ctx.session.lastBotMessage = { ...prev, keyboard: undefined };
+  }
+
   // 2. Затем отправляем новые сообщения
   const toSend = res.sendMessages ?? (res.sendMessage ? [res.sendMessage] : []);
 

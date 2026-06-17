@@ -26,6 +26,82 @@ function makeMockContext(
 
 // ── А2: Хранение предыдущего сообщения в контексте ──
 
+// ── А1: Удаление старых кнопок при навигации ──
+
+describe('executeResponses — removePrevKeyboard', () => {
+  test('removePrevKeyboard: true вызывает editMessageText с reply_markup: undefined и исходным текстом', async () => {
+    const ctx = makeMockContext();
+    ctx.session.lastBotMessage = {
+      text: 'Предыдущее сообщение с кнопками',
+      messageId: 42,
+      keyboard: {
+        rows: [[{ text: 'Кнопка', code: 'btn' }]],
+        isMultiple: false,
+      },
+    };
+
+    const response: BotResponse = {
+      sendMessage: { text: 'Новое сообщение' },
+      removePrevKeyboard: true,
+    };
+
+    await executeResponses(ctx, response);
+
+    // Проверяем, что editMessageText был вызван
+    const editMock = ctx.api.editMessageText as any;
+    expect(editMock).toHaveBeenCalled();
+    const editCall = editMock.mock.calls[0];
+    // chat_id, messageId, текст
+    expect(editCall[0]).toBe(123);
+    expect(editCall[1]).toBe(42);
+    expect(editCall[2]).toBe('Предыдущее сообщение с кнопками');
+    // reply_markup должен быть undefined
+    expect(editCall[3]?.reply_markup).toBeUndefined();
+  });
+
+  test('removePrevKeyboard без lastBotMessage — флаг игнорируется', async () => {
+    const ctx = makeMockContext();
+    ctx.session.lastBotMessage = undefined;
+
+    const response: BotResponse = {
+      sendMessage: { text: 'Новое сообщение' },
+      removePrevKeyboard: true,
+    };
+
+    await executeResponses(ctx, response);
+
+    // editMessageText не должен вызываться (кроме обычного editMessage, которого нет)
+    // Проверяем, что НЕ было вызова с reply_markup: undefined
+    const editMock = ctx.api.editMessageText as any;
+    expect(editMock).not.toHaveBeenCalled();
+  });
+
+  test('removePrevKeyboard с lastBotMessage убирает клавиатуру', async () => {
+    const ctx = makeMockContext();
+    ctx.session.lastBotMessage = {
+      text: 'Сообщение с кнопками',
+      messageId: 10,
+      keyboard: {
+        rows: [[{ text: 'Да', code: 'yes' }, { text: 'Нет', code: 'no' }]],
+        isMultiple: false,
+      },
+    };
+
+    const response: BotResponse = {
+      sendMessage: { text: 'Новый ответ' },
+      removePrevKeyboard: true,
+    };
+
+    await executeResponses(ctx, response);
+
+    const editMock = ctx.api.editMessageText as any;
+    expect(editMock).toHaveBeenCalled();
+    // Убедимся что текст оригинальный, а reply_markup — undefined
+    expect(editMock.mock.calls[0][2]).toBe('Сообщение с кнопками');
+    expect(editMock.mock.calls[0][3]?.reply_markup).toBeUndefined();
+  });
+});
+
 describe('executeResponses — lastBotMessage', () => {
   test('sendMessage сохраняет SendMessageDescription + messageId в сессию', async () => {
     const ctx = makeMockContext();
