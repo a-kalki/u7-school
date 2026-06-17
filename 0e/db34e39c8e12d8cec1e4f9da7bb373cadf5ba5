@@ -1,0 +1,8 @@
+**Задача:** Добавить lastBotMessage в SessionData (А2)
+
+**Изменения:**
+- packages/core/src/ui/bot/types.ts: добавлено поле lastBotMessage?: SendMessageDescription & { messageId: number } в SessionData
+- apps/u7-bot/src/ui-utils.ts: executeResponses() сохраняет последнее отправленное сообщение в ctx.session.lastBotMessage (при sendMessage и sendMessages, но НЕ при editMessage)
+- apps/u7-bot/src/ui-utils.test.ts: 3 теста проверяют сохранение lastBotMessage при sendMessage, sendMessages и неизменность при editMessage
+
+**Причина:** для реализации удаления старых кнопок (А1) нужна информация о предыдущем сообщении бота.
