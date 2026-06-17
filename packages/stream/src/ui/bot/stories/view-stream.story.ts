@@ -126,7 +126,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (!snapshot || snapshot.length === 0) {
       return {
         sendMessage: {
-          text: '📖 *Программа курса*\n\nПрограмма пока не загружена.',
+          text: '📖 *Программа курса*\n\nПрограмма пока не загружена\.',
           parseMode: 'MarkdownV2',
           keyboard: {
             rows: [
@@ -262,7 +262,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     await this.moduleApi.execute('complete-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
-        text: '✅ *Поток завершён!* Обучение окончено.',
+        text: '✅ *Поток завершён\!* Обучение окончено\.',
         parseMode: 'MarkdownV2',
       },
     };
@@ -272,7 +272,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     await this.moduleApi.execute('archive-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
-        text: '📁 *Поток перемещён в архив.*',
+        text: '📁 *Поток перемещён в архив\.*',
         parseMode: 'MarkdownV2',
       },
     };

@@ -78,7 +78,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (student.status === 'completed') {
       return {
         sendMessage: {
-          text: '🎉 *Поздравляем!* Вы завершили обучение в потоке!',
+          text: '🎉 *Поздравляем\!* Вы завершили обучение в потоке\!',
           parseMode: 'MarkdownV2',
         },
       };
@@ -147,14 +147,14 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const levelMessages: Record<string, string> = {
-      step: '✅ Шаг выполнен! Следующее задание уже ждёт.',
+      step: '✅ Шаг выполнен\! Следующее задание уже ждёт\.',
       stream:
-        '🏆 *Поток полностью завершён!* Поздравляем с успешным окончанием обучения!',
+        '🏆 *Поток полностью завершён\!* Поздравляем с успешным окончанием обучения\!',
     };
 
     return {
       sendMessage: {
-        text: levelMessages[result.level] ?? '✅ Задание выполнено!',
+        text: levelMessages[result.level] ?? '✅ Задание выполнено\!',
         parseMode: 'MarkdownV2',
       },
     };
@@ -186,7 +186,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
           )
         : 'следующий урок';
 
-      messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён. Начинаем: «${this.escapeMarkdown(nextTitle)}»!`;
+      messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён\. Начинаем: «${this.escapeMarkdown(nextTitle)}»\!`;
     } else if (result.level === 'project' && result.completedProjectId) {
       const completedTitle = this.#findProjectTitle(
         stream.contentSnapshot,
@@ -199,7 +199,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
           )
         : 'следующий проект';
 
-      messageText = `🚀 Проект «${this.escapeMarkdown(completedTitle)}» завершён. Начинаем: «${this.escapeMarkdown(nextTitle)}»!`;
+      messageText = `🚀 Проект «${this.escapeMarkdown(completedTitle)}» завершён\. Начинаем: «${this.escapeMarkdown(nextTitle)}»\!`;
     }
 
     return {

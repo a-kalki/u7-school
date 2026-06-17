@@ -131,7 +131,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   #startWizard(): BotResponse {
     return {
       sendMessage: {
-        text: '🆕 *Создание нового потока*\n\nЗагружаю список ваших модулей...',
+        text: '🆕 *Создание нового потока*\n\nЗагружаю список ваших модулей\.\.\.',
         parseMode: 'MarkdownV2',
       },
       captureInput: {
@@ -159,7 +159,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (!modules || modules.length === 0) {
       return {
         sendMessage: {
-          text: '📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей. Создайте модуль в конструкторе курсов.',
+          text: '📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей. Создайте модуль в конструкторе курсов\.',
           parseMode: 'MarkdownV2',
           keyboard: {
             rows: [[{ text: '🔄 Обновить список', code: this.cb('start') }]],
@@ -343,7 +343,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     return {
       releaseInput: true,
       sendMessage: {
-        text: '✅ *Поток успешно создан!*',
+        text: '✅ *Поток успешно создан\!*',
         parseMode: 'MarkdownV2',
       },
     };
