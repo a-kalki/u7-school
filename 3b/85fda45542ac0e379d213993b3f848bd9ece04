@@ -1,0 +1,7 @@
+**Задача:** Чистка escapeMarkdown из текста кнопок + конвенция (А3)
+
+**Изменения:**
+- packages/stream/src/ui/bot/stories/catalog.story.ts: убран this.escapeMarkdown(s.title) из текста кнопки
+- packages/core/src/ui/bot/types.ts: JSDoc с конвенцией — текст кнопок всегда plain text
+
+**Проверено:** только catalog.story.ts имел escapeMarkdown в кнопках. Остальные story и onboarding-controller используют escapeMarkdown только в тексте сообщений.
