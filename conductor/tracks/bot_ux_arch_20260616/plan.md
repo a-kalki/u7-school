@@ -12,12 +12,12 @@
 
 ## Фаза 2: Удаление старых кнопок (А1)
 
-- [ ] Task: Добавить `removePrevKeyboard` в `BotResponse`
-    - [ ] Добавить поле `removePrevKeyboard?: boolean` в тип `BotResponse`
-    - [ ] Тест: при флаге `removePrevKeyboard` вызывается `editMessageText` с `reply_markup: undefined` и исходным текстом из `lastBotMessage`
-    - [ ] Тест: без `lastBotMessage` в сессии — флаг игнорируется (нет предыдущего сообщения)
-    - [ ] Тест: с `lastBotMessage` — клавиатура убирается
-    - [ ] Реализовать в `executeResponses()`
+- [x] Task: Добавить `removePrevKeyboard` в `BotResponse` [9d595bd]
+    - [x] Добавить поле `removePrevKeyboard?: boolean` в тип `BotResponse`
+    - [x] Тест: при флаге `removePrevKeyboard` вызывается `editMessageText` с `reply_markup: undefined` и исходным текстом из `lastBotMessage`
+    - [x] Тест: без `lastBotMessage` в сессии — флаг игнорируется (нет предыдущего сообщения)
+    - [x] Тест: с `lastBotMessage` — клавиатура убирается
+    - [x] Реализовать в `executeResponses()`
 - [ ] Task: Conductor — Ручная верификация «Фаза 2»
 
 ## Фаза 3: Задержка `sendMessages` (А4)
