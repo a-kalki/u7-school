@@ -22,12 +22,12 @@
 
 ## Фаза 3: Задержка `sendMessages` (А4)
 
-- [ ] Task: Добавить `sendDelayMs` в `BotResponse`
-    - [ ] Добавить поле `sendDelayMs?: number` в тип `BotResponse`
-    - [ ] Тест: сообщения отправляются с указанной задержкой
-    - [ ] Тест: дефолтная задержка = 1000 мс
-    - [ ] Тест: `sendDelayMs: 0` — без задержки
-    - [ ] Реализовать в `executeResponses()` через `await sleep(delay)`
+- [x] Task: Добавить `sendDelayMs` в `BotResponse` [57e14a8]
+    - [x] Добавить поле `sendDelayMs?: number` в тип `BotResponse`
+    - [x] Тест: сообщения отправляются с указанной задержкой
+    - [x] Тест: дефолтная задержка = 1000 мс
+    - [x] Тест: `sendDelayMs: 0` — без задержки
+    - [x] Реализовать в `executeResponses()` через `await sleep(delay)`
 - [ ] Task: Conductor — Ручная верификация «Фаза 3»
 
 ## Фаза 4: Чистка экранирования кнопок (А3)
