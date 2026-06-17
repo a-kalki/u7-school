@@ -1,6 +1,6 @@
 # План реализации: bot_ux_arch_20260616
 
-## Фаза 1: Хранение предыдущего сообщения (А2)
+## Фаза 1: Хранение предыдущего сообщения (А2) [checkpoint: 0992421]
 
 - [x] Task: Добавить `lastBotMessage` в `SessionData` [0edb34e]
     - [x] Добавить поле `lastBotMessage?: SendMessageDescription & { messageId: number }` в тип `SessionData`
