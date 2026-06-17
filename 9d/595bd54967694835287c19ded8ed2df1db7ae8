@@ -1,0 +1,8 @@
+**Задача:** Добавить removePrevKeyboard в BotResponse (А1)
+
+**Изменения:**
+- packages/core/src/ui/bot/types.ts: добавлено поле removePrevKeyboard?: boolean в BotResponse
+- apps/u7-bot/src/ui-utils.ts: executeResponses() при removePrevKeyboard: true редактирует предыдущее сообщение с reply_markup: undefined и обновляет lastBotMessage (убирает keyboard)
+- apps/u7-bot/src/ui-utils.test.ts: 3 новых теста — вызов editMessageText с reply_markup: undefined, игнорирование без lastBotMessage, удаление клавиатуры
+
+**Причина:** при навигации между экранами старые кнопки должны убираться, чтобы не засорять UI.
