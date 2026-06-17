@@ -32,21 +32,13 @@
 
 ## Фаза 4: Чистка экранирования кнопок (А3)
 
-- [ ] Task: Обновить `assertResponseMarkdownSafe` — исключить текст кнопок из проверки
-    - [ ] Тест: валидатор не ругается на неэкранированный текст в кнопках
-    - [ ] Тест: валидатор всё ещё проверяет текст сообщения
-- [ ] Task: Почистить `escapeMarkdown` в тексте кнопок всех story
-    - [ ] `packages/stream/src/ui/bot/stories/catalog.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/view-stream.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/learning.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/progress.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/monitor.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/create-stream.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/activate-stream.story.ts`
-    - [ ] `packages/stream/src/ui/bot/stories/enroll.story.ts`
-    - [ ] `packages/onboarding/src/ui/bot/controller/onboarding-controller.ts`
-    - [ ] Прочие модули при обнаружении
-- [ ] Task: Документировать конвенцию: кнопки — всегда plain text, MarkdownV2 только в теле сообщения
+- [x] Task: Обновить `assertResponseMarkdownSafe` — исключить текст кнопок из проверки [143628d]
+    - [x] Тест: валидатор не ругается на неэкранированный текст в кнопках
+    - [x] Тест: валидатор всё ещё проверяет текст сообщения
+- [x] Task: Почистить `escapeMarkdown` в тексте кнопок всех story [3b85fda]
+    - [x] `catalog.story.ts` — единственный с escapeMarkdown в кнопках, убран
+    - [x] Остальные story и onboarding-controller — escapeMarkdown только в тексте сообщений
+- [x] Task: Документировать конвенцию: кнопки — всегда plain text, MarkdownV2 только в теле сообщения [3b85fda]
 - [ ] Task: Conductor — Ручная верификация «Фаза 4»
 
 ## Фаза 5: Итоговая проверка и документация
