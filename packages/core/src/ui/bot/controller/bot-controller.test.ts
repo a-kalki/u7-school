@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -139,22 +140,23 @@ describe('BotController', () => {
     test('агрегирует кнопки от стори с префиксами', async () => {
       story1.handleStartResult = {
         text: 'Кнопка 1',
-        action: 'act1',
+        action: 'story_one:act1',
         priority: 20,
       };
       story2.handleStartResult = {
         text: 'Кнопка 2',
-        action: 'act2',
+        action: 'story_two:act2',
         priority: 10,
       };
 
       const result = await ctrl.handleStart(testActor);
 
       expect(result).toHaveLength(2);
+      // Контроллер добавляет префикс: test_ctrl:story_two:act2
       expect(result[0]!.text).toBe('Кнопка 2');
-      expect(result[0]!.action).toBe('test_ctrl:act2');
+      expect(result[0]!.action).toBe('test_ctrl:story_two:act2');
       expect(result[1]!.text).toBe('Кнопка 1');
-      expect(result[1]!.action).toBe('test_ctrl:act1');
+      expect(result[1]!.action).toBe('test_ctrl:story_one:act1');
     });
 
     test('пропускает стори с null-результатом', async () => {
@@ -187,6 +189,7 @@ describe('BotController', () => {
       const result = await ctrl.handleCancel(testActor, {
         activeHandler: null,
       });
+      assertResponseMarkdownSafe(result);
       expect(result.releaseInput).toBe(true);
     });
 
@@ -196,6 +199,7 @@ describe('BotController', () => {
           path: '/test_ctrl/story_one',
         },
       });
+      assertResponseMarkdownSafe(result);
       expect(result.releaseInput).toBe(true);
     });
   });
@@ -207,6 +211,7 @@ describe('BotController', () => {
         testActor,
         { activeHandler: null },
       );
+      assertResponseMarkdownSafe(result);
       expect(result.sendMessage?.text).toBe('story_callback:story_one');
     });
 
@@ -214,6 +219,7 @@ describe('BotController', () => {
       const result = await ctrl.handleCallback('unknown:action', testActor, {
         activeHandler: null,
       });
+      assertResponseMarkdownSafe(result);
       expect(result.sendMessage?.text).toBe('⚠️ Неизвестная команда');
     });
   });
@@ -227,6 +233,7 @@ describe('BotController', () => {
           activeHandler: { path: '/test_ctrl/story_one' },
         },
       );
+      assertResponseMarkdownSafe(result);
       expect(result.sendMessage?.text).toBe('story_message:story_one');
     });
 
@@ -236,6 +243,7 @@ describe('BotController', () => {
         testActor,
         { activeHandler: null },
       );
+      assertResponseMarkdownSafe(result);
       expect(result.sendMessage?.text).toBe('⚠️ Неизвестная команда');
     });
   });

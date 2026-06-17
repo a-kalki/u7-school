@@ -6,7 +6,7 @@
  *   DEV_TELEGRAM_ID=123456789 bun run apps/u7-bot/scripts/seed-fixtures.ts
  *
  * Что делает:
- *   1. Копирует tests/bot-e2e/fixtures/templates/ → data-fixtures/
+ *   1. Копирует tests/bot/fixtures/templates/ → data-fixtures/
  *   2. Находит ментора (UUID 4444...) и привязывает к DEV_TELEGRAM_ID
  *   3. Даёт ему все роли: GUEST, CANDIDATE, STUDENT, MENTOR, ADMIN
  *   4. Привязывает студента в потоке к этому же пользователю
@@ -18,7 +18,7 @@ import { Role, type User } from '@u7-scl/user/domain';
 
 const FIXTURES_DIR = path.resolve(
   import.meta.dir,
-  '../../../tests/bot-e2e/fixtures/templates',
+  '../../../tests/bot/fixtures/templates',
 );
 const DATA_DIR = path.resolve(import.meta.dir, '../../../data-fixtures');
 

@@ -7,7 +7,9 @@ function add(a, b) {
 }
 
 // 2. Function Expression — анонимная функция в переменной
-const subtract = (a, b) => a - b;
+const subtract = function(a, b) {
+  return a - b;
+};
 
 // 3. Arrow Function — стрелочная функция
 const multiply = (a, b) => {
@@ -22,7 +24,7 @@ console.log(multiply(5, 3));
 const divide = (a, b) => a / b;
 
 // Один параметр — скобки можно опустить
-const square = (n) => n * n;
+const square = n => n * n;
 
 console.log(divide(10, 2));
 console.log(square(7));

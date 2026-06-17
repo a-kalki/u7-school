@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { ViewStreamStory } from './view-stream.story';
@@ -70,6 +71,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Python Advanced');
     expect(response.sendMessage?.text).toContain('Продвинутый курс');
   });
@@ -82,6 +84,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
@@ -96,6 +99,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
@@ -109,6 +113,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
@@ -126,6 +131,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
@@ -142,6 +148,7 @@ describe('ViewStreamStory', () => {
       studentActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
@@ -156,6 +163,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Алексей Смирнов');
   });
 
@@ -194,6 +202,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Программа курса');
@@ -240,6 +249,7 @@ describe('ViewStreamStory', () => {
       mentorActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
@@ -259,6 +269,7 @@ describe('ViewStreamStory', () => {
       mentorActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
@@ -276,6 +287,7 @@ describe('ViewStreamStory', () => {
       otherMentorActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
@@ -324,6 +336,51 @@ describe('ViewStreamStory', () => {
     );
   });
 
+  // ── US-7: Админ видит менторские кнопки на любом потоке ──
+
+  const adminActor: User = {
+    uuid: 'admin-1',
+    name: 'Админ',
+    telegramId: 777,
+    roles: [Role.ADMIN],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  test('ADMIN на чужом enrollment — видит менторские кнопки', async () => {
+    const { story } = makeViewStory(sampleStream, 5);
+
+    const response = await story.handleCallback(
+      'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      adminActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
+  });
+
+  test('ADMIN на чужом active — видит менторские кнопки', async () => {
+    const activeStream = { ...sampleStream, status: 'active' };
+    const { story } = makeViewStory(activeStream, 8);
+
+    const response = await story.handleCallback(
+      'view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+      adminActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
+  });
+
   test('GUEST на потоке ментора — НЕ видит менторских кнопок', async () => {
     const { story } = makeViewStory(sampleStream, 3);
 
@@ -332,6 +389,7 @@ describe('ViewStreamStory', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 

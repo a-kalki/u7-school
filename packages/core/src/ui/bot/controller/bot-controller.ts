@@ -17,6 +17,10 @@ import type {
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
  *
+ * Владеет сжатием id через общую мапу shortIds. Story работают только с
+ * реальными данными — контроллер на выходе сжимает id и добавляет префикс,
+ * на входе разжимает обратно.
+ *
  * @typeParam TAppMeta — тип метаданных приложения (по умолчанию AppMeta)
  * @typeParam TModuleMeta — тип метаданных модуля, к которому привязан контроллер
  * @typeParam TActor — тип актора (пользователя)
@@ -39,6 +43,9 @@ export abstract class BotController<
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
+  /** Общая мапа сжатых id — используется всеми стори контроллера */
+  private readonly shortIds = new Map<string, string>();
+
   constructor(moduleApi: ApiModule<TModuleMeta, ModuleResolver>) {
     this.moduleApi = moduleApi;
   }
@@ -52,6 +59,7 @@ export abstract class BotController<
 
   /** Сброс временных данных контроллера и всех стори */
   reset(): void {
+    this.shortIds.clear();
     for (const story of this.stories) {
       story.reset();
     }
@@ -61,7 +69,7 @@ export abstract class BotController<
 
   /**
    * Обработка callback (data без префикса контроллера).
-   * Делегирует в стори по префиксу в callback_data.
+   * Разжимает id, делегирует в стори, сжимает ответ.
    */
   async handleCallback(
     data: string,
@@ -71,8 +79,10 @@ export abstract class BotController<
     for (const story of this.stories) {
       const prefix = `${story.name}:`;
       if (data.startsWith(prefix)) {
-        const action = data.slice(prefix.length);
-        return story.handleCallback(action, actor, session);
+        const raw = data.slice(prefix.length);
+        const expanded = this.#expandData(raw);
+        const response = await story.handleCallback(expanded, actor, session);
+        return this.#compressResponse(response);
       }
     }
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -89,9 +99,10 @@ export abstract class BotController<
   ): Promise<BotResponse> {
     const activePath = session.activeHandler?.path;
     if (activePath) {
-      const story = this.findStoryByPath(activePath);
+      const story = this.#findStoryByPath(activePath);
       if (story) {
-        return story.handleMessage(update, actor, session);
+        const response = await story.handleMessage(update, actor, session);
+        return this.#compressResponse(response);
       }
     }
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -99,6 +110,7 @@ export abstract class BotController<
 
   /**
    * Главное меню — агрегирует кнопки от всех стори.
+   * Добавляет префикс контроллера к action от стори.
    */
   async handleStart(actor: TActor): Promise<MainMenuAction[]> {
     const items: MainMenuAction[] = [];
@@ -107,7 +119,7 @@ export abstract class BotController<
       if (item) {
         items.push({
           ...item,
-          action: this.cb(item.action),
+          action: `${this.name}:${item.action}`,
         });
       }
     }
@@ -124,9 +136,10 @@ export abstract class BotController<
   ): Promise<BotResponse> {
     const activePath = session.activeHandler?.path;
     if (activePath) {
-      const story = this.findStoryByPath(activePath);
+      const story = this.#findStoryByPath(activePath);
       if (story) {
-        return story.handleCancel(actor, session);
+        const response = await story.handleCancel(actor, session);
+        return this.#compressResponse(response);
       }
     }
     return { releaseInput: true };
@@ -142,9 +155,10 @@ export abstract class BotController<
   ): Promise<BotResponse> {
     const activePath = session.activeHandler?.path;
     if (activePath) {
-      const story = this.findStoryByPath(activePath);
+      const story = this.#findStoryByPath(activePath);
       if (story) {
-        return story.handleTimeout(actor, session);
+        const response = await story.handleTimeout(actor, session);
+        return this.#compressResponse(response);
       }
     }
     return {
@@ -153,20 +167,127 @@ export abstract class BotController<
     };
   }
 
-  // ── Хелперы ──
+  // ── Сжатие / разжатие id ──
 
-  /** Генерирует callback_data с префиксом контроллера */
-  protected cb(action: string): string {
-    return `${this.name}:${action}`;
+  /**
+   * Сжимает необработанный callback от стори (storyName:action:id1:id2...).
+   * Добавляет префикс контроллера, сжимает id через короткие ключи.
+   */
+  #compressAction(raw: string): string {
+    const parts = raw.split(':');
+    if (parts.length <= 2) {
+      // Нет id для сжатия — только storyName:action
+      return `${this.name}:${raw}`;
+    }
+
+    // storyName, action, ...ids
+    const storyName = parts[0]!;
+    const action = parts[1]!;
+    const ids = parts.slice(2);
+
+    const compressedIds = ids.map((id) => this.#shrink(id));
+    return [this.name, storyName, action, ...compressedIds].join(':');
   }
 
-  /** Убирает префикс контроллера из callback_data */
-  protected stripPrefix(data: string): string {
+  /**
+   * Разжимает данные из callback (action[:compressedId...]).
+   * Возвращает action[:realId...] для передачи в стори.
+   */
+  #expandData(raw: string): string {
+    const parts = raw.split(':');
+    if (parts.length <= 1) {
+      return raw;
+    }
+    // action, ...compressedIds
+    const action = parts[0]!;
+    const compressedIds = parts.slice(1);
+    const realIds = compressedIds.map((key) => this.shortIds.get(key) ?? key);
+    return [action, ...realIds].join(':');
+  }
+
+  /**
+   * Сжимает значение id в короткий ключ.
+   * Использует первые 8 символов (для UUID — первый сегмент).
+   * При коллизии добавляет цифровой суффикс.
+   */
+  #shrink(value: string): string {
+    let key = value.slice(0, 8);
+
+    const existing = this.shortIds.get(key);
+    if (existing !== undefined && existing !== value) {
+      key = `${key}-${this.shortIds.size}`;
+    }
+
+    this.shortIds.set(key, value);
+    return key;
+  }
+
+  /**
+   * Обходит BotResponse и сжимает все кнопки (code) и delegate.path.
+   */
+  #compressResponse(response: BotResponse): BotResponse {
+    const compressKeyboard = (
+      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
+    ): typeof kb => {
+      if (!kb) return kb;
+      return {
+        ...kb,
+        rows: kb.rows.map((row) =>
+          row.map((btn) => ({
+            ...btn,
+            code: this.#compressAction(btn.code),
+          })),
+        ),
+      };
+    };
+
+    const result: BotResponse = { ...response };
+
+    if (result.sendMessage?.keyboard) {
+      result.sendMessage = {
+        ...result.sendMessage,
+        keyboard: compressKeyboard(result.sendMessage.keyboard) ?? undefined,
+      };
+    }
+
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map((sm) => ({
+        ...sm,
+        keyboard: compressKeyboard(sm.keyboard) ?? undefined,
+      }));
+    }
+
+    if (result.editMessage?.keyboard) {
+      result.editMessage = {
+        ...result.editMessage,
+        keyboard: compressKeyboard(result.editMessage.keyboard) ?? undefined,
+      };
+    }
+
+    // delegate.path — оставляем как есть (не уходит в Telegram, обрабатывается роутером)
+    return result;
+  }
+
+/** Убирает префикс контроллера из callback_data (публичный для тестов) */
+  stripPrefix(data: string): string {
     const prefix = `${this.name}:`;
     if (data.startsWith(prefix)) {
       return data.slice(prefix.length);
     }
     return data;
+  }
+
+  // ═══════════════════════════════════════════
+
+  // ── Хелперы ──
+
+  /**
+   * Генерирует callback_data с префиксом контроллера (без сжатия).
+   * Используется контроллерами, которые НЕ делегируют в стори
+   * (например, OnboardingController).
+   */
+  protected cb(action: string): string {
+    return `${this.name}:${action}`;
   }
 
   /** Поиск стори по имени */
@@ -176,8 +297,8 @@ export abstract class BotController<
     return this.stories.find((s) => s.name === name);
   }
 
-  /** Поиск стори по пути из activeHandler */
-  private findStoryByPath(
+  /** Поиск стори по пути из activeHandler: controllerName/storyName/... */
+  #findStoryByPath(
     path: string,
   ): BotUserStory<TAppMeta, TModuleMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);

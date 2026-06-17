@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { BotRouter } from '@u7-scl/core/ui';
+import {  BotRouter , assertBotResponseValid } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -46,6 +46,7 @@ describe('CatalogStory e2e', () => {
       guest,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Потоки школы');
@@ -53,10 +54,9 @@ describe('CatalogStory e2e', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Набор'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Завершён'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Архив'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
+    expect(btnTexts.length).toBe(2); // только enrollment + active
   });
 
   test('гость — завершённые и архивные потоки не показываются', async () => {
@@ -80,11 +80,12 @@ describe('CatalogStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Набор'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
   });
 
   // ── Ментор ──
@@ -95,11 +96,12 @@ describe('CatalogStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(response);
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Набор'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
   });
 
   // ── Главное меню ──

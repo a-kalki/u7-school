@@ -23,15 +23,44 @@ describe('CreateStreamStory', () => {
     execute: mock(() => undefined),
   } as unknown as U7BotApp;
 
-  test('handleCallback("start") начинает wizard с captureInput', async () => {
+  test('handleCallback("start") сразу показывает список модулей с клавиатурой', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+    const appApiWithModules = {
+      execute: mock((name: string, _cmd: Record<string, unknown>) => {
+        if (name === 'list-modules')
+          return [
+            {
+              uuid: 'mod-1',
+              title: 'Основы JavaScript',
+              description: '',
+              authorId: 'mentor-1',
+              status: 'published',
+              projects: [],
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+          ];
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
     const story = new CreateStreamStory();
+    story.init(moduleApi, appApiWithModules);
+
     const response = await story.handleCallback('start', mentor, {
       activeHandler: null,
     });
+    // Должен сразу показать клавиатуру с модулями, без ожидания текстового ввода
     expect(response.captureInput).toBeDefined();
     expect(response.captureInput?.path).toContain('create-stream');
     const ctx = response.captureInput?.context as { step: number } | undefined;
     expect(ctx?.step).toBe(0);
+    expect(response.sendMessage?.text).toContain('Выберите модуль');
+    expect(response.sendMessage?.keyboard).toBeDefined();
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts).toContain('Основы JavaScript');
   });
 
   test('handleMessage: шаг 0 — загружает все опубликованные модули через appApi и показывает inline-кнопки', async () => {
@@ -149,10 +178,10 @@ describe('CreateStreamStory', () => {
     expect(newCtx?.moduleId).toBe('mod1');
   });
 
-  test('handleStart — MENTOR видит кнопку «Панель ментора»', async () => {
+  test('handleStart — MENTOR видит кнопку «Создать поток»', async () => {
     const story = new CreateStreamStory();
     const item = await story.handleStart(mentor);
-    expect(item?.text).toContain('Панель ментора');
+    expect(item?.text).toContain('Создать поток');
     expect(item?.priority).toBe(30);
   });
 

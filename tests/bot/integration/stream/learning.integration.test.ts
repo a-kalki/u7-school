@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { BotRouter } from '@u7-scl/core/ui';
+import {  BotRouter , assertBotResponseValid } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -53,6 +53,7 @@ describe('LearningStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Моя учёба');
@@ -76,6 +77,7 @@ describe('LearningStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     expect(response.sendMessage?.text).toContain('Шаг выполнен');
   });
@@ -88,6 +90,7 @@ describe('LearningStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Переменные и типы'); // завершённый урок
@@ -101,6 +104,7 @@ describe('LearningStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     expect(response.sendMessage?.text).toContain('Шаг выполнен');
   });
@@ -113,6 +117,7 @@ describe('LearningStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     // Должен быть либо переход на новый проект, либо завершение потока
@@ -149,6 +154,7 @@ describe('LearningStory e2e', () => {
       guest,
       session,
     );
+    assertBotResponseValid(response);
 
     expect(response.sendMessage?.text).toContain('не записаны');
   });
@@ -161,6 +167,7 @@ describe('LearningStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('не записаны');

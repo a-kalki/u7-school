@@ -2,6 +2,7 @@ import {
   ConsoleLogger,
   LogLevel,
   parseLogLevel,
+  serializeError,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
 import { UserPolicy } from '@u7-scl/user/domain';
@@ -80,7 +81,7 @@ privateBot.use(async (ctx, next) => {
     await next();
   } catch (err) {
     logger.error('bot', 'Непредвиденная ошибка в обработчике', {
-      error: String(err),
+      ...serializeError(err),
       updateId: ctx.update.update_id,
     });
     await ctx

@@ -50,20 +50,20 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
   }
 
   // Экспонируем protected-методы для тестирования
-  public override cb(action: string): string {
-    return super.cb(action);
+  public override cb(action: string, ...ids: string[]): string {
+    return super.cb(action, ...ids);
+  }
+
+  public override cbFor(
+    storyName: string,
+    action: string,
+    ...ids: string[]
+  ): string {
+    return super.cbFor(storyName, action, ...ids);
   }
 
   public override stripPrefix(data: string): string {
     return super.stripPrefix(data);
-  }
-
-  public override shrink(value: string): string {
-    return super.shrink(value);
-  }
-
-  public override expand(key: string): string | undefined {
-    return super.expand(key);
   }
 }
 
@@ -75,12 +75,40 @@ describe('BotUserStory', () => {
   });
 
   describe('cb', () => {
-    test('добавляет префикс имени стори', () => {
+    test('формирует callback_data: storyName:action (без префикса контроллера)', () => {
       expect(story.cb('some_action')).toBe('test_story:some_action');
+    });
+
+    test('добавляет id через двоеточие', () => {
+      expect(story.cb('complete', 'uuid-1', 'uuid-2')).toBe(
+        'test_story:complete:uuid-1:uuid-2',
+      );
     });
 
     test('работает с пустым действием', () => {
       expect(story.cb('')).toBe('test_story:');
+    });
+
+    test('без id — только storyName:action', () => {
+      expect(story.cb('view')).toBe('test_story:view');
+    });
+  });
+
+  describe('cbFor', () => {
+    test('кросс-стори колбэк: targetStory:action (без префикса контроллера)', () => {
+      expect(story.cbFor('view-stream', 'view')).toBe('view-stream:view');
+    });
+
+    test('кросс-стори с id', () => {
+      expect(story.cbFor('monitor', 'detail', 'student-uuid')).toBe(
+        'monitor:detail:student-uuid',
+      );
+    });
+
+    test('кросс-стори с несколькими id', () => {
+      expect(story.cbFor('monitor', 'history', 'id1', 'id2')).toBe(
+        'monitor:history:id1:id2',
+      );
     });
   });
 
@@ -99,51 +127,6 @@ describe('BotUserStory', () => {
       expect(story.stripPrefix('test_story_extra:action')).toBe(
         'test_story_extra:action',
       );
-    });
-  });
-
-  describe('shrink / expand', () => {
-    test('shrink использует первые 8 символов значения как ключ', () => {
-      const key = story.shrink('очень длинное значение');
-      // Берутся первые 8 символов строки
-      expect(key).toBe('очень дл');
-    });
-
-    test('expand восстанавливает значение по ключу', () => {
-      const key = story.shrink('значение');
-      expect(story.expand(key)).toBe('значение');
-    });
-
-    test('shrink: разные значения с разным префиксом дают разные ключи', () => {
-      const key1 = story.shrink('abcdefgh');
-      const key2 = story.shrink('bbcdefgh');
-      expect(key1).not.toBe(key2);
-    });
-
-    test('shrink: коллизия по префиксу добавляет суффикс', () => {
-      // Два значения с одинаковыми первыми 8 символами
-      const key1 = story.shrink('12345678-aaaa');
-      const key2 = story.shrink('12345678-bbbb');
-      // Второй ключ должен отличаться от первого (добавлен суффикс)
-      expect(key1).toBe('12345678');
-      expect(key2).not.toBe(key1);
-      expect(key2).toMatch(/^12345678-/);
-    });
-
-    test('expand возвращает undefined для неизвестного ключа', () => {
-      expect(story.expand('unknown')).toBeUndefined();
-    });
-  });
-
-  describe('reset', () => {
-    test('очищает shortIds', () => {
-      const key1 = story.shrink('value1');
-      const key2 = story.shrink('value2');
-      expect(story.expand(key1)).toBe('value1');
-
-      story.reset();
-      expect(story.expand(key1)).toBeUndefined();
-      expect(story.expand(key2)).toBeUndefined();
     });
   });
 

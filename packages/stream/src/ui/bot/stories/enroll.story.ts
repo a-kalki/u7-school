@@ -35,7 +35,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     const dateStr = this.formatDate(stream.startDate);
 
     const lines = [
-      '🎉 *Вы успешно записаны на поток!*',
+      '🎉 *Вы успешно записаны на поток\\!*',
       '',
       `📋 _${this.escapeMarkdown(stream.title)}_`,
       `📅 Обучение начнётся: ${this.escapeMarkdown(dateStr)}`,

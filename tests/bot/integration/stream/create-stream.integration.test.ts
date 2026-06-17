@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { BotRouter } from '@u7-scl/core/ui';
+import {  BotRouter , assertBotResponseValid } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -10,9 +10,9 @@ import { createTestApp } from '../../helpers/test-app';
  * US-6: Создание потока (wizard).
  *
  * Покрытие:
- * - Ментор → видит «Панель ментора» в меню
- * - Гость → НЕ видит «Панель ментора»
- * - Студент → НЕ видит «Панель ментора»
+ * - Ментор → видит «Создать поток» в меню
+ * - Гость → НЕ видит «Создать поток»
+ * - Студент → НЕ видит «Создать поток»
  * - Полный wizard: старт → выбор модуля → название → описание → дата → группа → превью → подтверждение
  * - Wizard: кнопка «Изменить» на превью → перезапуск
  * - Wizard: /cancel → отмена создания
@@ -44,19 +44,19 @@ describe('CreateStreamStory e2e', () => {
   // Главное меню
   // ═══════════════════════════════════════════
 
-  test('ментор видит «Панель ментора» в главном меню', async () => {
+  test('ментор видит «Создать поток» в главном меню', async () => {
     const items = await router.collectMainMenu(mentor);
-    expect(items.some((i) => i.text.includes('Панель ментора'))).toBe(true);
+    expect(items.some((i) => i.text.includes('Создать поток'))).toBe(true);
   });
 
-  test('гость НЕ видит «Панель ментора»', async () => {
+  test('гость НЕ видит «Создать поток»', async () => {
     const items = await router.collectMainMenu(guest);
-    expect(items.some((i) => i.text.includes('Панель ментора'))).toBe(false);
+    expect(items.some((i) => i.text.includes('Создать поток'))).toBe(false);
   });
 
-  test('студент НЕ видит «Панель ментора»', async () => {
+  test('студент НЕ видит «Создать поток»', async () => {
     const items = await router.collectMainMenu(student);
-    expect(items.some((i) => i.text.includes('Панель ментора'))).toBe(false);
+    expect(items.some((i) => i.text.includes('Создать поток'))).toBe(false);
   });
 
   // ═══════════════════════════════════════════
@@ -64,22 +64,16 @@ describe('CreateStreamStory e2e', () => {
   // ═══════════════════════════════════════════
 
   test('полный wizard: все шаги до успешного создания', async () => {
-    // Шаг 0: старт
+    // Шаг 0: старт wizard-а — сразу показывает список модулей для выбора
     const r0 = await router.handleCallback(
       'stream:create-stream:start',
       mentor,
       session,
     );
-    expect(r0.sendMessage?.text).toContain('Создание нового потока');
+    assertBotResponseValid(r0);
+    expect(r0.sendMessage?.text).toContain('Выберите модуль');
+    expect(r0.sendMessage?.keyboard).toBeDefined();
     expect(session.activeHandler).not.toBeNull();
-
-    // Шаг 0: загрузка модулей
-    const rMod = await router.handleMessage(
-      { type: 'message', text: 'x', telegramId: 1004 },
-      mentor,
-      session,
-    );
-    expect(rMod?.sendMessage?.text).toContain('Выберите модуль');
 
     // Шаг 1: выбор модуля
     const moduleId = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
@@ -88,6 +82,7 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(r1);
     expect(r1.sendMessage?.text).toContain('название потока');
 
     // Шаг 2: название
@@ -96,6 +91,7 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(r2);
     expect(r2?.sendMessage?.text).toContain('описание');
 
     // Шаг 3: описание
@@ -104,6 +100,7 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(r3);
     expect(r3?.sendMessage?.text).toContain('дату старта');
 
     // Шаг 4: дата
@@ -112,7 +109,8 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
-    expect(r4?.sendMessage?.text).toContain('ссылку на Telegram-группу');
+    assertBotResponseValid(r4);
+    expect(r4?.sendMessage?.text).toContain('ссылку на Telegram\\-группу');
 
     // Шаг 5: группа → превью
     const r5 = await router.handleMessage(
@@ -120,6 +118,7 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(r5);
     expect(r5?.sendMessage?.text).toContain('Превью');
     expect(r5?.sendMessage?.text).toContain('Тестовый поток');
 
@@ -134,6 +133,7 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(r6);
     expect(r6.sendMessage?.text).toContain('успешно создан');
     expect(session.activeHandler).toBeNull();
   });
@@ -149,6 +149,7 @@ describe('CreateStreamStory e2e', () => {
 
     // Отменяем
     const cancelResp = await router.handleCancel(mentor, session);
+    assertBotResponseValid(cancelResp);
     expect(cancelResp?.sendMessage?.text).toContain('отменен');
     expect(session.activeHandler).toBeNull();
   });
@@ -156,11 +157,6 @@ describe('CreateStreamStory e2e', () => {
   test('кнопка «Изменить» на превью перезапускает wizard', async () => {
     // Доходим до превью
     await router.handleCallback('stream:create-stream:start', mentor, session);
-    await router.handleMessage(
-      { type: 'message', text: 'x', telegramId: 1004 },
-      mentor,
-      session,
-    );
     await router.handleCallback(
       'stream:create-stream:module:a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0',
       mentor,
@@ -193,6 +189,7 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
-    expect(changeResp.sendMessage?.text).toContain('Создание нового потока');
+    assertBotResponseValid(changeResp);
+    expect(changeResp.sendMessage?.text).toContain('Выберите модуль');
   });
 });

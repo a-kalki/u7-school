@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { StreamController } from './stream-controller';
 
@@ -90,7 +91,7 @@ describe('StreamController (реестр)', () => {
 
     const texts = items.map((i) => i.text);
     expect(texts).toContain('📚 Наши потоки');
-    expect(texts).toContain('🛠️ Панель ментора');
+    expect(texts).toContain('🛠️ Создать поток');
   });
 
   test('handleStart сортирует по priority', async () => {
@@ -115,6 +116,7 @@ describe('StreamController (реестр)', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response1);
     expect(response1.sendMessage?.text).toBeDefined();
 
     const response2 = await controller.handleCallback(
@@ -122,6 +124,7 @@ describe('StreamController (реестр)', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response2);
     expect(response2.sendMessage?.text).toBeDefined();
   });
 
@@ -134,6 +137,7 @@ describe('StreamController (реестр)', () => {
       guestActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Неизвестная');
   });
 });

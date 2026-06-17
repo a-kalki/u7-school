@@ -24,7 +24,7 @@ console.log(greet('Айжан'));
 console.log(greet('Данияр'));
 
 // Без параметров — пустые скобки обязательны
-const getYear = () => 2026;
+const getYear = () => new Date().getFullYear();
 console.log(getYear());
 
 // Стрелочная с телом из нескольких строк

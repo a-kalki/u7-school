@@ -1,7 +1,7 @@
 [
   {
     "uuid": "e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0",
-    "title": "JS Core — Поток 1 (Набор)",
+    "title": "JS Core — Поток 1",
     "description": "Первый поток по JavaScript для начинающих. Идёт набор студентов.",
     "mentorId": "44444444-4444-4444-4444-444444444444",
     "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
@@ -39,7 +39,7 @@
   },
   {
     "uuid": "e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1",
-    "title": "JS Core — Поток 2 (Активный)",
+    "title": "JS Core — Поток 2",
     "description": "Второй поток по JavaScript. Обучение уже идёт.",
     "mentorId": "44444444-4444-4444-4444-444444444444",
     "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",

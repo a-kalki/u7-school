@@ -89,7 +89,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       rows.push([
         {
           text: `${bar} ${pct}% — ${name}${lagging}`,
-          code: `monitor:detail:${s.uuid}`,
+          code: this.cbFor('monitor', 'detail', s.uuid),
         },
       ]);
     }
@@ -172,17 +172,17 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         [
           {
             text: '✉️ Написать',
-            code: `monitor:message:${student.userId}`,
+            code: this.cbFor('monitor', 'message', student.userId),
           },
           {
             text: '📁 История шагов',
-            code: `monitor:history:${studentId}`,
+            code: this.cbFor('monitor', 'history', studentId),
           },
         ],
         [
           {
             text: '⬅️ Назад к списку',
-            code: `monitor:students:${student.streamId}`,
+            code: this.cbFor('monitor', 'students', student.streamId),
           },
         ],
       ],

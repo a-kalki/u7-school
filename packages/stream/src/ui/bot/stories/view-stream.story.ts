@@ -5,7 +5,6 @@ import type {
   KeyboardDescription,
   SessionData,
 } from '@u7-scl/core/ui';
-import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Stream } from '../../../domain/stream/entity';
 import { StreamPolicy } from '../../../domain/stream/policy';
@@ -126,14 +125,14 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (!snapshot || snapshot.length === 0) {
       return {
         sendMessage: {
-          text: '📖 *Программа курса*\n\nПрограмма пока не загружена\.',
+          text: '📖 *Программа курса*\n\nПрограмма пока не загружена\\.',
           parseMode: 'MarkdownV2',
           keyboard: {
             rows: [
               [
                 {
                   text: '⬅️ Назад к потоку',
-                  code: `view-stream:view:${streamId}`,
+                  code: this.cbFor('view-stream', 'view', streamId),
                 },
               ],
             ],
@@ -161,7 +160,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
             [
               {
                 text: '⬅️ Назад к потоку',
-                code: `view-stream:view:${streamId}`,
+                code: this.cbFor('view-stream', 'view', streamId),
               },
             ],
           ],
@@ -173,8 +172,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
-    const isOwnerMentor =
-      UserPolicy.isMentor(actor) && StreamPolicy.isMentor(actor, stream);
+    const isOwnerMentor = StreamPolicy.canEdit(actor, stream);
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     // ── Менторские кнопки (только владелец потока с ролью MENTOR) ──
@@ -183,7 +181,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         rows.push([
           {
             text: '🚀 Запустить',
-            code: `activate-stream:activate:${stream.uuid}`,
+            code: this.cbFor('activate-stream', 'activate', stream.uuid),
           },
         ]);
       }
@@ -192,7 +190,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         rows.push([
           {
             text: '✅ Завершить',
-            code: `view-stream:complete:${stream.uuid}`,
+            code: this.cbFor('view-stream', 'complete', stream.uuid),
           },
         ]);
       }
@@ -200,14 +198,14 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       rows.push([
         {
           text: '👥 Студенты',
-          code: `monitor:students:${stream.uuid}`,
+          code: this.cbFor('monitor', 'students', stream.uuid),
         },
       ]);
 
       rows.push([
         {
           text: '📁 В архив',
-          code: `view-stream:archive:${stream.uuid}`,
+          code: this.cbFor('view-stream', 'archive', stream.uuid),
         },
       ]);
     }
@@ -219,7 +217,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         rows.push([
           {
             text: '📝 Записаться',
-            code: `enroll:enroll:${stream.uuid}`,
+            code: this.cbFor('enroll', 'enroll', stream.uuid),
           },
         ]);
       }
@@ -229,7 +227,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         rows.push([
           {
             text: '📖 Программа курса',
-            code: `view-stream:program:${stream.uuid}`,
+            code: this.cbFor('view-stream', 'program', stream.uuid),
           },
         ]);
       }
@@ -239,7 +237,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         rows.push([
           {
             text: '🔔 Уведомить о наборе',
-            code: `view-stream:notify:${stream.uuid}`,
+            code: this.cbFor('view-stream', 'notify', stream.uuid),
           },
         ]);
       }
@@ -249,7 +247,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     rows.push([
       {
         text: '⬅️ Назад к списку',
-        code: 'catalog:list',
+        code: this.cbFor('catalog', 'list'),
       },
     ]);
 
@@ -262,7 +260,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     await this.moduleApi.execute('complete-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
-        text: '✅ *Поток завершён\!* Обучение окончено\.',
+        text: '✅ *Поток завершён\\!* Обучение окончено\\.',
         parseMode: 'MarkdownV2',
       },
     };
@@ -272,7 +270,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     await this.moduleApi.execute('archive-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
-        text: '📁 *Поток перемещён в архив\.*',
+        text: '📁 *Поток перемещён в архив\\.*',
         parseMode: 'MarkdownV2',
       },
     };

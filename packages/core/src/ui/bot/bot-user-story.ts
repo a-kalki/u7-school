@@ -12,6 +12,9 @@ import type {
  * Абстрактный класс для пользовательского сценария внутри контроллера.
  * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
  *
+ * Story оперирует только реальными данными. Контроллер владеет сжатием id
+ * и префиксом имени — story не знает ни того, ни другого.
+ *
  * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
  * @typeParam TModuleMeta — тип метаданных модуля, к которому принадлежит сценарий
  * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
@@ -30,9 +33,6 @@ export abstract class BotUserStory<
   /** API приложения — для вызовов к другим модулям */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** Хранилище для сжатия длинных callback_data */
-  protected readonly shortIds = new Map<string, string>();
-
   /**
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API модуля и API приложения.
@@ -42,10 +42,8 @@ export abstract class BotUserStory<
     this.appApi = appApi;
   }
 
-  /** Сброс временных данных сценария */
-  reset(): void {
-    this.shortIds.clear();
-  }
+  /** Сброс временных данных сценария (переопределяется при необходимости) */
+  reset(): void {}
 
   /** Обработка callback — абстрактный, реализуется в наследниках */
   abstract handleCallback(
@@ -94,9 +92,34 @@ export abstract class BotUserStory<
     };
   }
 
-  /** Генерирует callback_data с префиксом сценария */
-  protected cb(action: string): string {
-    return `${this.name}:${action}`;
+  // ── Формирование callback_data (только реальные данные, без сжатия) ──
+
+  /**
+   * Колбэк для своей стори.
+   * Возвращает `storyName:action[:id...]` — БЕЗ префикса контроллера, БЕЗ сжатия.
+   * Контроллер добавит префикс и сожмёт id при отправке.
+   *
+   * @param action — имя действия (view, list, complete, ...)
+   * @param ids — реальные значения id (UUID, ключи)
+   */
+  protected cb(action: string, ...ids: string[]): string {
+    return [this.name, action, ...ids].join(':');
+  }
+
+  /**
+   * Кросс-стори колбэк: кнопка, ведущая в другую стори того же контроллера.
+   * Возвращает `targetStoryName:action[:id...]` — БЕЗ префикса контроллера, БЕЗ сжатия.
+   *
+   * @param storyName — имя целевой стори
+   * @param action — имя действия
+   * @param ids — реальные значения id
+   */
+  protected cbFor(
+    storyName: string,
+    action: string,
+    ...ids: string[]
+  ): string {
+    return [storyName, action, ...ids].join(':');
   }
 
   /** Убирает префикс сценария из callback_data */
@@ -106,28 +129,6 @@ export abstract class BotUserStory<
       return data.slice(prefix.length);
     }
     return data;
-  }
-
-  /**
-   * Сжимает и возвращает длинное значение в короткий ключ для callback_data.
-   * Использует первые 8 символов значения (для UUID — первый сегмент).
-   * При коллизии (разные значения с одинаковым префиксом) добавляет цифровой суффикс.
-   */
-  protected shrink(value: string): string {
-    let key = value.slice(0, 8);
-
-    const existing = this.shortIds.get(key);
-    if (existing !== undefined && existing !== value) {
-      key = `${key}-${this.shortIds.size}`;
-    }
-
-    this.shortIds.set(key, value);
-    return key;
-  }
-
-  /** Восстанавливает значение по короткому ключу */
-  protected expand(key: string): string | undefined {
-    return this.shortIds.get(key);
   }
 
   /**

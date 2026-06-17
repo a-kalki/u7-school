@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { Logger } from '@u7-scl/core/shared';
 import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
-import { BotController, BotRouter } from '@u7-scl/core/ui';
+import {  BotController, BotRouter , assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';

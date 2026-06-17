@@ -12,4 +12,4 @@ export {
 export { escapeMarkdown } from './markdown';
 export { assertMarkdownV2Safe, validateMarkdownV2 } from './markdown-validator';
 export type { MarkdownIssue, MarkdownValidationResult } from './markdown-validator';
-export { stringUtility } from './string-utility';
+export { serializeError } from './serialize-error';

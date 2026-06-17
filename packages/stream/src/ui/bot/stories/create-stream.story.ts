@@ -54,6 +54,11 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleConfirm(actor, session);
     }
 
+    // Пропуск необязательного поля (группа)
+    if (action === 'skip-group') {
+      return this.#handleSkipGroup(session);
+    }
+
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
@@ -118,7 +123,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   override async handleStart(actor: User): Promise<MainMenuAction | null> {
     if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) {
       return {
-        text: '🛠️ Панель ментора',
+        text: '🛠️ Создать поток',
         action: this.cb('start'),
         priority: 30,
       };
@@ -128,24 +133,17 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Приватные шаги wizard-а ──
 
-  #startWizard(): BotResponse {
-    return {
-      sendMessage: {
-        text: '🆕 *Создание нового потока*\n\nЗагружаю список ваших модулей\.\.\.',
-        parseMode: 'MarkdownV2',
-      },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: {
-          step: 0,
-          moduleId: '',
-          title: '',
-          description: '',
-          startDate: '',
-          telegramGroupId: '',
-        } satisfies CreateStreamWizardContext,
-      },
-    };
+  async #startWizard(): Promise<BotResponse> {
+    // Сразу загружаем список модулей и показываем клавиатуру выбора,
+    // без лишнего промежуточного шага с ожиданием текстового ввода.
+    return this.#handleModuleMessage({
+      step: 0,
+      moduleId: '',
+      title: '',
+      description: '',
+      startDate: '',
+      telegramGroupId: '',
+    });
   }
 
   async #handleModuleMessage(
@@ -242,7 +240,8 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   ): BotResponse {
     return {
       sendMessage: {
-        text: '📅 Введите дату старта в формате YYYY-MM-DD:',
+        text: '📅 Введите дату старта в формате `YYYY\\-MM\\-DD` или дату время `YYYY\\-MM\\-DDTHH:MM`',
+        parseMode: 'MarkdownV2',
       },
       captureInput: {
         path: WIZARD_PATH,
@@ -252,13 +251,20 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   #handleDateInput(ctx: CreateStreamWizardContext, text: string): BotResponse {
+    // Если дата без времени — автоматически добавляем T00:00
+    const normalizedDate = text.includes('T') ? text : `${text}T00:00`;
     return {
       sendMessage: {
-        text: '🔗 Введите ссылку на Telegram-группу потока:',
+        text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
+          isMultiple: false,
+        },
       },
       captureInput: {
         path: WIZARD_PATH,
-        context: { ...ctx, step: 4, startDate: text },
+        context: { ...ctx, step: 4, startDate: normalizedDate },
       },
     };
   }
@@ -274,6 +280,21 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       telegramGroupId: text,
     };
 
+    return this.#showPreview(fullCtx);
+  }
+
+  #handleSkipGroup(session: SessionData): BotResponse {
+    const ctx = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) {
+      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
+    }
+    const fullCtx: CreateStreamWizardContext = {
+      ...ctx,
+      step: 5,
+      telegramGroupId: '',
+    };
     return this.#showPreview(fullCtx);
   }
 
@@ -343,7 +364,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     return {
       releaseInput: true,
       sendMessage: {
-        text: '✅ *Поток успешно создан\!*',
+        text: '✅ *Поток успешно создан\\!*',
         parseMode: 'MarkdownV2',
       },
     };

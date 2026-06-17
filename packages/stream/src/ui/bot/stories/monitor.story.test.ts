@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { MonitorStory } from './monitor.story';
@@ -67,6 +68,7 @@ describe('MonitorStory', () => {
     story.init(moduleApi, appApi);
 
     const response = await story.handleCallback('students:s1', actor, session);
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Студенты');
     // Прогресс теперь в кнопках
@@ -139,6 +141,7 @@ describe('MonitorStory', () => {
     story.init(moduleApi, appApi);
 
     const response = await story.handleCallback('students:s1', actor, session);
+    assertResponseMarkdownSafe(response);
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -220,6 +223,7 @@ describe('MonitorStory', () => {
     story.init(moduleApi, appApi);
 
     const response = await story.handleCallback('detail:st1', actor, session);
+    assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Иван Иванов');

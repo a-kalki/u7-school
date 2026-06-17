@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { LearningStory } from './learning.story';
@@ -78,6 +79,7 @@ describe('LearningStory', () => {
       studentActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Python');
     expect(response.sendMessage?.text).toContain('Моя учёба');
@@ -101,6 +103,7 @@ describe('LearningStory', () => {
       studentActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('не записаны');
   });
@@ -121,6 +124,7 @@ describe('LearningStory', () => {
       studentActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Шаг выполнен');
   });
@@ -147,6 +151,7 @@ describe('LearningStory', () => {
       studentActor,
       session,
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Введение');
     expect(response.sendMessage?.text).toContain('Переменные');

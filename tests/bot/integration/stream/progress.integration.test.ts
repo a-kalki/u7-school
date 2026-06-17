@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { BotRouter } from '@u7-scl/core/ui';
+import {  BotRouter , assertBotResponseValid } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -42,6 +42,7 @@ describe('ProgressStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
 
@@ -62,6 +63,7 @@ describe('ProgressStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     // В начале обучения — 0 выполненных шагов

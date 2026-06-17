@@ -6,6 +6,7 @@ import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type { SendMessageDescription, SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { UserJsonRepo } from '@u7-scl/user/infra';
 import { OnboardingApiModule } from '#api/module';
@@ -152,6 +153,7 @@ describe('OnboardingController', () => {
       actor,
       emptySession(),
     );
+    assertResponseMarkdownSafe(response);
 
     // Приветствие + первый вопрос через sendMessages
     const messages = response.sendMessages as SendMessageDescription[];
@@ -179,6 +181,7 @@ describe('OnboardingController', () => {
       actor,
       emptySession(),
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Первый вопрос');
     expect(response.sendMessage?.keyboard).toBeDefined();
@@ -198,6 +201,7 @@ describe('OnboardingController', () => {
       actor,
       capSession(1),
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Спасибо');
     expect(response.questionnaireCompleted).toBe(true);
@@ -214,6 +218,7 @@ describe('OnboardingController', () => {
 
     // Прерываем
     const response = await controller.handleCancel(actor, capSession(1));
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('прервана');
     expect(response.sendMessage?.text).toContain('Заполнить анкету');
@@ -227,12 +232,14 @@ describe('OnboardingController', () => {
       actor,
       emptySession(),
     );
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text.toLowerCase()).toContain('неизвестное');
   });
 
   test('cancel без активной анкеты — просто releaseInput', async () => {
     const response = await controller.handleCancel(actor, emptySession());
+    assertResponseMarkdownSafe(response);
 
     expect(response.releaseInput).toBe(true);
     expect(response.sendMessage).toBeUndefined();
@@ -289,6 +296,7 @@ describe('OnboardingController', () => {
       actor2,
       capSession(42),
     );
+    assertResponseMarkdownSafe(response);
 
     // Edit: должен содержать текст первого вопроса с [x] на 'Да' и БЕЗ клавиатуры
     expect(response.editMessage).toBeDefined();
@@ -352,6 +360,7 @@ describe('OnboardingController', () => {
       actor2,
       capSession(10),
     );
+    assertResponseMarkdownSafe(response);
 
     // Send — новый вопрос, edit — старый. Текст нового вопроса НЕ должен быть в edit
     const editMessage = response.editMessage as MessageDescription & {
@@ -418,6 +427,7 @@ describe('OnboardingController', () => {
       actor2,
       capSession(55),
     );
+    assertResponseMarkdownSafe(response);
 
     // Edit: предыдущий вопрос с [x] на 'a', БЕЗ клавиатуры
     const editMessage = response.editMessage as MessageDescription & {
@@ -478,6 +488,7 @@ describe('OnboardingController', () => {
       actor2,
       capSession(77),
     );
+    assertResponseMarkdownSafe(response);
 
     // Edit предыдущего сообщения: последний вопрос с [x], без клавиатуры
     const editMessage = response.editMessage as MessageDescription & {
@@ -542,6 +553,7 @@ describe('OnboardingController', () => {
       actor2,
       capSession(33),
     );
+    assertResponseMarkdownSafe(response);
 
     // Edit должен быть (wait_next — редактируем текущее сообщение)
     const editMessage = response.editMessage as MessageDescription & {
@@ -604,6 +616,7 @@ describe('OnboardingController', () => {
       actor2,
       emptySession(),
     );
+    assertResponseMarkdownSafe(response);
 
     // sendMessage с текущим вопросом и клавиатурой
     expect(response.editMessage).toBeUndefined();

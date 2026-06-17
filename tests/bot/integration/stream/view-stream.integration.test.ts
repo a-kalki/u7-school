@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { BotRouter } from '@u7-scl/core/ui';
+import {  BotRouter , assertBotResponseValid } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -60,6 +60,7 @@ describe('ViewStreamStory e2e', () => {
       guest,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('JS Core');
@@ -79,6 +80,7 @@ describe('ViewStreamStory e2e', () => {
       guest,
       session,
     );
+    assertBotResponseValid(response);
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -92,6 +94,7 @@ describe('ViewStreamStory e2e', () => {
       guest,
       session,
     );
+    assertBotResponseValid(response);
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -111,6 +114,7 @@ describe('ViewStreamStory e2e', () => {
       candidate,
       session,
     );
+    assertBotResponseValid(response);
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -127,6 +131,7 @@ describe('ViewStreamStory e2e', () => {
       student,
       session,
     );
+    assertBotResponseValid(response);
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -143,6 +148,7 @@ describe('ViewStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(response);
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -158,6 +164,7 @@ describe('ViewStreamStory e2e', () => {
       mentor,
       session,
     );
+    assertBotResponseValid(response);
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -176,6 +183,7 @@ describe('ViewStreamStory e2e', () => {
       guest,
       session,
     );
+    assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Программа курса');

@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { ActivateStreamStory } from './activate-stream.story';
@@ -27,6 +28,7 @@ describe('ActivateStreamStory', () => {
     story.init(moduleApi, appApi);
 
     const response = await story.handleCallback('activate:s1', actor, session);
+    assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('запущен');
     expect(response.sendMessage?.text).toContain('Моя учёба');

@@ -30,7 +30,7 @@ function countChar(text, char = ' ') {
   return count;
 }
 
-const msg = 'Астана — столица Казахстана';
+const msg = 'Астана - столица Казахстана';
 console.log(countChar(msg));
 console.log(countChar(msg, 'а'));
 console.log(countChar(msg, '-'));

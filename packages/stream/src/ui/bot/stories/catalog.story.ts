@@ -65,7 +65,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     const rows = streams.map((s) => [
       {
         text: `${statusEmoji[s.status] ?? '❓'} ${this.escapeMarkdown(s.title)}`,
-        code: `view-stream:view:${s.uuid}`,
+        code: this.cbFor('view-stream', 'view', s.uuid),
       },
     ]);
 

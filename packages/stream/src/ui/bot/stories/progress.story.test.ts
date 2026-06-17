@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { ProgressStory } from './progress.story';
@@ -70,6 +71,7 @@ describe('ProgressStory', () => {
     story.init(moduleApi, appApi);
 
     const response = await story.handleCallback('progress:s1', actor, session);
+    assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Прогресс');
