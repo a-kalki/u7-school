@@ -42,10 +42,17 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
         )
       : undefined;
 
-    await ctx.reply(send.text, {
+    const sent = await ctx.reply(send.text, {
       reply_markup: keyboard,
       parse_mode: send.parseMode,
     });
+    // А2: сохраняем последнее отправленное сообщение в сессию
+    ctx.session.lastBotMessage = {
+      text: send.text,
+      keyboard: send.keyboard,
+      parseMode: send.parseMode,
+      messageId: sent.message_id,
+    };
   }
 }
 

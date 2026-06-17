@@ -39,6 +39,8 @@ export interface SessionData {
     context?: unknown;
     expiresAt?: number;
   } | null;
+  /** Последнее отправленное ботом сообщение (для удаления клавиатуры и т.п.) */
+  lastBotMessage?: SendMessageDescription & { messageId: number };
 }
 
 /** Элемент главного меню бота */
