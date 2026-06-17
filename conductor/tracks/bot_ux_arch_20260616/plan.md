@@ -2,12 +2,12 @@
 
 ## Фаза 1: Хранение предыдущего сообщения (А2)
 
-- [ ] Task: Добавить `lastBotMessage` в `SessionData`
-    - [ ] Добавить поле `lastBotMessage?: SendMessageDescription & { messageId: number }` в тип `SessionData`
-    - [ ] Тест: `executeResponses` сохраняет полный `SendMessageDescription` + `messageId` в сессию при `sendMessage`
-    - [ ] Тест: при `sendMessages` сохраняется id последнего сообщения
-    - [ ] Тест: при `editMessage` lastBotMessage не меняется
-    - [ ] Реализовать сохранение в `executeResponses()`
+- [x] Task: Добавить `lastBotMessage` в `SessionData` [0edb34e]
+    - [x] Добавить поле `lastBotMessage?: SendMessageDescription & { messageId: number }` в тип `SessionData`
+    - [x] Тест: `executeResponses` сохраняет полный `SendMessageDescription` + `messageId` в сессию при `sendMessage`
+    - [x] Тест: при `sendMessages` сохраняется id последнего сообщения
+    - [x] Тест: при `editMessage` lastBotMessage не меняется
+    - [x] Реализовать сохранение в `executeResponses()`
 - [ ] Task: Conductor — Ручная верификация «Фаза 1»
 
 ## Фаза 2: Удаление старых кнопок (А1)
