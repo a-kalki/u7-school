@@ -1,0 +1,8 @@
+**Задача:** Добавить sendDelayMs в BotResponse (А4)
+
+**Изменения:**
+- packages/core/src/ui/bot/types.ts: поле sendDelayMs?: number в BotResponse
+- apps/u7-bot/src/ui-utils.ts: sleep() между сообщениями в цикле sendMessages, дефолт 1000мс
+- apps/u7-bot/src/ui-utils.test.ts: 3 теста — пользовательская задержка, дефолт 1000мс, sendDelayMs: 0
+
+**Причина:** несколько сообщений подряд должны приходить с паузой для комфортного чтения.
