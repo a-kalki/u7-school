@@ -20,7 +20,7 @@
     - [x] Реализовать в `executeResponses()`
 - [ ] Task: Conductor — Ручная верификация «Фаза 2»
 
-## Фаза 3: Задержка `sendMessages` (А4)
+## Фаза 3: Задержка `sendMessages` (А4) [checkpoint: 3d16a0f]
 
 - [x] Task: Добавить `sendDelayMs` в `BotResponse` [57e14a8]
     - [x] Добавить поле `sendDelayMs?: number` в тип `BotResponse`
