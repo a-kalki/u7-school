@@ -10,7 +10,7 @@
     - [x] Реализовать сохранение в `executeResponses()`
 - [ ] Task: Conductor — Ручная верификация «Фаза 1»
 
-## Фаза 2: Удаление старых кнопок (А1)
+## Фаза 2: Удаление старых кнопок (А1) [checkpoint: f70553e]
 
 - [x] Task: Добавить `removePrevKeyboard` в `BotResponse` [9d595bd]
     - [x] Добавить поле `removePrevKeyboard?: boolean` в тип `BotResponse`
