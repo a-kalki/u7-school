@@ -3,8 +3,8 @@
 ## Фаза 1: Хранение предыдущего сообщения (А2)
 
 - [ ] Task: Добавить `lastBotMessage` в `SessionData`
-    - [ ] Добавить поле `lastBotMessage?: { messageId: number; text: string }` в тип `SessionData`
-    - [ ] Тест: `executeResponses` сохраняет messageId и текст в сессию при `sendMessage`
+    - [ ] Добавить поле `lastBotMessage?: SendMessageDescription & { messageId: number }` в тип `SessionData`
+    - [ ] Тест: `executeResponses` сохраняет полный `SendMessageDescription` + `messageId` в сессию при `sendMessage`
     - [ ] Тест: при `sendMessages` сохраняется id последнего сообщения
     - [ ] Тест: при `editMessage` lastBotMessage не меняется
     - [ ] Реализовать сохранение в `executeResponses()`

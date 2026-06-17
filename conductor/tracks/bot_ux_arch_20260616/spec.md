@@ -11,10 +11,10 @@
 - Механизм создаётся, но в этом треке НЕ применяется к конкретным story (например, «Моя учёба»). Применение — в следующих треках.
 
 ### А2. Хранение предыдущего сообщения в контексте
-- В `SessionData` добавляется поле `lastBotMessage?: { messageId: number; text: string }`.
-- `executeResponses()` при отправке (`ctx.reply()`) сохраняет `message_id` и `text` последнего отправленного сообщения в `ctx.session.lastBotMessage`.
+- В `SessionData` добавляется поле `lastBotMessage?: SendMessageDescription & { messageId: number }`.
+- `executeResponses()` при отправке (`ctx.reply()`) сохраняет `SendMessageDescription` + `message_id` последнего отправленного сообщения в `ctx.session.lastBotMessage`.
 - При `editMessage` — lastBotMessage не обновляется.
-- При `sendMessages` (массив) — сохраняется id последнего.
+- При `sendMessages` (массив) — сохраняется последнее.
 
 ### А3. Отключение экранирования кнопок (конвенция)
 - Текст кнопок в `KeyboardDescription.rows[].text` — всегда plain text. Telegram не парсит MarkdownV2 в кнопках, экранирование не нужно и портит отображение.
@@ -36,7 +36,7 @@
 - Документация обновляется после завершения трека.
 
 ## Критерии приёмки
-- `SessionData.lastBotMessage` корректно сохраняется при отправке сообщений.
+- `SessionData.lastBotMessage` сохраняет полный `SendMessageDescription` + `messageId` последнего сообщения.
 - При `removePrevKeyboard: true` клавиатура предыдущего сообщения убирается, текст остаётся.
 - `sendMessages` приходят с паузой 1000 мс (или с заданной в `sendDelayMs`).
 - Кнопки во всех story показываются без бэкслешей (без ручного `escapeMarkdown`).
