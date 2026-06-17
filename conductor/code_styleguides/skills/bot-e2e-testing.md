@@ -180,7 +180,26 @@ expect(response.sendMessage?.text).toBe('📚 *Потоки школы*\n\n...')
 
 ---
 
-## 8. Запуск
+## 8. Валидация MarkdownV2
+
+Каждый `BotResponse` в e2e-тесте **обязан** проходить проверку на
+неэкранированные символы MarkdownV2. После получения ответа от роутера
+или контроллера добавляй:
+
+```typescript
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+
+const response = await router.handleCallback(...);
+assertResponseMarkdownSafe(response);
+```
+
+Это ловит ошибки вида «текст с точкой + parseMode: MarkdownV2»,
+которые приводят к `400 Bad Request: can't parse entities` от Telegram.
+Подробнее: [MarkdownV2 в Telegram-боте](../markdown-bot.md).
+
+---
+
+## 9. Запуск
 
 ```bash
 # Все e2e-тесты
@@ -195,7 +214,7 @@ bun test tests/bot-e2e/stories/stream/catalog.e2e.test.ts
 
 ---
 
-## 9. Отладка
+## 10. Отладка
 
 Если тест падает и нужно посмотреть состояние данных — установи переменную окружения:
 
@@ -207,14 +226,14 @@ KEEP_FIXTURES=1 bun test tests/bot-e2e/stories/stream/catalog.e2e.test.ts
 
 ---
 
-## 10. Связанные документы
+## 11. Связанные документы
 
 - [Правила тестирования](../testing.md) — общие принципы
 - [BotUserStory Styleguide](bot-user-story.md) — стиль написания сторис
 - [DDD принципы](../ddd.md) — архитектура слоёв
 - [user-stories.md](../../../packages/stream/src/user-stories.md) — источник истины для сценариев
 
-## 11. Ограничение длины callback_data
+## 12. Ограничение длины callback_data
 
 Telegram ограничивает callback_data **64 байтами**. UUID (36 символов) + префикс контроллера/сторис часто превышают этот лимит.
 

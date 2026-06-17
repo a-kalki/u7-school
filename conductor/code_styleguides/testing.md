@@ -53,12 +53,14 @@ try {
 
 ### UI (Фронтенд)
 - **E2E Тесты:** Выполняются для каждой пользовательской истории (`User Story` / `UseCase`) с внешнего периметра. Основной фокус на удачных сценариях ("Happy Path"). Негативные сценарии добавляются по необходимости при высокой критичности.
+- **MarkdownV2-валидация:** Каждый `BotResponse` в тестах стори, контроллеров и e2e **обязан** проходить `assertResponseMarkdownSafe(response)` из `@u7-scl/core/ui`. См. [MarkdownV2 в Telegram-боте](markdown-bot.md).
 
 Подробный styleguide по e2e-тестам бота: [E2E-тестирование сторис](skills/bot-e2e-testing.md).
 
 ## Связанные документы
 
 - [E2E-тестирование сторис бота](skills/bot-e2e-testing.md) — архитектура и правила e2e-тестов
+- [MarkdownV2 в Telegram-боте](markdown-bot.md) — валидация MarkdownV2 в BotResponse
 - [DDD принципы](ddd.md)
 
 ## Защита от регресса и чистота правок
