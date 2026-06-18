@@ -14,8 +14,8 @@
 - [x] Task: Обновить внутренние импорты в stream `36eefc1`
     - [x] `stream-ds.ts`, `a-root.ts`, `a-root.test.ts`, `entity.test.ts`, `stream-ds.test.ts`
     - [x] `progress.story.ts` — обновить импорт
-- [~] Task: Проверить типы и тесты
-    - [~] `bun run check:p course && bun run check:p stream`
+- [x] Task: Проверить типы и тесты `9293a52`
+    - [x] `bun run check:p course && bun run check:p stream`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Универсальный обработчик ошибок в U7BotUserStory
