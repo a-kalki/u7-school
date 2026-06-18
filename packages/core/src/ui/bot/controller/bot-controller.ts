@@ -1,11 +1,15 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { ApiModule } from '#api/module/api-module';
+import { fromError } from '#domain/errors/error-helpers';
 import type {
   ApiExecutor,
   ApiModuleMeta,
   AppMeta,
   ModuleResolver,
 } from '#domain/types';
+import type { Logger } from '#shared/logger';
+import { getGlobalLogger } from '#shared/logger';
+import { serializeError } from '#shared/serialize-error';
 import type { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -65,47 +69,62 @@ export abstract class BotController<
     }
   }
 
+  /** Логгер — берётся из глобального логгера приложения */
+  protected get logger(): Logger | undefined {
+    return getGlobalLogger();
+  }
+
   // ── Обработчики ──
 
   /**
    * Обработка callback (data без префикса контроллера).
    * Разжимает id, делегирует в стори, сжимает ответ.
+   * Необработанные ошибки стори перехватываются и логируются.
    */
   async handleCallback(
     data: string,
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
-    for (const story of this.stories) {
-      const prefix = `${story.name}:`;
-      if (data.startsWith(prefix)) {
-        const raw = data.slice(prefix.length);
-        const expanded = this.#expandData(raw);
-        const response = await story.handleCallback(expanded, actor, session);
-        return this.#compressResponse(response);
+    try {
+      for (const story of this.stories) {
+        const prefix = `${story.name}:`;
+        if (data.startsWith(prefix)) {
+          const raw = data.slice(prefix.length);
+          const expanded = this.#expandData(raw);
+          const response = await story.handleCallback(expanded, actor, session);
+          return this.#compressResponse(response);
+        }
       }
+      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    } catch (err) {
+      return this.handleError(err);
     }
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
   /**
    * Обработка сообщений (когда контроллер активен через captureInput).
    * Делегирует активной стори по activeHandler.path.
+   * Необработанные ошибки стори перехватываются и логируются.
    */
   async handleMessage(
     update: BotUpdate,
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
-    const activePath = session.activeHandler?.path;
-    if (activePath) {
-      const story = this.#findStoryByPath(activePath);
-      if (story) {
-        const response = await story.handleMessage(update, actor, session);
-        return this.#compressResponse(response);
+    try {
+      const activePath = session.activeHandler?.path;
+      if (activePath) {
+        const story = this.#findStoryByPath(activePath);
+        if (story) {
+          const response = await story.handleMessage(update, actor, session);
+          return this.#compressResponse(response);
+        }
       }
+      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    } catch (err) {
+      return this.handleError(err);
     }
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
   /**
@@ -327,11 +346,27 @@ export abstract class BotController<
     return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
   }
 
+  /**
+   * Универсальный обработчик ошибок на уровне контроллера.
+   * Логирует internal/unauthorized/default ошибки.
+   * Возвращает безопасное пользовательское сообщение (без деталей).
+   */
   protected handleError(err: unknown): BotResponse {
-    const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
+    const appError = fromError(err);
+
+    // Логируем только серьёзные ошибки
+    if (
+      appError.kind === 'internal' ||
+      appError.kind === 'unauthorized' ||
+      appError.kind === 'default'
+    ) {
+      this.logger?.error('bot', 'Необработанная ошибка в контроллере', serializeError(err));
+    }
+
     return {
+      releaseInput: true,
       sendMessage: {
-        text: `⚠️ Произошла ошибка: ${this.escapeMarkdown(message)}`,
+        text: '⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.',
         parseMode: 'MarkdownV2',
       },
     };

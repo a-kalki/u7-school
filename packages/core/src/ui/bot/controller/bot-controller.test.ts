@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
+import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from '../bot-user-story';
@@ -262,6 +263,72 @@ describe('BotController', () => {
 
     test('stripPrefix не трогает чужие префиксы', () => {
       expect(ctrl.stripPrefix('other_ctrl:action')).toBe('other_ctrl:action');
+    });
+  });
+
+  describe('перехват ошибок стори', () => {
+    let mockLogger: Logger & { error: ReturnType<typeof mock> };
+
+    beforeEach(() => {
+      mockLogger = {
+        debug: mock(() => {}),
+        info: mock(() => {}),
+        warn: mock(() => {}),
+        error: mock(() => {}),
+        setLogLevel: mock(() => {}),
+        getLogLevel: mock(() => LogLevel.DEBUG),
+        setSourceLevel: mock(() => {}),
+      } as unknown as Logger & { error: ReturnType<typeof mock> };
+      setGlobalLogger(mockLogger);
+    });
+
+    afterEach(() => {
+      // Сбрасываем
+    });
+
+    test('перехватывает исключение в handleCallback и логирует', async () => {
+      const errorStory = new TestStory('error_story');
+      errorStory.handleCallback = async () => {
+        throw new Error('Бум!');
+      };
+      const c = new TestController();
+      c.addStory(errorStory);
+
+      const result = await c.handleCallback(
+        'error_story:some_action',
+        testActor,
+        { activeHandler: null },
+      );
+
+      // Пользователь видит общее сообщение, не детали
+      assertResponseMarkdownSafe(result);
+      expect(result.sendMessage?.text).toContain('внутренняя ошибка');
+      expect(result.sendMessage?.text).not.toContain('Бум');
+
+      // Ошибка залогирована
+      expect(mockLogger.error).toHaveBeenCalled();
+      const errorCall = (mockLogger.error as ReturnType<typeof mock>).mock.calls[0];
+      expect(errorCall[0]).toBe('bot');
+    });
+
+    test('перехватывает исключение в handleMessage и логирует', async () => {
+      const errorStory = new TestStory('error_story');
+      errorStory.handleMessage = async () => {
+        throw new Error('Бум в сообщении!');
+      };
+      const c = new TestController();
+      c.addStory(errorStory);
+
+      const result = await c.handleMessage(
+        { type: 'message', text: 'привет', telegramId: 123 },
+        testActor,
+        { activeHandler: { path: '/test_ctrl/error_story' } },
+      );
+
+      assertResponseMarkdownSafe(result);
+      expect(result.sendMessage?.text).toContain('внутренняя ошибка');
+      expect(result.sendMessage?.text).not.toContain('Бум в сообщении');
+      expect(mockLogger.error).toHaveBeenCalled();
     });
   });
 });
