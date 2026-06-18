@@ -18,7 +18,7 @@
     - [x] `bun run check:p course && bun run check:p stream`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
-## Фаза 2: Универсальный обработчик ошибок в U7BotUserStory
+## Фаза 2: Универсальный обработчик ошибок в U7BotUserStory [checkpoint: b63c58d]
 - [x] Task: Написать тесты на handleError в U7BotUserStory `b01739b`
     - [x] Тест: validation error → сообщение с полями
     - [x] Тест: not-found/conflict/access-denied → сообщение ошибки
