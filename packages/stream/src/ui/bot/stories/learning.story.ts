@@ -90,20 +90,47 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    return this.#buildStepKeyboard(student, stream, student.currentStepId);
+    return this.#buildStepKeyboard(student, stream, student.currentStepId, student.streamId);
   }
 
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
-    // Формат: complete:<studentId>:<streamId>:<stepId>
-    const [, studentId, streamId, stepId] = action.split(':');
-    if (!studentId || !streamId || !stepId) {
+    // Формат: complete:<streamId>:<stepId>
+    const [, streamId, stepId] = action.split(':');
+    if (!streamId || !stepId) {
       return this.sendUnknownError();
+    }
+
+    // Получаем студента по actor.uuid
+    let student: Student;
+    try {
+      student = await this.moduleApi.execute(
+        'get-student-by-user',
+        { userId: actor.uuid },
+        actor.uuid,
+      );
+    } catch {
+      return {
+        sendMessage: {
+          text: '📖 Вы не записаны ни на один поток',
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
+
+    // Сверяем streamId из callback с потоком студента
+    if (student.streamId !== streamId) {
+      return {
+        sendMessage: {
+          text: '⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\. Пожалуйста, используйте /start для обновления\\.',
+          parseMode: 'MarkdownV2',
+        },
+      };
     }
 
     const result = await this.moduleApi.execute(
       'complete-step',
       {
-        studentId,
+        studentId: student.uuid,
         streamId,
         stepId,
       },
@@ -126,12 +153,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Обычный шаг — сразу показываем клавиатуру следующего шага
-    const student = await this.moduleApi.execute(
-      'get-student-by-user',
-      { userId: actor.uuid },
-      actor.uuid,
-    );
-
     const stream = await this.moduleApi.execute('get-stream', {
       streamId,
     });
@@ -140,6 +161,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       student,
       stream,
       result.currentStepId || stepId,
+      streamId,
     );
   }
 
@@ -153,6 +175,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       contentSnapshot: ContentSnapshot;
     },
     stepId: string,
+    streamId: string,
   ): BotResponse {
     const stepLabel = this.#findStepLabel(stream.contentSnapshot, stepId);
 
@@ -171,8 +194,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
                 text: '✅ Выполнено',
                 code: this.cb(
                   'complete',
-                  student.uuid,
-                  student.streamId,
+                  streamId,
                   stepId,
                 ),
               },
@@ -180,7 +202,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
             [
               {
                 text: '📊 Мой прогресс',
-                code: this.cbFor('progress', 'progress', student.streamId),
+                code: this.cbFor('progress', 'progress', streamId),
               },
             ],
           ],

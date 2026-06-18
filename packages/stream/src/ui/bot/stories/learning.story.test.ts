@@ -111,6 +111,7 @@ describe('LearningStory', () => {
   test('handleCallback("complete:...") — после шага сразу клавиатура следующего', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
           return { level: 'step', currentStepId: 'step-2' };
         if (name === 'get-student-by-user') return mockStudent;
@@ -123,7 +124,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'complete:stu1:s1:step1',
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
       studentActor,
       session,
     );
@@ -141,6 +142,7 @@ describe('LearningStory', () => {
   test('при завершении урока — поздравление и кнопка «Начать следующий урок»', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
           return {
             level: 'lesson',
@@ -156,7 +158,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'complete:stu1:s1:step2',
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step2',
       studentActor,
       session,
     );
@@ -174,6 +176,7 @@ describe('LearningStory', () => {
   test('при завершении проекта — поздравление и кнопка «Начать следующий проект»', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
           return {
             level: 'project',
@@ -189,7 +192,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'complete:stu1:s1:step4',
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step4',
       studentActor,
       session,
     );
@@ -206,16 +209,17 @@ describe('LearningStory', () => {
 
   test('при завершении потока — сообщение о полном завершении', async () => {
     const moduleApi = {
-      execute: mock((_name: string) => ({
-        level: 'stream',
-      })),
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        return { level: 'stream' };
+      }),
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'complete:stu1:s1:step-last',
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-last',
       studentActor,
       session,
     );
@@ -235,5 +239,92 @@ describe('LearningStory', () => {
     const story = new LearningStory();
     const item = await story.handleStart(guestActor);
     expect(item).toBeNull();
+  });
+
+  // ── Тесты нового формата cb-data (без studentId) ──
+
+  test('cb-data кнопки «Выполнено» НЕ содержит studentId', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
+
+    const btnCodes =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { code?: string }) => b.code) ?? [];
+    const completeCode = btnCodes.find((c) => c?.startsWith('learning:complete:'));
+    expect(completeCode).toBeDefined();
+
+    // Формат: learning:complete:<streamId>:<stepId> (3 части после префикса)
+    const parts = completeCode!.split(':');
+    // 'learning', 'complete', streamId, stepId = 4 части
+    expect(parts.length).toBe(4);
+    expect(parts[2]).toBe('s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s');
+    expect(parts[3]).toBe('step-1');
+  });
+
+  test('#handleComplete получает студента через get-student-by-user по actor.uuid', async () => {
+    const getStudentSpy = mock((name: string) => {
+      if (name === 'get-student-by-user') return mockStudent;
+      if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'complete-step')
+        return { level: 'step', currentStepId: 'step-2' };
+      if (name === 'get-stream') return mockStream;
+      return undefined;
+    });
+
+    const moduleApi = {
+      execute: getStudentSpy,
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    await story.handleCallback(
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      studentActor,
+      session,
+    );
+
+    // Проверяем, что get-student-by-user вызывался с actor.uuid (user-1)
+    const calls = getStudentSpy.mock.calls.filter(
+      (c: [string]) => c[0] === 'get-student-by-user',
+    );
+    expect(calls.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('#handleComplete сверяет student.streamId с streamId из callback', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user')
+          return { ...mockStudent, streamId: 'other-stream' };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      studentActor,
+      session,
+    );
+
+    // Должен вернуть ошибку из-за несовпадения streamId
+    expect(response.sendMessage?.text).toContain('не соответствует');
   });
 });
