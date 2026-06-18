@@ -268,6 +268,176 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('успешно создан');
   });
 
+  test('при выборе модуля — title и description предзаполняются из модуля', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+    const appApiWithModule = {
+      execute: mock((name: string, _cmd: Record<string, unknown>) => {
+        if (name === 'get-module')
+          return {
+            uuid: 'mod-1',
+            title: 'Основы JavaScript',
+            description: 'Базовый курс по JS',
+            goal: 'Научиться программировать',
+            result: 'Создадите свой проект',
+            rules: 'Без списывания',
+            targetAudience: 'Новички',
+            additional: 'Чат в Telegram',
+          };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, appApiWithModule);
+
+    const ctx = {
+      step: 0,
+      moduleId: '',
+      title: '',
+      description: '',
+      startDate: '',
+      telegramGroupId: '',
+    };
+
+    const response = await story.handleCallback('module:mod1', mentor, {
+      activeHandler: { path: 'stream/create-stream/wizard', context: ctx },
+    });
+
+    const newCtx = response.captureInput?.context as Record<string, unknown>;
+    expect(newCtx?.moduleId).toBe('mod1');
+    // Название предзаполнено из модуля
+    expect(newCtx?.title).toBe('Основы JavaScript');
+    expect(newCtx?.description).toBe('Базовый курс по JS');
+    // Сообщение показывает подсказку о значении по умолчанию для названия
+    expect(response.sendMessage?.text).toContain('Основы JavaScript');
+    expect(response.sendMessage?.text).toContain('По умолчанию');
+  });
+
+  test('после шага даты — сводка необязательных полей модуля с кнопкой «По умолчанию»', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    // Контекст на шаге 3 (ввод даты), модуль уже выбран
+    const ctx = {
+      step: 3,
+      moduleId: 'mod-1',
+      title: 'Мой поток',
+      description: 'Описание',
+      startDate: '',
+      telegramGroupId: '',
+      moduleGoal: 'Цель модуля',
+      moduleResult: 'Результат модуля',
+      moduleRules: 'Правила',
+      moduleTargetAudience: 'Аудитория',
+      moduleAdditional: '',
+    };
+
+    const response = await story.handleMessage(
+      { type: 'message', text: '2026-07-01', telegramId: 123 },
+      mentor,
+      { activeHandler: { path: 'stream/create-stream/wizard', context: ctx } },
+    );
+
+    const text = response.sendMessage?.text ?? '';
+    // Сводка необязательных полей
+    expect(text).toContain('Цель модуля');
+    expect(text).toContain('Результат модуля');
+    expect(text).toContain('Правила');
+    expect(text).toContain('Аудитория');
+
+    // Кнопка «По умолчанию»
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('По умолчанию'))).toBe(true);
+  });
+
+  test('нажатие «По умолчанию» передаёт необязательные поля в create-stream', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'create-stream')
+          return { uuid: 'new-stream', title: 'Мой поток' };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const ctx = {
+      step: 5,
+      moduleId: 'mod-1',
+      title: 'Мой поток',
+      description: 'Описание',
+      startDate: '2026-07-01',
+      telegramGroupId: '@group',
+      goal: 'Цель',
+      result: 'Результат',
+      rules: 'Правила',
+      targetAudience: 'Для всех',
+      additional: 'Дополнительно',
+    };
+
+    const response = await story.handleCallback('confirm', mentor, {
+      activeHandler: { path: 'stream/create-stream/wizard', context: ctx },
+    });
+
+    expect(moduleApi.execute).toHaveBeenCalledWith(
+      'create-stream',
+      {
+        title: 'Мой поток',
+        description: 'Описание',
+        moduleId: 'mod-1',
+        startDate: '2026-07-01',
+        telegramGroupId: '@group',
+        mentorId: 'mentor-1',
+        goal: 'Цель',
+        result: 'Результат',
+        rules: 'Правила',
+        targetAudience: 'Для всех',
+        additional: 'Дополнительно',
+      },
+      'mentor-1',
+    );
+    expect(response.releaseInput).toBe(true);
+  });
+
+  test('пользователь может изменить предзаполненные title/description', async () => {
+    const story = new CreateStreamStory();
+
+    // Шаг 1: ввод названия (предзаполнено «Основы JavaScript»)
+    const ctxTitle = {
+      step: 1,
+      moduleId: 'mod-1',
+      title: 'Основы JavaScript',
+      description: 'Базовый курс',
+      startDate: '',
+      telegramGroupId: '',
+    };
+
+    const titleResp = await story.handleMessage(
+      { type: 'message', text: 'Мой улучшенный курс', telegramId: 123 },
+      mentor,
+      {
+        activeHandler: {
+          path: 'stream/create-stream/wizard',
+          context: ctxTitle,
+        },
+      },
+    );
+
+    const descCtx = titleResp.captureInput?.context as Record<string, unknown>;
+    // Пользователь ввёл своё название, а не значение по умолчанию
+    expect(descCtx?.title).toBe('Мой улучшенный курс');
+    // На шаге 2 запрашивается описание
+    expect(descCtx?.step).toBe(2);
+  });
+
   test('handleCallback("confirm"): без контекста — ошибка', async () => {
     const moduleApi = {
       execute: mock(() => undefined),
