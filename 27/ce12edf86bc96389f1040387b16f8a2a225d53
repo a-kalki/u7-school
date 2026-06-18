@@ -1,0 +1,10 @@
+Задача: Фаза 4 — аудит и исправление story-файлов
+
+Изменения:
+- monitor.story.ts: 2 catch → handleError
+- progress.story.ts: 1 catch → handleError
+- view-stream.story.ts: 2 catch → handleError
+- learning.story.ts: 1 catch → handleError
+- audit-core.md: аудит базовых классов
+
+Причина: пустые catch подавляли ошибки; теперь internal ошибки логируются, not-found — нет (через handleError)
