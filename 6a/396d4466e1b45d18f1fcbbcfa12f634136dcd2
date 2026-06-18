@@ -1,0 +1,13 @@
+Задача: Написать тест и реализовать кнопку «Сообщество школы» (FR-1)
+
+Созданные/изменённые файлы:
+- packages/core/src/ui/bot/types.ts — расширен MainMenuAction (url?)
+- packages/stream/src/ui/bot/stories/community.story.ts — новый CommunityStory
+- packages/stream/src/ui/bot/stories/community.story.test.ts — unit-тесты
+- packages/stream/src/ui/bot/controller/stream-controller.ts — регистрация CommunityStory
+- apps/u7-bot/src/handlers/router.ts — поддержка url-кнопок
+- apps/u7-bot/src/config.ts — schoolGroupUrl в конфиге
+- apps/u7-bot/src/api-app.ts — передача schoolGroupUrl
+- tests/bot/integration/stream/community.integration.test.ts — интеграционные тесты
+
+Причина изменений: FR-1 требует кнопку «Сообщество школы» в главном меню, ведущую на Telegram-группу школы. Кнопка доступна всем ролям.
