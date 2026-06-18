@@ -1,6 +1,6 @@
 # План реализации: arch_fixes_20260618
 
-## Фаза 1: Унификация ContentSnapshot в отдельном файле
+## Фаза 1: Унификация ContentSnapshot в отдельном файле [checkpoint: 7772036]
 - [x] Task: Создать course/domain/content-snapshot.ts `3bf006d`
     - [x] Перенести `ContentSnapshotItem`, `ContentSnapshot` из types.ts
     - [x] Добавить valibot-схемы: `LessonSnapshotSchema`, `ContentSnapshotItemSchema`, `ContentSnapshotSchema`
