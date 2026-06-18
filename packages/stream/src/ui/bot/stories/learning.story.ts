@@ -97,7 +97,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         ok: true,
         value: user,
       };
-    } catch {
+    } catch (err) {
+      this.handleError(err);
       return {
         ok: false,
         value: {

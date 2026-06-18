@@ -67,7 +67,8 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         actor.uuid,
       );
       studentCount = students.length;
-    } catch {
+    } catch (err) {
+      this.handleError(err);
       // Для не-менторов список студентов недоступен — показываем 0
     }
 
@@ -78,7 +79,8 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         uuid: stream.mentorId,
       });
       mentorName = mentor.name;
-    } catch {
+    } catch (err) {
+      this.handleError(err);
       // Ментор не найден — оставляем имя пустым
     }
 

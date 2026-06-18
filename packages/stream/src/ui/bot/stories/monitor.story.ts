@@ -82,7 +82,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
           uuid: s.userId,
         });
         name = user.name;
-      } catch {
+      } catch (err) {
+        this.handleError(err);
         // Имя не найдено — используем id
       }
 
@@ -121,7 +122,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       });
       userName = user.name;
       telegramId = user.telegramId;
-    } catch {
+    } catch (err) {
+      this.handleError(err);
       // Пользователь не найден
     }
 

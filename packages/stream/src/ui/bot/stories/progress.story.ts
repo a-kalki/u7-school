@@ -37,7 +37,8 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
         uuid: stream.mentorId,
       });
       mentorName = mentor.name;
-    } catch {
+    } catch (err) {
+      this.handleError(err);
       // Ментор не найден
     }
 
