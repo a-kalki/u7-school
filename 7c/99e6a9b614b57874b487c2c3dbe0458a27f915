@@ -1,0 +1,9 @@
+Задача: Фаза 1 — Core: логгер и handleError в BotUserStory
+
+Изменения:
+- packages/core/src/ui/bot/bot-user-story.ts: добавлен геттер logger (getGlobalLogger) и метод handleError
+- packages/core/src/ui/bot/bot-user-story.test.ts: тесты на logger
+- packages/app/src/ui/u7-bot-user-story.ts: handleError делегирует super, убраны лишние импорты
+- packages/app/src/ui/u7-bot-user-story.test.ts: переписан на мок logger.error вместо console.error
+
+Причина: унификация логирования — все story теперь используют единый logger.error через базовый класс.
