@@ -1,0 +1,6 @@
+Задача: Написать тесты на handleError в U7BotUserStory
+Изменения:
+- 10 тестов: validation (с полями/без), not-found, conflict, access-denied, bad-request, internal, unauthorized, обычный Error, неизвестный тип
+- Тесты проверяют содержимое сообщения и факт логирования через console.error (spy)
+Файл: packages/app/src/ui/u7-bot-user-story.test.ts
+Причина: TDD — тесты перед реализацией handleError
