@@ -16,6 +16,7 @@ import type { CourseApiModuleResolver } from '../packages/course/src/domain/modu
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
+import type { Logger } from '@u7-scl/core/shared';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import type { UserApiModuleResolver } from '../packages/user/src/domain/module.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
@@ -148,8 +149,16 @@ async function main() {
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
   const userRepo = new UserJsonRepo();
+
+  // Фейковый appResolver для скрипта (без DI-контейнера)
+  const fakeAppResolver = {
+    logger: console as unknown as import('@u7-scl/core/shared').Logger,
+    mode: 'development' as const,
+  };
+
   const userModule = new UserApiModule({
     userRepo,
+    appResolver: fakeAppResolver,
   } as unknown as UserApiModuleResolver);
   const userFacade = new UserInProcFacade(userModule);
   const courseModule = new CourseApiModule({
@@ -157,6 +166,7 @@ async function main() {
     lessonRepo,
     stepRepo,
     userFacade,
+    appResolver: fakeAppResolver,
   } as unknown as CourseApiModuleResolver);
   // biome-ignore lint/suspicious/noExplicitAny: скрипт использует динамические команды
   const app: ApiApp<any> = new ApiApp([userModule, courseModule]);

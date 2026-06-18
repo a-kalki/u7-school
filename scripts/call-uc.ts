@@ -19,6 +19,7 @@
  */
 
 import { ApiApp } from '@u7-scl/core/api';
+import type { Logger } from '@u7-scl/core/shared';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
 import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
@@ -90,8 +91,15 @@ async function main() {
   const streamRepo = new StreamJsonRepo('data/streams/streams.json');
   const studentRepo = new StudentJsonRepo('data/streams/students.json');
 
+  // Фейковый appResolver для скрипта (без DI-контейнера)
+  const fakeAppResolver = {
+    logger: console as unknown as Logger,
+    mode: 'development' as const,
+  };
+
   const userModule = new UserApiModule({
     userRepo,
+    appResolver: fakeAppResolver,
   } as unknown as UserApiModuleResolver);
   const userFacade = new UserInProcFacade(userModule);
 
@@ -100,6 +108,7 @@ async function main() {
     lessonRepo,
     stepRepo,
     userFacade,
+    appResolver: fakeAppResolver,
   };
 
   const courseModule = new CourseApiModule(
@@ -112,6 +121,7 @@ async function main() {
     streamStudentRepo: studentRepo,
     userFacade,
     courseFacade,
+    appResolver: fakeAppResolver,
   } as unknown as StreamApiModuleResolver);
 
   const app = new ApiApp([userModule, courseModule, streamModule]);
