@@ -1,0 +1,8 @@
+{
+  "track_id": "onboarding_bot_tests_20260616",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-06-16T10:15:00Z",
+  "updated_at": "2026-06-16T10:15:00Z",
+  "description": "Интеграционные и E2E тесты для модуля onboarding"
+}
