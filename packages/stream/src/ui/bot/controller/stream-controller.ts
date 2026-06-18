@@ -1,4 +1,5 @@
 import { U7BotController } from '@u7-scl/app/ui';
+import type { User } from '@u7-scl/app/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { ActivateStreamStory } from '../stories/activate-stream.story';
 import { CatalogStory } from '../stories/catalog.story';
@@ -26,4 +27,8 @@ export class StreamController extends U7BotController<StreamApiModuleMeta> {
     new ActivateStreamStory(),
     new MonitorStory(),
   ];
+
+  override async handleHelpStart(_actor: User): Promise<string | null> {
+    return '📚 Наши потоки — просмотр каталога учебных потоков школы';
+  }
 }

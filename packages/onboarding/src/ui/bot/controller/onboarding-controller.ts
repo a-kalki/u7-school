@@ -40,6 +40,10 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
     ];
   }
 
+  override async handleHelpStart(_actor: User): Promise<string | null> {
+    return '📝 Заполнить анкету — расскажи о своих ожиданиях от курсов';
+  }
+
   // ── Callback'и ──
 
   override async handleCallback(

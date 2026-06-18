@@ -156,6 +156,12 @@ class MockController extends BotController {
     this._timeoutResult = res;
   }
 
+  private _helpResult: string | null = null;
+  setHelpResult(text: string | null) {
+    this._helpResult = text;
+  }
+  handleHelpStart = async (): Promise<string | null> => this._helpResult;
+
   override async handleStart(actor: unknown): Promise<MainMenuAction[]> {
     this.handleStartCalls.push([actor]);
     return this._startResult;
@@ -693,5 +699,72 @@ describe('connectRouter', () => {
     const replyCall = (ctx.reply as any).mock.calls[0];
     expect(replyCall[0]).toContain('Привет');
     expect(replyCall[0]).toContain('Тест');
+  });
+
+  // ── Команда /help ──
+
+  test('/help собирает описания от контроллеров с handleHelpStart', async () => {
+    const bot = makeMockBot();
+    const userFacade = makeMockUserFacade(makeUser());
+
+    const ctrl1 = new MockController();
+    ctrl1.name = 'stream';
+    ctrl1.setHelpResult('📚 Наши потоки — каталог учебных потоков');
+
+    const ctrl2 = new MockController();
+    ctrl2.name = 'onboarding';
+    ctrl2.setHelpResult('📝 Заполнить анкету — расскажи о своих ожиданиях');
+
+    const router = new BotRouter([ctrl1, ctrl2]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
+
+    const ctx = makeMockContext();
+    await bot.commands.help!(ctx);
+
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    expect(replyCall[0]).toContain('📚 Наши потоки');
+    expect(replyCall[0]).toContain('каталог учебных потоков');
+    expect(replyCall[0]).toContain('📝 Заполнить анкету');
+  });
+
+  test('/help пропускает контроллеры без handleHelpStart', async () => {
+    const bot = makeMockBot();
+    const userFacade = makeMockUserFacade(makeUser());
+
+    const ctrl1 = new MockController();
+    ctrl1.name = 'stream';
+    ctrl1.setHelpResult('📚 Наши потоки');
+
+    const ctrl2 = new MockController();
+    ctrl2.name = 'other';
+    ctrl2.setHelpResult(null); // без описания
+
+    const router = new BotRouter([ctrl1, ctrl2]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
+
+    const ctx = makeMockContext();
+    await bot.commands.help!(ctx);
+
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    expect(replyCall[0]).toContain('📚 Наши потоки');
+    expect(replyCall[0]).not.toContain('other');
+  });
+
+  test('/help с пустым списком выводит заглушку', async () => {
+    const bot = makeMockBot();
+    const userFacade = makeMockUserFacade(makeUser());
+
+    const ctrl = new MockController();
+    ctrl.name = 'stream';
+    ctrl.setHelpResult(null);
+
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
+
+    const ctx = makeMockContext();
+    await bot.commands.help!(ctx);
+
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    expect(replyCall[0]).toContain('Нет доступных');
   });
 });

@@ -1,4 +1,5 @@
 import type { ApiModuleMeta } from '@u7-scl/core/domain';
+import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from './u7-bot-controller';
 import { CommunityStory } from './stories/community.story';
 import type { AppOnlyApiModuleMeta } from './stories/community.story';
@@ -19,5 +20,9 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
     if (schoolGroupUrl) {
       this.stories.push(new CommunityStory(schoolGroupUrl));
     }
+  }
+
+  override async handleHelpStart(_actor: User): Promise<string | null> {
+    return '💬 Сообщество школы — ссылка на Telegram-группу школы';
   }
 }

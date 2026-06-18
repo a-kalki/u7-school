@@ -94,6 +94,25 @@ export class BotRouter<
     return items.sort((a, b) => a.priority - b.priority);
   }
 
+  /**
+   * Собирает описания меню от контроллеров для /help.
+   * Контроллеры без handleHelpStart пропускаются.
+   */
+  async collectHelp(actor: TActor): Promise<string[]> {
+    const descriptions: string[] = [];
+    for (const c of this.controllers.values()) {
+      try {
+        const desc = await c.handleHelpStart(actor);
+        if (desc) {
+          descriptions.push(desc);
+        }
+      } catch {
+        // Пропускаем ошибки отдельных контроллеров
+      }
+    }
+    return descriptions;
+  }
+
   // ── Обработка callback ──
 
   /**

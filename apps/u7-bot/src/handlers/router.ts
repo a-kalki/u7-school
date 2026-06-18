@@ -118,6 +118,27 @@ export function connectRouter(
   });
 
   // ═══════════════════════════════════════════
+  // /help — список пунктов меню с описаниями
+  // ═══════════════════════════════════════════
+  bot.command('help', async (ctx) => {
+    const user = await resolveActor(ctx);
+    if (!user) {
+      await ctx.reply('Не удалось определить пользователя.');
+      return;
+    }
+
+    const descriptions = await router.collectHelp(user);
+
+    if (descriptions.length === 0) {
+      await ctx.reply('Нет доступных пунктов меню.');
+      return;
+    }
+
+    const text = descriptions.join('\n\n');
+    await ctx.reply(text);
+  });
+
+  // ═══════════════════════════════════════════
   // /cancel — отмена текущего действия
   // ═══════════════════════════════════════════
   bot.command('cancel', async (ctx) => {

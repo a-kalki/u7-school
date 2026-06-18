@@ -127,6 +127,14 @@ export abstract class BotController<
   }
 
   /**
+   * Описание пунктов меню для команды /help.
+   * По умолчанию возвращает null — контроллер не добавляется в /help.
+   */
+  async handleHelpStart(_actor: TActor): Promise<string | null> {
+    return null;
+  }
+
+  /**
    * Отмена текущего действия.
    * Делегирует активной стори или освобождает ввод.
    */
