@@ -5,7 +5,4 @@
 - [ ] **Track: Stream UX Backlog — навигация, double-confirm, broadcast, «Отстает»**
 *Link: [./tracks/stream_ux_backlog_20260613/](./tracks/stream_ux_backlog_20260613/)*
 
----
 
-- [x] **Track: Архитектурные улучшения бота — кнопки, контекст, задержка, экранирование**
-*Link: [./tracks/bot_ux_arch_20260616/](./tracks/bot_ux_arch_20260616/)*
