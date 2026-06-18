@@ -15,6 +15,8 @@
   - [Тестирование](./code_styleguides/testing.md) — общие правила
   - [Тестирование Telegram-бота](./code_styleguides/bot-test.md) — unit, интеграционные, E2E
 - [AppController](./code_styleguides/app-controller.md) — контроллер уровня приложения для stories без привязки к доменным модулям
+  - [Обработка ошибок в story](./code_styleguides/error-handling-story.md) — try/catch, handleError, логирование
+  - [Обработка ошибок в контроллере](./code_styleguides/error-handling-controller.md) — перехват на верхнем уровне
 
 ## Гайды по контенту курса
 - [Наполнение уроков шагами](./guides/lesson-design.md)
