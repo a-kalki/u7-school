@@ -1,0 +1,11 @@
+Task: Написать тесты для автозаполнения + Реализовать автозаполнение (v2)
+
+Изменения (v2 — отдельные шаги на каждое поле):
+- create-stream.story.ts: wizard расширен до 10 шагов
+  - Шаги 4-8: goal, result, rules, targetAudience, additional — каждый с кнопками «Принять»/«Пропустить»
+  - Общий механизм #showOptionalFieldStep / #handleOptionalFieldInput / #handleAcceptField / #handleSkipField
+  - Если в модуле есть значение → подсказка «По умолчанию: ...» + кнопка «Принять»
+  - Если нет → просто поле ввода + «Пропустить»
+- create-stream.story.ts: #handleConfirm — обработка ошибок валидации с показом деталей и сбросом данных
+- create-stream.story.test.ts: 14 тестов (+4 новых для v2: отдельные шаги, «Принять»/«Пропустить», своё значение, ошибка валидации)
+- spec.md, plan.md: обновлены под v2
