@@ -1,0 +1,12 @@
+Task: Написать тесты для мгновенного перехода в LearningStory + Реализовать мгновенный переход в LearningStory.handleComplete
+
+Изменения:
+- learning.story.ts: переработан #handleComplete — после complete-step на уровне step сразу показывается клавиатура следующего шага (без промежуточного сообщения)
+- learning.story.ts: переработан #handleLevelTransition — при завершении урока/проекта показывается поздравление с inline-кнопкой «Начать следующий урок/проект»
+- learning.story.ts: выделен новый метод #buildStepKeyboard для переиспользования клавиатуры шага
+- learning.story.ts: удалены неиспользуемые методы #findLessonTitleByStep и #findProjectTitleByStep
+- learning.story.test.ts: обновлены существующие тесты под новое поведение, добавлены 3 новых теста (завершение урока, проекта, потока)
+
+Файлы:
+- packages/stream/src/ui/bot/stories/learning.story.ts
+- packages/stream/src/ui/bot/stories/learning.story.test.ts
