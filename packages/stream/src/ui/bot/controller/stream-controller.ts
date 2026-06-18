@@ -2,7 +2,6 @@ import { U7BotController } from '@u7-scl/app/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { ActivateStreamStory } from '../stories/activate-stream.story';
 import { CatalogStory } from '../stories/catalog.story';
-import { CommunityStory } from '../stories/community.story';
 import { CreateStreamStory } from '../stories/create-stream.story';
 import { EnrollStory } from '../stories/enroll.story';
 import { LearningStory } from '../stories/learning.story';
@@ -16,13 +15,6 @@ import { ViewStreamStory } from '../stories/view-stream.story';
  */
 export class StreamController extends U7BotController<StreamApiModuleMeta> {
   readonly name = 'stream';
-
-  constructor(moduleApi: unknown, schoolGroupUrl?: string) {
-    super(moduleApi as never);
-    if (schoolGroupUrl) {
-      this.stories.push(new CommunityStory(schoolGroupUrl));
-    }
-  }
 
   protected override readonly stories = [
     new CatalogStory(),

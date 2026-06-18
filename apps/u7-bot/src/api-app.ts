@@ -23,6 +23,7 @@ import {
   StudentJsonRepo,
 } from '@u7-scl/stream';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
+import { AppController } from '@u7-scl/app/ui';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
@@ -97,7 +98,10 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     appResolver,
   });
 
-  const streamController = new StreamController(streamModule, config.schoolGroupUrl);
+  const streamController = new StreamController(streamModule);
+
+  // ══ Контроллер уровня приложения (стори без привязки к модулям) ══
+  const appController = new AppController(config.schoolGroupUrl);
 
   // ══ ApiApp: модули ══
   const apiApp: U7BotApp = new ApiApp([
@@ -111,7 +115,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   apiApp.init();
 
   // Универсальный роутер — заменяет старые handler'ы
-  const router = new BotRouter([onboardingController, streamController]);
+  const router = new BotRouter([appController, onboardingController, streamController]);
 
   // Каскадная инициализация: BotRouter → контроллеры → стори
   router.init(apiApp);
