@@ -1,9 +1,6 @@
-import {
-  AppException,
-  errValidation,
-} from '@u7-scl/core/domain';
-import type { U7BotApp, User } from '@u7-scl/app/domain';
 import { describe, expect, mock, test } from 'bun:test';
+import type { U7BotApp, User } from '@u7-scl/app/domain';
+import { AppException, errValidation } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { CreateStreamStory } from './create-stream.story';
@@ -393,15 +390,11 @@ describe('CreateStreamStory', () => {
       execute: mock((name: string) => {
         if (name === 'create-stream')
           throw new AppException(
-            errValidation(
-              'CreateStreamValidationError',
-              'Ошибка валидации',
-              {
-                issues: [
-                  { field: 'title', message: 'Название не может быть пустым' },
-                ],
-              },
-            ),
+            errValidation('CreateStreamValidationError', 'Ошибка валидации', {
+              issues: [
+                { field: 'title', message: 'Название не может быть пустым' },
+              ],
+            }),
           );
         return undefined;
       }),

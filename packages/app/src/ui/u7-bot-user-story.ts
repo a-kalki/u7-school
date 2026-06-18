@@ -1,9 +1,9 @@
 import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import { fromError } from '@u7-scl/core/domain';
 import { serializeError } from '@u7-scl/core/shared';
+import type { BotResponse } from '@u7-scl/core/ui';
 import { BotUserStory } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, User } from '../domain';
-import type { BotResponse } from '@u7-scl/core/ui';
 
 /**
  * Специализированный пользовательский сценарий для U7 Telegram-бота.
@@ -76,8 +76,8 @@ ${appError.message}
           },
         };
 
+      // biome-ignore lint/complexity/noUselessSwitchCase: документирует логируемые ошибки
       case 'internal':
-      case 'unauthorized':
       default:
         console.error(
           `[${appError.name}] Внутренняя ошибка:`,

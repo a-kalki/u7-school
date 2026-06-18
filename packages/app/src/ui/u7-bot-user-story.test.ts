@@ -9,9 +9,9 @@ import {
   errUnauthorized,
   errValidation,
 } from '@u7-scl/core/domain';
+import type { BotResponse } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '@u7-scl/stream/domain';
 import { U7BotUserStory } from './u7-bot-user-story';
-import type { BotResponse } from '@u7-scl/core/ui';
 
 /**
  * Заглушка для доступа к protected методу handleError.
@@ -173,10 +173,7 @@ describe('U7BotUserStory.handleError', () => {
 
   describe('unauthorized error', () => {
     test('логирует и возвращает общее сообщение', () => {
-      const appError = errUnauthorized(
-        'Unauthorized',
-        'Не авторизован',
-      );
+      const appError = errUnauthorized('Unauthorized', 'Не авторизован');
       const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);

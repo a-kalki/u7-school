@@ -27,10 +27,10 @@
     - [x] Импортировать `fromError` из `@u7-scl/core/domain`
     - [x] Импортировать `serializeError` из `@u7-scl/core/shared`
     - [x] Реализовать `handleError(err: unknown): BotResponse`
-- [ ] Task: Обновить #handleConfirm в CreateStreamStory
-    - [ ] Заменить ad-hoc catch на `this.handleError(err)`
-- [ ] Task: Проверить типы и тесты
-    - [ ] `bun run check:p app && bun run check:p stream`
+- [x] Task: Обновить #handleConfirm в CreateStreamStory `fa4e1d2`
+    - [x] Заменить ad-hoc catch на `this.handleError(err)`
+- [~] Task: Проверить типы и тесты
+    - [~] `bun run check:p app && bun run check:p stream`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3: Убрать studentId из cb-data «Выполнено»
