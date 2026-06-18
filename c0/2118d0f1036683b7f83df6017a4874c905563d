@@ -1,0 +1,11 @@
+Отчёт о верификации Фазы 2: Edge case тесты onboarding
+
+**Команда автоматического тестирования:** `CI=true bun run test:p onboarding`
+
+**Результат:** 73 pass, 0 fail, 196 expect() calls
+
+**Шаги ручной верификации:**
+- Проверка 3 новых тестов в onboarding-controller.test.ts (пустой ответ, длинный текст, next без выбора)
+- `bun run test:p onboarding` — 73 теста проходят
+
+**Подтверждение пользователя:** да
