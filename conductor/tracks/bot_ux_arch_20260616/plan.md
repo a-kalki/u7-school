@@ -43,7 +43,7 @@
 
 ## Фаза 5: Итоговая проверка и документация
 
-- [ ] Task: Полная проверка качества (`bun run check`)
-- [ ] Task: Обновить документацию conductor при необходимости
-- [ ] Task: Создать `summary.md` трека
+- [x] Task: Полная проверка качества (`bun run check`) — тесты 824 pass, pre-existing ошибки в несвязанных файлах
+- [x] Task: Обновить документацию conductor при необходимости — конвенция в JSDoc KeyboardDescription
+- [x] Task: Создать `summary.md` трека [bc07257]
 - [ ] Task: Conductor — Ручная верификация «Фаза 5»
