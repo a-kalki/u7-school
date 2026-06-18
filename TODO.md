@@ -1,7 +1,9 @@
 # Todo задачи
 
 **Архитектурные:**
-1. `ContentSnapshot` дублирован между `course/domain/types.ts` (чистый TS-интерфейс) и `stream/domain/stream/entity.ts` (valibot-схема). Нужно устранить дублирование: course — единственный source of truth для типа, stream — использует тип из course. Импорты `ContentSnapshot` в stream-сториз разнятся (часть из course, часть из stream).
+1. `ContentSnapshot` дублирован между `course/domain/types.ts` (чистый TS-интерфейс) и `stream/domain/stream/entity.ts` (valibot-схема). Нужно устранить дублирование: course — единственный source of truth для типа, stream — использует тип из course.
+2. Нужен базовый класс `WizardStory` с унифицированным движком пошагового ввода: контекст, переходы, обработка ошибок валидации. Сейчас логика wizard дублируется в `CreateStreamStory`.
+3. В `CreateStreamStory.#handleConfirm` обработка ошибок — ad-hoc: не различает типы ошибок (валидация vs инфра-ошибка), не использует существующие хелперы логирования. Нужно определить типизированные ошибки на уровне модуля и метод обработки в родителе.
 
 **Доменные:**
 1. `studentId` в cb-data кнопки «Выполнено» избыточен — студент однозначно определяется через `actor.uuid`. Нужно убрать `studentId` из `complete:<studentId>:<streamId>:<stepId>`, оставив `complete:<streamId>:<stepId>`. Заодно в `#handleComplete` сначала получать студента по `actor.uuid`, сверять `streamId`, потом вызывать `complete-step`.
