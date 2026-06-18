@@ -117,9 +117,13 @@ export { StepCommonSchema, StepSchema } from './step/entity';
 export { StepPolicy } from './step/policy';
 export type { StepRepo } from './step/repo';
 export type {
-  ContentSnapshot,
-  ContentSnapshotItem,
   LessonId,
   ModuleId,
   StepId,
 } from './types';
+export type { ContentSnapshot, ContentSnapshotItem } from './content-snapshot';
+export {
+  ContentSnapshotItemSchema,
+  ContentSnapshotSchema,
+  LessonSnapshotSchema,
+} from './content-snapshot';
