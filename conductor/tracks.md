@@ -2,11 +2,6 @@
 
 ---
 
-- [x] **Track: Stream UX Improvements — мгновенный переход к следующему шагу и автозаполнение полей потока из модуля**
-*Link: [./tracks/stream_ux_improvements_20260616/](./tracks/stream_ux_improvements_20260616/)*
-
----
-
 - [ ] **Track: Bot UX Polish — кнопка «Сообщество школы», навигация «Назад», /help, легенда кружков**
 *Link: [./tracks/bot_ux_polish_20260616/](./tracks/bot_ux_polish_20260616/)*
 
