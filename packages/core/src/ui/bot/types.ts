@@ -56,13 +56,9 @@ export interface SessionData {
 }
 
 /** Элемент главного меню бота */
-export interface MainMenuAction {
-  text: string;
-  action: string;
-  priority: number;
-  /** Опциональный URL — если указан, кнопка становится URL-кнопкой (без callback) */
-  url?: string;
-}
+export type MainMenuAction =
+  | { kind: 'callback'; text: string; action: string; priority: number }
+  | { kind: 'url'; text: string; url: string; priority: number };
 
 export type BotUpdate =
   | { type: 'command'; command: string; telegramId: number; name?: string }

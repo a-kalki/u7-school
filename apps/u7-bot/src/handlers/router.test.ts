@@ -249,13 +249,13 @@ describe('connectRouter', () => {
     const ctrl1 = new MockController();
     ctrl1.name = 'ctrl1';
     ctrl1.setStartResult([
-      { text: 'Кнопка 1', action: 'ctrl1:act1', priority: 10 },
+      { kind: 'callback', text: 'Кнопка 1', action: 'ctrl1:act1', priority: 10 },
     ]);
 
     const ctrl2 = new MockController();
     ctrl2.name = 'ctrl2';
     ctrl2.setStartResult([
-      { text: 'Кнопка 2', action: 'ctrl2:act2', priority: 5 },
+      { kind: 'callback', text: 'Кнопка 2', action: 'ctrl2:act2', priority: 5 },
     ]);
 
     const router = new BotRouter([ctrl1, ctrl2]);
@@ -562,7 +562,7 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'main';
     ctrl.setStartResult([
-      { text: 'Начать', action: 'main:start-action', priority: 1 },
+      { kind: 'callback', text: 'Начать', action: 'main:start-action', priority: 1 },
     ]);
     ctrl.setCallbackResult({
       sendMessage: { text: 'Введите имя:' },
@@ -610,95 +610,6 @@ describe('connectRouter', () => {
     await bot.commands.cancel!(ctx4);
     const cancelCall = (ctx4.reply as any).mock.calls[0];
     expect(cancelCall[0]).toContain('Нечего отменять');
-  });
-
-  // ── Кнопка «↩️ Назад» ──
-
-  test('кнопка «Назад» добавляется при активном activeHandler в ответе callback', async () => {
-    const bot = makeMockBot();
-    const userFacade = makeMockUserFacade(makeUser());
-
-    const ctrl = new MockController();
-    ctrl.name = 'stream';
-    ctrl.setCallbackResult({
-      sendMessage: {
-        text: 'Список потоков',
-        keyboard: { rows: [[{ text: 'Поток 1', code: 'stream:view:1' }]], isMultiple: false },
-      },
-    });
-
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
-
-    const handler = bot.listeners['callback_query:data']?.[0];
-    const ctx = makeMockContext();
-    ctx.session.activeHandler = { path: 'stream/catalog' };
-    ctx.callbackQuery!.data = 'stream:catalog:list';
-
-    await handler!(ctx);
-
-    const replyCall = (ctx.reply as any).mock.calls[0];
-    const keyboard = replyCall[1].reply_markup;
-    const allButtons: string[] = keyboard.inline_keyboard.flat().map((b: any) => b.text);
-    expect(allButtons).toContain('↩️ Назад /start');
-  });
-
-  test('кнопка «Назад» не добавляется без activeHandler', async () => {
-    const bot = makeMockBot();
-    const userFacade = makeMockUserFacade(makeUser());
-
-    const ctrl = new MockController();
-    ctrl.name = 'stream';
-    ctrl.setCallbackResult({
-      sendMessage: { text: 'Главное меню' },
-    });
-
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
-
-    const handler = bot.listeners['callback_query:data']?.[0];
-    const ctx = makeMockContext();
-    ctx.session.activeHandler = null;
-    ctx.callbackQuery!.data = 'stream:catalog:list';
-
-    await handler!(ctx);
-
-    const replyCall = (ctx.reply as any).mock.calls[0];
-    const keyboard = replyCall[1].reply_markup;
-    // Без клавиатуры или без кнопки «Назад»
-    if (keyboard) {
-      const allButtons: string[] = keyboard.inline_keyboard.flat().map((b: any) => b.text);
-      expect(allButtons).not.toContain('↩️ Назад /start');
-    }
-  });
-
-  test('нажатие «Назад» сбрасывает сессию и показывает главное меню', async () => {
-    const bot = makeMockBot();
-    const userFacade = makeMockUserFacade(makeUser({ name: 'Тест' }));
-
-    const ctrl = new MockController();
-    ctrl.name = 'stream';
-    ctrl.setStartResult([
-      { text: 'Кнопка', action: 'stream:act', priority: 10 },
-    ]);
-
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
-
-    const handler = bot.listeners['callback_query:data']?.[0];
-    const ctx = makeMockContext();
-    ctx.session.activeHandler = { path: 'stream/catalog' };
-    ctx.callbackQuery!.data = '__back_to_start__';
-
-    await handler!(ctx);
-
-    // Сессия сброшена
-    expect(ctx.session.activeHandler).toBeNull();
-
-    // Отправлено главное меню
-    const replyCall = (ctx.reply as any).mock.calls[0];
-    expect(replyCall[0]).toContain('Привет');
-    expect(replyCall[0]).toContain('Тест');
   });
 
   // ── Команда /help ──

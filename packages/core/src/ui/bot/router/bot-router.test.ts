@@ -175,11 +175,11 @@ describe('BotRouter', () => {
   test('collectMainMenu агрегирует и сортирует', async () => {
     const c1 = new TestController();
     c1.name = 'ctrl1';
-    c1.withStartResult([{ text: 'Б', action: 'ctrl1:b', priority: 10 }]);
+    c1.withStartResult([{ kind: 'callback', text: 'Б', action: 'ctrl1:b', priority: 10 }]);
 
     const c2 = new TestController();
     c2.name = 'ctrl2';
-    c2.withStartResult([{ text: 'А', action: 'ctrl2:a', priority: 5 }]);
+    c2.withStartResult([{ kind: 'callback', text: 'А', action: 'ctrl2:a', priority: 5 }]);
 
     const disp = new BotRouter([c1, c2]);
     const items = await disp.collectMainMenu(makeActor());

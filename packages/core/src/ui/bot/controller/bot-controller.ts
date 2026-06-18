@@ -117,10 +117,14 @@ export abstract class BotController<
     for (const story of this.stories) {
       const item = await story.handleStart(actor);
       if (item) {
-        items.push({
-          ...item,
-          action: `${this.name}:${item.action}`,
-        });
+        if (item.kind === 'url') {
+          items.push(item);
+        } else {
+          items.push({
+            ...item,
+            action: `${this.name}:${item.action}`,
+          });
+        }
       }
     }
     return items.sort((a, b) => a.priority - b.priority);

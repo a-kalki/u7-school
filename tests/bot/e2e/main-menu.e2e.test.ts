@@ -42,7 +42,8 @@ describe('Главное меню (E2E)', () => {
     const menu = await router.collectMainMenu(guest);
     const btn = menu.find((i) => i.text === '💬 Сообщество школы');
     expect(btn).toBeDefined();
-    expect(btn!.url).toBe(SCHOOL_GROUP_URL);
+    expect(btn!.kind).toBe('url');
+    expect((btn as any).url).toBe(SCHOOL_GROUP_URL);
     expect(btn!.priority).toBe(100);
   });
 

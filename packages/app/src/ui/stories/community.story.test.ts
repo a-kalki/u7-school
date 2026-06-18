@@ -17,7 +17,8 @@ describe('CommunityStory', () => {
     const item = await story.handleStart(actor);
     expect(item).not.toBeNull();
     expect(item!.text).toBe('💬 Сообщество школы');
-    expect(item!.url).toBe('https://t.me/u7_school_group');
+    expect(item!.kind).toBe('url');
+    expect((item as any).url).toBe('https://t.me/u7_school_group');
     expect(item!.priority).toBe(100);
   });
 

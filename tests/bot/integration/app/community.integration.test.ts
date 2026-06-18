@@ -48,7 +48,8 @@ describe('CommunityStory integration (app-controller)', () => {
     const items = await router.collectMainMenu(guest);
     const communityBtn = items.find((i) => i.text === '💬 Сообщество школы');
     expect(communityBtn).toBeDefined();
-    expect(communityBtn!.url).toBe(SCHOOL_GROUP_URL);
+    expect(communityBtn!.kind).toBe('url');
+    expect((communityBtn as any).url).toBe(SCHOOL_GROUP_URL);
   });
 
   test('кнопка «Сообщество школы» доступна студенту', async () => {
@@ -56,7 +57,8 @@ describe('CommunityStory integration (app-controller)', () => {
     const items = await router.collectMainMenu(student);
     const communityBtn = items.find((i) => i.text === '💬 Сообщество школы');
     expect(communityBtn).toBeDefined();
-    expect(communityBtn!.url).toBe(SCHOOL_GROUP_URL);
+    expect(communityBtn!.kind).toBe('url');
+    expect((communityBtn as any).url).toBe(SCHOOL_GROUP_URL);
   });
 
   test('кнопка «Сообщество школы» доступна ментору', async () => {
@@ -64,7 +66,8 @@ describe('CommunityStory integration (app-controller)', () => {
     const items = await router.collectMainMenu(mentor);
     const communityBtn = items.find((i) => i.text === '💬 Сообщество школы');
     expect(communityBtn).toBeDefined();
-    expect(communityBtn!.url).toBe(SCHOOL_GROUP_URL);
+    expect(communityBtn!.kind).toBe('url');
+    expect((communityBtn as any).url).toBe(SCHOOL_GROUP_URL);
   });
 
   test('кнопка «Сообщество школы» имеет низкий приоритет (после основных)', async () => {

@@ -90,6 +90,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleStart(_actor: User): Promise<MainMenuAction | null> {
     return {
+      kind: 'callback',
       text: '📚 Наши потоки',
       action: this.cb('list'),
       priority: 10,

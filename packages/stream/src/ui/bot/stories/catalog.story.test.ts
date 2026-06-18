@@ -57,9 +57,13 @@ describe('CatalogStory', () => {
   test('handleStart возвращает кнопку главного меню', async () => {
     const story = new CatalogStory();
     const item = await story.handleStart(actor);
+    expect(item?.kind).toBe('callback');
     expect(item?.text).toContain('Наши потоки');
     expect(item?.priority).toBe(10);
-    expect(item?.action).toBe('catalog:list');
+    // TS narrowing: после проверки kind TypeScript знает что action существует
+    if (item?.kind === 'callback') {
+      expect(item.action).toBe('catalog:list');
+    }
   });
 
   test('handleCallback("list") фильтрует только enrollment и active', async () => {

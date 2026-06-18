@@ -200,6 +200,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   override async handleStart(actor: User): Promise<MainMenuAction | null> {
     if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) {
       return {
+        kind: 'callback',
         text: '🛠️ Создать поток',
         action: this.cb('start'),
         priority: 30,

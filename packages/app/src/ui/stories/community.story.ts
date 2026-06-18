@@ -29,8 +29,8 @@ export class CommunityStory extends U7BotUserStory<AppOnlyApiModuleMeta> {
 
   override async handleStart(_actor: User): Promise<MainMenuAction | null> {
     return {
+      kind: 'url',
       text: '💬 Сообщество школы',
-      action: this.cb('goto'),
       priority: 100,
       url: this.#groupUrl,
     };

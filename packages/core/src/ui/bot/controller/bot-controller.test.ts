@@ -139,11 +139,13 @@ describe('BotController', () => {
   describe('handleStart', () => {
     test('агрегирует кнопки от стори с префиксами', async () => {
       story1.handleStartResult = {
+        kind: 'callback',
         text: 'Кнопка 1',
         action: 'story_one:act1',
         priority: 20,
       };
       story2.handleStartResult = {
+        kind: 'callback',
         text: 'Кнопка 2',
         action: 'story_two:act2',
         priority: 10,
@@ -162,6 +164,7 @@ describe('BotController', () => {
     test('пропускает стори с null-результатом', async () => {
       story1.handleStartResult = null;
       story2.handleStartResult = {
+        kind: 'callback',
         text: 'Кнопка',
         action: 'act',
         priority: 5,

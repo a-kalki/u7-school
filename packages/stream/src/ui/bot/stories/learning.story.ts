@@ -47,6 +47,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   override async handleStart(actor: User): Promise<MainMenuAction | null> {
     if (UserPolicy.isStudent(actor)) {
       return {
+        kind: 'callback',
         text: '📖 Моя учёба',
         action: this.cb('my-study'),
         priority: 20,

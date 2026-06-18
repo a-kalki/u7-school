@@ -33,6 +33,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
   override async handleStart(_actor: User): Promise<MainMenuAction[]> {
     return [
       {
+        kind: 'callback',
         text: '📝 Заполнить анкету',
         action: this.cb('start_questionnaire'),
         priority: 50,
