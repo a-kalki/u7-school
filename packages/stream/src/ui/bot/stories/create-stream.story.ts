@@ -9,6 +9,7 @@ import type {
 import { Status } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
+import type { CreateStreamCmd } from '#domain/stream/commands/create-stream-cmd';
 
 /** Контекст wizard-а создания потока */
 interface CreateStreamWizardContext {
@@ -39,11 +40,11 @@ interface OptionalFieldConfig {
   fieldName: 'goal' | 'result' | 'rules' | 'targetAudience' | 'additional';
   label: string;
   moduleKey:
-    | 'moduleGoal'
-    | 'moduleResult'
-    | 'moduleRules'
-    | 'moduleTargetAudience'
-    | 'moduleAdditional';
+  | 'moduleGoal'
+  | 'moduleResult'
+  | 'moduleRules'
+  | 'moduleTargetAudience'
+  | 'moduleAdditional';
   nextStep: number;
 }
 
@@ -626,19 +627,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
-    const cmd: {
-      title: string;
-      description: string;
-      moduleId: string;
-      startDate: string;
-      telegramGroupId?: string;
-      mentorId: string;
-      goal?: string;
-      result?: string;
-      rules?: string;
-      targetAudience?: string;
-      additional?: string;
-    } = {
+    const cmd: CreateStreamCmd = {
       title: context.title,
       description: context.description,
       moduleId: context.moduleId,
