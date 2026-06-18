@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { BotResponse } from './types';
 import { assertResponseMarkdownSafe } from './response-assert';
+import type { BotResponse } from './types';
 
 describe('assertResponseMarkdownSafe', () => {
   test('не ругается на неэкранированный текст в кнопках', () => {
@@ -10,12 +10,8 @@ describe('assertResponseMarkdownSafe', () => {
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
-            [
-              { text: 'не_экранированный_текст.кнопки!', code: 'btn1' },
-            ],
-            [
-              { text: 'Кнопка (с) скобками!', code: 'btn2' },
-            ],
+            [{ text: 'не_экранированный_текст.кнопки!', code: 'btn1' }],
+            [{ text: 'Кнопка (с) скобками!', code: 'btn2' }],
           ],
           isMultiple: false,
         },

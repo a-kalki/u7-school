@@ -157,7 +157,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (!modules || modules.length === 0) {
       return {
         sendMessage: {
-          text: '📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей. Создайте модуль в конструкторе курсов\.',
+          text: '📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей. Создайте модуль в конструкторе курсов.',
           parseMode: 'MarkdownV2',
           keyboard: {
             rows: [[{ text: '🔄 Обновить список', code: this.cb('start') }]],

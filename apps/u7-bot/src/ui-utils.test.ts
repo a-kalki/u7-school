@@ -5,9 +5,7 @@ import { executeResponses } from './ui-utils';
 
 // ── Фабрики ──
 
-function makeMockContext(
-  overrides: Partial<BotContext> = {},
-): BotContext {
+function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
   return {
     from: { id: 123, first_name: 'Тест', is_bot: false } as BotContext['from'],
     chat: { id: 123, type: 'private' } as BotContext['chat'],
@@ -30,10 +28,7 @@ describe('executeResponses — sendDelayMs', () => {
   test('сообщения отправляются с указанной задержкой (sendDelayMs: 100)', async () => {
     const ctx = makeMockContext();
     const response: BotResponse = {
-      sendMessages: [
-        { text: 'Первое' },
-        { text: 'Второе' },
-      ],
+      sendMessages: [{ text: 'Первое' }, { text: 'Второе' }],
       sendDelayMs: 100,
     };
 
@@ -48,10 +43,7 @@ describe('executeResponses — sendDelayMs', () => {
   test('дефолтная задержка = 1000 мс', async () => {
     const ctx = makeMockContext();
     const response: BotResponse = {
-      sendMessages: [
-        { text: 'Первое' },
-        { text: 'Второе' },
-      ],
+      sendMessages: [{ text: 'Первое' }, { text: 'Второе' }],
     };
 
     const start = performance.now();
@@ -65,10 +57,7 @@ describe('executeResponses — sendDelayMs', () => {
   test('sendDelayMs: 0 — без задержки', async () => {
     const ctx = makeMockContext();
     const response: BotResponse = {
-      sendMessages: [
-        { text: 'Первое' },
-        { text: 'Второе' },
-      ],
+      sendMessages: [{ text: 'Первое' }, { text: 'Второе' }],
       sendDelayMs: 0,
     };
 
@@ -139,7 +128,12 @@ describe('executeResponses — removePrevKeyboard', () => {
       text: 'Сообщение с кнопками',
       messageId: 10,
       keyboard: {
-        rows: [[{ text: 'Да', code: 'yes' }, { text: 'Нет', code: 'no' }]],
+        rows: [
+          [
+            { text: 'Да', code: 'yes' },
+            { text: 'Нет', code: 'no' },
+          ],
+        ],
         isMultiple: false,
       },
     };

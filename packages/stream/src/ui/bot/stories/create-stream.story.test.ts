@@ -59,7 +59,9 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('Выберите модуль');
     expect(response.sendMessage?.keyboard).toBeDefined();
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
     expect(btnTexts).toContain('Основы JavaScript');
   });
 

@@ -268,7 +268,7 @@ export abstract class BotController<
     return result;
   }
 
-/** Убирает префикс контроллера из callback_data (публичный для тестов) */
+  /** Убирает префикс контроллера из callback_data (публичный для тестов) */
   stripPrefix(data: string): string {
     const prefix = `${this.name}:`;
     if (data.startsWith(prefix)) {

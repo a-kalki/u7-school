@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import {  BotRouter , assertBotResponseValid } from '@u7-scl/core/ui';
+import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
 import { StreamStatus } from '@u7-scl/stream';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';

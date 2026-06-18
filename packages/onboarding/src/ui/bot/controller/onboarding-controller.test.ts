@@ -32,9 +32,9 @@ describe('OnboardingController', () => {
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
   const logger = {
-    error: () => { },
-    info: () => { },
-    warn: () => { },
+    error: () => {},
+    info: () => {},
+    warn: () => {},
   } as unknown as Logger;
 
   beforeEach(async () => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
-import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,

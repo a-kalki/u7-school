@@ -3,6 +3,7 @@ import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import { ConsoleLogger } from '@u7-scl/core/shared';
+import { BotRouter } from '@u7-scl/core/ui';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   CourseInProcFacade,
@@ -25,7 +26,6 @@ import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-contro
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
-import { BotRouter } from '@u7-scl/core/ui';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.

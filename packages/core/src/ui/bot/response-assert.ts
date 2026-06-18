@@ -1,5 +1,5 @@
-import type { BotResponse, SendMessageDescription } from './types';
 import { assertMarkdownV2Safe } from '../../shared/markdown-validator';
+import type { BotResponse, SendMessageDescription } from './types';
 
 /** Telegram-лимит на длину callback_data в байтах (ASCII) */
 const CALLBACK_DATA_MAX_BYTES = 64;

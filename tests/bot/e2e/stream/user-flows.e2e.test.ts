@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { BotRouter, assertBotResponseValid } from '@u7-scl/core/ui';
+import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -45,9 +45,7 @@ function findMenuItem(
   const item = items.find((i) => i.text.includes(textContains));
   if (!item) {
     const all = items.map((i) => i.text).join(', ');
-    throw new Error(
-      `Пункт меню «${textContains}» не найден. Доступны: ${all}`,
-    );
+    throw new Error(`Пункт меню «${textContains}» не найден. Доступны: ${all}`);
   }
   return item;
 }
@@ -440,7 +438,8 @@ describe('Сквозные пользовательские сценарии (E2
 
       // Должны быть кнопки со студентами
       const btnTexts =
-        studentsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        studentsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
+        [];
       expect(btnTexts.length).toBeGreaterThan(0);
     });
 

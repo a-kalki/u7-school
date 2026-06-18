@@ -86,7 +86,10 @@ export function assertMarkdownV2Safe(text: string): void {
   const result = validateMarkdownV2(text);
   if (!result.valid) {
     const details = result.issues
-      .map((i) => `${i.reason === 'unescaped' ? 'неэкранированный' : 'непарный'} '${i.char}'`)
+      .map(
+        (i) =>
+          `${i.reason === 'unescaped' ? 'неэкранированный' : 'непарный'} '${i.char}'`,
+      )
       .join(', ');
     throw new Error(
       `MarkdownV2 validation failed (${result.issues.length} issue(s)): ${details}\nText: ${text}`,

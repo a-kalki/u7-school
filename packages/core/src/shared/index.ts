@@ -10,6 +10,9 @@ export {
   setGlobalLogger,
 } from './logger';
 export { escapeMarkdown } from './markdown';
+export type {
+  MarkdownIssue,
+  MarkdownValidationResult,
+} from './markdown-validator';
 export { assertMarkdownV2Safe, validateMarkdownV2 } from './markdown-validator';
-export type { MarkdownIssue, MarkdownValidationResult } from './markdown-validator';
 export { serializeError } from './serialize-error';

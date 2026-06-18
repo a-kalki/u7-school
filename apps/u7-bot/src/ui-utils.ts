@@ -1,5 +1,5 @@
-import type { BotResponse, SendMessageDescription } from '@u7-scl/core/ui';
 import { validateMarkdownV2 } from '@u7-scl/core/shared';
+import type { BotResponse, SendMessageDescription } from '@u7-scl/core/ui';
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from './context';
 
@@ -95,7 +95,10 @@ function validateResponseInPlace(res: BotResponse): void {
       const result = validateMarkdownV2(msg.text);
       if (!result.valid) {
         const details = result.issues
-          .map((i) => `${i.reason === 'unescaped' ? 'неэкранированный' : 'непарный'} '${i.char}'`)
+          .map(
+            (i) =>
+              `${i.reason === 'unescaped' ? 'неэкранированный' : 'непарный'} '${i.char}'`,
+          )
           .join(', ');
         console.warn(
           `[MarkdownV2] ${result.issues.length} issue(s): ${details}`,

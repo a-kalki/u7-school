@@ -1,3 +1,4 @@
+import type { U7BotAppMeta } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/app/ui';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
@@ -13,7 +14,6 @@ import type { OnboardingApiModuleMeta } from '#domain/module';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { KeyboardDescription } from '../types';
-import type { U7BotAppMeta } from '@u7-scl/app/domain';
 
 /**
  * Контроллер onboarding для Telegram-бота.

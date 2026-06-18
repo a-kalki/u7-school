@@ -114,11 +114,7 @@ export abstract class BotUserStory<
    * @param action — имя действия
    * @param ids — реальные значения id
    */
-  protected cbFor(
-    storyName: string,
-    action: string,
-    ...ids: string[]
-  ): string {
+  protected cbFor(storyName: string, action: string, ...ids: string[]): string {
     return [storyName, action, ...ids].join(':');
   }
 
