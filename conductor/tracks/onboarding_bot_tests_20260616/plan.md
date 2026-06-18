@@ -16,11 +16,11 @@
 
 - [x] Task: Conductor - Ручная верификация 'E2E тесты onboarding' (Protocol in workflow.md)
 
-## Фаза 2: Интеграционные тесты: edge cases
+## Фаза 2: Интеграционные тесты: edge cases [checkpoint: c02118d]
 
 - [x] Task: Написать тесты на edge cases в onboarding-controller `e909ac9`
   - [x] Пустой ответ на обязательный вопрос
   - [x] Слишком длинный ответ (валидация)
   - [x] Множественный выбор: несколько опций
 
-- [ ] Task: Conductor - Ручная верификация 'Edge case тесты onboarding' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Edge case тесты onboarding' (Protocol in workflow.md)
