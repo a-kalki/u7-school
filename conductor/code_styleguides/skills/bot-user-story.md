@@ -297,6 +297,88 @@ private escapeMarkdown(text: string): string { ... }
 
 ---
 
+## 10. Wizard Story (пошаговый ввод данных)
+
+Когда сценарий требует последовательного ввода нескольких полей от пользователя,
+используется паттерн «wizard» — конечный автомат на основе `captureInput`.
+
+### 10.1 Контекст wizard
+
+Определи интерфейс контекста со **всеми** полями, которые собирает wizard:
+
+```typescript
+interface CreateStreamWizardContext {
+  step: number;        // текущий шаг (0, 1, 2, ...)
+  field1: string;      // обязательные поля — начальные значения ''
+  field2: string;
+  optionalField?: string; // необязательные поля — начальные undefined или ''
+}
+```
+
+### 10.2 Переход между шагами
+
+Каждый шаг wizard возвращает `captureInput` с обновлённым контекстом:
+- **Шаг N** получает текст через `handleMessage` → формирует `nextCtx` с `step: N+1`
+- **Кнопки** внутри шага получают действие через `handleCallback` → также формируют `nextCtx`
+
+```typescript
+#handleTitleInput(ctx: WizardContext, text: string): BotResponse {
+  return {
+    sendMessage: { text: 'Следующий вопрос' },
+    captureInput: {
+      path: WIZARD_PATH,
+      context: { ...ctx, step: 2, title: text },
+    },
+  };
+}
+```
+
+### 10.3 Поля со значениями по умолчанию
+
+Если поле может быть предзаполнено из другого источника (например, из модуля курса):
+
+1. Покажи подсказку «По умолчанию: ...» в тексте сообщения
+2. Добавь кнопку **«Принять»** — подставляет значение по умолчанию
+3. Добавь кнопку **«Пропустить»** — оставляет поле пустым
+4. Пользователь может ввести своё значение текстом
+
+Если значения по умолчанию нет — только поле ввода + «Пропустить».
+
+```typescript
+// В handleMessage для шага необязательного поля:
+const moduleValue = ctx.moduleField || '';
+const lines = [`📝 *Название поля*`];
+const buttons: { text: string; code: string }[] = [];
+
+if (moduleValue) {
+  lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleValue)}»_`);
+  buttons.push({ text: '✅ Принять', code: this.cb('accept-field') });
+}
+buttons.push({ text: '⏭️ Пропустить', code: this.cb('skip-field') });
+```
+
+### 10.4 Обработка ошибок создания
+
+В финальном шаге (`#handleConfirm`) оборачивай вызов `create-*` в `try/catch`.
+При ошибке валидации:
+- Покажи сообщение с деталями (поле + причина)
+- Освободи `captureInput` через `releaseInput: true`
+- Предложи начать заново
+
+```typescript
+try {
+  await this.moduleApi.execute('create-stream', cmd, actor.uuid);
+} catch (err: unknown) {
+  const error = err as Error & { details?: Array<{ field: string; message: string }> };
+  let messageText = '⚠️ *Ошибка валидации*';
+  if (error.details?.length) {
+    messageText += '\n\n' + error.details.map(d => `• ${d.field}: ${d.message}`).join('\n');
+  }
+  messageText += '\n\nПожалуйста, начните заново.';
+  return { releaseInput: true, sendMessage: { text: messageText, parseMode: 'MarkdownV2' } };
+}
+```
+
 ## 9. Связанные styleguide-файлы
 
 - [DDD API](../api.md) — UseCase, Command, Module
