@@ -74,7 +74,11 @@ export function connectRouter(
 
     const keyboard = new InlineKeyboard();
     for (const item of items) {
-      keyboard.text(item.text, item.action).row();
+      if (item.url) {
+        keyboard.url(item.text, item.url).row();
+      } else {
+        keyboard.text(item.text, item.action).row();
+      }
     }
 
     await ctx.reply(`Привет, ${user.name}! 👋\n\nВыберите действие:`, {

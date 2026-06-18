@@ -97,7 +97,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     appResolver,
   });
 
-  const streamController = new StreamController(streamModule);
+  const streamController = new StreamController(streamModule, config.schoolGroupUrl);
 
   // ══ ApiApp: модули ══
   const apiApp: U7BotApp = new ApiApp([

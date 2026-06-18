@@ -60,6 +60,8 @@ export interface MainMenuAction {
   text: string;
   action: string;
   priority: number;
+  /** Опциональный URL — если указан, кнопка становится URL-кнопкой (без callback) */
+  url?: string;
 }
 
 export type BotUpdate =

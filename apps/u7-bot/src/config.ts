@@ -10,6 +10,9 @@ export const BotConfigSchema = v.object({
     v.string(),
     v.nonEmpty('NEWS_GROUP_URL не может быть пустым'),
   ),
+  schoolGroupUrl: v.optional(
+    v.pipe(v.string(), v.nonEmpty('SCHOOL_GROUP_URL не может быть пустым')),
+  ),
   botAdminUuid: v.pipe(
     v.string(),
     v.uuid('BOT_ADMIN_UUID должен быть валидным UUID'),
@@ -67,6 +70,7 @@ export function loadConfig(): BotConfig {
       ? Number(process.env.WEBHOOK_PORT)
       : undefined,
     webhookPath: process.env.WEBHOOK_PATH,
+    schoolGroupUrl: process.env.SCHOOL_GROUP_URL,
     adminTelegramIds: process.env.ADMIN_TELEGRAM_IDS,
     loggerBotToken: process.env.LOGGER_BOT_TOKEN,
     dbDir: process.env.DB_DIR,
