@@ -13,10 +13,9 @@ import { createTestApp } from '../../helpers/test-app';
  * - Ментор → видит «Создать поток» в меню
  * - Гость → НЕ видит «Создать поток»
  * - Студент → НЕ видит «Создать поток»
- * - Полный wizard: старт → выбор модуля → название → описание → дата → группа → превью → подтверждение
+ * - Полный wizard: старт → модуль → название → описание → дата → goal→result→rules→targetAudience→additional → группа → превью → создание
  * - Wizard: кнопка «Изменить» на превью → перезапуск
  * - Wizard: /cancel → отмена создания
- * - Wizard: таймаут → завершение
  */
 describe('CreateStreamStory e2e', () => {
   let app: TestApp;
@@ -64,7 +63,7 @@ describe('CreateStreamStory e2e', () => {
   // ═══════════════════════════════════════════
 
   test('полный wizard: все шаги до успешного создания', async () => {
-    // Шаг 0: старт wizard-а — сразу показывает список модулей для выбора
+    // Шаг 0: старт wizard-а — сразу показывает список модулей
     const r0 = await router.handleCallback(
       'stream:create-stream:start',
       mentor,
@@ -75,7 +74,7 @@ describe('CreateStreamStory e2e', () => {
     expect(r0.sendMessage?.keyboard).toBeDefined();
     expect(session.activeHandler).not.toBeNull();
 
-    // Шаг 1: выбор модуля
+    // Шаг 1: выбор модуля — предзаполняет title/description
     const moduleId = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
     const r1 = await router.handleCallback(
       `stream:create-stream:module:${moduleId}`,
@@ -84,6 +83,7 @@ describe('CreateStreamStory e2e', () => {
     );
     assertBotResponseValid(r1);
     expect(r1.sendMessage?.text).toContain('название потока');
+    expect(r1.sendMessage?.text).toContain('По умолчанию');
 
     // Шаг 2: название
     const r2 = await router.handleMessage(
@@ -103,38 +103,92 @@ describe('CreateStreamStory e2e', () => {
     assertBotResponseValid(r3);
     expect(r3?.sendMessage?.text).toContain('дату старта');
 
-    // Шаг 4: дата
+    // Шаг 4: дата старта → переход к необязательным полям
     const r4 = await router.handleMessage(
       { type: 'message', text: '2026-09-01T00:00', telegramId: 1004 },
       mentor,
       session,
     );
     assertBotResponseValid(r4);
-    expect(r4?.sendMessage?.text).toContain('ссылку на Telegram\\-группу');
+    // Шаг 4: цель (goal) — модуль имеет значение, показывается «По умолчанию»
+    expect(r4?.sendMessage?.text).toContain('Цель');
+    expect(r4?.sendMessage?.text).toContain('По умолчанию');
 
-    // Шаг 5: группа → превью
-    const r5 = await router.handleMessage(
-      { type: 'message', text: 'https://t.me/+test', telegramId: 1004 },
+    // Шаг 5: нажимаем «Принять» для goal
+    const r5 = await router.handleCallback(
+      'stream:create-stream:accept-goal',
       mentor,
       session,
     );
     assertBotResponseValid(r5);
-    expect(r5?.sendMessage?.text).toContain('Превью');
-    expect(r5?.sendMessage?.text).toContain('Тестовый поток');
+    // Шаг 5: результат (result) — модуль имеет значение
+    expect(r5?.sendMessage?.text).toContain('Результат');
+    expect(r5?.sendMessage?.text).toContain('По умолчанию');
 
-    const previewBtns =
-      r5?.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(previewBtns.some((t) => t.includes('Создать'))).toBe(true);
-    expect(previewBtns.some((t) => t.includes('Изменить'))).toBe(true);
-
-    // Шаг 6: подтверждение
+    // Шаг 6: «Принять» для result
     const r6 = await router.handleCallback(
-      'stream:create-stream:confirm',
+      'stream:create-stream:accept-result',
       mentor,
       session,
     );
     assertBotResponseValid(r6);
-    expect(r6.sendMessage?.text).toContain('успешно создан');
+    // Шаг 6: правила (rules) — модуль имеет значение
+    expect(r6?.sendMessage?.text).toContain('Правила');
+
+    // Шаг 7: «Пропустить» правила
+    const r7 = await router.handleCallback(
+      'stream:create-stream:skip-rules',
+      mentor,
+      session,
+    );
+    assertBotResponseValid(r7);
+    // Шаг 7: целевая аудитория — модуль имеет значение
+    expect(r7?.sendMessage?.text).toContain('Целевая аудитория');
+
+    // Шаг 8: вводим своё значение для аудитории
+    const r8 = await router.handleMessage(
+      { type: 'message', text: 'Все желающие', telegramId: 1004 },
+      mentor,
+      session,
+    );
+    assertBotResponseValid(r8);
+    // Шаг 8: дополнительно — модуль НЕ имеет значения, только «Пропустить»
+    expect(r8?.sendMessage?.text).toContain('Дополнительно');
+    expect(r8?.sendMessage?.text).not.toContain('По умолчанию');
+
+    // Шаг 9: «Пропустить» additional
+    const r9 = await router.handleCallback(
+      'stream:create-stream:skip-additional',
+      mentor,
+      session,
+    );
+    assertBotResponseValid(r9);
+    // Шаг 9: группа
+    expect(r9?.sendMessage?.text).toContain('ссылку на Telegram\\-группу');
+
+    // Шаг 10: группа → превью
+    const r10 = await router.handleMessage(
+      { type: 'message', text: 'https://t.me/+test', telegramId: 1004 },
+      mentor,
+      session,
+    );
+    assertBotResponseValid(r10);
+    expect(r10?.sendMessage?.text).toContain('Превью');
+    expect(r10?.sendMessage?.text).toContain('Тестовый поток');
+
+    const previewBtns =
+      r10?.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(previewBtns.some((t) => t.includes('Создать'))).toBe(true);
+    expect(previewBtns.some((t) => t.includes('Изменить'))).toBe(true);
+
+    // Шаг 11: подтверждение
+    const r11 = await router.handleCallback(
+      'stream:create-stream:confirm',
+      mentor,
+      session,
+    );
+    assertBotResponseValid(r11);
+    expect(r11.sendMessage?.text).toContain('успешно создан');
     expect(session.activeHandler).toBeNull();
   });
 
@@ -143,11 +197,9 @@ describe('CreateStreamStory e2e', () => {
   // ═══════════════════════════════════════════
 
   test('отмена wizard-а через /cancel', async () => {
-    // Запускаем wizard
     await router.handleCallback('stream:create-stream:start', mentor, session);
     expect(session.activeHandler).not.toBeNull();
 
-    // Отменяем
     const cancelResp = await router.handleCancel(mentor, session);
     assertBotResponseValid(cancelResp);
     expect(cancelResp?.sendMessage?.text).toContain('отменен');
@@ -155,7 +207,7 @@ describe('CreateStreamStory e2e', () => {
   });
 
   test('кнопка «Изменить» на превью перезапускает wizard', async () => {
-    // Доходим до превью
+    // Быстрый проход до превью
     await router.handleCallback('stream:create-stream:start', mentor, session);
     await router.handleCallback(
       'stream:create-stream:module:a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0',
@@ -177,13 +229,22 @@ describe('CreateStreamStory e2e', () => {
       mentor,
       session,
     );
+    // Пропускаем все необязательные поля
+    for (const field of ['goal', 'result', 'rules', 'targetAudience', 'additional']) {
+      await router.handleCallback(
+        `stream:create-stream:skip-${field}`,
+        mentor,
+        session,
+      );
+    }
+    // Группа
     await router.handleMessage(
       { type: 'message', text: '@g', telegramId: 1004 },
       mentor,
       session,
     );
 
-    // Нажимаем «Изменить» (это тот же 'start', который перезапускает wizard)
+    // «Изменить» → перезапуск
     const changeResp = await router.handleCallback(
       'stream:create-stream:start',
       mentor,
