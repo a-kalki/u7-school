@@ -14,6 +14,7 @@
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
   - [Тестирование](./code_styleguides/testing.md) — общие правила
   - [Тестирование Telegram-бота](./code_styleguides/bot-test.md) — unit, интеграционные, E2E
+- [AppController](./code_styleguides/app-controller.md) — контроллер уровня приложения для stories без привязки к доменным модулям
 
 ## Гайды по контенту курса
 - [Наполнение уроков шагами](./guides/lesson-design.md)

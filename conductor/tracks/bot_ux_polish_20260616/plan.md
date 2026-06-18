@@ -28,25 +28,25 @@
 
 ## Фаза 3: Команда /help (FR-3)
 
-- [ ] Task: Написать тест: /help собирает описания от контроллеров
-  - [ ] Контроллер с handleHelpStart добавляет описание в вывод
-  - [ ] Контроллер без handleHelpStart пропускается
-  - [ ] Вывод содержит название пункта и описание
+- [x] Task: Написать тест: /help собирает описания от контроллеров [7daccad]
+  - [x] Контроллер с handleHelpStart добавляет описание в вывод
+  - [x] Контроллер без handleHelpStart пропускается
+  - [x] Вывод содержит название пункта и описание
 
-- [ ] Task: Реализовать /help в роутере и BotController
-  - [ ] Добавить опциональный метод handleHelpStart() в BotController (по умолчанию null)
-  - [ ] Добавить обработчик команды /help в router.ts
-  - [ ] Реализовать handleHelpStart в stream-контроллере (StreamController) и onboarding-контроллере
+- [x] Task: Реализовать /help в роутере и BotController [7daccad]
+  - [x] Добавить опциональный метод handleHelpStart() в BotController (по умолчанию null)
+  - [x] Добавить обработчик команды /help в router.ts
+  - [x] Реализовать handleHelpStart в stream-контроллере (StreamController) и onboarding-контроллере
 
 - [ ] Task: Conductor - Ручная верификация 'Команда /help' (Protocol in workflow.md)
 
 ## Фаза 4: Легенда цветных кружков (FR-4)
 
-- [ ] Task: Написать тест: CatalogStory добавляет легенду
-  - [ ] В ответе catalog/list присутствует текст легенды
-  - [ ] Легенда содержит 🟢, 🔵, ⚪ и их описания
+- [x] Task: Написать тест: CatalogStory добавляет легенду [3569480]
+  - [x] В ответе catalog/list присутствует текст легенды
+  - [x] Легенда содержит 🟢, 🔵, ⚪ и их описания
 
-- [ ] Task: Реализовать легенду в CatalogStory
-  - [ ] Добавить строку с легендой после списка потоков в handleCallback('list')
+- [x] Task: Реализовать легенду в CatalogStory [3569480]
+  - [x] Добавить строку с легендой после списка потоков в handleCallback('list')
 
 - [ ] Task: Conductor - Ручная верификация 'Легенда кружков' (Protocol in workflow.md)
