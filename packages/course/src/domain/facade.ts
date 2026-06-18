@@ -1,4 +1,4 @@
-import type { ContentSnapshot } from './types';
+import type { ContentSnapshot } from './content-snapshot';
 
 /**
  * Фасад модуля курсов для доступа из других модулей.

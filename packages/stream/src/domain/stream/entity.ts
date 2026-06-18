@@ -1,6 +1,6 @@
 import type { ArMeta } from '@u7-scl/core/domain';
+import { ContentSnapshotSchema } from '@u7-scl/course/domain';
 import * as v from 'valibot';
-import { ContentSnapshotSchema, type ContentSnapshot } from '@u7-scl/course/domain';
 import { StreamStatusSchema } from '../status';
 
 /** Схема сущности потока курсов */

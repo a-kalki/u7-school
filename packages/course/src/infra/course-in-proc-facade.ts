@@ -1,5 +1,5 @@
+import type { ContentSnapshot } from '#domain/content-snapshot';
 import type { CourseFacade } from '#domain/facade';
-import type { ContentSnapshot } from '#domain/types';
 import type { CourseApiModule } from '../api/module';
 
 /**

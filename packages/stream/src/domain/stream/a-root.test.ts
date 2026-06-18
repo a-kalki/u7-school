@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { StreamStatus } from '../status';
 import { StreamAr } from './a-root';
-import type { ContentSnapshot } from '@u7-scl/course/domain';
 
 const validContentSnapshot: ContentSnapshot = [
   {

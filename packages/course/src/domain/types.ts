@@ -8,4 +8,3 @@ export type LessonId = string;
 
 /** Идентификатор шага (UUID) */
 export type StepId = string;
-

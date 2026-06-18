@@ -1,5 +1,11 @@
 // Domain слой @u7-scl/course
 
+export type { ContentSnapshot, ContentSnapshotItem } from './content-snapshot';
+export {
+  ContentSnapshotItemSchema,
+  ContentSnapshotSchema,
+  LessonSnapshotSchema,
+} from './content-snapshot';
 export type { CourseFacade } from './facade';
 // Агрегат Lesson
 export { LessonAr } from './lesson/a-root';
@@ -121,9 +127,3 @@ export type {
   ModuleId,
   StepId,
 } from './types';
-export type { ContentSnapshot, ContentSnapshotItem } from './content-snapshot';
-export {
-  ContentSnapshotItemSchema,
-  ContentSnapshotSchema,
-  LessonSnapshotSchema,
-} from './content-snapshot';

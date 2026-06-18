@@ -7,5 +7,5 @@
 
 ---
 
-- [ ] **Track: Унификация ContentSnapshot, обработчик ошибок, studentId в cb-data**
+- [~] **Track: Унификация ContentSnapshot, обработчик ошибок, studentId в cb-data**
 *Link: [./tracks/arch_fixes_20260618/](./tracks/arch_fixes_20260618/)*

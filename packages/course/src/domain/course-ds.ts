@@ -1,3 +1,4 @@
+import type { ContentSnapshot } from './content-snapshot';
 import { LessonAr } from './lesson/a-root';
 import type { CreateLessonCmd } from './lesson/commands/create-lesson-cmd';
 import type { Lesson } from './lesson/entity';
@@ -6,7 +7,6 @@ import type { Module } from './module/entity';
 import { Status } from './status';
 import { StepAr } from './step/a-root';
 import type { CreateStepCmd } from './step/commands/create-step-cmd';
-import type { ContentSnapshot } from './types';
 
 /**
  * Domain Service модуля курсов.

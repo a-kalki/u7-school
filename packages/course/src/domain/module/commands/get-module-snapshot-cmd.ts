@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { ContentSnapshot } from '../../types';
+import type { ContentSnapshot } from '../../content-snapshot';
 import type { ModuleArMeta } from '../entity';
 import { ModuleSchema } from '../entity';
 import type {

@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import type { ContentSnapshot, ContentSnapshotItem } from './index';
 import {
-  ContentSnapshot,
-  ContentSnapshotItem,
   ContentSnapshotItemSchema,
   ContentSnapshotSchema,
   LessonSnapshotSchema,

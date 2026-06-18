@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import type { ContentSnapshot } from '#domain/content-snapshot';
 import { CourseDs } from '#domain/course-ds';
 import type { Lesson } from '#domain/lesson/entity';
 import type {
@@ -6,7 +7,6 @@ import type {
   GetModuleSnapshotCmdMeta,
 } from '#domain/module/commands/get-module-snapshot-cmd';
 import { GetModuleSnapshotCmdSchema } from '#domain/module/commands/get-module-snapshot-cmd';
-import type { ContentSnapshot } from '#domain/types';
 import { CourseUseCase } from '../course-uc';
 
 /**
