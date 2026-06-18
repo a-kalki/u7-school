@@ -7,13 +7,13 @@
 - [x] Task: Обновить course/domain/types.ts и index.ts `96d2235`
     - [x] Удалить `ContentSnapshotItem`, `ContentSnapshot` из types.ts
     - [x] Добавить экспорт из content-snapshot.ts в index.ts
-- [ ] Task: Обновить stream для импорта ContentSnapshot из course
-    - [ ] Удалить `ContentSnapshotSchema`, `ProjectSnapshotSchema`, `LessonSnapshotSchema` из `stream/domain/stream/entity.ts`
-    - [ ] Импортировать `ContentSnapshot`, `ContentSnapshotSchema` из `@u7-scl/course/domain`
-    - [ ] Обновить `stream/domain/index.ts`
-- [ ] Task: Обновить внутренние импорты в stream
-    - [ ] `stream-ds.ts`, `a-root.ts`, `a-root.test.ts`, `entity.test.ts`, `stream-ds.test.ts`
-    - [ ] `progress.story.ts` — обновить импорт
+- [x] Task: Обновить stream для импорта ContentSnapshot из course `36eefc1`
+    - [x] Удалить `ContentSnapshotSchema`, `ProjectSnapshotSchema`, `LessonSnapshotSchema` из `stream/domain/stream/entity.ts`
+    - [x] Импортировать `ContentSnapshot`, `ContentSnapshotSchema` из `@u7-scl/course/domain`
+    - [x] Обновить `stream/domain/index.ts`
+- [x] Task: Обновить внутренние импорты в stream `36eefc1`
+    - [x] `stream-ds.ts`, `a-root.ts`, `a-root.test.ts`, `entity.test.ts`, `stream-ds.test.ts`
+    - [x] `progress.story.ts` — обновить импорт
 - [ ] Task: Проверить типы и тесты
     - [ ] `bun run check:p course && bun run check:p stream`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
