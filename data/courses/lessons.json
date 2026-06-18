@@ -446,8 +446,18 @@
     "additional": "Усложнение проекта 2: пишем функции calcEmployee и calcDepartment через функции",
     "status": "published",
     "createdAt": "2026-06-04T14:30",
-    "estimatedMinutes": 60,
-    "stepIds": [],
+    "estimatedMinutes": 100,
+    "stepIds": [
+      "d74a5313-2879-4b8d-ba0d-0bc7ffd5a951",
+      "084e4759-44e6-4472-bd79-332572d0037c",
+      "de924b99-9650-479f-b346-67a0e89dc340",
+      "5d307a03-20b5-4eeb-b3a3-ed7fd4cecedf",
+      "c8c7fb77-abc2-4a89-a39a-dff58215b202",
+      "73d1283e-4ead-4e0e-a0ca-32784370f376",
+      "baf3b3e1-b5ff-4a14-abb5-5020d7611ab4",
+      "b90e9856-ef6b-448e-a444-925c497fc3e7",
+      "3ffc9910-d6ed-41b5-b93f-f313d9bc29ee"
+    ],
     "mentorStepIds": []
   },
   {
