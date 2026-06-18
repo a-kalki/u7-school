@@ -1,9 +1,9 @@
 # План реализации: arch_fixes_20260618
 
 ## Фаза 1: Унификация ContentSnapshot в отдельном файле
-- [ ] Task: Создать course/domain/content-snapshot.ts
-    - [ ] Перенести `ContentSnapshotItem`, `ContentSnapshot` из types.ts
-    - [ ] Добавить valibot-схемы: `LessonSnapshotSchema`, `ContentSnapshotItemSchema`, `ContentSnapshotSchema`
+- [x] Task: Создать course/domain/content-snapshot.ts `3bf006d`
+    - [x] Перенести `ContentSnapshotItem`, `ContentSnapshot` из types.ts
+    - [x] Добавить valibot-схемы: `LessonSnapshotSchema`, `ContentSnapshotItemSchema`, `ContentSnapshotSchema`
 - [ ] Task: Обновить course/domain/types.ts и index.ts
     - [ ] Удалить `ContentSnapshotItem`, `ContentSnapshot` из types.ts
     - [ ] Добавить экспорт из content-snapshot.ts в index.ts
