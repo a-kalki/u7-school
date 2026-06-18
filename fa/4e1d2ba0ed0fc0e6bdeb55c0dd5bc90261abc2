@@ -1,0 +1,6 @@
+Задача: Обновить #handleConfirm в CreateStreamStory
+Изменения:
+- Заменён ad-hoc try/catch (с детальным разбором details) на this.handleError(err)
+- Старый тест обновлён: использует AppException + errValidation вместо Object.assign
+Файлы: create-stream.story.ts, create-stream.story.test.ts
+Причина: Унификация обработки ошибок через handleError из U7BotUserStory
