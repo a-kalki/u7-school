@@ -1,0 +1,6 @@
+Задача: Создать course/domain/content-snapshot.ts
+Изменения:
+- Новый файл content-snapshot.ts с типами ContentSnapshotItem, ContentSnapshot и valibot-схемами LessonSnapshotSchema, ContentSnapshotItemSchema, ContentSnapshotSchema
+- Тесты content-snapshot.test.ts (8 тестов) на валидацию схем
+Файлы: packages/course/src/domain/content-snapshot.ts, packages/course/src/domain/content-snapshot.test.ts
+Причина: Унификация ContentSnapshot — course должен быть единственным источником истины
