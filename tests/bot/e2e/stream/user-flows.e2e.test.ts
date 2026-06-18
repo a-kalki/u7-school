@@ -349,6 +349,69 @@ describe('Сквозные пользовательские сценарии (E2
       expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
       expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     });
+
+    test('«Выполнено» → клавиатура следующего шага (без «Шаг выполнен»)', async () => {
+      const menu = await router.collectMainMenu(student);
+      const studyBtn = findMenuItem(menu, 'Моя учёба');
+      const studyResp = await router.handleCallback(
+        studyBtn.action,
+        student,
+        NO_SESSION,
+      );
+
+      // Нажимаем «Выполнено»
+      const completeBtn = findButton(studyResp, 'Выполнено');
+      const completeResp = await router.handleCallback(
+        completeBtn.code,
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(completeResp);
+
+      const text = completeResp.sendMessage?.text ?? '';
+      // Получаем клавиатуру следующего шага, а не сообщение «Шаг выполнен»
+      expect(text).toContain('Моя учёба');
+      expect(text).toContain('Текущее задание');
+      expect(text).not.toContain('Шаг выполнен');
+
+      const btnTexts =
+        completeResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+      expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
+    });
+
+    test('полный проход: завершить последний шаг урока → поздравление + «Начать следующий урок» → новый урок', async () => {
+      // Фикстура: студент на шаге d1 (последний шаг урока «Переменные и типы»)
+      // Используем прямой вызов complete с известными ID
+      const completeResp = await router.handleCallback(
+        'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(completeResp);
+
+      // Поздравление и кнопка «Начать следующий урок»
+      const text1 = completeResp.sendMessage?.text ?? '';
+      expect(text1).toContain('завершён');
+
+      const nextLessonBtn = findButton(completeResp, 'Начать следующий урок');
+
+      // Нажимаем «Начать следующий урок»
+      const nextResp = await router.handleCallback(
+        nextLessonBtn.code,
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(nextResp);
+
+      const text2 = nextResp.sendMessage?.text ?? '';
+      expect(text2).toContain('Моя учёба');
+      expect(text2).toContain('Текущее задание');
+
+      const btnTexts =
+        nextResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+    });
   });
 
   // ────────────────────────────────────────────────

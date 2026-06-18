@@ -11,9 +11,10 @@ import { createTestApp } from '../../helpers/test-app';
  *
  * Покрытие:
  * - Студент → видит текущий шаг с кнопкой «Выполнено»
- * - Студент → завершает шаг, получает следующий (level='step')
- * - Студент → завершает последний шаг урока → переход level='lesson'
- * - Студент → завершает последний шаг проекта → переход level='project'
+ * - Студент → завершает шаг, сразу видит клавиатуру следующего (level='step')
+ * - Студент → завершает последний шаг урока → поздравление + кнопка «Начать следующий урок»
+ * - Студент → нажимает «Начать следующий урок» → видит первый шаг нового урока
+ * - Студент → завершает последний шаг проекта → поздравление + кнопка «Начать следующий проект»
  * - Студент → завершает обучение → поздравление (level='stream')
  * - Гость → не видит «Моя учёба» в меню
  * - Студент → видит «Моя учёба» в меню
@@ -70,8 +71,8 @@ describe('LearningStory e2e', () => {
   // Завершение шагов и переходы
   // ═══════════════════════════════════════════
 
-  test('завершение шага — level=step (следующий шаг в том же уроке)', async () => {
-    // Студент на шаге d0, завершаем → должен перейти на d1 (тот же урок)
+  test('завершение шага — level=step (сразу клавиатура следующего шага)', async () => {
+    // Студент на шаге d0, завершаем → получаем клавиатуру шага d1 (тот же урок)
     const response = await router.handleCallback(
       'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0',
       student,
@@ -79,12 +80,21 @@ describe('LearningStory e2e', () => {
     );
     assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Шаг выполнен');
+    // Клавиатура с кнопками «Выполнено» и «Мой прогресс» (без «Шаг выполнен»)
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Моя учёба');
+    expect(text).toContain('Текущее задание');
+    expect(text).not.toContain('Шаг выполнен');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
   });
 
-  test('завершение последнего шага урока — level=lesson (названия уроков)', async () => {
+  test('завершение последнего шага урока — поздравление + кнопка «Начать следующий урок»', async () => {
     // После предыдущего теста студент на шаге d1 (последний шаг урока «Переменные и типы»)
-    // Завершаем d1 → переход на новый урок «Условные операторы»
+    // Завершаем d1 → поздравление и кнопка «Начать следующий урок»
     const response = await router.handleCallback(
       'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
       student,
@@ -93,12 +103,38 @@ describe('LearningStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Переменные и типы'); // завершённый урок
-    expect(text).toContain('Условные операторы'); // новый урок
+    expect(text).toContain('завершён');
+    expect(text).toContain('Переменные и типы'); // название завершённого урока
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(true);
+  });
+
+  test('нажатие «Начать следующий урок» → первый шаг нового урока', async () => {
+    // Из ответа предыдущего теста извлекаем код кнопки и эмулируем нажатие
+    // Но т.к. состояние не хранится между тестами, симулируем через my-study
+    // (после complete-step с level=lesson, currentStepId уже указывает на новый урок)
+    const response = await router.handleCallback(
+      'stream:learning:my-study',
+      student,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Моя учёба');
+    expect(text).toContain('Текущее задание');
+    // Должен быть на шаге нового урока «Условные операторы»
+    expect(text).toContain('Условные операторы');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
   test('завершение шага в новом уроке — level=step', async () => {
-    // Студент на шаге d2, завершаем → d3
+    // Студент на шаге d2, завершаем → клавиатура d3
     const response = await router.handleCallback(
       'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2',
       student,
@@ -106,7 +142,13 @@ describe('LearningStory e2e', () => {
     );
     assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Шаг выполнен');
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Текущее задание');
+    expect(text).not.toContain('Шаг выполнен');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
   test('завершение последнего шага — level=project или stream', async () => {
