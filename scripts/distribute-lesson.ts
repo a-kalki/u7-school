@@ -10,13 +10,13 @@
  */
 
 import { ApiApp } from '@u7-scl/core/api';
+import type { Logger } from '@u7-scl/core/shared';
 import { convert } from 'markdown-to-telegram';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
-import type { Logger } from '@u7-scl/core/shared';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
 import type { UserApiModuleResolver } from '../packages/user/src/domain/module.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';

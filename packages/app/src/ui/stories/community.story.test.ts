@@ -24,7 +24,14 @@ describe('CommunityStory', () => {
 
   test('handleStart возвращает кнопку для всех ролей', async () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
-    const roles = [Role.GUEST, Role.SUBSCRIBER, Role.CANDIDATE, Role.STUDENT, Role.MENTOR, Role.ADMIN];
+    const roles = [
+      Role.GUEST,
+      Role.SUBSCRIBER,
+      Role.CANDIDATE,
+      Role.STUDENT,
+      Role.MENTOR,
+      Role.ADMIN,
+    ];
     for (const role of roles) {
       const user: User = {
         uuid: `user-${role}`,
@@ -41,7 +48,9 @@ describe('CommunityStory', () => {
 
   test('handleCallback возвращает заглушку', async () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
-    const response = await story.handleCallback('any', actor, { activeHandler: null });
+    const response = await story.handleCallback('any', actor, {
+      activeHandler: null,
+    });
     expect(response.sendMessage?.text).toContain('Неизвестная');
   });
 

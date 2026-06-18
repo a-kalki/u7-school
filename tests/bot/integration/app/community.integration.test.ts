@@ -73,7 +73,9 @@ describe('CommunityStory integration (app-controller)', () => {
   test('кнопка «Сообщество школы» имеет низкий приоритет (после основных)', async () => {
     const router = makeRouter(SCHOOL_GROUP_URL);
     const items = await router.collectMainMenu(guest);
-    const communityIdx = items.findIndex((i) => i.text === '💬 Сообщество школы');
+    const communityIdx = items.findIndex(
+      (i) => i.text === '💬 Сообщество школы',
+    );
     expect(communityIdx).toBeGreaterThan(0);
     const communityBtn = items[communityIdx]!;
     expect(communityBtn.priority).toBe(100);

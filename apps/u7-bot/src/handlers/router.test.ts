@@ -249,7 +249,12 @@ describe('connectRouter', () => {
     const ctrl1 = new MockController();
     ctrl1.name = 'ctrl1';
     ctrl1.setStartResult([
-      { kind: 'callback', text: 'Кнопка 1', action: 'ctrl1:act1', priority: 10 },
+      {
+        kind: 'callback',
+        text: 'Кнопка 1',
+        action: 'ctrl1:act1',
+        priority: 10,
+      },
     ]);
 
     const ctrl2 = new MockController();
@@ -562,7 +567,12 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'main';
     ctrl.setStartResult([
-      { kind: 'callback', text: 'Начать', action: 'main:start-action', priority: 1 },
+      {
+        kind: 'callback',
+        text: 'Начать',
+        action: 'main:start-action',
+        priority: 1,
+      },
     ]);
     ctrl.setCallbackResult({
       sendMessage: { text: 'Введите имя:' },

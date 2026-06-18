@@ -1,8 +1,8 @@
-import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { User } from '@u7-scl/app/domain';
-import { U7BotController } from './u7-bot-controller';
-import { CommunityStory } from './stories/community.story';
+import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type { AppOnlyApiModuleMeta } from './stories/community.story';
+import { CommunityStory } from './stories/community.story';
+import { U7BotController } from './u7-bot-controller';
 
 /**
  * Контроллер уровня приложения для stories без привязки к доменным модулям.

@@ -55,10 +55,22 @@ export interface SessionData {
   lastBotMessage?: SendMessageDescription & { messageId: number };
 }
 
+export type CbMainMenuAction = {
+  kind: 'callback';
+  text: string;
+  action: string;
+  priority: number;
+};
+
+export type UrlMainMenuAction = {
+  kind: 'url';
+  text: string;
+  url: string;
+  priority: number;
+};
+
 /** Элемент главного меню бота */
-export type MainMenuAction =
-  | { kind: 'callback'; text: string; action: string; priority: number }
-  | { kind: 'url'; text: string; url: string; priority: number };
+export type MainMenuAction = CbMainMenuAction | UrlMainMenuAction;
 
 export type BotUpdate =
   | { type: 'command'; command: string; telegramId: number; name?: string }

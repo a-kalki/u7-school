@@ -230,7 +230,13 @@ describe('CreateStreamStory e2e', () => {
       session,
     );
     // Пропускаем все необязательные поля
-    for (const field of ['goal', 'result', 'rules', 'targetAudience', 'additional']) {
+    for (const field of [
+      'goal',
+      'result',
+      'rules',
+      'targetAudience',
+      'additional',
+    ]) {
       await router.handleCallback(
         `stream:create-stream:skip-${field}`,
         mentor,

@@ -5,7 +5,7 @@ import type { U7BotApp } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { CbMainMenuAction, SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
 import type { OnboardingApiModuleResolver } from '@u7-scl/onboarding';
 import {
@@ -15,7 +15,7 @@ import {
   QuestionPoolService,
 } from '@u7-scl/onboarding';
 import { UserApiModule } from '@u7-scl/user/api';
-import type { User } from '@u7-scl/user/domain';
+import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { UserJsonRepo } from '@u7-scl/user/infra';
 
@@ -51,27 +51,6 @@ function capSession(messageId?: number): SessionData {
       expiresAt: Date.now() + 600_000,
     },
   };
-}
-
-/** Находит кнопку в клавиатуре ответа по вхождению подстроки в текст */
-function findButton(
-  response: BotResponse,
-  textContains: string,
-): { text: string; code: string } {
-  const btn = response.sendMessage?.keyboard?.rows
-    .flat()
-    .find((b) => b.text.includes(textContains));
-  if (!btn) {
-    const allTexts =
-      response.sendMessage?.keyboard?.rows
-        .flat()
-        .map((b) => b.text)
-        .join(', ') ?? '(нет клавиатуры)';
-    throw new Error(
-      `Кнопка с текстом «${textContains}» не найдена. Доступны: ${allTexts}`,
-    );
-  }
-  return btn;
 }
 
 describe('Onboarding E2E', () => {
@@ -130,7 +109,7 @@ describe('Onboarding E2E', () => {
         await userRepo.save(updated);
         return updated;
       },
-    };
+    } as unknown as UserFacade;
 
     // Модули
     const userModule = new UserApiModule({ userRepo, appResolver });
@@ -176,7 +155,9 @@ describe('Onboarding E2E', () => {
     const menu = await router.collectMainMenu(guest);
     const onboardBtn = menu.find((i) => i.text === '📝 Заполнить анкету');
     expect(onboardBtn).toBeDefined();
-    expect(onboardBtn!.action).toBe('onboarding:start_questionnaire');
+    expect((onboardBtn as CbMainMenuAction).action).toBe(
+      'onboarding:start_questionnaire',
+    );
 
     // 2. Начинаем анкету
     const startResp = await router.handleCallback(

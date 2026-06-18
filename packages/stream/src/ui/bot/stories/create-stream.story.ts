@@ -8,8 +8,8 @@ import type {
 } from '@u7-scl/core/ui';
 import { Status } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { CreateStreamCmd } from '#domain/stream/commands/create-stream-cmd';
+import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /** Контекст wizard-а создания потока */
 interface CreateStreamWizardContext {
@@ -40,11 +40,11 @@ interface OptionalFieldConfig {
   fieldName: 'goal' | 'result' | 'rules' | 'targetAudience' | 'additional';
   label: string;
   moduleKey:
-  | 'moduleGoal'
-  | 'moduleResult'
-  | 'moduleRules'
-  | 'moduleTargetAudience'
-  | 'moduleAdditional';
+    | 'moduleGoal'
+    | 'moduleResult'
+    | 'moduleRules'
+    | 'moduleTargetAudience'
+    | 'moduleAdditional';
   nextStep: number;
 }
 
