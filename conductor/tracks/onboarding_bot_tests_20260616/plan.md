@@ -1,6 +1,6 @@
 # План реализации: Onboarding Bot Tests
 
-## Фаза 1: E2E тесты (Grammy-бот)
+## Фаза 1: E2E тесты (Grammy-бот) [checkpoint: f219079]
 
 - [x] Task: Написать E2E тест полного сценария анкетирования `b1253f7`
   - [x] Создать тестовый Grammy-бот без polling
