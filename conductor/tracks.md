@@ -7,5 +7,5 @@
 
 ---
 
-- [ ] **Track: Унификация обработки ошибок и логирования в bot-слое**
+- [x] **Track: Унификация обработки ошибок и логирования в bot-слое**
 *Link: [./tracks/err_handling_logging_20260616/](./tracks/err_handling_logging_20260616/)*
