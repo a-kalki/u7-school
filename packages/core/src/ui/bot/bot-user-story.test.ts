@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { BotUserStory } from './bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from './types';
+import { type Logger, LogLevel, getGlobalLogger, setGlobalLogger } from '#shared/logger';
 
 // Тестовый тип метаданных
 type TestModuleMeta = ApiModuleMeta & {
@@ -64,6 +65,10 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
 
   public override stripPrefix(data: string): string {
     return super.stripPrefix(data);
+  }
+
+  public override get logger(): ReturnType<typeof getGlobalLogger> {
+    return super.logger;
   }
 }
 
@@ -171,6 +176,45 @@ describe('BotUserStory', () => {
         { activeHandler: null },
       );
       expect(resp.sendMessage?.text).toBe('echo: привет');
+    });
+  });
+
+  describe('logger', () => {
+    let savedLogger: Logger | undefined;
+
+    beforeEach(() => {
+      savedLogger = getGlobalLogger();
+    });
+
+    afterEach(() => {
+      if (savedLogger) {
+        setGlobalLogger(savedLogger);
+      }
+    });
+
+    test('возвращает глобальный логгер, когда он установлен', () => {
+      const mockLogger: Logger = {
+        debug: mock(() => {}),
+        info: mock(() => {}),
+        warn: mock(() => {}),
+        error: mock(() => {}),
+        setLogLevel: mock(() => {}),
+        getLogLevel: mock(() => LogLevel.DEBUG),
+        setSourceLevel: mock(() => {}),
+      };
+
+      setGlobalLogger(mockLogger);
+
+      const s = new TestStory();
+      expect(s.logger).toBe(mockLogger);
+    });
+
+    test('возвращает undefined, когда глобальный логгер не установлен', () => {
+      // Сбрасываем глобальный логгер
+      setGlobalLogger(undefined as unknown as Logger);
+
+      const s = new TestStory();
+      expect(s.logger).toBeUndefined();
     });
   });
 });

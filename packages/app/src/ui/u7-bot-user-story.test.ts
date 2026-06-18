@@ -10,6 +10,7 @@ import {
   errValidation,
 } from '@u7-scl/core/domain';
 import type { BotResponse } from '@u7-scl/core/ui';
+import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
 import type { StreamApiModuleMeta } from '@u7-scl/stream/domain';
 import { U7BotUserStory } from './u7-bot-user-story';
 
@@ -29,26 +30,31 @@ class TestStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 }
 
+/** Создаёт мок-логгер */
+function createMockLogger(): Logger & { error: ReturnType<typeof mock> } {
+  return {
+    debug: mock(() => {}),
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    setLogLevel: mock(() => {}),
+    getLogLevel: mock(() => LogLevel.DEBUG),
+    setSourceLevel: mock(() => {}),
+  } as unknown as Logger & { error: ReturnType<typeof mock> };
+}
+
 describe('U7BotUserStory.handleError', () => {
   let story: TestStory;
-  let consoleErrorSpy: ReturnType<typeof mock>;
+  let mockLogger: Logger & { error: ReturnType<typeof mock> };
 
   beforeEach(() => {
     story = new TestStory();
-    consoleErrorSpy = mock(() => {});
-    // Сохраняем и подменяем console.error
-    const origError = console.error;
-    console.error = consoleErrorSpy as unknown as typeof console.error;
-    (story as { _origConsoleError: typeof console.error })._origConsoleError =
-      origError;
+    mockLogger = createMockLogger();
+    setGlobalLogger(mockLogger);
   });
 
   afterEach(() => {
-    // Восстанавливаем console.error
-    const s = story as unknown as { _origConsoleError?: typeof console.error };
-    if (s._origConsoleError) {
-      console.error = s._origConsoleError;
-    }
+    // Сбрасываем глобальный логгер, чтобы не влиять на другие тесты
   });
 
   describe('validation error', () => {
@@ -102,7 +108,7 @@ describe('U7BotUserStory.handleError', () => {
 
       expect(resp.sendMessage).toBeDefined();
       expect(resp.sendMessage!.text).toContain('Модуль не найден');
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
@@ -118,7 +124,7 @@ describe('U7BotUserStory.handleError', () => {
       const resp = story.testHandleError(exception);
 
       expect(resp.sendMessage!.text).toContain('Поток уже существует');
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
@@ -134,7 +140,7 @@ describe('U7BotUserStory.handleError', () => {
       const resp = story.testHandleError(exception);
 
       expect(resp.sendMessage!.text).toContain('Недостаточно прав');
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
@@ -150,7 +156,7 @@ describe('U7BotUserStory.handleError', () => {
       const resp = story.testHandleError(exception);
 
       expect(resp.sendMessage!.text).toContain('Некорректный запрос');
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
@@ -165,7 +171,7 @@ describe('U7BotUserStory.handleError', () => {
 
       const resp = story.testHandleError(exception);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
       expect(resp.sendMessage!.text).not.toContain('Внутренняя ошибка сервера');
     });
@@ -178,7 +184,7 @@ describe('U7BotUserStory.handleError', () => {
 
       const resp = story.testHandleError(exception);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(resp.sendMessage!.text).not.toContain('Не авторизован');
     });
   });
@@ -189,7 +195,7 @@ describe('U7BotUserStory.handleError', () => {
 
       const resp = story.testHandleError(err);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
       expect(resp.sendMessage!.text).not.toContain('Что-то пошло не так');
     });
@@ -199,7 +205,7 @@ describe('U7BotUserStory.handleError', () => {
     test('логирует и возвращает общее сообщение', () => {
       const resp = story.testHandleError('странная строка');
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
     });
   });

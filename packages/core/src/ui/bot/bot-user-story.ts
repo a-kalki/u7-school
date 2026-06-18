@@ -1,6 +1,10 @@
 import type { ApiApp } from '#api/app/api-app';
+import { fromError } from '#domain/errors/error-helpers';
 import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
 import { escapeMarkdown } from '#shared/markdown';
+import type { Logger } from '#shared/logger';
+import { getGlobalLogger } from '#shared/logger';
+import { serializeError } from '#shared/serialize-error';
 import type {
   BotResponse,
   BotUpdate,
@@ -32,6 +36,11 @@ export abstract class BotUserStory<
 
   /** API приложения — для вызовов к другим модулям */
   protected appApi!: ApiApp<TAppMeta>;
+
+  /** Логгер — берётся из глобального логгера приложения */
+  protected get logger(): Logger | undefined {
+    return getGlobalLogger();
+  }
 
   /**
    * Инициализация сценария — вызывается контроллером при старте бота.
@@ -155,5 +164,71 @@ export abstract class BotUserStory<
         text: 'Произошла неизвестная ошибка. Попробуйте начать с команды /start.',
       },
     };
+  }
+
+  /**
+   * Универсальный обработчик ошибок.
+   * Различает типы ошибок через `fromError()` и возвращает
+   * подходящее пользовательское сообщение.
+   *
+   * - `validation` — перечисляет поля из `payload.issues`
+   * - `not-found`, `conflict`, `access-denied`, `bad-request` — текст ошибки
+   * - `internal`, `unauthorized` — логирует через логгер и возвращает общее сообщение
+   */
+  protected handleError(err: unknown): BotResponse {
+    const appError = fromError(err);
+
+    switch (appError.kind) {
+      case 'validation': {
+        const payload = appError.payload as
+          | { issues?: Array<{ field: string; message: string }> }
+          | undefined;
+        const issues = payload?.issues;
+
+        if (issues && issues.length > 0) {
+          const lines = issues.map((i) => `• *${i.field}*: ${i.message}`);
+          return {
+            releaseInput: true,
+            sendMessage: {
+              text: `⚠️ *Ошибка валидации*\n\n${lines.join('\n')}\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями.`,
+              parseMode: 'MarkdownV2',
+            },
+          };
+        }
+
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: `⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова.`,
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+
+      case 'not-found':
+      case 'conflict':
+      case 'access-denied':
+      case 'bad-request':
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: `⚠️ ${appError.message}`,
+            parseMode: 'MarkdownV2',
+          },
+        };
+
+      case 'internal':
+      case 'unauthorized':
+      default: {
+        this.logger?.error('bot', 'Ошибка в story', serializeError(err));
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: `⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\.`,
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+    }
   }
 }
