@@ -38,7 +38,10 @@ export function assertResponseMarkdownSafe(response: BotResponse): void {
  * Используется в integration/e2e тестах, где BotResponse формируется
  * с участием контроллера (сжатие id уже выполнено).
  */
-export function assertBotResponseValid(response: BotResponse): void {
+export function assertBotResponseValid(response: BotResponse | null): void {
+  if (!response) {
+    throw new Error(`BotResponse is ${typeof response}`);
+  }
   assertResponseMarkdownSafe(response);
   assertCallbackDataLength(response);
 }

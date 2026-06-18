@@ -173,19 +173,20 @@ export abstract class BotController<
    * Сжимает необработанный callback от стори (storyName:action:id1:id2...).
    * Добавляет префикс контроллера, сжимает id через короткие ключи.
    */
+  /** UUID v4 (8-4-4-4-12 hex). Сжимаем только UUID, остальное пропускаем как есть. */
+  static readonly #UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   #compressAction(raw: string): string {
-    const parts = raw.split(':');
-    if (parts.length <= 2) {
-      // Нет id для сжатия — только storyName:action
+    // Нет id для сжатия — только storyName:action
+    if (raw.split(':').length <= 2) {
       return `${this.name}:${raw}`;
     }
 
-    // storyName, action, ...ids
-    const storyName = parts[0]!;
-    const action = parts[1]!;
-    const ids = parts.slice(2);
+    const [storyName, action, ...ids] = raw.split(':');
 
-    const compressedIds = ids.map((id) => this.#shrink(id));
+    const compressedIds = ids.map((id) =>
+      BotController.#UUID_RE.test(id) ? this.#shrink(id) : id,
+    );
     return [this.name, storyName, action, ...compressedIds].join(':');
   }
 
@@ -195,12 +196,11 @@ export abstract class BotController<
    */
   #expandData(raw: string): string {
     const parts = raw.split(':');
-    if (parts.length <= 1) {
+    if (raw.split(':').length <= 1) {
       return raw;
     }
     // action, ...compressedIds
-    const action = parts[0]!;
-    const compressedIds = parts.slice(1);
+    const [action, ...compressedIds] = parts;
     const realIds = compressedIds.map((key) => this.shortIds.get(key) ?? key);
     return [action, ...realIds].join(':');
   }
