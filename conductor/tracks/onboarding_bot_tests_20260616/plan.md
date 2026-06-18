@@ -14,13 +14,13 @@
 - [x] Task: Написать E2E тест возобновления анкеты `b1253f7`
   - [x] Начать анкету → ответить → повторный «Заполнить анкету» → продолжить с того же места
 
-- [ ] Task: Conductor - Ручная верификация 'E2E тесты onboarding' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'E2E тесты onboarding' (Protocol in workflow.md)
 
 ## Фаза 2: Интеграционные тесты: edge cases
 
-- [ ] Task: Написать тесты на edge cases в onboarding-controller
-  - [ ] Пустой ответ на обязательный вопрос
-  - [ ] Слишком длинный ответ (валидация)
-  - [ ] Множественный выбор: несколько опций
+- [x] Task: Написать тесты на edge cases в onboarding-controller `e909ac9`
+  - [x] Пустой ответ на обязательный вопрос
+  - [x] Слишком длинный ответ (валидация)
+  - [x] Множественный выбор: несколько опций
 
 - [ ] Task: Conductor - Ручная верификация 'Edge case тесты onboarding' (Protocol in workflow.md)
