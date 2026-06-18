@@ -2,7 +2,8 @@ import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import { StreamStatus } from '../status';
 import type { CreateStreamCmd } from './commands/create-stream-cmd';
-import type { ContentSnapshot, Stream, StreamArMeta } from './entity';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
+import type { Stream, StreamArMeta } from './entity';
 import { StreamSchema } from './entity';
 import { StreamPolicy } from './policy';
 

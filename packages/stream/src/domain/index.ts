@@ -1,4 +1,6 @@
 // Будущий экспорт доменного слоя потока курсов
+export type { ContentSnapshot } from '@u7-scl/course/domain';
+export { ContentSnapshotSchema } from '@u7-scl/course/domain';
 export * from './module';
 export * from './status';
 export * from './stream/a-root';

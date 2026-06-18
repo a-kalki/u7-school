@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import * as v from 'valibot';
 import { StreamStatus } from '../status';
-import { ContentSnapshotSchema, StreamSchema } from './entity';
+import { ContentSnapshotSchema } from '@u7-scl/course/domain';
+import { StreamSchema } from './entity';
 
 const validContentSnapshot = [
   {

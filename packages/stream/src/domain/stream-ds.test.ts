@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { StreamAr } from './stream/a-root';
-import type { ContentSnapshot } from './stream/entity';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { StreamDs } from './stream-ds';
 import { StudentAr } from './student/a-root';
 
