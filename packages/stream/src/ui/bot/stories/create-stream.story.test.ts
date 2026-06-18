@@ -1,5 +1,9 @@
-import { describe, expect, mock, test } from 'bun:test';
+import {
+  AppException,
+  errValidation,
+} from '@u7-scl/core/domain';
 import type { U7BotApp, User } from '@u7-scl/app/domain';
+import { describe, expect, mock, test } from 'bun:test';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModule } from 'packages/stream/src/api';
 import { CreateStreamStory } from './create-stream.story';
@@ -388,11 +392,17 @@ describe('CreateStreamStory', () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'create-stream')
-          throw Object.assign(new Error('Валидация'), {
-            details: [
-              { field: 'title', message: 'Название не может быть пустым' },
-            ],
-          });
+          throw new AppException(
+            errValidation(
+              'CreateStreamValidationError',
+              'Ошибка валидации',
+              {
+                issues: [
+                  { field: 'title', message: 'Название не может быть пустым' },
+                ],
+              },
+            ),
+          );
         return undefined;
       }),
     } as unknown as StreamApiModule;

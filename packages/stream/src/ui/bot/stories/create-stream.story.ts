@@ -647,29 +647,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     try {
       await this.moduleApi.execute('create-stream', cmd, actor.uuid);
     } catch (err: unknown) {
-      const error = err as Error & {
-        details?: Array<{ field: string; message: string }>;
-      };
-      let messageText = '⚠️ *Ошибка валидации*';
-
-      if (error.details && error.details.length > 0) {
-        const detailLines = error.details.map(
-          (d) => `• ${d.field}: ${d.message}`,
-        );
-        messageText += `\n\n${detailLines.join('\n')}`;
-      } else {
-        messageText += `\n\n${error.message}`;
-      }
-
-      messageText += '\n\nПожалуйста, начните создание потока заново.';
-
-      return {
-        releaseInput: true,
-        sendMessage: {
-          text: messageText,
-          parseMode: 'MarkdownV2',
-        },
-      };
+      return this.handleError(err);
     }
 
     return {
