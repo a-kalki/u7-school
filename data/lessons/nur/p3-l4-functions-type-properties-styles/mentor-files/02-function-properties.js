@@ -8,6 +8,11 @@ function greet() {
 
 console.log(typeof greet);
 
+const a = { a: 'f' };
+a.b = 'b';
+
+console.log(a.c);
+
 // Свойство-счётчик: сколько раз вызвали функцию
 function sayHi() {
   sayHi.callCount = (sayHi.callCount || 0) + 1;
