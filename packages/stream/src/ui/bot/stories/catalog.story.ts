@@ -69,9 +69,11 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
     ]);
 
+    const legend = '\n\n🟢 — идёт набор   🔵 — идёт обучение   ⚪ — завершён';
+
     return {
       sendMessage: {
-        text: '📚 *Потоки школы*',
+        text: `📚 *Потоки школы*${legend}`,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
