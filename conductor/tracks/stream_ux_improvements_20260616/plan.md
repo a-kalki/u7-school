@@ -21,13 +21,14 @@
 
 - [ ] Task: Написать тесты для автозаполнения в CreateStreamStory
   - [ ] После выбора модуля поля title и description предзаполнены
-  - [ ] Дополнительные поля модуля (goal, result, rules, targetAudience, additional) пробрасываются в create-stream UC
-  - [ ] Пользователь может изменить предзаполненные значения
+  - [ ] После шага даты старта показывается сводка необязательных полей модуля с кнопкой «По умолчанию»
+  - [ ] Нажатие «По умолчанию» передаёт goal, result, rules, targetAudience, additional в create-stream UC
+  - [ ] Пользователь может изменить предзаполнённые значения title/description
 
 - [ ] Task: Реализовать автозаполнение в CreateStreamStory
   - [ ] После выбора модуля загрузить данные модуля через appApi (`get-module`)
-  - [ ] Предзаполнить title, description в контексте wizard
-  - [ ] Показать шаг ввода названия с предзаполненным значением (как placeholder или defaultValue через ответное сообщение)
-  - [ ] При confirm передать goal, result, rules, targetAudience, additional в create-stream UC
+  - [ ] Предзаполнить title, description в контексте wizard — показать шаг ввода с подсказкой значения по умолчанию
+  - [ ] После шага даты старта (или пропуска группы) показать сводку совпадающих полей модуля с кнопкой «По умолчанию»
+  - [ ] При confirm (после «По умолчанию» или пропуска) передать все поля в create-stream UC
 
 - [ ] Task: Conductor - Ручная верификация 'Автозаполнение полей потока' (Protocol in workflow.md)
