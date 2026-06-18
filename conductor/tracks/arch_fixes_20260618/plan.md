@@ -34,19 +34,19 @@
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3: Убрать studentId из cb-data «Выполнено»
-- [ ] Task: Написать тесты на новый формат cb-data
+- [~] Task: Написать тесты на новый формат cb-data
     - [ ] Тест: `this.cb('complete', streamId, stepId)` — без studentId
     - [ ] Тест: #handleComplete разбирает `complete:<streamId>:<stepId>`
     - [ ] Тест: #handleComplete получает студента по actor.uuid
     - [ ] Тест: #handleComplete сверяет streamId
-- [ ] Task: Обновить #buildStepKeyboard в LearningStory
+- [x] Task: Обновить #buildStepKeyboard `f5a8972` в LearningStory
     - [ ] Изменить `this.cb('complete', student.uuid, streamId, stepId)` → `this.cb('complete', streamId, stepId)`
-- [ ] Task: Обновить #handleComplete в LearningStory
+- [x] Task: Обновить #handleComplete `f5a8972` в LearningStory
     - [ ] Разбирать два параметра: streamId, stepId
     - [ ] Вызывать `get-student-by-user` по `actor.uuid`
     - [ ] Сверять `student.streamId === streamId`
     - [ ] Вызывать `complete-step` с `studentId: student.uuid`
-- [ ] Task: Обновить интеграционные тесты
+- [~] Task: Обновить интеграционные тесты
     - [ ] `learning.integration.test.ts` — обновить cb-data
 - [ ] Task: Проверить типы и тесты
     - [ ] `bun run check:p stream`

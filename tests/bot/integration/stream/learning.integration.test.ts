@@ -74,7 +74,7 @@ describe('LearningStory e2e', () => {
   test('завершение шага — level=step (сразу клавиатура следующего шага)', async () => {
     // Студент на шаге d0, завершаем → получаем клавиатуру шага d1 (тот же урок)
     const response = await router.handleCallback(
-      'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0',
+      'stream:learning:complete:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0',
       student,
       session,
     );
@@ -96,7 +96,7 @@ describe('LearningStory e2e', () => {
     // После предыдущего теста студент на шаге d1 (последний шаг урока «Переменные и типы»)
     // Завершаем d1 → поздравление и кнопка «Начать следующий урок»
     const response = await router.handleCallback(
-      'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+      'stream:learning:complete:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
       student,
       session,
     );
@@ -138,7 +138,7 @@ describe('LearningStory e2e', () => {
   test('завершение шага в новом уроке — level=step', async () => {
     // Студент на шаге d2, завершаем → клавиатура d3
     const response = await router.handleCallback(
-      'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2',
+      'stream:learning:complete:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2',
       student,
       session,
     );
@@ -157,7 +157,7 @@ describe('LearningStory e2e', () => {
     // Студент на шаге d3 (последний шаг последнего урока)
     // Завершаем → проект завершён и поток завершён
     const response = await router.handleCallback(
-      'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3',
+      'stream:learning:complete:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3',
       student,
       session,
     );

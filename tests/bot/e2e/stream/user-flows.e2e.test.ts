@@ -385,7 +385,7 @@ describe('Сквозные пользовательские сценарии (E2
       // Фикстура: студент на шаге d1 (последний шаг урока «Переменные и типы»)
       // Используем прямой вызов complete с известными ID
       const completeResp = await router.handleCallback(
-        'stream:learning:complete:f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+        'stream:learning:complete:e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
         student,
         NO_SESSION,
       );

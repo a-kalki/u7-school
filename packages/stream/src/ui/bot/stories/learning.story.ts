@@ -90,7 +90,12 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    return this.#buildStepKeyboard(student, stream, student.currentStepId, student.streamId);
+    return this.#buildStepKeyboard(
+      student,
+      stream,
+      student.currentStepId,
+      student.streamId,
+    );
   }
 
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
@@ -169,7 +174,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
    * Строит клавиатуру шага с кнопками «Выполнено» и «Мой прогресс».
    */
   #buildStepKeyboard(
-    student: Student,
+    _student: Student,
     stream: {
       title: string;
       contentSnapshot: ContentSnapshot;
@@ -192,11 +197,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
             [
               {
                 text: '✅ Выполнено',
-                code: this.cb(
-                  'complete',
-                  streamId,
-                  stepId,
-                ),
+                code: this.cb('complete', streamId, stepId),
               },
             ],
             [

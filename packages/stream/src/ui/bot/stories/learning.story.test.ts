@@ -265,7 +265,9 @@ describe('LearningStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { code?: string }) => b.code) ?? [];
-    const completeCode = btnCodes.find((c) => c?.startsWith('learning:complete:'));
+    const completeCode = btnCodes.find((c) =>
+      c?.startsWith('learning:complete:'),
+    );
     expect(completeCode).toBeDefined();
 
     // Формат: learning:complete:<streamId>:<stepId> (3 части после префикса)
@@ -280,7 +282,7 @@ describe('LearningStory', () => {
     const getStudentSpy = mock((name: string) => {
       if (name === 'get-student-by-user') return mockStudent;
       if (name === 'get-student-by-user') return mockStudent;
-        if (name === 'complete-step')
+      if (name === 'complete-step')
         return { level: 'step', currentStepId: 'step-2' };
       if (name === 'get-stream') return mockStream;
       return undefined;
