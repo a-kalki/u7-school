@@ -2,11 +2,6 @@
 
 ---
 
-- [x] **Track: Bot UX Polish — кнопка «Сообщество школы», навигация «Назад», /help, легенда кружков**
-*Link: [./tracks/bot_ux_polish_20260616/](./tracks/bot_ux_polish_20260616/)*
-
----
-
 - [ ] **Track: Onboarding Bot Tests — интеграционные и E2E тесты модуля onboarding**
 *Link: [./tracks/onboarding_bot_tests_20260616/](./tracks/onboarding_bot_tests_20260616/)*
 
