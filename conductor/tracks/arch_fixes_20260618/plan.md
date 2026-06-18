@@ -29,8 +29,8 @@
     - [x] Реализовать `handleError(err: unknown): BotResponse`
 - [x] Task: Обновить #handleConfirm в CreateStreamStory `fa4e1d2`
     - [x] Заменить ad-hoc catch на `this.handleError(err)`
-- [~] Task: Проверить типы и тесты
-    - [~] `bun run check:p app && bun run check:p stream`
+- [x] Task: Проверить типы и тесты `4729fcc`
+    - [x] `bun run check:p app && bun run check:p stream`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
 
 ## Фаза 3: Убрать studentId из cb-data «Выполнено»

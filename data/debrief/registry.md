@@ -9,4 +9,5 @@
 | 7 | 2026-06-18 | stream_ux_improvements_20260616 | 6a2f80c | post-task-debrief | 5/5 ✓ | [лог](logs/2026-06-18-stream-ux-improvements.md) |
 | 8 | 2026-06-18 | stream_ux_improvements_20260616 | 409261e | post-task-debrief | 4/4 ✓ | [лог](logs/2026-06-18-stream-ux-improvements-faza2.md) |
 | 9 | 2026-06-16 | arch_fixes_20260618 | 9293a52 | post-task-debrief | 4/4 ✓ | [лог](logs/2026-06-16-arch-fixes-phase1.md) |
-**Всего:** 9
+| 10 | 2026-06-16 | arch_fixes_20260618 | 4729fcc | post-task-debrief | 4/4 ✓ | [лог](logs/2026-06-16-arch-fixes-phase2.md) |
+**Всего:** 10
