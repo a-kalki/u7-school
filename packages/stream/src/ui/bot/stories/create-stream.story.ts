@@ -18,21 +18,62 @@ interface CreateStreamWizardContext {
   description: string;
   startDate: string;
   telegramGroupId: string;
-  // Необязательные поля из модуля
-  goal?: string;
-  result?: string;
-  rules?: string;
-  targetAudience?: string;
-  additional?: string;
-  // Кэш полей модуля для показа сводки
-  moduleGoal?: string;
-  moduleResult?: string;
-  moduleRules?: string;
-  moduleTargetAudience?: string;
-  moduleAdditional?: string;
+  // Реальные значения для потока
+  goal: string;
+  result: string;
+  rules: string;
+  targetAudience: string;
+  additional: string;
+  // Кэш значений из модуля (для подсказок «По умолчанию»)
+  moduleGoal: string;
+  moduleResult: string;
+  moduleRules: string;
+  moduleTargetAudience: string;
+  moduleAdditional: string;
 }
 
 const WIZARD_PATH = 'create-stream/wizard';
+
+/** Описание одного необязательного поля */
+interface OptionalFieldConfig {
+  fieldName: 'goal' | 'result' | 'rules' | 'targetAudience' | 'additional';
+  label: string;
+  moduleKey:
+    | 'moduleGoal'
+    | 'moduleResult'
+    | 'moduleRules'
+    | 'moduleTargetAudience'
+    | 'moduleAdditional';
+  nextStep: number;
+}
+
+const OPTIONAL_FIELDS: OptionalFieldConfig[] = [
+  { fieldName: 'goal', label: 'Цель', moduleKey: 'moduleGoal', nextStep: 5 },
+  {
+    fieldName: 'result',
+    label: 'Результат',
+    moduleKey: 'moduleResult',
+    nextStep: 6,
+  },
+  {
+    fieldName: 'rules',
+    label: 'Правила',
+    moduleKey: 'moduleRules',
+    nextStep: 7,
+  },
+  {
+    fieldName: 'targetAudience',
+    label: 'Целевая аудитория',
+    moduleKey: 'moduleTargetAudience',
+    nextStep: 8,
+  },
+  {
+    fieldName: 'additional',
+    label: 'Дополнительно',
+    moduleKey: 'moduleAdditional',
+    nextStep: 9,
+  },
+];
 
 /**
  * US-6: Пошаговый wizard создания потока.
@@ -40,8 +81,13 @@ const WIZARD_PATH = 'create-stream/wizard';
  * Шаг 1: название потока (текст, предзаполнено из модуля)
  * Шаг 2: описание (текст, предзаполнено из модуля)
  * Шаг 3: дата старта (текст, YYYY-MM-DD)
- * Шаг 4: ссылка на Telegram-группу (текст, необязательно)
- * Шаг 5: превью и подтверждение
+ * Шаг 4: цель (goal) — из модуля или ввод
+ * Шаг 5: результат (result)
+ * Шаг 6: правила (rules)
+ * Шаг 7: целевая аудитория (targetAudience)
+ * Шаг 8: дополнительно (additional)
+ * Шаг 9: ссылка на Telegram-группу (необязательно)
+ * Шаг 10: превью и подтверждение
  */
 export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'create-stream';
@@ -71,14 +117,14 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleSkipGroup(session);
     }
 
-    // Кнопка «По умолчанию» для необязательных полей модуля
-    if (action === 'use-defaults') {
-      return this.#handleUseDefaults(session);
-    }
-
-    // Пропуск необязательных полей модуля
-    if (action === 'skip-defaults') {
-      return this.#handleSkipDefaults(session);
+    // Обработчики «Принять» / «Пропустить» для необязательных полей модуля
+    for (const field of OPTIONAL_FIELDS) {
+      if (action === `accept-${field.fieldName}`) {
+        return this.#handleAcceptField(field, session);
+      }
+      if (action === `skip-${field.fieldName}`) {
+        return this.#handleSkipField(field, session);
+      }
     }
 
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -100,6 +146,14 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
     }
 
+    // Шаги 4-8: необязательные поля модуля
+    const field = OPTIONAL_FIELDS.find(
+      (f) => f.fieldName === this.#stepToField(context.step),
+    );
+    if (field) {
+      return this.#handleOptionalFieldInput(field, context, update.text);
+    }
+
     switch (context.step) {
       case 0:
         return this.#handleModuleMessage(context);
@@ -109,9 +163,9 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         return this.#handleDescriptionInput(context, update.text);
       case 3:
         return this.#handleDateInput(context, update.text);
-      case 4:
+      case 9:
         return this.#handleGroupInput(context, update.text, actor);
-      case 5:
+      case 10:
         return {
           sendMessage: {
             text: '👆 Используйте кнопки выше для подтверждения или изменения.',
@@ -156,14 +210,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные шаги wizard-а ──
 
   async #startWizard(): Promise<BotResponse> {
-    return this.#handleModuleMessage({
-      step: 0,
-      moduleId: '',
-      title: '',
-      description: '',
-      startDate: '',
-      telegramGroupId: '',
-    });
+    return this.#handleModuleMessage(this.#emptyCtx());
   }
 
   async #handleModuleMessage(
@@ -246,15 +293,12 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       // Модуль не найден — оставляем поля пустыми
     }
 
+    const existingCtx =
+      (session.activeHandler?.context as CreateStreamWizardContext) ??
+      this.#emptyCtx();
+
     const ctx: CreateStreamWizardContext = {
-      ...((session.activeHandler?.context as CreateStreamWizardContext) ?? {
-        step: 0,
-        moduleId: '',
-        title: '',
-        description: '',
-        startDate: '',
-        telegramGroupId: '',
-      }),
+      ...existingCtx,
       step: 1,
       moduleId,
       title: moduleTitle,
@@ -266,7 +310,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       moduleAdditional,
     };
 
-    // Сообщение с подсказкой о предзаполненных значениях
+    // Сообщение с подсказкой о предзаполненном названии
     const lines = ['📝 Введите название потока:'];
     if (moduleTitle) {
       lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleTitle)}»_`);
@@ -321,83 +365,75 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   #handleDateInput(ctx: CreateStreamWizardContext, text: string): BotResponse {
     const normalizedDate = text.includes('T') ? text : `${text}T00:00`;
 
-    // Проверяем, есть ли необязательные поля модуля для показа сводки
-    const optionalFields = [
-      { label: 'Цель', value: ctx.moduleGoal },
-      { label: 'Результат', value: ctx.moduleResult },
-      { label: 'Правила', value: ctx.moduleRules },
-      { label: 'Целевая аудитория', value: ctx.moduleTargetAudience },
-      { label: 'Дополнительно', value: ctx.moduleAdditional },
-    ].filter((f) => f.value);
+    // OPTIONAL_FIELDS всегда непустой
+    const firstField = OPTIONAL_FIELDS[0] as OptionalFieldConfig;
+    return this.#showOptionalFieldStep(
+      { ...ctx, step: 4, startDate: normalizedDate },
+      firstField,
+    );
+  }
 
-    if (optionalFields.length === 0) {
-      // Нет необязательных полей — сразу переходим к группе
-      return {
-        sendMessage: {
-          text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
-          parseMode: 'MarkdownV2',
-          keyboard: {
-            rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
-            isMultiple: false,
-          },
-        },
-        captureInput: {
-          path: WIZARD_PATH,
-          context: { ...ctx, step: 4, startDate: normalizedDate },
-        },
-      };
+  // ── Общий механизм для необязательных полей ──
+
+  /** Показывает шаг для необязательного поля */
+  #showOptionalFieldStep(
+    ctx: CreateStreamWizardContext,
+    field: OptionalFieldConfig,
+  ): BotResponse {
+    const moduleValue: string = ctx[field.moduleKey] || '';
+    const lines = [`📝 *${field.label}*`];
+
+    const buttons: { text: string; code: string }[] = [];
+
+    if (moduleValue) {
+      lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleValue)}»_`);
+      buttons.push({
+        text: '✅ Принять',
+        code: this.cb(`accept-${field.fieldName}`),
+      });
     }
 
-    // Показываем сводку необязательных полей с кнопками
-    const lines = [
-      '📋 *Поля модуля для потока*',
-      '',
-      ...optionalFields.map(
-        (f) => `• *${f.label}:* ${this.escapeMarkdown(f.value ?? '')}`,
-      ),
-      '',
-      'Использовать эти значения для потока?',
-    ];
+    buttons.push({
+      text: '⏭️ Пропустить',
+      code: this.cb(`skip-${field.fieldName}`),
+    });
 
     return {
       sendMessage: {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [
-            [
-              { text: '✅ По умолчанию', code: this.cb('use-defaults') },
-              { text: '⏭️ Пропустить', code: this.cb('skip-defaults') },
-            ],
-          ],
+          rows: [buttons],
           isMultiple: false,
         },
       },
       captureInput: {
         path: WIZARD_PATH,
-        context: { ...ctx, step: 3, startDate: normalizedDate },
+        context: ctx,
       },
     };
   }
 
-  #handleUseDefaults(session: SessionData): BotResponse {
-    const ctx = session.activeHandler?.context as
-      | CreateStreamWizardContext
-      | undefined;
-    if (!ctx) {
-      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
-    }
-
-    const fullCtx: CreateStreamWizardContext = {
+  /** Обработчик ввода текста для необязательного поля */
+  #handleOptionalFieldInput(
+    field: OptionalFieldConfig,
+    ctx: CreateStreamWizardContext,
+    text: string,
+  ): BotResponse {
+    const nextCtx: CreateStreamWizardContext = {
       ...ctx,
-      step: 4,
-      goal: ctx.moduleGoal,
-      result: ctx.moduleResult,
-      rules: ctx.moduleRules,
-      targetAudience: ctx.moduleTargetAudience,
-      additional: ctx.moduleAdditional,
+      step: field.nextStep,
+      [field.fieldName]: text,
     };
 
+    const nextField = OPTIONAL_FIELDS.find(
+      (f) => f.fieldName === this.#stepToField(field.nextStep),
+    );
+    if (nextField) {
+      return this.#showOptionalFieldStep(nextCtx, nextField);
+    }
+
+    // После последнего необязательного поля (additional → step 9: группа)
     return {
       sendMessage: {
         text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
@@ -409,24 +445,36 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
       captureInput: {
         path: WIZARD_PATH,
-        context: fullCtx,
+        context: nextCtx,
       },
     };
   }
 
-  #handleSkipDefaults(session: SessionData): BotResponse {
+  /** Обработчик кнопки «Принять» */
+  #handleAcceptField(
+    field: OptionalFieldConfig,
+    session: SessionData,
+  ): BotResponse {
     const ctx = session.activeHandler?.context as
       | CreateStreamWizardContext
       | undefined;
-    if (!ctx) {
-      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
-    }
+    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
 
-    const fullCtx: CreateStreamWizardContext = {
+    const moduleValue: string = ctx[field.moduleKey] || '';
+    const nextCtx: CreateStreamWizardContext = {
       ...ctx,
-      step: 4,
+      step: field.nextStep,
+      [field.fieldName]: moduleValue,
     };
 
+    const nextField = OPTIONAL_FIELDS.find(
+      (f) => f.fieldName === this.#stepToField(field.nextStep),
+    );
+    if (nextField) {
+      return this.#showOptionalFieldStep(nextCtx, nextField);
+    }
+
+    // Переход к группе
     return {
       sendMessage: {
         text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
@@ -438,10 +486,57 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
       captureInput: {
         path: WIZARD_PATH,
-        context: fullCtx,
+        context: nextCtx,
       },
     };
   }
+
+  /** Обработчик кнопки «Пропустить» */
+  #handleSkipField(
+    field: OptionalFieldConfig,
+    session: SessionData,
+  ): BotResponse {
+    const ctx = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+
+    const nextCtx: CreateStreamWizardContext = {
+      ...ctx,
+      step: field.nextStep,
+      [field.fieldName]: '',
+    };
+
+    const nextField = OPTIONAL_FIELDS.find(
+      (f) => f.fieldName === this.#stepToField(field.nextStep),
+    );
+    if (nextField) {
+      return this.#showOptionalFieldStep(nextCtx, nextField);
+    }
+
+    // Переход к группе
+    return {
+      sendMessage: {
+        text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
+          isMultiple: false,
+        },
+      },
+      captureInput: {
+        path: WIZARD_PATH,
+        context: nextCtx,
+      },
+    };
+  }
+
+  #stepToField(step: number): string | undefined {
+    const found = OPTIONAL_FIELDS.find((_f, idx) => idx + 4 === step);
+    return found?.fieldName;
+  }
+
+  // ── Группа и превью ──
 
   async #handleGroupInput(
     ctx: CreateStreamWizardContext,
@@ -450,7 +545,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   ): Promise<BotResponse> {
     const fullCtx: CreateStreamWizardContext = {
       ...ctx,
-      step: 5,
+      step: 10,
       telegramGroupId: text,
     };
 
@@ -466,7 +561,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
     const fullCtx: CreateStreamWizardContext = {
       ...ctx,
-      step: 5,
+      step: 10,
       telegramGroupId: '',
     };
     return this.#showPreview(fullCtx);
@@ -484,24 +579,14 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       `*Группа:* ${this.escapeMarkdown(ctx.telegramGroupId)}`,
     ];
 
-    // Показываем необязательные поля, если они заданы
-    if (
-      ctx.goal ||
-      ctx.result ||
-      ctx.rules ||
-      ctx.targetAudience ||
-      ctx.additional
-    ) {
-      lines.push('');
-      if (ctx.goal) lines.push(`*Цель:* ${this.escapeMarkdown(ctx.goal)}`);
-      if (ctx.result)
-        lines.push(`*Результат:* ${this.escapeMarkdown(ctx.result)}`);
-      if (ctx.rules) lines.push(`*Правила:* ${this.escapeMarkdown(ctx.rules)}`);
-      if (ctx.targetAudience)
-        lines.push(`*Аудитория:* ${this.escapeMarkdown(ctx.targetAudience)}`);
-      if (ctx.additional)
-        lines.push(`*Дополнительно:* ${this.escapeMarkdown(ctx.additional)}`);
-    }
+    if (ctx.goal) lines.push(`*Цель:* ${this.escapeMarkdown(ctx.goal)}`);
+    if (ctx.result)
+      lines.push(`*Результат:* ${this.escapeMarkdown(ctx.result)}`);
+    if (ctx.rules) lines.push(`*Правила:* ${this.escapeMarkdown(ctx.rules)}`);
+    if (ctx.targetAudience)
+      lines.push(`*Аудитория:* ${this.escapeMarkdown(ctx.targetAudience)}`);
+    if (ctx.additional)
+      lines.push(`*Дополнительно:* ${this.escapeMarkdown(ctx.additional)}`);
 
     lines.push('', 'Всё верно?');
 
@@ -569,7 +654,33 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (context.targetAudience) cmd.targetAudience = context.targetAudience;
     if (context.additional) cmd.additional = context.additional;
 
-    await this.moduleApi.execute('create-stream', cmd, actor.uuid);
+    try {
+      await this.moduleApi.execute('create-stream', cmd, actor.uuid);
+    } catch (err: unknown) {
+      const error = err as Error & {
+        details?: Array<{ field: string; message: string }>;
+      };
+      let messageText = '⚠️ *Ошибка валидации*';
+
+      if (error.details && error.details.length > 0) {
+        const detailLines = error.details.map(
+          (d) => `• ${d.field}: ${d.message}`,
+        );
+        messageText += `\n\n${detailLines.join('\n')}`;
+      } else {
+        messageText += `\n\n${error.message}`;
+      }
+
+      messageText += '\n\nПожалуйста, начните создание потока заново.';
+
+      return {
+        releaseInput: true,
+        sendMessage: {
+          text: messageText,
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
 
     return {
       releaseInput: true,
@@ -577,6 +688,29 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         text: '✅ *Поток успешно создан\\!*',
         parseMode: 'MarkdownV2',
       },
+    };
+  }
+
+  // ── Вспомогательные ──
+
+  #emptyCtx(): CreateStreamWizardContext {
+    return {
+      step: 0,
+      moduleId: '',
+      title: '',
+      description: '',
+      startDate: '',
+      telegramGroupId: '',
+      goal: '',
+      result: '',
+      rules: '',
+      targetAudience: '',
+      additional: '',
+      moduleGoal: '',
+      moduleResult: '',
+      moduleRules: '',
+      moduleTargetAudience: '',
+      moduleAdditional: '',
     };
   }
 }
