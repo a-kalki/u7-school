@@ -4,9 +4,9 @@
 - [x] Task: Создать course/domain/content-snapshot.ts `3bf006d`
     - [x] Перенести `ContentSnapshotItem`, `ContentSnapshot` из types.ts
     - [x] Добавить valibot-схемы: `LessonSnapshotSchema`, `ContentSnapshotItemSchema`, `ContentSnapshotSchema`
-- [ ] Task: Обновить course/domain/types.ts и index.ts
-    - [ ] Удалить `ContentSnapshotItem`, `ContentSnapshot` из types.ts
-    - [ ] Добавить экспорт из content-snapshot.ts в index.ts
+- [x] Task: Обновить course/domain/types.ts и index.ts `96d2235`
+    - [x] Удалить `ContentSnapshotItem`, `ContentSnapshot` из types.ts
+    - [x] Добавить экспорт из content-snapshot.ts в index.ts
 - [ ] Task: Обновить stream для импорта ContentSnapshot из course
     - [ ] Удалить `ContentSnapshotSchema`, `ProjectSnapshotSchema`, `LessonSnapshotSchema` из `stream/domain/stream/entity.ts`
     - [ ] Импортировать `ContentSnapshot`, `ContentSnapshotSchema` из `@u7-scl/course/domain`
