@@ -174,7 +174,8 @@ export abstract class BotController<
    * Добавляет префикс контроллера, сжимает id через короткие ключи.
    */
   /** UUID v4 (8-4-4-4-12 hex). Сжимаем только UUID, остальное пропускаем как есть. */
-  static readonly #UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  static readonly #UUID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   #compressAction(raw: string): string {
     // Нет id для сжатия — только storyName:action

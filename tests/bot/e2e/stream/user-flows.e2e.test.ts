@@ -375,7 +375,8 @@ describe('Сквозные пользовательские сценарии (E2
       expect(text).not.toContain('Шаг выполнен');
 
       const btnTexts =
-        completeResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        completeResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
+        [];
       expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
       expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     });

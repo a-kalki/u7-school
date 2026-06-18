@@ -166,7 +166,9 @@ describe('LearningStory', () => {
     // Кнопка «Начать следующий урок»
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(
+      true,
+    );
   });
 
   test('при завершении проекта — поздравление и кнопка «Начать следующий проект»', async () => {
@@ -197,7 +199,9 @@ describe('LearningStory', () => {
     // Кнопка «Начать следующий проект»
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Начать следующий проект'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Начать следующий проект'))).toBe(
+      true,
+    );
   });
 
   test('при завершении потока — сообщение о полном завершении', async () => {

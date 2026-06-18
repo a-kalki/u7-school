@@ -108,7 +108,9 @@ describe('LearningStory e2e', () => {
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(
+      true,
+    );
   });
 
   test('нажатие «Начать следующий урок» → первый шаг нового урока', async () => {

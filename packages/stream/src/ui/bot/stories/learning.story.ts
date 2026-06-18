@@ -6,6 +6,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
@@ -88,11 +89,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    return this.#buildStepKeyboard(
-      student,
-      stream,
-      student.currentStepId,
-    );
+    return this.#buildStepKeyboard(student, stream, student.currentStepId);
   }
 
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
@@ -150,20 +147,13 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
    */
   #buildStepKeyboard(
     student: Student,
-    stream: { title: string; contentSnapshot: Array<{
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }> },
+    stream: {
+      title: string;
+      contentSnapshot: ContentSnapshot;
+    },
     stepId: string,
   ): BotResponse {
-    const stepLabel = this.#findStepLabel(
-      stream.contentSnapshot,
-      stepId,
-    );
+    const stepLabel = this.#findStepLabel(stream.contentSnapshot, stepId);
 
     return {
       sendMessage: {
@@ -251,17 +241,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  #findStepLabel(
-    snapshot: Array<{
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>,
-    stepId: string,
-  ): string {
+  #findStepLabel(snapshot: ContentSnapshot, stepId: string): string {
     for (const project of snapshot) {
       for (const lesson of project.lessons) {
         const idx = lesson.stepIds.indexOf(stepId);
