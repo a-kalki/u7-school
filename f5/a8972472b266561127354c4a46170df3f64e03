@@ -1,0 +1,8 @@
+Задача: Убрать studentId из cb-data «Выполнено»
+Изменения:
+- #buildStepKeyboard: cb('complete', student.uuid, streamId, stepId) → cb('complete', streamId, stepId)
+- #handleComplete: формат complete:<streamId>:<stepId>, получает студента через get-student-by-user по actor.uuid
+- Сверка student.streamId === streamId с понятным сообщением при несовпадении
+- complete-step вызывается с studentId: student.uuid (из полученного студента)
+- 11 тестов: 7 обновлены, 3 новых (cb-data, get-student-by-user, сверка streamId)
+Файлы: learning.story.ts, learning.story.test.ts
