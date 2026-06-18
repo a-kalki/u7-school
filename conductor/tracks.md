@@ -4,3 +4,8 @@
 
 - [ ] **Track: Stream UX Backlog — навигация, double-confirm, broadcast, «Отстает»**
 *Link: [./tracks/stream_ux_backlog_20260613/](./tracks/stream_ux_backlog_20260613/)*
+
+---
+
+- [ ] **Track: Унификация обработки ошибок и логирования в bot-слое**
+*Link: [./tracks/err_handling_logging_20260616/](./tracks/err_handling_logging_20260616/)*
