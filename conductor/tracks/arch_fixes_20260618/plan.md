@@ -19,14 +19,14 @@
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Универсальный обработчик ошибок в U7BotUserStory
-- [ ] Task: Написать тесты на handleError в U7BotUserStory
-    - [ ] Тест: validation error → сообщение с полями
-    - [ ] Тест: not-found/conflict/access-denied → сообщение ошибки
-    - [ ] Тест: internal error → лог + общее сообщение
-- [ ] Task: Добавить handleError в U7BotUserStory
-    - [ ] Импортировать `fromError` из `@u7-scl/core/domain`
-    - [ ] Импортировать `serializeError` из `@u7-scl/core/shared`
-    - [ ] Реализовать `handleError(err: unknown): BotResponse`
+- [x] Task: Написать тесты на handleError в U7BotUserStory `b01739b`
+    - [x] Тест: validation error → сообщение с полями
+    - [x] Тест: not-found/conflict/access-denied → сообщение ошибки
+    - [x] Тест: internal error → лог + общее сообщение
+- [x] Task: Добавить handleError в U7BotUserStory `b01739b`
+    - [x] Импортировать `fromError` из `@u7-scl/core/domain`
+    - [x] Импортировать `serializeError` из `@u7-scl/core/shared`
+    - [x] Реализовать `handleError(err: unknown): BotResponse`
 - [ ] Task: Обновить #handleConfirm в CreateStreamStory
     - [ ] Заменить ad-hoc catch на `this.handleError(err)`
 - [ ] Task: Проверить типы и тесты
