@@ -302,7 +302,31 @@ private escapeMarkdown(text: string): string { ... }
 Когда сценарий требует последовательного ввода нескольких полей от пользователя,
 используется паттерн «wizard» — конечный автомат на основе `captureInput`.
 
-### 10.1 Контекст wizard
+### 10.1 Выделяй переиспользуемые методы клавиатуры
+
+Если одна и та же клавиатура показывается из нескольких мест (например, и при «Моя учёба»,
+и после «Выполнено»), выдели её в отдельный private-метод:
+
+```typescript
+// ✅ Правильно — метод переиспользуется в #handleMyStudy и #handleComplete
+#buildStepKeyboard(student: Student, stream: Stream, stepId: string): BotResponse {
+  return {
+    sendMessage: {
+      text: `📖 *Моя учёба* — _${this.escapeMarkdown(stream.title)}_`,
+      parseMode: 'MarkdownV2',
+      keyboard: {
+        rows: [
+          [{ text: '✅ Выполнено', code: this.cb('complete', student.uuid, stream.uuid, stepId) }],
+          [{ text: '📊 Мой прогресс', code: this.cbFor('progress', 'progress', stream.uuid) }],
+        ],
+        isMultiple: false,
+      },
+    },
+  };
+}
+```
+
+### 10.2 Контекст wizard
 
 Определи интерфейс контекста со **всеми** полями, которые собирает wizard:
 
@@ -315,7 +339,7 @@ interface CreateStreamWizardContext {
 }
 ```
 
-### 10.2 Переход между шагами
+### 10.3 Переход между шагами
 
 Каждый шаг wizard возвращает `captureInput` с обновлённым контекстом:
 - **Шаг N** получает текст через `handleMessage` → формирует `nextCtx` с `step: N+1`
@@ -333,7 +357,7 @@ interface CreateStreamWizardContext {
 }
 ```
 
-### 10.3 Поля со значениями по умолчанию
+### 10.4 Поля со значениями по умолчанию
 
 Если поле может быть предзаполнено из другого источника (например, из модуля курса):
 
@@ -357,7 +381,7 @@ if (moduleValue) {
 buttons.push({ text: '⏭️ Пропустить', code: this.cb('skip-field') });
 ```
 
-### 10.4 Обработка ошибок создания
+### 10.5 Обработка ошибок создания
 
 В финальном шаге (`#handleConfirm`) оборачивай вызов `create-*` в `try/catch`.
 При ошибке валидации:
