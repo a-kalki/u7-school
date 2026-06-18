@@ -1,0 +1,7 @@
+Задача: Проверить типы и тесты для course и stream
+Изменения:
+- Исправлены импорты ContentSnapshot в 4 файлах course (facade.ts, get-module-snapshot-cmd.ts, course-ds.ts, course-in-proc-facade.ts, get-module-snapshot-uc.ts)
+- Убран неиспользуемый импорт ContentSnapshot в stream/entity.ts
+- biome форматирование: organizeImports, trailing newlines
+- bun run check:p course && bun run check:p stream — успешно
+Файлы: 15 файлов исправлено
