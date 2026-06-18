@@ -631,4 +631,153 @@ describe('OnboardingController', () => {
     );
     expect(response.sendMessage?.parseMode).toBe('MarkdownV2');
   });
+
+  // ══════════════════════════════════════════════════
+  // Edge case тесты
+  // ══════════════════════════════════════════════════
+
+  test('пустой ответ на текстовый вопрос возвращает ошибку', async () => {
+    // Пул с одним текстовым вопросом
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Текстовый вопрос',
+          questionCode: 'q1',
+          type: 'text' as const,
+        },
+      ],
+      ['q1'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: modResolve.userFacade,
+      db,
+      appResolver: { logger, mode: 'test' as const },
+    });
+
+    const app2 = new ApiApp([mod2]) as U7BotApp;
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test8',
+      telegramId: 444,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
+
+    // Начинаем анкету
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
+
+    // Отправляем пустой текстовый ответ
+    const response = await ctrl2.handleMessage(
+      { type: 'message', text: '', telegramId: 999 },
+      actor2,
+      capSession(1),
+    );
+    assertResponseMarkdownSafe(response);
+
+    // Должен вернуть сообщение об ошибке
+    expect(response.sendMessage?.text).toContain('⚠️');
+    expect(response.sendMessage?.text.toLowerCase()).toContain('ошибк');
+  });
+
+  test('очень длинный текстовый ответ принимается без ошибок', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Текстовый вопрос',
+          questionCode: 'q1',
+          type: 'text' as const,
+        },
+      ],
+      ['q1'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: modResolve.userFacade,
+      db,
+      appResolver: { logger, mode: 'test' as const },
+    });
+
+    const app2 = new ApiApp([mod2]) as U7BotApp;
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test9',
+      telegramId: 555,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
+
+    // Начинаем анкету
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
+
+    // Отправляем очень длинный текст (2000+ символов)
+    const longText = 'A'.repeat(2000);
+    const response = await ctrl2.handleMessage(
+      { type: 'message', text: longText, telegramId: 999 },
+      actor2,
+      capSession(1),
+    );
+    assertResponseMarkdownSafe(response);
+
+    // Длинный текст должен быть принят (нет maxLength валидации)
+    expect(response.sendMessage?.text).toContain('Спасибо');
+    expect(response.questionnaireCompleted).toBe(true);
+  });
+
+  test('множественный выбор: нажатие «Далее» без выбора опций возвращает ошибку', async () => {
+    const poolService = new QuestionPoolService(
+      [
+        {
+          question: 'Множественный выбор',
+          questionCode: 'q1',
+          type: 'choice' as const,
+          multiple: true,
+          answers: [
+            { answer: 'A', answerCode: 'a' },
+            { answer: 'B', answerCode: 'b' },
+          ],
+        },
+      ],
+      ['q1'],
+    );
+
+    const mod2 = new OnboardingApiModule({
+      questionnaireRepo,
+      questionPoolService: poolService,
+      userFacade: modResolve.userFacade,
+      db,
+      appResolver: { logger, mode: 'test' as const },
+    });
+
+    const app2 = new ApiApp([mod2]) as U7BotApp;
+    const ctrl2 = new OnboardingController(mod2);
+    const actor2: User = {
+      uuid: botAdminUuid,
+      name: 'Test10',
+      telegramId: 666,
+      roles: [Role.GUEST],
+      createdAt: '2024-01-01T00:00:00.000Z',
+    };
+
+    // Начинаем анкету
+    await ctrl2.handleCallback('start_questionnaire', actor2, emptySession());
+
+    // Пытаемся нажать «Далее» без выбора опций
+    const response = await ctrl2.handleCallback(
+      'next:q1',
+      actor2,
+      capSession(1),
+    );
+    assertResponseMarkdownSafe(response);
+
+    // Должен вернуть ошибку (minLength валидация не пройдена)
+    expect(response.sendMessage?.text).toContain('⚠️');
+    expect(response.sendMessage?.text.toLowerCase()).toContain('ошибк');
+  });
 });
