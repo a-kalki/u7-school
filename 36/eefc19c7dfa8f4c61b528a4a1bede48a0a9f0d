@@ -1,0 +1,9 @@
+Задача: Обновить stream для импорта ContentSnapshot из course
+Изменения:
+- Удалены LessonSnapshotSchema, ProjectSnapshotSchema, ContentSnapshotSchema из stream/domain/stream/entity.ts
+- Импортированы ContentSnapshot и ContentSnapshotSchema из @u7-scl/course/domain
+- Обновлены импорты в a-root.ts, entity.test.ts, stream-ds.test.ts, a-root.test.ts
+- index.ts добавлен ре-экспорт ContentSnapshot из course
+- Тест content-snapshot-import.test.ts проверяет доступность схемы через index
+Файлы: entity.ts, entity.test.ts, a-root.ts, a-root.test.ts, stream-ds.test.ts, index.ts (stream), content-snapshot-import.test.ts
+Причина: Унификация — stream больше не дублирует определение ContentSnapshot
