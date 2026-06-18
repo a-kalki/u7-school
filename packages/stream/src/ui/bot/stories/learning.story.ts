@@ -88,43 +88,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    const stepLabel = this.#findStepLabel(
-      stream.contentSnapshot,
+    return this.#buildStepKeyboard(
+      student,
+      stream,
       student.currentStepId,
     );
-
-    return {
-      sendMessage: {
-        text: [
-          `📖 *Моя учёба* — _${this.escapeMarkdown(stream.title)}_`,
-          '',
-          `📌 Текущее задание: ${stepLabel}`,
-        ].join('\n'),
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '✅ Выполнено',
-                code: this.cb(
-                  'complete',
-                  student.uuid,
-                  student.streamId,
-                  student.currentStepId,
-                ),
-              },
-            ],
-            [
-              {
-                text: '📊 Мой прогресс',
-                code: this.cbFor('progress', 'progress', student.streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
   }
 
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
@@ -144,21 +112,89 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       actor.uuid,
     );
 
-    // Если переход на новый урок/проект — получаем названия
+    // Завершение потока — сохраняем текущее поведение
+    if (result.level === 'stream') {
+      return {
+        sendMessage: {
+          text: '🏆 *Поток полностью завершён\\!* Поздравляем с успешным окончанием обучения\\!',
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
+
+    // Переход на новый урок/проект — поздравление + кнопка
     if (result.level === 'lesson' || result.level === 'project') {
       return this.#handleLevelTransition(result, streamId);
     }
 
-    const levelMessages: Record<string, string> = {
-      step: '✅ Шаг выполнен\\! Следующее задание уже ждёт\\.',
-      stream:
-        '🏆 *Поток полностью завершён\\!* Поздравляем с успешным окончанием обучения\\!',
-    };
+    // Обычный шаг — сразу показываем клавиатуру следующего шага
+    const student = await this.moduleApi.execute(
+      'get-student-by-user',
+      { userId: actor.uuid },
+      actor.uuid,
+    );
+
+    const stream = await this.moduleApi.execute('get-stream', {
+      streamId,
+    });
+
+    return this.#buildStepKeyboard(
+      student,
+      stream,
+      result.currentStepId || stepId,
+    );
+  }
+
+  /**
+   * Строит клавиатуру шага с кнопками «Выполнено» и «Мой прогресс».
+   */
+  #buildStepKeyboard(
+    student: Student,
+    stream: { title: string; contentSnapshot: Array<{
+      projectTitle: string;
+      lessons: Array<{
+        lessonId: string;
+        lessonTitle: string;
+        stepIds: string[];
+      }>;
+    }> },
+    stepId: string,
+  ): BotResponse {
+    const stepLabel = this.#findStepLabel(
+      stream.contentSnapshot,
+      stepId,
+    );
 
     return {
       sendMessage: {
-        text: levelMessages[result.level] ?? '✅ Задание выполнено\\!',
+        text: [
+          `📖 *Моя учёба* — _${this.escapeMarkdown(stream.title)}_`,
+          '',
+          `📌 Текущее задание: ${stepLabel}`,
+        ].join('\n'),
         parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: '✅ Выполнено',
+                code: this.cb(
+                  'complete',
+                  student.uuid,
+                  student.streamId,
+                  stepId,
+                ),
+              },
+            ],
+            [
+              {
+                text: '📊 Мой прогресс',
+                code: this.cbFor('progress', 'progress', student.streamId),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
       },
     };
   }
@@ -174,41 +210,43 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   ): Promise<BotResponse> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
 
-    let messageText = '🎉 Отличная работа!';
+    let messageText: string;
+    let buttonText: string;
 
     if (result.level === 'lesson' && result.completedLessonId) {
-      // Находим название завершённого урока и следующего
       const completedTitle = this.#findLessonTitle(
         stream.contentSnapshot,
         result.completedLessonId,
       );
-      const nextTitle = result.currentStepId
-        ? this.#findLessonTitleByStep(
-            stream.contentSnapshot,
-            result.currentStepId,
-          )
-        : 'следующий урок';
-
-      messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён\\. Начинаем: «${this.escapeMarkdown(nextTitle)}»\\!`;
+      messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
+      buttonText = '▶️ Начать следующий урок';
     } else if (result.level === 'project' && result.completedProjectId) {
       const completedTitle = this.#findProjectTitle(
         stream.contentSnapshot,
         result.completedProjectId,
       );
-      const nextTitle = result.currentStepId
-        ? this.#findProjectTitleByStep(
-            stream.contentSnapshot,
-            result.currentStepId,
-          )
-        : 'следующий проект';
-
-      messageText = `🚀 Проект «${this.escapeMarkdown(completedTitle)}» завершён\\. Начинаем: «${this.escapeMarkdown(nextTitle)}»\\!`;
+      messageText = `🚀 Проект «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
+      buttonText = '▶️ Начать следующий проект';
+    } else {
+      messageText = '🎉 Отличная работа!';
+      buttonText = '▶️ Продолжить';
     }
 
     return {
       sendMessage: {
         text: messageText,
         parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: buttonText,
+                code: this.cb('my-study'),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
       },
     };
   }
@@ -256,27 +294,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     return 'урок';
   }
 
-  #findLessonTitleByStep(
-    snapshot: Array<{
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>,
-    stepId: string,
-  ): string {
-    for (const project of snapshot) {
-      for (const lesson of project.lessons) {
-        if (lesson.stepIds.includes(stepId)) {
-          return lesson.lessonTitle;
-        }
-      }
-    }
-    return 'урок';
-  }
-
   #findProjectTitle(
     snapshot: Array<{
       projectId: string;
@@ -292,28 +309,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     for (const project of snapshot) {
       if (project.projectId === projectId) {
         return project.projectTitle;
-      }
-    }
-    return 'проект';
-  }
-
-  #findProjectTitleByStep(
-    snapshot: Array<{
-      projectId: string;
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>,
-    stepId: string,
-  ): string {
-    for (const project of snapshot) {
-      for (const lesson of project.lessons) {
-        if (lesson.stepIds.includes(stepId)) {
-          return project.projectTitle;
-        }
       }
     }
     return 'проект';
