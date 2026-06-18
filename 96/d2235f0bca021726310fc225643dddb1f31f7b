@@ -1,0 +1,6 @@
+Задача: Обновить course/domain/types.ts и index.ts
+Изменения:
+- Удалены ContentSnapshotItem и ContentSnapshot из types.ts
+- Добавлен экспорт типов и схем из content-snapshot.ts в index.ts
+- Тест content-snapshot-index.test.ts (4 теста) проверяет доступность через index
+Файлы: packages/course/src/domain/types.ts, index.ts, content-snapshot-index.test.ts
