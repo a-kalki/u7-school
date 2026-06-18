@@ -1,9 +1,40 @@
 import type { Logger } from '@u7-scl/core/shared';
-import type { BotRouter } from '@u7-scl/core/ui';
+import type { BotResponse, BotRouter } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { type Composer, InlineKeyboard } from 'grammy';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
+
+/** Callback-data для кнопки «↩️ Назад /start» */
+const BACK_CALLBACK = '__back_to_start__';
+
+/**
+ * Добавляет кнопку «↩️ Назад /start» в клавиатуру ответа,
+ * если у пользователя есть активный обработчик (activeHandler).
+ */
+function addBackButton(response: BotResponse): BotResponse {
+  const backRow = [{ text: '↩️ Назад /start', code: BACK_CALLBACK }];
+
+  const addRow = (kb: NonNullable<BotResponse['sendMessage']>['keyboard']) => {
+    if (!kb) return { rows: [backRow], isMultiple: false };
+    return { ...kb, rows: [...kb.rows, backRow] };
+  };
+
+  const result = { ...response };
+  if (result.sendMessage) {
+    result.sendMessage = { ...result.sendMessage, keyboard: addRow(result.sendMessage.keyboard) };
+  }
+  if (result.editMessage) {
+    result.editMessage = { ...result.editMessage, keyboard: addRow(result.editMessage.keyboard) };
+  }
+  if (result.sendMessages) {
+    result.sendMessages = result.sendMessages.map((sm) => ({
+      ...sm,
+      keyboard: addRow(sm.keyboard),
+    }));
+  }
+  return result;
+}
 
 /**
  * Резолвит пользователя по telegramId.
@@ -112,6 +143,25 @@ export function connectRouter(
 
     const data = ctx.callbackQuery.data;
 
+    // ── Кнопка «↩️ Назад /start» ──
+    if (data === BACK_CALLBACK) {
+      ctx.session.activeHandler = null;
+      const items = await router.collectMainMenu(user);
+      const keyboard = new InlineKeyboard();
+      for (const item of items) {
+        if (item.url) {
+          keyboard.url(item.text, item.url).row();
+        } else {
+          keyboard.text(item.text, item.action).row();
+        }
+      }
+      await ctx.reply(`Привет, ${user.name}! 👋\n\nВыберите действие:`, {
+        reply_markup: keyboard,
+      });
+      await ctx.answerCallbackQuery().catch(() => {});
+      return;
+    }
+
     const response = await router.handleCallback(data, user, ctx.session);
 
     // Проверка на «чужой callback» — показываем alert
@@ -125,7 +175,12 @@ export function connectRouter(
       return;
     }
 
-    await executeResponses(ctx, response);
+    // Добавляем кнопку «Назад», если есть активный обработчик
+    const finalResponse = ctx.session.activeHandler
+      ? addBackButton(response)
+      : response;
+
+    await executeResponses(ctx, finalResponse);
     await ctx.answerCallbackQuery().catch(() => {});
   });
 
@@ -152,6 +207,11 @@ export function connectRouter(
       return next();
     }
 
-    await executeResponses(ctx, response);
+    // Добавляем кнопку «Назад», если есть активный обработчик
+    const finalResponse = ctx.session.activeHandler
+      ? addBackButton(response)
+      : response;
+
+    await executeResponses(ctx, finalResponse);
   });
 }
