@@ -59,23 +59,10 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные методы ──
 
   async #handleMyStudy(actor: User): Promise<BotResponse> {
-    let student: Student;
-    try {
-      student = await this.moduleApi.execute(
-        'get-student-by-user',
-        {
-          userId: actor.uuid,
-        },
-        actor.uuid,
-      );
-    } catch {
-      return {
-        sendMessage: {
-          text: '📖 Вы не записаны ни на один поток',
-          parseMode: 'MarkdownV2',
-        },
-      };
-    }
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return studentResult.value;
+
+    const student = studentResult.value;
 
     if (student.status === 'completed') {
       return {
@@ -91,11 +78,36 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     });
 
     return this.#buildStepKeyboard(
-      student,
       stream,
       student.currentStepId,
       student.streamId,
     );
+  }
+
+  protected async getStudent(
+    userId: string,
+  ): Promise<{ ok: true; value: Student } | { ok: false; value: BotResponse }> {
+    try {
+      const user = await this.moduleApi.execute(
+        'get-student-by-user',
+        { userId },
+        userId,
+      );
+      return {
+        ok: true,
+        value: user,
+      };
+    } catch {
+      return {
+        ok: false,
+        value: {
+          sendMessage: {
+            text: '📖 Вы не записаны ни на один поток',
+            parseMode: 'MarkdownV2',
+          },
+        },
+      };
+    }
   }
 
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
@@ -105,22 +117,10 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.sendUnknownError();
     }
 
-    // Получаем студента по actor.uuid
-    let student: Student;
-    try {
-      student = await this.moduleApi.execute(
-        'get-student-by-user',
-        { userId: actor.uuid },
-        actor.uuid,
-      );
-    } catch {
-      return {
-        sendMessage: {
-          text: '📖 Вы не записаны ни на один поток',
-          parseMode: 'MarkdownV2',
-        },
-      };
-    }
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return studentResult.value;
+
+    const student = studentResult.value;
 
     // Сверяем streamId из callback с потоком студента
     if (student.streamId !== streamId) {
@@ -163,7 +163,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     });
 
     return this.#buildStepKeyboard(
-      student,
       stream,
       result.currentStepId || stepId,
       streamId,
@@ -174,7 +173,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
    * Строит клавиатуру шага с кнопками «Выполнено» и «Мой прогресс».
    */
   #buildStepKeyboard(
-    _student: Student,
     stream: {
       title: string;
       contentSnapshot: ContentSnapshot;
