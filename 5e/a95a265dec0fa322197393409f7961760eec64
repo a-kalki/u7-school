@@ -1,0 +1,15 @@
+Task: Написать тесты для автозаполнения в CreateStreamStory + Реализовать автозаполнение
+
+Изменения:
+- create-stream.story.ts: расширен CreateStreamWizardContext (поля goal, result, rules, targetAudience, additional + module-кэш)
+- create-stream.story.ts: #onModuleSelected — загружает модуль через appApi.execute('get-module') и предзаполняет title/description
+- create-stream.story.ts: #handleTitleInput/#handleDescriptionInput — показывают подсказку «По умолчанию»
+- create-stream.story.ts: #handleDateInput — показывает сводку необязательных полей с кнопками «По умолчанию» и «Пропустить»
+- create-stream.story.ts: #handleUseDefaults/#handleSkipDefaults — обработчики кнопок
+- create-stream.story.ts: #handleConfirm — передаёт goal, result, rules, targetAudience, additional в create-stream UC
+- create-stream.story.ts: #showPreview — показывает необязательные поля в превью
+- create-stream.story.test.ts: +4 новых теста (предзаполнение, сводка полей, передача в UC, изменение значений)
+
+Файлы:
+- packages/stream/src/ui/bot/stories/create-stream.story.ts
+- packages/stream/src/ui/bot/stories/create-stream.story.test.ts
