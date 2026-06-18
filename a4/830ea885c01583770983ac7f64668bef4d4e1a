@@ -1,0 +1,7 @@
+Задача: Фаза 3 — перехват ошибок в BotController
+
+Изменения:
+- packages/core/src/ui/bot/controller/bot-controller.ts: try/catch в handleCallback/handleMessage, улучшен handleError с fromError и logger
+- packages/core/src/ui/bot/controller/bot-controller.test.ts: тесты на перехват исключений и логирование
+
+Причина: контроллер должен перехватывать необработанные ошибки story, чтобы пользователь не видел детали.
