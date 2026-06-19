@@ -688,4 +688,40 @@ describe('connectRouter', () => {
     const replyCall = (ctx.reply as any).mock.calls[0];
     expect(replyCall[0]).toContain('Нет доступных');
   });
+
+  // ── app:main-menu ──
+
+  test('app:main-menu пересобирает меню и НЕ сбрасывает activeHandler', async () => {
+    const bot = makeMockBot();
+    const userFacade = makeMockUserFacade(makeUser());
+
+    const ctrl = new MockController();
+    ctrl.name = 'stream';
+    ctrl.setStartResult([
+      { kind: 'callback', text: 'Потоки', action: 'stream:catalog:list', priority: 10 },
+    ]);
+
+    const router = new BotRouter([ctrl]);
+    connectRouter(bot, router, userFacade, 'admin-uuid');
+
+    const handler = bot.listeners['callback_query:data']?.[0];
+    const ctx = makeMockContext();
+    ctx.session.activeHandler = { path: 'stream/some-path' };
+    ctx.callbackQuery!.data = 'app:main-menu';
+
+    await handler!(ctx);
+
+    // activeHandler НЕ сброшен
+    expect(ctx.session.activeHandler).not.toBeNull();
+    expect(ctx.session.activeHandler!.path).toBe('stream/some-path');
+
+    // reply содержит клавиатуру из меню
+    const replyCall = (ctx.reply as any).mock.calls[0];
+    expect(replyCall[0]).toContain('Выберите действие');
+    expect(replyCall[1].reply_markup).toBeDefined();
+    const btnTexts: string[] = replyCall[1].reply_markup.inline_keyboard
+      .flat()
+      .map((b: any) => b.text);
+    expect(btnTexts).toContain('Потоки');
+  });
 });

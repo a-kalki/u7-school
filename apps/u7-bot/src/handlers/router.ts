@@ -135,6 +135,21 @@ export function connectRouter(
 
     const response = await router.handleCallback(data, user, ctx.session);
 
+    // Главное меню (app:main-menu) — пересборка без сброса activeHandler
+    if (response.mainMenu) {
+      const keyboard = new InlineKeyboard();
+      for (const item of response.mainMenu.actions) {
+        if (item.kind === 'url') {
+          keyboard.url(item.text, item.url).row();
+        } else {
+          keyboard.text(item.text, item.action).row();
+        }
+      }
+      await ctx.reply('Выберите действие:', { reply_markup: keyboard });
+      await ctx.answerCallbackQuery().catch(() => {});
+      return;
+    }
+
     // Проверка на «чужой callback» — показываем alert
     if (response.sendMessage?.text?.includes('завершите текущее действие')) {
       await ctx
