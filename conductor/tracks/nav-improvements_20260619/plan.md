@@ -46,12 +46,12 @@
 
 ## Фаза 4: Удаление отработанных кнопок в CreateStreamStory (UX-5)
 
-- [ ] Task: Написать тест: CreateStreamStory удаляет кнопки на шагах accept/skip
-  - [ ] Нажатие «Принять» / «Пропустить» → `removePrevKeyboard: true`
-  - [ ] Нажатие «Пропустить» для группы → `removePrevKeyboard: true`
-  - [ ] На шаге 10 (превью) — без изменений
+- [x] Task: Написать тест: CreateStreamStory удаляет кнопки на шагах accept/skip | `80eeab6`
+  - [x] Нажатие «Принять» / «Пропустить» → `removePrevKeyboard: true`
+  - [x] Нажатие «Пропустить» для группы → `removePrevKeyboard: true`
+  - [x] На шаге 10 (превью) — без изменений
 
-- [ ] Task: Добавить `removePrevKeyboard: true` в CreateStreamStory
+- [x] Task: Добавить `removePrevKeyboard: true` в CreateStreamStory | `80eeab6`
   - [ ] В `#handleAcceptField`, `#handleSkipField`, `#handleSkipGroup`
   - [ ] В `#handleOptionalFieldInput` при переходе к следующему полю или группе
 
@@ -59,13 +59,13 @@
 
 ## Фаза 5: Документация и user-stories (UX-6, UX-7)
 
-- [ ] Task: Создать `packages/core/src/ui/bot/README.md`
-  - [ ] Правила добавления кнопок «Назад»/«Главное меню»
-  - [ ] Когда НЕ добавлять (процесс vs навигация)
-  - [ ] Как использовать `app:main-menu`
-  - [ ] Как story управляет `removePrevKeyboard`
+- [x] Task: Создать `packages/core/src/ui/bot/README.md` | `dbcb4a2`
+  - [x] Правила добавления кнопок «Назад»/«Главное меню»
+  - [x] Когда НЕ добавлять (процесс vs навигация)
+  - [x] Как использовать `app:main-menu`
+  - [x] Как story управляет `removePrevKeyboard`
 
-- [ ] Task: Обновить `packages/stream/src/user-stories.md`
+- [x] Task: Обновить `packages/stream/src/user-stories.md` | `dbcb4a2`
   - [ ] US-4 п.5: убрать кнопку `[ ◀️ Назад ]`
   - [ ] US-4 п.9: пометить как «запланировано»
   - [ ] US-7 broadcast: пометить как «запланировано»
