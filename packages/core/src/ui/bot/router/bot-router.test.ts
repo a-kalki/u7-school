@@ -426,4 +426,61 @@ describe('BotRouter', () => {
 
     expect(res).toBeNull();
   });
+
+  // ── app:main-menu ──
+
+  test('app:main-menu пересобирает меню через collectMainMenu', async () => {
+    const ctrl = new TestController();
+    ctrl.name = 'stream';
+    ctrl.withStartResult([
+      { kind: 'callback', text: 'Кнопка 1', action: 'stream:a', priority: 10 },
+      { kind: 'callback', text: 'Кнопка 2', action: 'stream:b', priority: 5 },
+    ]);
+
+    const disp = new BotRouter([ctrl]);
+    const session = makeSession();
+    const actor = makeActor();
+
+    const res = await disp.handleCallback('app:main-menu', actor, session);
+
+    expect(res.mainMenu).toBeDefined();
+    expect(res.mainMenu!.actions).toHaveLength(2);
+    expect(res.mainMenu!.actions[0]!.text).toBe('Кнопка 2'); // priority 5
+    expect(res.mainMenu!.actions[1]!.text).toBe('Кнопка 1'); // priority 10
+  });
+
+  test('app:main-menu НЕ сбрасывает activeHandler', async () => {
+    const ctrl = new TestController();
+    ctrl.name = 'stream';
+    ctrl.withStartResult([]);
+
+    const disp = new BotRouter([ctrl]);
+    const session = makeSession({
+      activeHandler: { path: 'stream/some-path' },
+    });
+
+    await disp.handleCallback('app:main-menu', makeActor(), session);
+
+    expect(session.activeHandler).not.toBeNull();
+    expect(session.activeHandler!.path).toBe('stream/some-path');
+  });
+
+  test('app:main-menu работает без контроллера app', async () => {
+    const ctrl = new TestController();
+    ctrl.name = 'stream';
+    ctrl.withStartResult([
+      { kind: 'callback', text: 'Единственная', action: 'stream:x', priority: 1 },
+    ]);
+
+    const disp = new BotRouter([ctrl]);
+    // Контроллера 'app' нет — но вызов должен работать
+    const res = await disp.handleCallback(
+      'app:main-menu',
+      makeActor(),
+      makeSession(),
+    );
+
+    expect(res.mainMenu).toBeDefined();
+    expect(res.mainMenu!.actions).toHaveLength(1);
+  });
 });

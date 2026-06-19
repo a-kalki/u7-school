@@ -36,6 +36,8 @@ export interface BotResponse {
   sendDelayMs?: number;
   /** Убрать клавиатуру у предыдущего сообщения бота перед отправкой нового */
   removePrevKeyboard?: boolean;
+  /** Главное меню — действия для сборки клавиатуры (app:main-menu) */
+  mainMenu?: { actions: MainMenuAction[] };
   /** Захват ввода — следующие сообщения пользователя пойдут в указанный обработчик */
   captureInput?: { path: string; context?: unknown; ttlSeconds?: number };
   /** Освобождение захваченного ввода */

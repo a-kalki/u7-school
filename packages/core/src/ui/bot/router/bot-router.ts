@@ -125,6 +125,12 @@ export class BotRouter<
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
+    // Специальный callback: пересборка главного меню без сброса activeHandler
+    if (data === 'app:main-menu') {
+      const items = await this.collectMainMenu(actor);
+      return { mainMenu: { actions: items } };
+    }
+
     const controllerName = extractControllerName(data);
 
     if (!controllerName) {
