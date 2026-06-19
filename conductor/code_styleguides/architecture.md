@@ -30,17 +30,12 @@ src/api/
 
 ## Вход в модуль: Команды и Entry Point
 
-Каждый модуль предоставляет единый **entry point** — класс `Module`, который принимает команду и возвращает результат:
-
-```typescript
-// packages/<module>/src/api/module.ts
-module.handle(command: ModuleCommand): Promise<unknown>;
-```
+Каждый модуль предоставляет единый **entry point** — класс `Module`, с методом `execute(uc-name: sting, ...other)` выполняющий указанный usecase (uc):
 
 ### Поток выполнения команды
 
-1. **Interface (Console / Bot / REST):** Формирует `ModuleCommand { name, actorId?, attrs }`.
-2. **Entry point модуля `handle(command)`:** Диспетчер команд модуля находит нужный Use Case.
+1. контроллер (или story для bot,cli сценариев) ловит внешний триггер и формирует вызов module.execute(). В некоторых случаях возможен вызов через объект приложения apiApp.execute(), предоставляющий вызов ко всем модулям приложения, который в свою очередь делегирует вызов соответствующему модулю.
+2. **Entry point модуля `execute(...)`:** Диспетчер команд модуля находит нужный Use Case.
 3. **Use Case:**
     - Проверка валидации команды (через `inputSchema`).
     - Проверка прав (через `Policy`).
@@ -57,7 +52,7 @@ module.handle(command: ModuleCommand): Promise<unknown>;
 ```
 @u7/core/domain    — чистый домен (Aggregate, AppError, фабрики ошибок)
 @u7/core/api       — сценарии использования (UseCase, Module)
-@u7/core/ui        — интерфейс (AutoUiApp, UIModule)
+@u7/core/ui        — контроллеры (для bot, cli)
 @u7/core/shared    — общий код (isoNow)
 ```
 

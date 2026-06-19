@@ -9,14 +9,12 @@
 - [Рабочий процесс](./workflow.md)
 - [Руководства по стилю кода](./code_styleguides/)
   - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — Entity, Aggregate, Repo, Policy, Errors
-  - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module
+  - [BotUserStory](../.pi/skills/ddd-api/SKILL.md) — BotUserStory, обработка ошибок, логирование
   - [DDD Infra](../.pi/skills/ddd-infra/SKILL.md) — реализации репозиториев
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
   - [Тестирование](./code_styleguides/testing.md) — общие правила
   - [Тестирование Telegram-бота](./code_styleguides/bot-test.md) — unit, интеграционные, E2E
 - [AppController](./code_styleguides/app-controller.md) — контроллер уровня приложения для stories без привязки к доменным модулям
-  - [Обработка ошибок в story](./code_styleguides/error-handling-story.md) — try/catch, handleError, логирование
-  - [Обработка ошибок в контроллере](./code_styleguides/error-handling-controller.md) — перехват на верхнем уровне
 
 ## Гайды по контенту курса
 - [Наполнение уроков шагами](./guides/lesson-design.md)

@@ -37,8 +37,7 @@
 - Все 893 теста проходят
 
 ### Фаза 6: Документация
-- `error-handling-story.md` — когда нужен try/catch, как использовать handleError, правила логирования
-- `error-handling-controller.md` — перехват на верхнем уровне, двойная защита
+- `bot-user-story.md` — добавлена секция «Обработка ошибок» (try/catch, handleError, логирование)
 
 ## Изменённые файлы
 
@@ -55,8 +54,7 @@
 - `packages/stream/src/ui/bot/stories/learning.story.ts` — `handleError` в catch
 
 ### Документация
-- `conductor/code_styleguides/error-handling-story.md`
-- `conductor/code_styleguides/error-handling-controller.md`
+- `conductor/code_styleguides/skills/bot-user-story.md` — секция «Обработка ошибок»
 - `conductor/tracks/err_handling_logging_20260616/audit-core.md`
 
 ## Принятые архитектурные решения

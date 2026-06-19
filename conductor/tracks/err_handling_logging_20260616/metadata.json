@@ -1,0 +1,8 @@
+{
+  "track_id": "err_handling_logging_20260616",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-06-16T12:00:00Z",
+  "updated_at": "2026-06-16T12:00:00Z",
+  "description": "Унификация обработки ошибок и логирования в bot-слое (botRouter, bot-controller, bot-story)"
+}
