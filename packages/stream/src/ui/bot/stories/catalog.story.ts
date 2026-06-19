@@ -71,6 +71,9 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const legend = '\n\n🟢 — идёт набор   🔵 — идёт обучение   ⚪ — завершён';
 
+    // Кнопка «↩️ Главное меню» последней строкой
+    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+
     return {
       sendMessage: {
         text: `📚 *Потоки школы*${legend}`,

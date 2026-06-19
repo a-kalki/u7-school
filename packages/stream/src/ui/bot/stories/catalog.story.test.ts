@@ -178,4 +178,29 @@ describe('CatalogStory', () => {
     // сообщение другое. Проверяем, что нет ошибок.
     expect(response.sendMessage?.text).toBeDefined();
   });
+
+  test('handleCallback("list") добавляет «↩️ Главное меню» последней строкой', async () => {
+    const moduleApi = {
+      execute: mock(async () => [
+        {
+          uuid: '11111111-1111-1111-1111-111111111111',
+          title: 'Поток Набора',
+          status: 'enrollment',
+        },
+      ]),
+    } as unknown as StreamApiModule;
+
+    const story = new CatalogStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback('list', actor, session);
+    assertResponseMarkdownSafe(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    expect(rows.length).toBeGreaterThanOrEqual(1);
+    const lastRow = rows[rows.length - 1]!;
+    expect(lastRow).toHaveLength(1);
+    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
+    expect(lastRow[0]!.code).toBe('app:main-menu');
+  });
 });
