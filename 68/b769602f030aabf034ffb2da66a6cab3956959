@@ -1,0 +1,5 @@
+Задача: connectRouter обработка response.mainMenu
+
+Изменения:
+- apps/u7-bot/src/handlers/router.ts: обработка mainMenu в callback_query — сборка InlineKeyboard из actions и отправка сообщения
+- apps/u7-bot/src/handlers/router.test.ts: тест app:main-menu пересобирает меню через connectRouter и не сбрасывает activeHandler
