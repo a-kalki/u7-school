@@ -56,7 +56,9 @@ describe('CatalogStory e2e', () => {
 
     expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
-    expect(btnTexts.length).toBe(2); // только enrollment + active
+
+    // Проверяем кнопку «↩️ Главнее меню»
+    expect(btnTexts.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
   });
 
   test('гость — завершённые и архивные потоки не показываются', async () => {

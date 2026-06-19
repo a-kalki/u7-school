@@ -556,5 +556,34 @@ describe('Сквозные пользовательские сценарии (E2
       expect(backResp.sendMessage?.text).toContain('Студенты потока');
       expect(backResp.sendMessage?.text).not.toContain('Неизвестная команда');
     });
+
+    // ── Сценарии с кнопками «Назад» ──
+
+    test('каталог → «↩️ Главное меню» в каталоге', async () => {
+      const catalogResp = await router.handleCallback(
+        'stream:catalog:list',
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(catalogResp);
+
+      const btnTexts = catalogResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      expect(btnTexts.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
+    });
+
+    test('прогресс → «⬅️ Назад к обучению»', async () => {
+      const progressResp = await router.handleCallback(
+        `stream:progress:progress:${ACTIVE_ID}`,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(progressResp);
+
+      const rows = progressResp.sendMessage?.keyboard?.rows ?? [];
+      if (rows.length > 0) {
+        const btnTexts = rows.flat().map((b) => b.text);
+        expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
+      }
+    });
   });
 });

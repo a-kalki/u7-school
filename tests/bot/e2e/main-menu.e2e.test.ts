@@ -83,4 +83,26 @@ describe('Главное меню (E2E)', () => {
     const menu = await router.collectMainMenu(guest);
     expect(menu.some((i) => i.text.includes('Назад'))).toBe(false);
   });
+
+  // ── app:main-menu ──
+
+  test('app:main-menu пересобирает меню без сброса activeHandler', async () => {
+    const session: SessionData = {
+      activeHandler: { path: 'stream/some-path' },
+    };
+
+    const response = await router.handleCallback(
+      'app:main-menu',
+      guest,
+      session,
+    );
+
+    // Должен вернуть mainMenu с actions
+    expect(response.mainMenu).toBeDefined();
+    expect(response.mainMenu!.actions.length).toBeGreaterThanOrEqual(1);
+
+    // activeHandler НЕ должен быть сброшен
+    expect(session.activeHandler).not.toBeNull();
+    expect(session.activeHandler!.path).toBe('stream/some-path');
+  });
 });

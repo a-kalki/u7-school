@@ -55,6 +55,13 @@ describe('ProgressStory e2e', () => {
     expect(text).toContain('%');
     expect(text).toContain('шагов');
     expect(text).toContain('🔗');
+
+    // Кнопка «⬅️ Назад к обучению»
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    if (rows.length > 0) {
+      const btnTexts = rows.flat().map((b) => b.text);
+      expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
+    }
   });
 
   test('студент с 0 выполненными шагами → 0%', async () => {

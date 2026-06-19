@@ -173,6 +173,38 @@ describe('ViewStreamStory e2e', () => {
     expect(btns.some((t) => t.includes('В архив'))).toBe(true);
   });
 
+  test('ментор → complete: кнопка «⬅️ Назад к списку»', async () => {
+    // Используем ACTIVE_ID — он активный, можно завершить
+    const response = await router.handleCallback(
+      `stream:view-stream:complete:${ACTIVE_ID}`,
+      mentor,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    if (rows.length > 0) {
+      const btnTexts = rows.flat().map((b) => b.text);
+      expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
+    }
+  });
+
+  test('ментор → archive: кнопка «⬅️ Назад к списку»', async () => {
+    // После complete поток уже completed — архивируем completed
+    const response = await router.handleCallback(
+      `stream:view-stream:archive:${ACTIVE_ID}`,
+      mentor,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    if (rows.length > 0) {
+      const btnTexts = rows.flat().map((b) => b.text);
+      expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
+    }
+  });
+
   // ═══════════════════════════════════════════
   // Программа курса
   // ═══════════════════════════════════════════

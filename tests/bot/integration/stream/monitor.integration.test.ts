@@ -62,6 +62,9 @@ describe('MonitorStory e2e', () => {
     // Имя студента из фикстур — «Студент», отображается в кнопке с прогрессом
     expect(btns.some((t) => t.includes('Студент'))).toBe(true);
     expect(btns.some((t) => t.includes('%'))).toBe(true);
+
+    // Кнопка «⬅️ Назад к потоку»
+    expect(btns.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
   test('ментор открывает детальную карточку студента', async () => {

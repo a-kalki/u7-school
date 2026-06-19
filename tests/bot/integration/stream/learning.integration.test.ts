@@ -65,6 +65,11 @@ describe('LearningStory e2e', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Выполнено'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
+
+    // Кнопка «↩️ Главнее меню» последней строкой
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const lastRow = rows[rows.length - 1]!;
+    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
   });
 
   // ═══════════════════════════════════════════
