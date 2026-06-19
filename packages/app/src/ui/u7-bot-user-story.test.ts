@@ -10,8 +10,9 @@ import {
   errValidation,
 } from '@u7-scl/core/domain';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
-import type { BotResponse } from '@u7-scl/core/ui';
+import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '@u7-scl/stream/domain';
+import type { Role } from '../domain';
 import { U7BotUserStory } from './u7-bot-user-story';
 
 /**
@@ -19,6 +20,21 @@ import { U7BotUserStory } from './u7-bot-user-story';
  */
 class TestStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'test-handle-error';
+
+  override handleMessage(
+    _update: BotUpdate,
+    _actor: {
+      uuid: string;
+      name: string;
+      telegramId: number;
+      roles: Role[];
+      createdAt: string;
+      updatedAt?: string | undefined;
+    },
+    _session: SessionData,
+  ): Promise<BotResponse> {
+    throw new Error('Method not implemented.');
+  }
 
   handleCallback(): Promise<BotResponse> {
     throw new Error('Не используется');
@@ -33,13 +49,13 @@ class TestStory extends U7BotUserStory<StreamApiModuleMeta> {
 /** Создаёт мок-логгер */
 function createMockLogger(): Logger & { error: ReturnType<typeof mock> } {
   return {
-    debug: mock(() => {}),
-    info: mock(() => {}),
-    warn: mock(() => {}),
-    error: mock(() => {}),
-    setLogLevel: mock(() => {}),
+    debug: mock(() => { }),
+    info: mock(() => { }),
+    warn: mock(() => { }),
+    error: mock(() => { }),
+    setLogLevel: mock(() => { }),
     getLogLevel: mock(() => LogLevel.DEBUG),
-    setSourceLevel: mock(() => {}),
+    setSourceLevel: mock(() => { }),
   } as unknown as Logger & { error: ReturnType<typeof mock> };
 }
 

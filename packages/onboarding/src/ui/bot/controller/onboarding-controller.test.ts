@@ -5,7 +5,11 @@ import type { U7BotApp, User } from '@u7-scl/app/domain';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
-import type { SendMessageDescription, SessionData } from '@u7-scl/core/ui';
+import type {
+  CbMainMenuAction,
+  SendMessageDescription,
+  SessionData,
+} from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { UserJsonRepo } from '@u7-scl/user/infra';
@@ -32,9 +36,9 @@ describe('OnboardingController', () => {
   const botAdminUuid = crypto.randomUUID();
   let modResolve: OnboardingApiModuleResolver;
   const logger = {
-    error: () => {},
-    info: () => {},
-    warn: () => {},
+    error: () => { },
+    info: () => { },
+    warn: () => { },
   } as unknown as Logger;
 
   beforeEach(async () => {
@@ -139,7 +143,7 @@ describe('OnboardingController', () => {
   // ── Базовые тесты ──
 
   test('handleStart: возвращает кнопку «Заполнить анкету»', async () => {
-    const items = await controller.handleStart(actor);
+    const items = (await controller.handleStart(actor)) as CbMainMenuAction[];
 
     expect(items).toHaveLength(1);
     expect(items[0]!.text).toBe('📝 Заполнить анкету');

@@ -10,7 +10,6 @@
  */
 
 import { ApiApp } from '@u7-scl/core/api';
-import type { Logger } from '@u7-scl/core/shared';
 import { convert } from 'markdown-to-telegram';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
