@@ -1,0 +1,5 @@
+Задача: LearningStory — кнопка ↩️ Главное меню
+
+Изменения:
+- learning.story.ts: кнопка на my-study, level=lesson/project, level=stream. Отсутствует на level=step (в процессе)
+- learning.story.test.ts: 4 теста на наличие/отсутствие кнопки
