@@ -9,3 +9,8 @@
 
 - [ ] **Track: Реорганизация документации conductor**
 *Link: [./tracks/docs_reorg_20260619/](./tracks/docs_reorg_20260619/)*
+
+---
+
+- [ ] **Track: Навигация и очистка кнопок бота**
+*Link: [./tracks/nav-improvements_20260619/](./tracks/nav-improvements_20260619/)*
