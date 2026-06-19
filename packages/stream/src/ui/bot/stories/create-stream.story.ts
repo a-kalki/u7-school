@@ -473,7 +473,10 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       (f) => f.fieldName === this.#stepToField(field.nextStep),
     );
     if (nextField) {
-      return this.#showOptionalFieldStep(nextCtx, nextField);
+      return {
+        ...this.#showOptionalFieldStep(nextCtx, nextField),
+        removePrevKeyboard: true,
+      };
     }
 
     // Переход к группе
@@ -490,6 +493,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         path: WIZARD_PATH,
         context: nextCtx,
       },
+      removePrevKeyboard: true,
     };
   }
 
@@ -513,7 +517,10 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       (f) => f.fieldName === this.#stepToField(field.nextStep),
     );
     if (nextField) {
-      return this.#showOptionalFieldStep(nextCtx, nextField);
+      return {
+        ...this.#showOptionalFieldStep(nextCtx, nextField),
+        removePrevKeyboard: true,
+      };
     }
 
     // Переход к группе
@@ -566,7 +573,10 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       step: 10,
       telegramGroupId: '',
     };
-    return this.#showPreview(fullCtx);
+    return {
+      ...this.#showPreview(fullCtx),
+      removePrevKeyboard: true,
+    };
   }
 
   // ── Шаг превью ──

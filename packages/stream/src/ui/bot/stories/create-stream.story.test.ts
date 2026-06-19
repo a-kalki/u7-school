@@ -448,4 +448,69 @@ describe('CreateStreamStory', () => {
 
     expect(response.sendMessage?.text).toContain('Контекст');
   });
+
+  // ── removePrevKeyboard ──
+
+  test('кнопка «Принять» → removePrevKeyboard: true', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    // Шаг goal (moduleKey='goal')
+    const ctx = makeCtx({ step: 4 });
+    const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
+    const response = await story.handleCallback('accept-goal', mentor, session);
+
+    expect(response.removePrevKeyboard).toBe(true);
+  });
+
+  test('кнопка «Пропустить» → removePrevKeyboard: true', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const ctx = makeCtx({ step: 4 });
+    const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
+    const response = await story.handleCallback('skip-goal', mentor, session);
+
+    expect(response.removePrevKeyboard).toBe(true);
+  });
+
+  test('кнопка «Пропустить» для группы → removePrevKeyboard: true', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    // Шаг 9 — группа
+    const ctx = makeCtx({ step: 9 });
+    const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
+    const response = await story.handleCallback('skip-group', mentor, session);
+
+    expect(response.removePrevKeyboard).toBe(true);
+  });
+
+  test('шаг 10 (confirm) — removePrevKeyboard НЕ установлен', async () => {
+    const moduleApi = {
+      execute: mock(() => undefined),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const ctx = makeCtx({ step: 10 });
+    const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
+    const response = await story.handleCallback('confirm', mentor, session);
+
+    // confirm НЕ должен иметь removePrevKeyboard
+    expect(response.removePrevKeyboard).toBeUndefined();
+  });
 });
