@@ -84,6 +84,10 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
       sendMessage: {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⬅️ Назад к обучению', code: 'learning:my-study' }]],
+          isMultiple: false,
+        },
       },
     };
   }

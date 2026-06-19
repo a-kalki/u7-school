@@ -303,7 +303,7 @@ describe('ViewStreamStory', () => {
       0,
     );
 
-    await story.handleCallback(
+    const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
       mentorActor,
       session,
@@ -316,12 +316,18 @@ describe('ViewStreamStory', () => {
       },
       mentorActor.uuid,
     );
+
+    // Кнопка «⬅️ Назад к списку» после завершения
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    expect(rows.length).toBe(1);
+    expect(rows[0]![0]!.text).toBe('⬅️ Назад к списку');
+    expect(rows[0]![0]!.code).toBe('catalog:list');
   });
 
   test('кнопка «В архив» вызывает archive-stream', async () => {
     const { story, moduleApi } = makeViewStory(sampleStream, 0);
 
-    await story.handleCallback(
+    const response = await story.handleCallback(
       'archive:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
       mentorActor,
       session,
@@ -334,6 +340,12 @@ describe('ViewStreamStory', () => {
       },
       mentorActor.uuid,
     );
+
+    // Кнопка «⬅️ Назад к списку» после архивации
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    expect(rows.length).toBe(1);
+    expect(rows[0]![0]!.text).toBe('⬅️ Назад к списку');
+    expect(rows[0]![0]!.code).toBe('catalog:list');
   });
 
   // ── US-7: Админ видит менторские кнопки на любом потоке ──

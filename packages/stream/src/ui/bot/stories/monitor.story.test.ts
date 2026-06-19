@@ -75,6 +75,9 @@ describe('MonitorStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('50'))).toBe(true);
+
+    // Кнопка «⬅️ Назад к потоку»
+    expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
   test('handleStart возвращает null', async () => {

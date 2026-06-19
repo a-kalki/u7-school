@@ -32,6 +32,12 @@ describe('ActivateStreamStory', () => {
 
     expect(response.sendMessage?.text).toContain('запущен');
     expect(response.sendMessage?.text).toContain('Моя учёба');
+
+    // Кнопка «⬅️ Назад к потоку»
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    expect(rows.length).toBe(1);
+    expect(rows[0]![0]!.text).toContain('⬅️ Назад к потоку');
+    expect(rows[0]![0]!.code).toContain('view-stream:view:s1');
   });
 
   test('handleStart возвращает null', async () => {

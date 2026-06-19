@@ -25,6 +25,10 @@ export class ActivateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       sendMessage: {
         text: '🚀 *Поток запущен\\!* Первые задания выданы студентам\\. Они увидят их в разделе «📖 Моя учёба»\\.',
         parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⬅️ Назад к потоку', code: `view-stream:view:${streamId}` }]],
+          isMultiple: false,
+        },
       },
     };
   }

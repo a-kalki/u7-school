@@ -95,6 +95,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       ]);
     }
 
+    rows.push([
+      { text: '⬅️ Назад к потоку', code: `view-stream:view:${streamId}` },
+    ]);
+
     return {
       sendMessage: {
         text: `👥 *Студенты потока*\n_${this.escapeMarkdown(stream.title)}_`,

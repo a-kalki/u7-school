@@ -264,6 +264,10 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       sendMessage: {
         text: '✅ *Поток завершён\\!* Обучение окончено\\.',
         parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⬅️ Назад к списку', code: 'catalog:list' }]],
+          isMultiple: false,
+        },
       },
     };
   }
@@ -274,6 +278,10 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       sendMessage: {
         text: '📁 *Поток перемещён в архив\\.*',
         parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⬅️ Назад к списку', code: 'catalog:list' }]],
+          isMultiple: false,
+        },
       },
     };
   }
