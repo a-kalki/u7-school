@@ -32,15 +32,15 @@
 
 ## Фаза 3: Кнопка «⬅️ Назад» на тупиковых экранах (UX-3)
 
-- [ ] Task: Написать тест: ViewStreamStory complete/archive добавляют «⬅️ Назад к списку»
-- [ ] Task: Написать тест: ProgressStory добавляет «⬅️ Назад к обучению»
-- [ ] Task: Написать тест: MonitorStory students добавляет «⬅️ Назад к потоку»
-- [ ] Task: Написать тест: ActivateStreamStory добавляет «⬅️ Назад к потоку»
+- [x] Task: Написать тест: ViewStreamStory complete/archive добавляют «⬅️ Назад к списку» | `c1c0c4f`
+- [x] Task: Написать тест: ProgressStory добавляет «⬅️ Назад к обучению» | `c1c0c4f`
+- [x] Task: Написать тест: MonitorStory students добавляет «⬅️ Назад к потоку» | `c1c0c4f`
+- [x] Task: Написать тест: ActivateStreamStory добавляет «⬅️ Назад к потоку» | `c1c0c4f`
 
-- [ ] Task: Реализовать кнопки «⬅️ Назад» в ViewStreamStory (complete, archive)
-- [ ] Task: Реализовать кнопку «⬅️ Назад к обучению» в ProgressStory
-- [ ] Task: Реализовать кнопку «⬅️ Назад к потоку» в MonitorStory (students)
-- [ ] Task: Реализовать кнопку «⬅️ Назад к потоку» в ActivateStreamStory
+- [x] Task: Реализовать кнопки «⬅️ Назад» в ViewStreamStory (complete, archive) | `c1c0c4f`
+- [x] Task: Реализовать кнопку «⬅️ Назад к обучению» в ProgressStory | `c1c0c4f`
+- [x] Task: Реализовать кнопку «⬅️ Назад к потоку» в MonitorStory (students) | `c1c0c4f`
+- [x] Task: Реализовать кнопку «⬅️ Назад к потоку» в ActivateStreamStory | `c1c0c4f`
 
 - [ ] Task: Conductor - Ручная верификация 'Кнопки Назад'
 
