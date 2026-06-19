@@ -556,34 +556,228 @@ describe('Сквозные пользовательские сценарии (E2
       expect(backResp.sendMessage?.text).toContain('Студенты потока');
       expect(backResp.sendMessage?.text).not.toContain('Неизвестная команда');
     });
+  });
 
-    // ── Сценарии с кнопками «Назад» ──
+  // ────────────────────────────────────────────────
+  // Ментор: навигация «Завершить» → «⬅️ Назад к списку» → каталог
+  // ────────────────────────────────────────────────
+  describe('Ментор: complete → назад к списку', () => {
+    let app: TestApp;
+    let router: BotRouter;
+    let mentor: User;
 
-    test('каталог → «↩️ Главное меню» в каталоге', async () => {
-      const catalogResp = await router.handleCallback(
-        'stream:catalog:list',
+    beforeAll(async () => {
+      app = await createTestApp('e2e-mentor-complete');
+      const streamController = new StreamController(app.streamModule);
+      streamController.init(app.apiApp);
+      router = new BotRouter([streamController]);
+      mentor = (await app.userFacade.getUserByTelegramId(1004))!;
+    });
+
+    afterAll(async () => {
+      await app.cleanup();
+    });
+
+    test('ментор завершает active-поток → «⬅️ Назад к списку» → каталог', async () => {
+      // Завершаем активный поток
+      const completeResp = await router.handleCallback(
+        `stream:view-stream:complete:${ACTIVE_ID}`,
         mentor,
         NO_SESSION,
       );
-      assertBotResponseValid(catalogResp);
+      assertBotResponseValid(completeResp);
+      expect(completeResp.sendMessage?.text).toContain('Поток завершён');
 
-      const btnTexts = catalogResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btnTexts.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
+      // Кнопка «⬅️ Назад к списку»
+      const backBtn = findButton(completeResp, '⬅️ Назад к списку');
+      const backResp = await router.handleCallback(
+        backBtn.code,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(backResp);
+      expect(backResp.sendMessage?.text).toContain('Потоки школы');
+    });
+  });
+
+  // ────────────────────────────────────────────────
+  // Ментор: навигация «В архив» → «⬅️ Назад к списку» → каталог
+  // ────────────────────────────────────────────────
+  describe('Ментор: archive → назад к списку', () => {
+    let app: TestApp;
+    let router: BotRouter;
+    let mentor: User;
+
+    beforeAll(async () => {
+      app = await createTestApp('e2e-mentor-archive');
+      const streamController = new StreamController(app.streamModule);
+      streamController.init(app.apiApp);
+      router = new BotRouter([streamController]);
+      mentor = (await app.userFacade.getUserByTelegramId(1004))!;
     });
 
-    test('прогресс → «⬅️ Назад к обучению»', async () => {
-      const progressResp = await router.handleCallback(
-        `stream:progress:progress:${ACTIVE_ID}`,
+    afterAll(async () => {
+      await app.cleanup();
+    });
+
+    test('ментор архивирует enrollment-поток → «⬅️ Назад к списку» → каталог', async () => {
+      const archiveResp = await router.handleCallback(
+        `stream:view-stream:archive:${ENROLLMENT_ID}`,
         mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(archiveResp);
+      expect(archiveResp.sendMessage?.text).toContain('архив');
+
+      // Кнопка «⬅️ Назад к списку»
+      const backBtn = findButton(archiveResp, '⬅️ Назад к списку');
+      const backResp = await router.handleCallback(
+        backBtn.code,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(backResp);
+      expect(backResp.sendMessage?.text).toContain('Потоки школы');
+    });
+  });
+
+  // ────────────────────────────────────────────────
+  // Ментор: навигация «Студенты» → «⬅️ Назад к потоку» → карточка потока
+  // ────────────────────────────────────────────────
+  describe('Ментор: студенты → назад к потоку', () => {
+    let app: TestApp;
+    let router: BotRouter;
+    let mentor: User;
+
+    beforeAll(async () => {
+      app = await createTestApp('e2e-mentor-students-back');
+      const streamController = new StreamController(app.streamModule);
+      streamController.init(app.apiApp);
+      router = new BotRouter([streamController]);
+      mentor = (await app.userFacade.getUserByTelegramId(1004))!;
+    });
+
+    afterAll(async () => {
+      await app.cleanup();
+    });
+
+    test('ментор: студенты active-потока → «⬅️ Назад к потоку» → карточка', async () => {
+      const studentsResp = await router.handleCallback(
+        `stream:monitor:students:${ACTIVE_ID}`,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(studentsResp);
+      expect(studentsResp.sendMessage?.text).toContain('Студенты потока');
+
+      // Кнопка «⬅️ Назад к потоку»
+      const backBtn = findButton(studentsResp, '⬅️ Назад к потоку');
+      const backResp = await router.handleCallback(
+        backBtn.code,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(backResp);
+      expect(backResp.sendMessage?.text).toContain('JS Core');
+      expect(backResp.sendMessage?.text).not.toContain('Неизвестная');
+    });
+  });
+
+  // ────────────────────────────────────────────────
+  // Ментор: навигация «Запустить» → «⬅️ Назад к потоку» → карточка потока
+  // ────────────────────────────────────────────────
+  describe('Ментор: запустить → назад к потоку', () => {
+    let app: TestApp;
+    let router: BotRouter;
+    let mentor: User;
+
+    beforeAll(async () => {
+      app = await createTestApp('e2e-mentor-activate-back');
+      const streamController = new StreamController(app.streamModule);
+      streamController.init(app.apiApp);
+      router = new BotRouter([streamController]);
+      mentor = (await app.userFacade.getUserByTelegramId(1004))!;
+    });
+
+    afterAll(async () => {
+      await app.cleanup();
+    });
+
+    test('ментор запускает enrollment-поток → «⬅️ Назад к потоку» → карточка', async () => {
+      const activateResp = await router.handleCallback(
+        `stream:activate-stream:activate:${ENROLLMENT_ID}`,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(activateResp);
+      expect(activateResp.sendMessage?.text).toContain('Поток запущен');
+
+      // Кнопка «⬅️ Назад к потоку»
+      const backBtn = findButton(activateResp, '⬅️ Назад к потоку');
+      const backResp = await router.handleCallback(
+        backBtn.code,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(backResp);
+      expect(backResp.sendMessage?.text).toContain('JS Core');
+      expect(backResp.sendMessage?.text).not.toContain('Неизвестная');
+    });
+  });
+
+  // ────────────────────────────────────────────────
+  // Студент: навигация «Моя учёба» → «Мой прогресс» → «⬅️ Назад к обучению»
+  // ────────────────────────────────────────────────
+  describe('Студент: моя учёба → прогресс → назад', () => {
+    let app: TestApp;
+    let router: BotRouter;
+    let student: User;
+
+    beforeAll(async () => {
+      app = await createTestApp('e2e-student-progress-back');
+      const streamController = new StreamController(app.streamModule);
+      streamController.init(app.apiApp);
+      router = new BotRouter([streamController]);
+      student = (await app.userFacade.getUserByTelegramId(1003))!;
+    });
+
+    afterAll(async () => {
+      await app.cleanup();
+    });
+
+    test('студент: моя учёба → прогресс → «⬅️ Назад к обучению» → моя учёба', async () => {
+      // Открываем «Моя учёба»
+      const studyResp = await router.handleCallback(
+        'stream:learning:my-study',
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(studyResp);
+      expect(studyResp.sendMessage?.text).toContain('Моя учёба');
+
+      // Кнопка «↩️ Главное меню» на my-study
+      const menuBtn = findButton(studyResp, '↩️ Главное меню');
+      expect(menuBtn.code).toContain('app:main-menu');
+
+      // Кнопка «Мой прогресс»
+      const progressBtn = findButton(studyResp, 'Мой прогресс');
+      const progressResp = await router.handleCallback(
+        progressBtn.code,
+        student,
         NO_SESSION,
       );
       assertBotResponseValid(progressResp);
+      expect(progressResp.sendMessage?.text).toContain('Прогресс');
 
-      const rows = progressResp.sendMessage?.keyboard?.rows ?? [];
-      if (rows.length > 0) {
-        const btnTexts = rows.flat().map((b) => b.text);
-        expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
-      }
+      // Кнопка «⬅️ Назад к обучению»
+      const backBtn = findButton(progressResp, '⬅️ Назад к обучению');
+      const backResp = await router.handleCallback(
+        backBtn.code,
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(backResp);
+      expect(backResp.sendMessage?.text).toContain('Моя учёба');
     });
   });
 });
