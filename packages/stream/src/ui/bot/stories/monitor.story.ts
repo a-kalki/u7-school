@@ -6,8 +6,8 @@ import type { Student } from '../../../domain/student/entity';
 
 /**
  * US-8: Мониторинг прогресса группы.
- * Ментор видит список студентов потока с именами и их прогресс.
- * Можно кликнуть на студента — открывается детальная карточка.
+ * Публичный список студентов с прогресс-барами.
+ * Детальная карточка — кнопки действий только для ментора потока.
  */
 export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'monitor';
@@ -22,6 +22,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Детальная карточка студента
     if (cmd === 'detail' && id) {
       return this.#handleDetail(id, actor);
+    }
+
+    // Кнопка «✉️ Написать» — ссылка на Telegram пользователя
+    if (cmd === 'message' && id) {
+      const [userId, studentId] = id.split(':');
+      return this.#handleMessage(userId ?? id, studentId);
     }
 
     if (cmd !== 'students' || !id) {
@@ -41,12 +47,50 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Приватные методы ──
 
+  /** Кнопка «✉️ Написать» — показывает контакт Telegram */
+  async #handleMessage(userId: string, studentId?: string): Promise<BotResponse> {
+    let name = userId.slice(0, 8);
+    let telegramId = 0;
+    let username = '';
+    try {
+      const user = await this.appApi.execute('get-user', { uuid: userId });
+      name = user.name;
+      telegramId = user.telegramId;
+      username = (user as any).telegramUsername ?? '';
+    } catch {
+      // Пользователь не найден
+    }
+
+    const lines = [
+      '✉️ *' + this.escapeMarkdown(name) + '*',
+      '',
+      '📱 Telegram ID: ' + telegramId,
+    ];
+    if (username) {
+      lines.push('🔗 @' + username);
+    }
+    lines.push('', 'Ссылка: tg://user?id=' + telegramId);
+
+    const backCode = studentId
+      ? this.cbFor('monitor', 'detail', studentId)
+      : 'app:main-menu';
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⬅️ Назад к карточке', code: backCode }]],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
   async #handleStudents(streamId: string, actor: User): Promise<BotResponse> {
     const students = await this.moduleApi.execute(
       'list-stream-students',
-      {
-        streamId,
-      },
+      { streamId },
       actor.uuid,
     );
 
@@ -59,7 +103,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       0,
     );
 
-    // Резолвим имена студентов через модуль user
+    // Строим текст со сводкой и прогресс-барами + компактные кнопки
+    const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const s of students) {
@@ -69,10 +114,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const pct =
         totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
 
-      const barLen = 5;
+      // Прогресс-бар 10 символов для текста
+      const barLen = 10;
       const filled = Math.round((pct / 100) * barLen);
       const bar = '▓'.repeat(filled) + '░'.repeat(barLen - filled);
-
       const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
 
       // Получаем имя через appApi
@@ -87,33 +132,71 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         // Имя не найдено — используем id
       }
 
+      const escapedName = this.escapeMarkdown(name);
+      const counts = this.escapeMarkdown('(' + completed + '/' + totalSteps + ')');
+
+      // Строка в тексте: бар + процент + счётчики + имя
+      studentLines.push(
+        bar + ' ' + pct + '% ' + counts + ' — ' + escapedName + lagging,
+      );
+
+      // Компактная кнопка: 👤 + имя + процент
       rows.push([
         {
-          text: `${bar} ${pct}% — ${name}${lagging}`,
+          text: '👤 ' + name + ' (' + pct + '%)' + lagging,
           code: this.cbFor('monitor', 'detail', s.uuid),
         },
       ]);
     }
 
     rows.push([
-      { text: '⬅️ Назад к потоку', code: `view-stream:view:${streamId}` },
+      { text: '⬅️ Назад к потоку', code: 'view-stream:view:' + streamId },
     ]);
+
+    const countLabel = this.#pluralize(
+      students.length,
+      'студент',
+      'студента',
+      'студентов',
+    );
+
+    const header = [
+      '👥 *Студенты потока* — _' + this.escapeMarkdown(stream.title) + '_',
+      '',
+      'Всего: ' + students.length + ' ' + countLabel,
+      '',
+    ];
+
+    const text = [...header, ...studentLines].join('\n');
 
     return {
       sendMessage: {
-        text: `👥 *Студенты потока*\n_${this.escapeMarkdown(stream.title)}_`,
+        text,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
     };
   }
 
+  /** Склоняет существительное: 1 студент, 2 студента, 5 студентов */
+  #pluralize(
+    n: number,
+    one: string,
+    few: string,
+    many: string,
+  ): string {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod100 >= 11 && mod100 <= 19) return many;
+    if (mod10 === 1) return one;
+    if (mod10 >= 2 && mod10 <= 4) return few;
+    return many;
+  }
+
   async #handleDetail(studentId: string, actor: User): Promise<BotResponse> {
     const student: Student = await this.moduleApi.execute(
       'get-student-progress',
-      {
-        studentId,
-      },
+      { studentId },
       actor.uuid,
     );
 
@@ -151,11 +234,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
 
     const lines = [
-      `👤 *${this.escapeMarkdown(userName)}*`,
+      '👤 *' + this.escapeMarkdown(userName) + '*',
       '',
-      `📱 Telegram: ID ${telegramId}`,
-      `📊 Статус: ${statusLabels[student.status] ?? student.status}`,
-      `📈 Прогресс: ${completed} из ${totalSteps} шагов (${pct}%)`,
+      '📱 Telegram: ID ' + telegramId,
+      '📊 Статус: ' + (statusLabels[student.status] ?? student.status),
+      '📈 Прогресс: ' + completed + ' из ' + totalSteps + ' шагов ' + this.escapeMarkdown('(' + pct + '%)'),
     ];
 
     // Текущий проект/урок из прогресса
@@ -165,41 +248,40 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         for (const lesson of project.lessons) {
           if (lesson.stepIds.includes(currentStep.stepId)) {
             lines.push(
-              `📁 Проект: ${this.escapeMarkdown(project.projectTitle)}`,
+              '📁 Проект: ' + this.escapeMarkdown(project.projectTitle),
             );
-            lines.push(`📝 Урок: ${this.escapeMarkdown(lesson.lessonTitle)}`);
+            lines.push('📝 Урок: ' + this.escapeMarkdown(lesson.lessonTitle));
           }
         }
       }
     }
 
-    const keyboard = {
-      rows: [
-        [
-          {
-            text: '✉️ Написать',
-            code: this.cbFor('monitor', 'message', student.userId),
-          },
-          {
-            text: '📁 История шагов',
-            code: this.cbFor('monitor', 'history', studentId),
-          },
-        ],
-        [
-          {
-            text: '⬅️ Назад к списку',
-            code: this.cbFor('monitor', 'students', student.streamId),
-          },
-        ],
-      ],
-      isMultiple: false,
-    };
+    // Клавиатура: кнопки действий доступны всем
+    const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
+
+    keyboardRows.push([
+      {
+        text: '✉️ Написать',
+        code: this.cbFor('monitor', 'message', student.userId, student.uuid),
+      },
+      {
+        text: '📁 История шагов',
+        code: this.cbFor('monitor', 'history', studentId),
+      },
+    ]);
+
+    keyboardRows.push([
+      {
+        text: '⬅️ Назад к списку',
+        code: this.cbFor('monitor', 'students', student.streamId),
+      },
+    ]);
 
     return {
       sendMessage: {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
-        keyboard,
+        keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
   }
