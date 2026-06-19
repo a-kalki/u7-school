@@ -32,8 +32,9 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       .catch(() => {}); // Игнорируем ошибки если контент не изменился
   }
 
-  // 1.5. Если нужно — убираем клавиатуру у предыдущего сообщения
-  if (res.removePrevKeyboard && ctx.session.lastBotMessage) {
+  // 1.5. По умолчанию убираем клавиатуру у предыдущего сообщения
+  // Чтобы сохранить — установить keepPrevKeyboard: true
+  if (res.keepPrevKeyboard !== true && ctx.session.lastBotMessage) {
     const prev = ctx.session.lastBotMessage;
     await ctx.api
       .editMessageText(ctx.chat?.id ?? 0, prev.messageId, prev.text, {

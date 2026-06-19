@@ -209,6 +209,12 @@ export abstract class BotController<
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   #compressAction(raw: string): string {
+    // Специальные префиксы, не принадлежащие конкретному контроллеру
+    // (например, app:main-menu — обрабатывается на уровне BotRouter)
+    if (raw.startsWith('app:')) {
+      return raw;
+    }
+
     // Нет id для сжатия — только storyName:action
     if (raw.split(':').length <= 2) {
       return `${this.name}:${raw}`;
@@ -355,11 +361,7 @@ export abstract class BotController<
     const appError = fromError(err);
 
     // Логируем только серьёзные ошибки
-    if (
-      appError.kind === 'internal' ||
-      appError.kind === 'unauthorized' ||
-      appError.kind === 'default'
-    ) {
+    if (appError.kind === 'internal' || appError.kind === 'unauthorized') {
       this.logger?.error(
         'bot',
         'Необработанная ошибка в контроллере',

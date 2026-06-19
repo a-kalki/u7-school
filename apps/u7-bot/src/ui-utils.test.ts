@@ -70,12 +70,10 @@ describe('executeResponses — sendDelayMs', () => {
   });
 });
 
-// ── А2: Хранение предыдущего сообщения в контексте ──
+// ── А1: Удаление старых кнопок при навигации (по умолчанию) ──
 
-// ── А1: Удаление старых кнопок при навигации ──
-
-describe('executeResponses — removePrevKeyboard', () => {
-  test('removePrevKeyboard: true вызывает editMessageText с reply_markup: undefined и исходным текстом', async () => {
+describe('executeResponses — удаление предыдущей клавиатуры', () => {
+  test('по умолчанию убирает клавиатуру у предыдущего сообщения', async () => {
     const ctx = makeMockContext();
     ctx.session.lastBotMessage = {
       text: 'Предыдущее сообщение с кнопками',
@@ -86,9 +84,9 @@ describe('executeResponses — removePrevKeyboard', () => {
       },
     };
 
+    // Без keepPrevKeyboard — клавиатура удаляется
     const response: BotResponse = {
       sendMessage: { text: 'Новое сообщение' },
-      removePrevKeyboard: true,
     };
 
     await executeResponses(ctx, response);
@@ -105,24 +103,22 @@ describe('executeResponses — removePrevKeyboard', () => {
     expect(editCall[3]?.reply_markup).toBeUndefined();
   });
 
-  test('removePrevKeyboard без lastBotMessage — флаг игнорируется', async () => {
+  test('без lastBotMessage — удаление игнорируется (нечего убирать)', async () => {
     const ctx = makeMockContext();
     ctx.session.lastBotMessage = undefined;
 
     const response: BotResponse = {
       sendMessage: { text: 'Новое сообщение' },
-      removePrevKeyboard: true,
     };
 
     await executeResponses(ctx, response);
 
-    // editMessageText не должен вызываться (кроме обычного editMessage, которого нет)
-    // Проверяем, что НЕ было вызова с reply_markup: undefined
+    // editMessageText не должен вызываться — нет предыдущего сообщения
     const editMock = ctx.api.editMessageText as any;
     expect(editMock).not.toHaveBeenCalled();
   });
 
-  test('removePrevKeyboard с lastBotMessage убирает клавиатуру', async () => {
+  test('keepPrevKeyboard: true — НЕ убирает клавиатуру', async () => {
     const ctx = makeMockContext();
     ctx.session.lastBotMessage = {
       text: 'Сообщение с кнопками',
@@ -140,18 +136,41 @@ describe('executeResponses — removePrevKeyboard', () => {
 
     const response: BotResponse = {
       sendMessage: { text: 'Новый ответ' },
-      removePrevKeyboard: true,
+      keepPrevKeyboard: true,
+    };
+
+    await executeResponses(ctx, response);
+
+    // editMessageText НЕ должен вызываться для удаления клавиатуры
+    const editMock = ctx.api.editMessageText as any;
+    expect(editMock).not.toHaveBeenCalled();
+  });
+
+  test('keepPrevKeyboard: false — убирает клавиатуру (явное указание)', async () => {
+    const ctx = makeMockContext();
+    ctx.session.lastBotMessage = {
+      text: 'Старая клавиатура',
+      messageId: 5,
+      keyboard: {
+        rows: [[{ text: 'Тест', code: 'test' }]],
+        isMultiple: false,
+      },
+    };
+
+    const response: BotResponse = {
+      sendMessage: { text: 'Новое' },
+      keepPrevKeyboard: false,
     };
 
     await executeResponses(ctx, response);
 
     const editMock = ctx.api.editMessageText as any;
     expect(editMock).toHaveBeenCalled();
-    // Убедимся что текст оригинальный, а reply_markup — undefined
-    expect(editMock.mock.calls[0][2]).toBe('Сообщение с кнопками');
     expect(editMock.mock.calls[0][3]?.reply_markup).toBeUndefined();
   });
 });
+
+// ── А2: Хранение предыдущего сообщения в контексте ──
 
 describe('executeResponses — lastBotMessage', () => {
   test('sendMessage сохраняет SendMessageDescription + messageId в сессию', async () => {

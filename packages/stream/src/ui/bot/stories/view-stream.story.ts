@@ -199,18 +199,19 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
 
       rows.push([
         {
-          text: '👥 Студенты',
-          code: this.cbFor('monitor', 'students', stream.uuid),
-        },
-      ]);
-
-      rows.push([
-        {
           text: '📁 В архив',
           code: this.cbFor('view-stream', 'archive', stream.uuid),
         },
       ]);
     }
+
+    // ── Публичные кнопки (всем) ──
+    rows.push([
+      {
+        text: '👥 Студенты',
+        code: this.cbFor('monitor', 'students', stream.uuid),
+      },
+    ]);
 
     // ── Гостевые кнопки ──
     if (!isOwnerMentor) {

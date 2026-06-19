@@ -449,9 +449,9 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('Контекст');
   });
 
-  // ── removePrevKeyboard ──
+  // ── keepPrevKeyboard (по умолчанию клавиатура удаляется) ──
 
-  test('кнопка «Принять» → removePrevKeyboard: true', async () => {
+  test('кнопка «Принять» — keepPrevKeyboard не установлен (удаление по умолчанию)', async () => {
     const moduleApi = {
       execute: mock(() => undefined),
     } as unknown as StreamApiModule;
@@ -464,10 +464,10 @@ describe('CreateStreamStory', () => {
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
     const response = await story.handleCallback('accept-goal', mentor, session);
 
-    expect(response.removePrevKeyboard).toBe(true);
+    expect(response.keepPrevKeyboard).toBeUndefined();
   });
 
-  test('кнопка «Пропустить» → removePrevKeyboard: true', async () => {
+  test('кнопка «Пропустить» — keepPrevKeyboard не установлен (удаление по умолчанию)', async () => {
     const moduleApi = {
       execute: mock(() => undefined),
     } as unknown as StreamApiModule;
@@ -479,10 +479,10 @@ describe('CreateStreamStory', () => {
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
     const response = await story.handleCallback('skip-goal', mentor, session);
 
-    expect(response.removePrevKeyboard).toBe(true);
+    expect(response.keepPrevKeyboard).toBeUndefined();
   });
 
-  test('кнопка «Пропустить» для группы → removePrevKeyboard: true', async () => {
+  test('кнопка «Пропустить» для группы — keepPrevKeyboard не установлен (удаление по умолчанию)', async () => {
     const moduleApi = {
       execute: mock(() => undefined),
     } as unknown as StreamApiModule;
@@ -495,10 +495,10 @@ describe('CreateStreamStory', () => {
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
     const response = await story.handleCallback('skip-group', mentor, session);
 
-    expect(response.removePrevKeyboard).toBe(true);
+    expect(response.keepPrevKeyboard).toBeUndefined();
   });
 
-  test('шаг 10 (confirm) — removePrevKeyboard НЕ установлен', async () => {
+  test('шаг 10 (confirm) — keepPrevKeyboard не установлен', async () => {
     const moduleApi = {
       execute: mock(() => undefined),
     } as unknown as StreamApiModule;
@@ -510,7 +510,7 @@ describe('CreateStreamStory', () => {
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
     const response = await story.handleCallback('confirm', mentor, session);
 
-    // confirm НЕ должен иметь removePrevKeyboard
-    expect(response.removePrevKeyboard).toBeUndefined();
+    // confirm: keepPrevKeyboard не установлен — клавиатура удалится по умолчанию
+    expect(response.keepPrevKeyboard).toBeUndefined();
   });
 });

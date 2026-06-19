@@ -72,6 +72,10 @@ describe('ViewStreamStory e2e', () => {
     expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад'))).toBe(true);
     expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
+    // Публичная кнопка «👥 Студенты» видна всем
+    expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
+    // Навигационный ответ: keepPrevKeyboard не установлен → клавиатура удалится по умолчанию
+    expect(response.keepPrevKeyboard).toBeUndefined();
   });
 
   test('гость → active: уведомить, назад (без записи)', async () => {

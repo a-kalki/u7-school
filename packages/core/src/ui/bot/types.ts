@@ -34,8 +34,10 @@ export interface BotResponse {
   questionnaireCompleted?: boolean;
   /** Задержка между сообщениями в sendMessages (мс), по умолчанию 1000 */
   sendDelayMs?: number;
-  /** Убрать клавиатуру у предыдущего сообщения бота перед отправкой нового */
-  removePrevKeyboard?: boolean;
+  /** Сохранить клавиатуру у предыдущего сообщения бота.
+   * По умолчанию (undefined) — клавиатура убирается.
+   * Установить true только если контекст предыдущих кнопок всё ещё актуален. */
+  keepPrevKeyboard?: boolean;
   /** Главное меню — действия для сборки клавиатуры (app:main-menu) */
   mainMenu?: { actions: MainMenuAction[] };
   /** Захват ввода — следующие сообщения пользователя пойдут в указанный обработчик */

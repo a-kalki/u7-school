@@ -24,12 +24,6 @@ export async function resolveUser(
 
 /**
  * Подключает Grammy-обработчики к BotRouter.
- *
- * @param bot — Grammy-композер (обычно privateBot.filter(...))
- * @param router — роутер из core
- * @param userFacade — фасад модуля пользователей
- * @param botAdminUuid — UUID администратора бота
- * @param logger — опциональный логгер
  */
 export function connectRouter(
   bot: Composer<BotContext>,
@@ -58,6 +52,34 @@ export function connectRouter(
     }
   }
 
+  // Вспомогательная: сохраняет lastBotMessage после ctx.reply
+  function saveLastBotFromItems(
+    ctx: BotContext,
+    text: string,
+    messageId: number,
+    items: { kind: string; text: string; action?: string }[],
+  ) {
+    ctx.session.lastBotMessage = {
+      text,
+      messageId,
+      keyboard: {
+        rows: items
+          .filter(
+            (
+              i,
+            ): i is {
+              kind: 'callback';
+              text: string;
+              action: string;
+              priority: number;
+            } => i.kind === 'callback',
+          )
+          .map((i) => [{ text: i.text, code: i.action }]),
+        isMultiple: false,
+      },
+    };
+  }
+
   // ═══════════════════════════════════════════
   // /start — сбор главного меню
   // ═══════════════════════════════════════════
@@ -81,9 +103,10 @@ export function connectRouter(
       }
     }
 
-    await ctx.reply(`Привет, ${user.name}! 👋\n\nВыберите действие:`, {
-      reply_markup: keyboard,
-    });
+    const text = 'Привет, ' + user.name + '! 👋\n\nВыберите действие:';
+    const sent = await ctx.reply(text, { reply_markup: keyboard });
+    // Сохраняем lastBotMessage для последующего удаления клавиатуры
+    saveLastBotFromItems(ctx, text, sent.message_id, items);
   });
 
   // ═══════════════════════════════════════════
@@ -137,15 +160,17 @@ export function connectRouter(
 
     // Главное меню (app:main-menu) — пересборка без сброса activeHandler
     if (response.mainMenu) {
-      const keyboard = new InlineKeyboard();
-      for (const item of response.mainMenu.actions) {
-        if (item.kind === 'url') {
-          keyboard.url(item.text, item.url).row();
-        } else {
-          keyboard.text(item.text, item.action).row();
-        }
-      }
-      await ctx.reply('Выберите действие:', { reply_markup: keyboard });
+      const rows = response.mainMenu.actions
+        .filter((i): i is { kind: 'callback'; text: string; action: string; priority: number } => i.kind === 'callback')
+        .map((i) => [{ text: i.text, code: i.action }]);
+
+      // Используем executeResponses — она уберёт предыдущую клавиатуру и сохранит lastBotMessage
+      await executeResponses(ctx, {
+        sendMessage: {
+          text: 'Выберите действие:',
+          keyboard: { rows, isMultiple: false },
+        },
+      });
       await ctx.answerCallbackQuery().catch(() => {});
       return;
     }

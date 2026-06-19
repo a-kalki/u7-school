@@ -6,6 +6,7 @@ import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
   BotUpdate,
+  CbMainMenuAction,
   MainMenuAction,
   SessionData,
 } from '../types';
@@ -152,7 +153,7 @@ describe('BotController', () => {
         priority: 10,
       };
 
-      const result = await ctrl.handleStart(testActor);
+      const result = (await ctrl.handleStart(testActor)) as CbMainMenuAction[];
 
       expect(result).toHaveLength(2);
       // Контроллер добавляет префикс: test_ctrl:story_two:act2
@@ -219,6 +220,33 @@ describe('BotController', () => {
       expect(result.sendMessage?.text).toBe('story_callback:story_one');
     });
 
+    test('кнопка app:main-menu не префиксируется контроллером (roundtrip)', async () => {
+      const story = new TestStory('app_test');
+      story.handleCallback = async () => ({
+        sendMessage: {
+          text: 'Меню',
+          keyboard: {
+            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            isMultiple: false,
+          },
+        },
+      });
+      const c = new TestController();
+      c.addStory(story);
+
+      const result = await c.handleCallback(
+        'app_test:action',
+        testActor,
+        { activeHandler: null },
+      );
+
+      assertResponseMarkdownSafe(result);
+      // Код кнопки НЕ должен быть префиксирован именем контроллера
+      const btnCode = result.sendMessage?.keyboard?.rows[0]?.[0]?.code;
+      expect(btnCode).toBe('app:main-menu');
+      expect(btnCode).not.toContain('test_ctrl');
+    });
+
     test('без совпадения стори — возвращает ошибку', async () => {
       const result = await ctrl.handleCallback('unknown:action', testActor, {
         activeHandler: null,
@@ -271,13 +299,13 @@ describe('BotController', () => {
 
     beforeEach(() => {
       mockLogger = {
-        debug: mock(() => {}),
-        info: mock(() => {}),
-        warn: mock(() => {}),
-        error: mock(() => {}),
-        setLogLevel: mock(() => {}),
+        debug: mock(() => { }),
+        info: mock(() => { }),
+        warn: mock(() => { }),
+        error: mock(() => { }),
+        setLogLevel: mock(() => { }),
         getLogLevel: mock(() => LogLevel.DEBUG),
-        setSourceLevel: mock(() => {}),
+        setSourceLevel: mock(() => { }),
       } as unknown as Logger & { error: ReturnType<typeof mock> };
       setGlobalLogger(mockLogger);
     });
@@ -309,7 +337,7 @@ describe('BotController', () => {
       expect(mockLogger.error).toHaveBeenCalled();
       const errorCall = (mockLogger.error as ReturnType<typeof mock>).mock
         .calls[0];
-      expect(errorCall[0]).toBe('bot');
+      expect(errorCall![0]).toBe('bot');
     });
 
     test('перехватывает исключение в handleMessage и логирует', async () => {

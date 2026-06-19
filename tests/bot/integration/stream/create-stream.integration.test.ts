@@ -125,7 +125,7 @@ describe('CreateStreamStory e2e', () => {
     expect(r5?.sendMessage?.text).toContain('Результат');
     expect(r5?.sendMessage?.text).toContain('По умолчанию');
     // Кнопки «Принять»/«Пропустить» удаляются после нажатия
-    expect(r5?.removePrevKeyboard).toBe(true);
+    expect(r5?.keepPrevKeyboard).toBeUndefined();
 
     // Шаг 6: «Принять» для result
     const r6 = await router.handleCallback(

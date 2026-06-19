@@ -475,7 +475,6 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (nextField) {
       return {
         ...this.#showOptionalFieldStep(nextCtx, nextField),
-        removePrevKeyboard: true,
       };
     }
 
@@ -493,7 +492,6 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         path: WIZARD_PATH,
         context: nextCtx,
       },
-      removePrevKeyboard: true,
     };
   }
 
@@ -519,7 +517,6 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (nextField) {
       return {
         ...this.#showOptionalFieldStep(nextCtx, nextField),
-        removePrevKeyboard: true,
       };
     }
 
@@ -575,7 +572,6 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
     return {
       ...this.#showPreview(fullCtx),
-      removePrevKeyboard: true,
     };
   }
 

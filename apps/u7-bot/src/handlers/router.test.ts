@@ -1,29 +1,12 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { Logger } from '@u7-scl/core/shared';
 import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
-import {
-  assertResponseMarkdownSafe,
-  BotController,
-  BotRouter,
-} from '@u7-scl/core/ui';
+import { BotController, BotRouter } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
 import { connectRouter, resolveUser } from './router';
 
 // ── Вспомогательные фабрики ──
-
-function makeMockLogger(): Logger {
-  return {
-    debug: mock(),
-    info: mock(),
-    warn: mock(),
-    error: mock(),
-    setLogLevel: mock(),
-    getLogLevel: mock(() => 0),
-    setSourceLevel: mock(),
-  } as unknown as Logger;
-}
 
 type MockBot = Composer<BotContext> & {
   commands: Record<string, (ctx: BotContext) => Promise<void>>;
@@ -91,7 +74,7 @@ function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
       })) as unknown as BotContext['api']['editMessageText'],
     } as BotContext['api'],
     answerCallbackQuery: mock(
-      async () => {},
+      async () => { },
     ) as unknown as BotContext['answerCallbackQuery'],
     session: { activeHandler: null } as SessionData,
     ...overrides,
@@ -160,7 +143,8 @@ class MockController extends BotController {
   setHelpResult(text: string | null) {
     this._helpResult = text;
   }
-  handleHelpStart = async (): Promise<string | null> => this._helpResult;
+  override handleHelpStart = async (): Promise<string | null> =>
+    this._helpResult;
 
   override async handleStart(actor: unknown): Promise<MainMenuAction[]> {
     this.handleStartCalls.push([actor]);
@@ -422,7 +406,7 @@ describe('connectRouter', () => {
     ctx2.session.activeHandler = { path: 'onboarding/ask-name' };
     ctx2.message!.text = 'Иван';
 
-    const nextSpy = mock(async () => {});
+    const nextSpy = mock(async () => { });
     await msgHandler!(ctx2, nextSpy);
 
     expect(nextSpy).not.toHaveBeenCalled();
@@ -450,7 +434,7 @@ describe('connectRouter', () => {
 
     await msgHandler!(
       ctx,
-      mock(async () => {}),
+      mock(async () => { }),
     );
 
     expect(ctx.session.activeHandler).toBeNull();
@@ -509,7 +493,7 @@ describe('connectRouter', () => {
 
     await msgHandler!(
       ctx,
-      mock(async () => {}),
+      mock(async () => { }),
     );
 
     expect(ctrl.handleTimeoutCalls.length).toBe(1);
@@ -531,7 +515,7 @@ describe('connectRouter', () => {
     ctx.session.activeHandler = null;
     ctx.message!.text = 'Привет';
 
-    const nextSpy = mock(async () => {});
+    const nextSpy = mock(async () => { });
     await msgHandler!(ctx, nextSpy);
 
     expect(nextSpy).toHaveBeenCalled();
@@ -553,7 +537,7 @@ describe('connectRouter', () => {
     ctx.session.activeHandler = { path: 'onboarding/ask-name' };
     ctx.message!.text = '/help';
 
-    const nextSpy = mock(async () => {});
+    const nextSpy = mock(async () => { });
     await msgHandler!(ctx, nextSpy);
 
     expect(nextSpy).toHaveBeenCalled();
@@ -608,7 +592,7 @@ describe('connectRouter', () => {
     const ctx3 = makeMockContext();
     ctx3.session.activeHandler = { path: 'main/ask-name' };
     ctx3.message!.text = 'Иван';
-    const nextSpy = mock(async () => {});
+    const nextSpy = mock(async () => { });
     await msgHandler(ctx3, nextSpy);
     expect(nextSpy).not.toHaveBeenCalled();
     expect(ctrl.handleMessageCalls.length).toBe(1);
