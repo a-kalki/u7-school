@@ -360,7 +360,11 @@ export abstract class BotController<
       appError.kind === 'unauthorized' ||
       appError.kind === 'default'
     ) {
-      this.logger?.error('bot', 'Необработанная ошибка в контроллере', serializeError(err));
+      this.logger?.error(
+        'bot',
+        'Необработанная ошибка в контроллере',
+        serializeError(err),
+      );
     }
 
     return {

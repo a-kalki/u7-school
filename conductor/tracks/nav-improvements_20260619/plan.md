@@ -7,7 +7,7 @@
   - [ ] НЕ сбрасывает `activeHandler`
   - [ ] Работает без зарегистрированного контроллера `app`
 
-- [ ] Task: Реализовать обработку `app:main-menu` в BotRouter
+- [x] Task: Реализовать обработку `app:main-menu` в BotRouter | `72847c6`
   - [ ] В `handleCallback` добавить ветку для `app:main-menu` до поиска контроллера
   - [ ] Собрать меню через `collectMainMenu()`, вернуть как `BotResponse`
 

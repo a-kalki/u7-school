@@ -698,7 +698,12 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
     ctrl.setStartResult([
-      { kind: 'callback', text: 'Потоки', action: 'stream:catalog:list', priority: 10 },
+      {
+        kind: 'callback',
+        text: 'Потоки',
+        action: 'stream:catalog:list',
+        priority: 10,
+      },
     ]);
 
     const router = new BotRouter([ctrl]);

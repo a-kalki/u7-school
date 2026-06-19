@@ -1,9 +1,9 @@
 import type { ApiApp } from '#api/app/api-app';
 import { fromError } from '#domain/errors/error-helpers';
 import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
-import { escapeMarkdown } from '#shared/markdown';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
+import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import type {
   BotResponse,
@@ -224,7 +224,7 @@ export abstract class BotUserStory<
         return {
           releaseInput: true,
           sendMessage: {
-            text: `⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\.`,
+            text: `⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору.`,
             parseMode: 'MarkdownV2',
           },
         };

@@ -469,7 +469,12 @@ describe('BotRouter', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
     ctrl.withStartResult([
-      { kind: 'callback', text: 'Единственная', action: 'stream:x', priority: 1 },
+      {
+        kind: 'callback',
+        text: 'Единственная',
+        action: 'stream:x',
+        priority: 1,
+      },
     ]);
 
     const disp = new BotRouter([ctrl]);

@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import {
+  getGlobalLogger,
+  type Logger,
+  LogLevel,
+  setGlobalLogger,
+} from '#shared/logger';
 import { BotUserStory } from './bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from './types';
-import { type Logger, LogLevel, getGlobalLogger, setGlobalLogger } from '#shared/logger';
 
 // Тестовый тип метаданных
 type TestModuleMeta = ApiModuleMeta & {

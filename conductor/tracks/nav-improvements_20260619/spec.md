@@ -70,6 +70,39 @@
 - [ ] `README.md` по навигации создан
 - [ ] `user-stories.md` актуален
 - [ ] Все тесты проходят
+- [ ] Интеграционные тесты в `tests/bot/integration/` покрывают новые кнопки
+- [ ] E2E тесты в `tests/bot/e2e/` проверяют `app:main-menu` и полные сценарии
+
+## Интеграционное и E2E тестирование
+
+### IT-1: Обновить `tests/bot/integration/stream/catalog.integration.test.ts`
+- Кнопка «↩️ Главное меню» на экране catalog:list
+
+### IT-2: Обновить `tests/bot/integration/stream/view-stream.integration.test.ts`
+- Кнопка «⬅️ Назад к списку» на complete и archive
+
+### IT-3: Обновить `tests/bot/integration/stream/learning.integration.test.ts`
+- Кнопка «↩️ Главное меню» на my-study и complete (урок/проект/поток завершён)
+- Отсутствие кнопки «↩️ Главное меню» на обычном шаге (пользователь в процессе)
+
+### IT-4: Обновить `tests/bot/integration/stream/progress.integration.test.ts`
+- Кнопка «⬅️ Назад к обучению» на экране прогресса
+
+### IT-5: Обновить `tests/bot/integration/stream/monitor.integration.test.ts`
+- Кнопка «⬅️ Назад к потоку» на экране students
+
+### IT-6: Обновить `tests/bot/integration/stream/activate-stream.integration.test.ts`
+- Кнопка «⬅️ Назад к потоку» на экране activate
+
+### IT-7: Обновить `tests/bot/integration/stream/create-stream.integration.test.ts`
+- `removePrevKeyboard` при нажатии «Принять»/«Пропустить» на шагах 4–9
+
+### E2E-1: Обновить `tests/bot/e2e/main-menu.e2e.test.ts`
+- Тест: `handleCallback('app:main-menu')` пересобирает меню без сброса activeHandler
+
+### E2E-2: Обновить `tests/bot/e2e/stream/user-flows.e2e.test.ts`
+- Полный сценарий: каталог → поток → «⬅️ Назад к списку» → каталог
+- Полный сценарий: Моя учёба → прогресс → «⬅️ Назад к обучению» → Моя учёба
 
 ## За рамками
 - Автоматическое удаление кнопок на уровне фреймворка (story решает сама)

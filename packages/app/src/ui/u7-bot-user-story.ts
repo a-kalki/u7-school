@@ -13,4 +13,4 @@ import type { U7BotAppMeta, User } from '../domain';
  */
 export abstract class U7BotUserStory<
   TMeta extends ApiModuleMeta,
-> extends BotUserStory<U7BotAppMeta, TMeta, User> { }
+> extends BotUserStory<U7BotAppMeta, TMeta, User> {}

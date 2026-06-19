@@ -12,5 +12,5 @@
 
 ---
 
-- [ ] **Track: Навигация и очистка кнопок бота**
+- [~] **Track: Навигация и очистка кнопок бота**
 *Link: [./tracks/nav-improvements_20260619/](./tracks/nav-improvements_20260619/)*

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
-import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
@@ -307,7 +307,8 @@ describe('BotController', () => {
 
       // Ошибка залогирована
       expect(mockLogger.error).toHaveBeenCalled();
-      const errorCall = (mockLogger.error as ReturnType<typeof mock>).mock.calls[0];
+      const errorCall = (mockLogger.error as ReturnType<typeof mock>).mock
+        .calls[0];
       expect(errorCall[0]).toBe('bot');
     });
 

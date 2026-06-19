@@ -9,8 +9,8 @@ import {
   errUnauthorized,
   errValidation,
 } from '@u7-scl/core/domain';
-import type { BotResponse } from '@u7-scl/core/ui';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
+import type { BotResponse } from '@u7-scl/core/ui';
 import type { StreamApiModuleMeta } from '@u7-scl/stream/domain';
 import { U7BotUserStory } from './u7-bot-user-story';
 
