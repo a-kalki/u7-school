@@ -15,18 +15,18 @@
 
 ## Фаза 2: Кнопка «↩️ Главное меню» (UX-2)
 
-- [ ] Task: Написать тест: CatalogStory добавляет «↩️ Главное меню»
-  - [ ] Кнопка последней строкой клавиатуры
-  - [ ] code = `app:main-menu`
+- [x] Task: Написать тест: CatalogStory добавляет «↩️ Главное меню» | `6f0a17a`
+  - [x] Кнопка последней строкой клавиатуры
+  - [x] code = `app:main-menu`
 
-- [ ] Task: Написать тест: LearningStory добавляет «↩️ Главное меню»
+- [x] Task: Написать тест: LearningStory добавляет «↩️ Главное меню» | `33f84b9`
   - [ ] На `my-study` — кнопка есть
   - [ ] На `complete` → урок/проект завершён — кнопка есть
   - [ ] На `complete` → поток завершён — кнопка есть
-  - [ ] На `complete` → обычный шаг — кнопки НЕТ (пользователь в процессе)
+  - [x] На `complete` → обычный шаг — кнопки НЕТ (пользователь в процессе)
 
-- [ ] Task: Добавить кнопку «↩️ Главное меню» в CatalogStory
-- [ ] Task: Добавить кнопку «↩️ Главное меню» в LearningStory (my-study, level transitions, stream completed)
+- [x] Task: Добавить кнопку «↩️ Главное меню» в CatalogStory | `6f0a17a`
+- [x] Task: Добавить кнопку «↩️ Главное меню» в LearningStory (my-study, level transitions, stream completed) | `33f84b9`
 
 - [ ] Task: Conductor - Ручная верификация 'Главное меню'
 
