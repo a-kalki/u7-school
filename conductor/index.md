@@ -9,7 +9,7 @@
 - [Рабочий процесс](./workflow.md)
 - [Руководства по стилю кода](./code_styleguides/)
   - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — Entity, Aggregate, Repo, Policy, Errors
-  - [BotUserStory](../.pi/skills/ddd-api/SKILL.md) — BotUserStory, обработка ошибок, логирование
+  - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module, BotUserStory
   - [DDD Infra](../.pi/skills/ddd-infra/SKILL.md) — реализации репозиториев
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
   - [Тестирование](./code_styleguides/testing.md) — общие правила
@@ -21,6 +21,7 @@
 
 ## Learning Skills (верификация понимания)
 Навыки, которые проверяют, что разработчик понимает внесённые изменения, а не просто принимает диффы.
+- [conductor-docs](../.pi/skills/conductor-docs/SKILL.md) — правила создания и ведения документации
 - [post-task-debrief](../.pi/skills/post-task-debrief/SKILL.md) — разбор после значимой задачи (domain/api слои)
 - [arch-boundary-check](../.pi/skills/arch-boundary-check/SKILL.md) — проверка архитектурных границ при сквозных изменениях
 - [content-integrity-check](../.pi/skills/content-integrity-check/SKILL.md) — проверка целостности учебного контента
