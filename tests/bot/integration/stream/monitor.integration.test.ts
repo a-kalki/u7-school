@@ -14,9 +14,10 @@ const STUDENT_ID = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
  *
  * Покрытие:
  * - Ментор → список студентов с именами и прогрессом
- * - Ментор → детальная карточка студента
- * - Гость → ошибка доступа к списку студентов
- * - Студент → ошибка доступа к списку студентов
+ * - Ментор → детальная карточка студента (с кнопками действий)
+ * - Гость → список студентов (публичная информация)
+ * - Гость → детальная карточка студента (read-only, без кнопок действий)
+ * - Студент → список студентов (публичная информация)
  * - Несуществующий студент → ошибка в детальной карточке
  */
 describe('MonitorStory e2e', () => {
@@ -56,18 +57,18 @@ describe('MonitorStory e2e', () => {
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Студенты потока');
     expect(text).toContain('JS Core');
+    // Прогресс-бары в тексте (хотя бы один из символов)
+    expect(text).toContain('░');
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    // Имя студента из фикстур — «Студент», отображается в кнопке с прогрессом
+    // Имя студента в кнопках
     expect(btns.some((t) => t.includes('Студент'))).toBe(true);
-    expect(btns.some((t) => t.includes('%'))).toBe(true);
-
     // Кнопка «⬅️ Назад к потоку»
     expect(btns.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
-  test('ментор открывает детальную карточку студента', async () => {
+  test('ментор открывает детальную карточку студента — с кнопками действий', async () => {
     const response = await router.handleCallback(
       `stream:monitor:detail:${STUDENT_ID}`,
       mentor,
@@ -88,31 +89,56 @@ describe('MonitorStory e2e', () => {
   });
 
   // ═══════════════════════════════════════════
-  // Ошибки доступа
+  // Гость: публичный просмотр
   // ═══════════════════════════════════════════
 
-  test('гость — ошибка доступа к списку студентов', async () => {
-    try {
-      await router.handleCallback(
-        `stream:monitor:students:${ACTIVE_ID}`,
-        guest,
-        session,
-      );
-    } catch {
-      // Ожидаемая ошибка: guest не ментор потока
-    }
+  test('гость видит список студентов (публичная информация)', async () => {
+    const response = await router.handleCallback(
+      `stream:monitor:students:${ACTIVE_ID}`,
+      guest,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Студенты потока');
+    expect(text).toContain('Студент');
   });
 
-  test('студент — ошибка доступа к списку студентов', async () => {
-    try {
-      await router.handleCallback(
-        `stream:monitor:students:${ACTIVE_ID}`,
-        student,
-        session,
-      );
-    } catch {
-      // Ожидаемая ошибка: student не ментор
-    }
+  test('гость видит детальную карточку студента — со всеми кнопками', async () => {
+    const response = await router.handleCallback(
+      `stream:monitor:detail:${STUDENT_ID}`,
+      guest,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Студент');
+    expect(text).toContain('Прогресс');
+
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    // Все кнопки видны гостю (публичная информация)
+    expect(btns.some((t) => t.includes('Написать'))).toBe(true);
+    expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
+    expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
+  });
+
+  // ═══════════════════════════════════════════
+  // Студент: публичный просмотр
+  // ═══════════════════════════════════════════
+
+  test('студент видит список студентов (публичная информация)', async () => {
+    const response = await router.handleCallback(
+      `stream:monitor:students:${ACTIVE_ID}`,
+      student,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Студенты потока');
   });
 
   test('несуществующий студент — ошибка в детальной карточке', async () => {

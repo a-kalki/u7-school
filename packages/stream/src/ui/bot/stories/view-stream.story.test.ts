@@ -293,7 +293,7 @@ describe('ViewStreamStory', () => {
 
     expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
   });
 
@@ -407,7 +407,7 @@ describe('ViewStreamStory', () => {
 
     expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
   });
 });

@@ -16,7 +16,7 @@ describe('MonitorStory', () => {
   };
   const session: SessionData = { activeHandler: null };
 
-  test('handleCallback("students:<id>") показывает список с прогрессом', async () => {
+  test('handleCallback("students:<id>") показывает сводку и прогресс-бары в тексте', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
@@ -70,11 +70,27 @@ describe('MonitorStory', () => {
     const response = await story.handleCallback('students:s1', actor, session);
     assertResponseMarkdownSafe(response);
 
-    expect(response.sendMessage?.text).toContain('Студенты');
-    // Прогресс теперь в кнопках
+    const text = response.sendMessage?.text ?? '';
+    // Заголовок
+    expect(text).toContain('Студенты потока');
+    // Сводка
+    expect(text).toContain('Всего:');
+    expect(text).toContain('студент');
+    // Прогресс-бар в тексте (▓/░)
+    expect(text).toContain('▓');
+    expect(text).toContain('░');
+    // Проценты и счётчики в тексте (скобки экранированы для MarkdownV2)
+    expect(text).toContain('50%');
+    expect(text).toContain('2/4');
+    // Имя в тексте
+    expect(text).toContain('Иван');
+
+    // Кнопки — компактные
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('50'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('👤'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Иван'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('50%'))).toBe(true);
 
     // Кнопка «⬅️ Назад к потоку»
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
@@ -87,7 +103,7 @@ describe('MonitorStory', () => {
 
   // ── US-8: Имена студентов и детальная карточка ──
 
-  test('показывает имена студентов вместо userId', async () => {
+  test('показывает имена студентов в тексте и кнопках, не показывает userId', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
@@ -146,15 +162,20 @@ describe('MonitorStory', () => {
     const response = await story.handleCallback('students:s1', actor, session);
     assertResponseMarkdownSafe(response);
 
+    const text = response.sendMessage?.text ?? '';
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    // Имена есть в кнопках
+    // Имена есть и в тексте, и в кнопках
+    expect(text).toContain('Иван Иванов');
+    expect(text).toContain('Петр Петров');
     expect(btnTexts.some((t) => t.includes('Иван Иванов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Петр Петров'))).toBe(true);
-    // userId НЕ отображается
-    expect(response.sendMessage?.text).not.toContain('user-1');
-    expect(response.sendMessage?.text).not.toContain('user-2');
+
+    // userId НЕ отображается ни в тексте, ни в кнопках
+    expect(text).not.toContain('user-1');
+    expect(text).not.toContain('user-2');
+    expect(btnTexts.some((t) => t.includes('user-'))).toBe(false);
   });
 
   test('клик на студента открывает детальную карточку', async () => {
@@ -190,6 +211,7 @@ describe('MonitorStory', () => {
             uuid: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
             title: 'Python Advanced',
             status: 'active',
+            mentorId: 'mentor-1',
             contentSnapshot: [
               {
                 projectTitle: 'Основы',

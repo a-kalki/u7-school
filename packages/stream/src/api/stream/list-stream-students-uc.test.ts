@@ -114,7 +114,7 @@ describe('ListStreamStudentsUc', () => {
     expect(result).toHaveLength(0);
   });
 
-  test('доступ запрещён для не-ментора', async () => {
+  test('любой пользователь видит список студентов (публичный доступ)', async () => {
     const resolve = baseResolve({
       userFacade: {
         getUserByUuid: mock(() => Promise.resolve(guest)),
@@ -125,13 +125,17 @@ describe('ListStreamStudentsUc', () => {
         removeRoleFromUser: mock(() => Promise.resolve()),
         registerGuest: mock(() => Promise.resolve({} as any)),
       },
+      streamStudentRepo: {
+        ...baseResolve().streamStudentRepo,
+        getByStream: mock(() => Promise.resolve([student1])),
+      },
     });
 
     const uc = new ListStreamStudentsUc();
     uc.init(resolve);
 
-    await expect(uc.execute({ streamId }, guest.uuid)).rejects.toThrow(
-      'Недостаточно прав для выполнения действия',
-    );
+    const result = await uc.execute({ streamId }, guest.uuid);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.uuid).toBe(student1.uuid);
   });
 });

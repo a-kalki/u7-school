@@ -1,6 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type {
+  BotResponse,
+  CbMainMenuAction,
+  SessionData,
+} from '@u7-scl/core/ui';
 import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
@@ -10,7 +14,6 @@ import { createTestApp } from '../../helpers/test-app';
 
 const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
 const ACTIVE_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
-const STUDENT_ID = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 
 // ── Хелперы ──
 
@@ -39,7 +42,7 @@ function findButton(
 
 /** Находит пункт главного меню по тексту */
 function findMenuItem(
-  items: { text: string; action: string }[],
+  items: CbMainMenuAction[],
   textContains: string,
 ): { text: string; action: string } {
   const item = items.find((i) => i.text.includes(textContains));
@@ -82,7 +85,7 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('«Наши потоки» → витрина с потоками', async () => {
-      const menu = await router.collectMainMenu(guest);
+      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
 
       const response = await router.handleCallback(
@@ -103,7 +106,7 @@ describe('Сквозные пользовательские сценарии (E2
 
     test('каталог → нажатие на поток → карточка потока', async () => {
       // Открываем каталог
-      const menu = await router.collectMainMenu(guest);
+      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -135,7 +138,7 @@ describe('Сквозные пользовательские сценарии (E2
 
     test('карточка → «Программа курса» → проекты и уроки', async () => {
       // Доходим до карточки потока
-      const menu = await router.collectMainMenu(guest);
+      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -170,7 +173,7 @@ describe('Сквозные пользовательские сценарии (E2
 
     test('программа → «Назад к потоку» → снова карточка', async () => {
       // Доходим до программы
-      const menu = await router.collectMainMenu(guest);
+      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -206,7 +209,7 @@ describe('Сквозные пользовательские сценарии (E2
 
     test('карточка → «Назад к списку» → снова каталог', async () => {
       // Доходим до карточки
-      const menu = await router.collectMainMenu(guest);
+      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -255,7 +258,9 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('каталог → карточка → «Записаться» → «Моя учёба»', async () => {
-      const menu = await router.collectMainMenu(candidate);
+      const menu = (await router.collectMainMenu(
+        candidate,
+      )) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -328,7 +333,9 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('«Моя учёба» → текущий шаг и кнопки', async () => {
-      const menu = await router.collectMainMenu(student);
+      const menu = (await router.collectMainMenu(
+        student,
+      )) as CbMainMenuAction[];
       const studyBtn = findMenuItem(menu, 'Моя учёба');
 
       const response = await router.handleCallback(
@@ -351,7 +358,9 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('«Выполнено» → клавиатура следующего шага (без «Шаг выполнен»)', async () => {
-      const menu = await router.collectMainMenu(student);
+      const menu = (await router.collectMainMenu(
+        student,
+      )) as CbMainMenuAction[];
       const studyBtn = findMenuItem(menu, 'Моя учёба');
       const studyResp = await router.handleCallback(
         studyBtn.action,
@@ -444,7 +453,7 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('каталог → карточка enrollment-потока (менторские кнопки)', async () => {
-      const menu = await router.collectMainMenu(mentor);
+      const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -472,7 +481,7 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('карточка active-потока → «Студенты» → список', async () => {
-      const menu = await router.collectMainMenu(mentor);
+      const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
@@ -509,7 +518,7 @@ describe('Сквозные пользовательские сценарии (E2
 
     test('список студентов → детали студента → «Назад к списку»', async () => {
       // Доходим до списка студентов
-      const menu = await router.collectMainMenu(mentor);
+      const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
       const catalogBtn = findMenuItem(menu, 'Наши потоки');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,

@@ -4,7 +4,6 @@ import {
   type ListStreamStudentsCmdMeta,
   ListStreamStudentsCmdSchema,
 } from '#domain/stream/commands/list-stream-students-cmd';
-import { StreamPolicy } from '#domain/stream/policy';
 import { StudentSchema } from '#domain/student/entity';
 import { StreamUseCase } from '../stream-uc';
 
@@ -22,17 +21,9 @@ export class ListStreamStudentsUc extends StreamUseCase<ListStreamStudentsCmdMet
 
   async execute(
     command: ListStreamStudentsCmd,
-    actorId: string,
+    _actorId: string,
   ): Promise<ListStreamStudentsCmdMeta['output']> {
-    // Загружаем поток для проверки прав
-    const streamEntity = await this.getStream(command.streamId);
-
-    // Проверка: ментор потока или админ
-    const actor = await this.getActor(actorId);
-    if (!StreamPolicy.canEdit(actor, streamEntity)) {
-      this.throwAccessDenied();
-    }
-
+    // Публичная информация — любой может видеть список студентов
     return this.resolve.streamStudentRepo.getByStream(command.streamId);
   }
 }

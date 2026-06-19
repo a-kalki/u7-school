@@ -87,12 +87,11 @@ describe('GetStudentProgressUc', () => {
     expect(result.uuid).toBe(studentId);
   });
 
-  test('чужой студент не видит чужой прогресс', async () => {
+  test('любой пользователь видит прогресс студента (публичный доступ)', async () => {
     const uc = new GetStudentProgressUc();
     uc.init(baseResolve(otherStudent));
-    await expect(uc.execute({ studentId }, 'other')).rejects.toThrow(
-      'Недостаточно прав',
-    );
+    const result = await uc.execute({ studentId }, 'other');
+    expect(result.uuid).toBe(studentId);
   });
 
   test('ментор видит прогресс студента', async () => {
