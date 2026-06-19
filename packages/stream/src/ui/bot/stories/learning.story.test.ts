@@ -329,4 +329,114 @@ describe('LearningStory', () => {
     // Должен вернуть ошибку из-за несовпадения streamId
     expect(response.sendMessage?.text).toContain('не соответствует');
   });
+
+  // ── Кнопка «↩️ Главное меню» ──
+
+  test('my-study содержит «↩️ Главное меню» последней строкой', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const lastRow = rows[rows.length - 1]!;
+    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
+    expect(lastRow[0]!.code).toBe('app:main-menu');
+  });
+
+  test('complete (level=lesson) содержит «↩️ Главное меню»', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'complete-step')
+          return {
+            level: 'lesson',
+            completedLessonId: 'lesson-uuid-1',
+            currentStepId: 'step-3',
+          };
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step2',
+      studentActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const lastRow = rows[rows.length - 1]!;
+    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
+    expect(lastRow[0]!.code).toBe('app:main-menu');
+  });
+
+  test('complete (level=stream) содержит «↩️ Главное меню»', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'complete-step') return { level: 'stream' };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-last',
+      studentActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const lastRow = rows[rows.length - 1]!;
+    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
+    expect(lastRow[0]!.code).toBe('app:main-menu');
+  });
+
+  test('complete (level=step) НЕ содержит «↩️ Главное меню» (в процессе)', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'complete-step')
+          return { level: 'step', currentStepId: 'step-2' };
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      studentActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const lastRow = rows[rows.length - 1]!;
+    // Кнопка не «↩️ Главное меню» — в процессе последняя строка «Мой прогресс»
+    expect(lastRow[0]!.text).not.toBe('↩️ Главное меню');
+  });
 });

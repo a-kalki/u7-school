@@ -77,11 +77,20 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    return this.#buildStepKeyboard(
+    const response = this.#buildStepKeyboard(
       stream,
       student.currentStepId,
       student.streamId,
     );
+
+    // Добавляем кнопку «↩️ Главное меню» последней строкой
+    if (response.sendMessage?.keyboard) {
+      response.sendMessage.keyboard.rows.push([
+        { text: '↩️ Главное меню', code: 'app:main-menu' },
+      ]);
+    }
+
+    return response;
   }
 
   protected async getStudent(
@@ -149,6 +158,10 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         sendMessage: {
           text: '🏆 *Поток полностью завершён\\!* Поздравляем с успешным окончанием обучения\\!',
           parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            isMultiple: false,
+          },
         },
       };
     }
@@ -257,6 +270,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
                 code: this.cb('my-study'),
               },
             ],
+            [{ text: '↩️ Главное меню', code: 'app:main-menu' }],
           ],
           isMultiple: false,
         },
