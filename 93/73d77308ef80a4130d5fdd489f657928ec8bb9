@@ -1,0 +1,8 @@
+Task: Переименовать переменную окружения и сделать обязательной
+
+Изменения:
+- .env.development: NEWS_GROUP_URL → SCHOOL_GROUP_URL
+- config.ts: newsGroupUrl → schoolGroupUrl, убрал .optional()
+- config.test.ts: обновлены ссылки в тестах
+
+Причина: унификация именования, SCHOOL_GROUP_URL теперь обязателен для старта приложения.
