@@ -9,3 +9,8 @@
 
 - [ ] **Track: Реорганизация документации conductor**
 *Link: [./tracks/docs_reorg_20260619/](./tracks/docs_reorg_20260619/)*
+
+---
+
+- [ ] **Track: Рефакторинг главного меню бота — AppController, MenuAggregator, /start, /help**
+*Link: [./tracks/bot_menu_refactor_20260616/](./tracks/bot_menu_refactor_20260616/)*
