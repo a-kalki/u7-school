@@ -547,5 +547,23 @@
     "estimatedMinutes": 40,
     "stepIds": [],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "6f9fa666-fa9a-46de-b89d-6b7140813d8f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Форматирование таблицы: выравнивание столбцов",
+    "additional": "Улучшаем renderToText из p3-l5: добавляем padRight/padLeft, вычисляем ширину столбцов динамически, делаем таблицу красивой",
+    "status": "published",
+    "createdAt": "2026-06-19T13:30",
+    "estimatedMinutes": 60,
+    "stepIds": [
+      "0e46cbab-f2b2-4c40-87c5-9c3ad7ebd881",
+      "e0218bed-2662-496f-a37e-226fd423df18",
+      "20db5e1a-817f-4da7-aaf8-476fa74bf062",
+      "29991686-7d99-48b0-b524-3abf0df163e2",
+      "d97634e5-690b-4e29-b9fa-43a304792c23",
+      "66fbd5a7-a272-4a81-b879-6828d2c87140"
+    ],
+    "mentorStepIds": []
   }
 ]
