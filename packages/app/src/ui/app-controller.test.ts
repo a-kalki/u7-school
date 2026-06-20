@@ -106,6 +106,10 @@ describe('AppController', () => {
     expect(text).toContain('/cancel');
     expect(text).toContain('Сообщество школы');
     expect(text).toContain('Наши потоки');
+
+    // Кнопка «Назад»
+    expect(res!.sendMessage!.keyboard).toBeDefined();
+    expect(res!.sendMessage!.keyboard!.rows[0]![0]!.text).toBe('🔙 Назад');
   });
 
   test('handleHelpMessage без описаний — только инструкция', async () => {
@@ -116,6 +120,8 @@ describe('AppController', () => {
 
     expect(res!.sendMessage!.text).toContain('Как со мной работать?');
     expect(res!.sendMessage!.text).toContain('Вот что я умею:');
+    // Кнопка «Назад» есть даже без описаний
+    expect(res!.sendMessage!.keyboard).toBeDefined();
   });
 
   // ── handleCallback: main-menu ──

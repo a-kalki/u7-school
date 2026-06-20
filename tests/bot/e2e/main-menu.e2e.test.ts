@@ -94,13 +94,17 @@ describe('Главное меню (интеграционные)', () => {
 
   // ── handleHelp (/help) ──
 
-  test('handleHelp возвращает инструкцию и описания', async () => {
+  test('handleHelp возвращает инструкцию и описания + кнопку Назад', async () => {
     const response = await router.handleHelp(guest);
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Как со мной работать?');
     expect(text).toContain('Наши потоки');
     expect(text).toContain('Сообщество школы');
     expect(text).toContain('/cancel');
+    // Кнопка «Назад»
+    expect(response.sendMessage?.keyboard).toBeDefined();
+    expect(response.sendMessage?.keyboard!.rows[0]![0]!.text).toBe('🔙 Назад');
+    expect(response.sendMessage?.keyboard!.rows[0]![0]!.code).toBe('app:main-menu');
   });
 
   // ── app:main-menu через handleCallback ──
@@ -117,12 +121,14 @@ describe('Главное меню (интеграционные)', () => {
 
   // ── app:help через handleCallback ──
 
-  test('app:help возвращает инструкцию', async () => {
+  test('app:help возвращает инструкцию + кнопку Назад', async () => {
     const response = await router.handleCallback('app:help', guest, {
       activeHandler: null,
     });
 
     expect(response.sendMessage?.text).toContain('Как со мной работать?');
+    expect(response.sendMessage?.keyboard).toBeDefined();
+    expect(response.sendMessage?.keyboard!.rows[0]![0]!.text).toBe('🔙 Назад');
   });
 
   // ── В главном меню нет кнопки «Назад» ──

@@ -41,16 +41,11 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
 
   // ── Главное меню ──
 
-  override async handleStart(_actor: User): Promise<MainMenuAction[]> {
-    const items: MainMenuAction[] = [];
+  override async handleStart(actor: User): Promise<MainMenuAction[]> {
+    // Получаем кнопки от stories через базовый механизм (с префиксами)
+    const items = await super.handleStart(actor);
 
-    // Кнопка «Сообщество школы» — через CommunityStory
-    for (const story of this.stories) {
-      const item = await story.handleStart(_actor);
-      if (item) items.push(item);
-    }
-
-    // Кнопка «Помощь»
+    // Добавляем кнопку «Помощь»
     items.push({
       kind: 'callback',
       text: '❓ Помощь',
@@ -86,7 +81,7 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
   }
 
   /**
-   * Помощь /help: инструкция + список описаний кнопок.
+   * Помощь /help: инструкция + список описаний кнопок + кнопка «Назад».
    */
   override async handleHelpMessage(actor: User): Promise<BotResponse | null> {
     const header = [
@@ -108,7 +103,13 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
       descriptions.length > 0 ? `\n\n${descriptions.join('\n\n')}` : '';
 
     return {
-      sendMessage: { text: header + body },
+      sendMessage: {
+        text: header + body,
+        keyboard: {
+          rows: [[{ text: '🔙 Назад', code: 'app:main-menu' }]],
+          isMultiple: false,
+        },
+      },
     };
   }
 

@@ -72,5 +72,10 @@ export function loadConfig(): BotConfig {
     dbDir: process.env.DB_DIR,
   };
 
-  return v.parse(BotConfigSchema, raw);
+  try {
+    return v.parse(BotConfigSchema, raw);
+  } catch (e) {
+    console.log(JSON.stringify(e, null, 2));
+    throw e;
+  }
 }
