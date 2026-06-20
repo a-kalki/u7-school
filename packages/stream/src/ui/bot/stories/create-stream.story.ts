@@ -40,11 +40,11 @@ interface OptionalFieldConfig {
   fieldName: 'goal' | 'result' | 'rules' | 'targetAudience' | 'additional';
   label: string;
   moduleKey:
-    | 'moduleGoal'
-    | 'moduleResult'
-    | 'moduleRules'
-    | 'moduleTargetAudience'
-    | 'moduleAdditional';
+  | 'moduleGoal'
+  | 'moduleResult'
+  | 'moduleRules'
+  | 'moduleTargetAudience'
+  | 'moduleAdditional';
   nextStep: number;
 }
 
@@ -126,6 +126,16 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       if (action === `skip-${field.fieldName}`) {
         return this.#handleSkipField(field, session);
       }
+    }
+
+    // Кнопка «Принять» для названия потока (шаг 1)
+    if (action === 'accept-title') {
+      return this.#handleAcceptTitle(session);
+    }
+
+    // Кнопка «Принять» для описания потока (шаг 2)
+    if (action === 'accept-description') {
+      return this.#handleAcceptDescription(session);
     }
 
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -318,10 +328,22 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleTitle)}»_`);
     }
 
+    const buttons: { text: string; code: string }[] = [];
+    if (moduleTitle) {
+      buttons.push({
+        text: '✅ Принять',
+        code: this.cb('accept-title'),
+      });
+    }
+
     return {
       sendMessage: {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
+        keyboard:
+          buttons.length > 0
+            ? { rows: [buttons], isMultiple: false }
+            : undefined,
       },
       captureInput: {
         path: WIZARD_PATH,
@@ -336,10 +358,22 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       lines.push(`_По умолчанию: «${this.escapeMarkdown(ctx.description)}»_`);
     }
 
+    const buttons: { text: string; code: string }[] = [];
+    if (ctx.description) {
+      buttons.push({
+        text: '✅ Принять',
+        code: this.cb('accept-description'),
+      });
+    }
+
     return {
       sendMessage: {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
+        keyboard:
+          buttons.length > 0
+            ? { rows: [buttons], isMultiple: false }
+            : undefined,
       },
       captureInput: {
         path: WIZARD_PATH,
@@ -352,9 +386,16 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     ctx: CreateStreamWizardContext,
     text: string,
   ): BotResponse {
+    // Пример даты: сегодня + 5 дней, время 10:00
+    const exampleDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    const yyyy = exampleDate.getFullYear();
+    const mm = String(exampleDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(exampleDate.getDate()).padStart(2, '0');
+    const exampleStr = `${yyyy}\\-${mm}\\-${dd}T10:00`;
+
     return {
       sendMessage: {
-        text: '📅 Введите дату старта в формате `YYYY\\-MM\\-DD` или дату время `YYYY\\-MM\\-DDTHH:MM`',
+        text: `📅 Введите дату старта в формате \`YYYY\\-MM\\-DD\` или дату время \`YYYY\\-MM\\-DDTHH:MM\`\\.\nНапример: \`${exampleStr}\`\\.`,
         parseMode: 'MarkdownV2',
       },
       captureInput: {
@@ -535,6 +576,52 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         context: nextCtx,
       },
     };
+  }
+
+  #handleAcceptTitle(session: SessionData): BotResponse {
+    const ctx = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+
+    // Берём название из уже загруженного контекста (title заполнен в #onModuleSelected)
+    const title = ctx.title || ctx.moduleId;
+    const lines = ['📄 Введите описание потока:'];
+    if (ctx.description) {
+      lines.push(`_По умолчанию: «${this.escapeMarkdown(ctx.description)}»_`);
+    }
+
+    const buttons: { text: string; code: string }[] = [];
+    if (ctx.description) {
+      buttons.push({
+        text: '✅ Принять',
+        code: this.cb('accept-description'),
+      });
+    }
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard:
+          buttons.length > 0
+            ? { rows: [buttons], isMultiple: false }
+            : undefined,
+      },
+      captureInput: {
+        path: WIZARD_PATH,
+        context: { ...ctx, step: 2, title },
+      },
+    };
+  }
+
+  #handleAcceptDescription(session: SessionData): BotResponse {
+    const ctx = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) return { sendMessage: { text: '⚠️ Контекст потерян' } };
+
+    return this.#handleDescriptionInput(ctx, ctx.description);
   }
 
   #stepToField(step: number): string | undefined {

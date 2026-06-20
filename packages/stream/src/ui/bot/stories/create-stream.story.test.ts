@@ -204,40 +204,67 @@ describe('CreateStreamStory', () => {
     // Сообщение с подсказкой
     expect(response.sendMessage?.text).toContain('Основы JavaScript');
     expect(response.sendMessage?.text).toContain('По умолчанию');
+    // Кнопка «Принять» для названия
+    const acceptBtns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(acceptBtns.some((t) => t.includes('Принять'))).toBe(true);
   });
 
-  test('шаг необязательного поля — если есть значение модуля, кнопки «Принять»/«Пропустить»', async () => {
+  test('handleCallback("accept-title") — принимает название из модуля и переходит к описанию', async () => {
     const story = new CreateStreamStory();
 
-    // Шаг 4: goal, есть moduleGoal
-    const response = await story.handleMessage(
-      { type: 'message', text: '2026-07-01', telegramId: 123 },
-      mentor,
-      {
-        activeHandler: {
-          path: WIZARD_PATH,
-          context: makeCtx({
-            step: 3,
-            moduleId: 'mod-1',
-            title: 'Поток',
-            description: 'Описание',
-            moduleGoal: 'Цель из модуля',
-          }),
-        },
+    const response = await story.handleCallback('accept-title', mentor, {
+      activeHandler: {
+        path: WIZARD_PATH,
+        context: makeCtx({
+          step: 1,
+          moduleId: 'mod-1',
+          title: 'Основы JavaScript',
+          description: 'Базовый курс',
+        }),
       },
-    );
+    });
 
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Цель из модуля');
-    expect(text).toContain('По умолчанию');
-
+    const newCtx = response.captureInput?.context as Record<string, unknown>;
+    expect(newCtx?.step).toBe(2);
+    expect(newCtx?.title).toBe('Основы JavaScript');
+    expect(response.sendMessage?.text).toContain('описание потока');
+    // Кнопка «Принять» для описания тоже должна появиться
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Принять'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Пропустить'))).toBe(true);
   });
 
-  test('шаг необязательного поля — если нет значения модуля, просто поле ввода с «Пропустить»', async () => {
+  test('handleCallback("accept-description") — принимает описание из модуля и переходит к дате', async () => {
+    const story = new CreateStreamStory();
+
+    const response = await story.handleCallback('accept-description', mentor, {
+      activeHandler: {
+        path: WIZARD_PATH,
+        context: makeCtx({
+          step: 2,
+          moduleId: 'mod-1',
+          title: 'Поток',
+          description: 'Базовый курс',
+        }),
+      },
+    });
+
+    const newCtx = response.captureInput?.context as Record<string, unknown>;
+    expect(newCtx?.step).toBe(3);
+    expect(response.sendMessage?.text).toContain('дату старта');
+    // Дата в примере — сегодня + 5 дней
+    const expectedDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    const yyyy = String(expectedDate.getFullYear());
+    const mm = String(expectedDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(expectedDate.getDate()).padStart(2, '0');
+    expect(response.sendMessage?.text).toContain(
+      `${yyyy}\\-${mm}\\-${dd}`,
+    );
+    expect(response.sendMessage?.text).toContain('T10:00');
+  });
+
+  test('шаг необязательного поля — если есть значение модуля, кнопки «Принять»/«Пропустить»', async () => {
     const story = new CreateStreamStory();
 
     // Шаг 4: goal, moduleGoal пустой
