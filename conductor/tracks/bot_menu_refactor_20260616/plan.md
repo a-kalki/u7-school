@@ -2,7 +2,7 @@
 
 ## Фаза 0: Подготовка — переименование NEWS_GROUP_URL → SCHOOL_GROUP_URL
 
-- [ ] Task: Переименовать переменную окружения и сделать обязательной
+- [x] Task: Переименовать переменную окружения и сделать обязательной (9373d77)
     - [ ] Переименовать `NEWS_GROUP_URL` → `SCHOOL_GROUP_URL` в `.env.development`
     - [ ] В `config.ts`: переименовать `newsGroupUrl` → `schoolGroupUrl`, убрать `.optional()`, сделать обязательным полем
     - [ ] Исправить все ссылки на `newsGroupUrl` в коде (api-app.ts)
