@@ -66,6 +66,13 @@ describe('CatalogStory', () => {
     }
   });
 
+  test('handleHelpDescription возвращает описание', async () => {
+    const story = new CatalogStory();
+    const desc = await story.handleHelpDescription(actor);
+    expect(desc).toContain('Наши потоки');
+    expect(desc).toContain('каталога');
+  });
+
   test('handleCallback("list") фильтрует только enrollment и active', async () => {
     const allStreams: Record<
       string,

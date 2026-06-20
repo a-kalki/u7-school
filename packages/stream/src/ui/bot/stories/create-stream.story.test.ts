@@ -461,6 +461,18 @@ describe('CreateStreamStory', () => {
     expect(item).toBeNull();
   });
 
+  test('handleHelpDescription — MENTOR видит описание', async () => {
+    const story = new CreateStreamStory();
+    const desc = await story.handleHelpDescription(mentor);
+    expect(desc).toContain('Создать поток');
+  });
+
+  test('handleHelpDescription — GUEST не видит описание', async () => {
+    const story = new CreateStreamStory();
+    const desc = await story.handleHelpDescription(guest);
+    expect(desc).toBeNull();
+  });
+
   test('handleCallback("confirm"): без контекста — ошибка', async () => {
     const moduleApi = {
       execute: mock(() => undefined),

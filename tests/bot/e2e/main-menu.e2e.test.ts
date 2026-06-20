@@ -107,6 +107,14 @@ describe('Главное меню (интеграционные)', () => {
     expect(response.sendMessage?.keyboard!.rows[0]![0]!.code).toBe('app:main-menu');
   });
 
+  test('handleHelp для студента включает «Моя учёба»', async () => {
+    const response = await router.handleHelp(student);
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Моя учёба');
+    // Кнопка Назад
+    expect(response.sendMessage?.keyboard).toBeDefined();
+  });
+
   // ── app:main-menu через handleCallback ──
 
   test('app:main-menu возвращает клавиатуру без приветствия', async () => {

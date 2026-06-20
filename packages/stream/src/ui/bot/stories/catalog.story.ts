@@ -99,4 +99,8 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       priority: 10,
     };
   }
+
+  override async handleHelpDescription(_actor: User): Promise<string | null> {
+    return '📚 Наши потоки — просмотр каталога учебных потоков школы';
+  }
 }

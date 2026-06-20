@@ -56,6 +56,13 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     return null;
   }
 
+  override async handleHelpDescription(actor: User): Promise<string | null> {
+    if (UserPolicy.isStudent(actor)) {
+      return '📖 Моя учёба — доступ к твоим учебным материалам';
+    }
+    return null;
+  }
+
   // ── Приватные методы ──
 
   async #handleMyStudy(actor: User): Promise<BotResponse> {

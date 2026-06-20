@@ -27,8 +27,4 @@ export class StreamController extends U7BotController<StreamApiModuleMeta> {
     new ActivateStreamStory(),
     new MonitorStory(),
   ];
-
-  override async handleHelpStart(_actor: User): Promise<string | null> {
-    return '📚 Наши потоки — просмотр каталога учебных потоков школы';
-  }
 }

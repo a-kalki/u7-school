@@ -1,4 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
+import { UserPolicy } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,
@@ -215,6 +216,13 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         action: this.cb('start'),
         priority: 30,
       };
+    }
+    return null;
+  }
+
+  override async handleHelpDescription(actor: User): Promise<string | null> {
+    if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) {
+      return '🛠️ Создать поток — создать новый учебный поток';
     }
     return null;
   }

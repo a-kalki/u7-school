@@ -241,6 +241,18 @@ describe('LearningStory', () => {
     expect(item).toBeNull();
   });
 
+  test('handleHelpDescription — STUDENT видит описание', async () => {
+    const story = new LearningStory();
+    const desc = await story.handleHelpDescription(studentActor);
+    expect(desc).toContain('Моя учёба');
+  });
+
+  test('handleHelpDescription — GUEST не видит описание', async () => {
+    const story = new LearningStory();
+    const desc = await story.handleHelpDescription(guestActor);
+    expect(desc).toBeNull();
+  });
+
   // ── Тесты нового формата cb-data (без studentId) ──
 
   test('cb-data кнопки «Выполнено» НЕ содержит studentId', async () => {

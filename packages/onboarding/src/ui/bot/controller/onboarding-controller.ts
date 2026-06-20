@@ -41,7 +41,8 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
     ];
   }
 
-  override async handleHelpStart(_actor: User): Promise<string | null> {
+  override async handleHelpStart(actor: User): Promise<string | null> {
+    // Анкета доступна всем ролям (как и handleStart)
     return '📝 Заполнить анкету — расскажи о своих ожиданиях от курсов';
   }
 

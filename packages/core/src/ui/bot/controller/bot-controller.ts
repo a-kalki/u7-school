@@ -169,10 +169,19 @@ export abstract class BotController<
 
   /**
    * Описание пунктов меню для команды /help.
-   * По умолчанию возвращает null — контроллер не добавляется в /help.
+   * По умолчанию агрегирует описания от всех stories.
+   * Если у story нет handleHelpDescription — возвращает null.
    */
-  async handleHelpStart(_actor: TActor): Promise<string | null> {
-    return null;
+  async handleHelpStart(actor: TActor): Promise<string | null> {
+    const descriptions: string[] = [];
+    for (const story of this.stories) {
+      const desc = await story.handleHelpDescription(actor);
+      if (desc) {
+        descriptions.push(desc);
+      }
+    }
+    if (descriptions.length === 0) return null;
+    return descriptions.join('\n\n');
   }
 
   /**
