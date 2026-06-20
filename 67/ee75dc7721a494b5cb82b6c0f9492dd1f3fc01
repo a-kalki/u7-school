@@ -1,0 +1,9 @@
+Фаза 2: BotRouter — MenuAggregator + handleWelcome/handleHelp
+
+Изменения:
+- bot-controller.ts: добавлены handleWelcome() и handleHelpMessage() с возвратом null по умолчанию
+- bot-router.ts: реализован MenuAggregator, добавлены handleWelcome/handleHelp, #toKeyboard
+- bot-router.ts: убрана спецобработка app:main-menu и поле mainMenu из BotResponse
+- bot-router.test.ts: 9 новых тестов, переписаны тесты app:main-menu
+
+Причина: BotRouter теперь чистый роутер + агрегатор, системные сценарии уходят в AppController.
