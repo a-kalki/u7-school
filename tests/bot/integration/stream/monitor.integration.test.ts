@@ -83,7 +83,7 @@ describe('MonitorStory e2e', () => {
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t.includes('Написать'))).toBe(true);
+    expect(btns.some((t) => t.includes('Написать'))).toBe(false);
     expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
@@ -120,7 +120,7 @@ describe('MonitorStory e2e', () => {
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     // Все кнопки видны гостю (публичная информация)
-    expect(btns.some((t) => t.includes('Написать'))).toBe(true);
+    expect(btns.some((t) => t.includes('Написать'))).toBe(false);
     expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
   });

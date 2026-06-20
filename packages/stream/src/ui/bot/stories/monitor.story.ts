@@ -30,6 +30,13 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleMessage(userId ?? id, studentId);
     }
 
+    // История шагов — ещё не реализована
+    if (cmd === 'history' && id) {
+      return {
+        sendMessage: { text: '🚧 История шагов ещё не реализована, но скоро будет.' },
+      };
+    }
+
     if (cmd !== 'students' || !id) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
@@ -48,7 +55,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные методы ──
 
   /** Кнопка «✉️ Написать» — показывает контакт Telegram */
-  async #handleMessage(userId: string, studentId?: string): Promise<BotResponse> {
+  async #handleMessage(
+    userId: string,
+    studentId?: string,
+  ): Promise<BotResponse> {
     let name = userId.slice(0, 8);
     let telegramId = 0;
     let username = '';
@@ -61,15 +71,18 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       // Пользователь не найден
     }
 
+    const escTelegramId = this.escapeMarkdown(String(telegramId));
+    const escUsername = username ? this.escapeMarkdown(username) : '';
     const lines = [
-      '✉️ *' + this.escapeMarkdown(name) + '*',
+      `✉️ * ${this.escapeMarkdown(name)} *`,
       '',
-      '📱 Telegram ID: ' + telegramId,
+      `📱 Telegram ID: ${escTelegramId}`,
     ];
-    if (username) {
-      lines.push('🔗 @' + username);
+    if (escUsername) {
+      lines.push(`🔗 @ ${escUsername}`);
     }
-    lines.push('', 'Ссылка: tg://user?id=' + telegramId);
+    // Экранируем = в ссылке, т.к. MarkdownV2 резервирует этот символ
+    lines.push('', `Ссылка: tg://user?id\\=${escTelegramId}`);
 
     const backCode = studentId
       ? this.cbFor('monitor', 'detail', studentId)
@@ -133,7 +146,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
 
       const escapedName = this.escapeMarkdown(name);
-      const counts = this.escapeMarkdown('(' + completed + '/' + totalSteps + ')');
+      const counts = this.escapeMarkdown(
+        '(' + completed + '/' + totalSteps + ')',
+      );
 
       // Строка в тексте: бар + процент + счётчики + имя
       studentLines.push(
@@ -179,12 +194,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   /** Склоняет существительное: 1 студент, 2 студента, 5 студентов */
-  #pluralize(
-    n: number,
-    one: string,
-    few: string,
-    many: string,
-  ): string {
+  #pluralize(n: number, one: string, few: string, many: string): string {
     const mod10 = n % 10;
     const mod100 = n % 100;
     if (mod100 >= 11 && mod100 <= 19) return many;
@@ -238,7 +248,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       '📱 Telegram: ID ' + telegramId,
       '📊 Статус: ' + (statusLabels[student.status] ?? student.status),
-      '📈 Прогресс: ' + completed + ' из ' + totalSteps + ' шагов ' + this.escapeMarkdown('(' + pct + '%)'),
+      '📈 Прогресс: ' +
+      completed +
+      ' из ' +
+      totalSteps +
+      ' шагов ' +
+      this.escapeMarkdown('(' + pct + '%)'),
     ];
 
     // Текущий проект/урок из прогресса
@@ -260,10 +275,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
     keyboardRows.push([
-      {
-        text: '✉️ Написать',
-        code: this.cbFor('monitor', 'message', student.userId, student.uuid),
-      },
       {
         text: '📁 История шагов',
         code: this.cbFor('monitor', 'history', studentId),
