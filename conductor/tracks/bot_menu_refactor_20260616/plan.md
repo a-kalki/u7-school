@@ -10,11 +10,11 @@
 
 ## Фаза 1: MenuAggregator и BotController
 
-- [ ] Task: Создать интерфейс MenuAggregator
+- [x] Task: Создать интерфейс MenuAggregator (008ba01)
     - [ ] Добавить интерфейс `MenuAggregator` с методами `collectAllMenuItems` и `collectAllHelpDescriptions` в `packages/core/src/ui/bot/types.ts`
     - [ ] Экспортировать из `@u7-scl/core/ui`
 
-- [ ] Task: Очистить BotController от ненужных методов
+- [x] Task: Очистить BotController от ненужных методов (008ba01)
     - [ ] Удалить `handleGreeting` и `handleHelpHeader` (не нужны в варианте Б)
     - [ ] Обновить тесты BotController если они ссылаются на эти методы
 
