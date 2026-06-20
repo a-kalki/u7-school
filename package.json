@@ -11,7 +11,7 @@
     "test": "bun test",
     "test:bot": "bun test packages/stream/src/ui/bot/ tests/bot/",
     "seed:fixtures": "bun run apps/u7-bot/scripts/seed-fixtures.ts",
-    "dev:fixtures": "bun run seed:fixtures && DB_DIR=./data-fixtures bun run apps/u7-bot/src/main.ts",
+    "dev:fixtures": "bun run seed:fixtures && SCHOOL_GROUP_URL=https://t.me/your_school_group DB_DIR=./data-fixtures bun run apps/u7-bot/src/main.ts",
     "test:p": "bash -c 'bun run --cwd \"packages/${0}\" test'",
     "test:a": "bash -c 'bun run --cwd \"apps/${0}\" test'",
     "lint": "bunx biome check .",
