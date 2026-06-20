@@ -31,7 +31,7 @@ export class CommunityStory extends U7BotUserStory<AppOnlyApiModuleMeta> {
     return {
       kind: 'url',
       text: '💬 Сообщество школы',
-      priority: 100,
+      priority: 90,
       url: this.#groupUrl,
     };
   }

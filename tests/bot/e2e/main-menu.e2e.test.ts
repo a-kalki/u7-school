@@ -44,7 +44,7 @@ describe('Главное меню (интеграционные)', () => {
     expect(btn).toBeDefined();
     expect(btn!.kind).toBe('url');
     expect((btn as any).url).toBe(SCHOOL_GROUP_URL);
-    expect(btn!.priority).toBe(100);
+    expect(btn!.priority).toBe(90);
   });
 
   test('студент видит кнопку «Сообщество школы»', async () => {
@@ -57,10 +57,10 @@ describe('Главное меню (интеграционные)', () => {
     expect(menu.some((i) => i.text === '💬 Сообщество школы')).toBe(true);
   });
 
-  test('кнопка «Сообщество школы» в конце меню (низкий приоритет)', async () => {
+  test('кнопка «Помощь» в конце меню (самый низкий приоритет)', async () => {
     const menu = await router.collectMainMenu(guest);
     const last = menu[menu.length - 1]!;
-    expect(last.text).toBe('💬 Сообщество школы');
+    expect(last.text).toBe('❓ Помощь');
   });
 
   // ── Кнопка «Помощь» ──
@@ -73,7 +73,7 @@ describe('Главное меню (интеграционные)', () => {
     if (btn!.kind === 'callback') {
       expect(btn!.action).toBe('app:help');
     }
-    expect(btn!.priority).toBe(90);
+    expect(btn!.priority).toBe(100);
   });
 
   // ── handleWelcome (/start) ──

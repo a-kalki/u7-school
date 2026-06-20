@@ -33,15 +33,15 @@ describe('AppController', () => {
     const items = await ctrl.handleStart(actor);
 
     expect(items).toHaveLength(2);
-    // Кнопка «Сообщество школы» — url, priority 100
-    expect(items[1]!.text).toBe('💬 Сообщество школы');
-    expect(items[1]!.kind).toBe('url');
-    expect((items[1]! as any).url).toBe(SCHOOL_URL);
-    expect(items[1]!.priority).toBe(100);
-    // Кнопка «Помощь» — callback, priority 90
-    expect(items[0]!.text).toBe('❓ Помощь');
-    expect(items[0]!.kind).toBe('callback');
+    // Кнопка «Сообщество школы» — url, priority 90
+    expect(items[0]!.text).toBe('💬 Сообщество школы');
+    expect(items[0]!.kind).toBe('url');
+    expect((items[0]! as any).url).toBe(SCHOOL_URL);
     expect(items[0]!.priority).toBe(90);
+    // Кнопка «Помощь» — callback, priority 100
+    expect(items[1]!.text).toBe('❓ Помощь');
+    expect(items[1]!.kind).toBe('callback');
+    expect(items[1]!.priority).toBe(100);
   });
 
   // ── handleHelpStart ──
@@ -59,8 +59,8 @@ describe('AppController', () => {
     const ctrl = new AppController(SCHOOL_URL);
     ctrl.initMenuAggregator(makeAggregator([
       { kind: 'callback', text: '📚 Потоки', action: 'stream:catalog', priority: 50 },
-      { kind: 'callback', text: '❓ Помощь', action: 'app:help', priority: 90 },
-      { kind: 'url', text: '💬 Сообщество', url: SCHOOL_URL, priority: 100 },
+      { kind: 'callback', text: '❓ Помощь', action: 'app:help', priority: 100 },
+      { kind: 'url', text: '💬 Сообщество', url: SCHOOL_URL, priority: 90 },
     ]));
 
     const res = await ctrl.handleWelcome(actor);

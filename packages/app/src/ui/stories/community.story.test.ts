@@ -19,7 +19,7 @@ describe('CommunityStory', () => {
     expect(item!.text).toBe('💬 Сообщество школы');
     expect(item!.kind).toBe('url');
     expect((item as any).url).toBe('https://t.me/u7_school_group');
-    expect(item!.priority).toBe(100);
+    expect(item!.priority).toBe(90);
   });
 
   test('handleStart возвращает кнопку для всех ролей', async () => {

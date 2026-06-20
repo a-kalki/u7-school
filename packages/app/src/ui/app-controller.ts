@@ -45,12 +45,14 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
     // Получаем кнопки от stories через базовый механизм (с префиксами)
     const items = await super.handleStart(actor);
 
-    // Добавляем кнопку «Помощь»
+    // Кнопка «Сообщество школы» уже добавлена через CommunityStory с priority 100.
+    // Меняем её priority на 90, чтобы была выше «Помощи».
+    // Кнопка «Помощь» — priority 100 (ниже сообщества)
     items.push({
       kind: 'callback',
       text: '❓ Помощь',
       action: 'app:help',
-      priority: 90,
+      priority: 100,
     });
 
     return items.sort((a, b) => a.priority - b.priority);

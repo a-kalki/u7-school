@@ -79,6 +79,6 @@ describe('CommunityStory integration (app-controller)', () => {
     );
     expect(communityIdx).toBeGreaterThan(0);
     const communityBtn = items[communityIdx]!;
-    expect(communityBtn.priority).toBe(100);
+    expect(communityBtn.priority).toBe(90);
   });
 });
