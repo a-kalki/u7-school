@@ -1,0 +1,10 @@
+Фаза 3: AppController — системные сообщения и кнопки
+
+Изменения:
+- app-controller.ts: handleWelcome (приветствие), handleHelpMessage (/help), handleCallback для main-menu/help
+- app-controller.ts: initMenuAggregator, #buildMenuResponse, кнопка «Помощь» в handleStart
+- app-controller.test.ts: 9 юнит-тестов
+- api-app.ts: передача MenuAggregator в AppController
+- community.integration.test.ts: обновлён под новый API
+
+Причина: AppController становится единой точкой системных сценариев.
