@@ -146,6 +146,22 @@ class MockController extends BotController {
   override handleHelpStart = async (): Promise<string | null> =>
     this._helpResult;
 
+  private _welcomeResult: BotResponse | null = null;
+  setWelcomeResult(res: BotResponse | null) {
+    this._welcomeResult = res;
+  }
+  override async handleWelcome(): Promise<BotResponse | null> {
+    return this._welcomeResult;
+  }
+
+  private _helpMessageResult: BotResponse | null = null;
+  setHelpMessageResult(res: BotResponse | null) {
+    this._helpMessageResult = res;
+  }
+  override async handleHelpMessage(): Promise<BotResponse | null> {
+    return this._helpMessageResult;
+  }
+
   override async handleStart(actor: unknown): Promise<MainMenuAction[]> {
     this.handleStartCalls.push([actor]);
     return this._startResult;
@@ -226,28 +242,20 @@ describe('resolveUser', () => {
 // ── connectRouter (Grammy-адаптер) ──
 
 describe('connectRouter', () => {
-  test('/start агрегирует кнопки от контроллеров', async () => {
+  test('/start делегирует в AppController.handleWelcome', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser({ name: 'Тест' }));
 
-    const ctrl1 = new MockController();
-    ctrl1.name = 'ctrl1';
-    ctrl1.setStartResult([
-      {
-        kind: 'callback',
-        text: 'Кнопка 1',
-        action: 'ctrl1:act1',
-        priority: 10,
+    const appCtrl = new MockController();
+    appCtrl.name = 'app';
+    appCtrl.setWelcomeResult({
+      sendMessage: {
+        text: 'Привет, Тест! 👋\n\nВыберите раздел:',
+        keyboard: { rows: [[{ text: 'Кнопка', code: 'app:action' }]], isMultiple: false },
       },
-    ]);
+    });
 
-    const ctrl2 = new MockController();
-    ctrl2.name = 'ctrl2';
-    ctrl2.setStartResult([
-      { kind: 'callback', text: 'Кнопка 2', action: 'ctrl2:act2', priority: 5 },
-    ]);
-
-    const router = new BotRouter([ctrl1, ctrl2]);
+    const router = new BotRouter([appCtrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
@@ -257,29 +265,22 @@ describe('connectRouter', () => {
     const replyCall = (ctx.reply as any).mock.calls[0];
     expect(replyCall[0]).toContain('Привет');
     expect(replyCall[0]).toContain('Тест');
-
-    // Проверяем сортировку
-    const keyboard = replyCall[1].reply_markup;
-    const btnTexts: string[] = keyboard.inline_keyboard
-      .flat()
-      .map((b: any) => b.text);
-    expect(btnTexts[0]).toBe('Кнопка 2');
-    expect(btnTexts[1]).toBe('Кнопка 1');
+    expect(replyCall[1].reply_markup).toBeDefined();
   });
 
   test('/start сбрасывает activeHandler', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser());
 
-    const ctrl = new MockController();
-    ctrl.name = 'ctrl';
-    ctrl.setStartResult([]);
+    const appCtrl = new MockController();
+    appCtrl.name = 'app';
+    appCtrl.setWelcomeResult({ sendMessage: { text: 'Привет!' } });
 
-    const router = new BotRouter([ctrl]);
+    const router = new BotRouter([appCtrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
-    ctx.session.activeHandler = { path: 'ctrl/some' };
+    ctx.session.activeHandler = { path: 'app/some' };
 
     await bot.commands.start!(ctx);
 
@@ -326,8 +327,6 @@ describe('connectRouter', () => {
 
     await handler!(ctx);
 
-    // Ответ callback_query с ошибкой не вызывается (нет show_alert)
-    // Но reply должен содержать ошибку
     const replyCall = (ctx.reply as any).mock.calls[0];
     expect(replyCall[0]).toContain('Неизвестная команда');
     expect(ctrl.handleCallbackCalls.length).toBe(0);
@@ -391,7 +390,6 @@ describe('connectRouter', () => {
     const router = new BotRouter([ctrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
-    // Сначала callback, который захватывает ввод
     const cbHandler = bot.listeners['callback_query:data']?.[0];
     const ctx1 = makeMockContext();
     ctx1.callbackQuery!.data = 'onboarding:start';
@@ -400,7 +398,6 @@ describe('connectRouter', () => {
     expect(ctx1.session.activeHandler).not.toBeNull();
     expect(ctx1.session.activeHandler!.path).toBe('onboarding/ask-name');
 
-    // Теперь сообщение
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx2 = makeMockContext();
     ctx2.session.activeHandler = { path: 'onboarding/ask-name' };
@@ -459,13 +456,10 @@ describe('connectRouter', () => {
 
     await handler!(ctx);
 
-    // show_alert с предупреждением
     expect(ctx.answerCallbackQuery).toHaveBeenCalled();
     const answerCall = (ctx.answerCallbackQuery as any).mock.calls[0];
     expect(answerCall[0].text).toContain('завершите текущее действие');
     expect(answerCall[0].show_alert).toBe(true);
-
-    // callback не должен форвардиться
     expect(ctrl2.handleCallbackCalls.length).toBe(0);
   });
 
@@ -548,15 +542,19 @@ describe('connectRouter', () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser({ name: 'Тест' }));
 
+    const appCtrl = new MockController();
+    appCtrl.name = 'app';
+    appCtrl.setWelcomeResult({
+      sendMessage: {
+        text: 'Привет, Тест! 👋',
+        keyboard: { rows: [[{ text: 'Начать', code: 'app:start' }]], isMultiple: false },
+      },
+    });
+
     const ctrl = new MockController();
     ctrl.name = 'main';
     ctrl.setStartResult([
-      {
-        kind: 'callback',
-        text: 'Начать',
-        action: 'main:start-action',
-        priority: 1,
-      },
+      { kind: 'callback', text: 'Начать', action: 'main:start-action', priority: 1 },
     ]);
     ctrl.setCallbackResult({
       sendMessage: { text: 'Введите имя:' },
@@ -568,7 +566,7 @@ describe('connectRouter', () => {
     });
     ctrl.setCancelResult({ releaseInput: true });
 
-    const router = new BotRouter([ctrl]);
+    const router = new BotRouter([appCtrl, ctrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
     // Шаг 1: /start
@@ -608,62 +606,33 @@ describe('connectRouter', () => {
 
   // ── Команда /help ──
 
-  test('/help собирает описания от контроллеров с handleHelpStart', async () => {
+  test('/help делегирует в AppController.handleHelpMessage', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser());
 
-    const ctrl1 = new MockController();
-    ctrl1.name = 'stream';
-    ctrl1.setHelpResult('📚 Наши потоки — каталог учебных потоков');
+    const appCtrl = new MockController();
+    appCtrl.name = 'app';
+    appCtrl.setHelpMessageResult({
+      sendMessage: { text: 'Как со мной работать? 🤔\n\n📚 Наши потоки — каталог учебных потоков\n\n📝 Заполнить анкету — расскажи о своих ожиданиях' },
+    });
 
-    const ctrl2 = new MockController();
-    ctrl2.name = 'onboarding';
-    ctrl2.setHelpResult('📝 Заполнить анкету — расскажи о своих ожиданиях');
-
-    const router = new BotRouter([ctrl1, ctrl2]);
+    const router = new BotRouter([appCtrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     await bot.commands.help!(ctx);
 
     const replyCall = (ctx.reply as any).mock.calls[0];
+    expect(replyCall[0]).toContain('Как со мной работать?');
     expect(replyCall[0]).toContain('📚 Наши потоки');
-    expect(replyCall[0]).toContain('каталог учебных потоков');
     expect(replyCall[0]).toContain('📝 Заполнить анкету');
   });
 
-  test('/help пропускает контроллеры без handleHelpStart', async () => {
+  test('/help без контроллера app — fallback', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser());
 
-    const ctrl1 = new MockController();
-    ctrl1.name = 'stream';
-    ctrl1.setHelpResult('📚 Наши потоки');
-
-    const ctrl2 = new MockController();
-    ctrl2.name = 'other';
-    ctrl2.setHelpResult(null); // без описания
-
-    const router = new BotRouter([ctrl1, ctrl2]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
-
-    const ctx = makeMockContext();
-    await bot.commands.help!(ctx);
-
-    const replyCall = (ctx.reply as any).mock.calls[0];
-    expect(replyCall[0]).toContain('📚 Наши потоки');
-    expect(replyCall[0]).not.toContain('other');
-  });
-
-  test('/help с пустым списком выводит заглушку', async () => {
-    const bot = makeMockBot();
-    const userFacade = makeMockUserFacade(makeUser());
-
-    const ctrl = new MockController();
-    ctrl.name = 'stream';
-    ctrl.setHelpResult(null);
-
-    const router = new BotRouter([ctrl]);
+    const router = new BotRouter([]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
@@ -673,44 +642,35 @@ describe('connectRouter', () => {
     expect(replyCall[0]).toContain('Нет доступных');
   });
 
-  // ── app:main-menu ──
+  // ── app:main-menu → AppController callback ──
 
-  test('app:main-menu пересобирает меню и НЕ сбрасывает activeHandler', async () => {
+  test('app:main-menu делегирует в контроллер app', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser());
 
-    const ctrl = new MockController();
-    ctrl.name = 'stream';
-    ctrl.setStartResult([
-      {
-        kind: 'callback',
-        text: 'Потоки',
-        action: 'stream:catalog:list',
-        priority: 10,
+    const appCtrl = new MockController();
+    appCtrl.name = 'app';
+    appCtrl.setCallbackResult({
+      sendMessage: {
+        text: 'Выберите действие:',
+        keyboard: { rows: [[{ text: 'Потоки', code: 'stream:catalog' }]], isMultiple: false },
       },
-    ]);
+    });
 
-    const router = new BotRouter([ctrl]);
+    const router = new BotRouter([appCtrl]);
     connectRouter(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     const ctx = makeMockContext();
-    ctx.session.activeHandler = { path: 'stream/some-path' };
     ctx.callbackQuery!.data = 'app:main-menu';
 
     await handler!(ctx);
 
-    // activeHandler НЕ сброшен
-    expect(ctx.session.activeHandler).not.toBeNull();
-    expect(ctx.session.activeHandler!.path).toBe('stream/some-path');
-
-    // reply содержит клавиатуру из меню
+    expect(appCtrl.handleCallbackCalls.length).toBe(1);
+    expect(appCtrl.handleCallbackCalls[0]![0]).toBe('main-menu');
+    expect(ctx.reply).toHaveBeenCalled();
     const replyCall = (ctx.reply as any).mock.calls[0];
     expect(replyCall[0]).toContain('Выберите действие');
     expect(replyCall[1].reply_markup).toBeDefined();
-    const btnTexts: string[] = replyCall[1].reply_markup.inline_keyboard
-      .flat()
-      .map((b: any) => b.text);
-    expect(btnTexts).toContain('Потоки');
   });
 });

@@ -1,7 +1,7 @@
 import type { Logger } from '@u7-scl/core/shared';
 import type { BotRouter } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
-import { type Composer, InlineKeyboard } from 'grammy';
+import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
 import { executeResponses } from '../ui-utils';
 
@@ -24,6 +24,9 @@ export async function resolveUser(
 
 /**
  * Подключает Grammy-обработчики к BotRouter.
+ *
+ * connectRouter — чистый адаптер: Grammy-события → BotRouter → executeResponses.
+ * Не содержит пользовательских текстов, не формирует клавиатуры.
  */
 export function connectRouter(
   bot: Composer<BotContext>,
@@ -52,36 +55,8 @@ export function connectRouter(
     }
   }
 
-  // Вспомогательная: сохраняет lastBotMessage после ctx.reply
-  function saveLastBotFromItems(
-    ctx: BotContext,
-    text: string,
-    messageId: number,
-    items: { kind: string; text: string; action?: string }[],
-  ) {
-    ctx.session.lastBotMessage = {
-      text,
-      messageId,
-      keyboard: {
-        rows: items
-          .filter(
-            (
-              i,
-            ): i is {
-              kind: 'callback';
-              text: string;
-              action: string;
-              priority: number;
-            } => i.kind === 'callback',
-          )
-          .map((i) => [{ text: i.text, code: i.action }]),
-        isMultiple: false,
-      },
-    };
-  }
-
   // ═══════════════════════════════════════════
-  // /start — сбор главного меню
+  // /start — приветствие и главное меню
   // ═══════════════════════════════════════════
   bot.command('start', async (ctx) => {
     const user = await resolveActor(ctx);
@@ -92,25 +67,12 @@ export function connectRouter(
 
     ctx.session.activeHandler = null;
 
-    const items = await router.collectMainMenu(user);
-
-    const keyboard = new InlineKeyboard();
-    for (const item of items) {
-      if (item.kind === 'url') {
-        keyboard.url(item.text, item.url).row();
-      } else {
-        keyboard.text(item.text, item.action).row();
-      }
-    }
-
-    const text = 'Привет, ' + user.name + '! 👋\n\nВыберите действие:';
-    const sent = await ctx.reply(text, { reply_markup: keyboard });
-    // Сохраняем lastBotMessage для последующего удаления клавиатуры
-    saveLastBotFromItems(ctx, text, sent.message_id, items);
+    const response = await router.handleWelcome(user);
+    await executeResponses(ctx, response);
   });
 
   // ═══════════════════════════════════════════
-  // /help — список пунктов меню с описаниями
+  // /help — инструкция и список команд
   // ═══════════════════════════════════════════
   bot.command('help', async (ctx) => {
     const user = await resolveActor(ctx);
@@ -119,15 +81,8 @@ export function connectRouter(
       return;
     }
 
-    const descriptions = await router.collectHelp(user);
-
-    if (descriptions.length === 0) {
-      await ctx.reply('Нет доступных пунктов меню.');
-      return;
-    }
-
-    const text = descriptions.join('\n\n');
-    await ctx.reply(text);
+    const response = await router.handleHelp(user);
+    await executeResponses(ctx, response);
   });
 
   // ═══════════════════════════════════════════
@@ -157,23 +112,6 @@ export function connectRouter(
     const data = ctx.callbackQuery.data;
 
     const response = await router.handleCallback(data, user, ctx.session);
-
-    // Главное меню (app:main-menu) — пересборка без сброса activeHandler
-    if (response.mainMenu) {
-      const rows = response.mainMenu.actions
-        .filter((i): i is { kind: 'callback'; text: string; action: string; priority: number } => i.kind === 'callback')
-        .map((i) => [{ text: i.text, code: i.action }]);
-
-      // Используем executeResponses — она уберёт предыдущую клавиатуру и сохранит lastBotMessage
-      await executeResponses(ctx, {
-        sendMessage: {
-          text: 'Выберите действие:',
-          keyboard: { rows, isMultiple: false },
-        },
-      });
-      await ctx.answerCallbackQuery().catch(() => {});
-      return;
-    }
 
     // Проверка на «чужой callback» — показываем alert
     if (response.sendMessage?.text?.includes('завершите текущее действие')) {
