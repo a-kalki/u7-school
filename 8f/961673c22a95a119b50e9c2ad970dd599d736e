@@ -1,0 +1,9 @@
+Фаза 4: connectRouter — чистый адаптер
+
+Изменения:
+- router.ts: убраны все пользовательские тексты, сборка InlineKeyboard, saveLastBotFromItems
+- router.ts: /start → router.handleWelcome(), /help → router.handleHelp()
+- router.ts: callback_query — убран блок mainMenu
+- router.test.ts: обновлены под новую архитектуру (18 тестов)
+
+Причина: connectRouter теперь только адаптер Grammy → BotRouter → executeResponses.
