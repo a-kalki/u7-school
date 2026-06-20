@@ -150,6 +150,24 @@ export abstract class BotController<
   }
 
   /**
+   * Приветственное сообщение с главным меню.
+   * Переопределяется AppController.
+   * По умолчанию возвращает null — контроллер не участвует в /start.
+   */
+  async handleWelcome(_actor: TActor): Promise<BotResponse | null> {
+    return null;
+  }
+
+  /**
+   * Сообщение помощи (инструкция + список команд).
+   * Переопределяется AppController.
+   * По умолчанию возвращает null — контроллер не участвует в /help.
+   */
+  async handleHelpMessage(_actor: TActor): Promise<BotResponse | null> {
+    return null;
+  }
+
+  /**
    * Описание пунктов меню для команды /help.
    * По умолчанию возвращает null — контроллер не добавляется в /help.
    */

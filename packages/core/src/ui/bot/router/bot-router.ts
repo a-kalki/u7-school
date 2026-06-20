@@ -5,6 +5,7 @@ import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
+  MenuAggregator,
   SessionData,
 } from '../types';
 
@@ -38,7 +39,7 @@ export class BotRouter<
   TAppMeta extends AppMeta = AppMeta,
   TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
-> {
+> implements MenuAggregator<TActor> {
   private readonly controllers = new Map<
     string,
     BotController<TAppMeta, TModuleMeta, TActor>
@@ -113,6 +114,52 @@ export class BotRouter<
     return descriptions;
   }
 
+  // ── MenuAggregator ──
+
+  async collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]> {
+    return this.collectMainMenu(actor);
+  }
+
+  async collectAllHelpDescriptions(actor: TActor): Promise<string[]> {
+    return this.collectHelp(actor);
+  }
+
+  // ── Системные методы ──
+
+  /**
+   * Обрабатывает /start: получает приветствие от контроллера 'app'
+   * или возвращает fallback.
+   */
+  async handleWelcome(actor: TActor): Promise<BotResponse> {
+    const appCtrl = this.controllers.get('app');
+    if (appCtrl) {
+      const response = await appCtrl.handleWelcome(actor);
+      if (response) return response;
+    }
+    // Fallback
+    const items = await this.collectMainMenu(actor);
+    const keyboard = this.#toKeyboard(items);
+    return {
+      sendMessage: {
+        text: 'Выберите действие:',
+        keyboard: keyboard ?? undefined,
+      },
+    };
+  }
+
+  /**
+   * Обрабатывает /help: получает сообщение от контроллера 'app'
+   * или возвращает fallback.
+   */
+  async handleHelp(actor: TActor): Promise<BotResponse> {
+    const appCtrl = this.controllers.get('app');
+    if (appCtrl) {
+      const response = await appCtrl.handleHelpMessage(actor);
+      if (response) return response;
+    }
+    return { sendMessage: { text: 'Нет доступных пунктов меню.' } };
+  }
+
   // ── Обработка callback ──
 
   /**
@@ -125,12 +172,6 @@ export class BotRouter<
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse> {
-    // Специальный callback: пересборка главного меню без сброса activeHandler
-    if (data === 'app:main-menu') {
-      const items = await this.collectMainMenu(actor);
-      return { mainMenu: { actions: items } };
-    }
-
     const controllerName = extractControllerName(data);
 
     if (!controllerName) {
@@ -264,6 +305,19 @@ export class BotRouter<
   }
 
   // ── Приватные хелперы ──
+
+  /** Преобразует MainMenuAction[] в KeyboardDescription */
+  #toKeyboard(items: MainMenuAction[]): import('../types').KeyboardDescription | null {
+    const callbackItems = items.filter(
+      (i): i is { kind: 'callback'; text: string; action: string; priority: number } =>
+        i.kind === 'callback',
+    );
+    if (callbackItems.length === 0) return null;
+    return {
+      rows: callbackItems.map((i) => [{ text: i.text, code: i.action }]),
+      isMultiple: false,
+    };
+  }
 
   /** Применяет captureInput/releaseInput к сессии */
   #applyCapturedInput(

@@ -30,10 +30,13 @@ class TestController extends BotController<
   }
 
   private _startResult: MainMenuAction[] = [];
+  private _helpStartResult: string | null = null;
   private _callbackResult: BotResponse = {};
   private _messageResult: BotResponse = {};
   private _cancelResult: BotResponse = { releaseInput: true };
   private _timeoutResult: BotResponse = { releaseInput: true };
+  private _welcomeResult: BotResponse | null = null;
+  private _helpResult: BotResponse | null = null;
 
   handleStartCalls: TestActor[] = [];
   handleCallbackCalls: Array<{
@@ -53,6 +56,10 @@ class TestController extends BotController<
     this._startResult = items;
     return this;
   }
+  withHelpStartResult(res: string | null): this {
+    this._helpStartResult = res;
+    return this;
+  }
   withCallbackResult(res: BotResponse): this {
     this._callbackResult = res;
     return this;
@@ -69,10 +76,22 @@ class TestController extends BotController<
     this._timeoutResult = res;
     return this;
   }
+  withWelcomeResult(res: BotResponse | null): this {
+    this._welcomeResult = res;
+    return this;
+  }
+  withHelpResult(res: BotResponse | null): this {
+    this._helpResult = res;
+    return this;
+  }
 
   override async handleStart(actor: TestActor): Promise<MainMenuAction[]> {
     this.handleStartCalls.push(actor);
     return this._startResult;
+  }
+
+  override async handleHelpStart(_actor: TestActor): Promise<string | null> {
+    return this._helpStartResult;
   }
 
   override async handleCallback(
@@ -107,6 +126,14 @@ class TestController extends BotController<
   ): Promise<BotResponse> {
     this.handleTimeoutCalls.push({ actor, session });
     return this._timeoutResult;
+  }
+
+  override async handleWelcome(_actor: TestActor): Promise<BotResponse | null> {
+    return this._welcomeResult;
+  }
+
+  override async handleHelpMessage(_actor: TestActor): Promise<BotResponse | null> {
+    return this._helpResult;
   }
 }
 
@@ -427,65 +454,149 @@ describe('BotRouter', () => {
     expect(res).toBeNull();
   });
 
-  // ── app:main-menu ──
+  // ── collectAllMenuItems (MenuAggregator) ──
 
-  test('app:main-menu пересобирает меню через collectMainMenu', async () => {
+  test('collectAllMenuItems агрегирует кнопки от всех контроллеров', async () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
     ctrl.withStartResult([
-      { kind: 'callback', text: 'Кнопка 1', action: 'stream:a', priority: 10 },
-      { kind: 'callback', text: 'Кнопка 2', action: 'stream:b', priority: 5 },
+      { kind: 'callback', text: 'Б', action: 'stream:b', priority: 10 },
+      { kind: 'callback', text: 'А', action: 'stream:a', priority: 5 },
     ]);
 
     const disp = new BotRouter([ctrl]);
+    const items = await disp.collectAllMenuItems(makeActor());
+
+    expect(items).toHaveLength(2);
+    expect(items[0]!.text).toBe('А');
+    expect(items[1]!.text).toBe('Б');
+  });
+
+  test('collectAllMenuItems с пустым списком контроллеров', async () => {
+    const disp = new BotRouter([]);
+    const items = await disp.collectAllMenuItems(makeActor());
+    expect(items).toHaveLength(0);
+  });
+
+  // ── collectAllHelpDescriptions (MenuAggregator) ──
+
+  test('collectAllHelpDescriptions собирает описания и фильтрует null', async () => {
+    const c1 = new TestController();
+    c1.name = 'ctrl1';
+    c1.withHelpStartResult('Описание 1');
+
+    const c2 = new TestController();
+    c2.name = 'ctrl2';
+    c2.withHelpStartResult(null); // этот должен отфильтроваться
+
+    const c3 = new TestController();
+    c3.name = 'ctrl3';
+    c3.withHelpStartResult('Описание 3');
+
+    const disp = new BotRouter([c1, c2, c3]);
+    const descs = await disp.collectAllHelpDescriptions(makeActor());
+
+    expect(descs).toEqual(['Описание 1', 'Описание 3']);
+  });
+
+  // ── handleWelcome ──
+
+  test('handleWelcome делегирует в AppController', async () => {
+    const appCtrl = new TestController();
+    appCtrl.name = 'app';
+    appCtrl.withWelcomeResult({
+      sendMessage: { text: 'Привет! 👋', keyboard: { rows: [[{ text: 'Кнопка', code: 'app:test' }]], isMultiple: false } },
+    });
+
+    const disp = new BotRouter([appCtrl]);
+    const res = await disp.handleWelcome(makeActor());
+
+    expect(res.sendMessage?.text).toBe('Привет! 👋');
+    expect(res.sendMessage?.keyboard?.rows[0]![0]!.text).toBe('Кнопка');
+  });
+
+  test('handleWelcome без контроллера app — fallback', async () => {
+    const disp = new BotRouter([]);
+    const res = await disp.handleWelcome(makeActor());
+
+    expect(res.sendMessage?.text).toContain('Выберите действие');
+  });
+
+  // ── handleHelp ──
+
+  test('handleHelp делегирует в AppController', async () => {
+    const appCtrl = new TestController();
+    appCtrl.name = 'app';
+    appCtrl.withHelpResult({
+      sendMessage: { text: 'Как работать? 🤔\n\nСписок команд...' },
+    });
+
+    const disp = new BotRouter([appCtrl]);
+    const res = await disp.handleHelp(makeActor());
+
+    expect(res.sendMessage?.text).toContain('Как работать?');
+  });
+
+  test('handleHelp без контроллера app — fallback', async () => {
+    const disp = new BotRouter([]);
+    const res = await disp.handleHelp(makeActor());
+
+    expect(res.sendMessage?.text).toContain('Нет доступных пунктов меню');
+  });
+
+  // ── app:main-menu → AppController ──
+
+  test('app:main-menu делегирует в AppController.handleCallback', async () => {
+    const appCtrl = new TestController();
+    appCtrl.name = 'app';
+    appCtrl.withCallbackResult({
+      sendMessage: {
+        text: 'Выберите действие:',
+        keyboard: { rows: [[{ text: 'Кнопка', code: 'app:test' }]], isMultiple: false },
+      },
+    });
+
+    const disp = new BotRouter([appCtrl]);
     const session = makeSession();
     const actor = makeActor();
 
     const res = await disp.handleCallback('app:main-menu', actor, session);
 
-    expect(res.mainMenu).toBeDefined();
-    expect(res.mainMenu!.actions).toHaveLength(2);
-    expect(res.mainMenu!.actions[0]!.text).toBe('Кнопка 2'); // priority 5
-    expect(res.mainMenu!.actions[1]!.text).toBe('Кнопка 1'); // priority 10
+    expect(res.sendMessage?.text).toBe('Выберите действие:');
+    expect(res.sendMessage?.keyboard?.rows[0]![0]!.text).toBe('Кнопка');
+    expect(appCtrl.handleCallbackCalls).toHaveLength(1);
+    expect(appCtrl.handleCallbackCalls[0]!.data).toBe('main-menu');
   });
 
-  test('app:main-menu НЕ сбрасывает activeHandler', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-    ctrl.withStartResult([]);
-
-    const disp = new BotRouter([ctrl]);
-    const session = makeSession({
-      activeHandler: { path: 'stream/some-path' },
+  test('app:help делегирует в AppController.handleCallback', async () => {
+    const appCtrl = new TestController();
+    appCtrl.name = 'app';
+    appCtrl.withCallbackResult({
+      sendMessage: { text: 'Как работать? 🤔\n\nСписок команд...' },
     });
 
-    await disp.handleCallback('app:main-menu', makeActor(), session);
+    const disp = new BotRouter([appCtrl]);
+    const session = makeSession();
+    const actor = makeActor();
 
-    expect(session.activeHandler).not.toBeNull();
-    expect(session.activeHandler!.path).toBe('stream/some-path');
+    const res = await disp.handleCallback('app:help', actor, session);
+
+    expect(res.sendMessage?.text).toContain('Как работать?');
+    expect(appCtrl.handleCallbackCalls).toHaveLength(1);
+    expect(appCtrl.handleCallbackCalls[0]!.data).toBe('help');
   });
 
-  test('app:main-menu работает без контроллера app', async () => {
+  test('app:main-menu без контроллера app — ошибка', async () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
-    ctrl.withStartResult([
-      {
-        kind: 'callback',
-        text: 'Единственная',
-        action: 'stream:x',
-        priority: 1,
-      },
-    ]);
 
     const disp = new BotRouter([ctrl]);
-    // Контроллера 'app' нет — но вызов должен работать
     const res = await disp.handleCallback(
       'app:main-menu',
       makeActor(),
       makeSession(),
     );
 
-    expect(res.mainMenu).toBeDefined();
-    expect(res.mainMenu!.actions).toHaveLength(1);
+    expect(res.sendMessage?.text).toContain('Неизвестная команда');
   });
 });
