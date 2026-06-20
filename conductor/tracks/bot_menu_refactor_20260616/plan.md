@@ -20,22 +20,22 @@
 
 ## Фаза 2: BotRouter — MenuAggregator + handleWelcome/handleHelp
 
-- [ ] Task: Написать тесты для BotRouter (MenuAggregator + новые методы)
+- [x] Task: Написать тесты для BotRouter (MenuAggregator + новые методы) (67ee75d)
     - [ ] `collectAllMenuItems`: все контроллеры опрошены, сортировка по priority
     - [ ] `collectAllHelpDescriptions`: все контроллеры опрошены, null отфильтрован
     - [ ] `handleWelcome`: делегирует в AppController.handleWelcome() если контроллер 'app' существует
     - [ ] `handleHelp`: делегирует в AppController.handleHelpMessage() если контроллер 'app' существует
 
-- [ ] Task: Реализовать MenuAggregator в BotRouter
+- [x] Task: Реализовать MenuAggregator в BotRouter (67ee75d)
     - [ ] Реализовать `collectAllMenuItems(actor)`
     - [ ] Реализовать `collectAllHelpDescriptions(actor)`
 
-- [ ] Task: Реализовать handleWelcome и handleHelp в BotRouter
+- [x] Task: Реализовать handleWelcome и handleHelp в BotRouter (67ee75d)
     - [ ] `handleWelcome`: делегирует в контроллер 'app' (AppController)
     - [ ] `handleHelp`: делегирует в контроллер 'app' (AppController)
     - [ ] Если контроллер 'app' не найден — fallback ответ
 
-- [ ] Task: Убрать спецобработку app:main-menu из handleCallback и поле mainMenu
+- [x] Task: Убрать спецобработку app:main-menu из handleCallback и поле mainMenu (67ee75d)
     - [ ] Удалить блок `if (data === 'app:main-menu')`
     - [ ] Удалить `mainMenu` из BotResponse и связанную логику в `handleCallback`
     - [ ] `app:main-menu` теперь маршрутизируется в AppController как обычный callback
