@@ -42,7 +42,7 @@
 
 ## Фаза 3: AppController — системные сообщения и кнопки
 
-- [ ] Task: Написать юнит-тесты для AppController
+- [x] Task: Написать юнит-тесты для AppController (1274d98)
     - [ ] `handleStart`: возвращает кнопки «Сообщество школы» (priority 100) и «Помощь» (priority 90)
     - [ ] `handleHelpStart`: возвращает описание кнопки сообщества
     - [ ] `handleWelcome`: возвращает BotResponse с приветствием и клавиатурой
@@ -50,33 +50,33 @@
     - [ ] `handleCallback('main-menu', ...)`: клавиатура без полного приветствия (текст «Выберите действие:»)
     - [ ] `handleCallback('help', ...)`: вызывает handleHelpMessage
 
-- [ ] Task: Реализовать handleWelcome в AppController
+- [x] Task: Реализовать handleWelcome в AppController (1274d98)
     - [ ] Формирует текст приветствия из FR4
     - [ ] Собирает кнопки через `menuAggregator.collectAllMenuItems()`
     - [ ] Возвращает BotResponse с sendMessage (текст + keyboard)
 
-- [ ] Task: Реализовать handleHelpMessage в AppController
+- [x] Task: Реализовать handleHelpMessage в AppController (1274d98)
     - [ ] Формирует заголовок-инструкцию из FR5
     - [ ] Собирает описания через `menuAggregator.collectAllHelpDescriptions()`
     - [ ] Склеивает в один текст, возвращает BotResponse
 
-- [ ] Task: Реализовать handleCallback для app:main-menu и app:help
+- [x] Task: Реализовать handleCallback для app:main-menu и app:help (1274d98)
     - [ ] `main-menu` → вызывает `handleWelcome` с кратким текстом «Выберите действие:»
     - [ ] `help` → вызывает `handleHelpMessage`
 
-- [ ] Task: Интегрировать MenuAggregator в AppController
+- [x] Task: Интегрировать MenuAggregator в AppController (1274d98)
     - [ ] Добавить поле `menuAggregator: MenuAggregator`
     - [ ] Переопределить `init()` для получения MenuAggregator от BotRouter
 
 ## Фаза 4: connectRouter — чистый адаптер
 
-- [ ] Task: Обновить юнит-тесты connectRouter
+- [x] Task: Обновить юнит-тесты connectRouter (8f96167)
     - [ ] `/start` вызывает `router.handleWelcome()` и `executeResponses`
     - [ ] `/help` вызывает `router.handleHelp()` и `executeResponses`
     - [ ] `callback_query` не содержит спецобработки `response.mainMenu`
     - [ ] Пользовательские тексты не захардкожены в connectRouter
 
-- [ ] Task: Переписать connectRouter
+- [x] Task: Переписать connectRouter (8f96167)
     - [ ] `/start` — удалить формирование текста и InlineKeyboard, использовать `router.handleWelcome()`
     - [ ] `/help` — удалить склейку текста, использовать `router.handleHelp()`
     - [ ] `callback_query` — удалить блок `if (response.mainMenu)`
@@ -84,13 +84,13 @@
 
 ## Фаза 5: Интеграционные и E2E тесты
 
-- [ ] Task: Написать интеграционные тесты для главного меню в tests/bot
+- [x] Task: Написать интеграционные тесты для главного меню в tests/bot (2d3c208)
     - [ ] Тест: `/start` возвращает приветствие и клавиатуру с кнопками
     - [ ] Тест: `/help` возвращает инструкцию и описания
     - [ ] Тест: кнопка «Помощь» (callback `app:help`) показывает инструкцию
     - [ ] Тест: кнопка «Сообщество школы» (url-кнопка) присутствует в клавиатуре
 
-- [ ] Task: Написать E2E тест пользовательского сценария
+- [x] Task: Написать E2E тест пользовательского сценария (2d3c208)
     - [ ] Полный сценарий: `/start` → видит приветствие → нажимает «Помощь» → видит инструкцию → возврат в меню
 
 ## Фаза 6: Финальная проверка и ручная верификация

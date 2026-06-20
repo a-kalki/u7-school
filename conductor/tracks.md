@@ -12,5 +12,5 @@
 
 ---
 
-- [ ] **Track: Рефакторинг главного меню бота — AppController, MenuAggregator, /start, /help**
+- [~] **Track: Рефакторинг главного меню бота — AppController, MenuAggregator, /start, /help**
 *Link: [./tracks/bot_menu_refactor_20260616/](./tracks/bot_menu_refactor_20260616/)*
