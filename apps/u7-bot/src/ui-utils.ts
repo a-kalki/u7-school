@@ -19,7 +19,11 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
     const keyboard = edit.keyboard
       ? new InlineKeyboard(
           edit.keyboard.rows.map((row) =>
-            row.map((btn) => ({ text: btn.text, callback_data: btn.code })),
+            row.map((btn) =>
+              btn.url
+                ? { text: btn.text, url: btn.url }
+                : { text: btn.text, callback_data: btn.code },
+            ),
           ),
         )
       : undefined;
@@ -77,7 +81,11 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
     const keyboard = send.keyboard
       ? new InlineKeyboard(
           send.keyboard.rows.map((row) =>
-            row.map((btn) => ({ text: btn.text, callback_data: btn.code })),
+            row.map((btn) =>
+              btn.url
+                ? { text: btn.text, url: btn.url }
+                : { text: btn.text, callback_data: btn.code },
+            ),
           ),
         )
       : undefined;

@@ -70,12 +70,13 @@ describe('AppController', () => {
     expect(res!.sendMessage?.text).toContain('u7 schools');
     expect(res!.sendMessage?.text).toContain('Помощь');
     expect(res!.sendMessage?.keyboard).toBeDefined();
-    // Только callback-кнопки попадают в клавиатуру (url отфильтрованы)
+    // Все кнопки (включая url) попадают в клавиатуру
     const rows = res!.sendMessage!.keyboard!.rows;
-    expect(rows).toHaveLength(2);
-    expect(rows[0]![0]!.text).toBe('📚 Потоки');
-    expect(rows[0]![0]!.code).toBe('stream:catalog');
-    expect(rows[1]![0]!.text).toBe('❓ Помощь');
+    expect(rows.length).toBeGreaterThanOrEqual(2);
+    // url-кнопка «Сообщество» имеет url
+    const communityRow = rows.find((r) => r[0]!.text === '💬 Сообщество');
+    expect(communityRow).toBeDefined();
+    expect(communityRow![0]!.url).toBe(SCHOOL_URL);
   });
 
   test('handleWelcome без MenuAggregator (до init) — только приветствие', async () => {

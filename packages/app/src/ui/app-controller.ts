@@ -151,18 +151,21 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
       ? await this.#menuAggregator.collectAllMenuItems(actor)
       : [];
 
-    // Фильтруем только callback-кнопки для клавиатуры
-    const callbackItems = items.filter(
-      (i): i is { kind: 'callback'; text: string; action: string; priority: number } =>
-        i.kind === 'callback',
-    );
+    // Формируем клавиатуру: каждая кнопка в отдельном ряду
+    const rows = items
+      .filter((i) => i.kind === 'callback' || i.kind === 'url')
+      .map((i) => [
+        i.kind === 'url'
+          ? { text: i.text, code: '', url: i.url }
+          : {
+              text: i.text,
+              code: (i as { action: string }).action,
+            },
+      ]);
 
     const keyboard =
-      callbackItems.length > 0
-        ? {
-            rows: callbackItems.map((i) => [{ text: i.text, code: i.action }]),
-            isMultiple: false as const,
-          }
+      rows.length > 0
+        ? { rows, isMultiple: false as const }
         : undefined;
 
     return {

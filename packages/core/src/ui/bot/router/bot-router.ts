@@ -308,15 +308,15 @@ export class BotRouter<
 
   /** Преобразует MainMenuAction[] в KeyboardDescription */
   #toKeyboard(items: MainMenuAction[]): import('../types').KeyboardDescription | null {
-    const callbackItems = items.filter(
-      (i): i is { kind: 'callback'; text: string; action: string; priority: number } =>
-        i.kind === 'callback',
-    );
-    if (callbackItems.length === 0) return null;
-    return {
-      rows: callbackItems.map((i) => [{ text: i.text, code: i.action }]),
-      isMultiple: false,
-    };
+    const rows = items
+      .filter((i) => i.kind === 'callback' || i.kind === 'url')
+      .map((i) => [
+        i.kind === 'url'
+          ? { text: i.text, code: '', url: i.url }
+          : { text: i.text, code: i.action },
+      ]);
+    if (rows.length === 0) return null;
+    return { rows, isMultiple: false };
   }
 
   /** Применяет captureInput/releaseInput к сессии */
