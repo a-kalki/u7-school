@@ -38,8 +38,6 @@ export interface BotResponse {
    * По умолчанию (undefined) — клавиатура убирается.
    * Установить true только если контекст предыдущих кнопок всё ещё актуален. */
   keepPrevKeyboard?: boolean;
-  /** Главное меню — действия для сборки клавиатуры (app:main-menu) */
-  mainMenu?: { actions: MainMenuAction[] };
   /** Захват ввода — следующие сообщения пользователя пойдут в указанный обработчик */
   captureInput?: { path: string; context?: unknown; ttlSeconds?: number };
   /** Освобождение захваченного ввода */
@@ -83,3 +81,10 @@ export type BotUpdate =
   | { type: 'document'; fileId: string; telegramId: number }
   | { type: 'photo'; fileId: string; telegramId: number }
   | { type: 'voice'; fileId: string; telegramId: number };
+
+/** Агрегатор пунктов меню от всех контроллеров.
+ * Реализуется BotRouter, передаётся в AppController. */
+export interface MenuAggregator<TActor = unknown> {
+  collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
+  collectAllHelpDescriptions(actor: TActor): Promise<string[]>;
+}
