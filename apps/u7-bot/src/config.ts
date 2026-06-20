@@ -6,12 +6,9 @@ import * as v from 'valibot';
  */
 export const BotConfigSchema = v.object({
   botToken: v.pipe(v.string(), v.nonEmpty('BOT_TOKEN не может быть пустым')),
-  newsGroupUrl: v.pipe(
+  schoolGroupUrl: v.pipe(
     v.string(),
-    v.nonEmpty('NEWS_GROUP_URL не может быть пустым'),
-  ),
-  schoolGroupUrl: v.optional(
-    v.pipe(v.string(), v.nonEmpty('SCHOOL_GROUP_URL не может быть пустым')),
+    v.nonEmpty('SCHOOL_GROUP_URL не может быть пустым'),
   ),
   botAdminUuid: v.pipe(
     v.string(),
@@ -62,7 +59,7 @@ export type BotConfig = v.InferOutput<typeof BotConfigSchema>;
 export function loadConfig(): BotConfig {
   const raw = {
     botToken: process.env.BOT_TOKEN,
-    newsGroupUrl: process.env.NEWS_GROUP_URL,
+    schoolGroupUrl: process.env.SCHOOL_GROUP_URL,
     botAdminUuid: process.env.BOT_ADMIN_UUID,
     botMode: process.env.BOT_MODE,
     webhookUrl: process.env.WEBHOOK_URL,
@@ -70,7 +67,6 @@ export function loadConfig(): BotConfig {
       ? Number(process.env.WEBHOOK_PORT)
       : undefined,
     webhookPath: process.env.WEBHOOK_PATH,
-    schoolGroupUrl: process.env.SCHOOL_GROUP_URL,
     adminTelegramIds: process.env.ADMIN_TELEGRAM_IDS,
     loggerBotToken: process.env.LOGGER_BOT_TOKEN,
     dbDir: process.env.DB_DIR,

@@ -6,14 +6,14 @@ describe('loadConfig', () => {
     const originalEnv = { ...process.env };
 
     process.env.BOT_TOKEN = 'test-token';
-    process.env.NEWS_GROUP_URL = 'https://t.me/test';
+    process.env.SCHOOL_GROUP_URL = 'https://t.me/test';
     process.env.BOT_ADMIN_UUID = '550e8400-e29b-41d4-a716-446655440000';
     process.env.DB_DIR = './test-data';
 
     const config = loadConfig();
 
     expect(config.botToken).toBe('test-token');
-    expect(config.newsGroupUrl).toBe('https://t.me/test');
+    expect(config.schoolGroupUrl).toBe('https://t.me/test');
     expect(config.botAdminUuid).toBe('550e8400-e29b-41d4-a716-446655440000');
     expect(config.dbDir).toBe('./test-data');
 
@@ -24,7 +24,7 @@ describe('loadConfig', () => {
     const originalEnv = { ...process.env };
 
     process.env.BOT_TOKEN = 'test-token';
-    process.env.NEWS_GROUP_URL = 'https://t.me/test';
+    process.env.SCHOOL_GROUP_URL = 'https://t.me/test';
     process.env.BOT_ADMIN_UUID = '550e8400-e29b-41d4-a716-446655440000';
     delete process.env.DB_DIR;
 
@@ -39,7 +39,7 @@ describe('loadConfig', () => {
     const originalEnv = { ...process.env };
 
     delete process.env.BOT_TOKEN;
-    process.env.NEWS_GROUP_URL = 'https://t.me/test';
+    process.env.SCHOOL_GROUP_URL = 'https://t.me/test';
     process.env.BOT_ADMIN_UUID = '550e8400-e29b-41d4-a716-446655440000';
 
     expect(() => loadConfig()).toThrow();
@@ -51,7 +51,7 @@ describe('loadConfig', () => {
     const originalEnv = { ...process.env };
 
     process.env.BOT_TOKEN = 'test-token';
-    process.env.NEWS_GROUP_URL = 'https://t.me/test';
+    process.env.SCHOOL_GROUP_URL = 'https://t.me/test';
     process.env.BOT_ADMIN_UUID = 'not-a-uuid';
 
     expect(() => loadConfig()).toThrow();
