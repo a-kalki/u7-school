@@ -1,0 +1,7 @@
+Фаза 1: MenuAggregator и BotController
+
+Изменения:
+- types.ts: добавлен интерфейс MenuAggregator<TActor>, убран mainMenu из BotResponse
+- BotController: проверено — методы handleGreeting/handleHelpHeader отсутствуют (не нужны в варианте Б)
+
+Причина: подготовка типов для делегирования сбора меню из BotRouter в AppController.
