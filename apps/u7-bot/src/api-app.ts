@@ -124,6 +124,9 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   // Каскадная инициализация: BotRouter → контроллеры → стори
   router.init(apiApp);
 
+  // Передаём MenuAggregator в AppController
+  appController.initMenuAggregator(router);
+
   return {
     apiApp,
     userFacade,

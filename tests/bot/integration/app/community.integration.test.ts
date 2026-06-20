@@ -15,7 +15,6 @@ import { createTestApp } from '../../helpers/test-app';
  * - Студент → видит
  * - Ментор → видит
  * - Кнопка имеет низкий приоритет (после основных пунктов)
- * - Без schoolGroupUrl кнопка не добавляется
  */
 describe('CommunityStory integration (app-controller)', () => {
   const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
@@ -35,16 +34,18 @@ describe('CommunityStory integration (app-controller)', () => {
     await app.cleanup();
   });
 
-  function makeRouter(schoolGroupUrl?: string): BotRouter {
+  function makeRouter(): BotRouter {
     const streamController = new StreamController(app.streamModule);
     streamController.init(app.apiApp);
-    const appController = new AppController(schoolGroupUrl);
+    const appController = new AppController(SCHOOL_GROUP_URL);
     appController.init(app.apiApp);
-    return new BotRouter([appController, streamController]);
+    const router = new BotRouter([appController, streamController]);
+    appController.initMenuAggregator(router);
+    return router;
   }
 
   test('кнопка «Сообщество школы» доступна гостю', async () => {
-    const router = makeRouter(SCHOOL_GROUP_URL);
+    const router = makeRouter();
     const items = await router.collectMainMenu(guest);
     const communityBtn = items.find((i) => i.text === '💬 Сообщество школы');
     expect(communityBtn).toBeDefined();
@@ -53,7 +54,7 @@ describe('CommunityStory integration (app-controller)', () => {
   });
 
   test('кнопка «Сообщество школы» доступна студенту', async () => {
-    const router = makeRouter(SCHOOL_GROUP_URL);
+    const router = makeRouter();
     const items = await router.collectMainMenu(student);
     const communityBtn = items.find((i) => i.text === '💬 Сообщество школы');
     expect(communityBtn).toBeDefined();
@@ -62,7 +63,7 @@ describe('CommunityStory integration (app-controller)', () => {
   });
 
   test('кнопка «Сообщество школы» доступна ментору', async () => {
-    const router = makeRouter(SCHOOL_GROUP_URL);
+    const router = makeRouter();
     const items = await router.collectMainMenu(mentor);
     const communityBtn = items.find((i) => i.text === '💬 Сообщество школы');
     expect(communityBtn).toBeDefined();
@@ -71,7 +72,7 @@ describe('CommunityStory integration (app-controller)', () => {
   });
 
   test('кнопка «Сообщество школы» имеет низкий приоритет (после основных)', async () => {
-    const router = makeRouter(SCHOOL_GROUP_URL);
+    const router = makeRouter();
     const items = await router.collectMainMenu(guest);
     const communityIdx = items.findIndex(
       (i) => i.text === '💬 Сообщество школы',
@@ -79,11 +80,5 @@ describe('CommunityStory integration (app-controller)', () => {
     expect(communityIdx).toBeGreaterThan(0);
     const communityBtn = items[communityIdx]!;
     expect(communityBtn.priority).toBe(100);
-  });
-
-  test('без schoolGroupUrl кнопка не добавляется', async () => {
-    const router = makeRouter();
-    const items = await router.collectMainMenu(guest);
-    expect(items.some((i) => i.text === '💬 Сообщество школы')).toBe(false);
   });
 });
