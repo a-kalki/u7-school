@@ -36,14 +36,37 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
   // Чтобы сохранить — установить keepPrevKeyboard: true
   if (res.keepPrevKeyboard !== true && ctx.session.lastBotMessage) {
     const prev = ctx.session.lastBotMessage;
+
+    let updatedText = prev.text;
+
+    // Если нажата inline-кнопка — ищем её текст и добавляем «Вы выбрали: ...»
+    if (ctx.callbackQuery) {
+      const data = ctx.callbackQuery.data;
+      const markup = ctx.callbackQuery.message?.reply_markup;
+      if (markup && 'inline_keyboard' in markup) {
+        for (const row of markup.inline_keyboard) {
+          for (const btn of row) {
+            if (btn.callback_data === data) {
+              const label =
+                prev.parseMode === 'MarkdownV2'
+                  ? `*Вы выбрали:* «${btn.text}»`
+                  : `Вы выбрали: «${btn.text}»`;
+              updatedText = `${prev.text}\n\n—————\n${label}`;
+              break;
+            }
+          }
+        }
+      }
+    }
+
     await ctx.api
-      .editMessageText(ctx.chat?.id ?? 0, prev.messageId, prev.text, {
+      .editMessageText(ctx.chat?.id ?? 0, prev.messageId, updatedText, {
         reply_markup: undefined,
         parse_mode: prev.parseMode,
       })
       .catch(() => {});
     // Обновляем lastBotMessage: клавиатура больше не актуальна
-    ctx.session.lastBotMessage = { ...prev, keyboard: undefined };
+    ctx.session.lastBotMessage = { ...prev, keyboard: undefined, text: updatedText };
   }
 
   // 2. Затем отправляем новые сообщения
