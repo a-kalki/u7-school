@@ -1,7 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/app/ui';
-import type { SessionData } from '@u7-scl/core/ui';
 import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../helpers/test-app';
@@ -10,9 +9,10 @@ import { createTestApp } from '../helpers/test-app';
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
 /**
- * E2E: Главное меню — кнопка «Сообщество школы», «Назад», /help.
+ * Интеграционные тесты: главное меню, /start, /help.
+ * Проверяет сквозное взаимодействие AppController → BotRouter → контроллеры.
  */
-describe('Главное меню (E2E)', () => {
+describe('Главное меню (интеграционные)', () => {
   let app: TestApp;
   let router: BotRouter;
   let guest: User;
@@ -20,12 +20,13 @@ describe('Главное меню (E2E)', () => {
   let mentor: User;
 
   beforeAll(async () => {
-    app = await createTestApp('e2e-main-menu');
+    app = await createTestApp('main-menu-int');
     const streamController = new StreamController(app.streamModule);
     const appController = new AppController(SCHOOL_GROUP_URL);
     streamController.init(app.apiApp);
     appController.init(app.apiApp);
     router = new BotRouter([appController, streamController]);
+    appController.initMenuAggregator(router);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
@@ -62,46 +63,72 @@ describe('Главное меню (E2E)', () => {
     expect(last.text).toBe('💬 Сообщество школы');
   });
 
-  // ── Команда /help ──
+  // ── Кнопка «Помощь» ──
 
-  test('/help возвращает описания пунктов меню', async () => {
-    const descriptions = await router.collectHelp(guest);
-    expect(descriptions.length).toBeGreaterThanOrEqual(2);
-    expect(descriptions.some((d) => d.includes('Наши потоки'))).toBe(true);
-    expect(descriptions.some((d) => d.includes('Сообщество школы'))).toBe(true);
+  test('гость видит кнопку «Помощь» в главном меню', async () => {
+    const menu = await router.collectMainMenu(guest);
+    const btn = menu.find((i) => i.text === '❓ Помощь');
+    expect(btn).toBeDefined();
+    expect(btn!.kind).toBe('callback');
+    if (btn!.kind === 'callback') {
+      expect(btn!.action).toBe('app:help');
+    }
+    expect(btn!.priority).toBe(90);
   });
 
-  test('/help у гостя не содержит «Моя учёба»', async () => {
-    const descriptions = await router.collectHelp(guest);
-    expect(descriptions.some((d) => d.includes('Моя учёба'))).toBe(false);
+  // ── handleWelcome (/start) ──
+
+  test('handleWelcome возвращает приветствие с клавиатурой', async () => {
+    const response = await router.handleWelcome(guest);
+    expect(response.sendMessage?.text).toContain('Привет');
+    expect(response.sendMessage?.text).toContain('u7 schools');
+    expect(response.sendMessage?.text).toContain('Помощь');
+    expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
-  // ── Кнопка «Назад» (проверяется в router.test.ts, здесь — косвенно через меню) ──
+  test('handleWelcome для ментора', async () => {
+    const response = await router.handleWelcome(mentor);
+    expect(response.sendMessage?.text).toContain('Привет');
+    expect(response.sendMessage?.keyboard).toBeDefined();
+  });
 
-  test('в главном меню нет кнопки «Назад» (activeHandler = null)', async () => {
+  // ── handleHelp (/help) ──
+
+  test('handleHelp возвращает инструкцию и описания', async () => {
+    const response = await router.handleHelp(guest);
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Как со мной работать?');
+    expect(text).toContain('Наши потоки');
+    expect(text).toContain('Сообщество школы');
+    expect(text).toContain('/cancel');
+  });
+
+  // ── app:main-menu через handleCallback ──
+
+  test('app:main-menu возвращает клавиатуру без приветствия', async () => {
+    const response = await router.handleCallback('app:main-menu', guest, {
+      activeHandler: null,
+    });
+
+    expect(response.sendMessage?.text).toBe('Выберите действие:');
+    expect(response.sendMessage?.text).not.toContain('Привет');
+    expect(response.sendMessage?.keyboard).toBeDefined();
+  });
+
+  // ── app:help через handleCallback ──
+
+  test('app:help возвращает инструкцию', async () => {
+    const response = await router.handleCallback('app:help', guest, {
+      activeHandler: null,
+    });
+
+    expect(response.sendMessage?.text).toContain('Как со мной работать?');
+  });
+
+  // ── В главном меню нет кнопки «Назад» ──
+
+  test('в главном меню нет кнопки «Назад» (guest)', async () => {
     const menu = await router.collectMainMenu(guest);
     expect(menu.some((i) => i.text.includes('Назад'))).toBe(false);
-  });
-
-  // ── app:main-menu ──
-
-  test('app:main-menu пересобирает меню без сброса activeHandler', async () => {
-    const session: SessionData = {
-      activeHandler: { path: 'stream/some-path' },
-    };
-
-    const response = await router.handleCallback(
-      'app:main-menu',
-      guest,
-      session,
-    );
-
-    // Должен вернуть mainMenu с actions
-    expect(response.mainMenu).toBeDefined();
-    expect(response.mainMenu!.actions.length).toBeGreaterThanOrEqual(1);
-
-    // activeHandler НЕ должен быть сброшен
-    expect(session.activeHandler).not.toBeNull();
-    expect(session.activeHandler!.path).toBe('stream/some-path');
   });
 });
