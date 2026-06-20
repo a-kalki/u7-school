@@ -1,0 +1,7 @@
+Фаза 5: Интеграционные и E2E тесты
+
+Изменения:
+- main-menu.e2e.test.ts: 11 интеграционных тестов (handleWelcome, handleHelp, app:main-menu, app:help, кнопки)
+- community.integration.test.ts: обновлён под новый API
+
+Все 956 тестов проходят.
