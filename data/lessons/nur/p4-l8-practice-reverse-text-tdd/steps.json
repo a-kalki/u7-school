@@ -1,0 +1,44 @@
+[
+  {
+    "uuid": "040de88c-678e-4e59-83cd-1d84bb7854f1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "9a055767-a082-457c-b5ce-25e94331b251",
+    "description": "Постановка задачи: reverseText через TDD",
+    "content": "## Практика: reverseText через TDD\n\nПрактикуем TDD (Test-Driven Development) — пишем тесты ДО реализации.\n\n**Задача:** напиши функцию **`reverseText(str)`**, которая переворачивает строку.\n\n**Примеры:**\n- `reverseText('hello')` → `'olleh'`\n- `reverseText('Алия')` → `'яилА'`\n- `reverseText('')` → `''`\n- `reverseText('а')` → `'а'`\n\n**План (строго TDD):**\n1. Создай файл `reverseText.js` с заглушкой `function reverseText(str) { return ''; }`\n2. Создай `reverseText.test.js` с тестами ДО реализации\n3. Реализуй через цикл (итеративно)\n4. Реализуй через рекурсию (дополнительный вариант)\n5. Проверь, что все тесты проходят",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "bb30887d-1d11-4659-b2bb-bb2a7ad85842",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "9a055767-a082-457c-b5ce-25e94331b251",
+    "description": "Шаг TDD 1: напиши тесты до реализации",
+    "status": "published",
+    "kind": "code",
+    "code": "// 📁 reverseText.test.js\n// Напиши тесты ДО реализации функции!\n// Сейчас все тесты должны падать (RED).\n\nconst { reverseText } = require('./reverseText.js');\n\n// Функция-помощник для тестов\nfunction test(description, fn) {\n    try {\n        fn();\n        console.log('✅', description);\n    } catch (e) {\n        console.log('❌', description, '-', e.message);\n    }\n}\n\n// Тесты (RED — все падают, реализации ещё нет)\ntest('пустая строка', () => {\n    if (reverseText('') !== '') throw new Error('ожидалась пустая строка');\n});\n\ntest('один символ', () => {\n    if (reverseText('а') !== 'а') throw new Error('ожидалось \"а\"');\n});\n\ntest('слово из латиницы', () => {\n    if (reverseText('hello') !== 'olleh') throw new Error('ожидалось \"olleh\"');\n});\n\ntest('слово из кириллицы', () => {\n    if (reverseText('Алия') !== 'яилА') throw new Error('ожидалось \"яилА\"');\n});\n\ntest('палиндром', () => {\n    if (reverseText('казак') !== 'казак') throw new Error('ожидалось \"казак\"');\n});\n\nconsole.log('\\nВсе тесты написаны. Теперь реализуй функцию!');\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "b0b46058-5520-4cbc-bc07-b3d02cbb21df",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "9a055767-a082-457c-b5ce-25e94331b251",
+    "description": "Шаг TDD 2: реализуй через цикл (GREEN)",
+    "status": "published",
+    "kind": "code",
+    "code": "// 📁 reverseText.js — итеративная реализация\n\nfunction reverseText(str) {\n    let result = '';\n    // Идём с конца строки к началу\n    for (let i = str.length - 1; i >= 0; i--) {\n        result += str[i];\n    }\n    return result;\n}\n\n// Запусти тесты из шага 1 — все должны стать зелёными (GREEN)\n\nconsole.log(reverseText(''));       // ''\nconsole.log(reverseText('а'));      // 'а'\nconsole.log(reverseText('hello'));  // 'olleh'\nconsole.log(reverseText('Алия'));   // 'яилА'\nconsole.log(reverseText('казак'));  // 'казак'\n\nmodule.exports = { reverseText };\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "cf640fad-bc8d-44cc-a112-180e6e58d4a9",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "9a055767-a082-457c-b5ce-25e94331b251",
+    "description": "Шаг TDD 3: рекурсивная версия и рефакторинг",
+    "content": "Отлично! Итеративная версия работает. Теперь попробуй другой подход.\n\n**Задание:** напиши рекурсивную версию `reverseText`:\n- База: пустая строка → вернуть `''`\n- Шаг: `reverseText(str)` = `reverseText(str.slice(1)) + str[0]`\n\nЗапусти те же тесты — они должны проходить.\n\n**Подумай:**\n1. Какая версия короче?\n2. Какая эффективнее по памяти?\n3. Какая понятнее?\n4. Что будет при `reverseText('очень длинная строка...')` в рекурсивной версии?\n5. В чём смысл TDD? Что даёт подход «сначала тесты, потом код»?",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  }
+]

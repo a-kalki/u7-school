@@ -468,8 +468,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 14,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "d1654fe3-26c1-4c1b-bb22-eaa6e074435b",
+      "aea423d0-ebad-4fc4-a252-98700861b5c6",
+      "23904826-d5b1-4550-adfe-7e2dd0d20273",
+      "a0b97391-cd87-4462-b7d3-c5407ecdf9d2"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "0f46b1eb-4078-4e25-ba2d-3176ec1f1bbc",
@@ -479,19 +485,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "9809147c-c662-4e82-8011-855bc995c632",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "title": "Анонимные и стрелочные функции",
-    "additional": "Function Expression (анонимные), стрелочные функции (краткий синтаксис, неявный return), отличия от function (this, arguments, new)",
-    "status": "published",
-    "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "daddb826-35ca-4e99-808a-fbf27ac9bc8c",
+      "af0e556b-1f84-4b39-b854-e05d5d41b45d",
+      "09ff2763-0153-4d53-baf7-448b14963946",
+      "49fb9123-8dfe-4aad-b870-79f377508f3b"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
@@ -501,8 +502,15 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "01a61831-e507-4a41-a43c-6ba0fe1dd030",
+      "0230b613-b40d-4e67-9b6c-b047e2906285",
+      "7648240d-8adc-4073-8c2f-e42692b6892b",
+      "953f45ca-928b-4304-bd61-0e536a6554cf",
+      "78ca4e92-2243-4844-8cd1-977ec5f22b2d"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
@@ -512,8 +520,13 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "0b3acca3-d8e6-4339-a3c6-aaa066cfc26c",
+      "f181d6d6-3725-4785-a397-0b9f35098399",
+      "4b7323cc-c499-46f6-999f-82eb530fbb41"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
@@ -523,8 +536,16 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "8879e4c2-6631-4f57-9854-f5a1acfc26e6",
+      "074a16fc-ad52-46fb-9342-550660e1c66e",
+      "fa8080d9-ba25-46f8-a431-bc4f4d941cec",
+      "2f9d35f2-c94e-4b49-b043-9b4d0c72d898",
+      "92f34ce1-08d0-445e-966a-1af35b7015e8",
+      "9acec175-aee1-40e1-912b-17a4e978ee67"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "edf3078d-8878-4aae-9028-6199cd971675",
@@ -534,8 +555,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 120,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "735086fd-7929-439d-a80d-3e5ba7b5c948",
+      "4449b88c-74ee-488d-9965-70f0cda772a1",
+      "715a8d0f-d1af-4131-97bc-3ca0e17aa780",
+      "594362ef-32c8-4c35-97a3-58af8ae884ef"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "9a055767-a082-457c-b5ce-25e94331b251",
@@ -545,8 +572,14 @@
     "status": "published",
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 40,
-    "stepIds": [],
-    "mentorStepIds": []
+    "stepIds": [
+      "040de88c-678e-4e59-83cd-1d84bb7854f1",
+      "bb30887d-1d11-4659-b2bb-bb2a7ad85842",
+      "b0b46058-5520-4cbc-bc07-b3d02cbb21df",
+      "cf640fad-bc8d-44cc-a112-180e6e58d4a9"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   },
   {
     "uuid": "6f9fa666-fa9a-46de-b89d-6b7140813d8f",
@@ -565,5 +598,19 @@
       "66fbd5a7-a272-4a81-b879-6828d2c87140"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "20c2989c-4bb0-4055-bbb7-b46568ef3ab7",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Мастер-класс: рисуем пирамиду",
+    "additional": "Ментор показывает построение функции buildPyramid(n) вживую: приём пирамиды через пробелы и #, постановка задачи, циклы, тесты. Студенты повторяют за ментором.",
+    "status": "published",
+    "createdAt": "2026-06-16T12:00",
+    "estimatedMinutes": 45,
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-16T12:00"
   }
 ]

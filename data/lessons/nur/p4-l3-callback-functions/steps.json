@@ -1,0 +1,55 @@
+[
+  {
+    "uuid": "01a61831-e507-4a41-a43c-6ba0fe1dd030",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+    "description": "Изучаем колбэки",
+    "content": "Изучи тему «Колбэки»:\n\n👉 **[Колбэки](https://learn.javascript.ru/callbacks)**\n\n**Ключевые темы:**\n- Что такое callback: функция, переданная как аргумент\n- Синхронные колбэки: `arr.forEach`, `arr.map`, `arr.filter`, `arr.reduce`\n- Асинхронные колбэки: `setTimeout`, загрузка скриптов\n- Error-first callback (колбэк с первым аргументом-ошибкой)\n- Callback Hell («ад колбэков») и способы решения",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "0230b613-b40d-4e67-9b6c-b047e2906285",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+    "description": "Самостоятельно: синхронный колбэк — processArray",
+    "status": "published",
+    "kind": "code",
+    "code": "// Напиши функцию processArray(arr, callback).\n// Она проходит по всем элементам массива и вызывает callback для каждого.\n// callback принимает два аргумента: элемент и его индекс.\n// Это СИНХРОННЫЙ колбэк — он выполняется сразу, в том же потоке.\n\nfunction processArray(arr, callback) {\n    // Твой код здесь\n}\n\nconsole.log('До вызова');\nprocessArray(['Алия', 'Бек', 'Чингиз'], function(name, index) {\n    console.log(index + ': ' + name);\n});\nconsole.log('После вызова');\n\n// Посмотри на порядок вывода. Где «После вызова» относительно имён?\n// Теперь со стрелочной функцией:\nprocessArray([10, 20, 30], (num, i) => {\n    console.log('Элемент ' + i + ' = ' + (num * 2));\n});\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "7648240d-8adc-4073-8c2f-e42692b6892b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+    "description": "Самостоятельно: синхронный vs асинхронный колбэк",
+    "status": "published",
+    "kind": "code",
+    "code": "// Две одинаковые функции: принимают колбэк и вызывают его.\n// Разница только в том, КОГДА вызывается колбэк.\n\nfunction doSyncWork(cb) {\n    cb('результат sync');            // вызывается сразу\n}\n\nfunction doAsyncWork(cb) {\n    setTimeout(function() {\n        cb('результат async');       // вызывается через 1 сек\n    }, 1000);\n}\n\n// Одна и та же функция-колбэк\nfunction printResult(res) {\n    console.log('  ' + res);\n}\n\n// Синхронный вызов\nconsole.log('до sync');\ndoSyncWork(printResult);\nconsole.log('после sync');\n\nconsole.log('---');\n\n// Асинхронный вызов\nconsole.log('до async');\ndoAsyncWork(printResult);\nconsole.log('после async');\n\n// Ответь:\n// 1. Где «результат sync» относительно «после sync»?\n//    А «результат async» относительно «после async»?\n// 2. Функция printResult одна и та же. Почему в одном случае\n//    она вызвалась сразу, а в другом — после всего?",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "953f45ca-928b-4304-bd61-0e536a6554cf",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+    "description": "Самостоятельно: методы массива с колбэками",
+    "status": "published",
+    "kind": "code",
+    "code": "// Используя методы массива, реши задачи ниже.\n// Все колбэки пишив стрелочном синтаксисе.\n\nlet numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n\n// 1. forEach: выведи каждый элемент, умноженный на 2\n\n// 2. map: создай массив квадратов чисел\n\n// 3. filter: создай массив чисел > 5\n\n// 4. find: найди первое число, которое делится на 3 и на 2 одновременно\n\n// 5. reduce: посчитай сумму всех чисел\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "78ca4e92-2243-4844-8cd1-977ec5f22b2d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
+    "description": "Самостоятельно: исправь Callback Hell",
+    "content": "Посмотри на код ниже — это классический Callback Hell:\n\n```js\nloadScript('1.js', function(error, script) {\n  if (error) handleError(error);\n  else {\n    loadScript('2.js', function(error, script) {\n      if (error) handleError(error);\n      else {\n        loadScript('3.js', function(error, script) {\n          if (error) handleError(error);\n          else {\n            console.log('Все скрипты загружены');\n          }\n        });\n      }\n    });\n  }\n});\n```\n\nПерепиши этот код, используя **именованные функции** для каждого шага (метод 1 из конспекта).\n\nПодумай:\n- Стал ли код читаемее?\n- Какие недостатки у такого подхода?\n- Что такое «промисы» и как они решают эту проблему? (Загляни вперёд, если интересно.)",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  }
+]

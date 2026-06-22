@@ -1,0 +1,44 @@
+[
+  {
+    "uuid": "d1654fe3-26c1-4c1b-bb22-eaa6e074435b",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
+    "description": "Видео: Аргументы, передача по значению и ссылке",
+    "content": "Посмотри видео «Функции: аргументы, передача по значению и ссылке» по ссылке:\n\n👉 [Функции аргументы передача по значению и ссылке.mp4](https://drive.google.com/file/d/1DRstUzQQF0cs2ZgtaAIrwhtzFO3Ht96W)\n\nИз этого видео ты узнаешь:\n- Чем параметры отличаются от аргументов\n- Что будет, если пропустить аргумент при вызове\n- Как работают простые типы (передача по значению)\n- Как работают сложные типы (передача по ссылке)",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "aea423d0-ebad-4fc4-a252-98700861b5c6",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
+    "description": "Самостоятельно: что выведет код?",
+    "status": "published",
+    "kind": "code",
+    "code": "// Что выведет каждая строка console.log? Объясни почему.\n// Проверь себя, выполнив код.\n\nfunction changeValues(num, obj) {\n    num = num + 10;\n    obj.value = obj.value + 10;\n}\n\nlet a = 5;\nlet b = { value: 5 };\n\nchangeValues(a, b);\n\nconsole.log('a:', a);\nconsole.log('b.value:', b.value);\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "23904826-d5b1-4550-adfe-7e2dd0d20273",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
+    "description": "Самостоятельно: напиши функцию updateSalary",
+    "status": "published",
+    "kind": "code",
+    "code": "// Напиши функцию updateSalary(employee, bonusPercent).\n// employee — объект { name, salary }.\n// bonusPercent — число (процент надбавки, например 10).\n// Функция должна увеличить salary на указанный процент\n// и вернуть изменённый объект.\n//\n// Проверь, изменился ли оригинальный объект после вызова.\n\nfunction updateSalary(employee, bonusPercent) {\n    // Твой код здесь\n}\n\nlet emp = { name: 'Алия', salary: 100000 };\nlet updated = updateSalary(emp, 10);\n\nconsole.log('После вызова:');\nconsole.log('emp.salary:', emp.salary);\nconsole.log('updated.salary:', updated.salary);\nconsole.log('Это один и тот же объект?', emp === updated);\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "a0b97391-cd87-4462-b7d3-c5407ecdf9d2",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
+    "description": "Самостоятельно: защита от мутации",
+    "content": "В прошлом задании функция `updateSalary` изменила оригинальный объект — это называется **мутация**.\n\nПодумай и ответь:\n- Почему мутация может быть проблемой в большой программе?\n- Как переписать `updateSalary`, чтобы она **не мутировала** оригинал, а возвращала **новый** объект с обновлённой зарплатой?\n\nНапиши новый вариант функции и проверь, что `emp !== updated`.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  }
+]

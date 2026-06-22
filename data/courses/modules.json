@@ -7,7 +7,12 @@
     "targetAudience": "Новички в программировании, а также те, кто уже знает другой язык и хочет изучить JavaScript дополнительно",
     "goal": "Освоить базовый синтаксис JavaScript и начать писать свои первые программы",
     "result": "Ты будешь знать основной синаксис языка js, уметь применять ее. Понимать как компьютер выполняет код. Напишешь свои первые несложные программы.",
-    "tags": ["js", "javascript", "основы", "новичкам"],
+    "tags": [
+      "js",
+      "javascript",
+      "основы",
+      "новичкам"
+    ],
     "status": "published",
     "projects": [
       {
@@ -67,23 +72,23 @@
       },
       {
         "uuid": "4a945000-1959-4d45-94e9-22f9183f843a",
-        "title": "TDD: рисуем ёлку и reverseText",
-        "goal": "Научиться писать тесты до реализации (TDD) для функций drawTree и reverseText",
-        "result": "Рабочие функции drawTree и reverseText, покрытые тестами",
+        "title": "TDD: пирамида, ёлка и reverseText",
+        "goal": "Научиться писать тесты до реализации (TDD) для функций buildPyramid, drawTree и reverseText",
+        "result": "Рабочие функции buildPyramid, drawTree и reverseText, покрытые тестами",
         "status": "published",
         "lessonIds": [
           "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
           "0f46b1eb-4078-4e25-ba2d-3176ec1f1bbc",
-          "9809147c-c662-4e82-8011-855bc995c632",
           "7d3f22b6-eaeb-4d86-95c7-43d745d1d7f0",
-          "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
           "e7ed6fc7-09b2-4612-a7d8-743e725da626",
+          "23336a43-8f2d-4ebe-9998-d1d0143a6d1b",
+          "20c2989c-4bb0-4055-bbb7-b46568ef3ab7",
           "edf3078d-8878-4aae-9028-6199cd971675",
           "9a055767-a082-457c-b5ce-25e94331b251"
         ]
       }
     ],
     "createdAt": "2026-05-26T16:46",
-    "updatedAt": "2026-06-02T08:12"
+    "updatedAt": "2026-06-16T12:00"
   }
 ]

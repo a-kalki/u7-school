@@ -1,0 +1,44 @@
+[
+  {
+    "uuid": "735086fd-7929-439d-a80d-3e5ba7b5c948",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "edf3078d-8878-4aae-9028-6199cd971675",
+    "description": "Постановка задачи: drawTree",
+    "content": "## Практика: рисуем ёлку в консоли\n\nТеперь, когда ты освоил `buildPyramid`, реши более сложную задачу.\n\nНапиши функцию **`drawTree(height)`**, которая рисует ёлку — несколько пирамид, поставленных друг на друга.\n\n**Требования:**\n- `height` — количество ярусов (пирамидок)\n- Каждый ярус `i` (от 1 до `height`) — это пирамида высотой `i + 1` (первый ярус — 2 ряда, последний — `height + 1` рядов)\n- После всех ярусов добавь «ствол» — одну строку с `#` по центру\n\n**Пример для `drawTree(3)`:**\n```\n   #\n  ###\n #####\n   #\n  ###\n #####\n#######\n   #\n  ###\n #####\n#######\n#########\n   #\n```\n\n**Подсказка:** Используй `buildPyramid(k)` как вспомогательную функцию для каждого яруса.\n\n**План:**\n1. Скопируй `buildPyramid` из предыдущего урока — используй как helper\n2. Создай `drawTree(height)` — цикл по ярусам, для каждого вызывай `buildPyramid(i + 1)`\n3. Добавь ствол\n4. Напиши тесты",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "4449b88c-74ee-488d-9965-70f0cda772a1",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "edf3078d-8878-4aae-9028-6199cd971675",
+    "description": "Создай заглушку и первый тест для drawTree",
+    "status": "published",
+    "kind": "code",
+    "code": "// 📁 tree/drawTree.js\n// Скопируй buildPyramid из pyramid/buildPyramid.js как helper.\n\nfunction buildPyramid(n) {\n    if (n <= 0) return '';\n    let result = '';\n    for (let i = 1; i <= n; i++) {\n        result += ' '.repeat(n - i) + '#'.repeat(2 * i - 1);\n        if (i < n) result += '\\n';\n    }\n    return result;\n}\n\n/**\n * Рисует ёлку из пирамид со стволом.\n * @param {number} height — количество ярусов\n * @returns {string} — ёлка из #\n */\nfunction drawTree(height) {\n    // TODO: реализовать\n    return '';\n}\n\n// 📁 tree/drawTree.test.js\n// Напиши тесты:\n// - drawTree(0) === ''\n// - drawTree(1) — одна пирамида высотой 2 + ствол\n// - drawTree(2) — две пирамиды + ствол\n\nconsole.log('=== Тест drawTree(0) ===');\nconsole.log(JSON.stringify(drawTree(0)));\nconsole.log('Ожидалось: \"\"');\n\nconsole.log('=== Тест drawTree(1) ===');\nconsole.log(drawTree(1));\n\nmodule.exports = { drawTree };\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "715a8d0f-d1af-4131-97bc-3ca0e17aa780",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "edf3078d-8878-4aae-9028-6199cd971675",
+    "description": "Реализуй drawTree",
+    "status": "published",
+    "kind": "code",
+    "code": "// Реализуй drawTree(height) с использованием buildPyramid.\n// Добавь ствол — одна # по центру последнего яруса.\n\nfunction buildPyramid(n) {\n    if (n <= 0) return '';\n    let result = '';\n    for (let i = 1; i <= n; i++) {\n        result += ' '.repeat(n - i) + '#'.repeat(2 * i - 1);\n        if (i < n) result += '\\n';\n    }\n    return result;\n}\n\nfunction drawTree(height) {\n    if (height <= 0) return '';\n\n    let result = '';\n\n    // Ярусы: для каждого i от 1 до height — пирамида высотой i + 1\n    for (let i = 1; i <= height; i++) {\n        result += buildPyramid(i + 1);\n        result += '\\n';\n    }\n\n    // Ствол: одна # по центру последнего (самого широкого) яруса\n    // Ширина последнего яруса: 2 * (height + 1) - 1 = 2*height + 1\n    let stemWidth = 2 * height + 1;\n    let stemSpaces = Math.floor(stemWidth / 2);\n    if (stemSpaces > 0) {\n        result += ' '.repeat(stemSpaces) + '#';\n    } else {\n        result += '#';\n    }\n\n    return result;\n}\n\nconsole.log('=== drawTree(1) ===');\nconsole.log(drawTree(1));\nconsole.log('=== drawTree(2) ===');\nconsole.log(drawTree(2));\nconsole.log('=== drawTree(3) ===');\nconsole.log(drawTree(3));\n\nmodule.exports = { buildPyramid, drawTree };\n",
+    "language": "javascript",
+    "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "594362ef-32c8-4c35-97a3-58af8ae884ef",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "lessonId": "edf3078d-8878-4aae-9028-6199cd971675",
+    "description": "Проверь тестами и исправь ошибки",
+    "content": "Запусти тесты и проверь все случаи:\n\n```js\n// Тесты для drawTree\nconsole.log('drawTree(0):', JSON.stringify(drawTree(0)));\n// Ожидается: \"\"\n\nconsole.log('drawTree(1):');\nconsole.log(drawTree(1));\n// Ожидается: пирамида из 2 рядов + #\n\nconsole.log('drawTree(2):');\nconsole.log(drawTree(2));\n// Ожидается: пирамида из 2 рядов + пирамида из 3 рядов + #\n\nconsole.log('drawTree(3):');\nconsole.log(drawTree(3));\n// Ожидается: 4 пирамиды + ствол\n```\n\n**Подумай:**\n1. Все ли тесты проходят?\n2. Правильно ли выровнен ствол?\n3. Что произойдёт при `drawTree(0)`? А при `drawTree(-1)`?\n4. Можно ли упростить код, переиспользовав `buildPyramid` для ствола?",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-16T12:00"
+  }
+]
