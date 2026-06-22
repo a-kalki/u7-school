@@ -503,11 +503,16 @@
     "createdAt": "2026-05-31T05:30",
     "estimatedMinutes": 15,
     "stepIds": [
-      "01a61831-e507-4a41-a43c-6ba0fe1dd030",
-      "0230b613-b40d-4e67-9b6c-b047e2906285",
-      "7648240d-8adc-4073-8c2f-e42692b6892b",
-      "953f45ca-928b-4304-bd61-0e536a6554cf",
-      "78ca4e92-2243-4844-8cd1-977ec5f22b2d"
+      "2164cc63-dfa5-4c18-a086-1a1895299d5a",
+      "a46dcf48-ad7d-4d15-834e-bb515db57e8a",
+      "c7894c22-4fbd-431c-83e8-dda0d37ccb06",
+      "27eab303-3eee-4b0f-a585-94d7dd499c80",
+      "2c4fc69d-d645-4be8-9447-0e150d8716e7",
+      "85b8bb46-4b6d-4574-b54e-cb1c4080e015",
+      "f4c5f087-97a0-4906-9ccb-b2a9bc627da3",
+      "2c2a1df4-0124-4a1b-81c2-d7eacf80e1df",
+      "e5903541-cd46-45e9-978e-0ae7abff2989",
+      "b2db7822-44f8-4045-97c5-cf909b22160d"
     ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-16T12:00"

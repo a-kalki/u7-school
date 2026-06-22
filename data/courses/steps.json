@@ -1282,52 +1282,94 @@
     "createdAt": "2026-06-16T12:00"
   },
   {
-    "uuid": "01a61831-e507-4a41-a43c-6ba0fe1dd030",
+    "uuid": "2164cc63-dfa5-4c18-a086-1a1895299d5a",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Изучаем колбэки",
-    "content": "Изучи тему «Колбэки»:\n\n👉 **[Колбэки](https://learn.javascript.ru/callbacks)**\n\n**Ключевые темы:**\n- Что такое callback: функция, переданная как аргумент\n- Синхронные колбэки: `arr.forEach`, `arr.map`, `arr.filter`, `arr.reduce`\n- Асинхронные колбэки: `setTimeout`, загрузка скриптов\n- Error-first callback (колбэк с первым аргументом-ошибкой)\n- Callback Hell («ад колбэков») и способы решения",
+    "description": "Шаг 1. Что такое колбэк",
+    "content": "Callback (колбэк, функция обратного вызова) — функция, переданная как аргумент в другую функцию, чтобы быть вызванной позже, по завершении определённого действия.\n\n```javascript\nfunction cb() {\n  console.log(\"Здесь выполняется работа колбека!\");\n}\n\nfunction doSomething(callback) {\n  console.log('Предварительная работа до вызова колбэка');\n  callback(); // вызываем переданную функцию\n  console.log('Можно что то делать и после вызова колбэка');\n}\n\ndoSomething(cb);\n```",
     "status": "published",
     "kind": "text",
-    "createdAt": "2026-06-16T12:00"
+    "createdAt": "2026-06-22T12:00"
   },
   {
-    "uuid": "0230b613-b40d-4e67-9b6c-b047e2906285",
+    "uuid": "a46dcf48-ad7d-4d15-834e-bb515db57e8a",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: синхронный колбэк — processArray",
-    "status": "published",
-    "kind": "code",
-    "code": "// Напиши функцию processArray(arr, callback).\n// Она проходит по всем элементам массива и вызывает callback для каждого.\n// callback принимает два аргумента: элемент и его индекс.\n// Это СИНХРОННЫЙ колбэк — он выполняется сразу, в том же потоке.\n\nfunction processArray(arr, callback) {\n    // Твой код здесь\n}\n\nconsole.log('До вызова');\nprocessArray(['Алия', 'Бек', 'Чингиз'], function(name, index) {\n    console.log(index + ': ' + name);\n});\nconsole.log('После вызова');\n\n// Посмотри на порядок вывода. Где «После вызова» относительно имён?\n// Теперь со стрелочной функцией:\nprocessArray([10, 20, 30], (num, i) => {\n    console.log('Элемент ' + i + ' = ' + (num * 2));\n});\n",
-    "language": "javascript",
-    "createdAt": "2026-06-16T12:00"
-  },
-  {
-    "uuid": "7648240d-8adc-4073-8c2f-e42692b6892b",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: синхронный vs асинхронный колбэк",
-    "status": "published",
-    "kind": "code",
-    "code": "// Две одинаковые функции: принимают колбэк и вызывают его.\n// Разница только в том, КОГДА вызывается колбэк.\n\nfunction doSyncWork(cb) {\n    cb('результат sync');            // вызывается сразу\n}\n\nfunction doAsyncWork(cb) {\n    setTimeout(function() {\n        cb('результат async');       // вызывается через 1 сек\n    }, 1000);\n}\n\n// Одна и та же функция-колбэк\nfunction printResult(res) {\n    console.log('  ' + res);\n}\n\n// Синхронный вызов\nconsole.log('до sync');\ndoSyncWork(printResult);\nconsole.log('после sync');\n\nconsole.log('---');\n\n// Асинхронный вызов\nconsole.log('до async');\ndoAsyncWork(printResult);\nconsole.log('после async');\n\n// Ответь:\n// 1. Где «результат sync» относительно «после sync»?\n//    А «результат async» относительно «после async»?\n// 2. Функция printResult одна и та же. Почему в одном случае\n//    она вызвалась сразу, а в другом — после всего?",
-    "language": "javascript",
-    "createdAt": "2026-06-16T12:00"
-  },
-  {
-    "uuid": "953f45ca-928b-4304-bd61-0e536a6554cf",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: методы массива с колбэками",
-    "status": "published",
-    "kind": "code",
-    "code": "// Используя методы массива, реши задачи ниже.\n// Все колбэки пишив стрелочном синтаксисе.\n\nlet numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];\n\n// 1. forEach: выведи каждый элемент, умноженный на 2\n\n// 2. map: создай массив квадратов чисел\n\n// 3. filter: создай массив чисел > 5\n\n// 4. find: найди первое число, которое делится на 3 и на 2 одновременно\n\n// 5. reduce: посчитай сумму всех чисел\n",
-    "language": "javascript",
-    "createdAt": "2026-06-16T12:00"
-  },
-  {
-    "uuid": "78ca4e92-2243-4844-8cd1-977ec5f22b2d",
-    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: исправь Callback Hell",
-    "content": "Посмотри на код ниже — это классический Callback Hell:\n\n```js\nloadScript('1.js', function(error, script) {\n  if (error) handleError(error);\n  else {\n    loadScript('2.js', function(error, script) {\n      if (error) handleError(error);\n      else {\n        loadScript('3.js', function(error, script) {\n          if (error) handleError(error);\n          else {\n            console.log('Все скрипты загружены');\n          }\n        });\n      }\n    });\n  }\n});\n```\n\nПерепиши этот код, используя **именованные функции** для каждого шага (метод 1 из конспекта).\n\nПодумай:\n- Стал ли код читаемее?\n- Какие недостатки у такого подхода?\n- Что такое «промисы» и как они решают эту проблему? (Загляни вперёд, если интересно.)",
+    "description": "Шаг 2. Синхронные колбэки",
+    "content": "Синхронный колбек, это когда функция-колбэк вызывается сразу же и не ломает поток выполнения, синхронно:\n\n```javascript\n// эта функция позволяет выполнить определенные в cb\n// действия для каждого элемента\nfunction processArray(arr, callback) {\n  for (let item of arr) {\n    callback(item);\n  }\n}\n\n// распечатать увеличенные на два значения\nprocessArray([1, 2, 3], item => console.log(item * 2));\n// 2, 4, 6\n```\n\nКолбэк `item => console.log(item * 2)` вызывается немедленно для каждого элемента — это синхронно. Управление не возвращается в основной код, пока цикл не завершится.",
     "status": "published",
     "kind": "text",
-    "createdAt": "2026-06-16T12:00"
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "c7894c22-4fbd-431c-83e8-dda0d37ccb06",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 3. Методы массивов: forEach и map",
+    "content": "В js api уже много встроенных методов, принимающих колбэк. Они синхронные. Разберём forEach и map.\n\n### forEach — выполнить действие для каждого элемента\n\n```javascript\nlet names = ['Алия', 'Бек', 'Чингиз'];\n\nnames.forEach(function(item, index) {\n  console.log(index + ': ' + item);\n});\n// 0: Алия // 1: Бек // 2: Чингиз\n```\n\n`forEach` вызывает колбэк для каждого элемента и ничего не возвращает (`undefined`).\n\n### map — преобразовать каждый элемент в новый массив\n\n```javascript\nlet numbers = [1, 2, 3, 4, 5];\n\nlet doubled = numbers.map(function(item) {\n  return item * 2;\n});\nconsole.log(doubled); // [2, 4, 6, 8, 10]\n```\n\n`map` возвращает **новый** массив той же длины. Исходный массив не меняется.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "27eab303-3eee-4b0f-a585-94d7dd499c80",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 4. Методы массивов: filter и find",
+    "content": "### filter — отобрать элементы по условию\n\n```javascript\nlet numbers = [1, 2, 3, 4, 5, 6];\n\nlet even = numbers.filter(function(item) {\n  return item % 2 === 0;\n});\nconsole.log(even); // [2, 4, 6]\n```\n\nКолбэк должен вернуть `true` (оставить) или `false` (пропустить). Возвращается новый массив.\n\n### find — найти первый подходящий элемент\n\n```javascript\nlet users = [\n  { name: 'Алия', age: 23 },\n  { name: 'Бек', age: 17 },\n  { name: 'Чингиз', age: 30 }\n];\n\nlet adult = users.find(function(user) {\n  return user.age >= 18;\n});\nconsole.log(adult); // { name: 'Алия', age: 23 }\n```\n\nВозвращает **сам элемент** (не массив) или `undefined`, если ничего не найдено.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "2c4fc69d-d645-4be8-9447-0e150d8716e7",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 5. Метод reduce",
+    "content": "### reduce — свернуть массив в одно значение\n\n```javascript\nlet numbers = [1, 2, 3, 4, 5];\n\nlet sum = numbers.reduce(function(acc, item) {\n  return acc + item;\n}, 0);\nconsole.log(sum); // 15\n```\n\nКолбэк получает **аккумулятор** (`acc`) и текущий элемент. Результат колбэка становится новым аккумулятором для следующего элемента. Второй аргумент `reduce` — начальное значение аккумулятора.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "85b8bb46-4b6d-4574-b54e-cb1c4080e015",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 6. Те же методы со стрелочными функциями",
+    "content": "Те же методы, но со стрелочными функциями — короче и чище:\n\n```javascript\nlet numbers = [1, 2, 3, 4, 5, 6];\n\nnumbers.forEach((item, i) => console.log(i + ': ' + item));\n\nlet doubled = numbers.map(item => item * 2);\nlet even = numbers.filter(item => item % 2 === 0);\nlet found = numbers.find(item => item > 4);\nlet sum = numbers.reduce((acc, item) => acc + item, 0);\n```",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "f4c5f087-97a0-4906-9ccb-b2a9bc627da3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 7. Цепочки методов на практике",
+    "content": "Методы `map`, `filter`, `find`, `reduce` возвращают результат, поэтому их можно объединять в **цепочки** — результат одного метода передаётся следующему.\n\n### filter + map: выбрать и преобразовать\n\n```javascript\nlet scores = [85, 42, 67, 91, 55];\n\nlet highScoresDoubled = scores\n  .filter(score => score > 60)   // [85, 67, 91]\n  .map(score => score * 2);      // [170, 134, 182]\n\nconsole.log(highScoresDoubled);  // [170, 134, 182]\n```\n\n### map + reduce: преобразовать и посчитать\n\n```javascript\nlet prices = [100, 200, 300];\n\n// добавляем налог 12% и считаем сумму\nlet totalWithTax = prices\n  .map(price => price * 1.12)     // [112, 224, 336]\n  .reduce((acc, price) => acc + price, 0);\n\nconsole.log(totalWithTax); // 672\n```\n\n### filter + map + reduce: полный конвейер обработки\n\n```javascript\nlet students = [\n  { name: 'Алия', score: 85 },\n  { name: 'Бек', score: 42 },\n  { name: 'Чингиз', score: 67 },\n  { name: 'Дина', score: 91 },\n  { name: 'Эрлан', score: 55 }\n];\n\n// средний балл студентов, прошедших порог (>= 60)\nlet averagePassed = students\n  .filter(s => s.score >= 60)            // отсеяли двоечников\n  .map(s => s.score)                     // оставили только баллы\n  .reduce((acc, s) => acc + s, 0) / students.filter(s => s.score >= 60).length;\n\nconsole.log(averagePassed); // 81\n```\n\n### find + includes: поиск с дополнительным условием\n\n```javascript\nlet words = ['солнце', 'сон', 'соловей', 'сок', 'сом'];\n\n// первый элемент, который начинается на 'сол' И заканчивается на 'ей'\nlet result = words\n  .filter(word => word.startsWith('сол'))\n  .find(word => word.endsWith('ей'));\n\nconsole.log(result); // 'соловей'\n```",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "2c2a1df4-0124-4a1b-81c2-d7eacf80e1df",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 8. Асинхронные колбэки",
+    "content": "Колбэк может вызываться не сразу, а после завершения асинхронной операции:\n\n```javascript\nfunction fetchData(callback) {\n  console.log('Начинаем загрузку данных...');\n  setTimeout(() => {\n    const data = { name: 'Алия', score: 42 };\n    callback(data); // колбэк вызывается через 1 секунду\n  }, 1000); // здесь эмулируется то, что загруженные данные приходят через 1 сек.\n}\n\nconsole.log('До вызова fetchData');\nfetchData(function(result) {\n  console.log('Данные получены:', result);\n});\nconsole.log('После вызова fetchData');\n```\n\nОбрати внимание на порядок вывода:\n1. «До вызова fetchData»\n2. «Начинаем загрузку данных...»\n3. «После вызова fetchData»\n4. (через 1 секунду) «Данные получены: { name: 'Алия', score: 42 }»\n\nКолбэк выполнился **после** того, как основной код уже закончился — в этом суть асинхронности.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "e5903541-cd46-45e9-978e-0ae7abff2989",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 9. Callback Hell",
+    "content": "При последовательности асинхронных операций возникает глубокая вложенность:\n\n```javascript\nfunction step1(callback) {\n  setTimeout(() => {\n    console.log('Шаг 1 готов');\n    callback('результат1');\n  }, 500);\n}\n\nfunction step2(данные, callback) {\n  setTimeout(() => {\n    console.log('Шаг 2 готов, получил:', данные);\n    callback('результат2');\n  }, 500);\n}\n\nfunction step3(данные, callback) {\n  setTimeout(() => {\n    console.log('Шаг 3 готов, получил:', данные);\n    callback('результат3');\n  }, 500);\n}\n\n// Callback Hell — пирамида вложенности\nstep1(function(р1) {\n  step2(р1, function(р2) {\n    step3(р2, function(р3) {\n      console.log('Финиш!', р3);\n    });\n  });\n});\n```\n\n### Проблемы\n- Код растёт вправо («пирамида судьбы»)\n- Трудно читать и поддерживать\n\n### Решение: именованные функции\nВынести каждый шаг в отдельную функцию:\n\n```javascript\nstep1(stepAfter1);\n\nfunction stepAfter1(р1) {\n  step2(р1, stepAfter2);\n}\n\nfunction stepAfter2(р2) {\n  step3(р2, stepAfter3);\n}\n\nfunction stepAfter3(р3) {\n  console.log('Финиш!', р3);\n}\n```\n\nПлюс: нет вложенности. Минус: код разорван, функции стало больше, функции одноразовые.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "b2db7822-44f8-4045-97c5-cf909b22160d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Шаг 10. Ключевые идеи",
+    "content": "- Колбэк — это функция, переданная как значение другой функции\n- «Я позвоню тебе позже» — функция-исполнитель решает, когда вызвать колбэк\n- Фундаментальная концепция асинхронного программирования в JS\n- Без понимания колбэков невозможно понять промисы и async/await",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
   },
   {
     "uuid": "8879e4c2-6631-4f57-9854-f5a1acfc26e6",
