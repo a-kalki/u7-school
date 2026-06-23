@@ -12,7 +12,6 @@ coverage
 
 # logs
 logs
-!data/debrief/logs/
 _.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
@@ -30,14 +29,14 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Finder (MacOS) folder config
 .DS_Store
 
-# runtime/generated data (users db, seeds, etc.)
-data/questionnaires/
-data/streams/
-data/users/
-data/backup/
-
 # w3school downloaded course files (generated, should not be committed)
 packages/w3school/www.w3schools.com/
 packages/w3school/w3schools.com/
 conductor/archive/
 data-fixtures/
+
+# data — whitelist: по умолчанию всё игнорируется, явно разрешены только папки ниже
+data/*
+!data/courses/
+!data/debrief/
+!data/lessons/
