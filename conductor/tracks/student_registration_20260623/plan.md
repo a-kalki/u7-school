@@ -33,14 +33,14 @@ student-registration/
         - [x] Находит шаг в дереве и возвращает человекочитаемую метку: «Шаг 1 / Переменные (p1-l2)»
         - [x] Если шаг не найден — возвращает первые 8 символов UUID
 
-- [ ] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
+^- [x] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 2: Обработчик /register_student
 
-- [ ] Task: Создать `register-student.handler.ts`
-    - [ ] Экспортирует функцию:
+- [x] Task: Создать `register-student.handler.ts`
+    - [x] Экспортирует функцию:
         ```ts
         registerRegisterStudentCommand(
           bot: Composer<BotContext>,
@@ -49,15 +49,15 @@ student-registration/
           logger: Logger,
         ): void
         ```
-    - [ ] Регистрирует `bot.command('register_student', ...)` на приватном боте
+    - [x] Регистрирует `bot.command('register_student', ...)` на приватном боте
 
-    - [ ] **Шаг 1: Разрешить пользователя**
+    - [x] **Шаг 1: Разрешить пользователя**
         - [ ] Получить `telegramId` из `ctx.from.id`
         - [ ] Вызвать `userFacade.getUserByTelegramId(telegramId)`
         - [ ] Если нет → создать гостя: `userFacade.registerGuest(telegramId, ctx.from.first_name ?? 'Гость', BOT_ADMIN_UUID)`
         - [ ] Если не удалось → `ctx.reply('Не удалось определить пользователя.')`, выход
 
-    - [ ] **Шаг 2: Проверить членство в группе**
+    - [x] **Шаг 2: Проверить членство в группе**
         - [ ] Проверить `findStudentByTelegramId(telegramId)` — есть ли в STUDENT_LIST
         - [ ] Если нет в списке → вызвать `ctx.api.getChatMember(GROUP_CHAT_ID, telegramId)`
         - [ ] Извлечь `status` из ответа: должно быть 'member', 'administrator' или 'creator'
@@ -65,7 +65,7 @@ student-registration/
         - [ ] Если ошибка API → `ctx.reply('⚠️ Не удалось проверить членство в группе. Попробуй позже.')`, выход
         - [ ] Если пользователь в группе, но его нет в STUDENT_LIST → ок, продолжаем (он уже создан как GUEST)
 
-    - [ ] **Шаг 3: Проверить отсутствие активной записи Student**
+    - [x] **Шаг 3: Проверить отсутствие активной записи Student**
         - [ ] Получить studentRepo через apiApp (или импортировать StudentJsonRepo)
         - [ ] Вызвать `studentRepo.getByUser(user.uuid)`
         - [ ] Проверить `records.some(r => r.status === 'active' && r.streamId === STREAM_1_UUID)`
@@ -73,20 +73,20 @@ student-registration/
         - [ ] Проверить `records.some(r => r.status === 'active' && r.streamId !== STREAM_1_UUID)`
         - [ ] Если активен в другом потоке → `ctx.reply('⚠️ Ты уже проходишь обучение в другом потоке.')`, выход
 
-    - [ ] **Шаг 4: Парсить аргумент урока**
+    - [x] **Шаг 4: Парсить аргумент урока**
         - [ ] Извлечь аргумент из `ctx.message.text` — всё после `/register_student`, trimmed
         - [ ] Если пусто → использовать `'p4-l1'` (по умолчанию)
         - [ ] Вызвать `parseLessonLabel(label)`
         - [ ] Если null → `ctx.reply('❌ Неверный формат урока. Используй: /register_student pN-lM (например p4-l1)')`, выход
 
-    - [ ] **Шаг 5: Найти stepId в contentSnapshot**
+    - [x] **Шаг 5: Найти stepId в contentSnapshot**
         - [ ] Получить поток: `apiApp.execute('get-stream', { streamId: STREAM_1_UUID }, user.uuid)`
         - [ ] Получить contentSnapshot из ответа
         - [ ] Вызвать `findFirstStepId(contentSnapshot, projectIndex, lessonIndex)`
         - [ ] Если null → `ctx.reply('❌ Урок не найден в программе потока. Проверь номер.')`, выход
         - [ ] Вызвать `buildStepLabel(contentSnapshot, stepId)` для красивого сообщения
 
-    - [ ] **Шаг 6: Создать Student запись**
+    - [x] **Шаг 6: Создать Student запись**
         - [ ] Создать объект Student:
             ```ts
             const student: Student = {
@@ -103,26 +103,26 @@ student-registration/
         - [ ] Валидировать через StudentSchema (из @u7-scl/stream/domain)
         - [ ] Сохранить: `studentRepo.save(student)`
 
-    - [ ] **Шаг 7: Добавить роль STUDENT**
+    - [x] **Шаг 7: Добавить роль STUDENT**
         - [ ] Проверить, есть ли уже роль STUDENT у пользователя
         - [ ] Если нет → `userFacade.updateUserRole(user.uuid, Role.STUDENT, BOT_ADMIN_UUID)`
         - [ ] Если ошибка → залогировать, но не прерывать (студент уже создан)
 
-    - [ ] **Шаг 8: Ответ пользователю**
+    - [x] **Шаг 8: Ответ пользователю**
         - [ ] `ctx.reply('🎉 *Ты зарегистрирован в потоке «Основы JS. Синтаксис — 1»!*\n\n📌 Текущее задание: ${stepLabel}\n\nИспользуй кнопку «📖 Моя учёба» для продолжения.', { parse_mode: 'MarkdownV2' })`
 
-    - [ ] **Обработка ошибок**
+    - [x] **Обработка ошибок**
         - [ ] Все try/catch с логированием через logger.error
         - [ ] Пользователю — дружелюбное сообщение, без технических деталей
 
-- [ ] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md)
+^- [x] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 3: Обработчик /register_inactive
 
-- [ ] Task: Создать `register-inactive.handler.ts`
-    - [ ] Экспортирует функцию:
+^- [x] Task: Создать `register-inactive.handler.ts`
+    - [x] Экспортирует функцию:
         ```ts
         registerRegisterInactiveCommand(
           bot: Composer<BotContext>,
@@ -131,21 +131,21 @@ student-registration/
           logger: Logger,
         ): void
         ```
-    - [ ] Регистрирует `bot.command('register_inactive', ...)` на приватном боте
+    - [x] Регистрирует `bot.command('register_inactive', ...)` на приватном боте
 
-    - [ ] **Шаг 1: Проверить права ADMIN**
+    - [x] **Шаг 1: Проверить права ADMIN**
         - [ ] Получить `telegramId` из `ctx.from.id`
         - [ ] Получить пользователя: `userFacade.getUserByTelegramId(telegramId)`
         - [ ] Если нет или нет роли ADMIN → `ctx.reply('⛔ Только администратор может выполнить эту команду.')`, выход (не раскрывать существование команды)
 
-    - [ ] **Шаг 2: Подготовка**
+    - [x] **Шаг 2: Подготовка**
         - [ ] Получить studentRepo
         - [ ] Получить поток: `apiApp.execute('get-stream', { streamId: STREAM_1_UUID }, adminUser.uuid)`
         - [ ] Получить contentSnapshot
         - [ ] Найти stepId для p1-l5: `findFirstStepId(contentSnapshot, 0, 4)` (проект 1, урок 5 = p1-l5)
         - [ ] Если не найден → `ctx.reply('❌ Урок p1-l5 не найден в программе потока.')`, выход
 
-    - [ ] **Шаг 3: Обработка каждого студента из STUDENT_LIST**
+    - [x] **Шаг 3: Обработка каждого студента из STUDENT_LIST**
         - [ ] Инициализировать счётчики: `added = 0, skipped = 0, errors = 0`
         - [ ] Для каждого `entry` из STUDENT_LIST:
             - [ ] **a. Найти пользователя:**
@@ -168,26 +168,26 @@ student-registration/
             - [ ] **f. Задержка:**
                 - [ ] `await new Promise(r => setTimeout(r, 500))` — 500ms между студентами, чтобы не спамить API и дать время на обработку
 
-    - [ ] **Шаг 4: Вывести отчёт**
+    - [x] **Шаг 4: Вывести отчёт**
         - [ ] `ctx.reply('📊 *Регистрация завершена*\n\n✅ Добавлено: ${added}\n⏭️ Пропущено (уже есть): ${skipped}\n❌ Ошибки: ${errors}\n\nВсего в списке: ${STUDENT_LIST.length}', { parse_mode: 'MarkdownV2' })`
 
-    - [ ] **Обработка ошибок**
+    - [x] **Обработка ошибок**
         - [ ] Каждая итерация в try/catch — ошибка одного студента не прерывает остальных
         - [ ] Логирование каждой ошибки с именем студента
 
-- [ ] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
+^- [x] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 4: Интеграция в main.ts
 
-- [ ] Task: Зарегистрировать команды в `apps/u7-bot/src/main.ts`
-    - [ ] Добавить импорты:
+^- [x] Task: Зарегистрировать команды в `apps/u7-bot/src/main.ts`
+    - [x] Добавить импорты:
         ```ts
         import { registerRegisterStudentCommand } from './student-registration/register-student.handler';
         import { registerRegisterInactiveCommand } from './student-registration/register-inactive.handler';
         ```
-    - [ ] После `connectRouter(privateBot, router, userFacade, botAdminUuid, loggers)` добавить:
+    - [x] После `connectRouter(privateBot, router, userFacade, botAdminUuid, loggers)` добавить:
         ```ts
         // ══ ВРЕМЕННО: Регистрация студентов потока 1 ══
         // Удалить после использования. См. student-registration/README.md
@@ -195,26 +195,26 @@ student-registration/
         registerRegisterInactiveCommand(privateBot, apiApp, userFacade, loggers);
         // ══ КОНЕЦ ВРЕМЕННОГО БЛОКА ══
         ```
-    - [ ] Убедиться, что `apiApp` доступна в этой области видимости (сейчас она возвращается из `createApiApp`)
-    - [ ] Если `apiApp` не экспортируется из `createApiApp` — добавить в возвращаемое значение
+    - [x] Убедиться, что `apiApp` доступна в этой области видимости (сейчас она возвращается из `createApiApp`)
+    - [x] Если `apiApp` не экспортируется из `createApiApp` — добавить в возвращаемое значение
 
-- [ ] Task: Проверить, что `createApiApp` возвращает `apiApp`
-    - [ ] Прочитать `apps/u7-bot/src/api-app.ts`
-    - [ ] Если `apiApp` не возвращается — добавить в возвращаемый объект
-    - [ ] Убедиться, что тип `ApiApp<U7BotAppMeta>` доступен для импорта
+^- [x] Task: Проверить, что `createApiApp` возвращает `apiApp`
+    - [x] Прочитать `apps/u7-bot/src/api-app.ts`
+    - [x] Если `apiApp` не возвращается — добавить в возвращаемый объект
+    - [x] Убедиться, что тип `ApiApp<U7BotAppMeta>` доступен для импорта
 
-- [ ] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
+^- [x] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 5: README.md
 
-- [ ] Task: Создать `student-registration/README.md`
-    - [ ] **Раздел «Цель»**
+^- [x] Task: Создать `student-registration/README.md`
+    - [x] **Раздел «Цель»**
         - [ ] Объяснить: временные команды для ручной регистрации студентов первого потока
         - [ ] Контекст: студенты попадали в группу через инвайт-ссылку, не все зарегистрированы как STUDENT
 
-    - [ ] **Раздел «Использование»** (для пользователя-человека)
+    - [x] **Раздел «Использование»** (для пользователя-человека)
         - [ ] `/register_student [pN-lM]` — самостоятельная регистрация
             - [ ] Пример: `/register_student` (по умолчанию p4-l1)
             - [ ] Пример: `/register_student p2-l3`
@@ -223,7 +223,7 @@ student-registration/
             - [ ] Добавляет всех из захардкоженного списка с уроком p1-l5
             - [ ] Выводит статистику
 
-    - [ ] **Раздел «Архитектурные решения»**
+    - [x] **Раздел «Архитектурные решения»**
         - [ ] Скрипты живут в `apps/u7-bot/src/student-registration/`, изолированы от пакетов
         - [ ] Не используются DDD слои — прямые handler'ы Grammy для минимизации кода
         - [ ] Хардкод-список студентов из `maybe-member.md` (раздел 6) — не меняется
@@ -231,7 +231,7 @@ student-registration/
         - [ ] Student записи создаются по схеме `StudentSchema` из `@u7-scl/stream/domain`
         - [ ] Роль STUDENT добавляется через `userFacade.updateUserRole`
 
-    - [ ] **Раздел «Удаление»** (инструкция для агента)
+    - [x] **Раздел «Удаление»** (инструкция для агента)
         - [ ] 1. Удалить папку `apps/u7-bot/src/student-registration/` целиком
         - [ ] 2. В `apps/u7-bot/src/main.ts` удалить блок:
             ```
@@ -244,67 +244,67 @@ student-registration/
         - [ ] 4. Перезапустить бота: `pm2 restart u7-bot`
         - [ ] 5. Проверить что бот запустился без ошибок: `pm2 logs u7-bot`
 
-- [ ] Task: Conductor - Ручная верификация 'Фаза 5' (Protocol in workflow.md)
+^- [x] Task: Conductor - Ручная верификация 'Фаза 5' (Protocol in workflow.md)
 
 ---
 
 ## Фаза 6: Тесты
 
-- [ ] Task: Тесты для `constants.ts`
-    - [ ] `parseLessonLabel('p4-l1')` → `{ projectIndex: 3, lessonIndex: 0 }`
-    - [ ] `parseLessonLabel('p1-l5')` → `{ projectIndex: 0, lessonIndex: 4 }`
-    - [ ] `parseLessonLabel('p10-l3')` → `{ projectIndex: 9, lessonIndex: 2 }`
-    - [ ] `parseLessonLabel('invalid')` → `null`
-    - [ ] `parseLessonLabel('p-l1')` → `null`
-    - [ ] `parseLessonLabel('p1-l')` → `null`
-    - [ ] `findStudentByTelegramId(5167204720)` → Alex
-    - [ ] `findStudentByTelegramId(9999999999)` → undefined
+^- [x] Task: Тесты для `constants.ts`
+    - [x] `parseLessonLabel('p4-l1')` → `{ projectIndex: 3, lessonIndex: 0 }`
+    - [x] `parseLessonLabel('p1-l5')` → `{ projectIndex: 0, lessonIndex: 4 }`
+    - [x] `parseLessonLabel('p10-l3')` → `{ projectIndex: 9, lessonIndex: 2 }`
+    - [x] `parseLessonLabel('invalid')` → `null`
+    - [x] `parseLessonLabel('p-l1')` → `null`
+    - [x] `parseLessonLabel('p1-l')` → `null`
+    - [x] `findStudentByTelegramId(5167204720)` → Alex
+    - [x] `findStudentByTelegramId(9999999999)` → undefined
 
-- [ ] Task: Тесты для `register-student.handler.ts`
-    - [ ] **Сценарий 1: Успешная регистрация с уроком по умолчанию**
+^- [x] Task: Тесты для `register-student.handler.ts`
+    - [x] **Сценарий 1: Успешная регистрация с уроком по умолчанию**
         - [ ] Пользователь Alex (в STUDENT_LIST), нет активной записи
         - [ ] Команда `/register_student`
         - [ ] Проверить: создана Student запись с currentStepId = первый шаг p4-l1
         - [ ] Проверить: роль STUDENT добавлена
         - [ ] Проверить: ответ содержит «зарегистрирован»
-    - [ ] **Сценарий 2: Успешная регистрация с явным уроком**
+    - [x] **Сценарий 2: Успешная регистрация с явным уроком**
         - [ ] Команда `/register_student p2-l3`
         - [ ] Проверить: currentStepId = первый шаг p2-l3
-    - [ ] **Сценарий 3: Пользователь не в списке, но в группе**
+    - [x] **Сценарий 3: Пользователь не в списке, но в группе**
         - [ ] Мокаем getChatMember → статус 'member'
         - [ ] Команда `/register_student`
         - [ ] Проверить: пользователь создан как GUEST, затем зачислен
-    - [ ] **Сценарий 4: Пользователь не в списке и не в группе**
+    - [x] **Сценарий 4: Пользователь не в списке и не в группе**
         - [ ] Мокаем getChatMember → статус 'left'
         - [ ] Проверить: отказ с сообщением «не являешься участником»
-    - [ ] **Сценарий 5: Уже есть активная запись**
+    - [x] **Сценарий 5: Уже есть активная запись**
         - [ ] Предварительно создать Student запись
         - [ ] Проверить: отказ с сообщением «уже зарегистрирован»
-    - [ ] **Сценарий 6: Неверный формат урока**
+    - [x] **Сценарий 6: Неверный формат урока**
         - [ ] Команда `/register_student abc`
         - [ ] Проверить: сообщение о неверном формате
 
-- [ ] Task: Тесты для `register-inactive.handler.ts`
-    - [ ] **Сценарий 1: Успешное массовое зачисление**
+^- [x] Task: Тесты для `register-inactive.handler.ts`
+    - [x] **Сценарий 1: Успешное массовое зачисление**
         - [ ] Админ запускает `/register_inactive`
         - [ ] Мокаем что все 16 студентов без активных записей
         - [ ] Проверить: создано 16 Student записей
         - [ ] Проверить: всем добавлена роль STUDENT
         - [ ] Проверить: отчёт: «Добавлено: 16, Пропущено: 0, Ошибки: 0»
-    - [ ] **Сценарий 2: Часть уже имеет активные записи**
+    - [x] **Сценарий 2: Часть уже имеет активные записи**
         - [ ] Мокаем что 3 студента уже активны
         - [ ] Проверить: отчёт «Добавлено: 13, Пропущено: 3, Ошибки: 0»
-    - [ ] **Сценарий 3: Отказ не-админа**
+    - [x] **Сценарий 3: Отказ не-админа**
         - [ ] Обычный пользователь запускает `/register_inactive`
         - [ ] Проверить: сообщение «Только администратор»
-    - [ ] **Сценарий 4: Пользователь не в системе и не в группе**
+    - [x] **Сценарий 4: Пользователь не в системе и не в группе**
         - [ ] Мокаем getChatMember → 'left'
         - [ ] Проверить: +1 в ошибки, продолжение для остальных
 
-- [ ] Task: Общая проверка качества
-    - [ ] `bun run lint` — нет ошибок форматирования
-    - [ ] `bun run tslint` — нет ошибок типов
-    - [ ] `bun test` — все тесты проходят
-    - [ ] Покрытие нового кода >80%
+^- [x] Task: Общая проверка качества
+    - [x] `bun run lint` — нет ошибок форматирования
+    - [x] `bun run tslint` — нет ошибок типов
+    - [x] `bun test` — все тесты проходят
+    - [x] Покрытие нового кода >80%
 
-- [ ] Task: Conductor - Ручная верификация 'Фаза 6' (Protocol in workflow.md)
+^- [x] Task: Conductor - Ручная верификация 'Фаза 6' (Protocol in workflow.md)
