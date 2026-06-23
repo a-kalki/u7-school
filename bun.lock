@@ -45,6 +45,17 @@
         "valibot": "^1.2.0",
       },
     },
+    "packages/app": {
+      "name": "@u7-scl/app",
+      "version": "0.1.0",
+      "dependencies": {
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/course": "workspace:*",
+        "@u7-scl/onboarding": "workspace:*",
+        "@u7-scl/stream": "workspace:*",
+        "@u7-scl/user": "workspace:*",
+      },
+    },
     "packages/core": {
       "name": "@u7-scl/core",
       "version": "0.1.0",
@@ -62,6 +73,7 @@
       "name": "@u7-scl/onboarding",
       "version": "0.1.0",
       "dependencies": {
+        "@u7-scl/app": "workspace:*",
         "@u7-scl/core": "workspace:*",
         "@u7-scl/user": "workspace:*",
       },
@@ -171,6 +183,8 @@
     "@types/retry": ["@types/retry@0.12.0", "", {}, "sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA=="],
 
     "@types/unist": ["@types/unist@3.0.3", "", {}, "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="],
+
+    "@u7-scl/app": ["@u7-scl/app@workspace:packages/app"],
 
     "@u7-scl/bot": ["@u7-scl/bot@workspace:apps/u7-bot"],
 
