@@ -461,6 +461,28 @@
     "mentorStepIds": []
   },
   {
+    "uuid": "5413106a-98a7-4cc6-a741-768f61854f09",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Область видимости и время жизни",
+    "additional": "Глобальная, функциональная и блочная область видимости. Время жизни переменных. Разница let, const и var. Сборщик мусора.",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "12a19f57-8058-4ddc-a72e-1bb287400b61",
+      "afb97970-b701-4533-b4d4-39ec536622ac",
+      "36195510-0dcc-4bc4-958a-a236fd830419",
+      "53d4eacc-3c08-4661-af86-2618b085029a",
+      "60f21a8b-39cc-43c8-ae90-b9bf718b1f3f",
+      "52c9df06-8b91-4a92-9489-cac3710a5d56",
+      "a5aad89b-66fb-458d-8692-7c2f24035a5e",
+      "a97daf76-2d97-414e-934f-b6f180098372",
+      "f99100d6-4d87-402b-a0b7-5190447d452c"
+    ],
+    "mentorStepIds": [],
+    "updatedAt": "2026-06-23T10:00"
+  },
+  {
     "uuid": "ef8ac41a-e0af-4e29-b05e-46a62a96e7ef",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "title": "Функции: аргументы, передача по значению и ссылке",
@@ -593,7 +615,7 @@
     "uuid": "6f9fa666-fa9a-46de-b89d-6b7140813d8f",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
     "title": "Форматирование таблицы: выравнивание столбцов",
-    "additional": "Улучшаем renderToText из p3-l5: добавляем padRight/padLeft, вычисляем ширину столбцов динамически, делаем таблицу красивой",
+    "additional": "Улучшаем renderToText: добавляем padRight/padLeft, вычисляем ширину столбцов динамически, делаем таблицу красивой",
     "status": "published",
     "createdAt": "2026-06-19T13:30",
     "estimatedMinutes": 60,

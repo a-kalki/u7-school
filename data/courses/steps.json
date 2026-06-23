@@ -857,7 +857,7 @@
     "status": "published",
     "createdAt": "2026-06-15T09:55",
     "kind": "text",
-    "content": "Посмотри видео «Функция как единица программы: синтаксис, параметры и return» по ссылке:\n\n👉 [p3-l1. Функция как единица программы синтаксис параметры и return.mp4](https://drive.google.com/file/d/1uK1Ni8t6FHoQ_95_glwWnW7toNB56sJI)\n\nИз этого видео ты узнаешь:\n- Что такое функция и зачем она нужна\n- Как объявить функцию через `function`\n- Что такое параметры и аргументы\n- Как вернуть значение через `return`\n- Что такое предикаты и параметры по умолчанию"
+    "content": "Посмотри видео «Функция как единица программы: синтаксис, параметры и return» по ссылке:\n\n👉 [Функция как единица программы синтаксис параметры и return.mp4](https://drive.google.com/file/d/1uK1Ni8t6FHoQ_95_glwWnW7toNB56sJI)\n\nИз этого видео ты узнаешь:\n- Что такое функция и зачем она нужна\n- Как объявить функцию через `function`\n- Что такое параметры и аргументы\n- Как вернуть значение через `return`\n- Что такое предикаты и параметры по умолчанию"
   },
   {
     "uuid": "59504287-3591-4d88-b021-9ca77354d64c",
@@ -902,7 +902,7 @@
     "status": "published",
     "createdAt": "2026-06-15T09:55",
     "kind": "text",
-    "content": "Посмотри видео «Функция как единица программы: return, предикаты и методы реализации» по ссылке:\n\n👉 [p3-l2. Функция как единица программы return предикаты и методы реализации.mp4](https://drive.google.com/file/d/1IGuYtzM6YarYPOLl2nQwgACSZcmzWpbq)\n\nИз этого видео ты узнаешь:\n- Как `return` немедленно завершает функцию\n- Что возвращает функция без явного `return`\n- Как предикаты помогают проверять данные\n- Что такое задача vs реализация — одна задача, много способов\n- Что такое рекурсия"
+    "content": "Посмотри видео «Функция как единица программы: return, предикаты и методы реализации» по ссылке:\n\n👉 [Функция как единица программы return предикаты и методы реализации.mp4](https://drive.google.com/file/d/1IGuYtzM6YarYPOLl2nQwgACSZcmzWpbq)\n\nИз этого видео ты узнаешь:\n- Как `return` немедленно завершает функцию\n- Что возвращает функция без явного `return`\n- Как предикаты помогают проверять данные\n- Что такое задача vs реализация — одна задача, много способов\n- Что такое рекурсия"
   },
   {
     "uuid": "599b049a-6be4-452c-8e2a-f59ad2986376",
@@ -938,7 +938,7 @@
     "status": "published",
     "createdAt": "2026-06-15T09:55",
     "kind": "text",
-    "content": "Посмотри видео «Функция как единица программы: чёрный ящик, контракт, декомпозиция» по ссылке:\n\n👉 [p3-l3. Функция как единица программы черный ящик контракт декомпозиция.mp4](https://drive.google.com/file/d/1_fX7izCyH61jF2CTGfaIjZ8ZZmi3uwQ9)\n\nИз этого видео ты узнаешь:\n- Что такое «чёрный ящик» — используем функцию, не зная как она устроена\n- Почему имя функции должно говорить ЧТО она делает, а не КАК\n- Что такое контракт функции: имя + параметры + возврат\n- Что такое декомпозиция — разбиение сложной задачи на простые подзадачи"
+    "content": "Посмотри видео «Функция как единица программы: чёрный ящик, контракт, декомпозиция» по ссылке:\n\n👉 [Функция как единица программы черный ящик контракт декомпозиция.mp4](https://drive.google.com/file/d/1_fX7izCyH61jF2CTGfaIjZ8ZZmi3uwQ9)\n\nИз этого видео ты узнаешь:\n- Что такое «чёрный ящик» — используем функцию, не зная как она устроена\n- Почему имя функции должно говорить ЧТО она делает, а не КАК\n- Что такое контракт функции: имя + параметры + возврат\n- Что такое декомпозиция — разбиение сложной задачи на простые подзадачи"
   },
   {
     "uuid": "f5df7378-742f-455d-9362-3694d24e2635",
@@ -965,7 +965,7 @@
     "status": "published",
     "createdAt": "2026-06-15T09:55",
     "kind": "text",
-    "content": "Посмотри видео «Функции: тип, свойства и стили объявления» по ссылке:\n\n👉 [p3-l4. Функции тип свойства и стили объявления.mp4](https://drive.google.com/file/d/1bKjF0W65JqxNKfnM18n91a1t6jnGNW7c)\n\nИз этого видео ты узнаешь:\n- Какой `typeof` у функции и что функция — это объект\n- Три стиля объявления: Function Declaration, Function Expression, Arrow Function\n- Что значит «first-class citizens» — функции можно присваивать, передавать и возвращать\n- Что у функций могут быть собственные свойства"
+    "content": "Посмотри видео «Функции: тип, свойства и стили объявления» по ссылке:\n\n👉 [Функции тип свойства и стили объявления.mp4](https://drive.google.com/file/d/1bKjF0W65JqxNKfnM18n91a1t6jnGNW7c)\n\nИз этого видео ты узнаешь:\n- Какой `typeof` у функции и что функция — это объект\n- Три стиля объявления: Function Declaration, Function Expression, Arrow Function\n- Что значит «first-class citizens» — функции можно присваивать, передавать и возвращать\n- Что у функций могут быть собственные свойства"
   },
   {
     "uuid": "203e3603-89cc-4a95-a5ce-15e3d60ef1cd",
@@ -1124,7 +1124,7 @@
     "status": "draft",
     "createdAt": "2026-06-19T13:30",
     "kind": "text",
-    "content": "### Задача\n\nФункция `main` должна связать расчёт и вывод:\n\n1. Вызвать `calcDepartment(department, salaries, workDays, calendar)` — получить результат с сотрудниками и итогами\n2. Передать результат в новый `renderToText`\n3. Вывести полученную строку в консоль\n\n### Что должно получиться\n\nОдин вызов `main()` печатает полностью готовую, выровненную ведомость — такую же по содержанию, как в p3-l5, но с ровными столбцами."
+    "content": "### Задача\n\nФункция `main` должна связать расчёт и вывод:\n\n1. Вызвать `calcDepartment(department, salaries, workDays, calendar)` — получить результат с сотрудниками и итогами\n2. Передать результат в новый `renderToText`\n3. Вывести полученную строку в консоль\n\n### Что должно получиться\n\nОдин вызов `main()` печатает полностью готовую, выровненную ведомость — такую же по содержанию, как в проекте Практика, но с ровными столбцами."
   },
   {
     "uuid": "66fbd5a7-a272-4a81-b879-6828d2c87140",
@@ -1204,6 +1204,89 @@
     "code": "// Финальная версия buildPyramid с обработкой крайних случаев.\n// Используй String.repeat() для краткости.\n\n/**\n * Строит ASCII-пирамиду из символов '#'.\n * @param {number} n — высота пирамиды (целое положительное число)\n * @returns {string} — строка с пирамидой, ряды разделены \\n\n */\nfunction buildPyramid(n) {\n    // Крайний случай: n <= 0 — пустая строка\n    if (n <= 0) return '';\n\n    let result = '';\n    for (let i = 1; i <= n; i++) {\n        let spaces = ' '.repeat(n - i);\n        let hashes = '#'.repeat(2 * i - 1);\n        result += spaces + hashes;\n        if (i < n) result += '\\n';\n    }\n    return result;\n}\n\n// Добавь тесты в buildPyramid.test.js:\n// - buildPyramid(0) === ''\n// - buildPyramid(-1) === ''\n// - buildPyramid(1) === '#'\n// - buildPyramid(2) === ' #\\n###'\n// - buildPyramid(3) === '  #\\n ###\\n#####'\n\nconsole.log('n = 0:', JSON.stringify(buildPyramid(0)));\nconsole.log('n = 1:', JSON.stringify(buildPyramid(1)));\nconsole.log('n = 2:', JSON.stringify(buildPyramid(2)));\nconsole.log('n = 3:', JSON.stringify(buildPyramid(3)));\nconsole.log('n = 5:');\nconsole.log(buildPyramid(5));\n\nmodule.exports = { buildPyramid };\n",
     "language": "javascript",
     "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "12a19f57-8058-4ddc-a72e-1bb287400b61",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Что такое область видимости и время жизни",
+    "content": "**Область видимости (scope)** — это часть программы, в которой переменная существует и доступна. Попытка обратиться к переменной за пределами её области видимости приводит к ошибке `ReferenceError`.\n\n**Время жизни** переменной — период от момента создания до уничтожения. Переменная создаётся при входе в её область видимости и уничтожается при выходе.\n\nВ JavaScript три уровня области видимости:\n\n| Уровень | Где объявлена | Когда живёт | Для каких объявлений |\n|---|---|---|---|\n| **Глобальная** | Вне функций и блоков | От запуска до завершения программы | `let`, `const`, `var` |\n| **Функциональная** | Внутри функции | От вызова до возврата из функции | `var`, `let`, `const`, параметры |\n| **Блочная** | Внутри `{ }` | От входа в блок до выхода | Только `let` и `const` |",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "afb97970-b701-4533-b4d4-39ec536622ac",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Глобальная область видимости",
+    "content": "Переменная, объявленная вне любых функций и блоков — **глобальная**. Видна отовсюду. Живёт от запуска программы до её завершения.\n\n```javascript\nconst appName = 'Калькулятор зарплаты';\nlet version = '1.0';\nvar legacyFlag = true;         // var тоже глобален, но не используй\n\nfunction showInfo() {\n  console.log(appName);        // 'Калькулятор зарплаты' — видна внутри функции\n  console.log(version);        // '1.0'\n}\n\nshowInfo();\nconsole.log(appName);          // 'Калькулятор зарплаты' — и снаружи тоже\n```\n\nГлобальные переменные удобны для конфигурации приложения, но злоупотреблять ими опасно: в программе из сотен строк легко случайно перезаписать чужую глобальную переменную и получить трудноуловимую ошибку.",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "36195510-0dcc-4bc4-958a-a236fd830419",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Функциональная область видимости",
+    "content": "Переменная, объявленная **внутри функции** (включая параметры), видна только внутри этой функции. Снаружи — ошибка. Живёт от момента вызова функции до `return` (или конца тела функции).\n\n```javascript\nfunction calculateIPN(salary) {\n  const rate = 0.1;            // видна только внутри calculateIPN\n  const ipn = salary * rate;\n  return ipn;\n}\n\nconsole.log(calculateIPN(500000));  // 50000\nconsole.log(rate);                  // ReferenceError: rate is not defined\nconsole.log(salary);                // ReferenceError: salary is not defined\n```\n\nПараметры функции (`salary`) — это тоже локальные переменные функции. Их время жизни — один вызов.\n\n**Вложенные функции.** Внутренняя функция видит переменные внешней:\n\n```javascript\nfunction printEmployeeInfo(name, salary) {\n  const bonus = 5000;\n\n  function formatLine() {\n    const total = salary + bonus;\n    return name + ': ' + total + ' тенге';\n  }\n\n  console.log(formatLine());\n}\n\nprintEmployeeInfo('Алия', 400000);  // 'Алия: 405000 тенге'\nconsole.log(bonus);                 // ReferenceError\nconsole.log(name);                  // ReferenceError\n```\n\nВнутренняя `formatLine` имеет доступ к `name`, `salary` и `bonus` из внешней `printEmployeeInfo`. Но снаружи ничего не видно.\n\n**var в функции vs блоке.** `var` всегда создаёт **функциональную** область видимости. Блоки `{ }` для `var` прозрачны:\n\n```javascript\nfunction demoVar() {\n  {\n    var x = 10;\n  }\n  console.log(x);   // 10 — var «пробил» блок, но НЕ вышел за пределы функции\n}\n\ndemoVar();\nconsole.log(x);     // ReferenceError\n```\n\n`let` и `const` внутри той же функции были бы ограничены блоком.\n\n**Почему var не нужен:**\n\n```javascript\nfor (var i = 0; i < 3; i++) { }\nconsole.log(i);  // 3 — переменная «утекла» из цикла\n\nfor (let j = 0; j < 3; j++) { }\nconsole.log(j);  // ReferenceError — осталась в цикле\n```\n\n**Всегда используй `let` и `const`.** `var` оставлен для обратной совместимости и создаёт трудноуловимые ошибки.",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "53d4eacc-3c08-4661-af86-2618b085029a",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Сборщик мусора",
+    "content": "Когда переменная выходит из области видимости, она становится недоступной и больше не нужна. **Сборщик мусора (Garbage Collector, GC)** — встроенный механизм JavaScript, который автоматически находит и удаляет такие переменные из памяти.\n\n```javascript\nfunction processData() {\n  const hugeArray = new Array(1000000);  // заняли много памяти\n  const result = hugeArray.length;\n  return result;\n}  // ← здесь функция завершилась, hugeArray больше не нужен\n\nconst size = processData();\n// Сборщик мусора заметит, что hugeArray недоступен, и освободит память\n```\n\nТвоя ответственность — не держать ссылки на ненужные данные. Ответственность сборщика мусора — автоматически подчистить то, что стало недоступно. Если переменная вышла из области видимости и на неё никто не ссылается — GC её удалит.\n\n**Возврат объекта из функции.** Когда функция создаёт объект и возвращает его, время жизни объекта зависит от того, сохранил ли вызывающий код ссылку:\n\n```javascript\nfunction createEmployee(name, salary) {\n  const employee = { name: name, salary: salary };\n  return employee;\n}\n\nconst aliya = createEmployee('Алия', 500000);\n// aliya держит ссылку → объект жив, GC его не тронет\n\nlet bek = createEmployee('Бек', 350000);\nbek = null;                  // ссылка потеряна → GC удалит объект Бека\n\ncreateEmployee('Чингиз', 420000);\n// Результат никуда не сохранён → объект недоступен → GC удалит\n```\n\nПеременные `name` и `salary` внутри функции живут один вызов и удаляются GC после `return`. Но сам **объект** `employee` продолжает жить, пока на него есть хотя бы одна ссылка снаружи. Как только ссылок не остаётся — GC его удаляет.\n\n**Практический вывод:** объявляй переменные как можно ближе к месту использования, в самой узкой области видимости. Тогда они быстрее станут недоступны, и GC быстрее освободит память.",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "60f21a8b-39cc-43c8-ae90-b9bf718b1f3f",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Блочная область видимости",
+    "content": "`let` и `const` создают **блочную** область видимости: переменная живёт только внутри ближайшего блока `{ ... }`. Это касается любого блока: тела `if`, `for`, `while`, просто фигурных скобок.\n\n```javascript\nconst city = 'Алматы';           // глобальная\n\n{\n  const district = 'Бостандык';   // блочная\n  console.log(city);              // 'Алматы' — глобальная видна внутри\n  console.log(district);          // 'Бостандык'\n}\n\nconsole.log(city);                // 'Алматы'\nconsole.log(district);            // ReferenceError — блок закрыт, переменная «умерла»\n```\n\n**Время жизни в цикле.** На каждой итерации `for` с `let` создаётся **новая** переменная:\n\n```javascript\nfor (let i = 1; i <= 3; i++) {\n  const doubled = i * 2;\n  console.log(`Итерация ${i}: удвоенное = ${doubled}`);\n}\n\nconsole.log(i);       // ReferenceError — переменная «умерла» после цикла\nconsole.log(doubled); // ReferenceError\n```\n\nЭто защищает данные: `doubled` из итерации 1 не «загрязняет» итерацию 2, потому что это **разные** переменные.\n\n**Вложенные блоки.** Внутренний блок видит переменные внешних блоков, внешний — не видит внутренние:\n\n```javascript\nconst country = 'Казахстан';\n{\n  const city = 'Алматы';\n  {\n    const street = 'Абая';\n    console.log(street);   // 'Абая' — своя\n    console.log(city);     // 'Алматы' — из внешнего блока\n    console.log(country);  // 'Казахстан' — глобальная\n  }\n  console.log(city);       // 'Алматы' — ок\n  console.log(street);     // ReferenceError\n}\n```",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "52c9df06-8b91-4a92-9489-cac3710a5d56",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Сравнение всех трёх видов",
+    "content": "Сводный пример — все три уровня scope в одном фрагменте:\n\n```javascript\n// ГЛОБАЛЬНАЯ — видна везде, живёт всю программу\nconst appName = 'Калькулятор';\n\n// ФУНКЦИОНАЛЬНАЯ — видна внутри функции, живёт один вызов\nfunction calc(salary) {\n  const ipn = salary * 0.1;    // salary и ipn — локальные для calc\n  return ipn;\n}\n\n// БЛОЧНАЯ — видна внутри {}, живёт пока открыт блок\nif (true) {\n  let temp = 'временная';      // temp умрёт после закрывающей }\n  console.log(temp);           // 'временная'\n}\nconsole.log(temp);             // ReferenceError\n\n// Сборщик мусора: temp, ipn и salary уже недоступны — GC может их удалить\n```",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
+  },
+  {
+    "uuid": "a5aad89b-66fb-458d-8692-7c2f24035a5e",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Задание: найди ошибки",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "code",
+    "code": "// В коде ниже три ошибки, связанные с областью видимости.\n// Найди и исправь каждую. Опиши словами причину.\n\nconst bonus = 5000;\n\nfunction calculateIpny(salary) {\n  const ipn = salary * 0.1;\n}\n\nconsole.log(ipn);              // ошибка 1\n\n{\n  let discount = 1000;\n  let extraDiscount = 500;\n}\n\nlet total = bonus + discount;  // ошибка 2\nconsole.log(total);\n\nfor (let i = 0; i < 3; i++) {\n  let stepResult = i * 10;\n}\nconsole.log(stepResult);       // ошибка 3\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "a97daf76-2d97-414e-934f-b6f180098372",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Задание: расчёт зарплаты с правильным scope",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "code",
+    "code": "// Напиши функцию calculateDeductions(salary), которая возвращает объект:\n// - ipn — ИПН 10%\n// - ops — ОПВ 2%\n// - net — зарплата на руки\n// Локальные переменные ipn и ops не должны быть видны снаружи.\n\n// Твой код здесь\n\nconst employees = [\n  { name: 'Алия', salary: 500000 },\n  { name: 'Бек', salary: 350000 },\n  { name: 'Чингиз', salary: 420000 },\n];\n\n// Для каждого сотрудника:\n//   1. Вызови calculateDeductions\n//   2. Выведи: имя, ИПН, ОПВ, net (на руки)\n",
+    "language": "javascript"
+  },
+  {
+    "uuid": "f99100d6-4d87-402b-a0b7-5190447d452c",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Ключевые идеи",
+    "content": "- **Область видимости** определяет, где переменная доступна. Вне своей области — `ReferenceError`.\n- **Время жизни** — от создания до уничтожения. Глобальные живут всю программу, функциональные — один вызов, блочные — пока открыт `{ }`.\n- **Глобальная** — вне всего, доступна отовсюду. Используй умеренно.\n- **Функциональная** — внутри функции (включая параметры). `var` ограничен функцией, а не блоком.\n- **Блочная** (`let`, `const`) — внутри `{ }`. Каждая итерация `for` с `let` создаёт новую переменную.\n- **Сборщик мусора** — автоматически удаляет переменные, когда они выходят из области видимости и становятся недоступны. Объявляй переменные в самой узкой области.\n- `var` создаёт функциональную область и игнорирует блоки — **не используй**.\n- Область видимости — не ограничение, а **защита**: данные не «утекают» и не конфликтуют.",
+    "status": "published",
+    "createdAt": "2026-06-23T10:00",
+    "kind": "text"
   },
   {
     "uuid": "d1654fe3-26c1-4c1b-bb22-eaa6e074435b",

@@ -39,4 +39,4 @@ changeObject(originalObject);
 console.log(originalObject.value); // -> 15 (оригинал изменился)
 ```
 
-**Видео:** [p4-l1. Функции аргументы передача по значению и ссылке.mp4](https://drive.google.com/file/d/1DRstUzQQF0cs2ZgtaAIrwhtzFO3Ht96W)
+**Видео:** [p4-l2. Функции аргументы передача по значению и ссылке.mp4](https://drive.google.com/file/d/1DRstUzQQF0cs2ZgtaAIrwhtzFO3Ht96W)

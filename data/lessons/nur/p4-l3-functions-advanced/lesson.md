@@ -56,4 +56,4 @@ counter1(); // -> Current count: 2
 counter2(); // -> Current count: 11 (независимый счетчик)
 ```
 
-**Видео:** [p4-l2. Функции продвинутые возможности.mp4](https://drive.google.com/file/d/1Vy9SkZ9rpCQ5TH5tqVHhHo5ZOKmYBpu2)
+**Видео:** [p4-l3. Функции продвинутые возможности.mp4](https://drive.google.com/file/d/1Vy9SkZ9rpCQ5TH5tqVHhHo5ZOKmYBpu2)
