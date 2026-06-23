@@ -34,6 +34,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 data/questionnaires/
 data/streams/
 data/users/
+data/backup/
 
 # w3school downloaded course files (generated, should not be committed)
 packages/w3school/www.w3schools.com/

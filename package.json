@@ -10,6 +10,7 @@
   "scripts": {
     "test": "bun test",
     "test:bot": "bun test packages/stream/src/ui/bot/ tests/bot/",
+    "backup": "bash scripts/backup.sh",
     "seed:fixtures": "bun run apps/u7-bot/scripts/seed-fixtures.ts",
     "dev:fixtures": "bun run seed:fixtures && DB_DIR=./data-fixtures NODE_ENV=development bun run apps/u7-bot/src/main.ts",
     "test:p": "bash -c 'bun run --cwd \"packages/${0}\" test'",
