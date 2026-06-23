@@ -1,0 +1,33 @@
+{
+  "lessonUuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
+  "files": [
+    {
+      "order": 1,
+      "kind": "file",
+      "description": "Структура модулей: utils.js — общие утилиты\n\nПокажи студентам как утилиты экспортируются и переиспользуются.",
+      "fileName": "utils.js",
+      "fileMimeType": "text/javascript"
+    },
+    {
+      "order": 2,
+      "kind": "file",
+      "description": "Модуль buildPyramid — импортирует repeat из utils\n\nПокажи что buildPyramid не делает всё сам, а полагается на utils.",
+      "fileName": "buildPyramid.js",
+      "fileMimeType": "text/javascript"
+    },
+    {
+      "order": 3,
+      "kind": "file",
+      "description": "Модуль drawTree — импортирует buildPyramid и center из utils\n\nПокажи цепочку зависимостей: drawTree → buildPyramid → utils.",
+      "fileName": "drawTree.js",
+      "fileMimeType": "text/javascript"
+    },
+    {
+      "order": 4,
+      "kind": "file",
+      "description": "main.js — точка входа, демонстрирует порядок загрузки модулей\n\nСкачай все 4 файла в одну папку, открой main.js в проекторе. Подсказки для ментора:\n1. Запусти main.js — console.log покажет порядок загрузки модулей\n2. utils загружен ОДИН раз, хотя импортируется и из buildPyramid и из drawTree\n3. Обсуди: почему модуль выполняется один раз? Что такое кеширование модулей?\n4. Обсуди цепочку зависимостей: кто от кого зависит? Что будет если удалить utils.js?",
+      "fileName": "main.js",
+      "fileMimeType": "text/javascript"
+    }
+  ]
+}
