@@ -1,5 +1,4 @@
 import type { User } from '@u7-scl/app/domain';
-import { UserPolicy } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type {
   BotResponse,

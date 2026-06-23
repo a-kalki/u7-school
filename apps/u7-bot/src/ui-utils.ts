@@ -50,7 +50,7 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       if (markup && 'inline_keyboard' in markup) {
         for (const row of markup.inline_keyboard) {
           for (const btn of row) {
-            if (btn.callback_data === data) {
+            if ('callback_data' in btn && btn.callback_data === data) {
               const label =
                 prev.parseMode === 'MarkdownV2'
                   ? `*Вы выбрали:* «${btn.text}»`
