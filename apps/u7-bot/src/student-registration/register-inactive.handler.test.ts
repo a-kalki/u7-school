@@ -1,9 +1,7 @@
-import { afterAll, describe, expect, test, mock } from 'bun:test';
-import type { User } from '@u7-scl/user/domain';
-import type { Student } from '@u7-scl/stream/domain';
-import type { UserFacade } from '@u7-scl/user/domain';
-import type { StudentRepo } from '@u7-scl/stream/domain';
+import { afterAll, describe, expect, mock, test } from 'bun:test';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
+import type { Student, StudentRepo } from '@u7-scl/stream/domain';
+import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { STUDENT_LIST } from './constants';
 import { handleRegisterInactive } from './register-inactive.handler';
@@ -29,12 +27,14 @@ const testSnapshot: ContentSnapshot = [
   },
 ];
 
-function createMockCtx(telegramId: number, isAdmin = false) {
+function createMockCtx(telegramId: number) {
   const replies: string[] = [];
-  const reply = mock(async (text: string, _opts?: unknown): Promise<unknown> => {
-    replies.push(text);
-    return {} as ReturnType<typeof reply>;
-  });
+  const reply = mock(
+    async (text: string, _opts?: unknown): Promise<unknown> => {
+      replies.push(text);
+      return {} as ReturnType<typeof reply>;
+    },
+  );
 
   return {
     from: { id: telegramId, first_name: 'Test' },
@@ -176,7 +176,13 @@ describe('handleRegisterInactive', () => {
       enrolledAt: '2026-06-01T00:00:00.000Z',
       status: 'active',
       currentStepId: 's1-1',
-      steps: [{ stepId: 's1-1', status: 'issued', issuedAt: '2026-06-01T00:00:00.000Z' }],
+      steps: [
+        {
+          stepId: 's1-1',
+          status: 'issued',
+          issuedAt: '2026-06-01T00:00:00.000Z',
+        },
+      ],
       createdAt: '2026-06-01T00:00:00.000Z',
     });
 

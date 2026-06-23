@@ -1,18 +1,16 @@
 import type { Logger } from '@u7-scl/core/shared';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
-import type { Student } from '@u7-scl/stream/domain';
-import type { StudentRepo } from '@u7-scl/stream/domain';
+import type { Student, StudentRepo } from '@u7-scl/stream/domain';
 import { Role, type User, type UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
 import {
-  STREAM_1_UUID,
-  GROUP_CHAT_ID,
-  STUDENT_LIST,
+  buildStepLabel,
   findFirstStepId,
   findStudentByTelegramId,
+  GROUP_CHAT_ID,
   parseLessonLabel,
-  buildStepLabel,
+  STREAM_1_UUID,
 } from './constants';
 
 // ═══════════════════════════════════════════════════════════════
@@ -24,7 +22,10 @@ interface MinimalCtx {
   message: { text: string };
   reply: (text: string, opts?: { parse_mode?: string }) => Promise<unknown>;
   api: {
-    getChatMember: (chatId: string, userId: number) => Promise<{ status: string }>;
+    getChatMember: (
+      chatId: string,
+      userId: number,
+    ) => Promise<{ status: string }>;
   };
 }
 
@@ -77,7 +78,9 @@ export async function handleRegisterStudent(
       }
       // Пользователь в группе, но не в списке — ок, продолжаем
     } catch {
-      await ctx.reply('⚠️ Не удалось проверить членство в группе. Попробуй позже.');
+      await ctx.reply(
+        '⚠️ Не удалось проверить членство в группе. Попробуй позже.',
+      );
       return;
     }
   }
@@ -89,7 +92,10 @@ export async function handleRegisterStudent(
     (r) => r.status === 'active' && r.streamId === streamUuid,
   );
   if (activeInStream1) {
-    const stepLabel = buildStepLabel(contentSnapshot, activeInStream1.currentStepId);
+    const stepLabel = buildStepLabel(
+      contentSnapshot,
+      activeInStream1.currentStepId,
+    );
     await ctx.reply(
       `ℹ️ Ты уже зарегистрирован в потоке\\.\n📌 Текущее задание: ${escapeMd(stepLabel)}`,
       { parse_mode: 'MarkdownV2' },
@@ -122,7 +128,11 @@ export async function handleRegisterStudent(
   }
 
   // ── Шаг 5: Найти stepId в contentSnapshot ──
-  const stepId = findFirstStepId(contentSnapshot, parsed.projectIndex, parsed.lessonIndex);
+  const stepId = findFirstStepId(
+    contentSnapshot,
+    parsed.projectIndex,
+    parsed.lessonIndex,
+  );
   if (!stepId) {
     await ctx.reply(
       `❌ Урок \`${escapeMd(lessonLabel)}\` не найден в программе потока\\. Проверь номер\\.`,
@@ -153,9 +163,12 @@ export async function handleRegisterStudent(
       error: String(err),
       userId: user.uuid,
     });
-    await ctx.reply('⚠️ Не удалось создать запись студента\\. Попробуй позже\\.', {
-      parse_mode: 'MarkdownV2',
-    });
+    await ctx.reply(
+      '⚠️ Не удалось создать запись студента\\. Попробуй позже\\.',
+      {
+        parse_mode: 'MarkdownV2',
+      },
+    );
     return;
   }
 

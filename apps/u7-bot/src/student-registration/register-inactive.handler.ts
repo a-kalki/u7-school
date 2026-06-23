@@ -1,15 +1,14 @@
 import type { Logger } from '@u7-scl/core/shared';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
-import type { Student } from '@u7-scl/stream/domain';
-import type { StudentRepo } from '@u7-scl/stream/domain';
+import type { Student, StudentRepo } from '@u7-scl/stream/domain';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
 import {
-  STREAM_1_UUID,
-  GROUP_CHAT_ID,
-  STUDENT_LIST,
   findFirstStepId,
+  GROUP_CHAT_ID,
+  STREAM_1_UUID,
+  STUDENT_LIST,
   type StudentEntry,
 } from './constants';
 
@@ -21,7 +20,10 @@ interface MinimalCtx {
   from: { id: number; first_name: string };
   reply: (text: string, opts?: { parse_mode?: string }) => Promise<unknown>;
   api: {
-    getChatMember: (chatId: string, userId: number) => Promise<{ status: string }>;
+    getChatMember: (
+      chatId: string,
+      userId: number,
+    ) => Promise<{ status: string }>;
   };
 }
 
@@ -77,10 +79,17 @@ export async function handleRegisterInactive(
       if (!user) {
         // Проверить через getChatMember
         try {
-          const member = await ctx.api.getChatMember(groupChatId, entry.telegramId);
+          const member = await ctx.api.getChatMember(
+            groupChatId,
+            entry.telegramId,
+          );
           const allowedStatuses = ['member', 'administrator', 'creator'];
           if (allowedStatuses.includes(member.status)) {
-            user = await userFacade.registerGuest(entry.telegramId, entry.name, actor.uuid);
+            user = await userFacade.registerGuest(
+              entry.telegramId,
+              entry.name,
+              actor.uuid,
+            );
           } else {
             stats.errors++;
             continue;
@@ -132,10 +141,14 @@ export async function handleRegisterInactive(
       // Задержка между студентами чтобы не перегружать систему
       await new Promise((r) => setTimeout(r, 500));
     } catch (err) {
-      logger?.error('register-inactive', `Ошибка обработки студента ${entry.name}`, {
-        error: String(err),
-        entryUuid: entry.uuid,
-      });
+      logger?.error(
+        'register-inactive',
+        `Ошибка обработки студента ${entry.name}`,
+        {
+          error: String(err),
+          entryUuid: entry.uuid,
+        },
+      );
       stats.errors++;
     }
   }

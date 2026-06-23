@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { findFirstStepId, findStudentByTelegramId, parseLessonLabel } from './constants';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
+import {
+  findFirstStepId,
+  findStudentByTelegramId,
+  parseLessonLabel,
+} from './constants';
 
 // Тестовый снимок контента для проверки findFirstStepId
 const testSnapshot: ContentSnapshot = [
@@ -8,7 +12,11 @@ const testSnapshot: ContentSnapshot = [
     projectId: 'p1-uuid',
     projectTitle: 'Проект 1',
     lessons: [
-      { lessonId: 'l1-uuid', lessonTitle: 'Урок 1.1', stepIds: ['s1-1', 's1-2'] },
+      {
+        lessonId: 'l1-uuid',
+        lessonTitle: 'Урок 1.1',
+        stepIds: ['s1-1', 's1-2'],
+      },
       { lessonId: 'l2-uuid', lessonTitle: 'Урок 1.2', stepIds: ['s1-3'] },
     ],
   },
@@ -16,22 +24,35 @@ const testSnapshot: ContentSnapshot = [
     projectId: 'p2-uuid',
     projectTitle: 'Проект 2',
     lessons: [
-      { lessonId: 'l3-uuid', lessonTitle: 'Урок 2.1', stepIds: ['s2-1', 's2-2', 's2-3'] },
+      {
+        lessonId: 'l3-uuid',
+        lessonTitle: 'Урок 2.1',
+        stepIds: ['s2-1', 's2-2', 's2-3'],
+      },
     ],
   },
 ];
 
 describe('parseLessonLabel', () => {
   test('p4-l1 → projectIndex=3, lessonIndex=0', () => {
-    expect(parseLessonLabel('p4-l1')).toEqual({ projectIndex: 3, lessonIndex: 0 });
+    expect(parseLessonLabel('p4-l1')).toEqual({
+      projectIndex: 3,
+      lessonIndex: 0,
+    });
   });
 
   test('p1-l5 → projectIndex=0, lessonIndex=4', () => {
-    expect(parseLessonLabel('p1-l5')).toEqual({ projectIndex: 0, lessonIndex: 4 });
+    expect(parseLessonLabel('p1-l5')).toEqual({
+      projectIndex: 0,
+      lessonIndex: 4,
+    });
   });
 
   test('p10-l3 → projectIndex=9, lessonIndex=2', () => {
-    expect(parseLessonLabel('p10-l3')).toEqual({ projectIndex: 9, lessonIndex: 2 });
+    expect(parseLessonLabel('p10-l3')).toEqual({
+      projectIndex: 9,
+      lessonIndex: 2,
+    });
   });
 
   test('пустая строка → null', () => {
@@ -55,7 +76,10 @@ describe('parseLessonLabel', () => {
   });
 
   test('пробелы вокруг → ошибка формата', () => {
-    expect(parseLessonLabel(' p4-l1 ')).toEqual({ projectIndex: 3, lessonIndex: 0 });
+    expect(parseLessonLabel(' p4-l1 ')).toEqual({
+      projectIndex: 3,
+      lessonIndex: 0,
+    });
   });
 });
 

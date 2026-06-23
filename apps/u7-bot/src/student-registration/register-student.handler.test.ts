@@ -1,9 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test, mock } from 'bun:test';
-import type { User } from '@u7-scl/user/domain';
-import type { Student } from '@u7-scl/stream/domain';
-import type { UserFacade } from '@u7-scl/user/domain';
-import type { StudentRepo } from '@u7-scl/stream/domain';
+import { afterAll, beforeAll, describe, expect, mock, test } from 'bun:test';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
+import type { Student, StudentRepo } from '@u7-scl/stream/domain';
+import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { handleRegisterStudent } from './register-student.handler';
 
@@ -25,7 +23,11 @@ const testSnapshot: ContentSnapshot = [
     projectId: 'p1-uuid',
     projectTitle: 'Проект 1',
     lessons: [
-      { lessonId: 'l1-uuid', lessonTitle: 'Введение', stepIds: ['s1-1', 's1-2'] },
+      {
+        lessonId: 'l1-uuid',
+        lessonTitle: 'Введение',
+        stepIds: ['s1-1', 's1-2'],
+      },
       { lessonId: 'l2-uuid', lessonTitle: 'Переменные', stepIds: ['s2-1'] },
       { lessonId: 'l3-uuid', lessonTitle: 'Операторы', stepIds: ['s3-1'] },
       { lessonId: 'l4-uuid', lessonTitle: 'Типы данных', stepIds: ['s4-1'] },
@@ -44,27 +46,35 @@ const testSnapshot: ContentSnapshot = [
   {
     projectId: 'p3-uuid',
     projectTitle: 'Проект 3',
-    lessons: [{ lessonId: 'l9-uuid', lessonTitle: 'Урок 3.1', stepIds: ['s9-1'] }],
+    lessons: [
+      { lessonId: 'l9-uuid', lessonTitle: 'Урок 3.1', stepIds: ['s9-1'] },
+    ],
   },
   {
     projectId: 'p4-uuid',
     projectTitle: 'Проект 4',
-    lessons: [{ lessonId: 'l10-uuid', lessonTitle: 'Урок 4.1', stepIds: ['s10-1'] }],
+    lessons: [
+      { lessonId: 'l10-uuid', lessonTitle: 'Урок 4.1', stepIds: ['s10-1'] },
+    ],
   },
 ];
 
 // ── Хелперы для моков ──
 
-function createMockCtx(overrides: Partial<{
-  telegramId: number;
-  firstName: string;
-  messageText: string;
-}> = {}) {
+function createMockCtx(
+  overrides: Partial<{
+    telegramId: number;
+    firstName: string;
+    messageText: string;
+  }> = {},
+) {
   const replies: string[] = [];
-  const reply = mock(async (text: string, _opts?: unknown): Promise<unknown> => {
-    replies.push(text);
-    return {} as ReturnType<typeof reply>;
-  });
+  const reply = mock(
+    async (text: string, _opts?: unknown): Promise<unknown> => {
+      replies.push(text);
+      return {} as ReturnType<typeof reply>;
+    },
+  );
 
   return {
     from: {
@@ -90,15 +100,17 @@ function createMockUserFacade(existingUser?: User): UserFacade {
       if (existingUser && existingUser.telegramId === tgId) return existingUser;
       return undefined;
     }),
-    registerGuest: mock(async (_tgId: number, name: string, _actorId: string): Promise<User> => {
-      return {
-        uuid: crypto.randomUUID(),
-        name,
-        telegramId: _tgId,
-        roles: [Role.GUEST],
-        createdAt: new Date().toISOString(),
-      };
-    }),
+    registerGuest: mock(
+      async (_tgId: number, name: string, _actorId: string): Promise<User> => {
+        return {
+          uuid: crypto.randomUUID(),
+          name,
+          telegramId: _tgId,
+          roles: [Role.GUEST],
+          createdAt: new Date().toISOString(),
+        };
+      },
+    ),
     updateUserRole: mock(async () => existingUser ?? testUser),
     getUserByUuid: mock(async () => undefined),
     userExists: mock(async () => false),
@@ -107,7 +119,9 @@ function createMockUserFacade(existingUser?: User): UserFacade {
   } as unknown as UserFacade;
 }
 
-function createMockStudentRepo(existingStudents: Student[] = []): StudentRepo & { _saved: Student[] } {
+function createMockStudentRepo(
+  existingStudents: Student[] = [],
+): StudentRepo & { _saved: Student[] } {
   const saved: Student[] = [];
   return {
     save: mock(async (student: Student) => {
@@ -184,7 +198,10 @@ describe('handleRegisterStudent', () => {
 
   test('Сценарий 3: Пользователь не в списке, но в группе — регистрируется', async () => {
     const newTgId = 9999999999;
-    const ctx = createMockCtx({ telegramId: newTgId, messageText: '/register_student' });
+    const ctx = createMockCtx({
+      telegramId: newTgId,
+      messageText: '/register_student',
+    });
     const facade = createMockUserFacade(undefined); // нет в системе
     studentRepo = createMockStudentRepo([]);
 
@@ -203,7 +220,10 @@ describe('handleRegisterStudent', () => {
   });
 
   test('Сценарий 4: Пользователь не в списке и не в группе — отказ', async () => {
-    const ctx = createMockCtx({ telegramId: 8888888888, messageText: '/register_student' });
+    const ctx = createMockCtx({
+      telegramId: 8888888888,
+      messageText: '/register_student',
+    });
     ctx.api.getChatMember = mock(async () => ({ status: 'left' }));
     const facade = createMockUserFacade(undefined);
     studentRepo = createMockStudentRepo([]);
@@ -229,7 +249,13 @@ describe('handleRegisterStudent', () => {
       enrolledAt: new Date().toISOString(),
       status: 'active',
       currentStepId: 's1-1',
-      steps: [{ stepId: 's1-1', status: 'issued', issuedAt: new Date().toISOString() }],
+      steps: [
+        {
+          stepId: 's1-1',
+          status: 'issued',
+          issuedAt: new Date().toISOString(),
+        },
+      ],
       createdAt: new Date().toISOString(),
     };
 
