@@ -1,0 +1,4 @@
+Task: Создать constants.ts
+- STREAM_1_UUID, GROUP_CHAT_ID, STUDENT_LIST (16 записей)
+- parseLessonLabel, findFirstStepId, findStudentByTelegramId, buildStepLabel
+- 18 тестов, все проходят
