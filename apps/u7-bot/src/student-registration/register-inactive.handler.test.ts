@@ -4,6 +4,7 @@ import type { Student } from '@u7-scl/stream/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { StudentRepo } from '@u7-scl/stream/domain';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
+import { Role } from '@u7-scl/user/domain';
 import { STUDENT_LIST } from './constants';
 import { handleRegisterInactive } from './register-inactive.handler';
 
@@ -30,7 +31,7 @@ const testSnapshot: ContentSnapshot = [
 
 function createMockCtx(telegramId: number, isAdmin = false) {
   const replies: string[] = [];
-  const reply = mock(async (text: string, _opts?: unknown) => {
+  const reply = mock(async (text: string, _opts?: unknown): Promise<unknown> => {
     replies.push(text);
     return {} as ReturnType<typeof reply>;
   });
@@ -60,7 +61,7 @@ function createMocks(state: TestState, adminTgId: number) {
           uuid: 'admin-uuid',
           name: 'Admin',
           telegramId: adminTgId,
-          roles: ['ADMIN', 'MENTOR'],
+          roles: [Role.ADMIN, Role.MENTOR],
           createdAt: '2026-01-01T00:00:00.000Z',
         };
       }
@@ -77,7 +78,7 @@ function createMocks(state: TestState, adminTgId: number) {
         uuid: crypto.randomUUID(),
         name,
         telegramId: tgId,
-        roles: ['GUEST'],
+        roles: [Role.GUEST],
         createdAt: new Date().toISOString(),
       };
       state.users.set(u.uuid, u);
@@ -121,7 +122,7 @@ describe('handleRegisterInactive', () => {
         uuid: entry.uuid,
         name: entry.name,
         telegramId: entry.telegramId,
-        roles: ['GUEST'],
+        roles: [Role.GUEST],
         createdAt: '2026-06-01T00:00:00.000Z',
       });
     }
@@ -161,7 +162,7 @@ describe('handleRegisterInactive', () => {
         uuid: entry.uuid,
         name: entry.name,
         telegramId: entry.telegramId,
-        roles: ['GUEST'],
+        roles: [Role.GUEST],
         createdAt: '2026-06-01T00:00:00.000Z',
       });
     }

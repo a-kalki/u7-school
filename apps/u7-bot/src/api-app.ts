@@ -138,5 +138,9 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     onboardingModule,
     onboardingController,
     router,
+    // ══ ВРЕМЕННО: для student-registration ══
+    streamRepo,
+    streamStudentRepo,
+    // ══ КОНЕЦ ВРЕМЕННОГО БЛОКА ══
   };
 }

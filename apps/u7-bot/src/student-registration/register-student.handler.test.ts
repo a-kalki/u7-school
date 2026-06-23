@@ -4,6 +4,7 @@ import type { Student } from '@u7-scl/stream/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { StudentRepo } from '@u7-scl/stream/domain';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
+import { Role } from '@u7-scl/user/domain';
 import { handleRegisterStudent } from './register-student.handler';
 
 // ── Тестовые данные ──
@@ -15,7 +16,7 @@ const testUser: User = {
   uuid: 'b39a00a8-af8b-4f43-a270-176fc3b4ac7b',
   name: 'Alex',
   telegramId: 5167204720,
-  roles: ['GUEST'],
+  roles: [Role.GUEST],
   createdAt: '2026-06-01T00:00:00.000Z',
 };
 
@@ -60,7 +61,7 @@ function createMockCtx(overrides: Partial<{
   messageText: string;
 }> = {}) {
   const replies: string[] = [];
-  const reply = mock(async (text: string, _opts?: unknown) => {
+  const reply = mock(async (text: string, _opts?: unknown): Promise<unknown> => {
     replies.push(text);
     return {} as ReturnType<typeof reply>;
   });
@@ -94,7 +95,7 @@ function createMockUserFacade(existingUser?: User): UserFacade {
         uuid: crypto.randomUUID(),
         name,
         telegramId: _tgId,
-        roles: ['GUEST'],
+        roles: [Role.GUEST],
         createdAt: new Date().toISOString(),
       };
     }),
@@ -106,7 +107,7 @@ function createMockUserFacade(existingUser?: User): UserFacade {
   } as unknown as UserFacade;
 }
 
-function createMockStudentRepo(existingStudents: Student[] = []): StudentRepo {
+function createMockStudentRepo(existingStudents: Student[] = []): StudentRepo & { _saved: Student[] } {
   const saved: Student[] = [];
   return {
     save: mock(async (student: Student) => {
@@ -122,7 +123,7 @@ function createMockStudentRepo(existingStudents: Student[] = []): StudentRepo {
 // ── Тесты ──
 
 describe('handleRegisterStudent', () => {
-  let studentRepo: ReturnType<typeof createMockStudentRepo>;
+  let studentRepo: StudentRepo & { _saved: Student[] };
 
   beforeAll(() => {
     // Прогреваем схемы (valibot может быть ленивым)
@@ -143,7 +144,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     const replyText = ctx.replies.join(' ');
@@ -173,7 +174,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     const student = studentRepo._saved[0]!;
@@ -193,7 +194,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     // Должен создать гостя и затем студента
@@ -213,7 +214,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     expect(ctx.replies.join(' ')).toContain('не являешься участником');
@@ -242,7 +243,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     expect(ctx.replies.join(' ')).toContain('уже зарегистрирован');
@@ -260,7 +261,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     expect(ctx.replies.join(' ')).toContain('Неверный формат');
@@ -278,7 +279,7 @@ describe('handleRegisterStudent', () => {
       GROUP_ID,
       testSnapshot,
       facade,
-      studentRepo as never,
+      studentRepo as StudentRepo,
     );
 
     expect(ctx.replies.join(' ')).toContain('не найден');
