@@ -1374,8 +1374,8 @@
   {
     "uuid": "8879e4c2-6631-4f57-9854-f5a1acfc26e6",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Изучаем: Модули, введение",
-    "content": "Изучи тему «Модули, введение»:\n\n👉 **[Модули, введение](https://learn.javascript.ru/modules)**\n\nИз этого урока ты узнаешь:\n- Зачем нужны модули\n- Как они изолируют код\n- Strict mode в модулях\n- Область видимости модуля",
+    "description": "Зачем нужны модули",
+    "content": "Представь, что ты пишешь программу из 1000 строк в одном файле `app.js`. Найти нужную функцию — боль. Две переменные `result` в разных местах конфликтуют. Добавить новую фичу страшно — можно сломать старое.\n\n**Модули решают эти проблемы:**\n\n- **Разделение**: код разбит на файлы по смыслу. `math.js` — вычисления, `db.js` — работа с данными, `app.js` — логика приложения.\n- **Изоляция**: переменные и функции модуля не видны снаружи, пока ты явно их не экспортируешь.\n- **Переиспользование**: модуль `math.js` можно импортировать в десятке других файлов.\n\n```javascript\n// 📁 math.js — живёт своей жизнью\nconst SECRET = 'не видно снаружи';\n\nexport function sum(a, b) {\n  return a + b;\n}\n\n// 📁 app.js\nimport { sum } from './math.js';\nconsole.log(sum(2, 3)); // 5\n// console.log(SECRET); — ошибка! SECRET не экспортирован\n```\n\nВ Bun модули — это стандарт. Любой `.js`-файл — это модуль. Каждый файл изолирован, импорты работают «из коробки», без настроек.",
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-16T12:00"
@@ -1383,8 +1383,8 @@
   {
     "uuid": "074a16fc-ad52-46fb-9342-550660e1c66e",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Изучаем: Экспорт и импорт",
-    "content": "Изучи тему «Экспорт и импорт» на learn.javascript.ru:\n\n👉 **[Экспорт и импорт](https://learn.javascript.ru/export-import)**\n\nИз этого урока ты узнаешь:\n- Синтаксис `export`: named export и default export\n- Синтаксис `import`: именованный, default, импорт всего модуля\n- Реэкспорт (barrel-файлы)\n- Разница между named и default export",
+    "description": "Named export — экспорт нескольких сущностей",
+    "content": "Именованный экспорт (`named export`) позволяет отдать наружу несколько значений из одного модуля. Можно экспортировать переменные, функции, классы.\n\n```javascript\n// 📁 math.js\n\n// Экспорт прямо при объявлении\nexport const PI = 3.14159;\n\nexport function sum(a, b) {\n  return a + b;\n}\n\nexport function multiply(a, b) {\n  return a * b;\n}\n\n// Или отдельно — после объявления\nconst E = 2.71828;\nexport { E };\n```\n\nОдин модуль может иметь **сколько угодно** именованных экспортов. Имена важны — импортёр будет обращаться по ним.",
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-16T12:00"
@@ -1392,28 +1392,26 @@
   {
     "uuid": "fa8080d9-ba25-46f8-a431-bc4f4d941cec",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: создай и подключи модуль math",
+    "description": "Named import — импорт по имени",
+    "content": "Импортёр указывает фигурные скобки `{}` и перечисляет нужные имена:\n\n```javascript\n// 📁 app.js\nimport { sum, multiply, PI } from './math.js';\n\nconsole.log(sum(2, 3));      // 5\nconsole.log(multiply(2, 3)); // 6\nconsole.log(PI);             // 3.14159\n```\n\nМожно импортировать **всё сразу** как объект:\n\n```javascript\nimport * as math from './math.js';\n\nconsole.log(math.PI);          // 3.14159\nconsole.log(math.sum(2, 3));   // 5\n```\n\n`import * as` удобен когда экспортов много и ты хочешь видеть «привязку»: `math.sum()` сразу говорит, откуда функция.\n\n**Важно:** в зависимости от настроек проекта использовать расширение файла `.js` в импортах может быть обязательно — `'./math.js'`, не `'./math'`. Но обычно не требуется.",
     "status": "published",
-    "kind": "code",
-    "code": "// Создай структуру из двух файлов (мысленно или реально):\n\n// 📁 math.js\nexport const PI = 3.14159;\n\nexport function sum(a, b) {\n    return a + b;\n}\n\nexport function multiply(a, b) {\n    return a * b;\n}\n\n// 📁 main.js\n// Импортируй sum, multiply и PI из './math.js'\n// Выведи результаты вызовов в консоль\n\n// Твой код импорта и вызова здесь\n",
-    "language": "javascript",
+    "kind": "text",
     "createdAt": "2026-06-16T12:00"
   },
   {
     "uuid": "2f9d35f2-c94e-4b49-b043-9b4d0c72d898",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: default export и реэкспорт",
+    "description": "Default export и import",
+    "content": "У модуля может быть **один** экспорт по умолчанию (`default`). При импорте имя можно выбрать любое — фигурные скобки не нужны.\n\n```javascript\n// 📁 user.js\nexport default function createUser(name) {\n  return { name: name };\n}\n\n// 📁 app.js\nimport makeUser from './user.js';   // имя может отличаться от оригинального!\nconst aliya = makeUser('Алия');\nconsole.log(aliya.name);            // 'Алия'\n```\n\nОбрати внимание: в `user.js` функция называется `createUser`, а при импорте мы назвали её `makeUser`. С default-экспортом имя не имеет значения — импортёр сам решает как назвать.\n\n**Смешанный импорт** — default + named в одной строке:\n\n```javascript\n// 📁 user.js\nexport default function createUser(name) {\n  return { name: name };\n}\nexport function formatName(user) {\n  return user.name.toUpperCase();\n}\n\n// 📁 app.js\nimport makeUser, { formatName } from './user.js';\nconst user = makeUser('Алия');\nconsole.log(formatName(user));     // 'АЛИЯ'\n```\n\n| Named export | Default export |\n|---|---|\n| Несколько на модуль | Один на модуль |\n| `import { имя }` — фигурные скобки | `import имя` — без скобок |\n| Имя фиксировано | Имя выбирает импортёр |\n| Удобно для библиотек утилит | Удобно для главной сущности модуля |\n\nМногие команды предпочитают не использовать `default`-экспорт. Причина: с named-экспортом имя всегда одинаковое во всех файлах — легче искать, проще рефакторить, автодополнение в редакторе работает точнее.",
     "status": "published",
-    "kind": "code",
-    "code": "// Ниже описана структура проекта. Разберись,\n// какой файл что импортирует и за что отвечает.\n//\n// project/\n// ├── utils.js         — общие утилиты\n// ├── buildPyramid.js  — рисует пирамиду\n// ├── drawTree.js      — рисует ёлку\n// └── main.js          — точка входа\n\n// Что делает каждый файл:\n\n// 📁 utils.js — экспортирует:\n//   - repeat(char, count) — строка из char, повторённая count раз\n//   - center(char, totalWidth) — символ по центру строки\n\n// 📁 buildPyramid.js — экспортирует buildPyramid(n).\n//   Импортирует repeat из utils.js.\n\n// 📁 drawTree.js — экспортирует drawTree(height).\n//   Импортирует buildPyramid из buildPyramid.js\n//   и center из utils.js.\n\n// 📁 main.js — импортирует drawTree,\n//   вызывает drawTree(3) и выводит результат.\n\n// Задание:\n// 1. Напиши цепочку импортов: кто кого импортирует?\n//    (main.js → ... → ...)\n// 2. Какой файл от кого зависит?\n// 3. Что будет, если удалить utils.js? Кто сломается?\n// 4. Зачем drawTree.js импортирует из двух разны\n//    модулей, а не делает всё сам?\n",
-    "language": "javascript",
+    "kind": "text",
     "createdAt": "2026-06-16T12:00"
   },
   {
     "uuid": "92f34ce1-08d0-445e-966a-1af35b7015e8",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: проверь кеширование модуля",
-    "content": "Модули выполняются **один раз** и кешируются. Проверь это:\n\nСоздай (мысленно) три файла:\n\n```js\n// 📁 counter.js\nexport let count = 0;\nexport function inc() { count++; }\n```\n\n```js\n// 📁 a.js\nimport { count, inc } from './counter.js';\ninc();\nconsole.log('a.js: count =', count);\n```\n\n```js\n// 📁 b.js\nimport { count } from './counter.js';\nconsole.log('b.js: count =', count);\n```\n\nОтветь:\n1. Какое значение `count` увидит `b.js`, если `a.js` импортировался раньше?\n2. Почему это работает именно так?\n3. Как это можно использовать на практике?",
+    "description": "Реэкспорт и barrel-файлы",
+    "content": "Когда модулей становится много, удобно собрать их в одном файле-агрегаторе — **barrel-файле** (часто `index.js`). Он ничего не делает сам, только реэкспортирует.\n\n```javascript\n// 📁 lib/index.js  ← barrel-файл\nexport { sum, multiply } from './math.js';\nexport { default as createUser } from './user.js';\n```\n\nТеперь импортёр подключает один файл вместо двух:\n\n```javascript\n// 📁 app.js\nimport { sum, createUser } from './lib/index.js';\n```\n\n**Плюсы:** чистая точка входа, меньше путей в импортах.\n**Минус:** если переусердствовать — грузится всё сразу, даже ненужное.",
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-16T12:00"
@@ -1421,11 +1419,40 @@
   {
     "uuid": "9acec175-aee1-40e1-912b-17a4e978ee67",
     "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
-    "description": "Самостоятельно: порядок импортов в тестировании",
-    "content": "При тестировании важно понимать порядок импортов. Исследуй:\n\n1. У тебя есть модуль `calc.js` с функциями `sum` и `multiply`\n2. И тестовый файл `calc.test.js`, который импортирует `calc.js`\n3. Что произойдёт раньше: выполнение кода модуля или выполнение тестов?\n\n**Подумай:**\n- Зачем в тестах используют `import`?\n- Почему важно, чтобы модуль не имел «побочных эффектов» при импорте (например, `console.log` на верхнем уровне)?\n- Как изоляция модулей помогает в тестировании?",
+    "description": "Порядок загрузки модулей",
+    "content": "Bun разрешает зависимости рекурсивно перед выполнением кода:\n\n```\napp.js импортирует math.js и user.js\n  math.js — нет зависимостей\n  user.js импортирует math.js (уже загружен — используется кеш)\n```\n\nПорядок выполнения:\n1. `math.js` — загружается первым (от него зависят все)\n2. `user.js` — после math\n3. `app.js` — после всех зависимостей\n\nКод **верхнего уровня** модуля (вне функций) выполняется сразу при импорте. Код внутри функций — только при вызове.\n\n```javascript\n// 📁 math.js\nconsole.log('[math] верхний уровень');   // выполняется при импорте\n\nexport function sum(a, b) {\n  console.log('[math] sum вызвана');     // выполняется при вызове\n  return a + b;\n}\n```\n\n### Кеширование модуля\n\nКогда Bun впервые встречает `import`, он выполняет код модуля и **запоминает** результат — это и есть кеширование. При повторном импорте того же модуля (из любого другого файла) код **не выполняется заново** — возвращается уже готовый объект экспорта.\n\n```javascript\n// 📁 counter.js\nconsole.log('[counter] загружен');   // этот лог появится только ОДИН раз\nexport let count = 0;\nexport function inc() { count++; }\n\n// 📁 a.js\nimport { count, inc } from './counter.js';\ninc();\nconsole.log('a: count =', count);   // 1\n\n// 📁 b.js\nimport { count } from './counter.js';\nconsole.log('b: count =', count);   // 1 — тот же count!\n```\n\nВывод при запуске `a.js` и `b.js` в одном процессе:\n```\n[counter] загружен    ← один раз\na: count = 1\nb: count = 1\n```\n\n**Что это значит на практике:**\n- Все импортёры **разделяют одно и то же состояние** экспортированных переменных\n- `console.log` на верхнем уровне модуля сработает только при первом импорте\n- Если модуль меняет свою переменную — изменение видно всем, кто его импортирует\n- Это удобно для общего состояния (например, конфигурации), но может быть источником трудноуловимых ошибок",
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "db0b8d59-b360-46cc-bfb1-768aafe2e3c3",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Задание: создай модуль math и импортируй",
+    "status": "published",
+    "kind": "code",
+    "code": "// 📁 math.js\nexport const PI = 3.14;\n\nexport function double(n) {\n  return n * 2;\n}\n\nexport function triple(n) {\n  return n * 3;\n}\n\n// 📁 app.js\n// Импортируй PI, double и triple из './math.js'\n// Выведи в консоль:\n//   PI\n//   double(5)\n//   triple(5)\n\n// Твой код здесь\n",
+    "language": "javascript",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "b71aa2bc-af0c-4b23-9890-14f19a1dbd22",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Задание: default export и barrel-файл",
+    "status": "published",
+    "kind": "code",
+    "code": "// 📁 lib/calc.js\nexport default function add(a, b) {\n  return a + b;\n}\n\nexport function subtract(a, b) {\n  return a - b;\n}\n\n// 📁 lib/greet.js\nexport default function hello(name) {\n  return 'Привет, ' + name;\n}\n\n// 📁 lib/index.js — barrel-файл\nexport { default as add, subtract } from './calc.js';\nexport { default as greet } from './greet.js';\n\n// 📁 app.js\n// Импортируй add, subtract и greet из './lib/index.js'\n// Выведи в консоль:\n//   add(10, 5)\n//   subtract(10, 5)\n//   greet('Алия')\n\n// Твой код здесь\n",
+    "language": "javascript",
+    "createdAt": "2026-06-22T12:00"
+  },
+  {
+    "uuid": "b9845386-61fd-4846-bfca-598e5eea0077",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "description": "Ключевые идеи",
+    "content": "- **Модуль** — файл с изолированной областью видимости. Всё что не `export` — приватно.\n- **Named export** — именованный, можно много. Импорт: `import { имя }`.\n- **Default export** — один на модуль. Импорт: `import имя` (без скобок).\n- **Реэкспорт** — агрегация через barrel-файлы (`index.js`).\n- **Порядок загрузки** — зависимости разрешаются рекурсивно, модуль выполняется один раз и кешируется.\n\n### Эволюция модульности\n\nСовременный JS пришёл к `import`/`export` не сразу. В будущем ты можешь встретить другие синтаксисы:\n\n- **CommonJS** — `require('./math')` и `module.exports`. Исторический стандарт Node.js. До сих пор встречается в старых проектах и некоторых npm-пакетах.\n- **AMD** — асинхронная загрузка для браузеров (`define()`). Устарел.\n- **UMD** — универсальный формат, работает и в Node, и в браузере. Промежуточное решение.\n- **ES Modules** — `import`/`export`. Современный стандарт, его использует Bun.\n\nBun поддерживает все форматы, но рекомендуется использовать только `import`/`export`.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-22T12:00"
   },
   {
     "uuid": "0b3acca3-d8e6-4339-a3c6-aaa066cfc26c",

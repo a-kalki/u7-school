@@ -540,14 +540,17 @@
     "additional": "Разделение кода на модули, синтаксис export/import, default vs named exports, реэкспорт",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "estimatedMinutes": 15,
+    "estimatedMinutes": 45,
     "stepIds": [
       "8879e4c2-6631-4f57-9854-f5a1acfc26e6",
       "074a16fc-ad52-46fb-9342-550660e1c66e",
       "fa8080d9-ba25-46f8-a431-bc4f4d941cec",
       "2f9d35f2-c94e-4b49-b043-9b4d0c72d898",
       "92f34ce1-08d0-445e-966a-1af35b7015e8",
-      "9acec175-aee1-40e1-912b-17a4e978ee67"
+      "9acec175-aee1-40e1-912b-17a4e978ee67",
+      "db0b8d59-b360-46cc-bfb1-768aafe2e3c3",
+      "b71aa2bc-af0c-4b23-9890-14f19a1dbd22",
+      "b9845386-61fd-4846-bfca-598e5eea0077"
     ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-16T12:00"
