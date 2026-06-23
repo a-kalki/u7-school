@@ -16,22 +16,22 @@ student-registration/
 
 ## Фаза 1: Константы и хелперы
 
-- [ ] Task: Создать `constants.ts`
-    - [ ] Константа `STREAM_1_UUID = '8ae94921-8af6-4fb6-ad1d-60bd2f8ee394'`
-    - [ ] Константа `GROUP_CHAT_ID = '-1003960918937'`
-    - [ ] Константа `STUDENT_LIST: Array<{ name: string; telegramId: number; uuid: string }>` — 16 записей из maybe-member.md (раздел 6), исключая Nur (админ) и U7 School Bot
-    - [ ] Тип `StudentEntry = { name: string; telegramId: number; uuid: string }`
-    - [ ] Функция `findStudentByTelegramId(tgId: number): StudentEntry | undefined` — поиск в STUDENT_LIST
-    - [ ] Функция `parseLessonLabel(label: string): { projectIndex: number; lessonIndex: number } | null`
-        - [ ] Формат: `pN-lM`, где N и M — положительные целые
-        - [ ] Возвращает 0-based индексы (N-1, M-1) или null при неверном формате
-    - [ ] Функция `findFirstStepId(snapshot: ContentSnapshot, projectIndex: number, lessonIndex: number): string | null`
-        - [ ] Принимает contentSnapshot потока (из get-stream)
-        - [ ] Проверяет границы: projectIndex < snapshot.length, lessonIndex < project.lessons.length
-        - [ ] Возвращает первый stepId из lesson.stepIds[0] или null
-    - [ ] Функция `buildStepLabel(snapshot: ContentSnapshot, stepId: string): string`
-        - [ ] Находит шаг в дереве и возвращает человекочитаемую метку: «Шаг 1 / Переменные (p1-l2)»
-        - [ ] Если шаг не найден — возвращает первые 8 символов UUID
+- [x] Task: Создать `constants.ts`
+    - [x] Константа `STREAM_1_UUID = '8ae94921-8af6-4fb6-ad1d-60bd2f8ee394'`
+    - [x] Константа `GROUP_CHAT_ID = '-1003960918937'`
+    - [x] Константа `STUDENT_LIST: Array<{ name: string; telegramId: number; uuid: string }>` — 16 записей из maybe-member.md (раздел 6), исключая Nur (админ) и U7 School Bot
+    - [x] Тип `StudentEntry = { name: string; telegramId: number; uuid: string }`
+    - [x] Функция `findStudentByTelegramId(tgId: number): StudentEntry | undefined` — поиск в STUDENT_LIST
+    - [x] Функция `parseLessonLabel(label: string): { projectIndex: number; lessonIndex: number } | null`
+        - [x] Формат: `pN-lM`, где N и M — положительные целые
+        - [x] Возвращает 0-based индексы (N-1, M-1) или null при неверном формате
+    - [x] Функция `findFirstStepId(snapshot: ContentSnapshot, projectIndex: number, lessonIndex: number): string | null`
+        - [x] Принимает contentSnapshot потока (из get-stream)
+        - [x] Проверяет границы: projectIndex < snapshot.length, lessonIndex < project.lessons.length
+        - [x] Возвращает первый stepId из lesson.stepIds[0] или null
+    - [x] Функция `buildStepLabel(snapshot: ContentSnapshot, stepId: string): string`
+        - [x] Находит шаг в дереве и возвращает человекочитаемую метку: «Шаг 1 / Переменные (p1-l2)»
+        - [x] Если шаг не найден — возвращает первые 8 символов UUID
 
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
 
