@@ -16,7 +16,7 @@ student-registration/
 
 ## Фаза 1: Константы и хелперы
 
-- [x] Task: Создать `constants.ts`
+- [x] Task: Создать `constants.ts` `1c7316a`
     - [x] Константа `STREAM_1_UUID = '8ae94921-8af6-4fb6-ad1d-60bd2f8ee394'`
     - [x] Константа `GROUP_CHAT_ID = '-1003960918937'`
     - [x] Константа `STUDENT_LIST: Array<{ name: string; telegramId: number; uuid: string }>` — 16 записей из maybe-member.md (раздел 6), исключая Nur (админ) и U7 School Bot
