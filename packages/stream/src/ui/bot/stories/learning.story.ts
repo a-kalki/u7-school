@@ -14,7 +14,10 @@ import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /** Результат поиска позиции шага в contentSnapshot */
 interface StepPosition {
+  projectTitle: string;
+  projectIndex: number; // 1-based
   lessonTitle: string;
+  lessonIndex: number; // 1-based
   stepIndex: number; // 1-based
   totalSteps: number;
 }
@@ -213,14 +216,19 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  /** Находит позицию шага в снимке контента (урок, индекс, всего). */
+  /** Находит позицию шага в снимке контента (проект, урок, индекс, всего). */
   #findStepPosition(snapshot: ContentSnapshot, stepId: string): StepPosition {
-    for (const project of snapshot) {
-      for (const lesson of project.lessons) {
+    for (let pi = 0; pi < snapshot.length; pi++) {
+      const project = snapshot[pi]!;
+      for (let li = 0; li < project.lessons.length; li++) {
+        const lesson = project.lessons[li]!;
         const idx = lesson.stepIds.indexOf(stepId);
         if (idx !== -1) {
           return {
+            projectTitle: project.projectTitle,
+            projectIndex: pi + 1,
             lessonTitle: lesson.lessonTitle,
+            lessonIndex: li + 1,
             stepIndex: idx + 1,
             totalSteps: lesson.stepIds.length,
           };
@@ -228,13 +236,16 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
     }
     return {
+      projectTitle: '(неизвестный проект)',
+      projectIndex: 0,
       lessonTitle: '(неизвестный урок)',
+      lessonIndex: 0,
       stepIndex: 0,
       totalSteps: 0,
     };
   }
 
-  /** Форматирует сообщение шага с заголовком и телом. */
+  /** Форматирует сообщение шага: заголовок, разделитель, тело. */
   #formatStepMessage(
     streamTitle: string,
     pos: StepPosition,
@@ -242,10 +253,13 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   ): string {
     const lines: string[] = [
       `📖 *Поток:* ${this.escapeMarkdown(streamTitle)}`,
+      `📁 *Проект:* ${this.escapeMarkdown(pos.projectTitle)}`,
       `📚 *Урок:* «${this.escapeMarkdown(pos.lessonTitle)}»`,
-      `📝 *Шаг ${pos.stepIndex} из ${pos.totalSteps}*`,
+      `🔢 p${pos.projectIndex}` + '\\-l' + `${pos.lessonIndex}`,
       '',
-      this.escapeMarkdown(step.description),
+      '――――――――――――――',
+      '',
+      `📝 *Шаг ${pos.stepIndex} из ${pos.totalSteps}:* ${this.escapeMarkdown(step.description)}`,
     ];
 
     if (step.kind === 'code' && step.code) {

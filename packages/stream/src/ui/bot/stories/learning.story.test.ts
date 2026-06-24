@@ -103,9 +103,12 @@ describe('LearningStory', () => {
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Поток:');
     expect(text).toContain('Python');
+    expect(text).toContain('Проект:');
+    expect(text).toContain('Основы');
     expect(text).toContain('Урок:');
     expect(text).toContain('Введение');
-    expect(text).toContain('Шаг 1 из 2');
+    expect(text).toContain('p1\\-l1');
+    expect(text).toContain('Шаг 1 из 2:');
     expect(text).toContain('Изучите основы');
     expect(text).toContain('Контент шага');
 
@@ -166,7 +169,7 @@ describe('LearningStory', () => {
     assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Шаг 2 из 2');
+    expect(text).toContain('Шаг 2 из 2:');
     expect(text).toContain('Напишите код');
     expect(text).toContain('```');
     expect(text).toContain('console');

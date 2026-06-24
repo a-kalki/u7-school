@@ -212,13 +212,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Получаем пользователя
     let userName = student.userId.slice(0, 8);
-    let telegramId = 0;
     try {
       const user = await this.appApi.execute('get-user', {
         uuid: student.userId,
       });
       userName = user.name;
-      telegramId = user.telegramId;
     } catch (err) {
       this.handleError(err);
       // Пользователь не найден
@@ -246,7 +244,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const lines = [
       `👤 *${this.escapeMarkdown(userName)}*`,
       '',
-      `📱 Telegram: ID ${telegramId}`,
       `📊 Статус: ${statusLabels[student.status] ?? student.status}`,
       `📈 Прогресс: ${completed} из ${totalSteps} шагов ${this.escapeMarkdown(`(${pct}%)`)}`,
     ];
