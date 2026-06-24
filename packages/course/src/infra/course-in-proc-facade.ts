@@ -1,5 +1,6 @@
 import type { ContentSnapshot } from '#domain/content-snapshot';
 import type { CourseFacade } from '#domain/facade';
+import type { Step } from '#domain/step/entity';
 import type { CourseApiModule } from '../api/module';
 
 /**
@@ -11,5 +12,9 @@ export class CourseInProcFacade implements CourseFacade {
 
   async getModuleSnapshot(moduleId: string): Promise<ContentSnapshot> {
     return this.courseModule.execute('get-module-snapshot', { moduleId });
+  }
+
+  async getStep(stepId: string): Promise<Step> {
+    return this.courseModule.execute('get-step', { uuid: stepId });
   }
 }

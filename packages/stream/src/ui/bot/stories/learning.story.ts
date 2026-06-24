@@ -6,33 +6,38 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { ContentSnapshot } from '@u7-scl/course/domain';
+import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
+/** Результат поиска позиции шага в contentSnapshot */
+interface StepPosition {
+  lessonTitle: string;
+  stepIndex: number; // 1-based
+  totalSteps: number;
+}
+
 /**
  * US-4: Прохождение обучения (активная фаза).
- * Показывает текущий шаг, обрабатывает завершение шага.
+ * Показывает текущий шаг с телом, обрабатывает завершение шага.
  */
 export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'learning';
+
+  // ── Публичные методы ──
 
   async handleCallback(
     action: string,
     actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
-    // Завершение шага: complete:<studentId>:<streamId>:<stepId>
     if (action.startsWith('complete:')) {
       return this.#handleComplete(action, actor);
     }
-
-    // Показ текущего шага
     if (action === 'my-study') {
-      return this.#handleMyStudy(actor);
+      return this.#showCurrentStep(actor);
     }
-
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
@@ -63,43 +68,12 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     return null;
   }
 
-  // ── Приватные методы ──
+  // ── Приватные методы: данные студента ──
 
-  async #handleMyStudy(actor: User): Promise<BotResponse> {
-    const studentResult = await this.getStudent(actor.uuid);
-    if (!studentResult.ok) return studentResult.value;
-
-    const student = studentResult.value;
-
-    if (student.status === 'completed') {
-      return {
-        sendMessage: {
-          text: '🎉 *Поздравляем\\!* Вы завершили обучение в потоке\\!',
-          parseMode: 'MarkdownV2',
-        },
-      };
-    }
-
-    const stream = await this.moduleApi.execute('get-stream', {
-      streamId: student.streamId,
-    });
-
-    const response = this.#buildStepKeyboard(
-      stream,
-      student.currentStepId,
-      student.streamId,
-    );
-
-    // Добавляем кнопку «↩️ Главное меню» последней строкой
-    if (response.sendMessage?.keyboard) {
-      response.sendMessage.keyboard.rows.push([
-        { text: '↩️ Главное меню', code: 'app:main-menu' },
-      ]);
-    }
-
-    return response;
-  }
-
+  /**
+   * Получает студента по actor.uuid.
+   * Возвращает BotResponse при ошибке, чтобы стори могла ответить пользователю.
+   */
   protected async getStudent(
     userId: string,
   ): Promise<{ ok: true; value: Student } | { ok: false; value: BotResponse }> {
@@ -109,10 +83,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         { userId },
         userId,
       );
-      return {
-        ok: true,
-        value: user,
-      };
+      return { ok: true, value: user };
     } catch (err) {
       this.handleError(err);
       return {
@@ -127,8 +98,41 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
   }
 
+  // ── Приватные методы: основной поток ──
+
+  /**
+   * Показывает текущий шаг с телом и клавиатурой.
+   * Вызывается из «Моя учёба» и из «Выполнено» (при level=step).
+   *
+   * @param actor — пользователь
+   * @param _overrideStepId — если передан, используется вместо student.currentStepId
+   *   (нужно после complete-step, пока студент не обновлён в БД)
+   */
+  async #showCurrentStep(actor: User, _overrideStepId?: string): Promise<BotResponse> {
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return studentResult.value;
+
+    const student = studentResult.value;
+
+    if (student.status === 'completed') {
+      return {
+        sendMessage: {
+          text: '🎉 *Поздравляем\\!* Вы завершили обучение в потоке\\!',
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
+
+    const stepId = _overrideStepId ?? student.currentStepId;
+
+    const stream = await this.moduleApi.execute('get-stream', {
+      streamId: student.streamId,
+    });
+
+    return this.#buildStepView(stream, stepId, student.streamId);
+  }
+
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
-    // Формат: complete:<streamId>:<stepId>
     const [, streamId, stepId] = action.split(':');
     if (!streamId || !stepId) {
       return this.sendUnknownError();
@@ -139,7 +143,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const student = studentResult.value;
 
-    // Сверяем streamId из callback с потоком студента
     if (student.streamId !== streamId) {
       return {
         sendMessage: {
@@ -151,15 +154,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const result = await this.moduleApi.execute(
       'complete-step',
-      {
-        studentId: student.uuid,
-        streamId,
-        stepId,
-      },
+      { studentId: student.uuid, streamId, stepId },
       actor.uuid,
     );
 
-    // Завершение потока — сохраняем текущее поведение
+    // Завершение потока
     if (result.level === 'stream') {
       return {
         sendMessage: {
@@ -175,64 +174,114 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Переход на новый урок/проект — поздравление + кнопка
     if (result.level === 'lesson' || result.level === 'project') {
-      return this.#handleLevelTransition(result, streamId);
+      return this.#announceTransition(result, streamId);
     }
 
     // Обычный шаг — сразу показываем клавиатуру следующего шага
-    const stream = await this.moduleApi.execute('get-stream', {
-      streamId,
-    });
-
-    return this.#buildStepKeyboard(
-      stream,
-      result.currentStepId || stepId,
-      streamId,
-    );
+    return this.#showCurrentStep(actor, result.currentStepId);
   }
 
+  // ── Приватные методы: сборка представления шага ──
+
   /**
-   * Строит клавиатуру шага с кнопками «Выполнено» и «Мой прогресс».
+   * Собирает полное представление шага: тело + позиция + клавиатура.
+   * Единственное место, где происходит форматирование сообщения шага.
    */
-  #buildStepKeyboard(
-    stream: {
-      title: string;
-      contentSnapshot: ContentSnapshot;
-    },
+  async #buildStepView(
+    stream: { title: string; contentSnapshot: ContentSnapshot },
     stepId: string,
     streamId: string,
-  ): BotResponse {
-    const stepLabel = this.#findStepLabel(stream.contentSnapshot, stepId);
+  ): Promise<BotResponse> {
+    const pos = this.#findStepPosition(stream.contentSnapshot, stepId);
+    const step = await this.appApi.execute('get-step', { uuid: stepId });
+    const message = this.#formatStepMessage(stream.title, pos, step);
+    const keyboard = this.#buildStepKeyboard(streamId, stepId);
+
+    // Добавляем кнопку «↩️ Главное меню» последней строкой
+    keyboard.rows.push([
+      { text: '↩️ Главное меню', code: 'app:main-menu' },
+    ]);
 
     return {
       sendMessage: {
-        text: [
-          `📖 *Моя учёба* — _${this.escapeMarkdown(stream.title)}_`,
-          '',
-          `📌 Текущее задание: ${stepLabel}`,
-        ].join('\n'),
+        text: message,
         parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '✅ Выполнено',
-                code: this.cb('complete', streamId, stepId),
-              },
-            ],
-            [
-              {
-                text: '📊 Мой прогресс',
-                code: this.cbFor('progress', 'progress', streamId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
+        keyboard,
       },
     };
   }
 
-  async #handleLevelTransition(
+  /** Находит позицию шага в снимке контента (урок, индекс, всего). */
+  #findStepPosition(
+    snapshot: ContentSnapshot,
+    stepId: string,
+  ): StepPosition {
+    for (const project of snapshot) {
+      for (const lesson of project.lessons) {
+        const idx = lesson.stepIds.indexOf(stepId);
+        if (idx !== -1) {
+          return {
+            lessonTitle: lesson.lessonTitle,
+            stepIndex: idx + 1,
+            totalSteps: lesson.stepIds.length,
+          };
+        }
+      }
+    }
+    return {
+      lessonTitle: '(неизвестный урок)',
+      stepIndex: 0,
+      totalSteps: 0,
+    };
+  }
+
+  /** Форматирует сообщение шага с заголовком и телом. */
+  #formatStepMessage(
+    streamTitle: string,
+    pos: StepPosition,
+    step: Step,
+  ): string {
+    const lines: string[] = [
+      `📖 *Поток:* ${this.escapeMarkdown(streamTitle)}`,
+      `📚 *Урок:* «${this.escapeMarkdown(pos.lessonTitle)}»`,
+      `📝 *Шаг ${pos.stepIndex} из ${pos.totalSteps}*`,
+      '',
+      this.escapeMarkdown(step.description),
+    ];
+
+    if (step.kind === 'code' && step.code) {
+      lines.push('', '```', this.escapeMarkdown(step.code), '```');
+    } else if (step.kind === 'text' && step.content) {
+      lines.push('', this.escapeMarkdown(step.content));
+    }
+
+    return lines.join('\n');
+  }
+
+  /** Чистая клавиатура: [✅ Выполнено] [📊 Мой прогресс] (без «Главное меню»). */
+  #buildStepKeyboard(streamId: string, stepId: string) {
+    return {
+      rows: [
+        [
+          {
+            text: '✅ Выполнено',
+            code: this.cb('complete', streamId, stepId),
+          },
+        ],
+        [
+          {
+            text: '📊 Мой прогресс',
+            code: this.cbFor('progress', 'progress', streamId),
+          },
+        ],
+      ],
+      isMultiple: false,
+    };
+  }
+
+  // ── Приватные методы: переходы и поиск ──
+
+  async #announceTransition(
     result: {
       level: 'lesson' | 'project';
       completedLessonId?: string;
@@ -271,30 +320,13 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
-            [
-              {
-                text: buttonText,
-                code: this.cb('my-study'),
-              },
-            ],
+            [{ text: buttonText, code: this.cb('my-study') }],
             [{ text: '↩️ Главное меню', code: 'app:main-menu' }],
           ],
           isMultiple: false,
         },
       },
     };
-  }
-
-  #findStepLabel(snapshot: ContentSnapshot, stepId: string): string {
-    for (const project of snapshot) {
-      for (const lesson of project.lessons) {
-        const idx = lesson.stepIds.indexOf(stepId);
-        if (idx !== -1) {
-          return `Шаг ${idx + 1} / ${this.escapeMarkdown(lesson.lessonTitle)}`;
-        }
-      }
-    }
-    return `Шаг (${this.escapeMarkdown(stepId.slice(0, 8))}...)`;
   }
 
   #findLessonTitle(

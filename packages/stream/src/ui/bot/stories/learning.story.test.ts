@@ -58,11 +58,30 @@ describe('LearningStory', () => {
     ],
   };
 
-  const emptyAppApi = {
-    execute: mock(() => undefined),
-  } as unknown as U7BotApp;
+  function makeAppApi(customStep?: Record<string, unknown>): U7BotApp {
+    return {
+      execute: mock((name: string) => {
+        if (name === 'get-step') {
+          return (
+            customStep ?? {
+              uuid: 'step-1',
+              moduleId: 'mod-1',
+              kind: 'text',
+              description: 'Изучите основы',
+              content: 'Контент шага',
+              status: 'published',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            }
+          );
+        }
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+  }
 
-  test('handleCallback("my-study") показывает текущий шаг', async () => {
+  const defaultAppApi = makeAppApi();
+
+  test('handleCallback("my-study") показывает текущий шаг с телом', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
@@ -72,7 +91,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'my-study',
@@ -81,8 +100,15 @@ describe('LearningStory', () => {
     );
     assertResponseMarkdownSafe(response);
 
-    expect(response.sendMessage?.text).toContain('Python');
-    expect(response.sendMessage?.text).toContain('Моя учёба');
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Поток:');
+    expect(text).toContain('Python');
+    expect(text).toContain('Урок:');
+    expect(text).toContain('Введение');
+    expect(text).toContain('Шаг 1 из 2');
+    expect(text).toContain('Изучите основы');
+    expect(text).toContain('Контент шага');
+
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
@@ -96,7 +122,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'my-study',
@@ -108,20 +134,29 @@ describe('LearningStory', () => {
     expect(response.sendMessage?.text).toContain('не записаны');
   });
 
-  test('handleCallback("complete:...") — после шага сразу клавиатура следующего', async () => {
+  test('handleCallback("complete:...") level=step — показывает следующий шаг', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
           return { level: 'step', currentStepId: 'step-2' };
-        if (name === 'get-student-by-user') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
     } as unknown as StreamApiModule;
 
+    const appApi = makeAppApi({
+      uuid: 'step-2',
+      moduleId: 'mod-1',
+      kind: 'code',
+      description: 'Напишите код',
+      code: 'console.log(1)',
+      status: 'published',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    });
+
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, appApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
@@ -130,12 +165,17 @@ describe('LearningStory', () => {
     );
     assertResponseMarkdownSafe(response);
 
-    // Клавиатура с кнопками «Выполнено» и «Мой прогресс»
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Шаг 2 из 2');
+    expect(text).toContain('Напишите код');
+    expect(text).toContain('```');
+    expect(text).toContain('console');
+
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
-    // Без промежуточного сообщения
+    // «Мой прогресс» — последняя строка перед «Главное меню»
     expect(response.sendMessage?.text).not.toContain('Шаг выполнен');
   });
 
@@ -155,7 +195,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step2',
@@ -165,7 +205,6 @@ describe('LearningStory', () => {
     assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('завершён');
-    // Кнопка «Начать следующий урок»
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(
@@ -189,7 +228,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step4',
@@ -199,7 +238,6 @@ describe('LearningStory', () => {
     assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('завершён');
-    // Кнопка «Начать следующий проект»
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Начать следующий проект'))).toBe(
@@ -216,7 +254,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-last',
@@ -253,7 +291,7 @@ describe('LearningStory', () => {
     expect(desc).toBeNull();
   });
 
-  // ── Тесты нового формата cb-data (без studentId) ──
+  // ── Тесты нового формата cb-data ──
 
   test('cb-data кнопки «Выполнено» НЕ содержит studentId', async () => {
     const moduleApi = {
@@ -265,7 +303,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'my-study',
@@ -282,9 +320,7 @@ describe('LearningStory', () => {
     );
     expect(completeCode).toBeDefined();
 
-    // Формат: learning:complete:<streamId>:<stepId> (3 части после префикса)
     const parts = completeCode!.split(':');
-    // 'learning', 'complete', streamId, stepId = 4 части
     expect(parts.length).toBe(4);
     expect(parts[2]).toBe('s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s');
     expect(parts[3]).toBe('step-1');
@@ -292,7 +328,6 @@ describe('LearningStory', () => {
 
   test('#handleComplete получает студента через get-student-by-user по actor.uuid', async () => {
     const getStudentSpy = mock((name: string) => {
-      if (name === 'get-student-by-user') return mockStudent;
       if (name === 'get-student-by-user') return mockStudent;
       if (name === 'complete-step')
         return { level: 'step', currentStepId: 'step-2' };
@@ -305,7 +340,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
@@ -313,7 +348,6 @@ describe('LearningStory', () => {
       session,
     );
 
-    // Проверяем, что get-student-by-user вызывался с actor.uuid (user-1)
     const calls = getStudentSpy.mock.calls.filter(
       (c: [string]) => c[0] === 'get-student-by-user',
     );
@@ -330,7 +364,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
@@ -338,7 +372,6 @@ describe('LearningStory', () => {
       session,
     );
 
-    // Должен вернуть ошибку из-за несовпадения streamId
     expect(response.sendMessage?.text).toContain('не соответствует');
   });
 
@@ -354,7 +387,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'my-study',
@@ -385,7 +418,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step2',
@@ -410,7 +443,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-last',
@@ -425,7 +458,7 @@ describe('LearningStory', () => {
     expect(lastRow[0]!.code).toBe('app:main-menu');
   });
 
-  test('complete (level=step) НЕ содержит «↩️ Главное меню» (в процессе)', async () => {
+  test('complete (level=step) НЕ содержит «↩️ Главное меню» на предпоследней строке', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
@@ -437,7 +470,7 @@ describe('LearningStory', () => {
     } as unknown as StreamApiModule;
 
     const story = new LearningStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
@@ -448,7 +481,10 @@ describe('LearningStory', () => {
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     const lastRow = rows[rows.length - 1]!;
-    // Кнопка не «↩️ Главное меню» — в процессе последняя строка «Мой прогресс»
-    expect(lastRow[0]!.text).not.toBe('↩️ Главное меню');
+    // В процессе обучения последняя строка — «↩️ Главное меню» (добавляется в showCurrentStep)
+    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
+    // Предпоследняя: «Мой прогресс»
+    const secondLastRow = rows[rows.length - 2]!;
+    expect(secondLastRow[0]!.text).toBe('📊 Мой прогресс');
   });
 });
