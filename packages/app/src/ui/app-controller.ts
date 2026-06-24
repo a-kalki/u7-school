@@ -1,5 +1,4 @@
 import type { User } from '@u7-scl/app/domain';
-import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type {
   BotResponse,
   MainMenuAction,
@@ -19,6 +18,7 @@ import { U7BotController } from './u7-bot-controller';
  */
 export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
   readonly name = 'app';
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: присваивается в конструкторе, требуется для инициализации
   readonly #groupUrl: string;
   #menuAggregator: MenuAggregator<User> | null = null;
 

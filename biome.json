@@ -61,7 +61,16 @@
       }
     },
     {
-      "includes": ["data/lessons/nur/**/mentor-files/*.js"],
+      "includes": ["data/lessons/**/mentor-files/**/manifest.json"],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["data/lessons/nur/**/mentor-files/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -69,7 +78,14 @@
             "noSelfCompare": "off"
           },
           "correctness": {
-            "noConstantCondition": "off"
+            "noConstantCondition": "off",
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off",
+            "noUnusedFunctionParameters": "off",
+            "noInnerDeclarations": "off"
+          },
+          "style": {
+            "useTemplate": "off"
           }
         }
       }

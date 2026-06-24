@@ -1,4 +1,3 @@
-import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/app/ui';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import { ActivateStreamStory } from '../stories/activate-stream.story';

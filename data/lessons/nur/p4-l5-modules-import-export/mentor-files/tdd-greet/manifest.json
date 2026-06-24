@@ -1,5 +1,26 @@
-lessonUuid: e7ed6fc7-09b2-4612-a7d8-743e725da626
-files[3]{order,kind,description,fileName,fileMimeType}:
-  1,file,"Утилита exclaim — добавляет восклицательный знак\n\nПокажи как простые утилиты экспортируются и переиспользуются.",utils.js,text/javascript
-  2,file,"Функция greet — импортирует exclaim из utils\n\nПокажи цепочку: greet зависит от utils.",greet.js,text/javascript
-  3,file,"Тесты для greet — демонстрируют поток загрузки и выполнения тестов\n\nСкачай все 3 файла в одну папку, запусти greet.test.js. Подсказки для ментора:\n1. Запусти greet.test.js — console.log покажет порядок загрузки модулей\n2. Обрати внимание: utils.js загружен ОДИН раз, greet.js тоже один раз\n3. Раскомментируй beforeAll/beforeEach/afterEach/afterAll и перезапусти\n4. Обсуди когда что вызывается и зачем нужно each",greet.test.js,text/javascript
+{
+  "lessonUuid": "e7ed6fc7-09b2-4612-a7d8-743e725da626",
+  "files": [
+    {
+      "order": 1,
+      "kind": "file",
+      "description": "Утилита exclaim — добавляет восклицательный знак\n\nПокажи как простые утилиты экспортируются и переиспользуются.",
+      "fileName": "utils.js",
+      "fileMimeType": "text/javascript"
+    },
+    {
+      "order": 2,
+      "kind": "file",
+      "description": "Функция greet — импортирует exclaim из utils\n\nПокажи цепочку: greet зависит от utils.",
+      "fileName": "greet.js",
+      "fileMimeType": "text/javascript"
+    },
+    {
+      "order": 3,
+      "kind": "file",
+      "description": "Тесты для greet — демонстрируют поток загрузки и выполнения тестов\n\nСкачай все 3 файла в одну папку, запусти greet.test.js. Подсказки для ментора:\n1. Запусти greet.test.js — console.log покажет порядок загрузки модулей\n2. Обрати внимание: utils.js загружен ОДИН раз, greet.js тоже один раз\n3. Раскомментируй beforeAll/beforeEach/afterEach/afterAll и перезапусти\n4. Обсуди когда что вызывается и зачем нужно each",
+      "fileName": "greet.test.js",
+      "fileMimeType": "text/javascript"
+    }
+  ]
+}

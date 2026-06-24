@@ -226,7 +226,9 @@ export abstract class BotUserStory<
           },
         };
 
+      // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
       case 'internal':
+      // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
       case 'unauthorized':
       default: {
         this.logger?.error('bot', 'Ошибка в story', serializeError(err));
