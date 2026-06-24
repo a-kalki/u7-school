@@ -8,6 +8,7 @@ import type {
 } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
+import { convert } from 'markdown-to-telegram';
 import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
@@ -252,7 +253,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (step.kind === 'code' && step.code) {
       lines.push('', '```', this.escapeMarkdown(step.code), '```');
     } else if (step.kind === 'text' && step.content) {
-      lines.push('', this.escapeMarkdown(step.content));
+      lines.push('', convert(step.content));
     }
 
     return lines.join('\n');
