@@ -40,11 +40,11 @@ interface OptionalFieldConfig {
   fieldName: 'goal' | 'result' | 'rules' | 'targetAudience' | 'additional';
   label: string;
   moduleKey:
-  | 'moduleGoal'
-  | 'moduleResult'
-  | 'moduleRules'
-  | 'moduleTargetAudience'
-  | 'moduleAdditional';
+    | 'moduleGoal'
+    | 'moduleResult'
+    | 'moduleRules'
+    | 'moduleTargetAudience'
+    | 'moduleAdditional';
   nextStep: number;
 }
 

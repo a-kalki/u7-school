@@ -39,7 +39,8 @@ export class BotRouter<
   TAppMeta extends AppMeta = AppMeta,
   TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
-> implements MenuAggregator<TActor> {
+> implements MenuAggregator<TActor>
+{
   private readonly controllers = new Map<
     string,
     BotController<TAppMeta, TModuleMeta, TActor>
@@ -307,7 +308,9 @@ export class BotRouter<
   // ── Приватные хелперы ──
 
   /** Преобразует MainMenuAction[] в KeyboardDescription */
-  #toKeyboard(items: MainMenuAction[]): import('../types').KeyboardDescription | null {
+  #toKeyboard(
+    items: MainMenuAction[],
+  ): import('../types').KeyboardDescription | null {
     const rows = items
       .filter((i) => i.kind === 'callback' || i.kind === 'url')
       .map((i) => [

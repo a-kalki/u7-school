@@ -12,7 +12,7 @@ console.log('');
 function checkScope() {
   {
     var a = 'видна';
-    let b = 'не видна';
+    const b = 'не видна';
     console.log('блок внутри функции: a =', a, 'b =', b);
   }
   console.log('после блока: a =', a);

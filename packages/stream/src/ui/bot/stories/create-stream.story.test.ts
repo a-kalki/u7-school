@@ -258,9 +258,7 @@ describe('CreateStreamStory', () => {
     const yyyy = String(expectedDate.getFullYear());
     const mm = String(expectedDate.getMonth() + 1).padStart(2, '0');
     const dd = String(expectedDate.getDate()).padStart(2, '0');
-    expect(response.sendMessage?.text).toContain(
-      `${yyyy}\\-${mm}\\-${dd}`,
-    );
+    expect(response.sendMessage?.text).toContain(`${yyyy}\\-${mm}\\-${dd}`);
     expect(response.sendMessage?.text).toContain('T10:00');
   });
 

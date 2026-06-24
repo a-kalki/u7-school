@@ -15,8 +15,9 @@ import { connectRouter } from './handlers/router';
 import { CompositeLogger, TelegramLogger } from './logger';
 // ══ ВРЕМЕННО: Регистрация студентов потока 1 ══
 import { STREAM_1_UUID } from './student-registration/constants';
-import { registerRegisterStudentCommand } from './student-registration/register-student.handler';
 import { registerRegisterInactiveCommand } from './student-registration/register-inactive.handler';
+import { registerRegisterStudentCommand } from './student-registration/register-student.handler';
+
 // ══ КОНЕЦ ВРЕМЕННОГО БЛОКА ══
 
 const config = loadConfig();
@@ -32,7 +33,10 @@ setGlobalLogger(loggers);
 // (TelegramLogger понадобится bot, который мы создадим ниже)
 const logger = loggers;
 
-const { userFacade, router, streamRepo, streamStudentRepo } = createApiApp(config, logger);
+const { userFacade, router, streamRepo, streamStudentRepo } = createApiApp(
+  config,
+  logger,
+);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -158,11 +162,31 @@ connectRouter(privateBot, router, userFacade, config.botAdminUuid, loggers);
 // Загружаем contentSnapshot потока для поиска шагов
 const stream1 = await streamRepo.getByUuid(STREAM_1_UUID);
 if (stream1) {
-  registerRegisterStudentCommand(privateBot, stream1.contentSnapshot, userFacade, streamStudentRepo, config.botAdminUuid, loggers);
-  registerRegisterInactiveCommand(privateBot, stream1.contentSnapshot, userFacade, streamStudentRepo, config.botAdminUuid, loggers);
-  loggers.info('main', 'Временные команды register_student и register_inactive зарегистрированы');
+  registerRegisterStudentCommand(
+    privateBot,
+    stream1.contentSnapshot,
+    userFacade,
+    streamStudentRepo,
+    config.botAdminUuid,
+    loggers,
+  );
+  registerRegisterInactiveCommand(
+    privateBot,
+    stream1.contentSnapshot,
+    userFacade,
+    streamStudentRepo,
+    config.botAdminUuid,
+    loggers,
+  );
+  loggers.info(
+    'main',
+    'Временные команды register_student и register_inactive зарегистрированы',
+  );
 } else {
-  loggers.error('main', 'Поток 1 не найден — команды регистрации не зарегистрированы');
+  loggers.error(
+    'main',
+    'Поток 1 не найден — команды регистрации не зарегистрированы',
+  );
 }
 // ══ КОНЕЦ ВРЕМЕННОГО БЛОКА ══
 

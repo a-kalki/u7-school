@@ -52,7 +52,7 @@ export abstract class BotUserStory<
   }
 
   /** Сброс временных данных сценария (переопределяется при необходимости) */
-  reset(): void { }
+  reset(): void {}
 
   /** Обработка callback — абстрактный, реализуется в наследниках */
   abstract handleCallback(

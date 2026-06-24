@@ -128,7 +128,9 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
 
     if (data === 'help') {
       const helpRes = await this.handleHelpMessage(actor);
-      return helpRes ?? { sendMessage: { text: 'Нет доступных пунктов меню.' } };
+      return (
+        helpRes ?? { sendMessage: { text: 'Нет доступных пунктов меню.' } }
+      );
     }
 
     // Делегируем в stories (например, CommunityStory)
@@ -166,9 +168,7 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
       ]);
 
     const keyboard =
-      rows.length > 0
-        ? { rows, isMultiple: false as const }
-        : undefined;
+      rows.length > 0 ? { rows, isMultiple: false as const } : undefined;
 
     return {
       sendMessage: {

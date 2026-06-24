@@ -74,7 +74,7 @@ function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
       })) as unknown as BotContext['api']['editMessageText'],
     } as BotContext['api'],
     answerCallbackQuery: mock(
-      async () => { },
+      async () => {},
     ) as unknown as BotContext['answerCallbackQuery'],
     session: { activeHandler: null } as SessionData,
     ...overrides,
@@ -251,7 +251,10 @@ describe('connectRouter', () => {
     appCtrl.setWelcomeResult({
       sendMessage: {
         text: 'Привет, Тест! 👋\n\nВыберите раздел:',
-        keyboard: { rows: [[{ text: 'Кнопка', code: 'app:action' }]], isMultiple: false },
+        keyboard: {
+          rows: [[{ text: 'Кнопка', code: 'app:action' }]],
+          isMultiple: false,
+        },
       },
     });
 
@@ -403,7 +406,7 @@ describe('connectRouter', () => {
     ctx2.session.activeHandler = { path: 'onboarding/ask-name' };
     ctx2.message!.text = 'Иван';
 
-    const nextSpy = mock(async () => { });
+    const nextSpy = mock(async () => {});
     await msgHandler!(ctx2, nextSpy);
 
     expect(nextSpy).not.toHaveBeenCalled();
@@ -431,7 +434,7 @@ describe('connectRouter', () => {
 
     await msgHandler!(
       ctx,
-      mock(async () => { }),
+      mock(async () => {}),
     );
 
     expect(ctx.session.activeHandler).toBeNull();
@@ -487,7 +490,7 @@ describe('connectRouter', () => {
 
     await msgHandler!(
       ctx,
-      mock(async () => { }),
+      mock(async () => {}),
     );
 
     expect(ctrl.handleTimeoutCalls.length).toBe(1);
@@ -509,7 +512,7 @@ describe('connectRouter', () => {
     ctx.session.activeHandler = null;
     ctx.message!.text = 'Привет';
 
-    const nextSpy = mock(async () => { });
+    const nextSpy = mock(async () => {});
     await msgHandler!(ctx, nextSpy);
 
     expect(nextSpy).toHaveBeenCalled();
@@ -531,7 +534,7 @@ describe('connectRouter', () => {
     ctx.session.activeHandler = { path: 'onboarding/ask-name' };
     ctx.message!.text = '/help';
 
-    const nextSpy = mock(async () => { });
+    const nextSpy = mock(async () => {});
     await msgHandler!(ctx, nextSpy);
 
     expect(nextSpy).toHaveBeenCalled();
@@ -547,14 +550,22 @@ describe('connectRouter', () => {
     appCtrl.setWelcomeResult({
       sendMessage: {
         text: 'Привет, Тест! 👋',
-        keyboard: { rows: [[{ text: 'Начать', code: 'app:start' }]], isMultiple: false },
+        keyboard: {
+          rows: [[{ text: 'Начать', code: 'app:start' }]],
+          isMultiple: false,
+        },
       },
     });
 
     const ctrl = new MockController();
     ctrl.name = 'main';
     ctrl.setStartResult([
-      { kind: 'callback', text: 'Начать', action: 'main:start-action', priority: 1 },
+      {
+        kind: 'callback',
+        text: 'Начать',
+        action: 'main:start-action',
+        priority: 1,
+      },
     ]);
     ctrl.setCallbackResult({
       sendMessage: { text: 'Введите имя:' },
@@ -590,7 +601,7 @@ describe('connectRouter', () => {
     const ctx3 = makeMockContext();
     ctx3.session.activeHandler = { path: 'main/ask-name' };
     ctx3.message!.text = 'Иван';
-    const nextSpy = mock(async () => { });
+    const nextSpy = mock(async () => {});
     await msgHandler(ctx3, nextSpy);
     expect(nextSpy).not.toHaveBeenCalled();
     expect(ctrl.handleMessageCalls.length).toBe(1);
@@ -613,7 +624,9 @@ describe('connectRouter', () => {
     const appCtrl = new MockController();
     appCtrl.name = 'app';
     appCtrl.setHelpMessageResult({
-      sendMessage: { text: 'Как со мной работать? 🤔\n\n📚 Наши потоки — каталог учебных потоков\n\n📝 Заполнить анкету — расскажи о своих ожиданиях' },
+      sendMessage: {
+        text: 'Как со мной работать? 🤔\n\n📚 Наши потоки — каталог учебных потоков\n\n📝 Заполнить анкету — расскажи о своих ожиданиях',
+      },
     });
 
     const router = new BotRouter([appCtrl]);
@@ -653,7 +666,10 @@ describe('connectRouter', () => {
     appCtrl.setCallbackResult({
       sendMessage: {
         text: 'Выберите действие:',
-        keyboard: { rows: [[{ text: 'Потоки', code: 'stream:catalog' }]], isMultiple: false },
+        keyboard: {
+          rows: [[{ text: 'Потоки', code: 'stream:catalog' }]],
+          isMultiple: false,
+        },
       },
     });
 

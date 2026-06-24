@@ -41,11 +41,7 @@ export class UserInProcFacade implements UserFacade {
     role: Role,
     actorId?: string,
   ): Promise<void> {
-    await this.#userApi.execute(
-      'add-role-to-user',
-      { userId, role },
-      actorId,
-    );
+    await this.#userApi.execute('add-role-to-user', { userId, role }, actorId);
   }
 
   async addRoleToUser(
@@ -53,11 +49,7 @@ export class UserInProcFacade implements UserFacade {
     role: Role,
     actorId?: string,
   ): Promise<void> {
-    await this.#userApi.execute(
-      'add-role-to-user',
-      { userId, role },
-      actorId,
-    );
+    await this.#userApi.execute('add-role-to-user', { userId, role }, actorId);
   }
 
   async removeRoleFromUser(

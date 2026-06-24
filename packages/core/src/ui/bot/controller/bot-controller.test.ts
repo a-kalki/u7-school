@@ -234,11 +234,9 @@ describe('BotController', () => {
       const c = new TestController();
       c.addStory(story);
 
-      const result = await c.handleCallback(
-        'app_test:action',
-        testActor,
-        { activeHandler: null },
-      );
+      const result = await c.handleCallback('app_test:action', testActor, {
+        activeHandler: null,
+      });
 
       assertResponseMarkdownSafe(result);
       // Код кнопки НЕ должен быть префиксирован именем контроллера
@@ -299,13 +297,13 @@ describe('BotController', () => {
 
     beforeEach(() => {
       mockLogger = {
-        debug: mock(() => { }),
-        info: mock(() => { }),
-        warn: mock(() => { }),
-        error: mock(() => { }),
-        setLogLevel: mock(() => { }),
+        debug: mock(() => {}),
+        info: mock(() => {}),
+        warn: mock(() => {}),
+        error: mock(() => {}),
+        setLogLevel: mock(() => {}),
         getLogLevel: mock(() => LogLevel.DEBUG),
-        setSourceLevel: mock(() => { }),
+        setSourceLevel: mock(() => {}),
       } as unknown as Logger & { error: ReturnType<typeof mock> };
       setGlobalLogger(mockLogger);
     });

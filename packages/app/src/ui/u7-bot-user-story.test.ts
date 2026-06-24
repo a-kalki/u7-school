@@ -49,13 +49,13 @@ class TestStory extends U7BotUserStory<StreamApiModuleMeta> {
 /** Создаёт мок-логгер */
 function createMockLogger(): Logger & { error: ReturnType<typeof mock> } {
   return {
-    debug: mock(() => { }),
-    info: mock(() => { }),
-    warn: mock(() => { }),
-    error: mock(() => { }),
-    setLogLevel: mock(() => { }),
+    debug: mock(() => {}),
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    setLogLevel: mock(() => {}),
     getLogLevel: mock(() => LogLevel.DEBUG),
-    setSourceLevel: mock(() => { }),
+    setSourceLevel: mock(() => {}),
   } as unknown as Logger & { error: ReturnType<typeof mock> };
 }
 

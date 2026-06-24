@@ -33,7 +33,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     // История шагов — ещё не реализована
     if (cmd === 'history' && id) {
       return {
-        sendMessage: { text: '🚧 История шагов ещё не реализована, но скоро будет.' },
+        sendMessage: {
+          text: '🚧 История шагов ещё не реализована, но скоро будет.',
+        },
       };
     }
 
@@ -249,11 +251,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '📱 Telegram: ID ' + telegramId,
       '📊 Статус: ' + (statusLabels[student.status] ?? student.status),
       '📈 Прогресс: ' +
-      completed +
-      ' из ' +
-      totalSteps +
-      ' шагов ' +
-      this.escapeMarkdown('(' + pct + '%)'),
+        completed +
+        ' из ' +
+        totalSteps +
+        ' шагов ' +
+        this.escapeMarkdown('(' + pct + '%)'),
     ];
 
     // Текущий проект/урок из прогресса

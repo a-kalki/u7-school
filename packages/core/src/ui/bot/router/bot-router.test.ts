@@ -132,7 +132,9 @@ class TestController extends BotController<
     return this._welcomeResult;
   }
 
-  override async handleHelpMessage(_actor: TestActor): Promise<BotResponse | null> {
+  override async handleHelpMessage(
+    _actor: TestActor,
+  ): Promise<BotResponse | null> {
     return this._helpResult;
   }
 }
@@ -505,7 +507,13 @@ describe('BotRouter', () => {
     const appCtrl = new TestController();
     appCtrl.name = 'app';
     appCtrl.withWelcomeResult({
-      sendMessage: { text: 'Привет! 👋', keyboard: { rows: [[{ text: 'Кнопка', code: 'app:test' }]], isMultiple: false } },
+      sendMessage: {
+        text: 'Привет! 👋',
+        keyboard: {
+          rows: [[{ text: 'Кнопка', code: 'app:test' }]],
+          isMultiple: false,
+        },
+      },
     });
 
     const disp = new BotRouter([appCtrl]);
@@ -552,7 +560,10 @@ describe('BotRouter', () => {
     appCtrl.withCallbackResult({
       sendMessage: {
         text: 'Выберите действие:',
-        keyboard: { rows: [[{ text: 'Кнопка', code: 'app:test' }]], isMultiple: false },
+        keyboard: {
+          rows: [[{ text: 'Кнопка', code: 'app:test' }]],
+          isMultiple: false,
+        },
       },
     });
 

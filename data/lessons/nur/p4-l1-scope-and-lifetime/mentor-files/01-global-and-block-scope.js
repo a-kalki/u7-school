@@ -1,4 +1,4 @@
-let city = 'Алматы';
+const city = 'Алматы';
 
 {
   let city = 'Астана';
@@ -12,11 +12,11 @@ console.log('');
 let total = 0;
 
 {
-  let part1 = 100;
-  let part2 = 200;
+  const part1 = 100;
+  const part2 = 200;
 }
 {
-  let part3 = 300;
+  const part3 = 300;
   total = part1 + part3;
 }
 console.log('total:', total);

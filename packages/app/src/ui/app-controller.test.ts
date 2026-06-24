@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { Role } from '@u7-scl/user/domain';
 import type { MainMenuAction, MenuAggregator } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
 import { AppController } from './app-controller';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -57,11 +57,23 @@ describe('AppController', () => {
 
   test('handleWelcome возвращает приветствие с клавиатурой', async () => {
     const ctrl = new AppController(SCHOOL_URL);
-    ctrl.initMenuAggregator(makeAggregator([
-      { kind: 'callback', text: '📚 Потоки', action: 'stream:catalog', priority: 50 },
-      { kind: 'callback', text: '❓ Помощь', action: 'app:help', priority: 100 },
-      { kind: 'url', text: '💬 Сообщество', url: SCHOOL_URL, priority: 90 },
-    ]));
+    ctrl.initMenuAggregator(
+      makeAggregator([
+        {
+          kind: 'callback',
+          text: '📚 Потоки',
+          action: 'stream:catalog',
+          priority: 50,
+        },
+        {
+          kind: 'callback',
+          text: '❓ Помощь',
+          action: 'app:help',
+          priority: 100,
+        },
+        { kind: 'url', text: '💬 Сообщество', url: SCHOOL_URL, priority: 90 },
+      ]),
+    );
 
     const res = await ctrl.handleWelcome(actor);
 
@@ -93,10 +105,15 @@ describe('AppController', () => {
 
   test('handleHelpMessage возвращает инструкцию и описания', async () => {
     const ctrl = new AppController(SCHOOL_URL);
-    ctrl.initMenuAggregator(makeAggregator([], [
-      '💬 Сообщество школы — ссылка на группу',
-      '📚 Наши потоки — просмотр каталога',
-    ]));
+    ctrl.initMenuAggregator(
+      makeAggregator(
+        [],
+        [
+          '💬 Сообщество школы — ссылка на группу',
+          '📚 Наши потоки — просмотр каталога',
+        ],
+      ),
+    );
 
     const res = await ctrl.handleHelpMessage(actor);
 
@@ -129,11 +146,20 @@ describe('AppController', () => {
 
   test('handleCallback main-menu возвращает клавиатуру без приветствия', async () => {
     const ctrl = new AppController(SCHOOL_URL);
-    ctrl.initMenuAggregator(makeAggregator([
-      { kind: 'callback', text: '📚 Потоки', action: 'stream:catalog', priority: 50 },
-    ]));
+    ctrl.initMenuAggregator(
+      makeAggregator([
+        {
+          kind: 'callback',
+          text: '📚 Потоки',
+          action: 'stream:catalog',
+          priority: 50,
+        },
+      ]),
+    );
 
-    const res = await ctrl.handleCallback('main-menu', actor, { activeHandler: null });
+    const res = await ctrl.handleCallback('main-menu', actor, {
+      activeHandler: null,
+    });
 
     // Не должно быть приветственного текста
     expect(res.sendMessage?.text).not.toContain('Привет');
@@ -147,7 +173,9 @@ describe('AppController', () => {
     const ctrl = new AppController(SCHOOL_URL);
     ctrl.initMenuAggregator(makeAggregator([], ['📝 Заполнить анкету']));
 
-    const res = await ctrl.handleCallback('help', actor, { activeHandler: null });
+    const res = await ctrl.handleCallback('help', actor, {
+      activeHandler: null,
+    });
 
     expect(res.sendMessage?.text).toContain('Как со мной работать?');
     expect(res.sendMessage?.text).toContain('Заполнить анкету');
@@ -158,7 +186,9 @@ describe('AppController', () => {
   test('handleCallback с неизвестным действием возвращает ошибку', async () => {
     const ctrl = new AppController(SCHOOL_URL);
 
-    const res = await ctrl.handleCallback('unknown', actor, { activeHandler: null });
+    const res = await ctrl.handleCallback('unknown', actor, {
+      activeHandler: null,
+    });
 
     expect(res.sendMessage?.text).toContain('Неизвестная команда');
   });

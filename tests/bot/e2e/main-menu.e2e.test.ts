@@ -104,7 +104,9 @@ describe('Главное меню (интеграционные)', () => {
     // Кнопка «Назад»
     expect(response.sendMessage?.keyboard).toBeDefined();
     expect(response.sendMessage?.keyboard!.rows[0]![0]!.text).toBe('🔙 Назад');
-    expect(response.sendMessage?.keyboard!.rows[0]![0]!.code).toBe('app:main-menu');
+    expect(response.sendMessage?.keyboard!.rows[0]![0]!.code).toBe(
+      'app:main-menu',
+    );
   });
 
   test('handleHelp для студента включает «Моя учёба»', async () => {

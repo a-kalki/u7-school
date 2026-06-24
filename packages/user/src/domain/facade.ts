@@ -14,18 +14,10 @@ export interface UserFacade {
   userExists(uuid: string, actorId?: string): Promise<boolean>;
 
   /** Добавить роль пользователю */
-  addRoleToUser(
-    userId: string,
-    role: Role,
-    actorId?: string,
-  ): Promise<void>;
+  addRoleToUser(userId: string, role: Role, actorId?: string): Promise<void>;
 
   /** Обновить роль пользователя (заменить все роли на одну) */
-  updateUserRole(
-    userId: string,
-    role: Role,
-    actorId?: string,
-  ): Promise<void>;
+  updateUserRole(userId: string, role: Role, actorId?: string): Promise<void>;
 
   /** Получить пользователя по Telegram ID */
   getUserByTelegramId(

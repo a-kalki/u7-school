@@ -1,13 +1,13 @@
 console.log('[greet.test.js] начало загрузки');
 
 import {
-  test,
-  expect,
-  describe,
+  afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
-  afterEach,
-  afterAll,
+  describe,
+  expect,
+  test,
 } from 'bun:test';
 import { greet } from './greet.js';
 

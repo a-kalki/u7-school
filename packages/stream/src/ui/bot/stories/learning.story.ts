@@ -109,7 +109,10 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
    * @param _overrideStepId — если передан, используется вместо student.currentStepId
    *   (нужно после complete-step, пока студент не обновлён в БД)
    */
-  async #showCurrentStep(actor: User, _overrideStepId?: string): Promise<BotResponse> {
+  async #showCurrentStep(
+    actor: User,
+    _overrideStepId?: string,
+  ): Promise<BotResponse> {
     const studentResult = await this.getStudent(actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
@@ -199,9 +202,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const keyboard = this.#buildStepKeyboard(streamId, stepId);
 
     // Добавляем кнопку «↩️ Главное меню» последней строкой
-    keyboard.rows.push([
-      { text: '↩️ Главное меню', code: 'app:main-menu' },
-    ]);
+    keyboard.rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     return {
       sendMessage: {
@@ -213,10 +214,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   /** Находит позицию шага в снимке контента (урок, индекс, всего). */
-  #findStepPosition(
-    snapshot: ContentSnapshot,
-    stepId: string,
-  ): StepPosition {
+  #findStepPosition(snapshot: ContentSnapshot, stepId: string): StepPosition {
     for (const project of snapshot) {
       for (const lesson of project.lessons) {
         const idx = lesson.stepIds.indexOf(stepId);

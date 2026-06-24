@@ -70,7 +70,11 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       })
       .catch(() => {});
     // Обновляем lastBotMessage: клавиатура больше не актуальна
-    ctx.session.lastBotMessage = { ...prev, keyboard: undefined, text: updatedText };
+    ctx.session.lastBotMessage = {
+      ...prev,
+      keyboard: undefined,
+      text: updatedText,
+    };
   }
 
   // 2. Затем отправляем новые сообщения
