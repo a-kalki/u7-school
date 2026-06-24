@@ -6,7 +6,7 @@
  *   DEV_TELEGRAM_ID=123456789 bun run apps/u7-bot/scripts/seed-fixtures.ts
  *
  * Что делает:
- *   1. Копирует tests/bot/fixtures/templates/ → data-fixtures/
+ *   1. Копирует tests/bot/fixtures/templates/ → data/fixtures/
  *   2. Находит ментора (UUID 4444...) и привязывает к DEV_TELEGRAM_ID
  *   3. Даёт ему все роли: GUEST, CANDIDATE, STUDENT, MENTOR, ADMIN
  *   4. Привязывает студента в потоке к этому же пользователю
@@ -20,7 +20,7 @@ const FIXTURES_DIR = path.resolve(
   import.meta.dir,
   '../../../tests/bot/fixtures/templates',
 );
-const DATA_DIR = path.resolve(import.meta.dir, '../../../data-fixtures');
+const DATA_DIR = path.resolve(import.meta.dir, '../../../data/fixtures');
 
 const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
 
@@ -54,7 +54,7 @@ async function main() {
   await patchStudents();
 
   console.log('✅ Готово! Запускай бота:');
-  console.log('   DB_DIR=./data-fixtures bun run apps/u7-bot/src/main.ts');
+  console.log('   DB_DIR=./data/fixtures bun run apps/u7-bot/src/main.ts');
   console.log('');
   console.log(
     '📋 Роли dev-пользователя: GUEST, CANDIDATE, STUDENT, MENTOR, ADMIN',
@@ -81,7 +81,7 @@ async function copyFixtures() {
     await copyFile(path.join(FIXTURES_DIR, src), path.join(DATA_DIR, dest));
   }
 
-  console.log('📁 Фикстуры скопированы в data-fixtures/');
+  console.log('📁 Фикстуры скопированы в data/fixtures/');
 }
 
 async function patchUsers(devId: number) {

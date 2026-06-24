@@ -77,8 +77,8 @@ describe('MonitorStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Студент');
-    expect(text).toContain('Telegram');
+    expect(text).toContain('👤');
+    expect(text).toContain('Статус');
     expect(text).toContain('Прогресс');
 
     const btns =

@@ -33,10 +33,11 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 packages/w3school/www.w3schools.com/
 packages/w3school/w3schools.com/
 conductor/archive/
-data-fixtures/
 
 # data — whitelist: по умолчанию всё игнорируется, явно разрешены только папки ниже
 data/*
 !data/courses/
 !data/debrief/
 !data/lessons/
+!data/streams/
+!data/fixtures/
