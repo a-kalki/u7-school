@@ -9,6 +9,7 @@ import { handleRegisterInactive } from './register-inactive.handler';
 // ── Тестовые данные ──
 const STREAM_UUID = '8ae94921-8af6-4fb6-ad1d-60bd2f8ee394';
 const GROUP_ID = '-1003960918937';
+const BOT_ADMIN_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
 // Создаём только первых 3 студентов из списка для теста
 const TEST_STUDENT_LIST = STUDENT_LIST.slice(0, 3);
@@ -135,6 +136,7 @@ describe('handleRegisterInactive', () => {
       testSnapshot,
       facade,
       studentRepo as never,
+      BOT_ADMIN_UUID,
     );
 
     expect(studentRepo._saved.length).toBe(3);
@@ -194,6 +196,7 @@ describe('handleRegisterInactive', () => {
       testSnapshot,
       facade,
       studentRepo as never,
+      BOT_ADMIN_UUID,
     );
 
     expect(studentRepo._saved.length).toBe(2);
@@ -216,6 +219,7 @@ describe('handleRegisterInactive', () => {
       testSnapshot,
       facade,
       studentRepo as never,
+      BOT_ADMIN_UUID,
     );
 
     const replyText = ctx.replies.join(' ');
@@ -240,6 +244,7 @@ describe('handleRegisterInactive', () => {
       testSnapshot,
       facade,
       studentRepo as never,
+      BOT_ADMIN_UUID,
     );
 
     const replyText = ctx.replies.join(' ');

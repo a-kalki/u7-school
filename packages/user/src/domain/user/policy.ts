@@ -42,7 +42,12 @@ export const UserPolicy = {
     return this.isAdmin(actor) || actor.uuid === target.uuid;
   },
 
-  canAddRole(actor: User): boolean {
-    return this.isAdmin(actor);
+  /**
+   * ADMIN может добавлять любую роль любому пользователю.
+   * Обычный пользователь — только роль STUDENT самому себе.
+   */
+  canAddRole(actor: User, target: User, role: Role): boolean {
+    if (this.isAdmin(actor)) return true;
+    return role === Role.STUDENT && actor.uuid === target.uuid;
   },
 };

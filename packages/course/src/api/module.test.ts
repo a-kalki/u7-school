@@ -44,23 +44,23 @@ class MockUserFacade implements UserFacade {
     _uuid: string,
     _role: Role,
     _actorId?: string,
-  ): Promise<User | undefined> {
-    return undefined;
+  ): Promise<void> {
+    // ok
   }
 
   async updateUserRole(
     _userId: string,
     _role: Role,
     _actorId?: string,
-  ): Promise<User | undefined> {
-    return undefined;
+  ): Promise<void> {
+    // ok
   }
 
   async removeRoleFromUser(
     _userId: string,
     _role: Role,
     _actorId?: string,
-  ): Promise<User | undefined> {
+  ): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }

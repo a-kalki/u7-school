@@ -96,10 +96,10 @@ function makeMockUserFacade(user?: User): UserFacade {
   return {
     getUserByUuid: mock(async () => user),
     userExists: mock(async () => !!user),
-    addRoleToUser: mock(async () => user),
-    updateUserRole: mock(async () => user),
+    addRoleToUser: mock(async () => {}),
+    updateUserRole: mock(async () => {}),
     getUserByTelegramId: mock(async () => user ?? undefined),
-    removeRoleFromUser: mock(async () => user),
+    removeRoleFromUser: mock(async () => {}),
     registerGuest: mock(async () => user ?? makeUser()),
   } as unknown as UserFacade;
 }

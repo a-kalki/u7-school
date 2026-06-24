@@ -158,8 +158,8 @@ connectRouter(privateBot, router, userFacade, config.botAdminUuid, loggers);
 // Загружаем contentSnapshot потока для поиска шагов
 const stream1 = await streamRepo.getByUuid(STREAM_1_UUID);
 if (stream1) {
-  registerRegisterStudentCommand(privateBot, stream1.contentSnapshot, userFacade, streamStudentRepo, loggers);
-  registerRegisterInactiveCommand(privateBot, stream1.contentSnapshot, userFacade, streamStudentRepo, loggers);
+  registerRegisterStudentCommand(privateBot, stream1.contentSnapshot, userFacade, streamStudentRepo, config.botAdminUuid, loggers);
+  registerRegisterInactiveCommand(privateBot, stream1.contentSnapshot, userFacade, streamStudentRepo, config.botAdminUuid, loggers);
   loggers.info('main', 'Временные команды register_student и register_inactive зарегистрированы');
 } else {
   loggers.error('main', 'Поток 1 не найден — команды регистрации не зарегистрированы');

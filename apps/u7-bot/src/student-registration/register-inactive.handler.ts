@@ -1,4 +1,4 @@
-import type { Logger } from '@u7-scl/core/shared';
+import { isoNow, type Logger } from '@u7-scl/core/shared';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { Student, StudentRepo } from '@u7-scl/stream/domain';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
@@ -48,6 +48,7 @@ export async function handleRegisterInactive(
   contentSnapshot: ContentSnapshot,
   userFacade: UserFacade,
   studentRepo: StudentRepo,
+  botAdminUuid: string,
   logger?: Logger,
 ): Promise<void> {
   // ── Шаг 1: Проверить права ADMIN ──
@@ -109,7 +110,7 @@ export async function handleRegisterInactive(
       }
 
       // c. Создать Student запись
-      const now = new Date().toISOString();
+      const now = isoNow();
       const student: Student = {
         uuid: crypto.randomUUID(),
         streamId: streamUuid,
@@ -123,10 +124,14 @@ export async function handleRegisterInactive(
 
       await studentRepo.save(student);
 
-      // d. Добавить роль STUDENT
+      // d. Добавить роль STUDENT от имени бота (нужны права ADMIN)
       if (!user.roles.includes(Role.STUDENT)) {
         try {
-          await userFacade.updateUserRole(user.uuid, Role.STUDENT, actor.uuid);
+          await userFacade.updateUserRole(
+            user.uuid,
+            Role.STUDENT,
+            botAdminUuid,
+          );
         } catch {
           // Логируем, но не прерываем
           logger?.error('register-inactive', 'Ошибка добавления роли STUDENT', {
@@ -179,6 +184,7 @@ export function registerRegisterInactiveCommand(
   contentSnapshot: ContentSnapshot,
   userFacade: UserFacade,
   studentRepo: StudentRepo,
+  botAdminUuid: string,
   logger?: Logger,
 ): void {
   bot.command('register_inactive', async (ctx) => {
@@ -190,6 +196,7 @@ export function registerRegisterInactiveCommand(
       contentSnapshot,
       userFacade,
       studentRepo,
+      botAdminUuid,
       logger,
     );
   });

@@ -1,3 +1,4 @@
+import { AppException } from '@u7-scl/core/domain';
 import type { UserApiModule } from '#api/module';
 import type { UserFacade } from '#domain/facade';
 import type { User } from '#domain/user/entity';
@@ -22,8 +23,11 @@ export class UserInProcFacade implements UserFacade {
     try {
       const result = await this.#userApi.execute('get-user', { uuid }, actorId);
       return result as User;
-    } catch {
-      return undefined;
+    } catch (err) {
+      if (err instanceof AppException && err.error.kind === 'not-found') {
+        return undefined;
+      }
+      throw err;
     }
   }
 
@@ -36,51 +40,36 @@ export class UserInProcFacade implements UserFacade {
     userId: string,
     role: Role,
     actorId?: string,
-  ): Promise<User | undefined> {
-    try {
-      const result = await this.#userApi.execute(
-        'add-role-to-user',
-        { userId, role },
-        actorId,
-      );
-      return result as User;
-    } catch {
-      return undefined;
-    }
+  ): Promise<void> {
+    await this.#userApi.execute(
+      'add-role-to-user',
+      { userId, role },
+      actorId,
+    );
   }
 
   async addRoleToUser(
     userId: string,
     role: Role,
     actorId?: string,
-  ): Promise<User | undefined> {
-    try {
-      const result = await this.#userApi.execute(
-        'add-role-to-user',
-        { userId, role },
-        actorId,
-      );
-      return result as User;
-    } catch {
-      return undefined;
-    }
+  ): Promise<void> {
+    await this.#userApi.execute(
+      'add-role-to-user',
+      { userId, role },
+      actorId,
+    );
   }
 
   async removeRoleFromUser(
     userId: string,
     role: Role,
     actorId?: string,
-  ): Promise<User | undefined> {
-    try {
-      const result = await this.#userApi.execute(
-        'remove-role-to-user',
-        { userId, role },
-        actorId,
-      );
-      return result as User;
-    } catch {
-      return undefined;
-    }
+  ): Promise<void> {
+    await this.#userApi.execute(
+      'remove-role-to-user',
+      { userId, role },
+      actorId,
+    );
   }
 
   async getUserByTelegramId(
@@ -94,8 +83,11 @@ export class UserInProcFacade implements UserFacade {
         actorId,
       );
       return result as User;
-    } catch {
-      return undefined;
+    } catch (err) {
+      if (err instanceof AppException && err.error.kind === 'not-found') {
+        return undefined;
+      }
+      throw err;
     }
   }
 

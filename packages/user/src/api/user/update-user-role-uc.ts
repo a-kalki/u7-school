@@ -28,8 +28,7 @@ export class UpdateUserRoleUc extends UserUseCase<UpdateUserRoleCmdMeta> {
     const repo = this.resolve.userRepo;
 
     const actor = await this.getActor(actorId);
-    if (!UserPolicy.canAddRole(actor)) {
-      // Используем ту же политику, что и для addRole
+    if (!UserPolicy.isAdmin(actor)) {
       this.throwAccessDenied('Недостаточно прав для выполнения действия');
     }
 

@@ -29,7 +29,7 @@ export class RemoveRoleToUserUc extends UserUseCase<RemoveRoleToUserCmdMeta> {
     const repo = this.resolve.userRepo;
 
     const actor = await this.getActor(actorId);
-    if (!UserPolicy.canAddRole(actor)) {
+    if (!UserPolicy.isAdmin(actor)) {
       this.throwAccessDenied('Недостаточно прав для выполнения действия');
     }
 

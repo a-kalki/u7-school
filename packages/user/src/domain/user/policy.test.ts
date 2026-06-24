@@ -34,6 +34,14 @@ const anotherStudent = {
   createdAt: '2026-05-01T12:00',
 };
 
+const guest = {
+  uuid: 'g',
+  name: 'Guest',
+  telegramId: 5,
+  roles: [Role.GUEST],
+  createdAt: '2026-05-01T12:00',
+};
+
 describe('UserPolicy', () => {
   describe('canCreate', () => {
     test('ADMIN может создавать пользователей', () => {
@@ -128,21 +136,43 @@ describe('UserPolicy', () => {
   });
 
   describe('canAddRole', () => {
-    test('ADMIN может добавлять роли', () => {
-      expect(UserPolicy.canAddRole(admin)).toBe(true);
+    test('ADMIN может добавить любую роль любому пользователю', () => {
+      expect(UserPolicy.canAddRole(admin, student, Role.STUDENT)).toBe(true);
+      expect(UserPolicy.canAddRole(admin, teacher, Role.ADMIN)).toBe(true);
     });
 
-    test('STUDENT не может добавлять роли', () => {
-      expect(UserPolicy.canAddRole(student)).toBe(false);
+    test('GUEST может добавить себе роль STUDENT', () => {
+      expect(UserPolicy.canAddRole(guest, guest, Role.STUDENT)).toBe(true);
     });
 
-    test('MENTOR не может добавлять роли', () => {
-      expect(UserPolicy.canAddRole(teacher)).toBe(false);
+    test('GUEST НЕ может добавить себе роль ADMIN', () => {
+      expect(UserPolicy.canAddRole(guest, guest, Role.ADMIN)).toBe(false);
     });
 
-    test('пользователь с несколькими ролями включая ADMIN может добавлять', () => {
+    test('GUEST НЕ может добавить роль другому пользователю', () => {
+      expect(UserPolicy.canAddRole(guest, student, Role.STUDENT)).toBe(false);
+    });
+
+    test('STUDENT может добавить себе STUDENT (идемпотентно)', () => {
+      expect(UserPolicy.canAddRole(student, student, Role.STUDENT)).toBe(true);
+    });
+
+    test('STUDENT НЕ может добавить STUDENT другому', () => {
+      expect(UserPolicy.canAddRole(student, anotherStudent, Role.STUDENT)).toBe(
+        false,
+      );
+    });
+
+    test('MENTOR НЕ может добавлять роли', () => {
+      expect(UserPolicy.canAddRole(teacher, student, Role.STUDENT)).toBe(false);
+      expect(UserPolicy.canAddRole(teacher, teacher, Role.MENTOR)).toBe(false);
+    });
+
+    test('пользователь с ADMIN + другими ролями может всё', () => {
       const userWithAdmin = { ...student, roles: [Role.STUDENT, Role.ADMIN] };
-      expect(UserPolicy.canAddRole(userWithAdmin)).toBe(true);
+      expect(UserPolicy.canAddRole(userWithAdmin, student, Role.MENTOR)).toBe(
+        true,
+      );
     });
   });
 });

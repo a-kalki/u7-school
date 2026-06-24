@@ -1,4 +1,4 @@
-import type { Logger } from '@u7-scl/core/shared';
+import { isoNow, type Logger } from '@u7-scl/core/shared';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { Student, StudentRepo } from '@u7-scl/stream/domain';
 import { Role, type User, type UserFacade } from '@u7-scl/user/domain';
@@ -46,6 +46,7 @@ export async function handleRegisterStudent(
   contentSnapshot: ContentSnapshot,
   userFacade: UserFacade,
   studentRepo: StudentRepo,
+  botAdminUuid: string,
   logger?: Logger,
 ): Promise<void> {
   const telegramId = ctx.from.id;
@@ -142,7 +143,7 @@ export async function handleRegisterStudent(
   }
 
   // ── Шаг 6: Создать Student запись ──
-  const now = new Date().toISOString();
+  const now = isoNow();
   const student: Student = {
     uuid: crypto.randomUUID(),
     streamId: streamUuid,
@@ -175,7 +176,8 @@ export async function handleRegisterStudent(
   // ── Шаг 7: Добавить роль STUDENT ──
   if (!user.roles.includes(Role.STUDENT)) {
     try {
-      await userFacade.updateUserRole(user.uuid, Role.STUDENT, user.uuid);
+      // Добавляем роль от имени бота (нужны права ADMIN)
+      await userFacade.updateUserRole(user.uuid, Role.STUDENT, botAdminUuid);
     } catch (err) {
       // Логируем, но не прерываем — студент уже создан
       logger?.error('register-student', 'Ошибка добавления роли STUDENT', {
@@ -216,6 +218,7 @@ export function registerRegisterStudentCommand(
   contentSnapshot: ContentSnapshot,
   userFacade: UserFacade,
   studentRepo: StudentRepo,
+  botAdminUuid: string,
   logger?: Logger,
 ): void {
   bot.command('register_student', async (ctx) => {
@@ -226,6 +229,7 @@ export function registerRegisterStudentCommand(
       contentSnapshot,
       userFacade,
       studentRepo,
+      botAdminUuid,
       logger,
     );
   });

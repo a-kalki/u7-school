@@ -18,14 +18,14 @@ export interface UserFacade {
     userId: string,
     role: Role,
     actorId?: string,
-  ): Promise<User | undefined>;
+  ): Promise<void>;
 
   /** Обновить роль пользователя (заменить все роли на одну) */
   updateUserRole(
     userId: string,
     role: Role,
     actorId?: string,
-  ): Promise<User | undefined>;
+  ): Promise<void>;
 
   /** Получить пользователя по Telegram ID */
   getUserByTelegramId(
@@ -38,7 +38,7 @@ export interface UserFacade {
     userId: string,
     role: Role,
     actorId?: string,
-  ): Promise<User | undefined>;
+  ): Promise<void>;
 
   /** Зарегистрировать гостя по telegramId и имени (создаст, если нет) */
   registerGuest(

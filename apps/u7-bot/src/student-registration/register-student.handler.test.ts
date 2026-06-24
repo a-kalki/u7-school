@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, mock, test } from 'bun:test';
+import { isoNow } from '@u7-scl/core/shared';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { Student, StudentRepo } from '@u7-scl/stream/domain';
 import type { User, UserFacade } from '@u7-scl/user/domain';
@@ -9,6 +10,7 @@ import { handleRegisterStudent } from './register-student.handler';
 
 const STREAM_UUID = '8ae94921-8af6-4fb6-ad1d-60bd2f8ee394';
 const GROUP_ID = '-1003960918937';
+const BOT_ADMIN_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
 const testUser: User = {
   uuid: 'b39a00a8-af8b-4f43-a270-176fc3b4ac7b',
@@ -107,14 +109,14 @@ function createMockUserFacade(existingUser?: User): UserFacade {
           name,
           telegramId: _tgId,
           roles: [Role.GUEST],
-          createdAt: new Date().toISOString(),
+          createdAt: isoNow(),
         };
       },
     ),
-    updateUserRole: mock(async () => existingUser ?? testUser),
+    updateUserRole: mock(async () => {}),
     getUserByUuid: mock(async () => undefined),
     userExists: mock(async () => false),
-    addRoleToUser: mock(async () => existingUser ?? testUser),
+    addRoleToUser: mock(async () => {}),
     removeRoleFromUser: mock(async () => undefined),
   } as unknown as UserFacade;
 }
@@ -159,6 +161,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     const replyText = ctx.replies.join(' ');
@@ -189,6 +192,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     const student = studentRepo._saved[0]!;
@@ -212,6 +216,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     // Должен создать гостя и затем студента
@@ -235,6 +240,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     expect(ctx.replies.join(' ')).toContain('не являешься участником');
@@ -246,17 +252,17 @@ describe('handleRegisterStudent', () => {
       uuid: crypto.randomUUID(),
       streamId: STREAM_UUID,
       userId: testUser.uuid,
-      enrolledAt: new Date().toISOString(),
+      enrolledAt: isoNow(),
       status: 'active',
       currentStepId: 's1-1',
       steps: [
         {
           stepId: 's1-1',
           status: 'issued',
-          issuedAt: new Date().toISOString(),
+          issuedAt: isoNow(),
         },
       ],
-      createdAt: new Date().toISOString(),
+      createdAt: isoNow(),
     };
 
     const ctx = createMockCtx({ messageText: '/register_student' });
@@ -270,6 +276,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     expect(ctx.replies.join(' ')).toContain('уже зарегистрирован');
@@ -288,6 +295,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     expect(ctx.replies.join(' ')).toContain('Неверный формат');
@@ -306,6 +314,7 @@ describe('handleRegisterStudent', () => {
       testSnapshot,
       facade,
       studentRepo as StudentRepo,
+      BOT_ADMIN_UUID,
     );
 
     expect(ctx.replies.join(' ')).toContain('не найден');

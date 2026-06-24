@@ -29,15 +29,16 @@ export class AddRoleToUserUc extends UserUseCase<AddRoleToUserCmdMeta> {
     const repo = this.resolve.userRepo;
 
     const actor = await this.getActor(actorId);
-    if (!UserPolicy.canAddRole(actor)) {
-      this.throwAccessDenied('Недостаточно прав для выполнения действия');
-    }
 
     const target = await repo.getByUuid(command.userId);
     if (!target) {
       this.throwNotFound('USER_NOT_FOUND', 'Пользователь не найден', {
         uuid: command.userId,
       });
+    }
+
+    if (!UserPolicy.canAddRole(actor, target, command.role)) {
+      this.throwAccessDenied('Недостаточно прав для выполнения действия');
     }
 
     const ar = new UserAr(target);
