@@ -292,7 +292,7 @@ describe('Сквозные пользовательские сценарии (E2
 
       expect(allTexts).toContain('успешно записаны');
       expect(allTexts).toContain('JS Core');
-      expect(allTexts).toContain('Моя учёба');
+      expect(allTexts).toContain('Поток:');
     });
 
     test('после записи — студент найден в потоке', async () => {
@@ -346,9 +346,9 @@ describe('Сквозные пользовательские сценарии (E2
       assertBotResponseValid(response);
 
       const text = response.sendMessage?.text ?? '';
-      expect(text).toContain('Моя учёба');
+      expect(text).toContain('Поток:');
       expect(text).toContain('JS Core');
-      expect(text).toContain('Текущее задание');
+      expect(text).toContain('Урок:');
       expect(text).not.toContain('Неизвестная команда');
 
       const btnTexts =
@@ -379,8 +379,8 @@ describe('Сквозные пользовательские сценарии (E2
 
       const text = completeResp.sendMessage?.text ?? '';
       // Получаем клавиатуру следующего шага, а не сообщение «Шаг выполнен»
-      expect(text).toContain('Моя учёба');
-      expect(text).toContain('Текущее задание');
+      expect(text).toContain('Поток:');
+      expect(text).toContain('Шаг 2 из 2');
       expect(text).not.toContain('Шаг выполнен');
 
       const btnTexts =
@@ -415,8 +415,8 @@ describe('Сквозные пользовательские сценарии (E2
       assertBotResponseValid(nextResp);
 
       const text2 = nextResp.sendMessage?.text ?? '';
-      expect(text2).toContain('Моя учёба');
-      expect(text2).toContain('Текущее задание');
+      expect(text2).toContain('Поток:');
+      expect(text2).toContain('Условные операторы');
 
       const btnTexts =
         nextResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -762,7 +762,7 @@ describe('Сквозные пользовательские сценарии (E2
         NO_SESSION,
       );
       assertBotResponseValid(studyResp);
-      expect(studyResp.sendMessage?.text).toContain('Моя учёба');
+      expect(studyResp.sendMessage?.text).toContain('Поток:');
 
       // Кнопка «↩️ Главное меню» на my-study
       const menuBtn = findButton(studyResp, '↩️ Главное меню');
@@ -786,7 +786,7 @@ describe('Сквозные пользовательские сценарии (E2
         NO_SESSION,
       );
       assertBotResponseValid(backResp);
-      expect(backResp.sendMessage?.text).toContain('Моя учёба');
+      expect(backResp.sendMessage?.text).toContain('Поток:');
     });
   });
 });

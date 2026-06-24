@@ -57,16 +57,16 @@ describe('LearningStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Моя учёба');
+    expect(text).toContain('Поток:');
     expect(text).toContain('JS Core');
-    expect(text).toContain('Текущее задание');
+    expect(text).toContain('Урок:');
+    expect(text).toContain('Шаг 1 из 2');
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Выполнено'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
 
-    // Кнопка «↩️ Главнее меню» последней строкой
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     const lastRow = rows[rows.length - 1]!;
     expect(lastRow[0]!.text).toBe('↩️ Главное меню');
@@ -87,8 +87,8 @@ describe('LearningStory e2e', () => {
 
     // Клавиатура с кнопками «Выполнено» и «Мой прогресс» (без «Шаг выполнен»)
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Моя учёба');
-    expect(text).toContain('Текущее задание');
+    expect(text).toContain('Поток:');
+    expect(text).toContain('Шаг 2 из 2');
     expect(text).not.toContain('Шаг выполнен');
 
     const btnTexts =
@@ -130,9 +130,7 @@ describe('LearningStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Моя учёба');
-    expect(text).toContain('Текущее задание');
-    // Должен быть на шаге нового урока «Условные операторы»
+    expect(text).toContain('Поток:');
     expect(text).toContain('Условные операторы');
 
     const btnTexts =
@@ -150,7 +148,7 @@ describe('LearningStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Текущее задание');
+    expect(text).toContain('Шаг 2 из 2');
     expect(text).not.toContain('Шаг выполнен');
 
     const btnTexts =

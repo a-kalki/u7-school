@@ -1,34 +1,23 @@
-# Задача: тело шага в «Моя учёба»
+# Задача: тело шага в «Моя учёба» — ВЫПОЛНЕНО ✅
 
-## Статус
+## Коммиты
 
-- ✅ Шаг 1: `CourseFacade.getStep()` — готов, 4 теста, tslint чист
-- ⏳ Шаг 2: Рефакторинг LearningStory
-- ⏳ Шаг 3: Форматирование тела шага
+- `479b37b` — исправления UserPolicy / фасада / временной регистрации
+- `a04888c` — тело шага + рефакторинг LearningStory
 
-## План (через appApi.execute)
-
-### Файлы
+## Что сделано
 
 | # | Файл | Что |
 |---|------|-----|
-| 2 | `learning.story.ts` | Рефакторинг + `appApi.execute('get-step', { uuid })` + форматирование тела |
-| 3 | `learning.story.test.ts` | Мок `get-step` в appApi, тесты на новое сообщение |
+| 1 | `course/domain/facade.ts` | `getStep(stepId): Promise<Step>` — новый метод |
+| 2 | `course/infra/course-in-proc-facade.ts` | Реализация через `get-step` use-case |
+| 3 | `course/infra/course-in-proc-facade.test.ts` | 2 теста |
+| 4 | `stream/ui/bot/stories/learning.story.ts` | Рефакторинг + тело шага |
+| 5 | `stream/ui/bot/stories/learning.story.test.ts` | 17 тестов |
 
-### Методы после рефакторинга
+## Итог
 
-| Метод | Ответственность |
-|-------|----------------|
-| `handleCallback` | Диспетчер: `my-study` → `showCurrentStep`, `complete:*` → `handleComplete` |
-| `showCurrentStep(actor)` | get-student + get-stream → `buildStepView` (используется из двух мест) |
-| `handleComplete(action, actor)` | complete-step → step: `showCurrentStep`, lesson/project: `announceTransition` |
-| `buildStepView(stream, stepId, streamId)` | `appApi.execute('get-step')` + `findStepPosition` → `formatStepMessage` + `buildStepKeyboard` |
-| `findStepPosition(snapshot, stepId)` | → `{ lessonTitle, stepIndex, totalSteps }` |
-| `formatStepMessage(title, pos, step)` | Форматирование: заголовок + тело (описание, код) |
-| `buildStepKeyboard(streamId, stepId)` | Клавиатура: [✅] [📊] |
-| `announceTransition(result, streamId)` | Поздравление при переходе урок/проект (бывш. handleLevelTransition) |
-
-### Сообщение
+Сообщение «Моя учёба» теперь показывает:
 
 ```
 📖 Поток: Название потока
@@ -37,11 +26,11 @@
 
 Описание задания...
 ```код```
-[✅ Выполнено] [📊 Мой прогресс]
+[✅ Выполнено] [📊 Мой прогресс] [↩️ Главное меню]
 ```
 
-### Не забыть
+## Достижения рефакторинга
 
-- Кнопка «↩️ Главное меню» в showCurrentStep (уже есть)
-- MarkdownV2 экранирование (escapeMarkdown из core)
-- Код-блоки: ``` для code-шагов
+- `showCurrentStep` — унифицирован для «Моя учёба» и «Выполнено» (level=step)
+- `buildStepView` / `findStepPosition` / `formatStepMessage` / `buildStepKeyboard` — каждая делает одно
+- Тело шага через `appApi.execute('get-step', ...)` — межмодульный вызов, 0 изменений в StreamController/api-app
