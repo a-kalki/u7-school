@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
+import { safeConvert } from '@u7-scl/core/shared';
 import type {
   BotResponse,
   BotUpdate,
@@ -8,7 +9,6 @@ import type {
 } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
-import { convert } from 'markdown-to-telegram';
 import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
@@ -219,9 +219,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   /** Находит позицию шага в снимке контента (проект, урок, индекс, всего). */
   #findStepPosition(snapshot: ContentSnapshot, stepId: string): StepPosition {
     for (let pi = 0; pi < snapshot.length; pi++) {
-      const project = snapshot[pi]!;
+      const project = snapshot[pi];
+      if (!project) continue;
       for (let li = 0; li < project.lessons.length; li++) {
-        const lesson = project.lessons[li]!;
+        const lesson = project.lessons[li];
+        if (!lesson) continue;
         const idx = lesson.stepIds.indexOf(stepId);
         if (idx !== -1) {
           return {
@@ -255,7 +257,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       `📖 *Поток:* ${this.escapeMarkdown(streamTitle)}`,
       `📁 *Проект:* ${this.escapeMarkdown(pos.projectTitle)}`,
       `📚 *Урок:* «${this.escapeMarkdown(pos.lessonTitle)}»`,
-      `🔢 p${pos.projectIndex}` + '\\-l' + `${pos.lessonIndex}`,
+      `🔢 p${pos.projectIndex}\\-l${pos.lessonIndex}`,
       '',
       '――――――――――――――',
       '',
@@ -265,7 +267,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (step.kind === 'code' && step.code) {
       lines.push('', '```', this.escapeMarkdown(step.code), '```');
     } else if (step.kind === 'text' && step.content) {
-      lines.push('', convert(step.content));
+      lines.push('', safeConvert(step.content));
     }
 
     return lines.join('\n');

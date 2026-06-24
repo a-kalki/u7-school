@@ -3,7 +3,7 @@
     "uuid": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
     "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
     "description": "Шаг 1: знакомство с переменными",
-    "content": "## Переменные\n\nПеременная — это именованная ячейка памяти.\n```js\n  let f = 'f';\n```",
+    "content": "## Переменные\n\nПеременная — это именованная ячейка памяти.",
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-01T01:00"
