@@ -588,9 +588,19 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('ментор завершает active-поток → «⬅️ Назад к списку» → каталог', async () => {
-      // Завершаем активный поток
-      const completeResp = await router.handleCallback(
+      // Шаг 1: запрос подтверждения
+      const confirmResp = await router.handleCallback(
         `stream:view-stream:complete:${ACTIVE_ID}`,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(confirmResp);
+      expect(confirmResp.sendMessage?.text).toContain('Завершить поток');
+
+      // Шаг 2: подтверждаем
+      const yesBtn = findButton(confirmResp, 'Да, завершить');
+      const completeResp = await router.handleCallback(
+        yesBtn.code,
         mentor,
         NO_SESSION,
       );
@@ -630,8 +640,19 @@ describe('Сквозные пользовательские сценарии (E2
     });
 
     test('ментор архивирует enrollment-поток → «⬅️ Назад к списку» → каталог', async () => {
-      const archiveResp = await router.handleCallback(
+      // Шаг 1: запрос подтверждения
+      const confirmResp = await router.handleCallback(
         `stream:view-stream:archive:${ENROLLMENT_ID}`,
+        mentor,
+        NO_SESSION,
+      );
+      assertBotResponseValid(confirmResp);
+      expect(confirmResp.sendMessage?.text).toContain('архив');
+
+      // Шаг 2: подтверждаем
+      const yesBtn = findButton(confirmResp, 'Да, в архив');
+      const archiveResp = await router.handleCallback(
+        yesBtn.code,
         mentor,
         NO_SESSION,
       );

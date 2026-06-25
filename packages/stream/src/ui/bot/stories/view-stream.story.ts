@@ -28,14 +28,24 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleProgram(streamId);
     }
 
-    // Завершение потока (ментор)
-    if (cmd === 'complete' && streamId) {
+    // Подтверждение завершения потока (ментор)
+    if (cmd === 'complete-confirm' && streamId) {
       return this.#handleComplete(streamId, actor);
     }
 
-    // Архивирование потока (ментор)
-    if (cmd === 'archive' && streamId) {
+    // Завершение потока — запрос подтверждения (ментор)
+    if (cmd === 'complete' && streamId) {
+      return this.#showCompleteConfirm(streamId);
+    }
+
+    // Подтверждение архивирования потока (ментор)
+    if (cmd === 'archive-confirm' && streamId) {
       return this.#handleArchive(streamId, actor);
+    }
+
+    // Архивирование потока — запрос подтверждения (ментор)
+    if (cmd === 'archive' && streamId) {
+      return this.#showArchiveConfirm(streamId);
     }
 
     if (cmd !== 'view' || !streamId) {
@@ -255,6 +265,56 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     ]);
 
     return { rows, isMultiple: false };
+  }
+
+  // ── Подтверждения ──
+
+  #showCompleteConfirm(streamId: string): BotResponse {
+    return {
+      sendMessage: {
+        text: '⚠️ *Завершить поток?*\n\nЭто действие остановит обучение для всех студентов\\. Поток нельзя будет перезапустить\\.',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: '✅ Да, завершить',
+                code: this.cbFor('view-stream', 'complete-confirm', streamId),
+              },
+              {
+                text: '❌ Отмена',
+                code: this.cbFor('view-stream', 'view', streamId),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
+  #showArchiveConfirm(streamId: string): BotResponse {
+    return {
+      sendMessage: {
+        text: '⚠️ *Отправить поток в архив?*\n\nПоток будет скрыт из витрины\\. Студенты потеряют доступ к обучению\\.',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: '✅ Да, в архив',
+                code: this.cbFor('view-stream', 'archive-confirm', streamId),
+              },
+              {
+                text: '❌ Отмена',
+                code: this.cbFor('view-stream', 'view', streamId),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
   }
 
   // ── Менторские действия ──

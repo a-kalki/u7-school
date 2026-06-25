@@ -297,7 +297,7 @@ describe('ViewStreamStory', () => {
     expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
   });
 
-  test('кнопка «Завершить» вызывает complete-stream', async () => {
+  test('кнопка «Завершить» показывает подтверждение', async () => {
     const { story, moduleApi } = makeViewStory(
       { ...sampleStream, status: 'active' },
       0,
@@ -305,6 +305,35 @@ describe('ViewStreamStory', () => {
 
     const response = await story.handleCallback(
       'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+
+    // Не должен вызывать complete-stream — только показ подтверждения
+    expect(moduleApi.execute).not.toHaveBeenCalledWith(
+      'complete-stream',
+      expect.anything(),
+      expect.anything(),
+    );
+
+    // Текст предупреждения
+    expect(response.sendMessage?.text).toContain('Завершить поток');
+
+    // Кнопки: «Да, завершить» и «Отмена»
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Да, завершить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('подтверждение «Завершить» вызывает complete-stream', async () => {
+    const { story, moduleApi } = makeViewStory(
+      { ...sampleStream, status: 'active' },
+      0,
+    );
+
+    const response = await story.handleCallback(
+      'complete-confirm:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
       mentorActor,
       session,
     );
@@ -324,11 +353,37 @@ describe('ViewStreamStory', () => {
     expect(rows[0]![0]!.code).toBe('catalog:list');
   });
 
-  test('кнопка «В архив» вызывает archive-stream', async () => {
+  test('кнопка «В архив» показывает подтверждение', async () => {
     const { story, moduleApi } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'archive:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+
+    // Не должен вызывать archive-stream — только показ подтверждения
+    expect(moduleApi.execute).not.toHaveBeenCalledWith(
+      'archive-stream',
+      expect.anything(),
+      expect.anything(),
+    );
+
+    // Текст предупреждения
+    expect(response.sendMessage?.text).toContain('архив');
+
+    // Кнопки: «Да, в архив» и «Отмена»
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Да, в архив'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('подтверждение «В архив» вызывает archive-stream', async () => {
+    const { story, moduleApi } = makeViewStory(sampleStream, 0);
+
+    const response = await story.handleCallback(
+      'archive-confirm:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
       mentorActor,
       session,
     );

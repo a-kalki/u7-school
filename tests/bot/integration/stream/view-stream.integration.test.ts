@@ -177,14 +177,33 @@ describe('ViewStreamStory e2e', () => {
     expect(btns.some((t) => t.includes('В архив'))).toBe(true);
   });
 
-  test('ментор → complete: кнопка «⬅️ Назад к списку»', async () => {
-    // Используем ACTIVE_ID — он активный, можно завершить
+  test('ментор → complete: показывает подтверждение', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:complete:${ACTIVE_ID}`,
       mentor,
       session,
     );
     assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Завершить поток');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Да, завершить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('ментор → complete-confirm: завершает поток', async () => {
+    const response = await router.handleCallback(
+      `stream:view-stream:complete-confirm:${ACTIVE_ID}`,
+      mentor,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('завершён');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     if (rows.length > 0) {
@@ -193,14 +212,33 @@ describe('ViewStreamStory e2e', () => {
     }
   });
 
-  test('ментор → archive: кнопка «⬅️ Назад к списку»', async () => {
-    // После complete поток уже completed — архивируем completed
+  test('ментор → archive: показывает подтверждение', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:archive:${ACTIVE_ID}`,
       mentor,
       session,
     );
     assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('архив');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Да, в архив'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('ментор → archive-confirm: архивирует поток', async () => {
+    const response = await router.handleCallback(
+      `stream:view-stream:archive-confirm:${ACTIVE_ID}`,
+      mentor,
+      session,
+    );
+    assertBotResponseValid(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('архив');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     if (rows.length > 0) {
