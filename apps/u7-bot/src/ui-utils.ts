@@ -1,4 +1,8 @@
-import { escapeMarkdown, getGlobalLogger, validateMarkdownV2 } from '@u7-scl/core/shared';
+import {
+  escapeMarkdown,
+  getGlobalLogger,
+  validateMarkdownV2,
+} from '@u7-scl/core/shared';
 import type { BotResponse, SendMessageDescription } from '@u7-scl/core/ui';
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from './context';
@@ -55,7 +59,7 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
 
     if (ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
-      callbackData = data;
+      if (data) callbackData = data;
       const markup = ctx.callbackQuery.message?.reply_markup;
       if (markup && 'inline_keyboard' in markup) {
         for (const row of markup.inline_keyboard) {

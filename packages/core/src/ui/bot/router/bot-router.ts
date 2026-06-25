@@ -91,10 +91,14 @@ export class BotRouter<
         const cItems = await c.handleStart(actor);
         items.push(...cItems);
       } catch (err) {
-        getGlobalLogger()?.warn('bot-router', 'Ошибка контроллера в collectMainMenu', {
-          error: String(err),
-          controller: c.name,
-        });
+        getGlobalLogger()?.warn(
+          'bot-router',
+          'Ошибка контроллера в collectMainMenu',
+          {
+            error: String(err),
+            controller: c.name,
+          },
+        );
       }
     }
     return items.sort((a, b) => a.priority - b.priority);
@@ -113,10 +117,14 @@ export class BotRouter<
           descriptions.push(desc);
         }
       } catch (err) {
-        getGlobalLogger()?.warn('bot-router', 'Ошибка контроллера в collectHelp', {
-          error: String(err),
-          controller: c.name,
-        });
+        getGlobalLogger()?.warn(
+          'bot-router',
+          'Ошибка контроллера в collectHelp',
+          {
+            error: String(err),
+            controller: c.name,
+          },
+        );
       }
     }
     return descriptions;

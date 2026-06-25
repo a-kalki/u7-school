@@ -156,7 +156,9 @@ export function connectRouter(
 
     const user = await resolveActor(ctx);
     if (!user) {
-      await ctx.reply('Не удалось определить пользователя. Попробуйте /start.').catch(() => {});
+      await ctx
+        .reply('Не удалось определить пользователя. Попробуйте /start.')
+        .catch(() => {});
       return;
     }
 
