@@ -17,71 +17,118 @@ export function escapeMarkdown(text: string): string {
 /**
  * Безопасная конвертация Markdown → Telegram MarkdownV2.
  *
- * В отличие от `convert()` из `markdown-to-telegram`, гарантирует,
- * что **все** зарезервированные символы будут экранированы в итоговом тексте.
+ * Проблема `convert()` из `markdown-to-telegram`: он НЕ экранирует
+ * содержимое таблиц (handleTable берёт plain text через toString(),
+ * таблицы официально unsupported).
  *
- * Проблема `convert()`: он экранирует символы в текстовых узлах через escapeSymbols(),
- * но НЕ экранирует содержимое таблиц (handleTable берёт plain text через toString()).
- * Кроме того, наше пост-экранирование использует negative lookbehind чтобы
- * не переэкранировать уже экранированные символы (избегаем \\. → \\\\.).
+ * Решение: предобработка Markdown перед `convert()`.
+ * `prepareMarkdown()` приводит неподдерживаемые элементы (таблицы)
+ * к формату, который `convert()` умеет обрабатывать.
+ * Никакой пост-обработки — `convert()` делает всё остальное.
  *
  * Алгоритм:
- * 1. `convert(markdown)` — преобразует разметку
- * 2. Пост-экранирование .!+\-=|>#{}()[] — вне кодовых блоков и инлайн-кода
+ * 1. `prepareMarkdown(markdown)` — приводит таблицы к текстовому виду
+ * 2. `convert(prepared)` — преобразует разметку, экранирует символы
  */
 export function safeConvert(markdown: string): string {
-  const converted = convert(markdown);
-  return escapeReservedOutsideCode(converted);
+  return convert(prepareMarkdown(markdown));
 }
 
-/**
- * Экранирует «никогда не форматирующие» символы MarkdownV2
- * везде, кроме кодовых блоков (```...```) и инлайн-кода (`...`).
- *
- * MarkdownV2 резервирует две группы символов:
- * 1. Форматирующие: _ * ~ ` — могут иметь смысл разметки
- * 2. Никогда не форматирующие: . ! + - = | > # { } ( ) [ ]
- *
- * Группа 2 ВСЕГДА должна быть экранирована в тексте вне кода.
- * convert() из markdown-to-telegram экранирует их в текстовых узлах,
- * но НЕ в содержимом таблиц. Эта функция добивает пропущенное.
- *
- * Используется negative lookbehind (?<!\\) чтобы не переэкранировать
- * символы, уже экранированные convert() — иначе \. → \\. (два бэкслеша
- * + точка = бэкслеш экранирован, точка нет → ошибка Telegram API).
- */
-function escapeReservedOutsideCode(text: string): string {
-  // Никогда не форматирующие символы MarkdownV2.
-  // (?<!\\) — не экранируем, если уже есть бэкслеш перед символом.
-  // - в начале класса — literal, \] — экранированная закрывающая скобка.
-  const reserved = /(?<!\\)[-.!+=|>#{}()[\]]/g;
+// ═══════════════════════════════════════════════════════════════
+// Предобработка Markdown
+// ═══════════════════════════════════════════════════════════════
 
+/** Функция-предобработчик Markdown перед передачей в convert() */
+type MarkdownPreprocessor = (markdown: string) => string;
+
+/**
+ * Точка расширения для предобработки Markdown.
+ *
+ * Каждый обработчик в pipeline приводит неподдерживаемый `convert()`
+ * элемент Markdown к виду, который `convert()` сможет обработать
+ * без потери смысла и без нарушения экранирования.
+ *
+ * При обнаружении новой проблемы — добавляем обработчик в массив.
+ */
+function prepareMarkdown(markdown: string): string {
+  const preprocessors: MarkdownPreprocessor[] = [fixTables];
+  return preprocessors.reduce((md, fn) => fn(md), markdown);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Обработчики
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Преобразует Markdown-таблицы в маркированный список.
+ *
+ * `convert()` не умеет экранировать содержимое ячеек таблиц
+ * (handleTable выводит plain text из toString() без escapeSymbols).
+ *
+ * Этот обработчик заменяет таблицу на плоский текст:
+ * ```
+ * | A | B |             • A | B
+ * |---|---|      →      • 1 | 2
+ * | 1 | 2 |             • 3 | 4
+ * | 3 | 4 |
+ * ```
+ *
+ * Ячейки разделяются `|` — `convert()` экранирует его через escapeSymbols()
+ * в текстовых узлах, в Telegram отобразится как `|`.
+ *
+ * Форматирование внутри ячеек (`` `code` ``, `**bold**`) сохраняется
+ * и будет обработано `convert()`.
+ */
+function fixTables(markdown: string): string {
+  return outsideCodeBlocks(markdown, convertTablesInText);
+}
+
+/** Применяет transform к тексту вне кодовых блоков (```...```) */
+function outsideCodeBlocks(
+  markdown: string,
+  transform: (text: string) => string,
+): string {
   const parts: string[] = [];
-  let remaining = text;
+  let remaining = markdown;
 
   while (remaining.length > 0) {
-    // Ищем кодовый блок (```...```) или инлайн-код (`...`)
     const codeBlock = remaining.match(/^```[\s\S]*?```/);
-    const inlineCode = remaining.match(/^`[^`]+`/);
-
     if (codeBlock) {
       parts.push(codeBlock[0]);
       remaining = remaining.slice(codeBlock[0].length);
-    } else if (inlineCode) {
-      parts.push(inlineCode[0]);
-      remaining = remaining.slice(inlineCode[0].length);
-    } else {
-      // Обычный текст — до следующего кодового маркера
-      const nextMarker = remaining.search(/```|`/);
-      if (nextMarker === -1) {
-        parts.push(remaining.replace(reserved, '\\$&'));
-        remaining = '';
-      } else {
-        parts.push(remaining.slice(0, nextMarker).replace(reserved, '\\$&'));
-        remaining = remaining.slice(nextMarker);
-      }
+      continue;
     }
+
+    const nextCode = remaining.search(/```/);
+    const segment = nextCode === -1 ? remaining : remaining.slice(0, nextCode);
+
+    parts.push(transform(segment));
+    remaining = nextCode === -1 ? '' : remaining.slice(nextCode);
   }
 
   return parts.join('');
+}
+
+/** Находит и преобразует таблицы в текстовом сегменте (вне кодовых блоков) */
+function convertTablesInText(text: string): string {
+  // Строка заголовка | разделитель |---| | строки данных
+  const tableRe = /^\|.+\|\n\|[-:| ]+\|\n(?:\|.+\|\n?)+/gm;
+
+  return text.replace(tableRe, (table) => {
+    const lines = table.trim().split('\n');
+    const [header, , ...dataRows] = lines;
+
+    const formatRow = (row: string): string => {
+      // Ячейки разделены |, первая и последняя пустые (от split)
+      const cells = row
+        .split('|')
+        .filter((c) => c !== '')
+        .map((c) => c.trim());
+      return `• ${cells.join(' | ')}`;
+    };
+
+    if (!header) return '';
+
+    return [formatRow(header), ...dataRows.map(formatRow)].join('\n');
+  });
 }

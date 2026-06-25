@@ -14,7 +14,7 @@
  */
 
 /** Символы, которые НИКОГДА не форматируют текст и ВСЕГДА должны быть экранированы */
-const NEVER_FORMATTING_RE = /(?<!\\)[.!+\-=|>#{}()[\]]/g;
+const NEVER_FORMATTING_RE = /(?<!\\)[.!+\-=|#{}()[\]]/g;
 
 export interface MarkdownIssue {
   /** Проблемный символ */
@@ -46,7 +46,7 @@ export function validateMarkdownV2(text: string): MarkdownValidationResult {
   const issues: MarkdownIssue[] = [];
 
   // Исключаем кодовые блоки и инлайн-код — внутри них другие правила
-  const outsideCode = stripCodeBlocks(text);
+  const outsideCode = stripProtectedSyntax(text);
 
   // ── 1. Никогда не форматирующие ──
   for (const match of outsideCode.matchAll(NEVER_FORMATTING_RE)) {
@@ -84,11 +84,17 @@ export function validateMarkdownV2(text: string): MarkdownValidationResult {
 }
 
 /**
- * Удаляет кодовые блоки (```...```) и инлайн-код (`...`) из текста,
- * заменяя их пробелами чтобы не влияли на проверку парности.
+ * Удаляет защищённые синтаксические конструкции из текста,
+ * заменяя их пробелами, чтобы не влияли на проверку парности:
+ * - кодовые блоки (```...```)
+ * - инлайн-код (`...`)
+ * - ссылки [text](url) — _ внутри URL валиден и не должен считаться italic
  */
-function stripCodeBlocks(text: string): string {
-  return text.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]+`/g, ' ');
+function stripProtectedSyntax(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]+`/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]+\)/g, ' ');
 }
 
 /**

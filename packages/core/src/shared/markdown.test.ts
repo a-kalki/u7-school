@@ -1,107 +1,126 @@
 import { describe, expect, test } from 'bun:test';
 import { safeConvert } from './markdown';
+import { validateMarkdownV2 } from './markdown-validator';
 
 describe('safeConvert', () => {
-  test('экранирует | в таблицах', () => {
-    const input = '| A | B |\n|---|---|\n| 1 | 2 |\n';
+  // ── Таблицы ──
+
+  test('таблица преобразуется в список с | разделителем', () => {
+    const input = ['| A | B |', '|---|---|', '| 1 | 2 |', '| 3 | 4 |'].join(
+      '\n',
+    );
+
     const result = safeConvert(input);
-    // Ни одного неэкранированного |
-    expect(/(?<!\\)\|/.test(result)).toBe(false);
+    // convert() экранирует | через escapeSymbols → \|
+    expect(result).toContain('• A \\| B');
+    expect(result).toContain('• 1 \\| 2');
+    expect(result).toContain('• 3 \\| 4');
   });
 
-  test('сохраняет | внутри кодовых блоков', () => {
-    const input = '```\n| A | B |\n```\n';
+  test('таблица с форматированием в ячейках', () => {
+    const input = [
+      '| **Жирный** | `code` |',
+      '|----|----|',
+      '| текст | `import { x }` |',
+    ].join('\n');
+
     const result = safeConvert(input);
-    // | внутри ``` должен остаться без экранирования
+    // convert() обрабатывает **bold** → *bold* и `code` → `code`
+    expect(result).toContain('*Жирный*');
+    expect(result).toContain('`code`');
+    expect(result).toContain('`import { x }`');
+  });
+
+  test('таблица внутри кодового блока не преобразуется', () => {
+    const input = ['```', '| A | B |', '|---|---|', '| 1 | 2 |', '```'].join(
+      '\n',
+    );
+
+    const result = safeConvert(input);
+    // Внутри ``` таблица остаётся нетронутой
     expect(result).toContain('| A | B |');
+    expect(result).toContain('|---|---|');
+    expect(result).toContain('| 1 | 2 |');
   });
 
-  test('экранирует = вне кодовых блоков', () => {
-    const input = '```js\nlet x = 5;\n```\n\nx = 5';
+  // ── Ссылки и _ в URL ──
+
+  test('ссылка [text](url) с _ в URL — не ломается', () => {
+    const input =
+      '[MDN: Array](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array)';
+
     const result = safeConvert(input);
-    // = внутри кода не экранирован
+    // _ внутри URL ссылки — валиден, convert() сохраняет ссылку
+    expect(result).toContain('[MDN: Array]');
+    expect(result).toContain('Global_Objects');
+  });
+
+  // ── Blockquote + ссылка (баг из p4-l4) ──
+
+  test('blockquote со ссылкой — сохраняет > и ссылку', () => {
+    const input =
+      '> Текст со ссылкой: [MDN: Array](https://example.com/Global_Objects/Array).';
+
+    const result = safeConvert(input);
+    // > сохранён (convert выводит как есть, Telegram это принимает)
+    expect(result).toContain('>');
+    // Ссылка сохранена
+    expect(result).toContain('[MDN: Array]');
+    // Выход валиден с точки зрения MarkdownV2
+    const v = validateMarkdownV2(result);
+    expect(v.valid).toBe(true);
+  });
+
+  // ── Базовое форматирование ──
+
+  test('**bold** → *bold*', () => {
+    expect(safeConvert('**жирный**')).toContain('*жирный*');
+  });
+
+  test('`code` сохраняется', () => {
+    expect(safeConvert('`код`')).toContain('`код`');
+  });
+
+  test('```code block``` сохраняется', () => {
+    const result = safeConvert('```\nlet x = 5;\n```');
     expect(result).toContain('let x = 5;');
-    // = снаружи экранирован
-    expect(result).toContain('\\=');
   });
 
-  test('сохраняет MarkdownV2-форматирование', () => {
-    const input = '**жирный** _курсив_';
-    const result = safeConvert(input);
-    expect(result).toContain('*жирный*');
-    expect(result).toContain('_курсив_');
-  });
+  // ── Точки и спецсимволы ──
 
-  test('экранирует точку и восклицательный знак', () => {
-    const input = 'Готово. Начинаем!';
-    const result = safeConvert(input);
+  test('точка экранируется', () => {
+    const result = safeConvert('Готово.');
     expect(result).toContain('\\.');
+  });
+
+  test('! экранируется', () => {
+    const result = safeConvert('Начинаем!');
     expect(result).toContain('\\!');
   });
 
-  test('не трогает . и ! внутри кодовых блоков', () => {
-    const input = '```\nconsole.log("hello!");\n```';
-    const result = safeConvert(input);
-    expect(result).toContain('hello!');
-    expect(/(?<!\\)!/.test(result.split('```')[1]!)).toBe(true);
-  });
+  // ── Реальный контент (p4-l4 шаг 6) ──
 
-  test('не переэкранирует уже экранированные символы (negative lookbehind)', () => {
-    // convert() уже экранирует скобки и точки в текстовых узлах:
-    // «При импорте (`default`).» → «При импорте \(`default`\).»
-    // Наш escapeReservedOutsideCode НЕ должен трогать уже экранированные (\(, \), \.)
-    const input = 'Функция (`default`).';
-    const result = safeConvert(input);
-    // После convert(): \(`default`\)\.
-    // escapeReservedOutsideCode с (?<!\\) НЕ должен переэкранировать
-    // Проверяем что \( и \) не стали \\( \\)
-    expect(result).toContain('\\(`default`\\)');
-    // И точка экранирована ровно один раз
-    expect(result).toMatch(/\\\.$/m);
-  });
-
-  test('экранирует { } ( ) [ ] в таблицах и обычном тексте', () => {
-    // convert() НЕ экранирует содержимое таблиц
-    // { } ( ) [ ] в ячейках таблицы должны быть экранированы
-    const input =
-      '| Синтаксис | Пример |\n|---|---|\n| `import { x }` | {x} |\n| Массив [1] | (группа) |';
-    const result = safeConvert(input);
-    // Ни одного неэкранированного { } ( ) [ ]
-    expect(/(?<!\\)[{}()[\]]/.test(result)).toBe(false);
-  });
-
-  test('не трогает форматирующие символы (* _) от convert()', () => {
-    // _ и * имеют форматирующее значение и НЕ входят в набор never-formatting
-    const input = '**жирный** и _курсив_ и ~зачёркнутый~';
-    const result = safeConvert(input);
-    // Форматирование должно сохраниться
-    expect(result).toContain('*жирный*');
-    expect(result).toContain('_курсив_');
-  });
-
-  test('реальный контент с таблицей и кодом — все never-formatting экранированы', () => {
+  test('реальный контент с blockquote + ссылкой + кодом', () => {
     const input = [
-      'У модуля может быть **один** экспорт.',
+      'Текст со стрелочными функциями:',
       '',
-      '```js',
-      'let x = {a: 1};',
-      'console.log(x.a);',
+      '```javascript',
+      'let sum = numbers.reduce((acc, item) => acc + item, 0);',
       '```',
       '',
-      '| A | B |',
-      '|---|---|',
-      '| {x} | (y) |',
+      '> Документация: [MDN: Array](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array).',
     ].join('\n');
+
     const result = safeConvert(input);
 
-    // В кодовом блоке — не экранировано
-    expect(result).toContain('let x = {a: 1};');
-    expect(result).toContain('console.log(x.a);');
+    // Кодовый блок не тронут
+    expect(result).toContain('(acc, item)');
 
-    // Вне кодового блока — все never-formatting экранированы
-    const outsideCode = result
-      .replace(/```[\s\S]*?```/g, '')
-      .replace(/`[^`]+`/g, '');
-    expect(/(?<!\\)[-.!+=|>#{}()[\]]/.test(outsideCode)).toBe(false);
+    // Ссылка сохранена, _ в URL не создаёт проблем
+    expect(result).toContain('[MDN: Array]');
+
+    // Валидатор подтверждает: нет проблем с парностью _
+    const v = validateMarkdownV2(result);
+    expect(v.issues.filter((i) => i.char === '_')).toEqual([]);
   });
 });

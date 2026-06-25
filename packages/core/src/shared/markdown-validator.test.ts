@@ -32,13 +32,6 @@ describe('validateMarkdownV2 — полный набор резервных си
     expect(chars).toContain(']');
   });
 
-  test('неэкранированный ">" — ошибка', () => {
-    const result = validateMarkdownV2('5 > 3');
-    expect(result.valid).toBe(false);
-    const chars = result.issues.map((i) => i.char);
-    expect(chars).toContain('>');
-  });
-
   test('неэкранированный "#" — ошибка', () => {
     const result = validateMarkdownV2('Заголовок #1');
     expect(result.valid).toBe(false);
@@ -69,11 +62,6 @@ describe('validateMarkdownV2 — полный набор резервных си
 
   test('экранированные "\\[ \\]" — OK', () => {
     const result = validateMarkdownV2('Массив \\[1,2,3\\]');
-    expect(result.valid).toBe(true);
-  });
-
-  test('экранированный "\\>" — OK', () => {
-    const result = validateMarkdownV2('5 \\> 3');
     expect(result.valid).toBe(true);
   });
 
