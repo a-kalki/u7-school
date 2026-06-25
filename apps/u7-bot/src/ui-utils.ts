@@ -1,4 +1,4 @@
-import { validateMarkdownV2 } from '@u7-scl/core/shared';
+import { escapeMarkdown, getGlobalLogger, validateMarkdownV2 } from '@u7-scl/core/shared';
 import type { BotResponse, SendMessageDescription } from '@u7-scl/core/ui';
 import { InlineKeyboard } from 'grammy';
 import type { BotContext } from './context';
@@ -33,7 +33,13 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
         reply_markup: keyboard,
         parse_mode: edit.parseMode,
       })
-      .catch(() => {}); // Игнорируем ошибки если контент не изменился
+      .catch((err) => {
+        getGlobalLogger()?.warn('bot', 'Ошибка editMessage', {
+          error: String(err),
+          chatId: ctx.chat?.id,
+          messageId: edit.messageId,
+        });
+      });
   }
 
   // 1.5. По умолчанию убираем клавиатуру у предыдущего сообщения
@@ -44,16 +50,21 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
     let updatedText = prev.text;
 
     // Если нажата inline-кнопка — ищем её текст и добавляем «Вы выбрали: ...»
+    let labelBtnText = '';
+    let callbackData = '';
+
     if (ctx.callbackQuery) {
       const data = ctx.callbackQuery.data;
+      callbackData = data;
       const markup = ctx.callbackQuery.message?.reply_markup;
       if (markup && 'inline_keyboard' in markup) {
         for (const row of markup.inline_keyboard) {
           for (const btn of row) {
             if ('callback_data' in btn && btn.callback_data === data) {
+              labelBtnText = btn.text;
               const label =
                 prev.parseMode === 'MarkdownV2'
-                  ? `*Вы выбрали:* «${btn.text}»`
+                  ? `*Вы выбрали:* «${escapeMarkdown(btn.text)}»`
                   : `Вы выбрали: «${btn.text}»`;
               updatedText = `${prev.text}\n\n—————\n${label}`;
               break;
@@ -68,7 +79,17 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
         reply_markup: undefined,
         parse_mode: prev.parseMode,
       })
-      .catch(() => {});
+      .catch((err) => {
+        getGlobalLogger()?.error('bot', 'Ошибка удаления клавиатуры', {
+          error: String(err),
+          chatId: ctx.chat?.id,
+          messageId: prev.messageId,
+          callbackData,
+          btnText: labelBtnText,
+          updatedTextSnippet: updatedText.slice(-200),
+          parseMode: prev.parseMode,
+        });
+      });
     // Обновляем lastBotMessage: клавиатура больше не актуальна
     ctx.session.lastBotMessage = {
       ...prev,
