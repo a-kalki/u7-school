@@ -1,5 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import { getGlobalLogger } from '#shared/logger';
 import type { BotController } from '../controller/bot-controller';
 import type {
   BotResponse,
@@ -89,8 +90,11 @@ export class BotRouter<
       try {
         const cItems = await c.handleStart(actor);
         items.push(...cItems);
-      } catch {
-        // Пропускаем ошибки отдельных контроллеров
+      } catch (err) {
+        getGlobalLogger()?.warn('bot-router', 'Ошибка контроллера в collectMainMenu', {
+          error: String(err),
+          controller: c.name,
+        });
       }
     }
     return items.sort((a, b) => a.priority - b.priority);
@@ -108,8 +112,11 @@ export class BotRouter<
         if (desc) {
           descriptions.push(desc);
         }
-      } catch {
-        // Пропускаем ошибки отдельных контроллеров
+      } catch (err) {
+        getGlobalLogger()?.warn('bot-router', 'Ошибка контроллера в collectHelp', {
+          error: String(err),
+          controller: c.name,
+        });
       }
     }
     return descriptions;

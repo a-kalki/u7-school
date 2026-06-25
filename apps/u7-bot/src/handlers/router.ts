@@ -90,7 +90,10 @@ export function connectRouter(
   // ═══════════════════════════════════════════
   bot.command('cancel', async (ctx) => {
     const user = await resolveActor(ctx);
-    if (!user) return;
+    if (!user) {
+      await ctx.reply('Не удалось определить пользователя. Попробуйте /start.');
+      return;
+    }
 
     const response = await router.handleCancel(user, ctx.session);
 
@@ -107,7 +110,15 @@ export function connectRouter(
   // ═══════════════════════════════════════════
   bot.on('callback_query:data', async (ctx) => {
     const user = await resolveActor(ctx);
-    if (!user) return;
+    if (!user) {
+      await ctx
+        .answerCallbackQuery({
+          text: 'Ошибка идентификации. Попробуйте /start.',
+          show_alert: true,
+        })
+        .catch(() => {});
+      return;
+    }
 
     const data = ctx.callbackQuery.data;
 
@@ -120,12 +131,20 @@ export function connectRouter(
           text: 'Сначала завершите текущее действие (/cancel)',
           show_alert: true,
         })
-        .catch(() => {});
+        .catch((err) => {
+          logger?.warn('router', 'Ошибка answerCallbackQuery (alert)', {
+            error: String(err),
+          });
+        });
       return;
     }
 
     await executeResponses(ctx, response);
-    await ctx.answerCallbackQuery().catch(() => {});
+    await ctx.answerCallbackQuery().catch((err) => {
+      logger?.warn('router', 'Ошибка answerCallbackQuery (ack)', {
+        error: String(err),
+      });
+    });
   });
 
   // ═══════════════════════════════════════════
@@ -136,7 +155,10 @@ export function connectRouter(
     if (ctx.message.text.startsWith('/')) return next();
 
     const user = await resolveActor(ctx);
-    if (!user) return;
+    if (!user) {
+      await ctx.reply('Не удалось определить пользователя. Попробуйте /start.').catch(() => {});
+      return;
+    }
 
     const update = {
       type: 'message' as const,

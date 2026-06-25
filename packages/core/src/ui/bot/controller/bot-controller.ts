@@ -1,6 +1,5 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { ApiModule } from '#api/module/api-module';
-import { fromError } from '#domain/errors/error-helpers';
 import type {
   ApiExecutor,
   ApiModuleMeta,
@@ -381,20 +380,15 @@ export abstract class BotController<
 
   /**
    * Универсальный обработчик ошибок на уровне контроллера.
-   * Логирует internal/unauthorized/default ошибки.
+   * Логирует ВСЕ ошибки (раз они утекли из story — это неожиданно).
    * Возвращает безопасное пользовательское сообщение (без деталей).
    */
   protected handleError(err: unknown): BotResponse {
-    const appError = fromError(err);
-
-    // Логируем только серьёзные ошибки
-    if (appError.kind === 'internal' || appError.kind === 'unauthorized') {
-      this.logger?.error(
-        'bot',
-        'Необработанная ошибка в контроллере',
-        serializeError(err),
-      );
-    }
+    this.logger?.error(
+      'bot',
+      'Необработанная ошибка в контроллере',
+      serializeError(err),
+    );
 
     return {
       releaseInput: true,
