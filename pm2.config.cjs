@@ -1,12 +1,12 @@
 /**
- * PM2 Ecosystem Config — production-запуск u7-bot.
+ * PM2 Ecosystem Config — production-запуск u7-school-bot.
  *
  * Использование:
  *   pm2 start pm2.config.cjs --env production
  *   pm2 start pm2.config.cjs --env production --update-env
  *   pm2 stop    pm2.config.cjs
  *   pm2 restart pm2.config.cjs --update-env
- *   pm2 logs    u7-bot
+ *   pm2 logs    u7-school-bot
  *   pm2 save
  *   pm2 startup  # автозапуск после перезагрузки
  */
@@ -14,7 +14,7 @@
 module.exports = {
   apps: [
     {
-      name: 'u7-bot',
+      name: 'u7-school-bot',
       script: '/home/admin/.bun/bin/bun',
       args: 'run --env-file .env.production apps/u7-bot/src/main.ts',
       interpreter: 'none',
@@ -34,8 +34,8 @@ module.exports = {
 
       // ══ Логирование ══
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      error_file: './logs/u7-bot-error.log',
-      out_file: './logs/u7-bot-out.log',
+      error_file: './logs/u7-school-bot-error.log',
+      out_file: './logs/u7-school-bot-out.log',
       merge_logs: true,
 
       // ══ Поведение ══
