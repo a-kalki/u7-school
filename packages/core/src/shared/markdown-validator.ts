@@ -31,8 +31,11 @@ export interface MarkdownValidationResult {
 /**
  * Проверяет MarkdownV2-текст на ошибки экранирования и парности.
  *
+ * Проверки выполняются ТОЛЬКО вне кодовых блоков (```...```) и инлайн-кода (`...`),
+ * так как внутри кода действуют другие правила экранирования.
+ *
  * Проверки:
- * 1. Символы . ! + - = | — должны быть экранированы (никогда не форматируют)
+ * 1. Символы . ! + - = | > # { } ( ) [ ] — должны быть экранированы
  * 2. Символ * — количество должно быть чётным (парные жирные)
  * 3. Символ _ — после вычета __ (underline) количество должно быть чётным
  * 4. Символ ~ — количество должно быть чётным (парные зачёркивания)
@@ -42,8 +45,11 @@ export interface MarkdownValidationResult {
 export function validateMarkdownV2(text: string): MarkdownValidationResult {
   const issues: MarkdownIssue[] = [];
 
-  // ── 1. Никогда не форматирующие: . ! + - = | ──
-  for (const match of text.matchAll(NEVER_FORMATTING_RE)) {
+  // Исключаем кодовые блоки и инлайн-код — внутри них другие правила
+  const outsideCode = stripCodeBlocks(text);
+
+  // ── 1. Никогда не форматирующие ──
+  for (const match of outsideCode.matchAll(NEVER_FORMATTING_RE)) {
     issues.push({
       char: match[0],
       reason: 'unescaped',
@@ -51,8 +57,7 @@ export function validateMarkdownV2(text: string): MarkdownValidationResult {
   }
 
   // ── 2. Проверка парности форматирующих ──
-  // Заменяем легитимные конструкции на пробелы, чтобы не мешали подсчёту
-  let stripped = text;
+  let stripped = outsideCode;
   stripped = stripped.replace(/\\[_*~`|.!+\-=]/g, '  '); // экранированные
   stripped = stripped.replace(/__/g, '  '); // underline
   stripped = stripped.replace(/\|\|/g, '  '); // spoiler
@@ -76,6 +81,14 @@ export function validateMarkdownV2(text: string): MarkdownValidationResult {
   }
 
   return { valid: issues.length === 0, issues };
+}
+
+/**
+ * Удаляет кодовые блоки (```...```) и инлайн-код (`...`) из текста,
+ * заменяя их пробелами чтобы не влияли на проверку парности.
+ */
+function stripCodeBlocks(text: string): string {
+  return text.replace(/```[\s\S]*?```/g, ' ').replace(/`[^`]+`/g, ' ');
 }
 
 /**
