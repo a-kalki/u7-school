@@ -265,7 +265,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     ];
 
     if (step.kind === 'code' && step.code) {
-      lines.push('', '```', this.escapeMarkdown(step.code), '```');
+      lines.push('', '```', step.code, '```');
     } else if (step.kind === 'text' && step.content) {
       lines.push('', safeConvert(step.content));
     }
