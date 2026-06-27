@@ -141,7 +141,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
         questionnaireCompleted: true,
         sendMessage: {
           text: this.escapeMarkdown(
-            'Анкета прервана. Ты можешь начать заново через /start_onboarding или нажав кнопку «Заполнить анкету» в главном меню.',
+            'Анкета прервана. Ты можешь начать заново через кнопку «Заполнить анкету» в главном меню.',
           ),
           parseMode: 'MarkdownV2',
         },
@@ -183,7 +183,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
         return {
           sendMessages: [
             {
-              text: 'Заполни анкету чтобы мы могли понять твои ожидания от курсов. Ты можешь всегда отменить и вернуться в основное меню нажав команды /cancel.',
+              text: 'Заполни анкету чтобы мы могли понять твои ожидания от курсов. В любой момент можно нажать /cancel для возврата в главное меню.',
             },
             ...(questionRes.sendMessage
               ? [questionRes.sendMessage]

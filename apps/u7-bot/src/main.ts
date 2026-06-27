@@ -99,22 +99,6 @@ privateBot.command('start', async (ctx, next) => {
   await next();
 });
 
-privateBot.command('start_onboarding', async (ctx, next) => {
-  logger.info(
-    'top-menu',
-    `Команда /start_onboarding от пользователя ${ctx.from?.id}`,
-  );
-  await next();
-});
-
-privateBot.command('link_to_school_group', async (ctx, next) => {
-  logger.info(
-    'top-menu',
-    `Команда /link_to_school_group от пользователя ${ctx.from?.id}`,
-  );
-  await next();
-});
-
 // ══ Скрытая команда управления уровнем логирования (только для админов) ══
 privateBot.command('log_level', async (ctx) => {
   const userId = ctx.from?.id;
