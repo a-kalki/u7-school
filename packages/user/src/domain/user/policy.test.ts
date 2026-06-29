@@ -145,6 +145,10 @@ describe('UserPolicy', () => {
       expect(UserPolicy.canAddRole(guest, guest, Role.STUDENT)).toBe(true);
     });
 
+    test('GUEST может добавить себе роль CANDIDATE (после анкеты)', () => {
+      expect(UserPolicy.canAddRole(guest, guest, Role.CANDIDATE)).toBe(true);
+    });
+
     test('GUEST НЕ может добавить себе роль ADMIN', () => {
       expect(UserPolicy.canAddRole(guest, guest, Role.ADMIN)).toBe(false);
     });

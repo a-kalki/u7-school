@@ -1,5 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { ApiModule } from '#api/module/api-module';
+import { fromError } from '#domain/errors/error-helpers';
 import type {
   ApiExecutor,
   ApiModuleMeta,
@@ -91,6 +92,18 @@ export abstract class BotController<
         if (data.startsWith(prefix)) {
           const raw = data.slice(prefix.length);
           const expanded = this.#expandData(raw);
+
+          // Если после разжатия остались сжатые ключи (8 hex без дефисов)
+          // значит shortIds не сработал — кнопка устарела после перезапуска
+          if (this.#hasStaleIds(expanded)) {
+            return {
+              sendMessage: {
+                text: '⏳ *Кнопка устарела*\\. Пожалуйста, нажмите /start для обновления\\.',
+                parseMode: 'MarkdownV2',
+              },
+            };
+          }
+
           const response = await story.handleCallback(expanded, actor, session);
           return this.#compressResponse(response);
         }
@@ -234,6 +247,9 @@ export abstract class BotController<
   static readonly #UUID_RE =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+  /** Сжатый ключ shortIds: ровно 8 hex-символов, без дефисов. */
+  static readonly #SHRUNK_RE = /^[0-9a-f]{8}$/i;
+
   #compressAction(raw: string): string {
     // Специальные префиксы, не принадлежащие конкретному контроллеру
     // (например, app:main-menu — обрабатывается на уровне BotRouter)
@@ -265,8 +281,35 @@ export abstract class BotController<
     }
     // action, ...compressedIds
     const [action, ...compressedIds] = parts;
-    const realIds = compressedIds.map((key) => this.shortIds.get(key) ?? key);
+    const realIds = compressedIds.map((key) => {
+      const real = this.shortIds.get(key);
+      if (!real) {
+        this.logger?.warn(
+          'controller',
+          'Ключ shortIds не найден (возможно кнопка устарела после перезапуска)',
+          {
+            key,
+            controller: this.name,
+          },
+        );
+      }
+      return real ?? key;
+    });
     return [action, ...realIds].join(':');
+  }
+
+  /**
+   * Проверяет, есть ли в разжатых данных сжатые ключи,
+   * которые не удалось разжать (shortIds не сработал).
+   * Сжатый ключ — ровно 8 hex-символов без дефисов.
+   */
+  #hasStaleIds(expanded: string): boolean {
+    const parts = expanded.split(':');
+    return parts.some(
+      (part) =>
+        BotController.#SHRUNK_RE.test(part) &&
+        !BotController.#UUID_RE.test(part),
+    );
   }
 
   /**
@@ -380,22 +423,73 @@ export abstract class BotController<
 
   /**
    * Универсальный обработчик ошибок на уровне контроллера.
-   * Логирует ВСЕ ошибки (раз они утекли из story — это неожиданно).
-   * Возвращает безопасное пользовательское сообщение (без деталей).
+   * Различает типы ошибок через `fromError()` и возвращает
+   * подходящее пользовательское сообщение.
+   *
+   * - `validation` — перечисляет поля из `payload.issues`
+   * - `not-found`, `conflict`, `access-denied`, `bad-request` — текст ошибки
+   * - `internal`, `unauthorized` — логирует и возвращает общее сообщение
    */
   protected handleError(err: unknown): BotResponse {
-    this.logger?.error(
-      'bot',
-      'Необработанная ошибка в контроллере',
-      serializeError(err),
-    );
+    const appError = fromError(err);
 
-    return {
-      releaseInput: true,
-      sendMessage: {
-        text: '⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.',
-        parseMode: 'MarkdownV2',
-      },
-    };
+    switch (appError.kind) {
+      case 'validation': {
+        const payload = appError.payload as
+          | { issues?: Array<{ path: string; message: string }> }
+          | undefined;
+        const issues = payload?.issues;
+
+        if (issues && issues.length > 0) {
+          const lines = issues.map(
+            (i) =>
+              `• *${this.escapeMarkdown(i.path)}*: ${this.escapeMarkdown(i.message)}`,
+          );
+          return {
+            releaseInput: true,
+            sendMessage: {
+              text: `⚠️ *Некорректные данные*\n\n${lines.join('\n')}\n\nПожалуйста, нажмите /start и попробуйте снова\\.`,
+              parseMode: 'MarkdownV2',
+            },
+          };
+        }
+
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: `⚠️ *Некорректные данные*\n\n${this.escapeMarkdown(appError.message)}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+
+      case 'not-found':
+      case 'conflict':
+      case 'access-denied':
+      case 'bad-request':
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: `⚠️ ${this.escapeMarkdown(appError.message)}`,
+            parseMode: 'MarkdownV2',
+          },
+        };
+
+      default: {
+        this.logger?.error(
+          'bot',
+          'Необработанная ошибка в контроллере',
+          serializeError(err),
+        );
+
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: '⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.',
+            parseMode: 'MarkdownV2',
+          },
+        };
+      }
+    }
   }
 }

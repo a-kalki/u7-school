@@ -682,9 +682,11 @@ describe('OnboardingController', () => {
     );
     assertResponseMarkdownSafe(response);
 
-    // Должен вернуть сообщение об ошибке
+    // Должен вернуть сообщение с описанием ошибки валидации
     expect(response.sendMessage?.text).toContain('⚠️');
-    expect(response.sendMessage?.text.toLowerCase()).toContain('ошибк');
+    expect(response.sendMessage?.text.toLowerCase()).toContain(
+      'некорректные данные',
+    );
   });
 
   test('очень длинный текстовый ответ принимается без ошибок', async () => {

@@ -25,16 +25,23 @@ describe('LearningStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
+  const STREAM_ID = '11111111-1111-1111-1111-111111111111';
+  const STEP1_ID = '22222222-2222-2222-2222-222222222222';
+  const STEP2_ID = '33333333-3333-3333-3333-333333333333';
+  const STEP3_ID = '44444444-4444-4444-4444-444444444444';
+  const STEP4_ID = '55555555-5555-5555-5555-555555555555';
+  const STEP5_ID = '66666666-6666-6666-6666-666666666666';
+
   const mockStudent = {
     uuid: 'student-uuid-student-uuid-student',
-    streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    streamId: STREAM_ID,
     userId: 'user-1',
     status: 'active',
-    currentStepId: 'step-1',
+    currentStepId: STEP1_ID,
   };
 
   const mockStream = {
-    uuid: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+    uuid: STREAM_ID,
     title: 'Python',
     description: 'Курс',
     status: 'active',
@@ -46,12 +53,12 @@ describe('LearningStory', () => {
           {
             lessonId: 'lesson-uuid-1',
             lessonTitle: 'Введение',
-            stepIds: ['step-1', 'step-2'],
+            stepIds: [STEP1_ID, STEP2_ID],
           },
           {
             lessonId: 'lesson-uuid-2',
             lessonTitle: 'Переменные',
-            stepIds: ['step-3', 'step-4'],
+            stepIds: [STEP3_ID, STEP4_ID],
           },
         ],
       },
@@ -64,7 +71,7 @@ describe('LearningStory', () => {
         if (name === 'get-step') {
           return (
             customStep ?? {
-              uuid: 'step-1',
+              uuid: STEP1_ID,
               moduleId: 'mod-1',
               kind: 'text',
               description: 'Изучите основы',
@@ -142,14 +149,14 @@ describe('LearningStory', () => {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
-          return { level: 'step', currentStepId: 'step-2' };
+          return { level: 'step', currentStepId: STEP2_ID };
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
     } as unknown as StreamApiModule;
 
     const appApi = makeAppApi({
-      uuid: 'step-2',
+      uuid: STEP2_ID,
       moduleId: 'mod-1',
       kind: 'code',
       description: 'Напишите код',
@@ -162,7 +169,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, appApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      'complete:11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222',
       studentActor,
       session,
     );
@@ -190,7 +197,7 @@ describe('LearningStory', () => {
           return {
             level: 'lesson',
             completedLessonId: 'lesson-uuid-1',
-            currentStepId: 'step-3',
+            currentStepId: STEP3_ID,
           };
         if (name === 'get-stream') return mockStream;
         return undefined;
@@ -201,7 +208,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step2',
+      'complete:11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333',
       studentActor,
       session,
     );
@@ -223,7 +230,7 @@ describe('LearningStory', () => {
           return {
             level: 'project',
             completedProjectId: 'project-uuid-1',
-            currentStepId: 'step-5',
+            currentStepId: STEP5_ID,
           };
         if (name === 'get-stream') return mockStream;
         return undefined;
@@ -234,7 +241,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step4',
+      'complete:11111111-1111-1111-1111-111111111111:55555555-5555-5555-5555-555555555555',
       studentActor,
       session,
     );
@@ -260,7 +267,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-last',
+      'complete:11111111-1111-1111-1111-111111111111:66666666-6666-6666-6666-666666666666',
       studentActor,
       session,
     );
@@ -325,15 +332,15 @@ describe('LearningStory', () => {
 
     const parts = completeCode!.split(':');
     expect(parts.length).toBe(4);
-    expect(parts[2]).toBe('s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s');
-    expect(parts[3]).toBe('step-1');
+    expect(parts[2]).toBe('11111111-1111-1111-1111-111111111111');
+    expect(parts[3]).toBe(STEP1_ID);
   });
 
   test('#handleComplete получает студента через get-student-by-user по actor.uuid', async () => {
     const getStudentSpy = mock((name: string) => {
       if (name === 'get-student-by-user') return mockStudent;
       if (name === 'complete-step')
-        return { level: 'step', currentStepId: 'step-2' };
+        return { level: 'step', currentStepId: STEP2_ID };
       if (name === 'get-stream') return mockStream;
       return undefined;
     });
@@ -346,7 +353,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      'complete:11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222',
       studentActor,
       session,
     );
@@ -370,7 +377,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      'complete:11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222',
       studentActor,
       session,
     );
@@ -413,7 +420,7 @@ describe('LearningStory', () => {
           return {
             level: 'lesson',
             completedLessonId: 'lesson-uuid-1',
-            currentStepId: 'step-3',
+            currentStepId: STEP3_ID,
           };
         if (name === 'get-stream') return mockStream;
         return undefined;
@@ -424,7 +431,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step2',
+      'complete:11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333',
       studentActor,
       session,
     );
@@ -449,7 +456,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-last',
+      'complete:11111111-1111-1111-1111-111111111111:66666666-6666-6666-6666-666666666666',
       studentActor,
       session,
     );
@@ -466,7 +473,7 @@ describe('LearningStory', () => {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
-          return { level: 'step', currentStepId: 'step-2' };
+          return { level: 'step', currentStepId: STEP2_ID };
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -476,7 +483,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s:step-1',
+      'complete:11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222',
       studentActor,
       session,
     );

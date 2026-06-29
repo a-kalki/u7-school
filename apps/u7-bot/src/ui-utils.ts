@@ -78,22 +78,54 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
       }
     }
 
-    await ctx.api
-      .editMessageText(ctx.chat?.id ?? 0, prev.messageId, updatedText, {
-        reply_markup: undefined,
-        parse_mode: prev.parseMode,
-      })
-      .catch((err) => {
-        getGlobalLogger()?.error('bot', 'Ошибка удаления клавиатуры', {
-          error: String(err),
-          chatId: ctx.chat?.id,
-          messageId: prev.messageId,
-          callbackData,
-          btnText: labelBtnText,
-          updatedTextSnippet: updatedText.slice(-200),
-          parseMode: prev.parseMode,
+    // Guard: если текст не изменился и клавиатура уже убрана — не дёргаем API
+    const textChanged = updatedText !== prev.text;
+    const keyboardRemoved = !prev.keyboard;
+    if (!textChanged && keyboardRemoved) {
+      // Клавиатура уже убрана, ничего не делаем
+    } else {
+      await ctx.api
+        .editMessageText(ctx.chat?.id ?? 0, prev.messageId, updatedText, {
+          reply_markup: undefined,
+          parse_mode: prev.parseMode,
+        })
+        .catch((err) => {
+          const errStr = String(err);
+          // message not modified / message to edit not found — безвредный шум
+          if (
+            errStr.includes('message is not modified') ||
+            errStr.includes('message to edit not found')
+          ) {
+            getGlobalLogger()?.warn(
+              'bot',
+              'Не удалось убрать клавиатуру (безвредно)',
+              {
+                reason: errStr.includes('not modified')
+                  ? 'already-removed'
+                  : 'message-deleted',
+                chatId: ctx.chat?.id,
+                messageId: prev.messageId,
+              },
+            );
+            // Если сообщение удалено — сбрасываем lastBotMessage
+            if (errStr.includes('message to edit not found')) {
+              ctx.session.lastBotMessage = undefined;
+              return;
+            }
+          } else {
+            getGlobalLogger()?.warn('bot', 'Ошибка удаления клавиатуры', {
+              error: errStr,
+              chatId: ctx.chat?.id,
+              messageId: prev.messageId,
+              callbackData,
+              btnText: labelBtnText,
+              updatedTextSnippet: updatedText.slice(-200),
+              parseMode: prev.parseMode,
+            });
+          }
         });
-      });
+    }
+
     // Обновляем lastBotMessage: клавиатура больше не актуальна
     ctx.session.lastBotMessage = {
       ...prev,
