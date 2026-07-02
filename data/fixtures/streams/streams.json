@@ -44,7 +44,7 @@
     "mentorId": "44444444-4444-4444-4444-444444444444",
     "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
     "startDate": "2026-06-01T00:00",
-    "status": "active",
+    "status": "completed",
     "telegramGroupId": "-1002222222222",
     "telegramGroupInvite": "https://t.me/+test_active_group",
     "goal": "Научиться писать серверный JS",
@@ -73,7 +73,8 @@
         ]
       }
     ],
-    "createdAt": "2026-05-20T00:00"
+    "createdAt": "2026-05-20T00:00",
+    "updatedAt": "2026-07-02T06:15"
   },
   {
     "uuid": "e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2",
@@ -94,7 +95,9 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
+            ]
           }
         ]
       }
@@ -120,7 +123,9 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
+            ]
           }
         ]
       }

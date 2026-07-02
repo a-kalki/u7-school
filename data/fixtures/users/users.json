@@ -3,14 +3,22 @@
     "uuid": "44444444-4444-4444-4444-444444444444",
     "name": "Dev",
     "telegramId": 773084180,
-    "roles": ["GUEST", "CANDIDATE", "STUDENT", "MENTOR", "ADMIN"],
+    "roles": [
+      "GUEST",
+      "CANDIDATE",
+      "STUDENT",
+      "MENTOR",
+      "ADMIN"
+    ],
     "createdAt": "2026-01-04T00:00"
   },
   {
     "uuid": "ae00f3f6-1392-4b98-b178-41c27e794b7f",
     "name": "Бот-админ",
     "telegramId": 8781337572,
-    "roles": ["ADMIN"],
+    "roles": [
+      "ADMIN"
+    ],
     "createdAt": "2026-01-06T00:00"
   }
 ]
