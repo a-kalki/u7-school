@@ -20,16 +20,23 @@ describe('CatalogStory', () => {
     execute: mock(() => undefined),
   } as unknown as U7BotApp;
 
-  test('handleCallback("list") показывает список потоков', async () => {
-    const moduleApi = {
-      execute: mock(async () => [
-        {
-          uuid: '11111111-1111-1111-1111-111111111111',
-          title: 'Поток Набора',
-          status: 'enrollment',
-        },
-      ]),
+  // Вспомогательная функция для создания moduleApi с набором потоков
+  function makeModuleApi(
+    streams: Array<{ uuid: string; title: string; status: string }>,
+  ): StreamApiModule {
+    return {
+      execute: mock(async () => streams),
     } as unknown as StreamApiModule;
+  }
+
+  test('handleCallback("list") показывает список потоков', async () => {
+    const moduleApi = makeModuleApi([
+      {
+        uuid: '11111111-1111-1111-1111-111111111111',
+        title: 'Поток Набора',
+        status: 'enrollment',
+      },
+    ]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -41,9 +48,7 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") с пустым списком', async () => {
-    const moduleApi = {
-      execute: mock(async () => []),
-    } as unknown as StreamApiModule;
+    const moduleApi = makeModuleApi([]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -73,50 +78,31 @@ describe('CatalogStory', () => {
     expect(desc).toContain('каталога');
   });
 
-  test('handleCallback("list") фильтрует только enrollment и active', async () => {
-    const allStreams: Record<
-      string,
-      Array<{ uuid: string; title: string; status: string }>
-    > = {
-      enrollment: [
-        {
-          uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
-          title: 'Поток Набора',
-          status: 'enrollment',
-        },
-      ],
-      active: [
-        {
-          uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
-          title: 'Активный Поток',
-          status: 'active',
-        },
-      ],
-      completed: [
-        {
-          uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
-          title: 'Завершённый',
-          status: 'completed',
-        },
-      ],
-      archived: [
-        {
-          uuid: 'r-r-r-r-r-r-r-r-r-r-r-r-r-r-r-r',
-          title: 'Архивный',
-          status: 'archived',
-        },
-      ],
-    };
+  test('handleCallback("list") показывает только enrollment и active, добавляет кнопку переключения при наличии completed', async () => {
+    const allStreams = [
+      {
+        uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
+        title: 'Поток Набора',
+        status: 'enrollment',
+      },
+      {
+        uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+        title: 'Активный Поток',
+        status: 'active',
+      },
+      {
+        uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+        title: 'Завершённый',
+        status: 'completed',
+      },
+      {
+        uuid: 'r-r-r-r-r-r-r-r-r-r-r-r-r-r-r-r',
+        title: 'Архивный',
+        status: 'archived',
+      },
+    ];
 
-    const moduleApi = {
-      execute: mock(async (_name: string, attrs: unknown) => {
-        const cmd = attrs as { status?: string };
-        if (cmd?.status) {
-          return allStreams[cmd.status] ?? [];
-        }
-        return Object.values(allStreams).flat();
-      }),
-    } as unknown as StreamApiModule;
+    const moduleApi = makeModuleApi(allStreams);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -126,13 +112,104 @@ describe('CatalogStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    // Должны быть только enrollment и active
+    // Должны быть enrollment и active
     expect(btnTexts.some((t) => t.includes('Поток Набора'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Активный Поток'))).toBe(true);
 
-    // Не должно быть completed и archived
+    // Не должно быть completed и archived в списке потоков
     expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(false);
+
+    // Должна быть кнопка «Включить завершённые»
+    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(true);
+  });
+
+  test('handleCallback("list-with-completed") показывает все три категории', async () => {
+    const allStreams = [
+      {
+        uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
+        title: 'Поток Набора',
+        status: 'enrollment',
+      },
+      {
+        uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+        title: 'Активный Поток',
+        status: 'active',
+      },
+      {
+        uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+        title: 'Завершённый',
+        status: 'completed',
+      },
+    ];
+
+    const moduleApi = makeModuleApi(allStreams);
+
+    const story = new CatalogStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'list-with-completed',
+      actor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    // Должны быть все три категории
+    expect(btnTexts.some((t) => t.includes('Поток Набора'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Активный Поток'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
+
+    // Должна быть кнопка «Скрыть завершённые»
+    expect(btnTexts.some((t) => t.includes('Скрыть завершённые'))).toBe(true);
+  });
+
+  test('handleCallback("list") без активных, но с завершёнными — показывает кнопку переключения', async () => {
+    const allStreams = [
+      {
+        uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+        title: 'Завершённый',
+        status: 'completed',
+      },
+    ];
+
+    const moduleApi = makeModuleApi(allStreams);
+
+    const story = new CatalogStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback('list', actor, session);
+    assertResponseMarkdownSafe(response);
+    expect(response.sendMessage?.text).toContain('Нет активных потоков');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(true);
+  });
+
+  test('handleCallback("list") без completed — нет кнопки переключения', async () => {
+    const allStreams = [
+      {
+        uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
+        title: 'Поток Набора',
+        status: 'enrollment',
+      },
+    ];
+
+    const moduleApi = makeModuleApi(allStreams);
+
+    const story = new CatalogStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback('list', actor, session);
+    assertResponseMarkdownSafe(response);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Скрыть завершённые'))).toBe(false);
   });
 
   test('handleMessage возвращает заглушку', async () => {
@@ -147,15 +224,13 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет легенду цветных кружков', async () => {
-    const moduleApi = {
-      execute: mock(async () => [
-        {
-          uuid: '11111111-1111-1111-1111-111111111111',
-          title: 'Поток Набора',
-          status: 'enrollment',
-        },
-      ]),
-    } as unknown as StreamApiModule;
+    const moduleApi = makeModuleApi([
+      {
+        uuid: '11111111-1111-1111-1111-111111111111',
+        title: 'Поток Набора',
+        status: 'enrollment',
+      },
+    ]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -171,9 +246,7 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет легенду даже при пустом списке', async () => {
-    const moduleApi = {
-      execute: mock(async () => []),
-    } as unknown as StreamApiModule;
+    const moduleApi = makeModuleApi([]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -187,15 +260,13 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет «↩️ Главное меню» последней строкой', async () => {
-    const moduleApi = {
-      execute: mock(async () => [
-        {
-          uuid: '11111111-1111-1111-1111-111111111111',
-          title: 'Поток Набора',
-          status: 'enrollment',
-        },
-      ]),
-    } as unknown as StreamApiModule;
+    const moduleApi = makeModuleApi([
+      {
+        uuid: '11111111-1111-1111-1111-111111111111',
+        title: 'Поток Набора',
+        status: 'enrollment',
+      },
+    ]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);

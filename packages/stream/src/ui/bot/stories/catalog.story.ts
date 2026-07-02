@@ -21,31 +21,57 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
-    if (action !== 'list') {
+    const showCompleted = action === 'list-with-completed';
+    if (action !== 'list' && !showCompleted) {
       return { sendMessage: { text: '⚠️ Неизвестная команда каталога' } };
     }
 
-    // Запрашиваем потоки со статусами enrollment и active
-    const [enrollmentStreams, activeStreams] = await Promise.all([
-      this.moduleApi.execute('list-streams', {
-        status: StreamStatus.ENROLLMENT,
-      }),
-      this.moduleApi.execute('list-streams', {
-        status: StreamStatus.ACTIVE,
-      }),
-    ]);
+    // Получаем все потоки одним запросом (без фильтра по статусу)
+    const allStreams = await this.moduleApi.execute('list-streams', {});
 
-    // Объединяем и дедуплицируем по uuid
-    const seen = new Set<string>();
-    const streams: typeof enrollmentStreams = [];
-    for (const s of [...enrollmentStreams, ...activeStreams]) {
-      if (!seen.has(s.uuid)) {
-        seen.add(s.uuid);
-        streams.push(s);
-      }
+    // Разделяем по статусам, archived не показываем никогда
+    const enrollmentStreams = allStreams.filter(
+      (s) => s.status === StreamStatus.ENROLLMENT,
+    );
+    const activeStreams = allStreams.filter(
+      (s) => s.status === StreamStatus.ACTIVE,
+    );
+    const completedStreams = allStreams.filter(
+      (s) => s.status === StreamStatus.COMPLETED,
+    );
+
+    const hasCompleted = completedStreams.length > 0;
+
+    // Формируем список для показа
+    const visible = [...enrollmentStreams, ...activeStreams];
+    if (showCompleted) {
+      visible.push(...completedStreams);
     }
 
-    if (streams.length === 0) {
+    // Нет потоков для показа
+    if (visible.length === 0) {
+      // Если есть завершённые, но они скрыты — показываем кнопку переключения
+      if (hasCompleted && !showCompleted) {
+        return {
+          sendMessage: {
+            text: '📚 *Нет активных потоков*',
+            parseMode: 'MarkdownV2',
+            keyboard: {
+              rows: [
+                [
+                  {
+                    text: '🔍 Включить завершённые',
+                    code: this.cb('list-with-completed'),
+                  },
+                ],
+                [{ text: '↩️ Главное меню', code: 'app:main-menu' }],
+              ],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+
       return {
         sendMessage: {
           text: '📚 Нет доступных потоков',
@@ -62,7 +88,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
 
     // Кросс-стори колбэки: ссылаемся на ViewStreamStory
-    const rows = streams.map((s) => [
+    const rows = visible.map((s) => [
       {
         text: `${statusEmoji[s.status] ?? '❓'} ${s.title}`,
         code: this.cbFor('view-stream', 'view', s.uuid),
@@ -70,6 +96,23 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     ]);
 
     const legend = '\n\n🟢 — идёт набор   🔵 — идёт обучение   ⚪ — завершён';
+
+    // Кнопка-переключатель завершённых потоков
+    if (hasCompleted && !showCompleted) {
+      rows.push([
+        {
+          text: '🔍 Включить завершённые',
+          code: this.cb('list-with-completed'),
+        },
+      ]);
+    } else if (showCompleted) {
+      rows.push([
+        {
+          text: '🔍 Скрыть завершённые',
+          code: this.cb('list'),
+        },
+      ]);
+    }
 
     // Кнопка «↩️ Главное меню» последней строкой
     rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
