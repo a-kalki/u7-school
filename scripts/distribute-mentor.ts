@@ -2,17 +2,71 @@
  * distribute-mentor.ts — рассылка менторских шагов в личку ментору.
  *
  * Использование:
- *   bun run scripts/distribute-mentor.ts p<проект>-l<урок> [номер_файла] [chat_id]
+ *   bun run scripts/distribute-mentor.ts mA-pB-lC [номер_файла] [chat_id]
+ *   bun run scripts/distribute-mentor.ts A-B-C [номер_файла] [chat_id]
+ *   bun run scripts/distribute-mentor.ts A:B:C [номер_файла] [chat_id]
  *
  * Примеры:
- *   bun run scripts/distribute-mentor.ts p2-l3
- *   bun run scripts/distribute-mentor.ts p2-l3 2 --me
+ *   bun run scripts/distribute-mentor.ts m1-p2-l3
+ *   bun run scripts/distribute-mentor.ts 1:2:3
+ *   bun run scripts/distribute-mentor.ts 1-2-3 2 --me
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 
-const BOT_TOKEN = '8894575137:AAGUFIhq2HbO9CLzWsfs22iYJ8vhw082LKs';
+const DATA_DIR = 'data/fullstack-js';
+const BOT_TOKEN = '8781337572:AAGWv3f924aZisUW3z47n8BPDusyfKAjIWg';
 const DEFAULT_CHAT_ID = '773084180';
+
+// Автоопределение имён папок модулей: m1-syntax, m2-algorithm, ...
+const moduleDirs = readdirSync(DATA_DIR).sort();
+
+// ─── Справка ───
+
+function showHelp() {
+  console.log(`
+distribute-mentor — рассылка менторских файлов в личку ментору.
+
+Использование:
+  bun run scripts/distribute-mentor.ts M:P:L [опции]
+  bun run scripts/distribute-mentor.ts M:P:L:S [опции]    # конкретный файл
+
+Примеры:
+  bun run scripts/distribute-mentor.ts 1:2:1              # все ментор-файлы урока
+  bun run scripts/distribute-mentor.ts 1:2:1:2            # файл №2
+  bun run scripts/distribute-mentor.ts 1:2:1 --to=12345   # отправить другому
+
+Формат: M:P:L[:S] — модуль, проект, урок, номер файла (вложенность)
+
+Флаги:
+  --to=<id>     Отправка в чат с указанным Telegram ID
+
+По умолчанию отправляет в личку ментору.
+Временно читает manifest.json напрямую с диска (в обход API).
+Будет заменён на get-step (kind: 'file') через mentorStepIds.
+`);
+}
+
+// ─── Типы ───
+
+interface LessonId {
+  module: number;   // 1-based
+  project: number;  // 1-based
+  lesson: number;   // 1-based
+  fileNum?: number; // 1-based (опционально — конкретный ментор-файл)
+}
+
+function parseLessonId(arg: string): LessonId | null {
+  // M:P:L:S
+  const m1 = arg.match(/^(\d+):(\d+):(\d+):(\d+)$/);
+  if (m1) return { module: +m1[1], project: +m1[2], lesson: +m1[3], fileNum: +m1[4] };
+
+  // M:P:L
+  const m2 = arg.match(/^(\d+):(\d+):(\d+)$/);
+  if (m2) return { module: +m2[1], project: +m2[2], lesson: +m2[3] };
+
+  return null;
+}
 
 function escapeHtml(text: string): string {
   return text
@@ -51,48 +105,61 @@ function waitEnter(): Promise<string> {
   });
 }
 
-function parseLessonId(
-  arg: string,
-): { project: number; lesson: number } | null {
-  const m = arg.match(/^p(\d+)-l(\d+)$/);
-  if (!m?.[1] || !m?.[2]) return null;
-  return { project: parseInt(m[1], 10), lesson: parseInt(m[2], 10) };
-}
-
 async function main() {
   const args = process.argv.slice(2);
-  const lessonIdArg = args[0];
-  const a1 = args[1];
-  const a2 = args[2];
+
+  if (args.includes('-h') || args.includes('--help')) {
+    showHelp();
+    process.exit(0);
+  }
+
+  // --to=<id>
+  const toArg = args.find((a) => a.startsWith('--to='));
+  const toId = toArg ? toArg.split('=')[1] : undefined;
+
+  // Позиционные (всё что не флаг)
+  const positional = args.filter((a) => !a.startsWith('--'));
+  const lessonIdArg = positional[0];
 
   if (!lessonIdArg || !parseLessonId(lessonIdArg)) {
     console.error(
-      '❌ Укажи урок: bun run scripts/distribute-mentor.ts p<проект>-l<урок> [номер_файла]',
+      '❌ Укажи урок: bun run scripts/distribute-mentor.ts M:P:L [опции]',
+    );
+    console.error('   Формат: M:P:L[:S] — например: 1:2:1, 1:2:1:2');
+    console.error('   Флаги: --to=<id>');
+    process.exit(1);
+  }
+
+  const parsed = parseLessonId(lessonIdArg)!;
+  const fileNumberArg = parsed.fileNum; // из формата M:P:L:S, если указан
+  const chatId = toId ?? DEFAULT_CHAT_ID;
+  const { module: Nm, project: Np, lesson: Nl } = parsed;
+
+  // Найти папку модуля
+  const moduleDir = moduleDirs[Nm - 1];
+  if (!moduleDir) {
+    console.error(`❌ Модуль ${Nm} не найден (доступно: ${moduleDirs.join(', ')})`);
+    process.exit(1);
+  }
+
+  // Найти папку урока
+  const prefix = `p${Np}-l${Nl}-`;
+  const projectDirs = readdirSync(`${DATA_DIR}/${moduleDir}`);
+  const dir = projectDirs.find((d) => d.startsWith(prefix));
+
+  if (!dir) {
+    console.error(
+      `❌ Папка m${Nm}-p${Np}-l${Nl} не найдена в ${DATA_DIR}/${moduleDir}/`,
     );
     process.exit(1);
   }
 
-  const fileNumberArg = a1 && /^\d+$/.test(a1) ? parseInt(a1, 10) : undefined;
-  const rawChatId = a1 && !/^\d+$/.test(a1) ? a1 : (a2 ?? DEFAULT_CHAT_ID);
-  const chatId = rawChatId === '--me' ? DEFAULT_CHAT_ID : rawChatId;
+  const lessonLabel = `m${Nm}-p${Np}-l${Nl}`;
 
-  const parsed = parseLessonId(lessonIdArg);
-  if (!parsed) {
-    console.error('❌ Некорректный идентификатор урока');
-    process.exit(1);
-  }
-  const { project: N, lesson: M } = parsed;
-
-  const allDirs = readdirSync('data/lessons/nur');
-  const dir = allDirs.find((d) => d.startsWith(`p${N}-l${M}-`));
-  if (!dir) {
-    console.error(`❌ Папка ${lessonIdArg} не найдена`);
-    process.exit(1);
-  }
-
-  const manifestPath = `data/lessons/nur/${dir}/mentor-files/manifest.json`;
+  // Проверить manifest.json
+  const manifestPath = `${DATA_DIR}/${moduleDir}/${dir}/mentor-files/manifest.json`;
   if (!existsSync(manifestPath)) {
-    console.error(`❌ Нет manifest.json для ${lessonIdArg}`);
+    console.error(`❌ Нет manifest.json для ${lessonLabel}`);
     process.exit(1);
   }
 
@@ -111,7 +178,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`📖 ${lessonIdArg} (${dir})`);
+  console.log(`📖 ${lessonLabel} (${moduleDir}/${dir})`);
   console.log(`  Найдено файлов: ${files.length}\n`);
 
   const entries =
@@ -134,7 +201,7 @@ async function main() {
     console.log(`  [${entry.order}/${totalFiles}] ${entry.fileName}`);
 
     const msgLines = [
-      `<b>📚 ${lessonIdArg}: ${dir}</b>`,
+      `<b>📚 ${lessonLabel}: ${dir}</b>`,
       `<b>Менторский файл ${entry.order}:</b> ${escapeHtml(entry.fileName)}`,
       '',
       escapeHtml(entry.description),
@@ -143,8 +210,9 @@ async function main() {
     const ok = await sendToTelegram(BOT_TOKEN, chatId, msgLines.join('\n'));
 
     if (!ok) {
+      // Fallback: без HTML-разметки
       const plain = [
-        `${lessonIdArg}: ${dir}`,
+        `${lessonLabel}: ${dir}`,
         `Менторский файл ${entry.order}: ${entry.fileName}`,
         '',
         entry.description,
