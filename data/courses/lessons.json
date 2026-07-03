@@ -637,8 +637,165 @@
     "status": "published",
     "createdAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-16T12:00"
+  },
+  {
+    "uuid": "224091fe-4dc7-4057-a7f2-2ea358c19eea",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Что такое Git и зачем он нужен",
+    "additional": "Система контроля версий, репозиторий, коммит, stage, ветка, установка и настройка Git",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "dd3db76b-9675-484a-a065-690df415f88b",
+      "a3b97480-2f99-4a5e-95b8-c691aa8a7dad",
+      "f2362bc2-a105-419e-bd2e-20b373df410c"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e3698cdc-7ca9-4e7e-869c-4f97d3408d57",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Первый репозиторий",
+    "additional": "git init, git status, .gitignore, структура проекта js-algorithms",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "0dd2f10f-0565-47c2-adcf-35e5a05393bb",
+      "4c37f763-7e84-4f77-8e17-53c05d723465",
+      "11c4808e-ba76-4440-a0b4-72519ea7e77d"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e89a960b-2293-42e3-be57-8890485a7003",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Обработка ошибок: throw и try-catch",
+    "additional": "throw, TypeError, RangeError, typeof, try-catch, проверка исключений в тестах",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "3689b9d7-a971-48ba-91f1-757d0365db02",
+      "e39b9eed-9b68-48d3-8bc1-798e230e6880",
+      "71956de9-a338-41cb-81e3-22f335f9f70f",
+      "f6cae9fc-b10e-41cc-8a95-76f1238287d5",
+      "41d1bf08-c8b5-4c5c-8a47-a7dd3aecb53b"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "3b3791c1-446b-48e5-89fc-85a6d3edfd4f",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "TDD и функция len()",
+    "additional": "RED-GREEN-REFACTOR, bun:test, describe/test/expect, пошаговый TDD-воркфлоу для len(str)",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "a93abef7-96c5-4510-8074-7058c5c0be75",
+      "39b20834-ea25-485b-b0fb-0f55c69047b1",
+      "f4c4fa0b-8fb4-43de-8f4d-98b36dddb97c",
+      "67c9dd40-ea66-483a-abcb-3e6ee6176b8b",
+      "f33c7e50-288b-47c9-8551-4926953c3ab2",
+      "5801df45-c676-493c-85f7-b8c065e9f51a",
+      "348be4b4-383d-4fd9-b558-c64cb9f7d57a",
+      "3ee3e447-a3be-4225-9583-002fb527140e"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "1293b9b3-07ad-4b8a-9c32-15fe12ae24c8",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Таблица символов: ASCII и Unicode",
+    "additional": "ASCII, Unicode, коды символов, charCodeAt, fromCodePoint, лексикографическое сравнение",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "659442d5-aaa5-4359-b9c5-4fe60ea5edc0",
+      "20d86fbc-414c-4c8b-814d-30c15a43c4e6",
+      "0d8f37ab-ab85-4954-ae55-c63c517b2426",
+      "0bda2499-8cbd-48ea-ac21-32219cb335ca",
+      "6d1294ac-eac2-4a8f-af29-0af634d3de97"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "03594ee0-7d2a-4cb8-b980-8ae46062b0b9",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция isEqual()",
+    "additional": "Посивольное сравнение строк, TDD-практика",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "9b970686-7747-4955-8531-fc8dadbe2ea3",
+      "65c33817-62e0-4784-a1ce-d36051d3d1e8"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "fd06f235-7146-4b56-8169-7beb22b61a7b",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции isNotEqual, isMore, isLess",
+    "additional": "isNotEqual, isMore, isLess — композиция и лексикографическое сравнение",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "08469da2-98e7-4eef-a502-aeb11a5fce35",
+      "c9a0f687-47ca-4121-b1cc-e99227d7aec2",
+      "1360087b-c7fd-403c-84a8-f19a52e7723b"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7d9cece3-8112-4bbf-aa99-41f3603f8766",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции isMoreOrEqual и isLessOrEqual",
+    "additional": "isMoreOrEqual, isLessOrEqual — завершение группы функций сравнения, фильтрация тестов",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "3698d1fa-9a49-4860-918f-59e11a688307",
+      "e808dea0-359e-4bd3-a779-ee9c98a64a52",
+      "b478a2b4-2d7b-4fb4-adea-fcdc79e589a6",
+      "d5ed0bc3-faa4-4d91-a1eb-6d0f9a899008"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "fa76cafc-2cdb-47a7-bc84-0dbc2969bc19",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Финальный прогон и git log",
+    "additional": "Полный прогон тестов, git log, правила commit-сообщений, домашнее задание",
+    "status": "published",
+    "createdAt": "2026-06-29T12:00",
+    "updatedAt": "2026-06-29T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "e91a244c-b1de-4601-9a4a-c83d8ee2d1d9",
+      "deead92f-6476-439d-8a03-1b1e25523dab",
+      "5f9479df-337c-494f-a866-8395c2efbdbd",
+      "d21caf9b-0529-49c1-ad78-b6e17e0887bb",
+      "89d21cd2-922e-4810-9e1c-55f16a6fd8ee"
+    ],
+    "mentorStepIds": []
   }
 ]

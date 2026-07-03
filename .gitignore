@@ -38,5 +38,6 @@ conductor/archive/
 data/*
 !data/courses/
 !data/debrief/
-!data/lessons/
 !data/fixtures/
+!data/sources/
+!data/fullstack-js/
