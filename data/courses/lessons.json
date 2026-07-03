@@ -797,5 +797,92 @@
       "89d21cd2-922e-4810-9e1c-55f16a6fd8ee"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "084f8664-8f02-498b-8e49-bcad26c86027",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Регистрация на GitHub и SSH-ключ",
+    "additional": "Создание аккаунта GitHub, генерация SSH-ключа, добавление публичного ключа, проверка соединения",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "983b196c-4453-46a4-a14d-51402d907679",
+      "ccc6eed8-fe35-42de-a86a-04f6f0235ea6",
+      "fe7d04a9-acd5-4ff4-a745-ea76e5524f06",
+      "9fc87760-a07e-4b88-a45f-65ae654c1da1"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "05a4ece9-993e-4780-8faf-68a51e16a5a2",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Создание удалённого репозитория и git push",
+    "additional": "Создание репозитория на GitHub, git remote add, первый push на GitHub, просмотр удалённых веток",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "069e0b16-d9a8-4d05-83eb-9123337110c4",
+      "1b57eb7b-13b5-4608-adf3-cdb61ea84de1",
+      "d26d39a1-2f09-499e-9930-eddf78cbd889",
+      "1bfc5a8b-65cf-47f9-b1d3-7b1fd35a1f92"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e266fb9f-4bfa-4ee1-af60-b957628a72b0",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Pull Request: создание и описание",
+    "additional": "GitHub Flow, создание PR, осмысленное описание, заголовок PR, Files changed",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "0dcddc85-259e-4ad8-9e8e-9acf5123ebdb",
+      "178b4f3e-814e-4b3f-acb4-9432db8c290e",
+      "3da92229-cbfe-47c4-a44e-eaff3452e7c4",
+      "77a6cfe9-537f-4154-a33f-b7a1179896ef"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6fb097c9-ca2d-4f19-b8ac-f7a813b279ad",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Приглашение ревьюеров и правила ревью",
+    "additional": "Добавление ревьюеров, правила код-ревью: предложения vs критические замечания, approve vs request changes",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "f2d19b53-ebfd-4785-9edc-ed3da46163dc",
+      "96832e72-6556-494f-aed6-8c3f3904d00b",
+      "9cb194b7-30cb-4fd8-9353-012d0f0fdc51",
+      "f530d65f-5b63-4a18-9f1e-3d1da5a427b9",
+      "869352dd-0dd8-4a23-80d5-bd8075985cc0"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7a1fc32c-5d97-4b80-992d-883687175a0c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Процесс доработки по ревью и pin-сообщение",
+    "additional": "Ответы на комментарии, пуш правок, re-request review, pin-сообщение в чате, что делать если ревьюер не отвечает",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "50372dc5-efcf-4161-8390-f7380d1da64c",
+      "fbe11c37-d34c-49f3-a143-2e3a014b2366",
+      "bac73149-c133-4a5f-b0ff-0a2ce39666ec",
+      "70d4bcba-0fcb-4604-8738-12792418d1e0",
+      "fb56c8c0-aabb-4fce-ae27-00593aa0b02e"
+    ],
+    "mentorStepIds": []
   }
 ]

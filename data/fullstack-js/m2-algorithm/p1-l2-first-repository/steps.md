@@ -22,7 +22,11 @@ git init
 Создай начальные файлы:
 
 ```
+# Linux / macOS / Git Bash:
 touch index.js index.test.js .gitignore
+
+# Windows (cmd):
+type nul > index.js && type nul > index.test.js && type nul > .gitignore
 ```
 
 ---

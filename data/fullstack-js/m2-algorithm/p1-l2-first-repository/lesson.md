@@ -19,7 +19,11 @@ cd js-algorithms
 - `index.test.js` — точка входа для тестов (пока пустая)
 
 ```bash
+# Linux / macOS / Git Bash:
 touch index.js index.test.js
+
+# Windows (cmd):
+type nul > index.js && type nul > index.test.js
 ```
 
 #### 2. Инициализация Git-репозитория
@@ -54,7 +58,11 @@ git status
 Файл `.gitignore` говорит Git, какие файлы и папки игнорировать. Создадим его в корне проекта:
 
 ```bash
+# Linux / macOS / Git Bash:
 touch .gitignore
+
+# Windows (cmd):
+type nul > .gitignore
 ```
 
 Содержимое `.gitignore`:
