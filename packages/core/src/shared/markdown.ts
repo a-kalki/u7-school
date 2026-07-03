@@ -69,7 +69,7 @@ function prepareMarkdown(markdown: string): string {
  * ```
  * | A | B |             • A | B
  * |---|---|      →      • 1 | 2
- * | 1 | 2 |             • 3 | 4
+ * | 1 | 2 |
  * | 3 | 4 |
  * ```
  *
@@ -78,6 +78,9 @@ function prepareMarkdown(markdown: string): string {
  *
  * Форматирование внутри ячеек (`` `code` ``, `**bold**`) сохраняется
  * и будет обработано `convert()`.
+ *
+ * Добавляет дополнительный `\n` после таблицы, чтобы следующий абзац
+ * не «прилипал»: оригинальная таблица поглощает один из двух `\n\n`.
  */
 function fixTables(markdown: string): string {
   return outsideCodeBlocks(markdown, convertTablesInText);
@@ -129,6 +132,8 @@ function convertTablesInText(text: string): string {
 
     if (!header) return '';
 
-    return [formatRow(header), ...dataRows.map(formatRow)].join('\n');
+    // + '\n' в конце — компенсирует поглощённый таблицей \n,
+    // чтобы следующий абзац не прилипал
+    return [formatRow(header), ...dataRows.map(formatRow)].join('\n') + '\n';
   });
 }
