@@ -61,7 +61,7 @@
       }
     },
     {
-      "includes": ["data/lessons/**/mentor-files/**/manifest.json"],
+      "includes": ["data/fullstack-js/**/mentor-files/**/manifest.json"],
       "linter": {
         "enabled": false
       },
@@ -70,7 +70,7 @@
       }
     },
     {
-      "includes": ["data/lessons/nur/**/mentor-files/**/*.js"],
+      "includes": ["data/fullstack-js/**/mentor-files/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
