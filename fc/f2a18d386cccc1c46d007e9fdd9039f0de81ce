@@ -1,0 +1,8 @@
+Задача: API — create-stream-uc сохраняет enrollmentKey
+
+Тесты:
+- сохраняет enrollmentKey при создании потока с ключом
+- enrollmentKey undefined если не передан
+
+Реализация уже была через StreamAr.create() — проброс из предыдущей задачи.
+Файлы: packages/stream/src/api/stream/create-stream-uc.test.ts
