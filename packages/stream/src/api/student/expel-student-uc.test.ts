@@ -83,10 +83,7 @@ describe('ExpelStudentUc', () => {
       courseFacade: {},
     } as unknown as StreamApiModuleResolver);
 
-    await uc.execute(
-      { streamId: STREAM_ID, studentId: STUDENT_ID },
-      MENTOR_ID,
-    );
+    await uc.execute({ streamId: STREAM_ID, studentId: STUDENT_ID }, MENTOR_ID);
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
     expect(userFacade.removeRoleFromUser).toHaveBeenCalledWith(
@@ -118,10 +115,7 @@ describe('ExpelStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute(
-        { streamId: STREAM_ID, studentId: STUDENT_ID },
-        MENTOR_ID,
-      ),
+      uc.execute({ streamId: STREAM_ID, studentId: STUDENT_ID }, MENTOR_ID),
     ).rejects.toThrow();
   });
 
@@ -147,10 +141,7 @@ describe('ExpelStudentUc', () => {
       courseFacade: {},
     } as unknown as StreamApiModuleResolver);
 
-    await uc.execute(
-      { streamId: STREAM_ID, studentId: STUDENT_ID },
-      ADMIN_ID,
-    );
+    await uc.execute({ streamId: STREAM_ID, studentId: STUDENT_ID }, ADMIN_ID);
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
     expect(userFacade.removeRoleFromUser).toHaveBeenCalledWith(
@@ -185,10 +176,7 @@ describe('ExpelStudentUc', () => {
       courseFacade: {},
     } as unknown as StreamApiModuleResolver);
 
-    await uc.execute(
-      { streamId: STREAM_ID, studentId: STUDENT_ID },
-      MENTOR_ID,
-    );
+    await uc.execute({ streamId: STREAM_ID, studentId: STUDENT_ID }, MENTOR_ID);
 
     expect(savedState).toHaveLength(1);
     const saved = savedState[0] as Record<string, unknown>;

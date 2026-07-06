@@ -465,4 +465,75 @@ describe('ViewStreamStory', () => {
     expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
   });
+
+  // ── Детали ──
+
+  test('кнопка «📋 Детали» есть в карточке потока', async () => {
+    const { story } = makeViewStory(sampleStream, 1);
+
+    const response = await story.handleCallback(
+      'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
+  });
+
+  test('нажатие «📋 Детали» — показывает заполненные поля', async () => {
+    const { story, moduleApi } = makeViewStory(
+      {
+        ...sampleStream,
+        goal: 'Научиться программировать',
+        result: 'Свой проект',
+        rules: 'Без списывания',
+        targetAudience: 'Новички',
+        additional: 'Дополнительно',
+      },
+      1,
+    );
+
+    const response = await story.handleCallback(
+      'details:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Детали');
+    expect(text).toContain('Научиться программировать');
+    expect(text).toContain('Свой проект');
+    expect(text).toContain('Без списывания');
+    expect(text).toContain('Новички');
+    expect(text).toContain('Дополнительно');
+  });
+
+  test('нажатие «Детали» на потоке без полей — заглушка', async () => {
+    const { story } = makeViewStory(sampleStream, 1);
+
+    const response = await story.handleCallback(
+      'details:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Расширенная информация');
+  });
+
+  test('кнопка «Назад к потоку» в деталях → возврат', async () => {
+    const { story } = makeViewStory(sampleStream, 1);
+
+    const response = await story.handleCallback(
+      'details:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
+      mentorActor,
+      session,
+    );
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Назад к потоку'))).toBe(true);
+  });
 });

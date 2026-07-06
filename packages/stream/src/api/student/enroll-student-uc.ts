@@ -80,6 +80,13 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
 
     // 3. Обновление роли пользователя
     await userFacade.updateUserRole(command.userId, Role.STUDENT, actorId);
+
+    // 4. Снятие роли CANDIDATE, если была
+    const user = await userFacade.getUserByUuid(command.userId);
+    if (user?.roles.includes(Role.CANDIDATE)) {
+      await userFacade.removeRoleFromUser(command.userId, Role.CANDIDATE);
+    }
+
     return undefined;
   }
 }

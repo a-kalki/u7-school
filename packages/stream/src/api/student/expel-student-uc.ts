@@ -1,3 +1,4 @@
+import { errNotFound } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StudentAr } from '#domain/student/a-root';
@@ -7,6 +8,7 @@ import {
   ExpelStudentCmdSchema,
 } from '#domain/student/commands/expel-student-cmd';
 import { StudentPolicy } from '#domain/student/policy';
+import type { StreamNotFoundUcError, StreamUcErrors } from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
 /**
@@ -24,10 +26,7 @@ export class ExpelStudentUc extends StreamUseCase<ExpelStudentCmdMeta> {
   protected readonly inputSchema = ExpelStudentCmdSchema;
   protected readonly outputSchema = v.undefined();
 
-  async execute(
-    command: ExpelStudentCmd,
-    actorId: string,
-  ): Promise<undefined> {
+  async execute(command: ExpelStudentCmd, actorId: string): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
     const userFacade = this.resolve.userFacade;
 
@@ -36,7 +35,13 @@ export class ExpelStudentUc extends StreamUseCase<ExpelStudentCmdMeta> {
     // 1. Получаем запись студента
     const studentEntity = await studentRepo.getByUuid(command.studentId);
     if (!studentEntity) {
-      this.throwNotFound('Студент не найден');
+      this.throwError(
+        errNotFound<StreamNotFoundUcError>(
+          'STREAM_NOT_FOUND',
+          'Студент не найден',
+          { uuid: command.studentId },
+        ) as StreamUcErrors,
+      );
     }
 
     // 2. Получаем поток для проверки прав ментора
@@ -44,7 +49,13 @@ export class ExpelStudentUc extends StreamUseCase<ExpelStudentCmdMeta> {
       command.streamId,
     );
     if (!streamEntity) {
-      this.throwNotFound('Поток не найден');
+      this.throwError(
+        errNotFound<StreamNotFoundUcError>(
+          'STREAM_NOT_FOUND',
+          'Поток не найден',
+          { uuid: command.streamId },
+        ) as StreamUcErrors,
+      );
     }
 
     // 3. Проверка прав: ментор потока или админ

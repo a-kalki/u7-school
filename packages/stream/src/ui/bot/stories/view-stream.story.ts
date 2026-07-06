@@ -43,6 +43,11 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleArchive(streamId, actor);
     }
 
+    // Детали потока
+    if (cmd === 'details' && streamId) {
+      return this.#handleDetails(streamId);
+    }
+
     // Архивирование потока — запрос подтверждения (ментор)
     if (cmd === 'archive' && streamId) {
       return this.#showArchiveConfirm(streamId);
@@ -184,6 +189,51 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
+  async #handleDetails(streamId: string): Promise<BotResponse> {
+    const stream = await this.moduleApi.execute('get-stream', { streamId });
+
+    const fields: Array<{ label: string; value: string | undefined }> = [
+      { label: '🎯 Цель', value: stream.goal },
+      { label: '🏆 Результат', value: stream.result },
+      { label: '📜 Правила', value: stream.rules },
+      { label: '👤 Целевая аудитория', value: stream.targetAudience },
+      { label: '📝 Дополнительно', value: stream.additional },
+    ];
+
+    const filled = fields.filter((f) => f.value);
+
+    const lines: string[] = [
+      `📋 *Детали: ${this.escapeMarkdown(stream.title)}*`,
+      '',
+    ];
+
+    if (filled.length > 0) {
+      for (const f of filled) {
+        lines.push(`${f.label}: ${this.escapeMarkdown(f.value ?? '')}`);
+      }
+    } else {
+      lines.push('_Расширенная информация пока не добавлена\\._');
+    }
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: '⬅️ Назад к потоку',
+                code: this.cbFor('view-stream', 'view', streamId),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
   #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
     const isOwnerMentor = StreamPolicy.canEdit(actor, stream);
@@ -222,6 +272,13 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       {
         text: '👥 Студенты',
         code: this.cbFor('monitor', 'students', stream.uuid),
+      },
+    ]);
+
+    rows.push([
+      {
+        text: '📋 Детали',
+        code: this.cbFor('view-stream', 'details', stream.uuid),
       },
     ]);
 
