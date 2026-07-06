@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
 
@@ -22,12 +23,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Детальная карточка студента
     if (cmd === 'detail' && id) {
       return this.#handleDetail(id, actor);
-    }
-
-    // Кнопка «✉️ Написать» — ссылка на Telegram пользователя
-    if (cmd === 'message' && id) {
-      const [userId, studentId] = id.split(':');
-      return this.#handleMessage(userId ?? id, studentId);
     }
 
     // История шагов — ещё не реализована
@@ -55,54 +50,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   // ── Приватные методы ──
-
-  /** Кнопка «✉️ Написать» — показывает контакт Telegram */
-  async #handleMessage(
-    userId: string,
-    studentId?: string,
-  ): Promise<BotResponse> {
-    let name = userId.slice(0, 8);
-    let telegramId = 0;
-    let username = '';
-    try {
-      const user = await this.appApi.execute('get-user', { uuid: userId });
-      name = user.name;
-      telegramId = user.telegramId;
-      username =
-        (user as unknown as { telegramUsername?: string }).telegramUsername ??
-        '';
-    } catch {
-      // Пользователь не найден
-    }
-
-    const escTelegramId = this.escapeMarkdown(String(telegramId));
-    const escUsername = username ? this.escapeMarkdown(username) : '';
-    const lines = [
-      `✉️ * ${this.escapeMarkdown(name)} *`,
-      '',
-      `📱 Telegram ID: ${escTelegramId}`,
-    ];
-    if (escUsername) {
-      lines.push(`🔗 @ ${escUsername}`);
-    }
-    // Экранируем = в ссылке, т.к. MarkdownV2 резервирует этот символ
-    lines.push('', `Ссылка: tg://user?id\\=${escTelegramId}`);
-
-    const backCode = studentId
-      ? this.cbFor('monitor', 'detail', studentId)
-      : 'app:main-menu';
-
-    return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [[{ text: '⬅️ Назад к карточке', code: backCode }]],
-          isMultiple: false,
-        },
-      },
-    };
-  }
 
   async #handleStudents(streamId: string, actor: User): Promise<BotResponse> {
     const students = await this.moduleApi.execute(
@@ -134,8 +81,17 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       // Прогресс-бар 10 символов для текста
       const barLen = 10;
       const filled = Math.round((pct / 100) * barLen);
-      const bar = '▓'.repeat(filled) + '░'.repeat(barLen - filled);
+      const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
       const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
+
+      // Позиция в программе: pB:lC:sD
+      const pos = this.#findStepPosition(
+        stream.contentSnapshot,
+        s.currentStepId,
+      );
+      const posStr = pos
+        ? `p${pos.projectIndex}:l${pos.lessonIndex}:s${pos.stepIndex}`
+        : '';
 
       // Получаем имя через appApi
       let name = s.userId.slice(0, 8);
@@ -152,8 +108,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const escapedName = this.escapeMarkdown(name);
       const counts = this.escapeMarkdown(`(${completed}/${totalSteps})`);
 
-      // Строка в тексте: бар + процент + счётчики + имя
-      studentLines.push(`${bar} ${pct}% ${counts} — ${escapedName}${lagging}`);
+      // Строка в тексте: позиция + бар + процент + счётчики + имя
+      studentLines.push(
+        `${posStr} ${bar} ${pct}% ${counts} — ${escapedName}${lagging}`,
+      );
 
       // Компактная кнопка: 👤 + имя + процент
       rows.push([
@@ -287,5 +245,29 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
+  }
+
+  /** Находит позицию шага в contentSnapshot: индексы проекта, урока и шага (1-based). */
+  #findStepPosition(
+    snapshot: ContentSnapshot,
+    stepId: string,
+  ): { projectIndex: number; lessonIndex: number; stepIndex: number } | null {
+    for (let pi = 0; pi < snapshot.length; pi++) {
+      const project = snapshot[pi];
+      if (!project) continue;
+      for (let li = 0; li < project.lessons.length; li++) {
+        const lesson = project.lessons[li];
+        if (!lesson) continue;
+        const idx = lesson.stepIds.indexOf(stepId);
+        if (idx !== -1) {
+          return {
+            projectIndex: pi + 1,
+            lessonIndex: li + 1,
+            stepIndex: idx + 1,
+          };
+        }
+      }
+    }
+    return null;
   }
 }

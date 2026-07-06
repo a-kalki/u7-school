@@ -70,10 +70,7 @@ const moduleDirs = readdirSync(DATA_DIR).sort();
  * Считает количество менторских файлов для урока, читая manifest.json
  * напрямую с диска. Временное решение — будет заменено на API-вызов.
  */
-function countMentorFilesDirect(
-  moduleDir: string,
-  projectDir: string,
-): number {
+function countMentorFilesDirect(moduleDir: string, projectDir: string): number {
   const manifestPath = `${DATA_DIR}/${moduleDir}/${projectDir}/mentor-files/manifest.json`;
   if (!existsSync(manifestPath)) return 0;
   try {
@@ -90,33 +87,42 @@ function countMentorFilesDirect(
 // ─── Парсинг аргументов ───
 
 interface Filter {
-  module?: number;   // 1-based
-  project?: number;  // 1-based
-  lesson?: number;   // 1-based
+  module?: number; // 1-based
+  project?: number; // 1-based
+  lesson?: number; // 1-based
 }
 
 function parseFilter(arg: string): Filter | null {
   // M:P:L
   const m1 = arg.match(/^(\d+):(\d+):(\d+)$/);
-  if (m1) return { module: +m1[1], project: +m1[2], lesson: +m1[3] };
+  if (m1) {
+    const mod = m1[1] as string;
+    const proj = m1[2] as string;
+    const les = m1[3] as string;
+    return { module: +mod, project: +proj, lesson: +les };
+  }
 
   // M:P
   const m2 = arg.match(/^(\d+):(\d+)$/);
-  if (m2) return { module: +m2[1], project: +m2[2] };
+  if (m2) {
+    const mod = m2[1] as string;
+    const proj = m2[2] as string;
+    return { module: +mod, project: +proj };
+  }
 
   // M
   const m3 = arg.match(/^(\d+)$/);
-  if (m3) return { module: +m3[1] };
+  if (m3) {
+    const mod = m3[1] as string;
+    return { module: +mod };
+  }
 
   return null;
 }
 
 // ─── Поиск папки урока ───
 
-function findLessonDir(
-  moduleDir: string,
-  prefix: string,
-): string | undefined {
+function findLessonDir(moduleDir: string, prefix: string): string | undefined {
   const projectDirs = readdirSync(`${DATA_DIR}/${moduleDir}`);
   return projectDirs.find((d) => d.startsWith(prefix));
 }
@@ -174,9 +180,7 @@ async function main() {
     if (filter?.lesson !== undefined && filter?.project !== undefined) {
       const project = snapshot[filter.project - 1];
       if (!project) {
-        console.error(
-          `❌ Проект ${filter.project} не найден в модуле ${M}`,
-        );
+        console.error(`❌ Проект ${filter.project} не найден в модуле ${M}`);
         process.exit(1);
       }
       const lesson = project.lessons[filter.lesson - 1];
@@ -239,6 +243,7 @@ async function main() {
 
       for (let li = 0; li < project.lessons.length; li++) {
         const lesson = project.lessons[li];
+        if (!lesson) continue;
         const L = li + 1;
         const prefix = `p${P}-l${L}-`;
         const dir = findLessonDir(moduleDir, prefix);
@@ -246,7 +251,7 @@ async function main() {
         type LessonDetail = { stepIds: string[]; mentorStepIds: string[] };
         const detail = (await app.execute(
           'get-lesson',
-          { uuid: lesson!.lessonId },
+          { uuid: lesson.lessonId },
           NUR_UUID,
         )) as LessonDetail;
 
@@ -268,17 +273,18 @@ async function main() {
       // Уроки
       for (let li = 0; li < project.lessons.length; li++) {
         const lesson = project.lessons[li];
+        if (!lesson) continue;
         const L = li + 1;
 
         type LessonDetail = { stepIds: string[] };
         const detail = (await app.execute(
           'get-lesson',
-          { uuid: lesson!.lessonId },
+          { uuid: lesson.lessonId },
           NUR_UUID,
         )) as LessonDetail;
 
         const steps = detail.stepIds.length;
-        console.log(`       l${L}: ${lesson!.lessonTitle} (${steps} шагов)`);
+        console.log(`       l${L}: ${lesson.lessonTitle} (${steps} шагов)`);
       }
     }
   }

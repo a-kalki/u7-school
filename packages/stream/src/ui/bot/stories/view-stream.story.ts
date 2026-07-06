@@ -102,6 +102,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
 
     const dateStr = this.formatDate(stream.startDate);
+    const timeStr = this.#formatTime(stream.startDate);
 
     const lines = [
       `📋 *${this.escapeMarkdown(stream.title)}*`,
@@ -110,6 +111,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       `👤 Ментор: ${this.escapeMarkdown(mentorName)}`,
       `📅 Старт: ${this.escapeMarkdown(dateStr)}`,
+      `🕐 Время: ${this.escapeMarkdown(timeStr)}`,
       `👥 Студентов: ${studentCount}`,
       `📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
     ];
@@ -345,5 +347,17 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         },
       },
     };
+  }
+
+  /** Форматирует время из ISO-строки (ЧЧ:ММ). */
+  #formatTime(iso: string): string {
+    try {
+      const d = new Date(iso);
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    } catch {
+      return iso;
+    }
   }
 }

@@ -134,6 +134,6 @@ function convertTablesInText(text: string): string {
 
     // + '\n' в конце — компенсирует поглощённый таблицей \n,
     // чтобы следующий абзац не прилипал
-    return [formatRow(header), ...dataRows.map(formatRow)].join('\n') + '\n';
+    return `${[formatRow(header), ...dataRows.map(formatRow)].join('\n')}\n`;
   });
 }

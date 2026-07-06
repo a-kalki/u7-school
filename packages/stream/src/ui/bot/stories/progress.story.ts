@@ -54,7 +54,7 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const barLength = 10;
     const filled = Math.round((pct / 100) * barLength);
-    const bar = '▓'.repeat(filled) + '░'.repeat(barLength - filled);
+    const bar = '█'.repeat(filled) + '░'.repeat(barLength - filled);
 
     // Текущий проект и урок
     const { projectTitle, lessonTitle } = this.#findCurrentContext(

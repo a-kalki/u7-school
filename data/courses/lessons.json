@@ -637,9 +637,7 @@
     "status": "published",
     "createdAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": [
-      "0537679d-a582-443b-a34e-c89d72b81d28"
-    ],
+    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
     "mentorStepIds": [],
     "updatedAt": "2026-06-16T12:00"
   },

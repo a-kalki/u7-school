@@ -65,7 +65,7 @@ import { createApp, NUR_UUID } from './_app-factory';
 
 const BOT_TOKEN = '8781337572:AAGWv3f924aZisUW3z47n8BPDusyfKAjIWg';
 const DEFAULT_CHAT_ID = '-1003960918937'; // группа потока
-const MENTOR_CHAT_ID = '773084180';        // личка ментора
+const MENTOR_CHAT_ID = '773084180'; // личка ментора
 
 // ─── Типы данных API ───
 
@@ -160,24 +160,39 @@ function waitEnter(): Promise<string> {
 // ─── Парсинг аргументов ───
 
 interface LessonId {
-  module: number;   // 1-based
-  project: number;  // 1-based
-  lesson?: number;  // 1-based (опционально для --all)
-  step?: number;    // 1-based (опционально — конкретный шаг)
+  module: number; // 1-based
+  project: number; // 1-based
+  lesson?: number; // 1-based (опционально для --all)
+  step?: number; // 1-based (опционально — конкретный шаг)
 }
 
 function parseLessonId(arg: string): LessonId | null {
   // M:P:L:S
   const m1 = arg.match(/^(\d+):(\d+):(\d+):(\d+)$/);
-  if (m1) return { module: +m1[1], project: +m1[2], lesson: +m1[3], step: +m1[4] };
+  if (m1) {
+    const mod = m1[1] as string;
+    const proj = m1[2] as string;
+    const les = m1[3] as string;
+    const step = m1[4] as string;
+    return { module: +mod, project: +proj, lesson: +les, step: +step };
+  }
 
   // M:P:L
   const m2 = arg.match(/^(\d+):(\d+):(\d+)$/);
-  if (m2) return { module: +m2[1], project: +m2[2], lesson: +m2[3] };
+  if (m2) {
+    const mod = m2[1] as string;
+    const proj = m2[2] as string;
+    const les = m2[3] as string;
+    return { module: +mod, project: +proj, lesson: +les };
+  }
 
   // M:P (для --all)
   const m3 = arg.match(/^(\d+):(\d+)$/);
-  if (m3) return { module: +m3[1], project: +m3[2] };
+  if (m3) {
+    const mod = m3[1] as string;
+    const proj = m3[2] as string;
+    return { module: +mod, project: +proj };
+  }
 
   return null;
 }
@@ -243,7 +258,7 @@ async function sendStep(
       `${lessonLabel}: ${lessonTitle}`,
       `Шаг ${order}/${total}: ${step.description}`,
       '',
-      step.kind === 'code' ? step.code ?? '' : step.content ?? '',
+      step.kind === 'code' ? (step.code ?? '') : (step.content ?? ''),
     ];
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
@@ -270,13 +285,13 @@ async function main() {
 
   // --to=<id>
   const toArg = args.find((a) => a.startsWith('--to='));
-  const toId = toArg ? toArg.split('=')[1] : undefined;
+  const toId = toArg ? (toArg.split('=')[1] ?? '') : undefined;
 
   // Отфильтровать позиционные аргументы (всё что не флаг)
   const positional = args.filter((a) => !a.startsWith('--'));
   const lessonIdArg = positional[0];
 
-  if (!lessonIdArg || !parseLessonId(lessonIdArg)) {
+  if (!lessonIdArg) {
     console.error(
       '❌ Укажи урок: bun run scripts/distribute-lesson.ts M:P:L [опции]',
     );
@@ -285,8 +300,17 @@ async function main() {
     process.exit(1);
   }
 
-  const parsed = parseLessonId(lessonIdArg)!;
-  const stepNumber = parsed.step; // из формата M:P:L:S, если указан
+  const parsed = parseLessonId(lessonIdArg);
+  if (!parsed) {
+    console.error(
+      '❌ Неверный формат: bun run scripts/distribute-lesson.ts M:P:L [опции]',
+    );
+    console.error('   Формат: M:P:L[:S] — например: 2:1:3, 2:1:3:2');
+    console.error('   Флаги: --preview | --all | --group | --to=<id>');
+    process.exit(1);
+  }
+
+  const stepNumber = parsed.step;
 
   // --all требует формат M:P (без урока)
   if (allMode && parsed.lesson !== undefined) {
@@ -345,29 +369,33 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(
-    `📦 Модуль ${parsed.module}: ${moduleEntry.title}`,
-  );
+  console.log(`📦 Модуль ${parsed.module}: ${moduleEntry.title}`);
   console.log(
     `📖 Проект m${parsed.module}-p${parsed.project}: ${project.projectTitle}`,
   );
 
   if (allMode) {
     // Режим --all: все шаги всех уроков проекта
-    console.log(`\n🔄 Режим: ВСЕ уроки проекта${preview ? ' (предпросмотр)' : ''}`);
+    console.log(
+      `\n🔄 Режим: ВСЕ уроки проекта${preview ? ' (предпросмотр)' : ''}`,
+    );
     console.log(`   Уроков: ${project.lessons.length}\n`);
 
     for (let li = 0; li < project.lessons.length; li++) {
       const lesson = project.lessons[li];
+      if (!lesson) {
+        console.error(`❌ Урок с индексом ${li} не найден в проекте`);
+        continue;
+      }
       const L = li + 1;
       const lessonLabel = `m${parsed.module}-p${parsed.project}-l${L}`;
 
       console.log(`${'═'.repeat(60)}`);
-      console.log(`📚 ${lessonLabel}: ${lesson!.lessonTitle}`);
+      console.log(`📚 ${lessonLabel}: ${lesson.lessonTitle}`);
 
       const detail = (await app.execute(
         'get-lesson',
-        { uuid: lesson!.lessonId },
+        { uuid: lesson.lessonId },
         NUR_UUID,
       )) as LessonDetail;
 
@@ -375,6 +403,7 @@ async function main() {
 
       for (let si = 0; si < detail.stepIds.length; si++) {
         const stepId = detail.stepIds[si];
+        if (!stepId) continue;
         const step = (await app.execute(
           'get-step',
           { uuid: stepId },
@@ -388,7 +417,7 @@ async function main() {
 
         await sendStep(
           lessonLabel,
-          lesson!.lessonTitle,
+          lesson.lessonTitle,
           step,
           order,
           detail.stepIds.length,
@@ -427,7 +456,12 @@ async function main() {
 
   // ─── Режим одного урока ───
 
-  const lesson = project.lessons[parsed.lesson! - 1];
+  if (parsed.lesson == null) {
+    console.error('❌ Не указан номер урока (используйте формат M:P:L)');
+    process.exit(1);
+  }
+
+  const lesson = project.lessons[parsed.lesson - 1];
   if (!lesson) {
     console.error(
       `❌ Урок ${parsed.lesson} не найден в проекте m${parsed.module}-p${parsed.project}`,
@@ -475,9 +509,7 @@ async function main() {
     const order = step.order ?? detail.stepIds.indexOf(stepId) + 1;
     const kindEmoji = step.kind === 'code' ? '📝' : '📄';
 
-    console.log(
-      `  ${'─'.repeat(50)}`,
-    );
+    console.log(`  ${'─'.repeat(50)}`);
     console.log(
       `  [${order}/${detail.stepIds.length}] ${kindEmoji} ${step.description}`,
     );

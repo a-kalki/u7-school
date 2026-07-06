@@ -34,13 +34,15 @@
  * Для скриптов это всегда администратор с полным доступом.
  */
 import { ApiApp } from '@u7-scl/core/api';
+import type { AppMeta } from '@u7-scl/core/domain';
+import { type Logger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
-import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
+import type { CourseApiModuleMeta } from '../packages/course/src/domain/module.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
 import { UserApiModule } from '../packages/user/src/api/index.ts';
-import type { UserApiModuleResolver } from '../packages/user/src/domain/module.ts';
+import type { UserApiModuleMeta } from '../packages/user/src/domain/module.ts';
 import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
 import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade.ts';
 
@@ -48,13 +50,21 @@ import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade
 export const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
 /** No-op логгер для подавления служебных логов API-модулей */
-const silentLogger: import('@u7-scl/core/shared').Logger = {
+const silentLogger: Logger = {
   info: () => {},
   warn: () => {},
   error: () => {},
   debug: () => {},
-  log: () => {},
-} as unknown as import('@u7-scl/core/shared').Logger;
+  setLogLevel: () => {},
+  getLogLevel: () => LogLevel.INFO,
+  setSourceLevel: () => {},
+};
+
+/** Метаданные приложения для скриптов (course + user) */
+interface ScriptAppMeta extends AppMeta {
+  name: 'script-app';
+  moduleMetas: CourseApiModuleMeta | UserApiModuleMeta;
+}
 
 /**
  * Создаёт полный экземпляр ApiApp, идентичный тому,
@@ -68,16 +78,10 @@ const silentLogger: import('@u7-scl/core/shared').Logger = {
  * 3. CourseApiModule (зависит от repos + userFacade)
  * 4. ApiApp регистрирует оба модуля и вызывает init()
  */
-export function createApp(
-  silent = false,
-): ApiApp<{
-  modules: [CourseApiModuleResolver, UserApiModuleResolver];
-}> {
+export function createApp(silent = false): ApiApp<ScriptAppMeta> {
   // appResolver для скрипта (без DI-контейнера)
   const appResolver = {
-    logger: silent
-      ? silentLogger
-      : (console as unknown as import('@u7-scl/core/shared').Logger),
+    logger: silent ? silentLogger : (console as unknown as Logger),
     mode: 'development' as const,
   };
 
@@ -90,8 +94,8 @@ export function createApp(
   // User-модуль
   const userModule = new UserApiModule({
     userRepo,
-    appResolver: appResolver,
-  } as unknown as UserApiModuleResolver);
+    appResolver,
+  });
   const userFacade = new UserInProcFacade(userModule);
 
   // Course-модуль
@@ -100,12 +104,11 @@ export function createApp(
     lessonRepo,
     stepRepo,
     userFacade,
-    appResolver: appResolver,
-  } as unknown as CourseApiModuleResolver);
+    appResolver,
+  });
 
   // ApiApp: регистрируем оба модуля
-  // biome-ignore lint/suspicious/noExplicitAny: скрипт использует динамические команды
-  const app: ApiApp<any> = new ApiApp([userModule, courseModule]);
+  const app = new ApiApp([userModule, courseModule]);
   app.init();
 
   return app;

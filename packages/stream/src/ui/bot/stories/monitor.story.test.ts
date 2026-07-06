@@ -24,6 +24,7 @@ describe('MonitorStory', () => {
             {
               uuid: 'st1',
               userId: 'user-1',
+              currentStepId: 'step-3',
               status: 'active',
               steps: [
                 { stepId: 'step-1', status: 'completed' },
@@ -76,14 +77,17 @@ describe('MonitorStory', () => {
     // Сводка
     expect(text).toContain('Всего:');
     expect(text).toContain('студент');
-    // Прогресс-бар в тексте (▓/░)
-    expect(text).toContain('▓');
+    // Прогресс-бар в тексте (█/░)
+    expect(text).toContain('█');
     expect(text).toContain('░');
     // Проценты и счётчики в тексте (скобки экранированы для MarkdownV2)
     expect(text).toContain('50%');
     expect(text).toContain('2/4');
     // Имя в тексте
     expect(text).toContain('Иван');
+
+    // Формат позиции pB:lC:sD
+    expect(text).toContain('p1:l1:s3');
 
     // Кнопки — компактные
     const btnTexts =
@@ -260,81 +264,6 @@ describe('MonitorStory', () => {
     expect(btnTexts.some((t) => t.includes('Написать'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
-  });
-
-  // ── US-8: Кнопка «✉️ Написать» ──
-
-  test('кнопка «Написать» показывает контакт Telegram с экранированными символами', async () => {
-    const moduleApi = {
-      execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
-    const appApi = {
-      execute: mock((name: string) => {
-        if (name === 'get-user')
-          return {
-            uuid: 'user-1',
-            name: 'Иван_Иванов',
-            telegramId: 111,
-            telegramUsername: 'ivan_ov',
-            roles: [Role.STUDENT],
-            createdAt: '2026-01-01T00:00:00.000Z',
-          };
-        return undefined;
-      }),
-    } as unknown as U7BotApp;
-
-    const story = new MonitorStory();
-    story.init(moduleApi, appApi);
-
-    const response = await story.handleCallback(
-      'message:user-1:st1',
-      actor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('✉️');
-    expect(text).toContain('Иван');
-    expect(text).toContain('Иванов');
-    expect(text).toContain('ID: 111');
-    expect(text).toContain('ivan');
-    expect(text).toContain('tg://user');
-    // Знак '=' в ссылке экранирован (валидацию уже проверил assertResponseMarkdownSafe)
-    expect(text).not.toMatch(/[^\\]=/);
-
-    // Кнопка «Назад» должна быть
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
-  });
-
-  test('кнопка «Написать» работает когда пользователь не найден (fallback на id)', async () => {
-    const moduleApi = {
-      execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
-    const appApi = {
-      execute: mock(() => {
-        throw new Error('Not found');
-      }),
-    } as unknown as U7BotApp;
-
-    const story = new MonitorStory();
-    story.init(moduleApi, appApi);
-
-    const response = await story.handleCallback(
-      'message:user-abc-123',
-      actor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const text = response.sendMessage?.text ?? '';
-    // fallback: показывает первые 8 символов id
-    expect(text).toContain('user');
-    expect(text).toContain('abc');
-    expect(text).toContain('tg://user');
-    expect(text).not.toMatch(/[^\\]=/);
   });
 
   test('кнопка «История шагов» возвращает заглушку «ещё не реализовано»', async () => {

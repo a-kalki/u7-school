@@ -208,7 +208,9 @@ describe('CatalogStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(
+      false,
+    );
     expect(btnTexts.some((t) => t.includes('Скрыть завершённые'))).toBe(false);
   });
 

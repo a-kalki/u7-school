@@ -50,20 +50,31 @@ distribute-mentor — рассылка менторских файлов в ли
 // ─── Типы ───
 
 interface LessonId {
-  module: number;   // 1-based
-  project: number;  // 1-based
-  lesson: number;   // 1-based
+  module: number; // 1-based
+  project: number; // 1-based
+  lesson: number; // 1-based
   fileNum?: number; // 1-based (опционально — конкретный ментор-файл)
 }
 
 function parseLessonId(arg: string): LessonId | null {
   // M:P:L:S
   const m1 = arg.match(/^(\d+):(\d+):(\d+):(\d+)$/);
-  if (m1) return { module: +m1[1], project: +m1[2], lesson: +m1[3], fileNum: +m1[4] };
+  if (m1) {
+    const mod = m1[1] as string;
+    const proj = m1[2] as string;
+    const les = m1[3] as string;
+    const fileNum = m1[4] as string;
+    return { module: +mod, project: +proj, lesson: +les, fileNum: +fileNum };
+  }
 
   // M:P:L
   const m2 = arg.match(/^(\d+):(\d+):(\d+)$/);
-  if (m2) return { module: +m2[1], project: +m2[2], lesson: +m2[3] };
+  if (m2) {
+    const mod = m2[1] as string;
+    const proj = m2[2] as string;
+    const les = m2[3] as string;
+    return { module: +mod, project: +proj, lesson: +les };
+  }
 
   return null;
 }
@@ -115,13 +126,13 @@ async function main() {
 
   // --to=<id>
   const toArg = args.find((a) => a.startsWith('--to='));
-  const toId = toArg ? toArg.split('=')[1] : undefined;
+  const toId = toArg ? (toArg.split('=')[1] ?? '') : undefined;
 
   // Позиционные (всё что не флаг)
   const positional = args.filter((a) => !a.startsWith('--'));
   const lessonIdArg = positional[0];
 
-  if (!lessonIdArg || !parseLessonId(lessonIdArg)) {
+  if (!lessonIdArg) {
     console.error(
       '❌ Укажи урок: bun run scripts/distribute-mentor.ts M:P:L [опции]',
     );
@@ -130,15 +141,25 @@ async function main() {
     process.exit(1);
   }
 
-  const parsed = parseLessonId(lessonIdArg)!;
-  const fileNumberArg = parsed.fileNum; // из формата M:P:L:S, если указан
+  const parsed = parseLessonId(lessonIdArg);
+  if (!parsed) {
+    console.error(
+      '❌ Неверный формат: bun run scripts/distribute-mentor.ts M:P:L [опции]',
+    );
+    console.error('   Формат: M:P:L[:S] — например: 1:2:1, 1:2:1:2');
+    process.exit(1);
+  }
+
+  const fileNumberArg = parsed.fileNum;
   const chatId = toId ?? DEFAULT_CHAT_ID;
   const { module: Nm, project: Np, lesson: Nl } = parsed;
 
   // Найти папку модуля
   const moduleDir = moduleDirs[Nm - 1];
   if (!moduleDir) {
-    console.error(`❌ Модуль ${Nm} не найден (доступно: ${moduleDirs.join(', ')})`);
+    console.error(
+      `❌ Модуль ${Nm} не найден (доступно: ${moduleDirs.join(', ')})`,
+    );
     process.exit(1);
   }
 
