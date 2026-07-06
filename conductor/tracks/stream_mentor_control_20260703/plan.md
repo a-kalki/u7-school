@@ -16,7 +16,7 @@
     - [ ] Написать тест: создание потока без enrollmentKey — поле undefined
     - [ ] Реализовать: проброс поля в StreamAr.create() и сохранение
 
-- [ ] Task: API — enroll-student-uc проверяет enrollmentKey
+- [x] Task: API — enroll-student-uc проверяет enrollmentKey `2efdb66`
     - [ ] Написать тест: зачисление с верным enrollmentKey — успех
     - [ ] Написать тест: зачисление с неверным enrollmentKey — ошибка
     - [ ] Написать тест: зачисление без enrollmentKey, когда у потока нет ключа — успех
