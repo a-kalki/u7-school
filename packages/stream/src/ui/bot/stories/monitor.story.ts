@@ -34,6 +34,16 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
+    // Отчисление — подтверждение
+    if (cmd === 'expel' && id) {
+      return this.#handleExpelConfirm(id, actor);
+    }
+
+    // Отчисление — выполнить
+    if (cmd === 'expel-confirm' && id) {
+      return this.#handleExpelExecute(id, actor);
+    }
+
     if (cmd !== 'students' || !id) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
@@ -233,6 +243,13 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     keyboardRows.push([
       {
+        text: '❌ Отчислить',
+        code: this.cbFor('monitor', 'expel', studentId),
+      },
+    ]);
+
+    keyboardRows.push([
+      {
         text: '⬅️ Назад к списку',
         code: this.cbFor('monitor', 'students', student.streamId),
       },
@@ -244,6 +261,88 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         parseMode: 'MarkdownV2',
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
+    };
+  }
+
+  async #handleExpelConfirm(
+    studentId: string,
+    actor: User,
+  ): Promise<BotResponse> {
+    const student: Student = await this.moduleApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    );
+
+    let userName = student.userId.slice(0, 8);
+    try {
+      const user = await this.appApi.execute('get-user', {
+        uuid: student.userId,
+      });
+      userName = user.name;
+    } catch {
+      // ignore
+    }
+
+    return {
+      sendMessage: {
+        text: `⚠️ Вы уверены, что хотите отчислить ${this.escapeMarkdown(userName)}?`,
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: 'Да, отчислить',
+                code: this.cbFor('monitor', 'expel-confirm', studentId),
+              },
+              {
+                text: '❌ Отмена',
+                code: this.cbFor('monitor', 'detail', studentId),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
+  async #handleExpelExecute(
+    studentId: string,
+    actor: User,
+  ): Promise<BotResponse> {
+    const student: Student = await this.moduleApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    );
+
+    let userName = student.userId.slice(0, 8);
+    try {
+      const user = await this.appApi.execute('get-user', {
+        uuid: student.userId,
+      });
+      userName = user.name;
+    } catch {
+      // ignore
+    }
+
+    try {
+      await this.moduleApi.execute(
+        'expel-student',
+        { streamId: student.streamId, studentId },
+        actor.uuid,
+      );
+    } catch (err: unknown) {
+      return this.handleError(err);
+    }
+
+    return {
+      sendMessage: {
+        text: `✅ Студент ${this.escapeMarkdown(userName)} отчислен.`,
+        parseMode: 'MarkdownV2',
+      },
+      delegate: { path: this.cbFor('monitor', 'students', student.streamId) },
     };
   }
 

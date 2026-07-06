@@ -284,4 +284,166 @@ describe('MonitorStory', () => {
     expect(text).toContain('ещё не реализована');
     expect(text).toContain('скоро будет');
   });
+
+  // ── Отчисление ──
+
+  test('кнопка «❌ Отчислить» в карточке студента', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            mentorId: 'mentor-1',
+            moduleId: 'm1',
+            startDate: '2026-01-01',
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: '2026-01-01',
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('detail:st1', actor, session);
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(true);
+  });
+
+  test('нажатие «❌ Отчислить» → запрос подтверждения', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('expel:st1', actor, session);
+
+    expect(response.sendMessage?.text).toContain('уверены');
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Да, отчислить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('подтверждение отчисления → вызов expel-student', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'expel-student') return undefined;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    await story.handleCallback('expel-confirm:st1', actor, session);
+
+    expect(moduleApi.execute).toHaveBeenCalledWith(
+      'expel-student',
+      { streamId: 's1', studentId: 'st1' },
+      'mentor-1',
+    );
+  });
+
+  test('«Отмена» → возврат к карточке студента', async () => {
+    // Нажатие «Отмена» в подтверждении — это кнопка detail, уже протестирована
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            mentorId: 'mentor-1',
+            moduleId: 'm1',
+            startDate: '2026-01-01',
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: '2026-01-01',
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    // «Отмена» ведет обратно на detail
+    const response = await story.handleCallback('detail:st1', actor, session);
+    expect(response.sendMessage?.text).toContain('Студент');
+  });
 });
