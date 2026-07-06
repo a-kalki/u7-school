@@ -4,7 +4,7 @@
 
 ## Фаза 1: Проверочное слово (enrollmentKey)
 
-- [ ] Task: Domain — поле `enrollmentKey` в StreamSchema и CreateStreamCmd
+- [x] Task: Domain — поле `enrollmentKey` в StreamSchema и CreateStreamCmd `26e2f99`
     - [ ] Написать тест: StreamSchema принимает enrollmentKey
     - [ ] Написать тест: CreateStreamCmdSchema принимает enrollmentKey
     - [ ] Реализовать: поле `enrollmentKey?: string` в StreamSchema
