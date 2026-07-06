@@ -55,6 +55,14 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     }
 
     const streamEntity = await this.getStream(command.streamId);
+
+    // Проверка кодового слова (если задано у потока)
+    if (streamEntity.enrollmentKey) {
+      if (streamEntity.enrollmentKey !== command.enrollmentKey) {
+        this.throwAccessDenied('Неверное кодовое слово');
+      }
+    }
+
     const streamAr = new StreamAr(streamEntity);
     const firstStepId = streamAr.getFirstStepId();
 
