@@ -168,29 +168,38 @@ describe('CreateStreamStory e2e', () => {
     // Шаг 9: группа
     expect(r9?.sendMessage?.text).toContain('ссылку на Telegram\\-группу');
 
-    // Шаг 10: группа → превью
+    // Шаг 10: вводим группу → кодовое слово
     const r10 = await router.handleMessage(
       { type: 'message', text: 'https://t.me/+test', telegramId: 1004 },
       mentor,
       session,
     );
     assertBotResponseValid(r10);
-    expect(r10?.sendMessage?.text).toContain('Превью');
-    expect(r10?.sendMessage?.text).toContain('Тестовый поток');
+    expect(r10?.sendMessage?.text).toContain('кодовое слово');
 
-    const previewBtns =
-      r10?.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(previewBtns.some((t) => t.includes('Создать'))).toBe(true);
-    expect(previewBtns.some((t) => t.includes('Изменить'))).toBe(true);
-
-    // Шаг 11: подтверждение
+    // Шаг 11: пропускаем кодовое слово → превью
     const r11 = await router.handleCallback(
-      'stream:create-stream:confirm',
+      'stream:create-stream:skip-key',
       mentor,
       session,
     );
     assertBotResponseValid(r11);
-    expect(r11.sendMessage?.text).toContain('успешно создан');
+    expect(r11?.sendMessage?.text).toContain('Превью');
+    expect(r11?.sendMessage?.text).toContain('Тестовый поток');
+
+    const previewBtns =
+      r11?.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(previewBtns.some((t) => t.includes('Создать'))).toBe(true);
+    expect(previewBtns.some((t) => t.includes('Изменить'))).toBe(true);
+
+    // Шаг 12: подтверждение
+    const r12 = await router.handleCallback(
+      'stream:create-stream:confirm',
+      mentor,
+      session,
+    );
+    assertBotResponseValid(r12);
+    expect(r12.sendMessage?.text).toContain('успешно создан');
     expect(session.activeHandler).toBeNull();
   });
 
