@@ -23,7 +23,7 @@
     - [ ] Написать тест: зачисление без enrollmentKey, когда у потока есть ключ — ошибка
     - [ ] Реализовать: проверка `stream.enrollmentKey` vs `command.enrollmentKey`
 
-- [ ] Task: UI — шаг 10 в wizard создания потока (create-stream.story.ts)
+- [x] Task: UI — шаг 10 в wizard создания потока (create-stream.story.ts) `d1c9244`
     - [ ] Написать тест: шаг wizard запрашивает кодовое слово
     - [ ] Написать тест: кнопка «Пропустить» не сохраняет слово
     - [ ] Реализовать: шаг 10, сохранение в состоянии wizard
