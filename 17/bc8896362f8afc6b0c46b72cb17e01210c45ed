@@ -1,0 +1,15 @@
+Задача: UI — экран проверки кодового слова (enroll.story.ts)
+
+Реализовано:
+- При нажатии «Записаться» проверяется stream.enrollmentKey
+- Если ключ есть: captureInput с path enroll:enroll-key, кнопка «Отмена»
+- handleMessage: проверка слова, 3 попытки (MAX_ATTEMPTS)
+- Исчерпаны → сообщение + возврат к карточке через delegate
+- Верное слово → enroll-student с enrollmentKey в команде
+- Поток без ключа: прямое зачисление (поведение не изменилось)
+
+Архитектура: двойная проверка — story (UX, попытки) + UC (безопасность)
+
+Файлы:
+- packages/stream/src/ui/bot/stories/enroll.story.ts
+- packages/stream/src/ui/bot/stories/enroll.story.test.ts
