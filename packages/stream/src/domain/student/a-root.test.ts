@@ -88,4 +88,30 @@ describe('StudentAr', () => {
       expect(ar.state.status).toBe('completed');
     });
   });
+
+  describe('expel', () => {
+    test('expel() переводит active → expelled', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      expect(ar.state.status).toBe('active');
+
+      ar.expel();
+      expect(ar.state.status).toBe('expelled');
+    });
+
+    test('expel() на completed — исключение', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      ar.complete();
+      expect(ar.state.status).toBe('completed');
+
+      expect(() => ar.expel()).toThrow();
+    });
+
+    test('expel() на expelled — исключение', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      ar.expel();
+      expect(ar.state.status).toBe('expelled');
+
+      expect(() => ar.expel()).toThrow();
+    });
+  });
 });

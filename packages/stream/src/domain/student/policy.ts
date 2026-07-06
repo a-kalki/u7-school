@@ -1,4 +1,5 @@
 import { type User, UserPolicy } from '@u7-scl/user/domain';
+import type { Stream } from '../stream/entity';
 import type { Student } from './entity';
 
 /**
@@ -19,5 +20,13 @@ export const StudentPolicy = {
    */
   canCompleteStep(actor: User, student: Student): boolean {
     return actor.uuid === student.userId;
+  },
+
+  /**
+   * Может ли актор отчислить студента.
+   * Только ментор потока или админ.
+   */
+  canExpel(actor: User, stream: Stream): boolean {
+    return UserPolicy.isAdmin(actor) || actor.uuid === stream.mentorId;
   },
 };

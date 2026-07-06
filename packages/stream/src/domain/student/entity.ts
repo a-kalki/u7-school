@@ -29,7 +29,7 @@ export const StudentSchema = v.object({
     v.isoDateTime('Некорректный формат даты зачисления'),
   ),
   status: v.picklist(
-    ['active', 'completed', 'dropped'],
+    ['active', 'completed', 'dropped', 'expelled'],
     'Недопустимый статус студента',
   ),
   currentStepId: v.pipe(
