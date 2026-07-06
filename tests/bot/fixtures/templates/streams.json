@@ -129,8 +129,8 @@
   },
   {
     "uuid": "e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4",
-    "title": "JS Core — Поток 5 (Закрытый набор)",
-    "description": "Пятый поток с кодовым словом.",
+    "title": "JS Core — Поток 5",
+    "description": "Поток по основам js-core.",
     "mentorId": "44444444-4444-4444-4444-444444444444",
     "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
     "startDate": "2026-08-01T00:00",
