@@ -11,7 +11,7 @@
     - [ ] Реализовать: поле `enrollmentKey?` в CreateStreamCmd + схема
     - [ ] Реализовать: поле `enrollmentKey?` в EnrollStudentCmd + схема
 
-- [ ] Task: API — create-stream-uc сохраняет enrollmentKey
+- [x] Task: API — create-stream-uc сохраняет enrollmentKey `fcf2a18`
     - [ ] Написать тест: создание потока с enrollmentKey сохраняет поле
     - [ ] Написать тест: создание потока без enrollmentKey — поле undefined
     - [ ] Реализовать: проброс поля в StreamAr.create() и сохранение
