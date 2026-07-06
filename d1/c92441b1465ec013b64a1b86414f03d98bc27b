@@ -1,0 +1,16 @@
+Задача: UI — шаг 10 в wizard создания потока (create-stream.story.ts)
+
+Реализовано:
+- Новый шаг 10: ввод кодового слова с кнопкой «Пропустить»
+- Превью теперь шаг 11 (был 10)
+- enrollmentKey сохраняется в контексте и передаётся в create-stream
+- Поле enrollmentKey добавлено в CreateStreamWizardContext и #emptyCtx()
+
+Тесты:
+- ввод кодового слова → превью
+- skip-key → превью с пустым ключом
+- enrollmentKey передаётся в create-stream при confirm
+
+Файлы:
+- packages/stream/src/ui/bot/stories/create-stream.story.ts
+- packages/stream/src/ui/bot/stories/create-stream.story.test.ts
