@@ -681,9 +681,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   #showEnrollmentKeyStep(ctx: CreateStreamWizardContext): BotResponse {
     return {
       sendMessage: {
-        // biome-ignore lint/suspicious/noUselessEscapeInString: экранирование для MarkdownV2
-        text: '🔑 Введите кодовое слово для записи на поток \(необязательно\):\\.\nСтуденты должны будут ввести его при записи\\.',
-        parseMode: 'MarkdownV2',
+        text: '🔑 Введите кодовое слово для записи на поток (необязательно). Оставьте пустым для свободной записи.',
         keyboard: {
           rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-key') }]],
           isMultiple: false,
