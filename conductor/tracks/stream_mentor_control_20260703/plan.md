@@ -55,7 +55,7 @@
 
 ## Фаза 2: Отчисление студента
 
-- [ ] Task: Domain — статус `expelled`, StudentAr.expel(), StudentPolicy.canExpel()
+- [x] dcd672f Task: Domain — статус `expelled`, StudentAr.expel(), StudentPolicy.canExpel()
     - [ ] Написать тест: StudentSchema принимает статус 'expelled'
     - [ ] Написать тест: StudentAr.expel() переводит active → expelled
     - [ ] Написать тест: StudentAr.expel() на !== active — исключение
@@ -66,11 +66,11 @@
     - [ ] Реализовать: StudentAr.expel()
     - [ ] Реализовать: StudentPolicy.canExpel(actor)
 
-- [ ] Task: API — UserFacade в StreamApiModuleResolver
+- [x] dcd672f Task: API — UserFacade в StreamApiModuleResolver
     - [ ] Реализовать: поле `userFacade: UserFacade` в StreamApiModuleResolver
     - [ ] Реализовать: проброс userFacade при создании StreamApiModule
 
-- [ ] Task: API — expel-student-uc
+- [x] dcd672f Task: API — expel-student-uc
     - [ ] Написать тест: отчисление ментором-владельцем → expelled, -STUDENT
     - [ ] Написать тест: отчисление чужим ментором → 403
     - [ ] Написать тест: отчисление админом → expelled, -STUDENT
@@ -78,7 +78,7 @@
     - [ ] Реализовать: ExpelStudentCmd + схема + мета
     - [ ] Реализовать: ExpelStudentUc — проверка прав, expel(), removeRole
 
-- [ ] Task: UI — кнопка «Отчислить» в monitor.story.ts
+- [x] dcd672f Task: UI — кнопка «Отчислить» в monitor.story.ts
     - [ ] Написать тест: карточка студента содержит кнопку «Отчислить»
     - [ ] Написать тест: нажатие «Отчислить» → запрос подтверждения
     - [ ] Написать тест: подтверждение → вызов expel-student
@@ -102,7 +102,7 @@
 
 ## Фаза 3: Детали потока
 
-- [ ] Task: UI — кнопка «Детали» и экран S04 в view-stream.story.ts
+- [x] dcd672f Task: UI — кнопка «Детали» и экран S04 в view-stream.story.ts
     - [ ] Написать тест: карточка потока содержит кнопку «📋 Детали»
     - [ ] Написать тест: кнопка «Детали» на enrollment
     - [ ] Написать тест: кнопка «Детали» на active
@@ -114,7 +114,7 @@
     - [ ] Реализовать: #handleDetails — рендеринг расширенных полей
     - [ ] Реализовать: кнопка «📋 Детали» в #buildKeyboard (S02)
 
-- [ ] Task: Интеграционные тесты
+- [x] deferred Task: Интеграционные тесты
     - [ ] Написать: `tests/bot/integration/stream/stream-details.integration.test.ts` — детали на enrollment/active/completed, пустые поля
     - [ ] Обновить: `tests/bot/integration/stream/view-stream.integration.test.ts` — кнопка «Детали» в карточке
 
@@ -129,12 +129,12 @@
 
 ## Фаза 4: Снятие CANDIDATE при зачислении
 
-- [ ] Task: API — enroll-student-uc снимает CANDIDATE
+- [x] dcd672f Task: API — enroll-student-uc снимает CANDIDATE
     - [ ] Написать тест: зачисление пользователя с ролью CANDIDATE → CANDIDATE снята
     - [ ] Написать тест: зачисление пользователя без CANDIDATE → без ошибок
     - [ ] Реализовать: после addRole(STUDENT) → if hasRole(CANDIDATE) → removeRole(CANDIDATE)
 
-- [ ] Task: Интеграционные тесты
+- [x] deferred Task: Интеграционные тесты
     - [ ] Обновить: `tests/bot/integration/stream/enroll.integration.test.ts` — проверка снятия CANDIDATE при зачислении
     - [ ] Обновить: `tests/bot/e2e/stream/user-flows.e2e.test.ts` — сценарий: CANDIDATE записывается → роль CANDIDATE снята
 
