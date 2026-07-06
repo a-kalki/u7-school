@@ -884,5 +884,158 @@
       "fb56c8c0-aabb-4fce-ae27-00593aa0b02e"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "34d6db85-0adc-4b16-8852-31907df5ad86",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ветки в Git",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "dfd39b9b-c4c4-402c-b486-f7813c7341f5",
+      "e69a7b73-7d9e-492f-bcd3-29ba3d390c8f",
+      "e0606c1d-6c1d-4ec6-901e-84b95a7420f3",
+      "5a46bc6b-a963-4384-a8b6-1b447562e6ee",
+      "bde807ee-5b3a-42af-bada-e5d76c5f0427",
+      "d8b62b28-93c9-4b6e-926c-4aea186b06aa"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6b05fe2f-a3b2-491b-872d-8fe402ad9f91",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Слияние веток и конфликты",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 18,
+    "stepIds": [
+      "9cc58c22-d0b2-4296-95db-d9ebe0ffd97e",
+      "81a08417-88f8-40a8-ba2e-0b1e6dd64089",
+      "5918c643-b575-4768-8493-ca15a03f9b8d",
+      "08024e98-7d64-4f1c-b3b7-58d2deb90ae1",
+      "83096d89-40c4-43af-9e56-e4f6b3276fc9"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e2211e00-793e-4203-9196-732e35584f42",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция indexOf(str, search) — наивный поиск подстроки",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "bb216661-d72a-4a43-bccd-67c31fd5c073",
+      "73490f10-4051-43ec-80b5-2ea4d987d067"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "01474ea1-eb8c-4049-ada6-08fd0f87247b",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции includes(), startsWith(), endsWith() — проверки наличия подстроки",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 22,
+    "stepIds": [
+      "54a7ebb9-1a74-49d3-b6e6-3f8f4b30a199",
+      "7ba1c7cd-7d6e-40fa-a5d5-3d54e80d86da",
+      "f5c22e39-7276-4048-a3f7-58a05e9963b1",
+      "536e192c-4b06-4a05-9276-3417858d3547"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "81d8c5a9-7ee6-4610-89b0-cd40a4ac7281",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция reverse(str) — переворот строки",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "cea5b202-5a0a-423d-ae9d-eea7cf4092ce",
+      "6d934fb0-95df-4973-a929-33637353052e"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "8c23f31f-473e-4d5e-9b0d-10285719c495",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция repeat(str, count) — повторение строки",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "b6d374e1-7fb4-4d96-bb0d-b9201a75759c",
+      "167158ec-df7a-4056-ae57-539ecc0368cc"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "8731e84f-61df-4a55-8f5e-70ffdd5e82a2",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "dbd38b6a-8327-4354-aeb2-cd0e18e07ae7",
+      "6c5fe405-676b-447c-aeb7-3f6ab183f44f",
+      "7019aa6f-538e-4389-8995-6f341c47a26b",
+      "043509df-7aaf-4f8e-92da-fe756dc4161b",
+      "50ad889b-b96d-4da8-81a2-d0c98c24fd59"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "13bbb747-4f64-4a77-ae26-745539a88065",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Ветка для исправлений по ревью",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "903049e0-0edf-4b89-b9a6-5d18bf4c9fcb",
+      "1ce55844-9bf0-4eda-a1e6-ea338e7dd749",
+      "23153909-7794-4f05-8026-c6e722cbe343",
+      "007e3f5e-3b6b-4270-a4dd-4d9f76b4e4f9",
+      "0591857e-2bc8-4502-b1d4-d1d0a84a877b"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "dad46625-f742-41ae-9fb1-f610555f195e",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Финальный мерж",
+    "additional": "",
+    "status": "published",
+    "createdAt": "2026-07-03T12:00",
+    "updatedAt": "2026-07-03T12:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "b1411b65-39df-4139-8fca-e53e3eaadf9d",
+      "2741798c-591d-47a4-b606-202a0f0642de",
+      "0e029d93-0ec9-4983-b0f5-6c28a4be9165",
+      "41284481-8518-4395-a336-ef84a206ff62",
+      "034264d1-93ea-4047-a3b3-7fb454bb61c7"
+    ],
+    "mentorStepIds": []
   }
 ]
