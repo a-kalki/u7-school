@@ -39,6 +39,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
       rules: cmd.rules,
       additional: cmd.additional,
       targetAudience: cmd.targetAudience,
+      enrollmentKey: cmd.enrollmentKey,
       contentSnapshot,
       createdAt: isoNow(),
     };

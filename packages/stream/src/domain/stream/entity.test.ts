@@ -127,4 +127,22 @@ describe('StreamSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  test('принимает опциональный enrollmentKey', () => {
+    const withKey = { ...validStream, enrollmentKey: 'secret123' };
+    const result = v.safeParse(StreamSchema, withKey);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.enrollmentKey).toBe('secret123');
+    }
+  });
+
+  test('принимает undefined enrollmentKey (поле не обязательно)', () => {
+    // validStream не имеет enrollmentKey — должно быть ок
+    const result = v.safeParse(StreamSchema, validStream);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output.enrollmentKey).toBeUndefined();
+    }
+  });
 });

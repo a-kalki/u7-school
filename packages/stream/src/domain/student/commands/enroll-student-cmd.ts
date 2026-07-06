@@ -7,7 +7,8 @@ import type { StudentArMeta } from '../entity';
 /** Схема валидации команды зачисления на поток */
 export const EnrollStudentCmdSchema = v.object({
   streamId: StreamSchema.entries.uuid,
-  userId: v.string(), // UUID пользователя
+  userId: v.string(),
+  enrollmentKey: StreamSchema.entries.enrollmentKey,
 });
 
 /** Команда зачисления на поток */

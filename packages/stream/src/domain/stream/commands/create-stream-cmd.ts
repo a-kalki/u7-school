@@ -18,6 +18,7 @@ export const CreateStreamCmdSchema = v.object({
   rules: StreamSchema.entries.rules,
   additional: StreamSchema.entries.additional,
   targetAudience: StreamSchema.entries.targetAudience,
+  enrollmentKey: StreamSchema.entries.enrollmentKey,
 });
 
 /** Команда создания потока */

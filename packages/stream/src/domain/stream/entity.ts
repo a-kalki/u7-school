@@ -32,6 +32,8 @@ export const StreamSchema = v.object({
   additional: v.optional(v.string()),
   targetAudience: v.optional(v.string()),
 
+  enrollmentKey: v.optional(v.string()),
+
   contentSnapshot: ContentSnapshotSchema,
 
   createdAt: v.pipe(
