@@ -179,4 +179,40 @@ describe('UserPolicy', () => {
       );
     });
   });
+
+  describe('canRemoveRole', () => {
+    test('ADMIN может удалить любую роль у любого пользователя', () => {
+      expect(UserPolicy.canRemoveRole(admin, student, Role.STUDENT)).toBe(true);
+      expect(UserPolicy.canRemoveRole(admin, teacher, Role.MENTOR)).toBe(true);
+    });
+
+    test('пользователь может удалить STUDENT у себя', () => {
+      expect(UserPolicy.canRemoveRole(student, student, Role.STUDENT)).toBe(
+        true,
+      );
+    });
+
+    test('пользователь может удалить CANDIDATE у себя', () => {
+      const candidate = { ...guest, roles: [Role.CANDIDATE] };
+      expect(
+        UserPolicy.canRemoveRole(candidate, candidate, Role.CANDIDATE),
+      ).toBe(true);
+    });
+
+    test('ADMIN может удалить любую роль, включая у себя', () => {
+      expect(UserPolicy.canRemoveRole(admin, admin, Role.ADMIN)).toBe(true);
+    });
+
+    test('GUEST НЕ может удалить роль у другого', () => {
+      expect(UserPolicy.canRemoveRole(guest, student, Role.STUDENT)).toBe(
+        false,
+      );
+    });
+
+    test('MENTOR НЕ может удалять роли у других', () => {
+      expect(UserPolicy.canRemoveRole(teacher, student, Role.STUDENT)).toBe(
+        false,
+      );
+    });
+  });
 });

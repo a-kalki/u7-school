@@ -564,6 +564,7 @@ describe('EnrollStudentUc', () => {
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
       '99999999-9999-4999-8999-999999999999',
       Role.CANDIDATE,
+      '99999999-9999-4999-8999-999999999999',
     );
   });
 

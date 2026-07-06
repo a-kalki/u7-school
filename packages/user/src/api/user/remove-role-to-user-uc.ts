@@ -11,7 +11,7 @@ import { UserPolicy } from '#domain/user/policy';
 
 /**
  * Use-case удаления роли у пользователя.
- * Требует прав ADMIN.
+ * ADMIN может удалить любую роль. Обычный пользователь — только STUDENT или CANDIDATE у себя.
  */
 export class RemoveRoleToUserUc extends UserUseCase<RemoveRoleToUserCmdMeta> {
   protected readonly ucName = 'remove-role-to-user' as const;
@@ -29,15 +29,16 @@ export class RemoveRoleToUserUc extends UserUseCase<RemoveRoleToUserCmdMeta> {
     const repo = this.resolve.userRepo;
 
     const actor = await this.getActor(actorId);
-    if (!UserPolicy.isAdmin(actor)) {
-      this.throwAccessDenied('Недостаточно прав для выполнения действия');
-    }
 
     const target = await repo.getByUuid(command.userId);
     if (!target) {
       this.throwNotFound('USER_NOT_FOUND', 'Пользователь не найден', {
         uuid: command.userId,
       });
+    }
+
+    if (!UserPolicy.canRemoveRole(actor, target, command.role)) {
+      this.throwAccessDenied('Недостаточно прав для выполнения действия');
     }
 
     const ar = new UserAr(target);

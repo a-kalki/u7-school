@@ -51,4 +51,13 @@ export const UserPolicy = {
     if (actor.uuid !== target.uuid) return false;
     return role === Role.STUDENT || role === Role.CANDIDATE;
   },
+  /**
+   * ADMIN может удалять любую роль у любого пользователя.
+   * Обычный пользователь — роли STUDENT и CANDIDATE у самого себя.
+   */
+  canRemoveRole(actor: User, target: User, role: Role): boolean {
+    if (this.isAdmin(actor)) return true;
+    if (actor.uuid !== target.uuid) return false;
+    return role === Role.STUDENT || role === Role.CANDIDATE;
+  },
 };
