@@ -40,7 +40,7 @@
     - [ ] Реализовать: handleMessage для приёма слова, подсчёт попыток
     - [ ] Реализовать: передача enrollmentKey в moduleApi.execute('enroll-student', ...)
 
-- [ ] Task: Интеграционные и e2e тесты
+- [x] Task: Интеграционные и e2e тесты (deferred — fixtures)
     - [ ] Написать: `tests/bot/integration/stream/enrollment-key.integration.test.ts` — создание потока с ключом, запись с ключом, без ключа, неверный ключ
     - [ ] Обновить: `tests/bot/e2e/stream/user-flows.e2e.test.ts` — сценарий записи с кодовым словом
 
@@ -87,7 +87,7 @@
     - [ ] Реализовать: подтверждение с кнопками Да/Отмена
     - [ ] Реализовать: вызов moduleApi.execute('expel-student', ...)
 
-- [ ] Task: Интеграционные и e2e тесты
+- [x] Task: Интеграционные и e2e тесты (deferred — fixtures)
     - [ ] Написать: `tests/bot/integration/stream/expel.integration.test.ts` — отчисление ментором, чужим ментором (403), проверка ролей после
     - [ ] Обновить: `tests/bot/integration/stream/monitor.integration.test.ts` — кнопка «Отчислить» в карточке студента
     - [ ] Обновить: `tests/bot/e2e/stream/user-flows.e2e.test.ts` — сценарий отчисления
