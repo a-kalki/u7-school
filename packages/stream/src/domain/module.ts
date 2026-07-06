@@ -13,6 +13,7 @@ import type { CompleteStepCmdMeta } from './student/commands/complete-step-cmd';
 import type { EnrollStudentCmdMeta } from './student/commands/enroll-student-cmd';
 import type { GetStudentByUserCmdMeta } from './student/commands/get-student-by-user-cmd';
 import type { GetStudentProgressCmdMeta } from './student/commands/get-student-progress-cmd';
+import type { ExpelStudentCmdMeta } from './student/commands/expel-student-cmd';
 import type { StudentRepo } from './student/repo';
 
 export interface StreamApiModuleResolver extends ModuleResolver {
@@ -36,5 +37,6 @@ export interface StreamApiModuleMeta {
     | CompleteStepCmdMeta
     | EnrollStudentCmdMeta
     | GetStudentByUserCmdMeta
-    | GetStudentProgressCmdMeta;
+    | GetStudentProgressCmdMeta
+    | ExpelStudentCmdMeta;
 }

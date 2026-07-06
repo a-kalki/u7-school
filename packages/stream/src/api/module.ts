@@ -13,7 +13,7 @@ import { ListStreamsUc } from './stream/list-streams-uc';
 import { CompleteStepUc } from './student/complete-step-uc';
 import { EnrollStudentUc } from './student/enroll-student-uc';
 import { GetStudentByUserUc } from './student/get-student-by-user-uc';
-import { GetStudentProgressUc } from './student/get-student-progress-uc';
+import { ExpelStudentUc } from './student/expel-student-uc';
 
 export class StreamApiModule extends ApiModule<
   StreamApiModuleMeta,
@@ -32,6 +32,7 @@ export class StreamApiModule extends ApiModule<
     new GetStudentByUserUc(),
     new CompleteStepUc(),
     new GetStudentProgressUc(),
+    new ExpelStudentUc(),
   ];
 
   constructor(resolve: StreamApiModuleResolver) {
