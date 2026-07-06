@@ -1,0 +1,13 @@
+Задача: API — enroll-student-uc проверяет enrollmentKey
+
+Реализовано: если у потока задан enrollmentKey, сверять с переданным в команде.
+Не совпадает → throwAccessDenied.
+
+Тесты:
+- зачисление с верным enrollmentKey — успех
+- зачисление с неверным enrollmentKey — ошибка
+- зачисление без enrollmentKey, когда у потока есть ключ — ошибка
+
+Файлы:
+- packages/stream/src/api/student/enroll-student-uc.ts
+- packages/stream/src/api/student/enroll-student-uc.test.ts
