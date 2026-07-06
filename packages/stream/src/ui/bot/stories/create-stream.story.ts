@@ -25,6 +25,7 @@ interface CreateStreamWizardContext {
   rules: string;
   targetAudience: string;
   additional: string;
+  enrollmentKey: string;
   // Кэш значений из модуля (для подсказок «По умолчанию»)
   moduleGoal: string;
   moduleResult: string;
@@ -88,7 +89,8 @@ const OPTIONAL_FIELDS: OptionalFieldConfig[] = [
  * Шаг 7: целевая аудитория (targetAudience)
  * Шаг 8: дополнительно (additional)
  * Шаг 9: ссылка на Telegram-группу (необязательно)
- * Шаг 10: превью и подтверждение
+ * Шаг 10: кодовое слово (необязательно)
+ * Шаг 11: превью и подтверждение
  */
 export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'create-stream';
@@ -111,6 +113,11 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Подтверждение создания на шаге превью
     if (action === 'confirm') {
       return this.#handleConfirm(actor, session);
+    }
+
+    // Пропуск кодового слова
+    if (action === 'skip-key') {
+      return this.#handleSkipEnrollmentKey(session);
     }
 
     // Пропуск необязательного поля (группа)
@@ -177,6 +184,8 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       case 9:
         return this.#handleGroupInput(context, update.text, actor);
       case 10:
+        return this.#handleEnrollmentKeyInput(context, update.text);
+      case 11:
         return {
           sendMessage: {
             text: '👆 Используйте кнопки выше для подтверждения или изменения.',
@@ -643,13 +652,13 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     text: string,
     _actor: User,
   ): Promise<BotResponse> {
-    const fullCtx: CreateStreamWizardContext = {
+    const nextCtx: CreateStreamWizardContext = {
       ...ctx,
       step: 10,
       telegramGroupId: text,
     };
 
-    return this.#showPreview(fullCtx);
+    return this.#showEnrollmentKeyStep(nextCtx);
   }
 
   #handleSkipGroup(session: SessionData): BotResponse {
@@ -659,14 +668,57 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (!ctx) {
       return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
     }
-    const fullCtx: CreateStreamWizardContext = {
+    const nextCtx: CreateStreamWizardContext = {
       ...ctx,
       step: 10,
       telegramGroupId: '',
     };
+    return this.#showEnrollmentKeyStep(nextCtx);
+  }
+
+  // ── Кодовое слово ──
+
+  #showEnrollmentKeyStep(ctx: CreateStreamWizardContext): BotResponse {
     return {
-      ...this.#showPreview(fullCtx),
+      sendMessage: {
+        // biome-ignore lint/suspicious/noUselessEscapeInString: экранирование для MarkdownV2
+        text: '🔑 Введите кодовое слово для записи на поток \(необязательно\):\\.\nСтуденты должны будут ввести его при записи\\.',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-key') }]],
+          isMultiple: false,
+        },
+      },
+      captureInput: {
+        path: WIZARD_PATH,
+        context: ctx,
+      },
     };
+  }
+
+  #handleEnrollmentKeyInput(
+    ctx: CreateStreamWizardContext,
+    text: string,
+  ): BotResponse {
+    return this.#showPreview({
+      ...ctx,
+      step: 11,
+      enrollmentKey: text,
+    });
+  }
+
+  #handleSkipEnrollmentKey(session: SessionData): BotResponse {
+    const ctx = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) {
+      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
+    }
+    return this.#showPreview({
+      ...ctx,
+      step: 11,
+      enrollmentKey: '',
+    });
   }
 
   // ── Шаг превью ──
@@ -689,6 +741,9 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       lines.push(`*Аудитория:* ${this.escapeMarkdown(ctx.targetAudience)}`);
     if (ctx.additional)
       lines.push(`*Дополнительно:* ${this.escapeMarkdown(ctx.additional)}`);
+
+    if (ctx.enrollmentKey)
+      lines.push(`*Кодовое слово:* ${this.escapeMarkdown(ctx.enrollmentKey)}`);
 
     lines.push('', 'Всё верно?');
 
@@ -743,6 +798,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (context.rules) cmd.rules = context.rules;
     if (context.targetAudience) cmd.targetAudience = context.targetAudience;
     if (context.additional) cmd.additional = context.additional;
+    if (context.enrollmentKey) cmd.enrollmentKey = context.enrollmentKey;
 
     try {
       await this.moduleApi.execute('create-stream', cmd, actor.uuid);
@@ -774,6 +830,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       rules: '',
       targetAudience: '',
       additional: '',
+      enrollmentKey: '',
       moduleGoal: '',
       moduleResult: '',
       moduleRules: '',

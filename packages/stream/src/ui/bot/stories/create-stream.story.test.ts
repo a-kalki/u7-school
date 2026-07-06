@@ -40,6 +40,7 @@ describe('CreateStreamStory', () => {
       rules: '',
       targetAudience: '',
       additional: '',
+      enrollmentKey: '',
       moduleGoal: '',
       moduleResult: '',
       moduleRules: '',
@@ -375,7 +376,7 @@ describe('CreateStreamStory', () => {
       activeHandler: {
         path: WIZARD_PATH,
         context: makeCtx({
-          step: 10,
+          step: 11,
           moduleId: 'mod-1',
           title: 'Мой поток',
           description: 'Описание',
@@ -432,7 +433,7 @@ describe('CreateStreamStory', () => {
       activeHandler: {
         path: WIZARD_PATH,
         context: makeCtx({
-          step: 10,
+          step: 11,
           moduleId: 'mod-1',
           title: '',
           description: 'Описание',
@@ -543,11 +544,94 @@ describe('CreateStreamStory', () => {
     const story = new CreateStreamStory();
     story.init(moduleApi, emptyAppApi);
 
-    const ctx = makeCtx({ step: 10 });
+    const ctx = makeCtx({ step: 11, enrollmentKey: '' });
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
     const response = await story.handleCallback('confirm', mentor, session);
 
     // confirm: keepPrevKeyboard не установлен — клавиатура удалится по умолчанию
     expect(response.keepPrevKeyboard).toBeUndefined();
+  });
+
+  // ── Шаг 10: enrollmentKey ──
+
+  test('handleMessage: шаг 10 — ввод кодового слова переходит к превью', async () => {
+    const story = new CreateStreamStory();
+
+    const response = await story.handleMessage(
+      { type: 'message', text: 'секрет', telegramId: 123 },
+      mentor,
+      {
+        activeHandler: {
+          path: WIZARD_PATH,
+          context: makeCtx({
+            step: 10,
+            moduleId: 'mod-1',
+            title: 'Поток',
+            description: 'Описание',
+            startDate: '2026-07-01',
+          }),
+        },
+      },
+    );
+
+    const newCtx = response.captureInput?.context as Record<string, unknown>;
+    expect(newCtx?.enrollmentKey).toBe('секрет');
+    expect(newCtx?.step).toBe(11);
+    expect(response.sendMessage?.text).toContain('Превью');
+  });
+
+  test('handleCallback("skip-key"): пропуск кодового слова переходит к превью', async () => {
+    const story = new CreateStreamStory();
+
+    const response = await story.handleCallback('skip-key', mentor, {
+      activeHandler: {
+        path: WIZARD_PATH,
+        context: makeCtx({
+          step: 10,
+          moduleId: 'mod-1',
+          title: 'Поток',
+          description: 'Описание',
+          startDate: '2026-07-01',
+        }),
+      },
+    });
+
+    const newCtx = response.captureInput?.context as Record<string, unknown>;
+    expect(newCtx?.enrollmentKey).toBe('');
+    expect(newCtx?.step).toBe(11);
+    expect(response.sendMessage?.text).toContain('Превью');
+  });
+
+  test('enrollmentKey передаётся в create-stream при подтверждении', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'create-stream')
+          return { uuid: 'new-stream', title: 'Мой поток' };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new CreateStreamStory();
+    story.init(moduleApi, emptyAppApi);
+
+    await story.handleCallback('confirm', mentor, {
+      activeHandler: {
+        path: WIZARD_PATH,
+        context: makeCtx({
+          step: 11,
+          moduleId: 'mod-1',
+          title: 'Мой поток',
+          description: 'Описание',
+          startDate: '2026-07-01',
+          enrollmentKey: 'секретное-слово',
+        }),
+      },
+    });
+
+    expect(moduleApi.execute).toHaveBeenCalledWith(
+      'create-stream',
+      expect.objectContaining({ enrollmentKey: 'секретное-слово' }),
+      'mentor-1',
+    );
   });
 });
