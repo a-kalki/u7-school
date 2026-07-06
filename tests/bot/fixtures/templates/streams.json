@@ -94,9 +94,7 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": [
-              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
-            ]
+            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
           }
         ]
       }
@@ -122,9 +120,7 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": [
-              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
-            ]
+            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
           }
         ]
       }

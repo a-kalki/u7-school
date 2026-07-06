@@ -65,8 +65,8 @@ describe('EnrollmentKey e2e', () => {
     );
     assertBotResponseValid(r2);
     const allTexts = [
-      r2.sendMessage?.text ?? '',
-      ...(r2.sendMessages ?? []).map((m) => m.text),
+      r2!.sendMessage?.text ?? '',
+      ...(r2!.sendMessages ?? []).map((m) => m.text),
     ].join(' ');
     expect(allTexts).toContain('успешно записаны');
   });
@@ -87,8 +87,8 @@ describe('EnrollmentKey e2e', () => {
       session,
     );
     assertBotResponseValid(r2);
-    expect(r2.sendMessage?.text).toContain('Неверное');
-    expect(r2.sendMessage?.text).toContain('2');
+    expect(r2!.sendMessage?.text).toContain('Неверное');
+    expect(r2!.sendMessage?.text).toContain('2');
   });
 
   test('3 неверных попытки — возврат к карточке', async () => {
@@ -122,8 +122,8 @@ describe('EnrollmentKey e2e', () => {
     assertBotResponseValid(r2);
     expect(session.activeHandler).toBeNull();
     const allTexts = [
-      r2.sendMessage?.text ?? '',
-      ...(r2.sendMessages ?? []).map((m) => m.text),
+      r2!.sendMessage?.text ?? '',
+      ...(r2!.sendMessages ?? []).map((m) => m.text),
     ].join(' ');
     expect(allTexts).toContain('исчерпаны');
   });

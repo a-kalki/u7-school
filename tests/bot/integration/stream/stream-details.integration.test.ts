@@ -35,8 +35,7 @@ describe('StreamDetails e2e', () => {
     );
     assertBotResponseValid(r);
 
-    const btns =
-      r.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns = r.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Детали'))).toBe(true);
   });
 
@@ -48,8 +47,7 @@ describe('StreamDetails e2e', () => {
     );
     assertBotResponseValid(r);
 
-    const btns =
-      r.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns = r.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Детали'))).toBe(true);
   });
 
@@ -76,8 +74,7 @@ describe('StreamDetails e2e', () => {
     );
     assertBotResponseValid(r);
 
-    const btns =
-      r.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btns = r.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Назад к потоку'))).toBe(true);
   });
 });
