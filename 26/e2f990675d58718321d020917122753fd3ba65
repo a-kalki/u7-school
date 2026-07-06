@@ -1,0 +1,15 @@
+Задача: Domain — поле enrollmentKey в StreamSchema и CreateStreamCmd
+
+Изменения:
+- StreamSchema: добавлено опциональное поле enrollmentKey?: string
+- CreateStreamCmdSchema: проброшено из StreamSchema.entries.enrollmentKey
+- EnrollStudentCmdSchema: добавлено поле enrollmentKey
+- StreamAr.create(): проброс enrollmentKey из команды
+- StreamSchema entity test: 2 новых теста (принимает ключ, поле необязательно)
+
+Файлы:
+- packages/stream/src/domain/stream/entity.ts
+- packages/stream/src/domain/stream/commands/create-stream-cmd.ts
+- packages/stream/src/domain/student/commands/enroll-student-cmd.ts
+- packages/stream/src/domain/stream/a-root.ts
+- packages/stream/src/domain/stream/entity.test.ts
