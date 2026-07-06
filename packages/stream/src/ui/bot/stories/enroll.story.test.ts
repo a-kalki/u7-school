@@ -91,7 +91,7 @@ describe('EnrollStory', () => {
       actor,
       {
         activeHandler: {
-          path: 'enroll:enroll-key',
+          path: 'enroll/enroll-key',
           context: { streamId: 's1', enrollmentKey: 'secret', attempts: 0 },
         },
       },
@@ -122,7 +122,7 @@ describe('EnrollStory', () => {
       actor,
       {
         activeHandler: {
-          path: 'enroll:enroll-key',
+          path: 'enroll/enroll-key',
           context: { streamId: 's1', enrollmentKey: 'secret', attempts: 0 },
         },
       },
@@ -148,7 +148,7 @@ describe('EnrollStory', () => {
       actor,
       {
         activeHandler: {
-          path: 'enroll:enroll-key',
+          path: 'enroll/enroll-key',
           context: { streamId: 's1', enrollmentKey: 'secret', attempts: 2 },
         },
       },
@@ -156,7 +156,6 @@ describe('EnrollStory', () => {
 
     expect(response.sendMessage?.text).toContain('исчерпаны');
     expect(response.releaseInput).toBe(true);
-    expect(response.delegate?.path).toContain('view-stream:view');
   });
 
   test('кнопка «Отмена» → возврат к карточке потока', async () => {
@@ -172,7 +171,7 @@ describe('EnrollStory', () => {
 
     const response = await story.handleCallback('cancel:s1', actor, {
       activeHandler: {
-        path: 'enroll:enroll-key',
+        path: 'enroll/enroll-key',
         context: { streamId: 's1', enrollmentKey: 'secret', attempts: 1 },
       },
     });

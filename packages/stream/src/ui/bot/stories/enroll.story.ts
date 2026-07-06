@@ -58,7 +58,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
           },
         },
         captureInput: {
-          path: 'enroll:enroll-key',
+          path: 'enroll/enroll-key',
           context: {
             streamId,
             enrollmentKey: stream.enrollmentKey,
@@ -94,9 +94,19 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
         return {
           releaseInput: true,
           sendMessage: {
-            text: '❌ Попытки исчерпаны.',
+            text: `❌ Попытки исчерпаны.\nВозврат к потоку — нажмите кнопку ниже.`,
+            keyboard: {
+              rows: [
+                [
+                  {
+                    text: '⬅️ Назад к потоку',
+                    code: `view-stream:view:${ctx.streamId}`,
+                  },
+                ],
+              ],
+              isMultiple: false,
+            },
           },
-          delegate: { path: `view-stream:view:${ctx.streamId}` },
         };
       }
 
@@ -116,7 +126,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
           },
         },
         captureInput: {
-          path: 'enroll:enroll-key',
+          path: 'enroll/enroll-key',
           context: {
             ...ctx,
             attempts: ctx.attempts + 1,
