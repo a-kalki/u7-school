@@ -1,8 +1,6 @@
 # BotUserStory — Styleguide
 
-**Назначение:** пользовательский сценарий внутри контроллера бота. Инкапсулирует логику одного сценария (каталог, карточка потока, запись и т.д.).
-
-Файл в проекте: `ui/bot/stories/<story-name>.story.ts`.
+**Назначение:** пользовательский сценарий внутри контроллера бота. Инкапсулирует логику одного сценария (каталог, карточка потока, запись и т.д.). Файл: `ui/bot/stories/<story-name>.story.ts`.
 
 ---
 
@@ -11,457 +9,87 @@
 | Класс | Пакет | Назначение |
 |---|---|---|
 | `BotUserStory<TAppMeta, TModuleMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий |
-| `U7BotUserStory<TModuleMeta>` | `@u7-scl/app/ui` | Специализация для U7-бота: закрывает `TAppMeta = U7BotAppMeta`, `TActor = User` |
+| `U7BotUserStory<TModuleMeta>` | `@u7-scl/app/ui` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User` |
+
+Контроллер, в котором живёт стори — см. [bot-controller.md](./bot-controller.md).
 
 ---
 
-## 2. Парсинг callback data
+## 2. Ключевые правила
 
-Используй **деструктуризацию** `split(':')` вместо доступа по индексу `parts[0]`, `parts[1]!`.
-Это делает код читаемым и убирает необходимость `!` (non-null assertion):
+1. **Парсинг callback — деструктуризацией** `split(':')`, не по индексу `parts[1]!`:
+   ```typescript
+   const [cmd, streamId] = action.split(':');
+   const [, studentId, streamId, stepId] = action.split(':'); // пропустить префикс
+   ```
+2. **`this.moduleApi`** — команды своего модуля; **`this.appApi`** — команды других модулей (фасады).
+3. **Запрещено `as unknown as`** для результатов `execute()` и **`as any`** в моках — строгая типизация. Если TS ругается — проблема в типах команд/меты.
+4. **Не дублируй UC** в своём модуле для фасадов других модулей — вызывай через `this.appApi.execute(...)`.
+5. **Актор всегда `User`** из `@u7-scl/app/domain` — не `unknown`, не локальные интерфейсы.
+6. **Права — через Policy-объекты** (`UserPolicy.isStudent(...)`, `StreamPolicy.canEnroll(...)`), не ручные проверки `actor.roles.includes(...)`.
 
-```typescript
-// ✅ Правильно — деструктуризация с осмысленными именами
-const [cmd, streamId] = action.split(':');
-if (cmd !== 'enroll' || !streamId) {
-  return { sendMessage: { text: '⚠️ Неизвестная команда' } };
-}
-
-// Для callback с тремя и более частями — пропускай префикс через запятую:
-const [, studentId, streamId, stepId] = action.split(':');
-
-// ❌ Неправильно
-const parts = action.split(':');
-const streamId = parts[1]!;
-```
+Живые примеры: `packages/stream/src/ui/bot/stories/catalog.story.ts`, `view-stream.story.ts`, `enroll.story.ts`.
 
 ---
 
-## 3. Доступ к API
+## 3. Обработка исключений
 
-### 3.1 `this.moduleApi` — API своего модуля
-Для вызовов команд **своего** модуля (строгая типизация через `TModuleMeta`):
+`try/catch` нужен **только** при специфичной реакции на ошибку: показать поля валидации, вернуть fallback, компенсирующее действие. Если стори просто вызывает `moduleApi.execute()` без реакции — `try/catch` НЕ нужен, ошибка пробросится в контроллер → `handleError` (см. [bot-controller.md](./bot-controller.md), §6).
 
-```typescript
-// ✅ Правильно — тип выводится автоматически
-const stream = await this.moduleApi.execute('get-stream', { streamId });
-const students = await this.moduleApi.execute('list-stream-students', { streamId });
-```
-
-### 3.2 `this.appApi` — API приложения (межмодульные вызовы)
-Для вызовов команд **других** модулей:
-
-```typescript
-// ✅ Правильно — получение пользователя через модуль user
-const mentor = await this.appApi.execute('get-user', { uuid: stream.mentorId });
-```
-
-### 3.3 Категорически запрещено
-- **НЕ используй `as unknown as`** для результатов `execute()`. Вызовы строго типизированы. Если TypeScript ругается — проблема в типах команд/меты, а не в сторис.
-- **НЕ создавай локальные интерфейсы** для Actor (`{ uuid, roles }`). Используй `User` из `@u7-scl/app/domain`.
-- **НЕ дублируй use-case'ы** в своём модуле для вызова фасадов других модулей. Используй `this.appApi.execute()`.
-
-```typescript
-// ❌ Неправильно — as unknown as
-const streams = await this.moduleApi.execute('list-streams', {}) as unknown as StreamItem[];
-
-// ❌ Неправильно — локальный интерфейс вместо User
-interface Actor { uuid: string; roles: string[]; }
-const a = actor as Actor;
-
-// ❌ Неправильно — дублирование UC для вызова соседнего модуля
-// (создавать GetUserUc в stream для вызова UserFacade)
-// ✅ Вместо этого: this.appApi.execute('get-user', { uuid: ... })
-```
+Внутри catch можно вызвать `this.handleError(err)` для логирования + fallback. Логируются `internal`/`unauthorized`/`default`; `validation`/`not-found`/`conflict`/`access-denied`/`bad-request` — нормальный поток, не логируются.
 
 ---
 
-## 4. Тип актора (Actor)
+## 4. Форматирование MarkdownV2
 
-Актор всегда имеет тип `User` из `@u7-scl/app/domain` (реэкспорт из `@u7-scl/user/domain`).
+`BotUserStory` предоставляет protected-методы — **не дублируй** их в стори:
 
-**Всегда** указывай `actor: User` в сигнатурах `handleCallback`, `handleMessage`, `handleStart`.
-Дженерик `U7BotUserStory` уже закрывает `TActor = User` — не нужно использовать `unknown` и каст:
+- `this.escapeMarkdown(text)` — экранирует спецсимволы MarkdownV2.
+- `this.formatDate(iso)` — ISO → `дд.мм.гггг` (при ошибке — исходная строка).
 
-```typescript
-import type { User } from '@u7-scl/app/domain';
-
-// ✅ Правильно — actor типизирован через дженерик
-async handleCallback(action: string, actor: User, session: SessionData): Promise<BotResponse> {
-  const student = await this.moduleApi.execute('get-student-by-user', {
-    userId: actor.uuid,
-  });
-}
-
-// ❌ Неправильно — unknown + ручной каст
-async handleCallback(action: string, actor: unknown, session: SessionData): Promise<BotResponse> {
-  const a = actor as User;
-}
-```
-
-### 4.1 Проверка прав через Policy-объекты
-
-**Всегда** используй Policy-объекты вместо ручной проверки ролей или полей.
-Policy централизует бизнес-правила и гарантирует консистентность.
-
-#### UserPolicy (`@u7-scl/user/domain`)
-
-```typescript
-import { StreamPolicy } from '../../../domain/stream/policy';
-import { UserPolicy } from '@u7-scl/user/domain';
-
-// ✅ Правильно
-if (UserPolicy.isStudent(actor)) { ... }
-if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) { ... }
-
-// ✅ Правильно — использовать готовые методы
-if (StreamPolicy.canEnroll(actor)) { /* показать кнопку «Записаться» */ }
-if (StreamPolicy.isMentor(actor, stream)) { /* менторские кнопки */ }
-
-// ❌ Неправильно — ручная проверка
-if (actor.roles.includes('STUDENT')) { ... }
-if (actor.roles.includes('MENTOR') || actor.roles.includes('ADMIN')) { ... }
-
-// ❌ Неправильно — проверки в обход StreamPolicy.canEnroll()
-if (UserPolicy.isGuest(actor) || UserPolicy.isCandidate(actor)) { ... }
-```
+Правила экранирования и валидации — см. [bot-test.md](../bot-test.md), §4.1. Пакет `markdown-to-telegram` установлен, пока не используется (для больших блоков текста).
 
 ---
 
-## 5. Обработка исключений
+## 5. Wizard Story (пошаговый ввод)
 
-### Когда нужен try/catch
+Конечный автомат на основе `captureInput`. Пример: `packages/stream/src/ui/bot/stories/create-stream.story.ts`.
 
-`try/catch` в story нужен при вызове api **только** когда требуется специфичная реакция на ошибку:
-
-- Показать пользователю сообщение об ошибке валидации с конкретными полями
-- Вернуть fallback-значение (например, «студентов: 0»)
-- Повторить операцию с другими параметрами
-- Выполнить компенсирующее действие (откат, очистка)
-
-### Когда try/catch НЕ нужен
-
-Если story просто вызывает `this.moduleApi.execute()` и не имеет специфичной реакции на ошибку —
-**try/catch не нужен**. Необработанная ошибка пробросится до контроллера, который вызовет `handleError`.
-
-Контроллер (`BotController`) перехватывает все необработанные ошибки из story
-и дополнительно есть глобальный middleware в `main.ts`.
+- Определи интерфейс контекста со всеми собираемыми полями (`step`, обязательные `''`, необязательные `undefined`).
+- Каждый шаг возвращает `captureInput` с обновлённым контекстом (`step: N+1`).
+- Поля со значениями по умолчанию: подсказка «По умолчанию: ...» + кнопки «Принять»/«Пропустить».
+- **Выделяй переиспользуемые методы клавиатуры** в private-методы, если клавиатура показывается из нескольких мест.
+- Финальный шаг (`#handleConfirm`) оборачивай в `try/catch`: при ошибке валидации покажи детали, освободи `captureInput` (`releaseInput: true`), предложи начать заново.
 
 ---
 
 ## 6. Тестирование
 
-### 6.1 Актор
+См. [bot-test.md](../bot-test.md) — уровни и правила. Специфика unit-тестов сторис:
 
-В тестах используй полный объект `User` для актора. Роли — только через enum `Role`, не строковые литералы:
+- **Актор:** полный объект `User`, роли через enum `Role` из `@u7-scl/user/domain`.
+- **Моки API:** `as unknown as <реальный тип>` (`StreamApiModule`, `U7BotApp`). Никаких `as any` и общих `test-helpers.ts` — каждый тест самодостаточен.
+- **Локальный хелпер** внутри `describe` для одинаковых моков — допустим и поощряется.
+- **Без вызовов API** (например, `handleStart`) — `init()` не нужен.
+- **MarkdownV2:** `assertResponseMarkdownSafe(response)` после каждого `handle*`.
 
-```typescript
-import type { User } from '@u7-scl/app/domain';
-import { Role } from '@u7-scl/user/domain';
-
-const guestActor: User = {
-  uuid: 'user-1',
-  name: 'Гость',
-  telegramId: 123,
-  roles: [Role.GUEST],
-  createdAt: '2026-01-01T00:00',
-};
-```
-
-### 6.2 Моки API: `as unknown as <тип>`
-
-**Категорически запрещено** использовать `as any` для моков API. Каждый мок
-приводится явно через `as unknown as <реальный API-тип>`.
-
-Для `moduleApi` — тип `StreamApiModule` (импорт из `packages/stream/src/api`).
-Для `appApi` — тип `U7BotApp` (импорт из `@u7-scl/app/domain`).
-
-**НЕ создавай общих хелперов** (типа `test-helpers.ts`) для создания сторис.
-Каждый тест или группа тестов явно создаёт моки, сторис и вызывает `init()`.
-Это делает тесты самодостаточными — видно всё в одном месте, не нужно прыгать
-по файлам чтобы понять что передаётся в `init()`.
-
-```typescript
-// ✅ Правильно — явное приведение к реальному типу
-import type { U7BotApp } from '@u7-scl/app/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
-
-const moduleApi = {
-  execute: mock((name: string) => {
-    if (name === 'get-stream') return sampleStream;
-    return undefined;
-  }),
-} as unknown as StreamApiModule;
-
-const appApi = {
-  execute: mock((name: string) => {
-    if (name === 'get-user') return { uuid: 'm1', name: 'Ментор', roles: [Role.MENTOR] };
-    return undefined;
-  }),
-} as unknown as U7BotApp;
-
-const story = new ViewStreamStory();
-story.init(moduleApi, appApi);
-
-// ❌ Неправильно — as any скрывает тип
-story.init(moduleApi as any, appApi as any);
-```
-
-### 6.3 Группировка через локальный хелпер
-
-Если несколько тестов используют одинаковые моки — вынеси создание в локальную
-функцию внутри `describe`. Это допустимо и поощряется:
-
-```typescript
-describe('ViewStreamStory', () => {
-  const makeViewStory = (
-    stream: Record<string, unknown>,
-    studentCount: number,
-  ) => {
-    const moduleApi = {
-      execute: mock((name: string) => {
-        if (name === 'get-stream') return stream;
-        if (name === 'list-stream-students')
-          return Array.from({ length: studentCount }, (_, i) => ({
-            uuid: `student-${i}`,
-          }));
-        return undefined;
-      }),
-    } as unknown as StreamApiModule;
-    const appApi = {
-      execute: mock((name: string) => {
-        if (name === 'get-user')
-          return { uuid: 'm1', name: 'Ментор', roles: [Role.MENTOR] };
-        return undefined;
-      }),
-    } as unknown as U7BotApp;
-    const story = new ViewStreamStory();
-    story.init(moduleApi, appApi);
-    return { story, moduleApi, appApi };
-  };
-
-  test('пример', async () => {
-    const { story } = makeViewStory(sampleStream, 5);
-    // ...
-  });
-});
-```
-
-### 6.4 Тесты без вызовов API
-
-Если тест не делает вызовов `moduleApi` или `appApi` (например, `handleStart`),
-`init()` **не нужен** — просто создай экземпляр сторис напрямую:
-
-```typescript
-// ✅ Правильно — нет вызовов API, init не нужен
-const story = new CatalogStory();
-const item = await story.handleStart(actor);
-```
+Живой пример теста: `packages/stream/src/ui/bot/stories/view-stream.story.test.ts`.
 
 ---
 
-## 7. Структура файла сторис
+## 7. Структура файла
 
 ```
 ui/bot/stories/
-  <story-name>.story.ts        — реализация сценария
+  <story-name>.story.ts        — реализация
   <story-name>.story.test.ts   — тесты
 ```
 
 ---
 
-## 8. Форматирование текста (MarkdownV2)
+## Связанные styleguide-файлы
 
-### 8.1 Унаследованные protected-методы
-
-`BotUserStory` предоставляет protected-методы, доступные во всех сторис.
-**НЕ дублируй** их — используй унаследованные.
-
-#### `this.escapeMarkdown(text)`
-Экранирует спецсимволы MarkdownV2: `_ * [ ] ( ) ~ \` > # + - = | { } . !`
-
-```typescript
-lines.push(`📋 ${this.escapeMarkdown(stream.title)}`);
-```
-
-#### `this.formatDate(iso)`
-Форматирует ISO-дату в `дд.мм.гггг`. При ошибке возвращает исходную строку.
-
-```typescript
-const dateStr = this.formatDate(stream.startDate); // '01.07.2026'
-```
-
-```typescript
-// ❌ Неправильно — дублирование в каждой сторис
-#formatDate(iso: string): string { ... }
-private escapeMarkdown(text: string): string { ... }
-```
-
-### 8.2 Пакет `markdown-to-telegram`
-
-В проекте установлен пакет [`markdown-to-telegram`](https://www.npmjs.com/package/markdown-to-telegram) (v0.0.7) —
-конвертирует стандартный Markdown в Telegram MarkdownV2.
-
-**Пока не используется** в проекте. При необходимости форматирования больших блоков текста
-(например, контента уроков) — используй `convert()` из этого пакета вместо ручной вставки `*жирный*`, `_курсив_`.
-
----
-
-## 10. Wizard Story (пошаговый ввод данных)
-
-Когда сценарий требует последовательного ввода нескольких полей от пользователя,
-используется паттерн «wizard» — конечный автомат на основе `captureInput`.
-
-### 10.1 Выделяй переиспользуемые методы клавиатуры
-
-Если одна и та же клавиатура показывается из нескольких мест (например, и при «Моя учёба»,
-и после «Выполнено»), выдели её в отдельный private-метод:
-
-```typescript
-// ✅ Правильно — метод переиспользуется в #handleMyStudy и #handleComplete
-#buildStepKeyboard(student: Student, stream: Stream, stepId: string): BotResponse {
-  return {
-    sendMessage: {
-      text: `📖 *Моя учёба* — _${this.escapeMarkdown(stream.title)}_`,
-      parseMode: 'MarkdownV2',
-      keyboard: {
-        rows: [
-          [{ text: '✅ Выполнено', code: this.cb('complete', student.uuid, stream.uuid, stepId) }],
-          [{ text: '📊 Мой прогресс', code: this.cbFor('progress', 'progress', stream.uuid) }],
-        ],
-        isMultiple: false,
-      },
-    },
-  };
-}
-```
-
-### 10.2 Контекст wizard
-
-Определи интерфейс контекста со **всеми** полями, которые собирает wizard:
-
-```typescript
-interface CreateStreamWizardContext {
-  step: number;        // текущий шаг (0, 1, 2, ...)
-  field1: string;      // обязательные поля — начальные значения ''
-  field2: string;
-  optionalField?: string; // необязательные поля — начальные undefined или ''
-}
-```
-
-### 10.3 Переход между шагами
-
-Каждый шаг wizard возвращает `captureInput` с обновлённым контекстом:
-- **Шаг N** получает текст через `handleMessage` → формирует `nextCtx` с `step: N+1`
-- **Кнопки** внутри шага получают действие через `handleCallback` → также формируют `nextCtx`
-
-```typescript
-#handleTitleInput(ctx: WizardContext, text: string): BotResponse {
-  return {
-    sendMessage: { text: 'Следующий вопрос' },
-    captureInput: {
-      path: WIZARD_PATH,
-      context: { ...ctx, step: 2, title: text },
-    },
-  };
-}
-```
-
-### 10.4 Поля со значениями по умолчанию
-
-Если поле может быть предзаполнено из другого источника (например, из модуля курса):
-
-1. Покажи подсказку «По умолчанию: ...» в тексте сообщения
-2. Добавь кнопку **«Принять»** — подставляет значение по умолчанию
-3. Добавь кнопку **«Пропустить»** — оставляет поле пустым
-4. Пользователь может ввести своё значение текстом
-
-Если значения по умолчанию нет — только поле ввода + «Пропустить».
-
-```typescript
-// В handleMessage для шага необязательного поля:
-const moduleValue = ctx.moduleField || '';
-const lines = [`📝 *Название поля*`];
-const buttons: { text: string; code: string }[] = [];
-
-if (moduleValue) {
-  lines.push(`_По умолчанию: «${this.escapeMarkdown(moduleValue)}»_`);
-  buttons.push({ text: '✅ Принять', code: this.cb('accept-field') });
-}
-buttons.push({ text: '⏭️ Пропустить', code: this.cb('skip-field') });
-```
-
-### 10.5 Обработка ошибок создания
-
-В финальном шаге (`#handleConfirm`) оборачивай вызов `create-*` в `try/catch`.
-При ошибке валидации:
-- Покажи сообщение с деталями (поле + причина)
-- Освободи `captureInput` через `releaseInput: true`
-- Предложи начать заново
-
-```typescript
-try {
-  await this.moduleApi.execute('create-stream', cmd, actor.uuid);
-} catch (err: unknown) {
-  const error = err as Error & { details?: Array<{ field: string; message: string }> };
-  let messageText = '⚠️ *Ошибка валидации*';
-  if (error.details?.length) {
-    messageText += '\n\n' + error.details.map(d => `• ${d.field}: ${d.message}`).join('\n');
-  }
-  messageText += '\n\nПожалуйста, начните заново.';
-  return { releaseInput: true, sendMessage: { text: messageText, parseMode: 'MarkdownV2' } };
-}
-```
-
-## 9. Связанные styleguide-файлы
-
-- [DDD API](../api.md) — UseCase, Command, Module
-- [DDD Naming](../naming.md) — соглашения об именовании
-- [DDD принципы](../ddd.md) — общая архитектура DDD
-
----
-
-## 10. Обработка ошибок
-
-### Когда нужен try/catch
-
-`try/catch` в story нужен **только** когда требуется специфичная реакция на ошибку:
-- Показать пользователю сообщение об ошибке валидации с конкретными полями
-- Вернуть fallback-значение (например, «студентов: 0» при недоступном списке)
-- Выполнить компенсирующее действие (откат, очистка)
-
-### Когда try/catch НЕ нужен
-
-Если story просто вызывает `this.moduleApi.execute()` без специфичной реакции —
-**try/catch не нужен**. Необработанная ошибка пробросится до контроллера, который вызовет `handleError`.
-
-### Как использовать handleError
-
-Метод `handleError(err)` определён в `BotUserStory` и доступен всем story. Его можно вызывать внутри catch для логирования ошибки с сохранением fallback:
-
-```typescript
-try {
-  const user = await this.appApi.execute('get-user', { uuid: userId });
-  name = user.name;
-} catch (err) {
-  this.handleError(err); // логирует если internal/unauthorized, иначе молча
-  // fallback: оставляем имя по умолчанию
-}
-```
-
-### Что делает handleError
-
-| Тип ошибки | Действие |
-|---|---|
-| `validation` | Показывает поля с ошибками пользователю |
-| `not-found`, `conflict`, `access-denied`, `bad-request` | Показывает сообщение ошибки |
-| `internal`, `unauthorized`, `default` | Логирует через `logger.error` + общее сообщение |
-
-### Правила логирования
-
-- **Логируются:** `internal`, `unauthorized`, `default` (неизвестный тип)
-- **НЕ логируются:** `validation`, `not-found`, `conflict`, `access-denied`, `bad-request` (нормальный поток)
-
-### Доступ к логгеру
-
-Логгер доступен через `this.logger` в любом story-классе (берётся из `getGlobalLogger()`).
+- [BotController](./bot-controller.md) — реестр сторис, сжатие id, handleError
+- [Ошибки](./errors.md) — AppError, хелперы
+- [Тестирование бота](../bot-test.md)
+- [DDD API](../api.md) — UseCase, Module

@@ -1,413 +1,116 @@
 # Тестирование Telegram-бота (bot-test) — Styleguide
 
-**Назначение:** правила и структура тестирования UI-слоя Telegram-бота на всех трёх уровнях: unit, интеграционном и сквозном (E2E).
+**Назначение:** правила тестирования UI-слоя Telegram-бота на трёх уровнях: unit, интеграционном, E2E.
 
 ---
 
 ## 1. Уровни тестирования
 
 | Уровень | Расположение | Что проверяет | Моки |
-|---------|-------------|---------------|:----:|
-| **Unit** | `packages/<module>/src/ui/bot/stories/*.test.ts` | Логика одной стори или контроллера в изоляции | ✅ Мокаются `moduleApi` и `appApi` |
-| **Интеграционный** | `tests/bot/integration/<module>/*.integration.test.ts` | Обработчик стори + реальные JSON-репозитории + межмодульные вызовы | ❌ Без моков |
-| **E2E (сквозной)** | `tests/bot/e2e/<module>/*.e2e.test.ts` | Полные пользовательские цепочки: нажатие кнопки → извлечение `code` → следующее нажатие | ❌ Без моков |
+|---|---|---|:---:|
+| **Unit** | `packages/<module>/src/ui/bot/stories/*.test.ts` | Логика одной стори/контроллера в изоляции | ✅ `moduleApi`, `appApi` |
+| **Интеграционный** | `tests/bot/integration/<module>/*.integration.test.ts` | Стори + роутер + контроллер + реальные JSON-репозитории | ❌ |
+| **E2E** | `tests/bot/e2e/<module>/*.e2e.test.ts` | Полные пользовательские цепочки через `code` кнопок | ❌ |
 
 ---
 
-## 2. Структура директорий
+## 2. Ключевые правила
+
+1. **Unit:** стори вызывается напрямую (`story.handleCallback(...)`), без роутера. Не проверяются `code` кнопок — только текст и наличие кнопок.
+2. **Integration:** вызов через `router.handleCallback('stream:catalog:list', ...)` с полным callback_data. Проверяется семантика ответа, НЕ `code`.
+3. **E2E:** каждый шаг извлекает `code` из кнопки предыдущего ответа и передаёт дальше. Единственный уровень, ловящий ошибки формирования callback_data.
+4. **MarkdownV2-валидация обязательна** на всех уровнях (см. §4).
+5. **Изоляция:** каждый `describe` со своим `TestApp` (отдельные фикстуры), чтобы изменения состояния не влияли на другие сценарии.
+
+---
+
+## 3. Структура и хелперы
 
 ```
 tests/bot/
 ├── helpers/
-│   ├── test-app.ts            # createTestApp() — фабрика ApiApp с временными репозиториями
-│   └── fixture-loader.ts      # loadFixtures() — копирует templates → /tmp, copy-on-write
-├── fixtures/
-│   └── templates/             # НЕИЗМЕНЯЕМЫЕ эталонные JSON-фикстуры (один набор на все тесты)
-│       ├── users.json
-│       ├── streams.json
-│       ├── students.json
-│       └── courses/
-│           ├── modules.json
-│           ├── lessons.json
-│           └── steps.json
-├── integration/
-│   └── <module>/              # По одному каталогу на модуль (stream, ...)
-│       └── <story>.integration.test.ts
-└── e2e/
-    └── <module>/
-        └── user-flows.e2e.test.ts   # Один файл на модуль с цепочками сценариев
+│   ├── test-app.ts          # createTestApp() — ApiApp с временными репозиториями
+│   └── fixture-loader.ts    # loadFixtures() — copy-on-write из templates/
+├── fixtures/templates/      # эталонные JSON-фикстуры (один набор на все тесты)
+├── integration/<module>/
+└── e2e/<module>/user-flows.e2e.test.ts   # один файл на модуль
 ```
 
-**Unit-тесты** лежат рядом с кодом: `packages/<module>/src/ui/bot/stories/<story>.test.ts`.
+Примеры живых тестов: `packages/stream/src/ui/bot/stories/catalog.story.test.ts` (unit), `tests/bot/integration/stream/` (integration), `tests/bot/e2e/stream/` (E2E).
+
+### Формат callback_data
+
+```
+stream:catalog:list                  — CatalogStory
+stream:view-stream:view:<uuid>       — ViewStreamStory
+stream:learning:my-study             — LearningStory
+```
+
+Первая часть — имя контроллера, вторая — имя стори, третья — экшен. Контроллер сжимает UUID (см. [bot-controller.md](./skills/bot-controller.md), §5).
 
 ---
 
-## 3. Unit-тесты (Story / Controller)
+## 4. Валидация BotResponse
 
-**Цель:** проверить логику одной стори или контроллера в полной изоляции от внешних модулей.
-
-### 3.1 Правила
-
-- **Все зависимости мокаются:** `moduleApi.execute` и `appApi.execute` заменяются `mock()` из bun:test.
-- **Стори тестируется через прямой вызов:** `story.handleCallback(action, actor, session)` — без роутера.
-- **Не проверяются `code` кнопок** — только текст ответа и наличие/отсутствие кнопок по тексту.
-- **MarkdownV2-валидация обязательна:** `assertResponseMarkdownSafe(response)`.
-- **Тесты handleStart:** проверяют, что кнопка появляется/не появляется для нужной роли.
-
-### 3.2 Пример
-
-```typescript
-import { describe, expect, mock, test } from 'bun:test';
-import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
-import { CatalogStory } from './catalog.story';
-
-describe('CatalogStory', () => {
-  const session: SessionData = { activeHandler: null };
-  const actor: User = { /* ... */ };
-
-  test('handleCallback("list") показывает список потоков', async () => {
-    const moduleApi = {
-      execute: mock(async () => [
-        { uuid: '...', title: 'Поток Набора', status: 'enrollment' },
-      ]),
-    };
-
-    const story = new CatalogStory();
-    story.init(moduleApi, emptyAppApi);
-
-    const response = await story.handleCallback('list', actor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Потоки школы');
-  });
-});
-```
-
----
-
-## 4. Интеграционные тесты
-
-**Цель:** проверить, что стори, роутер, контроллер, реальные модули и JSON-репозитории работают вместе без ошибок. Каждый обработчик тестируется изолированно — вызывается через `router.handleCallback()` с заранее известным callback_data.
-
-### 4.1 Правила
-
-- **Полный стек без моков:** создаётся реальный `ApiApp` через `createTestApp()`, реальные `JsonRepo`, реальные модули.
-- **Прямой вызов роутера:** `router.handleCallback('stream:catalog:list', actor, session)` — с полным callback_data (префикс контроллера + стори + экшен).
-- **Проверяется семантика ответа:** текст сообщений, наличие/отсутствие кнопок по тексту.
-- **НЕ проверяются `code` кнопок** — это зона E2E-тестов.
-- **Изоляция на уровне `describe`:** перед блоком создаётся отдельный `TestApp` со своим `BotRouter`.
-- **Полная валидация обязательна:** `assertBotResponseValid(response)` — проверяет MarkdownV2 и длину callback_data (≤ 64 байта).
-
-### 4.2 Формат callback_data
-
-При вызове `router.handleCallback()` используется **полный** callback_data:
-
-```
-stream:catalog:list                   — CatalogStory
-stream:view-stream:view:<uuid>        — ViewStreamStory
-stream:enroll:enroll:<uuid>           — EnrollStory
-stream:learning:my-study              — LearningStory
-stream:progress:progress:<uuid>       — ProgressStory
-stream:create-stream:start            — CreateStreamStory
-stream:activate-stream:activate:<uuid> — ActivateStreamStory
-stream:monitor:students:<uuid>        — MonitorStory
-```
-
-Первая часть (`stream:`) — имя контроллера, вторая часть — имя сторис, третья — экшен.
-
-### 4.3 Пример
-
-```typescript
-import { describe, expect, test, beforeAll, afterAll } from 'bun:test';
-import { BotRouter, assertBotResponseValid } from '@u7-scl/core/ui';
-import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
-import { createTestApp } from '../../helpers/test-app';
-
-describe('CatalogStory integration', () => {
-  let app: TestApp;
-  let router: BotRouter;
-  let guest: User;
-
-  beforeAll(async () => {
-    app = await createTestApp('catalog');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
-    guest = (await app.userFacade.getUserByTelegramId(1001))!;
-  });
-
-  afterAll(async () => { await app.cleanup(); });
-
-  test('гость видит витрину — только enrollment и active', async () => {
-    const response = await router.handleCallback(
-      'stream:catalog:list', guest, { activeHandler: null }
-    );
-    assertBotResponseValid(response);
-
-    const btnTexts = response.sendMessage?.keyboard?.rows
-      .flat().map(b => b.text) ?? [];
-    expect(btnTexts.some(t => t.includes('Набор'))).toBe(true);
-    expect(btnTexts.some(t => t.includes('Активный'))).toBe(true);
-    expect(btnTexts.some(t => t.includes('Завершён'))).toBe(false);
-  });
-});
-```
-
----
-
-## 5. E2E-тесты (сквозные)
-
-**Цель:** проверить реальные пользовательские цепочки — каждый следующий шаг использует `code` из кнопки предыдущего ответа. Это единственный уровень, который ловит ошибки в формировании callback_data.
-
-### 5.1 Ключевое отличие от интеграционных
-
-| | Интеграционные | E2E |
+| Функция (`@u7-scl/core/ui`) | Проверяет | Где использовать |
 |---|---|---|
-| Вызов обработчика | `router.handleCallback('stream:catalog:list', ...)` — хардкод | Извлекается `btn.code` из предыдущего ответа |
-| Проверяет правильность `code` в кнопках | ❌ | ✅ (тест упадёт на «Неизвестная команда») |
-| Цепочки действий | Нет, каждый обработчик изолирован | Да, полный пользовательский сценарий |
-
-### 5.2 Правила
-
-- **Цепочки через `code` кнопок:** каждый шаг извлекает кнопку из ответа по тексту и передаёт её `code` в следующий `router.handleCallback()`.
-- **Один файл на модуль:** `user-flows.e2e.test.ts` содержит все сквозные сценарии для модуля.
-- **Каждый сценарий — отдельный `describe`:** у каждой роли свой `TestApp`, чтобы изменения состояния (например, запись на поток) не влияли на другие сценарии.
-- **Проверяется отсутствие ошибок маршрутизации:** `expect(text).not.toContain('Неизвестная команда')` на каждом шаге.
-- **Полная валидация обязательна:** `assertBotResponseValid(response)` на каждом шаге — проверяет MarkdownV2 и длину callback_data (≤ 64 байта).
-
-### 5.3 Хелперы
+| `assertResponseMarkdownSafe` | Только MarkdownV2 | Unit (стори без контроллера) |
+| `assertBotResponseValid` | MarkdownV2 **+** длина `code` ≤ 64 байт | Integration, E2E |
 
 ```typescript
-/** Находит кнопку в клавиатуре ответа по вхождению подстроки в текст */
-function findButton(response: BotResponse, textContains: string): { text: string; code: string } {
-  const btn = response.sendMessage?.keyboard?.rows
-    .flat()
-    .find(b => b.text.includes(textContains));
-  if (!btn) throw new Error(`Кнопка «${textContains}» не найдена`);
-  return btn;
-}
-
-/** Находит пункт главного меню по тексту */
-function findMenuItem(
-  items: { text: string; action: string }[],
-  textContains: string,
-): { text: string; action: string } {
-  const item = items.find(i => i.text.includes(textContains));
-  if (!item) throw new Error(`Пункт меню «${textContains}» не найден`);
-  return item;
-}
-```
-
-### 5.4 Какие сценарии покрывать
-
-**Минимальный набор для модуля:**
-
-| Роль | Цепочка |
-|------|---------|
-| Гость | Главное меню → каталог → карточка потока → программа → назад к потоку → назад к списку |
-| Кандидат | Каталог → карточка → запись на поток → делегирование в «Моя учёба» |
-| Студент | Главное меню → «Моя учёба» → видит текущий шаг и кнопки |
-| Ментор | Главное меню → каталог → карточка → список студентов → детали студента → назад |
-
-Каждая цепочка тестирует **все нажатия кнопок** в рамках одного пользовательского сценария.
-
-### 5.5 Пример
-
-```typescript
-describe('Гость', () => {
-  let app: TestApp;
-  let router: BotRouter;
-  let guest: User;
-
-  beforeAll(async () => {
-    app = await createTestApp('e2e-guest');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
-    guest = (await app.userFacade.getUserByTelegramId(1001))!;
-  });
-
-  test('главное меню → каталог → карточка потока', async () => {
-    // 1. Главное меню
-    const menu = await router.collectMainMenu(guest);
-    const catalogBtn = findMenuItem(menu, 'Наши потоки');
-
-    // 2. Каталог
-    const catalogResp = await router.handleCallback(
-      catalogBtn.action, guest, NO_SESSION
-    );
-
-    // 3. Извлекаем code из кнопки и нажимаем
-    const streamBtn = findButton(catalogResp, 'Набор');
-    const viewResp = await router.handleCallback(
-      streamBtn.code, guest, NO_SESSION   // ← реальный code из кнопки!
-    );
-    assertBotResponseValid(viewResp);
-
-    expect(viewResp.sendMessage?.text).toContain('JS Core');
-    expect(viewResp.sendMessage?.text).not.toContain('Неизвестная команда');
-  });
-});
-```
-
----
-
-## 6. Формирование callback_data в продакшен-коде
-
-Это критически важный аспект, который проверяют E2E-тесты.
-
-### 6.1 Архитектура: Story — реальные данные, Controller — сжатие
-
-```
-Story (реальные данные)              Controller (префикс + сжатие)
-──────────────────────────          ──────────────────────────────
-cb('list') → "catalog:list"   ──→  handleStart добавляет "stream:"
-cbFor('view','view',uuid) →        #compressResponse сжимает id
-  "view-stream:view:realUUID"  ──→  "stream:view-stream:view:shortId"
-        ↑                                   ↓
-  handleCallback получает          #expandData восстанавливает
-  реальный UUID обратно            realUUID из shortId
-```
-
-- **Story не знает** ни имени контроллера, ни механизма сжатия.
-- **Story оперирует только реальными данными** (UUID, ключи).
-- **Controller владеет** общей мапой `shortIds` и добавляет префикс имени.
-
-### 6.2 Методы формирования callback в BotUserStory
-
-```typescript
-// Для СВОЕЙ стори: storyName:action[:id...]
-protected cb(action: string, ...ids: string[]): string
-
-// Для ЧУЖОЙ стори того же контроллера: targetStory:action[:id...]
-protected cbFor(storyName: string, action: string, ...ids: string[]): string
-```
-
-Примеры:
-
-```typescript
-// CatalogStory — кнопка перехода в карточку потока (кросс-стори)
-code: this.cbFor('view-stream', 'view', s.uuid),
-
-// ViewStreamStory — менторская кнопка «Запустить»
-code: this.cbFor('activate-stream', 'activate', stream.uuid),
-
-// LearningStory — кнопка «Выполнено» (своя стори, несколько id)
-code: this.cb('complete', student.uuid, student.streamId, student.currentStepId),
-
-// LearningStory — кнопка «Мой прогресс» (кросс-стори)
-code: this.cbFor('progress', 'progress', student.streamId),
-
-// CatalogStory — кнопка главного меню (своя стори, без id)
-return { text: '📚 Наши потоки', action: this.cb('list'), priority: 10 };
-```
-
-### 6.3 Сжатие id в Controller
-
-Controller автоматически сжимает все id в callback_data перед отправкой:
-- UUID `e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0` → `e0e0e0e0` (первые 8 символов)
-- На входе разжимает обратно — стори получает реальный UUID
-- Мапа `shortIds` общая для всех стори контроллера → кросс-стори колбэки работают
-
-Это гарантирует, что callback_data всегда ≤ 64 байта:
-
-| Кнопка | Без сжатия | Со сжатием |
-|--------|:---:|:---:|
-| 🚀 Запустить | 68 ❌ | 40 ✅ |
-| 🛠️ Панель ментора | 67 ❌ | 39 ✅ |
-| ✅ Завершить | 64 ⚠️ | 40 ✅ |
-
-### 6.4 Главное меню
-
-Кнопки главного меню формируются через `story.handleStart()` → `this.cb('list')`.
-Контроллер в `handleStart()` добавляет префикс: `\`${this.name}:${item.action}\``.
-
-```typescript
-// Story
-async handleStart(actor: User): Promise<MainMenuAction | null> {
-  return { text: '📚 Наши потоки', action: this.cb('list'), priority: 10 };
-}
-// → action = "catalog:list"
-
-// Controller в handleStart():
-items.push({ ...item, action: \`${this.name}:${item.action}\` });
-// → action = "stream:catalog:list"
-```
-
----
-
-## 7. Валидация BotResponse
-
-В тестах используются две функции из `@u7-scl/core/ui`:
-
-| Функция | Проверяет | Где использовать |
-|---------|-----------|-----------------|
-| `assertResponseMarkdownSafe` | Только MarkdownV2 | Unit-тесты (стори без контроллера — callback_data несжатые, длина не проверяется) |
-| `assertBotResponseValid` | MarkdownV2 **+** длина `code` ≤ 64 байт | Integration, E2E (контроллер уже сжал id, проверяется финальный результат) |
-
-```typescript
-import { assertBotResponseValid } from '@u7-scl/core/ui';
-
 const response = await router.handleCallback(...);
 assertBotResponseValid(response);
-// Если callback_data > 64 байт → тест упадёт с понятной ошибкой
 ```
 
-### 7.1 Экранирование MarkdownV2
+### 4.1 Экранирование MarkdownV2
 
-Любое сообщение с `parseMode: 'MarkdownV2'` **обязано** проходить `assertResponseMarkdownSafe()` в тестах.
+Любое сообщение с `parseMode: 'MarkdownV2'` обязано проходить `assertResponseMarkdownSafe()`.
 
 Telegram резервирует: `` _ * [ ] ( ) ~ ` > # + - = | { } . ! ``
 
 | Категория | Символы | Правило |
 |---|---|---|
-| Никогда не форматирующие | `. ! + - = \|` | **Всегда** экранировать: `\.` |
-| Форматирующие | `* _ ~ \`` | Должны быть **парными** (чётное количество) |
+| Никогда не форматирующие | `. ! + - = \|` | **Всегда** экранировать (`\\.`) |
+| Форматирующие | `* _ ~ \`` | Парные (чётное количество) |
 
-- **Статические строки** — ручное экранирование в коде: `'Поток запущен\\! Первые задания\\.'`.
-- **Динамические значения** — `escapeMarkdown` из `@u7-scl/core/shared`. **Нельзя** применять к строке, уже содержащей разметку — только к отдельным значениям в шаблоне.
+- **Статические строки** — ручное экранирование.
+- **Динамические значения** — `escapeMarkdown` из `@u7-scl/core/shared`. Нельзя применять к строке с готовой разметкой — только к отдельным значениям.
 
-Функции валидации (все из `@u7-scl/core/ui` / `@u7-scl/core/shared`):
+Функции: `validateMarkdownV2` (dev-assert), `assertMarkdownV2Safe` (низкоуровневые тесты), `assertResponseMarkdownSafe` (стори/контроллеры/e2e). Код: `packages/core/src/shared/markdown.ts`, `markdown-validator.ts`, `packages/core/src/ui/bot/response-markdown-assert.ts`.
 
-| Функция | Назначение |
-|---|---|
-| `validateMarkdownV2(text)` | Возвращает результат валидации (dev-assert в `executeResponses`) |
-| `assertMarkdownV2Safe(text)` | Бросает ошибку — низкоуровневые тесты |
-| `assertResponseMarkdownSafe(response)` | Рекурсивно проверяет `BotResponse` — тесты стори/контроллеров/e2e |
+---
 
-Живой код: `packages/core/src/shared/markdown.ts` (`escapeMarkdown`), `packages/core/src/shared/markdown-validator.ts` (`validateMarkdownV2`, `assertMarkdownV2Safe`), `packages/core/src/ui/bot/response-markdown-assert.ts` (`assertResponseMarkdownSafe`).
+## 5. E2E: хелперы и сценарии
 
-## 8. Запуск
+```typescript
+/** Найти кнопку в ответе по вхождению подстроки в текст */
+function findButton(response: BotResponse, textContains: string): { text: string; code: string } {
+  const btn = response.sendMessage?.keyboard?.rows.flat()
+    .find(b => b.text.includes(textContains));
+  if (!btn) throw new Error(`Кнопка «${textContains}» не найдена`);
+  return btn;
+}
+```
+
+Минимальный набор сценариев на модуль: гость (меню → каталог → карточка → назад), кандидат (запись на поток), студент («Моя учёба»), ментор (каталог → студенты → детали).
+
+---
+
+## 6. Запуск и отладка
 
 ```bash
-# Unit-тесты модуля stream
-bun test packages/stream/src/ui/bot/
+bun test packages/stream/src/ui/bot/          # unit
+bun test tests/bot/integration/                # integration
+bun test tests/bot/e2e/                        # e2e
 
-# Интеграционные тесты
-bun test tests/bot/integration/
-
-# E2E-тесты
-bun test tests/bot/e2e/
-
-# Все тесты бота
-bun test packages/stream/src/ui/bot/ tests/bot/
+KEEP_FIXTURES=1 bun test tests/bot/integration/stream/catalog.integration.test.ts   # не удалять фикстуры
 ```
 
 ---
 
-## 9. Отладка
-
-Если тест падает и нужно посмотреть состояние данных:
-
-```bash
-KEEP_FIXTURES=1 bun test tests/bot/integration/stream/catalog.integration.test.ts
-```
-
-Временная директория с JSON-фикстурами не будет удалена.
-
----
-
-## 10. Связанные документы
+## Связанные документы
 
 - [Общие правила тестирования](../testing.md)
-- [BotUserStory Styleguide](skills/bot-user-story.md) — стиль написания сторис
-- [DDD принципы](../ddd.md) — архитектура слоёв
+- [BotController](./skills/bot-controller.md) — сжатие id, handleError
+- [BotUserStory](./skills/bot-user-story.md) — стиль сторис
+- [DDD принципы](../ddd.md)
