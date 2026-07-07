@@ -1,0 +1,7 @@
+Задача: Актуализация индекса и ссылок (Фаза 5)
+
+index.md обновлён: AppController → BotController (skills/bot-controller.md). Структура сохранена: Определение → Workflow → Styleguides → Learning Skills → Управление. product-guidelines.md ссылки обновлены в ходе Фаз 1-2. Финальный grep подтверждает отсутствие битых ссылок на удалённые файлы (bot-e2e-testing, errors.md, integration.md, markdown-bot.md, app-controller.md). Автоматическая проверка всех внутренних .md-ссылок — 0 битых.
+
+Изменённые файлы:
+- conductor/index.md
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задач)
