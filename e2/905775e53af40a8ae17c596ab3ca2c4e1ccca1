@@ -1,0 +1,9 @@
+Задача: Перенести markdown-bot.md → bot-test.md
+
+В bot-test.md (§7.1) добавлены правила экранирования MarkdownV2 (зарезервированные символы, escapeMarkdown, функции валидации) со ссылками на живой код. markdown-bot.md удалён. Ссылки в testing.md обновлены на bot-test.md.
+
+Изменённые файлы:
+- conductor/code_styleguides/bot-test.md (+ §7.1, убрана ссылка)
+- conductor/code_styleguides/markdown-bot.md (удалён)
+- conductor/code_styleguides/testing.md (ссылки)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задачи)
