@@ -1,0 +1,9 @@
+Задача: Перенести integration.md → architecture.md
+
+В architecture.md добавлена секция «Межмодульное взаимодействие и DI» (Resolve, правила взаимодействия, запрет прямого импорта UC, фасады) с дедупликацией. integration.md удалён. В product-guidelines.md выжимка integration удалена, роль DI добавлена в запись архитектуры; повреждённая запись testing восстановлена.
+
+Изменённые файлы:
+- conductor/code_styleguides/architecture.md (+ секция DI)
+- conductor/code_styleguides/integration.md (удалён)
+- conductor/product-guidelines.md (ссылки)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задачи)
