@@ -1,0 +1,9 @@
+Задача: Объединить errors.md → skills/errors.md
+
+Уникальное из conductor/code_styleguides/errors.md (контракт AppError, полная таблица kind→HTTP, AppException, хелперы выброса, обработка на контроллере через fromError) перенесено в skills/errors.md. Чужеродная секция «Инструкция по предотвращению регресса» удалена. Файл errors.md удалён. Выжимка в product-guidelines.md сокращена до ссылки + однострочной роли.
+
+Изменённые файлы:
+- conductor/code_styleguides/skills/errors.md (переписан, объединение)
+- conductor/code_styleguides/errors.md (удалён)
+- conductor/product-guidelines.md (ссылка + роль)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задачи)
