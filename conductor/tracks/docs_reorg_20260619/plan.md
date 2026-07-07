@@ -20,11 +20,11 @@
   - [x] Удалить `integration.md`
   - [x] Обновить ссылки в `product-guidelines.md`, `index.md`
 
-- [ ] Task: Перенести `markdown-bot.md` → `bot-test.md`
-  - [ ] Извлечь важное: правила экранирования, функции валидации
-  - [ ] Добавить секцией «MarkdownV2-валидация» в `bot-test.md`
-  - [ ] Удалить `markdown-bot.md`
-  - [ ] Обновить ссылки в `testing.md`, `bot-test.md`, `index.md`
+- [x] Task: Перенести `markdown-bot.md` → `bot-test.md`
+  - [x] Извлечь важное: правила экранирования, функции валидации
+  - [x] Добавить секцией «MarkdownV2-валидация» в `bot-test.md`
+  - [x] Удалить `markdown-bot.md`
+  - [x] Обновить ссылки в `testing.md`, `bot-test.md`, `index.md`
 
 - [ ] Task: Conductor - Ручная верификация 'Удаление и объединение'
 

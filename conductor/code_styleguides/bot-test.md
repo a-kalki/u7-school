@@ -352,6 +352,30 @@ assertBotResponseValid(response);
 // Если callback_data > 64 байт → тест упадёт с понятной ошибкой
 ```
 
+### 7.1 Экранирование MarkdownV2
+
+Любое сообщение с `parseMode: 'MarkdownV2'` **обязано** проходить `assertResponseMarkdownSafe()` в тестах.
+
+Telegram резервирует: `` _ * [ ] ( ) ~ ` > # + - = | { } . ! ``
+
+| Категория | Символы | Правило |
+|---|---|---|
+| Никогда не форматирующие | `. ! + - = \|` | **Всегда** экранировать: `\.` |
+| Форматирующие | `* _ ~ \`` | Должны быть **парными** (чётное количество) |
+
+- **Статические строки** — ручное экранирование в коде: `'Поток запущен\\! Первые задания\\.'`.
+- **Динамические значения** — `escapeMarkdown` из `@u7-scl/core/shared`. **Нельзя** применять к строке, уже содержащей разметку — только к отдельным значениям в шаблоне.
+
+Функции валидации (все из `@u7-scl/core/ui` / `@u7-scl/core/shared`):
+
+| Функция | Назначение |
+|---|---|
+| `validateMarkdownV2(text)` | Возвращает результат валидации (dev-assert в `executeResponses`) |
+| `assertMarkdownV2Safe(text)` | Бросает ошибку — низкоуровневые тесты |
+| `assertResponseMarkdownSafe(response)` | Рекурсивно проверяет `BotResponse` — тесты стори/контроллеров/e2e |
+
+Живой код: `packages/core/src/shared/markdown.ts` (`escapeMarkdown`), `packages/core/src/shared/markdown-validator.ts` (`validateMarkdownV2`, `assertMarkdownV2Safe`), `packages/core/src/ui/bot/response-markdown-assert.ts` (`assertResponseMarkdownSafe`).
+
 ## 8. Запуск
 
 ```bash
@@ -386,5 +410,4 @@ KEEP_FIXTURES=1 bun test tests/bot/integration/stream/catalog.integration.test.t
 
 - [Общие правила тестирования](../testing.md)
 - [BotUserStory Styleguide](skills/bot-user-story.md) — стиль написания сторис
-- [MarkdownV2 в Telegram-боте](../markdown-bot.md) — валидация разметки
 - [DDD принципы](../ddd.md) — архитектура слоёв

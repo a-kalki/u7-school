@@ -58,12 +58,11 @@ try {
 - **Unit-тесты (Story/Controller):** Изолированная логика одной стори или контроллера с замоканными зависимостями.
 - **Интеграционные тесты:** Обработчики сторис + реальные модули и JSON-репозитории, прямой вызов `router.handleCallback()`.
 - **E2E-тесты (сквозные):** Полные пользовательские цепочки — каждое следующее действие использует `code` из кнопки предыдущего ответа.
-- **MarkdownV2-валидация:** Каждый `BotResponse` во всех тестах **обязан** проходить `assertResponseMarkdownSafe(response)` из `@u7-scl/core/ui`. См. [MarkdownV2 в Telegram-боте](markdown-bot.md).
+- **MarkdownV2-валидация:** Каждый `BotResponse` во всех тестах **обязан** проходить `assertResponseMarkdownSafe(response)` из `@u7-scl/core/ui`. См. [Тестирование бота, §7.1](bot-test.md).
 
 ## Связанные документы
 
-- [Тестирование Telegram-бота](bot-test.md) — уровни тестирования бота (unit, интеграционные, E2E)
-- [MarkdownV2 в Telegram-боте](markdown-bot.md) — валидация MarkdownV2 в BotResponse
+- [Тестирование Telegram-бота](bot-test.md) — уровни тестирования бота (unit, интеграционные, E2E), экранирование MarkdownV2
 - [DDD принципы](ddd.md)
 
 ## Защита от регресса и чистота правок
