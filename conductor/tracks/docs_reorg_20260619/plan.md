@@ -80,15 +80,15 @@
 
 ## Фаза 5: Актуализация индекса и ссылок (FR8)
 
-- [ ] Task: Обновить `conductor/index.md`
-  - [ ] Отразить все удаления, перемещения, переименования
-  - [ ] Проверить структуру: Определение → Workflow → Styleguides → Learning Skills → Управление
+- [x] Task: Обновить `conductor/index.md`
+  - [x] Отразить все удаления, перемещения, переименования
+  - [x] Проверить структуру: Определение → Workflow → Styleguides → Learning Skills → Управление
 
-- [ ] Task: Обновить `product-guidelines.md`
-  - [ ] Поправить ссылки на перемещённые/удалённые файлы
+- [x] Task: Обновить `product-guidelines.md`
+  - [x] Поправить ссылки на перемещённые/удалённые файлы
 
-- [ ] Task: Финальная проверка grep'ом
-  - [ ] `grep -rn "bot-e2e-testing\|errors\.md\|integration\.md\|markdown-bot\.md\|app-controller\.md" --include="*.md" conductor/ .pi/`
-  - [ ] Убедиться, что нет битых ссылок
+- [x] Task: Финальная проверка grep'ом
+  - [x] `grep -rn "bot-e2e-testing\|errors\.md\|integration\.md\|markdown-bot\.md\|app-controller\.md" --include="*.md" conductor/ .pi/`
+  - [x] Убедиться, что нет битых ссылок
 
-- [ ] Task: Conductor - Ручная верификация 'Индекс и ссылки'
+- [x] Task: Conductor - Ручная верификация 'Индекс и ссылки'
