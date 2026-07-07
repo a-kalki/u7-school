@@ -26,24 +26,24 @@
   - [x] Удалить `markdown-bot.md`
   - [x] Обновить ссылки в `testing.md`, `bot-test.md`, `index.md`
 
-- [ ] Task: Conductor - Ручная верификация 'Удаление и объединение'
+- [x] Task: Conductor - Ручная верификация 'Удаление и объединение'
 
 ## Фаза 2: Создание `skills/bot-controller.md` (FR2)
 
-- [ ] Task: Проанализировать кодовую базу контроллеров
-  - [ ] `BotController` (core) — базовый класс
-  - [ ] `U7BotController` (app) — специализация для U7-бота
-  - [ ] `StreamController` (stream) — пример доменного контроллера
-  - [ ] `OnboardingController` (onboarding) — пример без стори
-  - [ ] `app-controller.md` — контроллер для сценариев приложения
+- [x] Task: Проанализировать кодовую базу контроллеров
+  - [x] `BotController` (core) — базовый класс
+  - [x] `U7BotController` (app) — специализация для U7-бота
+  - [x] `StreamController` (stream) — пример доменного контроллера
+  - [x] `OnboardingController` (onboarding) — пример без стори
+  - [x] `app-controller.md` — контроллер для сценариев приложения
 
-- [ ] Task: Написать `skills/bot-controller.md`
-  - [ ] Структура: Назначение, Ключевые правила, Конструктор/init, Обработчики, Сжатие id, handleError
+- [x] Task: Написать `skills/bot-controller.md`
+  - [x] Структура: Назначение, Ключевые правила, Конструктор/init, Обработчики, Сжатие id, handleError
 
-- [ ] Task: Удалить `app-controller.md`
-  - [ ] Обновить ссылки в `index.md`
+- [x] Task: Удалить `app-controller.md`
+  - [x] Обновить ссылки в `index.md`
 
-- [ ] Task: Conductor - Ручная верификация 'Создание bot-controller.md'
+- [x] Task: Conductor - Ручная верификация 'Создание bot-controller.md'
 
 ## Фаза 3: Упрощение раздутых файлов (FR6)
 

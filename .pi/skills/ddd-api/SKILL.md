@@ -23,6 +23,7 @@ description: Правила и шаблоны для API-слоя — UseCase, C
 | Module (domain meta) | `domain/module.ts` | `conductor/code_styleguides/skills/module.md` |
 | Module (api impl) | `api/module.ts` | `conductor/code_styleguides/skills/module.md` |
 | BotUserStory | `ui/bot/stories/<name>.story.ts` | `conductor/code_styleguides/skills/bot-user-story.md` |
+| BotController | `ui/bot/controller/<name>-controller.ts` | `conductor/code_styleguides/skills/bot-controller.md` |
 
 ---
 
