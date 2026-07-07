@@ -1,3 +1,25 @@
 {
-  "packages": []
+  "packages": [],
+  "scopedModels": [
+    {
+      "provider": "deepseek",
+      "id": "deepseek-v4-flash",
+      "thinkingLevel": "medium"
+    },
+    {
+      "provider": "deepseek",
+      "id": "deepseek-v4-pro",
+      "thinkingLevel": "high"
+    },
+    {
+      "provider": "zai",
+      "id": "glm-5.2",
+      "thinkingLevel": "high"
+    },
+    {
+      "provider": "moonshotai",
+      "id": "kimi-k2.7-code",
+      "thinkingLevel": "high"
+    }
+  ]
 }
