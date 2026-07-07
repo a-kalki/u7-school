@@ -446,4 +446,238 @@ describe('MonitorStory', () => {
     const response = await story.handleCallback('detail:st1', actor, session);
     expect(response.sendMessage?.text).toContain('Студент');
   });
+
+  // ── Безопасность: кнопка «Отчислить» только для ментора потока или админа ──
+
+  test('студент НЕ видит кнопку «❌ Отчислить»', async () => {
+    const studentActor: User = {
+      uuid: 'student-1',
+      name: 'Студент',
+      telegramId: 999,
+      roles: [Role.STUDENT],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            mentorId: 'mentor-1',
+            moduleId: 'm1',
+            startDate: '2026-01-01',
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: '2026-01-01',
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback(
+      'detail:st1',
+      studentActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(false);
+  });
+
+  test('чужой ментор НЕ видит кнопку «❌ Отчислить»', async () => {
+    const otherMentor: User = {
+      uuid: 'other-mentor',
+      name: 'Чужой Ментор',
+      telegramId: 888,
+      roles: [Role.MENTOR],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            mentorId: 'mentor-1',
+            moduleId: 'm1',
+            startDate: '2026-01-01',
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: '2026-01-01',
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback(
+      'detail:st1',
+      otherMentor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(false);
+  });
+
+  test('гость без ролей НЕ видит кнопку «❌ Отчислить»', async () => {
+    const guestActor: User = {
+      uuid: 'guest-1',
+      name: 'Гость',
+      telegramId: 777,
+      roles: [],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            mentorId: 'mentor-1',
+            moduleId: 'm1',
+            startDate: '2026-01-01',
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: '2026-01-01',
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback(
+      'detail:st1',
+      guestActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(false);
+  });
+
+  test('админ видит кнопку «❌ Отчислить»', async () => {
+    const adminActor: User = {
+      uuid: 'admin-1',
+      name: 'Админ',
+      telegramId: 666,
+      roles: [Role.ADMIN],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            description: '',
+            mentorId: 'mentor-1',
+            moduleId: 'm1',
+            startDate: '2026-01-01',
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: '2026-01-01',
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user') return { name: 'Студент' };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback(
+      'detail:st1',
+      adminActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(true);
+  });
 });

@@ -4,6 +4,7 @@ import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
+import { StudentPolicy } from '../../../domain/student/policy';
 
 /**
  * US-8: Мониторинг прогресса группы.
@@ -231,7 +232,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
     }
 
-    // Клавиатура: кнопки действий доступны всем
+    // Клавиатура: кнопки действий
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
     keyboardRows.push([
@@ -241,12 +242,15 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
     ]);
 
-    keyboardRows.push([
-      {
-        text: '❌ Отчислить',
-        code: this.cbFor('monitor', 'expel', studentId),
-      },
-    ]);
+    // Кнопка «Отчислить» только для ментора потока или админа
+    if (StudentPolicy.canExpel(actor, stream)) {
+      keyboardRows.push([
+        {
+          text: '❌ Отчислить',
+          code: this.cbFor('monitor', 'expel', studentId),
+        },
+      ]);
+    }
 
     keyboardRows.push([
       {
