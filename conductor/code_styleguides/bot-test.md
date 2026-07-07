@@ -110,7 +110,7 @@ KEEP_FIXTURES=1 bun test tests/bot/integration/stream/catalog.integration.test.t
 
 ## Связанные документы
 
-- [Общие правила тестирования](../testing.md)
+- [Общие правила тестирования](./testing.md)
 - [BotController](./skills/bot-controller.md) — сжатие id, handleError
 - [BotUserStory](./skills/bot-user-story.md) — стиль сторис
-- [DDD принципы](../ddd.md)
+- [DDD принципы](./ddd.md)
