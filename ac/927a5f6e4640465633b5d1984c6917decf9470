@@ -1,0 +1,10 @@
+Задача: Создать skills/bot-controller.md (Фаза 2)
+
+Создан conductor/code_styleguides/skills/bot-controller.md — иерархия контроллеров (BotController → U7BotController → доменные/AppController), ключевые правила, конструктор/init, обработчики, сжатие id, handleError. app-controller.md удалён (содержимое включено в bot-controller.md). Ссылка в index.md обновлена. В карту ddd-api/SKILL.md добавлена строка BotController.
+
+Изменённые файлы:
+- conductor/code_styleguides/skills/bot-controller.md (создан)
+- conductor/code_styleguides/app-controller.md (удалён)
+- conductor/index.md (ссылка)
+- .pi/skills/ddd-api/SKILL.md (карта)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задач)
