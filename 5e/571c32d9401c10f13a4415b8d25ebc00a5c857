@@ -1,0 +1,16 @@
+Задача: Анализ связности и перестройка (Фаза 4)
+
+Анализ всех styleguide-файлов на связность (architecture → api/ddd → usecase/controller/errors → naming/testing). Автоматическая проверка внутренних .md-ссылок по всем файлам.
+
+Найдено и исправлено:
+- bot-test.md: битые ссылки ../testing.md и ../ddd.md (файл в code_styleguides/, нужно ./) — баг существовал до трека.
+- testing.md: ссылка на §7.1 обновлена на §4.1 после перенумерации секций в bot-test.md.
+
+Замечания (не в рамках трека): ряд skills-файлов превышают 100 строк (entity 347, repo-impl 272, policy 212) — кандидаты на сокращение в отдельном треке; FR6 текущего трека охватывал только bot-test.md и bot-user-story.md.
+
+Обратная связь пользователя отложена на ревью (пользователь делегировал автономное выполнение).
+
+Изменённые файлы:
+- conductor/code_styleguides/bot-test.md (ссылки)
+- conductor/code_styleguides/testing.md (номер секции)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задач)
