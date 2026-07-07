@@ -1,0 +1,9 @@
+Задача: Упрощение раздутых файлов (Фаза 3)
+
+bot-test.md сокращён с 390 до 116 строк: убраны очевидные вещи, длинные примеры заменены ссылками на живые тесты, оставлены структура уровней и ключевые правила; включена секция экранирования MarkdownV2 (из markdown-bot.md).
+bot-user-story.md сокращён с 467 до 95 строк: убрано дублирование с bot-controller.md, длинные примеры заменены ссылками на живые story-файлы (catalog/view-stream/enroll/create-stream).
+
+Изменённые файлы:
+- conductor/code_styleguides/bot-test.md (390→116)
+- conductor/code_styleguides/skills/bot-user-story.md (467→95)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задач)
