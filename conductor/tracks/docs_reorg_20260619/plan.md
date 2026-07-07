@@ -14,11 +14,11 @@
   - [x] Удалить `errors.md`
   - [x] Обновить ссылки в `product-guidelines.md` (выжимку привести к ссылке + роли), `index.md`, ddd-скиллах
 
-- [ ] Task: Перенести `integration.md` → `architecture.md`
-  - [ ] Извлечь уникальное: правила DI, запрет прямого импорта UC, фасады
-  - [ ] Слить в `architecture.md` с дедупликацией пересечений (поток выполнения команды, модульная структура)
-  - [ ] Удалить `integration.md`
-  - [ ] Обновить ссылки в `product-guidelines.md`, `index.md`
+- [x] Task: Перенести `integration.md` → `architecture.md`
+  - [x] Извлечь уникальное: правила DI, запрет прямого импорта UC, фасады
+  - [x] Слить в `architecture.md` с дедупликацией пересечений (поток выполнения команды, модульная структура)
+  - [x] Удалить `integration.md`
+  - [x] Обновить ссылки в `product-guidelines.md`, `index.md`
 
 - [ ] Task: Перенести `markdown-bot.md` → `bot-test.md`
   - [ ] Извлечь важное: правила экранирования, функции валидации
