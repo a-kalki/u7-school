@@ -1,0 +1,7 @@
+Задача: Удалить skills/bot-e2e-testing.md
+
+Удалён файл-заглушка conductor/code_styleguides/skills/bot-e2e-testing.md, который только ссылался на bot-test.md. Ссылок на него в документации не было.
+
+Изменённые файлы:
+- conductor/code_styleguides/skills/bot-e2e-testing.md (удалён)
+- conductor/tracks/docs_reorg_20260619/plan.md (статус задачи)
