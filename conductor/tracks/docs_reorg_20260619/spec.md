@@ -11,6 +11,7 @@
 - Описывать в основном: цели, архитектурные решения, ответственности, принципы, правила, соглашения.
 - Не раздувать документацию, не дублировать одно и то же в разных файлах.
 - Не делать документацию хрупкой, описывать высокоуровнево, для деталей дать явные ссылки в код.
+- Если в документации просиходят противоречия (с другими частями документации, с кодом), то попытаться решить. Хороший тон спросить при сомнениях выдав плюсы и минусы вариантов.
 
 ## Функциональные требования
 
@@ -18,16 +19,19 @@
 - Удалить `conductor/code_styleguides/skills/bot-e2e-testing.md` (заглушка, ссылается на bot-test.md)
 - Ссылок на него нет — просто удалить
 
-### FR2: Создать `skills/bot-controller.md`
-- Проанализировать: `BotController` (core), `OnboardingController` (onboarding), `StreamController` (stream)
+### FR2: Создать `skills/bot-controller.md` (иерархия контроллеров)
+- Проанализировать: `BotController` (core), `U7BotController` (app), `OnboardingController` (onboarding), `StreamController` (stream), `AppController` (app)
+- Описать всю иерархию: базовый `BotController` → `U7BotController` → доменные контроллеры и `AppController`
 - Включить содержимое `app-controller.md`, после чего `app-controller.md` удалить
 
 ### FR3: Объединить `errors.md` + `skills/errors.md`
 - Результат объединения оставить в `skills/errors.md`, второй файл удалить
-- Обновить все ссылки
+- Удалить чужеродную секцию «Инструкция по предотвращению регресса» из `skills/errors.md` (не относится к ошибкам)
+- Обновить все ссылки, включая выжимку в `product-guidelines.md` (привести к короткой ссылке + однострочной роли)
 
 ### FR4: Перенести важное из `integration.md` → `architecture.md`
-- Перенести важное (правила DI, запрет прямого импорта UC, фасады)
+- Слить с дедупликацией пересечений с `architecture.md` (поток выполнения команды, модульная структура)
+- Перенести уникальное (правила DI, запрет прямого импорта UC, фасады)
 - Удалить `integration.md`, обновить ссылки (включая `product-guidelines.md`)
 
 ### FR5: Перенести важное из `markdown-bot.md` → `bot-test.md`
@@ -52,8 +56,8 @@
 
 ## Критерии приёмки
 - [ ] `bot-e2e-testing.md` удалён
-- [ ] `skills/bot-controller.md` создан, `app-controller.md` удалён
-- [ ] `skills/errors.md` — единственный файл по ошибкам, `errors.md` удалён
+- [ ] `skills/bot-controller.md` создан (иерархия контроллеров), `app-controller.md` удалён
+- [ ] `skills/errors.md` — единственный файл по ошибкам, `errors.md` удалён, чужеродная секция убрана
 - [ ] `integration.md` удалён, содержимое в `architecture.md`
 - [ ] `markdown-bot.md` удалён, содержимое в `bot-test.md`
 - [ ] `bot-test.md` и `bot-user-story.md` сокращены

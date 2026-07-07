@@ -7,5 +7,5 @@
 
 ---
 
-- [ ] **Track: Реорганизация документации conductor**
+- [~] **Track: Реорганизация документации conductor**
 *Link: [./tracks/docs_reorg_20260619/](./tracks/docs_reorg_20260619/)*
