@@ -4,8 +4,8 @@
 
 ## Фаза 1: Удаление и объединение (FR1, FR3, FR4, FR5)
 
-- [ ] Task: Удалить `skills/bot-e2e-testing.md`
-  - [ ] Удалить файл
+- [x] Task: Удалить `skills/bot-e2e-testing.md`
+  - [x] Удалить файл
 
 - [ ] Task: Объединить `errors.md` → `skills/errors.md`
   - [ ] Извлечь уникальное из `errors.md` (иерархия AppError, kind→HTTP, AppException)
