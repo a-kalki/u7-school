@@ -7,12 +7,12 @@
 - [x] Task: Удалить `skills/bot-e2e-testing.md`
   - [x] Удалить файл
 
-- [ ] Task: Объединить `errors.md` → `skills/errors.md`
-  - [ ] Извлечь уникальное из `errors.md` (иерархия AppError, kind→HTTP, AppException)
-  - [ ] Удалить чужеродную секцию «Инструкция по предотвращению регресса» из `skills/errors.md`
-  - [ ] Перенести уникальное в `skills/errors.md`
-  - [ ] Удалить `errors.md`
-  - [ ] Обновить ссылки в `product-guidelines.md` (выжимку привести к ссылке + роли), `index.md`, ddd-скиллах
+- [x] Task: Объединить `errors.md` → `skills/errors.md`
+  - [x] Извлечь уникальное из `errors.md` (иерархия AppError, kind→HTTP, AppException)
+  - [x] Удалить чужеродную секцию «Инструкция по предотвращению регресса» из `skills/errors.md`
+  - [x] Перенести уникальное в `skills/errors.md`
+  - [x] Удалить `errors.md`
+  - [x] Обновить ссылки в `product-guidelines.md` (выжимку привести к ссылке + роли), `index.md`, ddd-скиллах
 
 - [ ] Task: Перенести `integration.md` → `architecture.md`
   - [ ] Извлечь уникальное: правила DI, запрет прямого импорта UC, фасады
