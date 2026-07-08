@@ -1,0 +1,17 @@
+Фаза 2: UC и фасад для Course
+
+Созданы команды:
+- create-course-cmd, add-phase-to-course-cmd, add-module-to-course-cmd
+- get-course-cmd, list-courses-cmd
+- errors.ts (CourseNotFoundUcError, CourseAccessDeniedUcError)
+
+Созданы UC:
+- CreateCourseUc, AddPhaseToCourseUc, AddModuleToCourseUc
+- GetCourseUc, ListCoursesUc
+
+Расширения:
+- CourseApiModuleResolver: courseRepository (CourseRepo), courseFacade (опциональный)
+- CourseFacade: getCourseProgram → CourseProgram (агрегация)
+- CourseInProcFacade: реализован getCourseProgram
+
+264 тестов (в пакете course), pass. Линтер/tsc чисто.
