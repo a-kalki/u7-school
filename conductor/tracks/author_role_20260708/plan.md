@@ -12,13 +12,13 @@
 
 ## Фаза 2: Gates создания контента
 
-- [x] Task: Написать тесты ModulePolicy.canCreate [8e41ee2-pending]
-  - [x] AUTHOR → true; MENTOR (без AUTHOR) → false; ADMIN → false
-- [x] Task: Изменить `ModulePolicy.canCreate`: MENTOR → AUTHOR [8e41ee2-pending]
-- [~] Task: Написать тесты create-module UC: AUTHOR создаёт; ADMIN/MENTOR без AUTHOR → access denied
-- [ ] Task: Обновить create-module UC (gating уже через canCreate — проверить)
-- [ ] Task: Проверить add-project/create-lesson/create-step — остаются isAuthor-based (без изменений), добавить тест что AUTHOR-автор модуля может, а MENTOR-не-автор не может
-- [ ] Task: Conductor - Ручная верификация 'Gates создания'
+- [x] Task: Написать тесты ModulePolicy.canCreate [bf1ce71]
+  - [x] AUTHOR → true; MENTOR (без AUTHOR) → false; ADMIN → false [bf1ce71]
+- [x] Task: Изменить `ModulePolicy.canCreate`: MENTOR → AUTHOR [bf1ce71]
+- [x] Task: Написать тесты create-module UC: AUTHOR создаёт; ADMIN/MENTOR без AUTHOR → access denied [bf1ce71]
+- [x] Task: Обновить create-module UC (gating уже через canCreate — проверить) [bf1ce71]
+- [x] Task: Проверить add-project/create-lesson/create-step — остаются isAuthor-based (без изменений), добавить тест что AUTHOR-автор модуля может, а MENTOR-не-автор не может [bf1ce71]
+- [~] Task: Conductor - Ручная верификация 'Gates создания'
 
 ## Фаза 3: Тесты редактирования (regression)
 
