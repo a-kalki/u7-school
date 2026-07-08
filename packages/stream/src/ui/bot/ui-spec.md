@@ -64,7 +64,6 @@ _{StreamDescription}_
 🕐 Время: {HH:MM}
 👥 Студентов: {N}
 📌 Статус: {StatusLabel}
-🔗 {TelegramGroupInvite}
 ```
 
 **Кнопки — менторские (только владелец потока):**

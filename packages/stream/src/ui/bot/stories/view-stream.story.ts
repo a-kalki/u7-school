@@ -121,10 +121,6 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       `📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
     ];
 
-    if (stream.telegramGroupInvite) {
-      lines.push('', `🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
-    }
-
     const text = lines.join('\n');
     const keyboard = this.#buildKeyboard(stream, actor);
 
