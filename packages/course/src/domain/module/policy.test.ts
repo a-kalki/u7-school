@@ -115,6 +115,21 @@ describe('ModulePolicy', () => {
         ModulePolicy.canEdit(makeActor([Role.STUDENT], 'other-uuid'), course),
       ).toBe(false);
     });
+
+    test('AUTHOR-автор модуля может редактировать', () => {
+      expect(
+        ModulePolicy.canEdit(
+          makeActor([Role.AUTHOR], '550e8400-e29b-41d4-a716-446655440000'),
+          course,
+        ),
+      ).toBe(true);
+    });
+
+    test('AUTHOR без авторства не может редактировать чужой модуль', () => {
+      expect(
+        ModulePolicy.canEdit(makeActor([Role.AUTHOR], 'other-uuid'), course),
+      ).toBe(false);
+    });
   });
 
   describe('isAuthor', () => {
