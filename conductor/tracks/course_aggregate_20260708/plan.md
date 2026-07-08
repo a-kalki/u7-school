@@ -42,7 +42,7 @@
 
 - [ ] Task: Conductor - Ручная верификация 'Инфра курса'
 
-## Фаза 4: Интеграция и seed
+## Фаза 4: Интеграция и seed [checkpoint: c277795]
 
 - [x] Task: Обновить test-app + fixtures (createTestApp подключает courseRepo)
 
