@@ -1,0 +1,5 @@
+Фаза 4: Интеграция и seed
+
+Интеграционные тесты: course-program (2 модуля), course-access (5 тестов)
+Seed: курс «Полный курс JS» (uuid: 29adc3be) с модулями Синтаксис + Алгоритмика
+architecture-evolution.md обновлён
