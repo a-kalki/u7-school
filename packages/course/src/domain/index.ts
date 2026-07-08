@@ -8,11 +8,40 @@ export {
 } from './content-snapshot';
 // Агрегат Course
 export { CourseAr } from './course/a-root';
+export type {
+  AddModuleToCourseCmd,
+  AddModuleToCourseCmdMeta,
+} from './course/commands/add-module-to-course-cmd';
+export { AddModuleToCourseCmdSchema } from './course/commands/add-module-to-course-cmd';
+export type {
+  AddPhaseToCourseCmd,
+  AddPhaseToCourseCmdMeta,
+} from './course/commands/add-phase-to-course-cmd';
+export { AddPhaseToCourseCmdSchema } from './course/commands/add-phase-to-course-cmd';
+export type {
+  CreateCourseCmd,
+  CreateCourseCmdMeta,
+} from './course/commands/create-course-cmd';
+export { CreateCourseCmdSchema } from './course/commands/create-course-cmd';
+export type {
+  CourseAccessDeniedUcError,
+  CourseNotFoundUcError,
+} from './course/commands/errors';
+export type {
+  GetCourseCmd,
+  GetCourseCmdMeta,
+} from './course/commands/get-course-cmd';
+export { GetCourseCmdSchema } from './course/commands/get-course-cmd';
+export type {
+  ListCoursesCmd,
+  ListCoursesCmdMeta,
+} from './course/commands/list-courses-cmd';
+export { ListCoursesCmdSchema } from './course/commands/list-courses-cmd';
 export type { Course, CourseArMeta, Phase } from './course/entity';
 export { CourseSchema, PhaseSchema } from './course/entity';
 export { CoursePolicy } from './course/policy';
-export type { CourseRepo } from './course/repo';
-export type { CourseFacade } from './facade';
+export type { CourseListFilter, CourseRepo } from './course/repo';
+export type { CourseFacade, CourseProgram } from './facade';
 // Агрегат Lesson
 export { LessonAr } from './lesson/a-root';
 export type {

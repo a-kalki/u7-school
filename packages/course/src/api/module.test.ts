@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, test } from 'bun:test';
+import { afterAll, describe, expect, mock, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AppResolver } from '@u7-scl/core/domain';
@@ -93,6 +93,16 @@ function nextPath(prefix: string): string {
 function setupModule(facade: MockUserFacade) {
   return new CourseApiModule({
     courseRepo: new ModuleJsonRepo(nextPath('courses')),
+    courseRepository: {
+      save: mock(async () => {}),
+      getByUuid: mock(async () => undefined),
+      getAll: mock(async () => []),
+    },
+    courseFacade: {
+      getModuleSnapshot: mock(async () => []) as never,
+      getStep: mock(async () => ({})) as never,
+      getCourseProgram: mock(async () => ({})) as never,
+    },
     lessonRepo: new LessonJsonRepo(nextPath('lessons')),
     stepRepo: new StepJsonRepo(nextPath('steps')),
     userFacade: facade,

@@ -1,5 +1,6 @@
 import type { ContentSnapshot } from '#domain/content-snapshot';
-import type { CourseFacade } from '#domain/facade';
+import type { Course } from '#domain/course/entity';
+import type { CourseFacade, CourseProgram } from '#domain/facade';
 import type { Step } from '#domain/step/entity';
 import type { CourseApiModule } from '../api/module';
 
@@ -16,5 +17,26 @@ export class CourseInProcFacade implements CourseFacade {
 
   async getStep(stepId: string): Promise<Step> {
     return this.courseModule.execute('get-step', { uuid: stepId });
+  }
+
+  async getCourseProgram(courseId: string): Promise<CourseProgram> {
+    const course: Course = await this.courseModule.execute('get-course', {
+      uuid: courseId,
+    });
+
+    const phases = await Promise.all(
+      course.phases.map(async (phase) => {
+        const modules = await Promise.all(
+          phase.moduleIds.map((moduleId) => this.getModuleSnapshot(moduleId)),
+        );
+        return {
+          title: phase.title,
+          track: phase.track,
+          modules,
+        };
+      }),
+    );
+
+    return { course, phases };
   }
 }

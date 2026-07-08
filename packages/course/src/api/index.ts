@@ -1,5 +1,10 @@
 // API слой @u7-scl/course
 
+export { AddModuleToCourseUc } from './course/add-module-to-course-uc';
+export { AddPhaseToCourseUc } from './course/add-phase-to-course-uc';
+export { CreateCourseUc } from './course/create-course-uc';
+export { GetCourseUc } from './course/get-course-uc';
+export { ListCoursesUc } from './course/list-courses-uc';
 export { CourseUseCase } from './course-uc';
 export { CreateLessonUc } from './lesson/create-lesson-uc';
 export { GetLessonUc } from './lesson/get-lesson-uc';

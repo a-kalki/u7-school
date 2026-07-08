@@ -69,9 +69,17 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const lessonRepo = new LessonJsonRepo(`${config.dbDir}/courses/lessons.json`);
   const stepRepo = new StepJsonRepo(`${config.dbDir}/courses/steps.json`);
 
+  // Заглушка courseRepository — будет заменена на CourseJsonRepo в Фазе 3
+  const courseRepository = {
+    save: async () => {},
+    getByUuid: async () => undefined,
+    getAll: async () => [],
+  };
+
   const courseModule = new CourseApiModule({
     db,
     courseRepo,
+    courseRepository,
     lessonRepo,
     stepRepo,
     userFacade,

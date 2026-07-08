@@ -62,9 +62,17 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
+  // Заглушка courseRepository — будет заменена на CourseJsonRepo в Фазе 3
+  const courseRepository = {
+    save: async () => {},
+    getByUuid: async () => undefined,
+    getAll: async () => [],
+  };
+
   const courseModule = new CourseApiModule({
     db,
     courseRepo,
+    courseRepository,
     lessonRepo,
     stepRepo,
     userFacade,

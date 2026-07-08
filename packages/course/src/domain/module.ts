@@ -1,6 +1,15 @@
 import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
+import type {
+  AddModuleToCourseCmdMeta,
+  AddPhaseToCourseCmdMeta,
+  CreateCourseCmdMeta,
+  GetCourseCmdMeta,
+  ListCoursesCmdMeta,
+} from './course/commands';
+import type { CourseRepo } from './course/repo';
+import type { CourseFacade } from './facade';
 import type { CreateLessonCmdMeta } from './lesson/commands/create-lesson-cmd';
 import type { GetLessonCmdMeta } from './lesson/commands/get-lesson-cmd';
 import type { LessonRepo } from './lesson/repo';
@@ -16,6 +25,13 @@ import type { CreateStepCmdMeta } from './step/commands/create-step-cmd';
 import type { GetStepCmdMeta } from './step/commands/get-step-cmd';
 import type { StepRepo } from './step/repo';
 
+export type CourseUcMetas =
+  | CreateCourseCmdMeta
+  | AddPhaseToCourseCmdMeta
+  | AddModuleToCourseCmdMeta
+  | GetCourseCmdMeta
+  | ListCoursesCmdMeta;
+
 export type ModuleUcMetas =
   | AddProjectCmdMeta
   | CreateModuleCmdMeta
@@ -29,17 +45,21 @@ export type ModuleUcMetas =
   | CreateStepCmdMeta
   | GetStepCmdMeta;
 
+export type AllUcMetas = ModuleUcMetas | CourseUcMetas;
+
 /** Метаданные модуля course (имя пакета @u7-scl/course) */
 export interface CourseApiModuleMeta extends ApiModuleMeta {
   name: 'course';
   url: '/course';
-  ucMetas: ModuleUcMetas;
+  ucMetas: AllUcMetas;
 }
 
 /** Резолвер зависимостей API-модуля курсов */
 export interface CourseApiModuleResolver extends ModuleResolver {
   db?: BaseJsonDb;
   courseRepo: ModuleRepo;
+  courseRepository: CourseRepo;
+  courseFacade?: CourseFacade;
   lessonRepo: LessonRepo;
   stepRepo: StepRepo;
   userFacade: UserFacade;

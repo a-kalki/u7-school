@@ -101,6 +101,11 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
   // Course-модуль
   const courseModule = new CourseApiModule({
     courseRepo: moduleRepo,
+    courseRepository: {
+      save: async () => {},
+      getByUuid: async () => undefined,
+      getAll: async () => [],
+    },
     lessonRepo,
     stepRepo,
     userFacade,

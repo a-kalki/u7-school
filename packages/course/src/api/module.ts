@@ -3,6 +3,11 @@ import type {
   CourseApiModuleMeta,
   CourseApiModuleResolver,
 } from '#domain/module';
+import { AddModuleToCourseUc } from './course/add-module-to-course-uc';
+import { AddPhaseToCourseUc } from './course/add-phase-to-course-uc';
+import { CreateCourseUc } from './course/create-course-uc';
+import { GetCourseUc } from './course/get-course-uc';
+import { ListCoursesUc } from './course/list-courses-uc';
 import { CreateLessonUc } from './lesson/create-lesson-uc';
 import { GetLessonUc } from './lesson/get-lesson-uc';
 import { AddProjectUc } from './module/add-project-uc';
@@ -32,6 +37,11 @@ export class CourseApiModule extends ApiModule<
     new GetLessonUc(),
     new CreateStepUc(),
     new GetStepUc(),
+    new CreateCourseUc(),
+    new AddPhaseToCourseUc(),
+    new AddModuleToCourseUc(),
+    new GetCourseUc(),
+    new ListCoursesUc(),
   ];
 
   constructor(resolve: CourseApiModuleResolver) {
