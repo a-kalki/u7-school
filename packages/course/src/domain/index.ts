@@ -6,6 +6,12 @@ export {
   ContentSnapshotSchema,
   LessonSnapshotSchema,
 } from './content-snapshot';
+// Агрегат Course
+export { CourseAr } from './course/a-root';
+export type { Course, CourseArMeta, Phase } from './course/entity';
+export { CourseSchema, PhaseSchema } from './course/entity';
+export { CoursePolicy } from './course/policy';
+export type { CourseRepo } from './course/repo';
 export type { CourseFacade } from './facade';
 // Агрегат Lesson
 export { LessonAr } from './lesson/a-root';
@@ -123,6 +129,7 @@ export { StepCommonSchema, StepSchema } from './step/entity';
 export { StepPolicy } from './step/policy';
 export type { StepRepo } from './step/repo';
 export type {
+  CourseId,
   LessonId,
   ModuleId,
   StepId,
