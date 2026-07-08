@@ -7,8 +7,7 @@
 ## Релиз 1 — Фундамент
 
 
-- [x] **Track: Курс (последовательность модулей)**
-*Link: [./tracks/course_aggregate_20260708/](./tracks/course_aggregate_20260708/)*
+- [x] ~~**Track: Курс (последовательность модулей)**~~ → [архив](./tracks/archive/course_aggregate_20260708/)
 
 - [ ] **Track: Жизненный цикл студента**
 *Link: [./tracks/student_lifecycle_20260708/](./tracks/student_lifecycle_20260708/)*
