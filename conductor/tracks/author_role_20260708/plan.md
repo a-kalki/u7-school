@@ -18,13 +18,13 @@
 - [x] Task: Написать тесты create-module UC: AUTHOR создаёт; ADMIN/MENTOR без AUTHOR → access denied [bf1ce71]
 - [x] Task: Обновить create-module UC (gating уже через canCreate — проверить) [bf1ce71]
 - [x] Task: Проверить add-project/create-lesson/create-step — остаются isAuthor-based (без изменений), добавить тест что AUTHOR-автор модуля может, а MENTOR-не-автор не может [bf1ce71]
-- [~] Task: Conductor - Ручная верификация 'Gates создания'
+- [x] Task: Conductor - Ручная верификация 'Gates создания' [2a67e6c]
 
 ## Фаза 3: Тесты редактирования (regression)
 
 - [x] Task: Написать тесты canEdit (ADMIN редактирует; author редактирует; чужой MENTOR не может) [45a859d]
 - [x] Task: Подтвердить что enrich-module/publish-module/add-project gating не сломан [45a859d]
-- [~] Task: Conductor - Ручная верификация 'Редактирование и regression'
+- [x] Task: Conductor - Ручная верификация 'Редактирование и regression' [2a67e6c]
 
 ## Фаза 4: Миграция и документация [checkpoint: 2a67e6c]
 
@@ -33,4 +33,4 @@
 - [x] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию) [8fb0a0c]
 - [x] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости — без изменений (потоки F4) [8fb0a0c]
 - [x] Task: Проверить, обновить сломанные и добавить интеграционные/e2e тесты в `tests/bot/*` (gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied; canEdit — ADMIN редактирует) [8fb0a0c]
-- [~] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR'
+- [x] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR' [2a67e6c]
