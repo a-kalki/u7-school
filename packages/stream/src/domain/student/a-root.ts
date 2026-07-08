@@ -5,7 +5,7 @@ import { StudentSchema } from './entity';
 
 /**
  * Агрегат StreamStudent — представляет запись студента на учебном потоке.
- * Управляет выдачей и завершением шагов для конкретного студента.
+ * Управляет выдачей и завершением шагов, а также жизненным циклом студента.
  */
 export class StudentAr extends Aggregate<StudentArMeta> {
   static readonly arName = 'Student';
@@ -17,6 +17,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
 
   /**
    * Фабричный метод для зачисления студента на поток.
+   * Создаёт студента в статусе `enrolled`.
    */
   static enroll(
     streamId: string,
@@ -28,13 +29,110 @@ export class StudentAr extends Aggregate<StudentArMeta> {
       streamId,
       userId,
       enrolledAt: isoNow(),
-      status: 'active',
+      status: 'enrolled',
       currentStepId,
       steps: [],
       createdAt: isoNow(),
     };
 
     return new StudentAr(candidate);
+  }
+
+  /**
+   * Активировать студента: enrolled → active.
+   */
+  activate(): void {
+    if (this._state.status !== 'enrolled') {
+      this.throwBadRequest(
+        `Нельзя активировать студента в статусе '${this._state.status}'.`,
+      );
+    }
+    this.safeUpdate({
+      status: 'active',
+    });
+  }
+
+  /**
+   * Самостоятельный выход из потока: active → abandoned.
+   */
+  drop(): void {
+    if (this._state.status !== 'active') {
+      this.throwBadRequest(
+        `Нельзя отчислить студента в статусе '${this._state.status}'.`,
+      );
+    }
+    this.safeUpdate({
+      status: 'abandoned',
+      abandonDetails: { who: 'self', cause: 'voluntary' },
+    });
+  }
+
+  /**
+   * Отчисление ментором: active → abandoned.
+   */
+  markAbandoned(cause: 'inactivity' | 'by_mentor'): void {
+    if (this._state.status !== 'active') {
+      this.throwBadRequest(
+        `Нельзя отчислить студента в статусе '${this._state.status}'.`,
+      );
+    }
+    this.safeUpdate({
+      status: 'abandoned',
+      abandonDetails: { who: 'mentor', cause },
+    });
+  }
+
+  /**
+   * Успешное завершение потока: active → advanced.
+   */
+  advance(): void {
+    if (this._state.status !== 'active') {
+      this.throwBadRequest(
+        `Нельзя завершить студента в статусе '${this._state.status}'.`,
+      );
+    }
+    this.safeUpdate({
+      status: 'advanced',
+      completionDetails: { nextPreference: 'undecided' },
+    });
+  }
+
+  /**
+   * Завершение потока без повышения: active → not_advanced.
+   */
+  markNotAdvanced(): void {
+    if (this._state.status !== 'active') {
+      this.throwBadRequest(
+        `Нельзя завершить студента в статусе '${this._state.status}'.`,
+      );
+    }
+    this.safeUpdate({
+      status: 'not_advanced',
+      completionDetails: { nextPreference: 'undecided' },
+    });
+  }
+
+  /**
+   * Установить пожелание по следующему шагу обучения.
+   * Доступно только для студентов в статусе advanced или not_advanced.
+   */
+  setNextPreference(
+    pref: 'wants_next' | 'wants_repeat' | 'undecided',
+  ): void {
+    if (
+      this._state.status !== 'advanced' &&
+      this._state.status !== 'not_advanced'
+    ) {
+      this.throwBadRequest(
+        `Нельзя установить предпочтение для студента в статусе '${this._state.status}'.`,
+      );
+    }
+    this.safeUpdate({
+      completionDetails: {
+        ...this._state.completionDetails,
+        nextPreference: pref,
+      },
+    });
   }
 
   /**
@@ -72,29 +170,5 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     record.status = 'completed';
     record.completedAt = isoNow();
     this.safeUpdate({});
-  }
-
-  /**
-   * Пометить прохождение потока студентом как успешно завершённое.
-   */
-  complete(): void {
-    this.safeUpdate({
-      status: 'completed',
-    });
-  }
-
-  /**
-   * Отчислить студента (ментор или админ).
-   * Только студенты в статусе 'active' могут быть отчислены.
-   */
-  expel(): void {
-    if (this._state.status !== 'active') {
-      this.throwBadRequest(
-        `Нельзя отчислить студента в статусе '${this._state.status}'.`,
-      );
-    }
-    this.safeUpdate({
-      status: 'expelled',
-    });
   }
 }
