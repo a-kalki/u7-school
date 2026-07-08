@@ -1,0 +1,10 @@
+Задача: Написать тесты CourseAr + Реализовать CourseAr, CourseSchema, CoursePolicy
+
+Созданы файлы:
+- packages/course/src/domain/course/entity.ts — схема CourseSchema, PhaseSchema, тип Course, CourseArMeta
+- packages/course/src/domain/course/a-root.ts — агрегат CourseAr (create, addPhase, addModuleToPhase, publish)
+- packages/course/src/domain/course/policy.ts — CoursePolicy (canCreate→AUTHOR, canEdit→ADMIN/автор, canRead→все)
+- packages/course/src/domain/course/repo.ts — интерфейс CourseRepo
+- packages/course/src/domain/course/types.ts — тип CourseId
+- packages/course/src/domain/course/*.test.ts — тесты (11 тестов CourseAr, 9 тестов CourseSchema/PhaseSchema, 8 тестов CoursePolicy)
+- Обновлены exports в domain/index.ts и domain/types.ts
