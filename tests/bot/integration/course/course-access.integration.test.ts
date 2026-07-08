@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import { Status } from '@u7-scl/course/domain';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
 
@@ -45,7 +46,7 @@ describe('CourseAccess (интеграционный)', () => {
     expect(course.uuid).toBeDefined();
     expect(course.title).toBe('Новый курс');
     expect(course.authorId).toBe(author.uuid);
-    expect(course.status).toBe('draft');
+    expect(course.status).toBe(Status.DRAFT);
   });
 
   test('студент без AUTHOR не может создать курс', async () => {
@@ -88,7 +89,7 @@ describe('CourseAccess (интеграционный)', () => {
   test('созданный курс появляется через list-courses', async () => {
     const courses = await app.apiApp.execute(
       'list-courses',
-      { status: 'draft' },
+      { status: Status.DRAFT },
       author.uuid,
     );
 
