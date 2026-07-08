@@ -29,6 +29,7 @@
 - UC: `create-course`, `list-courses`, `get-course`, `add-module-to-course`.
 - **Gates (см. §2.9):** `create-course` → AUTHOR; `canEdit` курса → ADMIN или author.
 - Программа курса = агрегация snapshot'ов модулей курса.
+- **Реализовано:** трек `course_aggregate_20260708` — агрегат Course, CourseJsonRepo, UC (create/list/get/add-module/add-phase), CourseInProcFacade.getCourseProgram. ✅
 
 ### 2.2. ContentPath — value object в домене `course`
 - Формат `A:B:C:D` = module:project:lesson:step (1-based индексы). Partial-формы: `A`, `A:B`, `A:B:C`, `A:B:C:D`, `A:B:C:all`.
