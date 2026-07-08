@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/user/domain';
-import { Role } from '@u7-scl/user/domain';
+import { UserPolicy } from '@u7-scl/user/domain';
 import type { Module } from '../module/entity';
 import { ModulePolicy } from '../module/policy';
 import { Status } from '../status';
@@ -11,9 +11,7 @@ import type { Step } from './entity';
  */
 export const StepPolicy = {
   canCreate(actor: User): boolean {
-    return (
-      actor.roles.includes(Role.ADMIN) || actor.roles.includes(Role.MENTOR)
-    );
+    return UserPolicy.isAuthor(actor);
   },
 
   /** Читать: ADMIN/автор курса → всё; иначе PUBLISHED. */

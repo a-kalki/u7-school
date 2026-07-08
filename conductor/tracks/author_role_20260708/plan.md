@@ -12,10 +12,10 @@
 
 ## Фаза 2: Gates создания контента
 
-- [ ] Task: Написать тесты ModulePolicy.canCreate
-  - [ ] AUTHOR → true; MENTOR (без AUTHOR) → false; ADMIN → false
-- [ ] Task: Изменить `ModulePolicy.canCreate`: MENTOR → AUTHOR
-- [ ] Task: Написать тесты create-module UC: AUTHOR создаёт; ADMIN/MENTOR без AUTHOR → access denied
+- [x] Task: Написать тесты ModulePolicy.canCreate [8e41ee2-pending]
+  - [x] AUTHOR → true; MENTOR (без AUTHOR) → false; ADMIN → false
+- [x] Task: Изменить `ModulePolicy.canCreate`: MENTOR → AUTHOR [8e41ee2-pending]
+- [~] Task: Написать тесты create-module UC: AUTHOR создаёт; ADMIN/MENTOR без AUTHOR → access denied
 - [ ] Task: Обновить create-module UC (gating уже через canCreate — проверить)
 - [ ] Task: Проверить add-project/create-lesson/create-step — остаются isAuthor-based (без изменений), добавить тест что AUTHOR-автор модуля может, а MENTOR-не-автор не может
 - [ ] Task: Conductor - Ручная верификация 'Gates создания'

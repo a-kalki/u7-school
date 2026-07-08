@@ -75,12 +75,12 @@ function makeAdmin(): User {
   };
 }
 
-function makeMentor(): User {
+function makeAuthor(): User {
   return {
     uuid: crypto.randomUUID(),
-    name: 'Ментор',
+    name: 'Автор',
     telegramId: 2,
-    roles: [Role.MENTOR],
+    roles: [Role.AUTHOR],
     createdAt: '2026-05-01T12:00',
   };
 }
@@ -100,14 +100,14 @@ function setupModule(facade: MockUserFacade) {
   });
 }
 
-async function createModuleAsMentor(
+async function createModuleAsAuthor(
   mod: CourseApiModule,
-  mentor: User,
+  author: User,
 ): Promise<string> {
   const result = await mod.execute(
     'create-module',
     { title: 'Модуль', description: 'Описание' },
-    mentor.uuid,
+    author.uuid,
   );
   return (result as { uuid: string }).uuid;
 }
@@ -117,22 +117,22 @@ describe('CourseApiModule', () => {
     rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('create-module: MENTOR создаёт курс', async () => {
+  test('create-module: AUTHOR создаёт модуль', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
-    facade.addUser(mentor);
+    const author = makeAuthor();
+    facade.addUser(author);
 
     const mod = setupModule(facade);
     const result = await mod.execute(
       'create-module',
       { title: 'Курс JS', description: 'Описание' },
-      mentor.uuid,
+      author.uuid,
     );
 
     expect((result as { title: string }).title).toBe('Курс JS');
   });
 
-  test('create-module: ADMIN не может создать курс', async () => {
+  test('create-module: ADMIN не может создать модуль', async () => {
     const facade = new MockUserFacade();
     const admin = makeAdmin();
     facade.addUser(admin);
@@ -148,15 +148,15 @@ describe('CourseApiModule', () => {
     ).rejects.toThrow('Недостаточно прав для создания модуля');
   });
 
-  test('enrich-module: ADMIN обогащает курс ментора', async () => {
+  test('enrich-module: ADMIN обогащает модуль автора', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
+    const author = makeAuthor();
     const admin = makeAdmin();
-    facade.addUser(mentor);
+    facade.addUser(author);
     facade.addUser(admin);
 
     const mod = setupModule(facade);
-    const moduleId = await createModuleAsMentor(mod, mentor);
+    const moduleId = await createModuleAsAuthor(mod, author);
 
     const result = await mod.execute(
       'enrich-module',
@@ -174,96 +174,96 @@ describe('CourseApiModule', () => {
     );
   });
 
-  test('publish-module: автор публикует курс', async () => {
+  test('publish-module: автор публикует модуль', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
-    facade.addUser(mentor);
+    const author = makeAuthor();
+    facade.addUser(author);
 
     const mod = setupModule(facade);
-    const moduleId = await createModuleAsMentor(mod, mentor);
+    const moduleId = await createModuleAsAuthor(mod, author);
 
     const result = await mod.execute(
       'publish-module',
       { moduleId },
-      mentor.uuid,
+      author.uuid,
     );
 
     expect((result as { status: string }).status).toBe(Status.PUBLISHED);
   });
 
-  test('get-module: возвращает созданный курс', async () => {
+  test('get-module: возвращает созданный модуль', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
-    facade.addUser(mentor);
+    const author = makeAuthor();
+    facade.addUser(author);
 
     const mod = setupModule(facade);
-    const moduleId = await createModuleAsMentor(mod, mentor);
+    const moduleId = await createModuleAsAuthor(mod, author);
 
     const result = await mod.execute(
       'get-module',
       { uuid: moduleId },
-      mentor.uuid,
+      author.uuid,
     );
 
     expect((result as { title: string }).title).toBe('Модуль');
   });
 
-  test('list-courses: возвращает список курсов', async () => {
+  test('list-courses: возвращает список модулей', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
-    facade.addUser(mentor);
+    const author = makeAuthor();
+    facade.addUser(author);
 
     const mod = setupModule(facade);
-    await createModuleAsMentor(mod, mentor);
+    await createModuleAsAuthor(mod, author);
 
-    const result = await mod.execute('list-modules', {}, mentor.uuid);
+    const result = await mod.execute('list-modules', {}, author.uuid);
 
     expect(result as unknown[]).toHaveLength(1);
   });
 
-  test('create-lesson: MENTOR создаёт урок в своём курсе', async () => {
+  test('create-lesson: AUTHOR создаёт урок в своём модуле', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
-    facade.addUser(mentor);
+    const author = makeAuthor();
+    facade.addUser(author);
 
     const mod = setupModule(facade);
-    const moduleId = await createModuleAsMentor(mod, mentor);
+    const moduleId = await createModuleAsAuthor(mod, author);
 
     const withProject = (await mod.execute(
       'add-project',
       { moduleId, title: 'Проект 1' },
-      mentor.uuid,
+      author.uuid,
     )) as { projects?: { uuid: string }[] };
     const projectId = withProject.projects?.[0]?.uuid ?? '';
 
     const result = await mod.execute(
       'create-lesson',
       { moduleId, projectId, title: 'Урок 1' },
-      mentor.uuid,
+      author.uuid,
     );
 
     expect((result as { title: string }).title).toBe('Урок 1');
   });
 
-  test('create-step: MENTOR создаёт шаг в своём курсе', async () => {
+  test('create-step: AUTHOR создаёт шаг в своём модуле', async () => {
     const facade = new MockUserFacade();
-    const mentor = makeMentor();
-    facade.addUser(mentor);
+    const author = makeAuthor();
+    facade.addUser(author);
 
     const mod = setupModule(facade);
-    const moduleId = await createModuleAsMentor(mod, mentor);
+    const moduleId = await createModuleAsAuthor(mod, author);
 
     const withProject = (await mod.execute(
       'add-project',
       { moduleId, title: 'Проект 1' },
-      mentor.uuid,
+      author.uuid,
     )) as { projects?: { uuid: string }[] };
     const projectId = withProject.projects?.[0]?.uuid ?? '';
 
     const lesson = (await mod.execute(
       'create-lesson',
       { moduleId, projectId, title: 'Урок 1' },
-      mentor.uuid,
+      author.uuid,
     )) as { uuid: string };
 
     const result = await mod.execute(
@@ -275,7 +275,7 @@ describe('CourseApiModule', () => {
         description: 'Описание',
         content: 'Шаг 1',
       },
-      mentor.uuid,
+      author.uuid,
     );
 
     expect((result as { kind: string }).kind).toBe('text');

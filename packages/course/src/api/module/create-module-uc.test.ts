@@ -67,18 +67,32 @@ function setupUc() {
 
 describe('CreateModuleUc', () => {
   describe('SUCCESS', () => {
-    test('MENTOR создаёт курс', async () => {
+    test('AUTHOR создаёт модуль', async () => {
       const { getUserByUuid, save, uc } = setupUc();
-      const mentor = makeUser({ roles: [Role.MENTOR] });
-      getUserByUuid.mockResolvedValueOnce(mentor);
+      const author = makeUser({ roles: [Role.AUTHOR] });
+      getUserByUuid.mockResolvedValueOnce(author);
 
       const course = await uc.handle(
         { title: 'Курс Python', description: 'Описание' },
-        mentor.uuid,
+        author.uuid,
       );
 
       expect((course as Module).title).toBe('Курс Python');
-      expect((course as Module).authorId).toBe(mentor.uuid);
+      expect((course as Module).authorId).toBe(author.uuid);
+      expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    test('пользователь с AUTHOR + MENTOR создаёт модуль', async () => {
+      const { getUserByUuid, save, uc } = setupUc();
+      const authorMentor = makeUser({ roles: [Role.AUTHOR, Role.MENTOR] });
+      getUserByUuid.mockResolvedValueOnce(authorMentor);
+
+      const course = await uc.handle(
+        { title: 'Курс Python', description: 'Описание' },
+        authorMentor.uuid,
+      );
+
+      expect((course as Module).title).toBe('Курс Python');
       expect(save).toHaveBeenCalledTimes(1);
     });
   });
@@ -114,6 +128,19 @@ describe('CreateModuleUc', () => {
       await expect(
         uc.handle({ title: 'Курс', description: 'Описание' }, 'nonexistent'),
       ).rejects.toThrow('Пользователь не найден');
+    });
+
+    test('MENTOR без AUTHOR не может создать модуль', async () => {
+      const { getUserByUuid, uc } = setupUc();
+      const mentor = makeUser({ roles: [Role.MENTOR] });
+      getUserByUuid.mockResolvedValueOnce(mentor);
+
+      const createCourseCb = async () =>
+        uc.handle({ title: 'Курс JS', description: 'Описание' }, mentor.uuid);
+
+      await expect(createCourseCb()).rejects.toThrow(
+        'Недостаточно прав для создания модуля',
+      );
     });
 
     test('отклоняет STUDENT без прав', async () => {

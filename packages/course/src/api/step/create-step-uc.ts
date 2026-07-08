@@ -16,7 +16,7 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case создания шага.
- * Требует прав ADMIN/MENTOR + проверка авторства курса через ModulePolicy.
+ * Требует прав AUTHOR + проверка авторства курса через ModulePolicy.
  */
 export class CreateStepUc extends CourseUseCase<CreateStepCmdMeta> {
   protected readonly ucName = 'create-step' as const;

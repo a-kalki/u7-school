@@ -14,7 +14,7 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case создания урока.
- * Требует прав ADMIN/MENTOR + проверка авторства курса через ModulePolicy.
+ * Требует прав AUTHOR + проверка авторства курса через ModulePolicy.
  * Использует CourseDs для координации Course + Lesson + транзакционное сохранение.
  */
 export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {

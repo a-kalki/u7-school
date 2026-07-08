@@ -11,4 +11,5 @@
 | 9 | 2026-06-16 | arch_fixes_20260618 | 9293a52 | post-task-debrief | 4/4 ✓ | [лог](logs/2026-06-16-arch-fixes-phase1.md) |
 | 10 | 2026-06-16 | arch_fixes_20260618 | 4729fcc | post-task-debrief | 4/4 ✓ | [лог](logs/2026-06-16-arch-fixes-phase2.md) |
 | 11 | 2026-06-16 | arch_fixes_20260618 | 50f57bd | post-task-debrief | 3/3 ✓ | [лог](logs/2026-06-16-arch-fixes-phase3.md) |
-**Всего:** 11
+| 12 | 2026-07-08 | author_role_20260708 | 8e41ee2 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-07-08-author-role-faza1.md) |
+**Всего:** 12

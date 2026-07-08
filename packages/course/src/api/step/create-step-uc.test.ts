@@ -96,11 +96,11 @@ function setupUc() {
 
 describe('CreateStepUc', () => {
   describe('SUCCESS', () => {
-    test('ADMIN создаёт текстовый шаг в своём курсе', async () => {
+    test('AUTHOR создаёт текстовый шаг в своём модуле', async () => {
       const { courseGetByUuid, stepSave, getUserByUuid, uc } = setupUc();
-      const admin = makeUser();
-      const module = makeModule(admin.uuid);
-      getUserByUuid.mockResolvedValueOnce(admin);
+      const author = makeUser([Role.AUTHOR]);
+      const module = makeModule(author.uuid);
+      getUserByUuid.mockResolvedValueOnce(author);
       courseGetByUuid.mockResolvedValueOnce(module);
 
       const result = await uc.handle(
@@ -111,7 +111,7 @@ describe('CreateStepUc', () => {
           description: 'Описание',
           content: 'Шаг 1',
         },
-        admin.uuid,
+        author.uuid,
       );
 
       expect((result as Step).kind).toBe('text');
@@ -138,10 +138,28 @@ describe('CreateStepUc', () => {
       ).rejects.toThrow('Недостаточно прав для создания шага');
     });
 
-    test('отклоняет не автора курса', async () => {
+    test('отклоняет MENTOR без AUTHOR', async () => {
+      const { getUserByUuid, uc } = setupUc();
+      getUserByUuid.mockResolvedValueOnce(makeUser([Role.MENTOR]));
+
+      await expect(
+        uc.handle(
+          {
+            moduleId: crypto.randomUUID(),
+            kind: 'text' as const,
+            lessonId: crypto.randomUUID(),
+            description: 'Описание',
+            content: 'Ш',
+          },
+          'actor-id',
+        ),
+      ).rejects.toThrow('Недостаточно прав для создания шага');
+    });
+
+    test('отклоняет AUTHOR не автора модуля', async () => {
       const { courseGetByUuid, getUserByUuid, uc } = setupUc();
-      const mentor = makeUser([Role.MENTOR]);
-      getUserByUuid.mockResolvedValueOnce(mentor);
+      const author = makeUser([Role.AUTHOR]);
+      getUserByUuid.mockResolvedValueOnce(author);
       courseGetByUuid.mockResolvedValueOnce(makeModule(crypto.randomUUID()));
 
       await expect(
@@ -153,7 +171,7 @@ describe('CreateStepUc', () => {
             description: 'Описание',
             content: 'Ш',
           },
-          mentor.uuid,
+          author.uuid,
         ),
       ).rejects.toThrow('Вы не являетесь автором модуля');
     });

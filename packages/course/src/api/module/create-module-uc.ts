@@ -13,7 +13,7 @@ import { CourseUseCase } from '../course-uc';
  * Use-case создания модуля (этап 1).
  * Принимает title, description.
  * authorId берётся из actorId.
- * Требует прав MENTOR.
+ * Требует прав AUTHOR.
  */
 export class CreateModuleUc extends CourseUseCase<CreateModuleCmdMeta> {
   protected readonly ucName = 'create-module' as const;

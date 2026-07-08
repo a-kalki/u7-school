@@ -91,12 +91,12 @@ function setupUc() {
 
 describe('CreateLessonUc', () => {
   describe('SUCCESS', () => {
-    test('MENTOR создаёт урок в своём курсе', async () => {
+    test('AUTHOR создаёт урок в своём модуле', async () => {
       const { courseGetByUuid, courseSave, lessonSave, getUserByUuid, uc } =
         setupUc();
-      const mentor = makeUser([Role.MENTOR]);
-      const module = makeModule(mentor.uuid);
-      getUserByUuid.mockResolvedValueOnce(mentor);
+      const author = makeUser([Role.AUTHOR]);
+      const module = makeModule(author.uuid);
+      getUserByUuid.mockResolvedValueOnce(author);
       courseGetByUuid.mockResolvedValueOnce(module);
 
       const projectId =
@@ -108,7 +108,7 @@ describe('CreateLessonUc', () => {
           projectId,
           title: 'Урок 1',
         },
-        mentor.uuid,
+        author.uuid,
       );
 
       expect((result as Lesson).title).toBe('Урок 1');
@@ -134,11 +134,27 @@ describe('CreateLessonUc', () => {
       ).rejects.toThrow('Недостаточно прав для создания урока');
     });
 
-    test('отклоняет MENTOR не автора курса', async () => {
+    test('отклоняет MENTOR без AUTHOR', async () => {
+      const { getUserByUuid, uc } = setupUc();
+      getUserByUuid.mockResolvedValueOnce(makeUser([Role.MENTOR]));
+
+      await expect(
+        uc.handle(
+          {
+            moduleId: crypto.randomUUID(),
+            projectId: crypto.randomUUID(),
+            title: 'У',
+          },
+          'actor-id',
+        ),
+      ).rejects.toThrow('Недостаточно прав для создания урока');
+    });
+
+    test('отклоняет AUTHOR не автора модуля', async () => {
       const { courseGetByUuid, getUserByUuid, uc } = setupUc();
-      const mentor = makeUser([Role.MENTOR]);
+      const author = makeUser([Role.AUTHOR]);
       const module = makeModule(crypto.randomUUID());
-      getUserByUuid.mockResolvedValueOnce(mentor);
+      getUserByUuid.mockResolvedValueOnce(author);
       courseGetByUuid.mockResolvedValueOnce(module);
 
       await expect(
@@ -150,7 +166,7 @@ describe('CreateLessonUc', () => {
                 ?.uuid ?? '',
             title: 'У',
           },
-          mentor.uuid,
+          author.uuid,
         ),
       ).rejects.toThrow('Вы не являетесь автором модуля');
     });

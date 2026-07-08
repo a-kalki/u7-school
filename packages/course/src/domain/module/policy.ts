@@ -8,9 +8,9 @@ import type { Module, Project } from './entity';
  * Stateless — проверяет права на основе роли и авторства пользователя.
  */
 export const ModulePolicy = {
-  /** Только MENTOR может создавать модули. */
+  /** Только AUTHOR может создавать модули. */
   canCreate(actor: User): boolean {
-    return UserPolicy.isMentor(actor);
+    return UserPolicy.isAuthor(actor);
   },
 
   /** Читать может ADMIN, автор, или любой если модуль PUBLISHED. */

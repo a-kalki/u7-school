@@ -41,11 +41,14 @@ const step: Step = {
 
 describe('StepPolicy', () => {
   describe('canCreate', () => {
-    test('ADMIN может создавать', () => {
-      expect(StepPolicy.canCreate(makeActor([Role.ADMIN]))).toBe(true);
+    test('ADMIN без AUTHOR не может создавать', () => {
+      expect(StepPolicy.canCreate(makeActor([Role.ADMIN]))).toBe(false);
     });
-    test('MENTOR может создавать', () => {
-      expect(StepPolicy.canCreate(makeActor([Role.MENTOR]))).toBe(true);
+    test('AUTHOR может создавать', () => {
+      expect(StepPolicy.canCreate(makeActor([Role.AUTHOR]))).toBe(true);
+    });
+    test('MENTOR без AUTHOR не может создавать', () => {
+      expect(StepPolicy.canCreate(makeActor([Role.MENTOR]))).toBe(false);
     });
     test('STUDENT не может создавать', () => {
       expect(StepPolicy.canCreate(makeActor([Role.STUDENT]))).toBe(false);

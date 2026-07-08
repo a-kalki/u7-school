@@ -30,8 +30,18 @@ describe('ModulePolicy', () => {
       expect(ModulePolicy.canCreate(makeActor([Role.ADMIN]))).toBe(false);
     });
 
-    test('MENTOR может создавать', () => {
-      expect(ModulePolicy.canCreate(makeActor([Role.MENTOR]))).toBe(true);
+    test('AUTHOR может создавать', () => {
+      expect(ModulePolicy.canCreate(makeActor([Role.AUTHOR]))).toBe(true);
+    });
+
+    test('MENTOR без AUTHOR не может создавать', () => {
+      expect(ModulePolicy.canCreate(makeActor([Role.MENTOR]))).toBe(false);
+    });
+
+    test('пользователь с AUTHOR + MENTOR может создавать', () => {
+      expect(
+        ModulePolicy.canCreate(makeActor([Role.MENTOR, Role.AUTHOR])),
+      ).toBe(true);
     });
 
     test('STUDENT не может создавать', () => {

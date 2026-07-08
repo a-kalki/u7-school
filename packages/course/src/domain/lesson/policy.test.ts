@@ -46,8 +46,11 @@ describe('LessonPolicy', () => {
     test('ADMIN не может создавать', () => {
       expect(LessonPolicy.canCreate(makeActor([Role.ADMIN]))).toBe(false);
     });
-    test('MENTOR может создавать', () => {
-      expect(LessonPolicy.canCreate(makeActor([Role.MENTOR]))).toBe(true);
+    test('AUTHOR может создавать', () => {
+      expect(LessonPolicy.canCreate(makeActor([Role.AUTHOR]))).toBe(true);
+    });
+    test('MENTOR без AUTHOR не может создавать', () => {
+      expect(LessonPolicy.canCreate(makeActor([Role.MENTOR]))).toBe(false);
     });
     test('STUDENT не может создавать', () => {
       expect(LessonPolicy.canCreate(makeActor([Role.STUDENT]))).toBe(false);

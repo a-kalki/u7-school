@@ -11,7 +11,7 @@ import type { Lesson } from './entity';
  */
 export const LessonPolicy = {
   canCreate(actor: User): boolean {
-    return UserPolicy.isMentor(actor);
+    return UserPolicy.isAuthor(actor);
   },
 
   /** Читать: ADMIN/автор курса → всё; иначе PUBLISHED. */
