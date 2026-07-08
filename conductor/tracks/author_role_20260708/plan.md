@@ -22,9 +22,9 @@
 
 ## Фаза 3: Тесты редактирования (regression)
 
-- [~] Task: Написать тесты canEdit (ADMIN редактирует; author редактирует; чужой MENTOR не может)
-- [ ] Task: Подтвердить что enrich-module/publish-module/add-project gating не сломан
-- [ ] Task: Conductor - Ручная верификация 'Редактирование и regression'
+- [x] Task: Написать тесты canEdit (ADMIN редактирует; author редактирует; чужой MENTOR не может) [45a859d]
+- [x] Task: Подтвердить что enrich-module/publish-module/add-project gating не сломан [45a859d]
+- [~] Task: Conductor - Ручная верификация 'Редактирование и regression'
 
 ## Фаза 4: Миграция и документация
 
