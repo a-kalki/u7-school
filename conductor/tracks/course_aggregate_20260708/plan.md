@@ -33,12 +33,12 @@
 
 ## Фаза 3: Инфра (json-репозиторий)
 
-- [ ] Task: Написать тесты CourseJsonRepo
+- [x] Task: Написать тесты CourseJsonRepo
 
-- [ ] Task: Реализовать CourseJsonRepo
-  - [ ] `packages/course/src/infra/course-json-repo.ts`
-  - [ ] Файл `data/courses/courses.json`
-  - [ ] Подключить в `tests/bot/helpers/test-app.ts` (fixtures: `tests/bot/fixtures/templates/courses/courses.json`)
+- [x] Task: Реализовать CourseJsonRepo
+  - [x] `packages/course/src/infra/db/course-json-repo.ts`
+  - [x] Файл `data/courses/courses.json`
+  - [x] Подключить в `tests/bot/helpers/test-app.ts` (fixtures: `tests/bot/fixtures/templates/courses/courses.json`)
 
 - [ ] Task: Conductor - Ручная верификация 'Инфра курса'
 
