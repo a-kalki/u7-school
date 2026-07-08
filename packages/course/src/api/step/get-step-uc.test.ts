@@ -64,7 +64,7 @@ function setupUc() {
   );
   const uc = new GetStepUc();
   uc.init({
-    courseRepo: {
+    moduleRepo: {
       getByUuid: courseGetByUuid,
       getAll: mock(async () => []),
     } as never,

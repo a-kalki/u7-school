@@ -11,7 +11,6 @@ import { CourseUseCase } from '../course-uc';
 
 /**
  * Use-case создания курса.
- * Требует прав AUTHOR.
  */
 export class CreateCourseUc extends CourseUseCase<CreateCourseCmdMeta> {
   protected readonly ucName = 'create-course' as const;
@@ -33,7 +32,7 @@ export class CreateCourseUc extends CourseUseCase<CreateCourseCmdMeta> {
     }
 
     const ar = CourseAr.create(command.title, command.description, actorId);
-    await this.resolve.courseRepository.save(ar.state);
+    await this.resolve.courseRepo.save(ar.state);
 
     return ar.state;
   }

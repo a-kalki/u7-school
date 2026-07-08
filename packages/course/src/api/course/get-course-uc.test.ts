@@ -28,39 +28,39 @@ function makeCourseRepo() {
 }
 
 function setupUc() {
-  const courseRepository = makeCourseRepo();
+  const courseRepo = makeCourseRepo();
 
   const uc = new GetCourseUc();
   uc.init({
-    courseRepo: {} as never,
-    courseRepository,
+    moduleRepo: {} as never,
+    courseRepo,
     courseFacade: {} as never,
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade: {} as never,
   } as unknown as CourseApiModuleResolver);
 
-  return { courseRepository, uc };
+  return { courseRepo, uc };
 }
 
 describe('GetCourseUc', () => {
   describe('SUCCESS', () => {
     test('возвращает курс по uuid', async () => {
-      const { courseRepository, uc } = setupUc();
+      const { courseRepo, uc } = setupUc();
       const course = makeCourse();
-      courseRepository.getByUuid.mockResolvedValueOnce(course);
+      courseRepo.getByUuid.mockResolvedValueOnce(course);
 
       const result = await uc.handle({ uuid: course.uuid });
 
       expect((result as Course).uuid).toBe(course.uuid);
       expect((result as Course).title).toBe('Курс JS');
-      expect(courseRepository.getByUuid).toHaveBeenCalledTimes(1);
+      expect(courseRepo.getByUuid).toHaveBeenCalledTimes(1);
     });
 
     test('возвращает опубликованный курс без авторизации', async () => {
-      const { courseRepository, uc } = setupUc();
+      const { courseRepo, uc } = setupUc();
       const course = makeCourse({ status: Status.PUBLISHED });
-      courseRepository.getByUuid.mockResolvedValueOnce(course);
+      courseRepo.getByUuid.mockResolvedValueOnce(course);
 
       const result = await uc.handle({ uuid: course.uuid });
 
@@ -70,8 +70,8 @@ describe('GetCourseUc', () => {
 
   describe('FAIL', () => {
     test('выбрасывает ошибку если курс не найден', async () => {
-      const { courseRepository, uc } = setupUc();
-      courseRepository.getByUuid.mockResolvedValueOnce(undefined);
+      const { courseRepo, uc } = setupUc();
+      courseRepo.getByUuid.mockResolvedValueOnce(undefined);
 
       await expect(uc.handle({ uuid: crypto.randomUUID() })).rejects.toThrow(
         'Курс не найден',

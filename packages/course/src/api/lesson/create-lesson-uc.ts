@@ -53,7 +53,7 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
     if (db) {
       db.begin();
       try {
-        await this.resolve.courseRepo.save(module.state);
+        await this.resolve.moduleRepo.save(module.state);
         await this.resolve.lessonRepo.save(lesson.state);
         await db.commit();
       } catch (e) {
@@ -61,7 +61,7 @@ export class CreateLessonUc extends CourseUseCase<CreateLessonCmdMeta> {
         throw e;
       }
     } else {
-      await this.resolve.courseRepo.save(module.state);
+      await this.resolve.moduleRepo.save(module.state);
       await this.resolve.lessonRepo.save(lesson.state);
     }
 

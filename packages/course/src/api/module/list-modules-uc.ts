@@ -29,7 +29,7 @@ export class ListModulesUc extends CourseUseCase<ListModulesCmdMeta> {
   async execute(command: ListModulesCmd, actorId?: string): Promise<Module[]> {
     const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
 
-    const modules = await this.resolve.courseRepo.getAll({
+    const modules = await this.resolve.moduleRepo.getAll({
       status: command.status,
       authorId: command.authorId,
       title: command.title,

@@ -47,7 +47,7 @@ function setupUc() {
 
   const uc = new CreateModuleUc();
   uc.init({
-    courseRepo: repo,
+    moduleRepo: repo,
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade,

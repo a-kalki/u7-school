@@ -36,7 +36,7 @@ export class EnrichModuleUc extends CourseUseCase<EnrichModuleCmdMeta> {
 
     const ar = new ModuleAr(module);
     ar.enrich(command);
-    await this.resolve.courseRepo.save(ar.state);
+    await this.resolve.moduleRepo.save(ar.state);
 
     return ar.state;
   }

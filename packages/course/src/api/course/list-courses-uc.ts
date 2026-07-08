@@ -28,7 +28,7 @@ export class ListCoursesUc extends CourseUseCase<ListCoursesCmdMeta> {
   protected readonly outputSchema = CoursesListOutputSchema;
 
   async execute(command: ListCoursesCmd, _actorId?: string): Promise<Course[]> {
-    const courses = await this.resolve.courseRepository.getAll({
+    const courses = await this.resolve.courseRepo.getAll({
       status: command.status ?? Status.PUBLISHED,
       authorId: command.authorId,
       title: command.title,

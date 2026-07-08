@@ -100,8 +100,8 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
 
   // Course-модуль
   const courseModule = new CourseApiModule({
-    courseRepo: moduleRepo,
-    courseRepository: {
+    moduleRepo,
+    courseRepo: {
       save: async () => {},
       getByUuid: async () => undefined,
       getAll: async () => [],

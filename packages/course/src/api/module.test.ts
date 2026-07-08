@@ -92,8 +92,8 @@ function nextPath(prefix: string): string {
 
 function setupModule(facade: MockUserFacade) {
   return new CourseApiModule({
-    courseRepo: new ModuleJsonRepo(nextPath('courses')),
-    courseRepository: {
+    moduleRepo: new ModuleJsonRepo(nextPath('courses')),
+    courseRepo: {
       save: mock(async () => {}),
       getByUuid: mock(async () => undefined),
       getAll: mock(async () => []),

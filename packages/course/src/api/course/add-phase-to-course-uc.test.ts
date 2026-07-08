@@ -41,32 +41,32 @@ function makeCourseRepo() {
 }
 
 function setupUc() {
-  const courseRepository = makeCourseRepo();
+  const courseRepo = makeCourseRepo();
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
 
   const uc = new AddPhaseToCourseUc();
   uc.init({
-    courseRepo: {} as never,
-    courseRepository,
+    moduleRepo: {} as never,
+    courseRepo,
     courseFacade: {} as never,
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade: { getUserByUuid } as never,
   } as unknown as CourseApiModuleResolver);
 
-  return { courseRepository, getUserByUuid, uc };
+  return { courseRepo, getUserByUuid, uc };
 }
 
 describe('AddPhaseToCourseUc', () => {
   describe('SUCCESS', () => {
     test('ADMIN добавляет фазу в курс', async () => {
-      const { courseRepository, getUserByUuid, uc } = setupUc();
+      const { courseRepo, getUserByUuid, uc } = setupUc();
       const admin = makeUser();
       const course = makeCourse({ authorId: crypto.randomUUID() });
       getUserByUuid.mockResolvedValueOnce(admin);
-      courseRepository.getByUuid.mockResolvedValueOnce(course);
+      courseRepo.getByUuid.mockResolvedValueOnce(course);
 
       const result = await uc.handle(
         { courseId: course.uuid, title: 'Этап 1', track: 'tech' },
@@ -75,15 +75,15 @@ describe('AddPhaseToCourseUc', () => {
 
       expect((result as Course).phases).toHaveLength(1);
       expect((result as Course).phases[0]!.title).toBe('Этап 1');
-      expect(courseRepository.save).toHaveBeenCalledTimes(1);
+      expect(courseRepo.save).toHaveBeenCalledTimes(1);
     });
 
     test('автор добавляет фазу в свой курс', async () => {
-      const { courseRepository, getUserByUuid, uc } = setupUc();
+      const { courseRepo, getUserByUuid, uc } = setupUc();
       const author = makeUser({ roles: [Role.AUTHOR] });
       const course = makeCourse({ authorId: author.uuid });
       getUserByUuid.mockResolvedValueOnce(author);
-      courseRepository.getByUuid.mockResolvedValueOnce(course);
+      courseRepo.getByUuid.mockResolvedValueOnce(course);
 
       const result = await uc.handle(
         { courseId: course.uuid, title: 'Этап 2' },
@@ -96,11 +96,11 @@ describe('AddPhaseToCourseUc', () => {
 
   describe('FAIL', () => {
     test('MENTOR не может добавить фазу', async () => {
-      const { courseRepository, getUserByUuid, uc } = setupUc();
+      const { courseRepo, getUserByUuid, uc } = setupUc();
       const mentor = makeUser({ roles: [Role.MENTOR] });
       const course = makeCourse();
       getUserByUuid.mockResolvedValueOnce(mentor);
-      courseRepository.getByUuid.mockResolvedValueOnce(course);
+      courseRepo.getByUuid.mockResolvedValueOnce(course);
 
       await expect(
         uc.handle({ courseId: course.uuid, title: 'Этап 1' }, mentor.uuid),
@@ -108,10 +108,10 @@ describe('AddPhaseToCourseUc', () => {
     });
 
     test('выбрасывает ошибку если курс не найден', async () => {
-      const { courseRepository, getUserByUuid, uc } = setupUc();
+      const { courseRepo, getUserByUuid, uc } = setupUc();
       const admin = makeUser();
       getUserByUuid.mockResolvedValueOnce(admin);
-      courseRepository.getByUuid.mockResolvedValueOnce(undefined);
+      courseRepo.getByUuid.mockResolvedValueOnce(undefined);
 
       await expect(
         uc.handle(

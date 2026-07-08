@@ -2,6 +2,7 @@ import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import type { Course } from '#domain/course/entity';
+import type { CourseRepo } from '#domain/index';
 import type { CourseApiModuleResolver } from '#domain/module';
 import { CreateCourseUc } from './create-course-uc';
 
@@ -23,32 +24,32 @@ function makeCourseRepo() {
   );
   const getAll = mock(async (): Promise<Course[]> => []);
 
-  return { save, getByUuid, getAll };
+  return { save, getByUuid, getAll } as CourseRepo;
 }
 
 function setupUc() {
-  const courseRepository = makeCourseRepo();
+  const courseRepo = makeCourseRepo();
   const getUserByUuid = mock(
     async (_uuid: string): Promise<User | undefined> => undefined,
   );
 
   const uc = new CreateCourseUc();
   uc.init({
-    courseRepo: {} as never,
-    courseRepository,
+    moduleRepo: {} as never,
+    courseRepo,
     courseFacade: {} as never,
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade: { getUserByUuid } as never,
   } as unknown as CourseApiModuleResolver);
 
-  return { courseRepository, getUserByUuid, uc };
+  return { courseRepo, getUserByUuid, uc };
 }
 
 describe('CreateCourseUc', () => {
   describe('SUCCESS', () => {
     test('AUTHOR создаёт курс', async () => {
-      const { getUserByUuid, courseRepository, uc } = setupUc();
+      const { getUserByUuid, courseRepo, uc } = setupUc();
       const author = makeUser({ roles: [Role.AUTHOR] });
       getUserByUuid.mockResolvedValueOnce(author);
 
@@ -59,11 +60,11 @@ describe('CreateCourseUc', () => {
 
       expect((result as Course).title).toBe('Курс JS');
       expect((result as Course).authorId).toBe(author.uuid);
-      expect(courseRepository.save).toHaveBeenCalledTimes(1);
+      expect(courseRepo.save).toHaveBeenCalledTimes(1);
     });
 
     test('AUTHOR + MENTOR создаёт курс', async () => {
-      const { getUserByUuid, courseRepository, uc } = setupUc();
+      const { getUserByUuid, courseRepo, uc } = setupUc();
       const author = makeUser({ roles: [Role.AUTHOR, Role.MENTOR] });
       getUserByUuid.mockResolvedValueOnce(author);
 
@@ -73,7 +74,7 @@ describe('CreateCourseUc', () => {
       );
 
       expect((result as Course).title).toBe('Курс Python');
-      expect(courseRepository.save).toHaveBeenCalledTimes(1);
+      expect(courseRepo.save).toHaveBeenCalledTimes(1);
     });
   });
 

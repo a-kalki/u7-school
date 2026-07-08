@@ -35,7 +35,7 @@ export class PublishModuleUc extends CourseUseCase<PublishModuleCmdMeta> {
 
     const ar = new ModuleAr(module);
     ar.publish();
-    await this.resolve.courseRepo.save(ar.state);
+    await this.resolve.moduleRepo.save(ar.state);
 
     return ar.state;
   }

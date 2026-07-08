@@ -33,7 +33,7 @@ function setupUc() {
   };
   const uc = new ListModulesUc();
   uc.init({
-    courseRepo: repo,
+    moduleRepo: repo,
     lessonRepo: {} as never,
     stepRepo: {} as never,
     userFacade: {} as never,

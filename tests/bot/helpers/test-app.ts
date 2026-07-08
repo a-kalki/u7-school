@@ -54,7 +54,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const streamRepo = new StreamJsonRepo(fixtures.streams);
   const studentRepo = new StudentJsonRepo(fixtures.students);
 
-  const courseRepo = new ModuleJsonRepo(fixtures.courses.modules);
+  const moduleRepo = new ModuleJsonRepo(fixtures.courses.modules);
   const lessonRepo = new LessonJsonRepo(fixtures.courses.lessons);
   const stepRepo = new StepJsonRepo(fixtures.courses.steps);
 
@@ -62,8 +62,8 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
-  // Заглушка courseRepository — будет заменена на CourseJsonRepo в Фазе 3
-  const courseRepository = {
+  // Заглушка courseRepo — будет заменена на CourseJsonRepo в Фазе 3
+  const courseRepo = {
     save: async () => {},
     getByUuid: async () => undefined,
     getAll: async () => [],
@@ -71,8 +71,8 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
 
   const courseModule = new CourseApiModule({
     db,
+    moduleRepo,
     courseRepo,
-    courseRepository,
     lessonRepo,
     stepRepo,
     userFacade,

@@ -21,15 +21,15 @@ async function main() {
   const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
-  const courseRepository = {
+  const courseRepo = {
     save: async () => {},
     getByUuid: async () => undefined,
     getAll: async () => [],
   };
 
   const courseModule = new CourseApiModule({
-    courseRepo: new ModuleJsonRepo(),
-    courseRepository,
+    moduleRepo: new ModuleJsonRepo(),
+    courseRepo,
     lessonRepo: new LessonJsonRepo(),
     stepRepo: new StepJsonRepo(),
     userFacade,

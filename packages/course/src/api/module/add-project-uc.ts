@@ -35,7 +35,7 @@ export class AddProjectUc extends CourseUseCase<AddProjectCmdMeta> {
 
     const ar = new ModuleAr(module);
     ar.addProject(command);
-    await this.resolve.courseRepo.save(ar.state);
+    await this.resolve.moduleRepo.save(ar.state);
 
     return ar.state;
   }

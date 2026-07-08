@@ -57,8 +57,8 @@ export interface CourseApiModuleMeta extends ApiModuleMeta {
 /** Резолвер зависимостей API-модуля курсов */
 export interface CourseApiModuleResolver extends ModuleResolver {
   db?: BaseJsonDb;
-  courseRepo: ModuleRepo;
-  courseRepository: CourseRepo;
+  moduleRepo: ModuleRepo;
+  courseRepo: CourseRepo;
   courseFacade?: CourseFacade;
   lessonRepo: LessonRepo;
   stepRepo: StepRepo;

@@ -40,13 +40,13 @@ export class AddModuleToCourseUc extends CourseUseCase<AddModuleToCourseCmdMeta>
 
     const ar = new CourseAr(course);
     ar.addModuleToPhase(command.phaseTitle, command.moduleId);
-    await this.resolve.courseRepository.save(ar.state);
+    await this.resolve.courseRepo.save(ar.state);
 
     return ar.state;
   }
 
   private async getCourse(uuid: string): Promise<Course> {
-    const course = await this.resolve.courseRepository.getByUuid(uuid);
+    const course = await this.resolve.courseRepo.getByUuid(uuid);
     if (!course) {
       this.throwError(
         errNotFound<CourseNotFoundUcError>(

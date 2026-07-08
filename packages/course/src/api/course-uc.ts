@@ -21,7 +21,7 @@ export abstract class CourseUseCase<TMeta extends UcMeta> extends UseCase<
   CourseApiModuleResolver
 > {
   protected async getModule(moduleId: string): Promise<Module> {
-    const module = await this.resolve.courseRepo.getByUuid(moduleId);
+    const module = await this.resolve.moduleRepo.getByUuid(moduleId);
     if (!module) {
       this.throwError(
         errNotFound<ModuleNotFoundUcError>(

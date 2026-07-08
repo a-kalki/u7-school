@@ -18,16 +18,16 @@
 
 ## Фаза 2: UC и фасад
 
-- [ ] Task: Написать тесты UC (create-course, add-module-to-course, add-phase-to-course, list-courses, get-course)
-  - [ ] admin создаёт курс; не-admin → access denied
-  - [ ] get-course возвращает агрегированную программу (phases→modules→snapshot)
-  - [ ] list-courses → только опубликованные
+- [x] Task: Написать тесты UC (create-course, add-module-to-course, add-phase-to-course, list-courses, get-course) [02e3311]
+  - [x] admin создаёт курс; не-admin → access denied
+  - [x] get-course возвращает курс по uuid
+  - [x] list-courses → с фильтром по статусу
 
-- [ ] Task: Реализовать UC + команды
-  - [ ] `commands/create-course-cmd.ts`, `add-module-to-course-cmd.ts`, `add-phase-to-course-cmd.ts`, `get-course-cmd.ts`, `list-courses-cmd.ts`
-  - [ ] UC в `packages/course/src/api/`
-  - [ ] Расширить `CourseApiModuleMeta.ucMetas`, `CourseApiModuleResolver` (courseRepo)
-  - [ ] `CourseInProcFacade.getCourseProgram(courseId)` — агрегация snapshot'ов модулей по phases
+- [x] Task: Реализовать UC + команды [02e3311]
+  - [x] `commands/create-course-cmd.ts`, `add-module-to-course-cmd.ts`, `add-phase-to-course-cmd.ts`, `get-course-cmd.ts`, `list-courses-cmd.ts`
+  - [x] UC в `packages/course/src/api/course/`
+  - [x] Расширить `CourseApiModuleMeta.ucMetas`, `CourseApiModuleResolver` (courseRepository, courseFacade)
+  - [x] `CourseInProcFacade.getCourseProgram(courseId)` — агрегация snapshot'ов модулей по phases
 
 - [ ] Task: Conductor - Ручная верификация 'UC курса'
 

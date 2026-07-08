@@ -35,7 +35,7 @@ export class CreateModuleUc extends CourseUseCase<CreateModuleCmdMeta> {
     }
 
     const ar = ModuleAr.create(command.title, command.description, actorId);
-    await this.resolve.courseRepo.save(ar.state);
+    await this.resolve.moduleRepo.save(ar.state);
 
     return ar.state;
   }

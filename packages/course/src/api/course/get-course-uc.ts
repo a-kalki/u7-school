@@ -26,7 +26,7 @@ export class GetCourseUc extends CourseUseCase<GetCourseCmdMeta> {
   protected readonly outputSchema = CourseSchema;
 
   async execute(command: GetCourseCmd, _actorId?: string): Promise<Course> {
-    const course = await this.resolve.courseRepository.getByUuid(command.uuid);
+    const course = await this.resolve.courseRepo.getByUuid(command.uuid);
     if (!course) {
       this.throwError(
         errNotFound<CourseNotFoundUcError>(

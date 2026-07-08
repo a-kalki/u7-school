@@ -49,7 +49,7 @@ function setupUc() {
   const courseGetByUuid = mock(
     async (_uuid: string): Promise<Module | undefined> => undefined,
   );
-  const courseRepo: ModuleRepo = {
+  const moduleRepo: ModuleRepo = {
     save: courseSave,
     getByUuid: courseGetByUuid,
     getAll: mock(async () => []),
@@ -81,7 +81,7 @@ function setupUc() {
   };
   const uc = new CreateLessonUc();
   uc.init({
-    courseRepo,
+    moduleRepo,
     lessonRepo,
     stepRepo: {} as never,
     userFacade,

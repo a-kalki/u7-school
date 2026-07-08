@@ -104,7 +104,12 @@ async function main() {
   const userFacade = new UserInProcFacade(userModule);
 
   const courseResolve = {
-    courseRepo: moduleRepo,
+    moduleRepo,
+    courseRepo: {
+      save: async () => {},
+      getByUuid: async () => undefined,
+      getAll: async () => [],
+    },
     lessonRepo,
     stepRepo,
     userFacade,

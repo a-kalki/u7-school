@@ -65,12 +65,12 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const userFacade = new UserInProcFacade(userModule);
 
   // ══ Course: репозитории, модуль и фасад ══
-  const courseRepo = new ModuleJsonRepo(`${config.dbDir}/courses/modules.json`);
+  const moduleRepo = new ModuleJsonRepo(`${config.dbDir}/courses/modules.json`);
   const lessonRepo = new LessonJsonRepo(`${config.dbDir}/courses/lessons.json`);
   const stepRepo = new StepJsonRepo(`${config.dbDir}/courses/steps.json`);
 
-  // Заглушка courseRepository — будет заменена на CourseJsonRepo в Фазе 3
-  const courseRepository = {
+  // Заглушка courseRepo — будет заменена на CourseJsonRepo в Фазе 3
+  const courseRepo = {
     save: async () => {},
     getByUuid: async () => undefined,
     getAll: async () => [],
@@ -78,8 +78,8 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
 
   const courseModule = new CourseApiModule({
     db,
+    moduleRepo,
     courseRepo,
-    courseRepository,
     lessonRepo,
     stepRepo,
     userFacade,
