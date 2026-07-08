@@ -7,7 +7,7 @@
 - [ ] Task: Написать тесты Role/RoleSchema (AUTHOR валиден, входит в список)
 - [ ] Task: Добавить `Role.AUTHOR` + `RoleSchema`
   - [ ] `packages/user/src/domain/user/roles.ts`
-- [ ] Task: Обновить `UserPolicy` при необходимости (isAuthor-хелпер? — нет, роль проверяется напрямую)
+- [ ] Task: Обновить `UserPolicy` метод isAuthor()
 - [ ] Task: Conductor - Ручная верификация 'Роль AUTHOR'
 
 ## Фаза 2: Gates создания контента
@@ -32,4 +32,5 @@
 - [ ] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR)
 - [ ] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию)
 - [ ] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости
+- [ ] Task: Проверить, обновить сломанные и добавить интеграционные/e2e тесты в `tests/bot/*` (gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied; canEdit — ADMIN редактирует)
 - [ ] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR'
