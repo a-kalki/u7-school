@@ -26,7 +26,7 @@
 - [x] Task: Подтвердить что enrich-module/publish-module/add-project gating не сломан [45a859d]
 - [~] Task: Conductor - Ручная верификация 'Редактирование и regression'
 
-## Фаза 4: Миграция и документация
+## Фаза 4: Миграция и документация [checkpoint: 2a67e6c]
 
 - [x] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте [8fb0a0c]
 - [x] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR) — уже актуально [8fb0a0c]
