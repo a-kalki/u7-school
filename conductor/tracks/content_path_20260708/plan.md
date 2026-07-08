@@ -13,8 +13,8 @@
 ## Фаза 2: UC resolve-content-path
 
 - [ ] Task: Написать тесты resolve-content-path по ролям
-  - [ ] curious: структура до урока, контент шагов скрыт
-  - [ ] student: completed read-only, current active, будущие скрыты (нужен streamId)
+  - [ ] curious: шаги видны, но только заголовки (без content/code)
+  - [ ] student: completed — полный контент read-only, current — полный active, будущие — только заголовок (нужен streamId)
   - [ ] mentor: полный доступ
   - [ ] несуществующий путь → NotFound
 

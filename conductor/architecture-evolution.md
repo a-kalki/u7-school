@@ -33,9 +33,9 @@
 - Формат `A:B:C:D` = module:project:lesson:step (1-based индексы). Partial-формы: `A`, `A:B`, `A:B:C`, `A:B:C:D`, `A:B:C:all`.
 - VO `ContentPath` (parse/serialize + валидация).
 - UC `resolve-content-path` с role-based доступом:
-  - **curious (GUEST/CANDIDATE)**: структура до уровня урока (заголовки, кол-во шагов, типы). Контент шагов скрыт.
-  - **student**: completed-шаги — read-only; текущий шаг — active; будущие — `🔒` скрыты.
-  - **mentor/admin**: полный доступ.
+  - **curious (GUEST/CANDIDATE) / все желающие**: шаги видны, но только заголовок (`description`), без тела (`content`/`code`). Структура до уровня шага (заголовки + тип + кол-во).
+  - **student**: completed-шаги — полный контент read-only; текущий шаг — полный + active; непройденные (будущие) — только заголовок.
+  - **mentor/admin**: полный доступ ко всему контенту.
 - Рефакторинг `monitor`/`learning` сториз на единый резолвер (убрать дубли `#findStepPosition`).
 
 ### 2.3. Жизненный цикл студента — enriched статусы

@@ -24,8 +24,8 @@
 ### F2. UC resolve-content-path
 - Вход: `path: string`, опционально `streamId`/`courseId` (контекст резолва).
 - Выход зависит от уровня пути и роли актора:
-  - **curious (GUEST/CANDIDATE)**: структура до уровня урока (заголовки, кол-во шагов, типы шагов). Контент шагов — скрыт.
-  - **student**: completed-шаги — read-only контент; текущий шаг — полный + active; будущие шаги — скрыты/`🔒` (только заголовок). Требует `streamId` (контекст потока студента).
+  - **curious (GUEST/CANDIDATE) / все желающие**: на уровне шага — только заголовок (`description`), без тела (`content`/`code`). Структура: phases→modules→projects→lessons→шаги (заголовки + тип + кол-во).
+  - **student**: completed-шаги — полный контент (read-only); текущий шаг — полный + active; непройденные (будущие) шаги — только заголовок. Требует `streamId` (контекст потока студента).
   - **mentor/admin**: полный доступ ко всему контенту.
 - Резолв индексов → UUID через `CourseFacade.getCourseProgram` / `ContentSnapshot` потока.
 
