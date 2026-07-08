@@ -1,0 +1,5 @@
+Контрольная точка Фазы 2: UC и фасад Course
+
+Автоматические тесты: 1111 pass, 0 fail
+Ручная верификация: CourseApiModule (16 UC), CourseApiModuleResolver (moduleRepo: ModuleRepo, courseRepo: CourseRepo)
+Подтверждение пользователя: да
