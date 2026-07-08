@@ -16,7 +16,7 @@
 
 - [ ] Task: Conductor - Ручная верификация 'Агрегат Course'
 
-## Фаза 2: UC и фасад
+## Фаза 2: UC и фасад [checkpoint: 1f9e550]
 
 - [x] Task: Написать тесты UC (create-course, add-module-to-course, add-phase-to-course, list-courses, get-course) [02e3311]
   - [x] admin создаёт курс; не-admin → access denied
