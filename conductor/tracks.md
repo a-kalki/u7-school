@@ -6,6 +6,9 @@
 
 ## Релиз 1 — Фундамент
 
+- [ ] **Track: Роль AUTHOR (автор программы)**
+*Link: [./tracks/author_role_20260708/](./tracks/author_role_20260708/)*
+
 - [ ] **Track: Курс (последовательность модулей)**
 *Link: [./tracks/course_aggregate_20260708/](./tracks/course_aggregate_20260708/)*
 

@@ -1,6 +1,7 @@
 # Спецификация трека: Курс (последовательность модулей)
 
-> **Контекст эволюции:** `conductor/architecture-evolution.md` (§2.1, §3, §5). Прочитать перед началом.
+> **Контекст эволюции:** `conductor/architecture-evolution.md` (§2.1, §2.9, §3, §5). Прочитать перед началом.
+> **Зависимости:** трек `author_role_20260708` (gates создания курса → AUTHOR).
 
 ## Обзор
 Ввести агрегат `Course`, объединяющий модули в упорядоченную последовательность с этапами (phases) и направлениями (`tech`/`business`). Курс — основа для gating'а модулей (трек 3) и для «индекса A» в ContentPath (трек 2). Поток (Stream) остаётся привязанным к одному модулю.
@@ -10,18 +11,18 @@
 ## Функциональные требования
 
 ### F1. Агрегат Course
-- `CourseAr` (домен `course`): `uuid`, `title`, `description`, `phases: { id, title, track: 'tech'|'business', moduleIds: string[] }[]`, `status`, `createdAt`.
+- `CourseAr` (домен `course`): `uuid`, `title`, `description`, `authorId`, `phases: { id, title, track: 'tech'|'business', moduleIds: string[] }[]`, `status`, `createdAt`.
 - Методы: `create`, `addModuleToPhase(phaseId, moduleId)`, `publish`.
-- `CourseSchema` (valibot), `CourseRepo` (интерфейс), `CoursePolicy` (canEdit — admin; canRead — все).
+- `CourseSchema` (valibot), `CourseRepo` (интерфейс), `CoursePolicy` (canCreate → AUTHOR; canEdit → ADMIN или author; canRead — все).
 
 ### F2. Связь Module ↔ Course
 - `Module` получает опциональные `courseId?`, `phaseId?` ИЛИ хранится только в `Course.phases[].moduleIds` (решить в реализации; предпочесть хранение в Course, чтобы Module не менять).
 - Программа курса = агрегация `ContentSnapshot` всех модулей курса по порядку phases.
 
 ### F3. UC (API)
-- `create-course` (admin): title, description.
-- `add-module-to-course` (admin): courseId, phaseId, moduleId.
-- `add-phase-to-course` (admin): courseId, title, track.
+- `create-course` (AUTHOR): title, description. ADMIN не может создавать (только редактировать).
+- `add-module-to-course` (AUTHOR или ADMIN): courseId, phaseId, moduleId.
+- `add-phase-to-course` (AUTHOR или ADMIN): courseId, title, track.
 - `list-courses` (all): опубликованные курсы.
 - `get-course` (all): курс + программа (агрегация snapshot'ов).
 

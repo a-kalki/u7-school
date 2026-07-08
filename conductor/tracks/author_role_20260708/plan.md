@@ -1,0 +1,35 @@
+# План реализации: Роль AUTHOR
+
+> Контекст: `../../architecture-evolution.md` §2.9, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
+
+## Фаза 1: Роль AUTHOR в домене user
+
+- [ ] Task: Написать тесты Role/RoleSchema (AUTHOR валиден, входит в список)
+- [ ] Task: Добавить `Role.AUTHOR` + `RoleSchema`
+  - [ ] `packages/user/src/domain/user/roles.ts`
+- [ ] Task: Обновить `UserPolicy` при необходимости (isAuthor-хелпер? — нет, роль проверяется напрямую)
+- [ ] Task: Conductor - Ручная верификация 'Роль AUTHOR'
+
+## Фаза 2: Gates создания контента
+
+- [ ] Task: Написать тесты ModulePolicy.canCreate
+  - [ ] AUTHOR → true; MENTOR (без AUTHOR) → false; ADMIN → false
+- [ ] Task: Изменить `ModulePolicy.canCreate`: MENTOR → AUTHOR
+- [ ] Task: Написать тесты create-module UC: AUTHOR создаёт; ADMIN/MENTOR без AUTHOR → access denied
+- [ ] Task: Обновить create-module UC (gating уже через canCreate — проверить)
+- [ ] Task: Проверить add-project/create-lesson/create-step — остаются isAuthor-based (без изменений), добавить тест что AUTHOR-автор модуля может, а MENTOR-не-автор не может
+- [ ] Task: Conductor - Ручная верификация 'Gates создания'
+
+## Фаза 3: Тесты редактирования (regression)
+
+- [ ] Task: Написать тесты canEdit (ADMIN редактирует; author редактирует; чужой MENTOR не может)
+- [ ] Task: Подтвердить что enrich-module/publish-module/add-project gating не сломан
+- [ ] Task: Conductor - Ручная верификация 'Редактирование и regression'
+
+## Фаза 4: Миграция и документация
+
+- [ ] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте
+- [ ] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR)
+- [ ] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию)
+- [ ] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости
+- [ ] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR'
