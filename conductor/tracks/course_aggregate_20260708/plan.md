@@ -31,7 +31,7 @@
 
 - [ ] Task: Conductor - Ручная верификация 'UC курса'
 
-## Фаза 3: Инфра (json-репозиторий)
+## Фаза 3: Инфра (json-репозиторий) [checkpoint: 0fee71e]
 
 - [x] Task: Написать тесты CourseJsonRepo
 
