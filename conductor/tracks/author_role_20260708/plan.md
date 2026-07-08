@@ -28,8 +28,8 @@
 
 ## Фаза 4: Миграция и документация
 
-- [ ] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте
-- [ ] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR)
+- [x] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте [pending]
+- [~] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR)
 - [ ] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию)
 - [ ] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости
 - [ ] Task: Проверить, обновить сломанные и добавить интеграционные/e2e тесты в `tests/bot/*` (gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied; canEdit — ADMIN редактирует)

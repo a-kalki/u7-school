@@ -86,10 +86,11 @@ enrolled → active → completed
 - `MENTOR` — преподаёт: создаёт/ведёт потоки (Stream), активирует/завершает, мониторит студентов.
 - **Принцип:** создание — прерогатива роли; редактирование — ADMIN или автор (по `authorId`). ADMIN **не создаёт**, только редактирует.
 - `ModulePolicy.canCreate`: MENTOR → AUTHOR. `CoursePolicy.canCreate` → AUTHOR.
+- `LessonPolicy.canCreate` / `StepPolicy.canCreate` → AUTHOR (приведены к isAuthor — создание уроков/шагов внутри модуля прерогатива автора).
 - `canEdit` (module/course) → ADMIN или author (без изменений).
 - `StreamPolicy.canCreate` → MENTOR (без изменений).
 - Роль выдаёт ADMIN (`addRoleToUser`). Пользователь может иметь несколько ролей.
-- Трек: `author_role_20260708` (Релиз 1, перед Треком 0).
+- Трек: `author_role_20260708` (Релиз 1, перед Треком 0). **Статус: реализован.**
 - Статистика по курсам для автора — будущая потребность (не в бэклоге).
 
 ---

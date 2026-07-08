@@ -23,6 +23,7 @@ describe('CreateStreamStory e2e', () => {
   let mentor: User;
   let guest: User;
   let student: User;
+  let author: User;
   const session: SessionData = { activeHandler: null };
 
   beforeAll(async () => {
@@ -33,6 +34,7 @@ describe('CreateStreamStory e2e', () => {
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;
+    author = (await app.userFacade.getUserByTelegramId(1006))!;
   });
 
   afterAll(async () => {
@@ -55,6 +57,11 @@ describe('CreateStreamStory e2e', () => {
 
   test('студент НЕ видит «Создать поток»', async () => {
     const items = await router.collectMainMenu(student);
+    expect(items.some((i) => i.text.includes('Создать поток'))).toBe(false);
+  });
+
+  test('AUTHOR без MENTOR НЕ видит «Создать поток» (потоки = MENTOR)', async () => {
+    const items = await router.collectMainMenu(author);
     expect(items.some((i) => i.text.includes('Создать поток'))).toBe(false);
   });
 

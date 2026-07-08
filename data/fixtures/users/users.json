@@ -3,7 +3,7 @@
     "uuid": "44444444-4444-4444-4444-444444444444",
     "name": "Dev",
     "telegramId": 773084180,
-    "roles": ["GUEST", "CANDIDATE", "STUDENT", "MENTOR", "ADMIN"],
+    "roles": ["GUEST", "CANDIDATE", "STUDENT", "MENTOR", "AUTHOR", "ADMIN"],
     "createdAt": "2026-01-04T00:00"
   },
   {

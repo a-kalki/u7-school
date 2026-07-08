@@ -24,7 +24,7 @@
     "uuid": "44444444-4444-4444-4444-444444444444",
     "name": "Ментор",
     "telegramId": 1004,
-    "roles": ["MENTOR"],
+    "roles": ["MENTOR", "AUTHOR"],
     "createdAt": "2026-01-04T00:00"
   },
   {
@@ -33,6 +33,13 @@
     "telegramId": 1005,
     "roles": ["ADMIN"],
     "createdAt": "2026-01-05T00:00"
+  },
+  {
+    "uuid": "66666666-6666-6666-6666-666666666666",
+    "name": "Автор",
+    "telegramId": 1006,
+    "roles": ["AUTHOR"],
+    "createdAt": "2026-01-07T00:00"
   },
   {
     "uuid": "ae00f3f6-1392-4b98-b178-41c27e794b7f",
