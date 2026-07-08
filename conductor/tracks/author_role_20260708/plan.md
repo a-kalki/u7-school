@@ -4,10 +4,10 @@
 
 ## Фаза 1: Роль AUTHOR в домене user
 
-- [ ] Task: Написать тесты Role/RoleSchema (AUTHOR валиден, входит в список)
-- [ ] Task: Добавить `Role.AUTHOR` + `RoleSchema`
+- [x] Task: Написать тесты Role/RoleSchema (AUTHOR валиден, входит в список)
+- [~] Task: Добавить `Role.AUTHOR` + `RoleSchema`
   - [ ] `packages/user/src/domain/user/roles.ts`
-- [ ] Task: Обновить `UserPolicy` метод isAuthor()
+- [~] Task: Обновить `UserPolicy` метод isAuthor()
 - [ ] Task: Conductor - Ручная верификация 'Роль AUTHOR'
 
 ## Фаза 2: Gates создания контента

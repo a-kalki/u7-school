@@ -9,7 +9,12 @@ describe('Роли пользователей (Roles)', () => {
     expect(Role.CANDIDATE as string).toBe('CANDIDATE');
     expect(Role.STUDENT as string).toBe('STUDENT');
     expect(Role.MENTOR as string).toBe('MENTOR');
+    expect(Role.AUTHOR as string).toBe('AUTHOR');
     expect(Role.ADMIN as string).toBe('ADMIN');
+  });
+
+  test('AUTHOR определена', () => {
+    expect(Role.AUTHOR as string).toBe('AUTHOR');
   });
 
   test('RoleSchema должна пропускать валидные значения ролей', () => {
@@ -18,7 +23,12 @@ describe('Роли пользователей (Roles)', () => {
     expect(v.safeParse(RoleSchema, Role.CANDIDATE).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.STUDENT).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.MENTOR).success).toBe(true);
+    expect(v.safeParse(RoleSchema, Role.AUTHOR).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.ADMIN).success).toBe(true);
+  });
+
+  test('RoleSchema пропускает AUTHOR', () => {
+    expect(v.safeParse(RoleSchema, Role.AUTHOR).success).toBe(true);
   });
 
   test('RoleSchema должна отклонять невалидные значения', () => {

@@ -26,6 +26,14 @@ const teacher = {
   createdAt: '2026-05-01T12:00',
 };
 
+const author = {
+  uuid: 'a2',
+  name: 'Author',
+  telegramId: 6,
+  roles: [Role.AUTHOR],
+  createdAt: '2026-05-01T12:00',
+};
+
 const anotherStudent = {
   uuid: 's2',
   name: 'Another',
@@ -43,6 +51,30 @@ const guest = {
 };
 
 describe('UserPolicy', () => {
+  describe('isAuthor', () => {
+    test('AUTHOR — true', () => {
+      expect(UserPolicy.isAuthor(author)).toBe(true);
+    });
+
+    test('MENTOR без AUTHOR — false', () => {
+      expect(UserPolicy.isAuthor(teacher)).toBe(false);
+    });
+
+    test('ADMIN без AUTHOR — false', () => {
+      expect(UserPolicy.isAuthor(admin)).toBe(false);
+    });
+
+    test('пользователь с AUTHOR + MENTOR — true', () => {
+      const authorMentor = { ...teacher, roles: [Role.MENTOR, Role.AUTHOR] };
+      expect(UserPolicy.isAuthor(authorMentor)).toBe(true);
+    });
+
+    test('пользователь без ролей — false', () => {
+      const userWithoutRoles = { ...student, roles: [] };
+      expect(UserPolicy.isAuthor(userWithoutRoles)).toBe(false);
+    });
+  });
+
   describe('canCreate', () => {
     test('ADMIN может создавать пользователей', () => {
       expect(UserPolicy.canCreate(admin)).toBe(true);

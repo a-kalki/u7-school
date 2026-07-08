@@ -30,6 +30,10 @@ export const UserPolicy = {
     return actor.roles.includes(Role.STUDENT);
   },
 
+  isAuthor(actor: User): boolean {
+    return actor.roles.includes(Role.AUTHOR);
+  },
+
   canCreate(actor: User): boolean {
     return this.isAdmin(actor);
   },

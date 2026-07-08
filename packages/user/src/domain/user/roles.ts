@@ -6,7 +6,8 @@ import * as v from 'valibot';
  * - SUBSCRIBER: подписчик Telegram-канала
  * - CANDIDATE: кандидат на обучение, заполнивший анкету
  * - STUDENT: ученик, проходящий обучение
- * - MENTOR: наставник, создающий курсы и проверяющий задания
+ * - MENTOR: наставник, проверяющий задания и ведущий потоки
+ * - AUTHOR: автор программы — создаёт модули, курсы, уроки, шаги, проекты
  * - ADMIN: администратор платформы
  */
 export enum Role {
@@ -15,6 +16,7 @@ export enum Role {
   CANDIDATE = 'CANDIDATE',
   STUDENT = 'STUDENT',
   MENTOR = 'MENTOR',
+  AUTHOR = 'AUTHOR',
   ADMIN = 'ADMIN',
 }
 
@@ -26,6 +28,7 @@ export const RoleSchema = v.picklist(
     Role.CANDIDATE,
     Role.STUDENT,
     Role.MENTOR,
+    Role.AUTHOR,
     Role.ADMIN,
   ],
   `Недопустимая роль. Ожидается: ${Object.keys(Role).join(',')}`,
