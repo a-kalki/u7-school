@@ -4,7 +4,7 @@
 
 ## Фаза 1: Домен — статусы и StudentAr
 
-- [ ] Task: Написать тесты StudentAr (все переходы + ошибки)
+- [x] Task: Написать тесты StudentAr (все переходы + ошибки) — 11c2a38
   - [ ] enrolled→active (activate); активация не-enrolled → ошибка
   - [ ] active→abandoned (drop — who=self/cause=voluntary)
   - [ ] active→abandoned (markAbandoned — who=mentor/cause=inactivity|by_mentor)
