@@ -1,0 +1,28 @@
+Задача: Gates создания контента → AUTHOR (Фаза 2)
+
+Сводка:
+- ModulePolicy.canCreate изменён с isMentor на isAuthor.
+- LessonPolicy.canCreate и StepPolicy.canCreate изменены с ролевых проверок (MENTOR / ADMIN||MENTOR) на isAuthor — приведено в соответствие со спецификацией (создание контента внутри модуля = прерогатива AUTHOR).
+- create-module/create-lesson/create-step UC: gating уже через canCreate, обновлены комментарии.
+- add-project UC без изменений (canEdit = ADMIN|author).
+- Синхронизирован дубликат Role в packages/app/src/domain/user.ts (добавлен AUTHOR) — устраняет TS-регрессию структурного несовпадения типов между packages/user и packages/app.
+- Тесты обновлены: AUTHOR создаёт модуль/урок/шаг; MENTOR без AUTHOR и ADMIN → access denied; canEdit (ADMIN|author) regression-покрытие.
+- Интеграционный тест CourseApiModule переведён с MENTOR на AUTHOR.
+
+Изменённые файлы:
+- packages/course/src/domain/module/policy.ts
+- packages/course/src/domain/module/policy.test.ts
+- packages/course/src/domain/lesson/policy.ts
+- packages/course/src/domain/lesson/policy.test.ts
+- packages/course/src/domain/step/policy.ts
+- packages/course/src/domain/step/policy.test.ts
+- packages/course/src/api/module/create-module-uc.ts
+- packages/course/src/api/module/create-module-uc.test.ts
+- packages/course/src/api/lesson/create-lesson-uc.ts
+- packages/course/src/api/lesson/create-lesson-uc.test.ts
+- packages/course/src/api/step/create-step-uc.ts
+- packages/course/src/api/step/create-step-uc.test.ts
+- packages/course/src/api/module.test.ts
+- packages/app/src/domain/user.ts
+
+Причина: Разделение AUTHOR (создаёт программу) и MENTOR (преподаёт потоки). Создание — прерогатива роли, редактирование — ADMIN или автор.
