@@ -1,0 +1,9 @@
+Задача: Написать тесты StudentAr (все переходы + ошибки)
+
+Изменения:
+- a-root.test.ts: полностью переписан, 18+ новых тестов для всех переходов статус-машины (enrolled→active, active→abandoned, active→advanced, active→not_advanced, setNextPreference)
+- entity.test.ts: обновлён тест статуса (expelled → abandoned)
+- entity.ts: добавлены AbandonDetailsSchema, CompletionDetailsSchema, обновлён enum статусов
+- a-root.ts: удалены методы complete() и expel(), добавлены activate(), drop(), markAbandoned(), advance(), markNotAdvanced(), setNextPreference()
+
+Причина: внедрение финальной статус-машины студента (5 статусов) согласно спецификации трека student_lifecycle
