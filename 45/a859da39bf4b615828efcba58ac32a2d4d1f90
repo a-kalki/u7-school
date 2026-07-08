@@ -1,0 +1,11 @@
+Задача: Regression-тесты редактирования (Фаза 3)
+
+Сводка:
+- Добавлены regression-тесты canEdit в ModulePolicy: AUTHOR-автор модуля может редактировать (true); AUTHOR без авторства не может (false) — фиксация что роль AUTHOR сама по себе не даёт canEdit на чужом модуле.
+- Существующие тесты canEdit (ADMIN, author, не-автор MENTOR, STUDENT) проходят без изменений.
+- Подтверждено: gating enrich-module/publish-module/add-project (canEdit=ADMIN|author) не сломан — 38 regression-тестов pass.
+
+Изменённые файлы:
+- packages/course/src/domain/module/policy.test.ts
+
+Причина: Защита от регресса принципа «редактирование = ADMIN или автор (authorId), не роль».
