@@ -1,0 +1,26 @@
+Отчёт о верификации трека author_role (контрольная точка)
+
+Автоматические тесты:
+- Команда: CI=true bun test
+- Результат: 1057 pass / 0 fail (2173 expect() calls) across 131 files
+- TypeScript (tsc --noEmit): чисто
+- Biome (lint): чисто (1 предсуществующая ошибка в чужом учебном mentor-файле data/fullstack-js/.../02-variable-errors.js — не из трека)
+
+Покрытие изменений трека:
+- packages/user/src/domain/user/roles.ts + roles.test.ts
+- packages/user/src/domain/user/policy.ts + policy.test.ts (isAuthor)
+- packages/course/src/domain/{module,lesson,step}/policy.ts + policy.test.ts (canCreate → isAuthor)
+- packages/course/src/api/{module,lesson,step}/create-*-uc.ts + *.test.ts
+- packages/course/src/api/module.test.ts (интеграционный)
+- packages/app/src/domain/user.ts (синхронизация дубликата Role)
+- tests/bot/integration/stream/create-stream.integration.test.ts (regression)
+- apps/u7-bot/scripts/seed-fixtures.ts
+- data/fixtures/users/users.json, tests/bot/fixtures/templates/users.json
+
+Ручная верификация (план):
+1. seed:fixtures + dev — dev-аккаунт имеет AUTHOR
+2. Gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied
+3. Потоки: MENTOR видит «Создать поток»; AUTHOR без MENTOR — не видит
+4. Редактирование: ADMIN редактирует чужой модуль; автор публикует свой
+
+Подтверждение пользователя: ДА (план ручной верификации утверждён).
