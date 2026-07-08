@@ -28,9 +28,9 @@
 
 ## Фаза 4: Миграция и документация
 
-- [x] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте [pending]
-- [~] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR)
-- [ ] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию)
-- [ ] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости
-- [ ] Task: Проверить, обновить сломанные и добавить интеграционные/e2e тесты в `tests/bot/*` (gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied; canEdit — ADMIN редактирует)
-- [ ] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR'
+- [x] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте [8fb0a0c]
+- [x] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR) — уже актуально [8fb0a0c]
+- [x] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию) [8fb0a0c]
+- [x] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости — без изменений (потоки F4) [8fb0a0c]
+- [x] Task: Проверить, обновить сломанные и добавить интеграционные/e2e тесты в `tests/bot/*` (gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied; canEdit — ADMIN редактирует) [8fb0a0c]
+- [~] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR'
