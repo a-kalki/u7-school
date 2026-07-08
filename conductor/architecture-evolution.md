@@ -40,23 +40,22 @@
   - **mentor/admin**: полный доступ ко всему контенту.
 - Рефакторинг `monitor`/`learning` сториз на единый резолвер (убрать дубли `#findStepPosition`).
 
-### 2.3. Жизненный цикл студента — enriched статусы
+### 2.3. Жизненный цикл студента — финальные статусы
 Статус-машина на запись Student (один модуль):
 ```
-enrolled → active → completed
-                     ├─ wants_next   (завершил, хочет на след. модуль — ждёт набор)
-                     ├─ advanced     (завершил и перешёл на след. модуль)
-                     └─ not_advanced (завершил, не прошёл gating / отказ)
-          ↘ abandoned (self-drop / mentor-by-inactivity)
+enrolled → active → abandoned  (self-drop / mentor-by-inactivity)
+                  ├─ advanced     (завершил модуль успешно)
+                  └─ not_advanced (завершил модуль, не прошёл порог)
 ```
-- **Enum:** `enrolled | active | abandoned | completed | wants_next | advanced | not_advanced`.
-- `abandoned` схлопывает прежние `dropped`+`expelled`. Подполе `abandonReason: 'voluntary' | 'inactivity' | 'by_mentor'`.
-- **Роль STUDENT** = «сейчас активен в активном потоке». Живёт только на `enrolled`/`active`. При `completed*` и `abandoned` — снимается (`UserFacade.removeRoleFromUser`). При `advance` (запись на след. модуль) — `+STUDENT` снова.
+- **Enum:** `enrolled | active | abandoned | advanced | not_advanced` (5 статусов).
+- `abandoned` схлопывает прежние `dropped`+`expelled`. Поле `abandonDetails: { who: 'self' | 'mentor'; cause: 'voluntary' | 'inactivity' | 'by_mentor' }`.
+- `advanced` / `not_advanced` — финальные статусы при завершении модуля. Поле `completionDetails: { nextPreference: 'wants_next' | 'wants_repeat' | 'undecided' }` — намерение студента учиться дальше (заполняется после ответа на сообщение бота).
+- **Роль STUDENT** = «учится в незавершённом потоке». Выдаётся (`+STUDENT`) при `enroll-student` (enrolled). Снимается (`−STUDENT`) при переходе в `abandoned`, `advanced` или `not_advanced`. При зачислении в следующий поток — `+STUDENT` снова.
 - Процесс: студент записался → `enrolled` (ждёт) → ментор активировал поток → `active` + issue первого шага.
-- `StudentAr` методы: `activate()` (enrolled→active), `drop()` (self), `markAbandoned()` (mentor), `complete()` (есть), `markWantsNext()`, `advance()`, `markNotAdvanced()`.
-- UC: `complete-student` (ментор), `drop-student` (self), `mark-abandoned` (mentor).
-- `CompleteStreamUc` доработать: при завершении потока все `active`/`enrolled` → `completed`, снять `STUDENT`.
-- **Миграция:** `dropped`→`abandoned(voluntary)`, `expelled`→`abandoned(by_mentor)`. Решается на месте (процесс живой).
+- `StudentAr` методы: `activate()` (enrolled→active), `drop()` (self→abandoned), `markAbandoned(cause)` (mentor→abandoned), `advance()` (→advanced), `markNotAdvanced()` (→not_advanced), `setNextPreference(pref)`.
+- UC: `complete-student` (ментор выбирает abandoned|advanced|not_advanced), `drop-student` (self), `mark-abandoned` (mentor), `set-next-preference` (self).
+- `CompleteStreamUc` — полная переработка: ментор батчево выбирает исход для каждого active-студента; после подтверждения статусы обновляются, `STUDENT` снимается, через `TgFacade` рассылаются сообщения (advanced → «Хочешь на следующий?», not_advanced → «Хочешь перезаписаться?», abandoned → без сообщения).
+- **Миграция:** `dropped`→`abandoned`+`abandonDetails:{who:'self',cause:'voluntary'}`, `expelled`→`abandoned`+`abandonDetails:{who:'mentor',cause:'by_mentor'}`. Решается на месте (процесс живой).
 
 ### 2.4. TgFacade — порт в core, реализация в app
 - Интерфейс `TgFacade` в `core` (порт: отправка сообщения по telegramId, batch-рассылка). Не знает о приложении.

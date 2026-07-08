@@ -30,7 +30,7 @@
 - [ ] Task: Написать тесты: бар урока в шаге; мотивация на переходах
 - [ ] Task: Реализовать бар урока `[██░░] X/Y` и общий прогресс на transition-экранах
 - [ ] Task: Написать тесты: «Покинуть поток» → confirm → drop-student
-- [ ] Task: Реализовать выход (confirm-хелпер из трека 1) → drop-student
+- [ ] Task: Реализовать выход (confirm-хелпер из трека 1) → drop-student (status: abandoned, abandonDetails: { who: 'self', cause: 'voluntary' }, −STUDENT)
 - [ ] Task: Conductor - Ручная верификация 'Прогресс и выход'
 
 ## Фаза 5: E2E + документация

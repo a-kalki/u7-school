@@ -12,8 +12,9 @@
 
 ## Фаза 2: Сводка по группе + сортировка (S07)
 
-- [ ] Task: Написать тесты: сводка (медиана, отстающие, завершившие, active) и сортировка (отстающие сверху)
+- [ ] Task: Написать тесты: сводка (медиана, отстающие, advanced, not_advanced, active, enrolled) и сортировка (отстающие сверху)
 - [ ] Task: Реализовать сводку и сортировку в MonitorStory.#handleStudents
+  - [ ] advanced и not_advanced считаются отдельно (вместо общего «завершившие»)
 - [ ] Task: Conductor - Ручная верификация 'Сводка и сортировка'
 
 ## Фаза 3: История шагов студента (S08)
@@ -25,14 +26,16 @@
 
 ## Фаза 4: Действия ментора в S08
 
-- [ ] Task: Написать тесты: «Завершить обучение» (complete-student, confirm), «Отчислить» (mark-abandoned, confirm)
+- [ ] Task: Написать тесты:
+  - [ ] «Завершить обучение» → complete-student с выбором исхода (advanced / not_advanced / abandoned), confirm, −STUDENT
+  - [ ] «Отчислить» → mark-abandoned (cause: by_mentor) → abandonDetails: { who: 'mentor', cause: 'by_mentor' }, confirm, −STUDENT
 - [ ] Task: Реализовать кнопки через confirm-хелпер (трек 1)
-  - [ ] complete-student → completed + -STUDENT
-  - [ ] mark-abandoned → abandoned(by_mentor) + -STUDENT
+  - [ ] complete-student: батчевый или индивидуальный выбор исхода
+  - [ ] mark-abandoned: cause = by_mentor
 - [ ] Task: Conductor - Ручная верификация 'Действия ментора'
 
 ## Фаза 5: E2E + документация
 
-- [ ] Task: E2E: ментор видит отстающего, открывает историю, завершает обучение
+- [ ] Task: E2E: ментор видит отстающего, открывает историю, завершает обучение (выбирает advanced)
 - [ ] Task: Обновить `architecture-evolution.md` и `ui-spec.md` (S07 сводка/сортировка, S08 история/действия)
 - [ ] Task: Conductor - Ручная верификация 'E2E мониторинга'
