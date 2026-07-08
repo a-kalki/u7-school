@@ -1,0 +1,5 @@
+Контрольная точка Фазы 1: Домен — агрегат Course
+
+Автоматические тесты: CI=true bun test → 1091 pass, 0 fail
+Ручная верификация: bun run test:p course → 244 pass, экспорты CourseAr/CourseSchema/CoursePolicy/CourseRepo доступны
+Подтверждение пользователя: да
