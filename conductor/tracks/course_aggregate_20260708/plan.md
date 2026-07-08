@@ -2,7 +2,7 @@
 
 > Контекст: `../../architecture-evolution.md` §2.1, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
-## Фаза 1: Домен — агрегат Course
+## Фаза 1: Домен — агрегат Course [checkpoint: 41ebd7d]
 
 - [x] Task: Написать тесты CourseAr (create, addModuleToPhase, publish, ошибки переходов) [54e1bb5]
   - [x] create → status=draft, фазы пусты
