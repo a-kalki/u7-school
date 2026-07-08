@@ -1,0 +1,15 @@
+Задача: Роль AUTHOR в домене user (Фаза 1, задачи 1-3)
+
+Сводка:
+- Добавлена Role.AUTHOR в enum Role и RoleSchema (packages/user/src/domain/user/roles.ts).
+- Добавлен метод UserPolicy.isAuthor(actor) — проверяет наличие роли AUTHOR (packages/user/src/domain/user/policy.ts).
+- Тесты roles.test.ts: AUTHOR определена, входит в список, валидируется RoleSchema.
+- Тесты policy.test.ts: isAuthor покрывает AUTHOR/MENTOR/ADMIN/комбинации/без ролей.
+
+Изменённые файлы:
+- packages/user/src/domain/user/roles.ts
+- packages/user/src/domain/user/roles.test.ts
+- packages/user/src/domain/user/policy.ts
+- packages/user/src/domain/user/policy.test.ts
+
+Причина: Разделение ответственностей AUTHOR (создаёт программу) и MENTOR (преподаёт) — трек author_role.
