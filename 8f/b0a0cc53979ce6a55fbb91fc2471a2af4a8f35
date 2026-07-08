@@ -1,0 +1,18 @@
+Задача: Миграция и документация AUTHOR (Фаза 4)
+
+Сводка:
+- Миграция ролей: AUTHOR выдана авторам существующих модулей — Dev в data/fixtures (uuid 44444444), Ментор в tests/bot/fixtures/templates (uuid 44444444 → [MENTOR, AUTHOR]), прод-пользователь Нур (data/users/users.json, gitignored) — на месте. Добавлен новый fixture-пользователь «Автор» (uuid 66666666, [AUTHOR]) для bot-тестов.
+- seed-fixtures.ts: dev-аккаунту выдаётся AUTHOR (GUEST,CANDIDATE,STUDENT,MENTOR,AUTHOR,ADMIN).
+- architecture-evolution.md §2.9: отмечена реализация трека, добавлены строки про LessonPolicy/StepPolicy.canCreate → AUTHOR.
+- product.md: уже актуален (AUTHOR, MENTOR уточнён) — без изменений.
+- stream/ui-spec.md: потоки без изменений по F4 — без правок (UI «Инструменты автора» — Трек 5).
+- Bot regression-тест в create-stream.integration.test.ts: AUTHOR без MENTOR НЕ видит «Создать поток» — проверка что StreamPolicy.canCreate остался MENTOR (разделение не сломало создание потоков).
+
+Изменённые файлы:
+- apps/u7-bot/scripts/seed-fixtures.ts
+- conductor/architecture-evolution.md
+- data/fixtures/users/users.json
+- tests/bot/fixtures/templates/users.json
+- tests/bot/integration/stream/create-stream.integration.test.ts
+
+Причина: Синхронизация прод-ролей и документации с реализованной ролью AUTHOR; regression-защита gates создания потоков.
