@@ -4,15 +4,15 @@
 
 ## Фаза 1: Домен — агрегат Course
 
-- [ ] Task: Написать тесты CourseAr (create, addModuleToPhase, publish, ошибки переходов)
-  - [ ] create → status=draft, фазы пусты
-  - [ ] addPhase → добавляет phase с track
-  - [ ] addModuleToPhase → добавляет moduleId в phase
-  - [ ] publish → status=published; повторный publish → ошибка
+- [x] Task: Написать тесты CourseAr (create, addModuleToPhase, publish, ошибки переходов) [932d45c]
+  - [x] create → status=draft, фазы пусты
+  - [x] addPhase → добавляет phase с track
+  - [x] addModuleToPhase → добавляет moduleId в phase
+  - [x] publish → status=published; повторный publish → ошибка
 
-- [ ] Task: Реализовать CourseAr, CourseSchema, CoursePolicy
-  - [ ] `packages/course/src/domain/course/entity.ts`, `a-root.ts`, `policy.ts`, `repo.ts`
-  - [ ] Export из `packages/course/src/domain/index.ts`
+- [x] Task: Реализовать CourseAr, CourseSchema, CoursePolicy [932d45c]
+  - [x] `packages/course/src/domain/course/entity.ts`, `a-root.ts`, `policy.ts`, `repo.ts`
+  - [x] Export из `packages/course/src/domain/index.ts`
 
 - [ ] Task: Conductor - Ручная верификация 'Агрегат Course'
 

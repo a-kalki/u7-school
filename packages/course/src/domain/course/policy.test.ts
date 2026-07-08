@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
+import { Status } from '../status';
+import type { Course } from './entity';
 import { CoursePolicy } from './policy';
 
 function makeUser(roles: Role[]): User {
@@ -10,24 +12,36 @@ function makeUser(roles: Role[]): User {
     name: 'Тестовый Пользователь',
     roles,
     status: 'active',
-    createdAt: new Date().toISOString(),
+    createdAt: '2026-07-08T16:00',
   } as User;
+}
+
+function makeUserWithId(uuid: string, roles: Role[]): User {
+  return {
+    uuid,
+    telegramId: 123456789,
+    name: 'Тестовый Пользователь',
+    roles,
+    status: 'active',
+    createdAt: '2026-07-08T16:00',
+  } as User;
+}
+
+function makeCourse(authorId: string): Course {
+  return {
+    uuid: crypto.randomUUID(),
+    title: 'Тестовый курс',
+    description: 'Описание',
+    authorId,
+    phases: [],
+    status: Status.DRAFT,
+    createdAt: '2026-07-08T16:00',
+  };
 }
 
 describe('CoursePolicy', () => {
   const authorId = crypto.randomUUID();
   const otherId = crypto.randomUUID();
-
-  function makeUserWithId(uuid: string, roles: Role[]): User {
-    return {
-      uuid,
-      telegramId: 123456789,
-      name: 'Тестовый Пользователь',
-      roles,
-      status: 'active',
-      createdAt: '2026-07-08T16:00',
-    } as User;
-  }
 
   describe('canCreate', () => {
     it('AUTHOR может создавать', () => {
@@ -55,20 +69,21 @@ describe('CoursePolicy', () => {
   });
 
   describe('canEdit', () => {
-    it('автор может редактировать', () => {
+    it('автор может редактировать свой курс', () => {
+      const course = makeCourse(authorId);
       expect(
-        CoursePolicy.canEdit(makeUserWithId(authorId, [Role.AUTHOR]), authorId),
+        CoursePolicy.canEdit(makeUserWithId(authorId, [Role.AUTHOR]), course),
       ).toBe(true);
     });
 
-    it('ADMIN может редактировать', () => {
-      expect(CoursePolicy.canEdit(makeUser([Role.ADMIN]), otherId)).toBe(true);
+    it('ADMIN может редактировать чужой курс', () => {
+      const course = makeCourse(otherId);
+      expect(CoursePolicy.canEdit(makeUser([Role.ADMIN]), course)).toBe(true);
     });
 
     it('не-автор без ADMIN не может редактировать', () => {
-      expect(CoursePolicy.canEdit(makeUser([Role.MENTOR]), otherId)).toBe(
-        false,
-      );
+      const course = makeCourse(otherId);
+      expect(CoursePolicy.canEdit(makeUser([Role.MENTOR]), course)).toBe(false);
     });
   });
 });

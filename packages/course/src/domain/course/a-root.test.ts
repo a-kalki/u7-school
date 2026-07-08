@@ -52,25 +52,33 @@ describe('CourseAr', () => {
       expect(course.state.phases[0]!.track).toBeUndefined();
     });
 
-    it('генерирует уникальные id для каждой фазы', () => {
+    it('добавляет несколько фаз', () => {
       const course = CourseAr.create('Курс', 'Описание', authorId);
       course.addPhase('Фаза 1');
       course.addPhase('Фаза 2');
 
-      const phases = course.state.phases;
-      expect(phases).toHaveLength(2);
-      expect(phases[0]!.id).not.toBe(phases[1]!.id);
+      expect(course.state.phases).toHaveLength(2);
+      expect(course.state.phases[0]!.title).toBe('Фаза 1');
+      expect(course.state.phases[1]!.title).toBe('Фаза 2');
+    });
+
+    it('выбрасывает ошибку при дублировании title', () => {
+      const course = CourseAr.create('Курс', 'Описание', authorId);
+      course.addPhase('Этап 1');
+
+      expect(() => course.addPhase('Этап 1')).toThrow(
+        'Фаза с таким названием уже существует',
+      );
     });
   });
 
   describe('addModuleToPhase()', () => {
-    it('добавляет moduleId в фазу', () => {
+    it('добавляет moduleId в фазу по названию', () => {
       const course = CourseAr.create('Курс', 'Описание', authorId);
       course.addPhase('Этап 1', 'tech');
-      const phaseId = course.state.phases[0]!.id;
       const moduleId = crypto.randomUUID();
 
-      course.addModuleToPhase(phaseId, moduleId);
+      course.addModuleToPhase('Этап 1', moduleId);
 
       expect(course.state.phases[0]!.moduleIds).toContain(moduleId);
     });
@@ -79,21 +87,57 @@ describe('CourseAr', () => {
       const course = CourseAr.create('Курс', 'Описание', authorId);
 
       expect(() =>
-        course.addModuleToPhase('nonexistent', crypto.randomUUID()),
+        course.addModuleToPhase('Несуществующая', crypto.randomUUID()),
       ).toThrow('Фаза не найдена');
     });
 
     it('позволяет добавить несколько модулей в фазу', () => {
       const course = CourseAr.create('Курс', 'Описание', authorId);
       course.addPhase('Этап 1');
-      const phaseId = course.state.phases[0]!.id;
       const moduleId1 = crypto.randomUUID();
       const moduleId2 = crypto.randomUUID();
 
-      course.addModuleToPhase(phaseId, moduleId1);
-      course.addModuleToPhase(phaseId, moduleId2);
+      course.addModuleToPhase('Этап 1', moduleId1);
+      course.addModuleToPhase('Этап 1', moduleId2);
 
       expect(course.state.phases[0]!.moduleIds).toEqual([moduleId1, moduleId2]);
+    });
+  });
+
+  describe('инварианты', () => {
+    it('конструктор выбрасывает ошибку при дублировании названий фаз', () => {
+      expect(
+        () =>
+          new CourseAr({
+            uuid: crypto.randomUUID(),
+            title: 'Курс',
+            description: 'Описание',
+            authorId,
+            phases: [
+              { title: 'Этап 1', moduleIds: [] },
+              { title: 'Этап 1', moduleIds: [] },
+            ],
+            status: Status.DRAFT,
+            createdAt: '2026-07-08T16:00',
+          }),
+      ).toThrow('Названия фаз должны быть уникальны');
+    });
+
+    it('конструктор принимает фазы с разными названиями', () => {
+      const course = new CourseAr({
+        uuid: crypto.randomUUID(),
+        title: 'Курс',
+        description: 'Описание',
+        authorId,
+        phases: [
+          { title: 'Этап 1', moduleIds: [] },
+          { title: 'Этап 2', moduleIds: [] },
+        ],
+        status: Status.DRAFT,
+        createdAt: '2026-07-08T16:00',
+      });
+
+      expect(course.state.phases).toHaveLength(2);
     });
   });
 

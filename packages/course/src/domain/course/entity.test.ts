@@ -23,7 +23,6 @@ describe('CourseSchema', () => {
       ...validCourse,
       phases: [
         {
-          id: crypto.randomUUID(),
           title: 'Этап 1',
           track: 'tech',
           moduleIds: [],
@@ -85,7 +84,6 @@ describe('CourseSchema', () => {
 
 describe('PhaseSchema', () => {
   const validPhase = {
-    id: crypto.randomUUID(),
     title: 'Этап 1',
     moduleIds: [],
   };
@@ -106,11 +104,6 @@ describe('PhaseSchema', () => {
 
   it('отклоняет пустой заголовок фазы', () => {
     const result = safeParse(PhaseSchema, { ...validPhase, title: '' });
-    expect(result.success).toBe(false);
-  });
-
-  it('отклоняет невалидный UUID фазы', () => {
-    const result = safeParse(PhaseSchema, { ...validPhase, id: 'bad' });
     expect(result.success).toBe(false);
   });
 

@@ -1,18 +1,17 @@
+import { UserSchema } from '@u7-scl/user/domain';
 import * as v from 'valibot';
+import { ModuleSchema } from '#domain/module/entity';
 import { StatusSchema } from '../status';
 
 /** Схема фазы курса (value-object внутри Course) */
 export const PhaseSchema = v.object({
-  id: v.pipe(v.string(), v.uuid('Некорректный формат UUID фазы')),
   title: v.pipe(
     v.string(),
     v.trim(),
     v.nonEmpty('Заголовок фазы не может быть пустым'),
   ),
   track: v.optional(v.string()),
-  moduleIds: v.array(
-    v.pipe(v.string(), v.uuid('Некорректный формат UUID moduleIds')),
-  ),
+  moduleIds: v.array(ModuleSchema.entries.uuid),
 });
 
 export type Phase = v.InferOutput<typeof PhaseSchema>;
@@ -30,7 +29,7 @@ export const CourseSchema = v.object({
     v.trim(),
     v.nonEmpty('Описание не может быть пустым'),
   ),
-  authorId: v.pipe(v.string(), v.uuid('Некорректный формат UUID автора')),
+  authorId: UserSchema.entries.uuid,
   phases: v.array(PhaseSchema),
   status: StatusSchema,
   createdAt: v.pipe(v.string(), v.isoDateTime('Некорректный формат даты')),

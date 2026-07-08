@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/user/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
+import type { Course } from './entity';
 
 /**
  * Политика прав доступа для курсов.
@@ -17,7 +18,11 @@ export const CoursePolicy = {
   },
 
   /** Редактировать может ADMIN или автор курса. */
-  canEdit(actor: User, authorId: string): boolean {
-    return UserPolicy.isAdmin(actor) || actor.uuid === authorId;
+  canEdit(actor: User, course: Course): boolean {
+    return UserPolicy.isAdmin(actor) || this.isAuthor(actor, course);
+  },
+
+  isAuthor(actor: User, course: Course): boolean {
+    return actor.uuid === course.authorId;
   },
 };
