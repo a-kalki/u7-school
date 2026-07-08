@@ -5,6 +5,7 @@ import { ConsoleLogger } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   CourseInProcFacade,
+  CourseJsonRepo,
   LessonJsonRepo,
   ModuleJsonRepo,
   StepJsonRepo,
@@ -62,12 +63,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
-  // Заглушка courseRepo — будет заменена на CourseJsonRepo в Фазе 3
-  const courseRepo = {
-    save: async () => {},
-    getByUuid: async () => undefined,
-    getAll: async () => [],
-  };
+  const courseRepo = new CourseJsonRepo(fixtures.courses.courses);
 
   const courseModule = new CourseApiModule({
     db,

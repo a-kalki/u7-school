@@ -8,6 +8,7 @@ import { BotRouter } from '@u7-scl/core/ui';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   CourseInProcFacade,
+  CourseJsonRepo,
   LessonJsonRepo,
   ModuleJsonRepo,
   StepJsonRepo,
@@ -69,12 +70,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
   const lessonRepo = new LessonJsonRepo(`${config.dbDir}/courses/lessons.json`);
   const stepRepo = new StepJsonRepo(`${config.dbDir}/courses/steps.json`);
 
-  // Заглушка courseRepo — будет заменена на CourseJsonRepo в Фазе 3
-  const courseRepo = {
-    save: async () => {},
-    getByUuid: async () => undefined,
-    getAll: async () => [],
-  };
+  const courseRepo = new CourseJsonRepo(`${config.dbDir}/courses/courses.json`);
 
   const courseModule = new CourseApiModule({
     db,

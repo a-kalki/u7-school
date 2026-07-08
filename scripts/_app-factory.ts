@@ -38,6 +38,7 @@ import type { AppMeta } from '@u7-scl/core/domain';
 import { type Logger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleMeta } from '../packages/course/src/domain/module.ts';
+import { CourseJsonRepo } from '../packages/course/src/infra/db/course-json-repo.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
@@ -87,6 +88,7 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
 
   // Infra: репозитории
   const moduleRepo = new ModuleJsonRepo();
+  const courseRepo = new CourseJsonRepo();
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
   const userRepo = new UserJsonRepo();
@@ -101,11 +103,7 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
   // Course-модуль
   const courseModule = new CourseApiModule({
     moduleRepo,
-    courseRepo: {
-      save: async () => {},
-      getByUuid: async () => undefined,
-      getAll: async () => [],
-    },
+    courseRepo,
     lessonRepo,
     stepRepo,
     userFacade,

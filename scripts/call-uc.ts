@@ -23,6 +23,7 @@ import type { Logger } from '@u7-scl/core/shared';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
 import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
+import { CourseJsonRepo } from '../packages/course/src/infra/db/course-json-repo.ts';
 import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
 import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
 import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
@@ -85,6 +86,7 @@ async function main() {
 
   // ─── Инициализация ────────────────────────────────
   const moduleRepo = new ModuleJsonRepo();
+  const courseRepo = new CourseJsonRepo();
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
   const userRepo = new UserJsonRepo();
@@ -105,11 +107,7 @@ async function main() {
 
   const courseResolve = {
     moduleRepo,
-    courseRepo: {
-      save: async () => {},
-      getByUuid: async () => undefined,
-      getAll: async () => [],
-    },
+    courseRepo,
     lessonRepo,
     stepRepo,
     userFacade,

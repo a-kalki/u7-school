@@ -19,6 +19,7 @@ export interface FixturePaths {
     modules: string;
     lessons: string;
     steps: string;
+    courses: string;
   };
 }
 
@@ -88,6 +89,10 @@ async function copyTemplates(tmpDir: string): Promise<FixturePaths> {
     path.join(coursesSrc, 'steps.json'),
     path.join(coursesTmp, 'steps.json'),
   );
+  await copyFile(
+    path.join(coursesSrc, 'courses.json'),
+    path.join(coursesTmp, 'courses.json'),
+  );
 
   if (process.env.KEEP_FIXTURES === '1') {
     console.log(`[fixture-loader] Фикстуры скопированы в: ${tmpDir}`);
@@ -102,6 +107,7 @@ async function copyTemplates(tmpDir: string): Promise<FixturePaths> {
       modules: path.join(coursesTmp, 'modules.json'),
       lessons: path.join(coursesTmp, 'lessons.json'),
       steps: path.join(coursesTmp, 'steps.json'),
+      courses: path.join(coursesTmp, 'courses.json'),
     },
   };
 }

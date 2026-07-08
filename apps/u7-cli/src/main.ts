@@ -3,6 +3,7 @@ import type { AppResolver } from '@u7-scl/core/domain';
 import { ConsoleLogger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
+  CourseJsonRepo,
   LessonJsonRepo,
   ModuleJsonRepo,
   StepJsonRepo,
@@ -21,11 +22,7 @@ async function main() {
   const userModule = new UserApiModule({ userRepo, appResolver });
   const userFacade = new UserInProcFacade(userModule);
 
-  const courseRepo = {
-    save: async () => {},
-    getByUuid: async () => undefined,
-    getAll: async () => [],
-  };
+  const courseRepo = new CourseJsonRepo('data/courses/courses.json');
 
   const courseModule = new CourseApiModule({
     moduleRepo: new ModuleJsonRepo(),
