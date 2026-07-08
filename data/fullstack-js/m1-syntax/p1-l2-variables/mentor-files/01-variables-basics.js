@@ -28,9 +28,9 @@ console.log('message =', message);
 console.log('');
 
 // ============================================================
-console.log('=== Блок 4: переприсваивание между переменными ===');
+console.log('=== блок 4: переприсваивание между переменными ===');
 let a = 10;
-const b = a;
+let b = a;
 console.log('a =', a);
 console.log('b =', b);
 

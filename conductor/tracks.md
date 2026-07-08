@@ -1,7 +1,36 @@
 # Реестр треков
 
+> Объединяющий архитектурный документ: [architecture-evolution.md](./architecture-evolution.md)
+
 ---
 
-- [ ] **Track: Stream UX Backlog — навигация, double-confirm, broadcast, «Отстает»**
-*Link: [./tracks/stream_ux_backlog_20260613/](./tracks/stream_ux_backlog_20260613/)*
+## Релиз 1 — Фундамент
 
+- [ ] **Track: Курс (последовательность модулей)**
+*Link: [./tracks/course_aggregate_20260708/](./tracks/course_aggregate_20260708/)*
+
+- [ ] **Track: Жизненный цикл студента**
+*Link: [./tracks/student_lifecycle_20260708/](./tracks/student_lifecycle_20260708/)*
+
+- [ ] **Track: ContentPath (адресация контента)**
+*Link: [./tracks/content_path_20260708/](./tracks/content_path_20260708/)*
+
+---
+
+## Релиз 2 — UX ядра продукта
+
+- [ ] **Track: Gating модулей (Синтаксис → Алгоритмика)**
+*Link: [./tracks/module_gating_20260708/](./tracks/module_gating_20260708/)*
+
+- [ ] **Track: Навигация студента**
+*Link: [./tracks/student_navigation_20260708/](./tracks/student_navigation_20260708/)*
+
+- [ ] **Track: Витрина для любопытного**
+*Link: [./tracks/curious_showcase_20260708/](./tracks/curious_showcase_20260708/)*
+
+---
+
+## Релиз 3 — Мониторинг
+
+- [ ] **Track: Мониторинг группы для ментора**
+*Link: [./tracks/mentor_monitoring_20260708/](./tracks/mentor_monitoring_20260708/)*
