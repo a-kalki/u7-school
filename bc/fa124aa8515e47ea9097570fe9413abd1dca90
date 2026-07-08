@@ -1,0 +1,9 @@
+Фаза 3: Инфра (CourseJsonRepo)
+
+Реализован CourseJsonRepo:
+- implements CourseRepo
+- методы: save, getByUuid, getAll с фильтрами
+- 12 тестов, pass
+- data/courses/courses.json
+- fixtures: tests/bot/fixtures/templates/courses/courses.json
+- Обновлены все заглушки в api-app, u7-cli, _app-factory, call-uc
