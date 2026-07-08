@@ -44,7 +44,7 @@
 
 ## Фаза 4: Интеграция и seed
 
-- [ ] Task: Обновить test-app + fixtures (createTestApp подключает courseRepo)
+- [x] Task: Обновить test-app + fixtures (createTestApp подключает courseRepo)
 
 - [ ] Task: Написать интеграционный тест: get-course возвращает программу из 2 модулей
 
