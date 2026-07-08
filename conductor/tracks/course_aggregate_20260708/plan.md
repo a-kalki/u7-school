@@ -4,13 +4,13 @@
 
 ## Фаза 1: Домен — агрегат Course
 
-- [x] Task: Написать тесты CourseAr (create, addModuleToPhase, publish, ошибки переходов) [932d45c]
+- [x] Task: Написать тесты CourseAr (create, addModuleToPhase, publish, ошибки переходов) [54e1bb5]
   - [x] create → status=draft, фазы пусты
   - [x] addPhase → добавляет phase с track
   - [x] addModuleToPhase → добавляет moduleId в phase
   - [x] publish → status=published; повторный publish → ошибка
 
-- [x] Task: Реализовать CourseAr, CourseSchema, CoursePolicy [932d45c]
+- [x] Task: Реализовать CourseAr, CourseSchema, CoursePolicy [54e1bb5]
   - [x] `packages/course/src/domain/course/entity.ts`, `a-root.ts`, `policy.ts`, `repo.ts`
   - [x] Export из `packages/course/src/domain/index.ts`
 

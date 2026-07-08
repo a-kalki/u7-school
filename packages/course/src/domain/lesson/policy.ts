@@ -17,13 +17,16 @@ export const LessonPolicy = {
   /** Читать: ADMIN/автор курса → всё; иначе PUBLISHED. */
   canRead(actor: User, target: Lesson, module: Module): boolean {
     return (
-      ModulePolicy.isAdminOrAuthor(actor, module) ||
-      target.status === Status.PUBLISHED
+      ModulePolicy.isAdminOrAuthor(actor, module) || this.isPublished(target)
     );
   },
 
   /** Редактировать: только ADMIN или автор курса. */
   canEdit(actor: User, _target: Lesson, module: Module): boolean {
     return ModulePolicy.isAdminOrAuthor(actor, module);
+  },
+
+  isPublished(lesson: Lesson): boolean {
+    return lesson.status === Status.PUBLISHED;
   },
 };

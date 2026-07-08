@@ -6,17 +6,17 @@
 ## Обзор
 Ввести агрегат `Course`, объединяющий модули в упорядоченную последовательность с этапами (phases) и направлениями (`tech`/`business`). Курс — основа для gating'а модулей (трек 3) и для «индекса A» в ContentPath (трек 2). Поток (Stream) остаётся привязанным к одному модулю.
 
-**Роли:** ADMIN (создание курса), MENTOR/ALL (просмотр).
+**Роли:** AUTHOR (создание курса), AUTHOR/ADMIN (редактирование), ALL (просмотр).
 
 ## Функциональные требования
 
 ### F1. Агрегат Course
-- `CourseAr` (домен `course`): `uuid`, `title`, `description`, `authorId`, `phases: { id, title, track: 'tech'|'business', moduleIds: string[] }[]`, `status`, `createdAt`.
+- `CourseAr` (домен `course`): `uuid`, `title`, `description`, `authorId`, `phases: { id, title, track?: string, moduleIds: string[] }[]`, `status`, `createdAt`.
 - Методы: `create`, `addModuleToPhase(phaseId, moduleId)`, `publish`.
 - `CourseSchema` (valibot), `CourseRepo` (интерфейс), `CoursePolicy` (canCreate → AUTHOR; canEdit → ADMIN или author; canRead — все).
 
 ### F2. Связь Module ↔ Course
-- `Module` получает опциональные `courseId?`, `phaseId?` ИЛИ хранится только в `Course.phases[].moduleIds` (решить в реализации; предпочесть хранение в Course, чтобы Module не менять).
+- `Module` получает опциональные `courseId?`, `phaseId?` ИЛИ хранится только в `Course.phases[].moduleIds` (решить в реализации; предпочесть хранение в Course, чтобы Module не менять). Добавлено: храним в курсах, один модуль может быть частью разных курсов. Модуль самодостаточен.
 - Программа курса = агрегация `ContentSnapshot` всех модулей курса по порядку phases.
 
 ### F3. UC (API)
