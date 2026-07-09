@@ -12,16 +12,16 @@
 
 ## Фаза 2: UC resolve-content-path
 
-- [ ] Task: Написать тесты resolve-content-path по ролям
-  - [ ] curious: шаги видны, но только заголовки (без content/code)
-  - [ ] student: completed — полный контент read-only, current — полный active, будущие — только заголовок (нужен streamId)
-  - [ ] mentor: полный доступ
-  - [ ] несуществующий путь → NotFound
+- [x] Task: Написать тесты resolve-content-path по ролям [1f7330f]
+  - [x] curious: шаги видны, но только заголовки (без content/code)
+  - [x] student: completed — полный контент read-only, current — полный active, будущие — только заголовок (нужен streamId)
+  - [x] mentor: полный доступ
+  - [x] несуществующий путь → NotFound
 
-- [ ] Task: Реализовать UC + команду
-  - [ ] `commands/resolve-content-path-cmd.ts`, UC в `packages/course/src/api/`
-  - [ ] Резолв индекс→UUID через CourseFacade.getCourseProgram / ContentSnapshot
-  - [ ] Добавить в `CourseApiModuleMeta.ucMetas`
+- [x] Task: Реализовать UC + команду
+  - [x] `commands/resolve-content-path-cmd.ts`, UC в `packages/course/src/api/`
+  - [x] Резолв индекс→UUID через CourseFacade.getCourseProgram / ContentSnapshot
+  - [x] Добавить в `CourseApiModuleMeta.ucMetas` [10d16c4]
 
 - [ ] Task: Conductor - Ручная верификация 'UC resolve-content-path'
 
