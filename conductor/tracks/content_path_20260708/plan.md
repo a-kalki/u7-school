@@ -5,9 +5,9 @@
 ## Фаза 1: VO ContentPath
 
 - [x] Task: Написать тесты ContentPath (parse/serialize/валидация всех partial-форм, ошибочные пути) [01196b3]
-- [ ] Task: Реализовать `ContentPath` VO + `ContentPathSchema` в домене `course`
-  - [ ] `packages/course/src/domain/content-path.ts`
-  - [ ] Export из index
+- [x] Task: Реализовать `ContentPath` VO + `ContentPathSchema` в домене `course`
+  - [x] `packages/course/src/domain/content-path.ts`
+  - [x] Export из index [386f612]
 - [ ] Task: Conductor - Ручная верификация 'VO ContentPath'
 
 ## Фаза 2: UC resolve-content-path
