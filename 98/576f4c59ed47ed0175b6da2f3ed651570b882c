@@ -1,0 +1,14 @@
+Задача: Реализовать UC + команды (Green фаза)
+
+Новые UC:
+- DropStudentUc: self → abandoned(voluntary) + −STUDENT
+- MarkAbandonedUc: mentor → abandoned(inactivity|by_mentor) + −STUDENT
+- CompleteStudentUc: mentor выбирает исход (advanced|not_advanced|abandoned) + −STUDENT
+- SetNextPreferenceUc: self меняет nextPreference (только advanced/not_advanced)
+
+Изменённые:
+- ActivateStreamUc: enrolled→active для всех студентов
+- CompleteStreamUc: батчевые исходы через studentOutcomes + TgFacade.sendMessage
+- EnrollStudentUc: addRoleToUser вместо updateUserRole, проверка enrolled
+
+Тесты: 239 pass, 5 fail (старые StreamDs × 2, ExpelStudentUc × 3 — фаза 6)
