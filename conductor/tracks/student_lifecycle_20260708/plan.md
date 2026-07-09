@@ -19,13 +19,13 @@
 
 - [x] Task: Conductor - Ручная верификация 'Статусы StudentAr'
 
-## Фаза 2: TgFacade (порт core + impl app)
+## Фаза 2: TgFacade (порт core + impl app) [checkpoint: 25228bf]
 
 - [x] Task: Написать тесты TgFacade impl (mock Grammy) — 8c55fe3
 - [x] Task: Реализовать порт `TgFacade` в `core`, impl в `app`/infra — 6e1745d
   - [x] Добавить в `StreamApiModuleResolver`
   - [x] Wiring в `tests/bot/helpers/test-app.ts` и apps
-- [ ] Task: Conductor - Ручная верификация 'TgFacade'
+- [x] Task: Conductor - Ручная верификация 'TgFacade'
 
 ## Фаза 3: UC (завершение, выход, активация, зачисление)
 
