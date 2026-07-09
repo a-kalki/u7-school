@@ -10,7 +10,6 @@ import type {
   ListCoursesCmdMeta,
 } from './course/commands';
 import type { CourseRepo } from './course/repo';
-import type { CourseFacade } from './facade';
 import type { CreateLessonCmdMeta } from './lesson/commands/create-lesson-cmd';
 import type { GetLessonCmdMeta } from './lesson/commands/get-lesson-cmd';
 import type { LessonRepo } from './lesson/repo';
@@ -61,7 +60,6 @@ export interface CourseApiModuleResolver extends ModuleResolver {
   db?: BaseJsonDb;
   moduleRepo: ModuleRepo;
   courseRepo: CourseRepo;
-  courseFacade?: CourseFacade;
   lessonRepo: LessonRepo;
   stepRepo: StepRepo;
   userFacade: UserFacade;

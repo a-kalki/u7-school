@@ -98,11 +98,6 @@ function setupModule(facade: MockUserFacade) {
       getByUuid: mock(async () => undefined),
       getAll: mock(async () => []),
     },
-    courseFacade: {
-      getModuleSnapshot: mock(async () => []) as never,
-      getStep: mock(async () => ({})) as never,
-      getCourseProgram: mock(async () => ({})) as never,
-    },
     lessonRepo: new LessonJsonRepo(nextPath('lessons')),
     stepRepo: new StepJsonRepo(nextPath('steps')),
     userFacade: facade,

@@ -6,8 +6,6 @@ import {
   type ResolveContentPathCmd,
   ResolveContentPathSchema,
 } from '#domain/content-path/commands/resolve-content-path-cmd';
-import type { ContentSnapshot } from '#domain/content-snapshot';
-import type { CourseProgram } from '#domain/facade';
 import type { CourseApiModuleResolver } from '#domain/module';
 import { Status } from '#domain/status';
 import { ResolveContentPathUc } from './resolve-content-path-uc';
@@ -27,67 +25,104 @@ function makeUser(overrides: Partial<User> = {}): User {
   };
 }
 
-/** Создаёт ContentSnapshot с 2 проектами */
-function makeSnapshot(): ContentSnapshot {
-  return [
-    {
-      projectId: 'pid-1',
-      projectTitle: 'Проект 1',
-      lessons: [
-        {
-          lessonId: 'lid-1a',
-          lessonTitle: 'Урок 1.1',
-          stepIds: ['sid-1a-1', 'sid-1a-2'],
-        },
-        {
-          lessonId: 'lid-1b',
-          lessonTitle: 'Урок 1.2',
-          stepIds: ['sid-1b-1'],
-        },
-      ],
-    },
-    {
-      projectId: 'pid-2',
-      projectTitle: 'Проект 2',
-      lessons: [
-        {
-          lessonId: 'lid-2a',
-          lessonTitle: 'Урок 2.1',
-          stepIds: ['sid-2a-1', 'sid-2a-2', 'sid-2a-3'],
-        },
-      ],
-    },
-  ];
-}
-
-function makeCourseProgram(
-  snapshot: ContentSnapshot,
-  title = 'Курс',
-): CourseProgram {
+/** Создаёт Module с одним проектом и двумя уроками */
+function makeModule(): any {
   return {
-    course: {
-      uuid: 'cid-1',
-      title,
-      description: 'Описание курса',
-      authorId: 'author-1',
-      status: Status.PUBLISHED,
-      createdAt: '2026-05-01',
-      phases: [],
-    },
-    phases: [
+    uuid: 'mid-1',
+    title: 'Тестовый модуль',
+    description: '...',
+    authorId: 'author-1',
+    status: Status.PUBLISHED,
+    targetAudience: 'Все',
+    goal: 'Цель',
+    result: 'Результат',
+    rules: 'Правила',
+    createdAt: '2026-05-01',
+    projects: [
       {
-        title: 'Фаза 1',
-        modules: [snapshot],
+        uuid: 'pid-1',
+        title: 'Проект 1',
+        status: Status.PUBLISHED,
+        lessonIds: ['lid-1a', 'lid-1b'],
+      },
+      {
+        uuid: 'pid-2',
+        title: 'Проект 2',
+        status: Status.PUBLISHED,
+        lessonIds: ['lid-2a'],
       },
     ],
   };
 }
 
+function makeLessons(): any[] {
+  return [
+    {
+      uuid: 'lid-1a',
+      moduleId: 'mid-1',
+      title: 'Урок 1.1',
+      status: Status.PUBLISHED,
+      stepIds: ['sid-1a-1', 'sid-1a-2'],
+      mentorStepIds: [],
+      createdAt: '2026-05-01',
+    },
+    {
+      uuid: 'lid-1b',
+      moduleId: 'mid-1',
+      title: 'Урок 1.2',
+      status: Status.PUBLISHED,
+      stepIds: ['sid-1b-1'],
+      mentorStepIds: [],
+      createdAt: '2026-05-01',
+    },
+    {
+      uuid: 'lid-2a',
+      moduleId: 'mid-1',
+      title: 'Урок 2.1',
+      status: Status.PUBLISHED,
+      stepIds: ['sid-2a-1', 'sid-2a-2', 'sid-2a-3'],
+      mentorStepIds: [],
+      createdAt: '2026-05-01',
+    },
+  ];
+}
+
+function makeCourse(): any {
+  return {
+    uuid: 'cid-1',
+    title: 'Курс',
+    description: 'Описание',
+    authorId: 'author-1',
+    status: Status.PUBLISHED,
+    createdAt: '2026-05-01',
+    phases: [
+      {
+        title: 'Фаза 1',
+        track: 'tech',
+        moduleIds: ['mid-1', 'mid-2'],
+      },
+    ],
+  };
+}
+
+function makeStep(stepId = 'sid-1a-1'): any {
+  return {
+    uuid: stepId,
+    moduleId: 'mid-1',
+    kind: 'text',
+    description: `Шаг ${stepId}`,
+    content: `Контент ${stepId}`,
+    status: Status.PUBLISHED,
+    createdAt: '2026-05-01',
+  };
+}
+
 type UcEnv = {
   getUserByUuid: ReturnType<typeof mock>;
-  getCourseProgram: ReturnType<typeof mock>;
-  getStep: ReturnType<typeof mock>;
-  getModuleSnapshot: ReturnType<typeof mock>;
+  courseRepoGetByUuid: ReturnType<typeof mock>;
+  moduleRepoGetByUuid: ReturnType<typeof mock>;
+  lessonRepoGetByUuid: ReturnType<typeof mock>;
+  stepRepoGetByUuid: ReturnType<typeof mock>;
   uc: ResolveContentPathUc;
 };
 
@@ -96,40 +131,57 @@ function setupUc(): UcEnv {
     async (_userId: string, _actorId?: string): Promise<User | undefined> =>
       undefined,
   );
-  const getCourseProgram = mock(
-    async (_courseId: string): Promise<CourseProgram> => ({
-      course: {} as never,
-      phases: [],
-    }),
-  );
-  const getStep = mock(async (_stepId: string) => undefined as never);
-  const getModuleSnapshot = mock(
-    async (_moduleId: string): Promise<ContentSnapshot> => [],
-  );
+  const courseRepoGetByUuid = mock(async () => undefined);
+  const moduleRepoGetByUuid = mock(async () => undefined);
+  const lessonRepoGetByUuid = mock(async () => undefined);
+  const stepRepoGetByUuid = mock(async () => undefined);
 
   const uc = new ResolveContentPathUc();
   uc.init({
     moduleRepo: {
-      getByUuid: mock(async () => undefined),
+      getByUuid: moduleRepoGetByUuid,
       getAll: mock(async () => []),
     } as never,
-    lessonRepo: { getByUuid: mock(async () => undefined) } as never,
+    lessonRepo: {
+      getByUuid: lessonRepoGetByUuid,
+    } as never,
     stepRepo: {
-      getByUuid: mock(async () => undefined),
+      getByUuid: stepRepoGetByUuid,
       getByIds: mock(async () => []),
       getByCourseId: mock(async () => []),
       save: mock(async () => {}),
-    },
-    courseRepo: {} as never,
-    courseFacade: {
-      getCourseProgram,
-      getStep,
-      getModuleSnapshot,
+    } as never,
+    courseRepo: {
+      getByUuid: courseRepoGetByUuid,
+      getAll: mock(async () => []),
+      save: mock(async () => {}),
     } as never,
     userFacade: { getUserByUuid } as never,
   } as unknown as CourseApiModuleResolver);
 
-  return { getUserByUuid, getCourseProgram, getStep, getModuleSnapshot, uc };
+  return {
+    getUserByUuid,
+    courseRepoGetByUuid,
+    moduleRepoGetByUuid,
+    lessonRepoGetByUuid,
+    stepRepoGetByUuid,
+    uc,
+  };
+}
+
+/** Настраивает репо для возврата типичной программы курса */
+function setupProgramMocks(env: UcEnv): void {
+  env.courseRepoGetByUuid.mockResolvedValueOnce(makeCourse());
+  env.moduleRepoGetByUuid.mockResolvedValueOnce(makeModule());
+  // mid-2 не существует → вернёт undefined
+  env.moduleRepoGetByUuid.mockResolvedValueOnce(undefined);
+
+  const lessons = makeLessons();
+  // lessonRepo вызывается для lid-1a, lid-1b, lid-2a
+  for (const id of ['lid-1a', 'lid-1b', 'lid-2a']) {
+    const lesson = lessons.find((l) => l.uuid === id);
+    env.lessonRepoGetByUuid.mockResolvedValueOnce(lesson);
+  }
 }
 
 // ============================================================
@@ -161,28 +213,25 @@ describe('ContentPathSchema', () => {
 describe('ResolveContentPathUc', () => {
   describe('SUCCESS — роли', () => {
     test('curious (без actorId) — видит только заголовки, без content/code', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
 
-      const result = await uc.handle({
+      const result: any = await env.uc.handle({
         path: '1',
         courseId: 'cid-1',
       });
 
-      // curious видит структуру модуля (проекты, уроки) без тел шагов
       expect(result).toBeDefined();
+      expect(result.moduleIndex).toBe(1);
     });
 
-    test('student с streamId — видит структуру', async () => {
-      const { getUserByUuid, getCourseProgram, uc } = setupUc();
+    test('student — видит структуру', async () => {
+      const env = setupUc();
+      setupProgramMocks(env);
       const student = makeUser({ roles: [Role.STUDENT] });
-      getUserByUuid.mockResolvedValueOnce(student);
+      env.getUserByUuid.mockResolvedValueOnce(student);
 
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
-
-      const result = await uc.handle(
+      const result: any = await env.uc.handle(
         { path: '1', courseId: 'cid-1' },
         student.uuid,
       );
@@ -191,14 +240,12 @@ describe('ResolveContentPathUc', () => {
     });
 
     test('mentor — полный доступ', async () => {
-      const { getUserByUuid, getCourseProgram, uc } = setupUc();
+      const env = setupUc();
+      setupProgramMocks(env);
       const mentor = makeUser({ roles: [Role.MENTOR] });
-      getUserByUuid.mockResolvedValueOnce(mentor);
+      env.getUserByUuid.mockResolvedValueOnce(mentor);
 
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
-
-      const result = await uc.handle(
+      const result: any = await env.uc.handle(
         { path: '1', courseId: 'cid-1' },
         mentor.uuid,
       );
@@ -209,11 +256,10 @@ describe('ResolveContentPathUc', () => {
 
   describe('SUCCESS — уровни пути', () => {
     test('A (модуль) — возвращает структуру модуля', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
 
-      const result = await uc.handle({
+      const result: any = await env.uc.handle({
         path: '1',
         courseId: 'cid-1',
       });
@@ -222,11 +268,10 @@ describe('ResolveContentPathUc', () => {
     });
 
     test('A:B (проект) — возвращает проект с уроками', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
 
-      const result = await uc.handle({
+      const result: any = await env.uc.handle({
         path: '1:1',
         courseId: 'cid-1',
       });
@@ -235,12 +280,11 @@ describe('ResolveContentPathUc', () => {
       expect(result).toHaveProperty('lessons');
     });
 
-    test('A:B:C (урок) — возвращает урок со stepIds', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+    test('A:B:C (урок) — возвращает урок', async () => {
+      const env = setupUc();
+      setupProgramMocks(env);
 
-      const result = await uc.handle({
+      const result: any = await env.uc.handle({
         path: '1:1:1',
         courseId: 'cid-1',
       });
@@ -248,98 +292,100 @@ describe('ResolveContentPathUc', () => {
       expect(result).toHaveProperty('lessonTitle');
     });
 
-    test('A:B:C:D (шаг) — возвращает шаг', async () => {
-      const { getCourseProgram, getStep, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
-      getStep.mockResolvedValueOnce({
-        uuid: 'sid-1a-1',
-        moduleId: 'mid-1',
-        kind: 'text',
-        description: 'Шаг 1',
-        content: 'Контент шага 1',
-        status: Status.PUBLISHED,
-        createdAt: '2026-05-01',
-      });
+    test('A:B:C:D (шаг) — возвращает шаг, curious без content', async () => {
+      const env = setupUc();
+      setupProgramMocks(env);
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-1'));
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-2'));
 
-      const result = await uc.handle({
+      const result: any = await env.uc.handle({
         path: '1:1:1:1',
         courseId: 'cid-1',
       });
 
-      // curious: должен быть заголовок, но без content
-      expect(result).toBeDefined();
+      // curious: шаг виден, но без content
+      expect(result.step).toBeDefined();
+      expect(result.step?.content).toBeUndefined();
+      expect(result.step?.code).toBeUndefined();
+    });
+
+    test('A:B:C:D — ментор видит content', async () => {
+      const env = setupUc();
+      setupProgramMocks(env);
+      const mentor = makeUser({ roles: [Role.MENTOR] });
+      env.getUserByUuid.mockResolvedValueOnce(mentor);
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-1'));
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-2'));
+
+      const result: any = await env.uc.handle(
+        { path: '1:1:1:1', courseId: 'cid-1' },
+        mentor.uuid,
+      );
+
+      expect(result.step).toBeDefined();
+      expect(result.step?.content).toBeDefined();
     });
 
     test('A:B:C:all — все шаги урока', async () => {
-      const { getCourseProgram, getStep, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
-      // Возвращаем шаги по запросу
-      getStep.mockImplementation(async (stepId: string) => ({
-        uuid: stepId,
-        moduleId: 'mid-1',
-        kind: 'text',
-        description: `Шаг ${stepId}`,
-        status: Status.PUBLISHED,
-        createdAt: '2026-05-01',
-      }));
+      const env = setupUc();
+      setupProgramMocks(env);
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-1'));
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-2'));
 
-      const result = await uc.handle({
+      const result: any = await env.uc.handle({
         path: '1:1:1:all',
         courseId: 'cid-1',
       });
 
       expect(result).toBeDefined();
+      expect(result.steps?.length).toBe(2);
     });
   });
 
   describe('FAIL', () => {
     test('несуществующий индекс модуля — ошибка', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
 
       await expect(
-        uc.handle({ path: '99', courseId: 'cid-1' }),
+        env.uc.handle({ path: '99', courseId: 'cid-1' }),
       ).rejects.toThrow('Модуль не найден');
     });
 
     test('несуществующий индекс проекта — ошибка', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
 
       await expect(
-        uc.handle({ path: '1:99', courseId: 'cid-1' }),
+        env.uc.handle({ path: '1:99', courseId: 'cid-1' }),
       ).rejects.toThrow('Проект не найден');
     });
 
     test('несуществующий индекс урока — ошибка', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
 
       await expect(
-        uc.handle({ path: '1:1:99', courseId: 'cid-1' }),
+        env.uc.handle({ path: '1:1:99', courseId: 'cid-1' }),
       ).rejects.toThrow('Урок не найден');
     });
 
     test('несуществующий индекс шага — ошибка', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
+      const env = setupUc();
+      setupProgramMocks(env);
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-1'));
+      env.stepRepoGetByUuid.mockResolvedValueOnce(makeStep('sid-1a-2'));
 
       await expect(
-        uc.handle({ path: '1:1:1:99', courseId: 'cid-1' }),
+        env.uc.handle({ path: '1:1:1:99', courseId: 'cid-1' }),
       ).rejects.toThrow('Шаг не найден');
     });
 
     test('невалидный формат пути — ошибка', async () => {
-      const { uc } = setupUc();
+      const env = setupUc();
 
       await expect(
-        uc.handle({ path: 'abc', courseId: 'cid-1' }),
+        env.uc.handle({ path: 'abc', courseId: 'cid-1' }),
       ).rejects.toThrow('Некорректный формат ContentPath');
     });
   });

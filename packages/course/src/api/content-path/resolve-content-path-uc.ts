@@ -14,7 +14,10 @@ import type {
   StepNotFoundInPathUcError,
 } from '#domain/content-path/commands/resolve-content-path-cmd';
 import { ResolveContentPathSchema } from '#domain/content-path/commands/resolve-content-path-cmd';
-import type { CourseFacade, CourseProgram } from '#domain/facade';
+import type { ContentSnapshot } from '#domain/content-snapshot';
+import { CourseDs } from '#domain/course-ds';
+import type { Lesson } from '#domain/lesson/entity';
+import type { Module } from '#domain/module/entity';
 import type { Step } from '#domain/step/entity';
 import { CourseUseCase } from '../course-uc';
 
@@ -22,7 +25,6 @@ import { CourseUseCase } from '../course-uc';
 // Output types
 // ============================================================
 
-/** Сводка шага: зависит от роли (content/code опциональны) */
 export interface StepSummary {
   uuid: string;
   description: string;
@@ -31,28 +33,21 @@ export interface StepSummary {
   code?: string;
 }
 
-/** Общий результат резолва */
 export interface ResolvedContent {
   path: string;
   moduleIndex: number;
   moduleTitle: string;
-  /** Присутствует если path включает projectIndex */
   projectIndex?: number;
   projectId?: string;
   projectTitle?: string;
-  /** Присутствует на уровне проекта: список уроков (заголовки) */
   lessons?: { lessonId: string; lessonTitle: string }[];
-  /** Присутствует если path включает lessonIndex */
   lessonIndex?: number;
   lessonId?: string;
   lessonTitle?: string;
-  /** Присутствует если path — урок/шаг */
   steps?: StepSummary[];
-  /** Присутствует если path указывает на конкретный шаг */
   step?: StepSummary;
 }
 
-/** Схема вывода */
 const ResolvedContentSchema = v.any();
 
 // ============================================================
@@ -61,11 +56,11 @@ const ResolvedContentSchema = v.any();
 
 const FULL_ACCESS_ROLES: Role[] = [Role.MENTOR, Role.ADMIN, Role.AUTHOR];
 
-/**
- * Use-case разрешения контента по ContentPath.
- * Вход: path + streamId/courseId.
- * Выход: структура контента с ролевым фильтром.
- */
+interface ModuleSlot {
+  title: string;
+  snapshot: ContentSnapshot;
+}
+
 export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMeta> {
   protected readonly ucName = 'resolve-content-path' as const;
   protected readonly ucLabel = 'Разрешить контент по пути' as const;
@@ -78,36 +73,17 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
   protected readonly inputSchema = ResolveContentPathSchema;
   protected readonly outputSchema = ResolvedContentSchema;
 
-  private get facade(): CourseFacade {
-    return this.resolve.courseFacade as CourseFacade;
-  }
-
   async execute(
     command: ResolveContentPathCmd,
     actorId?: string,
   ): Promise<ResolvedContent> {
-    // Parse path
     const cp = parseContentPath(command.path);
 
-    // Get course program
-    const program: CourseProgram = await this.facade.getCourseProgram(
-      command.courseId || 'default',
-    );
+    const slots = await this.buildProgram(command.courseId);
 
-    return this.resolveFromContentPath(cp, program, actorId);
-  }
+    const moduleIndex = cp.moduleIndex - 1;
 
-  /** Ядро резолва по ContentPath */
-  private async resolveFromContentPath(
-    cp: ReturnType<typeof parseContentPath>,
-    program: CourseProgram,
-    actorId?: string,
-  ): Promise<ResolvedContent> {
-    // 3. Flatten modules across phases
-    const flatModules = program.phases.flatMap((p) => p.modules);
-    const moduleIndex = cp.moduleIndex - 1; // 0-based
-
-    if (moduleIndex < 0 || moduleIndex >= flatModules.length) {
+    if (moduleIndex < 0 || moduleIndex >= slots.length) {
       this.throwError(
         errNotFound<ModuleNotFoundInPathUcError>(
           'MODULE_NOT_FOUND',
@@ -117,12 +93,8 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
       );
     }
 
-    // 4. Determine module
-    const targetPhase = this.findPhaseForModule(program, moduleIndex);
-    const moduleTitle = targetPhase?.title || `Модуль ${cp.moduleIndex}`;
-    const moduleSnapshot = flatModules[moduleIndex];
-
-    if (!moduleSnapshot) {
+    const slot = slots[moduleIndex];
+    if (!slot) {
       this.throwError(
         errNotFound<ModuleNotFoundInPathUcError>(
           'MODULE_NOT_FOUND',
@@ -132,25 +104,21 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
       );
     }
 
-    // 5. Get actor & role
     const actor = actorId ? await this.getUser(actorId, actorId) : undefined;
     const isFullAccess = this.hasFullAccess(actor);
 
-    // 6. Build result based on path depth
     const result: ResolvedContent = {
       path: serializeContentPath(cp),
       moduleIndex: cp.moduleIndex,
-      moduleTitle,
+      moduleTitle: slot.title,
     };
 
-    // Level A: only module — return structure
     if (cp.projectIndex === undefined) {
       return result;
     }
 
-    // Level A:B and deeper: resolve project
     const projectIndex = cp.projectIndex - 1;
-    if (projectIndex < 0 || projectIndex >= moduleSnapshot.length) {
+    if (projectIndex < 0 || projectIndex >= slot.snapshot.length) {
       this.throwError(
         errNotFound<ProjectNotFoundInPathUcError>(
           'PROJECT_NOT_FOUND',
@@ -160,7 +128,7 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
       );
     }
 
-    const project = moduleSnapshot[projectIndex];
+    const project = slot.snapshot[projectIndex];
     if (!project) {
       this.throwError(
         errNotFound<ProjectNotFoundInPathUcError>(
@@ -174,16 +142,17 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
     result.projectIndex = cp.projectIndex;
     result.projectId = project.projectId;
     result.projectTitle = project.projectTitle;
-    result.lessons = project.lessons.map((l) => ({
-      lessonId: l.lessonId,
-      lessonTitle: l.lessonTitle,
-    }));
+    result.lessons = project.lessons.map(
+      (l: { lessonId: string; lessonTitle: string }) => ({
+        lessonId: l.lessonId,
+        lessonTitle: l.lessonTitle,
+      }),
+    );
 
     if (cp.lessonIndex === undefined) {
       return result;
     }
 
-    // Level A:B:C and deeper: resolve lesson
     const lessonIndex = cp.lessonIndex - 1;
     if (lessonIndex < 0 || lessonIndex >= project.lessons.length) {
       this.throwError(
@@ -210,29 +179,30 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
     result.lessonId = lesson.lessonId;
     result.lessonTitle = lesson.lessonTitle;
 
-    // Fetch steps
     const stepIds = lesson.stepIds;
     let stepSummaries: StepSummary[] = [];
     try {
       const rawSteps = await Promise.all(
-        stepIds.map((id) => this.facade.getStep(id)),
+        stepIds.map(async (id: string) => {
+          const s = await this.resolve.stepRepo.getByUuid(id);
+          return s;
+        }),
       );
       stepSummaries = rawSteps
-        .filter((s): s is Step => s !== undefined)
-        .map((s) => this.toSummary(s, isFullAccess));
+        .filter((s: Step | undefined): s is Step => s !== undefined)
+        .map((s: Step) => this.toSummary(s, isFullAccess));
     } catch {
-      // getStep может отсутствовать — оставляем пустой массив
+      // stepRepo может выбросить — оставляем пустой массив
     }
 
     result.steps = stepSummaries;
 
-    // Level A:B:C:D (specific step) or A:B:C:all
     if (cp.stepIndex === undefined) {
       return result;
     }
 
     if (cp.stepIndex === 'all') {
-      return result; // all steps already in result.steps
+      return result;
     }
 
     const stepNum = cp.stepIndex - 1;
@@ -247,35 +217,75 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
     }
 
     const targetStep = stepSummaries[stepNum];
+    if (!targetStep) {
+      this.throwError(
+        errNotFound<StepNotFoundInPathUcError>(
+          'STEP_NOT_FOUND',
+          'Шаг не найден',
+          { stepIndex: cp.stepIndex },
+        ),
+      );
+    }
     result.step = targetStep;
 
     return result;
   }
 
-  /** Определяет, в какой фазе находится модуль по индексу */
-  private findPhaseForModule(
-    program: CourseProgram,
-    moduleIndex: number,
-  ): { title: string } | undefined {
-    let cum = 0;
-    for (const phase of program.phases) {
-      const count = phase.modules?.length || 0;
-      if (moduleIndex < cum + count) {
-        const idx = program.phases.indexOf(phase) + 1;
-        return { title: phase.title || `Фаза ${idx}` };
-      }
-      cum += count;
+  /**
+   * Строит плоский список слотов (фаза + модуль → ContentSnapshot).
+   * Использует репозитории напрямую, без CourseFacade.
+   */
+  private async buildProgram(courseId?: string): Promise<ModuleSlot[]> {
+    const course = await this.resolve.courseRepo.getByUuid(
+      courseId || 'default',
+    );
+    if (!course) {
+      this.throwError(
+        errNotFound<ModuleNotFoundInPathUcError>(
+          'MODULE_NOT_FOUND',
+          'Модуль не найден',
+          { moduleIndex: 1 },
+        ),
+      );
     }
-    return undefined;
+
+    const ds = new CourseDs();
+    const slots: ModuleSlot[] = [];
+
+    for (const phase of course.phases) {
+      for (const moduleId of phase.moduleIds) {
+        const mod = await this.resolve.moduleRepo.getByUuid(moduleId);
+        if (!mod) continue;
+
+        const lessons: Lesson[] = [];
+        const seen = new Set<string>();
+        for (const project of mod.projects) {
+          for (const lessonId of project.lessonIds) {
+            if (seen.has(lessonId)) continue;
+            seen.add(lessonId);
+            const lesson = await this.resolve.lessonRepo.getByUuid(lessonId);
+            if (lesson) lessons.push(lesson);
+          }
+        }
+
+        const snapshot = ds.buildSnapshot(mod, lessons);
+        slots.push({
+          title: phase.title || `Фаза ${course.phases.indexOf(phase) + 1}`,
+          snapshot,
+        });
+      }
+    }
+
+    return slots;
   }
 
-  /** Проверяет, имеет ли пользователь полный доступ */
   private hasFullAccess(actor?: { roles?: string[] }): boolean {
     if (!actor?.roles) return false;
-    return actor.roles.some((r) => FULL_ACCESS_ROLES.includes(r as Role));
+    return actor.roles.some((r: string) =>
+      FULL_ACCESS_ROLES.includes(r as Role),
+    );
   }
 
-  /** Превращает Step в StepSummary с ролевым фильтром */
   private toSummary(step: Step, isFullAccess: boolean): StepSummary {
     const base: StepSummary = {
       uuid: step.uuid,
