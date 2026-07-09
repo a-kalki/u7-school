@@ -4,7 +4,7 @@
 
 ## Фаза 1: VO ContentPath
 
-- [ ] Task: Написать тесты ContentPath (parse/serialize/валидация всех partial-форм, ошибочные пути)
+- [x] Task: Написать тесты ContentPath (parse/serialize/валидация всех partial-форм, ошибочные пути) [01196b3]
 - [ ] Task: Реализовать `ContentPath` VO + `ContentPathSchema` в домене `course`
   - [ ] `packages/course/src/domain/content-path.ts`
   - [ ] Export из index
