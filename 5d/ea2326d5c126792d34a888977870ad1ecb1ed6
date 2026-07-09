@@ -1,0 +1,10 @@
+Задача: Обновить tests/bot сценарии резолва контента по ролям
+
+Создан файл: tests/bot/integration/course/content-path.integration.test.ts
+- 19 интеграционных тестов resolve-content-path
+- Покрытие: A, A:B, A:B:C, A:B:C:D, all, алиасы, ошибочные пути
+- Ролевой фильтр: curious (без content/code) vs mentor (с content)
+- Все тесты проходят (1261 pass, 0 fail)
+
+Исправлен test-app.ts: ретроспективная инъекция courseFacade
+в resolve модуля (необходимо для UC, использующих фасад).
