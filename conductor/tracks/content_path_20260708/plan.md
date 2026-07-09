@@ -10,7 +10,7 @@
   - [x] Export из index [386f612]
 - [ ] Task: Conductor - Ручная верификация 'VO ContentPath'
 
-## Фаза 2: UC resolve-content-path
+## Фаза 2: UC resolve-content-path [checkpoint: 56e6d3c]
 
 - [x] Task: Написать тесты resolve-content-path по ролям [1f7330f]
   - [x] curious: шаги видны, но только заголовки (без content/code)
