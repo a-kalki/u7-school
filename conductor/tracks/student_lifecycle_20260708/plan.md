@@ -40,10 +40,20 @@
 
 - [ ] Task: Conductor - Ручная верификация 'UC жизненного цикла'
 
-## Фаза 4: User.nick
+## Фаза 4: User.nick [checkpoint: 0e93c78]
 
-- [ ] Task: Написать тесты: set-nick, уникальность
-- [ ] Task: Реализовать `UserSchema.nick` + UC set-nick (self) + проверка уникальности в репо
+- [x] Task: Написать тесты: set-nick, уникальность
+  - [x] UserSchema.nick — опциональный, trim, nonEmpty
+  - [x] UserAr.setNick — установка, перезапись, сброс
+  - [x] SetNickUc — успех, очистка, занятый ник
+- [x] Task: Реализовать `UserSchema.nick` + UC set-nick (self) + проверка уникальности в репо
+  - [x] UserSchema: nick?: string (v.optional, v.trim, v.nonEmpty)
+  - [x] UserAr.setNick(nick) + updatedAt
+  - [x] SetNickCmd / SetNickCmdMeta
+  - [x] NickTakenUcError в errors.ts
+  - [x] UserRepo.isNickTaken(nick)
+  - [x] UserJsonRepo.isNickTaken
+  - [x] Зарегистрирован в UserApiModule и UserApiModuleMeta
 - [ ] Task: Conductor - Ручная верификация 'User.nick'
 
 ## Фаза 5: Confirm-хелпер + рефакторинг сториз
