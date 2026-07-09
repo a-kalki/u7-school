@@ -87,10 +87,11 @@ export class UserInProcFacade implements UserFacade {
     telegramId: number,
     name: string,
     actorId?: string,
+    nick?: string,
   ): Promise<User> {
     const result = await this.#userApi.execute(
       'register-guest',
-      { telegramId, name },
+      { telegramId, name, nick },
       actorId,
     );
     return result as User;

@@ -46,6 +46,10 @@ export class UserAr extends Aggregate<UserArMeta> {
       createdAt: isoNow(),
     };
 
+    if (command.nick) {
+      candidate.nick = command.nick;
+    }
+
     return new UserAr(candidate);
   }
 

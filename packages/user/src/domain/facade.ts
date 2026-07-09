@@ -37,5 +37,6 @@ export interface UserFacade {
     telegramId: number,
     name: string,
     actorId?: string,
+    nick?: string,
   ): Promise<User>;
 }

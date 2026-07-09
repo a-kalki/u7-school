@@ -7,6 +7,7 @@ import { UserSchema } from '../entity';
 export const RegisterGuestCmdSchema = v.object({
   telegramId: UserSchema.entries.telegramId,
   name: UserSchema.entries.name,
+  nick: v.optional(v.pipe(v.string(), v.trim())),
 });
 
 export type RegisterGuestCmd = v.InferOutput<typeof RegisterGuestCmdSchema>;

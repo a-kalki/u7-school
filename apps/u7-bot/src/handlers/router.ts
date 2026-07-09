@@ -14,12 +14,18 @@ export async function resolveUser(
   telegramId: number,
   botAdminUuid: string,
   name?: string,
+  nick?: string,
 ): Promise<User> {
   const existing = await userFacade.getUserByTelegramId(telegramId);
   if (existing) {
     return existing;
   }
-  return userFacade.registerGuest(telegramId, name ?? 'Гость', botAdminUuid);
+  return userFacade.registerGuest(
+    telegramId,
+    name ?? 'Гость',
+    botAdminUuid,
+    nick,
+  );
 }
 
 /**
@@ -45,6 +51,7 @@ export function connectRouter(
         telegramId,
         botAdminUuid,
         ctx.from?.first_name,
+        ctx.from?.username,
       );
     } catch (err) {
       logger?.error('router', 'Ошибка resolveUser', {

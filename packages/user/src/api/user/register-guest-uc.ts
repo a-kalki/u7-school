@@ -44,6 +44,7 @@ export class RegisterGuestUc extends UserUseCase<RegisterGuestCmdMeta> {
     const ar = UserAr.register({
       name: command.name,
       telegramId: command.telegramId,
+      nick: command.nick,
     });
 
     await this.resolve.userRepo.save(ar.state);

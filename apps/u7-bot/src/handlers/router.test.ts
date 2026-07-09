@@ -235,7 +235,7 @@ describe('resolveUser', () => {
 
     expect(user).toEqual(newGuest);
     expect(userFacade.getUserByTelegramId).toHaveBeenCalledWith(888);
-    expect(registerGuestMock).toHaveBeenCalledWith(888, 'Гость', 'admin-uuid');
+    expect(registerGuestMock).toHaveBeenCalledWith(888, 'Гость', 'admin-uuid', undefined);
   });
 });
 

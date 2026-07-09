@@ -57,6 +57,26 @@ describe('RegisterGuestUc', () => {
     expect(result.name).toBe('Ivan');
   });
 
+  test('SUCCESS: сохраняет telegram-username как nick', async () => {
+    const result = (await apiApp.execute(
+      'register-guest',
+      { telegramId: 12345, name: 'Ivan', nick: 'ivan_tg' },
+      adminUuid,
+    )) as any;
+
+    expect(result.nick).toBe('ivan_tg');
+  });
+
+  test('SUCCESS: nick опционален — может отсутствовать', async () => {
+    const result = (await apiApp.execute(
+      'register-guest',
+      { telegramId: 12345, name: 'Ivan' },
+      adminUuid,
+    )) as any;
+
+    expect(result.nick).toBeUndefined();
+  });
+
   test('SUCCESS: возвращает существующего пользователя без изменений', async () => {
     // Предварительно создаем студента
     const userUuid = '11111111-1111-4000-a000-111111111111';

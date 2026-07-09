@@ -85,6 +85,15 @@ describe('UserAr', () => {
       expect(ar.state.updatedAt).toBeUndefined();
     });
 
+    test('сохраняет nick если передан', () => {
+      const ar = UserAr.register({
+        name: 'Анна',
+        telegramId: 789,
+        nick: 'anna_tg',
+      });
+      expect(ar.state.nick).toBe('anna_tg');
+    });
+
     test('генерирует UUID и createdAt при регистрации', () => {
       const ar = UserAr.register({
         name: 'Борис',
