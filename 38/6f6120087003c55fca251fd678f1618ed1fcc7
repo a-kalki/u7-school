@@ -1,0 +1,13 @@
+Задача: Реализовать ContentPath VO + ContentPathSchema в домене course
+
+Создан: packages/course/src/domain/content-path.ts
+Изменён: packages/course/src/domain/index.ts (экспорт)
+
+Реализовано:
+- ContentPath interface: { moduleIndex, projectIndex?, lessonIndex?, stepIndex?: number | 'all' }
+- parse(str): парсинг короткой (A:B:C:D) и явной (mA:pB:lC:sD) форм
+- serialize(cp): сериализация в короткую форму
+- ContentPathSchema: valibot-схема с валидацией (1-based индексы, 'all' для stepIndex)
+- Экспорт из domain/index.ts (export * из index.ts пакета)
+
+Покрытие: 100% строк, 96.36% функций
