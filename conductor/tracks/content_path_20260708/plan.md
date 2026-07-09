@@ -25,16 +25,24 @@
 
 - [ ] Task: Conductor - Ручная верификация 'UC resolve-content-path'
 
-## Фаза 3: Рефакторинг сториз [checkpoint: 581729f]
+## Фаза 3: Рефакторинг сториз [checkpoint: 32d9316]
 
-- [x] Task: Добавить stepId в команду resolve-content-path [581729f]
-  - [x] resolvePathByStepId в UC — обратный резолв UUID→ContentPath
-  - [x] 2 новых теста: stepId успех + несуществующий UUID
-- [x] Task: Заменить `#findStepPosition` на вызов UC в LearningStory, MonitorStory
-  - [x] LearningStory: appApi.execute('resolve-content-path', { stepId })
-  - [x] MonitorStory: пакетный resolve через Promise.all
-  - [x] Удалены #findStepPosition и интерфейс StepPosition
-  - [x] Обновлены тесты сториз (моки resolve-content-path)
+- [x] Task: Добавить методы обхода ContentSnapshot в CourseDs [32d9316]
+  - [x] findStepPosition, findLessonTitle, findProjectTitle, countTotalSteps
+  - [x] StepPosition вынесен в content-snapshot.ts
+  - [x] 11 тестов
+- [x] Task: Заменить ручной обход ContentSnapshot на CourseDs в сториз
+  - [x] LearningStory: findStepPosition + findLessonTitle/ProjectTitle через CourseDs
+  - [x] MonitorStory: countTotalSteps + findStepPosition через CourseDs
+  - [x] ProgressStory: countTotalSteps + findStepPosition через CourseDs
+  - [x] Удалены: #findStepPosition (×2), #findLessonTitle, #findProjectTitle, #findCurrentContext
+- [x] Task: Очистить UC resolve-content-path от stepId-режима [32d9316]
+  - [x] Убран stepId из схемы и execute()
+  - [x] Убран resolvePathByStepId
+  - [x] UC теперь только path → контент с ролевым фильтром
+- [x] Task: Документировать правило cross-package domain imports
+  - [x] architecture-evolution.md §2.2.1
+  - [x] .pi/skills/ddd-domain/SKILL.md
 - [ ] Task: Conductor - Ручная верификация 'Рефакторинг сториз'
 
 ## Фаза 4: Интеграционные/E2E тесты
