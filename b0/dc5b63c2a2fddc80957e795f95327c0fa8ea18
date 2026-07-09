@@ -1,0 +1,20 @@
+Контрольная точка Фазы 4: Интеграционные/E2E тесты
+
+Автоматические тесты:
+- Команда: bun run check
+- Результат: 1262 pass, 0 fail, 0 ошибок lint/tsc
+
+Ручная верификация:
+- Проверен bun run check — чисто
+- Проверен интеграционный тест content-path.integration.test.ts — 19 pass
+- Проверено отсутствие courseFacade в CourseApiModuleResolver
+- Проверена документация architecture-evolution.md — ✅
+
+Подтверждение пользователя: да
+
+Изменения в фазе:
+- tests/bot/integration/course/content-path.integration.test.ts (19 тестов)
+- refactor: убрана зависимость UC от CourseFacade
+- docs: архитектура и ui-spec обновлены
+- conductor/architecture-evolution.md §2.2 ✅
+- packages/stream/src/ui/bot/ui-spec.md: ContentPath отмечен
