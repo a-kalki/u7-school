@@ -40,16 +40,16 @@
 - `mark-abandoned` (ментор): active → abandoned(inactivity|by_mentor) + −STUDENT. Заменяет прежний `expel-student`.
 - `enroll-student`: зачисление → enrolled + +STUDENT.
 - `activate-stream`: enrolled→active для всех студентов потока.
-- `CompleteStreamUc` — полная переработка:
+- `CompleteStreamUc` — упрощённая переработка:
   - Ментор вызывает «Завершить поток».
-  - Процесс подтверждения действия.
-  - Бот выводит список всех active-студентов с выбором исхода для каждого: abandoned / advanced / not_advanced.
-  - После подтверждения ментором:
-    - Статусы обновляются, STUDENT снимается.
-    - Для advanced: tgFacade.sendMessage — «Ты завершил модуль. Хочешь записаться на следующий?»
-    - Для not_advanced: tgFacade.sendMessage — «Ты завершил модуль, но не набрал проходной балл. Хочешь перезаписаться на этот же модуль?»
-    - Для abandoned: сообщение не отправляется.
-  - Ответы студентов обрабатываются через story → обновляется `completionDetails.nextPreference`.
+  - **Проверка:** в потоке не должно остаться активных студентов (все должны быть заранее переведены в финальные статусы через `complete-student`/`mark-abandoned`).
+  - Завершает поток: status → completed.
+  - **Сценарий стори:**
+    1. Ментор получает список active-студентов через `list-stream-students(status=active)`.
+    2. Для каждого студента — кнопки выбора исхода (advanced / not_advanced / abandoned).
+    3. Нажатие кнопки → вызов `complete-student` (статус меняется, STUDENT снимается, студент исчезает из списка).
+    4. Для advanced/not_advanced — `complete-student` сразу отправляет сообщение через `tgFacade.sendMessage` (telegramId получается через `userFacade.getUserByUuid`).
+    5. Когда все обработаны → кнопка «Завершить поток» → `complete-stream` (проверка + stream.complete).
 - `set-next-preference` (self): обновляет `completionDetails.nextPreference` у advanced/not_advanced студента.
 
 ### F4. User.nick
@@ -66,7 +66,7 @@
 ### F6. Confirm-хелпер
 - В `core/ui` (или `app/ui`): helper построения confirm-клавиатуры + базовый метод `U7BotUserStory.confirm(action, text, confirmCode, cancelCode)`.
 - Формализовать convention `action`/`action-confirm`.
-- Применить в MonitorStory (complete-student, mark-abandoned) и CompleteStreamUc.
+- Применить в MonitorStory (complete-student, mark-abandoned).
 
 ### F7. Миграция статусов
 - Прод `streams/students.json`: `dropped`→`abandoned`+`abandonDetails:{who:'self', cause:'voluntary'}`, `expelled`→`abandoned`+`abandonDetails:{who:'mentor', cause:'by_mentor'}`.
@@ -75,7 +75,7 @@
 ## Критерии приёмки
 - [ ] Статус-машина студента (5 статусов) реализована, переходы валидируются.
 - [ ] Роль STUDENT корректно снимается/выдаётся: +при enrolled, −при abandoned/advanced/not_advanced.
-- [ ] `CompleteStreamUc`: ментор выбирает исход для каждого студента, рассылает сообщения через TgFacade.
+- [ ] `CompleteStreamUc`: проверка отсутствия active студентов + завершение потока.
 - [ ] `User.nick` добавлено, валидируется уникальность.
 - [ ] `TgFacade` порт в core, impl в app, доступен в resolver.
 - [ ] Confirm-хелпер применяется, дублирование confirm-логики устранено.

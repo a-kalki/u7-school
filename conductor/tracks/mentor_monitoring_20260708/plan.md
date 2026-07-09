@@ -30,7 +30,7 @@
   - [ ] «Завершить обучение» → complete-student с выбором исхода (advanced / not_advanced / abandoned), confirm, −STUDENT
   - [ ] «Отчислить» → mark-abandoned (cause: by_mentor) → abandonDetails: { who: 'mentor', cause: 'by_mentor' }, confirm, −STUDENT
 - [ ] Task: Реализовать кнопки через confirm-хелпер (трек 1)
-  - [ ] complete-student: батчевый или индивидуальный выбор исхода
+  - [ ] complete-student: индивидуальный выбор исхода для каждого студента
   - [ ] mark-abandoned: cause = by_mentor
 - [ ] Task: Conductor - Ручная верификация 'Действия ментора'
 

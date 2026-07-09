@@ -54,7 +54,7 @@ enrolled → active → abandoned  (self-drop / mentor-by-inactivity)
 - Процесс: студент записался → `enrolled` (ждёт) → ментор активировал поток → `active` + issue первого шага.
 - `StudentAr` методы: `activate()` (enrolled→active), `drop()` (self→abandoned), `markAbandoned(cause)` (mentor→abandoned), `advance()` (→advanced), `markNotAdvanced()` (→not_advanced), `setNextPreference(pref)`.
 - UC: `complete-student` (ментор выбирает abandoned|advanced|not_advanced), `drop-student` (self), `mark-abandoned` (mentor), `set-next-preference` (self).
-- `CompleteStreamUc` — полная переработка: ментор батчево выбирает исход для каждого active-студента; после подтверждения статусы обновляются, `STUDENT` снимается, через `TgFacade` рассылаются сообщения (advanced → «Хочешь на следующий?», not_advanced → «Хочешь перезаписаться?», abandoned → без сообщения).
+- `CompleteStreamUc` — упрощён: проверяет отсутствие active-студентов и завершает поток (stream.complete). Статусы студентов меняются **индивидуально** через `complete-student` (ментор нажимает кнопку исхода для каждого). Для advanced/not_advanced `complete-student` сразу отправляет сообщение через `TgFacade` (telegramId получается через `userFacade`).
 - **Миграция:** `dropped`→`abandoned`+`abandonDetails:{who:'self',cause:'voluntary'}`, `expelled`→`abandoned`+`abandonDetails:{who:'mentor',cause:'by_mentor'}`. Решается на месте (процесс живой).
 
 ### 2.4. TgFacade — порт в core, реализация в app

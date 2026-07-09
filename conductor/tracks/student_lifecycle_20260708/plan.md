@@ -5,65 +5,38 @@
 ## Фаза 1: Домен — статусы и StudentAr [checkpoint: f24ce7c]
 
 - [x] Task: Написать тесты StudentAr (все переходы + ошибки) — 11c2a38
-  - [ ] enrolled→active (activate); активация не-enrolled → ошибка
-  - [ ] active→abandoned (drop — who=self/cause=voluntary)
-  - [ ] active→abandoned (markAbandoned — who=mentor/cause=inactivity|by_mentor)
-  - [ ] active→advanced (advance — completionDetails.nextPreference='undecided')
-  - [ ] active→not_advanced (markNotAdvanced — completionDetails.nextPreference='undecided')
-  - [ ] setNextPreference — только для advanced/not_advanced, иначе ошибка
-  - [ ] недопустимые переходы → throwBadRequest (например, abandoned→advanced, not_advanced→active)
-
 - [x] Task: Реализовать финальные статусы + методы StudentAr — 8d663b4
-  - [x] Обновить `StudentSchema` (status enum из 5 значений, abandonDetails?, completionDetails?)
-  - [x] Методы: `activate`, `drop`, `markAbandoned`, `advance`, `markNotAdvanced`, `setNextPreference`
-
 - [x] Task: Conductor - Ручная верификация 'Статусы StudentAr'
 
 ## Фаза 2: TgFacade (порт core + impl app) [checkpoint: 25228bf]
 
 - [x] Task: Написать тесты TgFacade impl (mock Grammy) — 8c55fe3
 - [x] Task: Реализовать порт `TgFacade` в `core`, impl в `app`/infra — 6e1745d
-  - [x] Добавить в `StreamApiModuleResolver`
-  - [x] Wiring в `tests/bot/helpers/test-app.ts` и apps
 - [x] Task: Conductor - Ручная верификация 'TgFacade'
 
-## Фаза 3: UC (завершение, выход, активация, зачисление)
+## Фаза 3: UC (завершение, выход, активация, зачисление) [checkpoint: 496a538]
 
-- [x] Task: Написать тесты UC
-  - [x] complete-student: ментор выбирает abandoned|advanced|not_advanced → статус обновлён + −STUDENT — 29a4102
-  - [x] drop-student: self → abandoned(voluntary) + −STUDENT — 29a4102
-  - [x] mark-abandoned: mentor → abandoned(inactivity|by_mentor) + −STUDENT — 29a4102
-  - [x] enroll-student: → enrolled + +STUDENT — 29a4102
-  - [x] activate-stream: enrolled→active для всех — 29a4102
-  - [x] set-next-preference: self, только advanced/not_advanced — 29a4102
-  - [x] CompleteStreamUc: батчевые исходы + TgFacade — 29a4102
-  - [ ] complete-student: ментор выбирает abandoned|advanced|not_advanced → статус обновлён + −STUDENT
-  - [ ] complete-student: не-ментор → denied
-  - [ ] drop-student: self → abandoned(voluntary) + −STUDENT
-  - [ ] mark-abandoned: mentor → abandoned(inactivity|by_mentor) + −STUDENT
-  - [ ] enroll-student: → enrolled + +STUDENT
-  - [ ] activate-stream: enrolled→active для всех студентов потока
-  - [ ] set-next-preference: self, только advanced/not_advanced → обновить nextPreference
-  - [ ] CompleteStreamUc:
-    - [ ] ментор вызывает, получает список active-студентов
-    - [x] для каждого выбирает abandoned|advanced|not_advanced
-  - [x] Реализовано: complete-student-cmd, drop-student-cmd, mark-abandoned-cmd, set-next-preference-cmd — 98576f4
-  - [x] Доработан enroll-student-uc, activate-stream-uc — 98576f4
-  - [x] CompleteStreamUc с батчевыми исходами и TgFacade — 98576f4
-  - [x] addRoleToUser/removeRoleFromUser — 98576f4
-    - [ ] после confirm: статусы обновлены, STUDENT снят
-    - [ ] advanced → tgFacade.sendMessage (предложение след. модуля)
-    - [ ] not_advanced → tgFacade.sendMessage (предложение перезаписи)
-    - [ ] abandoned → сообщение не отправляется
+- [x] Task: Написать тесты UC — 29a4102
+  - [x] complete-student: ментор выбирает abandoned|advanced|not_advanced → статус обновлён + −STUDENT
+  - [x] drop-student: self → abandoned(voluntary) + −STUDENT
+  - [x] mark-abandoned: mentor → abandoned(inactivity|by_mentor) + −STUDENT
+  - [x] enroll-student: → enrolled + +STUDENT
+  - [x] activate-stream: enrolled→active для всех
+  - [x] set-next-preference: self, только advanced/not_advanced
+  - [x] CompleteStreamUc: батчевые исходы + TgFacade
 
-- [ ] Task: Реализовать UC + команды
-  - [ ] `complete-student-cmd` (ментор выбирает исход), `drop-student-cmd`, `mark-abandoned-cmd` (замена expel)
-  - [ ] `set-next-preference-cmd`
-  - [ ] Доработать `enroll-student-uc` (enrolled), `activate-stream-uc` (enrolled→active)
-  - [ ] Полная переработка `CompleteStreamUc`:
-    - [ ] Батчевый выбор исхода для каждого active-студента
-    - [ ] Рассылка сообщений через TgFacade
-  - [ ] Роль STUDENT через `userFacade.addRoleToUser`/`removeRoleFromUser`
+- [x] Task: Реализовать UC + команды — 98576f4
+  - [x] complete-student-cmd, drop-student-cmd, mark-abandoned-cmd (замена expel)
+  - [x] set-next-preference-cmd
+  - [x] Доработан enroll-student-uc (enrolled), activate-stream-uc (enrolled→active)
+  - [x] CompleteStreamUc с батчевыми исходами и TgFacade
+  - [x] addRoleToUser/removeRoleFromUser
+
+- [x] Task: Рефакторинг CompleteStreamUc + CompleteStudentUc — 496a538
+  - [x] CompleteStreamUc — только stream.complete() + проверка отсутствия active
+  - [x] CompleteStudentUc — добавлен tgFacade.sendMessage (telegramId через userFacade)
+  - [x] ListStreamStudentsUc — опциональный параметр status
+  - [x] StudentStatus enum + StudentStatusSchema в status.ts
 
 - [ ] Task: Conductor - Ручная верификация 'UC жизненного цикла'
 
@@ -78,7 +51,6 @@
 - [ ] Task: Написать тесты confirm-хелпера
 - [ ] Task: Реализовать confirm-хелпер в `core/ui`/`app/ui`
   - [ ] Применить в MonitorStory (complete-student с выбором исхода, mark-abandoned)
-  - [ ] Применить в CompleteStreamUc (батчевый confirm)
 - [ ] Task: Обновить `statusLabels` в MonitorStory на новые статусы
 - [ ] Task: Conductor - Ручная верификация 'Confirm-хелпер'
 
