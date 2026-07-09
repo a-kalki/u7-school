@@ -1,23 +1,12 @@
 import * as v from 'valibot';
 
-/**
+/** Valibot-схема для ContentPath.
+ *
  * Value Object адресации контента курса.
  * Формат: moduleIndex:projectIndex:lessonIndex:stepIndex (1-based).
  * Partial-формы: A, A:B, A:B:C, A:B:C:D, A:B:C:all.
  * Явная форма: mA:pB:lC:sD (алиасы короткой формы).
  */
-export interface ContentPath {
-  /** Индекс модуля (1-based) */
-  moduleIndex: number;
-  /** Индекс проекта (1-based) */
-  projectIndex?: number;
-  /** Индекс урока (1-based) */
-  lessonIndex?: number;
-  /** Индекс шага (1-based) или 'all' для всех шагов урока */
-  stepIndex?: number | 'all';
-}
-
-/** Valibot-схема для ContentPath */
 export const ContentPathSchema = v.object({
   moduleIndex: v.pipe(
     v.number(),
@@ -49,6 +38,9 @@ export const ContentPathSchema = v.object({
     ]),
   ),
 });
+
+/** Тип ContentPath, выведенный из ContentPathSchema — единый источник истины. */
+export type ContentPath = v.InferOutput<typeof ContentPathSchema>;
 
 /** Регулярные выражения для парсинга явной формы (mA:pB:lC:sD) */
 const EXPLICIT_RE = /^m(-?\d+)(?::p(-?\d+))?(?::l(-?\d+))?(?::s(-?\d+|all))?$/;
