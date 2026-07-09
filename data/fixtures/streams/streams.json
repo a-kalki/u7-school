@@ -44,7 +44,7 @@
     "mentorId": "44444444-4444-4444-4444-444444444444",
     "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
     "startDate": "2026-06-01T00:00",
-    "status": "completed",
+    "status": "active",
     "telegramGroupId": "-1002222222222",
     "telegramGroupInvite": "https://t.me/+test_active_group",
     "goal": "Научиться писать серверный JS",
@@ -73,8 +73,7 @@
         ]
       }
     ],
-    "createdAt": "2026-05-20T00:00",
-    "updatedAt": "2026-07-02T06:15"
+    "createdAt": "2026-05-20T00:00"
   },
   {
     "uuid": "e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2",
@@ -127,5 +126,33 @@
       }
     ],
     "createdAt": "2026-03-01T00:00"
+  },
+  {
+    "uuid": "e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4",
+    "title": "JS Core — Поток 5",
+    "description": "Поток по основам js-core.",
+    "mentorId": "44444444-4444-4444-4444-444444444444",
+    "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
+    "startDate": "2026-08-01T00:00",
+    "status": "enrollment",
+    "enrollmentKey": "secret123",
+    "telegramGroupId": "-1005555555555",
+    "contentSnapshot": [
+      {
+        "projectId": "b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0",
+        "projectTitle": "Введение",
+        "lessons": [
+          {
+            "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
+            "lessonTitle": "Переменные и типы",
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
+              "d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"
+            ]
+          }
+        ]
+      }
+    ],
+    "createdAt": "2026-07-01T00:00"
   }
 ]
