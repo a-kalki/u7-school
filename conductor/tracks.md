@@ -10,8 +10,7 @@
 
 - [x] ~~**Track: Жизненный цикл студента**~~ → [архив](./archive/student_lifecycle_20260708/)
 
-- [~] **Track: ContentPath (адресация контента)** — *зависит: трек 0*
-*Link: [./tracks/content_path_20260708/](./tracks/content_path_20260708/)*
+- [x] ~~**Track: ContentPath (адресация контента)**~~ → [архив](./archive/content_path_20260708/)
 
 ---
 
