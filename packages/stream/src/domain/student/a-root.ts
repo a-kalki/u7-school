@@ -11,13 +11,27 @@ export class StudentAr extends Aggregate<StudentArMeta> {
   static readonly arName = 'Student';
   static readonly arLabel = 'Студент потока';
 
+  /** Текущий статус студента в жизненном цикле потока. */
+  get status(): Student['status'] {
+    return this._state.status;
+  }
+
+  /** Детали отчисления (только если статус abandoned). */
+  get abandonDetails(): Student['abandonDetails'] {
+    return this._state.abandonDetails;
+  }
+
+  /** Детали завершения потока (только если статус advanced/not_advanced). */
+  get completionDetails(): Student['completionDetails'] {
+    return this._state.completionDetails;
+  }
+
   constructor(state: Student) {
     super(state, StudentSchema);
   }
 
   /**
    * Фабричный метод для зачисления студента на поток.
-   * Создаёт студента в статусе `enrolled`.
    */
   static enroll(
     streamId: string,
@@ -116,9 +130,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
    * Установить пожелание по следующему шагу обучения.
    * Доступно только для студентов в статусе advanced или not_advanced.
    */
-  setNextPreference(
-    pref: 'wants_next' | 'wants_repeat' | 'undecided',
-  ): void {
+  setNextPreference(pref: 'wants_next' | 'wants_repeat' | 'undecided'): void {
     if (
       this._state.status !== 'advanced' &&
       this._state.status !== 'not_advanced'

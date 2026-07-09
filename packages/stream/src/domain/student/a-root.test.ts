@@ -13,7 +13,7 @@ describe('StudentAr', () => {
       expect(ar.state.streamId).toBe(mockStreamId);
       expect(ar.state.userId).toBe(mockUserId);
       expect(ar.state.currentStepId).toBe(mockStepId);
-      expect(ar.state.status).toBe('enrolled');
+      expect(ar.status).toBe('enrolled');
       expect(ar.state.steps).toEqual([]);
       expect(ar.state.uuid).toMatch(
         /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i,
@@ -21,8 +21,8 @@ describe('StudentAr', () => {
       expect(ar.state.enrolledAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
       expect(ar.state.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
       expect(ar.state.updatedAt).toBeUndefined();
-      expect(ar.state.abandonDetails).toBeUndefined();
-      expect(ar.state.completionDetails).toBeUndefined();
+      expect(ar.abandonDetails).toBeUndefined();
+      expect(ar.completionDetails).toBeUndefined();
     });
 
     test('currentStepId должен быть передан при создании', () => {
@@ -33,16 +33,16 @@ describe('StudentAr', () => {
   describe('activate', () => {
     test('переводит enrolled → active', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
-      expect(ar.state.status).toBe('enrolled');
+      expect(ar.status).toBe('enrolled');
 
       ar.activate();
-      expect(ar.state.status).toBe('active');
+      expect(ar.status).toBe('active');
     });
 
     test('активация не-enrolled → ошибка', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate(); // теперь active
-      expect(ar.state.status).toBe('active');
+      expect(ar.status).toBe('active');
 
       expect(() => ar.activate()).toThrow(
         "Нельзя активировать студента в статусе 'active'.",
@@ -53,7 +53,7 @@ describe('StudentAr', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate();
       ar.drop();
-      expect(ar.state.status).toBe('abandoned');
+      expect(ar.status).toBe('abandoned');
 
       expect(() => ar.activate()).toThrow();
     });
@@ -63,11 +63,11 @@ describe('StudentAr', () => {
     test('переводит active → abandoned (who=self, cause=voluntary)', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate();
-      expect(ar.state.status).toBe('active');
+      expect(ar.status).toBe('active');
 
       ar.drop();
-      expect(ar.state.status).toBe('abandoned');
-      expect(ar.state.abandonDetails).toEqual({
+      expect(ar.status).toBe('abandoned');
+      expect(ar.abandonDetails).toEqual({
         who: 'self',
         cause: 'voluntary',
       });
@@ -85,7 +85,7 @@ describe('StudentAr', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate();
       ar.advance();
-      expect(ar.state.status).toBe('advanced');
+      expect(ar.status).toBe('advanced');
 
       expect(() => ar.drop()).toThrow();
     });
@@ -97,8 +97,8 @@ describe('StudentAr', () => {
       ar.activate();
 
       ar.markAbandoned('inactivity');
-      expect(ar.state.status).toBe('abandoned');
-      expect(ar.state.abandonDetails).toEqual({
+      expect(ar.status).toBe('abandoned');
+      expect(ar.abandonDetails).toEqual({
         who: 'mentor',
         cause: 'inactivity',
       });
@@ -109,8 +109,8 @@ describe('StudentAr', () => {
       ar.activate();
 
       ar.markAbandoned('by_mentor');
-      expect(ar.state.status).toBe('abandoned');
-      expect(ar.state.abandonDetails).toEqual({
+      expect(ar.status).toBe('abandoned');
+      expect(ar.abandonDetails).toEqual({
         who: 'mentor',
         cause: 'by_mentor',
       });
@@ -128,8 +128,8 @@ describe('StudentAr', () => {
       ar.activate();
 
       ar.advance();
-      expect(ar.state.status).toBe('advanced');
-      expect(ar.state.completionDetails).toEqual({
+      expect(ar.status).toBe('advanced');
+      expect(ar.completionDetails).toEqual({
         nextPreference: 'undecided',
       });
     });
@@ -146,8 +146,8 @@ describe('StudentAr', () => {
       ar.activate();
 
       ar.markNotAdvanced();
-      expect(ar.state.status).toBe('not_advanced');
-      expect(ar.state.completionDetails).toEqual({
+      expect(ar.status).toBe('not_advanced');
+      expect(ar.completionDetails).toEqual({
         nextPreference: 'undecided',
       });
     });
@@ -165,7 +165,7 @@ describe('StudentAr', () => {
       ar.advance();
 
       ar.setNextPreference('wants_next');
-      expect(ar.state.completionDetails?.nextPreference).toBe('wants_next');
+      expect(ar.completionDetails?.nextPreference).toBe('wants_next');
     });
 
     test('обновляет nextPreference у not_advanced студента', () => {
@@ -174,7 +174,7 @@ describe('StudentAr', () => {
       ar.markNotAdvanced();
 
       ar.setNextPreference('wants_repeat');
-      expect(ar.state.completionDetails?.nextPreference).toBe('wants_repeat');
+      expect(ar.completionDetails?.nextPreference).toBe('wants_repeat');
     });
 
     test('setNextPreference на active → ошибка', () => {
@@ -256,7 +256,7 @@ describe('StudentAr', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate();
       ar.drop();
-      expect(ar.state.status).toBe('abandoned');
+      expect(ar.status).toBe('abandoned');
 
       expect(() => ar.advance()).toThrow();
     });
@@ -265,7 +265,7 @@ describe('StudentAr', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate();
       ar.markNotAdvanced();
-      expect(ar.state.status).toBe('not_advanced');
+      expect(ar.status).toBe('not_advanced');
 
       expect(() => ar.activate()).toThrow();
     });
@@ -274,7 +274,7 @@ describe('StudentAr', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       ar.activate();
       ar.advance();
-      expect(ar.state.status).toBe('advanced');
+      expect(ar.status).toBe('advanced');
 
       expect(() => ar.activate()).toThrow();
     });
