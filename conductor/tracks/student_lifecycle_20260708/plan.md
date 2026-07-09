@@ -17,7 +17,7 @@
   - [x] Обновить `StudentSchema` (status enum из 5 значений, abandonDetails?, completionDetails?)
   - [x] Методы: `activate`, `drop`, `markAbandoned`, `advance`, `markNotAdvanced`, `setNextPreference`
 
-- [ ] Task: Conductor - Ручная верификация 'Статусы StudentAr'
+- [x] Task: Conductor - Ручная верификация 'Статусы StudentAr'
 
 ## Фаза 2: TgFacade (порт core + impl app)
 
