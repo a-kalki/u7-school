@@ -1,0 +1,14 @@
+Задача: Написать тесты resolve-content-path по ролям
+
+Созданы:
+- packages/course/src/api/content-path/resolve-content-path-uc.test.ts — 16 тестов
+- packages/course/src/api/content-path/resolve-content-path-uc.ts — заглушка UC
+- packages/course/src/domain/content-path/commands/resolve-content-path-cmd.ts — команда
+
+Тесты покрывают:
+- ContentPathSchema: валидация cmd (path + streamId/courseId)
+- Роли: curious (без actorId), student, mentor
+- Уровни: A (модуль), A:B (проект), A:B:C (урок), A:B:C:D (шаг), A:B:C:all
+- Ошибки: несуществующий модуль/проект/урок/шаг, невалидный формат
+
+Фаза Red: 14 тестов падают на 'Not implemented'
