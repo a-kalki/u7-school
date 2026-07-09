@@ -1,0 +1,7 @@
+Задача: Рефакторинг — геттеры StudentAr
+
+Изменения:
+- Добавлены геттеры status, abandonDetails, completionDetails в StudentAr
+- Тесты обновлены: ar.state.status → ar.status, ar.state.abandonDetails → ar.abandonDetails, ar.state.completionDetails → ar.completionDetails
+
+Причина: инкапсуляция — внешний код не должен обращаться к state.status напрямую
