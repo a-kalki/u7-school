@@ -58,6 +58,7 @@ describe('Onboarding E2E', () => {
   let apiApp: U7BotApp;
   let router: BotRouter;
   let guest: User & { telegramId: number };
+  let userFacade: UserFacade;
   let userRepo: UserJsonRepo;
 
   beforeAll(async () => {
@@ -82,20 +83,21 @@ describe('Onboarding E2E', () => {
     );
 
     // Фасад пользователей
-    const userFacade = {
+    userFacade = {
       getUserByUuid: async (uuid: string) => userRepo.getByUuid(uuid),
       userExists: async (uuid: string) =>
         (await userRepo.getByUuid(uuid)) !== undefined,
       getUserByTelegramId: async (telegramId: number) =>
         userRepo.getByTelegramId(telegramId),
       registerGuest: async (telegramId: number, name: string, _actorId?: string, nick?: string) => {
-        const user = {
+        const user: User = {
           uuid: crypto.randomUUID(),
           name,
           telegramId,
           roles: [Role.GUEST],
           createdAt: '2026-01-01T00:00',
         };
+        if (nick) user.nick = nick;
         await userRepo.save(user);
         return user;
       },
@@ -279,5 +281,23 @@ describe('Onboarding E2E', () => {
     // Должен показать q2 (продолжение с места остановки)
     expect(resumeResp.sendMessage?.text).toContain('Второй вопрос');
     expect(resumeResp.sendMessage?.keyboard).toBeUndefined(); // текстовый вопрос без клавиатуры
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // Nick: проверка сохранения telegram-username при регистрации
+  // ═══════════════════════════════════════════════════════════════
+  test('при регистрации гостя nick сохраняется в БД', async () => {
+    const nick = 'test_telegram_username';
+    const newUser = await userFacade.registerGuest(
+      9999,
+      'Никнейм Тест',
+      'admin-uuid',
+      nick,
+    );
+
+    // Проверяем, что nick попал в БД
+    const fromDb = await userRepo.getByUuid(newUser.uuid);
+    expect(fromDb).toBeDefined();
+    expect(fromDb!.nick).toBe(nick);
   });
 });
