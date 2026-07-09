@@ -1,5 +1,4 @@
 import { errConflict } from '@u7-scl/core/domain';
-import type { StreamConflictUcError, StreamUcErrors } from '../errors';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
 import {
@@ -8,6 +7,7 @@ import {
   CompleteStreamCmdSchema,
 } from '#domain/stream/commands/complete-stream-cmd';
 import { StreamPolicy } from '#domain/stream/policy';
+import type { StreamConflictUcError, StreamUcErrors } from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
 /**

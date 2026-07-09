@@ -124,7 +124,14 @@ describe('ActivateStreamUc', () => {
       status: 'active',
       enrolledAt: mockDate,
       currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa02',
-      steps: [{ stepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01', status: 'completed' as const, issuedAt: mockDate, completedAt: mockDate }],
+      steps: [
+        {
+          stepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+          status: 'completed' as const,
+          issuedAt: mockDate,
+          completedAt: mockDate,
+        },
+      ],
       createdAt: mockDate,
     };
 

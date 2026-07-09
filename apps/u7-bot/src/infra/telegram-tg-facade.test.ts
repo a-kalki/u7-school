@@ -31,9 +31,9 @@ describe('TelegramTgFacade', () => {
       const { facade, sendMessageMock } = createFacade();
       sendMessageMock.mockRejectedValueOnce(new Error('Telegram API error'));
 
-      await expect(
-        facade.sendMessage(12345, 'test'),
-      ).rejects.toThrow('Telegram API error');
+      await expect(facade.sendMessage(12345, 'test')).rejects.toThrow(
+        'Telegram API error',
+      );
     });
   });
 

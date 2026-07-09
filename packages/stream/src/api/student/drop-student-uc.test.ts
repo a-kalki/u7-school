@@ -59,7 +59,10 @@ describe('DropStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
-      { streamId: '77777777-7777-4777-8777-777777777777', studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' },
+      {
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
       '11111111-1111-4111-8111-111111111111',
     );
 
@@ -119,7 +122,13 @@ describe('DropStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute({ streamId: '77777777-7777-4777-8777-777777777777', studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }, '22222222-2222-4222-8222-222222222222'),
+      uc.execute(
+        {
+          streamId: '77777777-7777-4777-8777-777777777777',
+          studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        },
+        '22222222-2222-4222-8222-222222222222',
+      ),
     ).rejects.toThrow();
   });
 
@@ -161,7 +170,13 @@ describe('DropStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute({ streamId: '77777777-7777-4777-8777-777777777777', studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }, '11111111-1111-4111-8111-111111111111'),
+      uc.execute(
+        {
+          streamId: '77777777-7777-4777-8777-777777777777',
+          studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        },
+        '11111111-1111-4111-8111-111111111111',
+      ),
     ).rejects.toThrow();
   });
 });

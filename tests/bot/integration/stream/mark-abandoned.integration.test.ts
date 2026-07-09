@@ -63,7 +63,11 @@ describe('MarkAbandoned e2e', () => {
     try {
       await app.streamModule.execute(
         'mark-abandoned',
-        { streamId: STREAM_ID, studentId: STUDENT_ID, cause: 'inactivity' as const },
+        {
+          streamId: STREAM_ID,
+          studentId: STUDENT_ID,
+          cause: 'inactivity' as const,
+        },
         guest.uuid,
       );
       expect(false).toBe(true);

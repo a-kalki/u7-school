@@ -89,7 +89,12 @@ describe('Onboarding E2E', () => {
         (await userRepo.getByUuid(uuid)) !== undefined,
       getUserByTelegramId: async (telegramId: number) =>
         userRepo.getByTelegramId(telegramId),
-      registerGuest: async (telegramId: number, name: string, _actorId?: string, nick?: string) => {
+      registerGuest: async (
+        telegramId: number,
+        name: string,
+        _actorId?: string,
+        nick?: string,
+      ) => {
         const user: User = {
           uuid: crypto.randomUUID(),
           name,

@@ -17,9 +17,7 @@ export const CompleteStudentCmdSchema = v.object({
 });
 
 /** Команда завершения студента ментором */
-export type CompleteStudentCmd = v.InferOutput<
-  typeof CompleteStudentCmdSchema
->;
+export type CompleteStudentCmd = v.InferOutput<typeof CompleteStudentCmdSchema>;
 
 export interface CompleteStudentCmdMeta extends UcMeta {
   ucName: 'complete-student';

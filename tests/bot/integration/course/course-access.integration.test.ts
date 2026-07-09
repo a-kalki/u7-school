@@ -60,11 +60,7 @@ describe('CourseAccess (интеграционный)', () => {
   });
 
   test('list-courses доступен гостю', async () => {
-    const courses = await app.apiApp.execute(
-      'list-courses',
-      {},
-      guest.uuid,
-    );
+    const courses = await app.apiApp.execute('list-courses', {}, guest.uuid);
 
     expect(Array.isArray(courses)).toBe(true);
   });
@@ -78,10 +74,9 @@ describe('CourseAccess (интеграционный)', () => {
     );
 
     // Получаем курс (без actorId — публичный доступ)
-    const course = await app.apiApp.execute(
-      'get-course',
-      { uuid: created.uuid },
-    );
+    const course = await app.apiApp.execute('get-course', {
+      uuid: created.uuid,
+    });
 
     expect(course.title).toBe('Видимый курс');
   });

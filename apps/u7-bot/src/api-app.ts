@@ -24,12 +24,11 @@ import {
   StreamJsonRepo,
   StudentJsonRepo,
 } from '@u7-scl/stream';
+import type { TgFacade } from '@u7-scl/stream/domain';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
-import type { TgFacade } from '@u7-scl/stream/domain';
 import type { BotConfig } from './config';
-import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.

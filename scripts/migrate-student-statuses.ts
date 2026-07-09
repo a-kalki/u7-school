@@ -12,7 +12,13 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const FIXTURES_DIR = join(import.meta.dirname, '..', 'data', 'fixtures', 'streams');
+const FIXTURES_DIR = join(
+  import.meta.dirname,
+  '..',
+  'data',
+  'fixtures',
+  'streams',
+);
 const BACKUP_DIR = join(import.meta.dirname, '..', 'data', 'migrations');
 const STUDENTS_FILE = join(FIXTURES_DIR, 'students.json');
 
@@ -53,10 +59,19 @@ for (const s of students) {
 // 2. Бэкап
 mkdirSync(BACKUP_DIR, { recursive: true });
 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-writeFileSync(join(BACKUP_DIR, `students-backup-${timestamp}.json`), raw, 'utf-8');
+writeFileSync(
+  join(BACKUP_DIR, `students-backup-${timestamp}.json`),
+  raw,
+  'utf-8',
+);
 
 // 3. Запись
-writeFileSync(STUDENTS_FILE, JSON.stringify(students, null, 2) + '\n', 'utf-8');
+writeFileSync(
+  STUDENTS_FILE,
+  `${JSON.stringify(students, null, 2)}
+`,
+  'utf-8',
+);
 
 console.log(
   `✅ Миграция завершена: ${migratedCount} записей обновлено (dropped/expelled → abandoned).`,

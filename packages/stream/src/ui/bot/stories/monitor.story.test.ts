@@ -387,11 +387,7 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    await story.handleCallback(
-      'mark-abandoned-confirm:st1',
-      actor,
-      session,
-    );
+    await story.handleCallback('mark-abandoned-confirm:st1', actor, session);
 
     expect(moduleApi.execute).toHaveBeenCalledWith(
       'mark-abandoned',
@@ -472,8 +468,7 @@ describe('MonitorStory', () => {
     );
 
     expect(response.sendMessage?.text).toContain('прошёл');
-    const confirmBtn =
-      response.sendMessage?.keyboard?.rows[0]?.[0];
+    const confirmBtn = response.sendMessage?.keyboard?.rows[0]?.[0];
     expect(confirmBtn?.code).toContain(':advanced');
   });
 

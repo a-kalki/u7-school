@@ -367,22 +367,21 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       [
         {
           text: '✅ Прошёл',
-          code: this.cbFor('monitor', 'complete-confirm', studentId) +
-            ':advanced',
+          code: `${this.cbFor('monitor', 'complete-confirm', studentId)}:advanced`,
         },
       ],
       [
         {
           text: '↩️ Не прошёл',
-          code: this.cbFor('monitor', 'complete-confirm', studentId) +
+          code:
+            this.cbFor('monitor', 'complete-confirm', studentId) +
             ':not_advanced',
         },
       ],
       [
         {
           text: '🔴 Выбыл',
-          code: this.cbFor('monitor', 'complete-confirm', studentId) +
-            ':abandoned',
+          code: `${this.cbFor('monitor', 'complete-confirm', studentId)}:abandoned`,
         },
       ],
       [

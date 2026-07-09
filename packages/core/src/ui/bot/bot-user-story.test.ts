@@ -247,7 +247,9 @@ describe('BotUserStory', () => {
       // Кнопка подтверждения
       const [confirmBtn, cancelBtn] = kb.rows[0]!;
       expect(confirmBtn!.text).toBe('✅ Да');
-      expect(confirmBtn!.code).toBe('test_story:mark-abandoned-confirm:student-123');
+      expect(confirmBtn!.code).toBe(
+        'test_story:mark-abandoned-confirm:student-123',
+      );
 
       // Кнопка отмены (по умолчанию detail)
       expect(cancelBtn!.text).toBe('❌ Отмена');
