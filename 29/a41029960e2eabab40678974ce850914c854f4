@@ -1,0 +1,14 @@
+Задача: Написать тесты UC (Red фаза)
+
+Созданы команды: drop-student-cmd, mark-abandoned-cmd, complete-student-cmd, set-next-preference-cmd
+Обновлена команда: complete-stream-cmd (добавлены studentOutcomes)
+
+Написаны тесты для:
+- DropStudentUc (3 теста: успешный выход, не-владелец → denied, не-active → ошибка)
+- MarkAbandonedUc (3 теста: by_mentor, inactivity, не-ментор → denied)
+- CompleteStudentUc (4 теста: advanced, not_advanced, abandoned, не-ментор → denied)
+- SetNextPreferenceUc (4 теста: wants_next, wants_repeat, не-владелец → denied, active → ошибка)
+- ActivateStreamUc (2 теста: enrolled→active, не-enrolled не активируются)
+- CompleteStreamUc (1 тест: батчевые исходы, STUDENT снят, TgFacade отправка)
+
+Покрытие: 17 тестов. Все FAIL (Red) — ожидаемо, UC ещё не реализованы.
