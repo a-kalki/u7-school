@@ -17,5 +17,6 @@ export interface UserRepo {
   getByTelegramId(telegramId: number): Promise<User | undefined>;
   getAll(filter?: UserListFilter): Promise<User[]>;
   isTelegramIdTaken(telegramId: number): Promise<boolean>;
+  isNickTaken(nick: string): Promise<boolean>;
   isEmpty(): Promise<boolean>;
 }

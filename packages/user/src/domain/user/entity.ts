@@ -18,6 +18,9 @@ export const UserSchema = v.object({
   updatedAt: v.optional(
     v.pipe(v.string(), v.isoDateTime('Некорректный формат даты')),
   ),
+  nick: v.optional(
+    v.pipe(v.string(), v.trim(), v.nonEmpty('Ник не может быть пустым')),
+  ),
 });
 
 export type User = v.InferOutput<typeof UserSchema>;

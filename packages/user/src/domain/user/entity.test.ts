@@ -254,6 +254,37 @@ describe('Схема пользователя', () => {
     });
   });
 
+  describe('поле nick', () => {
+    test('принимает непустую строку', () => {
+      const nicks = ['john_doe', 'maria', 'ivan_petrov'];
+      nicks.forEach((nick) => {
+        const result = v.safeParse(UserSchema, { ...valid, nick });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    test('принимает отсутствующее поле nick (опционально)', () => {
+      const result = v.safeParse(UserSchema, valid);
+      expect(result.success).toBe(true);
+    });
+
+    test('отклоняет пустую строку', () => {
+      const emptyNicks = ['', ' ', '  '];
+      emptyNicks.forEach((nick) => {
+        const result = v.safeParse(UserSchema, { ...valid, nick });
+        expect(result.success).toBe(false);
+      });
+    });
+
+    test('отклоняет nick не строкового типа', () => {
+      const invalidTypes = [123, true, null, [], {}];
+      invalidTypes.forEach((nick) => {
+        const result = v.safeParse(UserSchema, { ...valid, nick });
+        expect(result.success).toBe(false);
+      });
+    });
+  });
+
   describe('комбинации нескольких невалидных полей', () => {
     test('отклоняет при нескольких ошибках одновременно', () => {
       const invalid = {

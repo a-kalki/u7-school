@@ -6,6 +6,7 @@ import type { GetUserCmdMeta } from './user/commands/get-user-cmd';
 import type { ListUsersCmdMeta } from './user/commands/list-users-cmd';
 import type { RegisterGuestCmdMeta } from './user/commands/register-guest-cmd';
 import type { RemoveRoleToUserCmdMeta } from './user/commands/remove-role-to-user-cmd';
+import type { SetNickCmdMeta } from './user/commands/set-nick-cmd';
 import type { UserRepo } from './user/repo';
 
 export type UserUcMetas =
@@ -15,7 +16,8 @@ export type UserUcMetas =
   | GetUserCmdMeta
   | ListUsersCmdMeta
   | RegisterGuestCmdMeta
-  | RemoveRoleToUserCmdMeta;
+  | RemoveRoleToUserCmdMeta
+  | SetNickCmdMeta;
 
 /** Метаданные API-модуля пользователей */
 export interface UserApiModuleMeta extends ApiModuleMeta {

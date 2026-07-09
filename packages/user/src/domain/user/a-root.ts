@@ -86,4 +86,13 @@ export class UserAr extends Aggregate<UserArMeta> {
   hasRole(role: Role): boolean {
     return this._state.roles.includes(role);
   }
+
+  /**
+   * Устанавливает ник пользователя.
+   * Передача пустой строки сбрасывает ник в undefined.
+   */
+  setNick(nick: string): void {
+    this._state.nick = nick || undefined;
+    this._state.updatedAt = isoNow();
+  }
 }
