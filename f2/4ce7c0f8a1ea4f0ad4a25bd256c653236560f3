@@ -1,0 +1,14 @@
+Аудит верификации — Фаза 1: Статусы StudentAr
+
+Автоматические тесты:
+- Команда: CI=true bun run test:p stream
+- Результат: 227 pass, 5 ожидаемых падений (ExpelStudentUc, StreamDs — старый код)
+- Все 27 новых тестов StudentAr проходят
+
+Ручная верификация:
+- Проверены тесты StudentAr (27 тестов — все переходы + геттеры)
+- Проверена схема entity.ts (5 статусов, abandonDetails, completionDetails)
+- Проверен агрегат a-root.ts (методы activate, drop, markAbandoned, advance, markNotAdvanced, setNextPreference, геттеры)
+- Статус-переходы: enrolled→active; active→abandoned|advanced|not_advanced
+
+Подтверждение пользователя: да
