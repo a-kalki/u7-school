@@ -50,9 +50,14 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleCompleteChoice(id);
     }
 
-    // complete-student — подтверждение исхода
+    // complete-student — подтверждение исхода (confirm-диалог)
     if (cmd === 'complete-confirm' && id) {
       return this.#handleCompleteConfirm(id, actor, action);
+    }
+
+    // complete-student — выполнение (после подтверждения)
+    if (cmd === 'complete-confirm-confirm' && id) {
+      return this.#handleCompleteExecute(id, actor, action);
     }
 
     if (cmd !== 'students' || !id) {
@@ -243,7 +248,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     ]);
 
     // Кнопки действий — только для ментора потока или админа
-    if (StudentPolicy.canExpel(actor, stream)) {
+    if (StudentPolicy.canManageStudent(actor, stream)) {
       if (student.status === 'active') {
         // Активный студент: можно отметить неактивным или завершить
         keyboardRows.push([
@@ -431,8 +436,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       abandoned: 'выбыл',
     };
 
+    // confirm-диалог использует действие 'complete-confirm' → кнопка подтверждения
+    // получает код 'complete-confirm-confirm:studentId:outcome' (см. #handleCompleteExecute).
+    // Это развязывает confirm-диалог и выполнение, избегая зацикливания.
     return this.confirm(
-      'complete',
+      'complete-confirm',
       studentId,
       `Завершить студента *${this.escapeMarkdown(userName)}* с исходом «${outcomeLabels[outcome ?? ''] ?? outcome}»?`,
       {
@@ -441,8 +449,64 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
     );
   }
-  // Примечание: выполнение complete-confirm (complete + outcome) пока не реализовано —
-  // будет добавлено после того, как complete-student-uc станет доступен в moduleApi
+
+  async #handleCompleteExecute(
+    studentId: string,
+    actor: User,
+    action: string,
+  ): Promise<BotResponse> {
+    // action = 'complete-confirm-confirm:studentId:outcome'
+    const parts = action.split(':');
+    const rawOutcome = parts[2]; // advanced | not_advanced | abandoned
+    if (
+      rawOutcome !== 'advanced' &&
+      rawOutcome !== 'not_advanced' &&
+      rawOutcome !== 'abandoned'
+    ) {
+      return { sendMessage: { text: '⚠️ Неизвестный исход' } };
+    }
+    const outcome = rawOutcome;
+
+    const student: Student = await this.moduleApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    );
+
+    let userName = student.userId.slice(0, 8);
+    try {
+      const user = await this.appApi.execute('get-user', {
+        uuid: student.userId,
+      });
+      userName = user.name;
+    } catch {
+      // ignore
+    }
+
+    try {
+      await this.moduleApi.execute(
+        'complete-student',
+        {
+          streamId: student.streamId,
+          studentId,
+          outcome,
+        },
+        actor.uuid,
+      );
+    } catch (err: unknown) {
+      return this.handleError(err);
+    }
+
+    return {
+      sendMessage: {
+        text: `✅ Студент *${this.escapeMarkdown(userName)}* завершён.`,
+        parseMode: 'MarkdownV2',
+      },
+      delegate: {
+        path: this.cbFor('monitor', 'students', student.streamId),
+      },
+    };
+  }
 
   /** Находит позицию шага в contentSnapshot: индексы проекта, урока и шага (1-based). */
   #findStepPosition(

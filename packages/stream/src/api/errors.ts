@@ -12,7 +12,7 @@ export type StreamAccessDeniedUcError =
   AccessDeniedError<'STREAM_ACCESS_DENIED'>;
 export type StreamConflictUcError = ConflictError<
   'STREAM_CONFLICT',
-  { userId?: string }
+  { userId?: string; activeCount?: number }
 >;
 
 export type StreamUcErrors =

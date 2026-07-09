@@ -49,7 +49,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
     // Проверка прав: ментор потока или админ
     const streamEntity = await this.getStream(command.streamId);
     const actor = await this.getActor(actorId);
-    if (!StudentPolicy.canExpel(actor, streamEntity)) {
+    if (!StudentPolicy.canManageStudent(actor, streamEntity)) {
       this.throwAccessDenied('Недостаточно прав для отчисления студента');
     }
 

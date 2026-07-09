@@ -23,10 +23,10 @@ export const StudentPolicy = {
   },
 
   /**
-   * Может ли актор отчислить студента.
+   * Может ли актор управлять исходом студента (завершить / сменить исход / отметить неактивным).
    * Только ментор потока или админ.
    */
-  canExpel(actor: User, stream: Stream): boolean {
+  canManageStudent(actor: User, stream: Stream): boolean {
     return UserPolicy.isAdmin(actor) || actor.uuid === stream.mentorId;
   },
 };

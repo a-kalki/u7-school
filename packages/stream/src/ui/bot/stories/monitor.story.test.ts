@@ -494,6 +494,95 @@ describe('MonitorStory', () => {
     expect(response.sendMessage?.text).toContain('выбыл');
   });
 
+  // ── complete-student: выполнение UC (регрессия зацикливания) ──
+
+  test('confirm-диалог генерирует кнопку complete-confirm-confirm (не зацикливается)', async () => {
+    const story = makeStory();
+    const response = await story.handleCallback(
+      'complete-confirm:st1:advanced',
+      actor,
+      session,
+    );
+
+    const confirmBtn = response.sendMessage?.keyboard?.rows[0]?.[0];
+    // Кнопка подтверждения должна вести на execute, а не обратно на confirm-диалог
+    expect(confirmBtn?.code).toContain('complete-confirm-confirm:st1:advanced');
+  });
+
+  test('подтверждение → вызов complete-student с исходом advanced', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'complete-student') return undefined;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ name: 'Студент' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback(
+      'complete-confirm-confirm:st1:advanced',
+      actor,
+      session,
+    );
+
+    expect(moduleApi.execute).toHaveBeenCalledWith(
+      'complete-student',
+      { streamId: 's1', studentId: 'st1', outcome: 'advanced' },
+      'mentor-1',
+    );
+    expect(response.sendMessage?.text).toContain('завершён');
+    expect(response.delegate?.path).toContain('students:s1');
+  });
+
+  test('подтверждение → вызов complete-student с исходом abandoned', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [],
+          };
+        if (name === 'complete-student') return undefined;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ name: 'Студент' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    await story.handleCallback(
+      'complete-confirm-confirm:st1:abandoned',
+      actor,
+      session,
+    );
+
+    expect(moduleApi.execute).toHaveBeenCalledWith(
+      'complete-student',
+      { streamId: 's1', studentId: 'st1', outcome: 'abandoned' },
+      'mentor-1',
+    );
+  });
+
   // ── Безопасность: кнопки действий только для ментора потока или админа ──
 
   test('студент НЕ видит кнопки «Неактивен» и «Завершить»', async () => {

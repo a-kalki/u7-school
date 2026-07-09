@@ -24,15 +24,17 @@
   - [ ] Заменить заглушку «🚧 История шагов ещё не реализована»
 - [ ] Task: Conductor - Ручная верификация 'История шагов'
 
-## Фаза 4: Действия ментора в S08
+## Фаза 4: Действия ментора в S08 — доводка и bot-level тесты
 
-- [ ] Task: Написать тесты:
-  - [ ] «Завершить обучение» → complete-student с выбором исхода (advanced / not_advanced / abandoned), confirm, −STUDENT
-  - [ ] «Отчислить» → mark-abandoned (cause: by_mentor) → abandonDetails: { who: 'mentor', cause: 'by_mentor' }, confirm, −STUDENT
-- [ ] Task: Реализовать кнопки через confirm-хелпер (трек 1)
-  - [ ] complete-student: индивидуальный выбор исхода для каждого студента
-  - [ ] mark-abandoned: cause = by_mentor
-- [ ] Task: Conductor - Ручная верификация 'Действия ментора'
+> Действия уже реализованы в треке 1 (`⚠️ Неактивен` → `mark-abandoned`, `✅ Завершить`/`🔄 Сменить исход` → `complete-student`). `complete-student` UI уже починен (аудит Релиза 1). Эта фаза — bot-level тесты.
+
+- [x] Task: `complete-student` UI починен (аудит Релиза 1): `complete-confirm` (диалог) → `complete-confirm-confirm` → вызов UC с `outcome`. Выполнено вне трека
+- [ ] Task: Написать bot-level интеграционные тесты через `BotRouter.handleCallback`:
+  - [ ] `✅ Завершить` → выбор исхода (advanced/not_advanced/abandoned) → confirm → UC → статус студента изменился, `−STUDENT`
+  - [ ] `advanced`/`not_advanced` → TgFacade-сообщение студенту (предложение следующего шага)
+  - [ ] `⚠️ Неактивен` → `mark-abandoned` (cause: `inactivity`) → `−STUDENT`, работает end-to-end
+  - [ ] `🔄 Сменить исход` для завершённого студента → смена outcome
+- [ ] Task: Conductor - Ручная верификация 'Действия ментора (bot-level)'
 
 ## Фаза 5: E2E + документация
 
