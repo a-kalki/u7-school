@@ -1,0 +1,12 @@
+Задача: Реализовать порт TgFacade в core, impl в app/infra
+
+Изменения:
+- tg-facade.ts: интерфейс TgFacade (sendMessage, sendBatch)
+- telegram-tg-facade.ts: реализация через { api: TgApi }, минимальный интерфейс (без зависимости от Grammy)
+- module.ts: tgFacade добавлен в StreamApiModuleResolver
+- api-app.ts: createApiApp принимает tgFacade (обязательный параметр)
+- main.ts: создание bot перенесено до createApiApp, создаётся TelegramTgFacade
+- test-app.ts: MockTgFacade с записью вызовов
+- call-uc.ts: noop TgFacade
+
+Причина: порт нужен для CompleteStreamUc (рассылка сообщений студентам)
