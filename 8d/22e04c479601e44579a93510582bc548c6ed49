@@ -1,0 +1,13 @@
+Аудит верификации — Фаза 2: TgFacade
+
+Автоматические тесты:
+- Команда: bun test (apps/u7-bot)
+- Результат: 40 pass, 0 fail
+- TelegramTgFacade: 4 теста проходят
+
+Ручная верификация:
+- Проверен порт tg-facade.ts (sendMessage, sendBatch)
+- Проверена реализация telegram-tg-facade.ts (через { api: TgApi })
+- Проверен wiring: api-app.ts, main.ts, test-app.ts (MockTgFacade), call-uc.ts, module.ts
+
+Подтверждение пользователя: ок (архитектурные замечания в бэклог TODO.md)
