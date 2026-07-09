@@ -1,7 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
 import { StudentPolicy } from '../../../domain/student/policy';
@@ -93,6 +92,32 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       0,
     );
 
+    const positionMap = new Map<
+      string,
+      { projectIndex?: number; lessonIndex?: number; stepIndex?: number }
+    >();
+    await Promise.all(
+      students.map(async (s) => {
+        try {
+          const resolved = (await this.appApi.execute('resolve-content-path', {
+            stepId: s.currentStepId,
+            courseId: 'default',
+          })) as {
+            projectIndex?: number;
+            lessonIndex?: number;
+            stepIndex?: number;
+          };
+          positionMap.set(s.userId, {
+            projectIndex: resolved.projectIndex,
+            lessonIndex: resolved.lessonIndex,
+            stepIndex: resolved.stepIndex,
+          });
+        } catch {
+          positionMap.set(s.userId, {});
+        }
+      }),
+    );
+
     const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
@@ -108,12 +133,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
       const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
 
-      const pos = this.#findStepPosition(
-        stream.contentSnapshot,
-        s.currentStepId,
-      );
+      const pos = positionMap.get(s.userId);
       const posStr = pos
-        ? `p${pos.projectIndex}:l${pos.lessonIndex}:s${pos.stepIndex}`
+        ? `p${pos.projectIndex || 0}:l${pos.lessonIndex || 0}:s${(pos as { stepIndex?: number }).stepIndex || 0}`
         : '';
 
       let name = s.userId.slice(0, 8);
@@ -506,29 +528,5 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         path: this.cbFor('monitor', 'students', student.streamId),
       },
     };
-  }
-
-  /** Находит позицию шага в contentSnapshot: индексы проекта, урока и шага (1-based). */
-  #findStepPosition(
-    snapshot: ContentSnapshot,
-    stepId: string,
-  ): { projectIndex: number; lessonIndex: number; stepIndex: number } | null {
-    for (let pi = 0; pi < snapshot.length; pi++) {
-      const project = snapshot[pi];
-      if (!project) continue;
-      for (let li = 0; li < project.lessons.length; li++) {
-        const lesson = project.lessons[li];
-        if (!lesson) continue;
-        const idx = lesson.stepIds.indexOf(stepId);
-        if (idx !== -1) {
-          return {
-            projectIndex: pi + 1,
-            lessonIndex: li + 1,
-            stepIndex: idx + 1,
-          };
-        }
-      }
-    }
-    return null;
   }
 }

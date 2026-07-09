@@ -1,7 +1,10 @@
 import { errNotFound } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
-import { parse as parseContentPath } from '#domain/content-path';
+import {
+  parse as parseContentPath,
+  serialize as serializeContentPath,
+} from '#domain/content-path';
 import type {
   LessonNotFoundInPathUcError,
   ModuleNotFoundInPathUcError,
@@ -83,14 +86,64 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
     command: ResolveContentPathCmd,
     actorId?: string,
   ): Promise<ResolvedContent> {
-    // 1. Parse path
-    const cp = parseContentPath(command.path);
-
-    // 2. Get course program
+    // Get course program
     const program: CourseProgram = await this.facade.getCourseProgram(
       command.courseId || 'default',
     );
 
+    // Resolve path — either from explicit path or by stepId lookup
+    let cp = command.path ? parseContentPath(command.path) : undefined;
+
+    if (!cp && command.stepId) {
+      cp = this.resolvePathByStepId(program, command.stepId) ?? undefined;
+    }
+
+    if (!cp) {
+      this.throwError(
+        errNotFound<ModuleNotFoundInPathUcError>(
+          'MODULE_NOT_FOUND',
+          'Не удалось определить позицию шага',
+          undefined,
+        ),
+      );
+    }
+
+    return this.resolveFromContentPath(cp, program, actorId);
+  }
+
+  /** Ищет ContentPath по stepId (UUID) в программе курса */
+  private resolvePathByStepId(
+    program: CourseProgram,
+    stepId: string,
+  ): ReturnType<typeof parseContentPath> | null {
+    const flatModules = program.phases.flatMap((p) => p.modules);
+
+    for (let mi = 0; mi < flatModules.length; mi++) {
+      const mod = flatModules[mi];
+      if (!mod) continue;
+      for (let pi = 0; pi < mod.length; pi++) {
+        const proj = mod[pi];
+        if (!proj) continue;
+        for (let li = 0; li < proj.lessons.length; li++) {
+          const les = proj.lessons[li];
+          if (!les) continue;
+          const si = les.stepIds.indexOf(stepId);
+          if (si !== -1) {
+            return parseContentPath(`${mi + 1}:${pi + 1}:${li + 1}:${si + 1}`);
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /** Ядро резолва по ContentPath */
+  private async resolveFromContentPath(
+    cp: ReturnType<typeof parseContentPath>,
+    program: CourseProgram,
+    actorId?: string,
+  ): Promise<ResolvedContent> {
     // 3. Flatten modules across phases
     const flatModules = program.phases.flatMap((p) => p.modules);
     const moduleIndex = cp.moduleIndex - 1; // 0-based
@@ -126,7 +179,7 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
 
     // 6. Build result based on path depth
     const result: ResolvedContent = {
-      path: command.path,
+      path: serializeContentPath(cp),
       moduleIndex: cp.moduleIndex,
       moduleTitle,
     };

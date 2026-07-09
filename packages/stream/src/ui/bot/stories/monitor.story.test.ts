@@ -61,6 +61,8 @@ describe('MonitorStory', () => {
             telegramId: 111,
             roles: [Role.STUDENT],
           };
+        if (name === 'resolve-content-path')
+          return { projectIndex: 1, lessonIndex: 1, stepIndex: 3 };
         return undefined;
       }),
     } as unknown as U7BotApp;

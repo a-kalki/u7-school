@@ -12,16 +12,6 @@ import { UserPolicy } from '@u7-scl/user/domain';
 import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
-/** Результат поиска позиции шага в contentSnapshot */
-interface StepPosition {
-  projectTitle: string;
-  projectIndex: number; // 1-based
-  lessonTitle: string;
-  lessonIndex: number; // 1-based
-  stepIndex: number; // 1-based
-  totalSteps: number;
-}
-
 /**
  * US-4: Прохождение обучения (активная фаза).
  * Показывает текущий шаг с телом, обрабатывает завершение шага.
@@ -203,9 +193,27 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     stepId: string,
     streamId: string,
   ): Promise<BotResponse> {
-    const pos = this.#findStepPosition(stream.contentSnapshot, stepId);
+    // Резолвим позицию через UC resolve-content-path (по stepId)
+    let resolved:
+      | {
+          projectTitle?: string;
+          projectIndex?: number;
+          lessonTitle?: string;
+          lessonIndex?: number;
+          steps?: unknown[];
+        }
+      | undefined;
+    try {
+      resolved = (await this.appApi.execute('resolve-content-path', {
+        stepId,
+        courseId: 'default',
+      })) as typeof resolved;
+    } catch {
+      // Если резолв не удался — заполняем заглушками
+    }
+
     const step = await this.appApi.execute('get-step', { uuid: stepId });
-    const message = this.#formatStepMessage(stream.title, pos, step);
+    const message = this.#formatStepMessage(stream.title, resolved, step);
     const keyboard = this.#buildStepKeyboard(streamId, stepId);
 
     // Добавляем кнопку «↩️ Главное меню» последней строкой
@@ -220,52 +228,35 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  /** Находит позицию шага в снимке контента (проект, урок, индекс, всего). */
-  #findStepPosition(snapshot: ContentSnapshot, stepId: string): StepPosition {
-    for (let pi = 0; pi < snapshot.length; pi++) {
-      const project = snapshot[pi];
-      if (!project) continue;
-      for (let li = 0; li < project.lessons.length; li++) {
-        const lesson = project.lessons[li];
-        if (!lesson) continue;
-        const idx = lesson.stepIds.indexOf(stepId);
-        if (idx !== -1) {
-          return {
-            projectTitle: project.projectTitle,
-            projectIndex: pi + 1,
-            lessonTitle: lesson.lessonTitle,
-            lessonIndex: li + 1,
-            stepIndex: idx + 1,
-            totalSteps: lesson.stepIds.length,
-          };
-        }
-      }
-    }
-    return {
-      projectTitle: '(неизвестный проект)',
-      projectIndex: 0,
-      lessonTitle: '(неизвестный урок)',
-      lessonIndex: 0,
-      stepIndex: 0,
-      totalSteps: 0,
-    };
-  }
-
   /** Форматирует сообщение шага: заголовок, разделитель, тело. */
   #formatStepMessage(
     streamTitle: string,
-    pos: StepPosition,
+    resolved:
+      | {
+          projectTitle?: string;
+          projectIndex?: number;
+          lessonTitle?: string;
+          lessonIndex?: number;
+          steps?: unknown[];
+          step?: unknown;
+        }
+      | undefined,
     step: Step,
   ): string {
+    const esc = this.escapeMarkdown;
+    const pIdx = resolved?.projectIndex ?? 0;
+    const lIdx = resolved?.lessonIndex ?? 0;
+    const sIdx = (resolved as { stepIndex?: number })?.stepIndex ?? 1;
+    const totalSteps = resolved?.steps?.length ?? 1;
     const lines: string[] = [
-      `📖 *Поток:* ${this.escapeMarkdown(streamTitle)}`,
-      `📁 *Проект:* ${this.escapeMarkdown(pos.projectTitle)}`,
-      `📚 *Урок:* «${this.escapeMarkdown(pos.lessonTitle)}»`,
-      `🔢 p${pos.projectIndex}\\-l${pos.lessonIndex}`,
+      `📖 *Поток:* ${esc(streamTitle)}`,
+      `📁 *Проект:* ${esc(resolved?.projectTitle || '(неизвестный проект)')}`,
+      `📚 *Урок:* «${esc(resolved?.lessonTitle || '(неизвестный урок)')}»`,
+      `🔢 p${pIdx}\\-l${lIdx}`,
       '',
       '――――――――――――――',
       '',
-      `📝 *Шаг ${pos.stepIndex} из ${pos.totalSteps}:* ${this.escapeMarkdown(step.description)}`,
+      `📝 *Шаг ${sIdx} из ${totalSteps}:* ${esc(step.description)}`,
     ];
 
     if (step.kind === 'code' && step.code) {
@@ -298,7 +289,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  // ── Приватные методы: переходы и поиск ──
+  // ── Приватные методы: переходы ──
 
   async #announceTransition(
     result: {
