@@ -1,0 +1,13 @@
+Задача: Написать тесты ContentPath (parse/serialize/валидация всех partial-форм, ошибочные пути)
+
+Создан файл: packages/course/src/domain/content-path.test.ts
+
+Тесты покрывают:
+- parse: короткая форма A:B:C:D (все уровни, включая 'all')
+- parse: явная форма mA:pB:lC:sD (алиасы)
+- parse: ошибочные пути (пустая строка, невалидные символы, отрицательные/нулевые индексы, слишком много частей)
+- serialize: все уровни
+- roundtrip: serialize(parse(x)) === x
+- ContentPathSchema: валидация через valibot
+
+Фаза Red: тесты падают, так как реализация ContentPath ещё не создана.
