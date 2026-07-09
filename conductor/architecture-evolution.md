@@ -36,11 +36,11 @@
 ### 2.2. ContentPath — value object в домене `course`
 - Формат `A:B:C:D` = module:project:lesson:step (1-based индексы). Partial-формы: `A`, `A:B`, `A:B:C`, `A:B:C:D`, `A:B:C:all`.
 - VO `ContentPath` (parse/serialize + валидация).
-- UC `resolve-content-path` с role-based доступом:
+- UC `resolve-content-path` с role-based доступом (только прямое направление: path → контент):
   - **curious (GUEST/CANDIDATE) / все желающие**: шаги видны, но только заголовок (`description`), без тела (`content`/`code`). Структура до уровня шага (заголовки + тип + кол-во).
   - **student**: completed-шаги — полный контент read-only; текущий шаг — полный + active; непройденные (будущие) — только заголовок.
   - **mentor/admin**: полный доступ ко всему контенту.
-- Рефакторинг `monitor`/`learning` сториз на единый резолвер (убрать дубли `#findStepPosition`).
+- Рефакторинг сториз на прямой импорт `CourseDs` (findStepPosition, countTotalSteps, findLessonTitle/ProjectTitle) — устранены все ручные обходы `ContentSnapshot`, убраны дубли `#findStepPosition`. Обратный резолв (UUID → позиция) — в `CourseDs`, а не в UC.
 
 #### 2.2.1. Cross-package domain imports — правило прямого использования доменных объектов
 
