@@ -1,5 +1,12 @@
 // Domain слой @u7-scl/course
 
+// ContentPath VO
+export type { ContentPath } from './content-path';
+export {
+  ContentPathSchema,
+  parse as parseContentPath,
+  serialize as serializeContentPath,
+} from './content-path';
 export type { ContentSnapshot, ContentSnapshotItem } from './content-snapshot';
 export {
   ContentSnapshotItemSchema,
