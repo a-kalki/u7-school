@@ -42,6 +42,41 @@
   - **mentor/admin**: полный доступ ко всему контенту.
 - Рефакторинг `monitor`/`learning` сториз на единый резолвер (убрать дубли `#findStepPosition`).
 
+#### 2.2.1. Cross-package domain imports — правило прямого использования доменных объектов
+
+**Принцип**: пакет-потребитель (`stream`, скрипты) может импортировать и использовать доменные объекты пакета-владельца (`course`) напрямую, без прослойки UC/`appApi.execute`.
+
+**Что можно импортировать**:
+- `*Ds` (Domain Service) — чистые синхронные функции без I/O (`CourseDs`)
+- `*Schema` — валидационные схемы valibot
+- `*Policy` — stateless проверки прав доступа
+- Entity-типы, value-типы (`ContentSnapshot`, `ContentPath`, `StepPosition`)
+
+**Что НЕЛЬЗЯ импортировать**:
+- `*Repo` — интерфейсы репозиториев (только внутри пакета-владельца)
+- `*Facade` — фасады (только для UC)
+- UC и команды — вызывать через `appApi.execute`, не импортировать класс напрямую
+
+**Критерий**: если операция **чистая** (нет I/O, нет зависимостей от infra) — она в Domain Service, доступна для прямого импорта. Если требует **репозиториев или внешних сервисов** — она в UC, вызывается через `appApi.execute`.
+
+**Пример**:
+```typescript
+// ✅ Правильно: stream/stories импортирует CourseDs напрямую
+import { CourseDs } from '@u7-scl/course/domain';
+const ds = new CourseDs();
+const pos = ds.findStepPosition(snapshot, stepId);
+
+// ❌ Неправильно: обход ContentSnapshot вручную в UI-слое
+for (const project of snapshot) {
+  for (const lesson of project.lessons) {
+    if (lesson.stepIds.includes(stepId)) { ... }
+  }
+}
+
+// ❌ Неправильно: вызов UC для чистой доменной операции
+await appApi.execute('resolve-content-path', { stepId, courseId: 'default' });
+```
+
 ### 2.3. Жизненный цикл студента — финальные статусы
 Статус-машина на запись Student (один модуль):
 ```

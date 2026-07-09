@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { ContentSnapshot } from '#domain/index';
+import { CourseDs } from '@u7-scl/course/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
@@ -43,10 +43,8 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Прогресс
-    const totalSteps = stream.contentSnapshot.reduce(
-      (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
-      0,
-    );
+    const ds = new CourseDs();
+    const totalSteps = ds.countTotalSteps(stream.contentSnapshot);
     const completed = student.steps.filter(
       (s) => s.status === 'completed',
     ).length;
@@ -57,7 +55,7 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     const bar = '█'.repeat(filled) + '░'.repeat(barLength - filled);
 
     // Текущий проект и урок
-    const { projectTitle, lessonTitle } = this.#findCurrentContext(
+    const pos = ds.findStepPosition(
       stream.contentSnapshot,
       student.currentStepId,
     );
@@ -69,8 +67,8 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       `👤 Ментор: ${this.escapeMarkdown(mentorName)}`,
       `📅 Старт: ${this.escapeMarkdown(dateStr)}`,
-      `📁 Проект: ${this.escapeMarkdown(projectTitle)}`,
-      `📝 Урок: ${this.escapeMarkdown(lessonTitle)}`,
+      `📁 Проект: ${this.escapeMarkdown(pos?.projectTitle || '—')}`,
+      `📝 Урок: ${this.escapeMarkdown(pos?.lessonTitle || '—')}`,
       '',
       `${bar} ${pct}%`,
       `✅ ${completed} / ${totalSteps} шагов`,
@@ -98,22 +96,5 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleStart(_actor: User): Promise<null> {
     return null;
-  }
-
-  #findCurrentContext(
-    snapshot: ContentSnapshot,
-    stepId: string,
-  ): { projectTitle: string; lessonTitle: string } {
-    for (const project of snapshot) {
-      for (const lesson of project.lessons) {
-        if (lesson.stepIds.includes(stepId)) {
-          return {
-            projectTitle: project.projectTitle,
-            lessonTitle: lesson.lessonTitle,
-          };
-        }
-      }
-    }
-    return { projectTitle: '—', lessonTitle: '—' };
   }
 }

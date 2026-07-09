@@ -14,6 +14,16 @@ export interface ContentSnapshotItem {
 /** Снимок контента модуля — дерево проектов с уроками и шагами */
 export type ContentSnapshot = ContentSnapshotItem[];
 
+/** Позиция шага в ContentSnapshot: индексы 1-based */
+export interface StepPosition {
+  projectIndex: number;
+  projectTitle: string;
+  lessonIndex: number;
+  lessonTitle: string;
+  stepIndex: number;
+  totalSteps: number;
+}
+
 /** Схема урока внутри снимка контента */
 export const LessonSnapshotSchema = v.object({
   lessonId: v.pipe(v.string(), v.uuid('Некорректный формат UUID урока')),

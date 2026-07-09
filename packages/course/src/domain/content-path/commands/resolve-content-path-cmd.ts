@@ -4,17 +4,10 @@ import * as v from 'valibot';
 /** Схема команды resolve-content-path */
 export const ResolveContentPathSchema = v.pipe(
   v.object({
-    path: v.optional(
-      v.pipe(v.string(), v.minLength(1, 'path не может быть пустым')),
-    ),
-    stepId: v.optional(v.string()),
+    path: v.pipe(v.string(), v.minLength(1, 'path не может быть пустым')),
     streamId: v.optional(v.string()),
     courseId: v.optional(v.string()),
   }),
-  v.check(
-    (input) => !!input.path || !!input.stepId,
-    'Необходимо указать path или stepId',
-  ),
   v.check(
     (input) => !!input.streamId || !!input.courseId,
     'Необходимо указать streamId или courseId',

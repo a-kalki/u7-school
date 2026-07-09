@@ -292,40 +292,6 @@ describe('ResolveContentPathUc', () => {
 
       expect(result).toBeDefined();
     });
-
-    test('stepId — резолв по UUID шага', async () => {
-      const { getCourseProgram, getStep, uc } = setupUc();
-      const snapshot = makeSnapshot();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(snapshot));
-      getStep.mockResolvedValueOnce({
-        uuid: 'sid-1a-1',
-        moduleId: 'mid-1',
-        kind: 'text',
-        description: 'Шаг 1',
-        content: 'Контент шага 1',
-        status: Status.PUBLISHED,
-        createdAt: '2026-05-01',
-      });
-
-      const result = (await uc.handle({
-        stepId: 'sid-1a-1',
-        courseId: 'cid-1',
-      })) as Record<string, unknown>;
-
-      expect(result).toHaveProperty('step');
-      expect(result.moduleIndex).toBe(1);
-      expect(result.projectIndex).toBe(1);
-      expect(result.lessonIndex).toBe(1);
-    });
-
-    test('stepId — несуществующий UUID', async () => {
-      const { getCourseProgram, uc } = setupUc();
-      getCourseProgram.mockResolvedValueOnce(makeCourseProgram(makeSnapshot()));
-
-      await expect(
-        uc.handle({ stepId: 'nonexistent', courseId: 'cid-1' }),
-      ).rejects.toThrow();
-    });
   });
 
   describe('FAIL', () => {

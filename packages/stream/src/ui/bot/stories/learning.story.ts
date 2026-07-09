@@ -7,7 +7,12 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
+import {
+  type ContentSnapshot,
+  CourseDs,
+  type Step,
+  type StepPosition,
+} from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { Student } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
@@ -94,14 +99,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Приватные методы: основной поток ──
 
-  /**
-   * Показывает текущий шаг с телом и клавиатурой.
-   * Вызывается из «Моя учёба» и из «Выполнено» (при level=step).
-   *
-   * @param actor — пользователь
-   * @param _overrideStepId — если передан, используется вместо student.currentStepId
-   *   (нужно после complete-step, пока студент не обновлён в БД)
-   */
   async #showCurrentStep(
     actor: User,
     _overrideStepId?: string,
@@ -159,7 +156,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       actor.uuid,
     );
 
-    // Завершение потока
     if (result.level === 'stream') {
       return {
         sendMessage: {
@@ -173,50 +169,27 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
-    // Переход на новый урок/проект — поздравление + кнопка
     if (result.level === 'lesson' || result.level === 'project') {
       return this.#announceTransition(result, streamId);
     }
 
-    // Обычный шаг — сразу показываем клавиатуру следующего шага
     return this.#showCurrentStep(actor, result.currentStepId);
   }
 
   // ── Приватные методы: сборка представления шага ──
 
-  /**
-   * Собирает полное представление шага: тело + позиция + клавиатура.
-   * Единственное место, где происходит форматирование сообщения шага.
-   */
   async #buildStepView(
     stream: { title: string; contentSnapshot: ContentSnapshot },
     stepId: string,
     streamId: string,
   ): Promise<BotResponse> {
-    // Резолвим позицию через UC resolve-content-path (по stepId)
-    let resolved:
-      | {
-          projectTitle?: string;
-          projectIndex?: number;
-          lessonTitle?: string;
-          lessonIndex?: number;
-          steps?: unknown[];
-        }
-      | undefined;
-    try {
-      resolved = (await this.appApi.execute('resolve-content-path', {
-        stepId,
-        courseId: 'default',
-      })) as typeof resolved;
-    } catch {
-      // Если резолв не удался — заполняем заглушками
-    }
+    const ds = new CourseDs();
+    const resolved = ds.findStepPosition(stream.contentSnapshot, stepId);
 
     const step = await this.appApi.execute('get-step', { uuid: stepId });
     const message = this.#formatStepMessage(stream.title, resolved, step);
     const keyboard = this.#buildStepKeyboard(streamId, stepId);
 
-    // Добавляем кнопку «↩️ Главное меню» последней строкой
     keyboard.rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     return {
@@ -231,23 +204,14 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   /** Форматирует сообщение шага: заголовок, разделитель, тело. */
   #formatStepMessage(
     streamTitle: string,
-    resolved:
-      | {
-          projectTitle?: string;
-          projectIndex?: number;
-          lessonTitle?: string;
-          lessonIndex?: number;
-          steps?: unknown[];
-          step?: unknown;
-        }
-      | undefined,
+    resolved: StepPosition | null,
     step: Step,
   ): string {
     const esc = this.escapeMarkdown;
     const pIdx = resolved?.projectIndex ?? 0;
     const lIdx = resolved?.lessonIndex ?? 0;
-    const sIdx = (resolved as { stepIndex?: number })?.stepIndex ?? 1;
-    const totalSteps = resolved?.steps?.length ?? 1;
+    const sIdx = resolved?.stepIndex ?? 1;
+    const totalSteps = resolved?.totalSteps ?? 1;
     const lines: string[] = [
       `📖 *Поток:* ${esc(streamTitle)}`,
       `📁 *Проект:* ${esc(resolved?.projectTitle || '(неизвестный проект)')}`,
@@ -268,7 +232,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     return lines.join('\n');
   }
 
-  /** Чистая клавиатура: [✅ Выполнено] [📊 Мой прогресс] (без «Главное меню»). */
   #buildStepKeyboard(streamId: string, stepId: string) {
     return {
       rows: [
@@ -301,19 +264,20 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     streamId: string,
   ): Promise<BotResponse> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
+    const ds = new CourseDs();
 
     let messageText: string;
     let buttonText: string;
 
     if (result.level === 'lesson' && result.completedLessonId) {
-      const completedTitle = this.#findLessonTitle(
+      const completedTitle = ds.findLessonTitle(
         stream.contentSnapshot,
         result.completedLessonId,
       );
       messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
       buttonText = '▶️ Начать следующий урок';
     } else if (result.level === 'project' && result.completedProjectId) {
-      const completedTitle = this.#findProjectTitle(
+      const completedTitle = ds.findProjectTitle(
         stream.contentSnapshot,
         result.completedProjectId,
       );
@@ -337,46 +301,5 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         },
       },
     };
-  }
-
-  #findLessonTitle(
-    snapshot: Array<{
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>,
-    lessonId: string,
-  ): string {
-    for (const project of snapshot) {
-      for (const lesson of project.lessons) {
-        if (lesson.lessonId === lessonId) {
-          return lesson.lessonTitle;
-        }
-      }
-    }
-    return 'урок';
-  }
-
-  #findProjectTitle(
-    snapshot: Array<{
-      projectId: string;
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>,
-    projectId: string,
-  ): string {
-    for (const project of snapshot) {
-      if (project.projectId === projectId) {
-        return project.projectTitle;
-      }
-    }
-    return 'проект';
   }
 }

@@ -1,216 +1,110 @@
 import { describe, expect, test } from 'bun:test';
+import type { ContentSnapshot } from './content-snapshot';
 import { CourseDs } from './course-ds';
-import type { Lesson } from './lesson/entity';
-import type { Module } from './module/entity';
-import { Status } from './status';
 
-function makeModule(overrides: Partial<Module> = {}): Module {
-  return {
-    uuid: crypto.randomUUID(),
-    title: 'Модуль',
-    description: 'Описание',
-    authorId: crypto.randomUUID(),
-    status: Status.PUBLISHED,
-    createdAt: '2026-05-01T12:00',
-    projects: [],
-    ...overrides,
-  } as Module;
-}
-
-function makeLesson(
-  lessonId: string,
-  title: string,
-  stepIds: string[] = [],
-): Lesson {
-  return {
-    uuid: lessonId,
-    moduleId: crypto.randomUUID(),
-    title,
-    status: Status.PUBLISHED,
-    createdAt: '2026-05-01T12:00',
-    stepIds,
-    mentorStepIds: [],
-  } as Lesson;
+/** Тестовый ContentSnapshot: 2 проекта, 2 урока в первом, 1 во втором */
+function makeSnapshot(): ContentSnapshot {
+  return [
+    {
+      projectId: 'pid-1',
+      projectTitle: 'Проект 1',
+      lessons: [
+        {
+          lessonId: 'lid-1a',
+          lessonTitle: 'Урок 1A',
+          stepIds: ['sid-1a-1', 'sid-1a-2', 'sid-1a-3'],
+        },
+        {
+          lessonId: 'lid-1b',
+          lessonTitle: 'Урок 1B',
+          stepIds: ['sid-1b-1'],
+        },
+      ],
+    },
+    {
+      projectId: 'pid-2',
+      projectTitle: 'Проект 2',
+      lessons: [
+        {
+          lessonId: 'lid-2a',
+          lessonTitle: 'Урок 2A',
+          stepIds: ['sid-2a-1', 'sid-2a-2'],
+        },
+      ],
+    },
+  ];
 }
 
 const ds = new CourseDs();
 
-describe('CourseDs.buildSnapshot', () => {
-  test('собирает проекты с lessonIds и stepIds', () => {
-    const lessonId1 = crypto.randomUUID();
-    const lessonId2 = crypto.randomUUID();
-    const stepId1 = crypto.randomUUID();
-    const stepId2 = crypto.randomUUID();
-
-    const module = makeModule({
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Проект 1',
-          status: Status.PUBLISHED,
-          lessonIds: [lessonId1],
-        },
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Проект 2',
-          status: Status.PUBLISHED,
-          lessonIds: [lessonId2],
-        },
-      ],
+describe('CourseDs', () => {
+  describe('findStepPosition', () => {
+    test('находит первый шаг первого урока', () => {
+      const pos = ds.findStepPosition(makeSnapshot(), 'sid-1a-1');
+      expect(pos).not.toBeNull();
+      expect(pos!.projectIndex).toBe(1);
+      expect(pos!.projectTitle).toBe('Проект 1');
+      expect(pos!.lessonIndex).toBe(1);
+      expect(pos!.lessonTitle).toBe('Урок 1A');
+      expect(pos!.stepIndex).toBe(1);
+      expect(pos!.totalSteps).toBe(3);
     });
 
-    const lessons: Lesson[] = [
-      makeLesson(lessonId1, 'Урок 1', [stepId1]),
-      makeLesson(lessonId2, 'Урок 2', [stepId2]),
-    ];
-
-    const snapshot = ds.buildSnapshot(module, lessons);
-
-    expect(snapshot).toHaveLength(2);
-    expect(snapshot[0]?.projectTitle).toBe('Проект 1');
-    expect(snapshot[0]?.lessons).toHaveLength(1);
-    expect(snapshot[0]?.lessons[0]?.lessonTitle).toBe('Урок 1');
-    expect(snapshot[0]?.lessons[0]?.stepIds).toEqual([stepId1]);
-
-    expect(snapshot[1]?.projectTitle).toBe('Проект 2');
-    expect(snapshot[1]?.lessons[0]?.lessonTitle).toBe('Урок 2');
-    expect(snapshot[1]?.lessons[0]?.stepIds).toEqual([stepId2]);
-  });
-
-  test('при пустом projects возвращает []', () => {
-    const module = makeModule({ projects: [] });
-    const snapshot = ds.buildSnapshot(module, []);
-    expect(snapshot).toEqual([]);
-  });
-
-  test('порядок проектов сохраняется', () => {
-    const module = makeModule({
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Первый',
-          status: Status.PUBLISHED,
-          lessonIds: [],
-        },
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Второй',
-          status: Status.PUBLISHED,
-          lessonIds: [],
-        },
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Третий',
-          status: Status.PUBLISHED,
-          lessonIds: [],
-        },
-      ],
+    test('находит третий шаг первого урока', () => {
+      const pos = ds.findStepPosition(makeSnapshot(), 'sid-1a-3');
+      expect(pos).not.toBeNull();
+      expect(pos!.stepIndex).toBe(3);
     });
 
-    const snapshot = ds.buildSnapshot(module, []);
-    expect(snapshot.map((p) => p.projectTitle)).toEqual([
-      'Первый',
-      'Второй',
-      'Третий',
-    ]);
-  });
-
-  test('проект без уроков — пустой массив lessons', () => {
-    const module = makeModule({
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Проект без уроков',
-          status: Status.PUBLISHED,
-          lessonIds: [],
-        },
-      ],
+    test('находит шаг во втором проекте', () => {
+      const pos = ds.findStepPosition(makeSnapshot(), 'sid-2a-2');
+      expect(pos).not.toBeNull();
+      expect(pos!.projectIndex).toBe(2);
+      expect(pos!.projectTitle).toBe('Проект 2');
+      expect(pos!.lessonTitle).toBe('Урок 2A');
+      expect(pos!.stepIndex).toBe(2);
     });
 
-    const snapshot = ds.buildSnapshot(module, []);
-    expect(snapshot).toHaveLength(1);
-    expect(snapshot[0]?.lessons).toEqual([]);
-  });
-
-  test('урок без шагов — пустой массив stepIds', () => {
-    const lessonId = crypto.randomUUID();
-    const module = makeModule({
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Проект',
-          status: Status.PUBLISHED,
-          lessonIds: [lessonId],
-        },
-      ],
+    test('возвращает null для несуществующего stepId', () => {
+      const pos = ds.findStepPosition(makeSnapshot(), 'nonexistent');
+      expect(pos).toBeNull();
     });
 
-    const lessons = [makeLesson(lessonId, 'Урок без шагов', [])];
-    const snapshot = ds.buildSnapshot(module, lessons);
-
-    expect(snapshot[0]?.lessons[0]?.stepIds).toEqual([]);
+    test('возвращает null для пустого снапшота', () => {
+      const pos = ds.findStepPosition([], 'sid-1a-1');
+      expect(pos).toBeNull();
+    });
   });
 
-  test('несколько уроков в одном проекте', () => {
-    const lessonId1 = crypto.randomUUID();
-    const lessonId2 = crypto.randomUUID();
-
-    const module = makeModule({
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Проект',
-          status: Status.PUBLISHED,
-          lessonIds: [lessonId1, lessonId2],
-        },
-      ],
+  describe('findLessonTitle', () => {
+    test('находит название урока по UUID', () => {
+      expect(ds.findLessonTitle(makeSnapshot(), 'lid-1a')).toBe('Урок 1A');
+      expect(ds.findLessonTitle(makeSnapshot(), 'lid-2a')).toBe('Урок 2A');
     });
 
-    const lessons = [
-      makeLesson(lessonId1, 'Урок 1', []),
-      makeLesson(lessonId2, 'Урок 2', []),
-    ];
-
-    const snapshot = ds.buildSnapshot(module, lessons);
-    expect(snapshot[0]?.lessons).toHaveLength(2);
+    test('возвращает "урок" для несуществующего UUID', () => {
+      expect(ds.findLessonTitle(makeSnapshot(), 'nonexistent')).toBe('урок');
+    });
   });
 
-  test('DRAFT проекты и уроки не попадают в снимок', () => {
-    const pubLessonId = crypto.randomUUID();
-    const draftLessonId = crypto.randomUUID();
-
-    const module = makeModule({
-      projects: [
-        {
-          uuid: crypto.randomUUID(),
-          title: 'Опубликованный проект',
-          status: Status.PUBLISHED,
-          lessonIds: [pubLessonId, draftLessonId],
-        },
-        {
-          uuid: crypto.randomUUID(),
-          title: 'DRAFT проект',
-          status: Status.DRAFT,
-          lessonIds: [pubLessonId],
-        },
-      ],
+  describe('findProjectTitle', () => {
+    test('находит название проекта по UUID', () => {
+      expect(ds.findProjectTitle(makeSnapshot(), 'pid-1')).toBe('Проект 1');
+      expect(ds.findProjectTitle(makeSnapshot(), 'pid-2')).toBe('Проект 2');
     });
 
-    const lessons = [
-      makeLesson(pubLessonId, 'Опубликованный урок', []),
-      {
-        ...makeLesson(draftLessonId, 'DRAFT урок', []),
-        status: Status.DRAFT,
-      } as Lesson,
-    ];
+    test('возвращает "проект" для несуществующего UUID', () => {
+      expect(ds.findProjectTitle(makeSnapshot(), 'nonexistent')).toBe('проект');
+    });
+  });
 
-    const snapshot = ds.buildSnapshot(module, lessons);
+  describe('countTotalSteps', () => {
+    test('считает общее число шагов', () => {
+      expect(ds.countTotalSteps(makeSnapshot())).toBe(6);
+    });
 
-    // Только один PUBLISHED проект
-    expect(snapshot).toHaveLength(1);
-    expect(snapshot[0]?.projectTitle).toBe('Опубликованный проект');
-    // Только один PUBLISHED урок
-    expect(snapshot[0]?.lessons).toHaveLength(1);
-    expect(snapshot[0]?.lessons[0]?.lessonTitle).toBe('Опубликованный урок');
+    test('возвращает 0 для пустого снапшота', () => {
+      expect(ds.countTotalSteps([])).toBe(0);
+    });
   });
 });

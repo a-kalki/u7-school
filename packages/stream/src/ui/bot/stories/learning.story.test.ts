@@ -81,16 +81,6 @@ describe('LearningStory', () => {
             }
           );
         }
-        if (name === 'resolve-content-path') {
-          return {
-            projectTitle: 'Основы',
-            projectIndex: 1,
-            lessonTitle: 'Введение',
-            lessonIndex: 1,
-            stepIndex: 2,
-            steps: [{}, {}],
-          };
-        }
         return undefined;
       }),
     } as unknown as U7BotApp;
@@ -125,7 +115,7 @@ describe('LearningStory', () => {
     expect(text).toContain('Урок:');
     expect(text).toContain('Введение');
     expect(text).toContain('p1\\-l1');
-    expect(text).toContain('Шаг 2 из 2:');
+    expect(text).toContain('Шаг 1 из 2:');
     expect(text).toContain('Изучите основы');
     expect(text).toContain('Контент шага');
 

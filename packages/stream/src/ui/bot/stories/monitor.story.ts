@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import { CourseDs } from '@u7-scl/course/domain';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
 import { StudentPolicy } from '../../../domain/student/policy';
@@ -87,36 +88,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId,
     });
 
-    const totalSteps = stream.contentSnapshot.reduce(
-      (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
-      0,
-    );
-
-    const positionMap = new Map<
-      string,
-      { projectIndex?: number; lessonIndex?: number; stepIndex?: number }
-    >();
-    await Promise.all(
-      students.map(async (s) => {
-        try {
-          const resolved = (await this.appApi.execute('resolve-content-path', {
-            stepId: s.currentStepId,
-            courseId: 'default',
-          })) as {
-            projectIndex?: number;
-            lessonIndex?: number;
-            stepIndex?: number;
-          };
-          positionMap.set(s.userId, {
-            projectIndex: resolved.projectIndex,
-            lessonIndex: resolved.lessonIndex,
-            stepIndex: resolved.stepIndex,
-          });
-        } catch {
-          positionMap.set(s.userId, {});
-        }
-      }),
-    );
+    const ds = new CourseDs();
+    const totalSteps = ds.countTotalSteps(stream.contentSnapshot);
 
     const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
@@ -133,7 +106,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
       const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
 
-      const pos = positionMap.get(s.userId);
+      const pos = ds.findStepPosition(stream.contentSnapshot, s.currentStepId);
       const posStr = pos
         ? `p${pos.projectIndex || 0}:l${pos.lessonIndex || 0}:s${(pos as { stepIndex?: number }).stepIndex || 0}`
         : '';
@@ -223,10 +196,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    const totalSteps = stream.contentSnapshot.reduce(
-      (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
-      0,
-    );
+    const ds = new CourseDs();
+    const totalSteps = ds.countTotalSteps(stream.contentSnapshot);
     const completed = student.steps.filter(
       (st) => st.status === 'completed',
     ).length;
@@ -246,17 +217,18 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `📈 Прогресс: ${completed} из ${totalSteps} шагов ${this.escapeMarkdown(`(${pct}%)`)}`,
     ];
 
-    const currentStep = student.steps.find((st) => st.status === 'issued');
+    const currentStep = student.steps.find(
+      (st: { stepId: string; status: string }) => st.status === 'issued',
+    );
     if (currentStep) {
-      for (const project of stream.contentSnapshot) {
-        for (const lesson of project.lessons) {
-          if (lesson.stepIds.includes(currentStep.stepId)) {
-            lines.push(
-              `📁 Проект: ${this.escapeMarkdown(project.projectTitle)}`,
-            );
-            lines.push(`📝 Урок: ${this.escapeMarkdown(lesson.lessonTitle)}`);
-          }
-        }
+      const dds = new CourseDs();
+      const pos = dds.findStepPosition(
+        stream.contentSnapshot,
+        currentStep.stepId,
+      );
+      if (pos) {
+        lines.push(`📁 Проект: ${this.escapeMarkdown(pos.projectTitle)}`);
+        lines.push(`📝 Урок: ${this.escapeMarkdown(pos.lessonTitle)}`);
       }
     }
 

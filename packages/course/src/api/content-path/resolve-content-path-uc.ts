@@ -86,56 +86,15 @@ export class ResolveContentPathUc extends CourseUseCase<ResolveContentPathCmdMet
     command: ResolveContentPathCmd,
     actorId?: string,
   ): Promise<ResolvedContent> {
+    // Parse path
+    const cp = parseContentPath(command.path);
+
     // Get course program
     const program: CourseProgram = await this.facade.getCourseProgram(
       command.courseId || 'default',
     );
 
-    // Resolve path — either from explicit path or by stepId lookup
-    let cp = command.path ? parseContentPath(command.path) : undefined;
-
-    if (!cp && command.stepId) {
-      cp = this.resolvePathByStepId(program, command.stepId) ?? undefined;
-    }
-
-    if (!cp) {
-      this.throwError(
-        errNotFound<ModuleNotFoundInPathUcError>(
-          'MODULE_NOT_FOUND',
-          'Не удалось определить позицию шага',
-          undefined,
-        ),
-      );
-    }
-
     return this.resolveFromContentPath(cp, program, actorId);
-  }
-
-  /** Ищет ContentPath по stepId (UUID) в программе курса */
-  private resolvePathByStepId(
-    program: CourseProgram,
-    stepId: string,
-  ): ReturnType<typeof parseContentPath> | null {
-    const flatModules = program.phases.flatMap((p) => p.modules);
-
-    for (let mi = 0; mi < flatModules.length; mi++) {
-      const mod = flatModules[mi];
-      if (!mod) continue;
-      for (let pi = 0; pi < mod.length; pi++) {
-        const proj = mod[pi];
-        if (!proj) continue;
-        for (let li = 0; li < proj.lessons.length; li++) {
-          const les = proj.lessons[li];
-          if (!les) continue;
-          const si = les.stepIds.indexOf(stepId);
-          if (si !== -1) {
-            return parseContentPath(`${mi + 1}:${pi + 1}:${li + 1}:${si + 1}`);
-          }
-        }
-      }
-    }
-
-    return null;
   }
 
   /** Ядро резолва по ContentPath */
