@@ -13,9 +13,9 @@
   - [ ] setNextPreference — только для advanced/not_advanced, иначе ошибка
   - [ ] недопустимые переходы → throwBadRequest (например, abandoned→advanced, not_advanced→active)
 
-- [ ] Task: Реализовать финальные статусы + методы StudentAr
-  - [ ] Обновить `StudentSchema` (status enum из 5 значений, abandonDetails?, completionDetails?)
-  - [ ] Методы: `activate`, `drop`, `markAbandoned`, `advance`, `markNotAdvanced`, `setNextPreference`
+- [x] Task: Реализовать финальные статусы + методы StudentAr — 8d663b4
+  - [x] Обновить `StudentSchema` (status enum из 5 значений, abandonDetails?, completionDetails?)
+  - [x] Методы: `activate`, `drop`, `markAbandoned`, `advance`, `markNotAdvanced`, `setNextPreference`
 
 - [ ] Task: Conductor - Ручная верификация 'Статусы StudentAr'
 
