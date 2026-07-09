@@ -75,9 +75,11 @@
         "rules": {
           "suspicious": {
             "noAssignInExpressions": "off",
-            "noSelfCompare": "off"
+            "noSelfCompare": "off",
+            "noDoubleEquals": "off"
           },
           "correctness": {
+            "useIsNan": "off",
             "noConstantCondition": "off",
             "noUnusedVariables": "off",
             "noUnusedImports": "off",

@@ -1,48 +1,54 @@
-console.log('=== Блок 1: Вложенные тернарники — когнитивная нагрузка ===');
-
+// Блок 1: Вложенные тернарники — когнитивная нагрузка
 const score = 85;
 const grade = score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 50 ? 'C' : 'D';
 console.log('Оценка при score = 85:', grade);
 
-// Сравни с if-else:
-let grade2;
+// Та же логика через if-else:
+let gradeIf;
 if (score >= 90) {
-  grade2 = 'A';
+  gradeIf = 'A';
 } else if (score >= 75) {
-  grade2 = 'B';
+  gradeIf = 'B';
 } else if (score >= 50) {
-  grade2 = 'C';
+  gradeIf = 'C';
 } else {
-  grade2 = 'D';
+  gradeIf = 'D';
 }
-console.log('Та же логика через if-else:', grade2);
+console.log('Та же логика через if-else:', gradeIf);
 
-console.log('');
+console.log('---');
 
-// ============================================================
-
-console.log('=== Блок 2: Тернарник без else — ошибка ===');
-
-// let result = age > 18 ? 'Взрослый';
-
+// Блок 2: Тернарник без else — ошибка
 const age = 20;
 const status = age >= 18 ? 'Взрослый' : 'Несовершеннолетний';
 console.log('status:', status);
-// ? А if может быть без else. Почему тернарник — нет?
 
-console.log('');
+console.log('---');
 
-// ============================================================
+// Блок 3: Приоритет операторов — тернарник vs сложение
+const a = 5;
+const b = 10;
+const result = a > b ? a + b : a - b;
+console.log('a > b ? a + b : a - b =', result);
 
-console.log('=== Блок 3: Тернарник и приоритет операторов ===');
-
-const x = 5;
-const y = 10;
-const result = x > y ? x + y : x - y;
-console.log('x > y ? x + y : x - y =', result);
-
-// А теперь попробуй:
+// Пасхалка: сложение выполняется раньше тернарника
 const val = 5;
-const msg = `Число: ${val}` > 0 ? 'положительное' : 'отрицательное';
-console.log(msg);
-// + имеет более высокий приоритет, чем ?
+const msg = 'Число: ' + val > 0 ? 'положительное' : 'отрицательное';
+console.log('msg:', msg);
+
+const msgFixed = 'Число: ' + (val > 0 ? 'положительное' : 'отрицательное');
+console.log('msgFixed:', msgFixed);
+
+console.log('---');
+
+// Блок 4: Тернарник с несколькими условиями
+const temp = 10;
+const weather =
+  temp < 0
+    ? 'Холодно'
+    : temp < 15
+      ? 'Прохладно'
+      : temp < 25
+        ? 'Тепло'
+        : 'Жарко';
+console.log('Погода:', weather);
