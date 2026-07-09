@@ -1,0 +1,15 @@
+Задача: Реализовать UC + команду resolve-content-path
+
+Изменённые/созданные файлы:
+- packages/course/src/api/content-path/resolve-content-path-uc.ts — ResolveContentPathUc
+- packages/course/src/domain/content-path/commands/resolve-content-path-cmd.ts — Cmd, Schema, Meta, Errors
+- packages/course/src/api/module.ts — Регистрация UC в CourseApiModule
+- packages/course/src/domain/module.ts — Добавлен ResolveContentPathCmdMeta в AllUcMetas
+
+Реализовано:
+- parse path → ContentPath
+- Навигация: CourseProgram.phases[].modules (flattened)
+- Ролевой фильтр: MENTOR/ADMIN/AUTHOR — полный доступ, остальные — только description
+- Резолв всех уровней: A (модуль), A:B (проект+lessons), A:B:C (урок+stepSummaries), A:B:C:D (шаг), A:B:C:all
+- Ошибки: MODULE_NOT_FOUND, PROJECT_NOT_FOUND, LESSON_NOT_FOUND, STEP_NOT_FOUND (NotFoundError)
+- 22 теста
