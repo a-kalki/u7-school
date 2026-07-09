@@ -1,0 +1,21 @@
+Отчёт о верификации Фазы 1 «VO ContentPath»
+
+**Автоматические тесты:**
+- Команда: `CI=true bun run check`
+- Результат: 1221 pass, 0 fail ✅
+
+**Ручная верификация:**
+- План подтверждён пользователем ✅
+- Проверен экспорт ContentPath из пакета
+
+**Изменения фазы:**
+- `packages/course/src/domain/content-path.ts` — ContentPath VO (parse, serialize, ContentPathSchema)
+- `packages/course/src/domain/content-path.test.ts` — 27 тестов
+- `packages/course/src/domain/index.ts` — экспорт
+
+**Покрытие:** 100% строк, 96.36% функций
+
+**Архитектурные решения:**
+- Тип ContentPath выведен из схемы (единый источник истины)
+- Spread с условным включением полей для опциональных ключей
+- Ошибки валидации — plain Error (типизация через UC в Фазе 2)
