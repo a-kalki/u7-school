@@ -77,6 +77,8 @@ for (const project of snapshot) {
 await appApi.execute('resolve-content-path', { stepId, courseId: 'default' });
 ```
 
+- **Реализовано:** трек `content_path_20260708` — VO ContentPath, UC resolve-content-path (ролевой доступ: curious/mentor), CourseDs (findStepPosition, countTotalSteps, findLessonTitle/ProjectTitle), интеграционные тесты. ✅
+
 ### 2.3. Жизненный цикл студента — финальные статусы
 Статус-машина на запись Student (один модуль):
 ```

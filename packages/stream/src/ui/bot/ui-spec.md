@@ -82,7 +82,9 @@ _{CourseDescription}_
 ## S00b — Программа курса (drill-down) (📋 трек 5)
 
 **Как попасть:** `📖 Развернуть программу` в S00a.
-**Кому:** всем ролям. Curious-уровень ContentPath (трек 2): заголовки и объём видны, тела шагов — нет.
+**Кому:** всем ролям. Curious-уровень ContentPath: заголовки и объём видны, тела шагов — нет.
+
+> ✅ ContentPath (VO + UC resolve-content-path + CourseDs) реализован в треке `content_path_20260708`. Интеграционные тесты: `tests/bot/integration/course/content-path.integration.test.ts`.
 
 **Содержание (drill-down):**
 ```
