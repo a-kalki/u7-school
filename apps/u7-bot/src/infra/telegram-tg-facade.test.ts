@@ -13,11 +13,7 @@ describe('TelegramTgFacade', () => {
     });
 
     const botApi = { sendMessage: sendMessageMock };
-    const bot = { api: botApi } as unknown as {
-      api: { sendMessage: typeof sendMessageMock };
-    };
-
-    const facade = new TelegramTgFacade(bot);
+    const facade = new TelegramTgFacade({ api: botApi });
     return { facade, sendMessageMock };
   }
 

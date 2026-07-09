@@ -27,13 +27,19 @@ import {
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
+import type { TgFacade } from '@u7-scl/stream/domain';
 import type { BotConfig } from './config';
+import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.
  * Возвращает apiApp (для контроллера) и userFacade (для бота).
  */
-export function createApiApp(config: BotConfig, logger?: Logger) {
+export function createApiApp(
+  config: BotConfig,
+  logger: Logger,
+  tgFacade: TgFacade,
+) {
   const db = new BaseJsonDb();
 
   const appLogger = logger ?? new ConsoleLogger();
@@ -99,6 +105,7 @@ export function createApiApp(config: BotConfig, logger?: Logger) {
     streamStudentRepo,
     userFacade,
     courseFacade,
+    tgFacade,
     appResolver,
   });
 

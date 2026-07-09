@@ -1,13 +1,17 @@
 import type { TgFacade } from '@u7-scl/stream/domain';
-import type { Api } from 'grammy';
+
+/** Минимальный интерфейс Telegram API, достаточный для отправки сообщений */
+export interface TgApi {
+  sendMessage(chatId: number | string, text: string): Promise<unknown>;
+}
 
 /**
- * Реализация TgFacade через Grammy Bot API.
+ * Реализация TgFacade через Telegram Bot API.
  */
 export class TelegramTgFacade implements TgFacade {
-  private api: Api;
+  private api: TgApi;
 
-  constructor(bot: { api: Api }) {
+  constructor(bot: { api: TgApi }) {
     this.api = bot.api;
   }
 

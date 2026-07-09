@@ -15,12 +15,14 @@ import type { ExpelStudentCmdMeta } from './student/commands/expel-student-cmd';
 import type { GetStudentByUserCmdMeta } from './student/commands/get-student-by-user-cmd';
 import type { GetStudentProgressCmdMeta } from './student/commands/get-student-progress-cmd';
 import type { StudentRepo } from './student/repo';
+import type { TgFacade } from './tg-facade';
 
 export interface StreamApiModuleResolver extends ModuleResolver {
   streamRepo: StreamRepo;
   streamStudentRepo: StudentRepo;
   userFacade: UserFacade;
   courseFacade: CourseFacade;
+  tgFacade: TgFacade;
 }
 
 export interface StreamApiModuleMeta {

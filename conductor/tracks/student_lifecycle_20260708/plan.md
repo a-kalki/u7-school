@@ -21,8 +21,8 @@
 
 ## Фаза 2: TgFacade (порт core + impl app)
 
-- [~] Task: Написать тесты TgFacade impl (mock Grammy)
-- [ ] Task: Реализовать порт `TgFacade` в `core`, impl в `app`/infra
+- [x] Task: Написать тесты TgFacade impl (mock Grammy) — 8c55fe3
+- [~] Task: Реализовать порт `TgFacade` в `core`, impl в `app`/infra
   - [ ] Добавить в `StreamApiModuleResolver`, `CourseApiModuleResolver`
   - [ ] Wiring в `tests/bot/helpers/test-app.ts` и apps
 - [ ] Task: Conductor - Ручная верификация 'TgFacade'

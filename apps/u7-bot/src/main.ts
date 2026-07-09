@@ -12,6 +12,7 @@ import { createBot } from './bot';
 import { loadConfig } from './config';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { connectRouter } from './handlers/router';
+import { TelegramTgFacade } from './infra/telegram-tg-facade';
 import { CompositeLogger, TelegramLogger } from './logger';
 
 const config = loadConfig();
@@ -27,7 +28,10 @@ setGlobalLogger(loggers);
 // (TelegramLogger понадобится bot, который мы создадим ниже)
 const logger = loggers;
 
-const { userFacade, router } = createApiApp(config, logger);
+const bot = createBot(config.botToken);
+const tgFacade = new TelegramTgFacade(bot);
+
+const { userFacade, router } = createApiApp(config, logger, tgFacade);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -64,8 +68,6 @@ if (config.adminTelegramIds.length > 0) {
   }
   logger.info('main', 'Верификация бота пройдена: ADMIN подтверждён');
 }
-
-const bot = createBot(config.botToken);
 
 // ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
 registerGroupHandlers(bot, userFacade, logger);
