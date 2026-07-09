@@ -2,7 +2,7 @@
 
 > Контекст: `../../architecture-evolution.md` §2.3–2.6, §6, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
-## Фаза 1: Домен — статусы и StudentAr
+## Фаза 1: Домен — статусы и StudentAr [checkpoint: f24ce7c]
 
 - [x] Task: Написать тесты StudentAr (все переходы + ошибки) — 11c2a38
   - [ ] enrolled→active (activate); активация не-enrolled → ошибка
