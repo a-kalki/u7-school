@@ -1,0 +1,13 @@
+Рефакторинг CompleteStreamUc по результатам архитектурного обсуждения:
+
+1. CompleteStreamUc — только stream.complete() + проверка active
+   (батчевая обработка убрана, каждый студент через отдельный complete-student)
+2. CompleteStudentUc — tgFacade.sendMessage после advanced/not_advanced
+   (telegramId через userFacade.getUserByUuid)
+3. ListStreamStudentsUc — опциональный status-фильтр
+4. StudentStatus enum + StudentStatusSchema в status.ts
+
+Сценарий стори: ментор по одному завершает студентов (complete-student),
+затем жмёт «Завершить поток» (complete-stream проверяет отсутствие active).
+
+Тесты: 239 pass, 5 fail (старые)
