@@ -1,0 +1,8 @@
+Задача: Написать тесты TgFacade impl (mock Grammy)
+
+Изменения:
+- tg-facade.ts: порт TgFacade с методами sendMessage, sendBatch
+- telegram-tg-facade.ts: реализация через Grammy Api
+- telegram-tg-facade.test.ts: 4 теста (sendMessage с параметрами, ошибка API, sendBatch, пустой список)
+
+Причина: порт нужен для CompleteStreamUc (рассылка сообщений студентам после завершения потока)
