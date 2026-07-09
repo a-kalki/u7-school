@@ -29,7 +29,7 @@
 
 ## Фаза 3: UC (завершение, выход, активация, зачисление)
 
-- [ ] Task: Написать тесты UC
+- [~] Task: Написать тесты UC
   - [ ] complete-student: ментор выбирает abandoned|advanced|not_advanced → статус обновлён + −STUDENT
   - [ ] complete-student: не-ментор → denied
   - [ ] drop-student: self → abandoned(voluntary) + −STUDENT

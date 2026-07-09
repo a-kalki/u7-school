@@ -1,0 +1,166 @@
+import { describe, expect, mock, test } from 'bun:test';
+import { Role } from '@u7-scl/user/domain';
+import type { StreamApiModuleResolver } from '#domain/module';
+import type { TgFacade } from '#domain/tg-facade';
+import { DropStudentUc } from './drop-student-uc';
+
+const mockDate = '2026-06-01T10:00';
+
+describe('DropStudentUc', () => {
+  test('студент выходит из потока: active→abandoned(voluntary), STUDENT снят', async () => {
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'student-1',
+          streamId: 'stream-1',
+          userId: 'user-1',
+          status: 'active',
+          enrolledAt: mockDate,
+          currentStepId: 'step-1',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUser: mock(() => Promise.resolve([])),
+      getByStream: mock(() => Promise.resolve([])),
+    };
+
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'user-1',
+          name: 'Student',
+          telegramId: 1,
+          roles: [Role.STUDENT],
+          createdAt: mockDate,
+        }),
+      ),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+      userExists: mock(() => Promise.resolve(true)),
+      addRoleToUser: mock(() => Promise.resolve()),
+      updateUserRole: mock(() => Promise.resolve({})),
+      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
+      registerGuest: mock(() => Promise.resolve({} as never)),
+    };
+
+    const mockTgFacade: TgFacade = {
+      sendMessage: mock(() => Promise.resolve()),
+      sendBatch: mock(() => Promise.resolve()),
+    };
+
+    const uc = new DropStudentUc();
+    uc.init({
+      streamRepo: {},
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+      tgFacade: mockTgFacade,
+    } as unknown as StreamApiModuleResolver);
+
+    await uc.execute(
+      { streamId: 'stream-1', studentId: 'student-1' },
+      'user-1',
+    );
+
+    // studentRepo.save был вызван
+    expect(mockStudentRepo.save).toHaveBeenCalled();
+    const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
+      .calls[0]![0];
+    expect(saved.status).toBe('abandoned');
+    expect(saved.abandonDetails).toEqual({
+      who: 'self',
+      cause: 'voluntary',
+    });
+
+    // STUDENT роль снята
+    expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
+      'user-1',
+      Role.STUDENT,
+    );
+  });
+
+  test('не-владелец не может выйти (access denied)', async () => {
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'student-1',
+          streamId: 'stream-1',
+          userId: 'user-1',
+          status: 'active',
+          enrolledAt: mockDate,
+          currentStepId: 'step-1',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+    };
+
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'user-2',
+          name: 'Other',
+          telegramId: 2,
+          roles: [Role.GUEST],
+          createdAt: mockDate,
+        }),
+      ),
+    };
+
+    const uc = new DropStudentUc();
+    uc.init({
+      streamRepo: {},
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+      tgFacade: {},
+    } as unknown as StreamApiModuleResolver);
+
+    await expect(
+      uc.execute({ streamId: 'stream-1', studentId: 'student-1' }, 'user-2'),
+    ).rejects.toThrow();
+  });
+
+  test('нельзя выйти из не-active статуса', async () => {
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'student-1',
+          streamId: 'stream-1',
+          userId: 'user-1',
+          status: 'enrolled',
+          enrolledAt: mockDate,
+          currentStepId: 'step-1',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+    };
+
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'user-1',
+          name: 'Student',
+          telegramId: 1,
+          roles: [Role.STUDENT],
+          createdAt: mockDate,
+        }),
+      ),
+    };
+
+    const uc = new DropStudentUc();
+    uc.init({
+      streamRepo: {},
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+      tgFacade: {},
+    } as unknown as StreamApiModuleResolver);
+
+    await expect(
+      uc.execute({ streamId: 'stream-1', studentId: 'student-1' }, 'user-1'),
+    ).rejects.toThrow();
+  });
+});
