@@ -1,8 +1,8 @@
 [
   {
     "uuid": "29adc3be-873e-47ec-aa30-61f5e6e25d4e",
-    "title": "Полный курс JS",
-    "description": "Полный курс JavaScript с нуля: синтаксис и алгоритмика",
+    "title": "Fullstack JS",
+    "description": "Полный курс JavaScript с синтаксиса до командной разработки",
     "authorId": "8d9a56f6-51e7-49f0-ba58-2832b157e718",
     "phases": [
       {
