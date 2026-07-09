@@ -98,6 +98,12 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   });
   const courseFacade = new CourseInProcFacade(courseModule);
 
+  // Ретроспективная инъекция courseFacade в resolve модуля
+  // (необходимо для UC, использующих фасад — resolve-content-path и др.)
+  (
+    courseModule as unknown as { resolve: { courseFacade: CourseInProcFacade } }
+  ).resolve.courseFacade = courseFacade;
+
   const tgFacade = new MockTgFacade();
 
   const streamModule = new StreamApiModule({

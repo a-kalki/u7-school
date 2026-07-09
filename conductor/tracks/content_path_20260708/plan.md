@@ -47,6 +47,6 @@
 
 ## Фаза 4: Интеграционные/E2E тесты
 
-- [ ] Task: Обновить `tests/bot` сценарии резолва контента по ролям
+- [~] Task: Обновить `tests/bot` сценарии резолва контента по ролям
 - [ ] Task: Обновить `architecture-evolution.md` (отметить ContentPath) и `ui-spec.md` (Часть A: ContentPath, таблица доступа)
 - [ ] Task: Conductor - Ручная верификация 'Тесты ContentPath'
