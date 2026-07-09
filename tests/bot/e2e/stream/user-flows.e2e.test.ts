@@ -14,6 +14,7 @@ import { createTestApp } from '../../helpers/test-app';
 
 const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
 const ACTIVE_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
+const STUDENT_ID = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 
 // ── Хелперы ──
 
@@ -302,7 +303,7 @@ describe('Сквозные пользовательские сценарии (E2
         candidate.uuid,
       );
       expect(studentRecord).toBeDefined();
-      expect(studentRecord.status).toBe('active');
+      expect(studentRecord.status).toBe('enrolled');
       expect(studentRecord.streamId).toBe(ENROLLMENT_ID);
     });
   });
@@ -587,7 +588,14 @@ describe('Сквозные пользовательские сценарии (E2
       await app.cleanup();
     });
 
-    test('ментор завершает active-поток → «⬅️ Назад к списку» → каталог', async () => {
+    test('ментор завершает active-поток после завершения студента → «⬅️ Назад к списку» → каталог', async () => {
+      // Шаг 0: завершаем студента (чтобы поток можно было complete)
+      await app.streamModule.execute(
+        'complete-student',
+        { streamId: ACTIVE_ID, studentId: STUDENT_ID, outcome: 'advanced' },
+        mentor.uuid,
+      );
+
       // Шаг 1: запрос подтверждения
       const confirmResp = await router.handleCallback(
         `stream:view-stream:complete:${ACTIVE_ID}`,

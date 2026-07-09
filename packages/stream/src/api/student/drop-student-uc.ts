@@ -54,6 +54,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
     await userFacade.removeRoleFromUser(
       studentEntity.userId,
       Role.STUDENT,
+      actorId,
     );
 
     return undefined;

@@ -72,6 +72,7 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
     await userFacade.removeRoleFromUser(
       studentEntity.userId,
       Role.STUDENT,
+      actorId,
     );
 
     // Сообщение через TgFacade (только для advanced и not_advanced)

@@ -73,6 +73,10 @@ export class UserAr extends Aggregate<UserArMeta> {
     if (idx !== -1) {
       this._state.roles.splice(idx, 1);
       this._state.updatedAt = isoNow();
+      // Если ролей не осталось — добавляем GUEST как роль по умолчанию
+      if (this._state.roles.length === 0) {
+        this._state.roles.push(Role.GUEST);
+      }
     }
   }
 

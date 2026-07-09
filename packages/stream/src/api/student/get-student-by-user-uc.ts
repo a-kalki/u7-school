@@ -27,7 +27,10 @@ export class GetStudentByUserUc extends StreamUseCase<GetStudentByUserCmdMeta> {
       command.userId,
     );
 
-    const active = students.find((s) => s.status === 'active');
+    // Ищем активную (enrolled или active) запись — enrolled означает что поток ещё не активирован
+    const active = students.find(
+      (s) => s.status === 'active' || s.status === 'enrolled',
+    );
 
     if (!active) {
       this.throwError(

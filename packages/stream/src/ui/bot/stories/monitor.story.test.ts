@@ -395,7 +395,7 @@ describe('MonitorStory', () => {
 
     expect(moduleApi.execute).toHaveBeenCalledWith(
       'mark-abandoned',
-      { streamId: 's1', studentId: 'st1' },
+      { streamId: 's1', studentId: 'st1', cause: 'inactivity' },
       'mentor-1',
     );
   });

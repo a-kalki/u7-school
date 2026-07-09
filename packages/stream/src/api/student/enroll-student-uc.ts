@@ -81,7 +81,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     await studentRepo.save(studentAr.state);
 
     // 3. Выдача роли STUDENT
-    await userFacade.addRoleToUser(command.userId, Role.STUDENT);
+    await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
 
     // 4. Снятие роли CANDIDATE, если была
     const user = await userFacade.getUserByUuid(command.userId, actorId);

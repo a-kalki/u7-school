@@ -14,7 +14,6 @@ import { CompleteStepUc } from './student/complete-step-uc';
 import { CompleteStudentUc } from './student/complete-student-uc';
 import { DropStudentUc } from './student/drop-student-uc';
 import { EnrollStudentUc } from './student/enroll-student-uc';
-import { ExpelStudentUc } from './student/expel-student-uc';
 import { GetStudentByUserUc } from './student/get-student-by-user-uc';
 import { GetStudentProgressUc } from './student/get-student-progress-uc';
 import { MarkAbandonedUc } from './student/mark-abandoned-uc';
@@ -37,7 +36,6 @@ export class StreamApiModule extends ApiModule<
     new GetStudentByUserUc(),
     new CompleteStepUc(),
     new GetStudentProgressUc(),
-    new ExpelStudentUc(),
     new DropStudentUc(),
     new MarkAbandonedUc(),
     new CompleteStudentUc(),

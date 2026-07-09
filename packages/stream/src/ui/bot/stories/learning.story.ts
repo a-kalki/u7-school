@@ -121,7 +121,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const student = studentResult.value;
 
-    if (student.status === 'completed') {
+    if (student.status === 'advanced' || student.status === 'not_advanced' || student.status === 'abandoned') {
       return {
         sendMessage: {
           text: '🎉 *Поздравляем\\!* Вы завершили обучение в потоке\\!',

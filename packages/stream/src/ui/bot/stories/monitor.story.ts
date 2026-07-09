@@ -342,7 +342,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     try {
       await this.moduleApi.execute(
         'mark-abandoned',
-        { streamId: student.streamId, studentId },
+        { streamId: student.streamId, studentId, cause: 'inactivity' as const },
         actor.uuid,
       );
     } catch (err: unknown) {

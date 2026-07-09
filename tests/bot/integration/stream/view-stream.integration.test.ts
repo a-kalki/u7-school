@@ -194,23 +194,8 @@ describe('ViewStreamStory e2e', () => {
     expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
   });
 
-  test('ментор → complete-confirm: завершает поток', async () => {
-    const response = await router.handleCallback(
-      `stream:view-stream:complete-confirm:${ACTIVE_ID}`,
-      mentor,
-      session,
-    );
-    assertBotResponseValid(response);
-
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('завершён');
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    if (rows.length > 0) {
-      const btnTexts = rows.flat().map((b) => b.text);
-      expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
-    }
-  });
+  // Примечание: complete-confirm больше не завершает поток, если есть active студенты.
+  // Ментор должен сначала завершить студентов через complete-student.
 
   test('ментор → archive: показывает подтверждение', async () => {
     const response = await router.handleCallback(

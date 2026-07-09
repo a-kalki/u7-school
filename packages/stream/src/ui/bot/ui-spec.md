@@ -182,7 +182,7 @@ _{StreamDescription}_
 2. Текущий шаг → `completed` в `StepRecord`
 3. Поиск следующего шага в `contentSnapshot`
 4. Если найден → выдача (`issued`), уровень перехода: `step` / `lesson` / `project`
-5. Если всё пройдено → `StudentAr.complete()` (статус `completed`)
+5. Если всё пройдено → возвращается `{ level: 'stream', completed: true }`. Статус студента меняет ментор через `CompleteStudentUc` (advanced/not_advanced/abandoned).
 
 **Рендеринг после выполнения:**
 - Обычный шаг → сразу следующий, без промежуточного сообщения
@@ -263,7 +263,7 @@ p{project}:l{lesson}:s{step} ████████░░ {percent}% ({done}/{
 > **Подтверждение отчисления:** «⚠️ Вы уверены, что хотите отчислить {StudentName}?» → `Да, отчислить` / `Отмена`.
 
 **Доменная логика отчисления:**
-- `expel-student` → `StudentAr.expel()` (статус `expelled`)
+- `mark-abandoned` → `StudentAr.markAbandoned()` (статус `abandoned`)
 - `UserFacade.removeRole(userId, STUDENT)` — **без** добавления другой роли
 - Запись **не удаляется** из репозитория
 

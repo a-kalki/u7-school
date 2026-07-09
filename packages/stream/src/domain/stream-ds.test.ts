@@ -118,7 +118,8 @@ describe('StreamDs.completeStep', () => {
     );
 
     expect(result).toEqual({ level: 'stream', completed: true });
-    expect(student.state.status).toBe('completed');
+    // Статус студента не меняется автоматически — его изменит ментор через CompleteStudentUc
+    expect(student.state.status).toBe('enrolled');
   });
 });
 
@@ -210,6 +211,7 @@ describe('StreamDs.completeStep — определение уровней (мн�
     );
 
     expect(result).toEqual({ level: 'stream', completed: true });
-    expect(student.state.status).toBe('completed');
+    // Статус студента не меняется автоматически — его изменит ментор через CompleteStudentUc
+    expect(student.state.status).toBe('enrolled');
   });
 });

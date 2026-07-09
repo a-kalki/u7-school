@@ -61,6 +61,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
     await userFacade.removeRoleFromUser(
       studentEntity.userId,
       Role.STUDENT,
+      actorId,
     );
 
     return undefined;

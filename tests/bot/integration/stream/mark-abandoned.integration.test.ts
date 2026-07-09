@@ -9,14 +9,14 @@ import { createTestApp } from '../../helpers/test-app';
 const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const STUDENT_ID = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 
-describe('ExpelStudent e2e', () => {
+describe('MarkAbandoned e2e', () => {
   let app: TestApp;
   let router: BotRouter;
   let mentor: User;
   let guest: User;
 
   beforeAll(async () => {
-    app = await createTestApp('expel');
+    app = await createTestApp('mark-abandoned');
     const streamController = new StreamController(app.streamModule);
     streamController.init(app.apiApp);
     router = new BotRouter([streamController]);
@@ -28,41 +28,44 @@ describe('ExpelStudent e2e', () => {
     await app.cleanup();
   });
 
-  test('ментор-владелец отчисляет студента', async () => {
+  test('ментор-владелец отмечает студента неактивным', async () => {
     const session: SessionData = { activeHandler: null };
 
     // Шаг 1: запрос подтверждения
     const r1 = await router.handleCallback(
-      `stream:monitor:expel:${STUDENT_ID}`,
+      `stream:monitor:mark-abandoned:${STUDENT_ID}`,
       mentor,
       session,
     );
-    expect(r1?.sendMessage?.text).toContain('уверены');
+    expect(r1?.sendMessage?.text).toContain('неактивного');
 
-    // Шаг 2: выполнить отчисление (без Markdown-проверки — ответ может быть error-страницей)
+    // Шаг 2: выполнить mark-abandoned
     const r2 = await router.handleCallback(
-      `stream:monitor:expel-confirm:${STUDENT_ID}`,
+      `stream:monitor:mark-abandoned-confirm:${STUDENT_ID}`,
       mentor,
       session,
     );
 
-    // Проверка: запись студента сохранена со статусом expelled
+    // Проверка: запись студента сохранена со статусом abandoned
     const student = await app.streamModule.execute(
       'get-student-progress',
       { studentId: STUDENT_ID },
       mentor.uuid,
     );
-    expect(student.status).toBe('expelled');
+    expect(student.status).toBe('abandoned');
+    expect(student.abandonDetails).toEqual({
+      who: 'mentor',
+      cause: 'inactivity',
+    });
   });
 
-  test('GUEST не может отчислить', async () => {
+  test('GUEST не может отметить неактивным', async () => {
     try {
       await app.streamModule.execute(
-        'expel-student',
-        { streamId: STREAM_ID, studentId: STUDENT_ID },
+        'mark-abandoned',
+        { streamId: STREAM_ID, studentId: STUDENT_ID, cause: 'inactivity' as const },
         guest.uuid,
       );
-      // Не должно дойти сюда
       expect(false).toBe(true);
     } catch {
       // Ожидаемая ошибка доступа

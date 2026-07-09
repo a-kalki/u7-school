@@ -78,6 +78,7 @@ describe('EnrollStudentUc', () => {
     expect(mockUserFacade.addRoleToUser).toHaveBeenCalledWith(
       '99999999-9999-4999-8999-999999999999',
       Role.STUDENT,
+      '99999999-9999-4999-8999-999999999999',
     );
   });
 

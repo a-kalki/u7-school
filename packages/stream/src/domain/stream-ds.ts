@@ -17,7 +17,8 @@ export const StreamDs = {
     const nextStepId = stream.findNextStep(stepId);
 
     if (!nextStepId) {
-      student.complete();
+      // Все шаги пройдены — поток завершён для этого студента.
+      // Статус изменит ментор через CompleteStudentUc.
       return { level: 'stream', completed: true };
     }
 

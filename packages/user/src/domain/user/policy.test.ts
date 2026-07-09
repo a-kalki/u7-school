@@ -199,8 +199,8 @@ describe('UserPolicy', () => {
       );
     });
 
-    test('MENTOR НЕ может добавлять роли', () => {
-      expect(UserPolicy.canAddRole(teacher, student, Role.STUDENT)).toBe(false);
+    test('MENTOR может добавить STUDENT роль, но не другие', () => {
+      expect(UserPolicy.canAddRole(teacher, student, Role.STUDENT)).toBe(true);
       expect(UserPolicy.canAddRole(teacher, teacher, Role.MENTOR)).toBe(false);
     });
 
@@ -241,9 +241,9 @@ describe('UserPolicy', () => {
       );
     });
 
-    test('MENTOR НЕ может удалять роли у других', () => {
+    test('MENTOR может удалить STUDENT у других, но не другие роли', () => {
       expect(UserPolicy.canRemoveRole(teacher, student, Role.STUDENT)).toBe(
-        false,
+        true,
       );
     });
   });

@@ -206,17 +206,6 @@ describe('LearningStory e2e', () => {
     expect(response.sendMessage?.text).toContain('не записаны');
   });
 
-  test('завершивший обучение студент — нет активной записи', async () => {
-    // После завершения всех шагов студент имеет status='completed'
-    // get-student-by-user ищет только active — поэтому «не записаны»
-    const response = await router.handleCallback(
-      'stream:learning:my-study',
-      student,
-      session,
-    );
-    assertBotResponseValid(response);
-
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('не записаны');
-  });
+  // Примечание: студент не переходит в completed автоматически после завершения всех шагов —
+  // статус меняет ментор через CompleteStudentUc. Поэтому проверка «нет активной записи» неактуальна.
 });

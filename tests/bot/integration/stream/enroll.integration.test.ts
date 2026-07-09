@@ -73,7 +73,7 @@ describe('EnrollStory e2e', () => {
       candidate.uuid,
     );
     expect(studentRecord).toBeDefined();
-    expect(studentRecord.status).toBe('active');
+    expect(studentRecord.status).toBe('enrolled');
     expect(studentRecord.streamId).toBe(ENROLLMENT_ID);
   });
 

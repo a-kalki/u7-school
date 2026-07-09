@@ -114,6 +114,7 @@ describe('CompleteStudentUc', () => {
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
       STUDENT_USER_ID,
       Role.STUDENT,
+      MENTOR_ID,
     );
 
     // TgFacade.sendMessage вызван с telegramId студента

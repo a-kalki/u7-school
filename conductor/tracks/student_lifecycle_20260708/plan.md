@@ -56,24 +56,24 @@
   - [x] Зарегистрирован в UserApiModule и UserApiModuleMeta
 - [ ] Task: Conductor - Ручная верификация 'User.nick'
 
-## Фаза 5: Confirm-хелпер + рефакторинг сториз
+## Фаза 5: Confirm-хелпер + рефакторинг сториз [checkpoint: 4390b5e]
 
-- [ ] Task: Написать тесты confirm-хелпера
-- [ ] Task: Реализовать confirm-хелпер в `core/ui`/`app/ui`
-  - [ ] Применить в MonitorStory (complete-student с выбором исхода, mark-abandoned)
-- [ ] Task: Обновить `statusLabels` в MonitorStory на новые статусы
+- [x] Task: Написать тесты confirm-хелпера
+- [x] Task: Реализовать confirm-хелпер в `core/ui`/`app/ui`
+  - [x] Применить в MonitorStory (complete-student с выбором исхода, mark-abandoned)
+- [x] Task: Обновить `statusLabels` в MonitorStory на новые статусы
 - [ ] Task: Conductor - Ручная верификация 'Confirm-хелпер'
 
 ## Фаза 6: Миграция и тесты
 
-- [ ] Task: Написать скрипт миграции:
-  - [ ] `dropped` → `abandoned` + `abandonDetails: { who: 'self', cause: 'voluntary' }`
-  - [ ] `expelled` → `abandoned` + `abandonDetails: { who: 'mentor', cause: 'by_mentor' }`
-- [ ] Task: Обновить сломанные тесты `tests/bot`:
-  - [ ] `expelled` → `abandoned`
-  - [ ] `expel.integration` → `mark-abandoned.integration`
-  - [ ] Убрать упоминания `completed` и `wants_next` статусов
-- [ ] Task: Добавить интеграционные тесты новых UC
+- [x] Task: Написать скрипт миграции:
+  - [x] `dropped` → `abandoned` + `abandonDetails: { who: 'self', cause: 'voluntary' }`
+  - [x] `expelled` → `abandoned` + `abandonDetails: { who: 'mentor', cause: 'by_mentor' }`
+- [x] Task: Обновить сломанные тесты `tests/bot`:
+  - [x] `expelled` → `abandoned`
+  - [x] `expel.integration` → `mark-abandoned.integration`
+  - [x] Убрать упоминания `completed` и `wants_next` статусов
+- [x] Task: Добавить интеграционные тесты новых UC
 - [ ] Task: Миграция прод-данных — на месте, после согласования
-- [ ] Task: Обновить `architecture-evolution.md` (отметить ЖЦ) и `ui-spec.md` (Часть A: жизненный цикл)
+- [x] Task: Обновить `architecture-evolution.md` (отметить ЖЦ) и `ui-spec.md` (Часть A: жизненный цикл)
 - [ ] Task: Conductor - Ручная верификация 'Миграция и тесты ЖЦ'

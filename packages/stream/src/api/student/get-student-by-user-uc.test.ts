@@ -16,12 +16,12 @@ const activeStudent = {
   createdAt: isoNow(),
 };
 
-const completedStudent = {
+const advancedStudent = {
   uuid: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   streamId: 'another-stream-id',
   userId,
   enrolledAt: isoNow(),
-  status: 'completed' as const,
+  status: 'advanced' as const,
   currentStepId: '22222222-2222-4222-8222-222222222222',
   steps: [],
   createdAt: isoNow(),
@@ -73,7 +73,7 @@ describe('GetStudentByUserUc', () => {
         getByUuid: mock(() => Promise.resolve(undefined)),
         getByStream: mock(() => Promise.resolve([])),
         getByUser: mock(() =>
-          Promise.resolve([completedStudent, activeStudent]),
+          Promise.resolve([advancedStudent, activeStudent]),
         ),
       },
     });
@@ -91,7 +91,7 @@ describe('GetStudentByUserUc', () => {
         save: mock(() => Promise.resolve()),
         getByUuid: mock(() => Promise.resolve(undefined)),
         getByStream: mock(() => Promise.resolve([])),
-        getByUser: mock(() => Promise.resolve([completedStudent])),
+        getByUser: mock(() => Promise.resolve([advancedStudent])),
       },
     });
 
@@ -119,5 +119,26 @@ describe('GetStudentByUserUc', () => {
     await expect(uc.execute({ userId })).rejects.toThrow(
       'Активная запись студента не найдена',
     );
+  });
+
+  test('возвращает enrolled-запись если active нет', async () => {
+    const enrolledStudent = {
+      ...activeStudent,
+      uuid: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      status: 'enrolled' as const,
+    };
+
+    const uc = new GetStudentByUserUc();
+    uc.init(
+      baseResolve({
+        streamStudentRepo: {
+          ...baseResolve().streamStudentRepo,
+          getByUser: mock(() => Promise.resolve([enrolledStudent])),
+        },
+      }),
+    );
+
+    const result = await uc.execute({ userId });
+    expect(result.status).toBe('enrolled');
   });
 });
