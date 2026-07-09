@@ -125,7 +125,9 @@ describe('parse', () => {
     });
 
     test('слишком много частей — "1:2:3:4:5"', () => {
-      expect(() => parse('1:2:3:4:5')).toThrow('Некорректный формат ContentPath');
+      expect(() => parse('1:2:3:4:5')).toThrow(
+        'Некорректный формат ContentPath',
+      );
     });
   });
 });
@@ -210,14 +212,10 @@ describe('ContentPathSchema', () => {
   });
 
   test('moduleIndex = 0 — ошибка', () => {
-    expect(() =>
-      v.parse(ContentPathSchema, { moduleIndex: 0 }),
-    ).toThrow();
+    expect(() => v.parse(ContentPathSchema, { moduleIndex: 0 })).toThrow();
   });
 
   test('moduleIndex отрицательный — ошибка', () => {
-    expect(() =>
-      v.parse(ContentPathSchema, { moduleIndex: -1 }),
-    ).toThrow();
+    expect(() => v.parse(ContentPathSchema, { moduleIndex: -1 })).toThrow();
   });
 });
