@@ -2,7 +2,7 @@
 
 > Контекст: `../../architecture-evolution.md` §2.2, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
-## Фаза 1: VO ContentPath
+## Фаза 1: VO ContentPath [checkpoint: 964ff19]
 
 - [x] Task: Написать тесты ContentPath (parse/serialize/валидация всех partial-форм, ошибочные пути) [01196b3]
 - [x] Task: Реализовать `ContentPath` VO + `ContentPathSchema` в домене `course`
