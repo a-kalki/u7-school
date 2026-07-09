@@ -19,15 +19,8 @@ export type TelegramIdTakenUcError = ConflictError<
 /** Доступ запрещён */
 export type AccessDeniedUcError = AccessDeniedError<'ACCESS_DENIED', undefined>;
 
-/** Ник уже занят */
-export type NickTakenUcError = ConflictError<
-  'NICK_TAKEN',
-  { nick: string } | undefined
->;
-
 /** Любая известная ошибка user-модуля */
 export type UserModuleError =
   | UserNotFoundUcError
   | TelegramIdTakenUcError
-  | NickTakenUcError
   | AccessDeniedUcError;

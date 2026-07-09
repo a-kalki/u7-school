@@ -131,25 +131,4 @@ describe('UserAr', () => {
       ]);
     });
   });
-
-  describe('setNick', () => {
-    test('устанавливает nick и updatedAt', () => {
-      const ar = new UserAr(validUser);
-      ar.setNick('john_doe');
-      expect(ar.state.nick).toBe('john_doe');
-      expect(ar.state.updatedAt).toBeString();
-    });
-
-    test('перезаписывает существующий nick', () => {
-      const ar = new UserAr({ ...validUser, nick: 'old_nick' });
-      ar.setNick('new_nick');
-      expect(ar.state.nick).toBe('new_nick');
-    });
-
-    test('очищает nick если передана пустая строка', () => {
-      const ar = new UserAr({ ...validUser, nick: 'has_nick' });
-      ar.setNick('');
-      expect(ar.state.nick).toBeUndefined();
-    });
-  });
 });

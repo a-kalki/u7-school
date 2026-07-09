@@ -140,12 +140,6 @@ export class UserJsonRepo implements UserRepo {
     return all.some((u) => u.telegramId === telegramId);
   }
 
-  async isNickTaken(nick: string): Promise<boolean> {
-    await this.#ensureInit();
-    const all = await this.#repo.readAll();
-    return all.some((u) => u.nick === nick);
-  }
-
   async isEmpty(): Promise<boolean> {
     await this.#ensureInit();
     const all = await this.#repo.readAll();
