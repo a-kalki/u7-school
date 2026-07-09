@@ -29,7 +29,14 @@
 
 ## Фаза 3: UC (завершение, выход, активация, зачисление)
 
-- [~] Task: Написать тесты UC
+- [x] Task: Написать тесты UC
+  - [x] complete-student: ментор выбирает abandoned|advanced|not_advanced → статус обновлён + −STUDENT — 29a4102
+  - [x] drop-student: self → abandoned(voluntary) + −STUDENT — 29a4102
+  - [x] mark-abandoned: mentor → abandoned(inactivity|by_mentor) + −STUDENT — 29a4102
+  - [x] enroll-student: → enrolled + +STUDENT — 29a4102
+  - [x] activate-stream: enrolled→active для всех — 29a4102
+  - [x] set-next-preference: self, только advanced/not_advanced — 29a4102
+  - [x] CompleteStreamUc: батчевые исходы + TgFacade — 29a4102
   - [ ] complete-student: ментор выбирает abandoned|advanced|not_advanced → статус обновлён + −STUDENT
   - [ ] complete-student: не-ментор → denied
   - [ ] drop-student: self → abandoned(voluntary) + −STUDENT
@@ -39,7 +46,11 @@
   - [ ] set-next-preference: self, только advanced/not_advanced → обновить nextPreference
   - [ ] CompleteStreamUc:
     - [ ] ментор вызывает, получает список active-студентов
-    - [ ] для каждого выбирает abandoned|advanced|not_advanced
+    - [x] для каждого выбирает abandoned|advanced|not_advanced
+  - [x] Реализовано: complete-student-cmd, drop-student-cmd, mark-abandoned-cmd, set-next-preference-cmd — 98576f4
+  - [x] Доработан enroll-student-uc, activate-stream-uc — 98576f4
+  - [x] CompleteStreamUc с батчевыми исходами и TgFacade — 98576f4
+  - [x] addRoleToUser/removeRoleFromUser — 98576f4
     - [ ] после confirm: статусы обновлены, STUDENT снят
     - [ ] advanced → tgFacade.sendMessage (предложение след. модуля)
     - [ ] not_advanced → tgFacade.sendMessage (предложение перезаписи)
