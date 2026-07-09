@@ -25,11 +25,16 @@
 
 - [ ] Task: Conductor - Ручная верификация 'UC resolve-content-path'
 
-## Фаза 3: Рефакторинг сториз
+## Фаза 3: Рефакторинг сториз [checkpoint: 581729f]
 
-- [ ] Task: Написать/обновить тесты LearningStory и MonitorStory на использование resolve-content-path
-- [ ] Task: Заменить `#findStepPosition` на вызов UC в LearningStory, MonitorStory
-  - [ ] Единый рендер шага/урока/проекта
+- [x] Task: Добавить stepId в команду resolve-content-path [581729f]
+  - [x] resolvePathByStepId в UC — обратный резолв UUID→ContentPath
+  - [x] 2 новых теста: stepId успех + несуществующий UUID
+- [x] Task: Заменить `#findStepPosition` на вызов UC в LearningStory, MonitorStory
+  - [x] LearningStory: appApi.execute('resolve-content-path', { stepId })
+  - [x] MonitorStory: пакетный resolve через Promise.all
+  - [x] Удалены #findStepPosition и интерфейс StepPosition
+  - [x] Обновлены тесты сториз (моки resolve-content-path)
 - [ ] Task: Conductor - Ручная верификация 'Рефакторинг сториз'
 
 ## Фаза 4: Интеграционные/E2E тесты
