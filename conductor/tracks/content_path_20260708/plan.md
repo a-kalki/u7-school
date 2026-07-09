@@ -45,8 +45,8 @@
   - [x] .pi/skills/ddd-domain/SKILL.md
 - [ ] Task: Conductor - Ручная верификация 'Рефакторинг сториз'
 
-## Фаза 4: Интеграционные/E2E тесты
+## Фаза 4: Интеграционные/E2E тесты [checkpoint: b0dc5b6]
 
 - [x] Task: Обновить `tests/bot` сценарии резолва контента по ролям [5dea232]
-- [x] Task: Обновить `architecture-evolution.md` (отметить ContentPath) и `ui-spec.md` (Часть A: ContentPath, таблица доступа)
-- [ ] Task: Conductor - Ручная верификация 'Тесты ContentPath'
+- [x] Task: Обновить `architecture-evolution.md` (отметить ContentPath) и `ui-spec.md` (Часть A: ContentPath, таблица доступа) [0a5ba90]
+- [x] Task: Conductor - Ручная верификация 'Тесты ContentPath' [b0dc5b6]
