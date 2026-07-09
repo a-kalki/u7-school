@@ -74,6 +74,19 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
       Role.STUDENT,
     );
 
+    // Сообщение через TgFacade (только для advanced и not_advanced)
+    if (command.outcome !== 'abandoned') {
+      const tgFacade = this.resolve.tgFacade;
+      const user = await userFacade.getUserByUuid(studentEntity.userId);
+      if (user?.telegramId) {
+        const message =
+          command.outcome === 'advanced'
+            ? 'Ты завершил модуль. Хочешь записаться на следующий?'
+            : 'Ты завершил модуль, но не набрал проходной балл. Хочешь перезаписаться на этот же модуль?';
+        await tgFacade.sendMessage(user.telegramId, message);
+      }
+    }
+
     return undefined;
   }
 }

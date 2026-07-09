@@ -2,10 +2,12 @@ import type { UcMeta } from '@u7-scl/core/api';
 import * as v from 'valibot';
 import type { StreamUcErrors } from '../../../api/errors';
 import { StreamSchema } from '../../stream/entity';
+import { StudentStatusSchema } from '../../status';
 import type { StudentSchema } from '../../student/entity';
 
 export const ListStreamStudentsCmdSchema = v.object({
   streamId: StreamSchema.entries.uuid,
+  status: v.optional(StudentStatusSchema),
 });
 
 export type ListStreamStudentsCmd = v.InferOutput<

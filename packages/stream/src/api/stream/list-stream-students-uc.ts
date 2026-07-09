@@ -23,7 +23,15 @@ export class ListStreamStudentsUc extends StreamUseCase<ListStreamStudentsCmdMet
     command: ListStreamStudentsCmd,
     _actorId: string,
   ): Promise<ListStreamStudentsCmdMeta['output']> {
-    // Публичная информация — любой может видеть список студентов
-    return this.resolve.streamStudentRepo.getByStream(command.streamId);
+    const students = await this.resolve.streamStudentRepo.getByStream(
+      command.streamId,
+    );
+
+    // Фильтрация по статусу, если указан
+    if (command.status) {
+      return students.filter((s) => s.status === command.status);
+    }
+
+    return students;
   }
 }
