@@ -110,6 +110,62 @@ export abstract class BotUserStory<
     };
   }
 
+  // ── Подтверждение действия (confirm-хелпер) ──
+
+  /**
+   * Строит confirm-клавиатуру: кнопка подтверждения и кнопка отмены.
+   *
+   * Convention: `action` → `action-confirm`.
+   * При подтверждении генерируется callback: `action-confirm:targetId[:extraData]`.
+   *
+   * @param action    — базовое действие (напр. 'mark-abandoned', 'complete')
+   * @param targetId  — id объекта (UUID студента, потока)
+   * @param text      — текст сообщения-подтверждения
+   * @param opts      — опции (текст кнопок, куда вернуться при отмене, доп. данные)
+   */
+  protected confirm(
+    action: string,
+    targetId: string,
+    text: string,
+    opts?: {
+      /** Текст на кнопке подтверждения (по умолчанию '✅ Да') */
+      confirmButton?: string;
+      /** Текст на кнопке отмены (по умолчанию '❌ Отмена') */
+      cancelButton?: string;
+      /** Куда вернуться при отмене: story:action (по умолчанию this.name:detail) */
+      cancelCode?: string;
+      /** Дополнительные данные, добавляемые через : после id */
+      extraData?: string;
+    },
+  ): BotResponse {
+    const confirmCode = `${action}-confirm`;
+    const extra = opts?.extraData ? `:${opts.extraData}` : '';
+    const cancelCode =
+      opts?.cancelCode ?? this.cbFor(this.name, 'detail', targetId);
+
+    return {
+      sendMessage: {
+        text,
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: opts?.confirmButton ?? '✅ Да',
+                code: this.cbFor(this.name, confirmCode, targetId) + extra,
+              },
+              {
+                text: opts?.cancelButton ?? '❌ Отмена',
+                code: cancelCode,
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
   // ── Формирование callback_data (только реальные данные, без сжатия) ──
 
   /**

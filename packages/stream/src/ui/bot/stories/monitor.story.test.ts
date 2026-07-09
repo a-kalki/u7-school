@@ -72,31 +72,21 @@ describe('MonitorStory', () => {
     assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
-    // Заголовок
     expect(text).toContain('Студенты потока');
-    // Сводка
     expect(text).toContain('Всего:');
     expect(text).toContain('студент');
-    // Прогресс-бар в тексте (█/░)
     expect(text).toContain('█');
     expect(text).toContain('░');
-    // Проценты и счётчики в тексте (скобки экранированы для MarkdownV2)
     expect(text).toContain('50%');
     expect(text).toContain('2/4');
-    // Имя в тексте
     expect(text).toContain('Иван');
-
-    // Формат позиции pB:lC:sD
     expect(text).toContain('p1:l1:s3');
 
-    // Кнопки — компактные
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('👤'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Иван'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('50%'))).toBe(true);
-
-    // Кнопка «⬅️ Назад к потоку»
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
@@ -170,13 +160,10 @@ describe('MonitorStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    // Имена есть и в тексте, и в кнопках
     expect(text).toContain('Иван Иванов');
     expect(text).toContain('Петр Петров');
     expect(btnTexts.some((t) => t.includes('Иван Иванов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Петр Петров'))).toBe(true);
-
-    // userId НЕ отображается ни в тексте, ни в кнопках
     expect(text).not.toContain('user-1');
     expect(text).not.toContain('user-2');
     expect(btnTexts.some((t) => t.includes('user-'))).toBe(false);
@@ -285,9 +272,9 @@ describe('MonitorStory', () => {
     expect(text).toContain('скоро будет');
   });
 
-  // ── Отчисление ──
+  // ── Действия ментора: mark-abandoned ──
 
-  test('кнопка «❌ Отчислить» в карточке студента', async () => {
+  test('кнопки действий ментора в карточке активного студента', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
@@ -330,10 +317,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
   });
 
-  test('нажатие «❌ Отчислить» → запрос подтверждения', async () => {
+  test('нажатие «⚠️ Неактивен» → запрос подтверждения', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
@@ -358,18 +346,22 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    const response = await story.handleCallback('expel:st1', actor, session);
+    const response = await story.handleCallback(
+      'mark-abandoned:st1',
+      actor,
+      session,
+    );
 
-    expect(response.sendMessage?.text).toContain('уверены');
+    expect(response.sendMessage?.text).toContain('неактивного');
     const btnTexts =
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Да, отчислить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Да, неактивен'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
   });
 
-  test('подтверждение отчисления → вызов expel-student', async () => {
+  test('подтверждение → вызов mark-abandoned', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
@@ -381,7 +373,7 @@ describe('MonitorStory', () => {
             currentStepId: 'step-1',
             steps: [],
           };
-        if (name === 'expel-student') return undefined;
+        if (name === 'mark-abandoned') return undefined;
         return undefined;
       }),
     } as unknown as StreamApiModule;
@@ -395,17 +387,20 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    await story.handleCallback('expel-confirm:st1', actor, session);
+    await story.handleCallback(
+      'mark-abandoned-confirm:st1',
+      actor,
+      session,
+    );
 
     expect(moduleApi.execute).toHaveBeenCalledWith(
-      'expel-student',
+      'mark-abandoned',
       { streamId: 's1', studentId: 'st1' },
       'mentor-1',
     );
   });
 
   test('«Отмена» → возврат к карточке студента', async () => {
-    // Нажатие «Отмена» в подтверждении — это кнопка detail, уже протестирована
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
@@ -442,14 +437,71 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    // «Отмена» ведет обратно на detail
     const response = await story.handleCallback('detail:st1', actor, session);
     expect(response.sendMessage?.text).toContain('Студент');
   });
 
-  // ── Безопасность: кнопка «Отчислить» только для ментора потока или админа ──
+  // ── complete-student: выбор исхода + confirm ──
 
-  test('студент НЕ видит кнопку «❌ Отчислить»', async () => {
+  test('нажатие «✅ Завершить» → выбор исхода', async () => {
+    const response = await makeStory().handleCallback(
+      'complete:st1',
+      actor,
+      session,
+    );
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Выберите исход');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Прошёл'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Не прошёл'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Выбыл'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('выбор исхода «Прошёл» → confirm с исходом advanced', async () => {
+    const story = makeStory();
+    const response = await story.handleCallback(
+      'complete-confirm:st1:advanced',
+      actor,
+      session,
+    );
+
+    expect(response.sendMessage?.text).toContain('прошёл');
+    const confirmBtn =
+      response.sendMessage?.keyboard?.rows[0]?.[0];
+    expect(confirmBtn?.code).toContain(':advanced');
+  });
+
+  test('выбор исхода «Не прошёл» → confirm с исходом not_advanced', async () => {
+    const story = makeStory();
+    const response = await story.handleCallback(
+      'complete-confirm:st1:not_advanced',
+      actor,
+      session,
+    );
+
+    expect(response.sendMessage?.text).toContain('не прошёл');
+  });
+
+  test('выбор исхода «Выбыл» → confirm с исходом abandoned', async () => {
+    const story = makeStory();
+    const response = await story.handleCallback(
+      'complete-confirm:st1:abandoned',
+      actor,
+      session,
+    );
+
+    expect(response.sendMessage?.text).toContain('выбыл');
+  });
+
+  // ── Безопасность: кнопки действий только для ментора потока или админа ──
+
+  test('студент НЕ видит кнопки «Неактивен» и «Завершить»', async () => {
     const studentActor: User = {
       uuid: 'student-1',
       name: 'Студент',
@@ -504,10 +556,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
   });
 
-  test('чужой ментор НЕ видит кнопку «❌ Отчислить»', async () => {
+  test('чужой ментор НЕ видит кнопки «Неактивен» и «Завершить»', async () => {
     const otherMentor: User = {
       uuid: 'other-mentor',
       name: 'Чужой Ментор',
@@ -562,10 +615,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
   });
 
-  test('гость без ролей НЕ видит кнопку «❌ Отчислить»', async () => {
+  test('гость без ролей НЕ видит кнопки «Неактивен» и «Завершить»', async () => {
     const guestActor: User = {
       uuid: 'guest-1',
       name: 'Гость',
@@ -620,10 +674,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
   });
 
-  test('админ видит кнопку «❌ Отчислить»', async () => {
+  test('админ видит кнопки «Неактивен» и «Завершить»', async () => {
     const adminActor: User = {
       uuid: 'admin-1',
       name: 'Админ',
@@ -678,6 +733,35 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Отчислить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
   });
 });
+
+/** Вспомогательная функция для создания MonitorStory с моками */
+function makeStory() {
+  const moduleApi = {
+    execute: mock((name: string) => {
+      if (name === 'get-student-progress')
+        return {
+          uuid: 'st1',
+          streamId: 's1',
+          userId: 'u1',
+          status: 'active',
+          currentStepId: 'step-1',
+          steps: [],
+        };
+      return undefined;
+    }),
+  } as unknown as StreamApiModule;
+  const appApi = {
+    execute: mock((name: string) => {
+      if (name === 'get-user') return { name: 'Студент' };
+      return undefined;
+    }),
+  } as unknown as U7BotApp;
+
+  const story = new MonitorStory();
+  story.init(moduleApi, appApi);
+  return story;
+}

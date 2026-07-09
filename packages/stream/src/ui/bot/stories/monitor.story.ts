@@ -35,14 +35,24 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
-    // Отчисление — подтверждение
-    if (cmd === 'expel' && id) {
-      return this.#handleExpelConfirm(id, actor);
+    // mark-abandoned — подтверждение
+    if (cmd === 'mark-abandoned' && id) {
+      return this.#handleMarkAbandonedConfirm(id, actor);
     }
 
-    // Отчисление — выполнить
-    if (cmd === 'expel-confirm' && id) {
-      return this.#handleExpelExecute(id, actor);
+    // mark-abandoned — выполнить
+    if (cmd === 'mark-abandoned-confirm' && id) {
+      return this.#handleMarkAbandonedExecute(id, actor, action);
+    }
+
+    // complete-student — выбор исхода
+    if (cmd === 'complete' && id) {
+      return this.#handleCompleteChoice(id);
+    }
+
+    // complete-student — подтверждение исхода
+    if (cmd === 'complete-confirm' && id) {
+      return this.#handleCompleteConfirm(id, actor, action);
     }
 
     if (cmd !== 'students' || !id) {
@@ -78,7 +88,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       0,
     );
 
-    // Строим текст со сводкой и прогресс-барами + компактные кнопки
     const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
@@ -89,13 +98,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const pct =
         totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
 
-      // Прогресс-бар 10 символов для текста
       const barLen = 10;
       const filled = Math.round((pct / 100) * barLen);
       const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
       const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
 
-      // Позиция в программе: pB:lC:sD
       const pos = this.#findStepPosition(
         stream.contentSnapshot,
         s.currentStepId,
@@ -104,7 +111,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         ? `p${pos.projectIndex}:l${pos.lessonIndex}:s${pos.stepIndex}`
         : '';
 
-      // Получаем имя через appApi
       let name = s.userId.slice(0, 8);
       try {
         const user = await this.appApi.execute('get-user', {
@@ -113,18 +119,15 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         name = user.name;
       } catch (err) {
         this.handleError(err);
-        // Имя не найдено — используем id
       }
 
       const escapedName = this.escapeMarkdown(name);
       const counts = this.escapeMarkdown(`(${completed}/${totalSteps})`);
 
-      // Строка в тексте: позиция + бар + процент + счётчики + имя
       studentLines.push(
         `${posStr} ${bar} ${pct}% ${counts} — ${escapedName}${lagging}`,
       );
 
-      // Компактная кнопка: 👤 + имя + процент
       rows.push([
         {
           text: `👤 ${name} (${pct}%)${lagging}`,
@@ -179,7 +182,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       actor.uuid,
     );
 
-    // Получаем пользователя
     let userName = student.userId.slice(0, 8);
     try {
       const user = await this.appApi.execute('get-user', {
@@ -188,7 +190,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       userName = user.name;
     } catch (err) {
       this.handleError(err);
-      // Пользователь не найден
     }
 
     const stream = await this.moduleApi.execute('get-stream', {
@@ -206,8 +207,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const statusLabels: Record<string, string> = {
       active: '🟢 Активен',
-      completed: '✅ Завершил',
-      dropped: '🔴 Отчислен',
+      abandoned: '🔴 Выбыл',
+      advanced: '✅ Прошёл',
+      not_advanced: '↩️ Не прошёл',
     };
 
     const lines = [
@@ -217,7 +219,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `📈 Прогресс: ${completed} из ${totalSteps} шагов ${this.escapeMarkdown(`(${pct}%)`)}`,
     ];
 
-    // Текущий проект/урок из прогресса
     const currentStep = student.steps.find((st) => st.status === 'issued');
     if (currentStep) {
       for (const project of stream.contentSnapshot) {
@@ -232,7 +233,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
     }
 
-    // Клавиатура: кнопки действий
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
     keyboardRows.push([
@@ -242,14 +242,32 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
     ]);
 
-    // Кнопка «Отчислить» только для ментора потока или админа
+    // Кнопки действий — только для ментора потока или админа
     if (StudentPolicy.canExpel(actor, stream)) {
-      keyboardRows.push([
-        {
-          text: '❌ Отчислить',
-          code: this.cbFor('monitor', 'expel', studentId),
-        },
-      ]);
+      if (student.status === 'active') {
+        // Активный студент: можно отметить неактивным или завершить
+        keyboardRows.push([
+          {
+            text: '⚠️ Неактивен',
+            code: this.cbFor('monitor', 'mark-abandoned', studentId),
+          },
+          {
+            text: '✅ Завершить',
+            code: this.cbFor('monitor', 'complete', studentId),
+          },
+        ]);
+      } else if (
+        student.status === 'advanced' ||
+        student.status === 'not_advanced'
+      ) {
+        // Завершённый студент: можно сменить предпочтение (пока заглушка)
+        keyboardRows.push([
+          {
+            text: '🔄 Сменить исход',
+            code: this.cbFor('monitor', 'complete', studentId),
+          },
+        ]);
+      }
     }
 
     keyboardRows.push([
@@ -268,7 +286,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  async #handleExpelConfirm(
+  // ── mark-abandoned ──
+
+  async #handleMarkAbandonedConfirm(
     studentId: string,
     actor: User,
   ): Promise<BotResponse> {
@@ -288,32 +308,20 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       // ignore
     }
 
-    return {
-      sendMessage: {
-        text: `⚠️ Вы уверены, что хотите отчислить ${this.escapeMarkdown(userName)}?`,
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [
-            [
-              {
-                text: 'Да, отчислить',
-                code: this.cbFor('monitor', 'expel-confirm', studentId),
-              },
-              {
-                text: '❌ Отмена',
-                code: this.cbFor('monitor', 'detail', studentId),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
+    return this.confirm(
+      'mark-abandoned',
+      studentId,
+      `⚠️ Отметить *${this.escapeMarkdown(userName)}* как неактивного?`,
+      {
+        confirmButton: '⚠️ Да, неактивен',
       },
-    };
+    );
   }
 
-  async #handleExpelExecute(
+  async #handleMarkAbandonedExecute(
     studentId: string,
     actor: User,
+    _action: string,
   ): Promise<BotResponse> {
     const student: Student = await this.moduleApi.execute(
       'get-student-progress',
@@ -333,7 +341,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     try {
       await this.moduleApi.execute(
-        'expel-student',
+        'mark-abandoned',
         { streamId: student.streamId, studentId },
         actor.uuid,
       );
@@ -343,12 +351,99 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: `✅ Студент ${this.escapeMarkdown(userName)} отчислен.`,
+        text: `✅ Студент *${this.escapeMarkdown(userName)}* отмечен как неактивный.`,
         parseMode: 'MarkdownV2',
       },
-      delegate: { path: this.cbFor('monitor', 'students', student.streamId) },
+      delegate: {
+        path: this.cbFor('monitor', 'students', student.streamId),
+      },
     };
   }
+
+  // ── complete-student (выбор исхода) ──
+
+  async #handleCompleteChoice(studentId: string): Promise<BotResponse> {
+    const keyboardRows: Array<Array<{ text: string; code: string }>> = [
+      [
+        {
+          text: '✅ Прошёл',
+          code: this.cbFor('monitor', 'complete-confirm', studentId) +
+            ':advanced',
+        },
+      ],
+      [
+        {
+          text: '↩️ Не прошёл',
+          code: this.cbFor('monitor', 'complete-confirm', studentId) +
+            ':not_advanced',
+        },
+      ],
+      [
+        {
+          text: '🔴 Выбыл',
+          code: this.cbFor('monitor', 'complete-confirm', studentId) +
+            ':abandoned',
+        },
+      ],
+      [
+        {
+          text: '❌ Отмена',
+          code: this.cbFor('monitor', 'detail', studentId),
+        },
+      ],
+    ];
+
+    return {
+      sendMessage: {
+        text: 'Выберите исход для студента:',
+        keyboard: { rows: keyboardRows, isMultiple: false },
+      },
+    };
+  }
+
+  async #handleCompleteConfirm(
+    studentId: string,
+    actor: User,
+    action: string,
+  ): Promise<BotResponse> {
+    // action = 'complete-confirm:studentId:outcome'
+    const parts = action.split(':');
+    const outcome = parts[2]; // advanced | not_advanced | abandoned
+
+    const student: Student = await this.moduleApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    );
+
+    let userName = student.userId.slice(0, 8);
+    try {
+      const user = await this.appApi.execute('get-user', {
+        uuid: student.userId,
+      });
+      userName = user.name;
+    } catch {
+      // ignore
+    }
+
+    const outcomeLabels: Record<string, string> = {
+      advanced: 'прошёл',
+      not_advanced: 'не прошёл',
+      abandoned: 'выбыл',
+    };
+
+    return this.confirm(
+      'complete',
+      studentId,
+      `Завершить студента *${this.escapeMarkdown(userName)}* с исходом «${outcomeLabels[outcome ?? ''] ?? outcome}»?`,
+      {
+        confirmButton: '✅ Завершить',
+        extraData: outcome,
+      },
+    );
+  }
+  // Примечание: выполнение complete-confirm (complete + outcome) пока не реализовано —
+  // будет добавлено после того, как complete-student-uc станет доступен в moduleApi
 
   /** Находит позицию шага в contentSnapshot: индексы проекта, урока и шага (1-based). */
   #findStepPosition(

@@ -86,6 +86,10 @@ describe('MonitorStory e2e', () => {
     expect(btns.some((t) => t.includes('Написать'))).toBe(false);
     expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
+
+    // Кнопки действий ментора для активного студента
+    expect(btns.some((t) => t.includes('Неактивен'))).toBe(true);
+    expect(btns.some((t) => t.includes('Завершить'))).toBe(true);
   });
 
   // ═══════════════════════════════════════════

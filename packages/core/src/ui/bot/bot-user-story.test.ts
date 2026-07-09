@@ -72,6 +72,15 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
     return super.stripPrefix(data);
   }
 
+  public override confirm(
+    action: string,
+    targetId: string,
+    text: string,
+    opts?: Parameters<BotUserStory['confirm']>[3],
+  ): BotResponse {
+    return super.confirm(action, targetId, text, opts);
+  }
+
   public override get logger(): ReturnType<typeof getGlobalLogger> {
     return super.logger;
   }
@@ -220,6 +229,66 @@ describe('BotUserStory', () => {
 
       const s = new TestStory();
       expect(s.logger).toBeUndefined();
+    });
+  });
+
+  describe('confirm', () => {
+    test('генерирует клавиатуру с Да/Отмена по умолчанию', () => {
+      const resp = story.confirm('mark-abandoned', 'student-123', 'Удалить?');
+
+      expect(resp.sendMessage?.text).toBe('Удалить?');
+      expect(resp.sendMessage?.parseMode).toBe('MarkdownV2');
+
+      const kb = resp.sendMessage?.keyboard!;
+      expect(kb.isMultiple).toBe(false);
+      expect(kb.rows).toHaveLength(1);
+      expect(kb.rows[0]).toHaveLength(2);
+
+      // Кнопка подтверждения
+      const [confirmBtn, cancelBtn] = kb.rows[0]!;
+      expect(confirmBtn!.text).toBe('✅ Да');
+      expect(confirmBtn!.code).toBe('test_story:mark-abandoned-confirm:student-123');
+
+      // Кнопка отмены (по умолчанию detail)
+      expect(cancelBtn!.text).toBe('❌ Отмена');
+      expect(cancelBtn!.code).toBe('test_story:detail:student-123');
+    });
+
+    test('позволяет переопределить текст кнопок', () => {
+      const resp = story.confirm('drop', 's1', 'Точно?', {
+        confirmButton: '⚠️ Да, точно',
+        cancelButton: 'Назад',
+      });
+
+      const [confirmBtn, cancelBtn] = resp.sendMessage!.keyboard!.rows[0]!;
+      expect(confirmBtn!.text).toBe('⚠️ Да, точно');
+      expect(cancelBtn!.text).toBe('Назад');
+    });
+
+    test('принимает кастомный cancelCode', () => {
+      const resp = story.confirm('complete', 's1', '?', {
+        cancelCode: 'monitor:students:stream-1',
+      });
+
+      const cancelBtn = resp.sendMessage!.keyboard!.rows[0]![1]!;
+      expect(cancelBtn.code).toBe('monitor:students:stream-1');
+    });
+
+    test('добавляет extraData в confirm-колбэк', () => {
+      const resp = story.confirm('mark-abandoned', 's1', '?', {
+        extraData: 'inactivity',
+      });
+
+      const confirmBtn = resp.sendMessage!.keyboard!.rows[0]![0]!;
+      expect(confirmBtn.code).toBe(
+        'test_story:mark-abandoned-confirm:s1:inactivity',
+      );
+    });
+
+    test('cancelCode по умолчанию ведёт на detail той же стори', () => {
+      const resp = story.confirm('test-action', 'uuid-42', '?');
+      const cancelBtn = resp.sendMessage!.keyboard!.rows[0]![1]!;
+      expect(cancelBtn.code).toBe('test_story:detail:uuid-42');
     });
   });
 });
