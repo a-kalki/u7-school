@@ -3,6 +3,7 @@ import type {
   CourseApiModuleMeta,
   CourseApiModuleResolver,
 } from '#domain/module';
+import { ResolveContentPathUc } from './content-path/resolve-content-path-uc';
 import { AddModuleToCourseUc } from './course/add-module-to-course-uc';
 import { AddPhaseToCourseUc } from './course/add-phase-to-course-uc';
 import { CreateCourseUc } from './course/create-course-uc';
@@ -37,6 +38,7 @@ export class CourseApiModule extends ApiModule<
     new GetLessonUc(),
     new CreateStepUc(),
     new GetStepUc(),
+    new ResolveContentPathUc(),
     new CreateCourseUc(),
     new AddPhaseToCourseUc(),
     new AddModuleToCourseUc(),

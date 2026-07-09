@@ -1,15 +1,15 @@
 import { describe, expect, mock, test } from 'bun:test';
-import * as v from 'valibot';
 import type { User } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
+import * as v from 'valibot';
+import {
+  type ResolveContentPathCmd,
+  ResolveContentPathSchema,
+} from '#domain/content-path/commands/resolve-content-path-cmd';
 import type { ContentSnapshot } from '#domain/content-snapshot';
 import type { CourseProgram } from '#domain/facade';
 import type { CourseApiModuleResolver } from '#domain/module';
 import { Status } from '#domain/status';
-import {
-  ResolveContentPathSchema,
-  type ResolveContentPathCmd,
-} from '#domain/content-path/commands/resolve-content-path-cmd';
 import { ResolveContentPathUc } from './resolve-content-path-uc';
 
 // ============================================================
@@ -60,7 +60,10 @@ function makeSnapshot(): ContentSnapshot {
   ];
 }
 
-function makeCourseProgram(snapshot: ContentSnapshot, title = 'Курс'): CourseProgram {
+function makeCourseProgram(
+  snapshot: ContentSnapshot,
+  title = 'Курс',
+): CourseProgram {
   return {
     course: {
       uuid: 'cid-1',
@@ -74,7 +77,7 @@ function makeCourseProgram(snapshot: ContentSnapshot, title = 'Курс'): Cours
     phases: [
       {
         title: 'Фаза 1',
-        modules: snapshot,
+        modules: [snapshot],
       },
     ],
   };
@@ -99,16 +102,17 @@ function setupUc(): UcEnv {
       phases: [],
     }),
   );
-  const getStep = mock(
-    async (_stepId: string) => undefined as never,
-  );
+  const getStep = mock(async (_stepId: string) => undefined as never);
   const getModuleSnapshot = mock(
     async (_moduleId: string): Promise<ContentSnapshot> => [],
   );
 
   const uc = new ResolveContentPathUc();
   uc.init({
-    moduleRepo: { getByUuid: mock(async () => undefined), getAll: mock(async () => []) } as never,
+    moduleRepo: {
+      getByUuid: mock(async () => undefined),
+      getAll: mock(async () => []),
+    } as never,
     lessonRepo: { getByUuid: mock(async () => undefined) } as never,
     stepRepo: {
       getByUuid: mock(async () => undefined),
