@@ -6,16 +6,16 @@ import { CompleteStudentUc } from './complete-student-uc';
 const mockDate = '2026-06-01T10:00';
 
 describe('CompleteStudentUc', () => {
-  function createMocks(mentorId = 'mentor-1') {
+  function createMocks(mentorId = '66666666-6666-4666-8666-666666666666') {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -28,10 +28,11 @@ describe('CompleteStudentUc', () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'stream-1',
+          uuid: '77777777-7777-4777-8777-777777777777',
           title: 'Test Stream',
+          description: 'Test Description',
           mentorId,
-          moduleId: 'module-1',
+          moduleId: '33333333-3333-4333-8333-333333333333',
           startDate: mockDate,
           status: 'active',
           contentSnapshot: [],
@@ -75,11 +76,11 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         outcome: 'advanced',
       },
-      'mentor-1',
+      '66666666-6666-4666-8666-666666666666',
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -91,7 +92,7 @@ describe('CompleteStudentUc', () => {
     });
 
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
     );
   });
@@ -110,18 +111,18 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         outcome: 'not_advanced',
       },
-      'mentor-1',
+      '66666666-6666-4666-8666-666666666666',
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
       .calls[0]![0];
     expect(saved.status).toBe('not_advanced');
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
     );
   });
@@ -140,11 +141,11 @@ describe('CompleteStudentUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         outcome: 'abandoned',
       },
-      'mentor-1',
+      '66666666-6666-4666-8666-666666666666',
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -155,19 +156,19 @@ describe('CompleteStudentUc', () => {
       cause: 'by_mentor',
     });
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
     );
   });
 
   test('не-ментор → access denied', async () => {
     const { mockStudentRepo, mockStreamRepo, mockUserFacade } = createMocks(
-      'other-mentor',
+      '55555555-5555-4555-8555-555555555555',
     );
 
     mockUserFacade.getUserByUuid = mock(() =>
       Promise.resolve({
-        uuid: 'user-2',
+        uuid: '22222222-2222-4222-8222-222222222222',
         name: 'Student',
         telegramId: 2,
         roles: [Role.STUDENT],
@@ -187,11 +188,11 @@ describe('CompleteStudentUc', () => {
     await expect(
       uc.execute(
         {
-          streamId: 'stream-1',
-          studentId: 'student-1',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           outcome: 'advanced',
         },
-        'user-2',
+        '22222222-2222-4222-8222-222222222222',
       ),
     ).rejects.toThrow();
   });

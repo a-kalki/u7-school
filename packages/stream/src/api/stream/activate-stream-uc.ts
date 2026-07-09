@@ -46,14 +46,26 @@ export class ActivateStreamUc extends StreamUseCase<ActivateStreamCmdMeta> {
     const studentRepo = this.resolve.streamStudentRepo;
     const students = await studentRepo.getByStream(command.streamId);
 
-    // 4. Выдать первый шаг студентам без выданных шагов
+    // 4. Активировать enrolled-студентов и выдать первый шаг
     for (const entity of students) {
-      // Пропускаем студентов, у которых уже есть выданные шаги
-      if (entity.steps.length > 0) continue;
-
       const studentAr = new StudentAr(entity);
-      studentAr.issueStep(firstStepId);
-      await studentRepo.save(studentAr.state);
+      let changed = false;
+
+      // enrolled → active
+      if (entity.status === 'enrolled') {
+        studentAr.activate();
+        changed = true;
+      }
+
+      // Выдать первый шаг студентам без выданных шагов
+      if (entity.steps.length === 0) {
+        studentAr.issueStep(firstStepId);
+        changed = true;
+      }
+
+      if (changed) {
+        await studentRepo.save(studentAr.state);
+      }
     }
     return undefined;
   }

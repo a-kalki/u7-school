@@ -8,23 +8,23 @@ const mockDate = '2026-06-01T10:00';
 describe('ActivateStreamUc', () => {
   test('ментор активирует поток: enrolled студенты переходят в active', async () => {
     const student1 = {
-      uuid: 'student-1',
-      streamId: 'stream-1',
-      userId: 'user-1',
+      uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '11111111-1111-4111-8111-111111111111',
       status: 'enrolled',
       enrolledAt: mockDate,
-      currentStepId: 'step-1',
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
       steps: [],
       createdAt: mockDate,
     };
 
     const student2 = {
-      uuid: 'student-2',
-      streamId: 'stream-1',
-      userId: 'user-2',
+      uuid: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '22222222-2222-4222-8222-222222222222',
       status: 'enrolled',
       enrolledAt: mockDate,
-      currentStepId: 'step-2',
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa02',
       steps: [],
       createdAt: mockDate,
     };
@@ -39,21 +39,22 @@ describe('ActivateStreamUc', () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'stream-1',
+          uuid: '77777777-7777-4777-8777-777777777777',
           title: 'Test Stream',
-          mentorId: 'mentor-1',
-          moduleId: 'module-1',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
           startDate: mockDate,
           status: 'enrollment',
           contentSnapshot: [
             {
-              projectId: 'proj-1',
+              projectId: '44444444-4444-4444-8444-444444444444',
               projectTitle: 'Project 1',
               lessons: [
                 {
-                  lessonId: 'lesson-1',
+                  lessonId: '55555555-5555-4555-8555-555555555555',
                   lessonTitle: 'Lesson 1',
-                  stepIds: ['step-1'],
+                  stepIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01'],
                 },
               ],
             },
@@ -68,7 +69,7 @@ describe('ActivateStreamUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'mentor-1',
+          uuid: '66666666-6666-4666-8666-666666666666',
           name: 'Mentor',
           telegramId: 1,
           roles: [Role.MENTOR],
@@ -88,8 +89,8 @@ describe('ActivateStreamUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
-      { streamId: 'stream-1' },
-      'mentor-1',
+      { streamId: '77777777-7777-4777-8777-777777777777' },
+      '66666666-6666-4666-8666-666666666666',
     );
 
     // streamActivate
@@ -106,24 +107,24 @@ describe('ActivateStreamUc', () => {
 
   test('студенты не-enrolled не активируются', async () => {
     const student1 = {
-      uuid: 'student-1',
-      streamId: 'stream-1',
-      userId: 'user-1',
+      uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '11111111-1111-4111-8111-111111111111',
       status: 'enrolled',
       enrolledAt: mockDate,
-      currentStepId: 'step-1',
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
       steps: [],
       createdAt: mockDate,
     };
 
     const student2 = {
-      uuid: 'student-2',
-      streamId: 'stream-1',
-      userId: 'user-2',
+      uuid: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '22222222-2222-4222-8222-222222222222',
       status: 'active',
       enrolledAt: mockDate,
-      currentStepId: 'step-2',
-      steps: [{ stepId: 'step-1', completedAt: mockDate }],
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa02',
+      steps: [{ stepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01', status: 'completed' as const, issuedAt: mockDate, completedAt: mockDate }],
       createdAt: mockDate,
     };
 
@@ -137,21 +138,22 @@ describe('ActivateStreamUc', () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'stream-1',
+          uuid: '77777777-7777-4777-8777-777777777777',
           title: 'Test Stream',
-          mentorId: 'mentor-1',
-          moduleId: 'module-1',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
           startDate: mockDate,
           status: 'enrollment',
           contentSnapshot: [
             {
-              projectId: 'proj-1',
+              projectId: '44444444-4444-4444-8444-444444444444',
               projectTitle: 'Project 1',
               lessons: [
                 {
-                  lessonId: 'lesson-1',
+                  lessonId: '55555555-5555-4555-8555-555555555555',
                   lessonTitle: 'Lesson 1',
-                  stepIds: ['step-1'],
+                  stepIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01'],
                 },
               ],
             },
@@ -166,7 +168,7 @@ describe('ActivateStreamUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'mentor-1',
+          uuid: '66666666-6666-4666-8666-666666666666',
           name: 'Mentor',
           telegramId: 1,
           roles: [Role.MENTOR],
@@ -186,8 +188,8 @@ describe('ActivateStreamUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
-      { streamId: 'stream-1' },
-      'mentor-1',
+      { streamId: '77777777-7777-4777-8777-777777777777' },
+      '66666666-6666-4666-8666-666666666666',
     );
 
     // Только один save (только enrolled студент активирован)

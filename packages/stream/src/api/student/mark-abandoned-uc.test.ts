@@ -11,12 +11,12 @@ describe('MarkAbandonedUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -29,10 +29,11 @@ describe('MarkAbandonedUc', () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'stream-1',
+          uuid: '77777777-7777-4777-8777-777777777777',
           title: 'Test Stream',
-          mentorId: 'mentor-1',
-          moduleId: 'module-1',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
           startDate: mockDate,
           status: 'active',
           contentSnapshot: [],
@@ -44,7 +45,7 @@ describe('MarkAbandonedUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'mentor-1',
+          uuid: '66666666-6666-4666-8666-666666666666',
           name: 'Mentor',
           telegramId: 1,
           roles: [Role.MENTOR],
@@ -75,11 +76,11 @@ describe('MarkAbandonedUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'by_mentor',
       },
-      'mentor-1',
+      '66666666-6666-4666-8666-666666666666',
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -92,7 +93,7 @@ describe('MarkAbandonedUc', () => {
     });
 
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
     );
   });
@@ -101,12 +102,12 @@ describe('MarkAbandonedUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -119,10 +120,11 @@ describe('MarkAbandonedUc', () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'stream-1',
+          uuid: '77777777-7777-4777-8777-777777777777',
           title: 'Test Stream',
-          mentorId: 'mentor-1',
-          moduleId: 'module-1',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
           startDate: mockDate,
           status: 'active',
           contentSnapshot: [],
@@ -134,7 +136,7 @@ describe('MarkAbandonedUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'mentor-1',
+          uuid: '66666666-6666-4666-8666-666666666666',
           name: 'Mentor',
           telegramId: 1,
           roles: [Role.MENTOR],
@@ -160,11 +162,11 @@ describe('MarkAbandonedUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         cause: 'inactivity',
       },
-      'mentor-1',
+      '66666666-6666-4666-8666-666666666666',
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -179,12 +181,12 @@ describe('MarkAbandonedUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -194,10 +196,11 @@ describe('MarkAbandonedUc', () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'stream-1',
+          uuid: '77777777-7777-4777-8777-777777777777',
           title: 'Test Stream',
-          mentorId: 'mentor-1',
-          moduleId: 'module-1',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
           startDate: mockDate,
           status: 'active',
           contentSnapshot: [],
@@ -209,7 +212,7 @@ describe('MarkAbandonedUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-2',
+          uuid: '22222222-2222-4222-8222-222222222222',
           name: 'Student',
           telegramId: 2,
           roles: [Role.STUDENT],
@@ -230,11 +233,11 @@ describe('MarkAbandonedUc', () => {
     await expect(
       uc.execute(
         {
-          streamId: 'stream-1',
-          studentId: 'student-1',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           cause: 'by_mentor',
         },
-        'user-2',
+        '22222222-2222-4222-8222-222222222222',
       ),
     ).rejects.toThrow();
   });

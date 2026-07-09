@@ -9,32 +9,32 @@ const mockDate = '2026-06-01T10:00';
 describe('CompleteStreamUc', () => {
   test('ментор завершает поток: студентам назначаются исходы, STUDENT снят, сообщения через TgFacade', async () => {
     const student1 = {
-      uuid: 'student-1',
-      streamId: 'stream-1',
-      userId: 'user-1',
+      uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '11111111-1111-4111-8111-111111111111',
       status: 'active',
       enrolledAt: mockDate,
-      currentStepId: 'step-1',
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
       steps: [],
       createdAt: mockDate,
     };
     const student2 = {
-      uuid: 'student-2',
-      streamId: 'stream-1',
-      userId: 'user-2',
+      uuid: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '22222222-2222-4222-8222-222222222222',
       status: 'active',
       enrolledAt: mockDate,
-      currentStepId: 'step-2',
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa02',
       steps: [],
       createdAt: mockDate,
     };
     const student3 = {
-      uuid: 'student-3',
-      streamId: 'stream-1',
-      userId: 'user-3',
+      uuid: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      streamId: '77777777-7777-4777-8777-777777777777',
+      userId: '33333333-3333-4333-8333-333333333333',
       status: 'active',
       enrolledAt: mockDate,
-      currentStepId: 'step-3',
+      currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa03',
       steps: [],
       createdAt: mockDate,
     };
@@ -49,10 +49,11 @@ describe('CompleteStreamUc', () => {
     };
 
     const streamEntity = {
-      uuid: 'stream-1',
+      uuid: '77777777-7777-4777-8777-777777777777',
       title: 'Test Stream',
-      mentorId: 'mentor-1',
-      moduleId: 'module-1',
+          description: 'Test Description',
+      mentorId: '66666666-6666-4666-8666-666666666666',
+      moduleId: '33333333-3333-4333-8333-333333333333',
       startDate: mockDate,
       status: 'active',
       contentSnapshot: [],
@@ -68,7 +69,7 @@ describe('CompleteStreamUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'mentor-1',
+          uuid: '66666666-6666-4666-8666-666666666666',
           name: 'Mentor',
           telegramId: 1,
           roles: [Role.MENTOR],
@@ -99,14 +100,14 @@ describe('CompleteStreamUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
         studentOutcomes: [
-          { studentId: 'student-1', outcome: 'advanced' },
-          { studentId: 'student-2', outcome: 'not_advanced' },
-          { studentId: 'student-3', outcome: 'abandoned' },
+          { studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', outcome: 'advanced' },
+          { studentId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', outcome: 'not_advanced' },
+          { studentId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', outcome: 'abandoned' },
         ],
       },
-      'mentor-1',
+      '66666666-6666-4666-8666-666666666666',
     );
 
     // Студенты сохранены (3 + stream save)

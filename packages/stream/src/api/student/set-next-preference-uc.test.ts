@@ -10,13 +10,13 @@ describe('SetNextPreferenceUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'advanced',
           completionDetails: { nextPreference: 'undecided' },
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -29,7 +29,7 @@ describe('SetNextPreferenceUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-1',
+          uuid: '11111111-1111-4111-8111-111111111111',
           name: 'Student',
           telegramId: 1,
           roles: [],
@@ -50,11 +50,11 @@ describe('SetNextPreferenceUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         preference: 'wants_next',
       },
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
@@ -67,13 +67,13 @@ describe('SetNextPreferenceUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'not_advanced',
           completionDetails: { nextPreference: 'undecided' },
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -86,7 +86,7 @@ describe('SetNextPreferenceUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-1',
+          uuid: '11111111-1111-4111-8111-111111111111',
           name: 'Student',
           telegramId: 1,
           roles: [],
@@ -107,11 +107,11 @@ describe('SetNextPreferenceUc', () => {
 
     await uc.execute(
       {
-        streamId: 'stream-1',
-        studentId: 'student-1',
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
         preference: 'wants_repeat',
       },
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
     );
 
     const saved = (mockStudentRepo.save as ReturnType<typeof mock>).mock
@@ -123,13 +123,13 @@ describe('SetNextPreferenceUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'advanced',
           completionDetails: { nextPreference: 'undecided' },
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -139,7 +139,7 @@ describe('SetNextPreferenceUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-2',
+          uuid: '22222222-2222-4222-8222-222222222222',
           name: 'Other',
           telegramId: 2,
           roles: [],
@@ -160,11 +160,11 @@ describe('SetNextPreferenceUc', () => {
     await expect(
       uc.execute(
         {
-          streamId: 'stream-1',
-          studentId: 'student-1',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           preference: 'wants_next',
         },
-        'user-2',
+        '22222222-2222-4222-8222-222222222222',
       ),
     ).rejects.toThrow();
   });
@@ -173,12 +173,12 @@ describe('SetNextPreferenceUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -188,7 +188,7 @@ describe('SetNextPreferenceUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-1',
+          uuid: '11111111-1111-4111-8111-111111111111',
           name: 'Student',
           telegramId: 1,
           roles: [Role.STUDENT],
@@ -209,11 +209,11 @@ describe('SetNextPreferenceUc', () => {
     await expect(
       uc.execute(
         {
-          streamId: 'stream-1',
-          studentId: 'student-1',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           preference: 'wants_next',
         },
-        'user-1',
+        '11111111-1111-4111-8111-111111111111',
       ),
     ).rejects.toThrow();
   });

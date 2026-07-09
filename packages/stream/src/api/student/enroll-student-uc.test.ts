@@ -52,9 +52,8 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
@@ -76,10 +75,9 @@ describe('EnrollStudentUc', () => {
       '99999999-9999-4999-8999-999999999999',
     );
     expect(mockStudentRepo.save).toHaveBeenCalled();
-    expect(mockUserFacade.updateUserRole).toHaveBeenCalledWith(
+    expect(mockUserFacade.addRoleToUser).toHaveBeenCalledWith(
       '99999999-9999-4999-8999-999999999999',
       Role.STUDENT,
-      '99999999-9999-4999-8999-999999999999',
     );
   });
 
@@ -95,7 +93,6 @@ describe('EnrollStudentUc', () => {
         }),
       ),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       updateUserRole: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
@@ -132,9 +129,8 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
@@ -178,7 +174,7 @@ describe('EnrollStudentUc', () => {
     ).rejects.toThrow('Вы уже проходите обучение');
   });
 
-  test('успешная запись если предыдущие записи archived/completed', async () => {
+  test('успешная запись если предыдущие записи завершённые', async () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
@@ -219,7 +215,7 @@ describe('EnrollStudentUc', () => {
             streamId: 'previous-stream',
             userId: '99999999-9999-4999-8999-999999999999',
             enrolledAt: mockDate,
-            status: 'completed',
+            status: 'advanced',
             currentStepId: 'some-step',
             steps: [],
             createdAt: mockDate,
@@ -237,9 +233,8 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
@@ -312,9 +307,8 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
@@ -386,9 +380,8 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
@@ -461,9 +454,8 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
@@ -536,10 +528,9 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
     };
@@ -614,10 +605,9 @@ describe('EnrollStudentUc', () => {
           createdAt: mockDate,
         }),
       ),
-      updateUserRole: mock(() => Promise.resolve({})),
+      addRoleToUser: mock(() => Promise.resolve()),
       removeRoleFromUser: mock(() => Promise.resolve(undefined)),
       userExists: mock(() => Promise.resolve(true)),
-      addRoleToUser: mock(() => Promise.resolve(undefined)),
       getUserByTelegramId: mock(() => Promise.resolve(undefined)),
       registerGuest: mock(() => Promise.resolve({} as any)),
     };

@@ -11,12 +11,12 @@ describe('DropStudentUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -29,7 +29,7 @@ describe('DropStudentUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-1',
+          uuid: '11111111-1111-4111-8111-111111111111',
           name: 'Student',
           telegramId: 1,
           roles: [Role.STUDENT],
@@ -59,8 +59,8 @@ describe('DropStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
-      { streamId: 'stream-1', studentId: 'student-1' },
-      'user-1',
+      { streamId: '77777777-7777-4777-8777-777777777777', studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' },
+      '11111111-1111-4111-8111-111111111111',
     );
 
     // studentRepo.save был вызван
@@ -75,7 +75,7 @@ describe('DropStudentUc', () => {
 
     // STUDENT роль снята
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
-      'user-1',
+      '11111111-1111-4111-8111-111111111111',
       Role.STUDENT,
     );
   });
@@ -84,12 +84,12 @@ describe('DropStudentUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'active',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -99,7 +99,7 @@ describe('DropStudentUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-2',
+          uuid: '22222222-2222-4222-8222-222222222222',
           name: 'Other',
           telegramId: 2,
           roles: [Role.GUEST],
@@ -118,7 +118,7 @@ describe('DropStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute({ streamId: 'stream-1', studentId: 'student-1' }, 'user-2'),
+      uc.execute({ streamId: '77777777-7777-4777-8777-777777777777', studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }, '22222222-2222-4222-8222-222222222222'),
     ).rejects.toThrow();
   });
 
@@ -126,12 +126,12 @@ describe('DropStudentUc', () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'student-1',
-          streamId: 'stream-1',
-          userId: 'user-1',
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
           status: 'enrolled',
           enrolledAt: mockDate,
-          currentStepId: 'step-1',
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
           createdAt: mockDate,
         }),
@@ -141,7 +141,7 @@ describe('DropStudentUc', () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
         Promise.resolve({
-          uuid: 'user-1',
+          uuid: '11111111-1111-4111-8111-111111111111',
           name: 'Student',
           telegramId: 1,
           roles: [Role.STUDENT],
@@ -160,7 +160,7 @@ describe('DropStudentUc', () => {
     } as unknown as StreamApiModuleResolver);
 
     await expect(
-      uc.execute({ streamId: 'stream-1', studentId: 'student-1' }, 'user-1'),
+      uc.execute({ streamId: '77777777-7777-4777-8777-777777777777', studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }, '11111111-1111-4111-8111-111111111111'),
     ).rejects.toThrow();
   });
 });

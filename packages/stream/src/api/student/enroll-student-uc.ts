@@ -43,7 +43,9 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
 
     // 1.5 Проверка, нет ли уже активной записи в другом потоке
     const activeRecords = await studentRepo.getByUser(command.userId);
-    const hasActive = activeRecords.some((r) => r.status === 'active');
+    const hasActive = activeRecords.some(
+      (r) => r.status === 'active' || r.status === 'enrolled',
+    );
     if (hasActive) {
       this.throwError(
         errConflict<StreamConflictUcError>(
@@ -78,8 +80,8 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     );
     await studentRepo.save(studentAr.state);
 
-    // 3. Обновление роли пользователя
-    await userFacade.updateUserRole(command.userId, Role.STUDENT, actorId);
+    // 3. Выдача роли STUDENT
+    await userFacade.addRoleToUser(command.userId, Role.STUDENT);
 
     // 4. Снятие роли CANDIDATE, если была
     const user = await userFacade.getUserByUuid(command.userId, actorId);

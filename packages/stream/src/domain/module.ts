@@ -10,10 +10,14 @@ import type { ListStreamStudentsCmdMeta } from './stream/commands/list-stream-st
 import type { ListStreamsCmdMeta } from './stream/commands/list-streams-cmd';
 import type { StreamRepo } from './stream/repo';
 import type { CompleteStepCmdMeta } from './student/commands/complete-step-cmd';
+import type { CompleteStudentCmdMeta } from './student/commands/complete-student-cmd';
+import type { DropStudentCmdMeta } from './student/commands/drop-student-cmd';
 import type { EnrollStudentCmdMeta } from './student/commands/enroll-student-cmd';
 import type { ExpelStudentCmdMeta } from './student/commands/expel-student-cmd';
 import type { GetStudentByUserCmdMeta } from './student/commands/get-student-by-user-cmd';
 import type { GetStudentProgressCmdMeta } from './student/commands/get-student-progress-cmd';
+import type { MarkAbandonedCmdMeta } from './student/commands/mark-abandoned-cmd';
+import type { SetNextPreferenceCmdMeta } from './student/commands/set-next-preference-cmd';
 import type { StudentRepo } from './student/repo';
 import type { TgFacade } from './tg-facade';
 
@@ -40,5 +44,9 @@ export interface StreamApiModuleMeta {
     | EnrollStudentCmdMeta
     | GetStudentByUserCmdMeta
     | GetStudentProgressCmdMeta
-    | ExpelStudentCmdMeta;
+    | ExpelStudentCmdMeta
+    | DropStudentCmdMeta
+    | MarkAbandonedCmdMeta
+    | CompleteStudentCmdMeta
+    | SetNextPreferenceCmdMeta;
 }
