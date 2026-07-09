@@ -9,8 +9,7 @@
 
 - [x] ~~**Track: Курс (последовательность модулей)**~~ → [архив](./tracks/archive/course_aggregate_20260708/)
 
-- [~] **Track: Жизненный цикл студента**
-*Link: [./tracks/student_lifecycle_20260708/](./tracks/student_lifecycle_20260708/)*
+- [x] ~~**Track: Жизненный цикл студента**~~ → [архив](./archive/student_lifecycle_20260708/)
 
 - [ ] **Track: ContentPath (адресация контента)**
 *Link: [./tracks/content_path_20260708/](./tracks/content_path_20260708/)*
