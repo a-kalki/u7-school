@@ -11,7 +11,7 @@
   - [x] есть `abandoned` предыдущего → отказ
   - [x] нет Student-записи на предыдущий модуль → отказ
 
-- [x] Task: Реализовать CoursePolicy.canEnrollNextModule [4a88b6e]
+- [x] Task: Реализовать CoursePolicy.canEnrollNextModule [e0bcdab]
   - [x] Поиск предыдущего модуля в course.phases (сбор всех moduleIds в линейный порядок)
   - [x] Проверка Student-записи: `status === 'advanced'`
 
