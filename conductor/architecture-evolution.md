@@ -88,7 +88,7 @@ enrolled → active → abandoned  (self-drop / mentor-by-inactivity)
 ```
 - **Enum:** `enrolled | active | abandoned | advanced | not_advanced` (5 статусов).
 - `abandoned` схлопывает прежние `dropped`+`expelled`. Поле `abandonDetails: { who: 'self' | 'mentor'; cause: 'voluntary' | 'inactivity' | 'by_mentor' }`.
-- `advanced` / `not_advanced` — финальные статусы при завершении модуля. Поле `completionDetails: { nextPreference: 'wants_next' | 'wants_repeat' | 'undecided' }` — намерение студента учиться дальше (заполняется после ответа на сообщение бота).
+- `advanced` / `not_advanced` — финальные статусы при завершении модуля. Поле `completionDetails: { nextPreference: 'wants_next' | 'wants_repeat' | 'undecided' }` — намерение студента учиться дальше (заполняется после ответа на сообщение бота). **Не влияет на гейт** (для зачисления на следующий модуль достаточно `status: 'advanced'`); используется для вспомогательных операций — приглашений, рассылок.
 - **Роль STUDENT** = «учится в незавершённом потоке». Выдаётся (`+STUDENT`) при `enroll-student` (enrolled). Снимается (`−STUDENT`) при переходе в `abandoned`, `advanced` или `not_advanced`. При зачислении в следующий поток — `+STUDENT` снова.
 - Процесс: студент записался → `enrolled` (ждёт) → ментор активировал поток → `active` + issue первого шага.
 - `StudentAr` методы: `activate()` (enrolled→active), `drop()` (self→abandoned), `markAbandoned(cause)` (mentor→abandoned), `advance()` (→advanced), `markNotAdvanced()` (→not_advanced), `setNextPreference(pref)`.
