@@ -17,7 +17,6 @@ import { ResolveContentPathSchema } from '#domain/content-path/commands/resolve-
 import type { ContentSnapshot } from '#domain/content-snapshot';
 import { CourseDs } from '#domain/course-ds';
 import type { Lesson } from '#domain/lesson/entity';
-import type { Module } from '#domain/module/entity';
 import type { Step } from '#domain/step/entity';
 import { CourseUseCase } from '../course-uc';
 
