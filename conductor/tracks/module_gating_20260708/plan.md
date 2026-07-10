@@ -2,7 +2,7 @@
 
 > Контекст: `../../architecture-evolution.md` §2.1, §2.3, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
-## Фаза 1: CoursePolicy — gating
+## Фаза 1: CoursePolicy — gating [checkpoint: 9fc959e]
 
 - [x] Task: Написать тесты canEnrollNextModule [743b6b8]
   - [x] первый модуль курса → разрешён
@@ -15,7 +15,7 @@
   - [x] Поиск предыдущего модуля в course.phases (сбор всех moduleIds в линейный порядок)
   - [x] Проверка Student-записи: `status === 'advanced'`
 
-- [ ] Task: Conductor - Ручная верификация 'CoursePolicy gating'
+- [x] Task: Conductor - Ручная верификация 'CoursePolicy gating' [9fc959e]
 
 ## Фаза 2: Gate в enroll-student
 
