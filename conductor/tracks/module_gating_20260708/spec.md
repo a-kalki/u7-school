@@ -11,16 +11,18 @@
 ## Функциональные требования
 
 ### F1. CoursePolicy — gating
-- `CoursePolicy.canEnrollNextModule(student, course, targetModuleId)`:
+- `CoursePolicy.canEnrollNextModule(course, targetModuleId, prevModuleStudent)`:
   - targetModule — первый в курсе → разрешён всем.
-  - иначе: существует предыдущий модуль в course.phases, и у студента есть Student-запись с `status: 'advanced'` И `completionDetails.nextPreference: 'wants_next'` для потока предыдущего модуля. Если нет → отказ с причиной.
+  - иначе: существует предыдущий модуль в course.phases, и у студента есть Student-запись с `status: 'advanced'` для потока предыдущего модуля. Если нет → отказ с причиной.
+- `nextPreference` (поле `completionDetails`) **не участвует** в гейте — оно нужно для вспомогательных операций (приглашения, рассылки).
 - Учитывает, что Student-запись привязана к stream→module.
 
 ### F2. Gate в enroll-student
 - `enroll-student` для потока модуля N: проверить `canEnrollNextModule`. Если не пройден → ошибка «Сначала пройдите модуль {prevModuleTitle}».
-- `advanced` с `nextPreference: 'wants_next'` — гейт пройден.
+- `advanced` на предыдущем модуле — гейт пройден.
 - `not_advanced` — гейт НЕ пройден (студент не набрал порог, должен перезаписаться на тот же модуль).
 - `abandoned` — гейт НЕ пройден.
+- Нет записи на предыдущий модуль — гейт НЕ пройден.
 
 ### F3. Зачисление на следующий модуль
 - При успешном `enroll-student` на модуль N+1:
@@ -41,8 +43,8 @@
 - E2E: студент с advanced на Синтаксисе → может записаться на Алгоритмику; студент с not_advanced или abandoned → отказ.
 
 ## Критерии приёмки
-- [ ] Студент без `advanced` + `nextPreference: 'wants_next'` на Синтаксисе не может записаться на Алгоритмику (отказ с причиной).
-- [ ] Студент с `advanced` + `wants_next` на Синтаксисе → записывается на Алгоритмику, новая Student-запись (enrolled).
+- [ ] Студент без `advanced` на Синтаксисе не может записаться на Алгоритмику (отказ с причиной).
+- [ ] Студент с `advanced` на Синтаксисе → записывается на Алгоритмику, новая Student-запись (enrolled).
 - [ ] TgFacade-сообщения при завершении потока предлагают следующий шаг.
 - [ ] Ответы студента корректно обновляют `completionDetails.nextPreference`.
 - [ ] Покрытие >80%, TDD.

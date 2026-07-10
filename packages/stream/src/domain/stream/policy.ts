@@ -40,9 +40,6 @@ export const StreamPolicy = {
 
   /**
    * Может ли студент записаться на указанный модуль курса.
-   * Сама извлекает completedModuleIds из своих доменных объектов
-   * (фильтрует advanced, сопоставляет streamId → moduleId)
-   * и делегирует решение о структуре курса в CoursePolicy.
    *
    * @param course — курс с фазами и упорядоченными moduleIds
    * @param targetModuleId — модуль, на который планируется запись
