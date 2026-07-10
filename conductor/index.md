@@ -12,6 +12,7 @@
   - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module, BotUserStory
   - [DDD Infra](../.pi/skills/ddd-infra/SKILL.md) — реализации репозиториев
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
+  - [Границы доменной логики](./code_styleguides/domain-boundaries.md) — ⚠️ ВАЖНО: куда помещать логику, как не допустить утечек между модулями
   - [Тестирование](./code_styleguides/testing.md) — общие правила
   - [Тестирование Telegram-бота](./code_styleguides/bot-test.md) — unit, интеграционные, E2E
 - [BotController](./code_styleguides/skills/bot-controller.md) — иерархия контроллеров бота (BotController → U7BotController → доменные/AppController)
