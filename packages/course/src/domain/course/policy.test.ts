@@ -87,57 +87,57 @@ describe('CoursePolicy', () => {
     });
   });
 
-  describe('containsModule', () => {
+  describe('hasModule', () => {
     it('находит модуль в курсе', () => {
       const course = makeCourse(authorId);
       course.phases = [
         { title: 'Фаза 1', moduleIds: ['mod-1', 'mod-2'] },
         { title: 'Фаза 2', moduleIds: ['mod-3'] },
       ];
-      expect(CoursePolicy.containsModule(course, 'mod-2')).toBe(true);
-      expect(CoursePolicy.containsModule(course, 'mod-3')).toBe(true);
+      expect(CoursePolicy.hasModule(course, 'mod-2')).toBe(true);
+      expect(CoursePolicy.hasModule(course, 'mod-3')).toBe(true);
     });
 
     it('не находит отсутствующий модуль', () => {
       const course = makeCourse(authorId);
       course.phases = [{ title: 'Фаза 1', moduleIds: ['mod-1'] }];
-      expect(CoursePolicy.containsModule(course, 'mod-unknown')).toBe(false);
+      expect(CoursePolicy.hasModule(course, 'mod-unknown')).toBe(false);
     });
 
     it('пустые фазы — модуль не найден', () => {
       const course = makeCourse(authorId);
-      expect(CoursePolicy.containsModule(course, 'mod-1')).toBe(false);
+      expect(CoursePolicy.hasModule(course, 'mod-1')).toBe(false);
     });
   });
 
-  describe('isFirstModule', () => {
-    it('первый модуль курса', () => {
+  describe('isEntryModule', () => {
+    it('входной модуль курса', () => {
       const course = makeCourse(authorId);
       course.phases = [
         { title: 'Фаза 1', moduleIds: ['mod-syntax'] },
         { title: 'Фаза 2', moduleIds: ['mod-algo'] },
       ];
-      expect(CoursePolicy.isFirstModule(course, 'mod-syntax')).toBe(true);
+      expect(CoursePolicy.isEntryModule(course, 'mod-syntax')).toBe(true);
     });
 
-    it('не первый модуль', () => {
+    it('не входной модуль', () => {
       const course = makeCourse(authorId);
       course.phases = [
         { title: 'Фаза 1', moduleIds: ['mod-syntax'] },
         { title: 'Фаза 2', moduleIds: ['mod-algo'] },
       ];
-      expect(CoursePolicy.isFirstModule(course, 'mod-algo')).toBe(false);
+      expect(CoursePolicy.isEntryModule(course, 'mod-algo')).toBe(false);
     });
 
     it('модуль не найден в курсе', () => {
       const course = makeCourse(authorId);
       course.phases = [{ title: 'Фаза 1', moduleIds: ['mod-syntax'] }];
-      expect(CoursePolicy.isFirstModule(course, 'mod-unknown')).toBe(false);
+      expect(CoursePolicy.isEntryModule(course, 'mod-unknown')).toBe(false);
     });
 
-    it('пустой курс — не первый', () => {
+    it('пустой курс — не входной', () => {
       const course = makeCourse(authorId);
-      expect(CoursePolicy.isFirstModule(course, 'mod-1')).toBe(false);
+      expect(CoursePolicy.isEntryModule(course, 'mod-1')).toBe(false);
     });
   });
 });

@@ -54,11 +54,11 @@ export const StreamPolicy = {
     targetModuleId: string,
     prevModuleStatus: Student['status'] | undefined,
   ): boolean {
-    // Модуль не найден в курсе — отказ (проверка структуры курса)
-    if (!CoursePolicy.containsModule(course, targetModuleId)) return false;
+    // Модуль не принадлежит курсу — отказ (hasModule)
+    if (!CoursePolicy.hasModule(course, targetModuleId)) return false;
 
-    // Первый модуль в курсе — разрешён всем (проверка структуры курса)
-    if (CoursePolicy.isFirstModule(course, targetModuleId)) return true;
+    // Входной модуль (без пререквизитов) — разрешён всем (isEntryModule)
+    if (CoursePolicy.isEntryModule(course, targetModuleId)) return true;
 
     // Для всех остальных модулей нужен advanced на предыдущем (проверка статуса студента)
     return prevModuleStatus === 'advanced';

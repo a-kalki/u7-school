@@ -31,17 +31,18 @@ export const CoursePolicy = {
   },
 
   /**
-   * Есть ли модуль с указанным ID в любой из фаз курса.
+   * Содержит ли курс указанный модуль.
    */
-  containsModule(course: Course, moduleId: string): boolean {
+  hasModule(course: Course, moduleId: string): boolean {
     return course.phases.some((phase) => phase.moduleIds.includes(moduleId));
   },
 
   /**
-   * Является ли модуль первым в курсе (по порядку фаз).
-   * Первый модуль первой фазы.
+   * Является ли модуль входным в курсе — первым в последовательности,
+   * без пререквизитов. На такой модуль можно записаться без проверки
+   * предыдущих.
    */
-  isFirstModule(course: Course, moduleId: string): boolean {
+  isEntryModule(course: Course, moduleId: string): boolean {
     const allModuleIds = course.phases.flatMap((phase) => phase.moduleIds);
     return allModuleIds.length > 0 && allModuleIds[0] === moduleId;
   },
