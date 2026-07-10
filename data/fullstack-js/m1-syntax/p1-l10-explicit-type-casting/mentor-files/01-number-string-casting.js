@@ -1,12 +1,12 @@
 // Блок 1: Number() vs parseInt() — разное поведение
 const priceStr = '1500 тг';
 
-console.log('Number("1500 тг"):', Number('1500 тг'));
-console.log('parseInt("1500 тг"):', parseInt('1500 тг', 10));
+console.log('Number("1500 тг"):', Number(priceStr));
+console.log('parseInt("1500 тг"):', parseInt(priceStr, 10));
 
 const widthStr = '100px';
-console.log('Number("100px"):', Number('100px'));
-console.log('parseInt("100px"):', parseInt('100px', 10));
+console.log('Number("100px"):', Number(widthStr));
+console.log('parseInt("100px"):', parseInt(widthStr, 10));
 
 console.log('---');
 
@@ -22,9 +22,13 @@ console.log('true.toString():', isActive.toString());
 console.log('---');
 
 // Блок 3: Унарный + и parseFloat
-const strPrice = '1499.99';
+const strPrice = '1499.99 тг.';
 console.log('+strPrice:', +strPrice);
 console.log('parseFloat(strPrice):', parseFloat(strPrice));
+console.log('parseInt(strPrice):', parseInt(strPrice, 10));
+
+const visitors = 'Пришло: 5';
+console.log('parseInt(visitors):', parseInt(visitors, 10));
 
 console.log('---');
 
