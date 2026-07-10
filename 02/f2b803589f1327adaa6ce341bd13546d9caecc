@@ -1,0 +1,9 @@
+Задача: Реализовать CoursePolicy.canEnrollNextModule (Фаза 1, рефакторинг)
+
+Изменения:
+- packages/course/src/domain/course/policy.ts: добавлены containsModule и isFirstModule
+- packages/course/src/domain/course/policy.test.ts: 8 тестов (containsModule × 3, isFirstModule × 4 + edge cases)
+- packages/stream/src/domain/stream/policy.ts: canEnrollNextModule делегирует проверки курса в CoursePolicy
+- conductor/code_styleguides/skills/policy.md: правило §6 о неутекании логики прав из модуля
+
+Причина: логика доменных прав не должна утекать из своего модуля. Проверки структуры курса — в CoursePolicy (course), проверки статуса студента — в StreamPolicy (stream).
