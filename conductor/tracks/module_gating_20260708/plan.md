@@ -4,25 +4,24 @@
 
 ## Фаза 1: CoursePolicy — gating
 
-- [ ] Task: Написать тесты canEnrollNextModule
-  - [ ] первый модуль курса → разрешён
-  - [ ] есть `advanced` + `nextPreference: 'wants_next'` предыдущего модуля → разрешён
-  - [ ] есть `advanced` + `nextPreference: 'undecided'` → отказ (не выразил желание)
-  - [ ] есть `not_advanced` предыдущего → отказ
-  - [ ] есть `abandoned` предыдущего → отказ
-  - [ ] нет Student-записи на предыдущий модуль → отказ
+- [x] Task: Написать тесты canEnrollNextModule [743b6b8]
+  - [x] первый модуль курса → разрешён
+  - [x] есть `advanced` предыдущего модуля → разрешён
+  - [x] есть `not_advanced` предыдущего → отказ
+  - [x] есть `abandoned` предыдущего → отказ
+  - [x] нет Student-записи на предыдущий модуль → отказ
 
 - [ ] Task: Реализовать CoursePolicy.canEnrollNextModule
-  - [ ] Поиск предыдущего модуля в course.phases
-  - [ ] Проверка Student-записи: `status === 'advanced'` И `completionDetails.nextPreference === 'wants_next'`
+  - [ ] Поиск предыдущего модуля в course.phases (сбор всех moduleIds в линейный порядок)
+  - [ ] Проверка Student-записи: `status === 'advanced'`
 
 - [ ] Task: Conductor - Ручная верификация 'CoursePolicy gating'
 
 ## Фаза 2: Gate в enroll-student
 
 - [ ] Task: Написать тесты enroll-student с gate
-  - [ ] запись на N+1 без `advanced + wants_next` на N → ошибка с названием prev модуля
-  - [ ] запись на N+1 с `advanced + wants_next` на N → успех, новая Student-запись (enrolled) + +STUDENT
+  - [ ] запись на N+1 без `advanced` на N → ошибка с названием prev модуля
+  - [ ] запись на N+1 с `advanced` на N → успех, новая Student-запись (enrolled) + +STUDENT
   - [ ] предыдущая Student-запись НЕ меняется (остаётся advanced)
 
 - [ ] Task: Интегрировать gate в enroll-student-uc
@@ -45,7 +44,7 @@
 
 ## Фаза 4: E2E + документация
 
-- [ ] Task: E2E: студент с advanced+wants_next на Синтаксисе → записывается на Алгоритмику
+- [ ] Task: E2E: студент с advanced на Синтаксисе → записывается на Алгоритмику
 - [ ] Task: E2E: студент с not_advanced на Синтаксисе → получает отказ при попытке записи на Алгоритмику
 - [ ] Task: Обновить `architecture-evolution.md` (отметить gating) и `ui-spec.md`
 - [ ] Task: Conductor - Ручная верификация 'E2E gating'
