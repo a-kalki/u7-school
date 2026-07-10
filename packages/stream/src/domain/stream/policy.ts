@@ -1,4 +1,4 @@
-import type { Course } from '@u7-scl/course/domain';
+import { type Course, CoursePolicy } from '@u7-scl/course/domain';
 import { type User, UserPolicy } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
 import type { Student } from '../student/entity';
@@ -42,6 +42,9 @@ export const StreamPolicy = {
    * Проверяет, может ли студент записаться на следующий модуль курса.
    * Гейт: первый модуль разрешён всем, остальные — только после advanced.
    *
+   * Проверки структуры курса делегируются в CoursePolicy (пакет course).
+   * Здесь — только проверка статуса студента (логика stream).
+   *
    * @param course — курс с фазами и moduleIds
    * @param targetModuleId — модуль, на который планируется запись
    * @param prevModuleStatus — статус студента на предыдущем модуле (undefined если записи нет)
@@ -51,17 +54,13 @@ export const StreamPolicy = {
     targetModuleId: string,
     prevModuleStatus: Student['status'] | undefined,
   ): boolean {
-    // Собираем все moduleIds в линейный порядок по фазам
-    const allModuleIds = course.phases.flatMap((phase) => phase.moduleIds);
-    const targetIndex = allModuleIds.indexOf(targetModuleId);
+    // Модуль не найден в курсе — отказ (проверка структуры курса)
+    if (!CoursePolicy.containsModule(course, targetModuleId)) return false;
 
-    // Модуль не найден в курсе — отказ
-    if (targetIndex === -1) return false;
+    // Первый модуль в курсе — разрешён всем (проверка структуры курса)
+    if (CoursePolicy.isFirstModule(course, targetModuleId)) return true;
 
-    // Первый модуль в курсе — разрешён всем
-    if (targetIndex === 0) return true;
-
-    // Для всех остальных модулей нужен advanced на предыдущем
+    // Для всех остальных модулей нужен advanced на предыдущем (проверка статуса студента)
     return prevModuleStatus === 'advanced';
   },
 };
