@@ -1,6 +1,7 @@
 import { type Course, CoursePolicy } from '@u7-scl/course/domain';
 import { type User, UserPolicy } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
+import type { Student } from '../student/entity';
 import type { Stream } from './entity';
 
 export const StreamPolicy = {
@@ -39,21 +40,27 @@ export const StreamPolicy = {
 
   /**
    * Может ли студент записаться на указанный модуль курса.
-   * Решение: делегирует проверку структуры курса в CoursePolicy,
-   * предварительно извлекая completedModuleIds из stream-объектов.
+   * Сама извлекает completedModuleIds из своих доменных объектов
+   * (фильтрует advanced, сопоставляет streamId → moduleId)
+   * и делегирует решение о структуре курса в CoursePolicy.
    *
    * @param course — курс с фазами и упорядоченными moduleIds
    * @param targetModuleId — модуль, на который планируется запись
-   * @param completedRecords — записи о завершённых потоках студента (streamId, moduleId, status)
+   * @param students — все записи студента (Student)
+   * @param streams — соответствующие потоки (Stream), чтобы взять moduleId
    */
   canEnrollNextModule(
     course: Course,
     targetModuleId: string,
-    completedRecords: { streamId: string; moduleId: string; status: string }[],
+    students: Student[],
+    streams: Stream[],
   ): boolean {
-    const completedModuleIds = completedRecords
-      .filter((r) => r.status === 'advanced')
-      .map((r) => r.moduleId);
+    const streamMap = new Map(streams.map((s) => [s.uuid, s.moduleId]));
+
+    const completedModuleIds = students
+      .filter((s) => s.status === 'advanced')
+      .map((s) => streamMap.get(s.streamId))
+      .filter((id): id is string => id !== undefined);
 
     return CoursePolicy.canEnrollNextModule(
       course,

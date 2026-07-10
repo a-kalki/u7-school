@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { Status } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import { StreamStatus } from '../status';
+import type { Stream } from './entity';
 import { StreamPolicy } from './policy';
 
 // Моковый курс с двумя модулями в двух фазах
@@ -90,66 +91,84 @@ describe('StreamPolicy', () => {
 });
 
 describe('StreamPolicy.canEnrollNextModule', () => {
+  const mockStream = {
+    uuid: 's-syntax',
+    moduleId: 'mod-syntax',
+  } as Stream;
+
+  const mockStudentAdvanced = {
+    uuid: 'st1',
+    streamId: 's-syntax',
+    userId: 'u1',
+    enrolledAt: '2026-01-01T00:00:00.000Z',
+    status: 'advanced' as const,
+    currentStepId: 'step1',
+    steps: [],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  const mockStudentNotAdvanced = {
+    ...mockStudentAdvanced,
+    status: 'not_advanced' as const,
+  };
+
+  const mockStudentAbandoned = {
+    ...mockStudentAdvanced,
+    status: 'abandoned' as const,
+  };
+
   test('входной модуль разрешён без завершённых потоков', () => {
-    expect(StreamPolicy.canEnrollNextModule(mockCourse, 'mod-syntax', [])).toBe(
-      true,
-    );
+    expect(
+      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-syntax', [], []),
+    ).toBe(true);
   });
 
   test('предыдущий модуль завершён с advanced → разрешён', () => {
-    const completedRecords = [
-      { streamId: 's1', moduleId: 'mod-syntax', status: 'advanced' },
-    ];
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
         'mod-algo',
-        completedRecords,
+        [mockStudentAdvanced],
+        [mockStream],
       ),
     ).toBe(true);
   });
 
   test('предыдущий модуль завершён с not_advanced → отказ', () => {
-    const completedRecords = [
-      { streamId: 's1', moduleId: 'mod-syntax', status: 'not_advanced' },
-    ];
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
         'mod-algo',
-        completedRecords,
+        [mockStudentNotAdvanced],
+        [mockStream],
       ),
     ).toBe(false);
   });
 
   test('предыдущий модуль abandoned → отказ', () => {
-    const completedRecords = [
-      { streamId: 's1', moduleId: 'mod-syntax', status: 'abandoned' },
-    ];
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
         'mod-algo',
-        completedRecords,
+        [mockStudentAbandoned],
+        [mockStream],
       ),
     ).toBe(false);
   });
 
   test('нет записи на предыдущий модуль → отказ', () => {
-    expect(StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', [])).toBe(
-      false,
-    );
+    expect(
+      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', [], []),
+    ).toBe(false);
   });
 
   test('модуль не найден в курсе → отказ', () => {
-    const completedRecords = [
-      { streamId: 's1', moduleId: 'mod-syntax', status: 'advanced' },
-    ];
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
         'mod-unknown',
-        completedRecords,
+        [mockStudentAdvanced],
+        [mockStream],
       ),
     ).toBe(false);
   });
