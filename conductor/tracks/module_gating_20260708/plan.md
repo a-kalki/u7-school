@@ -11,9 +11,9 @@
   - [x] есть `abandoned` предыдущего → отказ
   - [x] нет Student-записи на предыдущий модуль → отказ
 
-- [ ] Task: Реализовать CoursePolicy.canEnrollNextModule
-  - [ ] Поиск предыдущего модуля в course.phases (сбор всех moduleIds в линейный порядок)
-  - [ ] Проверка Student-записи: `status === 'advanced'`
+- [x] Task: Реализовать CoursePolicy.canEnrollNextModule [02f2b80]
+  - [x] Поиск предыдущего модуля в course.phases (сбор всех moduleIds в линейный порядок)
+  - [x] Проверка Student-записи: `status === 'advanced'`
 
 - [ ] Task: Conductor - Ручная верификация 'CoursePolicy gating'
 
