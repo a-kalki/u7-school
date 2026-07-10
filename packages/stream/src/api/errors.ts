@@ -1,5 +1,6 @@
 import type {
   AccessDeniedError,
+  BadRequestError,
   ConflictError,
   NotFoundError,
 } from '@u7-scl/core/domain';
@@ -14,8 +15,10 @@ export type StreamConflictUcError = ConflictError<
   'STREAM_CONFLICT',
   { userId?: string; activeCount?: number }
 >;
+export type StreamBadRequestUcError = BadRequestError<'GATE_NOT_PASSED'>;
 
 export type StreamUcErrors =
   | StreamNotFoundUcError
   | StreamAccessDeniedUcError
-  | StreamConflictUcError;
+  | StreamConflictUcError
+  | StreamBadRequestUcError;

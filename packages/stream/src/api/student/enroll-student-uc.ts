@@ -1,4 +1,4 @@
-import { errConflict } from '@u7-scl/core/domain';
+import { errBadRequest, errConflict } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
@@ -9,7 +9,11 @@ import {
   type EnrollStudentCmdMeta,
   EnrollStudentCmdSchema,
 } from '#domain/student/commands/enroll-student-cmd';
-import type { StreamConflictUcError, StreamUcErrors } from '../errors';
+import type {
+  StreamBadRequestUcError,
+  StreamConflictUcError,
+  StreamUcErrors,
+} from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
 /**
@@ -65,6 +69,54 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       }
     }
 
+    // 2. Gate: проверка canEnrollNextModule (доступ к следующему модулю курса)
+    const courseFacade = this.resolve.courseFacade;
+    const course = await courseFacade.getCourseByModuleId(
+      streamEntity.moduleId,
+    );
+    if (course) {
+      // Получаем потоки для записей студента (чтобы сопоставить streamId → moduleId)
+      const studentStreams = (
+        await Promise.all(
+          activeRecords.map((r) =>
+            this.resolve.streamRepo.getByUuid(r.streamId),
+          ),
+        )
+      ).filter((s): s is NonNullable<typeof s> => s !== undefined);
+
+      if (
+        !StreamPolicy.canEnrollNextModule(
+          course,
+          streamEntity.moduleId,
+          activeRecords,
+          studentStreams,
+        )
+      ) {
+        // Находим название предыдущего модуля для сообщения об ошибке
+        const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
+        const targetIndex = allModuleIds.indexOf(streamEntity.moduleId);
+        let prevModuleTitle = 'предыдущий';
+        if (targetIndex > 0) {
+          const prevModuleId = allModuleIds[targetIndex - 1];
+          if (prevModuleId) {
+            try {
+              prevModuleTitle = await courseFacade.getModuleTitle(prevModuleId);
+            } catch {
+              prevModuleTitle = prevModuleId;
+            }
+          }
+        }
+
+        this.throwError(
+          errBadRequest<StreamBadRequestUcError>(
+            'GATE_NOT_PASSED',
+            `Сначала пройдите модуль «${prevModuleTitle}»`,
+            undefined,
+          ) as StreamUcErrors,
+        );
+      }
+    }
+
     const streamAr = new StreamAr(streamEntity);
     const firstStepId = streamAr.getFirstStepId();
 
@@ -72,7 +124,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       this.throwAccessDenied('В потоке нет доступных шагов');
     }
 
-    // 2. Создание записи студента
+    // 3. Создание записи студента
     const studentAr = StudentAr.enroll(
       command.streamId,
       command.userId,
