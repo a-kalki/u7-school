@@ -7,8 +7,8 @@ import type { Course } from './entity';
  * Stateless — проверяет права на основе роли и авторства пользователя.
  *
  * ВАЖНО: логика доменных прав НЕ должна утекать из своего модуля.
- * Проверки, касающиеся структуры курса (фазы, moduleIds), — здесь.
- * Проверки, касающиеся студента (статусы), — в StreamPolicy пакета stream.
+ * Гейтинг (допуск к модулям курса) — здесь, так как решение принимается
+ * на основе структуры курса (фазы, порядок модулей) и списка завершённых модулей.
  */
 export const CoursePolicy = {
   /** Только AUTHOR может создавать курсы. */
@@ -31,19 +31,32 @@ export const CoursePolicy = {
   },
 
   /**
-   * Содержит ли курс указанный модуль.
+   * Может ли студент записаться на указанный модуль курса.
+   * Гейт: входной модуль (первый в последовательности) разрешён всем.
+   * Для остальных — предыдущий модуль должен быть в списке завершённых.
+   *
+   * @param course — курс с фазами и упорядоченными moduleIds
+   * @param targetModuleId — модуль, на который планируется запись
+   * @param completedModuleIds — ID модулей, завершённых студентом со статусом advanced
    */
-  hasModule(course: Course, moduleId: string): boolean {
-    return course.phases.some((phase) => phase.moduleIds.includes(moduleId));
-  },
-
-  /**
-   * Является ли модуль входным в курсе — первым в последовательности,
-   * без пререквизитов. На такой модуль можно записаться без проверки
-   * предыдущих.
-   */
-  isEntryModule(course: Course, moduleId: string): boolean {
+  canEnrollNextModule(
+    course: Course,
+    targetModuleId: string,
+    completedModuleIds: string[],
+  ): boolean {
+    // Собираем все moduleIds в линейный порядок по фазам
     const allModuleIds = course.phases.flatMap((phase) => phase.moduleIds);
-    return allModuleIds.length > 0 && allModuleIds[0] === moduleId;
+    const targetIndex = allModuleIds.indexOf(targetModuleId);
+
+    // Модуль не принадлежит курсу — отказ
+    if (targetIndex === -1) return false;
+
+    // Входной модуль (без пререквизитов) — разрешён всем
+    if (targetIndex === 0) return true;
+
+    // Для остальных — предыдущий модуль должен быть завершён
+    const prevModuleId = allModuleIds[targetIndex - 1];
+    if (!prevModuleId) return false;
+    return completedModuleIds.includes(prevModuleId);
   },
 };

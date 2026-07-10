@@ -1,7 +1,5 @@
-import { type Course, CoursePolicy } from '@u7-scl/course/domain';
 import { type User, UserPolicy } from '@u7-scl/user/domain';
 import { StreamStatus } from '#domain/status';
-import type { Student } from '../student/entity';
 import type { Stream } from './entity';
 
 export const StreamPolicy = {
@@ -36,31 +34,5 @@ export const StreamPolicy = {
 
   isArchived(stream: Stream): boolean {
     return stream.status === StreamStatus.ARCHIVED;
-  },
-
-  /**
-   * Проверяет, может ли студент записаться на следующий модуль курса.
-   * Гейт: первый модуль разрешён всем, остальные — только после advanced.
-   *
-   * Проверки структуры курса делегируются в CoursePolicy (пакет course).
-   * Здесь — только проверка статуса студента (логика stream).
-   *
-   * @param course — курс с фазами и moduleIds
-   * @param targetModuleId — модуль, на который планируется запись
-   * @param prevModuleStatus — статус студента на предыдущем модуле (undefined если записи нет)
-   */
-  canEnrollNextModule(
-    course: Course,
-    targetModuleId: string,
-    prevModuleStatus: Student['status'] | undefined,
-  ): boolean {
-    // Модуль не принадлежит курсу — отказ (hasModule)
-    if (!CoursePolicy.hasModule(course, targetModuleId)) return false;
-
-    // Входной модуль (без пререквизитов) — разрешён всем (isEntryModule)
-    if (CoursePolicy.isEntryModule(course, targetModuleId)) return true;
-
-    // Для всех остальных модулей нужен advanced на предыдущем (проверка статуса студента)
-    return prevModuleStatus === 'advanced';
   },
 };

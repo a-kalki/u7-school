@@ -1,22 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { Status } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import { StreamStatus } from '../status';
 import { StreamPolicy } from './policy';
-
-// Моковый курс с двумя модулями в двух фазах
-const mockCourse = {
-  uuid: 'c1',
-  title: 'Основы JS',
-  description: 'Курс по основам JS',
-  authorId: 'a1',
-  phases: [
-    { title: 'Синтаксис', moduleIds: ['mod-syntax'] },
-    { title: 'Алгоритмика', moduleIds: ['mod-algo'] },
-  ],
-  status: Status.PUBLISHED,
-  createdAt: '2026-01-01T00:00:00.000Z',
-};
 
 const mentorId = 'm1';
 
@@ -86,43 +71,5 @@ describe('StreamPolicy', () => {
       createdAt: '2026-01-01T00:00:00Z',
     };
     expect(StreamPolicy.canEnroll(actor)).toBe(false);
-  });
-});
-
-describe('StreamPolicy.canEnrollNextModule', () => {
-  test('первый модуль курса → разрешён', () => {
-    expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-syntax', undefined),
-    ).toBe(true);
-  });
-
-  test('есть advanced предыдущего модуля → разрешён', () => {
-    expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', 'advanced'),
-    ).toBe(true);
-  });
-
-  test('есть not_advanced предыдущего → отказ', () => {
-    expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', 'not_advanced'),
-    ).toBe(false);
-  });
-
-  test('есть abandoned предыдущего → отказ', () => {
-    expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', 'abandoned'),
-    ).toBe(false);
-  });
-
-  test('нет Student-записи на предыдущий модуль → отказ', () => {
-    expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', undefined),
-    ).toBe(false);
-  });
-
-  test('модуль не найден в курсе → отказ', () => {
-    expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-unknown', 'advanced'),
-    ).toBe(false);
   });
 });
