@@ -19,14 +19,14 @@
 
 ## Фаза 2: Gate в enroll-student
 
-- [ ] Task: Написать тесты enroll-student с gate
-  - [ ] запись на N+1 без `advanced` на N → ошибка с названием prev модуля
-  - [ ] запись на N+1 с `advanced` на N → успех, новая Student-запись (enrolled) + +STUDENT
-  - [ ] предыдущая Student-запись НЕ меняется (остаётся advanced)
+- [x] Task: Написать тесты enroll-student с gate [ae0e4ad]
+  - [x] запись на N+1 без `advanced` на N → ошибка с названием prev модуля
+  - [x] запись на N+1 с `advanced` на N → успех, новая Student-запись (enrolled) + +STUDENT
+  - [x] предыдущая Student-запись НЕ меняется (остаётся advanced)
 
-- [ ] Task: Интегрировать gate в enroll-student-uc
-  - [ ] Получить course по module.courseId, проверить canEnrollNextModule
-  - [ ] При успехе: создать новую Student-запись (enrolled), выдать STUDENT
+- [x] Task: Интегрировать gate в enroll-student-uc [ae0e4ad]
+  - [x] Получить course по module.courseId, проверить canEnrollNextModule
+  - [x] При успехе: создать новую Student-запись (enrolled), выдать STUDENT
 
 - [ ] Task: Conductor - Ручная верификация 'Gate зачисления'
 
