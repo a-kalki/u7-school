@@ -1,0 +1,17 @@
+Задача: Написать тесты canEnrollNextModule (Фаза 1)
+
+Изменения:
+- packages/stream/src/domain/stream/policy.ts: добавлен метод canEnrollNextModule
+- packages/stream/src/domain/stream/policy.test.ts: 6 новых тестов
+
+Причина: реализация гейта модулей — студент может записаться на следующий модуль курса только имея статус 'advanced' на предыдущем.
+
+Тесты:
+- первый модуль курса → разрешён
+- есть advanced предыдущего → разрешён
+- есть not_advanced → отказ
+- есть abandoned → отказ
+- нет записи на предыдущий → отказ
+- модуль не найден в курсе → отказ
+
+Покрытие: 90% строк, 96.77% функций (stream/policy.ts)
