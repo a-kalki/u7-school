@@ -74,7 +74,6 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // 2. Доменная операция: проверка правил зачисления
     const streamAr = new StreamAr(streamEntity);
     const { firstStepId } = streamAr.enroll({
-      userId: command.userId,
       enrollmentKey: command.enrollmentKey,
       course,
       existingStudents,

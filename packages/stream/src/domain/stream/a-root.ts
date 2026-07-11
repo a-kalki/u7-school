@@ -103,7 +103,6 @@ export class StreamAr extends Aggregate<StreamArMeta> {
    * @throws BadRequestError при нарушении любого правила
    */
   enroll(params: {
-    userId: string;
     enrollmentKey?: string;
     course?: Course;
     existingStudents: Student[];
