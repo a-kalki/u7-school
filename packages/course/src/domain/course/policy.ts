@@ -43,7 +43,7 @@ export const CoursePolicy = {
     targetModuleId: string,
     completedModuleIds: string[],
   ): boolean {
-    const prevModuleId = this.getPrevModuleId(course, targetModuleId);
+    const prevModuleId = new CourseAr(course).getPrevModuleId(targetModuleId);
 
     // Модуль не принадлежит курсу — отказ
     if (prevModuleId === null) return false;
@@ -53,16 +53,5 @@ export const CoursePolicy = {
 
     // Для остальных — предыдущий модуль должен быть завершён
     return completedModuleIds.includes(prevModuleId);
-  },
-
-  /**
-   * ID предыдущего модуля в линейном порядке фаз курса.
-   * Делегирует в CourseAr.
-   */
-  getPrevModuleId(
-    course: Course,
-    targetModuleId: string,
-  ): string | undefined | null {
-    return new CourseAr(course).getPrevModuleId(targetModuleId);
   },
 };

@@ -653,8 +653,8 @@ describe('EnrollStudentUc', () => {
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
-    // removeRoleFromUser не должен вызываться для не-CANDIDATE
-    expect(mockUserFacade.removeRoleFromUser).not.toHaveBeenCalled();
+    // removeRoleFromUser вызывается всегда (идемпотентен)
+    expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalled();
   });
 
   // ── Gate: проверка canEnrollNextModule ──

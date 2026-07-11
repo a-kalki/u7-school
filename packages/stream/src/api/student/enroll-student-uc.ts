@@ -1,4 +1,4 @@
-import { CoursePolicy } from '@u7-scl/course/domain';
+import { CourseAr } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
@@ -58,8 +58,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // Название предыдущего модуля для сообщения об ошибке gate
     let prevModuleTitle: string | undefined;
     if (course) {
-      const prevModuleId = CoursePolicy.getPrevModuleId(
-        course,
+      const prevModuleId = new CourseAr(course).getPrevModuleId(
         streamEntity.moduleId,
       );
       if (prevModuleId) {
@@ -89,15 +88,12 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // 4. Выдача роли STUDENT
     await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
 
-    // 5. Снятие роли CANDIDATE, если была
-    const user = await userFacade.getUserByUuid(command.userId, actorId);
-    if (user?.roles.includes(Role.CANDIDATE)) {
-      await userFacade.removeRoleFromUser(
-        command.userId,
-        Role.CANDIDATE,
-        actorId,
-      );
-    }
+    // 5. Снятие роли CANDIDATE
+    await userFacade.removeRoleFromUser(
+      command.userId,
+      Role.CANDIDATE,
+      actorId,
+    );
 
     return undefined;
   }
