@@ -5,27 +5,34 @@
     "userId": "44444444-4444-4444-4444-444444444444",
     "enrolledAt": "2026-06-01T00:00",
     "status": "active",
-    "currentStepId": "d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2",
+    "currentStepId": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
     "steps": [
       {
         "stepId": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
-        "status": "completed",
-        "issuedAt": "2026-06-01T00:00",
-        "completedAt": "2026-07-09T18:37"
-      },
-      {
-        "stepId": "d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1",
-        "status": "completed",
-        "issuedAt": "2026-07-09T18:37",
-        "completedAt": "2026-07-09T18:37"
-      },
-      {
-        "stepId": "d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2",
         "status": "issued",
-        "issuedAt": "2026-07-09T18:37"
+        "issuedAt": "2026-06-01T00:00"
       }
     ],
-    "createdAt": "2026-06-01T00:00",
-    "updatedAt": "2026-07-09T18:37"
+    "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1",
+    "streamId": "e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1",
+    "userId": "44444444-4444-4444-4444-444444444444",
+    "enrolledAt": "2026-06-01T00:00",
+    "status": "advanced",
+    "currentStepId": "d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3",
+    "steps": [],
+    "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "f2f2f2f2-f2f2-f2f2-f2f2-f2f2f2f2f2f2",
+    "streamId": "e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1",
+    "userId": "44444444-4444-4444-4444-444444444444",
+    "enrolledAt": "2026-06-01T00:00",
+    "status": "not_advanced",
+    "currentStepId": "d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3",
+    "steps": [],
+    "createdAt": "2026-06-01T00:00"
   }
 ]

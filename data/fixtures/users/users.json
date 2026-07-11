@@ -12,13 +12,5 @@
     "telegramId": 8781337572,
     "roles": ["ADMIN"],
     "createdAt": "2026-01-06T00:00"
-  },
-  {
-    "uuid": "82bc94fa-3cd2-490b-83bd-202a80b3570b",
-    "name": "Haruki",
-    "telegramId": 6405395176,
-    "roles": ["GUEST"],
-    "createdAt": "2026-07-09T18:35",
-    "nick": "onseeker"
   }
 ]

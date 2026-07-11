@@ -154,5 +154,31 @@
       }
     ],
     "createdAt": "2026-07-01T00:00"
+  },
+  {
+    "uuid": "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5",
+    "title": "Алгоритмика — Поток 1",
+    "description": "Поток по алгоритмам",
+    "mentorId": "44444444-4444-4444-4444-444444444444",
+    "moduleId": "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1",
+    "startDate": "2026-08-01T00:00",
+    "status": "enrollment",
+    "telegramGroupId": "-1006666666666",
+    "goal": "Научиться алгоритмам",
+    "result": "Решение олимпиадных задач",
+    "contentSnapshot": [
+      {
+        "projectId": "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
+        "projectTitle": "Базовые алгоритмы",
+        "lessons": [
+          {
+            "lessonId": "c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2",
+            "lessonTitle": "Линейный поиск",
+            "stepIds": ["e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"]
+          }
+        ]
+      }
+    ],
+    "createdAt": "2026-07-01T00:00"
   }
 ]
