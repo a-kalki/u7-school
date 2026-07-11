@@ -1,3 +1,4 @@
+import { CoursePolicy } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
@@ -65,16 +66,16 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // Название предыдущего модуля для сообщения об ошибке gate
     let prevModuleTitle: string | undefined;
     if (course) {
-      const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
-      const targetIndex = allModuleIds.indexOf(streamEntity.moduleId);
-      if (targetIndex > 0) {
-        const prevModuleId = allModuleIds[targetIndex - 1];
-        if (prevModuleId) {
-          try {
-            prevModuleTitle = await courseFacade.getModuleTitle(prevModuleId);
-          } catch {
-            prevModuleTitle = prevModuleId;
-          }
+      const prevModuleId = CoursePolicy.getPrevModuleId(
+        course,
+        streamEntity.moduleId,
+      );
+      if (prevModuleId) {
+        try {
+          const prevModule = await courseFacade.getModule(prevModuleId);
+          prevModuleTitle = prevModule.title;
+        } catch {
+          prevModuleTitle = prevModuleId;
         }
       }
     }

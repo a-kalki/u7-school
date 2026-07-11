@@ -1,5 +1,6 @@
 import type { ContentSnapshot } from './content-snapshot';
 import type { Course } from './course/entity';
+import type { Module } from './module/entity';
 import type { Step } from './step/entity';
 
 /** Программа курса — агрегация снимков модулей по фазам */
@@ -28,6 +29,6 @@ export interface CourseFacade {
   /** Найти курс, содержащий указанный модуль */
   getCourseByModuleId(moduleId: string): Promise<Course | undefined>;
 
-  /** Получить название модуля */
-  getModuleTitle(moduleId: string): Promise<string>;
+  /** Получить модуль */
+  getModule(moduleId: string): Promise<Module>;
 }

@@ -20,11 +20,10 @@ export class CourseInProcFacade implements CourseFacade {
     return this.courseModule.execute('get-step', { uuid: stepId });
   }
 
-  async getModuleTitle(moduleId: string): Promise<string> {
-    const mod: Module = await this.courseModule.execute('get-module', {
+  async getModule(moduleId: string): Promise<Module> {
+    return this.courseModule.execute('get-module', {
       uuid: moduleId,
     });
-    return mod.title;
   }
 
   async getCourseByModuleId(moduleId: string): Promise<Course | undefined> {

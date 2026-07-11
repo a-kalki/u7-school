@@ -722,10 +722,12 @@ describe('EnrollStudentUc', () => {
   function makeMockCourseFacade() {
     return {
       getCourseByModuleId: mock(() => Promise.resolve(mockCourse)),
-      getModuleTitle: mock((id: string) => {
-        if (id === syntaxModuleId) return Promise.resolve('Синтаксис');
-        if (id === algoModuleId) return Promise.resolve('Алгоритмика');
-        return Promise.resolve('Неизвестный модуль');
+      getModule: mock((id: string) => {
+        if (id === syntaxModuleId)
+          return Promise.resolve({ title: 'Синтаксис' });
+        if (id === algoModuleId)
+          return Promise.resolve({ title: 'Алгоритмика' });
+        return Promise.resolve({ title: 'Неизвестный модуль' });
       }),
     };
   }

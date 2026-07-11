@@ -79,4 +79,18 @@ export class CourseAr extends Aggregate<CourseArMeta> {
     }
     this.safeUpdate({ status: Status.PUBLISHED });
   }
+
+  /**
+   * ID предыдущего модуля в линейном порядке фаз (статический).
+   */
+  static getPrevModuleId(
+    course: Course,
+    targetModuleId: string,
+  ): string | undefined | null {
+    const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
+    const targetIndex = allModuleIds.indexOf(targetModuleId);
+    if (targetIndex === -1) return null;
+    if (targetIndex === 0) return undefined;
+    return allModuleIds[targetIndex - 1] ?? null;
+  }
 }

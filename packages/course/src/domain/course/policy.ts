@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/user/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
+import { CourseAr } from './a-root';
 import type { Course } from './entity';
 
 /**
@@ -42,19 +43,26 @@ export const CoursePolicy = {
     targetModuleId: string,
     completedModuleIds: string[],
   ): boolean {
-    // Собираем все moduleIds в линейный порядок по фазам
-    const allModuleIds = course.phases.flatMap((phase) => phase.moduleIds);
-    const targetIndex = allModuleIds.indexOf(targetModuleId);
+    const prevModuleId = this.getPrevModuleId(course, targetModuleId);
 
     // Модуль не принадлежит курсу — отказ
-    if (targetIndex === -1) return false;
+    if (prevModuleId === null) return false;
 
     // Входной модуль (без пререквизитов) — разрешён всем
-    if (targetIndex === 0) return true;
+    if (prevModuleId === undefined) return true;
 
     // Для остальных — предыдущий модуль должен быть завершён
-    const prevModuleId = allModuleIds[targetIndex - 1];
-    if (!prevModuleId) return false;
     return completedModuleIds.includes(prevModuleId);
+  },
+
+  /**
+   * ID предыдущего модуля в линейном порядке фаз курса.
+   * Делегирует в CourseAr.
+   */
+  getPrevModuleId(
+    course: Course,
+    targetModuleId: string,
+  ): string | undefined | null {
+    return CourseAr.getPrevModuleId(course, targetModuleId);
   },
 };
