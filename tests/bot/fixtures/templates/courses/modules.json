@@ -21,5 +21,25 @@
       }
     ],
     "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1",
+    "title": "Алгоритмика",
+    "description": "Изучаем алгоритмы и структуры данных",
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "status": "published",
+    "targetAudience": "Знающие основы JavaScript",
+    "goal": "Научиться решать алгоритмические задачи",
+    "result": "Вы будете уметь проектировать эффективные алгоритмы",
+    "rules": "Будьте усердны",
+    "projects": [
+      {
+        "uuid": "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
+        "title": "Базовые алгоритмы",
+        "status": "published",
+        "lessonIds": ["c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"]
+      }
+    ],
+    "createdAt": "2026-06-15T00:00"
   }
 ]

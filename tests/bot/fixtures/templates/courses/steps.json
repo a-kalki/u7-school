@@ -34,5 +34,14 @@
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-01T02:01"
+  },
+  {
+    "uuid": "e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6",
+    "moduleId": "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1",
+    "description": "Шаг 1: линейный поиск в массиве",
+    "content": "## Линейный поиск\n\nПроходим по массиву и ищем элемент.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-15T01:00"
   }
 ]
