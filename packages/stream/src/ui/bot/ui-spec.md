@@ -380,7 +380,7 @@ p{project}:l{lesson}:s{step} ████████░░ {percent}% ({done}/{
 
 **Доменная логика действий:**
 - `mark-abandoned` → `StudentAr.markAbandoned()` (статус `abandoned`, `abandonDetails: { who: 'mentor', cause: 'inactivity' }`), `−STUDENT`. Запись **не удаляется**.
-- `complete-student` → `StudentAr.advance()` / `markNotAdvanced()` / `markAbandoned()` по выбранному исходу, `−STUDENT`; для `advanced`/`not_advanced` — TgFacade-сообщение студенту (предложение следующего шага, трек 3).
+- `complete-student` → `StudentAr.advance()` / `markNotAdvanced()` / `markAbandoned()` по выбранному исходу, `−STUDENT`; для `advanced`/`not_advanced` — TgFacade-сообщение студенту (предложение следующего шага, трек 3) — **отложено** (см. техдолг трека `module_gating_20260708`).
 
 ---
 

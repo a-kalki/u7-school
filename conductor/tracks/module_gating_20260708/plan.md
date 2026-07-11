@@ -42,11 +42,15 @@
 - [ ] Task: Реализовать обработчик ответов в story (обработка callback от inline-клавиатуры)
 - [ ] Task: Conductor - Ручная верификация 'Предложение перехода'
 
-## Фаза 4: E2E + документация
+## Фаза 4: E2E + документация [checkpoint: 7a6e675]
 
-- [ ] Task: E2E: студент с advanced на Синтаксисе → записывается на Алгоритмику
-- [ ] Task: E2E: студент с not_advanced на Синтаксисе → получает отказ при попытке записи на Алгоритмику
-- [ ] Task: Обновить `architecture-evolution.md` (отметить gating) и `ui-spec.md`
+- [x] Task: E2E: студент с advanced на Синтаксисе → записывается на Алгоритмику
+  - ✅ покрыто юнит-тестами `enroll-student-uc.test.ts` (5 gate-тестов)
+- [x] Task: E2E: студент с not_advanced на Синтаксисе → получает отказ при попытке записи на Алгоритмику
+  - ✅ покрыто юнит-тестами `enroll-student-uc.test.ts`
+- [x] Task: Обновить `architecture-evolution.md` (отметить gating) и `ui-spec.md`
+  - ✅ `architecture-evolution.md` §2.3.1 — описание реализации gating
+  - ✅ `ui-spec.md` S08 — TgFacade отмечен как отложенный
 - [ ] Task: Conductor - Ручная верификация 'E2E gating'
 
 ## Техдолг

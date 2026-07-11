@@ -95,6 +95,14 @@ enrolled → active → abandoned  (self-drop / mentor-by-inactivity)
 - UC: `complete-student` (ментор выбирает abandoned|advanced|not_advanced), `drop-student` (self), `mark-abandoned` (mentor), `set-next-preference` (self).
 - `CompleteStreamUc` — упрощён: проверяет отсутствие active-студентов и завершает поток (stream.complete). Статусы студентов меняются **индивидуально** через `complete-student` (ментор нажимает кнопку исхода для каждого). Для advanced/not_advanced `complete-student` сразу отправляет сообщение через `TgFacade` (telegramId получается через `userFacade`).
 - **Миграция:** `dropped`→`abandoned`+`abandonDetails:{who:'self',cause:'voluntary'}`, `expelled`→`abandoned`+`abandonDetails:{who:'mentor',cause:'by_mentor'}`. Решается на месте (процесс живой).
+- **Реализовано:** трек `student_lifecycle_20260708`. ✅
+
+#### 2.3.1. Gating модулей (порядок прохождения курса)
+- `CoursePolicy.canEnrollNextModule(course, targetModuleId, completedModuleIds)`: `boolean` — проверяет, что все предыдущие модули в `course.phases` присутствуют в `completedModuleIds`.
+- Навигация по структуре курса: `CourseAr.getPrevModuleId(targetModuleId)` — метод экземпляра (не Policy, не статика).
+- Gate в `enroll-student`: `StreamAr.enroll()` вызывает `StreamPolicy.canEnrollNextModule()` → `CoursePolicy.canEnrollNextModule()`.
+- `StreamAr.enroll()` — только проверка правил, возвращает `{ firstStepId }`. Создание `StudentAr` — в UC.
+- **Реализовано:** трек `module_gating_20260708` (Фазы 1, 2, 4). Фаза 3 (TgFacade-сообщение) отложена — конфликт перехвата состояния бота. ✅
 
 ### 2.4. TgFacade — порт в core, реализация в app
 - Интерфейс `TgFacade` в `core` (порт: отправка сообщения по telegramId, batch-рассылка). Не знает о приложении.
