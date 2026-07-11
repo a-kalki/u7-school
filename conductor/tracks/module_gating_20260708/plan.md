@@ -44,10 +44,8 @@
 
 ## Фаза 4: E2E + документация [checkpoint: 7a6e675]
 
-- [x] Task: E2E: студент с advanced на Синтаксисе → записывается на Алгоритмику
-  - ✅ покрыто юнит-тестами `enroll-student-uc.test.ts` (5 gate-тестов)
-- [x] Task: E2E: студент с not_advanced на Синтаксисе → получает отказ при попытке записи на Алгоритмику
-  - ✅ покрыто юнит-тестами `enroll-student-uc.test.ts`
+- [ ] Task: E2E: студент с advanced на Синтаксисе → записывается на Алгоритмику
+- [ ] Task: E2E: студент с not_advanced на Синтаксисе → получает отказ при попытке записи на Алгоритмику
 - [x] Task: Обновить `architecture-evolution.md` (отметить gating) и `ui-spec.md`
   - ✅ `architecture-evolution.md` §2.3.1 — описание реализации gating
   - ✅ `ui-spec.md` S08 — TgFacade отмечен как отложенный
