@@ -2,7 +2,6 @@ import { CoursePolicy } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
-import { StreamPolicy } from '#domain/stream/policy';
 import { StudentAr } from '#domain/student/a-root';
 import {
   type EnrollStudentCmd,
@@ -38,14 +37,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     const userFacade = this.resolve.userFacade;
     const courseFacade = this.resolve.courseFacade;
 
-    const actor = await this.getActor(actorId);
-
-    // 1. Авторизация — только GUEST или CANDIDATE
-    if (!StreamPolicy.canEnroll(actor)) {
-      this.throwAccessDenied('Вы не можете записаться на этот поток');
-    }
-
-    // 2. Получение данных для доменной операции
+    // 1. Получение данных для доменной операции
     const streamEntity = await this.getStream(command.streamId);
     const existingStudents = await studentRepo.getByUser(command.userId);
 
@@ -80,7 +72,7 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       }
     }
 
-    // 3. Доменная операция: проверка правил + создание StudentAr
+    // 2. Доменная операция: проверка правил + создание StudentAr
     const streamAr = new StreamAr(streamEntity);
     const studentAr = streamAr.enroll({
       userId: command.userId,
@@ -91,13 +83,13 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       prevModuleTitle,
     });
 
-    // 4. Сохранение
+    // 3. Сохранение
     await studentRepo.save(studentAr.state);
 
-    // 5. Выдача роли STUDENT
+    // 4. Выдача роли STUDENT
     await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
 
-    // 6. Снятие роли CANDIDATE, если была
+    // 5. Снятие роли CANDIDATE, если была
     const user = await userFacade.getUserByUuid(command.userId, actorId);
     if (user?.roles.includes(Role.CANDIDATE)) {
       await userFacade.removeRoleFromUser(

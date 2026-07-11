@@ -84,45 +84,6 @@ describe('EnrollStudentUc', () => {
     );
   });
 
-  test('бросает ошибку для STUDENT', async () => {
-    const mockUserFacade = {
-      getUserByUuid: mock(() =>
-        Promise.resolve({
-          uuid: '99999999-9999-4999-8999-999999999999',
-          name: 'Student',
-          telegramId: 3,
-          roles: [Role.STUDENT],
-          createdAt: mockDate,
-        }),
-      ),
-      userExists: mock(() => Promise.resolve(true)),
-      updateUserRole: mock(() => Promise.resolve(undefined)),
-      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
-      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
-      registerGuest: mock(() => Promise.resolve({} as any)),
-    };
-
-    const uc = new EnrollStudentUc();
-    uc.init({
-      userFacade: mockUserFacade,
-      streamRepo: {},
-      streamStudentRepo: {},
-      courseFacade: {
-        getCourseByModuleId: mock(() => Promise.resolve(undefined)),
-      },
-    } as unknown as StreamApiModuleResolver);
-
-    await expect(
-      uc.execute(
-        {
-          streamId: '11111111-1111-4111-8111-111111111111',
-          userId: '99999999-9999-4999-8999-999999999999',
-        },
-        '99999999-9999-4999-8999-999999999999',
-      ),
-    ).rejects.toThrow();
-  });
-
   test('ошибка если у пользователя уже есть активный поток', async () => {
     const mockUserFacade = {
       getUserByUuid: mock(() =>
