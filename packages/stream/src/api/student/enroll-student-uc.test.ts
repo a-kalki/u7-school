@@ -147,12 +147,12 @@ describe('EnrollStudentUc', () => {
       getByUser: mock(() =>
         Promise.resolve([
           {
-            uuid: 'existing-active',
-            streamId: 'other-stream',
+            uuid: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+            streamId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
             userId: '99999999-9999-4999-8999-999999999999',
             enrolledAt: mockDate,
             status: 'active',
-            currentStepId: 'some-step',
+            currentStepId: '66666666-6666-4666-8666-666666666666',
             steps: [],
             createdAt: mockDate,
           },
@@ -160,10 +160,54 @@ describe('EnrollStudentUc', () => {
       ),
     };
 
+    const mockStreamRepo = {
+      getByUuid: mock((id: string) => {
+        if (id === '11111111-1111-4111-8111-111111111111')
+          return Promise.resolve({
+            uuid: '11111111-1111-4111-8111-111111111111',
+            title: 'Test Stream',
+            description: 'Test desc',
+            mentorId: '22222222-2222-4222-8222-222222222222',
+            moduleId: '33333333-3333-4333-8333-333333333333',
+            startDate: mockDate,
+            status: 'enrollment',
+            contentSnapshot: [
+              {
+                projectId: '44444444-4444-4444-8444-444444444444',
+                projectTitle: 'P1',
+                lessons: [
+                  {
+                    lessonId: '55555555-5555-4555-8555-555555555555',
+                    lessonTitle: 'L1',
+                    stepIds: ['66666666-6666-4666-8666-666666666666'],
+                  },
+                ],
+              },
+            ],
+            createdAt: mockDate,
+          });
+        if (id === 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
+          return Promise.resolve({
+            uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+            title: 'Other',
+            description: 'Test desc',
+            mentorId: '22222222-2222-4222-8222-222222222222',
+            moduleId: '33333333-3333-4333-8333-333333333334',
+            startDate: mockDate,
+            status: 'active',
+            contentSnapshot: [],
+            createdAt: mockDate,
+          });
+        return Promise.resolve(undefined);
+      }),
+      save: mock(() => Promise.resolve()),
+      getAll: mock(() => Promise.resolve([])),
+    };
+
     const uc = new EnrollStudentUc();
     uc.init({
       userFacade: mockUserFacade,
-      streamRepo: {},
+      streamRepo: mockStreamRepo,
       streamStudentRepo: mockStudentRepo,
       courseFacade: {
         getCourseByModuleId: mock(() => Promise.resolve(undefined)),

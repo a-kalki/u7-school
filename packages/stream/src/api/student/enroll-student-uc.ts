@@ -1,4 +1,3 @@
-import { errBadRequest, errConflict } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { StreamAr } from '#domain/stream/a-root';
@@ -9,15 +8,14 @@ import {
   type EnrollStudentCmdMeta,
   EnrollStudentCmdSchema,
 } from '#domain/student/commands/enroll-student-cmd';
-import type {
-  StreamBadRequestUcError,
-  StreamConflictUcError,
-  StreamUcErrors,
-} from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
 /**
  * Use-case зачисления студента на поток.
+ *
+ * Оркестрирует получение данных и делегирует доменную логику
+ * (проверку enrollmentKey, конфликта активных записей и gate)
+ * в StreamAr.enroll().
  */
 export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
   protected readonly ucName = 'enroll-student' as const;
@@ -37,105 +35,68 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
   ): Promise<undefined> {
     const studentRepo = this.resolve.streamStudentRepo;
     const userFacade = this.resolve.userFacade;
+    const courseFacade = this.resolve.courseFacade;
 
     const actor = await this.getActor(actorId);
 
-    // 1. Проверка, не учится ли уже (политика)
+    // 1. Авторизация — только GUEST или CANDIDATE
     if (!StreamPolicy.canEnroll(actor)) {
       this.throwAccessDenied('Вы не можете записаться на этот поток');
     }
 
-    // 1.5 Проверка, нет ли уже активной записи в другом потоке
-    const activeRecords = await studentRepo.getByUser(command.userId);
-    const hasActive = activeRecords.some(
-      (r) => r.status === 'active' || r.status === 'enrolled',
-    );
-    if (hasActive) {
-      this.throwError(
-        errConflict<StreamConflictUcError>(
-          'STREAM_CONFLICT',
-          'Вы уже проходите обучение в другом потоке',
-          { userId: command.userId },
-        ) as StreamUcErrors,
-      );
-    }
-
+    // 2. Получение данных для доменной операции
     const streamEntity = await this.getStream(command.streamId);
+    const existingStudents = await studentRepo.getByUser(command.userId);
 
-    // Проверка кодового слова (если задано у потока)
-    if (streamEntity.enrollmentKey) {
-      if (streamEntity.enrollmentKey !== command.enrollmentKey) {
-        this.throwAccessDenied('Неверное кодовое слово');
-      }
-    }
+    // Получаем потоки для записей студента (сопоставление streamId → moduleId)
+    const studentStreams = (
+      await Promise.all(
+        existingStudents.map((r) =>
+          this.resolve.streamRepo.getByUuid(r.streamId),
+        ),
+      )
+    ).filter((s): s is NonNullable<typeof s> => s !== undefined);
 
-    // 2. Gate: проверка canEnrollNextModule (доступ к следующему модулю курса)
-    const courseFacade = this.resolve.courseFacade;
+    // Курс для gate-проверки
     const course = await courseFacade.getCourseByModuleId(
       streamEntity.moduleId,
     );
-    if (course) {
-      // Получаем потоки для записей студента (чтобы сопоставить streamId → moduleId)
-      const studentStreams = (
-        await Promise.all(
-          activeRecords.map((r) =>
-            this.resolve.streamRepo.getByUuid(r.streamId),
-          ),
-        )
-      ).filter((s): s is NonNullable<typeof s> => s !== undefined);
 
-      if (
-        !StreamPolicy.canEnrollNextModule(
-          course,
-          streamEntity.moduleId,
-          activeRecords,
-          studentStreams,
-        )
-      ) {
-        // Находим название предыдущего модуля для сообщения об ошибке
-        const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
-        const targetIndex = allModuleIds.indexOf(streamEntity.moduleId);
-        let prevModuleTitle = 'предыдущий';
-        if (targetIndex > 0) {
-          const prevModuleId = allModuleIds[targetIndex - 1];
-          if (prevModuleId) {
-            try {
-              prevModuleTitle = await courseFacade.getModuleTitle(prevModuleId);
-            } catch {
-              prevModuleTitle = prevModuleId;
-            }
+    // Название предыдущего модуля для сообщения об ошибке gate
+    let prevModuleTitle: string | undefined;
+    if (course) {
+      const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
+      const targetIndex = allModuleIds.indexOf(streamEntity.moduleId);
+      if (targetIndex > 0) {
+        const prevModuleId = allModuleIds[targetIndex - 1];
+        if (prevModuleId) {
+          try {
+            prevModuleTitle = await courseFacade.getModuleTitle(prevModuleId);
+          } catch {
+            prevModuleTitle = prevModuleId;
           }
         }
-
-        this.throwError(
-          errBadRequest<StreamBadRequestUcError>(
-            'GATE_NOT_PASSED',
-            `Сначала пройдите модуль «${prevModuleTitle}»`,
-            undefined,
-          ) as StreamUcErrors,
-        );
       }
     }
 
+    // 3. Доменная операция: проверка правил + создание StudentAr
     const streamAr = new StreamAr(streamEntity);
-    const firstStepId = streamAr.getFirstStepId();
+    const studentAr = streamAr.enroll({
+      userId: command.userId,
+      enrollmentKey: command.enrollmentKey,
+      course,
+      existingStudents,
+      studentStreams,
+      prevModuleTitle,
+    });
 
-    if (!firstStepId) {
-      this.throwAccessDenied('В потоке нет доступных шагов');
-    }
-
-    // 3. Создание записи студента
-    const studentAr = StudentAr.enroll(
-      command.streamId,
-      command.userId,
-      firstStepId,
-    );
+    // 4. Сохранение
     await studentRepo.save(studentAr.state);
 
-    // 3. Выдача роли STUDENT
+    // 5. Выдача роли STUDENT
     await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
 
-    // 4. Снятие роли CANDIDATE, если была
+    // 6. Снятие роли CANDIDATE, если была
     const user = await userFacade.getUserByUuid(command.userId, actorId);
     if (user?.roles.includes(Role.CANDIDATE)) {
       await userFacade.removeRoleFromUser(

@@ -1,7 +1,9 @@
 import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import type { ContentSnapshot } from '@u7-scl/course/domain';
+import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { StreamStatus } from '../status';
+import { StudentAr } from '../student/a-root';
+import type { Student } from '../student/entity';
 import type { CreateStreamCmd } from './commands/create-stream-cmd';
 import type { Stream, StreamArMeta } from './entity';
 import { StreamSchema } from './entity';
@@ -88,6 +90,65 @@ export class StreamAr extends Aggregate<StreamArMeta> {
     this.safeUpdate({
       status: StreamStatus.ARCHIVED,
     });
+  }
+
+  /**
+   * Зачисление студента на поток.
+   *
+   * Проверяет все бизнес-правила:
+   * - enrollmentKey (если задан)
+   * - отсутствие активной записи в другом потоке
+   * - gate: canEnrollNextModule (доступ к следующему модулю курса)
+   *
+   * @returns StudentAr — новый агрегат студента (enrolled)
+   * @throws BadRequestError при нарушении любого правила
+   */
+  enroll(params: {
+    userId: string;
+    enrollmentKey?: string;
+    course?: Course;
+    existingStudents: Student[];
+    studentStreams: Stream[];
+    prevModuleTitle?: string;
+  }): StudentAr {
+    // 1. Проверка кодового слова
+    if (this._state.enrollmentKey) {
+      if (this._state.enrollmentKey !== params.enrollmentKey) {
+        this.throwBadRequest('Неверное кодовое слово');
+      }
+    }
+
+    // 2. Проверка на конфликт активных записей
+    const hasActive = params.existingStudents.some(
+      (s) => s.status === 'active' || s.status === 'enrolled',
+    );
+    if (hasActive) {
+      this.throwBadRequest('Вы уже проходите обучение в другом потоке');
+    }
+
+    // 3. Gate: проверка доступа к модулю курса (только если курс известен)
+    if (
+      params.course &&
+      !StreamPolicy.canEnrollNextModule(
+        params.course,
+        this._state.moduleId,
+        params.existingStudents,
+        params.studentStreams,
+      )
+    ) {
+      this.throwBadRequest(
+        `Сначала пройдите модуль «${params.prevModuleTitle ?? 'предыдущий'}»`,
+      );
+    }
+
+    // 4. Получение первого шага
+    const firstStepId = this.getFirstStepId();
+    if (!firstStepId) {
+      this.throwBadRequest('В потоке нет доступных шагов');
+    }
+
+    // 5. Создание записи студента
+    return StudentAr.enroll(this._state.uuid, params.userId, firstStepId);
   }
 
   /**
