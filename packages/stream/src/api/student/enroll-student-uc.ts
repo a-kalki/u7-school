@@ -71,9 +71,9 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       }
     }
 
-    // 2. Доменная операция: проверка правил + создание StudentAr
+    // 2. Доменная операция: проверка правил зачисления
     const streamAr = new StreamAr(streamEntity);
-    const studentAr = streamAr.enroll({
+    const { firstStepId } = streamAr.enroll({
       userId: command.userId,
       enrollmentKey: command.enrollmentKey,
       course,
@@ -82,13 +82,20 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       prevModuleTitle,
     });
 
-    // 3. Сохранение
+    // 3. Создание записи студента
+    const studentAr = StudentAr.enroll(
+      streamEntity.uuid,
+      command.userId,
+      firstStepId,
+    );
+
+    // 4. Сохранение
     await studentRepo.save(studentAr.state);
 
-    // 4. Выдача роли STUDENT
+    // 5. Выдача роли STUDENT
     await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
 
-    // 5. Снятие роли CANDIDATE
+    // 6. Снятие роли CANDIDATE
     await userFacade.removeRoleFromUser(
       command.userId,
       Role.CANDIDATE,

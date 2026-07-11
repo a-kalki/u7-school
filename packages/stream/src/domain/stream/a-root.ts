@@ -2,7 +2,6 @@ import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { StreamStatus } from '../status';
-import { StudentAr } from '../student/a-root';
 import type { Student } from '../student/entity';
 import type { CreateStreamCmd } from './commands/create-stream-cmd';
 import type { Stream, StreamArMeta } from './entity';
@@ -100,7 +99,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
    * - отсутствие активной записи в другом потоке
    * - gate: canEnrollNextModule (доступ к следующему модулю курса)
    *
-   * @returns StudentAr — новый агрегат студента (enrolled)
+   * @returns { firstStepId } — ID первого шага потока для создания StudentAr
    * @throws BadRequestError при нарушении любого правила
    */
   enroll(params: {
@@ -110,7 +109,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
     existingStudents: Student[];
     studentStreams: Stream[];
     prevModuleTitle?: string;
-  }): StudentAr {
+  }): { firstStepId: string } {
     // 1. Проверка кодового слова
     if (this._state.enrollmentKey) {
       if (this._state.enrollmentKey !== params.enrollmentKey) {
@@ -147,8 +146,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
       this.throwBadRequest('В потоке нет доступных шагов');
     }
 
-    // 5. Создание записи студента
-    return StudentAr.enroll(this._state.uuid, params.userId, firstStepId);
+    return { firstStepId };
   }
 
   /**
