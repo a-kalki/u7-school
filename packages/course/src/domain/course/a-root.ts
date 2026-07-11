@@ -83,11 +83,8 @@ export class CourseAr extends Aggregate<CourseArMeta> {
   /**
    * ID предыдущего модуля в линейном порядке фаз (статический).
    */
-  static getPrevModuleId(
-    course: Course,
-    targetModuleId: string,
-  ): string | undefined | null {
-    const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
+  getPrevModuleId(targetModuleId: string): string | undefined | null {
+    const allModuleIds = this._state.phases.flatMap((p) => p.moduleIds);
     const targetIndex = allModuleIds.indexOf(targetModuleId);
     if (targetIndex === -1) return null;
     if (targetIndex === 0) return undefined;

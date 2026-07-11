@@ -91,61 +91,117 @@ describe('CoursePolicy', () => {
     it('входной модуль разрешён без завершённых модулей', () => {
       const course = makeCourse(authorId);
       course.phases = [
-        { title: 'Синтаксис', moduleIds: ['mod-syntax'] },
-        { title: 'Алгоритмика', moduleIds: ['mod-algo'] },
+        {
+          title: 'Синтаксис',
+          moduleIds: ['33333333-3333-4333-8333-333333333333'],
+        },
+        {
+          title: 'Алгоритмика',
+          moduleIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+        },
       ];
-      expect(CoursePolicy.canEnrollNextModule(course, 'mod-syntax', [])).toBe(
-        true,
-      );
+      expect(
+        CoursePolicy.canEnrollNextModule(
+          course,
+          '33333333-3333-4333-8333-333333333333',
+          [],
+        ),
+      ).toBe(true);
     });
 
     it('предыдущий модуль завершён → разрешён', () => {
       const course = makeCourse(authorId);
       course.phases = [
-        { title: 'Синтаксис', moduleIds: ['mod-syntax'] },
-        { title: 'Алгоритмика', moduleIds: ['mod-algo'] },
+        {
+          title: 'Синтаксис',
+          moduleIds: ['33333333-3333-4333-8333-333333333333'],
+        },
+        {
+          title: 'Алгоритмика',
+          moduleIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+        },
       ];
       expect(
-        CoursePolicy.canEnrollNextModule(course, 'mod-algo', ['mod-syntax']),
+        CoursePolicy.canEnrollNextModule(
+          course,
+          'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          ['33333333-3333-4333-8333-333333333333'],
+        ),
       ).toBe(true);
     });
 
     it('предыдущий модуль не завершён → отказ', () => {
       const course = makeCourse(authorId);
       course.phases = [
-        { title: 'Синтаксис', moduleIds: ['mod-syntax'] },
-        { title: 'Алгоритмика', moduleIds: ['mod-algo'] },
+        {
+          title: 'Синтаксис',
+          moduleIds: ['33333333-3333-4333-8333-333333333333'],
+        },
+        {
+          title: 'Алгоритмика',
+          moduleIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+        },
       ];
-      expect(CoursePolicy.canEnrollNextModule(course, 'mod-algo', [])).toBe(
-        false,
-      );
+      expect(
+        CoursePolicy.canEnrollNextModule(
+          course,
+          'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          [],
+        ),
+      ).toBe(false);
     });
 
     it('завершён другой модуль, но не предыдущий → отказ', () => {
       const course = makeCourse(authorId);
       course.phases = [
-        { title: 'Синтаксис', moduleIds: ['mod-syntax'] },
-        { title: 'Алгоритмика', moduleIds: ['mod-algo'] },
-        { title: 'Продвинутый', moduleIds: ['mod-advanced'] },
+        {
+          title: 'Синтаксис',
+          moduleIds: ['33333333-3333-4333-8333-333333333333'],
+        },
+        {
+          title: 'Алгоритмика',
+          moduleIds: ['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'],
+        },
+        {
+          title: 'Продвинутый',
+          moduleIds: ['bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'],
+        },
       ];
       expect(
-        CoursePolicy.canEnrollNextModule(course, 'mod-advanced', [
-          'mod-syntax',
-        ]),
+        CoursePolicy.canEnrollNextModule(
+          course,
+          'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+          ['33333333-3333-4333-8333-333333333333'],
+        ),
       ).toBe(false);
     });
 
     it('модуль не найден в курсе → отказ', () => {
       const course = makeCourse(authorId);
-      course.phases = [{ title: 'Синтаксис', moduleIds: ['mod-syntax'] }];
+      course.phases = [
+        {
+          title: 'Синтаксис',
+          moduleIds: ['33333333-3333-4333-8333-333333333333'],
+        },
+      ];
       expect(
-        CoursePolicy.canEnrollNextModule(course, 'mod-unknown', ['mod-syntax']),
+        CoursePolicy.canEnrollNextModule(
+          course,
+          'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+          ['33333333-3333-4333-8333-333333333333'],
+        ),
       ).toBe(false);
     });
 
     it('пустой курс → отказ', () => {
       const course = makeCourse(authorId);
-      expect(CoursePolicy.canEnrollNextModule(course, 'mod-1', [])).toBe(false);
+      expect(
+        CoursePolicy.canEnrollNextModule(
+          course,
+          'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+          [],
+        ),
+      ).toBe(false);
     });
   });
 });

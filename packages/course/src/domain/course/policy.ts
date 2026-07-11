@@ -63,6 +63,6 @@ export const CoursePolicy = {
     course: Course,
     targetModuleId: string,
   ): string | undefined | null {
-    return CourseAr.getPrevModuleId(course, targetModuleId);
+    return new CourseAr(course).getPrevModuleId(targetModuleId);
   },
 };

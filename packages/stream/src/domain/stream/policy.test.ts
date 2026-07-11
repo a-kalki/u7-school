@@ -5,18 +5,21 @@ import { StreamStatus } from '../status';
 import type { Stream } from './entity';
 import { StreamPolicy } from './policy';
 
+const syntaxModuleId = '33333333-3333-4333-8333-333333333333';
+const algoModuleId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
 // Моковый курс с двумя модулями в двух фазах
 const mockCourse = {
-  uuid: 'c1',
+  uuid: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   title: 'Основы JS',
   description: 'Курс по основам JS',
-  authorId: 'a1',
+  authorId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   phases: [
-    { title: 'Синтаксис', moduleIds: ['mod-syntax'] },
-    { title: 'Алгоритмика', moduleIds: ['mod-algo'] },
+    { title: 'Синтаксис', moduleIds: [syntaxModuleId] },
+    { title: 'Алгоритмика', moduleIds: [algoModuleId] },
   ],
   status: Status.PUBLISHED,
-  createdAt: '2026-01-01T00:00:00.000Z',
+  createdAt: '2026-01-01T00:00',
 };
 
 const mentorId = 'm1';
@@ -93,7 +96,7 @@ describe('StreamPolicy', () => {
 describe('StreamPolicy.canEnrollNextModule', () => {
   const mockStream = {
     uuid: 's-syntax',
-    moduleId: 'mod-syntax',
+    moduleId: syntaxModuleId,
   } as Stream;
 
   const mockStudentAdvanced = {
@@ -119,7 +122,7 @@ describe('StreamPolicy.canEnrollNextModule', () => {
 
   test('входной модуль разрешён без завершённых потоков', () => {
     expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-syntax', [], []),
+      StreamPolicy.canEnrollNextModule(mockCourse, syntaxModuleId, [], []),
     ).toBe(true);
   });
 
@@ -127,7 +130,7 @@ describe('StreamPolicy.canEnrollNextModule', () => {
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
-        'mod-algo',
+        algoModuleId,
         [mockStudentAdvanced],
         [mockStream],
       ),
@@ -138,7 +141,7 @@ describe('StreamPolicy.canEnrollNextModule', () => {
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
-        'mod-algo',
+        algoModuleId,
         [mockStudentNotAdvanced],
         [mockStream],
       ),
@@ -149,7 +152,7 @@ describe('StreamPolicy.canEnrollNextModule', () => {
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
-        'mod-algo',
+        algoModuleId,
         [mockStudentAbandoned],
         [mockStream],
       ),
@@ -158,7 +161,7 @@ describe('StreamPolicy.canEnrollNextModule', () => {
 
   test('нет записи на предыдущий модуль → отказ', () => {
     expect(
-      StreamPolicy.canEnrollNextModule(mockCourse, 'mod-algo', [], []),
+      StreamPolicy.canEnrollNextModule(mockCourse, algoModuleId, [], []),
     ).toBe(false);
   });
 
@@ -166,7 +169,7 @@ describe('StreamPolicy.canEnrollNextModule', () => {
     expect(
       StreamPolicy.canEnrollNextModule(
         mockCourse,
-        'mod-unknown',
+        'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
         [mockStudentAdvanced],
         [mockStream],
       ),
