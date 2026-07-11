@@ -17,7 +17,7 @@
 
 - [x] Task: Conductor - Ручная верификация 'CoursePolicy gating' [9fc959e]
 
-## Фаза 2: Gate в enroll-student
+## Фаза 2: Gate в enroll-student [checkpoint: 0c50300]
 
 - [x] Task: Написать тесты enroll-student с gate [ae0e4ad]
   - [x] запись на N+1 без `advanced` на N → ошибка с названием prev модуля
@@ -28,7 +28,7 @@
   - [x] Получить course по module.courseId, проверить canEnrollNextModule
   - [x] При успехе: создать новую Student-запись (enrolled), выдать STUDENT
 
-- [ ] Task: Conductor - Ручная верификация 'Gate зачисления'
+- [x] Task: Conductor - Ручная верификация 'Gate зачисления' [0c50300]
 
 ## Фаза 3: Предложение перехода (TgFacade-сообщение + обработка ответа)
 
