@@ -1,0 +1,8 @@
+{
+  "track_id": "module_gating_20260708",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-07-08T00:00:00Z",
+  "updated_at": "2026-07-08T00:00:00Z",
+  "description": "Gating модулей: правило последовательности (Синтаксис → Алгоритмика), проверка prerequisite при зачислении, переход completed→advanced"
+}
