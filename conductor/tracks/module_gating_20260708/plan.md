@@ -51,7 +51,8 @@
 - [x] Task: Обновить `architecture-evolution.md` (отметить gating) и `ui-spec.md`
   - ✅ `architecture-evolution.md` §2.3.1 — описание реализации gating
   - ✅ `ui-spec.md` S08 — TgFacade отмечен как отложенный
-- [ ] Task: Conductor - Ручная верификация 'E2E gating'
+- [x] Task: Conductor - Ручная верификация 'E2E gating'
+  - ✅ бот-уровень E2E проходят, пользователь подтвердил
 
 ## Техдолг
 
