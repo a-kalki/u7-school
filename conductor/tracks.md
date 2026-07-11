@@ -16,8 +16,7 @@
 
 ## Релиз 2 — UX ядра продукта
 
-- [x] ~~**Track: Gating модулей (Синтаксис → Алгоритмика)**~~ — *зависит: трек 0, трек 1*
-*Link: [./tracks/module_gating_20260708/](./tracks/module_gating_20260708/)*
+- [x] ~~**Track: Gating модулей (Синтаксис → Алгоритмика)**~~ → [архив](./archive/module_gating_20260708/)
 
 - [ ] **Track: Навигация студента** — *зависит: трек 1, трек 2*
 *Link: [./tracks/student_navigation_20260708/](./tracks/student_navigation_20260708/)*
