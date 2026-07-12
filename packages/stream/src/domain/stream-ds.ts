@@ -1,6 +1,53 @@
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { StreamAr } from './stream/a-root';
 import type { StudentAr } from './student/a-root';
+import type { StepRecord } from './student/entity';
 import type { CompletionResult } from './types';
+
+// ── Типы для навигации и прогресса ──
+
+/** Узел шага в дереве навигации */
+export type StepNode = {
+  stepId: string;
+  status: 'completed' | 'current' | 'locked';
+};
+
+/** Представление шагов урока для рендеринга */
+export type LessonStepsView = {
+  lessonTitle: string;
+  lessonIndex: number; // 1-based
+  projectTitle: string;
+  projectIndex: number; // 1-based
+  steps: StepNode[];
+};
+
+/** Узел урока в дереве навигации */
+export type LessonNode = {
+  lessonId: string;
+  title: string;
+  completedSteps: number;
+  totalSteps: number;
+};
+
+/** Узел проекта в дереве навигации */
+export type ProjectNode = {
+  title: string;
+  completedLessons: number;
+  totalLessons: number;
+  lessons: LessonNode[];
+};
+
+/** Полное дерево навигации: проекты → уроки с прогрессом */
+export type NavigationTree = {
+  projects: ProjectNode[];
+};
+
+/** Прогресс студента: завершено / всего / процент */
+export type Progress = {
+  completed: number;
+  total: number;
+  percent: number;
+};
 
 export const StreamDs = {
   /**
@@ -45,5 +92,128 @@ export const StreamDs = {
 
     // Обычный шаг
     return { level: 'step', currentStepId: nextStepId };
+  },
+
+  /**
+   * Прогресс студента: сколько шагов завершено из общего числа.
+   * Используется progress.story и monitor.story.
+   */
+  computeProgress(
+    snapshot: ContentSnapshot,
+    student: { steps: StepRecord[] },
+  ): Progress {
+    const total = snapshot.reduce(
+      (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
+      0,
+    );
+    const completed = student.steps.filter(
+      (s) => s.status === 'completed',
+    ).length;
+    return {
+      completed,
+      total,
+      percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+    };
+  },
+
+  /**
+   * Дерево навигации: проекты → уроки с прогрессом.
+   * Только проекты, где есть ≥1 завершённый или выданный шаг.
+   * Используется learning.story (#showProjects, #showLessons).
+   */
+  buildNavigationTree(
+    snapshot: ContentSnapshot,
+    student: { steps: StepRecord[] },
+  ): NavigationTree {
+    const completedIds = new Set(
+      student.steps
+        .filter((s) => s.status === 'completed')
+        .map((s) => s.stepId),
+    );
+    const allIds = new Set(student.steps.map((s) => s.stepId));
+
+    const projects: ProjectNode[] = [];
+
+    for (const p of snapshot) {
+      const lessons: LessonNode[] = [];
+      let completedLessons = 0;
+      let hasActivity = false;
+
+      for (const l of p.lessons) {
+        const completed = l.stepIds.filter((sid) =>
+          completedIds.has(sid),
+        ).length;
+        const hasStep =
+          l.stepIds.some((sid) => allIds.has(sid)) || completed > 0;
+
+        if (hasStep) hasActivity = true;
+        if (completed > 0) completedLessons++;
+
+        lessons.push({
+          lessonId: l.lessonId,
+          title: l.lessonTitle,
+          completedSteps: completed,
+          totalSteps: l.stepIds.length,
+        });
+      }
+
+      if (!hasActivity) continue;
+
+      projects.push({
+        title: p.projectTitle,
+        completedLessons,
+        totalLessons: p.lessons.length,
+        lessons,
+      });
+    }
+
+    return { projects };
+  },
+
+  /**
+   * Шаги конкретного урока с заголовками и статусами.
+   * Используется learning.story (#showSteps, #showStepView).
+   */
+  buildLessonSteps(
+    snapshot: ContentSnapshot,
+    lessonId: string,
+    student: {
+      steps: StepRecord[];
+      currentStepId: string;
+    },
+  ): LessonStepsView | null {
+    const statusMap = new Map<string, 'completed' | 'issued'>();
+    for (const sr of student.steps) {
+      if (sr.status === 'completed' || sr.status === 'issued') {
+        statusMap.set(sr.stepId, sr.status);
+      }
+    }
+
+    for (let pi = 0; pi < snapshot.length; pi++) {
+      const project = snapshot[pi];
+      if (!project) continue;
+
+      for (let li = 0; li < project.lessons.length; li++) {
+        const lesson = project.lessons[li];
+        if (!lesson || lesson.lessonId !== lessonId) continue;
+
+        const steps: StepNode[] = lesson.stepIds.map((stepId) => {
+          const status = statusMap.get(stepId);
+          if (status === 'completed') return { stepId, status: 'completed' };
+          if (status === 'issued') return { stepId, status: 'current' };
+          return { stepId, status: 'locked' };
+        });
+
+        return {
+          lessonTitle: lesson.lessonTitle,
+          lessonIndex: li + 1,
+          projectTitle: project.projectTitle,
+          projectIndex: pi + 1,
+          steps,
+        };
+      }
+    }
+
+    return null;
   },
 };

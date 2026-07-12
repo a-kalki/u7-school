@@ -215,3 +215,226 @@ describe('StreamDs.completeStep — определение уровней (мн�
     expect(student.state.status).toBe('enrolled');
   });
 });
+
+// ── Новые методы: навигация и прогресс ──
+
+function studentWithSteps(overrides?: {
+  currentStepId?: string;
+  completed?: string[];
+  issued?: string[];
+}) {
+  return {
+    steps: [
+      ...(overrides?.completed ?? []).map((stepId) => ({
+        stepId,
+        status: 'completed' as const,
+        issuedAt: '2026-06-01T00:00',
+        completedAt: '2026-06-01T01:00',
+      })),
+      ...(overrides?.issued ?? []).map((stepId) => ({
+        stepId,
+        status: 'issued' as const,
+        issuedAt: '2026-06-01T00:00',
+      })),
+    ],
+    currentStepId: overrides?.currentStepId ?? '',
+  };
+}
+
+describe('StreamDs.computeProgress', () => {
+  test('0/2 — студент только начал', () => {
+    const student = studentWithSteps({
+      issued: ['77777777-7777-4777-8777-777777777777'],
+      currentStepId: '77777777-7777-4777-8777-777777777777',
+    });
+
+    const result = StreamDs.computeProgress(snapshot, student);
+
+    expect(result).toEqual({ completed: 0, total: 2, percent: 0 });
+  });
+
+  test('1/2 — один шаг завершён', () => {
+    const student = studentWithSteps({
+      completed: ['77777777-7777-4777-8777-777777777777'],
+      issued: ['88888888-8888-4888-8888-888888888888'],
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+
+    const result = StreamDs.computeProgress(snapshot, student);
+
+    expect(result).toEqual({ completed: 1, total: 2, percent: 50 });
+  });
+
+  test('2/2 — все шаги завершены', () => {
+    const student = studentWithSteps({
+      completed: [
+        '77777777-7777-4777-8777-777777777777',
+        '88888888-8888-4888-8888-888888888888',
+      ],
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+
+    const result = StreamDs.computeProgress(snapshot, student);
+
+    expect(result).toEqual({ completed: 2, total: 2, percent: 100 });
+  });
+
+  test('многопроектный: 3/4', () => {
+    const student = studentWithSteps({
+      completed: [
+        '77777777-7777-4777-8777-777777777777',
+        '88888888-8888-4888-8888-888888888888',
+        'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      ],
+      issued: ['dddddddd-dddd-4ddd-8ddd-dddddddddddd'],
+      currentStepId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    });
+
+    const result = StreamDs.computeProgress(multiSnapshot, student);
+
+    expect(result).toEqual({ completed: 3, total: 4, percent: 75 });
+  });
+});
+
+describe('StreamDs.buildNavigationTree', () => {
+  test('пустое дерево — нет активности', () => {
+    const student = studentWithSteps();
+
+    const result = StreamDs.buildNavigationTree(snapshot, student);
+
+    expect(result.projects).toHaveLength(0);
+  });
+
+  test('один проект с 1/2 уроками', () => {
+    const student = studentWithSteps({
+      completed: ['77777777-7777-4777-8777-777777777777'],
+      issued: ['88888888-8888-4888-8888-888888888888'],
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+
+    const result = StreamDs.buildNavigationTree(snapshot, student);
+
+    expect(result.projects).toHaveLength(1);
+    expect(result.projects[0]!.title).toBe('П1');
+    expect(result.projects[0]!.completedLessons).toBe(1);
+    expect(result.projects[0]!.totalLessons).toBe(1);
+    expect(result.projects[0]!.lessons).toHaveLength(1);
+    expect(result.projects[0]!.lessons[0]!.title).toBe('У1');
+    expect(result.projects[0]!.lessons[0]!.completedSteps).toBe(1);
+    expect(result.projects[0]!.lessons[0]!.totalSteps).toBe(2);
+  });
+
+  test('полное завершение — всё посчитано', () => {
+    const student = studentWithSteps({
+      completed: [
+        '77777777-7777-4777-8777-777777777777',
+        '88888888-8888-4888-8888-888888888888',
+      ],
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+
+    const result = StreamDs.buildNavigationTree(snapshot, student);
+
+    expect(result.projects[0]!.completedLessons).toBe(1);
+  });
+
+  test('многопроектный: П1 активен, П2 скрыт', () => {
+    const student = studentWithSteps({
+      issued: ['77777777-7777-4777-8777-777777777777'],
+      currentStepId: '77777777-7777-4777-8777-777777777777',
+    });
+
+    const result = StreamDs.buildNavigationTree(multiSnapshot, student);
+
+    expect(result.projects).toHaveLength(1);
+    expect(result.projects[0]!.title).toBe('П1');
+  });
+
+  test('многопроектный: оба проекта видны', () => {
+    const student = studentWithSteps({
+      completed: [
+        '77777777-7777-4777-8777-777777777777',
+        '88888888-8888-4888-8888-888888888888',
+        'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      ],
+      issued: ['dddddddd-dddd-4ddd-8ddd-dddddddddddd'],
+      currentStepId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    });
+
+    const result = StreamDs.buildNavigationTree(multiSnapshot, student);
+
+    expect(result.projects).toHaveLength(2);
+    expect(result.projects[0]!.completedLessons).toBe(2);
+    expect(result.projects[0]!.lessons).toHaveLength(2);
+    expect(result.projects[1]!.title).toBe('П2');
+    expect(result.projects[1]!.completedLessons).toBe(0);
+    expect(result.projects[1]!.lessons).toHaveLength(1);
+  });
+});
+
+describe('StreamDs.buildLessonSteps', () => {
+  test('шаги урока: completed + current', () => {
+    const student = studentWithSteps({
+      completed: ['77777777-7777-4777-8777-777777777777'],
+      issued: ['88888888-8888-4888-8888-888888888888'],
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+
+    const result = StreamDs.buildLessonSteps(
+      snapshot,
+      '66666666-6666-4666-8666-666666666666',
+      student,
+    );
+
+    expect(result).not.toBeNull();
+    expect(result!.lessonTitle).toBe('У1');
+    expect(result!.projectTitle).toBe('П1');
+    expect(result!.steps).toHaveLength(2);
+    expect(result!.steps[0]!.status).toBe('completed');
+    expect(result!.steps[1]!.status).toBe('current');
+  });
+
+  test('шаги урока: completed + locked', () => {
+    const student = studentWithSteps({
+      completed: ['77777777-7777-4777-8777-777777777777'],
+      currentStepId: '77777777-7777-4777-8777-777777777777',
+    });
+
+    const result = StreamDs.buildLessonSteps(
+      snapshot,
+      '66666666-6666-4666-8666-666666666666',
+      student,
+    );
+
+    expect(result!.steps[0]!.status).toBe('completed');
+    expect(result!.steps[1]!.status).toBe('locked');
+  });
+
+  test('несуществующий урок → null', () => {
+    const student = studentWithSteps();
+
+    const result = StreamDs.buildLessonSteps(
+      snapshot,
+      '00000000-0000-4000-8000-000000000000',
+      student,
+    );
+
+    expect(result).toBeNull();
+  });
+
+  test('индексы 1-based', () => {
+    const student = studentWithSteps({
+      issued: ['dddddddd-dddd-4ddd-8ddd-dddddddddddd'],
+      currentStepId: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    });
+
+    const result = StreamDs.buildLessonSteps(
+      multiSnapshot,
+      'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      student,
+    );
+
+    expect(result!.projectIndex).toBe(2);
+    expect(result!.lessonIndex).toBe(1);
+  });
+});

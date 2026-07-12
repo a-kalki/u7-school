@@ -2,6 +2,7 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { CourseDs } from '@u7-scl/course/domain';
+import { StreamDs } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
 import { StudentPolicy } from '../../../domain/student/policy';
@@ -89,17 +90,17 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     });
 
     const ds = new CourseDs();
-    const totalSteps = ds.countTotalSteps(stream.contentSnapshot);
+    const totalSteps = StreamDs.computeProgress(stream.contentSnapshot, {
+      steps: [],
+    }).total;
 
     const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const s of students) {
-      const completed = s.steps.filter(
-        (st) => st.status === 'completed',
-      ).length;
-      const pct =
-        totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
+      const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
+      const completed = progress.completed;
+      const pct = progress.percent;
 
       const barLen = 10;
       const filled = Math.round((pct / 100) * barLen);
@@ -196,12 +197,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    const ds = new CourseDs();
-    const totalSteps = ds.countTotalSteps(stream.contentSnapshot);
-    const completed = student.steps.filter(
-      (st) => st.status === 'completed',
-    ).length;
-    const pct = totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
+    const progress = StreamDs.computeProgress(stream.contentSnapshot, student);
+    const pct = progress.percent;
+    const stepsLabel = this.escapeMarkdown(`(${pct}%)`);
 
     const statusLabels: Record<string, string> = {
       active: '🟢 Активен',
@@ -214,7 +212,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `👤 *${this.escapeMarkdown(userName)}*`,
       '',
       `📊 Статус: ${statusLabels[student.status] ?? student.status}`,
-      `📈 Прогресс: ${completed} из ${totalSteps} шагов ${this.escapeMarkdown(`(${pct}%)`)}`,
+      `📈 Прогресс: ${progress.completed} из ${progress.total} шагов ${stepsLabel}`,
     ];
 
     const currentStep = student.steps.find(

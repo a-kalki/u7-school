@@ -15,6 +15,7 @@ import {
 } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { Student } from '#domain/index';
+import { StreamDs } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
@@ -301,39 +302,17 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const { student, stream } = await this.#getStudentAndStream(actor);
     if (!student || !stream) return student as BotResponse;
 
-    const _ds = new CourseDs();
-    const completedStepIds = new Set(
-      student.steps
-        .filter((s) => s.status === 'completed')
-        .map((s) => s.stepId),
-    );
-    const allStepIds = new Set(student.steps.map((s) => s.stepId));
+    const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
 
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
-    for (let pi = 0; pi < stream.contentSnapshot.length; pi++) {
-      const project = stream.contentSnapshot[pi];
-      if (!project) continue;
-
-      let completedLessons = 0;
-      let hasIssued = false;
-      for (const lesson of project.lessons) {
-        const hasCompletedInLesson = lesson.stepIds.some((sid) =>
-          completedStepIds.has(sid),
-        );
-        if (hasCompletedInLesson) completedLessons++;
-        const hasIssuedInLesson = lesson.stepIds.some((sid) =>
-          allStepIds.has(sid),
-        );
-        if (hasIssuedInLesson) hasIssued = true;
-      }
-
-      // Показываем только проекты с ≥1 completed или issued шагом
-      if (completedLessons === 0 && !hasIssued) continue;
+    for (let pi = 0; pi < tree.projects.length; pi++) {
+      const p = tree.projects[pi];
+      if (!p) continue;
 
       rows.push([
         {
-          text: `📁 ${project.projectTitle} (${completedLessons}/${project.lessons.length})`,
+          text: `📁 ${p.title} (${p.completedLessons}/${p.totalLessons})`,
           code: this.cb('my-study:project', String(pi + 1)),
         },
       ]);
@@ -361,8 +340,9 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const { student, stream } = await this.#getStudentAndStream(actor);
     if (!student || !stream) return student as BotResponse;
 
-    const _ds = new CourseDs();
-    const project = stream.contentSnapshot[projectIndex - 1];
+    const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
+
+    const project = tree.projects[projectIndex - 1];
     if (!project) {
       return this.#editOrSend(
         { sendMessage: { text: '⚠️ Проект не найден' } },
@@ -370,21 +350,12 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       );
     }
 
-    const completedStepIds = new Set(
-      student.steps
-        .filter((s) => s.status === 'completed')
-        .map((s) => s.stepId),
-    );
-
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const lesson of project.lessons) {
-      const completed = lesson.stepIds.filter((sid) =>
-        completedStepIds.has(sid),
-      ).length;
       rows.push([
         {
-          text: `📝 ${lesson.lessonTitle} (${completed}/${lesson.stepIds.length})`,
+          text: `📝 ${lesson.title} (${lesson.completedSteps}/${lesson.totalSteps})`,
           code: this.cb('my-study:lesson', lesson.lessonId),
         },
       ]);
@@ -396,7 +367,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const description: BotResponse = {
       sendMessage: {
-        text: `📂 *Уроки* › ${this.escapeMarkdown(project.projectTitle)}\n\nВыберите урок:`,
+        text: `📂 *Уроки* › ${this.escapeMarkdown(project.title)}\n\nВыберите урок:`,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -414,42 +385,17 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const { student, stream } = await this.#getStudentAndStream(actor);
     if (!student || !stream) return student as BotResponse;
 
-    const _ds = new CourseDs();
+    const view = StreamDs.buildLessonSteps(
+      stream.contentSnapshot,
+      lessonId,
+      student,
+    );
 
-    // Найти урок в снапшоте
-    let lessonData: {
-      lessonTitle: string;
-      stepIds: string[];
-    } | null = null;
-    let projectData: { projectTitle: string; projectIndex: number } | null =
-      null;
-
-    for (let pi = 0; pi < stream.contentSnapshot.length; pi++) {
-      const project = stream.contentSnapshot[pi];
-      if (!project) continue;
-      for (const lesson of project.lessons) {
-        if (lesson.lessonId === lessonId) {
-          lessonData = lesson;
-          projectData = {
-            projectTitle: project.projectTitle,
-            projectIndex: pi + 1,
-          };
-          break;
-        }
-      }
-      if (lessonData) break;
-    }
-
-    if (!lessonData || !projectData) {
+    if (!view) {
       return this.#editOrSend(
         { sendMessage: { text: '⚠️ Урок не найден' } },
         session,
       );
-    }
-
-    const stepStatuses = new Map<string, 'completed' | 'issued'>();
-    for (const sr of student.steps) {
-      stepStatuses.set(sr.stepId, sr.status as 'completed' | 'issued');
     }
 
     // Собираем описания шагов
@@ -459,12 +405,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       marker: string;
     }> = [];
 
-    for (const stepId of lessonData.stepIds) {
-      const status = stepStatuses.get(stepId);
+    for (const s of view.steps) {
       let marker: string;
-      if (status === 'completed') {
+      if (s.status === 'completed') {
         marker = '✅';
-      } else if (status === 'issued') {
+      } else if (s.status === 'current') {
         marker = '▶️';
       } else {
         marker = '🔒';
@@ -473,18 +418,18 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       // Получаем описание шага (только заголовок)
       let description = '';
       try {
-        const step = await this.appApi.execute('get-step', { uuid: stepId });
+        const step = await this.appApi.execute('get-step', { uuid: s.stepId });
         description = (step as { description?: string }).description ?? '';
       } catch {
         description = '';
       }
 
-      stepsWithDesc.push({ stepId, description, marker });
+      stepsWithDesc.push({ stepId: s.stepId, description, marker });
     }
 
     const esc = this.escapeMarkdown;
     const lines: string[] = [
-      `📂 *Уроки* › ${esc(projectData.projectTitle)} › ${esc(lessonData.lessonTitle)}`,
+      `📂 *Уроки* › ${esc(view.projectTitle)} › ${esc(view.lessonTitle)}`,
       '',
     ];
 
@@ -513,7 +458,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     rows.push([
       {
         text: '⬅️ Назад к урокам',
-        code: this.cb('my-study:project', String(projectData.projectIndex)),
+        code: this.cb('my-study:project', String(view.projectIndex)),
       },
     ]);
 

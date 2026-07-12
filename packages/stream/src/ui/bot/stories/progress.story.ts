@@ -2,6 +2,7 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { CourseDs } from '@u7-scl/course/domain';
+import { StreamDs } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
@@ -44,11 +45,8 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Прогресс
     const ds = new CourseDs();
-    const totalSteps = ds.countTotalSteps(stream.contentSnapshot);
-    const completed = student.steps.filter(
-      (s) => s.status === 'completed',
-    ).length;
-    const pct = totalSteps > 0 ? Math.round((completed / totalSteps) * 100) : 0;
+    const progress = StreamDs.computeProgress(stream.contentSnapshot, student);
+    const pct = progress.percent;
 
     const barLength = 10;
     const filled = Math.round((pct / 100) * barLength);
@@ -71,7 +69,7 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
       `📝 Урок: ${this.escapeMarkdown(pos?.lessonTitle || '—')}`,
       '',
       `${bar} ${pct}%`,
-      `✅ ${completed} / ${totalSteps} шагов`,
+      `✅ ${progress.completed} / ${progress.total} шагов`,
     ];
 
     if (stream.telegramGroupInvite) {
