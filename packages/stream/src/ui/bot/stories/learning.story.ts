@@ -19,7 +19,7 @@ import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US-4: Прохождение обучения (активная фаза).
- * Показывает текущий шаг с телом, обрабатывает завершение шага.
+ * Показывает хаб «Моя учёба», текущий шаг с телом, обрабатывает завершение шага.
  */
 export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'learning';
@@ -35,7 +35,16 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#handleComplete(action, actor);
     }
     if (action === 'my-study') {
+      return this.#showHub(actor);
+    }
+    if (action === 'my-study:continue') {
       return this.#showCurrentStep(actor);
+    }
+    if (action === 'my-study:leave-confirm') {
+      return this.#showLeaveConfirm(actor);
+    }
+    if (action === 'my-study:leave') {
+      return this.#executeLeave(actor);
     }
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
@@ -95,6 +104,46 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         },
       };
     }
+  }
+
+  // ── Приватные методы: хаб ──
+
+  /** Показывает хаб «Моя учёба» с кнопками действий. */
+  async #showHub(actor: User): Promise<BotResponse> {
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return studentResult.value;
+
+    const student = studentResult.value;
+    const isFinished =
+      student.status === 'advanced' ||
+      student.status === 'not_advanced' ||
+      student.status === 'abandoned';
+
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    if (!isFinished) {
+      rows.push([{ text: '▶️ Продолжить', code: this.cb('my-study:continue') }]);
+      rows.push([{ text: '📂 Уроки', code: this.cb('my-study:lessons') }]);
+    }
+
+    rows.push([
+      {
+        text: '📊 Мой прогресс',
+        code: this.cbFor('progress', 'progress', student.streamId),
+      },
+    ]);
+    rows.push([
+      { text: '🚪 Покинуть поток', code: this.cb('my-study:leave-confirm') },
+    ]);
+    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+
+    return {
+      sendMessage: {
+        text: '📖 *Моя учёба*\n\nВыберите действие:',
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    };
   }
 
   // ── Приватные методы: основной поток ──
@@ -174,6 +223,57 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     return this.#showCurrentStep(actor, result.currentStepId);
+  }
+
+  // ── Приватные методы: выход из потока ──
+
+  async #showLeaveConfirm(actor: User): Promise<BotResponse> {
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return studentResult.value;
+
+    return {
+      sendMessage: {
+        text: '🚪 *Покинуть поток?*\n\nВы уверены, что хотите покинуть поток? Это действие нельзя отменить.',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [
+            [
+              { text: '🚪 Да, покинуть', code: this.cb('my-study:leave') },
+              { text: '❌ Отмена', code: this.cb('my-study') },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    };
+  }
+
+  async #executeLeave(actor: User): Promise<BotResponse> {
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return studentResult.value;
+
+    const student = studentResult.value;
+
+    try {
+      await this.moduleApi.execute(
+        'drop-student',
+        { streamId: student.streamId, studentId: student.uuid },
+        actor.uuid,
+      );
+    } catch (err) {
+      return this.handleError(err);
+    }
+
+    return {
+      sendMessage: {
+        text: '👋 Вы покинули поток. Если захотите вернуться — обратитесь к ментору.',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+          isMultiple: false,
+        },
+      },
+    };
   }
 
   // ── Приватные методы: сборка представления шага ──

@@ -88,7 +88,7 @@ describe('LearningStory', () => {
 
   const defaultAppApi = makeAppApi();
 
-  test('handleCallback("my-study") показывает текущий шаг с телом', async () => {
+  test('handleCallback("my-study:continue") показывает текущий шаг с телом', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
@@ -101,7 +101,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'my-study',
+      'my-study:continue',
       studentActor,
       session,
     );
@@ -124,7 +124,7 @@ describe('LearningStory', () => {
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
-  test('handleCallback("my-study") — студент не записан', async () => {
+  test('handleCallback("my-study") — студент не записан (хаб → ошибка)', async () => {
     const moduleApi = {
       execute: mock(() => {
         throw new Error('not found');
@@ -142,6 +142,123 @@ describe('LearningStory', () => {
     assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('не записаны');
+  });
+
+  // ── Тесты хаба «Моя учёба» (S05) ──
+
+  test('handleCallback("my-study") показывает хаб с 4 кнопками', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, defaultAppApi);
+
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Моя учёба');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Продолжить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Покинуть поток'))).toBe(true);
+  });
+
+  test('handleCallback("my-study") — хаб для завершившего (нет Продолжить и Уроки)', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user')
+          return { ...mockStudent, status: 'advanced' };
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, defaultAppApi);
+
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Продолжить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Покинуть поток'))).toBe(true);
+  });
+
+  test('handleCallback("my-study:leave-confirm") показывает confirm-диалог', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, defaultAppApi);
+
+    const response = await story.handleCallback(
+      'my-study:leave-confirm',
+      studentActor,
+      session,
+    );
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('уверены');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Да'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+  });
+
+  test('handleCallback("my-study:leave") вызывает drop-student', async () => {
+    const executeSpy = mock((_name: string, ..._args: unknown[]) => {
+      if (_name === 'get-student-by-user') return mockStudent;
+      if (_name === 'drop-student') return undefined;
+      return undefined;
+    });
+
+    const moduleApi = {
+      execute: executeSpy,
+    } as unknown as StreamApiModule;
+
+    const story = new LearningStory();
+    story.init(moduleApi, defaultAppApi);
+
+    const response = await story.handleCallback(
+      'my-study:leave',
+      studentActor,
+      session,
+    );
+
+    const dropCalls = executeSpy.mock.calls.filter(
+      (c) => c[0] === 'drop-student',
+    );
+    expect(dropCalls.length).toBe(1);
+    expect(dropCalls[0]![1]).toEqual({
+      streamId: STREAM_ID,
+      studentId: mockStudent.uuid,
+    });
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('поток');
   });
 
   test('handleCallback("complete:...") level=step — показывает следующий шаг', async () => {
@@ -316,7 +433,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'my-study',
+      'my-study:continue',
       studentActor,
       session,
     );
@@ -359,7 +476,7 @@ describe('LearningStory', () => {
     );
 
     const calls = getStudentSpy.mock.calls.filter(
-      (c: [string]) => c[0] === 'get-student-by-user',
+      (c) => c[0] === 'get-student-by-user',
     );
     expect(calls.length).toBeGreaterThanOrEqual(1);
   });
@@ -387,7 +504,7 @@ describe('LearningStory', () => {
 
   // ── Кнопка «↩️ Главное меню» ──
 
-  test('my-study содержит «↩️ Главное меню» последней строкой', async () => {
+  test('my-study:continue содержит «↩️ Главное меню» последней строкой', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
@@ -400,7 +517,7 @@ describe('LearningStory', () => {
     story.init(moduleApi, defaultAppApi);
 
     const response = await story.handleCallback(
-      'my-study',
+      'my-study:continue',
       studentActor,
       session,
     );
