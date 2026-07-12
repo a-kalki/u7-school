@@ -237,7 +237,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     if (result.level === 'lesson' || result.level === 'project') {
-      return this.#announceTransition(result, streamId);
+      return this.#announceTransition(result, streamId, student);
     }
 
     return this.#showCurrentStep(actor, result.currentStepId);
@@ -888,12 +888,14 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       currentStepId?: string;
     },
     streamId: string,
+    student: Student,
   ): Promise<BotResponse> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
     const ds = new CourseDs();
 
     let messageText: string;
     let buttonText: string;
+    let progressLine = '';
 
     if (result.level === 'lesson' && result.completedLessonId) {
       const completedTitle = ds.findLessonTitle(
@@ -902,6 +904,25 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       );
       messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
       buttonText = '▶️ Начать следующий урок';
+
+      // Прогресс проекта
+      for (const project of stream.contentSnapshot) {
+        for (const lesson of project.lessons) {
+          if (lesson.lessonId === result.completedLessonId) {
+            const completed = project.lessons.filter((l) =>
+              l.stepIds.every((s) =>
+                student.steps.some(
+                  (sr) => sr.stepId === s && sr.status === 'completed',
+                ),
+              ),
+            ).length;
+            const total = project.lessons.length;
+            progressLine = `\\n📊 ${this.formatProgressBar(completed, total)} — «${this.escapeMarkdown(project.projectTitle)}»`;
+            break;
+          }
+        }
+        if (progressLine) break;
+      }
     } else if (result.level === 'project' && result.completedProjectId) {
       const completedTitle = ds.findProjectTitle(
         stream.contentSnapshot,
@@ -909,10 +930,25 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       );
       messageText = `🚀 Проект «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
       buttonText = '▶️ Начать следующий проект';
+
+      // Прогресс потока: считаем завершённые проекты
+      const completed = stream.contentSnapshot.filter((p) =>
+        p.lessons.every((l) =>
+          l.stepIds.every((s) =>
+            student.steps.some(
+              (sr) => sr.stepId === s && sr.status === 'completed',
+            ),
+          ),
+        ),
+      ).length;
+      const total = stream.contentSnapshot.length;
+      progressLine = `\\n📊 ${this.formatProgressBar(completed, total)} — «${this.escapeMarkdown(stream.title)}»`;
     } else {
       messageText = '🎉 Отличная работа!';
       buttonText = '▶️ Продолжить';
     }
+
+    messageText += progressLine;
 
     return {
       sendMessage: {

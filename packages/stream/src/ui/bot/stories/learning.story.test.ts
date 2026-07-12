@@ -41,6 +41,10 @@ describe('LearningStory', () => {
     userId: 'user-1',
     status: 'active',
     currentStepId: STEP1_ID,
+    steps: [
+      { stepId: STEP1_ID, status: 'completed' },
+      { stepId: STEP2_ID, status: 'completed' },
+    ],
   };
 
   const mockStream = {
@@ -340,6 +344,10 @@ describe('LearningStory', () => {
     expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(
       true,
     );
+
+    // Прогресс проекта на transition-экране
+    expect(response.sendMessage?.text).toContain('📊');
+    expect(response.sendMessage?.text).toContain('Осн');
   });
 
   test('при завершении проекта — поздравление и кнопка «Начать следующий проект»', async () => {
