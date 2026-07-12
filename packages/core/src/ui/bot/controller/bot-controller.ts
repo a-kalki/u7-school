@@ -282,6 +282,10 @@ export abstract class BotController<
     // action, ...compressedIds
     const [action, ...compressedIds] = parts;
     const realIds = compressedIds.map((key) => {
+      // Только сжатые ключи (8 hex) ищем в shortIds, остальное — pass-through
+      if (!BotController.#SHRUNK_RE.test(key)) {
+        return key;
+      }
       const real = this.shortIds.get(key);
       if (!real) {
         this.logger?.warn(
