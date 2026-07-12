@@ -44,6 +44,16 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
           messageId: edit.messageId,
         });
       });
+
+    // Обновляем lastBotMessage: шаг 1.5 должен знать актуальный текст
+    if (ctx.session.lastBotMessage) {
+      ctx.session.lastBotMessage = {
+        ...ctx.session.lastBotMessage,
+        text: edit.text,
+        keyboard: edit.keyboard,
+        parseMode: edit.parseMode ?? ctx.session.lastBotMessage.parseMode,
+      };
+    }
   }
 
   // 1.5. По умолчанию убираем клавиатуру у предыдущего сообщения

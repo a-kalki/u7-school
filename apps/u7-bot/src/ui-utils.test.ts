@@ -356,7 +356,7 @@ describe('executeResponses — lastBotMessage', () => {
     expect(ctx.session.lastBotMessage!.messageId).toBe(103);
   });
 
-  test('editMessage не меняет lastBotMessage', async () => {
+  test('editMessage обновляет lastBotMessage (чтобы шаг 1.5 знал актуальный текст)', async () => {
     const ctx = makeMockContext();
     ctx.session.lastBotMessage = {
       text: 'Старое сообщение',
@@ -372,8 +372,11 @@ describe('executeResponses — lastBotMessage', () => {
 
     await executeResponses(ctx, response);
 
-    // lastBotMessage не должно измениться
-    expect(ctx.session.lastBotMessage!.text).toBe('Старое сообщение');
+    // lastBotMessage.text обновляется, чтобы шаг «Вы выбрали: ...»
+    // не перезаписал editMessage старым текстом
+    expect(ctx.session.lastBotMessage!.text).toBe(
+      'Отредактированное сообщение',
+    );
     expect(ctx.session.lastBotMessage!.messageId).toBe(42);
   });
 });
