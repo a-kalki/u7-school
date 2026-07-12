@@ -293,7 +293,7 @@ describe('Сквозные пользовательские сценарии (E2
 
       expect(allTexts).toContain('успешно записаны');
       expect(allTexts).toContain('JS Core');
-      expect(allTexts).toContain('Поток:');
+      expect(allTexts).toContain('Моя учёба');
     });
 
     test('после записи — студент найден в потоке', async () => {
@@ -333,14 +333,25 @@ describe('Сквозные пользовательские сценарии (E2
       expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(true);
     });
 
-    test('«Моя учёба» → текущий шаг и кнопки', async () => {
+    test('«Моя учёба» → хаб → «Продолжить» → текущий шаг и кнопки', async () => {
       const menu = (await router.collectMainMenu(
         student,
       )) as CbMainMenuAction[];
       const studyBtn = findMenuItem(menu, 'Моя учёба');
 
-      const response = await router.handleCallback(
+      // Хаб
+      const hubResp = await router.handleCallback(
         studyBtn.action,
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(hubResp);
+      expect(hubResp.sendMessage?.text).toContain('Моя учёба');
+
+      // Нажимаем «▶️ Продолжить»
+      const continueBtn = findButton(hubResp, 'Продолжить');
+      const response = await router.handleCallback(
+        continueBtn.code,
         student,
         NO_SESSION,
       );
@@ -363,14 +374,26 @@ describe('Сквозные пользовательские сценарии (E2
         student,
       )) as CbMainMenuAction[];
       const studyBtn = findMenuItem(menu, 'Моя учёба');
-      const studyResp = await router.handleCallback(
+
+      // Хаб
+      const hubResp = await router.handleCallback(
         studyBtn.action,
         student,
         NO_SESSION,
       );
+      assertBotResponseValid(hubResp);
+
+      // Нажимаем «▶️ Продолжить» → шаг
+      const continueBtn = findButton(hubResp, 'Продолжить');
+      const stepResp = await router.handleCallback(
+        continueBtn.code,
+        student,
+        NO_SESSION,
+      );
+      assertBotResponseValid(stepResp);
 
       // Нажимаем «Выполнено»
-      const completeBtn = findButton(studyResp, 'Выполнено');
+      const completeBtn = findButton(stepResp, 'Выполнено');
       const completeResp = await router.handleCallback(
         completeBtn.code,
         student,
@@ -764,7 +787,7 @@ describe('Сквозные пользовательские сценарии (E2
   });
 
   // ────────────────────────────────────────────────
-  // Студент: навигация «Моя учёба» → «Мой прогресс» → «⬅️ Назад к обучению»
+  // Студент: навигация «Моя учёба» → «Мой прогресс» → «⬅️ Назад к учёбе»
   // ────────────────────────────────────────────────
   describe('Студент: моя учёба → прогресс → назад', () => {
     let app: TestApp;
@@ -783,7 +806,7 @@ describe('Сквозные пользовательские сценарии (E2
       await app.cleanup();
     });
 
-    test('студент: моя учёба → прогресс → «⬅️ Назад к обучению» → моя учёба', async () => {
+    test('студент: моя учёба → прогресс → «⬅️ Назад к учёбе» → моя учёба', async () => {
       // Открываем «Моя учёба»
       const studyResp = await router.handleCallback(
         'stream:learning:my-study',
@@ -791,7 +814,7 @@ describe('Сквозные пользовательские сценарии (E2
         NO_SESSION,
       );
       assertBotResponseValid(studyResp);
-      expect(studyResp.sendMessage?.text).toContain('Поток:');
+      expect(studyResp.sendMessage?.text).toContain('Моя учёба');
 
       // Кнопка «↩️ Главное меню» на my-study
       const menuBtn = findButton(studyResp, '↩️ Главное меню');
@@ -807,15 +830,15 @@ describe('Сквозные пользовательские сценарии (E2
       assertBotResponseValid(progressResp);
       expect(progressResp.sendMessage?.text).toContain('Прогресс');
 
-      // Кнопка «⬅️ Назад к обучению»
-      const backBtn = findButton(progressResp, '⬅️ Назад к обучению');
+      // Кнопка «⬅️ Назад к учёбе»
+      const backBtn = findButton(progressResp, '⬅️ Назад к учёбе');
       const backResp = await router.handleCallback(
         backBtn.code,
         student,
         NO_SESSION,
       );
       assertBotResponseValid(backResp);
-      expect(backResp.sendMessage?.text).toContain('Поток:');
+      expect(backResp.sendMessage?.text).toContain('Моя учёба');
     });
   });
 });

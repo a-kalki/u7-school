@@ -48,7 +48,7 @@ describe('LearningStory e2e', () => {
   // Просмотр текущего шага
   // ═══════════════════════════════════════════
 
-  test('студент открывает «Моя учёба» — видит текущий шаг', async () => {
+  test('студент открывает «Моя учёба» — видит хаб', async () => {
     const response = await router.handleCallback(
       'stream:learning:my-study',
       student,
@@ -57,19 +57,12 @@ describe('LearningStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Поток:');
-    expect(text).toContain('JS Core');
-    expect(text).toContain('Урок:');
-    expect(text).toContain('Шаг 1 из 2');
-
+    expect(text).toContain('Моя учёба');
+    
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t.includes('Выполнено'))).toBe(true);
+    expect(btns.some((t) => t.includes('Продолжить'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const lastRow = rows[rows.length - 1]!;
-    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
   });
 
   // ═══════════════════════════════════════════
@@ -119,11 +112,9 @@ describe('LearningStory e2e', () => {
   });
 
   test('нажатие «Начать следующий урок» → первый шаг нового урока', async () => {
-    // Из ответа предыдущего теста извлекаем код кнопки и эмулируем нажатие
-    // Но т.к. состояние не хранится между тестами, симулируем через my-study
-    // (после complete-step с level=lesson, currentStepId уже указывает на новый урок)
+    // После complete-step с level=lesson, currentStepId уже указывает на новый урок
     const response = await router.handleCallback(
-      'stream:learning:my-study',
+      'stream:learning:my-study:continue',
       student,
       session,
     );

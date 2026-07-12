@@ -31,6 +31,9 @@ describe('LearningStory', () => {
   const STEP3_ID = '44444444-4444-4444-4444-444444444444';
   const STEP4_ID = '55555555-5555-5555-5555-555555555555';
   const STEP5_ID = '66666666-6666-6666-6666-666666666666';
+  const STEP6_ID = '77777777-7777-7777-7777-777777777777';
+  const STEP7_ID = '88888888-8888-8888-8888-888888888888';
+  const STEP8_ID = '99999999-9999-9999-9999-999999999999';
 
   const mockStudent = {
     uuid: 'student-uuid-student-uuid-student',
@@ -613,5 +616,394 @@ describe('LearningStory', () => {
     // Предпоследняя: «Мой прогресс»
     const secondLastRow = rows[rows.length - 2]!;
     expect(secondLastRow[0]!.text).toBe('📊 Мой прогресс');
+  });
+
+  // ── Тесты дерева навигации «📂 Уроки» (S05b) ──
+
+  const LESSON1_ID = 'lesson-uuid-1';
+  const LESSON2_ID = 'lesson-uuid-2';
+  const LESSON3_ID = 'lesson-uuid-3';
+  const LESSON4_ID = 'lesson-uuid-4';
+
+  const richSnapshot = [
+    {
+      projectId: 'project-uuid-1',
+      projectTitle: 'Основы',
+      lessons: [
+        {
+          lessonId: LESSON1_ID,
+          lessonTitle: 'Введение',
+          stepIds: [STEP1_ID, STEP2_ID],
+        },
+        {
+          lessonId: LESSON2_ID,
+          lessonTitle: 'Переменные',
+          stepIds: [STEP3_ID, STEP4_ID],
+        },
+      ],
+    },
+    {
+      projectId: 'project-uuid-2',
+      projectTitle: 'Продвинутый',
+      lessons: [
+        {
+          lessonId: LESSON3_ID,
+          lessonTitle: 'Функции',
+          stepIds: [STEP5_ID, STEP6_ID],
+        },
+        {
+          lessonId: LESSON4_ID,
+          lessonTitle: 'Классы',
+          stepIds: [STEP7_ID, STEP8_ID],
+        },
+      ],
+    },
+  ];
+
+  const richStudent = {
+    uuid: 'student-uuid',
+    streamId: STREAM_ID,
+    userId: 'user-1',
+    status: 'active',
+    currentStepId: STEP4_ID,
+    steps: [
+      {
+        stepId: STEP1_ID,
+        status: 'completed',
+        issuedAt: '2026-01-01T00:00:00.000Z',
+        completedAt: '2026-01-02T00:00:00.000Z',
+      },
+      {
+        stepId: STEP2_ID,
+        status: 'completed',
+        issuedAt: '2026-01-02T00:00:00.000Z',
+        completedAt: '2026-01-03T00:00:00.000Z',
+      },
+      {
+        stepId: STEP3_ID,
+        status: 'completed',
+        issuedAt: '2026-01-03T00:00:00.000Z',
+        completedAt: '2026-01-04T00:00:00.000Z',
+      },
+      {
+        stepId: STEP4_ID,
+        status: 'issued',
+        issuedAt: '2026-01-04T00:00:00.000Z',
+      },
+    ],
+  };
+
+  const richStream = {
+    ...mockStream,
+    contentSnapshot: richSnapshot,
+  };
+
+  function makeRichModuleApi(overrides?: Record<string, unknown>) {
+    return {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return richStudent;
+        if (name === 'get-stream') return richStream;
+        if (overrides && name in overrides) return overrides[name];
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+  }
+
+  function makeRichAppApi() {
+    return {
+      execute: mock((name: string, params: { uuid: string }) => {
+        if (name === 'get-step') {
+          const steps: Record<string, Record<string, unknown>> = {
+            [STEP1_ID]: {
+              uuid: STEP1_ID,
+              kind: 'text',
+              description: 'Первый шаг',
+              content: 'Контент 1',
+              status: 'published',
+              createdAt: '2026-01-01T00:00:00.000Z',
+            },
+            [STEP2_ID]: {
+              uuid: STEP2_ID,
+              kind: 'text',
+              description: 'Второй шаг',
+              content: 'Контент 2',
+              status: 'published',
+              createdAt: '2026-01-02T00:00:00.000Z',
+            },
+            [STEP3_ID]: {
+              uuid: STEP3_ID,
+              kind: 'code',
+              description: 'Третий шаг',
+              code: 'let x = 1',
+              status: 'published',
+              createdAt: '2026-01-03T00:00:00.000Z',
+            },
+            [STEP4_ID]: {
+              uuid: STEP4_ID,
+              kind: 'text',
+              description: 'Четвёртый шаг',
+              content: 'Контент 4',
+              status: 'published',
+              createdAt: '2026-01-04T00:00:00.000Z',
+            },
+            [STEP5_ID]: {
+              uuid: STEP5_ID,
+              kind: 'text',
+              description: 'Пятый шаг',
+              content: 'Контент 5',
+              status: 'published',
+              createdAt: '2026-01-05T00:00:00.000Z',
+            },
+            [STEP6_ID]: {
+              uuid: STEP6_ID,
+              kind: 'text',
+              description: 'Шестой шаг',
+              content: 'Контент 6',
+              status: 'published',
+              createdAt: '2026-01-06T00:00:00.000Z',
+            },
+            [STEP7_ID]: {
+              uuid: STEP7_ID,
+              kind: 'text',
+              description: 'Седьмой шаг',
+              content: 'Контент 7',
+              status: 'published',
+              createdAt: '2026-01-07T00:00:00.000Z',
+            },
+            [STEP8_ID]: {
+              uuid: STEP8_ID,
+              kind: 'text',
+              description: 'Восьмой шаг',
+              content: 'Контент 8',
+              status: 'published',
+              createdAt: '2026-01-08T00:00:00.000Z',
+            },
+          };
+          return steps[params.uuid] as unknown;
+        }
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+  }
+
+  const richSession: SessionData = {
+    activeHandler: null,
+    lastBotMessage: {
+      text: 'предыдущее',
+      messageId: 42,
+    },
+  };
+
+  // ── Уровень 1: список проектов ──
+
+  test('my-study:lessons — показывает проекты с прогрессом (sendMessage)', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:lessons',
+      studentActor,
+      session,
+    );
+
+    // Первый вход — новое сообщение
+    expect(response.sendMessage).toBeDefined();
+    expect(response.editMessage).toBeUndefined();
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('📂');
+    expect(text).toContain('Уроки');
+    expect(text).toContain('проект');
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    // Проект «Основы» с прогрессом (2/2 урока) и «Продвинутый» (0/2)
+    const btnTexts = rows.flat().map((b) => b.text);
+    expect(btnTexts.some((t) => t.includes('Основы'))).toBe(true);
+    // Проект «Продвинутый» не показывается — нет пройденных/текущих уроков
+    expect(btnTexts.some((t) => t.includes('Назад к учёбе'))).toBe(true);
+  });
+
+  // ── Уровень 2: уроки проекта ──
+
+  test('my-study:project:{idx} — показывает уроки проекта (editMessage)', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:project:1',
+      studentActor,
+      richSession,
+    );
+
+    // Переход внутри дерева — editMessage
+    expect(response.editMessage).toBeDefined();
+    expect(response.sendMessage).toBeUndefined();
+    expect(response.editMessage?.messageId).toBe(42);
+
+    const text = response.editMessage?.text ?? '';
+    expect(text).toContain('Основы');
+    expect(text).toContain('урок');
+
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const btnTexts = rows.flat().map((b) => b.text);
+    expect(btnTexts.some((t) => t.includes('Введение'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Переменные'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Назад к проектам'))).toBe(true);
+  });
+
+  // ── Уровень 3: шаги урока ──
+
+  test('my-study:lesson:{id} — показывает шаги с маркерами (editMessage)', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:lesson:lesson-uuid-1',
+      studentActor,
+      richSession,
+    );
+
+    const text = response.editMessage?.text ?? '';
+    // Маркеры — в уроке 1 все шаги completed
+    expect(text).toContain('✅');
+    // 🔒 не показывается — в этом уроке нет будущих шагов
+    // Шаги видны в тексте
+    expect(text).toContain('Первый шаг');
+    expect(text).toContain('Второй шаг');
+
+    // Кнопки — только доступные шаги (✅ и ▶️, но не 🔒)
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const btnTexts = rows.flat().map((b) => b.text);
+    // STEP1 и STEP2 — completed, это урок 1, все completed → обе кнопки есть
+    expect(btnTexts.some((t) => t.includes('Первый шаг'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Второй шаг'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Назад к урокам'))).toBe(true);
+  });
+
+  test('my-study:lesson:{id} — 🔒-шаги не показываются кнопками', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    // Урок «Функции» (lesson-uuid-3) — все шаги будущие (нет в steps)
+    const response = await story.handleCallback(
+      'my-study:lesson:lesson-uuid-3',
+      studentActor,
+      richSession,
+    );
+
+    const text = response.editMessage?.text ?? '';
+    expect(text).toContain('🔒');
+
+    // Кнопки: только «⬅️ Назад к урокам», без кнопок шагов
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const btnTexts = rows.flat().map((b) => b.text);
+    const stepButtons = btnTexts.filter((t) => !t.includes('Назад'));
+    expect(stepButtons.length).toBe(0);
+  });
+
+  test('my-study:lesson:{id} — кнопка ▶️ для текущего шага', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    // Урок «Переменные»: STEP3 completed, STEP4 issued (текущий)
+    const response = await story.handleCallback(
+      'my-study:lesson:lesson-uuid-2',
+      studentActor,
+      richSession,
+    );
+
+    const text = response.editMessage?.text ?? '';
+    expect(text).toContain('▶️');
+
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const btnTexts = rows.flat().map((b) => b.text);
+    expect(btnTexts.some((t) => t.includes('Третий шаг'))).toBe(true); // ✅ completed
+    expect(btnTexts.some((t) => t.includes('Четвёртый шаг'))).toBe(true); // ▶️ текущий
+  });
+
+  // ── Уровень 4: просмотр шага ──
+
+  test('my-study:view:{streamId}:{stepId} — просмотр completed шага (editMessage)', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:view:11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333',
+      studentActor,
+      richSession,
+    );
+
+    const text = response.editMessage?.text ?? '';
+    // Контент шага
+    expect(text).toContain('Контент 2');
+    // Список шагов урока
+    expect(text).toContain('Шаги урока');
+    expect(text).toContain('✅');
+    expect(text).toContain('Первый шаг');
+    expect(text).toContain('Второй шаг');
+
+    // Нет кнопки «✅ Выполнено»
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const btnTexts = rows.flat().map((b) => b.text);
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Назад к уроку'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
+  });
+
+  test('my-study:view:{streamId}:{stepId} — код stepId из другого потока → ошибка', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:view:other-stream-id:22222222-2222-2222-2222-222222222222',
+      studentActor,
+      richSession,
+    );
+
+    expect(response.editMessage?.text).toContain('не соответствует');
+  });
+
+  test('my-study:view:{streamId}:{stepId} — несуществующий stepId → ошибка', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:view:11111111-1111-1111-1111-111111111111:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      studentActor,
+      richSession,
+    );
+
+    expect(response.editMessage?.text).toContain('не найден');
+  });
+
+  // ── Возвраты ──
+
+  test('«⬅️ Назад к проектам» → editMessage с уровнем 1', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    // Нажимаем «⬅️ Назад к проектам» — это my-study:lessons с сессией
+    const response = await story.handleCallback(
+      'my-study:lessons',
+      studentActor,
+      richSession,
+    );
+
+    // Если есть lastBotMessage — editMessage
+    expect(response.editMessage).toBeDefined();
+    expect(response.sendMessage).toBeUndefined();
+
+    const text = response.editMessage?.text ?? '';
+    expect(text).toContain('Уроки');
+    expect(text).toContain('проект');
   });
 });

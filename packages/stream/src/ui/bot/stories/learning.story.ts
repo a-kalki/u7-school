@@ -29,7 +29,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
+    session: SessionData,
   ): Promise<BotResponse> {
     if (action.startsWith('complete:')) {
       return this.#handleComplete(action, actor);
@@ -45,6 +45,24 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
     if (action === 'my-study:leave') {
       return this.#executeLeave(actor);
+    }
+    if (action === 'my-study:lessons') {
+      return this.#showProjects(actor, session);
+    }
+    if (action.startsWith('my-study:project:')) {
+      const projectIndex = Number.parseInt(action.split(':')[2] ?? '0', 10);
+      return this.#showLessons(actor, projectIndex, session);
+    }
+    if (action.startsWith('my-study:lesson:')) {
+      const lessonId = action.split(':').slice(2).join(':');
+      return this.#showSteps(actor, lessonId, session);
+    }
+    if (action.startsWith('my-study:view:')) {
+      const [, , streamId, stepId] = action.split(':');
+      if (!streamId || !stepId) {
+        return { sendMessage: { text: '⚠️ Неверный формат команды' } };
+      }
+      return this.#showStepView(actor, streamId, stepId, session);
     }
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
@@ -276,6 +294,504 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
+  // ── Приватные методы: дерево навигации «📂 Уроки» ──
+
+  /** Уровень 1: список проектов с прогрессом. */
+  async #showProjects(actor: User, session: SessionData): Promise<BotResponse> {
+    const { student, stream } = await this.#getStudentAndStream(actor);
+    if (!student || !stream) return student as BotResponse;
+
+    const _ds = new CourseDs();
+    const completedStepIds = new Set(
+      student.steps
+        .filter((s) => s.status === 'completed')
+        .map((s) => s.stepId),
+    );
+    const allStepIds = new Set(student.steps.map((s) => s.stepId));
+
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    for (let pi = 0; pi < stream.contentSnapshot.length; pi++) {
+      const project = stream.contentSnapshot[pi];
+      if (!project) continue;
+
+      let completedLessons = 0;
+      let hasIssued = false;
+      for (const lesson of project.lessons) {
+        const hasCompletedInLesson = lesson.stepIds.some((sid) =>
+          completedStepIds.has(sid),
+        );
+        if (hasCompletedInLesson) completedLessons++;
+        const hasIssuedInLesson = lesson.stepIds.some((sid) =>
+          allStepIds.has(sid),
+        );
+        if (hasIssuedInLesson) hasIssued = true;
+      }
+
+      // Показываем только проекты с ≥1 completed или issued шагом
+      if (completedLessons === 0 && !hasIssued) continue;
+
+      rows.push([
+        {
+          text: `📁 ${project.projectTitle} (${completedLessons}/${project.lessons.length})`,
+          code: this.cb('my-study:project', String(pi + 1)),
+        },
+      ]);
+    }
+
+    rows.push([{ text: '⬅️ Назад к учёбе', code: this.cb('my-study') }]);
+
+    const description: BotResponse = {
+      sendMessage: {
+        text: '📂 *Уроки*\n\nВыберите проект:',
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    };
+
+    return this.#respondInContext(description, session);
+  }
+
+  /** Уровень 2: уроки проекта. */
+  async #showLessons(
+    actor: User,
+    projectIndex: number,
+    session: SessionData,
+  ): Promise<BotResponse> {
+    const { student, stream } = await this.#getStudentAndStream(actor);
+    if (!student || !stream) return student as BotResponse;
+
+    const _ds = new CourseDs();
+    const project = stream.contentSnapshot[projectIndex - 1];
+    if (!project) {
+      return this.#editOrSend(
+        { sendMessage: { text: '⚠️ Проект не найден' } },
+        session,
+      );
+    }
+
+    const completedStepIds = new Set(
+      student.steps
+        .filter((s) => s.status === 'completed')
+        .map((s) => s.stepId),
+    );
+
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    for (const lesson of project.lessons) {
+      const completed = lesson.stepIds.filter((sid) =>
+        completedStepIds.has(sid),
+      ).length;
+      rows.push([
+        {
+          text: `📝 ${lesson.lessonTitle} (${completed}/${lesson.stepIds.length})`,
+          code: this.cb('my-study:lesson', lesson.lessonId),
+        },
+      ]);
+    }
+
+    rows.push([
+      { text: '⬅️ Назад к проектам', code: this.cb('my-study:lessons') },
+    ]);
+
+    const description: BotResponse = {
+      sendMessage: {
+        text: `📂 *Уроки* › ${this.escapeMarkdown(project.projectTitle)}\n\nВыберите урок:`,
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    };
+
+    return this.#respondInContext(description, session);
+  }
+
+  /** Уровень 3: шаги урока с маркерами ✅/▶️/🔒. */
+  async #showSteps(
+    actor: User,
+    lessonId: string,
+    session: SessionData,
+  ): Promise<BotResponse> {
+    const { student, stream } = await this.#getStudentAndStream(actor);
+    if (!student || !stream) return student as BotResponse;
+
+    const _ds = new CourseDs();
+
+    // Найти урок в снапшоте
+    let lessonData: {
+      lessonTitle: string;
+      stepIds: string[];
+    } | null = null;
+    let projectData: { projectTitle: string; projectIndex: number } | null =
+      null;
+
+    for (let pi = 0; pi < stream.contentSnapshot.length; pi++) {
+      const project = stream.contentSnapshot[pi];
+      if (!project) continue;
+      for (const lesson of project.lessons) {
+        if (lesson.lessonId === lessonId) {
+          lessonData = lesson;
+          projectData = {
+            projectTitle: project.projectTitle,
+            projectIndex: pi + 1,
+          };
+          break;
+        }
+      }
+      if (lessonData) break;
+    }
+
+    if (!lessonData || !projectData) {
+      return this.#editOrSend(
+        { sendMessage: { text: '⚠️ Урок не найден' } },
+        session,
+      );
+    }
+
+    const stepStatuses = new Map<string, 'completed' | 'issued'>();
+    for (const sr of student.steps) {
+      stepStatuses.set(sr.stepId, sr.status as 'completed' | 'issued');
+    }
+
+    // Собираем описания шагов
+    const stepsWithDesc: Array<{
+      stepId: string;
+      description: string;
+      marker: string;
+    }> = [];
+
+    for (const stepId of lessonData.stepIds) {
+      const status = stepStatuses.get(stepId);
+      let marker: string;
+      if (status === 'completed') {
+        marker = '✅';
+      } else if (status === 'issued') {
+        marker = '▶️';
+      } else {
+        marker = '🔒';
+      }
+
+      // Получаем описание шага (только заголовок)
+      let description = '';
+      try {
+        const step = await this.appApi.execute('get-step', { uuid: stepId });
+        description = (step as { description?: string }).description ?? '';
+      } catch {
+        description = '';
+      }
+
+      stepsWithDesc.push({ stepId, description, marker });
+    }
+
+    const esc = this.escapeMarkdown;
+    const lines: string[] = [
+      `📂 *Уроки* › ${esc(projectData.projectTitle)} › ${esc(lessonData.lessonTitle)}`,
+      '',
+    ];
+
+    for (const s of stepsWithDesc) {
+      lines.push(`${s.marker} _${esc(s.description || s.stepId)}_`);
+    }
+
+    lines.push('', 'Выберите шаг:');
+
+    // Кнопки: только доступные шаги
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    for (const s of stepsWithDesc) {
+      if (s.marker === '🔒') continue;
+      rows.push([
+        {
+          text: `${s.marker} ${s.description || s.stepId}`,
+          code:
+            s.marker === '✅'
+              ? this.cb('my-study:view', student.streamId, s.stepId)
+              : this.cb('my-study:continue'),
+        },
+      ]);
+    }
+
+    rows.push([
+      {
+        text: '⬅️ Назад к урокам',
+        code: this.cb('my-study:project', String(projectData.projectIndex)),
+      },
+    ]);
+
+    const description: BotResponse = {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    };
+
+    return this.#respondInContext(description, session);
+  }
+
+  /** Уровень 4: просмотр шага (read-only для completed, active для текущего). */
+  async #showStepView(
+    actor: User,
+    streamId: string,
+    stepId: string,
+    session: SessionData,
+  ): Promise<BotResponse> {
+    const { student, stream } = await this.#getStudentAndStream(actor);
+    if (!student || !stream) return student as BotResponse;
+
+    if (student.streamId !== streamId) {
+      return this.#editOrSend(
+        {
+          sendMessage: {
+            text: '⚠️ *Ошибка:* поток не соответствует вашему текущему обучению.',
+            parseMode: 'MarkdownV2',
+          },
+        },
+        session,
+      );
+    }
+
+    const ds = new CourseDs();
+    const resolved = ds.findStepPosition(stream.contentSnapshot, stepId);
+
+    if (!resolved) {
+      return this.#editOrSend(
+        {
+          sendMessage: {
+            text: '⚠️ Шаг не найден в программе потока.',
+            parseMode: 'MarkdownV2',
+          },
+        },
+        session,
+      );
+    }
+
+    const step = await this.appApi.execute('get-step', { uuid: stepId });
+    const stepRecord = student.steps.find((s) => s.stepId === stepId);
+    const isCompleted = stepRecord?.status === 'completed';
+
+    // Основное сообщение шага
+    const mainMessage = this.#formatStepMessage(
+      stream.title,
+      resolved,
+      step as Step,
+    );
+
+    // Список шагов урока
+    const lessonId = this.#findLessonIdForStep(stream.contentSnapshot, stepId);
+    const stepList = lessonId
+      ? await this.#buildStepList(stream.contentSnapshot, lessonId, student)
+      : '';
+
+    const fullText = [mainMessage, '', stepList].join('\n');
+
+    // Кнопки
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    if (isCompleted) {
+      // ◀️/▶️ навигация
+      const navRow: Array<{ text: string; code: string }> = [];
+      const completedSteps = this.#getCompletedStepsInOrder(
+        student,
+        stream.contentSnapshot,
+      );
+      const currentIdx = completedSteps.indexOf(stepId);
+
+      if (currentIdx > 0) {
+        navRow.push({
+          text: '◀️ Назад',
+          code: this.cb(
+            'my-study:view',
+            streamId,
+            completedSteps[currentIdx - 1]!,
+          ),
+        });
+      }
+      if (currentIdx < completedSteps.length - 1) {
+        navRow.push({
+          text: '▶️ Вперёд',
+          code: this.cb(
+            'my-study:view',
+            streamId,
+            completedSteps[currentIdx + 1]!,
+          ),
+        });
+      }
+      if (navRow.length > 0) rows.push(navRow);
+
+      rows.push([
+        {
+          text: '⬅️ Назад к уроку',
+          code: lessonId
+            ? this.cb('my-study:lesson', lessonId)
+            : this.cb('my-study:lessons'),
+        },
+      ]);
+    } else {
+      // Активный шаг
+      rows.push([
+        {
+          text: '✅ Выполнено',
+          code: this.cb('complete', streamId, stepId),
+        },
+      ]);
+      rows.push([
+        {
+          text: '📊 Мой прогресс',
+          code: this.cbFor('progress', 'progress', streamId),
+        },
+      ]);
+    }
+
+    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+
+    const description: BotResponse = {
+      sendMessage: {
+        text: fullText,
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    };
+
+    return this.#respondInContext(description, session);
+  }
+
+  // ── Вспомогательные методы дерева ──
+
+  /**
+   * Получает студента и поток. Возвращает ошибку как BotResponse при неудаче.
+   */
+  async #getStudentAndStream(actor: User): Promise<{
+    student: Student | null;
+    stream: { title: string; contentSnapshot: ContentSnapshot } | null;
+  }> {
+    const studentResult = await this.getStudent(actor.uuid);
+    if (!studentResult.ok) return { student: null, stream: null };
+
+    const student = studentResult.value;
+
+    try {
+      const stream = await this.moduleApi.execute('get-stream', {
+        streamId: student.streamId,
+      });
+      return { student, stream };
+    } catch {
+      return { student: null, stream: null };
+    }
+  }
+
+  /**
+   * Если в сессии есть lastBotMessage — редактируем его (editMessage).
+   * Иначе — отправляем новое (sendMessage).
+   */
+  #respondInContext(response: BotResponse, session: SessionData): BotResponse {
+    const lastMsg = session.lastBotMessage;
+    if (lastMsg && response.sendMessage) {
+      return {
+        editMessage: {
+          messageId: lastMsg.messageId,
+          text: response.sendMessage.text,
+          keyboard: response.sendMessage.keyboard,
+          parseMode: response.sendMessage.parseMode,
+        },
+      };
+    }
+    return response;
+  }
+
+  /** Хелпер для editMessage или sendMessage в зависимости от сессии. */
+  #editOrSend(response: BotResponse, session: SessionData): BotResponse {
+    const lastMsg = session.lastBotMessage;
+    if (lastMsg && response.sendMessage) {
+      return {
+        editMessage: {
+          messageId: lastMsg.messageId,
+          text: response.sendMessage.text,
+          keyboard: response.sendMessage.keyboard,
+          parseMode: response.sendMessage.parseMode,
+        },
+      };
+    }
+    return response;
+  }
+
+  /** Находит lessonId для шага в снапшоте. */
+  #findLessonIdForStep(
+    snapshot: ContentSnapshot,
+    stepId: string,
+  ): string | null {
+    for (const project of snapshot) {
+      for (const lesson of project.lessons) {
+        if (lesson.stepIds.includes(stepId)) {
+          return lesson.lessonId;
+        }
+      }
+    }
+    return null;
+  }
+
+  /** Список completed шагов в порядке прохождения. */
+  #getCompletedStepsInOrder(
+    student: Student,
+    _snapshot: ContentSnapshot,
+  ): string[] {
+    return student.steps
+      .filter((s) => s.status === 'completed')
+      .map((s) => s.stepId);
+  }
+
+  /** Строит список шагов урока с маркерами для отображения в просмотре шага. */
+  async #buildStepList(
+    snapshot: ContentSnapshot,
+    lessonId: string,
+    student: Student,
+  ): Promise<string> {
+    const stepStatuses = new Map<string, 'completed' | 'issued'>();
+    for (const sr of student.steps) {
+      stepStatuses.set(sr.stepId, sr.status as 'completed' | 'issued');
+    }
+
+    // Найти stepIds урока
+    let stepIds: string[] = [];
+    for (const project of snapshot) {
+      for (const lesson of project.lessons) {
+        if (lesson.lessonId === lessonId) {
+          stepIds = lesson.stepIds;
+          break;
+        }
+      }
+      if (stepIds.length > 0) break;
+    }
+
+    if (stepIds.length === 0) return '';
+
+    const esc = this.escapeMarkdown;
+    const lines: string[] = ['_Шаги урока:_'];
+
+    for (const sid of stepIds) {
+      const status = stepStatuses.get(sid);
+      let marker: string;
+      if (status === 'completed') {
+        marker = '✅';
+      } else if (status === 'issued') {
+        marker = '▶️';
+      } else {
+        marker = '🔒';
+      }
+
+      let desc = '';
+      try {
+        const step = await this.appApi.execute('get-step', { uuid: sid });
+        desc = (step as { description?: string }).description ?? sid;
+      } catch {
+        desc = sid;
+      }
+
+      lines.push(`${marker} _${esc(desc)}_`);
+    }
+
+    return lines.join('\n');
+  }
+
   // ── Приватные методы: сборка представления шага ──
 
   async #buildStepView(
@@ -394,7 +910,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
-            [{ text: buttonText, code: this.cb('my-study') }],
+            [{ text: buttonText, code: this.cb('my-study:continue') }],
             [{ text: '↩️ Главное меню', code: 'app:main-menu' }],
           ],
           isMultiple: false,
