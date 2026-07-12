@@ -82,10 +82,10 @@ describe('ProgressStory', () => {
     expect(text).toContain('Продвинутый');
     expect(text).toContain('50');
 
-    // Кнопка «⬅️ Назад к обучению»
+    // Кнопка «⬅️ Назад к учёбе»
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     expect(rows.length).toBe(1);
-    expect(rows[0]![0]!.text).toBe('⬅️ Назад к обучению');
+    expect(rows[0]![0]!.text).toBe('⬅️ Назад к учёбе');
     expect(rows[0]![0]!.code).toBe('learning:my-study');
   });
 
