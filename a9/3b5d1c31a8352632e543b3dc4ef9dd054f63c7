@@ -1,0 +1,7 @@
+Задача: Написать тесты и реализовать хаб «Моя учёба» (S05)
+
+Изменения:
+- packages/stream/src/ui/bot/stories/learning.story.ts: перестроен handleCallback — 'my-study' показывает хаб с 4 кнопками (Продолжить/Уроки/Прогресс/Покинуть), 'my-study:continue' показывает шаг, добавлены #showHub, #showLeaveConfirm, #executeLeave
+- packages/stream/src/ui/bot/stories/learning.story.test.ts: добавлены тесты хаба (6 новых тестов), обновлены существующие (my-study → my-study:continue)
+
+Причина: Фаза 1 трека «Навигация студента» — вместо прыжка в шаг показываем промежуточный экран с навигацией.
