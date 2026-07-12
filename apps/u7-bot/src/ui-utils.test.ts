@@ -356,7 +356,7 @@ describe('executeResponses — lastBotMessage', () => {
     expect(ctx.session.lastBotMessage!.messageId).toBe(103);
   });
 
-  test('editMessage обновляет lastBotMessage (чтобы шаг 1.5 знал актуальный текст)', async () => {
+  test('editMessage обновляет lastBotMessage и пропускает удаление клавиатуры', async () => {
     const ctx = makeMockContext();
     ctx.session.lastBotMessage = {
       text: 'Старое сообщение',
