@@ -1006,4 +1006,63 @@ describe('LearningStory', () => {
     expect(text).toContain('Уроки');
     expect(text).toContain('проект');
   });
+
+  // ── Тесты листания ◀️/▶️ (Фаза 3) ──
+
+  test('◀️ Назад скрыта на первом completed шаге', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    // STEP1_ID — первый completed шаг в истории
+    const response = await story.handleCallback(
+      'my-study:view:11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222',
+      studentActor,
+      richSession,
+    );
+
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const allBtns = rows.flat().map((b) => b.text);
+    expect(allBtns.some((t) => t.includes('◀️'))).toBe(false);
+    expect(allBtns.some((t) => t.includes('▶️'))).toBe(true);
+  });
+
+  test('▶️ Вперёд скрыта на последнем completed шаге', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    // STEP3_ID — последний completed (STEP4_ID — issued)
+    const response = await story.handleCallback(
+      'my-study:view:11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444',
+      studentActor,
+      richSession,
+    );
+
+    const rows = response.editMessage?.keyboard?.rows ?? [];
+    const allBtns = rows.flat().map((b) => b.text);
+    expect(allBtns.some((t) => t.includes('◀️'))).toBe(true);
+    expect(allBtns.some((t) => t.includes('▶️'))).toBe(false);
+  });
+
+  test('◀️/▶️ листание — editMessage (в одном сообщении)', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    // Нажимаем ▶️ Вперёд с STEP1 → должно открыть STEP2
+    const response = await story.handleCallback(
+      'my-study:view:11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333',
+      studentActor,
+      richSession,
+    );
+
+    // editMessage (одно сообщение, не новое)
+    expect(response.editMessage).toBeDefined();
+    expect(response.sendMessage).toBeUndefined();
+
+    const text = response.editMessage?.text ?? '';
+    expect(text).toContain('Контент 2');
+    expect(text).toContain('Шаг 2 из 2');
+  });
 });
