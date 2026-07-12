@@ -85,7 +85,7 @@ describe('GetStudentByUserUc', () => {
     expect(result.status).toBe('active');
   });
 
-  test('ошибка если активная запись не найдена', async () => {
+  test('возвращает advanced-запись если active нет', async () => {
     const resolve = baseResolve({
       streamStudentRepo: {
         save: mock(() => Promise.resolve()),
@@ -98,9 +98,8 @@ describe('GetStudentByUserUc', () => {
     const uc = new GetStudentByUserUc();
     uc.init(resolve);
 
-    await expect(uc.execute({ userId })).rejects.toThrow(
-      'Активная запись студента не найдена',
-    );
+    const result = await uc.execute({ userId });
+    expect(result.status).toBe('advanced');
   });
 
   test('ошибка если записей пользователя нет совсем', async () => {

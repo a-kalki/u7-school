@@ -267,7 +267,7 @@ _{StreamDescription}_
 | Текст | Код | Статус |
 |-------|-----|--------|
 | `▶️ Продолжить` | `learning:my-study:continue` → S05a (текущий шаг) | ✅ |
-| `📂 Уроки` | `learning:my-study:lessons` → S05b (дерево) | 📋 трек 4 |
+| `📂 Уроки` | `learning:my-study:lessons` → S05b (дерево) | ✅ |
 | `📊 Мой прогресс` | `progress:progress:{streamId}` → S06 | ✅ |
 | `🚪 Покинуть поток` | `learning:my-study:leave-confirm` → confirm | ✅ |
 | `↩️ Главное меню` | `app:main-menu` | ✅ |
@@ -313,6 +313,7 @@ _{StreamDescription}_
 ――――――――――――――
 
 📝 *Шаг {S} из {Total}:* {StepDescription}
+📊 [████░░] {S}/{Total}
 
 {StepContent}
 
@@ -336,9 +337,9 @@ _Шаги урока:_
 
 | Текст | Код | Условие | Статус |
 |-------|-----|---------|--------|
-| `◀️ Назад` | `learning:back:{streamId}:{stepId}` | скрыта на первом completed | 📋 трек 4 |
-| `▶️ Вперёд` | `learning:forward:{streamId}:{stepId}` | скрыта на последнем completed | 📋 трек 4 |
-| `⬅️ Назад к уроку` | `learning:my-study:lesson:{lessonId}` → S05b (шаги урока) | 📋 трек 4 |
+| `◀️ Назад` | `learning:my-study:view:{streamId}:{prevStepId}` | скрыта на первом completed | ✅ |
+| `▶️ Вперёд` | `learning:my-study:view:{streamId}:{nextStepId}` | скрыта на последнем completed | ✅ |
+| `⬅️ Назад к уроку` | `learning:my-study:lesson:{lessonId}` → S05b (шаги урока) | ✅ |
 | `↩️ Главное меню` | `app:main-menu` | ✅ |
 
 > ◀️/▶️ листают **только completed шаги** в одном сообщении (editMessage). Текущий шаг через листание недоступен.
@@ -346,7 +347,7 @@ _Шаги урока:_
 
 ---
 
-## S05b — Дерево навигации «📂 Уроки» (📋 трек 4)
+## S05b — Дерево навигации «📂 Уроки» ✅
 
 **Как попасть:** `📂 Уроки` в S05.
 **Кому:** `STUDENT`.
@@ -363,8 +364,8 @@ _Шаги урока:_
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `📁 {ProjectTitle} ({N}/{M})` | `learning:my-study:project:{projectIndex}` | 📋 |
-| `⬅️ Назад к учёбе` | `learning:my-study` → S05 (sendMessage) | 📋 |
+| `📁 {ProjectTitle} ({N}/{M})` | `learning:my-study:project:{projectIndex}` | ✅ |
+| `⬅️ Назад к учёбе` | `learning:my-study` → S05 (sendMessage) | ✅ |
 
 > В скобках — прогресс: пройдено/всего уроков. Только проекты, где есть ≥1 пройденный или текущий урок.
 
@@ -378,8 +379,8 @@ _Шаги урока:_
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `📝 {LessonTitle} ({N}/{M})` | `learning:my-study:lesson:{lessonId}` | 📋 |
-| `⬅️ Назад к проектам` | `learning:my-study:projects` → уровень 1 | 📋 |
+| `📝 {LessonTitle} ({N}/{M})` | `learning:my-study:lesson:{lessonId}` | ✅ |
+| `⬅️ Назад к проектам` | `learning:my-study:lessons` → уровень 1 (editMessage) | ✅ |
 
 ### Уровень 3: Шаги урока
 
@@ -395,9 +396,9 @@ _Шаги урока:_
 
 | Текст | Код | Условие | Статус |
 |-------|-----|---------|--------|
-| `✅ {StepTitle}` | `learning:view:{streamId}:{stepId}` | completed | 📋 |
-| `▶️ {StepTitle}` | `learning:my-study:continue` → S05a | current | 📋 |
-| `⬅️ Назад к урокам` | `learning:my-study:project:{projectIndex}` → уровень 2 | 📋 |
+| `✅ {StepTitle}` | `learning:my-study:view:{streamId}:{stepId}` | completed | ✅ |
+| `▶️ {StepTitle}` | `learning:my-study:continue` → S05a | current | ✅ |
+| `⬅️ Назад к урокам` | `learning:my-study:lesson:{lessonId}` → уровень 2 (editMessage) | ✅ |
 
 > 🔒-шаги — только в тексте, не кнопками. Telegram не поддерживает disabled-кнопки.
 

@@ -10,7 +10,7 @@ import { StreamUseCase } from '../stream-uc';
 
 export class GetStudentByUserUc extends StreamUseCase<GetStudentByUserCmdMeta> {
   protected readonly ucName = 'get-student-by-user' as const;
-  protected readonly ucLabel = 'Найти активную запись студента' as const;
+  protected readonly ucLabel = 'Найти запись студента' as const;
   protected readonly arMeta = {
     arName: 'Student' as const,
     arLabel: 'Студент потока' as const,
@@ -27,12 +27,21 @@ export class GetStudentByUserUc extends StreamUseCase<GetStudentByUserCmdMeta> {
       command.userId,
     );
 
-    // Ищем активную (enrolled или active) запись — enrolled означает что поток ещё не активирован
+    // Сначала ищем активную (enrolled/active) запись
     const active = students.find(
       (s) => s.status === 'active' || s.status === 'enrolled',
     );
+    if (active) return active;
 
-    if (!active) {
+    // Если активной нет — возвращаем любую (advanced, not_advanced, abandoned)
+    const record = students.find(
+      (s) =>
+        s.status === 'advanced' ||
+        s.status === 'not_advanced' ||
+        s.status === 'abandoned',
+    );
+
+    if (!record) {
       this.throwError(
         errNotFound<StreamNotFoundUcError>(
           'STREAM_NOT_FOUND',
@@ -42,6 +51,6 @@ export class GetStudentByUserUc extends StreamUseCase<GetStudentByUserCmdMeta> {
       );
     }
 
-    return active;
+    return record;
   }
 }

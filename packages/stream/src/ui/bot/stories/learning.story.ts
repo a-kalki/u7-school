@@ -251,7 +251,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: '🚪 *Покинуть поток?*\n\nВы уверены, что хотите покинуть поток? Это действие нельзя отменить.',
+        text: '🚪 *Покинуть поток?*\n\nВы уверены, что хотите покинуть поток? Это действие нельзя отменить\\.',
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
@@ -284,7 +284,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: '👋 Вы покинули поток. Если захотите вернуться — обратитесь к ментору.',
+        text: '👋 Вы покинули поток\\. Если захотите вернуться — обратитесь к ментору\\.',
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
