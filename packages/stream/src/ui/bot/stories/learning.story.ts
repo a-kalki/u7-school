@@ -836,6 +836,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       '――――――――――――――',
       '',
+      `📊 ${this.formatProgressBar(sIdx, totalSteps)}`,
       `📝 *Шаг ${sIdx} из ${totalSteps}:* ${esc(step.description)}`,
     ];
 
@@ -846,6 +847,15 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     return lines.join('\n');
+  }
+
+  /** Формирует прогресс-бар: [██████░░░░] X/Y (10 блоков). */
+  formatProgressBar(current: number, total: number): string {
+    const width = 10;
+    const filled = total === 0 ? 0 : Math.round((current / total) * width);
+    const empty = width - filled;
+    const block = '█'.repeat(filled) + '░'.repeat(empty);
+    return `\\[${block}\\] ${current}/${total}`;
   }
 
   #buildStepKeyboard(streamId: string, stepId: string) {

@@ -954,6 +954,9 @@ describe('LearningStory', () => {
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Назад к уроку'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
+
+    // Прогресс-бар
+    expect(text).toContain('2/2');
   });
 
   test('my-study:view:{streamId}:{stepId} — код stepId из другого потока → ошибка', async () => {
@@ -1064,5 +1067,62 @@ describe('LearningStory', () => {
     const text = response.editMessage?.text ?? '';
     expect(text).toContain('Контент 2');
     expect(text).toContain('Шаг 2 из 2');
+  });
+
+  // ── Тесты прогресс-бара (Фаза 4) ──
+
+  test('my-study:continue — бар прогресса в шаге', async () => {
+    const moduleApi = makeRichModuleApi();
+    const story = new LearningStory();
+    story.init(moduleApi, makeRichAppApi());
+
+    const response = await story.handleCallback(
+      'my-study:continue',
+      studentActor,
+      session,
+    );
+
+    const text = response.sendMessage?.text ?? '';
+    // Прогресс-бар присутствует в сообщении
+    expect(text).toContain('📊');
+    const barMatch = /\\\[.*\\\] \d+\/\d+/.test(text);
+    expect(barMatch).toBe(true);
+  });
+
+  test('#formatProgressBar — прогресс 3/5', () => {
+    const story = new (LearningStory as any)();
+    story.init(makeRichModuleApi(), makeRichAppApi());
+
+    const bar = story.formatProgressBar(3, 5);
+    expect(bar).toContain('\\[██████░░░░\\]');
+    expect(bar).toContain('3/5');
+  });
+
+  test('#formatProgressBar — 0/10 (пустой)', () => {
+    const story = new (LearningStory as any)();
+    story.init(makeRichModuleApi(), makeRichAppApi());
+
+    const bar = story.formatProgressBar(0, 10);
+    expect(bar).toContain('\\[░░░░░░░░░░\\]');
+    expect(bar).toContain('0/10');
+  });
+
+  test('#formatProgressBar — 10/10 (полный)', () => {
+    const story = new (LearningStory as any)();
+    story.init(makeRichModuleApi(), makeRichAppApi());
+
+    const bar = story.formatProgressBar(10, 10);
+    expect(bar).toContain('\\[██████████\\]');
+    expect(bar).toContain('10/10');
+  });
+
+  test('#formatProgressBar — 7/12 (дробный)', () => {
+    const story = new (LearningStory as any)();
+    story.init(makeRichModuleApi(), makeRichAppApi());
+
+    const bar = story.formatProgressBar(7, 12);
+    // 7/12*10 ≈ 5.8 → 6 filled, 4 empty
+    expect(bar).toContain('\\[██████░░░░\\]');
+    expect(bar).toContain('7/12');
   });
 });
