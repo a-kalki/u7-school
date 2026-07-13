@@ -820,13 +820,14 @@ describe('LearningStory', () => {
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('📂');
     expect(text).toContain('Уроки');
-    expect(text).toContain('проект');
+    // Дерево: показываются оба проекта (включая 🔒 Продвинутый)
+    expect(text).toContain('Основы');
+    expect(text).toContain('Продвинутый');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    // Проект «Основы» с прогрессом (2/2 урока) и «Продвинутый» (0/2)
     const btnTexts = rows.flat().map((b) => b.text);
     expect(btnTexts.some((t) => t.includes('Основы'))).toBe(true);
-    // Проект «Продвинутый» не показывается — нет пройденных/текущих уроков
+    expect(btnTexts.some((t) => t.includes('Продвинутый'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к учёбе'))).toBe(true);
   });
 
@@ -850,7 +851,7 @@ describe('LearningStory', () => {
 
     const text = response.editMessage?.text ?? '';
     expect(text).toContain('Основы');
-    expect(text).toContain('урок');
+    expect(text).toContain('Введение');
 
     const rows = response.editMessage?.keyboard?.rows ?? [];
     const btnTexts = rows.flat().map((b) => b.text);
@@ -1013,7 +1014,7 @@ describe('LearningStory', () => {
 
     const text = response.editMessage?.text ?? '';
     expect(text).toContain('Уроки');
-    expect(text).toContain('проект');
+    expect(text).toContain('Основы');
   });
 
   // ── Тесты листания ◀️/▶️ (Фаза 3) ──

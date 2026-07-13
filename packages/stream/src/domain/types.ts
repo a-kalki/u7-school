@@ -43,13 +43,20 @@ export type LessonStepsView = {
 export type LessonNode = {
   lessonId: string;
   title: string;
+  status: NodeStatus;
   completedSteps: number;
   totalSteps: number;
+  /** Шаги со статусами для inline-списка в теле сообщения */
+  steps: StepNode[];
 };
+
+/** Статус узла в дереве: пройден / в процессе / закрыт */
+export type NodeStatus = 'completed' | 'current' | 'locked';
 
 /** Узел проекта в дереве навигации */
 export type ProjectNode = {
   title: string;
+  status: NodeStatus;
   completedLessons: number;
   totalLessons: number;
   lessons: LessonNode[];

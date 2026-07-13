@@ -7,6 +7,7 @@ import type {
   LessonNode,
   LessonStepsView,
   NavigationTree,
+  NodeStatus,
   Progress,
   ProjectNode,
   StepNode,
@@ -81,49 +82,70 @@ export const StreamDs = {
 
   /**
    * Дерево навигации: проекты → уроки с прогрессом.
-   * Только проекты, где есть ≥1 завершённый или выданный шаг.
+   * Показывает все проекты/уроки/шаги программы. Узлы имеют статус completed/current/locked.
    * Используется learning.story (#showProjects, #showLessons).
    */
   buildNavigationTree(
     snapshot: ContentSnapshot,
     student: { steps: StepRecord[] },
   ): NavigationTree {
-    const completedIds = new Set(
-      student.steps
-        .filter((s) => s.status === 'completed')
-        .map((s) => s.stepId),
-    );
-    const allIds = new Set(student.steps.map((s) => s.stepId));
+    const stepStatusMap = new Map<string, 'completed' | 'issued'>();
+    for (const sr of student.steps) {
+      if (sr.status === 'completed' || sr.status === 'issued') {
+        stepStatusMap.set(sr.stepId, sr.status);
+      }
+    }
 
     const projects: ProjectNode[] = [];
 
     for (const p of snapshot) {
       const lessons: LessonNode[] = [];
       let completedLessons = 0;
-      let hasActivity = false;
+      let hasCurrent = false;
 
       for (const l of p.lessons) {
-        const completed = l.stepIds.filter((sid) =>
-          completedIds.has(sid),
-        ).length;
-        const hasStep =
-          l.stepIds.some((sid) => allIds.has(sid)) || completed > 0;
+        const steps: StepNode[] = l.stepIds.map((sid) => {
+          const s = stepStatusMap.get(sid);
+          if (s === 'completed') return { stepId: sid, status: 'completed' };
+          if (s === 'issued') return { stepId: sid, status: 'current' };
+          return { stepId: sid, status: 'locked' };
+        });
 
-        if (hasStep) hasActivity = true;
-        if (completed > 0) completedLessons++;
+        const completedSteps = steps.filter(
+          (s) => s.status === 'completed',
+        ).length;
+        const hasCurrentStep = steps.some((s) => s.status === 'current');
+        const allCompleted = steps.every((s) => s.status === 'completed');
+
+        if (completedSteps > 0) completedLessons++;
+        if (hasCurrentStep) hasCurrent = true;
+
+        const lessonStatus: NodeStatus = allCompleted
+          ? 'completed'
+          : hasCurrentStep
+            ? 'current'
+            : 'locked';
 
         lessons.push({
           lessonId: l.lessonId,
           title: l.lessonTitle,
-          completedSteps: completed,
+          status: lessonStatus,
+          completedSteps,
           totalSteps: l.stepIds.length,
+          steps,
         });
       }
 
-      if (!hasActivity) continue;
+      const projectStatus: NodeStatus =
+        completedLessons === p.lessons.length && !hasCurrent
+          ? 'completed'
+          : hasCurrent
+            ? 'current'
+            : 'locked';
 
       projects.push({
         title: p.projectTitle,
+        status: projectStatus,
         completedLessons,
         totalLessons: p.lessons.length,
         lessons,

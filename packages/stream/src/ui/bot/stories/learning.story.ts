@@ -14,7 +14,7 @@ import {
   type StepPosition,
 } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
-import type { Student } from '#domain/index';
+import type { NavigationTree, Student } from '#domain/index';
 import { StreamDs } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
@@ -297,6 +297,34 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   // ── Приватные методы: дерево навигации «📂 Уроки» ──
 
+  /** Форматирует дерево в текст: проекты → уроки → шаги со статусами. */
+  #formatTreeBody(tree: NavigationTree): string {
+    const esc = this.escapeMarkdown;
+    const lines: string[] = [];
+    const icon: Record<string, string> = {
+      completed: '✅',
+      current: '▶️',
+      locked: '🔒',
+    };
+
+    for (const p of tree.projects) {
+      lines.push(
+        `📁 ${icon[p.status]} ${esc(p.title)} \\(${p.completedLessons}/${p.totalLessons}\\)`,
+      );
+      for (const l of p.lessons) {
+        lines.push(
+          `  ${icon[l.status]} ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\)`,
+        );
+        for (const s of l.steps) {
+          lines.push(`    ${icon[s.status]} ${esc(s.stepId)}`);
+        }
+      }
+      lines.push('');
+    }
+
+    return lines.join('\n').trimEnd();
+  }
+
   /** Уровень 1: список проектов с прогрессом. */
   async #showProjects(actor: User, session: SessionData): Promise<BotResponse> {
     const { student, stream } = await this.#getStudentAndStream(actor);
@@ -322,7 +350,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const description: BotResponse = {
       sendMessage: {
-        text: '📂 *Уроки*\n\nВыберите проект:',
+        text: `📂 *Уроки*\n\n${this.#formatTreeBody(tree)}`,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -365,9 +393,25 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       { text: '⬅️ Назад к проектам', code: this.cb('my-study:lessons') },
     ]);
 
+    const esc = this.escapeMarkdown;
+    const icon: Record<string, string> = {
+      completed: '✅',
+      current: '▶️',
+      locked: '🔒',
+    };
+    const bodyLines: string[] = [];
+    for (const l of project.lessons) {
+      bodyLines.push(
+        `📝 ${icon[l.status]} ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\)`,
+      );
+      for (const s of l.steps) {
+        bodyLines.push(`  ${icon[s.status]} ${esc(s.stepId)}`);
+      }
+    }
+
     const description: BotResponse = {
       sendMessage: {
-        text: `📂 *Уроки* › ${this.escapeMarkdown(project.title)}\n\nВыберите урок:`,
+        text: `📂 *Уроки* › ${esc(project.title)}\n\n${bodyLines.join('\n')}`,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },

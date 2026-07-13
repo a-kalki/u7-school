@@ -297,15 +297,19 @@ describe('StreamDs.computeProgress', () => {
 });
 
 describe('StreamDs.buildNavigationTree', () => {
-  test('пустое дерево — нет активности', () => {
+  test('без активности — проекты видны, все locked', () => {
     const student = studentWithSteps();
 
     const result = StreamDs.buildNavigationTree(snapshot, student);
 
-    expect(result.projects).toHaveLength(0);
+    expect(result.projects).toHaveLength(1);
+    expect(result.projects[0]!.status).toBe('locked');
+    expect(result.projects[0]!.lessons[0]!.status).toBe('locked');
+    expect(result.projects[0]!.lessons[0]!.steps).toHaveLength(2);
+    expect(result.projects[0]!.lessons[0]!.steps[0]!.status).toBe('locked');
   });
 
-  test('один проект с 1/2 уроками', () => {
+  test('один проект с 1/2 шагами, статус current', () => {
     const student = studentWithSteps({
       completed: ['77777777-7777-4777-8777-777777777777'],
       issued: ['88888888-8888-4888-8888-888888888888'],
@@ -315,16 +319,23 @@ describe('StreamDs.buildNavigationTree', () => {
     const result = StreamDs.buildNavigationTree(snapshot, student);
 
     expect(result.projects).toHaveLength(1);
-    expect(result.projects[0]!.title).toBe('П1');
-    expect(result.projects[0]!.completedLessons).toBe(1);
-    expect(result.projects[0]!.totalLessons).toBe(1);
-    expect(result.projects[0]!.lessons).toHaveLength(1);
-    expect(result.projects[0]!.lessons[0]!.title).toBe('У1');
-    expect(result.projects[0]!.lessons[0]!.completedSteps).toBe(1);
-    expect(result.projects[0]!.lessons[0]!.totalSteps).toBe(2);
+    const p = result.projects[0]!;
+    expect(p.title).toBe('П1');
+    expect(p.status).toBe('current');
+    expect(p.completedLessons).toBe(1);
+    expect(p.totalLessons).toBe(1);
+    expect(p.lessons).toHaveLength(1);
+    const l = p.lessons[0]!;
+    expect(l.title).toBe('У1');
+    expect(l.status).toBe('current');
+    expect(l.completedSteps).toBe(1);
+    expect(l.totalSteps).toBe(2);
+    expect(l.steps).toHaveLength(2);
+    expect(l.steps[0]!.status).toBe('completed');
+    expect(l.steps[1]!.status).toBe('current');
   });
 
-  test('полное завершение — всё посчитано', () => {
+  test('полное завершение — статус completed', () => {
     const student = studentWithSteps({
       completed: [
         '77777777-7777-4777-8777-777777777777',
@@ -335,10 +346,11 @@ describe('StreamDs.buildNavigationTree', () => {
 
     const result = StreamDs.buildNavigationTree(snapshot, student);
 
-    expect(result.projects[0]!.completedLessons).toBe(1);
+    expect(result.projects[0]!.status).toBe('completed');
+    expect(result.projects[0]!.lessons[0]!.status).toBe('completed');
   });
 
-  test('многопроектный: П1 активен, П2 скрыт', () => {
+  test('многопроектный: П1 current, П2 locked', () => {
     const student = studentWithSteps({
       issued: ['77777777-7777-4777-8777-777777777777'],
       currentStepId: '77777777-7777-4777-8777-777777777777',
@@ -346,11 +358,15 @@ describe('StreamDs.buildNavigationTree', () => {
 
     const result = StreamDs.buildNavigationTree(multiSnapshot, student);
 
-    expect(result.projects).toHaveLength(1);
+    // Оба проекта видны
+    expect(result.projects).toHaveLength(2);
     expect(result.projects[0]!.title).toBe('П1');
+    expect(result.projects[0]!.status).toBe('current');
+    expect(result.projects[1]!.title).toBe('П2');
+    expect(result.projects[1]!.status).toBe('locked');
   });
 
-  test('многопроектный: оба проекта видны', () => {
+  test('многопроектный: оба с прогрессом', () => {
     const student = studentWithSteps({
       completed: [
         '77777777-7777-4777-8777-777777777777',
@@ -364,9 +380,11 @@ describe('StreamDs.buildNavigationTree', () => {
     const result = StreamDs.buildNavigationTree(multiSnapshot, student);
 
     expect(result.projects).toHaveLength(2);
+    expect(result.projects[0]!.status).toBe('completed');
     expect(result.projects[0]!.completedLessons).toBe(2);
     expect(result.projects[0]!.lessons).toHaveLength(2);
     expect(result.projects[1]!.title).toBe('П2');
+    expect(result.projects[1]!.status).toBe('current');
     expect(result.projects[1]!.completedLessons).toBe(0);
     expect(result.projects[1]!.lessons).toHaveLength(1);
   });
