@@ -312,8 +312,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   /**
    * Форматирует дерево в текст: проекты → уроки → шаги со статусами.
+   * @param maxDepth 1 = проекты+уроки, 2 = всё (по умолчанию 2).
    * @param stepsByLesson опциональная карта lessonId → шаги с описаниями.
-   *   Если передана — показывает description, иначе «Шаг N».
    */
   #formatTreeBody(
     tree: NavigationTree,
@@ -321,27 +321,33 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       string,
       Array<{ uuid: string; description: string }>
     >,
+    maxDepth = 2,
   ): string {
     const esc = this.escapeMarkdown;
     const lines: string[] = [];
-    const icon: Record<string, string> = {
+    const sIcon: Record<string, string> = {
       completed: '✅',
       current: '▶️',
       locked: '🔒',
     };
 
     for (const p of tree.projects) {
+      const pTitle =
+        p.status === 'current' ? `*${esc(p.title)}*` : esc(p.title);
       lines.push(
-        `📁 ${icon[p.status]} ${esc(p.title)} \\(${p.completedLessons}/${p.totalLessons}\\)`,
+        `📁 ${pTitle} \\(${p.completedLessons}/${p.totalLessons}\\) ${sIcon[p.status]}`,
       );
       for (const l of p.lessons) {
+        const lTitle =
+          l.status === 'current' ? `*${esc(l.title)}*` : esc(l.title);
         lines.push(
-          `  ${icon[l.status]} ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\)`,
+          `  📝 ${lTitle} \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
         );
+        if (maxDepth < 2) continue;
         const stepDescs = stepsByLesson?.[l.lessonId];
         for (const s of l.steps) {
           const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
-          lines.push(`    ${icon[s.status]} ${esc(desc ?? `Шаг ${s.index}`)}`);
+          lines.push(`    ${sIcon[s.status]} ${esc(desc ?? `Шаг ${s.index}`)}`);
         }
       }
       lines.push('');
@@ -383,7 +389,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const description: BotResponse = {
       sendMessage: {
-        text: `📂 *Уроки*\n\n${this.#formatTreeBody(tree, stepsByLesson)}`,
+        text: `📂 *Уроки*\n\n${this.#formatTreeBody(tree, stepsByLesson, 1)}`,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -431,20 +437,22 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const stepsByLesson = await this.loadStepDescriptions(lessonIds);
 
     const esc = this.escapeMarkdown;
-    const icon: Record<string, string> = {
+    const sIcon: Record<string, string> = {
       completed: '✅',
       current: '▶️',
       locked: '🔒',
     };
     const bodyLines: string[] = [];
     for (const l of project.lessons) {
+      const lTitle =
+        l.status === 'current' ? `*${esc(l.title)}*` : esc(l.title);
       bodyLines.push(
-        `📝 ${icon[l.status]} ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\)`,
+        `📝 ${lTitle} \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
       );
       const stepDescs = stepsByLesson?.[l.lessonId];
       for (const s of l.steps) {
         const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
-        bodyLines.push(`  ${icon[s.status]} ${esc(desc ?? `Шаг ${s.index}`)}`);
+        bodyLines.push(`  ${sIcon[s.status]} ${esc(desc ?? `Шаг ${s.index}`)}`);
       }
     }
 
