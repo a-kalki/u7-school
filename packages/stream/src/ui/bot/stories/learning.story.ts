@@ -573,12 +573,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
           code: this.cb('complete', streamId, stepId),
         },
       ]);
-      rows.push([
-        {
-          text: '📊 Мой прогресс',
-          code: this.cbFor('progress', 'progress', streamId),
-        },
-      ]);
     }
 
     rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
@@ -804,12 +798,6 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
           {
             text: '✅ Выполнено',
             code: this.cb('complete', streamId, stepId),
-          },
-        ],
-        [
-          {
-            text: '📊 Мой прогресс',
-            code: this.cbFor('progress', 'progress', streamId),
           },
         ],
       ],

@@ -308,8 +308,6 @@ describe('LearningStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
-    // «Мой прогресс» — последняя строка перед «Главное меню»
     expect(response.sendMessage?.text).not.toContain('Шаг выполнен');
   });
 
@@ -621,9 +619,9 @@ describe('LearningStory', () => {
     const lastRow = rows[rows.length - 1]!;
     // В процессе обучения последняя строка — «↩️ Главное меню» (добавляется в showCurrentStep)
     expect(lastRow[0]!.text).toBe('↩️ Главное меню');
-    // Предпоследняя: «Мой прогресс»
+    // «✅ Выполнено» кнопка непосредственно перед «Главное меню»
     const secondLastRow = rows[rows.length - 2]!;
-    expect(secondLastRow[0]!.text).toBe('📊 Мой прогресс');
+    expect(secondLastRow[0]!.text).toBe('✅ Выполнено');
   });
 
   // ── Тесты дерева навигации «📂 Уроки» (S05b) ──
