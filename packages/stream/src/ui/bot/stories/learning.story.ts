@@ -141,7 +141,15 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     if (!isFinished) {
-      rows.push([{ text: '▶️ Продолжить', code: this.cb('my-study:continue') }]);
+      const hasStarted = student.steps.some(
+        (s) => s.status === 'completed',
+      );
+      rows.push([
+        {
+          text: hasStarted ? '▶️ Продолжить учёбу' : '▶️ Начать учёбу',
+          code: this.cb('my-study:continue'),
+        },
+      ]);
       rows.push([{ text: '📂 Уроки', code: this.cb('my-study:lessons') }]);
     }
 

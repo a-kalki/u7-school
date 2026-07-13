@@ -177,7 +177,7 @@ describe('LearningStory', () => {
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Продолжить'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Продолжить учёбу'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Покинуть поток'))).toBe(true);

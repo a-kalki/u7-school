@@ -349,7 +349,7 @@ describe('Сквозные пользовательские сценарии (E2
       expect(hubResp.sendMessage?.text).toContain('Моя учёба');
 
       // Нажимаем «▶️ Продолжить»
-      const continueBtn = findButton(hubResp, 'Продолжить');
+      const continueBtn = findButton(hubResp, 'учёбу');
       const response = await router.handleCallback(
         continueBtn.code,
         student,
@@ -383,7 +383,7 @@ describe('Сквозные пользовательские сценарии (E2
       assertBotResponseValid(hubResp);
 
       // Нажимаем «▶️ Продолжить» → шаг
-      const continueBtn = findButton(hubResp, 'Продолжить');
+      const continueBtn = findButton(hubResp, 'учёбу');
       const stepResp = await router.handleCallback(
         continueBtn.code,
         student,
