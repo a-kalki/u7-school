@@ -28,6 +28,8 @@ export type CompletionResult =
 export type StepNode = {
   stepId: string;
   status: 'completed' | 'current' | 'locked';
+  /** 1-based индекс шага в уроке */
+  index: number;
 };
 
 /** Представление шагов урока для рендеринга */

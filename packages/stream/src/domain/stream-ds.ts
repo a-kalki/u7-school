@@ -104,11 +104,13 @@ export const StreamDs = {
       let hasCurrent = false;
 
       for (const l of p.lessons) {
-        const steps: StepNode[] = l.stepIds.map((sid) => {
+        const steps: StepNode[] = l.stepIds.map((sid, idx) => {
           const s = stepStatusMap.get(sid);
-          if (s === 'completed') return { stepId: sid, status: 'completed' };
-          if (s === 'issued') return { stepId: sid, status: 'current' };
-          return { stepId: sid, status: 'locked' };
+          if (s === 'completed')
+            return { stepId: sid, status: 'completed', index: idx + 1 };
+          if (s === 'issued')
+            return { stepId: sid, status: 'current', index: idx + 1 };
+          return { stepId: sid, status: 'locked', index: idx + 1 };
         });
 
         const completedSteps = steps.filter(
@@ -182,11 +184,13 @@ export const StreamDs = {
         const lesson = project.lessons[li];
         if (!lesson || lesson.lessonId !== lessonId) continue;
 
-        const steps: StepNode[] = lesson.stepIds.map((stepId) => {
+        const steps: StepNode[] = lesson.stepIds.map((stepId, idx) => {
           const status = statusMap.get(stepId);
-          if (status === 'completed') return { stepId, status: 'completed' };
-          if (status === 'issued') return { stepId, status: 'current' };
-          return { stepId, status: 'locked' };
+          if (status === 'completed')
+            return { stepId, status: 'completed', index: idx + 1 };
+          if (status === 'issued')
+            return { stepId, status: 'current', index: idx + 1 };
+          return { stepId, status: 'locked', index: idx + 1 };
         });
 
         return {

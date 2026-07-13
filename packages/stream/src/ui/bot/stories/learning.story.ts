@@ -316,7 +316,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
           `  ${icon[l.status]} ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\)`,
         );
         for (const s of l.steps) {
-          lines.push(`    ${icon[s.status]} ${esc(s.stepId)}`);
+          lines.push(`    ${icon[s.status]} Шаг ${s.index}`);
         }
       }
       lines.push('');
@@ -405,7 +405,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         `📝 ${icon[l.status]} ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\)`,
       );
       for (const s of l.steps) {
-        bodyLines.push(`  ${icon[s.status]} ${esc(s.stepId)}`);
+        bodyLines.push(`  ${icon[s.status]} Шаг ${s.index}`);
       }
     }
 
