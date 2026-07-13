@@ -43,5 +43,23 @@
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-15T01:00"
+  },
+  {
+    "uuid": "d6d6d6d6-d6d6-d6d6-d6d6-d6d6d6d6d6d6",
+    "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
+    "description": "Шаг 1: что такое циклы",
+    "content": "## Циклы\n\nЦикл выполняет код несколько раз.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-01T03:00"
+  },
+  {
+    "uuid": "d7d7d7d7-d7d7-d7d7-d7d7-d7d7d7d7d7d7",
+    "moduleId": "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0",
+    "description": "Шаг 2: for и while",
+    "content": "## for и while\n\nДва основных вида циклов в JS.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-01T03:01"
   }
 ]

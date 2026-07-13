@@ -33,6 +33,20 @@
             ]
           }
         ]
+      },
+      {
+        "projectId": "b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3",
+        "projectTitle": "Циклы и функции",
+        "lessons": [
+          {
+            "lessonId": "c4c4c4c4-c4c4-c4c4-c4c4-c4c4c4c4c4c4",
+            "lessonTitle": "Циклы",
+            "stepIds": [
+              "d6d6d6d6-d6d6-d6d6-d6d6-d6d6d6d6d6d6",
+              "d7d7d7d7-d7d7-d7d7-d7d7-d7d7d7d7d7d7"
+            ]
+          }
+        ]
       }
     ],
     "createdAt": "2026-06-10T00:00"
@@ -94,7 +108,9 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
+            ]
           }
         ]
       }
@@ -120,7 +136,9 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
+            ]
           }
         ]
       }
@@ -174,7 +192,9 @@
           {
             "lessonId": "c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2",
             "lessonTitle": "Линейный поиск",
-            "stepIds": ["e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"]
+            "stepIds": [
+              "e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"
+            ]
           }
         ]
       }
