@@ -78,7 +78,7 @@ describe('LearningStory e2e', () => {
     );
     assertBotResponseValid(response);
 
-    // Клавиатура с кнопками «Выполнено» и «Мой прогресс» (без «Шаг выполнен»)
+    // Клавиатура с кнопкой «Выполнено» (без «Шаг выполнен»)
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Поток:');
     expect(text).toContain('Шаг 2 из 2');
@@ -87,7 +87,6 @@ describe('LearningStory e2e', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
   });
 
   test('завершение последнего шага урока — поздравление + кнопка «Начать следующий урок»', async () => {

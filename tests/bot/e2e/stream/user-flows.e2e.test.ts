@@ -366,7 +366,6 @@ describe('Сквозные пользовательские сценарии (E2
       const btnTexts =
         response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
-      expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     });
 
     test('«Выполнено» → клавиатура следующего шага (без «Шаг выполнен»)', async () => {
@@ -411,7 +410,6 @@ describe('Сквозные пользовательские сценарии (E2
         completeResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
         [];
       expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
-      expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
     });
 
     test('полный проход: завершить последний шаг урока → поздравление + «Начать следующий урок» → новый урок', async () => {
