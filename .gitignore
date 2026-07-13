@@ -41,3 +41,4 @@ data/*
 !data/fixtures/
 !data/sources/
 !data/fullstack-js/
+data/fixtures/

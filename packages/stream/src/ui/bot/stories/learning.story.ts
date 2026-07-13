@@ -985,10 +985,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         `\n📊 Прогресс по проекту: ${this.formatProgressBar(projectProgress.completed, projectProgress.total)}`;
     } else if (result.level === 'project' && result.completedProjectId) {
       const title =
-        StreamDs.buildLessonSteps(
-          stream.contentSnapshot,
-          result.completedProjectId,
-          student,
+        stream.contentSnapshot.find(
+          (p) => p.projectId === result.completedProjectId,
         )?.projectTitle ?? '';
 
       messageText = `🚀 Проект «${esc(title)}» завершён\\!`;
