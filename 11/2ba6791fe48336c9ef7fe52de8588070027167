@@ -1,0 +1,20 @@
+Контрольная точка Фазы 1: «Программы курсов» — каталог курсов (S00, S00a)
+
+Автоматические тесты: bun run check:p course + bun run check:p stream — 0 fail
+Ручная верификация: пропущена пользователем
+
+Выполненные задачи фазы:
+- Написаны тесты для CourseCatalogStory (11 тестов)
+- Реализован CourseCatalogStory с S00/S00a
+- Создан CourseController в packages/course/src/ui/bot/
+- Story использует CourseApiModuleMeta, зарегистрирована в BotRouter
+
+Ключевые файлы:
+- packages/course/src/ui/bot/stories/course-catalog.story.ts (новый)
+- packages/course/src/ui/bot/stories/course-catalog.story.test.ts (новый)
+- packages/course/src/ui/bot/controller/course-controller.ts (новый)
+- packages/course/src/ui/index.ts (новый)
+- packages/course/src/index.ts (обновлён)
+- apps/u7-bot/src/api-app.ts (CourseController в BotRouter)
+- packages/stream/src/ui/bot/controller/stream-controller.ts (очищен)
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts (восстановлен)
