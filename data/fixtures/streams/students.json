@@ -5,34 +5,15 @@
     "userId": "44444444-4444-4444-4444-444444444444",
     "enrolledAt": "2026-06-01T00:00",
     "status": "active",
-    "currentStepId": "d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3",
+    "currentStepId": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
     "steps": [
       {
         "stepId": "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0",
-        "status": "completed",
-        "issuedAt": "2026-06-01T00:00",
-        "completedAt": "2026-07-13T10:03"
-      },
-      {
-        "stepId": "d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1",
-        "status": "completed",
-        "issuedAt": "2026-07-13T10:03",
-        "completedAt": "2026-07-13T10:03"
-      },
-      {
-        "stepId": "d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2",
-        "status": "completed",
-        "issuedAt": "2026-07-13T10:03",
-        "completedAt": "2026-07-13T10:03"
-      },
-      {
-        "stepId": "d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3",
         "status": "issued",
-        "issuedAt": "2026-07-13T10:03"
+        "issuedAt": "2026-06-01T00:00"
       }
     ],
-    "createdAt": "2026-06-01T00:00",
-    "updatedAt": "2026-07-13T10:03"
+    "createdAt": "2026-06-01T00:00"
   },
   {
     "uuid": "f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1",

@@ -349,7 +349,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         for (const s of l.steps) {
           const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
           lines.push(
-            `        📄 ${sIcon[s.status]} Шаг ${s.index}: ${esc(desc ?? '—')}`,
+            `        📄 Шаг ${s.index}: ${esc(desc ?? '—')} ${sIcon[s.status]}`,
           );
         }
       }
@@ -456,7 +456,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       for (const s of l.steps) {
         const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
         bodyLines.push(
-          `    📄 ${sIcon[s.status]} Шаг ${s.index}: ${esc(desc ?? '—')}`,
+          `    📄 Шаг ${s.index}: ${esc(desc ?? '—')} ${sIcon[s.status]}`,
         );
       }
     }
