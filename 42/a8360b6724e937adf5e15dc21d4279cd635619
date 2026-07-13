@@ -1,0 +1,15 @@
+Задача: Написать тесты и реализовать CourseCatalogStory (S00, S00a)
+
+Создана новая story CourseCatalogStory для каталога курсов:
+- S00: список опубликованных курсов с title, описанием, эмодзи направления, сводкой модулей
+- S00a: карточка курса с phases, направлением, сводкой объёма
+- Кнопка главного меню «📚 Программы курсов» (priority 15)
+- Story зарегистрирована в StreamController
+
+Изменённые файлы:
+- packages/stream/src/ui/bot/stories/course-catalog.story.ts (новый)
+- packages/stream/src/ui/bot/stories/course-catalog.story.test.ts (новый)
+- packages/stream/src/ui/bot/controller/stream-controller.ts (регистрация story)
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts (обновление тестов)
+
+Причина: Реализация функции «Программы курсов» — первый шаг витрины для любопытного.
