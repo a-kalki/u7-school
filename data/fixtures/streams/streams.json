@@ -94,7 +94,9 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
+            ]
           }
         ]
       }
@@ -120,7 +122,9 @@
           {
             "lessonId": "c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0",
             "lessonTitle": "Переменные и типы",
-            "stepIds": ["d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"]
+            "stepIds": [
+              "d0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0"
+            ]
           }
         ]
       }
@@ -174,7 +178,23 @@
           {
             "lessonId": "c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2",
             "lessonTitle": "Линейный поиск",
-            "stepIds": ["e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"]
+            "stepIds": [
+              "e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"
+            ]
+          }
+        ]
+      },
+      {
+        "projectId": "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
+        "projectTitle": "Продвинутые алгоритмы",
+        "lessons": [
+          {
+            "lessonId": "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
+            "lessonTitle": "Бинарный поиск",
+            "stepIds": [
+              "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4",
+              "d5d5d5d5-d5d5-d5d5-d5d5-d5d5d5d5d5d5"
+            ]
           }
         ]
       }

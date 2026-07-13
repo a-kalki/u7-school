@@ -43,5 +43,23 @@
     "status": "published",
     "kind": "text",
     "createdAt": "2026-06-15T01:00"
+  },
+  {
+    "uuid": "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4",
+    "moduleId": "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1",
+    "description": "Шаг 1: бинарный поиск в отсортированном массиве",
+    "content": "## Бинарный поиск\n\nДелим массив пополам и ищем элемент.",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-15T02:00"
+  },
+  {
+    "uuid": "d5d5d5d5-d5d5-d5d5-d5d5-d5d5d5d5d5d5",
+    "moduleId": "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1",
+    "description": "Шаг 2: сравнение линейного и бинарного поиска",
+    "content": "## Сравнение\n\nЛинейный O(n), бинарный O(log n).",
+    "status": "published",
+    "kind": "text",
+    "createdAt": "2026-06-15T02:01"
   }
 ]

@@ -37,7 +37,17 @@
         "uuid": "b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1",
         "title": "Базовые алгоритмы",
         "status": "published",
-        "lessonIds": ["c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"]
+        "lessonIds": [
+          "c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"
+        ]
+      },
+      {
+        "uuid": "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
+        "title": "Продвинутые алгоритмы",
+        "status": "published",
+        "lessonIds": [
+          "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3"
+        ]
       }
     ],
     "createdAt": "2026-06-15T00:00"
