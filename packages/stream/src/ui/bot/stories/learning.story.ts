@@ -331,23 +331,26 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       locked: '🔒',
     };
 
+    let pi = 0;
     for (const p of tree.projects) {
-      const pTitle =
-        p.status === 'current' ? `*${esc(p.title)}*` : esc(p.title);
+      pi++;
+      // Проекты — жирные, с префиксом
       lines.push(
-        `📁 ${pTitle} \\(${p.completedLessons}/${p.totalLessons}\\) ${sIcon[p.status]}`,
+        `📁 *Проект ${pi}: ${esc(p.title)}* \\(${p.completedLessons}/${p.totalLessons}\\) ${sIcon[p.status]}`,
       );
+      let li = 0;
       for (const l of p.lessons) {
-        const lTitle =
-          l.status === 'current' ? `*${esc(l.title)}*` : esc(l.title);
+        li++;
         lines.push(
-          `  📝 ${lTitle} \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
+          `    📝 Урок ${li}: ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
         );
         if (maxDepth < 2) continue;
         const stepDescs = stepsByLesson?.[l.lessonId];
         for (const s of l.steps) {
           const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
-          lines.push(`    ${sIcon[s.status]} ${esc(desc ?? `Шаг ${s.index}`)}`);
+          lines.push(
+            `        ${sIcon[s.status]} Шаг ${s.index}: ${esc(desc ?? '—')}`,
+          );
         }
       }
       lines.push('');
@@ -443,16 +446,18 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       locked: '🔒',
     };
     const bodyLines: string[] = [];
+    let li = 0;
     for (const l of project.lessons) {
-      const lTitle =
-        l.status === 'current' ? `*${esc(l.title)}*` : esc(l.title);
+      li++;
       bodyLines.push(
-        `📝 ${lTitle} \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
+        `📝 *Урок ${li}: ${esc(l.title)}* \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
       );
       const stepDescs = stepsByLesson?.[l.lessonId];
       for (const s of l.steps) {
         const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
-        bodyLines.push(`  ${sIcon[s.status]} ${esc(desc ?? `Шаг ${s.index}`)}`);
+        bodyLines.push(
+          `    ${sIcon[s.status]} Шаг ${s.index}: ${esc(desc ?? '—')}`,
+        );
       }
     }
 
