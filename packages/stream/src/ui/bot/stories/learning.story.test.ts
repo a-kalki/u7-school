@@ -717,8 +717,8 @@ describe('LearningStory', () => {
 
   function makeRichAppApi() {
     return {
-      execute: mock((name: string, params: { uuid: string }) => {
-        if (name === 'get-step') {
+      execute: mock(
+        (name: string, params: { uuid: string } | { lessonIds: string[] }) => {
           const steps: Record<string, Record<string, unknown>> = {
             [STEP1_ID]: {
               uuid: STEP1_ID,
@@ -785,10 +785,39 @@ describe('LearningStory', () => {
               createdAt: '2026-01-08T00:00:00.000Z',
             },
           };
-          return steps[params.uuid] as unknown;
-        }
-        return undefined;
-      }),
+          if (name === 'get-step') {
+            const stepParams = params as { uuid: string };
+            return steps[stepParams.uuid] as unknown;
+          }
+          if (name === 'get-steps-by-lessons') {
+            const p = params as { lessonIds: string[] };
+            const result: Record<
+              string,
+              Array<{ uuid: string; description: string }>
+            > = {};
+            for (const lid of p.lessonIds) {
+              const ids =
+                lid === 'lesson-uuid-1'
+                  ? [STEP1_ID, STEP2_ID]
+                  : lid === 'lesson-uuid-2'
+                    ? [STEP3_ID, STEP4_ID]
+                    : lid === 'lesson-uuid-3'
+                      ? [STEP5_ID, STEP6_ID]
+                      : lid === 'lesson-uuid-4'
+                        ? [STEP7_ID, STEP8_ID]
+                        : [];
+              result[lid] = ids.map((sid) => ({
+                uuid: sid,
+                description:
+                  (steps as Record<string, Record<string, unknown>>)[sid]
+                    ?.description ?? '',
+              })) as Array<{ uuid: string; description: string }>;
+            }
+            return result;
+          }
+          return undefined;
+        },
+      ),
     } as unknown as U7BotApp;
   }
 

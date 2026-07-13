@@ -20,6 +20,7 @@ import { ListModulesUc } from './module/list-modules-uc';
 import { PublishModuleUc } from './module/publish-module-uc';
 import { CreateStepUc } from './step/create-step-uc';
 import { GetStepUc } from './step/get-step-uc';
+import { GetStepsByLessonsUc } from './step/get-steps-by-lessons-uc';
 
 export class CourseApiModule extends ApiModule<
   CourseApiModuleMeta,
@@ -38,6 +39,7 @@ export class CourseApiModule extends ApiModule<
     new GetLessonUc(),
     new CreateStepUc(),
     new GetStepUc(),
+    new GetStepsByLessonsUc(),
     new ResolveContentPathUc(),
     new CreateCourseUc(),
     new AddPhaseToCourseUc(),

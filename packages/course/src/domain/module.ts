@@ -23,6 +23,7 @@ import type { PublishModuleCmdMeta } from './module/commands/publish-module-cmd'
 import type { ModuleRepo } from './module/repo';
 import type { CreateStepCmdMeta } from './step/commands/create-step-cmd';
 import type { GetStepCmdMeta } from './step/commands/get-step-cmd';
+import type { GetStepsByLessonsCmdMeta } from './step/commands/get-steps-by-lessons-cmd';
 import type { StepRepo } from './step/repo';
 
 export type CourseUcMetas =
@@ -44,7 +45,8 @@ export type ModuleUcMetas =
   | CreateLessonCmdMeta
   | GetLessonCmdMeta
   | CreateStepCmdMeta
-  | GetStepCmdMeta;
+  | GetStepCmdMeta
+  | GetStepsByLessonsCmdMeta;
 
 export type AllUcMetas = ModuleUcMetas | CourseUcMetas;
 
