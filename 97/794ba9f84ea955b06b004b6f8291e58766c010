@@ -1,0 +1,15 @@
+Контрольная точка Фазы 2: «Программа курса» — drill-down S00b (curious-уровень)
+
+Автоматические тесты: bun run check:p course — 361 pass, 0 fail
+Ручная верификация: пропущена
+
+Выполненные задачи:
+- 8 тестов S00b (drill-down, ошибки, обрезка)
+- Реализованы 5 уровней drill-down: этапы→модули→проекты→уроки→заголовки шагов
+- Тела шагов скрыты (get-steps-by-lessons)
+- Обрезка длинных сообщений >4000 символов с многоточием
+- Кнопка «Записаться» отложена (будет в будущем)
+
+Ключевые файлы:
+- packages/course/src/ui/bot/stories/course-catalog.story.ts (+~350 строк S00b)
+- packages/course/src/ui/bot/stories/course-catalog.story.test.ts (+8 тестов S00b)
