@@ -972,13 +972,12 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       messageText = `🎉 Урок «${esc(lessonTitle)}» завершён\\!`;
       buttonText = '▶️ Начать следующий урок';
 
-      const moduleProgress = StreamDs.computeStreamProjectProgress(
+      const moduleProgress = StreamDs.computeProgress(
         stream.contentSnapshot,
         student,
       );
-      const projectProgress = StreamDs.computeProjectLevelProgress(
-        stream.contentSnapshot,
-        projectIdx,
+      const projectProgress = StreamDs.computeProgress(
+        [stream.contentSnapshot[projectIdx]!],
         student,
       );
       progressLine =
@@ -995,7 +994,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       messageText = `🚀 Проект «${esc(title)}» завершён\\!`;
       buttonText = '▶️ Начать следующий проект';
 
-      const progress = StreamDs.computeStreamProjectProgress(
+      const progress = StreamDs.computeProgress(
         stream.contentSnapshot,
         student,
       );
