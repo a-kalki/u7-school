@@ -13,6 +13,7 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
+import { CourseController } from '@u7-scl/course/ui';
 import {
   OnboardingApiModule,
   OnboardingController,
@@ -110,6 +111,8 @@ export function createApiApp(
 
   const streamController = new StreamController(streamModule);
 
+  const courseController = new CourseController(courseModule);
+
   // ══ Контроллер уровня приложения (стори без привязки к модулям) ══
   const appController = new AppController(config.schoolGroupUrl);
 
@@ -129,6 +132,7 @@ export function createApiApp(
     appController,
     onboardingController,
     streamController,
+    courseController,
   ]);
 
   // Каскадная инициализация: BotRouter → контроллеры → стори
@@ -145,6 +149,8 @@ export function createApiApp(
     poolService: activePoolService,
     streamModule,
     streamController,
+    courseModule,
+    courseController,
     onboardingModule,
     onboardingController,
     router,

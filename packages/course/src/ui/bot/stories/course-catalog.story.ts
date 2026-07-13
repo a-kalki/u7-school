@@ -6,8 +6,8 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { Course } from '@u7-scl/course/domain';
-import type { StreamApiModuleMeta } from '../../../domain/module';
+import type { Course } from '../../../domain/course/entity';
+import type { CourseApiModuleMeta } from '../../../domain/module';
 
 /** Эмодзи для направлений */
 const TRACK_EMOJI: Record<string, string> = {
@@ -23,7 +23,7 @@ const DEFAULT_TRACK_EMOJI = '📚';
  * S00: список опубликованных курсов (title, описание, направление, сводка объёма).
  * S00a: карточка курса (phases, автор, сводка объёма, кнопки навигации).
  */
-export class CourseCatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
   readonly name = 'course-catalog';
 
   // ── Главное меню ──
@@ -76,7 +76,10 @@ export class CourseCatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные: S00 — список курсов ──
 
   async #handleList(): Promise<BotResponse> {
-    const courses = (await this.appApi.execute('list-courses', {})) as Course[];
+    const courses = (await this.moduleApi.execute(
+      'list-courses',
+      {},
+    )) as Course[];
 
     if (courses.length === 0) {
       return {
@@ -138,7 +141,7 @@ export class CourseCatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     let course: Course;
     try {
-      course = (await this.appApi.execute('get-course', {
+      course = (await this.moduleApi.execute('get-course', {
         uuid: courseId,
       })) as Course;
     } catch {
@@ -211,7 +214,7 @@ export class CourseCatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
   /** Подсчитывает общее число модулей во всех фазах курса */
   #countModules(course: Course): number {
     return course.phases.reduce(
-      (sum, phase) => sum + phase.moduleIds.length,
+      (sum: number, phase) => sum + (phase.moduleIds?.length ?? 0),
       0,
     );
   }

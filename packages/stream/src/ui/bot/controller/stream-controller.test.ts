@@ -54,10 +54,10 @@ describe('StreamController (реестр)', () => {
     expect(controller.name).toBe('stream');
   });
 
-  test('содержит 9 stories', () => {
+  test('содержит 8 stories', () => {
     const controller = makeController();
     const stories = (controller as unknown as { stories: unknown[] }).stories;
-    expect(stories.length).toBe(9);
+    expect(stories.length).toBe(8);
   });
 
   test('handleStart агрегирует кнопки от stories', async () => {
@@ -68,7 +68,6 @@ describe('StreamController (реестр)', () => {
 
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Программы курсов');
     expect(texts).toContain('📚 Наши потоки');
   });
 
@@ -80,7 +79,6 @@ describe('StreamController (реестр)', () => {
 
     expect(items.length).toBeGreaterThanOrEqual(2);
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Программы курсов');
     expect(texts).toContain('📚 Наши потоки');
     expect(texts).toContain('📖 Моя учёба');
   });
@@ -92,7 +90,6 @@ describe('StreamController (реестр)', () => {
     const items = await controller.handleStart(mentorActor);
 
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Программы курсов');
     expect(texts).toContain('📚 Наши потоки');
     expect(texts).toContain('🛠️ Создать поток');
   });

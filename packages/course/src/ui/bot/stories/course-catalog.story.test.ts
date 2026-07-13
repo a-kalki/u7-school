@@ -3,7 +3,7 @@ import type { U7BotApp, User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { CourseApiModule } from 'packages/course/src/api';
 import { CourseCatalogStory } from './course-catalog.story';
 
 describe('CourseCatalogStory', () => {
@@ -16,12 +16,12 @@ describe('CourseCatalogStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  const emptyModuleApi = {
+  const emptyAppApi = {
     execute: mock(() => undefined),
-  } as unknown as StreamApiModule;
+  } as unknown as U7BotApp;
 
-  // Вспомогательная функция для создания appApi с курсами
-  function makeAppApi(
+  // Вспомогательная функция для создания moduleApi с курсами
+  function makeModuleApi(
     courses: Array<{
       uuid: string;
       title: string;
@@ -35,7 +35,7 @@ describe('CourseCatalogStory', () => {
       status: string;
       createdAt: string;
     }>,
-  ): U7BotApp {
+  ): CourseApiModule {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
         if (ucName === 'list-courses') {
@@ -56,7 +56,7 @@ describe('CourseCatalogStory', () => {
         }
         return undefined;
       }),
-    } as unknown as U7BotApp;
+    } as unknown as CourseApiModule;
   }
 
   test('handleStart возвращает кнопку главного меню', async () => {
@@ -78,7 +78,7 @@ describe('CourseCatalogStory', () => {
   });
 
   test('handleCallback("list") показывает список курсов', async () => {
-    const appApi = makeAppApi([
+    const moduleApi = makeModuleApi([
       {
         uuid: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
         title: 'JavaScript Basics',
@@ -97,7 +97,7 @@ describe('CourseCatalogStory', () => {
     ]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
@@ -107,10 +107,10 @@ describe('CourseCatalogStory', () => {
   });
 
   test('handleCallback("list") с пустым списком курсов', async () => {
-    const appApi = makeAppApi([]);
+    const moduleApi = makeModuleApi([]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
@@ -119,7 +119,7 @@ describe('CourseCatalogStory', () => {
 
   test('handleCallback("view", uuid) показывает карточку курса', async () => {
     const courseUuid = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
-    const appApi = makeAppApi([
+    const moduleApi = makeModuleApi([
       {
         uuid: courseUuid,
         title: 'JavaScript Basics',
@@ -143,7 +143,7 @@ describe('CourseCatalogStory', () => {
     ]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
       `view:${courseUuid}`,
@@ -153,20 +153,17 @@ describe('CourseCatalogStory', () => {
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('JavaScript Basics');
     expect(response.sendMessage?.text).toContain('Основы программирования');
-    // Должны быть фазы
     expect(response.sendMessage?.text).toContain('Синтаксис');
     expect(response.sendMessage?.text).toContain('Алгоритмика');
-    // Должна быть сводка объёма (N этапов)
     expect(response.sendMessage?.text).toContain('этап');
-    // Должны быть кнопки навигации
     expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
   test('handleCallback("view", uuid) с несуществующим курсом показывает ошибку', async () => {
-    const appApi = makeAppApi([]);
+    const moduleApi = makeModuleApi([]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
       'view:nonexistent-uuid',
@@ -178,10 +175,10 @@ describe('CourseCatalogStory', () => {
   });
 
   test('handleCallback с неизвестным действием', async () => {
-    const appApi = makeAppApi([]);
+    const moduleApi = makeModuleApi([]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('unknown', actor, session);
     assertResponseMarkdownSafe(response);
@@ -200,7 +197,7 @@ describe('CourseCatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет «↩️ Главное меню» последней строкой', async () => {
-    const appApi = makeAppApi([
+    const moduleApi = makeModuleApi([
       {
         uuid: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
         title: 'Course 1',
@@ -213,7 +210,7 @@ describe('CourseCatalogStory', () => {
     ]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
@@ -228,7 +225,7 @@ describe('CourseCatalogStory', () => {
 
   test('handleCallback("view") показывает эмодзи направления для tech', async () => {
     const courseUuid = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
-    const appApi = makeAppApi([
+    const moduleApi = makeModuleApi([
       {
         uuid: courseUuid,
         title: 'Tech Course',
@@ -241,7 +238,7 @@ describe('CourseCatalogStory', () => {
     ]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
       `view:${courseUuid}`,
@@ -249,13 +246,12 @@ describe('CourseCatalogStory', () => {
       session,
     );
     assertResponseMarkdownSafe(response);
-    // Должен быть эмодзи tech-направления
     expect(response.sendMessage?.text).toContain('💻');
   });
 
   test('handleCallback("view") показывает эмодзи направления для business', async () => {
     const courseUuid = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
-    const appApi = makeAppApi([
+    const moduleApi = makeModuleApi([
       {
         uuid: courseUuid,
         title: 'Business Course',
@@ -268,7 +264,7 @@ describe('CourseCatalogStory', () => {
     ]);
 
     const story = new CourseCatalogStory();
-    story.init(emptyModuleApi, appApi);
+    story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
       `view:${courseUuid}`,
@@ -276,7 +272,6 @@ describe('CourseCatalogStory', () => {
       session,
     );
     assertResponseMarkdownSafe(response);
-    // Должен быть эмодзи business-направления
     expect(response.sendMessage?.text).toContain('💼');
   });
 });
