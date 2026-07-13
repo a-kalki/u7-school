@@ -4,9 +4,12 @@ import type { StudentAr } from './student/a-root';
 import type { StepRecord } from './student/entity';
 import type {
   CompletionResult,
+  LessonNode,
   LessonStepsView,
   NavigationTree,
   Progress,
+  ProjectNode,
+  StepNode,
 } from './types';
 
 export const StreamDs = {
