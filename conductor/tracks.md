@@ -18,15 +18,14 @@
 
 - [x] ~~**Track: Gating модулей (Синтаксис → Алгоритмика)**~~ → [архив](./archive/module_gating_20260708/)
 
-- [x] ~~**Track: Навигация студента**~~ — *зависит: трек 1, трек 2*
-*Link: [./archive/student_navigation_20260708/](./archive/student_navigation_20260708/)*
+- [x] ~~**Track: Навигация студента**~~ → [архив](./archive/student_navigation_20260708/)
 
-- [ ] **Track: Витрина для любопытного + Инструменты ментора** — *зависит: трек 0, трек 2*
-*Link: [./tracks/curious_showcase_20260708/](./tracks/curious_showcase_20260708/)*
+- [ ] **Track: Витрина для любопытного** — *зависит: трек 0, трек 2*
+*Link: [spec](./tracks/curious_showcase_20260708/)*
 
 ---
 
-## Релиз 3 — Мониторинг
+## Релиз 3 — Инструменты ментора
 
-- [ ] **Track: Мониторинг группы для ментора** — *зависит: трек 1, трек 2, трек 5*
-*Link: [./tracks/mentor_monitoring_20260708/](./tracks/mentor_monitoring_20260708/)*
+- [ ] **Track: Инструменты ментора** — *зависит: трек 0, трек 1, трек 2, трек 5*
+*Link: [spec](./tracks/mentor_tools_20260713/)*
