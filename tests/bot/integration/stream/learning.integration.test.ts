@@ -58,7 +58,7 @@ describe('LearningStory e2e', () => {
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Моя учёба');
-    
+
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Продолжить'))).toBe(true);

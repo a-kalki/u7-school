@@ -59,7 +59,11 @@ export async function executeResponses(ctx: BotContext, res: BotResponse) {
   // 1.5. По умолчанию убираем клавиатуру у предыдущего сообщения.
   // Чтобы сохранить — установить keepPrevKeyboard: true.
   // Если был editMessage — он уже установил новую клавиатуру, шаг не нужен.
-  if (res.keepPrevKeyboard !== true && ctx.session.lastBotMessage && !res.editMessage) {
+  if (
+    res.keepPrevKeyboard !== true &&
+    ctx.session.lastBotMessage &&
+    !res.editMessage
+  ) {
     const prev = ctx.session.lastBotMessage;
 
     let updatedText = prev.text;

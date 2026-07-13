@@ -429,7 +429,11 @@ describe('Навигация студента: выход из потока (E2E
     assertBotResponseValid(hubResp);
 
     const leaveBtn = findButton(hubResp, 'Покинуть поток');
-    const confirmResp = await router.handleCallback(leaveBtn.code, student, NO_SESSION);
+    const confirmResp = await router.handleCallback(
+      leaveBtn.code,
+      student,
+      NO_SESSION,
+    );
     assertBotResponseValid(confirmResp);
 
     const text = confirmResp.sendMessage?.text ?? '';
@@ -449,10 +453,18 @@ describe('Навигация студента: выход из потока (E2E
     );
 
     const leaveBtn = findButton(hubResp, 'Покинуть поток');
-    const confirmResp = await router.handleCallback(leaveBtn.code, student, NO_SESSION);
+    const confirmResp = await router.handleCallback(
+      leaveBtn.code,
+      student,
+      NO_SESSION,
+    );
 
     const yesBtn = findButton(confirmResp, 'Да, покинуть');
-    const leaveResp = await router.handleCallback(yesBtn.code, student, NO_SESSION);
+    const leaveResp = await router.handleCallback(
+      yesBtn.code,
+      student,
+      NO_SESSION,
+    );
     assertBotResponseValid(leaveResp);
 
     const text = leaveResp.sendMessage?.text ?? '';

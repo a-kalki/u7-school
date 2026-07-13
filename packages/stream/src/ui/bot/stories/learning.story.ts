@@ -540,25 +540,19 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         stream.contentSnapshot,
       );
       const currentIdx = completedSteps.indexOf(stepId);
+      const prevIndex = completedSteps[currentIdx - 1];
+      const nextIndex = completedSteps[currentIdx + 1];
 
-      if (currentIdx > 0) {
+      if (currentIdx > 0 && prevIndex) {
         navRow.push({
           text: '◀️ Назад',
-          code: this.cb(
-            'my-study:view',
-            streamId,
-            completedSteps[currentIdx - 1]!,
-          ),
+          code: this.cb('my-study:view', streamId, prevIndex),
         });
       }
-      if (currentIdx < completedSteps.length - 1) {
+      if (currentIdx < completedSteps.length - 1 && nextIndex) {
         navRow.push({
           text: '▶️ Вперёд',
-          code: this.cb(
-            'my-study:view',
-            streamId,
-            completedSteps[currentIdx + 1]!,
-          ),
+          code: this.cb('my-study:view', streamId, nextIndex),
         });
       }
       if (navRow.length > 0) rows.push(navRow);
