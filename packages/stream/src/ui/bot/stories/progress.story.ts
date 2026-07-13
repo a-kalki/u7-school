@@ -1,7 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { CourseDs } from '@u7-scl/course/domain';
 import { StreamDs } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
@@ -44,7 +43,6 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Прогресс
-    const ds = new CourseDs();
     const progress = StreamDs.computeProgress(stream.contentSnapshot, student);
     const pct = progress.percent;
 
@@ -53,7 +51,7 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
     const bar = '█'.repeat(filled) + '░'.repeat(barLength - filled);
 
     // Текущий проект и урок
-    const pos = ds.findStepPosition(
+    const pos = StreamDs.getStepPosition(
       stream.contentSnapshot,
       student.currentStepId,
     );

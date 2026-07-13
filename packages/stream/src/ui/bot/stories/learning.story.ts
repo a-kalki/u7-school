@@ -7,11 +7,10 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import {
-  type ContentSnapshot,
-  CourseDs,
-  type Step,
-  type StepPosition,
+import type {
+  ContentSnapshot,
+  Step,
+  StepPosition,
 } from '@u7-scl/course/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { NavigationTree, Student } from '#domain/index';
@@ -603,8 +602,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       );
     }
 
-    const ds = new CourseDs();
-    const resolved = ds.findStepPosition(stream.contentSnapshot, stepId);
+    const resolved = StreamDs.getStepPosition(stream.contentSnapshot, stepId);
 
     if (!resolved) {
       return this.#editOrSend(
@@ -840,8 +838,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     stepId: string,
     streamId: string,
   ): Promise<BotResponse> {
-    const ds = new CourseDs();
-    const resolved = ds.findStepPosition(stream.contentSnapshot, stepId);
+    const resolved = StreamDs.getStepPosition(stream.contentSnapshot, stepId);
 
     const step = await this.appApi.execute('get-step', { uuid: stepId });
     const message = this.#formatStepMessage(stream.title, resolved, step);

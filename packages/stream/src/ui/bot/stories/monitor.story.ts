@@ -1,7 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { CourseDs } from '@u7-scl/course/domain';
 import { StreamDs } from '#domain/index';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
@@ -89,7 +88,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId,
     });
 
-    const ds = new CourseDs();
     const totalSteps = StreamDs.computeProgress(stream.contentSnapshot, {
       steps: [],
     }).total;
@@ -107,7 +105,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
       const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
 
-      const pos = ds.findStepPosition(stream.contentSnapshot, s.currentStepId);
+      const pos = StreamDs.getStepPosition(
+        stream.contentSnapshot,
+        s.currentStepId,
+      );
       const posStr = pos
         ? `p${pos.projectIndex || 0}:l${pos.lessonIndex || 0}:s${(pos as { stepIndex?: number }).stepIndex || 0}`
         : '';
@@ -219,8 +220,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       (st: { stepId: string; status: string }) => st.status === 'issued',
     );
     if (currentStep) {
-      const dds = new CourseDs();
-      const pos = dds.findStepPosition(
+      const pos = StreamDs.getStepPosition(
         stream.contentSnapshot,
         currentStep.stepId,
       );

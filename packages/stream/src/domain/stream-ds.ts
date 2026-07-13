@@ -1,4 +1,5 @@
-import type { ContentSnapshot } from '@u7-scl/course/domain';
+import type { ContentSnapshot, StepPosition } from '@u7-scl/course/domain';
+import { CourseDs } from '@u7-scl/course/domain';
 import type { StreamAr } from './stream/a-root';
 import type { StudentAr } from './student/a-root';
 import type { StepRecord } from './student/entity';
@@ -254,5 +255,16 @@ export const StreamDs = {
     ).length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
     return { completed, total, percent };
+  },
+
+  /**
+   * Позиция шага в курсе: индексы, заголовки, общее количество шагов в уроке.
+   * Делегирует CourseDs.findStepPosition.
+   */
+  getStepPosition(
+    snapshot: ContentSnapshot,
+    stepId: string,
+  ): StepPosition | null {
+    return new CourseDs().findStepPosition(snapshot, stepId);
   },
 };
