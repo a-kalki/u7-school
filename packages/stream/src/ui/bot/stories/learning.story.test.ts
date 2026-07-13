@@ -348,9 +348,10 @@ describe('LearningStory', () => {
       true,
     );
 
-    // Прогресс проекта на transition-экране
+    // Прогресс на transition-экране
     expect(response.sendMessage?.text).toContain('📊');
-    expect(response.sendMessage?.text).toContain('Осн');
+    expect(response.sendMessage?.text).toContain('Прогресс по модулю');
+    expect(response.sendMessage?.text).toContain('Прогресс по проекту');
   });
 
   test('при завершении проекта — поздравление и кнопка «Начать следующий проект»', async () => {

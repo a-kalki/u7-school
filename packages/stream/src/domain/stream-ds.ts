@@ -65,7 +65,7 @@ export const StreamDs = {
    */
   computeProgress(
     snapshot: ContentSnapshot,
-    student: { steps: StepRecord[] },
+    student: { steps: Array<{ stepId: string; status: string }> },
   ): Progress {
     const total = snapshot.reduce(
       (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
@@ -88,7 +88,7 @@ export const StreamDs = {
    */
   buildNavigationTree(
     snapshot: ContentSnapshot,
-    student: { steps: StepRecord[] },
+    student: { steps: Array<{ stepId: string; status: string }> },
   ): NavigationTree {
     const stepStatusMap = new Map<string, 'completed' | 'issued'>();
     for (const sr of student.steps) {
@@ -214,7 +214,7 @@ export const StreamDs = {
   computeProjectLevelProgress(
     snapshot: ContentSnapshot,
     projectIndex: number,
-    student: { steps: StepRecord[] },
+    student: { steps: Array<{ stepId: string; status: string }> },
   ): Progress {
     const completedStepIds = new Set(
       student.steps
@@ -239,7 +239,7 @@ export const StreamDs = {
    */
   computeStreamProjectProgress(
     snapshot: ContentSnapshot,
-    student: { steps: StepRecord[] },
+    student: { steps: Array<{ stepId: string; status: string }> },
   ): Progress {
     const completedStepIds = new Set(
       student.steps
@@ -266,5 +266,35 @@ export const StreamDs = {
     stepId: string,
   ): StepPosition | null {
     return new CourseDs().findStepPosition(snapshot, stepId);
+  },
+
+  /**
+   * Прогресс в уроке для конкретного шага: сколько шагов завершено.
+   */
+  getStepLessonProgress(
+    snapshot: ContentSnapshot,
+    stepId: string,
+    student: { steps: Array<{ stepId: string; status: string }> },
+  ): Progress {
+    const pos = new CourseDs().findStepPosition(snapshot, stepId);
+    if (!pos) return { completed: 0, total: 0, percent: 0 };
+
+    const lessonStepIds =
+      snapshot
+        .flatMap((p) => p.lessons)
+        .find((l) => l.lessonTitle === pos.lessonTitle)?.stepIds ?? [];
+
+    const completedIds = new Set(
+      student.steps
+        .filter((s) => s.status === 'completed')
+        .map((s) => s.stepId),
+    );
+
+    const completed = lessonStepIds.filter((sid) =>
+      completedIds.has(sid),
+    ).length;
+    const total = lessonStepIds.length;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { completed, total, percent };
   },
 };

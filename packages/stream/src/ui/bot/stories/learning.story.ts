@@ -200,7 +200,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
-    return this.#buildStepView(stream, stepId, student.streamId);
+    return this.#buildStepView(stream, stepId, student.streamId, student);
   }
 
   async #handleComplete(action: string, actor: User): Promise<BotResponse> {
@@ -625,6 +625,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       stream.title,
       resolved,
       step as Step,
+      stream.contentSnapshot,
+      student,
     );
 
     // Список шагов урока
@@ -837,11 +839,18 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     stream: { title: string; contentSnapshot: ContentSnapshot },
     stepId: string,
     streamId: string,
+    student?: { steps: Array<{ stepId: string; status: string }> },
   ): Promise<BotResponse> {
     const resolved = StreamDs.getStepPosition(stream.contentSnapshot, stepId);
 
     const step = await this.appApi.execute('get-step', { uuid: stepId });
-    const message = this.#formatStepMessage(stream.title, resolved, step);
+    const message = this.#formatStepMessage(
+      stream.title,
+      resolved,
+      step,
+      stream.contentSnapshot,
+      student,
+    );
     const keyboard = this.#buildStepKeyboard(streamId, stepId);
 
     keyboard.rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
@@ -860,12 +869,25 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     streamTitle: string,
     resolved: StepPosition | null,
     step: Step,
+    snapshot?: ContentSnapshot,
+    student?: { steps: Array<{ stepId: string; status: string }> },
   ): string {
     const esc = this.escapeMarkdown;
     const pIdx = resolved?.projectIndex ?? 0;
     const lIdx = resolved?.lessonIndex ?? 0;
-    const sIdx = resolved?.stepIndex ?? 1;
     const totalSteps = resolved?.totalSteps ?? 1;
+
+    // Прогресс урока: только завершённые шаги
+    let completed = resolved?.stepIndex ?? 0;
+    if (snapshot && student) {
+      const progress = StreamDs.getStepLessonProgress(
+        snapshot,
+        step.uuid,
+        student,
+      );
+      completed = progress.completed;
+    }
+
     const lines: string[] = [
       `📖 *Поток:* ${esc(streamTitle)}`,
       `📁 *Проект:* ${esc(resolved?.projectTitle || '(неизвестный проект)')}`,
@@ -874,8 +896,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       '――――――――――――――',
       '',
-      `📊 ${this.formatProgressBar(sIdx, totalSteps)}`,
-      `📝 *Шаг ${sIdx} из ${totalSteps}:* ${esc(step.description)}`,
+      `📊 ${this.formatProgressBar(completed, totalSteps)}`,
+      `📝 *Шаг ${resolved?.stepIndex ?? 1} из ${totalSteps}:* ${esc(step.description)}`,
     ];
 
     if (step.kind === 'code' && step.code) {
@@ -932,12 +954,10 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (result.level === 'lesson' && result.completedLessonId) {
       // Найти проект, содержащий этот урок
       let projectIdx = 0;
-      let projectTitle = '';
       for (let pi = 0; pi < stream.contentSnapshot.length; pi++) {
         const p = stream.contentSnapshot[pi];
         if (p?.lessons.some((l) => l.lessonId === result.completedLessonId)) {
           projectIdx = pi;
-          projectTitle = p.projectTitle;
           break;
         }
       }
@@ -952,12 +972,18 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       messageText = `🎉 Урок «${esc(lessonTitle)}» завершён\\!`;
       buttonText = '▶️ Начать следующий урок';
 
-      const progress = StreamDs.computeProjectLevelProgress(
+      const moduleProgress = StreamDs.computeStreamProjectProgress(
+        stream.contentSnapshot,
+        student,
+      );
+      const projectProgress = StreamDs.computeProjectLevelProgress(
         stream.contentSnapshot,
         projectIdx,
         student,
       );
-      progressLine = `\n📊 Проект: ${this.formatProgressBar(progress.completed, progress.total)} — «${esc(projectTitle)}»`;
+      progressLine =
+        `\n📊 Прогресс по модулю: ${this.formatProgressBar(moduleProgress.completed, moduleProgress.total)}` +
+        `\n📊 Прогресс по проекту: ${this.formatProgressBar(projectProgress.completed, projectProgress.total)}`;
     } else if (result.level === 'project' && result.completedProjectId) {
       const title =
         StreamDs.buildLessonSteps(
@@ -973,7 +999,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         stream.contentSnapshot,
         student,
       );
-      progressLine = `\n📊 Поток: ${this.formatProgressBar(progress.completed, progress.total)} — «${esc(stream.title)}»`;
+      progressLine = `\n📊 Прогресс по модулю: ${this.formatProgressBar(progress.completed, progress.total)}`;
     } else {
       messageText = '🎉 Отличная работа!';
       buttonText = '▶️ Продолжить';
