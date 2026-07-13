@@ -99,6 +99,7 @@ describe('LearningStory', () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -157,6 +158,7 @@ describe('LearningStory', () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -188,6 +190,7 @@ describe('LearningStory', () => {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user')
           return { ...mockStudent, status: 'advanced' };
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -274,6 +277,7 @@ describe('LearningStory', () => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
           return { level: 'step', currentStepId: STEP2_ID };
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -321,6 +325,7 @@ describe('LearningStory', () => {
             completedLessonId: 'lesson-uuid-1',
             currentStepId: STEP3_ID,
           };
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -358,6 +363,7 @@ describe('LearningStory', () => {
             completedProjectId: 'project-uuid-1',
             currentStepId: STEP5_ID,
           };
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -433,6 +439,7 @@ describe('LearningStory', () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -467,6 +474,7 @@ describe('LearningStory', () => {
       if (name === 'get-student-by-user') return mockStudent;
       if (name === 'complete-step')
         return { level: 'step', currentStepId: STEP2_ID };
+      if (name === 'get-student-progress') return mockStudent;
       if (name === 'get-stream') return mockStream;
       return undefined;
     });
@@ -517,6 +525,7 @@ describe('LearningStory', () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -548,6 +557,7 @@ describe('LearningStory', () => {
             completedLessonId: 'lesson-uuid-1',
             currentStepId: STEP3_ID,
           };
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -600,6 +610,7 @@ describe('LearningStory', () => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
           return { level: 'step', currentStepId: STEP2_ID };
+        if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
@@ -708,6 +719,7 @@ describe('LearningStory', () => {
     return {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return richStudent;
+        if (name === 'get-student-progress') return richStudent;
         if (name === 'get-stream') return richStream;
         if (overrides && name in overrides) return overrides[name];
         return undefined;

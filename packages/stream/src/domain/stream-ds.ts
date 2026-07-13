@@ -205,4 +205,54 @@ export const StreamDs = {
 
     return null;
   },
+
+  /**
+   * Прогресс проекта: сколько уроков полностью завершены.
+   * Урок считается завершённым, когда ВСЕ его шаги выполнены.
+   */
+  computeProjectLevelProgress(
+    snapshot: ContentSnapshot,
+    projectIndex: number,
+    student: { steps: StepRecord[] },
+  ): Progress {
+    const completedStepIds = new Set(
+      student.steps
+        .filter((s) => s.status === 'completed')
+        .map((s) => s.stepId),
+    );
+
+    const project = snapshot[projectIndex];
+    if (!project) return { completed: 0, total: 0, percent: 0 };
+
+    const total = project.lessons.length;
+    const completed = project.lessons.filter((l) =>
+      l.stepIds.every((sid) => completedStepIds.has(sid)),
+    ).length;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { completed, total, percent };
+  },
+
+  /**
+   * Прогресс потока в разрезе проектов: сколько проектов полностью завершены.
+   * Проект завершён, когда ВСЕ его уроки завершены.
+   */
+  computeStreamProjectProgress(
+    snapshot: ContentSnapshot,
+    student: { steps: StepRecord[] },
+  ): Progress {
+    const completedStepIds = new Set(
+      student.steps
+        .filter((s) => s.status === 'completed')
+        .map((s) => s.stepId),
+    );
+
+    const total = snapshot.length;
+    const completed = snapshot.filter((p) =>
+      p.lessons.every((l) =>
+        l.stepIds.every((sid) => completedStepIds.has(sid)),
+      ),
+    ).length;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { completed, total, percent };
+  },
 };

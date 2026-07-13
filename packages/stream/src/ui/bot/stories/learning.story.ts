@@ -141,9 +141,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     if (!isFinished) {
-      const hasStarted = student.steps.some(
-        (s) => s.status === 'completed',
-      );
+      const hasStarted = student.steps.some((s) => s.status === 'completed');
       rows.push([
         {
           text: hasStarted ? '▶️ Продолжить учёбу' : '▶️ Начать учёбу',
@@ -246,7 +244,13 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     if (result.level === 'lesson' || result.level === 'project') {
-      return this.#announceTransition(result, streamId, student);
+      // Перезагружаем студента — completeStep мутирует и сохраняет новое состояние
+      const freshStudent = await this.moduleApi.execute(
+        'get-student-progress',
+        { studentId: student.uuid },
+        actor.uuid,
+      );
+      return this.#announceTransition(result, streamId, freshStudent);
     }
 
     return this.#showCurrentStep(actor, result.currentStepId);
@@ -922,58 +926,57 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     student: Student,
   ): Promise<BotResponse> {
     const stream = await this.moduleApi.execute('get-stream', { streamId });
-    const ds = new CourseDs();
+    const esc = this.escapeMarkdown;
 
     let messageText: string;
     let buttonText: string;
     let progressLine = '';
 
     if (result.level === 'lesson' && result.completedLessonId) {
-      const completedTitle = ds.findLessonTitle(
-        stream.contentSnapshot,
-        result.completedLessonId,
-      );
-      messageText = `🎉 Урок «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
+      // Найти проект, содержащий этот урок
+      let projectIdx = 0;
+      let projectTitle = '';
+      for (let pi = 0; pi < stream.contentSnapshot.length; pi++) {
+        const p = stream.contentSnapshot[pi];
+        if (p?.lessons.some((l) => l.lessonId === result.completedLessonId)) {
+          projectIdx = pi;
+          projectTitle = p.projectTitle;
+          break;
+        }
+      }
+
+      const lessonTitle =
+        StreamDs.buildLessonSteps(
+          stream.contentSnapshot,
+          result.completedLessonId,
+          student,
+        )?.lessonTitle ?? '';
+
+      messageText = `🎉 Урок «${esc(lessonTitle)}» завершён\\!`;
       buttonText = '▶️ Начать следующий урок';
 
-      // Прогресс проекта
-      for (const project of stream.contentSnapshot) {
-        for (const lesson of project.lessons) {
-          if (lesson.lessonId === result.completedLessonId) {
-            const completed = project.lessons.filter((l) =>
-              l.stepIds.every((s) =>
-                student.steps.some(
-                  (sr) => sr.stepId === s && sr.status === 'completed',
-                ),
-              ),
-            ).length;
-            const total = project.lessons.length;
-            progressLine = `\\n📊 ${this.formatProgressBar(completed, total)} — «${this.escapeMarkdown(project.projectTitle)}»`;
-            break;
-          }
-        }
-        if (progressLine) break;
-      }
-    } else if (result.level === 'project' && result.completedProjectId) {
-      const completedTitle = ds.findProjectTitle(
+      const progress = StreamDs.computeProjectLevelProgress(
         stream.contentSnapshot,
-        result.completedProjectId,
+        projectIdx,
+        student,
       );
-      messageText = `🚀 Проект «${this.escapeMarkdown(completedTitle)}» завершён\\!`;
+      progressLine = `\n📊 Проект: ${this.formatProgressBar(progress.completed, progress.total)} — «${esc(projectTitle)}»`;
+    } else if (result.level === 'project' && result.completedProjectId) {
+      const title =
+        StreamDs.buildLessonSteps(
+          stream.contentSnapshot,
+          result.completedProjectId,
+          student,
+        )?.projectTitle ?? '';
+
+      messageText = `🚀 Проект «${esc(title)}» завершён\\!`;
       buttonText = '▶️ Начать следующий проект';
 
-      // Прогресс потока: считаем завершённые проекты
-      const completed = stream.contentSnapshot.filter((p) =>
-        p.lessons.every((l) =>
-          l.stepIds.every((s) =>
-            student.steps.some(
-              (sr) => sr.stepId === s && sr.status === 'completed',
-            ),
-          ),
-        ),
-      ).length;
-      const total = stream.contentSnapshot.length;
-      progressLine = `\\n📊 ${this.formatProgressBar(completed, total)} — «${this.escapeMarkdown(stream.title)}»`;
+      const progress = StreamDs.computeStreamProjectProgress(
+        stream.contentSnapshot,
+        student,
+      );
+      progressLine = `\n📊 Поток: ${this.formatProgressBar(progress.completed, progress.total)} — «${esc(stream.title)}»`;
     } else {
       messageText = '🎉 Отличная работа!';
       buttonText = '▶️ Продолжить';
