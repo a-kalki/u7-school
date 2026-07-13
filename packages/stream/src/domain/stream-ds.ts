@@ -2,52 +2,12 @@ import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { StreamAr } from './stream/a-root';
 import type { StudentAr } from './student/a-root';
 import type { StepRecord } from './student/entity';
-import type { CompletionResult } from './types';
-
-// ── Типы для навигации и прогресса ──
-
-/** Узел шага в дереве навигации */
-export type StepNode = {
-  stepId: string;
-  status: 'completed' | 'current' | 'locked';
-};
-
-/** Представление шагов урока для рендеринга */
-export type LessonStepsView = {
-  lessonTitle: string;
-  lessonIndex: number; // 1-based
-  projectTitle: string;
-  projectIndex: number; // 1-based
-  steps: StepNode[];
-};
-
-/** Узел урока в дереве навигации */
-export type LessonNode = {
-  lessonId: string;
-  title: string;
-  completedSteps: number;
-  totalSteps: number;
-};
-
-/** Узел проекта в дереве навигации */
-export type ProjectNode = {
-  title: string;
-  completedLessons: number;
-  totalLessons: number;
-  lessons: LessonNode[];
-};
-
-/** Полное дерево навигации: проекты → уроки с прогрессом */
-export type NavigationTree = {
-  projects: ProjectNode[];
-};
-
-/** Прогресс студента: завершено / всего / процент */
-export type Progress = {
-  completed: number;
-  total: number;
-  percent: number;
-};
+import type {
+  CompletionResult,
+  LessonStepsView,
+  NavigationTree,
+  Progress,
+} from './types';
 
 export const StreamDs = {
   /**
