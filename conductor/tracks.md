@@ -19,7 +19,7 @@
 - [x] ~~**Track: Gating модулей (Синтаксис → Алгоритмика)**~~ → [архив](./archive/module_gating_20260708/)
 
 - [x] ~~**Track: Навигация студента**~~ — *зависит: трек 1, трек 2*
-*Link: [./tracks/student_navigation_20260708/](./tracks/student_navigation_20260708/)*
+*Link: [./archive/student_navigation_20260708/](./archive/student_navigation_20260708/)*
 
 - [ ] **Track: Витрина для любопытного + Инструменты ментора** — *зависит: трек 0, трек 2*
 *Link: [./tracks/curious_showcase_20260708/](./tracks/curious_showcase_20260708/)*
