@@ -698,4 +698,48 @@ describe('CourseCatalogStory', () => {
     expect(programBtn).toBeDefined();
     expect(programBtn![0]!.code).toBe(`course-catalog:program:${courseUuid}`);
   });
+
+  test('S00b: длинные сообщения обрезаются на ~4000 символов', async () => {
+    const manySteps = Array.from({ length: 100 }, (_, i) => ({
+      uuid: `step-${i}`,
+      description: `Шаг номер ${i + 1} — очень подробное описание которое занимает много символов`,
+    }));
+
+    const moduleApi = makeModuleApiFull(
+      [],
+      {},
+      {
+        'mod-w': [
+          {
+            projectId: 'proj-1',
+            projectTitle: 'App',
+            lessons: [
+              {
+                lessonId: 'les-q',
+                lessonTitle: 'Урок',
+                stepIds: manySteps.map((s) => s.uuid),
+              },
+            ],
+          },
+        ],
+      },
+      { 'les-q': manySteps },
+    );
+
+    const story = new CourseCatalogStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'program:lesson:mod-w:0:0',
+      actor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    expect(response.sendMessage!.text!.length).toBeLessThanOrEqual(4100);
+    // Урезанный текст должен заканчиваться экранированным многоточием (три \.
+    expect(response.sendMessage?.text?.endsWith('\\.\\.\\.') ?? false).toBe(
+      true,
+    );
+  });
 });

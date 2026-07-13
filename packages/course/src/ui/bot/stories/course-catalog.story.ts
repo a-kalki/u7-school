@@ -268,7 +268,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: lines.join('\n'),
+        text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -333,7 +333,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: lines.join('\n'),
+        text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -392,7 +392,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: lines.join('\n'),
+        text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -462,7 +462,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: lines.join('\n'),
+        text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -536,7 +536,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: lines.join('\n'),
+        text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -572,5 +572,11 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     if (r === 1) return one;
     if (r >= 2 && r <= 4) return two;
     return five;
+  }
+
+  /** Обрезает текст до maxLen символов (с экранированным многоточием) */
+  #truncate(text: string, maxLen = 4000): string {
+    if (text.length <= maxLen) return text;
+    return `${text.slice(0, maxLen - 15)}${this.escapeMarkdown('...')}`;
   }
 }
