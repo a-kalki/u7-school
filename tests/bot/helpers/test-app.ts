@@ -45,6 +45,8 @@ export interface TestApp {
   apiApp: U7BotApp;
   /** API модуля stream (для создания StreamController) */
   streamModule: StreamApiModule;
+  /** API модуля курсов (для создания CourseController) */
+  courseModule: CourseApiModule;
   /** Фасад пользователей (для получения тестовых акторов) */
   userFacade: UserInProcFacade;
   /** Фасад курсов */
@@ -115,6 +117,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   return {
     apiApp,
     streamModule,
+    courseModule,
     userFacade,
     courseFacade,
     tgFacade,
