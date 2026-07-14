@@ -42,7 +42,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
     await app.cleanup();
   });
 
-  async function createCourseWithModule(title: string): Promise<{ courseId: string; moduleId: string }> {
+  async function createCourseWithModule(
+    title: string,
+  ): Promise<{ courseId: string; moduleId: string }> {
     const course = await app.apiApp.execute(
       'create-course',
       { title, description: 'Интеграционный тест' },
@@ -53,7 +55,11 @@ describe('CourseCatalogStory (интеграционный)', () => {
       { title: 'Модуль', description: 'Тестовый модуль' },
       author.uuid,
     );
-    await app.apiApp.execute('publish-module', { moduleId: mod.uuid }, author.uuid);
+    await app.apiApp.execute(
+      'publish-module',
+      { moduleId: mod.uuid },
+      author.uuid,
+    );
     await app.apiApp.execute(
       'add-phase-to-course',
       { courseId: course.uuid, title: 'Этап 1', track: 'tech' },
@@ -135,7 +141,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
     // Кнопка «Назад к карточке»
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к карточке'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к карточке'))).toBe(
+      true,
+    );
   });
 
   test('S00b: несуществующий курс — ошибка', async () => {
@@ -164,7 +172,11 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
     await app.apiApp.execute(
       'add-module-to-course',
-      { courseId: course.uuid, phaseTitle: 'Этап', moduleId: FIXTURE_MODULE_UUID },
+      {
+        courseId: course.uuid,
+        phaseTitle: 'Этап',
+        moduleId: FIXTURE_MODULE_UUID,
+      },
       author.uuid,
     );
 
@@ -181,9 +193,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     const backBtn = rows.find((r) => r[0]?.text?.includes('Назад к этапам'));
     expect(backBtn).toBeDefined();
-    expect(backBtn![0]!.code).toMatch(
-      /^course:course-catalog:program:.+/,
-    );
+    expect(backBtn![0]!.code).toMatch(/^course:course-catalog:program:.+/);
   });
 
   // ── S00b.3 ──
@@ -202,7 +212,11 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
     await app.apiApp.execute(
       'add-module-to-course',
-      { courseId: course.uuid, phaseTitle: 'Этап', moduleId: FIXTURE_MODULE_UUID },
+      {
+        courseId: course.uuid,
+        phaseTitle: 'Этап',
+        moduleId: FIXTURE_MODULE_UUID,
+      },
       author.uuid,
     );
 

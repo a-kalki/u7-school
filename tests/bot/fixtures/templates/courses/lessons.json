@@ -28,9 +28,7 @@
     "moduleId": "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1",
     "title": "Линейный поиск",
     "status": "published",
-    "stepIds": [
-      "e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"
-    ],
+    "stepIds": ["e6e6e6e6-e6e6-e6e6-e6e6-e6e6e6e6e6e6"],
     "mentorStepIds": [],
     "createdAt": "2026-06-15T01:00"
   },
