@@ -22,11 +22,33 @@ describe('ViewStreamStory', () => {
     roles: [Role.STUDENT],
     createdAt: '2026-01-01T00:00:00.000Z',
   };
+  const mentorActor: User = {
+    uuid: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+    name: 'Алексей Смирнов',
+    telegramId: 999,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+  const otherMentorActor: User = {
+    uuid: 'o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o',
+    name: 'Другой Ментор',
+    telegramId: 888,
+    roles: [Role.MENTOR],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+  const adminActor: User = {
+    uuid: 'admin-1',
+    name: 'Админ',
+    telegramId: 777,
+    roles: [Role.ADMIN],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
 
   const sampleStream = {
     uuid: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
     title: 'Python Advanced',
     description: 'Продвинутый курс',
+    moduleId: 'mod-1',
     status: 'enrollment',
     startDate: '2026-06-01T00:00:00.000Z',
     mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
@@ -34,7 +56,6 @@ describe('ViewStreamStory', () => {
 
   /**
    * Создаёт моки и сторис одним вызовом.
-   * Возвращает story, moduleApi, appApi с правильными типами.
    */
   const makeViewStory = (
     stream: Record<string, unknown>,
@@ -55,6 +76,8 @@ describe('ViewStreamStory', () => {
       execute: mock((name: string) => {
         if (name === 'get-user')
           return { uuid: 'm1', name: mentorName, roles: [Role.MENTOR] };
+        if (name === 'list-courses')
+          return [{ uuid: 'course-1', title: 'Python', moduleIds: ['mod-1'] }];
         return undefined;
       }),
     } as unknown as U7BotApp;
@@ -62,6 +85,8 @@ describe('ViewStreamStory', () => {
     story.init(moduleApi, appApi);
     return { story, moduleApi, appApi };
   };
+
+  // ── Базовое отображение ──
 
   test('handleCallback("view:<id>") показывает карточку потока', async () => {
     const { story } = makeViewStory(sampleStream, 0);
@@ -105,7 +130,7 @@ describe('ViewStreamStory', () => {
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
   });
 
-  test('GUEST на enrollment — кнопки «Записаться», «Программа», «Назад»', async () => {
+  test('GUEST на enrollment — кнопки «Записаться», «Программа», «Детали», «Студенты», «Назад»', async () => {
     const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
@@ -118,11 +143,13 @@ describe('ViewStreamStory', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Программа'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад'))).toBe(true);
   });
 
-  test('GUEST на active — кнопки «Уведомить», «Назад» без «Записаться»', async () => {
+  test('GUEST на active — кнопки «Программа курса» и «Детали» видны', async () => {
     const activeStream = { ...sampleStream, status: 'active' };
     const { story } = makeViewStory(activeStream, 0);
 
@@ -135,9 +162,10 @@ describe('ViewStreamStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Уведомить'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Назад'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
   });
 
   test('STUDENT на enrollment — НЕ видит «Записаться»', async () => {
@@ -166,6 +194,8 @@ describe('ViewStreamStory', () => {
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Алексей Смирнов');
   });
+
+  // ── Программа курса (видна на любом статусе) ──
 
   test('кнопка «Программа курса» показывает contentSnapshot', async () => {
     const streamWithContent = {
@@ -211,10 +241,6 @@ describe('ViewStreamStory', () => {
     expect(text).toContain('Переменные');
     expect(text).toContain('Продвинутый');
     expect(text).toContain('Асинхронность');
-
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Назад к потоку'))).toBe(true);
   });
 
   test('handleStart возвращает null (не в меню)', async () => {
@@ -223,25 +249,9 @@ describe('ViewStreamStory', () => {
     expect(item).toBeNull();
   });
 
-  // ── US-7: Менторские кнопки ──
+  // ── НЕТ менторских lifecycle-кнопок (curious-режим) ──
 
-  const mentorActor: User = {
-    uuid: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
-    name: 'Алексей Смирнов',
-    telegramId: 999,
-    roles: [Role.MENTOR],
-    createdAt: '2026-01-01T00:00:00.000Z',
-  };
-
-  const otherMentorActor: User = {
-    uuid: 'o-o-o-o-o-o-o-o-o-o-o-o-o-o-o-o',
-    name: 'Другой Ментор',
-    telegramId: 888,
-    roles: [Role.MENTOR],
-    createdAt: '2026-01-01T00:00:00.000Z',
-  };
-
-  test('MENTOR на своём enrollment — кнопки «Запустить», «Студенты», «В архив»', async () => {
+  test('MENTOR на своём enrollment — НЕ видит «Запустить» / «В архив»', async () => {
     const { story } = makeViewStory(sampleStream, 5);
 
     const response = await story.handleCallback(
@@ -253,14 +263,18 @@ describe('ViewStreamStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(true);
+    // Менторские lifecycle-кнопки убраны из curious-режима
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
+
+    // Публичные кнопки видны всем
     expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
-    // Ментор не видит «Записаться» на своём потоке
-    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
   });
 
-  test('MENTOR на своём active — кнопки «Завершить», «Студенты», «В архив»', async () => {
+  test('MENTOR на своём active — НЕ видит менторских кнопок', async () => {
     const activeStream = { ...sampleStream, status: 'active' };
     const { story } = makeViewStory(activeStream, 8);
 
@@ -273,13 +287,12 @@ describe('ViewStreamStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
   });
 
-  test('MENTOR на чужом потоке — НЕ видит менторских кнопок', async () => {
+  test('MENTOR на чужом потоке — видит только публичные кнопки', async () => {
     const { story } = makeViewStory(sampleStream, 3);
 
     const response = await story.handleCallback(
@@ -293,127 +306,13 @@ describe('ViewStreamStory', () => {
 
     expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
   });
 
-  test('кнопка «Завершить» показывает подтверждение', async () => {
-    const { story, moduleApi } = makeViewStory(
-      { ...sampleStream, status: 'active' },
-      0,
-    );
-
-    const response = await story.handleCallback(
-      'complete:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      mentorActor,
-      session,
-    );
-
-    // Не должен вызывать complete-stream — только показ подтверждения
-    expect(moduleApi.execute).not.toHaveBeenCalledWith(
-      'complete-stream',
-      expect.anything(),
-      expect.anything(),
-    );
-
-    // Текст предупреждения
-    expect(response.sendMessage?.text).toContain('Завершить поток');
-
-    // Кнопки: «Да, завершить» и «Отмена»
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Да, завершить'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
-  });
-
-  test('подтверждение «Завершить» вызывает complete-stream', async () => {
-    const { story, moduleApi } = makeViewStory(
-      { ...sampleStream, status: 'active' },
-      0,
-    );
-
-    const response = await story.handleCallback(
-      'complete-confirm:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      mentorActor,
-      session,
-    );
-
-    expect(moduleApi.execute).toHaveBeenCalledWith(
-      'complete-stream',
-      {
-        streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      },
-      mentorActor.uuid,
-    );
-
-    // Кнопка «⬅️ Назад к списку» после завершения
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.length).toBe(1);
-    expect(rows[0]![0]!.text).toBe('⬅️ Назад к списку');
-    expect(rows[0]![0]!.code).toBe('catalog:list');
-  });
-
-  test('кнопка «В архив» показывает подтверждение', async () => {
-    const { story, moduleApi } = makeViewStory(sampleStream, 0);
-
-    const response = await story.handleCallback(
-      'archive:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      mentorActor,
-      session,
-    );
-
-    // Не должен вызывать archive-stream — только показ подтверждения
-    expect(moduleApi.execute).not.toHaveBeenCalledWith(
-      'archive-stream',
-      expect.anything(),
-      expect.anything(),
-    );
-
-    // Текст предупреждения
-    expect(response.sendMessage?.text).toContain('архив');
-
-    // Кнопки: «Да, в архив» и «Отмена»
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Да, в архив'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
-  });
-
-  test('подтверждение «В архив» вызывает archive-stream', async () => {
-    const { story, moduleApi } = makeViewStory(sampleStream, 0);
-
-    const response = await story.handleCallback(
-      'archive-confirm:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      mentorActor,
-      session,
-    );
-
-    expect(moduleApi.execute).toHaveBeenCalledWith(
-      'archive-stream',
-      {
-        streamId: 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
-      },
-      mentorActor.uuid,
-    );
-
-    // Кнопка «⬅️ Назад к списку» после архивации
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.length).toBe(1);
-    expect(rows[0]![0]!.text).toBe('⬅️ Назад к списку');
-    expect(rows[0]![0]!.code).toBe('catalog:list');
-  });
-
-  // ── US-7: Админ видит менторские кнопки на любом потоке ──
-
-  const adminActor: User = {
-    uuid: 'admin-1',
-    name: 'Админ',
-    telegramId: 777,
-    roles: [Role.ADMIN],
-    createdAt: '2026-01-01T00:00:00.000Z',
-  };
-
-  test('ADMIN на чужом enrollment — видит менторские кнопки', async () => {
+  test('ADMIN на чужом потоке — НЕ видит менторских lifecycle-кнопок', async () => {
     const { story } = makeViewStory(sampleStream, 5);
 
     const response = await story.handleCallback(
@@ -425,31 +324,15 @@ describe('ViewStreamStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
   });
 
-  test('ADMIN на чужом active — видит менторские кнопки', async () => {
-    const activeStream = { ...sampleStream, status: 'active' };
-    const { story } = makeViewStory(activeStream, 8);
+  // ── Строчка «📚 Курс: Fullstack JS» ──
 
-    const response = await story.handleCallback(
-      'view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
-      adminActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
-  });
-
-  test('GUEST на потоке ментора — НЕ видит менторских кнопок', async () => {
-    const { story } = makeViewStory(sampleStream, 3);
+  test('карточка потока содержит строчку «📚 Курс: Fullstack JS» (техдолг)', async () => {
+    const { story } = makeViewStory(sampleStream, 0);
 
     const response = await story.handleCallback(
       'view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
@@ -457,13 +340,7 @@ describe('ViewStreamStory', () => {
       session,
     );
     assertResponseMarkdownSafe(response);
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
+    expect(response.sendMessage?.text).toContain('📚 Курс: Fullstack JS');
   });
 
   // ── Детали ──
@@ -482,7 +359,7 @@ describe('ViewStreamStory', () => {
   });
 
   test('нажатие «📋 Детали» — показывает заполненные поля', async () => {
-    const { story, moduleApi } = makeViewStory(
+    const { story } = makeViewStory(
       {
         ...sampleStream,
         goal: 'Научиться программировать',
