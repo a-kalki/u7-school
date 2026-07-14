@@ -976,10 +976,10 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         stream.contentSnapshot,
         student,
       );
-      const projectProgress = StreamDs.computeProgress(
-        [stream.contentSnapshot[projectIdx]!],
-        student,
-      );
+      const projectItem = stream.contentSnapshot[projectIdx];
+      const projectProgress = projectItem
+        ? StreamDs.computeProgress([projectItem], student)
+        : { completed: 0, total: 0 };
       progressLine =
         `\n📊 Прогресс по модулю: ${this.formatProgressBar(moduleProgress.completed, moduleProgress.total)}` +
         `\n📊 Прогресс по проекту: ${this.formatProgressBar(projectProgress.completed, projectProgress.total)}`;
