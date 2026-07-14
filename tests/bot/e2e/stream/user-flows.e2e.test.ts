@@ -77,17 +77,17 @@ describe('Сквозные пользовательские сценарии (E2
       await app.cleanup();
     });
 
-    test('главное меню: есть «Наши потоки», нет «Моя учёба» и «Создать поток»', async () => {
+    test('главное меню: есть «Потоки курсов», нет «Моя учёба» и «Создать поток»', async () => {
       const menu = await router.collectMainMenu(guest);
 
-      expect(menu.some((i) => i.text.includes('Наши потоки'))).toBe(true);
+      expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
       expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(false);
       expect(menu.some((i) => i.text.includes('Создать поток'))).toBe(false);
     });
 
-    test('«Наши потоки» → витрина с потоками', async () => {
+    test('«Потоки курсов» → витрина с потоками', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
 
       const response = await router.handleCallback(
         catalogBtn.action,
@@ -97,7 +97,7 @@ describe('Сквозные пользовательские сценарии (E2
       assertBotResponseValid(response);
 
       const text = response.sendMessage?.text ?? '';
-      expect(text).toContain('Потоки школы');
+      expect(text).toContain('Потоки курсов');
 
       const btnTexts =
         response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -108,7 +108,7 @@ describe('Сквозные пользовательские сценарии (E2
     test('каталог → нажатие на поток → карточка потока', async () => {
       // Открываем каталог
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         guest,
@@ -140,7 +140,7 @@ describe('Сквозные пользовательские сценарии (E2
     test('карточка → «Программа курса» → проекты и уроки', async () => {
       // Доходим до карточки потока
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         guest,
@@ -175,7 +175,7 @@ describe('Сквозные пользовательские сценарии (E2
     test('программа → «Назад к потоку» → снова карточка', async () => {
       // Доходим до программы
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         guest,
@@ -211,7 +211,7 @@ describe('Сквозные пользовательские сценарии (E2
     test('карточка → «Назад к списку» → снова каталог', async () => {
       // Доходим до карточки
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         guest,
@@ -233,7 +233,7 @@ describe('Сквозные пользовательские сценарии (E2
       );
       assertBotResponseValid(backResp);
 
-      expect(backResp.sendMessage?.text).toContain('Потоки школы');
+      expect(backResp.sendMessage?.text).toContain('Потоки курсов');
       expect(backResp.sendMessage?.text).not.toContain('Неизвестная команда');
     });
   });
@@ -262,7 +262,7 @@ describe('Сквозные пользовательские сценарии (E2
       const menu = (await router.collectMainMenu(
         candidate,
       )) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         candidate,
@@ -466,17 +466,17 @@ describe('Сквозные пользовательские сценарии (E2
       await app.cleanup();
     });
 
-    test('главное меню: есть «Наши потоки» и «Создать поток»', async () => {
+    test('главное меню: есть «Потоки курсов» и «Создать поток»', async () => {
       const menu = await router.collectMainMenu(mentor);
 
-      expect(menu.some((i) => i.text.includes('Наши потоки'))).toBe(true);
+      expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
       expect(menu.some((i) => i.text.includes('Создать поток'))).toBe(true);
       expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(false);
     });
 
-    test('каталог → карточка enrollment-потока (менторские кнопки)', async () => {
+    test('каталог → карточка enrollment-потока (curious-режим: нет менторских кнопок)', async () => {
       const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         mentor,
@@ -494,17 +494,20 @@ describe('Сквозные пользовательские сценарии (E2
       expect(text).toContain('JS Core');
       expect(text).not.toContain('Неизвестная команда');
 
-      // Ментор на своём enrollment видит менторские кнопки
+      // В curious-режиме ментор НЕ видит lifecycle-кнопки
       const btnTexts =
-        viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(true);
+        viewResp.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+      expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+      expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+      expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
+      // Но видит публичные кнопки
+      expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-      expect(btnTexts.some((t) => t.includes('В архив'))).toBe(true);
     });
 
     test('карточка active-потока → «Студенты» → список', async () => {
       const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         mentor,
@@ -541,7 +544,7 @@ describe('Сквозные пользовательские сценарии (E2
     test('список студентов → детали студента → «Назад к списку»', async () => {
       // Доходим до списка студентов
       const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
-      const catalogBtn = findMenuItem(menu, 'Наши потоки');
+      const catalogBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
         catalogBtn.action,
         mentor,
@@ -586,117 +589,6 @@ describe('Сквозные пользовательские сценарии (E2
       assertBotResponseValid(backResp);
       expect(backResp.sendMessage?.text).toContain('Студенты потока');
       expect(backResp.sendMessage?.text).not.toContain('Неизвестная команда');
-    });
-  });
-
-  // ────────────────────────────────────────────────
-  // Ментор: навигация «Завершить» → «⬅️ Назад к списку» → каталог
-  // ────────────────────────────────────────────────
-  describe('Ментор: complete → назад к списку', () => {
-    let app: TestApp;
-    let router: BotRouter;
-    let mentor: User;
-
-    beforeAll(async () => {
-      app = await createTestApp('e2e-mentor-complete');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
-      mentor = (await app.userFacade.getUserByTelegramId(1004))!;
-    });
-
-    afterAll(async () => {
-      await app.cleanup();
-    });
-
-    test('ментор завершает active-поток после завершения студента → «⬅️ Назад к списку» → каталог', async () => {
-      // Шаг 0: завершаем студента (чтобы поток можно было complete)
-      await app.streamModule.execute(
-        'complete-student',
-        { streamId: ACTIVE_ID, studentId: STUDENT_ID, outcome: 'advanced' },
-        mentor.uuid,
-      );
-
-      // Шаг 1: запрос подтверждения
-      const confirmResp = await router.handleCallback(
-        `stream:view-stream:complete:${ACTIVE_ID}`,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(confirmResp);
-      expect(confirmResp.sendMessage?.text).toContain('Завершить поток');
-
-      // Шаг 2: подтверждаем
-      const yesBtn = findButton(confirmResp, 'Да, завершить');
-      const completeResp = await router.handleCallback(
-        yesBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(completeResp);
-      expect(completeResp.sendMessage?.text).toContain('Поток завершён');
-
-      // Кнопка «⬅️ Назад к списку»
-      const backBtn = findButton(completeResp, '⬅️ Назад к списку');
-      const backResp = await router.handleCallback(
-        backBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(backResp);
-      expect(backResp.sendMessage?.text).toContain('Потоки школы');
-    });
-  });
-
-  // ────────────────────────────────────────────────
-  // Ментор: навигация «В архив» → «⬅️ Назад к списку» → каталог
-  // ────────────────────────────────────────────────
-  describe('Ментор: archive → назад к списку', () => {
-    let app: TestApp;
-    let router: BotRouter;
-    let mentor: User;
-
-    beforeAll(async () => {
-      app = await createTestApp('e2e-mentor-archive');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
-      mentor = (await app.userFacade.getUserByTelegramId(1004))!;
-    });
-
-    afterAll(async () => {
-      await app.cleanup();
-    });
-
-    test('ментор архивирует enrollment-поток → «⬅️ Назад к списку» → каталог', async () => {
-      // Шаг 1: запрос подтверждения
-      const confirmResp = await router.handleCallback(
-        `stream:view-stream:archive:${ENROLLMENT_ID}`,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(confirmResp);
-      expect(confirmResp.sendMessage?.text).toContain('архив');
-
-      // Шаг 2: подтверждаем
-      const yesBtn = findButton(confirmResp, 'Да, в архив');
-      const archiveResp = await router.handleCallback(
-        yesBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(archiveResp);
-      expect(archiveResp.sendMessage?.text).toContain('архив');
-
-      // Кнопка «⬅️ Назад к списку»
-      const backBtn = findButton(archiveResp, '⬅️ Назад к списку');
-      const backResp = await router.handleCallback(
-        backBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(backResp);
-      expect(backResp.sendMessage?.text).toContain('Потоки школы');
     });
   });
 

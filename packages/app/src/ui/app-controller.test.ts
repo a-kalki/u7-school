@@ -110,7 +110,7 @@ describe('AppController', () => {
         [],
         [
           '💬 Сообщество школы — ссылка на группу',
-          '📚 Наши потоки — просмотр каталога',
+          '📚 Потоки курсов — просмотр каталога',
         ],
       ),
     );
@@ -123,7 +123,7 @@ describe('AppController', () => {
     expect(text).toContain('После выбора кнопки');
     expect(text).toContain('/cancel');
     expect(text).toContain('Сообщество школы');
-    expect(text).toContain('Наши потоки');
+    expect(text).toContain('Потоки курсов');
 
     // Кнопка «Назад»
     expect(res!.sendMessage!.keyboard).toBeDefined();

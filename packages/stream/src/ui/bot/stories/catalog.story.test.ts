@@ -43,7 +43,7 @@ describe('CatalogStory', () => {
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Потоки школы');
+    expect(response.sendMessage?.text).toContain('Потоки курсов');
     expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
@@ -63,7 +63,7 @@ describe('CatalogStory', () => {
     const story = new CatalogStory();
     const item = await story.handleStart(actor);
     expect(item?.kind).toBe('callback');
-    expect(item?.text).toContain('Наши потоки');
+    expect(item?.text).toContain('Потоки курсов');
     expect(item?.priority).toBe(10);
     // TS narrowing: после проверки kind TypeScript знает что action существует
     if (item?.kind === 'callback') {
@@ -74,7 +74,7 @@ describe('CatalogStory', () => {
   test('handleHelpDescription возвращает описание', async () => {
     const story = new CatalogStory();
     const desc = await story.handleHelpDescription(actor);
-    expect(desc).toContain('Наши потоки');
+    expect(desc).toContain('Потоки курсов');
     expect(desc).toContain('каталога');
   });
 

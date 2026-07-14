@@ -98,7 +98,7 @@ describe('Главное меню (интеграционные)', () => {
     const response = await router.handleHelp(guest);
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Как со мной работать?');
-    expect(text).toContain('Наши потоки');
+    expect(text).toContain('Потоки курсов');
     expect(text).toContain('Сообщество школы');
     expect(text).toContain('/cancel');
     // Кнопка «Назад»

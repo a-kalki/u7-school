@@ -119,7 +119,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: `📚 *Потоки школы*${legend}`,
+        text: `📚 *Потоки курсов*${legend}`,
         parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
@@ -137,13 +137,13 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
   override async handleStart(_actor: User): Promise<MainMenuAction | null> {
     return {
       kind: 'callback',
-      text: '📚 Наши потоки',
+      text: '📚 Потоки курсов',
       action: this.cb('list'),
       priority: 10,
     };
   }
 
   override async handleHelpDescription(_actor: User): Promise<string | null> {
-    return '📚 Наши потоки — просмотр каталога учебных потоков школы';
+    return '📚 Потоки курсов — просмотр каталога учебных потоков школы';
   }
 }

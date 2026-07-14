@@ -92,7 +92,7 @@ describe('ViewStreamStory e2e', () => {
     expect(btns.some((t) => t.includes('Уведомить'))).toBe(true);
   });
 
-  test('гость → completed: только кнопка назад', async () => {
+  test('гость → completed: публичные кнопки (Программа, Студенты, Детали)', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:view:${COMPLETED_ID}`,
       guest,
@@ -101,10 +101,13 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
     expect(btns.some((t) => t.includes('Уведомить'))).toBe(false);
-    expect(btns.some((t) => t.includes('Программа'))).toBe(false);
+    // В curious-режиме Программа/Студенты/Детали видны на любом статусе
+    expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
+    expect(btns.some((t) => t.includes('Детали'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад'))).toBe(true);
   });
 
@@ -146,7 +149,7 @@ describe('ViewStreamStory e2e', () => {
   // Ментор — свой поток
   // ═══════════════════════════════════════════
 
-  test('ментор → свой enrollment: запустить, студенты, архив', async () => {
+  test('ментор → свой enrollment: нет lifecycle-кнопок, но есть публичные', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:view:${ENROLLMENT_ID}`,
       mentor,
@@ -155,14 +158,17 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t.includes('Запустить'))).toBe(true);
+      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+    // В curious-режиме lifecycle-кнопки не видны
+    expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btns.some((t) => t.includes('В архив'))).toBe(false);
+    // Публичные кнопки видны
+    expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
     expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btns.some((t) => t.includes('В архив'))).toBe(true);
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
   });
 
-  test('ментор → свой active: завершить, студенты, архив', async () => {
+  test('ментор → свой active: нет lifecycle-кнопок, но есть публичные', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:view:${ACTIVE_ID}`,
       mentor,
@@ -171,13 +177,19 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btns.some((t) => t.includes('Завершить'))).toBe(true);
+      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+    // В curious-режиме lifecycle-кнопки не видны
+    expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btns.some((t) => t.includes('В архив'))).toBe(false);
+    // Публичные кнопки видны
+    expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
     expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btns.some((t) => t.includes('В архив'))).toBe(true);
   });
 
-  test('ментор → complete: показывает подтверждение', async () => {
+  // Примечание: complete/archive lifecycle-хендлеры перенесены в ViewStreamMentorStory
+  // (трек mentor_tools_20260713). Callback view-stream:complete/archive возвращает «Неизвестная команда».
+
+  test('ментор → complete: возвращает неизвестную команду (lifecycle в mentor_tools)', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:complete:${ACTIVE_ID}`,
       mentor,
@@ -186,18 +198,12 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Завершить поток');
-
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Да, завершить'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+    expect(text).toContain('Неизвестная команда');
   });
 
-  // Примечание: complete-confirm больше не завершает поток, если есть active студенты.
-  // Ментор должен сначала завершить студентов через complete-student.
+  // Примечание: complete-confirm больше не существует (lifecycle в mentor_tools).
 
-  test('ментор → archive: показывает подтверждение', async () => {
+  test('ментор → archive: возвращает неизвестную команду (lifecycle в mentor_tools)', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:archive:${ACTIVE_ID}`,
       mentor,
@@ -206,15 +212,10 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('архив');
-
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Да, в архив'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+    expect(text).toContain('Неизвестная команда');
   });
 
-  test('ментор → archive-confirm: архивирует поток', async () => {
+  test('ментор → archive-confirm: возвращает неизвестную команду (lifecycle в mentor_tools)', async () => {
     const response = await router.handleCallback(
       `stream:view-stream:archive-confirm:${ACTIVE_ID}`,
       mentor,
@@ -223,13 +224,7 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('архив');
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    if (rows.length > 0) {
-      const btnTexts = rows.flat().map((b) => b.text);
-      expect(btnTexts.some((t) => t.includes('⬅️ Назад'))).toBe(true);
-    }
+    expect(text).toContain('Неизвестная команда');
   });
 
   // ═══════════════════════════════════════════

@@ -14,7 +14,7 @@ import { createTestApp } from '../../helpers/test-app';
  * - Гость → не видит completed + archived
  * - Студент → видит то же самое (публичная витрина)
  * - Ментор → видит то же самое (публичная витрина)
- * - Кнопка «Наши потоки» доступна всем ролям в главном меню
+ * - Кнопка «Потоки курсов» доступна всем ролям в главном меню
  */
 describe('CatalogStory e2e', () => {
   let app: TestApp;
@@ -49,7 +49,7 @@ describe('CatalogStory e2e', () => {
     assertBotResponseValid(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Потоки школы');
+    expect(text).toContain('Потоки курсов');
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -108,18 +108,18 @@ describe('CatalogStory e2e', () => {
 
   // ── Главное меню ──
 
-  test('кнопка «Наши потоки» доступна гостю', async () => {
+  test('кнопка «Потоки курсов» доступна гостю', async () => {
     const items = await router.collectMainMenu(guest);
-    expect(items.some((i) => i.text.includes('Наши потоки'))).toBe(true);
+    expect(items.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
   });
 
-  test('кнопка «Наши потоки» доступна студенту', async () => {
+  test('кнопка «Потоки курсов» доступна студенту', async () => {
     const items = await router.collectMainMenu(student);
-    expect(items.some((i) => i.text.includes('Наши потоки'))).toBe(true);
+    expect(items.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
   });
 
-  test('кнопка «Наши потоки» доступна ментору', async () => {
+  test('кнопка «Потоки курсов» доступна ментору', async () => {
     const items = await router.collectMainMenu(mentor);
-    expect(items.some((i) => i.text.includes('Наши потоки'))).toBe(true);
+    expect(items.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
   });
 });

@@ -10,7 +10,7 @@
 - Написан компиляционный тест
 
 ### Фаза 2: CatalogStory и ViewStreamStory (US-1, US-2)
-- **CatalogStory** (`catalog.story.ts`): `handleCallback('list')` — витрина потоков, `handleStart` — кнопка «📚 Наши потоки»
+- **CatalogStory** (`catalog.story.ts`): `handleCallback('list')` — витрина потоков, `handleStart` — кнопка «📚 Потоки курсов»
 - **ViewStreamStory** (`view-stream.story.ts`): `handleCallback('view:<id>')` — карточка потока, кнопка «Записаться» для enrollment
 
 ### Фаза 3: EnrollStory и LearningStory (US-3, US-4)

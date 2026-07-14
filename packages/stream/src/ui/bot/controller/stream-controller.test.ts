@@ -68,7 +68,7 @@ describe('StreamController (реестр)', () => {
 
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Наши потоки');
+    expect(texts).toContain('📚 Потоки курсов');
   });
 
   test('handleStart — STUDENT видит catalog + learning', async () => {
@@ -79,7 +79,7 @@ describe('StreamController (реестр)', () => {
 
     expect(items.length).toBeGreaterThanOrEqual(2);
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Наши потоки');
+    expect(texts).toContain('📚 Потоки курсов');
     expect(texts).toContain('📖 Моя учёба');
   });
 
@@ -90,7 +90,7 @@ describe('StreamController (реестр)', () => {
     const items = await controller.handleStart(mentorActor);
 
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Наши потоки');
+    expect(texts).toContain('📚 Потоки курсов');
     expect(texts).toContain('🛠️ Создать поток');
   });
 

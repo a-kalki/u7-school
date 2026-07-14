@@ -7,7 +7,7 @@
 
 ### FR-1: Структура стори
 Каждая стори — отдельный файл в `packages/stream/src/ui/bot/stories/`:
-- `catalog.story.ts` — US-1: список потоков, кнопка «Наши потоки»
+- `catalog.story.ts` — US-1: список потоков, кнопка «Потоки курсов»
 - `view-stream.story.ts` — US-2: карточка потока, кнопка «Записаться»
 - `enroll.story.ts` — US-3: запись на поток (+ делегирование в learning)
 - `learning.story.ts` — US-4: текущий шаг, кнопка «Выполнено», кнопка «Моя учёба»
@@ -31,7 +31,7 @@
 - `handleMessage` форвардит активной стори (из session.activeHandler)
 
 ### FR-4: Кнопки главного меню
-- «📚 Наши потоки» — всегда (catalog story)
+- «📚 Потоки курсов» — всегда (catalog story)
 - «📖 Моя учёба» — только STUDENT (learning story)
 - «🛠️ Панель ментора» — только MENTOR/ADMIN (create-stream, activate-stream, monitor stories)
 

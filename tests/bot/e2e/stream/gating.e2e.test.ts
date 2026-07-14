@@ -79,7 +79,7 @@ describe('Gating E2E (через бота)', () => {
     const menu = (await router.collectMainMenu(
       advancedUser,
     )) as CbMainMenuAction[];
-    const catalogBtn = findMenuItem(menu, 'Наши потоки');
+    const catalogBtn = findMenuItem(menu, 'Потоки курсов');
 
     // 2. Каталог → ищем Алгоритмику
     const catalogResp = await router.handleCallback(
@@ -130,7 +130,7 @@ describe('Gating E2E (через бота)', () => {
     const menu = (await router.collectMainMenu(
       notAdvancedUser,
     )) as CbMainMenuAction[];
-    const catalogBtn = findMenuItem(menu, 'Наши потоки');
+    const catalogBtn = findMenuItem(menu, 'Потоки курсов');
 
     const catalogResp = await router.handleCallback(
       catalogBtn.action,
