@@ -64,15 +64,15 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           case 'module':
             return this.#handleModuleProgram(
               rest[0] ?? '',
-              rest[1] ?? '',
-              Number(rest[2]),
+              Number(rest[1]),
+              rest[2] ?? '',
             );
           case 'lesson':
             return this.#handleLessonProgram(
               rest[0] ?? '',
               Number(rest[1]),
-              Number(rest[2]),
-              rest[3] ?? '',
+              rest[2] ?? '',
+              Number(rest[3]),
               Number(rest[4]),
             );
           default:
@@ -271,7 +271,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         rows.push([
           {
             text: `📦 ${modId.slice(0, 30)}`,
-            code: this.cb('program:module', modId, courseId, String(pi)),
+            code: this.cb('program:module', courseId, String(pi), modId),
           },
         ]);
       }
@@ -294,9 +294,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
   /** S00b.2: проекты + уроки каждого проекта inline */
   async #handleModuleProgram(
-    moduleId: string,
     courseId: string,
     phaseIdx: number,
+    moduleId: string,
   ): Promise<BotResponse> {
     if (!moduleId) {
       return { sendMessage: { text: '⚠️ Модуль не указан' } };
@@ -341,11 +341,11 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
             text: `📝 ${lesson.lessonTitle}`,
             code: this.cb(
               'program:lesson',
+              courseId,
+              String(phaseIdx),
               moduleId,
               String(pi),
               String(li),
-              courseId,
-              String(phaseIdx),
             ),
           },
         ]);
@@ -369,11 +369,11 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
   /** S00b.3: заголовки шагов урока (тела скрыты) */
   async #handleLessonProgram(
+    courseId: string,
+    phaseIdx: number,
     moduleId: string,
     projectIdx: number,
     lessonIdx: number,
-    courseId: string,
-    phaseIdx: number,
   ): Promise<BotResponse> {
     if (!moduleId) {
       return { sendMessage: { text: '⚠️ Модуль не указан' } };
@@ -437,9 +437,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
                 text: '⬅️ Назад к модулю',
                 code: this.cb(
                   'program:module',
-                  moduleId,
                   courseId,
                   String(phaseIdx),
+                  moduleId,
                 ),
               },
             ],

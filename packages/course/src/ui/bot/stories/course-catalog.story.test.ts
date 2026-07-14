@@ -425,7 +425,7 @@ describe('CourseCatalogStory', () => {
     );
     expect(moduleBtns.length).toBe(3);
     expect(moduleBtns[0]![0]!.code).toBe(
-      `course-catalog:program:module:mod-1:${courseUuid}:0`,
+      `course-catalog:program:module:${courseUuid}:0:mod-1`,
     );
     expect(rows.some((r) => r[0]?.text?.includes('Назад'))).toBe(true);
   });
@@ -468,7 +468,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      `program:module:mod-y:${courseUuid}:0`,
+      `program:module:${courseUuid}:0:mod-y`,
       actor,
       session,
     );
@@ -486,7 +486,7 @@ describe('CourseCatalogStory', () => {
     );
     expect(lessonBtns.length).toBe(2);
     expect(lessonBtns[0]![0]!.code).toBe(
-      `course-catalog:program:lesson:mod-y:0:0:${courseUuid}:0`,
+      `course-catalog:program:lesson:${courseUuid}:0:mod-y:0:0`,
     );
   });
 
@@ -532,7 +532,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      `program:lesson:mod-z:0:0:${courseUuid}:0`,
+      `program:lesson:${courseUuid}:0:mod-z:0:0`,
       actor,
       session,
     );
@@ -546,7 +546,7 @@ describe('CourseCatalogStory', () => {
     const backBtn = rows.find((r) => r[0]?.text?.includes('Назад к модулю'));
     expect(backBtn).toBeDefined();
     expect(backBtn![0]!.code).toBe(
-      `course-catalog:program:module:mod-z:${courseUuid}:0`,
+      `course-catalog:program:module:${courseUuid}:0:mod-z`,
     );
   });
 
@@ -583,7 +583,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      `program:lesson:mod-w:0:0:${courseUuid}:0`,
+      `program:lesson:${courseUuid}:0:mod-w:0:0`,
       actor,
       session,
     );
@@ -682,7 +682,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      `program:lesson:mod-w:0:0:${courseUuid}:0`,
+      `program:lesson:${courseUuid}:0:mod-w:0:0`,
       actor,
       session,
     );
