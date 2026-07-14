@@ -6,6 +6,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '../../../domain/content-snapshot';
 import type { Course } from '../../../domain/course/entity';
 import type { CourseApiModuleMeta } from '../../../domain/module';
 
@@ -60,17 +61,19 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         const sub = ids[0] ?? '';
         const rest = ids.slice(1);
         switch (sub) {
-          case 'phase':
-            return this.#handlePhase(rest[0] ?? '', Number(rest[1]));
           case 'module':
-            return this.#handleModuleProgram(rest[0] ?? '');
-          case 'project':
-            return this.#handleProject(rest[0] ?? '', Number(rest[1]));
+            return this.#handleModuleProgram(
+              rest[0] ?? '',
+              rest[1] ?? '',
+              Number(rest[2]),
+            );
           case 'lesson':
             return this.#handleLessonProgram(
               rest[0] ?? '',
               Number(rest[1]),
               Number(rest[2]),
+              rest[3] ?? '',
+              Number(rest[4]),
             );
           default:
             return this.#handleProgram(ids.join(':'));
@@ -218,9 +221,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     };
   }
 
-  // ── Приватные: S00b — программа курса (drill-down) ──
+  // ── Приватные: S00b — программа курса (drill-down, 3 уровня) ──
 
-  /** S00b.0: список этапов курса */
+  /** S00b.1: этапы + модули каждого этапа inline */
   async #handleProgram(courseId: string): Promise<BotResponse> {
     if (!courseId) {
       return { sendMessage: { text: '⚠️ Курс не указан' } };
@@ -242,8 +245,8 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
-    for (let i = 0; i < course.phases.length; i++) {
-      const phase = course.phases[i];
+    for (let pi = 0; pi < course.phases.length; pi++) {
+      const phase = course.phases[pi];
       if (!phase) continue;
       const emoji = phase.track
         ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
@@ -254,12 +257,26 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         `${emoji} *${this.escapeMarkdown(phase.title)}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
       );
 
-      rows.push([
-        {
-          text: `${emoji} ${phase.title}`,
-          code: this.cb('program:phase', courseId, String(i)),
-        },
-      ]);
+      // Модули этапа inline (один уровень вниз)
+      for (const modId of phase.moduleIds) {
+        try {
+          const mod = (await this.moduleApi.execute('get-module', {
+            uuid: modId,
+          })) as { title: string };
+          lines.push(`    📦 ${this.escapeMarkdown(mod.title)}`);
+        } catch {
+          lines.push(`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
+        }
+
+        rows.push([
+          {
+            text: `📦 ${modId.slice(0, 30)}`,
+            code: this.cb('program:module', modId, courseId, String(pi)),
+          },
+        ]);
+      }
+
+      lines.push('');
     }
 
     rows.push([
@@ -275,56 +292,66 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     };
   }
 
-  /** S00b.1: модули этапа */
-  async #handlePhase(courseId: string, phaseIdx: number): Promise<BotResponse> {
-    if (!courseId || Number.isNaN(phaseIdx)) {
-      return { sendMessage: { text: '⚠️ Некорректный запрос' } };
+  /** S00b.2: проекты + уроки каждого проекта inline */
+  async #handleModuleProgram(
+    moduleId: string,
+    courseId: string,
+    phaseIdx: number,
+  ): Promise<BotResponse> {
+    if (!moduleId) {
+      return { sendMessage: { text: '⚠️ Модуль не указан' } };
     }
 
-    let course: Course;
+    let snapshot: ContentSnapshot;
     try {
-      course = (await this.moduleApi.execute('get-course', {
-        uuid: courseId,
-      })) as Course;
+      snapshot = (await this.moduleApi.execute('get-module-snapshot', {
+        moduleId,
+      })) as ContentSnapshot;
     } catch {
-      return { sendMessage: { text: '⚠️ Курс не найден или недоступен' } };
+      return { sendMessage: { text: '⚠️ Модуль не найден или недоступен' } };
     }
 
-    const phase = course.phases[phaseIdx];
-    if (!phase) {
-      return { sendMessage: { text: '⚠️ Этап не найден' } };
-    }
-
-    const emoji = phase.track
-      ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-      : '📌';
-
-    const lines: string[] = [
-      `${emoji} *${this.escapeMarkdown(phase.title)}*`,
-      '',
-    ];
-
+    const lines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
-    for (const modId of phase.moduleIds) {
-      let title = modId;
-      try {
-        const mod = (await this.moduleApi.execute('get-module', {
-          uuid: modId,
-        })) as { title: string };
-        title = mod.title ?? modId;
-      } catch {
-        // модуль не загружен — показываем id
+    for (let pi = 0; pi < snapshot.length; pi++) {
+      const project = snapshot[pi];
+      if (!project) continue;
+      const lessonCount = project.lessons.length;
+      const totalSteps = project.lessons.reduce(
+        (s: number, l) => s + l.stepIds.length,
+        0,
+      );
+
+      lines.push(
+        `🗂️ *${this.escapeMarkdown(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
+      );
+
+      // Уроки проекта inline (один уровень вниз)
+      for (let li = 0; li < project.lessons.length; li++) {
+        const lesson = project.lessons[li];
+        if (!lesson) continue;
+        const sCount = lesson.stepIds.length;
+        lines.push(
+          `    📝 ${this.escapeMarkdown(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+        );
+
+        rows.push([
+          {
+            text: `📝 ${lesson.lessonTitle}`,
+            code: this.cb(
+              'program:lesson',
+              moduleId,
+              String(pi),
+              String(li),
+              courseId,
+              String(phaseIdx),
+            ),
+          },
+        ]);
       }
 
-      lines.push(`  📦 ${this.escapeMarkdown(title)}`);
-
-      rows.push([
-        {
-          text: `📦 ${title}`,
-          code: this.cb('program:module', modId),
-        },
-      ]);
+      lines.push('');
     }
 
     rows.push([
@@ -340,156 +367,26 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     };
   }
 
-  /** S00b.2: проекты модуля */
-  async #handleModuleProgram(moduleId: string): Promise<BotResponse> {
-    if (!moduleId) {
-      return { sendMessage: { text: '⚠️ Модуль не указан' } };
-    }
-
-    const snapshot = (await this.moduleApi.execute('get-module-snapshot', {
-      moduleId,
-    })) as Array<{
-      projectId: string;
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>;
-
-    if (!snapshot || snapshot.length === 0) {
-      return {
-        sendMessage: { text: '📦 В этом модуле пока нет проектов' },
-      };
-    }
-
-    const lines: string[] = ['📦 *Проекты модуля*', ''];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
-
-    for (let i = 0; i < snapshot.length; i++) {
-      const project = snapshot[i];
-      if (!project) continue;
-      const lessonCount = project.lessons.length;
-      const stepCount = project.lessons.reduce(
-        (sum: number, l) => sum + l.stepIds.length,
-        0,
-      );
-
-      lines.push(
-        `  🗂️ *${this.escapeMarkdown(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${stepCount} шаг${this.#plural(stepCount, '', 'а', 'ов')}`,
-      );
-
-      rows.push([
-        {
-          text: `🗂️ ${project.projectTitle}`,
-          code: this.cb('program:project', moduleId, String(i)),
-        },
-      ]);
-    }
-
-    rows.push([{ text: '⬅️ Назад', code: 'app:main-menu' }]);
-
-    return {
-      sendMessage: {
-        text: this.#truncate(lines.join('\n')),
-        parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
-      },
-    };
-  }
-
-  /** S00b.3: уроки проекта */
-  async #handleProject(
-    moduleId: string,
-    projectIdx: number,
-  ): Promise<BotResponse> {
-    if (!moduleId || Number.isNaN(projectIdx)) {
-      return { sendMessage: { text: '⚠️ Некорректный запрос' } };
-    }
-
-    const snapshot = (await this.moduleApi.execute('get-module-snapshot', {
-      moduleId,
-    })) as Array<{
-      projectId: string;
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>;
-
-    const project = snapshot[projectIdx];
-    if (!project) {
-      return { sendMessage: { text: '⚠️ Проект не найден' } };
-    }
-
-    const lines: string[] = [
-      `🗂️ *${this.escapeMarkdown(project.projectTitle)}*`,
-      '',
-    ];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
-
-    for (let i = 0; i < project.lessons.length; i++) {
-      const lesson = project.lessons[i];
-      if (!lesson) continue;
-      const sCount = lesson.stepIds.length;
-
-      lines.push(
-        `  📝 *${this.escapeMarkdown(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
-      );
-
-      rows.push([
-        {
-          text: `📝 ${lesson.lessonTitle}`,
-          code: this.cb(
-            'program:lesson',
-            moduleId,
-            String(projectIdx),
-            String(i),
-          ),
-        },
-      ]);
-    }
-
-    rows.push([
-      {
-        text: '⬅️ Назад к проектам',
-        code: this.cb('program:module', moduleId),
-      },
-    ]);
-
-    return {
-      sendMessage: {
-        text: this.#truncate(lines.join('\n')),
-        parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
-      },
-    };
-  }
-
-  /** S00b.4: заголовки шагов урока */
+  /** S00b.3: заголовки шагов урока (тела скрыты) */
   async #handleLessonProgram(
     moduleId: string,
     projectIdx: number,
     lessonIdx: number,
+    courseId: string,
+    phaseIdx: number,
   ): Promise<BotResponse> {
-    if (!moduleId || Number.isNaN(projectIdx) || Number.isNaN(lessonIdx)) {
-      return { sendMessage: { text: '⚠️ Некорректный запрос' } };
+    if (!moduleId) {
+      return { sendMessage: { text: '⚠️ Модуль не указан' } };
     }
 
-    const snapshot = (await this.moduleApi.execute('get-module-snapshot', {
-      moduleId,
-    })) as Array<{
-      projectId: string;
-      projectTitle: string;
-      lessons: Array<{
-        lessonId: string;
-        lessonTitle: string;
-        stepIds: string[];
-      }>;
-    }>;
+    let snapshot: ContentSnapshot;
+    try {
+      snapshot = (await this.moduleApi.execute('get-module-snapshot', {
+        moduleId,
+      })) as ContentSnapshot;
+    } catch {
+      return { sendMessage: { text: '⚠️ Модуль не найден или недоступен' } };
+    }
 
     const project = snapshot[projectIdx];
     if (!project) {
@@ -501,49 +398,57 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Урок не найден' } };
     }
 
-    const stepsByLesson = (await this.moduleApi.execute(
-      'get-steps-by-lessons',
-      { lessonIds: [lesson.lessonId] },
-    )) as Record<string, Array<{ uuid: string; description: string }>>;
-
-    const steps = stepsByLesson[lesson.lessonId] ?? [];
-
     const lines: string[] = [
       `📝 *${this.escapeMarkdown(lesson.lessonTitle)}*`,
       '',
     ];
 
-    if (steps.length === 0) {
+    if (lesson.stepIds.length === 0) {
       lines.push('_В этом уроке пока нет шагов_');
     } else {
-      for (let i = 0; i < steps.length; i++) {
-        const step = steps[i];
-        if (!step) continue;
-        lines.push(
-          `  ${this.escapeMarkdown(`${i + 1}.`)} ${this.escapeMarkdown(step.description)}`,
-        );
+      const stepsByLesson = (await this.moduleApi.execute(
+        'get-steps-by-lessons',
+        { lessonIds: [lesson.lessonId] },
+      )) as Record<string, Array<{ uuid: string; description: string }>>;
+
+      const steps = stepsByLesson[lesson.lessonId] ?? [];
+
+      if (steps.length === 0) {
+        lines.push('_В этом уроке пока нет шагов_');
+      } else {
+        for (let i = 0; i < steps.length; i++) {
+          const step = steps[i];
+          if (!step) continue;
+          lines.push(
+            `    ${this.escapeMarkdown(`${i + 1}.`)} ${this.escapeMarkdown(step.description)}`,
+          );
+        }
       }
     }
-
-    const rows: Array<Array<{ text: string; code: string }>> = [
-      [
-        {
-          text: '⬅️ Назад к урокам',
-          code: this.cb('program:project', moduleId, String(projectIdx)),
-        },
-      ],
-    ];
 
     return {
       sendMessage: {
         text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
+        keyboard: {
+          rows: [
+            [
+              {
+                text: '⬅️ Назад к модулю',
+                code: this.cb(
+                  'program:module',
+                  moduleId,
+                  courseId,
+                  String(phaseIdx),
+                ),
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
       },
     };
   }
-
-  // ── Утилиты ──
 
   /** Определяет эмодзи направления курса по первому phase с track */
   #getDirectionEmoji(course: Course): string {

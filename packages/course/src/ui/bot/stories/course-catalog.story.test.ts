@@ -275,7 +275,7 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('💼');
   });
 
-  // ── S00b тесты: программа курса (drill-down) ──
+  // ── S00b тесты: программа курса (drill-down, 3 уровня) ──
 
   /** Расширенная фабрика: курсы + модули + снимки + шаги */
   function makeModuleApiFull(
@@ -357,7 +357,7 @@ describe('CourseCatalogStory', () => {
     } as unknown as CourseApiModule;
   }
 
-  test('S00b: program:<courseId> показывает этапы с кнопками drill-down', async () => {
+  test('S00b.1: program:<courseId> — этапы + модули каждого этапа inline', async () => {
     const courseUuid = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
     const moduleApi = makeModuleApiFull(
       [
@@ -378,7 +378,26 @@ describe('CourseCatalogStory', () => {
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ],
-      {},
+      {
+        'mod-1': {
+          uuid: 'mod-1',
+          title: 'Переменные',
+          description: 'Типы',
+          projects: [],
+        },
+        'mod-2': {
+          uuid: 'mod-2',
+          title: 'Функции',
+          description: 'Вызов',
+          projects: [],
+        },
+        'mod-3': {
+          uuid: 'mod-3',
+          title: 'Алгоритмы',
+          description: 'Сложность',
+          projects: [],
+        },
+      },
       {},
       {},
     );
@@ -396,14 +415,22 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('Программа');
     expect(response.sendMessage?.text).toContain('Синтаксис');
     expect(response.sendMessage?.text).toContain('Алгоритмика');
+    expect(response.sendMessage?.text).toContain('Переменные');
+    expect(response.sendMessage?.text).toContain('Функции');
+    expect(response.sendMessage?.text).toContain('Алгоритмы');
+
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const phaseButtons = rows.filter((r) =>
-      r[0]?.code?.startsWith('course-catalog:program:phase:'),
+    const moduleBtns = rows.filter((r) =>
+      r[0]?.code?.startsWith('course-catalog:program:module:'),
     );
-    expect(phaseButtons.length).toBe(2);
+    expect(moduleBtns.length).toBe(3);
+    expect(moduleBtns[0]![0]!.code).toBe(
+      `course-catalog:program:module:mod-1:${courseUuid}:0`,
+    );
+    expect(rows.some((r) => r[0]?.text?.includes('Назад'))).toBe(true);
   });
 
-  test('S00b: program:phase:<id>:<idx> показывает модули этапа', async () => {
+  test('S00b.2: program:module:<id>:<courseId>:<phaseIdx> — проекты + уроки inline', async () => {
     const courseUuid = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
     const moduleApi = makeModuleApiFull(
       [
@@ -412,93 +439,11 @@ describe('CourseCatalogStory', () => {
           title: 'JS Course',
           description: '...',
           authorId: 'author-1',
-          phases: [
-            { title: 'Основы', track: 'tech', moduleIds: ['mod-a', 'mod-b'] },
-          ],
+          phases: [{ title: 'Основы', track: 'tech', moduleIds: ['mod-y'] }],
           status: 'published',
           createdAt: '2026-01-01T00:00:00.000Z',
         },
       ],
-      {
-        'mod-a': {
-          uuid: 'mod-a',
-          title: 'Переменные',
-          description: 'Типы',
-          projects: [],
-        },
-        'mod-b': {
-          uuid: 'mod-b',
-          title: 'Функции',
-          description: 'Вызов',
-          projects: [],
-        },
-      },
-      {},
-      {},
-    );
-
-    const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
-
-    const response = await story.handleCallback(
-      `program:phase:${courseUuid}:0`,
-      actor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    expect(response.sendMessage?.text).toContain('Основы');
-    expect(response.sendMessage?.text).toContain('Переменные');
-    expect(response.sendMessage?.text).toContain('Функции');
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const moduleButtons = rows.filter((r) =>
-      r[0]?.code?.startsWith('course-catalog:program:module:'),
-    );
-    expect(moduleButtons.length).toBe(2);
-  });
-
-  test('S00b: program:module:<id> показывает проекты модуля', async () => {
-    const moduleApi = makeModuleApiFull(
-      [],
-      {},
-      {
-        'mod-x': [
-          {
-            projectId: 'proj-1',
-            projectTitle: 'Калькулятор',
-            lessons: [
-              { lessonId: 'les-1', lessonTitle: 'Введение', stepIds: ['st-1'] },
-            ],
-          },
-        ],
-      },
-      {},
-    );
-
-    const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
-
-    const response = await story.handleCallback(
-      'program:module:mod-x',
-      actor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    expect(response.sendMessage?.text).toContain('Проекты');
-    expect(response.sendMessage?.text).toContain('Калькулятор');
-    expect(response.sendMessage?.text).toContain('1 урок');
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const projectButtons = rows.filter((r) =>
-      r[0]?.code?.startsWith('course-catalog:program:project:'),
-    );
-    expect(projectButtons.length).toBe(1);
-  });
-
-  test('S00b: program:project:<id>:<pIdx> показывает уроки проекта', async () => {
-    const moduleApi = makeModuleApiFull(
-      [],
       {},
       {
         'mod-y': [
@@ -523,7 +468,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'program:project:mod-y:0',
+      `program:module:mod-y:${courseUuid}:0`,
       actor,
       session,
     );
@@ -536,15 +481,29 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('1 шаг');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const lessonButtons = rows.filter((r) =>
+    const lessonBtns = rows.filter((r) =>
       r[0]?.code?.startsWith('course-catalog:program:lesson:'),
     );
-    expect(lessonButtons.length).toBe(2);
+    expect(lessonBtns.length).toBe(2);
+    expect(lessonBtns[0]![0]!.code).toBe(
+      `course-catalog:program:lesson:mod-y:0:0:${courseUuid}:0`,
+    );
   });
 
-  test('S00b: program:lesson:<id>:<pIdx>:<lIdx> показывает заголовки шагов', async () => {
+  test('S00b.3: program:lesson:<id>:<pIdx>:<lIdx>:<courseId>:<phaseIdx> — заголовки шагов', async () => {
+    const courseUuid = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
     const moduleApi = makeModuleApiFull(
-      [],
+      [
+        {
+          uuid: courseUuid,
+          title: 'Course',
+          description: '...',
+          authorId: 'author-1',
+          phases: [{ title: 'Phase', track: 'tech', moduleIds: ['mod-z'] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
       {},
       {
         'mod-z': [
@@ -573,7 +532,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'program:lesson:mod-z:0:0',
+      `program:lesson:mod-z:0:0:${courseUuid}:0`,
       actor,
       session,
     );
@@ -582,16 +541,29 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('Урок 1');
     expect(response.sendMessage?.text).toContain('Что такое переменные');
     expect(response.sendMessage?.text).toContain('Типы данных');
-    expect(
-      response.sendMessage?.keyboard?.rows?.some((r) =>
-        r[0]?.text?.includes('Назад'),
-      ),
-    ).toBe(true);
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const backBtn = rows.find((r) => r[0]?.text?.includes('Назад к модулю'));
+    expect(backBtn).toBeDefined();
+    expect(backBtn![0]!.code).toBe(
+      `course-catalog:program:module:mod-z:${courseUuid}:0`,
+    );
   });
 
   test('S00b: тела шагов скрыты — только заголовки', async () => {
+    const courseUuid = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
     const moduleApi = makeModuleApiFull(
-      [],
+      [
+        {
+          uuid: courseUuid,
+          title: 'Course',
+          description: '...',
+          authorId: 'author-1',
+          phases: [{ title: 'Phase', moduleIds: ['mod-w'] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
       {},
       {
         'mod-w': [
@@ -611,7 +583,7 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'program:lesson:mod-w:0:0',
+      `program:lesson:mod-w:0:0:${courseUuid}:0`,
       actor,
       session,
     );
@@ -622,7 +594,7 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('Заголовок шага');
   });
 
-  test('S00b: несуществующий курс возвращает ошибку', async () => {
+  test('S00b: несуществующий курс — ошибка', async () => {
     const moduleApi = makeModuleApiFull([], {}, {}, {});
     const story = new CourseCatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -636,39 +608,8 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('не найден');
   });
 
-  test('S00b: phase с выходом за границы возвращает ошибку', async () => {
-    const courseUuid = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
-    const moduleApi = makeModuleApiFull(
-      [
-        {
-          uuid: courseUuid,
-          title: 'Course',
-          description: '...',
-          authorId: 'author-1',
-          phases: [{ title: 'Phase', moduleIds: [] }],
-          status: 'published',
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ],
-      {},
-      {},
-      {},
-    );
-
-    const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
-
-    const response = await story.handleCallback(
-      `program:phase:${courseUuid}:99`,
-      actor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('не найден');
-  });
-
   test('S00b: кнопка «Развернуть программу» в S00a ведёт на program', async () => {
-    const courseUuid = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+    const courseUuid = '99999999-9999-9999-9999-999999999999';
     const moduleApi = makeModuleApi([
       {
         uuid: courseUuid,
@@ -700,13 +641,24 @@ describe('CourseCatalogStory', () => {
   });
 
   test('S00b: длинные сообщения обрезаются на ~4000 символов', async () => {
+    const courseUuid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
     const manySteps = Array.from({ length: 100 }, (_, i) => ({
       uuid: `step-${i}`,
       description: `Шаг номер ${i + 1} — очень подробное описание которое занимает много символов`,
     }));
 
     const moduleApi = makeModuleApiFull(
-      [],
+      [
+        {
+          uuid: courseUuid,
+          title: 'Course',
+          description: '...',
+          authorId: 'author-1',
+          phases: [{ title: 'Phase', moduleIds: ['mod-w'] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ],
       {},
       {
         'mod-w': [
@@ -730,14 +682,13 @@ describe('CourseCatalogStory', () => {
     story.init(moduleApi, emptyAppApi);
 
     const response = await story.handleCallback(
-      'program:lesson:mod-w:0:0',
+      `program:lesson:mod-w:0:0:${courseUuid}:0`,
       actor,
       session,
     );
     assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage!.text!.length).toBeLessThanOrEqual(4100);
-    // Урезанный текст должен заканчиваться экранированным многоточием (три \.
     expect(response.sendMessage?.text?.endsWith('\\.\\.\\.') ?? false).toBe(
       true,
     );
