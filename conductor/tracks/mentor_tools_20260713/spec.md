@@ -29,12 +29,33 @@
 - `👥 Студенты` → S07/S08 **с кнопками действий ментора**.
 - `📊 Сводка потока`: счёт по статусам (active/advanced/not_advanced/abandoned/enrolled). Медиана, отстающие, сортировка — см. Часть Б.
 
-### F3. Curious-ветка — БЕЗ lifecycle-кнопок
-- Текущий код `ViewStreamStory.#buildKeyboard` содержит смешанные кнопки. В curious-режиме (трек `curious_showcase_20260708`) lifecycle-кнопки **убираются**.
-- В mentor-режиме S02m — lifecycle-кнопки присутствуют. Два режима — **разные пути вызова** с параметром режима.
+### F3. Curious-ветка — БЕЗ lifecycle-кнопок (✅ уже сделано)
+- В треке `curious_showcase_20260708` lifecycle-кнопки убраны из `ViewStreamStory.#buildKeyboard`.
 
 ### F4. Перенос «Создать поток» на второй уровень
 - `CreateStreamStory.handleStart` → `null` (не участвует в главном меню). Вход — через подменю.
+
+## 🏗️ Реализация S02m — варианты и контекст
+
+**Что уже готово (трек `curious_showcase_20260708`):**
+- `ViewStreamStory` — curious-карточка: просмотр, программа, детали, студенты. Без lifecycle-кнопок.
+- `ViewStreamMentorStory` — менторские хендлеры: `complete`, `archive`, `complete-confirm`, `archive-confirm` + confirm-диалоги. Лежит в `packages/stream/src/ui/bot/stories/view-stream-mentor.story.ts`, тесты в `describe.skip`.
+- `ActivateStreamStory` — уже зарегистрирован в `StreamController`, работает.
+- Кнопки S02m описаны в `ui-spec.md` (строки 192–199): Запустить/Завершить/В архив + Студенты с действиями.
+
+**Вариант А: Зарегистрировать ОБА сторис в MentorController**
+- `MentorController` регистрирует `ViewStreamStory` (curious) + `ViewStreamMentorStory` (lifecycle).
+- Ментор видит curious-карточку (свою) и lifecycle-кнопки (mentor-сторис).
+- Плюс: без дублирования кода, `ViewStreamStory` используется как есть.
+- Минус: две разные сторис в одном контроллере → клавиатура собирается из двух мест.
+
+**Вариант Б: S02m = дочерний сторис с собственной клавиатурой**
+- `ViewStreamMentorStory` не только обрабатывает lifecycle, но и строит полную S02m-клавиатуру (curious + lifecycle).
+- Либо наследует и переопределяет `#buildKeyboard` (но `#`-приватные методы в JS не наследуются — потребуется рефакторинг `#` → `protected`).
+- Либо дублирует `#handleView` в менторском сторис. Плюс: одна точка входа, одна клавиатура.
+- Минус: дублирование или рефакторинг приватных методов.
+
+**Рекомендация:** Вариант А проще в реализации, вариант Б чище архитектурно (одна клавиатура). Решение — на усмотрение разработчика трека.
 
 ## Часть Б: Мониторинг студентов
 

@@ -10,14 +10,16 @@
 
 ## Фаза 2: S02m — mentor-режим карточки потока
 
+- [x] Task: ViewStreamMentorStory создан (хендлеры complete/archive + confirm-диалоги, describe.skip) — см. `packages/stream/src/ui/bot/stories/view-stream-mentor.story.ts`
+- [ ] Task: Активировать ViewStreamMentorStory: снять `describe.skip`, зарегистрировать в MentorController
 - [ ] Task: Написать тесты: S02m → карточка с lifecycle-кнопками + Студенты с действиями
-- [ ] Task: Реализовать S02m в ViewStreamStory (параметр режима: `curious` vs `mentor`)
+- [ ] Task: Реализовать S02m-клавиатуру (curious + lifecycle) — см. раздел «Варианты реализации S02m» в spec.md
 - [ ] Task: Conductor - Ручная верификация 'Mentor-режим'
 
 ## Фаза 3: Перенос «Создать поток» + очистка curious-режима
 
 - [ ] Task: `CreateStreamStory.handleStart` → `null`, вход через подменю
-- [ ] Task: Убрать lifecycle-кнопки из curious-режима S02
+- [x] Task: Убрать lifecycle-кнопки из curious-режима S02 (✅ выполнено в треке `curious_showcase_20260708`, Фаза 3)
 - [ ] Task: Conductor - Ручная верификация 'Создать поток из подменю'
 
 ## Фаза 4: Логика «Отстаёт»
