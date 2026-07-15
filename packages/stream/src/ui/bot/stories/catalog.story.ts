@@ -139,7 +139,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       kind: 'callback',
       text: '📚 Потоки курсов',
       action: this.cb('list'),
-      priority: 10,
+      priority: 15,
     };
   }
 

@@ -64,7 +64,7 @@ describe('CourseCatalogStory', () => {
     const item = await story.handleStart(actor);
     expect(item?.kind).toBe('callback');
     expect(item?.text).toContain('Программы курсов');
-    expect(item?.priority).toBe(15);
+    expect(item?.priority).toBe(10);
     if (item?.kind === 'callback') {
       expect(item.action).toBe('course-catalog:list');
     }

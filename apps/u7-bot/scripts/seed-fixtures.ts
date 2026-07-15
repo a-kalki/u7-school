@@ -75,6 +75,7 @@ async function copyFixtures() {
     ['courses/modules.json', 'courses/modules.json'],
     ['courses/lessons.json', 'courses/lessons.json'],
     ['courses/steps.json', 'courses/steps.json'],
+    ['courses/courses.json', 'courses/courses.json'],
   ];
 
   for (const [src, dest] of copies) {

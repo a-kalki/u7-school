@@ -33,14 +33,14 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
   override async handleStart(_actor: User): Promise<MainMenuAction | null> {
     return {
       kind: 'callback',
-      text: '📚 Программы курсов',
+      text: '📖 Программы курсов',
       action: this.cb('list'),
-      priority: 15,
+      priority: 10,
     };
   }
 
   override async handleHelpDescription(_actor: User): Promise<string | null> {
-    return '📚 Программы курсов — каталог учебных курсов и их структура';
+    return '📖 Программы курсов — каталог учебных курсов и их структура';
   }
 
   // ── Callback ──
@@ -107,7 +107,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     if (courses.length === 0) {
       return {
         sendMessage: {
-          text: '📚 *Программы курсов*\n\nПока нет доступных курсов\\.',
+          text: '📖 *Программы курсов*\n\nПока нет доступных курсов\\.',
           parseMode: 'MarkdownV2',
           keyboard: {
             rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
@@ -117,7 +117,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       };
     }
 
-    const lines: string[] = ['📚 *Программы курсов*', ''];
+    const lines: string[] = ['📖 *Программы курсов*', ''];
 
     const rows: Array<Array<{ text: string; code: string }>> = [];
 

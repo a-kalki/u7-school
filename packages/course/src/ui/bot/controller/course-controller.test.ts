@@ -41,7 +41,7 @@ describe('CourseController (реестр)', () => {
 
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);
-    expect(texts).toContain('📚 Программы курсов');
+    expect(texts).toContain('📖 Программы курсов');
   });
 
   test('handleCallback форвардит по префиксу story', async () => {

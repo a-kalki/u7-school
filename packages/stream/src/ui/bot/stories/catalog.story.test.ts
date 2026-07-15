@@ -64,7 +64,7 @@ describe('CatalogStory', () => {
     const item = await story.handleStart(actor);
     expect(item?.kind).toBe('callback');
     expect(item?.text).toContain('Потоки курсов');
-    expect(item?.priority).toBe(10);
+    expect(item?.priority).toBe(15);
     // TS narrowing: после проверки kind TypeScript знает что action существует
     if (item?.kind === 'callback') {
       expect(item.action).toBe('catalog:list');
