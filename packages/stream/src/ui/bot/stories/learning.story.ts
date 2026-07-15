@@ -79,7 +79,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (UserPolicy.isStudent(actor)) {
       return {
         kind: 'callback',
-        text: '📖 Моя учёба',
+        text: '🎓 Моя учёба',
         action: this.cb('my-study'),
         priority: 20,
       };
@@ -89,7 +89,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
   override async handleHelpDescription(actor: User): Promise<string | null> {
     if (UserPolicy.isStudent(actor)) {
-      return '📖 Моя учёба — доступ к твоим учебным материалам';
+      return '🎓 Моя учёба — доступ к твоим учебным материалам';
     }
     return null;
   }

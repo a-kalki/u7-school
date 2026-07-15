@@ -80,7 +80,7 @@ describe('StreamController (реестр)', () => {
     expect(items.length).toBeGreaterThanOrEqual(2);
     const texts = items.map((i) => i.text);
     expect(texts).toContain('📚 Потоки курсов');
-    expect(texts).toContain('📖 Моя учёба');
+    expect(texts).toContain('🎓 Моя учёба');
   });
 
   test('handleStart — MENTOR видит catalog + панель ментора', async () => {
