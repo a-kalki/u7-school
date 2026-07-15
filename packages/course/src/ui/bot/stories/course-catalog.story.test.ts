@@ -77,7 +77,7 @@ describe('CourseCatalogStory', () => {
     expect(desc).toContain('каталог');
   });
 
-  test('handleCallback("list") показывает список курсов', async () => {
+  test('handleCallback("list") показывает список курсов с этапами inline', async () => {
     const moduleApi = makeModuleApi([
       {
         uuid: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -103,6 +103,11 @@ describe('CourseCatalogStory', () => {
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Программы курсов');
     expect(response.sendMessage?.text).toContain('JavaScript Basics');
+    // Этапы курса — inline
+    expect(response.sendMessage?.text).toContain('Синтаксис');
+    expect(response.sendMessage?.text).toContain('модул');
+    // Описание НЕ показывается на первом уровне
+    expect(response.sendMessage?.text).not.toContain('Основы программирования');
     expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
@@ -157,6 +162,12 @@ describe('CourseCatalogStory', () => {
     expect(response.sendMessage?.text).toContain('Алгоритмика');
     expect(response.sendMessage?.text).toContain('этап');
     expect(response.sendMessage?.keyboard).toBeDefined();
+
+    // НЕТ кнопки «Найти поток» (кросс-контроллерная навигация — техдолг)
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Найти поток'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Развернуть программу'))).toBe(true);
   });
 
   test('handleCallback("view", uuid) с несуществующим курсом показывает ошибку', async () => {

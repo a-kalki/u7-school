@@ -123,18 +123,24 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     for (const course of courses) {
       const direction = this.#getDirectionEmoji(course);
-      const desc =
-        course.description.length > 60
-          ? `${this.escapeMarkdown(course.description.slice(0, 60))}...`
-          : this.escapeMarkdown(course.description);
       const moduleCount = this.#countModules(course);
 
       lines.push(
         `${direction} *${this.escapeMarkdown(course.title)}*`,
-        `  ${desc}`,
-        `  📦 ${moduleCount} модул${this.#plural(moduleCount, 'ь', 'я', 'ей')}`,
-        '',
       );
+
+      // Этапы курса inline (один уровень вниз)
+      for (const phase of course.phases) {
+        const phaseEmoji = phase.track
+          ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
+          : '📌';
+        const modCount = phase.moduleIds?.length ?? 0;
+        lines.push(
+          `    ${phaseEmoji} ${this.escapeMarkdown(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+        );
+      }
+
+      lines.push('');
 
       rows.push([
         {
@@ -201,12 +207,6 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         {
           text: '📖 Развернуть программу',
           code: this.cb('program', courseId),
-        },
-      ],
-      [
-        {
-          text: '📚 Найти поток',
-          code: this.cbFor('catalog', 'list'),
         },
       ],
       [{ text: '⬅️ Назад к списку', code: this.cb('list') }],

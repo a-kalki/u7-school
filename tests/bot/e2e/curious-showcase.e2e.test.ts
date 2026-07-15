@@ -134,7 +134,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btnTexts.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
 
-    test('гость открывает карточку курса → видит фазы, «Развернуть программу», «Найти поток»', async () => {
+    test('гость открывает карточку курса → видит фазы и «Развернуть программу»', async () => {
       const menu = (await router.collectMainMenu(
         guest,
       )) as CbMainMenuAction[];
@@ -164,7 +164,8 @@ describe('E2E: Витрина для любопытного', () => {
       const btnTexts =
         cardResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btnTexts.some((t) => t.includes('Развернуть программу'))).toBe(true);
-      expect(btnTexts.some((t) => t.includes('Найти поток'))).toBe(true);
+      // Кнопки «Найти поток» нет (кросс-контроллерная навигация — техдолг)
+      expect(btnTexts.some((t) => t.includes('Найти поток'))).toBe(false);
       expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
     });
 
