@@ -18,12 +18,18 @@ const TRACK_EMOJI: Record<string, string> = {
 const DEFAULT_TRACK_EMOJI = '📚';
 
 /**
- * Story «Программы курсов» — каталог курсов (S00, S00a, S00b).
+ * Story «Программы курсов» — каталог курсов.
  * Доступна всем ролям.
  *
- * S00:  список опубликованных курсов.
- * S00a: карточка курса.
- * S00b: программа курса (drill-down этап→модуль→проект→урок→шаги).
+ * Единая иерархия (как «Моя учёба → Уроки»):
+ *   S00:  курсы + этапы inline
+ *   S00b: этапы + модули inline
+ *   S00c: модули + проекты inline
+ *   S00d: проекты + уроки inline
+ *   S00e: уроки + заголовки шагов (без тел)
+ *
+ * На каждом уровне: текущие объекты жирным + кнопками,
+ * подуровень — inline текстом.
  */
 export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
   readonly name = 'course-catalog';
@@ -55,30 +61,23 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     switch (cmd) {
       case 'list':
         return this.#handleList();
-      case 'view':
-        return this.#handleView(ids.join(':'));
-      case 'program': {
-        const sub = ids[0] ?? '';
-        const rest = ids.slice(1);
-        switch (sub) {
-          case 'module':
-            return this.#handleModuleProgram(
-              rest[0] ?? '',
-              Number(rest[1]),
-              rest[2] ?? '',
-            );
-          case 'lesson':
-            return this.#handleLessonProgram(
-              rest[0] ?? '',
-              Number(rest[1]),
-              rest[2] ?? '',
-              Number(rest[3]),
-              Number(rest[4]),
-            );
-          default:
-            return this.#handleProgram(ids.join(':'));
-        }
-      }
+      case 'phases':
+        return this.#handlePhases(ids[0] ?? '');
+      case 'modules':
+        return this.#handleModules(ids[0] ?? '', Number(ids[1]));
+      case 'projects':
+        return this.#handleProjects(
+          ids[0] ?? '',
+          Number(ids[1]),
+          ids[2] ?? '',
+        );
+      case 'lessons':
+        return this.#handleLessons(
+          ids[0] ?? '',
+          Number(ids[1]),
+          ids[2] ?? '',
+          Number(ids[3]),
+        );
       default:
         return {
           sendMessage: { text: '⚠️ Неизвестная команда каталога курсов' },
@@ -96,7 +95,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
-  // ── Приватные: S00 — список курсов ──
+  // ═══ Уровень 0: Курсы + этапы inline ═══
 
   async #handleList(): Promise<BotResponse> {
     const courses = (await this.moduleApi.execute(
@@ -107,7 +106,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     if (courses.length === 0) {
       return {
         sendMessage: {
-          text: '📖 *Программы курсов*\n\nПока нет доступных курсов\\.',
+          text: '📖 *Курсы*\n\nПока нет доступных курсов\\.',
           parseMode: 'MarkdownV2',
           keyboard: {
             rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
@@ -117,17 +116,13 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       };
     }
 
-    const lines: string[] = ['📖 *Программы курсов*', ''];
-
+    const lines: string[] = ['📖 *Курсы*', ''];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const course of courses) {
       const direction = this.#getDirectionEmoji(course);
-      const moduleCount = this.#countModules(course);
 
-      lines.push(
-        `${direction} *${this.escapeMarkdown(course.title)}*`,
-      );
+      lines.push(`${direction} *${this.#esc(course.title)}*`);
 
       // Этапы курса inline (один уровень вниз)
       for (const phase of course.phases) {
@@ -136,7 +131,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           : '📌';
         const modCount = phase.moduleIds?.length ?? 0;
         lines.push(
-          `    ${phaseEmoji} ${this.escapeMarkdown(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+          `    ${phaseEmoji} ${this.#esc(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
         );
       }
 
@@ -145,7 +140,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       rows.push([
         {
           text: `${direction} ${course.title}`,
-          code: this.cb('view', course.uuid),
+          code: this.cb('phases', course.uuid),
         },
       ]);
     }
@@ -161,70 +156,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     };
   }
 
-  // ── Приватные: S00a — карточка курса ──
+  // ═══ Уровень 1: Этапы + модули inline ═══
 
-  async #handleView(courseId: string): Promise<BotResponse> {
-    if (!courseId) {
-      return { sendMessage: { text: '⚠️ Курс не указан' } };
-    }
-
-    let course: Course;
-    try {
-      course = (await this.moduleApi.execute('get-course', {
-        uuid: courseId,
-      })) as Course;
-    } catch {
-      return {
-        sendMessage: { text: '⚠️ Курс не найден или недоступен' },
-      };
-    }
-
-    const direction = this.#getDirectionEmoji(course);
-    const moduleCount = this.#countModules(course);
-    const phaseCount = course.phases.length;
-
-    const lines: string[] = [
-      `${direction} *${this.escapeMarkdown(course.title)}*`,
-      '',
-      `_${this.escapeMarkdown(course.description)}_`,
-      '',
-      `📊 *Сводка:* ${phaseCount} этап${this.#plural(phaseCount, '', 'а', 'ов')} · ${moduleCount} модул${this.#plural(moduleCount, 'ь', 'я', 'ей')}`,
-      '',
-      '*Этапы:*',
-    ];
-
-    for (const phase of course.phases) {
-      const phaseEmoji = phase.track
-        ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-        : '📌';
-      lines.push(
-        `  ${phaseEmoji} ${this.escapeMarkdown(phase.title)} — ${phase.moduleIds.length} модул${this.#plural(phase.moduleIds.length, 'ь', 'я', 'ей')}`,
-      );
-    }
-
-    const rows: Array<Array<{ text: string; code: string }>> = [
-      [
-        {
-          text: '📖 Развернуть программу',
-          code: this.cb('program', courseId),
-        },
-      ],
-      [{ text: '⬅️ Назад к списку', code: this.cb('list') }],
-    ];
-
-    return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
-      },
-    };
-  }
-
-  // ── Приватные: S00b — программа курса (drill-down, 3 уровня) ──
-
-  /** S00b.1: этапы + модули каждого этапа inline */
-  async #handleProgram(courseId: string): Promise<BotResponse> {
+  async #handlePhases(courseId: string): Promise<BotResponse> {
     if (!courseId) {
       return { sendMessage: { text: '⚠️ Курс не указан' } };
     }
@@ -239,10 +173,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     }
 
     const lines: string[] = [
-      `📖 *Программа: ${this.escapeMarkdown(course.title)}*`,
+      `📖 *Курс: ${this.#esc(course.title)}*`,
       '',
     ];
-
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (let pi = 0; pi < course.phases.length; pi++) {
@@ -251,36 +184,130 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       const emoji = phase.track
         ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
         : '📌';
-      const modCount = phase.moduleIds.length;
+      const modCount = phase.moduleIds?.length ?? 0;
 
       lines.push(
-        `${emoji} *${this.escapeMarkdown(phase.title)}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+        `${emoji} *${this.#esc(phase.title)}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
       );
 
-      // Модули этапа inline (один уровень вниз)
-      for (const modId of phase.moduleIds) {
+      // Модули этапа inline (один уровень вниз) — нужны заголовки
+      for (const modId of phase.moduleIds ?? []) {
         try {
           const mod = (await this.moduleApi.execute('get-module', {
             uuid: modId,
-          })) as { title: string };
-          lines.push(`    📦 ${this.escapeMarkdown(mod.title)}`);
+          })) as { title: string; projects?: Array<{ lessonIds: string[] }> };
+          const projCount = mod.projects?.length ?? 0;
+          const lessonCount =
+            mod.projects?.reduce(
+              (s, p) => s + (p.lessonIds?.length ?? 0),
+              0,
+            ) ?? 0;
+          lines.push(
+            `    📦 ${this.#esc(mod.title)} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+          );
         } catch {
-          lines.push(`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
+          lines.push(
+            `    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`,
+          );
         }
-
-        rows.push([
-          {
-            text: `📦 ${modId.slice(0, 30)}`,
-            code: this.cb('program:module', courseId, String(pi), modId),
-          },
-        ]);
       }
 
       lines.push('');
+
+      rows.push([
+        {
+          text: `${emoji} ${phase.title}`,
+          code: this.cb('modules', courseId, String(pi)),
+        },
+      ]);
+    }
+
+    rows.push([{ text: '⬅️ Назад к курсам', code: this.cb('list') }]);
+
+    return {
+      sendMessage: {
+        text: this.#truncate(lines.join('\n')),
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    };
+  }
+
+  // ═══ Уровень 2: Модули + проекты inline ═══
+
+  async #handleModules(
+    courseId: string,
+    phaseIdx: number,
+  ): Promise<BotResponse> {
+    if (!courseId) {
+      return { sendMessage: { text: '⚠️ Курс не указан' } };
+    }
+
+    let course: Course;
+    try {
+      course = (await this.moduleApi.execute('get-course', {
+        uuid: courseId,
+      })) as Course;
+    } catch {
+      return { sendMessage: { text: '⚠️ Курс не найден или недоступен' } };
+    }
+
+    const phase = course.phases[phaseIdx];
+    if (!phase) {
+      return { sendMessage: { text: '⚠️ Этап не найден' } };
+    }
+
+    const phaseEmoji = phase.track
+      ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
+      : '📌';
+
+    const lines: string[] = [
+      `📖 *Этап: ${this.#esc(phase.title)}*`,
+      '',
+    ];
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    for (const modId of phase.moduleIds ?? []) {
+      let mod: { title: string; projects?: Array<{ uuid: string; title: string; lessonIds: string[] }> };
+      try {
+        mod = (await this.moduleApi.execute('get-module', {
+          uuid: modId,
+        })) as typeof mod;
+      } catch {
+        continue;
+      }
+
+      const projects = mod.projects ?? [];
+      const projCount = projects.length;
+      const lessonCount = projects.reduce(
+        (s, p) => s + (p.lessonIds?.length ?? 0),
+        0,
+      );
+
+      lines.push(
+        `📦 *${this.#esc(mod.title)}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+      );
+
+      // Проекты модуля inline (один уровень вниз)
+      for (const proj of projects) {
+        const lCount = proj.lessonIds?.length ?? 0;
+        lines.push(
+          `    🗂️ ${this.#esc(proj.title)} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
+        );
+      }
+
+      lines.push('');
+
+      rows.push([
+        {
+          text: `📦 ${mod.title}`,
+          code: this.cb('projects', courseId, String(phaseIdx), modId),
+        },
+      ]);
     }
 
     rows.push([
-      { text: '⬅️ Назад к карточке', code: this.cb('view', courseId) },
+      { text: '⬅️ Назад к этапам', code: this.cb('phases', courseId) },
     ]);
 
     return {
@@ -292,8 +319,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     };
   }
 
-  /** S00b.2: проекты + уроки каждого проекта inline */
-  async #handleModuleProgram(
+  // ═══ Уровень 3: Проекты + уроки inline ═══
+
+  async #handleProjects(
     courseId: string,
     phaseIdx: number,
     moduleId: string,
@@ -311,7 +339,21 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Модуль не найден или недоступен' } };
     }
 
-    const lines: string[] = [];
+    // Получаем название модуля для заголовка
+    let modTitle = '';
+    try {
+      const mod = (await this.moduleApi.execute('get-module', {
+        uuid: moduleId,
+      })) as { title: string };
+      modTitle = mod.title;
+    } catch {
+      // оставляем пустым
+    }
+
+    const lines: string[] = [
+      `📖 *Модуль: ${this.#esc(modTitle)}*`,
+      '',
+    ];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (let pi = 0; pi < snapshot.length; pi++) {
@@ -319,12 +361,12 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       if (!project) continue;
       const lessonCount = project.lessons.length;
       const totalSteps = project.lessons.reduce(
-        (s: number, l) => s + l.stepIds.length,
+        (s, l) => s + l.stepIds.length,
         0,
       );
 
       lines.push(
-        `🗂️ *${this.escapeMarkdown(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
+        `🗂️ *${this.#esc(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
       );
 
       // Уроки проекта inline (один уровень вниз)
@@ -333,19 +375,18 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         if (!lesson) continue;
         const sCount = lesson.stepIds.length;
         lines.push(
-          `    📝 ${this.escapeMarkdown(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+          `    📝 ${this.#esc(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
         );
 
         rows.push([
           {
             text: `📝 ${lesson.lessonTitle}`,
             code: this.cb(
-              'program:lesson',
+              'lessons',
               courseId,
               String(phaseIdx),
               moduleId,
               String(pi),
-              String(li),
             ),
           },
         ]);
@@ -355,7 +396,10 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     }
 
     rows.push([
-      { text: '⬅️ Назад к этапам', code: this.cb('program', courseId) },
+      {
+        text: '⬅️ Назад к модулям',
+        code: this.cb('modules', courseId, String(phaseIdx)),
+      },
     ]);
 
     return {
@@ -367,13 +411,13 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     };
   }
 
-  /** S00b.3: заголовки шагов урока (тела скрыты) */
-  async #handleLessonProgram(
+  // ═══ Уровень 4: Уроки + заголовки шагов (тела скрыты) ═══
+
+  async #handleLessons(
     courseId: string,
     phaseIdx: number,
     moduleId: string,
     projectIdx: number,
-    lessonIdx: number,
   ): Promise<BotResponse> {
     if (!moduleId) {
       return { sendMessage: { text: '⚠️ Модуль не указан' } };
@@ -393,64 +437,63 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Проект не найден' } };
     }
 
-    const lesson = project.lessons[lessonIdx];
-    if (!lesson) {
-      return { sendMessage: { text: '⚠️ Урок не найден' } };
-    }
-
     const lines: string[] = [
-      `📝 *${this.escapeMarkdown(lesson.lessonTitle)}*`,
+      `📖 *Проект: ${this.#esc(project.projectTitle)}*`,
       '',
     ];
+    const rows: Array<Array<{ text: string; code: string }>> = [];
 
-    if (lesson.stepIds.length === 0) {
-      lines.push('_В этом уроке пока нет шагов_');
+    if (project.lessons.length === 0) {
+      lines.push('_В этом проекте пока нет уроков_');
     } else {
-      const stepsByLesson = (await this.moduleApi.execute(
-        'get-steps-by-lessons',
-        { lessonIds: [lesson.lessonId] },
-      )) as Record<string, Array<{ uuid: string; description: string }>>;
+      for (let li = 0; li < project.lessons.length; li++) {
+        const lesson = project.lessons[li];
+        if (!lesson) continue;
+        const sCount = lesson.stepIds.length;
 
-      const steps = stepsByLesson[lesson.lessonId] ?? [];
+        lines.push(
+          `📝 *${this.#esc(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+        );
 
-      if (steps.length === 0) {
-        lines.push('_В этом уроке пока нет шагов_');
-      } else {
-        for (let i = 0; i < steps.length; i++) {
-          const step = steps[i];
-          if (!step) continue;
-          lines.push(
-            `    ${this.escapeMarkdown(`${i + 1}.`)} ${this.escapeMarkdown(step.description)}`,
-          );
+        // Шаги урока inline
+        if (sCount > 0) {
+          const stepsByLesson = (await this.moduleApi.execute(
+            'get-steps-by-lessons',
+            { lessonIds: [lesson.lessonId] },
+          )) as Record<string, Array<{ uuid: string; description: string }>>;
+
+          const steps = stepsByLesson[lesson.lessonId] ?? [];
+          for (let si = 0; si < steps.length; si++) {
+            const step = steps[si];
+            if (!step) continue;
+            lines.push(`    ${this.#esc(`${si + 1}.`)} ${this.#esc(step.description)}`);
+          }
         }
       }
     }
+
+    rows.push([
+      {
+        text: '⬅️ Назад к проектам',
+        code: this.cb('projects', courseId, String(phaseIdx), moduleId),
+      },
+    ]);
 
     return {
       sendMessage: {
         text: this.#truncate(lines.join('\n')),
         parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [
-            [
-              {
-                text: '⬅️ Назад к модулю',
-                code: this.cb(
-                  'program:module',
-                  courseId,
-                  String(phaseIdx),
-                  moduleId,
-                ),
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
+        keyboard: { rows, isMultiple: false },
       },
     };
   }
 
-  /** Определяет эмодзи направления курса по первому phase с track */
+  // ═══ Утилиты ═══
+
+  #esc(text: string): string {
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+  }
+
   #getDirectionEmoji(course: Course): string {
     for (const phase of course.phases) {
       if (phase.track) {
@@ -461,15 +504,6 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     return DEFAULT_TRACK_EMOJI;
   }
 
-  /** Подсчитывает общее число модулей во всех фазах курса */
-  #countModules(course: Course): number {
-    return course.phases.reduce(
-      (sum: number, phase) => sum + (phase.moduleIds?.length ?? 0),
-      0,
-    );
-  }
-
-  /** Склонение: plural(1, 'ь', 'я', 'ей') → 'ь', plural(3, 'ь', 'я', 'ей') → 'я' */
   #plural(count: number, one: string, two: string, five: string): string {
     const n = count % 100;
     if (n >= 11 && n <= 19) return five;
@@ -479,9 +513,8 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     return five;
   }
 
-  /** Обрезает текст до maxLen символов (с экранированным многоточием) */
   #truncate(text: string, maxLen = 4000): string {
     if (text.length <= maxLen) return text;
-    return `${text.slice(0, maxLen - 15)}${this.escapeMarkdown('...')}`;
+    return `${text.slice(0, maxLen - 15)}${this.#esc('...')}`;
   }
 }

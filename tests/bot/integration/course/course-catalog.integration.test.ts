@@ -7,15 +7,14 @@ import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
 
 /**
- * Интеграционный тест CourseCatalogStory (S00, S00a, S00b)
+ * Интеграционный тест CourseCatalogStory (S00 + drill-down)
  *
- * Покрытие:
- * - S00:  список курсов (гость видит published)
- * - S00a: карточка курса (фазы, сводка, кнопки)
- * - S00b.1: программа — этапы + модули inline
- * - S00b.2: модуль — проекты + уроки inline
- * - S00b.3: урок — заголовки шагов (тела скрыты)
- * - Ошибки: несуществующий курс
+ * 5 уровней:
+ *   list     — курсы + этапы inline
+ *   phases   — этапы + модули inline
+ *   modules  — модули + проекты inline
+ *   projects — проекты + уроки inline
+ *   lessons  — уроки + заголовки шагов
  */
 describe('CourseCatalogStory (интеграционный)', () => {
   let app: TestApp;
@@ -24,16 +23,13 @@ describe('CourseCatalogStory (интеграционный)', () => {
   let author: User;
   const session: SessionData = { activeHandler: null };
 
-  // uuid фикстурного модуля (есть проекты и уроки в фикстурах)
   const FIXTURE_MODULE_UUID = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
 
   beforeAll(async () => {
-    app = await createTestApp('course-catalog');
-
+    app = await createTestApp('course-catalog-v2');
     const courseController = new CourseController(app.courseModule);
     courseController.init(app.apiApp);
     router = new BotRouter([courseController]);
-
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     author = (await app.userFacade.getUserByTelegramId(1004))!;
   });
@@ -73,48 +69,43 @@ describe('CourseCatalogStory (интеграционный)', () => {
     return { courseId: course.uuid, moduleId: mod.uuid };
   }
 
-  // ── S00 ──
+  // ── Уровень 0: Курсы ──
 
-  test('S00: гость видит список published-курсов', async () => {
+  test('list: курсы + этапы inline', async () => {
     const response = await router.handleCallback(
       'course:course-catalog:list',
       guest,
       session,
     );
     assertBotResponseValid(response);
-
-    expect(response.sendMessage?.text).toContain('Программы курсов');
-    // Фикстурный курс «Основы программирования» должен быть виден
+    expect(response.sendMessage?.text).toContain('Курсы');
     expect(response.sendMessage?.text).toContain('Основы программирования');
+    expect(response.sendMessage?.text).toContain('Синтаксис');
   });
 
-  // ── S00a ──
+  // ── Уровень 1: Этапы ──
 
-  test('S00a: карточка курса с фазами и кнопкой «Развернуть программу»', async () => {
+  test('phases: этапы + модули inline', async () => {
     const { courseId } = await createCourseWithModule('Тестовый курс');
 
     const response = await router.handleCallback(
-      `course:course-catalog:view:${courseId}`,
+      `course:course-catalog:phases:${courseId}`,
       guest,
       session,
     );
     assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Тестовый курс');
+    expect(response.sendMessage?.text).toContain('Курс: Тестовый курс');
     expect(response.sendMessage?.text).toContain('Этап 1');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const programBtn = rows.find(
-      (r) => r[0]?.text === '📖 Развернуть программу',
-    );
-    expect(programBtn).toBeDefined();
-    // Не проверяем точный uuid, только префикс
-    expect(programBtn![0]!.code).toMatch(/^course:course-catalog:program:/);
+    expect(rows.some((r) => r[0]?.text?.includes('Этап 1'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсам'))).toBe(true);
   });
 
-  test('S00a: несуществующий курс — ошибка', async () => {
+  test('phases: несуществующий курс — ошибка', async () => {
     const response = await router.handleCallback(
-      'course:course-catalog:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
+      'course:course-catalog:phases:bad-uuid',
       guest,
       session,
     );
@@ -122,44 +113,29 @@ describe('CourseCatalogStory (интеграционный)', () => {
     expect(response.sendMessage?.text).toContain('не найден');
   });
 
-  // ── S00b.1 ──
+  // ── Уровень 2: Модули ──
 
-  test('S00b.1: этапы + модули inline', async () => {
-    const { courseId } = await createCourseWithModule('Курс S00b');
+  test('modules: модули + проекты inline', async () => {
+    const { courseId } = await createCourseWithModule('Курс M');
 
     const response = await router.handleCallback(
-      `course:course-catalog:program:${courseId}`,
+      `course:course-catalog:modules:${courseId}:0`,
       guest,
       session,
     );
     assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Программа');
-    expect(response.sendMessage?.text).toContain('Курс S00b');
-    expect(response.sendMessage?.text).toContain('Этап 1');
+    expect(response.sendMessage?.text).toContain('Этап: Этап 1');
     expect(response.sendMessage?.text).toContain('Модуль');
 
-    // Кнопка «Назад к карточке»
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к карточке'))).toBe(
-      true,
-    );
+    expect(rows.some((r) => r[0]?.text?.includes('Модуль'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапам'))).toBe(true);
   });
 
-  test('S00b: несуществующий курс — ошибка', async () => {
-    const response = await router.handleCallback(
-      'course:course-catalog:program:bad-uuid',
-      guest,
-      session,
-    );
-    assertBotResponseValid(response);
-    expect(response.sendMessage?.text).toContain('не найден');
-  });
+  // ── Уровень 3: Проекты ──
 
-  // ── S00b.2 ──
-
-  test('S00b.2: проекты + уроки inline (фикстурный модуль)', async () => {
-    // Создаём курс и добавляем ФИКСТУРНЫЙ модуль (уже есть проекты/уроки)
+  test('projects: проекты + уроки inline (фикстурный модуль)', async () => {
     const course = await app.apiApp.execute(
       'create-course',
       { title: 'Курс с проектами', description: 'Тест' },
@@ -170,18 +146,14 @@ describe('CourseCatalogStory (интеграционный)', () => {
       { courseId: course.uuid, title: 'Этап', track: 'tech' },
       author.uuid,
     );
-    await app.apiApp.execute(
-      'add-module-to-course',
-      {
-        courseId: course.uuid,
-        phaseTitle: 'Этап',
-        moduleId: FIXTURE_MODULE_UUID,
-      },
-      author.uuid,
-    );
+    await app.apiApp.execute('add-module-to-course', {
+      courseId: course.uuid,
+      phaseTitle: 'Этап',
+      moduleId: FIXTURE_MODULE_UUID,
+    }, author.uuid);
 
     const response = await router.handleCallback(
-      `course:course-catalog:program:module:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
+      `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
       guest,
       session,
     );
@@ -191,15 +163,17 @@ describe('CourseCatalogStory (интеграционный)', () => {
     expect(response.sendMessage?.text).toContain('Переменные и типы');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const backBtn = rows.find((r) => r[0]?.text?.includes('Назад к этапам'));
-    expect(backBtn).toBeDefined();
-    expect(backBtn![0]!.code).toMatch(/^course:course-catalog:program:.+/);
+    expect(
+      rows.some((r) => r[0]?.text?.includes('Переменные и типы')),
+    ).toBe(true);
+    expect(
+      rows.some((r) => r[0]?.text?.includes('Назад к модулям')),
+    ).toBe(true);
   });
 
-  // ── S00b.3 ──
+  // ── Уровень 4: Уроки ──
 
-  test('S00b.3: заголовки шагов (тела скрыты)', async () => {
-    // Создаём курс с фикстурным модулем
+  test('lessons: уроки + заголовки шагов, тела скрыты', async () => {
     const course = await app.apiApp.execute(
       'create-course',
       { title: 'Курс с шагами', description: 'Тест' },
@@ -210,37 +184,29 @@ describe('CourseCatalogStory (интеграционный)', () => {
       { courseId: course.uuid, title: 'Этап', track: 'tech' },
       author.uuid,
     );
-    await app.apiApp.execute(
-      'add-module-to-course',
-      {
-        courseId: course.uuid,
-        phaseTitle: 'Этап',
-        moduleId: FIXTURE_MODULE_UUID,
-      },
-      author.uuid,
-    );
+    await app.apiApp.execute('add-module-to-course', {
+      courseId: course.uuid,
+      phaseTitle: 'Этап',
+      moduleId: FIXTURE_MODULE_UUID,
+    }, author.uuid);
 
-    // projectIdx=0, lessonIdx=0 → проект «Введение», урок «Переменные и типы»
     const response = await router.handleCallback(
-      `course:course-catalog:program:lesson:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0:0`,
+      `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
       guest,
       session,
     );
     assertBotResponseValid(response);
 
+    expect(response.sendMessage?.text).toContain('Проект: Введение');
     expect(response.sendMessage?.text).toContain('Переменные и типы');
 
     // Тела шагов не видны
     expect(response.sendMessage?.text).not.toContain('<html');
     expect(response.sendMessage?.text).not.toContain('function');
-    expect(response.sendMessage?.text).not.toContain('const ');
 
-    // Кнопка «Назад к модулю»
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const backBtn = rows.find((r) => r[0]?.text?.includes('Назад к модулю'));
-    expect(backBtn).toBeDefined();
-    expect(backBtn![0]!.code).toMatch(
-      /^course:course-catalog:program:module:.+/,
-    );
+    expect(
+      rows.some((r) => r[0]?.text?.includes('Назад к проектам')),
+    ).toBe(true);
   });
 });

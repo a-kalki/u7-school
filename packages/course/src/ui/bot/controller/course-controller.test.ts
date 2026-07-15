@@ -56,7 +56,7 @@ describe('CourseController (реестр)', () => {
       session,
     );
     expect(response.sendMessage?.text).toBeDefined();
-    expect(response.sendMessage?.text).toContain('Программы курсов');
+    expect(response.sendMessage?.text).toContain('Курсы');
   });
 
   test('handleCallback — неизвестный префикс', async () => {
