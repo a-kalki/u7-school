@@ -3,6 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/app/ui';
 import { BotRouter } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
+import { CourseController } from '@u7-scl/course/ui';
 import type { TestApp } from '../helpers/test-app';
 import { createTestApp } from '../helpers/test-app';
 
@@ -22,10 +23,12 @@ describe('Главное меню (интеграционные)', () => {
   beforeAll(async () => {
     app = await createTestApp('main-menu-int');
     const streamController = new StreamController(app.streamModule);
+    const courseController = new CourseController(app.courseModule);
     const appController = new AppController(SCHOOL_GROUP_URL);
     streamController.init(app.apiApp);
+    courseController.init(app.apiApp);
     appController.init(app.apiApp);
-    router = new BotRouter([appController, streamController]);
+    router = new BotRouter([appController, streamController, courseController]);
     appController.initMenuAggregator(router);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;
@@ -98,6 +101,7 @@ describe('Главное меню (интеграционные)', () => {
     const response = await router.handleHelp(guest);
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Как со мной работать?');
+    expect(text).toContain('Программы курсов');
     expect(text).toContain('Потоки курсов');
     expect(text).toContain('Сообщество школы');
     expect(text).toContain('/cancel');
