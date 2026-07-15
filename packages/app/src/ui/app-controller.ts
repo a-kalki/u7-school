@@ -58,10 +58,6 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
     return items.sort((a, b) => a.priority - b.priority);
   }
 
-  override async handleHelpStart(_actor: User): Promise<string | null> {
-    return '💬 Сообщество школы — ссылка на Telegram-группу школы';
-  }
-
   // ── Системные сообщения ──
 
   /**

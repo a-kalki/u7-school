@@ -482,18 +482,24 @@ describe('BotRouter', () => {
 
   // ── collectAllHelpDescriptions (MenuAggregator) ──
 
-  test('collectAllHelpDescriptions собирает описания и фильтрует null', async () => {
+  test('collectAllHelpDescriptions собирает описания из handleStart', async () => {
     const c1 = new TestController();
     c1.name = 'ctrl1';
-    c1.withHelpStartResult('Описание 1');
+    c1.withStartResult([
+      { kind: 'callback', text: 'A', action: 'a', priority: 10, description: 'Описание 1' },
+    ]);
 
     const c2 = new TestController();
     c2.name = 'ctrl2';
-    c2.withHelpStartResult(null); // этот должен отфильтроваться
+    c2.withStartResult([
+      { kind: 'callback', text: 'B', action: 'b', priority: 20 },
+    ]);
 
     const c3 = new TestController();
     c3.name = 'ctrl3';
-    c3.withHelpStartResult('Описание 3');
+    c3.withStartResult([
+      { kind: 'callback', text: 'C', action: 'c', priority: 30, description: 'Описание 3' },
+    ]);
 
     const disp = new BotRouter([c1, c2, c3]);
     const descs = await disp.collectAllHelpDescriptions(makeActor());

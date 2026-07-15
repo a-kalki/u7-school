@@ -106,28 +106,16 @@ export class BotRouter<
 
   /**
    * Собирает описания меню от контроллеров для /help.
-   * Контроллеры без handleHelpStart пропускаются.
+   * Использует collectMainMenu — описания в том же порядке, что и кнопки.
    */
   async collectHelp(actor: TActor): Promise<string[]> {
-    const descriptions: string[] = [];
-    for (const c of this.controllers.values()) {
-      try {
-        const desc = await c.handleHelpStart(actor);
-        if (desc) {
-          descriptions.push(desc);
-        }
-      } catch (err) {
-        getGlobalLogger()?.warn(
-          'bot-router',
-          'Ошибка контроллера в collectHelp',
-          {
-            error: String(err),
-            controller: c.name,
-          },
-        );
-      }
-    }
-    return descriptions;
+    const menu = await this.collectMainMenu(actor);
+    return menu
+      .filter(
+        (i): i is MainMenuAction & { description: string } =>
+          typeof i.description === 'string',
+      )
+      .map((i) => i.description);
   }
 
   // ── MenuAggregator ──

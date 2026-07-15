@@ -185,8 +185,8 @@ export abstract class BotController<
    */
   async handleHelpStart(actor: TActor): Promise<string | null> {
     const items = (await this.handleStart(actor))
-      .filter((i): i is import('../types').CbMainMenuAction & { description: string } =>
-        i.kind === 'callback' && typeof i.description === 'string',
+      .filter((i): i is MainMenuAction & { description: string } =>
+        typeof i.description === 'string',
       )
       .map((i) => ({ text: i.description, priority: i.priority }))
       .sort((a, b) => a.priority - b.priority);

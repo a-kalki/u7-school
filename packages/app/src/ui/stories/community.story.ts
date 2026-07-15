@@ -33,6 +33,7 @@ export class CommunityStory extends U7BotUserStory<AppOnlyApiModuleMeta> {
       text: '💬 Сообщество школы',
       priority: 90,
       url: this.#groupUrl,
+      description: '💬 Сообщество школы — ссылка на Telegram-группу школы',
     };
   }
 

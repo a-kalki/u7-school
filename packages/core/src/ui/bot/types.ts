@@ -71,6 +71,8 @@ export type UrlMainMenuAction = {
   text: string;
   url: string;
   priority: number;
+  /** Описание для /help */
+  description?: string;
 };
 
 /** Элемент главного меню бота */
