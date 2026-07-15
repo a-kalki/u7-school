@@ -185,15 +185,19 @@ export abstract class BotController<
    * Если у story нет handleHelpDescription — возвращает null.
    */
   async handleHelpStart(actor: TActor): Promise<string | null> {
-    const descriptions: string[] = [];
+    // Собираем описания с приоритетами как в главном меню
+    const items: Array<{ text: string; priority: number }> = [];
     for (const story of this.stories) {
+      const mainAction = await story.handleStart(actor);
+      if (!mainAction) continue;
       const desc = await story.handleHelpDescription(actor);
       if (desc) {
-        descriptions.push(desc);
+        items.push({ text: desc, priority: mainAction.priority });
       }
     }
-    if (descriptions.length === 0) return null;
-    return descriptions.join('\n\n');
+    if (items.length === 0) return null;
+    items.sort((a, b) => a.priority - b.priority);
+    return items.map((i) => i.text).join('\n\n');
   }
 
   /**

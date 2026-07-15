@@ -122,7 +122,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     for (const course of courses) {
       const direction = this.#getDirectionEmoji(course);
 
-      lines.push(`${direction} *${this.#esc(course.title)}*`);
+      lines.push(`${direction} *Курс: ${this.#esc(course.title)}*`);
 
       // Этапы курса inline (один уровень вниз)
       for (const phase of course.phases) {
