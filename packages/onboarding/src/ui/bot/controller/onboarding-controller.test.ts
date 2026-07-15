@@ -149,6 +149,7 @@ describe('OnboardingController', () => {
     expect(items[0]!.text).toBe('📝 Заполнить анкету');
     expect(items[0]!.action).toBe('onboarding:start_questionnaire');
     expect(items[0]!.priority).toBe(50);
+    expect(items[0]!.description).toContain('Заполнить анкету');
   });
 
   test('start_questionnaire начинает новую анкету', async () => {
