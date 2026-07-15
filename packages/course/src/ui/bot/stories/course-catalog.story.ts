@@ -131,7 +131,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           : '🗂️';
         const modCount = phase.moduleIds?.length ?? 0;
         lines.push(
-          `    ${phaseEmoji} ${this.#esc(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+          `    ${phaseEmoji} Этап: ${this.#esc(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
         );
       }
 
@@ -203,7 +203,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
               0,
             ) ?? 0;
           lines.push(
-            `    📦 ${this.#esc(mod.title)} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+            `    📦 Модуль: ${this.#esc(mod.title)} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
           );
         } catch {
           lines.push(
@@ -222,7 +222,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       ]);
     }
 
-    rows.push([{ text: '⬅️ Назад к курсам', code: this.cb('list') }]);
+    rows.push([{ text: '⬅️ Назад к курсам школы', code: this.cb('list') }]);
 
     return {
       sendMessage: {
@@ -292,7 +292,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       for (const proj of projects) {
         const lCount = proj.lessonIds?.length ?? 0;
         lines.push(
-          `    📁 ${this.#esc(proj.title)} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
+          `    📁 Проект: ${this.#esc(proj.title)} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
         );
       }
 
@@ -307,7 +307,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     }
 
     rows.push([
-      { text: '⬅️ Назад к этапам', code: this.cb('phases', courseId) },
+      { text: '⬅️ Назад к курсу', code: this.cb('phases', courseId) },
     ]);
 
     return {
@@ -375,7 +375,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         if (!lesson) continue;
         const sCount = lesson.stepIds.length;
         lines.push(
-          `    📝 ${this.#esc(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+          `    📝 Урок: ${this.#esc(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
         );
       }
 
@@ -398,7 +398,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     rows.push([
       {
-        text: '⬅️ Назад к модулям',
+        text: '⬅️ Назад к этапу',
         code: this.cb('modules', courseId, String(phaseIdx)),
       },
     ]);
@@ -464,10 +464,14 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           )) as Record<string, Array<{ uuid: string; description: string }>>;
 
           const steps = stepsByLesson[lesson.lessonId] ?? [];
-          for (let si = 0; si < steps.length; si++) {
+          const maxSteps = Math.min(steps.length, 3);
+          for (let si = 0; si < maxSteps; si++) {
             const step = steps[si];
             if (!step) continue;
             lines.push(`    ${this.#esc(`${si + 1}.`)} ${this.#esc(step.description)}`);
+          }
+          if (steps.length > 3) {
+            lines.push(`    ${this.#esc('...')}`);
           }
         }
       }
@@ -475,7 +479,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     rows.push([
       {
-        text: '⬅️ Назад к проектам',
+        text: '⬅️ Назад к модулю',
         code: this.cb('projects', courseId, String(phaseIdx), moduleId),
       },
     ]);

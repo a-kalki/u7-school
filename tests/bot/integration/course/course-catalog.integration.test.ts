@@ -130,7 +130,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     expect(rows.some((r) => r[0]?.text?.includes('Модуль'))).toBe(true);
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапам'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсу'))).toBe(true);
   });
 
   // ── Уровень 3: Проекты ──
@@ -165,7 +165,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     // Кнопки — проекты, не уроки
     expect(rows.some((r) => r[0]?.text?.includes('Введение'))).toBe(true);
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулям'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
   });
 
   // ── Уровень 4: Уроки ──
@@ -203,7 +203,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     expect(
-      rows.some((r) => r[0]?.text?.includes('Назад к проектам')),
+      rows.some((r) => r[0]?.text?.includes('Назад к модулю')),
     ).toBe(true);
   });
 });

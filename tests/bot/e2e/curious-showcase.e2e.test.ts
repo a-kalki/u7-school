@@ -133,7 +133,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).toContain('Введение');
       const btns = modulesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('JavaScript'))).toBe(true);
-      expect(btns.some((t) => t.includes('Назад к этапам'))).toBe(true);
+      expect(btns.some((t) => t.includes('Назад к курсу'))).toBe(true);
     });
 
     test('уровень 3: клик на модуль → проекты + уроки inline', async () => {
@@ -154,7 +154,7 @@ describe('E2E: Витрина для любопытного', () => {
       const btns = projectsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       // Кнопки — проекты (не уроки!)
       expect(btns.some((t) => t.includes('Введение'))).toBe(true);
-      expect(btns.some((t) => t.includes('Назад к модулям'))).toBe(true);
+      expect(btns.some((t) => t.includes('Назад к этапу'))).toBe(true);
     });
 
     test('уровень 4: клик на проект → уроки + шаги inline', async () => {
@@ -176,7 +176,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).not.toContain('```');
       expect(text).not.toContain('function');
       const btns = lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('Назад к проектам'))).toBe(true);
+      expect(btns.some((t) => t.includes('Назад к модулю'))).toBe(true);
     });
   });
 

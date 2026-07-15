@@ -318,8 +318,8 @@ describe('CourseCatalogStory', () => {
       `course-catalog:projects:${courseUuid}:0:m-a`,
     );
 
-    // Кнопка «Назад к этапам»
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапам'))).toBe(true);
+    // Кнопка «Назад к курсу»
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к курсу'))).toBe(true);
   });
 
   // ── Уровень 3: Проекты + уроки inline ──
@@ -395,8 +395,8 @@ describe('CourseCatalogStory', () => {
       `course-catalog:lessons:${courseUuid}:0:m-x:0`,
     );
 
-    // Кнопка «Назад к модулям»
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулям'))).toBe(
+    // Кнопка «Назад к этапу»
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(
       true,
     );
   });
@@ -462,9 +462,9 @@ describe('CourseCatalogStory', () => {
     expect(text).not.toContain('content');
     expect(text).not.toContain('code');
 
-    // Кнопка «Назад к проектам»
+    // Кнопка «Назад к модулю»
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к проектам'))).toBe(
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(
       true,
     );
   });
