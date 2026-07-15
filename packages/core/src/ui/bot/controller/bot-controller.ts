@@ -180,21 +180,6 @@ export abstract class BotController<
   }
 
   /**
-   * Описание пунктов меню для команды /help.
-   * Собирает description из всех handleStart, сортирует по приоритету.
-   */
-  async handleHelpStart(actor: TActor): Promise<string | null> {
-    const items = (await this.handleStart(actor))
-      .filter((i): i is MainMenuAction & { description: string } =>
-        typeof i.description === 'string',
-      )
-      .map((i) => ({ text: i.description, priority: i.priority }))
-      .sort((a, b) => a.priority - b.priority);
-    if (items.length === 0) return null;
-    return items.map((i) => i.text).join('\n\n');
-  }
-
-  /**
    * Отмена текущего действия.
    * Делегирует активной стори или освобождает ввод.
    */

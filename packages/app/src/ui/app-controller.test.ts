@@ -44,15 +44,6 @@ describe('AppController', () => {
     expect(items[1]!.priority).toBe(100);
   });
 
-  // ── handleHelpStart ──
-
-  test('handleHelpStart возвращает описание кнопки сообщества', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    const desc = await ctrl.handleHelpStart(actor);
-
-    expect(desc).toContain('Сообщество школы');
-  });
-
   // ── handleWelcome ──
 
   test('handleWelcome возвращает приветствие с клавиатурой', async () => {

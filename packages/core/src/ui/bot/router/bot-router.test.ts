@@ -30,7 +30,6 @@ class TestController extends BotController<
   }
 
   private _startResult: MainMenuAction[] = [];
-  private _helpStartResult: string | null = null;
   private _callbackResult: BotResponse = {};
   private _messageResult: BotResponse = {};
   private _cancelResult: BotResponse = { releaseInput: true };
@@ -54,10 +53,6 @@ class TestController extends BotController<
 
   withStartResult(items: MainMenuAction[]): this {
     this._startResult = items;
-    return this;
-  }
-  withHelpStartResult(res: string | null): this {
-    this._helpStartResult = res;
     return this;
   }
   withCallbackResult(res: BotResponse): this {
@@ -90,9 +85,6 @@ class TestController extends BotController<
     return this._startResult;
   }
 
-  override async handleHelpStart(_actor: TestActor): Promise<string | null> {
-    return this._helpStartResult;
-  }
 
   override async handleCallback(
     data: string,
