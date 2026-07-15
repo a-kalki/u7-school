@@ -6,7 +6,7 @@
     "authorId": "8d9a56f6-51e7-49f0-ba58-2832b157e718",
     "phases": [
       {
-        "title": "Этап 1: Основы JS",
+        "title": "Основы JS",
         "track": "tech",
         "moduleIds": [
           "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
@@ -14,7 +14,7 @@
         ]
       }
     ],
-    "status": "draft",
+    "status": "published",
     "createdAt": "2026-07-08T18:35",
     "updatedAt": "2026-07-08T18:35"
   }
