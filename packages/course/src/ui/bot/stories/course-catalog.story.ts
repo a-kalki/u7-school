@@ -128,7 +128,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       for (const phase of course.phases) {
         const phaseEmoji = phase.track
           ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-          : '📌';
+          : '🗂️';
         const modCount = phase.moduleIds?.length ?? 0;
         lines.push(
           `    ${phaseEmoji} ${this.#esc(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
@@ -183,7 +183,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       if (!phase) continue;
       const emoji = phase.track
         ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-        : '📌';
+        : '🗂️';
       const modCount = phase.moduleIds?.length ?? 0;
 
       lines.push(
@@ -259,7 +259,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     const phaseEmoji = phase.track
       ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-      : '📌';
+      : '🗂️';
 
     const lines: string[] = [
       `📖 *Этап: ${this.#esc(phase.title)}*`,
@@ -292,7 +292,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       for (const proj of projects) {
         const lCount = proj.lessonIds?.length ?? 0;
         lines.push(
-          `    🗂️ ${this.#esc(proj.title)} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
+          `    📁 ${this.#esc(proj.title)} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
         );
       }
 
@@ -366,7 +366,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       );
 
       lines.push(
-        `🗂️ *${this.#esc(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
+        `📁 *${this.#esc(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
       );
 
       // Уроки проекта inline (один уровень вниз)
@@ -377,22 +377,23 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         lines.push(
           `    📝 ${this.#esc(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
         );
-
-        rows.push([
-          {
-            text: `📝 ${lesson.lessonTitle}`,
-            code: this.cb(
-              'lessons',
-              courseId,
-              String(phaseIdx),
-              moduleId,
-              String(pi),
-            ),
-          },
-        ]);
       }
 
       lines.push('');
+
+      // Кнопка — один проект
+      rows.push([
+        {
+          text: `📁 ${project.projectTitle}`,
+          code: this.cb(
+            'lessons',
+            courseId,
+            String(phaseIdx),
+            moduleId,
+            String(pi),
+          ),
+        },
+      ]);
     }
 
     rows.push([

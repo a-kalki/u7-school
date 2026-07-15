@@ -152,11 +152,12 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).toContain('Переменные и типы');
       expect(text).toContain('Циклы и функции');
       const btns = projectsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('Переменные'))).toBe(true);
+      // Кнопки — проекты (не уроки!)
+      expect(btns.some((t) => t.includes('Введение'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к модулям'))).toBe(true);
     });
 
-    test('уровень 4: клик на урок → проект + уроки + шаги inline', async () => {
+    test('уровень 4: клик на проект → уроки + шаги inline', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const catalogResp = await router.handleCallback(courseBtn.action, guest, NO_SESSION);
@@ -166,8 +167,8 @@ describe('E2E: Витрина для любопытного', () => {
       const modulesResp = await router.handleCallback(phaseBtn.code, guest, NO_SESSION);
       const moduleBtn = findButton(modulesResp, 'JavaScript');
       const projectsResp = await router.handleCallback(moduleBtn.code, guest, NO_SESSION);
-      const lessonBtn = findButton(projectsResp, 'Переменные');
-      const lessonsResp = await router.handleCallback(lessonBtn.code, guest, NO_SESSION);
+      const projectBtn = findButton(projectsResp, 'Введение');
+      const lessonsResp = await router.handleCallback(projectBtn.code, guest, NO_SESSION);
       assertBotResponseValid(lessonsResp);
       const text = lessonsResp.sendMessage?.text ?? '';
       expect(text).toContain('Проект: Введение');

@@ -163,12 +163,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
     expect(response.sendMessage?.text).toContain('Переменные и типы');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(
-      rows.some((r) => r[0]?.text?.includes('Переменные и типы')),
-    ).toBe(true);
-    expect(
-      rows.some((r) => r[0]?.text?.includes('Назад к модулям')),
-    ).toBe(true);
+    // Кнопки — проекты, не уроки
+    expect(rows.some((r) => r[0]?.text?.includes('Введение'))).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулям'))).toBe(true);
   });
 
   // ── Уровень 4: Уроки ──

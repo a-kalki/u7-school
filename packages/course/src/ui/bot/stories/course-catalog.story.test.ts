@@ -387,11 +387,11 @@ describe('CourseCatalogStory', () => {
     expect(text).toContain('Chat');
     expect(text).toContain('WebSocket');
 
-    // Кнопки-уроки
+    // Кнопки-проекты (не уроки!)
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const lessonBtn = rows.find((r) => r[0]?.text?.includes('HTML разметка'));
-    expect(lessonBtn).toBeDefined();
-    expect(lessonBtn![0]!.code).toBe(
+    const projectBtn = rows.find((r) => r[0]?.text?.includes('ToDo App'));
+    expect(projectBtn).toBeDefined();
+    expect(projectBtn![0]!.code).toBe(
       `course-catalog:lessons:${courseUuid}:0:m-x:0`,
     );
 
