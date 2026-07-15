@@ -82,14 +82,8 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         text: '🎓 Моя учёба',
         action: this.cb('my-study'),
         priority: 20,
+        description: '🎓 Моя учёба — доступ к твоим учебным материалам',
       };
-    }
-    return null;
-  }
-
-  override async handleHelpDescription(actor: User): Promise<string | null> {
-    if (UserPolicy.isStudent(actor)) {
-      return '🎓 Моя учёба — доступ к твоим учебным материалам';
     }
     return null;
   }

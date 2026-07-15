@@ -140,10 +140,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       text: '📚 Потоки курсов',
       action: this.cb('list'),
       priority: 15,
+      description: '📚 Потоки курсов — просмотр каталога учебных потоков школы',
     };
-  }
-
-  override async handleHelpDescription(_actor: User): Promise<string | null> {
-    return '📚 Потоки курсов — просмотр каталога учебных потоков школы';
   }
 }

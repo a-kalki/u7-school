@@ -79,12 +79,6 @@ export abstract class BotUserStory<
   /**
    * Описание кнопки для команды /help.
    * По умолчанию возвращает null — сценарий не добавляется в /help.
-   * Должен быть согласован с handleStart: если кнопка есть — описание тоже должно быть.
-   */
-  async handleHelpDescription(_actor: TActor): Promise<string | null> {
-    return null;
-  }
-
   /**
    * Отмена текущего действия.
    * По умолчанию освобождает ввод.

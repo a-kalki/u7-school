@@ -42,11 +42,8 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       text: '📖 Программы курсов',
       action: this.cb('list'),
       priority: 10,
+      description: '📖 Программы курсов — каталог учебных курсов и их структура',
     };
-  }
-
-  override async handleHelpDescription(_actor: User): Promise<string | null> {
-    return '📖 Программы курсов — каталог учебных курсов и их структура';
   }
 
   // ── Callback ──

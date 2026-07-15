@@ -460,16 +460,16 @@ describe('CreateStreamStory', () => {
     expect(item).toBeNull();
   });
 
-  test('handleHelpDescription — MENTOR видит описание', async () => {
+  test('handleStart — MENTOR получает описание', async () => {
     const story = new CreateStreamStory();
-    const desc = await story.handleHelpDescription(mentor);
-    expect(desc).toContain('Создать поток');
+    const item = await story.handleStart(mentor);
+    expect(item?.description).toContain('Создать поток');
   });
 
-  test('handleHelpDescription — GUEST не видит описание', async () => {
+  test('handleStart — GUEST не получает описание', async () => {
     const story = new CreateStreamStory();
-    const desc = await story.handleHelpDescription(guest);
-    expect(desc).toBeNull();
+    const item = await story.handleStart(guest);
+    expect(item?.description).toBeUndefined();
   });
 
   test('handleCallback("confirm"): без контекста — ошибка', async () => {

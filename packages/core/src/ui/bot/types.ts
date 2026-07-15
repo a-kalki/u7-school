@@ -62,6 +62,8 @@ export type CbMainMenuAction = {
   text: string;
   action: string;
   priority: number;
+  /** Описание для /help (если нет — пункт не включается в помощь) */
+  description?: string;
 };
 
 export type UrlMainMenuAction = {

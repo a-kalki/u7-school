@@ -181,22 +181,16 @@ export abstract class BotController<
 
   /**
    * Описание пунктов меню для команды /help.
-   * По умолчанию агрегирует описания от всех stories.
-   * Если у story нет handleHelpDescription — возвращает null.
+   * Собирает description из всех handleStart, сортирует по приоритету.
    */
   async handleHelpStart(actor: TActor): Promise<string | null> {
-    // Собираем описания с приоритетами как в главном меню
-    const items: Array<{ text: string; priority: number }> = [];
-    for (const story of this.stories) {
-      const mainAction = await story.handleStart(actor);
-      if (!mainAction) continue;
-      const desc = await story.handleHelpDescription(actor);
-      if (desc) {
-        items.push({ text: desc, priority: mainAction.priority });
-      }
-    }
+    const items = (await this.handleStart(actor))
+      .filter((i): i is import('../types').CbMainMenuAction & { description: string } =>
+        i.kind === 'callback' && typeof i.description === 'string',
+      )
+      .map((i) => ({ text: i.description, priority: i.priority }))
+      .sort((a, b) => a.priority - b.priority);
     if (items.length === 0) return null;
-    items.sort((a, b) => a.priority - b.priority);
     return items.map((i) => i.text).join('\n\n');
   }
 

@@ -71,11 +71,11 @@ describe('CatalogStory', () => {
     }
   });
 
-  test('handleHelpDescription возвращает описание', async () => {
+  test('handleStart содержит описание для help', async () => {
     const story = new CatalogStory();
-    const desc = await story.handleHelpDescription(actor);
-    expect(desc).toContain('Потоки курсов');
-    expect(desc).toContain('каталога');
+    const item = await story.handleStart(actor);
+    expect(item?.description).toContain('Потоки курсов');
+    expect(item?.description).toContain('каталога');
   });
 
   test('handleCallback("list") показывает только enrollment и active, добавляет кнопку переключения при наличии completed', async () => {

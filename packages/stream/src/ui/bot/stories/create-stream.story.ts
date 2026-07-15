@@ -223,14 +223,8 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         text: '🛠️ Создать поток',
         action: this.cb('start'),
         priority: 30,
+        description: '🛠️ Создать поток — создать новый учебный поток',
       };
-    }
-    return null;
-  }
-
-  override async handleHelpDescription(actor: User): Promise<string | null> {
-    if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) {
-      return '🛠️ Создать поток — создать новый учебный поток';
     }
     return null;
   }

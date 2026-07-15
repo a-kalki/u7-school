@@ -102,11 +102,11 @@ describe('CourseCatalogStory', () => {
     }
   });
 
-  test('handleHelpDescription возвращает описание', async () => {
+  test('handleStart содержит описание для help', async () => {
     const story = new CourseCatalogStory();
-    const desc = await story.handleHelpDescription(actor);
-    expect(desc).toContain('Программы курсов');
-    expect(desc).toContain('каталог');
+    const item = await story.handleStart(actor);
+    expect(item?.description).toContain('Программы курсов');
+    expect(item?.description).toContain('каталог');
   });
 
   // ── Уровень 0: Курсы + этапы inline ──
