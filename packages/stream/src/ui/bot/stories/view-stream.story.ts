@@ -136,18 +136,52 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
+    const esc = this.escapeMarkdown;
     const lines: string[] = ['📖 *Программа курса*', ''];
 
-    for (const project of snapshot) {
-      lines.push(`📁 ${this.escapeMarkdown(project.projectTitle)}`);
-      for (const lesson of project.lessons) {
-        lines.push(`  📝 ${this.escapeMarkdown(lesson.lessonTitle)}`);
+    // Собираем все lessonIds для загрузки описаний шагов
+    const allLessonIds = snapshot.flatMap((p) =>
+      p.lessons.map((l) => l.lessonId),
+    );
+
+    let stepsByLesson: Record<string, Array<{ uuid: string; description: string }>> = {};
+    if (allLessonIds.length > 0) {
+      try {
+        stepsByLesson = (await this.appApi.execute('get-steps-by-lessons', {
+          lessonIds: allLessonIds,
+        })) as typeof stepsByLesson;
+      } catch {
+        // если UC недоступен — показываем без шагов
       }
     }
 
+    for (const project of snapshot) {
+      lines.push(`📁 *${esc(project.projectTitle)}*`);
+      for (const lesson of project.lessons) {
+        const sCount = lesson.stepIds.length;
+        lines.push(
+          `    📝 *${esc(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+        );
+
+        // Шаги урока inline (не более 3)
+        const steps = stepsByLesson[lesson.lessonId] ?? [];
+        const maxSteps = Math.min(steps.length, 3);
+        for (let si = 0; si < maxSteps; si++) {
+          const step = steps[si];
+          if (!step) continue;
+          lines.push(`        ${esc(`${si + 1}.`)} ${esc(step.description)}`);
+        }
+        if (steps.length > 3) {
+          lines.push(`        ${esc('...')}`);
+        }
+      }
+    }
+
+    const text = this.#truncateS02(lines.join('\n'));
+
     return {
       sendMessage: {
-        text: lines.join('\n'),
+        text,
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
@@ -281,5 +315,18 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     } catch {
       return iso;
     }
+  }
+  #plural(count: number, one: string, two: string, five: string): string {
+    const n = count % 100;
+    if (n >= 11 && n <= 19) return five;
+    const r = n % 10;
+    if (r === 1) return one;
+    if (r >= 2 && r <= 4) return two;
+    return five;
+  }
+
+  #truncateS02(text: string, maxLen = 4000): string {
+    if (text.length <= maxLen) return text;
+    return `${text.slice(0, maxLen - 15)}${this.escapeMarkdown('...')}`;
   }
 }

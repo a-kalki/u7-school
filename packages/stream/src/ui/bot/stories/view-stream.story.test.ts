@@ -221,7 +221,10 @@ describe('ViewStreamStory', () => {
       }),
     } as unknown as StreamApiModule;
     const appApi = {
-      execute: mock(() => undefined),
+      execute: mock((name: string) => {
+        if (name === 'get-steps-by-lessons') return {};
+        return undefined;
+      }),
     } as unknown as U7BotApp;
 
     const story = new ViewStreamStory();

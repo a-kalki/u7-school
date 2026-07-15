@@ -187,7 +187,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       const modCount = phase.moduleIds?.length ?? 0;
 
       lines.push(
-        `${emoji} *${this.#esc(phase.title)}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+        `${emoji} *Этап: ${this.#esc(phase.title)}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
       );
 
       // Модули этапа inline (один уровень вниз) — нужны заголовки
@@ -285,7 +285,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       );
 
       lines.push(
-        `📦 *${this.#esc(mod.title)}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+        `📦 *Модуль: ${this.#esc(mod.title)}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
       );
 
       // Проекты модуля inline (один уровень вниз)
@@ -366,7 +366,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       );
 
       lines.push(
-        `📁 *${this.#esc(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
+        `📁 *Проект: ${this.#esc(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
       );
 
       // Уроки проекта inline (один уровень вниз)
@@ -453,7 +453,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         const sCount = lesson.stepIds.length;
 
         lines.push(
-          `📝 *${this.#esc(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+          `📝 *Урок: ${this.#esc(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
         );
 
         // Шаги урока inline
