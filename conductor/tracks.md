@@ -20,7 +20,7 @@
 
 - [x] ~~**Track: Навигация студента**~~ → [архив](./archive/student_navigation_20260708/)
 
-- [x] ~~**Track: Витрина для любопытного**~~ → [архив](./tracks/curious_showcase_20260708/)
+- [x] ~~**Track: Витрина для любопытного**~~ → [архив](./archive/curious_showcase_20260708/)
 
 ---
 
