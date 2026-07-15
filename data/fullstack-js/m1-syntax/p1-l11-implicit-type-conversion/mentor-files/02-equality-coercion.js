@@ -18,11 +18,11 @@ console.log('---');
 // Блок 3: null и undefined
 const user = null;
 
-console.log('null == undefined:', null == undefined);
-console.log('null === undefined:', null === undefined);
+console.log('null == undefined:', user == undefined);
+console.log('null === undefined:', user === undefined);
 
-console.log('null == 0:', null == 0);
-console.log('null == false:', null == false);
+console.log('null == 0:', user == 0);
+console.log('null == false:', user == false);
 
 console.log('---');
 
