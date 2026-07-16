@@ -1,3 +1,4 @@
+const text = 'javascript';
 let vowels = 0;
 for (let i = 0; i < text.length; i++) {
   if ('aeiou'.includes(text[i])) vowels++;
@@ -10,14 +11,17 @@ for (let i = 0; i < 3; i += 1) {
 }
 console.log(repeat);
 
+// const text = 'javascript';
 let even = '';
-for (let i = 0; i < str.length; i += 2) {
-  even += str[i];
+for (let i = 0; i < text.length; i += 2) {
+  even += text[i];
 }
 console.log(even);
 
-let digits = 0;
+let range = '';
 for (let i = 0; i < text.length; i++) {
-  if (text[i] >= '0' && text[i] <= '9') digits++;
+  if (text[i] >= 'j' && text[i] <= 's') {
+    range += text[i];
+  }
 }
-console.log(digits);
+console.log(range);

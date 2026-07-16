@@ -11,5 +11,6 @@ console.log(5 === 6 || 7);
 console.log((0 && 6) || 8);
 console.log((1 && 0) || 2);
 console.log(0 || (1 && 2));
+console.log(0 || !(false && 2));
 console.log(1 || 0 ? 2 : 3);
 console.log(`hello${2 % 3}`);

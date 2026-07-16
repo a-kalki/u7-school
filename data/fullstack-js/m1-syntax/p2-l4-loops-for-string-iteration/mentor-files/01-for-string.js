@@ -20,8 +20,8 @@ for (let i = 0; i < str.length; i++) {
 }
 console.log(found);
 
-const rev = [];
+let rev = '';
 for (let i = str.length - 1; i >= 0; i -= 1) {
-  rev.push(str[i]);
+  rev += str[i];
 }
 console.log(rev);

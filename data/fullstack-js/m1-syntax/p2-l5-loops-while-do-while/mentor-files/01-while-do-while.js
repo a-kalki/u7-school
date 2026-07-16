@@ -18,7 +18,7 @@ do {
   k += 1;
 } while (k < 0);
 
-let attempts = 5;
+let attempts = 0;
 let num;
 do {
   num = Math.floor(Math.random() * 10);
