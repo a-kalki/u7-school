@@ -61,7 +61,13 @@ export const StreamDs = {
 
   /**
    * Прогресс студента: сколько шагов завершено из общего числа.
-   * Используется progress.story и monitor.story.
+   *
+   * ВАЖНО: snapshot может быть как полным снимком потока, так и ЧАСТИЧНЫМ
+   * (например, один проект `[projectItem]` для прогресса по проекту).
+   * Поэтому completed фильтруется строго по stepId, присутствующим в snapshot,
+   * чтобы исключить шаги из других частей программы.
+   *
+   * Используется progress.story, learning.story, monitor.story.
    */
   computeProgress(
     snapshot: ContentSnapshot,
@@ -71,8 +77,13 @@ export const StreamDs = {
       (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
       0,
     );
+    // Собираем ID шагов, которые реально есть в переданном снимке
+    // (снимок может быть частичным — например, один проект)
+    const stepIdsInSnapshot = new Set(
+      snapshot.flatMap((p) => p.lessons.flatMap((l) => l.stepIds)),
+    );
     const completed = student.steps.filter(
-      (s) => s.status === 'completed',
+      (s) => s.status === 'completed' && stepIdsInSnapshot.has(s.stepId),
     ).length;
     return {
       completed,
