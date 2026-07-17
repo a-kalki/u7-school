@@ -2,7 +2,7 @@
 
 ---
 
-### Шаг 1
+### Инициализация репозитория и git init
 
 **kind:** `text`
 
@@ -31,7 +31,7 @@ type nul > index.js && type nul > index.test.js && type nul > .gitignore
 
 ---
 
-### Шаг 2
+### Настройка .gitignore
 
 **kind:** `text`
 
@@ -54,7 +54,7 @@ git status
 
 ---
 
-### Шаг 3
+### Контрольные вопросы по Git
 
 **kind:** `text`
 

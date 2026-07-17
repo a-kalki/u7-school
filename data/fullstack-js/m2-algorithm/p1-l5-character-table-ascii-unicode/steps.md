@@ -2,7 +2,7 @@
 
 ---
 
-### Шаг 1
+### ASCII и Unicode — таблица символов
 
 **kind:** `text`
 
@@ -30,7 +30,7 @@
 
 ---
 
-### Шаг 2
+### Методы charCodeAt() и fromCodePoint()
 
 **kind:** `text`
 
@@ -59,7 +59,7 @@ console.log(String.fromCodePoint(32));  // ' '
 
 ---
 
-### Шаг 3
+### Лексикографическое сравнение строк
 
 **kind:** `text`
 
@@ -93,7 +93,7 @@ console.log(String.fromCodePoint(32));  // ' '
 
 ---
 
-### Шаг 4
+### Предскажи результат сравнения строк
 
 **kind:** `text`
 
@@ -112,7 +112,7 @@ console.log(String.fromCodePoint(32));  // ' '
 
 ---
 
-### Шаг 5
+### Контрольные вопросы по сравнению строк
 
 **kind:** `text`
 

@@ -2,7 +2,7 @@
 
 ---
 
-### Шаг 1 — Знакомство с GitHub
+### Знакомство с GitHub
 
 **kind:** `text`
 
@@ -22,7 +22,7 @@
 
 ---
 
-### Шаг 2 — Регистрация и SSH
+### Регистрация и SSH
 
 **kind:** `text`
 
@@ -60,7 +60,7 @@ cat ~/.ssh/id_ed25519.pub
 
 ---
 
-### Шаг 3 — Проверка соединения
+### Проверка соединения
 
 **kind:** `text`
 
@@ -87,7 +87,7 @@ Hi твой-username! You've successfully authenticated, but GitHub does not pro
 
 ---
 
-### Шаг 4
+### Вопросы на понимание
 
 **kind:** `text`
 

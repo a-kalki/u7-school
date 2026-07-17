@@ -2,7 +2,7 @@
 
 ---
 
-### Шаг 1 — includes()
+### includes()
 
 **kind:** `text`
 
@@ -34,7 +34,7 @@
 
 ---
 
-### Шаг 2 — startsWith()
+### startsWith()
 
 **kind:** `text`
 
@@ -57,7 +57,7 @@
 
 ---
 
-### Шаг 3 — endsWith()
+### endsWith()
 
 **kind:** `text`
 
@@ -81,7 +81,7 @@
 
 ---
 
-### Шаг 4 — Сохрани изменения в Git
+### Сохрани изменения в Git
 
 **kind:** `text`
 
