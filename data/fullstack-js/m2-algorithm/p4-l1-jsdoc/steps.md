@@ -15,7 +15,11 @@
 
 **Изучи материал:**
 
-- [Официальная документация JSDoc](https://jsdoc.app/) — прочитай разделы про `@param`, `@returns`, `@throws`, `@example` (англ.)
+- [Официальная документация JSDoc](https://jsdoc.app/) — прочитай разделы про четыре основных тега (англ.):
+  - [`@param`](https://jsdoc.app/tags-param) — параметры функции
+  - [`@returns`](https://jsdoc.app/tags-returns) — возвращаемое значение
+  - [`@throws`](https://jsdoc.app/tags-throws) — исключения
+  - [`@example`](https://jsdoc.app/tags-example) — примеры использования
 - [Markdown за 5 минут](https://www.markdownguide.org/) — Markdown — это облегченный язык разметки текста, созданный для быстрого и удобного форматирования документов с помощью обычных символов (англ.)
 
 **Ключевые теги:**
