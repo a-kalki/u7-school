@@ -25,6 +25,3 @@ const car = { brand: 'Toyota' };
 car.brand = 'Honda';
 console.log(car.brand);
 console.log(Object.keys(car).length);
-
-const { brand, ...rest } = car;
-console.log(brand, rest);

@@ -13,11 +13,6 @@ const base = { role: 'user', active: true };
 const ext = { ...base, role: 'admin', lastLogin: '2026-06-09' };
 console.log(ext);
 
-// Перезапись и добавление
-const emp = { name: 'Петр', salary: 500000 };
-const updated = { ...emp, salary: 550000, bonus: 50000 };
-console.log(updated);
-
 // Rest — собирает оставшиеся поля
 const { name, ...rest } = {
   name: 'Алия',

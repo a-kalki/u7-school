@@ -19,8 +19,8 @@ console.log(original);
 console.log(copy);
 
 // Set — тоже ссылочный тип
-const setA = new Set([1, 2]);
-const setB = setA;
-setB.add(3);
-console.log(setA.size);
-console.log(setA === setB);
+const arrA = [1, 2];
+const arrB = arrA;
+arrB.push(3);
+console.log(arrA.length);
+console.log(arrA === arrB);
