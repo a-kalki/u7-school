@@ -637,7 +637,9 @@
     "status": "published",
     "createdAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-16T12:00"
   },
@@ -1033,6 +1035,161 @@
       "0e029d93-0ec9-4983-b0f5-6c28a4be9165",
       "41284481-8518-4395-a336-ef84a206ff62",
       "034264d1-93ea-4047-a3b3-7fb454bb61c7"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "cd778ab9-773c-43dc-b044-9f2b2b1c38df",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "JSDoc: документирование функций",
+    "additional": "Урок объясняет, зачем нужно документировать код, знакомит со стандартом JSDoc — основным способом документирования JavaScript-функций. Студент изучает синтаксис тегов (`@param`, `@returns`, `@throws`, `@example`) и практикуется, документируя уже реализованные функции `len()` и `isEqual()` из проекта 1.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 30,
+    "stepIds": [
+      "0e3f8238-d6ef-497b-9ac0-d149ea462210",
+      "9ced192e-0065-40e9-942e-51a134a81049",
+      "fea5e6e3-a625-4610-9412-f26a6d02e763",
+      "072ce04f-ab0e-4751-939c-1fc700758e71",
+      "3d9c0c2b-d063-4f79-8eab-24334c272a99"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "d15d9d2c-c84a-490b-b9c6-8956674d7809",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция substring() — извлечение подстроки",
+    "additional": "Урок посвящён реализации функции `substring(str, start, end)` — извлечение подстроки с обработкой граничных случаев. Студент самостоятельно пишет тесты и реализацию по текстовому описанию задачи и тестовых случаев.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "8fc979c4-5d7f-4d4e-b7f6-c96d1962f62a",
+      "04574fee-48de-48a2-827a-0866e6e4c8db"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "02028bb4-c06b-4d57-987c-9f429ec693c2",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция slice() — извлечение подстроки с отрицательными индексами",
+    "additional": "Урок посвящён реализации функции `slice(str, start, end)` — извлечение подстроки с поддержкой отрицательных индексов (отсчёт с конца). Студент самостоятельно пишет тесты и реализацию.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "5c3a013c-1f8f-48a7-bfce-0f5419d88c8d",
+      "acd83a2c-b746-45ad-b362-7f5b79e8ec52"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "fd7bcb9d-1e6c-4bcc-9007-27687a81b64a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция trim() — удаление пробелов",
+    "additional": "Урок посвящён реализации функции `trim(str)` — удаление пробельных символов с начала и конца строки. Студент самостоятельно пишет тесты и реализацию.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "340242e3-ab21-4bab-966b-45a5d522c475",
+      "99ce29a1-33e7-4890-93f6-5411d3770f34"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "2acc1dbd-53aa-4dd4-8082-488a37e74ae7",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция replace() — замена первого вхождения",
+    "additional": "Урок посвящён реализации функции `replace(str, search, replacement)` — замена первого вхождения `search` на `replacement`. Студент использует уже реализованную `indexOf` для поиска и собирает результат из трёх частей.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "e60fcdb2-4c59-4579-b80a-10a5eab641c8",
+      "31ad75d6-ca4d-471c-b688-ba02b63a853f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "90786024-aafe-4ab8-97e5-e55efb60e278",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция replaceAll() — замена всех вхождений",
+    "additional": "Урок посвящён реализации функции `replaceAll(str, search, replacement)` — замена всех вхождений `search` на `replacement`. Ключевая тонкость: замены не должны применяться рекурсивно к уже заменённому тексту.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 22,
+    "stepIds": [
+      "8b5dee0f-d510-4c48-8be4-2cec190d52fd",
+      "a5c9c422-7d06-43a5-a3f1-807730ef2b53"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f21aac51-d9de-4725-bce1-94b89e34a9fc",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция pad() — дополнение строки символами",
+    "additional": "Урок посвящён реализации функции `pad(str, length, char, side)` — дополнение строки указанным символом до заданной длины слева, справа или с обеих сторон. Студент самостоятельно пишет тесты и реализацию.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 22,
+    "stepIds": [
+      "17ad4527-47b4-42c2-8658-1e5237435b29",
+      "6b696cc5-5659-4874-aefc-386043bc4c88"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "ce6c9183-8412-4424-9cf6-7b1615bc2a7c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция upperCase() — перевод в верхний регистр",
+    "additional": "Урок посвящён реализации функции `upperCase(str)` — перевод строчных букв в заглавные с использованием кодов символов. Студент применяет знания таблицы символов: функция работает и для латиницы (`'a'`–`'z'` → `'A'`–`'Z'`), и для кириллицы (`'а'`–`'я'` → `'А'`–`'Я'`). В обоих случаях разница между строчной и заглавной — 32.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "17787534-5949-4203-9e5e-02e73f21f789",
+      "3b01eb1d-a928-4ae0-b69e-5acb380a30d9"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "2f262136-9502-4614-97e4-14782684220a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция lowerCase() — перевод в нижний регистр",
+    "additional": "Урок посвящён реализации функции `lowerCase(str)` — перевод заглавных букв в строчные через коды символов. Зеркальная функция к `upperCase`: работает как для латиницы (`'A'`–`'Z'` → `'a'`–`'z'`), так и для кириллицы (`'А'`–`'Я'` → `'а'`–`'я'`). В обоих случаях прибавляется 32.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "e439fc2e-ee73-4e31-a91e-63c1c83bf5d0",
+      "15841e93-4628-432e-b99f-f69449af3d8a"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "8c2bf32a-b903-49b6-aaa4-bd574a3f8bef",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request для проекта 4",
+    "additional": "Студент отправляет feature-ветку `feat/string-transform` на GitHub и создаёт Pull Request с 8 новыми функциями проекта 4. Урок закрепляет навыки работы с remote и PR, добавляя требование JSDoc в описание.",
+    "status": "published",
+    "createdAt": "2026-07-17T18:01",
+    "updatedAt": "2026-07-17T18:01",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "b690ae97-f779-450f-a7c9-b85cc60142d0",
+      "33af654b-d9ee-4ada-8bc8-6a9873c50bc7",
+      "bad36ba4-5c28-412a-afbd-3e8bf7c827d7",
+      "2bbf903d-3674-4128-82cf-d648cc05c59b"
     ],
     "mentorStepIds": []
   }
