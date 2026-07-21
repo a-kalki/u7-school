@@ -701,9 +701,10 @@
     "status": "published",
     "createdAt": "2026-06-29T12:00",
     "updatedAt": "2026-06-29T12:00",
-    "estimatedMinutes": 15,
+    "estimatedMinutes": 20,
     "stepIds": [
       "a93abef7-96c5-4510-8074-7058c5c0be75",
+      "0f9d0b5c-958a-4771-95d7-49067bccfe52",
       "39b20834-ea25-485b-b0fb-0f55c69047b1",
       "f4c4fa0b-8fb4-43de-8f4d-98b36dddb97c",
       "67c9dd40-ea66-483a-abcb-3e6ee6176b8b",
