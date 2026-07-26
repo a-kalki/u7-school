@@ -1193,5 +1193,164 @@
       "2bbf903d-3674-4128-82cf-d648cc05c59b"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "65536a65-d625-4353-9def-f515544366d3",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Мутабельность: изменение массива «на месте»",
+    "additional": "Урок вводит ключевое понятие — мутабельность. Студент учится различать операции, которые меняют исходный массив, и те, что создают новый. Это критически важно для всех функций проекта 5: `push`, `pop`, `unshift`, `shift` мутируют массив, а `len`, `at`, `indexOf`, `includes` — нет.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "b0603ec0-67f0-4a92-9870-1c8e6ccdb386",
+      "683e5a91-8cf9-4a8d-aeca-1db6f81708f5",
+      "8a76cad1-7114-4d01-bba2-4f2ce46454b0",
+      "4b81c138-d603-4535-9972-3b8feb227ef7",
+      "318bcf33-ac4a-47e4-866d-a18b3f5cdafa",
+      "671cb526-4a60-4d5a-9270-d6fd775eff2e"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "b1549cfc-3ffd-4de1-a686-355c244a1917",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция len(arr) — подсчёт элементов массива",
+    "additional": "Первая функция проекта 5. `len(arr)` — базовый примитив: без него ни одна другая функция массивов не работает. Считает элементы, идя по индексам, пока не встретит `undefined`.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "07c7b9a9-3cf3-4c17-ad9d-a7d86364dd90",
+      "6fcb7f3c-f202-40e0-b640-e1c98f26da6b"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6e8da30f-1a07-454e-90e0-31c632414f9a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция at(arr, index) — доступ по индексу",
+    "additional": "`at(arr, index)` возвращает элемент массива по индексу. Поддерживает отрицательные индексы: `-1` — последний элемент, `-2` — предпоследний. При выходе за границы возвращает `undefined`.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "b494f478-2f3d-4a8b-b39a-051f07d0ba1e",
+      "e8433c63-d8ac-4fa9-8594-900740bb3bf2"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "dafa7b65-8597-4360-a6fd-809f9a14809e",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция push(arr, item) — добавление в конец",
+    "additional": "`push(arr, item)` — первая мутабельная функция проекта. Добавляет элемент в конец массива, изменяя исходный, и возвращает новую длину.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 11,
+    "stepIds": [
+      "d2b5618e-9a49-4967-bd2a-61432e2cf2cc",
+      "a340e732-f82f-4510-afd1-1eaf2ab7677e",
+      "500d00f2-5f99-4524-be39-32361f162564"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e4a07e40-b657-4e88-b062-cc30ad6b830b",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция pop(arr) — удаление с конца",
+    "additional": "`pop(arr)` удаляет последний элемент массива и возвращает его. Мутабельная операция. Для пустого массива возвращает `undefined`. В этом уроке впервые вводится оператор `delete`.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 11,
+    "stepIds": [
+      "86c1ed8b-fb7a-49fe-8069-23ff31274e09",
+      "a1c25a88-08a6-4502-860f-f9b581ca5e56",
+      "e39d0ae4-3ec5-4742-80be-fb71b248c937"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "400a14b2-c47e-4fc4-b91b-59ccdb927d50",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция unshift(arr, item) — добавление в начало",
+    "additional": "`unshift(arr, item)` добавляет элемент в начало массива, сдвигая все существующие элементы на одну позицию вправо. Возвращает новую длину. Мутабельная.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 11,
+    "stepIds": [
+      "ac587e98-af55-465c-8dac-c95d8c286dd8",
+      "3732a23d-698e-4159-9077-e4ec22d6db78"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "87da8c01-5090-4f54-bfd0-bc4696a7eece",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция shift(arr) — удаление с начала",
+    "additional": "`shift(arr)` удаляет первый элемент массива, сдвигая все остальные на одну позицию влево. Возвращает удалённый элемент. Мутабельная. Для пустого массива — `undefined`.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 11,
+    "stepIds": [
+      "f70eb730-9c29-4cc4-9e23-1d8367f036b9",
+      "68736f65-5e19-44b1-a8bc-4e4854d4de3d"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "7ac86d57-0202-4cb9-8ef4-cdbab541d0f5",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция indexOf(arr, item) — поиск элемента в массиве",
+    "additional": "`indexOf(arr, item)` ищет элемент в массиве и возвращает индекс его первого вхождения. Если элемент не найден — `-1`. Не мутирует массив.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "dbe189cd-c67f-47e2-9fb9-fe828bded8ea",
+      "787a5667-7475-411b-bb4a-7a8d5e59bb7f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "4716833c-15d7-4fda-b6e6-58663cdde413",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции lastIndexOf(arr, item) и includes(arr, item)",
+    "additional": "Две функции поиска. `lastIndexOf` ищет последнее вхождение (идёт с конца). `includes` проверяет наличие элемента — и реализуется через уже готовый `indexOf`.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 11,
+    "stepIds": [
+      "e257964b-1176-49a1-aa55-08d36f02f207",
+      "4c3e4b31-f825-4700-a4dd-91ecf9516542",
+      "2641b397-d52b-4803-9950-ba8fc0c80d7e"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "69a16ee8-c31c-48c4-8561-8b547970e030",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request для проекта 5",
+    "additional": "Студент отправляет feature-ветку `feat/array-basics` на GitHub и создаёт Pull Request с 9 новыми функциями для работы с массивами. Урок закрепляет навыки работы с remote и PR, добавляя акцент на мутабельность в описание.",
+    "status": "published",
+    "createdAt": "2026-07-26T14:00",
+    "updatedAt": "2026-07-26T14:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "c414c641-775e-4dbf-b3b2-f5e073fc4b8c",
+      "9976d546-b8bb-43d2-99ef-1fcf61cb1b2e",
+      "5cf8d363-d399-4191-b297-f9765547c64c",
+      "ae1b15b4-017a-422e-b571-b60d9bb43ecf"
+    ],
+    "mentorStepIds": []
   }
 ]
