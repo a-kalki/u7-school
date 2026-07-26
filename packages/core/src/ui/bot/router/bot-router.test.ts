@@ -85,7 +85,6 @@ class TestController extends BotController<
     return this._startResult;
   }
 
-
   override async handleCallback(
     data: string,
     actor: TestActor,
@@ -478,7 +477,13 @@ describe('BotRouter', () => {
     const c1 = new TestController();
     c1.name = 'ctrl1';
     c1.withStartResult([
-      { kind: 'callback', text: 'A', action: 'a', priority: 10, description: 'Описание 1' },
+      {
+        kind: 'callback',
+        text: 'A',
+        action: 'a',
+        priority: 10,
+        description: 'Описание 1',
+      },
     ]);
 
     const c2 = new TestController();
@@ -490,7 +495,13 @@ describe('BotRouter', () => {
     const c3 = new TestController();
     c3.name = 'ctrl3';
     c3.withStartResult([
-      { kind: 'callback', text: 'C', action: 'c', priority: 30, description: 'Описание 3' },
+      {
+        kind: 'callback',
+        text: 'C',
+        action: 'c',
+        priority: 30,
+        description: 'Описание 3',
+      },
     ]);
 
     const disp = new BotRouter([c1, c2, c3]);

@@ -90,14 +90,19 @@ describe('E2E: Витрина для любопытного', () => {
     test('уровень 0: курсы + этапы inline', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const response = await router.handleCallback(courseBtn.action, guest, NO_SESSION);
+      const response = await router.handleCallback(
+        courseBtn.action,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(response);
       const text = response.sendMessage?.text ?? '';
       expect(text).toContain('Курсы');
       expect(text).toContain('Основы программирования');
       expect(text).toContain('Синтаксис');
       expect(text).toContain('Алгоритмика');
-      const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Основы'))).toBe(true);
       expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
@@ -105,15 +110,24 @@ describe('E2E: Витрина для любопытного', () => {
     test('уровень 1: клик на курс → этапы + модули inline', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(courseBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        courseBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(courseButton.code, guest, NO_SESSION);
+      const phasesResp = await router.handleCallback(
+        courseButton.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(phasesResp);
       const text = phasesResp.sendMessage?.text ?? '';
       expect(text).toContain('Курс: Основы программирования');
       expect(text).toContain('Синтаксис');
       expect(text).toContain('JavaScript Основы');
-      const btns = phasesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        phasesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Синтаксис'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к курсам'))).toBe(true);
     });
@@ -121,17 +135,30 @@ describe('E2E: Витрина для любопытного', () => {
     test('уровень 2: клик на этап → модули + проекты inline', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(courseBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        courseBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(courseButton.code, guest, NO_SESSION);
+      const phasesResp = await router.handleCallback(
+        courseButton.code,
+        guest,
+        NO_SESSION,
+      );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await router.handleCallback(phaseBtn.code, guest, NO_SESSION);
+      const modulesResp = await router.handleCallback(
+        phaseBtn.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(modulesResp);
       const text = modulesResp.sendMessage?.text ?? '';
       expect(text).toContain('Этап: Синтаксис');
       expect(text).toContain('JavaScript Основы');
       expect(text).toContain('Введение');
-      const btns = modulesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        modulesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('JavaScript'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к курсу'))).toBe(true);
     });
@@ -139,19 +166,37 @@ describe('E2E: Витрина для любопытного', () => {
     test('уровень 3: клик на модуль → проекты + уроки inline', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(courseBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        courseBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(courseButton.code, guest, NO_SESSION);
+      const phasesResp = await router.handleCallback(
+        courseButton.code,
+        guest,
+        NO_SESSION,
+      );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await router.handleCallback(phaseBtn.code, guest, NO_SESSION);
+      const modulesResp = await router.handleCallback(
+        phaseBtn.code,
+        guest,
+        NO_SESSION,
+      );
       const moduleBtn = findButton(modulesResp, 'JavaScript');
-      const projectsResp = await router.handleCallback(moduleBtn.code, guest, NO_SESSION);
+      const projectsResp = await router.handleCallback(
+        moduleBtn.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(projectsResp);
       const text = projectsResp.sendMessage?.text ?? '';
       expect(text).toContain('Введение');
       expect(text).toContain('Переменные и типы');
       expect(text).toContain('Циклы и функции');
-      const btns = projectsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        projectsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
+        [];
       // Кнопки — проекты (не уроки!)
       expect(btns.some((t) => t.includes('Введение'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к этапу'))).toBe(true);
@@ -160,22 +205,43 @@ describe('E2E: Витрина для любопытного', () => {
     test('уровень 4: клик на проект → уроки + шаги inline', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(courseBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        courseBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(courseButton.code, guest, NO_SESSION);
+      const phasesResp = await router.handleCallback(
+        courseButton.code,
+        guest,
+        NO_SESSION,
+      );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await router.handleCallback(phaseBtn.code, guest, NO_SESSION);
+      const modulesResp = await router.handleCallback(
+        phaseBtn.code,
+        guest,
+        NO_SESSION,
+      );
       const moduleBtn = findButton(modulesResp, 'JavaScript');
-      const projectsResp = await router.handleCallback(moduleBtn.code, guest, NO_SESSION);
+      const projectsResp = await router.handleCallback(
+        moduleBtn.code,
+        guest,
+        NO_SESSION,
+      );
       const projectBtn = findButton(projectsResp, 'Введение');
-      const lessonsResp = await router.handleCallback(projectBtn.code, guest, NO_SESSION);
+      const lessonsResp = await router.handleCallback(
+        projectBtn.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(lessonsResp);
       const text = lessonsResp.sendMessage?.text ?? '';
       expect(text).toContain('Проект: Введение');
       expect(text).toContain('Переменные и типы');
       expect(text).not.toContain('```');
       expect(text).not.toContain('function');
-      const btns = lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Назад к модулю'))).toBe(true);
     });
   });
@@ -185,11 +251,16 @@ describe('E2E: Витрина для любопытного', () => {
     test('гость открывает каталог потоков', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const response = await router.handleCallback(streamBtn.action, guest, NO_SESSION);
+      const response = await router.handleCallback(
+        streamBtn.action,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(response);
       const text = response.sendMessage?.text ?? '';
       expect(text).toContain('Потоки курсов');
-      const btns = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('🟢') || t.includes('🔵'))).toBe(true);
       expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
@@ -197,16 +268,25 @@ describe('E2E: Витрина для любопытного', () => {
     test('гость → enrollment-поток: нет менторских кнопок', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(streamBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        streamBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const streamButton = findButton(catalogResp, '🟢');
-      const viewResp = await router.handleCallback(streamButton.code, guest, NO_SESSION);
+      const viewResp = await router.handleCallback(
+        streamButton.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(viewResp);
       const text = viewResp.sendMessage?.text ?? '';
       expect(text).toContain('JS Core');
       expect(text).toContain('Ментор');
       expect(text).toContain('📚 Курс');
       expect(text).not.toContain('Неизвестная команда');
-      const btns = viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
       expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
@@ -220,11 +300,20 @@ describe('E2E: Витрина для любопытного', () => {
     test('гость → active-поток: Программа и Детали видны', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(streamBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        streamBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const activeButton = findButton(catalogResp, '🔵');
-      const viewResp = await router.handleCallback(activeButton.code, guest, NO_SESSION);
+      const viewResp = await router.handleCallback(
+        activeButton.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(viewResp);
-      const btns = viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const btns =
+        viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
     });
@@ -232,11 +321,23 @@ describe('E2E: Витрина для любопытного', () => {
     test('гость → Студенты → список → карточка студента', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(streamBtn.action, guest, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        streamBtn.action,
+        guest,
+        NO_SESSION,
+      );
       const activeButton = findButton(catalogResp, '🔵');
-      const viewResp = await router.handleCallback(activeButton.code, guest, NO_SESSION);
+      const viewResp = await router.handleCallback(
+        activeButton.code,
+        guest,
+        NO_SESSION,
+      );
       const studentsBtn = findButton(viewResp, 'Студенты');
-      const studentsResp = await router.handleCallback(studentsBtn.code, guest, NO_SESSION);
+      const studentsResp = await router.handleCallback(
+        studentsBtn.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(studentsResp);
       const text = studentsResp.sendMessage?.text ?? '';
       expect(text).toContain('Студенты потока');
@@ -244,12 +345,17 @@ describe('E2E: Витрина для любопытного', () => {
       const studentBtn = studentsResp.sendMessage?.keyboard?.rows[0]?.[0];
       expect(studentBtn).toBeDefined();
       if (!studentBtn) return;
-      const detailResp = await router.handleCallback(studentBtn.code, guest, NO_SESSION);
+      const detailResp = await router.handleCallback(
+        studentBtn.code,
+        guest,
+        NO_SESSION,
+      );
       assertBotResponseValid(detailResp);
       const detailText = detailResp.sendMessage?.text ?? '';
       expect(detailText).not.toContain('Неизвестная');
       expect(detailText.length).toBeGreaterThan(0);
-      const detailBtns = detailResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      const detailBtns =
+        detailResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(detailBtns.some((t) => t.includes('Неактивен'))).toBe(false);
       expect(detailBtns.some((t) => t.includes('Завершить'))).toBe(false);
     });
@@ -258,19 +364,35 @@ describe('E2E: Витрина для любопытного', () => {
   // ── Кандидат: запись ──
   describe('Кандидат: от витрины к записи', () => {
     test('кандидат видит оба меню', async () => {
-      const menu = (await router.collectMainMenu(candidate)) as CbMainMenuAction[];
+      const menu = (await router.collectMainMenu(
+        candidate,
+      )) as CbMainMenuAction[];
       expect(menu.some((i) => i.text.includes('Программы курсов'))).toBe(true);
       expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
     });
 
     test('кандидат → поток → Записаться', async () => {
-      const menu = (await router.collectMainMenu(candidate)) as CbMainMenuAction[];
+      const menu = (await router.collectMainMenu(
+        candidate,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(streamBtn.action, candidate, NO_SESSION);
+      const catalogResp = await router.handleCallback(
+        streamBtn.action,
+        candidate,
+        NO_SESSION,
+      );
       const streamButton = findButton(catalogResp, '🟢');
-      const viewResp = await router.handleCallback(streamButton.code, candidate, NO_SESSION);
+      const viewResp = await router.handleCallback(
+        streamButton.code,
+        candidate,
+        NO_SESSION,
+      );
       const enrollBtn = findButton(viewResp, 'Записаться');
-      const enrollResp = await router.handleCallback(enrollBtn.code, candidate, NO_SESSION);
+      const enrollResp = await router.handleCallback(
+        enrollBtn.code,
+        candidate,
+        NO_SESSION,
+      );
       assertBotResponseValid(enrollResp);
       const allTexts = [
         enrollResp.sendMessage?.text ?? '',

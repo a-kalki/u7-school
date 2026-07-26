@@ -36,9 +36,7 @@ describe.skip('ViewStreamMentorStory (трек mentor_tools_20260713)', () => {
     mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
   };
 
-  const makeMentorStory = (
-    stream: Record<string, unknown>,
-  ) => {
+  const makeMentorStory = (stream: Record<string, unknown>) => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-stream') return stream;

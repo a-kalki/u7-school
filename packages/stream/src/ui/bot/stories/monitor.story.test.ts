@@ -866,7 +866,11 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    const response = await story.handleCallback('students:s1', guestActor, session);
+    const response = await story.handleCallback(
+      'students:s1',
+      guestActor,
+      session,
+    );
     assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
@@ -875,7 +879,8 @@ describe('MonitorStory', () => {
     expect(text).toContain('Иван');
     expect(text).toContain('50%');
 
-    const btnTexts = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Иван'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
@@ -923,7 +928,11 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    const response = await story.handleCallback('students:s1', candidateActor, session);
+    const response = await story.handleCallback(
+      'students:s1',
+      candidateActor,
+      session,
+    );
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Студенты потока');
     expect(text).toContain('Петя');
@@ -945,16 +954,22 @@ describe('MonitorStory', () => {
             title: 'Поток',
             status: 'active',
             contentSnapshot: [
-              { projectTitle: 'P1', lessons: [{ lessonTitle: 'L1', stepIds: ['step-1'] }] },
+              {
+                projectTitle: 'P1',
+                lessons: [{ lessonTitle: 'L1', stepIds: ['step-1'] }],
+              },
             ],
           };
         return undefined;
       }),
     } as unknown as StreamApiModule;
     const appApi = {
-      execute: mock((name: string, params: any) => {
+      execute: mock((_name: string, params: any) => {
         const names: Record<string, string> = {
-          u1: 'Активный', u2: 'Прошедший', u3: 'НеПрошедший', u4: 'Выбывший',
+          u1: 'Активный',
+          u2: 'Прошедший',
+          u3: 'НеПрошедший',
+          u4: 'Выбывший',
         };
         return { uuid: params?.uuid, name: names[params?.uuid] ?? '??' };
       }),
@@ -973,7 +988,8 @@ describe('MonitorStory', () => {
     expect(text).toContain('Выбывший');
     expect(text).toContain('Всего: 4');
 
-    const btnTexts = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Прошедший'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('НеПрошедший'))).toBe(true);
@@ -999,8 +1015,16 @@ describe('MonitorStory', () => {
             status: 'advanced',
             currentStepId: 'step-2',
             steps: [
-              { stepId: 'step-1', status: 'completed', completedAt: '2026-01-02' },
-              { stepId: 'step-2', status: 'completed', completedAt: '2026-01-03' },
+              {
+                stepId: 'step-1',
+                status: 'completed',
+                completedAt: '2026-01-02',
+              },
+              {
+                stepId: 'step-2',
+                status: 'completed',
+                completedAt: '2026-01-03',
+              },
             ],
           };
         if (name === 'get-stream')
@@ -1012,7 +1036,9 @@ describe('MonitorStory', () => {
             contentSnapshot: [
               {
                 projectTitle: 'Основы',
-                lessons: [{ lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] }],
+                lessons: [
+                  { lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
+                ],
               },
             ],
           };
@@ -1026,7 +1052,11 @@ describe('MonitorStory', () => {
     const story = new MonitorStory();
     story.init(moduleApi, appApi);
 
-    const response = await story.handleCallback('detail:st1', guestActor, session);
+    const response = await story.handleCallback(
+      'detail:st1',
+      guestActor,
+      session,
+    );
     assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
@@ -1035,7 +1065,8 @@ describe('MonitorStory', () => {
     expect(text).toContain('2 из 2');
     expect(text).toContain('100%');
 
-    const btnTexts = response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);

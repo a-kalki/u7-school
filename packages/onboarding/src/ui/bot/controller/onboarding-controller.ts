@@ -37,7 +37,8 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
         text: '📝 Заполнить анкету',
         action: this.cb('start_questionnaire'),
         priority: 50,
-        description: '📝 Заполнить анкету — расскажи о своих ожиданиях от курсов',
+        description:
+          '📝 Заполнить анкету — расскажи о своих ожиданиях от курсов',
       },
     ];
   }

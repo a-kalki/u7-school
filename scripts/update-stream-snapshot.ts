@@ -31,8 +31,8 @@ async function main() {
 
   const activeStreams: StreamInfo[] = [];
   for (let i = 0; i < streams.length; i++) {
-    const s = streams[i]!;
-    if (s.status !== 'active') continue;
+    const s = streams[i];
+    if (!s || s.status !== 'active') continue;
     const snap = s.contentSnapshot as Array<{ lessons: unknown[] }> | undefined;
     activeStreams.push({
       index: i,
@@ -88,15 +88,14 @@ async function main() {
   const newSnapshot = await app.execute('get-module-snapshot', { moduleId });
 
   const projectCount = newSnapshot.length;
-  const lessonCount = newSnapshot.reduce(
-    (sum, p) => sum + p.lessons.length,
-    0,
-  );
+  const lessonCount = newSnapshot.reduce((sum, p) => sum + p.lessons.length, 0);
   const stepCount = newSnapshot.reduce(
     (sum, p) => sum + p.lessons.reduce((s, l) => s + l.stepIds.length, 0),
     0,
   );
-  console.log(`   ${projectCount} проектов, ${lessonCount} уроков, ${stepCount} шагов:`);
+  console.log(
+    `   ${projectCount} проектов, ${lessonCount} уроков, ${stepCount} шагов:`,
+  );
   for (const p of newSnapshot) {
     console.log(`     • ${p.projectTitle} (${p.lessons.length} уроков)`);
   }
@@ -106,15 +105,15 @@ async function main() {
   for (const stream of streams) {
     if (stream.moduleId !== moduleId) continue;
 
-    const oldSnapshot = stream.contentSnapshot as Array<{ projectTitle: string }>;
+    const oldSnapshot = stream.contentSnapshot as Array<{
+      projectTitle: string;
+    }>;
     const oldCount = Array.isArray(oldSnapshot) ? oldSnapshot.length : 0;
     const oldTitles = Array.isArray(oldSnapshot)
       ? oldSnapshot.map((p) => p.projectTitle).join(', ')
       : '—';
 
-    console.log(
-      `\n🔄 Поток «${stream.title}» (${stream.uuid}):`,
-    );
+    console.log(`\n🔄 Поток «${stream.title}» (${stream.uuid}):`);
     console.log(`   Было:  ${oldCount} проектов — ${oldTitles}`);
     console.log(`   Стало: ${projectCount} проектов`);
 

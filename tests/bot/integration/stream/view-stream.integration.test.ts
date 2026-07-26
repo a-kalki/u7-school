@@ -101,7 +101,9 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Записаться'))).toBe(false);
     expect(btns.some((t) => t.includes('Уведомить'))).toBe(false);
     // В curious-режиме Программа/Студенты/Детали видны на любом статусе
@@ -158,7 +160,9 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
     // В curious-режиме lifecycle-кнопки не видны
     expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
     expect(btns.some((t) => t.includes('В архив'))).toBe(false);
@@ -177,7 +181,9 @@ describe('ViewStreamStory e2e', () => {
     assertBotResponseValid(response);
 
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+      response.sendMessage?.keyboard?.rows
+        .flat()
+        .map((b: { text: string }) => b.text) ?? [];
     // В curious-режиме lifecycle-кнопки не видны
     expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
     expect(btns.some((t) => t.includes('В архив'))).toBe(false);

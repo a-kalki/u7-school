@@ -146,11 +146,15 @@ describe('CourseCatalogStory (интеграционный)', () => {
       { courseId: course.uuid, title: 'Этап', track: 'tech' },
       author.uuid,
     );
-    await app.apiApp.execute('add-module-to-course', {
-      courseId: course.uuid,
-      phaseTitle: 'Этап',
-      moduleId: FIXTURE_MODULE_UUID,
-    }, author.uuid);
+    await app.apiApp.execute(
+      'add-module-to-course',
+      {
+        courseId: course.uuid,
+        phaseTitle: 'Этап',
+        moduleId: FIXTURE_MODULE_UUID,
+      },
+      author.uuid,
+    );
 
     const response = await router.handleCallback(
       `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
@@ -181,11 +185,15 @@ describe('CourseCatalogStory (интеграционный)', () => {
       { courseId: course.uuid, title: 'Этап', track: 'tech' },
       author.uuid,
     );
-    await app.apiApp.execute('add-module-to-course', {
-      courseId: course.uuid,
-      phaseTitle: 'Этап',
-      moduleId: FIXTURE_MODULE_UUID,
-    }, author.uuid);
+    await app.apiApp.execute(
+      'add-module-to-course',
+      {
+        courseId: course.uuid,
+        phaseTitle: 'Этап',
+        moduleId: FIXTURE_MODULE_UUID,
+      },
+      author.uuid,
+    );
 
     const response = await router.handleCallback(
       `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
@@ -202,8 +210,6 @@ describe('CourseCatalogStory (интеграционный)', () => {
     expect(response.sendMessage?.text).not.toContain('function');
 
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(
-      rows.some((r) => r[0]?.text?.includes('Назад к модулю')),
-    ).toBe(true);
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
   });
 });

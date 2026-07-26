@@ -496,7 +496,9 @@ describe('Сквозные пользовательские сценарии (E2
 
       // В curious-режиме ментор НЕ видит lifecycle-кнопки
       const btnTexts =
-        viewResp.sendMessage?.keyboard?.rows.flat().map((b: { text: string }) => b.text) ?? [];
+        viewResp.sendMessage?.keyboard?.rows
+          .flat()
+          .map((b: { text: string }) => b.text) ?? [];
       expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
       expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
       expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);

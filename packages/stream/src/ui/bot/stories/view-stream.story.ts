@@ -144,7 +144,10 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       p.lessons.map((l) => l.lessonId),
     );
 
-    let stepsByLesson: Record<string, Array<{ uuid: string; description: string }>> = {};
+    let stepsByLesson: Record<
+      string,
+      Array<{ uuid: string; description: string }>
+    > = {};
     if (allLessonIds.length > 0) {
       try {
         stepsByLesson = (await this.appApi.execute('get-steps-by-lessons', {

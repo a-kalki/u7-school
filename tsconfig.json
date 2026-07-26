@@ -45,5 +45,6 @@
       "@u7-scl/app/shared": ["packages/app/src/shared/index.ts"],
       "@u7-scl/app/api": ["packages/app/src/api/index.ts"]
     }
-  }
+  },
+  "exclude": ["data/deploy/archive"]
 }

@@ -112,11 +112,7 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Менторские действия ──
 
   async #handleComplete(streamId: string, actor: User): Promise<BotResponse> {
-    await this.moduleApi.execute(
-      'complete-stream',
-      { streamId },
-      actor.uuid,
-    );
+    await this.moduleApi.execute('complete-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
         text: '✅ *Поток завершён\\!* Обучение окончено\\.',
@@ -130,11 +126,7 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   async #handleArchive(streamId: string, actor: User): Promise<BotResponse> {
-    await this.moduleApi.execute(
-      'archive-stream',
-      { streamId },
-      actor.uuid,
-    );
+    await this.moduleApi.execute('archive-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
         text: '📁 *Поток перемещён в архив\\.*',

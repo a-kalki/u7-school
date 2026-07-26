@@ -42,7 +42,8 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       text: '📖 Программы курсов',
       action: this.cb('list'),
       priority: 10,
-      description: '📖 Программы курсов — каталог учебных курсов и их структура',
+      description:
+        '📖 Программы курсов — каталог учебных курсов и их структура',
     };
   }
 
@@ -63,11 +64,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       case 'modules':
         return this.#handleModules(ids[0] ?? '', Number(ids[1]));
       case 'projects':
-        return this.#handleProjects(
-          ids[0] ?? '',
-          Number(ids[1]),
-          ids[2] ?? '',
-        );
+        return this.#handleProjects(ids[0] ?? '', Number(ids[1]), ids[2] ?? '');
       case 'lessons':
         return this.#handleLessons(
           ids[0] ?? '',
@@ -169,10 +166,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Курс не найден или недоступен' } };
     }
 
-    const lines: string[] = [
-      `📖 *Курс: ${this.#esc(course.title)}*`,
-      '',
-    ];
+    const lines: string[] = [`📖 *Курс: ${this.#esc(course.title)}*`, ''];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (let pi = 0; pi < course.phases.length; pi++) {
@@ -195,17 +189,13 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           })) as { title: string; projects?: Array<{ lessonIds: string[] }> };
           const projCount = mod.projects?.length ?? 0;
           const lessonCount =
-            mod.projects?.reduce(
-              (s, p) => s + (p.lessonIds?.length ?? 0),
-              0,
-            ) ?? 0;
+            mod.projects?.reduce((s, p) => s + (p.lessonIds?.length ?? 0), 0) ??
+            0;
           lines.push(
             `    📦 Модуль: ${this.#esc(mod.title)} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
           );
         } catch {
-          lines.push(
-            `    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`,
-          );
+          lines.push(`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
         }
       }
 
@@ -254,18 +244,14 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Этап не найден' } };
     }
 
-    const phaseEmoji = phase.track
-      ? (TRACK_EMOJI[phase.track] ?? DEFAULT_TRACK_EMOJI)
-      : '🗂️';
-
-    const lines: string[] = [
-      `📖 *Этап: ${this.#esc(phase.title)}*`,
-      '',
-    ];
+    const lines: string[] = [`📖 *Этап: ${this.#esc(phase.title)}*`, ''];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const modId of phase.moduleIds ?? []) {
-      let mod: { title: string; projects?: Array<{ uuid: string; title: string; lessonIds: string[] }> };
+      let mod: {
+        title: string;
+        projects?: Array<{ uuid: string; title: string; lessonIds: string[] }>;
+      };
       try {
         mod = (await this.moduleApi.execute('get-module', {
           uuid: modId,
@@ -303,9 +289,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       ]);
     }
 
-    rows.push([
-      { text: '⬅️ Назад к курсу', code: this.cb('phases', courseId) },
-    ]);
+    rows.push([{ text: '⬅️ Назад к курсу', code: this.cb('phases', courseId) }]);
 
     return {
       sendMessage: {
@@ -347,10 +331,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       // оставляем пустым
     }
 
-    const lines: string[] = [
-      `📖 *Модуль: ${this.#esc(modTitle)}*`,
-      '',
-    ];
+    const lines: string[] = [`📖 *Модуль: ${this.#esc(modTitle)}*`, ''];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (let pi = 0; pi < snapshot.length; pi++) {
@@ -465,7 +446,9 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           for (let si = 0; si < maxSteps; si++) {
             const step = steps[si];
             if (!step) continue;
-            lines.push(`    ${this.#esc(`${si + 1}.`)} ${this.#esc(step.description)}`);
+            lines.push(
+              `    ${this.#esc(`${si + 1}.`)} ${this.#esc(step.description)}`,
+            );
           }
           if (steps.length > 3) {
             lines.push(`    ${this.#esc('...')}`);

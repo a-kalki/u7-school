@@ -143,8 +143,7 @@ class MockController extends BotController {
   setHelpResult(text: string | null) {
     this._helpResult = text;
   }
-  override handleHelpStart = async (): Promise<string | null> =>
-    this._helpResult;
+  handleHelpStart = async (): Promise<string | null> => this._helpResult;
 
   private _welcomeResult: BotResponse | null = null;
   setWelcomeResult(res: BotResponse | null) {

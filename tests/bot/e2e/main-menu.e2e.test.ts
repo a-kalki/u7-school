@@ -2,8 +2,8 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/app/ui';
 import { BotRouter } from '@u7-scl/core/ui';
-import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { CourseController } from '@u7-scl/course/ui';
+import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../helpers/test-app';
 import { createTestApp } from '../helpers/test-app';
 

@@ -66,19 +66,28 @@ describe('CourseCatalogStory', () => {
         if (ucName === 'list-courses') return courses;
         if (ucName === 'get-course') {
           const found = courses.find((c) => c.uuid === attrs.uuid);
-          if (!found) throw Object.assign(new Error('Курс не найден'), { name: 'COURSE_NOT_FOUND' });
+          if (!found)
+            throw Object.assign(new Error('Курс не найден'), {
+              name: 'COURSE_NOT_FOUND',
+            });
           return found;
         }
         if (ucName === 'get-module') {
           const mod = modules[attrs.uuid as string];
-          if (!mod) throw Object.assign(new Error('Модуль не найден'), { name: 'MODULE_NOT_FOUND' });
+          if (!mod)
+            throw Object.assign(new Error('Модуль не найден'), {
+              name: 'MODULE_NOT_FOUND',
+            });
           return mod;
         }
         if (ucName === 'get-module-snapshot') {
           return snapshots[attrs.moduleId as string] ?? [];
         }
         if (ucName === 'get-steps-by-lessons') {
-          const result: Record<string, Array<{ uuid: string; description: string }>> = {};
+          const result: Record<
+            string,
+            Array<{ uuid: string; description: string }>
+          > = {};
           for (const id of attrs.lessonIds as string[]) {
             if (steps[id]) result[id] = steps[id]!;
           }
@@ -214,9 +223,7 @@ describe('CourseCatalogStory', () => {
           uuid: 'm-2',
           title: 'Алгоритмы',
           description: '...',
-          projects: [
-            { uuid: 'p2', title: 'Сортировка', lessonIds: ['l3'] },
-          ],
+          projects: [{ uuid: 'p2', title: 'Сортировка', lessonIds: ['l3'] }],
         },
       },
     );
@@ -276,9 +283,7 @@ describe('CourseCatalogStory', () => {
           uuid: 'm-a',
           title: 'Модуль A',
           description: '...',
-          projects: [
-            { uuid: 'pa', title: 'Проект 1', lessonIds: ['l1'] },
-          ],
+          projects: [{ uuid: 'pa', title: 'Проект 1', lessonIds: ['l1'] }],
         },
         'm-b': {
           uuid: 'm-b',
@@ -333,9 +338,7 @@ describe('CourseCatalogStory', () => {
           title: 'Course',
           description: '...',
           authorId: 'a',
-          phases: [
-            { title: 'Основы', track: 'tech', moduleIds: ['m-x'] },
-          ],
+          phases: [{ title: 'Основы', track: 'tech', moduleIds: ['m-x'] }],
           status: 'published',
           createdAt: '2026-01-01T00:00:00.000Z',
         },
@@ -354,7 +357,11 @@ describe('CourseCatalogStory', () => {
             projectId: 'proj-1',
             projectTitle: 'ToDo App',
             lessons: [
-              { lessonId: 'les-a', lessonTitle: 'HTML разметка', stepIds: ['s1', 's2'] },
+              {
+                lessonId: 'les-a',
+                lessonTitle: 'HTML разметка',
+                stepIds: ['s1', 's2'],
+              },
               { lessonId: 'les-b', lessonTitle: 'CSS стили', stepIds: ['s3'] },
             ],
           },
@@ -396,9 +403,7 @@ describe('CourseCatalogStory', () => {
     );
 
     // Кнопка «Назад к этапу»
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(
-      true,
-    );
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
   });
 
   // ── Уровень 4: Уроки + заголовки шагов ──
@@ -424,7 +429,11 @@ describe('CourseCatalogStory', () => {
             projectId: 'proj-1',
             projectTitle: 'App',
             lessons: [
-              { lessonId: 'les-x', lessonTitle: 'Урок 1', stepIds: ['step-1', 'step-2'] },
+              {
+                lessonId: 'les-x',
+                lessonTitle: 'Урок 1',
+                stepIds: ['step-1', 'step-2'],
+              },
               { lessonId: 'les-y', lessonTitle: 'Урок 2', stepIds: ['step-3'] },
             ],
           },
@@ -435,9 +444,7 @@ describe('CourseCatalogStory', () => {
           { uuid: 'step-1', description: 'Что такое переменные' },
           { uuid: 'step-2', description: 'Типы данных' },
         ],
-        'les-y': [
-          { uuid: 'step-3', description: 'Область видимости' },
-        ],
+        'les-y': [{ uuid: 'step-3', description: 'Область видимости' }],
       },
     );
 
@@ -464,9 +471,7 @@ describe('CourseCatalogStory', () => {
 
     // Кнопка «Назад к модулю»
     const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(
-      true,
-    );
+    expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
   });
 
   // ── Ошибки ──
@@ -476,7 +481,11 @@ describe('CourseCatalogStory', () => {
     const story = new CourseCatalogStory();
     story.init(moduleApi, emptyAppApi);
 
-    const response = await story.handleCallback('phases:bad-uuid', actor, session);
+    const response = await story.handleCallback(
+      'phases:bad-uuid',
+      actor,
+      session,
+    );
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('не найден');
   });
@@ -486,7 +495,11 @@ describe('CourseCatalogStory', () => {
     const story = new CourseCatalogStory();
     story.init(moduleApi, emptyAppApi);
 
-    const response = await story.handleCallback('modules:bad:0', actor, session);
+    const response = await story.handleCallback(
+      'modules:bad:0',
+      actor,
+      session,
+    );
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('не найден');
   });
@@ -496,7 +509,9 @@ describe('CourseCatalogStory', () => {
     const moduleApi = {
       execute: mock(async (ucName: string, _attrs: Record<string, unknown>) => {
         if (ucName === 'get-module-snapshot') {
-          throw Object.assign(new Error('Модуль не найден'), { name: 'MODULE_NOT_FOUND' });
+          throw Object.assign(new Error('Модуль не найден'), {
+            name: 'MODULE_NOT_FOUND',
+          });
         }
         return undefined;
       }),
@@ -542,7 +557,11 @@ describe('CourseCatalogStory', () => {
             projectId: 'proj-1',
             projectTitle: 'App',
             lessons: [
-              { lessonId: 'les-q', lessonTitle: 'Урок', stepIds: manySteps.map((s) => s.uuid) },
+              {
+                lessonId: 'les-q',
+                lessonTitle: 'Урок',
+                stepIds: manySteps.map((s) => s.uuid),
+              },
             ],
           },
         ],
@@ -560,7 +579,9 @@ describe('CourseCatalogStory', () => {
     );
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage!.text!.length).toBeLessThanOrEqual(4100);
-    expect(response.sendMessage?.text?.endsWith('\\.\\.\\.') ?? false).toBe(true);
+    expect(response.sendMessage?.text?.endsWith('\\.\\.\\.') ?? false).toBe(
+      true,
+    );
   });
 
   // ── Неизвестная команда ──
