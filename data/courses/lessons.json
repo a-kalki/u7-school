@@ -1477,5 +1477,98 @@
       "8075d274-da1c-43a2-8d32-2ad1c1e9d5b6"
     ],
     "mentorStepIds": []
+  },
+  {
+    "uuid": "9789b6eb-7981-49d6-a6f1-5d1d4819c774",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция forEach(arr, callback) — перебор массива",
+    "additional": "Перебирает массив, вызывает callback для каждого элемента. Callback получает (элемент, индекс, массив). Иммутабельная.",
+    "status": "published",
+    "createdAt": "2026-07-30T18:43",
+    "updatedAt": "2026-07-30T18:43",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "62f174ab-461c-4354-842a-66f6555262b0",
+      "f2c93877-ec93-4812-8e15-e076e184548c",
+      "c045b5f2-2b66-46a8-a38f-2ef63f047e09"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "36f7214e-7af1-46e8-8ebd-60640458543a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция map(arr, callback) — трансформация массива",
+    "additional": "Вызывает callback для каждого элемента и собирает результаты в новый массив. Исходный массив не меняется.",
+    "status": "published",
+    "createdAt": "2026-07-30T18:43",
+    "updatedAt": "2026-07-30T18:43",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "500fb56a-0f6a-4cb6-be0d-09eaa4aef455",
+      "7694af59-7f9d-414b-8f06-34f0fd2782d6"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "aa2f0f75-bc31-4162-b56e-b66adfcdd64a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция filter(arr, callback) — фильтрация массива",
+    "additional": "Оставляет только элементы, для которых callback вернул true. Использует свою push для добавления в результат.",
+    "status": "published",
+    "createdAt": "2026-07-30T18:43",
+    "updatedAt": "2026-07-30T18:43",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "1d1305ac-c35e-40d3-a011-71b42fdbcc46",
+      "e901c446-4566-4314-86ea-527d9720822c"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "c7f4af0b-609f-4742-8ca6-97f4b22eaff1",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция some(arr, callback) — проверка «хотя бы один»",
+    "additional": "Возвращает true при первом совпадении и прекращает обход (ранний выход). Для пустого массива возвращает false.",
+    "status": "published",
+    "createdAt": "2026-07-30T18:43",
+    "updatedAt": "2026-07-30T18:43",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "d665bb8f-046b-4f59-bc55-e5bbbf0278f2",
+      "df059fac-6ee7-4fb0-a7ac-277f56021658"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "2031c924-985c-4403-a892-39eea86b502f",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция every(arr, callback) — проверка «все»",
+    "additional": "Возвращает false при первом несовпадении и прекращает обход (ранний выход). Для пустого массива возвращает true.",
+    "status": "published",
+    "createdAt": "2026-07-30T18:43",
+    "updatedAt": "2026-07-30T18:43",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "1e67a36f-cf69-4ad2-bbc5-a7b15d6dc9f8",
+      "1cfd4cdd-4978-4e46-bcb6-baac6f715461"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "5430e31b-6c4a-465c-b533-e7e124a5d2d8",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request для проекта 7",
+    "additional": "Студент отправляет ветку feat/iterative-methods на GitHub и создаёт Pull Request с 5 итеративными методами массивов.",
+    "status": "published",
+    "createdAt": "2026-07-30T18:43",
+    "updatedAt": "2026-07-30T18:43",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "5df61c27-7485-41a2-babf-0fca213b16d6",
+      "96ccd30a-5601-4926-8534-a8b543b21599",
+      "b4990a3d-cadc-4a66-bf7a-d6bf43788013",
+      "284c5f03-3974-4347-b742-f120bcdf7939"
+    ],
+    "mentorStepIds": []
   }
 ]

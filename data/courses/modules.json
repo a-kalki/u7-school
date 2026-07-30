@@ -213,9 +213,24 @@
           "e4446272-329d-4fae-a9a0-f08cef2bc920",
           "ca183f77-5e2d-44fc-a979-0d2a3cf99256"
         ]
+      },
+      {
+        "uuid": "0452b677-851a-432f-930d-6032a552530d",
+        "title": "Массивы: итеративные методы",
+        "goal": "Освоить callback-паттерн для перебора массивов, реализовать 5 итеративных методов: forEach, map, filter, some, every — включая ранний выход",
+        "result": "PR с 5 функциями в папке arrays/: forEach, map, filter, some, every — задокументированными по JSDoc, все иммутабельные, some/every с ранним выходом",
+        "status": "published",
+        "lessonIds": [
+          "9789b6eb-7981-49d6-a6f1-5d1d4819c774",
+          "36f7214e-7af1-46e8-8ebd-60640458543a",
+          "aa2f0f75-bc31-4162-b56e-b66adfcdd64a",
+          "c7f4af0b-609f-4742-8ca6-97f4b22eaff1",
+          "2031c924-985c-4403-a892-39eea86b502f",
+          "5430e31b-6c4a-465c-b533-e7e124a5d2d8"
+        ]
       }
     ],
     "createdAt": "2026-06-29T12:00",
-    "updatedAt": "2026-07-03T12:00"
+    "updatedAt": "2026-07-30T18:43"
   }
 ]
