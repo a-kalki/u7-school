@@ -1446,22 +1446,6 @@
     "mentorStepIds": []
   },
   {
-    "uuid": "e4446272-329d-4fae-a9a0-f08cef2bc920",
-    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
-    "title": "Функция flat(arr, depth) — разглаживание вложенных массивов",
-    "additional": "Разглаживает вложенные массивы до указанной глубины. Первое применение рекурсии в проектах. Иммутабельная.",
-    "status": "published",
-    "createdAt": "2026-07-26T15:00",
-    "updatedAt": "2026-07-26T15:00",
-    "estimatedMinutes": 13,
-    "stepIds": [
-      "895fa190-9836-4598-b1f8-b3dfa0cbfc30",
-      "2f4caf0d-4d33-4cab-9b0d-e8180514be8e",
-      "ad0b0738-bd75-4c03-a349-13afc08ad026"
-    ],
-    "mentorStepIds": []
-  },
-  {
     "uuid": "ca183f77-5e2d-44fc-a979-0d2a3cf99256",
     "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
     "title": "Пуш ветки и создание Pull Request для проекта 6",
@@ -1568,6 +1552,71 @@
       "96ccd30a-5601-4926-8534-a8b543b21599",
       "b4990a3d-cadc-4a66-bf7a-d6bf43788013",
       "284c5f03-3974-4347-b742-f120bcdf7939"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "c1d56b87-e96f-43cb-b691-68613be0435a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функции find(arr, callback) и findIndex(arr, callback) — поиск в массиве",
+    "additional": "Поиск первого подходящего элемента и его индекса. Ранний выход при первом true. find → undefined/элемент, findIndex → -1/индекс.",
+    "status": "published",
+    "createdAt": "2026-07-31T00:57",
+    "updatedAt": "2026-07-31T00:57",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "53cb24a1-17a9-4988-b85b-aff7d71bd9ac",
+      "06f50e25-21a6-4901-bedd-c84eabcd982d",
+      "29a1fd0b-2d2a-4428-bc49-ab4505d7e1a0",
+      "9e0b6cad-6de7-40c8-a1a6-5beb38f3f614"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "d919432e-a380-49ac-ac8f-a8b05b863155",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция reduce(arr, callback, initialValue) — свёртка массива",
+    "additional": "Свёртка массива в одно значение через аккумулятор. Два режима: с initialValue (обход с 0) и без (обход с 1).",
+    "status": "published",
+    "createdAt": "2026-07-31T00:57",
+    "updatedAt": "2026-07-31T00:57",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "c8efb602-c2d6-4f04-9be6-4aebef25d0ba",
+      "ec63ba97-2918-49d8-9f80-e6d0c7749905"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "b90cb30d-71eb-45dd-96c3-62e765ae3c1b",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция flat(arr, depth) — разглаживание вложенных массивов",
+    "additional": "Разглаживание через рекурсию или reduce. depth=1 по умолчанию, Infinity — полностью. Иммутабельная.",
+    "status": "published",
+    "createdAt": "2026-07-31T00:57",
+    "updatedAt": "2026-07-31T00:57",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "85a156cb-1e85-4230-82b9-eb426f171c66",
+      "211127ab-d58f-487a-833c-6c01ae9a98d6"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "ba6a47a3-8c11-494b-b41c-01add8633ff9",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Финальный прогон, пуш и Pull Request для проекта 8",
+    "additional": "Проверка тестов и JSDoc, пуш ветки feat/iterative-methods-2, создание PR с описанием 4 функций, приглашение ревьюеров.",
+    "status": "published",
+    "createdAt": "2026-07-31T00:57",
+    "updatedAt": "2026-07-31T00:57",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "9a6dc617-cee8-445e-928d-93b766b06a2e",
+      "f921f2fa-6275-4be8-a62b-b66a26b74caa",
+      "e49f08c3-6cbd-4500-af6e-8e00c62213b7",
+      "b09c2fc0-846b-461b-ad06-d44e71cdf7b4",
+      "8d4439a7-049b-434e-af89-b710957405ed"
     ],
     "mentorStepIds": []
   }

@@ -10,8 +10,8 @@
 
 1. Изучить основы Git и GitHub (локальная работа, remote, ветки, PR, ревью)
 2. Получить опыт совместной работы через код-ревью (правило: 2 аппрува на PR)
-3. Прокачать алгоритмическое мышление: реализовать ~51 функцию-аналог string/array API и бизнес-утилит
-4. Изучить основной API для string и array через собственные реализации
+3. Прокачать алгоритмическое мышление: реализовать ~55 функций-аналогов string/array/object API и бизнес-утилит
+4. Изучить основной API для string, array и object через собственные реализации
 5. Освоить TDD (bun:test) как основной метод разработки
 6. Изучить JSDoc, обработку ошибок, мутабельность, ASCII/Unicode
 
@@ -24,7 +24,7 @@
 - Реализовывать алгоритмы посимвольной/поэлементной обработки данных
 - Документировать функции через JSDoc
 - Обрабатывать ошибки через throw/try-catch
-- Понимает мутабельность, лексикографическое сравнение, таблицу символов
+- Понимает мутабельность, лексикографическое сравнение, таблицу символов, структуру объектов
 
 ### Окружение и терминал
 
@@ -45,8 +45,9 @@
 1. **Запрещены свойства:** `.length` у строк и массивов
 2. **Запрещены методы строк:** `.toUpperCase()`, `.toLowerCase()`, `.indexOf()`, `.includes()`, `.slice()`, `.substring()`, `.trim()`, `.replace()`, `.replaceAll()`, `.repeat()`, `.padStart()`, `.padEnd()`, `.charAt()`, `.startsWith()`, `.endsWith()` и любые другие (**кроме** `.charCodeAt()` и `String.fromCodePoint()` — они разрешены для получения кода символа, см. урок 1.5)
 3. **Запрещены методы массивов:** `.push()`, `.pop()`, `.unshift()`, `.shift()`, `.indexOf()`, `.lastIndexOf()`, `.includes()`, `.fill()`, `.reverse()`, `.concat()`, `.slice()`, `.join()`, `.splice()`, `.flat()`, `.forEach()`, `.map()`, `.filter()`, `.some()`, `.every()`, `.find()`, `.findIndex()`, `.reduce()` и любые другие
-4. **Запрещены операторы сравнения строк длиннее 1 символа:** нельзя `'hello' > 'world'`, `'abc' === 'def'` и т.д. (можно только посимвольно)
-5. **Разрешено:** операторы сравнения чисел, `delete` для удаления элементов массива, прямое обращение по индексу (`str[i]`, `arr[i]`), `for`, `while`, `if/else`, `throw`, `try-catch`, `typeof`
+4. **Запрещены методы объектов:** `Object.keys()`, `Object.values()`, `Object.entries()`, `Object.assign()`, `Object.freeze()`, `Object.seal()` и любые другие методы `Object.*` (студент реализует `keys`, `values`, `entries` самостоятельно в проекте 9)
+5. **Запрещены операторы сравнения строк длиннее 1 символа:** нельзя `'hello' > 'world'`, `'abc' === 'def'` и т.д. (можно только посимвольно)
+6. **Разрешено:** операторы сравнения чисел, `delete` для удаления элементов массива, прямое обращение по индексу (`str[i]`, `arr[i]`), обращение к свойству объекта (`obj[key]`), `for`, `while`, `if/else`, `throw`, `try-catch`, `typeof`, `for...in`
 
 ### Как реализовать мутабельные функции массивов без стандартного API
 
@@ -728,11 +729,13 @@ function shift(arr) {
 
 ### Проект 6: «Массивы: трансформация»
 
-**Цель:** реализовать функции трансформации массивов: заполнение, переворот, объединение, копирование, склеивание, удаление/вставка, разглаживание.
+**Цель:** реализовать функции трансформации массивов: заполнение, переворот, объединение, копирование, склеивание, удаление/вставка.
 
-**Результат:** PR с 7 функциями.
+**Результат:** PR с 6 функциями.
 
-**Функции (7):** `fill(arr, value, start, end)`, `reverse(arr)`, `concat(arr1, arr2)`, `slice(arr, start, end)`, `join(arr, separator)`, `splice(arr, start, deleteCount, ...items)`, `flat(arr, depth)`.
+**Функции (6):** `fill(arr, value, start, end)`, `reverse(arr)`, `concat(arr1, arr2)`, `slice(arr, start, end)`, `join(arr, separator)`, `splice(arr, start, deleteCount, ...items)`.
+
+> **Примечание:** `flat` перенесён в проект 8 — он логически ближе к `reduce` (оба про рекурсию и накопление).
 
 #### Урок 6.1 — Функция fill()
 
@@ -800,19 +803,7 @@ function shift(arr) {
   - Должен изменять массив на месте
   - Это самая сложная функция в проекте
 
-#### Урок 6.7 — Функция flat()
-
-**Цель:** реализовать разглаживание вложенных массивов. Введение в рекурсию.
-
-**Содержание:**
-- Текстовое описание задачи и тест-кейсов:
-  - Должен разгладить массив на указанную глубину
-  - depth = 1: разгладить один уровень
-  - depth = Infinity: разгладить полностью
-  - Должен вернуть новый массив (не мутировать исходный)
-- Алгоритм: рекурсивный обход — если элемент массив и глубина > 0, разгладить его рекурсивно
-
-#### Урок 6.8 — PR и ревью
+#### Урок 6.7 — PR и ревью
 
 **Содержание:** пуш ветки, создание PR, приглашение ревьюеров, pin-сообщение.
 
@@ -933,30 +924,92 @@ function shift(arr) {
   - Должен вернуть новый массив
   - Пустой массив → пустой массив
 
-#### Урок 8.4 — Финальный прогон: все функции
+#### Урок 8.4 — Финальный прогон, пуш и PR
 
-**Цель:** запустить тесты для всех реализованных функций.
+**Цель:** проверить все функции, запушить код и создать Pull Request.
 
 **Содержание:**
-- Полный прогон тестов: все функции из проектов 1–8
+
+---
+
+### Проект 9: «Объекты: методы и глубокая обработка»
+
+**Цель:** освоить объект как структуру данных, реализовать `Object.keys`/`values`/`entries`, глубокое копирование и сравнение объектов.
+
+**Результат:** PR с 5 функциями для работы с объектами.
+
+**Теория:** Object API, `for...in`, `hasOwnProperty`, рекурсия для объектов.
+
+**Функции (5):** `keys(obj)`, `values(obj)`, `entries(obj)`, `cloneDeep(obj)`, `isEqualDeep(a, b)`.
+
+#### Урок 9.1 — Объекты и функция keys()
+
+**Цель:** понять структуру объекта, освоить `for...in` и `hasOwnProperty`, реализовать `keys(obj)`.
+
+**Содержание:**
+- Теория: объект как набор пар ключ-значение. Перебор свойств: `for...in`. Проблема: `for...in` перебирает и унаследованные свойства. Решение: `hasOwnProperty`
+- `Object.keys()` — возвращает массив **собственных** ключей объекта
+- `Object.values()` — массив собственных значений
+- `Object.entries()` — массив пар `[ключ, значение]`
+- Задача: `keys(obj)` — пройти `for...in`, проверить `hasOwnProperty`, собрать ключи в массив через `push`
+- Тест-кейсы: пустой объект → `[]`, объект с несколькими ключами, проверка что унаследованные свойства не попадают
+
+#### Урок 9.2 — Функции values() и entries()
+
+**Цель:** реализовать `values` и `entries` на основе `keys`.
+
+**Содержание:**
+- `values(obj)` — получить ключи через `keys`, для каждого взять `obj[ключ]`, собрать в массив
+- `entries(obj)` — получить ключи через `keys`, для каждого создать `[ключ, obj[ключ]]`
+- Тест-кейсы для каждой
+- Принцип композиции: не дублируем `for...in`, а переиспользуем `keys`
+
+#### Урок 9.3 — Глубокое копирование: cloneDeep()
+
+**Цель:** реализовать глубокое копирование объектов и массивов через рекурсию.
+
+**Содержание:**
+- Теория: поверхностное vs глубокое копирование. `arr2 = arr1` не копирует, а создаёт вторую ссылку. Поверхностное копирует только первый уровень. Глубокое — все уровни
+- Задача: `cloneDeep(obj)` — для примитивов вернуть как есть; для массивов — создать новый массив и рекурсивно клонировать каждый элемент; для объектов — создать новый объект и рекурсивно клонировать каждое значение
+- Тест-кейсы: примитивы, плоский объект, вложенный объект, массив с объектами, смешанная структура. Проверка, что исходный объект не изменился при изменении копии
+- Обработка `null` (typeof null === 'object') — вернуть null
+- JSDoc обязателен, отметь иммутабельность исходного объекта
+
+#### Урок 9.4 — Глубокое сравнение: isEqualDeep()
+
+**Цель:** реализовать глубокое сравнение двух значений.
+
+**Содержание:**
+- Задача: `isEqualDeep(a, b)` — вернуть true если значения структурно идентичны
+- Алгоритм: если оба примитивы → `a === b`; если оба массивы → сравнить длину, затем рекурсивно каждый элемент; если оба объекты → сравнить ключи через `keys`, затем рекурсивно каждое значение; если типы разные → `false`
+- Отличие от `isEqual` (проект 1): та работала только со строками. Эта работает с любыми значениями
+- Тест-кейсы: одинаковые объекты → true, разные → false, вложенные объекты, массивы, смешанные типы, null
+- JSDoc обязателен
+
+#### Урок 9.5 — Финальный прогон
+
+**Цель:** запустить тесты для всех функций проекта 9.
+
+**Содержание:**
+- Полный прогон тестов: все функции из проектов 1–9
 - Исправление найденных ошибок
 - Проверка совместимости функций друг с другом
 
-#### Урок 8.5 — PR и ревью
+#### Урок 9.6 — PR и ревью
 
 **Содержание:** пуш ветки, создание PR, приглашение ревьюеров, pin-сообщение.
 
 ---
 
-### Проект 9: «Бизнес-утилиты»
+### Проект 10: «Бизнес-утилиты»
 
 **Цель:** применить все полученные навыки в реальных бизнес-задачах.
 
-**Результат:** финальный PR с 5 бизнес-функциями, полный набор из ~51 функции проходит все тесты.
+**Результат:** финальный PR с 5 бизнес-функциями, полный набор из ~55 функций проходит все тесты.
 
 **Функции (5):** `getQueryParams(url)`, `parseUrl(url)`, `toCSV(data)`, `fromCSV(csvString)`, `groupBy(array, key)`.
 
-#### Урок 9.1 — Функция getQueryParams(url)
+#### Урок 10.1 — Функция getQueryParams(url)
 
 **Цель:** реализовать разбор query-строки URL.
 
@@ -967,7 +1020,7 @@ function shift(arr) {
   - Должен вернуть пустой объект если query-строки нет
   - Должен обрабатывать URL-кодирование (%20, %D0 и т.д.)
 
-#### Урок 9.2 — Функция parseUrl(url)
+#### Урок 10.2 — Функция parseUrl(url)
 
 **Цель:** реализовать разбор URL на составные части.
 
@@ -978,7 +1031,7 @@ function shift(arr) {
   - Должен обрабатывать URL без пути
   - Должен обрабатывать URL с портом
 
-#### Урок 9.3 — Функция toCSV(data)
+#### Урок 10.3 — Функция toCSV(data)
 
 **Цель:** реализовать преобразование массива объектов в CSV-строку.
 
@@ -989,7 +1042,7 @@ function shift(arr) {
   - Должен экранировать значения с запятыми (обернуть в кавычки)
   - Должен экранировать кавычки внутри значений (удвоение)
 
-#### Урок 9.4 — Функция fromCSV(csvString)
+#### Урок 10.4 — Функция fromCSV(csvString)
 
 **Цель:** реализовать парсинг CSV-строки в массив объектов.
 
@@ -1000,7 +1053,7 @@ function shift(arr) {
   - Должен обрабатывать экранированные запятые и кавычки
   - Должен быть обратным к toCSV (round-trip)
 
-#### Урок 9.5 — Функция groupBy(array, key)
+#### Урок 10.5 — Функция groupBy(array, key)
 
 **Цель:** реализовать группировку массива объектов по ключу.
 
@@ -1011,12 +1064,12 @@ function shift(arr) {
   - Должен работать с числами и строками как ключами группировки
   - Должен вернуть пустой объект для пустого массива
 
-#### Урок 9.6 — Финальный PR и полный прогон
+#### Урок 10.6 — Финальный PR и полный прогон
 
 **Цель:** завершить модуль — запустить все тесты, отправить последний PR.
 
 **Содержание:**
-- Полный прогон всех функций из проектов 1–9
+- Полный прогон всех функций из проектов 1–10
 - Исправление ошибок
 - Финальный PR с бизнес-утилитами
 - Просмотр истории всего репозитория через `git log`
@@ -1032,11 +1085,12 @@ function shift(arr) {
 | 3 | Ветки Git и поиск подстрок | 9 | 6 | git branch/merge, fix-ветки |
 | 4 | JSDoc и трансформация строк | 10 | 8 | JSDoc |
 | 5 | Массивы: структура и базовые операции | 10 | 9 | Мутабельность |
-| 6 | Массивы: трансформация | 8 | 7 | — |
+| 6 | Массивы: трансформация | 7 | 6 | — |
 | 7 | Итеративные методы: forEach, map, filter | 6 | 5 | — |
-| 8 | Итеративные методы: find, reduce, flat | 5 | 4 | — |
-| 9 | Бизнес-утилиты | 6 | 5 | — |
-| **Итого** | | **68** | **51** | |
+| 8 | Итеративные методы: find, reduce, flat | 4 | 4 | — |
+| 9 | Объекты: методы и глубокая обработка | 6 | 5 | Object API, for...in, рекурсия для объектов |
+| 10 | Бизнес-утилиты | 6 | 5 | — |
+| **Итого** | | **72** | **55** | |
 
 ---
 
@@ -1045,57 +1099,64 @@ function shift(arr) {
 | # | Функция | Сигнатура | Проект |
 |---|---------|-----------|--------|
 | 1 | at | `at(arr, index) → any` | 5 |
-| 2 | concat | `concat(arr1, arr2) → array` | 6 |
-| 3 | endsWith | `endsWith(str, search) → boolean` | 3 |
-| 4 | every | `every(arr, callback) → boolean` | 7 |
-| 5 | fill | `fill(arr, value, start, end) → array` | 6 |
-| 6 | filter | `filter(arr, callback) → array` | 7 |
-| 7 | find | `find(arr, callback) → any` | 8 |
-| 8 | findIndex | `findIndex(arr, callback) → number` | 8 |
-| 9 | flat | `flat(arr, depth) → array` | 8 |
-| 10 | forEach | `forEach(arr, callback) → undefined` | 7 |
-| 11 | fromCSV | `fromCSV(csvString) → array` | 9 |
-| 12 | getQueryParams | `getQueryParams(url) → object` | 9 |
-| 13 | groupBy | `groupBy(array, key) → object` | 9 |
-| 14 | includes (array) | `includes(arr, item) → boolean` | 5 |
-| 15 | includes (string) | `includes(str, search) → boolean` | 3 |
-| 16 | indexOf (array) | `indexOf(arr, item) → number` | 5 |
-| 17 | indexOf (string) | `indexOf(str, search) → number` | 3 |
-| 18 | isEqual | `isEqual(a, b) → boolean` | 1 |
-| 19 | isLess | `isLess(a, b) → boolean` | 1 |
-| 20 | isLessOrEqual | `isLessOrEqual(a, b) → boolean` | 1 |
-| 21 | isMore | `isMore(a, b) → boolean` | 1 |
-| 22 | isMoreOrEqual | `isMoreOrEqual(a, b) → boolean` | 1 |
-| 23 | isNotEqual | `isNotEqual(a, b) → boolean` | 1 |
-| 24 | join | `join(arr, separator) → string` | 6 |
-| 25 | lastIndexOf | `lastIndexOf(arr, item) → number` | 5 |
-| 26 | len (array) | `len(arr) → number` | 5 |
-| 27 | len (string) | `len(str) → number` | 1 |
-| 28 | lowerCase | `lowerCase(str) → string` | 4 |
-| 29 | map | `map(arr, callback) → array` | 7 |
-| 30 | pad | `pad(str, length, char, side) → string` | 4 |
-| 31 | parseUrl | `parseUrl(url) → object` | 9 |
-| 32 | pop | `pop(arr) → any` | 5 |
-| 33 | push | `push(arr, item) → number` | 5 |
-| 34 | reduce | `reduce(arr, callback, initialValue) → any` | 8 |
-| 35 | repeat | `repeat(str, count) → string` | 3 |
-| 36 | replace | `replace(str, search, replacement) → string` | 4 |
-| 37 | replaceAll | `replaceAll(str, search, replacement) → string` | 4 |
-| 38 | reverse (array) | `reverse(arr) → array` | 6 |
-| 39 | reverse (string) | `reverse(str) → string` | 3 |
-| 40 | shift | `shift(arr) → any` | 5 |
-| 41 | slice (array) | `slice(arr, start, end) → array` | 6 |
-| 42 | slice (string) | `slice(str, start, end) → string` | 4 |
-| 43 | some | `some(arr, callback) → boolean` | 7 |
-| 44 | splice | `splice(arr, start, deleteCount, ...items) → array` | 6 |
-| 45 | startsWith | `startsWith(str, search) → boolean` | 3 |
-| 46 | substring | `substring(str, start, end) → string` | 4 |
-| 47 | toCSV | `toCSV(data) → string` | 9 |
-| 48 | trim | `trim(str) → string` | 4 |
-| 49 | unshift | `unshift(arr, item) → number` | 5 |
-| 50 | upperCase | `upperCase(str) → string` | 4 |
+| 2 | cloneDeep | `cloneDeep(obj) → any` | 9 |
+| 3 | concat | `concat(arr1, arr2) → array` | 6 |
+| 4 | endsWith | `endsWith(str, search) → boolean` | 3 |
+| 5 | entries | `entries(obj) → array` | 9 |
+| 6 | every | `every(arr, callback) → boolean` | 7 |
+| 7 | fill | `fill(arr, value, start, end) → array` | 6 |
+| 8 | filter | `filter(arr, callback) → array` | 7 |
+| 9 | find | `find(arr, callback) → any` | 8 |
+| 10 | findIndex | `findIndex(arr, callback) → number` | 8 |
+| 11 | flat | `flat(arr, depth) → array` | 8 |
+| 12 | forEach | `forEach(arr, callback) → undefined` | 7 |
+| 13 | fromCSV | `fromCSV(csvString) → array` | 10 |
+| 14 | getQueryParams | `getQueryParams(url) → object` | 10 |
+| 15 | groupBy | `groupBy(array, key) → object` | 10 |
+| 16 | includes (array) | `includes(arr, item) → boolean` | 5 |
+| 17 | includes (string) | `includes(str, search) → boolean` | 3 |
+| 18 | indexOf (array) | `indexOf(arr, item) → number` | 5 |
+| 19 | indexOf (string) | `indexOf(str, search) → number` | 3 |
+| 20 | isEqual | `isEqual(a, b) → boolean` | 1 |
+| 21 | isEqualDeep | `isEqualDeep(a, b) → boolean` | 9 |
+| 22 | isLess | `isLess(a, b) → boolean` | 1 |
+| 23 | isLessOrEqual | `isLessOrEqual(a, b) → boolean` | 1 |
+| 24 | isMore | `isMore(a, b) → boolean` | 1 |
+| 25 | isMoreOrEqual | `isMoreOrEqual(a, b) → boolean` | 1 |
+| 26 | isNotEqual | `isNotEqual(a, b) → boolean` | 1 |
+| 27 | join | `join(arr, separator) → string` | 6 |
+| 28 | keys | `keys(obj) → array` | 9 |
+| 29 | lastIndexOf | `lastIndexOf(arr, item) → number` | 5 |
+| 30 | len (array) | `len(arr) → number` | 5 |
+| 31 | len (string) | `len(str) → number` | 1 |
+| 32 | lowerCase | `lowerCase(str) → string` | 4 |
+| 33 | map | `map(arr, callback) → array` | 7 |
+| 34 | pad | `pad(str, length, char, side) → string` | 4 |
+| 35 | parseUrl | `parseUrl(url) → object` | 10 |
+| 36 | pop | `pop(arr) → any` | 5 |
+| 37 | push | `push(arr, item) → number` | 5 |
+| 38 | reduce | `reduce(arr, callback, initialValue) → any` | 8 |
+| 39 | repeat | `repeat(str, count) → string` | 3 |
+| 40 | replace | `replace(str, search, replacement) → string` | 4 |
+| 41 | replaceAll | `replaceAll(str, search, replacement) → string` | 4 |
+| 42 | reverse (array) | `reverse(arr) → array` | 6 |
+| 43 | reverse (string) | `reverse(str) → string` | 3 |
+| 44 | shift | `shift(arr) → any` | 5 |
+| 45 | slice (array) | `slice(arr, start, end) → array` | 6 |
+| 46 | slice (string) | `slice(str, start, end) → string` | 4 |
+| 47 | some | `some(arr, callback) → boolean` | 7 |
+| 48 | splice | `splice(arr, start, deleteCount, ...items) → array` | 6 |
+| 49 | startsWith | `startsWith(str, search) → boolean` | 3 |
+| 50 | substring | `substring(str, start, end) → string` | 4 |
+| 51 | toCSV | `toCSV(data) → string` | 10 |
+| 52 | trim | `trim(str) → string` | 4 |
+| 53 | unshift | `unshift(arr, item) → number` | 5 |
+| 54 | upperCase | `upperCase(str) → string` | 4 |
+| 55 | values | `values(obj) → array` | 9 |
 
-*Примечание: `len`, `includes`, `indexOf`, `reverse`, `slice` имеют по две версии (string + array) — итого 50 уникальных имён функций.*
+*Примечание: `len`, `includes`, `indexOf`, `reverse`, `slice` имеют по две версии (string + array) — итого 55 уникальных имён функций.*
+
+*Также запрещены методы объектов:* `.keys()`, `.values()`, `.entries()`, `.assign()` и любые другие методы `Object.*` — студент реализует их самостоятельно в проекте 9.
 
 ---
 

@@ -210,7 +210,6 @@
           "46a377c8-cb66-4837-b416-b4f0a98892d5",
           "70f688e6-8201-46d4-887d-3e6aed697f25",
           "38232f4d-4f52-4ded-a9f1-77d8188498b2",
-          "e4446272-329d-4fae-a9a0-f08cef2bc920",
           "ca183f77-5e2d-44fc-a979-0d2a3cf99256"
         ]
       },
@@ -227,6 +226,19 @@
           "c7f4af0b-609f-4742-8ca6-97f4b22eaff1",
           "2031c924-985c-4403-a892-39eea86b502f",
           "5430e31b-6c4a-465c-b533-e7e124a5d2d8"
+        ]
+      },
+      {
+        "uuid": "c92bf9c2-bb40-4c99-b85f-d44f8c462abc",
+        "title": "Итеративные методы: find, reduce, flat",
+        "goal": "Освоить продвинутые итеративные методы: поиск с ранним выходом (find, findIndex), свёртку (reduce) и рекурсивное разглаживание (flat)",
+        "result": "PR с 4 функциями в папке arrays/: find, findIndex, reduce, flat — задокументированными по JSDoc, все иммутабельные, find/findIndex с ранним выходом, reduce с двумя режимами, flat через рекурсию",
+        "status": "published",
+        "lessonIds": [
+          "c1d56b87-e96f-43cb-b691-68613be0435a",
+          "d919432e-a380-49ac-ac8f-a8b05b863155",
+          "b90cb30d-71eb-45dd-96c3-62e765ae3c1b",
+          "ba6a47a3-8c11-494b-b41c-01add8633ff9"
         ]
       }
     ],
