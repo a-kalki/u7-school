@@ -637,7 +637,9 @@
     "status": "published",
     "createdAt": "2026-06-16T12:00",
     "estimatedMinutes": 45,
-    "stepIds": ["0537679d-a582-443b-a34e-c89d72b81d28"],
+    "stepIds": [
+      "0537679d-a582-443b-a34e-c89d72b81d28"
+    ],
     "mentorStepIds": [],
     "updatedAt": "2026-06-16T12:00"
   },
@@ -1348,6 +1350,131 @@
       "9976d546-b8bb-43d2-99ef-1fcf61cb1b2e",
       "5cf8d363-d399-4191-b297-f9765547c64c",
       "ae1b15b4-017a-422e-b571-b60d9bb43ecf"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "9602fbba-4df3-4934-bf7c-e0278c0ffbab",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция fill(arr, value, start, end) — заполнение массива",
+    "additional": "Заполняет массив (или его часть) указанным значением. Мутабельная — меняет массив на месте и возвращает его же.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "da3d7ab6-01fc-43d2-95e2-f90e6f1dedb4",
+      "684dcba3-be10-4f2e-b9f3-5b87c52fa88e",
+      "b6aed53c-dbe7-4237-b40a-051ab212e806"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "a12c867a-cb0c-4ce4-b8ec-89e2624ec4df",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция reverse(arr) — переворот массива на месте",
+    "additional": "Переворачивает массив на месте (мутабельная). Алгоритм с двумя указателями (left/right), обмен через временную переменную.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "99e898a6-bbe9-4dc4-a39e-c77ec340ac93",
+      "ffc31ec1-721d-4063-a64d-0ca6ae0a1c3f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "279c65e8-5659-4961-9150-c474a2eb731c",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция concat(arr1, arr2) — объединение массивов",
+    "additional": "Создаёт новый массив из элементов arr1 и arr2. Иммутабельная — исходные массивы не меняются.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "a35eedbb-df22-4b5a-99b9-7b4c726e4e22",
+      "c5d8eda3-12c9-4183-91b3-40baaefcb9ed"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "46a377c8-cb66-4837-b416-b4f0a98892d5",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция slice(arr, start, end) — копирование подмассива",
+    "additional": "Возвращает новый массив из элементов от start до end. Поддержка отрицательных индексов. Иммутабельная.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 12,
+    "stepIds": [
+      "7db8f930-102d-4e6d-a21c-8fa111a723ea",
+      "f29ea9c7-7551-42b1-8d8f-824912face03"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "70f688e6-8201-46d4-887d-3e6aed697f25",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция join(arr, separator) — склеивание массива в строку",
+    "additional": "Преобразует массив в строку, вставляя разделитель между элементами. Иммутабельная — массив не меняется.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 10,
+    "stepIds": [
+      "c82386d3-1e02-4599-b20e-fe6801774c82",
+      "824ab5ae-c172-4310-8eb2-f08677d7ade5"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "38232f4d-4f52-4ded-a9f1-77d8188498b2",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция splice(arr, start, deleteCount, ...items) — удаление и вставка",
+    "additional": "Самая сложная функция проекта. Удаляет deleteCount элементов и вставляет items на их место. Мутабельная.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "8242b19e-6650-4299-9e77-1b9022bbf7c3",
+      "0e1cb754-0e0b-49e6-bf78-7d34149c3ada",
+      "3535e226-ebdf-417a-b05e-27902b714cbd"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "e4446272-329d-4fae-a9a0-f08cef2bc920",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Функция flat(arr, depth) — разглаживание вложенных массивов",
+    "additional": "Разглаживает вложенные массивы до указанной глубины. Первое применение рекурсии в проектах. Иммутабельная.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 13,
+    "stepIds": [
+      "895fa190-9836-4598-b1f8-b3dfa0cbfc30",
+      "2f4caf0d-4d33-4cab-9b0d-e8180514be8e",
+      "ad0b0738-bd75-4c03-a349-13afc08ad026"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "ca183f77-5e2d-44fc-a979-0d2a3cf99256",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Пуш ветки и создание Pull Request для проекта 6",
+    "additional": "Студент отправляет ветку feat/array-transform на GitHub и создаёт Pull Request с 7 функциями трансформации массивов.",
+    "status": "published",
+    "createdAt": "2026-07-26T15:00",
+    "updatedAt": "2026-07-26T15:00",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "1dd58cee-4a0f-4da9-b0f6-46c1223a5b02",
+      "949c4bf6-853c-4b27-b546-306972a6fa0c",
+      "99b8d731-23f9-472a-b111-04e2197b6e93",
+      "8075d274-da1c-43a2-8d32-2ad1c1e9d5b6"
     ],
     "mentorStepIds": []
   }
