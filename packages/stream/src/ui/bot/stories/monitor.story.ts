@@ -95,6 +95,27 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
+    // Собираем время последней активности для медианы
+    const activeStudents = students.filter((s) => s.status === 'active');
+    const hoursSinceLast = activeStudents.map((s) => {
+      let latest = 0;
+      for (const step of s.steps) {
+        const ts = step.completedAt ?? step.issuedAt;
+        const ms = new Date(ts).getTime();
+        if (ms > latest) latest = ms;
+      }
+      return (Date.now() - latest) / (1000 * 60 * 60);
+    });
+
+    // Медиана времени последней активности (используется в сводке — Фаза 5)
+    const sorted = [...hoursSinceLast].sort((a, b) => a - b);
+    const _median =
+      sorted.length > 0
+        ? sorted.length % 2 === 0
+          ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
+          : sorted[Math.floor(sorted.length / 2)]!
+        : 0;
+
     for (const s of students) {
       const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
       const completed = progress.completed;
@@ -103,7 +124,15 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const barLen = 10;
       const filled = Math.round((pct / 100) * barLen);
       const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
-      const lagging = pct < 25 && s.status === 'active' ? ' ⚠️' : '';
+
+      // Уровень отставания: время + медиана
+      const lagLevel = StreamDs.computeLagLevel(s);
+      let lagMarker = '';
+      if (lagLevel === 'critical') {
+        lagMarker = ' 🛑';
+      } else if (lagLevel === 'lagging') {
+        lagMarker = ' ⚠️';
+      }
 
       const pos = StreamDs.getStepPosition(
         stream.contentSnapshot,
@@ -127,12 +156,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const counts = this.escapeMarkdown(`(${completed}/${totalSteps})`);
 
       studentLines.push(
-        `${posStr} ${bar} ${pct}% ${counts} — ${escapedName}${lagging}`,
+        `${posStr} ${bar} ${pct}% ${counts} — ${escapedName}${lagMarker}`,
       );
 
       rows.push([
         {
-          text: `👤 ${name} (${pct}%)${lagging}`,
+          text: `👤 ${name} (${pct}%)${lagMarker}`,
           code: this.cbFor('monitor', 'detail', s.uuid),
         },
       ]);

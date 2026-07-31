@@ -308,4 +308,56 @@ export const StreamDs = {
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
     return { completed, total, percent };
   },
+
+  /**
+   * Уровень отставания студента от графика.
+   *
+   * Вычисляет время с последней активности (completedAt > issuedAt),
+   * затем классифицирует:
+   * - >7 дней → 'critical'
+   * - >4 дней → 'lagging'
+   * - иначе → 'on_track'
+   *
+   * Неактивные статусы (abandoned, advanced, not_advanced) — всегда on_track.
+   */
+  computeLagLevel(
+    student: {
+      steps: Array<{ status: string; issuedAt: string; completedAt?: string }>;
+      status: string;
+    },
+    now: Date = new Date(),
+  ): 'critical' | 'lagging' | 'on_track' {
+    // Неактивные статусы — не считаем отставание
+    if (student.status !== 'active' && student.status !== 'enrolled') {
+      return 'on_track';
+    }
+
+    if (student.steps.length === 0) return 'on_track';
+
+    // Находим самую позднюю временную метку активности
+    let latest = 0;
+    for (const s of student.steps) {
+      const ts = s.completedAt ?? s.issuedAt;
+      const ms = new Date(ts).getTime();
+      if (ms > latest) latest = ms;
+    }
+
+    const hoursSince = (now.getTime() - latest) / (1000 * 60 * 60);
+
+    if (hoursSince > 7 * 24) return 'critical';
+    if (hoursSince > 4 * 24) return 'lagging';
+    return 'on_track';
+  },
+
+  /**
+   * Проверяет, отстаёт ли студент от медианы группы на 30% или более.
+   *
+   * @param studentHours — время студента (в часах с последней активности)
+   * @param medianHours — медианное время группы (в часах)
+   * @returns true если studentHours >= medianHours * 1.3
+   */
+  isLaggingFromMedian(studentHours: number, medianHours: number): boolean {
+    if (medianHours <= 0) return false;
+    return studentHours >= medianHours * 1.3;
+  },
 };
