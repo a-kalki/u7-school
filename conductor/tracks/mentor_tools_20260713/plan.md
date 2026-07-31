@@ -8,7 +8,7 @@
 - [x] Task: Реализовать MentorToolsStory с подменю (role-gated `MENTOR`) — без кнопки «Мониторинг» [a962224]
 - [ ] Task: Conductor - Ручная верификация 'Подменю'
 
-## Фаза 2: S02m — mentor-режим карточки потока
+## Фаза 2: S02m — mentor-режим карточки потока [checkpoint: 586d0f4]
 
 - [x] Task: ViewStreamMentorStory создан (хендлеры complete/archive + confirm-диалоги, describe.skip) — см. `packages/stream/src/ui/bot/stories/view-stream-mentor.story.ts`
 - [x] Task: Активировать ViewStreamMentorStory: снять `describe.skip`, зарегистрировать в StreamController [48fefcc]
