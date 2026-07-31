@@ -98,7 +98,7 @@ describe('MentorToolsStory', () => {
 
   // ── handleCallback("start") — подменю ──
 
-  test('handleCallback("start") показывает подменю с тремя кнопками', async () => {
+  test('handleCallback("start") показывает подменю с кнопками Мои потоки и Создать поток', async () => {
     const story = makeStory();
     const response = await story.handleCallback('start', mentorActor, session);
 
@@ -111,10 +111,11 @@ describe('MentorToolsStory', () => {
 
     expect(btnTexts).toContain('📋 Мои потоки');
     expect(btnTexts).toContain('➕ Создать поток');
-    expect(btnTexts).toContain('👥 Мониторинг');
+    // Кнопки «👥 Мониторинг» нет — мониторинг встроен в карточку потока
+    expect(btnTexts).not.toContain('👥 Мониторинг');
   });
 
-  test('MENTOR видит все три кнопки подменю', async () => {
+  test('MENTOR видит кнопки подменю: Мои потоки, Создать поток, Назад', async () => {
     const story = makeStory();
     const response = await story.handleCallback('start', mentorActor, session);
 
@@ -122,7 +123,7 @@ describe('MentorToolsStory', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts).toContain('📋 Мои потоки');
     expect(btnTexts).toContain('➕ Создать поток');
-    expect(btnTexts).toContain('👥 Мониторинг');
+    expect(btnTexts).not.toContain('👥 Мониторинг');
   });
 
   test('GUEST получает ошибку при попытке открыть подменю', async () => {
@@ -167,20 +168,6 @@ describe('MentorToolsStory', () => {
 
     expect(streamsBtn).toBeDefined();
     expect(streamsBtn?.code).toContain('mentor-tools:my-streams');
-  });
-
-  // ── Кнопка «Мониторинг» делегирует в monitor:start ──
-
-  test('кнопка «👥 Мониторинг» делегирует в monitor:start', async () => {
-    const story = makeStory();
-    const response = await story.handleCallback('start', mentorActor, session);
-
-    const monitorBtn = response.sendMessage?.keyboard?.rows
-      .flat()
-      .find((b) => b.text === '👥 Мониторинг');
-
-    expect(monitorBtn).toBeDefined();
-    expect(monitorBtn?.code).toContain('monitor:start');
   });
 
   // ── Кнопка «Назад» в подменю ──

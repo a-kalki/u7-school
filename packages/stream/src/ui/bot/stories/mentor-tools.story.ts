@@ -10,7 +10,8 @@ import type { StreamApiModuleMeta } from '../../../domain/module';
  * Доступно только MENTOR и ADMIN. Содержит:
  * - «📋 Мои потоки» — список потоков ментора → S02m mentor-режим
  * - «➕ Создать поток» — перенос из главного меню в подменю
- * - «👥 Мониторинг» — быстрый вход в мониторинг активных потоков
+ *
+ * Мониторинг студентов — через кнопку «👥 Студенты» в карточке потока (S02m).
  */
 export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'mentor-tools';
@@ -81,7 +82,6 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
                 code: this.cbFor('create-stream', 'start'),
               },
             ],
-            [{ text: '👥 Мониторинг', code: this.cbFor('monitor', 'start') }],
             [{ text: '🔙 Назад', code: 'app:main-menu' }],
           ],
           isMultiple: false,
