@@ -26,6 +26,17 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     return this._state.completionDetails;
   }
 
+  /** Время последней активности (последний completedAt или issuedAt). */
+  get lastActivityAt(): Date | null {
+    let latest = 0;
+    for (const s of this._state.steps) {
+      const ts = s.completedAt ?? s.issuedAt;
+      const ms = new Date(ts).getTime();
+      if (ms > latest) latest = ms;
+    }
+    return latest > 0 ? new Date(latest) : null;
+  }
+
   constructor(state: Student) {
     super(state, StudentSchema);
   }
@@ -182,5 +193,44 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     record.status = 'completed';
     record.completedAt = isoNow();
     this.safeUpdate({});
+  }
+
+  /**
+   * Уровень отставания студента от графика (метод чтения).
+   *
+   * Вычисляет время с последней активности (completedAt > issuedAt),
+   * затем классифицирует:
+   * - >7 дней → 'critical'
+   * - >4 дней → 'lagging'
+   * - иначе → 'on_track'
+   *
+   * Неактивные статусы (abandoned, advanced, not_advanced) — всегда on_track.
+   */
+  computeLagLevel(now: Date = new Date()): 'critical' | 'lagging' | 'on_track' {
+    if (this._state.status !== 'active' && this._state.status !== 'enrolled') {
+      return 'on_track';
+    }
+
+    const last = this.lastActivityAt;
+    if (!last) return 'on_track';
+
+    const hoursSince = (now.getTime() - last.getTime()) / (1000 * 60 * 60);
+
+    if (hoursSince > 7 * 24) return 'critical';
+    if (hoursSince > 4 * 24) return 'lagging';
+    return 'on_track';
+  }
+
+  /**
+   * Проверяет, отстаёт ли студент от медианы группы на 30% или более.
+   */
+  isLaggingFromMedian(medianHours: number): boolean {
+    if (medianHours <= 0) return false;
+
+    const last = this.lastActivityAt;
+    if (!last) return false;
+
+    const studentHours = (Date.now() - last.getTime()) / (1000 * 60 * 60);
+    return studentHours >= medianHours * 1.3;
   }
 }

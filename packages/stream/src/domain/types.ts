@@ -75,3 +75,13 @@ export type Progress = {
   total: number;
   percent: number;
 };
+
+/** Уровень отставания */
+export type LagLevel = 'critical' | 'lagging' | 'on_track';
+
+/** Результат категоризации студента по отставанию */
+export interface CategorizedStudent {
+  studentId: string;
+  lagLevel: LagLevel;
+  hoursSinceLastActivity: number;
+}

@@ -92,29 +92,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       steps: [],
     }).total;
 
+    // Категоризируем через DS (принимает plain Student[])
+    const categorized = StreamDs.categorizeStudents(students, new Date());
+    const lagMap = new Map(categorized.map((c) => [c.studentId, c.lagLevel]));
+
     const studentLines: string[] = [];
     const rows: Array<Array<{ text: string; code: string }>> = [];
-
-    // Собираем время последней активности для медианы
-    const activeStudents = students.filter((s) => s.status === 'active');
-    const hoursSinceLast = activeStudents.map((s) => {
-      let latest = 0;
-      for (const step of s.steps) {
-        const ts = step.completedAt ?? step.issuedAt;
-        const ms = new Date(ts).getTime();
-        if (ms > latest) latest = ms;
-      }
-      return (Date.now() - latest) / (1000 * 60 * 60);
-    });
-
-    // Медиана времени последней активности (используется в сводке — Фаза 5)
-    const sorted = [...hoursSinceLast].sort((a, b) => a - b);
-    const _median =
-      sorted.length > 0
-        ? sorted.length % 2 === 0
-          ? (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
-          : sorted[Math.floor(sorted.length / 2)]!
-        : 0;
 
     for (const s of students) {
       const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
@@ -125,8 +108,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const filled = Math.round((pct / 100) * barLen);
       const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
 
-      // Уровень отставания: время + медиана
-      const lagLevel = StreamDs.computeLagLevel(s);
+      const lagLevel = lagMap.get(s.uuid) ?? 'on_track';
       let lagMarker = '';
       if (lagLevel === 'critical') {
         lagMarker = ' 🛑';

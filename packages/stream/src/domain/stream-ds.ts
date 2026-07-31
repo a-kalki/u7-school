@@ -2,8 +2,9 @@ import type { ContentSnapshot, StepPosition } from '@u7-scl/course/domain';
 import { CourseDs } from '@u7-scl/course/domain';
 import type { StreamAr } from './stream/a-root';
 import type { StudentAr } from './student/a-root';
-import type { StepRecord } from './student/entity';
+import type { StepRecord, Student } from './student/entity';
 import type {
+  CategorizedStudent,
   CompletionResult,
   LessonNode,
   LessonStepsView,
@@ -310,54 +311,80 @@ export const StreamDs = {
   },
 
   /**
-   * Уровень отставания студента от графика.
+   * Категоризирует студентов по уровню отставания.
    *
-   * Вычисляет время с последней активности (completedAt > issuedAt),
-   * затем классифицирует:
-   * - >7 дней → 'critical'
-   * - >4 дней → 'lagging'
-   * - иначе → 'on_track'
-   *
-   * Неактивные статусы (abandoned, advanced, not_advanced) — всегда on_track.
+   * Использует агрегаты StudentAr для индивидуальных расчётов,
+   * вычисляет медиану и применяет комбинированную логику:
+   * - Время >7д → critical
+   * - Время >4д → lagging
+   * - on_track по времени, но отстаёт от медианы на 30%+ → lagging
    */
-  computeLagLevel(
-    student: {
-      steps: Array<{ status: string; issuedAt: string; completedAt?: string }>;
-      status: string;
-    },
+  categorizeStudents(
+    students: Student[],
     now: Date = new Date(),
-  ): 'critical' | 'lagging' | 'on_track' {
-    // Неактивные статусы — не считаем отставание
-    if (student.status !== 'active' && student.status !== 'enrolled') {
-      return 'on_track';
+  ): CategorizedStudent[] {
+    // Время с последней активности для каждого
+    const hoursMap = new Map<string, number>();
+    const activeHours: number[] = [];
+
+    for (const s of students) {
+      let latest = 0;
+      for (const step of s.steps) {
+        const ts = step.completedAt ?? step.issuedAt;
+        const ms = new Date(ts).getTime();
+        if (ms > latest) latest = ms;
+      }
+      const hours =
+        latest > 0 ? (now.getTime() - latest) / (1000 * 60 * 60) : 0;
+      hoursMap.set(s.uuid, hours);
+
+      if (s.status === 'active' || s.status === 'enrolled') {
+        activeHours.push(hours);
+      }
     }
 
-    if (student.steps.length === 0) return 'on_track';
-
-    // Находим самую позднюю временную метку активности
-    let latest = 0;
-    for (const s of student.steps) {
-      const ts = s.completedAt ?? s.issuedAt;
-      const ms = new Date(ts).getTime();
-      if (ms > latest) latest = ms;
+    // Медиана по активным студентам
+    activeHours.sort((a, b) => a - b);
+    let median = 0;
+    if (activeHours.length > 0) {
+      const mid = Math.floor(activeHours.length / 2);
+      if (activeHours.length % 2 === 0) {
+        const a = activeHours[mid - 1];
+        const b = activeHours[mid];
+        if (a !== undefined && b !== undefined) {
+          median = (a + b) / 2;
+        }
+      } else {
+        median = activeHours[mid] ?? 0;
+      }
     }
 
-    const hoursSince = (now.getTime() - latest) / (1000 * 60 * 60);
+    return students.map((s) => {
+      const hours = hoursMap.get(s.uuid) ?? 0;
+      let lagLevel: CategorizedStudent['lagLevel'] = 'on_track';
 
-    if (hoursSince > 7 * 24) return 'critical';
-    if (hoursSince > 4 * 24) return 'lagging';
-    return 'on_track';
-  },
+      // Неактивные статусы — on_track
+      if (s.status !== 'active' && s.status !== 'enrolled') {
+        return {
+          studentId: s.uuid,
+          lagLevel: 'on_track',
+          hoursSinceLastActivity: hours,
+        };
+      }
 
-  /**
-   * Проверяет, отстаёт ли студент от медианы группы на 30% или более.
-   *
-   * @param studentHours — время студента (в часах с последней активности)
-   * @param medianHours — медианное время группы (в часах)
-   * @returns true если studentHours >= medianHours * 1.3
-   */
-  isLaggingFromMedian(studentHours: number, medianHours: number): boolean {
-    if (medianHours <= 0) return false;
-    return studentHours >= medianHours * 1.3;
+      // Время
+      if (hours > 7 * 24) {
+        lagLevel = 'critical';
+      } else if (hours > 4 * 24) {
+        lagLevel = 'lagging';
+      }
+
+      // Медиана: on_track по времени, но > медианы на 30% → lagging
+      if (lagLevel === 'on_track' && median > 0 && hours >= median * 1.3) {
+        lagLevel = 'lagging';
+      }
+
+      return { studentId: s.uuid, lagLevel, hoursSinceLastActivity: hours };
+    });
   },
 };

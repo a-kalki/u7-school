@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { StudentAr } from './a-root';
+import type { Student } from './entity';
 
 const mockStreamId = '11111111-1111-4111-8111-111111111111';
 const mockUserId = '22222222-2222-4222-8222-222222222222';
@@ -277,6 +278,264 @@ describe('StudentAr', () => {
       expect(ar.status).toBe('advanced');
 
       expect(() => ar.activate()).toThrow();
+    });
+  });
+
+  // ── computeLagLevel ──
+
+  describe('computeLagLevel', () => {
+    const now = new Date('2026-08-01T12:00');
+
+    function makeStudent(
+      steps: Array<{
+        stepId: string;
+        status: string;
+        issuedAt: string;
+        completedAt?: string;
+      }>,
+      status: Student['status'] = 'active',
+    ) {
+      return new StudentAr({
+        uuid: crypto.randomUUID(),
+        streamId: mockStreamId,
+        userId: mockUserId,
+        enrolledAt: '2026-07-01T00:00',
+        status,
+        currentStepId: mockStepId,
+        steps: steps as Array<import('./entity').StepRecord>,
+        createdAt: '2026-07-01T00:00',
+      });
+    }
+
+    test('студент без шагов — on_track', () => {
+      const ar = makeStudent([]);
+      expect(ar.computeLagLevel(now)).toBe('on_track');
+    });
+
+    test('последний completedAt 3 дня назад — on_track', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-28T12:00',
+          completedAt: '2026-07-29T12:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('on_track');
+    });
+
+    test('ровно 4 дня назад — on_track (граница не включена)', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-27T12:00',
+          completedAt: '2026-07-28T12:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('on_track');
+    });
+
+    test('4 дня + 1 час — lagging', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-27T11:00',
+          completedAt: '2026-07-28T11:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('lagging');
+    });
+
+    test('6 дней назад — lagging', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-25T12:00',
+          completedAt: '2026-07-26T12:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('lagging');
+    });
+
+    test('ровно 7 дней назад — lagging (граница не включена)', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-24T12:00',
+          completedAt: '2026-07-25T12:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('lagging');
+    });
+
+    test('7 дней + 1 час — critical', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-24T11:00',
+          completedAt: '2026-07-25T11:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('critical');
+    });
+
+    test('10 дней назад — critical', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'completed',
+          issuedAt: '2026-07-21T12:00',
+          completedAt: '2026-07-22T12:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('critical');
+    });
+
+    test('шаг issued (без completed) — отставание от issuedAt', () => {
+      const ar = makeStudent([
+        {
+          stepId: mockStepId,
+          status: 'issued',
+          issuedAt: '2026-07-25T11:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('critical');
+    });
+
+    test('abandoned студент — on_track', () => {
+      const ar = makeStudent(
+        [
+          {
+            stepId: mockStepId,
+            status: 'completed',
+            issuedAt: '2026-06-01T00:00',
+            completedAt: '2026-06-02T00:00',
+          },
+        ],
+        'abandoned',
+      );
+      expect(ar.computeLagLevel(now)).toBe('on_track');
+    });
+
+    test('advanced студент — on_track', () => {
+      const ar = makeStudent(
+        [
+          {
+            stepId: mockStepId,
+            status: 'completed',
+            issuedAt: '2026-06-01T00:00',
+            completedAt: '2026-06-02T00:00',
+          },
+        ],
+        'advanced',
+      );
+      expect(ar.computeLagLevel(now)).toBe('on_track');
+    });
+
+    test('not_advanced студент — on_track', () => {
+      const ar = makeStudent(
+        [
+          {
+            stepId: mockStepId,
+            status: 'completed',
+            issuedAt: '2026-06-01T00:00',
+            completedAt: '2026-06-02T00:00',
+          },
+        ],
+        'not_advanced',
+      );
+      expect(ar.computeLagLevel(now)).toBe('on_track');
+    });
+
+    test('несколько steps — учитывается самый поздний completedAt', () => {
+      const ar = makeStudent([
+        {
+          stepId: '11111111-1111-4111-8111-111111111111',
+          status: 'completed',
+          issuedAt: '2026-07-01T00:00',
+          completedAt: '2026-07-20T12:00',
+        },
+        {
+          stepId: '22222222-2222-4222-8222-222222222222',
+          status: 'completed',
+          issuedAt: '2026-07-21T00:00',
+          completedAt: '2026-07-26T12:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('lagging');
+    });
+
+    test('смесь completed и issued — учитывается самый поздний timestamp', () => {
+      const ar = makeStudent([
+        {
+          stepId: '11111111-1111-4111-8111-111111111111',
+          status: 'completed',
+          issuedAt: '2026-07-01T00:00',
+          completedAt: '2026-07-20T12:00',
+        },
+        {
+          stepId: '22222222-2222-4222-8222-222222222222',
+          status: 'issued',
+          issuedAt: '2026-07-25T11:00',
+        },
+      ]);
+      expect(ar.computeLagLevel(now)).toBe('critical');
+    });
+  });
+
+  // ── isLaggingFromMedian ──
+
+  describe('isLaggingFromMedian', () => {
+    const now = new Date('2026-08-01T12:00');
+
+    function makeStudentWithLastActivity(completedAt: string) {
+      return new StudentAr({
+        uuid: crypto.randomUUID(),
+        streamId: mockStreamId,
+        userId: mockUserId,
+        enrolledAt: '2026-07-01T00:00',
+        status: 'active',
+        currentStepId: mockStepId,
+        steps: [
+          {
+            stepId: mockStepId,
+            status: 'completed' as const,
+            issuedAt: '2026-07-20T00:00',
+            completedAt,
+          },
+        ],
+        createdAt: '2026-07-01T00:00',
+      });
+    }
+
+    test('студент без шагов — false', () => {
+      const ar = new StudentAr({
+        uuid: crypto.randomUUID(),
+        streamId: mockStreamId,
+        userId: mockUserId,
+        enrolledAt: '2026-07-01T00:00',
+        status: 'active',
+        currentStepId: mockStepId,
+        steps: [],
+        createdAt: '2026-07-01T00:00',
+      });
+      expect(ar.isLaggingFromMedian(100)).toBe(false);
+    });
+
+    test('студент быстрее медианы — false', () => {
+      const ar = makeStudentWithLastActivity('2026-07-30T12:00');
+      // 2 дня = 48 часов. Медиана = 100 часов. 48 < 130.
+      expect(ar.isLaggingFromMedian(100)).toBe(false);
+    });
+
+    test('медиана 0 — false', () => {
+      const ar = makeStudentWithLastActivity('2026-07-30T12:00');
+      expect(ar.isLaggingFromMedian(0)).toBe(false);
     });
   });
 });

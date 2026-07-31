@@ -554,162 +554,129 @@ describe('StreamDs.computeStreamProjectProgress', () => {
   });
 });
 
-// ── Отставание (Фаза 4) ──
+// ── categorizeStudents ──
 
-describe('StreamDs.computeLagLevel', () => {
-  const now = new Date('2026-08-01T12:00:00.000Z');
+describe('StreamDs.categorizeStudents', () => {
+  const now = new Date('2026-08-01T12:00');
 
-  function s(completedAt?: string, issuedAt = '2026-07-31T12:00:00.000Z') {
+  function st(
+    overrides: Partial<{
+      uuid: string;
+      status: string;
+      steps: Array<{
+        stepId: string;
+        status: string;
+        issuedAt: string;
+        completedAt?: string;
+      }>;
+    }> = {},
+  ): any {
     return {
-      steps: completedAt
-        ? [
-            {
-              stepId: '11111111-1111-4111-8111-111111111111',
-              status: 'completed' as const,
-              issuedAt,
-              completedAt,
-            },
-          ]
-        : [
-            {
-              stepId: '11111111-1111-4111-8111-111111111111',
-              status: 'issued' as const,
-              issuedAt,
-            },
-          ],
-      status: 'active' as const,
+      uuid: overrides.uuid ?? '00000000-0000-4000-8000-000000000001',
+      streamId: '11111111-1111-4111-8111-111111111111',
+      userId: '22222222-2222-4222-8222-222222222222',
+      enrolledAt: '2026-07-01T00:00',
+      status: overrides.status ?? 'active',
+      currentStepId: '33333333-3333-4333-8333-333333333333',
+      steps: overrides.steps ?? [],
+      createdAt: '2026-07-01T00:00',
     };
   }
 
+  test('все on_track при пустом списке студентов', () => {
+    const result = StreamDs.categorizeStudents([], now);
+    expect(result).toEqual([]);
+  });
+
   test('студент без шагов — on_track', () => {
-    const student = { steps: [], status: 'active' as const };
-    expect(StreamDs.computeLagLevel(student, now)).toBe('on_track');
+    const result = StreamDs.categorizeStudents([st()], now);
+    expect(result[0]!.lagLevel).toBe('on_track');
+    expect(result[0]!.studentId).toBe('00000000-0000-4000-8000-000000000001');
   });
 
-  test('последний completedAt 3 дня назад — on_track', () => {
-    const student = s('2026-07-29T12:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('on_track');
-  });
-
-  test('последний completedAt ровно 4 дня назад — on_track (граница не включена)', () => {
-    const student = s('2026-07-28T12:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('on_track');
-  });
-
-  test('последний completedAt 4 дня + 1 час — lagging', () => {
-    const student = s('2026-07-28T11:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('lagging');
-  });
-
-  test('последний completedAt 6 дней назад — lagging', () => {
-    const student = s('2026-07-26T12:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('lagging');
-  });
-
-  test('последний completedAt ровно 7 дней назад — lagging (граница не включена)', () => {
-    const student = s('2026-07-25T12:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('lagging');
-  });
-
-  test('последний completedAt 7 дней + 1 час — critical', () => {
-    const student = s('2026-07-25T11:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('critical');
-  });
-
-  test('последний completedAt 10 дней назад — critical', () => {
-    const student = s('2026-07-22T12:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('critical');
-  });
-
-  test('шаг issued (без completed) — отставание от issuedAt', () => {
-    const student = s(undefined, '2026-07-25T11:00:00.000Z');
-    expect(StreamDs.computeLagLevel(student, now)).toBe('critical');
-  });
-
-  test('abandoned студент — on_track (независимо от дат)', () => {
-    const student = {
-      ...s('2026-07-20T12:00:00.000Z'),
-      status: 'abandoned' as const,
-    };
-    expect(StreamDs.computeLagLevel(student, now)).toBe('on_track');
-  });
-
-  test('advanced студент — on_track', () => {
-    const student = {
-      ...s('2026-07-20T12:00:00.000Z'),
-      status: 'advanced' as const,
-    };
-    expect(StreamDs.computeLagLevel(student, now)).toBe('on_track');
-  });
-
-  test('not_advanced студент — on_track', () => {
-    const student = {
-      ...s('2026-07-20T12:00:00.000Z'),
-      status: 'not_advanced' as const,
-    };
-    expect(StreamDs.computeLagLevel(student, now)).toBe('on_track');
-  });
-
-  test('несколько steps — учитывается самый поздний completedAt', () => {
-    const student = {
-      steps: [
-        {
-          stepId: '11111111-1111-4111-8111-111111111111',
-          status: 'completed' as const,
-          issuedAt: '2026-07-01T00:00:00.000Z',
-          completedAt: '2026-07-20T12:00:00.000Z',
-        },
-        {
-          stepId: '22222222-2222-4222-8222-222222222222',
-          status: 'completed' as const,
-          issuedAt: '2026-07-21T00:00:00.000Z',
-          completedAt: '2026-07-26T12:00:00.000Z',
-        },
+  test('>7 дней — critical', () => {
+    const result = StreamDs.categorizeStudents(
+      [
+        st({
+          steps: [
+            {
+              stepId: '33333333-3333-4333-8333-333333333333',
+              status: 'completed',
+              issuedAt: '2026-07-20T12:00',
+              completedAt: '2026-07-24T12:00',
+            },
+          ],
+        }),
       ],
-      status: 'active' as const,
-    };
-    expect(StreamDs.computeLagLevel(student, now)).toBe('lagging');
+      now,
+    );
+    expect(result[0]!.lagLevel).toBe('critical');
   });
 
-  test('смесь completed и issued — учитывается самый поздний timestamp', () => {
-    const student = {
-      steps: [
-        {
-          stepId: '11111111-1111-4111-8111-111111111111',
-          status: 'completed' as const,
-          issuedAt: '2026-07-01T00:00:00.000Z',
-          completedAt: '2026-07-20T12:00:00.000Z',
-        },
-        {
-          stepId: '22222222-2222-4222-8222-222222222222',
-          status: 'issued' as const,
-          issuedAt: '2026-07-25T11:00:00.000Z',
-        },
+  test('>4 дней — lagging', () => {
+    const result = StreamDs.categorizeStudents(
+      [
+        st({
+          steps: [
+            {
+              stepId: '33333333-3333-4333-8333-333333333333',
+              status: 'completed',
+              issuedAt: '2026-07-26T12:00',
+              completedAt: '2026-07-27T12:00',
+            },
+          ],
+        }),
       ],
-      status: 'active' as const,
-    };
-    expect(StreamDs.computeLagLevel(student, now)).toBe('critical');
-  });
-});
-
-describe('StreamDs.isLaggingFromMedian', () => {
-  test('30% превышения (ровно) — true', () => {
-    expect(StreamDs.isLaggingFromMedian(130, 100)).toBe(true);
+      now,
+    );
+    expect(result[0]!.lagLevel).toBe('lagging');
   });
 
-  test('29% превышения — false', () => {
-    expect(StreamDs.isLaggingFromMedian(129, 100)).toBe(false);
+  test('неактивные статусы — on_track', () => {
+    const result = StreamDs.categorizeStudents(
+      [
+        st({ status: 'abandoned', steps: [] }),
+        st({ status: 'advanced', steps: [] }),
+        st({ status: 'not_advanced', steps: [] }),
+      ],
+      now,
+    );
+    expect(result[0]!.lagLevel).toBe('on_track');
+    expect(result[1]!.lagLevel).toBe('on_track');
+    expect(result[2]!.lagLevel).toBe('on_track');
   });
 
-  test('студент быстрее медианы — false', () => {
-    expect(StreamDs.isLaggingFromMedian(50, 100)).toBe(false);
-  });
-
-  test('студент равен медиане — false', () => {
-    expect(StreamDs.isLaggingFromMedian(100, 100)).toBe(false);
-  });
-
-  test('медиана 0 — false (защита от деления на ноль)', () => {
-    expect(StreamDs.isLaggingFromMedian(100, 0)).toBe(false);
+  test('медиана: on_track по времени, но отстаёт от группы на 30%+ → lagging', () => {
+    // Один студент выполнил шаг 1 час назад, второй — 50 часов назад
+    // Медиана ~25.5 часов. Второй: 50 >= 25.5*1.3=33.15 → true → lagging
+    const result = StreamDs.categorizeStudents(
+      [
+        st({
+          uuid: '00000000-0000-4000-8000-000000000001',
+          steps: [
+            {
+              stepId: '33333333-3333-4333-8333-333333333333',
+              status: 'completed',
+              issuedAt: '2026-08-01T10:00',
+              completedAt: '2026-08-01T11:00',
+            },
+          ],
+        }),
+        st({
+          uuid: '00000000-0000-4000-8000-000000000002',
+          steps: [
+            {
+              stepId: '33333333-3333-4333-8333-333333333333',
+              status: 'completed',
+              issuedAt: '2026-07-29T10:00',
+              completedAt: '2026-07-30T10:00',
+            },
+          ],
+        }),
+      ],
+      now,
+    );
+    expect(result[0]!.lagLevel).toBe('on_track');
+    expect(result[1]!.lagLevel).toBe('lagging');
   });
 });
