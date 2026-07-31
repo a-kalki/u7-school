@@ -7,7 +7,6 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { Status } from '@u7-scl/course/domain';
-import { UserPolicy } from '@u7-scl/user/domain';
 import type { CreateStreamCmd } from '#domain/stream/commands/create-stream-cmd';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 
@@ -216,16 +215,8 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  override async handleStart(actor: User): Promise<MainMenuAction | null> {
-    if (UserPolicy.isMentor(actor) || UserPolicy.isAdmin(actor)) {
-      return {
-        kind: 'callback',
-        text: '🛠️ Создать поток',
-        action: this.cb('start'),
-        priority: 30,
-        description: '🛠️ Создать поток — создать новый учебный поток',
-      };
-    }
+  override async handleStart(_actor: User): Promise<MainMenuAction | null> {
+    // Создание потока — только через подменю «Инструменты ментора»
     return null;
   }
 

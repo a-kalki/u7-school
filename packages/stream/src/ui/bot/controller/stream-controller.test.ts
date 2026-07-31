@@ -91,7 +91,7 @@ describe('StreamController (реестр)', () => {
 
     const texts = items.map((i) => i.text);
     expect(texts).toContain('📚 Потоки курсов');
-    expect(texts).toContain('🛠️ Создать поток');
+    expect(texts).toContain('🛠️ Инструменты ментора');
   });
 
   test('handleStart сортирует по priority', async () => {

@@ -16,9 +16,9 @@
 - [x] Task: Реализовать S02m-клавиатуру (curious + lifecycle) — см. раздел «Варианты реализации S02m» в spec.md [48fefcc]
 - [ ] Task: Conductor - Ручная верификация 'Mentor-режим'
 
-## Фаза 3: Перенос «Создать поток» + очистка curious-режима
+## Фаза 3: Перенос «Создать поток» + очистка curious-режима [checkpoint: 586d0f4]
 
-- [ ] Task: `CreateStreamStory.handleStart` → `null`, вход через подменю
+- [x] Task: `CreateStreamStory.handleStart` → `null`, вход через подменю
 - [x] Task: Убрать lifecycle-кнопки из curious-режима S02 (✅ выполнено в треке `curious_showcase_20260708`, Фаза 3)
 - [ ] Task: Conductor - Ручная верификация 'Создать поток из подменю'
 

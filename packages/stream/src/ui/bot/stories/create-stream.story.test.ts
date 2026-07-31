@@ -447,29 +447,16 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('Ошибка валидации');
   });
 
-  test('handleStart — MENTOR видит кнопку «Создать поток»', async () => {
+  test('handleStart — MENTOR не видит кнопку (вход только через подменю)', async () => {
     const story = new CreateStreamStory();
     const item = await story.handleStart(mentor);
-    expect(item?.text).toContain('Создать поток');
-    expect(item?.priority).toBe(30);
+    expect(item).toBeNull();
   });
 
   test('handleStart — GUEST не видит кнопку', async () => {
     const story = new CreateStreamStory();
     const item = await story.handleStart(guest);
     expect(item).toBeNull();
-  });
-
-  test('handleStart — MENTOR получает описание', async () => {
-    const story = new CreateStreamStory();
-    const item = await story.handleStart(mentor);
-    expect(item?.description).toContain('Создать поток');
-  });
-
-  test('handleStart — GUEST не получает описание', async () => {
-    const story = new CreateStreamStory();
-    const item = await story.handleStart(guest);
-    expect(item?.description).toBeUndefined();
   });
 
   test('handleCallback("confirm"): без контекста — ошибка', async () => {
