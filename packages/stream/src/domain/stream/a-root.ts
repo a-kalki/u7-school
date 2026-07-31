@@ -80,10 +80,15 @@ export class StreamAr extends Aggregate<StreamArMeta> {
 
   /**
    * Отправка потока в архив.
+   * Только завершённые (COMPLETED) потоки могут быть архивированы.
    */
   archive(): void {
     if (StreamPolicy.isArchived(this._state)) {
       this.throwBadRequest('Поток уже находится в архиве.');
+    }
+
+    if (!StreamPolicy.isComplete(this._state)) {
+      this.throwBadRequest('В архив можно отправить только завершённый поток.');
     }
 
     this.safeUpdate({

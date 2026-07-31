@@ -100,17 +100,19 @@ describe('StreamAr', () => {
       expect(() => ar.complete()).toThrow();
     });
 
-    test('archive() переводит поток в archived из enrollment', () => {
+    test('archive() из enrollment выбрасывает ошибку (не завершён)', () => {
       const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
-      ar.archive();
-      expect(ar.state.status).toBe(StreamStatus.ARCHIVED);
+      expect(() => ar.archive()).toThrow(
+        'В архив можно отправить только завершённый поток',
+      );
     });
 
-    test('archive() переводит поток в archived из active', () => {
+    test('archive() из active выбрасывает ошибку (не завершён)', () => {
       const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
       ar.activate();
-      ar.archive();
-      expect(ar.state.status).toBe(StreamStatus.ARCHIVED);
+      expect(() => ar.archive()).toThrow(
+        'В архив можно отправить только завершённый поток',
+      );
     });
 
     test('archive() переводит поток в archived из completed', () => {
@@ -123,8 +125,10 @@ describe('StreamAr', () => {
 
     test('archive() из archived выбрасывает ошибку', () => {
       const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
+      ar.activate();
+      ar.complete();
       ar.archive();
-      expect(() => ar.archive()).toThrow();
+      expect(() => ar.archive()).toThrow('Поток уже находится в архиве');
     });
   });
 

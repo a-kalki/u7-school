@@ -15,7 +15,7 @@ const mockStream = {
   mentorId,
   moduleId: modId,
   startDate: '2026-06-01T12:00',
-  status: StreamStatus.ACTIVE,
+  status: StreamStatus.COMPLETED,
   contentSnapshot: [],
   createdAt: isoNow(),
 };
