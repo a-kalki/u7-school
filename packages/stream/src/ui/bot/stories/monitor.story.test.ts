@@ -1287,6 +1287,25 @@ describe('MonitorStory', () => {
     expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
   });
+
+  test('students: если get-stream возвращает null — сообщение об ошибке', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-stream-students') return [];
+        if (name === 'get-stream') return null;
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({})),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('students:s1', actor, session);
+    expect(response.sendMessage?.text).toBe('⚠️ Поток не найден');
+  });
 });
 
 /** Вспомогательная функция для создания MonitorStory с моками */

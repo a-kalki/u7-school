@@ -1,4 +1,5 @@
 import { type User, UserPolicy } from '@u7-scl/user/domain';
+import { StreamPolicy } from '#domain/stream/policy';
 import type { Stream } from '../stream/entity';
 import type { Student } from './entity';
 
@@ -27,6 +28,6 @@ export const StudentPolicy = {
    * Только ментор потока или админ.
    */
   canManageStudent(actor: User, stream: Stream): boolean {
-    return UserPolicy.isAdmin(actor) || actor.uuid === stream.mentorId;
+    return UserPolicy.isAdmin(actor) || StreamPolicy.isMentor(actor, stream);
   },
 };

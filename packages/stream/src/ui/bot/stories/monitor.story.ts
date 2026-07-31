@@ -89,6 +89,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId,
     });
 
+    if (!stream) {
+      return { sendMessage: { text: '⚠️ Поток не найден' } };
+    }
+
     const totalSteps = StreamDs.computeProgress(stream.contentSnapshot, {
       steps: [],
     }).total;
