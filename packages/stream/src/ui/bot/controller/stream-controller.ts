@@ -5,6 +5,7 @@ import { CatalogStory } from '../stories/catalog.story';
 import { CreateStreamStory } from '../stories/create-stream.story';
 import { EnrollStory } from '../stories/enroll.story';
 import { LearningStory } from '../stories/learning.story';
+import { MentorToolsStory } from '../stories/mentor-tools.story';
 import { MonitorStory } from '../stories/monitor.story';
 import { ProgressStory } from '../stories/progress.story';
 import { ViewStreamStory } from '../stories/view-stream.story';
@@ -22,6 +23,7 @@ export class StreamController extends U7BotController<StreamApiModuleMeta> {
     new EnrollStory(),
     new LearningStory(),
     new ProgressStory(),
+    new MentorToolsStory(),
     new CreateStreamStory(),
     new ActivateStreamStory(),
     new MonitorStory(),
