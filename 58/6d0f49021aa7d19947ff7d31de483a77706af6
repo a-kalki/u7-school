@@ -1,0 +1,17 @@
+Контрольная точка Фазы 2 (mentor_tools_20260713).
+
+Автоматические тесты: bun run check:p stream → 351 pass, 0 fail, lint/tsc чисто.
+Ручная верификация: отложена пользователем («проверю потом, все вместе»).
+
+План ручной верификации:
+1. MENTOR → «🛠️ Инструменты ментора» → «📋 Мои потоки» → поток
+2. S02m: 🚀 Запустить (enrollment) / ✅ Завершить (active) / 📁 В архив (completed)
+3. Confirm-диалоги для завершения/архивации
+4. ⬅️ Назад к моим потокам (не в catalog)
+5. Curious-ветка — без lifecycle-кнопок
+
+Изменения в фазе:
+- packages/stream/src/ui/bot/stories/view-stream-mentor.story.ts (переписан)
+- packages/stream/src/ui/bot/stories/view-stream.story.ts (protected-рефакторинг)
+- packages/stream/src/ui/bot/stories/mentor-tools.story.ts (view-stream-mentor:view)
+- packages/stream/src/ui/bot/controller/stream-controller.ts (+ViewStreamMentorStory)
