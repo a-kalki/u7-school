@@ -466,11 +466,13 @@ describe('Сквозные пользовательские сценарии (E2
       await app.cleanup();
     });
 
-    test('главное меню: есть «Потоки курсов» и «Создать поток»', async () => {
+    test('главное меню: есть «Потоки курсов» и «Инструменты ментора», нет «Создать поток»', async () => {
       const menu = await router.collectMainMenu(mentor);
 
       expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
-      expect(menu.some((i) => i.text.includes('Создать поток'))).toBe(true);
+      // «Создать поток» перенесён в подменю «Инструменты ментора» (Фаза 3)
+      expect(menu.some((i) => i.text.includes('Инструменты ментора'))).toBe(true);
+      expect(menu.some((i) => i.text.includes('Создать поток'))).toBe(false);
       expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(false);
     });
 

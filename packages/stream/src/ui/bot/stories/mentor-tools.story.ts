@@ -102,7 +102,7 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
       if (myStreams.length === 0) {
         return {
           sendMessage: {
-            text: '📋 *Мои потоки*\n\nУ вас пока нет потоков.',
+            text: '📋 *Мои потоки*\n\nУ вас пока нет потоков\\.',
             parseMode: 'MarkdownV2',
             keyboard: {
               rows: [[{ text: '🔙 Назад', code: this.cb('start') }]],
