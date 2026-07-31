@@ -1,0 +1,7 @@
+Контрольная точка Фазы 4 — рефакторинг (mentor_tools_20260713).
+
+Перенос computeLagLevel + isLaggingFromMedian в StudentAr.
+StreamDs.categorizeStudents — групповая аналитика с медианой.
+MonitorStory использует DS.categorizeStudents.
+Исправлена документация aggregate: методы чтения разрешены.
+24 новых теста, 362 total pass.
