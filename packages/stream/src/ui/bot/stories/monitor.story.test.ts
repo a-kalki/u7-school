@@ -310,8 +310,13 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
+    // S08 больше не содержит кнопок действий (они теперь в S07)
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Сменить исход'))).toBe(false);
+    // S08: только навигация
+    expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
   test('нажатие «⚠️ Неактивен» → запрос подтверждения', async () => {
@@ -810,8 +815,10 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(true);
+    // S08: кнопок действий нет даже для ADMIN
+    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
   // ── Фаза 4: Прозрачность — S07/S08 доступны GUEST/CANDIDATE ──
@@ -1209,6 +1216,172 @@ describe('MonitorStory', () => {
     expect(rows[0]?.length).toBe(3);
     // Вторая строка = «Назад к потоку»
     expect(rows[1]?.length).toBe(1);
+  });
+
+  test('S08 показывает причину критического отставания', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-2',
+            steps: [
+              {
+                stepId: 'step-1',
+                status: 'completed',
+                issuedAt: '2026-07-20T10:00',
+                completedAt: '2026-07-21T10:00',
+              },
+              {
+                stepId: 'step-2',
+                status: 'issued',
+                issuedAt: '2026-07-21T10:00',
+              },
+            ],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            status: 'active',
+            mentorId: 'mentor-1',
+            contentSnapshot: [
+              {
+                projectTitle: 'P1',
+                lessons: [{ lessonTitle: 'L1', stepIds: ['step-1', 'step-2'] }],
+              },
+            ],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ uuid: 'u1', name: 'Иван' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('detail:st1', actor, session);
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Критическое отставание');
+    expect(text).toContain('не заходил');
+    expect(text).not.toContain('ниже медианы');
+  });
+
+  test('S08 показывает статистику времени по категориям', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-3',
+            steps: [
+              {
+                stepId: 'step-1',
+                status: 'completed',
+                issuedAt: '2026-08-01T10:00',
+                completedAt: '2026-08-01T10:00',
+              },
+              {
+                stepId: 'step-2',
+                status: 'completed',
+                issuedAt: '2026-08-01T10:00',
+                completedAt: '2026-08-01T10:20',
+              },
+              {
+                stepId: 'step-3',
+                status: 'issued',
+                issuedAt: '2026-08-01T10:00',
+              },
+            ],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            status: 'active',
+            mentorId: 'mentor-1',
+            contentSnapshot: [
+              {
+                projectTitle: 'P1',
+                lessons: [
+                  {
+                    lessonTitle: 'L1',
+                    stepIds: ['step-1', 'step-2', 'step-3'],
+                  },
+                ],
+              },
+            ],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ uuid: 'u1', name: 'Иван' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('detail:st1', actor, session);
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Время на шаги');
+    expect(text).toContain('🏃 Листатель: 1');
+    expect(text).toContain('📚 Углублённо: 1');
+  });
+
+  test('S08 не показывает статистику если нет завершённых шагов', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-progress')
+          return {
+            uuid: 'st1',
+            streamId: 's1',
+            userId: 'u1',
+            status: 'active',
+            currentStepId: 'step-1',
+            steps: [
+              {
+                stepId: 'step-1',
+                status: 'issued',
+                issuedAt: '2026-08-01T10:00',
+              },
+            ],
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            status: 'active',
+            mentorId: 'mentor-1',
+            contentSnapshot: [
+              {
+                projectTitle: 'P1',
+                lessons: [{ lessonTitle: 'L1', stepIds: ['step-1'] }],
+              },
+            ],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ uuid: 'u1', name: 'Иван' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('detail:st1', actor, session);
+    const text = response.sendMessage?.text ?? '';
+    expect(text).not.toContain('Время на шаги');
+    expect(text).not.toContain('Листатель');
   });
 
   test('GUEST видит S08 — детальную карточку с прогрессом и исходом', async () => {

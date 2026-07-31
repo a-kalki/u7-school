@@ -13,6 +13,7 @@ import type {
   Progress,
   ProjectNode,
   StepNode,
+  StepTimeStats,
 } from './types';
 
 export const StreamDs = {
@@ -386,5 +387,31 @@ export const StreamDs = {
 
       return { studentId: s.uuid, lagLevel, hoursSinceLastActivity: hours };
     });
+  },
+
+  /**
+   * Вычисляет статистику времени выполнения шагов.
+   * Для каждого завершённого шага: completedAt - issuedAt.
+   */
+  computeStepTimeStats(
+    steps: Array<{ completedAt?: string; issuedAt?: string }>,
+  ): StepTimeStats {
+    const stats = { runner: 0, fast: 0, normal: 0, deep: 0 };
+
+    for (const step of steps) {
+      if (!step.completedAt || !step.issuedAt) continue;
+      const durationMs =
+        new Date(step.completedAt).getTime() -
+        new Date(step.issuedAt).getTime();
+      if (Number.isNaN(durationMs) || durationMs < 0) continue;
+
+      const minutes = durationMs / 60_000;
+      if (minutes < 1) stats.runner++;
+      else if (minutes < 5) stats.fast++;
+      else if (minutes < 15) stats.normal++;
+      else stats.deep++;
+    }
+
+    return stats;
   },
 };

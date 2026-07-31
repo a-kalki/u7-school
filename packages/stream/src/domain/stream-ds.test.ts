@@ -680,3 +680,101 @@ describe('StreamDs.categorizeStudents', () => {
     expect(result[1]!.lagLevel).toBe('lagging');
   });
 });
+
+describe('computeStepTimeStats', () => {
+  test('пустой массив → все нули', () => {
+    const stats = StreamDs.computeStepTimeStats([]);
+    expect(stats).toEqual({ runner: 0, fast: 0, normal: 0, deep: 0 });
+  });
+
+  test('пропускает шаги без completedAt', () => {
+    const steps = [
+      { stepId: 's1', status: 'issued' as const, issuedAt: '2026-08-01T10:00' },
+    ];
+    const stats = StreamDs.computeStepTimeStats(steps);
+    expect(stats).toEqual({ runner: 0, fast: 0, normal: 0, deep: 0 });
+  });
+
+  test('30 секунд → runner', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:00',
+      },
+    ];
+    const stats = StreamDs.computeStepTimeStats(steps);
+    expect(stats.runner).toBe(1);
+  });
+
+  test('3 минуты → fast', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:03',
+      },
+    ];
+    const stats = StreamDs.computeStepTimeStats(steps);
+    expect(stats.fast).toBe(1);
+  });
+
+  test('10 минут → normal', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:10',
+      },
+    ];
+    const stats = StreamDs.computeStepTimeStats(steps);
+    expect(stats.normal).toBe(1);
+  });
+
+  test('20 минут → deep', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:20',
+      },
+    ];
+    const stats = StreamDs.computeStepTimeStats(steps);
+    expect(stats.deep).toBe(1);
+  });
+
+  test('смешанные шаги — корректные категории', () => {
+    const steps = [
+      {
+        stepId: 'r1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:00',
+      },
+      {
+        stepId: 'f1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:02',
+      },
+      {
+        stepId: 'n1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:10',
+      },
+      {
+        stepId: 'd1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:20',
+      },
+    ];
+    const stats = StreamDs.computeStepTimeStats(steps);
+    expect(stats).toEqual({ runner: 1, fast: 1, normal: 1, deep: 1 });
+  });
+});

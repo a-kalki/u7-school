@@ -311,9 +311,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       streamId: student.streamId,
     });
 
+    if (!stream) {
+      return { sendMessage: { text: '⚠️ Поток не найден' } };
+    }
+
     const progress = StreamDs.computeProgress(stream.contentSnapshot, student);
     const pct = progress.percent;
-    const stepsLabel = this.escapeMarkdown(`(${pct}%)`);
 
     const statusLabels: Record<string, string> = {
       active: '🟢 Активен',
@@ -326,7 +329,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `👤 *${this.escapeMarkdown(userName)}*`,
       '',
       `📊 Статус: ${statusLabels[student.status] ?? student.status}`,
-      `📈 Прогресс: ${progress.completed} из ${progress.total} шагов ${stepsLabel}`,
+      `📈 Прогресс: ${progress.completed} из ${progress.total} шагов \\(${pct}%\\)`,
     ];
 
     const currentStep = student.steps.find(
@@ -343,6 +346,45 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
     }
 
+    // ── Причина отставания ──
+    if (student.status === 'active') {
+      const [cat] = StreamDs.categorizeStudents([student]);
+      if (cat) {
+        const hours = Math.round(cat.hoursSinceLastActivity);
+        const days = Math.round(hours / 24);
+
+        if (cat.lagLevel === 'critical') {
+          lines.push(
+            '',
+            `🛑 *Критическое отставание*: не заходил ${days} дн\\.`,
+          );
+        } else if (cat.lagLevel === 'lagging') {
+          if (hours > 4 * 24) {
+            lines.push('', `⚠️ *Отстаёт*: не заходил ${days} дн\\.`);
+          } else {
+            lines.push('', `⚠️ *Отстаёт*: прогресс ${pct}% ниже медианы группы`);
+          }
+        }
+      }
+    }
+
+    // ── Статистика времени ──
+    const completedSteps = student.steps.filter(
+      (s: { status: string }) => s.status === 'completed',
+    );
+    if (completedSteps.length > 0) {
+      const timeStats = StreamDs.computeStepTimeStats(completedSteps);
+      const parts: string[] = [];
+      if (timeStats.runner > 0) parts.push(`🏃 Листатель: ${timeStats.runner}`);
+      if (timeStats.fast > 0) parts.push(`⚡ Быстро: ${timeStats.fast}`);
+      if (timeStats.normal > 0) parts.push(`📝 Нормально: ${timeStats.normal}`);
+      if (timeStats.deep > 0) parts.push(`📚 Углублённо: ${timeStats.deep}`);
+      if (parts.length > 0) {
+        lines.push('', '*⏱ Время на шаги:*', ...parts);
+      }
+    }
+
+    // Клавиатура: только навигация, без кнопок действий
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
     keyboardRows.push([
@@ -351,34 +393,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         code: this.cbFor('monitor', 'history', studentId),
       },
     ]);
-
-    // Кнопки действий — только для ментора потока или админа
-    if (StudentPolicy.canManageStudent(actor, stream)) {
-      if (student.status === 'active') {
-        // Активный студент: можно отметить неактивным или завершить
-        keyboardRows.push([
-          {
-            text: '⚠️ Неактивен',
-            code: this.cbFor('monitor', 'mark-abandoned', studentId),
-          },
-          {
-            text: '✅ Завершить',
-            code: this.cbFor('monitor', 'complete', studentId),
-          },
-        ]);
-      } else if (
-        student.status === 'advanced' ||
-        student.status === 'not_advanced'
-      ) {
-        // Завершённый студент: можно сменить предпочтение (пока заглушка)
-        keyboardRows.push([
-          {
-            text: '🔄 Сменить исход',
-            code: this.cbFor('monitor', 'complete', studentId),
-          },
-        ]);
-      }
-    }
 
     keyboardRows.push([
       {

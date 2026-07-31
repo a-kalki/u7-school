@@ -85,3 +85,15 @@ export interface CategorizedStudent {
   lagLevel: LagLevel;
   hoursSinceLastActivity: number;
 }
+
+/** Статистика времени выполнения шагов */
+export interface StepTimeStats {
+  /** < 1 мин */
+  runner: number;
+  /** 1–5 мин */
+  fast: number;
+  /** 5–15 мин */
+  normal: number;
+  /** > 15 мин */
+  deep: number;
+}
