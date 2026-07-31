@@ -44,7 +44,8 @@
 ## Фаза 7: Действия ментора в S07/S08 — bot-level тесты
 
 - [x] `complete-student` UI починен (аудит Релиза 1). Выполнено вне трека
-- [ ] Task: Написать bot-level интеграционные тесты через `BotRouter.handleCallback`
+- [x] Task: Написать bot-level интеграционные тесты через `BotRouter.handleCallback`
+- [x] Task: Исправить MarkdownV2 экранирование в сводке S07, S08 и handleError
 - [ ] Task: Conductor - Ручная верификация 'Действия ментора (bot-level)'
 
 ## Фаза 8: E2E + документация

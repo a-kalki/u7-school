@@ -57,8 +57,8 @@ describe('MonitorStory e2e', () => {
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Студенты потока');
     expect(text).toContain('JS Core');
-    // Прогресс-бары в тексте (хотя бы один из символов)
-    expect(text).toContain('░');
+    // Сводка здоровья группы (появилась в Фазе 5)
+    expect(text).toContain('Всего');
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -66,9 +66,11 @@ describe('MonitorStory e2e', () => {
     expect(btns.some((t) => t.includes('Студент'))).toBe(true);
     // Кнопка «⬅️ Назад к потоку»
     expect(btns.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
+    // Маркеры отставания в кнопках (🏃/🛑/⚠️/✅)
+    expect(btns.some((t) => t.includes('🏃') || t.includes('🛑') || t.includes('✅'))).toBe(true);
   });
 
-  test('ментор открывает детальную карточку студента — с кнопками действий', async () => {
+  test('ментор открывает детальную карточку студента — статистика и навигация', async () => {
     const response = await router.handleCallback(
       `stream:monitor:detail:${STUDENT_ID}`,
       mentor,
@@ -87,9 +89,11 @@ describe('MonitorStory e2e', () => {
     expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
 
-    // Кнопки действий ментора для активного студента
-    expect(btns.some((t) => t.includes('Неактивен'))).toBe(true);
-    expect(btns.some((t) => t.includes('Завершить'))).toBe(true);
+    // S08: только навигация (кнопки действий теперь в S07)
+    expect(btns.some((t) => t.includes('Неактивен'))).toBe(false);
+    expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
+    // S08 включает статистику времени и/или причину отставания
+    // (для активного студента без завершённых шагов — только причина)
   });
 
   // ═══════════════════════════════════════════

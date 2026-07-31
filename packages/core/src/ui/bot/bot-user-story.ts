@@ -271,7 +271,7 @@ export abstract class BotUserStory<
         return {
           releaseInput: true,
           sendMessage: {
-            text: `⚠️ ${appError.message}`,
+            text: `⚠️ ${this.escapeMarkdown(appError.message)}`,
             parseMode: 'MarkdownV2',
           },
         };

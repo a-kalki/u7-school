@@ -242,11 +242,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       header.push('');
       if (criticalCount > 0)
         header.push(
-          `🛑 Критические: ${criticalCount} (${Math.round((criticalCount / students.length) * 100)}%)`,
+          `🛑 Критические: ${criticalCount} \\(${Math.round((criticalCount / students.length) * 100)}%\\)`,
         );
       if (laggingCount > 0)
         header.push(
-          `⚠️ Отстающие: ${laggingCount} (${Math.round((laggingCount / students.length) * 100)}%)`,
+          `⚠️ Отстающие: ${laggingCount} \\(${Math.round((laggingCount / students.length) * 100)}%\\)`,
         );
     }
 
@@ -475,7 +475,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: `✅ Студент *${this.escapeMarkdown(userName)}* отмечен как неактивный.`,
+        text: `✅ Студент *${this.escapeMarkdown(userName)}* отмечен как неактивный\\.`,
         parseMode: 'MarkdownV2',
       },
       delegate: {
@@ -618,7 +618,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     return {
       sendMessage: {
-        text: `✅ Студент *${this.escapeMarkdown(userName)}* завершён.`,
+        text: `✅ Студент *${this.escapeMarkdown(userName)}* завершён\\.`,
         parseMode: 'MarkdownV2',
       },
       delegate: {

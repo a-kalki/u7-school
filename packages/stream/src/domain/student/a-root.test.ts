@@ -139,6 +139,20 @@ describe('StudentAr', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       expect(() => ar.advance()).toThrow();
     });
+
+    test('сменить исход: not_advanced → advanced', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      ar.activate();
+      ar.markNotAdvanced();
+      expect(ar.status).toBe('not_advanced');
+
+      // Меняем исход
+      ar.advance();
+      expect(ar.status).toBe('advanced');
+      expect(ar.completionDetails).toEqual({
+        nextPreference: 'undecided',
+      });
+    });
   });
 
   describe('markNotAdvanced', () => {
@@ -156,6 +170,20 @@ describe('StudentAr', () => {
     test('markNotAdvanced не из active → ошибка', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       expect(() => ar.markNotAdvanced()).toThrow();
+    });
+
+    test('сменить исход: advanced → not_advanced', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      ar.activate();
+      ar.advance();
+      expect(ar.status).toBe('advanced');
+
+      // Меняем исход
+      ar.markNotAdvanced();
+      expect(ar.status).toBe('not_advanced');
+      expect(ar.completionDetails).toEqual({
+        nextPreference: 'undecided',
+      });
     });
   });
 

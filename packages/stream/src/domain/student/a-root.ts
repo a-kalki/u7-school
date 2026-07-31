@@ -109,9 +109,14 @@ export class StudentAr extends Aggregate<StudentArMeta> {
 
   /**
    * Успешное завершение потока: active → advanced.
+   * Также позволяет сменить исход с not_advanced → advanced.
    */
   advance(): void {
-    if (this._state.status !== 'active') {
+    if (
+      this._state.status !== 'active' &&
+      this._state.status !== 'advanced' &&
+      this._state.status !== 'not_advanced'
+    ) {
       this.throwBadRequest(
         `Нельзя завершить студента в статусе '${this._state.status}'.`,
       );
@@ -124,9 +129,14 @@ export class StudentAr extends Aggregate<StudentArMeta> {
 
   /**
    * Завершение потока без повышения: active → not_advanced.
+   * Также позволяет сменить исход с advanced → not_advanced.
    */
   markNotAdvanced(): void {
-    if (this._state.status !== 'active') {
+    if (
+      this._state.status !== 'active' &&
+      this._state.status !== 'advanced' &&
+      this._state.status !== 'not_advanced'
+    ) {
       this.throwBadRequest(
         `Нельзя завершить студента в статусе '${this._state.status}'.`,
       );
