@@ -1,0 +1,8 @@
+Контрольная точка Фазы 4 (mentor_tools_20260713).
+
+StreamDs:
+- computeLagLevel: >7д → critical, >4д → lagging
+- isLaggingFromMedian: >=30% превышения медианы
+MonitorStory: замена pct<25 на computeLagLevel.
+Медиана вычисляется (заготовка для Фазы 5).
+16 новых тестов, 358 total pass, lint/tsc чисто.
