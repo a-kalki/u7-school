@@ -1,0 +1,20 @@
+Фаза 1: Подменю «Инструменты ментора»
+
+**Задача 1:** Написаны тесты для MentorToolsStory
+- 19 тестов: role-gating, подменю, кнопки, «Мои потоки», handleMessage, неизвестный action
+- Проверка: MENTOR/ADMIN видят подменю, GUEST/STUDENT — нет
+
+**Задача 2:** Реализован MentorToolsStory
+- Подменю с кнопками: «📋 Мои потоки», «➕ Создать поток», «👥 Мониторинг», «🔙 Назад»
+- Role-gating через UserPolicy.isMentor/isAdmin
+- «Мои потоки»: фильтрация потоков по mentorId
+- Кросс-стори ссылки: create-stream:start, monitor:start, view-stream:view
+- Зарегистрирован в StreamController
+
+**Изменённые файлы:**
+- packages/stream/src/ui/bot/stories/mentor-tools.story.ts (новый)
+- packages/stream/src/ui/bot/stories/mentor-tools.story.test.ts (новый)
+- packages/stream/src/ui/bot/controller/stream-controller.ts (+MentorToolsStory)
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts (9 stories)
+
+**Покрытие:** 88.89% lines, 100% functions
