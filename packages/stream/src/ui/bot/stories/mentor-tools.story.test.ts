@@ -240,6 +240,13 @@ describe('MentorToolsStory', () => {
     expect(btnTexts.some((t) => t.includes('Мой поток'))).toBe(true);
     // НЕ показывает чужой поток
     expect(btnTexts.some((t) => t.includes('Чужой поток'))).toBe(false);
+
+    // Код кнопки использует view-stream-mentor (не view-stream)
+    const myStreamBtn = response.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Мой поток'));
+    expect(myStreamBtn?.code).toContain('view-stream-mentor:view:');
+    expect(myStreamBtn?.code).not.toContain('view-stream:view:');
   });
 
   test('«Мои потоки» — ошибка загрузки показывает сообщение', async () => {

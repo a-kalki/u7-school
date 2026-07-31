@@ -1,29 +1,46 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/app/ui';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '../../../domain/module';
+import type {
+  BotResponse,
+  KeyboardDescription,
+  SessionData,
+} from '@u7-scl/core/ui';
+import type { Stream } from '../../../domain/stream/entity';
+import { StreamPolicy } from '../../../domain/stream/policy';
+import { ViewStreamStory } from './view-stream.story';
 
 /**
- * US-2m: Менторские lifecycle-операции над потоком.
+ * US-2m: Менторский режим карточки потока (S02m).
  *
- * ⚠️ НЕ активирован. Перенесён из ViewStreamStory в трек mentor_tools_20260713.
+ * Показывает ту же карточку, что S02 (curious), но с lifecycle-кнопками.
+ * Наследует ViewStreamStory, переопределяет buildKeyboard.
  *
- * При активации:
- * 1. Снять `describe.skip` в тестах
- * 2. Зарегистрировать в MentorController (трек mentor_tools_20260713)
- *
- * Содержит: завершение потока, архивирование, confirm-диалоги.
+ * Запуск — через «🛠️ Инструменты ментора» → «📋 Мои потоки».
  */
-export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
-  readonly name = 'view-stream-mentor';
+export class ViewStreamMentorStory extends ViewStreamStory {
+  override readonly name: string = 'view-stream-mentor';
+  protected override storyName: string = 'view-stream-mentor';
 
-  async handleCallback(
+  override async handleCallback(
     action: string,
     actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     const [cmd, streamId] = action.split(':');
 
+    // Делегируем просмотр карточки, программы и деталей родителю
+    if (cmd === 'view' && streamId) {
+      return this.handleView(streamId, actor);
+    }
+
+    if (cmd === 'program' && streamId) {
+      return this.handleProgramView(streamId);
+    }
+
+    if (cmd === 'details' && streamId) {
+      return this.handleDetailsView(streamId);
+    }
+
+    // Lifecycle-действия
     if (cmd === 'complete-confirm' && streamId) {
       return this.#handleComplete(streamId, actor);
     }
@@ -51,6 +68,78 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
     return null;
   }
 
+  // ── Переопределение клавиатуры ──
+
+  protected override buildKeyboard(
+    stream: Stream,
+    actor: User,
+  ): KeyboardDescription {
+    const canEdit = StreamPolicy.canEdit(actor, stream);
+    const rows: Array<Array<{ text: string; code: string }>> = [];
+
+    // ── Публичные кнопки (всем) ──
+    rows.push([
+      {
+        text: '📖 Программа курса',
+        code: this.cbFor('view-stream-mentor', 'program', stream.uuid),
+      },
+    ]);
+
+    rows.push([
+      {
+        text: '👥 Студенты',
+        code: this.cbFor('monitor', 'students', stream.uuid),
+      },
+    ]);
+
+    rows.push([
+      {
+        text: '📋 Детали',
+        code: this.cbFor('view-stream-mentor', 'details', stream.uuid),
+      },
+    ]);
+
+    // ── Lifecycle-кнопки (только для владельца / ADMIN) ──
+    if (canEdit) {
+      const lifecycleRow: Array<{ text: string; code: string }> = [];
+
+      if (stream.status === 'enrollment') {
+        lifecycleRow.push({
+          text: '🚀 Запустить',
+          code: this.cbFor('activate-stream', 'activate', stream.uuid),
+        });
+      }
+
+      if (stream.status === 'active') {
+        lifecycleRow.push({
+          text: '✅ Завершить',
+          code: this.cbFor('view-stream-mentor', 'complete', stream.uuid),
+        });
+      }
+
+      if (stream.status === 'completed') {
+        lifecycleRow.push({
+          text: '📁 В архив',
+          code: this.cbFor('view-stream-mentor', 'archive', stream.uuid),
+        });
+      }
+
+      if (lifecycleRow.length > 0) {
+        rows.push(lifecycleRow);
+      }
+    }
+
+    // Кнопка «Назад» — возврат к моим потокам (не в catalog)
+    rows.push([
+      {
+        text: '⬅️ Назад к моим потокам',
+        code: this.cbFor('mentor-tools', 'my-streams'),
+      },
+    ]);
+
+    return { rows, isMultiple: false };
+  }
+
   // ── Подтверждения ──
 
   #showCompleteConfirm(streamId: string): BotResponse {
@@ -71,7 +160,7 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
               },
               {
                 text: '❌ Отмена',
-                code: this.cbFor('view-stream', 'view', streamId),
+                code: this.cbFor('view-stream-mentor', 'view', streamId),
               },
             ],
           ],
@@ -99,7 +188,7 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
               },
               {
                 text: '❌ Отмена',
-                code: this.cbFor('view-stream', 'view', streamId),
+                code: this.cbFor('view-stream-mentor', 'view', streamId),
               },
             ],
           ],
@@ -118,7 +207,14 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
         text: '✅ *Поток завершён\\!* Обучение окончено\\.',
         parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [[{ text: '⬅️ Назад к списку', code: 'catalog:list' }]],
+          rows: [
+            [
+              {
+                text: '⬅️ Назад к списку',
+                code: this.cbFor('mentor-tools', 'my-streams'),
+              },
+            ],
+          ],
           isMultiple: false,
         },
       },
@@ -132,7 +228,14 @@ export class ViewStreamMentorStory extends U7BotUserStory<StreamApiModuleMeta> {
         text: '📁 *Поток перемещён в архив\\.*',
         parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [[{ text: '⬅️ Назад к списку', code: 'catalog:list' }]],
+          rows: [
+            [
+              {
+                text: '⬅️ Назад к списку',
+                code: this.cbFor('mentor-tools', 'my-streams'),
+              },
+            ],
+          ],
           isMultiple: false,
         },
       },

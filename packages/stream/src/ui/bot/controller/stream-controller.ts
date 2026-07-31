@@ -9,6 +9,7 @@ import { MentorToolsStory } from '../stories/mentor-tools.story';
 import { MonitorStory } from '../stories/monitor.story';
 import { ProgressStory } from '../stories/progress.story';
 import { ViewStreamStory } from '../stories/view-stream.story';
+import { ViewStreamMentorStory } from '../stories/view-stream-mentor.story';
 
 /**
  * Контроллер модуля Stream для Telegram-бота.
@@ -27,5 +28,6 @@ export class StreamController extends U7BotController<StreamApiModuleMeta> {
     new CreateStreamStory(),
     new ActivateStreamStory(),
     new MonitorStory(),
+    new ViewStreamMentorStory(),
   ];
 }

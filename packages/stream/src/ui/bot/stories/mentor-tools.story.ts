@@ -116,7 +116,7 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
         (s: { uuid: string; title: string; status: string }) => [
           {
             text: `${s.title} (${s.status})`,
-            code: this.cbFor('view-stream', 'view', s.uuid),
+            code: this.cbFor('view-stream-mentor', 'view', s.uuid),
           },
         ],
       );

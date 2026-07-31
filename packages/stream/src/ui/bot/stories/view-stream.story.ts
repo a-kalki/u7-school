@@ -15,7 +15,10 @@ import { StreamPolicy } from '../../../domain/stream/policy';
  * Менторские lifecycle-кнопки убраны — перенесены в трек mentor_tools_20260713.
  */
 export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
-  readonly name = 'view-stream';
+  readonly name: string = 'view-stream';
+
+  /** Имя сторис для cbFor (переопределяется в ViewStreamMentorStory). */
+  protected storyName: string = 'view-stream';
 
   async handleCallback(
     action: string,
@@ -25,18 +28,18 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     const [cmd, streamId] = action.split(':');
 
     if (cmd === 'program' && streamId) {
-      return this.#handleProgram(streamId);
+      return this.handleProgramView(streamId);
     }
 
     if (cmd === 'details' && streamId) {
-      return this.#handleDetails(streamId);
+      return this.handleDetailsView(streamId);
     }
 
     if (cmd !== 'view' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    return this.#handleView(streamId, actor);
+    return this.handleView(streamId, actor);
   }
 
   override async handleMessage(): Promise<BotResponse> {
@@ -47,9 +50,12 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     return null;
   }
 
-  // ── Приватные методы ──
+  // ── Защищённые методы (переопределяются в ViewStreamMentorStory) ──
 
-  async #handleView(streamId: string, actor: User): Promise<BotResponse> {
+  protected async handleView(
+    streamId: string,
+    actor: User,
+  ): Promise<BotResponse> {
     const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -83,7 +89,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
 
     const dateStr = this.formatDate(stream.startDate);
-    const timeStr = this.#formatTime(stream.startDate);
+    const timeStr = this.formatTime(stream.startDate);
 
     const lines = [
       `📋 *${this.escapeMarkdown(stream.title)}*`,
@@ -99,7 +105,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     ];
 
     const text = lines.join('\n');
-    const keyboard = this.#buildKeyboard(stream, actor);
+    const keyboard = this.buildKeyboard(stream, actor);
 
     return {
       sendMessage: {
@@ -110,7 +116,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  async #handleProgram(streamId: string): Promise<BotResponse> {
+  protected async handleProgramView(streamId: string): Promise<BotResponse> {
     const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -126,7 +132,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
               [
                 {
                   text: '⬅️ Назад к потоку',
-                  code: this.cbFor('view-stream', 'view', streamId),
+                  code: this.cbFor(this.storyName, 'view', streamId),
                 },
               ],
             ],
@@ -163,7 +169,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       for (const lesson of project.lessons) {
         const sCount = lesson.stepIds.length;
         lines.push(
-          `    📝 *${esc(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+          `    📝 *${esc(lesson.lessonTitle)}* — ${sCount} шаг${this.plural(sCount, '', 'а', 'ов')}`,
         );
 
         // Шаги урока inline (не более 3)
@@ -180,7 +186,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
     }
 
-    const text = this.#truncateS02(lines.join('\n'));
+    const text = this.truncateS02(lines.join('\n'));
 
     return {
       sendMessage: {
@@ -201,7 +207,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  async #handleDetails(streamId: string): Promise<BotResponse> {
+  protected async handleDetailsView(streamId: string): Promise<BotResponse> {
     const stream = (await this.moduleApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -248,7 +254,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
+  protected buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
     const isOwnerMentor = StreamPolicy.canEdit(actor, stream);
     const rows: Array<Array<{ text: string; code: string }>> = [];
@@ -258,7 +264,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     rows.push([
       {
         text: '📖 Программа курса',
-        code: this.cbFor('view-stream', 'program', stream.uuid),
+        code: this.cbFor(this.storyName, 'program', stream.uuid),
       },
     ]);
 
@@ -272,7 +278,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     rows.push([
       {
         text: '📋 Детали',
-        code: this.cbFor('view-stream', 'details', stream.uuid),
+        code: this.cbFor(this.storyName, 'details', stream.uuid),
       },
     ]);
 
@@ -291,7 +297,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
         rows.push([
           {
             text: '🔔 Уведомить о наборе',
-            code: this.cbFor('view-stream', 'notify', stream.uuid),
+            code: this.cbFor(this.storyName, 'notify', stream.uuid),
           },
         ]);
       }
@@ -309,7 +315,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   /** Форматирует время из ISO-строки (ЧЧ:ММ). */
-  #formatTime(iso: string): string {
+  protected formatTime(iso: string): string {
     try {
       const d = new Date(iso);
       const hh = String(d.getUTCHours()).padStart(2, '0');
@@ -319,7 +325,12 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
       return iso;
     }
   }
-  #plural(count: number, one: string, two: string, five: string): string {
+  protected plural(
+    count: number,
+    one: string,
+    two: string,
+    five: string,
+  ): string {
     const n = count % 100;
     if (n >= 11 && n <= 19) return five;
     const r = n % 10;
@@ -328,7 +339,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     return five;
   }
 
-  #truncateS02(text: string, maxLen = 4000): string {
+  protected truncateS02(text: string, maxLen = 4000): string {
     if (text.length <= maxLen) return text;
     return `${text.slice(0, maxLen - 15)}${this.escapeMarkdown('...')}`;
   }
