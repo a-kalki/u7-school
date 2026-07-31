@@ -1,0 +1,18 @@
+Фаза 2, Задачи 1-3: Активация ViewStreamMentorStory + тесты S02m + реализация S02m-клавиатуры.
+
+Изменения:
+- ViewStreamMentorStory: наследует ViewStreamStory, переопределяет buildKeyboard с lifecycle-кнопками (Запустить/Завершить/В архив) и кнопкой «Назад к моим потокам»
+- ViewStreamStory: методы handleView/buildKeyboard/handleProgramView/handleDetailsView/formatTime/plural/truncateS02 стали protected; добавлено поле storyName для параметризации cbFor
+- MentorToolsStory: my-streams использует view-stream-mentor:view (вместо view-stream:view)
+- StreamController: зарегистрирован ViewStreamMentorStory (10 stories)
+
+Файлы:
+- packages/stream/src/ui/bot/stories/view-stream-mentor.story.ts (переписан)
+- packages/stream/src/ui/bot/stories/view-stream-mentor.story.test.ts (25 тестов)
+- packages/stream/src/ui/bot/stories/view-stream.story.ts (protected-рефакторинг)
+- packages/stream/src/ui/bot/stories/mentor-tools.story.ts (изменён cbFor)
+- packages/stream/src/ui/bot/stories/mentor-tools.story.test.ts (проверка кода view-stream-mentor)
+- packages/stream/src/ui/bot/controller/stream-controller.ts (регистрация)
+- packages/stream/src/ui/bot/controller/stream-controller.test.ts (10 stories)
+
+Результат: 351 тест, lint/tsc чисто, покрытие >80%.
