@@ -16,7 +16,7 @@ describe('MonitorStory', () => {
   };
   const session: SessionData = { activeHandler: null };
 
-  test('handleCallback("students:<id>") показывает сводку и прогресс-бары в тексте', async () => {
+  test('handleCallback("students:<id>") показывает сводку и студентов кнопками-строками', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
@@ -37,6 +37,7 @@ describe('MonitorStory', () => {
             uuid: 's1',
             title: 'Поток',
             status: 'active',
+            mentorId: 'mentor-1',
             contentSnapshot: [
               {
                 projectTitle: 'P1',
@@ -73,26 +74,28 @@ describe('MonitorStory', () => {
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Студенты потока');
-    expect(text).toContain('Всего:');
+    expect(text).toContain('Всего: 1');
     expect(text).toContain('студент');
-    expect(text).toContain('█');
-    expect(text).toContain('░');
-    expect(text).toContain('50%');
-    expect(text).toContain('2/4');
-    expect(text).toContain('Иван');
-    expect(text).toContain('p1:l1:s3');
+    // Сводка: один студент active → 🏃 В процессе: 1
+    expect(text).toContain('🏃 В процессе');
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('👤'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Иван'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('50%'))).toBe(true);
+    // Имя в кнопке с маркером и прогрессом
+    expect(
+      btnTexts.some(
+        (t) => t.includes('🏃') && t.includes('Иван') && t.includes('50%'),
+      ),
+    ).toBe(true);
+    // Кнопки действий для active студента
+    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(true);
+    expect(btnTexts.some((t) => t === '✅ Завершить')).toBe(true);
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
   // ── US-8: Имена студентов и детальная карточка ──
 
-  test('показывает имена студентов в тексте и кнопках, не показывает userId', async () => {
+  test('показывает имена студентов в кнопках, не показывает userId', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
@@ -151,16 +154,11 @@ describe('MonitorStory', () => {
     const response = await story.handleCallback('students:s1', actor, session);
     assertResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(text).toContain('Иван Иванов');
-    expect(text).toContain('Петр Петров');
     expect(btnTexts.some((t) => t.includes('Иван Иванов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Петр Петров'))).toBe(true);
-    expect(text).not.toContain('user-1');
-    expect(text).not.toContain('user-2');
     expect(btnTexts.some((t) => t.includes('user-'))).toBe(false);
   });
 
@@ -818,7 +816,7 @@ describe('MonitorStory', () => {
 
   // ── Фаза 4: Прозрачность — S07/S08 доступны GUEST/CANDIDATE ──
 
-  test('GUEST видит S07 — список студентов с прогресс-барами', async () => {
+  test('GUEST видит S07 — список студентов в кнопках', async () => {
     const guestActor: User = {
       uuid: 'guest-s07',
       name: 'Гость',
@@ -871,12 +869,17 @@ describe('MonitorStory', () => {
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Студенты потока');
     expect(text).toContain('Всего: 1');
-    expect(text).toContain('Иван');
-    expect(text).toContain('50%');
+    expect(text).toContain('🏃 В процессе');
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Иван'))).toBe(true);
+    // Гость видит студента в кнопке с прогрессом
+    expect(btnTexts.some((t) => t.includes('Иван') && t.includes('50%'))).toBe(
+      true,
+    );
+    // Гость НЕ видит кнопок действий
+    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅ Завершить')).toBe(false);
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
@@ -930,10 +933,15 @@ describe('MonitorStory', () => {
     );
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Студенты потока');
-    expect(text).toContain('Петя');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Петя'))).toBe(true);
+    // Кандидат не видит кнопок действий
+    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(false);
   });
 
-  test('S07 показывает студентов с разными статусами (advanced, not_advanced, abandoned)', async () => {
+  test('S07 показывает студентов с разными статусами и правильными маркерами', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
@@ -948,6 +956,7 @@ describe('MonitorStory', () => {
             uuid: 's1',
             title: 'Поток',
             status: 'active',
+            mentorId: 'mentor-1',
             contentSnapshot: [
               {
                 projectTitle: 'P1',
@@ -977,18 +986,229 @@ describe('MonitorStory', () => {
     assertResponseMarkdownSafe(response);
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Активный');
-    expect(text).toContain('Прошедший');
-    expect(text).toContain('НеПрошедший');
-    expect(text).toContain('Выбывший');
     expect(text).toContain('Всего: 4');
+    expect(text).toContain('✅ Завершено: 3');
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    // Все имена видны в кнопках
     expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Прошедший'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('НеПрошедший'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Выбывший'))).toBe(true);
+    // Активный имеет маркер 🏃 и кнопки действий
+    expect(
+      btnTexts.some((t) => t.includes('🏃') && t.includes('Активный')),
+    ).toBe(true);
+    // Завершённые имеют маркер ✅
+    expect(
+      btnTexts.some((t) => t.includes('✅') && t.includes('Прошедший')),
+    ).toBe(true);
+    expect(
+      btnTexts.some((t) => t.includes('✅') && t.includes('НеПрошедший')),
+    ).toBe(true);
+    expect(
+      btnTexts.some((t) => t.includes('✅') && t.includes('Выбывший')),
+    ).toBe(true);
+    // Завершённые (advanced/not_advanced) имеют кнопку «Сменить исход»
+    expect(btnTexts.some((t) => t === '🔄 Сменить исход')).toBe(true);
+  });
+
+  test('Сортировка: 🛑 → ⚠️ → 🏃 по прогрессу → ✅', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-stream-students')
+          return [
+            {
+              uuid: 'st-ok',
+              userId: 'u-ok',
+              status: 'active',
+              currentStepId: 'step-a',
+              steps: [
+                {
+                  stepId: 'step-a',
+                  status: 'completed',
+                  completedAt: '2026-08-01T10:00',
+                },
+              ],
+            },
+            {
+              uuid: 'st-lag',
+              userId: 'u-lag',
+              status: 'active',
+              currentStepId: 'step-a',
+              steps: [
+                {
+                  stepId: 'step-a',
+                  status: 'completed',
+                  completedAt: '2026-07-27T10:00',
+                },
+              ],
+            },
+            {
+              uuid: 'st-crit',
+              userId: 'u-crit',
+              status: 'active',
+              currentStepId: 'step-a',
+              steps: [
+                {
+                  stepId: 'step-a',
+                  status: 'completed',
+                  completedAt: '2026-07-20T10:00',
+                },
+              ],
+            },
+            {
+              uuid: 'st-done',
+              userId: 'u-done',
+              status: 'advanced',
+              steps: [],
+            },
+          ];
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            status: 'active',
+            mentorId: 'mentor-1',
+            contentSnapshot: [
+              {
+                projectTitle: 'P1',
+                lessons: [
+                  {
+                    lessonTitle: 'L1',
+                    stepIds: ['step-a', 'step-b', 'step-c'],
+                  },
+                ],
+              },
+            ],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock((_name: string, params: any) => {
+        const names: Record<string, string> = {
+          'u-ok': 'ОК',
+          'u-lag': 'Отстаёт',
+          'u-crit': 'Крит',
+          'u-done': 'Готов',
+        };
+        return { uuid: params?.uuid, name: names[params?.uuid] ?? '??' };
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('students:s1', actor, session);
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    // Первый студент в первой строке — самый критический
+    expect(rows[0]?.[0]?.text).toContain('🛑');
+    expect(rows[0]?.[0]?.text).toContain('Крит');
+    // Второй — отстающий
+    expect(rows[1]?.[0]?.text).toContain('⚠️');
+    expect(rows[1]?.[0]?.text).toContain('Отстаёт');
+    // Третий — в процессе
+    expect(rows[2]?.[0]?.text).toContain('🏃');
+    expect(rows[2]?.[0]?.text).toContain('ОК');
+    // Четвёртый — завершённый
+    expect(rows[3]?.[0]?.text).toContain('✅');
+    expect(rows[3]?.[0]?.text).toContain('Готов');
+    // Последняя строка — «Назад к потоку»
+    const lastRow = rows[rows.length - 1];
+    expect(lastRow?.[0]?.text).toBe('⬅️ Назад к потоку');
+  });
+
+  test('Студент без статуса ментора не видит кнопок действий в S07', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-stream-students')
+          return [
+            {
+              uuid: 'st1',
+              userId: 'u1',
+              status: 'active',
+              currentStepId: 'step-a',
+              steps: [],
+            },
+          ];
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            status: 'active',
+            // mentorId другой — не actor
+            mentorId: 'other-mentor',
+            contentSnapshot: [
+              {
+                projectTitle: 'P1',
+                lessons: [{ lessonTitle: 'L1', stepIds: ['step-a'] }],
+              },
+            ],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ uuid: 'u1', name: 'Петя' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('students:s1', actor, session);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    // Имя видно
+    expect(btnTexts.some((t) => t.includes('Петя'))).toBe(true);
+    // Кнопки действий — нет
+    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅ Завершить')).toBe(false);
+  });
+
+  test('активный студент имеет 3 кнопки (имя + Неактивен + Завершить)', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-stream-students')
+          return [
+            {
+              uuid: 'st1',
+              userId: 'u1',
+              status: 'active',
+              steps: [],
+            },
+          ];
+        if (name === 'get-stream')
+          return {
+            uuid: 's1',
+            title: 'Поток',
+            status: 'active',
+            mentorId: 'mentor-1',
+            contentSnapshot: [
+              {
+                projectTitle: 'P1',
+                lessons: [{ lessonTitle: 'L1', stepIds: ['step-a'] }],
+              },
+            ],
+          };
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+    const appApi = {
+      execute: mock(() => ({ uuid: 'u1', name: 'Петя' })),
+    } as unknown as U7BotApp;
+
+    const story = new MonitorStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('students:s1', actor, session);
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    // Первая строка = студент с 3 кнопками
+    expect(rows[0]?.length).toBe(3);
+    // Вторая строка = «Назад к потоку»
+    expect(rows[1]?.length).toBe(1);
   });
 
   test('GUEST видит S08 — детальную карточку с прогрессом и исходом', async () => {

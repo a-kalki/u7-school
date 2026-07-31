@@ -2,6 +2,7 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/app/ui';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { StreamDs } from '#domain/index';
+import type { CategorizedStudent } from '#domain/types';
 import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
 import { StudentPolicy } from '../../../domain/student/policy';
@@ -92,37 +93,22 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       steps: [],
     }).total;
 
-    // Категоризируем через DS (принимает plain Student[])
+    // Категоризируем через DS
     const categorized = StreamDs.categorizeStudents(students, new Date());
     const lagMap = new Map(categorized.map((c) => [c.studentId, c.lagLevel]));
 
-    const studentLines: string[] = [];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    // Считаем прогресс и собираем данные для каждого студента
+    interface StudentRow {
+      student: Student;
+      name: string;
+      progress: { completed: number; total: number; percent: number };
+      lagLevel: CategorizedStudent['lagLevel'];
+    }
 
+    const rows: StudentRow[] = [];
     for (const s of students) {
       const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
-      const completed = progress.completed;
-      const pct = progress.percent;
-
-      const barLen = 10;
-      const filled = Math.round((pct / 100) * barLen);
-      const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
-
       const lagLevel = lagMap.get(s.uuid) ?? 'on_track';
-      let lagMarker = '';
-      if (lagLevel === 'critical') {
-        lagMarker = ' 🛑';
-      } else if (lagLevel === 'lagging') {
-        lagMarker = ' ⚠️';
-      }
-
-      const pos = StreamDs.getStepPosition(
-        stream.contentSnapshot,
-        s.currentStepId,
-      );
-      const posStr = pos
-        ? `p${pos.projectIndex || 0}:l${pos.lessonIndex || 0}:s${(pos as { stepIndex?: number }).stepIndex || 0}`
-        : '';
 
       let name = s.userId.slice(0, 8);
       try {
@@ -134,25 +120,107 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         this.handleError(err);
       }
 
-      const escapedName = this.escapeMarkdown(name);
-      const counts = this.escapeMarkdown(`(${completed}/${totalSteps})`);
-
-      studentLines.push(
-        `${posStr} ${bar} ${pct}% ${counts} — ${escapedName}${lagMarker}`,
-      );
-
-      rows.push([
-        {
-          text: `👤 ${name} (${pct}%)${lagMarker}`,
-          code: this.cbFor('monitor', 'detail', s.uuid),
-        },
-      ]);
+      rows.push({ student: s, name, progress, lagLevel });
     }
 
-    rows.push([
+    // Сортировка: 🛑 → ⚠️ → 🏃 по прогрессу → ✅
+    const lagOrder: Record<string, number> = {
+      critical: 0,
+      lagging: 1,
+      on_track: 2,
+    };
+
+    rows.sort((a, b) => {
+      const la = lagOrder[a.lagLevel] ?? 3;
+      const lb = lagOrder[b.lagLevel] ?? 3;
+      if (la !== lb) return la - lb;
+
+      // Завершённые (advanced/not_advanced/abandoned) — в конец
+      const aDone =
+        a.student.status !== 'active' && a.student.status !== 'enrolled';
+      const bDone =
+        b.student.status !== 'active' && b.student.status !== 'enrolled';
+      if (aDone !== bDone) return aDone ? 1 : -1;
+
+      // По убыванию прогресса
+      return b.progress.percent - a.progress.percent;
+    });
+
+    // Статистика
+    let criticalCount = 0;
+    let laggingCount = 0;
+    let activeCount = 0;
+    let doneCount = 0;
+
+    for (const r of rows) {
+      if (r.student.status === 'active' || r.student.status === 'enrolled') {
+        activeCount++;
+      } else {
+        doneCount++;
+      }
+      if (r.lagLevel === 'critical') criticalCount++;
+      if (r.lagLevel === 'lagging') laggingCount++;
+    }
+
+    // Клавиатура
+    const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
+
+    const statusLabels: Record<string, string> = {
+      advanced: 'Завершил',
+      not_advanced: 'Не прошёл',
+      abandoned: 'Выбыл',
+    };
+
+    const { lagMarker } = this.#helpers;
+    const canManage = StudentPolicy.canManageStudent(actor, stream);
+
+    for (const r of rows) {
+      const marker = lagMarker(r.lagLevel, r.student.status);
+      const isActive = r.student.status === 'active';
+
+      let label: string;
+      if (isActive) {
+        label = `${r.progress.percent}% (${r.progress.completed}/${totalSteps})`;
+      } else {
+        label = statusLabels[r.student.status] ?? r.student.status;
+      }
+
+      const nameBtn = `${marker} ${r.name} — ${label}`;
+
+      const studentRow: Array<{ text: string; code: string }> = [
+        {
+          text: nameBtn,
+          code: this.cbFor('monitor', 'detail', r.student.uuid),
+        },
+      ];
+
+      if (isActive && canManage) {
+        studentRow.push({
+          text: '⚠️ Неактивен',
+          code: this.cbFor('monitor', 'mark-abandoned', r.student.uuid),
+        });
+        studentRow.push({
+          text: '✅ Завершить',
+          code: this.cbFor('monitor', 'complete', r.student.uuid),
+        });
+      } else if (
+        canManage &&
+        (r.student.status === 'advanced' || r.student.status === 'not_advanced')
+      ) {
+        studentRow.push({
+          text: '🔄 Сменить исход',
+          code: this.cbFor('monitor', 'complete', r.student.uuid),
+        });
+      }
+
+      keyboardRows.push(studentRow);
+    }
+
+    keyboardRows.push([
       { text: '⬅️ Назад к потоку', code: `view-stream:view:${streamId}` },
     ]);
 
+    // Текст сводки
     const countLabel = this.#pluralize(
       students.length,
       'студент',
@@ -164,16 +232,46 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `👥 *Студенты потока* — _${this.escapeMarkdown(stream.title)}_`,
       '',
       `Всего: ${students.length} ${countLabel}`,
-      '',
     ];
 
-    const text = [...header, ...studentLines].join('\n');
+    if (criticalCount > 0 || laggingCount > 0) {
+      header.push('');
+      if (criticalCount > 0)
+        header.push(
+          `🛑 Критические: ${criticalCount} (${Math.round((criticalCount / students.length) * 100)}%)`,
+        );
+      if (laggingCount > 0)
+        header.push(
+          `⚠️ Отстающие: ${laggingCount} (${Math.round((laggingCount / students.length) * 100)}%)`,
+        );
+    }
+
+    if (activeCount > 0) header.push(`🏃 В процессе: ${activeCount}`);
+    if (doneCount > 0) header.push(`✅ Завершено: ${doneCount}`);
 
     return {
       sendMessage: {
-        text,
+        text: header.join('\n'),
         parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
+        keyboard: { rows: keyboardRows, isMultiple: false },
+      },
+    };
+  }
+
+  /** Хелперы форматирования */
+  get #helpers() {
+    return {
+      /** Возвращает маркер отставания с учётом статуса */
+      lagMarker: (
+        lagLevel: CategorizedStudent['lagLevel'],
+        status: string,
+      ): string => {
+        if (status !== 'active' && status !== 'enrolled') {
+          return '✅';
+        }
+        if (lagLevel === 'critical') return '🛑';
+        if (lagLevel === 'lagging') return '⚠️';
+        return '🏃';
       },
     };
   }
