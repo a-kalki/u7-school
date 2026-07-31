@@ -1,0 +1,9 @@
+Контрольная точка Фазы 3 (mentor_tools_20260713).
+
+Завершённые задачи:
+- CreateStreamStory.handleStart → null для всех ролей
+- Убран неиспользуемый импорт UserPolicy
+- stream-controller.test.ts: МЕНТОР видит «🛠️ Инструменты ментора» вместо «🛠️ Создать поток»
+- ui-spec.md и architecture-evolution.md обновлены
+
+Ручная верификация отложена пользователем.
