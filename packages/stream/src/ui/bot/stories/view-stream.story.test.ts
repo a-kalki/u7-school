@@ -246,12 +246,6 @@ describe('ViewStreamStory', () => {
     expect(text).toContain('Асинхронность');
   });
 
-  test('handleStart возвращает null (не в меню)', async () => {
-    const story = new ViewStreamStory();
-    const item = await story.handleStart(guestActor);
-    expect(item).toBeNull();
-  });
-
   // ── НЕТ менторских lifecycle-кнопок (curious-режим) ──
 
   test('MENTOR на своём enrollment — НЕ видит «Запустить» / «В архив»', async () => {

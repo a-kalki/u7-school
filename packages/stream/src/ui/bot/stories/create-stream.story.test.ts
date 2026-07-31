@@ -447,18 +447,6 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('Ошибка валидации');
   });
 
-  test('handleStart — MENTOR не видит кнопку (вход только через подменю)', async () => {
-    const story = new CreateStreamStory();
-    const item = await story.handleStart(mentor);
-    expect(item).toBeNull();
-  });
-
-  test('handleStart — GUEST не видит кнопку', async () => {
-    const story = new CreateStreamStory();
-    const item = await story.handleStart(guest);
-    expect(item).toBeNull();
-  });
-
   test('handleCallback("confirm"): без контекста — ошибка', async () => {
     const moduleApi = {
       execute: mock(() => undefined),

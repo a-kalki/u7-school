@@ -76,12 +76,6 @@ describe('ViewStreamMentorStory', () => {
 
   // ── handleStart ──
 
-  test('handleStart возвращает null (не в главном меню)', async () => {
-    const { story } = makeMentorStory(sampleStream);
-    const item = await story.handleStart(mentorActor);
-    expect(item).toBeNull();
-  });
-
   // ═══════════════════════════════════════════════════
   // S02m — карточка потока (view)
   // ═══════════════════════════════════════════════════

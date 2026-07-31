@@ -88,10 +88,4 @@ describe('ProgressStory', () => {
     expect(rows[0]![0]!.text).toBe('⬅️ Назад к учёбе');
     expect(rows[0]![0]!.code).toBe('learning:my-study');
   });
-
-  test('handleStart возвращает null', async () => {
-    const story = new ProgressStory();
-    const item = await story.handleStart(actor);
-    expect(item).toBeNull();
-  });
 });

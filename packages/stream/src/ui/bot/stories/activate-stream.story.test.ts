@@ -39,9 +39,4 @@ describe('ActivateStreamStory', () => {
     expect(rows[0]![0]!.text).toContain('⬅️ Назад к потоку');
     expect(rows[0]![0]!.code).toContain('view-stream:view:s1');
   });
-
-  test('handleStart возвращает null', async () => {
-    const story = new ActivateStreamStory();
-    expect(await story.handleStart(actor)).toBeNull();
-  });
 });

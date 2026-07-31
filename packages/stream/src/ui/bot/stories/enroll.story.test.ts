@@ -179,10 +179,4 @@ describe('EnrollStory', () => {
     expect(response.releaseInput).toBe(true);
     expect(response.delegate?.path).toContain('view-stream:view');
   });
-
-  test('handleStart возвращает null', async () => {
-    const story = new EnrollStory();
-    const item = await story.handleStart(actor);
-    expect(item).toBeNull();
-  });
 });

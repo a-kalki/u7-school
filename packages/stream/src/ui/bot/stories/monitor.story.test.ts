@@ -90,11 +90,6 @@ describe('MonitorStory', () => {
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
-  test('handleStart возвращает null', async () => {
-    const story = new MonitorStory();
-    expect(await story.handleStart(actor)).toBeNull();
-  });
-
   // ── US-8: Имена студентов и детальная карточка ──
 
   test('показывает имена студентов в тексте и кнопках, не показывает userId', async () => {

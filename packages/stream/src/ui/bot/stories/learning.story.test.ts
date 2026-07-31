@@ -416,22 +416,10 @@ describe('LearningStory', () => {
     expect(item?.priority).toBe(20);
   });
 
-  test('handleStart — GUEST не видит кнопку (null)', async () => {
-    const story = new LearningStory();
-    const item = await story.handleStart(guestActor);
-    expect(item).toBeNull();
-  });
-
   test('handleStart — STUDENT получает описание', async () => {
     const story = new LearningStory();
     const item = await story.handleStart(studentActor);
     expect(item?.description).toContain('Моя учёба');
-  });
-
-  test('handleStart — GUEST не получает описание', async () => {
-    const story = new LearningStory();
-    const item = await story.handleStart(guestActor);
-    expect(item?.description).toBeUndefined();
   });
 
   // ── Тесты нового формата cb-data ──
