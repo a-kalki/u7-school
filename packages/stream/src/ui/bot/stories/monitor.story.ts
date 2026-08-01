@@ -174,31 +174,37 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const { lagMarker } = this.#helpers;
     const canManage = StudentPolicy.canManageStudent(actor, stream);
 
+    // Строки студентов для текста сообщения
+    const studentLines: string[] = [];
+
     for (const r of rows) {
       const marker = lagMarker(r.lagLevel, r.student.status);
       const isActive = r.student.status === 'active';
 
-      // Сводка через DS (только данные, форматируем здесь)
+      // Сводка через DS
       const summary = StreamDs.computeStudentRowSummary(
         stream.contentSnapshot,
         r.student as any,
       );
 
-      // Одна строка: эмодзи Имя | прогресс-бар % | категория времени
+      // Текст: маркер, имя, прогресс-бар, категория времени
       const bar = this.#formatProgressBar(
         summary.progress.completed,
         summary.progress.total,
       );
-      const labelParts = [
-        `${marker} ${r.name}`,
+      const parts = [
+        `${marker} ${this.escapeMarkdown(r.name)}`,
         `${bar} ${summary.progress.percent}%`,
       ];
       if (summary.dominantCategory && summary.avgTimeMinutes !== null) {
-        labelParts.push(
-          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}`,
+        parts.push(
+          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.avgTimeMinutes} мин`,
         );
       }
-      const nameBtn = labelParts.join(' | ');
+      studentLines.push(parts.join(' \\| '));
+
+      // Кнопка: только эмодзи + имя + процент
+      const nameBtn = `${marker} ${r.name} — ${summary.progress.percent}%`;
 
       const studentRow: Array<{ text: string; code: string }> = [
         {
@@ -218,9 +224,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         });
       } else if (
         canManage &&
-        (r.student.status === 'advanced' ||
-          r.student.status === 'not_advanced' ||
-          r.student.status === 'abandoned')
+        (r.student.status === 'advanced' || r.student.status === 'not_advanced')
       ) {
         studentRow.push({
           text: '🔄',
@@ -250,16 +254,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     ];
 
     const completedCount = advancedCount + notAdvancedCount + abandonedCount;
-    const completedLabel = this.#pluralize(
-      completedCount,
-      'завершившего',
-      'завершивших',
-      'завершивших',
-    );
 
     if (activeCount > 0 && completedCount > 0) {
       header.push(
-        `Активных: ${activeCount} \\| Завершивших: ${completedCount} ${completedLabel}`,
+        `Активных: ${activeCount} \\| Завершивших: ${completedCount}`,
       );
     }
 
@@ -289,6 +287,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       '*Метрики по студентам:*',
     );
+
+    // Добавляем строки студентов в текст
+    for (const line of studentLines) {
+      header.push(line);
+    }
 
     return {
       sendMessage: {
