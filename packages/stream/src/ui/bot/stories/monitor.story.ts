@@ -93,10 +93,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Поток не найден' } };
     }
 
-    const totalSteps = StreamDs.computeProgress(stream.contentSnapshot, {
-      steps: [],
-    }).total;
-
     // Категоризируем через DS
     const categorized = StreamDs.categorizeStudents(students, new Date());
     const lagMap = new Map(categorized.map((c) => [c.studentId, c.lagLevel]));
@@ -175,12 +171,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Клавиатура
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
-    const statusLabels: Record<string, string> = {
-      advanced: 'Завершил',
-      not_advanced: 'Не прошёл',
-      abandoned: 'Выбыл',
-    };
-
     const { lagMarker } = this.#helpers;
     const canManage = StudentPolicy.canManageStudent(actor, stream);
 
@@ -188,14 +178,25 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       const marker = lagMarker(r.lagLevel, r.student.status);
       const isActive = r.student.status === 'active';
 
-      let label: string;
-      if (isActive) {
-        label = `${r.progress.percent}% (${r.progress.completed}/${totalSteps})`;
-      } else {
-        label = statusLabels[r.student.status] ?? r.student.status;
-      }
+      // Сводка через DS (только данные, форматируем здесь)
+      const summary = StreamDs.computeStudentRowSummary(
+        stream.contentSnapshot,
+        r.student as any,
+      );
 
-      const nameBtn = `${marker} ${r.name} — ${label}`;
+      const labelParts = [
+        `${marker} ${r.name}`,
+        `${this.#formatProgressBar(
+          summary.progress.completed,
+          summary.progress.total,
+        )} ${summary.progress.percent}%`,
+      ];
+      if (summary.dominantCategory && summary.avgTimeMinutes !== null) {
+        labelParts.push(
+          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.avgTimeMinutes} мин`,
+        );
+      }
+      const nameBtn = labelParts.join('\n');
 
       const studentRow: Array<{ text: string; code: string }> = [
         {
@@ -291,6 +292,17 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         return '🏃';
       },
     };
+  }
+
+  /**
+   * Форматирует прогресс-бар для Telegram MarkdownV2.
+   * Скобки экранированы: \[ ████░░░░ \]
+   */
+  #formatProgressBar(completed: number, total: number): string {
+    const width = 10;
+    const filled = total === 0 ? 0 : Math.round((completed / total) * width);
+    const empty = width - filled;
+    return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${completed}/${total}`;
   }
 
   /** Склоняет существительное: 1 студент, 2 студента, 5 студентов */

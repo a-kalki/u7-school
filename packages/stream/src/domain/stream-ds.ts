@@ -430,16 +430,6 @@ export const StreamDs = {
   ] as const,
 
   /**
-   * Форматирует прогресс-бар: `[████░░░░░░] N/M`
-   */
-  formatProgressBar(completed: number, total: number): string {
-    const width = 10;
-    const filled = total === 0 ? 0 : Math.round((completed / total) * width);
-    const empty = width - filled;
-    return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${completed}/${total}`;
-  },
-
-  /**
    * Вычисляет среднее время на шаг и доминирующую категорию.
    */
   computeAvgTime(steps: StepRecord[]): {
@@ -494,14 +484,9 @@ export const StreamDs = {
     student: Student,
   ): StudentRowSummary {
     const progress = StreamDs.computeProgress(snapshot, student);
-    const progressBar = StreamDs.formatProgressBar(
-      progress.completed,
-      progress.total,
-    );
     const { avgMinutes, dominant } = StreamDs.computeAvgTime(student.steps);
     return {
-      progressBar,
-      progressPercent: progress.percent,
+      progress,
       avgTimeMinutes: avgMinutes,
       dominantCategory: dominant,
     };
@@ -517,10 +502,6 @@ export const StreamDs = {
   ): StudentCardData {
     // Прогресс по модулю
     const moduleProgress = StreamDs.computeProgress(snapshot, student);
-    const moduleBar = StreamDs.formatProgressBar(
-      moduleProgress.completed,
-      moduleProgress.total,
-    );
 
     // Текущий проект
     let currentProject: StudentCardData['currentProject'];
@@ -530,21 +511,13 @@ export const StreamDs = {
       const pos = StreamDs.getStepPosition(snapshot, student.currentStepId);
       if (pos) {
         // Прогресс по проекту
-        const projProgress = StreamDs.computeProjectLevelProgress(
-          snapshot,
-          pos.projectIndex - 1,
-          student,
-        );
-        const projBar = StreamDs.formatProgressBar(
-          projProgress.completed,
-          projProgress.total,
-        );
         currentProject = {
           title: pos.projectTitle,
-          completed: projProgress.completed,
-          total: projProgress.total,
-          percent: projProgress.percent,
-          bar: projBar,
+          progress: StreamDs.computeProjectLevelProgress(
+            snapshot,
+            pos.projectIndex - 1,
+            student,
+          ),
         };
         currentLesson = { title: pos.lessonTitle };
       }
@@ -563,12 +536,7 @@ export const StreamDs = {
     ];
 
     return {
-      moduleProgress: {
-        completed: moduleProgress.completed,
-        total: moduleProgress.total,
-        percent: moduleProgress.percent,
-        bar: moduleBar,
-      },
+      moduleProgress,
       currentProject,
       currentLesson,
       avgTimeMinutes: avgMinutes,

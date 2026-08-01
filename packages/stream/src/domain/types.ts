@@ -107,26 +107,17 @@ export interface TimeCategory {
 
 /** Сводка студента для строки в S07 */
 export interface StudentRowSummary {
-  progressBar: string;
-  progressPercent: number;
+  progress: Progress;
   avgTimeMinutes: number | null;
   dominantCategory: TimeCategory | null;
 }
 
 /** Данные для карточки студента (S08) */
 export interface StudentCardData {
-  moduleProgress: {
-    completed: number;
-    total: number;
-    percent: number;
-    bar: string;
-  };
+  moduleProgress: Progress;
   currentProject?: {
     title: string;
-    completed: number;
-    total: number;
-    percent: number;
-    bar: string;
+    progress: Progress;
   };
   currentLesson?: {
     title: string;

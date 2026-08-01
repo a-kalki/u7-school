@@ -780,34 +780,6 @@ describe('computeStepTimeStats', () => {
 });
 
 // ═══════════════════════════════════════════
-// formatProgressBar
-// ═══════════════════════════════════════════
-
-describe('formatProgressBar', () => {
-  test('0/10 — пустой бар', () => {
-    expect(StreamDs.formatProgressBar(0, 10)).toBe('[░░░░░░░░░░] 0/10');
-  });
-
-  test('5/10 — половина', () => {
-    expect(StreamDs.formatProgressBar(5, 10)).toBe('[█████░░░░░] 5/10');
-  });
-
-  test('10/10 — полный', () => {
-    expect(StreamDs.formatProgressBar(10, 10)).toBe('[██████████] 10/10');
-  });
-
-  test('3/7 — дробный', () => {
-    const bar = StreamDs.formatProgressBar(3, 7);
-    expect(bar).toContain('3/7');
-    expect(bar).toContain('████');
-  });
-
-  test('0/0 — крайний случай', () => {
-    expect(StreamDs.formatProgressBar(0, 0)).toBe('[░░░░░░░░░░] 0/0');
-  });
-});
-
-// ═══════════════════════════════════════════
 // computeAvgTime
 // ═══════════════════════════════════════════
 
@@ -898,8 +870,9 @@ describe('computeStudentRowSummary', () => {
       steps: [],
     };
     const summary = StreamDs.computeStudentRowSummary(snapshot, student as any);
-    expect(summary.progressPercent).toBe(0);
-    expect(summary.progressBar).toContain('0/3');
+    expect(summary.progress.percent).toBe(0);
+    expect(summary.progress.total).toBe(3);
+    expect(summary.progress.completed).toBe(0);
     expect(summary.avgTimeMinutes).toBeNull();
     expect(summary.dominantCategory).toBeNull();
   });
@@ -933,8 +906,9 @@ describe('computeStudentRowSummary', () => {
       ],
     };
     const summary = StreamDs.computeStudentRowSummary(snapshot, student as any);
-    expect(summary.progressPercent).toBe(67);
-    expect(summary.progressBar).toContain('2/3');
+    expect(summary.progress.percent).toBe(67);
+    expect(summary.progress.completed).toBe(2);
+    expect(summary.progress.total).toBe(3);
     expect(summary.avgTimeMinutes).toBe(3);
     expect(summary.dominantCategory).not.toBeNull();
   });
@@ -997,12 +971,11 @@ describe('computeStudentCard', () => {
     expect(card.moduleProgress.completed).toBe(1);
     expect(card.moduleProgress.total).toBe(4);
     expect(card.moduleProgress.percent).toBe(25);
-    expect(card.moduleProgress.bar).toContain('1/4');
 
     // Проект: 0/2 уроков
     expect(card.currentProject?.title).toBe('Проект 1');
-    expect(card.currentProject?.completed).toBe(0);
-    expect(card.currentProject?.total).toBe(2);
+    expect(card.currentProject?.progress.completed).toBe(0);
+    expect(card.currentProject?.progress.total).toBe(2);
 
     // Урок
     expect(card.currentLesson?.title).toBe('Урок 1');
