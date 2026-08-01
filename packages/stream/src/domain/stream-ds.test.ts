@@ -778,3 +778,259 @@ describe('computeStepTimeStats', () => {
     expect(stats).toEqual({ runner: 1, fast: 1, normal: 1, deep: 1 });
   });
 });
+
+// ═══════════════════════════════════════════
+// formatProgressBar
+// ═══════════════════════════════════════════
+
+describe('formatProgressBar', () => {
+  test('0/10 — пустой бар', () => {
+    expect(StreamDs.formatProgressBar(0, 10)).toBe('[░░░░░░░░░░] 0/10');
+  });
+
+  test('5/10 — половина', () => {
+    expect(StreamDs.formatProgressBar(5, 10)).toBe('[█████░░░░░] 5/10');
+  });
+
+  test('10/10 — полный', () => {
+    expect(StreamDs.formatProgressBar(10, 10)).toBe('[██████████] 10/10');
+  });
+
+  test('3/7 — дробный', () => {
+    const bar = StreamDs.formatProgressBar(3, 7);
+    expect(bar).toContain('3/7');
+    expect(bar).toContain('████');
+  });
+
+  test('0/0 — крайний случай', () => {
+    expect(StreamDs.formatProgressBar(0, 0)).toBe('[░░░░░░░░░░] 0/0');
+  });
+});
+
+// ═══════════════════════════════════════════
+// computeAvgTime
+// ═══════════════════════════════════════════
+
+describe('computeAvgTime', () => {
+  test('пустой массив → null', () => {
+    const result = StreamDs.computeAvgTime([]);
+    expect(result.avgMinutes).toBeNull();
+    expect(result.dominant).toBeNull();
+  });
+
+  test('один шаг за 2 минуты → avg=2, доминанта Спринтер', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:02',
+      },
+    ];
+    const result = StreamDs.computeAvgTime(steps);
+    expect(result.avgMinutes).toBe(2);
+    expect(result.dominant?.emoji).toBe('⚡');
+    expect(result.dominant?.name).toBe('Спринтер');
+  });
+
+  test('смешанные шаги — правильное среднее', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:01',
+      }, // 1 мин
+      {
+        stepId: 's2',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:05',
+      }, // 5 мин
+    ];
+    const result = StreamDs.computeAvgTime(steps);
+    expect(result.avgMinutes).toBe(3);
+  });
+
+  test('пропускает шаги без completedAt', () => {
+    const steps = [
+      {
+        stepId: 's1',
+        status: 'completed' as const,
+        issuedAt: '2026-08-01T10:00',
+        completedAt: '2026-08-01T10:02',
+      },
+      { stepId: 's2', status: 'issued' as const, issuedAt: '2026-08-01T10:00' },
+    ];
+    const result = StreamDs.computeAvgTime(steps);
+    expect(result.avgMinutes).toBe(2);
+  });
+});
+
+// ═══════════════════════════════════════════
+// computeStudentRowSummary
+// ═══════════════════════════════════════════
+
+describe('computeStudentRowSummary', () => {
+  const snapshot = [
+    {
+      projectTitle: 'Проект 1',
+      projectId: 'p1',
+      lessons: [
+        {
+          lessonTitle: 'Урок 1',
+          lessonId: 'l1',
+          stepIds: ['s1', 's2', 's3'],
+        },
+      ],
+    },
+  ];
+
+  test('студент без шагов — 0%, нет времени', () => {
+    const student = {
+      uuid: 'st1',
+      userId: 'u1',
+      streamId: 'str1',
+      status: 'active' as const,
+      enrolledAt: '2026-06-01T00:00',
+      createdAt: '2026-06-01T00:00',
+      currentStepId: 's1',
+      steps: [],
+    };
+    const summary = StreamDs.computeStudentRowSummary(snapshot, student as any);
+    expect(summary.progressPercent).toBe(0);
+    expect(summary.progressBar).toContain('0/3');
+    expect(summary.avgTimeMinutes).toBeNull();
+    expect(summary.dominantCategory).toBeNull();
+  });
+
+  test('студент с 2/3 шагов — 67%, есть время', () => {
+    const student = {
+      uuid: 'st1',
+      userId: 'u1',
+      streamId: 'str1',
+      status: 'active' as const,
+      enrolledAt: '2026-06-01T00:00',
+      currentStepId: 's3',
+      steps: [
+        {
+          stepId: 's1',
+          status: 'completed' as const,
+          issuedAt: '2026-08-01T10:00',
+          completedAt: '2026-08-01T10:02',
+        },
+        {
+          stepId: 's2',
+          status: 'completed' as const,
+          issuedAt: '2026-08-01T10:05',
+          completedAt: '2026-08-01T10:08',
+        },
+        {
+          stepId: 's3',
+          status: 'issued' as const,
+          issuedAt: '2026-08-01T10:10',
+        },
+      ],
+    };
+    const summary = StreamDs.computeStudentRowSummary(snapshot, student as any);
+    expect(summary.progressPercent).toBe(67);
+    expect(summary.progressBar).toContain('2/3');
+    expect(summary.avgTimeMinutes).toBe(3);
+    expect(summary.dominantCategory).not.toBeNull();
+  });
+});
+
+// ═══════════════════════════════════════════
+// computeStudentCard
+// ═══════════════════════════════════════════
+
+describe('computeStudentCard', () => {
+  const snapshot = [
+    {
+      projectTitle: 'Проект 1',
+      projectId: 'p1',
+      lessons: [
+        {
+          lessonTitle: 'Урок 1',
+          lessonId: 'l1',
+          stepIds: ['s1', 's2'],
+        },
+        {
+          lessonTitle: 'Урок 2',
+          lessonId: 'l2',
+          stepIds: ['s3', 's4'],
+        },
+      ],
+    },
+  ];
+
+  test('полная карточка с прогрессом модуля и проекта', () => {
+    const student = {
+      uuid: 'st1',
+      userId: 'u1',
+      streamId: 'str1',
+      status: 'active' as const,
+      enrolledAt: '2026-06-01T00:00',
+      createdAt: '2026-06-01T00:00',
+      currentStepId: 's2',
+      steps: [
+        {
+          stepId: 's1',
+          status: 'completed' as const,
+          issuedAt: '2026-08-01T10:00',
+          completedAt: '2026-08-01T10:03',
+        },
+        {
+          stepId: 's2',
+          status: 'issued' as const,
+          issuedAt: '2026-08-01T10:05',
+        },
+      ],
+    };
+
+    const card = StreamDs.computeStudentCard(snapshot, student as any, {
+      lagLevel: 'on_track',
+      hoursSinceLastActivity: 2,
+    });
+
+    // Модуль: 1/4
+    expect(card.moduleProgress.completed).toBe(1);
+    expect(card.moduleProgress.total).toBe(4);
+    expect(card.moduleProgress.percent).toBe(25);
+    expect(card.moduleProgress.bar).toContain('1/4');
+
+    // Проект: 0/2 уроков
+    expect(card.currentProject?.title).toBe('Проект 1');
+    expect(card.currentProject?.completed).toBe(0);
+    expect(card.currentProject?.total).toBe(2);
+
+    // Урок
+    expect(card.currentLesson?.title).toBe('Урок 1');
+
+    // Время
+    expect(card.avgTimeMinutes).toBe(3);
+    expect(card.timeCategories).toHaveLength(4);
+
+    // Lag
+    expect(card.lagLevel).toBe('on_track');
+    expect(card.hoursSinceLastActivity).toBe(2);
+  });
+
+  test('студент без currentStepId — нет проекта/урока', () => {
+    const student = {
+      uuid: 'st1',
+      userId: 'u1',
+      streamId: 'str1',
+      status: 'advanced' as const,
+      enrolledAt: '2026-06-01T00:00',
+      createdAt: '2026-06-01T00:00',
+      currentStepId: '',
+      steps: [],
+    };
+
+    const card = StreamDs.computeStudentCard(snapshot, student as any);
+    expect(card.currentProject).toBeUndefined();
+    expect(card.currentLesson).toBeUndefined();
+    expect(card.avgTimeMinutes).toBeNull();
+  });
+});

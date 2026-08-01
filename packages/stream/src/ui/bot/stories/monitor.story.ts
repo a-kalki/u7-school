@@ -154,13 +154,19 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     let criticalCount = 0;
     let laggingCount = 0;
     let activeCount = 0;
-    let doneCount = 0;
+    let advancedCount = 0;
+    let notAdvancedCount = 0;
+    let abandonedCount = 0;
 
     for (const r of rows) {
       if (r.student.status === 'active' || r.student.status === 'enrolled') {
         activeCount++;
-      } else {
-        doneCount++;
+      } else if (r.student.status === 'advanced') {
+        advancedCount++;
+      } else if (r.student.status === 'not_advanced') {
+        notAdvancedCount++;
+      } else if (r.student.status === 'abandoned') {
+        abandonedCount++;
       }
       if (r.lagLevel === 'critical') criticalCount++;
       if (r.lagLevel === 'lagging') laggingCount++;
@@ -209,7 +215,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         });
       } else if (
         canManage &&
-        (r.student.status === 'advanced' || r.student.status === 'not_advanced')
+        (r.student.status === 'advanced' ||
+          r.student.status === 'not_advanced' ||
+          r.student.status === 'abandoned')
       ) {
         studentRow.push({
           text: '🔄',
@@ -251,7 +259,12 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     if (activeCount > 0) header.push(`🏃 В процессе: ${activeCount}`);
-    if (doneCount > 0) header.push(`✅ Завершено: ${doneCount}`);
+    if (advancedCount > 0) header.push(`✅ Прошли: ${advancedCount}`);
+    if (notAdvancedCount > 0) header.push(`↩️ Не прошли: ${notAdvancedCount}`);
+    if (abandonedCount > 0) header.push(`🚫 Выбыли: ${abandonedCount}`);
+
+    // Легенда маркеров
+    header.push('', '🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл');
 
     return {
       sendMessage: {
@@ -270,9 +283,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         lagLevel: CategorizedStudent['lagLevel'],
         status: string,
       ): string => {
-        if (status !== 'active' && status !== 'enrolled') {
-          return '✅';
-        }
+        if (status === 'advanced') return '✅';
+        if (status === 'not_advanced') return '↩️';
+        if (status === 'abandoned') return '🚫';
         if (lagLevel === 'critical') return '🛑';
         if (lagLevel === 'lagging') return '⚠️';
         return '🏃';

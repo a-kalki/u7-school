@@ -6,6 +6,7 @@ import type { StepRecord, Student } from './student/entity';
 import type {
   CategorizedStudent,
   CompletionResult,
+  LagLevel,
   LessonNode,
   LessonStepsView,
   NavigationTree,
@@ -14,6 +15,9 @@ import type {
   ProjectNode,
   StepNode,
   StepTimeStats,
+  StudentCardData,
+  StudentRowSummary,
+  TimeCategory,
 } from './types';
 
 export const StreamDs = {
@@ -413,5 +417,164 @@ export const StreamDs = {
     }
 
     return stats;
+  },
+
+  /**
+   * Категории времени с прозвищами.
+   */
+  TIME_CATEGORIES: [
+    { emoji: '🏃', name: 'Бегун', maxMinutes: 1 },
+    { emoji: '⚡', name: 'Спринтер', maxMinutes: 5 },
+    { emoji: '🐢', name: 'Вдумчивый', maxMinutes: 15 },
+    { emoji: '📚', name: 'Исследователь', maxMinutes: Infinity },
+  ] as const,
+
+  /**
+   * Форматирует прогресс-бар: `[████░░░░░░] N/M`
+   */
+  formatProgressBar(completed: number, total: number): string {
+    const width = 10;
+    const filled = total === 0 ? 0 : Math.round((completed / total) * width);
+    const empty = width - filled;
+    return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${completed}/${total}`;
+  },
+
+  /**
+   * Вычисляет среднее время на шаг и доминирующую категорию.
+   */
+  computeAvgTime(steps: StepRecord[]): {
+    avgMinutes: number | null;
+    dominant: TimeCategory | null;
+  } {
+    let totalMs = 0;
+    let count = 0;
+    const stats = StreamDs.computeStepTimeStats(steps);
+
+    for (const step of steps) {
+      if (!step.completedAt || !step.issuedAt) continue;
+      const durationMs =
+        new Date(step.completedAt).getTime() -
+        new Date(step.issuedAt).getTime();
+      if (Number.isNaN(durationMs) || durationMs < 0) continue;
+      totalMs += durationMs;
+      count++;
+    }
+
+    if (count === 0) return { avgMinutes: null, dominant: null };
+
+    const avgMinutes = Math.round(totalMs / count / 60_000);
+
+    // Доминирующая категория
+    const totals: Array<{
+      cat: (typeof StreamDs.TIME_CATEGORIES)[number];
+      count: number;
+    }> = [
+      { cat: StreamDs.TIME_CATEGORIES[0], count: stats.runner },
+      { cat: StreamDs.TIME_CATEGORIES[1], count: stats.fast },
+      { cat: StreamDs.TIME_CATEGORIES[2], count: stats.normal },
+      { cat: StreamDs.TIME_CATEGORIES[3], count: stats.deep },
+    ];
+    totals.sort((a, b) => b.count - a.count);
+    const top = totals[0];
+
+    return {
+      avgMinutes,
+      dominant:
+        top && top.count > 0
+          ? { emoji: top.cat.emoji, name: top.cat.name, count: top.count }
+          : null,
+    };
+  },
+
+  /**
+   * Сводка студента для строки в S07.
+   */
+  computeStudentRowSummary(
+    snapshot: ContentSnapshot,
+    student: Student,
+  ): StudentRowSummary {
+    const progress = StreamDs.computeProgress(snapshot, student);
+    const progressBar = StreamDs.formatProgressBar(
+      progress.completed,
+      progress.total,
+    );
+    const { avgMinutes, dominant } = StreamDs.computeAvgTime(student.steps);
+    return {
+      progressBar,
+      progressPercent: progress.percent,
+      avgTimeMinutes: avgMinutes,
+      dominantCategory: dominant,
+    };
+  },
+
+  /**
+   * Данные для карточки студента (S08).
+   */
+  computeStudentCard(
+    snapshot: ContentSnapshot,
+    student: Student,
+    lagInfo?: { lagLevel: LagLevel; hoursSinceLastActivity: number },
+  ): StudentCardData {
+    // Прогресс по модулю
+    const moduleProgress = StreamDs.computeProgress(snapshot, student);
+    const moduleBar = StreamDs.formatProgressBar(
+      moduleProgress.completed,
+      moduleProgress.total,
+    );
+
+    // Текущий проект
+    let currentProject: StudentCardData['currentProject'];
+    let currentLesson: StudentCardData['currentLesson'];
+
+    if (student.currentStepId) {
+      const pos = StreamDs.getStepPosition(snapshot, student.currentStepId);
+      if (pos) {
+        // Прогресс по проекту
+        const projProgress = StreamDs.computeProjectLevelProgress(
+          snapshot,
+          pos.projectIndex - 1,
+          student,
+        );
+        const projBar = StreamDs.formatProgressBar(
+          projProgress.completed,
+          projProgress.total,
+        );
+        currentProject = {
+          title: pos.projectTitle,
+          completed: projProgress.completed,
+          total: projProgress.total,
+          percent: projProgress.percent,
+          bar: projBar,
+        };
+        currentLesson = { title: pos.lessonTitle };
+      }
+    }
+
+    // Время
+    const { avgMinutes } = StreamDs.computeAvgTime(student.steps);
+
+    // Категории времени
+    const rawStats = StreamDs.computeStepTimeStats(student.steps);
+    const timeCategories: TimeCategory[] = [
+      { emoji: '🏃', name: 'Бегун', count: rawStats.runner },
+      { emoji: '⚡', name: 'Спринтер', count: rawStats.fast },
+      { emoji: '🐢', name: 'Вдумчивый', count: rawStats.normal },
+      { emoji: '📚', name: 'Исследователь', count: rawStats.deep },
+    ];
+
+    return {
+      moduleProgress: {
+        completed: moduleProgress.completed,
+        total: moduleProgress.total,
+        percent: moduleProgress.percent,
+        bar: moduleBar,
+      },
+      currentProject,
+      currentLesson,
+      avgTimeMinutes: avgMinutes,
+      timeCategories,
+      hoursSinceLastActivity: lagInfo?.hoursSinceLastActivity ?? 0,
+      lagLevel: lagInfo?.lagLevel ?? 'on_track',
+    };
   },
 };

@@ -97,3 +97,42 @@ export interface StepTimeStats {
   /** > 15 мин */
   deep: number;
 }
+
+/** Категория времени с названием */
+export interface TimeCategory {
+  emoji: string;
+  name: string;
+  count: number;
+}
+
+/** Сводка студента для строки в S07 */
+export interface StudentRowSummary {
+  progressBar: string;
+  progressPercent: number;
+  avgTimeMinutes: number | null;
+  dominantCategory: TimeCategory | null;
+}
+
+/** Данные для карточки студента (S08) */
+export interface StudentCardData {
+  moduleProgress: {
+    completed: number;
+    total: number;
+    percent: number;
+    bar: string;
+  };
+  currentProject?: {
+    title: string;
+    completed: number;
+    total: number;
+    percent: number;
+    bar: string;
+  };
+  currentLesson?: {
+    title: string;
+  };
+  avgTimeMinutes: number | null;
+  timeCategories: TimeCategory[];
+  hoursSinceLastActivity: number;
+  lagLevel: LagLevel;
+}

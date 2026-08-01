@@ -994,7 +994,13 @@ describe('MonitorStory', () => {
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Всего: 4');
-    expect(text).toContain('✅ Завершено: 3');
+    // Раздельные счётчики по статусам
+    expect(text).toContain('🏃 В процессе: 1');
+    expect(text).toContain('✅ Прошли: 1');
+    expect(text).toContain('↩️ Не прошли: 1');
+    expect(text).toContain('🚫 Выбыли: 1');
+    // Легенда
+    expect(text).toContain('🏃 учится');
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -1007,15 +1013,17 @@ describe('MonitorStory', () => {
     expect(
       btnTexts.some((t) => t.includes('🏃') && t.includes('Активный')),
     ).toBe(true);
-    // Завершённые имеют маркер ✅
+    // Прошедший имеет маркер ✅
     expect(
       btnTexts.some((t) => t.includes('✅') && t.includes('Прошедший')),
     ).toBe(true);
+    // Не прошедший имеет маркер ↩️
     expect(
-      btnTexts.some((t) => t.includes('✅') && t.includes('НеПрошедший')),
+      btnTexts.some((t) => t.includes('↩️') && t.includes('НеПрошедший')),
     ).toBe(true);
+    // Выбывший имеет маркер 🚫
     expect(
-      btnTexts.some((t) => t.includes('✅') && t.includes('Выбывший')),
+      btnTexts.some((t) => t.includes('🚫') && t.includes('Выбывший')),
     ).toBe(true);
     // Завершённые (advanced/not_advanced) имеют кнопку 🔄
     expect(btnTexts.some((t) => t === '🔄')).toBe(true);
