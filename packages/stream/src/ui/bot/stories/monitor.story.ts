@@ -415,7 +415,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       Бегун: '< 1 мин\\.',
       Спринтер: '< 5 мин\\.',
       Вдумчивый: '< 15 мин\\.',
-      Исследователь: '> 15 мин\\.',
+      Исследователь: '\\> 15 мин\\.',
     };
     const catLine = card.timeCategories
       .map((c) => {
