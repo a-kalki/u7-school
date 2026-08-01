@@ -200,11 +200,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
       if (isActive && canManage) {
         studentRow.push({
-          text: '⚠️ Неактивен',
+          text: '⛔',
           code: this.cbFor('monitor', 'mark-abandoned', r.student.uuid),
         });
         studentRow.push({
-          text: '✅ Завершить',
+          text: '✅',
           code: this.cbFor('monitor', 'complete', r.student.uuid),
         });
       } else if (
@@ -212,7 +212,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         (r.student.status === 'advanced' || r.student.status === 'not_advanced')
       ) {
         studentRow.push({
-          text: '🔄 Сменить исход',
+          text: '🔄',
           code: this.cbFor('monitor', 'complete', r.student.uuid),
         });
       }

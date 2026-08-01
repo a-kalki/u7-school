@@ -90,8 +90,8 @@ describe('MonitorStory e2e', () => {
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
 
     // S08: только навигация (кнопки действий теперь в S07)
-    expect(btns.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btns.some((t) => t === '⛔')).toBe(false);
+    expect(btns.some((t) => t === '✅')).toBe(false);
     // S08 включает статистику времени и/или причину отставания
     // (для активного студента без завершённых шагов — только причина)
   });

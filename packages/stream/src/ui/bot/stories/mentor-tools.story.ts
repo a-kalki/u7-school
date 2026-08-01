@@ -6,12 +6,6 @@ import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US: Подменю «🛠️ Инструменты ментора».
- *
- * Доступно только MENTOR и ADMIN. Содержит:
- * - «📋 Мои потоки» — список потоков ментора → S02m mentor-режим
- * - «➕ Создать поток» — перенос из главного меню в подменю
- *
- * Мониторинг студентов — через кнопку «👥 Студенты» в карточке потока (S02m).
  */
 export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
   readonly name = 'mentor-tools';
@@ -21,7 +15,6 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
     actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
-    // Проверка доступа
     if (!UserPolicy.isMentor(actor) && !UserPolicy.isAdmin(actor)) {
       return {
         sendMessage: {
@@ -34,9 +27,11 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
       return this.#buildSubmenu();
     }
 
-    // «Мои потоки» — список потоков ментора
-    if (action === 'my-streams') {
-      return this.#handleMyStreams(actor);
+    // «Мои потоки» с опциональными переключателями архивных/завершённых
+    if (action.startsWith('my-streams')) {
+      const showArchived = action.includes(':archived:1');
+      const showCompleted = action.includes(':completed:1');
+      return this.#handleMyStreams(actor, showArchived, showCompleted);
     }
 
     return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -58,7 +53,7 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
         kind: 'callback' as const,
         text: '🛠️ Инструменты ментора',
         action: this.cb('start'),
-        priority: 10,
+        priority: 30,
         description:
           '🛠️ Инструменты ментора — управление потоками и мониторинг студентов',
       };
@@ -90,47 +85,105 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
     };
   }
 
-  async #handleMyStreams(actor: User): Promise<BotResponse> {
+  async #handleMyStreams(
+    actor: User,
+    showArchived: boolean,
+    showCompleted: boolean,
+  ): Promise<BotResponse> {
+    const LEGEND =
+      '\n\n🟢 — идёт набор   🔵 — идёт обучение   ⚪ — завершён   ⚫ — в архиве';
+
     try {
       const streams = await this.moduleApi.execute('list-streams', {});
 
-      // Фильтруем потоки, где actor является ментором
-      const myStreams = Array.isArray(streams)
-        ? streams.filter((s: { mentorId: string }) => s.mentorId === actor.uuid)
+      let myStreams = Array.isArray(streams)
+        ? streams.filter(
+            (s: { mentorId: string; status: string }) =>
+              s.mentorId === actor.uuid,
+          )
         : [];
 
+      // По умолчанию — только запущенные и активные
+      if (!showArchived && !showCompleted) {
+        myStreams = myStreams.filter(
+          (s: { status: string }) =>
+            s.status === 'enrollment' || s.status === 'active',
+        );
+      } else {
+        myStreams = myStreams.filter((s: { status: string }) => {
+          if (s.status === 'archived') return showArchived;
+          if (s.status === 'completed') return showCompleted;
+          return true; // enrollment, active — всегда видно при включённых фильтрах
+        });
+      }
+
+      const statusEmoji: Record<string, string> = {
+        enrollment: '🟢',
+        active: '🔵',
+        completed: '⚪',
+        archived: '⚫',
+      };
+
+      const rows: Array<Array<{ text: string; code: string }>> = [];
+
+      // Переключатели
+      const toggles: Array<{ text: string; code: string }> = [];
+      if (!showArchived && !showCompleted) {
+        toggles.push({
+          text: '📁 Вкл. архивированные',
+          code: this.cb('my-streams:archived:1'),
+        });
+        toggles.push({
+          text: '✅ Вкл. завершённые',
+          code: this.cb('my-streams:completed:1'),
+        });
+      } else if (showArchived && !showCompleted) {
+        toggles.push({
+          text: '✅ Вкл. завершённые',
+          code: this.cb('my-streams:archived:1:completed:1'),
+        });
+      } else if (!showArchived && showCompleted) {
+        toggles.push({
+          text: '📁 Вкл. архивированные',
+          code: this.cb('my-streams:completed:1:archived:1'),
+        });
+      }
+      // Если оба включены — переключателей нет
+      if (toggles.length > 0) {
+        rows.push(toggles);
+      }
+
       if (myStreams.length === 0) {
+        rows.push([{ text: '🔙 Назад', code: this.cb('start') }]);
         return {
           sendMessage: {
-            text: '📋 *Мои потоки*\n\nУ вас пока нет потоков\\.',
+            text: `📋 *Мои потоки*\n\nУ вас пока нет потоков\\.${LEGEND}`,
             parseMode: 'MarkdownV2',
-            keyboard: {
-              rows: [[{ text: '🔙 Назад', code: this.cb('start') }]],
-              isMultiple: false,
-            },
+            keyboard: { rows, isMultiple: false },
           },
         };
       }
 
-      const rows = myStreams.map(
-        (s: { uuid: string; title: string; status: string }) => [
+      for (const s of myStreams as Array<{
+        uuid: string;
+        title: string;
+        status: string;
+      }>) {
+        rows.push([
           {
-            text: `${s.title} (${s.status})`,
+            text: `${statusEmoji[s.status] ?? '❓'} ${s.title}`,
             code: this.cbFor('view-stream-mentor', 'view', s.uuid),
           },
-        ],
-      );
+        ]);
+      }
 
       rows.push([{ text: '🔙 Назад', code: this.cb('start') }]);
 
       return {
         sendMessage: {
-          text: '📋 *Мои потоки*',
+          text: `📋 *Мои потоки*${LEGEND}`,
           parseMode: 'MarkdownV2',
-          keyboard: {
-            rows,
-            isMultiple: false,
-          },
+          keyboard: { rows, isMultiple: false },
         },
       };
     } catch {

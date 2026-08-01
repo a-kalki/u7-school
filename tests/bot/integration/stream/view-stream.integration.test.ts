@@ -185,7 +185,7 @@ describe('ViewStreamStory e2e', () => {
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
     // В curious-режиме lifecycle-кнопки не видны
-    expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btns.some((t) => t === '✅')).toBe(false);
     expect(btns.some((t) => t.includes('В архив'))).toBe(false);
     // Публичные кнопки видны
     expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);

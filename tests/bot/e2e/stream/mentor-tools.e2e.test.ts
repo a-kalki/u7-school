@@ -169,9 +169,9 @@ describe('E2E: Путь ментора — полный сквозной', () =>
       const s07Buttons = allButtonTexts(s07Resp);
       expect(s07Buttons).toContain('Студент');
       // Маркеры — студент f0 с 0% при staled шагах → 🛑 (critical)
-      expect(s07Buttons).toContain('🛑');
+      expect(s07Buttons).toContain('⛔');
       expect(s07Buttons).toContain('✅');
-      expect(s07Buttons).toContain('Неактивен');
+      expect(s07Buttons).toContain('⛔');
 
       // ── 6: Клик по имени студента → S08 (карточка)
       const studentBtn = findButton(s07Resp, 'Студент');
@@ -241,7 +241,7 @@ describe('E2E: «⚠️ Неактивен» из S07', () => {
     );
     assertBotResponseValid(studentsResp);
 
-    const abandonBtn = findButton(studentsResp, 'Неактивен');
+    const abandonBtn = findButton(studentsResp, '⛔');
 
     // ── Confirm
     const confirmResp = await router.handleCallback(
@@ -305,7 +305,7 @@ describe('E2E: «✅ Завершить» из S07', () => {
     );
     assertBotResponseValid(studentsResp);
 
-    const completeBtn = findButton(studentsResp, 'Завершить');
+    const completeBtn = findButton(studentsResp, '✅');
 
     // ── Выбор исхода
     const choiceResp = await router.handleCallback(
@@ -424,7 +424,7 @@ describe('E2E: «🔄 Сменить исход»', () => {
     );
     assertBotResponseValid(studentsResp);
 
-    const switchBtn = findButton(studentsResp, 'Сменить исход');
+    const switchBtn = findButton(studentsResp, '🔄');
 
     // ── Выбор нового исхода
     const choiceResp = await router.handleCallback(

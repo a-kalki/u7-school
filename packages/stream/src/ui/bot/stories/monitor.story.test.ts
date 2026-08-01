@@ -87,9 +87,9 @@ describe('MonitorStory', () => {
         (t) => t.includes('🏃') && t.includes('Иван') && t.includes('50%'),
       ),
     ).toBe(true);
-    // Кнопки действий для active студента
-    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(true);
-    expect(btnTexts.some((t) => t === '✅ Завершить')).toBe(true);
+    // Кнопки действий для active студента (только эмодзи)
+    expect(btnTexts.some((t) => t === '⛔')).toBe(true);
+    expect(btnTexts.some((t) => t === '✅')).toBe(true);
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
@@ -311,15 +311,15 @@ describe('MonitorStory', () => {
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
     // S08 больше не содержит кнопок действий (они теперь в S07)
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Сменить исход'))).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
+    expect(btnTexts.some((t) => t === '🔄')).toBe(false);
     // S08: только навигация
     expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
-  test('нажатие «⚠️ Неактивен» → запрос подтверждения', async () => {
+  test('нажатие 🛑 → запрос подтверждения', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
@@ -437,7 +437,7 @@ describe('MonitorStory', () => {
 
   // ── complete-student: выбор исхода + confirm ──
 
-  test('нажатие «✅ Завершить» → выбор исхода', async () => {
+  test('нажатие ✅ → выбор исхода', async () => {
     const response = await makeStory().handleCallback(
       'complete:st1',
       actor,
@@ -583,7 +583,7 @@ describe('MonitorStory', () => {
 
   // ── Безопасность: кнопки действий только для ментора потока или админа ──
 
-  test('студент НЕ видит кнопки «Неактивен» и «Завершить»', async () => {
+  test('студент НЕ видит кнопки ⛔ и ✅', async () => {
     const studentActor: User = {
       uuid: 'student-1',
       name: 'Студент',
@@ -638,11 +638,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
   });
 
-  test('чужой ментор НЕ видит кнопки «Неактивен» и «Завершить»', async () => {
+  test('чужой ментор НЕ видит кнопки ⛔ и ✅', async () => {
     const otherMentor: User = {
       uuid: 'other-mentor',
       name: 'Чужой Ментор',
@@ -697,11 +697,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
   });
 
-  test('гость без ролей НЕ видит кнопки «Неактивен» и «Завершить»', async () => {
+  test('гость без ролей НЕ видит кнопки ⛔ и ✅', async () => {
     const guestActor: User = {
       uuid: 'guest-1',
       name: 'Гость',
@@ -756,11 +756,11 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
   });
 
-  test('админ видит кнопки «Неактивен» и «Завершить»', async () => {
+  test('админ видит кнопки ⛔ и ✅', async () => {
     const adminActor: User = {
       uuid: 'admin-1',
       name: 'Админ',
@@ -816,8 +816,8 @@ describe('MonitorStory', () => {
         .flat()
         .map((b: { text: string }) => b.text) ?? [];
     // S08: кнопок действий нет даже для ADMIN
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
@@ -885,8 +885,8 @@ describe('MonitorStory', () => {
       true,
     );
     // Гость НЕ видит кнопок действий
-    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(false);
-    expect(btnTexts.some((t) => t === '✅ Завершить')).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
     expect(btnTexts.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
   });
 
@@ -945,7 +945,7 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Петя'))).toBe(true);
     // Кандидат не видит кнопок действий
-    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
   });
 
   test('S07 показывает студентов с разными статусами и правильными маркерами', async () => {
@@ -1017,8 +1017,8 @@ describe('MonitorStory', () => {
     expect(
       btnTexts.some((t) => t.includes('✅') && t.includes('Выбывший')),
     ).toBe(true);
-    // Завершённые (advanced/not_advanced) имеют кнопку «Сменить исход»
-    expect(btnTexts.some((t) => t === '🔄 Сменить исход')).toBe(true);
+    // Завершённые (advanced/not_advanced) имеют кнопку 🔄
+    expect(btnTexts.some((t) => t === '🔄')).toBe(true);
   });
 
   test('Сортировка: 🛑 → ⚠️ → 🏃 по прогрессу → ✅', async () => {
@@ -1171,11 +1171,11 @@ describe('MonitorStory', () => {
     // Имя видно
     expect(btnTexts.some((t) => t.includes('Петя'))).toBe(true);
     // Кнопки действий — нет
-    expect(btnTexts.some((t) => t === '⚠️ Неактивен')).toBe(false);
-    expect(btnTexts.some((t) => t === '✅ Завершить')).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
   });
 
-  test('активный студент имеет 3 кнопки (имя + Неактивен + Завершить)', async () => {
+  test('активный студент имеет 3 кнопки (имя + ⛔ + ✅)', async () => {
     const moduleApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
@@ -1457,8 +1457,8 @@ describe('MonitorStory', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Неактивен'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t === '⛔')).toBe(false);
+    expect(btnTexts.some((t) => t === '✅')).toBe(false);
   });
 
   test('students: если get-stream возвращает null — сообщение об ошибке', async () => {

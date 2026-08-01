@@ -87,7 +87,7 @@ describe('MentorToolsStory', () => {
   test('handleStart возвращает корректный priority', async () => {
     const story = makeStory();
     const item = await story.handleStart(mentorActor);
-    expect(item?.priority).toBe(10);
+    expect(item?.priority).toBe(30);
   });
 
   test('handleStart содержит описание для /help', async () => {
@@ -266,6 +266,189 @@ describe('MentorToolsStory', () => {
     );
 
     expect(response.sendMessage?.text).toContain('Не удалось загрузить');
+  });
+
+  test('«Мои потоки» — по умолчанию только enrollment и active, есть toggle-кнопки', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-streams')
+          return [
+            {
+              uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+              title: 'Активный поток',
+              status: 'active',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'b-b-b-b-b-b-b-b-b-b-b-b-b-b-b-b',
+              title: 'Запущенный поток',
+              status: 'enrollment',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+              title: 'Завершённый поток',
+              status: 'completed',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'd-d-d-d-d-d-d-d-d-d-d-d-d-d-d-d',
+              title: 'Архивный поток',
+              status: 'archived',
+              mentorId: 'mentor-1',
+            },
+          ];
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new MentorToolsStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'my-streams',
+      mentorActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    // Видит active и enrollment
+    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Запущенный'))).toBe(true);
+    // НЕ видит completed и archived
+    expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(false);
+    // Toggle-кнопки есть
+    expect(btnTexts.some((t) => t.includes('Вкл. архивированные'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(true);
+    // Легенда в тексте
+    expect(response.sendMessage?.text).toContain('🟢');
+    expect(response.sendMessage?.text).toContain('🔵');
+  });
+
+  test('«Мои потоки» — toggle завершённых показывает completed', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-streams')
+          return [
+            {
+              uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+              title: 'Активный поток',
+              status: 'active',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+              title: 'Завершённый поток',
+              status: 'completed',
+              mentorId: 'mentor-1',
+            },
+          ];
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new MentorToolsStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'my-streams:completed:1',
+      mentorActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
+    // Эмодзи статусов
+    expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('⚪'))).toBe(true);
+  });
+
+  test('«Мои потоки» — toggle архивированных показывает archived', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-streams')
+          return [
+            {
+              uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+              title: 'Активный поток',
+              status: 'active',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'd-d-d-d-d-d-d-d-d-d-d-d-d-d-d-d',
+              title: 'Архивный поток',
+              status: 'archived',
+              mentorId: 'mentor-1',
+            },
+          ];
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new MentorToolsStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'my-streams:archived:1',
+      mentorActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('⚫'))).toBe(true);
+  });
+
+  test('«Мои потоки» — оба toggle включены: видны все', async () => {
+    const moduleApi = {
+      execute: mock((name: string) => {
+        if (name === 'list-streams')
+          return [
+            {
+              uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+              title: 'Активный',
+              status: 'active',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+              title: 'Завершённый',
+              status: 'completed',
+              mentorId: 'mentor-1',
+            },
+            {
+              uuid: 'd-d-d-d-d-d-d-d-d-d-d-d-d-d-d-d',
+              title: 'Архивный',
+              status: 'archived',
+              mentorId: 'mentor-1',
+            },
+          ];
+        return undefined;
+      }),
+    } as unknown as StreamApiModule;
+
+    const story = new MentorToolsStory();
+    story.init(moduleApi, emptyAppApi);
+
+    const response = await story.handleCallback(
+      'my-streams:archived:1:completed:1',
+      mentorActor,
+      session,
+    );
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(true);
+    // Переключателей нет (оба включены)
+    expect(btnTexts.some((t) => t.includes('Вкл.'))).toBe(false);
   });
 
   // ── handleMessage ──
