@@ -242,7 +242,6 @@ describe('MonitorStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Написать'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
@@ -314,8 +313,7 @@ describe('MonitorStory', () => {
     expect(btnTexts.some((t) => t === '⛔')).toBe(false);
     expect(btnTexts.some((t) => t === '✅')).toBe(false);
     expect(btnTexts.some((t) => t === '🔄')).toBe(false);
-    // S08: только навигация
-    expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
+    // S08: только кнопка «Назад к списку»
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
@@ -1276,7 +1274,7 @@ describe('MonitorStory', () => {
     const response = await story.handleCallback('detail:st1', actor, session);
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Критическое отставание');
-    expect(text).toContain('не заходил');
+    expect(text).toContain('дн\\.');
     expect(text).not.toContain('ниже медианы');
   });
 
@@ -1340,9 +1338,9 @@ describe('MonitorStory', () => {
 
     const response = await story.handleCallback('detail:st1', actor, session);
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Время на шаги');
-    expect(text).toContain('🏃 Листатель: 1');
-    expect(text).toContain('📚 Углублённо: 1');
+    expect(text).toContain('Среднее время на шаг');
+    expect(text).toContain('Бегун');
+    expect(text).toContain('Исследователь');
   });
 
   test('S08 не показывает статистику если нет завершённых шагов', async () => {
@@ -1458,12 +1456,10 @@ describe('MonitorStory', () => {
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Иван Иванов');
     expect(text).toContain('✅ Прошёл');
-    expect(text).toContain('2 из 2');
     expect(text).toContain('100%');
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
     expect(btnTexts.some((t) => t === '⛔')).toBe(false);
     expect(btnTexts.some((t) => t === '✅')).toBe(false);

@@ -80,16 +80,14 @@ describe('MonitorStory e2e', () => {
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('👤');
-    expect(text).toContain('Статус');
-    expect(text).toContain('Прогресс');
+    expect(text).toContain('Прогресс по модулю');
 
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Написать'))).toBe(false);
-    expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
 
-    // S08: только навигация (кнопки действий теперь в S07)
+    // S08: только кнопка «Назад к списку» (кнопки действий теперь в S07)
     expect(btns.some((t) => t === '⛔')).toBe(false);
     expect(btns.some((t) => t === '✅')).toBe(false);
     // S08 включает статистику времени и/или причину отставания
@@ -129,7 +127,7 @@ describe('MonitorStory e2e', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     // Все кнопки видны гостю (публичная информация)
     expect(btns.some((t) => t.includes('Написать'))).toBe(false);
-    expect(btns.some((t) => t.includes('История шагов'))).toBe(true);
+    // «История шагов» убрана из S08
     expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 

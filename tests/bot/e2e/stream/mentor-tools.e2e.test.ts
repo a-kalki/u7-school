@@ -184,7 +184,6 @@ describe('E2E: Путь ментора — полный сквозной', () =>
 
       const s08Text = s08Resp.sendMessage?.text ?? '';
       expect(s08Text).toContain('Студент');
-      expect(hasButton(s08Resp, 'История шагов')).toBe(true);
       expect(hasButton(s08Resp, 'Назад к списку')).toBe(true);
 
       // ── 7: «⬅️ Назад к списку» → S07

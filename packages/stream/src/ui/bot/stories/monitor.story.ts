@@ -249,25 +249,46 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `Всего: ${students.length} ${countLabel}`,
     ];
 
-    if (criticalCount > 0 || laggingCount > 0) {
-      header.push('');
-      if (criticalCount > 0)
-        header.push(
-          `🛑 Критические: ${criticalCount} \\(${Math.round((criticalCount / students.length) * 100)}%\\)`,
-        );
-      if (laggingCount > 0)
-        header.push(
-          `⚠️ Отстающие: ${laggingCount} \\(${Math.round((laggingCount / students.length) * 100)}%\\)`,
-        );
+    const completedCount = advancedCount + notAdvancedCount + abandonedCount;
+    const completedLabel = this.#pluralize(
+      completedCount,
+      'завершившего',
+      'завершивших',
+      'завершивших',
+    );
+
+    if (activeCount > 0 && completedCount > 0) {
+      header.push(
+        `Активных: ${activeCount} \\| Завершивших: ${completedCount} ${completedLabel}`,
+      );
     }
 
-    if (activeCount > 0) header.push(`🏃 В процессе: ${activeCount}`);
-    if (advancedCount > 0) header.push(`✅ Прошли: ${advancedCount}`);
-    if (notAdvancedCount > 0) header.push(`↩️ Не прошли: ${notAdvancedCount}`);
-    if (abandonedCount > 0) header.push(`🚫 Выбыли: ${abandonedCount}`);
+    // Метрики группы (с заголовком)
+    const metrics: string[] = [];
+    if (criticalCount > 0)
+      metrics.push(
+        `🛑 Критические: ${criticalCount} \\(${Math.round((criticalCount / students.length) * 100)}%\\)`,
+      );
+    if (laggingCount > 0 && criticalCount === 0)
+      metrics.push(
+        `⚠️ Отстающие: ${laggingCount} \\(${Math.round((laggingCount / students.length) * 100)}%\\)`,
+      );
+    if (activeCount > 0) metrics.push(`🏃 В процессе: ${activeCount}`);
+    if (advancedCount > 0) metrics.push(`✅ Прошли: ${advancedCount}`);
+    if (notAdvancedCount > 0) metrics.push(`↩️ Не прошли: ${notAdvancedCount}`);
+    if (abandonedCount > 0) metrics.push(`🚫 Выбыли: ${abandonedCount}`);
 
-    // Легенда маркеров
-    header.push('', '🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл');
+    if (metrics.length > 0) {
+      header.push('', '*Метрики группы:*', ...metrics);
+    }
+
+    header.push(
+      '',
+      '*Легенда:*',
+      '🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл',
+      '',
+      '*Метрики по студентам:*',
+    );
 
     return {
       sendMessage: {
@@ -304,7 +325,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const width = 10;
     const filled = total === 0 ? 0 : Math.round((completed / total) * width);
     const empty = width - filled;
-    return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${completed}/${total}`;
+    return `\\[${'█'.repeat(filled)}${'░'.repeat(empty)}\\] ${completed}/${total}`;
   }
 
   /** Склоняет существительное: 1 студент, 2 студента, 5 студентов */
@@ -342,91 +363,109 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Поток не найден' } };
     }
 
-    const progress = StreamDs.computeProgress(stream.contentSnapshot, student);
-    const pct = progress.percent;
+    // Lag info
+    const [cat] = StreamDs.categorizeStudents([student]);
+    const lagInfo = cat
+      ? {
+          lagLevel: cat.lagLevel,
+          hoursSinceLastActivity: cat.hoursSinceLastActivity,
+        }
+      : { lagLevel: 'on_track' as const, hoursSinceLastActivity: 0 };
+
+    // Карточка через DS (только данные)
+    const card = StreamDs.computeStudentCard(
+      stream.contentSnapshot,
+      student as any,
+      lagInfo,
+    );
 
     const statusLabels: Record<string, string> = {
-      active: '🟢 Активен',
-      abandoned: '🔴 Выбыл',
+      active: '🟢 Учится',
+      abandoned: '🚫 Выбыл',
       advanced: '✅ Прошёл',
       not_advanced: '↩️ Не прошёл',
     };
 
+    const esc = (s: string) => this.escapeMarkdown(s);
+    const bar = (c: number, t: number) => this.#formatProgressBar(c, t);
+
     const lines = [
-      `👤 *${this.escapeMarkdown(userName)}*`,
+      `👤 *${esc(userName)}* \\| ${statusLabels[student.status] ?? student.status}`,
       '',
-      `📊 Статус: ${statusLabels[student.status] ?? student.status}`,
-      `📈 Прогресс: ${progress.completed} из ${progress.total} шагов \\(${pct}%\\)`,
+      `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| ${card.moduleProgress.percent}%`,
     ];
 
-    const currentStep = student.steps.find(
-      (st: { stepId: string; status: string }) => st.status === 'issued',
-    );
-    if (currentStep) {
-      const pos = StreamDs.getStepPosition(
-        stream.contentSnapshot,
-        currentStep.stepId,
+    // Проект и урок
+    if (card.currentProject) {
+      lines.push('', `📁 Проект: «${esc(card.currentProject.title)}»`);
+      if (card.currentLesson) {
+        lines.push(`📝 Урок: «${esc(card.currentLesson.title)}»`);
+      }
+      lines.push(
+        `📊 Прогресс по проекту: ${bar(card.currentProject.progress.completed, card.currentProject.progress.total)} \\| ${card.currentProject.progress.percent}%`,
       );
-      if (pos) {
-        lines.push(`📁 Проект: ${this.escapeMarkdown(pos.projectTitle)}`);
-        lines.push(`📝 Урок: ${this.escapeMarkdown(pos.lessonTitle)}`);
+    }
+
+    // Среднее время
+    if (card.avgTimeMinutes !== null) {
+      lines.push('', `⏱ Среднее время на шаг: ${card.avgTimeMinutes} мин\\.`);
+    }
+
+    // Категории времени с описаниями
+    const catDescs: Record<string, string> = {
+      Бегун: '< 1 мин\\.',
+      Спринтер: '< 5 мин\\.',
+      Вдумчивый: '< 15 мин\\.',
+      Исследователь: '> 15 мин\\.',
+    };
+    const activeCats = card.timeCategories.filter((c) => c.count > 0);
+    if (activeCats.length > 0) {
+      const catLine = activeCats
+        .map((c) => {
+          const desc = catDescs[c.name] ?? '';
+          return `${c.emoji} ${c.name} \\(${desc}\\): ${c.count}`;
+        })
+        .join('   ');
+      lines.push(catLine);
+    }
+
+    // Последняя активность
+    const hours = Math.round(card.hoursSinceLastActivity);
+    if (hours > 0) {
+      const days = Math.round(hours / 24);
+      if (days >= 1) {
+        lines.push('', `📅 Последняя активность: ${days} дн\\. назад`);
+      } else {
+        lines.push('', `📅 Последняя активность: ${hours} ч\\. назад`);
       }
     }
 
-    // ── Причина отставания ──
+    // Отставание / статус
     if (student.status === 'active') {
-      const [cat] = StreamDs.categorizeStudents([student]);
-      if (cat) {
-        const hours = Math.round(cat.hoursSinceLastActivity);
-        const days = Math.round(hours / 24);
-
-        if (cat.lagLevel === 'critical') {
-          lines.push(
-            '',
-            `🛑 *Критическое отставание*: не заходил ${days} дн\\.`,
-          );
-        } else if (cat.lagLevel === 'lagging') {
-          if (hours > 4 * 24) {
-            lines.push('', `⚠️ *Отстаёт*: не заходил ${days} дн\\.`);
-          } else {
-            lines.push('', `⚠️ *Отстаёт*: прогресс ${pct}% ниже медианы группы`);
-          }
+      if (card.lagLevel === 'critical') {
+        const days = Math.round(card.hoursSinceLastActivity / 24);
+        lines.push('', `🛑 Критическое отставание: ${days} дн\\.`);
+      } else if (card.lagLevel === 'lagging') {
+        if (card.hoursSinceLastActivity > 4 * 24) {
+          const days = Math.round(card.hoursSinceLastActivity / 24);
+          lines.push('', `⚠️ Отстаёт: ${days} дн\\.`);
+        } else {
+          lines.push('', '⚠️ Отстаёт от группы');
         }
+      } else {
+        lines.push('', '✅ Идёт по расписанию');
       }
     }
 
-    // ── Статистика времени ──
-    const completedSteps = student.steps.filter(
-      (s: { status: string }) => s.status === 'completed',
-    );
-    if (completedSteps.length > 0) {
-      const timeStats = StreamDs.computeStepTimeStats(completedSteps);
-      const parts: string[] = [];
-      if (timeStats.runner > 0) parts.push(`🏃 Листатель: ${timeStats.runner}`);
-      if (timeStats.fast > 0) parts.push(`⚡ Быстро: ${timeStats.fast}`);
-      if (timeStats.normal > 0) parts.push(`📝 Нормально: ${timeStats.normal}`);
-      if (timeStats.deep > 0) parts.push(`📚 Углублённо: ${timeStats.deep}`);
-      if (parts.length > 0) {
-        lines.push('', '*⏱ Время на шаги:*', ...parts);
-      }
-    }
-
-    // Клавиатура: только навигация, без кнопок действий
-    const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
-
-    keyboardRows.push([
-      {
-        text: '📁 История шагов',
-        code: this.cbFor('monitor', 'history', studentId),
-      },
-    ]);
-
-    keyboardRows.push([
-      {
-        text: '⬅️ Назад к списку',
-        code: this.cbFor('monitor', 'students', student.streamId),
-      },
-    ]);
+    // Клавиатура: только навигация
+    const keyboardRows: Array<Array<{ text: string; code: string }>> = [
+      [
+        {
+          text: '⬅️ Назад к списку',
+          code: this.cbFor('monitor', 'students', student.streamId),
+        },
+      ],
+    ];
 
     return {
       sendMessage: {
