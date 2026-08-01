@@ -184,19 +184,21 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         r.student as any,
       );
 
+      // Одна строка: эмодзи Имя | прогресс-бар % | категория времени
+      const bar = this.#formatProgressBar(
+        summary.progress.completed,
+        summary.progress.total,
+      );
       const labelParts = [
         `${marker} ${r.name}`,
-        `${this.#formatProgressBar(
-          summary.progress.completed,
-          summary.progress.total,
-        )} ${summary.progress.percent}%`,
+        `${bar} ${summary.progress.percent}%`,
       ];
       if (summary.dominantCategory && summary.avgTimeMinutes !== null) {
         labelParts.push(
-          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.avgTimeMinutes} мин`,
+          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}`,
         );
       }
-      const nameBtn = labelParts.join('\n');
+      const nameBtn = labelParts.join(' | ');
 
       const studentRow: Array<{ text: string; code: string }> = [
         {
