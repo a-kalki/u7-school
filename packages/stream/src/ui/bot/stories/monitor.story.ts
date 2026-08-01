@@ -253,14 +253,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       `Всего: ${students.length} ${countLabel}`,
     ];
 
-    const completedCount = advancedCount + notAdvancedCount + abandonedCount;
-
-    if (activeCount > 0 && completedCount > 0) {
-      header.push(
-        `Активных: ${activeCount} \\| Завершивших: ${completedCount}`,
-      );
-    }
-
     // Метрики группы (с заголовком)
     const metrics: string[] = [];
     if (criticalCount > 0)
@@ -276,6 +268,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (notAdvancedCount > 0) metrics.push(`↩️ Не прошли: ${notAdvancedCount}`);
     if (abandonedCount > 0) metrics.push(`🚫 Выбыли: ${abandonedCount}`);
 
+    header.push('', '———');
+
     if (metrics.length > 0) {
       header.push('', '*Метрики группы:*', ...metrics);
     }
@@ -284,6 +278,8 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       '*Легенда:*',
       '🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл',
+      '',
+      '———',
       '',
       '*Метрики по студентам:*',
     );
@@ -421,17 +417,13 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       Вдумчивый: '< 15 мин\\.',
       Исследователь: '> 15 мин\\.',
     };
-    const activeCats = card.timeCategories.filter((c) => c.count > 0);
-    if (activeCats.length > 0) {
-      const catLine = activeCats
-        .map((c) => {
-          const desc = catDescs[c.name] ?? '';
-          return `${c.emoji} ${c.name} \\(${desc}\\): ${c.count}`;
-        })
-        .join('   ');
-      lines.push(catLine);
-    }
-
+    const catLine = card.timeCategories
+      .map((c) => {
+        const desc = catDescs[c.name] ?? '';
+        return `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count}`;
+      })
+      .join('   ');
+    lines.push(catLine);
     // Последняя активность
     const hours = Math.round(card.hoursSinceLastActivity);
     if (hours > 0) {
