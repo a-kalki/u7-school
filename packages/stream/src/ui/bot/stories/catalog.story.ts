@@ -21,7 +21,9 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     _actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
-    const showCompleted = action === 'list-with-completed';
+    const showCompleted =
+      action === 'list-with-completed' || action === 'list-with-all';
+    const showArchived = action === 'list-with-all';
     if (action !== 'list' && !showCompleted) {
       return { sendMessage: { text: '⚠️ Неизвестная команда каталога' } };
     }
@@ -29,7 +31,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Получаем все потоки одним запросом (без фильтра по статусу)
     const allStreams = await this.moduleApi.execute('list-streams', {});
 
-    // Разделяем по статусам, archived не показываем никогда
+    // Разделяем по статусам
     const enrollmentStreams = allStreams.filter(
       (s) => s.status === StreamStatus.ENROLLMENT,
     );
@@ -39,35 +41,48 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     const completedStreams = allStreams.filter(
       (s) => s.status === StreamStatus.COMPLETED,
     );
+    const archivedStreams = allStreams.filter(
+      (s) => s.status === StreamStatus.ARCHIVED,
+    );
 
     const hasCompleted = completedStreams.length > 0;
+    const hasArchived = archivedStreams.length > 0;
 
     // Формируем список для показа
     const visible = [...enrollmentStreams, ...activeStreams];
     if (showCompleted) {
       visible.push(...completedStreams);
     }
+    if (showArchived) {
+      visible.push(...archivedStreams);
+    }
 
     // Нет потоков для показа
     if (visible.length === 0) {
-      // Если есть завершённые, но они скрыты — показываем кнопку переключения
+      const toggleRows: Array<Array<{ text: string; code: string }>> = [];
       if (hasCompleted && !showCompleted) {
+        toggleRows.push([
+          {
+            text: '🔍 Включить завершённые',
+            code: this.cb('list-with-completed'),
+          },
+        ]);
+      }
+      if (hasArchived && !showArchived) {
+        toggleRows.push([
+          {
+            text: '📁 Включить архивированные',
+            code: this.cb('list-with-all'),
+          },
+        ]);
+      }
+      if (toggleRows.length > 0) {
+        toggleRows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
         return {
           sendMessage: {
             text: '📚 *Нет активных потоков*',
             parseMode: 'MarkdownV2',
-            keyboard: {
-              rows: [
-                [
-                  {
-                    text: '🔍 Включить завершённые',
-                    code: this.cb('list-with-completed'),
-                  },
-                ],
-                [{ text: '↩️ Главное меню', code: 'app:main-menu' }],
-              ],
-              isMultiple: false,
-            },
+            keyboard: { rows: toggleRows, isMultiple: false },
           },
         };
       }
@@ -81,10 +96,10 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const statusEmoji: Record<string, string> = {
-      enrollment: '🟢',
+      enrollment: '🟡',
       active: '🔵',
-      completed: '⚪',
-      archived: '⚪',
+      completed: '🟢',
+      archived: '⚫',
     };
 
     // Кросс-стори колбэки: ссылаемся на ViewStreamStory
@@ -95,23 +110,37 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       },
     ]);
 
-    const legend = '\n\n🟢 — идёт набор   🔵 — идёт обучение   ⚪ — завершён';
+    const legend =
+      '\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве';
 
-    // Кнопка-переключатель завершённых потоков
+    // Кнопки-переключатели
+    const toggles: Array<{ text: string; code: string }> = [];
     if (hasCompleted && !showCompleted) {
-      rows.push([
-        {
-          text: '🔍 Включить завершённые',
-          code: this.cb('list-with-completed'),
-        },
-      ]);
-    } else if (showCompleted) {
-      rows.push([
-        {
-          text: '🔍 Скрыть завершённые',
-          code: this.cb('list'),
-        },
-      ]);
+      toggles.push({
+        text: '🔍 Включить завершённые',
+        code: this.cb('list-with-completed'),
+      });
+    }
+    if (hasArchived && !showArchived) {
+      toggles.push({
+        text: '📁 Включить архивированные',
+        code: this.cb('list-with-all'),
+      });
+    }
+    if (showCompleted && !showArchived && hasArchived) {
+      toggles.push({
+        text: '📁 Включить архивированные',
+        code: this.cb('list-with-all'),
+      });
+    }
+    if ((showCompleted || showArchived) && toggles.length === 0) {
+      toggles.push({
+        text: '🔍 Только активные',
+        code: this.cb('list'),
+      });
+    }
+    if (toggles.length > 0) {
+      rows.push(toggles);
     }
 
     // Кнопка «↩️ Главное меню» последней строкой

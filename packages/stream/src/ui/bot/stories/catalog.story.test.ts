@@ -163,7 +163,7 @@ describe('CatalogStory', () => {
     expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
 
     // Должна быть кнопка «Скрыть завершённые»
-    expect(btnTexts.some((t) => t.includes('Скрыть завершённые'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Только активные'))).toBe(true);
   });
 
   test('handleCallback("list") без активных, но с завершёнными — показывает кнопку переключения', async () => {
@@ -239,9 +239,10 @@ describe('CatalogStory', () => {
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('🟢');
+    expect(response.sendMessage?.text).toContain('🟡');
     expect(response.sendMessage?.text).toContain('🔵');
-    expect(response.sendMessage?.text).toContain('⚪');
+    expect(response.sendMessage?.text).toContain('🟢');
+    expect(response.sendMessage?.text).toContain('⚫');
     expect(response.sendMessage?.text).toContain('идёт набор');
     expect(response.sendMessage?.text).toContain('идёт обучение');
     expect(response.sendMessage?.text).toContain('завершён');

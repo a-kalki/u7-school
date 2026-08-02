@@ -91,7 +91,7 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
     showCompleted: boolean,
   ): Promise<BotResponse> {
     const LEGEND =
-      '\n\n🟢 — идёт набор   🔵 — идёт обучение   ⚪ — завершён   ⚫ — в архиве';
+      '\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве';
 
     try {
       const streams = await this.moduleApi.execute('list-streams', {});
@@ -118,9 +118,9 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
       }
 
       const statusEmoji: Record<string, string> = {
-        enrollment: '🟢',
+        enrollment: '🟡',
         active: '🔵',
-        completed: '⚪',
+        completed: '🟢',
         archived: '⚫',
       };
 

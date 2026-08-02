@@ -82,10 +82,10 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     const statusLabels: Record<string, string> = {
-      enrollment: '🟢 Набор открыт',
+      enrollment: '🟡 Набор открыт',
       active: '🔵 Идёт обучение',
-      completed: '⚪ Завершён',
-      archived: '⚪ Архивирован',
+      completed: '🟢 Завершён',
+      archived: '⚫ Архивирован',
     };
 
     const dateStr = this.formatDate(stream.startDate);

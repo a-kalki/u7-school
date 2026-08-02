@@ -101,7 +101,7 @@ describe('Сквозные пользовательские сценарии (E2
 
       const btnTexts =
         response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+      expect(btnTexts.some((t) => t.includes('🟡'))).toBe(true);
       expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
     });
 
@@ -116,7 +116,7 @@ describe('Сквозные пользовательские сценарии (E2
       );
 
       // Нажимаем на первый поток (enrollment) — извлекаем code из кнопки
-      const streamBtn = findButton(catalogResp, '🟢');
+      const streamBtn = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamBtn.code,
         guest,
@@ -146,7 +146,7 @@ describe('Сквозные пользовательские сценарии (E2
         guest,
         NO_SESSION,
       );
-      const streamBtn = findButton(catalogResp, '🟢');
+      const streamBtn = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamBtn.code,
         guest,
@@ -181,7 +181,7 @@ describe('Сквозные пользовательские сценарии (E2
         guest,
         NO_SESSION,
       );
-      const streamBtn = findButton(catalogResp, '🟢');
+      const streamBtn = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamBtn.code,
         guest,
@@ -217,7 +217,7 @@ describe('Сквозные пользовательские сценарии (E2
         guest,
         NO_SESSION,
       );
-      const streamBtn = findButton(catalogResp, '🟢');
+      const streamBtn = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamBtn.code,
         guest,
@@ -268,7 +268,7 @@ describe('Сквозные пользовательские сценарии (E2
         candidate,
         NO_SESSION,
       );
-      const streamBtn = findButton(catalogResp, '🟢');
+      const streamBtn = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamBtn.code,
         candidate,
@@ -484,7 +484,7 @@ describe('Сквозные пользовательские сценарии (E2
         mentor,
         NO_SESSION,
       );
-      const streamBtn = findButton(catalogResp, '🟢');
+      const streamBtn = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamBtn.code,
         mentor,

@@ -54,7 +54,7 @@ describe('CatalogStory e2e', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🟡'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
 
     // Проверяем кнопку «↩️ Главнее меню»
@@ -86,7 +86,7 @@ describe('CatalogStory e2e', () => {
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🟡'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
   });
 
@@ -102,7 +102,7 @@ describe('CatalogStory e2e', () => {
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🟡'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
   });
 

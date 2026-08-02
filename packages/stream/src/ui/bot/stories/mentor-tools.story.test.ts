@@ -323,7 +323,7 @@ describe('MentorToolsStory', () => {
     expect(btnTexts.some((t) => t.includes('Вкл. архивированные'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(true);
     // Легенда в тексте
-    expect(response.sendMessage?.text).toContain('🟢');
+    expect(response.sendMessage?.text).toContain('🟡');
     expect(response.sendMessage?.text).toContain('🔵');
   });
 
@@ -364,7 +364,7 @@ describe('MentorToolsStory', () => {
     expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
     // Эмодзи статусов
     expect(btnTexts.some((t) => t.includes('🔵'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('⚪'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('🟢'))).toBe(true);
   });
 
   test('«Мои потоки» — toggle архивированных показывает archived', async () => {

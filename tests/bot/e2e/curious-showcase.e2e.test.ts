@@ -261,7 +261,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).toContain('Потоки курсов');
       const btns =
         response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('🟢') || t.includes('🔵'))).toBe(true);
+      expect(btns.some((t) => t.includes('🟡') || t.includes('🔵'))).toBe(true);
       expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
 
@@ -273,7 +273,7 @@ describe('E2E: Витрина для любопытного', () => {
         guest,
         NO_SESSION,
       );
-      const streamButton = findButton(catalogResp, '🟢');
+      const streamButton = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamButton.code,
         guest,
@@ -381,7 +381,7 @@ describe('E2E: Витрина для любопытного', () => {
         candidate,
         NO_SESSION,
       );
-      const streamButton = findButton(catalogResp, '🟢');
+      const streamButton = findButton(catalogResp, '🟡');
       const viewResp = await router.handleCallback(
         streamButton.code,
         candidate,
