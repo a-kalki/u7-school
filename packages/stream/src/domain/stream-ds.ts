@@ -433,11 +433,10 @@ export const StreamDs = {
    * Вычисляет среднее время на шаг и доминирующую категорию.
    */
   computeAvgTime(steps: StepRecord[]): {
-    avgMinutes: number | null;
+    medianMinutes: number | null;
     dominant: TimeCategory | null;
   } {
-    let totalMs = 0;
-    let count = 0;
+    const durations: number[] = [];
     const stats = StreamDs.computeStepTimeStats(steps);
 
     for (const step of steps) {
@@ -446,13 +445,19 @@ export const StreamDs = {
         new Date(step.completedAt).getTime() -
         new Date(step.issuedAt).getTime();
       if (Number.isNaN(durationMs) || durationMs < 0) continue;
-      totalMs += durationMs;
-      count++;
+      durations.push(durationMs);
     }
 
-    if (count === 0) return { avgMinutes: null, dominant: null };
+    if (durations.length === 0) return { medianMinutes: null, dominant: null };
 
-    const avgMinutes = Math.round(totalMs / count / 60_000);
+    // Медиана (устойчива к выбросам)
+    durations.sort((a, b) => a - b);
+    const mid = Math.floor(durations.length / 2);
+    const medianMs =
+      durations.length % 2 === 0
+        ? ((durations[mid - 1] ?? 0) + (durations[mid] ?? 0)) / 2
+        : (durations[mid] ?? 0);
+    const medianMinutes = Math.round(medianMs / 60_000);
 
     // Доминирующая категория
     const totals: Array<{
@@ -468,7 +473,7 @@ export const StreamDs = {
     const top = totals[0];
 
     return {
-      avgMinutes,
+      medianMinutes,
       dominant:
         top && top.count > 0
           ? { emoji: top.cat.emoji, name: top.cat.name, count: top.count }
@@ -484,10 +489,10 @@ export const StreamDs = {
     student: Student,
   ): StudentRowSummary {
     const progress = StreamDs.computeProgress(snapshot, student);
-    const { avgMinutes, dominant } = StreamDs.computeAvgTime(student.steps);
+    const { medianMinutes, dominant } = StreamDs.computeAvgTime(student.steps);
     return {
       progress,
-      avgTimeMinutes: avgMinutes,
+      medianTimeMinutes: medianMinutes,
       dominantCategory: dominant,
     };
   },
@@ -524,7 +529,7 @@ export const StreamDs = {
     }
 
     // Время
-    const { avgMinutes } = StreamDs.computeAvgTime(student.steps);
+    const { medianMinutes } = StreamDs.computeAvgTime(student.steps);
 
     // Категории времени
     const rawStats = StreamDs.computeStepTimeStats(student.steps);
@@ -539,7 +544,7 @@ export const StreamDs = {
       moduleProgress,
       currentProject,
       currentLesson,
-      avgTimeMinutes: avgMinutes,
+      medianTimeMinutes: medianMinutes,
       timeCategories,
       hoursSinceLastActivity: lagInfo?.hoursSinceLastActivity ?? 0,
       lagLevel: lagInfo?.lagLevel ?? 'on_track',

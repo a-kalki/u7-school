@@ -1338,7 +1338,7 @@ describe('MonitorStory', () => {
 
     const response = await story.handleCallback('detail:st1', actor, session);
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Среднее время на шаг');
+    expect(text).toContain('Типичное время на шаг');
     expect(text).toContain('Бегун');
     expect(text).toContain('Исследователь');
   });

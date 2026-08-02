@@ -108,7 +108,7 @@ export interface TimeCategory {
 /** Сводка студента для строки в S07 */
 export interface StudentRowSummary {
   progress: Progress;
-  avgTimeMinutes: number | null;
+  medianTimeMinutes: number | null;
   dominantCategory: TimeCategory | null;
 }
 
@@ -122,7 +122,7 @@ export interface StudentCardData {
   currentLesson?: {
     title: string;
   };
-  avgTimeMinutes: number | null;
+  medianTimeMinutes: number | null;
   timeCategories: TimeCategory[];
   hoursSinceLastActivity: number;
   lagLevel: LagLevel;

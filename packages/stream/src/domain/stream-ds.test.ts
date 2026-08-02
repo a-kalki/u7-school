@@ -786,11 +786,11 @@ describe('computeStepTimeStats', () => {
 describe('computeAvgTime', () => {
   test('пустой массив → null', () => {
     const result = StreamDs.computeAvgTime([]);
-    expect(result.avgMinutes).toBeNull();
+    expect(result.medianMinutes).toBeNull();
     expect(result.dominant).toBeNull();
   });
 
-  test('один шаг за 2 минуты → avg=2, доминанта Спринтер', () => {
+  test('один шаг за 2 минуты → медиана=2, доминанта Спринтер', () => {
     const steps = [
       {
         stepId: 's1',
@@ -800,12 +800,12 @@ describe('computeAvgTime', () => {
       },
     ];
     const result = StreamDs.computeAvgTime(steps);
-    expect(result.avgMinutes).toBe(2);
+    expect(result.medianMinutes).toBe(2);
     expect(result.dominant?.emoji).toBe('⚡');
     expect(result.dominant?.name).toBe('Спринтер');
   });
 
-  test('смешанные шаги — правильное среднее', () => {
+  test('смешанные шаги — правильная медиана', () => {
     const steps = [
       {
         stepId: 's1',
@@ -821,7 +821,7 @@ describe('computeAvgTime', () => {
       }, // 5 мин
     ];
     const result = StreamDs.computeAvgTime(steps);
-    expect(result.avgMinutes).toBe(3);
+    expect(result.medianMinutes).toBe(3);
   });
 
   test('пропускает шаги без completedAt', () => {
@@ -835,7 +835,7 @@ describe('computeAvgTime', () => {
       { stepId: 's2', status: 'issued' as const, issuedAt: '2026-08-01T10:00' },
     ];
     const result = StreamDs.computeAvgTime(steps);
-    expect(result.avgMinutes).toBe(2);
+    expect(result.medianMinutes).toBe(2);
   });
 });
 
@@ -873,7 +873,7 @@ describe('computeStudentRowSummary', () => {
     expect(summary.progress.percent).toBe(0);
     expect(summary.progress.total).toBe(3);
     expect(summary.progress.completed).toBe(0);
-    expect(summary.avgTimeMinutes).toBeNull();
+    expect(summary.medianTimeMinutes).toBeNull();
     expect(summary.dominantCategory).toBeNull();
   });
 
@@ -909,7 +909,7 @@ describe('computeStudentRowSummary', () => {
     expect(summary.progress.percent).toBe(67);
     expect(summary.progress.completed).toBe(2);
     expect(summary.progress.total).toBe(3);
-    expect(summary.avgTimeMinutes).toBe(3);
+    expect(summary.medianTimeMinutes).toBe(3);
     expect(summary.dominantCategory).not.toBeNull();
   });
 });
@@ -981,7 +981,7 @@ describe('computeStudentCard', () => {
     expect(card.currentLesson?.title).toBe('Урок 1');
 
     // Время
-    expect(card.avgTimeMinutes).toBe(3);
+    expect(card.medianTimeMinutes).toBe(3);
     expect(card.timeCategories).toHaveLength(4);
 
     // Lag
@@ -1004,6 +1004,6 @@ describe('computeStudentCard', () => {
     const card = StreamDs.computeStudentCard(snapshot, student as any);
     expect(card.currentProject).toBeUndefined();
     expect(card.currentLesson).toBeUndefined();
-    expect(card.avgTimeMinutes).toBeNull();
+    expect(card.medianTimeMinutes).toBeNull();
   });
 });

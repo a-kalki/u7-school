@@ -192,9 +192,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
         `${marker} ${this.escapeMarkdown(r.name)}`,
         `${bar} ${summary.progress.percent}%`,
       ];
-      if (summary.dominantCategory && summary.avgTimeMinutes !== null) {
+      if (summary.dominantCategory && summary.medianTimeMinutes !== null) {
         parts.push(
-          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.avgTimeMinutes} мин`,
+          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.medianTimeMinutes} мин`,
         );
       }
       studentLines.push(parts.join(' \\| '));
@@ -409,8 +409,11 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     lines.push('', '———', '', '*Усидчивость студента:*');
 
     // Среднее время
-    if (card.avgTimeMinutes !== null) {
-      lines.push('', `⏱ Среднее время на шаг: ${card.avgTimeMinutes} мин\\.`);
+    if (card.medianTimeMinutes !== null) {
+      lines.push(
+        '',
+        `⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`,
+      );
     }
 
     // Категории времени с описаниями (каждая с новой строки)
