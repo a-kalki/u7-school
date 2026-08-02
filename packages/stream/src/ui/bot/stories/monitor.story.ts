@@ -180,7 +180,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       // Сводка через DS
       const summary = StreamDs.computeStudentRowSummary(
         stream.contentSnapshot,
-        r.student as any,
+        r.student,
       );
 
       // Текст: маркер, имя, прогресс-бар, категория времени
@@ -371,7 +371,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     // Карточка через DS (только данные)
     const card = StreamDs.computeStudentCard(
       stream.contentSnapshot,
-      student as any,
+      student,
       lagInfo,
     );
 
