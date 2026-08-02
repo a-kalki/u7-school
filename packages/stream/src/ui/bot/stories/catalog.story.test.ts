@@ -121,7 +121,7 @@ describe('CatalogStory', () => {
     expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(false);
 
     // Должна быть кнопка «Включить завершённые»
-    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(true);
   });
 
   test('handleCallback("list-with-completed") показывает все три категории', async () => {
@@ -186,7 +186,7 @@ describe('CatalogStory', () => {
 
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(true);
   });
 
   test('handleCallback("list") без completed — нет кнопки переключения', async () => {
@@ -208,10 +208,8 @@ describe('CatalogStory', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    expect(btnTexts.some((t) => t.includes('Включить завершённые'))).toBe(
-      false,
-    );
-    expect(btnTexts.some((t) => t.includes('Скрыть завершённые'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Только активные'))).toBe(false);
   });
 
   test('handleMessage возвращает заглушку', async () => {

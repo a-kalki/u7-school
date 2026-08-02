@@ -63,7 +63,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       if (hasCompleted && !showCompleted) {
         toggleRows.push([
           {
-            text: '🔍 Включить завершённые',
+            text: '🟢 Вкл. завершённые',
             code: this.cb('list-with-completed'),
           },
         ]);
@@ -71,7 +71,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
       if (hasArchived && !showArchived) {
         toggleRows.push([
           {
-            text: '📁 Включить архивированные',
+            text: '⚫ Вкл. архивированные',
             code: this.cb('list-with-all'),
           },
         ]);
@@ -117,25 +117,25 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     const toggles: Array<{ text: string; code: string }> = [];
     if (hasCompleted && !showCompleted) {
       toggles.push({
-        text: '🔍 Включить завершённые',
+        text: '🟢 Вкл. завершённые',
         code: this.cb('list-with-completed'),
       });
     }
     if (hasArchived && !showArchived) {
       toggles.push({
-        text: '📁 Включить архивированные',
+        text: '⚫ Вкл. архивированные',
         code: this.cb('list-with-all'),
       });
     }
     if (showCompleted && !showArchived && hasArchived) {
       toggles.push({
-        text: '📁 Включить архивированные',
+        text: '⚫ Вкл. архивированные',
         code: this.cb('list-with-all'),
       });
     }
     if ((showCompleted || showArchived) && toggles.length === 0) {
       toggles.push({
-        text: '🔍 Только активные',
+        text: '🔵 Только активные',
         code: this.cb('list'),
       });
     }

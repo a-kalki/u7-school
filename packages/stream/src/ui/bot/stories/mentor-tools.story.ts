@@ -130,21 +130,21 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
       const toggles: Array<{ text: string; code: string }> = [];
       if (!showArchived && !showCompleted) {
         toggles.push({
-          text: '📁 Вкл. архивированные',
+          text: '⚫ Вкл. архивированные',
           code: this.cb('my-streams:archived:1'),
         });
         toggles.push({
-          text: '✅ Вкл. завершённые',
+          text: '🟢 Вкл. завершённые',
           code: this.cb('my-streams:completed:1'),
         });
       } else if (showArchived && !showCompleted) {
         toggles.push({
-          text: '✅ Вкл. завершённые',
+          text: '🟢 Вкл. завершённые',
           code: this.cb('my-streams:archived:1:completed:1'),
         });
       } else if (!showArchived && showCompleted) {
         toggles.push({
-          text: '📁 Вкл. архивированные',
+          text: '⚫ Вкл. архивированные',
           code: this.cb('my-streams:completed:1:archived:1'),
         });
       }

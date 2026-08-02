@@ -363,9 +363,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const [cat] = StreamDs.categorizeStudents([student]);
     const lagInfo = cat
       ? {
-        lagLevel: cat.lagLevel,
-        hoursSinceLastActivity: cat.hoursSinceLastActivity,
-      }
+          lagLevel: cat.lagLevel,
+          hoursSinceLastActivity: cat.hoursSinceLastActivity,
+        }
       : { lagLevel: 'on_track' as const, hoursSinceLastActivity: 0 };
 
     // Карточка через DS (только данные)
