@@ -270,15 +270,21 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '———',
       '',
       '*Метрики по студентам:*',
-      '',
-      '*Обозначения:*',
-      '🛑 критическое отставание  ⚠️ отстаёт  🏃 в процессе',
     );
 
     // Добавляем строки студентов в текст
     for (const line of studentLines) {
       header.push(line);
     }
+
+    header.push('');
+    header.push('*Легенда:*');
+    header.push('🛑 критическое отставание, кандидат на отчисление');
+    header.push('⚠️ учится, но отстаёт от группы');
+    header.push('🏃 в норме, учится');
+    header.push('🚫 забросил учебу');
+    header.push('↩️ завершил модуль, но пройдет заново');
+    header.push('✅ завершил модуль, проходит дальше');
 
     return {
       sendMessage: {
@@ -357,9 +363,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const [cat] = StreamDs.categorizeStudents([student]);
     const lagInfo = cat
       ? {
-          lagLevel: cat.lagLevel,
-          hoursSinceLastActivity: cat.hoursSinceLastActivity,
-        }
+        lagLevel: cat.lagLevel,
+        hoursSinceLastActivity: cat.hoursSinceLastActivity,
+      }
       : { lagLevel: 'on_track' as const, hoursSinceLastActivity: 0 };
 
     // Карточка через DS (только данные)
@@ -384,8 +390,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '',
       '———',
       '',
-      '*Прогресс студента*',
-      '',
+      '*Прогресс студента:*',
       `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| ${card.moduleProgress.percent}%`,
     ];
 
@@ -418,7 +423,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     for (const c of card.timeCategories) {
       const desc = catDescs[c.name] ?? '';
       lines.push(
-        `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count}`,
+        `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count} шаг\u005c\u0028ов\u005c\u0029`,
       );
     }
     // Активность студента
