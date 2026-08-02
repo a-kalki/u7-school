@@ -147,8 +147,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     });
 
     // Статистика
-    let criticalCount = 0;
-    let laggingCount = 0;
     let activeCount = 0;
     let advancedCount = 0;
     let notAdvancedCount = 0;
@@ -164,8 +162,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       } else if (r.student.status === 'abandoned') {
         abandonedCount++;
       }
-      if (r.lagLevel === 'critical') criticalCount++;
-      if (r.lagLevel === 'lagging') laggingCount++;
     }
 
     // Клавиатура
@@ -255,14 +251,6 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     // Метрики группы (с заголовком)
     const metrics: string[] = [];
-    if (criticalCount > 0)
-      metrics.push(
-        `🛑 Критические: ${criticalCount} \\(${Math.round((criticalCount / students.length) * 100)}%\\)`,
-      );
-    if (laggingCount > 0 && criticalCount === 0)
-      metrics.push(
-        `⚠️ Отстающие: ${laggingCount} \\(${Math.round((laggingCount / students.length) * 100)}%\\)`,
-      );
     if (activeCount > 0) metrics.push(`🏃 В процессе: ${activeCount}`);
     if (advancedCount > 0) metrics.push(`✅ Прошли: ${advancedCount}`);
     if (notAdvancedCount > 0) metrics.push(`↩️ Не прошли: ${notAdvancedCount}`);
@@ -282,6 +270,9 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       '———',
       '',
       '*Метрики по студентам:*',
+      '',
+      '*Обозначения:*',
+      '🛑 критическое отставание  ⚠️ отстаёт  🏃 в процессе',
     );
 
     // Добавляем строки студентов в текст
@@ -391,6 +382,10 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const lines = [
       `👤 *${esc(userName)}* \\| ${statusLabels[student.status] ?? student.status}`,
       '',
+      '———',
+      '',
+      '*Прогресс студента*',
+      '',
       `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| ${card.moduleProgress.percent}%`,
     ];
 
@@ -405,25 +400,30 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       );
     }
 
+    // Усидчивость студента
+    lines.push('', '———', '', '*Усидчивость студента:*');
+
     // Среднее время
     if (card.avgTimeMinutes !== null) {
       lines.push('', `⏱ Среднее время на шаг: ${card.avgTimeMinutes} мин\\.`);
     }
 
-    // Категории времени с описаниями
+    // Категории времени с описаниями (каждая с новой строки)
     const catDescs: Record<string, string> = {
       Бегун: '< 1 мин\\.',
       Спринтер: '< 5 мин\\.',
       Вдумчивый: '< 15 мин\\.',
       Исследователь: '\\> 15 мин\\.',
     };
-    const catLine = card.timeCategories
-      .map((c) => {
-        const desc = catDescs[c.name] ?? '';
-        return `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count}`;
-      })
-      .join('   ');
-    lines.push(catLine);
+    for (const c of card.timeCategories) {
+      const desc = catDescs[c.name] ?? '';
+      lines.push(
+        `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count}`,
+      );
+    }
+    // Активность студента
+    lines.push('', '———', '', '*Активность студента:*');
+
     // Последняя активность
     const hours = Math.round(card.hoursSinceLastActivity);
     if (hours > 0) {
