@@ -35,3 +35,6 @@
 - `packages/stream/src/ui/bot/stories/mentor-tools.story.ts` — подменю
 - `packages/stream/src/domain/stream-ds.ts` — StreamDs (computeStudentCard, computeStudentRowSummary, etc.)
 - `packages/stream/src/domain/types.ts` — StudentRowSummary, StudentCardData, TimeCategory
+
+
+> **Архитектурная эволюция:** объединяющий документ Релизов 1–3 (`architecture-evolution.md`) перенесён в этот трек при финальной архивации.

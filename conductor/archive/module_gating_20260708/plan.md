@@ -1,6 +1,6 @@
 # План реализации: Gating модулей
 
-> Контекст: `../../architecture-evolution.md` §2.1, §2.3, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
+> Контекст: `../.../../tracks/mentor_tools_20260713/architecture-evolution.md` §2.1, §2.3, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
 ## Фаза 1: CoursePolicy — gating [checkpoint: 9fc959e]
 

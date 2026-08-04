@@ -1,6 +1,6 @@
 # Спецификация трека: Gating модулей
 
-> **Контекст эволюции:** `conductor/architecture-evolution.md` (§2.1, §2.3). Прочитать перед началом.
+> **Контекст эволюции:** `../../tracks/mentor_tools_20260713/architecture-evolution.md` (§2.1, §2.3). Прочитать перед началом.
 > **Зависимости:** трек 0 (Course — порядок модулей), трек 1 (ЖЦ студента — статусы advanced/not_advanced, completionDetails).
 
 ## Обзор

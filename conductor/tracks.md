@@ -1,6 +1,6 @@
 # Реестр треков
 
-> Объединяющий архитектурный документ: [architecture-evolution.md](./architecture-evolution.md)
+> Объединяющий архитектурный документ: [architecture-evolution.md](tracks/mentor_tools_20260713/architecture-evolution.md)
 
 ---
 

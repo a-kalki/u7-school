@@ -1,6 +1,6 @@
 # План реализации: Роль AUTHOR
 
-> Контекст: `../../architecture-evolution.md` §2.9, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
+> Контекст: `../.../../tracks/mentor_tools_20260713/architecture-evolution.md` §2.9, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
 ## Фаза 1: Роль AUTHOR в домене user
 
@@ -30,7 +30,7 @@
 
 - [x] Task: Миграция прод-ролей: выдать AUTHOR авторам существующих модулей (Нур) — на месте [8fb0a0c]
 - [x] Task: Обновить `conductor/product.md` (роль AUTHOR, уточнить MENTOR) — уже актуально [8fb0a0c]
-- [x] Task: Обновить `conductor/architecture-evolution.md` (§2.9, отметить реализацию) [8fb0a0c]
+- [x] Task: Обновить `../../tracks/mentor_tools_20260713/architecture-evolution.md` (§2.9, отметить реализацию) [8fb0a0c]
 - [x] Task: Обновить `packages/stream/src/ui/bot/ui-spec.md` при необходимости — без изменений (потоки F4) [8fb0a0c]
 - [x] Task: Проверить, обновить сломанные и добавить интеграционные/e2e тесты в `tests/bot/*` (gates создания: AUTHOR создаёт модуль; ADMIN/MENTOR без AUTHOR → access denied; canEdit — ADMIN редактирует) [8fb0a0c]
 - [x] Task: Conductor - Ручная верификация 'Миграция и документация AUTHOR' [2a67e6c]

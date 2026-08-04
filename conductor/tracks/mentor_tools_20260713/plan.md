@@ -1,6 +1,6 @@
 # План реализации: Инструменты ментора
 
-> Контекст: `../../architecture-evolution.md` §2.3, §2.8, §2.10, §2.11, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
+> Контекст: `../.architecture-evolution.md` §2.3, §2.8, §2.10, §2.11, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
 ## Фаза 1: Подменю «Инструменты ментора»
 

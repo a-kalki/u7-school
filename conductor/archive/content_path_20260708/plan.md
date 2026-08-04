@@ -1,6 +1,6 @@
 # План реализации: ContentPath
 
-> Контекст: `../../architecture-evolution.md` §2.2, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
+> Контекст: `../.../../tracks/mentor_tools_20260713/architecture-evolution.md` §2.2, `./spec.md`. TDD (Red→Green), см. `conductor/workflow.md`.
 
 ## Фаза 1: VO ContentPath [checkpoint: 964ff19]
 

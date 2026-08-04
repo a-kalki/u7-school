@@ -57,7 +57,7 @@
 - `packages/stream/src/ui/bot/stories/progress.story.ts` — CourseDs вместо #findCurrentContext
 - `packages/stream/src/ui/bot/stories/learning.story.test.ts` — обновлены моки
 - `packages/stream/src/ui/bot/stories/monitor.story.test.ts` — обновлены моки
-- `conductor/architecture-evolution.md` — §2.2, §2.2.1
+- `../../tracks/mentor_tools_20260713/architecture-evolution.md` — §2.2, §2.2.1
 - `.pi/skills/ddd-domain/SKILL.md` — cross-package domain imports
 
 ## Архитектурные решения

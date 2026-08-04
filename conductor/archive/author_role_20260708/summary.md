@@ -45,7 +45,7 @@
 - data/fixtures/users/users.json
 - tests/bot/fixtures/templates/users.json
 - tests/bot/integration/stream/create-stream.integration.test.ts
-- conductor/architecture-evolution.md
+- ../../tracks/mentor_tools_20260713/architecture-evolution.md
 - data/users/users.json (прод, gitignored — миграция на месте)
 
 ## Архитектурные решения и обоснования
