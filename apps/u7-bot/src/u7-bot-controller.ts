@@ -1,6 +1,7 @@
+import type { User } from '@u7-scl/app/domain';
 import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import { BotController } from '@u7-scl/core/ui';
-import type { U7BotAppMeta, User } from '../domain';
+import type { U7BotAppMeta } from './u7-bot-app-meta';
 
 /**
  * Специализированный контроллер для U7 Telegram-бота.

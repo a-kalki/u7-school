@@ -1,5 +1,5 @@
-import type { U7BotAppMeta } from '@u7-scl/app/domain';
-import { U7BotController } from '@u7-scl/app/ui';
+import type { U7BotAppMeta } from '@u7-scl/bot/u7-bot-app-meta';
+import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import type {

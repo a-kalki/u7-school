@@ -47,7 +47,9 @@ describe('CreateStreamStory e2e', () => {
 
   test('ментор видит «🛠️ Инструменты ментора» в главном меню', async () => {
     const items = await router.collectMainMenu(mentor);
-    expect(items.some((i) => i.text.includes('Инструменты ментора'))).toBe(true);
+    expect(items.some((i) => i.text.includes('Инструменты ментора'))).toBe(
+      true,
+    );
   });
 
   test('гость НЕ видит «Создать поток»', async () => {

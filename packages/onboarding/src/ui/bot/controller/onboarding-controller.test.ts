@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { U7BotApp, User } from '@u7-scl/app/domain';
+import type { User } from '@u7-scl/app/domain';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';

@@ -1,4 +1,4 @@
-import { U7BotController } from '@u7-scl/app/ui';
+import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import type { CourseApiModuleMeta } from '../../../domain/module';
 import { CourseCatalogStory } from '../stories/course-catalog.story';
 

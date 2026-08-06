@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { U7BotApp, User } from '@u7-scl/app/domain';
+import type { User } from '@u7-scl/app/domain';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';

@@ -17,6 +17,7 @@
     "@u7-scl/onboarding": "workspace:*",
     "@u7-scl/stream": "workspace:*",
     "@u7-scl/user": "workspace:*",
+    "@u7-scl/app": "workspace:*",
     "@google/genai": "^1.49.0",
     "elysia": "^1.4.27",
     "grammy": "^1.41.1",

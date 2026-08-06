@@ -106,103 +106,96 @@ describe('E2E: Путь ментора — полный сквозной', () =>
     await app.cleanup();
   });
 
-  test(
-    'Главное меню → подменю → Мои потоки → S02m → Студенты → S08 → Назад',
-    async () => {
-      // ── 1: Главное меню содержит «Инструменты ментора»
-      const menu = (await router.collectMainMenu(
-        mentor,
-      )) as CbMainMenuAction[];
-      const mentorItem = findMenuItem(menu, 'Инструменты ментора');
+  test('Главное меню → подменю → Мои потоки → S02m → Студенты → S08 → Назад', async () => {
+    // ── 1: Главное меню содержит «Инструменты ментора»
+    const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+    const mentorItem = findMenuItem(menu, 'Инструменты ментора');
 
-      // ── 2: Подменю «Инструменты ментора»
-      const submenuResp = await router.handleCallback(
-        mentorItem.action,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(submenuResp);
+    // ── 2: Подменю «Инструменты ментора»
+    const submenuResp = await router.handleCallback(
+      mentorItem.action,
+      mentor,
+      NO_SESSION,
+    );
+    assertBotResponseValid(submenuResp);
 
-      expect(submenuResp.sendMessage?.text).toContain('Инструменты ментора');
-      expect(hasButton(submenuResp, 'Мои потоки')).toBe(true);
-      expect(hasButton(submenuResp, 'Создать поток')).toBe(true);
+    expect(submenuResp.sendMessage?.text).toContain('Инструменты ментора');
+    expect(hasButton(submenuResp, 'Мои потоки')).toBe(true);
+    expect(hasButton(submenuResp, 'Создать поток')).toBe(true);
 
-      // ── 3: «Мои потоки» → список (потоки в кнопках, не в тексте)
-      const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-      const streamsResp = await router.handleCallback(
-        myStreamsBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(streamsResp);
+    // ── 3: «Мои потоки» → список (потоки в кнопках, не в тексте)
+    const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
+    const streamsResp = await router.handleCallback(
+      myStreamsBtn.code,
+      mentor,
+      NO_SESSION,
+    );
+    assertBotResponseValid(streamsResp);
 
-      expect(streamsResp.sendMessage?.text).toContain('Мои потоки');
-      expect(hasButton(streamsResp, 'JS Core')).toBe(true);
+    expect(streamsResp.sendMessage?.text).toContain('Мои потоки');
+    expect(hasButton(streamsResp, 'JS Core')).toBe(true);
 
-      // ── 4: Клик по потоку «JS Core — Поток 2» → S02m (менторский вид)
-      const streamBtn = findButton(streamsResp, 'Поток 2');
-      const s02mResp = await router.handleCallback(
-        streamBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(s02mResp);
+    // ── 4: Клик по потоку «JS Core — Поток 2» → S02m (менторский вид)
+    const streamBtn = findButton(streamsResp, 'Поток 2');
+    const s02mResp = await router.handleCallback(
+      streamBtn.code,
+      mentor,
+      NO_SESSION,
+    );
+    assertBotResponseValid(s02mResp);
 
-      const s02mText = s02mResp.sendMessage?.text ?? '';
-      expect(s02mText).toContain('JS Core');
-      expect(hasButton(s02mResp, 'Программа')).toBe(true);
-      expect(hasButton(s02mResp, 'Студенты')).toBe(true);
+    const s02mText = s02mResp.sendMessage?.text ?? '';
+    expect(s02mText).toContain('JS Core');
+    expect(hasButton(s02mResp, 'Программа')).toBe(true);
+    expect(hasButton(s02mResp, 'Студенты')).toBe(true);
 
-      // ── 5: «👥 Студенты» → S07 (маркеры + сводка + кнопки действий)
-      const studentsBtn = findButton(s02mResp, 'Студенты');
-      const s07Resp = await router.handleCallback(
-        studentsBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(s07Resp);
+    // ── 5: «👥 Студенты» → S07 (маркеры + сводка + кнопки действий)
+    const studentsBtn = findButton(s02mResp, 'Студенты');
+    const s07Resp = await router.handleCallback(
+      studentsBtn.code,
+      mentor,
+      NO_SESSION,
+    );
+    assertBotResponseValid(s07Resp);
 
-      const s07Text = s07Resp.sendMessage?.text ?? '';
-      expect(s07Text).toContain('Студенты');
-      expect(s07Text).toContain('Всего');
+    const s07Text = s07Resp.sendMessage?.text ?? '';
+    expect(s07Text).toContain('Студенты');
+    expect(s07Text).toContain('Всего');
 
-      const s07Buttons = allButtonTexts(s07Resp);
-      expect(s07Buttons).toContain('Студент');
-      // Маркеры — студент f0 с 0% при staled шагах → 🛑 (critical)
-      expect(s07Buttons).toContain('⛔');
-      expect(s07Buttons).toContain('✅');
-      expect(s07Buttons).toContain('⛔');
+    const s07Buttons = allButtonTexts(s07Resp);
+    expect(s07Buttons).toContain('Студент');
+    // Маркеры — студент f0 с 0% при staled шагах → 🛑 (critical)
+    expect(s07Buttons).toContain('⛔');
+    expect(s07Buttons).toContain('✅');
+    expect(s07Buttons).toContain('⛔');
 
-      // ── 6: Клик по имени студента → S08 (карточка)
-      const studentBtn = findButton(s07Resp, 'Студент');
-      const s08Resp = await router.handleCallback(
-        studentBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(s08Resp);
+    // ── 6: Клик по имени студента → S08 (карточка)
+    const studentBtn = findButton(s07Resp, 'Студент');
+    const s08Resp = await router.handleCallback(
+      studentBtn.code,
+      mentor,
+      NO_SESSION,
+    );
+    assertBotResponseValid(s08Resp);
 
-      const s08Text = s08Resp.sendMessage?.text ?? '';
-      expect(s08Text).toContain('Студент');
-      expect(hasButton(s08Resp, 'Назад к списку')).toBe(true);
+    const s08Text = s08Resp.sendMessage?.text ?? '';
+    expect(s08Text).toContain('Студент');
+    expect(hasButton(s08Resp, 'Назад к списку')).toBe(true);
 
-      // ── 7: «⬅️ Назад к списку» → S07
-      const backBtn = findButton(s08Resp, 'Назад к списку');
-      const backResp = await router.handleCallback(
-        backBtn.code,
-        mentor,
-        NO_SESSION,
-      );
-      assertBotResponseValid(backResp);
-      expect(backResp.sendMessage?.text).toContain('Студенты');
-    },
-  );
+    // ── 7: «⬅️ Назад к списку» → S07
+    const backBtn = findButton(s08Resp, 'Назад к списку');
+    const backResp = await router.handleCallback(
+      backBtn.code,
+      mentor,
+      NO_SESSION,
+    );
+    assertBotResponseValid(backResp);
+    expect(backResp.sendMessage?.text).toContain('Студенты');
+  });
 
   test('Роль-гейтинг: студент НЕ видит «Инструменты ментора»', async () => {
     const student = (await app.userFacade.getUserByTelegramId(1003))!;
-    const menu = (await router.collectMainMenu(
-      student,
-    )) as CbMainMenuAction[];
+    const menu = (await router.collectMainMenu(student)) as CbMainMenuAction[];
     const hasMentorTools = menu.some((item) =>
       item.text.includes('Инструменты ментора'),
     );
@@ -365,9 +358,7 @@ describe('E2E: Админ видит менторские инструменты
   });
 
   test('Админ: главное меню → подменю Мои потоки (пустой список, нет своих потоков)', async () => {
-    const menu = (await router.collectMainMenu(
-      admin,
-    )) as CbMainMenuAction[];
+    const menu = (await router.collectMainMenu(admin)) as CbMainMenuAction[];
     const mentorItem = findMenuItem(menu, 'Инструменты ментора');
 
     const submenuResp = await router.handleCallback(
@@ -389,8 +380,8 @@ describe('E2E: Админ видит менторские инструменты
     assertBotResponseValid(streamsResp);
 
     expect(streamsResp.sendMessage?.text).toContain('Мои потоки');
-      // У админа нет своих потоков (mentorId фильтрация) — точки экранированы для MarkdownV2
-      expect(streamsResp.sendMessage?.text).toContain('нет потоков');
+    // У админа нет своих потоков (mentorId фильтрация) — точки экранированы для MarkdownV2
+    expect(streamsResp.sendMessage?.text).toContain('нет потоков');
   });
 });
 

@@ -67,7 +67,11 @@ describe('MonitorStory e2e', () => {
     // Кнопка «⬅️ Назад к потоку»
     expect(btns.some((t) => t.includes('⬅️ Назад к потоку'))).toBe(true);
     // Маркеры отставания в кнопках (🏃/🛑/⚠️/✅)
-    expect(btns.some((t) => t.includes('🏃') || t.includes('🛑') || t.includes('✅'))).toBe(true);
+    expect(
+      btns.some(
+        (t) => t.includes('🏃') || t.includes('🛑') || t.includes('✅'),
+      ),
+    ).toBe(true);
   });
 
   test('ментор открывает детальную карточку студента — статистика и навигация', async () => {

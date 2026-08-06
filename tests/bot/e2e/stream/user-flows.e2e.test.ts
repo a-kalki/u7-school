@@ -471,7 +471,9 @@ describe('Сквозные пользовательские сценарии (E2
 
       expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
       // «Создать поток» перенесён в подменю «Инструменты ментора» (Фаза 3)
-      expect(menu.some((i) => i.text.includes('Инструменты ментора'))).toBe(true);
+      expect(menu.some((i) => i.text.includes('Инструменты ментора'))).toBe(
+        true,
+      );
       expect(menu.some((i) => i.text.includes('Создать поток'))).toBe(false);
       expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(false);
     });

@@ -1,4 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
+import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type {
   BotResponse,
@@ -6,7 +7,6 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { U7BotUserStory } from '../u7-bot-user-story';
 
 /** Метаданные для stories без привязки к доменному модулю */
 export interface AppOnlyApiModuleMeta extends ApiModuleMeta {

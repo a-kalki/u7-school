@@ -1,4 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
+import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import type {
   BotResponse,
   MainMenuAction,
@@ -7,7 +8,6 @@ import type {
 } from '@u7-scl/core/ui';
 import type { AppOnlyApiModuleMeta } from './stories/community.story';
 import { CommunityStory } from './stories/community.story';
-import { U7BotController } from './u7-bot-controller';
 
 /**
  * Контроллер уровня приложения для системных сценариев:
