@@ -1,10 +1,30 @@
 # Управление учебным контентом: фронт работ
 
-> v6 (2026-07-18). Объединяющий документ для серии треков.
+> v7 (2026-08-01). Объединяющий документ для серии треков.
+> **Этот документ содержит ПОЛНЫЙ контекст для генерации треков в другой сессии.**
+> Ниже — все архитектурные решения, карта существующего кода (Приложение А), целевое состояние и декомпозиция.
+> Для генерации трека: прочитай этот документ → загрузи skill `conductor-newtrack` → создай трек.
 > После утверждения — разлагается на треки в `conductor/tracks/`.
+>
 > **Принцип рефакторинга:** трек может ломать нижележащий функционал, если тот восстанавливается в следующем треке. Промежуточные сломанные состояния допустимы.
 >
-> **Главные изменения от v5:** убран `code` (UUID везде + `basedOn`-цепочка для gating); snapshot стал чистым UUID-деревом (без title'ов); форк на всех уровнях (step→module); `getVisibleFor` заменён на `canRead` + `isPublished`.
+> **Связанные conductor-документы:**
+> - `conductor/workflow.md` — процесс работы conductor (создание треков, генерация планов)
+> - `conductor/architecture-evolution.md` — архитектурные правила (domain boundaries, зависимости пакетов)
+> - `conductor/code_styleguides/domain-boundaries.md` — где размещать логику
+> - `conductor/index.md` — индекс всех документов
+>
+> **Главные изменения от v6:** добавлены мета-поля (`planMd`, `lessonMd`, `summaryMd`) в entity; добавлен файловый Import/Export (папка ↔ JSON) с dry-run; `steps.md` генерируется из Step[] (не хранится); `.content-meta.json` для точного сопоставления при импорте; `AUTHOR_GUIDE.md` — единый промпт для ИИ-агентов; порядок треков перестроен: Import/Export до форка.
+>
+> **Решения, принятые в сессии v7 (2026-08-01):**
+> 1. `steps.md` НЕ хранить в entity — генерировать из Step[] при экспорте, парсить при импорте.
+> 2. `.content-meta.json` — если файл есть → обновление (UUID известны); если нет → создание нового. Title не используется для сопоставления.
+> 3. Импорт всегда через dry-run → утверждение → запись.
+> 4. Два режима импорта: полный модуль и отдельные уроки (например, «уроки 2–4 проекта p1»).
+> 5. Создание всегда через `plan.md` (обязательный файл со структурой модуля).
+> 6. Fork-режим в импорте — архитектурный задел в Треке 3, реализация в Треке 4.
+> 7. Менторские файлы (`mentor/`) — в техдолг (TODO.md).
+> 8. Изображения и бинарные ресурсы — на будущее, пока не используются.
 
 ---
 
@@ -12,7 +32,7 @@
 
 Автор работает с `data/courses/*.json` напрямую. Есть только UC **создания**. Нет update/archive/fork. Реструктуризация модуля ломает прод-потоки. Нет безопасного способа создать новую версию контента.
 
-**Цель:** API для автора, чтобы безопасно **добавлять и редактировать** объекты контента, не ломая прод-потоки. **Единые правила на всех уровнях** (от курса до шага). При множестве авторов — стабильность, удобство, низкая кривая обучения.
+**Цель:** API для автора, чтобы безопасно **добавлять и редактировать** объекты контента, не ломая прод-потоки. **Единые правила на всех уровнях** (от курса до шага). **Файловый обмен** (папка ↔ JSON) для работы автора локально и с ИИ-агентами. При множестве авторов — стабильность, удобство, низкая кривая обучения.
 
 ---
 
@@ -153,18 +173,18 @@ canEnrollNextModule(course, targetModuleId, completedModuleIds, repo):
   prevModuleId = course.getPrevModuleId(targetModuleId)
   if prevModuleId === undefined → true  // первый модуль
   if prevModuleId === null → false      // не в курсе
-  
+
   // Идём по basedOn-цепочке от prerequisite
   let cursor = prevModuleId
   while cursor:
     if completedModuleIds.includes(cursor) → true
     cursor = (await repo.getByUuid(cursor))?.basedOn ?? null
-  
+
   return false
 ```
 
-**Пример:** Course = [M2, M3]. M2.basedOn = M1. Студент завершил M1 (старая версия). 
-- `getPrevModuleId(M3)` → M2. 
+**Пример:** Course = [M2, M3]. M2.basedOn = M1. Студент завершил M1 (старая версия).
+- `getPrevModuleId(M3)` → M2.
 - Цепочка: M2 → M1. `completedModuleIds.includes(M1)` → true. ✅
 
 Работает для любой глубины версионирования. Не нужен code.
@@ -288,6 +308,25 @@ UC передаёт callbacks (ленивый fetch). DS вызывает тол
 - Без code — нет инварианта «один published на code». Несколько published-модулей могут сосуществовать (branch).
 - `content-validate.ts` — убирается как механизм защиты. Остаётся опциональным скриптом гигиены (orphan, dangling).
 
+### 3.15. Мета-поля для авторского контента (новое в v7)
+
+Автор работает с файлами `.md` локально (сам или через ИИ-агента). Система должна хранить этот контент как часть управляемого состояния — чтобы экспорт восстанавливал полную картину.
+
+| Entity | Поле | Тип | Назначение |
+|--------|------|-----|------------|
+| Module | `planMd` | `string?` | Полный текст `module-N-plan.md` (структура модуля, цели, правила) |
+| Module | `sourcePath` | `string?` | Относительный путь папки-источника при последнем импорте (audit trail) |
+| Project (VO) | `planMd` | `string?` | Метаинформация проекта (цель, результат, описание) |
+| Lesson | `lessonMd` | `string?` | Теория + цель урока (`lesson.md`) |
+| Lesson | `summaryMd` | `string?` | Итог урока (`summary.md`) |
+
+**`steps.md` — НЕ хранится.** Генерируется детерминированно из `Step[]` при экспорте. При импорте парсится и обновляет поля `Step.description`, `Step.content`, `Step.kind`, `Step.code`, `Step.language`.
+
+**Преимущества:**
+- Экспорт восстанавливает полную картину — автор получает те же файлы, что были импортированы.
+- ИИ-агент видит полный контекст модуля (`planMd`) при работе над отдельным уроком.
+- Мета-контент — часть managed-состояния, не теряется между импортами.
+
 ---
 
 ## 4. Единые правила работы с контентом (от курса до шага)
@@ -297,6 +336,7 @@ UC передаёт callbacks (ленивый fetch). DS вызывает тол
 | **UUID-связи** | Все связи — по UUID. Course→Module→Project→Lesson→Step. Без code. |
 | **status** | `draft` (скрыт) → `published` (в программе) → `archived` (по UUID). На всех уровнях. |
 | **basedOn** | `uuid \| null`. Provenance + gating chain. На всех уровнях. |
+| **Мета-поля** | `planMd` (Module, Project), `lessonMd` + `summaryMd` (Lesson). Хранятся в entity. |
 | **Edit (тот же UUID)** | Контентный: виден всем (live). Структурный: невидим активным (frozen snapshot). |
 | **Fork (новый UUID)** | Draft-копия (basedOn=старый). Старый не трогается. На всех уровнях. |
 | **Publish-replace** | Архивирует старый (каскад) + обновляет родителя + публикует новый. Атомарно. |
@@ -306,7 +346,7 @@ UC передаёт callbacks (ленивый fetch). DS вызывает тол
 
 ---
 
-## 5. Авторские workflows (детально)
+## 5. Авторские workflows (доменные)
 
 ### W1: Исправить опечатку в шаге (hotfix)
 - **Автор:** `update-step(S1, {content: fixedText})`
@@ -336,7 +376,7 @@ UC передаёт callbacks (ленивый fetch). DS вызывает тол
 Аналогично W3–W5. Структурный edit (тот же UUID). Frozen защищает активных. Без форка.
 
 ### W12: Новая версия модуля (replace)
-- **Автор:** `fork-module(M1)` → M2 (draft, basedOn=M1, deep-copy). Редактирует. `publish-module-replace(M2)`: архивирует M1 (каскад), course.moduleIds (M1→M2), публикует M2.
+- **Автор:** `fork-module(M1)` → M2 (draft, basedOn=M1, deep-copy). Редактирует. `publish-module-replace(M2)`: архивирует M1 (каскад), обновляет course.moduleIds (M1→M2), публикует M2.
 - **Данные:** modules.json — M1 (archived), M2 (published, basedOn=M1). Новые lessons/steps (basedOn=старые). Старые → archived.
 - **Активные:** frozen → UUID'ы M1 → archived, по UUID → **старая версия**. ✅
 - **Новые:** `resolveModuleContent(M2)` → свежий снапшот → **новая версия**. ✅
@@ -363,19 +403,160 @@ UC передаёт callbacks (ленивый fetch). DS вызывает тол
 
 ---
 
-## 6. Принятые следствия
+## 6. Файловый обмен: Import/Export (новое в v7)
 
-### 6.1. Orphan-объекты накапливаются
-После fork/remove старые дети orphan (archived, UUID-доступ). Безвредны. Гигиена: опциональный `list-orphans`.
+### 6.1. Структура папки модуля
 
-### 6.2. Edit-vs-fork — на авторе
-API предупреждает при контентном edit. Автор решает. Образование — в воркфлоу (Трек 4).
+```
+module-<N>-<slug>/
+├── plan.md                  # = Module.planMd
+├── .content-meta.json       # UUID и структурные связи (генерируется при экспорте)
+├── projects/
+│   └── p<X>-<project-slug>/
+│       ├── plan.md          # = Project.planMd (опционально)
+│       └── lessons/
+│           └── l<Y>-<lesson-slug>/
+│               ├── lesson.md    # = Lesson.lessonMd
+│               ├── steps.md     # ← генерируется из Step[] (не хранится)
+│               └── summary.md   # = Lesson.summaryMd
+```
 
-### 6.3. `update-stream-snapshot.ts` — ограничить
-Скрипт переписывает frozen-снапшот активного потока. Ограничить: только enrollment-статус (без прогресса). Или удалить (новый поток = новый снапшот).
+**Именование папок:** префиксы `p1-`, `l2-` для порядка. Slug — human-readable из title (транслитерация, lowercase, дефисы). Порядок определяется положением в `module.projects[]` и `project.lessonIds[]`.
 
-### 6.4. Stream читает title'ы live
-Без title'ов в снапшоте, stream загружает projectTitle/lessonTitle по UUID при отображении. Это batch-загрузки (дёшево). Step content уже читается так. Единообразно.
+### 6.2. `.content-meta.json` — точное сопоставление
+
+Генерируется при экспорте. Содержит UUID всех сущностей и структурные связи. **Не редактируется руками.**
+
+```json
+{
+  "moduleUuid": "abc-123",
+  "projects": {
+    "p1-git-tdd": {
+      "uuid": "proj-uuid-1",
+      "lessons": {
+        "l1-1-git-intro": {
+          "uuid": "lesson-uuid-1",
+          "stepUuids": ["step-uuid-1", "step-uuid-2"]
+        },
+        "l1-2-first-repo": {
+          "uuid": "lesson-uuid-2",
+          "stepUuids": ["step-uuid-3"]
+        }
+      }
+    }
+  }
+}
+```
+
+**Правило сопоставления при импорте:**
+- `.content-meta.json` **есть** → обновление существующего. UUID берутся из meta, title в `.md` игнорируется для сопоставления.
+- `.content-meta.json` **нет** → создание нового (все новые UUID).
+- Title **не используется** для сопоставления вообще.
+
+### 6.3. Формат `steps.md`
+
+**Машиночитаемый Markdown с жёсткой структурой.** Парсится детерминированно (без ИИ). Генератор (Step[] → steps.md) и парсер (steps.md → команды обновления) — чистые функции в `course/domain/`.
+
+```markdown
+# Шаги урока: «Название урока»
+
+## Шаг 1: Название шага
+- **Тип:** text
+- **Описание:** Краткое описание шага
+
+Контент шага. Может быть многострочным.
+
+Может содержать списки, код и т.д.
+
+---
+
+## Шаг 2: Название шага
+- **Тип:** code
+- **Язык:** javascript
+- **Описание:** Реализовать функцию
+
+\`\`\`javascript
+function hello() {
+  return 'world';
+}
+\`\`\`
+
+---
+
+## Шаг 3: Название шага
+- **Тип:** file
+- **Описание:** Скачать файл
+- **Файл:** path/to/file.zip
+```
+
+**Правила парсинга:**
+- Секции шагов разделены `---` (horizontal rule)
+- Каждый шаг начинается с `## Шаг N: Название`
+- Блок meta — строки `- **Ключ:** Значение` до первой пустой строки
+- Всё после meta-блока до `---` или конца файла — `content`
+- Для `code`: блок кода внутри content — поле `code`
+- Для `file`: ключ `Файл` в meta — путь к файлу
+
+### 6.4. Два режима импорта
+
+**Режим 1: полный модуль.** Импорт всей папки модуля. Создаёт/обновляет модуль, все проекты, уроки и шаги.
+
+**Режим 2: отдельные уроки.** Импорт выбранных уроков (например, «уроки 2–4 проекта p1»). Обновляет только указанные уроки и их шаги. Структура проектов и остальные уроки не трогаются.
+
+Создание **всегда** идёт через `plan.md` — обязательный файл со структурой модуля, проектов и уроков.
+
+### 6.5. Dry-run отчёт
+
+Импорт НЕ пишет сразу. Сначала парсит папку, сопоставляет с существующими сущностями (через `.content-meta.json`) и выдаёт отчёт:
+
+```
+╔══════════════════════════════════════════════════════════╗
+║  ИМПОРТ МОДУЛЯ: «Основы JS. Алгоритмика»              ║
+║  Режим: update (module-uuid-xxx)                       ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║  🆕 Проект «Массивы: трансформация»                     ║
+║     Урок 6.1 «fill()» — СОЗДАТЬ (новый)                ║
+║     Урок 6.2 «reverse()» — СОЗДАТЬ (новый)             ║
+║                                                          ║
+║  ✏️ Проект «Git, TDD и сравнение строк»                  ║
+║     Урок 1.1 «Что такое Git» — ОБНОВИТЬ (hotfix)       ║
+║       → lesson.md: изменён                              ║
+║       → steps.md: 9 шагов → 10 шагов (+1 новый)        ║
+║     Урок 1.2 «Первый репозиторий» — без изменений       ║
+║     Урок 1.5 «Таблица символов» — ОБНОВИТЬ (hotfix)    ║
+║       → steps.md: шаг 3 изменён контент                 ║
+║                                                          ║
+║  🔀 Мета-поля модуля:                                    ║
+║     plan.md: изменён                                    ║
+║                                                          ║
+║  Всего: 3 создания, 2 hotfix-обновления, 0 форков      ║
+╚══════════════════════════════════════════════════════════╝
+Применить? [y/N]
+```
+
+После утверждения — запись.
+
+### 6.6. Экспорт
+
+`export-module(moduleId)` → собирает структуру папки из entity:
+- `Module.planMd` → `plan.md`
+- `Module.projects` → папки `p1-slug/...`
+- `Lesson.lessonMd` / `Lesson.summaryMd` → `lesson.md` / `summary.md`
+- `Step[]` → `steps.md` (генерируется детерминированно)
+- Все UUID → `.content-meta.json`
+
+Экспорт всегда полный (весь модуль). Для отдельных уроков — автор скачивает модуль и берёт нужные папки.
+
+### 6.7. AUTHOR_GUIDE.md — промпт для ИИ-агентов
+
+Отдельный файл в корне репо. Описывает:
+- Структуру папки модуля
+- Форматы всех `.md`-файлов (`plan.md`, `lesson.md`, `steps.md`, `summary.md`)
+- Процесс создания контента с нуля
+- Процесс обновления существующего
+
+Автор даёт ИИ-агенту этот файл как промпт: «прочитай AUTHOR_GUIDE.md и создай уроки для проекта X». ИИ понимает, в каком формате и куда писать.
 
 ---
 
@@ -388,8 +569,10 @@ API предупреждает при контентном edit. Автор ре
 | Course | нет basedOn | + `basedOn: uuid\|null` |
 | Course.phase | `moduleIds: uuid[]` | без изменений (UUID) |
 | Module | нет basedOn | + `basedOn: uuid\|null` |
-| Module.projects | `Project[]` (VO) | + `Project.basedOn: uuid\|null` |
+| Module | нет мета-полей | + `planMd: string?`, + `sourcePath: string?` |
+| Module.projects | `Project[]` (VO) | + `Project.basedOn: uuid\|null`, + `Project.planMd: string?` |
 | Lesson | нет basedOn | + `basedOn: uuid\|null` |
+| Lesson | нет мета-полей | + `lessonMd: string?`, + `summaryMd: string?` |
 | Step | нет basedOn | + `basedOn: uuid\|null` |
 | Stream.contentSnapshot | тип в course, с title'ами | тип в stream, **чистое UUID-дерево** (без title'ов) |
 | Stream.moduleId | UUID | UUID (без изменений) |
@@ -401,6 +584,7 @@ API предупреждает при контентном edit. Автор ре
 | Create | ✅ | ✅ |
 | Read | ✅ | ✅ (canRead / isPublished) |
 | Update (content/metadata) | ❌ | ✅ update-* (live, по UUID) |
+| Update (meta-md fields) | ❌ | ✅ update-* (planMd, lessonMd, summaryMd) |
 | Update (structural: reorder/add/remove) | частично (add) | ✅ reorder-*, remove-* |
 | Archive (cascade) | ❌ | ✅ archive-* (≠ hidden) |
 | Fork (all levels) | ❌ | ✅ fork-step/lesson/project/module |
@@ -409,24 +593,31 @@ API предупреждает при контентном edit. Автор ре
 | Resolve hierarchy | buildSnapshot (course, с title'ами) | resolveModuleContent (course, чистое UUID-дерево) |
 | Course readiness | ❌ | ✅ isProgramReady(courseId) |
 | Gating | canEnrollNextModule (UUID) | canEnrollNextModule + basedOn-chain |
+| Export module → папка | ❌ | ✅ export-module (полный модуль, все мета-поля, .content-meta.json) |
+| Import папка → модуль | ❌ | ✅ import-module (полный, dry-run + apply) |
+| Import уроков | ❌ | ✅ import-lessons (выбранные уроки, dry-run + apply) |
+| Generate steps.md из Step[] | ❌ | ✅ stepsMdGenerator (чистая функция) |
+| Parse steps.md → команды | ❌ | ✅ stepsMdParser (чистая функция) |
 
 ---
 
 ## 8. Декомпозиция на треки
 
-**Принцип:** API (domain + UC) → CLI → воркфлоу. Треки последовательны.
+**Принцип:** API (domain + UC) → Snapshot → Import/Export → Fork. Треки последовательны.
 
 ---
 
-### Трек 1: «basedOn + visibility + CRUD»
+### Трек 1: «basedOn + visibility + CRUD + мета-поля»
 
-**Цель:** `basedOn` на всех сущностях. Visibility refactor (canRead/isPublished, archived доступен). CRUD: update, archive (каскад), structural ops.
+**Цель:** `basedOn` на всех сущностях. Visibility refactor (canRead/isPublished, archived доступен). CRUD: update, archive (каскад), structural ops. Мета-поля (`planMd`, `lessonMd`, `summaryMd`, `sourcePath`).
 
 **Domain:**
 - Все entity-схемы: + `basedOn: v.optional(v.pipe(v.string(), v.uuid()))`.
-- `ProjectSchema` (VO): + `basedOn`.
+- `ProjectSchema` (VO): + `basedOn`, + `planMd: v.optional(v.string())`.
+- `ModuleSchema`: + `planMd: v.optional(v.string())`, + `sourcePath: v.optional(v.string())`.
+- `LessonSchema`: + `lessonMd: v.optional(v.string())`, + `summaryMd: v.optional(v.string())`.
 - Базовый класс `ContentAr<T>` (опционально, §3.11): status, basedOn, archive(), publish(), canRead(), isPublished().
-- `StepAr.update({...})`, `LessonAr.update({...})`, `ModuleAr.update({...})`, `CourseAr.update({...})`.
+- `StepAr.update({...})`, `LessonAr.update({...})`, `ModuleAr.update({...})`, `CourseAr.update({...})` — включая мета-поля.
 - `LessonAr.removeStep(stepId)`, `LessonAr.reorderSteps(stepIds[])`.
 - `ModuleAr.removeLessonFromProject(...)`, `ModuleAr.reorderLessonsInProject(...)`, `ModuleAr.removeProject(...)`, `ModuleAr.reorderProjects(...)`.
 - Archive: `*Ar.archive()` (self only). Каскад — в DS/UC.
@@ -463,9 +654,88 @@ API предупреждает при контентном edit. Автор ре
 
 ---
 
-### Трек 3: «Форк на всех уровнях + publish-replace + gating»
+### Трек 3: «Import/Export + CLI + воркфлоу»
 
-**Цель:** Безопасное создание новой версии на любом уровне. Deep-copy. Provenance. Gating через basedOn.
+**Цель:** Автор работает через файловый обмен (папка ↔ JSON), не через прямой edit JSON. Детерминированные парсеры/генераторы. Dry-run. `AUTHOR_GUIDE.md`. Fork-режим — **архитектурный задел**, реализация в Треке 4.
+
+**Domain (course/domain/):**
+- `stepsMdGenerator.ts` — Step[] → строка `steps.md` (чистая функция).
+- `stepsMdParser.ts` — строка `steps.md` → массив команд обновления шагов (чистая функция).
+- `moduleExporter.ts` — Module + Lessons + Steps → объект папки (memory-structure: `ModuleFolder`).
+- `moduleImporter.ts` — `ModuleFolder` + `.content-meta.json` → dry-run отчёт → команды create/update.
+
+**Типы:**
+```ts
+// Структура папки модуля в памяти
+type ModuleFolder = {
+  planMd: string | null
+  meta: ContentMetaFile | null  // .content-meta.json
+  projects: ProjectFolder[]
+}
+type ProjectFolder = {
+  slug: string
+  planMd: string | null
+  lessons: LessonFolder[]
+}
+type LessonFolder = {
+  slug: string
+  lessonMd: string | null
+  stepsMd: string | null
+  summaryMd: string | null
+}
+
+// .content-meta.json
+type ContentMetaFile = {
+  moduleUuid: string
+  projects: Record<string, {
+    uuid: string
+    lessons: Record<string, {
+      uuid: string
+      stepUuids: string[]
+    }>
+  }>
+}
+
+// Отчёт dry-run
+type ImportReport = {
+  module: { action: 'create' | 'update' | 'unchanged', changes: string[] }
+  projects: Array<{ slug: string, action: 'create' | 'update' | 'unchanged', changes: string[] }>
+  lessons: Array<{ slug: string, action: 'create' | 'update' | 'unchanged', changes: string[] }>
+  summary: { creates: number, updates: number, forks: number }
+}
+```
+
+**UC:**
+- `export-module(moduleId)` → собирает папку из entity → пишет на диск / отдаёт zip.
+- `import-module(folderPath)` → парсит папку → сопоставляет с существующим через `.content-meta.json` → dry-run отчёт → apply (create/update через UC Трека 1).
+- `import-lessons(folderPath, lessonSlugs[])` → парсит выбранные уроки → dry-run → apply.
+
+**CLI:**
+- `content-export <moduleId> --output <dir>` — экспорт в папку.
+- `content-import <dir> [--new | --update <moduleId>]` — импорт с dry-run.
+- `content-import-lessons <dir> --lessons <slugs>` — импорт отдельных уроков.
+- `content-validate <dir>` — проверка структуры папки перед импортом (валидация формата).
+
+**AUTHOR_GUIDE.md:**
+- Файл в корне репо. Описывает структуру папки, форматы файлов, workflow создания и обновления.
+- Это же — промпт для ИИ-агента.
+
+**Воркфлоу:**
+- Запрет прямого edit `data/courses/*.json`.
+- Правила: контентный edit (hotfix) vs структурный edit (новым) vs fork (новая версия) — fork в Треке 4.
+- Процедуры: создание модуля с нуля (папка → import), обновление модуля (export → edit → import).
+
+**Зависимости:** Трек 1, Трек 2.
+
+**Не входит (отложено до Трека 4):**
+- Fork-режим в импорте (всегда edit/create, без fork).
+- Менторские файлы (экспорт/импорт папки `mentor/` внутрь урока) — в техдолг (TODO.md).
+
+---
+
+### Трек 4: «Форк на всех уровнях + publish-replace + gating»
+
+**Цель:** Безопасное создание новой версии на любом уровне. Deep-copy. Provenance. Gating через basedOn. Fork-режим в импорте.
 
 **Domain:**
 - `StepAr.fork()` → новый StepAr (новый uuid, basedOn=старый, копия контента, draft).
@@ -495,26 +765,9 @@ API предупреждает при контентном edit. Автор ре
 
 **`update-stream-snapshot.ts`:** ограничить/вынести (§6.3).
 
-**Зависимости:** Трек 1, 2.
+**Доработка импорта:** добавить режим `--fork` в `import-module` и `import-lessons` — создание fork + publish-replace вместо edit.
 
----
-
-### Трек 4: «CLI-инструменты + воркфлоу»
-
-**Цель:** Автор работает через CLI (UC), не через прямой edit JSON.
-
-**CLI/скрипты:**
-- `call-uc.ts` — покрывает все UC (update/archive/fork/reorder/remove/publish).
-- `list-orphans` — висячие объекты (гигиена).
-- `content-import.ts` — импорт из `data/fullstack-js/*.md` через UC.
-- Опциональный `content-validate.ts` — гигиена (dangling, orphan). НЕ защита инвариантов.
-
-**Воркфлоу (AGENTS.md / guide):**
-- Запрет прямого edit `data/courses/*.json`.
-- Правила: контентный edit (hotfix) vs структурный edit (новым) vs fork (новая версия).
-- Процедуры: реструктуризация урока (edit), смена контента (fork-step + publish-replace), новая версия модуля (fork-module + publish-replace).
-
-**Зависимости:** Треки 1–3.
+**Зависимости:** Трек 1, Трек 2, Трек 3.
 
 ---
 
@@ -527,10 +780,12 @@ API готово. Реализация — когда встанет потре�
 ## 9. Карта зависимостей
 
 ```
-1 (basedOn + visibility + CRUD)
-└──→ 2 (contentSnapshot → stream, чистое UUID-дерево)
-       └──→ 3 (Форк + publish-replace + gating)
-              └──→ 4 (CLI + воркфлоу)
+1 (basedOn + visibility + CRUD + мета-поля)
+├──→ 2 (contentSnapshot → stream, чистое UUID-дерево)
+│     └──→ 3 (Import/Export + CLI + воркфлоу)
+│            └──→ 4 (Форк + publish-replace + gating + fork-режим в импорте)
+│
+└──→ (Трек 2 и Трек 3 могут использовать CRUD и мета-поля из Трека 1)
 ```
 
 ---
@@ -545,31 +800,168 @@ API готово. Реализация — когда встанет потре�
 - `Student` — stepUuids из снапшота.
 - Stream-traversal — логика та же, тип перенесён, callbacks для title'ов.
 
-### С изменениями
+### С изменениями (по трекам)
+
+**Трек 1:**
 - Все entity-схемы: + `basedOn`.
-- `ProjectSchema` (VO): + `basedOn`.
+- `ProjectSchema` (VO): + `basedOn`, + `planMd`.
+- `ModuleSchema`: + `planMd`, + `sourcePath`.
+- `LessonSchema`: + `lessonMd`, + `summaryMd`.
 - Базовый `ContentAr` (опционально).
 - `getVisibleFor` → `canRead` + `isPublished` + `isArchived` (на всех уровнях).
 - `*Ar.update(...)`, `*Ar.archive()`, structural ops (remove, reorder).
-- `*Ar.fork()` — фабрики копий.
-- `CourseDs.forkChildren(...)` — deep-copy координация.
+
+**Трек 2:**
 - `CourseDs.buildSnapshot` → `resolveModuleContent` (чистое UUID-дерево).
 - `CourseFacade`: `resolveModuleContent(moduleId)`, `isProgramReady`. Убрать `getModuleSnapshot`.
 - `CreateStreamUc`: moduleId → snapshot + readiness check.
-- `CoursePolicy.canEnrollNextModule` — basedOn-chain walk.
 - Stream-traversal: callbacks для title'ов.
 - `content-snapshot.ts` → `stream/domain/` (чистое UUID-дерево). `ModuleContent` — в course.
-- Миграция: + basedOn на всех. streams.json — убрать title'ы из snapshot.
-- `update-stream-snapshot.ts` — ограничить/вынести.
+- Миграция: streams.json — убрать title'ы из snapshot.
+
+**Трек 3:**
+- Новые файлы: `stepsMdGenerator.ts`, `stepsMdParser.ts`, `moduleExporter.ts`, `moduleImporter.ts`.
+- UC: `export-module`, `import-module`, `import-lessons`.
+- CLI: `content-export`, `content-import`, `content-import-lessons`, `content-validate`.
+- `AUTHOR_GUIDE.md` в корне репо.
+- Миграция: заполнить `planMd`, `lessonMd`, `summaryMd` из существующих JSON (если есть исходные .md).
+
+**Трек 4:**
+- `*Ar.fork()` — фабрики копий.
+- `CourseDs.forkChildren(...)` — deep-copy координация.
+- `CoursePolicy.canEnrollNextModule` — basedOn-chain walk.
+- Fork-режим в `import-module`/`import-lessons`.
 
 ---
 
-## 11. Открытые вопросы
+## 11. Приложение А: Карта существующего кода
+
+> **Критично для генерации треков.** Здесь перечислены конкретные файлы, которые затрагиваются изменениями. Используй эту карту при составлении `plan.md` трека.
+
+### 11.1. Структура монорепо
+
+```
+packages/
+├── core/          # Фреймворк (Aggregate, UseCase, порты). НЕ трогать.
+├── app/           # Главный модуль u7-school. НЕ зависит от domain-модулей.
+├── course/        # Домен курсов: Course, Module, Lesson, Step, ContentSnapshot
+├── stream/        # Домен потоков: Stream, Student, enrollment
+├── user/          # Домен пользователей: User, Role, Policy
+└── onboarding/    # Домен онбординга
+
+apps/
+├── u7-bot/        # Telegram-бот
+└── u7-cli/        # CLI-утилиты
+
+data/courses/      # JSON-хранилище (в будущем — БД)
+├── courses.json
+├── modules.json
+├── lessons.json
+└── steps.json
+```
+
+### 11.2. Ключевые файлы (domain)
+
+| Файл | Содержит | Трек |
+|------|----------|------|
+| `packages/course/src/domain/course/entity.ts` | `CourseSchema`, `Course` | 1 |
+| `packages/course/src/domain/course/a-root.ts` | `CourseAr` | 1 |
+| `packages/course/src/domain/course/policy.ts` | `CoursePolicy` (canCreate, canRead, canEdit, canEnrollNextModule) | 1, 4 |
+| `packages/course/src/domain/module/entity.ts` | `ModuleSchema`, `ProjectSchema`, `Module`, `Project` | 1 |
+| `packages/course/src/domain/module/a-root.ts` | `ModuleAr` (getVisibleFor, addProject, publish, etc.) | 1 |
+| `packages/course/src/domain/module/policy.ts` | `ModulePolicy` | 1 |
+| `packages/course/src/domain/module/get-visible-for.test.ts` | Тесты getVisibleFor | 1 |
+| `packages/course/src/domain/lesson/entity.ts` | `LessonSchema`, `Lesson` | 1 |
+| `packages/course/src/domain/lesson/a-root.ts` | `LessonAr` | 1 |
+| `packages/course/src/domain/lesson/policy.ts` | `LessonPolicy` | 1 |
+| `packages/course/src/domain/step/entity.ts` | `StepSchema`, `Step`, `StepText`, `StepCode`, `StepFile` | 1 |
+| `packages/course/src/domain/step/a-root.ts` | `StepAr` | 1 |
+| `packages/course/src/domain/step/policy.ts` | `StepPolicy` | 1 |
+| `packages/course/src/domain/status.ts` | `Status` enum (DRAFT, PUBLISHED, ARCHIVED), `StatusSchema` | — |
+| `packages/course/src/domain/content-snapshot.ts` | `ContentSnapshot`, `ContentSnapshotSchema` (с title'ами, v5) | 2 |
+| `packages/course/src/domain/course-ds.ts` | `CourseDs` (buildSnapshot, findStepPosition, etc.) | 2 |
+| `packages/course/src/domain/facade.ts` | `CourseFacade` interface (getModuleSnapshot, getCourseProgram, etc.) | 2 |
+| `packages/stream/src/domain/stream/entity.ts` | `StreamSchema`, `Stream` (contentSnapshot с title'ами) | 2 |
+| `packages/stream/src/domain/stream/a-root.ts` | `StreamAr` (create, findNextStep, findStepContext, enroll) | 2 |
+| `packages/stream/src/domain/stream/policy.ts` | `StreamPolicy` (canEnrollNextModule) | 4 |
+
+### 11.3. Ключевые файлы (API / UC)
+
+| Файл | Содержит | Трек |
+|------|----------|------|
+| `packages/course/src/api/module/create-module-uc.ts` | `CreateModuleUc` | — |
+| `packages/course/src/api/module/publish-module-uc.ts` | `PublishModuleUc` | 1 |
+| `packages/course/src/api/module/get-module-uc.ts` | `GetModuleUc` (getVisibleFor) | 1 |
+| `packages/course/src/api/module/get-module-snapshot-uc.ts` | `GetModuleSnapshotUc` (buildSnapshot) | 2 |
+| `packages/course/src/api/module/enrich-module-uc.ts` | `EnrichModuleUc` | — |
+| `packages/course/src/api/module/add-project-uc.ts` | `AddProjectUc` | — |
+| `packages/course/src/api/lesson/create-lesson-uc.ts` | `CreateLessonUc` | — |
+| `packages/course/src/api/lesson/get-lesson-uc.ts` | `GetLessonUc` | 1 |
+| `packages/course/src/api/step/create-step-uc.ts` | `CreateStepUc` | — |
+| `packages/course/src/api/step/get-step-uc.ts` | `GetStepUc` | 1 |
+| `packages/course/src/api/step/get-steps-by-lessons-uc.ts` | `GetStepsByLessonsUc` | 1 |
+| `packages/course/src/api/course/create-course-uc.ts` | `CreateCourseUc` | — |
+| `packages/course/src/api/course/get-course-uc.ts` | `GetCourseUc` | 1 |
+| `packages/course/src/api/course/add-module-to-course-uc.ts` | `AddModuleToCourseUc` | — |
+| `packages/stream/src/api/stream/create-stream-uc.ts` | `CreateStreamUc` (getModuleSnapshot → snapshot) | 2 |
+| `packages/stream/src/api/student/enroll-student-uc.ts` | `EnrollStudentUc` (canEnrollNextModule) | 4 |
+
+### 11.4. Ключевые файлы (infra)
+
+| Файл | Содержит |
+|------|----------|
+| `packages/course/src/infra/db/course-json-repo.ts` | `CourseJsonRepo` |
+| `packages/course/src/infra/db/module-json-repo.ts` | `ModuleJsonRepo` |
+| `packages/course/src/infra/db/lesson-json-repo.ts` | `LessonJsonRepo` |
+| `packages/course/src/infra/db/step-json-repo.ts` | `StepJsonRepo` |
+| `packages/stream/src/infra/db/stream-json-repo.ts` | `StreamJsonRepo` |
+| `packages/stream/src/infra/db/student-json-repo.ts` | `StudentJsonRepo` |
+
+### 11.5. Данные (JSON)
+
+| Файл | Записи |
+|------|--------|
+| `data/courses/courses.json` | 1 курс: «Fullstack JS» |
+| `data/courses/modules.json` | ~2 модуля |
+| `data/courses/lessons.json` | ~30 уроков |
+| `data/courses/steps.json` | ~100 шагов |
+
+### 11.6. Текущий формат данных (v5, для справки)
+
+**Course:** `{ uuid, title, description, authorId, phases: [{ title, track?, moduleIds[] }], status, createdAt, updatedAt? }`
+
+**Module:** `{ uuid, title, description, authorId, targetAudience?, goal?, result?, rules?, additional?, tags?, status, projects: [{ uuid, title, goal?, result?, additional?, status, lessonIds[] }], createdAt, updatedAt? }`
+
+**Lesson:** `{ uuid, moduleId, title, additional?, status, createdAt, updatedAt?, estimatedMinutes?, stepIds[], mentorStepIds[] }`
+
+**Step:** `{ uuid, moduleId, description, content?, status, createdAt, updatedAt?, kind: 'text'|'code'|'file', code?, language?, file? }`
+
+**Stream:** `{ ..., contentSnapshot: [{ projectId, projectTitle, lessons: [{ lessonId, lessonTitle, stepIds[] }] }] }`
+
+### 11.7. Скиллы (PI skills) для реализации
+
+При реализации треков используй скиллы:
+- `arch-boundary-design` — **первым**, перед созданием ЛЮБЫХ методов/классов (определяет ГДЕ)
+- `ddd-domain` — для domain-слоя (Entity, Aggregate, Repo, Policy)
+- `ddd-api` — для API-слоя (UseCase, Command, Module)
+- `ddd-infra` — для Infra-слоя (реализация репозиториев)
+- `ddd-naming` — для именования файлов/папок/классов
+- `conductor-docs` — при создании/перемещении файлов в conductor/
+- `troubleshoot` — при неожиданных ошибках
+- `post-task-debrief` — после завершения задачи
+
+---
+
+## 12. Открытые вопросы
 
 1. **Базовый класс `ContentAr`?** Общая логика: status, basedOn, archive(), publish(), canRead(), isPublished() — ~6 методов. Стоит ли базовый класс или оставить агрегаты отдельными? Решить в Треке 1.
 
 2. **Code для будущих URL?** Откладывается. Добавить поле позже (additive). Не связано со связями. Обсудить когда подойдёт web.
 
-3. **Course fork?** Course — корневой уровень. `fork-course` = `create-course` с `basedOn`. Замены нет (нет родителя). Включать ли в Трек 3 или отложить? Пока отложено — course fork не требует нового API (create + basedOn).
+3. **Course fork?** Course — корневой уровень. `fork-course` = `create-course` с `basedOn`. Замены нет (нет родителя). Пока отложено — course fork не требует нового API (create + basedOn).
 
-4. **Производительность basedOn-chain gating?** Цепочка короткая (2–3). Загрузка по UUID дёшево. Кэшировать при необходимости. Обсудить в Треке 3.
+4. **Производительность basedOn-chain gating?** Цепочка короткая (2–3). Загрузка по UUID дёшево. Кэшировать при необходимости. Обсудить в Треке 4.
+
+5. **Менторские файлы в Import/Export?** Папка `mentor/` внутри урока. Отложено до будущего трека (в техдолге TODO.md).
+
+6. **Изображения и бинарные ресурсы?** Сейчас не используются. При появлении — расширить формат папки (zip-контейнер).
