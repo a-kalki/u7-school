@@ -8,6 +8,7 @@
 > **Принцип рефакторинга:** трек может ломать нижележащий функционал, если тот восстанавливается в следующем треке. Промежуточные сломанные состояния допустимы.
 >
 > **Связанные conductor-документы:**
+> - [`conductor/development-roadmap.md`](./development-roadmap.md) — **дорожная карта:** порядок релизов, миграции, зависимости между инициативами
 > - `conductor/workflow.md` — процесс работы conductor
 > - `conductor/code_styleguides/architecture.md` — архитектурные правила (слои, импорты)
 > - `conductor/code_styleguides/domain-boundaries.md` — где размещать логику

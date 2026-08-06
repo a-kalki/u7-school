@@ -3,6 +3,7 @@
 **Назначение:** аналитический документ. Определяет ЧТО измеряем: категории, подкатегории, шкалы, формулы агрегации. Без кода.
 
 > **Родительский документ:** [Система сбора метрик](./metrics-system.md)
+> **Дорожная карта:** [`conductor/development-roadmap.md`](./development-roadmap.md) — порядок релизов, миграции, зависимости между инициативами
 > **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — структура `metricMapping` в вопросах
 > **Связан с:** [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — как metrics модуль агрегирует баллы
 

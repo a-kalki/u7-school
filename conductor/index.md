@@ -6,6 +6,7 @@
 - [Технологический стек](./tech-stack.md)
 
 ## Процесс разработки (Workflow)
+- [Дорожная карта разработки](./development-roadmap.md) — **порядок релизов, миграции, зависимости** между инициативами
 - [Рабочий процесс](./workflow.md)
 - [Руководства по стилю кода](./code_styleguides/)
   - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — Entity, Aggregate, Repo, Policy, Errors
