@@ -358,4 +358,86 @@ describe('BotController', () => {
       expect(mockLogger.error).toHaveBeenCalled();
     });
   });
+
+  describe('publicActions', () => {
+    test('пустой контроллер возвращает пустой объект', () => {
+      const c = new TestController();
+      expect(c.publicActions).toEqual({});
+    });
+
+    test('контроллер с одной стори без publicActions возвращает пустой объект', () => {
+      const c = new TestController();
+      const story = new TestStory('simple');
+      c.addStory(story);
+      expect(c.publicActions).toEqual({});
+    });
+
+    test('контроллер собирает publicActions со стори', () => {
+      const c = new TestController();
+      const story = new TestStory('my_story');
+      (
+        story as unknown as {
+          publicActions: Record<string, (...ids: string[]) => string>;
+        }
+      ).publicActions = {
+        view: (id: string) => `my_story:view:${id}`,
+        list: () => 'my_story:list',
+      };
+      c.addStory(story);
+
+      const actions = c.publicActions;
+      expect(actions.my_story).toBeDefined();
+      expect(actions.my_story!.view).toBeInstanceOf(Function);
+      expect(actions.my_story?.view?.('abc')).toBe('my_story:view:abc');
+      expect(actions.my_story?.list?.()).toBe('my_story:list');
+    });
+
+    test('контроллер собирает publicActions с нескольких стори', () => {
+      const c = new TestController();
+      const story1 = new TestStory('story1');
+      const story2 = new TestStory('story2');
+      (
+        story1 as unknown as {
+          publicActions: Record<string, (...ids: string[]) => string>;
+        }
+      ).publicActions = {
+        doA: () => 'a',
+      };
+      (
+        story2 as unknown as {
+          publicActions: Record<string, (...ids: string[]) => string>;
+        }
+      ).publicActions = {
+        doB: () => 'b',
+      };
+      c.addStory(story1);
+      c.addStory(story2);
+
+      const actions = c.publicActions;
+      expect(Object.keys(actions)).toHaveLength(2);
+      expect(actions.story1).toBeDefined();
+      expect(actions.story2).toBeDefined();
+    });
+  });
+
+  describe('initUi', () => {
+    test('пробрасывает uiRegistry всем стори', () => {
+      const c = new TestController();
+      const story1 = new TestStory('s1');
+      const story2 = new TestStory('s2');
+      c.addStory(story1);
+      c.addStory(story2);
+
+      const registry = { test: { s1: { act: () => 'code' } } };
+      c.initUi(registry);
+
+      expect(story1.ui).toBe(registry);
+      expect(story2.ui).toBe(registry);
+    });
+
+    test('initUi с пустым контроллером не падает', () => {
+      const c = new TestController();
+      c.initUi({});
+    });
+  });
 });

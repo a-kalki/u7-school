@@ -61,6 +61,41 @@ export abstract class BotController<
     }
   }
 
+  /**
+   * Инжекция UI-реестра всем стори контроллера.
+   * Вызывается BotRouter'ом после сбора всех контроллеров.
+   */
+  initUi(registry: unknown): void {
+    for (const story of this.stories) {
+      story.initUi(registry);
+    }
+  }
+
+  /**
+   * Публичные действия всех стори контроллера.
+   * Каждая стори может переопределить get publicActions() для экспорта фабрик колбэков.
+   * Используется для построения типизированного UiRegistry.
+   */
+  get publicActions(): Record<
+    string,
+    Record<string, (...ids: string[]) => string>
+  > {
+    const actions: Record<
+      string,
+      Record<string, (...ids: string[]) => string>
+    > = {};
+    for (const story of this.stories) {
+      if ('publicActions' in story && story.publicActions) {
+        actions[story.name] = (
+          story as unknown as {
+            publicActions: Record<string, (...ids: string[]) => string>;
+          }
+        ).publicActions;
+      }
+    }
+    return actions;
+  }
+
   /** Сброс временных данных контроллера и всех стори */
   reset(): void {
     this.shortIds.clear();

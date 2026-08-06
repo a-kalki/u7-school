@@ -59,10 +59,18 @@ export class BotRouter<
   /**
    * Каскадная инициализация: вызывает init(apiApp) у каждого контроллера.
    * Контроллеры, в свою очередь, каскадно инициализируют свои UserStory.
+   *
+   * @param apiApp — приложение API
+   * @param uiRegistry — опциональный реестр UI-действий для кросс-ссылок между стори
    */
-  init(apiApp: ApiApp<TAppMeta>): void {
+  init(apiApp: ApiApp<TAppMeta>, uiRegistry?: unknown): void {
     for (const controller of this.controllers.values()) {
       controller.init(apiApp);
+    }
+    if (uiRegistry !== undefined) {
+      for (const controller of this.controllers.values()) {
+        controller.initUi(uiRegistry);
+      }
     }
   }
 

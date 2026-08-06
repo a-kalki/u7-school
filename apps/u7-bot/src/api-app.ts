@@ -30,6 +30,7 @@ import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-contro
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
+import { createUiRegistry } from './ui-actions';
 
 /**
  * Фабрика создания ApiApp и зависимостей для бота.
@@ -136,7 +137,13 @@ export function createApiApp(
   ]);
 
   // Каскадная инициализация: BotRouter → контроллеры → стори
-  router.init(apiApp);
+  const uiRegistry = createUiRegistry([
+    appController,
+    onboardingController,
+    streamController,
+    courseController,
+  ]);
+  router.init(apiApp, uiRegistry);
 
   // Передаём MenuAggregator в AppController
   appController.initMenuAggregator(router);

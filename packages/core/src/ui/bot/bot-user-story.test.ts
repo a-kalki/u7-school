@@ -293,4 +293,34 @@ describe('BotUserStory', () => {
       expect(cancelBtn.code).toBe('test_story:detail:uuid-42');
     });
   });
+
+  describe('ui и initUi', () => {
+    test('ui изначально undefined', () => {
+      expect(story.ui).toBeUndefined();
+    });
+
+    test('initUi устанавливает поле ui', () => {
+      const mockRegistry = {
+        stream: {
+          catalog: { view: () => 'code' },
+        },
+      };
+
+      story.initUi(mockRegistry);
+      expect(story.ui).toBe(mockRegistry);
+    });
+
+    test('initUi с null — устанавливает null', () => {
+      story.initUi(null);
+      expect(story.ui).toBeNull();
+    });
+
+    test('initUi с разными типами данных', () => {
+      story.initUi('строка');
+      expect(story.ui).toBe('строка');
+
+      story.initUi(42);
+      expect(story.ui).toBe(42);
+    });
+  });
 });
