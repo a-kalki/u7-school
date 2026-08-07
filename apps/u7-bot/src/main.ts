@@ -7,7 +7,7 @@ import {
 } from '@u7-scl/core/shared';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
-import { createApiApp } from './api-app';
+import { createApiApp, createUiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
 import { registerGroupHandlers } from './handlers/group-handler';
@@ -31,7 +31,10 @@ const logger = loggers;
 const bot = createBot(config.botToken);
 const tgFacade = new TelegramTgFacade(bot);
 
-const { userFacade, router } = createApiApp(config, logger, tgFacade);
+const apiBundle = createApiApp(config, logger, tgFacade);
+const { userFacade } = apiBundle;
+const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
+const router = uiApp.router;
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
