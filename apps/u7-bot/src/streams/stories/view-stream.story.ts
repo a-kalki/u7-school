@@ -4,8 +4,6 @@ import type {
   BotResponse,
   KeyboardDescription,
   SessionData,
-  StoryPublicActions,
-  UiBotButton,
 } from '@u7-scl/core/ui';
 import type { Stream } from '@u7-scl/stream/domain';
 import { StreamPolicy } from '@u7-scl/stream/domain';
@@ -13,20 +11,12 @@ import type { TreeNode } from '../../shared/tree-renderer';
 import { renderTree } from '../../shared/tree-renderer';
 
 /**
- * Действия других контроллеров, нужные ViewStreamStory.
- * Регистрируются через publicActions при init соответствующих стори.
- */
-export interface MonitorActions extends StoryPublicActions {
-  students(streamId: string): UiBotButton;
-}
-export interface EnrollActions extends StoryPublicActions {
-  start(streamId: string): UiBotButton;
-}
-
-/**
  * S02-S04: Детальная карточка потока (curious-режим).
  * Показывает описание, статус, дату старта, имя ментора и публичные кнопки.
  * Менторские lifecycle-кнопки убраны — перенесены в трек mentor_tools_20260713.
+ *
+ * TODO(Трек 5): кнопка «📝 Записаться» через getAction<EnrollActions>('start')
+ * TODO(Трек 6): кнопка «👥 Студенты» через getAction<MonitorActions>('students')
  */
 export class ViewStreamStory extends U7BotUserStory {
   readonly name = 'view-stream';
@@ -255,8 +245,8 @@ export class ViewStreamStory extends U7BotUserStory {
       },
     ]);
 
-    // Кнопка «👥 Студенты» через кросс-ссылку на MonitorActions (Трек 6)
-    rows.push([this.#getStudentsButton(stream.uuid)]);
+    // TODO(Трек 6): кнопка «👥 Студенты» через getAction<MonitorActions>('students')
+    // rows.push([this.uiApp.getAction<MonitorActions>('students')(stream.uuid)]);
 
     rows.push([
       {
@@ -267,10 +257,10 @@ export class ViewStreamStory extends U7BotUserStory {
 
     // ── Гостевые кнопки ──
     if (!isOwnerMentor) {
-      if (stream.status === 'enrollment' && canEnroll) {
-        // Кнопка «📝 Записаться» через кросс-ссылку на EnrollActions (Трек 5)
-        rows.push([this.#getEnrollButton(stream.uuid)]);
-      }
+      // TODO(Трек 5): кнопка «📝 Записаться» через getAction<EnrollActions>('start')
+      // if (stream.status === 'enrollment' && canEnroll) {
+      //   rows.push([this.uiApp.getAction<EnrollActions>('start')(stream.uuid)]);
+      // }
 
       if (stream.status === 'active' && canEnroll) {
         rows.push([
@@ -291,32 +281,6 @@ export class ViewStreamStory extends U7BotUserStory {
     ]);
 
     return { rows, isMultiple: false };
-  }
-
-  /** Кнопка «👥 Студенты» — через MonitorActions (заработает после Трека 6). */
-  #getStudentsButton(streamId: string): { text: string; code: string } {
-    try {
-      return this.uiApp.getAction<MonitorActions>('students')(streamId);
-    } catch {
-      // TODO(Трек 6): убрать fallback после миграции MonitorStory
-      return {
-        text: '👥 Студенты',
-        code: this.cbFor('monitor', 'students', streamId),
-      };
-    }
-  }
-
-  /** Кнопка «📝 Записаться» — через EnrollActions (заработает после Трека 5). */
-  #getEnrollButton(streamId: string): { text: string; code: string } {
-    try {
-      return this.uiApp.getAction<EnrollActions>('start')(streamId);
-    } catch {
-      // TODO(Трек 5): убрать fallback после миграции EnrollStory
-      return {
-        text: '📝 Записаться',
-        code: this.cbFor('enroll', 'enroll', streamId),
-      };
-    }
   }
 
   #formatDate(iso: string): string {

@@ -13,7 +13,6 @@ import type { TestApp } from '../helpers/test-app';
 import { createTestApp } from '../helpers/test-app';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
-const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
 
 const NO_SESSION: SessionData = { activeHandler: null };
 
@@ -44,7 +43,9 @@ function findMenuItem(
   const item = items.find((i) => i.text.includes(textContains));
   if (!item) {
     const all = items.map((i) => i.text).join(', ');
-    throw new Error(`Пункт меню «${textContains}» не найден. Доступны: ${all}`);
+    throw new Error(
+      `Пункт меню «${textContains}» не найден. Доступны: ${all}`,
+    );
   }
   return item;
 }
@@ -53,7 +54,6 @@ describe('E2E: Витрина для любопытного', () => {
   let app: TestApp;
   let router: UiApp;
   let guest: User;
-  let candidate: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-curious');
@@ -63,7 +63,6 @@ describe('E2E: Витрина для любопытного', () => {
     router = new UiApp([appController, streamController, courseController]);
     router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
-    candidate = (await app.userFacade.getUserByTelegramId(1002))!;
   });
 
   afterAll(async () => {
@@ -195,7 +194,6 @@ describe('E2E: Витрина для любопытного', () => {
       const btns =
         projectsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
         [];
-      // Кнопки — проекты (не уроки!)
       expect(btns.some((t) => t.includes('Введение'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к этапу'))).toBe(true);
     });
@@ -239,14 +237,15 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).not.toContain('```');
       expect(text).not.toContain('function');
       const btns =
-        lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
+        [];
       expect(btns.some((t) => t.includes('Назад к модулю'))).toBe(true);
     });
   });
 
-  // ── «Потоки курсов»: curious-режим ──
+  // ── «Потоки курсов»: curious-режим (S01-S04) ──
   describe('«Потоки курсов» — curious-режим карточки потока', () => {
-    test('гость открывает каталог потоков', async () => {
+    test('гость открывает каталог потоков (S01)', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const response = await router.handleCallback(
@@ -263,7 +262,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
 
-    test('гость → enrollment-поток: нет менторских кнопок', async () => {
+    test('гость → enrollment-поток: карточка без менторских кнопок (S02)', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
@@ -285,17 +284,20 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).not.toContain('Неизвестная команда');
       const btns =
         viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
       expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
-      expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
+      // Менторские lifecycle-кнопки отсутствуют
       expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
       expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
       expect(btns.some((t) => t.includes('В архив'))).toBe(false);
+      // TODO(Трек 5): кнопка «Записаться» появится после миграции EnrollStory
+      // expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
+      // TODO(Трек 6): кнопка «Студенты» появится после миграции MonitorStory
+      // expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
     });
 
-    test('гость → active-поток: Программа и Детали видны', async () => {
+    test('гость → active-поток: Программа и Детали видны (S02)', async () => {
       const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await router.handleCallback(
@@ -315,100 +317,8 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
     });
-
-    test('гость → Студенты → список → карточка студента', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(
-        streamBtn.action,
-        guest,
-        NO_SESSION,
-      );
-      const activeButton = findButton(catalogResp, '🔵');
-      const viewResp = await router.handleCallback(
-        activeButton.code,
-        guest,
-        NO_SESSION,
-      );
-      const studentsBtn = findButton(viewResp, 'Студенты');
-      const studentsResp = await router.handleCallback(
-        studentsBtn.code,
-        guest,
-        NO_SESSION,
-      );
-      assertBotResponseValid(studentsResp);
-      const text = studentsResp.sendMessage?.text ?? '';
-      expect(text).toContain('Студенты потока');
-      expect(text).not.toContain('Неизвестная');
-      const studentBtn = studentsResp.sendMessage?.keyboard?.rows[0]?.[0];
-      expect(studentBtn).toBeDefined();
-      if (!studentBtn) return;
-      const detailResp = await router.handleCallback(
-        studentBtn.code,
-        guest,
-        NO_SESSION,
-      );
-      assertBotResponseValid(detailResp);
-      const detailText = detailResp.sendMessage?.text ?? '';
-      expect(detailText).not.toContain('Неизвестная');
-      expect(detailText.length).toBeGreaterThan(0);
-      const detailBtns =
-        detailResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-      expect(detailBtns.some((t) => t.includes('Неактивен'))).toBe(false);
-      expect(detailBtns.some((t) => t.includes('Завершить'))).toBe(false);
-    });
   });
 
-  // ── Кандидат: запись ──
-  describe('Кандидат: от витрины к записи', () => {
-    test('кандидат видит оба меню', async () => {
-      const menu = (await router.collectMainMenu(
-        candidate,
-      )) as CbMainMenuAction[];
-      expect(menu.some((i) => i.text.includes('Программы курсов'))).toBe(true);
-      expect(menu.some((i) => i.text.includes('Потоки курсов'))).toBe(true);
-    });
-
-    test('кандидат → поток → Записаться', async () => {
-      const menu = (await router.collectMainMenu(
-        candidate,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(
-        streamBtn.action,
-        candidate,
-        NO_SESSION,
-      );
-      const streamButton = findButton(catalogResp, '🟡');
-      const viewResp = await router.handleCallback(
-        streamButton.code,
-        candidate,
-        NO_SESSION,
-      );
-      const enrollBtn = findButton(viewResp, 'Записаться');
-      const enrollResp = await router.handleCallback(
-        enrollBtn.code,
-        candidate,
-        NO_SESSION,
-      );
-      assertBotResponseValid(enrollResp);
-      const allTexts = [
-        enrollResp.sendMessage?.text ?? '',
-        ...(enrollResp.sendMessages ?? []).map((m) => m.text),
-      ].join(' ');
-      expect(allTexts).toContain('успешно записаны');
-      expect(allTexts).toContain('JS Core');
-    });
-
-    test('после записи — студент в потоке', async () => {
-      const studentRecord = await app.streamModule.execute(
-        'get-student-by-user',
-        { userId: candidate.uuid },
-        candidate.uuid,
-      );
-      expect(studentRecord).toBeDefined();
-      expect(studentRecord!.status).toBe('enrolled');
-      expect(studentRecord!.streamId).toBe(ENROLLMENT_ID);
-    });
-  });
+  // TODO(Трек 6): гость → Студенты → список → карточка студента
+  // TODO(Трек 5): Кандидат: от витрины к записи
 });

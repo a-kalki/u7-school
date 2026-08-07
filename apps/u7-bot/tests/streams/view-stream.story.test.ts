@@ -91,52 +91,6 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(response.sendMessage?.text).toContain('Продвинутый курс');
   });
 
-  test('view: на enrollment — кнопка «Записаться»', async () => {
-    const { story } = makeStory({ status: 'enrollment' }, 0);
-
-    const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
-  });
-
-  test('view: на active — кнопка «Записаться» скрыта', async () => {
-    const { story } = makeStory({ status: 'active' }, 5);
-
-    const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
-  });
-
-  test('S02: публичные кнопки — Программа, Детали, Студенты, Назад', async () => {
-    const { story } = makeStory({ status: 'enrollment' }, 0);
-
-    const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
-  });
-
   test('view: показывает имя ментора', async () => {
     const { story } = makeStory({}, 0);
 
@@ -173,18 +127,51 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(response.sendMessage?.text).toContain('📚 Курс: Fullstack JS');
   });
 
-  test('STUDENT на enrollment — НЕ видит «Записаться»', async () => {
+  test('S02: публичные кнопки — Программа, Детали, Назад к списку', async () => {
     const { story } = makeStory({ status: 'enrollment' }, 0);
 
     const response = await story.handleCallback(
       `view:${SAMPLE_ID}`,
-      studentActor,
+      guestActor,
       session,
     );
     assertResponseMarkdownSafe(response);
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
+
+    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
+  });
+
+  // TODO(Трек 5): вернуть тест после миграции EnrollStory
+  // test('view: на enrollment — кнопка «Записаться»', async () => {
+  //   ... getAction<EnrollActions>('start')
+  // });
+
+  // TODO(Трек 6): вернуть тест после миграции MonitorStory
+  // test('S02: кнопка «👥 Студенты»', async () => {
+  //   ... getAction<MonitorActions>('students')
+  // });
+
+  test('MENTOR на своём enrollment — НЕ видит lifecycle-кнопок', async () => {
+    const { story } = makeStory({ status: 'enrollment' }, 5);
+
+    const response = await story.handleCallback(
+      `view:${SAMPLE_ID}`,
+      mentorActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
+
+    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
   });
 
   // ── S03: Программа курса ──
@@ -326,29 +313,6 @@ describe('ViewStreamStory (S02-S04)', () => {
     const btnTexts =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Назад к потоку'))).toBe(true);
-  });
-
-  // ── НЕТ менторских lifecycle-кнопок ──
-
-  test('MENTOR на своём enrollment — НЕ видит lifecycle-кнопок', async () => {
-    const { story } = makeStory({ status: 'enrollment' }, 5);
-
-    const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      mentorActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
-
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
   });
 
   // ── Краевые случаи ──
