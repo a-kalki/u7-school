@@ -1,4 +1,3 @@
-import { AppController } from '@u7-scl/bot/app/app-controller';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
@@ -11,12 +10,7 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
-import { CourseController } from '@u7-scl/course/ui';
-import {
-  OnboardingApiModule,
-  OnboardingController,
-  QuestionPoolService,
-} from '@u7-scl/onboarding';
+import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import {
   StreamApiModule,
@@ -24,12 +18,10 @@ import {
   StudentJsonRepo,
 } from '@u7-scl/stream';
 import type { TgFacade } from '@u7-scl/stream/domain';
-import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
 import type { U7BotAppMeta } from './u7-bot-app-meta';
-import { U7BotUiApp } from './ui-app';
 
 /**
  * Результат фабрики ApiApp — только доменный слой.
@@ -48,8 +40,7 @@ export interface ApiAppBundle {
 /**
  * Создаёт ApiApp и все доменные зависимости (модули, репозитории, фасады).
  *
- * НЕ создаёт контроллеры — это ответственность
- * createUiApp() / U7BotUiApp.
+ * НЕ создаёт контроллеры — это ответственность createUiApp().
  */
 export function createApiApp(
   config: BotConfig,
@@ -143,54 +134,5 @@ export function createApiApp(
     streamModule,
     courseModule,
     onboardingModule,
-  };
-}
-
-/**
- * Результат фабрики UiApp — UI-слой бота.
- */
-export interface UiAppBundle {
-  uiApp: U7BotUiApp;
-  appController: AppController;
-  onboardingController: OnboardingController;
-  streamController: StreamController;
-  courseController: CourseController;
-}
-
-/**
- * Создаёт U7BotUiApp и все контроллеры.
- *
- * Получает модули из ApiAppBundle, создаёт контроллеры,
- * собирает их в U7BotUiApp и выполняет каскадную инициализацию.
- */
-export function createUiApp(
-  apiApp: ApiApp<U7BotAppMeta>,
-  _bundle: ApiAppBundle,
-  config: BotConfig,
-): UiAppBundle {
-  const onboardingController = new OnboardingController();
-  const streamController = new StreamController();
-  const courseController = new CourseController();
-  const appController = new AppController(config.schoolGroupUrl);
-
-  const uiApp = new U7BotUiApp([
-    appController,
-    onboardingController,
-    streamController,
-    courseController,
-  ]);
-
-  // Каскадная инициализация: ApiApp → контроллеры → стори → UiRegistry → ui
-  uiApp.init(apiApp);
-
-  // Передаём MenuAggregator в AppController (сам UiApp реализует MenuAggregator)
-  appController.initMenuAggregator(uiApp);
-
-  return {
-    uiApp,
-    appController,
-    onboardingController,
-    streamController,
-    courseController,
   };
 }

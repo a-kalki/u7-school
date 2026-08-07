@@ -23,7 +23,7 @@ export class AppController extends U7BotController {
 
   /**
    * Публичные действия для кросс-ссылок из других стори.
-   * Другие стори используют: this.ui.app.mainMenu(), this.ui.app.help()
+   * Другие стори используют: this.ui.app.mainMenu()
    */
   override get publicActions() {
     return {
@@ -31,10 +31,6 @@ export class AppController extends U7BotController {
         mainMenu: () => ({
           text: '↩️ Главное меню',
           code: 'app:main-menu',
-        }),
-        help: () => ({
-          text: '❓ Помощь',
-          code: 'app:help',
         }),
       },
     };
@@ -63,8 +59,7 @@ export class AppController extends U7BotController {
     // Получаем кнопки от stories через базовый механизм (с префиксами)
     const items = await super.handleStart(actor);
 
-    // Кнопка «Сообщество школы» уже добавлена через CommunityStory с priority 100.
-    // Меняем её priority на 90, чтобы была выше «Помощи».
+    // Кнопка «Сообщество школы» уже добавлена через CommunityStory с priority 90.
     // Кнопка «Помощь» — priority 100 (ниже сообщества)
     items.push({
       kind: 'callback',

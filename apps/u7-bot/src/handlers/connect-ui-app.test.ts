@@ -4,7 +4,7 @@ import { BotController, UiApp } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
-import { connectUiApp, resolveUser } from './router';
+import { connectUiApp, resolveUser } from './connect-ui-app';
 
 // ── Вспомогательные фабрики ──
 

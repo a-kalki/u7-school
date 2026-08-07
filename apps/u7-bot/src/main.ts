@@ -7,11 +7,12 @@ import {
 } from '@u7-scl/core/shared';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
-import { createApiApp, createUiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
+import { createApiApp } from './create-api-app';
+import { createUiApp } from './create-ui-app';
+import { connectUiApp } from './handlers/connect-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
-import { connectUiApp } from './handlers/router';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
 import { CompositeLogger, TelegramLogger } from './logger';
 

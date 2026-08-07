@@ -14,8 +14,6 @@ import type {
 } from './types';
 import type { UiApp } from './ui-app';
 
-// определить в core Uijapp с базовой логикой.
-
 /**
  * Абстрактный класс для пользовательского сценария внутри контроллера.
  * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
@@ -25,6 +23,7 @@ import type { UiApp } from './ui-app';
  *
  * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
  * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
+ * @typeParam TActions — тип публичных кнопок этого стори для других стори.
  */
 export abstract class BotUserStory<
   TAppMeta extends AppMeta = AppMeta,

@@ -68,54 +68,6 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     this.#registerPublicActions();
   }
 
-  // ── Реестр publicActions ──
-
-  /**
-   * Собирает publicActions со всех стори всех контроллеров в плоскую мапу.
-   * Проверяет уникальность имён действий.
-   */
-  #registerPublicActions(): void {
-    this.publicActionsMap.clear();
-    for (const controller of this.controllers.values()) {
-      // 1. Собираем publicActions со стори
-      for (const story of controller.getStories()) {
-        const actions = story.publicActions as Record<
-          string,
-          UiCallbackFactory
-        >;
-        for (const actionName of Object.keys(actions)) {
-          if (this.publicActionsMap.has(actionName)) {
-            throw new Error(
-              `Дубликат имени publicAction: "${actionName}" (контроллер: ${controller.name}, стори: ${story.name})`,
-            );
-          }
-          const factory = actions[actionName];
-          if (factory) {
-            this.publicActionsMap.set(actionName, factory);
-          }
-        }
-      }
-      // 2. Собираем publicActions с самого контроллера (для обратной совместимости)
-      const ctrlActions = controller.publicActions;
-      for (const storyName of Object.keys(ctrlActions)) {
-        const storyActions = ctrlActions[storyName];
-        if (!storyActions) continue;
-        for (const actionName of Object.keys(storyActions)) {
-          const fullName = `${storyName}.${actionName}` as string;
-          if (this.publicActionsMap.has(fullName)) {
-            throw new Error(
-              `Дубликат имени publicAction: "${fullName}" (контроллер: ${controller.name})`,
-            );
-          }
-          const factory2 = storyActions[actionName];
-          if (factory2) {
-            this.publicActionsMap.set(fullName, factory2);
-          }
-        }
-      }
-    }
-  }
-
   /**
    * Типизированный доступ к фабрике публичного действия.
    *
@@ -353,6 +305,54 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     }
 
     return response;
+  }
+
+  // ── Реестр publicActions ──
+
+  /**
+   * Собирает publicActions со всех стори всех контроллеров в плоскую мапу.
+   * Проверяет уникальность имён действий.
+   */
+  #registerPublicActions(): void {
+    this.publicActionsMap.clear();
+    for (const controller of this.controllers.values()) {
+      // 1. Собираем publicActions со стори
+      for (const story of controller.getStories()) {
+        const actions = story.publicActions as Record<
+          string,
+          UiCallbackFactory
+        >;
+        for (const actionName of Object.keys(actions)) {
+          if (this.publicActionsMap.has(actionName)) {
+            throw new Error(
+              `Дубликат имени publicAction: "${actionName}" (контроллер: ${controller.name}, стори: ${story.name})`,
+            );
+          }
+          const factory = actions[actionName];
+          if (factory) {
+            this.publicActionsMap.set(actionName, factory);
+          }
+        }
+      }
+      // 2. Собираем publicActions с самого контроллера (для обратной совместимости)
+      const ctrlActions = controller.publicActions;
+      for (const storyName of Object.keys(ctrlActions)) {
+        const storyActions = ctrlActions[storyName];
+        if (!storyActions) continue;
+        for (const actionName of Object.keys(storyActions)) {
+          const fullName = `${storyName}.${actionName}` as string;
+          if (this.publicActionsMap.has(fullName)) {
+            throw new Error(
+              `Дубликат имени publicAction: "${fullName}" (контроллер: ${controller.name})`,
+            );
+          }
+          const factory2 = storyActions[actionName];
+          if (factory2) {
+            this.publicActionsMap.set(fullName, factory2);
+          }
+        }
+      }
+    }
   }
 
   // ── Приватные хелперы ──
