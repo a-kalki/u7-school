@@ -78,10 +78,17 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
    */
   getAction<T extends StoryPublicActions>(
     name: keyof T,
-  ): T[typeof name] | undefined {
-    return this.publicActionsMap.get(name as string) as
+  ): T[typeof name] {
+    const action = this.publicActionsMap.get(name as string) as
       | T[typeof name]
       | undefined;
+    if (!action) {
+      throw new Error(
+        `Публичное действие «${String(name)}» не найдено. ` +
+          'Возможно, стори не инициализирована через uiApp.init() или забыт publicActions.',
+      );
+    }
+    return action;
   }
 
   /** Количество зарегистрированных publicActions (для тестов) */

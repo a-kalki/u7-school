@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -25,10 +26,13 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
   const FIXTURE_MODULE_UUID = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
 
+  const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
+
   beforeAll(async () => {
     app = await createTestApp('course-catalog-v2');
     const courseController = new CoursesController();
-    router = new UiApp([courseController]);
+    const appController = new AppController(SCHOOL_GROUP_URL);
+    router = new UiApp([appController, courseController]);
     router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     author = (await app.userFacade.getUserByTelegramId(1004))!;

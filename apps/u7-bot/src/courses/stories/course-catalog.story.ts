@@ -467,12 +467,7 @@ export class CourseCatalogStory extends U7BotUserStory {
 
   /** Кнопка «↩️ Главное меню» через кросс-ссылку на CommunityStory */
   #getMainMenuButton(): { text: string; code: string } {
-    return (
-      this.uiApp.getAction<CommunityActions>('mainMenu')?.() ?? {
-        text: '↩️ Главное меню',
-        code: 'app:main-menu',
-      }
-    );
+    return this.uiApp.getAction<CommunityActions>('mainMenu')();
   }
 
   #esc(text: string): string {

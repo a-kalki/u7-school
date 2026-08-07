@@ -48,7 +48,7 @@
       "@u7-scl/bot/u7-bot-user-story": ["apps/u7-bot/src/u7-bot-user-story.ts"],
       "@u7-scl/bot/u7-bot-app-meta": ["apps/u7-bot/src/u7-bot-app-meta.ts"],
       "@u7-scl/bot/app/*": ["apps/u7-bot/src/app/*"],
-    "@u7-scl/bot/courses/*": ["apps/u7-bot/src/courses/*"]
+      "@u7-scl/bot/courses/*": ["apps/u7-bot/src/courses/*"]
     }
   },
   "exclude": ["data/deploy/archive"]

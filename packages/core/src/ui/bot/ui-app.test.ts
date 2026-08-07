@@ -507,17 +507,16 @@ describe('UiApp', () => {
 
   // ── publicActions ──
 
-  test('getAction возвращает типизированную фабрику кнопки', () => {
+  test('getAction без init выбрасывает ошибку', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
     const app = new UiApp([ctrl]);
 
-    // Имитируем регистрацию publicActions
-    // (в реальности это происходит через init и стори)
-    const factory = app.getAction('viewModule');
-    // Без init publicActions мапа пуста — getAction вернёт undefined
-    expect(factory).toBeUndefined();
+    // Без init publicActions мапа пуста — getAction выбрасывает ошибку
+    expect(() => app.getAction('viewModule')).toThrow(
+      'не найдено',
+    );
   });
 
   test('init собирает publicActions со всех стори', () => {
