@@ -1,0 +1,4 @@
+Фаза 1: Тесты (Red)
+- Перенесены app-controller.test.ts (7 тестов) и community.story.test.ts (4 теста)
+- Импорты указывают на целевые пути: @u7-scl/bot/app/app-controller, @u7-scl/bot/app/stories/community.story
+- Тесты падают (0 pass, 2 fail) — целевые файлы ещё не созданы
