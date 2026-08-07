@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import { BotRouter } from '@u7-scl/core/ui';
+import { UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -34,12 +34,12 @@ describe('CommunityStory integration (app-controller)', () => {
     await app.cleanup();
   });
 
-  function makeRouter(): BotRouter {
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
+  function makeRouter(): UiApp {
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
     const appController = new AppController(SCHOOL_GROUP_URL);
-    appController.init(app.apiApp);
-    const router = new BotRouter([appController, streamController]);
+    appController.init(app.apiApp, undefined as never);
+    const router = new UiApp([appController, streamController]);
     appController.initMenuAggregator(router);
     return router;
   }

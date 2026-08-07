@@ -8,7 +8,6 @@ import type {
 } from '@u7-scl/core/ui';
 import { Status } from '@u7-scl/course/domain';
 import type { CreateStreamCmd } from '#domain/stream/commands/create-stream-cmd';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /** Контекст wizard-а создания потока */
 interface CreateStreamWizardContext {
@@ -91,7 +90,7 @@ const OPTIONAL_FIELDS: OptionalFieldConfig[] = [
  * Шаг 10: кодовое слово (необязательно)
  * Шаг 11: превью и подтверждение
  */
-export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class CreateStreamStory extends U7BotUserStory {
   readonly name = 'create-stream';
 
   async handleCallback(
@@ -784,7 +783,7 @@ export class CreateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (context.enrollmentKey) cmd.enrollmentKey = context.enrollmentKey;
 
     try {
-      await this.moduleApi.execute('create-stream', cmd, actor.uuid);
+      await this.appApi.execute('create-stream', cmd, actor.uuid);
     } catch (err: unknown) {
       return this.handleError(err);
     }

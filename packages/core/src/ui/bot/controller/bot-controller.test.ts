@@ -3,6 +3,7 @@ import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotUserStory } from '../bot-user-story';
+import type { UiBotButton } from '../public-actions';
 import type {
   BotResponse,
   BotUpdate,
@@ -10,7 +11,6 @@ import type {
   MainMenuAction,
   SessionData,
 } from '../types';
-import type { UiBotButton } from '../ui-registry';
 import { BotController } from './bot-controller';
 
 // Тестовый тип метаданных
@@ -35,11 +35,12 @@ type TestAppMeta = AppMeta & {
 const testActor = { telegramId: 123 };
 
 // Тестовая стори
-class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
+class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   readonly name: string;
   initCalled = false;
   resetCalled = false;
   handleStartResult: MainMenuAction | null = null;
+  override publicActions = {};
 
   constructor(name: string) {
     super();
@@ -62,8 +63,8 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
     return { sendMessage: { text: `story_message:${this.name}` } };
   }
 
-  override init(moduleApi: unknown, apiApp: unknown): void {
-    super.init(moduleApi as never, apiApp as never);
+  override init(apiApp: unknown, uiApp: unknown): void {
+    super.init(apiApp as never, uiApp as never);
     this.initCalled = true;
   }
 
@@ -78,17 +79,11 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
 }
 
 // Конкретный контроллер для тестов
-class TestController extends BotController<TestAppMeta, TestModuleMeta> {
+class TestController extends BotController<
+  TestAppMeta,
+  { telegramId: number }
+> {
   readonly name = 'test_ctrl';
-
-  constructor() {
-    super(
-      {} as import('#api/module/api-module').ApiModule<
-        TestModuleMeta,
-        import('#domain/types').ModuleResolver
-      >,
-    );
-  }
 
   // Экспонируем protected-методы
   public override cb(action: string): string {
@@ -101,7 +96,7 @@ class TestController extends BotController<TestAppMeta, TestModuleMeta> {
 
   public override findStory(
     name: string,
-  ): BotUserStory<TestAppMeta, TestModuleMeta> | undefined {
+  ): BotUserStory<TestAppMeta, { telegramId: number }> | undefined {
     return super.findStory(name);
   }
 
@@ -125,7 +120,7 @@ describe('BotController', () => {
 
   describe('init', () => {
     test('вызывает init у всех стори', () => {
-      ctrl.init({} as never);
+      ctrl.init({} as never, undefined as never);
       expect(story1.initCalled).toBe(true);
       expect(story2.initCalled).toBe(true);
     });
@@ -361,19 +356,7 @@ describe('BotController', () => {
   });
 
   describe('publicActions', () => {
-    test('пустой контроллер возвращает пустой объект', () => {
-      const c = new TestController();
-      expect(c.publicActions).toEqual({});
-    });
-
-    test('контроллер с одной стори без publicActions возвращает пустой объект', () => {
-      const c = new TestController();
-      const story = new TestStory('simple');
-      c.addStory(story);
-      expect(c.publicActions).toEqual({});
-    });
-
-    test('контроллер собирает publicActions со стори', () => {
+    test('контроллер имеет публичный доступ к stories', () => {
       const c = new TestController();
       const story = new TestStory('my_story');
       (
@@ -382,15 +365,12 @@ describe('BotController', () => {
         }
       ).publicActions = {
         view: (id: string) => ({ text: 'v', code: `my_story:view:${id}` }),
-        list: () => ({ text: 'l', code: 'my_story:list' }),
       };
       c.addStory(story);
 
-      const actions = c.publicActions;
-      expect(actions.my_story).toBeDefined();
-      expect(actions.my_story!.view).toBeInstanceOf(Function);
-      expect(actions.my_story?.view?.('abc')?.code).toBe('my_story:view:abc');
-      expect(actions.my_story?.list?.()?.code).toBe('my_story:list');
+      // publicActions доступны через story.publicActions, не через контроллер
+      expect(story.publicActions).toBeDefined();
+      expect(c.getStories()).toHaveLength(1);
     });
 
     test('контроллер собирает publicActions с нескольких стори', () => {
@@ -414,31 +394,45 @@ describe('BotController', () => {
       c.addStory(story1);
       c.addStory(story2);
 
-      const actions = c.publicActions;
-      expect(Object.keys(actions)).toHaveLength(2);
-      expect(actions.story1).toBeDefined();
-      expect(actions.story2).toBeDefined();
+      // Проверяем что обе стори доступны
+      expect(c.getStories()).toHaveLength(2);
+      expect(
+        (
+          c.getStories()[0] as unknown as {
+            publicActions: Record<string, unknown>;
+          }
+        ).publicActions,
+      ).toBeDefined();
+      expect(
+        (
+          c.getStories()[1] as unknown as {
+            publicActions: Record<string, unknown>;
+          }
+        ).publicActions,
+      ).toBeDefined();
     });
   });
 
-  describe('initUi', () => {
-    test('пробрасывает uiRegistry всем стори', () => {
+  describe('init', () => {
+    test('пробрасывает uiApp всем стори', () => {
       const c = new TestController();
       const story1 = new TestStory('s1');
       const story2 = new TestStory('s2');
       c.addStory(story1);
       c.addStory(story2);
 
-      const registry = { test: { s1: { act: () => 'code' } } };
-      c.initUi(registry);
+      const mockUiApp = { getAction: () => undefined } as unknown as ReturnType<
+        typeof import('../ui-app').UiApp.prototype.getAction
+      >;
+      c.init({} as never, mockUiApp as never);
 
-      expect(story1.ui).toBe(registry);
-      expect(story2.ui).toBe(registry);
+      expect(story1.uiApp).toBe(mockUiApp as never);
+      expect(story2.uiApp).toBe(mockUiApp as never);
     });
 
-    test('initUi с пустым контроллером не падает', () => {
+    test('init с пустым контроллером не падает', () => {
       const c = new TestController();
-      c.initUi({});
+      c.init({} as never, {} as never);
     });
   });
 });

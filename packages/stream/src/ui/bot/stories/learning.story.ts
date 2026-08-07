@@ -15,13 +15,12 @@ import type {
 import { UserPolicy } from '@u7-scl/user/domain';
 import type { NavigationTree, Student } from '#domain/index';
 import { StreamDs } from '#domain/index';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US-4: Прохождение обучения (активная фаза).
  * Показывает хаб «Моя учёба», текущий шаг с телом, обрабатывает завершение шага.
  */
-export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class LearningStory extends U7BotUserStory {
   readonly name = 'learning';
 
   // ── Публичные методы ──
@@ -98,7 +97,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     userId: string,
   ): Promise<{ ok: true; value: Student } | { ok: false; value: BotResponse }> {
     try {
-      const user = await this.moduleApi.execute(
+      const user = await this.appApi.execute(
         'get-student-by-user',
         { userId },
         userId,
@@ -195,7 +194,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     const stepId = _overrideStepId ?? student.currentStepId;
 
-    const stream = await this.moduleApi.execute('get-stream', {
+    const stream = await this.appApi.execute('get-stream', {
       streamId: student.streamId,
     });
 
@@ -222,7 +221,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       };
     }
 
-    const result = await this.moduleApi.execute(
+    const result = await this.appApi.execute(
       'complete-step',
       { studentId: student.uuid, streamId, stepId },
       actor.uuid,
@@ -250,7 +249,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
 
     if (result.level === 'lesson' || result.level === 'project') {
       // Перезагружаем студента — completeStep мутирует и сохраняет новое состояние
-      const freshStudent = await this.moduleApi.execute(
+      const freshStudent = await this.appApi.execute(
         'get-student-progress',
         { studentId: student.uuid },
         actor.uuid,
@@ -291,7 +290,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const student = studentResult.value;
 
     try {
-      await this.moduleApi.execute(
+      await this.appApi.execute(
         'drop-student',
         { streamId: student.streamId, studentId: student.uuid },
         actor.uuid,
@@ -729,7 +728,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     const student = studentResult.value;
 
     try {
-      const stream = await this.moduleApi.execute('get-stream', {
+      const stream = await this.appApi.execute('get-stream', {
         streamId: student.streamId,
       });
       return { student, stream };
@@ -967,7 +966,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     streamId: string,
     student: Student,
   ): Promise<BotResponse> {
-    const stream = await this.moduleApi.execute('get-stream', { streamId });
+    const stream = await this.appApi.execute('get-stream', { streamId });
     const esc = this.escapeMarkdown;
 
     let messageText: string;

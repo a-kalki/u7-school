@@ -2,13 +2,12 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { StreamDs } from '#domain/index';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US-5: Просмотр прогресса студента.
  * Показывает прогресс-бар, имя ментора, дату старта, чат, текущий проект и урок.
  */
-export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class ProgressStory extends U7BotUserStory {
   readonly name = 'progress';
 
   async handleCallback(
@@ -21,14 +20,14 @@ export class ProgressStory extends U7BotUserStory<StreamApiModuleMeta> {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    const student = await this.moduleApi.execute(
+    const student = await this.appApi.execute(
       'get-student-by-user',
       {
         userId: actor.uuid,
       },
       actor.uuid,
     );
-    const stream = await this.moduleApi.execute('get-stream', { streamId });
+    const stream = await this.appApi.execute('get-stream', { streamId });
 
     // Имя ментора
     let mentorName = '';

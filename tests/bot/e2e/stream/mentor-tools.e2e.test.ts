@@ -5,7 +5,7 @@ import type {
   CbMainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -91,14 +91,14 @@ function allText(response: BotResponse): string {
 
 describe('E2E: Путь ментора — полный сквозной', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let mentor: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-mentor-full');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
 
@@ -209,14 +209,14 @@ describe('E2E: Путь ментора — полный сквозной', () =>
 
 describe('E2E: «⚠️ Неактивен» из S07', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let mentor: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-mark-abandoned');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
 
@@ -274,14 +274,14 @@ describe('E2E: «⚠️ Неактивен» из S07', () => {
 
 describe('E2E: «✅ Завершить» из S07', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let mentor: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-complete-student');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
 
@@ -342,14 +342,14 @@ describe('E2E: «✅ Завершить» из S07', () => {
 
 describe('E2E: Админ видит менторские инструменты', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let admin: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-admin');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     admin = (await app.userFacade.getUserByTelegramId(1005))!;
   });
 
@@ -391,14 +391,14 @@ describe('E2E: Админ видит менторские инструменты
 
 describe('E2E: «🔄 Сменить исход»', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let mentor: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-switch-outcome');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
 

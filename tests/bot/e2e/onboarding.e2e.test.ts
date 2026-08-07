@@ -6,7 +6,7 @@ import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
 import type { CbMainMenuAction, SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import type { OnboardingApiModuleResolver } from '@u7-scl/onboarding';
 import {
   OnboardingApiModule,
@@ -56,7 +56,7 @@ function capSession(messageId?: number): SessionData {
 describe('Onboarding E2E', () => {
   let tmpDir: string;
   let apiApp: U7BotApp;
-  let router: BotRouter;
+  let router: UiApp;
   let guest: User & { telegramId: number };
   let userFacade: UserFacade;
   let userRepo: UserJsonRepo;
@@ -133,11 +133,11 @@ describe('Onboarding E2E', () => {
     apiApp = new ApiApp([userModule, onboardingModule]) as U7BotApp;
 
     // Контроллер и роутер
-    const onboardingController = new OnboardingController(onboardingModule);
-    onboardingController.init(apiApp);
+    const onboardingController = new OnboardingController();
+    onboardingController.init(apiApp, undefined as never);
 
-    router = new BotRouter([onboardingController]);
-    router.init(apiApp);
+    router = new UiApp([onboardingController]);
+    router.init(apiApp, undefined as never);
 
     // Seed: гость с telegramId=2001
     guest = {

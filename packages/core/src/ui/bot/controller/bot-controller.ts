@@ -1,23 +1,18 @@
 import type { ApiApp } from '#api/app/api-app';
-import type { ApiModule } from '#api/module/api-module';
 import { fromError } from '#domain/errors/error-helpers';
-import type {
-  ApiExecutor,
-  ApiModuleMeta,
-  AppMeta,
-  ModuleResolver,
-} from '#domain/types';
+import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { serializeError } from '#shared/serialize-error';
 import type { BotUserStory } from '../bot-user-story';
+import type { UiCallbackFactory } from '../public-actions';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from '../types';
-import type { UiBotButton } from '../ui-registry';
+import type { UiApp } from '../ui-app';
 
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
@@ -27,77 +22,50 @@ import type { UiBotButton } from '../ui-registry';
  * на входе разжимает обратно.
  *
  * @typeParam TAppMeta — тип метаданных приложения (по умолчанию AppMeta)
- * @typeParam TModuleMeta — тип метаданных модуля, к которому привязан контроллер
  * @typeParam TActor — тип актора (пользователя)
  */
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
-  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
 > {
   /** Уникальное имя контроллера */
   abstract readonly name: string;
 
   /** Зарегистрированные пользовательские сценарии */
-  protected readonly stories: BotUserStory<TAppMeta, TModuleMeta, TActor>[] =
-    [];
+  protected readonly stories: BotUserStory<TAppMeta, TActor>[] = [];
 
-  /** API своего модуля (для внутренних вызовов) */
-  protected readonly moduleApi: ApiExecutor<TModuleMeta>;
+  /** Публичный доступ к stories (для UiApp) */
+  getStories(): BotUserStory<TAppMeta, TActor>[] {
+    return this.stories;
+  }
 
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
+  /** UI-приложение (для доступа к publicActions других стори) */
+  protected uiApp!: UiApp<TAppMeta, TActor>;
+
+  /** Публичные действия контроллера (для обратной совместимости) */
+  get publicActions(): Record<string, Record<string, UiCallbackFactory>> {
+    const result: Record<string, Record<string, UiCallbackFactory>> = {};
+    for (const story of this.stories) {
+      const actions = story.publicActions as Record<string, UiCallbackFactory>;
+      if (Object.keys(actions).length > 0) {
+        result[story.name] = actions;
+      }
+    }
+    return result;
+  }
+
   /** Общая мапа сжатых id — используется всеми стори контроллера */
   private readonly shortIds = new Map<string, string>();
 
-  constructor(moduleApi: ApiModule<TModuleMeta, ModuleResolver>) {
-    this.moduleApi = moduleApi;
-  }
-
-  init(appApi: ApiApp<TAppMeta>): void {
+  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void {
     this.appApi = appApi;
+    this.uiApp = uiApp;
     for (const story of this.stories) {
-      story.init(this.moduleApi, appApi);
+      story.init(appApi, uiApp);
     }
-  }
-
-  /**
-   * Инжекция UI-реестра всем стори контроллера.
-   * Вызывается BotRouter'ом после сбора всех контроллеров.
-   */
-  initUi(registry: unknown): void {
-    for (const story of this.stories) {
-      story.initUi(registry);
-    }
-  }
-
-  /**
-   * Публичные действия всех стори контроллера.
-   * Каждая стори может переопределить get publicActions() для экспорта фабрик колбэков.
-   * Используется для построения типизированного UiRegistry.
-   */
-  get publicActions(): Record<
-    string,
-    Record<string, (...ids: string[]) => UiBotButton>
-  > {
-    const actions: Record<
-      string,
-      Record<string, (...ids: string[]) => UiBotButton>
-    > = {};
-    for (const story of this.stories) {
-      if ('publicActions' in story && story.publicActions) {
-        actions[story.name] = (
-          story as unknown as {
-            publicActions: Record<string, (...ids: string[]) => string>;
-          }
-        ).publicActions as unknown as Record<
-          string,
-          (...ids: string[]) => UiBotButton
-        >;
-      }
-    }
-    return actions;
   }
 
   /** Сброс временных данных контроллера и всех стори */
@@ -274,7 +242,7 @@ export abstract class BotController<
 
   #compressAction(raw: string): string {
     // Специальные префиксы, не принадлежащие конкретному контроллеру
-    // (например, app:main-menu — обрабатывается на уровне BotRouter)
+    // (например, app:main-menu — обрабатывается на уровне UiApp)
     if (raw.startsWith('app:')) {
       return raw;
     }
@@ -426,14 +394,12 @@ export abstract class BotController<
   /** Поиск стори по имени */
   protected findStory(
     name: string,
-  ): BotUserStory<TAppMeta, TModuleMeta, TActor> | undefined {
+  ): BotUserStory<TAppMeta, TActor> | undefined {
     return this.stories.find((s) => s.name === name);
   }
 
   /** Поиск стори по пути из activeHandler: controllerName/storyName/... */
-  #findStoryByPath(
-    path: string,
-  ): BotUserStory<TAppMeta, TModuleMeta, TActor> | undefined {
+  #findStoryByPath(path: string): BotUserStory<TAppMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
       return this.findStory(parts[1] ?? '');

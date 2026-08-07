@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { LearningStory } from './learning.story';
 
 describe('LearningStory', () => {
@@ -97,14 +97,14 @@ describe('LearningStory', () => {
   const defaultAppApi = makeAppApi();
 
   test('handleCallback("my-study:continue") показывает текущий шаг с телом', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -134,11 +134,11 @@ describe('LearningStory', () => {
   });
 
   test('handleCallback("my-study") — студент не записан (хаб → ошибка)', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => {
         throw new Error('not found');
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -156,14 +156,14 @@ describe('LearningStory', () => {
   // ── Тесты хаба «Моя учёба» (S05) ──
 
   test('handleCallback("my-study") показывает хаб с 4 кнопками', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -187,7 +187,7 @@ describe('LearningStory', () => {
   });
 
   test('handleCallback("my-study") — хаб для завершившего (нет Продолжить и Уроки)', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user')
           return { ...mockStudent, status: 'advanced' };
@@ -195,7 +195,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -214,12 +214,12 @@ describe('LearningStory', () => {
   });
 
   test('handleCallback("my-study:leave-confirm") показывает confirm-диалог', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -246,9 +246,9 @@ describe('LearningStory', () => {
       return undefined;
     });
 
-    const moduleApi = {
+    const appApi = {
       execute: executeSpy,
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -273,7 +273,7 @@ describe('LearningStory', () => {
   });
 
   test('handleCallback("complete:...") level=step — показывает следующий шаг', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
@@ -282,7 +282,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const appApi = makeAppApi({
       uuid: STEP2_ID,
@@ -317,7 +317,7 @@ describe('LearningStory', () => {
   });
 
   test('при завершении урока — поздравление и кнопка «Начать следующий урок»', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
@@ -330,7 +330,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -356,7 +356,7 @@ describe('LearningStory', () => {
   });
 
   test('при завершении проекта — поздравление и кнопка «Начать следующий проект»', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
@@ -369,7 +369,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -390,12 +390,12 @@ describe('LearningStory', () => {
   });
 
   test('при завершении потока — сообщение о полном завершении', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         return { level: 'stream' };
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -426,14 +426,14 @@ describe('LearningStory', () => {
   // ── Тесты нового формата cb-data ──
 
   test('cb-data кнопки «Выполнено» НЕ содержит studentId', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -469,9 +469,9 @@ describe('LearningStory', () => {
       return undefined;
     });
 
-    const moduleApi = {
+    const appApi = {
       execute: getStudentSpy,
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -489,13 +489,13 @@ describe('LearningStory', () => {
   });
 
   test('#handleComplete сверяет student.streamId с streamId из callback', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user')
           return { ...mockStudent, streamId: 'other-stream' };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -512,14 +512,14 @@ describe('LearningStory', () => {
   // ── Кнопка «↩️ Главное меню» ──
 
   test('my-study:continue содержит «↩️ Главное меню» последней строкой', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'get-student-progress') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -538,7 +538,7 @@ describe('LearningStory', () => {
   });
 
   test('complete (level=lesson) содержит «↩️ Главное меню»', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
@@ -551,7 +551,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -570,13 +570,13 @@ describe('LearningStory', () => {
   });
 
   test('complete (level=stream) содержит «↩️ Главное меню»', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step') return { level: 'stream' };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -595,7 +595,7 @@ describe('LearningStory', () => {
   });
 
   test('complete (level=step) НЕ содержит «↩️ Главное меню» на предпоследней строке', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'complete-step')
@@ -604,7 +604,7 @@ describe('LearningStory', () => {
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new LearningStory();
     story.init(moduleApi, defaultAppApi);
@@ -714,7 +714,7 @@ describe('LearningStory', () => {
         if (overrides && name in overrides) return overrides[name];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
   }
 
   function makeRichAppApi() {
@@ -834,7 +834,7 @@ describe('LearningStory', () => {
   // ── Уровень 1: список проектов ──
 
   test('my-study:lessons — показывает проекты с прогрессом (sendMessage)', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -865,7 +865,7 @@ describe('LearningStory', () => {
   // ── Уровень 2: уроки проекта ──
 
   test('my-study:project:{idx} — показывает уроки проекта (editMessage)', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -894,7 +894,7 @@ describe('LearningStory', () => {
   // ── Уровень 3: шаги урока ──
 
   test('my-study:lesson:{id} — показывает шаги с маркерами (editMessage)', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -922,7 +922,7 @@ describe('LearningStory', () => {
   });
 
   test('my-study:lesson:{id} — 🔒-шаги не показываются кнопками', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -944,7 +944,7 @@ describe('LearningStory', () => {
   });
 
   test('my-study:lesson:{id} — кнопка ▶️ для текущего шага', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -967,7 +967,7 @@ describe('LearningStory', () => {
   // ── Уровень 4: просмотр шага ──
 
   test('my-study:view:{streamId}:{stepId} — просмотр completed шага (editMessage)', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -998,7 +998,7 @@ describe('LearningStory', () => {
   });
 
   test('my-study:view:{streamId}:{stepId} — код stepId из другого потока → ошибка', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -1012,7 +1012,7 @@ describe('LearningStory', () => {
   });
 
   test('my-study:view:{streamId}:{stepId} — несуществующий stepId → ошибка', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -1028,7 +1028,7 @@ describe('LearningStory', () => {
   // ── Возвраты ──
 
   test('«⬅️ Назад к проектам» → editMessage с уровнем 1', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -1051,7 +1051,7 @@ describe('LearningStory', () => {
   // ── Тесты листания ◀️/▶️ (Фаза 3) ──
 
   test('◀️ Назад скрыта на первом completed шаге', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -1069,7 +1069,7 @@ describe('LearningStory', () => {
   });
 
   test('▶️ Вперёд скрыта на последнем completed шаге', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -1087,7 +1087,7 @@ describe('LearningStory', () => {
   });
 
   test('◀️/▶️ листание — editMessage (в одном сообщении)', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 
@@ -1110,7 +1110,7 @@ describe('LearningStory', () => {
   // ── Тесты прогресс-бара (Фаза 4) ──
 
   test('my-study:continue — бар прогресса в шаге', async () => {
-    const moduleApi = makeRichModuleApi();
+    const appApi = makeRichModuleApi();
     const story = new LearningStory();
     story.init(moduleApi, makeRichAppApi());
 

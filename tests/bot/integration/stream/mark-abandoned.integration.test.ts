@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { BotRouter } from '@u7-scl/core/ui';
+import { UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -11,15 +11,15 @@ const STUDENT_ID = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 
 describe('MarkAbandoned e2e', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let mentor: User;
   let guest: User;
 
   beforeAll(async () => {
     app = await createTestApp('mark-abandoned');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
   });

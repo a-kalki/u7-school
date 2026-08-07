@@ -2,7 +2,7 @@
 
 ## Релиз 1: Новый Bot UI — фундамент и базовые контроллеры
 
-- [ ] **Track: `UiApp` в core + удаление `BotRouter` + доработка `publicActions`**
+- [x] **Track: `UiApp` в core + удаление `BotRouter` + доработка `publicActions`**
   *Link: [./tracks/bot_ui_uiapp_core_20260807/](./tracks/bot_ui_uiapp_core_20260807/)*
 
 - [ ] **Track: Контроллер courses — «Программы курсов»**

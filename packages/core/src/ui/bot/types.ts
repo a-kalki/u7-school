@@ -87,7 +87,7 @@ export type BotUpdate =
   | { type: 'voice'; fileId: string; telegramId: number };
 
 /** Агрегатор пунктов меню от всех контроллеров.
- * Реализуется BotRouter, передаётся в AppController. */
+ * Реализуется UiApp, передаётся в AppController. */
 export interface MenuAggregator<TActor = unknown> {
   collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
   collectAllHelpDescriptions(actor: TActor): Promise<string[]>;

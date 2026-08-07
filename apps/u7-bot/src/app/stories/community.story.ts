@@ -1,6 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
-import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import type {
   BotResponse,
   BotUpdate,
@@ -8,17 +7,12 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 
-/** Метаданные для stories без привязки к доменному модулю */
-export interface AppOnlyApiModuleMeta extends ApiModuleMeta {
-  name: 'app';
-}
-
 /**
  * US: Кнопка «Сообщество школы» в главном меню.
  * Ведёт на URL группы школы в Telegram.
  * Доступна всем ролям.
  */
-export class CommunityStory extends U7BotUserStory<AppOnlyApiModuleMeta> {
+export class CommunityStory extends U7BotUserStory {
   readonly name = 'community';
   readonly #groupUrl: string;
 

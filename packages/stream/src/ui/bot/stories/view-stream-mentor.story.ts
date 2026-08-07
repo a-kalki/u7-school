@@ -201,7 +201,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
   // ── Менторские действия ──
 
   async #handleComplete(streamId: string, actor: User): Promise<BotResponse> {
-    await this.moduleApi.execute('complete-stream', { streamId }, actor.uuid);
+    await this.appApi.execute('complete-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
         text: '✅ *Поток завершён\\!* Обучение окончено\\.',
@@ -222,7 +222,7 @@ export class ViewStreamMentorStory extends ViewStreamStory {
   }
 
   async #handleArchive(streamId: string, actor: User): Promise<BotResponse> {
-    await this.moduleApi.execute('archive-stream', { streamId }, actor.uuid);
+    await this.appApi.execute('archive-stream', { streamId }, actor.uuid);
     return {
       sendMessage: {
         text: '📁 *Поток перемещён в архив\\.*',

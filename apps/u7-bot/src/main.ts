@@ -11,7 +11,7 @@ import { createApiApp, createUiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
 import { registerGroupHandlers } from './handlers/group-handler';
-import { connectRouter } from './handlers/router';
+import { connectUiApp } from './handlers/router';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
 import { CompositeLogger, TelegramLogger } from './logger';
 
@@ -34,7 +34,6 @@ const tgFacade = new TelegramTgFacade(bot);
 const apiBundle = createApiApp(config, logger, tgFacade);
 const { userFacade } = apiBundle;
 const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
-const router = uiApp.router;
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -136,7 +135,7 @@ privateBot.command('log_level', async (ctx) => {
 });
 
 // Универсальный роутер — приватные чаты
-connectRouter(privateBot, router, userFacade, config.botAdminUuid, loggers);
+connectUiApp(privateBot, uiApp, userFacade, config.botAdminUuid, loggers);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {

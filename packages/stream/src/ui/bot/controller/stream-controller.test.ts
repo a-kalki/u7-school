@@ -25,7 +25,7 @@ describe('StreamController (реестр)', () => {
     execute: mock(() => undefined),
   } as any;
 
-  const makeController = () => new StreamController(mockModuleApi);
+  const makeController = () => new StreamController();
 
   const guestActor: User = {
     uuid: 'u1',
@@ -62,7 +62,7 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart агрегирует кнопки от stories', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const items = await controller.handleStart(guestActor);
 
@@ -73,7 +73,7 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart — STUDENT видит catalog + learning', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const items = await controller.handleStart(studentActor);
 
@@ -85,7 +85,7 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart — MENTOR видит catalog + панель ментора', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const items = await controller.handleStart(mentorActor);
 
@@ -96,7 +96,7 @@ describe('StreamController (реестр)', () => {
 
   test('handleStart сортирует по priority', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const items = await controller.handleStart(studentActor);
 
@@ -107,7 +107,7 @@ describe('StreamController (реестр)', () => {
 
   test('handleCallback форвардит по префиксу story', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const session = { activeHandler: null };
 

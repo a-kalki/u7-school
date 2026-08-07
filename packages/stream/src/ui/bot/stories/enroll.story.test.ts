@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { EnrollStory } from './enroll.story';
 
 describe('EnrollStory', () => {
@@ -26,13 +26,13 @@ describe('EnrollStory', () => {
   };
 
   test('handleCallback("enroll:<id>") — поток без enrollmentKey — сразу зачисляет', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(async (name: string) => {
         if (name === 'get-stream') return mockStream;
         if (name === 'enroll-student') return undefined;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;
@@ -51,13 +51,13 @@ describe('EnrollStory', () => {
   // ── enrollmentKey ──
 
   test('поток с enrollmentKey — запрашивает слово и captureInput', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(async (name: string) => {
         if (name === 'get-stream')
           return { ...mockStream, enrollmentKey: 'secret' };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;
@@ -72,14 +72,14 @@ describe('EnrollStory', () => {
   });
 
   test('верное кодовое слово → зачисление с enrollmentKey', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(async (name: string) => {
         if (name === 'get-stream')
           return { ...mockStream, enrollmentKey: 'secret' };
         if (name === 'enroll-student') return undefined;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;
@@ -108,9 +108,9 @@ describe('EnrollStory', () => {
   });
 
   test('неверное слово — сообщение об оставшихся попытках', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;
@@ -134,9 +134,9 @@ describe('EnrollStory', () => {
   });
 
   test('3 неверных попытки → возврат к карточке потока', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;
@@ -160,9 +160,9 @@ describe('EnrollStory', () => {
   });
 
   test('кнопка «Отмена» → возврат к карточке потока', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;

@@ -12,13 +12,12 @@ import {
 } from '@u7-scl/core/domain';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '@u7-scl/stream/domain';
 import { U7BotUserStory } from './u7-bot-user-story';
 
 /**
  * Заглушка для доступа к protected методу handleError.
  */
-class TestStory extends U7BotUserStory<StreamApiModuleMeta> {
+class TestStory extends U7BotUserStory {
   readonly name = 'test-handle-error';
 
   override handleMessage(

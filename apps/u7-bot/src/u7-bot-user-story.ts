@@ -1,20 +1,10 @@
 import type { User } from '@u7-scl/app/domain';
-import type { ApiModuleMeta } from '@u7-scl/core/domain';
-import { BotUserStory, type UiRegistry } from '@u7-scl/core/ui';
+import { BotUserStory, type StoryPublicActions } from '@u7-scl/core/ui';
 import type { U7BotAppMeta } from './u7-bot-app-meta';
 
 /**
  * Специализированный пользовательский сценарий для U7 Telegram-бота.
- *
- * Закрывает дженерики `U7BotAppMeta`, `User` и `UiRegistry`, оставляя
- * открытым только `TMeta` — метаданные модуля, к которому
- * принадлежит сценарий.
- *
- * `this.ui` типизирован как `UiRegistry` — доступны кросс-ссылки
- * без `as any`: this.ui.app.mainMenu(), this.ui.stream.catalog.view(id), ...
- *
- * @typeParam TMeta — метаданные API-модуля
  */
 export abstract class U7BotUserStory<
-  TMeta extends ApiModuleMeta,
-> extends BotUserStory<U7BotAppMeta, TMeta, User, UiRegistry> {}
+  TActions extends StoryPublicActions = StoryPublicActions,
+> extends BotUserStory<U7BotAppMeta, User, TActions> {}

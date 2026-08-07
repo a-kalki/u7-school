@@ -48,7 +48,7 @@ export interface ApiAppBundle {
 /**
  * Создаёт ApiApp и все доменные зависимости (модули, репозитории, фасады).
  *
- * НЕ создаёт контроллеры, BotRouter, UiRegistry — это ответственность
+ * НЕ создаёт контроллеры — это ответственность
  * createUiApp() / U7BotUiApp.
  */
 export function createApiApp(
@@ -165,14 +165,12 @@ export interface UiAppBundle {
  */
 export function createUiApp(
   apiApp: ApiApp<U7BotAppMeta>,
-  bundle: ApiAppBundle,
+  _bundle: ApiAppBundle,
   config: BotConfig,
 ): UiAppBundle {
-  const onboardingController = new OnboardingController(
-    bundle.onboardingModule,
-  );
-  const streamController = new StreamController(bundle.streamModule);
-  const courseController = new CourseController(bundle.courseModule);
+  const onboardingController = new OnboardingController();
+  const streamController = new StreamController();
+  const courseController = new CourseController();
   const appController = new AppController(config.schoolGroupUrl);
 
   const uiApp = new U7BotUiApp([
@@ -185,8 +183,8 @@ export function createUiApp(
   // Каскадная инициализация: ApiApp → контроллеры → стори → UiRegistry → ui
   uiApp.init(apiApp);
 
-  // Передаём MenuAggregator в AppController
-  appController.initMenuAggregator(uiApp.getMenuAggregator());
+  // Передаём MenuAggregator в AppController (сам UiApp реализует MenuAggregator)
+  appController.initMenuAggregator(uiApp);
 
   return {
     uiApp,

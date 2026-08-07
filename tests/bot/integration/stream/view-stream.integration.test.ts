@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -28,7 +28,7 @@ const COMPLETED_ID = 'e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2';
  */
 describe('ViewStreamStory e2e', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let guest: User;
   let candidate: User;
   let student: User;
@@ -37,9 +37,9 @@ describe('ViewStreamStory e2e', () => {
 
   beforeAll(async () => {
     app = await createTestApp('view-stream');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     candidate = (await app.userFacade.getUserByTelegramId(1002))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;

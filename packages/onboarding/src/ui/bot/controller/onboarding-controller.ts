@@ -10,7 +10,6 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { User } from '@u7-scl/user/domain';
-import type { OnboardingApiModuleMeta } from '#domain/module';
 import type { Question } from '#domain/questionnaire/question';
 import type { QuestionnaireActionResponse } from '#domain/questionnaire/types';
 import type { KeyboardDescription } from '../types';
@@ -19,13 +18,9 @@ import type { KeyboardDescription } from '../types';
  * Контроллер onboarding для Telegram-бота.
  * Вшивает всю логику анкеты напрямую, без UserStory (процесс небольшой).
  */
-export class OnboardingController extends U7BotController<OnboardingApiModuleMeta> {
+export class OnboardingController extends U7BotController {
   override readonly name = 'onboarding';
-  override readonly stories: BotUserStory<
-    U7BotAppMeta,
-    OnboardingApiModuleMeta,
-    User
-  >[] = [];
+  override readonly stories = [];
   readonly #logger: Logger | undefined;
 
   // ── Главное меню ──
@@ -127,7 +122,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
     }
 
     try {
-      await this.moduleApi.execute(
+      await this.appApi.execute(
         'abandon',
         { telegramId: actor.telegramId },
         actor.uuid,
@@ -157,7 +152,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
   ): Promise<BotResponse> {
     try {
       // Пробуем получить текущий вопрос активной анкеты
-      const response = await this.moduleApi.execute(
+      const response = await this.appApi.execute(
         'get-current-question',
         { telegramId: actor.telegramId },
         actor.uuid,
@@ -168,7 +163,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
       const ex = err as AppException;
       if (ex.error?.name === 'QUESTIONNAIRE_NOT_FOUND') {
         // Нет активной анкеты — начинаем новую
-        const startResponse = await this.moduleApi.execute(
+        const startResponse = await this.appApi.execute(
           'start',
           { telegramId: actor.telegramId },
           actor.uuid,
@@ -203,7 +198,7 @@ export class OnboardingController extends U7BotController<OnboardingApiModuleMet
     session: SessionData,
   ): Promise<BotResponse> {
     try {
-      const response = await this.moduleApi.execute(
+      const response = await this.appApi.execute(
         'handle-action',
         {
           telegramId: actor.telegramId,

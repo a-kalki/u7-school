@@ -1,13 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US-7: Запуск потока (старт обучения).
  * Ментор активирует поток — студенты получают первый шаг.
  */
-export class ActivateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class ActivateStreamStory extends U7BotUserStory {
   readonly name = 'activate-stream';
 
   async handleCallback(
@@ -19,7 +18,7 @@ export class ActivateStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     if (cmd !== 'activate' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
-    await this.moduleApi.execute('activate-stream', { streamId }, actor.uuid);
+    await this.appApi.execute('activate-stream', { streamId }, actor.uuid);
 
     return {
       sendMessage: {

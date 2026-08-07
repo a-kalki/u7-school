@@ -1,10 +1,10 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
-import { BotController, BotRouter } from '@u7-scl/core/ui';
+import { BotController, UiApp } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
-import { connectRouter, resolveUser } from './router';
+import { connectUiApp, resolveUser } from './router';
 
 // ── Вспомогательные фабрики ──
 
@@ -106,10 +106,6 @@ function makeMockUserFacade(user?: User): UserFacade {
 
 class MockController extends BotController {
   name = 'mock';
-
-  constructor() {
-    super({} as never);
-  }
 
   private _startResult: MainMenuAction[] = [];
   private _callbackResult: BotResponse = {};
@@ -243,9 +239,9 @@ describe('resolveUser', () => {
   });
 });
 
-// ── connectRouter (Grammy-адаптер) ──
+// ── connectUiApp (Grammy-адаптер) ──
 
-describe('connectRouter', () => {
+describe('connectUiApp', () => {
   test('/start делегирует в AppController.handleWelcome', async () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser({ name: 'Тест' }));
@@ -262,8 +258,8 @@ describe('connectRouter', () => {
       },
     });
 
-    const router = new BotRouter([appCtrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([appCtrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     await bot.commands.start!(ctx);
@@ -283,8 +279,8 @@ describe('connectRouter', () => {
     appCtrl.name = 'app';
     appCtrl.setWelcomeResult({ sendMessage: { text: 'Привет!' } });
 
-    const router = new BotRouter([appCtrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([appCtrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     ctx.session.activeHandler = { path: 'app/some' };
@@ -302,8 +298,8 @@ describe('connectRouter', () => {
     ctrl.name = 'stream';
     ctrl.setCallbackResult({ sendMessage: { text: 'Ответ от stream' } });
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     expect(handler).toBeDefined();
@@ -325,8 +321,8 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     const ctx = makeMockContext();
@@ -350,8 +346,8 @@ describe('connectRouter', () => {
       sendMessage: { text: 'Отменено' },
     });
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     ctx.session.activeHandler = { path: 'stream/some-path' };
@@ -369,8 +365,8 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     ctx.session.activeHandler = null;
@@ -394,8 +390,8 @@ describe('connectRouter', () => {
     });
     ctrl.setMessageResult({ sendMessage: { text: 'Имя получено' } });
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const cbHandler = bot.listeners['callback_query:data']?.[0];
     const ctx1 = makeMockContext();
@@ -428,8 +424,8 @@ describe('connectRouter', () => {
       sendMessage: { text: 'Готово' },
     });
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -453,8 +449,8 @@ describe('connectRouter', () => {
     const ctrl2 = new MockController();
     ctrl2.name = 'stream';
 
-    const router = new BotRouter([ctrl1, ctrl2]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl1, ctrl2]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     const ctx = makeMockContext();
@@ -481,8 +477,8 @@ describe('connectRouter', () => {
       sendMessage: { text: 'Время истекло' },
     });
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -508,8 +504,8 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'stream';
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -530,8 +526,8 @@ describe('connectRouter', () => {
     const ctrl = new MockController();
     ctrl.name = 'onboarding';
 
-    const router = new BotRouter([ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const msgHandler = bot.listeners['message:text']?.[0];
     const ctx = makeMockContext();
@@ -581,8 +577,8 @@ describe('connectRouter', () => {
     });
     ctrl.setCancelResult({ releaseInput: true });
 
-    const router = new BotRouter([appCtrl, ctrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([appCtrl, ctrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     // Шаг 1: /start
     const ctx1 = makeMockContext();
@@ -633,8 +629,8 @@ describe('connectRouter', () => {
       },
     });
 
-    const router = new BotRouter([appCtrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([appCtrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     await bot.commands.help!(ctx);
@@ -649,8 +645,8 @@ describe('connectRouter', () => {
     const bot = makeMockBot();
     const userFacade = makeMockUserFacade(makeUser());
 
-    const router = new BotRouter([]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const ctx = makeMockContext();
     await bot.commands.help!(ctx);
@@ -677,8 +673,8 @@ describe('connectRouter', () => {
       },
     });
 
-    const router = new BotRouter([appCtrl]);
-    connectRouter(bot, router, userFacade, 'admin-uuid');
+    const router = new UiApp([appCtrl]);
+    connectUiApp(bot, router, userFacade, 'admin-uuid');
 
     const handler = bot.listeners['callback_query:data']?.[0];
     const ctx = makeMockContext();

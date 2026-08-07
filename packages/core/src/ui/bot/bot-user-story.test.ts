@@ -10,13 +10,6 @@ import { BotUserStory } from './bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
-type TestModuleMeta = ApiModuleMeta & {
-  ucMetas: {
-    ucName: 'test-mod-cmd';
-    input: Record<string, never>;
-    output: Record<string, never>;
-  };
-};
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
     ucMetas: {
@@ -33,8 +26,9 @@ const testActor = {
 };
 
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
-class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
+class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   readonly name = 'test_story';
+  override publicActions = {};
 
   async handleCallback(
     action: string,
@@ -294,33 +288,33 @@ describe('BotUserStory', () => {
     });
   });
 
-  describe('ui и initUi', () => {
-    test('ui изначально undefined', () => {
-      expect(story.ui).toBeUndefined();
+  describe('uiApp и init', () => {
+    test('uiApp изначально undefined', () => {
+      expect(story.uiApp).toBeUndefined();
     });
 
-    test('initUi устанавливает поле ui', () => {
-      const mockRegistry = {
-        stream: {
-          catalog: { view: () => 'code' },
-        },
+    test('init(appApi, uiApp) устанавливает и appApi и uiApp', () => {
+      const mockUiApp = {
+        getAction: () => undefined,
       };
 
-      story.initUi(mockRegistry);
-      expect(story.ui).toBe(mockRegistry);
+      story.init({} as never, mockUiApp as never);
+      expect(story.uiApp).toBe(mockUiApp as never);
     });
 
-    test('initUi с null — устанавливает null', () => {
-      story.initUi(null);
-      expect(story.ui).toBeNull();
+    test('init с null uiApp — устанавливает null', () => {
+      story.init({} as never, null as never);
+      expect(story.uiApp).toBeNull();
     });
 
-    test('initUi с разными типами данных', () => {
-      story.initUi('строка');
-      expect(story.ui).toBe('строка');
+    test('init с разными типами uiApp', () => {
+      const obj1 = { getAction: () => 'code1' };
+      story.init({} as never, obj1 as never);
+      expect(story.uiApp).toBe(obj1 as never);
 
-      story.initUi(42);
-      expect(story.ui).toBe(42);
+      const obj2 = { getAction: () => 'code2' };
+      story.init({} as never, obj2 as never);
+      expect(story.uiApp).toBe(obj2 as never);
     });
   });
 });

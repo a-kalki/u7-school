@@ -6,14 +6,13 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import { StreamStatus } from '../../../domain/status';
 
 /**
  * US-1: Просмотр витрины потоков (Каталог).
  * Показывает список активных потоков и потоков с открытым набором.
  */
-export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class CatalogStory extends U7BotUserStory {
   readonly name = 'catalog';
 
   async handleCallback(
@@ -29,7 +28,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Получаем все потоки одним запросом (без фильтра по статусу)
-    const allStreams = await this.moduleApi.execute('list-streams', {});
+    const allStreams = await this.appApi.execute('list-streams', {});
 
     // Разделяем по статусам
     const enrollmentStreams = allStreams.filter(

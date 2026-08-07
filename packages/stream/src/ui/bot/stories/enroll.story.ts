@@ -1,7 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 
 const MAX_ATTEMPTS = 3;
 
@@ -15,7 +14,7 @@ interface EnrollKeyContext {
  * US-3: Запись на поток (Регистрация).
  * US-10: Проверка кодового слова (если задано).
  */
-export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class EnrollStory extends U7BotUserStory {
   readonly name = 'enroll';
 
   async handleCallback(
@@ -38,7 +37,7 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Получаем поток для проверки enrollmentKey
-    const stream = await this.moduleApi.execute('get-stream', { streamId });
+    const stream = await this.appApi.execute('get-stream', { streamId });
 
     // Если есть кодовое слово — запрашиваем его у студента
     if (stream.enrollmentKey) {
@@ -144,9 +143,9 @@ export class EnrollStory extends U7BotUserStory<StreamApiModuleMeta> {
     actor: User,
     enrollmentKey?: string,
   ): Promise<BotResponse> {
-    const stream = await this.moduleApi.execute('get-stream', { streamId });
+    const stream = await this.appApi.execute('get-stream', { streamId });
 
-    await this.moduleApi.execute(
+    await this.appApi.execute(
       'enroll-student',
       {
         streamId,

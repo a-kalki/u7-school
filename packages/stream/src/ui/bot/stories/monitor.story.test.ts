@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { MonitorStory } from './monitor.story';
 
 describe('MonitorStory', () => {
@@ -18,7 +18,7 @@ describe('MonitorStory', () => {
   const session: SessionData = { activeHandler: null };
 
   test('handleCallback("students:<id>") показывает сводку и студентов кнопками-строками', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -53,7 +53,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
@@ -97,7 +97,7 @@ describe('MonitorStory', () => {
   // ── US-8: Имена студентов и детальная карточка ──
 
   test('показывает имена студентов в кнопках, не показывает userId', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -128,7 +128,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string, params: any) => {
         if (name === 'get-user' && params?.uuid === 'user-1')
@@ -187,7 +187,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string, params: any) => {
         if (name === 'get-student-progress' && params?.studentId === 'st1')
           return studentRecord;
@@ -213,7 +213,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')
@@ -247,9 +247,9 @@ describe('MonitorStory', () => {
   });
 
   test('кнопка «История шагов» возвращает заглушку «ещё не реализовано»', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;
@@ -268,7 +268,7 @@ describe('MonitorStory', () => {
   // ── Действия ментора: mark-abandoned ──
 
   test('кнопки действий ментора в карточке активного студента', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -293,7 +293,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -319,7 +319,7 @@ describe('MonitorStory', () => {
   });
 
   test('нажатие 🛑 → запрос подтверждения', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -332,7 +332,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -359,7 +359,7 @@ describe('MonitorStory', () => {
   });
 
   test('подтверждение → вызов mark-abandoned', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -373,7 +373,7 @@ describe('MonitorStory', () => {
         if (name === 'mark-abandoned') return undefined;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -394,7 +394,7 @@ describe('MonitorStory', () => {
   });
 
   test('«Отмена» → возврат к карточке студента', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -419,7 +419,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -507,7 +507,7 @@ describe('MonitorStory', () => {
   });
 
   test('подтверждение → вызов complete-student с исходом advanced', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -521,7 +521,7 @@ describe('MonitorStory', () => {
         if (name === 'complete-student') return undefined;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ name: 'Студент' })),
     } as unknown as U7BotApp;
@@ -545,7 +545,7 @@ describe('MonitorStory', () => {
   });
 
   test('подтверждение → вызов complete-student с исходом abandoned', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -559,7 +559,7 @@ describe('MonitorStory', () => {
         if (name === 'complete-student') return undefined;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ name: 'Студент' })),
     } as unknown as U7BotApp;
@@ -591,7 +591,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -616,7 +616,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -650,7 +650,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -675,7 +675,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -709,7 +709,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -734,7 +734,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -768,7 +768,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -793,7 +793,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user') return { name: 'Студент' };
@@ -831,7 +831,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -857,7 +857,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'user-1', name: 'Иван' })),
     } as unknown as U7BotApp;
@@ -898,7 +898,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -924,7 +924,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'user-1', name: 'Петя' })),
     } as unknown as U7BotApp;
@@ -948,7 +948,7 @@ describe('MonitorStory', () => {
   });
 
   test('S07 показывает студентов с разными статусами и правильными маркерами', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -972,7 +972,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((_name: string, params: any) => {
         const names: Record<string, string> = {
@@ -1029,7 +1029,7 @@ describe('MonitorStory', () => {
   });
 
   test('Сортировка: 🛑 → ⚠️ → 🏃 по прогрессу → ✅', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -1099,7 +1099,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((_name: string, params: any) => {
         const names: Record<string, string> = {
@@ -1135,7 +1135,7 @@ describe('MonitorStory', () => {
   });
 
   test('Студент без статуса ментора не видит кнопок действий в S07', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -1163,7 +1163,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'u1', name: 'Петя' })),
     } as unknown as U7BotApp;
@@ -1183,7 +1183,7 @@ describe('MonitorStory', () => {
   });
 
   test('активный студент имеет 3 кнопки (имя + ⛔ + ✅)', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students')
           return [
@@ -1209,7 +1209,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'u1', name: 'Петя' })),
     } as unknown as U7BotApp;
@@ -1226,7 +1226,7 @@ describe('MonitorStory', () => {
   });
 
   test('S08 показывает причину критического отставания', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -1264,7 +1264,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'u1', name: 'Иван' })),
     } as unknown as U7BotApp;
@@ -1280,7 +1280,7 @@ describe('MonitorStory', () => {
   });
 
   test('S08 показывает статистику времени по категориям', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -1329,7 +1329,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'u1', name: 'Иван' })),
     } as unknown as U7BotApp;
@@ -1345,7 +1345,7 @@ describe('MonitorStory', () => {
   });
 
   test('S08 не показывает статистику если нет завершённых шагов', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -1377,7 +1377,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'u1', name: 'Иван' })),
     } as unknown as U7BotApp;
@@ -1400,7 +1400,7 @@ describe('MonitorStory', () => {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-progress')
           return {
@@ -1439,7 +1439,7 @@ describe('MonitorStory', () => {
           };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({ uuid: 'u1', name: 'Иван Иванов' })),
     } as unknown as U7BotApp;
@@ -1467,13 +1467,13 @@ describe('MonitorStory', () => {
   });
 
   test('students: если get-stream возвращает null — сообщение об ошибке', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-stream-students') return [];
         if (name === 'get-stream') return null;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => ({})),
     } as unknown as U7BotApp;
@@ -1488,7 +1488,7 @@ describe('MonitorStory', () => {
 
 /** Вспомогательная функция для создания MonitorStory с моками */
 function makeStory() {
-  const moduleApi = {
+  const appApi = {
     execute: mock((name: string) => {
       if (name === 'get-student-progress')
         return {
@@ -1501,7 +1501,7 @@ function makeStory() {
         };
       return undefined;
     }),
-  } as unknown as StreamApiModule;
+  } as unknown as U7BotApp;
   const appApi = {
     execute: mock((name: string) => {
       if (name === 'get-user') return { name: 'Студент' };

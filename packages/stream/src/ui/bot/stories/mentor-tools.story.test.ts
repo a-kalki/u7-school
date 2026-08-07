@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { MentorToolsStory } from './mentor-tools.story';
 
 describe('MentorToolsStory', () => {
@@ -44,7 +44,7 @@ describe('MentorToolsStory', () => {
 
   const emptyModuleApi = {
     execute: mock(() => undefined),
-  } as unknown as StreamApiModule;
+  } as unknown as U7BotApp;
 
   const emptyAppApi = {
     execute: mock(() => undefined),
@@ -185,15 +185,15 @@ describe('MentorToolsStory', () => {
   // ── handleCallback("my-streams") ──
 
   test('«Мои потоки» — без потоков ментора показывает заглушку', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-streams') return [];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams',
@@ -205,7 +205,7 @@ describe('MentorToolsStory', () => {
   });
 
   test('«Мои потоки» — показывает только потоки ментора', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-streams')
           return [
@@ -224,10 +224,10 @@ describe('MentorToolsStory', () => {
           ];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams',
@@ -251,14 +251,14 @@ describe('MentorToolsStory', () => {
   });
 
   test('«Мои потоки» — ошибка загрузки показывает сообщение', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => {
         throw new Error('DB error');
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams',
@@ -270,7 +270,7 @@ describe('MentorToolsStory', () => {
   });
 
   test('«Мои потоки» — по умолчанию только enrollment и active, есть toggle-кнопки', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-streams')
           return [
@@ -301,10 +301,10 @@ describe('MentorToolsStory', () => {
           ];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams',
@@ -329,7 +329,7 @@ describe('MentorToolsStory', () => {
   });
 
   test('«Мои потоки» — toggle завершённых показывает completed', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-streams')
           return [
@@ -348,10 +348,10 @@ describe('MentorToolsStory', () => {
           ];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams:completed:1',
@@ -369,7 +369,7 @@ describe('MentorToolsStory', () => {
   });
 
   test('«Мои потоки» — toggle архивированных показывает archived', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-streams')
           return [
@@ -388,10 +388,10 @@ describe('MentorToolsStory', () => {
           ];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams:archived:1',
@@ -407,7 +407,7 @@ describe('MentorToolsStory', () => {
   });
 
   test('«Мои потоки» — оба toggle включены: видны все', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'list-streams')
           return [
@@ -432,10 +432,10 @@ describe('MentorToolsStory', () => {
           ];
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new MentorToolsStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'my-streams:archived:1:completed:1',

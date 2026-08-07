@@ -8,7 +8,6 @@ import type {
 } from '@u7-scl/core/ui';
 import type { ContentSnapshot } from '../../../domain/content-snapshot';
 import type { Course } from '../../../domain/course/entity';
-import type { CourseApiModuleMeta } from '../../../domain/module';
 
 /** Эмодзи для направлений */
 const TRACK_EMOJI: Record<string, string> = {
@@ -31,7 +30,7 @@ const DEFAULT_TRACK_EMOJI = '📚';
  * На каждом уровне: текущие объекты жирным + кнопками,
  * подуровень — inline текстом.
  */
-export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
+export class CourseCatalogStory extends U7BotUserStory {
   readonly name = 'course-catalog';
 
   // ── Главное меню ──
@@ -92,7 +91,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
   // ═══ Уровень 0: Курсы + этапы inline ═══
 
   async #handleList(): Promise<BotResponse> {
-    const courses = (await this.moduleApi.execute(
+    const courses = (await this.appApi.execute(
       'list-courses',
       {},
     )) as Course[];
@@ -171,7 +170,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     let course: Course;
     try {
-      course = (await this.moduleApi.execute('get-course', {
+      course = (await this.appApi.execute('get-course', {
         uuid: courseId,
       })) as Course;
     } catch {
@@ -196,7 +195,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       // Модули этапа inline (один уровень вниз) — нужны заголовки
       for (const modId of phase.moduleIds ?? []) {
         try {
-          const mod = (await this.moduleApi.execute('get-module', {
+          const mod = (await this.appApi.execute('get-module', {
             uuid: modId,
           })) as { title: string; projects?: Array<{ lessonIds: string[] }> };
           const projCount = mod.projects?.length ?? 0;
@@ -244,7 +243,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     let course: Course;
     try {
-      course = (await this.moduleApi.execute('get-course', {
+      course = (await this.appApi.execute('get-course', {
         uuid: courseId,
       })) as Course;
     } catch {
@@ -265,7 +264,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
         projects?: Array<{ uuid: string; title: string; lessonIds: string[] }>;
       };
       try {
-        mod = (await this.moduleApi.execute('get-module', {
+        mod = (await this.appApi.execute('get-module', {
           uuid: modId,
         })) as typeof mod;
       } catch {
@@ -325,7 +324,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     let snapshot: ContentSnapshot;
     try {
-      snapshot = (await this.moduleApi.execute('get-module-snapshot', {
+      snapshot = (await this.appApi.execute('get-module-snapshot', {
         moduleId,
       })) as ContentSnapshot;
     } catch {
@@ -335,7 +334,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
     // Получаем название модуля для заголовка
     let modTitle = '';
     try {
-      const mod = (await this.moduleApi.execute('get-module', {
+      const mod = (await this.appApi.execute('get-module', {
         uuid: moduleId,
       })) as { title: string };
       modTitle = mod.title;
@@ -416,7 +415,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
     let snapshot: ContentSnapshot;
     try {
-      snapshot = (await this.moduleApi.execute('get-module-snapshot', {
+      snapshot = (await this.appApi.execute('get-module-snapshot', {
         moduleId,
       })) as ContentSnapshot;
     } catch {
@@ -448,7 +447,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
 
         // Шаги урока inline
         if (sCount > 0) {
-          const stepsByLesson = (await this.moduleApi.execute(
+          const stepsByLesson = (await this.appApi.execute(
             'get-steps-by-lessons',
             { lessonIds: [lesson.lessonId] },
           )) as Record<string, Array<{ uuid: string; description: string }>>;

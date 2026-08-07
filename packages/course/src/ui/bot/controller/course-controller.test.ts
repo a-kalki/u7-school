@@ -9,10 +9,13 @@ describe('CourseController (реестр)', () => {
   } as any;
 
   const mockAppApi = {
-    execute: mock(() => undefined),
+    execute: mock((name: string) => {
+      if (name === 'list-courses') return [];
+      return undefined;
+    }),
   } as any;
 
-  const makeController = () => new CourseController(mockModuleApi);
+  const makeController = () => new CourseController();
 
   const guestActor: User = {
     uuid: 'u1',
@@ -35,7 +38,7 @@ describe('CourseController (реестр)', () => {
 
   test('handleStart агрегирует кнопки от stories', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const items = await controller.handleStart(guestActor);
 
@@ -46,7 +49,7 @@ describe('CourseController (реестр)', () => {
 
   test('handleCallback форвардит по префиксу story', async () => {
     const controller = makeController();
-    controller.init(mockAppApi);
+    controller.init(mockAppApi, undefined as never);
 
     const session = { activeHandler: null };
 

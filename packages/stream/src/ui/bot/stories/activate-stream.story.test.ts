@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ActivateStreamStory } from './activate-stream.story';
 
 describe('ActivateStreamStory', () => {
@@ -18,9 +18,9 @@ describe('ActivateStreamStory', () => {
   const session: SessionData = { activeHandler: null };
 
   test('handleCallback("activate:<id>") запускает поток', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((_name: string) => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock(() => undefined),
     } as unknown as U7BotApp;

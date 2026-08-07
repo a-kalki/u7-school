@@ -5,7 +5,6 @@ import type {
   KeyboardDescription,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Stream } from '../../../domain/stream/entity';
 import { StreamPolicy } from '../../../domain/stream/policy';
 
@@ -14,7 +13,7 @@ import { StreamPolicy } from '../../../domain/stream/policy';
  * Показывает описание, статус, дату старта, имя ментора и публичные кнопки.
  * Менторские lifecycle-кнопки убраны — перенесены в трек mentor_tools_20260713.
  */
-export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class ViewStreamStory extends U7BotUserStory {
   readonly name: string = 'view-stream';
 
   /** Имя сторис для cbFor (переопределяется в ViewStreamMentorStory). */
@@ -56,12 +55,12 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
     streamId: string,
     actor: User,
   ): Promise<BotResponse> {
-    const stream = (await this.moduleApi.execute('get-stream', {
+    const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
     let studentCount = 0;
     try {
-      const students = await this.moduleApi.execute(
+      const students = await this.appApi.execute(
         'list-stream-students',
         { streamId },
         actor.uuid,
@@ -117,7 +116,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   protected async handleProgramView(streamId: string): Promise<BotResponse> {
-    const stream = (await this.moduleApi.execute('get-stream', {
+    const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
     const snapshot = stream.contentSnapshot;
@@ -208,7 +207,7 @@ export class ViewStreamStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   protected async handleDetailsView(streamId: string): Promise<BotResponse> {
-    const stream = (await this.moduleApi.execute('get-stream', {
+    const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
 

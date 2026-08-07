@@ -3,7 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { AppException, errValidation } from '@u7-scl/core/domain';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { CreateStreamStory } from './create-stream.story';
 
 describe('CreateStreamStory', () => {
@@ -52,9 +52,9 @@ describe('CreateStreamStory', () => {
   }
 
   test('handleCallback("start") сразу показывает список модулей с клавиатурой', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApiWithModules = {
       execute: mock((name: string, _cmd: Record<string, unknown>) => {
         if (name === 'list-modules')
@@ -93,9 +93,9 @@ describe('CreateStreamStory', () => {
   });
 
   test('handleMessage: шаг 0 — загружает все опубликованные модули через appApi', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApiWithModules = {
       execute: mock((name: string, _cmd: Record<string, unknown>) => {
         if (name === 'list-modules')
@@ -142,9 +142,9 @@ describe('CreateStreamStory', () => {
   });
 
   test('handleMessage: шаг 0 — если модулей нет, показывает сообщение и кнопку обновить', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApiEmpty = {
       execute: mock(() => []),
     } as unknown as U7BotApp;
@@ -165,9 +165,9 @@ describe('CreateStreamStory', () => {
   });
 
   test('handleCallback("module:<id>") — предзаполняет title/description из модуля', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApiWithModule = {
       execute: mock((name: string, _cmd: Record<string, unknown>) => {
         if (name === 'get-module')
@@ -362,16 +362,16 @@ describe('CreateStreamStory', () => {
   });
 
   test('все необязательные поля передаются в create-stream', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'create-stream')
           return { uuid: 'new-stream', title: 'Мой поток' };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('confirm', mentor, {
       activeHandler: {
@@ -413,7 +413,7 @@ describe('CreateStreamStory', () => {
   });
 
   test('ошибка валидации create-stream — сообщение и сброс', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'create-stream')
           throw new AppException(
@@ -425,10 +425,10 @@ describe('CreateStreamStory', () => {
           );
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('confirm', mentor, {
       activeHandler: {
@@ -449,12 +449,12 @@ describe('CreateStreamStory', () => {
   });
 
   test('handleCallback("confirm"): без контекста — ошибка', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('confirm', mentor, {
       activeHandler: null,
@@ -466,12 +466,12 @@ describe('CreateStreamStory', () => {
   // ── keepPrevKeyboard (по умолчанию клавиатура удаляется) ──
 
   test('кнопка «Принять» — keepPrevKeyboard не установлен (удаление по умолчанию)', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     // Шаг goal (moduleKey='goal')
     const ctx = makeCtx({ step: 4 });
@@ -482,12 +482,12 @@ describe('CreateStreamStory', () => {
   });
 
   test('кнопка «Пропустить» — keepPrevKeyboard не установлен (удаление по умолчанию)', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const ctx = makeCtx({ step: 4 });
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
@@ -497,12 +497,12 @@ describe('CreateStreamStory', () => {
   });
 
   test('кнопка «Пропустить» для группы — keepPrevKeyboard не установлен (удаление по умолчанию)', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     // Шаг 9 — группа
     const ctx = makeCtx({ step: 9 });
@@ -513,12 +513,12 @@ describe('CreateStreamStory', () => {
   });
 
   test('шаг 10 (confirm) — keepPrevKeyboard не установлен', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock(() => undefined),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const ctx = makeCtx({ step: 11, enrollmentKey: '' });
     const session = { activeHandler: { path: WIZARD_PATH, context: ctx } };
@@ -579,16 +579,16 @@ describe('CreateStreamStory', () => {
   });
 
   test('enrollmentKey передаётся в create-stream при подтверждении', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'create-stream')
           return { uuid: 'new-stream', title: 'Мой поток' };
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CreateStreamStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     await story.handleCallback('confirm', mentor, {
       activeHandler: {

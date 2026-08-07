@@ -3,11 +3,7 @@ import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
 import type { BotController } from '@u7-scl/core/ui';
-import {
-  BotRouter,
-  createUiRegistry,
-  type HasPublicActions,
-} from '@u7-scl/core/ui';
+import { UiApp } from '@u7-scl/core/ui';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   CourseInProcFacade,
@@ -136,30 +132,21 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
 }
 
 /**
- * Создаёт инициализированный BotRouter для тестов.
+ * Создаёт инициализированный UiApp для тестов.
  *
  * Инкапсулирует рутину, которую раньше каждый тест делал вручную:
- *   new BotRouter([controllers]) + router.init(apiApp) + UiRegistry → initUi.
+ *   new UiApp([controllers]) + uiApp.init(apiApp).
  *
  * @param app — результат createTestApp()
  * @param controllers — один или несколько контроллеров
- * @returns инициализированный BotRouter
+ * @returns инициализированный UiApp
  */
-export function createTestUiRouter(
+export function createTestUiApp(
   app: TestApp,
   // biome-ignore lint/suspicious/noExplicitAny: тестовый хелпер, тип контроллера зависит от теста
-  controllers: BotController<any, any, any>[],
-): BotRouter<any, any, any> {
-  const router = new BotRouter(controllers);
-
-  // Каскад: ApiApp → контроллеры → стори
-  router.init(app.apiApp);
-
-  // Сбор и инжект UiRegistry
-  const registry = createUiRegistry(controllers as HasPublicActions[]);
-  for (const ctrl of controllers) {
-    ctrl.initUi(registry);
-  }
-
-  return router;
+  controllers: BotController<any, any>[],
+): UiApp<any, any> {
+  const uiApp = new UiApp(controllers);
+  uiApp.init(app.apiApp);
+  return uiApp;
 }

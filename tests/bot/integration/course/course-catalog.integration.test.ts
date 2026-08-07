@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { CourseController } from '@u7-scl/course/ui';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -18,7 +18,7 @@ import { createTestApp } from '../../helpers/test-app';
  */
 describe('CourseCatalogStory (интеграционный)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let guest: User;
   let author: User;
   const session: SessionData = { activeHandler: null };
@@ -27,9 +27,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
   beforeAll(async () => {
     app = await createTestApp('course-catalog-v2');
-    const courseController = new CourseController(app.courseModule);
-    courseController.init(app.apiApp);
-    router = new BotRouter([courseController]);
+    const courseController = new CourseController();
+    courseController.init(app.apiApp, undefined as never);
+    router = new UiApp([courseController]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     author = (await app.userFacade.getUserByTelegramId(1004))!;
   });

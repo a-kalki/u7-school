@@ -2,12 +2,11 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import { UserPolicy } from '@u7-scl/user/domain';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 
 /**
  * US: Подменю «🛠️ Инструменты ментора».
  */
-export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class MentorToolsStory extends U7BotUserStory {
   readonly name = 'mentor-tools';
 
   async handleCallback(
@@ -99,7 +98,7 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
       '\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве';
 
     try {
-      const streams = await this.moduleApi.execute('list-streams', {});
+      const streams = await this.appApi.execute('list-streams', {});
 
       let myStreams = Array.isArray(streams)
         ? streams.filter(

@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { CourseApiModule } from 'packages/course/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { CourseCatalogStory } from './course-catalog.story';
 
 describe('CourseCatalogStory', () => {
@@ -21,7 +21,7 @@ describe('CourseCatalogStory', () => {
     execute: mock(() => undefined),
   } as unknown as U7BotApp;
 
-  function makeModuleApi(
+  function makeAppApi(
     courses: Array<{
       uuid: string;
       title: string;
@@ -61,7 +61,7 @@ describe('CourseCatalogStory', () => {
       }>
     > = {},
     steps: Record<string, Array<{ uuid: string; description: string }>> = {},
-  ): CourseApiModule {
+  ): U7BotApp {
     return {
       execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
         if (ucName === 'list-courses') return courses;
@@ -96,7 +96,7 @@ describe('CourseCatalogStory', () => {
         }
         return undefined;
       }),
-    } as unknown as CourseApiModule;
+    } as unknown as U7BotApp;
   }
 
   // ── Главное меню ──
@@ -122,7 +122,7 @@ describe('CourseCatalogStory', () => {
   // ── Уровень 0: Курсы + этапы inline ──
 
   test('list: показывает курсы с этапами inline, без описаний', async () => {
-    const moduleApi = makeModuleApi([
+    const appApi = makeAppApi([
       {
         uuid: 'c1',
         title: 'JS Basics',
@@ -138,7 +138,7 @@ describe('CourseCatalogStory', () => {
     ]);
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
@@ -164,9 +164,9 @@ describe('CourseCatalogStory', () => {
   });
 
   test('list: пустой список', async () => {
-    const moduleApi = makeModuleApi([]);
+    const appApi = makeAppApi([]);
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('list', actor, session);
     assertResponseMarkdownSafe(response);
@@ -174,7 +174,7 @@ describe('CourseCatalogStory', () => {
   });
 
   test('list: заголовок «📖 *Курсы*»', async () => {
-    const moduleApi = makeModuleApi([
+    const appApi = makeAppApi([
       {
         uuid: 'c1',
         title: 'Course',
@@ -186,7 +186,7 @@ describe('CourseCatalogStory', () => {
       },
     ]);
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('list', actor, session);
     expect(response.sendMessage?.text).toContain('📖 *Курсы*');
@@ -196,7 +196,7 @@ describe('CourseCatalogStory', () => {
 
   test('phases: этапы жирным, модули inline с числом проектов и уроков', async () => {
     const courseUuid = 'c2';
-    const moduleApi = makeModuleApi(
+    const appApi = makeAppApi(
       [
         {
           uuid: courseUuid,
@@ -230,7 +230,7 @@ describe('CourseCatalogStory', () => {
     );
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       `phases:${courseUuid}`,
@@ -261,7 +261,7 @@ describe('CourseCatalogStory', () => {
 
   test('modules: модули жирным, проекты inline', async () => {
     const courseUuid = 'c3';
-    const moduleApi = makeModuleApi(
+    const appApi = makeAppApi(
       [
         {
           uuid: courseUuid,
@@ -299,7 +299,7 @@ describe('CourseCatalogStory', () => {
     );
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       `modules:${courseUuid}:0`,
@@ -332,7 +332,7 @@ describe('CourseCatalogStory', () => {
 
   test('projects: проекты жирным, уроки inline', async () => {
     const courseUuid = 'c4';
-    const moduleApi = makeModuleApi(
+    const appApi = makeAppApi(
       [
         {
           uuid: courseUuid,
@@ -378,7 +378,7 @@ describe('CourseCatalogStory', () => {
     );
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       `projects:${courseUuid}:0:m-x`,
@@ -411,7 +411,7 @@ describe('CourseCatalogStory', () => {
 
   test('lessons: урок + шаги inline, тела скрыты', async () => {
     const courseUuid = 'c5';
-    const moduleApi = makeModuleApi(
+    const appApi = makeAppApi(
       [
         {
           uuid: courseUuid,
@@ -450,7 +450,7 @@ describe('CourseCatalogStory', () => {
     );
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       `lessons:${courseUuid}:0:m-z:0`,
@@ -478,9 +478,9 @@ describe('CourseCatalogStory', () => {
   // ── Ошибки ──
 
   test('phases: несуществующий курс — ошибка', async () => {
-    const moduleApi = makeModuleApi([]);
+    const appApi = makeAppApi([]);
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'phases:bad-uuid',
@@ -492,9 +492,9 @@ describe('CourseCatalogStory', () => {
   });
 
   test('modules: несуществующий курс — ошибка', async () => {
-    const moduleApi = makeModuleApi([]);
+    const appApi = makeAppApi([]);
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'modules:bad:0',
@@ -507,7 +507,7 @@ describe('CourseCatalogStory', () => {
 
   test('projects: несуществующий модуль — ошибка', async () => {
     // Мок, который выбрасывает ошибку для get-module-snapshot
-    const moduleApi = {
+    const appApi = {
       execute: mock(async (ucName: string, _attrs: Record<string, unknown>) => {
         if (ucName === 'get-module-snapshot') {
           throw Object.assign(new Error('Модуль не найден'), {
@@ -516,10 +516,10 @@ describe('CourseCatalogStory', () => {
         }
         return undefined;
       }),
-    } as unknown as CourseApiModule;
+    } as unknown as U7BotApp;
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       'projects:c1:0:bad',
@@ -539,7 +539,7 @@ describe('CourseCatalogStory', () => {
       description: `Шаг номер ${i + 1} — очень подробное описание которое занимает много символов`,
     }));
 
-    const moduleApi = makeModuleApi(
+    const appApi = makeAppApi(
       [
         {
           uuid: courseUuid,
@@ -571,7 +571,7 @@ describe('CourseCatalogStory', () => {
     );
 
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback(
       `lessons:${courseUuid}:0:m-w:0`,
@@ -588,9 +588,9 @@ describe('CourseCatalogStory', () => {
   // ── Неизвестная команда ──
 
   test('неизвестная команда', async () => {
-    const moduleApi = makeModuleApi([]);
+    const appApi = makeAppApi([]);
     const story = new CourseCatalogStory();
-    story.init(moduleApi, emptyAppApi);
+    story.init(appApi, undefined as never);
 
     const response = await story.handleCallback('unknown', actor, session);
     assertResponseMarkdownSafe(response);

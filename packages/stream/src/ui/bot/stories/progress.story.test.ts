@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ProgressStory } from './progress.story';
 
 describe('ProgressStory', () => {
@@ -49,13 +49,13 @@ describe('ProgressStory', () => {
   };
 
   test('показывает ментора, дату, чат, проект/урок и прогресс', async () => {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-student-by-user') return mockStudent;
         if (name === 'get-stream') return mockStream;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')

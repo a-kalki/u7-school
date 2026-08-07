@@ -6,7 +6,6 @@ import type {
   MenuAggregator,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { AppOnlyApiModuleMeta } from './stories/community.story';
 import { CommunityStory } from './stories/community.story';
 
 /**
@@ -16,7 +15,7 @@ import { CommunityStory } from './stories/community.story';
  * - Кнопки «Сообщество школы» и «Помощь»
  * - Callback'и app:main-menu и app:help
  */
-export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
+export class AppController extends U7BotController {
   readonly name = 'app';
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: присваивается в конструкторе, требуется для инициализации
   readonly #groupUrl: string;
@@ -45,14 +44,14 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
    * @param schoolGroupUrl — URL группы школы (обязателен)
    */
   constructor(schoolGroupUrl: string) {
-    super({} as never);
+    super();
     this.#groupUrl = schoolGroupUrl;
     this.stories.push(new CommunityStory(schoolGroupUrl));
   }
 
   /**
-   * Получает MenuAggregator от BotRouter.
-   * Вызывается после создания BotRouter, до первого use.
+   * Получает MenuAggregator от UiApp.
+   * Вызывается после создания UiApp, до первого use.
    */
   initMenuAggregator(aggregator: MenuAggregator<User>): void {
     this.#menuAggregator = aggregator;

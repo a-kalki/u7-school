@@ -1,8 +1,9 @@
 import type { Logger } from '@u7-scl/core/shared';
-import type { BotRouter } from '@u7-scl/core/ui';
+import type { UiApp } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
+import type { U7BotAppMeta } from '../u7-bot-app-meta';
 import { executeResponses } from '../ui-utils';
 
 /**
@@ -29,14 +30,14 @@ export async function resolveUser(
 }
 
 /**
- * Подключает Grammy-обработчики к BotRouter.
+ * Подключает Grammy-обработчики к UiApp.
  *
- * connectRouter — чистый адаптер: Grammy-события → BotRouter → executeResponses.
+ * connectUiApp — чистый адаптер: Grammy-события → UiApp → executeResponses.
  * Не содержит пользовательских текстов, не формирует клавиатуры.
  */
-export function connectRouter(
+export function connectUiApp(
   bot: Composer<BotContext>,
-  router: BotRouter,
+  uiApp: UiApp<U7BotAppMeta, User>,
   userFacade: UserFacade,
   botAdminUuid: string,
   logger?: Logger,
@@ -74,7 +75,7 @@ export function connectRouter(
 
     ctx.session.activeHandler = null;
 
-    const response = await router.handleWelcome(user);
+    const response = await uiApp.handleWelcome(user);
     await executeResponses(ctx, response);
   });
 
@@ -88,7 +89,7 @@ export function connectRouter(
       return;
     }
 
-    const response = await router.handleHelp(user);
+    const response = await uiApp.handleHelp(user);
     await executeResponses(ctx, response);
   });
 
@@ -102,7 +103,7 @@ export function connectRouter(
       return;
     }
 
-    const response = await router.handleCancel(user, ctx.session);
+    const response = await uiApp.handleCancel(user, ctx.session);
 
     if (response === null) {
       await ctx.reply('Нечего отменять. Нажмите /start');
@@ -129,7 +130,7 @@ export function connectRouter(
 
     const data = ctx.callbackQuery.data;
 
-    const response = await router.handleCallback(data, user, ctx.session);
+    const response = await uiApp.handleCallback(data, user, ctx.session);
 
     // Проверка на «чужой callback» — показываем alert
     if (response.sendMessage?.text?.includes('завершите текущее действие')) {
@@ -175,7 +176,7 @@ export function connectRouter(
       telegramId: ctx.from!.id,
     };
 
-    const response = await router.handleMessage(update, user, ctx.session);
+    const response = await uiApp.handleMessage(update, user, ctx.session);
 
     if (response === null) {
       // Нет активного обработчика — пропускаем

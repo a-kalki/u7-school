@@ -1,16 +1,20 @@
 import type { ApiApp } from '#api/app/api-app';
 import { fromError } from '#domain/errors/error-helpers';
-import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
+import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
+import type { StoryPublicActions, UiBotButton } from './public-actions';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from './types';
+import type { UiApp } from './ui-app';
+
+// определить в core Uijapp с базовой логикой.
 
 /**
  * Абстрактный класс для пользовательского сценария внутри контроллера.
@@ -20,30 +24,30 @@ import type {
  * и префиксом имени — story не знает ни того, ни другого.
  *
  * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
- * @typeParam TModuleMeta — тип метаданных модуля, к которому принадлежит сценарий
  * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
  */
 export abstract class BotUserStory<
   TAppMeta extends AppMeta = AppMeta,
-  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
-  TUi = unknown,
+  TActions = StoryPublicActions,
 > {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
-  /** API своего модуля — для внутренних вызовов (строгая типизация) */
-  protected moduleApi!: ApiExecutor<TModuleMeta>;
+  /** Публичные действия стори — фабрики кнопок для других стори */
+  publicActions: TActions = {} as TActions;
 
   /** API приложения — для вызовов к другим модулям */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /**
-   * UI-реестр — инжектится через initUi().
-   * Типизируется дженериком TUi.
-   * Позволяет кросс-ссылки между стори: this.ui.controllerName.storyName.action(...)
-   */
-  public ui: TUi = undefined as unknown as TUi;
+  /** UI-приложение — для доступа к publicActions других стори */
+  uiApp!: UiApp<TAppMeta, TActor>;
+
+  /** @deprecated Используйте uiApp.getAction<T>(name) */
+  // biome-ignore lint/suspicious/noExplicitAny: временная обратная совместимость до обновления стори
+  get ui(): any {
+    return this.uiApp;
+  }
 
   // ── Инициализация ──
   protected get logger(): Logger | undefined {
@@ -54,17 +58,9 @@ export abstract class BotUserStory<
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API модуля и API приложения.
    */
-  init(moduleApi: ApiExecutor<TModuleMeta>, appApi: ApiApp<TAppMeta>): void {
-    this.moduleApi = moduleApi;
+  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp): void {
     this.appApi = appApi;
-  }
-
-  /**
-   * Инжекция UI-реестра — вызывается после сбора всех контроллеров.
-   * Делает доступными кросс-ссылки между стори через this.ui.
-   */
-  initUi(ui: TUi): void {
-    this.ui = ui;
+    this.uiApp = uiApp;
   }
 
   /** Сброс временных данных сценария (переопределяется при необходимости) */
@@ -307,5 +303,16 @@ export abstract class BotUserStory<
         };
       }
     }
+  }
+
+  /** Хелпер для publicActions.
+   * `publicActions = { view: (id: string) => this.action('Просмотр', 'view', id)}`
+   */
+  protected action(
+    text: string,
+    actionName: string,
+    ...ids: string[]
+  ): UiBotButton {
+    return { text, code: this.cb(actionName, ...ids) };
   }
 }

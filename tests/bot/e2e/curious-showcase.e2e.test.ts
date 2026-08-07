@@ -6,7 +6,7 @@ import type {
   CbMainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { CourseController } from '@u7-scl/course/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../helpers/test-app';
@@ -51,19 +51,19 @@ function findMenuItem(
 
 describe('E2E: Витрина для любопытного', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let guest: User;
   let candidate: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-curious');
-    const streamController = new StreamController(app.streamModule);
-    const courseController = new CourseController(app.courseModule);
+    const streamController = new StreamController();
+    const courseController = new CourseController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    streamController.init(app.apiApp);
-    courseController.init(app.apiApp);
-    appController.init(app.apiApp);
-    router = new BotRouter([appController, streamController, courseController]);
+    streamController.init(app.apiApp, undefined as never);
+    courseController.init(app.apiApp, undefined as never);
+    appController.init(app.apiApp, undefined as never);
+    router = new UiApp([appController, streamController, courseController]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     candidate = (await app.userFacade.getUserByTelegramId(1002))!;
   });

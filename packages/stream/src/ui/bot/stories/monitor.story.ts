@@ -3,7 +3,6 @@ import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { StreamDs } from '#domain/index';
 import type { CategorizedStudent } from '#domain/types';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import type { Student } from '../../../domain/student/entity';
 import { StudentPolicy } from '../../../domain/student/policy';
 
@@ -12,7 +11,7 @@ import { StudentPolicy } from '../../../domain/student/policy';
  * Публичный список студентов с прогресс-барами.
  * Детальная карточка — кнопки действий только для ментора потока.
  */
-export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
+export class MonitorStory extends U7BotUserStory {
   readonly name = 'monitor';
 
   async handleCallback(
@@ -79,13 +78,13 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   // ── Приватные методы ──
 
   async #handleStudents(streamId: string, actor: User): Promise<BotResponse> {
-    const students = await this.moduleApi.execute(
+    const students = await this.appApi.execute(
       'list-stream-students',
       { streamId },
       actor.uuid,
     );
 
-    const stream = await this.moduleApi.execute('get-stream', {
+    const stream = await this.appApi.execute('get-stream', {
       streamId,
     });
 
@@ -335,7 +334,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
   }
 
   async #handleDetail(studentId: string, actor: User): Promise<BotResponse> {
-    const student: Student = await this.moduleApi.execute(
+    const student: Student = await this.appApi.execute(
       'get-student-progress',
       { studentId },
       actor.uuid,
@@ -351,7 +350,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
       this.handleError(err);
     }
 
-    const stream = await this.moduleApi.execute('get-stream', {
+    const stream = await this.appApi.execute('get-stream', {
       streamId: student.streamId,
     });
 
@@ -485,7 +484,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     studentId: string,
     actor: User,
   ): Promise<BotResponse> {
-    const student: Student = await this.moduleApi.execute(
+    const student: Student = await this.appApi.execute(
       'get-student-progress',
       { studentId },
       actor.uuid,
@@ -516,7 +515,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     actor: User,
     _action: string,
   ): Promise<BotResponse> {
-    const student: Student = await this.moduleApi.execute(
+    const student: Student = await this.appApi.execute(
       'get-student-progress',
       { studentId },
       actor.uuid,
@@ -533,7 +532,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     try {
-      await this.moduleApi.execute(
+      await this.appApi.execute(
         'mark-abandoned',
         { streamId: student.streamId, studentId, cause: 'inactivity' as const },
         actor.uuid,
@@ -602,7 +601,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     const parts = action.split(':');
     const outcome = parts[2]; // advanced | not_advanced | abandoned
 
-    const student: Student = await this.moduleApi.execute(
+    const student: Student = await this.appApi.execute(
       'get-student-progress',
       { studentId },
       actor.uuid,
@@ -655,7 +654,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
     const outcome = rawOutcome;
 
-    const student: Student = await this.moduleApi.execute(
+    const student: Student = await this.appApi.execute(
       'get-student-progress',
       { studentId },
       actor.uuid,
@@ -672,7 +671,7 @@ export class MonitorStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     try {
-      await this.moduleApi.execute(
+      await this.appApi.execute(
         'complete-student',
         {
           streamId: student.streamId,

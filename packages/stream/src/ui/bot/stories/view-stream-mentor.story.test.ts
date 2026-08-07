@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ViewStreamMentorStory } from './view-stream-mentor.story';
 
 describe('ViewStreamMentorStory', () => {
@@ -46,7 +46,7 @@ describe('ViewStreamMentorStory', () => {
     studentCount = 0,
     mentorName = 'Алексей Смирнов',
   ) {
-    const moduleApi = {
+    const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-stream') return stream;
         if (name === 'list-stream-students')
@@ -57,7 +57,7 @@ describe('ViewStreamMentorStory', () => {
         if (name === 'archive-stream') return undefined;
         return undefined;
       }),
-    } as unknown as StreamApiModule;
+    } as unknown as U7BotApp;
     const appApi = {
       execute: mock((name: string) => {
         if (name === 'get-user')

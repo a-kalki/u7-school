@@ -5,7 +5,7 @@ import type {
   CbMainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -62,14 +62,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Гость', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let guest: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-guest');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       guest = (await app.userFacade.getUserByTelegramId(1001))!;
     });
 
@@ -243,14 +243,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Кандидат: запись на поток', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let candidate: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-candidate');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       candidate = (await app.userFacade.getUserByTelegramId(1002))!;
     });
 
@@ -313,14 +313,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Студент', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let student: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-student');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       student = (await app.userFacade.getUserByTelegramId(1003))!;
     });
 
@@ -451,14 +451,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Ментор', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let mentor: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-mentor');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       mentor = (await app.userFacade.getUserByTelegramId(1004))!;
     });
 
@@ -603,14 +603,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Ментор: студенты → назад к потоку', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let mentor: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-mentor-students-back');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       mentor = (await app.userFacade.getUserByTelegramId(1004))!;
     });
 
@@ -645,14 +645,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Ментор: запустить → назад к потоку', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let mentor: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-mentor-activate-back');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       mentor = (await app.userFacade.getUserByTelegramId(1004))!;
     });
 
@@ -687,14 +687,14 @@ describe('Сквозные пользовательские сценарии (E2
   // ────────────────────────────────────────────────
   describe('Студент: моя учёба → прогресс → назад', () => {
     let app: TestApp;
-    let router: BotRouter;
+    let router: UiApp;
     let student: User;
 
     beforeAll(async () => {
       app = await createTestApp('e2e-student-progress-back');
-      const streamController = new StreamController(app.streamModule);
-      streamController.init(app.apiApp);
-      router = new BotRouter([streamController]);
+      const streamController = new StreamController();
+      streamController.init(app.apiApp, undefined as never);
+      router = new UiApp([streamController]);
       student = (await app.userFacade.getUserByTelegramId(1003))!;
     });
 

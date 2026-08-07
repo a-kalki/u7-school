@@ -1,5 +1,4 @@
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
-import type { StreamApiModuleMeta } from '../../../domain/module';
 import { ActivateStreamStory } from '../stories/activate-stream.story';
 import { CatalogStory } from '../stories/catalog.story';
 import { CreateStreamStory } from '../stories/create-stream.story';
@@ -15,7 +14,7 @@ import { ViewStreamMentorStory } from '../stories/view-stream-mentor.story';
  * Контроллер модуля Stream для Telegram-бота.
  * Тонкий реестр — делегирует все действия в U7BotUserStory.
  */
-export class StreamController extends U7BotController<StreamApiModuleMeta> {
+export class StreamController extends U7BotController {
   readonly name = 'stream';
 
   protected override readonly stories = [

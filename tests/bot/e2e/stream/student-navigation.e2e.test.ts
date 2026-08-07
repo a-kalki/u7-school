@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -56,14 +56,14 @@ function allButtonTexts(response: BotResponse): string {
 
 describe('Навигация студента: хаб → дерево → листание (E2E)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let student: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-nav');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     student = (await app.userFacade.getUserByTelegramId(1003))!;
 
     // Прогреваем студента: завершаем d0, d1 (урок «Переменные и типы»).
@@ -327,14 +327,14 @@ describe('Навигация студента: хаб → дерево → ли�
  */
 describe('Навигация студента: ◀️/▶️ через уроки (E2E)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let student: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-nav-cross-lesson');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     student = (await app.userFacade.getUserByTelegramId(1003))!;
 
     // completed=[d0,d1,d2], текущий=d3 — три completed в двух уроках
@@ -405,14 +405,14 @@ describe('Навигация студента: ◀️/▶️ через урок
 
 describe('Навигация студента: выход из потока (E2E)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let student: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-nav-leave');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     student = (await app.userFacade.getUserByTelegramId(1003))!;
   });
 
@@ -514,15 +514,15 @@ describe('Навигация студента: выход из потока (E2E
 
 describe('Завершивший студент: хаб без Продолжить/Уроки (E2E)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let advancedUser: User;
   let notAdvancedUser: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-nav-finished');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     advancedUser = (await app.userFacade.getUserByTelegramId(1007))!;
     notAdvancedUser = (await app.userFacade.getUserByTelegramId(1008))!;
   });

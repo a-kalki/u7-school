@@ -5,7 +5,7 @@ import type {
   CbMainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import { assertBotResponseValid, BotRouter } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
@@ -57,15 +57,15 @@ function findMenuItem(
 
 describe('Gating E2E (через бота)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let advancedUser: User;
   let notAdvancedUser: User;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-gating-bot');
-    const streamController = new StreamController(app.streamModule);
-    streamController.init(app.apiApp);
-    router = new BotRouter([streamController]);
+    const streamController = new StreamController();
+    streamController.init(app.apiApp, undefined as never);
+    router = new UiApp([streamController]);
     advancedUser = (await app.userFacade.getUserByTelegramId(1007))!;
     notAdvancedUser = (await app.userFacade.getUserByTelegramId(1008))!;
   });

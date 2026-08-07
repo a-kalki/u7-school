@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import { BotRouter } from '@u7-scl/core/ui';
+import { UiApp } from '@u7-scl/core/ui';
 import { CourseController } from '@u7-scl/course/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../helpers/test-app';
@@ -11,24 +11,24 @@ const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
 /**
  * Интеграционные тесты: главное меню, /start, /help.
- * Проверяет сквозное взаимодействие AppController → BotRouter → контроллеры.
+ * Проверяет сквозное взаимодействие AppController → UiApp → контроллеры.
  */
 describe('Главное меню (интеграционные)', () => {
   let app: TestApp;
-  let router: BotRouter;
+  let router: UiApp;
   let guest: User;
   let student: User;
   let mentor: User;
 
   beforeAll(async () => {
     app = await createTestApp('main-menu-int');
-    const streamController = new StreamController(app.streamModule);
-    const courseController = new CourseController(app.courseModule);
+    const streamController = new StreamController();
+    const courseController = new CourseController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    streamController.init(app.apiApp);
-    courseController.init(app.apiApp);
-    appController.init(app.apiApp);
-    router = new BotRouter([appController, streamController, courseController]);
+    streamController.init(app.apiApp, undefined as never);
+    courseController.init(app.apiApp, undefined as never);
+    appController.init(app.apiApp, undefined as never);
+    router = new UiApp([appController, streamController, courseController]);
     appController.initMenuAggregator(router);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;

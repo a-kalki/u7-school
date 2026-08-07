@@ -1,14 +1,15 @@
 import type { ApiApp } from '#api/app/api-app';
-import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import type { AppMeta } from '#domain/types';
 import { getGlobalLogger } from '#shared/logger';
-import type { BotController } from '../controller/bot-controller';
+import type { BotController } from './controller/bot-controller';
+import type { StoryPublicActions, UiCallbackFactory } from './public-actions';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   MenuAggregator,
   SessionData,
-} from '../types';
+} from './types';
 
 /**
  * Извлекает имя контроллера из callback_data (первый сегмент до «:»).
@@ -29,25 +30,26 @@ export function extractRestData(data: string): string {
 }
 
 /**
- * Роутер бота.
- * Хранит контроллеры и маршрутизирует события к нужному контроллеру.
- * Не зависит от Grammy — работает с абстрактными типами.
+ * Центральный хаб UI-слоя бота. Владеет контроллерами, маршрутизацией
+ * и реестром publicActions.
+ *
+ * Заменяет BotRouter — вся маршрутизация теперь здесь.
  *
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class BotRouter<
-  TAppMeta extends AppMeta = AppMeta,
-  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
-  TActor = unknown,
-> implements MenuAggregator<TActor>
+export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
+  implements MenuAggregator<TActor>
 {
   private readonly controllers = new Map<
     string,
-    BotController<TAppMeta, TModuleMeta, TActor>
+    BotController<TAppMeta, TActor>
   >();
 
-  constructor(controllers: BotController<TAppMeta, TModuleMeta, TActor>[]) {
+  /** Реестр publicActions: actionName → factory */
+  private readonly publicActionsMap = new Map<string, UiCallbackFactory>();
+
+  constructor(controllers: BotController<TAppMeta, TActor>[]) {
     for (const c of controllers) {
       if (this.controllers.has(c.name)) {
         throw new Error(`Дубликат имени контроллера: ${c.name}`);
@@ -57,19 +59,88 @@ export class BotRouter<
   }
 
   /**
-   * Каскадная инициализация: вызывает init(apiApp) у каждого контроллера.
-   * Контроллеры, в свою очередь, каскадно инициализируют свои UserStory.
+   * Каскадная инициализация: ApiApp → контроллеры → стори → сбор publicActions.
    */
   init(apiApp: ApiApp<TAppMeta>): void {
     for (const controller of this.controllers.values()) {
-      controller.init(apiApp);
+      controller.init(apiApp, this);
+    }
+    this.#registerPublicActions();
+  }
+
+  // ── Реестр publicActions ──
+
+  /**
+   * Собирает publicActions со всех стори всех контроллеров в плоскую мапу.
+   * Проверяет уникальность имён действий.
+   */
+  #registerPublicActions(): void {
+    this.publicActionsMap.clear();
+    for (const controller of this.controllers.values()) {
+      // 1. Собираем publicActions со стори
+      for (const story of controller.getStories()) {
+        const actions = story.publicActions as Record<
+          string,
+          UiCallbackFactory
+        >;
+        for (const actionName of Object.keys(actions)) {
+          if (this.publicActionsMap.has(actionName)) {
+            throw new Error(
+              `Дубликат имени publicAction: "${actionName}" (контроллер: ${controller.name}, стори: ${story.name})`,
+            );
+          }
+          const factory = actions[actionName];
+          if (factory) {
+            this.publicActionsMap.set(actionName, factory);
+          }
+        }
+      }
+      // 2. Собираем publicActions с самого контроллера (для обратной совместимости)
+      const ctrlActions = controller.publicActions;
+      for (const storyName of Object.keys(ctrlActions)) {
+        const storyActions = ctrlActions[storyName];
+        if (!storyActions) continue;
+        for (const actionName of Object.keys(storyActions)) {
+          const fullName = `${storyName}.${actionName}` as string;
+          if (this.publicActionsMap.has(fullName)) {
+            throw new Error(
+              `Дубликат имени publicAction: "${fullName}" (контроллер: ${controller.name})`,
+            );
+          }
+          const factory2 = storyActions[actionName];
+          if (factory2) {
+            this.publicActionsMap.set(fullName, factory2);
+          }
+        }
+      }
     }
   }
 
+  /**
+   * Типизированный доступ к фабрике публичного действия.
+   *
+   * Дженерик T задаёт контракт стори, name проверяется компилятором.
+   *
+   * @example
+   *   const btn = uiApp.getAction<CatalogActions>('viewModule')(moduleId);
+   */
+  getAction<T extends StoryPublicActions>(
+    name: keyof T,
+  ): T[typeof name] | undefined {
+    return this.publicActionsMap.get(name as string) as
+      | T[typeof name]
+      | undefined;
+  }
+
+  /** Количество зарегистрированных publicActions (для тестов) */
+  get publicActionsSize(): number {
+    return this.publicActionsMap.size;
+  }
+
+  // ── Контроллеры ──
+
   /** Возвращает контроллер по имени */
-  getController(
-    name: string,
-  ): BotController<TAppMeta, TModuleMeta, TActor> | undefined {
+  getController(name: string): BotController<TAppMeta, TActor> | undefined {
     return this.controllers.get(name);
   }
 
@@ -92,7 +163,7 @@ export class BotRouter<
         items.push(...cItems);
       } catch (err) {
         getGlobalLogger()?.warn(
-          'bot-router',
+          'ui-app',
           'Ошибка контроллера в collectMainMenu',
           {
             error: String(err),
@@ -106,7 +177,6 @@ export class BotRouter<
 
   /**
    * Собирает описания меню от контроллеров для /help.
-   * Использует collectMainMenu — описания в том же порядке, что и кнопки.
    */
   async collectHelp(actor: TActor): Promise<string[]> {
     const menu = await this.collectMainMenu(actor);
@@ -140,7 +210,6 @@ export class BotRouter<
       const response = await appCtrl.handleWelcome(actor);
       if (response) return response;
     }
-    // Fallback
     const items = await this.collectMainMenu(actor);
     const keyboard = this.#toKeyboard(items);
     return {
@@ -152,8 +221,7 @@ export class BotRouter<
   }
 
   /**
-   * Обрабатывает /help: получает сообщение от контроллера 'app'
-   * или возвращает fallback.
+   * Обрабатывает /help.
    */
   async handleHelp(actor: TActor): Promise<BotResponse> {
     const appCtrl = this.controllers.get('app');
@@ -168,8 +236,6 @@ export class BotRouter<
 
   /**
    * Обрабатывает callback, маршрутизируя по префиксу контроллера.
-   * Управляет activeHandler (captureInput/releaseInput).
-   * Выполняет делегирование (один уровень).
    */
   async handleCallback(
     data: string,
@@ -182,7 +248,6 @@ export class BotRouter<
       return { sendMessage: { text: '⚠️ Неизвестный формат команды' } };
     }
 
-    // Проверка чужого callback при активном обработчике
     const activeHandler = session.activeHandler;
     if (activeHandler) {
       const [activeCtrl] = activeHandler.path.split('/');
@@ -203,10 +268,8 @@ export class BotRouter<
     const restData = extractRestData(data);
     const response = await controller.handleCallback(restData, actor, session);
 
-    // Обновление activeHandler
     this.#applyCapturedInput(session, controllerName, response);
 
-    // Делегирование (один уровень, без рекурсии)
     if (response.delegate) {
       const delegateResponse = await controller.handleCallback(
         response.delegate.path,
@@ -221,10 +284,6 @@ export class BotRouter<
 
   // ── Обработка сообщений ──
 
-  /**
-   * Обрабатывает текстовое сообщение.
-   * Возвращает null, если нет активного обработчика (сигнал вызвать next()).
-   */
   async handleMessage(
     update: BotUpdate,
     actor: TActor,
@@ -233,7 +292,6 @@ export class BotRouter<
     const activeHandler = session.activeHandler;
     if (!activeHandler) return null;
 
-    // Проверка таймаута
     if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
       return this.handleTimeout(actor, session);
     }
@@ -243,19 +301,12 @@ export class BotRouter<
     if (!controller) return null;
 
     const response = await controller.handleMessage(update, actor, session);
-
-    // Обновление activeHandler — важно для wizard-ов с многошаговым текстовым вводом
     this.#applyCapturedInput(session, ctrlName ?? '', response);
-
     return response;
   }
 
   // ── Обработка отмены ──
 
-  /**
-   * Обрабатывает команду /cancel.
-   * Возвращает null, если нет активного обработчика.
-   */
   async handleCancel(
     actor: TActor,
     session: SessionData,
@@ -263,57 +314,52 @@ export class BotRouter<
     const activeHandler = session.activeHandler;
     if (!activeHandler) return null;
 
-    const [ctrlName2] = activeHandler.path.split('/');
-    const controller2 = this.controllers.get(ctrlName2 ?? '');
-    if (!controller2) {
+    const [ctrlName] = activeHandler.path.split('/');
+    const controller = this.controllers.get(ctrlName ?? '');
+    if (!controller) {
       session.activeHandler = null;
       return { releaseInput: true };
     }
 
-    const response2 = await controller2.handleCancel(actor, session);
+    const response = await controller.handleCancel(actor, session);
 
-    if (response2.releaseInput) {
+    if (response.releaseInput) {
       session.activeHandler = null;
     }
 
-    return response2;
+    return response;
   }
 
   // ── Обработка таймаута ──
 
-  /**
-   * Обрабатывает таймаут активного обработчика.
-   * Возвращает null, если нет активного обработчика.
-   */
   async handleTimeout(
     actor: TActor,
     session: SessionData,
   ): Promise<BotResponse | null> {
-    const activeHandler3 = session.activeHandler;
-    if (!activeHandler3) return null;
+    const activeHandler = session.activeHandler;
+    if (!activeHandler) return null;
 
-    const [ctrlName3] = activeHandler3.path.split('/');
-    const controller3 = this.controllers.get(ctrlName3 ?? '');
-    if (!controller3) {
+    const [ctrlName] = activeHandler.path.split('/');
+    const controller = this.controllers.get(ctrlName ?? '');
+    if (!controller) {
       session.activeHandler = null;
       return { releaseInput: true };
     }
 
-    const response3 = await controller3.handleTimeout(actor, session);
+    const response = await controller.handleTimeout(actor, session);
 
-    if (response3.releaseInput) {
+    if (response.releaseInput) {
       session.activeHandler = null;
     }
 
-    return response3;
+    return response;
   }
 
   // ── Приватные хелперы ──
 
-  /** Преобразует MainMenuAction[] в KeyboardDescription */
   #toKeyboard(
     items: MainMenuAction[],
-  ): import('../types').KeyboardDescription | null {
+  ): import('./types').KeyboardDescription | null {
     const rows = items
       .filter((i) => i.kind === 'callback' || i.kind === 'url')
       .map((i) => [
@@ -325,7 +371,6 @@ export class BotRouter<
     return { rows, isMultiple: false };
   }
 
-  /** Применяет captureInput/releaseInput к сессии */
   #applyCapturedInput(
     session: SessionData,
     controllerName: string,
@@ -345,7 +390,6 @@ export class BotRouter<
     }
   }
 
-  /** Объединяет основной ответ и ответ делегата */
   #mergeResponses(main: BotResponse, delegate: BotResponse): BotResponse {
     const result: BotResponse = { ...delegate };
     if (main.sendMessage) {

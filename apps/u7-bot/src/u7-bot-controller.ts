@@ -1,16 +1,15 @@
 import type { User } from '@u7-scl/app/domain';
-import type { ApiModuleMeta } from '@u7-scl/core/domain';
 import { BotController } from '@u7-scl/core/ui';
 import type { U7BotAppMeta } from './u7-bot-app-meta';
 
 /**
  * Специализированный контроллер для U7 Telegram-бота.
  *
- * Закрывает дженерики `U7BotAppMeta` и `User`, оставляя
- * открытым только `TMeta` — метаданные конкретного модуля.
- *
- * @typeParam TMeta — метаданные API-модуля, к которому привязан контроллер
+ * Закрывает дженерики `U7BotAppMeta`, `User`.
+ * Контроллеры больше не привязаны к конкретному доменному модулю —
+ * все вызовы к модулям идут через `this.appApi.execute(...)`.
  */
-export abstract class U7BotController<
-  TMeta extends ApiModuleMeta,
-> extends BotController<U7BotAppMeta, TMeta, User> {}
+export abstract class U7BotController extends BotController<
+  U7BotAppMeta,
+  User
+> {}

@@ -4,7 +4,7 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { StreamApiModule } from 'packages/stream/src/api';
+
 import { CatalogStory } from './catalog.story';
 
 describe('CatalogStory', () => {
@@ -17,21 +17,17 @@ describe('CatalogStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  const emptyAppApi = {
-    execute: mock(() => undefined),
-  } as unknown as U7BotApp;
-
-  // Вспомогательная функция для создания moduleApi с набором потоков
-  function makeModuleApi(
-    streams: Array<{ uuid: string; title: string; status: string }>,
-  ): StreamApiModule {
+  // Вспомогательная функция для создания appApi с набором потоков
+  function makeAppApi(
+    executeResult: unknown,
+  ): U7BotApp {
     return {
-      execute: mock(async () => streams),
-    } as unknown as StreamApiModule;
+      execute: mock(async () => executeResult),
+    } as unknown as U7BotApp;
   }
 
   test('handleCallback("list") показывает список потоков', async () => {
-    const moduleApi = makeModuleApi([
+    const appApi = makeAppApi([
       {
         uuid: '11111111-1111-1111-1111-111111111111',
         title: 'Поток Набора',
@@ -49,7 +45,7 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") с пустым списком', async () => {
-    const moduleApi = makeModuleApi([]);
+    const appApi = makeAppApi([]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -103,7 +99,7 @@ describe('CatalogStory', () => {
       },
     ];
 
-    const moduleApi = makeModuleApi(allStreams);
+    const appApi = makeAppApi(allStreams);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -144,7 +140,7 @@ describe('CatalogStory', () => {
       },
     ];
 
-    const moduleApi = makeModuleApi(allStreams);
+    const appApi = makeAppApi(allStreams);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -176,7 +172,7 @@ describe('CatalogStory', () => {
       },
     ];
 
-    const moduleApi = makeModuleApi(allStreams);
+    const appApi = makeAppApi(allStreams);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -199,7 +195,7 @@ describe('CatalogStory', () => {
       },
     ];
 
-    const moduleApi = makeModuleApi(allStreams);
+    const appApi = makeAppApi(allStreams);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -225,7 +221,7 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет легенду цветных кружков', async () => {
-    const moduleApi = makeModuleApi([
+    const appApi = makeAppApi([
       {
         uuid: '11111111-1111-1111-1111-111111111111',
         title: 'Поток Набора',
@@ -248,7 +244,7 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет легенду даже при пустом списке', async () => {
-    const moduleApi = makeModuleApi([]);
+    const appApi = makeAppApi([]);
 
     const story = new CatalogStory();
     story.init(moduleApi, emptyAppApi);
@@ -262,7 +258,7 @@ describe('CatalogStory', () => {
   });
 
   test('handleCallback("list") добавляет «↩️ Главное меню» последней строкой', async () => {
-    const moduleApi = makeModuleApi([
+    const appApi = makeAppApi([
       {
         uuid: '11111111-1111-1111-1111-111111111111',
         title: 'Поток Набора',
