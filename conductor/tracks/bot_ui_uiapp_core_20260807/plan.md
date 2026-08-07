@@ -46,6 +46,7 @@
     - [x] Переименовать функцию в `apps/u7-bot/src/handlers/router.ts`
     - [x] Заменить `router: BotRouter` → `uiApp: UiApp<U7BotAppMeta, User>`
     - [x] Все вызовы `router.*` → `uiApp.*`
+    - [x] Файл переименован в `apps/u7-bot/src/handlers/connect-ui-app.ts`
 - [x] Task: Обновить `U7BotUiApp` (`apps/u7-bot/src/ui-app.ts`)
     - [x] `extends UiApp<U7BotAppMeta, User>`
     - [x] Убрать создание `BotRouter` (свойство `router`)
@@ -57,9 +58,10 @@
     - [x] `uiApp.router` → `uiApp`
 - [x] Task: Обновить `apps/u7-bot/src/ui-actions.ts`
     - [x] Убрать реэкспорт несуществующего `@u7-scl/core/ui/ui-registry`
-    - [x] Оставить только актуальные локальные реэкспорты (только из core)
+    - [x] Файл удалён (решено не реэкспортировать типы из core)
 - [x] Task: Обновить `apps/u7-bot/src/api-app.ts` (`createUiApp`)
     - [x] Адаптировать создание `U7BotUiApp` (без `BotRouter`, один вызов `init(apiApp)`)
+    - [x] Файл разделён на `create-api-app.ts` + `create-ui-app.ts`
 - [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4: Удаление `BotRouter` и обновление импортов
@@ -67,9 +69,9 @@
 - [x] Task: Удалить `packages/core/src/ui/bot/router/bot-router.ts`
 - [x] Task: Удалить `packages/core/src/ui/bot/router/bot-router.test.ts`
 - [x] Task: Обновить ВСЕ импорты `BotRouter` в проекте (кроме тех, что внутри `BotRouter`)
-    - [x] `apps/u7-bot/src/handlers/router.ts`
+    - [x] `apps/u7-bot/src/handlers/connect-ui-app.ts`
     - [x] `apps/u7-bot/src/main.ts`
-    - [x] `apps/u7-bot/src/api-app.ts`
+    - [x] `apps/u7-bot/src/create-api-app.ts`
     - [x] `apps/u7-bot/src/ui-app.ts`
     - [x] Любые тесты, ссылающиеся на `BotRouter`
 - [x] Task: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)

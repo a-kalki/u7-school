@@ -7,18 +7,19 @@
 ## 1. Иерархия контроллеров
 
 ```
-BotController<TAppMeta, TModuleMeta, TActor>          (core, абстрактный)
-  └─ U7BotController<TMeta>                            (app) — закрывает U7BotAppMeta + User
+BotController<TAppMeta, TActor>                        (core, абстрактный)
+  └─ U7BotController                                    (apps/u7-bot) — закрывает U7BotAppMeta + User
        ├─ StreamController                             (stream) — реестр доменных сторис
+       ├─ CourseController                             (course) — реестр доменных сторис
        ├─ OnboardingController                         (onboarding) — логика без сторис
        └─ AppController                                (app) — системные сценарии (/start, /help, сообщество)
 ```
 
-- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: сжатие id, диспетчеризация в сторис, `handleError`, главное меню.
-- **`U7BotController`** (`@u7-scl/app/ui`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`, оставляет открытым только `TMeta` модуля.
+- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: сжатие id, диспетчеризация в сторис, `handleError`, главное меню, `publicActions`-геттер.
+- **`U7BotController`** (`@u7-scl/bot`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`.
 - **Доменные контроллеры** (`StreamController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUserStory`.
 - **`OnboardingController`** — пример контроллера **без сторис**: вшивает логику анкеты напрямую, использует `this.cb()` для формирования callback.
-- **`AppController`** (`packages/app/src/ui/app-controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `app:main-menu` и `app:help`.
+- **`AppController`** (`apps/u7-bot/src/app/controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `app:main-menu` и `app:help`.
 
 ---
 
@@ -34,12 +35,15 @@ BotController<TAppMeta, TModuleMeta, TActor>          (core, абстрактн�
 ## 3. Конструктор и init
 
 ```typescript
-constructor(moduleApi: ApiModule)   // API своего модуля
-init(appApi: ApiApp): void           // API приложения (межмодульные вызовы); передаётся во все стори
-reset(): void                        // сброс shortIds и временного состояния стори
+init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void  // API приложения + UiApp; каскадно в стори
+reset(): void                                                           // сброс shortIds и временного состояния стори
 ```
 
-`init()` вызывается после создания `BotRouter`. `AppController` дополнительно получает `MenuAggregator` через `initMenuAggregator()`.
+`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `AppController` дополнительно получает `MenuAggregator` через `initMenuAggregator()`.
+
+Контроллер сохраняет обе зависимости:
+- `this.appApi` — для межмодульных вызовов (`appApi.execute(...)`)
+- `this.uiApp` — для кросс-стори ссылок (`uiApp.getAction<T>(name)`)
 
 ---
 
@@ -65,7 +69,23 @@ UUID → первые 8 hex-символов через общую мапу `sho
 
 ---
 
-## 6. handleError
+## 6. `publicActions`
+
+Контроллер предоставляет геттер `publicActions`, агрегирующий `publicActions` своих стори:
+
+```typescript
+get publicActions(): Record<string, Record<string, UiCallbackFactory>> {
+  // { storyName: { actionName: factory } }
+}
+```
+
+Используется `UiApp` при инициализации для построения глобального реестра. Сами стори объявляют `publicActions` как плоский объект `{ actionName: factory }`.
+
+Для кросс-стори ссылок потребители используют `this.uiApp.getAction<T>(name)`.
+
+---
+
+## 7. handleError
 
 Универсальный обработчик ошибок. Различает типы через `fromError()` из `domain/errors/error-helpers.ts`:
 
@@ -79,7 +99,7 @@ UUID → первые 8 hex-символов через общую мапу `sho
 
 ---
 
-## 7. Тестирование
+## 8. Тестирование
 
 См. [bot-test.md](../bot-test.md) — уровни тестирования (unit сторис, интеграционные с реальным контроллером, E2E).
 

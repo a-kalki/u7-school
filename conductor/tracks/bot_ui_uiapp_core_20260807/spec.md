@@ -33,7 +33,7 @@
 
 5. **Удаление `BotRouter`** — класс `bot-router.ts` и `bot-router.test.ts` удаляются из core
 
-6. **`connectRouter` → `connectUiApp`** (`apps/u7-bot/src/handlers/router.ts`):
+6. **`connectRouter` → `connectUiApp`** (`apps/u7-bot/src/handlers/connect-ui-app.ts`):
    - Сигнатура: `connectUiApp(bot, uiApp: UiApp<U7BotAppMeta, User>, ...)`
    - Работает напрямую с `UiApp`, не с `BotRouter`
 

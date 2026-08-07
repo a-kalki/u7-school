@@ -1,6 +1,6 @@
 # Рефакторинг Bot UI: перенос в `apps/u7-bot`
 
-> v1 (2026-08-05). Объединяющий документ для серии треков.
+> v2 (2026-08-07). Объединяющий документ для серии треков.
 > **Этот документ содержит ПОЛНЫЙ контекст для генерации треков в другой сессии.**
 > Для генерации трека: прочитай этот документ → загрузи skill `conductor-newtrack` → создай трек.
 > После утверждения — разлагается на треки в `conductor/tracks/`.
@@ -32,9 +32,9 @@
 
 ### Цель
 
-- **Все bot-ui в одном пакете** `apps/u7-bot/src/` — единая точка сборки UI бота.
+- **Все bot-ui в одном пакете** `apps/u7-bot` — единая точка сборки UI бота.
 - **Контроллеры = кнопки главного меню** — деление по пользовательским функциям, а не по доменным модулям.
-- **ActionFactory с типизацией** — стори объявляет публичные действия, потребители вызывают через `this.ui.*`.
+- **`publicActions` на стори + `UiApp.getAction<T>(name)`** — стори объявляет публичные действия, потребители получают типизированную фабрику кнопки через `this.uiApp.getAction<T>(name)`.
 - **Разрыв циклических зависимостей** — `app` зависит только от `core`, доменные модули — от `core` + `app`.
 - **Единая архитектура** — все контроллеры тонкие (реестр стори), вся логика в стори.
 
@@ -92,13 +92,17 @@ apps/u7-bot/src/
 │   ├── controller.ts
 │   └── ...
 │
-├── u7-bot-controller.ts           # из app/ui/u7-bot-controller.ts
-├── u7-bot-user-story.ts           # из app/ui/u7-bot-user-story.ts
-├── u7-bot-app-meta.ts             # из app/domain/u7-bot-app-meta.ts
-├── ui-actions.ts                  # ControllerActions + UiRegistry
-├── router.ts                      # сборка BotRouter + UiRegistry + init
+├── handlers/                      # Grammy-адаптеры
+│   ├── connect-ui-app.ts          # connectUiApp: Grammy-события → UiApp
+│   └── group-handler.ts           # обработчики групповых событий
+│
+├── u7-bot-controller.ts           # U7BotController extends BotController<U7BotAppMeta, User>
+├── u7-bot-user-story.ts           # U7BotUserStory extends BotUserStory<U7BotAppMeta, User>
+├── u7-bot-app-meta.ts             # U7BotAppMeta (union всех *ApiModuleMeta)
 ├── bot.ts                         # Grammy-бот (без изменений)
-├── api-app.ts                     # фабрика ApiApp (без создания контроллеров)
+├── create-api-app.ts              # createApiApp() — фабрика ApiApp
+├── create-ui-app.ts               # createUiApp() — фабрика U7BotUiApp + контроллеры
+├── ui-app.ts                      # U7BotUiApp extends UiApp<U7BotAppMeta, User>
 ├── main.ts
 └── config.ts
 
@@ -111,6 +115,8 @@ tests/ → apps/u7-bot/tests/        # интеграционные и e2e те�
 - **Стори:** `u7-bot/src/<controller-name>/stories/<story-name>.ts` (не `*.story.ts`)
 - **UI-спецификация:** `u7-bot/src/<controller-name>/ui-spec.md` (на каждый контроллер)
 - **Общая логика рендеринга:** `u7-bot/src/shared/`
+- **Адаптеры:** `u7-bot/src/handlers/connect-ui-app.ts` (не `router.ts`)
+- **Фабрики:** `create-api-app.ts`, `create-ui-app.ts` (разделены)
 
 ---
 
@@ -151,59 +157,78 @@ tests/ → apps/u7-bot/tests/        # интеграционные и e2e те�
 
 Это union всех `*ApiModuleMeta` из доменных модулей. Перенос разрывает циклическую зависимость: `app` больше не импортирует доменные модули.
 
-### 4.3. ActionFactory на уровне STORY
+### 4.3. `publicActions` на стори + `UiApp.getAction<T>(name)`
 
-Каждая стори объявляет `get publicActions()` — объект с методами-фабриками колбэков. Контроллер собирает их в `get publicActions()` — объект с ключом на каждую стори. `UiRegistry` в `router.ts` объединяет действия всех контроллеров.
+Каждая стори объявляет `publicActions` — объект с методами-фабриками колбэков (`UiBotButton`). `UiApp` при `init()` собирает все `publicActions` со всех стори всех контроллеров в плоскую глобальную мапу, проверяет уникальность имён. Другие стори получают типизированную фабрику через `this.uiApp.getAction<T>(name)`.
 
 **Пример:**
 
 ```typescript
 // stories/monitor.ts
-class MonitorStory {
-  get publicActions() {
-    return {
-      students: (streamId: string) => this.cb('students', streamId),
-      detail: (studentId: string) => this.cb('detail', studentId),
-    } as const;
-  }
-}
+type MonitorActions = {
+  students: (streamId: string) => UiBotButton;
+  detail: (studentId: string) => UiBotButton;
+};
 
-// controller.ts
-class MentorController {
-  readonly #monitor = new MonitorStory();
-  get publicActions() {
-    return { monitor: this.#monitor.publicActions } as const;
-  }
+class MonitorStory extends BotUserStory<U7BotAppMeta, User, MonitorActions> {
+  publicActions: MonitorActions = {
+    students: (streamId) => this.action('👥 Студенты', 'students', streamId),
+    detail: (studentId) => this.action('👤 Детали', 'detail', studentId),
+  };
 }
 
 // Использование в другой стори:
-this.ui.mentor.monitor.students(streamId)  // → 'mentor:monitor:students:{streamId}'
+import type { MonitorActions } from '../../mentor/stories/monitor';
+const btn = this.uiApp.getAction<MonitorActions>('students')(streamId);
+// btn: UiBotButton { text: '👥 Студенты', code: 'mentor:monitor:students:{streamId}' }
 ```
 
-Типизация сквозная — выводится через `typeof` без дополнительных дженериков на стори. Поле `ui` добавляется в `BotUserStory` (в `core`) и инжектится при `init()`.
+Хелпер `this.action()` уже существует в `BotUserStory`:
+```typescript
+protected action(text: string, actionName: string, ...ids: string[]): UiBotButton {
+  return { text, code: this.cb(actionName, ...ids) };
+}
+```
 
-### 4.4. Баг с пропадающими кнопками ментора
+Для обратной совместимости оставлен геттер `this.ui` (возвращает `any`), но новые стори должны использовать `this.uiApp.getAction<T>(name)`.
+
+### 4.4. `UiApp` в core — центральный хаб
+
+`UiApp<TAppMeta, TActor>` в `packages/core/src/ui/bot/ui-app.ts` реализует `MenuAggregator` и содержит:
+
+- **Маршрутизацию:** `handleWelcome`, `handleCallback`, `handleMessage`, `handleCancel`, `handleTimeout`
+- **Сбор меню:** `collectMainMenu`, `collectHelp`, `collectAllMenuItems`, `collectAllHelpDescriptions`
+- **Реестр publicActions:** `#registerPublicActions()` — плоская мапа с проверкой уникальности
+- **Типизированный доступ:** `getAction<T>(name)` — дженерик задаёт контракт стори
+
+`U7BotUiApp` в `apps/u7-bot/src/ui-app.ts` наследует `UiApp<U7BotAppMeta, User>`, закрывая дженерики.
+
+### 4.5. `connectUiApp` — Grammy-адаптер
+
+`apps/u7-bot/src/handlers/connect-ui-app.ts` — функция `connectUiApp(bot, uiApp, userFacade, botAdminUuid, logger?)`. Чистый адаптер: Grammy-события → `uiApp.handle*()` → `executeResponses(ctx, response)`. Не содержит пользовательских текстов и клавиатур.
+
+### 4.6. Баг с пропадающими кнопками ментора
 
 В коде есть жёсткая строка в `ActivateStreamStory`:
 ```typescript
 code: `view-stream:view:${streamId}`  // всегда в публичный view-stream!
 ```
-После активации ментор жмёт «Назад к потоку» и попадает в `view-stream` (curious-режим, без lifecycle-кнопок). Исправляется через `this.ui.mentor.viewStreamMentor.view(streamId)`.
+После активации ментор жмёт «Назад к потоку» и попадает в `view-stream` (curious-режим, без lifecycle-кнопок). Исправляется через `this.uiApp.getAction<ViewStreamMentorActions>('view')(streamId)`.
 
-### 4.5. Onboarding — заглушка
+### 4.7. Onboarding — заглушка
 
 `OnboardingController` переносится как есть (без рефакторинга на стори). Кнопка `📝 Заполнить анкету` отключается (не возвращается из `handleStart`). Рефакторинг на стори — в рамках трека metrics.
 
-### 4.6. Разделение `learning.story.ts`
+### 4.8. Разделение `learning.story.ts`
 
 Текущий файл (~670 строк) содержит: хаб, шаг, дерево (3 уровня), transition (3 типа), выход. Разделяется на 6 файлов по ~80-200 строк каждый: `hub.ts`, `step-view.ts`, `nav-tree.ts`, `transition.ts`, `progress.ts`, `enroll.ts`.
 
-### 4.7. Документация обновляется
+### 4.9. Документация обновляется
 
 7 файлов требуют изменений:
 - `conductor/code_styleguides/architecture.md` — убрать `ui/` из структуры доменных модулей
-- `conductor/code_styleguides/skills/bot-controller.md` — новая иерархия, `publicActions`
-- `conductor/code_styleguides/skills/bot-user-story.md` — новые пути, `ui.*`
+- `conductor/code_styleguides/skills/bot-controller.md` — новая иерархия, `UiApp`, `publicActions`
+- `conductor/code_styleguides/skills/bot-user-story.md` — новые пути, `uiApp.getAction<T>()`
 - `conductor/index.md` — обновить ссылки
 - `packages/core/src/ui/bot/README.md` — правила навигации
 - `packages/stream/src/ui/bot/ui-spec.md` → разделить на 4 файла в `apps/u7-bot/src/{courses,streams,learning,mentor}/ui-spec.md`
@@ -232,50 +257,54 @@ onboarding  → core, app, user
 
 ---
 
+### Трек 0: «`UiApp` в core + удаление `BotRouter` + доработка `publicActions`»
+
+**Цель:** заменить `BotRouter` на `UiApp` в core, добавить механизм `publicActions` + `getAction<T>(name)`, обновить `BotController.init()` и `BotUserStory`, подготовить инфраструктуру для следующих треков.
+
+**Выполнен.** Статус: `[x]` в реестре треков.
+
+**Действия (выполненные):**
+- Создан `UiApp<TAppMeta, TActor>` в `packages/core/src/ui/bot/ui-app.ts`
+- Вся маршрутизация перенесена из `BotRouter` в `UiApp`
+- `BotRouter` удалён
+- `BotController.init(appApi, uiApp)` — второй аргумент
+- `BotUserStory.uiApp` + `publicActions`
+- `connectRouter` → `connectUiApp` в `apps/u7-bot/src/handlers/connect-ui-app.ts`
+- `U7BotUiApp extends UiApp<U7BotAppMeta, User>`
+- `api-app.ts` разделён на `create-api-app.ts` + `create-ui-app.ts`
+- `ui-actions.ts` удалён
+
+---
+
 ### Трек 1: «Перенос базовых классов и `U7BotAppMeta` в `u7-bot`»
 
-**Цель:** создать фундамент в `apps/u7-bot/src/` и разорвать циклическую зависимость `app ↔ onboarding`.
+**Цель:** создать фундамент в `apps/u7-bot` и разорвать циклическую зависимость `app ↔ onboarding`.
 
 **Действия:**
-- Создать целевую структуру папок в `apps/u7-bot/src/`
+- Создать целевую структуру папок в `apps/u7-bot`
 - Перенести `U7BotAppMeta` из `app/domain/` в `u7-bot/src/u7-bot-app-meta.ts`
 - Перенести `U7BotController`, `U7BotUserStory` из `app/ui/` в `u7-bot/src/`
 - Обновить `app/package.json` — убрать зависимости от `stream`, `course`, `onboarding`
 - Обновить импорты во всех файлах, которые ссылались на старые пути
 
-**Зависимости:** нет.
+**Зависимости:** Трек 0.
 
 ---
 
-### Трек 2: «ActionFactory — `UiActions` и `UiRegistry`»
-
-**Цель:** механизм типизированных кросс-ссылок между стори.
-
-**Действия:**
-- Добавить поле `ui` в `BotUserStory` (core)
-- Создать `u7-bot/src/ui-actions.ts` — типы `ControllerActions`, `UiRegistry`
-- Каждый стори добавляет `get publicActions()`
-- Каждый контроллер собирает `publicActions` своих стори
-- `router.ts` собирает `UiRegistry` и инжектит в стори через `init()`
-
-**Зависимости:** Трек 1.
-
----
-
-### Трек 3: «Перенос `AppController` + `CommunityStory`»
+### Трек 2: «Перенос `AppController` + `CommunityStory`»
 
 **Цель:** первый контроллер в новом пакете. Системные сценарии (не привязаны к домену).
 
 **Действия:**
 - Создать `apps/u7-bot/src/app/controller.ts` и `stories/community.ts`
-- Заменить `'app:main-menu'` и `'app:help'` на вызовы `this.ui.app.*`
+- Заменить `'app:main-menu'` на вызовы `this.uiApp.getAction<AppActions>('mainMenu')()`
 - Перенести тесты
 
-**Зависимости:** Трек 2.
+**Зависимости:** Трек 1.
 
 ---
 
-### Трек 4: «Контроллер `courses` — "Программы курсов"»
+### Трек 3: «Контроллер `courses` — "Программы курсов"»
 
 **Цель:** перенос `CourseCatalogStory` из `course/ui/bot/` в новый контроллер.
 
@@ -283,14 +312,14 @@ onboarding  → core, app, user
 - Создать `courses/controller.ts`, `courses/ui-spec.md`
 - Перенести `course-catalog.ts` (S00: курсы → этапы → модули → проекты → уроки → заголовки шагов)
 - Выделить общий рендеринг в `shared/tree-renderer.ts`
-- Заменить `'app:main-menu'` на `this.ui.app.mainMenu()`
+- Все кросс-ссылки перевести на `this.uiApp.getAction<T>(name)`
 - Перенести тесты
 
-**Зависимости:** Трек 3.
+**Зависимости:** Трек 2.
 
 ---
 
-### Трек 5: «Контроллер `streams` — "Потоки курсов"»
+### Трек 4: «Контроллер `streams` — "Потоки курсов"»
 
 **Цель:** перенос `CatalogStory` + `ViewStreamStory` из `stream/ui/bot/` в новый контроллер.
 
@@ -298,14 +327,14 @@ onboarding  → core, app, user
 - Создать `streams/controller.ts`, `streams/ui-spec.md`
 - Перенести `stream-catalog.ts` (S01: витрина потоков с фильтрами)
 - Перенести `view-stream.ts` (S02-S04: карточка, программа из contentSnapshot, детали)
-- Все кросс-ссылки (`monitor`, `enroll`, `app`) перевести на `this.ui.*`
+- Все кросс-ссылки (`monitor`, `enroll`, `app`) перевести на `this.uiApp.getAction<T>(name)`
 - Перенести тесты
 
-**Зависимости:** Трек 4 (нужен `tree-renderer`).
+**Зависимости:** Трек 3 (нужен `tree-renderer`).
 
 ---
 
-### Трек 6: «Контроллер `learning` — "Моя учёба"»
+### Трек 5: «Контроллер `learning` — "Моя учёба"»
 
 **Цель:** разделить `learning.story.ts` (670 строк) на 6 файлов и перенести в новый контроллер.
 
@@ -314,30 +343,30 @@ onboarding  → core, app, user
 - Разделить на: `hub.ts`, `step-view.ts`, `nav-tree.ts`, `transition.ts`, `progress.ts`, `enroll.ts`
 - Вынести общие хелперы в `learning/shared.ts` (или оставить protected в базовом классе)
 - `nav-tree.ts` использует `shared/tree-renderer.ts` с добавлением статусов ✅/▶️/🔒
-- Все `cbFor()` → `this.ui.*`
+- Все `cbFor()` → `this.uiApp.getAction<T>(name)`
 - Перенести тесты
 
-**Зависимости:** Трек 5 (нужен `view-stream` для кросс-ссылок на программу потока).
+**Зависимости:** Трек 4 (нужен `view-stream` для кросс-ссылок на программу потока).
 
 ---
 
-### Трек 7: «Контроллер `mentor` — "Инструменты ментора"»
+### Трек 6: «Контроллер `mentor` — "Инструменты ментора"»
 
 **Цель:** перенести 6 стори из `stream/ui/bot/` в новый контроллер.
 
 **Действия:**
 - Создать `mentor/controller.ts`, `mentor/ui-spec.md`
 - Перенести: `submenu.ts` (подменю), `my-streams.ts`, `view-stream-mentor.ts`, `create-stream.ts`, `activate-stream.ts`, `monitor.ts`
-- Исправить баг с кнопкой «Назад» в `activate-stream.ts` → `this.ui.mentor.viewStreamMentor.view(streamId)`
+- Исправить баг с кнопкой «Назад» в `activate-stream.ts` → `this.uiApp.getAction<ViewStreamMentorActions>('view')(streamId)`
 - `view-stream-mentor.ts` наследует `view-stream.ts` из `streams` контроллера — проанализировать, можно ли избежать наследования через композицию
-- Все `cbFor()` → `this.ui.*`
+- Все `cbFor()` → `this.uiApp.getAction<T>(name)`
 - Перенести тесты
 
-**Зависимости:** Трек 5 (нужен `view-stream` как база для `view-stream-mentor`), Трек 6 (нужны `monitor` кросс-ссылки).
+**Зависимости:** Трек 4 (нужен `view-stream` как база для `view-stream-mentor`), Трек 5 (нужны `monitor` кросс-ссылки).
 
 ---
 
-### Трек 8: «Onboarding — заглушка»
+### Трек 7: «Onboarding — заглушка»
 
 **Цель:** перенести как есть, отключить, освободить `packages/onboarding/src/ui/bot/`.
 
@@ -347,11 +376,11 @@ onboarding  → core, app, user
 - Отключить кнопку в `handleStart()` (возвращать пустой массив)
 - Перенести тесты
 
-**Зависимости:** Трек 2 (нужен `U7BotController` в новом месте).
+**Зависимости:** Трек 1 (нужен `U7BotController` в новом месте).
 
 ---
 
-### Трек 9: «Зачистка и обновление документации»
+### Трек 8: «Зачистка и обновление документации»
 
 **Цель:** удалить старый код, обновить все `.md` файлы, проверить целостность.
 
@@ -359,11 +388,11 @@ onboarding  → core, app, user
 - Удалить `packages/stream/src/ui/`, `packages/course/src/ui/`, `packages/onboarding/src/ui/`, `packages/app/src/ui/`
 - Удалить `packages/app/src/domain/u7-bot-app-meta.ts`
 - Обновить `package.json` exports во всех пакетах
-- Обновить 7 файлов документации (см. §4.7)
+- Обновить 7 файлов документации (см. §4.9)
 - Прогнать `tsc --noEmit`, `biome check`, все тесты
 - Перенести `tests/bot/` → `apps/u7-bot/tests/`
 
-**Зависимости:** Треки 1-8.
+**Зависимости:** Треки 1-7.
 
 ---
 

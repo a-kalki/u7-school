@@ -17,7 +17,7 @@
 ## 2. Ключевые правила
 
 1. **Unit:** стори вызывается напрямую (`story.handleCallback(...)`), без роутера. Не проверяются `code` кнопок — только текст и наличие кнопок.
-2. **Integration:** вызов через `router.handleCallback('stream:catalog:list', ...)` с полным callback_data. Проверяется семантика ответа, НЕ `code`.
+2. **Integration:** вызов через `uiApp.handleCallback('stream:catalog:list', ...)` с полным callback_data. Проверяется семантика ответа, НЕ `code`.
 3. **E2E:** каждый шаг извлекает `code` из кнопки предыдущего ответа и передаёт дальше. Единственный уровень, ловящий ошибки формирования callback_data.
 4. **MarkdownV2-валидация обязательна** на всех уровнях (см. §4).
 5. **Изоляция:** каждый `describe` со своим `TestApp` (отдельные фикстуры), чтобы изменения состояния не влияли на другие сценарии.
@@ -58,7 +58,7 @@ stream:learning:my-study             — LearningStory
 | `assertBotResponseValid` | MarkdownV2 **+** длина `code` ≤ 64 байт | Integration, E2E |
 
 ```typescript
-const response = await router.handleCallback(...);
+const response = await uiApp.handleCallback(...);
 assertBotResponseValid(response);
 ```
 
