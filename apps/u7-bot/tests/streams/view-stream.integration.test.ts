@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { TestApp } from '../../helpers/test-app';
-import { createTestApp } from '../../helpers/test-app';
+import type { SessionData } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import type { TestApp } from '../../../../tests/bot/helpers/test-app';
+import { createTestApp } from '../../../../tests/bot/helpers/test-app';
 
 /**
  * Интеграционный тест S02-S04: карточка потока, программа, детали.
@@ -172,8 +172,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     assertBotResponseValid(catalogResp);
 
     // 2. Находим enrollment-поток (🟡)
-    const buttons =
-      catalogResp.sendMessage?.keyboard?.rows.flat() ?? [];
+    const buttons = catalogResp.sendMessage?.keyboard?.rows.flat() ?? [];
     const streamBtn = buttons.find((b) => b.text.includes('🟡'));
     expect(streamBtn).toBeDefined();
 
@@ -187,8 +186,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(viewResp.sendMessage?.text).toContain('JS Core');
 
     // 4. Нажимаем «Программа курса»
-    const viewButtons =
-      viewResp.sendMessage?.keyboard?.rows.flat() ?? [];
+    const viewButtons = viewResp.sendMessage?.keyboard?.rows.flat() ?? [];
     const programBtn = viewButtons.find((b) =>
       b.text.includes('Программа курса'),
     );
@@ -204,17 +202,12 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(programResp.sendMessage?.text).toContain('Программа курса');
 
     // 6. Нажимаем «Назад к потоку»
-    const progButtons =
-      programResp.sendMessage?.keyboard?.rows.flat() ?? [];
+    const progButtons = programResp.sendMessage?.keyboard?.rows.flat() ?? [];
     const backBtn = progButtons.find((b) => b.text.includes('Назад к потоку'));
     expect(backBtn).toBeDefined();
 
     // 7. Возвращаемся в карточку
-    const backResp = await router.handleCallback(
-      backBtn!.code,
-      guest,
-      session,
-    );
+    const backResp = await router.handleCallback(backBtn!.code, guest, session);
     assertBotResponseValid(backResp);
     expect(backResp.sendMessage?.text).toContain('JS Core');
   });

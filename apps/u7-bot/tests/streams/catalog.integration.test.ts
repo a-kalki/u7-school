@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { TestApp } from '../../helpers/test-app';
-import { createTestApp } from '../../helpers/test-app';
+import type { SessionData } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import type { TestApp } from '../../../../tests/bot/helpers/test-app';
+import { createTestApp } from '../../../../tests/bot/helpers/test-app';
 
 /**
  * Интеграционный тест S01: витрина потоков (CatalogStory).
@@ -80,7 +80,12 @@ describe('CatalogStory (интеграционный)', () => {
     const btns =
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Поток 3'))).toBe(true);
-    expect(btns.some((t) => t.includes('Только активные') || t.includes('Вкл. архивированные'))).toBe(true);
+    expect(
+      btns.some(
+        (t) =>
+          t.includes('Только активные') || t.includes('Вкл. архивированные'),
+      ),
+    ).toBe(true);
   });
 
   test('handleStart: кнопка «📚 Потоки курсов» в главном меню', async () => {
