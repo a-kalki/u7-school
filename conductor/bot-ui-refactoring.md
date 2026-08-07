@@ -276,9 +276,11 @@ onboarding  → core, app, user
 
 ---
 
-### Трек 1: «Перенос базовых классов и `U7BotAppMeta` в `u7-bot`»
+### Трек 1: «Перенос базовых классов и `U7BotAppMeta` в `u7-bot`» ✅
 
 **Цель:** создать фундамент в `apps/u7-bot` и разорвать циклическую зависимость `app ↔ onboarding`.
+
+**Выполнен.**
 
 **Действия:**
 - Создать целевую структуру папок в `apps/u7-bot`
@@ -291,9 +293,11 @@ onboarding  → core, app, user
 
 ---
 
-### Трек 2: «Перенос `AppController` + `CommunityStory`»
+### Трек 2: «Перенос `AppController` + `CommunityStory`» ✅
 
 **Цель:** первый контроллер в новом пакете. Системные сценарии (не привязаны к домену).
+
+**Выполнен.**
 
 **Действия:**
 - Создать `apps/u7-bot/src/app/controller.ts` и `stories/community.ts`
@@ -304,9 +308,11 @@ onboarding  → core, app, user
 
 ---
 
-### Трек 3: «Контроллер `courses` — "Программы курсов"»
+### Трек 3: «Контроллер `courses` — "Программы курсов"» ✅
 
 **Цель:** перенос `CourseCatalogStory` из `course/ui/bot/` в новый контроллер.
+
+**Выполнен.** Архив: `conductor/archive/bot_ui_courses_20260807/`.
 
 **Действия:**
 - Создать `courses/controller.ts`, `courses/ui-spec.md`
@@ -319,9 +325,20 @@ onboarding  → core, app, user
 
 ---
 
-### Трек 4: «Контроллер `streams` — "Потоки курсов"»
+### Трек 4: «Контроллер `streams` — "Потоки курсов"» ✅
 
 **Цель:** перенос `CatalogStory` + `ViewStreamStory` из `stream/ui/bot/` в новый контроллер.
+
+**Выполнен.** Архив: `conductor/archive/bot_ui_streams_20260807/`.
+
+**Результаты:**
+- `StreamsController` (name='stream', 2 стори: catalog + view-stream)
+- `tree-renderer.ts` переиспользован для S03 без модификаций
+- Кросс-ссылки `getAction<T>(name)`: `CommunityActions.mainMenu` работает, `MonitorActions`/`EnrollActions` — TODO в Треках 5-6
+- Старые файлы `packages/stream/src/ui/bot/controller/` удалены
+- Немигрированные стори (8 шт.) оставлены в `packages/stream/src/ui/bot/stories/` для будущих треков
+- `tests/bot/` полностью удалён — тесты перенесены в `apps/u7-bot/`: unit рядом с исходниками, integration/e2e в `apps/u7-bot/tests/`
+- 202 теста (unit + integration + e2e), biome + tsc чисто
 
 **Действия:**
 - Создать `streams/controller.ts`, `streams/ui-spec.md`

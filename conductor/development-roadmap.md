@@ -47,10 +47,10 @@
 | Трек | Содержание |
 |------|-----------|
 | Трек 0 | `UiApp` в core + удаление `BotRouter` + доработка `publicActions` ✅ |
-| Трек 1 | Перенос базовых классов и `U7BotAppMeta` в `apps/u7-bot`, разрыв циклической зависимости `app ↔ onboarding` |
-| Трек 2 | `AppController` + `CommunityStory` |
-| Трек 3 | Контроллер `courses` — «Программы курсов», общий `tree-renderer.ts` |
-| Трек 4 | Контроллер `streams` — «Потоки курсов» |
+| Трек 1 | Перенос базовых классов и `U7BotAppMeta` в `apps/u7-bot`, разрыв циклической зависимости `app ↔ onboarding` ✅ |
+| Трек 2 | `AppController` + `CommunityStory` ✅ |
+| Трек 3 | Контроллер `courses` — «Программы курсов», общий `tree-renderer.ts` ✅ |
+| Трек 4 | Контроллер `streams` — «Потоки курсов» ✅ |
 
 **Миграции:**
 - Перенос файлов (не данных):
