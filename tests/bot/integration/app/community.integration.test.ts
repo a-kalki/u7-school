@@ -36,11 +36,9 @@ describe('CommunityStory integration (app-controller)', () => {
 
   function makeRouter(): UiApp {
     const streamController = new StreamController();
-    streamController.init(app.apiApp, undefined as never);
     const appController = new AppController(SCHOOL_GROUP_URL);
-    appController.init(app.apiApp, undefined as never);
     const router = new UiApp([appController, streamController]);
-    appController.initMenuAggregator(router);
+    router.init(app.apiApp);
     return router;
   }
 

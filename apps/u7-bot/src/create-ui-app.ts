@@ -45,9 +45,6 @@ export function createUiApp(
   // Каскадная инициализация: ApiApp → контроллеры → стори → publicActions
   uiApp.init(apiApp);
 
-  // Передаём MenuAggregator в AppController (сам UiApp реализует MenuAggregator)
-  appController.initMenuAggregator(uiApp);
-
   return {
     uiApp,
     appController,

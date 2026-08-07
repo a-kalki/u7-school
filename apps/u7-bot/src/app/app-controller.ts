@@ -1,11 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
-import type {
-  BotResponse,
-  MainMenuAction,
-  MenuAggregator,
-  SessionData,
-} from '@u7-scl/core/ui';
+import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
 import { CommunityStory } from './stories/community.story';
 
 /**
@@ -19,22 +14,6 @@ export class AppController extends U7BotController {
   readonly name = 'app';
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: присваивается в конструкторе, требуется для инициализации
   readonly #groupUrl: string;
-  #menuAggregator: MenuAggregator<User> | null = null;
-
-  /**
-   * Публичные действия для кросс-ссылок из других стори.
-   * Другие стори используют: this.ui.app.mainMenu()
-   */
-  override get publicActions() {
-    return {
-      app: {
-        mainMenu: () => ({
-          text: '↩️ Главное меню',
-          code: 'app:main-menu',
-        }),
-      },
-    };
-  }
 
   /**
    * @param schoolGroupUrl — URL группы школы (обязателен)
@@ -43,14 +22,6 @@ export class AppController extends U7BotController {
     super();
     this.#groupUrl = schoolGroupUrl;
     this.stories.push(new CommunityStory(schoolGroupUrl));
-  }
-
-  /**
-   * Получает MenuAggregator от UiApp.
-   * Вызывается после создания UiApp, до первого use.
-   */
-  initMenuAggregator(aggregator: MenuAggregator<User>): void {
-    this.#menuAggregator = aggregator;
   }
 
   // ── Главное меню ──
@@ -106,9 +77,7 @@ export class AppController extends U7BotController {
       'Вот что я умею:',
     ].join('\n');
 
-    const descriptions = this.#menuAggregator
-      ? await this.#menuAggregator.collectAllHelpDescriptions(actor)
-      : [];
+    const descriptions = await this.uiApp.collectAllHelpDescriptions(actor);
 
     const body =
       descriptions.length > 0 ? `\n\n${descriptions.join('\n\n')}` : '';
@@ -160,8 +129,8 @@ export class AppController extends U7BotController {
    * Формирует BotResponse с текстом и клавиатурой из MenuAggregator.
    */
   async #buildMenuResponse(title: string, actor: User): Promise<BotResponse> {
-    const items = this.#menuAggregator
-      ? await this.#menuAggregator.collectAllMenuItems(actor)
+    const items = this.uiApp
+      ? await this.uiApp.collectAllMenuItems(actor)
       : [];
 
     // Формируем клавиатуру: каждая кнопка в отдельном ряду

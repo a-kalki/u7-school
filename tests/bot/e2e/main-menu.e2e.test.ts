@@ -25,11 +25,8 @@ describe('Главное меню (интеграционные)', () => {
     const streamController = new StreamController();
     const courseController = new CourseController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    streamController.init(app.apiApp, undefined as never);
-    courseController.init(app.apiApp, undefined as never);
-    appController.init(app.apiApp, undefined as never);
     router = new UiApp([appController, streamController, courseController]);
-    appController.initMenuAggregator(router);
+    router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
