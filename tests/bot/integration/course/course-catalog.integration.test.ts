@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
-import { CourseController } from '@u7-scl/course/ui';
+import { CoursesController } from '@u7-scl/bot/courses/controller';
 import type { TestApp } from '../../helpers/test-app';
 import { createTestApp } from '../../helpers/test-app';
 
@@ -27,9 +27,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
   beforeAll(async () => {
     app = await createTestApp('course-catalog-v2');
-    const courseController = new CourseController();
-    courseController.init(app.apiApp, undefined as never);
+    const courseController = new CoursesController();
     router = new UiApp([courseController]);
+    router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     author = (await app.userFacade.getUserByTelegramId(1004))!;
   });

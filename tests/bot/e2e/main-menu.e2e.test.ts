@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { UiApp } from '@u7-scl/core/ui';
-import { CourseController } from '@u7-scl/course/ui';
+import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../helpers/test-app';
 import { createTestApp } from '../helpers/test-app';
@@ -23,7 +23,7 @@ describe('Главное меню (интеграционные)', () => {
   beforeAll(async () => {
     app = await createTestApp('main-menu-int');
     const streamController = new StreamController();
-    const courseController = new CourseController();
+    const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
     router = new UiApp([appController, streamController, courseController]);
     router.init(app.apiApp);

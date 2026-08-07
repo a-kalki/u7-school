@@ -1,2 +1,2 @@
-export { CourseController } from './bot/controller/course-controller';
-export { CourseCatalogStory } from './bot/stories/course-catalog.story';
+// UI-логика перенесена в apps/u7-bot/src/courses/
+// Контроллеры и стори теперь живут в приложении бота

@@ -7,7 +7,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
-import { CourseController } from '@u7-scl/course/ui';
+import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { TestApp } from '../helpers/test-app';
 import { createTestApp } from '../helpers/test-app';
@@ -58,12 +58,10 @@ describe('E2E: Витрина для любопытного', () => {
   beforeAll(async () => {
     app = await createTestApp('e2e-curious');
     const streamController = new StreamController();
-    const courseController = new CourseController();
+    const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    streamController.init(app.apiApp, undefined as never);
-    courseController.init(app.apiApp, undefined as never);
-    appController.init(app.apiApp, undefined as never);
     router = new UiApp([appController, streamController, courseController]);
+    router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     candidate = (await app.userFacade.getUserByTelegramId(1002))!;
   });

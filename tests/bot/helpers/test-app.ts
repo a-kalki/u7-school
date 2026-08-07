@@ -47,7 +47,7 @@ export interface TestApp {
   apiApp: U7BotApp;
   /** API модуля stream (для создания StreamController) */
   streamModule: StreamApiModule;
-  /** API модуля курсов (для создания CourseController) */
+  /** API модуля курсов (для создания CoursesController) */
   courseModule: CourseApiModule;
   /** Фасад пользователей (для получения тестовых акторов) */
   userFacade: UserInProcFacade;

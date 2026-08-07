@@ -129,9 +129,7 @@ export class AppController extends U7BotController {
    * Формирует BotResponse с текстом и клавиатурой из MenuAggregator.
    */
   async #buildMenuResponse(title: string, actor: User): Promise<BotResponse> {
-    const items = this.uiApp
-      ? await this.uiApp.collectAllMenuItems(actor)
-      : [];
+    const items = this.uiApp ? await this.uiApp.collectAllMenuItems(actor) : [];
 
     // Формируем клавиатуру: каждая кнопка в отдельном ряду
     const rows = items

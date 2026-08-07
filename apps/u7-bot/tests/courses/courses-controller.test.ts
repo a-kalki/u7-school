@@ -1,21 +1,23 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { Role } from '@u7-scl/user/domain';
-import { CourseController } from './course-controller';
+import { CoursesController } from '../../src/courses/controller';
 
-describe('CourseController (реестр)', () => {
-  const mockModuleApi = {
-    execute: mock(() => []),
-  } as any;
-
+describe('CoursesController (реестр)', () => {
   const mockAppApi = {
-    execute: mock((name: string) => {
-      if (name === 'list-courses') return [];
-      return undefined;
-    }),
-  } as any;
+    execute: mock(() => []),
+  } as never;
 
-  const makeController = () => new CourseController();
+  const mockUiApp = {
+    getAction: mock(() => () => ({
+      text: '↩️ Главное меню',
+      code: 'app:main-menu',
+    })),
+    collectAllMenuItems: mock(() => []),
+    collectAllHelpDescriptions: mock(() => []),
+  } as never;
+
+  const makeController = () => new CoursesController();
 
   const guestActor: User = {
     uuid: 'u1',
@@ -38,7 +40,7 @@ describe('CourseController (реестр)', () => {
 
   test('handleStart агрегирует кнопки от stories', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, undefined as never);
+    controller.init(mockAppApi, mockUiApp);
 
     const items = await controller.handleStart(guestActor);
 
@@ -49,7 +51,7 @@ describe('CourseController (реестр)', () => {
 
   test('handleCallback форвардит по префиксу story', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, undefined as never);
+    controller.init(mockAppApi, mockUiApp);
 
     const session = { activeHandler: null };
 

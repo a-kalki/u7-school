@@ -6,8 +6,9 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { ContentSnapshot } from '../../../domain/content-snapshot';
-import type { Course } from '../../../domain/course/entity';
+import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
+import type { CommunityActions } from '../../app/stories/community.story';
+import { renderTree, type TreeNode } from '../../shared/tree-renderer';
 
 /** Эмодзи для направлений */
 const TRACK_EMOJI: Record<string, string> = {
@@ -24,7 +25,7 @@ const DEFAULT_TRACK_EMOJI = '📚';
  *   S00:  курсы + этапы inline
  *   S00b: этапы + модули inline
  *   S00c: модули + проекты inline
- *   S00d: проекты + уроки inline
+ *   S00d: проекты + уроки inline (tree-renderer)
  *   S00e: уроки + заголовки шагов (без тел)
  *
  * На каждом уровне: текущие объекты жирным + кнопками,
@@ -91,10 +92,9 @@ export class CourseCatalogStory extends U7BotUserStory {
   // ═══ Уровень 0: Курсы + этапы inline ═══
 
   async #handleList(): Promise<BotResponse> {
-    const courses = (await this.appApi.execute(
-      'list-courses',
-      {},
-    )) as Course[];
+    const courses = (await this.appApi.execute('list-courses', {})) as Course[];
+
+    const mainMenuBtn = this.#getMainMenuButton();
 
     if (courses.length === 0) {
       return {
@@ -102,14 +102,7 @@ export class CourseCatalogStory extends U7BotUserStory {
           text: '📖 *Курсы*\n\nПока нет доступных курсов\\.',
           parseMode: 'MarkdownV2',
           keyboard: {
-            rows: [
-              [
-                this.ui?.app?.app?.mainMenu?.() ?? {
-                  text: '↩️ Главное меню',
-                  code: 'app:main-menu',
-                },
-              ],
-            ],
+            rows: [[mainMenuBtn]],
             isMultiple: false,
           },
         },
@@ -145,12 +138,7 @@ export class CourseCatalogStory extends U7BotUserStory {
       ]);
     }
 
-    rows.push([
-      this.ui?.app?.app?.mainMenu?.() ?? {
-        text: '↩️ Главное меню',
-        code: 'app:main-menu',
-      },
-    ]);
+    rows.push([mainMenuBtn]);
 
     return {
       sendMessage: {
@@ -311,7 +299,7 @@ export class CourseCatalogStory extends U7BotUserStory {
     };
   }
 
-  // ═══ Уровень 3: Проекты + уроки inline ═══
+  // ═══ Уровень 3: Проекты + уроки inline (tree-renderer) ═══
 
   async #handleProjects(
     courseId: string,
@@ -345,32 +333,25 @@ export class CourseCatalogStory extends U7BotUserStory {
     const lines: string[] = [`📖 *Модуль: ${this.#esc(modTitle)}*`, ''];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
+    // Строим дерево через tree-renderer
+    const treeNodes: TreeNode[] = snapshot.map((project) => ({
+      title: this.#esc(project.projectTitle),
+      emoji: '📁',
+      meta: this.#lessonSummary(project.lessons),
+      children: project.lessons.map((lesson) => ({
+        title: this.#esc(lesson.lessonTitle),
+        emoji: '📝',
+        meta: `${lesson.stepIds.length} шаг${this.#plural(lesson.stepIds.length, '', 'а', 'ов')}`,
+      })),
+    }));
+
+    lines.push(renderTree(treeNodes));
+    lines.push('');
+
+    // Кнопки — проекты
     for (let pi = 0; pi < snapshot.length; pi++) {
       const project = snapshot[pi];
       if (!project) continue;
-      const lessonCount = project.lessons.length;
-      const totalSteps = project.lessons.reduce(
-        (s, l) => s + l.stepIds.length,
-        0,
-      );
-
-      lines.push(
-        `📁 *Проект: ${this.#esc(project.projectTitle)}* — ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${totalSteps} шаг${this.#plural(totalSteps, '', 'а', 'ов')}`,
-      );
-
-      // Уроки проекта inline (один уровень вниз)
-      for (let li = 0; li < project.lessons.length; li++) {
-        const lesson = project.lessons[li];
-        if (!lesson) continue;
-        const sCount = lesson.stepIds.length;
-        lines.push(
-          `    📝 Урок: ${this.#esc(lesson.lessonTitle)} — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
-        );
-      }
-
-      lines.push('');
-
-      // Кнопка — один проект
       rows.push([
         {
           text: `📁 ${project.projectTitle}`,
@@ -436,9 +417,7 @@ export class CourseCatalogStory extends U7BotUserStory {
     if (project.lessons.length === 0) {
       lines.push('_В этом проекте пока нет уроков_');
     } else {
-      for (let li = 0; li < project.lessons.length; li++) {
-        const lesson = project.lessons[li];
-        if (!lesson) continue;
+      for (const lesson of project.lessons) {
         const sCount = lesson.stepIds.length;
 
         lines.push(
@@ -486,6 +465,16 @@ export class CourseCatalogStory extends U7BotUserStory {
 
   // ═══ Утилиты ═══
 
+  /** Кнопка «↩️ Главное меню» через кросс-ссылку на CommunityStory */
+  #getMainMenuButton(): { text: string; code: string } {
+    return (
+      this.uiApp.getAction<CommunityActions>('mainMenu')?.() ?? {
+        text: '↩️ Главное меню',
+        code: 'app:main-menu',
+      }
+    );
+  }
+
   #esc(text: string): string {
     return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
   }
@@ -507,6 +496,12 @@ export class CourseCatalogStory extends U7BotUserStory {
     if (r === 1) return one;
     if (r >= 2 && r <= 4) return two;
     return five;
+  }
+
+  #lessonSummary(lessons: Array<{ stepIds: string[] }>): string {
+    const lessonCount = lessons.length;
+    const stepCount = lessons.reduce((s, l) => s + l.stepIds.length, 0);
+    return `${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${stepCount} шаг${this.#plural(stepCount, '', 'а', 'ов')}`;
   }
 
   #truncate(text: string, maxLen = 4000): string {
