@@ -1,0 +1,6 @@
+Фаза 2, Задачи 1-2: Green
+- AppController перенесён в apps/u7-bot/src/app/app-controller.ts
+- CommunityStory перенесён в apps/u7-bot/src/app/stories/community.story.ts
+- Добавлен алиас @u7-scl/bot/app/* в tsconfig.json
+- api-app.ts обновлён на импорт из нового пути
+- Тесты: 1490 pass (новые 12 + старые), 3 предсуществующих fail
