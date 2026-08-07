@@ -48,7 +48,7 @@
       "@u7-scl/bot/app/*": ["apps/u7-bot/src/app/*"],
       "@u7-scl/bot/courses/*": ["apps/u7-bot/src/courses/*"],
       "@u7-scl/bot/streams/*": ["apps/u7-bot/src/streams/*"],
-      "@u7-scl/test-helpers/*": ["tests/bot/helpers/*"]
+      "@u7-scl/test-helpers/*": ["apps/u7-bot/tests/helpers/*"]
     }
   },
   "exclude": ["data/deploy/archive"]
