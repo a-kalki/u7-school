@@ -137,7 +137,7 @@ describe('Onboarding E2E', () => {
     onboardingController.init(apiApp, undefined as never);
 
     router = new UiApp([onboardingController]);
-    router.init(apiApp, undefined as never);
+    router.init(apiApp);
 
     // Seed: гость с telegramId=2001
     guest = {

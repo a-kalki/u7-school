@@ -3,7 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import { ViewStreamStory } from '../../src/streams/stories/view-stream.story';
+import { ViewStreamStory } from './view-stream.story';
 
 describe('ViewStreamStory (S02-S04)', () => {
   const session: SessionData = { activeHandler: null };

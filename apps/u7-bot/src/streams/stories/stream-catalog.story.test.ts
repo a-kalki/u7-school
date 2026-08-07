@@ -3,7 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import { CatalogStory } from '../../src/streams/stories/stream-catalog.story';
+import { CatalogStory } from './stream-catalog.story';
 
 describe('CatalogStory (S01)', () => {
   const session: SessionData = { activeHandler: null };

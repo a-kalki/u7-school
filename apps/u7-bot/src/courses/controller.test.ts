@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { Role } from '@u7-scl/user/domain';
-import { CoursesController } from '../../src/courses/controller';
+import { CoursesController } from './controller';
 
 describe('CoursesController (реестр)', () => {
   const mockAppApi = {

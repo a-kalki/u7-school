@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { Role } from '@u7-scl/user/domain';
-import { StreamsController } from '../../src/streams/controller';
+import { StreamsController } from './controller';
 
 describe('StreamsController (реестр)', () => {
   const mockAppApi = {

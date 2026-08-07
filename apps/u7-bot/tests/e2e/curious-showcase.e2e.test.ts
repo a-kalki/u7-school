@@ -1,16 +1,16 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
+import { CoursesController } from '@u7-scl/bot/courses/controller';
+import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type {
   BotResponse,
   CbMainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
-import { CoursesController } from '@u7-scl/bot/courses/controller';
-import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { TestApp } from '../helpers/test-app';
-import { createTestApp } from '../helpers/test-app';
+import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
@@ -43,9 +43,7 @@ function findMenuItem(
   const item = items.find((i) => i.text.includes(textContains));
   if (!item) {
     const all = items.map((i) => i.text).join(', ');
-    throw new Error(
-      `Пункт меню «${textContains}» не найден. Доступны: ${all}`,
-    );
+    throw new Error(`Пункт меню «${textContains}» не найден. Доступны: ${all}`);
   }
   return item;
 }
@@ -237,8 +235,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(text).not.toContain('```');
       expect(text).not.toContain('function');
       const btns =
-        lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
-        [];
+        lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Назад к модулю'))).toBe(true);
     });
   });

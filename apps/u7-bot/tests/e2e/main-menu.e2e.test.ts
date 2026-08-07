@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import { UiApp } from '@u7-scl/core/ui';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { TestApp } from '../helpers/test-app';
-import { createTestApp } from '../helpers/test-app';
+import { UiApp } from '@u7-scl/core/ui';
+import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 

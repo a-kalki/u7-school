@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { renderTree, type TreeNode } from '../../src/shared/tree-renderer';
+import { renderTree, type TreeNode } from './tree-renderer';
 
 describe('renderTree', () => {
   test('пустой массив — пустая строка', () => {

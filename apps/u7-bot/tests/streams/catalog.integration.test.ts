@@ -4,8 +4,8 @@ import { AppController } from '@u7-scl/bot/app/app-controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
-import type { TestApp } from '../../../../tests/bot/helpers/test-app';
-import { createTestApp } from '../../../../tests/bot/helpers/test-app';
+import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 
 /**
  * Интеграционный тест S01: витрина потоков (CatalogStory).
