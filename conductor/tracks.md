@@ -7,20 +7,23 @@
 ### Оставшиеся треки
 
 - [ ] **Трек 5: Контроллер `learning` — «Моя учёба»**
-  *Разделение `learning.story.ts` (670 строк) на 6 файлов, перенос в `apps/u7-bot/src/streams/`.*
+  *Разделение `learning.story.ts` (670 строк) на 6 файлов, перенос в `apps/u7-bot/src/learning/`.*
+  *Link: [./tracks/learning_20260807/](./tracks/learning_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-5-контроллер-learning--моя-учёба)*
 
 - [ ] **Трек 6: Контроллер `mentor` — «Инструменты ментора»**
-  *Перенос `monitor.story.ts`, `mentor-tools.story.ts`, `view-stream-mentor.story.ts`, `progress.story.ts`.*
-  *Восстановление кнопок «👥 Студенты» и «📝 Записаться» через `getAction`.*
+  *Перенос 6 стори (submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor).*
+  *Link: [./tracks/mentor_20260807/](./tracks/mentor_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-6-контроллер-mentor--инструменты-ментора)*
 
 - [ ] **Трек 7: `OnboardingController` — заглушка**
   *Перенос как есть, отключение кнопки до Релиза 3.*
+  *Link: [./tracks/onboarding_20260807/](./tracks/onboarding_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-7-onboarding--заглушка)*
 
 - [ ] **Трек 8: Зачистка и обновление документации**
   *Удаление оставшегося старого кода, финальная проверка.*
+  *Link: [./tracks/cleanup_20260807/](./tracks/cleanup_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-8-зачистка-и-обновление-документации)*
 
 ---

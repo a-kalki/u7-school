@@ -1,0 +1,8 @@
+{
+  "track_id": "mentor_20260807",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-07T21:30:00Z",
+  "updated_at": "2026-08-07T21:30:00Z",
+  "description": "Контроллер mentor — «Инструменты ментора»: перенос 6 стори из stream/ui/bot/ в apps/u7-bot/src/mentor/"
+}
