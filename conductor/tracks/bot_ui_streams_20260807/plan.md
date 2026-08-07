@@ -1,7 +1,7 @@
 # План реализации: Контроллер `streams` — «Потоки курсов»
 
 > **Трек:** `bot_ui_streams_20260807`
-> **Родительский документ:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md), Трек 5
+> **Родительский документ:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md), Трек 4
 >
 > **Зависимости:** `bot_ui_courses_20260807` (нужен `tree-renderer`)
 
@@ -24,13 +24,13 @@
     - [ ] Обработчик кнопки «📚 Потоки курсов»
 - [ ] Task: Перенести `stream-catalog.ts` (S01)
     - [ ] Витрина потоков с фильтрами
-    - [ ] Заменить кросс-ссылки на `this.ui.*`
+    - [ ] Заменить кросс-ссылки на `this.uiApp.getAction<T>(name)`
 - [ ] Task: Перенести `view-stream.ts` (S02-S04)
     - [ ] S02: карточка потока
     - [ ] S03: программа из contentSnapshot (через `tree-renderer.ts`)
     - [ ] S04: детали потока
-    - [ ] Заменить кросс-ссылки: `cbFor('monitor', ...)` → `this.ui.mentor.monitor.students(streamId)`
-    - [ ] Заменить кросс-ссылки: `cbFor('enroll', ...)` → `this.ui.learning.enroll.start(streamId)`
+    - [ ] Заменить кросс-ссылки: `cbFor('monitor', ...)` → `this.uiApp.getAction<MonitorActions>('students')(streamId)`
+    - [ ] Заменить кросс-ссылки: `cbFor('enroll', ...)` → `this.uiApp.getAction<EnrollActions>('start')(streamId)`
 - [ ] Task: Удалить старые файлы
     - [ ] `packages/stream/src/ui/bot/catalog.story.ts`
     - [ ] `packages/stream/src/ui/bot/view-stream.story.ts`
@@ -41,7 +41,7 @@
 
 - [ ] Task: Проверить чистоту переноса
     - [ ] Нет импортов story из `packages/stream/src/ui/bot/`
-    - [ ] Все кросс-ссылки через `this.ui.*`
+    - [ ] Все кросс-ссылки через `this.uiApp.getAction<T>(name)`
     - [ ] `tree-renderer.ts` используется для S03 без модификаций
 - [ ] Task: Conductor - User Manual Verification 'Фаза 3: Рефакторинг' (Protocol in workflow.md)
 

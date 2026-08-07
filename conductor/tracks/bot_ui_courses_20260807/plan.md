@@ -1,9 +1,9 @@
 # План реализации: Контроллер `courses` — «Программы курсов»
 
 > **Трек:** `bot_ui_courses_20260807`
-> **Родительский документ:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md), Трек 4
+> **Родительский документ:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md), Трек 3
 >
-> **Зависимости:** `bot_ui_app_20260807`
+> **Зависимости:** Трек 1 (U7BotController в `apps/u7-bot`), Трек 2 (AppController + CommunityStory)
 
 ---
 
@@ -29,7 +29,7 @@
 - [ ] Task: Перенести `course-catalog.ts` (S00)
     - [ ] Drill-down: курсы → этапы → модули → проекты → уроки → шаги
     - [ ] Использовать `tree-renderer.ts` для рендеринга дерева
-    - [ ] Заменить `'app:main-menu'` на `this.ui.app.mainMenu()`
+    - [ ] Заменить `'app:main-menu'` на `this.uiApp.getAction<AppActions>('mainMenu')()`
 - [ ] Task: Удалить старые файлы
     - [ ] `packages/course/src/ui/bot/course-catalog.story.ts`
     - [ ] `packages/course/src/ui/bot/course-controller.ts`

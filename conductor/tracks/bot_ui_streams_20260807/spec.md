@@ -1,9 +1,9 @@
 # Спецификация: Контроллер `streams` — «Потоки курсов»
 
-> **Родительский документ:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md), Трек 5
+> **Родительский документ:** [bot-ui-refactoring.md](../../bot-ui-refactoring.md), Трек 4
 > **Дорожная карта:** [development-roadmap.md](../../development-roadmap.md), Релиз 1
 >
-> **Зависимости:** Трек 4 (bot_ui_courses_20260807 — нужен `tree-renderer`)
+> **Зависимости:** Трек 3 (bot_ui_courses_20260807 — нужен `tree-renderer`)
 
 ## Обзор
 
@@ -16,7 +16,7 @@
 3. Перенести `stream-catalog.ts` (S01: витрина потоков с фильтрами).
 4. Перенести `view-stream.ts` (S02: карточка потока, S03: программа из contentSnapshot, S04: детали).
 5. Использовать `shared/tree-renderer.ts` для S03.
-6. Заменить все кросс-ссылки (`monitor`, `enroll`, `app`) на `this.ui.*`.
+6. Заменить все кросс-ссылки на `this.uiApp.getAction<T>(name)`.
 7. Перенести тесты в `apps/u7-bot/tests/streams/`.
 
 ## Нефункциональные требования
@@ -31,8 +31,8 @@
 - S02: карточка потока
 - S03: программа потока (дерево из contentSnapshot)
 - S04: детали потока
-- Кросс-ссылки `this.ui.mentor.monitor.students(streamId)` работают (после Трека 7)
-- Кросс-ссылки `this.ui.learning.enroll.start(streamId)` работают (после Трека 6)
+- Кросс-ссылки `this.uiApp.getAction<MonitorActions>('students')(streamId)` работают (после Трека 6)
+- Кросс-ссылки `this.uiApp.getAction<EnrollActions>('start')(streamId)` работают (после Трека 5)
 - Старые `CatalogStory` и `ViewStreamStory` удалены из `packages/stream/src/ui/bot/`
 
 ## За рамками
