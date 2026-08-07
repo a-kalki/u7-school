@@ -2,6 +2,12 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
+import type { BotController } from '@u7-scl/core/ui';
+import {
+  BotRouter,
+  createUiRegistry,
+  type HasPublicActions,
+} from '@u7-scl/core/ui';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
   CourseInProcFacade,
@@ -114,6 +120,9 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   // ══ ApiApp: все модули ══
   const apiApp: U7BotApp = new ApiApp([userModule, courseModule, streamModule]);
 
+  // Каскадная инициализация: ApiApp → модули
+  apiApp.init();
+
   return {
     apiApp,
     streamModule,
@@ -124,4 +133,32 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     fixtures,
     cleanup: () => cleanupFixtures(fixtures),
   };
+}
+
+/**
+ * Создаёт инициализированный BotRouter для тестов.
+ *
+ * Инкапсулирует рутину, которую раньше каждый тест делал вручную:
+ *   new BotRouter([controllers]) + router.init(apiApp) + UiRegistry → initUi.
+ *
+ * @param app — результат createTestApp()
+ * @param controllers — один или несколько контроллеров
+ * @returns инициализированный BotRouter
+ */
+export function createTestUiRouter(
+  app: TestApp,
+  controllers: BotController<any, any, any>[],
+): BotRouter<any, any, any> {
+  const router = new BotRouter(controllers);
+
+  // Каскад: ApiApp → контроллеры → стори
+  router.init(app.apiApp);
+
+  // Сбор и инжект UiRegistry
+  const registry = createUiRegistry(controllers as HasPublicActions[]);
+  for (const ctrl of controllers) {
+    ctrl.initUi(registry);
+  }
+
+  return router;
 }
