@@ -8,7 +8,7 @@ import type {
 } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
-import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
+import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { TestApp } from '../helpers/test-app';
 import { createTestApp } from '../helpers/test-app';
 
@@ -57,7 +57,7 @@ describe('E2E: Витрина для любопытного', () => {
 
   beforeAll(async () => {
     app = await createTestApp('e2e-curious');
-    const streamController = new StreamController();
+    const streamController = new StreamsController();
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
     router = new UiApp([appController, streamController, courseController]);

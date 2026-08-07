@@ -45,7 +45,7 @@ export class MockTgFacade implements TgFacade {
 export interface TestApp {
   /** Полноценный ApiApp со всеми модулями */
   apiApp: U7BotApp;
-  /** API модуля stream (для создания StreamController) */
+  /** API модуля stream (для создания StreamsController) */
   streamModule: StreamApiModule;
   /** API модуля курсов (для создания CoursesController) */
   courseModule: CourseApiModule;

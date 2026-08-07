@@ -9,7 +9,7 @@
 
 ## Фаза 1: Тесты (Red) — Тесты на текущее поведение
 
-- [ ] Task: Зафиксировать поведение `CatalogStory` и `ViewStreamStory` тестами
+- [~] Task: Зафиксировать поведение `CatalogStory` и `ViewStreamStory` тестами
     - [ ] Тест: S01 — витрина потоков с фильтрами
     - [ ] Тест: S02 — карточка потока
     - [ ] Тест: S03 — программа потока (дерево из contentSnapshot)
@@ -19,7 +19,7 @@
 
 ## Фаза 2: Реализация (Green) — Перенос
 
-- [ ] Task: Создать `apps/u7-bot/src/streams/controller.ts`
+- [~] Task: Создать `apps/u7-bot/src/streams/controller.ts`
     - [ ] Класс `StreamsController extends U7BotController`
     - [ ] Обработчик кнопки «📚 Потоки курсов»
 - [ ] Task: Перенести `stream-catalog.ts` (S01)

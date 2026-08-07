@@ -1,10 +1,10 @@
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import type { ApiApp } from '@u7-scl/core/api';
 import { OnboardingController } from '@u7-scl/onboarding';
-import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';
 import type { BotConfig } from './config';
 import { CoursesController } from './courses/controller';
 import type { ApiAppBundle } from './create-api-app';
+import { StreamsController } from './streams/controller';
 import type { U7BotAppMeta } from './u7-bot-app-meta';
 import { U7BotUiApp } from './ui-app';
 
@@ -15,7 +15,7 @@ export interface UiAppBundle {
   uiApp: U7BotUiApp;
   appController: AppController;
   onboardingController: OnboardingController;
-  streamController: StreamController;
+  streamController: StreamsController;
   courseController: CoursesController;
 }
 
@@ -31,7 +31,7 @@ export function createUiApp(
   config: BotConfig,
 ): UiAppBundle {
   const onboardingController = new OnboardingController();
-  const streamController = new StreamController();
+  const streamController = new StreamsController();
   const courseController = new CoursesController();
   const appController = new AppController(config.schoolGroupUrl);
 

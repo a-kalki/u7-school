@@ -34,6 +34,7 @@
       "@u7-scl/course/infra": ["packages/course/src/infra/index.ts"],
       "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
       "@u7-scl/stream": ["packages/stream/src/index.ts"],
+      "@u7-scl/stream/ui/bot/stories/*": ["packages/stream/src/ui/bot/stories/*"],
       "@u7-scl/stream/ui/bot/controller/stream-controller": [
         "packages/stream/src/ui/bot/controller/stream-controller.ts"
       ],
@@ -48,7 +49,8 @@
       "@u7-scl/bot/u7-bot-user-story": ["apps/u7-bot/src/u7-bot-user-story.ts"],
       "@u7-scl/bot/u7-bot-app-meta": ["apps/u7-bot/src/u7-bot-app-meta.ts"],
       "@u7-scl/bot/app/*": ["apps/u7-bot/src/app/*"],
-      "@u7-scl/bot/courses/*": ["apps/u7-bot/src/courses/*"]
+      "@u7-scl/bot/courses/*": ["apps/u7-bot/src/courses/*"],
+      "@u7-scl/bot/streams/*": ["apps/u7-bot/src/streams/*"]
     }
   },
   "exclude": ["data/deploy/archive"]
