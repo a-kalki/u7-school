@@ -2,7 +2,7 @@
 
 ## Релиз 1: Новый Bot UI — фундамент и базовые контроллеры
 
-- [~] **Track: Перенос AppController + CommunityStory**
+- [x] **Track: Перенос AppController + CommunityStory**
   *Link: [./tracks/bot_ui_app_20260807/](./tracks/bot_ui_app_20260807/)*
 
 - [ ] **Track: Контроллер courses — «Программы курсов»**

@@ -3,7 +3,6 @@ import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotUserStory } from '../bot-user-story';
-import type { UiBotButton } from '../ui-registry';
 import type {
   BotResponse,
   BotUpdate,
@@ -11,6 +10,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from '../types';
+import type { UiBotButton } from '../ui-registry';
 import { BotController } from './bot-controller';
 
 // Тестовый тип метаданных

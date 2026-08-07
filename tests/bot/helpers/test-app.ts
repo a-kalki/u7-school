@@ -147,6 +147,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
  */
 export function createTestUiRouter(
   app: TestApp,
+  // biome-ignore lint/suspicious/noExplicitAny: тестовый хелпер, тип контроллера зависит от теста
   controllers: BotController<any, any, any>[],
 ): BotRouter<any, any, any> {
   const router = new BotRouter(controllers);

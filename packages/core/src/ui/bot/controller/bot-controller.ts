@@ -11,13 +11,13 @@ import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { serializeError } from '#shared/serialize-error';
 import type { BotUserStory } from '../bot-user-story';
-import type { UiBotButton } from '../ui-registry';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from '../types';
+import type { UiBotButton } from '../ui-registry';
 
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
@@ -91,7 +91,10 @@ export abstract class BotController<
           story as unknown as {
             publicActions: Record<string, (...ids: string[]) => string>;
           }
-        ).publicActions as unknown as Record<string, (...ids: string[]) => UiBotButton>;
+        ).publicActions as unknown as Record<
+          string,
+          (...ids: string[]) => UiBotButton
+        >;
       }
     }
     return actions;
