@@ -1,0 +1,92 @@
+import { describe, expect, mock, test } from 'bun:test';
+import type { User } from '@u7-scl/app/domain';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
+import type { SessionData } from '@u7-scl/core/ui';
+import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
+import { ProgressStory } from './progress.story';
+
+describe('ProgressStory', () => {
+  const session: SessionData = { activeHandler: null };
+  const actor: User = {
+    uuid: 'user-1',
+    name: 'Студент',
+    telegramId: 123,
+    roles: [Role.STUDENT],
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  const mockStudent = {
+    uuid: 'st1',
+    streamId: 's1',
+    userId: 'user-1',
+    status: 'active',
+    currentStepId: 'step-3',
+    steps: [
+      { stepId: 'step-1', status: 'completed' },
+      { stepId: 'step-2', status: 'completed' },
+      { stepId: 'step-3', status: 'issued' },
+    ],
+  };
+
+  const mockStream = {
+    uuid: 's1',
+    title: 'Python',
+    status: 'active',
+    startDate: '2026-07-01T00:00:00.000Z',
+    mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
+    telegramGroupInvite: 'https://t.me/chat123',
+    contentSnapshot: [
+      {
+        projectTitle: 'Основы',
+        lessons: [
+          { lessonTitle: 'Введение', stepIds: ['step-1', 'step-2'] },
+          { lessonTitle: 'Продвинутый', stepIds: ['step-3', 'step-4'] },
+        ],
+      },
+    ],
+  };
+
+  test('показывает ментора, дату, чат, проект/урок и прогресс', async () => {
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-student-by-user') return mockStudent;
+        if (name === 'get-stream') return mockStream;
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+    const appApi = {
+      execute: mock((name: string) => {
+        if (name === 'get-user')
+          return {
+            uuid: 'm1',
+            name: 'Алексей Смирнов',
+            roles: [Role.MENTOR],
+          };
+        return undefined;
+      }),
+    } as unknown as U7BotApp;
+
+    const story = new ProgressStory();
+    story.init(moduleApi, appApi);
+
+    const response = await story.handleCallback('progress:s1', actor, session);
+    assertResponseMarkdownSafe(response);
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Прогресс');
+    expect(text).toContain('Python');
+    expect(text).toContain('Алексей Смирнов');
+    expect(text).toContain('chat123');
+    expect(text).toContain('Основы');
+    expect(text).toContain('Продвинутый');
+    expect(text).toContain('50');
+
+    // Кнопка «⬅️ Назад к учёбе»
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    expect(rows.length).toBe(1);
+    expect(rows[0]![0]!.text).toBe('⬅️ Назад к учёбе');
+    expect(rows[0]![0]!.code).toBe('learning:my-study');
+  });
+});
