@@ -17,21 +17,23 @@
 
 ## Фаза 2: Реализация (Green) — Перенос и замена
 
-- [~] Task: Создать `apps/u7-bot/src/app/controller.ts`
-    - [ ] Класс `AppController extends U7BotController`
-    - [ ] Обработчик главного меню (`handleStart`)
-- [ ] Task: Создать `apps/u7-bot/src/app/stories/community.ts`
-    - [ ] Перенести `CommunityStory` из `app/ui/bot/stories/`
-    - [ ] Заменить `cbFor()` на `this.ui.*`
-- [ ] Task: Заменить строковые callback-коды на `this.ui.app.*`
-    - [ ] `'app:main-menu'` → `this.ui.app.mainMenu()`
-    - [ ] `'app:help'` → `this.ui.app.help()`
-    - [ ] Обновить `publicActions` в `AppController`
-- [ ] Task: Обновить кросс-ссылки из других стори
-    - [ ] Найти все `cbFor('app:main-menu', ...)` → `this.ui.app.mainMenu()`
-- [ ] Task: Удалить старые файлы
-    - [ ] `app/ui/bot/app-controller.ts`
-    - [ ] `app/ui/bot/stories/community.ts`
+- [x] Task: Создать `apps/u7-bot/src/app/controller.ts`
+    - [x] Класс `AppController extends U7BotController`
+    - [x] Обработчик главного меню (`handleStart`)
+- [x] Task: Создать `apps/u7-bot/src/app/stories/community.ts`
+    - [x] Перенести `CommunityStory` из `app/ui/bot/stories/`
+    - [x] Заменить `cbFor()` на `this.ui.*`
+- [x] Task: Заменить строковые callback-коды на `this.ui.app.*`
+    - [x] `'app:main-menu'` → `this.ui.app.app.mainMenu()` (с защитным fallback)
+    - [x] `'app:help'` → `this.ui.app.help()`
+    - [x] Обновить `publicActions` в `AppController` (возвращает `UiBotButton`)
+- [x] Task: Обновить кросс-ссылки из других стори
+    - [x] Найти все `cbFor('app:main-menu', ...)` → `this.ui.app.app.mainMenu()`
+- [x] Task: Удалить старые файлы
+    - [x] `packages/app/src/ui/app-controller.ts`
+    - [x] `packages/app/src/ui/stories/community.story.ts`
+    - [x] `packages/app/src/ui/app-controller.test.ts`
+    - [x] `packages/app/src/ui/stories/community.story.test.ts`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2: Реализация' (Protocol in workflow.md)
 
 ## Фаза 3: Рефакторинг

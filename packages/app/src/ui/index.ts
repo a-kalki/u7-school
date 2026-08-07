@@ -1,2 +1,2 @@
 // @u7-scl/app/ui — UI-компоненты уровня приложения
-export { AppController } from './app-controller';
+// AppController и CommunityStory перенесены в @u7-scl/bot/app/

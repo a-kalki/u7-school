@@ -8,19 +8,27 @@ import {
 
 // ── Тестовые данные ──
 
-/** Мок-контроллер с publicActions */
+/** Мок-контроллер с publicActions (новый формат: возвращает UiBotButton) */
 class MockStreamController {
   readonly name = 'stream';
 
   get publicActions() {
     return {
       catalog: {
-        view: (id: string) => `stream:catalog:view:${id}`,
-        list: () => 'stream:catalog:list',
+        view: (id: string) => ({
+          text: 'Просмотр',
+          code: `stream:catalog:view:${id}`,
+        }),
+        list: () => ({
+          text: 'Список',
+          code: 'stream:catalog:list',
+        }),
       },
       learning: {
-        open: (streamId: string, stepId: string) =>
-          `stream:learning:open:${streamId}:${stepId}`,
+        open: (streamId: string, stepId: string) => ({
+          text: 'Открыть',
+          code: `stream:learning:open:${streamId}:${stepId}`,
+        }),
       },
     };
   }
@@ -47,20 +55,22 @@ describe('createUiRegistry', () => {
     expect(registry.stream?.learning).toBeDefined();
   });
 
-  test('вызов action фабрики возвращает правильный callback-код', () => {
+  test('вызов action фабрики возвращает UiBotButton с text и code', () => {
     const streamCtrl = new MockStreamController();
     const registry = createUiRegistry([streamCtrl]);
 
-    const code = registry.stream?.catalog?.view?.('abc-123');
-    expect(code).toBe('stream:catalog:view:abc-123');
+    const btn = registry.stream?.catalog?.view?.('abc-123');
+    expect(btn).toBeDefined();
+    expect(btn!.text).toBe('Просмотр');
+    expect(btn!.code).toBe('stream:catalog:view:abc-123');
   });
 
   test('вызов action с несколькими id', () => {
     const streamCtrl = new MockStreamController();
     const registry = createUiRegistry([streamCtrl]);
 
-    const code = registry.stream?.learning?.open?.('s1', 'step2');
-    expect(code).toBe('stream:learning:open:s1:step2');
+    const btn = registry.stream?.learning?.open?.('s1', 'step2');
+    expect(btn!.code).toBe('stream:learning:open:s1:step2');
   });
 
   test('объединяет несколько контроллеров', () => {
@@ -92,10 +102,8 @@ describe('createUiRegistry', () => {
     const registry1 = createUiRegistry([streamCtrl]);
     const registry2 = createUiRegistry([streamCtrl]);
 
-    // Оба реестра содержат одинаковые фабрики (getter возвращает новый объект)
     expect(registry1.stream?.catalog?.view).toBeInstanceOf(Function);
     expect(registry2.stream?.catalog?.view).toBeInstanceOf(Function);
-    // Но это разные объекты (getter создаёт новый при каждом вызове)
     expect(registry1.stream).not.toBe(registry2.stream);
   });
 });
@@ -110,6 +118,10 @@ describe('ControllerActions (тип)', () => {
     expect(actions.catalog).toBeDefined();
     expect(actions.learning).toBeDefined();
     expect(actions.catalog.view).toBeInstanceOf(Function);
+    // Фабрика возвращает UiBotButton
+    const btn = actions.catalog.view('test');
+    expect(btn.code).toBe('stream:catalog:view:test');
+    expect(btn.text).toBe('Просмотр');
   });
 });
 
@@ -118,9 +130,10 @@ describe('UiRegistry (тип)', () => {
     const streamCtrl = new MockStreamController();
     const registry: UiRegistry = createUiRegistry([streamCtrl]);
 
-    // Доступ: controller → story → action
-    const result = registry.stream?.catalog?.view?.('test-id');
-    expect(result).toBe('stream:catalog:view:test-id');
+    // Доступ: controller → story → action → UiBotButton
+    const btn = registry.stream?.catalog?.view?.('test-id');
+    expect(btn!.code).toBe('stream:catalog:view:test-id');
+    expect(btn!.text).toBe('Просмотр');
   });
 });
 
@@ -130,14 +143,17 @@ describe('HasPublicActions (интерфейс)', () => {
       name: 'test',
       publicActions: {
         myStory: {
-          doSomething: () => 'test:myStory:doSomething',
+          doSomething: () => ({
+            text: 'Сделать',
+            code: 'test:myStory:doSomething',
+          }),
         },
       },
     };
 
     const registry = createUiRegistry([ctrl]);
-    expect(registry.test?.myStory?.doSomething?.()).toBe(
-      'test:myStory:doSomething',
-    );
+    const btn = registry.test?.myStory?.doSomething?.();
+    expect(btn!.text).toBe('Сделать');
+    expect(btn!.code).toBe('test:myStory:doSomething');
   });
 });

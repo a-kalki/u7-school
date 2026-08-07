@@ -103,7 +103,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
           text: '📖 *Курсы*\n\nПока нет доступных курсов\\.',
           parseMode: 'MarkdownV2',
           keyboard: {
-            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            rows: [[this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]],
             isMultiple: false,
           },
         },
@@ -139,7 +139,7 @@ export class CourseCatalogStory extends U7BotUserStory<CourseApiModuleMeta> {
       ]);
     }
 
-    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+    rows.push([this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     return {
       sendMessage: {

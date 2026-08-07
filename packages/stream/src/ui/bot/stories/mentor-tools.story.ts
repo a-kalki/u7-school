@@ -77,7 +77,7 @@ export class MentorToolsStory extends U7BotUserStory<StreamApiModuleMeta> {
                 code: this.cbFor('create-stream', 'start'),
               },
             ],
-            [{ text: '🔙 Назад', code: 'app:main-menu' }],
+            [{ text: '🔙 Назад', code: this.ui?.app?.app?.mainMenu?.()?.code ?? 'app:main-menu' }],
           ],
           isMultiple: false,
         },

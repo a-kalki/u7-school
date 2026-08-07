@@ -1,17 +1,26 @@
 /**
  * Типы и утилиты для типизированных кросс-ссылок между UserStory.
  *
- * Каждая стори объявляет `publicActions` — объект методов-фабрик колбэков.
+ * Каждая стори объявляет `publicActions` — объект методов-фабрик готовых кнопок.
  * Контроллер собирает их через `get publicActions()`.
- * `BotRouter`/`UiApp` объединяет в `UiRegistry` и инжектит в стори через `initUi()`.
+ * `UiApp` объединяет в `UiRegistry` и инжектит в стори через `initUi()`.
  *
- * Кросс-ссылки: `this.ui.controllerName.storyName.action(...)` вместо `this.cbFor()`.
+ * Кросс-ссылки: вызов `this.ui.controllerName.storyName.action(id)` возвращает
+ * готовую кнопку `UiBotButton`, которую можно положить в клавиатуру.
  */
 
-/** Фабрика колбэка: принимает id и возвращает callback-код */
-export type UiCallbackFactory = (...ids: string[]) => string;
+/** Готовая кнопка для клавиатуры — результат фабрики публичного действия */
+export interface UiBotButton {
+  /** Текст на кнопке */
+  text: string;
+  /** Callback-код (можно переопределить text после получения) */
+  code: string;
+}
 
-/** Публичные действия одной стори: { actionName: (...ids) => callbackCode } */
+/** Фабрика кнопки: принимает id и возвращает готовый UiBotButton */
+export type UiCallbackFactory = (...ids: string[]) => UiBotButton;
+
+/** Публичные действия одной стори: { actionName: (...ids) => UiBotButton } */
 export type StoryPublicActions = Record<string, UiCallbackFactory>;
 
 /**
@@ -20,7 +29,7 @@ export type StoryPublicActions = Record<string, UiCallbackFactory>;
  * @example
  * const streamCtrl = new StreamController(...);
  * type StreamActions = ControllerActions<typeof streamCtrl>;
- * // { catalog: { view: (id: string) => string, ... }, learning: { ... }, ... }
+ * // { catalog: { view: (id: string) => UiBotButton, ... }, learning: { ... }, ... }
  */
 export type ControllerActions<C extends { publicActions: unknown }> =
   C['publicActions'];
@@ -31,7 +40,8 @@ export type ControllerActions<C extends { publicActions: unknown }> =
  * Структура: { controllerName: { storyName: { actionName: factory } } }
  *
  * @example
- * registry.stream.catalog.view(streamId) // → callback-код
+ * const btn = this.ui.stream.catalog.view(streamId); // UiBotButton
+ * rows.push([{ text: btn.text, code: btn.code }]);
  */
 export type UiRegistry = Record<string, Record<string, StoryPublicActions>>;
 

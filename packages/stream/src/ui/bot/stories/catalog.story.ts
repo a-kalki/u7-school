@@ -77,7 +77,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
         ]);
       }
       if (toggleRows.length > 0) {
-        toggleRows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+        toggleRows.push([this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]);
         return {
           sendMessage: {
             text: '📚 *Нет активных потоков*',
@@ -144,7 +144,7 @@ export class CatalogStory extends U7BotUserStory<StreamApiModuleMeta> {
     }
 
     // Кнопка «↩️ Главное меню» последней строкой
-    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+    rows.push([this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     return {
       sendMessage: {

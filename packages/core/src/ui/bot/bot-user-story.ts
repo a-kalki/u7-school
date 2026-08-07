@@ -27,6 +27,7 @@ export abstract class BotUserStory<
   TAppMeta extends AppMeta = AppMeta,
   TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
+  TUi = unknown,
 > {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
@@ -38,13 +39,13 @@ export abstract class BotUserStory<
   protected appApi!: ApiApp<TAppMeta>;
 
   /**
-   * UI-реестр — инжектится роутером через initUi().
-   * Тип — unknown, конкретный тип задаётся через дженерик контроллера.
+   * UI-реестр — инжектится через initUi().
+   * Типизируется дженериком TUi.
    * Позволяет кросс-ссылки между стори: this.ui.controllerName.storyName.action(...)
    */
-  public ui: unknown = undefined;
+  public ui: TUi = undefined as unknown as TUi;
 
-  /** Логгер — берётся из глобального логгера приложения */
+  // ── Инициализация ──
   protected get logger(): Logger | undefined {
     return getGlobalLogger();
   }
@@ -59,10 +60,10 @@ export abstract class BotUserStory<
   }
 
   /**
-   * Инжекция UI-реестра — вызывается роутером после сбора всех контроллеров.
+   * Инжекция UI-реестра — вызывается после сбора всех контроллеров.
    * Делает доступными кросс-ссылки между стори через this.ui.
    */
-  initUi(ui: unknown): void {
+  initUi(ui: TUi): void {
     this.ui = ui;
   }
 

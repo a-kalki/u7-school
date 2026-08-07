@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { AppController } from '@u7-scl/app/ui';
+import { AppController } from '@u7-scl/bot/app/app-controller';
 import { BotRouter } from '@u7-scl/core/ui';
 import { CourseController } from '@u7-scl/course/ui';
 import { StreamController } from '@u7-scl/stream/ui/bot/controller/stream-controller';

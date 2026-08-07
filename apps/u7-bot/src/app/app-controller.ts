@@ -23,6 +23,25 @@ export class AppController extends U7BotController<AppOnlyApiModuleMeta> {
   #menuAggregator: MenuAggregator<User> | null = null;
 
   /**
+   * Публичные действия для кросс-ссылок из других стори.
+   * Другие стори используют: this.ui.app.mainMenu(), this.ui.app.help()
+   */
+  override get publicActions() {
+    return {
+      app: {
+        mainMenu: () => ({
+          text: '↩️ Главное меню',
+          code: 'app:main-menu',
+        }),
+        help: () => ({
+          text: '❓ Помощь',
+          code: 'app:help',
+        }),
+      },
+    };
+  }
+
+  /**
    * @param schoolGroupUrl — URL группы школы (обязателен)
    */
   constructor(schoolGroupUrl: string) {

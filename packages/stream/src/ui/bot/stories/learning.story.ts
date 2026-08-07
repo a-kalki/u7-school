@@ -153,7 +153,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     rows.push([
       { text: '🚪 Покинуть поток', code: this.cb('my-study:leave-confirm') },
     ]);
-    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+    rows.push([this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     return {
       sendMessage: {
@@ -229,7 +229,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
           text: '🏆 *Поток полностью завершён\\!* Поздравляем с успешным окончанием обучения\\!',
           parseMode: 'MarkdownV2',
           keyboard: {
-            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            rows: [[this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]],
             isMultiple: false,
           },
         },
@@ -293,7 +293,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         text: '👋 Вы покинули поток\\. Если захотите вернуться — обратитесь к ментору\\.',
         parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+          rows: [[this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]],
           isMultiple: false,
         },
       },
@@ -677,7 +677,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       ]);
     }
 
-    rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+    rows.push([this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     const description: BotResponse = {
       sendMessage: {
@@ -847,7 +847,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
     );
     const keyboard = this.#buildStepKeyboard(streamId, stepId);
 
-    keyboard.rows.push([{ text: '↩️ Главное меню', code: 'app:main-menu' }]);
+    keyboard.rows.push([this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }]);
 
     return {
       sendMessage: {
@@ -1005,7 +1005,7 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
         keyboard: {
           rows: [
             [{ text: buttonText, code: this.cb('my-study:continue') }],
-            [{ text: '↩️ Главное меню', code: 'app:main-menu' }],
+            [this.ui?.app?.app?.mainMenu?.() ?? { text: '↩️ Главное меню', code: 'app:main-menu' }],
           ],
           isMultiple: false,
         },

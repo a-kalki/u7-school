@@ -3,6 +3,7 @@ import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotUserStory } from '../bot-user-story';
+import type { UiBotButton } from '../ui-registry';
 import type {
   BotResponse,
   BotUpdate,
@@ -377,19 +378,19 @@ describe('BotController', () => {
       const story = new TestStory('my_story');
       (
         story as unknown as {
-          publicActions: Record<string, (...ids: string[]) => string>;
+          publicActions: Record<string, (...ids: string[]) => UiBotButton>;
         }
       ).publicActions = {
-        view: (id: string) => `my_story:view:${id}`,
-        list: () => 'my_story:list',
+        view: (id: string) => ({ text: 'v', code: `my_story:view:${id}` }),
+        list: () => ({ text: 'l', code: 'my_story:list' }),
       };
       c.addStory(story);
 
       const actions = c.publicActions;
       expect(actions.my_story).toBeDefined();
       expect(actions.my_story!.view).toBeInstanceOf(Function);
-      expect(actions.my_story?.view?.('abc')).toBe('my_story:view:abc');
-      expect(actions.my_story?.list?.()).toBe('my_story:list');
+      expect(actions.my_story?.view?.('abc')?.code).toBe('my_story:view:abc');
+      expect(actions.my_story?.list?.()?.code).toBe('my_story:list');
     });
 
     test('контроллер собирает publicActions с нескольких стори', () => {
@@ -398,17 +399,17 @@ describe('BotController', () => {
       const story2 = new TestStory('story2');
       (
         story1 as unknown as {
-          publicActions: Record<string, (...ids: string[]) => string>;
+          publicActions: Record<string, (...ids: string[]) => UiBotButton>;
         }
       ).publicActions = {
-        doA: () => 'a',
+        doA: () => ({ text: 'a', code: 'a' }),
       };
       (
         story2 as unknown as {
-          publicActions: Record<string, (...ids: string[]) => string>;
+          publicActions: Record<string, (...ids: string[]) => UiBotButton>;
         }
       ).publicActions = {
-        doB: () => 'b',
+        doB: () => ({ text: 'b', code: 'b' }),
       };
       c.addStory(story1);
       c.addStory(story2);
