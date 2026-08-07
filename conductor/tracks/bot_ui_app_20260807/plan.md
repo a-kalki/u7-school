@@ -17,7 +17,7 @@
 
 ## Фаза 2: Реализация (Green) — Перенос и замена
 
-- [ ] Task: Создать `apps/u7-bot/src/app/controller.ts`
+- [~] Task: Создать `apps/u7-bot/src/app/controller.ts`
     - [ ] Класс `AppController extends U7BotController`
     - [ ] Обработчик главного меню (`handleStart`)
 - [ ] Task: Создать `apps/u7-bot/src/app/stories/community.ts`

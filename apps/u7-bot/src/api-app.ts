@@ -1,4 +1,4 @@
-import { AppController } from '@u7-scl/app/ui';
+import { AppController } from '@u7-scl/bot/app/app-controller';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
