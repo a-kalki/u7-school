@@ -9,10 +9,10 @@
 ```
 BotController<TAppMeta, TActor>                        (core, абстрактный)
   └─ U7BotController                                    (apps/u7-bot) — закрывает U7BotAppMeta + User
-       ├─ StreamController                             (stream) — реестр доменных сторис
-       ├─ CourseController                             (course) — реестр доменных сторис
-       ├─ OnboardingController                         (onboarding) — логика без сторис
-       └─ AppController                                (app) — системные сценарии (/start, /help, сообщество)
+       ├─ StreamController                             (apps/u7-bot) — реестр доменных сторис
+       ├─ CourseController                             (apps/u7-bot) — реестр доменных сторис
+       ├─ OnboardingController                         (apps/u7-bot) — логика без сторис
+       └─ AppController                                (apps/u7-bot) — системные сценарии (/start, /help, сообщество)
 ```
 
 - **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: сжатие id, диспетчеризация в сторис, `handleError`, главное меню, `publicActions`-геттер.

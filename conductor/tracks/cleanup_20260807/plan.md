@@ -28,32 +28,35 @@
 
 ## Фаза 2: Обновление документации
 
-- [ ] Task: Обновить `code_styleguides/architecture.md`
-    - [ ] Убрать `ui/` из структуры доменных модулей
+- [x] Task: Обновить `code_styleguides/architecture.md`
+    - [x] Убрать `ui/` из структуры доменных модулей
 
-- [ ] Task: Обновить `code_styleguides/skills/bot-controller.md`
-    - [ ] Описать новую иерархию контроллеров
-    - [ ] Добавить `UiApp`, `publicActions`
+- [x] Task: Обновить `code_styleguides/skills/bot-controller.md`
+    - [x] `UiApp`, `publicActions` уже были описаны в §6
+    - [x] Описать новую иерархию контроллеров
+    - [x] Добавить `UiApp`, `publicActions`
 
-- [ ] Task: Обновить `code_styleguides/skills/bot-user-story.md`
-    - [ ] Обновить пути к стори
-    - [ ] Добавить `uiApp.getAction<T>(name)`
+- [x] Task: Обновить `code_styleguides/skills/bot-user-story.md`
+    - [x] Обновить пути к стори
+    - [x] Добавить `uiApp.getAction<T>(name)`
 
-- [ ] Task: Обновить `conductor/index.md`
-    - [ ] Проверить и обновить все ссылки на перенесённые файлы
+- [x] Task: Обновить `conductor/index.md`
+    - [x] Проверить все ссылки — все живы
+    - [x] Проверить и обновить все ссылки на перенесённые файлы
 
-- [ ] Task: Обновить `packages/core/src/ui/bot/README.md`
-    - [ ] Актуализировать правила навигации
+- [x] Task: Обновить `packages/core/src/ui/bot/README.md`
+    - [x] Правила навигации актуальны, изменений не требуется
+    - [x] Актуализировать правила навигации
 
-- [ ] Task: Разделить `ui-spec.md` на 4 файла
-    - [ ] `apps/u7-bot/src/controllers/courses/ui-spec.md`
-    - [ ] `apps/u7-bot/src/controllers/streams/ui-spec.md`
-    - [ ] `apps/u7-bot/src/learning/ui-spec.md`
-    - [ ] `apps/u7-bot/src/mentor/ui-spec.md`
-    - [ ] Удалить старый `packages/stream/src/ui/bot/ui-spec.md`
+- [x] Task: Разделить `ui-spec.md` на 4 файла
+    - [x] `apps/u7-bot/src/controllers/courses/ui-spec.md`
+    - [x] `apps/u7-bot/src/controllers/streams/ui-spec.md`
+    - [x] `apps/u7-bot/src/learning/ui-spec.md`
+    - [x] `apps/u7-bot/src/mentor/ui-spec.md`
+    - [x] Старый `packages/stream/src/ui/bot/ui-spec.md` удалён в Фазе 1
 
-- [ ] Task: Создать `apps/u7-bot/README.md`
-    - [ ] Описать структуру приложения, контроллеры, соглашения
+- [x] Task: Создать `apps/u7-bot/README.md`
+    - [x] Описать структуру приложения, контроллеры, соглашения
 
 - [ ] Task: Conductor - User Manual Verification 'Обновление документации' (Protocol in workflow.md)
 

@@ -17,7 +17,10 @@ packages/<module>/
   src/
     domain/       # Слой предметной области (чистый код, без инфраструктуры)
     api/          # Слой приложения (оркестрация, репозитории, use cases)
-    ui/           # Слой интерфейса пользователя (фронтенд-компоненты, если применимо)
+    infra/        # Инфраструктурный слой (реализации репозиториев, БД)
+
+> **UI-слой вынесен из пакетов.** Контроллеры и stories Telegram-бота живут в `apps/u7-bot/src/controllers/`.
+> Фреймворк бота (`BotController`, `UiApp`, `BotUserStory`) — в `packages/core/src/ui/bot/`.
 ```
 
 ### Слой api: Структура папок
@@ -59,13 +62,13 @@ src/api/
 **Направление зависимостей:**
 
 ```
-shared → domain → (api, ui)
+shared → domain → api → (apps)
 ```
 
-- `domain` **не импортирует** `api` или `ui`.
+- `domain` **не импортирует** `api`.
 - `api` может импортировать `domain`.
-- `ui/bot/controller/` и `cli-controller` могут импортировать `api`.
-- `ui/web` (браузерный) **не импортирует** `api` напрямую.
+- Приложения (`apps/u7-bot`, `apps/u7-cli`) импортируют `api` и `domain`.
+- Контроллеры бота (`apps/u7-bot/src/controllers/`) импортируют `api` через фасад (`appApi`).
 
 ### Настройка package.json
 
@@ -77,13 +80,11 @@ shared → domain → (api, ui)
   "exports": {
     "./domain": "./src/domain/index.ts",
     "./api": "./src/api/index.ts",
-    "./ui": "./src/ui/index.ts",
     "./infra": "./src/infra/index.ts"
   },
   "imports": {
     "#domain/*": "./src/domain/*.ts",
     "#api/*": "./src/api/*.ts",
-    "#ui/*": "./src/ui/*.ts",
     "#infra/*": "./src/infra/*.ts"
   }
 }
