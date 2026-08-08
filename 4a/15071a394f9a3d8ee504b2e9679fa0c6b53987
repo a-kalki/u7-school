@@ -1,0 +1,12 @@
+Задача: Перенести my-streams.ts
+
+Изменения:
+- Создан apps/u7-bot/src/controllers/mentor/stories/my-streams.ts — список потоков ментора с фильтрами
+- Создан apps/u7-bot/src/controllers/mentor/stories/my-streams.test.ts — 8 тестов
+- Обновлён controller.ts — добавлен MyStreamsStory
+
+Архитектурные решения:
+- Извлечён из mentor-tools.story.ts в отдельную стори
+- Фильтрация: по умолчанию enrollment+active, кнопки-переключатели для completed/archived
+- Переход к карточке: cbFor('view-stream-mentor', 'view', uuid)
+- Возврат: cbFor('submenu', 'start')
