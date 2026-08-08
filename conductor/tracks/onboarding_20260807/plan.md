@@ -4,7 +4,7 @@
 
 ## Фаза 1: Перенос и отключение
 
-- [x] Task: Создать структуру `onboarding/` в `apps/u7-bot/src/`
+- [x] Task: Создать структуру `onboarding/` в `apps/u7-bot/src/` `[230d3d7]`
     - [x] Создать `onboarding/controller.ts`
     - [x] Создать `onboarding/ui-spec.md` (заглушка: «отложено до metrics»)
 
