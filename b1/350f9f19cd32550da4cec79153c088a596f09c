@@ -1,0 +1,14 @@
+Задача: Перенести view-stream-mentor.ts
+
+Изменения:
+- Рефакторинг ViewStreamStory: #handleView/#handleProgramView/#handleDetailsView/#buildKeyboard -> protected
+- Создан ViewStreamMentorStory extends ViewStreamStory
+- Переопределяет buildKeyboard с lifecycle-кнопками
+- Добавляет #handleComplete, #handleArchive, #showCompleteConfirm, #showArchiveConfirm
+- Кнопка «⬅️ Назад к моим потокам» → cbFor('my-streams', 'list')
+- 8 unit-тестов
+
+Решение наследование vs композиция:
+- Выбрано наследование, т.к. родительские методы стали protected
+- Это позволяет переиспользовать handleView/handleProgramView/handleDetailsView
+- Дочерний класс переопределяет только buildKeyboard и добавляет lifecycle-действия
