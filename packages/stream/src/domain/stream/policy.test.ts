@@ -81,6 +81,39 @@ describe('StreamPolicy', () => {
     expect(StreamPolicy.canEnroll(actor)).toBe(true);
   });
 
+  test('canEnroll — true для MENTOR', () => {
+    const actor = {
+      uuid: 'a1',
+      name: 'Mentor',
+      telegramId: 10,
+      roles: [Role.MENTOR],
+      createdAt: '2026-01-01T00:00:00Z',
+    };
+    expect(StreamPolicy.canEnroll(actor)).toBe(true);
+  });
+
+  test('canEnroll — true для ADMIN', () => {
+    const actor = {
+      uuid: 'a1',
+      name: 'Admin',
+      telegramId: 11,
+      roles: [Role.ADMIN],
+      createdAt: '2026-01-01T00:00:00Z',
+    };
+    expect(StreamPolicy.canEnroll(actor)).toBe(true);
+  });
+
+  test('canEnroll — true для CANDIDATE', () => {
+    const actor = {
+      uuid: 'a1',
+      name: 'Candidate',
+      telegramId: 12,
+      roles: [Role.CANDIDATE],
+      createdAt: '2026-01-01T00:00:00Z',
+    };
+    expect(StreamPolicy.canEnroll(actor)).toBe(true);
+  });
+
   test('canEnroll — false для STUDENT', () => {
     const actor = {
       uuid: 'a1',
