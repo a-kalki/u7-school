@@ -1,0 +1,206 @@
+import type { User } from '@u7-scl/app/domain';
+import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import type {
+  BotResponse,
+  BotUpdate,
+  SessionData,
+  UiCallbackFactory,
+} from '@u7-scl/core/ui';
+
+const MAX_ATTEMPTS = 3;
+
+interface EnrollKeyContext {
+  streamId: string;
+  enrollmentKey: string;
+  attempts: number;
+}
+
+/** Публичные действия стори enroll для других стори. */
+export type EnrollActions = Record<string, UiCallbackFactory> & {
+  enrollButton: (streamId: string) => { text: string; code: string };
+};
+
+/**
+ * Запись на поток с проверкой кодового слова (S10).
+ */
+export class EnrollStory extends U7BotUserStory {
+  readonly name = 'enroll';
+
+  // Публичные действия для других стори
+  override publicActions = {
+    /** Кнопка «📝 Записаться» для view-stream */
+    enrollButton: (streamId: string) =>
+      this.action('📝 Записаться', 'enroll', streamId),
+  };
+
+  async handleCallback(
+    action: string,
+    actor: User,
+    _session: SessionData,
+  ): Promise<BotResponse> {
+    // Отмена ввода кодового слова
+    if (action.startsWith('cancel:')) {
+      const [, streamId] = action.split(':');
+      return {
+        releaseInput: true,
+        delegate: { path: `view-stream:view:${streamId}` },
+      };
+    }
+
+    const [cmd, streamId] = action.split(':');
+    if (cmd !== 'enroll' || !streamId) {
+      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    }
+
+    // Получаем поток для проверки enrollmentKey
+    const stream = (await this.appApi.execute('get-stream', {
+      streamId,
+    })) as { enrollmentKey?: string; title: string };
+
+    // Если есть кодовое слово — запрашиваем его у студента
+    if (stream.enrollmentKey) {
+      return {
+        sendMessage: {
+          text: '🔑 Введите кодовое слово для записи на поток:',
+          keyboard: {
+            rows: [
+              [
+                {
+                  text: '❌ Отмена',
+                  code: this.cb(`cancel:${streamId}`),
+                },
+              ],
+            ],
+            isMultiple: false,
+          },
+        },
+        captureInput: {
+          path: 'enroll/enroll-key',
+          context: {
+            streamId,
+            enrollmentKey: stream.enrollmentKey,
+            attempts: 0,
+          } satisfies EnrollKeyContext,
+        },
+      };
+    }
+
+    // Без кодового слова — сразу зачисляем
+    return this.#doEnroll(streamId, actor);
+  }
+
+  async handleMessage(
+    update: BotUpdate,
+    actor: User,
+    session: SessionData,
+  ): Promise<BotResponse> {
+    if (update.type !== 'message') {
+      return { sendMessage: { text: '⚠️ Ожидалось текстовое сообщение' } };
+    }
+
+    const ctx = session.activeHandler?.context as EnrollKeyContext | undefined;
+    if (!ctx) {
+      return { sendMessage: { text: '⚠️ Контекст потерян' } };
+    }
+
+    const enteredKey = update.text;
+
+    if (enteredKey !== ctx.enrollmentKey) {
+      const attemptsLeft = MAX_ATTEMPTS - ctx.attempts - 1;
+      if (attemptsLeft <= 0) {
+        return {
+          releaseInput: true,
+          sendMessage: {
+            text: '❌ Попытки исчерпаны.\nВозврат к потоку — нажмите кнопку ниже.',
+            keyboard: {
+              rows: [
+                [
+                  {
+                    text: '⬅️ Назад к потоку',
+                    code: `view-stream:view:${ctx.streamId}`,
+                  },
+                ],
+              ],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+
+      return {
+        sendMessage: {
+          text: `❌ Неверное слово. Осталось попыток: ${attemptsLeft}`,
+          keyboard: {
+            rows: [
+              [
+                {
+                  text: '❌ Отмена',
+                  code: this.cb(`cancel:${ctx.streamId}`),
+                },
+              ],
+            ],
+            isMultiple: false,
+          },
+        },
+        captureInput: {
+          path: 'enroll/enroll-key',
+          context: {
+            ...ctx,
+            attempts: ctx.attempts + 1,
+          } satisfies EnrollKeyContext,
+        },
+      };
+    }
+
+    // Верное слово — зачисляем с enrollmentKey
+    return this.#doEnroll(ctx.streamId, actor, ctx.enrollmentKey);
+  }
+
+  async #doEnroll(
+    streamId: string,
+    actor: User,
+    enrollmentKey?: string,
+  ): Promise<BotResponse> {
+    const stream = (await this.appApi.execute('get-stream', {
+      streamId,
+    })) as {
+      title: string;
+      startDate: string;
+      telegramGroupInvite?: string;
+    };
+
+    await this.appApi.execute(
+      'enroll-student',
+      {
+        streamId,
+        userId: actor.uuid,
+        enrollmentKey,
+      },
+      actor.uuid,
+    );
+
+    const dateStr = this.formatDate(stream.startDate);
+    const lines = [
+      '🎉 *Вы успешно записаны на поток\\!*',
+      '',
+      `📋 _${this.escapeMarkdown(stream.title)}_`,
+      `📅 Обучение начнётся: ${this.escapeMarkdown(dateStr)}`,
+    ];
+
+    if (stream.telegramGroupInvite) {
+      lines.push('', `🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
+    }
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
+        parseMode: 'MarkdownV2',
+      },
+      delegate: { path: 'hub:my-study' },
+    };
+  }
+
+  override async handleStart(_actor: User): Promise<null> {
+    return null;
+  }
+}
