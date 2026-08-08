@@ -1,0 +1,12 @@
+Задача: Перенести submenu.ts
+
+Изменения:
+- Создан apps/u7-bot/src/controllers/mentor/stories/submenu.ts — подменю инструментов ментора
+- Создан apps/u7-bot/src/controllers/mentor/stories/submenu.test.ts — 8 тестов
+- Обновлён apps/u7-bot/src/controllers/mentor/controller.ts — добавлен SubmenuStory
+
+Архитектурные решения:
+- submenu выделен в отдельную стори, без списка my-streams
+- handleStart возвращает кнопку только для MENTOR/ADMIN
+- Кнопка «Назад» через getAction<CommunityActions>('mainMenu')
+- Проверка ролей через actor.roles.includes()
