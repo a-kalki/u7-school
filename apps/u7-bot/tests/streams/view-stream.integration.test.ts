@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
+import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
@@ -31,7 +32,13 @@ describe('ViewStreamStory (интеграционный)', () => {
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
-    router = new UiApp([appController, streamController, learningController]);
+    const mentorController = new MentorController();
+    router = new UiApp([
+      appController,
+      streamController,
+      learningController,
+      mentorController,
+    ]);
     router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;

@@ -53,6 +53,7 @@
       "@u7-scl/bot/courses/*": ["apps/u7-bot/src/controllers/courses/*"],
       "@u7-scl/bot/streams/*": ["apps/u7-bot/src/controllers/streams/*"],
       "@u7-scl/bot/learning/*": ["apps/u7-bot/src/controllers/learning/*"],
+      "@u7-scl/bot/mentor/*": ["apps/u7-bot/src/controllers/mentor/*"],
       "@u7-scl/test-helpers/*": ["apps/u7-bot/tests/helpers/*"]
     }
   },

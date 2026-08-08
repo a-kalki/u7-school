@@ -3,6 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
+import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type {
   BotResponse,
@@ -60,11 +61,13 @@ describe('E2E: Витрина для любопытного', () => {
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
+    const mentorController = new MentorController();
     router = new UiApp([
       appController,
       streamController,
       courseController,
       learningController,
+      mentorController,
     ]);
     router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;

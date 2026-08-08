@@ -10,7 +10,10 @@ import type {
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { Question, QuestionnaireActionResponse } from '@u7-scl/onboarding/domain';
+import type {
+  Question,
+  QuestionnaireActionResponse,
+} from '@u7-scl/onboarding/domain';
 import type { User } from '@u7-scl/user/domain';
 
 /**

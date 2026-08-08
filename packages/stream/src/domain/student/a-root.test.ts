@@ -1,4 +1,5 @@
-import { describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, spyOn, test } from 'bun:test';
+import * as Shared from '@u7-scl/core/shared';
 import { StudentAr } from './a-root';
 import type { Student } from './entity';
 
@@ -519,7 +520,15 @@ describe('StudentAr', () => {
   // ── isLaggingFromMedian ──
 
   describe('isLaggingFromMedian', () => {
-    const now = new Date('2026-08-01T12:00');
+    let isoNowSpy: ReturnType<typeof spyOn>;
+
+    beforeAll(() => {
+      isoNowSpy = spyOn(Shared, 'isoNow').mockReturnValue('2026-08-01T12:00');
+    });
+
+    afterAll(() => {
+      isoNowSpy.mockRestore();
+    });
 
     function makeStudentWithLastActivity(completedAt: string) {
       return new StudentAr({
