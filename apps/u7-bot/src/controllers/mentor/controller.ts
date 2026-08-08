@@ -1,4 +1,5 @@
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
+import { MyStreamsStory } from './stories/my-streams';
 import { SubmenuStory } from './stories/submenu';
 
 /**
@@ -10,5 +11,8 @@ import { SubmenuStory } from './stories/submenu';
 export class MentorController extends U7BotController {
   readonly name = 'mentor';
 
-  protected override readonly stories = [new SubmenuStory()];
+  protected override readonly stories = [
+    new SubmenuStory(),
+    new MyStreamsStory(),
+  ];
 }
