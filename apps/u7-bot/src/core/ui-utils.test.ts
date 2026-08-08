@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import type { BotContext } from './context';
+import type { BotContext } from '../context';
 import { executeResponses } from './ui-utils';
 
 // ── Фабрики ──

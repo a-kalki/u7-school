@@ -7,7 +7,7 @@
 ### Оставшиеся треки
 
 - [ ] **Трек 5: Контроллер `learning` — «Моя учёба»**
-  *Разделение `learning.story.ts` (670 строк) на 6 файлов, перенос в `apps/u7-bot/src/learning/`.*
+  *Разделение `learning.story.ts` (670 строк) на 6 файлов, перенос в `apps/u7-bot/src/controllers/learning/`.*
   *Link: [./tracks/learning_20260807/](./tracks/learning_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-5-контроллер-learning--моя-учёба)*
 

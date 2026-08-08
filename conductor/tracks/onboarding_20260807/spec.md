@@ -6,7 +6,7 @@
 
 ## 1. Обзор
 
-Перенести `OnboardingController` из `packages/onboarding/src/ui/bot/` в `apps/u7-bot/src/onboarding/` **без изменений**. Кнопка главного меню `📝 Заполнить анкету` отключается (не возвращается из `handleStart`).
+Перенести `OnboardingController` из `packages/onboarding/src/ui/bot/` в `apps/u7-bot/src/controllers/onboarding/` **без изменений**. Кнопка главного меню `📝 Заполнить анкету` отключается (не возвращается из `handleStart`).
 
 Полноценный рефакторинг onboarding на стори — в рамках трека metrics (Релиз 4).
 
@@ -14,7 +14,7 @@
 
 ### 2.1. Перенос без изменений
 
-- Перенести `OnboardingController` как есть в `apps/u7-bot/src/onboarding/controller.ts`
+- Перенести `OnboardingController` как есть в `apps/u7-bot/src/controllers/onboarding/controller.ts`
 - Перенести сопутствующие файлы (если есть) из `packages/onboarding/src/ui/bot/`
 
 ### 2.2. Отключение кнопки
@@ -33,7 +33,7 @@
 
 ## 4. Критерии приёмки
 
-- [ ] `OnboardingController` в `apps/u7-bot/src/onboarding/controller.ts`
+- [ ] `OnboardingController` в `apps/u7-bot/src/controllers/onboarding/controller.ts`
 - [ ] Кнопка `📝 Заполнить анкету` не отображается в главном меню ни для кого
 - [ ] `packages/onboarding/src/ui/bot/` освобождён для удаления в Треке 8
 - [ ] Тесты перенесены и проходят

@@ -13,8 +13,8 @@ import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { connectUiApp } from './handlers/connect-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
+import { CompositeLogger, TelegramLogger } from './infra/logger';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
-import { CompositeLogger, TelegramLogger } from './logger';
 
 const config = loadConfig();
 

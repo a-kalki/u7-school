@@ -7,8 +7,8 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
+import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
 import type { CommunityActions } from '../../app/stories/community.story';
-import { renderTree, type TreeNode } from '../../shared/tree-renderer';
 
 /** Эмодзи для направлений */
 const TRACK_EMOJI: Record<string, string> = {

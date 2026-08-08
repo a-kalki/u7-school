@@ -3,8 +3,8 @@ import type { UiApp } from '@u7-scl/core/ui';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { Composer } from 'grammy';
 import type { BotContext } from '../context';
-import type { U7BotAppMeta } from '../u7-bot-app-meta';
-import { executeResponses } from '../ui-utils';
+import type { U7BotAppMeta } from '../core/u7-bot-app-meta';
+import { executeResponses } from '../core/ui-utils';
 
 /**
  * Резолвит пользователя по telegramId.

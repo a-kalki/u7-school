@@ -7,8 +7,8 @@ import type {
 } from '@u7-scl/core/ui';
 import type { Stream } from '@u7-scl/stream/domain';
 import { StreamPolicy } from '@u7-scl/stream/domain';
-import type { TreeNode } from '../../shared/tree-renderer';
-import { renderTree } from '../../shared/tree-renderer';
+import type { TreeNode } from '../../../shared/tree-renderer';
+import { renderTree } from '../../../shared/tree-renderer';
 
 /**
  * S02-S04: Детальная карточка потока (curious-режим).

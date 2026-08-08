@@ -46,8 +46,8 @@
     - [ ] Актуализировать правила навигации
 
 - [ ] Task: Разделить `ui-spec.md` на 4 файла
-    - [ ] `apps/u7-bot/src/courses/ui-spec.md`
-    - [ ] `apps/u7-bot/src/streams/ui-spec.md`
+    - [ ] `apps/u7-bot/src/controllers/courses/ui-spec.md`
+    - [ ] `apps/u7-bot/src/controllers/streams/ui-spec.md`
     - [ ] `apps/u7-bot/src/learning/ui-spec.md`
     - [ ] `apps/u7-bot/src/mentor/ui-spec.md`
     - [ ] Удалить старый `packages/stream/src/ui/bot/ui-spec.md`

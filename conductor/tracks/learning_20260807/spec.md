@@ -6,7 +6,7 @@
 
 ## 1. Обзор
 
-Разделить `learning.story.ts` (670 строк, `packages/stream/src/ui/bot/stories/`) на 6 независимых файлов и перенести в новый контроллер `apps/u7-bot/src/learning/`.
+Разделить `learning.story.ts` (670 строк, `packages/stream/src/ui/bot/stories/`) на 6 независимых файлов и перенести в новый контроллер `apps/u7-bot/src/controllers/learning/`.
 
 Контроллер доступен **только роли STUDENT**, кнопка главного меню: `🎓 Моя учёба`.
 

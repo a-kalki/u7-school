@@ -5,7 +5,7 @@ import {
 } from '@u7-scl/core/shared';
 import type { BotResponse, SendMessageDescription } from '@u7-scl/core/ui';
 import { InlineKeyboard } from 'grammy';
-import type { BotContext } from './context';
+import type { BotContext } from '../context';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

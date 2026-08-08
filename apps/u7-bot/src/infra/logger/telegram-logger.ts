@@ -1,6 +1,6 @@
 import { type Logger, LogLevel } from '@u7-scl/core/shared';
 import type { Bot } from 'grammy';
-import type { BotContext } from '../context';
+import type { BotContext } from '../../context';
 
 const LEVEL_EMOJI: Record<LogLevel, string> = {
   [LogLevel.DEBUG]: '🔍',

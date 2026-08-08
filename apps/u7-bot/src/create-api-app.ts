@@ -21,7 +21,7 @@ import type { TgFacade } from '@u7-scl/stream/domain';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { BotConfig } from './config';
-import type { U7BotAppMeta } from './u7-bot-app-meta';
+import type { U7BotAppMeta } from './core/u7-bot-app-meta';
 
 /**
  * Результат фабрики ApiApp — только доменный слой.

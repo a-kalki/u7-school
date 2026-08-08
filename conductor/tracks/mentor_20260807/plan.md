@@ -69,7 +69,7 @@
 
 ## Фаза 3: Тестирование и миграция
 
-- [ ] Task: Перенести unit-тесты в `apps/u7-bot/src/mentor/stories/`
+- [ ] Task: Перенести unit-тесты в `apps/u7-bot/src/controllers/mentor/stories/`
     - [ ] 6 тестовых файлов рядом с исходниками
     - [ ] Все тесты проходят
 

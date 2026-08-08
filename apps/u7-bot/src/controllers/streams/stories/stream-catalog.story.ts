@@ -5,16 +5,9 @@ import type {
   BotUpdate,
   MainMenuAction,
   SessionData,
-  StoryPublicActions,
 } from '@u7-scl/core/ui';
 import { StreamStatus } from '@u7-scl/stream/domain';
 import type { CommunityActions } from '../../app/stories/community.story';
-
-/** Действия, публикуемые CatalogStory для кросс-ссылок из других контроллеров. */
-export interface CatalogActions extends StoryPublicActions {
-  /** Кнопка «📚 Потоки курсов» в главном меню. */
-  list(): { text: string; code: string };
-}
 
 /**
  * S01: Просмотр витрины потоков (Каталог).
@@ -22,14 +15,6 @@ export interface CatalogActions extends StoryPublicActions {
  */
 export class CatalogStory extends U7BotUserStory {
   readonly name = 'catalog';
-
-  /** Публичные действия для кросс-ссылок через uiApp.getAction. */
-  override readonly publicActions: CatalogActions = {
-    list: () => ({
-      text: '📚 Потоки курсов',
-      code: this.cb('list'),
-    }),
-  };
 
   async handleCallback(
     action: string,

@@ -6,7 +6,7 @@
 
 ## 1. Обзор
 
-Перенести 6 оставшихся стори из `packages/stream/src/ui/bot/stories/` в новый контроллер `apps/u7-bot/src/mentor/`.
+Перенести 6 оставшихся стори из `packages/stream/src/ui/bot/stories/` в новый контроллер `apps/u7-bot/src/controllers/mentor/`.
 
 Контроллер доступен **ролям MENTOR и ADMIN**, кнопка главного меню: `🛠️ Инструменты ментора`.
 

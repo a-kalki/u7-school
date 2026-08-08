@@ -47,74 +47,88 @@ apps/u7-bot/src/
 ├── shared/
 │   └── tree-renderer.ts           # общий рендеринг дерева проект→урок→шаг в MarkdownV2
 │
-├── app/                           # системные сценарии (без кнопки в меню)
-│   ├── controller.ts
-│   ├── ui-spec.md
-│   └── stories/
-│       └── community.ts
+├── controllers/                   # доменные контроллеры (по функциям)
+│   ├── app/                       # системные сценарии (без кнопки в меню)
+│   │   ├── controller.ts
+│   │   ├── ui-spec.md
+│   │   └── stories/
+│   │       └── community.ts
+│   │
+│   ├── courses/                   # «📖 Программы курсов»
+│   │   ├── controller.ts
+│   │   ├── ui-spec.md
+│   │   └── stories/
+│   │       └── course-catalog.ts  # S00: 5-уровневый drill-down (live published data)
+│   │
+│   ├── streams/                   # «📚 Потоки курсов»
+│   │   ├── controller.ts
+│   │   ├── ui-spec.md
+│   │   └── stories/
+│   │       ├── stream-catalog.ts  # S01: витрина потоков с фильтрами
+│   │       └── view-stream.ts     # S02-S04: карточка, программа (из contentSnapshot), детали
+│   │
+│   ├── learning/                  # «🎓 Моя учёба» (видна только STUDENT)
+│   │   ├── controller.ts
+│   │   ├── ui-spec.md
+│   │   └── stories/
+│   │       ├── hub.ts             # S05: хаб
+│   │       ├── step-view.ts       # S05a: просмотр/прохождение шага
+│   │       ├── nav-tree.ts        # S05b: дерево уроков с ✅/▶️/🔒 (из contentSnapshot + student)
+│   │       ├── transition.ts      # S05c: завершение урока/проекта/потока
+│   │       ├── progress.ts        # S06: прогресс студента
+│   │       └── enroll.ts          # S10: запись с кодовым словом
+│   │
+│   ├── mentor/                    # «🛠️ Инструменты ментора» (MENTOR, ADMIN)
+│   │   ├── controller.ts
+│   │   ├── ui-spec.md
+│   │   └── stories/
+│   │       ├── submenu.ts         # подменю
+│   │       ├── my-streams.ts      # список потоков ментора
+│   │       ├── view-stream-mentor.ts  # S02m: карточка с lifecycle-кнопками (наследует view-stream)
+│   │       ├── create-stream.ts   # S09: wizard создания потока
+│   │       ├── activate-stream.ts # запуск потока
+│   │       └── monitor.ts         # S07/S08: мониторинг группы
+│   │
+│   └── onboarding/                # «📝 Заполнить анкету» (отложено до metrics)
+│       ├── controller.ts
+│       └── ...
 │
-├── courses/                       # «📖 Программы курсов»
-│   ├── controller.ts
-│   ├── ui-spec.md
-│   └── stories/
-│       └── course-catalog.ts      # S00: 5-уровневый drill-down (live published data)
-│
-├── streams/                       # «📚 Потоки курсов»
-│   ├── controller.ts
-│   ├── ui-spec.md
-│   └── stories/
-│       ├── stream-catalog.ts      # S01: витрина потоков с фильтрами
-│       └── view-stream.ts         # S02-S04: карточка, программа (из contentSnapshot), детали
-│
-├── learning/                      # «🎓 Моя учёба» (видна только STUDENT)
-│   ├── controller.ts
-│   ├── ui-spec.md
-│   └── stories/
-│       ├── hub.ts                 # S05: хаб
-│       ├── step-view.ts           # S05a: просмотр/прохождение шага
-│       ├── nav-tree.ts            # S05b: дерево уроков с ✅/▶️/🔒 (из contentSnapshot + student)
-│       ├── transition.ts          # S05c: завершение урока/проекта/потока
-│       ├── progress.ts            # S06: прогресс студента
-│       └── enroll.ts              # S10: запись с кодовым словом
-│
-├── mentor/                        # «🛠️ Инструменты ментора» (MENTOR, ADMIN)
-│   ├── controller.ts
-│   ├── ui-spec.md
-│   └── stories/
-│       ├── submenu.ts             # подменю
-│       ├── my-streams.ts          # список потоков ментора
-│       ├── view-stream-mentor.ts  # S02m: карточка с lifecycle-кнопками (наследует view-stream)
-│       ├── create-stream.ts       # S09: wizard создания потока
-│       ├── activate-stream.ts     # запуск потока
-│       └── monitor.ts             # S07/S08: мониторинг группы
-│
-├── onboarding/                    # «📝 Заполнить анкету» (отложено до metrics)
-│   ├── controller.ts
-│   └── ...
+├── core/                          # инфраструктура бота (базовые классы, мета-типы)
+│   ├── u7-bot-app-meta.ts         # U7BotAppMeta (union всех *ApiModuleMeta)
+│   ├── u7-bot-controller.ts       # U7BotController extends BotController<U7BotAppMeta, User>
+│   ├── u7-bot-user-story.ts       # U7BotUserStory extends BotUserStory<U7BotAppMeta, User>
+│   ├── ui-app.ts                  # U7BotUiApp extends UiApp<U7BotAppMeta, User>
+│   └── ui-utils.ts                # executeResponses и хелперы
 │
 ├── handlers/                      # Grammy-адаптеры
 │   ├── connect-ui-app.ts          # connectUiApp: Grammy-события → UiApp
 │   └── group-handler.ts           # обработчики групповых событий
 │
-├── u7-bot-controller.ts           # U7BotController extends BotController<U7BotAppMeta, User>
-├── u7-bot-user-story.ts           # U7BotUserStory extends BotUserStory<U7BotAppMeta, User>
-├── u7-bot-app-meta.ts             # U7BotAppMeta (union всех *ApiModuleMeta)
+├── infra/                         # реализации портов
+│   ├── telegram-tg-facade.ts
+│   └── logger/
+│       ├── composite-logger.ts
+│       ├── telegram-logger.ts
+│       └── index.ts
+│
 ├── bot.ts                         # Grammy-бот (без изменений)
 ├── create-api-app.ts              # createApiApp() — фабрика ApiApp
 ├── create-ui-app.ts               # createUiApp() — фабрика U7BotUiApp + контроллеры
-├── ui-app.ts                      # U7BotUiApp extends UiApp<U7BotAppMeta, User>
 ├── main.ts
-└── config.ts
+├── config.ts
+└── context.ts
 
 tests/ → apps/u7-bot/tests/        # интеграционные и e2e тесты
 ```
 
 ### Принципы именования
 
-- **Контроллер:** `u7-bot/src/<controller-name>/controller.ts` (не `app-controller.ts`)
-- **Стори:** `u7-bot/src/<controller-name>/stories/<story-name>.ts` (не `*.story.ts`)
-- **UI-спецификация:** `u7-bot/src/<controller-name>/ui-spec.md` (на каждый контроллер)
+- **Контроллер:** `u7-bot/src/controllers/<controller-name>/controller.ts` (не `app-controller.ts`)
+- **Стори:** `u7-bot/src/controllers/<controller-name>/stories/<story-name>.ts` (не `*.story.ts`)
+- **UI-спецификация:** `u7-bot/src/controllers/<controller-name>/ui-spec.md` (на каждый контроллер)
 - **Общая логика рендеринга:** `u7-bot/src/shared/`
+- **Базовые классы и мета-типы:** `u7-bot/src/core/`
+- **Реализации портов:** `u7-bot/src/infra/`
 - **Адаптеры:** `u7-bot/src/handlers/connect-ui-app.ts` (не `router.ts`)
 - **Фабрики:** `create-api-app.ts`, `create-ui-app.ts` (разделены)
 

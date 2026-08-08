@@ -72,7 +72,7 @@
 
 ## Фаза 3: Тестирование и миграция
 
-- [ ] Task: Перенести unit-тесты в `apps/u7-bot/src/learning/stories/`
+- [ ] Task: Перенести unit-тесты в `apps/u7-bot/src/controllers/learning/stories/`
     - [ ] `enroll.story.test.ts` → `enroll.test.ts`
     - [ ] Все тесты проходят
 
