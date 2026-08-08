@@ -13,11 +13,11 @@ import {
   QuestionnaireJsonRepo,
   QuestionPoolService,
 } from '@u7-scl/onboarding';
-import { OnboardingController } from '../../src/controllers/onboarding/controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
 import { UserJsonRepo } from '@u7-scl/user/infra';
+import { OnboardingController } from '../../src/controllers/onboarding/controller';
 
 // ══ Упрощённый пул вопросов для E2E тестов (без ветвления) ══
 const E2E_QUESTION_POOL = [
