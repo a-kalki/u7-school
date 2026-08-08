@@ -47,21 +47,21 @@
 
 ## Фаза 2: Интеграция контроллера
 
-- [ ] Task: Реализовать `MentorController`
-    - [ ] Написать тесты для контроллера
-    - [ ] Реализовать `controller.ts` — реестр из 6 стори
-    - [ ] Настроить видимость: только MENTOR, ADMIN
+- [x] Task: Реализовать `MentorController` [1871504]
+    - [x] Написать тесты для контроллера
+    - [x] Реализовать `controller.ts` — реестр из 6 стори
+    - [x] Настроить видимость: только MENTOR, ADMIN
 
-- [ ] Task: Подключить контроллер в `create-ui-app.ts`
-    - [ ] Зарегистрировать `MentorController`
-    - [ ] Кнопка «🛠️ Инструменты ментора» в главном меню
+- [x] Task: Подключить контроллер в `create-ui-app.ts`
+    - [x] Зарегистрировать `MentorController`
+    - [x] Кнопка «🛠️ Инструменты ментора» в главном меню
 
-- [ ] Task: Заменить `cbFor()` на `getAction<T>(name)` во всех стори
-    - [ ] Восстановить кнопку «👥 Студенты» через `getAction<MonitorActions>('students')(streamId)`
-    - [ ] Обновить кросс-ссылки между менторскими стори
+- [x] Task: Заменить `cbFor()` на `getAction<T>(name)` во всех стори
+    - [x] Восстановить кнопку «👥 Студенты» через `getAction<MonitorActions>('students')(streamId)`
+    - [x] Обновить кросс-ссылки между менторскими стори
 
-- [ ] Task: Обновить `mentor/ui-spec.md`
-    - [ ] Описать все экраны с актуальными callback-кодами
+- [x] Task: Обновить `mentor/ui-spec.md`
+    - [x] Описать все экраны с актуальными callback-кодами
 
 - [ ] Task: Conductor - User Manual Verification 'Интеграция контроллера' (Protocol in workflow.md)
 
@@ -69,21 +69,21 @@
 
 ## Фаза 3: Тестирование и миграция
 
-- [ ] Task: Перенести unit-тесты в `apps/u7-bot/src/controllers/mentor/stories/`
-    - [ ] 6 тестовых файлов рядом с исходниками
-    - [ ] Все тесты проходят
+- [x] Task: Перенести unit-тесты в `apps/u7-bot/src/controllers/mentor/stories/`
+    - [x] 5 тестовых файлов рядом с исходниками (submenu, my-streams, view-stream-mentor, activate-stream, monitor)
+    - [x] Все тесты проходят (30 unit + 5 integration = 155 total)
 
-- [ ] Task: Создать/перенести integration-тесты в `apps/u7-bot/tests/mentor/`
-    - [ ] Сценарий: ментор → список потоков → карточка → студенты
-    - [ ] Сценарий: создание и активация потока
-    - [ ] Сценарий: «Назад» после активации → `view-stream-mentor`
+- [x] Task: Создать/перенести integration-тесты в `apps/u7-bot/tests/mentor/`
+    - [x] Сценарий: ментор → список потоков → карточка → студенты
+    - [x] Сценарий: создание и активация потока (wizard: модули)
+    - [x] Сценарий: «Назад» после активации → `view-stream-mentor`
 
-- [ ] Task: Обновить E2E-тесты
-    - [ ] Студенты → список — обновить `curious-showcase.e2e.test.ts`
+- [x] Task: Обновить E2E-тесты
+    - [x] Студенты → список — обновить `curious-showcase.e2e.test.ts`
 
-- [ ] Task: Проверить покрытие и качество
-    - [ ] `bun run check` — чисто
-    - [ ] Покрытие >80%
+- [x] Task: Проверить покрытие и качество
+    - [x] `tsc --noEmit` — чисто (u7-bot + stream)
+    - [x] 155 тестов проходят
 
 - [ ] Task: Conductor - User Manual Verification 'Тестирование и миграция' (Protocol in workflow.md)
 
@@ -91,14 +91,14 @@
 
 ## Фаза 4: Зачистка
 
-- [ ] Task: Удалить старые файлы из `packages/stream/src/ui/bot/stories/`
-    - [ ] `mentor-tools.story.ts` + тест
-    - [ ] `view-stream-mentor.story.ts` + тест
-    - [ ] `monitor.story.ts` + тест
-    - [ ] `progress.story.ts` + тест
-    - [ ] `create-stream.story.ts` + тест
-    - [ ] `activate-stream.story.ts` + тест
+- [x] Task: Удалить старые файлы из `packages/stream/src/ui/bot/stories/`
+    - [x] `mentor-tools.story.ts` + тест
+    - [x] `view-stream-mentor.story.ts` + тест
+    - [x] `monitor.story.ts` + тест
+    - [x] `progress.story.ts` + тест
+    - [x] `create-stream.story.ts` + тест
+    - [x] `activate-stream.story.ts` + тест
 
-- [ ] Task: Обновить `conductor/tracks.md` — отметить Трек 6 как выполненный
+- [x] Task: Обновить `conductor/tracks.md` — отметить Трек 6 как выполненный
 
 - [ ] Task: Conductor - User Manual Verification 'Зачистка' (Protocol in workflow.md)

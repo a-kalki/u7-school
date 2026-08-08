@@ -6,7 +6,7 @@
 
 ### Оставшиеся треки
 
-- [ ] **Трек 6: Контроллер `mentor` — «Инструменты ментора»**
+- [x] **Трек 6: Контроллер `mentor` — «Инструменты ментора»**
   *Перенос 6 стори (submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor).*
   *Link: [./tracks/mentor_20260807/](./tracks/mentor_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-6-контроллер-mentor--инструменты-ментора)*

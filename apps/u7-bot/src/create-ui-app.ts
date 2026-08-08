@@ -3,6 +3,8 @@ import type { ApiApp } from '@u7-scl/core/api';
 import { OnboardingController } from '@u7-scl/onboarding';
 import type { BotConfig } from './config';
 import { CoursesController } from './controllers/courses/controller';
+import { LearningController } from './controllers/learning/controller';
+import { MentorController } from './controllers/mentor/controller';
 import { StreamsController } from './controllers/streams/controller';
 import type { U7BotAppMeta } from './core/u7-bot-app-meta';
 import { U7BotUiApp } from './core/ui-app';
@@ -17,6 +19,8 @@ export interface UiAppBundle {
   onboardingController: OnboardingController;
   streamController: StreamsController;
   courseController: CoursesController;
+  learningController: LearningController;
+  mentorController: MentorController;
 }
 
 /**
@@ -33,6 +37,8 @@ export function createUiApp(
   const onboardingController = new OnboardingController();
   const streamController = new StreamsController();
   const courseController = new CoursesController();
+  const learningController = new LearningController();
+  const mentorController = new MentorController();
   const appController = new AppController(config.schoolGroupUrl);
 
   const uiApp = new U7BotUiApp([
@@ -40,6 +46,8 @@ export function createUiApp(
     onboardingController,
     streamController,
     courseController,
+    learningController,
+    mentorController,
   ]);
 
   // Каскадная инициализация: ApiApp → контроллеры → стори → publicActions
@@ -51,5 +59,7 @@ export function createUiApp(
     onboardingController,
     streamController,
     courseController,
+    learningController,
+    mentorController,
   };
 }

@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
+import { LearningController } from '@u7-scl/bot/learning/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type {
   BotResponse,
@@ -58,7 +59,13 @@ describe('E2E: Витрина для любопытного', () => {
     const streamController = new StreamsController();
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    router = new UiApp([appController, streamController, courseController]);
+    const learningController = new LearningController();
+    router = new UiApp([
+      appController,
+      streamController,
+      courseController,
+      learningController,
+    ]);
     router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
   });
@@ -288,10 +295,9 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
       expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
       expect(btns.some((t) => t.includes('В архив'))).toBe(false);
-      // TODO(Трек 5): кнопка «Записаться» появится после миграции EnrollStory
-      // expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
-      // TODO(Трек 6): кнопка «Студенты» появится после миграции MonitorStory
-      // expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
+      expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
+      // Кнопка «👥 Студенты» теперь доступна через getAction<MonitorActions> (Трек 6)
+      expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
     });
 
     test('гость → active-поток: Программа и Детали видны (S02)', async () => {
@@ -316,7 +322,7 @@ describe('E2E: Витрина для любопытного', () => {
     });
   });
 
-  // TODO(Трек 6): гость → Студенты → список → карточка студента
+  // Трек 6: кнопка «👥 Студенты» восстановлена. Гость видит список студентов.
   // TODO(Трек 5): Кандидат: от витрины к записи
 
   // ── «Программы курсов» — drill-up (обратная навигация) ──

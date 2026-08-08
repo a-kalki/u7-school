@@ -67,6 +67,18 @@ describe('ViewStreamStory (S02-S04)', () => {
         if (name === 'mainMenu') {
           return () => ({ text: '↩️ Главное меню', code: 'app:main-menu' });
         }
+        if (name === 'enrollButton') {
+          return (streamId: string) => ({
+            text: '📝 Записаться',
+            code: `enroll:enroll:${streamId}`,
+          });
+        }
+        if (name === 'students') {
+          return (streamId: string) => ({
+            text: '👥 Студенты',
+            code: `monitor:students:${streamId}`,
+          });
+        }
         throw new Error(`Действие «${name}» не найдено`);
       }),
     };
@@ -127,7 +139,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(response.sendMessage?.text).toContain('📚 Курс: Fullstack JS');
   });
 
-  test('S02: публичные кнопки — Программа, Детали, Назад к списку', async () => {
+  test('S02: публичные кнопки — Программа, Студенты, Детали, Назад к списку', async () => {
     const { story } = makeStory({ status: 'enrollment' }, 0);
 
     const response = await story.handleCallback(
@@ -140,6 +152,7 @@ describe('ViewStreamStory (S02-S04)', () => {
       response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
     expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
   });

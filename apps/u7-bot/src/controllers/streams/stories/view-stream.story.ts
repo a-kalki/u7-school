@@ -10,6 +10,7 @@ import { StreamPolicy } from '@u7-scl/stream/domain';
 import type { TreeNode } from '../../../shared/tree-renderer';
 import { renderTree } from '../../../shared/tree-renderer';
 import type { EnrollActions } from '../../learning/stories/enroll';
+import type { MonitorActions } from '../../mentor/stories/monitor';
 
 /**
  * S02-S04: Детальная карточка потока (curious-режим).
@@ -17,7 +18,7 @@ import type { EnrollActions } from '../../learning/stories/enroll';
  * Менторские lifecycle-кнопки убраны — перенесены в трек mentor_tools_20260713.
  *
  * TODO(Трек 5): кнопка «📝 Записаться» через getAction<EnrollActions>('start')
- * TODO(Трек 6): кнопка «👥 Студенты» через getAction<MonitorActions>('students')
+ * Кнопка «👥 Студенты» восстановлена через getAction<MonitorActions>('students') (Трек 6).
  */
 export class ViewStreamStory extends U7BotUserStory {
   readonly name: string = 'view-stream';
@@ -249,8 +250,8 @@ export class ViewStreamStory extends U7BotUserStory {
       },
     ]);
 
-    // TODO(Трек 6): кнопка «👥 Студенты» через getAction<MonitorActions>('students')
-    // rows.push([this.uiApp.getAction<MonitorActions>('students')(stream.uuid)]);
+    // Кнопка «👥 Студенты» — через кросс-ссылку на MonitorStory
+    rows.push([this.uiApp.getAction<MonitorActions>('students')(stream.uuid)]);
 
     rows.push([
       {
