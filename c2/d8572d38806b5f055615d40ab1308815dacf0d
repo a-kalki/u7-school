@@ -1,0 +1,6 @@
+Задача: Создать структуру папок mentor/ в apps/u7-bot/src/controllers/
+
+Изменения:
+- Создан apps/u7-bot/src/controllers/mentor/controller.ts — скелет MentorController
+- Создан apps/u7-bot/src/controllers/mentor/ui-spec.md — UI-спецификация контроллера
+- Создана директория apps/u7-bot/src/controllers/mentor/stories/
