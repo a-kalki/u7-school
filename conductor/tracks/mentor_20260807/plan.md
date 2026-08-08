@@ -4,10 +4,10 @@
 
 ## Фаза 1: Подготовка структуры и перенос стори
 
-- [ ] Task: Создать структуру папок `mentor/` в `apps/u7-bot/src/`
-    - [ ] Создать `mentor/controller.ts` (скелет)
-    - [ ] Создать `mentor/ui-spec.md`
-    - [ ] Создать директорию `mentor/stories/`
+- [x] Task: Создать структуру папок `mentor/` в `apps/u7-bot/src/` [c2d8572]
+    - [x] Создать `mentor/controller.ts` (скелет)
+    - [x] Создать `mentor/ui-spec.md`
+    - [x] Создать директорию `mentor/stories/`
 
 - [ ] Task: Перенести `submenu.ts`
     - [ ] Написать тесты для `submenu.ts`
