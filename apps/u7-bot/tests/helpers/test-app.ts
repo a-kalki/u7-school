@@ -143,10 +143,8 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
  */
 export function createTestUiApp(
   app: TestApp,
-  // biome-ignore lint/suspicious/noExplicitAny: тестовый хелпер, тип контроллера зависит от теста
-  controllers: BotController<any, any>[],
-  // biome-ignore lint/suspicious/noExplicitAny: тестовый хелпер
-): UiApp<any, any> {
+  controllers: BotController[],
+): UiApp {
   const uiApp = new UiApp(controllers);
   uiApp.init(app.apiApp);
   return uiApp;
