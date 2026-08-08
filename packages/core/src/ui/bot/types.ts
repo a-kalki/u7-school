@@ -26,6 +26,13 @@ export interface EditMessageDescription {
   parseMode?: 'MarkdownV2';
 }
 
+/** Описание сообщения (общий тип для отправки/редактирования) */
+export interface MessageDescription {
+  text: string;
+  keyboard?: KeyboardDescription;
+  parseMode?: 'MarkdownV2';
+}
+
 export interface BotResponse {
   sendMessage?: SendMessageDescription;
   /** Несколько сообщений подряд (welcome + вопрос и т.п.) */

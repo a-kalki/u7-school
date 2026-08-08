@@ -8,11 +8,11 @@ import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type {
   CbMainMenuAction,
+  MessageDescription,
   SendMessageDescription,
   SessionData,
 } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
-import type { MessageDescription } from '@u7-scl/onboarding';
 import { OnboardingApiModule } from '@u7-scl/onboarding/api';
 import type { OnboardingApiModuleResolver } from '@u7-scl/onboarding/domain';
 import { QuestionPoolService } from '@u7-scl/onboarding/domain';

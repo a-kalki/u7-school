@@ -34,14 +34,10 @@
       "@u7-scl/course/infra": ["packages/course/src/infra/index.ts"],
       "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
       "@u7-scl/stream": ["packages/stream/src/index.ts"],
-      "@u7-scl/stream/ui/bot/stories/*": [
-        "packages/stream/src/ui/bot/stories/*"
-      ],
       "@u7-scl/onboarding": ["packages/onboarding/src/index.ts"],
       "@u7-scl/w3school": ["packages/w3school/src/index.ts"],
       "@u7-scl/app": ["packages/app/src/index.ts"],
       "@u7-scl/app/domain": ["packages/app/src/domain/index.ts"],
-      "@u7-scl/app/ui": ["packages/app/src/ui/index.ts"],
       "@u7-scl/app/shared": ["packages/app/src/shared/index.ts"],
       "@u7-scl/app/api": ["packages/app/src/api/index.ts"],
       "@u7-scl/bot/u7-bot-controller": [

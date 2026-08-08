@@ -6,10 +6,10 @@ import type {
   BotResponse,
   BotUpdate,
   BotUserStory,
+  KeyboardDescription,
   MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
-import type { KeyboardDescription } from '@u7-scl/onboarding';
 import type { Question, QuestionnaireActionResponse } from '@u7-scl/onboarding/domain';
 import type { User } from '@u7-scl/user/domain';
 

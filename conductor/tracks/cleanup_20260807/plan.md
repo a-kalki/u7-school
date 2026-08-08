@@ -4,23 +4,23 @@
 
 ## Фаза 1: Удаление старого кода
 
-- [ ] Task: Удалить UI-директории доменных пакетов
-    - [ ] `packages/stream/src/ui/` — целиком
-    - [ ] `packages/course/src/ui/` — целиком
-    - [ ] `packages/onboarding/src/ui/` — целиком
-    - [ ] `packages/app/src/ui/` — целиком (если осталось)
-    - [ ] `packages/app/src/domain/u7-bot-app-meta.ts`
+- [x] Task: Удалить UI-директории доменных пакетов
+    - [x] `packages/stream/src/ui/` — целиком
+    - [x] `packages/course/src/ui/` — целиком (уже отсутствовала)
+    - [x] `packages/onboarding/src/ui/` — целиком
+    - [x] `packages/app/src/ui/` — целиком
+    - [x] `packages/app/src/domain/u7-bot-app-meta.ts` (уже отсутствовал)
 
-- [ ] Task: Обновить `package.json` exports
-    - [ ] `packages/stream/package.json` — убрать UI-экспорты
-    - [ ] `packages/course/package.json` — убрать UI-экспорты
-    - [ ] `packages/onboarding/package.json` — убрать UI-экспорты
-    - [ ] `packages/app/package.json` — убрать `u7-bot-app-meta` экспорт
+- [x] Task: Обновить `package.json` exports
+    - [x] `packages/stream/package.json` — убрать UI-экспорты
+    - [x] `packages/course/package.json` — убрать UI-экспорты
+    - [x] `packages/onboarding/package.json` — убрать UI-экспорты (не было)
+    - [x] `packages/app/package.json` — убрать `u7-bot-app-meta` экспорт (уже чист)
 
-- [ ] Task: Проверить отсутствие битых импортов
-    - [ ] `bun run tslint` — нет ошибок
-    - [ ] `grep -r "packages/stream/src/ui" --include="*.ts"` — пусто
-    - [ ] `grep -r "packages/course/src/ui" --include="*.ts"` — пусто
+- [x] Task: Проверить отсутствие битых импортов
+    - [x] `bun run tslint` — нет ошибок
+    - [x] `grep -r "packages/stream/src/ui" --include="*.ts"` — пусто
+    - [x] `grep -r "packages/course/src/ui" --include="*.ts"` — пусто
 
 - [ ] Task: Conductor - User Manual Verification 'Удаление старого кода' (Protocol in workflow.md)
 
