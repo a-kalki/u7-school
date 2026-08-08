@@ -5,15 +5,15 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
-import type { CbMainMenuAction, SessionData } from '@u7-scl/core/ui';
+import type { SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import type { OnboardingApiModuleResolver } from '@u7-scl/onboarding';
 import {
   OnboardingApiModule,
-  OnboardingController,
   QuestionnaireJsonRepo,
   QuestionPoolService,
 } from '@u7-scl/onboarding';
+import { OnboardingController } from '../../src/controllers/onboarding/controller';
 import { UserApiModule } from '@u7-scl/user/api';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
@@ -158,15 +158,12 @@ describe('Onboarding E2E', () => {
   // FR-1: Полный сценарий анкетирования
   // ═══════════════════════════════════════════════════════════════
   test('полный цикл: /start → анкета → все вопросы → завершение → роль CANDIDATE', async () => {
-    // 1. Главное меню: есть кнопка «Заполнить анкету»
+    // 1. Главное меню: кнопка «Заполнить анкету» отключена до Релиза 4
     const menu = await router.collectMainMenu(guest);
     const onboardBtn = menu.find((i) => i.text === '📝 Заполнить анкету');
-    expect(onboardBtn).toBeDefined();
-    expect((onboardBtn as CbMainMenuAction).action).toBe(
-      'onboarding:start_questionnaire',
-    );
+    expect(onboardBtn).toBeUndefined();
 
-    // 2. Начинаем анкету
+    // 2. Начинаем анкету напрямую (кнопка отключена, но логика работает)
     const startResp = await router.handleCallback(
       'onboarding:start_questionnaire',
       guest,
