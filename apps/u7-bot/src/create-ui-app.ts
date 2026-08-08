@@ -1,10 +1,10 @@
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import type { ApiApp } from '@u7-scl/core/api';
-import { OnboardingController } from '@u7-scl/onboarding';
 import type { BotConfig } from './config';
 import { CoursesController } from './controllers/courses/controller';
 import { LearningController } from './controllers/learning/controller';
 import { MentorController } from './controllers/mentor/controller';
+import { OnboardingController } from './controllers/onboarding/controller';
 import { StreamsController } from './controllers/streams/controller';
 import type { U7BotAppMeta } from './core/u7-bot-app-meta';
 import { U7BotUiApp } from './core/ui-app';

@@ -6,4 +6,5 @@ export type {
   BotResponse,
   BotUpdate,
   KeyboardDescription,
+  MessageDescription,
 } from './ui/bot/types';
