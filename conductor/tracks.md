@@ -6,11 +6,6 @@
 
 ### Оставшиеся треки
 
-- [ ] **Трек 5: Контроллер `learning` — «Моя учёба»**
-  *Разделение `learning.story.ts` (670 строк) на 6 файлов, перенос в `apps/u7-bot/src/controllers/learning/`.*
-  *Link: [./tracks/learning_20260807/](./tracks/learning_20260807/)*
-  *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-5-контроллер-learning--моя-учёба)*
-
 - [ ] **Трек 6: Контроллер `mentor` — «Инструменты ментора»**
   *Перенос 6 стори (submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor).*
   *Link: [./tracks/mentor_20260807/](./tracks/mentor_20260807/)*
@@ -38,11 +33,10 @@ apps/u7-bot/
     ├── fixtures/             ← JSON-шаблоны
     ├── courses/              ← 4 integration-теста
     ├── streams/              ← 2 integration-теста
+    ├── learning/             ← 1 integration-тест (Трек 5)
     └── e2e/                  ← 3 e2e-теста
 
 packages/stream/src/ui/bot/stories/
-    ├── enroll.story.ts / .test.ts        ← Трек 5
-    ├── learning.story.ts / .test.ts      ← Трек 5
     ├── monitor.story.ts / .test.ts       ← Трек 6
     ├── mentor-tools.story.ts / .test.ts  ← Трек 6
     ├── view-stream-mentor.story.ts / .test.ts  ← Трек 6
@@ -56,7 +50,4 @@ packages/stream/src/ui/bot/stories/
 | Что | Где | Трек |
 |-----|-----|------|
 | Кнопка «👥 Студенты» | `view-stream.story.ts:241` | Трек 6 |
-| Кнопка «📝 Записаться» | `view-stream.story.ts:247` | Трек 5 |
 | E2E: Студенты → список | `e2e/curious-showcase.e2e.test.ts` | Трек 6 |
-| E2E: Кандидат → запись | `e2e/curious-showcase.e2e.test.ts` | Трек 5 |
-| «Моя учёба» в help | `e2e/main-menu.e2e.test.ts` | Трек 5 |
