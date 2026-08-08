@@ -140,6 +140,8 @@ tests/ → apps/u7-bot/tests/        # интеграционные и e2e те�
 |-----------|---------------|-----------|---------------|
 | `courses` | `📖 Программы курсов` | всем | course (live published) |
 | `streams` | `📚 Потоки курсов` | всем | stream (snapshot) + course (резолв заголовков) |
+
+> 🔑 **Правило видимости кнопки «📝 Записаться»** (в `view-stream`): видна всем, у кого **нет** роли `STUDENT` (гость, кандидат, ментор, автор, админ). Если пользователь уже студент — кнопка не показывается, т.к. пока можно проходить только один курс. Реализуется через `StreamPolicy.canEnroll(actor)` → `!UserPolicy.isStudent(actor)`.
 | `learning` | `🎓 Моя учёба` | STUDENT | stream (snapshot + student progress) + course |
 | `mentor` | `🛠️ Инструменты ментора` | MENTOR, ADMIN | stream (snapshot + management) + course |
 | `app` | (нет своей кнопки) | фон | системные: main-menu, help, community |
@@ -375,6 +377,7 @@ onboarding  → core, app, user
 - Вынести общие хелперы в `learning/shared.ts` (или оставить protected в базовом классе)
 - `nav-tree.ts` использует `shared/tree-renderer.ts` с добавлением статусов ✅/▶️/🔒
 - Все `cbFor()` → `this.uiApp.getAction<T>(name)`
+- Исправить `StreamPolicy.canEnroll` в `packages/stream/src/domain/stream/policy.ts`: разрешить всем, кроме STUDENT (сейчас только guest/candidate — ментор/автор/админ не могут записаться)
 - Перенести тесты
 
 **Зависимости:** Трек 4 (нужен `view-stream` для кросс-ссылок на программу потока).
@@ -430,7 +433,7 @@ onboarding  → core, app, user
 ## 7. Что НЕ входит
 
 - Рефакторинг onboarding на стори — отложено до metrics
-- Изменения в доменных слоях (domain, api) — только UI
+- Изменения в доменных слоях (domain, api) — только UI, **кроме** `StreamPolicy.canEnroll` (исправление правила доступа к записи)
 - Изменения в `contentSnapshot` (чистое UUID-дерево) — это `content-management.md`, трек 2
 - `apps/u7-cli` — не трогается
 - Новые фичи — только перенос существующего функционала

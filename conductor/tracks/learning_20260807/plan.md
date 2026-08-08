@@ -60,7 +60,10 @@
     - [ ] Кнопка «🎓 Моя учёба» в главном меню
 
 - [ ] Task: Заменить `cbFor()` на `getAction<T>(name)` во всех стори
+    - [ ] Исправить `StreamPolicy.canEnroll` в `packages/stream/src/domain/stream/policy.ts` — `!UserPolicy.isStudent(actor)` вместо `isGuest || isCandidate`
+    - [ ] Обновить тесты `policy.test.ts`
     - [ ] Восстановить кнопку «📝 Записаться» через `getAction<EnrollActions>('enroll')(streamId)`
+    - [ ] Проверить: кнопка видна гостю, кандидату, ментору, автору, админу — но не студенту
     - [ ] Обновить кросс-ссылки на `view-stream`, `monitor`
 
 - [ ] Task: Обновить `learning/ui-spec.md`
