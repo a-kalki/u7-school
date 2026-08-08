@@ -514,9 +514,7 @@ describe('UiApp', () => {
     const app = new UiApp([ctrl]);
 
     // Без init publicActions мапа пуста — getAction выбрасывает ошибку
-    expect(() => app.getAction('viewModule')).toThrow(
-      'не найдено',
-    );
+    expect(() => app.getAction('viewModule')).toThrow('не найдено');
   });
 
   test('init собирает publicActions со всех стори', () => {

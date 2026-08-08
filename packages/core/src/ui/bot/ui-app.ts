@@ -76,9 +76,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
    * @example
    *   const btn = uiApp.getAction<CatalogActions>('viewModule')(moduleId);
    */
-  getAction<T extends StoryPublicActions>(
-    name: keyof T,
-  ): T[typeof name] {
+  getAction<T extends StoryPublicActions>(name: keyof T): T[typeof name] {
     const action = this.publicActionsMap.get(name as string) as
       | T[typeof name]
       | undefined;
