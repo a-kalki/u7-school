@@ -1,0 +1,10 @@
+Задача: Перенос OnboardingController (Фаза 1)
+
+Изменения:
+- Создан apps/u7-bot/src/controllers/onboarding/controller.ts — контроллер с отключённой кнопкой «Заполнить анкету»
+- Создан apps/u7-bot/src/controllers/onboarding/controller.test.ts — 16 unit-тестов
+- Создан apps/u7-bot/src/controllers/onboarding/ui-spec.md — заглушка
+- Обновлён apps/u7-bot/src/create-ui-app.ts — импорт локального контроллера
+- Обновлён packages/onboarding/src/index.ts — экспорт MessageDescription
+
+Причина: Трек 7 — перенос OnboardingController из packages/onboarding в apps/u7-bot с отключением кнопки до Релиза 4 (metrics).
