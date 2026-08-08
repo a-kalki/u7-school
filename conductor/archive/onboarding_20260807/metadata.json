@@ -1,0 +1,8 @@
+{
+  "track_id": "onboarding_20260807",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-07T21:30:00Z",
+  "updated_at": "2026-08-07T21:30:00Z",
+  "description": "Onboarding — заглушка: перенос OnboardingController как есть, отключение кнопки до Релиза 3"
+}
