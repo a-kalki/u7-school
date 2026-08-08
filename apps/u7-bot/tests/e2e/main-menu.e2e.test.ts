@@ -2,8 +2,10 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
+import { LearningController } from '@u7-scl/bot/learning/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import { UiApp } from '@u7-scl/core/ui';
+import type { BotResponse } from '@u7-scl/core/ui';
+import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 
@@ -25,7 +27,13 @@ describe('Главное меню (интеграционные)', () => {
     const streamController = new StreamsController();
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    router = new UiApp([appController, streamController, courseController]);
+    const learningController = new LearningController();
+    router = new UiApp([
+      appController,
+      streamController,
+      courseController,
+      learningController,
+    ]);
     router.init(app.apiApp);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;
@@ -110,12 +118,10 @@ describe('Главное меню (интеграционные)', () => {
     );
   });
 
-  // TODO(Трек 6): «Моя учёба» появится после миграции LearningStory
-  test('handleHelp для студента: «Моя учёба» временно отсутствует', async () => {
+  test('handleHelp для студента: «Моя учёба»', async () => {
     const response = await router.handleHelp(student);
     const text = response.sendMessage?.text ?? '';
-    // «Моя учёба» отсутствует до миграции LearningStory (Трек 6)
-    // expect(text).toContain('Моя учёба');
+    expect(text).toContain('Моя учёба');
     expect(response.sendMessage?.keyboard).toBeDefined();
   });
 
@@ -148,5 +154,142 @@ describe('Главное меню (интеграционные)', () => {
   test('в главном меню нет кнопки «Назад» (guest)', async () => {
     const menu = await router.collectMainMenu(guest);
     expect(menu.some((i) => i.text.includes('Назад'))).toBe(false);
+  });
+});
+
+// ── E2E: Путь студента «Моя учёба» ──
+
+describe('E2E: Студент — «Моя учёба»', () => {
+  let app: TestApp;
+  let router: UiApp;
+  let student: User;
+
+  beforeAll(async () => {
+    app = await createTestApp('student-my-study-e2e');
+    const streamController = new StreamsController();
+    const learningController = new LearningController();
+    const appController = new AppController(SCHOOL_GROUP_URL);
+    router = new UiApp([appController, streamController, learningController]);
+    router.init(app.apiApp);
+    student = (await app.userFacade.getUserByTelegramId(1003))!;
+  });
+
+  afterAll(async () => {
+    await app.cleanup();
+  });
+
+  /** Находит кнопку в ответе по вхождению подстроки в текст. */
+  function findButton(
+    response: BotResponse,
+    textContains: string,
+  ): { text: string; code: string } {
+    const btn = response.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes(textContains));
+    if (!btn) {
+      const all =
+        response.sendMessage?.keyboard?.rows
+          .flat()
+          .map((b) => b.text)
+          .join(', ') ?? '(нет клавиатуры)';
+      throw new Error(`Кнопка «${textContains}» не найдена. Доступны: ${all}`);
+    }
+    return btn;
+  }
+
+  test('студент: главное меню → Моя учёба → хаб', async () => {
+    // 1. Получаем главное меню студента
+    const menu = await router.collectMainMenu(student);
+    const studyBtn = menu.find((i) => i.text.includes('Моя учёба'));
+    expect(studyBtn).toBeDefined();
+
+    // 2. Нажимаем «🎓 Моя учёба»
+    const hubResp = await router.handleCallback(
+      (studyBtn as { action: string }).action,
+      student,
+      { activeHandler: null },
+    );
+    assertBotResponseValid(hubResp);
+    expect(hubResp.sendMessage?.text).toContain('Моя учёба');
+
+    // 3. Проверяем кнопки хаба
+    const btns =
+      hubResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Начать учёбу'))).toBe(true);
+    expect(btns.some((t) => t.includes('Уроки'))).toBe(true);
+    expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
+  });
+
+  test('студент: хаб → Начать учёбу → просмотр шага → Выполнено', async () => {
+    // 1. Открываем хаб
+    const menu = await router.collectMainMenu(student);
+    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
+      action: string;
+    };
+    const hubResp = await router.handleCallback(studyBtn.action, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(hubResp);
+
+    // 2. Нажимаем «▶️ Начать учёбу»
+    const startBtn = findButton(hubResp, 'Начать учёбу');
+    const stepResp = await router.handleCallback(startBtn.code, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(stepResp);
+    expect(stepResp.sendMessage?.text).toContain('JS Core');
+    expect(stepResp.sendMessage?.text).toContain('Шаг 1');
+
+    // 3. Нажимаем «✅ Выполнено»
+    const doneBtn = findButton(stepResp, 'Выполнено');
+    const completeResp = await router.handleCallback(doneBtn.code, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(completeResp);
+    // После выполнения — либо следующий шаг, либо завершение урока
+    const text = completeResp.sendMessage?.text ?? '';
+    expect(
+      text.includes('Шаг 2') ||
+        text.includes('завершён') ||
+        text.includes('Поток полностью завершён'),
+    ).toBe(true);
+  });
+
+  test('студент: хаб → Уроки → проект → урок → шаги', async () => {
+    // 1. Открываем хаб
+    const menu = await router.collectMainMenu(student);
+    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
+      action: string;
+    };
+    const hubResp = await router.handleCallback(studyBtn.action, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(hubResp);
+
+    // 2. Нажимаем «📂 Уроки»
+    const lessonsBtn = findButton(hubResp, 'Уроки');
+    const projectsResp = await router.handleCallback(lessonsBtn.code, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(projectsResp);
+    expect(projectsResp.sendMessage?.text).toContain('Введение');
+
+    // 3. Нажимаем проект «Введение»
+    const projectBtn = findButton(projectsResp, 'Введение');
+    const lessonsListResp = await router.handleCallback(
+      projectBtn.code,
+      student,
+      { activeHandler: null },
+    );
+    assertBotResponseValid(lessonsListResp);
+    expect(lessonsListResp.sendMessage?.text).toContain('Переменные и типы');
+
+    // 4. Нажимаем урок «Переменные и типы»
+    const lessonBtn = findButton(lessonsListResp, 'Переменные и типы');
+    const stepsResp = await router.handleCallback(lessonBtn.code, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(stepsResp);
+    expect(stepsResp.sendMessage?.text).toContain('знакомство с переменными');
   });
 });
