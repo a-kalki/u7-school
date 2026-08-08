@@ -2,14 +2,9 @@
 
 ## Релиз 1: Новый Bot UI — фундамент и базовые контроллеры
 
-> Треки 0–4 выполнены. Архив: `conductor/archive/`.
+> Треки 0–6 выполнены. Архив: `conductor/archive/`.
 
 ### Оставшиеся треки
-
-- [x] **Трек 6: Контроллер `mentor` — «Инструменты ментора»**
-  *Перенос 6 стори (submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor).*
-  *Link: [./tracks/mentor_20260807/](./tracks/mentor_20260807/)*
-  *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-6-контроллер-mentor--инструменты-ментора)*
 
 - [ ] **Трек 7: `OnboardingController` — заглушка**
   *Перенос как есть, отключение кнопки до Релиза 3.*
@@ -23,7 +18,7 @@
 
 ---
 
-## Структура тестов после Треков 0–4
+## Структура тестов после Треков 0–6
 
 ```
 apps/u7-bot/
@@ -34,20 +29,14 @@ apps/u7-bot/
     ├── courses/              ← 4 integration-теста
     ├── streams/              ← 2 integration-теста
     ├── learning/             ← 1 integration-тест (Трек 5)
+    ├── mentor/               ← 5 integration-тестов (Трек 6)
     └── e2e/                  ← 3 e2e-теста
 
-packages/stream/src/ui/bot/stories/
-    ├── monitor.story.ts / .test.ts       ← Трек 6
-    ├── mentor-tools.story.ts / .test.ts  ← Трек 6
-    ├── view-stream-mentor.story.ts / .test.ts  ← Трек 6
-    ├── progress.story.ts / .test.ts      ← Трек 6
-    ├── create-stream.story.ts / .test.ts ← Трек 6
-    └── activate-stream.story.ts / .test.ts ← Трек 6
+packages/stream/src/ui/bot/stories/   ← пусто (все стори перенесены)
 ```
 
 ## TODO в коде (для будущих треков)
 
 | Что | Где | Трек |
 |-----|-----|------|
-| Кнопка «👥 Студенты» | `view-stream.story.ts:241` | Трек 6 |
-| E2E: Студенты → список | `e2e/curious-showcase.e2e.test.ts` | Трек 6 |
+| — | — | — |
