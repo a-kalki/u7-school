@@ -6,7 +6,7 @@
 
 ### Оставшиеся треки
 
-- [ ] **Трек 7: `OnboardingController` — заглушка**
+- [x] **Трек 7: `OnboardingController` — заглушка**
   *Перенос как есть, отключение кнопки до Релиза 3.*
   *Link: [./tracks/onboarding_20260807/](./tracks/onboarding_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-7-onboarding--заглушка)*
