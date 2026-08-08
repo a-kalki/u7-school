@@ -9,6 +9,7 @@ import type { Stream } from '@u7-scl/stream/domain';
 import { StreamPolicy } from '@u7-scl/stream/domain';
 import type { TreeNode } from '../../../shared/tree-renderer';
 import { renderTree } from '../../../shared/tree-renderer';
+import type { EnrollActions } from '../../learning/stories/enroll';
 
 /**
  * S02-S04: Детальная карточка потока (curious-режим).
@@ -19,7 +20,7 @@ import { renderTree } from '../../../shared/tree-renderer';
  * TODO(Трек 6): кнопка «👥 Студенты» через getAction<MonitorActions>('students')
  */
 export class ViewStreamStory extends U7BotUserStory {
-  readonly name = 'view-stream';
+  readonly name: string = 'view-stream';
 
   /** Имя сторис для cbFor. */
   protected storyName = 'view-stream';
@@ -32,18 +33,18 @@ export class ViewStreamStory extends U7BotUserStory {
     const [cmd, streamId] = action.split(':');
 
     if (cmd === 'program' && streamId) {
-      return this.#handleProgramView(streamId);
+      return this.handleProgramView(streamId);
     }
 
     if (cmd === 'details' && streamId) {
-      return this.#handleDetailsView(streamId);
+      return this.handleDetailsView(streamId);
     }
 
     if (cmd !== 'view' || !streamId) {
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    return this.#handleView(streamId, actor);
+    return this.handleView(streamId, actor);
   }
 
   override async handleMessage(): Promise<BotResponse> {
@@ -54,9 +55,12 @@ export class ViewStreamStory extends U7BotUserStory {
     return null;
   }
 
-  // ── Приватные методы ──
+  // ── Защищённые методы (доступны для наследования) ──
 
-  async #handleView(streamId: string, actor: User): Promise<BotResponse> {
+  protected async handleView(
+    streamId: string,
+    actor: User,
+  ): Promise<BotResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -108,7 +112,7 @@ export class ViewStreamStory extends U7BotUserStory {
     ];
 
     const text = lines.join('\n');
-    const keyboard = this.#buildKeyboard(stream, actor);
+    const keyboard = this.buildKeyboard(stream, actor);
 
     return {
       sendMessage: {
@@ -119,7 +123,7 @@ export class ViewStreamStory extends U7BotUserStory {
     };
   }
 
-  async #handleProgramView(streamId: string): Promise<BotResponse> {
+  protected async handleProgramView(streamId: string): Promise<BotResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -186,7 +190,7 @@ export class ViewStreamStory extends U7BotUserStory {
     };
   }
 
-  async #handleDetailsView(streamId: string): Promise<BotResponse> {
+  protected async handleDetailsView(streamId: string): Promise<BotResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -231,7 +235,7 @@ export class ViewStreamStory extends U7BotUserStory {
     };
   }
 
-  #buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
+  protected buildKeyboard(stream: Stream, actor: User): KeyboardDescription {
     const canEnroll = StreamPolicy.canEnroll(actor);
     const isOwnerMentor = StreamPolicy.canEdit(actor, stream);
     const rows: Array<Array<{ text: string; code: string }>> = [];
@@ -257,10 +261,11 @@ export class ViewStreamStory extends U7BotUserStory {
 
     // ── Гостевые кнопки ──
     if (!isOwnerMentor) {
-      // TODO(Трек 5): кнопка «📝 Записаться» через getAction<EnrollActions>('start')
-      // if (stream.status === 'enrollment' && canEnroll) {
-      //   rows.push([this.uiApp.getAction<EnrollActions>('start')(stream.uuid)]);
-      // }
+      if (stream.status === 'enrollment' && canEnroll) {
+        rows.push([
+          this.uiApp.getAction<EnrollActions>('enrollButton')(stream.uuid),
+        ]);
+      }
 
       if (stream.status === 'active' && canEnroll) {
         rows.push([

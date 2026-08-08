@@ -63,7 +63,9 @@ export class SubmenuStory extends U7BotUserStory {
   // ── Приватные методы ──
 
   #isMentor(actor: User): boolean {
-    return actor.roles.includes(Role.MENTOR) || actor.roles.includes(Role.ADMIN);
+    return (
+      actor.roles.includes(Role.MENTOR) || actor.roles.includes(Role.ADMIN)
+    );
   }
 
   #buildSubmenu(): BotResponse {
@@ -83,8 +85,7 @@ export class SubmenuStory extends U7BotUserStory {
             [
               {
                 text: '🔙 Назад',
-                code:
-                  this.uiApp.getAction<CommunityActions>('mainMenu')().code,
+                code: this.uiApp.getAction<CommunityActions>('mainMenu')().code,
               },
             ],
           ],
