@@ -301,6 +301,19 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
       // Кнопка «👥 Студенты» теперь доступна через getAction<MonitorActions> (Трек 6)
       expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
+
+      // Проверяем, что нажатие на «Студенты» работает (кросс-контроллерный callback)
+      const studentsBtn = findButton(viewResp, 'Студенты');
+      const studentsResp = await router.handleCallback(
+        studentsBtn.code,
+        guest,
+        NO_SESSION,
+      );
+      assertBotResponseValid(studentsResp);
+      const studentsText = studentsResp.sendMessage?.text ?? '';
+      expect(studentsText).not.toContain('Неизвестная команда');
+      expect(studentsText).toContain('Студенты потока');
+      expect(studentsText).toContain('Всего:');
     });
 
     test('гость → active-поток: Программа и Детали видны (S02)', async () => {
