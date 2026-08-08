@@ -145,6 +145,7 @@ export function createTestUiApp(
   app: TestApp,
   // biome-ignore lint/suspicious/noExplicitAny: тестовый хелпер, тип контроллера зависит от теста
   controllers: BotController<any, any>[],
+  // biome-ignore lint/suspicious/noExplicitAny: тестовый хелпер
 ): UiApp<any, any> {
   const uiApp = new UiApp(controllers);
   uiApp.init(app.apiApp);

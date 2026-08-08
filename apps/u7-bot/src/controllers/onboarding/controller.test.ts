@@ -7,7 +7,6 @@ import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type {
-  CbMainMenuAction,
   MessageDescription,
   SendMessageDescription,
   SessionData,

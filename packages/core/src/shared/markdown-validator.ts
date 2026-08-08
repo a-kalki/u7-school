@@ -63,7 +63,7 @@ export function validateMarkdownV2(text: string): MarkdownValidationResult {
   }
 
   // ── 1b. Неэкранированный `>` только не в начале строки ──
-  for (const match of outsideCode.matchAll(UNESCAPED_GT_RE)) {
+  for (const _match of outsideCode.matchAll(UNESCAPED_GT_RE)) {
     issues.push({
       char: '>',
       reason: 'unescaped',
