@@ -1,54 +1,58 @@
-# План реализации: Удаление кросс-контроллерных publicActions
+# План реализации: Запрет кросс-контроллерных publicActions
 
-## Phase 1: Удаление use-site (сторис + контроллеры)
+## Phase 1: Кнопка «↩️ Главное меню» — вынос в константу
 
-- [ ] Task: Удалить publicActions из MonitorStory
-  - [ ] Удалить поле `publicActions` и тип `MonitorActions`
-  - [ ] Удалить импорт `UiCallbackFactory` если больше не нужен
-- [ ] Task: Удалить publicActions из EnrollStory
-  - [ ] Удалить поле `publicActions` и тип `EnrollActions`
-  - [ ] Удалить импорт `UiCallbackFactory` если больше не нужен
-- [ ] Task: Удалить getAction из ViewStreamStory.buildKeyboard
-  - [ ] Удалить строку с `getAction<MonitorActions>('students')`
-  - [ ] Удалить строку с `getAction<EnrollActions>('enrollButton')`
-  - [ ] Удалить импорты `MonitorActions`, `EnrollActions`
-- [ ] Task: Удалить BotController.publicActions getter
-  - [ ] Удалить getter из `bot-controller.ts`
-  - [ ] Удалить импорт `UiCallbackFactory` если больше не нужен
+- [ ] Task: Создать общий модуль с константой
+  - [ ] Создать `apps/u7-bot/src/controllers/shared/constants.ts`
+  - [ ] Экспортировать `MAIN_MENU_BUTTON = { text: '↩️ Главное меню', code: 'app:main-menu' }`
+- [ ] Task: Заменить `getAction<CommunityActions>('mainMenu')()` на константу
+  - [ ] `stream-catalog.story.ts:180`
+  - [ ] `course-catalog.story.ts:470`
+  - [ ] `submenu.ts:88`
+- [ ] Task: Удалить publicActions из CommunityStory
+  - [ ] Удалить поле `publicActions` и тип `CommunityActions`
+  - [ ] Удалить импорт `UiBotButton` если больше не нужен
 
-## Phase 2: Удаление инфраструктуры publicActions из core
+## Phase 2: Кнопка «👥 Студенты» — свой обработчик в ViewStreamStory
 
-- [ ] Task: Удалить из UiApp
-  - [ ] Удалить метод `getAction()`
-  - [ ] Удалить метод `#registerPublicActions()`
-  - [ ] Удалить поле `publicActionsMap`
-  - [ ] Удалить геттер `publicActionsSize`
-  - [ ] Убрать вызов `#registerPublicActions` из `init()`
-- [ ] Task: Удалить из BotUserStory
-  - [ ] Удалить поле `publicActions` и дженерик `TActions`
-  - [ ] Удалить импорт `StoryPublicActions`, `UiBotButton` если не нужны
-- [ ] Task: Зачистить public-actions.ts
-  - [ ] Удалить `StoryPublicActions` если больше нигде не используется
-  - [ ] Оставить `UiBotButton` (используется в `action()`)
-- [ ] Task: Удалить дублирующий `publicActions` из U7BotUserStory (если есть)
+- [ ] Task: Добавить обработчик в ViewStreamStory
+  - [ ] Перенести `MonitorStory.#handleStudents` как protected-метод `ViewStreamStory`
+  - [ ] Добавить ветку `'students'` в `handleCallback`
+  - [ ] Заменить `getAction<MonitorActions>('students')` на `cbFor('view-stream', 'students', stream.uuid)` в `buildKeyboard`
+  - [ ] Удалить импорт `MonitorActions` из ViewStreamStory
+- [ ] Task: Обновить ViewStreamMentorStory
+  - [ ] Заменить `cbFor('monitor', 'students', ...)` на `cbFor('view-stream-mentor', 'students', ...)` — или оставить `cbFor('monitor', ...)` если это внутриконтроллерный вызов
+  - [ ] Убедиться, что унаследованный обработчик работает для ментора
 
-## Phase 3: Тесты и верификация
+## Phase 3: Кнопка «📝 Записаться» — перенос в ViewStreamStory
+
+- [ ] Task: Перенести логику EnrollStory в ViewStreamStory
+  - [ ] Перенести `handleCallback` логику для `'enroll'` в `ViewStreamStory.handleCallback`
+  - [ ] Перенести `handleMessage` логику (captureInput для кодового слова)
+  - [ ] Перенести `#doEnroll` как protected-метод
+  - [ ] Перенести `EnrollKeyContext` интерфейс
+  - [ ] Заменить `getAction<EnrollActions>('enrollButton')` на `cbFor('view-stream', 'enroll', stream.uuid)` в `buildKeyboard`
+  - [ ] Удалить импорт `EnrollActions` из ViewStreamStory
+- [ ] Task: Удалить EnrollStory
+  - [ ] Удалить `EnrollStory` из `LearningController.stories`
+  - [ ] Удалить файл `enroll.ts`
+  - [ ] Удалить файл `enroll.test.ts` (если есть)
+
+## Phase 4: Тесты и верификация
 
 - [ ] Task: Обновить E2E тесты
-  - [ ] Убрать проверку `expect(btns.some(t => t.includes('Студенты'))).toBe(true)`
-  - [ ] Убрать тест клика по «Студенты» (добавленный для диагностики)
+  - [ ] Заменить проверку наличия кнопки «Студенты» на проверку клика
+  - [ ] Убрать тест клика через `getAction` (добавленный для диагностики)
 - [ ] Task: Обновить интеграционные тесты
-  - [ ] Убрать `MentorController` из `beforeAll` view-stream.integration.test.ts
-  - [ ] Убрать `MentorController` из `beforeAll` curious-showcase.e2e.test.ts
-- [ ] Task: Обновить/удалить UiApp unit-тесты
-  - [ ] Удалить тесты `getAction` и `publicActionsSize`
+  - [ ] Убрать `MentorController` из `beforeAll` view-stream.integration.test.ts (если был только для getAction)
+  - [ ] Убрать `MentorController` из `beforeAll` curious-showcase.e2e.test.ts (если был только для getAction)
 - [ ] Task: Верификация
   - [ ] `bun lint` — чисто
   - [ ] `bun tslint` — чисто
   - [ ] `bun test` — все тесты проходят
-  - [ ] `bun dev:fixtures` — бот запускается, кнопка «Студенты» доступна через меню ментора
+  - [ ] `bun dev:fixtures` — бот запускается, все кнопки работают
 
-## Phase 4: Документация
+## Phase 5: Документация
 
-- [ ] Task: Обновить bot-user-story.md
-- [ ] Task: Обновить bot-controller.md (если упоминается publicActions)
+- [ ] Task: Обновить `bot-user-story.md` — добавить запрет кросс-контроллерных publicActions
+- [ ] Task: Обновить `bot-controller.md` — уточнить границы использования

@@ -1,54 +1,89 @@
-# Спецификация: Удаление кросс-контроллерных publicActions
+# Спецификация: Запрет кросс-контроллерных publicActions
 
 ## Обзор
 
 Механизм `publicActions` + `getAction<T>()` позволяет сторис одного контроллера
 встраивать кнопки из сторис другого контроллера. Это создаёт архитектурную дыру:
 префикс контроллера и сжатие UUID (`shortIds`) привязаны к контроллеру-владельцу,
-а не к источнику кнопки. При нажатии кнопки callback приходит не в тот контроллер,
-а даже если исправить маршрутизацию — сжатые id не найдутся в чужой мапе `shortIds`.
+а не к источнику кнопки.
 
-**Решение:** удалить механизм `publicActions`/`getAction` полностью.
-Кнопки, которые были кросс-контроллерными, убираются из карточки потока.
-Пользователь добирается до них через соответствующие разделы меню.
+**Решение:**
+- `publicActions`/`getAction` остаются, но **только для внутриконтроллерного** использования
+- Кросс-контроллерные вызовы запрещены и удаляются
+- Документация явно описывает ограничение
+
+## Текущее состояние
+
+| Кнопка | Где | Контроллер-источник | Статус |
+|--------|-----|---------------------|--------|
+| «👥 Студенты» | ViewStreamStory (Потоки курсов) | MentorController | 🔴 удалить кросс-вызов |
+| «👥 Студенты» | ViewStreamMentorStory (Инстр. ментора) | MentorController | 🟢 внутриконтроллерный |
+| «📝 Записаться» | ViewStreamStory (Потоки курсов) | LearningController | 🔴 удалить кросс-вызов |
+| «↩️ Главное меню» | StreamCatalogStory, CourseCatalogStory, SubmenuStory | AppController | 🔴 заменить на константу |
 
 ## Функциональные требования
 
-### FR1: Удаление publicActions из сторис
-- `MonitorStory.publicActions.students` — удалить
-- `EnrollStory.publicActions.enrollButton` — удалить (если существует)
+### FR1: Кнопка «👥 Студенты» в ViewStreamStory
 
-### FR2: Удаление getAction из ViewStreamStory
-- Кнопка «👥 Студенты» — удалить из `buildKeyboard()`
-- Кнопка «📝 Записаться» — удалить из `buildKeyboard()`
+- Удалить `getAction<MonitorActions>('students')` из `buildKeyboard()`
+- Добавить кнопку через `cbFor('view-stream', 'students', stream.uuid)`
+- Добавить protected-метод `#handleStudentsButton(streamId, actor)` в `ViewStreamStory`
+  с логикой из `MonitorStory.#handleStudents`
+- `ViewStreamMentorStory` наследует этот метод автоматически
+- `MonitorStory.publicActions.students` — **оставить** (для внутриконтроллерного
+  использования в MentorController, например через `ViewStreamMentorStory`)
+- `MonitorActions` тип и импорт `UiCallbackFactory` — **оставить**
 
-### FR3: Удаление инфраструктуры publicActions из core
-- `UiApp.getAction()` — удалить
-- `UiApp.#registerPublicActions()` — удалить
-- `UiApp.publicActionsMap` — удалить
-- `BotUserStory.publicActions` (поле и дженерик `TActions`) — удалить
-- Тип `StoryPublicActions`, `UiCallbackFactory` в `public-actions.ts` — удалить если не нужны
-- `BotController.publicActions` (getter на уровне контроллера) — удалить
+### FR2: Кнопка «📝 Записаться» в ViewStreamStory
 
-### FR4: Обновление тестов
-- E2E: убрать проверку наличия кнопки «Студенты» в карточке потока
-- E2E: убрать проверку клика по «Студенты» (добавленную для диагностики)
+- Перенести логику `EnrollStory` (handleCallback + handleMessage + #doEnroll + EnrollKeyContext)
+  в `ViewStreamStory` как protected-методы
+- Добавить кнопку через `cbFor('view-stream', 'enroll', stream.uuid)`
+- `EnrollStory` — **удалить целиком**
+- Убрать `EnrollStory` из `LearningController.stories`
+- Удалить `EnrollActions` тип
+
+### FR3: Кнопка «↩️ Главное меню»
+
+- Вынести константу `MAIN_MENU_BUTTON = { text: '↩️ Главное меню', code: 'app:main-menu' }`
+  в общий модуль (например `apps/u7-bot/src/controllers/shared/constants.ts`)
+- Заменить все `getAction<CommunityActions>('mainMenu')()` на константу:
+  - `stream-catalog.story.ts`
+  - `course-catalog.story.ts`
+  - `submenu.ts`
+- Удалить `CommunityStory.publicActions` и тип `CommunityActions`
+- Удалить импорт `UiBotButton` из `CommunityStory` если больше не нужен
+- Спец-обработка `app:` в `BotController.#compressAction` — **оставить**
+  (callback `app:main-menu` должен маршрутизироваться в AppController)
+
+### FR4: Документация
+
+- В `conductor/code_styleguides/skills/bot-user-story.md` добавить явный запрет:
+  > `publicActions` используется **только для внутриконтроллерных** кросс-стори вызовов.
+  > Межконтроллерные вызовы запрещены — префиксы и сжатие UUID привязаны к контроллеру.
+- Обновить `conductor/code_styleguides/skills/bot-controller.md`
+
+### FR5: Тесты
+
+- E2E: убрать проверку `expect(btns.some(t => t.includes('Студенты'))).toBe(true)` —
+  заменить на проверку клика по своей кнопке
 - Интеграционные: убрать `MentorController` из `beforeAll` где он был нужен только для `getAction`
-- `UiApp` unit-тесты: удалить тесты `getAction`/`publicActionsSize`
-
-### FR5: Документация
-- Обновить `conductor/code_styleguides/skills/bot-user-story.md` — убрать упоминания publicActions
-- Обновить `conductor/code_styleguides/skills/bot-controller.md` — убрать упоминания publicActions
+  - `view-stream.integration.test.ts`
+  - `curious-showcase.e2e.test.ts`
 
 ## Критерии приёмки
 - [ ] `bun lint` — чисто
 - [ ] `bun tslint` — чисто
 - [ ] `bun test` — все тесты проходят
-- [ ] Кнопка «Студенты» доступна через «Инструменты ментора» → «Мои потоки» → поток → «Студенты»
-- [ ] В карточке потока (S02) нет кнопки «Студенты»
-- [ ] В карточке потока (S02) нет кнопки «Записаться» (для curious-режима)
+- [ ] В карточке потока (S02) кнопка «Студенты» работает (свой обработчик)
+- [ ] В карточке потока (S02) кнопка «Записаться» работает (свой обработчик)
+- [ ] В карточке потока (S02m) кнопка «Студенты» работает (унаследованный обработчик)
+- [ ] Кнопка «↩️ Главное меню» работает во всех местах
+- [ ] `EnrollStory` удалён
+- [ ] Нигде нет кросс-контроллерных `getAction`
 
 ## За рамками
+- Не трогаем `cbFor` (внутриконтроллерный — работает)
 - Не трогаем confirm-диалоги
 - Не трогаем delegate
-- Не трогаем cbFor (кросс-стори в рамках одного контроллера — работает)
+- Не трогаем `MonitorStory` (остаётся для менторского меню)
