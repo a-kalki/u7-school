@@ -12,7 +12,8 @@ function createStory(): ViewStreamMentorStory {
       execute: async (_cmd: string, _params?: Record<string, unknown>) => {
         if (_cmd === 'get-stream') return mockStream;
         if (_cmd === 'list-stream-students') return [];
-        if (_cmd === 'get-user') return { name: 'Ментор Тест' };
+        if (_cmd === 'get-user')
+          return { name: 'Ментор Тест', roles: [Role.MENTOR] };
         return {};
       },
     },
@@ -92,7 +93,8 @@ describe('ViewStreamMentorStory', () => {
           if (_cmd === 'get-stream')
             return { ...mockStream, status: StreamStatus.ACTIVE };
           if (_cmd === 'list-stream-students') return [];
-          if (_cmd === 'get-user') return { name: 'Ментор Тест' };
+          if (_cmd === 'get-user')
+            return { name: 'Ментор Тест', roles: [Role.MENTOR] };
           return {};
         },
       },
@@ -161,5 +163,143 @@ describe('ViewStreamMentorStory', () => {
     const story = createStory();
     const response = await story.handleMessage();
     expect(response.sendMessage?.text).toContain('Неизвестное сообщение');
+  });
+
+  // ── handleCallback: делегирует students родителю ──
+
+  test('handleCallback "students" делегирует родителю (ViewStreamStory)', async () => {
+    const story = createStory();
+    // Переопределяем мок чтобы handleStudentsList получил студентов
+    Object.assign(story, {
+      appApi: {
+        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
+          if (_cmd === 'get-stream')
+            return { ...mockStream, status: StreamStatus.ACTIVE };
+          if (_cmd === 'list-stream-students')
+            return [
+              {
+                uuid: 'student-1',
+                userId: 'user-id-1',
+                status: 'active',
+                joinedAt: '2026-01-01T00:00:00.000Z',
+                streamId: 'stream-1',
+                currentStepId: null,
+                steps: [],
+              },
+            ];
+          if (_cmd === 'get-user')
+            return { name: 'Студент Один', roles: [Role.STUDENT] };
+          return {};
+        },
+      },
+    } as any);
+
+    const response = await story.handleCallback(
+      'students:stream-1',
+      mentorActor,
+      { activeHandler: null },
+    );
+    const text = response.sendMessage?.text ?? '';
+    // Должен показать список студентов (делегировано родителю)
+    expect(text).toContain('Студенты потока');
+    expect(text).toContain('Студент Один');
+  });
+
+  // ── handleStudentsList: менторский режим ──
+
+  test('handleStudentsList: кнопка студента ведёт в monitor (не view-stream)', async () => {
+    const story = createStory();
+    Object.assign(story, {
+      appApi: {
+        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
+          if (_cmd === 'get-stream')
+            return { ...mockStream, status: StreamStatus.ACTIVE };
+          if (_cmd === 'list-stream-students')
+            return [
+              {
+                uuid: 'student-1',
+                userId: 'user-id-1',
+                status: 'active',
+                joinedAt: '2026-01-01T00:00:00.000Z',
+                streamId: 'stream-1',
+                currentStepId: null,
+                steps: [],
+              },
+            ];
+          if (_cmd === 'get-user')
+            return { name: 'Студент Один', roles: [Role.STUDENT] };
+          return {};
+        },
+      },
+    } as any);
+
+    const response = await story.handleCallback(
+      'students:stream-1',
+      mentorActor,
+      { activeHandler: null },
+    );
+
+    const allCodes =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+
+    // Кнопка студента должна вести в monitor (менторский режим)
+    const hasMonitorDetail = allCodes.some((c) =>
+      c.startsWith('monitor:detail:'),
+    );
+    const hasViewStreamDetail = allCodes.some((c) =>
+      c.startsWith('view-stream:detail:'),
+    );
+    expect(hasMonitorDetail).toBe(true);
+    expect(hasViewStreamDetail).toBe(false);
+  });
+
+  test('handleStudentsList: содержит менторские кнопки (⛔✅) для активных', async () => {
+    const story = createStory();
+    Object.assign(story, {
+      appApi: {
+        execute: async (_cmd: string, _params?: Record<string, unknown>) => {
+          if (_cmd === 'get-stream')
+            return { ...mockStream, status: StreamStatus.ACTIVE };
+          if (_cmd === 'list-stream-students')
+            return [
+              {
+                uuid: 'student-1',
+                userId: 'user-id-1',
+                status: 'active',
+                joinedAt: '2026-01-01T00:00:00.000Z',
+                streamId: 'stream-1',
+                currentStepId: null,
+                steps: [],
+              },
+            ];
+          if (_cmd === 'get-user')
+            return { name: 'Студент Один', roles: [Role.STUDENT] };
+          return {};
+        },
+      },
+    } as any);
+
+    const response = await story.handleCallback(
+      'students:stream-1',
+      mentorActor,
+      { activeHandler: null },
+    );
+
+    const allTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    const allCodes =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+
+    // Должны быть кнопки ⛔ и ✅ для активного студента
+    expect(allTexts).toContain('⛔');
+    expect(allTexts).toContain('✅');
+
+    // Кнопка ⛔ должна вести в monitor:mark-abandoned
+    const abandonBtn = allCodes.find((_, i) => allTexts[i] === '⛔');
+    expect(abandonBtn).toStartWith('monitor:mark-abandoned:');
+
+    // Кнопка ✅ должна вести в monitor:complete
+    const completeBtn = allCodes.find((_, i) => allTexts[i] === '✅');
+    expect(completeBtn).toStartWith('monitor:complete:');
   });
 });

@@ -11,7 +11,7 @@ import type {
   Stream,
   Student,
 } from '@u7-scl/stream/domain';
-import { StreamDs, StreamPolicy, StudentPolicy } from '@u7-scl/stream/domain';
+import { StreamDs, StreamPolicy } from '@u7-scl/stream/domain';
 import type { TreeNode } from '../../../shared/tree-renderer';
 import { renderTree } from '../../../shared/tree-renderer';
 
@@ -51,6 +51,10 @@ export class ViewStreamStory extends U7BotUserStory {
 
     if (cmd === 'students' && streamId) {
       return this.handleStudentsList(streamId, actor);
+    }
+
+    if (cmd === 'student-detail' && streamId) {
+      return this.#handleStudentDetail(streamId, actor);
     }
 
     if (cmd === 'enroll' && streamId) {
@@ -471,15 +475,12 @@ export class ViewStreamStory extends U7BotUserStory {
 
     // Клавиатура
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
-    const canManage = StudentPolicy.canManageStudent(actor, stream);
 
     // Строки студентов для текста
     const studentLines: string[] = [];
 
     for (const r of rows) {
       const marker = this.#lagMarker(r.lagLevel, r.student.status);
-      const isActive =
-        r.student.status === 'active' || r.student.status === 'enrolled';
 
       const summary = StreamDs.computeStudentRowSummary(
         stream.contentSnapshot,
@@ -503,33 +504,13 @@ export class ViewStreamStory extends U7BotUserStory {
 
       const nameBtn = `${marker} ${r.name} — ${summary.progress.percent}%`;
 
-      const studentRow: Array<{ text: string; code: string }> = [
+      // Публичный режим: только кнопка-имя, ведёт в student-detail
+      keyboardRows.push([
         {
           text: nameBtn,
-          code: this.cbFor('monitor', 'detail', r.student.uuid),
+          code: this.cbFor(this.storyName, 'student-detail', r.student.uuid),
         },
-      ];
-
-      if (isActive && canManage) {
-        studentRow.push({
-          text: '⛔',
-          code: this.cbFor('monitor', 'mark-abandoned', r.student.uuid),
-        });
-        studentRow.push({
-          text: '✅',
-          code: this.cbFor('monitor', 'complete', r.student.uuid),
-        });
-      } else if (
-        canManage &&
-        (r.student.status === 'advanced' || r.student.status === 'not_advanced')
-      ) {
-        studentRow.push({
-          text: '🔄',
-          code: this.cbFor('monitor', 'complete', r.student.uuid),
-        });
-      }
-
-      keyboardRows.push(studentRow);
+      ]);
     }
 
     keyboardRows.push([
@@ -590,6 +571,160 @@ export class ViewStreamStory extends U7BotUserStory {
     return {
       sendMessage: {
         text: header.join('\n'),
+        parseMode: 'MarkdownV2',
+        keyboard: { rows: keyboardRows, isMultiple: false },
+      },
+    };
+  }
+
+  /**
+   * Публичная карточка студента — полные метрики без менторских действий.
+   * Вызывается из handleStudentsList при нажатии на имя студента.
+   * Показывает: Прогресс студента, Усидчивость студента, Активность студента.
+   */
+  async #handleStudentDetail(
+    studentId: string,
+    actor: User,
+  ): Promise<BotResponse> {
+    const student = (await this.appApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    )) as Student;
+
+    let userName = student.userId.slice(0, 8);
+    try {
+      const user = await this.appApi.execute('get-user', {
+        uuid: student.userId,
+      });
+      userName = user.name;
+    } catch {
+      // оставляем обрезок
+    }
+
+    const stream = (await this.appApi.execute('get-stream', {
+      streamId: student.streamId,
+    })) as Stream;
+
+    if (!stream) {
+      return { sendMessage: { text: '⚠️ Поток не найден' } };
+    }
+
+    // Lag info
+    const [cat] = StreamDs.categorizeStudents([student]);
+    const lagInfo = cat
+      ? {
+          lagLevel: cat.lagLevel,
+          hoursSinceLastActivity: cat.hoursSinceLastActivity,
+        }
+      : { lagLevel: 'on_track' as const, hoursSinceLastActivity: 0 };
+
+    // Карточка через DS (только данные)
+    const card = StreamDs.computeStudentCard(
+      stream.contentSnapshot,
+      student,
+      lagInfo,
+    );
+
+    const statusLabels: Record<string, string> = {
+      active: '🟢 Учится',
+      abandoned: '🚫 Выбыл',
+      advanced: '✅ Прошёл',
+      not_advanced: '↩️ Не прошёл',
+    };
+
+    const esc = (s: string) => this.escapeMarkdown(s);
+    const bar = (c: number, t: number) => this.#formatProgressBar(c, t);
+
+    const lines = [
+      `👤 *${esc(userName)}* \\| ${statusLabels[student.status] ?? student.status}`,
+      '',
+      '———',
+      '',
+      '*Прогресс студента:*',
+      `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| ${card.moduleProgress.percent}%`,
+    ];
+
+    // Проект и урок
+    if (card.currentProject) {
+      lines.push('', `📁 Проект: «${esc(card.currentProject.title)}»`);
+      if (card.currentLesson) {
+        lines.push(`📝 Урок: «${esc(card.currentLesson.title)}»`);
+      }
+      lines.push(
+        `📊 Прогресс по проекту: ${bar(card.currentProject.progress.completed, card.currentProject.progress.total)} \\| ${card.currentProject.progress.percent}%`,
+      );
+    }
+
+    // Усидчивость студента
+    lines.push('', '———', '', '*Усидчивость студента:*');
+
+    // Среднее время
+    if (card.medianTimeMinutes !== null) {
+      lines.push(
+        '',
+        `⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`,
+      );
+    }
+
+    // Категории времени с описаниями
+    const catDescs: Record<string, string> = {
+      Бегун: '< 1 мин\\.',
+      Спринтер: '< 5 мин\\.',
+      Вдумчивый: '< 15 мин\\.',
+      Исследователь: '\\> 15 мин\\.',
+    };
+    for (const c of card.timeCategories) {
+      const desc = catDescs[c.name] ?? '';
+      lines.push(
+        `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count} шаг\u005c\u0028ов\u005c\u0029`,
+      );
+    }
+
+    // Активность студента
+    lines.push('', '———', '', '*Активность студента:*');
+
+    // Последняя активность
+    const hours = Math.round(card.hoursSinceLastActivity);
+    if (hours > 0) {
+      const days = Math.round(hours / 24);
+      if (days >= 1) {
+        lines.push('', `📅 Последняя активность: ${days} дн\\. назад`);
+      } else {
+        lines.push('', `📅 Последняя активность: ${hours} ч\\. назад`);
+      }
+    }
+
+    // Отставание / статус
+    if (student.status === 'active') {
+      if (card.lagLevel === 'critical') {
+        const days = Math.round(card.hoursSinceLastActivity / 24);
+        lines.push('', `🛑 Критическое отставание: ${days} дн\\.`);
+      } else if (card.lagLevel === 'lagging') {
+        if (card.hoursSinceLastActivity > 4 * 24) {
+          const days = Math.round(card.hoursSinceLastActivity / 24);
+          lines.push('', `⚠️ Отстаёт: ${days} дн\\.`);
+        } else {
+          lines.push('', '⚠️ Отстаёт от группы');
+        }
+      } else {
+        lines.push('', '✅ Идёт по расписанию');
+      }
+    }
+
+    // Клавиатура: только навигация
+    const keyboardRows: Array<Array<{ text: string; code: string }>> = [
+      [
+        {
+          text: '⬅️ Назад к списку',
+          code: this.cbFor(this.storyName, 'students', student.streamId),
+        },
+      ],
+    ];
+
+    return {
+      sendMessage: {
+        text: lines.join('\n'),
         parseMode: 'MarkdownV2',
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
@@ -718,7 +853,7 @@ export class ViewStreamStory extends U7BotUserStory {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
       },
-      delegate: { path: 'hub:my-study' },
+      delegate: { path: 'app:main-menu' },
     };
   }
 

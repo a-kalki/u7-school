@@ -229,7 +229,10 @@ export class MonitorStory extends U7BotUserStory {
     }
 
     keyboardRows.push([
-      { text: '⬅️ Назад к потоку', code: `view-stream:view:${streamId}` },
+      {
+        text: '⬅️ Назад к потоку',
+        code: this.cbFor('view-stream-mentor', 'view', streamId),
+      },
     ]);
 
     // Текст сводки

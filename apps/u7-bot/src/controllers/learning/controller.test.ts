@@ -7,10 +7,10 @@ describe('LearningController', () => {
     expect(ctrl.name).toBe('learning');
   });
 
-  test('содержит 5 стори', () => {
+  test('содержит 4 стори', () => {
     const ctrl = new LearningController();
     const stories = ctrl.getStories();
-    expect(stories.length).toBe(5);
+    expect(stories.length).toBe(4);
   });
 
   test('стори имеют уникальные имена', () => {
@@ -28,7 +28,6 @@ describe('LearningController', () => {
     expect(names).toContain('hub');
     expect(names).toContain('step-view');
     expect(names).toContain('nav-tree');
-    expect(names).toContain('transition');
     expect(names).toContain('progress');
   });
 });

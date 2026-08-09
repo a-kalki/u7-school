@@ -292,4 +292,70 @@ describe('E2E: Студент — «Моя учёба»', () => {
     assertBotResponseValid(stepsResp);
     expect(stepsResp.sendMessage?.text).toContain('знакомство с переменными');
   });
+
+  test('студент: хаб → Мой прогресс → детализация проектов и уроков', async () => {
+    // 1. Открываем хаб
+    const menu = await router.collectMainMenu(student);
+    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
+      action: string;
+    };
+    const hubResp = await router.handleCallback(studyBtn.action, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(hubResp);
+
+    // 2. Нажимаем «📊 Мой прогресс»
+    const progressBtn = findButton(hubResp, 'Мой прогресс');
+    const progressResp = await router.handleCallback(
+      progressBtn.code,
+      student,
+      { activeHandler: null },
+    );
+    assertBotResponseValid(progressResp);
+
+    const text = progressResp.sendMessage?.text ?? '';
+    // Заголовок
+    expect(text).toContain('Мой прогресс');
+    // Общий прогресс
+    expect(text).toContain('Общий:');
+    // Проекты
+    expect(text).toContain('Введение');
+    // Уроки с индикаторами статуса (✅/▶️/🔒)
+    expect(text).toContain('Переменные и типы');
+    // Счётчик шагов
+    expect(text).toContain('Всего шагов завершено');
+    // Кнопка «Назад к учёбе»
+    const backBtn = findButton(progressResp, 'Назад к учёбе');
+    expect(backBtn.code).toContain('hub:my-study');
+    // Кнопка «Главное меню»
+    const menuBtn = progressResp.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Главное меню'));
+    expect(menuBtn).toBeDefined();
+  });
+
+  test('студент: хаб → Мой прогресс → назад к учёбе', async () => {
+    // 1. Открываем хаб → прогресс
+    const menu = await router.collectMainMenu(student);
+    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
+      action: string;
+    };
+    const hubResp = await router.handleCallback(studyBtn.action, student, {
+      activeHandler: null,
+    });
+    const progressBtn = findButton(hubResp, 'Мой прогресс');
+    const progressResp = await router.handleCallback(
+      progressBtn.code,
+      student,
+      { activeHandler: null },
+    );
+
+    // 2. «Назад к учёбе» → возврат в хаб
+    const backBtn = findButton(progressResp, 'Назад к учёбе');
+    const backResp = await router.handleCallback(backBtn.code, student, {
+      activeHandler: null,
+    });
+    assertBotResponseValid(backResp);
+    expect(backResp.sendMessage?.text).toContain('Моя учёба');
+  });
 });

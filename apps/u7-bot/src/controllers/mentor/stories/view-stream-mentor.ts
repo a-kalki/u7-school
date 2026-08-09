@@ -5,7 +5,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import type { Stream } from '@u7-scl/stream/domain';
-import { StreamPolicy } from '@u7-scl/stream/domain';
+import { StreamPolicy, StudentPolicy } from '@u7-scl/stream/domain';
 import { ViewStreamStory } from '../../streams/stories/view-stream.story';
 
 /**
@@ -57,7 +57,8 @@ export class ViewStreamMentorStory extends ViewStreamStory {
       return this.#showArchiveConfirm(streamId);
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    // Всё остальное (включая students, enroll, cancel) — делегируем родителю
+    return super.handleCallback(action, actor, _session);
   }
 
   override async handleMessage(): Promise<BotResponse> {
@@ -138,6 +139,100 @@ export class ViewStreamMentorStory extends ViewStreamStory {
     ]);
 
     return { rows, isMultiple: false };
+  }
+
+  /**
+   * Менторский режим списка студентов.
+   * Переопределяет родительский: кнопка студента → monitor:detail,
+   * + кнопки управления статусом (⛔✅🔄).
+   */
+  protected override async handleStudentsList(
+    streamId: string,
+    actor: User,
+  ): Promise<BotResponse> {
+    // Получаем базовый ответ от родителя (текст, статистика, форматирование)
+    const baseResponse = await super.handleStudentsList(streamId, actor);
+    const baseText = baseResponse.sendMessage?.text ?? '';
+    const baseKeyboard = baseResponse.sendMessage?.keyboard;
+    if (!baseKeyboard) return baseResponse;
+
+    // Получаем данные для построения менторской клавиатуры
+    const students = (await this.appApi.execute(
+      'list-stream-students',
+      { streamId },
+      actor.uuid,
+    )) as Array<{ uuid: string; userId: string; status: string }>;
+
+    const stream = (await this.appApi.execute('get-stream', {
+      streamId,
+    })) as Stream;
+
+    const canManage = StudentPolicy.canManageStudent(actor, stream);
+
+    // Перестраиваем клавиатуру: заменяем коды кнопок на monitor:...
+    const newRows = baseKeyboard.rows.map((row) => {
+      return row.map((btn) => {
+        // Заменяем student-detail на monitor:detail
+        if (btn.code.includes(':student-detail:')) {
+          const parts = btn.code.split(':');
+          const studentUuid = parts[parts.length - 1];
+          return {
+            text: btn.text,
+            code: this.cbFor('monitor', 'detail', studentUuid!),
+          };
+        }
+        // Кнопку «Назад к потоку» оставляем как есть (view-stream-mentor:view:...)
+        return btn;
+      });
+    });
+
+    // Добавляем менторские кнопки (⛔✅🔄) для управляемых студентов
+    const enrichedRows = newRows.map((row, rowIdx) => {
+      // Последняя строка — «Назад» — не трогаем
+      if (rowIdx === newRows.length - 1) return row;
+
+      const studentBtn = row[0];
+      if (!studentBtn) return row;
+
+      // Извлекаем studentUuid из кода кнопки
+      const parts = studentBtn.code.split(':');
+      const studentUuid = parts[parts.length - 1];
+      const student = students.find((s) => s.uuid === studentUuid);
+      if (!student || !canManage) return row;
+
+      const isActive =
+        student.status === 'active' || student.status === 'enrolled';
+      const extraBtns: Array<{ text: string; code: string }> = [];
+
+      if (isActive) {
+        extraBtns.push({
+          text: '⛔',
+          code: this.cbFor('monitor', 'mark-abandoned', studentUuid!),
+        });
+        extraBtns.push({
+          text: '✅',
+          code: this.cbFor('monitor', 'complete', studentUuid!),
+        });
+      } else if (
+        student.status === 'advanced' ||
+        student.status === 'not_advanced'
+      ) {
+        extraBtns.push({
+          text: '🔄',
+          code: this.cbFor('monitor', 'complete', studentUuid!),
+        });
+      }
+
+      return [...row, ...extraBtns];
+    });
+
+    return {
+      sendMessage: {
+        text: baseText,
+        parseMode: 'MarkdownV2',
+        keyboard: { rows: enrichedRows, isMultiple: false },
+      },
+    };
   }
 
   // ── Подтверждения ──

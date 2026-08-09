@@ -220,4 +220,106 @@ describe('ViewStreamStory (интеграционный)', () => {
     assertBotResponseValid(backResp);
     expect(backResp.sendMessage?.text).toContain('JS Core');
   });
+
+  // ── S05: Список студентов (публичный) ──
+
+  test('students: кнопка «👥 Студенты» в карточке потока', async () => {
+    const response = await router.handleCallback(
+      `stream:view-stream:view:${ACTIVE_ID}`,
+      guest,
+      session,
+    );
+    assertBotResponseValid(response);
+    const btns =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
+  });
+
+  test('students: открывает список студентов с метриками', async () => {
+    const response = await router.handleCallback(
+      `stream:view-stream:students:${ACTIVE_ID}`,
+      guest,
+      session,
+    );
+    assertBotResponseValid(response);
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Студенты потока');
+    expect(text).toContain('Метрики группы');
+    expect(text).not.toContain('Неизвестная команда');
+  });
+
+  test('students: кнопка студента ведёт в view-stream:student-detail (не monitor)', async () => {
+    const response = await router.handleCallback(
+      `stream:view-stream:students:${ACTIVE_ID}`,
+      guest,
+      session,
+    );
+    assertBotResponseValid(response);
+    const allCodes =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+
+    // Кнопки студентов должны использовать view-stream:student-detail (публичный)
+    const studentDetailCodes = allCodes.filter((c) =>
+      c.includes(':student-detail:'),
+    );
+    expect(studentDetailCodes.length).toBeGreaterThan(0);
+
+    // НЕ должно быть monitor:detail:
+    const monitorDetailCodes = allCodes.filter((c) =>
+      c.startsWith('monitor:detail:'),
+    );
+    expect(monitorDetailCodes.length).toBe(0);
+  });
+
+  test('students: публичный режим НЕ содержит кнопок ⛔✅🔄', async () => {
+    const response = await router.handleCallback(
+      `stream:view-stream:students:${ACTIVE_ID}`,
+      mentor, // даже ментор в публичном каталоге не видит менторских кнопок
+      session,
+    );
+    assertBotResponseValid(response);
+    const allTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+
+    expect(allTexts).not.toContain('⛔');
+    expect(allTexts).not.toContain('✅');
+    expect(allTexts).not.toContain('🔄');
+  });
+
+  test('students: публичная карточка студента (student-detail)', async () => {
+    // Сначала получаем список студентов
+    const listResp = await router.handleCallback(
+      `stream:view-stream:students:${ACTIVE_ID}`,
+      guest,
+      session,
+    );
+    assertBotResponseValid(listResp);
+
+    // Находим кнопку первого студента
+    const studentBtn = listResp.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.code.includes(':student-detail:'));
+    expect(studentBtn).toBeDefined();
+
+    // Открываем карточку студента
+    const response = await router.handleCallback(
+      studentBtn!.code,
+      guest,
+      session,
+    );
+    assertBotResponseValid(response);
+    const text = response.sendMessage?.text ?? '';
+    // Полная карточка: Прогресс студента, Усидчивость, Активность
+    expect(text).toContain('Прогресс студента');
+    expect(text).toContain('Усидчивость студента');
+    expect(text).toContain('Активность студента');
+    expect(text).not.toContain('Неизвестная команда');
+
+    // Кнопка «Назад к списку»
+    const backBtn = response.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Назад к списку'));
+    expect(backBtn).toBeDefined();
+    expect(backBtn!.code).toContain(':students:');
+  });
 });
