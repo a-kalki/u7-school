@@ -3,7 +3,6 @@ import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotUserStory } from '../bot-user-story';
-import type { UiBotButton } from '../public-actions';
 import type {
   BotResponse,
   BotUpdate,
@@ -40,7 +39,6 @@ class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   initCalled = false;
   resetCalled = false;
   handleStartResult: MainMenuAction | null = null;
-  override publicActions = {};
 
   constructor(name: string) {
     super();
@@ -355,64 +353,6 @@ describe('BotController', () => {
     });
   });
 
-  describe('publicActions', () => {
-    test('контроллер имеет публичный доступ к stories', () => {
-      const c = new TestController();
-      const story = new TestStory('my_story');
-      (
-        story as unknown as {
-          publicActions: Record<string, (...ids: string[]) => UiBotButton>;
-        }
-      ).publicActions = {
-        view: (id: string) => ({ text: 'v', code: `my_story:view:${id}` }),
-      };
-      c.addStory(story);
-
-      // publicActions доступны через story.publicActions, не через контроллер
-      expect(story.publicActions).toBeDefined();
-      expect(c.getStories()).toHaveLength(1);
-    });
-
-    test('контроллер собирает publicActions с нескольких стори', () => {
-      const c = new TestController();
-      const story1 = new TestStory('story1');
-      const story2 = new TestStory('story2');
-      (
-        story1 as unknown as {
-          publicActions: Record<string, (...ids: string[]) => UiBotButton>;
-        }
-      ).publicActions = {
-        doA: () => ({ text: 'a', code: 'a' }),
-      };
-      (
-        story2 as unknown as {
-          publicActions: Record<string, (...ids: string[]) => UiBotButton>;
-        }
-      ).publicActions = {
-        doB: () => ({ text: 'b', code: 'b' }),
-      };
-      c.addStory(story1);
-      c.addStory(story2);
-
-      // Проверяем что обе стори доступны
-      expect(c.getStories()).toHaveLength(2);
-      expect(
-        (
-          c.getStories()[0] as unknown as {
-            publicActions: Record<string, unknown>;
-          }
-        ).publicActions,
-      ).toBeDefined();
-      expect(
-        (
-          c.getStories()[1] as unknown as {
-            publicActions: Record<string, unknown>;
-          }
-        ).publicActions,
-      ).toBeDefined();
-    });
-  });
-
   describe('init', () => {
     test('пробрасывает uiApp всем стори', () => {
       const c = new TestController();
@@ -421,8 +361,8 @@ describe('BotController', () => {
       c.addStory(story1);
       c.addStory(story2);
 
-      const mockUiApp = { getAction: () => undefined } as unknown as ReturnType<
-        typeof import('../ui-app').UiApp.prototype.getAction
+      const mockUiApp = {} as unknown as ReturnType<
+        typeof import('../ui-app').UiApp.prototype.init
       >;
       c.init({} as never, mockUiApp as never);
 

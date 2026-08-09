@@ -190,13 +190,4 @@ describe('AppController', () => {
 
     expect(res.sendMessage?.text).toContain('Неизвестная команда');
   });
-
-  // ── publicActions (CommunityStory больше не экспортирует publicActions) ──
-
-  test('publicActions не содержит community после удаления кросс-контроллерных действий', () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    const actions = ctrl.publicActions;
-    // community больше не имеет publicActions — кнопка вынесена в константу
-    expect(actions.community).toBeUndefined();
-  });
 });

@@ -15,7 +15,7 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
        └─ AppController                                (apps/u7-bot) — системные сценарии (/start, /help, сообщество)
 ```
 
-- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: сжатие id, диспетчеризация в сторис, `handleError`, главное меню, `publicActions`-геттер.
+- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: сжатие id, диспетчеризация в сторис, `handleError`, главное меню.
 - **`U7BotController`** (`@u7-scl/bot`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`.
 - **Доменные контроллеры** (`StreamController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUserStory`.
 - **`OnboardingController`** — пример контроллера **без сторис**: вшивает логику анкеты напрямую, использует `this.cb()` для формирования callback.
@@ -69,25 +69,7 @@ UUID → первые 8 hex-символов через общую мапу `sho
 
 ---
 
-## 6. `publicActions`
-
-Контроллер предоставляет геттер `publicActions`, агрегирующий `publicActions` своих стори.
-
-**Важно:** `publicActions` используется **только для внутриконтроллерных** кросс-стори вызовов. Межконтроллерные вызовы через `getAction()` запрещены — префиксы и сжатие UUID привязаны к контроллеру-владельцу. Для межконтроллерных кнопок используй константы (фиксированный код) или `cbFor` (динамический код с указанием контроллера).
-
-```typescript
-get publicActions(): Record<string, Record<string, UiCallbackFactory>> {
-  // { storyName: { actionName: factory } }
-}
-```
-
-Используется `UiApp` при инициализации для построения глобального реестра. Сами стори объявляют `publicActions` как плоский объект `{ actionName: factory }`.
-
-Для кросс-стори ссылок потребители используют `this.uiApp.getAction<T>(name)`.
-
----
-
-## 7. handleError
+## 6. handleError
 
 Универсальный обработчик ошибок. Различает типы через `fromError()` из `domain/errors/error-helpers.ts`:
 
@@ -101,7 +83,7 @@ get publicActions(): Record<string, Record<string, UiCallbackFactory>> {
 
 ---
 
-## 8. Тестирование
+## 7. Тестирование
 
 См. [bot-test.md](../bot-test.md) — уровни тестирования (unit сторис, интеграционные с реальным контроллером, E2E).
 

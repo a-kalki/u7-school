@@ -1,17 +1,8 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
-import type {
-  BotResponse,
-  SessionData,
-  UiCallbackFactory,
-} from '@u7-scl/core/ui';
+import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { CategorizedStudent, Student } from '@u7-scl/stream/domain';
 import { StreamDs, StudentPolicy } from '@u7-scl/stream/domain';
-
-/** Публичные действия MonitorStory для кросс-ссылок. */
-export type MonitorActions = Record<string, UiCallbackFactory> & {
-  students: (streamId: string) => { text: string; code: string };
-};
 
 /**
  * US-8: Мониторинг прогресса группы.
@@ -20,12 +11,6 @@ export type MonitorActions = Record<string, UiCallbackFactory> & {
  */
 export class MonitorStory extends U7BotUserStory {
   readonly name = 'monitor';
-
-  /** Публичные действия для кросс-ссылок (кнопка «👥 Студенты») */
-  override readonly publicActions: MonitorActions = {
-    students: (streamId: string) =>
-      this.action('👥 Студенты', 'students', streamId),
-  };
 
   async handleCallback(
     action: string,

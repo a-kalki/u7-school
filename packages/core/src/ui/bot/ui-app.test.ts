@@ -505,24 +505,10 @@ describe('UiApp', () => {
     expect(res.sendMessage?.text).toContain('Нет доступных пунктов меню');
   });
 
-  // ── publicActions ──
+  // ── getAction удалён в Треке 10 ──
 
-  test('getAction без init выбрасывает ошибку', () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const app = new UiApp([ctrl]);
-
-    // Без init publicActions мапа пуста — getAction выбрасывает ошибку
-    expect(() => app.getAction('viewModule')).toThrow('не найдено');
-  });
-
-  test('init собирает publicActions со всех стори', () => {
-    // Проверим через Spy контроллер, который регистрирует стори с publicActions
-    // В реальном UiApp это происходит при init()
+  test('init не падает без publicActions', () => {
     const app = new UiApp([]);
-
-    // До init — мапа пуста
-    expect(app.publicActionsSize).toBe(0);
+    expect(app.size).toBe(0);
   });
 });

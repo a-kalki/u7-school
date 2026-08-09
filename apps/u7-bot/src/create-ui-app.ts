@@ -50,7 +50,7 @@ export function createUiApp(
     mentorController,
   ]);
 
-  // Каскадная инициализация: ApiApp → контроллеры → стори → publicActions
+  // Каскадная инициализация: ApiApp → контроллеры → стори
   uiApp.init(apiApp);
 
   return {

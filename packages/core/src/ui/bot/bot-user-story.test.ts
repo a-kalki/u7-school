@@ -28,7 +28,6 @@ const testActor = {
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
 class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   readonly name = 'test_story';
-  override publicActions = {};
 
   async handleCallback(
     action: string,
@@ -294,9 +293,7 @@ describe('BotUserStory', () => {
     });
 
     test('init(appApi, uiApp) устанавливает и appApi и uiApp', () => {
-      const mockUiApp = {
-        getAction: () => undefined,
-      };
+      const mockUiApp = {};
 
       story.init({} as never, mockUiApp as never);
       expect(story.uiApp).toBe(mockUiApp as never);
@@ -308,11 +305,11 @@ describe('BotUserStory', () => {
     });
 
     test('init с разными типами uiApp', () => {
-      const obj1 = { getAction: () => 'code1' };
+      const obj1 = {};
       story.init({} as never, obj1 as never);
       expect(story.uiApp).toBe(obj1 as never);
 
-      const obj2 = { getAction: () => 'code2' };
+      const obj2 = {};
       story.init({} as never, obj2 as never);
       expect(story.uiApp).toBe(obj2 as never);
     });

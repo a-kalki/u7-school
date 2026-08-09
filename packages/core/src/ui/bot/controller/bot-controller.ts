@@ -5,7 +5,6 @@ import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { serializeError } from '#shared/serialize-error';
 import type { BotUserStory } from '../bot-user-story';
-import type { UiCallbackFactory } from '../public-actions';
 import type {
   BotResponse,
   BotUpdate,
@@ -42,20 +41,8 @@ export abstract class BotController<
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** UI-приложение (для доступа к publicActions других стори) */
+  /** UI-приложение */
   protected uiApp!: UiApp<TAppMeta, TActor>;
-
-  /** Публичные действия контроллера (для обратной совместимости) */
-  get publicActions(): Record<string, Record<string, UiCallbackFactory>> {
-    const result: Record<string, Record<string, UiCallbackFactory>> = {};
-    for (const story of this.stories) {
-      const actions = story.publicActions as Record<string, UiCallbackFactory>;
-      if (Object.keys(actions).length > 0) {
-        result[story.name] = actions;
-      }
-    }
-    return result;
-  }
 
   /** Общая мапа сжатых id — используется всеми стори контроллера */
   private readonly shortIds = new Map<string, string>();

@@ -5,7 +5,6 @@ import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
-import type { StoryPublicActions, UiBotButton } from './public-actions';
 import type {
   BotResponse,
   BotUpdate,
@@ -23,26 +22,21 @@ import type { UiApp } from './ui-app';
  *
  * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
  * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
- * @typeParam TActions — тип публичных кнопок этого стори для других стори.
  */
 export abstract class BotUserStory<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-  TActions = StoryPublicActions,
 > {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
-  /** Публичные действия стори — фабрики кнопок для других стори */
-  publicActions: TActions = {} as TActions;
-
   /** API приложения — для вызовов к другим модулям */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** UI-приложение — для доступа к publicActions других стори */
+  /** UI-приложение */
   uiApp!: UiApp<TAppMeta, TActor>;
 
-  /** @deprecated Используйте uiApp.getAction<T>(name) */
+  /** @deprecated Используйте uiApp напрямую */
   // biome-ignore lint/suspicious/noExplicitAny: временная обратная совместимость до обновления стори
   get ui(): any {
     return this.uiApp;
@@ -302,16 +296,5 @@ export abstract class BotUserStory<
         };
       }
     }
-  }
-
-  /** Хелпер для publicActions.
-   * `publicActions = { view: (id: string) => this.action('Просмотр', 'view', id)}`
-   */
-  protected action(
-    text: string,
-    actionName: string,
-    ...ids: string[]
-  ): UiBotButton {
-    return { text, code: this.cb(actionName, ...ids) };
   }
 }

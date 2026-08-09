@@ -29,26 +29,6 @@
 6. **Права — через Policy-объекты** (`UserPolicy.isStudent(...)`, `StreamPolicy.canEnroll(...)`), не ручные проверки `actor.roles.includes(...)`.
 7. **Кросс-стори вызовы — через `this.cbFor(storyName, action, ...args)`**. Стори не импортируют другие стори напрямую.
 
-8. **`publicActions` + `getAction<T>()` — только для внутриконтроллерных** кросс-стори вызовов. Межконтроллерные вызовы через `getAction` **запрещены** — префиксы и сжатие UUID (`shortIds`) привязаны к контроллеру-владельцу, а не к источнику кнопки. Для межконтроллерных кнопок используй:
-   - **Константы** — если код кнопки фиксирован (например `MAIN_MENU_BUTTON` с code `'app:main-menu'`).
-   - **`cbFor` с указанием целевого контроллера** — для динамических кнопок (например `this.cbFor('monitor', 'students', streamId)`).
-
-   Пример правильного (внутри контроллера):
-   ```typescript
-   // MonitorStory в MentorController
-   override readonly publicActions: MonitorActions = {
-     students: (streamId: string) => this.action('👥 Студенты', 'students', streamId),
-   };
-   // Использование в ViewStreamMentorStory (тот же MentorController):
-   this.cbFor('monitor', 'students', stream.uuid);
-   ```
-
-   Пример запрещённого (между контроллерами):
-   ```typescript
-   // ViewStreamStory (StreamsController) — так делать НЕЛЬЗЯ
-   this.uiApp.getAction<MonitorActions>('students')(stream.uuid); // ❌
-   ```
-
 Живые примеры: `apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts`, `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts`.
 
 ---
