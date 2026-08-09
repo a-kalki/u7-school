@@ -11,6 +11,10 @@
   *Link: [./tracks/cleanup_20260807/](./tracks/cleanup_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-8-зачистка-и-обновление-документации)*
 
+- [ ] **Трек 10: Полное удаление publicActions/getAction из фреймворка**
+  *Удаление publicActions/getAction из BotUserStory, BotController и UiApp (core/ui).*
+  *Link: [./tracks/remove-public-actions-core_20260809/](./tracks/remove-public-actions-core_20260809/)*
+
 ---
 
 ## Структура тестов после Треков 0–6
