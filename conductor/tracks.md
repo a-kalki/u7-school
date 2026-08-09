@@ -1,21 +1,6 @@
 # Реестр треков
 
-## Релиз 1: Новый Bot UI — фундамент и базовые контроллеры
-
-> Треки 0–6 выполнены. Архив: `conductor/archive/`.
-
-### Оставшиеся треки
-
-- [x] **Трек 8: Зачистка и обновление документации**
-  *Удаление оставшегося старого кода, финальная проверка.*
-  *Link: [./tracks/cleanup_20260807/](./tracks/cleanup_20260807/)*
-  *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-8-зачистка-и-обновление-документации)*
-
-- [x] **Трек 10: Полное удаление publicActions/getAction из фреймворка**
-  *Удаление publicActions/getAction из BotUserStory, BotController и UiApp (core/ui).*
-  *Link: [./tracks/remove-public-actions-core_20260809/](./tracks/remove-public-actions-core_20260809/)*
-
----
+> Все треки Релиза 1 выполнены и перемещены в архив: `conductor/archive/`.
 
 ## Структура тестов после Треков 0–6
 
