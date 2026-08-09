@@ -1,5 +1,4 @@
 import { U7BotController } from '../../core/u7-bot-controller';
-import { EnrollStory } from './stories/enroll';
 import { HubStory } from './stories/hub';
 import { NavTreeStory } from './stories/nav-tree';
 import { ProgressStory } from './stories/progress';
@@ -21,6 +20,5 @@ export class LearningController extends U7BotController {
     new NavTreeStory(),
     new TransitionStory(),
     new ProgressStory(),
-    new EnrollStory(),
   ];
 }

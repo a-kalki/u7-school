@@ -63,23 +63,8 @@ describe('ViewStreamStory (S02-S04)', () => {
     };
 
     const mockUiApp = {
-      getAction: mock((name: string) => {
-        if (name === 'mainMenu') {
-          return () => ({ text: '↩️ Главное меню', code: 'app:main-menu' });
-        }
-        if (name === 'enrollButton') {
-          return (streamId: string) => ({
-            text: '📝 Записаться',
-            code: `enroll:enroll:${streamId}`,
-          });
-        }
-        if (name === 'students') {
-          return (streamId: string) => ({
-            text: '👥 Студенты',
-            code: `monitor:students:${streamId}`,
-          });
-        }
-        throw new Error(`Действие «${name}» не найдено`);
+      getAction: mock((_name: string) => {
+        throw new Error(`Действие «${_name}» не найдено`);
       }),
     };
 
@@ -218,11 +203,8 @@ describe('ViewStreamStory (S02-S04)', () => {
     };
 
     const mockUiApp = {
-      getAction: mock((name: string) => {
-        if (name === 'mainMenu') {
-          return () => ({ text: '↩️ Главное меню', code: 'app:main-menu' });
-        }
-        throw new Error(`Действие «${name}» не найдено`);
+      getAction: mock((_name: string) => {
+        throw new Error(`Действие «${_name}» не найдено`);
       }),
     };
 
@@ -254,11 +236,8 @@ describe('ViewStreamStory (S02-S04)', () => {
       }),
     };
     const mockUiApp = {
-      getAction: mock((name: string) => {
-        if (name === 'mainMenu') {
-          return () => ({ text: '↩️ Главное меню', code: 'app:main-menu' });
-        }
-        throw new Error(`Действие «${name}» не найдено`);
+      getAction: mock((_name: string) => {
+        throw new Error(`Действие «${_name}» не найдено`);
       }),
     };
 
@@ -350,9 +329,13 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(response.sendMessage?.text).toContain('Неизвестная');
   });
 
-  test('handleMessage возвращает заглушку', async () => {
+  test('handleMessage без активного контекста — заглушка', async () => {
     const { story } = makeStory({}, 0);
-    const response = await story.handleMessage();
+    const response = await story.handleMessage(
+      { type: 'message', text: 'тест', telegramId: 123 },
+      guestActor,
+      { activeHandler: null },
+    );
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Неизвестное');
   });

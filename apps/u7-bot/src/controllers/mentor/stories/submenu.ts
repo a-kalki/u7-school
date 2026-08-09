@@ -7,7 +7,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import type { CommunityActions } from '../../app/stories/community.story';
+import { MAIN_MENU_BUTTON } from '../../shared/constants';
 
 /**
  * Подменю «🛠️ Инструменты ментора».
@@ -85,7 +85,7 @@ export class SubmenuStory extends U7BotUserStory {
             [
               {
                 text: '🔙 Назад',
-                code: this.uiApp.getAction<CommunityActions>('mainMenu')().code,
+                code: MAIN_MENU_BUTTON.code,
               },
             ],
           ],

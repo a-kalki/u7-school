@@ -11,7 +11,7 @@
   *Link: [./tracks/cleanup_20260807/](./tracks/cleanup_20260807/)*
   *Документ: [bot-ui-refactoring.md](./bot-ui-refactoring.md#трек-8-зачистка-и-обновление-документации)*
 
-- [ ] **Трек 9: Удаление кросс-контроллерных publicActions**
+- [x] **Трек 9: Удаление кросс-контроллерных publicActions**
   *publicActions/getAction создают архитектурную дыру с префиксами контроллеров и сжатием UUID.*
   *Link: [./tracks/remove-public-actions_20260808/](./tracks/remove-public-actions_20260808/)*
 

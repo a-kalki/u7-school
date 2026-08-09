@@ -191,15 +191,12 @@ describe('AppController', () => {
     expect(res.sendMessage?.text).toContain('Неизвестная команда');
   });
 
-  // ── publicActions (через CommunityStory) ──
+  // ── publicActions (CommunityStory больше не экспортирует publicActions) ──
 
-  test('publicActions агрегирует mainMenu из CommunityStory', () => {
+  test('publicActions не содержит community после удаления кросс-контроллерных действий', () => {
     const ctrl = new AppController(SCHOOL_URL);
     const actions = ctrl.publicActions;
-    expect(actions).toHaveProperty('community');
-    expect(actions.community).toHaveProperty('mainMenu');
-    const btn = actions.community?.mainMenu?.();
-    expect(btn!.text).toBe('↩️ Главное меню');
-    expect(btn!.code).toBe('app:main-menu');
+    // community больше не имеет publicActions — кнопка вынесена в константу
+    expect(actions.community).toBeUndefined();
   });
 });

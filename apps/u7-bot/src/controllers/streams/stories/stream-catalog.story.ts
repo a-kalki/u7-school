@@ -7,7 +7,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { StreamStatus } from '@u7-scl/stream/domain';
-import type { CommunityActions } from '../../app/stories/community.story';
+import { MAIN_MENU_BUTTON } from '../../shared/constants';
 
 /**
  * S01: Просмотр витрины потоков (Каталог).
@@ -175,8 +175,8 @@ export class CatalogStory extends U7BotUserStory {
     };
   }
 
-  /** Кнопка «↩️ Главное меню» через кросс-ссылку на CommunityStory. */
+  /** Кнопка «↩️ Главное меню» — общая константа */
   #getMainMenuButton(): { text: string; code: string } {
-    return this.uiApp.getAction<CommunityActions>('mainMenu')();
+    return MAIN_MENU_BUTTON;
   }
 }

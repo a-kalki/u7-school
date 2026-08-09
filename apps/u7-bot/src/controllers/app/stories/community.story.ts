@@ -5,36 +5,16 @@ import type {
   BotUpdate,
   MainMenuAction,
   SessionData,
-  UiBotButton,
 } from '@u7-scl/core/ui';
-
-/**
- * Публичные действия CommunityStory.
- * Другие стори получают доступ через:
- *   this.uiApp.getAction<CommunityActions>('mainMenu')()
- */
-export type CommunityActions = {
-  mainMenu: () => UiBotButton;
-};
 
 /**
  * US: Кнопка «Сообщество школы» в главном меню.
  * Ведёт на URL группы школы в Telegram.
  * Доступна всем ролям.
  */
-export class CommunityStory extends U7BotUserStory<CommunityActions> {
+export class CommunityStory extends U7BotUserStory {
   readonly name = 'community';
   readonly #groupUrl: string;
-
-  /**
-   * Публичные действия для кросс-ссылок из других стори.
-   */
-  override readonly publicActions: CommunityActions = {
-    mainMenu: () => ({
-      text: '↩️ Главное меню',
-      code: 'app:main-menu',
-    }),
-  };
 
   constructor(groupUrl: string) {
     super();

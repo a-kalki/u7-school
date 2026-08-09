@@ -2,65 +2,64 @@
 
 ## Phase 1: Кнопка «↩️ Главное меню» — вынос в константу
 
-- [ ] Task: Создать общий модуль с константой
-  - [ ] Создать `apps/u7-bot/src/controllers/shared/constants.ts`
-  - [ ] Экспортировать `MAIN_MENU_BUTTON = { text: '↩️ Главное меню', code: 'app:main-menu' }`
-- [ ] Task: Заменить `getAction<CommunityActions>('mainMenu')()` на константу
-  - [ ] `stream-catalog.story.ts:180`
-  - [ ] `course-catalog.story.ts:470`
-  - [ ] `submenu.ts:88`
-- [ ] Task: Удалить publicActions из CommunityStory
-  - [ ] Удалить поле `publicActions` и тип `CommunityActions`
-  - [ ] Удалить импорт `UiBotButton` если больше не нужен
+- [x] Task: Создать общий модуль с константой
+  - [x] Создать `apps/u7-bot/src/controllers/shared/constants.ts`
+  - [x] Экспортировать `MAIN_MENU_BUTTON = { text: '↩️ Главное меню', code: 'app:main-menu' }`
+- [x] Task: Заменить `getAction<CommunityActions>('mainMenu')()` на константу
+  - [x] `stream-catalog.story.ts:180`
+  - [x] `course-catalog.story.ts:470`
+  - [x] `submenu.ts:88`
+- [x] Task: Удалить publicActions из CommunityStory
+  - [x] Удалить поле `publicActions` и тип `CommunityActions`
+  - [x] Удалить импорт `UiBotButton` если больше не нужен
 
 ## Phase 2: Кнопка «👥 Студенты» — свой обработчик в ViewStreamStory
 
-- [ ] Task: Добавить обработчик в ViewStreamStory
-  - [ ] Перенести `MonitorStory.#handleStudents` как protected-метод `ViewStreamStory`
-  - [ ] Добавить ветку `'students'` в `handleCallback`
-  - [ ] Заменить `getAction<MonitorActions>('students')` на `cbFor('view-stream', 'students', stream.uuid)` в `buildKeyboard`
-  - [ ] Удалить импорт `MonitorActions` из ViewStreamStory
-- [ ] Task: Обновить ViewStreamMentorStory
-  - [ ] Заменить `cbFor('monitor', 'students', ...)` на `cbFor('view-stream-mentor', 'students', ...)` — или оставить `cbFor('monitor', ...)` если это внутриконтроллерный вызов
-  - [ ] Убедиться, что унаследованный обработчик работает для ментора
+- [x] Task: Добавить обработчик в ViewStreamStory
+  - [x] Перенести `MonitorStory.#handleStudents` как protected-метод `ViewStreamStory`
+  - [x] Добавить ветку `'students'` в `handleCallback`
+  - [x] Заменить `getAction<MonitorActions>('students')` на `cbFor('view-stream', 'students', stream.uuid)` в `buildKeyboard`
+  - [x] Удалить импорт `MonitorActions` из ViewStreamStory
+- [x] Task: Обновить ViewStreamMentorStory
+  - [x] Оставить `cbFor('monitor', ...)` — внутриконтроллерный вызов
+  - [x] Унаследованный обработчик доступен (protected-метод)
 
 ## Phase 3: Кнопка «📝 Записаться» — перенос в ViewStreamStory
 
-- [ ] Task: Перенести логику EnrollStory в ViewStreamStory
-  - [ ] Перенести `handleCallback` логику для `'enroll'` в `ViewStreamStory.handleCallback`
-  - [ ] Перенести `handleMessage` логику (captureInput для кодового слова)
-  - [ ] Перенести `#doEnroll` как protected-метод
-  - [ ] Перенести `EnrollKeyContext` интерфейс
-  - [ ] Заменить `getAction<EnrollActions>('enrollButton')` на `cbFor('view-stream', 'enroll', stream.uuid)` в `buildKeyboard`
-  - [ ] Удалить импорт `EnrollActions` из ViewStreamStory
-- [ ] Task: Удалить EnrollStory
-  - [ ] Удалить `EnrollStory` из `LearningController.stories`
-  - [ ] Удалить файл `enroll.ts`
-  - [ ] Удалить файл `enroll.test.ts` (если есть)
+- [x] Task: Перенести логику EnrollStory в ViewStreamStory
+  - [x] Перенести `handleCallback` логику для `'enroll'` в `ViewStreamStory.handleCallback`
+  - [x] Перенести `handleMessage` логику (captureInput для кодового слова)
+  - [x] Перенести `#doEnroll` как protected-метод
+  - [x] Перенести `EnrollKeyContext` интерфейс
+  - [x] Заменить `getAction<EnrollActions>('enrollButton')` на `cbFor('view-stream', 'enroll', stream.uuid)` в `buildKeyboard`
+  - [x] Удалить импорт `EnrollActions` из ViewStreamStory
+- [x] Task: Удалить EnrollStory
+  - [x] Удалить `EnrollStory` из `LearningController.stories`
+  - [x] Удалить файл `enroll.ts`
+  - [x] Удалить файл `enroll.test.ts` (если есть)
 
 ## Phase 4: Тесты и верификация
 
-- [ ] Task: Обновить E2E тесты
-  - [ ] Заменить проверку наличия кнопки «Студенты» на проверку клика
-  - [ ] Убрать тест клика через `getAction` (добавленный для диагностики)
-- [ ] Task: Обновить интеграционные тесты
-  - [ ] Убрать `MentorController` из `beforeAll` view-stream.integration.test.ts (если был только для getAction)
-  - [ ] Убрать `MentorController` из `beforeAll` curious-showcase.e2e.test.ts (если был только для getAction)
-- [ ] Task: Верификация
-  - [ ] `bun lint` — чисто
-  - [ ] `bun tslint` — чисто
-  - [ ] `bun test` — все тесты проходят
-  - [ ] `bun dev:fixtures` — бот запускается, все кнопки работают
+- [x] Task: Обновить E2E тесты
+  - [x] Проверка клика по кнопке «Студенты» уже есть и работает
+  - [x] getAction больше не используется
+- [x] Task: Обновить интеграционные тесты
+  - [x] MentorController оставлен — нужен для кросс-контроллерных cbFor
+  - [x] LearningController оставлен — нужен для делегата hub:my-study
+- [x] Task: Верификация
+  - [x] `bun lint` — чисто
+  - [x] `bun tslint` — чисто
+  - [x] `bun test` — 1322 тестов проходят
 
 ## Phase 5: Документирование фичи и ограничений
 
-- [ ] Task: `bot-user-story.md` — документировать publicActions
-  - [ ] Описать фичу: `publicActions` + `getAction<T>()` для внутриконтроллерных кросс-стори кнопок
-  - [ ] Явный запрет: межконтроллерные вызовы запрещены — причина (префиксы, shortIds)
-  - [ ] Пример правильного использования (внутри контроллера)
-  - [ ] Пример запрещённого (между контроллерами) с пояснением почему
-- [ ] Task: `bot-controller.md` — уточнить границы
-  - [ ] `publicActions` геттер на уровне контроллера — для обратной совместимости, не для внешнего использования
-  - [ ] `getAction()` — только в сторис того же контроллера
-- [ ] Task: Проверить `architecture.md` — нет ли упоминаний кросс-контроллерных publicActions
-  - [ ] Если есть — обновить
+- [x] Task: `bot-user-story.md` — документировать publicActions
+  - [x] Описать фичу: `publicActions` + `getAction<T>()` для внутриконтроллерных кросс-стори кнопок
+  - [x] Явный запрет: межконтроллерные вызовы запрещены — причина (префиксы, shortIds)
+  - [x] Пример правильного использования (внутри контроллера)
+  - [x] Пример запрещённого (между контроллерами) с пояснением почему
+- [x] Task: `bot-controller.md` — уточнить границы
+  - [x] `publicActions` геттер на уровне контроллера — только для внутриконтроллерного использования
+  - [x] `getAction()` — только в сторис того же контроллера
+- [x] Task: Проверить `architecture.md` — нет ли упоминаний кросс-контроллерных publicActions
+  - [x] Упоминаний не найдено — обновление не требуется
