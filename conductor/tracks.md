@@ -19,6 +19,11 @@ apps/u7-bot/
 packages/stream/src/ui/bot/stories/   ← пусто (все стори перенесены)
 ```
 
+---
+
+- [ ] **Track: Трек 1.1 — Категории, подкатегории и структура анкет метрик**
+*Link: [./tracks/metrics-structure_20260810/](./tracks/metrics-structure_20260810/)*
+
 ## TODO в коде (для будущих треков)
 
 | Что | Где | Трек |
