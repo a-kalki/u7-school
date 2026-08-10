@@ -1,8 +1,0 @@
-{
-  "track_id": "metrics-aggregate-api_20260810",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-08-10T00:00:00Z",
-  "updated_at": "2026-08-10T00:00:00Z",
-  "description": "Трек 2.2: API событий в Aggregate — ArMeta.events, addEvent, hasEvents, flushEvents"
-}
