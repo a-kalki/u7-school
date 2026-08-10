@@ -1,56 +1,28 @@
 import { describe, expect, test } from 'bun:test';
+import { InProcEventBus } from '../../infra/in-proc-event-bus';
 import type { DomainEvent } from './domain-event';
 import type { EventBus } from './event-bus';
 
 // ═══════════════════════════════════════════════════════════════════
-// Фаза 1 (Red): Тесты интерфейсных контрактов DomainEvent и EventBus
+// Тесты интерфейсных контрактов DomainEvent и EventBus
+// (используется реальный InProcEventBus — infra реализация)
 // ═══════════════════════════════════════════════════════════════════
-
-// Мок-реализация EventBus для проверки контракта интерфейса
-class MockEventBus implements EventBus {
-  private handlers = new Map<
-    string,
-    Array<(event: DomainEvent) => Promise<void>>
-  >();
-
-  publish<E extends DomainEvent>(event: E): void {
-    const eventHandlers = this.handlers.get(event.eventType) ?? [];
-    for (const handler of eventHandlers) {
-      handler(event as DomainEvent);
-    }
-  }
-
-  subscribe<E extends DomainEvent>(
-    eventType: string,
-    handler: (event: E) => Promise<void>,
-  ): () => void {
-    const existing = this.handlers.get(eventType) ?? [];
-    existing.push(handler as (event: DomainEvent) => Promise<void>);
-    this.handlers.set(eventType, existing);
-    return () => {
-      const updated = (this.handlers.get(eventType) ?? []).filter(
-        (h) => h !== (handler as (event: DomainEvent) => Promise<void>),
-      );
-      this.handlers.set(eventType, updated);
-    };
-  }
-}
 
 describe('core/domain/events — DomainEvent (контракт)', () => {
   test('объект, соответствующий DomainEvent, имеет обязательные поля', () => {
     const event: DomainEvent = {
       eventId: 'evt-001',
-      eventType: 'questionnaire.completed',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Questionnaire',
+      aggregateName: 'Questionnaire',
       aggregateId: 'q-123',
       payload: { respondentId: 42 },
     };
 
     expect(event.eventId).toBeString();
-    expect(event.eventType).toBe('questionnaire.completed');
+    expect(event.eventName).toBe('completed');
     expect(event.occurredAt).toBeString();
-    expect(event.aggregateType).toBe('Questionnaire');
+    expect(event.aggregateName).toBe('Questionnaire');
     expect(event.aggregateId).toBe('q-123');
     expect(event.payload).toBeObject();
     expect(event.payload.respondentId).toBe(42);
@@ -59,18 +31,18 @@ describe('core/domain/events — DomainEvent (контракт)', () => {
   test('eventId уникален для каждого события', () => {
     const event1: DomainEvent = {
       eventId: 'evt-aaa',
-      eventType: 'test.event',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Test',
+      aggregateName: 'Test',
       aggregateId: 't-1',
       payload: {},
     };
 
     const event2: DomainEvent = {
       eventId: 'evt-bbb',
-      eventType: 'test.event',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Test',
+      aggregateName: 'Test',
       aggregateId: 't-1',
       payload: {},
     };
@@ -79,20 +51,20 @@ describe('core/domain/events — DomainEvent (контракт)', () => {
   });
 });
 
-describe('core/domain/events — EventBus (контракт через MockEventBus)', () => {
+describe('core/domain/events — EventBus (контракт через InProcEventBus)', () => {
   test('подписка получает опубликованное событие', async () => {
-    const bus = new MockEventBus();
+    const bus = new InProcEventBus();
     let received: DomainEvent | null = null;
 
-    bus.subscribe<DomainEvent>('test.event', async (event) => {
+    bus.subscribe<DomainEvent>('completed', async (event) => {
       received = event;
     });
 
     const event: DomainEvent = {
       eventId: 'evt-test',
-      eventType: 'test.event',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Test',
+      aggregateName: 'Test',
       aggregateId: 't-1',
       payload: { foo: 'bar' },
     };
@@ -104,22 +76,22 @@ describe('core/domain/events — EventBus (контракт через MockEvent
     expect(received!.payload.foo).toBe('bar');
   });
 
-  test('несколько обработчиков на один eventType вызываются все', async () => {
-    const bus = new MockEventBus();
+  test('несколько обработчиков на один eventName вызываются все', async () => {
+    const bus = new InProcEventBus();
     const calls: string[] = [];
 
-    bus.subscribe<DomainEvent>('multi.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       calls.push('handler-1');
     });
-    bus.subscribe<DomainEvent>('multi.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       calls.push('handler-2');
     });
 
     bus.publish({
       eventId: 'evt-multi',
-      eventType: 'multi.event',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Test',
+      aggregateName: 'Test',
       aggregateId: 't-1',
       payload: {},
     });
@@ -130,10 +102,10 @@ describe('core/domain/events — EventBus (контракт через MockEvent
   });
 
   test('отписка: обработчик не вызывается после unsubscribe', async () => {
-    const bus = new MockEventBus();
+    const bus = new InProcEventBus();
     const calls: string[] = [];
 
-    const unsubscribe = bus.subscribe<DomainEvent>('unsub.event', async () => {
+    const unsubscribe = bus.subscribe<DomainEvent>('completed', async () => {
       calls.push('called');
     });
 
@@ -141,9 +113,9 @@ describe('core/domain/events — EventBus (контракт через MockEvent
 
     bus.publish({
       eventId: 'evt-unsub',
-      eventType: 'unsub.event',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Test',
+      aggregateName: 'Test',
       aggregateId: 't-1',
       payload: {},
     });
@@ -152,14 +124,14 @@ describe('core/domain/events — EventBus (контракт через MockEvent
   });
 
   test('нет обработчиков — publish не падает', () => {
-    const bus = new MockEventBus();
+    const bus = new InProcEventBus();
 
     expect(() =>
       bus.publish({
         eventId: 'evt-noop',
-        eventType: 'noop.event',
+        eventName: 'completed',
         occurredAt: new Date().toISOString(),
-        aggregateType: 'Test',
+        aggregateName: 'Test',
         aggregateId: 't-1',
         payload: {},
       }),
@@ -167,24 +139,24 @@ describe('core/domain/events — EventBus (контракт через MockEvent
   });
 
   test('порядок вызова обработчиков соответствует порядку подписки', async () => {
-    const bus = new MockEventBus();
+    const bus = new InProcEventBus();
     const order: number[] = [];
 
-    bus.subscribe<DomainEvent>('order.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       order.push(1);
     });
-    bus.subscribe<DomainEvent>('order.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       order.push(2);
     });
-    bus.subscribe<DomainEvent>('order.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       order.push(3);
     });
 
     bus.publish({
       eventId: 'evt-order',
-      eventType: 'order.event',
+      eventName: 'completed',
       occurredAt: new Date().toISOString(),
-      aggregateType: 'Test',
+      aggregateName: 'Test',
       aggregateId: 't-1',
       payload: {},
     });
@@ -193,13 +165,13 @@ describe('core/domain/events — EventBus (контракт через MockEvent
   });
 
   test('изоляция ошибок: исключение в одном обработчике не прерывает остальные', async () => {
-    const bus = new MockEventBus();
+    const bus = new InProcEventBus();
     const calls: string[] = [];
 
-    bus.subscribe<DomainEvent>('error.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       throw new Error('Ошибка в обработчике 1');
     });
-    bus.subscribe<DomainEvent>('error.event', async () => {
+    bus.subscribe<DomainEvent>('completed', async () => {
       calls.push('handler-2-ok');
     });
 
@@ -207,9 +179,9 @@ describe('core/domain/events — EventBus (контракт через MockEvent
     expect(() =>
       bus.publish({
         eventId: 'evt-error',
-        eventType: 'error.event',
+        eventName: 'completed',
         occurredAt: new Date().toISOString(),
-        aggregateType: 'Test',
+        aggregateName: 'Test',
         aggregateId: 't-1',
         payload: {},
       }),

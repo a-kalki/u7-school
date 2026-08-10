@@ -51,9 +51,9 @@ packages/onboarding/src/
 // Базовое доменное событие
 interface DomainEvent {
   eventId: string;
-  eventType: string;        // "questionnaire.completed", "module.completed"
+  eventName: string;        // "completed", "completed"
   occurredAt: string;
-  aggregateType: string;    // "Questionnaire", "ModuleEnrollment"
+  aggregateName: string;    // "Questionnaire", "ModuleEnrollment"
   aggregateId: string;
   payload: Record<string, unknown>;
 }
@@ -61,14 +61,14 @@ interface DomainEvent {
 interface EventBus {
   publish<E extends DomainEvent>(event: E): void;
   subscribe<E extends DomainEvent>(
-    eventType: string,
+    eventName: string,
     handler: (event: E) => Promise<void>,
   ): () => void;  // возвращает unsubscribe
 }
 ```
 
 **Реализация `InProcEventBus`:**
-- Хранит `Map<eventType, handler[]>`
+- Хранит `Map<eventName, handler[]>`
 - `publish` синхронно вызывает все обработчики в цикле
 - `subscribe` добавляет обработчик, возвращает функцию отписки
 - Добавить в `AppResolver` (чтобы все модули имели доступ)
@@ -129,9 +129,9 @@ someMethod(): void {
   // ... бизнес-логика ...
   this.addEvent({
     eventId: crypto.randomUUID(),
-    eventType: 'questionnaire.completed',
+    eventName: 'questionnaire.completed',
     occurredAt: isoNow(),
-    aggregateType: 'Questionnaire',
+    aggregateName: 'Questionnaire',
     aggregateId: this.state.uuid,
     payload: { /* ... */ },
   });

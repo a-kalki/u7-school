@@ -9,9 +9,9 @@
 ```typescript
 interface DomainEvent {
   eventId: string;
-  eventType: string;        // "questionnaire.completed", "module.completed"
+  eventName: string;        // "completed", "completed"
   occurredAt: string;       // ISO
-  aggregateType: string;    // "Questionnaire", "ModuleEnrollment"
+  aggregateName: string;    // "Questionnaire", "ModuleEnrollment"
   aggregateId: string;
   payload: Record<string, unknown>;
 }
@@ -25,7 +25,7 @@ interface DomainEvent {
 interface EventBus {
   publish<E extends DomainEvent>(event: E): void;
   subscribe<E extends DomainEvent>(
-    eventType: string,
+    eventName: string,
     handler: (event: E) => Promise<void>,
   ): () => void;  // возвращает unsubscribe
 }
@@ -35,7 +35,7 @@ interface EventBus {
 
 ## FR3 — Реализация `InProcEventBus`
 
-- Хранит `Map<eventType, handler[]>` внутри
+- Хранит `Map<eventName, handler[]>` внутри
 - `publish` синхронно вызывает все обработчики в цикле (последовательно)
 - Если обработчик кидает исключение — **логировать** (через `console.error`) и **продолжать** цепочку
 - `subscribe` добавляет обработчик, возвращает функцию отписки
@@ -55,7 +55,7 @@ interface EventBus {
 
 Unit-тесты в `packages/core/src/domain/events/`:
 - Подписка и публикация события
-- Несколько обработчиков на один eventType
+- Несколько обработчиков на один eventName
 - Отписка (обработчик не вызывается после unsubscribe)
 - Ошибка в одном обработчике не прерывает остальные
 - Отсутствие обработчиков — не падает

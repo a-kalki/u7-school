@@ -5,12 +5,12 @@
 export interface DomainEvent {
   /** Уникальный идентификатор события */
   eventId: string;
-  /** Тип события в формате "aggregate.action" (например "questionnaire.completed") */
-  eventType: string;
+  /** Имя события (например "completed", "started") */
+  eventName: string;
   /** Время возникновения в ISO-формате */
   occurredAt: string;
-  /** Тип агрегата, породившего событие */
-  aggregateType: string;
+  /** Имя агрегата, породившего событие (например "Questionnaire") */
+  aggregateName: string;
   /** ID агрегата, породившего событие */
   aggregateId: string;
   /** Произвольные данные события */

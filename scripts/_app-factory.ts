@@ -36,7 +36,7 @@
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppMeta } from '@u7-scl/core/domain';
 import { type Logger, LogLevel } from '@u7-scl/core/shared';
-import { InProcEventBus } from '../packages/core/src/domain/index.ts';
+import { InProcEventBus } from '../packages/core/src/infra/index.ts';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleMeta } from '../packages/course/src/domain/module.ts';
 import { CourseJsonRepo } from '../packages/course/src/infra/db/course-json-repo.ts';

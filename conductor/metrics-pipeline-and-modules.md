@@ -80,9 +80,9 @@ intention → in_progress → completed/abandoned
 ```typescript
 this.addEvent({
   eventId: crypto.randomUUID(),
-  eventType: 'module.completed',
+  eventName: 'module.completed',
   occurredAt: isoNow(),
-  aggregateType: 'ModuleEnrollment',
+  aggregateName: 'ModuleEnrollment',
   aggregateId: this.state.uuid,
   payload: {
     studentId: this.state.studentId,   // telegramId студента

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { DomainEvent } from './domain-event';
+import type { DomainEvent } from '../domain/events/domain-event';
 import { InProcEventBus } from './in-proc-event-bus';
 
 // ═══════════════════════════════════════════════════════════════════
@@ -9,9 +9,9 @@ import { InProcEventBus } from './in-proc-event-bus';
 function makeEvent(overrides: Partial<DomainEvent> = {}): DomainEvent {
   return {
     eventId: `evt-${Math.random().toString(36).slice(2, 8)}`,
-    eventType: 'test.event',
+    eventName: 'test.event',
     occurredAt: new Date().toISOString(),
-    aggregateType: 'Test',
+    aggregateName: 'Test',
     aggregateId: 't-1',
     payload: {},
     ...overrides,
@@ -35,7 +35,7 @@ describe('core/domain/events — InProcEventBus', () => {
     expect(received!.payload.foo).toBe('bar');
   });
 
-  test('несколько обработчиков на один eventType вызываются все', async () => {
+  test('несколько обработчиков на один eventName вызываются все', async () => {
     const bus = new InProcEventBus();
     const calls: string[] = [];
 
@@ -46,7 +46,7 @@ describe('core/domain/events — InProcEventBus', () => {
       calls.push('handler-2');
     });
 
-    bus.publish(makeEvent({ eventType: 'multi.event' }));
+    bus.publish(makeEvent({ eventName: 'multi.event' }));
 
     expect(calls).toContain('handler-1');
     expect(calls).toContain('handler-2');
@@ -63,7 +63,7 @@ describe('core/domain/events — InProcEventBus', () => {
 
     unsubscribe();
 
-    bus.publish(makeEvent({ eventType: 'unsub.event' }));
+    bus.publish(makeEvent({ eventName: 'unsub.event' }));
 
     expect(calls).toHaveLength(0);
   });
@@ -82,7 +82,7 @@ describe('core/domain/events — InProcEventBus', () => {
 
     // publish не должен выбросить исключение
     expect(() =>
-      bus.publish(makeEvent({ eventType: 'error.event' })),
+      bus.publish(makeEvent({ eventName: 'error.event' })),
     ).not.toThrow();
 
     // Оба обработчика должны быть вызваны
@@ -105,7 +105,7 @@ describe('core/domain/events — InProcEventBus', () => {
 
     // publish не должен выбросить исключение
     expect(() =>
-      bus.publish(makeEvent({ eventType: 'async-error.event' })),
+      bus.publish(makeEvent({ eventName: 'async-error.event' })),
     ).not.toThrow();
 
     // Даём микротаскам выполниться
@@ -120,7 +120,7 @@ describe('core/domain/events — InProcEventBus', () => {
     const bus = new InProcEventBus();
 
     expect(() =>
-      bus.publish(makeEvent({ eventType: 'noop.event' })),
+      bus.publish(makeEvent({ eventName: 'noop.event' })),
     ).not.toThrow();
   });
 
@@ -138,12 +138,12 @@ describe('core/domain/events — InProcEventBus', () => {
       order.push(3);
     });
 
-    bus.publish(makeEvent({ eventType: 'order.event' }));
+    bus.publish(makeEvent({ eventName: 'order.event' }));
 
     expect(order).toEqual([1, 2, 3]);
   });
 
-  test('обработчики разных eventType изолированы друг от друга', async () => {
+  test('обработчики разных eventName изолированы друг от друга', async () => {
     const bus = new InProcEventBus();
     const callsA: string[] = [];
     const callsB: string[] = [];
@@ -155,13 +155,13 @@ describe('core/domain/events — InProcEventBus', () => {
       callsB.push('b');
     });
 
-    bus.publish(makeEvent({ eventType: 'event.a' }));
+    bus.publish(makeEvent({ eventName: 'event.a' }));
 
     expect(callsA).toHaveLength(1);
     expect(callsB).toHaveLength(0);
   });
 
-  test('отписка одного обработчика не затрагивает другие на тот же eventType', async () => {
+  test('отписка одного обработчика не затрагивает другие на тот же eventName', async () => {
     const bus = new InProcEventBus();
     const calls: string[] = [];
 
@@ -174,7 +174,7 @@ describe('core/domain/events — InProcEventBus', () => {
 
     unsub1();
 
-    bus.publish(makeEvent({ eventType: 'shared.event' }));
+    bus.publish(makeEvent({ eventName: 'shared.event' }));
 
     expect(calls).not.toContain('handler-1');
     expect(calls).toContain('handler-2');

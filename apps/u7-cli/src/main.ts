@@ -1,6 +1,6 @@
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppResolver } from '@u7-scl/core/domain';
-import { InProcEventBus } from '@u7-scl/core/domain';
+import { InProcEventBus } from '@u7-scl/core/infra';
 import { ConsoleLogger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {

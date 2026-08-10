@@ -2,7 +2,7 @@ import type { DomainEvent } from './domain-event';
 
 /**
  * Шина доменных событий.
- * Позволяет публиковать события и подписываться на них.
+ * Позволяет публиковать события и подписываться на них по имени события.
  * Реализация — синхронная InProc, с изоляцией ошибок обработчиков.
  */
 export interface EventBus {
@@ -10,11 +10,12 @@ export interface EventBus {
   publish<E extends DomainEvent>(event: E): void;
 
   /**
-   * Подписаться на события указанного типа.
+   * Подписаться на события с указанным именем.
+   * @param eventName — имя события (например "completed", "started")
    * @returns функция отписки (unsubscribe)
    */
   subscribe<E extends DomainEvent>(
-    eventType: string,
+    eventName: string,
     handler: (event: E) => Promise<void>,
   ): () => void;
 }

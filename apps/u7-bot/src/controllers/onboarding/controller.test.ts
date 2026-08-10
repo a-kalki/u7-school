@@ -4,8 +4,7 @@ import { join } from 'node:path';
 import type { User } from '@u7-scl/app/domain';
 import type { U7BotAppMeta } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
-import { InProcEventBus } from '@u7-scl/core/domain';
-import { BaseJsonDb } from '@u7-scl/core/infra';
+import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type {
   MessageDescription,

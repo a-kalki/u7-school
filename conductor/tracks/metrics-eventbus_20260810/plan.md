@@ -10,7 +10,7 @@
 ## Фаза 2: InProcEventBus [9cc0452]
 
 - [x] Task: Реализовать `InProcEventBus` в `packages/core/src/domain/events/in-proc-event-bus.ts` [9cc0452]
-    - [x] Хранение `Map<eventType, handler[]>`
+    - [x] Хранение `Map<eventName, handler[]>`
     - [x] `publish` — синхронный вызов, изоляция ошибок через try/catch + console.error
     - [x] `subscribe` — возврат unsubscribe
 - [x] Task: Написать unit-тесты [9cc0452]
@@ -20,7 +20,7 @@
     - [x] изоляция ошибок (синхронные + rejected Promise)
     - [x] нет обработчиков — не падает
     - [x] порядок вызова
-    - [x] изоляция разных eventType
+    - [x] изоляция разных eventName
     - [x] отписка одного не затрагивает другие
 - [~] Task: Conductor - Ручная верификация 'InProcEventBus'
 
