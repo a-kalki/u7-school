@@ -74,3 +74,10 @@ Unit-тесты в `packages/core/src/domain/ar/`:
 
 - `publishEvents` в UseCase (→ Трек 2.3)
 - Реализация событий в конкретных агрегатах (→ Трек 2.4, 3.2)
+
+## Контекст и связанные документы
+
+- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
+- [Дорожная карта](../development-roadmap.md) — Релиз 3
+- [Трек 2.1 — EventBus](../tracks/metrics-eventbus_20260810/spec.md) — интерфейс DomainEvent

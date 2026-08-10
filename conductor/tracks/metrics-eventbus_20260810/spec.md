@@ -74,3 +74,9 @@ Unit-тесты в `packages/core/src/domain/events/`:
 - `publishEvents` в UseCase (→ Трек 2.3)
 - Подписки в доменных модулях (→ Трек 3.2+)
 - Асинхронная/внешняя реализация шины
+
+## Контекст и связанные документы
+
+- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
+- [Дорожная карта](../development-roadmap.md) — Релиз 3

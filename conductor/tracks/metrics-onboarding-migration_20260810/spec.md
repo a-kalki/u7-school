@@ -40,3 +40,11 @@
 ## За рамками
 
 - Изменения в самом questionnaire модуле (→ Трек 2.4a/b)
+
+## Контекст и связанные документы
+
+- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
+- [Дорожная карта](../development-roadmap.md) — Релиз 3
+- [Трек 2.4a — модуль questionnaire](../tracks/metrics-questionnaire_20260810/spec.md) — API фасада
+- [Трек 2.1 — EventBus](../tracks/metrics-eventbus_20260810/spec.md) — подписка на события

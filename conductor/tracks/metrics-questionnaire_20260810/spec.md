@@ -132,3 +132,11 @@ packages/questionnaire/src/
 - `IntentionRepo` и intention-паттерн (→ Трек 3.1)
 - Перевод onboarding на новый questionnaire (→ Трек 2.5)
 - UI-контроллер для questionnaire
+
+## Контекст и связанные документы
+
+- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
+- [Дорожная карта](../development-roadmap.md) — Релиз 3
+- [Трек 2.3 — publishEvents](../tracks/metrics-publish-events_20260810/spec.md) — базовая механика
+- [Текущий onboarding](../code_styleguides/domain-boundaries.md) — точка старта для вырезания

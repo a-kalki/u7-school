@@ -71,3 +71,11 @@ interface MetricMapping {
 
 - Подписка на `QuestionnaireCompleted` в metrics (→ Трек 3.4)
 - Intention-паттерн (→ Трек 3.1)
+
+## Контекст и связанные документы
+
+- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
+- [1. Концепция метрик](../metrics-conception.md) — формулы агрегации, metricMapping
+- [Дорожная карта](../development-roadmap.md) — Релиз 3
+- [Трек 2.4a — модуль questionnaire](../tracks/metrics-questionnaire_20260810/spec.md) — база

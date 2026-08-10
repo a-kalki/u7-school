@@ -52,3 +52,11 @@ Unit-тесты в `packages/core/src/api/`:
 ## За рамками
 
 - Реализация `publishEvents` в конкретных UseCase (→ Трек 2.4, 3.2+)
+
+## Контекст и связанные документы
+
+- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
+- [Дорожная карта](../development-roadmap.md) — Релиз 3
+- [Трек 2.1 — EventBus](../tracks/metrics-eventbus_20260810/spec.md)
+- [Трек 2.2 — Aggregate API](../tracks/metrics-aggregate-api_20260810/spec.md)
