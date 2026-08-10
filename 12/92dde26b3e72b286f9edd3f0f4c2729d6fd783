@@ -1,0 +1,20 @@
+Трек 2.3 — publishEvents в UseCase
+
+Фаза 1 — ModuleResolver.eventBus:
+- eventBus?: EventBus — опциональное поле
+
+Фаза 2 — UseCase.publishEvents:
+- publishEvents(ar: {hasEvents(), flushEvents()}) — protected метод
+- Проверки: ar.hasEvents() → ar.flushEvents() → eventBus.publish(e) для каждого
+- Без eventBus или без событий — просто return
+
+Тесты (4):
+- агрегат с событиями → публикуются через InProcEventBus
+- без EventBus в resolve → не падает
+- агрегат без событий → не падает, ничего не публикует
+- несколько событий → все публикуются
+
+Проверки:
+- tsc: чисто (кроме 2 предсуществующих в mentor)
+- biome: 1 warning (предсуществующий)
+- bun test: 209 pass, 0 fail
