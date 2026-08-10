@@ -202,4 +202,68 @@ describe('Aggregate', () => {
       }).toThrow(AppException);
     });
   });
+
+  describe('события (ArMeta.events)', () => {
+    test('агрегат без events в ArMeta компилируется (events = never)', () => {
+      // Этот тест — проверка типов на этапе компиляции.
+      // Если он компилируется — значит events: never работает по умолчанию.
+      const ar = new TestAggregate({
+        uuid: 'abc',
+        name: 'Иван',
+        age: 25,
+        createdAt: '2024-01-01',
+      });
+      // flushEvents у агрегата без событий возвращает never[] = []
+      const flushed = ar.flushEvents();
+      expect(flushed).toEqual([]);
+    });
+
+    test('агрегат с events: DomainEvent в ArMeta может использовать addEvent', () => {
+      // Агрегат с явным events
+      interface TestWithEventsArMeta extends ArMeta {
+        name: 'TestWithEvents';
+        label: 'Test with events';
+        state: TestState;
+        events: import('../events/domain-event').DomainEvent;
+      }
+
+      class TestWithEventsAr extends Aggregate<TestWithEventsArMeta> {
+        constructor(state: TestState) {
+          super(state, TestSchema);
+        }
+
+        triggerEvent() {
+          this.addEvent({
+            eventId: 'evt-001',
+            eventName: 'completed',
+            occurredAt: new Date().toISOString(),
+            aggregateName: 'TestWithEvents',
+            aggregateId: this._state.uuid,
+            payload: {},
+          });
+        }
+      }
+
+      const ar = new TestWithEventsAr({
+        uuid: 'abc',
+        name: 'Иван',
+        age: 25,
+        createdAt: '2024-01-01',
+      });
+
+      expect(ar.hasEvents()).toBe(false);
+
+      ar.triggerEvent();
+
+      expect(ar.hasEvents()).toBe(true);
+      const flushed = ar.flushEvents();
+      expect(flushed).toHaveLength(1);
+      expect(flushed[0]!.eventId).toBe('evt-001');
+
+      // После flushEvents коллектор очищен
+      expect(ar.hasEvents()).toBe(false);
+      // Повторный flushEvents возвращает пустой массив
+      expect(ar.flushEvents()).toEqual([]);
+    });
+  });
 });

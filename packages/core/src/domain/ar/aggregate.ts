@@ -10,6 +10,7 @@ import type {
   BadRequestError,
   DomainError,
 } from '#domain/errors/errors';
+import type { DomainEvent } from '../events/domain-event';
 
 export interface ArMeta {
   name: string;
@@ -19,6 +20,7 @@ export interface ArMeta {
     createdAt: string;
     updatedAt?: string;
   } & Record<string, unknown>;
+  events?: DomainEvent;
 }
 
 export abstract class Aggregate<TMeta extends ArMeta> {
@@ -34,6 +36,8 @@ export abstract class Aggregate<TMeta extends ArMeta> {
    * Внешний код не имеет доступа (protected).
    */
   protected _state: TMeta['state'];
+
+  private _events: TMeta['events'][] = [];
 
   constructor(state: TMeta['state'], schema: v.GenericSchema<TMeta['state']>) {
     this.schema = schema;
@@ -59,8 +63,27 @@ export abstract class Aggregate<TMeta extends ArMeta> {
   }
 
   /** Проверка инвариантов (переопределяется в наследниках) */
-  protected checkInvariant(): void {
-    // По умолчанию пусто — переопределяется при необходимости
+  protected checkInvariant(): void { }
+
+  /**
+   * Добавить доменное событие в коллектор.
+   */
+  protected addEvent(event: TMeta['events']): void {
+    this._events.push(event);
+  }
+
+  /** Проверить наличие неопубликованных событий */
+  hasEvents(): boolean {
+    return this._events.length > 0;
+  }
+
+  /**
+   * Выдать события и очистить коллектор.
+   */
+  flushEvents(): TMeta['events'][] {
+    const events = [...this._events];
+    this._events = [];
+    return events;
   }
 
   /**
