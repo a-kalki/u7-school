@@ -1,0 +1,21 @@
+Трек 2.2 — API событий в Aggregate
+
+Фаза 1 — ArMeta.events:
+- ArMeta.events?: DomainEvent — опциональное поле
+- EventsOf<TMeta> = TMeta extends {events: infer E} ? E : never — default never
+
+Фаза 2 — Методы Aggregate:
+- private _events: EventsOf<TMeta>[] — коллектор
+- addEvent(event) — protected, добавляет в коллектор
+- hasEvents() — public, проверка на пустоту
+- flushEvents() — public, возврат копии + очистка (атомарно)
+
+Тесты:
+- Агрегат без events (events=never): flushEvents → []
+- Агрегат с events: addEvent → hasEvents → flushEvents → очистка → повторный flush → []
+
+Проверки:
+- tsc --noEmit: чисто (только 2 предсуществующие ошибки в mentor)
+- biome: 1 warning (предсуществующий в events/index.test.ts)
+- bun test: 205 pass, 0 fail
+- Все существующие агрегаты компилируются без изменений
