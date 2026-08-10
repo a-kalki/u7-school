@@ -24,6 +24,9 @@ packages/stream/src/ui/bot/stories/   ← пусто (все стори пере
 - [ ] **Track: Трек 1.1 — Категории, подкатегории и структура анкет метрик**
 *Link: [./tracks/metrics-structure_20260810/](./tracks/metrics-structure_20260810/)*
 
+- [ ] **Track: Трек 1.2 — Вопросы и шкалы: утверждения по контекстам анкет**
+*Link: [./tracks/metrics-questions_20260810/](./tracks/metrics-questions_20260810/)*
+
 ## TODO в коде (для будущих треков)
 
 | Что | Где | Трек |
