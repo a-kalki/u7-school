@@ -1,6 +1,6 @@
 # Реестр треков
 
-- [ ] **Track: Трек 2.1 — EventBus в core**
+- [x] **Track: Трек 2.1 — EventBus в core**
 *Link: [./tracks/metrics-eventbus_20260810/](./tracks/metrics-eventbus_20260810/)*
 
 - [ ] **Track: Трек 2.2 — API событий в Aggregate**
