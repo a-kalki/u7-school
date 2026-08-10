@@ -79,6 +79,10 @@ function makeResolve(value: string): TestResolve {
   return {
     value,
     appResolver: {
+      eventBus: {
+        publish: mock(() => {}),
+        subscribe: mock(() => () => {}),
+      },
       logger: {
         debug: mock(() => {}),
         info: mock(() => {}),

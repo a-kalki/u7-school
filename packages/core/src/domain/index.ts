@@ -36,6 +36,9 @@ export type {
   ValidationIssues,
 } from './errors/errors';
 export { AppException } from './errors/errors';
+// Events
+export type { DomainEvent, EventBus } from './events';
+export { InProcEventBus } from './events';
 export type {
   ApiExecutor,
   ApiModuleMeta,

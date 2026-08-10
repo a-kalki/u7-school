@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import type { User } from '@u7-scl/app/domain';
 import type { U7BotAppMeta } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
+import { InProcEventBus } from '@u7-scl/core/domain';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import type {
@@ -94,7 +95,11 @@ describe('OnboardingController', () => {
         },
       } as unknown as UserFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     };
 
     mod = new OnboardingApiModule(modResolve);
@@ -277,7 +282,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -344,7 +353,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -407,7 +420,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -472,7 +489,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -538,7 +559,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -599,7 +624,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -663,7 +692,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -712,7 +745,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
@@ -765,7 +802,11 @@ describe('OnboardingController', () => {
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
       db,
-      appResolver: { logger, mode: 'test' as const },
+      appResolver: {
+        logger,
+        mode: 'test' as const,
+        eventBus: new InProcEventBus(),
+      },
     });
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;

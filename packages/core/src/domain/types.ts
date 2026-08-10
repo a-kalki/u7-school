@@ -1,5 +1,6 @@
 import type { UcMeta } from '../api/uc/use-case';
 import type { Logger } from '../shared/logger';
+import type { EventBus } from './events/event-bus';
 
 export interface ApiModuleMeta {
   name: string;
@@ -24,6 +25,7 @@ export type AppEnvMode = 'test' | 'development' | 'production';
 export interface AppResolver {
   logger: Logger;
   mode: AppEnvMode;
+  eventBus: EventBus;
 }
 
 /**

@@ -1,4 +1,5 @@
 import { ApiApp } from '@u7-scl/core/api';
+import { InProcEventBus } from '@u7-scl/core/domain';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import { ConsoleLogger } from '@u7-scl/core/shared';
@@ -50,7 +51,11 @@ export function createApiApp(
   const db = new BaseJsonDb();
 
   const appLogger = logger ?? new ConsoleLogger();
-  const appResolver = { logger: appLogger, mode: 'development' as const };
+  const appResolver = {
+    logger: appLogger,
+    mode: 'development' as const,
+    eventBus: new InProcEventBus(),
+  };
 
   const userRepo = new UserJsonRepo(
     `${config.dbDir}/users/users.json`,

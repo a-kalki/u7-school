@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
+import { InProcEventBus } from '@u7-scl/core/domain';
 import { BaseJsonDb } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
 import type { SessionData } from '@u7-scl/core/ui';
@@ -69,7 +70,11 @@ describe('Onboarding E2E', () => {
 
     const db = new BaseJsonDb();
     const logger = new ConsoleLogger();
-    const appResolver = { logger, mode: 'development' as const };
+    const appResolver = {
+      logger,
+      mode: 'development' as const,
+      eventBus: new InProcEventBus(),
+    };
 
     // Репозитории
     userRepo = new UserJsonRepo(usersPath, '', db);

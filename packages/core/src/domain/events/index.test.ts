@@ -8,7 +8,10 @@ import type { EventBus } from './event-bus';
 
 // Мок-реализация EventBus для проверки контракта интерфейса
 class MockEventBus implements EventBus {
-  private handlers = new Map<string, Array<(event: DomainEvent) => Promise<void>>>();
+  private handlers = new Map<
+    string,
+    Array<(event: DomainEvent) => Promise<void>>
+  >();
 
   publish<E extends DomainEvent>(event: E): void {
     const eventHandlers = this.handlers.get(event.eventType) ?? [];

@@ -1,5 +1,6 @@
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppResolver } from '@u7-scl/core/domain';
+import { InProcEventBus } from '@u7-scl/core/domain';
 import { ConsoleLogger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
@@ -16,7 +17,11 @@ import type { CliAppMeta } from './types';
 async function main() {
   const logger = new ConsoleLogger();
   logger.setLogLevel(LogLevel.DEBUG);
-  const appResolver: AppResolver = { logger, mode: 'development' };
+  const appResolver: AppResolver = {
+    logger,
+    mode: 'development',
+    eventBus: new InProcEventBus(),
+  };
 
   const userRepo = new UserJsonRepo();
   const userModule = new UserApiModule({ userRepo, appResolver });
