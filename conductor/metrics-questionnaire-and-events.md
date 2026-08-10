@@ -189,7 +189,7 @@ abstract class UseCase<TMeta extends UcMeta, TResolve> {
 interface Questionnaire {
   uuid: string;
   respondentId: number;              // кто заполняет
-  status: 'in_progress' | 'completed' | 'abandoned';
+  status: 'intention' | 'in_progress' | 'completed' | 'abandoned';
   currentQuestionCode: string | null; // для навигации / продолжения «потом»
   draftAnswers: Record<string, string>;
   answers: Answer[];                  // зафиксированные ответы
