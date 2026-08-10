@@ -1,8 +1,5 @@
 # Реестр треков
 
-- [x] **Track: Трек 1.2 — Вопросы и шкалы: утверждения по контекстам анкет**
-*Link: [./tracks/metrics-questions_20260810/](./tracks/metrics-questions_20260810/)*
-
 - [ ] **Track: Трек 2.1 — EventBus в core**
 *Link: [./tracks/metrics-eventbus_20260810/](./tracks/metrics-eventbus_20260810/)*
 
