@@ -10,8 +10,8 @@
 
 ## Фаза 2: Структура и документация
 
-- [ ] Task: Задокументировать структуру MetricQuestion (code, context, roles, subcategory, text, weight)
-- [ ] Task: Задокументировать маппинг «контекст → подкатегории» с ролями
-- [ ] Task: Задокументировать шкалу Лайкерта 1–5 и принцип тасования
-- [ ] Task: Обновить `conductor/metrics-conception.md`
+- [x] Task: Задокументировать структуру MetricQuestion (code, context, roles, subcategory, text, weight)
+- [x] Task: Задокументировать маппинг «контекст → подкатегории» с ролями
+- [x] Task: Задокументировать шкалу Лайкерта 1–5 и принцип тасования
+- [x] Task: Обновить `conductor/metrics-conception.md`
 - [ ] Task: Conductor - Ручная верификация 'Структура и документация'
