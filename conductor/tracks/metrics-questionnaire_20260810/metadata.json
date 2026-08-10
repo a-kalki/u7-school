@@ -1,0 +1,8 @@
+{
+  "track_id": "metrics-questionnaire_20260810",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-10T00:00:00Z",
+  "updated_at": "2026-08-10T00:00:00Z",
+  "description": "Трек 2.4a: Модуль questionnaire — выделение движка анкет из onboarding в отдельный пакет"
+}
