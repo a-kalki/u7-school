@@ -1,0 +1,7 @@
+Задача: Создать интерфейсы DomainEvent, EventBus и тесты контрактов (Фаза 1)
+Изменения:
+- domain-event.ts: интерфейс доменного события (6 полей)
+- event-bus.ts: интерфейс шины событий (publish + subscribe/unsubscribe)
+- index.ts: barrel-экспорт
+- index.test.ts: 8 тестов контракта через MockEventBus (подписка, мульти-хендлеры, отписка, изоляция, порядок)
+- plan.md: отметка задач Фазы 1
