@@ -79,7 +79,11 @@ export function createApiApp(
   const activePoolService = new QuestionPoolService(rawPool, allQuestionCodes);
 
   // ══ Модули: резолвер в конструкторе ══
-  const userModule = new UserApiModule({ userRepo, appResolver });
+  const userModule = new UserApiModule({
+    userRepo,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  });
   const userFacade = new UserInProcFacade(userModule);
 
   // ══ Course: репозитории, модуль и фасад ══
@@ -97,6 +101,7 @@ export function createApiApp(
     stepRepo,
     userFacade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   const courseFacade = new CourseInProcFacade(courseModule);
@@ -107,6 +112,7 @@ export function createApiApp(
     userFacade,
     db,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   const streamModule = new StreamApiModule({
@@ -116,6 +122,7 @@ export function createApiApp(
     courseFacade,
     tgFacade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   // ══ ApiApp: модули ══

@@ -5,7 +5,26 @@ import { Aggregate } from '#domain/ar/aggregate';
 import { errBadRequest } from '#domain/errors/error-helpers';
 import type { BadRequestError } from '#domain/errors/errors';
 import { AppException } from '#domain/errors/errors';
+import type { EventBus } from '#domain/events/event-bus';
+import type { AppResolver, ModuleResolver } from '#domain/types';
 import { UseCase } from './use-case';
+
+// ══ Хелперы ══
+
+const mockEventBus = {
+  publish(_e: unknown): void {},
+  subscribe(_n: string, _h: (e: unknown) => void): () => void {
+    return () => {};
+  },
+} as unknown as EventBus;
+
+const mockAppResolver = {
+  logger: {},
+  mode: 'test',
+  eventBus: mockEventBus,
+} as unknown as AppResolver;
+
+// ══ Тестовый агрегат ══
 
 type TestUcError = BadRequestError<'TestUcError'>;
 
@@ -35,7 +54,13 @@ interface TestUcMeta {
   type: 'command';
 }
 
-class TestUseCase extends UseCase<TestUcMeta, { test: boolean }> {
+type TestResolve = {
+  test: boolean;
+  eventBus: typeof mockEventBus;
+  appResolver: typeof mockAppResolver;
+} & ModuleResolver;
+
+class TestUseCase extends UseCase<TestUcMeta, TestResolve> {
   protected readonly ucName = 'test-cmd' as const;
   protected readonly ucLabel = 'Тестовый UC' as const;
   protected readonly arMeta = {
@@ -74,7 +99,11 @@ class TestUseCase extends UseCase<TestUcMeta, { test: boolean }> {
 describe('UseCase', () => {
   test('use-case валидирует команду через схему', async () => {
     const uc = new TestUseCase();
-    uc.init({ test: true });
+    uc.init({
+      test: true,
+      eventBus: mockEventBus,
+      appResolver: mockAppResolver,
+    });
 
     let caught: unknown;
     try {
@@ -91,7 +120,11 @@ describe('UseCase', () => {
 
   test('use-case имеет доступ к резолверу модуля и возвращает результат', async () => {
     const uc = new TestUseCase();
-    uc.init({ test: true });
+    uc.init({
+      test: true,
+      eventBus: mockEventBus,
+      appResolver: mockAppResolver,
+    });
 
     const result = await uc.handle({ foo: 'good' });
     expect(result.bar).toBe('ok-true');
@@ -99,7 +132,11 @@ describe('UseCase', () => {
 
   test('use-case выбрасывает ошибку через throwError из бизнес-логики', async () => {
     const uc = new TestUseCase();
-    uc.init({ test: true });
+    uc.init({
+      test: true,
+      eventBus: mockEventBus,
+      appResolver: mockAppResolver,
+    });
 
     let caught: unknown;
     try {

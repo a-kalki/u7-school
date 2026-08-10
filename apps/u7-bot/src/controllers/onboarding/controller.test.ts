@@ -94,6 +94,7 @@ describe('OnboardingController', () => {
         },
       } as unknown as UserFacade,
       db,
+      eventBus: new InProcEventBus(),
       appResolver: {
         logger,
         mode: 'test' as const,
@@ -280,6 +281,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -351,6 +353,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -418,6 +421,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -487,6 +491,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -557,6 +562,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -622,6 +628,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -690,6 +697,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -743,6 +751,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,
@@ -800,6 +809,7 @@ describe('OnboardingController', () => {
       questionnaireRepo,
       questionPoolService: poolService,
       userFacade: modResolve.userFacade,
+      eventBus: new InProcEventBus(),
       db,
       appResolver: {
         logger,

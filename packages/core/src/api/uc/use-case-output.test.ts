@@ -4,7 +4,26 @@ import type { ArMeta } from '#domain/ar/aggregate';
 import { Aggregate } from '#domain/ar/aggregate';
 import type { BadRequestError } from '#domain/errors/errors';
 import { AppException } from '#domain/errors/errors';
+import type { EventBus } from '#domain/events/event-bus';
+import type { AppResolver, ModuleResolver } from '#domain/types';
 import { UseCase } from './use-case';
+
+// ══ Хелперы ══
+
+const mockEventBus = {
+  publish(_e: unknown): void {},
+  subscribe(_n: string, _h: (e: unknown) => void): () => void {
+    return () => {};
+  },
+} as unknown as EventBus;
+
+const mockAppResolver = {
+  logger: {},
+  mode: 'test',
+  eventBus: mockEventBus,
+} as unknown as AppResolver;
+
+// ══ Тестовый агрегат ══
 
 type OutputTestError = BadRequestError<'OutputTestError'>;
 
@@ -32,7 +51,19 @@ interface OutputTestUcMeta {
   type: 'command';
 }
 
-class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
+type OutputResolve = {
+  prefix: string;
+  eventBus: typeof mockEventBus;
+  appResolver: typeof mockAppResolver;
+} & ModuleResolver;
+
+const outputResolve: OutputResolve = {
+  prefix: 'ok',
+  eventBus: mockEventBus,
+  appResolver: mockAppResolver,
+};
+
+class ValidOutputUseCase extends UseCase<OutputTestUcMeta, OutputResolve> {
   protected readonly ucName = 'test-output' as const;
   protected readonly ucLabel = 'Тестовый UC с валидацией выхода';
   protected readonly arMeta = {
@@ -59,10 +90,7 @@ class ValidOutputUseCase extends UseCase<OutputTestUcMeta, { prefix: string }> {
   }
 }
 
-class InvalidOutputUseCase extends UseCase<
-  OutputTestUcMeta,
-  { prefix: string }
-> {
+class InvalidOutputUseCase extends UseCase<OutputTestUcMeta, OutputResolve> {
   protected readonly ucName = 'test-output' as const;
   protected readonly ucLabel = 'Тестовый UC с невалидным выходом';
   protected readonly arMeta = {
@@ -93,7 +121,7 @@ class InvalidOutputUseCase extends UseCase<
 describe('UseCase: output validation', () => {
   test('валидирует корректный output через outputSchema', async () => {
     const uc = new ValidOutputUseCase();
-    uc.init({ prefix: 'ok' });
+    uc.init(outputResolve);
 
     const result = await uc.handle({ foo: 'hello' });
 
@@ -103,7 +131,7 @@ describe('UseCase: output validation', () => {
 
   test('при невалидном output выбрасывает internal error', async () => {
     const uc = new InvalidOutputUseCase();
-    uc.init({ prefix: 'ok' });
+    uc.init(outputResolve);
 
     let caught: unknown;
     try {
@@ -121,7 +149,7 @@ describe('UseCase: output validation', () => {
 
   test('handle() вызывает цепочку validateInput → execute → validateOutput', async () => {
     const uc = new ValidOutputUseCase();
-    uc.init({ prefix: 'chain' });
+    uc.init({ ...outputResolve, prefix: 'chain' });
 
     const result = await uc.handle({ foo: 'link' });
 

@@ -13,7 +13,7 @@ import type {
   OutputValidationError,
 } from '#domain/errors/errors';
 import type { DomainEvent } from '#domain/events/domain-event';
-import type { EventBus } from '#domain/events/event-bus';
+import type { ModuleResolver } from '#domain/types';
 
 type UseCaseType = 'command' | 'query';
 
@@ -42,7 +42,10 @@ export interface UcDocType {
   outputSchema: v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>;
 }
 
-export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
+export abstract class UseCase<
+  TMeta extends UcMeta,
+  TResolve extends ModuleResolver = ModuleResolver,
+> {
   /** Уникальное имя use-case (например "create-course") */
   protected abstract readonly ucName: TMeta['ucName'];
 
@@ -132,8 +135,6 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
 
   /**
    * Публикует доменные события, накопленные агрегатом.
-   * Вызывается в execute() после repo.save().
-   * Если EventBus не настроен или агрегат не имеет событий — ничего не делает.
    */
   protected publishEvents(ar: {
     hasEvents(): boolean;
@@ -141,7 +142,7 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
   }): void {
     if (!ar.hasEvents()) return;
     const events = ar.flushEvents();
-    const eventBus = (this.resolve as { eventBus?: EventBus }).eventBus;
+    const eventBus = this.resolve.eventBus;
     if (!eventBus) return;
     for (const event of events) {
       eventBus.publish(event);

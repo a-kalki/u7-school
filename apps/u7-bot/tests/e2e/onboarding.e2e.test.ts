@@ -123,7 +123,11 @@ describe('Onboarding E2E', () => {
     } as unknown as UserFacade;
 
     // Модули
-    const userModule = new UserApiModule({ userRepo, appResolver });
+    const userModule = new UserApiModule({
+      userRepo,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
 
     const onboardingResolver: OnboardingApiModuleResolver = {
       questionnaireRepo,
@@ -131,6 +135,7 @@ describe('Onboarding E2E', () => {
       userFacade,
       db,
       appResolver,
+      eventBus: appResolver.eventBus,
     };
     const onboardingModule = new OnboardingApiModule(onboardingResolver);
 

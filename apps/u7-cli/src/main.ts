@@ -24,7 +24,11 @@ async function main() {
   };
 
   const userRepo = new UserJsonRepo();
-  const userModule = new UserApiModule({ userRepo, appResolver });
+  const userModule = new UserApiModule({
+    userRepo,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  });
   const userFacade = new UserInProcFacade(userModule);
 
   const courseRepo = new CourseJsonRepo('data/courses/courses.json');
@@ -36,6 +40,7 @@ async function main() {
     stepRepo: new StepJsonRepo(),
     userFacade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   const app = new ApiApp<CliAppMeta>([userModule, courseModule]);

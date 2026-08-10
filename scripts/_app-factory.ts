@@ -99,6 +99,7 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
   const userModule = new UserApiModule({
     userRepo,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
   const userFacade = new UserInProcFacade(userModule);
 
@@ -110,6 +111,7 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
     stepRepo,
     userFacade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   // ApiApp: регистрируем оба модуля

@@ -9,6 +9,12 @@ const NO_SEED = '/nonexistent-seed.json';
 const appResolver = {
   logger: console,
   mode: 'test' as const,
+  eventBus: {
+    publish() {},
+    subscribe() {
+      return () => {};
+    },
+  },
 } as unknown as AppResolver;
 
 describe('UserApiModule + UserJsonRepo', () => {
@@ -17,7 +23,11 @@ describe('UserApiModule + UserJsonRepo', () => {
     await Bun.$`rm -f ${jsonFile}`;
 
     const repo = new UserJsonRepo(jsonFile, NO_SEED);
-    const mod = new UserApiModule({ userRepo: repo, appResolver });
+    const mod = new UserApiModule({
+      userRepo: repo,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
 
     const admin: User = {
       uuid: crypto.randomUUID(),
@@ -52,7 +62,11 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule({ userRepo: repo, appResolver });
+    const mod = new UserApiModule({
+      userRepo: repo,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
 
     const result = await mod.execute('get-user', { uuid: user.uuid });
     expect((result as User).name).toBe('Иван');
@@ -74,7 +88,11 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule({ userRepo: repo, appResolver });
+    const mod = new UserApiModule({
+      userRepo: repo,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
 
     const result = await mod.execute('list-users', {});
     expect((result as { users: User[] }).users).toHaveLength(1);
@@ -96,7 +114,11 @@ describe('UserApiModule + UserJsonRepo', () => {
     };
     await repo.save(user);
 
-    const mod = new UserApiModule({ userRepo: repo, appResolver });
+    const mod = new UserApiModule({
+      userRepo: repo,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
 
     const result = await mod.execute('get-user-by-telegram-id', {
       telegramId: 12345,
@@ -113,6 +135,7 @@ describe('UserApiModule + UserJsonRepo', () => {
     const mod = new UserApiModule({
       userRepo: new UserJsonRepo(jsonFile, NO_SEED),
       appResolver,
+      eventBus: appResolver.eventBus,
     });
 
     await expect(mod.execute('unknown' as any, {} as any)).rejects.toThrow(

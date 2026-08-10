@@ -14,6 +14,12 @@ const tmpDir = mkdtempSync('/tmp/course-api-module-test-');
 const appResolver = {
   logger: console,
   mode: 'test' as const,
+  eventBus: {
+    publish() {},
+    subscribe() {
+      return () => {};
+    },
+  },
 } as unknown as AppResolver;
 
 /** In-memory заглушка фасада пользователей для тестов */
@@ -102,6 +108,7 @@ function setupModule(facade: MockUserFacade) {
     stepRepo: new StepJsonRepo(nextPath('steps')),
     userFacade: facade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 }
 

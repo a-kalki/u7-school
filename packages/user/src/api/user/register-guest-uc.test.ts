@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppResolver } from '@u7-scl/core/domain';
-import { BaseJsonDb } from '@u7-scl/core/infra';
+import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
 import { Role } from '#domain/user/roles';
 import { UserJsonRepo } from '#infra/db/user-json-repo';
 import { UserApiModule } from '../module';
@@ -22,9 +22,11 @@ describe('RegisterGuestUc', () => {
     userRepo = new UserJsonRepo(join(tmpDir, 'users.json'), undefined, db);
     mod = new UserApiModule({
       userRepo,
+      eventBus: new InProcEventBus(),
       appResolver: {
         logger: console,
         mode: 'test' as const,
+        eventBus: new InProcEventBus(),
       } as unknown as AppResolver,
     });
     apiApp = new ApiApp([mod]);

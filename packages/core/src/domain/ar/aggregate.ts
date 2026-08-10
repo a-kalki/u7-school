@@ -63,7 +63,7 @@ export abstract class Aggregate<TMeta extends ArMeta> {
   }
 
   /** Проверка инвариантов (переопределяется в наследниках) */
-  protected checkInvariant(): void { }
+  protected checkInvariant(): void {}
 
   /**
    * Добавить доменное событие в коллектор.

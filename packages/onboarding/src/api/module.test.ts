@@ -9,6 +9,12 @@ import { OnboardingApiModule } from './module';
 const appResolver = {
   logger: console,
   mode: 'test' as const,
+  eventBus: {
+    publish() {},
+    subscribe() {
+      return () => {};
+    },
+  },
 } as unknown as AppResolver;
 
 const mockUserFacade = {
@@ -43,6 +49,7 @@ function setupModule(dbPath: string) {
     userFacade: mockUserFacade,
     db,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   return { module, repo, db };

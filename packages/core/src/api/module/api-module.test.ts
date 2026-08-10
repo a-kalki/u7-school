@@ -76,13 +76,15 @@ class TestModule extends ApiModule<TestModuleMeta, TestResolve> {
 // ══ Помощник: создать тестовый резолвер ══
 
 function makeResolve(value: string): TestResolve {
+  const eb = {
+    publish: mock(() => {}),
+    subscribe: mock(() => () => {}),
+  };
   return {
     value,
+    eventBus: eb,
     appResolver: {
-      eventBus: {
-        publish: mock(() => {}),
-        subscribe: mock(() => () => {}),
-      },
+      eventBus: eb,
       logger: {
         debug: mock(() => {}),
         info: mock(() => {}),

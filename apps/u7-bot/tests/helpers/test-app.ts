@@ -90,7 +90,11 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const stepRepo = new StepJsonRepo(fixtures.courses.steps);
 
   // ══ Модули ══
-  const userModule = new UserApiModule({ userRepo, appResolver });
+  const userModule = new UserApiModule({
+    userRepo,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  });
   const userFacade = new UserInProcFacade(userModule);
 
   const courseRepo = new CourseJsonRepo(fixtures.courses.courses);
@@ -103,6 +107,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     stepRepo,
     userFacade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
   const courseFacade = new CourseInProcFacade(courseModule);
 
@@ -115,6 +120,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     courseFacade,
     tgFacade,
     appResolver,
+    eventBus: appResolver.eventBus,
   });
 
   // ══ ApiApp: все модули ══

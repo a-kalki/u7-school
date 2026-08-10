@@ -1,7 +1,18 @@
 import { describe, expect, test } from 'bun:test';
 import type { DomainEvent } from '#domain/events/domain-event';
+import type { AppResolver } from '#domain/types';
 import { InProcEventBus } from '../../infra/in-proc-event-bus';
 import { UseCase } from './use-case';
+
+// ═══════════════════════════════════════════════════════════════════
+// Константы
+// ═══════════════════════════════════════════════════════════════════
+
+const mockAppResolver = {
+  logger: {},
+  mode: 'test',
+  eventBus: {} as AppResolver['eventBus'],
+} as unknown as AppResolver;
 
 // ═══════════════════════════════════════════════════════════════════
 // Моки
@@ -92,7 +103,7 @@ describe('UseCase.publishEvents', () => {
     });
 
     const uc = new TestUc();
-    uc.init({ eventBus } as never);
+    uc.init({ eventBus, appResolver: mockAppResolver });
 
     const ar = new ArWithEvents();
     const event: DomainEvent = {
@@ -109,26 +120,7 @@ describe('UseCase.publishEvents', () => {
 
     expect(received).toHaveLength(1);
     expect(received[0]!.eventId).toBe('evt-001');
-    // После публикации события в агрегате больше нет
     expect(ar.hasEvents()).toBe(false);
-  });
-
-  test('без EventBus в resolve — не падает', () => {
-    const uc = new TestUc();
-    uc.init({} as never); // resolve без eventBus
-
-    const ar = new ArWithEvents();
-    ar.addEvent({
-      eventId: 'evt-002',
-      eventName: 'completed',
-      occurredAt: new Date().toISOString(),
-      aggregateName: 'TestAr',
-      aggregateId: 'ar-1',
-      payload: {},
-    });
-
-    // Не должно упасть
-    expect(() => uc.testPublishEvents(ar)).not.toThrow();
   });
 
   test('агрегат без событий — не падает, ничего не публикует', () => {
@@ -139,7 +131,7 @@ describe('UseCase.publishEvents', () => {
     });
 
     const uc = new TestUc();
-    uc.init({ eventBus } as never);
+    uc.init({ eventBus, appResolver: mockAppResolver });
 
     const ar = new ArWithoutEvents();
 
@@ -158,7 +150,7 @@ describe('UseCase.publishEvents', () => {
     });
 
     const uc = new TestUc();
-    uc.init({ eventBus } as never);
+    uc.init({ eventBus, appResolver: mockAppResolver });
 
     const ar = new ArWithEvents();
     ar.addEvent({

@@ -4,7 +4,26 @@ import type { ArMeta } from '#domain/ar/aggregate';
 import { Aggregate } from '#domain/ar/aggregate';
 import type { AccessDeniedError } from '#domain/errors/errors';
 import { AppException } from '#domain/errors/errors';
+import type { EventBus } from '#domain/events/event-bus';
+import type { AppResolver, ModuleResolver } from '#domain/types';
 import { UseCase } from './use-case';
+
+// ══ Хелперы ══
+
+const mockEventBus = {
+  publish(_e: unknown): void {},
+  subscribe(_n: string, _h: (e: unknown) => void): () => void {
+    return () => {};
+  },
+} as unknown as EventBus;
+
+const mockAppResolver = {
+  logger: {},
+  mode: 'test',
+  eventBus: mockEventBus,
+} as unknown as AppResolver;
+
+// ══ Тестовый агрегат ══
 
 type AuthTestError = AccessDeniedError<'AuthTestError'>;
 
@@ -32,8 +51,14 @@ interface AuthUcMeta {
   type: 'command' | 'query';
 }
 
+type AuthResolve = {
+  prefix: string;
+  eventBus: typeof mockEventBus;
+  appResolver: typeof mockAppResolver;
+} & ModuleResolver;
+
 /** UseCase, требующий авторизацию */
-class AuthRequiredUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
+class AuthRequiredUseCase extends UseCase<AuthUcMeta, AuthResolve> {
   protected readonly ucName = 'test-auth' as const;
   protected readonly ucLabel = 'Тестовый UC с авторизацией';
   protected readonly arMeta = {
@@ -55,7 +80,7 @@ class AuthRequiredUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
 }
 
 /** UseCase без авторизации */
-class AuthOptionalUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
+class AuthOptionalUseCase extends UseCase<AuthUcMeta, AuthResolve> {
   protected readonly ucName = 'test-auth' as const;
   protected readonly ucLabel = 'Тестовый UC без авторизации';
   protected readonly arMeta = {
@@ -78,10 +103,16 @@ class AuthOptionalUseCase extends UseCase<AuthUcMeta, { prefix: string }> {
   }
 }
 
+const authResolve: AuthResolve = {
+  prefix: 'ok',
+  eventBus: mockEventBus,
+  appResolver: mockAppResolver,
+};
+
 describe('UseCase: авторизация', () => {
   test('requiresAuth=true требует actorId, иначе выбрасывает ошибку', async () => {
     const uc = new AuthRequiredUseCase();
-    uc.init({ prefix: 'ok' });
+    uc.init(authResolve);
 
     let caught: unknown;
     try {
@@ -98,7 +129,7 @@ describe('UseCase: авторизация', () => {
 
   test('requiresAuth=true с actorId выполняется успешно', async () => {
     const uc = new AuthRequiredUseCase();
-    uc.init({ prefix: 'ok' });
+    uc.init(authResolve);
 
     const result = await uc.handle({ data: 'test' }, 'user-1');
     expect(result.result).toBe('ok:user-1:test');
@@ -106,7 +137,7 @@ describe('UseCase: авторизация', () => {
 
   test('requiresAuth=false работает без actorId', async () => {
     const uc = new AuthOptionalUseCase();
-    uc.init({ prefix: 'ok' });
+    uc.init(authResolve);
 
     const result = await uc.handle({ data: 'test' });
     expect(result.result).toBe('ok:anon:test');
