@@ -2,9 +2,9 @@
 
 ## Фаза 1: Интерфейсы
 
-- [ ] Task: Создать `DomainEvent` интерфейс в `packages/core/src/domain/events/domain-event.ts`
-- [ ] Task: Создать `EventBus` интерфейс в `packages/core/src/domain/events/event-bus.ts`
-- [ ] Task: Написать unit-тесты на интерфейсные контракты (мок-реализация)
+- [x] Task: Создать `DomainEvent` интерфейс в `packages/core/src/domain/events/domain-event.ts` [93ae2e1]
+- [x] Task: Создать `EventBus` интерфейс в `packages/core/src/domain/events/event-bus.ts` [93ae2e1]
+- [x] Task: Написать unit-тесты на интерфейсные контракты (мок-реализация) [93ae2e1]
 - [ ] Task: Conductor - Ручная верификация 'Интерфейсы'
 
 ## Фаза 2: InProcEventBus
