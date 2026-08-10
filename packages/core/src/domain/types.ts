@@ -34,6 +34,8 @@ export interface AppResolver {
  */
 export interface ModuleResolver {
   appResolver: AppResolver;
+  /** EventBus для публикации доменных событий (опционально). */
+  eventBus?: EventBus;
 }
 
 // ══ Универсальный исполнитель команд ══

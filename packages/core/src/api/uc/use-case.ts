@@ -12,6 +12,8 @@ import type {
   InputValidationError,
   OutputValidationError,
 } from '#domain/errors/errors';
+import type { DomainEvent } from '#domain/events/domain-event';
+import type { EventBus } from '#domain/events/event-bus';
 
 type UseCaseType = 'command' | 'query';
 
@@ -120,11 +122,31 @@ export abstract class UseCase<TMeta extends UcMeta, TResolve = unknown> {
     return this.validateOutput(result);
   }
 
-  /** Бизнес-логика use-case */
+  /**
+   * Бизнес-логика use-case
+   */
   protected abstract execute(
     command: TMeta['input'],
     actorId: TMeta['requiresAuth'] extends true ? string : string | undefined,
   ): Promise<TMeta['output']> | TMeta['output'];
+
+  /**
+   * Публикует доменные события, накопленные агрегатом.
+   * Вызывается в execute() после repo.save().
+   * Если EventBus не настроен или агрегат не имеет событий — ничего не делает.
+   */
+  protected publishEvents(ar: {
+    hasEvents(): boolean;
+    flushEvents(): DomainEvent[];
+  }): void {
+    if (!ar.hasEvents()) return;
+    const events = ar.flushEvents();
+    const eventBus = (this.resolve as { eventBus?: EventBus }).eventBus;
+    if (!eventBus) return;
+    for (const event of events) {
+      eventBus.publish(event);
+    }
+  }
 
   /**
    * Единый метод для выбрасывания ошибок.
