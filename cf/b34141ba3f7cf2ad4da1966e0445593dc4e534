@@ -1,0 +1,17 @@
+Трек 2.1 — EventBus в core (Фазы 2+3)
+
+InProcEventBus:
+- Map<eventType, handler[]> — хранение обработчиков
+- publish() — синхронный вызов, try/catch для синхронных исключений, Promise.catch для rejected
+- subscribe() — возвращает функцию отписки
+- 9 unit-тестов: подписка, мульти-хендлеры, отписка, изоляция синхронных и асинхронных ошибок, порядок, изоляция eventType
+
+Интеграция:
+- AppResolver.eventBus: EventBus — обязательное поле
+- InProcEventBus инициализируется во всех точках: create-api-app, test-app, onboarding.e2e, controller.test, u7-cli, api-module.test, _app-factory
+- Экспорт через domain/index.ts и events/index.ts
+
+Проверки:
+- tsc --noEmit: чисто (2 предсуществующие ошибки не из трека)
+- biome check: чисто (0 ошибок)
+- bun test: 203 pass (core + u7-bot)
