@@ -33,6 +33,7 @@ interface Questionnaire {
   currentQuestionCode: string | null;   // для навигации / продолжения «потом»
   draftAnswers: Record<string, string>; // незакоммиченные черновики
   answers: Answer[];           // зафиксированные ответы
+  questionPool: Question[];    // снимок пула на момент start()
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
@@ -77,7 +78,7 @@ interface Question {
 
 `QuestionnaireAr` — абстрактный агрегат (от него унаследуется `MetricQuestionnaireAr` в треке 2.4b):
 
-- `start(questionPool)` — начинает анкету, выдаёт первый вопрос
+- `start(questionPool)` — получает пул вопросов, сохраняет снимок в state, выдаёт первый вопрос
 - `handleAction(action)` — обрабатывает ответ пользователя, фиксирует `Answer`, определяет следующий вопрос
 - `abandon()` — бросает анкету
 - `findAndSetNextQuestion()` — внутренний метод навигации
@@ -87,8 +88,8 @@ interface Question {
 
 `QuestionnaireFacade` — единственная точка входа для потребителей:
 
-- `start(respondentId)` → создаёт простую анкету (для онбординга), возвращает первый `QuestionnaireActionResponse`
-- `startMetric(context, role, subjectId, respondentId, triggerEvent?)` → создаёт метрик-анкету
+- `start(respondentId, questionPool)` → создаёт простую анкету (для онбординга), сохраняет снимок пула, возвращает первый `QuestionnaireActionResponse`
+- `startMetric(context, role, subjectId, respondentId, questionPool, triggerEvent?)` → создаёт метрик-анкету, сохраняет снимок пула
 - `handleAction(questionnaireId, action)` → обрабатывает ответ, возвращает следующий шаг
 - `getQuestionnaire(questionnaireId)` → полная анкета с answers
 - `getQuestionnairesByUser(telegramId)` → все анкеты пользователя

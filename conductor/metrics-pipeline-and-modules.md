@@ -42,7 +42,7 @@ EventBus ──> peer-review (подписчик)
 
 **Проблема:** сейчас `questionnaire.start()` сразу начинает анкету и захватывает ввод пользователя. Но для peer-review надо: студент завершил модуль → показать кнопку «Оценить напарника» → студент сам решает когда нажать.
 
-**Решение — `QuestionnaireFacade.createIntention()`:**
+**Решение — `QuestionnaireFacade.createIntention()` (пул НЕ передаётся — он понадобится только при `start()` после согласия):**
 
 ```typescript
 interface CreateIntentionCmd {
@@ -63,7 +63,7 @@ interface IntentionResult {
 **Механика:**
 1. `createIntention()` создаёт запись в `IntentionRepo` (in-progress намерение) и возвращает `IntentionResult`
 2. Бот показывает пользователю `message` с кнопкой (callback = `actionCode`)
-3. Когда пользователь нажимает кнопку → контроллер анкет по `actionCode` находит намерение → вызывает `questionnaire.start()`
+3. Когда пользователь нажимает кнопку → контроллер анкет по `actionCode` находит намерение → загружает пул вопросов (по `context` + `role`) → вызывает `startMetric()` с пулом
 4. Intention помечается как fulfilled
 
 **Хранение intentions:**

@@ -14,7 +14,7 @@
 ## FR2 — Интеграция с QuestionnaireFacade
 
 `OnboardingAr` использует фасад:
-- `questionnaireFacade.start(telegramId)` — старт онбординг-анкеты
+- `questionnaireFacade.start(telegramId, questionPool)` — старт онбординг-анкеты
 - `questionnaireFacade.handleAction(questionnaireId, action)` — обработка ответов
 - `questionnaireFacade.getQuestionnaire(questionnaireId)` — получение результатов
 
