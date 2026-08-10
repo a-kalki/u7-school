@@ -21,7 +21,7 @@
 ## FR3 — Подписка на QuestionnaireCompleted
 
 - Onboarding подписывается через EventBus на `questionnaire.completed`
-- При событии с `questionnaireType === 'onboarding'` — выдаёт роль `CANDIDATE`
+- При событии с `context === 'onboarding'` — выдаёт роль `CANDIDATE`
 - Старая логика (completed → роль) удаляется из анкетного движка
 
 ## FR4 — OnboardingController

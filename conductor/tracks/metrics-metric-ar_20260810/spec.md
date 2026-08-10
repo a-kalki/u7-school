@@ -27,7 +27,7 @@ class MetricQuestionnaireAr extends BaseQuestionnaireAr {
 ```typescript
 {
   questionnaireId, subjectId, respondentId,
-  questionnaireType, triggerEvent,
+  context, role, triggerEvent,
   answers: Answer[],
   metricScores: MetricScore[]
 }

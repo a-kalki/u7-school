@@ -26,7 +26,8 @@ interface Questionnaire {
   uuid: string;
   respondentId: number;        // кто заполняет
   subjectId: number | null;    // о ком анкета (null для онбординга)
-  questionnaireType: string;   // "onboarding" | "peer_review" | "mentor_review" | "pair_programming" | "code_review"
+  context: string;             // "onboarding" | "module_completed" | "pair_programming" | "code_review" | "initiative"
+  role: string;                // "student_student" | "mentor_student" | "student_mentor"
   triggerEvent: {              // что породило анкету
     type: string;              // "module_completed", "onboarding_start", ...
     aggregateId: string;
@@ -75,7 +76,7 @@ interface Question {
 
 `QuestionnaireFacade` — единственная точка входа для потребителей:
 
-- `start(type, subjectId, respondentId, triggerEvent?)` → возвращает первый `QuestionnaireActionResponse`
+- `start(context, role, subjectId, respondentId, triggerEvent?)` → возвращает первый `QuestionnaireActionResponse`
 - `handleAction(questionnaireId, action)` → обрабатывает ответ, возвращает следующий шаг
 - `getQuestionnaire(questionnaireId)` → полная анкета с answers
 - `getQuestionnairesByUser(telegramId)` → все анкеты пользователя

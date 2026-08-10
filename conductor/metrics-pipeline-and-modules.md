@@ -46,7 +46,8 @@ EventBus ──> peer-review (подписчик)
 
 ```typescript
 interface CreateIntentionCmd {
-  questionnaireType: string;     // "peer_review", "mentor_review", "pair_programming"
+  context: string;               // "module_completed" | "pair_programming" | "code_review" | "initiative"
+  role: string;                  // "student_student" | "mentor_student" | "student_mentor"
   subjectId: number;             // о ком анкета
   respondentId: number;          // кто будет заполнять
   triggerEvent?: { type: string; aggregateId: string };
@@ -156,22 +157,24 @@ async execute(event: ModuleCompletedEvent): Promise<void> {
   // 1. Найти группу (всех студентов того же потока)
   const group = await this.resolve.streamFacade.getGroupByCourseId(courseId);
 
-  // 2. Для каждой ПАРЫ студентов (A←B, B←A) — создать intention на peer_review
+  // 2. Для каждой ПАРЫ студентов (A←B, B←A) — создать intention student_student
   for (const reviewer of group) {
     if (reviewer.telegramId === studentId) continue; // не себе
 
     await this.resolve.questionnaireFacade.createIntention({
-      questionnaireType: 'peer_review',
+      context: 'module_completed',
+      role: 'student_student',
       subjectId: studentId,
       respondentId: reviewer.telegramId,
       triggerEvent: { type: 'module_completed', aggregateId: event.aggregateId },
     });
   }
 
-  // 3. Для ментора потока — intention на mentor_review
+  // 3. Для ментора потока — intention на mentor_student
   const mentor = await this.resolve.streamFacade.getMentor(courseId);
   await this.resolve.questionnaireFacade.createIntention({
-    questionnaireType: 'mentor_review',
+    context: 'module_completed',
+    role: 'mentor_student',
     subjectId: studentId,
     respondentId: mentor.telegramId,
     triggerEvent: { type: 'module_completed', aggregateId: event.aggregateId },
@@ -181,7 +184,7 @@ async execute(event: ModuleCompletedEvent): Promise<void> {
 
 **Парное программирование:**
 - `PeerReviewAr` управляет сессией: `start(reviewerId, programmerId, lessonId)` → `complete(outcome)`
-- При `complete()` → создаёт intention типа `pair_programming` для «смотревшего» оценить «программировавшего»
+- При `complete()` → создаёт intention с `context: 'pair_programming', role: 'student_student'` для «смотревшего» оценить «программировавшего»
 - Пул вопросов для `pair_programming` фокусируется на самостоятельности (ключевой вопрос: «писал ли код сам, без ИИ»)
 
 **Контроллер бота:**
@@ -241,15 +244,11 @@ interface MetricScore {
 interface StudentMetrics {
   uuid: string;
   studentTelegramId: number;
-  hardSkills: MetricScore[];       // разбивка по подкатегориям
-  softSkills: MetricScore[];
-  autoMetrics: {                    // авто-метрики от stream
-    attendance: number;             // %
-    avgStepTime: number;            // минут
-    completionRate: number;         // %
-  };
-  mentorRecommendation?: string;    // текст рекомендации ментора
-  peerRecommendations: string[];    // рекомендации студентов
+  professionalSkills: MetricScore[];  // разбивка по подкатегориям профессионализма
+  teamSkills: MetricScore[];          // разбивка по подкатегориям командных
+  personalSkills: MetricScore[];      // разбивка по подкатегориям личностных
+  mentorRecommendation?: string;      // текст рекомендации ментора
+  peerRecommendations: string[];      // рекомендации студентов
   updatedAt: string;
 }
 ```
@@ -268,7 +267,7 @@ async execute(event: QuestionnaireCompletedEvent): Promise<void> {
   }
 
   const ar = new StudentMetricsAr(metrics);
-  ar.ingestScores(metricScores, event.payload.questionnaireType);
+  ar.ingestScores(metricScores, event.payload.context);
   // ar пересчитывает средние, обновляет sampleSize
 
   await this.resolve.studentMetricsRepo.save(ar.state);

@@ -187,7 +187,8 @@ abstract class UseCase<TMeta extends UcMeta, TResolve> {
   uuid,                              // без изменений
   respondentId: number,              // кто заполняет (бывший telegramId)
   subjectId: number,                 // о ком анкета (новое)
-  questionnaireType: string,         // "onboarding" | "peer_review" | "mentor_review" | "pair_programming"
+  context: string,                   // "onboarding" | "module_completed" | "pair_programming" | "code_review" | "initiative"
+  role: string,                      // "student_student" | "mentor_student" | "student_mentor"
   triggerEvent: {                    // что породило анкету (новое)
     type: string;                    // "module_completed", "lesson_completed", "onboarding_start"
     aggregateId: string;
@@ -206,9 +207,9 @@ abstract class UseCase<TMeta extends UcMeta, TResolve> {
 ```typescript
 // Question.condition дополняется metricMapping
 interface MetricMapping {
-  category: string;       // "hard_skills" | "soft_skills"
-  subcategory: string;    // "code_quality" | "communication" | ...
-  weight: number;         // по умолчанию 1.0
+  category: string;       // "professional_skills" | "team_skills" | "personal_skills"
+  subcategory: string;    // "work_quality" | "communication" | ...
+  weight: number;         // 0.75 | 1.0 | 1.25, по умолчанию 1.0
 }
 ```
 
@@ -224,11 +225,11 @@ BaseQuestionnaireAr         — абстрактный: start, handleAction, aba
 
 **`MetricQuestionnaireAr`** при завершении:
 - Вычисляет баллы по `metricMapping` вопросов → `metricScores: MetricScore[]`
-- Кладёт событие `QuestionnaireCompleted` с payload: `{ subjectId, respondentId, questionnaireType, answers, metricScores, triggerEvent }`
+- Кладёт событие `QuestionnaireCompleted` с payload: `{ subjectId, respondentId, context, role, answers, metricScores, triggerEvent }`
 
 **Фасад `QuestionnaireFacade`:**
-- `start(type, subjectId, respondentId, triggerEvent?)` → создаёт анкету, возвращает первый вопрос
-- `createIntention(type, subjectId, respondentId)` → создаёт «намерение», возвращает `{ intentionId, message }` (см. трек 3.1 в Документе 3)
+- `start(context, role, subjectId, respondentId, triggerEvent?)` → создаёт анкету, возвращает первый вопрос
+- `createIntention(context, role, subjectId, respondentId)` → создаёт «намерение», возвращает `{ intentionId, message }` (см. трек 3.1 в Документе 3)
 - `getAnswers(questionnaireId)` → ответы + metricScores
 
 **`QuestionPoolService`** — расширить: `getAllWithMetricMapping()` для отладки.
