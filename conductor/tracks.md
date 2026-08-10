@@ -39,6 +39,9 @@ packages/stream/src/ui/bot/stories/   ← пусто (все стори пере
 - [ ] **Track: Трек 2.4a — Модуль questionnaire (выделение из onboarding)**
 *Link: [./tracks/metrics-questionnaire_20260810/](./tracks/metrics-questionnaire_20260810/)*
 
+- [ ] **Track: Трек 2.4b — MetricQuestionnaireAr и metricMapping**
+*Link: [./tracks/metrics-metric-ar_20260810/](./tracks/metrics-metric-ar_20260810/)*
+
 ## TODO в коде (для будущих треков)
 
 | Что | Где | Трек |
