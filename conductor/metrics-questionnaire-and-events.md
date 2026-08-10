@@ -193,8 +193,8 @@ interface Questionnaire {
   currentQuestionCode: string | null; // для навигации / продолжения «потом»
   draftAnswers: Record<string, string>;
   answers: Answer[];                  // зафиксированные ответы
-  questionPool: Question[];           // снимок пула на момент start() — гарантирует
-                                      // консистентность при продолжении «потом»
+  questionPool: Question[] | null;  // снимок пула — null в статусе intention,
+                                      // заполняется при переходе intention→in_progress
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
@@ -214,10 +214,10 @@ interface MetricQuestionnaire extends Questionnaire {
 }
 ```
 
-**Пул как состояние:** при `start()` агрегат получает пул вопросов (отфильтрованный по `context`/`roles`) и сохраняет его снимок в `questionPool`. Это гарантирует:
-- Навигация (`findAndSetNextQuestion`) не требует внешнего сервиса
-- Продолжение «потом» работает даже если конфиг пула изменился между сессиями
-- Тот же принцип что у `Answer` — анкета самодостаточна
+**Жизненный цикл:** агрегат анкеты проходит через статусы:
+- `intention` — намерение создано, пул = null, пользователю отправлено приглашение
+- `in_progress` — пользователь согласился, пул загружен, идёт заполнение
+- `completed` / `abandoned`
 ```
 
 **`metricMapping` в вопросах пула** — опциональные метаданные:
@@ -249,9 +249,9 @@ QuestionnaireAr                 — абстрактный: start, handleAction,
   - Метриковая часть (только для MetricQuestionnaire): `{ subjectId, context, role, metricScores, triggerEvent }`
 
 **Фасад `QuestionnaireFacade`:**
-- `start(respondentId, questionPool)` → создаёт простую анкету (для онбординга), сохраняет снимок пула, возвращает первый вопрос
-- `startMetric(context, role, subjectId, respondentId, questionPool, triggerEvent?)` → создаёт метрик-анкету, сохраняет снимок пула, возвращает первый вопрос
-- `createIntention(context, role, subjectId, respondentId)` → создаёт «намерение» (без пула — пул передаётся при `startMetric` после согласия), возвращает `{ intentionId, message }` (см. трек 3.1 в Документе 3)
+- `start(respondentId, questionPool)` → создаёт агрегат сразу в `in_progress` (для онбординга — без фазы intention), возвращает первый вопрос
+- `createIntention(context, role, subjectId, respondentId)` → создаёт агрегат в статусе `intention` (пул = null), возвращает `{ questionnaireId, message }`
+- `startMetric(questionnaireId, questionPool, triggerEvent?)` → переводит существующий агрегат `intention` → `in_progress`, сохраняет снимок пула, возвращает первый вопрос
 - `getAnswers(questionnaireId)` → ответы + metricScores (null для простых анкет)
 
 **`QuestionPoolService`** — расширить: `getAllWithMetricMapping()` для отладки.

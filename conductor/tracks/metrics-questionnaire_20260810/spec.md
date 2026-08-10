@@ -29,11 +29,11 @@ interface Answer {
 interface Questionnaire {
   uuid: string;
   respondentId: number;        // кто заполняет
-  status: 'in_progress' | 'completed' | 'abandoned';
+  status: 'intention' | 'in_progress' | 'completed' | 'abandoned';
   currentQuestionCode: string | null;   // для навигации / продолжения «потом»
   draftAnswers: Record<string, string>; // незакоммиченные черновики
   answers: Answer[];           // зафиксированные ответы
-  questionPool: Question[];    // снимок пула на момент start()
+  questionPool: Question[] | null;  // null в intention, снимок при in_progress
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
@@ -88,8 +88,9 @@ interface Question {
 
 `QuestionnaireFacade` — единственная точка входа для потребителей:
 
-- `start(respondentId, questionPool)` → создаёт простую анкету (для онбординга), сохраняет снимок пула, возвращает первый `QuestionnaireActionResponse`
-- `startMetric(context, role, subjectId, respondentId, questionPool, triggerEvent?)` → создаёт метрик-анкету, сохраняет снимок пула
+- `start(respondentId, questionPool)` → создаёт агрегат сразу в `in_progress` (для онбординга), возвращает первый `QuestionnaireActionResponse`
+- `createIntention(context, role, subjectId, respondentId)` → создаёт агрегат в статусе `intention` (пул = null), возвращает `{ questionnaireId, message }`
+- `startMetric(questionnaireId, questionPool, triggerEvent?)` → переводит `intention` → `in_progress`, сохраняет снимок пула
 - `handleAction(questionnaireId, action)` → обрабатывает ответ, возвращает следующий шаг
 - `getQuestionnaire(questionnaireId)` → полная анкета с answers
 - `getQuestionnairesByUser(telegramId)` → все анкеты пользователя
@@ -143,7 +144,7 @@ packages/questionnaire/src/
 ## За рамками
 
 - `MetricQuestionnaireAr` и metricMapping (→ Трек 2.4b)
-- `IntentionRepo` и intention-паттерн (→ Трек 3.1)
+- Intention-паттерн через статусы агрегата (→ Трек 3.1)
 - Перевод onboarding на новый questionnaire (→ Трек 2.5)
 - UI-контроллер для questionnaire
 

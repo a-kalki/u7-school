@@ -42,36 +42,28 @@ EventBus ──> peer-review (подписчик)
 
 **Проблема:** сейчас `questionnaire.start()` сразу начинает анкету и захватывает ввод пользователя. Но для peer-review надо: студент завершил модуль → показать кнопку «Оценить напарника» → студент сам решает когда нажать.
 
-**Решение — `QuestionnaireFacade.createIntention()` (пул НЕ передаётся — он понадобится только при `start()` после согласия):**
+**Решение — жизненный цикл через статусы агрегата:**
 
-```typescript
-interface CreateIntentionCmd {
-  context: string;               // "module_completed" | "pair_programming" | "code_review" | "initiative"
-  role: string;                  // "student_student" | "mentor_student" | "student_mentor"
-  subjectId: number;             // о ком анкета
-  respondentId: number;          // кто будет заполнять
-  triggerEvent?: { type: string; aggregateId: string };
-}
+Вместо отдельной сущности `Intention` и `IntentionRepo`, агрегат анкеты получает новый статус `intention`:
 
-interface IntentionResult {
-  intentionId: string;           // уникальный ID намерения
-  message: string;               // текст для показа пользователю
-  actionCode: string;            // callback-код кнопки "Заполнить анкету"
-}
+```
+intention → in_progress → completed/abandoned
 ```
 
+**Фасад:**
+- `createIntention(context, role, subjectId, respondentId)` → создаёт агрегат в статусе `intention` (пул = null), возвращает `{ questionnaireId, message }`
+- `startMetric(questionnaireId, questionPool, triggerEvent?)` → переводит `intention` → `in_progress`, сохраняет снимок пула, возвращает первый вопрос
+
 **Механика:**
-1. `createIntention()` создаёт запись в `IntentionRepo` (in-progress намерение) и возвращает `IntentionResult`
-2. Бот показывает пользователю `message` с кнопкой (callback = `actionCode`)
-3. Когда пользователь нажимает кнопку → контроллер анкет по `actionCode` находит намерение → загружает пул вопросов (по `context` + `role`) → вызывает `startMetric()` с пулом
-4. Intention помечается как fulfilled
+1. `createIntention()` создаёт агрегат в статусе `intention` и возвращает `questionnaireId` + текст приглашения
+2. Бот показывает пользователю приглашение с кнопкой
+3. Когда пользователь нажимает кнопку → контроллер загружает пул вопросов (по `context` + `role`) → вызывает `startMetric(questionnaireId, questionPool)`
+4. Агрегат переходит `intention` → `in_progress`, начинает анкету
 
-**Хранение intentions:**
-- Новый интерфейс `IntentionRepo` в `questionnaire/domain/`
-- Реализация: `IntentionJsonRepo` (как и QuestionnaireRepo)
-- При старте анкеты intention проверяется на принадлежность пользователю и статус
-
-**Местоположение:** `packages/questionnaire/src/domain/intention/` (entity, repo), `api/intention/` (create-intention-uc).
+**Преимущества:**
+- Один агрегат, один `QuestionnaireRepo` — без дополнительных сущностей
+- Естественный жизненный цикл через статусы
+- Пул не нужен до фактического старта — `questionPool` остаётся `null` в статусе `intention`
 
 ---
 
@@ -298,7 +290,7 @@ async execute(event: QuestionnaireCompletedEvent): Promise<void> {
 │  привязка к  │     │                 │
 │  курсам,     │     │ • BaseAr        │
 │  роль после  │     │ • MetricAr      │
-│  анкеты)     │     │ • IntentionRepo │
+│  анкеты)     │     │ • MetricAr      │
 └──────────────┘     │ • QuestionPool  │
                      └────────┬────────┘
                               │ зависит
