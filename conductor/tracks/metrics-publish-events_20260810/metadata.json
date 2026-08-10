@@ -1,0 +1,8 @@
+{
+  "track_id": "metrics-publish-events_20260810",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-10T00:00:00Z",
+  "updated_at": "2026-08-10T00:00:00Z",
+  "description": "Трек 2.3: publishEvents в UseCase — метод для публикации событий агрегата после сохранения"
+}
