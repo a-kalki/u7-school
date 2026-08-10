@@ -43,7 +43,7 @@
 
 1. **Модуль `questionnaire`** — чистый движок анкет. Не знает о метриках, но вопросы в пуле содержат метаданные `metricMapping: { category, subcategory, weight }`. При завершении анкеты возвращает не только ответы, но и предвычисленные баллы по категориям.
 
-2. **Иерархия анкет:** `BaseQuestionnaireAr` (абстрактный) → `MetricQuestionnaireAr` (для метрик, умеет выдавать `MetricScore[]`). Онбординг-анкета — частный случай без metricMapping.
+2. **Иерархия анкет:** `QuestionnaireAr` (абстрактный) → `MetricQuestionnaireAr` (для метрик, умеет выдавать `MetricScore[]`). Онбординг-анкета использует `QuestionnaireFacade` напрямую, без наследования агрегата.
 
 3. **Модель данных анкеты:** `subjectId` (о ком), `respondentId` (кто заполняет), `context` (module_completed/pair_programming/code_review/initiative/onboarding), `role` (student_student/mentor_student/student_mentor), `triggerEvent` (что породило).
 

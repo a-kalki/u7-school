@@ -2,12 +2,12 @@
 
 ## Обзор
 
-Расширить модуль `questionnaire` (из Трека 2.4a): добавить `MetricQuestionnaireAr` (наследник `BaseQuestionnaireAr`), интегрировать `metricMapping` в пул вопросов, реализовать вычисление `metricScores` при завершении анкеты.
+Расширить модуль `questionnaire` (из Трека 2.4a): добавить `MetricQuestionnaireAr` (наследник `QuestionnaireAr`), интегрировать `metricMapping` в пул вопросов, реализовать вычисление `metricScores` при завершении анкеты.
 
 ## FR1 — `MetricQuestionnaireAr`
 
 ```typescript
-class MetricQuestionnaireAr extends BaseQuestionnaireAr {
+class MetricQuestionnaireAr extends QuestionnaireAr {
   // При завершении анкеты
   protected onComplete(): void {
     const scores = this.computeMetricScores();
@@ -60,7 +60,7 @@ interface MetricMapping {
 
 ## Критерии приёмки
 
-- [ ] `MetricQuestionnaireAr` наследует `BaseQuestionnaireAr`
+- [ ] `MetricQuestionnaireAr` наследует `QuestionnaireAr`
 - [ ] При завершении вычисляет `metricScores`
 - [ ] Генерирует `QuestionnaireCompleted` событие
 - [ ] `metricMapping` в вопросах пула

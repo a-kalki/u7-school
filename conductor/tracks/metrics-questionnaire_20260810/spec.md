@@ -21,17 +21,14 @@ interface Answer {
 
 ## FR2 — Модель анкеты
 
+> **Примечание:** на этапе реализации типы будут выведены из схем валидации (zod/typebox). Здесь — концептуальная модель.
+
 ```typescript
+// Базовая анкета — чистый движок «вопрос-ответ».
+// Ничего не знает о контексте, ролях, метриках.
 interface Questionnaire {
   uuid: string;
   respondentId: number;        // кто заполняет
-  subjectId: number | null;    // о ком анкета (null для онбординга)
-  context: string;             // "onboarding" | "module_completed" | "pair_programming" | "code_review" | "initiative"
-  role: string;                // "student_student" | "mentor_student" | "student_mentor"
-  triggerEvent: {              // что породило анкету
-    type: string;              // "module_completed", "onboarding_start", ...
-    aggregateId: string;
-  } | null;
   status: 'in_progress' | 'completed' | 'abandoned';
   currentQuestionCode: string | null;   // для навигации / продолжения «потом»
   draftAnswers: Record<string, string>; // незакоммиченные черновики
@@ -40,6 +37,20 @@ interface Questionnaire {
   updatedAt: string;
   completedAt: string | null;
 }
+
+// Метрик-анкета — расширяет базовую.
+// Добавляет «о ком», контекст, роль, триггер и предвычисленные баллы.
+interface MetricQuestionnaire extends Questionnaire {
+  subjectId: number;                  // о ком анкета
+  context: string;                    // "module_completed" | "pair_programming" | "code_review" | "initiative"
+  role: string;                       // "student_student" | "mentor_student" | "student_mentor"
+  triggerEvent: {                     // что породило анкету
+    type: string;                     // "module_completed", ...
+    aggregateId: string;
+  } | null;
+  metricScores: MetricScore[] | null; // вычисляется при complete()
+}
+```
 ```
 
 ## FR3 — Пул вопросов
@@ -64,7 +75,7 @@ interface Question {
 
 ## FR4 — Агрегат
 
-`BaseQuestionnaireAr` — абстрактный агрегат (в будущем от него унаследуется `MetricQuestionnaireAr`):
+`QuestionnaireAr` — абстрактный агрегат (от него унаследуется `MetricQuestionnaireAr` в треке 2.4b):
 
 - `start(questionPool)` — начинает анкету, выдаёт первый вопрос
 - `handleAction(action)` — обрабатывает ответ пользователя, фиксирует `Answer`, определяет следующий вопрос
@@ -76,7 +87,8 @@ interface Question {
 
 `QuestionnaireFacade` — единственная точка входа для потребителей:
 
-- `start(context, role, subjectId, respondentId, triggerEvent?)` → возвращает первый `QuestionnaireActionResponse`
+- `start(respondentId)` → создаёт простую анкету (для онбординга), возвращает первый `QuestionnaireActionResponse`
+- `startMetric(context, role, subjectId, respondentId, triggerEvent?)` → создаёт метрик-анкету
 - `handleAction(questionnaireId, action)` → обрабатывает ответ, возвращает следующий шаг
 - `getQuestionnaire(questionnaireId)` → полная анкета с answers
 - `getQuestionnairesByUser(telegramId)` → все анкеты пользователя
@@ -88,7 +100,7 @@ packages/questionnaire/src/
   domain/
     questionnaire/
       entity.ts            — Questionnaire, Answer типы
-      a-root.ts            — BaseQuestionnaireAr
+      a-root.ts            — QuestionnaireAr
       question.ts          — Question, ChoiceQuestion, Condition
       question-pool-service.ts
       types.ts             — QuestionnaireActionResponse
@@ -113,7 +125,7 @@ packages/questionnaire/src/
 
 ## FR7 — Тесты
 
-- Unit-тесты на `BaseQuestionnaireAr`: жизненный цикл, навигация, ветвление
+- Unit-тесты на `QuestionnaireAr`: жизненный цикл, навигация, ветвление
 - Unit-тесты на `QuestionPoolService`: валидация, getNextQuestion, условия
 - Unit-тесты на `QuestionnaireFacade` (с моками)
 - Интеграционные тесты на `QuestionnaireJsonRepo`

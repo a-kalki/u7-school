@@ -179,27 +179,40 @@ abstract class UseCase<TMeta extends UcMeta, TResolve> {
 
 **Цель:** создать новый пакет `questionnaire` с универсальным движком анкет.
 
-**Новая модель агрегата** (изменения относительно текущего):
+**Новая модель анкеты** (разделение на базовую и метриковую):
+
+> **Примечание:** на этапе реализации типы будут выведены из схем валидации (zod/typebox), а не объявлены вручную. Здесь — концептуальная модель.
 
 ```typescript
-// Questionnaire — новые поля
-{
-  uuid,                              // без изменений
-  respondentId: number,              // кто заполняет (бывший telegramId)
-  subjectId: number,                 // о ком анкета (новое)
-  context: string,                   // "onboarding" | "module_completed" | "pair_programming" | "code_review" | "initiative"
-  role: string,                      // "student_student" | "mentor_student" | "student_mentor"
-  triggerEvent: {                    // что породило анкету (новое)
-    type: string;                    // "module_completed", "lesson_completed", "onboarding_start"
-    aggregateId: string;
-  } | null,
-  status,                            // без изменений
-  answers,                           // без изменений
-  currentQuestionCode,               // без изменений
-  draftAnswers,                      // без изменений
-  metricScores: MetricScore[] | null,// предвычисленные баллы (новое, только для метрик-анкет)
-  createdAt, updatedAt, completedAt,
+// Базовая анкета — чистый движок «вопрос-ответ».
+// Ничего не знает о контексте, ролях, метриках.
+interface Questionnaire {
+  uuid: string;
+  respondentId: number;              // кто заполняет
+  status: 'in_progress' | 'completed' | 'abandoned';
+  currentQuestionCode: string | null; // для навигации / продолжения «потом»
+  draftAnswers: Record<string, string>;
+  answers: Answer[];                  // зафиксированные ответы
+  createdAt: string;
+  updatedAt: string;
+  completedAt: string | null;
 }
+
+// Метрик-анкета — расширяет базовую.
+// Добавляет «о ком», контекст, роль, триггер и предвычисленные баллы.
+interface MetricQuestionnaire extends Questionnaire {
+  subjectId: number;                  // о ком анкета
+  context: string;                    // "module_completed" | "pair_programming" | "code_review" | "initiative"
+  role: string;                       // "student_student" | "mentor_student" | "student_mentor"
+  triggerEvent: {                     // что породило анкету
+    type: string;
+    aggregateId: string;
+  } | null;
+  metricScores: MetricScore[] | null; // вычисляется при complete()
+}
+```
+
+**Разделение:** базовая `Questionnaire` используется onboarding-анкетой (без дополнительных полей — студент заполняет о себе). `MetricQuestionnaire` используется всеми метрическими анкетами.
 ```
 
 **`metricMapping` в вопросах пула** — опциональные метаданные:
@@ -218,19 +231,23 @@ interface MetricMapping {
 **Иерархия агрегатов:**
 
 ```
-BaseQuestionnaireAr         — абстрактный: start, handleAction, abandon, findAndSetNextQuestion
-  └── MetricQuestionnaireAr — для метрик: computeMetricScores(), события QuestionnaireCompleted
-  └── OnboardingAr (в onboarding) — для онбординга: без metricMapping, без метрик
+QuestionnaireAr                 — абстрактный: start, handleAction, abandon, findAndSetNextQuestion
+  └── MetricQuestionnaireAr     — для метрик: computeMetricScores(), события QuestionnaireCompleted
 ```
+
+`OnboardingAr` (в onboarding) **не наследует** `QuestionnaireAr`. Он использует `QuestionnaireFacade` как внешний сервис и подписывается на событие `QuestionnaireCompleted` через EventBus.
 
 **`MetricQuestionnaireAr`** при завершении:
 - Вычисляет баллы по `metricMapping` вопросов → `metricScores: MetricScore[]`
-- Кладёт событие `QuestionnaireCompleted` с payload: `{ subjectId, respondentId, context, role, answers, metricScores, triggerEvent }`
+- Кладёт событие `QuestionnaireCompleted` с payload:
+  - Базовая часть (всегда): `{ questionnaireId, respondentId, answers }`
+  - Метриковая часть (только для MetricQuestionnaire): `{ subjectId, context, role, metricScores, triggerEvent }`
 
 **Фасад `QuestionnaireFacade`:**
-- `start(context, role, subjectId, respondentId, triggerEvent?)` → создаёт анкету, возвращает первый вопрос
+- `start(respondentId)` → создаёт простую анкету (для онбординга), возвращает первый вопрос
+- `startMetric(context, role, subjectId, respondentId, triggerEvent?)` → создаёт метрик-анкету, возвращает первый вопрос
 - `createIntention(context, role, subjectId, respondentId)` → создаёт «намерение», возвращает `{ intentionId, message }` (см. трек 3.1 в Документе 3)
-- `getAnswers(questionnaireId)` → ответы + metricScores
+- `getAnswers(questionnaireId)` → ответы + metricScores (null для простых анкет)
 
 **`QuestionPoolService`** — расширить: `getAllWithMetricMapping()` для отладки.
 

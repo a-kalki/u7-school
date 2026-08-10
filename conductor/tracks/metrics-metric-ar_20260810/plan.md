@@ -8,7 +8,7 @@
 
 ## Фаза 2: MetricQuestionnaireAr
 
-- [ ] Task: Реализовать `MetricQuestionnaireAr extends BaseQuestionnaireAr`
+- [ ] Task: Реализовать `MetricQuestionnaireAr extends QuestionnaireAr`
 - [ ] Task: Реализовать `computeMetricScores()` — группировка по subcategory, средневзвешенное
 - [ ] Task: Интегрировать генерацию `QuestionnaireCompleted` события
 - [ ] Task: Написать unit-тесты:

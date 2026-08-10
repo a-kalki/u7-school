@@ -11,9 +11,9 @@
 ## Фаза 2: Агрегат и политика
 
 - [ ] Task: Перенести `QuestionnairePolicy` (canStart, canRead, canEdit)
-- [ ] Task: Реализовать `BaseQuestionnaireAr` с методами: start, handleAction, abandon, findAndSetNextQuestion
+- [ ] Task: Реализовать `QuestionnaireAr` с методами: start, handleAction, abandon, findAndSetNextQuestion
 - [ ] Task: Интегрировать `Answer` модель (полный контекст при фиксации ответа)
-- [ ] Task: Написать unit-тесты на `BaseQuestionnaireAr`
+- [ ] Task: Написать unit-тесты на `QuestionnaireAr`
 - [ ] Task: Conductor - Ручная верификация 'Агрегат'
 
 ## Фаза 3: API слой
