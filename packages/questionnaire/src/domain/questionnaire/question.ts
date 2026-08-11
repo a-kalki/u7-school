@@ -14,7 +14,7 @@ export const ConditionSchema = v.object({
 
 export type Condition = v.InferOutput<typeof ConditionSchema>;
 
-/** Вариант ответа */
+/** Вариант ответа (для choice-вопросов) */
 export const AnswerOptionSchema = v.object({
   answer: v.pipe(v.string(), v.nonEmpty('Текст ответа не может быть пустым')),
   answerCode: v.pipe(v.string(), v.nonEmpty('Код ответа не может быть пустым')),
@@ -43,7 +43,26 @@ export const ChoiceQuestionSchema = v.object({
 
 export type ChoiceQuestion = v.InferOutput<typeof ChoiceQuestionSchema>;
 
-/** Вопрос (только choice — унифицированная модель) */
-export const QuestionSchema = ChoiceQuestionSchema;
+/** Текстовый вопрос (свободный ввод) */
+export const TextQuestionSchema = v.object({
+  question: v.pipe(
+    v.string(),
+    v.nonEmpty('Текст вопроса не может быть пустым'),
+  ),
+  questionCode: v.pipe(
+    v.string(),
+    v.nonEmpty('Код вопроса не может быть пустым'),
+  ),
+  type: v.literal('text'),
+  condition: v.optional(ConditionSchema),
+});
+
+export type TextQuestion = v.InferOutput<typeof TextQuestionSchema>;
+
+/** Объединённая схема вопроса */
+export const QuestionSchema = v.variant('type', [
+  ChoiceQuestionSchema,
+  TextQuestionSchema,
+]);
 
 export type Question = v.InferOutput<typeof QuestionSchema>;

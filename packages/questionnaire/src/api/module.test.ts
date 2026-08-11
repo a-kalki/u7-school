@@ -3,7 +3,7 @@ import { InProcEventBus } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 import { QuestionnaireApiModule } from '#api/module';
-import type { QuestionPoolService } from '#domain/questionnaire/question-pool-service';
+import type { QuestionnaireEngine } from '#domain/questionnaire/questionnaire-engine';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 
 // Мок-репозиторий
@@ -24,8 +24,8 @@ function mockRepo(
   };
 }
 
-// Мок-сервис пула вопросов
-function mockPool(): QuestionPoolService {
+// Мок-движок анкеты
+function mockEngine(): QuestionnaireEngine {
   return {
     getAll: () => [
       {
@@ -83,14 +83,13 @@ function mockPool(): QuestionPoolService {
       return null;
     },
     assertAllCodesExist: () => {},
-    loadDefaultPool: () => [],
-  } as unknown as QuestionPoolService;
+  } as unknown as QuestionnaireEngine;
 }
 
 function makeResolve(overrides: any = {}) {
   return {
     questionnaireRepo: mockRepo(),
-    questionPoolService: mockPool(),
+    questionnaireEngine: mockEngine(),
     userFacade: {} as UserFacade,
     db: {} as any,
     appResolver: {

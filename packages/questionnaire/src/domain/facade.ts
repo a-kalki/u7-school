@@ -1,5 +1,5 @@
 import type { Questionnaire } from './questionnaire/entity';
-import type { QuestionPoolService } from './questionnaire/question-pool-service';
+import type { QuestionnaireEngine } from './questionnaire/questionnaire-engine';
 import type { QuestionnaireActionResponse } from './questionnaire/types';
 
 /**
@@ -9,7 +9,7 @@ export interface QuestionnaireFacade {
   /** Создать и запустить анкету (сразу в in_progress) */
   start(
     respondentId: number,
-    questionPool: QuestionPoolService,
+    engine: QuestionnaireEngine,
   ): Promise<QuestionnaireActionResponse>;
 
   /** Создать анкету в статусе intention */
@@ -18,7 +18,7 @@ export interface QuestionnaireFacade {
   /** Запустить intention-анкету */
   startMetric(
     questionnaireId: string,
-    questionPool: QuestionPoolService,
+    engine: QuestionnaireEngine,
   ): Promise<QuestionnaireActionResponse>;
 
   /** Обработать действие */

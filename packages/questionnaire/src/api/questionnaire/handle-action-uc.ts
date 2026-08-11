@@ -42,7 +42,7 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionUcMeta> {
     const ar = new QuestionnaireAr(active);
     const response = ar.handleAction(
       { type: command.type, value: command.value },
-      this.resolve.questionPoolService,
+      this.resolve.questionnaireEngine,
     );
 
     await this.repo.save(ar.state);

@@ -12,7 +12,7 @@ import type {
   HandleActionUcMeta,
   StartUcMeta,
 } from '../api/questionnaire/uc-metas';
-import type { QuestionPoolService } from './questionnaire/question-pool-service';
+import type { QuestionnaireEngine } from './questionnaire/questionnaire-engine';
 import type { QuestionnaireRepo } from './questionnaire/repo';
 
 export type QuestionnaireUcMetas =
@@ -32,7 +32,7 @@ export interface QuestionnaireApiModuleMeta extends ApiModuleMeta {
 /** Резолвер зависимостей API-модуля questionnaire */
 export interface QuestionnaireApiModuleResolver extends ModuleResolver {
   questionnaireRepo: QuestionnaireRepo;
-  questionPoolService: QuestionPoolService;
+  questionnaireEngine: QuestionnaireEngine;
   userFacade: UserFacade;
   db: BaseJsonDb;
   appResolver: AppResolver;

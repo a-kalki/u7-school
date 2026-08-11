@@ -43,10 +43,10 @@ export class StartUc extends QuestionnaireUseCase<StartUcMeta> {
 
     const ar = QuestionnaireAr.startNew(
       command.telegramId,
-      this.resolve.questionPoolService,
+      this.resolve.questionnaireEngine,
     );
     await this.repo.save(ar.state);
 
-    return ar.getQuestionnaireActionResponse(this.resolve.questionPoolService);
+    return ar.getQuestionnaireActionResponse(this.resolve.questionnaireEngine);
   }
 }

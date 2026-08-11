@@ -5,6 +5,6 @@ export * from './questionnaire/entity';
 export * from './questionnaire/errors';
 export * from './questionnaire/policy';
 export * from './questionnaire/question';
-export * from './questionnaire/question-pool-service';
+export * from './questionnaire/questionnaire-engine';
 export * from './questionnaire/repo';
 export * from './questionnaire/types';

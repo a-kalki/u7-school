@@ -1,19 +1,24 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import * as v from 'valibot';
 import type { Answer } from './entity';
 import type { Question } from './question';
 import { QuestionSchema } from './question';
 
-/** Сервис управления пулом вопросов анкеты */
-export class QuestionPoolService {
+/**
+ * Движок анкеты.
+ * Знает структуру вопросов-ответов, логику ветвления, валидацию.
+ * Предоставляет для агрегата удобный API навигации по вопросам.
+ *
+ * Не знает о метриках, metricMapping и контексте анкетирования —
+ * это ответственность агрегата метрик (MetricQuestionnaireAr).
+ */
+export class QuestionnaireEngine {
   private readonly pool: Question[];
   private readonly index: Map<string, Question>;
   private readonly includedCodes: string[];
 
   /**
-   * @param pool — полный пул вопросов (обязателен)
-   * @param includedCodes — коды вопросов, включённых в текущую версию анкеты (обязателен)
+   * @param pool — полный пул вопросов
+   * @param includedCodes — коды вопросов, включённых в текущую анкету (подмножество пула)
    */
   constructor(pool: Question[], includedCodes: string[]) {
     this.pool = this.validate(pool);
@@ -66,7 +71,7 @@ export class QuestionPoolService {
     return null;
   }
 
-  /** Все вопросы пула */
+  /** Все вопросы пула (снимок для сохранения в агрегате) */
   getAll(): Question[] {
     return this.pool;
   }
@@ -90,7 +95,7 @@ export class QuestionPoolService {
   }
 
   /**
-   * Строит Valibot-схему валидации ответа для вопроса (только choice).
+   * Строит Valibot-схему валидации ответа для вопроса.
    */
   buildValidationSchema(
     questionCode: string,
@@ -100,6 +105,11 @@ export class QuestionPoolService {
       throw new Error(`Вопрос "${questionCode}" не найден в пуле`);
     }
 
+    if (question.type === 'text') {
+      return v.pipe(v.string(), v.nonEmpty('Ответ не может быть пустым'));
+    }
+
+    // choice
     const answerCodes = question.answers.map((a) => a.answerCode);
 
     if (!question.multiple) {
@@ -136,14 +146,29 @@ export class QuestionPoolService {
     }
 
     for (const q of parsed) {
-      const answerCodes = new Set<string>();
-      for (const a of q.answers) {
-        if (answerCodes.has(a.answerCode)) {
+      if (q.type === 'choice') {
+        const answerCodes = new Set<string>();
+        for (const a of q.answers) {
+          if (answerCodes.has(a.answerCode)) {
+            throw new Error(
+              `Дублирующийся answerCode "${a.answerCode}" в вопросе "${q.questionCode}"`,
+            );
+          }
+          answerCodes.add(a.answerCode);
+        }
+      }
+    }
+
+    // Text-вопрос не должен содержать answers
+    for (let i = 0; i < parsed.length; i++) {
+      const q = parsed[i];
+      if (q?.type === 'text') {
+        const raw = rawItems[i];
+        if (raw && typeof raw === 'object' && 'answers' in raw) {
           throw new Error(
-            `Дублирующийся answerCode "${a.answerCode}" в вопросе "${q.questionCode}"`,
+            `Текстовый вопрос "${q.questionCode}" не должен содержать answers`,
           );
         }
-        answerCodes.add(a.answerCode);
       }
     }
 
@@ -158,14 +183,5 @@ export class QuestionPoolService {
     }
 
     return parsed;
-  }
-
-  /**
-   * Загружает дефолтный пул вопросов из question-pool.json.
-   */
-  static loadDefaultPool(): Question[] {
-    const path = resolve(import.meta.dirname, './question-pool.json');
-    const content = readFileSync(path, 'utf-8');
-    return JSON.parse(content) as Question[];
   }
 }

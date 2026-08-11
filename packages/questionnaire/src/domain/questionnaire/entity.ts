@@ -28,7 +28,7 @@ export const AnswerSchema = v.object({
         ),
       }),
     ),
-    v.minLength(1, 'choices должен содержать хотя бы один вариант'),
+    v.minLength(0),
   ),
   answeredAt: v.pipe(
     v.string(),
