@@ -81,6 +81,28 @@ export class QuestionnaireEngine {
     return this.index.get(code);
   }
 
+  /** Текст вопроса по коду (или сам код если вопрос не найден) */
+  getQuestionText(code: string): string {
+    return this.index.get(code)?.question ?? code;
+  }
+
+  /** Текст ответа для choice-вопроса по кодам */
+  getAnswerText(questionCode: string, answerCode: string): string {
+    const q = this.index.get(questionCode);
+    if (!q || q.type !== 'choice') return '';
+    const codes = answerCode.split(',').filter(Boolean);
+    return codes
+      .map((c) => q.answers.find((a) => a.answerCode === c)?.answer ?? c)
+      .join(', ');
+  }
+
+  /** Все варианты ответа для choice-вопроса */
+  getChoices(questionCode: string): { code: string; text: string }[] {
+    const q = this.index.get(questionCode);
+    if (!q || q.type !== 'choice') return [];
+    return q.answers.map((a) => ({ code: a.answerCode, text: a.answer }));
+  }
+
   /**
    * Проверяет, что все коды из переданного списка существуют в пуле.
    */

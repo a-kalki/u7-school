@@ -89,8 +89,16 @@ describe('QuestionnaireAr', () => {
     expect(answers.length).toBe(1);
     expect(answers[0]?.questionCode).toBe('q1');
     expect(answers[0]?.answerCode).toBe('yes');
-    // answerText пустой — тексты извлекаются из pool при необходимости
-    expect(answers[0]?.answerText).toBe('');
+    // answerText отсутствует для choice — тексты извлекаются через ar.getAnswerText()
+    expect(answers[0]?.answerText).toBeUndefined();
+
+    // Проверяем API текстов
+    expect(ar.getAnswerText('q1', 'yes')).toBe('Да');
+    expect(ar.getQuestionText('q1')).toBe('Первый вопрос');
+    expect(ar.getChoices('q1')).toEqual([
+      { code: 'yes', text: 'Да' },
+      { code: 'no', text: 'Нет' },
+    ]);
   });
 
   // ── handleAction: text ──

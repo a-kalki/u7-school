@@ -265,11 +265,10 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       throw e;
     }
 
-    // Формируем Answer (только коды)
+    // Формируем Answer (только коды, answerText только для text)
     const entry: Answer = {
       questionCode,
       answerCode: '',
-      answerText: '',
       answeredAt: isoNow(),
     };
 
@@ -407,6 +406,25 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   getRespondentId(): number {
     return this.state.respondentId;
+  }
+
+  // ═════════════════════════════════════════════════════════════
+  // API для извлечения текстов из пула (делегирует engine)
+  // ═════════════════════════════════════════════════════════════
+
+  /** Текст вопроса по коду */
+  getQuestionText(code: string): string {
+    return this.#getEngine().getQuestionText(code);
+  }
+
+  /** Текст ответа для choice-вопроса */
+  getAnswerText(questionCode: string, answerCode: string): string {
+    return this.#getEngine().getAnswerText(questionCode, answerCode);
+  }
+
+  /** Все варианты ответа для choice-вопроса */
+  getChoices(questionCode: string): { code: string; text: string }[] {
+    return this.#getEngine().getChoices(questionCode);
   }
 
   // ═════════════════════════════════════════════════════════════

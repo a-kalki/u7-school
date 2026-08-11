@@ -1,5 +1,4 @@
 import * as v from 'valibot';
-import type { Question } from './question';
 
 /** Зафиксированный ответ */
 export const AnswerSchema = v.object({
@@ -9,8 +8,8 @@ export const AnswerSchema = v.object({
   ),
   /** Код(ы) ответа: для choice — "yes" или "yes,no", для text — "text" */
   answerCode: v.pipe(v.string(), v.nonEmpty('Код ответа не может быть пустым')),
-  /** Текст ответа: для text — введённый текст, для choice — пустая строка */
-  answerText: v.string(),
+  /** Текст ответа: обязателен для text-вопросов, отсутствует для choice */
+  answerText: v.optional(v.string()),
   answeredAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты ответа'),
@@ -63,44 +62,4 @@ export interface QuestionnaireArMeta {
   name: 'Questionnaire';
   label: 'Анкета';
   state: Questionnaire;
-}
-
-// ── Вспомогательные функции ──
-
-/** Извлекает Question по коду из снимка пула */
-export function findQuestionInPool(
-  pool: Question[],
-  code: string,
-): Question | undefined {
-  return pool.find((q) => q.questionCode === code);
-}
-
-/** Получить текст вопроса из пула */
-export function getQuestionText(pool: Question[], code: string): string {
-  return findQuestionInPool(pool, code)?.question ?? code;
-}
-
-/** Получить текст ответа для choice-вопроса */
-export function getAnswerText(
-  pool: Question[],
-  questionCode: string,
-  answerCode: string,
-): string {
-  const q = findQuestionInPool(pool, questionCode);
-  if (!q || q.type !== 'choice') return '';
-  // answerCode может быть составным: "yes,no"
-  const codes = answerCode.split(',').filter(Boolean);
-  return codes
-    .map((c) => q.answers.find((a) => a.answerCode === c)?.answer ?? c)
-    .join(', ');
-}
-
-/** Получить все варианты ответа для choice-вопроса */
-export function getChoices(
-  pool: Question[],
-  questionCode: string,
-): { code: string; text: string }[] {
-  const q = findQuestionInPool(pool, questionCode);
-  if (!q || q.type !== 'choice') return [];
-  return q.answers.map((a) => ({ code: a.answerCode, text: a.answer }));
 }
