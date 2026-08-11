@@ -2,52 +2,71 @@
 
 ## Обзор
 
-Перепроектировать UC слой модуля `questionnaire`: `userId` вместо `telegramId`, передача `pool` при старте, доменный фасад через proc-in логику, интерфейс `QuestionnaireBotFacade`.
+Перепроектировать UC слой модуля `questionnaire`: `user: User` вместо `telegramId`, передача `pool` при старте, intention+start цепочка, доменный фасад — чистое делегирование в UC, интерфейс `QuestionnaireBotFacade`.
 
 ## FR1 — UC слой questionnaire
 
 | UC | Тип | Вход |
 |---|---|---|
-| `start` | command | `{userId, pool}` |
+| `start-new` | command | `{user, pool}` |
+| `create-intention` | command | `{user}` |
+| `start` | command | `{questionnaireId, pool}` |
 | `handle-action` | command | `{questionnaireId, type, value}` |
 | `abandon` | command | `{questionnaireId}` |
 | `get-current` | query | `{questionnaireId}` |
 | `get-questionnaire` | query | `{uuid}` |
 | `get-questionnaires-by-user` | query | `{userId}` |
 
-- Все UC используют `userId` вместо `telegramId`
-- `start` принимает `pool` напрямую — модуль-владелец передаёт его при вызове
+- `start-new` — создаёт и сразу запускает анкету (как текущий `start` UC)
+- `create-intention` — создаёт анкету в статусе intention, возвращает `{questionnaireId}`
+- `start` — запускает существующую анкету (intention → in_progress)
+- Все UC используют `user: User` для команд, `userId` для query
+- `start` и `start-new` принимают `pool` напрямую от модуля-владельца
 - Из резолвера убрать `questionnaireEngine`
+- **Все UC пишутся через TDD: сначала тесты, потом реализация**
 
 ## FR2 — QuestionnaireBotFacade (интерфейс)
 
 ```typescript
-// packages/questionnaire/src/domain/
+// packages/questionnaire/src/domain/bot-facade.ts
 interface QuestionnaireBotFacade {
   startQuestionnaire(user: User, response: QuestionnaireActionResponse): Promise<void>;
 }
 ```
 
-Только интерфейс. Реализация — во втором треке (`u7-bot/infra`).
+Только интерфейс. Реализация — в треке 2 (`u7-bot/infra`).
 
-## FR3 — Доменный фасад questionnaire
+## FR3 — Доменный фасад (чистое делегирование)
 
 ```typescript
-questionnaireFacade.startQuestionnaire(userId: number, pool: Question[]): Promise<void>
+class QuestionnaireInProcFacade implements QuestionnaireFacade {
+  constructor(private module: QuestionnaireApiModule) {}
+
+  async startNew(user: User, pool: Question[]): Promise<void> {
+    const response = await this.module.execute('start-new', { user, pool });
+    await this.botFacade.startQuestionnaire(user, response);
+  }
+
+  async createIntention(user: User): Promise<string> {
+    return this.module.execute('create-intention', { user });
+  }
+
+  async start(user: User, questionnaireId: string, pool: Question[]): Promise<void> {
+    const response = await this.module.execute('start', { questionnaireId, pool });
+    await this.botFacade.startQuestionnaire(user, response);
+  }
+}
 ```
 
-Внутри:
-1. Дёргает UC `start` через proc-in логику (как другие фасады: `this.module.execute(...)`)
-2. UC `start` создаёт `QuestionnaireAr.startNew(userId, pool)`, сохраняет, возвращает `QuestionnaireActionResponse`
-3. Фасад вызывает `botFacade.startQuestionnaire(user, response)`
+Только делегирование в UC + вызов botFacade для старта. Вся логика — в UC.
 
 ## FR4 — Резолвер
 
 ```typescript
 interface QuestionnaireApiModuleResolver {
   questionnaireRepo: QuestionnaireRepo;
-  botFacade: QuestionnaireBotFacade;
   userFacade: UserFacade;
+  botFacade: QuestionnaireBotFacade;
   db: BaseJsonDb;
   appResolver: AppResolver;
 }
@@ -55,15 +74,15 @@ interface QuestionnaireApiModuleResolver {
 
 ## Критерии приёмки
 
-- [ ] Все 6 UC реализованы с `userId`
-- [ ] `start` UC принимает `pool`, создаёт `startNew`
-- [ ] `QuestionnaireBotFacade` интерфейс объявлен
-- [ ] Доменный фасад `startQuestionnaire` реализован через proc-in
-- [ ] Тесты на UC и фасад
+- [ ] 8 UC реализованы с TDD (тесты → код)
+- [ ] `start-new` / `create-intention` / `start` — три отдельных UC
+- [ ] Доменный фасад — чистое делегирование, без бизнес-логики
+- [ ] Фасады принимают `user: User`
+- [ ] Агрегат поддерживает оба пути (intention+start и startNew) — проверить/поправить при необходимости
 - [ ] `bun run check:p questionnaire` — чисто
 
 ## За рамками
 
-- Реализация `TelegramQuestionnaireBotFacade` (→ второй трек)
-- Изменения в `BotUiApp` (→ второй трек)
-- Контроллер questionnaire (→ второй трек)
+- Реализация `TelegramQuestionnaireBotFacade` (→ трек 2)
+- Изменения в `BotUiApp` (→ трек 2)
+- Контроллер questionnaire (→ трек 2)
