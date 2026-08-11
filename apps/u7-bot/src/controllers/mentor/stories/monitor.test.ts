@@ -676,6 +676,7 @@ describe('MonitorStory', () => {
     const story = setupStory();
 
     const response = await story.handleMessage(
+      // @ts-expect-error: передаем параметр эмулируя неверное использование метода
       { type: 'message', text: 'что-то', telegramId: 123 },
       mentorActor(),
       { activeHandler: null },

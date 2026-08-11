@@ -819,7 +819,7 @@ describe('CreateStreamStory', () => {
     const { story } = createStory();
 
     const response = await story.handleMessage(
-      { type: 'callback', data: 'some-data', telegramId: 123 },
+      { type: 'callback', data: 'some-data', telegramId: 123, messageId: 1 },
       mentorActor,
       wizardSession({ step: 1 }),
     );
