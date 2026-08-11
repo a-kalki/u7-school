@@ -25,7 +25,6 @@ interface Answer {
 
 ```typescript
 // Базовая анкета — чистый движок «вопрос-ответ».
-// Ничего не знает о контексте, ролях, метриках.
 interface Questionnaire {
   uuid: string;
   respondentId: number;        // кто заполняет
@@ -39,14 +38,13 @@ interface Questionnaire {
   completedAt: string | null;
 }
 
-// Метрик-анкета — расширяет базовую.
-// Добавляет «о ком», контекст, роль, триггер и предвычисленные баллы.
+// Метрик-анкета. Добавляет «о ком», контекст, роль, триггер и предвычисленные баллы.
 interface MetricQuestionnaire extends Questionnaire {
-  subjectId: number;                  // о ком анкета
-  context: string;                    // "module_completed" | "pair_programming" | "code_review" | "initiative"
-  role: string;                       // "student_student" | "mentor_student" | "student_mentor"
-  triggerEvent: {                     // что породило анкету
-    type: string;                     // "module_completed", ...
+  subjectId: number;   // о ком анкета
+  context: string;     // "module_completed" | "pair_programming" | "code_review" | "initiative"
+  role: string;        // "student_student" | "mentor_student" | "student_mentor"
+  triggerEvent: {      // что породило анкету
+    type: string;
     aggregateId: string;
   } | null;
   metricScores: MetricScore[] | null; // вычисляется при complete()

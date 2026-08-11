@@ -1,8 +1,0 @@
-{
-  "track_id": "questionnaire-bot-integration_20260810",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-08-11T19:43:03Z",
-  "updated_at": "2026-08-11T19:43:03Z",
-  "description": "Интеграция модуля questionnaire с ботом: контроллер, BotUiApp.send(), BotCommand-контракт, QuestionnaireBotFacade, рефакторинг UC слоя"
-}
