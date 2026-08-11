@@ -22,6 +22,38 @@ class MetricQuestionnaireAr extends QuestionnaireAr {
 }
 ```
 
+**Важно:** `MetricQuestionnaireAr` использует свой `MetricQuestion` (расширение `Question` с `metricMapping`) и `MetricAnswer` (расширение `Answer` без `answerText` и `choices` — они всегда стандартны для метрик). Это позволяет не хранить мёртвые данные.
+
+### MetricQuestion
+
+```typescript
+interface MetricQuestion extends Question {
+  metricMapping: {
+    category: string;
+    subcategory: string;
+    weight: number;
+  };
+}
+```
+
+Перед передачей в движок (`start(pool)`) метрик-вопросы преобразуются в обычные `Question[]` (движок не знает о метриках).
+
+### MetricAnswer
+
+```typescript
+interface MetricAnswer {
+  questionCode: string;
+  answerCode: string;  // код(ы) выбранного ответа
+  answeredAt: string;
+  // НЕ хранит answerText, choices — они всегда берутся из MetricQuestion
+}
+```
+
+Плюсы:
+- Не дублируем стандартные тексты ответов (они всегда одинаковы для метрик)
+- Меньше размер хранимых данных
+- При вычислении `metricScores` используем `metricMapping` из `MetricQuestion`
+
 `QuestionnaireCompleted` payload:
 
 ```typescript
@@ -35,23 +67,27 @@ class MetricQuestionnaireAr extends QuestionnaireAr {
 
 ## FR2 — `metricMapping` в вопросах пула
 
-Расширить `Question` (из 2.4a):
+`metricMapping` добавляется на уровне `MetricQuestion` (расширение `Question`), а не в базовый `Question`. Базовый `Question` и `QuestionnaireEngine` (движок) **ничего не знают о метриках**.
 
 ```typescript
-interface MetricMapping {
-  category: string;       // "professional_skills" | "team_skills" | "personal_skills"
-  subcategory: string;    // "work_quality" | "communication" | ...
-  weight: number;         // 0.75 | 1.0 | 1.25, по умолчанию 1.0
+// Вопрос с метриками (для MetricQuestionnaireAr)
+interface MetricQuestion extends Question {
+  metricMapping?: {
+    category: string;       // "professional_skills" | "team_skills" | "personal_skills"
+    subcategory: string;    // "work_quality" | "communication" | ...
+    weight: number;         // 0.75 | 1.0 | 1.25, по умолчанию 1.0
+  };
 }
 ```
 
-`MetricMapping` — опциональные метаданные. Не создают зависимость `questionnaire → metrics`.
+При передаче в агрегат через `start(pool)`, метрик-вопросы приводятся к `Question[]` — движок работает с обычными вопросами.
 
 ## FR3 — Пул вопросов с метриками
 
-Загрузить в `QuestionPoolService` утверждения из Трека 1.2 как конфигурацию. Каждый вопрос содержит `metricMapping` (category + subcategory + weight).
+Пул вопросов — ответственность модуля-владельца (onboarding, peer-review, ...).
+Каждый модуль передаёт свой пул при вызове `start(pool)` или `startNew(respondentId, pool)`.
 
-Формат конфигурации: `packages/questionnaire/config/questions.json` (или аналогично).
+Формат конфигурации — в модуле-владельце (например `packages/onboarding/src/domain/questionnaire/question-pool.json`).
 
 ## FR4 — `QuestionnaireFacade` расширение
 
