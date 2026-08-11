@@ -40,10 +40,10 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionUcMeta> {
     }
 
     const ar = new QuestionnaireAr(active);
-    const response = ar.handleAction(
-      { type: command.type, value: command.value },
-      this.resolve.questionnaireEngine,
-    );
+    const response = ar.handleAction({
+      type: command.type,
+      value: command.value,
+    });
 
     await this.repo.save(ar.state);
 

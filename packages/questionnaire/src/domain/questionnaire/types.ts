@@ -1,6 +1,12 @@
 import type { Question } from './question';
 
-/** Ответ на действие в анкете */
+/** Анкета ещё не запущена */
+export type IntentionResponse = {
+  type: 'intention';
+  questionnaireId: string;
+};
+
+/** Ожидание выбора (multiple choice, черновики) */
 export type WaitNextResponse = {
   type: 'wait_next';
   currentQuestion: Question;
@@ -8,6 +14,7 @@ export type WaitNextResponse = {
   nextButton?: string;
 };
 
+/** Новый вопрос */
 export type NewQuestionResponse = {
   type: 'new_question';
   question: Question;
@@ -16,6 +23,7 @@ export type NewQuestionResponse = {
   previousSelectedAnswers?: string[];
 };
 
+/** Анкета завершена */
 export type CompletedResponse = {
   type: 'completed';
   selectedAnswers?: string[];
@@ -24,6 +32,7 @@ export type CompletedResponse = {
 };
 
 export type QuestionnaireActionResponse =
+  | IntentionResponse
   | WaitNextResponse
   | NewQuestionResponse
   | CompletedResponse;

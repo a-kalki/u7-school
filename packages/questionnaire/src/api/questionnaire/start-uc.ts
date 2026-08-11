@@ -5,15 +5,10 @@ import type { QuestionnaireActiveUcError } from '../../domain/questionnaire/erro
 import { QuestionnaireUseCase } from './questionnaire-uc';
 import type { StartUcMeta } from './uc-metas';
 
-/** Схема команды start */
 const StartCmdSchema = v.object({
   telegramId: v.pipe(v.number(), v.minValue(1)),
 });
 
-/**
- * UseCase: запустить анкету.
- * Создаёт анкету сразу в in_progress и возвращает первый вопрос.
- */
 export class StartUc extends QuestionnaireUseCase<StartUcMeta> {
   protected readonly ucName = 'start' as const;
   protected readonly ucLabel = 'Запустить анкету' as const;
@@ -41,12 +36,10 @@ export class StartUc extends QuestionnaireUseCase<StartUcMeta> {
       );
     }
 
-    const ar = QuestionnaireAr.startNew(
-      command.telegramId,
-      this.resolve.questionnaireEngine,
-    );
+    const pool = this.resolve.questionnaireEngine.getAll();
+    const ar = QuestionnaireAr.startNew(command.telegramId, pool);
     await this.repo.save(ar.state);
 
-    return ar.getQuestionnaireActionResponse(this.resolve.questionnaireEngine);
+    return ar.getCurrent();
   }
 }

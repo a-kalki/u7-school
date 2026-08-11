@@ -164,10 +164,8 @@ describe('QuestionnaireEngine', () => {
     const next2 = engine.getNextQuestion('q1', [
       {
         questionCode: 'q1',
-        questionText: 'Q1',
         answerCode: 'text',
         answerText: 'hello',
-        choices: [],
         answeredAt: '2024-01-01T00:00',
       },
     ]);
@@ -200,12 +198,6 @@ describe('QuestionnaireEngine', () => {
     const engine = new QuestionnaireEngine(pool, ['q1', 'q2', 'q3']);
 
     const baseAnswer = {
-      questionText: 'Q1',
-      text: '',
-      choices: [
-        { code: 'yes', text: 'Yes' },
-        { code: 'no', text: 'No' },
-      ],
       answeredAt: '2024-01-01T00:00',
     };
 

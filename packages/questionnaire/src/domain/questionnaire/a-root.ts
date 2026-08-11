@@ -4,23 +4,35 @@ import * as v from 'valibot';
 import type { Answer, Questionnaire, QuestionnaireArMeta } from './entity';
 import { QuestionnaireSchema } from './entity';
 import type { Question } from './question';
-import type { QuestionnaireEngine } from './questionnaire-engine';
+import { QuestionnaireEngine } from './questionnaire-engine';
 import type { QuestionnaireActionResponse } from './types';
 
 /** Префикс значения кнопки «Далее» */
 const NEXT_BUTTON_PREFIX = 'next:';
 
-/** Агрегат анкеты */
+/** Агрегат анкеты. Движок (QuestionnaireEngine) — внутренняя деталь. */
 export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
+  /** Движок создаётся при start/startNew и живёт пока есть pool */
+  #engine: QuestionnaireEngine | null = null;
+
   constructor(state: Questionnaire) {
     super(state, QuestionnaireSchema);
+    // Если состояние уже имеет pool (например загружено из БД) — восстановим engine
+    if (state.questionPool && state.questionPool.length > 0) {
+      this.#engine = new QuestionnaireEngine(
+        state.questionPool as Question[],
+        (state.questionPool as Question[]).map((q) => q.questionCode),
+      );
+    }
   }
 
-  // ── Статические фабрики ──
+  // ═════════════════════════════════════════════════════════════
+  // Фабрики
+  // ═════════════════════════════════════════════════════════════
 
   /**
-   * Создаёт анкету в статусе intention (без пула вопросов).
-   * Используется когда анкета создаётся заранее, а запускается позже.
+   * Создаёт анкету в статусе intention (без пула).
+   * Модуль-владелец позже вызовет start(pool).
    */
   static createIntention(respondentId: number): QuestionnaireAr {
     const state: Questionnaire = {
@@ -38,49 +50,41 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   }
 
   /**
-   * Запускает анкету: переводит из intention в in_progress,
-   * сохраняет снимок пула вопросов и выдаёт первый вопрос.
+   * Запускает анкету: сохраняет снимок пула, создаёт движок,
+   * переводит в in_progress и выдаёт первый вопрос.
    */
-  start(engine: QuestionnaireEngine): QuestionnaireActionResponse {
+  start(pool: Question[]): QuestionnaireActionResponse {
     if (this.state.status !== 'intention') {
       this.throwBadRequest(
         'Анкета не в статусе intention и не может быть запущена',
       );
     }
 
-    const poolSnapshot = engine.getAll();
+    this.#engine = new QuestionnaireEngine(
+      pool,
+      pool.map((q) => q.questionCode),
+    );
+
     this.safeUpdate({
       status: 'in_progress',
-      questionPool: poolSnapshot as unknown as Record<string, unknown>[],
+      questionPool: pool as unknown as Record<string, unknown>[],
     });
 
-    return this.findAndSetNextQuestion([], engine);
+    return this.#findAndSetNextQuestion([]);
   }
 
   /**
-   * Создаёт и сразу запускает анкету (в in_progress).
+   * Создаёт и сразу запускает анкету (intention → start за один шаг).
    */
-  static startNew(
-    respondentId: number,
-    engine: QuestionnaireEngine,
-  ): QuestionnaireAr {
-    const state: Questionnaire = {
-      uuid: crypto.randomUUID(),
-      respondentId,
-      status: 'in_progress',
-      answers: [],
-      currentQuestionCode: null,
-      draftAnswers: {},
-      questionPool: engine.getAll() as unknown as Record<string, unknown>[],
-      createdAt: isoNow(),
-      completedAt: null,
-    };
-    const ar = new QuestionnaireAr(state);
-    ar.findAndSetNextQuestion([], engine);
+  static startNew(respondentId: number, pool: Question[]): QuestionnaireAr {
+    const ar = QuestionnaireAr.createIntention(respondentId);
+    ar.start(pool);
     return ar;
   }
 
-  // ── Геттеры ──
+  // ═════════════════════════════════════════════════════════════
+  // Геттеры
+  // ═════════════════════════════════════════════════════════════
 
   get currentQuestionCode(): string {
     if (!this.state.currentQuestionCode) {
@@ -93,45 +97,60 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     return this.state.status === 'completed';
   }
 
-  // ── Публичные хелперы для nextButton ──
+  /** Пул вопросов (снимок) */
+  getPool(): Question[] {
+    return (this.state.questionPool as Question[]) ?? [];
+  }
+
+  /** Движок — только для внутреннего использования */
+  #getEngine(): QuestionnaireEngine {
+    if (!this.#engine) {
+      this.throwInternal('Движок анкеты не инициализирован');
+    }
+    return this.#engine;
+  }
+
+  // ═════════════════════════════════════════════════════════════
+  // Кнопка «Далее»
+  // ═════════════════════════════════════════════════════════════
 
   static getNextButtonText(questionCode: string): string {
     return `${NEXT_BUTTON_PREFIX}${questionCode}`;
   }
 
-  isValidNextButtonText(value: string): boolean {
+  #isValidNextButtonText(value: string): boolean {
     return (
       value === QuestionnaireAr.getNextButtonText(this.currentQuestionCode)
     );
   }
 
-  // ── Основной метод обработки действий ──
+  // ═════════════════════════════════════════════════════════════
+  // Обработка действий
+  // ═════════════════════════════════════════════════════════════
 
-  handleAction(
-    action: {
-      type: 'callback' | 'text';
-      value: string;
-    },
-    engine: QuestionnaireEngine,
-  ): QuestionnaireActionResponse {
-    this.checkIsInProgress();
+  handleAction(action: {
+    type: 'callback' | 'text';
+    value: string;
+  }): QuestionnaireActionResponse {
+    this.#checkIsInProgress();
 
+    const engine = this.#getEngine();
     const questionCode = this.currentQuestionCode;
-    const question = this.getQuestion(questionCode, engine);
+    const question = this.#getQuestion(questionCode);
 
-    // ── Ветка: текстовый ввод ──
+    // ── Текстовый ввод ──
     if (action.type === 'text') {
       if (question.type === 'text') {
-        return this.submitCurrentQuestion(question, engine, action.value);
+        return this.#submitCurrentQuestion(question, action.value);
       }
       this.throwBadRequest('Ожидался ответ с выбором (нажатием кнопки)');
     }
 
-    // ── Ветка: колбэк (нажатие кнопки) ──
+    // ── Колбэк ──
 
-    // 1. Кнопка «Далее» (сабмит черновиков)
+    // 1. Кнопка «Далее»
     if (action.value.startsWith(NEXT_BUTTON_PREFIX)) {
-      if (!this.isValidNextButtonText(action.value)) {
+      if (!this.#isValidNextButtonText(action.value)) {
         this.throwBadRequest(
           'Кнопка «Далее» не соответствует текущему вопросу',
         );
@@ -141,26 +160,24 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
           'Команда next доступна только для вопросов с множественным выбором',
         );
       }
-      return this.submitCurrentQuestion(question, engine);
+      return this.#submitCurrentQuestion(question);
     }
 
     // 2. Выбор ответа (choice)
     if (question.type === 'choice') {
       const answerCode = action.value;
-
       if (!answerCode) {
         this.throwBadRequest('Код ответа не может быть пустым');
       }
 
       if (question.multiple) {
-        return this.toggleDraftAnswer(question, answerCode, questionCode);
+        return this.#toggleDraftAnswer(question, answerCode, questionCode);
       }
 
-      // Одиночный выбор — сабмитим сразу
-      return this.submitCurrentQuestion(question, engine, answerCode);
+      return this.#submitCurrentQuestion(question, answerCode);
     }
 
-    // 3. Колбэк пришёл, но текущий вопрос — текстовый
+    // 3. Колбэк при текстовом вопросе
     if (question.type === 'text') {
       this.throwBadRequest('Ожидался текстовый ответ');
     }
@@ -170,9 +187,11 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     );
   }
 
-  // ── Переключение черновиков (multiple choice) ──
+  // ═════════════════════════════════════════════════════════════
+  // Черновики (multiple choice)
+  // ═════════════════════════════════════════════════════════════
 
-  private toggleDraftAnswer(
+  #toggleDraftAnswer(
     question: Question,
     answerCode: string,
     questionCode: string,
@@ -208,16 +227,18 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     return response;
   }
 
-  // ── Сабмит текущего вопроса ──
+  // ═════════════════════════════════════════════════════════════
+  // Сабмит вопроса
+  // ═════════════════════════════════════════════════════════════
 
-  protected submitCurrentQuestion(
+  #submitCurrentQuestion(
     question: Question,
-    engine: QuestionnaireEngine,
     explicitValue?: string,
   ): QuestionnaireActionResponse {
     const questionCode = this.currentQuestionCode;
+    const engine = this.#getEngine();
 
-    // Получаем значение ответа
+    // Извлекаем значение ответа
     let rawValue: string | string[] | undefined = explicitValue;
     if (rawValue === undefined) {
       const draft = this.state.draftAnswers[questionCode];
@@ -230,7 +251,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       }
     }
 
-    // Валидация
+    // Валидация через engine
     const schema = engine.buildValidationSchema(questionCode);
     let parsedValue: unknown;
     try {
@@ -244,19 +265,11 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       throw e;
     }
 
-    // Формируем Answer с полным контекстом
+    // Формируем Answer (только коды)
     const entry: Answer = {
       questionCode,
-      questionText: question.question,
       answerCode: '',
       answerText: '',
-      choices:
-        question.type === 'choice'
-          ? question.answers.map((a) => ({
-              code: a.answerCode,
-              text: a.answer,
-            }))
-          : [],
       answeredAt: isoNow(),
     };
 
@@ -264,51 +277,46 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       entry.answerCode = 'text';
       entry.answerText = typeof parsedValue === 'string' ? parsedValue : '';
     } else {
-      const finalAnswerCodes: string[] = question.multiple
+      const finalCodes: string[] = question.multiple
         ? (parsedValue as string[])
         : parsedValue !== undefined && parsedValue !== null
           ? [String(parsedValue)]
           : [];
-
-      entry.answerCode = finalAnswerCodes.join(',');
-      const selectedOption = question.answers.find(
-        (a) => a.answerCode === finalAnswerCodes[0],
-      );
-      entry.answerText = selectedOption?.answer ?? '';
+      entry.answerCode = finalCodes.join(',');
     }
 
     this._state.answers.push(entry);
 
-    // Очищаем черновики для текущего вопроса
+    // Очищаем черновики
     const newDraft = { ...this.state.draftAnswers };
     delete newDraft[questionCode];
     this.safeUpdate({ draftAnswers: newDraft });
 
-    const finalAnswerCodes: string[] =
+    // Коды для условия ветвления
+    const lastCodes: string[] =
       question.type === 'choice'
-        ? question.multiple
-          ? (parsedValue as string[])
-          : parsedValue !== undefined && parsedValue !== null
-            ? [String(parsedValue)]
-            : []
+        ? entry.answerCode.split(',').filter(Boolean)
         : [];
 
-    return this.findAndSetNextQuestion(finalAnswerCodes, engine);
+    return this.#findAndSetNextQuestion(lastCodes);
   }
 
-  // ── Переход к следующему вопросу ──
+  // ═════════════════════════════════════════════════════════════
+  // Переход к следующему вопросу
+  // ═════════════════════════════════════════════════════════════
 
-  protected findAndSetNextQuestion(
+  #findAndSetNextQuestion(
     lastSelectedAnswers: string[],
-    engine: QuestionnaireEngine,
   ): QuestionnaireActionResponse {
+    const engine = this.#getEngine();
+
     const nextQuestion = engine.getNextQuestion(
       this.state.currentQuestionCode,
       this.state.answers,
     );
 
     const previousQuestion = this.state.currentQuestionCode
-      ? this.getQuestion(this.state.currentQuestionCode, engine)
+      ? this.#getQuestion(this.state.currentQuestionCode)
       : undefined;
 
     if (nextQuestion) {
@@ -335,21 +343,27 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     };
   }
 
-  // ── Состояние для UI ──
+  // ═════════════════════════════════════════════════════════════
+  // Текущее состояние для UI
+  // ═════════════════════════════════════════════════════════════
 
-  getQuestionnaireActionResponse(
-    engine: QuestionnaireEngine,
-  ): QuestionnaireActionResponse {
+  /** Возвращает текущее состояние анкеты для UI */
+  getCurrent(): QuestionnaireActionResponse {
+    if (this.state.status === 'intention') {
+      return { type: 'intention', questionnaireId: this.state.uuid };
+    }
+
     if (this.state.status === 'completed') {
       return { type: 'completed' };
     }
 
-    if (this.state.status === 'intention') {
-      this.throwBadRequest('Анкета ещё не запущена');
+    if (this.state.status === 'abandoned') {
+      return { type: 'completed' }; // abandoned отображается как завершённый
     }
 
+    // in_progress
     const questionCode = this.currentQuestionCode;
-    const question = this.getQuestion(questionCode, engine);
+    const question = this.#getQuestion(questionCode);
 
     if (question.type === 'choice' && question.multiple) {
       const draft = this.state.draftAnswers[questionCode] ?? '';
@@ -374,7 +388,9 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     };
   }
 
-  // ── Завершение анкеты ──
+  // ═════════════════════════════════════════════════════════════
+  // Завершение
+  // ═════════════════════════════════════════════════════════════
 
   abandon(): void {
     if (this.state.status !== 'in_progress') return;
@@ -393,18 +409,18 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     return this.state.respondentId;
   }
 
-  // ── Защитные методы ──
+  // ═════════════════════════════════════════════════════════════
+  // Защитные методы
+  // ═════════════════════════════════════════════════════════════
 
-  protected checkIsInProgress(): void {
+  #checkIsInProgress(): void {
     if (this.state.status !== 'in_progress') {
       this.throwBadRequest('Анкета уже завершена');
     }
   }
 
-  protected getQuestion(
-    questionCode: string,
-    engine: QuestionnaireEngine,
-  ): Question {
+  #getQuestion(questionCode: string): Question {
+    const engine = this.#getEngine();
     const question = engine.getByCode(questionCode);
     if (!question) {
       this.throwBadRequest(`Вопрос "${questionCode}" не найден в пуле`);

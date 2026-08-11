@@ -1,27 +1,27 @@
 import type { Questionnaire } from './questionnaire/entity';
-import type { QuestionnaireEngine } from './questionnaire/questionnaire-engine';
+import type { Question } from './questionnaire/question';
 import type { QuestionnaireActionResponse } from './questionnaire/types';
 
 /**
  * Фасад модуля questionnaire — точка входа для потребителей.
  */
 export interface QuestionnaireFacade {
-  /** Создать и запустить анкету (сразу в in_progress) */
-  start(
-    respondentId: number,
-    engine: QuestionnaireEngine,
-  ): Promise<QuestionnaireActionResponse>;
-
-  /** Создать анкету в статусе intention */
+  /** Создать намерение (анкету в статусе intention) */
   createIntention(respondentId: number): Promise<{ questionnaireId: string }>;
 
-  /** Запустить intention-анкету */
-  startMetric(
+  /** Запустить анкету: передать пул вопросов и получить первый вопрос */
+  start(
     questionnaireId: string,
-    engine: QuestionnaireEngine,
+    pool: Question[],
   ): Promise<QuestionnaireActionResponse>;
 
-  /** Обработать действие */
+  /** Создать и сразу запустить (intention + start) */
+  startNew(
+    respondentId: number,
+    pool: Question[],
+  ): Promise<QuestionnaireActionResponse>;
+
+  /** Обработать действие пользователя */
   handleAction(
     questionnaireId: string,
     action: { type: 'callback' | 'text'; value: string },
