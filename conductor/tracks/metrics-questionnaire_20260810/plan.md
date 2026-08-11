@@ -3,32 +3,32 @@
 ## Фаза 1: Создание пакета и доменная модель
 
 - [x] Task: Создать структуру пакета `packages/questionnaire/` (package.json, tsconfig, barrel exports) [58fb3d4]
-- [~] Task: Перенести типы: `Questionnaire` (с новой моделью Answer), `Question`, `ChoiceQuestion`, `Condition`, `QuestionnaireActionResponse`
-- [ ] Task: Перенести `QuestionPoolService` с адаптацией под новую модель
-- [ ] Task: Написать unit-тесты на `QuestionPoolService`
-- [ ] Task: Conductor - Ручная верификация 'Доменная модель'
+- [x] Task: Перенести типы: `Questionnaire` (с новой моделью Answer), `Question`, `ChoiceQuestion`, `Condition`, `QuestionnaireActionResponse` [8c66e1f]
+- [x] Task: Перенести `QuestionPoolService` с адаптацией под новую модель [8c66e1f]
+- [x] Task: Написать unit-тесты на `QuestionPoolService` [8c66e1f]
+- [x] Task: Conductor - Ручная верификация 'Доменная модель' [8c66e1f]
 
 ## Фаза 2: Агрегат и политика
 
-- [ ] Task: Перенести `QuestionnairePolicy` (canStart, canRead, canEdit)
-- [ ] Task: Реализовать `QuestionnaireAr` с методами: start, handleAction, abandon, findAndSetNextQuestion
-- [ ] Task: Интегрировать `Answer` модель (полный контекст при фиксации ответа)
-- [ ] Task: Написать unit-тесты на `QuestionnaireAr`
-- [ ] Task: Conductor - Ручная верификация 'Агрегат'
+- [x] Task: Перенести `QuestionnairePolicy` (canStart, canRead, canEdit) [8c66e1f]
+- [x] Task: Реализовать `QuestionnaireAr` с методами: start, handleAction, abandon, findAndSetNextQuestion [8c66e1f]
+- [x] Task: Интегрировать `Answer` модель (полный контекст при фиксации ответа) [8c66e1f]
+- [x] Task: Написать unit-тесты на `QuestionnaireAr` [8c66e1f]
+- [x] Task: Conductor - Ручная верификация 'Агрегат' [8c66e1f]
 
 ## Фаза 3: API слой
 
-- [ ] Task: Создать `QuestionnaireRepo` интерфейс
-- [ ] Task: Создать UseCase: start, handleAction, abandon, getQuestionnaire, getQuestionnairesByUser
-- [ ] Task: Создать `QuestionnaireApiModule`
-- [ ] Task: Создать `QuestionnaireFacade`
-- [ ] Task: Написать unit-тесты на UseCase (с мок-репо)
-- [ ] Task: Conductor - Ручная верификация 'API'
+- [x] Task: Создать `QuestionnaireRepo` интерфейс [8c66e1f]
+- [x] Task: Создать UseCase: start, handleAction, abandon, getQuestionnaire, getQuestionnairesByUser [8c66e1f]
+- [x] Task: Создать `QuestionnaireApiModule` [8c66e1f]
+- [x] Task: Создать `QuestionnaireFacade` [8c66e1f]
+- [x] Task: Написать unit-тесты на UseCase (с мок-репо) [8c66e1f]
+- [x] Task: Conductor - Ручная верификация 'API' [8c66e1f]
 
 ## Фаза 4: Infra и интеграция
 
-- [ ] Task: Реализовать `QuestionnaireJsonRepo`
-- [ ] Task: Реализовать `QuestionPoolJsonLoader` (загрузка пула из JSON-конфигурации)
-- [ ] Task: Написать интеграционные тесты на repo
-- [ ] Task: Проверить `bun run check:p questionnaire`
-- [ ] Task: Conductor - Ручная верификация 'Infra'
+- [x] Task: Реализовать `QuestionnaireJsonRepo` [8c66e1f]
+- [x] Task: Реализовать `QuestionPoolJsonLoader` (загрузка пула из JSON-конфигурации) [8c66e1f]
+- [x] Task: Написать интеграционные тесты на repo [8c66e1f]
+- [x] Task: Проверить `bun run check:p questionnaire` [8c66e1f]
+- [x] Task: Conductor - Ручная верификация 'Infra' [8c66e1f]
