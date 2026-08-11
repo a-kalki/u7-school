@@ -35,6 +35,8 @@
       "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
       "@u7-scl/stream": ["packages/stream/src/index.ts"],
       "@u7-scl/onboarding": ["packages/onboarding/src/index.ts"],
+      "@u7-scl/questionnaire": ["packages/questionnaire/src/index.ts"],
+      "@u7-scl/questionnaire/domain": ["packages/questionnaire/src/domain/index.ts"],
       "@u7-scl/w3school": ["packages/w3school/src/index.ts"],
       "@u7-scl/app": ["packages/app/src/index.ts"],
       "@u7-scl/app/domain": ["packages/app/src/domain/index.ts"],
