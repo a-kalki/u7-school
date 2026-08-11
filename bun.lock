@@ -75,6 +75,14 @@
         "@u7-scl/user": "workspace:*",
       },
     },
+    "packages/questionnaire": {
+      "name": "@u7-scl/questionnaire",
+      "version": "0.1.0",
+      "dependencies": {
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/user": "workspace:*",
+      },
+    },
     "packages/stream": {
       "name": "@u7-scl/stream",
       "version": "0.1.0",
@@ -192,6 +200,8 @@
     "@u7-scl/course": ["@u7-scl/course@workspace:packages/course"],
 
     "@u7-scl/onboarding": ["@u7-scl/onboarding@workspace:packages/onboarding"],
+
+    "@u7-scl/questionnaire": ["@u7-scl/questionnaire@workspace:packages/questionnaire"],
 
     "@u7-scl/stream": ["@u7-scl/stream@workspace:packages/stream"],
 
