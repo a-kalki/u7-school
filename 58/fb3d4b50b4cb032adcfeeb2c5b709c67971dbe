@@ -1,0 +1,8 @@
+Задача: Создать структуру пакета questionnaire
+
+Изменения:
+- packages/questionnaire/package.json — новый пакет @u7-scl/questionnaire
+- packages/questionnaire/tsconfig.json — наследует корневой tsconfig
+- packages/questionnaire/src/index.ts — barrel export
+- packages/questionnaire/src/domain/index.ts — barrel для domain
+- tsconfig.json (корень) — добавлены paths для @u7-scl/questionnaire
