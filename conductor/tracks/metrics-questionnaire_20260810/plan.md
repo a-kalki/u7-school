@@ -2,7 +2,7 @@
 
 ## Фаза 1: Создание пакета и доменная модель
 
-- [ ] Task: Создать структуру пакета `packages/questionnaire/` (package.json, tsconfig, barrel exports)
+- [x] Task: Создать структуру пакета `packages/questionnaire/` (package.json, tsconfig, barrel exports) [58fb3d4]
 - [ ] Task: Перенести типы: `Questionnaire` (с новой моделью Answer), `Question`, `ChoiceQuestion`, `Condition`, `QuestionnaireActionResponse`
 - [ ] Task: Перенести `QuestionPoolService` с адаптацией под новую модель
 - [ ] Task: Написать unit-тесты на `QuestionPoolService`
