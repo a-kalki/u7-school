@@ -1,0 +1,27 @@
+Трек 2.4a: Модуль questionnaire
+
+Созданные файлы (26):
+- packages/questionnaire/package.json, tsconfig.json, src/index.ts
+- src/domain/index.ts, module.ts, facade.ts
+- src/domain/questionnaire/: entity.ts, question.ts, types.ts, errors.ts, policy.ts, repo.ts, a-root.ts, question-pool-service.ts, question-pool.json
+- src/api/: index.ts, module.ts
+- src/api/questionnaire/: uc-metas.ts, questionnaire-uc.ts, start-uc.ts, handle-action-uc.ts, abandon-uc.ts, get-questionnaire-uc.ts, get-questionnaires-by-user-uc.ts
+- src/infra/: index.ts, db/questionnaire-json-repo.ts
+
+Тесты (4 файла, 31 тест):
+- question-pool-service.test.ts (9)
+- a-root.test.ts (12)
+- module.test.ts (5)
+- questionnaire-json-repo.test.ts (5)
+
+Изменённые файлы:
+- tsconfig.json (paths для @u7-scl/questionnaire)
+- conductor/tracks/metrics-questionnaire_20260810/plan.md (статусы задач)
+
+Ключевые архитектурные решения:
+- Answer с полным контекстом (questionText, answerText, choices)
+- QuestionnaireAr без poolService в конструкторе — передаётся в методы
+- draftAnswers как Record<string, string> для независимых черновиков
+- intention статус для отложенного запуска
+- Только choice-вопросы (text удалён)
+- questionnaire-uc.ts — общий базовый класс UC
