@@ -9,8 +9,6 @@ import type { U7BotUiApp } from '../core/ui-app';
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const _SHRUNK_RE = /^[0-9a-f]{8}$/i;
-
 // ── Интерфейсы ──
 
 export interface BotUpdateHandler {

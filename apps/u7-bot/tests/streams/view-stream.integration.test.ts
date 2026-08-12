@@ -22,7 +22,7 @@ import {
  */
 describe('ViewStreamStory (интеграционный)', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let guest: User;
   let mentor: User;
   const session: SessionData = { activeHandler: null };
@@ -37,13 +37,13 @@ describe('ViewStreamStory (интеграционный)', () => {
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
     const mentorController = new MentorController();
-    router = new UiApp([
+    transport = new UiApp([
       appController,
       streamController,
       learningController,
       mentorController,
     ]);
-    router.init(app.apiApp, (tgId: number) =>
+    transport.init(app.apiApp, (tgId: number) =>
       app.userFacade.getUserByTelegramId(tgId),
     );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
@@ -57,7 +57,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   // ── S02: Карточка потока ──
 
   test('view: показывает карточку enrollment-потока', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:view:${ENROLLMENT_ID}`,
       guest.telegramId,
       session,
@@ -71,7 +71,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('view: кнопки Программа, Детали, Назад к списку', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:view:${ENROLLMENT_ID}`,
       guest.telegramId,
       session,
@@ -85,7 +85,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('view: нет менторских lifecycle-кнопок (гость)', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:view:${ENROLLMENT_ID}`,
       guest.telegramId,
       session,
@@ -99,7 +99,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('view: нет менторских lifecycle-кнопок (ментор своего потока)', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:view:${ENROLLMENT_ID}`,
       mentor.telegramId,
       session,
@@ -113,7 +113,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('view: несуществующий поток — ошибка', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
       guest.telegramId,
       session,
@@ -125,7 +125,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   // ── S03: Программа потока ──
 
   test('program: показывает дерево проектов через tree-renderer', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:program:${ACTIVE_ID}`,
       guest.telegramId,
       session,
@@ -138,7 +138,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('program: кнопка «Назад к потоку»', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:program:${ACTIVE_ID}`,
       guest.telegramId,
       session,
@@ -152,7 +152,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   // ── S04: Детали ──
 
   test('details: показывает детали потока', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:details:${ENROLLMENT_ID}`,
       guest.telegramId,
       session,
@@ -164,7 +164,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('details: кнопка «Назад к потоку»', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:details:${ENROLLMENT_ID}`,
       guest.telegramId,
       session,
@@ -179,7 +179,7 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('сквозной: каталог → карточка → программа → назад', async () => {
     // 1. Открываем каталог
-    const catalogResp = await router.handleCallback(
+    const catalogResp = await transport.handleCallback(
       'stream:catalog:list',
       guest.telegramId,
       session,
@@ -192,7 +192,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(streamBtn).toBeDefined();
 
     // 3. Открываем карточку потока
-    const viewResp = await router.handleCallback(
+    const viewResp = await transport.handleCallback(
       streamBtn!.code,
       guest.telegramId,
       session,
@@ -208,7 +208,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(programBtn).toBeDefined();
 
     // 5. Открываем программу
-    const programResp = await router.handleCallback(
+    const programResp = await transport.handleCallback(
       programBtn!.code,
       guest.telegramId,
       session,
@@ -224,7 +224,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(backBtn).toBeDefined();
 
     // 7. Возвращаемся в карточку
-    const backResp = await router.handleCallback(
+    const backResp = await transport.handleCallback(
       backBtn!.code,
       guest.telegramId,
       session,
@@ -236,7 +236,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   // ── S05: Список студентов (публичный) ──
 
   test('students: кнопка «👥 Студенты» в карточке потока', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:view:${ACTIVE_ID}`,
       guest.telegramId,
       session,
@@ -248,7 +248,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('students: открывает список студентов с метриками', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:students:${ACTIVE_ID}`,
       guest.telegramId,
       session,
@@ -261,7 +261,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('students: кнопка студента ведёт в view-stream:student-detail (не monitor)', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:students:${ACTIVE_ID}`,
       guest.telegramId,
       session,
@@ -284,7 +284,7 @@ describe('ViewStreamStory (интеграционный)', () => {
   });
 
   test('students: публичный режим НЕ содержит кнопок ⛔✅🔄', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `stream:view-stream:students:${ACTIVE_ID}`,
       mentor.telegramId, // даже ментор в публичном каталоге не видит менторских кнопок
       session,
@@ -300,7 +300,7 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('students: публичная карточка студента (student-detail)', async () => {
     // Сначала получаем список студентов
-    const listResp = await router.handleCallback(
+    const listResp = await transport.handleCallback(
       `stream:view-stream:students:${ACTIVE_ID}`,
       guest.telegramId,
       session,
@@ -314,7 +314,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(studentBtn).toBeDefined();
 
     // Открываем карточку студента
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       studentBtn!.code,
       guest.telegramId,
       session,

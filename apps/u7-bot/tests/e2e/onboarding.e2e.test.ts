@@ -57,7 +57,7 @@ function capSession(messageId?: number): SessionData {
 describe('Onboarding E2E', () => {
   let tmpDir: string;
   let apiApp: U7BotApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let guest: User & { telegramId: number };
   let userFacade: UserFacade;
   let userRepo: UserJsonRepo;
@@ -146,8 +146,8 @@ describe('Onboarding E2E', () => {
     const onboardingController = new OnboardingController();
     onboardingController.init(apiApp, undefined as never);
 
-    router = new UiApp([onboardingController]);
-    router.init(apiApp);
+    transport = new UiApp([onboardingController]);
+    transport.init(apiApp);
 
     // Seed: гость с telegramId=2001
     guest = {
@@ -169,12 +169,12 @@ describe('Onboarding E2E', () => {
   // ═══════════════════════════════════════════════════════════════
   test('полный цикл: /start → анкета → все вопросы → завершение → роль CANDIDATE', async () => {
     // 1. Главное меню: кнопка «Заполнить анкету» отключена до Релиза 4
-    const menu = await router.collectMainMenu(guest);
+    const menu = await transport.collectMainMenu(guest);
     const onboardBtn = menu.find((i) => i.text === '📝 Заполнить анкету');
     expect(onboardBtn).toBeUndefined();
 
     // 2. Начинаем анкету напрямую (кнопка отключена, но логика работает)
-    const startResp = await router.handleCallback(
+    const startResp = await transport.handleCallback(
       'onboarding:start_questionnaire',
       guest.telegramId,
       NO_SESSION,
@@ -190,7 +190,7 @@ describe('Onboarding E2E', () => {
     expect(messages![1]!.keyboard).toBeDefined();
 
     // 3. Отвечаем на q1 (выбор «Да»)
-    const answerQ1 = await router.handleCallback(
+    const answerQ1 = await transport.handleCallback(
       'onboarding:answer:yes',
       guest.telegramId,
       capSession(1),
@@ -201,7 +201,7 @@ describe('Onboarding E2E', () => {
     expect(answerQ1.sendMessage?.text).toContain('Второй вопрос');
 
     // 4. Отвечаем на q2 (текстовый ответ)
-    const answerQ2 = await router.handleMessage(
+    const answerQ2 = await transport.handleMessage(
       {
         type: 'message',
         text: 'Хочу научиться программировать',
@@ -238,14 +238,14 @@ describe('Onboarding E2E', () => {
     await userRepo.save(guest2);
 
     // Начинаем анкету
-    await router.handleCallback(
+    await transport.handleCallback(
       'onboarding:start_questionnaire',
       guest2,
       NO_SESSION,
     );
 
     // Прерываем
-    const cancelResp = await router.handleCancel(
+    const cancelResp = await transport.handleCancel(
       guest2.telegramId,
       capSession(3),
     );
@@ -272,21 +272,21 @@ describe('Onboarding E2E', () => {
     await userRepo.save(guest3);
 
     // Начинаем анкету
-    await router.handleCallback(
+    await transport.handleCallback(
       'onboarding:start_questionnaire',
       guest3,
       NO_SESSION,
     );
 
     // Отвечаем на q1 → анкета переходит к q2 (всё ещё in_progress)
-    await router.handleCallback(
+    await transport.handleCallback(
       'onboarding:answer:yes',
       guest3,
       capSession(10),
     );
 
     // Снова нажимаем «Заполнить анкету» (без /cancel — анкета активна)
-    const resumeResp = await router.handleCallback(
+    const resumeResp = await transport.handleCallback(
       'onboarding:start_questionnaire',
       guest3,
       NO_SESSION,

@@ -56,7 +56,7 @@ function findMenuItem(
 
 describe('E2E: Витрина для любопытного', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let guest: User;
 
   beforeAll(async () => {
@@ -66,14 +66,14 @@ describe('E2E: Витрина для любопытного', () => {
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
     const mentorController = new MentorController();
-    router = new UiApp([
+    transport = new UiApp([
       appController,
       streamController,
       courseController,
       learningController,
       mentorController,
     ]);
-    router.init(app.apiApp, (tgId: number) =>
+    transport.init(app.apiApp, (tgId: number) =>
       app.userFacade.getUserByTelegramId(tgId),
     );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
@@ -86,7 +86,9 @@ describe('E2E: Витрина для любопытного', () => {
   // ── Главное меню ──
   describe('Главное меню гостя', () => {
     test('содержит «📖 Программы курсов» и «📚 Потоки курсов»', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       expect(courseBtn.action).toStartWith('course:');
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
@@ -99,9 +101,11 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Программы курсов»: 5-уровневый drill-down ──
   describe('«Программы курсов» — drill-down', () => {
     test('уровень 0: курсы + этапы inline', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const response = await router.handleCallback(
+      const response = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
@@ -119,15 +123,17 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('уровень 1: клик на курс → этапы + модули inline', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(
+      const catalogResp = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(
+      const phasesResp = await transport.handleCallback(
         courseButton.code,
         guest.telegramId,
         NO_SESSION,
@@ -144,21 +150,23 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('уровень 2: клик на этап → модули + проекты inline', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(
+      const catalogResp = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(
+      const phasesResp = await transport.handleCallback(
         courseButton.code,
         guest.telegramId,
         NO_SESSION,
       );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await router.handleCallback(
+      const modulesResp = await transport.handleCallback(
         phaseBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -175,27 +183,29 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('уровень 3: клик на модуль → проекты + уроки inline', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(
+      const catalogResp = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(
+      const phasesResp = await transport.handleCallback(
         courseButton.code,
         guest.telegramId,
         NO_SESSION,
       );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await router.handleCallback(
+      const modulesResp = await transport.handleCallback(
         phaseBtn.code,
         guest.telegramId,
         NO_SESSION,
       );
       const moduleBtn = findButton(modulesResp, 'JavaScript');
-      const projectsResp = await router.handleCallback(
+      const projectsResp = await transport.handleCallback(
         moduleBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -213,33 +223,35 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('уровень 4: клик на проект → уроки + шаги inline', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await router.handleCallback(
+      const catalogResp = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await router.handleCallback(
+      const phasesResp = await transport.handleCallback(
         courseButton.code,
         guest.telegramId,
         NO_SESSION,
       );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await router.handleCallback(
+      const modulesResp = await transport.handleCallback(
         phaseBtn.code,
         guest.telegramId,
         NO_SESSION,
       );
       const moduleBtn = findButton(modulesResp, 'JavaScript');
-      const projectsResp = await router.handleCallback(
+      const projectsResp = await transport.handleCallback(
         moduleBtn.code,
         guest.telegramId,
         NO_SESSION,
       );
       const projectBtn = findButton(projectsResp, 'Введение');
-      const lessonsResp = await router.handleCallback(
+      const lessonsResp = await transport.handleCallback(
         projectBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -259,9 +271,11 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Потоки курсов»: curious-режим (S01-S04) ──
   describe('«Потоки курсов» — curious-режим карточки потока', () => {
     test('гость открывает каталог потоков (S01)', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const response = await router.handleCallback(
+      const response = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
@@ -276,15 +290,17 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('гость → enrollment-поток: карточка без менторских кнопок (S02)', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(
+      const catalogResp = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       const streamButton = findButton(catalogResp, '🟡');
-      const viewResp = await router.handleCallback(
+      const viewResp = await transport.handleCallback(
         streamButton.code,
         guest.telegramId,
         NO_SESSION,
@@ -310,7 +326,7 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Проверяем, что нажатие на «Студенты» работает (кросс-контроллерный callback)
       const studentsBtn = findButton(viewResp, 'Студенты');
-      const studentsResp = await router.handleCallback(
+      const studentsResp = await transport.handleCallback(
         studentsBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -323,15 +339,17 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('гость → active-поток: Программа и Детали видны (S02)', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await router.handleCallback(
+      const catalogResp = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       const activeButton = findButton(catalogResp, '🔵');
-      const viewResp = await router.handleCallback(
+      const viewResp = await transport.handleCallback(
         activeButton.code,
         guest.telegramId,
         NO_SESSION,
@@ -350,31 +368,33 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Программы курсов» — drill-up (обратная навигация) ──
   describe('«Программы курсов» — обратная навигация', () => {
     test('drill-down 5 уровней → drill-up 4 уровня обратно', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
 
       // Вперёд: 0 → 1 → 2 → 3 → 4
-      const l0 = await router.handleCallback(
+      const l0 = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
-      const l1 = await router.handleCallback(
+      const l1 = await transport.handleCallback(
         findButton(l0, 'Основы').code,
         guest.telegramId,
         NO_SESSION,
       );
-      const l2 = await router.handleCallback(
+      const l2 = await transport.handleCallback(
         findButton(l1, 'Синтаксис').code,
         guest.telegramId,
         NO_SESSION,
       );
-      const l3 = await router.handleCallback(
+      const l3 = await transport.handleCallback(
         findButton(l2, 'JavaScript').code,
         guest.telegramId,
         NO_SESSION,
       );
-      const l4 = await router.handleCallback(
+      const l4 = await transport.handleCallback(
         findButton(l3, 'Введение').code,
         guest.telegramId,
         NO_SESSION,
@@ -385,7 +405,7 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Назад: 4 → 3
       const back43 = findButton(l4, 'Назад к модулю');
-      const back3 = await router.handleCallback(
+      const back3 = await transport.handleCallback(
         back43.code,
         guest.telegramId,
         NO_SESSION,
@@ -395,7 +415,7 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Назад: 3 → 2
       const back32 = findButton(back3, 'Назад к этапу');
-      const back2 = await router.handleCallback(
+      const back2 = await transport.handleCallback(
         back32.code,
         guest.telegramId,
         NO_SESSION,
@@ -405,7 +425,7 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Назад: 2 → 1
       const back21 = findButton(back2, 'Назад к курсу');
-      const back1 = await router.handleCallback(
+      const back1 = await transport.handleCallback(
         back21.code,
         guest.telegramId,
         NO_SESSION,
@@ -417,7 +437,7 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Назад: 1 → 0
       const back10 = findButton(back1, 'Назад к курсам');
-      const back0 = await router.handleCallback(
+      const back0 = await transport.handleCallback(
         back10.code,
         guest.telegramId,
         NO_SESSION,
@@ -427,21 +447,23 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('drill-down → назад → другой путь', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
 
       // Идём в Синтаксис
-      const l0 = await router.handleCallback(
+      const l0 = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
-      const l1 = await router.handleCallback(
+      const l1 = await transport.handleCallback(
         findButton(l0, 'Основы').code,
         guest.telegramId,
         NO_SESSION,
       );
-      const l2 = await router.handleCallback(
+      const l2 = await transport.handleCallback(
         findButton(l1, 'Синтаксис').code,
         guest.telegramId,
         NO_SESSION,
@@ -449,7 +471,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(l2.sendMessage?.text).toContain('Синтаксис');
 
       // Возвращаемся к курсу
-      const back1 = await router.handleCallback(
+      const back1 = await transport.handleCallback(
         findButton(l2, 'Назад к курсу').code,
         guest.telegramId,
         NO_SESSION,
@@ -457,7 +479,7 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Идём в другой этап — Алгоритмика
       const algoBtn = findButton(back1, 'Алгоритмика');
-      const algoResp = await router.handleCallback(
+      const algoResp = await transport.handleCallback(
         algoBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -467,16 +489,18 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('c карточки курса — Главное меню', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const l0 = await router.handleCallback(
+      const l0 = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
 
       const mainMenuBtn = findButton(l0, 'Главное меню');
-      const mainResp = await router.handleCallback(
+      const mainResp = await transport.handleCallback(
         mainMenuBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -489,11 +513,13 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Потоки курсов» — полный round-trip ──
   describe('«Потоки курсов» — round-trip навигация', () => {
     test('каталог → карточка → программа → назад → детали → назад → каталог', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
 
       // S01: каталог
-      const catalog = await router.handleCallback(
+      const catalog = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
@@ -501,7 +527,7 @@ describe('E2E: Витрина для любопытного', () => {
       assertBotResponseValid(catalog);
 
       // → S02: карточка enrollment-потока
-      const card = await router.handleCallback(
+      const card = await transport.handleCallback(
         findButton(catalog, '🟡').code,
         guest.telegramId,
         NO_SESSION,
@@ -510,7 +536,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(card.sendMessage?.text).toContain('JS Core');
 
       // → S03: программа
-      const program = await router.handleCallback(
+      const program = await transport.handleCallback(
         findButton(card, 'Программа курса').code,
         guest.telegramId,
         NO_SESSION,
@@ -520,7 +546,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(program.sendMessage?.text).toContain('📁');
 
       // ← назад к карточке
-      const backToCard = await router.handleCallback(
+      const backToCard = await transport.handleCallback(
         findButton(program, 'Назад к потоку').code,
         guest.telegramId,
         NO_SESSION,
@@ -529,7 +555,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(backToCard.sendMessage?.text).toContain('JS Core');
 
       // → S04: детали
-      const details = await router.handleCallback(
+      const details = await transport.handleCallback(
         findButton(backToCard, 'Детали').code,
         guest.telegramId,
         NO_SESSION,
@@ -538,7 +564,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(details.sendMessage?.text).toContain('Детали');
 
       // ← назад к карточке
-      const backAgain = await router.handleCallback(
+      const backAgain = await transport.handleCallback(
         findButton(details, 'Назад к потоку').code,
         guest.telegramId,
         NO_SESSION,
@@ -547,7 +573,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(backAgain.sendMessage?.text).toContain('JS Core');
 
       // ← назад к каталогу
-      const backToCatalog = await router.handleCallback(
+      const backToCatalog = await transport.handleCallback(
         findButton(backAgain, 'Назад к списку').code,
         guest.telegramId,
         NO_SESSION,
@@ -557,15 +583,17 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('каталог → active-поток → программа → назад → каталог', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
 
-      const catalog = await router.handleCallback(
+      const catalog = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
-      const card = await router.handleCallback(
+      const card = await transport.handleCallback(
         findButton(catalog, '🔵').code,
         guest.telegramId,
         NO_SESSION,
@@ -573,7 +601,7 @@ describe('E2E: Витрина для любопытного', () => {
       assertBotResponseValid(card);
       expect(card.sendMessage?.text).toContain('Поток 2');
 
-      const program = await router.handleCallback(
+      const program = await transport.handleCallback(
         findButton(card, 'Программа курса').code,
         guest.telegramId,
         NO_SESSION,
@@ -582,13 +610,13 @@ describe('E2E: Витрина для любопытного', () => {
       expect(program.sendMessage?.text).toContain('📁');
 
       // Назад к карточке
-      const back1 = await router.handleCallback(
+      const back1 = await transport.handleCallback(
         findButton(program, 'Назад к потоку').code,
         guest.telegramId,
         NO_SESSION,
       );
       // Назад к каталогу
-      const backCatalog = await router.handleCallback(
+      const backCatalog = await transport.handleCallback(
         findButton(back1, 'Назад к списку').code,
         guest.telegramId,
         NO_SESSION,
@@ -597,16 +625,18 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('каталог → Главное меню', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalog = await router.handleCallback(
+      const catalog = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
 
       const mainMenuBtn = findButton(catalog, 'Главное меню');
-      const mainResp = await router.handleCallback(
+      const mainResp = await transport.handleCallback(
         mainMenuBtn.code,
         guest.telegramId,
         NO_SESSION,
@@ -616,7 +646,7 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('несуществующий поток — ошибка', async () => {
-      const response = await router.handleCallback(
+      const response = await transport.handleCallback(
         'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
         guest.telegramId,
         NO_SESSION,
@@ -629,11 +659,13 @@ describe('E2E: Витрина для любопытного', () => {
   // ── Сквозной: курсы ↔ потоки ──
   describe('Сквозная навигация: курсы ↔ потоки', () => {
     test('главное меню → курсы → назад → потоки → карточка → назад', async () => {
-      const menu = (await router.collectMainMenu(guest)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        guest,
+      )) as CbMainMenuAction[];
 
       // Курсы
       const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const courses = await router.handleCallback(
+      const courses = await transport.handleCallback(
         courseBtn.action,
         guest.telegramId,
         NO_SESSION,
@@ -641,7 +673,7 @@ describe('E2E: Витрина для любопытного', () => {
       expect(courses.sendMessage?.text).toContain('Курсы');
 
       // Назад в главное меню
-      const main1 = await router.handleCallback(
+      const main1 = await transport.handleCallback(
         findButton(courses, 'Главное меню').code,
         guest.telegramId,
         NO_SESSION,
@@ -650,24 +682,24 @@ describe('E2E: Витрина для любопытного', () => {
 
       // Потоки
       const streamBtn = findMenuItem(
-        (await router.collectMainMenu(guest)) as CbMainMenuAction[],
+        (await transport.collectMainMenu(guest)) as CbMainMenuAction[],
         'Потоки курсов',
       );
-      const catalog = await router.handleCallback(
+      const catalog = await transport.handleCallback(
         streamBtn.action,
         guest.telegramId,
         NO_SESSION,
       );
       expect(catalog.sendMessage?.text).toContain('Потоки курсов');
 
-      const card = await router.handleCallback(
+      const card = await transport.handleCallback(
         findButton(catalog, '🟡').code,
         guest.telegramId,
         NO_SESSION,
       );
       expect(card.sendMessage?.text).toContain('JS Core');
 
-      const main2 = await router.handleCallback(
+      const main2 = await transport.handleCallback(
         findButton(card, 'Назад к списку').code,
         guest.telegramId,
         NO_SESSION,
@@ -676,7 +708,7 @@ describe('E2E: Витрина для любопытного', () => {
     });
 
     test('handleHelp показывает описания курсов и потоков', async () => {
-      const response = await router.handleHelp(guest.telegramId);
+      const response = await transport.handleHelp(guest.telegramId);
       const text = response.sendMessage?.text ?? '';
       expect(text).toContain('Как со мной работать');
       expect(text).toContain('Программы курсов');

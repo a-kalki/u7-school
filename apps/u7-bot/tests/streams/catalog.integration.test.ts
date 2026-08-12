@@ -22,7 +22,7 @@ import {
  */
 describe('CatalogStory (интеграционный)', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let guest: User;
   const session: SessionData = { activeHandler: null };
 
@@ -32,8 +32,8 @@ describe('CatalogStory (интеграционный)', () => {
     app = await createTestApp('streams-catalog-int');
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    router = new UiApp([appController, streamController]);
-    router.init(app.apiApp, (tgId: number) =>
+    transport = new UiApp([appController, streamController]);
+    transport.init(app.apiApp, (tgId: number) =>
       app.userFacade.getUserByTelegramId(tgId),
     );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
@@ -44,7 +44,7 @@ describe('CatalogStory (интеграционный)', () => {
   });
 
   test('list: показывает enrollment и active потоки', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'stream:catalog:list',
       guest.telegramId,
       session,
@@ -61,7 +61,7 @@ describe('CatalogStory (интеграционный)', () => {
   });
 
   test('list: скрывает completed и archived по умолчанию', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'stream:catalog:list',
       guest.telegramId,
       session,
@@ -77,7 +77,7 @@ describe('CatalogStory (интеграционный)', () => {
   });
 
   test('list-with-completed: показывает завершённые', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'stream:catalog:list-with-completed',
       guest.telegramId,
       session,
@@ -95,7 +95,7 @@ describe('CatalogStory (интеграционный)', () => {
   });
 
   test('handleStart: кнопка «📚 Потоки курсов» в главном меню', async () => {
-    const menu = await router.collectMainMenu(guest);
+    const menu = await transport.collectMainMenu(guest);
     const streamBtn = menu.find((i) => i.text === '📚 Потоки курсов');
     expect(streamBtn).toBeDefined();
     expect(streamBtn!.kind).toBe('callback');
@@ -106,7 +106,7 @@ describe('CatalogStory (интеграционный)', () => {
   });
 
   test('легенда цветных кружков', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'stream:catalog:list',
       guest.telegramId,
       session,

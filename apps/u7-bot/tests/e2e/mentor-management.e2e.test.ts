@@ -81,7 +81,7 @@ function findMenuItem(
  */
 describe('E2E: Ментор — управление студентами', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let mentor: User;
 
   beforeAll(async () => {
@@ -91,14 +91,14 @@ describe('E2E: Ментор — управление студентами', () =
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
     const mentorController = new MentorController();
-    router = new UiApp([
+    transport = new UiApp([
       appController,
       streamController,
       courseController,
       learningController,
       mentorController,
     ]);
-    router.init(app.apiApp, (tgId: number) =>
+    transport.init(app.apiApp, (tgId: number) =>
       app.userFacade.getUserByTelegramId(tgId),
     );
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
@@ -112,11 +112,13 @@ describe('E2E: Ментор — управление студентами', () =
 
   test('ментор → мои потоки → «👥 Студенты» → список с менторскими кнопками ⛔✅', async () => {
     // 1. Главное меню ментора
-    const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+    const menu = (await transport.collectMainMenu(
+      mentor,
+    )) as CbMainMenuAction[];
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
 
     // 2. Подменю: нажимаем «📋 Мои потоки»
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       toolsBtn.action,
       mentor.telegramId,
       NO_SESSION,
@@ -125,7 +127,7 @@ describe('E2E: Ментор — управление студентами', () =
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
 
     // 3. Список моих потоков → выбираем активный (🔵)
-    const myStreamsResp = await router.handleCallback(
+    const myStreamsResp = await transport.handleCallback(
       myStreamsBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -134,7 +136,7 @@ describe('E2E: Ментор — управление студентами', () =
     const activeBtn = findButton(myStreamsResp, '🔵');
 
     // 4. Менторская карточка потока
-    const cardResp = await router.handleCallback(
+    const cardResp = await transport.handleCallback(
       activeBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -150,7 +152,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 5. Нажимаем «👥 Студенты»
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await router.handleCallback(
+    const studentsResp = await transport.handleCallback(
       studentsBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -189,27 +191,29 @@ describe('E2E: Ментор — управление студентами', () =
 
   test('ментор: ⛔ mark-abandoned → подтверждение → отмена → возврат к карточке', async () => {
     // 1. Получаем список студентов
-    const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+    const menu = (await transport.collectMainMenu(
+      mentor,
+    )) as CbMainMenuAction[];
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       toolsBtn.action,
       mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await router.handleCallback(
+    const myStreamsResp = await transport.handleCallback(
       myStreamsBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await router.handleCallback(
+    const cardResp = await transport.handleCallback(
       activeBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await router.handleCallback(
+    const studentsResp = await transport.handleCallback(
       studentsBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -217,7 +221,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 2. Нажимаем ⛔ на первом студенте
     const abandonBtn = findButton(studentsResp, '⛔');
-    const confirmResp = await router.handleCallback(
+    const confirmResp = await transport.handleCallback(
       abandonBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -237,7 +241,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 3. Нажимаем отмену → возврат к детальной карточке студента
     const cancelBtn = findButton(confirmResp, 'Отмена');
-    const cancelResp = await router.handleCallback(
+    const cancelResp = await transport.handleCallback(
       cancelBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -249,27 +253,29 @@ describe('E2E: Ментор — управление студентами', () =
 
   test('ментор: ⛔ mark-abandoned → подтвердить → студент отчислен', async () => {
     // 1. Получаем список студентов
-    const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+    const menu = (await transport.collectMainMenu(
+      mentor,
+    )) as CbMainMenuAction[];
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       toolsBtn.action,
       mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await router.handleCallback(
+    const myStreamsResp = await transport.handleCallback(
       myStreamsBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await router.handleCallback(
+    const cardResp = await transport.handleCallback(
       activeBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await router.handleCallback(
+    const studentsResp = await transport.handleCallback(
       studentsBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -278,7 +284,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 2. Нажимаем ⛔ на первом студенте
     const abandonBtn = findButton(studentsResp, '⛔');
-    const confirmResp = await router.handleCallback(
+    const confirmResp = await transport.handleCallback(
       abandonBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -287,7 +293,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 3. Нажимаем «Да, неактивен» (подтвердить)
     const confirmActionBtn = findButton(confirmResp, 'Да, неактивен');
-    const resultResp = await router.handleCallback(
+    const resultResp = await transport.handleCallback(
       confirmActionBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -302,27 +308,29 @@ describe('E2E: Ментор — управление студентами', () =
 
   test('ментор: ✅ complete → выбрать «Прошёл» → подтвердить → студент завершён', async () => {
     // 1. Получаем список студентов (f0f0 уже abandoned, используем 🔄 на другом)
-    const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+    const menu = (await transport.collectMainMenu(
+      mentor,
+    )) as CbMainMenuAction[];
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       toolsBtn.action,
       mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await router.handleCallback(
+    const myStreamsResp = await transport.handleCallback(
       myStreamsBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await router.handleCallback(
+    const cardResp = await transport.handleCallback(
       activeBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await router.handleCallback(
+    const studentsResp = await transport.handleCallback(
       studentsBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -332,7 +340,7 @@ describe('E2E: Ментор — управление студентами', () =
     // 2. Находим активного студента (если есть) или нажимаем 🔄 на перезавершаемом
     // f0f0 уже abandoned после mark-abandoned. Используем f1f1 (advanced) — 🔄
     const redoBtn = findButton(studentsResp, '🔄');
-    const choiceResp = await router.handleCallback(
+    const choiceResp = await transport.handleCallback(
       redoBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -342,7 +350,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 3. Выбираем «Прошёл»
     const advancedBtn = findButton(choiceResp, 'Прошёл');
-    const confirmResp = await router.handleCallback(
+    const confirmResp = await transport.handleCallback(
       advancedBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -352,7 +360,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     // 4. Подтверждаем
     const confirmActionBtn = findButton(confirmResp, 'Завершить');
-    const resultResp = await router.handleCallback(
+    const resultResp = await transport.handleCallback(
       confirmActionBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -367,27 +375,29 @@ describe('E2E: Ментор — управление студентами', () =
 
   test('ментор: карточка студента (detail) — не ментор не видит кнопок ⛔✅', async () => {
     // 1. Получаем список студентов
-    const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+    const menu = (await transport.collectMainMenu(
+      mentor,
+    )) as CbMainMenuAction[];
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       toolsBtn.action,
       mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await router.handleCallback(
+    const myStreamsResp = await transport.handleCallback(
       myStreamsBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await router.handleCallback(
+    const cardResp = await transport.handleCallback(
       activeBtn.code,
       mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await router.handleCallback(
+    const studentsResp = await transport.handleCallback(
       studentsBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -404,7 +414,7 @@ describe('E2E: Ментор — управление студентами', () =
       b.code.includes('monitor:detail'),
     )!;
 
-    const detailResp = await router.handleCallback(
+    const detailResp = await transport.handleCallback(
       detailBtn.code,
       mentor.telegramId,
       NO_SESSION,
@@ -426,10 +436,12 @@ describe('E2E: Ментор — управление студентами', () =
   describe('Создание потока (wizard)', () => {
     test('полный цикл: меню → wizard (все шаги) → поток создан', async () => {
       // 1. Главное меню → Инструменты ментора
-      const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        mentor,
+      )) as CbMainMenuAction[];
       const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
 
-      const submenuResp = await router.handleCallback(
+      const submenuResp = await transport.handleCallback(
         toolsBtn.action,
         mentor.telegramId,
         NO_SESSION,
@@ -440,7 +452,7 @@ describe('E2E: Ментор — управление студентами', () =
       const createBtn = findButton(submenuResp, 'Создать поток');
 
       // Шаг 0: выбор модуля
-      let resp = await router.handleCallback(
+      let resp = await transport.handleCallback(
         createBtn.code,
         mentor.telegramId,
         NO_SESSION,
@@ -453,7 +465,7 @@ describe('E2E: Ментор — управление студентами', () =
       const moduleBtn = findButton(resp, 'JavaScript Основы');
 
       // Шаг 1: название (с передачей контекста wizard'а)
-      resp = await router.handleCallback(
+      resp = await transport.handleCallback(
         moduleBtn.code,
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -463,7 +475,7 @@ describe('E2E: Ментор — управление студентами', () =
 
       // Принимаем название
       const acceptTitle = findButton(resp, 'Принять');
-      resp = await router.handleCallback(
+      resp = await transport.handleCallback(
         acceptTitle.code,
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -472,7 +484,7 @@ describe('E2E: Ментор — управление студентами', () =
       expect(resp.sendMessage?.text).toContain('описание потока');
 
       // Шаг 2: вводим описание вручную
-      resp = (await router.handleMessage(
+      resp = (await transport.handleMessage(
         { type: 'message', text: 'E2E Тестовый Поток', telegramId: 1004 },
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -481,7 +493,7 @@ describe('E2E: Ментор — управление студентами', () =
       expect(resp.sendMessage?.text).toContain('дату старта');
 
       // Шаг 3: вводим дату
-      resp = (await router.handleMessage(
+      resp = (await transport.handleMessage(
         { type: 'message', text: '2026-12-15', telegramId: 1004 },
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -491,7 +503,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаги 4-8: пропускаем все необязательные поля (цель, результат, правила, аудитория, дополнительно)
       for (let i = 0; i < 5; i++) {
         const skipBtn = findButton(resp, 'Пропустить');
-        resp = await router.handleCallback(
+        resp = await transport.handleCallback(
           skipBtn.code,
           mentor.telegramId,
           wizSession(resp.captureInput!.context),
@@ -502,7 +514,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаг 9: группа — пропускаем
       expect(resp.sendMessage?.text).toContain('Telegram');
       const skipGroup = findButton(resp, 'Пропустить');
-      resp = await router.handleCallback(
+      resp = await transport.handleCallback(
         skipGroup.code,
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -512,7 +524,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаг 10: кодовое слово — пропускаем
       expect(resp.sendMessage?.text).toContain('кодовое слово');
       const skipKey = findButton(resp, 'Пропустить');
-      resp = await router.handleCallback(
+      resp = await transport.handleCallback(
         skipKey.code,
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -526,7 +538,7 @@ describe('E2E: Ментор — управление студентами', () =
 
       // Подтверждаем
       const confirmBtn = findButton(resp, 'Создать');
-      resp = await router.handleCallback(
+      resp = await transport.handleCallback(
         confirmBtn.code,
         mentor.telegramId,
         wizSession(resp.captureInput!.context),
@@ -539,15 +551,17 @@ describe('E2E: Ментор — управление студентами', () =
 
     test('отмена создания потока', async () => {
       // Начинаем wizard
-      const menu = (await router.collectMainMenu(mentor)) as CbMainMenuAction[];
+      const menu = (await transport.collectMainMenu(
+        mentor,
+      )) as CbMainMenuAction[];
       const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-      const submenuResp = await router.handleCallback(
+      const submenuResp = await transport.handleCallback(
         toolsBtn.action,
         mentor.telegramId,
         NO_SESSION,
       );
       const createBtn = findButton(submenuResp, 'Создать поток');
-      const step0 = await router.handleCallback(
+      const step0 = await transport.handleCallback(
         createBtn.code,
         mentor.telegramId,
         NO_SESSION,
@@ -556,7 +570,7 @@ describe('E2E: Ментор — управление студентами', () =
       expect(step0.captureInput).toBeDefined();
 
       // Отменяем
-      const cancelResp = (await router.handleCancel(
+      const cancelResp = (await transport.handleCancel(
         mentor.telegramId,
         wizSession(step0.captureInput!.context),
       ))!;

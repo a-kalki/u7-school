@@ -129,7 +129,7 @@ function findButton(
  */
 describe('CreateStream Wizard (интеграционный)', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let mentor: User;
   const session: SessionData = { activeHandler: null };
   const FIXTURE_MODULE_ID = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
@@ -138,7 +138,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     app = await createTestApp('create-stream-wizard');
     const mentorController = new MentorController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    router = createTestUiApp(app, [appController, mentorController]);
+    transport = createTestUiApp(app, [appController, mentorController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
 
@@ -148,11 +148,11 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
   test('полный wizard: все шаги → поток создан', async () => {
     // Шаг 0: Инструменты ментора → Создать поток
-    const menu = await router.collectMainMenu(mentor);
+    const menu = await transport.collectMainMenu(mentor);
     const toolsBtn = menu.find((i) => i.text.includes('Инструменты ментора'));
     expect(toolsBtn).toBeDefined();
 
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       (toolsBtn as { action: string }).action,
       mentor.telegramId,
       session,
@@ -162,7 +162,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     const createBtn = findButton(submenuResp, 'Создать поток');
 
     // Шаг 0: список модулей
-    const step0 = await router.handleCallback(
+    const step0 = await transport.handleCallback(
       createBtn.code,
       mentor.telegramId,
       session,
@@ -175,7 +175,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     const moduleBtn = findButton(step0, 'JavaScript Основы');
 
     // Шаг 1: название (предзаполнено из модуля)
-    const step1 = await router.handleCallback(
+    const step1 = await transport.handleCallback(
       moduleBtn.code,
       mentor.telegramId,
       wizSession(step0.captureInput!.context),
@@ -189,7 +189,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Принимаем название
     const acceptTitleBtn = findButton(step1, 'Принять');
-    const step2 = await router.handleCallback(
+    const step2 = await transport.handleCallback(
       acceptTitleBtn.code,
       mentor.telegramId,
       wizSession(step1.captureInput!.context),
@@ -201,7 +201,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     expect(ctx2.step).toBe(2);
 
     // Вводим описание
-    const step3 = await router.handleMessage(
+    const step3 = await transport.handleMessage(
       {
         type: 'message',
         text: 'Тестовый поток (интеграция)',
@@ -218,7 +218,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     expect(ctx3.description).toBe('Тестовый поток (интеграция)');
 
     // Вводим дату
-    const step4 = await router.handleMessage(
+    const step4 = await transport.handleMessage(
       {
         type: 'message',
         text: '2026-06-15',
@@ -239,7 +239,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     for (let i = 0; i < 5; i++) {
       const ctx = currentResp.captureInput!.context as Record<string, unknown>;
       const skipBtn = findButton(currentResp, 'Пропустить');
-      currentResp = (await router.handleCallback(
+      currentResp = (await transport.handleCallback(
         skipBtn.code,
         mentor.telegramId,
         wizSession(ctx),
@@ -253,7 +253,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Пропускаем группу
     const skipGroupBtn = findButton(currentResp, 'Пропустить');
-    currentResp = (await router.handleCallback(
+    currentResp = (await transport.handleCallback(
       skipGroupBtn.code,
       mentor.telegramId,
       wizSession(ctx9),
@@ -266,7 +266,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Пропускаем кодовое слово
     const skipKeyBtn = findButton(currentResp, 'Пропустить');
-    const previewResp = await router.handleCallback(
+    const previewResp = await transport.handleCallback(
       skipKeyBtn.code,
       mentor.telegramId,
       wizSession(ctx10),
@@ -277,7 +277,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     expect(previewResp.sendMessage?.text).toContain('Превью');
     const confirmBtn = findButton(previewResp, 'Создать');
 
-    const finalResp = await router.handleCallback(
+    const finalResp = await transport.handleCallback(
       confirmBtn.code,
       mentor.telegramId,
       wizSession(previewResp.captureInput!.context),
@@ -291,11 +291,11 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
   test('wizard: отмена создания потока через /cancel', async () => {
     // Начинаем создание
-    const menu = await router.collectMainMenu(mentor);
+    const menu = await transport.collectMainMenu(mentor);
     const toolsBtn = menu.find((i) => i.text.includes('Инструменты ментора'));
     expect(toolsBtn).toBeDefined();
 
-    const submenuResp = await router.handleCallback(
+    const submenuResp = await transport.handleCallback(
       (toolsBtn as { action: string }).action,
       mentor.telegramId,
       session,
@@ -304,7 +304,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     const createBtn = findButton(submenuResp, 'Создать поток');
 
-    const step0 = await router.handleCallback(
+    const step0 = await transport.handleCallback(
       createBtn.code,
       mentor.telegramId,
       session,
@@ -313,7 +313,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     expect(step0.captureInput).toBeDefined();
 
     // Отменяем
-    const cancelResult = await router.handleCancel(
+    const cancelResult = await transport.handleCancel(
       mentor.telegramId,
       wizSession(step0.captureInput!.context),
     );

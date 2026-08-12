@@ -23,7 +23,7 @@ import {
  */
 describe('CourseCatalogStory (интеграционный)', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let guest: User;
   let author: User;
   const session: SessionData = { activeHandler: null };
@@ -36,8 +36,8 @@ describe('CourseCatalogStory (интеграционный)', () => {
     app = await createTestApp('course-catalog-v2');
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    router = new UiApp([appController, courseController]);
-    router.init(app.apiApp, (tgId: number) =>
+    transport = new UiApp([appController, courseController]);
+    transport.init(app.apiApp, (tgId: number) =>
       app.userFacade.getUserByTelegramId(tgId),
     );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
@@ -82,7 +82,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
   // ── Уровень 0: Курсы ──
 
   test('list: курсы + этапы inline', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'course:course-catalog:list',
       guest.telegramId,
       session,
@@ -98,7 +98,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
   test('phases: этапы + модули inline', async () => {
     const { courseId } = await createCourseWithModule('Тестовый курс');
 
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `course:course-catalog:phases:${courseId}`,
       guest.telegramId,
       session,
@@ -114,7 +114,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
   });
 
   test('phases: несуществующий курс — ошибка', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'course:course-catalog:phases:bad-uuid',
       guest.telegramId,
       session,
@@ -128,7 +128,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
   test('modules: модули + проекты inline', async () => {
     const { courseId } = await createCourseWithModule('Курс M');
 
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `course:course-catalog:modules:${courseId}:0`,
       guest.telegramId,
       session,
@@ -166,7 +166,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
       author.uuid,
     );
 
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
       guest.telegramId,
       session,
@@ -205,7 +205,7 @@ describe('CourseCatalogStory (интеграционный)', () => {
       author.uuid,
     );
 
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
       guest.telegramId,
       session,

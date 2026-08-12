@@ -22,7 +22,7 @@ import {
  */
 describe('LearningController (интеграционный)', () => {
   let app: TestApp;
-  let router: TestBotUiApp;
+  let transport: TestBotUiApp;
   let student: User;
   const session: SessionData = { activeHandler: null };
 
@@ -35,8 +35,12 @@ describe('LearningController (интеграционный)', () => {
     const streamController = new StreamsController();
     const learningController = new LearningController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    router = new UiApp([appController, streamController, learningController]);
-    router.init(app.apiApp, (tgId: number) =>
+    transport = new UiApp([
+      appController,
+      streamController,
+      learningController,
+    ]);
+    transport.init(app.apiApp, (tgId: number) =>
       app.userFacade.getUserByTelegramId(tgId),
     );
     student = (await app.userFacade.getUserByTelegramId(1003))!;
@@ -49,7 +53,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Главное меню ──
 
   test('студент видит кнопку «🎓 Моя учёба» в главном меню', async () => {
-    const menu = await router.collectMainMenu(student);
+    const menu = await transport.collectMainMenu(student);
     const btn = menu.find((i) => i.text.includes('Моя учёба'));
     expect(btn).toBeDefined();
     expect(btn!.kind).toBe('callback');
@@ -58,7 +62,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Хаб «Моя учёба» ──
 
   test('learning:hub:my-study — показывает хаб с кнопками', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'learning:hub:my-study',
       student.telegramId,
       session,
@@ -79,7 +83,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Продолжить учёбу (просмотр шага) ──
 
   test('learning:step-view:my-study:continue — показывает текущий шаг', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'learning:step-view:my-study:continue',
       student.telegramId,
       session,
@@ -103,7 +107,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Дерево уроков (уровень 1: проекты) ──
 
   test('learning:nav-tree:my-study:lessons — показывает проекты', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'learning:nav-tree:my-study:lessons',
       student.telegramId,
       session,
@@ -125,7 +129,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Уровень 2: уроки проекта ──
 
   test('learning:nav-tree:my-study:project:1 — показывает уроки проекта', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'learning:nav-tree:my-study:project:1',
       student.telegramId,
       session,
@@ -147,7 +151,7 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:nav-tree:my-study:lesson:c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0 — показывает шаги', async () => {
     const LESSON_ID = 'c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0';
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `learning:nav-tree:my-study:lesson:${LESSON_ID}`,
       student.telegramId,
       session,
@@ -170,7 +174,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Прогресс ──
 
   test('learning:progress:progress:{streamId} — показывает прогресс', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       `learning:progress:progress:${STREAM_ID}`,
       student.telegramId,
       session,
@@ -187,7 +191,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Выход из потока ──
 
   test('learning:hub:my-study:leave-confirm — показывает диалог подтверждения', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'learning:hub:my-study:leave-confirm',
       student.telegramId,
       session,
@@ -206,7 +210,7 @@ describe('LearningController (интеграционный)', () => {
   // ── Неизвестная команда ──
 
   test('неизвестный контроллер → ошибка', async () => {
-    const response = await router.handleCallback(
+    const response = await transport.handleCallback(
       'unknown:cmd:test',
       student.telegramId,
       session,
