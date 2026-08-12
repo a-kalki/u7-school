@@ -60,11 +60,6 @@ export class QuestionnaireEngine {
     return null;
   }
 
-  /** Все вопросы пула (снимок для сохранения в агрегате) */
-  getAll(): Question[] {
-    return this.pool;
-  }
-
   /** Вопрос по коду */
   getByCode(code: string): Question | undefined {
     return this.index.get(code);

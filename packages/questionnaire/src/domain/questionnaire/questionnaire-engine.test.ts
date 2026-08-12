@@ -16,8 +16,8 @@ describe('QuestionnaireEngine', () => {
       },
     ];
     const engine = new QuestionnaireEngine(pool);
-    const all = engine.getAll();
-    expect(all.length).toBe(2);
+    expect(engine.getByCode('t1')).toBeDefined();
+    expect(engine.getByCode('c1')).toBeDefined();
   });
 
   test('getByCode возвращает вопрос по коду', () => {
