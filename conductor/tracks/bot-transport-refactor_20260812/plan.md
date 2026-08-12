@@ -36,13 +36,13 @@
 
 ## Фаза 3: Удаление старого кода, обновление main.ts и фасадов
 
-- [~] Task: Удалить connect-ui-app.ts и ui-utils.ts
+- [x] Task: Удалить connect-ui-app.ts и ui-utils.ts [7dc85aa]
     - [ ] Удалить файлы
     - [ ] Обновить main.ts: создать BotTransport, зарегистрировать на Grammy
     - [ ] Обновить main.ts: убрать sessionMap из createBot
     - [ ] Обновить bot.ts: убрать параметр sessionMap
     - [ ] `bun run check` — чисто
-- [ ] Task: Обновить фасады и стори
+- [x] Task: Обновить фасады и стори [7dc85aa]
     - [ ] questionnaire-bot-facade.ts: uiApp.send() → transport.send()
     - [ ] fill.story.ts: коды кнопок без префикса контроллера (prefixResponse в BotTransport)
     - [ ] create-ui-app.ts: убрать передачу sessionMap, упростить
@@ -51,7 +51,7 @@
 
 ## Фаза 4: Адаптация тестов
 
-- [ ] Task: Обновить тесты UiApp (core)
+- [~] Task: Обновить тесты UiApp (core)
     - [ ] Адаптировать handleCallback/handleMessage/handleCancel тесты — передавать tgId
     - [ ] Убрать тесты сжатия (переехали в BotTransport)
     - [ ] `bun run check` — чисто

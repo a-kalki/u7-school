@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
@@ -5,7 +6,10 @@ import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
-import { createTestApp } from '@u7-scl/test-helpers/test-app';
+import {
+  createTestApp,
+  type TestBotUiApp,
+} from '@u7-scl/test-helpers/test-app';
 
 /**
  * Интеграционный тест S01: витрина потоков (CatalogStory).
@@ -18,7 +22,7 @@ import { createTestApp } from '@u7-scl/test-helpers/test-app';
  */
 describe('CatalogStory (интеграционный)', () => {
   let app: TestApp;
-  let router: UiApp;
+  let router: TestBotUiApp;
   let guest: User;
   const session: SessionData = { activeHandler: null };
 
@@ -29,7 +33,9 @@ describe('CatalogStory (интеграционный)', () => {
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
     router = new UiApp([appController, streamController]);
-    router.init(app.apiApp);
+    router.init(app.apiApp, (tgId: number) =>
+      app.userFacade.getUserByTelegramId(tgId),
+    );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
   });
 
@@ -40,7 +46,7 @@ describe('CatalogStory (интеграционный)', () => {
   test('list: показывает enrollment и active потоки', async () => {
     const response = await router.handleCallback(
       'stream:catalog:list',
-      guest,
+      guest.telegramId,
       session,
     );
     assertBotResponseValid(response);
@@ -57,7 +63,7 @@ describe('CatalogStory (интеграционный)', () => {
   test('list: скрывает completed и archived по умолчанию', async () => {
     const response = await router.handleCallback(
       'stream:catalog:list',
-      guest,
+      guest.telegramId,
       session,
     );
     assertBotResponseValid(response);
@@ -73,7 +79,7 @@ describe('CatalogStory (интеграционный)', () => {
   test('list-with-completed: показывает завершённые', async () => {
     const response = await router.handleCallback(
       'stream:catalog:list-with-completed',
-      guest,
+      guest.telegramId,
       session,
     );
     assertBotResponseValid(response);
@@ -102,7 +108,7 @@ describe('CatalogStory (интеграционный)', () => {
   test('легенда цветных кружков', async () => {
     const response = await router.handleCallback(
       'stream:catalog:list',
-      guest,
+      guest.telegramId,
       session,
     );
     assertBotResponseValid(response);

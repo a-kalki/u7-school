@@ -1,7 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
 import { UiApp } from '@u7-scl/core/ui';
-import type { SessionData } from '../context';
 import type { U7BotAppMeta } from './u7-bot-app-meta';
 
 /**

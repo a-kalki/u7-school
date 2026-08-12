@@ -142,6 +142,139 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
 }
 
 /**
+ * Обёртка над UiApp для тестов — эмулирует BotTransport.prefixResponse.
+ *
+ * В продакшене BotTransport добавляет префикс контроллера к кнопкам.
+ * Тесты используют UiApp напрямую, поэтому префикс добавляется здесь.
+ */
+export class TestBotUiApp {
+  constructor(private readonly uiApp: UiApp) {}
+
+  get size(): number {
+    return this.uiApp.size;
+  }
+
+  getController(name: string) {
+    return this.uiApp.getController(name);
+  }
+
+  async collectMainMenu(actor: any) {
+    return this.uiApp.collectMainMenu(actor);
+  }
+
+  async collectHelp(actor: any) {
+    return this.uiApp.collectHelp(actor);
+  }
+
+  async collectAllMenuItems(actor: any) {
+    return this.uiApp.collectAllMenuItems(actor);
+  }
+
+  async collectAllHelpDescriptions(actor: any) {
+    return this.uiApp.collectAllHelpDescriptions(actor);
+  }
+
+  async handleWelcome(tgId: number) {
+    const res = await this.uiApp.handleWelcome(tgId);
+    return this.#prefix('app', res);
+  }
+
+  async handleHelp(tgId: number) {
+    const res = await this.uiApp.handleHelp(tgId);
+    return this.#prefix('app', res);
+  }
+
+  async handleCallback(data: string, tgId: number, session: any) {
+    const ctrlName = data.split(':')[0] ?? '';
+    const res = await this.uiApp.handleCallback(data, tgId, session);
+    return this.#prefix(ctrlName, res);
+  }
+
+  async handleMessage(update: any, tgId: number, session: any) {
+    const activeHandler = session?.activeHandler;
+    const ctrlName = activeHandler
+      ? (activeHandler.path.split('/')[0] ?? '')
+      : '';
+    const res = await this.uiApp.handleMessage(update, tgId, session);
+    if (res === null) return null;
+    return this.#prefix(ctrlName, res);
+  }
+
+  async handleCancel(tgId: number, session: any) {
+    const activeHandler = session?.activeHandler;
+    const ctrlName = activeHandler
+      ? (activeHandler.path.split('/')[0] ?? '')
+      : '';
+    const res = await this.uiApp.handleCancel(tgId, session);
+    if (res === null) return null;
+    return this.#prefix(ctrlName, res);
+  }
+
+  async handleTimeout(tgId: number, session: any) {
+    const activeHandler = session?.activeHandler;
+    const ctrlName = activeHandler
+      ? (activeHandler.path.split('/')[0] ?? '')
+      : '';
+    const res = await this.uiApp.handleTimeout(tgId, session);
+    if (res === null) return null;
+    return this.#prefix(ctrlName, res);
+  }
+
+  #prefix(controllerName: string, response: any): any {
+    if (!controllerName) return response;
+    const prefixCode = (code: string): string => {
+      if (code.startsWith(`${controllerName}:`)) return code;
+      for (const knownPrefix of [
+        'app:',
+        'stream:',
+        'course:',
+        'onboarding:',
+        'learning:',
+        'mentor:',
+        'questionnaire:',
+      ]) {
+        if (code.startsWith(knownPrefix)) return code;
+      }
+      return `${controllerName}:${code}`;
+    };
+
+    const prefixKeyboard = (kb: any): any => {
+      if (!kb) return kb;
+      return {
+        ...kb,
+        rows: kb.rows.map((row: any) =>
+          row.map((btn: any) => ({
+            ...btn,
+            code: prefixCode(btn.code),
+          })),
+        ),
+      };
+    };
+
+    const result: any = { ...response };
+    if (result.sendMessage?.keyboard) {
+      result.sendMessage = {
+        ...result.sendMessage,
+        keyboard: prefixKeyboard(result.sendMessage.keyboard),
+      };
+    }
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map((sm: any) => ({
+        ...sm,
+        keyboard: prefixKeyboard(sm.keyboard),
+      }));
+    }
+    if (result.editMessage?.keyboard) {
+      result.editMessage = {
+        ...result.editMessage,
+        keyboard: prefixKeyboard(result.editMessage.keyboard),
+      };
+    }
+    return result;
+  }
+}
+
+/**
  * Создаёт инициализированный UiApp для тестов.
  *
  * Инкапсулирует рутину, которую раньше каждый тест делал вручную:
@@ -149,13 +282,15 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
  *
  * @param app — результат createTestApp()
  * @param controllers — один или несколько контроллеров
- * @returns инициализированный UiApp
+ * @returns обёртка TestBotUiApp (совместима с UiApp по интерфейсу)
  */
 export function createTestUiApp(
   app: TestApp,
   controllers: BotController[],
-): UiApp {
+): TestBotUiApp {
   const uiApp = new UiApp(controllers);
-  uiApp.init(app.apiApp);
-  return uiApp;
+  uiApp.init(app.apiApp, (tgId: number) =>
+    app.userFacade.getUserByTelegramId(tgId),
+  );
+  return new TestBotUiApp(uiApp);
 }

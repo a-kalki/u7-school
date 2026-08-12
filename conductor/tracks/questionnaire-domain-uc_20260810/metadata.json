@@ -1,8 +1,0 @@
-{
-  "track_id": "questionnaire-domain-uc_20260810",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-08-11T19:43:03Z",
-  "updated_at": "2026-08-11T19:43:03Z",
-  "description": "Перепроектирование UC слоя questionnaire: userId, pool при старте, QuestionnaireBotFacade интерфейс, доменный фасад"
-}

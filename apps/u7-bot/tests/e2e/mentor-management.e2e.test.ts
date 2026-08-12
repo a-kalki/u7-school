@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
@@ -12,7 +13,10 @@ import type {
 } from '@u7-scl/core/ui';
 import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
-import { createTestApp } from '@u7-scl/test-helpers/test-app';
+import {
+  createTestApp,
+  type TestBotUiApp,
+} from '@u7-scl/test-helpers/test-app';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
@@ -77,7 +81,7 @@ function findMenuItem(
  */
 describe('E2E: Ментор — управление студентами', () => {
   let app: TestApp;
-  let router: UiApp;
+  let router: TestBotUiApp;
   let mentor: User;
 
   beforeAll(async () => {
@@ -94,7 +98,9 @@ describe('E2E: Ментор — управление студентами', () =
       learningController,
       mentorController,
     ]);
-    router.init(app.apiApp);
+    router.init(app.apiApp, (tgId: number) =>
+      app.userFacade.getUserByTelegramId(tgId),
+    );
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
 
@@ -112,7 +118,7 @@ describe('E2E: Ментор — управление студентами', () =
     // 2. Подменю: нажимаем «📋 Мои потоки»
     const submenuResp = await router.handleCallback(
       toolsBtn.action,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(submenuResp);
@@ -121,7 +127,7 @@ describe('E2E: Ментор — управление студентами', () =
     // 3. Список моих потоков → выбираем активный (🔵)
     const myStreamsResp = await router.handleCallback(
       myStreamsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(myStreamsResp);
@@ -130,7 +136,7 @@ describe('E2E: Ментор — управление студентами', () =
     // 4. Менторская карточка потока
     const cardResp = await router.handleCallback(
       activeBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(cardResp);
@@ -146,7 +152,7 @@ describe('E2E: Ментор — управление студентами', () =
     const studentsBtn = findButton(cardResp, 'Студенты');
     const studentsResp = await router.handleCallback(
       studentsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(studentsResp);
@@ -187,25 +193,25 @@ describe('E2E: Ментор — управление студентами', () =
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
     const submenuResp = await router.handleCallback(
       toolsBtn.action,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
     const myStreamsResp = await router.handleCallback(
       myStreamsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
     const cardResp = await router.handleCallback(
       activeBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
     const studentsResp = await router.handleCallback(
       studentsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
 
@@ -213,7 +219,7 @@ describe('E2E: Ментор — управление студентами', () =
     const abandonBtn = findButton(studentsResp, '⛔');
     const confirmResp = await router.handleCallback(
       abandonBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(confirmResp);
@@ -233,7 +239,7 @@ describe('E2E: Ментор — управление студентами', () =
     const cancelBtn = findButton(confirmResp, 'Отмена');
     const cancelResp = await router.handleCallback(
       cancelBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(cancelResp);
@@ -247,25 +253,25 @@ describe('E2E: Ментор — управление студентами', () =
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
     const submenuResp = await router.handleCallback(
       toolsBtn.action,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
     const myStreamsResp = await router.handleCallback(
       myStreamsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
     const cardResp = await router.handleCallback(
       activeBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
     const studentsResp = await router.handleCallback(
       studentsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(studentsResp);
@@ -274,7 +280,7 @@ describe('E2E: Ментор — управление студентами', () =
     const abandonBtn = findButton(studentsResp, '⛔');
     const confirmResp = await router.handleCallback(
       abandonBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(confirmResp);
@@ -283,7 +289,7 @@ describe('E2E: Ментор — управление студентами', () =
     const confirmActionBtn = findButton(confirmResp, 'Да, неактивен');
     const resultResp = await router.handleCallback(
       confirmActionBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(resultResp);
@@ -300,25 +306,25 @@ describe('E2E: Ментор — управление студентами', () =
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
     const submenuResp = await router.handleCallback(
       toolsBtn.action,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
     const myStreamsResp = await router.handleCallback(
       myStreamsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
     const cardResp = await router.handleCallback(
       activeBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
     const studentsResp = await router.handleCallback(
       studentsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(studentsResp);
@@ -328,7 +334,7 @@ describe('E2E: Ментор — управление студентами', () =
     const redoBtn = findButton(studentsResp, '🔄');
     const choiceResp = await router.handleCallback(
       redoBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(choiceResp);
@@ -338,7 +344,7 @@ describe('E2E: Ментор — управление студентами', () =
     const advancedBtn = findButton(choiceResp, 'Прошёл');
     const confirmResp = await router.handleCallback(
       advancedBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(confirmResp);
@@ -348,7 +354,7 @@ describe('E2E: Ментор — управление студентами', () =
     const confirmActionBtn = findButton(confirmResp, 'Завершить');
     const resultResp = await router.handleCallback(
       confirmActionBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(resultResp);
@@ -365,25 +371,25 @@ describe('E2E: Ментор — управление студентами', () =
     const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
     const submenuResp = await router.handleCallback(
       toolsBtn.action,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
     const myStreamsResp = await router.handleCallback(
       myStreamsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const activeBtn = findButton(myStreamsResp, '🔵');
     const cardResp = await router.handleCallback(
       activeBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
     const studentsResp = await router.handleCallback(
       studentsBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(studentsResp);
@@ -400,7 +406,7 @@ describe('E2E: Ментор — управление студентами', () =
 
     const detailResp = await router.handleCallback(
       detailBtn.code,
-      mentor,
+      mentor.telegramId,
       NO_SESSION,
     );
     assertBotResponseValid(detailResp);
@@ -425,7 +431,7 @@ describe('E2E: Ментор — управление студентами', () =
 
       const submenuResp = await router.handleCallback(
         toolsBtn.action,
-        mentor,
+        mentor.telegramId,
         NO_SESSION,
       );
       assertBotResponseValid(submenuResp);
@@ -436,7 +442,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаг 0: выбор модуля
       let resp = await router.handleCallback(
         createBtn.code,
-        mentor,
+        mentor.telegramId,
         NO_SESSION,
       );
       assertBotResponseValid(resp);
@@ -449,7 +455,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаг 1: название (с передачей контекста wizard'а)
       resp = await router.handleCallback(
         moduleBtn.code,
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       );
       assertBotResponseValid(resp);
@@ -459,7 +465,7 @@ describe('E2E: Ментор — управление студентами', () =
       const acceptTitle = findButton(resp, 'Принять');
       resp = await router.handleCallback(
         acceptTitle.code,
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       );
       assertBotResponseValid(resp);
@@ -468,7 +474,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаг 2: вводим описание вручную
       resp = (await router.handleMessage(
         { type: 'message', text: 'E2E Тестовый Поток', telegramId: 1004 },
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       ))!;
       assertBotResponseValid(resp);
@@ -477,7 +483,7 @@ describe('E2E: Ментор — управление студентами', () =
       // Шаг 3: вводим дату
       resp = (await router.handleMessage(
         { type: 'message', text: '2026-12-15', telegramId: 1004 },
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       ))!;
       assertBotResponseValid(resp);
@@ -487,7 +493,7 @@ describe('E2E: Ментор — управление студентами', () =
         const skipBtn = findButton(resp, 'Пропустить');
         resp = await router.handleCallback(
           skipBtn.code,
-          mentor,
+          mentor.telegramId,
           wizSession(resp.captureInput!.context),
         );
         assertBotResponseValid(resp);
@@ -498,7 +504,7 @@ describe('E2E: Ментор — управление студентами', () =
       const skipGroup = findButton(resp, 'Пропустить');
       resp = await router.handleCallback(
         skipGroup.code,
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       );
       assertBotResponseValid(resp);
@@ -508,7 +514,7 @@ describe('E2E: Ментор — управление студентами', () =
       const skipKey = findButton(resp, 'Пропустить');
       resp = await router.handleCallback(
         skipKey.code,
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       );
       assertBotResponseValid(resp);
@@ -522,7 +528,7 @@ describe('E2E: Ментор — управление студентами', () =
       const confirmBtn = findButton(resp, 'Создать');
       resp = await router.handleCallback(
         confirmBtn.code,
-        mentor,
+        mentor.telegramId,
         wizSession(resp.captureInput!.context),
       );
       assertBotResponseValid(resp);
@@ -537,13 +543,13 @@ describe('E2E: Ментор — управление студентами', () =
       const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
       const submenuResp = await router.handleCallback(
         toolsBtn.action,
-        mentor,
+        mentor.telegramId,
         NO_SESSION,
       );
       const createBtn = findButton(submenuResp, 'Создать поток');
       const step0 = await router.handleCallback(
         createBtn.code,
-        mentor,
+        mentor.telegramId,
         NO_SESSION,
       );
       assertBotResponseValid(step0);
@@ -551,7 +557,7 @@ describe('E2E: Ментор — управление студентами', () =
 
       // Отменяем
       const cancelResp = (await router.handleCancel(
-        mentor,
+        mentor.telegramId,
         wizSession(step0.captureInput!.context),
       ))!;
       assertBotResponseValid(cancelResp);

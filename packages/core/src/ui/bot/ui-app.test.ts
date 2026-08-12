@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 import { BotController } from './controller/bot-controller';
 import type {
   BotResponse,
@@ -127,6 +127,12 @@ function makeSession(overrides: Partial<SessionData> = {}): SessionData {
   return { activeHandler: null, ...overrides };
 }
 
+function makeActorResolver(
+  actor: TestActor,
+): (tgId: number) => Promise<TestActor> {
+  return async (_tgId: number) => actor;
+}
+
 // ── UiApp ──
 
 describe('UiApp', () => {
@@ -177,11 +183,12 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
     ctrl.withCallbackResult({ sendMessage: { text: 'ok' } });
 
-    const app = new UiApp([ctrl]);
-    const session = makeSession();
     const actor = makeActor();
+    const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
 
-    const res = await app.handleCallback('stream:view:123', actor, session);
+    const session = makeSession();
+    const res = await app.handleCallback('stream:view:123', 1, session);
 
     expect(ctrl.handleCallbackCalls).toHaveLength(1);
     expect(ctrl.handleCallbackCalls[0]!.data).toBe('view:123');
@@ -192,12 +199,11 @@ describe('UiApp', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
-    const res = await app.handleCallback(
-      'unknown:action',
-      makeActor(),
-      makeSession(),
-    );
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleCallback('unknown:action', 1, makeSession());
 
     expect(ctrl.handleCallbackCalls).toHaveLength(0);
     expect(res.sendMessage?.text).toContain('Неизвестная команда');
@@ -207,8 +213,11 @@ describe('UiApp', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
-    const res = await app.handleCallback('nodata', makeActor(), makeSession());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleCallback('nodata', 1, makeSession());
 
     expect(ctrl.handleCallbackCalls).toHaveLength(0);
     expect(res.sendMessage?.text).toContain('Неизвестный формат');
@@ -220,16 +229,15 @@ describe('UiApp', () => {
     const c2 = new TestController();
     c2.name = 'stream';
 
+    const actor = makeActor();
     const app = new UiApp([c1, c2]);
+    app.init({} as any, makeActorResolver(actor));
+
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
 
-    const res = await app.handleCallback(
-      'stream:view:123',
-      makeActor(),
-      session,
-    );
+    const res = await app.handleCallback('stream:view:123', 1, session);
 
     expect(res.sendMessage?.text).toContain('завершите текущее действие');
     expect(c1.handleCallbackCalls).toHaveLength(0);
@@ -244,10 +252,12 @@ describe('UiApp', () => {
       captureInput: { path: 'ask-name', ttlSeconds: 30 },
     });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
-    const session = makeSession();
+    app.init({} as any, makeActorResolver(actor));
 
-    await app.handleCallback('onboarding:start', makeActor(), session);
+    const session = makeSession();
+    await app.handleCallback('onboarding:start', 1, session);
 
     expect(session.activeHandler).not.toBeNull();
     expect(session.activeHandler!.path).toBe('onboarding/ask-name');
@@ -259,12 +269,15 @@ describe('UiApp', () => {
     ctrl.name = 'onboarding';
     ctrl.withCallbackResult({ releaseInput: true });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
+
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
 
-    await app.handleCallback('onboarding:done', makeActor(), session);
+    await app.handleCallback('onboarding:done', 1, session);
 
     expect(session.activeHandler).toBeNull();
   });
@@ -277,10 +290,12 @@ describe('UiApp', () => {
       delegate: { path: 'final' },
     });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
-    const session = makeSession();
+    app.init({} as any, makeActorResolver(actor));
 
-    await app.handleCallback('stream:step1', makeActor(), session);
+    const session = makeSession();
+    await app.handleCallback('stream:step1', 1, session);
 
     expect(ctrl.handleCallbackCalls).toHaveLength(2);
     expect(ctrl.handleCallbackCalls[0]!.data).toBe('step1');
@@ -291,10 +306,13 @@ describe('UiApp', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
+
     const res = await app.handleMessage(
       { type: 'message', text: 'hello', telegramId: 1 },
-      makeActor(),
+      1,
       makeSession(),
     );
 
@@ -307,13 +325,16 @@ describe('UiApp', () => {
     ctrl.name = 'onboarding';
     ctrl.withMessageResult({ sendMessage: { text: 'Принято' } });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
+
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
     const update: BotUpdate = { type: 'message', text: 'Иван', telegramId: 1 };
 
-    const res = await app.handleMessage(update, makeActor(), session);
+    const res = await app.handleMessage(update, 1, session);
 
     expect(res).not.toBeNull();
     expect(ctrl.handleMessageCalls).toHaveLength(1);
@@ -324,14 +345,17 @@ describe('UiApp', () => {
     ctrl.name = 'onboarding';
     ctrl.withMessageResult({ releaseInput: true });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
+
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
 
     await app.handleMessage(
       { type: 'message', text: 'ok', telegramId: 1 },
-      makeActor(),
+      1,
       session,
     );
 
@@ -346,7 +370,10 @@ describe('UiApp', () => {
       sendMessage: { text: 'Время истекло' },
     });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
+
     const session = makeSession({
       activeHandler: {
         path: 'onboarding/ask-name',
@@ -356,7 +383,7 @@ describe('UiApp', () => {
 
     const res = await app.handleMessage(
       { type: 'message', text: 'любое', telegramId: 1 },
-      makeActor(),
+      1,
       session,
     );
 
@@ -369,8 +396,11 @@ describe('UiApp', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
-    const res = await app.handleCancel(makeActor(), makeSession());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleCancel(1, makeSession());
 
     expect(res).toBeNull();
   });
@@ -383,12 +413,15 @@ describe('UiApp', () => {
       sendMessage: { text: 'Отменено' },
     });
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
+    app.init({} as any, makeActorResolver(actor));
+
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
     });
 
-    const res = await app.handleCancel(makeActor(), session);
+    const res = await app.handleCancel(1, session);
 
     expect(ctrl.handleCancelCalls).toHaveLength(1);
     expect(session.activeHandler).toBeNull();
@@ -399,8 +432,11 @@ describe('UiApp', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
+    const actor = makeActor();
     const app = new UiApp([ctrl]);
-    const res = await app.handleTimeout(makeActor(), makeSession());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleTimeout(1, makeSession());
 
     expect(res).toBeNull();
   });
@@ -471,16 +507,22 @@ describe('UiApp', () => {
       },
     });
 
+    const actor = makeActor();
     const app = new UiApp([appCtrl]);
-    const res = await app.handleWelcome(makeActor());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleWelcome(1);
 
     expect(res.sendMessage?.text).toBe('Привет! 👋');
     expect(res.sendMessage?.keyboard?.rows[0]![0]!.text).toBe('Кнопка');
   });
 
   test('handleWelcome без контроллера app — fallback', async () => {
+    const actor = makeActor();
     const app = new UiApp([]);
-    const res = await app.handleWelcome(makeActor());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleWelcome(1);
 
     expect(res.sendMessage?.text).toContain('Выберите действие');
   });
@@ -492,20 +534,24 @@ describe('UiApp', () => {
       sendMessage: { text: 'Как работать? 🤔' },
     });
 
+    const actor = makeActor();
     const app = new UiApp([appCtrl]);
-    const res = await app.handleHelp(makeActor());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleHelp(1);
 
     expect(res.sendMessage?.text).toContain('Как работать?');
   });
 
   test('handleHelp без контроллера app — fallback', async () => {
+    const actor = makeActor();
     const app = new UiApp([]);
-    const res = await app.handleHelp(makeActor());
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleHelp(1);
 
     expect(res.sendMessage?.text).toContain('Нет доступных пунктов меню');
   });
-
-  // ── getAction удалён в Треке 10 ──
 
   test('init не падает без publicActions', () => {
     const app = new UiApp([]);

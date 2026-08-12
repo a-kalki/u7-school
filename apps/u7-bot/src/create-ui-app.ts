@@ -58,7 +58,11 @@ export function createUiApp(
 
   // Каскадная инициализация: ApiApp → контроллеры → стори
   // actorResolver: резолвит User по telegramId через userFacade
-  uiApp.init(apiApp, (tgId: number) => bundle.userFacade.getByTgId(tgId));
+  uiApp.init(apiApp, async (tgId: number) => {
+    const user = await bundle.userFacade.getUserByTelegramId(tgId);
+    if (!user) throw new Error(`Пользователь с telegramId ${tgId} не найден`);
+    return user;
+  });
 
   return {
     uiApp,

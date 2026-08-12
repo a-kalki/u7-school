@@ -1,6 +1,5 @@
-import type { User } from '@u7-scl/app/domain';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { extractControllerName, extractRestData } from '@u7-scl/core/ui';
+import { extractControllerName } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { U7BotUiApp } from '../core/ui-app';
@@ -10,7 +9,7 @@ import type { U7BotUiApp } from '../core/ui-app';
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const SHRUNK_RE = /^[0-9a-f]{8}$/i;
+const _SHRUNK_RE = /^[0-9a-f]{8}$/i;
 
 // ── Интерфейсы ──
 
@@ -74,7 +73,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
   async handleCallback(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
-    if (!tgId) return;
+    if (!tgId || !ctx.callbackQuery?.data) return;
 
     const data = ctx.callbackQuery.data;
     const controllerName = extractControllerName(data);
