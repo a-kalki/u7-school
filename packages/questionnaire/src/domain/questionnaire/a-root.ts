@@ -20,7 +20,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     super(state, QuestionnaireSchema);
     // Если состояние уже имеет pool (например загружено из БД) — восстановим engine
     const pool = state.questionPool as QuestionnairePool | null;
-    if (pool && pool.questions && pool.questions.length > 0) {
+    if (pool?.questions.length) {
       this.#engine = new QuestionnaireEngine(
         pool.questions,
         pool.questions.map((q) => q.questionCode),
@@ -34,7 +34,6 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   /**
    * Создаёт анкету в статусе invited с переданным пулом.
-   * Пул сохраняется целиком (включая inviteText, whyText и т.д.).
    */
   static create(
     respondentId: number,
@@ -58,16 +57,15 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   }
 
   /**
-   * Создаёт приглашение — InviteResponse с inviteText и whyText из пула.
-   * Вызывается только в статусе invited.
+   * Возвращает приглашение — InviteResponse.
    */
-  createInvite(): InviteResponse {
+  getInvite(): InviteResponse {
     if (this.state.status !== 'invited') {
       this.throwBadRequest(
         'Анкета не в статусе invited, невозможно создать приглашение',
       );
     }
-    const pool = this.state.questionPool as unknown as QuestionnairePool;
+    const pool = this.state.questionPool;
     return {
       type: 'invited',
       questionnaireId: this.state.uuid,
@@ -165,7 +163,6 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   }): QuestionnaireActionResponse {
     this.#checkIsInProgress();
 
-    const engine = this.#getEngine();
     const questionCode = this.currentQuestionCode;
     const question = this.#getQuestion(questionCode);
 
@@ -383,7 +380,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
    */
   getQuestionnaireActionResponse(): QuestionnaireActionResponse {
     if (this.state.status === 'invited') {
-      return this.createInvite();
+      return this.getInvite();
     }
 
     if (

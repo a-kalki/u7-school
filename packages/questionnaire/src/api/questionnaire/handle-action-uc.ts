@@ -1,16 +1,14 @@
 import * as v from 'valibot';
+import type { HandleActionCmdMeta } from '#domain/questionnaire/commands/handle-action-cmd';
+import {
+  type HandleActionCmd,
+  HandleActionCmdSchema,
+} from '#domain/questionnaire/commands/handle-action-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
-import type { HandleActionUcMeta } from './uc-metas';
 
-const HandleActionCmdSchema = v.object({
-  questionnaireId: v.pipe(v.string(), v.uuid()),
-  type: v.picklist(['callback', 'text']),
-  value: v.string(),
-});
-
-export class HandleActionUc extends QuestionnaireUseCase<HandleActionUcMeta> {
+export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
   protected readonly ucName = 'handle-action' as const;
   protected readonly ucLabel = 'Обработать действие в анкете' as const;
   protected readonly arMeta = {
@@ -23,11 +21,7 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionUcMeta> {
   protected readonly outputSchema = v.any();
 
   async execute(
-    command: {
-      questionnaireId: string;
-      type: 'callback' | 'text';
-      value: string;
-    },
+    command: HandleActionCmd,
     _actorId: string,
   ): Promise<QuestionnaireActionResponse> {
     const state = await this.getQuestionnaire(command.questionnaireId);

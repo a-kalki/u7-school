@@ -1,14 +1,14 @@
 import * as v from 'valibot';
+import type { StartByInviteCmdMeta } from '#domain/questionnaire/commands/start-by-invite-cmd';
+import {
+  type StartByInviteCmd,
+  StartByInviteCmdSchema,
+} from '#domain/questionnaire/commands/start-by-invite-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
-import type { StartByInviteUcMeta } from './uc-metas';
 
-const StartByInviteCmdSchema = v.object({
-  questionnaireId: v.pipe(v.string(), v.uuid()),
-});
-
-export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteUcMeta> {
+export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> {
   protected readonly ucName = 'start-by-invite' as const;
   protected readonly ucLabel = 'Запустить анкету по приглашению' as const;
   protected readonly arMeta = {
@@ -21,7 +21,7 @@ export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteUcMeta> {
   protected readonly outputSchema = v.any();
 
   async execute(
-    command: { questionnaireId: string },
+    command: StartByInviteCmd,
     _actorId: string,
   ): Promise<QuestionnaireActionResponse> {
     const state = await this.getQuestionnaire(command.questionnaireId);

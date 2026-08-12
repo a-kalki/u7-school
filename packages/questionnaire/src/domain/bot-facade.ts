@@ -5,8 +5,7 @@ import type {
 } from './questionnaire/types';
 
 /**
- * Интерфейс для UI-слоя (бота), который рендерит приглашения и вопросы анкет.
- * Реализуется в адаптере бота (TelegramBotFacade).
+ * Интерфейс для бота UI-слоя для запуска анкет.
  */
 export interface QuestionnaireBotFacade {
   /** Отправить приглашение пройти анкету */

@@ -51,7 +51,7 @@ describe('QuestionnaireAr (v2)', () => {
     const pool = simplePool();
     const ar = QuestionnaireAr.create(123, pool);
 
-    const invite = ar.createInvite();
+    const invite = ar.getInvite();
     expect(invite.type).toBe('invited');
     expect(invite.questionnaireId).toBe(ar.getCurrentState().uuid);
     expect(invite.inviteText).toBe('Приглашаем пройти опрос');

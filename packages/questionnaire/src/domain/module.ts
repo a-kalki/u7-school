@@ -5,30 +5,28 @@ import type {
 } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
-import type {
-  AbandonUcMeta,
-  DeclineInviteUcMeta,
-  GetCurrentUcMeta,
-  GetQuestionnairesByUserUcMeta,
-  GetQuestionnaireUcMeta,
-  HandleActionUcMeta,
-  SendInviteUcMeta,
-  StartByInviteUcMeta,
-  StartUcMeta,
-} from '../api/questionnaire/uc-metas';
 import type { QuestionnaireBotFacade } from './bot-facade';
+import type { AbandonCmdMeta } from './questionnaire/commands/abandon-cmd';
+import type { DeclineInviteCmdMeta } from './questionnaire/commands/decline-invite-cmd';
+import type { GetCurrentCmdMeta } from './questionnaire/commands/get-current-cmd';
+import type { GetQuestionnaireCmdMeta } from './questionnaire/commands/get-questionnaire-cmd';
+import type { GetQuestionnairesByUserCmdMeta } from './questionnaire/commands/get-questionnaires-by-user-cmd';
+import type { HandleActionCmdMeta } from './questionnaire/commands/handle-action-cmd';
+import type { SendInviteCmdMeta } from './questionnaire/commands/send-invite-cmd';
+import type { StartByInviteCmdMeta } from './questionnaire/commands/start-by-invite-cmd';
+import type { StartCmdMeta } from './questionnaire/commands/start-cmd';
 import type { QuestionnaireRepo } from './questionnaire/repo';
 
 export type QuestionnaireUcMetas =
-  | SendInviteUcMeta
-  | StartUcMeta
-  | StartByInviteUcMeta
-  | DeclineInviteUcMeta
-  | HandleActionUcMeta
-  | AbandonUcMeta
-  | GetCurrentUcMeta
-  | GetQuestionnaireUcMeta
-  | GetQuestionnairesByUserUcMeta;
+  | SendInviteCmdMeta
+  | StartCmdMeta
+  | StartByInviteCmdMeta
+  | DeclineInviteCmdMeta
+  | HandleActionCmdMeta
+  | AbandonCmdMeta
+  | GetCurrentCmdMeta
+  | GetQuestionnaireCmdMeta
+  | GetQuestionnairesByUserCmdMeta;
 
 /** Метаданные API-модуля questionnaire */
 export interface QuestionnaireApiModuleMeta extends ApiModuleMeta {

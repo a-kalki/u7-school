@@ -1,17 +1,13 @@
-import type { User } from '@u7-scl/user/domain';
 import * as v from 'valibot';
+import type { StartCmdMeta } from '#domain/questionnaire/commands/start-cmd';
+import {
+  type StartCmd,
+  StartCmdSchema,
+} from '#domain/questionnaire/commands/start-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
-import type { QuestionnairePool } from '../../domain/questionnaire/question';
-import { QuestionnairePoolSchema } from '../../domain/questionnaire/question';
 import { QuestionnaireUseCase } from './questionnaire-uc';
-import type { StartUcMeta } from './uc-metas';
 
-const StartCmdSchema = v.object({
-  user: v.any(),
-  pool: QuestionnairePoolSchema,
-});
-
-export class StartUc extends QuestionnaireUseCase<StartUcMeta> {
+export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
   protected readonly ucName = 'start' as const;
   protected readonly ucLabel = 'Запустить анкету' as const;
   protected readonly arMeta = {
@@ -23,14 +19,12 @@ export class StartUc extends QuestionnaireUseCase<StartUcMeta> {
   protected readonly inputSchema = StartCmdSchema;
   protected readonly outputSchema = v.any();
 
-  async execute(
-    command: { user: User; pool: QuestionnairePool },
-    _actorId: string,
-  ): Promise<undefined> {
-    const ar = QuestionnaireAr.create(command.user.telegramId, command.pool);
+  async execute(command: StartCmd, actorId: string): Promise<undefined> {
+    const user = await this.getUser(actorId);
+    const ar = QuestionnaireAr.create(user.telegramId, command.pool);
     const response = ar.start();
     await this.repo.save(ar.state);
 
-    await this.resolve.botFacade.startQuestionnaire(command.user, response);
+    await this.resolve.botFacade.startQuestionnaire(user, response);
   }
 }

@@ -1,17 +1,13 @@
-import type { User } from '@u7-scl/user/domain';
 import * as v from 'valibot';
+import type { SendInviteCmdMeta } from '#domain/questionnaire/commands/send-invite-cmd';
+import {
+  type SendInviteCmd,
+  SendInviteCmdSchema,
+} from '#domain/questionnaire/commands/send-invite-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
-import type { QuestionnairePool } from '../../domain/questionnaire/question';
-import { QuestionnairePoolSchema } from '../../domain/questionnaire/question';
 import { QuestionnaireUseCase } from './questionnaire-uc';
-import type { SendInviteUcMeta } from './uc-metas';
 
-const SendInviteCmdSchema = v.object({
-  user: v.any(),
-  pool: QuestionnairePoolSchema,
-});
-
-export class SendInviteUc extends QuestionnaireUseCase<SendInviteUcMeta> {
+export class SendInviteUc extends QuestionnaireUseCase<SendInviteCmdMeta> {
   protected readonly ucName = 'send-invite' as const;
   protected readonly ucLabel = 'Отправить приглашение на анкету' as const;
   protected readonly arMeta = {
@@ -23,14 +19,12 @@ export class SendInviteUc extends QuestionnaireUseCase<SendInviteUcMeta> {
   protected readonly inputSchema = SendInviteCmdSchema;
   protected readonly outputSchema = v.any();
 
-  async execute(
-    command: { user: User; pool: QuestionnairePool },
-    _actorId: string,
-  ): Promise<undefined> {
-    const ar = QuestionnaireAr.create(command.user.telegramId, command.pool);
+  async execute(command: SendInviteCmd, actorId: string): Promise<undefined> {
+    const user = await this.getUser(actorId);
+    const ar = QuestionnaireAr.create(user.telegramId, command.pool);
     await this.repo.save(ar.state);
 
-    const invite = ar.createInvite();
-    await this.resolve.botFacade.sendQuestionnaireInvite(command.user, invite);
+    const invite = ar.getInvite();
+    await this.resolve.botFacade.sendQuestionnaireInvite(user, invite);
   }
 }

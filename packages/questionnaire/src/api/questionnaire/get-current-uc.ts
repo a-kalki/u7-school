@@ -1,14 +1,14 @@
 import * as v from 'valibot';
+import type { GetCurrentCmdMeta } from '#domain/questionnaire/commands/get-current-cmd';
+import {
+  type GetCurrentCmd,
+  GetCurrentCmdSchema,
+} from '#domain/questionnaire/commands/get-current-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
-import type { GetCurrentUcMeta } from './uc-metas';
 
-const GetCurrentCmdSchema = v.object({
-  questionnaireId: v.pipe(v.string(), v.uuid()),
-});
-
-export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentUcMeta> {
+export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentCmdMeta> {
   protected readonly ucName = 'get-current' as const;
   protected readonly ucLabel = 'Получить текущее состояние анкеты' as const;
   protected readonly arMeta = {
@@ -21,7 +21,7 @@ export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentUcMeta> {
   protected readonly outputSchema = v.any();
 
   async execute(
-    command: { questionnaireId: string },
+    command: GetCurrentCmd,
     _actorId: string,
   ): Promise<QuestionnaireActionResponse> {
     const state = await this.getQuestionnaire(command.questionnaireId);

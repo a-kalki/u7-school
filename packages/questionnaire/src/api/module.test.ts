@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { InProcEventBus } from '@u7-scl/core/infra';
-import type { UserFacade } from '@u7-scl/user/domain';
+import type { User, UserFacade } from '@u7-scl/user/domain';
 import { QuestionnaireApiModule } from '#api/module';
 import type { QuestionnaireBotFacade } from '#domain/bot-facade';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
@@ -35,6 +35,24 @@ function mockBotFacade(): QuestionnaireBotFacade {
   };
 }
 
+// Мок-userFacade
+function mockUserFacade(user: User): UserFacade {
+  return {
+    getUserByUuid: async () => user,
+    getUserByTelegramId: async () => user,
+  } as unknown as UserFacade;
+}
+
+function mockUser(): User {
+  return {
+    uuid: 'actor-1',
+    name: 'Test',
+    telegramId: 123,
+    roles: [],
+    createdAt: '2024-01-01T00:00:00.000Z',
+  } as User;
+}
+
 function simplePool() {
   return {
     inviteText: 'Приглашение',
@@ -62,7 +80,7 @@ function makeResolve(overrides: any = {}) {
   return {
     questionnaireRepo: mockRepo(),
     botFacade: mockBotFacade(),
-    userFacade: {} as UserFacade,
+    userFacade: mockUserFacade(mockUser()),
     db: {} as any,
     appResolver: {
       logger: console,
@@ -74,29 +92,28 @@ function makeResolve(overrides: any = {}) {
   };
 }
 
-describe('QuestionnaireApiModule (v2)', () => {
+describe('QuestionnaireApiModule (v3 — commands)', () => {
   test('send-invite — создаёт анкету и вызывает botFacade', async () => {
     let inviteCalled = false;
+    const user = mockUser();
     const botFacade: QuestionnaireBotFacade = {
       sendQuestionnaireInvite: async () => {
         inviteCalled = true;
       },
       startQuestionnaire: async () => {},
     };
-    const mod = new QuestionnaireApiModule(makeResolve({ botFacade }));
-
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 123, roles: [] } as any, pool: simplePool() },
-      '',
+    const userFacade = mockUserFacade(user);
+    const mod = new QuestionnaireApiModule(
+      makeResolve({ botFacade, userFacade }),
     );
+
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
 
     expect(inviteCalled).toBe(true);
 
-    // Проверяем, что анкета сохранена
     const all = await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 123 },
+      { userId: user.telegramId },
       '',
     );
     expect(Array.isArray(all)).toBe(true);
@@ -105,25 +122,26 @@ describe('QuestionnaireApiModule (v2)', () => {
 
   test('start — создаёт, запускает анкету и вызывает botFacade', async () => {
     let startCalled = false;
+    const user = mockUser();
     const botFacade: QuestionnaireBotFacade = {
       sendQuestionnaireInvite: async () => {},
       startQuestionnaire: async () => {
         startCalled = true;
       },
     };
-    const mod = new QuestionnaireApiModule(makeResolve({ botFacade }));
-
-    await mod.execute(
-      'start',
-      { user: { telegramId: 456, roles: [] } as any, pool: simplePool() },
-      '',
+    const userFacade = mockUserFacade(user);
+    const mod = new QuestionnaireApiModule(
+      makeResolve({ botFacade, userFacade }),
     );
+
+    await mod.execute('start', { pool: simplePool() }, user.uuid);
 
     expect(startCalled).toBe(true);
   });
 
   test('start-by-invite — запускает по ID и возвращает ответ (botFacade НЕ вызван)', async () => {
     let botCalled = false;
+    const user = mockUser();
     const repo = mockRepo();
     const botFacade: QuestionnaireBotFacade = {
       sendQuestionnaireInvite: async () => {
@@ -133,24 +151,20 @@ describe('QuestionnaireApiModule (v2)', () => {
         botCalled = true;
       },
     };
+    const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo, botFacade }),
+      makeResolve({ questionnaireRepo: repo, botFacade, userFacade }),
     );
 
-    // Сначала создаём анкету через send-invite
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 789, roles: [] } as any, pool: simplePool() },
-      '',
-    );
+    // Создаём анкету через send-invite
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 789 },
+      { userId: user.telegramId },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
 
-    // Сбрасываем флаг
     botCalled = false;
 
     const result = await mod.execute(
@@ -164,20 +178,17 @@ describe('QuestionnaireApiModule (v2)', () => {
   });
 
   test('decline-invite — отказывается от приглашения', async () => {
+    const user = mockUser();
     const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo }),
+      makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    // Создаём анкету
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 111, roles: [] } as any, pool: simplePool() },
-      '',
-    );
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 111 },
+      { userId: user.telegramId },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -189,7 +200,6 @@ describe('QuestionnaireApiModule (v2)', () => {
     );
     expect(result).toBeDefined();
 
-    // Проверяем статус
     const q = (await mod.execute(
       'get-questionnaire',
       { uuid: qId },
@@ -199,25 +209,21 @@ describe('QuestionnaireApiModule (v2)', () => {
   });
 
   test('handle-action — обрабатывает действие и возвращает ответ', async () => {
+    const user = mockUser();
     const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo }),
+      makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    // Создаём и запускаем анкету
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 222, roles: [] } as any, pool: simplePool() },
-      '',
-    );
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 222 },
+      { userId: user.telegramId },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
 
-    // Запускаем по приглашению
     await mod.execute('start-by-invite', { questionnaireId: qId }, '');
 
     const result = await mod.execute(
@@ -230,19 +236,17 @@ describe('QuestionnaireApiModule (v2)', () => {
   });
 
   test('abandon — прерывает анкету', async () => {
+    const user = mockUser();
     const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo }),
+      makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 333, roles: [] } as any, pool: simplePool() },
-      '',
-    );
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 333 },
+      { userId: user.telegramId },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -259,19 +263,17 @@ describe('QuestionnaireApiModule (v2)', () => {
   });
 
   test('get-current — возвращает текущее состояние', async () => {
+    const user = mockUser();
     const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo }),
+      makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 444, roles: [] } as any, pool: simplePool() },
-      '',
-    );
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 444 },
+      { userId: user.telegramId },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -295,19 +297,17 @@ describe('QuestionnaireApiModule (v2)', () => {
   });
 
   test('get-questionnaire — возвращает анкету по uuid', async () => {
+    const user = mockUser();
     const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo }),
+      makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute(
-      'send-invite',
-      { user: { telegramId: 555, roles: [] } as any, pool: simplePool() },
-      '',
-    );
+    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 555 },
+      { userId: user.telegramId },
       '',
     )) as any[];
     expect(all.length).toBe(1);
