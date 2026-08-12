@@ -57,7 +57,8 @@ export function createUiApp(
   ]);
 
   // Каскадная инициализация: ApiApp → контроллеры → стори
-  uiApp.init(apiApp);
+  // actorResolver: резолвит User по telegramId через userFacade
+  uiApp.init(apiApp, (tgId: number) => bundle.userFacade.getByTgId(tgId));
 
   return {
     uiApp,

@@ -29,19 +29,10 @@ export function extractRestData(data: string): string {
   return data.substring(colonIdx + 1);
 }
 
-/** UUID v4 (8-4-4-4-12 hex). Сжимаем только UUID, остальное пропускаем. */
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/** Сжатый ключ shortIds: ровно 8 hex-символов, без дефисов. */
-const SHRUNK_RE = /^[0-9a-f]{8}$/i;
-
 /**
- * Центральный хаб UI-слоя бота. Владеет контроллерами, маршрутизацией
- * и сжатием ID через общую мапу shortIds.
+ * Центральный хаб UI-слоя бота. Владеет контроллерами и маршрутизацией.
  *
- * Контроллеры работают только с реальными ID. UiApp сжимает при отправке
- * и разжимает при входе.
+ * НЕ содержит сжатия ID и не знает про Grammy. Сжатие вынесено в BotTransport.
  *
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
@@ -54,8 +45,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     BotController<TAppMeta, TActor>
   >();
 
-  /** Единая мапа сжатых id на всё приложение */
-  private readonly shortIds = new Map<string, string>();
+  private actorResolver: ((tgId: number) => Promise<TActor>) | null = null;
 
   constructor(controllers: BotController<TAppMeta, TActor>[]) {
     for (const c of controllers) {
@@ -68,11 +58,28 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
 
   /**
    * Каскадная инициализация: ApiApp → контроллеры → стори.
+   *
+   * @param apiApp — приложение API
+   * @param actorResolver — резолвер актора по telegramId
    */
-  init(apiApp: ApiApp<TAppMeta>): void {
+  init(
+    apiApp: ApiApp<TAppMeta>,
+    actorResolver: (tgId: number) => Promise<TActor>,
+  ): void {
+    this.actorResolver = actorResolver;
     for (const controller of this.controllers.values()) {
       controller.init(apiApp, this);
     }
+  }
+
+  // ── Резолвинг актора ──
+
+  /** Резолвит актора по telegramId. Бросает ошибку если резолвер не настроен. */
+  private async resolveActor(tgId: number): Promise<TActor> {
+    if (!this.actorResolver) {
+      throw new Error('UiApp не инициализирован: actorResolver не задан');
+    }
+    return this.actorResolver(tgId);
   }
 
   // ── Контроллеры ──
@@ -142,49 +149,50 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
    * Обрабатывает /start: получает приветствие от контроллера 'app'
    * или возвращает fallback.
    */
-  async handleWelcome(actor: TActor): Promise<BotResponse> {
+  async handleWelcome(tgId: number): Promise<BotResponse> {
+    const actor = await this.resolveActor(tgId);
     const appCtrl = this.controllers.get('app');
     if (appCtrl) {
       const response = await appCtrl.handleWelcome(actor);
-      if (response)
-        return this.compressResponse(this.prefixResponse('app', response));
+      if (response) return response;
     }
     const items = await this.collectMainMenu(actor);
     const keyboard = this.#toKeyboard(items);
-    return this.compressResponse({
+    return {
       sendMessage: {
         text: 'Выберите действие:',
         keyboard: keyboard ?? undefined,
       },
-    });
+    };
   }
 
   /**
    * Обрабатывает /help.
    */
-  async handleHelp(actor: TActor): Promise<BotResponse> {
+  async handleHelp(tgId: number): Promise<BotResponse> {
+    const actor = await this.resolveActor(tgId);
     const appCtrl = this.controllers.get('app');
     if (appCtrl) {
       const response = await appCtrl.handleHelpMessage(actor);
-      if (response)
-        return this.compressResponse(this.prefixResponse('app', response));
+      if (response) return response;
     }
-    return this.compressResponse({
+    return {
       sendMessage: { text: 'Нет доступных пунктов меню.' },
-    });
+    };
   }
 
   // ── Обработка callback ──
 
   /**
    * Обрабатывает callback, маршрутизируя по префиксу контроллера.
-   * Разжимает данные перед передачей контроллеру, сжимает ответ.
+   * Принимает tgId, резолвит актора внутри.
    */
   async handleCallback(
     data: string,
-    actor: TActor,
+    tgId: number,
     session: SessionData,
   ): Promise<BotResponse> {
+    const actor = await this.resolveActor(tgId);
     const controllerName = extractControllerName(data);
 
     if (!controllerName) {
@@ -210,78 +218,61 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
-    // Разжимаем данные перед передачей контроллеру
     const restData = extractRestData(data);
-    const expanded = this.#expandCallbackData(restData);
 
-    // Проверка на устаревшие id после разжатия
-    if (this.#hasStaleIds(expanded)) {
-      return {
-        sendMessage: {
-          text: '⏳ *Кнопка устарела*\\. Пожалуйста, нажмите /start для обновления\\.',
-          parseMode: 'MarkdownV2',
-        },
-      };
-    }
-
-    const response = await controller.handleCallback(expanded, actor, session);
+    const response = await controller.handleCallback(restData, actor, session);
 
     this.#applyCapturedInput(session, controllerName, response);
 
-    // Добавляем префикс контроллера к кнопкам (стори не знают о контроллере)
-    const prefixed = this.prefixResponse(controllerName, response);
-
-    if (prefixed.delegate) {
+    if (response.delegate) {
       const delegateResponse = await controller.handleCallback(
-        prefixed.delegate.path,
+        response.delegate.path,
         actor,
         session,
       );
-      return this.compressResponse(
-        this.#mergeResponses(prefixed, delegateResponse),
-      );
+      return this.#mergeResponses(response, delegateResponse);
     }
 
-    return this.compressResponse(prefixed);
+    return response;
   }
 
   // ── Обработка сообщений ──
 
   async handleMessage(
     update: BotUpdate,
-    actor: TActor,
+    tgId: number,
     session: SessionData,
   ): Promise<BotResponse | null> {
     const activeHandler = session.activeHandler;
     if (!activeHandler) return null;
 
     if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
-      return this.compressResponse(
-        (await this.handleTimeout(actor, session)) ?? {
-          releaseInput: true,
-        },
-      );
+      return (await this.handleTimeout(tgId, session)) ?? {
+        releaseInput: true,
+      };
     }
 
+    const actor = await this.resolveActor(tgId);
     const [ctrlName] = activeHandler.path.split('/');
     const controller = this.controllers.get(ctrlName ?? '');
     if (!controller) return null;
 
     const response = await controller.handleMessage(update, actor, session);
     this.#applyCapturedInput(session, ctrlName ?? '', response);
-    return this.compressResponse(this.prefixResponse(ctrlName ?? '', response));
+    return response;
   }
 
   // ── Обработка отмены ──
 
   async handleCancel(
-    actor: TActor,
+    tgId: number,
     session: SessionData,
   ): Promise<BotResponse | null> {
     const activeHandler = session.activeHandler;
     if (!activeHandler) return null;
 
     const [ctrlName] = activeHandler.path.split('/');
+    const actor = await this.resolveActor(tgId);
     const controller = this.controllers.get(ctrlName ?? '');
     if (!controller) {
       session.activeHandler = null;
@@ -294,19 +285,20 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       session.activeHandler = null;
     }
 
-    return this.compressResponse(this.prefixResponse(ctrlName ?? '', response));
+    return response;
   }
 
   // ── Обработка таймаута ──
 
   async handleTimeout(
-    actor: TActor,
+    tgId: number,
     session: SessionData,
   ): Promise<BotResponse | null> {
     const activeHandler = session.activeHandler;
     if (!activeHandler) return null;
 
     const [ctrlName] = activeHandler.path.split('/');
+    const actor = await this.resolveActor(tgId);
     const controller = this.controllers.get(ctrlName ?? '');
     if (!controller) {
       session.activeHandler = null;
@@ -319,178 +311,10 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       session.activeHandler = null;
     }
 
-    return this.compressResponse(this.prefixResponse(ctrlName ?? '', response));
-  }
-
-  // ── Сжатие / разжатие id ──
-
-  /**
-   * Разжимает callback_data: заменяет сжатые ключи (8 hex) на реальные UUID.
-   * Контроллеры получают уже разжатые данные.
-   */
-  #expandCallbackData(raw: string): string {
-    const parts = raw.split(':');
-    return parts
-      .map((part) => {
-        if (!SHRUNK_RE.test(part)) return part;
-        const real = this.shortIds.get(part);
-        if (!real) {
-          getGlobalLogger()?.warn(
-            'ui-app',
-            'Ключ shortIds не найден (возможно кнопка устарела)',
-            { key: part },
-          );
-        }
-        return real ?? part;
-      })
-      .join(':');
-  }
-
-  /**
-   * Проверяет, есть ли в разжатых данных сжатые ключи,
-   * которые не удалось разжать (shortIds не сработал).
-   */
-  #hasStaleIds(expanded: string): boolean {
-    const parts = expanded.split(':');
-    return parts.some((part) => SHRUNK_RE.test(part) && !UUID_RE.test(part));
-  }
-
-  /**
-   * Сжимает все UUID в callback_data.
-   */
-  #compressAction(raw: string): string {
-    // Специальные префиксы, не принадлежащие конкретному контроллеру
-    if (raw.startsWith('app:')) {
-      return raw;
-    }
-
-    const parts = raw.split(':');
-    return parts
-      .map((part) => (UUID_RE.test(part) ? this.#shrink(part) : part))
-      .join(':');
-  }
-
-  /**
-   * Сжимает значение id в короткий ключ (первые 8 символов UUID).
-   * При коллизии добавляет цифровой суффикс.
-   */
-  #shrink(value: string): string {
-    let key = value.slice(0, 8);
-
-    const existing = this.shortIds.get(key);
-    if (existing !== undefined && existing !== value) {
-      key = `${key}-${this.shortIds.size}`;
-    }
-
-    this.shortIds.set(key, value);
-    return key;
-  }
-
-  /**
-   * Обходит BotResponse и сжимает все кнопки (code).
-   */
-  protected compressResponse(response: BotResponse): BotResponse {
-    const compressKeyboard = (
-      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
-    ): typeof kb => {
-      if (!kb) return kb;
-      return {
-        ...kb,
-        rows: kb.rows.map((row) =>
-          row.map((btn) => ({
-            ...btn,
-            code: this.#compressAction(btn.code),
-          })),
-        ),
-      };
-    };
-
-    const result: BotResponse = { ...response };
-
-    if (result.sendMessage?.keyboard) {
-      result.sendMessage = {
-        ...result.sendMessage,
-        keyboard: compressKeyboard(result.sendMessage.keyboard) ?? undefined,
-      };
-    }
-
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map((sm) => ({
-        ...sm,
-        keyboard: compressKeyboard(sm.keyboard) ?? undefined,
-      }));
-    }
-
-    if (result.editMessage?.keyboard) {
-      result.editMessage = {
-        ...result.editMessage,
-        keyboard: compressKeyboard(result.editMessage.keyboard) ?? undefined,
-      };
-    }
-
-    return result;
+    return response;
   }
 
   // ── Приватные хелперы ──
-
-  /**
-   * Добавляет префикс контроллера ко всем кодам кнопок в ответе.
-   * Стори не знают о контроллере — префикс добавляет UiApp.
-   */
-  protected prefixResponse(
-    controllerName: string,
-    response: BotResponse,
-  ): BotResponse {
-    const prefixCode = (code: string): string => {
-      // Уже начинается с префикса этого контроллера — не дублируем
-      if (code.startsWith(`${controllerName}:`)) return code;
-      // Уже начинается с префикса другого контроллера (напр. app:main-menu)
-      for (const [name] of this.controllers) {
-        if (code.startsWith(`${name}:`)) return code;
-      }
-      return `${controllerName}:${code}`;
-    };
-
-    const prefixKeyboard = (
-      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
-    ): typeof kb => {
-      if (!kb) return kb;
-      return {
-        ...kb,
-        rows: kb.rows.map((row) =>
-          row.map((btn) => ({
-            ...btn,
-            code: prefixCode(btn.code),
-          })),
-        ),
-      };
-    };
-
-    const result: BotResponse = { ...response };
-
-    if (result.sendMessage?.keyboard) {
-      result.sendMessage = {
-        ...result.sendMessage,
-        keyboard: prefixKeyboard(result.sendMessage.keyboard) ?? undefined,
-      };
-    }
-
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map((sm) => ({
-        ...sm,
-        keyboard: prefixKeyboard(sm.keyboard) ?? undefined,
-      }));
-    }
-
-    if (result.editMessage?.keyboard) {
-      result.editMessage = {
-        ...result.editMessage,
-        keyboard: prefixKeyboard(result.editMessage.keyboard) ?? undefined,
-      };
-    }
-
-    return result;
-  }
 
   #toKeyboard(items: MainMenuAction[]): KeyboardDescription | null {
     const rows = items
@@ -527,7 +351,10 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     const result: BotResponse = { ...delegate };
     if (main.sendMessage) {
       result.sendMessage = main.sendMessage;
-      if (delegate.sendMessage && delegate.sendMessage !== main.sendMessage) {
+      if (
+        delegate.sendMessage &&
+        delegate.sendMessage !== main.sendMessage
+      ) {
         result.sendMessages = [
           main.sendMessage,
           ...(delegate.sendMessages ?? [delegate.sendMessage]),

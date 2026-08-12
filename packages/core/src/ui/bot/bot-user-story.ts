@@ -51,7 +51,7 @@ export abstract class BotUserStory<
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API модуля и API приложения.
    */
-  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp): void {
+  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void {
     this.appApi = appApi;
     this.uiApp = uiApp;
   }
