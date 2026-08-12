@@ -5,6 +5,7 @@ import { CoursesController } from './controllers/courses/controller';
 import { LearningController } from './controllers/learning/controller';
 import { MentorController } from './controllers/mentor/controller';
 import { OnboardingController } from './controllers/onboarding/controller';
+import { QuestionnaireController } from './controllers/questionnaire/controller';
 import { StreamsController } from './controllers/streams/controller';
 import type { U7BotAppMeta } from './core/u7-bot-app-meta';
 import { U7BotUiApp } from './core/ui-app';
@@ -21,6 +22,7 @@ export interface UiAppBundle {
   courseController: CoursesController;
   learningController: LearningController;
   mentorController: MentorController;
+  questionnaireController: QuestionnaireController;
 }
 
 /**
@@ -31,7 +33,7 @@ export interface UiAppBundle {
  */
 export function createUiApp(
   apiApp: ApiApp<U7BotAppMeta>,
-  _bundle: ApiAppBundle,
+  bundle: ApiAppBundle,
   config: BotConfig,
 ): UiAppBundle {
   const onboardingController = new OnboardingController();
@@ -39,6 +41,9 @@ export function createUiApp(
   const courseController = new CoursesController();
   const learningController = new LearningController();
   const mentorController = new MentorController();
+  const questionnaireController = new QuestionnaireController(
+    bundle.questionnaireModule,
+  );
   const appController = new AppController(config.schoolGroupUrl);
 
   const uiApp = new U7BotUiApp([
@@ -48,6 +53,7 @@ export function createUiApp(
     courseController,
     learningController,
     mentorController,
+    questionnaireController,
   ]);
 
   // Каскадная инициализация: ApiApp → контроллеры → стори
@@ -61,5 +67,6 @@ export function createUiApp(
     courseController,
     learningController,
     mentorController,
+    questionnaireController,
   };
 }

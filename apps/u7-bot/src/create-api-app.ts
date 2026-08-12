@@ -36,6 +36,7 @@ export interface ApiAppBundle {
   userRepo: UserJsonRepo;
   questionnaireRepo: QuestionnaireJsonRepo;
   questionnaireFacade: QuestionnaireInProcFacade;
+  questionnaireModule: QuestionnaireApiModule;
   poolService: QuestionPoolService;
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
@@ -171,6 +172,7 @@ export function createApiApp(
     userRepo,
     questionnaireRepo,
     questionnaireFacade,
+    questionnaireModule,
     poolService: activePoolService,
     streamModule,
     courseModule,
