@@ -6,11 +6,7 @@ import { QuestionnaireEngine } from './questionnaire-engine';
 describe('QuestionnaireEngine', () => {
   test('загружает и валидирует корректный пул', () => {
     const pool: Question[] = [
-      {
-        question: 'Текстовый',
-        questionCode: 't1',
-        type: 'text',
-      },
+      { question: 'Текстовый', questionCode: 't1', type: 'text' },
       {
         question: 'Выбор',
         questionCode: 'c1',
@@ -19,7 +15,7 @@ describe('QuestionnaireEngine', () => {
         answers: [{ answer: 'Да', answerCode: 'yes' }],
       },
     ];
-    const engine = new QuestionnaireEngine(pool, ['t1', 'c1']);
+    const engine = new QuestionnaireEngine(pool);
     const all = engine.getAll();
     expect(all.length).toBe(2);
   });
@@ -34,30 +30,23 @@ describe('QuestionnaireEngine', () => {
         answers: [{ answer: 'Да', answerCode: 'yes' }],
       },
     ];
-    const engine = new QuestionnaireEngine(pool, ['c1']);
+    const engine = new QuestionnaireEngine(pool);
     const q = engine.getByCode('c1');
     expect(q).toBeDefined();
     expect(q?.questionCode).toBe('c1');
   });
 
   test('buildValidationSchema для text — валидирует непустую строку', () => {
-    const engine = new QuestionnaireEngine(
-      [
-        {
-          question: 'Текстовый вопрос',
-          questionCode: 'text_q',
-          type: 'text',
-        },
-      ],
-      ['text_q'],
-    );
+    const engine = new QuestionnaireEngine([
+      { question: 'Текстовый вопрос', questionCode: 'text_q', type: 'text' },
+    ]);
     const schema = engine.buildValidationSchema('text_q');
     expect(() => v.parse(schema, 'hello')).not.toThrow();
     expect(() => v.parse(schema, '')).toThrow();
   });
 
   test('buildValidationSchema для single choice — валидирует picklist', () => {
-    const pool: Question[] = [
+    const engine = new QuestionnaireEngine([
       {
         question: 'Q1',
         questionCode: 'q1',
@@ -68,15 +57,14 @@ describe('QuestionnaireEngine', () => {
           { answer: 'No', answerCode: 'no' },
         ],
       },
-    ];
-    const engine = new QuestionnaireEngine(pool, ['q1']);
+    ]);
     const schema = engine.buildValidationSchema('q1');
     expect(() => v.parse(schema, 'yes')).not.toThrow();
     expect(() => v.parse(schema, 'maybe')).toThrow();
   });
 
   test('buildValidationSchema для multiple — валидирует массив', () => {
-    const pool: Question[] = [
+    const engine = new QuestionnaireEngine([
       {
         question: 'Q1',
         questionCode: 'q1',
@@ -87,8 +75,7 @@ describe('QuestionnaireEngine', () => {
           { answer: 'B', answerCode: 'b' },
         ],
       },
-    ];
-    const engine = new QuestionnaireEngine(pool, ['q1']);
+    ]);
     const schema = engine.buildValidationSchema('q1');
     expect(() => v.parse(schema, ['a'])).not.toThrow();
     expect(() => v.parse(schema, ['a', 'b'])).not.toThrow();
@@ -98,18 +85,10 @@ describe('QuestionnaireEngine', () => {
 
   test('падает при дублирующемся questionCode', () => {
     const pool: Question[] = [
-      {
-        question: 'Q1',
-        questionCode: 'dup',
-        type: 'text',
-      },
-      {
-        question: 'Q2',
-        questionCode: 'dup',
-        type: 'text',
-      },
+      { question: 'Q1', questionCode: 'dup', type: 'text' },
+      { question: 'Q2', questionCode: 'dup', type: 'text' },
     ];
-    expect(() => new QuestionnaireEngine(pool, ['dup'])).toThrow(
+    expect(() => new QuestionnaireEngine(pool)).toThrow(
       'Дублирующийся questionCode: dup',
     );
   });
@@ -132,7 +111,7 @@ describe('QuestionnaireEngine', () => {
         answers: [{ answer: 'B', answerCode: 'b' }],
       },
     ];
-    expect(() => new QuestionnaireEngine(pool, ['q2'])).toThrow(
+    expect(() => new QuestionnaireEngine(pool)).toThrow(
       'condition в вопросе "q2" ссылается на несуществующий questionCode: missing',
     );
   });
@@ -146,7 +125,7 @@ describe('QuestionnaireEngine', () => {
         answers: [{ answer: 'Лишнее', answerCode: 'x' }],
       },
     ];
-    expect(() => new QuestionnaireEngine(raw as any, ['t1'])).toThrow(
+    expect(() => new QuestionnaireEngine(raw as any)).toThrow(
       'Текстовый вопрос "t1" не должен содержать answers',
     );
   });
@@ -156,7 +135,7 @@ describe('QuestionnaireEngine', () => {
       { question: 'Q1', questionCode: 'q1', type: 'text' },
       { question: 'Q2', questionCode: 'q2', type: 'text' },
     ];
-    const engine = new QuestionnaireEngine(pool, ['q1', 'q2']);
+    const engine = new QuestionnaireEngine(pool);
 
     const next = engine.getNextQuestion(null, []);
     expect(next?.questionCode).toBe('q1');
@@ -195,11 +174,9 @@ describe('QuestionnaireEngine', () => {
       },
       { question: 'Q3', questionCode: 'q3', type: 'text' },
     ];
-    const engine = new QuestionnaireEngine(pool, ['q1', 'q2', 'q3']);
+    const engine = new QuestionnaireEngine(pool);
 
-    const baseAnswer = {
-      answeredAt: '2024-01-01T00:00',
-    };
+    const baseAnswer = { answeredAt: '2024-01-01T00:00' };
 
     // С ответом 'yes' -> q2
     const nextWithYes = engine.getNextQuestion('q1', [
@@ -217,14 +194,5 @@ describe('QuestionnaireEngine', () => {
       { ...baseAnswer, questionCode: 'q1', answerCode: 'no', answerText: 'No' },
     ]);
     expect(nextWithNo?.questionCode).toBe('q3');
-  });
-
-  test('assertAllCodesExist падает при отсутствующем коде в includedCodes', () => {
-    const pool: Question[] = [
-      { question: 'Q1', questionCode: 'q1', type: 'text' },
-    ];
-    expect(() => new QuestionnaireEngine(pool, ['q1', 'missing'])).toThrow(
-      'questionCode "missing" из includedQuestionCodes не найден в пуле',
-    );
   });
 });

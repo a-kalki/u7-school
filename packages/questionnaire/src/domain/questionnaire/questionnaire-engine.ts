@@ -6,26 +6,18 @@ import { QuestionSchema } from './question';
 /**
  * Движок анкеты.
  * Знает структуру вопросов-ответов, логику ветвления, валидацию.
- * Предоставляет для агрегата удобный API навигации по вопросам.
- *
- * Не знает о метриках, metricMapping и контексте анкетирования —
- * это ответственность агрегата метрик (MetricQuestionnaireAr).
+ * Предоставляет для агрегата API навигации по вопросам.
  */
 export class QuestionnaireEngine {
   private readonly pool: Question[];
   private readonly index: Map<string, Question>;
-  private readonly includedCodes: string[];
 
   /**
-   * @param pool — полный пул вопросов
-   * @param includedCodes — коды вопросов, включённых в текущую анкету (подмножество пула)
+   * @param pool — полный пул вопросов. Все вопросы итерируются с учётом ветвлений.
    */
-  constructor(pool: Question[], includedCodes: string[]) {
+  constructor(pool: Question[]) {
     this.pool = this.validate(pool);
     this.index = new Map(this.pool.map((q) => [q.questionCode, q]));
-    this.includedCodes = includedCodes;
-
-    this.assertAllCodesExist(this.includedCodes);
   }
 
   /**
@@ -39,16 +31,13 @@ export class QuestionnaireEngine {
   ): Question | null {
     let foundCurrent = currentCode === null;
 
-    for (const code of this.includedCodes) {
+    for (const question of this.pool) {
       if (!foundCurrent) {
-        if (code === currentCode) {
+        if (question.questionCode === currentCode) {
           foundCurrent = true;
         }
         continue;
       }
-
-      const question = this.getByCode(code);
-      if (!question) continue;
 
       const condition = question.condition;
       if (!condition) {
@@ -101,19 +90,6 @@ export class QuestionnaireEngine {
     const q = this.index.get(questionCode);
     if (!q || q.type !== 'choice') return [];
     return q.answers.map((a) => ({ code: a.answerCode, text: a.answer }));
-  }
-
-  /**
-   * Проверяет, что все коды из переданного списка существуют в пуле.
-   */
-  assertAllCodesExist(codes: string[]): void {
-    for (const code of codes) {
-      if (!this.index.has(code)) {
-        throw new Error(
-          `questionCode "${code}" из includedQuestionCodes не найден в пуле`,
-        );
-      }
-    }
   }
 
   /**

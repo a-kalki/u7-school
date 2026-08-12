@@ -11,21 +11,14 @@ import type { InviteResponse, QuestionnaireActionResponse } from './types';
 /** Префикс значения кнопки «Далее» */
 const NEXT_BUTTON_PREFIX = 'next:';
 
-/** Агрегат анкеты. Движок (QuestionnaireEngine) — внутренняя деталь. */
+/** Агрегат анкеты. */
 export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
-  /** Движок создаётся при start() и живёт пока есть pool */
   #engine: QuestionnaireEngine | null = null;
 
   constructor(state: Questionnaire) {
     super(state, QuestionnaireSchema);
-    // Если состояние уже имеет pool (например загружено из БД) — восстановим engine
     const pool = state.questionPool;
-    if (pool.questions.length) {
-      this.#engine = new QuestionnaireEngine(
-        pool.questions,
-        pool.questions.map((q) => q.questionCode),
-      );
-    }
+    this.#engine = new QuestionnaireEngine(pool.questions);
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -100,10 +93,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
     const pool = this.state.questionPool;
 
-    this.#engine = new QuestionnaireEngine(
-      pool.questions,
-      pool.questions.map((q) => q.questionCode),
-    );
+    this.#engine = new QuestionnaireEngine(pool.questions);
 
     this.safeUpdate({ status: 'in_progress' });
 

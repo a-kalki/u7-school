@@ -7,7 +7,7 @@ export const AnswerSchema = v.object({
     v.string(),
     v.nonEmpty('Код вопроса не может быть пустым'),
   ),
-  /** Код(ы) ответа: для choice — "yes" или "yes,no", для text — "text" */
+  /** Код(ы) ответа: для choice — <code>, для text — "text" */
   answerCode: v.pipe(v.string(), v.nonEmpty('Код ответа не может быть пустым')),
   /** Текст ответа: обязателен для text-вопросов, отсутствует для choice */
   answerText: v.optional(v.string()),
