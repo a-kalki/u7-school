@@ -3,60 +3,22 @@
 ## Фаза 1: UiApp — убрать сжатие, добавить actorResolver
 
 - [x] Task: Убрать сжатие из UiApp (core) [df03c4b]
-    - [ ] Удалить shortIds, #shrink, #expandCallbackData, #hasStaleIds, #compressAction, compressResponse, prefixResponse
-    - [ ] Обновить публичные методы: handleCallback, handleMessage, handleCancel, handleTimeout — убрать вызовы compressResponse/prefixResponse
-    - [ ] handleWelcome, handleHelp — убрать compressResponse
-    - [ ] `bun run check` — чисто (часть тестов упадёт — ок, починим в Фазе 3)
 - [x] Task: Добавить actorResolver в UiApp [df03c4b]
-    - [ ] `init(apiApp, actorResolver: (tgId: number) => Promise<TActor>)`
-    - [ ] handleCallback(data, tgId, session) — резолвит актора внутри
-    - [ ] handleMessage(update, tgId, session) — аналогично
-    - [ ] handleCancel(tgId, session) — аналогично
-    - [ ] handleWelcome(tgId) / handleHelp(tgId) — аналогично
-    - [ ] U7BotUiApp: init передаёт резолвер (userFacade.getByTgId)
-    - [ ] `bun run check` — чисто
-- [ ] Task: Conductor - Ручная верификация 'Фаза 1'
+- [x] Task: Conductor - Ручная верификация 'Фаза 1' [df03c4b]
 
 ## Фаза 2: BotTransport — новый класс
 
 - [x] Task: Создать BotTransport (TDD) [95e07f3]
-    - [ ] Тест: execute — sendMessage с клавиатурой
-    - [ ] Тест: execute — editMessage
-    - [ ] Тест: execute — sendMessages (несколько)
-    - [ ] Тест: execute — captureInput/releaseInput в сессии
-    - [ ] Тест: execute — удаление клавиатуры (keepPrevKeyboard)
-    - [ ] Тест: execute — lastBotMessage сохраняется
-    - [ ] Тест: сжатие/разжатие UUID (compressResponse + prefixResponse)
-    - [ ] Тест: handleCallback — полный путь ctx → uiApp → execute
-    - [ ] Тест: handleMessage — полный путь ctx → uiApp → execute
-    - [ ] Тест: send() — упреждающая отправка + сессия
-    - [ ] Реализовать BotTransport
-    - [ ] `bun run check:a u7-bot` — чисто
-- [ ] Task: Conductor - Ручная верификация 'Фаза 2'
+- [x] Task: Conductor - Ручная верификация 'Фаза 2' [95e07f3]
 
 ## Фаза 3: Удаление старого кода, обновление main.ts и фасадов
 
 - [x] Task: Удалить connect-ui-app.ts и ui-utils.ts [7dc85aa]
-    - [ ] Удалить файлы
-    - [ ] Обновить main.ts: создать BotTransport, зарегистрировать на Grammy
-    - [ ] Обновить main.ts: убрать sessionMap из createBot
-    - [ ] Обновить bot.ts: убрать параметр sessionMap
-    - [ ] `bun run check` — чисто
 - [x] Task: Обновить фасады и стори [7dc85aa]
-    - [ ] questionnaire-bot-facade.ts: uiApp.send() → transport.send()
-    - [ ] fill.story.ts: коды кнопок без префикса контроллера (prefixResponse в BotTransport)
-    - [ ] create-ui-app.ts: убрать передачу sessionMap, упростить
-    - [ ] `bun run check` — чисто
-- [ ] Task: Conductor - Ручная верификация 'Фаза 3'
+- [x] Task: Conductor - Ручная верификация 'Фаза 3' [7dc85aa]
 
 ## Фаза 4: Адаптация тестов
 
-- [~] Task: Обновить тесты UiApp (core)
-    - [ ] Адаптировать handleCallback/handleMessage/handleCancel тесты — передавать tgId
-    - [ ] Убрать тесты сжатия (переехали в BotTransport)
-    - [ ] `bun run check` — чисто
-- [ ] Task: Обновить тесты приложения
-    - [ ] Обновить моки в story-тестах (actor → tgId где затронуто)
-    - [ ] Обновить интеграционные/E2E тесты
-    - [ ] `bun run check` — чисто
-- [ ] Task: Conductor - Ручная верификация 'Фаза 4'
+- [x] Task: Обновить тесты UiApp (core) [09d1181]
+- [x] Task: Обновить тесты приложения [09d1181]
+- [x] Task: Conductor - Ручная верификация 'Фаза 4' [09d1181]
