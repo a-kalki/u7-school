@@ -179,84 +179,52 @@ abstract class UseCase<TMeta extends UcMeta, TResolve> {
 
 **Цель:** создать новый пакет `questionnaire` с универсальным движком анкет.
 
-**Новая модель анкеты** (разделение на базовую и метриковую):
+Трек разбит на подтреки:
+- **2.4a** — Доменная модель + агрегат + API + Infra (✅ выполнено)
+- **2.4a+** — Перепроектирование UC слоя: `user: User`, `QuestionnairePool`, Invite-паттерн, `QuestionnaireBotFacade`, доменный фасад
+- **2.4a++** — `BotUiApp.send()`, `shortIds` в `BotUiApp`, контроллер questionnaire, `TelegramQuestionnaireBotFacade`
+- **2.4b** — `MetricQuestionnaireAr` и `metricMapping`
 
-> **Примечание:** на этапе реализации типы будут выведены из схем валидации (zod/typebox), а не объявлены вручную. Здесь — концептуальная модель.
-
-```typescript
-// Базовая анкета — чистый движок «вопрос-ответ».
-// Ничего не знает о контексте, ролях, метриках.
-interface Questionnaire {
-  uuid: string;
-  respondentId: number;              // кто заполняет
-  status: 'intention' | 'in_progress' | 'completed' | 'abandoned';
-  currentQuestionCode: string | null; // для навигации / продолжения «потом»
-  draftAnswers: Record<string, string>;
-  answers: Answer[];                  // зафиксированные ответы
-  questionPool: Question[] | null;  // снимок пула — null в статусе intention,
-                                      // заполняется при переходе intention→in_progress
-  createdAt: string;
-  updatedAt: string;
-  completedAt: string | null;
-}
-
-// Метрик-анкета — расширяет базовую.
-// Добавляет «о ком», контекст, роль, триггер и предвычисленные баллы.
-interface MetricQuestionnaire extends Questionnaire {
-  subjectId: number;                  // о ком анкета
-  context: string;                    // "module_completed" | "pair_programming" | "code_review" | "initiative"
-  role: string;                       // "student_student" | "mentor_student" | "student_mentor"
-  triggerEvent: {                     // что породило анкету
-    type: string;
-    aggregateId: string;
-  } | null;
-  metricScores: MetricScore[] | null; // вычисляется при complete()
-}
-```
-
-**Жизненный цикл:** агрегат анкеты проходит через статусы:
-- `intention` — намерение создано, пул = null, пользователю отправлено приглашение
-- `in_progress` — пользователь согласился, пул загружен, идёт заполнение
-- `completed` / `abandoned`
-```
-
-**`metricMapping` в вопросах пула** — опциональные метаданные:
+**Текущий дизайн (после 2.4a+):**
 
 ```typescript
-// Question.condition дополняется metricMapping
-interface MetricMapping {
-  category: string;       // "professional_skills" | "team_skills" | "personal_skills"
-  subcategory: string;    // "work_quality" | "communication" | ...
-  weight: number;         // 0.75 | 1.0 | 1.25, по умолчанию 1.0
+// QuestionnairePool — объект с метаданными, не просто Question[]
+interface QuestionnairePool {
+  inviteText?: string;       // для sendInvite (S01). При прямом start не нужен.
+  whyText?: string;          // «Зачем это нужно» — влияние на метрики
+  completionText?: string;   // текст при завершении
+  cancelWarning?: string;    // текст при отмене/отказе
+  questions: Question[];     // вопросы анкеты
 }
+
+// Статусы анкеты
+status: 'invited' | 'in_progress' | 'completed' | 'abandoned';
 ```
 
-`MetricMapping` не создаёт зависимость `questionnaire → metrics`. Это просто метаданные вопроса.
-
-**Иерархия агрегатов:**
-
+**Агрегат `QuestionnaireAr`:**
+```typescript
+static create(respondentId, pool: QuestionnairePool): QuestionnaireAr  // фабрика, статус invited
+createInvite(): InviteResponse        // приглашение (inviteText, whyText, questionnaireId)
+decline(): void                        // invited → abandoned
+start(): QuestionnaireActionResponse   // invited → in_progress, engine из pool.questions
+getQuestionnaireActionResponse(): QuestionnaireActionResponse  // текущее состояние
+handleAction({type, value}): QuestionnaireActionResponse
+abandon(): void
 ```
-QuestionnaireAr                 — абстрактный: start, handleAction, abandon, findAndSetNextQuestion
-  └── MetricQuestionnaireAr     — для метрик: computeMetricScores(), события QuestionnaireCompleted
-```
 
-`OnboardingAr` (в onboarding) **не наследует** `QuestionnaireAr`. Он использует `QuestionnaireFacade` как внешний сервис и подписывается на событие `QuestionnaireCompleted` через EventBus.
-
-**`MetricQuestionnaireAr`** при завершении:
-- Вычисляет баллы по `metricMapping` вопросов → `metricScores: MetricScore[]`
-- Кладёт событие `QuestionnaireCompleted` с payload:
-  - Базовая часть (всегда): `{ questionnaireId, respondentId, answers }`
-  - Метриковая часть (только для MetricQuestionnaire): `{ subjectId, context, role, metricScores, triggerEvent }`
+**Два пути запуска:**
+- **Путь A (инициативный):** модуль-владелец → `QuestionnaireFacade.sendInvite(user, pool)` или `start(user, pool)` → UC → `botFacade.sendQuestionnaireInvite()` / `startQuestionnaire()`
+- **Путь B (ответный):** контроллер questionnaire (стори `fill`) → UC `start-by-invite` / `handle-action` / `decline-invite` → return response
 
 **Фасад `QuestionnaireFacade`:**
-- `start(respondentId, questionPool)` → создаёт агрегат сразу в `in_progress` (для онбординга — без фазы intention), возвращает первый вопрос
-- `createIntention(context, role, subjectId, respondentId)` → создаёт агрегат в статусе `intention` (пул = null), возвращает `{ questionnaireId, message }`
-- `startMetric(questionnaireId, questionPool, triggerEvent?)` → переводит существующий агрегат `intention` → `in_progress`, сохраняет снимок пула, возвращает первый вопрос
-- `getAnswers(questionnaireId)` → ответы + metricScores (null для простых анкет)
+- `sendInvite(user, pool)` → `module.execute('send-invite', ...)`
+- `start(user, pool)` → `module.execute('start', ...)`
 
-**`QuestionPoolService`** — расширить: `getAllWithMetricMapping()` для отладки.
+Чистое делегирование в UC. Вся логика (включая вызов botFacade) — в UC.
 
-**Местоположение:** `packages/questionnaire/` (новый пакет, скопировать и переработать из `onboarding`).
+**`QuestionnaireEngine`** — чистый движок навигации по вопросам: ветвление, валидация. Не знает о метриках.
+
+**Местоположение:** `packages/questionnaire/` (новый пакет).
 
 **`onboarding` остаётся** — делегирует анкетирование в `questionnaire`, оставляет свою ответственность (желания, привязка к курсам, выдача роли CANDIDATE).
 
@@ -267,9 +235,9 @@ QuestionnaireAr                 — абстрактный: start, handleAction,
 **Цель:** модуль `onboarding` становится потребителем `questionnaire`, а не владельцем движка.
 
 **Изменения:**
-- Удалить из `onboarding` доменную логику анкет (a-root, entity, question, question-pool-service, commands, repo, policy, errors, types)
+- Удалить из `onboarding` доменную логику анкет (a-root, entity, question, questionnaire-engine, commands, repo, policy, errors, types)
 - Оставить: `OnboardingAr` (желания, привязка к курсам), `OnboardingApiModule`, контроллер
-- `OnboardingAr` использует `QuestionnaireFacade` для старта анкеты
+- `OnboardingAr` использует `QuestionnaireFacade.start(user, pool)` для запуска анкеты
 - При `QuestionnaireCompleted` (подписка через EventBus) — выдаёт роль `CANDIDATE`
 
 **Упрощение:** onboarding больше не содержит движок анкет. Вся анкетная логика — в `questionnaire`.
@@ -280,11 +248,16 @@ QuestionnaireAr                 — абстрактный: start, handleAction,
 
 ```
 2.1 (EventBus) ──┐
-                 ├──> 2.3 (publishEvents в UC) ──> 2.4 (questionnaire) ──> 2.5 (onboarding)
-2.2 (Aggregate API) ┘
+                 ├──> 2.3 (publishEvents) ──> 2.4a (questionnaire) ──> 2.4a+ (domain-uc)
+2.2 (Aggregate API) ┘                                                      │
+                                                                           ├──> 2.4b (MetricQuestionnaireAr)
+                                                                           │
+                                                                           └──> 2.4a++ (bot-controller)
+                                                                                    │
+                                                                                    └──> 2.5 (onboarding)
 ```
 
-Треки 2.1 и 2.2 можно делать параллельно. Трек 2.3 зависит от обоих. Трек 2.4 зависит от 2.3. Трек 2.5 зависит от 2.4.
+2.4a+ (domain-uc) и 2.4b (MetricAr) можно делать параллельно после 2.4a. 2.4a++ (bot-controller) зависит от 2.4a+. Трек 2.5 зависит от 2.4a++ (контроллер) или может использовать фасад напрямую.
 
 ---
 
@@ -292,7 +265,7 @@ QuestionnaireAr                 — абстрактный: start, handleAction,
 
 - [Система сбора метрик (родитель)](./metrics-system.md)
 - [1. Концепция метрик](./metrics-conception.md) — структура metricMapping
-- [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — intention-паттерн, peer-review, metrics
+- [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — Invite-паттерн, peer-review, metrics
 - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — правила для Aggregate, Policy
 - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
 - [Границы доменной логики](./code_styleguides/domain-boundaries.md)

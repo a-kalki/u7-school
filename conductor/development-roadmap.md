@@ -103,7 +103,7 @@
 
 | Документ | Содержание |
 |----------|-----------|
-| Документ 2 (Трек 2.1–2.4) | EventBus в `core`, `Questionnaire` модуль (движок анкет), Aggregate API, пул вопросов с `metricMapping` |
+| Документ 2 (Трек 2.1–2.5) | EventBus в `core`, `Questionnaire` модуль (движок анкет), UC слой, контроллер, `MetricQuestionnaireAr` |
 
 **Параллельно:** [Документ 1](./metrics-conception.md) — финализация концепции метрик (категории, шкалы, вопросы, агрегация).
 
@@ -214,7 +214,7 @@
 |-------|-------------|---------------|
 | 1 | `package.json` (все пакеты) | Обновить exports, зависимости |
 | 2 | Удаление файлов | Удалить старые `ui/` директории |
-| 3 | `onboarding/*.json` | Выделить questionnaire, мигрировать анкеты |
+| 3 | `onboarding/*.json` | Выделить questionnaire, мигрировать анкеты на новый движок |
 | 4 | — | Без миграций |
 | 5 | `modules.json`, `lessons.json`, `steps.json` | Добавить `basedOn`, мета-поля |
 | 5 | `streams.json` | Убрать title'ы из contentSnapshot |
