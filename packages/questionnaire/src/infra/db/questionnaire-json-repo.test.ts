@@ -24,7 +24,17 @@ describe('QuestionnaireJsonRepo', () => {
     currentQuestionCode: 'q1',
     draftAnswers: {},
     answers: [],
-    questionPool: null,
+    questionPool: {
+      questions: [
+        {
+          question: 'Q1',
+          questionCode: 'q1',
+          type: 'choice' as const,
+          multiple: false,
+          answers: [{ answer: 'A', answerCode: 'a' }],
+        },
+      ],
+    },
     createdAt: '2024-01-01T00:00',
     completedAt: null,
     ...overrides,

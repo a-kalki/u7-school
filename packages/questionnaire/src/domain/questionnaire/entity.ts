@@ -42,8 +42,7 @@ export const QuestionnaireSchema = v.object({
   ),
   draftAnswers: v.record(v.string(), v.string()),
   answers: v.array(AnswerSchema),
-  /** Снимок пула вопросов. null в invited, заполняется при start(). */
-  questionPool: v.nullable(QuestionnairePoolSchema),
+  questionPool: QuestionnairePoolSchema,
   createdAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),

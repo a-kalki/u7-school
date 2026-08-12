@@ -1,11 +1,9 @@
-import { errInternal } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import type { DeclineInviteCmdMeta } from '#domain/questionnaire/commands/decline-invite-cmd';
 import {
   type DeclineInviteCmd,
   DeclineInviteCmdSchema,
 } from '#domain/questionnaire/commands/decline-invite-cmd';
-import type { InternalUcError } from '#domain/questionnaire/commands/errors';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import { QuestionnaireUseCase } from './questionnaire-uc';
 
@@ -35,15 +33,6 @@ export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> 
     await this.repo.save(ar.state);
 
     const pool = state.questionPool;
-    if (!pool) {
-      this.throwError(
-        errInternal<InternalUcError>(
-          'INTERNAL_ERROR',
-          'Пул анкеты не найден',
-          undefined,
-        ),
-      );
-    }
     return { cancelWarning: pool.cancelWarning };
   }
 }
