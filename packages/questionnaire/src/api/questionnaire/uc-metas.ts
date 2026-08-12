@@ -6,10 +6,7 @@ import type {
   QuestionnaireNotFoundUcError,
 } from '../../domain/questionnaire/errors';
 import type { QuestionnairePool } from '../../domain/questionnaire/question';
-import type {
-  InviteResponse,
-  QuestionnaireActionResponse,
-} from '../../domain/questionnaire/types';
+import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 
 // ── SendInvite (Путь A: фасад → UC → botFacade) ──
 export interface SendInviteUcMeta extends UcMeta {

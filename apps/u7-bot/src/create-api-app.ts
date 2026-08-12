@@ -12,6 +12,10 @@ import {
 } from '@u7-scl/course/infra';
 import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
+import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
+import type { QuestionnaireBotFacade } from '@u7-scl/questionnaire/domain';
+import { QuestionnaireInProcFacade } from '@u7-scl/questionnaire/domain';
+import { QuestionnaireJsonRepo as QJsonRepo } from '@u7-scl/questionnaire/infra';
 import {
   StreamApiModule,
   StreamJsonRepo,
@@ -31,6 +35,7 @@ export interface ApiAppBundle {
   userFacade: UserInProcFacade;
   userRepo: UserJsonRepo;
   questionnaireRepo: QuestionnaireJsonRepo;
+  questionnaireFacade: QuestionnaireInProcFacade;
   poolService: QuestionPoolService;
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
@@ -115,6 +120,30 @@ export function createApiApp(
     eventBus: appResolver.eventBus,
   });
 
+  // ══ Questionnaire: модуль и фасад (botFacade — заглушка до трека 2.4a++) ══
+  const botFacadeStub: QuestionnaireBotFacade = {
+    sendQuestionnaireInvite: async () => {},
+    startQuestionnaire: async () => {},
+  };
+
+  const qRepo = new QJsonRepo(
+    `${config.dbDir}/questionnaires/q-questionnaires.json`,
+    db,
+  );
+
+  const questionnaireModule = new QuestionnaireApiModule({
+    questionnaireRepo: qRepo,
+    botFacade: botFacadeStub,
+    userFacade,
+    db,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  });
+
+  const questionnaireFacade = new QuestionnaireInProcFacade(
+    questionnaireModule,
+  );
+
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo,
@@ -141,6 +170,7 @@ export function createApiApp(
     userFacade,
     userRepo,
     questionnaireRepo,
+    questionnaireFacade,
     poolService: activePoolService,
     streamModule,
     courseModule,

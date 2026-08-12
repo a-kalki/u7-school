@@ -1,35 +1,21 @@
-import type { Questionnaire } from './questionnaire/entity';
-import type { Question } from './questionnaire/question';
-import type { QuestionnaireActionResponse } from './questionnaire/types';
+import type { User } from '@u7-scl/user/domain';
+import type { QuestionnaireApiModule } from '../api/module';
+import type { QuestionnairePool } from './questionnaire/question';
 
 /**
- * Фасад модуля questionnaire — точка входа для потребителей.
+ * Фасад модуля questionnaire для вызова из других модулей.
+ * Использует путь A: UC → botFacade (бот рендерит приглашения и вопросы).
  */
-export interface QuestionnaireFacade {
-  /** Создать намерение (анкету в статусе intention) */
-  createIntention(respondentId: number): Promise<{ questionnaireId: string }>;
+export class QuestionnaireInProcFacade {
+  constructor(private readonly module: QuestionnaireApiModule) {}
 
-  /** Запустить анкету: передать пул вопросов и получить первый вопрос */
-  start(
-    questionnaireId: string,
-    pool: Question[],
-  ): Promise<QuestionnaireActionResponse>;
+  /** Отправить приглашение на анкету (invited). UC вызывает botFacade. */
+  async sendInvite(user: User, pool: QuestionnairePool): Promise<void> {
+    await this.module.execute('send-invite', { user, pool }, undefined);
+  }
 
-  /** Создать и сразу запустить (intention + start) */
-  startNew(
-    respondentId: number,
-    pool: Question[],
-  ): Promise<QuestionnaireActionResponse>;
-
-  /** Обработать действие пользователя */
-  handleAction(
-    questionnaireId: string,
-    action: { type: 'callback' | 'text'; value: string },
-  ): Promise<QuestionnaireActionResponse>;
-
-  /** Получить анкету */
-  getQuestionnaire(questionnaireId: string): Promise<Questionnaire>;
-
-  /** Получить анкеты пользователя */
-  getQuestionnairesByUser(respondentId: number): Promise<Questionnaire[]>;
+  /** Создать и сразу запустить анкету. UC вызывает botFacade. */
+  async start(user: User, pool: QuestionnairePool): Promise<void> {
+    await this.module.execute('start', { user, pool }, undefined);
+  }
 }

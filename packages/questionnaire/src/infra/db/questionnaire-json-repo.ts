@@ -1,11 +1,11 @@
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import { JsonFileRepo } from '@u7-scl/core/infra';
-import type { Questionnaire } from '../../domain/questionnaire/entity';
-import { QuestionnaireSchema } from '../../domain/questionnaire/entity';
-import type { QuestionnaireRepo } from '../../domain/questionnaire/repo';
+import type { Questionnaire } from '#domain/questionnaire/entity';
+import { QuestionnaireSchema } from '#domain/questionnaire/entity';
+import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 
 /**
- * JSON-реализация репозитория анкет.
+ * JSON-реализация репозитория анкет модуля questionnaire.
  */
 export class QuestionnaireJsonRepo
   extends JsonFileRepo<Questionnaire>
