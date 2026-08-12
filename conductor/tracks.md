@@ -12,3 +12,8 @@
 
 - [ ] **Track: Трек 2.5 — onboarding переводится на questionnaire**
 *Link: [$T2]($T2)*
+
+---
+
+- [ ] **Track: 2.4a++ bis — BotTransport: единый слой Grammy ↔ UiApp (сжатие, execute, сессии)**
+*Link: [./tracks/bot-transport-refactor_20260812/](./tracks/bot-transport-refactor_20260812/)*
