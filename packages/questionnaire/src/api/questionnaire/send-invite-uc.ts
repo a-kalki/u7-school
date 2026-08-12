@@ -21,7 +21,7 @@ export class SendInviteUc extends QuestionnaireUseCase<SendInviteCmdMeta> {
 
   async execute(command: SendInviteCmd, actorId: string): Promise<undefined> {
     const user = await this.getUser(actorId);
-    const ar = QuestionnaireAr.create(user.telegramId, command.pool);
+    const ar = QuestionnaireAr.create(user.uuid, command.pool);
     await this.repo.save(ar.state);
     const response = ar.getInvite();
     await this.botFacade.sendQuestionnaireInvite(user, response);

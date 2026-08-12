@@ -9,7 +9,7 @@ import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 function mockRepo(
   questions: Array<{
     uuid: string;
-    respondentId: number;
+    respondentId: string;
     status: string;
   }> = [],
 ): QuestionnaireRepo {
@@ -22,7 +22,7 @@ function mockRepo(
     },
     getByUuid: async (uuid: string) =>
       data.find((q: any) => q.uuid === uuid) as any,
-    getByRespondentId: async (id: number) =>
+    getByRespondentId: async (id: string) =>
       data.filter((q: any) => q.respondentId === id) as any,
   };
 }
@@ -45,7 +45,7 @@ function mockUserFacade(user: User): UserFacade {
 
 function mockUser(): User {
   return {
-    uuid: 'actor-1',
+    uuid: '00000000-0000-0000-0000-000000000001',
     name: 'Test',
     telegramId: 123,
     roles: [],
@@ -113,7 +113,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     const all = await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     );
     expect(Array.isArray(all)).toBe(true);
@@ -160,7 +160,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -188,7 +188,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -219,7 +219,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -246,7 +246,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -273,7 +273,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     )) as any[];
     const qId = all[0]!.uuid;
@@ -307,7 +307,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.telegramId },
+      { userId: user.uuid },
       '',
     )) as any[];
     expect(all.length).toBe(1);
@@ -325,7 +325,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     const empty = await mod.execute(
       'get-questionnaires-by-user',
-      { userId: 999 },
+      { userId: '00000000-0000-0000-0000-000000000999' },
       '',
     );
     expect(empty).toEqual([]);

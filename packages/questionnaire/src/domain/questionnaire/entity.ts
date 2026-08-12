@@ -33,8 +33,8 @@ export type QuestionnaireStatus = v.InferOutput<
 export const QuestionnaireSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   respondentId: v.pipe(
-    v.number(),
-    v.minValue(1, 'respondentId должен быть положительным числом'),
+    v.string(),
+    v.uuid('respondentId должен быть валидным UUID'),
   ),
   status: QuestionnaireStatusSchema,
   currentQuestionCode: v.nullable(

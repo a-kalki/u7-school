@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import type { GetQuestionnaireCmdMeta } from '#domain/questionnaire/commands/get-questionnaire-cmd';
 import {
   type GetQuestionnaireCmd,

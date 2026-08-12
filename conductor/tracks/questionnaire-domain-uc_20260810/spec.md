@@ -17,7 +17,7 @@ Pool — объект с метаданными, а не просто `Question[
 | Статус | `intention` | `invited` | Система приглашает, а не пользователь «намеревается» |
 | Тип ответа | `IntentionResponse` | `InviteResponse` | Согласованность со статусом |
 | Тип пула | `Question[]` | `QuestionnairePool` | Метаданные (тексты) должны идти вместе с вопросами |
-| Параметр UC | `telegramId` | `user: User` | Единообразие с другими модулями |
+| Параметр UC | `telegramId` | `actorId` → `getUser(actorId)` внутри UC | Единообразие с другими модулями |
 | Инициативный запуск | `start` UC делает всё сам | `send-invite` + `start` через фасад → botFacade | Разделение ответственности: UC вызывает UI-слой |
 | Ответный запуск | не было | `start-by-invite`, `decline-invite` | Пользователь управляет через контроллер |
 | Имена | разнобой | UC = aggregate = facade = botFacade | Единообразие |
@@ -46,10 +46,10 @@ type QuestionnairePool = {
 
 ```typescript
 // Создать агрегат с пулом, статус invited
-static create(respondentId: number, pool: QuestionnairePool): QuestionnaireAr
+static create(respondentId: string, pool: QuestionnairePool): QuestionnaireAr
 
-// Создать приглашение → InviteResponse (для botFacade) — включает inviteText, howToFill
-createInvite(): InviteResponse
+// Возвращает приглашение → InviteResponse (для botFacade) — включает inviteText, whyText
+getInvite(): InviteResponse
 
 // Отказаться от приглашения (при клике «Пропустить») — invited → abandoned
 decline(): void
@@ -84,8 +84,10 @@ interface QuestionnaireBotFacade {
 
 | UC | Вход | Логика |
 |---|---|---|
-| `send-invite` | `{user, pool}` | Ar.create → save → ar.createInvite() → botFacade.sendQuestionnaireInvite |
-| `start` | `{user, pool}` | Ar.create → ar.start() → save → botFacade.startQuestionnaire |
+| `send-invite` | `{ pool }` | getUser(actorId) → Ar.create(user.uuid, pool) → save → ar.getInvite() → botFacade.sendQuestionnaireInvite |
+| `start` | `{ pool }` | getUser(actorId) → Ar.create(user.uuid, pool) → ar.start() → save → botFacade.startQuestionnaire |
+
+> User получается внутри UC через `getUser(actorId)`, а не передаётся в команде.
 
 ### Путь B — ответный (контроллер → UC → return)
 
@@ -105,11 +107,11 @@ interface QuestionnaireBotFacade {
 
 ```typescript
 class QuestionnaireInProcFacade {
-  async sendInvite(user: User, pool: QuestionnairePool): Promise<void> {
-    await this.module.execute('send-invite', { user, pool });
+  async sendInvite(actorId: string, pool: QuestionnairePool): Promise<void> {
+    await this.module.execute('send-invite', { pool }, actorId);
   }
-  async start(user: User, pool: QuestionnairePool): Promise<void> {
-    await this.module.execute('start', { user, pool });
+  async start(actorId: string, pool: QuestionnairePool): Promise<void> {
+    await this.module.execute('start', { pool }, actorId);
   }
 }
 ```

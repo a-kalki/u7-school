@@ -6,20 +6,20 @@ import type { Questionnaire } from './entity';
  */
 export const QuestionnairePolicy = {
   /** Может ли пользователь начать анкету */
-  canStart(actor: User, targetRespondentId: number): boolean {
+  canStart(actor: User, targetRespondentId: string): boolean {
     if (actor.roles.includes(Role.ADMIN)) return true;
-    return actor.telegramId === targetRespondentId;
+    return actor.uuid === targetRespondentId;
   },
 
   /** Может ли пользователь читать анкету */
   canRead(actor: User, questionnaire: Questionnaire): boolean {
     if (actor.roles.includes(Role.ADMIN)) return true;
-    return actor.telegramId === questionnaire.respondentId;
+    return actor.uuid === questionnaire.respondentId;
   },
 
   /** Может ли пользователь изменять анкету (отвечать, прерывать) */
   canEdit(actor: User, questionnaire: Questionnaire): boolean {
     if (actor.roles.includes(Role.ADMIN)) return true;
-    return actor.telegramId === questionnaire.respondentId;
+    return actor.uuid === questionnaire.respondentId;
   },
 };

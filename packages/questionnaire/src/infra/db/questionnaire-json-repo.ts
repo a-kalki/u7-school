@@ -28,7 +28,7 @@ export class QuestionnaireJsonRepo
     return all.find((q) => q.uuid === uuid);
   }
 
-  async getByRespondentId(respondentId: number): Promise<Questionnaire[]> {
+  async getByRespondentId(respondentId: string): Promise<Questionnaire[]> {
     const all = await this.readAll();
     return all.filter((q) => q.respondentId === respondentId);
   }

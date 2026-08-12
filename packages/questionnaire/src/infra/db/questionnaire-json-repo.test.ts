@@ -19,7 +19,7 @@ describe('QuestionnaireJsonRepo', () => {
 
   const makeQ = (overrides: Partial<Questionnaire> = {}): Questionnaire => ({
     uuid: crypto.randomUUID(),
-    respondentId: 123,
+    respondentId: '00000000-0000-0000-0000-000000000001',
     status: 'in_progress',
     currentQuestionCode: 'q1',
     draftAnswers: {},
@@ -37,7 +37,7 @@ describe('QuestionnaireJsonRepo', () => {
     const found = await repo.getByUuid(q.uuid);
     expect(found).toBeDefined();
     expect(found?.uuid).toBe(q.uuid);
-    expect(found?.respondentId).toBe(123);
+    expect(found?.respondentId).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   test('возвращает undefined для несуществующей анкеты', async () => {
@@ -61,11 +61,17 @@ describe('QuestionnaireJsonRepo', () => {
   });
 
   test('getByRespondentId фильтрует по respondentId', async () => {
-    const q1 = makeQ({ uuid: crypto.randomUUID(), respondentId: 111 });
-    const q2 = makeQ({ uuid: crypto.randomUUID(), respondentId: 222 });
+    const q1 = makeQ({
+      uuid: crypto.randomUUID(),
+      respondentId: '11111111-1111-1111-1111-111111111111',
+    });
+    const q2 = makeQ({
+      uuid: crypto.randomUUID(),
+      respondentId: '22222222-2222-2222-2222-222222222222',
+    });
     const q3 = makeQ({
       uuid: crypto.randomUUID(),
-      respondentId: 111,
+      respondentId: '11111111-1111-1111-1111-111111111111',
       status: 'completed',
     });
 
@@ -73,11 +79,19 @@ describe('QuestionnaireJsonRepo', () => {
     await repo.save(q2);
     await repo.save(q3);
 
-    const all111 = await repo.getByRespondentId(111);
+    const all111 = await repo.getByRespondentId(
+      '11111111-1111-1111-1111-111111111111',
+    );
     expect(all111.length).toBe(2);
-    expect(all111.every((q) => q.respondentId === 111)).toBe(true);
+    expect(
+      all111.every(
+        (q) => q.respondentId === '11111111-1111-1111-1111-111111111111',
+      ),
+    ).toBe(true);
 
-    const all222 = await repo.getByRespondentId(222);
+    const all222 = await repo.getByRespondentId(
+      '22222222-2222-2222-2222-222222222222',
+    );
     expect(all222.length).toBe(1);
   });
 

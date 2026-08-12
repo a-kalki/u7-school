@@ -203,8 +203,8 @@ status: 'invited' | 'in_progress' | 'completed' | 'abandoned';
 
 **Агрегат `QuestionnaireAr`:**
 ```typescript
-static create(respondentId, pool: QuestionnairePool): QuestionnaireAr  // фабрика, статус invited
-createInvite(): InviteResponse        // приглашение (inviteText, whyText, questionnaireId)
+static create(respondentId: string, pool: QuestionnairePool): QuestionnaireAr  // фабрика, статус invited
+getInvite(): InviteResponse             // приглашение (inviteText, whyText, questionnaireId)
 decline(): void                        // invited → abandoned
 start(): QuestionnaireActionResponse   // invited → in_progress, engine из pool.questions
 getQuestionnaireActionResponse(): QuestionnaireActionResponse  // текущее состояние
@@ -213,12 +213,12 @@ abandon(): void
 ```
 
 **Два пути запуска:**
-- **Путь A (инициативный):** модуль-владелец → `QuestionnaireFacade.sendInvite(user, pool)` или `start(user, pool)` → UC → `botFacade.sendQuestionnaireInvite()` / `startQuestionnaire()`
+- **Путь A (инициативный):** модуль-владелец → `QuestionnaireFacade.sendInvite(actorId, pool)` или `start(actorId, pool)` → UC → `botFacade.sendQuestionnaireInvite()` / `startQuestionnaire()`
 - **Путь B (ответный):** контроллер questionnaire (стори `fill`) → UC `start-by-invite` / `handle-action` / `decline-invite` → return response
 
 **Фасад `QuestionnaireFacade`:**
-- `sendInvite(user, pool)` → `module.execute('send-invite', ...)`
-- `start(user, pool)` → `module.execute('start', ...)`
+- `sendInvite(actorId, pool)` → `module.execute('send-invite', ...)`
+- `start(actorId, pool)` → `module.execute('start', ...)`
 
 Чистое делегирование в UC. Вся логика (включая вызов botFacade) — в UC.
 

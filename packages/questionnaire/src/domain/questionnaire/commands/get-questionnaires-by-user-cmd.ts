@@ -3,7 +3,7 @@ import type { Questionnaire, QuestionnaireArMeta } from '../entity';
 import type { InternalUcError } from './errors';
 
 export const GetQuestionnairesByUserCmdSchema = v.object({
-  userId: v.pipe(v.number(), v.minValue(1)),
+  userId: v.pipe(v.string(), v.uuid()),
 });
 
 export type GetQuestionnairesByUserCmd = v.InferOutput<

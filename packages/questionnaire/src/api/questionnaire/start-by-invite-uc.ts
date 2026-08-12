@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import type { StartByInviteCmdMeta } from '#domain/questionnaire/commands/start-by-invite-cmd';
 import {
   type StartByInviteCmd,

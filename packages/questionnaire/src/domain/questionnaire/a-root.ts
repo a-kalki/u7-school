@@ -36,7 +36,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
    * Создаёт анкету в статусе invited с переданным пулом.
    */
   static create(
-    respondentId: number,
+    respondentId: string,
     pool: QuestionnairePool,
   ): QuestionnaireAr {
     // Валидируем пул
@@ -443,7 +443,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     return this.state.answers;
   }
 
-  getRespondentId(): number {
+  getRespondentId(): string {
     return this.state.respondentId;
   }
 

@@ -37,9 +37,12 @@ describe('QuestionnaireAr (v2)', () => {
 
   test('create создаёт анкету в статусе invited с сохранённым пулом', () => {
     const pool = simplePool();
-    const ar = QuestionnaireAr.create(123, pool);
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      pool,
+    );
 
-    expect(ar.getRespondentId()).toBe(123);
+    expect(ar.getRespondentId()).toBe('00000000-0000-0000-0000-000000000007');
     expect(ar.getCurrentState().status).toBe('invited');
     expect(ar.getCurrentState().questionPool).not.toBeNull();
     expect(ar.getAnswers()).toEqual([]);
@@ -49,7 +52,10 @@ describe('QuestionnaireAr (v2)', () => {
 
   test('createInvite возвращает InviteResponse с inviteText и whyText', () => {
     const pool = simplePool();
-    const ar = QuestionnaireAr.create(123, pool);
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      pool,
+    );
 
     const invite = ar.getInvite();
     expect(invite.type).toBe('invited');
@@ -59,7 +65,10 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('getQuestionnaireActionResponse на invited возвращает InviteResponse', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     const resp = ar.getQuestionnaireActionResponse();
     expect(resp.type).toBe('invited');
   });
@@ -67,13 +76,19 @@ describe('QuestionnaireAr (v2)', () => {
   // ── decline ──
 
   test('decline переводит invited → abandoned', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.decline();
     expect(ar.getCurrentState().status).toBe('abandoned');
   });
 
   test('decline на не-invited анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     expect(() => ar.decline()).toThrow();
   });
@@ -81,7 +96,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── start без параметров ──
 
   test('start переводит invited → in_progress и выдаёт первый вопрос из пула', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     const response = ar.start();
 
     expect(ar.getCurrentState().status).toBe('in_progress');
@@ -92,13 +110,19 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('start на не-invited анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start(); // OK
     expect(() => ar.start()).toThrow(); // уже in_progress
   });
 
   test('start на declined анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.decline();
     expect(() => ar.start()).toThrow();
   });
@@ -106,7 +130,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── handleAction: одиночный выбор ──
 
   test('handleAction с одиночным выбором — фиксирует ответ и переходит дальше', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
 
     const response = ar.handleAction({ type: 'callback', value: 'yes' });
@@ -140,7 +167,10 @@ describe('QuestionnaireAr (v2)', () => {
         answers: [{ answer: 'OK', answerCode: 'ok' }],
       },
     ]);
-    const ar = QuestionnaireAr.create(123, pool);
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      pool,
+    );
     ar.start();
 
     const response = ar.handleAction({ type: 'text', value: 'Я разработчик' });
@@ -155,7 +185,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── Завершение ──
 
   test('handleAction завершает анкету после последнего вопроса', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
 
     ar.handleAction({ type: 'callback', value: 'yes' });
@@ -167,7 +200,10 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('getQuestionnaireActionResponse на completed возвращает completed', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     ar.handleAction({ type: 'callback', value: 'yes' });
     ar.handleAction({ type: 'callback', value: 'ok' });
@@ -198,7 +234,10 @@ describe('QuestionnaireAr (v2)', () => {
         answers: [{ answer: 'X', answerCode: 'x' }],
       },
     ]);
-    const ar = QuestionnaireAr.create(123, pool);
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      pool,
+    );
     ar.start();
 
     const r1 = ar.handleAction({ type: 'callback', value: 'a' });
@@ -234,7 +273,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── abandon ──
 
   test('abandon переводит анкету в abandoned', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     ar.abandon();
     expect(ar.getCurrentState().status).toBe('abandoned');
@@ -242,7 +284,10 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('abandon на completed — без эффекта', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     ar.handleAction({ type: 'callback', value: 'yes' });
     ar.handleAction({ type: 'callback', value: 'ok' });
@@ -251,7 +296,10 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('handleAction на завершённой анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     ar.handleAction({ type: 'callback', value: 'yes' });
     ar.handleAction({ type: 'callback', value: 'ok' });
@@ -264,7 +312,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── getQuestionnaireActionResponse ──
 
   test('getQuestionnaireActionResponse возвращает текущий вопрос', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     const resp = ar.getQuestionnaireActionResponse();
     expect(resp.type).toBe('new_question');
@@ -276,7 +327,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── Восстановление engine из сохранённого состояния ──
 
   test('конструктор восстанавливает engine из questionPool', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     const state = ar.getCurrentState();
 
@@ -292,7 +346,10 @@ describe('QuestionnaireAr (v2)', () => {
   // ── getQuestionnaireActionResponse для abandoned ──
 
   test('getQuestionnaireActionResponse на abandoned возвращает completed', () => {
-    const ar = QuestionnaireAr.create(123, simplePool());
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
     ar.start();
     ar.abandon();
     expect(ar.getQuestionnaireActionResponse().type).toBe('completed');

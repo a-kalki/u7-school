@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import type { HandleActionCmdMeta } from '#domain/questionnaire/commands/handle-action-cmd';
 import {
   type HandleActionCmd,
