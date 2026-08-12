@@ -15,7 +15,7 @@ export class SendInviteUc extends QuestionnaireUseCase<SendInviteCmdMeta> {
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = SendInviteCmdSchema;
   protected readonly outputSchema = v.undefined();
 

@@ -16,15 +16,19 @@ export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentCmdMeta> {
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'query' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = GetCurrentCmdSchema;
   protected readonly outputSchema = QuestionnaireActionResponseSchema;
 
   async execute(
     command: GetCurrentCmd,
-    _actorId: string,
+    actorId: string,
   ): Promise<QuestionnaireActionResponse> {
-    const state = await this.getQuestionnaire(command.questionnaireId);
+    const actor = await this.getUser(actorId);
+    const state = await this.getQuestionnaireForRead(
+      command.questionnaireId,
+      actor,
+    );
     const ar = new QuestionnaireAr(state);
     return ar.getQuestionnaireActionResponse();
   }

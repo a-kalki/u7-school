@@ -15,7 +15,7 @@ export interface StartCmdMeta {
   input: StartCmd;
   output: undefined;
   errors: StartCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'command';
 }
 

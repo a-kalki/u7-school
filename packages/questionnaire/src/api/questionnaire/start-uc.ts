@@ -15,7 +15,7 @@ export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = StartCmdSchema;
   protected readonly outputSchema = v.undefined();
 

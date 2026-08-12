@@ -16,15 +16,19 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = HandleActionCmdSchema;
   protected readonly outputSchema = QuestionnaireActionResponseSchema;
 
   async execute(
     command: HandleActionCmd,
-    _actorId: string,
+    actorId: string,
   ): Promise<QuestionnaireActionResponse> {
-    const state = await this.getQuestionnaire(command.questionnaireId);
+    const actor = await this.getUser(actorId);
+    const state = await this.getQuestionnaireForEdit(
+      command.questionnaireId,
+      actor,
+    );
     const ar = new QuestionnaireAr(state);
     const response = ar.handleAction({
       type: command.type,

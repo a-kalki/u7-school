@@ -2,6 +2,7 @@ import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
 import type { QuestionnaireActionResponse } from '../types';
 import type {
+  AccessDeniedUcError,
   BadRequestUcError,
   InternalUcError,
   QuestionnaireNotFoundUcError,
@@ -19,11 +20,12 @@ export interface StartByInviteCmdMeta {
   input: StartByInviteCmd;
   output: QuestionnaireActionResponse;
   errors: StartByInviteCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'command';
 }
 
 export type StartByInviteCmdError =
   | BadRequestUcError
   | InternalUcError
-  | QuestionnaireNotFoundUcError;
+  | QuestionnaireNotFoundUcError
+  | AccessDeniedUcError;

@@ -15,7 +15,7 @@ export interface SendInviteCmdMeta {
   input: SendInviteCmd;
   output: undefined;
   errors: SendInviteCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'command';
 }
 

@@ -16,14 +16,16 @@ export class GetQuestionnairesByUserUc extends QuestionnaireUseCase<GetQuestionn
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'query' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = GetQuestionnairesByUserCmdSchema;
   protected readonly outputSchema = v.array(QuestionnaireSchema);
 
   async execute(
     command: GetQuestionnairesByUserCmd,
-    _actorId: string,
+    actorId: string,
   ): Promise<Questionnaire[]> {
+    const actor = await this.getUser(actorId);
+    this.ensureCanListForUser(actor, command.userId);
     return this.repo.getByRespondentId(command.userId);
   }
 }

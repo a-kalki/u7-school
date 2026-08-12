@@ -43,13 +43,14 @@ function mockUserFacade(user: User): UserFacade {
   } as unknown as UserFacade;
 }
 
-function mockUser(): User {
+function mockUser(overrides: Partial<User> = {}): User {
   return {
     uuid: '00000000-0000-0000-0000-000000000001',
     name: 'Test',
     telegramId: 123,
     roles: [],
     createdAt: '2024-01-01T00:00:00.000Z',
+    ...overrides,
   } as User;
 }
 
@@ -75,6 +76,8 @@ function simplePool() {
     ],
   };
 }
+
+const USER_ID = '00000000-0000-0000-0000-000000000001';
 
 function makeResolve(overrides: any = {}) {
   return {
@@ -107,14 +110,14 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ botFacade, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
 
     expect(inviteCalled).toBe(true);
 
     const all = await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     );
     expect(Array.isArray(all)).toBe(true);
     expect(all.length).toBe(1);
@@ -134,12 +137,12 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ botFacade, userFacade }),
     );
 
-    await mod.execute('start', { pool: simplePool() }, user.uuid);
+    await mod.execute('start', { pool: simplePool() }, USER_ID);
 
     expect(startCalled).toBe(true);
   });
 
-  test('start-by-invite — запускает по ID и возвращает ответ (botFacade НЕ вызван)', async () => {
+  test('start-by-invite — запускает по ID и возвращает ответ', async () => {
     let botCalled = false;
     const user = mockUser();
     const repo = mockRepo();
@@ -156,12 +159,11 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, botFacade, userFacade }),
     );
 
-    // Создаём анкету через send-invite
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     )) as any[];
     const qId = all[0]!.uuid;
 
@@ -170,7 +172,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const result = await mod.execute(
       'start-by-invite',
       { questionnaireId: qId },
-      '',
+      USER_ID,
     );
 
     expect(botCalled).toBe(false);
@@ -185,25 +187,25 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     )) as any[];
     const qId = all[0]!.uuid;
 
     const result = await mod.execute(
       'decline-invite',
       { questionnaireId: qId },
-      '',
+      USER_ID,
     );
     expect(result).toBeDefined();
 
     const q = (await mod.execute(
       'get-questionnaire',
       { uuid: qId },
-      '',
+      USER_ID,
     )) as any;
     expect(q.status).toBe('abandoned');
   });
@@ -216,20 +218,20 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     )) as any[];
     const qId = all[0]!.uuid;
 
-    await mod.execute('start-by-invite', { questionnaireId: qId }, '');
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
 
     const result = await mod.execute(
       'handle-action',
       { questionnaireId: qId, type: 'callback', value: 'a' },
-      '',
+      USER_ID,
     );
 
     expect(result).toBeDefined();
@@ -243,21 +245,21 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     )) as any[];
     const qId = all[0]!.uuid;
 
-    await mod.execute('start-by-invite', { questionnaireId: qId }, '');
-    await mod.execute('abandon', { questionnaireId: qId }, '');
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
+    await mod.execute('abandon', { questionnaireId: qId }, USER_ID);
 
     const q = (await mod.execute(
       'get-questionnaire',
       { uuid: qId },
-      '',
+      USER_ID,
     )) as any;
     expect(q.status).toBe('abandoned');
   });
@@ -270,11 +272,11 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     )) as any[];
     const qId = all[0]!.uuid;
 
@@ -282,16 +284,16 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const resp1 = (await mod.execute(
       'get-current',
       { questionnaireId: qId },
-      '',
+      USER_ID,
     )) as any;
     expect(resp1.type).toBe('invited');
 
     // После запуска — вопрос
-    await mod.execute('start-by-invite', { questionnaireId: qId }, '');
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
     const resp2 = (await mod.execute(
       'get-current',
       { questionnaireId: qId },
-      '',
+      USER_ID,
     )) as any;
     expect(resp2.type).toBe('new_question');
   });
@@ -304,30 +306,33 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, user.uuid);
+    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
     const all = (await mod.execute(
       'get-questionnaires-by-user',
-      { userId: user.uuid },
-      '',
+      { userId: USER_ID },
+      USER_ID,
     )) as any[];
     expect(all.length).toBe(1);
 
     const found = await mod.execute(
       'get-questionnaire',
       { uuid: all[0]!.uuid },
-      '',
+      USER_ID,
     );
     expect(found).toBeDefined();
   });
 
-  test('get-questionnaires-by-user — возвращает все анкеты пользователя', async () => {
-    const mod = new QuestionnaireApiModule(makeResolve());
+  test('get-questionnaires-by-user — отказ в доступе к чужим анкетам', async () => {
+    const user = mockUser();
+    const userFacade = mockUserFacade(user);
+    const mod = new QuestionnaireApiModule(makeResolve({ userFacade }));
 
-    const empty = await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: '00000000-0000-0000-0000-000000000999' },
-      '',
-    );
-    expect(empty).toEqual([]);
+    await expect(
+      mod.execute(
+        'get-questionnaires-by-user',
+        { userId: '00000000-0000-0000-0000-000000000999' },
+        USER_ID,
+      ),
+    ).rejects.toThrow('Нет доступа к списку анкет пользователя');
   });
 });

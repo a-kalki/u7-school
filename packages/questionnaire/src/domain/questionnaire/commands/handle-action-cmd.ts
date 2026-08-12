@@ -2,6 +2,7 @@ import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
 import type { QuestionnaireActionResponse } from '../types';
 import type {
+  AccessDeniedUcError,
   BadRequestUcError,
   InternalUcError,
   QuestionnaireNotFoundUcError,
@@ -21,11 +22,12 @@ export interface HandleActionCmdMeta {
   input: HandleActionCmd;
   output: QuestionnaireActionResponse;
   errors: HandleActionCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'command';
 }
 
 export type HandleActionCmdError =
   | BadRequestUcError
   | InternalUcError
-  | QuestionnaireNotFoundUcError;
+  | QuestionnaireNotFoundUcError
+  | AccessDeniedUcError;

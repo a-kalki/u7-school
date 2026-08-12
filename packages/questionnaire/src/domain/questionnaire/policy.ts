@@ -21,4 +21,9 @@ export const QuestionnairePolicy = {
     if (UserPolicy.isAdmin(actor)) return true;
     return actor.uuid === questionnaire.respondentId;
   },
+  /** Может ли пользователь просматривать список анкет другого пользователя */
+  canListForUser(actor: User, userId: string): boolean {
+    if (UserPolicy.isAdmin(actor)) return true;
+    return actor.uuid === userId;
+  },
 };

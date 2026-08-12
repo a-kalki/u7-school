@@ -1,6 +1,7 @@
 import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
 import type {
+  AccessDeniedUcError,
   BadRequestUcError,
   InternalUcError,
   QuestionnaireNotFoundUcError,
@@ -18,11 +19,12 @@ export interface AbandonCmdMeta {
   input: AbandonCmd;
   output: undefined;
   errors: AbandonCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'command';
 }
 
 export type AbandonCmdError =
   | BadRequestUcError
   | InternalUcError
-  | QuestionnaireNotFoundUcError;
+  | QuestionnaireNotFoundUcError
+  | AccessDeniedUcError;

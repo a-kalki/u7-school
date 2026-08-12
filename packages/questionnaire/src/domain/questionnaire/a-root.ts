@@ -390,17 +390,13 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // ═════════════════════════════════════════════════════════════
 
   abandon(): void {
-    if (
-      this.state.status === 'in_progress' ||
-      this.state.status === 'invited'
-    ) {
-      this.safeUpdate({ status: 'abandoned' });
-      return;
-    }
     if (this.state.status === 'abandoned') {
       return;
     }
-    this.throwBadRequest('Анкета не активна');
+    if (this.state.status === 'completed') {
+      this.throwBadRequest('Анкета не активна');
+    }
+    this.safeUpdate({ status: 'abandoned' });
   }
 
   // ═════════════════════════════════════════════════════════════

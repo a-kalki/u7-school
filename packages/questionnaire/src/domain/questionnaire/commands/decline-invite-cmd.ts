@@ -1,6 +1,7 @@
 import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
 import type {
+  AccessDeniedUcError,
   BadRequestUcError,
   InternalUcError,
   QuestionnaireNotFoundUcError,
@@ -18,11 +19,12 @@ export interface DeclineInviteCmdMeta {
   input: DeclineInviteCmd;
   output: { cancelWarning?: string };
   errors: DeclineInviteCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'command';
 }
 
 export type DeclineInviteCmdError =
   | BadRequestUcError
   | InternalUcError
-  | QuestionnaireNotFoundUcError;
+  | QuestionnaireNotFoundUcError
+  | AccessDeniedUcError;

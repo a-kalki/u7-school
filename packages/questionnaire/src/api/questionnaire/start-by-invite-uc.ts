@@ -16,15 +16,19 @@ export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> 
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = StartByInviteCmdSchema;
   protected readonly outputSchema = QuestionnaireActionResponseSchema;
 
   async execute(
     command: StartByInviteCmd,
-    _actorId: string,
+    actorId: string,
   ): Promise<QuestionnaireActionResponse> {
-    const state = await this.getQuestionnaire(command.questionnaireId);
+    const actor = await this.getUser(actorId);
+    const state = await this.getQuestionnaireForEdit(
+      command.questionnaireId,
+      actor,
+    );
     const ar = new QuestionnaireAr(state);
     const response = ar.start();
     await this.repo.save(ar.state);

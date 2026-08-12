@@ -19,15 +19,19 @@ export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> 
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
-  protected readonly requiresAuth = false as const;
+  protected readonly requiresAuth = true as const;
   protected readonly inputSchema = DeclineInviteCmdSchema;
   protected readonly outputSchema = DeclineOutputSchema;
 
   async execute(
     command: DeclineInviteCmd,
-    _actorId: string,
+    actorId: string,
   ): Promise<{ cancelWarning?: string }> {
-    const state = await this.getQuestionnaire(command.questionnaireId);
+    const actor = await this.getUser(actorId);
+    const state = await this.getQuestionnaireForEdit(
+      command.questionnaireId,
+      actor,
+    );
     const ar = new QuestionnaireAr(state);
     ar.decline();
     await this.repo.save(ar.state);

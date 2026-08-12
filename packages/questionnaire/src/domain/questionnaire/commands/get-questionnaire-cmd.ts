@@ -1,6 +1,10 @@
 import * as v from 'valibot';
 import type { Questionnaire, QuestionnaireArMeta } from '../entity';
-import type { InternalUcError, QuestionnaireNotFoundUcError } from './errors';
+import type {
+  AccessDeniedUcError,
+  InternalUcError,
+  QuestionnaireNotFoundUcError,
+} from './errors';
 
 export const GetQuestionnaireCmdSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid()),
@@ -16,10 +20,11 @@ export interface GetQuestionnaireCmdMeta {
   input: GetQuestionnaireCmd;
   output: Questionnaire;
   errors: GetQuestionnaireCmdError;
-  requiresAuth: false;
+  requiresAuth: true;
   type: 'query';
 }
 
 export type GetQuestionnaireCmdError =
   | InternalUcError
-  | QuestionnaireNotFoundUcError;
+  | QuestionnaireNotFoundUcError
+  | AccessDeniedUcError;
