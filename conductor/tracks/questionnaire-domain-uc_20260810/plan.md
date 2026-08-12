@@ -14,7 +14,7 @@
 
 - [ ] Task: Создать `QuestionnairePool` тип и валидацию
     - [ ] Добавить в `question.ts`: `QuestionnairePoolSchema`, `QuestionnairePool`
-    - [ ] Поля: inviteText, howToFill?, completionText?, cancelWarning?, questions
+    - [ ] Поля: inviteText?, howToFill?, completionText?, cancelWarning?, questions (обязательно только questions)
     - [ ] Написать тесты валидации
 - [ ] Task: `intention` → `invited`, `IntentionResponse` → `InviteResponse`
     - [ ] entity.ts: статус, types.ts: тип ответа, поле inviteText/howToFill

@@ -10,8 +10,8 @@ Pool — объект с метаданными, а не просто `Question[
 ```typescript
 // packages/questionnaire/src/domain/questionnaire/question.ts
 type QuestionnairePool = {
-  /** Текст приглашения — показывается до начала анкеты */
-  inviteText: string;
+  /** Текст приглашения — для send-invite (S01). Не нужен при прямом start. */
+  inviteText?: string;
   /** Совет «Как заполнять?» (необязательно) */
   howToFill?: string;
   /** Текст при успешном завершении (необязательно) */

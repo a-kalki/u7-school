@@ -23,7 +23,7 @@
 **Как попасть:** инициативно от системы (Путь A). Модуль-владелец вызывает `questionnaireFacade.sendInvite()`.
 **Кому:** пользователю, которому предназначена анкета.
 **Рендеринг:** `TelegramQuestionnaireBotFacade.sendQuestionnaireInvite()`
-**Данные:** `InviteResponse` содержит `inviteText`, `howToFill?`, `questionnaireId`.
+**Данные:** `InviteResponse` содержит `inviteText?`, `howToFill?`, `questionnaireId`.
 
 **Содержание:**
 ```
