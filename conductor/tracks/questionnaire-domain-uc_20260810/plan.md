@@ -32,6 +32,6 @@
 
 ## Фаза 4: Доменный фасад + интеграция
 
-- [ ] Task: QuestionnaireInProcFacade (TDD)
-- [ ] Task: Интеграция с create-api-app.ts
+- [x] Task: QuestionnaireInProcFacade (TDD)
+- [x] Task: Интеграция с create-api-app.ts
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4'
