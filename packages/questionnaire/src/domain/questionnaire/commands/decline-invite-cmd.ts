@@ -17,7 +17,7 @@ export interface DeclineInviteCmdMeta {
   ucName: 'decline-invite';
   arMeta: QuestionnaireArMeta;
   input: DeclineInviteCmd;
-  output: { cancelWarning?: string };
+  output: undefined;
   errors: DeclineInviteCmdError;
   requiresAuth: true;
   type: 'command';

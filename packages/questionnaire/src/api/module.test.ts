@@ -195,12 +195,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     )) as any[];
     const qId = all[0]!.uuid;
 
-    const result = await mod.execute(
-      'decline-invite',
-      { questionnaireId: qId },
-      USER_ID,
-    );
-    expect(result).toBeDefined();
+    await mod.execute('decline-invite', { questionnaireId: qId }, USER_ID);
 
     const q = (await mod.execute(
       'get-questionnaire',

@@ -7,10 +7,6 @@ import {
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
-const DeclineOutputSchema = v.object({
-  cancelWarning: v.optional(v.string()),
-});
-
 export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> {
   protected readonly ucName = 'decline-invite' as const;
   protected readonly ucLabel = 'Отказаться от приглашения на анкету' as const;
@@ -21,12 +17,12 @@ export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> 
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = DeclineInviteCmdSchema;
-  protected readonly outputSchema = DeclineOutputSchema;
+  protected readonly outputSchema = v.undefined();
 
   async execute(
     command: DeclineInviteCmd,
     actorId: string,
-  ): Promise<{ cancelWarning?: string }> {
+  ): Promise<undefined> {
     const actor = await this.getUser(actorId);
     const state = await this.getQuestionnaireForEdit(
       command.questionnaireId,
@@ -35,8 +31,6 @@ export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> 
     const ar = new QuestionnaireAr(state);
     ar.decline();
     await this.repo.save(ar.state);
-
-    const pool = state.questionPool;
-    return { cancelWarning: pool.cancelWarning };
+    return undefined;
   }
 }

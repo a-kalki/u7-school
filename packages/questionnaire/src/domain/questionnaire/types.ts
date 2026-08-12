@@ -8,6 +8,7 @@ export type InviteResponse = {
   questionnaireId: string;
   inviteText?: string;
   whyText?: string;
+  cancelWarning?: string;
 };
 
 /** Ожидание выбора (multiple choice, черновики) */
@@ -48,6 +49,7 @@ export const InviteResponseSchema = v.object({
   questionnaireId: v.string(),
   inviteText: v.optional(v.string()),
   whyText: v.optional(v.string()),
+  cancelWarning: v.optional(v.string()),
 });
 
 export const WaitNextResponseSchema = v.object({

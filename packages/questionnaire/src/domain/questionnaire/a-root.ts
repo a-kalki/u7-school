@@ -63,6 +63,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       questionnaireId: this.state.uuid,
       inviteText: pool.inviteText,
       whyText: pool.whyText,
+      cancelWarning: pool.cancelWarning,
     };
   }
 
