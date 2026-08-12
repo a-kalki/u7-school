@@ -42,10 +42,10 @@ describe('QuestionnaireAr (v2)', () => {
       pool,
     );
 
-    expect(ar.getRespondentId()).toBe('00000000-0000-0000-0000-000000000007');
-    expect(ar.getCurrentState().status).toBe('invited');
-    expect(ar.getCurrentState().questionPool).not.toBeNull();
-    expect(ar.getAnswers()).toEqual([]);
+    expect(ar.state.respondentId).toBe('00000000-0000-0000-0000-000000000007');
+    expect(ar.state.status).toBe('invited');
+    expect(ar.state.questionPool).not.toBeNull();
+    expect(ar.state.answers).toEqual([]);
   });
 
   // ── createInvite ──
@@ -59,7 +59,7 @@ describe('QuestionnaireAr (v2)', () => {
 
     const invite = ar.getInvite();
     expect(invite.type).toBe('invited');
-    expect(invite.questionnaireId).toBe(ar.getCurrentState().uuid);
+    expect(invite.questionnaireId).toBe(ar.state.uuid);
     expect(invite.inviteText).toBe('Приглашаем пройти опрос');
     expect(invite.whyText).toBe('Это улучшит твои метрики');
   });
@@ -81,7 +81,7 @@ describe('QuestionnaireAr (v2)', () => {
       simplePool(),
     );
     ar.decline();
-    expect(ar.getCurrentState().status).toBe('abandoned');
+    expect(ar.state.status).toBe('abandoned');
   });
 
   test('decline на не-invited анкете выбрасывает ошибку', () => {
@@ -102,7 +102,7 @@ describe('QuestionnaireAr (v2)', () => {
     );
     const response = ar.start();
 
-    expect(ar.getCurrentState().status).toBe('in_progress');
+    expect(ar.state.status).toBe('in_progress');
     expect(response.type).toBe('new_question');
     if (response.type === 'new_question') {
       expect(response.question.questionCode).toBe('q1');
@@ -143,11 +143,10 @@ describe('QuestionnaireAr (v2)', () => {
       expect(response.question.questionCode).toBe('q2');
     }
 
-    const answers = ar.getAnswers();
+    const answers = ar.state.answers;
     expect(answers.length).toBe(1);
     expect(answers[0]?.questionCode).toBe('q1');
     expect(answers[0]?.answerCode).toBe('yes');
-    expect(ar.getAnswerText('q1', 'yes')).toBe('Да');
   });
 
   // ── handleAction: text ──
@@ -176,7 +175,7 @@ describe('QuestionnaireAr (v2)', () => {
     const response = ar.handleAction({ type: 'text', value: 'Я разработчик' });
 
     expect(response.type).toBe('new_question');
-    const answers = ar.getAnswers();
+    const answers = ar.state.answers;
     expect(answers.length).toBe(1);
     expect(answers[0]?.answerCode).toBe('text');
     expect(answers[0]?.answerText).toBe('Я разработчик');
@@ -195,8 +194,7 @@ describe('QuestionnaireAr (v2)', () => {
     const response = ar.handleAction({ type: 'callback', value: 'ok' });
 
     expect(response.type).toBe('completed');
-    expect(ar.isCompleted()).toBe(true);
-    expect(ar.getAnswers().length).toBe(2);
+    expect(ar.state.answers.length).toBe(2);
   });
 
   test('getQuestionnaireActionResponse на completed возвращает completed', () => {
@@ -266,8 +264,8 @@ describe('QuestionnaireAr (v2)', () => {
       expect(r4.question.questionCode).toBe('last');
     }
 
-    expect(ar.getAnswers().length).toBe(1);
-    expect(ar.getAnswers()[0]?.answerCode).toBe('b');
+    expect(ar.state.answers.length).toBe(1);
+    expect(ar.state.answers[0]?.answerCode).toBe('b');
   });
 
   // ── abandon ──
@@ -279,11 +277,11 @@ describe('QuestionnaireAr (v2)', () => {
     );
     ar.start();
     ar.abandon();
-    expect(ar.getCurrentState().status).toBe('abandoned');
+    expect(ar.state.status).toBe('abandoned');
     ar.abandon(); // повторно не падает
   });
 
-  test('abandon на completed — без эффекта', () => {
+  test('abandon на completed — выбрасывает ошибку', () => {
     const ar = QuestionnaireAr.create(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
@@ -291,8 +289,7 @@ describe('QuestionnaireAr (v2)', () => {
     ar.start();
     ar.handleAction({ type: 'callback', value: 'yes' });
     ar.handleAction({ type: 'callback', value: 'ok' });
-    ar.abandon();
-    expect(ar.getCurrentState().status).toBe('completed');
+    expect(() => ar.abandon()).toThrow('Анкета не активна');
   });
 
   test('handleAction на завершённой анкете выбрасывает ошибку', () => {
@@ -332,10 +329,9 @@ describe('QuestionnaireAr (v2)', () => {
       simplePool(),
     );
     ar.start();
-    const state = ar.getCurrentState();
 
     // Создаём новый агрегат из сохранённого состояния
-    const restored = new QuestionnaireAr(state);
+    const restored = new QuestionnaireAr(ar.state);
     expect(restored.getQuestionnaireActionResponse().type).toBe('new_question');
 
     // Можем продолжить отвечать

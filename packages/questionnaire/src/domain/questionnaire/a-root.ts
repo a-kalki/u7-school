@@ -13,12 +13,11 @@ const NEXT_BUTTON_PREFIX = 'next:';
 
 /** Агрегат анкеты. */
 export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
-  #engine: QuestionnaireEngine | null = null;
+  #engine: QuestionnaireEngine;
 
   constructor(state: Questionnaire) {
     super(state, QuestionnaireSchema);
-    const pool = state.questionPool;
-    this.#engine = new QuestionnaireEngine(pool.questions);
+    this.#engine = new QuestionnaireEngine(state.questionPool.questions);
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -69,7 +68,6 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   /**
    * Отказывается от приглашения: invited → abandoned.
-   * Выбрасывает событие (через throwBadRequest при неверном статусе).
    */
   decline(): void {
     if (this.state.status !== 'invited') {
@@ -81,8 +79,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   }
 
   /**
-   * Запускает анкету: invited → in_progress, создаёт движок из сохранённого пула,
-   * выдаёт первый вопрос.
+   * Запускает анкету: invited → in_progress, выдаёт первый вопрос.
    */
   start(): QuestionnaireActionResponse {
     if (this.state.status !== 'invited') {
@@ -90,10 +87,6 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
         'Анкета не в статусе invited и не может быть запущена',
       );
     }
-
-    const pool = this.state.questionPool;
-
-    this.#engine = new QuestionnaireEngine(pool.questions);
 
     this.safeUpdate({ status: 'in_progress' });
 
@@ -109,23 +102,6 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       this.throwInternal('Недопустимое чтение кода текущего вопроса.');
     }
     return this.state.currentQuestionCode;
-  }
-
-  isCompleted(): boolean {
-    return this.state.status === 'completed';
-  }
-
-  /** Пул вопросов (снимок) */
-  getPool(): Question[] {
-    return this.state.questionPool.questions;
-  }
-
-  /** Движок — только для внутреннего использования */
-  #getEngine(): QuestionnaireEngine {
-    if (!this.#engine) {
-      this.throwInternal('Движок анкеты не инициализирован');
-    }
-    return this.#engine;
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -253,7 +229,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     explicitValue?: string,
   ): QuestionnaireActionResponse {
     const questionCode = this.currentQuestionCode;
-    const engine = this.#getEngine();
+    const engine = this.#engine;
 
     // Извлекаем значение ответа
     let rawValue: string | string[] | undefined = explicitValue;
@@ -324,7 +300,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   #findAndSetNextQuestion(
     lastSelectedAnswers: string[],
   ): QuestionnaireActionResponse {
-    const engine = this.#getEngine();
+    const engine = this.#engine;
 
     const nextQuestion = engine.getNextQuestion(
       this.state.currentQuestionCode,
@@ -414,39 +390,17 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // ═════════════════════════════════════════════════════════════
 
   abandon(): void {
-    if (this.state.status !== 'in_progress') return;
-    this.safeUpdate({ status: 'abandoned' });
-  }
-
-  getCurrentState(): Questionnaire {
-    return this.state;
-  }
-
-  getAnswers(): Answer[] {
-    return this.state.answers;
-  }
-
-  getRespondentId(): string {
-    return this.state.respondentId;
-  }
-
-  // ═════════════════════════════════════════════════════════════
-  // API для извлечения текстов из пула (делегирует engine)
-  // ═════════════════════════════════════════════════════════════
-
-  /** Текст вопроса по коду */
-  getQuestionText(code: string): string {
-    return this.#getEngine().getQuestionText(code);
-  }
-
-  /** Текст ответа для choice-вопроса */
-  getAnswerText(questionCode: string, answerCode: string): string {
-    return this.#getEngine().getAnswerText(questionCode, answerCode);
-  }
-
-  /** Все варианты ответа для choice-вопроса */
-  getChoices(questionCode: string): { code: string; text: string }[] {
-    return this.#getEngine().getChoices(questionCode);
+    if (
+      this.state.status === 'in_progress' ||
+      this.state.status === 'invited'
+    ) {
+      this.safeUpdate({ status: 'abandoned' });
+      return;
+    }
+    if (this.state.status === 'abandoned') {
+      return;
+    }
+    this.throwBadRequest('Анкета не активна');
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -460,8 +414,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   }
 
   #getQuestion(questionCode: string): Question {
-    const engine = this.#getEngine();
-    const question = engine.getByCode(questionCode);
+    const question = this.#engine.getByCode(questionCode);
     if (!question) {
       this.throwBadRequest(`Вопрос "${questionCode}" не найден в пуле`);
     }
