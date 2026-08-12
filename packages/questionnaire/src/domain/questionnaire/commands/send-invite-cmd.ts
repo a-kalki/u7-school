@@ -1,6 +1,5 @@
 import * as v from 'valibot';
 import type { QuestionnaireArMeta } from '../entity';
-import type { QuestionnairePool } from '../question';
 import { QuestionnairePoolSchema } from '../question';
 import type { BadRequestUcError, InternalUcError } from './errors';
 

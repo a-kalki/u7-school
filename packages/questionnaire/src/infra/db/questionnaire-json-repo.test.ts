@@ -1,11 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import * as v from 'valibot';
-import {
-  type Questionnaire,
-  QuestionnaireSchema,
-} from '../../domain/questionnaire/entity';
+import type { Questionnaire } from '../../domain/questionnaire/entity';
 import { QuestionnaireJsonRepo } from './questionnaire-json-repo';
 
 describe('QuestionnaireJsonRepo', () => {
