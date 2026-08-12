@@ -2,94 +2,80 @@
 
 ## Обзор
 
-Перепроектировать UC слой: `user: User`, pool при создании, статус `invited`, агрегат `create→createInvite/start`, UC сам вызывает botFacade, фасад — чистое делегирование.
+Два пути запуска анкеты, два набора UC. Путь A (инициативный — через фасад): UC вызывает botFacade. Путь B (ответ пользователя — через контроллер): UC возвращает результат, контроллер рендерит.
 
-## FR1 — Агрегат QuestionnaireAr (доработка)
+## FR1 — Агрегат QuestionnaireAr
 
 ```typescript
 // Фабрика — создаёт агрегат с пулом, статус invited
 static create(respondentId: number, pool: Question[]): QuestionnaireAr
 
-// Создать приглашение (возвращает InviteResponse для botFacade)
+// Создать приглашение → InviteResponse (для botFacade)
 createInvite(): InviteResponse
 
-// Запустить анкету (invited → in_progress, engine из сохранённого pool)
+// Запустить анкету (invited → in_progress), использует сохранённый pool
 start(): QuestionnaireActionResponse
 ```
 
-- Статус `invited` вместо `intention`
-- `InviteResponse` вместо `IntentionResponse` (в types.ts)
-- `create()` принимает pool сразу — сохраняет снимок в состоянии
-- `start()` без параметров — использует сохранённый pool
-- Старый `start(pool)` и `createIntention` удалить
-- Старый `startNew` оставить (create + start за один шаг) или сделать хелпером
+- `intention` → `invited`, `IntentionResponse` → `InviteResponse`
+- `create()` сохраняет pool сразу
+- `start()` без параметров
 
 ## FR2 — QuestionnaireBotFacade (интерфейс)
 
 ```typescript
 interface QuestionnaireBotFacade {
-  /** Отправить пользователю приглашение заполнить анкету */
   sendQuestionnaireInvite(user: User, response: InviteResponse): Promise<void>;
-
-  /** Отправить первый вопрос анкеты и захватить управление */
   startQuestionnaire(user: User, response: QuestionnaireActionResponse): Promise<void>;
 }
 ```
 
-Только интерфейс в `packages/questionnaire/src/domain/bot-facade.ts`.
+## FR3 — UC слой
 
-## FR3 — UC слой (все TDD)
+### Путь A — инициативный (через фасад, UC вызывает botFacade)
 
-| UC | Тип | Вход | Логика |
-|---|---|---|---|
-| `create-invite` | command | `{user, pool}` | Ar.create → сохранить → botFacade.sendQuestionnaireInvite |
-| `start-new` | command | `{user, pool}` | Ar.create + ar.start → сохранить → botFacade.startQuestionnaire |
-| `start` | command | `{questionnaireId}` | Загрузить ar → ar.start → сохранить → botFacade.startQuestionnaire |
-| `handle-action` | command | `{questionnaireId, type, value}` | Загрузить → ar.handleAction → сохранить → вернуть |
-| `abandon` | command | `{questionnaireId}` | Загрузить → ar.abandon → сохранить |
-| `get-current` | query | `{questionnaireId}` | Загрузить → ar.getCurrent() |
-| `get-questionnaire` | query | `{uuid}` | Загрузить → вернуть состояние |
-| `get-questionnaires-by-user` | query | `{userId}` | Список анкет пользователя |
+| UC | Вход | Логика |
+|---|---|---|
+| `send-invite` | `{user, pool}` | Ar.create → сохранить → ar.createInvite() → botFacade.sendQuestionnaireInvite |
+| `start` | `{user, pool}` | Ar.create → ar.start() → сохранить → botFacade.startQuestionnaire |
 
-- UC `create-invite` и `start-new` вызывают botFacade внутри (логика в UC)
-- UC `start` вызывает botFacade.startQuestionnaire
-- UC `handle-action` НЕ вызывает botFacade — возвращает результат контроллеру
-- UC принимают `user: User` для команд, `userId` для query
+### Путь B — ответ пользователя (через контроллер, UC возвращает результат)
+
+| UC | Вход | Логика |
+|---|---|---|
+| `start-by-invite` | `{questionnaireId}` | Загрузить ar → ar.start() → сохранить → **return** |
+| `handle-action` | `{questionnaireId, type, value}` | Загрузить ar → ar.handleAction() → сохранить → **return** |
+| `abandon` | `{questionnaireId}` | Загрузить ar → ar.abandon() → сохранить |
+| `get-current` | `{questionnaireId}` | Загрузить ar → ar.getCurrent() |
+| `get-questionnaire` | `{uuid}` | Загрузить → состояние |
+| `get-questionnaires-by-user` | `{userId}` | Список анкет пользователя |
 
 ## FR4 — Доменный фасад (чистое делегирование)
 
 ```typescript
-class QuestionnaireInProcFacade implements QuestionnaireFacade {
-  constructor(private module: QuestionnaireApiModule) {}
-
-  async createInvite(user: User, pool: Question[]): Promise<void> {
-    await this.module.execute('create-invite', { user, pool });
+class QuestionnaireInProcFacade {
+  // Модуль-владелец хочет пригласить пользователя заполнить анкету
+  async sendInvite(user: User, pool: Question[]): Promise<void> {
+    await this.module.execute('send-invite', { user, pool });
   }
 
-  async startNew(user: User, pool: Question[]): Promise<void> {
-    await this.module.execute('start-new', { user, pool });
-  }
-
-  async start(user: User, questionnaireId: string): Promise<void> {
-    await this.module.execute('start', { questionnaireId });
+  // Модуль-владелец хочет сразу запустить анкету для пользователя
+  async start(user: User, pool: Question[]): Promise<void> {
+    await this.module.execute('start', { user, pool });
   }
 }
 ```
 
-Никакой логики. Только `module.execute(...)`.
-
-## FR5 — Резолвер
-
-Убрать `questionnaireEngine`. Добавить `botFacade: QuestionnaireBotFacade`.
+Два метода. Только делегирование.
 
 ## Критерии приёмки
 
-- [ ] Агрегат: `create(pool)` + `createInvite()` + `start()` (без параметров)
-- [ ] Статус `invited`, `InviteResponse`
-- [ ] 8 UC через TDD (тесты → код)
-- [ ] create-invite и start-new вызывают botFacade внутри себя
-- [ ] Фасад — чистое делегирование, без логики
-- [ ] Имена единообразны: UC ↔ aggregate ↔ facade ↔ botFacade
+- [ ] Агрегат: `create(pool)` + `createInvite()` + `start()` без параметров
+- [ ] Статус `invited`, тип `InviteResponse`
+- [ ] `send-invite`, `start` — вызывают botFacade
+- [ ] `start-by-invite`, `handle-action` — return, без botFacade
+- [ ] Фасад: `sendInvite(user, pool)` и `start(user, pool)` — только делегирование
+- [ ] Все 8 UC через TDD
 - [ ] `bun run check:p questionnaire` — чисто
 
 ## За рамками
