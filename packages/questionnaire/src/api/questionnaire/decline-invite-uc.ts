@@ -5,7 +5,7 @@ import {
   DeclineInviteCmdSchema,
 } from '#domain/questionnaire/commands/decline-invite-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
-import { QuestionnaireUseCase } from './questionnaire-uc';
+import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 const DeclineOutputSchema = v.object({
   cancelWarning: v.optional(v.string()),

@@ -5,7 +5,7 @@ import {
   AbandonCmdSchema,
 } from '#domain/questionnaire/commands/abandon-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
-import { QuestionnaireUseCase } from './questionnaire-uc';
+import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {
   protected readonly ucName = 'abandon' as const;

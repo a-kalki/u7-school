@@ -5,7 +5,7 @@ import {
   SendInviteCmdSchema,
 } from '#domain/questionnaire/commands/send-invite-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
-import { QuestionnaireUseCase } from './questionnaire-uc';
+import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class SendInviteUc extends QuestionnaireUseCase<SendInviteCmdMeta> {
   protected readonly ucName = 'send-invite' as const;

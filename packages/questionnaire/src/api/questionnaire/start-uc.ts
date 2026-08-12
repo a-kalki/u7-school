@@ -5,7 +5,7 @@ import {
   StartCmdSchema,
 } from '#domain/questionnaire/commands/start-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
-import { QuestionnaireUseCase } from './questionnaire-uc';
+import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
   protected readonly ucName = 'start' as const;

@@ -6,7 +6,7 @@ import {
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
-import { QuestionnaireUseCase } from './questionnaire-uc';
+import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
   protected readonly ucName = 'handle-action' as const;

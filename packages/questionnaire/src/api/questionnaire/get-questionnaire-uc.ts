@@ -5,7 +5,7 @@ import {
 } from '#domain/questionnaire/commands/get-questionnaire-cmd';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
 import { QuestionnaireSchema } from '../../domain/questionnaire/entity';
-import { QuestionnaireUseCase } from './questionnaire-uc';
+import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireCmdMeta> {
   protected readonly ucName = 'get-questionnaire' as const;
