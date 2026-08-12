@@ -114,4 +114,4 @@ interface MetricQuestion extends Question {
 - [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
 - [1. Концепция метрик](../metrics-conception.md) — формулы агрегации, metricMapping
 - [Дорожная карта](../development-roadmap.md) — Релиз 3
-- [Трек 2.4a — модуль questionnaire](../tracks/metrics-questionnaire_20260810/spec.md) — база
+- [Трек 2.4a — модуль questionnaire](../../archive/metrics-questionnaire_20260810/spec.md) — база

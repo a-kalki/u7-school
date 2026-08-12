@@ -9,5 +9,5 @@
 - [Система сбора метрик](../../metrics-system.md) — родительский документ
 - [2. Questionnaire + EventBus](../../metrics-questionnaire-and-events.md) — техническая спецификация
 - [1. Концепция метрик](../../metrics-conception.md) — формулы агрегации, metricMapping
-- [Трек 2.4a — модуль questionnaire](../metrics-questionnaire_20260810/spec.md) — база
+- [Трек 2.4a — модуль questionnaire](../archive/metrics-questionnaire_20260810/spec.md) — база
 - [Дорожная карта](../../development-roadmap.md) — Релиз 3
