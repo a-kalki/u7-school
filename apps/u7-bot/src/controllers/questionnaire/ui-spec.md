@@ -45,10 +45,9 @@
 > **«Зачем это нужно?»** — только если `whyText` есть в pool.
 >
 > Логика:
-> 1. Клик → editMessage S01: текст остаётся, кнопки **убираются**
-> 2. sendMessage: `whyText` + кнопка `✅ Хорошо`
-> 3. «Хорошо» → sendMessage: новый S01 с полным набором кнопок
-> **«Пропустить»** — переходит к подтверждению (S06a), а не сразу отказывается.
+> 1. sendMessage: `whyText` + кнопка `✅ Хорошо`
+> 2. «Хорошо» → sendMessage: новый S01 с полным набором кнопок
+> **«Пропустить»** — переходит к подтверждению (S06a).
 
 ---
 
@@ -235,12 +234,12 @@
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` |
-| `fill:why:{qId}` | — | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
+| `fill:why:{qId}` | `get-current` | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
+| `fill:invite:{qId}` | `get-current` | sendMessage: новый S01 из InviteResponse |
 | `fill:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
 | `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
-| `fill:current` | — | Возврат к текущему вопросу (S02a/S02b/S03) |
-| `fill:invite:{qId}` | — | sendMessage: новый S01 (восстановление кнопок) |
+| `fill:current` | `get-current` | Возврат к текущему вопросу (S02a/S02b/S03) |
 | `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |

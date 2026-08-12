@@ -56,12 +56,12 @@ class QuestionnaireController extends U7BotController {
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render + `captureInput: questionnaire/fill` |
-| `fill:why:{qId}` | — | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
+| `fill:why:{qId}` | `get-current` | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
+| `fill:invite:{qId}` | `get-current` | sendMessage: новый S01 |
 | `fill:decline:{qId}` | — | `confirm('decline', ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
 | `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
-| `fill:current` | — | Возврат к текущему вопросу |
-| `fill:invite:{qId}` | — | sendMessage: новый S01 |
+| `fill:current` | `get-current` | Возврат к текущему вопросу |
 | `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |
@@ -69,7 +69,7 @@ class QuestionnaireController extends U7BotController {
 
 ### Особенности
 - Подтверждение через `confirm()` из `BotUserStory` (S05a, S06a)
-- `fill:why` и `fill:decline`/`fill:cancel` (первый клик) — не вызывают UC
+- `fill:why` вызывает `get-current` для получения `InviteResponse`; `fill:decline`/`fill:cancel` (первый клик) — не вызывают UC
 - Завершение (S04) — `releaseInput` + `questionnaireCompleted: true`
 - Отмена/отказ (S05b/S06b) — `releaseInput` + cancelWarning из pool
 
