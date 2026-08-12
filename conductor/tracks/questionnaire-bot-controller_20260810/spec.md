@@ -56,12 +56,12 @@ class QuestionnaireController extends U7BotController {
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render + `captureInput: questionnaire/fill` |
-| `fill:why:{qId}` | — | `sendMessage` с whyText |
+| `fill:why:{qId}` | — | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
 | `fill:decline:{qId}` | — | `confirm('decline', ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
 | `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
 | `fill:current` | — | Возврат к текущему вопросу |
-| `fill:invite:{qId}` | — | Возврат к S01 |
+| `fill:invite:{qId}` | — | sendMessage: новый S01 |
 | `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |

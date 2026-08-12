@@ -42,7 +42,12 @@
 | `❔ Зачем это нужно?` | `questionnaire:fill:why:{qId}` | sendMessage с whyText | 📋 |
 | `⏭️ Пропустить` | `questionnaire:fill:decline:{qId}` | → S06a (confirm) | 📋 |
 
-> **«Зачем это нужно?»** — только если `whyText` есть в pool. Отправляет отдельное сообщение с объяснением влияния анкеты на метрики. Приглашение (S01) остаётся.
+> **«Зачем это нужно?»** — только если `whyText` есть в pool.
+>
+> Логика:
+> 1. Клик → editMessage S01: текст остаётся, кнопки **убираются**
+> 2. sendMessage: `whyText` + кнопка `✅ Хорошо`
+> 3. «Хорошо» → sendMessage: новый S01 с полным набором кнопок
 > **«Пропустить»** — переходит к подтверждению (S06a), а не сразу отказывается.
 
 ---
@@ -230,12 +235,12 @@
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` |
-| `fill:why:{qId}` | — | `sendMessage` с whyText |
+| `fill:why:{qId}` | — | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
 | `fill:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
 | `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
 | `fill:current` | — | Возврат к текущему вопросу (S02a/S02b/S03) |
-| `fill:invite:{qId}` | — | Возврат к S01 |
+| `fill:invite:{qId}` | — | sendMessage: новый S01 (восстановление кнопок) |
 | `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |
