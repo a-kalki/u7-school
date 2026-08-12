@@ -1,0 +1,5 @@
+Задача: Объявить QuestionnaireBotFacade (TDD)
+Создан интерфейс QuestionnaireBotFacade с методами:
+- sendQuestionnaireInvite(user, response)
+- startQuestionnaire(user, response)
+Файлы: bot-facade.ts, bot-facade.test.ts, обновлён domain/index.ts
