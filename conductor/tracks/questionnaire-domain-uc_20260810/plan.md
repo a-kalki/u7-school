@@ -4,7 +4,7 @@
 
 ## Фаза 1: Интерфейс QuestionnaireBotFacade
 
-- [ ] Task: Объявить QuestionnaireBotFacade (TDD)
+- [x] Task: Объявить QuestionnaireBotFacade (TDD) `7c675fb`
     - [ ] Написать тест на тип интерфейса
     - [ ] Создать `packages/questionnaire/src/domain/bot-facade.ts`
     - [ ] `sendQuestionnaireInvite(user: User, response: InviteResponse)`
