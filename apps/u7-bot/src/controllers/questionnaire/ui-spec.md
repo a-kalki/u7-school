@@ -23,7 +23,7 @@
 **Как попасть:** инициативно от системы через `sendInvite()`.
 **Кому:** пользователю, которому предназначена анкета.
 **Рендеринг:** `TelegramQuestionnaireBotFacade.sendQuestionnaireInvite()`
-**Данные:** `InviteResponse` содержит `inviteText?`, `howToFill?`, `questionnaireId`.
+**Данные:** `InviteResponse` содержит `inviteText?`, `whyText?`, `questionnaireId`.
 
 **Содержание:**
 ```
@@ -39,10 +39,10 @@
 | Текст | Код | Действие | Статус |
 |-------|-----|----------|--------|
 | `▶️ Начать заполнение` | `questionnaire:fill:start:{qId}` | → S02 | 📋 |
-| `❔ Как заполнять?` | `questionnaire:fill:howto:{qId}` | popup с howToFill | 📋 |
+| `❔ Зачем это нужно?` | `questionnaire:fill:why:{qId}` | sendMessage с whyText | 📋 |
 | `⏭️ Пропустить` | `questionnaire:fill:decline:{qId}` | → S06a (confirm) | 📋 |
 
-> **«Как заполнять?»** — только если `howToFill` есть в pool. `answerCallbackQuery` (popup).
+> **«Зачем это нужно?»** — только если `whyText` есть в pool. Отправляет отдельное сообщение с объяснением влияния анкеты на метрики. Приглашение (S01) остаётся.
 > **«Пропустить»** — переходит к подтверждению (S06a), а не сразу отказывается.
 
 ---
@@ -97,7 +97,10 @@
 | `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | 📋 |
 | `▶️ Далее` | `questionnaire:fill:next:{qId}` | 📋 |
 
-**Логика:** клик → toggle (editMessage), «Далее» → фиксация → дальше.
+**Логика:**
+- клик → toggle (editMessage)
+- «Далее» → фиксация → следующий вопрос.
+- «Далее» показывается только есть хоть один выбор
 
 ---
 
@@ -168,7 +171,7 @@
 
 **Содержание:**
 ```
-{cancelWarning или дефолт «Анкета прервана. Вы можете начать заново, если потребуется.»}
+«Анкета прервана.»
 ```
 
 **Кнопки:**
@@ -209,7 +212,7 @@
 
 **Содержание:**
 ```
-{cancelWarning или дефолт «Анкета пропущена.»}
+«Анкета пропущена.»
 ```
 
 **Кнопки:**
@@ -227,7 +230,7 @@
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` |
-| `fill:howto:{qId}` | — | `answerCallbackQuery` с howToFill |
+| `fill:why:{qId}` | — | `sendMessage` с whyText |
 | `fill:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
 | `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |

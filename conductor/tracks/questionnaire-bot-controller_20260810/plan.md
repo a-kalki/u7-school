@@ -37,7 +37,7 @@
     - [ ] `apps/u7-bot/src/controllers/questionnaire/controller.ts`, name = 'questionnaire'
 - [ ] Task: Создать FillStory (TDD)
     - [ ] Тест: `fill:start:{qId}` → UC start-by-invite → captureInput
-    - [ ] Тест: `fill:howto:{qId}` → answerCallbackQuery
+    - [ ] Тест: `fill:why:{qId}` → sendMessage с whyText
     - [ ] Тест: `fill:decline:{qId}` → confirm → S06a
     - [ ] Тест: `fill:decline-confirm:{qId}` → UC decline-invite → S06b
     - [ ] Тест: `fill:cancel-confirm:{qId}` → UC abandon → S05b

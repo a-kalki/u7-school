@@ -12,8 +12,8 @@ Pool — объект с метаданными, а не просто `Question[
 type QuestionnairePool = {
   /** Текст приглашения — для send-invite (S01). Не нужен при прямом start. */
   inviteText?: string;
-  /** Совет «Как заполнять?» (необязательно) */
-  howToFill?: string;
+  /** Объяснение «Зачем это нужно» — влияние на метрики. Показывается отдельным сообщением. */
+  whyText?: string;
   /** Текст при успешном завершении (необязательно) */
   completionText?: string;
   /** Текст при отмене / выходе (необязательно) */
@@ -42,7 +42,7 @@ start(): QuestionnaireActionResponse
 ```
 
 - `intention` → `invited`, `IntentionResponse` → `InviteResponse`
-- `InviteResponse` включает `inviteText` и `howToFill` из pool
+- `InviteResponse` включает `inviteText` и `whyText` из pool
 - `create()` сохраняет весь `QuestionnairePool`
 - `decline()` — invited → abandoned, выбрасывает событие для модуля-владельца
 - Старые методы удалить

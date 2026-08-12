@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Централизовать `shortIds` в `BotUiApp`, добавить `send()` для инициативной отправки, реализовать `TelegramQuestionnaireBotFacade` (интерфейс из первого трека), создать контроллер questionnaire со стори `fill`. Поддерживает 6 экранов: S01 (приглашение), S02a/S02b (выбор), S03 (текст), S04 (завершение), S05 (отмена), S06 (отказ).
+Централизовать `shortIds` в `BotUiApp`, добавить `send()` для инициативной отправки, реализовать `TelegramQuestionnaireBotFacade` (интерфейс из первого трека), создать контроллер questionnaire со стори `fill`. Поддерживает 10 экранов: S01 (приглашение), S02a/S02b (выбор), S03 (текст), S04 (завершение), S05a/S05b (отмена), S06a/S06b (отказ).
 
 ## FR1 — shortIds → BotUiApp
 
@@ -30,7 +30,7 @@ class BotUiApp {
 - Рендерит S01: `📋 *Анкета*` + `inviteText`
 - Кнопки:
   - `▶️ Начать заполнение` → `questionnaire:fill:start:{qId}`
-  - `❔ Как заполнять?` → `questionnaire:fill:howto:{qId}` (только если `howToFill` есть)
+  - `❔ Зачем это нужно?` → `questionnaire:fill:why:{qId}` (только если `whyText` есть)
   - `⏭️ Пропустить` → `questionnaire:fill:decline:{qId}`
 - Вызывает `uiApp.send(telegramId, command)`
 
@@ -56,7 +56,7 @@ class QuestionnaireController extends U7BotController {
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render + `captureInput: questionnaire/fill` |
-| `fill:howto:{qId}` | — | `answerCallbackQuery` с howToFill |
+| `fill:why:{qId}` | — | `sendMessage` с whyText |
 | `fill:decline:{qId}` | — | `confirm('decline', ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
 | `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
@@ -69,7 +69,7 @@ class QuestionnaireController extends U7BotController {
 
 ### Особенности
 - Подтверждение через `confirm()` из `BotUserStory` (S05a, S06a)
-- `fill:howto` и `fill:decline`/`fill:cancel` (первый клик) — не вызывают UC
+- `fill:why` и `fill:decline`/`fill:cancel` (первый клик) — не вызывают UC
 - Завершение (S04) — `releaseInput` + `questionnaireCompleted: true`
 - Отмена/отказ (S05b/S06b) — `releaseInput` + cancelWarning из pool
 
@@ -82,8 +82,8 @@ class QuestionnaireController extends U7BotController {
 
 - [ ] `shortIds` в `BotUiApp`
 - [ ] `BotUiApp.send()` отправляет и управляет activeHandler
-- [ ] `TelegramQuestionnaireBotFacade` — оба метода, 6 экранов
-- [ ] Контроллер + стори fill — 7 обработчиков, включая howto и decline
+- [ ] `TelegramQuestionnaireBotFacade` — оба метода, 10 экранов
+- [ ] Контроллер + стори fill — 11 обработчиков, включая why и decline-confirm
 - [ ] `bun run check` — чисто
 
 ## За рамками
