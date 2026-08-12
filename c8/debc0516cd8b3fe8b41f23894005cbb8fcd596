@@ -1,0 +1,15 @@
+Задача: Фазы 2-3 — QuestionnairePool, агрегат v2, 9 UC
+Созданы/изменены файлы:
+- domain/questionnaire/question.ts — QuestionnairePoolSchema, QuestionnairePool
+- domain/questionnaire/entity.ts — 'intention' → 'invited'
+- domain/questionnaire/types.ts — IntentionResponse → InviteResponse
+- domain/questionnaire/a-root.ts — новый агрегат: create(pool), createInvite(), decline(), start() без параметров
+- domain/questionnaire/a-root.test.ts — 19 тестов
+- domain/questionnaire/question.test.ts — 5 тестов валидации
+- domain/module.ts — убран questionnaireEngine, добавлен botFacade
+- api/questionnaire/uc-metas.ts — 9 UC meta-типов
+- api/questionnaire/send-invite-uc.ts, start-uc.ts, start-by-invite-uc.ts, decline-invite-uc.ts
+- api/questionnaire/handle-action-uc.ts, abandon-uc.ts, get-current-uc.ts (обновлены)
+- api/questionnaire/questionnaire-uc.ts — упрощён (убрана getActiveQuestionnaire)
+- api/module.ts — 9 UC зарегистрированы
+- api/module.test.ts — 10 тестов для всех UC
