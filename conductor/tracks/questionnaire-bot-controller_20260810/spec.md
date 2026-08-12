@@ -55,19 +55,23 @@ class QuestionnaireController extends U7BotController {
 
 | Событие | UC | Действие |
 |---|---|---|
-| `fill:start:{qId}` | `start-by-invite` | Render ответа + `captureInput: questionnaire/fill` |
-| `fill:howto:{qId}` | — | `answerCallbackQuery` с howToFill из pool |
-| `fill:decline:{qId}` | `decline-invite` | Render cancelWarning |
-| `fill:answer:{qId}:{aCode}` | `handle-action({type:'select', value:aCode})` | Render ответа |
-| `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render ответа |
-| text message | `handle-action({type:'text', value:text})` | Render ответа |
-| `/cancel` | `abandon({questionnaireId})` | Render cancelWarning + releaseInput |
+| `fill:start:{qId}` | `start-by-invite` | Render + `captureInput: questionnaire/fill` |
+| `fill:howto:{qId}` | — | `answerCallbackQuery` с howToFill |
+| `fill:decline:{qId}` | — | `confirm('decline', ...)` → S06a |
+| `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
+| `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
+| `fill:current` | — | Возврат к текущему вопросу |
+| `fill:invite:{qId}` | — | Возврат к S01 |
+| `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
+| `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
+| text message | `handle-action({type:'text'})` | Render |
+| `/cancel` | — | `confirm('cancel', ...)` → S05a |
 
 ### Особенности
-- `fill:howto` — не вызывает UC, показывает текст через `answerCallbackQuery` (popup)
-- `fill:decline` — UC `decline-invite` (новый, 9-й UC)
+- Подтверждение через `confirm()` из `BotUserStory` (S05a, S06a)
+- `fill:howto` и `fill:decline`/`fill:cancel` (первый клик) — не вызывают UC
 - Завершение (S04) — `releaseInput` + `questionnaireCompleted: true`
-- Отмена/отказ (S05/S06) — `releaseInput` + cancelWarning из pool
+- Отмена/отказ (S05b/S06b) — `releaseInput` + cancelWarning из pool
 
 ## FR5 — Очистка OnboardingController
 

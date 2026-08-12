@@ -37,12 +37,16 @@
     - [ ] `apps/u7-bot/src/controllers/questionnaire/controller.ts`, name = 'questionnaire'
 - [ ] Task: Создать FillStory (TDD)
     - [ ] Тест: `fill:start:{qId}` → UC start-by-invite → captureInput
-    - [ ] Тест: `fill:howto:{qId}` → answerCallbackQuery с howToFill
-    - [ ] Тест: `fill:decline:{qId}` → UC decline-invite → cancelWarning
+    - [ ] Тест: `fill:howto:{qId}` → answerCallbackQuery
+    - [ ] Тест: `fill:decline:{qId}` → confirm → S06a
+    - [ ] Тест: `fill:decline-confirm:{qId}` → UC decline-invite → S06b
+    - [ ] Тест: `fill:cancel-confirm:{qId}` → UC abandon → S05b
+    - [ ] Тест: `fill:current` → возврат к вопросу (editMessage)
+    - [ ] Тест: `fill:invite:{qId}` → возврат к S01
     - [ ] Тест: `fill:answer:{qId}:{aCode}` → UC handle-action(type=select) → render
     - [ ] Тест: `fill:next:{qId}` → UC handle-action(type=next-btn) → render
     - [ ] Тест: text message → UC handle-action(type=text) → render
-    - [ ] Тест: cancel → UC abandon → cancelWarning + releaseInput
+    - [ ] Тест: /cancel → confirm → S05a
     - [ ] Реализовать FillStory
 - [ ] Task: Зарегистрировать в create-ui-app.ts
     - [ ] `bun run check:a u7-bot` — чисто

@@ -12,15 +12,15 @@
 
 ## Путь пользователя
 
-Два варианта входа:
-- **Инициативный (Путь A):** модуль-владелец вызывает `questionnaireFacade.sendInvite(user, pool)` или `start(user, pool)`. Система отправляет пользователю сообщение.
-- **Ответный (Путь B):** пользователь нажимает кнопку и попадает в диалог с анкетой.
+Два варианта входа в анкету:
+- **Через приглашение (sendInvite):** модуль-владелец вызывает `facade.sendInvite(user, pool)` → S01 → пользователь принимает → S02.
+- **Сразу (start):** модуль-владелец вызывает `facade.start(user, pool)` → пользователь получает сразу первый вопрос (S02), без приглашения.
 
 ---
 
 ## S01 — Приглашение (📋 invite)
 
-**Как попасть:** инициативно от системы (Путь A). Модуль-владелец вызывает `questionnaireFacade.sendInvite()`.
+**Как попасть:** инициативно от системы через `sendInvite()`.
 **Кому:** пользователю, которому предназначена анкета.
 **Рендеринг:** `TelegramQuestionnaireBotFacade.sendQuestionnaireInvite()`
 **Данные:** `InviteResponse` содержит `inviteText?`, `howToFill?`, `questionnaireId`.
@@ -29,7 +29,7 @@
 ```
 📋 *Анкета*
 
-{inviteText}
+{inviteText или дефолт «Заполните, пожалуйста, анкету.»}
 
 Для отмены в любой момент нажмите /cancel.
 ```
@@ -40,19 +40,18 @@
 |-------|-----|----------|--------|
 | `▶️ Начать заполнение` | `questionnaire:fill:start:{qId}` | → S02 | 📋 |
 | `❔ Как заполнять?` | `questionnaire:fill:howto:{qId}` | popup с howToFill | 📋 |
-| `⏭️ Пропустить` | `questionnaire:fill:decline:{qId}` | → S06 | 📋 |
+| `⏭️ Пропустить` | `questionnaire:fill:decline:{qId}` | → S06a (confirm) | 📋 |
 
-> **«Как заполнять?»** — показывается только если `howToFill` есть в pool. Показывает текст через `answerCallbackQuery` (всплывающее окно), не меняя экран.
-> **«Пропустить»** — вызывает UC `decline-invite`, анкета → abandoned.
-> Сообщение отправляется одноразово, без captureInput.
+> **«Как заполнять?»** — только если `howToFill` есть в pool. `answerCallbackQuery` (popup).
+> **«Пропустить»** — переходит к подтверждению (S06a), а не сразу отказывается.
 
 ---
 
-## S02a — Вопрос с одиночным выбором (🔘 single choice)
+## S02a — Одиночный выбор (🔘 single choice)
 
-**Как попасть:** через S01 (после «Начать») или после ответа на предыдущий вопрос.
+**Как попасть:** S01 (Начать) → S02a, или предыдущий вопрос → S02a, или сразу от `start()` (без S01).
 **Кому:** пользователь в процессе заполнения.
-**Рендеринг:** FillStory → UC `start-by-invite` / UC `handle-action` → render
+**Рендеринг:** FillStory → UC `start-by-invite` / `handle-action` → render
 
 **Содержание:**
 ```
@@ -71,14 +70,12 @@
 | `2` | `questionnaire:fill:answer:{qId}:{aCode2}` | 📋 |
 | `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | 📋 |
 
-**Логика:**
-- Клик → UC `handle-action({type:'select', value:answerCode})`
-- Ответ сразу фиксируется, переход к следующему вопросу или завершению
-- Предыдущий вопрос — editMessage (с отмеченным ответом), новый — sendMessage
+**Логика:** клик → UC `handle-action({type:'select'})` → фиксация → следующий вопрос / завершение.
+Предыдущий — editMessage, новый — sendMessage.
 
 ---
 
-## S02b — Вопрос с множественным выбором (☑️ multiple choice)
+## S02b — Множественный выбор (☑️ multiple choice)
 
 **Как попасть:** аналогично S02a.
 
@@ -100,10 +97,7 @@
 | `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | 📋 |
 | `▶️ Далее` | `questionnaire:fill:next:{qId}` | 📋 |
 
-**Логика:**
-- Клик по номеру → UC `handle-action` переключает вариант (toggle)
-- Сообщение обновляется через editMessage — флажки [ ]/[x] меняются
-- «Далее» → UC `handle-action({type:'next-btn'})` фиксирует выбор и переходит дальше
+**Логика:** клик → toggle (editMessage), «Далее» → фиксация → дальше.
 
 ---
 
@@ -120,18 +114,14 @@
 
 **Кнопки:** отсутствуют
 
-**Логика:**
-- Пользователь вводит текст как обычное сообщение
-- FillStory.handleMessage → UC `handle-action({type:'text', value:text})`
-- Ответ → `answerText`, переход к следующему вопросу или завершению
+**Логика:** текст → `handle-action({type:'text'})` → `answerText` → дальше.
 
 ---
 
 ## S04 — Завершение (✅ completed)
 
 **Как попасть:** после последнего ответа.
-**Кому:** пользователь завершил анкету.
-**Данные:** `completionText` из pool (или дефолт).
+**Данные:** `completionText` из pool (или дефолт «Спасибо! Ваша анкета принята.»).
 
 **Содержание:**
 ```
@@ -146,20 +136,39 @@
 |-------|-----|--------|
 | `↩️ Главное меню` | `app:main-menu` | 📋 |
 
-**Логика:**
-- `releaseInput` — освобождение ввода
-- `questionnaireCompleted: true` — сигнал для модуля-владельца
+**Логика:** `releaseInput`, `questionnaireCompleted: true`.
 
 ---
 
 ## S05 — Отмена (🚫 cancelled)
 
-**Как попасть:** `/cancel` на любом экране анкеты.
-**Данные:** `cancelWarning` из pool (или дефолт).
+### S05a — Подтверждение отмены
+
+**Как попасть:** `/cancel` на любом экране анкеты (S02/S03).
+**Рендеринг:** FillStory.handleCancel → `confirm()` из BotUserStory
 
 **Содержание:**
 ```
+Вы уверены, что хотите прервать анкету?
+
 {cancelWarning}
+```
+
+**Кнопки:**
+
+| Текст | Код | Статус |
+|-------|-----|--------|
+| `✅ Да, прервать` | `questionnaire:fill:cancel-confirm:{qId}` | 📋 |
+| `❌ Нет, продолжить` | `questionnaire:fill:current` → возврат к вопросу | 📋 |
+
+### S05b — Отменено
+
+**Как попасть:** «Да, прервать» на S05a.
+**Рендеринг:** FillStory → UC `abandon({questionnaireId})`
+
+**Содержание:**
+```
+{cancelWarning или дефолт «Анкета прервана. Вы можете начать заново, если потребуется.»}
 ```
 
 **Кнопки:**
@@ -168,20 +177,39 @@
 |-------|-----|--------|
 | `↩️ Главное меню` | `app:main-menu` | 📋 |
 
-**Логика:**
-- FillStory.handleCancel → UC `abandon({questionnaireId})`
-- Статус → `abandoned`, `releaseInput`
+**Логика:** статус → `abandoned`, `releaseInput`.
 
 ---
 
 ## S06 — Отказ от приглашения (⏭️ declined)
 
+### S06a — Подтверждение отказа
+
 **Как попасть:** кнопка «⏭️ Пропустить» на S01.
-**Данные:** `cancelWarning` из pool (или дефолт).
+**Рендеринг:** FillStory → `confirm()` из BotUserStory
 
 **Содержание:**
 ```
+Вы уверены, что хотите пропустить анкету?
+
 {cancelWarning}
+```
+
+**Кнопки:**
+
+| Текст | Код | Статус |
+|-------|-----|--------|
+| `✅ Да, пропустить` | `questionnaire:fill:decline-confirm:{qId}` | 📋 |
+| `❌ Нет, вернуться` | `questionnaire:fill:invite:{qId}` → S01 | 📋 |
+
+### S06b — Отказ подтверждён
+
+**Как попасть:** «Да, пропустить» на S06a.
+**Рендеринг:** FillStory → UC `decline-invite({questionnaireId})`
+
+**Содержание:**
+```
+{cancelWarning или дефолт «Анкета пропущена.»}
 ```
 
 **Кнопки:**
@@ -190,29 +218,31 @@
 |-------|-----|--------|
 | `↩️ Главное меню` | `app:main-menu` | 📋 |
 
-**Логика:**
-- FillStory → UC `decline-invite({questionnaireId})`
-- Статус → `abandoned`
+**Логика:** статус → `abandoned`.
 
 ---
 
 ## Стори fill — обработчики
 
-| Событие | Данные | UC | Ответ |
-|---|---|---|---|
-| Начало | `fill:start:{qId}` | `start-by-invite` | Render + `captureInput: questionnaire/fill` |
-| Как заполнять? | `fill:howto:{qId}` | — | `answerCallbackQuery` с текстом howToFill |
-| Отказ | `fill:decline:{qId}` | `decline-invite` | CancelWarning текст |
-| Выбор ответа | `fill:answer:{qId}:{aCode}` | `handle-action({type:'select', value:aCode})` | Render |
-| Далее (multiple) | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
-| Текстовый ввод | text message | `handle-action({type:'text', value:text})` | Render |
-| Отмена | `/cancel` | `abandon({questionnaireId})` | CancelWarning + releaseInput |
+| Событие | UC | Действие |
+|---|---|---|
+| `fill:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` |
+| `fill:howto:{qId}` | — | `answerCallbackQuery` с howToFill |
+| `fill:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
+| `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
+| `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
+| `fill:current` | — | Возврат к текущему вопросу (S02a/S02b/S03) |
+| `fill:invite:{qId}` | — | Возврат к S01 |
+| `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
+| `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
+| text message | `handle-action({type:'text'})` | Render |
+| `/cancel` | — | `confirm('cancel', qId, ...)` → S05a |
 
 ---
 
 ## Форматирование MarkdownV2
 
 - Вопросы: `*{текст}*` (жирный)
-- Single choice: номера + `( )` / `(x)`
-- Multiple choice: номера + `[ ]` / `[x]`
+- Single choice: `( )` / `(x)`
+- Multiple choice: `[ ]` / `[x]`
 - Все тексты — `escapeMarkdown()`
