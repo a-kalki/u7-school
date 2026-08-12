@@ -1,3 +1,4 @@
+export * from './bot-facade';
 export * from './facade';
 export * from './module';
 export * from './questionnaire/a-root';
