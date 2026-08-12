@@ -2,65 +2,79 @@
 
 ## Фаза 1: Интерфейс QuestionnaireBotFacade
 
-- [ ] Task: Объявить QuestionnaireBotFacade
+- [ ] Task: Объявить QuestionnaireBotFacade (TDD)
     - [ ] Написать тест на тип интерфейса (компиляция)
     - [ ] Создать `packages/questionnaire/src/domain/bot-facade.ts`
-    - [ ] Интерфейс: `startQuestionnaire(user: User, response: QuestionnaireActionResponse): Promise<void>`
+    - [ ] `sendQuestionnaireInvite(user: User, response: InviteResponse): Promise<void>`
+    - [ ] `startQuestionnaire(user: User, response: QuestionnaireActionResponse): Promise<void>`
     - [ ] Экспорт в domain/index.ts
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1'
 
-## Фаза 2: Агрегат — проверить поддержку intention+start
+## Фаза 2: Агрегат — переработка API
 
-- [ ] Task: Проверить/поправить QuestionnaireAr для intention+start цепочки
-    - [ ] Проверить что `createIntention` + `start(pool)` работают корректно
-    - [ ] Проверить что `getCurrent()` для intention возвращает IntentionResponse
-    - [ ] При необходимости — доработать агрегат
-    - [ ] Написать/обновить тесты агрегата
-    - [ ] `bun run check:p questionnaire` — чисто
+- [ ] Task: Переименовать `intention` → `invited`, `IntentionResponse` → `InviteResponse`
+    - [ ] Обновить QuestionnaireStatusSchema в entity.ts
+    - [ ] Обновить InviteResponse в types.ts
+    - [ ] Обновить все ссылки в агрегате и тестах
+- [ ] Task: `static create(respondentId, pool)` — фабрика с pool
+    - [ ] Написать тесты: создаёт агрегат, статус invited, pool сохранён
+    - [ ] Реализовать: сохраняет pool сразу, не создаёт engine
+- [ ] Task: `createInvite()` — возвращает InviteResponse
+    - [ ] Написать тесты: для invited возвращает InviteResponse, для других статусов — ошибка
+    - [ ] Реализовать
+- [ ] Task: `start()` — без параметров, использует сохранённый pool
+    - [ ] Написать тесты: invited → in_progress, engine из pool, первый вопрос
+    - [ ] Написать тесты: ошибка если не invited
+    - [ ] Реализовать
+- [ ] Task: Удалить старые методы
+    - [ ] Удалить `static createIntention`
+    - [ ] Удалить `start(pool)` с параметром
+    - [ ] `startNew` оставить как хелпер (create + start)
+- [ ] Task: `bun run check:p questionnaire` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 2'
 
-## Фаза 3: UC слой — start-new, create-intention, start
+## Фаза 3: UC слой — 8 UC через TDD
 
 - [ ] Task: Обновить uc-metas.ts
     - [ ] `user: User` для команд, `userId` для query
-    - [ ] Типизировать output (не `unknown`)
+    - [ ] Типизировать output
     - [ ] Меты для всех 8 UC
-- [ ] Task: create-intention UC (TDD)
-    - [ ] Написать тесты: создаёт intention, возвращает questionnaireId, ошибка если уже есть активная
-    - [ ] Реализовать UC
-- [ ] Task: start UC (TDD)
-    - [ ] Написать тесты: запускает intention анкету с pool, ошибка если не intention
-    - [ ] Реализовать UC
+- [ ] Task: create-invite UC (TDD)
+    - [ ] Тест: Ar.create → сохранить → botFacade.sendQuestionnaireInvite вызван
+    - [ ] Реализация
 - [ ] Task: start-new UC (TDD)
-    - [ ] Написать тесты: создаёт и запускает, возвращает QuestionnaireActionResponse
-    - [ ] Реализовать UC (переименовать старый start)
+    - [ ] Тест: Ar.create + ar.start → сохранить → botFacade.startQuestionnaire вызван
+    - [ ] Реализация
+- [ ] Task: start UC (TDD)
+    - [ ] Тест: загрузить ar → ar.start → сохранить → botFacade.startQuestionnaire вызван
+    - [ ] Тест: ошибка если не invited
+    - [ ] Реализация
 - [ ] Task: handle-action UC (TDD)
-    - [ ] Обновить тесты: вход `{questionnaireId, type, value}` вместо telegramId
-    - [ ] Обновить реализацию
+    - [ ] Тест: вход `{questionnaireId, type, value}`, НЕ вызывает botFacade
+    - [ ] Реализация
 - [ ] Task: abandon UC (TDD)
-    - [ ] Обновить тесты: вход `{questionnaireId}` вместо telegramId
-    - [ ] Обновить реализацию
-- [ ] Task: get-current UC (новый, TDD)
-    - [ ] Написать тесты
-    - [ ] Реализовать
-- [ ] Task: get-questionnaire, get-questionnaires-by-user (обновить)
-    - [ ] `userId` вместо telegramId в get-questionnaires-by-user
+    - [ ] Тест: вход `{questionnaireId}`
+    - [ ] Реализация
+- [ ] Task: get-current UC (TDD)
+    - [ ] Тест: возвращает текущее состояние
+    - [ ] Реализация
+- [ ] Task: get-questionnaire, get-questionnaires-by-user (обновить userId)
 - [ ] Task: Обновить QuestionnaireApiModule и резолвер
     - [ ] Убрать `questionnaireEngine`
     - [ ] Добавить `botFacade: QuestionnaireBotFacade`
-    - [ ] Обновить список UC в модуле
+    - [ ] Зарегистрировать все 8 UC
     - [ ] `bun run check:p questionnaire` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 3'
 
 ## Фаза 4: Доменный фасад + интеграция
 
 - [ ] Task: QuestionnaireInProcFacade (TDD)
-    - [ ] Написать тесты: startNew делегирует в UC + вызывает botFacade
-    - [ ] Написать тесты: createIntention делегирует в UC
-    - [ ] Написать тесты: start делегирует в UC + вызывает botFacade
-    - [ ] Реализовать фасад — чистое делегирование в `this.module.execute(...)`
+    - [ ] Тест: createInvite → module.execute('create-invite', ...)
+    - [ ] Тест: startNew → module.execute('start-new', ...)
+    - [ ] Тест: start → module.execute('start', ...)
+    - [ ] Реализация — только делегирование
 - [ ] Task: Интеграция с create-api-app.ts
-    - [ ] Пробросить `userFacade` в резолвер questionnaire
-    - [ ] Замокать `botFacade` на уровне create-api-app (пока нет реализации)
+    - [ ] Замокать `botFacade` (пока нет реализации)
+    - [ ] Пробросить в резолвер questionnaire
     - [ ] `bun run check` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4'
