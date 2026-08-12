@@ -10,6 +10,7 @@ import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
 import { createBot } from './bot';
 import { loadConfig } from './config';
+import type { SessionData } from './context';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { connectUiApp } from './handlers/connect-ui-app';
@@ -18,6 +19,9 @@ import { TelegramLogger } from './infra/logger';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 const config = loadConfig();
+
+// ══ Общее хранилище сессий (Grammy + U7BotUiApp) ══
+const sessionMap = new Map<number, SessionData>();
 
 // ══ Инициализация логгера ══
 const consoleLogger = new ConsoleLogger();
@@ -30,12 +34,21 @@ setGlobalLogger(loggers);
 // (TelegramLogger понадобится bot, который мы создадим ниже)
 const logger = loggers;
 
-const bot = createBot(config.botToken);
+const bot = createBot(config.botToken, sessionMap);
 const tgFacade = new TelegramTgFacade(bot);
 
 const apiBundle = createApiApp(config, logger, tgFacade);
 const { userFacade } = apiBundle;
 const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
+
+// ══ Настраиваем транспорт для uiApp.send() ══
+uiApp.setTgTransport(bot.api, {
+  read: async (telegramId: number) =>
+    sessionMap.get(telegramId) ?? { activeHandler: null },
+  write: async (telegramId: number, session: SessionData) => {
+    sessionMap.set(telegramId, session);
+  },
+});
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {

@@ -147,11 +147,11 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     if (appCtrl) {
       const response = await appCtrl.handleWelcome(actor);
       if (response)
-        return this.#compressResponse(this.#prefixResponse('app', response));
+        return this.compressResponse(this.prefixResponse('app', response));
     }
     const items = await this.collectMainMenu(actor);
     const keyboard = this.#toKeyboard(items);
-    return this.#compressResponse({
+    return this.compressResponse({
       sendMessage: {
         text: 'Выберите действие:',
         keyboard: keyboard ?? undefined,
@@ -167,9 +167,9 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     if (appCtrl) {
       const response = await appCtrl.handleHelpMessage(actor);
       if (response)
-        return this.#compressResponse(this.#prefixResponse('app', response));
+        return this.compressResponse(this.prefixResponse('app', response));
     }
-    return this.#compressResponse({
+    return this.compressResponse({
       sendMessage: { text: 'Нет доступных пунктов меню.' },
     });
   }
@@ -229,7 +229,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     this.#applyCapturedInput(session, controllerName, response);
 
     // Добавляем префикс контроллера к кнопкам (стори не знают о контроллере)
-    const prefixed = this.#prefixResponse(controllerName, response);
+    const prefixed = this.prefixResponse(controllerName, response);
 
     if (prefixed.delegate) {
       const delegateResponse = await controller.handleCallback(
@@ -237,12 +237,12 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
         actor,
         session,
       );
-      return this.#compressResponse(
+      return this.compressResponse(
         this.#mergeResponses(prefixed, delegateResponse),
       );
     }
 
-    return this.#compressResponse(prefixed);
+    return this.compressResponse(prefixed);
   }
 
   // ── Обработка сообщений ──
@@ -256,7 +256,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     if (!activeHandler) return null;
 
     if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
-      return this.#compressResponse(
+      return this.compressResponse(
         (await this.handleTimeout(actor, session)) ?? {
           releaseInput: true,
         },
@@ -269,9 +269,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
 
     const response = await controller.handleMessage(update, actor, session);
     this.#applyCapturedInput(session, ctrlName ?? '', response);
-    return this.#compressResponse(
-      this.#prefixResponse(ctrlName ?? '', response),
-    );
+    return this.compressResponse(this.prefixResponse(ctrlName ?? '', response));
   }
 
   // ── Обработка отмены ──
@@ -296,9 +294,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       session.activeHandler = null;
     }
 
-    return this.#compressResponse(
-      this.#prefixResponse(ctrlName ?? '', response),
-    );
+    return this.compressResponse(this.prefixResponse(ctrlName ?? '', response));
   }
 
   // ── Обработка таймаута ──
@@ -323,9 +319,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       session.activeHandler = null;
     }
 
-    return this.#compressResponse(
-      this.#prefixResponse(ctrlName ?? '', response),
-    );
+    return this.compressResponse(this.prefixResponse(ctrlName ?? '', response));
   }
 
   // ── Сжатие / разжатие id ──
@@ -395,7 +389,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
   /**
    * Обходит BotResponse и сжимает все кнопки (code).
    */
-  #compressResponse(response: BotResponse): BotResponse {
+  protected compressResponse(response: BotResponse): BotResponse {
     const compressKeyboard = (
       kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
     ): typeof kb => {
@@ -443,7 +437,10 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
    * Добавляет префикс контроллера ко всем кодам кнопок в ответе.
    * Стори не знают о контроллере — префикс добавляет UiApp.
    */
-  #prefixResponse(controllerName: string, response: BotResponse): BotResponse {
+  protected prefixResponse(
+    controllerName: string,
+    response: BotResponse,
+  ): BotResponse {
     const prefixCode = (code: string): string => {
       // Уже начинается с префикса этого контроллера — не дублируем
       if (code.startsWith(`${controllerName}:`)) return code;

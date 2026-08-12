@@ -15,7 +15,7 @@
 
 ## Фаза 2: BotUiApp.send()
 
-- [ ] Task: Добавить send(telegramId, BotCommand) в BotUiApp
+- [~] Task: Добавить send(telegramId, BotCommand) в BotUiApp
     - [ ] Написать тесты: sendMessage, editMessage, клавиатуры
     - [ ] Написать тесты: captureInput, releaseInput
     - [ ] Реализовать: сжатие + Grammy API + session
