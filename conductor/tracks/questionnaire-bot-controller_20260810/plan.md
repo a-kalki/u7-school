@@ -52,7 +52,27 @@
     - [ ] `bun run check:a u7-bot` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4'
 
-## Фаза 5: Очистка OnboardingController
+## Фаза 5: Интеграционные и E2E тесты
+
+- [ ] Task: Интеграционный тест FillStory (TDD)
+    - [ ] Создать `apps/u7-bot/tests/questionnaire/fill.integration.test.ts`
+    - [ ] Сценарий: приглашение → «Начать» → первый вопрос → ответ → следующий вопрос
+    - [ ] Сценарий: «Зачем это нужно?» → «Хорошо» → приглашение
+    - [ ] Сценарий: «Пропустить» → подтверждение → отказ
+    - [ ] Сценарий: одиночный выбор
+    - [ ] Сценарий: множественный выбор (toggle + «Далее»)
+    - [ ] Сценарий: текстовый ответ
+    - [ ] Сценарий: /cancel → подтверждение → отмена
+    - [ ] Сценарий: завершение анкеты
+    - [ ] `bun run test:a u7-bot -- --pattern questionnaire` — чисто
+- [ ] Task: E2E тест (TDD)
+    - [ ] Создать `apps/u7-bot/tests/e2e/questionnaire.e2e.test.ts`
+    - [ ] Сценарий: sendInvite → fill → complete
+    - [ ] Сценарий: sendInvite → decline
+    - [ ] `bun run test:a u7-bot -- --pattern questionnaire` — чисто
+- [ ] Task: Conductor - Ручная верификация 'Фаза 5'
+
+## Фаза 6: Очистка OnboardingController
 
 - [ ] Task: Удалить логику анкет из OnboardingController
     - [ ] Убрать #formatQuestionMd, #getKeyboard, #renderActionResponse

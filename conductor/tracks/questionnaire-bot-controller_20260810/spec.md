@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Централизовать `shortIds` в `BotUiApp`, добавить `send()` для инициативной отправки, реализовать `TelegramQuestionnaireBotFacade` (интерфейс из первого трека), создать контроллер questionnaire со стори `fill`. Поддерживает 10 экранов: S01 (приглашение), S02a/S02b (выбор), S03 (текст), S04 (завершение), S05a/S05b (отмена), S06a/S06b (отказ).
+Централизовать `shortIds` в `BotUiApp`, добавить `send()` для инициативной отправки, реализовать `TelegramQuestionnaireBotFacade` (интерфейс из первого трека), создать контроллер questionnaire со стори `fill`. Реализовать экраны с `ui-spec.md`.
 
 ## FR1 — shortIds → BotUiApp
 
@@ -20,7 +20,6 @@ class BotUiApp {
 ```
 
 - Принимает `BotCommand`, управляет `activeHandler` (captureInput/releaseInput)
-- Без параметра `controllerName`
 
 ## FR3 — TelegramQuestionnaireBotFacade
 
@@ -40,6 +39,9 @@ class BotUiApp {
 - Для завершения: `completionText`, кнопка `↩️ Главное меню`, `releaseInput`
 - Переносит рендеринг из `OnboardingController`
 
+### Реализация
+Обсудить, какова будет реализация если логика рендеринга будет одна и таже для стори и фасада? Как не дублировать логику?
+
 ## FR4 — Контроллер questionnaire + стори fill
 
 `QuestionnaireController` в `apps/u7-bot/src/controllers/questionnaire/`:
@@ -56,7 +58,7 @@ class QuestionnaireController extends U7BotController {
 | Событие | UC | Действие |
 |---|---|---|
 | `fill:start:{qId}` | `start-by-invite` | Render + `captureInput: questionnaire/fill` |
-| `fill:why:{qId}` | `get-current` | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
+| `fill:why:{qId}` | `get-current` | sendMessage whyText + «Хорошо» |
 | `fill:invite:{qId}` | `get-current` | sendMessage: новый S01 |
 | `fill:decline:{qId}` | — | `confirm('decline', ...)` → S06a |
 | `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
@@ -71,9 +73,30 @@ class QuestionnaireController extends U7BotController {
 - Подтверждение через `confirm()` из `BotUserStory` (S05a, S06a)
 - `fill:why` вызывает `get-current` для получения `InviteResponse`; `fill:decline`/`fill:cancel` (первый клик) — не вызывают UC
 - Завершение (S04) — `releaseInput` + `questionnaireCompleted: true`
-- Отмена/отказ (S05b/S06b) — `releaseInput` + cancelWarning из pool
+- Отмена/отказ (S05b/S06b) — `releaseInput` + подтверждение отмены/отказа
 
-## FR5 — Очистка OnboardingController
+## FR6 — Интеграционные и E2E тесты
+
+### Интеграционный: `apps/u7-bot/tests/questionnaire/fill.integration.test.ts`
+- Полный путь пользователя через UiApp.handleCallback / handleMessage
+- Моки: QuestionnaireJsonRepo с fixture-данными, MockTgFacade
+- Сценарии:
+  - Приглашение → «Начать» → первый вопрос
+  - «Зачем это нужно?» → «Хорошо» → приглашение
+  - «Пропустить» → подтверждение → отказ
+  - Одиночный выбор → следующий вопрос
+  - Множественный выбор (toggle + «Далее»)
+  - Текстовый ответ
+  - /cancel → подтверждение → отмена
+  - Завершение анкеты
+
+### E2E: `apps/u7-bot/tests/e2e/questionnaire.e2e.test.ts`
+- Полный стек с реальной JSON-БД (временная директория)
+- Реальные QuestionnaireApiModule + QuestionnaireJsonRepo
+- Мок QuestionnaireBotFacade (заглушка, т.к. нет Telegram API)
+- Сценарий: sendInvite → fill → complete, sendInvite → decline
+
+## FR7 — Очистка OnboardingController
 
 - Перенести `#formatQuestionMd`, `#getKeyboard`, `#renderActionResponse` → `TelegramQuestionnaireBotFacade`
 - Заглушить/удалить старую логику анкет
@@ -84,6 +107,8 @@ class QuestionnaireController extends U7BotController {
 - [ ] `BotUiApp.send()` отправляет и управляет activeHandler
 - [ ] `TelegramQuestionnaireBotFacade` — оба метода, 10 экранов
 - [ ] Контроллер + стори fill — 11 обработчиков, включая why и decline-confirm
+- [ ] Интеграционный тест: 8 сценариев, все проходят
+- [ ] E2E тест: полный цикл sendInvite → fill → complete и sendInvite → decline
 - [ ] `bun run check` — чисто
 
 ## За рамками
