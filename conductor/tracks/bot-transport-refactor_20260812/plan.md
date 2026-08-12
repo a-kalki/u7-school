@@ -2,12 +2,12 @@
 
 ## Фаза 1: UiApp — убрать сжатие, добавить actorResolver
 
-- [ ] Task: Убрать сжатие из UiApp (core)
+- [x] Task: Убрать сжатие из UiApp (core) [df03c4b]
     - [ ] Удалить shortIds, #shrink, #expandCallbackData, #hasStaleIds, #compressAction, compressResponse, prefixResponse
     - [ ] Обновить публичные методы: handleCallback, handleMessage, handleCancel, handleTimeout — убрать вызовы compressResponse/prefixResponse
     - [ ] handleWelcome, handleHelp — убрать compressResponse
     - [ ] `bun run check` — чисто (часть тестов упадёт — ок, починим в Фазе 3)
-- [ ] Task: Добавить actorResolver в UiApp
+- [x] Task: Добавить actorResolver в UiApp [df03c4b]
     - [ ] `init(apiApp, actorResolver: (tgId: number) => Promise<TActor>)`
     - [ ] handleCallback(data, tgId, session) — резолвит актора внутри
     - [ ] handleMessage(update, tgId, session) — аналогично
@@ -19,7 +19,7 @@
 
 ## Фаза 2: BotTransport — новый класс
 
-- [ ] Task: Создать BotTransport (TDD)
+- [x] Task: Создать BotTransport (TDD) [95e07f3]
     - [ ] Тест: execute — sendMessage с клавиатурой
     - [ ] Тест: execute — editMessage
     - [ ] Тест: execute — sendMessages (несколько)
@@ -36,7 +36,7 @@
 
 ## Фаза 3: Удаление старого кода, обновление main.ts и фасадов
 
-- [ ] Task: Удалить connect-ui-app.ts и ui-utils.ts
+- [~] Task: Удалить connect-ui-app.ts и ui-utils.ts
     - [ ] Удалить файлы
     - [ ] Обновить main.ts: создать BotTransport, зарегистрировать на Grammy
     - [ ] Обновить main.ts: убрать sessionMap из createBot

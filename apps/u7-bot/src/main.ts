@@ -13,14 +13,14 @@ import { loadConfig } from './config';
 import type { SessionData } from './context';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
-import { connectUiApp } from './handlers/connect-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
+import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 const config = loadConfig();
 
-// ══ Общее хранилище сессий (Grammy + U7BotUiApp) ══
+// ══ Общее хранилище сессий (Grammy + BotTransport) ══
 const sessionMap = new Map<number, SessionData>();
 
 // ══ Инициализация логгера ══
@@ -30,25 +30,17 @@ consoleLogger.setLogLevel(LogLevel.DEBUG);
 const loggers: CompositeLogger = new CompositeLogger([consoleLogger]);
 setGlobalLogger(loggers);
 
-// ══ TelegramLogger создадим после createBot, но пока есть только consoleLogger ══
-// (TelegramLogger понадобится bot, который мы создадим ниже)
+// TelegramLogger создадим после createBot, но пока есть только consoleLogger
 const logger = loggers;
 
 const bot = createBot(config.botToken, sessionMap);
 const tgFacade = new TelegramTgFacade(bot);
 
 const apiBundle = createApiApp(config, logger, tgFacade);
-const { userFacade } = apiBundle;
 const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
 
-// ══ Настраиваем транспорт для uiApp.send() ══
-uiApp.setTgTransport(bot.api, {
-  read: async (telegramId: number) =>
-    sessionMap.get(telegramId) ?? { activeHandler: null },
-  write: async (telegramId: number, session: SessionData) => {
-    sessionMap.set(telegramId, session);
-  },
-});
+// ══ BotTransport — единый слой Grammy ↔ UiApp ══
+const transport = new BotTransport(uiApp, bot.api, sessionMap);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -72,6 +64,7 @@ if (config.adminTelegramIds.length > 0) {
 
 // ══ Верификация бота при старте ══
 {
+  const { userFacade } = apiBundle;
   const adminUser = await userFacade.getUserByUuid(config.botAdminUuid);
   if (!adminUser) {
     throw new Error(
@@ -87,11 +80,9 @@ if (config.adminTelegramIds.length > 0) {
 }
 
 // ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
-registerGroupHandlers(bot, userFacade, logger);
+registerGroupHandlers(bot, apiBundle.userFacade, logger);
 
 // ══ Приватные чаты — через filter ══
-//   filter() возвращает потомка, который получает только апдейты
-//   из приватных чатов. Команды и сообщения из групп игнорируются.
 const privateBot = bot.filter((ctx) => ctx.chat?.type === 'private');
 
 // ══ Обработчик ошибок — только для приватных обработчиков ══
@@ -122,7 +113,7 @@ privateBot.command('start', async (ctx, next) => {
 privateBot.command('log_level', async (ctx) => {
   const userId = ctx.from?.id;
   if (!userId || !config.adminTelegramIds.includes(userId)) {
-    return; // Игнорируем — команда невидима для не-админов
+    return;
   }
 
   const args = ctx.message?.text?.split(' ').slice(1).join(' ') || '';
@@ -149,8 +140,14 @@ privateBot.command('log_level', async (ctx) => {
   );
 });
 
-// Универсальный роутер — приватные чаты
-connectUiApp(privateBot, uiApp, userFacade, config.botAdminUuid, loggers);
+// ══ Регистрация обработчиков через BotTransport ══
+privateBot.command('start', (ctx) => transport.handleStart(ctx));
+privateBot.command('help', (ctx) => transport.handleHelp(ctx));
+privateBot.command('cancel', (ctx) => transport.handleCancel(ctx));
+privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
+privateBot.on('message:text', (ctx, next) =>
+  transport.handleMessage(ctx, next),
+);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {

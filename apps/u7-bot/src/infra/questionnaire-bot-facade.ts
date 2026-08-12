@@ -6,19 +6,19 @@ import type {
   QuestionnaireBotFacade,
 } from '@u7-scl/questionnaire/domain';
 import type { User } from '@u7-scl/user/domain';
-import type { U7BotUiApp } from '../core/ui-app';
+import type { ProactiveSender } from './bot-transport';
 
 /**
  * Реализация QuestionnaireBotFacade для Telegram.
  *
- * Рендерит экраны анкеты (S01-S04) через uiApp.send().
+ * Рендерит экраны анкеты (S01-S04) через transport.send().
  * Рендеринг вынесен из OnboardingController.
  */
 export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
-  private readonly uiApp: U7BotUiApp;
+  private readonly transport: ProactiveSender;
 
-  constructor(uiApp: U7BotUiApp) {
-    this.uiApp = uiApp;
+  constructor(transport: ProactiveSender) {
+    this.transport = transport;
   }
 
   /**
@@ -32,23 +32,23 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
     const buttons = [
       {
         text: '▶️ Начать заполнение',
-        code: `questionnaire:fill:start:${qId}`,
+        code: `fill:start:${qId}`,
       },
     ];
 
     if (response.whyText) {
       buttons.push({
         text: '❔ Зачем это нужно?',
-        code: `questionnaire:fill:why:${qId}`,
+        code: `fill:why:${qId}`,
       });
     }
 
     buttons.push({
       text: '⏭️ Пропустить',
-      code: `questionnaire:fill:decline:${qId}`,
+      code: `fill:decline:${qId}`,
     });
 
-    await this.uiApp.send(user.telegramId, {
+    await this.transport.send(user.telegramId, {
       sendMessage: {
         text: `📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.`,
         parseMode: 'MarkdownV2',
@@ -68,7 +68,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
     response: QuestionnaireActionResponse,
   ): Promise<void> {
     const botRes = this.#renderActionResponse(response);
-    await this.uiApp.send(user.telegramId, botRes);
+    await this.transport.send(user.telegramId, botRes);
   }
 
   // ── Рендеринг (из OnboardingController) ──
@@ -91,7 +91,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
         ),
         parseMode: 'MarkdownV2',
       };
-      botRes.captureInput = { path: 'questionnaire/fill' };
+      botRes.captureInput = { path: 'fill' };
       return botRes;
     }
 
@@ -104,7 +104,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
         keyboard: this.#getKeyboard(response.question),
         parseMode: 'MarkdownV2',
       };
-      botRes.captureInput = { path: 'questionnaire/fill' };
+      botRes.captureInput = { path: 'fill' };
       return botRes;
     }
 
@@ -124,12 +124,12 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
     return botRes;
   }
 
-  /** Преобразует next:questionCode → questionnaire:fill:next:qId:questionCode */
+  /** Преобразует next:questionCode → fill:next:qId:questionCode */
   #makeNextCode(qId: string, nextButton: string): string {
     const questionCode = nextButton.startsWith('next:')
       ? nextButton.slice(5)
       : nextButton;
-    return `questionnaire:fill:next:${qId}:${questionCode}`;
+    return `fill:next:${qId}:${questionCode}`;
   }
 
   /** Форматирует вопрос и ответы в MarkdownV2 */
@@ -165,7 +165,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
 
     const buttons = question.answers.map((a, i) => ({
       text: String(i + 1),
-      code: `questionnaire:fill:answer:${a.answerCode}`,
+      code: `fill:answer:${a.answerCode}`,
     }));
 
     const rows = [buttons];

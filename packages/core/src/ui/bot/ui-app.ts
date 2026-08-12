@@ -247,9 +247,11 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     if (!activeHandler) return null;
 
     if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
-      return (await this.handleTimeout(tgId, session)) ?? {
-        releaseInput: true,
-      };
+      return (
+        (await this.handleTimeout(tgId, session)) ?? {
+          releaseInput: true,
+        }
+      );
     }
 
     const actor = await this.resolveActor(tgId);
@@ -351,10 +353,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     const result: BotResponse = { ...delegate };
     if (main.sendMessage) {
       result.sendMessage = main.sendMessage;
-      if (
-        delegate.sendMessage &&
-        delegate.sendMessage !== main.sendMessage
-      ) {
+      if (delegate.sendMessage && delegate.sendMessage !== main.sendMessage) {
         result.sendMessages = [
           main.sendMessage,
           ...(delegate.sendMessages ?? [delegate.sendMessage]),

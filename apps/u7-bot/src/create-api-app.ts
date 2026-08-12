@@ -121,7 +121,7 @@ export function createApiApp(
     eventBus: appResolver.eventBus,
   });
 
-  // ══ Questionnaire: модуль и фасад (botFacade — заглушка до трека 2.4a++) ══
+  // ══ Questionnaire: модуль и фасад (botFacade — заглушка до трека 2.5) ══
   const botFacadeStub: QuestionnaireBotFacade = {
     sendQuestionnaireInvite: async () => {},
     startQuestionnaire: async () => {},
