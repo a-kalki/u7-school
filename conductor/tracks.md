@@ -4,7 +4,7 @@
 - [x] **Track: 2.4a+ — Домен и UC слой questionnaire: userId, pool, botFacade, фасад**
 *Link: [$T3]($T3)*
 
-- [ ] **Track: 2.4a++ — BotUiApp.send(), shortIds, контроллер questionnaire, TelegramBotFacade**
+- [~] **Track: 2.4a++ — BotUiApp.send(), shortIds, контроллер questionnaire, TelegramBotFacade**
 *Link: [$T1]($T1)*
 
 - [ ] **Track: Трек 2.4b — MetricQuestionnaireAr и metricMapping**

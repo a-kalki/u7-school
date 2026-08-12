@@ -5,6 +5,7 @@ import type { BotController } from './controller/bot-controller';
 import type {
   BotResponse,
   BotUpdate,
+  KeyboardDescription,
   MainMenuAction,
   MenuAggregator,
   SessionData,
@@ -28,10 +29,19 @@ export function extractRestData(data: string): string {
   return data.substring(colonIdx + 1);
 }
 
+/** UUID v4 (8-4-4-4-12 hex). Сжимаем только UUID, остальное пропускаем. */
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Сжатый ключ shortIds: ровно 8 hex-символов, без дефисов. */
+const SHRUNK_RE = /^[0-9a-f]{8}$/i;
+
 /**
- * Центральный хаб UI-слоя бота. Владеет контроллерами и маршрутизацией.
+ * Центральный хаб UI-слоя бота. Владеет контроллерами, маршрутизацией
+ * и сжатием ID через общую мапу shortIds.
  *
- * Заменяет BotRouter — вся маршрутизация теперь здесь.
+ * Контроллеры работают только с реальными ID. UiApp сжимает при отправке
+ * и разжимает при входе.
  *
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
@@ -43,6 +53,9 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     string,
     BotController<TAppMeta, TActor>
   >();
+
+  /** Единая мапа сжатых id на всё приложение */
+  private readonly shortIds = new Map<string, string>();
 
   constructor(controllers: BotController<TAppMeta, TActor>[]) {
     for (const c of controllers) {
@@ -133,16 +146,17 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     const appCtrl = this.controllers.get('app');
     if (appCtrl) {
       const response = await appCtrl.handleWelcome(actor);
-      if (response) return response;
+      if (response)
+        return this.#compressResponse(this.#prefixResponse('app', response));
     }
     const items = await this.collectMainMenu(actor);
     const keyboard = this.#toKeyboard(items);
-    return {
+    return this.#compressResponse({
       sendMessage: {
         text: 'Выберите действие:',
         keyboard: keyboard ?? undefined,
       },
-    };
+    });
   }
 
   /**
@@ -152,15 +166,19 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     const appCtrl = this.controllers.get('app');
     if (appCtrl) {
       const response = await appCtrl.handleHelpMessage(actor);
-      if (response) return response;
+      if (response)
+        return this.#compressResponse(this.#prefixResponse('app', response));
     }
-    return { sendMessage: { text: 'Нет доступных пунктов меню.' } };
+    return this.#compressResponse({
+      sendMessage: { text: 'Нет доступных пунктов меню.' },
+    });
   }
 
   // ── Обработка callback ──
 
   /**
    * Обрабатывает callback, маршрутизируя по префиксу контроллера.
+   * Разжимает данные перед передачей контроллеру, сжимает ответ.
    */
   async handleCallback(
     data: string,
@@ -170,7 +188,9 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     const controllerName = extractControllerName(data);
 
     if (!controllerName) {
-      return { sendMessage: { text: '⚠️ Неизвестный формат команды' } };
+      return {
+        sendMessage: { text: '⚠️ Неизвестный формат команды' },
+      };
     }
 
     const activeHandler = session.activeHandler;
@@ -190,21 +210,39 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
     }
 
+    // Разжимаем данные перед передачей контроллеру
     const restData = extractRestData(data);
-    const response = await controller.handleCallback(restData, actor, session);
+    const expanded = this.#expandCallbackData(restData);
+
+    // Проверка на устаревшие id после разжатия
+    if (this.#hasStaleIds(expanded)) {
+      return {
+        sendMessage: {
+          text: '⏳ *Кнопка устарела*\\. Пожалуйста, нажмите /start для обновления\\.',
+          parseMode: 'MarkdownV2',
+        },
+      };
+    }
+
+    const response = await controller.handleCallback(expanded, actor, session);
 
     this.#applyCapturedInput(session, controllerName, response);
 
-    if (response.delegate) {
+    // Добавляем префикс контроллера к кнопкам (стори не знают о контроллере)
+    const prefixed = this.#prefixResponse(controllerName, response);
+
+    if (prefixed.delegate) {
       const delegateResponse = await controller.handleCallback(
-        response.delegate.path,
+        prefixed.delegate.path,
         actor,
         session,
       );
-      return this.#mergeResponses(response, delegateResponse);
+      return this.#compressResponse(
+        this.#mergeResponses(prefixed, delegateResponse),
+      );
     }
 
-    return response;
+    return this.#compressResponse(prefixed);
   }
 
   // ── Обработка сообщений ──
@@ -218,7 +256,11 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     if (!activeHandler) return null;
 
     if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
-      return this.handleTimeout(actor, session);
+      return this.#compressResponse(
+        (await this.handleTimeout(actor, session)) ?? {
+          releaseInput: true,
+        },
+      );
     }
 
     const [ctrlName] = activeHandler.path.split('/');
@@ -227,7 +269,9 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
 
     const response = await controller.handleMessage(update, actor, session);
     this.#applyCapturedInput(session, ctrlName ?? '', response);
-    return response;
+    return this.#compressResponse(
+      this.#prefixResponse(ctrlName ?? '', response),
+    );
   }
 
   // ── Обработка отмены ──
@@ -252,7 +296,9 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       session.activeHandler = null;
     }
 
-    return response;
+    return this.#compressResponse(
+      this.#prefixResponse(ctrlName ?? '', response),
+    );
   }
 
   // ── Обработка таймаута ──
@@ -277,14 +323,179 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
       session.activeHandler = null;
     }
 
-    return response;
+    return this.#compressResponse(
+      this.#prefixResponse(ctrlName ?? '', response),
+    );
+  }
+
+  // ── Сжатие / разжатие id ──
+
+  /**
+   * Разжимает callback_data: заменяет сжатые ключи (8 hex) на реальные UUID.
+   * Контроллеры получают уже разжатые данные.
+   */
+  #expandCallbackData(raw: string): string {
+    const parts = raw.split(':');
+    return parts
+      .map((part) => {
+        if (!SHRUNK_RE.test(part)) return part;
+        const real = this.shortIds.get(part);
+        if (!real) {
+          getGlobalLogger()?.warn(
+            'ui-app',
+            'Ключ shortIds не найден (возможно кнопка устарела)',
+            { key: part },
+          );
+        }
+        return real ?? part;
+      })
+      .join(':');
+  }
+
+  /**
+   * Проверяет, есть ли в разжатых данных сжатые ключи,
+   * которые не удалось разжать (shortIds не сработал).
+   */
+  #hasStaleIds(expanded: string): boolean {
+    const parts = expanded.split(':');
+    return parts.some((part) => SHRUNK_RE.test(part) && !UUID_RE.test(part));
+  }
+
+  /**
+   * Сжимает все UUID в callback_data.
+   */
+  #compressAction(raw: string): string {
+    // Специальные префиксы, не принадлежащие конкретному контроллеру
+    if (raw.startsWith('app:')) {
+      return raw;
+    }
+
+    const parts = raw.split(':');
+    return parts
+      .map((part) => (UUID_RE.test(part) ? this.#shrink(part) : part))
+      .join(':');
+  }
+
+  /**
+   * Сжимает значение id в короткий ключ (первые 8 символов UUID).
+   * При коллизии добавляет цифровой суффикс.
+   */
+  #shrink(value: string): string {
+    let key = value.slice(0, 8);
+
+    const existing = this.shortIds.get(key);
+    if (existing !== undefined && existing !== value) {
+      key = `${key}-${this.shortIds.size}`;
+    }
+
+    this.shortIds.set(key, value);
+    return key;
+  }
+
+  /**
+   * Обходит BotResponse и сжимает все кнопки (code).
+   */
+  #compressResponse(response: BotResponse): BotResponse {
+    const compressKeyboard = (
+      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
+    ): typeof kb => {
+      if (!kb) return kb;
+      return {
+        ...kb,
+        rows: kb.rows.map((row) =>
+          row.map((btn) => ({
+            ...btn,
+            code: this.#compressAction(btn.code),
+          })),
+        ),
+      };
+    };
+
+    const result: BotResponse = { ...response };
+
+    if (result.sendMessage?.keyboard) {
+      result.sendMessage = {
+        ...result.sendMessage,
+        keyboard: compressKeyboard(result.sendMessage.keyboard) ?? undefined,
+      };
+    }
+
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map((sm) => ({
+        ...sm,
+        keyboard: compressKeyboard(sm.keyboard) ?? undefined,
+      }));
+    }
+
+    if (result.editMessage?.keyboard) {
+      result.editMessage = {
+        ...result.editMessage,
+        keyboard: compressKeyboard(result.editMessage.keyboard) ?? undefined,
+      };
+    }
+
+    return result;
   }
 
   // ── Приватные хелперы ──
 
-  #toKeyboard(
-    items: MainMenuAction[],
-  ): import('./types').KeyboardDescription | null {
+  /**
+   * Добавляет префикс контроллера ко всем кодам кнопок в ответе.
+   * Стори не знают о контроллере — префикс добавляет UiApp.
+   */
+  #prefixResponse(controllerName: string, response: BotResponse): BotResponse {
+    const prefixCode = (code: string): string => {
+      // Уже начинается с префикса этого контроллера — не дублируем
+      if (code.startsWith(`${controllerName}:`)) return code;
+      // Уже начинается с префикса другого контроллера (напр. app:main-menu)
+      for (const [name] of this.controllers) {
+        if (code.startsWith(`${name}:`)) return code;
+      }
+      return `${controllerName}:${code}`;
+    };
+
+    const prefixKeyboard = (
+      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
+    ): typeof kb => {
+      if (!kb) return kb;
+      return {
+        ...kb,
+        rows: kb.rows.map((row) =>
+          row.map((btn) => ({
+            ...btn,
+            code: prefixCode(btn.code),
+          })),
+        ),
+      };
+    };
+
+    const result: BotResponse = { ...response };
+
+    if (result.sendMessage?.keyboard) {
+      result.sendMessage = {
+        ...result.sendMessage,
+        keyboard: prefixKeyboard(result.sendMessage.keyboard) ?? undefined,
+      };
+    }
+
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map((sm) => ({
+        ...sm,
+        keyboard: prefixKeyboard(sm.keyboard) ?? undefined,
+      }));
+    }
+
+    if (result.editMessage?.keyboard) {
+      result.editMessage = {
+        ...result.editMessage,
+        keyboard: prefixKeyboard(result.editMessage.keyboard) ?? undefined,
+      };
+    }
+
+    return result;
+  }
+
+  #toKeyboard(items: MainMenuAction[]): KeyboardDescription | null {
     const rows = items
       .filter((i) => i.kind === 'callback' || i.kind === 'url')
       .map((i) => [

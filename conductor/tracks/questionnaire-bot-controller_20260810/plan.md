@@ -4,7 +4,7 @@
 
 ## Фаза 1: shortIds → BotUiApp
 
-- [ ] Task: Перенести сжатие/разжатие из BotController в BotUiApp
+- [~] Task: Перенести сжатие/разжатие из BotController в BotUiApp
     - [ ] Написать тесты на сжатие при отправке BotCommand
     - [ ] Написать тесты на разжатие callback_data при входе
     - [ ] Перенести shortIds, #shrink, #expandData, #compressResponse в BotUiApp
