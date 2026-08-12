@@ -19,7 +19,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   constructor(state: Questionnaire) {
     super(state, QuestionnaireSchema);
     // Если состояние уже имеет pool (например загружено из БД) — восстановим engine
-    const pool = state.questionPool as QuestionnairePool | null;
+    const pool = state.questionPool;
     if (pool?.questions.length) {
       this.#engine = new QuestionnaireEngine(
         pool.questions,
@@ -49,7 +49,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       currentQuestionCode: null,
       draftAnswers: {},
       answers: [],
-      questionPool: pool as unknown as Record<string, unknown>[],
+      questionPool: pool,
       createdAt: isoNow(),
       completedAt: null,
     };
@@ -66,6 +66,9 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       );
     }
     const pool = this.state.questionPool;
+    if (!pool) {
+      this.throwInternal('Пул анкеты не найден');
+    }
     return {
       type: 'invited',
       questionnaireId: this.state.uuid,
@@ -98,7 +101,10 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       );
     }
 
-    const pool = this.state.questionPool as unknown as QuestionnairePool;
+    const pool = this.state.questionPool;
+    if (!pool) {
+      this.throwInternal('Пул анкеты не найден');
+    }
 
     this.#engine = new QuestionnaireEngine(
       pool.questions,
@@ -127,7 +133,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   /** Пул вопросов (снимок) */
   getPool(): Question[] {
-    const pool = this.state.questionPool as unknown as QuestionnairePool | null;
+    const pool = this.state.questionPool;
     return pool?.questions ?? [];
   }
 

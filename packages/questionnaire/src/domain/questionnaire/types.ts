@@ -1,4 +1,6 @@
+import * as v from 'valibot';
 import type { Question } from './question';
+import { QuestionSchema } from './question';
 
 /** Приглашение пройти анкету (статус invited) */
 export type InviteResponse = {
@@ -38,3 +40,41 @@ export type QuestionnaireActionResponse =
   | WaitNextResponse
   | NewQuestionResponse
   | CompletedResponse;
+
+// ── Valibot схемы ──
+
+export const InviteResponseSchema = v.object({
+  type: v.literal('invited'),
+  questionnaireId: v.string(),
+  inviteText: v.optional(v.string()),
+  whyText: v.optional(v.string()),
+});
+
+export const WaitNextResponseSchema = v.object({
+  type: v.literal('wait_next'),
+  currentQuestion: QuestionSchema,
+  selectedAnswers: v.array(v.string()),
+  nextButton: v.optional(v.string()),
+});
+
+export const NewQuestionResponseSchema = v.object({
+  type: v.literal('new_question'),
+  question: QuestionSchema,
+  selectedAnswers: v.optional(v.array(v.string())),
+  previousQuestion: v.optional(QuestionSchema),
+  previousSelectedAnswers: v.optional(v.array(v.string())),
+});
+
+export const CompletedResponseSchema = v.object({
+  type: v.literal('completed'),
+  selectedAnswers: v.optional(v.array(v.string())),
+  previousQuestion: v.optional(QuestionSchema),
+  previousSelectedAnswers: v.optional(v.array(v.string())),
+});
+
+export const QuestionnaireActionResponseSchema = v.variant('type', [
+  InviteResponseSchema,
+  WaitNextResponseSchema,
+  NewQuestionResponseSchema,
+  CompletedResponseSchema,
+]);

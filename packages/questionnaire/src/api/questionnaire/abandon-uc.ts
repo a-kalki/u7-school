@@ -17,12 +17,13 @@ export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = AbandonCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = v.undefined();
 
   async execute(command: AbandonCmd, _actorId: string): Promise<undefined> {
     const state = await this.getQuestionnaire(command.questionnaireId);
     const ar = new QuestionnaireAr(state);
     ar.abandon();
     await this.repo.save(ar.state);
+    return undefined;
   }
 }

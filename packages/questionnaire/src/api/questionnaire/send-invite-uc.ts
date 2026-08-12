@@ -9,7 +9,7 @@ import { QuestionnaireUseCase } from './questionnaire-uc';
 
 export class SendInviteUc extends QuestionnaireUseCase<SendInviteCmdMeta> {
   protected readonly ucName = 'send-invite' as const;
-  protected readonly ucLabel = 'Отправить приглашение на анкету' as const;
+  protected readonly ucLabel = 'Пригласить на анкету' as const;
   protected readonly arMeta = {
     arName: 'Questionnaire' as const,
     arLabel: 'Анкета' as const,
@@ -17,14 +17,14 @@ export class SendInviteUc extends QuestionnaireUseCase<SendInviteCmdMeta> {
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = SendInviteCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = v.undefined();
 
   async execute(command: SendInviteCmd, actorId: string): Promise<undefined> {
     const user = await this.getUser(actorId);
     const ar = QuestionnaireAr.create(user.telegramId, command.pool);
     await this.repo.save(ar.state);
-
-    const invite = ar.getInvite();
-    await this.resolve.botFacade.sendQuestionnaireInvite(user, invite);
+    const response = ar.getInvite();
+    await this.botFacade.sendQuestionnaireInvite(user, response);
+    return undefined;
   }
 }

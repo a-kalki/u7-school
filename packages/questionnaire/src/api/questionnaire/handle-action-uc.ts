@@ -6,6 +6,7 @@ import {
 } from '#domain/questionnaire/commands/handle-action-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
+import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
 
 export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
@@ -18,7 +19,7 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = HandleActionCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = QuestionnaireActionResponseSchema;
 
   async execute(
     command: HandleActionCmd,
@@ -30,9 +31,7 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
       type: command.type,
       value: command.value,
     });
-
     await this.repo.save(ar.state);
-
     return response;
   }
 }

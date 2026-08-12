@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { QuestionnairePoolSchema } from './question';
 
 /** Зафиксированный ответ */
 export const AnswerSchema = v.object({
@@ -42,7 +43,7 @@ export const QuestionnaireSchema = v.object({
   draftAnswers: v.record(v.string(), v.string()),
   answers: v.array(AnswerSchema),
   /** Снимок пула вопросов. null в invited, заполняется при start(). */
-  questionPool: v.nullable(v.any()),
+  questionPool: v.nullable(QuestionnairePoolSchema),
   createdAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),

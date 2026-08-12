@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import type { GetCurrentCmdMeta } from '#domain/questionnaire/commands/get-current-cmd';
 import {
   type GetCurrentCmd,
@@ -6,6 +5,7 @@ import {
 } from '#domain/questionnaire/commands/get-current-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
+import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
 
 export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentCmdMeta> {
@@ -18,7 +18,7 @@ export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentCmdMeta> {
   protected readonly type = 'query' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetCurrentCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = QuestionnaireActionResponseSchema;
 
   async execute(
     command: GetCurrentCmd,

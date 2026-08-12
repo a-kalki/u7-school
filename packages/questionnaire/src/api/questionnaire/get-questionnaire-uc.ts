@@ -5,6 +5,7 @@ import {
   GetQuestionnaireCmdSchema,
 } from '#domain/questionnaire/commands/get-questionnaire-cmd';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
+import { QuestionnaireSchema } from '../../domain/questionnaire/entity';
 import { QuestionnaireUseCase } from './questionnaire-uc';
 
 export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireCmdMeta> {
@@ -17,7 +18,7 @@ export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireCmd
   protected readonly type = 'query' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = GetQuestionnaireCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = QuestionnaireSchema;
 
   async execute(
     command: GetQuestionnaireCmd,

@@ -6,6 +6,7 @@ import {
 } from '#domain/questionnaire/commands/start-by-invite-cmd';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
+import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
 
 export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> {
@@ -18,7 +19,7 @@ export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> 
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
   protected readonly inputSchema = StartByInviteCmdSchema;
-  protected readonly outputSchema = v.any();
+  protected readonly outputSchema = QuestionnaireActionResponseSchema;
 
   async execute(
     command: StartByInviteCmd,
@@ -28,7 +29,6 @@ export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> 
     const ar = new QuestionnaireAr(state);
     const response = ar.start();
     await this.repo.save(ar.state);
-
     return response;
   }
 }
