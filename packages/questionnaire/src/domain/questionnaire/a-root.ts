@@ -372,6 +372,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
           currentQuestion: question,
           selectedAnswers,
           nextButton: QuestionnaireAr.getNextButtonText(questionCode),
+          cancelWarning: this.#cancelWarning(),
         };
       }
     }
@@ -383,6 +384,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       type: 'new_question',
       question,
       selectedAnswers,
+      cancelWarning: this.#cancelWarning(),
     };
   }
 
@@ -403,6 +405,14 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // ═════════════════════════════════════════════════════════════
   // Защитные методы
   // ═════════════════════════════════════════════════════════════
+
+  // ═════════════════════════════════════════════════════════════
+  // Приватные хелперы
+  // ═════════════════════════════════════════════════════════════
+
+  #cancelWarning(): string | undefined {
+    return this.state.questionPool.cancelWarning;
+  }
 
   #checkIsInProgress(): void {
     if (this.state.status !== 'in_progress') {

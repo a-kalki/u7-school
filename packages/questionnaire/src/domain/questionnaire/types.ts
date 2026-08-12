@@ -17,6 +17,7 @@ export type WaitNextResponse = {
   currentQuestion: Question;
   selectedAnswers: string[];
   nextButton?: string;
+  cancelWarning?: string;
 };
 
 /** Новый вопрос */
@@ -26,6 +27,7 @@ export type NewQuestionResponse = {
   selectedAnswers?: string[];
   previousQuestion?: Question;
   previousSelectedAnswers?: string[];
+  cancelWarning?: string;
 };
 
 /** Анкета завершена */
@@ -57,6 +59,7 @@ export const WaitNextResponseSchema = v.object({
   currentQuestion: QuestionSchema,
   selectedAnswers: v.array(v.string()),
   nextButton: v.optional(v.string()),
+  cancelWarning: v.optional(v.string()),
 });
 
 export const NewQuestionResponseSchema = v.object({
@@ -65,6 +68,7 @@ export const NewQuestionResponseSchema = v.object({
   selectedAnswers: v.optional(v.array(v.string())),
   previousQuestion: v.optional(QuestionSchema),
   previousSelectedAnswers: v.optional(v.array(v.string())),
+  cancelWarning: v.optional(v.string()),
 });
 
 export const CompletedResponseSchema = v.object({
