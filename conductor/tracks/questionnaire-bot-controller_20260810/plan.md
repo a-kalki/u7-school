@@ -6,8 +6,8 @@
     - [ ] Написать тесты на сжатие при отправке BotCommand
     - [ ] Написать тесты на разжатие callback_data при входе
     - [ ] Перенести shortIds, #shrink, #expandData, #compressResponse в BotUiApp
-    - [ ] Удалить сжатие из BotController (оставить только маршрутизацию по stories)
-    - [ ] Обновить все контроллеры и стори
+    - [ ] Удалить сжатие из BotController
+    - [ ] Обновить контроллеры и стори
     - [ ] `bun run check:a u7-bot` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1'
 
@@ -15,18 +15,17 @@
 
 - [ ] Task: Добавить send(telegramId, BotCommand) в BotUiApp
     - [ ] Написать тесты: sendMessage, editMessage, клавиатуры
-    - [ ] Написать тесты: captureInput устанавливает activeHandler
-    - [ ] Написать тесты: releaseInput сбрасывает activeHandler
-    - [ ] Реализовать send() — сжатие + Grammy API + управление session
+    - [ ] Написать тесты: captureInput, releaseInput
+    - [ ] Реализовать: сжатие + Grammy API + session
     - [ ] `bun run check:a u7-bot` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 2'
 
 ## Фаза 3: TelegramQuestionnaireBotFacade
 
-- [ ] Task: Реализовать TelegramQuestionnaireBotFacade (TDD)
-    - [ ] Написать тест: sendQuestionnaireInvite рендерит invite + кнопку «Начать»
-    - [ ] Написать тест: startQuestionnaire рендерит вопрос + captureInput
-    - [ ] Перенести рендеринг из OnboardingController (#formatQuestionMd, #getKeyboard, #renderActionResponse)
+- [ ] Task: Реализовать рендеринг (TDD)
+    - [ ] Перенести #formatQuestionMd, #getKeyboard, #renderActionResponse из OnboardingController
+    - [ ] Тест: sendQuestionnaireInvite — S01 с тремя кнопками (howToFill опциональна)
+    - [ ] Тест: startQuestionnaire — S02a (single), S02b (multiple), S03 (text), S04 (completed)
     - [ ] Реализовать sendQuestionnaireInvite(user, InviteResponse)
     - [ ] Реализовать startQuestionnaire(user, QuestionnaireActionResponse)
     - [ ] `bun run check:a u7-bot` — чисто
@@ -35,22 +34,24 @@
 ## Фаза 4: Контроллер questionnaire
 
 - [ ] Task: Создать QuestionnaireController
-    - [ ] Контроллер `apps/u7-bot/src/controllers/questionnaire/controller.ts`
-    - [ ] name = 'questionnaire'
+    - [ ] `apps/u7-bot/src/controllers/questionnaire/controller.ts`, name = 'questionnaire'
 - [ ] Task: Создать FillStory (TDD)
-    - [ ] Тест: callback `fill:start:{qId}` → UC start-by-invite → captureInput
-    - [ ] Тест: callback `fill:answer:{qId}:{aCode}` → UC handle-action → render response
-    - [ ] Тест: text message → UC handle-action(type='text')
-    - [ ] Тест: cancel → UC abandon → releaseInput
+    - [ ] Тест: `fill:start:{qId}` → UC start-by-invite → captureInput
+    - [ ] Тест: `fill:howto:{qId}` → answerCallbackQuery с howToFill
+    - [ ] Тест: `fill:decline:{qId}` → UC decline-invite → cancelWarning
+    - [ ] Тест: `fill:answer:{qId}:{aCode}` → UC handle-action(type=select) → render
+    - [ ] Тест: `fill:next:{qId}` → UC handle-action(type=next-btn) → render
+    - [ ] Тест: text message → UC handle-action(type=text) → render
+    - [ ] Тест: cancel → UC abandon → cancelWarning + releaseInput
     - [ ] Реализовать FillStory
-- [ ] Task: Зарегистрировать контроллер в create-ui-app.ts
+- [ ] Task: Зарегистрировать в create-ui-app.ts
     - [ ] `bun run check:a u7-bot` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4'
 
 ## Фаза 5: Очистка OnboardingController
 
-- [ ] Task: Удалить логику анкеты из OnboardingController
-    - [ ] Убрать #formatQuestionMd, #getKeyboard, #renderActionResponse (уже перенесены в фазу 3)
+- [ ] Task: Удалить логику анкет из OnboardingController
+    - [ ] Убрать #formatQuestionMd, #getKeyboard, #renderActionResponse
     - [ ] Убрать handleCallback/handleMessage для анкеты
     - [ ] Оставить контроллер с заглушкой
     - [ ] `bun run check` — чисто

@@ -3,20 +3,51 @@
 ## Обзор
 
 Два пути запуска анкеты: инициативный (через фасад, UC → botFacade) и ответный (через контроллер, UC → return).
+Pool — объект с метаданными, а не просто `Question[]`.
 
-## FR1 — Агрегат QuestionnaireAr
+## FR1 — QuestionnairePool
 
 ```typescript
-static create(respondentId: number, pool: Question[]): QuestionnaireAr  // фабрика, статус invited
-createInvite(): InviteResponse   // приглашение для botFacade
-start(): QuestionnaireActionResponse  // invited → in_progress, без параметров
+// packages/questionnaire/src/domain/questionnaire/question.ts
+type QuestionnairePool = {
+  /** Текст приглашения — показывается до начала анкеты */
+  inviteText: string;
+  /** Совет «Как заполнять?» (необязательно) */
+  howToFill?: string;
+  /** Текст при успешном завершении (необязательно) */
+  completionText?: string;
+  /** Текст при отмене / выходе (необязательно) */
+  cancelWarning?: string;
+  /** Вопросы анкеты */
+  questions: Question[];
+};
+```
+
+Валидация через valibot. Все поля кроме `inviteText` и `questions` — опциональны.
+
+## FR2 — Агрегат QuestionnaireAr
+
+```typescript
+// Создать агрегат с пулом, статус invited
+static create(respondentId: number, pool: QuestionnairePool): QuestionnaireAr
+
+// Создать приглашение → InviteResponse (для botFacade) — включает inviteText, howToFill
+createInvite(): InviteResponse
+
+// Отказаться от приглашения (при клике «Пропустить») — invited → abandoned
+decline(): void
+
+// Запустить анкету (invited → in_progress), использует сохранённый pool
+start(): QuestionnaireActionResponse
 ```
 
 - `intention` → `invited`, `IntentionResponse` → `InviteResponse`
-- `create()` сохраняет pool сразу, `start()` использует его
+- `InviteResponse` включает `inviteText` и `howToFill` из pool
+- `create()` сохраняет весь `QuestionnairePool`
+- `decline()` — invited → abandoned, выбрасывает событие для модуля-владельца
 - Старые методы удалить
 
-## FR2 — QuestionnaireBotFacade (интерфейс)
+## FR3 — QuestionnaireBotFacade (интерфейс)
 
 ```typescript
 interface QuestionnaireBotFacade {
@@ -25,7 +56,7 @@ interface QuestionnaireBotFacade {
 }
 ```
 
-## FR3 — UC слой
+## FR4 — UC слой
 
 ### Путь A — инициативный (фасад → UC → botFacade)
 
@@ -39,6 +70,7 @@ interface QuestionnaireBotFacade {
 | UC | Вход | Логика |
 |---|---|---|
 | `start-by-invite` | `{questionnaireId}` | load ar → ar.start() → save → **return** response |
+| `decline-invite` | `{questionnaireId}` | load ar → ar.decline() → save → **return** cancelWarning |
 | `handle-action` | `{questionnaireId, type, value}` | load ar → ar.handleAction() → save → **return** response |
 | `abandon` | `{questionnaireId}` | load ar → ar.abandon() → save |
 | `get-current` | `{questionnaireId}` | load ar → ar.getCurrent() |
@@ -47,30 +79,29 @@ interface QuestionnaireBotFacade {
 
 `start-by-invite` и `handle-action` НЕ вызывают botFacade — контроллер сам рендерит ответ.
 
-## FR4 — Доменный фасад (чистое делегирование)
+## FR5 — Доменный фасад (чистое делегирование)
 
 ```typescript
 class QuestionnaireInProcFacade {
-  async sendInvite(user: User, pool: Question[]): Promise<void> {
+  async sendInvite(user: User, pool: QuestionnairePool): Promise<void> {
     await this.module.execute('send-invite', { user, pool });
   }
-
-  async start(user: User, pool: Question[]): Promise<void> {
+  async start(user: User, pool: QuestionnairePool): Promise<void> {
     await this.module.execute('start', { user, pool });
   }
 }
 ```
 
-## FR5 — Резолвер
+## FR6 — Резолвер
 
 Убрать `questionnaireEngine`. Добавить `botFacade: QuestionnaireBotFacade`.
 
 ## Критерии приёмки
 
-- [ ] Агрегат: `create(pool)`, `createInvite()`, `start()` без параметров
+- [ ] `QuestionnairePool` — объект с inviteText, howToFill, completionText, cancelWarning, questions
+- [ ] Агрегат: `create(pool)`, `createInvite()`, `decline()`, `start()` без параметров
 - [ ] Статус `invited`, тип `InviteResponse`
-- [ ] `send-invite`/`start` → botFacade; `start-by-invite`/`handle-action` → return
+- [ ] `send-invite`/`start` → botFacade; `start-by-invite`/`decline-invite`/`handle-action` → return
 - [ ] Фасад: `sendInvite(user, pool)` и `start(user, pool)` — только `module.execute`
-- [ ] Имена: UC ↔ aggregate ↔ facade ↔ botFacade
-- [ ] Все 8 UC через TDD
+- [ ] 9 UC через TDD (добавлен `decline-invite`)
 - [ ] `bun run check:p questionnaire` — чисто
