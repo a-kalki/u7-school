@@ -1,5 +1,8 @@
 # Спецификация — BotUiApp + контроллер questionnaire
 
+> **Связанные документы:** [development-roadmap.md](../../development-roadmap.md) (Релиз 3), [bot-ui-refactoring.md](../../bot-ui-refactoring.md) (Трек 7 — заглушка onboarding), [metrics-system.md](../../metrics-system.md)
+> **Смежный трек:** [questionnaire-domain-uc](../questionnaire-domain-uc_20260810/spec.md) — домен/UC слой (выполняется первым)
+
 ## Обзор
 
 Централизовать `shortIds` в `BotUiApp`, добавить `send()` для инициативной отправки, реализовать `TelegramQuestionnaireBotFacade` (интерфейс из первого трека), создать контроллер questionnaire со стори `fill`. Реализовать экраны с `ui-spec.md`.

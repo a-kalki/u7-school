@@ -1,5 +1,7 @@
 # План реализации — BotUiApp + контроллер questionnaire
 
+> **Связанные документы:** [development-roadmap.md](../../development-roadmap.md) (Релиз 3), [bot-ui-refactoring.md](../../bot-ui-refactoring.md) (Трек 7 — заглушка onboarding)
+
 ## Фаза 1: shortIds → BotUiApp
 
 - [ ] Task: Перенести сжатие/разжатие из BotController в BotUiApp

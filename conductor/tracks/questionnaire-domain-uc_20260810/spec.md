@@ -1,5 +1,8 @@
 # Спецификация — Домен и UC слой questionnaire
 
+> **Связанные документы:** [development-roadmap.md](../../development-roadmap.md) (Релиз 3), [metrics-system.md](../../metrics-system.md), [metrics-questionnaire-and-events.md](../../metrics-questionnaire-and-events.md) (Трек 2.4)
+> **Смежный трек:** [questionnaire-bot-controller](../questionnaire-bot-controller_20260810/spec.md) — UI-слой
+
 ## Обзор
 
 Два пути запуска анкеты: инициативный (через фасад, UC → botFacade) и ответный (через контроллер, UC → return).
