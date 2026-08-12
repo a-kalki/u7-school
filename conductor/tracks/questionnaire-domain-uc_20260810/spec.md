@@ -53,12 +53,17 @@ decline(): void
 
 // Запустить анкету (invited → in_progress), использует сохранённый pool
 start(): QuestionnaireActionResponse
+
+// Получить текущее состояние анкеты как QuestionnaireActionResponse
+// (InviteResponse для invited, WaitNext/NewQuestion/Completed для in_progress)
+getQuestionnaireActionResponse(): QuestionnaireActionResponse
 ```
 
 - `intention` → `invited`, `IntentionResponse` → `InviteResponse`
 - `InviteResponse` включает `inviteText` и `whyText` из pool
 - `create()` сохраняет весь `QuestionnairePool`
 - `decline()` — invited → abandoned, выбрасывает событие для модуля-владельца
+- `getQuestionnaireActionResponse()` — возвращает `QuestionnaireActionResponse` (включает `InviteResponse` для invited)
 - Старые методы удалить
 
 ## FR3 — QuestionnaireBotFacade (интерфейс)
@@ -87,7 +92,7 @@ interface QuestionnaireBotFacade {
 | `decline-invite` | `{questionnaireId}` | load ar → ar.decline() → save → **return** cancelWarning |
 | `handle-action` | `{questionnaireId, type, value}` | load ar → ar.handleAction() → save → **return** response |
 | `abandon` | `{questionnaireId}` | load ar → ar.abandon() → save |
-| `get-current` | `{questionnaireId}` | load ar → ar.getCurrent() |
+| `get-current` | `{questionnaireId}` | load ar → ar.getQuestionnaireActionResponse() |
 | `get-questionnaire` | `{uuid}` | load → состояние |
 | `get-questionnaires-by-user` | `{userId}` | список |
 

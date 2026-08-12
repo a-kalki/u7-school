@@ -31,6 +31,10 @@
 - [ ] Task: `start()` без параметров (TDD)
     - [ ] Тест: invited → in_progress, engine из pool.questions
     - [ ] Реализовать
+- [ ] Task: `getQuestionnaireActionResponse()` (TDD)
+    - [ ] Тест: invited → InviteResponse
+    - [ ] Тест: in_progress → WaitNext/NewQuestion/Completed
+    - [ ] Реализовать
 - [ ] Task: Удалить старые методы
     - [ ] `bun run check:p questionnaire` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 2'
