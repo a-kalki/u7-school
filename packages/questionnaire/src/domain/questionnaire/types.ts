@@ -14,6 +14,7 @@ export type InviteResponse = {
 /** Ожидание выбора (multiple choice, черновики) */
 export type WaitNextResponse = {
   type: 'wait_next';
+  questionnaireId: string;
   currentQuestion: Question;
   selectedAnswers: string[];
   nextButton?: string;
@@ -23,6 +24,7 @@ export type WaitNextResponse = {
 /** Новый вопрос */
 export type NewQuestionResponse = {
   type: 'new_question';
+  questionnaireId: string;
   question: Question;
   selectedAnswers?: string[];
   previousQuestion?: Question;
@@ -33,6 +35,7 @@ export type NewQuestionResponse = {
 /** Анкета завершена */
 export type CompletedResponse = {
   type: 'completed';
+  questionnaireId: string;
   selectedAnswers?: string[];
   previousQuestion?: Question;
   previousSelectedAnswers?: string[];
@@ -56,6 +59,7 @@ export const InviteResponseSchema = v.object({
 
 export const WaitNextResponseSchema = v.object({
   type: v.literal('wait_next'),
+  questionnaireId: v.string(),
   currentQuestion: QuestionSchema,
   selectedAnswers: v.array(v.string()),
   nextButton: v.optional(v.string()),
@@ -64,6 +68,7 @@ export const WaitNextResponseSchema = v.object({
 
 export const NewQuestionResponseSchema = v.object({
   type: v.literal('new_question'),
+  questionnaireId: v.string(),
   question: QuestionSchema,
   selectedAnswers: v.optional(v.array(v.string())),
   previousQuestion: v.optional(QuestionSchema),
@@ -73,6 +78,7 @@ export const NewQuestionResponseSchema = v.object({
 
 export const CompletedResponseSchema = v.object({
   type: v.literal('completed'),
+  questionnaireId: v.string(),
   selectedAnswers: v.optional(v.array(v.string())),
   previousQuestion: v.optional(QuestionSchema),
   previousSelectedAnswers: v.optional(v.array(v.string())),

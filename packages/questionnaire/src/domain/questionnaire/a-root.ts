@@ -212,8 +212,10 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
     const response: QuestionnaireActionResponse = {
       type: 'wait_next',
+      questionnaireId: this.state.uuid,
       currentQuestion: question,
       selectedAnswers: newAnswers,
+      cancelWarning: this.#cancelWarning(),
     };
     if (newAnswers.length > 0) {
       response.nextButton = QuestionnaireAr.getNextButtonText(questionCode);
@@ -316,10 +318,12 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       this.safeUpdate({ currentQuestionCode: nextQuestion.questionCode });
       return {
         type: 'new_question',
+        questionnaireId: this.state.uuid,
         question: nextQuestion,
         selectedAnswers: [],
         previousQuestion,
         previousSelectedAnswers: lastSelectedAnswers,
+        cancelWarning: this.#cancelWarning(),
       };
     }
 
@@ -330,6 +334,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     });
     return {
       type: 'completed',
+      questionnaireId: this.state.uuid,
       selectedAnswers: lastSelectedAnswers,
       previousQuestion,
       previousSelectedAnswers: lastSelectedAnswers,
@@ -353,7 +358,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       this.state.status === 'completed' ||
       this.state.status === 'abandoned'
     ) {
-      return { type: 'completed' };
+      return { type: 'completed', questionnaireId: this.state.uuid };
     }
 
     // in_progress
@@ -369,6 +374,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       if (selectedAnswers.length > 0) {
         return {
           type: 'wait_next',
+          questionnaireId: this.state.uuid,
           currentQuestion: question,
           selectedAnswers,
           nextButton: QuestionnaireAr.getNextButtonText(questionCode),
@@ -382,6 +388,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
     return {
       type: 'new_question',
+      questionnaireId: this.state.uuid,
       question,
       selectedAnswers,
       cancelWarning: this.#cancelWarning(),
