@@ -4,13 +4,13 @@
 
 ## Фаза 1: shortIds → BotUiApp
 
-- [~] Task: Перенести сжатие/разжатие из BotController в BotUiApp
-    - [ ] Написать тесты на сжатие при отправке BotCommand
-    - [ ] Написать тесты на разжатие callback_data при входе
-    - [ ] Перенести shortIds, #shrink, #expandData, #compressResponse в BotUiApp
-    - [ ] Удалить сжатие из BotController
-    - [ ] Обновить контроллеры и стори
-    - [ ] `bun run check:a u7-bot` — чисто
+- [x] Task: Перенести сжатие/разжатие из BotController в BotUiApp [343f575]
+    - [x] Написать тесты на сжатие при отправке BotCommand
+    - [x] Написать тесты на разжатие callback_data при входе
+    - [x] Перенести shortIds, #shrink, #expandData, #compressResponse в BotUiApp
+    - [x] Удалить сжатие из BotController
+    - [x] Обновить контроллеры и стори
+    - [x] `bun run check:a u7-bot` — чисто
 - [ ] Task: Conductor - Ручная верификация 'Фаза 1'
 
 ## Фаза 2: BotUiApp.send()
