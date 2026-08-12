@@ -1,8 +1,12 @@
 export { QuestionnaireApiModule } from './module';
 export { AbandonUc } from './questionnaire/abandon-uc';
+export { DeclineInviteUc } from './questionnaire/decline-invite-uc';
+export { GetCurrentUc } from './questionnaire/get-current-uc';
 export { GetQuestionnaireUc } from './questionnaire/get-questionnaire-uc';
 export { GetQuestionnairesByUserUc } from './questionnaire/get-questionnaires-by-user-uc';
 export { HandleActionUc } from './questionnaire/handle-action-uc';
 export { QuestionnaireUseCase } from './questionnaire/questionnaire-uc';
+export { SendInviteUc } from './questionnaire/send-invite-uc';
+export { StartByInviteUc } from './questionnaire/start-by-invite-uc';
 export { StartUc } from './questionnaire/start-uc';
 export * from './questionnaire/uc-metas';

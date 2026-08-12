@@ -29,14 +29,4 @@ export abstract class QuestionnaireUseCase<
     }
     return q;
   }
-
-  /** Находит активную анкету пользователя */
-  protected async getActiveQuestionnaire(
-    telegramId: number,
-  ): Promise<Questionnaire | undefined> {
-    const all = await this.repo.getByRespondentId(telegramId);
-    return all.find(
-      (q) => q.status === 'in_progress' || q.status === 'intention',
-    );
-  }
 }

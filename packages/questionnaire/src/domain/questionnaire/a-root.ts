@@ -3,25 +3,27 @@ import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { Answer, Questionnaire, QuestionnaireArMeta } from './entity';
 import { QuestionnaireSchema } from './entity';
-import type { Question } from './question';
+import type { Question, QuestionnairePool } from './question';
+import { QuestionnairePoolSchema } from './question';
 import { QuestionnaireEngine } from './questionnaire-engine';
-import type { QuestionnaireActionResponse } from './types';
+import type { InviteResponse, QuestionnaireActionResponse } from './types';
 
 /** Префикс значения кнопки «Далее» */
 const NEXT_BUTTON_PREFIX = 'next:';
 
 /** Агрегат анкеты. Движок (QuestionnaireEngine) — внутренняя деталь. */
 export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
-  /** Движок создаётся при start/startNew и живёт пока есть pool */
+  /** Движок создаётся при start() и живёт пока есть pool */
   #engine: QuestionnaireEngine | null = null;
 
   constructor(state: Questionnaire) {
     super(state, QuestionnaireSchema);
     // Если состояние уже имеет pool (например загружено из БД) — восстановим engine
-    if (state.questionPool && state.questionPool.length > 0) {
+    const pool = state.questionPool as QuestionnairePool | null;
+    if (pool && pool.questions && pool.questions.length > 0) {
       this.#engine = new QuestionnaireEngine(
-        state.questionPool as Question[],
-        (state.questionPool as Question[]).map((q) => q.questionCode),
+        pool.questions,
+        pool.questions.map((q) => q.questionCode),
       );
     }
   }
@@ -31,18 +33,24 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // ═════════════════════════════════════════════════════════════
 
   /**
-   * Создаёт анкету в статусе intention (без пула).
-   * Модуль-владелец позже вызовет start(pool).
+   * Создаёт анкету в статусе invited с переданным пулом.
+   * Пул сохраняется целиком (включая inviteText, whyText и т.д.).
    */
-  static createIntention(respondentId: number): QuestionnaireAr {
+  static create(
+    respondentId: number,
+    pool: QuestionnairePool,
+  ): QuestionnaireAr {
+    // Валидируем пул
+    v.parse(QuestionnairePoolSchema, pool);
+
     const state: Questionnaire = {
       uuid: crypto.randomUUID(),
       respondentId,
-      status: 'intention',
+      status: 'invited',
       currentQuestionCode: null,
       draftAnswers: {},
       answers: [],
-      questionPool: null,
+      questionPool: pool as unknown as Record<string, unknown>[],
       createdAt: isoNow(),
       completedAt: null,
     };
@@ -50,36 +58,58 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   }
 
   /**
-   * Запускает анкету: сохраняет снимок пула, создаёт движок,
-   * переводит в in_progress и выдаёт первый вопрос.
+   * Создаёт приглашение — InviteResponse с inviteText и whyText из пула.
+   * Вызывается только в статусе invited.
    */
-  start(pool: Question[]): QuestionnaireActionResponse {
-    if (this.state.status !== 'intention') {
+  createInvite(): InviteResponse {
+    if (this.state.status !== 'invited') {
       this.throwBadRequest(
-        'Анкета не в статусе intention и не может быть запущена',
+        'Анкета не в статусе invited, невозможно создать приглашение',
       );
     }
-
-    this.#engine = new QuestionnaireEngine(
-      pool,
-      pool.map((q) => q.questionCode),
-    );
-
-    this.safeUpdate({
-      status: 'in_progress',
-      questionPool: pool as unknown as Record<string, unknown>[],
-    });
-
-    return this.#findAndSetNextQuestion([]);
+    const pool = this.state.questionPool as unknown as QuestionnairePool;
+    return {
+      type: 'invited',
+      questionnaireId: this.state.uuid,
+      inviteText: pool.inviteText,
+      whyText: pool.whyText,
+    };
   }
 
   /**
-   * Создаёт и сразу запускает анкету (intention → start за один шаг).
+   * Отказывается от приглашения: invited → abandoned.
+   * Выбрасывает событие (через throwBadRequest при неверном статусе).
    */
-  static startNew(respondentId: number, pool: Question[]): QuestionnaireAr {
-    const ar = QuestionnaireAr.createIntention(respondentId);
-    ar.start(pool);
-    return ar;
+  decline(): void {
+    if (this.state.status !== 'invited') {
+      this.throwBadRequest(
+        'Анкета не в статусе invited, невозможно отказаться',
+      );
+    }
+    this.safeUpdate({ status: 'abandoned' });
+  }
+
+  /**
+   * Запускает анкету: invited → in_progress, создаёт движок из сохранённого пула,
+   * выдаёт первый вопрос.
+   */
+  start(): QuestionnaireActionResponse {
+    if (this.state.status !== 'invited') {
+      this.throwBadRequest(
+        'Анкета не в статусе invited и не может быть запущена',
+      );
+    }
+
+    const pool = this.state.questionPool as unknown as QuestionnairePool;
+
+    this.#engine = new QuestionnaireEngine(
+      pool.questions,
+      pool.questions.map((q) => q.questionCode),
+    );
+
+    this.safeUpdate({ status: 'in_progress' });
+
+    return this.#findAndSetNextQuestion([]);
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -99,7 +129,8 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 
   /** Пул вопросов (снимок) */
   getPool(): Question[] {
-    return (this.state.questionPool as Question[]) ?? [];
+    const pool = this.state.questionPool as unknown as QuestionnairePool | null;
+    return pool?.questions ?? [];
   }
 
   /** Движок — только для внутреннего использования */
@@ -346,22 +377,27 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // Текущее состояние для UI
   // ═════════════════════════════════════════════════════════════
 
-  /** Возвращает текущее состояние анкеты для UI */
-  getCurrent(): QuestionnaireActionResponse {
-    if (this.state.status === 'intention') {
-      return { type: 'intention', questionnaireId: this.state.uuid };
+  /**
+   * Возвращает текущее состояние анкеты для UI.
+   * Для invited — InviteResponse, для in_progress — вопрос, для completed/abandoned — completed.
+   */
+  getQuestionnaireActionResponse(): QuestionnaireActionResponse {
+    if (this.state.status === 'invited') {
+      return this.createInvite();
     }
 
-    if (this.state.status === 'completed') {
+    if (
+      this.state.status === 'completed' ||
+      this.state.status === 'abandoned'
+    ) {
       return { type: 'completed' };
     }
 
-    if (this.state.status === 'abandoned') {
-      return { type: 'completed' }; // abandoned отображается как завершённый
-    }
-
     // in_progress
-    const questionCode = this.currentQuestionCode;
+    const questionCode = this.state.currentQuestionCode;
+    if (!questionCode) {
+      this.throwInternal('Код текущего вопроса не установлен');
+    }
     const question = this.#getQuestion(questionCode);
 
     if (question.type === 'choice' && question.multiple) {

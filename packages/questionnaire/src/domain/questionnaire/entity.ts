@@ -20,7 +20,7 @@ export type Answer = v.InferOutput<typeof AnswerSchema>;
 
 /** Статус анкеты */
 export const QuestionnaireStatusSchema = v.picklist(
-  ['intention', 'in_progress', 'completed', 'abandoned'],
+  ['invited', 'in_progress', 'completed', 'abandoned'],
   'Некорректный статус анкеты',
 );
 
@@ -41,8 +41,8 @@ export const QuestionnaireSchema = v.object({
   ),
   draftAnswers: v.record(v.string(), v.string()),
   answers: v.array(AnswerSchema),
-  /** Снимок пула вопросов. null в intention, заполняется при start(). */
-  questionPool: v.nullable(v.array(v.any())),
+  /** Снимок пула вопросов. null в invited, заполняется при start(). */
+  questionPool: v.nullable(v.any()),
   createdAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),

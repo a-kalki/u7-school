@@ -1,7 +1,5 @@
-import { errNotFound } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
-import type { QuestionnaireNotFoundUcError } from '../../domain/questionnaire/errors';
 import { QuestionnaireUseCase } from './questionnaire-uc';
 import type { GetQuestionnaireUcMeta } from './uc-metas';
 
@@ -25,18 +23,6 @@ export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireUcM
     command: { uuid: string },
     _actorId: string,
   ): Promise<Questionnaire> {
-    const q = await this.repo.getByUuid(command.uuid);
-
-    if (!q) {
-      this.throwError(
-        errNotFound<QuestionnaireNotFoundUcError>(
-          'QUESTIONNAIRE_NOT_FOUND',
-          `Анкета "${command.uuid}" не найдена`,
-          { uuid: command.uuid },
-        ),
-      );
-    }
-
-    return q;
+    return this.getQuestionnaire(command.uuid);
   }
 }

@@ -4,7 +4,7 @@ import { QuestionnaireUseCase } from './questionnaire-uc';
 import type { GetQuestionnairesByUserUcMeta } from './uc-metas';
 
 const GetByUserCmdSchema = v.object({
-  respondentId: v.pipe(v.number(), v.minValue(1)),
+  userId: v.pipe(v.number(), v.minValue(1)),
 });
 
 export class GetQuestionnairesByUserUc extends QuestionnaireUseCase<GetQuestionnairesByUserUcMeta> {
@@ -20,9 +20,9 @@ export class GetQuestionnairesByUserUc extends QuestionnaireUseCase<GetQuestionn
   protected readonly outputSchema = v.any();
 
   async execute(
-    command: { respondentId: number },
+    command: { userId: number },
     _actorId: string,
   ): Promise<Questionnaire[]> {
-    return this.repo.getByRespondentId(command.respondentId);
+    return this.repo.getByRespondentId(command.userId);
   }
 }

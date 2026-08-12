@@ -1,6 +1,8 @@
 import type { User } from '@u7-scl/user/domain';
-import type { InviteResponse } from './questionnaire/types';
-import type { QuestionnaireActionResponse } from './questionnaire/types';
+import type {
+  InviteResponse,
+  QuestionnaireActionResponse,
+} from './questionnaire/types';
 
 /**
  * Интерфейс для UI-слоя (бота), который рендерит приглашения и вопросы анкет.

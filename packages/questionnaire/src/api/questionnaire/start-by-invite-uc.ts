@@ -2,41 +2,31 @@ import * as v from 'valibot';
 import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from './questionnaire-uc';
-import type { HandleActionUcMeta } from './uc-metas';
+import type { StartByInviteUcMeta } from './uc-metas';
 
-const HandleActionCmdSchema = v.object({
+const StartByInviteCmdSchema = v.object({
   questionnaireId: v.pipe(v.string(), v.uuid()),
-  type: v.picklist(['callback', 'text']),
-  value: v.string(),
 });
 
-export class HandleActionUc extends QuestionnaireUseCase<HandleActionUcMeta> {
-  protected readonly ucName = 'handle-action' as const;
-  protected readonly ucLabel = 'Обработать действие в анкете' as const;
+export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteUcMeta> {
+  protected readonly ucName = 'start-by-invite' as const;
+  protected readonly ucLabel = 'Запустить анкету по приглашению' as const;
   protected readonly arMeta = {
     arName: 'Questionnaire' as const,
     arLabel: 'Анкета' as const,
   };
   protected readonly type = 'command' as const;
   protected readonly requiresAuth = false as const;
-  protected readonly inputSchema = HandleActionCmdSchema;
+  protected readonly inputSchema = StartByInviteCmdSchema;
   protected readonly outputSchema = v.any();
 
   async execute(
-    command: {
-      questionnaireId: string;
-      type: 'callback' | 'text';
-      value: string;
-    },
+    command: { questionnaireId: string },
     _actorId: string,
   ): Promise<QuestionnaireActionResponse> {
     const state = await this.getQuestionnaire(command.questionnaireId);
     const ar = new QuestionnaireAr(state);
-    const response = ar.handleAction({
-      type: command.type,
-      value: command.value,
-    });
-
+    const response = ar.start();
     await this.repo.save(ar.state);
 
     return response;

@@ -66,3 +66,20 @@ export const QuestionSchema = v.variant('type', [
 ]);
 
 export type Question = v.InferOutput<typeof QuestionSchema>;
+
+// ── QuestionnairePool ──
+
+/** Схема пула анкеты */
+export const QuestionnairePoolSchema = v.object({
+  inviteText: v.optional(v.string()),
+  whyText: v.optional(v.string()),
+  completionText: v.optional(v.string()),
+  cancelWarning: v.optional(v.string()),
+  questions: v.pipe(
+    v.array(QuestionSchema),
+    v.minLength(1, 'Пул должен содержать хотя бы один вопрос'),
+  ),
+});
+
+/** Пул анкеты — метаданные + вопросы */
+export type QuestionnairePool = v.InferOutput<typeof QuestionnairePoolSchema>;

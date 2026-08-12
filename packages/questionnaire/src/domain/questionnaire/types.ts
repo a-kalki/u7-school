@@ -1,9 +1,11 @@
 import type { Question } from './question';
 
-/** Анкета ещё не запущена */
-export type IntentionResponse = {
-  type: 'intention';
+/** Приглашение пройти анкету (статус invited) */
+export type InviteResponse = {
+  type: 'invited';
   questionnaireId: string;
+  inviteText?: string;
+  whyText?: string;
 };
 
 /** Ожидание выбора (multiple choice, черновики) */
@@ -32,7 +34,7 @@ export type CompletedResponse = {
 };
 
 export type QuestionnaireActionResponse =
-  | IntentionResponse
+  | InviteResponse
   | WaitNextResponse
   | NewQuestionResponse
   | CompletedResponse;
