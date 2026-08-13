@@ -4,7 +4,7 @@ import {
   type DeclineInviteCmd,
   DeclineInviteCmdSchema,
 } from '#domain/questionnaire/commands/decline-invite-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
+import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> {

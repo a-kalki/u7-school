@@ -4,7 +4,7 @@ import {
   type StartCmd,
   StartCmdSchema,
 } from '#domain/questionnaire/commands/start-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
+import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {

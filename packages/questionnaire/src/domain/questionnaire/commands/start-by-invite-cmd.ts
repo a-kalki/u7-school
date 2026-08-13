@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
 import type { QuestionnaireActionResponse } from '../types';
 import type {
   AccessDeniedUcError,
@@ -16,7 +16,7 @@ export type StartByInviteCmd = v.InferOutput<typeof StartByInviteCmdSchema>;
 
 export interface StartByInviteCmdMeta {
   ucName: 'start-by-invite';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: StartByInviteCmd;
   output: QuestionnaireActionResponse;
   errors: StartByInviteCmdError;

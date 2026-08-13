@@ -3,7 +3,7 @@ import {
   type HandleActionCmd,
   HandleActionCmdSchema,
 } from '#domain/questionnaire/commands/handle-action-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
+import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from '../questionnaire-uc';

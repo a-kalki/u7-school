@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
 import { QuestionnairePoolSchema } from '../question';
 import type { BadRequestUcError, InternalUcError } from './errors';
 
@@ -11,7 +11,7 @@ export type StartCmd = v.InferOutput<typeof StartCmdSchema>;
 
 export interface StartCmdMeta {
   ucName: 'start';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: StartCmd;
   output: undefined;
   errors: StartCmdError;

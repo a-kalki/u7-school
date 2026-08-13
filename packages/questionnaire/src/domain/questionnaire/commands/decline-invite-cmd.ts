@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
 import type {
   AccessDeniedUcError,
   BadRequestUcError,
@@ -15,7 +15,7 @@ export type DeclineInviteCmd = v.InferOutput<typeof DeclineInviteCmdSchema>;
 
 export interface DeclineInviteCmdMeta {
   ucName: 'decline-invite';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: DeclineInviteCmd;
   output: undefined;
   errors: DeclineInviteCmdError;

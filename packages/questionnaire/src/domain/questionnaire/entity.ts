@@ -1,4 +1,4 @@
-import type { DomainEvent } from '@u7-scl/core/domain';
+import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { QuestionnairePoolSchema } from './question';
 
@@ -30,7 +30,7 @@ export type QuestionnaireStatus = v.InferOutput<
   typeof QuestionnaireStatusSchema
 >;
 
-/** Схема состояния анкеты */
+/** Схема состояния обычной анкеты */
 export const QuestionnaireSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   respondentId: v.pipe(
@@ -62,7 +62,7 @@ export type Questionnaire = v.InferOutput<typeof QuestionnaireSchema>;
  * Базовые поля состояния анкеты — общие для базового QuestionnaireAr
  * и наследников (например, MetricQuestionnaireAr с упрощённым пулом).
  */
-export type QuestionnaireStateBase = {
+export type BaseQuestionnaireState = {
   uuid: string;
   respondentId: string;
   status: QuestionnaireStatus;
@@ -82,11 +82,8 @@ export type QuestionnaireStateBase = {
 };
 
 /** Метаданные агрегата Questionnaire */
-export interface QuestionnaireArMeta<
-  TState extends QuestionnaireStateBase = Questionnaire,
-> {
+export interface BaseQuestionnaireArMeta extends ArMeta {
   name: 'Questionnaire';
   label: 'Анкета';
-  state: TState;
-  events: DomainEvent;
+  state: BaseQuestionnaireState;
 }

@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { Questionnaire, QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta, Questionnaire } from '../entity';
 import type {
   AccessDeniedUcError,
   InternalUcError,
@@ -16,7 +16,7 @@ export type GetQuestionnaireCmd = v.InferOutput<
 
 export interface GetQuestionnaireCmdMeta {
   ucName: 'get-questionnaire';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: GetQuestionnaireCmd;
   output: Questionnaire;
   errors: GetQuestionnaireCmdError;

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { QuestionnaireAr } from './a-root';
-import type { Question, QuestionnairePool } from './question';
+import type { Question, QuestionnairePool } from '../question';
+import { QuestionnaireAr } from './questionnaire-ar';
 
 function makePool(questions: Question[]): QuestionnairePool {
   return {

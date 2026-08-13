@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
 import type {
   AccessDeniedUcError,
   BadRequestUcError,
@@ -15,7 +15,7 @@ export type AbandonCmd = v.InferOutput<typeof AbandonCmdSchema>;
 
 export interface AbandonCmdMeta {
   ucName: 'abandon';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: AbandonCmd;
   output: undefined;
   errors: AbandonCmdError;

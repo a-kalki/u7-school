@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { Questionnaire, QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta, Questionnaire } from '../entity';
 import type { AccessDeniedUcError, InternalUcError } from './errors';
 
 export const GetQuestionnairesByUserCmdSchema = v.object({
@@ -12,7 +12,7 @@ export type GetQuestionnairesByUserCmd = v.InferOutput<
 
 export interface GetQuestionnairesByUserCmdMeta {
   ucName: 'get-questionnaires-by-user';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: GetQuestionnairesByUserCmd;
   output: Questionnaire[];
   errors: GetQuestionnairesByUserCmdError;

@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
 import type { QuestionnaireActionResponse } from '../types';
 import type {
   AccessDeniedUcError,
@@ -15,7 +15,7 @@ export type GetCurrentCmd = v.InferOutput<typeof GetCurrentCmdSchema>;
 
 export interface GetCurrentCmdMeta {
   ucName: 'get-current';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: GetCurrentCmd;
   output: QuestionnaireActionResponse;
   errors: GetCurrentCmdError;

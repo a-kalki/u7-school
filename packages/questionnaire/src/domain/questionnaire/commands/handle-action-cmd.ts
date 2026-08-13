@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { QuestionnaireArMeta } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
 import type { QuestionnaireActionResponse } from '../types';
 import type {
   AccessDeniedUcError,
@@ -18,7 +18,7 @@ export type HandleActionCmd = v.InferOutput<typeof HandleActionCmdSchema>;
 
 export interface HandleActionCmdMeta {
   ucName: 'handle-action';
-  arMeta: QuestionnaireArMeta;
+  arMeta: BaseQuestionnaireArMeta;
   input: HandleActionCmd;
   output: QuestionnaireActionResponse;
   errors: HandleActionCmdError;

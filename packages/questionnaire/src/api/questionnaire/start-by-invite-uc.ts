@@ -3,7 +3,7 @@ import {
   type StartByInviteCmd,
   StartByInviteCmdSchema,
 } from '#domain/questionnaire/commands/start-by-invite-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
+import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from '../questionnaire-uc';

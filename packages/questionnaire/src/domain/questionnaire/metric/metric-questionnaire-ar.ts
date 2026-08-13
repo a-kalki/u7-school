@@ -1,6 +1,8 @@
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
-import { QuestionnaireAr } from '../a-root';
+import { BaseQuestionnaireAr } from '../a-root';
+import type { BaseQuestionnaireArMeta } from '../entity';
+import type { MetricQuestionnaireCompleted } from '../events';
 import type { ChoiceQuestion } from '../question';
 import { QuestionnaireEngine } from '../questionnaire-engine';
 import {
@@ -19,8 +21,13 @@ import {
   MetricQuestionnaireSchema,
 } from './metric-questionnaire';
 
-/** Агрегат метрик-анкеты: расширяет payload события завершения полем metricScores. */
-export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> {
+export interface MetricQuestionnaireArMeta extends BaseQuestionnaireArMeta {
+  state: MetricQuestionnaire;
+  events: MetricQuestionnaireCompleted;
+}
+
+/** Агрегат метрик-анкеты: публикует MetricQuestionnaireCompleted. */
+export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnaireArMeta> {
   constructor(state: MetricQuestionnaire) {
     super(state, MetricQuestionnaireSchema);
   }
@@ -73,15 +80,33 @@ export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> 
     };
   }
 
-  protected override buildCompletionPayload(): Record<string, unknown> {
-    const { context, role, subjectId, triggerEvent } = this.state.assessment;
-    return {
-      ...super.buildCompletionPayload(),
-      context,
-      role,
-      subjectId,
-      ...(triggerEvent ? { triggerEvent } : {}),
+  protected buildCompletedEvent(): MetricQuestionnaireCompleted {
+    const assessment = this.state.assessment;
+    const payload: MetricQuestionnaireCompleted['payload'] = {
+      questionnaireId: this.state.uuid,
+      respondentId: this.state.respondentId,
+      context: assessment.context,
+      role: assessment.role,
+      subjectId: assessment.subjectId,
       metricScores: this.computeMetricScores(),
+    };
+    if (assessment.triggerEvent) {
+      return {
+        eventId: crypto.randomUUID(),
+        eventName: 'questionnaire.completed',
+        occurredAt: isoNow(),
+        aggregateName: 'Questionnaire',
+        aggregateId: this.state.uuid,
+        payload: { ...payload, triggerEvent: assessment.triggerEvent },
+      };
+    }
+    return {
+      eventId: crypto.randomUUID(),
+      eventName: 'questionnaire.completed',
+      occurredAt: isoNow(),
+      aggregateName: 'Questionnaire',
+      aggregateId: this.state.uuid,
+      payload,
     };
   }
 

@@ -3,65 +3,40 @@ import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type {
   Answer,
-  Questionnaire,
-  QuestionnaireArMeta,
-  QuestionnaireStateBase,
+  BaseQuestionnaireArMeta,
+  BaseQuestionnaireState,
 } from './entity';
-import { QuestionnaireSchema } from './entity';
-import type { Question, QuestionnairePool } from './question';
-import { QuestionnairePoolSchema } from './question';
+import type { Question } from './question';
 import { QuestionnaireEngine } from './questionnaire-engine';
 import type { InviteResponse, QuestionnaireActionResponse } from './types';
 
 /** Префикс значения кнопки «Далее» */
 const NEXT_BUTTON_PREFIX = 'next:';
 
-/** Агрегат анкеты. */
-export class QuestionnaireAr<
-  TState extends QuestionnaireStateBase = Questionnaire,
-> extends Aggregate<QuestionnaireArMeta<TState>> {
+/**
+ * Абстрактная основа анкеты: вся логика.
+ * Конкретные агрегаты подставляют свой метатип (state + events).
+ */
+export abstract class BaseQuestionnaireAr<
+  TMeta extends BaseQuestionnaireArMeta = BaseQuestionnaireArMeta,
+> extends Aggregate<TMeta> {
   #engine: QuestionnaireEngine;
 
-  constructor(
-    state: TState,
-    schema: v.GenericSchema<TState> = QuestionnaireSchema as v.GenericSchema<TState>,
-  ) {
+  constructor(state: TMeta['state'], schema: v.GenericSchema<TMeta['state']>) {
     super(state, schema);
     this.#engine = this.buildEngine(state);
   }
 
   /** Строит движок из вопросов пула. Переопределяется в наследниках. */
-  protected buildEngine(state: TState): QuestionnaireEngine {
+  protected buildEngine(state: TMeta['state']): QuestionnaireEngine {
     return new QuestionnaireEngine(state.questionPool.questions as Question[]);
   }
 
-  // ═════════════════════════════════════════════════════════════
-  // Фабрики
-  // ═════════════════════════════════════════════════════════════
-
   /**
-   * Создаёт анкету в статусе invited с переданным пулом.
+   * Событие завершения анкеты. Каждый конкретный агрегат строит своё событие —
+   * тип события привязан к метатипу и проверяется компилятором.
    */
-  static create(
-    respondentId: string,
-    pool: QuestionnairePool,
-  ): QuestionnaireAr {
-    // Валидируем пул
-    v.parse(QuestionnairePoolSchema, pool);
-
-    const state: Questionnaire = {
-      uuid: crypto.randomUUID(),
-      respondentId,
-      status: 'invited',
-      currentQuestionCode: null,
-      draftAnswers: {},
-      answers: [],
-      questionPool: pool,
-      createdAt: isoNow(),
-      completedAt: null,
-    };
-    return new QuestionnaireAr(state);
-  }
+  protected abstract buildCompletedEvent(): TMeta['events'];
 
   /**
    * Возвращает приглашение — InviteResponse.
@@ -130,7 +105,7 @@ export class QuestionnaireAr<
 
   #isValidNextButtonText(value: string): boolean {
     return (
-      value === QuestionnaireAr.getNextButtonText(this.currentQuestionCode)
+      value === BaseQuestionnaireAr.getNextButtonText(this.currentQuestionCode)
     );
   }
 
@@ -216,7 +191,9 @@ export class QuestionnaireAr<
         ? currentAnswers.filter((c) => c !== answerCode)
         : [...currentAnswers, answerCode];
 
-    const newDraft: Record<string, string> = { ...this.state.draftAnswers };
+    const newDraft: Record<string, string> = {
+      ...this.state.draftAnswers,
+    };
     if (newAnswers.length > 0) {
       newDraft[questionCode] = newAnswers.join(',');
     } else {
@@ -233,7 +210,7 @@ export class QuestionnaireAr<
       cancelWarning: this.#cancelWarning(),
     };
     if (newAnswers.length > 0) {
-      response.nextButton = QuestionnaireAr.getNextButtonText(questionCode);
+      response.nextButton = BaseQuestionnaireAr.getNextButtonText(questionCode);
     }
     return response;
   }
@@ -298,7 +275,9 @@ export class QuestionnaireAr<
     this._state.answers.push(entry);
 
     // Очищаем черновики
-    const newDraft: Record<string, string> = { ...this.state.draftAnswers };
+    const newDraft: Record<string, string> = {
+      ...this.state.draftAnswers,
+    };
     delete newDraft[questionCode];
     this.safeUpdate({ draftAnswers: newDraft });
 
@@ -347,7 +326,8 @@ export class QuestionnaireAr<
       currentQuestionCode: null,
       completedAt: isoNow(),
     });
-    this.onComplete();
+    this.addEvent(this.buildCompletedEvent());
+
     return {
       type: 'completed',
       questionnaireId: this.state.uuid,
@@ -393,7 +373,7 @@ export class QuestionnaireAr<
           questionnaireId: this.state.uuid,
           currentQuestion: question,
           selectedAnswers,
-          nextButton: QuestionnaireAr.getNextButtonText(questionCode),
+          nextButton: BaseQuestionnaireAr.getNextButtonText(questionCode),
           cancelWarning: this.#cancelWarning(),
         };
       }
@@ -408,33 +388,6 @@ export class QuestionnaireAr<
       question,
       selectedAnswers,
       cancelWarning: this.#cancelWarning(),
-    };
-  }
-
-  // ═════════════════════════════════════════════════════════════
-  // Завершение
-  // ═════════════════════════════════════════════════════════════
-
-  /**
-   * Генерирует событие QuestionnaireCompleted.
-   * Переопределяется в подклассах для расширения payload.
-   */
-  protected onComplete(): void {
-    this.addEvent({
-      eventId: crypto.randomUUID(),
-      eventName: 'questionnaire.completed',
-      occurredAt: isoNow(),
-      aggregateName: 'Questionnaire',
-      aggregateId: this.state.uuid,
-      payload: this.buildCompletionPayload(),
-    });
-  }
-
-  /** Хук расширения payload события завершения */
-  protected buildCompletionPayload(): Record<string, unknown> {
-    return {
-      questionnaireId: this.state.uuid,
-      respondentId: this.state.respondentId,
     };
   }
 
@@ -457,9 +410,9 @@ export class QuestionnaireAr<
    * чтобы частичные обновления не зависели от generic-состояния.
    */
   protected override safeUpdate(
-    partial: Partial<QuestionnaireStateBase>,
+    partial: Partial<BaseQuestionnaireState>,
   ): void {
-    super.safeUpdate(partial as Partial<TState>);
+    super.safeUpdate(partial as Partial<TMeta['state']>);
   }
 
   // ═════════════════════════════════════════════════════════════

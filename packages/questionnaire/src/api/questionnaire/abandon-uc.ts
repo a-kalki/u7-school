@@ -4,7 +4,7 @@ import {
   type AbandonCmd,
   AbandonCmdSchema,
 } from '#domain/questionnaire/commands/abandon-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/a-root';
+import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {

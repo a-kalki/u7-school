@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { MetricQuestionPool, MetricScore } from './metric-question';
+import type { MetricQuestionPool } from './metric-question';
 import type { MetricAssessment } from './metric-questionnaire';
 import { MetricQuestionnaireAr } from './metric-questionnaire-ar';
 
@@ -148,7 +148,7 @@ describe('MetricQuestionnaireAr', () => {
     ar.handleAction({ type: 'callback', value: '1' });
 
     const events = ar.flushEvents();
-    const scores = events[0]!.payload.metricScores as MetricScore[];
+    const scores = events[0]!.payload.metricScores;
     // (5 * 0.75 + 1 * 1.25) / (0.75 + 1.25) = 5 / 2 = 2.5
     expect(scores).toEqual([
       { category: 'team_skills', subcategory: 'communication', score: 2.5 },
@@ -189,7 +189,7 @@ describe('MetricQuestionnaireAr', () => {
     expect(response.type).toBe('completed');
 
     const events = ar.flushEvents();
-    const scores = events[0]!.payload.metricScores as MetricScore[];
+    const scores = events[0]!.payload.metricScores;
     // (4 + 2) / 2 = 3
     expect(scores).toEqual([
       { category: 'team_skills', subcategory: 'communication', score: 3 },
