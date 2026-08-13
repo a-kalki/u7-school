@@ -8,13 +8,13 @@
 
 ## Фаза 2: MetricQuestionnaireAr
 
-- [ ] Task: Реализовать `MetricQuestionnaireAr extends QuestionnaireAr`
-- [ ] Task: Реализовать `computeMetricScores()` — группировка по subcategory, средневзвешенное
+- [x] Task: Реализовать `MetricQuestionnaireAr extends QuestionnaireAr` [da637978]
+- [x] Task: Реализовать `computeMetricScores()` — группировка по subcategory, средневзвешенное [da637978]
 - [x] Task: Перенести генерацию `QuestionnaireCompleted` в базовый `QuestionnaireAr` (payload без `answers`); `MetricQuestionnaireAr` расширяет payload полем `metricScores` [94758477]
-- [ ] Task: Написать unit-тесты:
-    - [ ] завершение анкеты → metricScores вычислены
-    - [ ] анкета без metricMapping → metricScores = null
-    - [ ] разный вес вопросов → корректное средневзвешенное
+- [x] Task: Написать unit-тесты: [da637978]
+    - [x] завершение анкеты → metricScores вычислены
+    - [x] анкета без metricMapping → metricScores — пустой массив
+    - [x] разный вес вопросов → корректное средневзвешенное
 - [ ] Task: Conductor - Ручная верификация 'MetricQuestionnaireAr'
 
 ## Фаза 3: Пул вопросов
