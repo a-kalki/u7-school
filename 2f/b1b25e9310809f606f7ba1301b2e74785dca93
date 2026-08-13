@@ -1,0 +1,3 @@
+Задача: Описать тип MetricMapping (связанный категория↔подкатегория) и MetricScore.
+Изменения: созданы metric-types.ts (схемы/типы MetricMapping, MetricCategory, MetricSubcategory, MetricScore) и metric-types.test.ts (8 тестов).
+Причина: жёсткая типизация и runtime-валидация связи «категория → допустимые подкатегории», баллы 1–5, вес по умолчанию 1.0.
