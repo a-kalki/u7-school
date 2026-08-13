@@ -47,7 +47,7 @@ class MetricQuestionnaireAr extends QuestionnaireAr {
 }
 ```
 
-**Важно:** `MetricQuestionnaireAr` использует свой `MetricQuestion` (расширение `Question` с `metricMapping`) и `MetricAnswer` (расширение `Answer` без `answerText` и `choices` — они всегда стандартны для метрик). Это позволяет не хранить мёртвые данные.
+**Важно:** `MetricQuestionnaireAr` использует свой компактный `MetricQuestion` (с `metricMapping`, без `type`/`multiple`/`answers`) и `MetricAnswer` (ответ без `answerText` и `choices` — они всегда стандартны для метрик). Это позволяет не хранить мёртвые данные.
 
 ### MetricQuestion
 
@@ -62,7 +62,11 @@ type MetricMapping =
 type MetricCategory = MetricMapping['category'];
 type MetricSubcategory = MetricMapping['subcategory'];
 
-interface MetricQuestion extends Question {
+// Компактный вопрос метрики: не хранит type/multiple/answers —
+// метрики всегда choice, одиночный выбор, шкала Лайкерт 1–5.
+interface MetricQuestion {
+  questionCode: string;
+  question: string;  // текст утверждения
   metricMapping: MetricMapping;
 }
 ```
@@ -104,12 +108,14 @@ interface MetricAnswer {
 
 ## FR2 — `metricMapping` в вопросах пула
 
-`metricMapping` добавляется на уровне `MetricQuestion` (расширение `Question`), а не в базовый `Question`. Базовый `Question` и `QuestionnaireEngine` (движок) **ничего не знают о метриках**.
+`metricMapping` хранится только в `MetricQuestion` (компактном типе), а не в базовом `Question`. Базовый `Question` и `QuestionnaireEngine` (движок) **ничего не знают о метриках**.
 
 ```typescript
 // Вопрос с метриками (для MetricQuestionnaireAr)
 // Тип MetricMapping определён в FR1
-interface MetricQuestion extends Question {
+interface MetricQuestion {
+  questionCode: string;
+  question: string;  // текст утверждения
   metricMapping: MetricMapping;  // связь категория↔подкатегория гарантирована типом
 }
 ```
