@@ -3,7 +3,7 @@
 ## Фаза 1: MetricMapping и MetricScore типы
 
 - [x] Task: Описать тип `MetricMapping` (связанный категория↔подкатегория) и `MetricScore` в `questionnaire/domain/` [2fb1b25]
-- [ ] Task: Расширить `Question` типы — `MetricQuestion` с обязательным `metricMapping: MetricMapping`
+- [x] Task: Расширить `Question` типы — `MetricQuestion` с обязательным `metricMapping: MetricMapping` [db92e8c]
 - [ ] Task: Conductor - Ручная верификация 'Типы'
 
 ## Фаза 2: MetricQuestionnaireAr
