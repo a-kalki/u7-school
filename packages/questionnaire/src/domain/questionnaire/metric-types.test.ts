@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import * as v from 'valibot';
-import { MetricMappingSchema, MetricScoreSchema } from './metric-types';
+import {
+  MetricMappingSchema,
+  MetricQuestionSchema,
+  MetricScoreSchema,
+} from './metric-types';
 
 describe('MetricMapping', () => {
   test('валидная связь категория↔подкатегория проходит', () => {
@@ -75,5 +79,51 @@ describe('MetricScore', () => {
       score: 4,
     };
     expect(() => v.parse(MetricScoreSchema, score)).toThrow();
+  });
+});
+
+describe('MetricQuestion', () => {
+  test('choice-вопрос с metricMapping проходит', () => {
+    const q = {
+      question: 'Пишет код чисто',
+      questionCode: 'mc_work_quality_1',
+      type: 'choice',
+      multiple: false,
+      answers: [
+        { answer: '1', answerCode: '1' },
+        { answer: '5', answerCode: '5' },
+      ],
+      metricMapping: {
+        category: 'professional_skills',
+        subcategory: 'work_quality',
+      },
+    };
+    expect(() => v.parse(MetricQuestionSchema, q)).not.toThrow();
+  });
+
+  test('вопрос без metricMapping — ошибка', () => {
+    const q = {
+      question: 'Пишет код чисто',
+      questionCode: 'mc_work_quality_1',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: '1', answerCode: '1' }],
+    };
+    expect(() => v.parse(MetricQuestionSchema, q)).toThrow();
+  });
+
+  test('metricMapping с невалидной связью — ошибка', () => {
+    const q = {
+      question: 'Пишет код чисто',
+      questionCode: 'mc_work_quality_1',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: '1', answerCode: '1' }],
+      metricMapping: {
+        category: 'professional_skills',
+        subcategory: 'communication',
+      },
+    };
+    expect(() => v.parse(MetricQuestionSchema, q)).toThrow();
   });
 });

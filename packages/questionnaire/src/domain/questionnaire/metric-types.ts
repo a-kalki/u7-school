@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { ChoiceQuestionSchema, TextQuestionSchema } from './question';
 
 // ── Связь «категория → допустимые подкатегории» ──
 
@@ -83,3 +84,21 @@ export const MetricScoreSchema = v.variant('category', [
   }),
 ]);
 export type MetricScore = v.InferOutput<typeof MetricScoreSchema>;
+
+// ── MetricQuestion ──
+
+/**
+ * Вопрос анкеты с обязательным metricMapping.
+ * Движок работает с обычным Question — metricMapping стрипается перед передачей.
+ */
+export const MetricQuestionSchema = v.variant('type', [
+  v.object({
+    ...ChoiceQuestionSchema.entries,
+    metricMapping: MetricMappingSchema,
+  }),
+  v.object({
+    ...TextQuestionSchema.entries,
+    metricMapping: MetricMappingSchema,
+  }),
+]);
+export type MetricQuestion = v.InferOutput<typeof MetricQuestionSchema>;
