@@ -1,17 +1,16 @@
-// @ts-nocheck
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
-  createTestApp,
-  type TestBotUiApp,
-} from '@u7-scl/test-helpers/test-app';
+  createTestBotTransport,
+  type TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 
 /**
  * Интеграционный тест S02-S04: карточка потока, программа, детали.
@@ -22,10 +21,9 @@ import {
  */
 describe('ViewStreamStory (интеграционный)', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let guest: User;
   let mentor: User;
-  const session: SessionData = { activeHandler: null };
 
   const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
   const ENROLLMENT_ID = 'e0e0e0e0-e0e0-e0e0-e0e0-e0e0e0e0e0e0';
@@ -37,15 +35,12 @@ describe('ViewStreamStory (интеграционный)', () => {
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
     const mentorController = new MentorController();
-    transport = new UiApp([
+    transport = createTestBotTransport(app, [
       appController,
       streamController,
       learningController,
       mentorController,
     ]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
   });
@@ -58,9 +53,9 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('view: показывает карточку enrollment-потока', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:view:${ENROLLMENT_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:view:${ENROLLMENT_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const text = response.sendMessage?.text ?? '';
@@ -72,51 +67,52 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('view: кнопки Программа, Детали, Назад к списку', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:view:${ENROLLMENT_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:view:${ENROLLMENT_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
-    expect(btns.some((t: string) => t.includes('Программа курса'))).toBe(true);
-    expect(btns.some((t: string) => t.includes('Детали'))).toBe(true);
-    expect(btns.some((t: string) => t.includes('Назад к списку'))).toBe(true);
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
+    expect(btns.some((t) => t.includes('Детали'))).toBe(true);
+    expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
   });
 
   test('view: нет менторских lifecycle-кнопок (гость)', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:view:${ENROLLMENT_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:view:${ENROLLMENT_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
-    expect(btns.some((t: string) => t.includes('Запустить'))).toBe(false);
-    expect(btns.some((t: string) => t.includes('Завершить'))).toBe(false);
-    expect(btns.some((t: string) => t.includes('В архив'))).toBe(false);
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btns.some((t) => t.includes('В архив'))).toBe(false);
   });
 
   test('view: нет менторских lifecycle-кнопок (ментор своего потока)', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:view:${ENROLLMENT_ID}`,
-      mentor.telegramId,
-      session,
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: `stream:view-stream:view:${ENROLLMENT_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
-    expect(btns.some((t: string) => t.includes('Запустить'))).toBe(false);
-    expect(btns.some((t: string) => t.includes('Завершить'))).toBe(false);
-    expect(btns.some((t: string) => t.includes('В архив'))).toBe(false);
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
+    expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
+    expect(btns.some((t) => t.includes('В архив'))).toBe(false);
   });
 
   test('view: несуществующий поток — ошибка', async () => {
     const response = await transport.handleCallback(
-      'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData:
+          'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
+      }),
     );
     assertBotResponseValid(response);
     expect(response.sendMessage?.text).toContain('не найден');
@@ -126,9 +122,9 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('program: показывает дерево проектов через tree-renderer', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:program:${ACTIVE_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:program:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const text = response.sendMessage?.text ?? '';
@@ -139,23 +135,23 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('program: кнопка «Назад к потоку»', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:program:${ACTIVE_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:program:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
-    expect(btns.some((t: string) => t.includes('Назад к потоку'))).toBe(true);
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Назад к потоку'))).toBe(true);
   });
 
   // ── S04: Детали ──
 
   test('details: показывает детали потока', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:details:${ENROLLMENT_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:details:${ENROLLMENT_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const text = response.sendMessage?.text ?? '';
@@ -165,14 +161,14 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('details: кнопка «Назад к потоку»', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:details:${ENROLLMENT_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:details:${ENROLLMENT_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
-    expect(btns.some((t: string) => t.includes('Назад к потоку'))).toBe(true);
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Назад к потоку'))).toBe(true);
   });
 
   // ── Сквозной сценарий ──
@@ -180,78 +176,106 @@ describe('ViewStreamStory (интеграционный)', () => {
   test('сквозной: каталог → карточка → программа → назад', async () => {
     // 1. Открываем каталог
     const catalogResp = await transport.handleCallback(
-      'stream:catalog:list',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'stream:catalog:list',
+      }),
     );
     assertBotResponseValid(catalogResp);
 
     // 2. Находим enrollment-поток (🟡)
     const buttons = catalogResp.sendMessage?.keyboard?.rows.flat() ?? [];
-    const streamBtn = buttons.find((b: any) => b.text.includes('🟡'));
+    const streamBtn = buttons.find((b) => b.text.includes('🟡'));
     expect(streamBtn).toBeDefined();
 
     // 3. Открываем карточку потока
     const viewResp = await transport.handleCallback(
-      streamBtn!.code,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: streamBtn!.code,
+      }),
     );
     assertBotResponseValid(viewResp);
     expect(viewResp.sendMessage?.text).toContain('JS Core');
 
     // 4. Нажимаем «Программа курса»
     const viewButtons = viewResp.sendMessage?.keyboard?.rows.flat() ?? [];
-    const programBtn = viewButtons.find((b: any) =>
+    const programBtn = viewButtons.find((b) =>
       b.text.includes('Программа курса'),
     );
     expect(programBtn).toBeDefined();
 
     // 5. Открываем программу
     const programResp = await transport.handleCallback(
-      programBtn!.code,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: programBtn!.code,
+      }),
     );
     assertBotResponseValid(programResp);
     expect(programResp.sendMessage?.text).toContain('Программа курса');
 
     // 6. Нажимаем «Назад к потоку»
     const progButtons = programResp.sendMessage?.keyboard?.rows.flat() ?? [];
-    const backBtn = progButtons.find((b: any) =>
-      b.text.includes('Назад к потоку'),
-    );
+    const backBtn = progButtons.find((b) => b.text.includes('Назад к потоку'));
     expect(backBtn).toBeDefined();
 
     // 7. Возвращаемся в карточку
     const backResp = await transport.handleCallback(
-      backBtn!.code,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: backBtn!.code,
+      }),
     );
     assertBotResponseValid(backResp);
     expect(backResp.sendMessage?.text).toContain('JS Core');
+  });
+
+  test('сжатие UUID: кнопка потока сжимается и приходит обратно разжатой', async () => {
+    // 1. Каталог — кнопки с длинным UUID должны быть сжаты (≤ 64 байта)
+    const catalogResp = await transport.handleCallback(
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'stream:catalog:list',
+      }),
+    );
+    assertBotResponseValid(catalogResp);
+
+    const streamBtn = catalogResp.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('🟡'));
+    expect(streamBtn).toBeDefined();
+
+    // Полный UUID не должен попасть в callback_data
+    expect(streamBtn!.code).not.toContain(ENROLLMENT_ID);
+    expect(
+      new TextEncoder().encode(streamBtn!.code).length,
+    ).toBeLessThanOrEqual(64);
+
+    // 2. Нажатие возвращает полную карточку — разжатие UUID сработало
+    const viewResp = await transport.handleCallback(
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: streamBtn!.code,
+      }),
+    );
+    assertBotResponseValid(viewResp);
+    expect(viewResp.sendMessage?.text).toContain('JS Core');
   });
 
   // ── S05: Список студентов (публичный) ──
 
   test('students: кнопка «👥 Студенты» в карточке потока', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:view:${ACTIVE_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:view:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const btns =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
-    expect(btns.some((t: string) => t.includes('Студенты'))).toBe(true);
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
   });
 
   test('students: открывает список студентов с метриками', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:students:${ACTIVE_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:students:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const text = response.sendMessage?.text ?? '';
@@ -262,13 +286,13 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('students: кнопка студента ведёт в view-stream:student-detail (не monitor)', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:students:${ACTIVE_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:students:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const allCodes =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.code) ?? [];
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
 
     // Кнопки студентов должны использовать view-stream:student-detail (публичный)
     const studentDetailCodes = allCodes.filter((c) =>
@@ -285,13 +309,13 @@ describe('ViewStreamStory (интеграционный)', () => {
 
   test('students: публичный режим НЕ содержит кнопок ⛔✅🔄', async () => {
     const response = await transport.handleCallback(
-      `stream:view-stream:students:${ACTIVE_ID}`,
-      mentor.telegramId, // даже ментор в публичном каталоге не видит менторских кнопок
-      session,
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: `stream:view-stream:students:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(response);
     const allTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b: any) => b.text) ?? [];
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
     expect(allTexts).not.toContain('⛔');
     expect(allTexts).not.toContain('✅');
@@ -301,23 +325,23 @@ describe('ViewStreamStory (интеграционный)', () => {
   test('students: публичная карточка студента (student-detail)', async () => {
     // Сначала получаем список студентов
     const listResp = await transport.handleCallback(
-      `stream:view-stream:students:${ACTIVE_ID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:students:${ACTIVE_ID}`,
+      }),
     );
     assertBotResponseValid(listResp);
 
     // Находим кнопку первого студента
     const studentBtn = listResp.sendMessage?.keyboard?.rows
       .flat()
-      .find((b: any) => b.code.includes(':student-detail:'));
+      .find((b) => b.code.includes(':student-detail:'));
     expect(studentBtn).toBeDefined();
 
     // Открываем карточку студента
     const response = await transport.handleCallback(
-      studentBtn!.code,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: studentBtn!.code,
+      }),
     );
     assertBotResponseValid(response);
     const text = response.sendMessage?.text ?? '';
@@ -330,7 +354,7 @@ describe('ViewStreamStory (интеграционный)', () => {
     // Кнопка «Назад к списку»
     const backBtn = response.sendMessage?.keyboard?.rows
       .flat()
-      .find((b: any) => b.text.includes('Назад к списку'));
+      .find((b) => b.text.includes('Назад к списку'));
     expect(backBtn).toBeDefined();
     expect(backBtn!.code).toContain(':students:');
   });

@@ -1,16 +1,15 @@
-// @ts-nocheck
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
-  createTestApp,
-  type TestBotUiApp,
-} from '@u7-scl/test-helpers/test-app';
+  createTestBotTransport,
+  type TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 
 /**
  * Интеграционный тест S05-S06: «Моя учёба» — хаб, шаги, дерево, прогресс.
@@ -22,27 +21,22 @@ import {
  */
 describe('LearningController (интеграционный)', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let student: User;
-  const session: SessionData = { activeHandler: null };
 
   const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
   const STREAM_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
-  const STEP1_ID = 'd0d0d0d0-d0d0-d0d0-d0d0-d0d0d0d0d0d0';
 
   beforeAll(async () => {
     app = await createTestApp('learning-int');
     const streamController = new StreamsController();
     const learningController = new LearningController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = new UiApp([
+    transport = createTestBotTransport(app, [
       appController,
       streamController,
       learningController,
     ]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
     student = (await app.userFacade.getUserByTelegramId(1003))!;
   });
 
@@ -63,9 +57,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:hub:my-study — показывает хаб с кнопками', async () => {
     const response = await transport.handleCallback(
-      'learning:hub:my-study',
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: 'learning:hub:my-study',
+      }),
     );
     assertBotResponseValid(response);
 
@@ -84,9 +78,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:step-view:my-study:continue — показывает текущий шаг', async () => {
     const response = await transport.handleCallback(
-      'learning:step-view:my-study:continue',
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: 'learning:step-view:my-study:continue',
+      }),
     );
     assertBotResponseValid(response);
 
@@ -108,9 +102,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:nav-tree:my-study:lessons — показывает проекты', async () => {
     const response = await transport.handleCallback(
-      'learning:nav-tree:my-study:lessons',
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: 'learning:nav-tree:my-study:lessons',
+      }),
     );
     assertBotResponseValid(response);
 
@@ -130,9 +124,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:nav-tree:my-study:project:1 — показывает уроки проекта', async () => {
     const response = await transport.handleCallback(
-      'learning:nav-tree:my-study:project:1',
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: 'learning:nav-tree:my-study:project:1',
+      }),
     );
     assertBotResponseValid(response);
 
@@ -152,9 +146,9 @@ describe('LearningController (интеграционный)', () => {
   test('learning:nav-tree:my-study:lesson:c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0 — показывает шаги', async () => {
     const LESSON_ID = 'c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0';
     const response = await transport.handleCallback(
-      `learning:nav-tree:my-study:lesson:${LESSON_ID}`,
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: `learning:nav-tree:my-study:lesson:${LESSON_ID}`,
+      }),
     );
     assertBotResponseValid(response);
 
@@ -175,9 +169,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:progress:progress:{streamId} — показывает прогресс', async () => {
     const response = await transport.handleCallback(
-      `learning:progress:progress:${STREAM_ID}`,
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: `learning:progress:progress:${STREAM_ID}`,
+      }),
     );
     assertBotResponseValid(response);
 
@@ -192,9 +186,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('learning:hub:my-study:leave-confirm — показывает диалог подтверждения', async () => {
     const response = await transport.handleCallback(
-      'learning:hub:my-study:leave-confirm',
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: 'learning:hub:my-study:leave-confirm',
+      }),
     );
     assertBotResponseValid(response);
 
@@ -211,9 +205,9 @@ describe('LearningController (интеграционный)', () => {
 
   test('неизвестный контроллер → ошибка', async () => {
     const response = await transport.handleCallback(
-      'unknown:cmd:test',
-      student.telegramId,
-      session,
+      transport.makeBotContext(student.telegramId, {
+        callbackData: 'unknown:cmd:test',
+      }),
     );
     expect(response.sendMessage?.text).toContain('Неизвестная');
   });

@@ -239,6 +239,28 @@ describe('BotController', () => {
       expect(btnCode).not.toContain('test_ctrl');
     });
 
+    test('код стори префиксируется именем контроллера', async () => {
+      const story = new TestStory('app_test');
+      story.handleCallback = async () => ({
+        sendMessage: {
+          text: 'Меню',
+          keyboard: {
+            rows: [[{ text: 'Далее', code: 'app_test:next' }]],
+            isMultiple: false,
+          },
+        },
+      });
+      const c = new TestController();
+      c.addStory(story);
+
+      const result = await c.handleCallback('app_test:action', testActor, {
+        activeHandler: null,
+      });
+
+      const btnCode = result.sendMessage?.keyboard?.rows[0]?.[0]?.code;
+      expect(btnCode).toBe('test_ctrl:app_test:next');
+    });
+
     test('без совпадения стори — возвращает ошибку', async () => {
       const result = await ctrl.handleCallback('unknown:action', testActor, {
         activeHandler: null,

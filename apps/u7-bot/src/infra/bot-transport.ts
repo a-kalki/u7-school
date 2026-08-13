@@ -1,5 +1,4 @@
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { extractControllerName } from '@u7-scl/core/ui';
+import type { BotCommand, SessionData } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { U7BotUiApp } from '../core/ui-app';
@@ -20,7 +19,7 @@ export interface BotUpdateHandler {
 }
 
 export interface ProactiveSender {
-  send(telegramId: number, response: BotResponse): Promise<void>;
+  send(telegramId: number, command: BotCommand): Promise<void>;
 }
 
 // ── BotTransport ──
@@ -29,10 +28,9 @@ export interface ProactiveSender {
  * Единый транспортный слой между Grammy и UiApp.
  *
  * Владеет:
- * - сжатием/разжатием UUID в callback_data
- * - префиксацией кнопок именем контроллера
- * - исполнением BotResponse (отправка/редактирование/сессии)
  * - сессиями (через общий sessionMap)
+ * - сжатием/разжатием UUID в callback_data
+ * - исполнением BotCommand (отправка/редактирование/сессии)
  */
 export class BotTransport implements BotUpdateHandler, ProactiveSender {
   private readonly uiApp: U7BotUiApp;
@@ -63,9 +61,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     ctx.session.activeHandler = null;
 
     const response = await this.uiApp.handleWelcome(tgId);
-    const compressed = this.compressResponse(
-      this.prefixResponse('app', response),
-    );
+    const compressed = this.compressCommand(response);
     await this.execute(ctx.session, tgId, compressed);
   }
 
@@ -73,8 +69,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     const tgId = ctx.from?.id;
     if (!tgId || !ctx.callbackQuery?.data) return;
 
-    const data = ctx.callbackQuery.data;
-    const controllerName = extractControllerName(data);
+    const data = this.expandAction(ctx.callbackQuery.data);
 
     const response = await this.uiApp.handleCallback(data, tgId, ctx.session);
 
@@ -90,9 +85,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       return;
     }
 
-    const compressed = this.compressResponse(
-      this.prefixResponse(controllerName ?? '', response),
-    );
+    const compressed = this.compressCommand(response);
     await this.execute(ctx.session, tgId, compressed);
     await ctx.answerCallbackQuery().catch(() => {});
   }
@@ -124,14 +117,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       return next();
     }
 
-    const activeHandler = ctx.session.activeHandler;
-    const ctrlName = activeHandler
-      ? (activeHandler.path.split('/')[0] ?? '')
-      : '';
-
-    const compressed = this.compressResponse(
-      this.prefixResponse(ctrlName, response),
-    );
+    const compressed = this.compressCommand(response);
     await this.execute(ctx.session, tgId, compressed);
   }
 
@@ -146,14 +132,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       return;
     }
 
-    const activeHandler = ctx.session.activeHandler;
-    const ctrlName = activeHandler
-      ? (activeHandler.path.split('/')[0] ?? '')
-      : '';
-
-    const compressed = this.compressResponse(
-      this.prefixResponse(ctrlName, response),
-    );
+    const compressed = this.compressCommand(response);
     await this.execute(ctx.session, tgId, compressed);
   }
 
@@ -162,9 +141,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     if (!tgId) return;
 
     const response = await this.uiApp.handleHelp(tgId);
-    const compressed = this.compressResponse(
-      this.prefixResponse('app', response),
-    );
+    const compressed = this.compressCommand(response);
     await this.execute(ctx.session, tgId, compressed);
   }
 
@@ -172,13 +149,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   // ProactiveSender
   // ═══════════════════════════════════════════
 
-  async send(telegramId: number, response: BotResponse): Promise<void> {
+  async send(telegramId: number, command: BotCommand): Promise<void> {
     let session = this.sessionMap.get(telegramId);
     if (!session) {
       session = { activeHandler: null };
     }
 
-    const compressed = this.compressResponse(response);
+    const compressed = this.compressCommand(command);
     await this.execute(session, telegramId, compressed);
 
     this.sessionMap.set(telegramId, session);
@@ -191,11 +168,11 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   private async execute(
     session: SessionData,
     tgId: number,
-    response: BotResponse,
+    command: BotCommand,
   ): Promise<void> {
     // 1. editMessage
-    if (response.editMessage) {
-      const edit = response.editMessage;
+    if (command.editMessage) {
+      const edit = command.editMessage;
       const keyboard = edit.keyboard
         ? {
             inline_keyboard: edit.keyboard.rows.map((row) =>
@@ -228,9 +205,9 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // 1.5. Удаление клавиатуры у предыдущего сообщения
     if (
-      response.keepPrevKeyboard !== true &&
+      command.keepPrevKeyboard !== true &&
       session.lastBotMessage &&
-      !response.editMessage
+      !command.editMessage
     ) {
       const prev = session.lastBotMessage;
       const keyboardRemoved = !prev.keyboard;
@@ -252,8 +229,8 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // 2. sendMessage / sendMessages
     const toSend =
-      response.sendMessages ??
-      (response.sendMessage ? [response.sendMessage] : []);
+      command.sendMessages ??
+      (command.sendMessage ? [command.sendMessage] : []);
 
     for (let i = 0; i < toSend.length; i++) {
       const send = toSend[i]!;
@@ -283,24 +260,24 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
       // Задержка между сообщениями
       if (i < toSend.length - 1) {
-        const delay = response.sendDelayMs ?? 1000;
+        const delay = command.sendDelayMs ?? 1000;
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 
     // 3. captureInput / releaseInput
-    if (response.captureInput) {
+    if (command.captureInput) {
       // Имя контроллера из activeHandler или пусто
       const activeCtrl = session.activeHandler?.path.split('/')[0] ?? '';
       session.activeHandler = {
-        path: `${activeCtrl}/${response.captureInput.path}`,
-        context: response.captureInput.context,
-        expiresAt: response.captureInput.ttlSeconds
-          ? Date.now() + response.captureInput.ttlSeconds * 1000
+        path: `${activeCtrl}/${command.captureInput.path}`,
+        context: command.captureInput.context,
+        expiresAt: command.captureInput.ttlSeconds
+          ? Date.now() + command.captureInput.ttlSeconds * 1000
           : undefined,
       };
     }
-    if (response.releaseInput) {
+    if (command.releaseInput) {
       session.activeHandler = null;
     }
   }
@@ -334,10 +311,16 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     return key;
   }
 
-  /** Обходит BotResponse и сжимает все кнопки (code). */
-  private compressResponse(response: BotResponse): BotResponse {
+  /** Разжимает сжатые UUID в callback_data (обратная операция к compressAction). */
+  private expandAction(raw: string): string {
+    const parts = raw.split(':');
+    return parts.map((part) => this.shortIds.get(part) ?? part).join(':');
+  }
+
+  /** Обходит BotCommand и сжимает все кнопки (code). */
+  private compressCommand(command: BotCommand): BotCommand {
     const compressKeyboard = (
-      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
+      kb: NonNullable<BotCommand['sendMessage']>['keyboard'],
     ): typeof kb => {
       if (!kb) return kb;
       return {
@@ -351,7 +334,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       };
     };
 
-    const result: BotResponse = { ...response };
+    const result: BotCommand = { ...command };
 
     if (result.sendMessage?.keyboard) {
       result.sendMessage = {
@@ -371,69 +354,6 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       result.editMessage = {
         ...result.editMessage,
         keyboard: compressKeyboard(result.editMessage.keyboard) ?? undefined,
-      };
-    }
-
-    return result;
-  }
-
-  /** Добавляет префикс контроллера ко всем кодам кнопок в ответе. */
-  private prefixResponse(
-    controllerName: string,
-    response: BotResponse,
-  ): BotResponse {
-    const prefixCode = (code: string): string => {
-      if (code.startsWith(`${controllerName}:`)) return code;
-      // Уже начинается с префикса другого контроллера (напр. app:main-menu)
-      for (const knownPrefix of [
-        'app:',
-        'stream:',
-        'course:',
-        'onboarding:',
-        'learning:',
-        'mentor:',
-        'questionnaire:',
-      ]) {
-        if (code.startsWith(knownPrefix)) return code;
-      }
-      return `${controllerName}:${code}`;
-    };
-
-    const prefixKeyboard = (
-      kb: NonNullable<BotResponse['sendMessage']>['keyboard'],
-    ): typeof kb => {
-      if (!kb) return kb;
-      return {
-        ...kb,
-        rows: kb.rows.map((row) =>
-          row.map((btn) => ({
-            ...btn,
-            code: prefixCode(btn.code),
-          })),
-        ),
-      };
-    };
-
-    const result: BotResponse = { ...response };
-
-    if (result.sendMessage?.keyboard) {
-      result.sendMessage = {
-        ...result.sendMessage,
-        keyboard: prefixKeyboard(result.sendMessage.keyboard) ?? undefined,
-      };
-    }
-
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map((sm) => ({
-        ...sm,
-        keyboard: prefixKeyboard(sm.keyboard) ?? undefined,
-      }));
-    }
-
-    if (result.editMessage?.keyboard) {
-      result.editMessage = {
-        ...result.editMessage,
-        keyboard: prefixKeyboard(result.editMessage.keyboard) ?? undefined,
       };
     }
 

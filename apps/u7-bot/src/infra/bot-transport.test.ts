@@ -358,71 +358,45 @@ describe('BotTransport — сжатие UUID', () => {
     const cbData = call[2]?.reply_markup.inline_keyboard[0][0].callback_data;
     expect(cbData).toBe('app:main-menu');
   });
-});
 
-// ── prefixResponse ──
-
-describe('BotTransport — prefixResponse', () => {
-  test('добавляет префикс контроллера к кнопкам без префикса', async () => {
+  test('разжимает сжатый UUID при обратном callback (round-trip)', async () => {
     const api = makeMockBotApi();
     const uiApp = makeMockUiApp();
     const sessionMap = new Map<number, SessionData>();
     const transport = new BotTransport(uiApp, api, sessionMap);
 
-    // send() НЕ добавляет префикс (ответ от фасада уже с префиксом)
-    // prefixResponse вызывается только в handle* методах
-    // Проверим через handleCallback
-    uiApp.handleCallback = mock(async () => ({
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+    await transport.send(123, {
       sendMessage: {
-        text: 'ok',
+        text: 'Выберите',
         keyboard: {
-          rows: [[{ text: 'Кнопка', code: 'fill:answer:a1' }]],
+          rows: [[{ text: 'Поток 1', code: `stream:view:${uuid}` }]],
           isMultiple: false,
         },
       },
+    });
+
+    const sentCall = (api.sendMessage as any).mock.calls[0];
+    const compressedData =
+      sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
+    expect(compressedData).toBe('stream:view:a1b2c3d4');
+    expect(compressedData).not.toContain(uuid);
+
+    uiApp.handleCallback = mock(async (data: string) => ({
+      sendMessage: { text: `view:${data}` },
     }));
 
     const ctx = makeMockCtx({
       callbackQuery: {
-        data: 'questionnaire:fill:answer:a1',
+        data: compressedData,
       } as BotContext['callbackQuery'],
     });
 
     await transport.handleCallback(ctx);
 
-    // Должен быть вызван sendMessage через execute
-    const call = (api.sendMessage as any).mock.calls[0];
-    const cbData = call[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    expect(cbData).toBe('questionnaire:fill:answer:a1');
-  });
-
-  test('не дублирует префикс контроллера', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    uiApp.handleCallback = mock(async () => ({
-      sendMessage: {
-        text: 'ok',
-        keyboard: {
-          rows: [[{ text: 'Кнопка', code: 'questionnaire:fill:answer:a1' }]],
-          isMultiple: false,
-        },
-      },
-    }));
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: 'questionnaire:fill:answer:a1',
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    const call = (api.sendMessage as any).mock.calls[0];
-    const cbData = call[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    expect(cbData).toBe('questionnaire:fill:answer:a1');
+    const cbCall = (uiApp.handleCallback as any).mock.calls[0];
+    expect(cbCall[0]).toBe(`stream:view:${uuid}`);
   });
 });
 

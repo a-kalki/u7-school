@@ -1,19 +1,25 @@
-// @ts-nocheck
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
 import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { OnboardingApiModuleResolver } from '@u7-scl/onboarding';
 import {
   OnboardingApiModule,
   QuestionnaireJsonRepo,
   QuestionPoolService,
 } from '@u7-scl/onboarding';
+import { TestBotTransport } from '@u7-scl/test-helpers/test-bot-transport';
 import { UserApiModule } from '@u7-scl/user/api';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
@@ -41,24 +47,11 @@ const E2E_QUESTION_POOL = [
 
 const E2E_INCLUDED_CODES = ['q1', 'q2'];
 
-const NO_SESSION: SessionData = { activeHandler: null };
-
-/** Сессия с captureInput и messageId */
-function capSession(messageId?: number): SessionData {
-  return {
-    activeHandler: {
-      path: 'onboarding/questionnaire',
-      context: messageId !== undefined ? { messageId } : undefined,
-      expiresAt: Date.now() + 600_000,
-    },
-  };
-}
-
 describe('Onboarding E2E', () => {
   let tmpDir: string;
   let apiApp: U7BotApp;
-  let transport: TestBotUiApp;
-  let guest: User & { telegramId: number };
+  let transport: TestBotTransport;
+  let guest: User;
   let userFacade: UserFacade;
   let userRepo: UserJsonRepo;
 
@@ -142,12 +135,19 @@ describe('Onboarding E2E', () => {
 
     apiApp = new ApiApp([userModule, onboardingModule]) as U7BotApp;
 
-    // Контроллер и роутер
+    // Контроллер и честный BotTransport
     const onboardingController = new OnboardingController();
-    onboardingController.init(apiApp, undefined as never);
-
-    transport = new UiApp([onboardingController]);
-    transport.init(apiApp);
+    transport = new TestBotTransport(
+      apiApp,
+      async (tgId: number) => {
+        const user = await userRepo.getByTelegramId(tgId);
+        if (!user) {
+          throw new Error(`Пользователь с telegramId ${tgId} не найден`);
+        }
+        return user;
+      },
+      [onboardingController],
+    );
 
     // Seed: гость с telegramId=2001
     guest = {
@@ -158,6 +158,10 @@ describe('Onboarding E2E', () => {
       createdAt: '2026-01-01T00:00',
     };
     await userRepo.save(guest);
+  });
+
+  beforeEach(() => {
+    transport.reset();
   });
 
   afterAll(() => {
@@ -175,9 +179,9 @@ describe('Onboarding E2E', () => {
 
     // 2. Начинаем анкету напрямую (кнопка отключена, но логика работает)
     const startResp = await transport.handleCallback(
-      'onboarding:start_questionnaire',
-      guest.telegramId,
-      NO_SESSION,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'onboarding:start_questionnaire',
+      }),
     );
     assertBotResponseValid(startResp);
 
@@ -191,9 +195,9 @@ describe('Onboarding E2E', () => {
 
     // 3. Отвечаем на q1 (выбор «Да»)
     const answerQ1 = await transport.handleCallback(
-      'onboarding:answer:yes',
-      guest.telegramId,
-      capSession(1),
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'onboarding:answer:yes',
+      }),
     );
     assertBotResponseValid(answerQ1);
 
@@ -202,19 +206,14 @@ describe('Onboarding E2E', () => {
 
     // 4. Отвечаем на q2 (текстовый ответ)
     const answerQ2 = await transport.handleMessage(
-      {
-        type: 'message',
+      transport.makeBotContext(guest.telegramId, {
         text: 'Хочу научиться программировать',
-        telegramId: 2001,
-      },
-      guest.telegramId,
-      capSession(2),
+      }),
     );
     assertBotResponseValid(answerQ2!);
 
     // После q2 анкета должна завершиться
     expect(answerQ2!.sendMessage?.text).toContain('Спасибо');
-    expect(answerQ2!.questionnaireCompleted).toBe(true);
     expect(answerQ2!.releaseInput).toBe(true);
 
     // 5. Проверяем, что роль изменилась на CANDIDATE
@@ -228,7 +227,7 @@ describe('Onboarding E2E', () => {
   // ═══════════════════════════════════════════════════════════════
   test('прерывание анкеты: /cancel → abandoned', async () => {
     // Регистрируем нового гостя для этого теста
-    const guest2: User & { telegramId: number } = {
+    const guest2: User = {
       uuid: crypto.randomUUID(),
       name: 'Гость для отмены',
       telegramId: 2002,
@@ -239,21 +238,19 @@ describe('Onboarding E2E', () => {
 
     // Начинаем анкету
     await transport.handleCallback(
-      'onboarding:start_questionnaire',
-      guest2,
-      NO_SESSION,
+      transport.makeBotContext(guest2.telegramId, {
+        callbackData: 'onboarding:start_questionnaire',
+      }),
     );
 
     // Прерываем
     const cancelResp = await transport.handleCancel(
-      guest2.telegramId,
-      capSession(3),
+      transport.makeBotContext(guest2.telegramId),
     );
     assertBotResponseValid(cancelResp!);
 
     expect(cancelResp!.sendMessage?.text).toContain('прервана');
     expect(cancelResp!.sendMessage?.text).toContain('Заполнить анкету');
-    expect(cancelResp!.questionnaireCompleted).toBe(true);
     expect(cancelResp!.releaseInput).toBe(true);
   });
 
@@ -262,7 +259,7 @@ describe('Onboarding E2E', () => {
   // ═══════════════════════════════════════════════════════════════
   test('возобновление анкеты: ответ → повторный «Заполнить анкету» → продолжение с того же места', async () => {
     // Регистрируем нового гостя
-    const guest3: User & { telegramId: number } = {
+    const guest3: User = {
       uuid: crypto.randomUUID(),
       name: 'Гость для возобновления',
       telegramId: 2003,
@@ -273,23 +270,23 @@ describe('Onboarding E2E', () => {
 
     // Начинаем анкету
     await transport.handleCallback(
-      'onboarding:start_questionnaire',
-      guest3,
-      NO_SESSION,
+      transport.makeBotContext(guest3.telegramId, {
+        callbackData: 'onboarding:start_questionnaire',
+      }),
     );
 
     // Отвечаем на q1 → анкета переходит к q2 (всё ещё in_progress)
     await transport.handleCallback(
-      'onboarding:answer:yes',
-      guest3,
-      capSession(10),
+      transport.makeBotContext(guest3.telegramId, {
+        callbackData: 'onboarding:answer:yes',
+      }),
     );
 
     // Снова нажимаем «Заполнить анкету» (без /cancel — анкета активна)
     const resumeResp = await transport.handleCallback(
-      'onboarding:start_questionnaire',
-      guest3,
-      NO_SESSION,
+      transport.makeBotContext(guest3.telegramId, {
+        callbackData: 'onboarding:start_questionnaire',
+      }),
     );
     assertBotResponseValid(resumeResp);
 

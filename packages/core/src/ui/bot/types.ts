@@ -33,12 +33,17 @@ export interface MessageDescription {
   parseMode?: 'MarkdownV2';
 }
 
-export interface BotResponse {
+/**
+ * Команда транспорту — «приказ» что исполнить: отправить / отредактировать
+ * сообщение, изменить состояние сессии (захват/освобождение ввода).
+ *
+ * Это то, что BotTransport.execute() реально исполняет.
+ */
+export interface BotCommand {
   sendMessage?: SendMessageDescription;
   /** Несколько сообщений подряд (welcome + вопрос и т.п.) */
   sendMessages?: SendMessageDescription[];
   editMessage?: EditMessageDescription;
-  questionnaireCompleted?: boolean;
   /** Задержка между сообщениями в sendMessages (мс), по умолчанию 1000 */
   sendDelayMs?: number;
   /** Сохранить клавиатуру у предыдущего сообщения бота.
@@ -49,6 +54,14 @@ export interface BotResponse {
   captureInput?: { path: string; context?: unknown; ttlSeconds?: number };
   /** Освобождение захваченного ввода */
   releaseInput?: boolean;
+}
+
+/**
+ * Реакция стори/контроллера на действие пользователя.
+ * Расширяет BotCommand маршрутной директивой delegate, которую UiApp
+ * обрабатывает ДО передачи команды транспорту.
+ */
+export interface BotResponse extends BotCommand {
   /** Делегирование обработки другому обработчику */
   delegate?: { path: string };
 }

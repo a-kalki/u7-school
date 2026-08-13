@@ -1,15 +1,14 @@
-// @ts-nocheck
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
-  createTestApp,
-  type TestBotUiApp,
-} from '@u7-scl/test-helpers/test-app';
+  createTestBotTransport,
+  type TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 
 /**
  * Интеграционный тест S01: витрина потоков (CatalogStory).
@@ -22,9 +21,8 @@ import {
  */
 describe('CatalogStory (интеграционный)', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let guest: User;
-  const session: SessionData = { activeHandler: null };
 
   const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
@@ -32,10 +30,7 @@ describe('CatalogStory (интеграционный)', () => {
     app = await createTestApp('streams-catalog-int');
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = new UiApp([appController, streamController]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
+    transport = createTestBotTransport(app, [appController, streamController]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
   });
 
@@ -45,9 +40,9 @@ describe('CatalogStory (интеграционный)', () => {
 
   test('list: показывает enrollment и active потоки', async () => {
     const response = await transport.handleCallback(
-      'stream:catalog:list',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'stream:catalog:list',
+      }),
     );
     assertBotResponseValid(response);
     expect(response.sendMessage?.text).toContain('Потоки курсов');
@@ -62,9 +57,9 @@ describe('CatalogStory (интеграционный)', () => {
 
   test('list: скрывает completed и archived по умолчанию', async () => {
     const response = await transport.handleCallback(
-      'stream:catalog:list',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'stream:catalog:list',
+      }),
     );
     assertBotResponseValid(response);
     const btns =
@@ -78,9 +73,9 @@ describe('CatalogStory (интеграционный)', () => {
 
   test('list-with-completed: показывает завершённые', async () => {
     const response = await transport.handleCallback(
-      'stream:catalog:list-with-completed',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'stream:catalog:list-with-completed',
+      }),
     );
     assertBotResponseValid(response);
     const btns =
@@ -107,9 +102,9 @@ describe('CatalogStory (интеграционный)', () => {
 
   test('легенда цветных кружков', async () => {
     const response = await transport.handleCallback(
-      'stream:catalog:list',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'stream:catalog:list',
+      }),
     );
     assertBotResponseValid(response);
     const text = response.sendMessage?.text ?? '';

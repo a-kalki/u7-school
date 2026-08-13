@@ -1,15 +1,21 @@
-// @ts-nocheck
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
-  createTestApp,
-  type TestBotUiApp,
-} from '@u7-scl/test-helpers/test-app';
+  createTestBotTransport,
+  type TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 
 /**
  * Интеграционный тест CourseCatalogStory (S00 + drill-down)
@@ -23,10 +29,9 @@ import {
  */
 describe('CourseCatalogStory (интеграционный)', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let guest: User;
   let author: User;
-  const session: SessionData = { activeHandler: null };
 
   const FIXTURE_MODULE_UUID = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
 
@@ -36,12 +41,13 @@ describe('CourseCatalogStory (интеграционный)', () => {
     app = await createTestApp('course-catalog-v2');
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = new UiApp([appController, courseController]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
+    transport = createTestBotTransport(app, [appController, courseController]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     author = (await app.userFacade.getUserByTelegramId(1004))!;
+  });
+
+  beforeEach(() => {
+    transport.reset();
   });
 
   afterAll(async () => {
@@ -83,9 +89,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
   test('list: курсы + этапы inline', async () => {
     const response = await transport.handleCallback(
-      'course:course-catalog:list',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'course:course-catalog:list',
+      }),
     );
     assertBotResponseValid(response);
     expect(response.sendMessage?.text).toContain('Курсы');
@@ -99,9 +105,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const { courseId } = await createCourseWithModule('Тестовый курс');
 
     const response = await transport.handleCallback(
-      `course:course-catalog:phases:${courseId}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `course:course-catalog:phases:${courseId}`,
+      }),
     );
     assertBotResponseValid(response);
 
@@ -115,9 +121,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
 
   test('phases: несуществующий курс — ошибка', async () => {
     const response = await transport.handleCallback(
-      'course:course-catalog:phases:bad-uuid',
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'course:course-catalog:phases:bad-uuid',
+      }),
     );
     assertBotResponseValid(response);
     expect(response.sendMessage?.text).toContain('не найден');
@@ -129,9 +135,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
     const { courseId } = await createCourseWithModule('Курс M');
 
     const response = await transport.handleCallback(
-      `course:course-catalog:modules:${courseId}:0`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `course:course-catalog:modules:${courseId}:0`,
+      }),
     );
     assertBotResponseValid(response);
 
@@ -167,9 +173,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
 
     const response = await transport.handleCallback(
-      `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
+      }),
     );
     assertBotResponseValid(response);
 
@@ -206,9 +212,9 @@ describe('CourseCatalogStory (интеграционный)', () => {
     );
 
     const response = await transport.handleCallback(
-      `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
-      guest.telegramId,
-      session,
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
+      }),
     );
     assertBotResponseValid(response);
 

@@ -212,7 +212,6 @@ describe('OnboardingController', () => {
     assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Спасибо');
-    expect(response.questionnaireCompleted).toBe(true);
     expect(response.releaseInput).toBe(true);
   });
 
@@ -230,7 +229,6 @@ describe('OnboardingController', () => {
 
     expect(response.sendMessage?.text).toContain('прервана');
     expect(response.sendMessage?.text).toContain('Заполнить анкету');
-    expect(response.questionnaireCompleted).toBe(true);
     expect(response.releaseInput).toBe(true);
   });
 
@@ -537,7 +535,6 @@ describe('OnboardingController', () => {
 
     // Send: сообщение о завершении
     expect(sendMessage.text).toContain('Спасибо');
-    expect(response.questionnaireCompleted).toBe(true);
     expect(response.releaseInput).toBe(true);
   });
 
@@ -785,7 +782,6 @@ describe('OnboardingController', () => {
 
     // Длинный текст должен быть принят (нет maxLength валидации)
     expect(response.sendMessage?.text).toContain('Спасибо');
-    expect(response.questionnaireCompleted).toBe(true);
   });
 
   test('множественный выбор: нажатие «Далее» без выбора опций возвращает ошибку', async () => {

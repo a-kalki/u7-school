@@ -16,6 +16,7 @@
   - [Границы доменной логики](./code_styleguides/domain-boundaries.md) — ⚠️ ВАЖНО: куда помещать логику, как не допустить утечек между модулями
   - [Тестирование](./code_styleguides/testing.md) — общие правила
   - [Тестирование Telegram-бота](./code_styleguides/bot-test.md) — unit, интеграционные, E2E
+- [Архитектура Telegram-бота](./code_styleguides/bot-architecture.md) — слои, объекты, поток данных (Grammy → BotTransport → UiApp → Controller → Story)
 - [BotController](./code_styleguides/skills/bot-controller.md) — иерархия контроллеров бота (BotController → U7BotController → доменные/AppController)
 
 ## Гайды по контенту курса
@@ -27,9 +28,6 @@
 - [post-task-debrief](../.pi/skills/post-task-debrief/SKILL.md) — разбор после значимой задачи (domain/api слои)
 - [Реестр дебрифингов](../data/debrief/registry.md) — таблица всех разборов
 - [Логи дебрифингов](../data/debrief/logs/) — подробные Q&A
-
-## Архитектурные рефакторинги
-- [Рефакторинг Bot UI](./bot-ui-refactoring.md) — перенос всей UI-логики бота в `apps/u7-bot`, контроллеры по функциям, ActionFactory, разрыв циклических зависимостей
 
 ## Система сбора метрик студента (Релиз 4)
 - [Система сбора метрик — Глобальная задача](./metrics-system.md) — объединяющий документ, видение, архитектурные решения

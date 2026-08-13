@@ -1,12 +1,21 @@
-// @ts-nocheck
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
-import type { SessionData, UiApp } from '@u7-scl/core/ui';
 import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '../helpers/test-app';
-import { createTestApp, createTestUiApp } from '../helpers/test-app';
+import { createTestApp } from '../helpers/test-app';
+import {
+  createTestBotTransport,
+  type TestBotTransport,
+} from '../helpers/test-bot-transport';
 
 /**
  * Интеграционный тест: ментор → список потоков → карточка → студенты.
@@ -88,17 +97,6 @@ describe('MentorController (интеграционный)', () => {
 // ══ Хелперы для тестов wizard-а ══
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
-const WIZARD_PATH = 'mentor/create-stream/wizard';
-
-function wizSession(context: unknown): SessionData {
-  return {
-    activeHandler: {
-      path: WIZARD_PATH,
-      context,
-      expiresAt: Date.now() + 600_000,
-    },
-  };
-}
 
 function findButton(
   response: {
@@ -129,17 +127,19 @@ function findButton(
  */
 describe('CreateStream Wizard (интеграционный)', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let mentor: User;
-  const session: SessionData = { activeHandler: null };
-  const FIXTURE_MODULE_ID = 'a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0';
 
   beforeAll(async () => {
     app = await createTestApp('create-stream-wizard');
     const mentorController = new MentorController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = createTestUiApp(app, [appController, mentorController]);
+    transport = createTestBotTransport(app, [appController, mentorController]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
+  });
+
+  beforeEach(() => {
+    transport.reset();
   });
 
   afterAll(async () => {
@@ -153,9 +153,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
     expect(toolsBtn).toBeDefined();
 
     const submenuResp = await transport.handleCallback(
-      (toolsBtn as { action: string }).action,
-      mentor.telegramId,
-      session,
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: (toolsBtn as { action: string }).action,
+      }),
     );
     assertBotResponseValid(submenuResp);
 
@@ -163,9 +163,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Шаг 0: список модулей
     const step0 = await transport.handleCallback(
-      createBtn.code,
-      mentor.telegramId,
-      session,
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: createBtn.code,
+      }),
     );
     assertBotResponseValid(step0);
 
@@ -176,9 +176,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Шаг 1: название (предзаполнено из модуля)
     const step1 = await transport.handleCallback(
-      moduleBtn.code,
-      mentor.telegramId,
-      wizSession(step0.captureInput!.context),
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: moduleBtn.code,
+      }),
     );
     assertBotResponseValid(step1);
 
@@ -190,9 +190,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
     // Принимаем название
     const acceptTitleBtn = findButton(step1, 'Принять');
     const step2 = await transport.handleCallback(
-      acceptTitleBtn.code,
-      mentor.telegramId,
-      wizSession(step1.captureInput!.context),
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: acceptTitleBtn.code,
+      }),
     );
     assertBotResponseValid(step2);
 
@@ -202,13 +202,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Вводим описание
     const step3 = await transport.handleMessage(
-      {
-        type: 'message',
+      transport.makeBotContext(mentor.telegramId, {
         text: 'Тестовый поток (интеграция)',
-        telegramId: 1004,
-      },
-      mentor.telegramId,
-      wizSession(step2.captureInput!.context),
+      }),
     );
     assertBotResponseValid(step3!);
 
@@ -219,13 +215,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
 
     // Вводим дату
     const step4 = await transport.handleMessage(
-      {
-        type: 'message',
+      transport.makeBotContext(mentor.telegramId, {
         text: '2026-06-15',
-        telegramId: 1004,
-      },
-      mentor.telegramId,
-      wizSession(step3!.captureInput!.context),
+      }),
     );
     assertBotResponseValid(step4!);
 
@@ -237,39 +229,36 @@ describe('CreateStream Wizard (интеграционный)', () => {
     // Пропускаем все необязательные поля (goal, result, rules, targetAudience, additional)
     let currentResp = step4!;
     for (let i = 0; i < 5; i++) {
-      const ctx = currentResp.captureInput!.context as Record<string, unknown>;
       const skipBtn = findButton(currentResp, 'Пропустить');
       currentResp = (await transport.handleCallback(
-        skipBtn.code,
-        mentor.telegramId,
-        wizSession(ctx),
+        transport.makeBotContext(mentor.telegramId, {
+          callbackData: skipBtn.code,
+        }),
       ))!;
       assertBotResponseValid(currentResp);
     }
 
     // После additional — шаг 9: группа
     expect(currentResp.sendMessage?.text).toContain('Telegram');
-    const ctx9 = currentResp.captureInput!.context as Record<string, unknown>;
 
     // Пропускаем группу
     const skipGroupBtn = findButton(currentResp, 'Пропустить');
     currentResp = (await transport.handleCallback(
-      skipGroupBtn.code,
-      mentor.telegramId,
-      wizSession(ctx9),
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: skipGroupBtn.code,
+      }),
     ))!;
     assertBotResponseValid(currentResp);
 
     // Шаг 10: кодовое слово
     expect(currentResp.sendMessage?.text).toContain('кодовое слово');
-    const ctx10 = currentResp.captureInput!.context as Record<string, unknown>;
 
     // Пропускаем кодовое слово
     const skipKeyBtn = findButton(currentResp, 'Пропустить');
     const previewResp = await transport.handleCallback(
-      skipKeyBtn.code,
-      mentor.telegramId,
-      wizSession(ctx10),
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: skipKeyBtn.code,
+      }),
     );
     assertBotResponseValid(previewResp);
 
@@ -278,9 +267,9 @@ describe('CreateStream Wizard (интеграционный)', () => {
     const confirmBtn = findButton(previewResp, 'Создать');
 
     const finalResp = await transport.handleCallback(
-      confirmBtn.code,
-      mentor.telegramId,
-      wizSession(previewResp.captureInput!.context),
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: confirmBtn.code,
+      }),
     );
     assertBotResponseValid(finalResp);
 
@@ -296,26 +285,25 @@ describe('CreateStream Wizard (интеграционный)', () => {
     expect(toolsBtn).toBeDefined();
 
     const submenuResp = await transport.handleCallback(
-      (toolsBtn as { action: string }).action,
-      mentor.telegramId,
-      session,
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: (toolsBtn as { action: string }).action,
+      }),
     );
     assertBotResponseValid(submenuResp);
 
     const createBtn = findButton(submenuResp, 'Создать поток');
 
     const step0 = await transport.handleCallback(
-      createBtn.code,
-      mentor.telegramId,
-      session,
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: createBtn.code,
+      }),
     );
     assertBotResponseValid(step0);
     expect(step0.captureInput).toBeDefined();
 
     // Отменяем
     const cancelResult = await transport.handleCancel(
-      mentor.telegramId,
-      wizSession(step0.captureInput!.context),
+      transport.makeBotContext(mentor.telegramId),
     );
     assertBotResponseValid(cancelResult!);
 

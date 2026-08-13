@@ -1,17 +1,24 @@
-// @ts-nocheck
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import type { BotResponse } from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
-  createTestApp,
-  type TestBotUiApp,
-} from '@u7-scl/test-helpers/test-app';
+  createTestBotTransport,
+  type TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
@@ -21,7 +28,7 @@ const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
  */
 describe('Главное меню (интеграционные)', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let guest: User;
   let student: User;
   let mentor: User;
@@ -32,18 +39,19 @@ describe('Главное меню (интеграционные)', () => {
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
-    transport = new UiApp([
+    transport = createTestBotTransport(app, [
       appController,
       streamController,
       courseController,
       learningController,
     ]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     student = (await app.userFacade.getUserByTelegramId(1003))!;
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
+  });
+
+  beforeEach(() => {
+    transport.reset();
   });
 
   afterAll(async () => {
@@ -57,7 +65,7 @@ describe('Главное меню (интеграционные)', () => {
     const btn = menu.find((i) => i.text === '💬 Сообщество школы');
     expect(btn).toBeDefined();
     expect(btn!.kind).toBe('url');
-    expect((btn as any).url).toBe(SCHOOL_GROUP_URL);
+    expect((btn as { url: string }).url).toBe(SCHOOL_GROUP_URL);
     expect(btn!.priority).toBe(90);
   });
 
@@ -93,7 +101,9 @@ describe('Главное меню (интеграционные)', () => {
   // ── handleWelcome (/start) ──
 
   test('handleWelcome возвращает приветствие с клавиатурой', async () => {
-    const response = await transport.handleWelcome(guest.telegramId);
+    const response = await transport.handleStart(
+      transport.makeBotContext(guest.telegramId),
+    );
     expect(response.sendMessage?.text).toContain('Привет');
     expect(response.sendMessage?.text).toContain('u7 schools');
     expect(response.sendMessage?.text).toContain('Помощь');
@@ -101,7 +111,9 @@ describe('Главное меню (интеграционные)', () => {
   });
 
   test('handleWelcome для ментора', async () => {
-    const response = await transport.handleWelcome(mentor.telegramId);
+    const response = await transport.handleStart(
+      transport.makeBotContext(mentor.telegramId),
+    );
     expect(response.sendMessage?.text).toContain('Привет');
     expect(response.sendMessage?.keyboard).toBeDefined();
   });
@@ -109,7 +121,9 @@ describe('Главное меню (интеграционные)', () => {
   // ── handleHelp (/help) ──
 
   test('handleHelp возвращает инструкцию и описания + кнопку Назад', async () => {
-    const response = await transport.handleHelp(guest.telegramId);
+    const response = await transport.handleHelp(
+      transport.makeBotContext(guest.telegramId),
+    );
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Как со мной работать?');
     expect(text).toContain('Программы курсов');
@@ -125,7 +139,9 @@ describe('Главное меню (интеграционные)', () => {
   });
 
   test('handleHelp для студента: «Моя учёба»', async () => {
-    const response = await transport.handleHelp(student.telegramId);
+    const response = await transport.handleHelp(
+      transport.makeBotContext(student.telegramId),
+    );
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Моя учёба');
     expect(response.sendMessage?.keyboard).toBeDefined();
@@ -135,11 +151,9 @@ describe('Главное меню (интеграционные)', () => {
 
   test('app:main-menu возвращает клавиатуру без приветствия', async () => {
     const response = await transport.handleCallback(
-      'app:main-menu',
-      guest.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'app:main-menu',
+      }),
     );
 
     expect(response.sendMessage?.text).toBe('Выберите действие:');
@@ -151,11 +165,9 @@ describe('Главное меню (интеграционные)', () => {
 
   test('app:help возвращает инструкцию + кнопку Назад', async () => {
     const response = await transport.handleCallback(
-      'app:help',
-      guest.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'app:help',
+      }),
     );
 
     expect(response.sendMessage?.text).toContain('Как со мной работать?');
@@ -175,7 +187,7 @@ describe('Главное меню (интеграционные)', () => {
 
 describe('E2E: Студент — «Моя учёба»', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let student: User;
 
   beforeAll(async () => {
@@ -183,15 +195,16 @@ describe('E2E: Студент — «Моя учёба»', () => {
     const streamController = new StreamsController();
     const learningController = new LearningController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    transport = new UiApp([
+    transport = createTestBotTransport(app, [
       appController,
       streamController,
       learningController,
     ]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
     student = (await app.userFacade.getUserByTelegramId(1003))!;
+  });
+
+  beforeEach(() => {
+    transport.reset();
   });
 
   afterAll(async () => {
@@ -225,9 +238,9 @@ describe('E2E: Студент — «Моя учёба»', () => {
 
     // 2. Нажимаем «🎓 Моя учёба»
     const hubResp = await transport.handleCallback(
-      (studyBtn as { action: string }).action,
-      student.telegramId,
-      { activeHandler: null },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: (studyBtn as { action: string }).action,
+      }),
     );
     assertBotResponseValid(hubResp);
     expect(hubResp.sendMessage?.text).toContain('Моя учёба');
@@ -247,22 +260,18 @@ describe('E2E: Студент — «Моя учёба»', () => {
       action: string;
     };
     const hubResp = await transport.handleCallback(
-      studyBtn.action,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: studyBtn.action,
+      }),
     );
     assertBotResponseValid(hubResp);
 
     // 2. Нажимаем «▶️ Начать учёбу»
     const startBtn = findButton(hubResp, 'Начать учёбу');
     const stepResp = await transport.handleCallback(
-      startBtn.code,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: startBtn.code,
+      }),
     );
     assertBotResponseValid(stepResp);
     expect(stepResp.sendMessage?.text).toContain('JS Core');
@@ -271,11 +280,9 @@ describe('E2E: Студент — «Моя учёба»', () => {
     // 3. Нажимаем «✅ Выполнено»
     const doneBtn = findButton(stepResp, 'Выполнено');
     const completeResp = await transport.handleCallback(
-      doneBtn.code,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: doneBtn.code,
+      }),
     );
     assertBotResponseValid(completeResp);
     // После выполнения — либо следующий шаг, либо завершение урока
@@ -294,22 +301,18 @@ describe('E2E: Студент — «Моя учёба»', () => {
       action: string;
     };
     const hubResp = await transport.handleCallback(
-      studyBtn.action,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: studyBtn.action,
+      }),
     );
     assertBotResponseValid(hubResp);
 
     // 2. Нажимаем «📂 Уроки»
     const lessonsBtn = findButton(hubResp, 'Уроки');
     const projectsResp = await transport.handleCallback(
-      lessonsBtn.code,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: lessonsBtn.code,
+      }),
     );
     assertBotResponseValid(projectsResp);
     expect(projectsResp.sendMessage?.text).toContain('Введение');
@@ -317,9 +320,9 @@ describe('E2E: Студент — «Моя учёба»', () => {
     // 3. Нажимаем проект «Введение»
     const projectBtn = findButton(projectsResp, 'Введение');
     const lessonsListResp = await transport.handleCallback(
-      projectBtn.code,
-      student.telegramId,
-      { activeHandler: null },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: projectBtn.code,
+      }),
     );
     assertBotResponseValid(lessonsListResp);
     expect(lessonsListResp.sendMessage?.text).toContain('Переменные и типы');
@@ -327,11 +330,9 @@ describe('E2E: Студент — «Моя учёба»', () => {
     // 4. Нажимаем урок «Переменные и типы»
     const lessonBtn = findButton(lessonsListResp, 'Переменные и типы');
     const stepsResp = await transport.handleCallback(
-      lessonBtn.code,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: lessonBtn.code,
+      }),
     );
     assertBotResponseValid(stepsResp);
     expect(stepsResp.sendMessage?.text).toContain('знакомство с переменными');
@@ -344,20 +345,18 @@ describe('E2E: Студент — «Моя учёба»', () => {
       action: string;
     };
     const hubResp = await transport.handleCallback(
-      studyBtn.action,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: studyBtn.action,
+      }),
     );
     assertBotResponseValid(hubResp);
 
     // 2. Нажимаем «📊 Мой прогресс»
     const progressBtn = findButton(hubResp, 'Мой прогресс');
     const progressResp = await transport.handleCallback(
-      progressBtn.code,
-      student.telegramId,
-      { activeHandler: null },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: progressBtn.code,
+      }),
     );
     assertBotResponseValid(progressResp);
 
@@ -389,27 +388,23 @@ describe('E2E: Студент — «Моя учёба»', () => {
       action: string;
     };
     const hubResp = await transport.handleCallback(
-      studyBtn.action,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: studyBtn.action,
+      }),
     );
     const progressBtn = findButton(hubResp, 'Мой прогресс');
     const progressResp = await transport.handleCallback(
-      progressBtn.code,
-      student.telegramId,
-      { activeHandler: null },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: progressBtn.code,
+      }),
     );
 
     // 2. «Назад к учёбе» → возврат в хаб
     const backBtn = findButton(progressResp, 'Назад к учёбе');
     const backResp = await transport.handleCallback(
-      backBtn.code,
-      student.telegramId,
-      {
-        activeHandler: null,
-      },
+      transport.makeBotContext(student.telegramId, {
+        callbackData: backBtn.code,
+      }),
     );
     assertBotResponseValid(backResp);
     expect(backResp.sendMessage?.text).toContain('Моя учёба');

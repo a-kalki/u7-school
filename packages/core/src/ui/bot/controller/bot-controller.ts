@@ -8,6 +8,7 @@ import type { BotUserStory } from '../bot-user-story';
 import type {
   BotResponse,
   BotUpdate,
+  KeyboardDescription,
   MainMenuAction,
   SessionData,
 } from '../types';
@@ -82,7 +83,7 @@ export abstract class BotController<
         if (data.startsWith(prefix)) {
           const raw = data.slice(prefix.length);
           const response = await story.handleCallback(raw, actor, session);
-          return response;
+          return this.#prefixResponse(response);
         }
       }
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -107,7 +108,7 @@ export abstract class BotController<
         const story = this.#findStoryByPath(activePath);
         if (story) {
           const response = await story.handleMessage(update, actor, session);
-          return response;
+          return this.#prefixResponse(response);
         }
       }
       return { sendMessage: { text: '⚠️ Неизвестная команда' } };
@@ -170,7 +171,7 @@ export abstract class BotController<
       const story = this.#findStoryByPath(activePath);
       if (story) {
         const response = await story.handleCancel(actor, session);
-        return response;
+        return this.#prefixResponse(response);
       }
     }
     return { releaseInput: true };
@@ -189,7 +190,7 @@ export abstract class BotController<
       const story = this.#findStoryByPath(activePath);
       if (story) {
         const response = await story.handleTimeout(actor, session);
-        return response;
+        return this.#prefixResponse(response);
       }
     }
     return {
@@ -231,6 +232,75 @@ export abstract class BotController<
       return this.findStory(parts[1] ?? '');
     }
     return undefined;
+  }
+
+  // ── Префиксация кнопок ──
+
+  /**
+   * Добавляет префикс контроллера (this.name) ко всем кодам кнопок в ответе.
+   *
+   * Коды стори (`story:action`) получают префикс контроллера.
+   * Кросс-контроллерные коды (напр. `app:main-menu`) уже содержат префикс
+   * другого контроллера и не трогаются.
+   */
+  #prefixResponse(response: BotResponse): BotResponse {
+    const prefixKeyboard = (
+      kb: KeyboardDescription | undefined,
+    ): KeyboardDescription | undefined => {
+      if (!kb) return kb;
+      return {
+        ...kb,
+        rows: kb.rows.map((row) =>
+          row.map((btn) => ({
+            ...btn,
+            code: this.#prefixCode(btn.code),
+          })),
+        ),
+      };
+    };
+
+    const result: BotResponse = { ...response };
+
+    if (result.sendMessage?.keyboard) {
+      result.sendMessage = {
+        ...result.sendMessage,
+        keyboard: prefixKeyboard(result.sendMessage.keyboard) ?? undefined,
+      };
+    }
+
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map((sm) =>
+        sm.keyboard
+          ? { ...sm, keyboard: prefixKeyboard(sm.keyboard) ?? undefined }
+          : sm,
+      );
+    }
+
+    if (result.editMessage?.keyboard) {
+      result.editMessage = {
+        ...result.editMessage,
+        keyboard: prefixKeyboard(result.editMessage.keyboard) ?? undefined,
+      };
+    }
+
+    return result;
+  }
+
+  /**
+   * Префиксирует отдельный код кнопки именем контроллера.
+   * Не трогает уже префиксированные коды (свои или чужих контроллеров).
+   */
+  #prefixCode(code: string): string {
+    const ownPrefix = `${this.name}:`;
+    if (code.startsWith(ownPrefix)) return code;
+
+    // Код стори этого контроллера — добавляем префикс контроллера.
+    if (this.stories.some((s) => code.startsWith(`${s.name}:`))) {
+      return ownPrefix + code;
+    }
+
+    // Иначе — кросс-контроллерный код, уже с префиксом (напр. app:main-menu).
+    return code;
   }
 
   // ── Утилиты ──

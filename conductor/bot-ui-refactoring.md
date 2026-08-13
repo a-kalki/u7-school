@@ -1,5 +1,16 @@
 # Рефакторинг Bot UI: перенос в `apps/u7-bot`
 
+> ⚠️ **ИСТОРИЧЕСКИЙ ДОКУМЕНТ (архив).** Описывает план рефакторинга, который уже выполнен.
+> Часть решений (например `publicActions`/`getAction`) в итоге НЕ была реализована — в коде
+> используется `cbFor`/`app:main-menu`. Некоторые упомянутые сущности удалены:
+> `BotRouter`, `connectRouter`, `connectUiApp`, `executeResponses`, `ui-utils.ts`,
+> `removePrevKeyboard` (теперь `keepPrevKeyboard`).
+> **Актуальное состояние см. в:**
+> - [bot-architecture.md](./code_styleguides/bot-architecture.md) — устройство bot-level;
+> - [skills/bot-controller.md](./code_styleguides/skills/bot-controller.md);
+> - [skills/bot-user-story.md](./code_styleguides/skills/bot-user-story.md);
+> - [bot-test.md](./code_styleguides/bot-test.md).
+
 > v2 (2026-08-07). Объединяющий документ для серии треков.
 > **Этот документ содержит ПОЛНЫЙ контекст для генерации треков в другой сессии.**
 > Для генерации трека: прочитай этот документ → загрузи skill `conductor-newtrack` → создай трек.

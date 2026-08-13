@@ -1,6 +1,9 @@
 # BotController — Styleguide
 
-**Назначение:** контроллер Telegram-бота — реестр сторис, диспетчер callback/message, владелец сжатия id и обработки ошибок. Базовый класс: `packages/core/src/ui/bot/controller/bot-controller.ts`.
+**Назначение:** контроллер Telegram-бота — реестр сторис, диспетчер callback/message, владелец префиксации кнопок и обработки ошибок. Базовый класс: `packages/core/src/ui/bot/controller/bot-controller.ts`.
+
+> Сжатие/разжатие UUID живёт не здесь, а в `BotTransport`. Общий разрез слоёв —
+> см. [bot-architecture.md](../bot-architecture.md).
 
 ---
 
@@ -9,27 +12,30 @@
 ```
 BotController<TAppMeta, TActor>                        (core, абстрактный)
   └─ U7BotController                                    (apps/u7-bot) — закрывает U7BotAppMeta + User
-       ├─ StreamController                             (apps/u7-bot) — реестр доменных сторис
-       ├─ CourseController                             (apps/u7-bot) — реестр доменных сторис
+       ├─ StreamsController                            (apps/u7-bot) — реестр доменных сторис
+       ├─ CoursesController                            (apps/u7-bot) — реестр доменных сторис
+       ├─ LearningController                           (apps/u7-bot) — реестр доменных сторис
+       ├─ MentorController                             (apps/u7-bot) — реестр доменных сторис
+       ├─ QuestionnaireController                      (apps/u7-bot) — реестр стори анкеты
        ├─ OnboardingController                         (apps/u7-bot) — логика без сторис
        └─ AppController                                (apps/u7-bot) — системные сценарии (/start, /help, сообщество)
 ```
 
-- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: сжатие id, диспетчеризация в сторис, `handleError`, главное меню.
-- **`U7BotController`** (`@u7-scl/bot`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`.
-- **Доменные контроллеры** (`StreamController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUserStory`.
+- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: префиксация кнопок, диспетчеризация в сторис, `handleError`, главное меню.
+- **`U7BotController`** (`@u7-scl/bot/u7-bot-controller`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`.
+- **Доменные контроллеры** (`StreamsController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUserStory`.
 - **`OnboardingController`** — пример контроллера **без сторис**: вшивает логику анкеты напрямую, использует `this.cb()` для формирования callback.
-- **`AppController`** (`apps/u7-bot/src/app/controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `app:main-menu` и `app:help`.
+- **`AppController`** (`apps/u7-bot/src/controllers/app/app-controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `main-menu` и `help`.
 
 ---
 
 ## 2. Ключевые правила
 
 1. **Контроллер тонкий.** Доменный контроллер — только `name` + `stories`. Вся логика сценария — в `BotUserStory`.
-2. **Стори не знают ни имени контроллера, ни сжатия.** Стори оперируют реальными UUID; контроллер на выходе сжимает id и добавляет префикс, на входе разжимает обратно.
+2. **Стори не знают имени контроллера.** Стори возвращают коды без префикса (`story:action`); контроллер на выходе добавляет префикс `name:` через `#prefixResponse`/`#prefixCode`. Сжатие/разжатие UUID — зона `BotTransport`, не стори и не контроллера.
 3. **Один контроллер = один модуль** (кроме `AppController` — уровень приложения).
 4. **Необработанные ошибки стори** перехватываются в `handleCallback`/`handleMessage` и идут в `handleError`.
-5. **Запрещены кросс-контроллерные переходы.** Стори не может через `cbFor` или `delegate` ссылаться на стори другого контроллера. `#compressAction` добавляет префикс текущего контроллера, и целевой контроллер не сможет обработать такой колбэк. Для перехода в главное меню используй `app:main-menu` (специальный префикс, не привязанный к контроллеру).
+5. **Кросс-контроллерные коды.** Код с префиксом другого контроллера (`app:main-menu`) проходит префиксацию без изменений (`#prefixCode` видит, что первый сегмент — не стори текущего контроллера). `cbFor` — только для стори того же контроллера. Типизированная кросс-контроллерная навигация (`cbTo`, controller-aware `delegate`) — отдельной задачей.
 
 ---
 
@@ -37,14 +43,14 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
 
 ```typescript
 init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void  // API приложения + UiApp; каскадно в стори
-reset(): void                                                           // сброс shortIds и временного состояния стори
+reset(): void                                                           // сброс временного состояния стори
 ```
 
-`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `AppController` дополнительно получает `MenuAggregator` через `initMenuAggregator()`.
+`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `reset()` вызывает `reset()` у всех стори — сжатые id и `sessionMap` здесь **не** сбрасываются (они в `BotTransport`).
 
 Контроллер сохраняет обе зависимости:
 - `this.appApi` — для межмодульных вызовов (`appApi.execute(...)`)
-- `this.uiApp` — для кросс-стори ссылок (`uiApp.getAction<T>(name)`)
+- `this.uiApp` — для сбора меню и доступа к контроллерам (`uiApp.getController(name)`)
 
 ---
 
@@ -52,7 +58,7 @@ reset(): void                                                           // сб�
 
 | Метод | Назначение |
 |---|---|
-| `handleCallback(data, actor, session)` | Снимает префикс стори, разжимает id, делегирует в стори, сжимает ответ |
+| `handleCallback(data, actor, session)` | Снимает префикс стори, делегирует в стори, префиксирует коды ответа |
 | `handleMessage(update, actor, session)` | Делегирует активной стори по `session.activeHandler.path` |
 | `handleStart(actor)` | Агрегирует кнопки главного меню от всех стори, добавляет префикс `name:` |
 | `handleWelcome` / `handleHelpMessage` | Системные сообщения (переопределяет `AppController`) |
@@ -62,11 +68,17 @@ reset(): void                                                           // сб�
 
 ---
 
-## 5. Сжатие id
+## 5. Префиксация кнопок
 
-UUID → первые 8 hex-символов через общую мапу `shortIds`. На входе разжимается обратно. Гарантирует `callback_data` ≤ 64 байт. При коллизии добавляется цифровой суффикс.
+`handleCallback`/`handleMessage`/`handleCancel`/`handleTimeout` возвращают ответ стори
+**с уже добавленным префиксом** `name:` ко всем кодам кнопок (`#prefixResponse`).
 
-Если после разжатия остались неразрешённые 8-hex ключи (кнопка устарела после перезапуска) — возвращается сообщение «Кнопка устарела, нажмите /start».
+- `story:action` → `name:story:action` (стори текущего контроллера).
+- `app:main-menu` → без изменений (кросс-контроллерный код).
+
+Сжатие UUID до ≤ 64 байт происходит позже, в `BotTransport` (`compressCommand`/
+`shrink` на отправке, `expandAction` на входе callback). См.
+[bot-architecture.md](../bot-architecture.md), §4.
 
 ---
 
@@ -86,7 +98,7 @@ UUID → первые 8 hex-символов через общую мапу `sho
 
 ## 7. Тестирование
 
-См. [bot-test.md](../bot-test.md) — уровни тестирования (unit сторис, интеграционные с реальным контроллером, E2E).
+См. [bot-test.md](../bot-test.md) — уровни тестирования (unit сторис, интеграционные через BotTransport, E2E).
 
 ---
 
@@ -95,3 +107,4 @@ UUID → первые 8 hex-символов через общую мапу `sho
 - [BotUserStory](./bot-user-story.md) — стиль написания сторис
 - [Ошибки](./errors.md) — `AppError`, `fromError()`
 - [Тестирование бота](../bot-test.md)
+- [Архитектура bot-level](../bot-architecture.md)

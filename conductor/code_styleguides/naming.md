@@ -36,8 +36,8 @@
 | Фасад (реализация) | `<ModuleName><Type>Facade` | `UserRestFacade` | `infra/user-rest-facade.ts` |
 | Приложение (мета) | `AppMeta` | `CliAppMeta` | `apps/u7-cli/src/main.ts` |
 | Приложение (реализация) | `ApiApp` | `ApiApp<CliAppMeta>` | `apps/u7-cli/src/main.ts` |
-| Пользовательский сценарий | `<StoryName>Story` | `CatalogStory` | `ui/bot/stories/catalog.story.ts` |
-| Контроллер (бот) | `<ModuleName>Controller` | `StreamController` | `ui/bot/controller/stream-controller.ts` |
+| Пользовательский сценарий | `<StoryName>Story` | `CatalogStory` | `apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts` |
+| Контроллер (бот) | `<ModuleName>Controller` | `StreamsController` | `apps/u7-bot/src/controllers/streams/controller.ts` |
 
 ## Структура папок доменного модуля
 

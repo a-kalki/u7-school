@@ -1,26 +1,27 @@
-// @ts-nocheck
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type {
-  BotResponse,
-  CbMainMenuAction,
-  SessionData,
-} from '@u7-scl/core/ui';
-import { assertBotResponseValid, UiApp } from '@u7-scl/core/ui';
+import type { BotResponse, CbMainMenuAction } from '@u7-scl/core/ui';
+import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
+import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
-  createTestApp,
-  type TestBotUiApp,
-} from '@u7-scl/test-helpers/test-app';
+  createTestBotTransport,
+  type TestBotTransport,
+} from '@u7-scl/test-helpers/test-bot-transport';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
-
-const NO_SESSION: SessionData = { activeHandler: null };
 
 function findButton(
   response: BotResponse,
@@ -56,7 +57,7 @@ function findMenuItem(
 
 describe('E2E: Витрина для любопытного', () => {
   let app: TestApp;
-  let transport: TestBotUiApp;
+  let transport: TestBotTransport;
   let guest: User;
 
   beforeAll(async () => {
@@ -66,17 +67,18 @@ describe('E2E: Витрина для любопытного', () => {
     const appController = new AppController(SCHOOL_GROUP_URL);
     const learningController = new LearningController();
     const mentorController = new MentorController();
-    transport = new UiApp([
+    transport = createTestBotTransport(app, [
       appController,
       streamController,
       courseController,
       learningController,
       mentorController,
     ]);
-    transport.init(app.apiApp, (tgId: number) =>
-      app.userFacade.getUserByTelegramId(tgId),
-    );
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
+  });
+
+  beforeEach(() => {
+    transport.reset();
   });
 
   afterAll(async () => {
@@ -106,9 +108,9 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const response = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       assertBotResponseValid(response);
       const text = response.sendMessage?.text ?? '';
@@ -128,15 +130,15 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const catalogResp = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       const courseButton = findButton(catalogResp, 'Основы');
       const phasesResp = await transport.handleCallback(
-        courseButton.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseButton.code,
+        }),
       );
       assertBotResponseValid(phasesResp);
       const text = phasesResp.sendMessage?.text ?? '';
@@ -155,21 +157,21 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const catalogResp = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       const courseButton = findButton(catalogResp, 'Основы');
       const phasesResp = await transport.handleCallback(
-        courseButton.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseButton.code,
+        }),
       );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
       const modulesResp = await transport.handleCallback(
-        phaseBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: phaseBtn.code,
+        }),
       );
       assertBotResponseValid(modulesResp);
       const text = modulesResp.sendMessage?.text ?? '';
@@ -188,27 +190,27 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const catalogResp = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       const courseButton = findButton(catalogResp, 'Основы');
       const phasesResp = await transport.handleCallback(
-        courseButton.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseButton.code,
+        }),
       );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
       const modulesResp = await transport.handleCallback(
-        phaseBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: phaseBtn.code,
+        }),
       );
       const moduleBtn = findButton(modulesResp, 'JavaScript');
       const projectsResp = await transport.handleCallback(
-        moduleBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: moduleBtn.code,
+        }),
       );
       assertBotResponseValid(projectsResp);
       const text = projectsResp.sendMessage?.text ?? '';
@@ -228,33 +230,33 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const catalogResp = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       const courseButton = findButton(catalogResp, 'Основы');
       const phasesResp = await transport.handleCallback(
-        courseButton.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseButton.code,
+        }),
       );
       const phaseBtn = findButton(phasesResp, 'Синтаксис');
       const modulesResp = await transport.handleCallback(
-        phaseBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: phaseBtn.code,
+        }),
       );
       const moduleBtn = findButton(modulesResp, 'JavaScript');
       const projectsResp = await transport.handleCallback(
-        moduleBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: moduleBtn.code,
+        }),
       );
       const projectBtn = findButton(projectsResp, 'Введение');
       const lessonsResp = await transport.handleCallback(
-        projectBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: projectBtn.code,
+        }),
       );
       assertBotResponseValid(lessonsResp);
       const text = lessonsResp.sendMessage?.text ?? '';
@@ -268,7 +270,7 @@ describe('E2E: Витрина для любопытного', () => {
     });
   });
 
-  // ── «Потоки курсов»: curious-режим (S01-S04) ──
+  // ── «Потоки курсов»: curious-режим карточки потока ──
   describe('«Потоки курсов» — curious-режим карточки потока', () => {
     test('гость открывает каталог потоков (S01)', async () => {
       const menu = (await transport.collectMainMenu(
@@ -276,9 +278,9 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const response = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
       assertBotResponseValid(response);
       const text = response.sendMessage?.text ?? '';
@@ -295,15 +297,15 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
       const streamButton = findButton(catalogResp, '🟡');
       const viewResp = await transport.handleCallback(
-        streamButton.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamButton.code,
+        }),
       );
       assertBotResponseValid(viewResp);
       const text = viewResp.sendMessage?.text ?? '';
@@ -321,15 +323,15 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
       expect(btns.some((t) => t.includes('В архив'))).toBe(false);
       expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
-      // Кнопка «👥 Студенты» теперь доступна через getAction<MonitorActions> (Трек 6)
+      // Кнопка «👥 Студенты» доступна (Трек 6)
       expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
 
       // Проверяем, что нажатие на «Студенты» работает (кросс-контроллерный callback)
       const studentsBtn = findButton(viewResp, 'Студенты');
       const studentsResp = await transport.handleCallback(
-        studentsBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: studentsBtn.code,
+        }),
       );
       assertBotResponseValid(studentsResp);
       const studentsText = studentsResp.sendMessage?.text ?? '';
@@ -344,15 +346,15 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const catalogResp = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
       const activeButton = findButton(catalogResp, '🔵');
       const viewResp = await transport.handleCallback(
-        activeButton.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: activeButton.code,
+        }),
       );
       assertBotResponseValid(viewResp);
       const btns =
@@ -362,9 +364,6 @@ describe('E2E: Витрина для любопытного', () => {
     });
   });
 
-  // Трек 6: кнопка «👥 Студенты» восстановлена. Гость видит список студентов.
-  // TODO(Трек 5): Кандидат: от витрины к записи
-
   // ── «Программы курсов» — drill-up (обратная навигация) ──
   describe('«Программы курсов» — обратная навигация', () => {
     test('drill-down 5 уровней → drill-up 4 уровня обратно', async () => {
@@ -373,31 +372,30 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
 
-      // Вперёд: 0 → 1 → 2 → 3 → 4
       const l0 = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       const l1 = await transport.handleCallback(
-        findButton(l0, 'Основы').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l0, 'Основы').code,
+        }),
       );
       const l2 = await transport.handleCallback(
-        findButton(l1, 'Синтаксис').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l1, 'Синтаксис').code,
+        }),
       );
       const l3 = await transport.handleCallback(
-        findButton(l2, 'JavaScript').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l2, 'JavaScript').code,
+        }),
       );
       const l4 = await transport.handleCallback(
-        findButton(l3, 'Введение').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l3, 'Введение').code,
+        }),
       );
 
       assertBotResponseValid(l4);
@@ -406,9 +404,9 @@ describe('E2E: Витрина для любопытного', () => {
       // Назад: 4 → 3
       const back43 = findButton(l4, 'Назад к модулю');
       const back3 = await transport.handleCallback(
-        back43.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: back43.code,
+        }),
       );
       assertBotResponseValid(back3);
       expect(back3.sendMessage?.text).toContain('Модуль: JavaScript');
@@ -416,9 +414,9 @@ describe('E2E: Витрина для любопытного', () => {
       // Назад: 3 → 2
       const back32 = findButton(back3, 'Назад к этапу');
       const back2 = await transport.handleCallback(
-        back32.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: back32.code,
+        }),
       );
       assertBotResponseValid(back2);
       expect(back2.sendMessage?.text).toContain('Синтаксис');
@@ -426,9 +424,9 @@ describe('E2E: Витрина для любопытного', () => {
       // Назад: 2 → 1
       const back21 = findButton(back2, 'Назад к курсу');
       const back1 = await transport.handleCallback(
-        back21.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: back21.code,
+        }),
       );
       assertBotResponseValid(back1);
       expect(back1.sendMessage?.text).toContain(
@@ -438,9 +436,9 @@ describe('E2E: Витрина для любопытного', () => {
       // Назад: 1 → 0
       const back10 = findButton(back1, 'Назад к курсам');
       const back0 = await transport.handleCallback(
-        back10.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: back10.code,
+        }),
       );
       assertBotResponseValid(back0);
       expect(back0.sendMessage?.text).toContain('Курсы');
@@ -452,37 +450,34 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
 
-      // Идём в Синтаксис
       const l0 = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       const l1 = await transport.handleCallback(
-        findButton(l0, 'Основы').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l0, 'Основы').code,
+        }),
       );
       const l2 = await transport.handleCallback(
-        findButton(l1, 'Синтаксис').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l1, 'Синтаксис').code,
+        }),
       );
       expect(l2.sendMessage?.text).toContain('Синтаксис');
 
-      // Возвращаемся к курсу
       const back1 = await transport.handleCallback(
-        findButton(l2, 'Назад к курсу').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(l2, 'Назад к курсу').code,
+        }),
       );
 
-      // Идём в другой этап — Алгоритмика
       const algoBtn = findButton(back1, 'Алгоритмика');
       const algoResp = await transport.handleCallback(
-        algoBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: algoBtn.code,
+        }),
       );
       assertBotResponseValid(algoResp);
       expect(algoResp.sendMessage?.text).toContain('Алгоритмика');
@@ -494,16 +489,16 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const l0 = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
 
       const mainMenuBtn = findButton(l0, 'Главное меню');
       const mainResp = await transport.handleCallback(
-        mainMenuBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: mainMenuBtn.code,
+        }),
       );
       assertBotResponseValid(mainResp);
       expect(mainResp.sendMessage?.text).toContain('Выберите действие');
@@ -518,65 +513,58 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
 
-      // S01: каталог
       const catalog = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
       assertBotResponseValid(catalog);
 
-      // → S02: карточка enrollment-потока
       const card = await transport.handleCallback(
-        findButton(catalog, '🟡').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(catalog, '🟡').code,
+        }),
       );
       assertBotResponseValid(card);
       expect(card.sendMessage?.text).toContain('JS Core');
 
-      // → S03: программа
       const program = await transport.handleCallback(
-        findButton(card, 'Программа курса').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(card, 'Программа курса').code,
+        }),
       );
       assertBotResponseValid(program);
       expect(program.sendMessage?.text).toContain('Программа курса');
       expect(program.sendMessage?.text).toContain('📁');
 
-      // ← назад к карточке
       const backToCard = await transport.handleCallback(
-        findButton(program, 'Назад к потоку').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(program, 'Назад к потоку').code,
+        }),
       );
       assertBotResponseValid(backToCard);
       expect(backToCard.sendMessage?.text).toContain('JS Core');
 
-      // → S04: детали
       const details = await transport.handleCallback(
-        findButton(backToCard, 'Детали').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(backToCard, 'Детали').code,
+        }),
       );
       assertBotResponseValid(details);
       expect(details.sendMessage?.text).toContain('Детали');
 
-      // ← назад к карточке
       const backAgain = await transport.handleCallback(
-        findButton(details, 'Назад к потоку').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(details, 'Назад к потоку').code,
+        }),
       );
       assertBotResponseValid(backAgain);
       expect(backAgain.sendMessage?.text).toContain('JS Core');
 
-      // ← назад к каталогу
       const backToCatalog = await transport.handleCallback(
-        findButton(backAgain, 'Назад к списку').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(backAgain, 'Назад к списку').code,
+        }),
       );
       assertBotResponseValid(backToCatalog);
       expect(backToCatalog.sendMessage?.text).toContain('Потоки курсов');
@@ -589,37 +577,35 @@ describe('E2E: Витрина для любопытного', () => {
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
 
       const catalog = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
       const card = await transport.handleCallback(
-        findButton(catalog, '🔵').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(catalog, '🔵').code,
+        }),
       );
       assertBotResponseValid(card);
       expect(card.sendMessage?.text).toContain('Поток 2');
 
       const program = await transport.handleCallback(
-        findButton(card, 'Программа курса').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(card, 'Программа курса').code,
+        }),
       );
       assertBotResponseValid(program);
       expect(program.sendMessage?.text).toContain('📁');
 
-      // Назад к карточке
       const back1 = await transport.handleCallback(
-        findButton(program, 'Назад к потоку').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(program, 'Назад к потоку').code,
+        }),
       );
-      // Назад к каталогу
       const backCatalog = await transport.handleCallback(
-        findButton(back1, 'Назад к списку').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(back1, 'Назад к списку').code,
+        }),
       );
       expect(backCatalog.sendMessage?.text).toContain('Потоки курсов');
     });
@@ -630,16 +616,16 @@ describe('E2E: Витрина для любопытного', () => {
       )) as CbMainMenuAction[];
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
       const catalog = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
 
       const mainMenuBtn = findButton(catalog, 'Главное меню');
       const mainResp = await transport.handleCallback(
-        mainMenuBtn.code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: mainMenuBtn.code,
+        }),
       );
       assertBotResponseValid(mainResp);
       expect(mainResp.sendMessage?.text).toContain('Выберите действие');
@@ -647,9 +633,10 @@ describe('E2E: Витрина для любопытного', () => {
 
     test('несуществующий поток — ошибка', async () => {
       const response = await transport.handleCallback(
-        'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData:
+            'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
+        }),
       );
       assertBotResponseValid(response);
       expect(response.sendMessage?.text).toContain('не найден');
@@ -663,52 +650,51 @@ describe('E2E: Витрина для любопытного', () => {
         guest,
       )) as CbMainMenuAction[];
 
-      // Курсы
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       const courses = await transport.handleCallback(
-        courseBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: courseBtn.action,
+        }),
       );
       expect(courses.sendMessage?.text).toContain('Курсы');
 
-      // Назад в главное меню
       const main1 = await transport.handleCallback(
-        findButton(courses, 'Главное меню').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(courses, 'Главное меню').code,
+        }),
       );
       expect(main1.sendMessage?.text).toContain('Выберите действие');
 
-      // Потоки
       const streamBtn = findMenuItem(
         (await transport.collectMainMenu(guest)) as CbMainMenuAction[],
         'Потоки курсов',
       );
       const catalog = await transport.handleCallback(
-        streamBtn.action,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: streamBtn.action,
+        }),
       );
       expect(catalog.sendMessage?.text).toContain('Потоки курсов');
 
       const card = await transport.handleCallback(
-        findButton(catalog, '🟡').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(catalog, '🟡').code,
+        }),
       );
       expect(card.sendMessage?.text).toContain('JS Core');
 
       const main2 = await transport.handleCallback(
-        findButton(card, 'Назад к списку').code,
-        guest.telegramId,
-        NO_SESSION,
+        transport.makeBotContext(guest.telegramId, {
+          callbackData: findButton(card, 'Назад к списку').code,
+        }),
       );
       expect(main2.sendMessage?.text).toContain('Потоки курсов');
     });
 
     test('handleHelp показывает описания курсов и потоков', async () => {
-      const response = await transport.handleHelp(guest.telegramId);
+      const response = await transport.handleHelp(
+        transport.makeBotContext(guest.telegramId),
+      );
       const text = response.sendMessage?.text ?? '';
       expect(text).toContain('Как со мной работать');
       expect(text).toContain('Программы курсов');

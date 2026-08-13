@@ -110,7 +110,6 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
 
     if (response.type === 'completed') {
       botRes.releaseInput = true;
-      botRes.questionnaireCompleted = true;
       botRes.sendMessage = {
         text: 'Спасибо! Ваша анкета принята.',
         keyboard: {

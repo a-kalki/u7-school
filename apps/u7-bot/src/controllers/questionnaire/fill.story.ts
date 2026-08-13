@@ -257,7 +257,6 @@ export class FillStory extends U7BotUserStory {
 
       return {
         releaseInput: true,
-        questionnaireCompleted: true,
         sendMessage: {
           text: 'Анкета пропущена.',
           keyboard: {
@@ -277,7 +276,6 @@ export class FillStory extends U7BotUserStory {
 
       return {
         releaseInput: true,
-        questionnaireCompleted: true,
         sendMessage: {
           text: 'Анкета прервана.',
           keyboard: {
@@ -374,7 +372,6 @@ export class FillStory extends U7BotUserStory {
     if (response.type === 'completed') {
       return {
         releaseInput: true,
-        questionnaireCompleted: true,
         sendMessage: {
           text: 'Спасибо! Ваша анкета принята.',
           keyboard: {

@@ -2,51 +2,76 @@
 
 **Назначение:** правила тестирования UI-слоя Telegram-бота на трёх уровнях: unit, интеграционном, E2E.
 
+> Общее устройство слоёв — см. [bot-architecture.md](./bot-architecture.md).
+
 ---
 
 ## 1. Уровни тестирования
 
 | Уровень | Расположение | Что проверяет | Моки |
 |---|---|---|:---:|
-| **Unit** | `packages/<module>/src/ui/bot/stories/*.test.ts` | Логика одной стори/контроллера в изоляции | ✅ `moduleApi`, `appApi` |
-| **Интеграционный** | `tests/bot/integration/<module>/*.integration.test.ts` | Стори + роутер + контроллер + реальные JSON-репозитории | ❌ |
-| **E2E** | `tests/bot/e2e/<module>/*.e2e.test.ts` | Полные пользовательские цепочки через `code` кнопок | ❌ |
+| **Unit** | `apps/u7-bot/src/controllers/**/*.test.ts`, `packages/core/src/ui/bot/*.test.ts` | Логика одной стори/контроллера в изоляции | ✅ `moduleApi`, `appApi` |
+| **Интеграционный** | `apps/u7-bot/tests/<module>/*.integration.test.ts` | Стори + контроллер + BotTransport + реальные JSON-репозитории | ❌ |
+| **E2E** | `apps/u7-bot/tests/e2e/*.e2e.test.ts` | Полные пользовательские цепочки через `code` кнопок | ❌ |
 
 ---
 
 ## 2. Ключевые правила
 
-1. **Unit:** стори вызывается напрямую (`story.handleCallback(...)`), без роутера. Не проверяются `code` кнопок — только текст и наличие кнопок.
-2. **Integration:** вызов через `uiApp.handleCallback('stream:catalog:list', ...)` с полным callback_data. Проверяется семантика ответа, НЕ `code`.
-3. **E2E:** каждый шаг извлекает `code` из кнопки предыдущего ответа и передаёт дальше. Единственный уровень, ловящий ошибки формирования callback_data.
+1. **Unit:** стори вызывается напрямую (`story.handleCallback(...)`), без роутера и транспорта. Не проверяются `code` кнопок — только текст и наличие кнопок.
+2. **Integration:** вызов через честный `BotTransport` (хелпер `TestBotTransport`) с полным `callback_data`. Проверяется семантика ответа, НЕ внутренняя структура `code`.
+3. **E2E:** каждый шаг извлекает `code` из кнопки предыдущего ответа и передаёт дальше. Единственный уровень, ловящий ошибки формирования `callback_data` (включая сжатие UUID).
 4. **MarkdownV2-валидация обязательна** на всех уровнях (см. §4).
-5. **Изоляция:** каждый `describe` со своим `TestApp` (отдельные фикстуры), чтобы изменения состояния не влияли на другие сценарии.
+5. **Изоляция:** каждый `describe` со своим `TestApp` (отдельные фикстуры) и `transport.reset()` в `beforeEach` (чистые сессии), чтобы изменения состояния не влияли на другие сценарии.
 
 ---
 
 ## 3. Структура и хелперы
 
 ```
-tests/bot/
+apps/u7-bot/tests/
 ├── helpers/
-│   ├── test-app.ts          # createTestApp() — ApiApp с временными репозиториями
-│   └── fixture-loader.ts    # loadFixtures() — copy-on-write из templates/
-├── fixtures/templates/      # эталонные JSON-фикстуры (один набор на все тесты)
-├── integration/<module>/
-└── e2e/<module>/user-flows.e2e.test.ts   # один файл на модуль
+│   ├── test-app.ts            # createTestApp() — ApiApp с временными репозиториями
+│   ├── test-bot-transport.ts  # TestBotTransport — BotTransport + мок Api + сессии
+│   └── fixture-loader.ts      # loadFixtures() — copy-on-write из templates/
+├── fixtures/templates/        # эталонные JSON-фикстуры (один набор на все тесты)
+├── <module>/                  # интеграционные тесты модулей (courses/, streams/, learning/, mentor/)
+└── e2e/                       # E2E сценарии
 ```
 
-Примеры живых тестов: `packages/stream/src/ui/bot/stories/catalog.story.test.ts` (unit), `tests/bot/integration/stream/` (integration), `tests/bot/e2e/stream/` (E2E).
+Хелпер `TestBotTransport` (`apps/u7-bot/tests/helpers/test-bot-transport.ts`):
+
+- реальный `BotTransport` + реальный `U7BotUiApp` + реальная `sessionMap`;
+- мок `RecordingBotApi` (`sendMessage`/`editMessageText` пишут вызовы в массив);
+- фабрика `makeBotContext(tgId, { callbackData?/text? })`;
+- `createTestBotTransport(app, controllers)` — быстрая сборка из `TestApp`.
+
+Интеграционный вызов выглядит так:
+
+```typescript
+const response = await transport.handleCallback(
+  transport.makeBotContext(guest.telegramId, { callbackData: 'stream:catalog:list' }),
+);
+assertBotResponseValid(response);
+```
+
+Примеры живых тестов:
+- unit: `apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.test.ts`;
+- integration: `apps/u7-bot/tests/streams/catalog.integration.test.ts`;
+- E2E: `apps/u7-bot/tests/e2e/`.
 
 ### Формат callback_data
 
 ```
 stream:catalog:list                  — CatalogStory
 stream:view-stream:view:<uuid>       — ViewStreamStory
-stream:learning:my-study             — LearningStory
+learning:hub:my-study                — HubStory
+course:course-catalog:list           — CourseCatalogStory
 ```
 
-Первая часть — имя контроллера, вторая — имя стори, третья — экшен. Контроллер сжимает UUID (см. [bot-controller.md](./skills/bot-controller.md), §5).
+Первая часть — имя контроллера, вторая — имя стори, третья — экшен.
+Префикс контроллера добавляет `BotController`; сжатие UUID (≤ 64 байт) выполняет
+`BotTransport` (см. [bot-architecture.md](./bot-architecture.md), §4).
 
 ---
 
@@ -58,7 +83,7 @@ stream:learning:my-study             — LearningStory
 | `assertBotResponseValid` | MarkdownV2 **+** длина `code` ≤ 64 байт | Integration, E2E |
 
 ```typescript
-const response = await uiApp.handleCallback(...);
+const response = await transport.handleCallback(ctx);
 assertBotResponseValid(response);
 ```
 
@@ -76,7 +101,7 @@ Telegram резервирует: `` _ * [ ] ( ) ~ ` > # + - = | { } . ! ``
 - **Статические строки** — ручное экранирование.
 - **Динамические значения** — `escapeMarkdown` из `@u7-scl/core/shared`. Нельзя применять к строке с готовой разметкой — только к отдельным значениям.
 
-Функции: `validateMarkdownV2` (dev-assert), `assertMarkdownV2Safe` (низкоуровневые тесты), `assertResponseMarkdownSafe` (стори/контроллеры/e2e). Код: `packages/core/src/shared/markdown.ts`, `markdown-validator.ts`, `packages/core/src/ui/bot/response-markdown-assert.ts`.
+Функции: `validateMarkdownV2` (dev-assert), `assertMarkdownV2Safe` (низкоуровневые тесты), `assertResponseMarkdownSafe` (стори/контроллеры/e2e). Код: `packages/core/src/shared/markdown.ts`, `markdown-validator.ts`, `packages/core/src/ui/bot/response-assert.ts`.
 
 ---
 
@@ -99,11 +124,12 @@ function findButton(response: BotResponse, textContains: string): { text: string
 ## 6. Запуск и отладка
 
 ```bash
-bun test packages/stream/src/ui/bot/          # unit
-bun test tests/bot/integration/                # integration
-bun test tests/bot/e2e/                        # e2e
+bun test apps/u7-bot/                                  # все тесты бота
+bun test apps/u7-bot/tests/<module>/                   # интеграционные модуля
+bun test apps/u7-bot/tests/e2e/                        # e2e
+bun test packages/core/src/ui/bot/                     # unit (core)
 
-KEEP_FIXTURES=1 bun test tests/bot/integration/stream/catalog.integration.test.ts   # не удалять фикстуры
+KEEP_FIXTURES=1 bun test apps/u7-bot/tests/streams/catalog.integration.test.ts  # не удалять фикстуры
 ```
 
 ---
@@ -111,6 +137,7 @@ KEEP_FIXTURES=1 bun test tests/bot/integration/stream/catalog.integration.test.t
 ## Связанные документы
 
 - [Общие правила тестирования](./testing.md)
-- [BotController](./skills/bot-controller.md) — сжатие id, handleError
+- [BotController](./skills/bot-controller.md) — префиксация кнопок, handleError
 - [BotUserStory](./skills/bot-user-story.md) — стиль сторис
+- [Архитектура bot-level](./bot-architecture.md)
 - [DDD принципы](./ddd.md)

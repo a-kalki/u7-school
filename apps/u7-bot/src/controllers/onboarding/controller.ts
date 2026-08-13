@@ -124,7 +124,6 @@ export class OnboardingController extends U7BotController {
 
       return {
         releaseInput: true,
-        questionnaireCompleted: true,
         sendMessage: {
           text: this.escapeMarkdown(
             'Анкета прервана. Ты можешь начать заново через кнопку «Заполнить анкету» в главном меню.',
@@ -304,7 +303,6 @@ export class OnboardingController extends U7BotController {
       };
     }
 
-    botRes.questionnaireCompleted = true;
     botRes.releaseInput = true;
     botRes.sendMessage = {
       text: 'Спасибо! Твоя анкета принята.',

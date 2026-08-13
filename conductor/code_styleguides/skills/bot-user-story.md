@@ -8,8 +8,8 @@
 
 | Класс | Пакет | Назначение |
 |---|---|---|
-| `BotUserStory<TAppMeta, TModuleMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий |
-| `U7BotUserStory<TModuleMeta>` | `@u7-scl/app/ui` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User` |
+| `BotUserStory<TAppMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий |
+| `U7BotUserStory` | `@u7-scl/bot/u7-bot-user-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User` |
 
 Контроллер, в котором живёт стори — см. [bot-controller.md](./bot-controller.md).
 
@@ -28,7 +28,7 @@
 5. **Актор всегда `User`** из `@u7-scl/app/domain` — не `unknown`, не локальные интерфейсы.
 6. **Права — через Policy-объекты** (`UserPolicy.isStudent(...)`, `StreamPolicy.canEnroll(...)`), не ручные проверки `actor.roles.includes(...)`.
 7. **Кросс-стори вызовы — через `this.cbFor(storyName, action, ...args)`**. Стори не импортируют другие стори напрямую. **Только в пределах одного контроллера** — `storyName` должен быть зарегистрирован в том же контроллере, что и текущая стори.
-8. **Запрещены кросс-контроллерные переходы.** Нельзя использовать `cbFor` или `delegate` для перехода в стори другого контроллера. Причина: `BotController.#compressAction` добавляет префикс текущего контроллера, и целевой контроллер не сможет обработать колбэк. Для возврата в главное меню используй `app:main-menu`.
+8. **Кросс-контроллерные переходы — только через готовый код.** `cbFor` работает только для стори того же контроллера. Для возврата в главное меню используй готовый код `app:main-menu` (префиксация в контроллере его не трогает). Типизированная кросс-контроллерная навигация (`cbTo`, controller-aware `delegate`) — отдельной задачей.
 
 Живые примеры: `apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts`, `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts`.
 
@@ -55,7 +55,7 @@
 
 ## 5. Wizard Story (пошаговый ввод)
 
-Конечный автомат на основе `captureInput`. Пример: `apps/u7-bot/src/controllers/streams/stories/create-stream.story.ts` (если существует, иначе см. `OnboardingController` для wizard-паттерна).
+Конечный автомат на основе `captureInput`. Пример: `apps/u7-bot/src/controllers/mentor/stories/create-stream.ts`.
 
 - Определи интерфейс контекста со всеми собираемыми полями (`step`, обязательные `''`, необязательные `undefined`).
 - Каждый шаг возвращает `captureInput` с обновлённым контекстом (`step: N+1`).
@@ -94,7 +94,8 @@ apps/u7-bot/tests/e2e/
 
 ## Связанные styleguide-файлы
 
-- [BotController](./bot-controller.md) — реестр сторис, сжатие id, handleError
+- [BotController](./bot-controller.md) — реестр сторис, префиксация кнопок, handleError
 - [Ошибки](./errors.md) — AppError, хелперы
 - [Тестирование бота](../bot-test.md)
+- [Архитектура bot-level](../bot-architecture.md)
 - [DDD API](../api.md) — UseCase, Module

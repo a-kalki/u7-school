@@ -5,12 +5,13 @@
 Добавляется **последней строкой клавиатуры** с кодом `app:main-menu` на экранах,
 где пользователь находится в режиме навигации/просмотра:
 
-- **CatalogStory** — `catalog:list` (витрина потоков)
-- **LearningStory**:
-  - `my-study` (текущий шаг)
-  - `complete` → урок завершён
-  - `complete` → проект завершён
-  - `complete` → поток завершён
+- **CatalogStory** — `stream:catalog:list` (витрина потоков)
+- **HubStory** — `learning:hub:my-study` (хаб «Моя учёба»)
+- **StepViewStory** — после завершения урока/проекта/потока
+- **ProgressStory** — `learning:progress:progress:<id>`
+
+Общий код вынесен в `MAIN_MENU_BUTTON`
+(`apps/u7-bot/src/controllers/shared/constants.ts`).
 
 ## Когда добавлять кнопку «⬅️ Назад к {уровень}»
 
@@ -18,38 +19,44 @@
 
 | Story | Экран | Кнопка | Код |
 |---|---|---|---|
-| `view-stream` | `complete` | `⬅️ Назад к списку` | `catalog:list` |
-| `view-stream` | `archive` | `⬅️ Назад к списку` | `catalog:list` |
-| `progress` | `progress` | `⬅️ Назад к обучению` | `learning:my-study` |
-| `monitor` | `students` | `⬅️ Назад к потоку` | `view-stream:view:{id}` |
-| `activate-stream` | `activate` | `⬅️ Назад к потоку` | `view-stream:view:{id}` |
+| `view-stream` | `program`/`details`/`students` | `⬅️ Назад к списку` | `stream:catalog:list` |
+| `progress` | `progress` | `⬅️ Назад к учёбе` | `learning:hub:my-study` |
+| `nav-tree` | уровни дерева | `⬅️ Назад к …` | `learning:hub:my-study` |
+| `monitor` | `students` | `⬅️ Назад к потоку` | `mentor:view-stream-mentor:view:<id>` |
 
 ## Когда НЕ добавлять кнопки «Назад»/«Главное меню»
 
 **Пользователь в процессе** — акцент на текущем действии:
 
-- **LearningStory** — `complete` → обычный шаг (студент в процессе обучения)
-- **CreateStreamStory** — шаги 0–10 (пользователь в wizard-процессе)
-- **Onboarding** — все шаги (свой механизм навигации)
-- **EnrollStory** — `enroll` (делегирует в `learning:my-study`)
+- **StepViewStory** — обычный шаг обучения
+- **CreateStreamStory** — шаги wizard'а (свой поток с «Пропустить»/«Отмена»)
+- **Onboarding** — все шаги анкеты (свой механизм навигации)
+- Диалоги подтверждения (mark-abandoned, complete, выход из потока)
 
 Пользователь всегда может использовать `/start` для возврата в главное меню.
 
-## Как использовать `app:main-menu`
+## Как обрабатывается `app:main-menu`
 
-Специальный callback `app:main-menu` обрабатывается в `BotRouter.handleCallback`:
-- Пересобирает главное меню через `collectMainMenu()`
-- Возвращает `{ mainMenu: { actions: [...] } }` в `BotResponse`
-- `connectRouter` (GrammY-адаптер) собирает клавиатуру и отправляет сообщение
-- **НЕ** сбрасывает `activeHandler` — в отличие от `/start`
+`app:main-menu` — обычный callback, у которого первый сегмент (`app`) — имя
+контроллера `AppController`:
 
-## Как story управляет `removePrevKeyboard`
+1. `UiApp.handleCallback` маршрутизирует по `app` в `AppController`, остаток — `main-menu`.
+2. `AppController.handleCallback('main-menu')` пересобирает главное меню через
+   `collectAllMenuItems()` и возвращает `«Выберите действие:»` + клавиатуру.
+3. `BotTransport.execute` отправляет/редактирует сообщение.
 
-`removePrevKeyboard: true` в `BotResponse` указывает `executeResponses` удалить
-inline-клавиатуру у предыдущего сообщения бота (через `editMessageText` с `reply_markup: undefined`).
+В отличие от `/start` (через `handleStart`), `app:main-menu` **не** сбрасывает
+`activeHandler`.
 
-**Правило:** story сама решает, когда удалять кнопки. Единого автоматизма нет.
+## Управление клавиатурой предыдущего сообщения
 
-Текущее использование:
-- **CreateStreamStory** — шаги 4–9: при нажатии «Принять»/«Пропустить» кнопки удаляются
-- Шаг 10 (превью) — без удаления (новый экран с кнопками «Подтвердить»/«Отмена»)
+`BotTransport.execute` по умолчанию (когда `keepPrevKeyboard` не задан) удаляет
+inline-клавиатуру у предыдущего сообщения бота (`lastBotMessage`) — через
+`editMessageText` с `reply_markup: undefined`.
+
+**Правило:** story сама решает, когда сохранять кнопки:
+
+- `keepPrevKeyboard: true` — предыдущая клавиатура остаётся (если контекст её кнопок ещё актуален);
+- не задано — клавиатура убирается.
+
+См. [bot-architecture.md](../../../../../conductor/code_styleguides/bot-architecture.md).
