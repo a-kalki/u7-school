@@ -7,7 +7,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
-import { MAIN_MENU_BUTTON } from '../../shared/constants';
+import { buttons } from '../../shared/buttons';
 
 /**
  * Подменю «🛠️ Инструменты ментора».
@@ -82,12 +82,7 @@ export class SubmenuStory extends U7BotUserStory {
                 code: this.cbFor('create-stream', 'start'),
               },
             ],
-            [
-              {
-                text: '🔙 Назад',
-                code: MAIN_MENU_BUTTON.code,
-              },
-            ],
+            [buttons.mainMenu('🔙 Назад')],
           ],
           isMultiple: false,
         },

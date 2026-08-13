@@ -2,6 +2,7 @@ import type { User } from '@u7-scl/app/domain';
 import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import { StreamDs } from '@u7-scl/stream/domain';
+import { buttons } from '../../shared/buttons';
 import { formatProgressBar, getStudent } from '../shared';
 
 /**
@@ -127,12 +128,7 @@ export class ProgressStory extends U7BotUserStory {
         keyboard: {
           rows: [
             [{ text: '⬅️ Назад к учёбе', code: this.cbFor('hub', 'my-study') }],
-            [
-              {
-                text: '↩️ Главное меню',
-                code: 'app:main-menu',
-              },
-            ],
+            [buttons.mainMenu()],
           ],
           isMultiple: false,
         },

@@ -4,6 +4,7 @@ import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
+import { buttons } from '../../shared/buttons';
 import {
   buildStepList,
   buildTransitionMessage,
@@ -127,14 +128,7 @@ export class StepViewStory extends U7BotUserStory {
           text: '🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!',
           parseMode: 'MarkdownV2',
           keyboard: {
-            rows: [
-              [
-                {
-                  text: '↩️ Главное меню',
-                  code: 'app:main-menu',
-                },
-              ],
-            ],
+            rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },
@@ -275,12 +269,7 @@ export class StepViewStory extends U7BotUserStory {
       ]);
     }
 
-    rows.push([
-      {
-        text: '↩️ Главное меню',
-        code: 'app:main-menu',
-      },
-    ]);
+    rows.push([buttons.mainMenu()]);
 
     const description: BotResponse = {
       sendMessage: {
@@ -313,12 +302,7 @@ export class StepViewStory extends U7BotUserStory {
     );
     const keyboard = this.#buildStepKeyboard(streamId, stepId);
 
-    keyboard.rows.push([
-      {
-        text: '↩️ Главное меню',
-        code: 'app:main-menu',
-      },
-    ]);
+    keyboard.rows.push([buttons.mainMenu()]);
 
     return {
       sendMessage: {
@@ -372,12 +356,7 @@ export class StepViewStory extends U7BotUserStory {
         keyboard: {
           rows: [
             [{ text: buttonText, code: this.cb('my-study:continue') }],
-            [
-              {
-                text: '↩️ Главное меню',
-                code: 'app:main-menu',
-              },
-            ],
+            [buttons.mainMenu()],
           ],
           isMultiple: false,
         },

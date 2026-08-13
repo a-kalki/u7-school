@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
+import { buttons } from '../shared/buttons';
 import { CommunityStory } from './stories/community.story';
 
 /**
@@ -35,7 +36,7 @@ export class AppController extends U7BotController {
     items.push({
       kind: 'callback',
       text: '❓ Помощь',
-      action: 'app:help',
+      action: this.cb('help'),
       priority: 100,
     });
 
@@ -86,7 +87,7 @@ export class AppController extends U7BotController {
       sendMessage: {
         text: header + body,
         keyboard: {
-          rows: [[{ text: '🔙 Назад', code: 'app:main-menu' }]],
+          rows: [[buttons.mainMenu('🔙 Назад')]],
           isMultiple: false,
         },
       },

@@ -6,6 +6,7 @@ import type {
   QuestionnaireBotFacade,
 } from '@u7-scl/questionnaire/domain';
 import type { User } from '@u7-scl/user/domain';
+import { buttons } from '../controllers/shared/buttons';
 import type { ProactiveSender } from './bot-transport';
 
 /**
@@ -113,7 +114,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
       botRes.sendMessage = {
         text: 'Спасибо! Ваша анкета принята.',
         keyboard: {
-          rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+          rows: [[buttons.mainMenu()]],
           isMultiple: false,
         },
       };

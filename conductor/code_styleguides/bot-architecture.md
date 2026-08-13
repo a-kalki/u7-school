@@ -68,14 +68,14 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 - **резолвером актора** (`actorResolver: (tgId) => Promise<TActor>`, задаётся в `init`);
 - **маршрутизацией**: `handleWelcome/handleHelp/handleCallback/handleMessage/handleCancel/handleTimeout(tgId, ...)`;
 - **сбором меню**: `collectMainMenu`, `collectHelp`, `collectAllMenuItems`, `collectAllHelpDescriptions`;
-- **обработкой `delegate`**: `#mergeResponses`.
+- **обработкой `delegate`**: `#handleDelegate` + `#mergeResponses` (delegate.path — всегда полный маршрут `controller:story:action:...`, первый сегмент резолвится как контроллер).
 
 `handleCallback(data, tgId, session)`:
 1. `resolveActor(tgId)` → `User`;
 2. `extractControllerName(data)` → имя контроллера;
 3. `controller.handleCallback(extractRestData(data), actor, session)`;
 4. `#applyCapturedInput(session, controllerName, response)`;
-5. если `response.delegate` — выполнить и смержить (`#mergeResponses`).
+5. если `response.delegate` — `#handleDelegate` (первый сегмент `delegate.path` — имя контроллера) и смержить через `#mergeResponses`.
 
 `U7BotUiApp` (`apps/u7-bot/src/core/ui-app.ts`) закрывает дженерики
 `<U7BotAppMeta, User>`.
@@ -86,7 +86,7 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 
 - `name` — префикс контроллера в `callback_data`;
 - `stories` — реестр сторис;
-- **префиксацией кнопок** (`#prefixResponse` / `#prefixCode`): к кодам стори
+- **префиксацией кнопок и `delegate.path`** (`#prefixResponse` / `#prefixCode`): к кодам стори
   добавляется `${name}:`; коды с префиксом другого контроллера (`app:main-menu`)
   не трогаются;
 - `handleError(err)` — универсальный обработчик ошибок;
@@ -195,6 +195,12 @@ Grammy ctx (callback_query.data)
 - **Префиксация** — в `BotController` (`#prefixCode`): стори возвращает
   `story:action`, контроллер превращает в `controller:story:action`. Коды, уже
   содержащие префикс контроллера (`app:main-menu`), не трогаются.
+- **Кросс-контроллерные коды** — канонические адреса в реестре `Routes`
+  (`apps/u7-bot/src/controllers/shared/routes.ts`), готовые кнопки — в
+  `buttons.mainMenu(text?)` (`apps/u7-bot/src/controllers/shared/buttons.ts`). `delegate.path`
+  всегда полный маршрут: стори пишет относительный путь через `cb`/`cbFor`,
+  контроллер префиксует его в `#prefixResponse`, `UiApp` резолвит первый
+  сегмент как контроллер.
 - **Сжатие** — в `BotTransport`: каждый UUID-сегмент заменяется на первые 8
   hex-символов (`shortIds`), на входе `expandAction` разворачивает обратно.
   Гарантирует `callback_data ≤ 64 байта`.

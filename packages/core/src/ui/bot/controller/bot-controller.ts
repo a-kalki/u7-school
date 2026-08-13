@@ -283,6 +283,13 @@ export abstract class BotController<
       };
     }
 
+    if (result.delegate) {
+      result.delegate = {
+        ...result.delegate,
+        path: this.#prefixCode(result.delegate.path),
+      };
+    }
+
     return result;
   }
 

@@ -14,6 +14,7 @@ import type {
 import { StreamDs, StreamPolicy } from '@u7-scl/stream/domain';
 import type { TreeNode } from '../../../shared/tree-renderer';
 import { renderTree } from '../../../shared/tree-renderer';
+import { Routes } from '../../shared/routes';
 
 /** Контекст для captureInput при вводе кодового слова */
 interface EnrollKeyContext {
@@ -853,7 +854,7 @@ export class ViewStreamStory extends U7BotUserStory {
         text: lines.join('\n'),
         parseMode: 'MarkdownV2',
       },
-      delegate: { path: 'app:main-menu' },
+      delegate: { path: Routes.app.mainMenu },
     };
   }
 

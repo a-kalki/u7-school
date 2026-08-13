@@ -8,7 +8,7 @@ import type {
 } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
-import { MAIN_MENU_BUTTON } from '../../shared/constants';
+import { buttons } from '../../shared/buttons';
 
 /** Эмодзи для направлений */
 const TRACK_EMOJI: Record<string, string> = {
@@ -465,9 +465,9 @@ export class CourseCatalogStory extends U7BotUserStory {
 
   // ═══ Утилиты ═══
 
-  /** Кнопка «↩️ Главное меню» — общая константа */
+  /** Кнопка «↩️ Главное меню» — общая фабрика */
   #getMainMenuButton(): { text: string; code: string } {
-    return MAIN_MENU_BUTTON;
+    return buttons.mainMenu();
   }
 
   #esc(text: string): string {

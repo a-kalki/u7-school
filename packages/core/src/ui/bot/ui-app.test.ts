@@ -287,7 +287,7 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
     ctrl.withCallbackResult({
       sendMessage: { text: 'Промежуточное' },
-      delegate: { path: 'final' },
+      delegate: { path: 'stream:final' },
     });
 
     const actor = makeActor();
@@ -300,6 +300,35 @@ describe('UiApp', () => {
     expect(ctrl.handleCallbackCalls).toHaveLength(2);
     expect(ctrl.handleCallbackCalls[0]!.data).toBe('step1');
     expect(ctrl.handleCallbackCalls[1]!.data).toBe('final');
+  });
+
+  test('handleCallback: delegate с абсолютным путём уходит в другой контроллер', async () => {
+    const stream = new TestController();
+    stream.name = 'stream';
+    stream.withCallbackResult({
+      sendMessage: { text: 'Вы успешно записаны' },
+      delegate: { path: 'app:main-menu' },
+    });
+
+    const appCtrl = new TestController();
+    appCtrl.name = 'app';
+    appCtrl.withCallbackResult({ sendMessage: { text: 'Главное меню' } });
+
+    const actor = makeActor();
+    const app = new UiApp([stream, appCtrl]);
+    app.init({} as any, makeActorResolver(actor));
+
+    const res = await app.handleCallback('stream:enroll', 1, makeSession());
+
+    expect(res.sendMessage).toBeUndefined();
+    expect(res.sendMessages?.map((m) => m.text)).toEqual([
+      'Вы успешно записаны',
+      'Главное меню',
+    ]);
+    expect(stream.handleCallbackCalls).toHaveLength(1);
+    expect(stream.handleCallbackCalls[0]!.data).toBe('enroll');
+    expect(appCtrl.handleCallbackCalls).toHaveLength(1);
+    expect(appCtrl.handleCallbackCalls[0]!.data).toBe('main-menu');
   });
 
   test('handleMessage: нет активного обработчика → null', async () => {

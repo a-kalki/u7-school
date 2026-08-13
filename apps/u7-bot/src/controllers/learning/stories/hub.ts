@@ -7,6 +7,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { UserPolicy } from '@u7-scl/user/domain';
+import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
 
 /**
@@ -90,12 +91,7 @@ export class HubStory extends U7BotUserStory {
     rows.push([
       { text: '🚪 Покинуть поток', code: this.cb('my-study:leave-confirm') },
     ]);
-    rows.push([
-      {
-        text: '↩️ Главное меню',
-        code: 'app:main-menu',
-      },
-    ]);
+    rows.push([buttons.mainMenu()]);
 
     return {
       sendMessage: {
@@ -150,14 +146,7 @@ export class HubStory extends U7BotUserStory {
         text: '👋 Вы покинули поток\\. Если захотите вернуться — обратитесь к ментору\\.',
         parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [
-            [
-              {
-                text: '↩️ Главное меню',
-                code: 'app:main-menu',
-              },
-            ],
-          ],
+          rows: [[buttons.mainMenu()]],
           isMultiple: false,
         },
       },

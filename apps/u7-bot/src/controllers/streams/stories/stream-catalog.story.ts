@@ -7,7 +7,7 @@ import type {
   SessionData,
 } from '@u7-scl/core/ui';
 import { StreamStatus } from '@u7-scl/stream/domain';
-import { MAIN_MENU_BUTTON } from '../../shared/constants';
+import { buttons } from '../../shared/buttons';
 
 /**
  * S01: Просмотр витрины потоков (Каталог).
@@ -175,8 +175,8 @@ export class CatalogStory extends U7BotUserStory {
     };
   }
 
-  /** Кнопка «↩️ Главное меню» — общая константа */
+  /** Кнопка «↩️ Главное меню» — общая фабрика */
   #getMainMenuButton(): { text: string; code: string } {
-    return MAIN_MENU_BUTTON;
+    return buttons.mainMenu();
   }
 }

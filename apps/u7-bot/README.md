@@ -59,7 +59,8 @@ apps/u7-bot/
         controller.ts             # QuestionnaireController — анкета (standalone-модуль)
         fill.story.ts
       shared/
-        constants.ts              # MAIN_MENU_BUTTON и др.
+        routes.ts                 # Routes — канонические кросс-контроллерные маршруты
+        buttons.ts                # Готовые кнопки (buttons.mainMenu и др.)
     infra/
       bot-transport.ts            # BotTransport — транспорт/исполнение (сессии, сжатие UUID, execute/send)
       telegram-tg-facade.ts       # Telegram TgFacade
@@ -101,7 +102,7 @@ Story — класс, наследующий `U7BotUserStory` (`@u7-scl/bot/u7-b
 
 - **Callback-данные:** `controller:story:action:...` — префикс `controller:` добавляет `BotController`, сжатие UUID (≤ 64 байта) выполняет `BotTransport`.
 - **Межмодульные вызовы:** через `this.appApi.execute()` (команды других модулей).
-- **Кросс-стори ссылки:** `this.cbFor(storyName, action, ...args)` — для стори того же контроллера; главное меню — `MAIN_MENU_BUTTON` (`app:main-menu`).
+- **Кросс-стори ссылки:** `this.cbFor(storyName, action, ...args)` — для стори того же контроллера; кросс-контроллерные — адрес из `Routes` (`app:main-menu` → `Routes.app.mainMenu`) или готовая кнопка `buttons.mainMenu(text?)`.
 - **MarkdownV2:** экранирование через `this.escapeMarkdown()`, кнопки — всегда plain text.
 
 ## Запуск

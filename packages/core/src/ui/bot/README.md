@@ -2,7 +2,8 @@
 
 ## Когда добавлять кнопку «↩️ Главное меню»
 
-Добавляется **последней строкой клавиатуры** с кодом `app:main-menu` на экранах,
+Добавляется **последней строкой клавиатуры** — используй готовую кнопку
+`buttons.mainMenu(text?)` (код `Routes.app.mainMenu` = `app:main-menu`) на экранах,
 где пользователь находится в режиме навигации/просмотра:
 
 - **CatalogStory** — `stream:catalog:list` (витрина потоков)
@@ -10,8 +11,8 @@
 - **StepViewStory** — после завершения урока/проекта/потока
 - **ProgressStory** — `learning:progress:progress:<id>`
 
-Общий код вынесен в `MAIN_MENU_BUTTON`
-(`apps/u7-bot/src/controllers/shared/constants.ts`).
+Канонический адрес живёт в реестре `Routes.app.mainMenu`, готовая кнопка —
+`buttons.mainMenu(text?)` (`apps/u7-bot/src/controllers/shared/routes.ts`, `buttons.ts`).
 
 ## Когда добавлять кнопку «⬅️ Назад к {уровень}»
 
@@ -35,9 +36,9 @@
 
 Пользователь всегда может использовать `/start` для возврата в главное меню.
 
-## Как обрабатывается `app:main-menu`
+## Как обрабатывается `Routes.app.mainMenu` (`app:main-menu`)
 
-`app:main-menu` — обычный callback, у которого первый сегмент (`app`) — имя
+`Routes.app.mainMenu` — это `app:main-menu`: обычный callback, у которого первый сегмент (`app`) — имя
 контроллера `AppController`:
 
 1. `UiApp.handleCallback` маршрутизирует по `app` в `AppController`, остаток — `main-menu`.
@@ -45,7 +46,7 @@
    `collectAllMenuItems()` и возвращает `«Выберите действие:»` + клавиатуру.
 3. `BotTransport.execute` отправляет/редактирует сообщение.
 
-В отличие от `/start` (через `handleStart`), `app:main-menu` **не** сбрасывает
+В отличие от `/start` (через `handleStart`), `Routes.app.mainMenu` **не** сбрасывает
 `activeHandler`.
 
 ## Управление клавиатурой предыдущего сообщения

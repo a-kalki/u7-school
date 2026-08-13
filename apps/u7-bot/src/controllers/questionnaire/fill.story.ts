@@ -12,6 +12,7 @@ import type {
   QuestionnaireActionResponse,
 } from '@u7-scl/questionnaire/domain';
 import { U7BotUserStory } from '../../core/u7-bot-user-story';
+import { buttons } from '../shared/buttons';
 
 /**
  * FillStory — сценарий заполнения анкеты.
@@ -260,7 +261,7 @@ export class FillStory extends U7BotUserStory {
         sendMessage: {
           text: 'Анкета пропущена.',
           keyboard: {
-            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },
@@ -279,7 +280,7 @@ export class FillStory extends U7BotUserStory {
         sendMessage: {
           text: 'Анкета прервана.',
           keyboard: {
-            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },
@@ -375,7 +376,7 @@ export class FillStory extends U7BotUserStory {
         sendMessage: {
           text: 'Спасибо! Ваша анкета принята.',
           keyboard: {
-            rows: [[{ text: '↩️ Главное меню', code: 'app:main-menu' }]],
+            rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },

@@ -225,7 +225,7 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     this.#applyCapturedInput(session, controllerName, response);
 
     if (response.delegate) {
-      const delegateResponse = await controller.handleCallback(
+      const delegateResponse = await this.#handleDelegate(
         response.delegate.path,
         actor,
         session,
@@ -347,6 +347,34 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
     if (response.releaseInput) {
       session.activeHandler = null;
     }
+  }
+
+  /**
+   * Маршрутизирует delegate.path — полный маршрут `controller:story:action:...`.
+   * Первый сегмент — всегда имя контроллера (стори префиксуют делегат в контроллере).
+   */
+  async #handleDelegate(
+    path: string,
+    actor: TActor,
+    session: SessionData,
+  ): Promise<BotResponse> {
+    const controllerName = extractControllerName(path);
+    if (!controllerName) {
+      return { sendMessage: { text: '⚠️ Неизвестный формат команды' } };
+    }
+
+    const target = this.getController(controllerName);
+    if (!target) {
+      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    }
+
+    const res = await target.handleCallback(
+      extractRestData(path),
+      actor,
+      session,
+    );
+    this.#applyCapturedInput(session, controllerName, res);
+    return res;
   }
 
   #mergeResponses(main: BotResponse, delegate: BotResponse): BotResponse {
