@@ -1,7 +1,6 @@
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import { QuestionnaireAr } from '../a-root';
-import { QuestionnaireSchema } from '../entity';
 import type { ChoiceQuestion } from '../question';
 import { QuestionnaireEngine } from '../questionnaire-engine';
 import {
@@ -12,36 +11,32 @@ import {
   MetricQuestionPoolSchema,
   type MetricScore,
   MetricScoreSchema,
-} from './metric-types';
-
-/** Состояние метрик-анкеты: упрощённый пул (MetricQuestion[]) вместо полного Question[]. */
-export const MetricQuestionnaireSchema = v.object({
-  ...QuestionnaireSchema.entries,
-  questionPool: MetricQuestionPoolSchema,
-});
-export type MetricQuestionnaire = v.InferOutput<
-  typeof MetricQuestionnaireSchema
->;
+} from './metric-question';
+import {
+  type MetricAssessment,
+  MetricAssessmentSchema,
+  type MetricQuestionnaire,
+  MetricQuestionnaireSchema,
+} from './metric-questionnaire';
 
 /** Агрегат метрик-анкеты: расширяет payload события завершения полем metricScores. */
 export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> {
   constructor(state: MetricQuestionnaire) {
-    super(
-      state,
-      MetricQuestionnaireSchema as unknown as v.GenericSchema<MetricQuestionnaire>,
-    );
+    super(state, MetricQuestionnaireSchema);
   }
 
   /**
-   * Создаёт метрик-анкету из пула метрик.
+   * Создаёт метрик-анкету из пула метрик и оценочного контекста.
    * Вопросы хранятся в упрощённом виде (MetricQuestion),
    * движок получает полный Question[] через buildEngine.
    */
   static createFromMetricPool(
     respondentId: string,
     pool: MetricQuestionPool,
+    assessment: MetricAssessment,
   ): MetricQuestionnaireAr {
-    const parsed = v.parse(MetricQuestionPoolSchema, pool);
+    const parsedPool = v.parse(MetricQuestionPoolSchema, pool);
+    const parsedAssessment = v.parse(MetricAssessmentSchema, assessment);
 
     const state: MetricQuestionnaire = {
       uuid: crypto.randomUUID(),
@@ -50,7 +45,8 @@ export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> 
       currentQuestionCode: null,
       draftAnswers: {},
       answers: [],
-      questionPool: parsed,
+      questionPool: parsedPool,
+      assessment: parsedAssessment,
       createdAt: isoNow(),
       completedAt: null,
     };
@@ -78,8 +74,13 @@ export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> 
   }
 
   protected override buildCompletionPayload(): Record<string, unknown> {
+    const { context, role, subjectId, triggerEvent } = this.state.assessment;
     return {
       ...super.buildCompletionPayload(),
+      context,
+      role,
+      subjectId,
+      ...(triggerEvent ? { triggerEvent } : {}),
       metricScores: this.computeMetricScores(),
     };
   }

@@ -4,7 +4,7 @@ import {
   MetricMappingSchema,
   MetricQuestionSchema,
   MetricScoreSchema,
-} from './metric-types';
+} from './metric-question';
 
 describe('MetricMapping', () => {
   test('валидная связь категория↔подкатегория проходит', () => {

@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import type { MetricQuestionPool, MetricScore } from './metric-question';
+import type { MetricAssessment } from './metric-questionnaire';
 import { MetricQuestionnaireAr } from './metric-questionnaire-ar';
-import type { MetricQuestionPool, MetricScore } from './metric-types';
 
 const RESPONDENT_ID = '00000000-0000-0000-0000-000000000007';
+const SUBJECT_ID = '00000000-0000-0000-0000-000000000008';
 
 function metricPool(
   questions: MetricQuestionPool['questions'],
@@ -10,8 +12,20 @@ function metricPool(
   return { questions };
 }
 
+function assessment(): MetricAssessment {
+  return {
+    context: 'module_completed',
+    role: 'student_student',
+    subjectId: SUBJECT_ID,
+    triggerEvent: {
+      type: 'module_completed',
+      aggregateId: '00000000-0000-0000-0000-000000000009',
+    },
+  };
+}
+
 describe('MetricQuestionnaireAr', () => {
-  test('завершение анкеты вычисляет metricScores по подкатегориям', () => {
+  test('завершение анкеты вычисляет metricScores и кладёт assessment в событие', () => {
     const pool = metricPool([
       {
         questionCode: 'm1',
@@ -33,7 +47,11 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool);
+    const ar = MetricQuestionnaireAr.createFromMetricPool(
+      RESPONDENT_ID,
+      pool,
+      assessment(),
+    );
     ar.start();
 
     ar.handleAction({ type: 'callback', value: '4' });
@@ -59,7 +77,42 @@ describe('MetricQuestionnaireAr', () => {
     ]);
     expect(payload).toHaveProperty('questionnaireId');
     expect(payload).toHaveProperty('respondentId');
+    expect(payload.context).toBe('module_completed');
+    expect(payload.role).toBe('student_student');
+    expect(payload.subjectId).toBe(SUBJECT_ID);
+    expect(payload.triggerEvent).toEqual({
+      type: 'module_completed',
+      aggregateId: '00000000-0000-0000-0000-000000000009',
+    });
     expect(payload).not.toHaveProperty('answers');
+  });
+
+  test('без triggerEvent — поле отсутствует в событии', () => {
+    const pool = metricPool([
+      {
+        questionCode: 'm1',
+        question: 'Пишет код чисто',
+        metricMapping: {
+          category: 'professional_skills',
+          subcategory: 'work_quality',
+          weight: 1,
+        },
+      },
+    ]);
+
+    const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool, {
+      context: 'pair_programming',
+      role: 'student_student',
+      subjectId: SUBJECT_ID,
+    });
+    ar.start();
+    ar.handleAction({ type: 'callback', value: '3' });
+
+    const payload = ar.flushEvents()[0]!.payload;
+    expect(payload.triggerEvent).toBeUndefined();
+    expect(payload.context).toBe('pair_programming');
+    expect(payload.role).toBe('student_student');
+    expect(payload.subjectId).toBe(SUBJECT_ID);
   });
 
   test('разный вес вопросов даёт корректное средневзвешенное', () => {
@@ -84,7 +137,11 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool);
+    const ar = MetricQuestionnaireAr.createFromMetricPool(
+      RESPONDENT_ID,
+      pool,
+      assessment(),
+    );
     ar.start();
 
     ar.handleAction({ type: 'callback', value: '5' });
@@ -120,7 +177,11 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool);
+    const ar = MetricQuestionnaireAr.createFromMetricPool(
+      RESPONDENT_ID,
+      pool,
+      assessment(),
+    );
     ar.start();
 
     ar.handleAction({ type: 'callback', value: '4' });
@@ -157,7 +218,11 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool);
+    const ar = MetricQuestionnaireAr.createFromMetricPool(
+      RESPONDENT_ID,
+      pool,
+      assessment(),
+    );
     const response = ar.start();
 
     expect(response.type).toBe('new_question');
