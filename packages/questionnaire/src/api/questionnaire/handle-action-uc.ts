@@ -35,6 +35,7 @@ export class HandleActionUc extends QuestionnaireUseCase<HandleActionCmdMeta> {
       value: command.value,
     });
     await this.repo.save(ar.state);
+    this.publishEvents(ar);
     return response;
   }
 }

@@ -350,4 +350,30 @@ describe('QuestionnaireAr (v2)', () => {
     ar.abandon();
     expect(ar.getQuestionnaireActionResponse().type).toBe('completed');
   });
+
+  // ── Событие завершения ──
+
+  test('завершение анкеты генерирует событие questionnaire.completed без answers', () => {
+    const ar = QuestionnaireAr.create(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+
+    ar.handleAction({ type: 'callback', value: 'yes' });
+    ar.handleAction({ type: 'callback', value: 'ok' });
+
+    expect(ar.hasEvents()).toBe(true);
+    const events = ar.flushEvents();
+    expect(events.length).toBe(1);
+    const event = events[0]!;
+    expect(event.eventName).toBe('questionnaire.completed');
+    expect(event.aggregateName).toBe('Questionnaire');
+    expect(event.aggregateId).toBe(ar.state.uuid);
+    expect(event.payload).toEqual({
+      questionnaireId: ar.state.uuid,
+      respondentId: '00000000-0000-0000-0000-000000000007',
+    });
+    expect(event.payload).not.toHaveProperty('answers');
+  });
 });

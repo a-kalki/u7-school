@@ -1,3 +1,4 @@
+import type { DomainEvent } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { QuestionnairePoolSchema } from './question';
 
@@ -58,8 +59,11 @@ export const QuestionnaireSchema = v.object({
 export type Questionnaire = v.InferOutput<typeof QuestionnaireSchema>;
 
 /** Метаданные агрегата Questionnaire */
-export interface QuestionnaireArMeta {
+export interface QuestionnaireArMeta<
+  TState extends Questionnaire = Questionnaire,
+> {
   name: 'Questionnaire';
   label: 'Анкета';
-  state: Questionnaire;
+  state: TState;
+  events: DomainEvent;
 }

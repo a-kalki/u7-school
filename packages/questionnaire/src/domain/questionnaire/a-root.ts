@@ -12,11 +12,16 @@ import type { InviteResponse, QuestionnaireActionResponse } from './types';
 const NEXT_BUTTON_PREFIX = 'next:';
 
 /** Агрегат анкеты. */
-export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
+export class QuestionnaireAr<
+  TState extends Questionnaire = Questionnaire,
+> extends Aggregate<QuestionnaireArMeta<TState>> {
   #engine: QuestionnaireEngine;
 
-  constructor(state: Questionnaire) {
-    super(state, QuestionnaireSchema);
+  constructor(
+    state: TState,
+    schema: v.GenericSchema<TState> = QuestionnaireSchema as v.GenericSchema<TState>,
+  ) {
+    super(state, schema);
     this.#engine = new QuestionnaireEngine(state.questionPool.questions);
   }
 
@@ -201,7 +206,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
         ? currentAnswers.filter((c) => c !== answerCode)
         : [...currentAnswers, answerCode];
 
-    const newDraft = { ...this.state.draftAnswers };
+    const newDraft: Record<string, string> = { ...this.state.draftAnswers };
     if (newAnswers.length > 0) {
       newDraft[questionCode] = newAnswers.join(',');
     } else {
@@ -283,7 +288,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
     this._state.answers.push(entry);
 
     // Очищаем черновики
-    const newDraft = { ...this.state.draftAnswers };
+    const newDraft: Record<string, string> = { ...this.state.draftAnswers };
     delete newDraft[questionCode];
     this.safeUpdate({ draftAnswers: newDraft });
 
@@ -332,6 +337,7 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
       currentQuestionCode: null,
       completedAt: isoNow(),
     });
+    this.onComplete();
     return {
       type: 'completed',
       questionnaireId: this.state.uuid,
@@ -399,6 +405,29 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // Завершение
   // ═════════════════════════════════════════════════════════════
 
+  /**
+   * Генерирует событие QuestionnaireCompleted.
+   * Переопределяется в подклассах для расширения payload.
+   */
+  protected onComplete(): void {
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'questionnaire.completed',
+      occurredAt: isoNow(),
+      aggregateName: 'Questionnaire',
+      aggregateId: this.state.uuid,
+      payload: this.buildCompletionPayload(),
+    });
+  }
+
+  /** Хук расширения payload события завершения */
+  protected buildCompletionPayload(): Record<string, unknown> {
+    return {
+      questionnaireId: this.state.uuid,
+      respondentId: this.state.respondentId,
+    };
+  }
+
   abandon(): void {
     if (this.state.status === 'abandoned') {
       return;
@@ -412,6 +441,14 @@ export class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   // ═════════════════════════════════════════════════════════════
   // Защитные методы
   // ═════════════════════════════════════════════════════════════
+
+  /**
+   * Переопределяем safeUpdate с типом базового Questionnaire,
+   * чтобы частичные обновления не зависели от generic-состояния.
+   */
+  protected override safeUpdate(partial: Partial<Questionnaire>): void {
+    super.safeUpdate(partial as Partial<TState>);
+  }
 
   // ═════════════════════════════════════════════════════════════
   // Приватные хелперы
