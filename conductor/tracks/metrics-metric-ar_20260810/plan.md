@@ -2,25 +2,23 @@
 
 ## Фаза 1: MetricMapping и MetricScore типы
 
-- [ ] Task: Описать `MetricMapping` и `MetricScore` типы в `questionnaire/domain/`
-- [ ] Task: Расширить `Question` типы — добавить опциональный `metricMapping`
+- [x] Task: Описать тип `MetricMapping` (связанный категория↔подкатегория) и `MetricScore` в `questionnaire/domain/` [2fb1b25]
+- [ ] Task: Расширить `Question` типы — `MetricQuestion` с обязательным `metricMapping: MetricMapping`
 - [ ] Task: Conductor - Ручная верификация 'Типы'
 
 ## Фаза 2: MetricQuestionnaireAr
 
 - [ ] Task: Реализовать `MetricQuestionnaireAr extends QuestionnaireAr`
 - [ ] Task: Реализовать `computeMetricScores()` — группировка по subcategory, средневзвешенное
-- [ ] Task: Интегрировать генерацию `QuestionnaireCompleted` события
+- [ ] Task: Перенести генерацию `QuestionnaireCompleted` в базовый `QuestionnaireAr` (payload без `answers`); `MetricQuestionnaireAr` расширяет payload полем `metricScores`
 - [ ] Task: Написать unit-тесты:
     - [ ] завершение анкеты → metricScores вычислены
     - [ ] анкета без metricMapping → metricScores = null
     - [ ] разный вес вопросов → корректное средневзвешенное
 - [ ] Task: Conductor - Ручная верификация 'MetricQuestionnaireAr'
 
-## Фаза 3: Пул вопросов и фасад
+## Фаза 3: Пул вопросов
 
 - [ ] Task: Создать конфигурационный файл с вопросами из Трека 1.2 (с metricMapping)
-- [ ] Task: Расширить `QuestionPoolService` — `getAllWithMetricMapping()`
-- [ ] Task: Расширить `QuestionnaireFacade` — `getAnswers()` возвращает metricScores
 - [ ] Task: Проверить `bun run check:p questionnaire`
-- [ ] Task: Conductor - Ручная верификация 'Пул и фасад'
+- [ ] Task: Conductor - Ручная верификация 'Пул вопросов'
