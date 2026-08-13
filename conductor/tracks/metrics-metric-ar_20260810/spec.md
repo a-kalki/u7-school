@@ -55,9 +55,9 @@ class MetricQuestionnaireAr extends QuestionnaireAr {
 // Связь «категория → допустимые подкатегории» жёстко типизирована:
 // подкатегорию одной категории нельзя положить в другую.
 type MetricMapping =
-  | { category: 'professional_skills'; subcategory: 'work_quality' | 'algorithmic_thinking' | 'tooling'; weight: number }
-  | { category: 'team_skills'; subcategory: 'communication' | 'initiative' | 'honesty' | 'mutual_help'; weight: number }
-  | { category: 'personal_skills'; subcategory: 'enthusiasm' | 'responsibility' | 'regularity'; weight: number };
+  | { category: 'professional_skills'; subcategory: 'work_quality' | 'algorithmic_thinking' | 'tooling'; weight: 0.75 | 1 | 1.25 }
+  | { category: 'team_skills'; subcategory: 'communication' | 'initiative' | 'honesty' | 'mutual_help'; weight: 0.75 | 1 | 1.25 }
+  | { category: 'personal_skills'; subcategory: 'enthusiasm' | 'responsibility' | 'regularity'; weight: 0.75 | 1 | 1.25 };
 
 type MetricCategory = MetricMapping['category'];
 type MetricSubcategory = MetricMapping['subcategory'];

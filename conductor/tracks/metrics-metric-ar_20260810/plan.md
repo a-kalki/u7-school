@@ -13,7 +13,7 @@
 - [x] Task: Перенести генерацию `QuestionnaireCompleted` в базовый `QuestionnaireAr` (payload без `answers`); `MetricQuestionnaireAr` расширяет payload полем `metricScores` [94758477]
 - [x] Task: Написать unit-тесты: [da637978]
     - [x] завершение анкеты → metricScores вычислены
-    - [x] анкета без metricMapping → metricScores — пустой массив
+    - [x] вес ограничен значениями 0.75 / 1 / 1.25
     - [x] разный вес вопросов → корректное средневзвешенное
 - [ ] Task: Conductor - Ручная верификация 'MetricQuestionnaireAr'
 
