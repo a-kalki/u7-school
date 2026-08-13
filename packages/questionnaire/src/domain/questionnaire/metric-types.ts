@@ -1,5 +1,4 @@
 import * as v from 'valibot';
-import { ChoiceQuestionSchema, TextQuestionSchema } from './question';
 
 // ── Связь «категория → допустимые подкатегории» ──
 
@@ -88,17 +87,20 @@ export type MetricScore = v.InferOutput<typeof MetricScoreSchema>;
 // ── MetricQuestion ──
 
 /**
- * Вопрос анкеты с обязательным metricMapping.
- * Движок работает с обычным Question — metricMapping стрипается перед передачей.
+ * Вопрос метрики — компактный тип.
+ * Не хранит type/multiple/answers/condition: метрики всегда choice,
+ * одиночный выбор, стандартная шкала Лайкерт 1–5.
+ * Перед передачей в движок преобразуется в обычный ChoiceQuestion.
  */
-export const MetricQuestionSchema = v.variant('type', [
-  v.object({
-    ...ChoiceQuestionSchema.entries,
-    metricMapping: MetricMappingSchema,
-  }),
-  v.object({
-    ...TextQuestionSchema.entries,
-    metricMapping: MetricMappingSchema,
-  }),
-]);
+export const MetricQuestionSchema = v.object({
+  questionCode: v.pipe(
+    v.string(),
+    v.nonEmpty('Код вопроса не может быть пустым'),
+  ),
+  question: v.pipe(
+    v.string(),
+    v.nonEmpty('Текст вопроса не может быть пустым'),
+  ),
+  metricMapping: MetricMappingSchema,
+});
 export type MetricQuestion = v.InferOutput<typeof MetricQuestionSchema>;
