@@ -4,6 +4,7 @@ export * from './module';
 export * from './questionnaire/a-root';
 export * from './questionnaire/entity';
 export * from './questionnaire/errors';
+export * from './questionnaire/metric/metric-types';
 export * from './questionnaire/policy';
 export * from './questionnaire/question';
 export * from './questionnaire/questionnaire-engine';

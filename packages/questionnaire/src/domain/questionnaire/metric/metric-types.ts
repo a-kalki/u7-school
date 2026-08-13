@@ -1,4 +1,6 @@
 import * as v from 'valibot';
+import type { AnswerOption } from '../question';
+import { ChoiceQuestionSchema } from '../question';
 
 // ── Связь «категория → допустимые подкатегории» ──
 
@@ -84,6 +86,21 @@ export const MetricScoreSchema = v.variant('category', [
 ]);
 export type MetricScore = v.InferOutput<typeof MetricScoreSchema>;
 
+// ── Шкала Лайкерта ──
+
+/**
+ * Стандартная шкала Лайкерта 1–5 (тексты из концепции метрик).
+ * Используется при преобразовании MetricQuestion в ChoiceQuestion
+ * для движка — это варианты ответа, а не сам ответ пользователя.
+ */
+export const LIKERT_SCALE: readonly AnswerOption[] = [
+  { answerCode: '1', answer: 'Полностью не согласен' },
+  { answerCode: '2', answer: 'Скорее не согласен' },
+  { answerCode: '3', answer: 'Нейтрально / затрудняюсь ответить' },
+  { answerCode: '4', answer: 'Скорее согласен' },
+  { answerCode: '5', answer: 'Полностью согласен' },
+];
+
 // ── MetricQuestion ──
 
 /**
@@ -93,14 +110,8 @@ export type MetricScore = v.InferOutput<typeof MetricScoreSchema>;
  * Перед передачей в движок преобразуется в обычный ChoiceQuestion.
  */
 export const MetricQuestionSchema = v.object({
-  questionCode: v.pipe(
-    v.string(),
-    v.nonEmpty('Код вопроса не может быть пустым'),
-  ),
-  question: v.pipe(
-    v.string(),
-    v.nonEmpty('Текст вопроса не может быть пустым'),
-  ),
+  questionCode: ChoiceQuestionSchema.entries.questionCode,
+  question: ChoiceQuestionSchema.entries.question,
   metricMapping: MetricMappingSchema,
 });
 export type MetricQuestion = v.InferOutput<typeof MetricQuestionSchema>;
