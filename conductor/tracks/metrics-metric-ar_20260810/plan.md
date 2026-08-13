@@ -4,7 +4,7 @@
 
 - [x] Task: Описать тип `MetricMapping` (связанный категория↔подкатегория) и `MetricScore` в `questionnaire/domain/` [2fb1b25]
 - [x] Task: Расширить `Question` типы — `MetricQuestion` с обязательным `metricMapping: MetricMapping` [db92e8c]
-- [ ] Task: Conductor - Ручная верификация 'Типы'
+- [x] Task: Conductor - Ручная верификация 'Типы'
 
 ## Фаза 2: MetricQuestionnaireAr
 
@@ -15,7 +15,7 @@
     - [x] завершение анкеты → metricScores вычислены
     - [x] вес ограничен значениями 0.75 / 1 / 1.25
     - [x] разный вес вопросов → корректное средневзвешенное
-- [ ] Task: Conductor - Ручная верификация 'MetricQuestionnaireAr'
+- [x] Task: Conductor - Ручная верификация 'MetricQuestionnaireAr'
 
 ## Фаза 3: Пул вопросов
 
