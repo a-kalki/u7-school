@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { AnswerOption } from '../question';
+import type { AnswerOption, ChoiceQuestion } from '../question';
 import { ChoiceQuestionSchema } from '../question';
 
 // ── Связь «категория → допустимые подкатегории» ──
@@ -115,3 +115,35 @@ export const MetricQuestionSchema = v.object({
   metricMapping: MetricMappingSchema,
 });
 export type MetricQuestion = v.InferOutput<typeof MetricQuestionSchema>;
+
+// ── Пул метрик ──
+
+/** Пул вопросов метрик — метаданные + MetricQuestion[] */
+export const MetricQuestionPoolSchema = v.object({
+  inviteText: v.optional(v.string()),
+  whyText: v.optional(v.string()),
+  completionText: v.optional(v.string()),
+  cancelWarning: v.optional(v.string()),
+  questions: v.pipe(
+    v.array(MetricQuestionSchema),
+    v.minLength(1, 'Пул должен содержать хотя бы один вопрос'),
+  ),
+});
+export type MetricQuestionPool = v.InferOutput<typeof MetricQuestionPoolSchema>;
+export type MetricQuestionPoolInput = v.InferInput<
+  typeof MetricQuestionPoolSchema
+>;
+
+/**
+ * Преобразует MetricQuestion в обычный ChoiceQuestion для движка.
+ * Ответы — стандартная шкала Лайкерта 1–5.
+ */
+export function toChoiceQuestion(mq: MetricQuestion): ChoiceQuestion {
+  return {
+    questionCode: mq.questionCode,
+    question: mq.question,
+    type: 'choice',
+    multiple: false,
+    answers: [...LIKERT_SCALE],
+  };
+}
