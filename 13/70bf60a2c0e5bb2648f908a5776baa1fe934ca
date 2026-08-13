@@ -1,0 +1,1 @@
+Исправление задачи 'MetricQuestion': по замечанию ревью MetricQuestion больше не полное расширение Question, а компактный тип (questionCode, question, metricMapping). Поля type/multiple/answers/condition не хранятся — метрики всегда choice, одиночный выбор, шкала Лайкерт 1–5. Тесты обновлены (4 теста).
