@@ -6,7 +6,7 @@
 
 ## FR1 — `MetricQuestionnaireAr`
 
-Событие `QuestionnaireCompleted` генерирует **базовый** `QuestionnaireAr` при завершении анкеты. Payload события **не содержит `answers`** — ответы анкеты при необходимости берутся из самой анкеты по `questionnaireId`. `MetricQuestionnaireAr` расширяет событие: добавляет в payload поле `metricScores`.
+Событие `QuestionnaireCompleted` генерирует **базовый** `QuestionnaireAr` при завершении анкеты. Payload события **не содержит `answers`** — ответы анкеты при необходимости берутся из самой анкеты по `questionnaireId`. `MetricQuestionnaireAr` расширяет событие: добавляет в payload `metricScores` и оценочный контекст (`context`, `role`, `subjectId`, `triggerEvent?`).
 
 ```typescript
 // Базовый агрегат
@@ -34,8 +34,13 @@ class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
 // Агрегат метрик: расширяет payload события завершения
 class MetricQuestionnaireAr extends QuestionnaireAr {
   protected buildCompletionPayload(): Record<string, unknown> {
+    const { context, role, subjectId, triggerEvent } = this.state.assessment;
     return {
       ...super.buildCompletionPayload(),
+      context,
+      role,
+      subjectId,
+      ...(triggerEvent ? { triggerEvent } : {}),
       metricScores: this.computeMetricScores(),
     };
   }
@@ -47,7 +52,7 @@ class MetricQuestionnaireAr extends QuestionnaireAr {
 }
 ```
 
-**Важно:** `MetricQuestionnaireAr` использует свой компактный `MetricQuestion` (с `metricMapping`, без `type`/`multiple`/`answers`) и `MetricAnswer` (ответ без `answerText` и `choices` — они всегда стандартны для метрик). Это позволяет не хранить мёртвые данные.
+**Важно:** `MetricQuestionnaireAr` использует свой компактный `MetricQuestion` (с `metricMapping`, без `type`/`multiple`/`answers`) и `MetricAnswer` (ответ без `answerText` и `choices` — они всегда стандартны для метрик). Это позволяет не хранить мёртвые данные. Состояние метрик-анкеты дополнительно хранит `assessment` — оценочный контекст (кто кого оценивает в каком контексте).
 
 ### MetricQuestion
 
@@ -72,6 +77,19 @@ interface MetricQuestion {
 ```
 
 Перед передачей в движок (`start(pool)`) метрик-вопросы преобразуются в обычные `Question[]` (движок не знает о метриках).
+
+### MetricAssessment — оценочный контекст анкеты
+
+```typescript
+interface MetricAssessment {
+  context: 'module_completed' | 'pair_programming' | 'code_review' | 'initiative';
+  role: 'student_student' | 'mentor_student' | 'student_mentor';
+  subjectId: string;  // userId (uuid) — кого оценивают
+  triggerEvent?: { type: string; aggregateId: string };  // что спровоцировало запуск
+}
+```
+
+`MetricAssessment` передаётся в фабрику `createFromMetricPool(respondentId, pool, assessment)` и сохраняется в `state.assessment`.
 
 ### MetricAnswer
 
@@ -102,6 +120,10 @@ interface MetricAnswer {
 {
   questionnaireId,
   respondentId,
+  context,
+  role,
+  subjectId,
+  triggerEvent?,      // есть, только если задан в assessment
   metricScores: MetricScore[]
 }
 ```
