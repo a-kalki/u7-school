@@ -10,7 +10,7 @@
 
 - [ ] Task: Реализовать `MetricQuestionnaireAr extends QuestionnaireAr`
 - [ ] Task: Реализовать `computeMetricScores()` — группировка по subcategory, средневзвешенное
-- [ ] Task: Перенести генерацию `QuestionnaireCompleted` в базовый `QuestionnaireAr` (payload без `answers`); `MetricQuestionnaireAr` расширяет payload полем `metricScores`
+- [x] Task: Перенести генерацию `QuestionnaireCompleted` в базовый `QuestionnaireAr` (payload без `answers`); `MetricQuestionnaireAr` расширяет payload полем `metricScores` [94758477]
 - [ ] Task: Написать unit-тесты:
     - [ ] завершение анкеты → metricScores вычислены
     - [ ] анкета без metricMapping → metricScores = null
