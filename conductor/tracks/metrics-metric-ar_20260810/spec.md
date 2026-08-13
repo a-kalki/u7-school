@@ -6,13 +6,38 @@
 
 ## FR1 — `MetricQuestionnaireAr`
 
+Событие `QuestionnaireCompleted` генерирует **базовый** `QuestionnaireAr` при завершении анкеты. Payload события **не содержит `answers`** — ответы анкеты при необходимости берутся из самой анкеты по `questionnaireId`. `MetricQuestionnaireAr` расширяет событие: добавляет в payload поле `metricScores`.
+
 ```typescript
-class MetricQuestionnaireAr extends QuestionnaireAr {
-  // При завершении анкеты
+// Базовый агрегат
+class QuestionnaireAr extends Aggregate<QuestionnaireArMeta> {
   protected onComplete(): void {
-    const scores = this.computeMetricScores();
-    // сохраняет в state.metricScores
-    // добавляет QuestionnaireCompleted событие
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'questionnaire.completed',
+      occurredAt: isoNow(),
+      aggregateName: 'Questionnaire',
+      aggregateId: this.state.uuid,
+      payload: this.buildCompletionPayload(),
+    });
+  }
+
+  /** Хук расширения payload события завершения (переопределяется в подклассах) */
+  protected buildCompletionPayload(): Record<string, unknown> {
+    return {
+      questionnaireId: this.state.uuid,
+      respondentId: this.state.respondentId,
+    };
+  }
+}
+
+// Агрегат метрик: расширяет payload события завершения
+class MetricQuestionnaireAr extends QuestionnaireAr {
+  protected buildCompletionPayload(): Record<string, unknown> {
+    return {
+      ...super.buildCompletionPayload(),
+      metricScores: this.computeMetricScores(),
+    };
   }
 
   private computeMetricScores(): MetricScore[] {
@@ -27,12 +52,18 @@ class MetricQuestionnaireAr extends QuestionnaireAr {
 ### MetricQuestion
 
 ```typescript
+// Связь «категория → допустимые подкатегории» жёстко типизирована:
+// подкатегорию одной категории нельзя положить в другую.
+type MetricMapping =
+  | { category: 'professional_skills'; subcategory: 'work_quality' | 'algorithmic_thinking' | 'tooling'; weight: number }
+  | { category: 'team_skills'; subcategory: 'communication' | 'initiative' | 'honesty' | 'mutual_help'; weight: number }
+  | { category: 'personal_skills'; subcategory: 'enthusiasm' | 'responsibility' | 'regularity'; weight: number };
+
+type MetricCategory = MetricMapping['category'];
+type MetricSubcategory = MetricMapping['subcategory'];
+
 interface MetricQuestion extends Question {
-  metricMapping: {
-    category: string;
-    subcategory: string;
-    weight: number;
-  };
+  metricMapping: MetricMapping;
 }
 ```
 
@@ -57,10 +88,16 @@ interface MetricAnswer {
 `QuestionnaireCompleted` payload:
 
 ```typescript
+// Базовый payload (генерирует QuestionnaireAr)
 {
-  questionnaireId, subjectId, respondentId,
-  context, role, triggerEvent,
-  answers: Answer[],
+  questionnaireId,
+  respondentId
+}
+
+// Расширенный payload (генерирует MetricQuestionnaireAr)
+{
+  questionnaireId,
+  respondentId,
   metricScores: MetricScore[]
 }
 ```
@@ -71,12 +108,9 @@ interface MetricAnswer {
 
 ```typescript
 // Вопрос с метриками (для MetricQuestionnaireAr)
+// Тип MetricMapping определён в FR1
 interface MetricQuestion extends Question {
-  metricMapping?: {
-    category: string;       // "professional_skills" | "team_skills" | "personal_skills"
-    subcategory: string;    // "work_quality" | "communication" | ...
-    weight: number;         // 0.75 | 1.0 | 1.25, по умолчанию 1.0
-  };
+  metricMapping: MetricMapping;  // связь категория↔подкатегория гарантирована типом
 }
 ```
 
@@ -89,17 +123,12 @@ interface MetricQuestion extends Question {
 
 Формат конфигурации — в модуле-владельце (например `packages/onboarding/src/domain/questionnaire/question-pool.json`).
 
-## FR4 — `QuestionnaireFacade` расширение
-
-- `getAnswers(questionnaireId)` → `Answer[]` + `MetricScore[] | null`
-- `getAllWithMetricMapping()` → для отладки/проверки
-
 ## Критерии приёмки
 
-- [ ] `MetricQuestionnaireAr` наследует `QuestionnaireAr`
+- [ ] Базовый `QuestionnaireAr` генерирует `QuestionnaireCompleted` при завершении (payload без `answers`)
+- [ ] `MetricQuestionnaireAr` наследует `QuestionnaireAr` и расширяет payload события полем `metricScores`
 - [ ] При завершении вычисляет `metricScores`
-- [ ] Генерирует `QuestionnaireCompleted` событие
-- [ ] `metricMapping` в вопросах пула
+- [ ] `metricMapping` в вопросах пула: связь категория↔подкатегория гарантирована типом
 - [ ] Unit-тесты на `computeMetricScores`
 - [ ] `bun run check:p questionnaire`
 

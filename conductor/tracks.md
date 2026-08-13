@@ -1,6 +1,6 @@
 # Реестр треков
 
-- [ ] **Track: Трек 2.4b — MetricQuestionnaireAr и metricMapping**
+- [~] **Track: Трек 2.4b — MetricQuestionnaireAr и metricMapping**
 *Link: [./tracks/metrics-metric-ar_20260810/](./tracks/metrics-metric-ar_20260810/)*
 
 - [ ] **Track: Трек 2.5 — onboarding переводится на questionnaire**
