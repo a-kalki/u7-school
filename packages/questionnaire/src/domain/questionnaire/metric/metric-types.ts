@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { AnswerOption, ChoiceQuestion } from '../question';
+import type { AnswerOption } from '../question';
 import { ChoiceQuestionSchema } from '../question';
 
 // ── Связь «категория → допустимые подкатегории» ──
@@ -40,6 +40,16 @@ export const MetricSubcategorySchema = v.picklist([
 export type MetricSubcategory = v.InferOutput<typeof MetricSubcategorySchema>;
 
 /**
+ * Допустимые веса вопроса метрики (единственное место определения).
+ */
+export const MetricWeightSchema = v.union([
+  v.literal(0.75),
+  v.literal(1),
+  v.literal(1.25),
+]);
+export type MetricWeight = v.InferOutput<typeof MetricWeightSchema>;
+
+/**
  * Маппинг вопроса на метрику.
  * Связь категория↔подкатегория гарантирована: подкатегорию одной
  * категории нельзя положить в другую.
@@ -48,17 +58,17 @@ export const MetricMappingSchema = v.variant('category', [
   v.object({
     category: v.literal('professional_skills'),
     subcategory: v.picklist(PROFESSIONAL_SUBCATEGORIES),
-    weight: v.optional(v.pipe(v.number(), v.minValue(0)), 1.0),
+    weight: MetricWeightSchema,
   }),
   v.object({
     category: v.literal('team_skills'),
     subcategory: v.picklist(TEAM_SUBCATEGORIES),
-    weight: v.optional(v.pipe(v.number(), v.minValue(0)), 1.0),
+    weight: MetricWeightSchema,
   }),
   v.object({
     category: v.literal('personal_skills'),
     subcategory: v.picklist(PERSONAL_SUBCATEGORIES),
-    weight: v.optional(v.pipe(v.number(), v.minValue(0)), 1.0),
+    weight: MetricWeightSchema,
   }),
 ]);
 export type MetricMapping = v.InferOutput<typeof MetricMappingSchema>;
@@ -130,20 +140,3 @@ export const MetricQuestionPoolSchema = v.object({
   ),
 });
 export type MetricQuestionPool = v.InferOutput<typeof MetricQuestionPoolSchema>;
-export type MetricQuestionPoolInput = v.InferInput<
-  typeof MetricQuestionPoolSchema
->;
-
-/**
- * Преобразует MetricQuestion в обычный ChoiceQuestion для движка.
- * Ответы — стандартная шкала Лайкерта 1–5.
- */
-export function toChoiceQuestion(mq: MetricQuestion): ChoiceQuestion {
-  return {
-    questionCode: mq.questionCode,
-    question: mq.question,
-    type: 'choice',
-    multiple: false,
-    answers: [...LIKERT_SCALE],
-  };
-}

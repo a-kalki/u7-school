@@ -2,21 +2,22 @@ import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import { QuestionnaireAr } from '../a-root';
 import { QuestionnaireSchema } from '../entity';
-import type { Question } from '../question';
+import type { ChoiceQuestion } from '../question';
+import { QuestionnaireEngine } from '../questionnaire-engine';
 import {
+  LIKERT_SCALE,
   type MetricMapping,
-  MetricMappingSchema,
-  type MetricQuestionPoolInput,
+  type MetricQuestion,
+  type MetricQuestionPool,
   MetricQuestionPoolSchema,
   type MetricScore,
   MetricScoreSchema,
-  toChoiceQuestion,
 } from './metric-types';
 
-/** Состояние метрик-анкеты: обычная анкета + metricMappings по кодам вопросов */
+/** Состояние метрик-анкеты: упрощённый пул (MetricQuestion[]) вместо полного Question[]. */
 export const MetricQuestionnaireSchema = v.object({
   ...QuestionnaireSchema.entries,
-  metricMappings: v.record(v.string(), MetricMappingSchema),
+  questionPool: MetricQuestionPoolSchema,
 });
 export type MetricQuestionnaire = v.InferOutput<
   typeof MetricQuestionnaireSchema
@@ -33,20 +34,14 @@ export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> 
 
   /**
    * Создаёт метрик-анкету из пула метрик.
-   * Вопросы преобразуются в обычные ChoiceQuestion (движок не знает о метриках),
-   * metricMapping сохраняется в state.metricMappings.
+   * Вопросы хранятся в упрощённом виде (MetricQuestion),
+   * движок получает полный Question[] через buildEngine.
    */
   static createFromMetricPool(
     respondentId: string,
-    pool: MetricQuestionPoolInput,
+    pool: MetricQuestionPool,
   ): MetricQuestionnaireAr {
     const parsed = v.parse(MetricQuestionPoolSchema, pool);
-
-    const metricMappings: Record<string, MetricMapping> = {};
-    const questions: Question[] = parsed.questions.map((mq) => {
-      metricMappings[mq.questionCode] = mq.metricMapping;
-      return toChoiceQuestion(mq);
-    });
 
     const state: MetricQuestionnaire = {
       uuid: crypto.randomUUID(),
@@ -55,19 +50,31 @@ export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> 
       currentQuestionCode: null,
       draftAnswers: {},
       answers: [],
-      questionPool: {
-        inviteText: parsed.inviteText,
-        whyText: parsed.whyText,
-        completionText: parsed.completionText,
-        cancelWarning: parsed.cancelWarning,
-        questions,
-      },
+      questionPool: parsed,
       createdAt: isoNow(),
       completedAt: null,
-      metricMappings,
     };
 
     return new MetricQuestionnaireAr(state);
+  }
+
+  protected override buildEngine(
+    state: MetricQuestionnaire,
+  ): QuestionnaireEngine {
+    return new QuestionnaireEngine(
+      state.questionPool.questions.map((q) => this.toChoiceQuestion(q)),
+    );
+  }
+
+  /** Преобразует компактный MetricQuestion в полный ChoiceQuestion для движка. */
+  private toChoiceQuestion(mq: MetricQuestion): ChoiceQuestion {
+    return {
+      questionCode: mq.questionCode,
+      question: mq.question,
+      type: 'choice',
+      multiple: false,
+      answers: [...LIKERT_SCALE],
+    };
   }
 
   protected override buildCompletionPayload(): Record<string, unknown> {
@@ -89,10 +96,15 @@ export class MetricQuestionnaireAr extends QuestionnaireAr<MetricQuestionnaire> 
       weightSum: number;
     };
 
+    const byCode = new Map<string, MetricMapping>();
+    for (const question of this.state.questionPool.questions) {
+      byCode.set(question.questionCode, question.metricMapping);
+    }
+
     const groups = new Map<string, Acc>();
 
     for (const answer of this.state.answers) {
-      const mapping = this.state.metricMappings[answer.questionCode];
+      const mapping = byCode.get(answer.questionCode);
       if (!mapping) continue;
 
       const numeric = Number(answer.answerCode);

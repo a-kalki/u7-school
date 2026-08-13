@@ -16,13 +16,32 @@ describe('MetricMapping', () => {
     expect(() => v.parse(MetricMappingSchema, mapping)).not.toThrow();
   });
 
-  test('weight имеет значение по умолчанию 1.0', () => {
+  test('weight обязателен — отсутствие ошибка', () => {
     const mapping = {
       category: 'team_skills',
       subcategory: 'communication',
     };
-    const result = v.parse(MetricMappingSchema, mapping);
-    expect(result.weight).toBe(1.0);
+    expect(() => v.parse(MetricMappingSchema, mapping)).toThrow();
+  });
+
+  test('допустимые значения веса проходят', () => {
+    for (const weight of [0.75, 1, 1.25]) {
+      const mapping = {
+        category: 'team_skills',
+        subcategory: 'communication',
+        weight,
+      };
+      expect(() => v.parse(MetricMappingSchema, mapping)).not.toThrow();
+    }
+  });
+
+  test('недопустимый вес — ошибка', () => {
+    const mapping = {
+      category: 'team_skills',
+      subcategory: 'communication',
+      weight: 2,
+    };
+    expect(() => v.parse(MetricMappingSchema, mapping)).toThrow();
   });
 
   test('подкатегория другой категории — ошибка', () => {
@@ -90,6 +109,7 @@ describe('MetricQuestion', () => {
       metricMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
+        weight: 1,
       },
     };
     expect(() => v.parse(MetricQuestionSchema, q)).not.toThrow();
@@ -110,6 +130,7 @@ describe('MetricQuestion', () => {
       metricMapping: {
         category: 'professional_skills',
         subcategory: 'communication',
+        weight: 1,
       },
     };
     expect(() => v.parse(MetricQuestionSchema, q)).toThrow();
@@ -122,6 +143,7 @@ describe('MetricQuestion', () => {
       metricMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
+        weight: 1,
       },
     };
     expect(() => v.parse(MetricQuestionSchema, q)).toThrow();

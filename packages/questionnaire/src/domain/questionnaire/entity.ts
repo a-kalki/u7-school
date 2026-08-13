@@ -58,9 +58,32 @@ export const QuestionnaireSchema = v.object({
 
 export type Questionnaire = v.InferOutput<typeof QuestionnaireSchema>;
 
+/**
+ * Базовые поля состояния анкеты — общие для базового QuestionnaireAr
+ * и наследников (например, MetricQuestionnaireAr с упрощённым пулом).
+ */
+export type QuestionnaireStateBase = {
+  uuid: string;
+  respondentId: string;
+  status: QuestionnaireStatus;
+  currentQuestionCode: string | null;
+  draftAnswers: Record<string, string>;
+  answers: Answer[];
+  questionPool: {
+    inviteText?: string;
+    whyText?: string;
+    completionText?: string;
+    cancelWarning?: string;
+    questions: unknown[];
+  };
+  createdAt: string;
+  updatedAt?: string;
+  completedAt: string | null;
+};
+
 /** Метаданные агрегата Questionnaire */
 export interface QuestionnaireArMeta<
-  TState extends Questionnaire = Questionnaire,
+  TState extends QuestionnaireStateBase = Questionnaire,
 > {
   name: 'Questionnaire';
   label: 'Анкета';

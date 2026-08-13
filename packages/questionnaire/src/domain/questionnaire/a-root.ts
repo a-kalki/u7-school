@@ -1,7 +1,12 @@
 import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
-import type { Answer, Questionnaire, QuestionnaireArMeta } from './entity';
+import type {
+  Answer,
+  Questionnaire,
+  QuestionnaireArMeta,
+  QuestionnaireStateBase,
+} from './entity';
 import { QuestionnaireSchema } from './entity';
 import type { Question, QuestionnairePool } from './question';
 import { QuestionnairePoolSchema } from './question';
@@ -13,7 +18,7 @@ const NEXT_BUTTON_PREFIX = 'next:';
 
 /** Агрегат анкеты. */
 export class QuestionnaireAr<
-  TState extends Questionnaire = Questionnaire,
+  TState extends QuestionnaireStateBase = Questionnaire,
 > extends Aggregate<QuestionnaireArMeta<TState>> {
   #engine: QuestionnaireEngine;
 
@@ -22,7 +27,12 @@ export class QuestionnaireAr<
     schema: v.GenericSchema<TState> = QuestionnaireSchema as v.GenericSchema<TState>,
   ) {
     super(state, schema);
-    this.#engine = new QuestionnaireEngine(state.questionPool.questions);
+    this.#engine = this.buildEngine(state);
+  }
+
+  /** Строит движок из вопросов пула. Переопределяется в наследниках. */
+  protected buildEngine(state: TState): QuestionnaireEngine {
+    return new QuestionnaireEngine(state.questionPool.questions as Question[]);
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -443,10 +453,12 @@ export class QuestionnaireAr<
   // ═════════════════════════════════════════════════════════════
 
   /**
-   * Переопределяем safeUpdate с типом базового Questionnaire,
+   * Переопределяем safeUpdate с типом базового состояния анкеты,
    * чтобы частичные обновления не зависели от generic-состояния.
    */
-  protected override safeUpdate(partial: Partial<Questionnaire>): void {
+  protected override safeUpdate(
+    partial: Partial<QuestionnaireStateBase>,
+  ): void {
     super.safeUpdate(partial as Partial<TState>);
   }
 

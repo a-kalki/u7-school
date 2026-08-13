@@ -1,15 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  type MetricQuestionnaire,
-  MetricQuestionnaireAr,
-} from './metric-questionnaire-ar';
-import type { MetricQuestionPoolInput, MetricScore } from './metric-types';
+import { MetricQuestionnaireAr } from './metric-questionnaire-ar';
+import type { MetricQuestionPool, MetricScore } from './metric-types';
 
 const RESPONDENT_ID = '00000000-0000-0000-0000-000000000007';
 
 function metricPool(
-  questions: MetricQuestionPoolInput['questions'],
-): MetricQuestionPoolInput {
+  questions: MetricQuestionPool['questions'],
+): MetricQuestionPool {
   return { questions };
 }
 
@@ -22,6 +19,7 @@ describe('MetricQuestionnaireAr', () => {
         metricMapping: {
           category: 'professional_skills',
           subcategory: 'work_quality',
+          weight: 1,
         },
       },
       {
@@ -30,6 +28,7 @@ describe('MetricQuestionnaireAr', () => {
         metricMapping: {
           category: 'professional_skills',
           subcategory: 'algorithmic_thinking',
+          weight: 1,
         },
       },
     ]);
@@ -71,7 +70,7 @@ describe('MetricQuestionnaireAr', () => {
         metricMapping: {
           category: 'team_skills',
           subcategory: 'communication',
-          weight: 1,
+          weight: 0.75,
         },
       },
       {
@@ -80,7 +79,7 @@ describe('MetricQuestionnaireAr', () => {
         metricMapping: {
           category: 'team_skills',
           subcategory: 'communication',
-          weight: 3,
+          weight: 1.25,
         },
       },
     ]);
@@ -93,48 +92,47 @@ describe('MetricQuestionnaireAr', () => {
 
     const events = ar.flushEvents();
     const scores = events[0]!.payload.metricScores as MetricScore[];
-    // (5 * 1 + 1 * 3) / (1 + 3) = 8 / 4 = 2
+    // (5 * 0.75 + 1 * 1.25) / (0.75 + 1.25) = 5 / 2 = 2.5
     expect(scores).toEqual([
-      { category: 'team_skills', subcategory: 'communication', score: 2 },
+      { category: 'team_skills', subcategory: 'communication', score: 2.5 },
     ]);
   });
 
-  test('без metricMapping metricScores — пустой массив', () => {
+  test('несколько вопросов одной подкатегории — среднее при weight=1', () => {
     const pool = metricPool([
       {
-        questionCode: 'm1',
-        question: 'Пишет код чисто',
+        questionCode: 'a',
+        question: 'Общается',
         metricMapping: {
-          category: 'professional_skills',
-          subcategory: 'work_quality',
+          category: 'team_skills',
+          subcategory: 'communication',
+          weight: 1,
         },
       },
       {
-        questionCode: 'm2',
-        question: 'Думает алгоритмами',
+        questionCode: 'b',
+        question: 'Помогает',
         metricMapping: {
-          category: 'professional_skills',
-          subcategory: 'algorithmic_thinking',
+          category: 'team_skills',
+          subcategory: 'communication',
+          weight: 1,
         },
       },
     ]);
 
     const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool);
+    ar.start();
 
-    // Восстанавливаем анкету из сохранённого состояния без metricMappings
-    const plainState = {
-      ...ar.state,
-      metricMappings: {},
-    } as MetricQuestionnaire;
-    const restored = new MetricQuestionnaireAr(plainState);
-
-    restored.start();
-    restored.handleAction({ type: 'callback', value: '3' });
-    const response = restored.handleAction({ type: 'callback', value: '3' });
+    ar.handleAction({ type: 'callback', value: '4' });
+    const response = ar.handleAction({ type: 'callback', value: '2' });
     expect(response.type).toBe('completed');
 
-    const events = restored.flushEvents();
-    expect(events[0]!.payload.metricScores).toEqual([]);
+    const events = ar.flushEvents();
+    const scores = events[0]!.payload.metricScores as MetricScore[];
+    // (4 + 2) / 2 = 3
+    expect(scores).toEqual([
+      { category: 'team_skills', subcategory: 'communication', score: 3 },
+    ]);
   });
 
   test('MetricQuestion преобразуется в ChoiceQuestion со шкалой Лайкерта', () => {
@@ -145,6 +143,7 @@ describe('MetricQuestionnaireAr', () => {
         metricMapping: {
           category: 'professional_skills',
           subcategory: 'work_quality',
+          weight: 1,
         },
       },
       {
@@ -153,6 +152,7 @@ describe('MetricQuestionnaireAr', () => {
         metricMapping: {
           category: 'professional_skills',
           subcategory: 'algorithmic_thinking',
+          weight: 1,
         },
       },
     ]);
