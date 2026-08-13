@@ -1,0 +1,3 @@
+Задача: Расширить Question типы — MetricQuestion с обязательным metricMapping.
+Изменения: в metric-types.ts добавлены MetricQuestionSchema (variant: choice/text + обязательный metricMapping) и тип MetricQuestion; в metric-types.test.ts добавлены 3 теста (валидный вопрос, без metricMapping — ошибка, невалидная связь — ошибка).
+Причина: MetricQuestion = Question + обязательный metricMapping; движок работает с обычным Question, metricMapping стрипается перед передачей.
