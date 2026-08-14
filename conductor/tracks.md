@@ -1,10 +1,5 @@
 # Реестр треков
 
-- [x] **Track: EventReaction в core — механизм подписки модулей на события**
-*Link: [./tracks/event-reaction_20260814/](./tracks/event-reaction_20260814/)*
-
----
-
 - [ ] **Track: questionnaire: ownerInfo + событие (дженерик на границе)**
 *Link: [./tracks/questionnaire-owner-info_20260814/](./tracks/questionnaire-owner-info_20260814/)*
 
