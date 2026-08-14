@@ -4,7 +4,7 @@
 
 > **Родительский документ:** [Система сбора метрик](./metrics-system.md)
 > **Дорожная карта:** [`conductor/development-roadmap.md`](./development-roadmap.md) — порядок релизов, миграции, зависимости между инициативами
-> **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — структура `metricMapping` в вопросах
+> **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — структура `likertMapping` в вопросах
 > **Связан с:** [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — как metrics модуль агрегирует баллы
 
 ---
@@ -81,7 +81,7 @@
 
 ```
 questionCode: "peer_work_quality"
-metricMapping:
+likertMapping:
   category: "professional_skills"
   subcategory: "work_quality"
   weight: 1.0
@@ -200,7 +200,7 @@ total_rating = Σ (category_score × category_weight) / Σ category_weight
 
 ## 9. Что НЕ входит в этот документ
 
-- Реализация `metricMapping` в коде → см. [Документ 2](./metrics-questionnaire-and-events.md)
+- Реализация `likertMapping` в коде → см. [Документ 2](./metrics-questionnaire-and-events.md)
 - Хранение и расчёт метрик в модуле `metrics` → см. [Документ 3](./metrics-pipeline-and-modules.md)
 - Триггеры запуска анкет → см. [Документ 3](./metrics-pipeline-and-modules.md)
 
@@ -293,10 +293,10 @@ total_rating = Σ (category_score × category_weight) / Σ category_weight
 
 ---
 
-## 12. Структура вопроса (MetricQuestion)
+## 12. Структура вопроса (SkillQuestion)
 
 ```typescript
-interface MetricQuestion {
+interface SkillQuestion {
   code: string;                    // "mc_work_quality_1"
   context: string;                 // "module_completed" | "pair_programming" | "code_review"
   roles: string[];                 // ["student_student", "mentor_student", "student_mentor"]

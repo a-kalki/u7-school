@@ -3,8 +3,8 @@
 **Назначение:** технический документ. Ядро системы: движок анкет, EventBus в core, API агрегатов для событий, intention-паттерн запуска.
 
 > **Родительский документ:** [Система сбора метрик](./metrics-system.md)
-> **Связан с:** [1. Концепция метрик](./metrics-conception.md) — структура `metricMapping`
-> **Связан с:** [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — потребители QuestionnaireCompleted
+> **Связан с:** [1. Концепция метрик](./metrics-conception.md) — структура `likertMapping`
+> **Связан с:** [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — потребители QuestionnaireComplete
 
 ---
 
@@ -129,7 +129,7 @@ someMethod(): void {
   // ... бизнес-логика ...
   this.addEvent({
     eventId: crypto.randomUUID(),
-    eventName: 'questionnaire.completed',
+    eventName: 'questionnaire:complete',
     occurredAt: isoNow(),
     aggregateName: 'Questionnaire',
     aggregateId: this.state.uuid,
@@ -183,7 +183,7 @@ abstract class UseCase<TMeta extends UcMeta, TResolve> {
 - **2.4a** — Доменная модель + агрегат + API + Infra (✅ выполнено)
 - **2.4a+** — Перепроектирование UC слоя: `user: User`, `QuestionnairePool`, Invite-паттерн, `QuestionnaireBotFacade`, доменный фасад
 - **2.4a++** — `BotUiApp.send()`, `shortIds` в `BotUiApp`, контроллер questionnaire, `TelegramQuestionnaireBotFacade`
-- **2.4b** — `MetricQuestionnaireAr` и `metricMapping`
+- **2.4b** — `LikertQuestionnaireAr` и `likertMapping`
 
 **Текущий дизайн (после 2.4a+):**
 
@@ -238,7 +238,7 @@ abandon(): void
 - Удалить из `onboarding` доменную логику анкет (a-root, entity, question, questionnaire-engine, commands, repo, policy, errors, types)
 - Оставить: `OnboardingAr` (желания, привязка к курсам), `OnboardingApiModule`, контроллер
 - `OnboardingAr` использует `QuestionnaireFacade.start(user, pool)` для запуска анкеты
-- При `QuestionnaireCompleted` (подписка через EventBus) — выдаёт роль `CANDIDATE`
+- При `QuestionnaireComplete` (подписка через EventBus) — выдаёт роль `CANDIDATE`
 
 **Упрощение:** onboarding больше не содержит движок анкет. Вся анкетная логика — в `questionnaire`.
 
@@ -250,21 +250,21 @@ abandon(): void
 2.1 (EventBus) ──┐
                  ├──> 2.3 (publishEvents) ──> 2.4a (questionnaire) ──> 2.4a+ (domain-uc)
 2.2 (Aggregate API) ┘                                                      │
-                                                                           ├──> 2.4b (MetricQuestionnaireAr)
+                                                                           ├──> 2.4b (LikertQuestionnaireAr)
                                                                            │
                                                                            └──> 2.4a++ (bot-controller)
                                                                                     │
                                                                                     └──> 2.5 (onboarding)
 ```
 
-2.4a+ (domain-uc) и 2.4b (MetricAr) можно делать параллельно после 2.4a. 2.4a++ (bot-controller) зависит от 2.4a+. Трек 2.5 зависит от 2.4a++ (контроллер) или может использовать фасад напрямую.
+2.4a+ (domain-uc) и 2.4b (LikertAr) можно делать параллельно после 2.4a. 2.4a++ (bot-controller) зависит от 2.4a+. Трек 2.5 зависит от 2.4a++ (контроллер) или может использовать фасад напрямую.
 
 ---
 
 ## Связанные документы
 
 - [Система сбора метрик (родитель)](./metrics-system.md)
-- [1. Концепция метрик](./metrics-conception.md) — структура metricMapping
+- [1. Концепция метрик](./metrics-conception.md) — структура likertMapping
 - [3. Пайплайн + модули](./metrics-pipeline-and-modules.md) — Invite-паттерн, peer-review, metrics
 - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — правила для Aggregate, Policy
 - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов

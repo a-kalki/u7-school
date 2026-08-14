@@ -22,11 +22,11 @@ EventBus ──> peer-review (подписчик)
                 ▼
            questionnaire (пользователь нажимает кнопку)
                 │  start → handleAction → ... → completed
-                │  addEvent(QuestionnaireCompleted)
+                │  addEvent(QuestionnaireComplete)
                 │  → UC publishEvents
                 ▼
            EventBus ──> metrics (подписчик)
-                         │  извлекает metricScores
+                         │  извлекает likertScores
                          │  обновляет StudentMetrics
                          ▼
                       профиль студента
@@ -52,12 +52,12 @@ intention → in_progress → completed/abandoned
 
 **Фасад:**
 - `createIntention(context, role, subjectId, respondentId)` → создаёт агрегат в статусе `intention` (пул = null), возвращает `{ questionnaireId, message }`
-- `startMetric(questionnaireId, questionPool, triggerEvent?)` → переводит `intention` → `in_progress`, сохраняет снимок пула, возвращает первый вопрос
+- `startLikert(questionnaireId, questionPool, triggerEvent?)` → переводит `intention` → `in_progress`, сохраняет снимок пула, возвращает первый вопрос
 
 **Механика:**
 1. `createIntention()` создаёт агрегат в статусе `intention` и возвращает `questionnaireId` + текст приглашения
 2. Бот показывает пользователю приглашение с кнопкой
-3. Когда пользователь нажимает кнопку → контроллер загружает пул вопросов (по `context` + `role`) → вызывает `startMetric(questionnaireId, questionPool)`
+3. Когда пользователь нажимает кнопку → контроллер загружает пул вопросов (по `context` + `role`) → вызывает `startLikert(questionnaireId, questionPool)`
 4. Агрегат переходит `intention` → `in_progress`, начинает анкету
 
 **Преимущества:**
@@ -190,7 +190,7 @@ async execute(event: ModuleCompletedEvent): Promise<void> {
 **Цель:** новый пакет, хранящий и агрегирующий метрики студента.
 
 **Ответственности:**
-- Подписка на `questionnaire.completed` → извлечение `metricScores` → обновление `StudentMetrics`
+- Подписка на `questionnaire:complete` → извлечение `likertScores` → обновление `StudentMetrics`
 - Потребление авто-метрик от `stream` (посещаемость, скорость)
 - API для запроса профиля студента
 
@@ -205,12 +205,12 @@ packages/metrics/src/
       a-root.ts                — StudentMetricsAr
       repo.ts                  — StudentMetricsRepo (интерфейс)
       policy.ts
-      types.ts                 — MetricScore, CategoryScore, StudentProfile
+      types.ts                 — SkillScore, CategoryScore, StudentProfile
     index.ts
   api/
     module.ts                  — MetricsApiModule
     student-metrics/
-      update-metrics-uc.ts     — подписчик на QuestionnaireCompleted
+      update-metrics-uc.ts     — подписчик на QuestionnaireComplete
       get-profile-uc.ts        — запрос профиля студента
       ingest-auto-metrics-uc.ts — приём авто-метрик от stream
   infra/
@@ -225,7 +225,7 @@ packages/metrics/src/
 **Модель `StudentMetrics`:**
 
 ```typescript
-interface MetricScore {
+interface SkillScore {
   category: string;
   subcategory: string;
   score: number;           // средневзвешенный балл по анкетам
@@ -236,22 +236,23 @@ interface MetricScore {
 interface StudentMetrics {
   uuid: string;
   studentTelegramId: number;
-  professionalSkills: MetricScore[];  // разбивка по подкатегориям профессионализма
-  teamSkills: MetricScore[];          // разбивка по подкатегориям командных
-  personalSkills: MetricScore[];      // разбивка по подкатегориям личностных
+  professionalSkills: SkillScore[];  // разбивка по подкатегориям профессионализма
+  teamSkills: SkillScore[];          // разбивка по подкатегориям командных
+  personalSkills: SkillScore[];      // разбивка по подкатегориям личностных
   mentorRecommendation?: string;      // текст рекомендации ментора
   peerRecommendations: string[];      // рекомендации студентов
   updatedAt: string;
 }
 ```
 
-**Агрегация при `questionnaire.completed`:**
+**Агрегация при `questionnaire:complete`:**
 
 ```typescript
 // UpdateMetricsUc
-async execute(event: QuestionnaireCompletedEvent): Promise<void> {
-  const { subjectId, metricScores } = event.payload;
-  if (!metricScores) return;  // не метрическая анкета (например onboarding)
+async execute(event: QuestionnaireCompleteEvent): Promise<void> {
+  const { subjectId } = event.ownerInfo;
+  const { likertScores } = event.payload;
+  if (!likertScores) return;  // не метрическая анкета (например onboarding)
 
   let metrics = await this.resolve.studentMetricsRepo.getByTelegramId(subjectId);
   if (!metrics) {
@@ -259,7 +260,7 @@ async execute(event: QuestionnaireCompletedEvent): Promise<void> {
   }
 
   const ar = new StudentMetricsAr(metrics);
-  ar.ingestScores(metricScores, event.payload.context);
+  ar.ingestScores(likertScores, event.ownerInfo.context);
   // ar пересчитывает средние, обновляет sampleSize
 
   await this.resolve.studentMetricsRepo.save(ar.state);
@@ -289,8 +290,8 @@ async execute(event: QuestionnaireCompletedEvent): Promise<void> {
 │ (желания,    │     │  (движок анкет) │
 │  привязка к  │     │                 │
 │  курсам,     │     │ • BaseAr        │
-│  роль после  │     │ • MetricAr      │
-│  анкеты)     │     │ • MetricAr      │
+│  роль после  │     │ • LikertAr      │
+│  анкеты)     │     │ • LikertAr      │
 └──────────────┘     │ • QuestionPool  │
                      └────────┬────────┘
                               │ зависит
@@ -311,7 +312,7 @@ async execute(event: QuestionnaireCompletedEvent): Promise<void> {
 **Ключевые правила зависимостей:**
 - `questionnaire` НЕ зависит от `metrics`, `peer-review`, `stream`
 - `peer-review` зависит от `questionnaire` (фасад), `stream` (фасад для группы), `user` (фасад)
-- `metrics` зависит от `questionnaire` (читает metricScores из событий)
+- `metrics` зависит от `questionnaire` (читает likertScores из событий)
 - `stream` НЕ зависит от `peer-review` или `metrics` (только публикует события)
 
 ---

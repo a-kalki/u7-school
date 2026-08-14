@@ -32,7 +32,7 @@
                                          ├──> Документ 3 (пайплайн + модули)
 Документ 2 (questionnaire модуль) ───────┘
                                           
-Документ 1 (концепция) — параллельно, задаёт структуру metricMapping
+Документ 1 (концепция) — параллельно, задаёт структуру likertMapping
 ```
 
 Документ 2 должен быть реализован первым, так как даёт инфраструктуру (EventBus, Aggregate API, questionnaire), на которой строится Документ 3. Документ 1 можно прорабатывать параллельно — он не зависит от кода.
@@ -41,9 +41,9 @@
 
 ## Ключевые архитектурные решения (приняты в обсуждении)
 
-1. **Модуль `questionnaire`** — чистый движок анкет. Не знает о метриках, но вопросы в пуле содержат метаданные `metricMapping: { category, subcategory, weight }`. При завершении анкеты возвращает не только ответы, но и предвычисленные баллы по категориям.
+1. **Модуль `questionnaire`** — чистый движок анкет. Не знает о метриках, но вопросы в пуле содержат метаданные `likertMapping: { category, subcategory, weight }`. При завершении анкеты возвращает не только ответы, но и предвычисленные баллы по категориям.
 
-2. **Иерархия анкет:** `QuestionnaireAr` (абстрактный) → `MetricQuestionnaireAr` (для метрик, умеет выдавать `MetricScore[]`). Онбординг-анкета использует `QuestionnaireFacade` напрямую, без наследования агрегата.
+2. **Иерархия анкет:** `QuestionnaireAr` (абстрактный) → `LikertQuestionnaireAr` (для метрик, умеет выдавать `LikertScore[]`). Онбординг-анкета использует `QuestionnaireFacade` напрямую, без наследования агрегата.
 
 3. **Модель данных анкеты:** `subjectId` (о ком), `respondentId` (кто заполняет), `context` (module_completed/pair_programming/code_review/initiative/onboarding), `role` (student_student/mentor_student/student_mentor), `triggerEvent` (что породило).
 
@@ -59,7 +59,7 @@
    - `metrics` — хранение и агрегация метрик, витрина профиля студента
 
 8. **Поток для кейса «завершение модуля»:**
-   `stream` (ModuleCompleted) → `peer-review` (оркестрирует invites) → `questionnaire` (анкеты, QuestionnaireCompleted) → `metrics` (агрегация)
+   `stream` (ModuleCompleted) → `peer-review` (оркестрирует invites) → `questionnaire` (анкеты, QuestionnaireComplete) → `metrics` (агрегация)
 
 ---
 
