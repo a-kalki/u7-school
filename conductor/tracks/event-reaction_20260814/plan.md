@@ -15,6 +15,6 @@
 
 ## Фаза 3: Документация ER
 
-- [ ] Task: Создать styleguide ER в `conductor/code_styleguides/skills/`
-- [ ] Task: Зарегистрировать ER в `arch-boundary-design/SKILL.md` (таблица решений) и `conductor/index.md`
+- [x] Task: Создать styleguide ER в `conductor/code_styleguides/skills/` `fe4eb4e`
+- [x] Task: Зарегистрировать ER в `arch-boundary-design/SKILL.md` (таблица решений) и `conductor/index.md` `fe4eb4e`
 - [ ] Task: Conductor - Ручная верификация 'Документация ER'
