@@ -4,5 +4,5 @@
   "status": "new",
   "created_at": "2026-08-14T00:00:00Z",
   "updated_at": "2026-08-14T00:00:00Z",
-  "description": "questionnaire: ownerInfo (дженерик на границе) + трёхчастное событие с kind в payload"
+  "description": "questionnaire: ownerInfo (дженерик на границе) + явные события + Likert / словарь Skill / оценка PeerReview"
 }
