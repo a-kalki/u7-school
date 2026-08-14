@@ -4,8 +4,8 @@ import {
   type GetQuestionnairesByUserCmd,
   GetQuestionnairesByUserCmdSchema,
 } from '#domain/questionnaire/commands/get-questionnaires-by-user-cmd';
-import type { Questionnaire } from '../../domain/questionnaire/entity';
-import { QuestionnaireSchema } from '../../domain/questionnaire/entity';
+import type { QuestionnaireState } from '../../domain/questionnaire/repo';
+import { QuestionnaireStateSchema } from '../../domain/questionnaire/repo';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class GetQuestionnairesByUserUc extends QuestionnaireUseCase<GetQuestionnairesByUserCmdMeta> {
@@ -18,12 +18,12 @@ export class GetQuestionnairesByUserUc extends QuestionnaireUseCase<GetQuestionn
   protected readonly type = 'query' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = GetQuestionnairesByUserCmdSchema;
-  protected readonly outputSchema = v.array(QuestionnaireSchema);
+  protected readonly outputSchema = v.array(QuestionnaireStateSchema);
 
   async execute(
     command: GetQuestionnairesByUserCmd,
     actorId: string,
-  ): Promise<Questionnaire[]> {
+  ): Promise<QuestionnaireState[]> {
     const actor = await this.getUser(actorId);
     this.ensureCanListForUser(actor, command.userId);
     return this.repo.getByRespondentId(command.userId);

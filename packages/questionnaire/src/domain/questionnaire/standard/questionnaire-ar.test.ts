@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { Question, QuestionnairePool } from '../question';
+import { QuestionnaireFactory } from '../questionnaire-factory';
 import { QuestionnaireAr } from './questionnaire-ar';
 
 function makePool(questions: Question[]): QuestionnairePool {
@@ -37,7 +38,7 @@ describe('QuestionnaireAr (v2)', () => {
 
   test('create создаёт анкету в статусе invited с сохранённым пулом', () => {
     const pool = simplePool();
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       pool,
     );
@@ -52,7 +53,7 @@ describe('QuestionnaireAr (v2)', () => {
 
   test('createInvite возвращает InviteResponse с inviteText и whyText', () => {
     const pool = simplePool();
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       pool,
     );
@@ -65,7 +66,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('getQuestionnaireActionResponse на invited возвращает InviteResponse', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -76,7 +77,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── decline ──
 
   test('decline переводит invited → abandoned', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -85,7 +86,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('decline на не-invited анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -96,7 +97,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── start без параметров ──
 
   test('start переводит invited → in_progress и выдаёт первый вопрос из пула', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -110,7 +111,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('start на не-invited анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -119,7 +120,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('start на declined анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -130,7 +131,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── handleAction: одиночный выбор ──
 
   test('handleAction с одиночным выбором — фиксирует ответ и переходит дальше', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -166,7 +167,7 @@ describe('QuestionnaireAr (v2)', () => {
         answers: [{ answer: 'OK', answerCode: 'ok' }],
       },
     ]);
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       pool,
     );
@@ -184,7 +185,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── Завершение ──
 
   test('handleAction завершает анкету после последнего вопроса', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -198,7 +199,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('getQuestionnaireActionResponse на completed возвращает completed', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -232,7 +233,7 @@ describe('QuestionnaireAr (v2)', () => {
         answers: [{ answer: 'X', answerCode: 'x' }],
       },
     ]);
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       pool,
     );
@@ -271,7 +272,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── abandon ──
 
   test('abandon переводит анкету в abandoned', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -282,7 +283,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('abandon на completed — выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -293,7 +294,7 @@ describe('QuestionnaireAr (v2)', () => {
   });
 
   test('handleAction на завершённой анкете выбрасывает ошибку', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -309,7 +310,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── getQuestionnaireActionResponse ──
 
   test('getQuestionnaireActionResponse возвращает текущий вопрос', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -324,7 +325,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── Восстановление engine из сохранённого состояния ──
 
   test('конструктор восстанавливает engine из questionPool', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -342,7 +343,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── getQuestionnaireActionResponse для abandoned ──
 
   test('getQuestionnaireActionResponse на abandoned возвращает completed', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -354,7 +355,7 @@ describe('QuestionnaireAr (v2)', () => {
   // ── Событие завершения ──
 
   test('завершение анкеты генерирует событие questionnaire.completed без answers', () => {
-    const ar = QuestionnaireAr.create(
+    const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
@@ -375,5 +376,40 @@ describe('QuestionnaireAr (v2)', () => {
       respondentId: '00000000-0000-0000-0000-000000000007',
     });
     expect(event.payload).not.toHaveProperty('answers');
+  });
+
+  // ── События при отказе/прерывании ──
+
+  test('decline генерирует событие declined', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.decline();
+    expect(ar.hasEvents()).toBe(true);
+    const events = ar.flushEvents();
+    expect(events.length).toBe(1);
+    expect(events[0]!.eventName).toBe('questionnaire.declined');
+    expect(events[0]!.payload).toEqual({
+      questionnaireId: ar.state.uuid,
+      respondentId: '00000000-0000-0000-0000-000000000007',
+    });
+  });
+
+  test('abandon генерирует событие abandoned', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+    ar.abandon();
+    expect(ar.hasEvents()).toBe(true);
+    const events = ar.flushEvents();
+    expect(events.length).toBe(1);
+    expect(events[0]!.eventName).toBe('questionnaire.abandoned');
+    expect(events[0]!.payload).toEqual({
+      questionnaireId: ar.state.uuid,
+      respondentId: '00000000-0000-0000-0000-000000000007',
+    });
   });
 });

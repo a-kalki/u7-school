@@ -4,7 +4,7 @@ import {
   type AbandonCmd,
   AbandonCmdSchema,
 } from '#domain/questionnaire/commands/abandon-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
+import { QuestionnaireFactory } from '../../domain/questionnaire/questionnaire-factory';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {
@@ -25,9 +25,10 @@ export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {
       command.questionnaireId,
       actor,
     );
-    const ar = new QuestionnaireAr(state);
+    const ar = QuestionnaireFactory.restore(state);
     ar.abandon();
     await this.repo.save(ar.state);
+    this.publishEvents(ar);
     return undefined;
   }
 }

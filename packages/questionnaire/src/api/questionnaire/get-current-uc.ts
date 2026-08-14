@@ -3,7 +3,7 @@ import {
   type GetCurrentCmd,
   GetCurrentCmdSchema,
 } from '#domain/questionnaire/commands/get-current-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
+import { QuestionnaireFactory } from '../../domain/questionnaire/questionnaire-factory';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
@@ -29,7 +29,7 @@ export class GetCurrentUc extends QuestionnaireUseCase<GetCurrentCmdMeta> {
       command.questionnaireId,
       actor,
     );
-    const ar = new QuestionnaireAr(state);
+    const ar = QuestionnaireFactory.restore(state);
     return ar.getQuestionnaireActionResponse();
   }
 }

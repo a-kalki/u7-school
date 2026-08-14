@@ -2,63 +2,38 @@ import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import { BaseQuestionnaireAr } from '../a-root';
 import type { BaseQuestionnaireArMeta } from '../entity';
-import type { MetricQuestionnaireCompleted } from '../events';
+import type {
+  MetricQuestionnaireAbandoned,
+  MetricQuestionnaireCompleted,
+  MetricQuestionnaireDeclined,
+} from '../events';
 import type { ChoiceQuestion } from '../question';
 import { QuestionnaireEngine } from '../questionnaire-engine';
 import {
   LIKERT_SCALE,
   type MetricMapping,
   type MetricQuestion,
-  type MetricQuestionPool,
-  MetricQuestionPoolSchema,
   type MetricScore,
   MetricScoreSchema,
 } from './metric-question';
 import {
   type MetricAssessment,
-  MetricAssessmentSchema,
   type MetricQuestionnaire,
   MetricQuestionnaireSchema,
 } from './metric-questionnaire';
 
 export interface MetricQuestionnaireArMeta extends BaseQuestionnaireArMeta {
   state: MetricQuestionnaire;
-  events: MetricQuestionnaireCompleted;
+  events:
+    | MetricQuestionnaireCompleted
+    | MetricQuestionnaireDeclined
+    | MetricQuestionnaireAbandoned;
 }
 
-/** Агрегат метрик-анкеты: публикует MetricQuestionnaireCompleted. */
+/** Агрегат метрик-анкеты: публикует события завершения/отказа/прерывания. */
 export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnaireArMeta> {
   constructor(state: MetricQuestionnaire) {
     super(state, MetricQuestionnaireSchema);
-  }
-
-  /**
-   * Создаёт метрик-анкету из пула метрик и оценочного контекста.
-   * Вопросы хранятся в упрощённом виде (MetricQuestion),
-   * движок получает полный Question[] через buildEngine.
-   */
-  static createFromMetricPool(
-    respondentId: string,
-    pool: MetricQuestionPool,
-    assessment: MetricAssessment,
-  ): MetricQuestionnaireAr {
-    const parsedPool = v.parse(MetricQuestionPoolSchema, pool);
-    const parsedAssessment = v.parse(MetricAssessmentSchema, assessment);
-
-    const state: MetricQuestionnaire = {
-      uuid: crypto.randomUUID(),
-      respondentId,
-      status: 'invited',
-      currentQuestionCode: null,
-      draftAnswers: {},
-      answers: [],
-      questionPool: parsedPool,
-      assessment: parsedAssessment,
-      createdAt: isoNow(),
-      completedAt: null,
-    };
-
-    return new MetricQuestionnaireAr(state);
   }
 
   protected override buildEngine(
@@ -80,33 +55,57 @@ export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnai
     };
   }
 
-  protected buildCompletedEvent(): MetricQuestionnaireCompleted {
-    const assessment = this.state.assessment;
-    const payload: MetricQuestionnaireCompleted['payload'] = {
-      questionnaireId: this.state.uuid,
-      respondentId: this.state.respondentId,
-      context: assessment.context,
-      role: assessment.role,
-      subjectId: assessment.subjectId,
-      metricScores: this.computeMetricScores(),
-    };
-    if (assessment.triggerEvent) {
-      return {
-        eventId: crypto.randomUUID(),
-        eventName: 'questionnaire.completed',
-        occurredAt: isoNow(),
-        aggregateName: 'Questionnaire',
-        aggregateId: this.state.uuid,
-        payload: { ...payload, triggerEvent: assessment.triggerEvent },
-      };
-    }
+  /** Раскладывает оценочный контекст (triggerEvent — только если задан). */
+  private assessmentFields(): MetricAssessment {
+    const { context, role, subjectId, triggerEvent } = this.state.assessment;
+    return triggerEvent
+      ? { context, role, subjectId, triggerEvent }
+      : { context, role, subjectId };
+  }
+
+  /** Общие поля event. */
+  private baseEvent() {
     return {
       eventId: crypto.randomUUID(),
-      eventName: 'questionnaire.completed',
       occurredAt: isoNow(),
-      aggregateName: 'Questionnaire',
+      aggregateName: 'Questionnaire' as const,
       aggregateId: this.state.uuid,
-      payload,
+    };
+  }
+
+  /** Общие поля payload событий метрик-анкеты (без metricScores). */
+  private basePayload() {
+    return {
+      questionnaireId: this.state.uuid,
+      respondentId: this.state.respondentId,
+      ...this.assessmentFields(),
+    };
+  }
+
+  protected buildCompletedEvent(): MetricQuestionnaireCompleted {
+    return {
+      ...this.baseEvent(),
+      eventName: 'questionnaire.completed',
+      payload: {
+        ...this.basePayload(),
+        metricScores: this.computeMetricScores(),
+      },
+    };
+  }
+
+  protected buildDeclinedEvent(): MetricQuestionnaireDeclined {
+    return {
+      ...this.baseEvent(),
+      eventName: 'questionnaire.declined',
+      payload: this.basePayload(),
+    };
+  }
+
+  protected buildAbandonedEvent(): MetricQuestionnaireAbandoned {
+    return {
+      ...this.baseEvent(),
+      eventName: 'questionnaire.abandoned',
+      payload: this.basePayload(),
     };
   }
 

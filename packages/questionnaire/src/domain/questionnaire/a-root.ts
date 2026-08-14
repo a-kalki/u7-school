@@ -38,6 +38,12 @@ export abstract class BaseQuestionnaireAr<
    */
   protected abstract buildCompletedEvent(): TMeta['events'];
 
+  /** Событие отказа от приглашения (invited → abandoned). */
+  protected abstract buildDeclinedEvent(): TMeta['events'];
+
+  /** Событие прерывания анкеты (in_progress → abandoned). */
+  protected abstract buildAbandonedEvent(): TMeta['events'];
+
   /**
    * Возвращает приглашение — InviteResponse.
    */
@@ -58,18 +64,6 @@ export abstract class BaseQuestionnaireAr<
   }
 
   /**
-   * Отказывается от приглашения: invited → abandoned.
-   */
-  decline(): void {
-    if (this.state.status !== 'invited') {
-      this.throwBadRequest(
-        'Анкета не в статусе invited, невозможно отказаться',
-      );
-    }
-    this.safeUpdate({ status: 'abandoned' });
-  }
-
-  /**
    * Запускает анкету: invited → in_progress, выдаёт первый вопрос.
    */
   start(): QuestionnaireActionResponse {
@@ -82,6 +76,33 @@ export abstract class BaseQuestionnaireAr<
     this.safeUpdate({ status: 'in_progress' });
 
     return this.#findAndSetNextQuestion([]);
+  }
+
+  /**
+   * Отменяет заполнение анкеты: in_progress → abandoned.
+   */
+  abandon(): void {
+    if (this.state.status === 'abandoned') {
+      return;
+    }
+    if (this.state.status === 'completed') {
+      this.throwBadRequest('Анкета не активна');
+    }
+    this.safeUpdate({ status: 'abandoned' });
+    this.addEvent(this.buildAbandonedEvent());
+  }
+
+  /**
+   * Отказывается от приглашения: invited → abandoned.
+   */
+  decline(): void {
+    if (this.state.status !== 'invited') {
+      this.throwBadRequest(
+        'Анкета не в статусе invited, невозможно отказаться',
+      );
+    }
+    this.safeUpdate({ status: 'abandoned' });
+    this.addEvent(this.buildDeclinedEvent());
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -169,6 +190,60 @@ export abstract class BaseQuestionnaireAr<
     this.throwInternal(
       `Неизвестный тип вопроса: ${(question as { type: string }).type}`,
     );
+  }
+
+  // ═════════════════════════════════════════════════════════════
+  // Текущее состояние для UI
+  // ═════════════════════════════════════════════════════════════
+
+  /**
+   * Возвращает текущее состояние анкеты для UI.
+   * Для invited — InviteResponse, для in_progress — вопрос, для completed/abandoned — completed.
+   */
+  getQuestionnaireActionResponse(): QuestionnaireActionResponse {
+    if (this.state.status === 'invited') {
+      return this.getInvite();
+    }
+
+    if (
+      this.state.status === 'completed' ||
+      this.state.status === 'abandoned'
+    ) {
+      return { type: 'completed', questionnaireId: this.state.uuid };
+    }
+
+    // in_progress
+    const questionCode = this.state.currentQuestionCode;
+    if (!questionCode) {
+      this.throwInternal('Код текущего вопроса не установлен');
+    }
+    const question = this.#getQuestion(questionCode);
+
+    if (question.type === 'choice' && question.multiple) {
+      const draft = this.state.draftAnswers[questionCode] ?? '';
+      const selectedAnswers = draft ? draft.split(',').filter(Boolean) : [];
+      if (selectedAnswers.length > 0) {
+        return {
+          type: 'wait_next',
+          questionnaireId: this.state.uuid,
+          currentQuestion: question,
+          selectedAnswers,
+          nextButton: BaseQuestionnaireAr.getNextButtonText(questionCode),
+          cancelWarning: this.#cancelWarning(),
+        };
+      }
+    }
+
+    const draft = this.state.draftAnswers[questionCode] ?? '';
+    const selectedAnswers = draft ? draft.split(',').filter(Boolean) : [];
+
+    return {
+      type: 'new_question',
+      questionnaireId: this.state.uuid,
+      question,
+      selectedAnswers,
+      cancelWarning: this.#cancelWarning(),
+    };
   }
 
   // ═════════════════════════════════════════════════════════════
@@ -338,71 +413,7 @@ export abstract class BaseQuestionnaireAr<
   }
 
   // ═════════════════════════════════════════════════════════════
-  // Текущее состояние для UI
-  // ═════════════════════════════════════════════════════════════
-
-  /**
-   * Возвращает текущее состояние анкеты для UI.
-   * Для invited — InviteResponse, для in_progress — вопрос, для completed/abandoned — completed.
-   */
-  getQuestionnaireActionResponse(): QuestionnaireActionResponse {
-    if (this.state.status === 'invited') {
-      return this.getInvite();
-    }
-
-    if (
-      this.state.status === 'completed' ||
-      this.state.status === 'abandoned'
-    ) {
-      return { type: 'completed', questionnaireId: this.state.uuid };
-    }
-
-    // in_progress
-    const questionCode = this.state.currentQuestionCode;
-    if (!questionCode) {
-      this.throwInternal('Код текущего вопроса не установлен');
-    }
-    const question = this.#getQuestion(questionCode);
-
-    if (question.type === 'choice' && question.multiple) {
-      const draft = this.state.draftAnswers[questionCode] ?? '';
-      const selectedAnswers = draft ? draft.split(',').filter(Boolean) : [];
-      if (selectedAnswers.length > 0) {
-        return {
-          type: 'wait_next',
-          questionnaireId: this.state.uuid,
-          currentQuestion: question,
-          selectedAnswers,
-          nextButton: BaseQuestionnaireAr.getNextButtonText(questionCode),
-          cancelWarning: this.#cancelWarning(),
-        };
-      }
-    }
-
-    const draft = this.state.draftAnswers[questionCode] ?? '';
-    const selectedAnswers = draft ? draft.split(',').filter(Boolean) : [];
-
-    return {
-      type: 'new_question',
-      questionnaireId: this.state.uuid,
-      question,
-      selectedAnswers,
-      cancelWarning: this.#cancelWarning(),
-    };
-  }
-
-  abandon(): void {
-    if (this.state.status === 'abandoned') {
-      return;
-    }
-    if (this.state.status === 'completed') {
-      this.throwBadRequest('Анкета не активна');
-    }
-    this.safeUpdate({ status: 'abandoned' });
-  }
-
-  // ═════════════════════════════════════════════════════════════
-  // Защитные методы
+  // Утилиты
   // ═════════════════════════════════════════════════════════════
 
   /**

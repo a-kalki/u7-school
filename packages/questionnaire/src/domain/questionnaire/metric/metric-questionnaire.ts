@@ -43,6 +43,7 @@ export type MetricAssessment = v.InferOutput<typeof MetricAssessmentSchema>;
 /** Состояние метрик-анкеты: упрощённый пул (MetricQuestion[]) + оценочный контекст */
 export const MetricQuestionnaireSchema = v.object({
   ...QuestionnaireSchema.entries,
+  kind: v.literal('metric'),
   questionPool: MetricQuestionPoolSchema,
   assessment: MetricAssessmentSchema,
 });

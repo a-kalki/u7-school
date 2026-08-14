@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
+import type { MetricQuestionnaireCompleted } from '../events';
+import { QuestionnaireFactory } from '../questionnaire-factory';
 import type { MetricQuestionPool } from './metric-question';
 import type { MetricAssessment } from './metric-questionnaire';
-import { MetricQuestionnaireAr } from './metric-questionnaire-ar';
+import type { MetricQuestionnaireAr } from './metric-questionnaire-ar';
 
 const RESPONDENT_ID = '00000000-0000-0000-0000-000000000007';
 const SUBJECT_ID = '00000000-0000-0000-0000-000000000008';
@@ -22,6 +24,17 @@ function assessment(): MetricAssessment {
       aggregateId: '00000000-0000-0000-0000-000000000009',
     },
   };
+}
+
+/** Достаёт событие завершения из событий агрегата (сужает union по eventName). */
+function completedEvent(
+  ar: MetricQuestionnaireAr,
+): MetricQuestionnaireCompleted {
+  const event = ar.flushEvents()[0];
+  if (!event || event.eventName !== 'questionnaire.completed') {
+    throw new Error('Ожидалось событие questionnaire.completed');
+  }
+  return event;
 }
 
 describe('MetricQuestionnaireAr', () => {
@@ -47,7 +60,7 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(
+    const ar = QuestionnaireFactory.createMetric(
       RESPONDENT_ID,
       pool,
       assessment(),
@@ -59,10 +72,8 @@ describe('MetricQuestionnaireAr', () => {
     expect(response.type).toBe('completed');
 
     expect(ar.hasEvents()).toBe(true);
-    const events = ar.flushEvents();
-    expect(events.length).toBe(1);
-
-    const payload = events[0]!.payload;
+    const event = completedEvent(ar);
+    const payload = event.payload;
     expect(payload.metricScores).toEqual([
       {
         category: 'professional_skills',
@@ -100,7 +111,7 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(RESPONDENT_ID, pool, {
+    const ar = QuestionnaireFactory.createMetric(RESPONDENT_ID, pool, {
       context: 'pair_programming',
       role: 'student_student',
       subjectId: SUBJECT_ID,
@@ -108,7 +119,7 @@ describe('MetricQuestionnaireAr', () => {
     ar.start();
     ar.handleAction({ type: 'callback', value: '3' });
 
-    const payload = ar.flushEvents()[0]!.payload;
+    const payload = completedEvent(ar).payload;
     expect(payload.triggerEvent).toBeUndefined();
     expect(payload.context).toBe('pair_programming');
     expect(payload.role).toBe('student_student');
@@ -137,7 +148,7 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(
+    const ar = QuestionnaireFactory.createMetric(
       RESPONDENT_ID,
       pool,
       assessment(),
@@ -147,8 +158,7 @@ describe('MetricQuestionnaireAr', () => {
     ar.handleAction({ type: 'callback', value: '5' });
     ar.handleAction({ type: 'callback', value: '1' });
 
-    const events = ar.flushEvents();
-    const scores = events[0]!.payload.metricScores;
+    const scores = completedEvent(ar).payload.metricScores;
     // (5 * 0.75 + 1 * 1.25) / (0.75 + 1.25) = 5 / 2 = 2.5
     expect(scores).toEqual([
       { category: 'team_skills', subcategory: 'communication', score: 2.5 },
@@ -177,7 +187,7 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(
+    const ar = QuestionnaireFactory.createMetric(
       RESPONDENT_ID,
       pool,
       assessment(),
@@ -188,8 +198,7 @@ describe('MetricQuestionnaireAr', () => {
     const response = ar.handleAction({ type: 'callback', value: '2' });
     expect(response.type).toBe('completed');
 
-    const events = ar.flushEvents();
-    const scores = events[0]!.payload.metricScores;
+    const scores = completedEvent(ar).payload.metricScores;
     // (4 + 2) / 2 = 3
     expect(scores).toEqual([
       { category: 'team_skills', subcategory: 'communication', score: 3 },
@@ -218,7 +227,7 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = MetricQuestionnaireAr.createFromMetricPool(
+    const ar = QuestionnaireFactory.createMetric(
       RESPONDENT_ID,
       pool,
       assessment(),

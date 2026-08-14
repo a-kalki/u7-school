@@ -3,7 +3,7 @@ import {
   type StartByInviteCmd,
   StartByInviteCmdSchema,
 } from '#domain/questionnaire/commands/start-by-invite-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
+import { QuestionnaireFactory } from '../../domain/questionnaire/questionnaire-factory';
 import type { QuestionnaireActionResponse } from '../../domain/questionnaire/types';
 import { QuestionnaireActionResponseSchema } from '../../domain/questionnaire/types';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
@@ -29,7 +29,7 @@ export class StartByInviteUc extends QuestionnaireUseCase<StartByInviteCmdMeta> 
       command.questionnaireId,
       actor,
     );
-    const ar = new QuestionnaireAr(state);
+    const ar = QuestionnaireFactory.restore(state);
     const response = ar.start();
     await this.repo.save(ar.state);
     return response;

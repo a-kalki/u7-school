@@ -3,8 +3,8 @@ import {
   type GetQuestionnaireCmd,
   GetQuestionnaireCmdSchema,
 } from '#domain/questionnaire/commands/get-questionnaire-cmd';
-import type { Questionnaire } from '../../domain/questionnaire/entity';
-import { QuestionnaireSchema } from '../../domain/questionnaire/entity';
+import type { QuestionnaireState } from '../../domain/questionnaire/repo';
+import { QuestionnaireStateSchema } from '../../domain/questionnaire/repo';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireCmdMeta> {
@@ -17,12 +17,12 @@ export class GetQuestionnaireUc extends QuestionnaireUseCase<GetQuestionnaireCmd
   protected readonly type = 'query' as const;
   protected readonly requiresAuth = true as const;
   protected readonly inputSchema = GetQuestionnaireCmdSchema;
-  protected readonly outputSchema = QuestionnaireSchema;
+  protected readonly outputSchema = QuestionnaireStateSchema;
 
   async execute(
     command: GetQuestionnaireCmd,
     actorId: string,
-  ): Promise<Questionnaire> {
+  ): Promise<QuestionnaireState> {
     const actor = await this.getUser(actorId);
     return this.getQuestionnaireForRead(command.uuid, actor);
   }

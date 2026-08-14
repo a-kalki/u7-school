@@ -4,7 +4,7 @@ import {
   type DeclineInviteCmd,
   DeclineInviteCmdSchema,
 } from '#domain/questionnaire/commands/decline-invite-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
+import { QuestionnaireFactory } from '../../domain/questionnaire/questionnaire-factory';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> {
@@ -28,9 +28,10 @@ export class DeclineInviteUc extends QuestionnaireUseCase<DeclineInviteCmdMeta> 
       command.questionnaireId,
       actor,
     );
-    const ar = new QuestionnaireAr(state);
+    const ar = QuestionnaireFactory.restore(state);
     ar.decline();
     await this.repo.save(ar.state);
+    this.publishEvents(ar);
     return undefined;
   }
 }

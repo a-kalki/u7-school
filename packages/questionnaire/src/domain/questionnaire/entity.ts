@@ -32,6 +32,7 @@ export type QuestionnaireStatus = v.InferOutput<
 
 /** Схема состояния обычной анкеты */
 export const QuestionnaireSchema = v.object({
+  kind: v.literal('standard'),
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   respondentId: v.pipe(
     v.string(),
@@ -63,6 +64,7 @@ export type Questionnaire = v.InferOutput<typeof QuestionnaireSchema>;
  * и наследников (например, MetricQuestionnaireAr с упрощённым пулом).
  */
 export type BaseQuestionnaireState = {
+  kind: 'standard' | 'metric';
   uuid: string;
   respondentId: string;
   status: QuestionnaireStatus;

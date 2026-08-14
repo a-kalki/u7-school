@@ -1,5 +1,6 @@
 import * as v from 'valibot';
-import type { BaseQuestionnaireArMeta, Questionnaire } from '../entity';
+import type { BaseQuestionnaireArMeta } from '../entity';
+import type { QuestionnaireState } from '../repo';
 import type {
   AccessDeniedUcError,
   InternalUcError,
@@ -18,7 +19,7 @@ export interface GetQuestionnaireCmdMeta {
   ucName: 'get-questionnaire';
   arMeta: BaseQuestionnaireArMeta;
   input: GetQuestionnaireCmd;
-  output: Questionnaire;
+  output: QuestionnaireState;
   errors: GetQuestionnaireCmdError;
   requiresAuth: true;
   type: 'query';

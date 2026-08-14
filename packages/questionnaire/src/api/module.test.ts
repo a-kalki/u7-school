@@ -3,6 +3,10 @@ import { InProcEventBus } from '@u7-scl/core/infra';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { QuestionnaireApiModule } from '#api/module';
 import type { QuestionnaireBotFacade } from '#domain/bot-facade';
+import type { MetricQuestionPool } from '#domain/questionnaire/metric/metric-question';
+import type { MetricAssessment } from '#domain/questionnaire/metric/metric-questionnaire';
+import type { QuestionnairePool } from '#domain/questionnaire/question';
+import { QuestionnaireFactory } from '#domain/questionnaire/questionnaire-factory';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
 
 // Мок-репозиторий
@@ -54,7 +58,7 @@ function mockUser(overrides: Partial<User> = {}): User {
   } as User;
 }
 
-function simplePool() {
+function simplePool(): QuestionnairePool {
   return {
     inviteText: 'Приглашение',
     whyText: 'Зачем',
@@ -77,6 +81,16 @@ function simplePool() {
   };
 }
 
+/** Кладёт обычную анкету в статусе invited прямо в репозиторий. */
+async function seedStandardInvite(
+  repo: QuestionnaireRepo,
+  respondentId: string,
+): Promise<string> {
+  const ar = QuestionnaireFactory.createStandard(respondentId, simplePool());
+  await repo.save(ar.state);
+  return ar.state.uuid;
+}
+
 const USER_ID = '00000000-0000-0000-0000-000000000001';
 
 function makeResolve(overrides: any = {}) {
@@ -96,33 +110,6 @@ function makeResolve(overrides: any = {}) {
 }
 
 describe('QuestionnaireApiModule (v3 — commands)', () => {
-  test('send-invite — создаёт анкету и вызывает botFacade', async () => {
-    let inviteCalled = false;
-    const user = mockUser();
-    const botFacade: QuestionnaireBotFacade = {
-      sendQuestionnaireInvite: async () => {
-        inviteCalled = true;
-      },
-      startQuestionnaire: async () => {},
-    };
-    const userFacade = mockUserFacade(user);
-    const mod = new QuestionnaireApiModule(
-      makeResolve({ botFacade, userFacade }),
-    );
-
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-
-    expect(inviteCalled).toBe(true);
-
-    const all = await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    );
-    expect(Array.isArray(all)).toBe(true);
-    expect(all.length).toBe(1);
-  });
-
   test('start — создаёт, запускает анкету и вызывает botFacade', async () => {
     let startCalled = false;
     const user = mockUser();
@@ -159,13 +146,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, botFacade, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-    const all = (await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    )) as any[];
-    const qId = all[0]!.uuid;
+    const qId = await seedStandardInvite(repo, USER_ID);
 
     botCalled = false;
 
@@ -187,13 +168,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-    const all = (await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    )) as any[];
-    const qId = all[0]!.uuid;
+    const qId = await seedStandardInvite(repo, USER_ID);
 
     await mod.execute('decline-invite', { questionnaireId: qId }, USER_ID);
 
@@ -213,13 +188,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-    const all = (await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    )) as any[];
-    const qId = all[0]!.uuid;
+    const qId = await seedStandardInvite(repo, USER_ID);
 
     await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
 
@@ -240,13 +209,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-    const all = (await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    )) as any[];
-    const qId = all[0]!.uuid;
+    const qId = await seedStandardInvite(repo, USER_ID);
 
     await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
     await mod.execute('abandon', { questionnaireId: qId }, USER_ID);
@@ -267,13 +230,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-    const all = (await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    )) as any[];
-    const qId = all[0]!.uuid;
+    const qId = await seedStandardInvite(repo, USER_ID);
 
     // До запуска — invited
     const resp1 = (await mod.execute(
@@ -301,17 +258,11 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
-    await mod.execute('send-invite', { pool: simplePool() }, USER_ID);
-    const all = (await mod.execute(
-      'get-questionnaires-by-user',
-      { userId: USER_ID },
-      USER_ID,
-    )) as any[];
-    expect(all.length).toBe(1);
+    const qId = await seedStandardInvite(repo, USER_ID);
 
     const found = await mod.execute(
       'get-questionnaire',
-      { uuid: all[0]!.uuid },
+      { uuid: qId },
       USER_ID,
     );
     expect(found).toBeDefined();
@@ -329,5 +280,132 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
         USER_ID,
       ),
     ).rejects.toThrow('Нет доступа к списку анкет пользователя');
+  });
+
+  test('send-metric-invite + handle-action — публикует событие с metricScores', async () => {
+    const user = mockUser();
+    const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
+    const eventBus = new InProcEventBus();
+    const received: any[] = [];
+    eventBus.subscribe('questionnaire.completed', async (e) => {
+      received.push(e);
+    });
+    const mod = new QuestionnaireApiModule(
+      makeResolve({ questionnaireRepo: repo, userFacade, eventBus }),
+    );
+
+    const metricPool: MetricQuestionPool = {
+      questions: [
+        {
+          questionCode: 'm1',
+          question: 'Пишет код чисто',
+          metricMapping: {
+            category: 'professional_skills',
+            subcategory: 'work_quality',
+            weight: 1,
+          },
+        },
+        {
+          questionCode: 'm2',
+          question: 'Думает алгоритмами',
+          metricMapping: {
+            category: 'professional_skills',
+            subcategory: 'algorithmic_thinking',
+            weight: 1,
+          },
+        },
+      ],
+    };
+    const assessment: MetricAssessment = {
+      context: 'module_completed',
+      role: 'student_student',
+      subjectId: '00000000-0000-0000-0000-000000000008',
+    };
+
+    await mod.execute(
+      'send-metric-invite',
+      { pool: metricPool, assessment },
+      USER_ID,
+    );
+
+    const all = (await mod.execute(
+      'get-questionnaires-by-user',
+      { userId: USER_ID },
+      USER_ID,
+    )) as any[];
+    expect(all.length).toBe(1);
+    expect(all[0]!.kind).toBe('metric');
+
+    const qId = all[0]!.uuid;
+    await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
+    await mod.execute(
+      'handle-action',
+      { questionnaireId: qId, type: 'callback', value: '4' },
+      USER_ID,
+    );
+    await mod.execute(
+      'handle-action',
+      { questionnaireId: qId, type: 'callback', value: '2' },
+      USER_ID,
+    );
+
+    expect(received.length).toBe(1);
+    const event = received[0]!;
+    expect(event.eventName).toBe('questionnaire.completed');
+    expect(event.payload.metricScores).toEqual([
+      {
+        category: 'professional_skills',
+        subcategory: 'work_quality',
+        score: 4,
+      },
+      {
+        category: 'professional_skills',
+        subcategory: 'algorithmic_thinking',
+        score: 2,
+      },
+    ]);
+    expect(event.payload.context).toBe('module_completed');
+    expect(event.payload.role).toBe('student_student');
+    expect(event.payload.subjectId).toBe(
+      '00000000-0000-0000-0000-000000000008',
+    );
+  });
+
+  test('decline-invite и abandon публикуют события', async () => {
+    const user = mockUser();
+    const repo = mockRepo();
+    const userFacade = mockUserFacade(user);
+    const eventBus = new InProcEventBus();
+    const received: any[] = [];
+    eventBus.subscribe('questionnaire.declined', async (e) => {
+      received.push(e);
+    });
+    eventBus.subscribe('questionnaire.abandoned', async (e) => {
+      received.push(e);
+    });
+    const mod = new QuestionnaireApiModule(
+      makeResolve({ questionnaireRepo: repo, userFacade, eventBus }),
+    );
+
+    const declinedId = await seedStandardInvite(repo, USER_ID);
+    await mod.execute(
+      'decline-invite',
+      { questionnaireId: declinedId },
+      USER_ID,
+    );
+
+    const abandonedId = await seedStandardInvite(repo, USER_ID);
+    await mod.execute(
+      'start-by-invite',
+      { questionnaireId: abandonedId },
+      USER_ID,
+    );
+    await mod.execute('abandon', { questionnaireId: abandonedId }, USER_ID);
+
+    expect(received.map((e) => e.eventName)).toEqual([
+      'questionnaire.declined',
+      'questionnaire.abandoned',
+    ]);
   });
 });

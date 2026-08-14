@@ -3,10 +3,12 @@ import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import type { QuestionnaireBotFacade } from '../domain/bot-facade';
 import type { QuestionnaireApiModuleResolver } from '../domain/module';
-import type { Questionnaire } from '../domain/questionnaire/entity';
 import type { QuestionnaireNotFoundUcError } from '../domain/questionnaire/errors';
 import { QuestionnairePolicy } from '../domain/questionnaire/policy';
-import type { QuestionnaireRepo } from '../domain/questionnaire/repo';
+import type {
+  QuestionnaireRepo,
+  QuestionnaireState,
+} from '../domain/questionnaire/repo';
 
 /**
  * Абстрактный UseCase для модуля questionnaire.
@@ -42,7 +44,7 @@ export abstract class QuestionnaireUseCase<
   }
 
   /** Получает анкету по UUID (без проверки прав) */
-  protected async getQuestionnaire(uuid: string): Promise<Questionnaire> {
+  protected async getQuestionnaire(uuid: string): Promise<QuestionnaireState> {
     const q = await this.repo.getByUuid(uuid);
     if (!q) {
       this.throwError(
@@ -62,7 +64,7 @@ export abstract class QuestionnaireUseCase<
   protected async getQuestionnaireForRead(
     uuid: string,
     actor: User,
-  ): Promise<Questionnaire> {
+  ): Promise<QuestionnaireState> {
     const q = await this.getQuestionnaire(uuid);
     if (!QuestionnairePolicy.canRead(actor, q)) {
       this.throwError(
@@ -78,7 +80,7 @@ export abstract class QuestionnaireUseCase<
   protected async getQuestionnaireForEdit(
     uuid: string,
     actor: User,
-  ): Promise<Questionnaire> {
+  ): Promise<QuestionnaireState> {
     const q = await this.getQuestionnaire(uuid);
     if (!QuestionnairePolicy.canEdit(actor, q)) {
       this.throwError(

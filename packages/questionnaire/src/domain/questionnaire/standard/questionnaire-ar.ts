@@ -1,46 +1,34 @@
 import { isoNow } from '@u7-scl/core/shared';
-import * as v from 'valibot';
 import { BaseQuestionnaireAr } from '../a-root';
 import type { BaseQuestionnaireArMeta } from '../entity';
 import { type Questionnaire, QuestionnaireSchema } from '../entity';
-import type { QuestionnaireCompleted } from '../events';
-import type { QuestionnairePool } from '../question';
-import { QuestionnairePoolSchema } from '../question';
+import type {
+  QuestionnaireAbandoned,
+  QuestionnaireCompleted,
+  QuestionnaireDeclined,
+} from '../events';
 
 /** Метатип обычной анкеты */
 export interface StandardQuestionnaireArMeta extends BaseQuestionnaireArMeta {
   state: Questionnaire;
-  events: QuestionnaireCompleted;
+  events:
+    | QuestionnaireCompleted
+    | QuestionnaireDeclined
+    | QuestionnaireAbandoned;
 }
 
-/** Обычная анкета: публикует событие QuestionnaireCompleted. */
+/** Обычная анкета: публикует события завершения/отказа/прерывания. */
 export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireArMeta> {
   constructor(state: Questionnaire) {
     super(state, QuestionnaireSchema);
   }
 
-  /**
-   * Создаёт анкету в статусе invited с переданным пулом.
-   */
-  static create(
-    respondentId: string,
-    pool: QuestionnairePool,
-  ): QuestionnaireAr {
-    // Валидируем пул
-    v.parse(QuestionnairePoolSchema, pool);
-
-    const state: Questionnaire = {
-      uuid: crypto.randomUUID(),
-      respondentId,
-      status: 'invited',
-      currentQuestionCode: null,
-      draftAnswers: {},
-      answers: [],
-      questionPool: pool,
-      createdAt: isoNow(),
-      completedAt: null,
+  /** Общие поля payload событий обычной анкеты. */
+  private basePayload() {
+    return {
+      questionnaireId: this.state.uuid,
+      respondentId: this.state.respondentId,
     };
-    return new QuestionnaireAr(state);
   }
 
   protected buildCompletedEvent(): QuestionnaireCompleted {
@@ -50,10 +38,29 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
       occurredAt: isoNow(),
       aggregateName: 'Questionnaire',
       aggregateId: this.state.uuid,
-      payload: {
-        questionnaireId: this.state.uuid,
-        respondentId: this.state.respondentId,
-      },
+      payload: this.basePayload(),
+    };
+  }
+
+  protected buildDeclinedEvent(): QuestionnaireDeclined {
+    return {
+      eventId: crypto.randomUUID(),
+      eventName: 'questionnaire.declined',
+      occurredAt: isoNow(),
+      aggregateName: 'Questionnaire',
+      aggregateId: this.state.uuid,
+      payload: this.basePayload(),
+    };
+  }
+
+  protected buildAbandonedEvent(): QuestionnaireAbandoned {
+    return {
+      eventId: crypto.randomUUID(),
+      eventName: 'questionnaire.abandoned',
+      occurredAt: isoNow(),
+      aggregateName: 'Questionnaire',
+      aggregateId: this.state.uuid,
+      payload: this.basePayload(),
     };
   }
 }

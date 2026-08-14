@@ -1,5 +1,5 @@
 import { type User, UserPolicy } from '@u7-scl/user/domain';
-import type { Questionnaire } from './entity';
+import type { QuestionnaireState } from './repo';
 
 /**
  * Политика доступа к анкетам.
@@ -11,13 +11,13 @@ export const QuestionnairePolicy = {
   },
 
   /** Может ли пользователь читать анкету */
-  canRead(actor: User, questionnaire: Questionnaire): boolean {
+  canRead(actor: User, questionnaire: QuestionnaireState): boolean {
     if (UserPolicy.isAdmin(actor)) return true;
     return actor.uuid === questionnaire.respondentId;
   },
 
   /** Может ли пользователь изменять анкету (отвечать, прерывать) */
-  canEdit(actor: User, questionnaire: Questionnaire): boolean {
+  canEdit(actor: User, questionnaire: QuestionnaireState): boolean {
     if (UserPolicy.isAdmin(actor)) return true;
     return actor.uuid === questionnaire.respondentId;
   },

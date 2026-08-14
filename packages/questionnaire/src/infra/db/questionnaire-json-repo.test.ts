@@ -18,6 +18,7 @@ describe('QuestionnaireJsonRepo', () => {
   });
 
   const makeQ = (overrides: Partial<Questionnaire> = {}): Questionnaire => ({
+    kind: 'standard',
     uuid: crypto.randomUUID(),
     respondentId: '00000000-0000-0000-0000-000000000001',
     status: 'in_progress',

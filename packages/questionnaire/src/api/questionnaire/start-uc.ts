@@ -4,7 +4,7 @@ import {
   type StartCmd,
   StartCmdSchema,
 } from '#domain/questionnaire/commands/start-cmd';
-import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
+import { QuestionnaireFactory } from '../../domain/questionnaire/questionnaire-factory';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
 export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
@@ -21,7 +21,7 @@ export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
 
   async execute(command: StartCmd, actorId: string): Promise<undefined> {
     const user = await this.getUser(actorId);
-    const ar = QuestionnaireAr.create(user.uuid, command.pool);
+    const ar = QuestionnaireFactory.createStandard(user.uuid, command.pool);
     const response = ar.start();
     await this.repo.save(ar.state);
     await this.botFacade.startQuestionnaire(user, response);

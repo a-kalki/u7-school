@@ -9,7 +9,7 @@ import { GetCurrentUc } from './questionnaire/get-current-uc';
 import { GetQuestionnaireUc } from './questionnaire/get-questionnaire-uc';
 import { GetQuestionnairesByUserUc } from './questionnaire/get-questionnaires-by-user-uc';
 import { HandleActionUc } from './questionnaire/handle-action-uc';
-import { SendInviteUc } from './questionnaire/send-invite-uc';
+import { SendMetricInviteUc } from './questionnaire/send-metric-invite-uc';
 import { StartByInviteUc } from './questionnaire/start-by-invite-uc';
 import { StartUc } from './questionnaire/start-uc';
 
@@ -19,7 +19,7 @@ export class QuestionnaireApiModule extends ApiModule<
 > {
   readonly name = 'questionnaire' as const;
   readonly useCases = [
-    new SendInviteUc(),
+    new SendMetricInviteUc(),
     new StartUc(),
     new StartByInviteUc(),
     new DeclineInviteUc(),

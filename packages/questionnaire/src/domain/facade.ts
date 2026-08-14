@@ -1,4 +1,6 @@
 import type { QuestionnaireApiModule } from '../api/module';
+import type { MetricQuestionPool } from './questionnaire/metric/metric-question';
+import type { MetricAssessment } from './questionnaire/metric/metric-questionnaire';
 import type { QuestionnairePool } from './questionnaire/question';
 
 /**
@@ -7,13 +9,21 @@ import type { QuestionnairePool } from './questionnaire/question';
 export class QuestionnaireInProcFacade {
   constructor(private readonly module: QuestionnaireApiModule) {}
 
-  /** Отправить приглашение на анкету (invited). */
-  async sendInvite(actorId: string, pool: QuestionnairePool): Promise<void> {
-    await this.module.execute('send-invite', { pool }, actorId);
-  }
-
   /** Создать и сразу запустить анкету. */
   async start(actorId: string, pool: QuestionnairePool): Promise<void> {
     await this.module.execute('start', { pool }, actorId);
+  }
+
+  /** Отправить приглашение на метрик-анкету (invited). */
+  async sendMetricInvite(
+    actorId: string,
+    pool: MetricQuestionPool,
+    assessment: MetricAssessment,
+  ): Promise<void> {
+    await this.module.execute(
+      'send-metric-invite',
+      { pool, assessment },
+      actorId,
+    );
   }
 }
