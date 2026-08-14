@@ -1,16 +1,42 @@
-import {
-  type MetricQuestionPool,
-  MetricQuestionPoolSchema,
-} from '@u7-scl/questionnaire/domain';
 import * as v from 'valibot';
+import { SkillMappingSchema } from './peer-review';
+
+/** Вопрос оценки — компактный тип с полным маппингом на навык. */
+export const PeerReviewQuestionSchema = v.object({
+  questionCode: v.pipe(
+    v.string(),
+    v.nonEmpty('Код вопроса не может быть пустым'),
+  ),
+  question: v.pipe(
+    v.string(),
+    v.nonEmpty('Текст вопроса не может быть пустым'),
+  ),
+  skillMapping: SkillMappingSchema,
+});
+export type PeerReviewQuestion = v.InferOutput<typeof PeerReviewQuestionSchema>;
+
+/** Пул вопросов оценки. */
+export const PeerReviewQuestionPoolSchema = v.object({
+  inviteText: v.optional(v.string()),
+  whyText: v.optional(v.string()),
+  completionText: v.optional(v.string()),
+  cancelWarning: v.optional(v.string()),
+  questions: v.pipe(
+    v.array(PeerReviewQuestionSchema),
+    v.minLength(1, 'Пул должен содержать хотя бы один вопрос'),
+  ),
+});
+export type PeerReviewQuestionPool = v.InferOutput<
+  typeof PeerReviewQuestionPoolSchema
+>;
 
 /**
- * Валидирует пул метрик-вопросов на этапе загрузки модуля.
+ * Валидирует пул вопросов на этапе загрузки модуля.
  * Гарантирует: категория↔подкатегория корректны, вес ∈ {0.75, 1, 1.25},
- * хотя бы один вопрос, уникальность структуры данных.
+ * хотя бы один вопрос.
  */
-function definePool(pool: MetricQuestionPool): MetricQuestionPool {
-  return v.parse(MetricQuestionPoolSchema, pool);
+function definePool(pool: PeerReviewQuestionPool): PeerReviewQuestionPool {
+  return v.parse(PeerReviewQuestionPoolSchema, pool);
 }
 
 /**
@@ -18,7 +44,7 @@ function definePool(pool: MetricQuestionPool): MetricQuestionPool {
  * Все 10 подкатегорий (29 утверждений), роли: все.
  * Источник: metrics-conception.md §10.1.
  */
-export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
+export const MODULE_COMPLETED_POOL: PeerReviewQuestionPool = definePool({
   inviteText:
     'Вы завершили модуль. Пришло время ставить оценки. В нашей школе оценки ставят не только учителя, но и сами студенты.\n\nИ в нашей школе оценки это не про то что студент плохой или хороший. Мы это делаем чтобы сам студент мог посмотреть на себя со стороны, как его воспринимают другие. И в то же время, чтобы в будущем он всегда мог поделиться своим профилем в школе. Как его и его работу оценивали другие. Это будет намного лучше говорить о нем, чем любой диплом, даже самый красный.',
   whyText: 'Оценка влияет на профиль компетенций студента',
@@ -29,7 +55,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_work_quality_1',
       question: 'Пишет код чисто, читаемо и структурированно',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -38,7 +64,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_work_quality_2',
       question: 'Код соответствует принятым стандартам и соглашениям',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -47,7 +73,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_work_quality_3',
       question: 'Решение продумано, а не собрано на скорую руку',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -57,7 +83,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_algorithmic_thinking_1',
       question: 'Умеет декомпозировать задачу на подзадачи',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -66,7 +92,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_algorithmic_thinking_2',
       question: 'Выбирает подходящие алгоритмы и структуры данных',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -75,7 +101,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_algorithmic_thinking_3',
       question: 'Может объяснить почему выбрал именно это решение',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -85,7 +111,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_tooling_1',
       question: 'Грамотно использует git (commit, branch, PR)',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'tooling',
         weight: 1,
@@ -94,7 +120,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_tooling_2',
       question: 'Эффективно использует IDE и инструменты отладки',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'tooling',
         weight: 1,
@@ -104,7 +130,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_communication_1',
       question: 'Ясно и аргументированно излагает мысли',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -113,7 +139,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_communication_2',
       question: 'Слушает других и учитывает обратную связь',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -122,7 +148,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_communication_3',
       question: 'Умеет донести сложную мысль простыми словами',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -132,7 +158,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_initiative_1',
       question: 'Задаёт вопросы по существу, не молчит при затруднениях',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'initiative',
         weight: 1,
@@ -141,7 +167,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_initiative_2',
       question: 'Предлагает улучшения и альтернативные решения',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'initiative',
         weight: 1,
@@ -150,7 +176,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_initiative_3',
       question: 'Выходит за рамки задания, изучает смежные темы',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'initiative',
         weight: 1,
@@ -161,7 +187,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
       questionCode: 'mc_honesty_1',
       question:
         'Даёт честную обратную связь, даже если это вызывает дискомфорт',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'honesty',
         weight: 1,
@@ -170,7 +196,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_honesty_2',
       question: 'Не завышает оценки себе и другим',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'honesty',
         weight: 1,
@@ -179,7 +205,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_honesty_3',
       question: 'Признаёт свои ошибки и пробелы в знаниях',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'honesty',
         weight: 1,
@@ -189,7 +215,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_mutual_help_1',
       question: 'Помогает сокурсникам, когда они сталкиваются с трудностями',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'mutual_help',
         weight: 1,
@@ -198,7 +224,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_mutual_help_2',
       question: 'Не боится просить о помощи, когда нужно',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'mutual_help',
         weight: 1,
@@ -207,7 +233,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_mutual_help_3',
       question: 'Делится знаниями и находками с группой',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'mutual_help',
         weight: 1,
@@ -217,7 +243,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_enthusiasm_1',
       question: 'Любопытен к новому, задаёт вопросы о том как устроено глубже',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'enthusiasm',
         weight: 1,
@@ -226,7 +252,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_enthusiasm_2',
       question: 'Увлечён процессом, а не просто отбывает время',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'enthusiasm',
         weight: 1,
@@ -235,7 +261,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_enthusiasm_3',
       question: 'Изучает дополнительные материалы сверх программы',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'enthusiasm',
         weight: 1,
@@ -245,7 +271,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_responsibility_1',
       question: 'Берёт задачи самостоятельно, не дожидаясь указаний',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'responsibility',
         weight: 1,
@@ -254,7 +280,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_responsibility_2',
       question: 'Соблюдает договорённости и дедлайны',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'responsibility',
         weight: 1,
@@ -263,7 +289,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_responsibility_3',
       question: 'Предупреждает о проблемах заранее, а не постфактум',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'responsibility',
         weight: 1,
@@ -273,7 +299,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_regularity_1',
       question: 'Дисциплинирован, занимается регулярно',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'regularity',
         weight: 1,
@@ -282,7 +308,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_regularity_2',
       question: 'Держит стабильный темп, без длительных пауз',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'regularity',
         weight: 1,
@@ -291,7 +317,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'mc_regularity_3',
       question: 'Не пропускает занятия без предупреждения',
-      metricMapping: {
+      skillMapping: {
         category: 'personal_skills',
         subcategory: 'regularity',
         weight: 1,
@@ -305,7 +331,7 @@ export const MODULE_COMPLETED_POOL: MetricQuestionPool = definePool({
  * 6 подкатегорий (13 утверждений), роль: student_student.
  * Источник: metrics-conception.md §10.2.
  */
-export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
+export const PAIR_PROGRAMMING_POOL: PeerReviewQuestionPool = definePool({
   inviteText: 'Оцените напарника после парного программирования',
   whyText: 'Оценка влияет на профиль компетенций студента',
   completionText: 'Спасибо, ваша оценка учтена',
@@ -315,7 +341,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_work_quality_1',
       question: 'Пишет код осмысленно, а не наугад',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -324,7 +350,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_work_quality_2',
       question: 'Объясняет что и зачем пишет, а не молча набирает',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -333,7 +359,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_work_quality_3',
       question: 'Сразу пишет чисто, а не рассчитывает на «потом поправлю»',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -343,7 +369,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_algorithmic_thinking_1',
       question: 'Продумывает решение до написания кода',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -353,7 +379,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
       questionCode: 'pp_algorithmic_thinking_2',
       question:
         'Сравнивает альтернативные подходы, а не берёт первый попавшийся',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -364,7 +390,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
       questionCode: 'pp_tooling_1',
       question:
         'Эффективно использует инструменты (навигация, рефакторинг, отладка)',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'tooling',
         weight: 1,
@@ -373,7 +399,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_tooling_2',
       question: 'Уверенно работает с git в процессе сессии',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'tooling',
         weight: 1,
@@ -383,7 +409,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_communication_1',
       question: 'Понятно объясняет свои действия и решения',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -392,7 +418,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_communication_2',
       question: 'Обсуждает варианты, а не действует в одиночку',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -402,7 +428,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_honesty_1',
       question: 'Не полагается на ИИ для генерации целых решений',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'honesty',
         weight: 1,
@@ -411,7 +437,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_honesty_2',
       question: 'Честно признаёт, когда не знает или не понимает',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'honesty',
         weight: 1,
@@ -421,7 +447,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_mutual_help_1',
       question: 'Открыт к диалогу, воспринимает подсказки',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'mutual_help',
         weight: 1,
@@ -430,7 +456,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'pp_mutual_help_2',
       question: 'Помогает понять логику, а не просто диктует код',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'mutual_help',
         weight: 1,
@@ -444,7 +470,7 @@ export const PAIR_PROGRAMMING_POOL: MetricQuestionPool = definePool({
  * 4 подкатегории (9 утверждений), роли: все.
  * Источник: metrics-conception.md §10.3.
  */
-export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
+export const CODE_REVIEW_POOL: PeerReviewQuestionPool = definePool({
   inviteText: 'Оцените качество кода после ревью',
   whyText: 'Оценка влияет на профиль компетенций студента',
   completionText: 'Спасибо, ваша оценка учтена',
@@ -454,7 +480,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_work_quality_1',
       question: 'Код оформлен аккуратно, соответствует стандартам',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -463,7 +489,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_work_quality_2',
       question: 'В коде нет очевидных багов или плохих практик',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -472,7 +498,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_work_quality_3',
       question: 'Код легко читается и не требует дополнительных пояснений',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'work_quality',
         weight: 1,
@@ -483,7 +509,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
       questionCode: 'cr_algorithmic_thinking_1',
       question:
         'Выбранное решение адекватно задаче, нет избыточного усложнения',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -492,7 +518,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_algorithmic_thinking_2',
       question: 'Может объяснить компромиссы выбранного подхода',
-      metricMapping: {
+      skillMapping: {
         category: 'professional_skills',
         subcategory: 'algorithmic_thinking',
         weight: 1,
@@ -502,7 +528,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_communication_1',
       question: 'Аргументированно отвечает на замечания ревью',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -511,7 +537,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_communication_2',
       question: 'В коде и комментариях понятна мысль автора',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'communication',
         weight: 1,
@@ -521,7 +547,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_initiative_1',
       question: 'Предлагает улучшения сверх поставленной задачи',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'initiative',
         weight: 1,
@@ -530,7 +556,7 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
     {
       questionCode: 'cr_initiative_2',
       question: 'Находит и исправляет проблемы сам, не дожидаясь ревью',
-      metricMapping: {
+      skillMapping: {
         category: 'team_skills',
         subcategory: 'initiative',
         weight: 1,
@@ -543,9 +569,9 @@ export const CODE_REVIEW_POOL: MetricQuestionPool = definePool({
  * Пул по контексту запуска. Контекст `initiative` — свободная форма,
  * поэтому фиксированного пула не имеет.
  */
-export const METRIC_POOLS: Record<
+export const PEER_REVIEW_POOLS: Record<
   'module_completed' | 'pair_programming' | 'code_review',
-  MetricQuestionPool
+  PeerReviewQuestionPool
 > = {
   module_completed: MODULE_COMPLETED_POOL,
   pair_programming: PAIR_PROGRAMMING_POOL,
