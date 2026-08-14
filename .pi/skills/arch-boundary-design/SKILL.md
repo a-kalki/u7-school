@@ -16,6 +16,7 @@ description: ЗАГРУЖАТЬ ПЕРВЫМ при создании или ре
 | **Доменный сервис (Ds)** | `domain/<entity>-ds.ts` | `conductor/code_styleguides/skills/domain-service.md` |
 | **Фасад (Facade)** | `domain/facade.ts` | `conductor/code_styleguides/skills/facade.md` |
 | **UseCase (UC)** | `api/<entity>/<name>-uc.ts` | `conductor/code_styleguides/skills/usecase.md` |
+| **EventReaction (ER)** | `api/er/<name>-er.ts` | `conductor/code_styleguides/skills/event-reaction.md` |
 | **Story** | `ui/bot/stories/<name>.story.ts` | `conductor/code_styleguides/skills/bot-user-story.md` |
 
 Общие документы:

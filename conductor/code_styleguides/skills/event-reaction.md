@@ -1,0 +1,55 @@
+# Реакция на событие (EventReaction / ER) — Styleguide
+
+**Назначение:** файл `api/er/<name>-er.ts` — класс реакции на доменное событие. Наследуется от `EventReaction<ErMeta, Resolver>`. Модуль объявляет реакции в поле `reactions`, а `ApiModule.init()` автоматически подписывает их на события. По духу — аналог `UseCase`, но для событий: декларативный способ реагировать на доменные факты.
+
+---
+
+## 1. Ключевые правила
+
+1. Реакция — **side-effect** по факту события: запись в repo, вызов фасада, публикация другого события. Выхода нет.
+2. «Вход» — само событие (`TMeta['event']`); имя события захватывается типом через `TEvent['eventName']` и не хранится отдельно.
+3. Ошибки наружу **не бросаются** — шина изолирует ошибки обработчиков через `console.error`. При необходимости логируй внутри `handle`.
+4. Репозитории и фасады — через `this.resolve.<name>`; моки в тестах — `as unknown as <реальный тип>`, без `as any`.
+5. Имя файла: `<name>-er.ts`; имя класса: `<Name>Er`; имя меты: `<Name>ErMeta`.
+
+Живой пример базового класса: [`event-reaction.ts`](../../../packages/core/src/api/er/event-reaction.ts).
+
+---
+
+## 2. Поля EventReaction
+
+| Поле | Назначение | Пример |
+|---|---|---|
+| `erName` | Уникальное имя реакции (kebab-case) | `"record-wish"` |
+| `erLabel` | Человекочитаемая метка | `"Записать желание"` |
+| `eventName` | Имя события — связано с типом через `TMeta['event']['eventName']` | `"questionnaire.completed"` |
+
+В отличие от `UseCase` у ER **нет** `type`, `requiresAuth`, `inputSchema`, `outputSchema`, `errors`, `arMeta`.
+
+### ErMeta (контракт)
+
+```typescript
+export interface RecordWishErMeta extends ErMeta<QuestionnaireCompletedEvent> {
+  erName: 'record-wish';
+}
+```
+
+Ключевое: `eventName` выводится из `TEvent['eventName']`. Переименование события (`'questionnaire.completed'` → `'questionnaire.finished'`) ломает несоответствующие реакции на уровне типов — tsc заставит поправить всю цепочку.
+
+---
+
+## 3. Тестирование
+
+- Тестируй функционал реакции: `init` / `getErName` / `getEventName` / `handle` / `getDocType`.
+- Мокай инфраструктуру (repo, фасад) — не импортируй её.
+- Авто-подписку тестируй на уровне `ApiModule`: что `init()` вызывает `subscribe` с правильным `eventName` и что подписанный обработчик вызывает `handle`.
+
+## Регресс
+
+Недопустимо ломать существующий функционал и тесты, не связанные с текущей задачей. Подробные правила — [testing.md, §«Защита от регресса и чистота правок»](../testing.md).
+
+## Связанные файлы
+
+- [UseCase](./usecase.md) — аналог, от которого ER сознательно упрощён
+- [Модуль](./module.md) — регистрация реакций в `ApiModule.reactions`
+- [EventBus](../../../packages/core/src/domain/events/event-bus.ts) — шина событий

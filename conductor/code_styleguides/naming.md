@@ -27,6 +27,7 @@
 | Ошибка (usecase, атомарная) | `<Name>UcError` | `UserNotFoundUcError` | `domain/user/commands/errors.ts` |
 | Ошибки модуля (union) | `<ModuleName>UcError` | `UserUcError` | `domain/user/commands/errors.ts` |
 | Сценарий использования | `<CommandName>Uc` | `CreateUserUc` | `api/user/create-user-uc.ts` |
+| Реакция на событие (ER) | `<Name>Er` | `RecordWishEr` | `api/er/record-wish-er.ts` |
 | Модуль (мета) | `<Name><Type>ModuleMeta` | `UserApiModuleMeta` | `domain/module.ts` |
 | Модуль (резолвер) | `<Name><Type>ModuleResolver` | `UserApiModuleResolver` | `domain/module.ts` |
 | Модуль (реализация) | `<Name><Type>Module` | `UserApiModule` | `api/module.ts` |
