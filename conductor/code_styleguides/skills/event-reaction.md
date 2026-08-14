@@ -7,24 +7,12 @@
 ## 1. Ключевые правила
 
 1. Реакция — **side-effect** по факту события: запись в repo, вызов фасада, публикация другого события. Выхода нет.
-2. «Вход» — само событие (`TMeta['event']`); имя события захватывается типом через `TEvent['eventName']` и не хранится отдельно.
+2. «Вход» — само событие (`TMeta['event']`).
 3. Ошибки наружу **не бросаются** — шина изолирует ошибки обработчиков через `console.error`. При необходимости логируй внутри `handle`.
 4. Репозитории и фасады — через `this.resolve.<name>`; моки в тестах — `as unknown as <реальный тип>`, без `as any`.
 5. Имя файла: `<name>-er.ts`; имя класса: `<Name>Er`; имя меты: `<Name>ErMeta`.
 
 Живой пример базового класса: [`event-reaction.ts`](../../../packages/core/src/api/er/event-reaction.ts).
-
----
-
-## 2. Поля EventReaction
-
-| Поле | Назначение | Пример |
-|---|---|---|
-| `erName` | Уникальное имя реакции (kebab-case) | `"record-wish"` |
-| `erLabel` | Человекочитаемая метка | `"Записать желание"` |
-| `eventName` | Имя события — связано с типом через `TMeta['event']['eventName']` | `"questionnaire.completed"` |
-
-В отличие от `UseCase` у ER **нет** `type`, `requiresAuth`, `inputSchema`, `outputSchema`, `errors`, `arMeta`.
 
 ### ErMeta (контракт)
 
@@ -34,13 +22,13 @@ export interface RecordWishErMeta extends ErMeta<QuestionnaireCompletedEvent> {
 }
 ```
 
-Ключевое: `eventName` выводится из `TEvent['eventName']`. Переименование события (`'questionnaire.completed'` → `'questionnaire.finished'`) ломает несоответствующие реакции на уровне типов — tsc заставит поправить всю цепочку.
+Ключевое: `ErMeta` выполнена дженериком (в отличие от `UcMeta`), что позволяет захватить типизированное имя события для подписки и само событие как входящий объект.
 
 ---
 
 ## 3. Тестирование
 
-- Тестируй функционал реакции: `init` / `getErName` / `getEventName` / `handle` / `getDocType`.
+- Тестируй функционал реакции: `handle`.
 - Мокай инфраструктуру (repo, фасад) — не импортируй её.
 - Авто-подписку тестируй на уровне `ApiModule`: что `init()` вызывает `subscribe` с правильным `eventName` и что подписанный обработчик вызывает `handle`.
 
@@ -50,6 +38,6 @@ export interface RecordWishErMeta extends ErMeta<QuestionnaireCompletedEvent> {
 
 ## Связанные файлы
 
-- [UseCase](./usecase.md) — аналог, от которого ER сознательно упрощён
+- [UseCase](./usecase.md) — аналог ER, только для прямых вызовов
 - [Модуль](./module.md) — регистрация реакций в `ApiModule.reactions`
 - [EventBus](../../../packages/core/src/domain/events/event-bus.ts) — шина событий

@@ -44,6 +44,8 @@ description: Соглашения об именовании файлов, пап
 | Ошибка usecase (атомарная) | `<Name>UcError` | `UserNotFoundUcError` |
 | Ошибки модуля (union) | `<ModuleName>ModuleError` | `UserModuleError` |
 | UseCase | `<CommandName>Uc` | `CreateUserUc` |
+| Реакция (ER) | `<Name>Er` | `RecordWishEr` |
+| Реакция (мета) | `<Name>ErMeta` | `RecordWishErMeta` |
 | Модуль (мета) | `<Name><Type>ModuleMeta` | `UserApiModuleMeta` |
 | Модуль (резолвер) | `<Name><Type>ModuleResolver` | `UserApiModuleResolver` |
 | Модуль (класс) | `<Name><Type>Module` | `UserApiModule`, `UserAutoUiModule` |
