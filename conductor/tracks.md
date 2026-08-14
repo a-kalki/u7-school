@@ -1,6 +1,6 @@
 # Реестр треков
 
-- [ ] **Track: EventReaction в core — механизм подписки модулей на события**
+- [x] **Track: EventReaction в core — механизм подписки модулей на события**
 *Link: [./tracks/event-reaction_20260814/](./tracks/event-reaction_20260814/)*
 
 ---
