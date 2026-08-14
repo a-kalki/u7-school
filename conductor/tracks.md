@@ -1,6 +1,6 @@
 # Реестр треков
 
-- [ ] **Track: questionnaire: ownerInfo + явные события + Likert/Skill/PeerReview (дженерик на границе)**
+- [~] **Track: questionnaire: ownerInfo + явные события + Likert/Skill/PeerReview (дженерик на границе)**
 *Link: [./tracks/questionnaire-owner-info_20260814/](./tracks/questionnaire-owner-info_20260814/)*
 
 ---
