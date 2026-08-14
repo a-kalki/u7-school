@@ -267,10 +267,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // 3. captureInput / releaseInput
     if (command.captureInput) {
-      // Имя контроллера из activeHandler или пусто
-      const activeCtrl = session.activeHandler?.path.split('/')[0] ?? '';
+      // Полный путь контроллер/стори можно передать как есть;
+      // иначе — дополняем именем текущего контроллера.
+      const path = command.captureInput.path.includes('/')
+        ? command.captureInput.path
+        : `${session.activeHandler?.path.split('/')[0] ?? ''}/${command.captureInput.path}`;
       session.activeHandler = {
-        path: `${activeCtrl}/${command.captureInput.path}`,
+        path,
         context: command.captureInput.context,
         expiresAt: command.captureInput.ttlSeconds
           ? Date.now() + command.captureInput.ttlSeconds * 1000

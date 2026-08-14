@@ -16,6 +16,7 @@ import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
+import { TelegramQuestionnaireBotFacade } from './infra/questionnaire-bot-facade';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 const config = loadConfig();
@@ -41,6 +42,11 @@ const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp ══
 const transport = new BotTransport(uiApp, bot.api, sessionMap);
+
+// ══ Подключение реального рендеринга анкеты (был стаб в createApiApp) ══
+apiBundle.questionnaireResolver.botFacade = new TelegramQuestionnaireBotFacade(
+  transport,
+);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {

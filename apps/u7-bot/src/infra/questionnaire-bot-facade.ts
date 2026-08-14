@@ -33,20 +33,20 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
     const buttons = [
       {
         text: '▶️ Начать заполнение',
-        code: `fill:start:${qId}`,
+        code: `questionnaire:fill:start:${qId}`,
       },
     ];
 
     if (response.whyText) {
       buttons.push({
         text: '❔ Зачем это нужно?',
-        code: `fill:why:${qId}`,
+        code: `questionnaire:fill:why:${qId}`,
       });
     }
 
     buttons.push({
       text: '⏭️ Пропустить',
-      code: `fill:decline:${qId}`,
+      code: `questionnaire:fill:decline:${qId}`,
     });
 
     await this.transport.send(user.telegramId, {
@@ -85,6 +85,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
           response.selectedAnswers,
         ),
         keyboard: this.#getKeyboard(
+          qId,
           response.currentQuestion,
           response.nextButton
             ? this.#makeNextCode(qId, response.nextButton)
@@ -92,7 +93,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
         ),
         parseMode: 'MarkdownV2',
       };
-      botRes.captureInput = { path: 'fill' };
+      botRes.captureInput = { path: 'questionnaire/fill' };
       return botRes;
     }
 
@@ -102,10 +103,10 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
           response.question,
           response.selectedAnswers ?? [],
         ),
-        keyboard: this.#getKeyboard(response.question),
+        keyboard: this.#getKeyboard(qId, response.question),
         parseMode: 'MarkdownV2',
       };
-      botRes.captureInput = { path: 'fill' };
+      botRes.captureInput = { path: 'questionnaire/fill' };
       return botRes;
     }
 
@@ -129,7 +130,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
     const questionCode = nextButton.startsWith('next:')
       ? nextButton.slice(5)
       : nextButton;
-    return `fill:next:${qId}:${questionCode}`;
+    return `questionnaire:fill:next:${qId}:${questionCode}`;
   }
 
   /** Форматирует вопрос и ответы в MarkdownV2 */
@@ -158,6 +159,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
   }
 
   #getKeyboard(
+    qId: string,
     question: Question,
     nextButton?: string,
   ): KeyboardDescription | undefined {
@@ -165,7 +167,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
 
     const buttons = question.answers.map((a, i) => ({
       text: String(i + 1),
-      code: `fill:answer:${a.answerCode}`,
+      code: `questionnaire:fill:answer:${qId}:${a.answerCode}`,
     }));
 
     const rows = [buttons];

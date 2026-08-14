@@ -13,7 +13,10 @@ import {
 import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
-import type { QuestionnaireBotFacade } from '@u7-scl/questionnaire/domain';
+import type {
+  QuestionnaireApiModuleResolver,
+  QuestionnaireBotFacade,
+} from '@u7-scl/questionnaire/domain';
 import { QuestionnaireInProcFacade } from '@u7-scl/questionnaire/domain';
 import { QuestionnaireJsonRepo as QJsonRepo } from '@u7-scl/questionnaire/infra';
 import {
@@ -37,6 +40,7 @@ export interface ApiAppBundle {
   questionnaireRepo: QuestionnaireJsonRepo;
   questionnaireFacade: QuestionnaireInProcFacade;
   questionnaireModule: QuestionnaireApiModule;
+  questionnaireResolver: QuestionnaireApiModuleResolver;
   poolService: QuestionPoolService;
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
@@ -121,7 +125,8 @@ export function createApiApp(
     eventBus: appResolver.eventBus,
   });
 
-  // ══ Questionnaire: модуль и фасад (botFacade — заглушка до трека 2.5) ══
+  // ══ Questionnaire: модуль и фасад ══
+  // botFacade подключается позже (main.ts), когда готов BotTransport.
   const botFacadeStub: QuestionnaireBotFacade = {
     sendQuestionnaireInvite: async () => {},
     startQuestionnaire: async () => {},
@@ -132,14 +137,16 @@ export function createApiApp(
     db,
   );
 
-  const questionnaireModule = new QuestionnaireApiModule({
+  const questionnaireResolver: QuestionnaireApiModuleResolver = {
     questionnaireRepo: qRepo,
     botFacade: botFacadeStub,
     userFacade,
     db,
     appResolver,
     eventBus: appResolver.eventBus,
-  });
+  };
+
+  const questionnaireModule = new QuestionnaireApiModule(questionnaireResolver);
 
   const questionnaireFacade = new QuestionnaireInProcFacade(
     questionnaireModule,
@@ -173,6 +180,7 @@ export function createApiApp(
     questionnaireRepo,
     questionnaireFacade,
     questionnaireModule,
+    questionnaireResolver,
     poolService: activePoolService,
     streamModule,
     courseModule,
