@@ -1,0 +1,7 @@
+Задача: авто-подписка reactions в ApiModule.init() (Фаза 2 трека event-reaction_20260814).
+
+Изменённые файлы:
+- packages/core/src/api/module/api-module.ts — поле reactions (опциональное) + авто-подписка с идемпотентностью (unsubscribe перед повторной подпиской)
+- packages/core/src/api/module/api-module.test.ts — 3 новых теста авто-подписки
+
+Причина: модуль декларирует реакции в поле reactions, они автоматически подписываются на события при init().
