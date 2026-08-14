@@ -19,6 +19,6 @@
 
 ## Фаза 3: Пул вопросов
 
-- [ ] Task: Создать конфигурационный файл с вопросами из Трека 1.2 (с metricMapping)
-- [ ] Task: Проверить `bun run check:p questionnaire`
-- [ ] Task: Conductor - Ручная верификация 'Пул вопросов'
+- [x] Task: Создать конфигурационный файл с вопросами из Трека 1.2 (с metricMapping) [0f6f49d7]
+- [x] Task: Проверить `bun run check:p questionnaire` [6b1c966f]
+- [x] Task: Conductor - Ручная верификация 'Пул вопросов'

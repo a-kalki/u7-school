@@ -153,12 +153,12 @@ interface MetricQuestion {
 
 ## Критерии приёмки
 
-- [ ] Базовый `QuestionnaireAr` генерирует `QuestionnaireCompleted` при завершении (payload без `answers`)
-- [ ] `MetricQuestionnaireAr` наследует `QuestionnaireAr` и расширяет payload события полем `metricScores`
-- [ ] При завершении вычисляет `metricScores`
-- [ ] `metricMapping` в вопросах пула: связь категория↔подкатегория гарантирована типом
-- [ ] Unit-тесты на `computeMetricScores`
-- [ ] `bun run check:p questionnaire`
+- [x] Базовый `QuestionnaireAr` генерирует `QuestionnaireCompleted` при завершении (payload без `answers`)
+- [x] `MetricQuestionnaireAr` наследует `QuestionnaireAr` и расширяет payload события полем `metricScores`
+- [x] При завершении вычисляет `metricScores`
+- [x] `metricMapping` в вопросах пула: связь категория↔подкатегория гарантирована типом
+- [x] Unit-тесты на `computeMetricScores`
+- [x] `bun run check:p questionnaire`
 
 ## За рамками
 
