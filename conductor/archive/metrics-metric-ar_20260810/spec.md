@@ -167,8 +167,8 @@ interface MetricQuestion {
 
 ## Контекст и связанные документы
 
-- [Система сбора метрик (родитель)](../metrics-system.md) — видение, архитектурные решения
-- [2. Questionnaire + EventBus](../metrics-questionnaire-and-events.md) — техническая спецификация
-- [1. Концепция метрик](../metrics-conception.md) — формулы агрегации, metricMapping
-- [Дорожная карта](../development-roadmap.md) — Релиз 3
-- [Трек 2.4a — модуль questionnaire](../../archive/metrics-questionnaire_20260810/spec.md) — база
+- [Система сбора метрик (родитель)](../../metrics-system.md) — видение, архитектурные решения
+- [2. Questionnaire + EventBus](../../metrics-questionnaire-and-events.md) — техническая спецификация
+- [1. Концепция метрик](../../metrics-conception.md) — формулы агрегации, metricMapping
+- [Дорожная карта](../../development-roadmap.md) — Релиз 3
+- [Трек 2.4a — модуль questionnaire](../metrics-questionnaire_20260810/spec.md) — база
