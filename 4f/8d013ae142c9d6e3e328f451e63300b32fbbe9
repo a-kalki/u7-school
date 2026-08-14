@@ -1,0 +1,1 @@
+Фаза 5 трека questionnaire-owner-info: TelegramQuestionnaireBotFacade подключён в main.ts через questionnaireResolver (замена стаба). Фасад рендерит полные коды questionnaire:fill:* с qId и captureInput path 'questionnaire/fill'. BotTransport.execute теперь принимает полный путь captureInput (с '/' — как есть).
