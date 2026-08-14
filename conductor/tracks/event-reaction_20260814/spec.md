@@ -98,11 +98,10 @@ export abstract class EventReaction<
    for (const er of this.reactions ?? []) {
      er.init(this.resolve);
      this.resolve.eventBus.subscribe(er.getEventName(), (event) =>
-       er.handle(event as never),
+       er.handle(event as DomainEvent),
      );
    }
    ```
-   Каст `event as never` — потому что `subscribe` принимает `(event: DomainEvent) => Promise<void>`, а `er.handle` ожидает конкретный `TMeta['event']`. Типобезопасность обеспечивается внутри ER и через `ErMeta`, а не на шине.
 
 ## FR4 — Экспорты
 
@@ -111,9 +110,10 @@ export abstract class EventReaction<
 ## FR5 — Документация ER (styleguide)
 
 - Создать styleguide-файл для ER по образцу styleguide use-case. Положить рядом с существующими styleguide'ами слоёв (см. `arch-boundary-design/SKILL.md` — таблица указывает `conductor/code_styleguides/skills/<name>.md`).
-- Зарегистрировать ER в двух местах:
+- Зарегистрировать ER в:
   - таблица «Таблица принятия решений» в `conductor/code_styleguides/` (через `arch-boundary-design/SKILL.md` — добавить ряд: **EventReaction (ER)** → `api/er/*-er.ts` → ссылка на styleguide);
   - `conductor/index.md` (раздел «Руководства по стилю кода» — добавить ссылку на styleguide ER).
+- добавить в таблицу объектов в файле `naming.md`.
 
 ## Критерии приёмки
 
