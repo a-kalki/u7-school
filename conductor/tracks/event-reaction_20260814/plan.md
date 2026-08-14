@@ -2,9 +2,9 @@
 
 ## Фаза 1: EventReaction + ErMeta
 
-- [ ] Task: Написать падающие тесты на `ErMeta`/`EventReaction` (init/getErName/getEventName/handle/getDocType)
-- [ ] Task: Реализовать `ErMeta`, `ErDocType`, `EventReaction` в `packages/core/src/api/er/event-reaction.ts`
-- [ ] Task: Экспортировать ER из `packages/core/src/api/index.ts`
+- [x] Task: Написать падающие тесты на `ErMeta`/`EventReaction` (init/getErName/getEventName/handle/getDocType) `038e033`
+- [x] Task: Реализовать `ErMeta`, `ErDocType`, `EventReaction` в `packages/core/src/api/er/event-reaction.ts` `038e033`
+- [x] Task: Экспортировать ER из `packages/core/src/api/index.ts` `038e033`
 - [ ] Task: Conductor - Ручная верификация 'EventReaction'
 
 ## Фаза 2: Интеграция в ApiModule
