@@ -26,7 +26,7 @@
 
 ## Зафиксированные решения
 
-1. **wish фиксирует желание, анкету ведёт questionnaire.** wish вызывает `questionnaireFacade.start(actorId, pool, { courseId })` ровно один раз; далее анкета ведёт пользователя, а wish ловит `questionnaire.completed` через ER `record-wish`.
+1. **wish фиксирует желание, анкету ведёт questionnaire.** wish вызывает `questionnaireFacade.startStandard(actorId, pool, { courseId })` ровно один раз; далее анкета ведёт пользователя, а wish ловит `questionnaire:complete` через ER `record-wish`.
 2. **Роль `CANDIDATE` wish НЕ выдаёт.** Само удаление роли из enum/policy/stream — в треке **C2** (там же замена «снятие CANDIDATE при зачислении» на «Wish → fulfilled»). В C1 роль в enum НЕ трогаем (иначе сломается stream).
 3. **Курс может не иметь анкеты** → желание фиксируется **мгновенно** по клику, без questionnaire.
 4. **Статусы `Wish`:** `expressed` (зафиксировано) / `cancelled` (отменено) / `fulfilled` (реализовано — переход в C2).
@@ -94,7 +94,7 @@ export const WishSchema = v.object({
 1. Проверить, что курс существует (через `CourseFacade`); если нет — ошибка `COURSE_NOT_FOUND`.
 2. Проверить, что нет уже существующего `Wish` с `status === 'expressed'` для (userId, courseId); если есть — конфликт `WISH_ALREADY_EXISTS`.
 3. Определить, есть ли у курса анкета (конфиг `wish-questionnaire.ts`, см. FR6):
-   - **есть анкета** → `await questionnaireFacade.start<{ courseId: string }>(actorId, pool, { courseId })`; вернуть `{ outcome: 'questionnaire' }`. Wish здесь **не создаётся** — его создаст ER `record-wish` по событию.
+   - **есть анкета** → `await questionnaireFacade.startStandard<{ courseId: string }>(actorId, pool, { courseId })`; вернуть `{ outcome: 'questionnaire' }`. Wish здесь **не создаётся** — его создаст ER `record-wish` по событию.
    - **нет анкеты** → `WishAr.express(actorId, courseId)`, сохранить, вернуть `{ outcome: 'instant' }`.
 
 ## FR4 — ER `record-wish`
@@ -102,7 +102,7 @@ export const WishSchema = v.object({
 Файл `api/er/record-wish-er.ts` (трек A). Подписка на событие из трека B:
 
 ```ts
-interface RecordWishErMeta extends ErMeta<QuestionnaireCompletedEvent<{ courseId: string }>> {
+interface RecordWishErMeta extends ErMeta<QuestionnaireCompleteEvent<{ courseId: string }>> {
   erName: 'record-wish';
 }
 ```
@@ -143,7 +143,7 @@ interface RecordWishErMeta extends ErMeta<QuestionnaireCompletedEvent<{ courseId
 
 ## Критерии приёмки
 
-- [ ] `Wish` создаётся **мгновенно** (курс без анкеты) и **через ER** (курс с анкетой → `questionnaire.completed`).
+- [ ] `Wish` создаётся **мгновенно** (курс без анкеты) и **через ER** (курс с анкетой → `questionnaire:complete`).
 - [ ] `cancel-wish` переводит `expressed` → `cancelled`; повторная отмена/несуществующее желание дают ошибку.
 - [ ] Роль `CANDIDATE` wish'ем не выдаётся.
 - [ ] Старый код анкет onboarding удалён; пакет переименован в `@u7-scl/wish`.
