@@ -9,8 +9,8 @@
 
 ## Фаза 2: Интеграция в ApiModule
 
-- [ ] Task: Написать падающие тесты на авто-подписку `reactions` в `ApiModule.init()`
-- [ ] Task: Реализовать поле `reactions` и авто-подписку в `ApiModule.init()`
+- [x] Task: Написать падающие тесты на авто-подписку `reactions` в `ApiModule.init()` `e9c3ebd`
+- [x] Task: Реализовать поле `reactions` и авто-подписку в `ApiModule.init()` `e9c3ebd`
 - [ ] Task: Conductor - Ручная верификация 'Интеграция в ApiModule'
 
 ## Фаза 3: Документация ER
