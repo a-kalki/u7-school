@@ -26,12 +26,8 @@ export abstract class ApiModule<
 {
   abstract readonly name: TMeta['name'];
   abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
-
-  /**
-   * Реакции на доменные события (опционально — не все модули реагируют).
-   * Автоматически подписываются на свои события в {@link init}.
-   */
-  readonly reactions?: EventReaction<ErMeta, ModuleResolver>[];
+  abstract readonly reactions: EventReaction<ErMeta, ModuleResolver>[];
+  private reactionsUnsubscribes: Array<() => void> = [];
 
   protected resolve!: TResolve;
 
@@ -44,17 +40,10 @@ export abstract class ApiModule<
     UseCase<ApiModuleMeta['ucMetas'], TResolve>
   >();
 
-  private reactionsUnsubscribes: Array<() => void> = [];
-
   constructor(resolve: TResolve) {
     this.resolve = resolve;
   }
 
-  /**
-   * Инициализация модуля: логгер, режим, use-case'ы.
-   * Вызывается из ApiApp.init() каскадно после создания всех модулей.
-   * Безопасен для повторных вызовов — сбрасывает useCaseMap и переинициализирует.
-   */
   init(): void {
     this.logger = this.resolve.appResolver.logger;
     this.mode = this.resolve.appResolver.mode;
@@ -70,7 +59,7 @@ export abstract class ApiModule<
     }
     this.reactionsUnsubscribes = [];
 
-    for (const er of this.reactions ?? []) {
+    for (const er of this.reactions) {
       er.init(this.resolve);
       this.reactionsUnsubscribes.push(
         this.resolve.eventBus.subscribe(er.getEventName(), (event) =>
@@ -126,7 +115,6 @@ export abstract class ApiModule<
 
   /**
    * Возвращает метаданные команд модуля.
-   * Агрегирует getDocType() каждого use-case.
    */
   getDocTypes(): UcDocType[] {
     return this.useCases.map((uc) => uc.getDocType());

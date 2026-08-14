@@ -1,3 +1,4 @@
+import type { ErMeta, EventReaction } from '@u7-scl/core/api';
 import { ApiModule } from '@u7-scl/core/api';
 import type { UserApiModuleMeta, UserApiModuleResolver } from '#domain/module';
 import { AddRoleToUserUc } from './user/add-role-to-user-uc';
@@ -22,6 +23,7 @@ export class UserApiModule extends ApiModule<
     new AddRoleToUserUc(),
     new RemoveRoleToUserUc(),
   ];
+  readonly reactions: EventReaction<ErMeta>[] = [];
 
   constructor(resolve: UserApiModuleResolver) {
     super(resolve);

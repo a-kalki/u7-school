@@ -1,3 +1,4 @@
+import type { ErMeta, EventReaction } from '@u7-scl/core/api';
 import { ApiModule } from '@u7-scl/core/api';
 import type {
   OnboardingApiModuleMeta,
@@ -19,6 +20,7 @@ export class OnboardingApiModule extends ApiModule<
     new AbandonUc(),
     new GetCurrentQuestionUc(),
   ];
+  readonly reactions: EventReaction<ErMeta>[] = [];
 
   constructor(resolve: OnboardingApiModuleResolver) {
     super(resolve);

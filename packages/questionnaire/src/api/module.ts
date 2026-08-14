@@ -1,3 +1,4 @@
+import type { ErMeta, EventReaction } from '@u7-scl/core/api';
 import { ApiModule } from '@u7-scl/core/api';
 import type {
   QuestionnaireApiModuleMeta,
@@ -29,6 +30,7 @@ export class QuestionnaireApiModule extends ApiModule<
     new GetQuestionnaireUc(),
     new GetQuestionnairesByUserUc(),
   ];
+  readonly reactions: EventReaction<ErMeta>[] = [];
 
   constructor(resolve: QuestionnaireApiModuleResolver) {
     super(resolve);

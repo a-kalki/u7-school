@@ -1,3 +1,4 @@
+import type { ErMeta, EventReaction } from '@u7-scl/core/api';
 import { ApiModule } from '@u7-scl/core/api';
 import type {
   StreamApiModuleMeta,
@@ -41,6 +42,7 @@ export class StreamApiModule extends ApiModule<
     new CompleteStudentUc(),
     new SetNextPreferenceUc(),
   ];
+  readonly reactions: EventReaction<ErMeta>[] = [];
 
   constructor(resolve: StreamApiModuleResolver) {
     super(resolve);

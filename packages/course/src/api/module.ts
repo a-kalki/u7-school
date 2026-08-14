@@ -1,3 +1,4 @@
+import type { ErMeta, EventReaction } from '@u7-scl/core/api';
 import { ApiModule } from '@u7-scl/core/api';
 import type {
   CourseApiModuleMeta,
@@ -47,6 +48,7 @@ export class CourseApiModule extends ApiModule<
     new GetCourseUc(),
     new ListCoursesUc(),
   ];
+  readonly reactions: EventReaction<ErMeta>[] = [];
 
   constructor(resolve: CourseApiModuleResolver) {
     super(resolve);

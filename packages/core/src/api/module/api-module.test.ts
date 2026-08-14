@@ -69,6 +69,7 @@ interface TestModuleMeta extends ApiModuleMeta {
 class TestModule extends ApiModule<TestModuleMeta, TestResolve> {
   readonly name = 'TestModule';
   readonly useCases = [new TestUseCase()];
+  readonly reactions: EventReaction<ErMeta>[] = [];
 
   constructor(resolve: TestResolve) {
     super(resolve);
@@ -237,7 +238,7 @@ class TestReactionsModule extends ApiModule<
 > {
   readonly name = 'TestReactionsModule';
   readonly useCases = [new TestUseCase()];
-  override readonly reactions = [new TestEr()];
+  readonly reactions = [new TestEr()];
 
   constructor(resolve: TestResolve) {
     super(resolve);
