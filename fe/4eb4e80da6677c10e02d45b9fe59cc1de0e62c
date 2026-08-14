@@ -1,0 +1,11 @@
+Задача: документация EventReaction (ER) (Фаза 3 трека event-reaction_20260814).
+
+Созданные файлы:
+- conductor/code_styleguides/skills/event-reaction.md — styleguide ER
+
+Изменённые файлы:
+- .pi/skills/arch-boundary-design/SKILL.md — ряд EventReaction (ER) в таблице решений
+- conductor/index.md — ссылка на styleguide ER в «Руководствах по стилю кода»
+- conductor/code_styleguides/naming.md — строка «Реакция на событие (ER)» в таблице объектов
+
+Причина: ER — новый паттерн API-слоя, требует styleguide и регистрации.
