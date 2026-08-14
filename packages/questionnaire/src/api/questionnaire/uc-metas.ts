@@ -23,9 +23,9 @@ export type {
   HandleActionCmdMeta,
 } from '../../domain/questionnaire/commands/handle-action-cmd';
 export type {
-  SendMetricInviteCmd,
-  SendMetricInviteCmdMeta,
-} from '../../domain/questionnaire/commands/send-metric-invite-cmd';
+  SendLikertInviteCmd,
+  SendLikertInviteCmdMeta,
+} from '../../domain/questionnaire/commands/send-likert-invite-cmd';
 export type {
   StartByInviteCmd,
   StartByInviteCmdMeta,

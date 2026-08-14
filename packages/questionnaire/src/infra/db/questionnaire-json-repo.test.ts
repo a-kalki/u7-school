@@ -36,6 +36,7 @@ describe('QuestionnaireJsonRepo', () => {
         },
       ],
     },
+    ownerInfo: {},
     createdAt: '2024-01-01T00:00',
     completedAt: null,
     ...overrides,

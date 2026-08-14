@@ -5,6 +5,7 @@ import type { BadRequestUcError, InternalUcError } from './errors';
 
 export const StartCmdSchema = v.object({
   pool: QuestionnairePoolSchema,
+  ownerInfo: v.record(v.string(), v.unknown()),
 });
 
 export type StartCmd = v.InferOutput<typeof StartCmdSchema>;

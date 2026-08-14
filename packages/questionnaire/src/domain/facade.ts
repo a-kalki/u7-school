@@ -1,6 +1,5 @@
 import type { QuestionnaireApiModule } from '../api/module';
-import type { MetricQuestionPool } from './questionnaire/metric/metric-question';
-import type { MetricAssessment } from './questionnaire/metric/metric-questionnaire';
+import type { LikertQuestionPool } from './questionnaire/likert/likert-question';
 import type { QuestionnairePool } from './questionnaire/question';
 
 /**
@@ -9,20 +8,28 @@ import type { QuestionnairePool } from './questionnaire/question';
 export class QuestionnaireInProcFacade {
   constructor(private readonly module: QuestionnaireApiModule) {}
 
-  /** Создать и сразу запустить анкету. */
-  async start(actorId: string, pool: QuestionnairePool): Promise<void> {
-    await this.module.execute('start', { pool }, actorId);
+  /** Создать и сразу запустить обычную анкету. */
+  async startStandard<
+    TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+  >(
+    actorId: string,
+    pool: QuestionnairePool,
+    ownerInfo: TOwnerInfo,
+  ): Promise<void> {
+    await this.module.execute('start', { pool, ownerInfo }, actorId);
   }
 
-  /** Отправить приглашение на метрик-анкету (invited). */
-  async sendMetricInvite(
+  /** Отправить приглашение на likert-анкету (invited). */
+  async sendLikertInvite<
+    TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+  >(
     actorId: string,
-    pool: MetricQuestionPool,
-    assessment: MetricAssessment,
+    pool: LikertQuestionPool,
+    ownerInfo: TOwnerInfo,
   ): Promise<void> {
     await this.module.execute(
-      'send-metric-invite',
-      { pool, assessment },
+      'send-likert-invite',
+      { pool, ownerInfo },
       actorId,
     );
   }

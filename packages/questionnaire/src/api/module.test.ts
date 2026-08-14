@@ -3,8 +3,7 @@ import { InProcEventBus } from '@u7-scl/core/infra';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { QuestionnaireApiModule } from '#api/module';
 import type { QuestionnaireBotFacade } from '#domain/bot-facade';
-import type { MetricQuestionPool } from '#domain/questionnaire/metric/metric-question';
-import type { MetricAssessment } from '#domain/questionnaire/metric/metric-questionnaire';
+import type { LikertQuestionPool } from '#domain/questionnaire/likert/likert-question';
 import type { QuestionnairePool } from '#domain/questionnaire/question';
 import { QuestionnaireFactory } from '#domain/questionnaire/questionnaire-factory';
 import type { QuestionnaireRepo } from '#domain/questionnaire/repo';
@@ -124,7 +123,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       makeResolve({ botFacade, userFacade }),
     );
 
-    await mod.execute('start', { pool: simplePool() }, USER_ID);
+    await mod.execute('start', { pool: simplePool(), ownerInfo: {} }, USER_ID);
 
     expect(startCalled).toBe(true);
   });
@@ -282,25 +281,25 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     ).rejects.toThrow('Нет доступа к списку анкет пользователя');
   });
 
-  test('send-metric-invite + handle-action — публикует событие с metricScores', async () => {
+  test('send-likert-invite + handle-action — публикует событие с likertScores', async () => {
     const user = mockUser();
     const repo = mockRepo();
     const userFacade = mockUserFacade(user);
     const eventBus = new InProcEventBus();
     const received: any[] = [];
-    eventBus.subscribe('questionnaire.completed', async (e) => {
+    eventBus.subscribe('questionnaire:likert-complete', async (e) => {
       received.push(e);
     });
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade, eventBus }),
     );
 
-    const metricPool: MetricQuestionPool = {
+    const likertPool: LikertQuestionPool = {
       questions: [
         {
           questionCode: 'm1',
           question: 'Пишет код чисто',
-          metricMapping: {
+          likertMapping: {
             category: 'professional_skills',
             subcategory: 'work_quality',
             weight: 1,
@@ -309,7 +308,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
         {
           questionCode: 'm2',
           question: 'Думает алгоритмами',
-          metricMapping: {
+          likertMapping: {
             category: 'professional_skills',
             subcategory: 'algorithmic_thinking',
             weight: 1,
@@ -317,15 +316,15 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
         },
       ],
     };
-    const assessment: MetricAssessment = {
+    const ownerInfo = {
       context: 'module_completed',
       role: 'student_student',
       subjectId: '00000000-0000-0000-0000-000000000008',
     };
 
     await mod.execute(
-      'send-metric-invite',
-      { pool: metricPool, assessment },
+      'send-likert-invite',
+      { pool: likertPool, ownerInfo },
       USER_ID,
     );
 
@@ -335,7 +334,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       USER_ID,
     )) as any[];
     expect(all.length).toBe(1);
-    expect(all[0]!.kind).toBe('metric');
+    expect(all[0]!.kind).toBe('likert');
 
     const qId = all[0]!.uuid;
     await mod.execute('start-by-invite', { questionnaireId: qId }, USER_ID);
@@ -352,8 +351,8 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
 
     expect(received.length).toBe(1);
     const event = received[0]!;
-    expect(event.eventName).toBe('questionnaire.completed');
-    expect(event.payload.metricScores).toEqual([
+    expect(event.eventName).toBe('questionnaire:likert-complete');
+    expect(event.payload.likertScores).toEqual([
       {
         category: 'professional_skills',
         subcategory: 'work_quality',
@@ -365,23 +364,19 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
         score: 2,
       },
     ]);
-    expect(event.payload.context).toBe('module_completed');
-    expect(event.payload.role).toBe('student_student');
-    expect(event.payload.subjectId).toBe(
-      '00000000-0000-0000-0000-000000000008',
-    );
+    expect(event.ownerInfo).toEqual(ownerInfo);
   });
 
-  test('decline-invite и abandon публикуют события', async () => {
+  test('decline-invite и abandon публикуют явные события', async () => {
     const user = mockUser();
     const repo = mockRepo();
     const userFacade = mockUserFacade(user);
     const eventBus = new InProcEventBus();
     const received: any[] = [];
-    eventBus.subscribe('questionnaire.declined', async (e) => {
+    eventBus.subscribe('questionnaire:decline', async (e) => {
       received.push(e);
     });
-    eventBus.subscribe('questionnaire.abandoned', async (e) => {
+    eventBus.subscribe('questionnaire:abandon', async (e) => {
       received.push(e);
     });
     const mod = new QuestionnaireApiModule(
@@ -404,8 +399,8 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     await mod.execute('abandon', { questionnaireId: abandonedId }, USER_ID);
 
     expect(received.map((e) => e.eventName)).toEqual([
-      'questionnaire.declined',
-      'questionnaire.abandoned',
+      'questionnaire:decline',
+      'questionnaire:abandon',
     ]);
   });
 });

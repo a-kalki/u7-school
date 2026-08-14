@@ -5,7 +5,7 @@ export { GetCurrentUc } from './questionnaire/get-current-uc';
 export { GetQuestionnaireUc } from './questionnaire/get-questionnaire-uc';
 export { GetQuestionnairesByUserUc } from './questionnaire/get-questionnaires-by-user-uc';
 export { HandleActionUc } from './questionnaire/handle-action-uc';
-export { SendMetricInviteUc } from './questionnaire/send-metric-invite-uc';
+export { SendLikertInviteUc } from './questionnaire/send-likert-invite-uc';
 export { StartByInviteUc } from './questionnaire/start-by-invite-uc';
 export { StartUc } from './questionnaire/start-uc';
 export * from './questionnaire/uc-metas';

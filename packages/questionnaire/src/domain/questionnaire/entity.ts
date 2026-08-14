@@ -45,6 +45,7 @@ export const QuestionnaireSchema = v.object({
   draftAnswers: v.record(v.string(), v.string()),
   answers: v.array(AnswerSchema),
   questionPool: QuestionnairePoolSchema,
+  ownerInfo: v.record(v.string(), v.unknown()),
   createdAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),
@@ -61,10 +62,10 @@ export type Questionnaire = v.InferOutput<typeof QuestionnaireSchema>;
 
 /**
  * Базовые поля состояния анкеты — общие для базового QuestionnaireAr
- * и наследников (например, MetricQuestionnaireAr с упрощённым пулом).
+ * и наследников (например, LikertQuestionnaireAr с упрощённым пулом).
  */
 export type BaseQuestionnaireState = {
-  kind: 'standard' | 'metric';
+  kind: 'standard' | 'likert';
   uuid: string;
   respondentId: string;
   status: QuestionnaireStatus;
@@ -78,6 +79,7 @@ export type BaseQuestionnaireState = {
     cancelWarning?: string;
     questions: unknown[];
   };
+  ownerInfo: Record<string, unknown>;
   createdAt: string;
   updatedAt?: string;
   completedAt: string | null;

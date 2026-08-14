@@ -368,13 +368,14 @@ describe('QuestionnaireAr (v2)', () => {
     const events = ar.flushEvents();
     expect(events.length).toBe(1);
     const event = events[0]!;
-    expect(event.eventName).toBe('questionnaire.completed');
+    expect(event.eventName).toBe('questionnaire:complete');
     expect(event.aggregateName).toBe('Questionnaire');
     expect(event.aggregateId).toBe(ar.state.uuid);
     expect(event.payload).toEqual({
       questionnaireId: ar.state.uuid,
       respondentId: '00000000-0000-0000-0000-000000000007',
     });
+    expect(event.ownerInfo).toEqual({});
     expect(event.payload).not.toHaveProperty('answers');
   });
 
@@ -389,7 +390,7 @@ describe('QuestionnaireAr (v2)', () => {
     expect(ar.hasEvents()).toBe(true);
     const events = ar.flushEvents();
     expect(events.length).toBe(1);
-    expect(events[0]!.eventName).toBe('questionnaire.declined');
+    expect(events[0]!.eventName).toBe('questionnaire:decline');
     expect(events[0]!.payload).toEqual({
       questionnaireId: ar.state.uuid,
       respondentId: '00000000-0000-0000-0000-000000000007',
@@ -406,7 +407,7 @@ describe('QuestionnaireAr (v2)', () => {
     expect(ar.hasEvents()).toBe(true);
     const events = ar.flushEvents();
     expect(events.length).toBe(1);
-    expect(events[0]!.eventName).toBe('questionnaire.abandoned');
+    expect(events[0]!.eventName).toBe('questionnaire:abandon');
     expect(events[0]!.payload).toEqual({
       questionnaireId: ar.state.uuid,
       respondentId: '00000000-0000-0000-0000-000000000007',

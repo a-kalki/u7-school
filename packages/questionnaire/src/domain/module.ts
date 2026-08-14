@@ -12,13 +12,13 @@ import type { GetCurrentCmdMeta } from './questionnaire/commands/get-current-cmd
 import type { GetQuestionnaireCmdMeta } from './questionnaire/commands/get-questionnaire-cmd';
 import type { GetQuestionnairesByUserCmdMeta } from './questionnaire/commands/get-questionnaires-by-user-cmd';
 import type { HandleActionCmdMeta } from './questionnaire/commands/handle-action-cmd';
-import type { SendMetricInviteCmdMeta } from './questionnaire/commands/send-metric-invite-cmd';
+import type { SendLikertInviteCmdMeta } from './questionnaire/commands/send-likert-invite-cmd';
 import type { StartByInviteCmdMeta } from './questionnaire/commands/start-by-invite-cmd';
 import type { StartCmdMeta } from './questionnaire/commands/start-cmd';
 import type { QuestionnaireRepo } from './questionnaire/repo';
 
 export type QuestionnaireUcMetas =
-  | SendMetricInviteCmdMeta
+  | SendLikertInviteCmdMeta
   | StartCmdMeta
   | StartByInviteCmdMeta
   | DeclineInviteCmdMeta

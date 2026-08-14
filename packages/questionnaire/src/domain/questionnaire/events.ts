@@ -1,49 +1,68 @@
 import type { DomainEvent } from '@u7-scl/core/domain';
-import type { MetricScore } from './metric/metric-question';
-import type { MetricAssessment } from './metric/metric-questionnaire';
+import type { LikertScore } from './likert/likert-question';
 
-/** Базовый payload событий анкеты. */
-type QuestionnairePayload = {
+/** Базовый payload событий анкеты (без дискриминатора kind). */
+type QuestionnaireBasePayload = {
   questionnaireId: string;
   respondentId: string;
 };
 
-/** Событие завершения анкеты — генерирует базовый QuestionnaireAr. */
-export interface QuestionnaireCompleted extends DomainEvent {
-  eventName: 'questionnaire.completed';
+/** Событие завершения обычной анкеты. */
+export interface QuestionnaireCompleteEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:complete';
   aggregateName: 'Questionnaire';
-  payload: QuestionnairePayload;
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload;
 }
 
-/** Событие отказа от приглашения — генерирует базовый QuestionnaireAr. */
-export interface QuestionnaireDeclined extends DomainEvent {
-  eventName: 'questionnaire.declined';
+/** Событие отказа от приглашения обычной анкеты. */
+export interface QuestionnaireDeclineEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:decline';
   aggregateName: 'Questionnaire';
-  payload: QuestionnairePayload;
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload;
 }
 
-/** Событие прерывания анкеты — генерирует базовый QuestionnaireAr. */
-export interface QuestionnaireAbandoned extends DomainEvent {
-  eventName: 'questionnaire.abandoned';
+/** Событие прерывания обычной анкеты. */
+export interface QuestionnaireAbandonEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:abandon';
   aggregateName: 'Questionnaire';
-  payload: QuestionnairePayload;
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload;
 }
 
-/**
- * Событие завершения метрик-анкеты — генерирует MetricQuestionnaireAr.
- * Расширяет payload оценочным контекстом и вычисленными баллами.
- */
-export interface MetricQuestionnaireCompleted extends QuestionnaireCompleted {
-  payload: QuestionnairePayload &
-    MetricAssessment & { metricScores: MetricScore[] };
+/** Событие завершения likert-анкеты: ownerInfo + вычисленные баллы. */
+export interface LikertQuestionnaireCompleteEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:likert-complete';
+  aggregateName: 'Questionnaire';
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload & { likertScores: LikertScore[] };
 }
 
-/** Событие отказа от метрик-анкеты. */
-export interface MetricQuestionnaireDeclined extends QuestionnaireDeclined {
-  payload: QuestionnairePayload & MetricAssessment;
+/** Событие отказа от приглашения likert-анкеты. */
+export interface LikertQuestionnaireDeclineEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:likert-decline';
+  aggregateName: 'Questionnaire';
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload;
 }
 
-/** Событие прерывания метрик-анкеты. */
-export interface MetricQuestionnaireAbandoned extends QuestionnaireAbandoned {
-  payload: QuestionnairePayload & MetricAssessment;
+/** Событие прерывания likert-анкеты. */
+export interface LikertQuestionnaireAbandonEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:likert-abandon';
+  aggregateName: 'Questionnaire';
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload;
 }

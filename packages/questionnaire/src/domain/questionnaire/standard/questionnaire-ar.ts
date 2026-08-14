@@ -3,18 +3,18 @@ import { BaseQuestionnaireAr } from '../a-root';
 import type { BaseQuestionnaireArMeta } from '../entity';
 import { type Questionnaire, QuestionnaireSchema } from '../entity';
 import type {
-  QuestionnaireAbandoned,
-  QuestionnaireCompleted,
-  QuestionnaireDeclined,
+  QuestionnaireAbandonEvent,
+  QuestionnaireCompleteEvent,
+  QuestionnaireDeclineEvent,
 } from '../events';
 
 /** Метатип обычной анкеты */
 export interface StandardQuestionnaireArMeta extends BaseQuestionnaireArMeta {
   state: Questionnaire;
   events:
-    | QuestionnaireCompleted
-    | QuestionnaireDeclined
-    | QuestionnaireAbandoned;
+    | QuestionnaireCompleteEvent
+    | QuestionnaireDeclineEvent
+    | QuestionnaireAbandonEvent;
 }
 
 /** Обычная анкета: публикует события завершения/отказа/прерывания. */
@@ -31,35 +31,38 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
     };
   }
 
-  protected buildCompletedEvent(): QuestionnaireCompleted {
+  protected buildCompletedEvent(): QuestionnaireCompleteEvent {
     return {
       eventId: crypto.randomUUID(),
-      eventName: 'questionnaire.completed',
+      eventName: 'questionnaire:complete',
       occurredAt: isoNow(),
       aggregateName: 'Questionnaire',
       aggregateId: this.state.uuid,
+      ownerInfo: this.state.ownerInfo,
       payload: this.basePayload(),
     };
   }
 
-  protected buildDeclinedEvent(): QuestionnaireDeclined {
+  protected buildDeclinedEvent(): QuestionnaireDeclineEvent {
     return {
       eventId: crypto.randomUUID(),
-      eventName: 'questionnaire.declined',
+      eventName: 'questionnaire:decline',
       occurredAt: isoNow(),
       aggregateName: 'Questionnaire',
       aggregateId: this.state.uuid,
+      ownerInfo: this.state.ownerInfo,
       payload: this.basePayload(),
     };
   }
 
-  protected buildAbandonedEvent(): QuestionnaireAbandoned {
+  protected buildAbandonedEvent(): QuestionnaireAbandonEvent {
     return {
       eventId: crypto.randomUUID(),
-      eventName: 'questionnaire.abandoned',
+      eventName: 'questionnaire:abandon',
       occurredAt: isoNow(),
       aggregateName: 'Questionnaire',
       aggregateId: this.state.uuid,
+      ownerInfo: this.state.ownerInfo,
       payload: this.basePayload(),
     };
   }

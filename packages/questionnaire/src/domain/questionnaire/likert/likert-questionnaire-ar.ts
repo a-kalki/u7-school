@@ -3,67 +3,58 @@ import * as v from 'valibot';
 import { BaseQuestionnaireAr } from '../a-root';
 import type { BaseQuestionnaireArMeta } from '../entity';
 import type {
-  MetricQuestionnaireAbandoned,
-  MetricQuestionnaireCompleted,
-  MetricQuestionnaireDeclined,
+  LikertQuestionnaireAbandonEvent,
+  LikertQuestionnaireCompleteEvent,
+  LikertQuestionnaireDeclineEvent,
 } from '../events';
 import type { ChoiceQuestion } from '../question';
 import { QuestionnaireEngine } from '../questionnaire-engine';
 import {
   LIKERT_SCALE,
-  type MetricMapping,
-  type MetricQuestion,
-  type MetricScore,
-  MetricScoreSchema,
-} from './metric-question';
+  type LikertMapping,
+  type LikertQuestion,
+  type LikertScore,
+  LikertScoreSchema,
+} from './likert-question';
 import {
-  type MetricAssessment,
-  type MetricQuestionnaire,
-  MetricQuestionnaireSchema,
-} from './metric-questionnaire';
+  type LikertQuestionnaire,
+  LikertQuestionnaireSchema,
+} from './likert-questionnaire';
 
-export interface MetricQuestionnaireArMeta extends BaseQuestionnaireArMeta {
-  state: MetricQuestionnaire;
+export interface LikertQuestionnaireArMeta extends BaseQuestionnaireArMeta {
+  state: LikertQuestionnaire;
   events:
-    | MetricQuestionnaireCompleted
-    | MetricQuestionnaireDeclined
-    | MetricQuestionnaireAbandoned;
+    | LikertQuestionnaireCompleteEvent
+    | LikertQuestionnaireDeclineEvent
+    | LikertQuestionnaireAbandonEvent;
 }
 
-/** Агрегат метрик-анкеты: публикует события завершения/отказа/прерывания. */
-export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnaireArMeta> {
-  constructor(state: MetricQuestionnaire) {
-    super(state, MetricQuestionnaireSchema);
+/** Агрегат likert-анкеты: публикует события завершения/отказа/прерывания. */
+export class LikertQuestionnaireAr extends BaseQuestionnaireAr<LikertQuestionnaireArMeta> {
+  constructor(state: LikertQuestionnaire) {
+    super(state, LikertQuestionnaireSchema);
   }
 
   protected override buildEngine(
-    state: MetricQuestionnaire,
+    state: LikertQuestionnaire,
   ): QuestionnaireEngine {
     return new QuestionnaireEngine(
       state.questionPool.questions.map((q) => this.toChoiceQuestion(q)),
     );
   }
 
-  /** Преобразует компактный MetricQuestion в полный ChoiceQuestion для движка. */
-  private toChoiceQuestion(mq: MetricQuestion): ChoiceQuestion {
+  /** Преобразует компактный LikertQuestion в полный ChoiceQuestion для движка. */
+  private toChoiceQuestion(lq: LikertQuestion): ChoiceQuestion {
     return {
-      questionCode: mq.questionCode,
-      question: mq.question,
+      questionCode: lq.questionCode,
+      question: lq.question,
       type: 'choice',
       multiple: false,
       answers: [...LIKERT_SCALE],
     };
   }
 
-  /** Раскладывает оценочный контекст (triggerEvent — только если задан). */
-  private assessmentFields(): MetricAssessment {
-    const { context, role, subjectId, triggerEvent } = this.state.assessment;
-    return triggerEvent
-      ? { context, role, subjectId, triggerEvent }
-      : { context, role, subjectId };
-  }
-
-  /** Общие поля event. */
+  /** Общие поля события. */
   private baseEvent() {
     return {
       eventId: crypto.randomUUID(),
@@ -73,38 +64,40 @@ export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnai
     };
   }
 
-  /** Общие поля payload событий метрик-анкеты (без metricScores). */
+  /** Общие поля payload событий likert-анкеты (без likertScores). */
   private basePayload() {
     return {
       questionnaireId: this.state.uuid,
       respondentId: this.state.respondentId,
-      ...this.assessmentFields(),
     };
   }
 
-  protected buildCompletedEvent(): MetricQuestionnaireCompleted {
+  protected buildCompletedEvent(): LikertQuestionnaireCompleteEvent {
     return {
       ...this.baseEvent(),
-      eventName: 'questionnaire.completed',
+      eventName: 'questionnaire:likert-complete',
+      ownerInfo: this.state.ownerInfo,
       payload: {
         ...this.basePayload(),
-        metricScores: this.computeMetricScores(),
+        likertScores: this.computeLikertScores(),
       },
     };
   }
 
-  protected buildDeclinedEvent(): MetricQuestionnaireDeclined {
+  protected buildDeclinedEvent(): LikertQuestionnaireDeclineEvent {
     return {
       ...this.baseEvent(),
-      eventName: 'questionnaire.declined',
+      eventName: 'questionnaire:likert-decline',
+      ownerInfo: this.state.ownerInfo,
       payload: this.basePayload(),
     };
   }
 
-  protected buildAbandonedEvent(): MetricQuestionnaireAbandoned {
+  protected buildAbandonedEvent(): LikertQuestionnaireAbandonEvent {
     return {
       ...this.baseEvent(),
-      eventName: 'questionnaire.abandoned',
+      eventName: 'questionnaire:likert-abandon',
+      ownerInfo: this.state.ownerInfo,
       payload: this.basePayload(),
     };
   }
@@ -112,18 +105,21 @@ export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnai
   /**
    * Вычисляет баллы по подкатегориям как средневзвешенное:
    * Σ(answer × weight) / Σ(weight).
+   *
+   * Выход валидируется здесь, схемой LikertScoreSchema: агрегат знает
+   * структуру выхода (category/subcategory/score ∈ [1;5]).
    */
-  private computeMetricScores(): MetricScore[] {
+  private computeLikertScores(): LikertScore[] {
     type Acc = {
-      category: MetricMapping['category'];
-      subcategory: MetricMapping['subcategory'];
+      category: LikertMapping['category'];
+      subcategory: LikertMapping['subcategory'];
       weightedSum: number;
       weightSum: number;
     };
 
-    const byCode = new Map<string, MetricMapping>();
+    const byCode = new Map<string, LikertMapping>();
     for (const question of this.state.questionPool.questions) {
-      byCode.set(question.questionCode, question.metricMapping);
+      byCode.set(question.questionCode, question.likertMapping);
     }
 
     const groups = new Map<string, Acc>();
@@ -148,8 +144,8 @@ export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnai
     }
 
     const raw: Array<{
-      category: MetricMapping['category'];
-      subcategory: MetricMapping['subcategory'];
+      category: LikertMapping['category'];
+      subcategory: LikertMapping['subcategory'];
       score: number;
     }> = [];
     for (const acc of groups.values()) {
@@ -161,6 +157,6 @@ export class MetricQuestionnaireAr extends BaseQuestionnaireAr<MetricQuestionnai
       });
     }
 
-    return v.parse(v.array(MetricScoreSchema), raw);
+    return v.parse(v.array(LikertScoreSchema), raw);
   }
 }

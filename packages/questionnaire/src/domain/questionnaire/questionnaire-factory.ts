@@ -1,14 +1,10 @@
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { Questionnaire } from './entity';
-import type { MetricQuestionPool } from './metric/metric-question';
-import { MetricQuestionPoolSchema } from './metric/metric-question';
-import type {
-  MetricAssessment,
-  MetricQuestionnaire,
-} from './metric/metric-questionnaire';
-import { MetricAssessmentSchema } from './metric/metric-questionnaire';
-import { MetricQuestionnaireAr } from './metric/metric-questionnaire-ar';
+import type { LikertQuestionPool } from './likert/likert-question';
+import { LikertQuestionPoolSchema } from './likert/likert-question';
+import type { LikertQuestionnaire } from './likert/likert-questionnaire';
+import { LikertQuestionnaireAr } from './likert/likert-questionnaire-ar';
 import type { QuestionnairePool } from './question';
 import { QuestionnairePoolSchema } from './question';
 import type { QuestionnaireState } from './repo';
@@ -16,7 +12,7 @@ import { QuestionnaireAr } from './standard/questionnaire-ar';
 
 /**
  * Единая фабрика агрегатов анкеты.
- * Объявляет все конструкторы: обычная анкета, метрик-анкета, восстановление
+ * Объявляет все конструкторы: обычная анкета, likert-анкета, восстановление
  * из сохранённого состояния.
  */
 export const QuestionnaireFactory = {
@@ -24,6 +20,7 @@ export const QuestionnaireFactory = {
   createStandard: (
     respondentId: string,
     pool: QuestionnairePool,
+    ownerInfo: Record<string, unknown> = {},
   ): QuestionnaireAr => {
     v.parse(QuestionnairePoolSchema, pool);
 
@@ -36,23 +33,23 @@ export const QuestionnaireFactory = {
       draftAnswers: {},
       answers: [],
       questionPool: pool,
+      ownerInfo,
       createdAt: isoNow(),
       completedAt: null,
     };
     return new QuestionnaireAr(state);
   },
 
-  /** Создаёт метрик-анкету в статусе invited из пула метрик и оценочного контекста. */
-  createMetric: (
+  /** Создаёт likert-анкету в статусе invited из пула и ownerInfo. */
+  createLikert: (
     respondentId: string,
-    pool: MetricQuestionPool,
-    assessment: MetricAssessment,
-  ): MetricQuestionnaireAr => {
-    const parsedPool = v.parse(MetricQuestionPoolSchema, pool);
-    const parsedAssessment = v.parse(MetricAssessmentSchema, assessment);
+    pool: LikertQuestionPool,
+    ownerInfo: Record<string, unknown> = {},
+  ): LikertQuestionnaireAr => {
+    const parsedPool = v.parse(LikertQuestionPoolSchema, pool);
 
-    const state: MetricQuestionnaire = {
-      kind: 'metric',
+    const state: LikertQuestionnaire = {
+      kind: 'likert',
       uuid: crypto.randomUUID(),
       respondentId,
       status: 'invited',
@@ -60,19 +57,19 @@ export const QuestionnaireFactory = {
       draftAnswers: {},
       answers: [],
       questionPool: parsedPool,
-      assessment: parsedAssessment,
+      ownerInfo,
       createdAt: isoNow(),
       completedAt: null,
     };
-    return new MetricQuestionnaireAr(state);
+    return new LikertQuestionnaireAr(state);
   },
 
   /** Восстанавливает агрегат из сохранённого состояния по дискриминатору kind. */
   restore: (
     state: QuestionnaireState,
-  ): QuestionnaireAr | MetricQuestionnaireAr => {
-    if (state.kind === 'metric') {
-      return new MetricQuestionnaireAr(state);
+  ): QuestionnaireAr | LikertQuestionnaireAr => {
+    if (state.kind === 'likert') {
+      return new LikertQuestionnaireAr(state);
     }
     return new QuestionnaireAr(state);
   },

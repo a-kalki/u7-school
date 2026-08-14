@@ -1,20 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import type { MetricQuestionnaireCompleted } from '../events';
+import type { LikertQuestionnaireCompleteEvent } from '../events';
 import { QuestionnaireFactory } from '../questionnaire-factory';
-import type { MetricQuestionPool } from './metric-question';
-import type { MetricAssessment } from './metric-questionnaire';
-import type { MetricQuestionnaireAr } from './metric-questionnaire-ar';
+import type { LikertQuestionPool } from './likert-question';
+import type { LikertQuestionnaireAr } from './likert-questionnaire-ar';
 
 const RESPONDENT_ID = '00000000-0000-0000-0000-000000000007';
 const SUBJECT_ID = '00000000-0000-0000-0000-000000000008';
 
-function metricPool(
-  questions: MetricQuestionPool['questions'],
-): MetricQuestionPool {
+function likertPool(
+  questions: LikertQuestionPool['questions'],
+): LikertQuestionPool {
   return { questions };
 }
 
-function assessment(): MetricAssessment {
+function ownerInfo() {
   return {
     context: 'module_completed',
     role: 'student_student',
@@ -28,22 +27,22 @@ function assessment(): MetricAssessment {
 
 /** Достаёт событие завершения из событий агрегата (сужает union по eventName). */
 function completedEvent(
-  ar: MetricQuestionnaireAr,
-): MetricQuestionnaireCompleted {
+  ar: LikertQuestionnaireAr,
+): LikertQuestionnaireCompleteEvent {
   const event = ar.flushEvents()[0];
-  if (!event || event.eventName !== 'questionnaire.completed') {
-    throw new Error('Ожидалось событие questionnaire.completed');
+  if (!event || event.eventName !== 'questionnaire:likert-complete') {
+    throw new Error('Ожидалось событие questionnaire:likert-complete');
   }
   return event;
 }
 
-describe('MetricQuestionnaireAr', () => {
-  test('завершение анкеты вычисляет metricScores и кладёт assessment в событие', () => {
-    const pool = metricPool([
+describe('LikertQuestionnaireAr', () => {
+  test('завершение анкеты вычисляет likertScores и кладёт ownerInfo в событие', () => {
+    const pool = likertPool([
       {
         questionCode: 'm1',
         question: 'Пишет код чисто',
-        metricMapping: {
+        likertMapping: {
           category: 'professional_skills',
           subcategory: 'work_quality',
           weight: 1,
@@ -52,7 +51,7 @@ describe('MetricQuestionnaireAr', () => {
       {
         questionCode: 'm2',
         question: 'Думает алгоритмами',
-        metricMapping: {
+        likertMapping: {
           category: 'professional_skills',
           subcategory: 'algorithmic_thinking',
           weight: 1,
@@ -60,10 +59,10 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = QuestionnaireFactory.createMetric(
+    const ar = QuestionnaireFactory.createLikert(
       RESPONDENT_ID,
       pool,
-      assessment(),
+      ownerInfo(),
     );
     ar.start();
 
@@ -74,7 +73,7 @@ describe('MetricQuestionnaireAr', () => {
     expect(ar.hasEvents()).toBe(true);
     const event = completedEvent(ar);
     const payload = event.payload;
-    expect(payload.metricScores).toEqual([
+    expect(payload.likertScores).toEqual([
       {
         category: 'professional_skills',
         subcategory: 'work_quality',
@@ -88,22 +87,16 @@ describe('MetricQuestionnaireAr', () => {
     ]);
     expect(payload).toHaveProperty('questionnaireId');
     expect(payload).toHaveProperty('respondentId');
-    expect(payload.context).toBe('module_completed');
-    expect(payload.role).toBe('student_student');
-    expect(payload.subjectId).toBe(SUBJECT_ID);
-    expect(payload.triggerEvent).toEqual({
-      type: 'module_completed',
-      aggregateId: '00000000-0000-0000-0000-000000000009',
-    });
+    expect(event.ownerInfo).toEqual(ownerInfo());
     expect(payload).not.toHaveProperty('answers');
   });
 
-  test('без triggerEvent — поле отсутствует в событии', () => {
-    const pool = metricPool([
+  test('ownerInfo без triggerEvent сохраняется как есть', () => {
+    const pool = likertPool([
       {
         questionCode: 'm1',
         question: 'Пишет код чисто',
-        metricMapping: {
+        likertMapping: {
           category: 'professional_skills',
           subcategory: 'work_quality',
           weight: 1,
@@ -111,27 +104,25 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = QuestionnaireFactory.createMetric(RESPONDENT_ID, pool, {
+    const info = {
       context: 'pair_programming',
       role: 'student_student',
       subjectId: SUBJECT_ID,
-    });
+    };
+    const ar = QuestionnaireFactory.createLikert(RESPONDENT_ID, pool, info);
     ar.start();
     ar.handleAction({ type: 'callback', value: '3' });
 
-    const payload = completedEvent(ar).payload;
-    expect(payload.triggerEvent).toBeUndefined();
-    expect(payload.context).toBe('pair_programming');
-    expect(payload.role).toBe('student_student');
-    expect(payload.subjectId).toBe(SUBJECT_ID);
+    const event = completedEvent(ar);
+    expect(event.ownerInfo).toEqual(info);
   });
 
   test('разный вес вопросов даёт корректное средневзвешенное', () => {
-    const pool = metricPool([
+    const pool = likertPool([
       {
         questionCode: 'a',
         question: 'Общается',
-        metricMapping: {
+        likertMapping: {
           category: 'team_skills',
           subcategory: 'communication',
           weight: 0.75,
@@ -140,7 +131,7 @@ describe('MetricQuestionnaireAr', () => {
       {
         questionCode: 'b',
         question: 'Помогает',
-        metricMapping: {
+        likertMapping: {
           category: 'team_skills',
           subcategory: 'communication',
           weight: 1.25,
@@ -148,17 +139,17 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = QuestionnaireFactory.createMetric(
+    const ar = QuestionnaireFactory.createLikert(
       RESPONDENT_ID,
       pool,
-      assessment(),
+      ownerInfo(),
     );
     ar.start();
 
     ar.handleAction({ type: 'callback', value: '5' });
     ar.handleAction({ type: 'callback', value: '1' });
 
-    const scores = completedEvent(ar).payload.metricScores;
+    const scores = completedEvent(ar).payload.likertScores;
     // (5 * 0.75 + 1 * 1.25) / (0.75 + 1.25) = 5 / 2 = 2.5
     expect(scores).toEqual([
       { category: 'team_skills', subcategory: 'communication', score: 2.5 },
@@ -166,11 +157,11 @@ describe('MetricQuestionnaireAr', () => {
   });
 
   test('несколько вопросов одной подкатегории — среднее при weight=1', () => {
-    const pool = metricPool([
+    const pool = likertPool([
       {
         questionCode: 'a',
         question: 'Общается',
-        metricMapping: {
+        likertMapping: {
           category: 'team_skills',
           subcategory: 'communication',
           weight: 1,
@@ -179,7 +170,7 @@ describe('MetricQuestionnaireAr', () => {
       {
         questionCode: 'b',
         question: 'Помогает',
-        metricMapping: {
+        likertMapping: {
           category: 'team_skills',
           subcategory: 'communication',
           weight: 1,
@@ -187,10 +178,10 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = QuestionnaireFactory.createMetric(
+    const ar = QuestionnaireFactory.createLikert(
       RESPONDENT_ID,
       pool,
-      assessment(),
+      ownerInfo(),
     );
     ar.start();
 
@@ -198,19 +189,19 @@ describe('MetricQuestionnaireAr', () => {
     const response = ar.handleAction({ type: 'callback', value: '2' });
     expect(response.type).toBe('completed');
 
-    const scores = completedEvent(ar).payload.metricScores;
+    const scores = completedEvent(ar).payload.likertScores;
     // (4 + 2) / 2 = 3
     expect(scores).toEqual([
       { category: 'team_skills', subcategory: 'communication', score: 3 },
     ]);
   });
 
-  test('MetricQuestion преобразуется в ChoiceQuestion со шкалой Лайкерта', () => {
-    const pool = metricPool([
+  test('LikertQuestion преобразуется в ChoiceQuestion со шкалой Лайкерта', () => {
+    const pool = likertPool([
       {
         questionCode: 'm1',
         question: 'Пишет код чисто',
-        metricMapping: {
+        likertMapping: {
           category: 'professional_skills',
           subcategory: 'work_quality',
           weight: 1,
@@ -219,7 +210,7 @@ describe('MetricQuestionnaireAr', () => {
       {
         questionCode: 'm2',
         question: 'Думает алгоритмами',
-        metricMapping: {
+        likertMapping: {
           category: 'professional_skills',
           subcategory: 'algorithmic_thinking',
           weight: 1,
@@ -227,10 +218,10 @@ describe('MetricQuestionnaireAr', () => {
       },
     ]);
 
-    const ar = QuestionnaireFactory.createMetric(
+    const ar = QuestionnaireFactory.createLikert(
       RESPONDENT_ID,
       pool,
-      assessment(),
+      ownerInfo(),
     );
     const response = ar.start();
 
