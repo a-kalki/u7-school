@@ -1,0 +1,8 @@
+{
+  "track_id": "questionnaire-owner-info_20260814",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-14T00:00:00Z",
+  "updated_at": "2026-08-14T00:00:00Z",
+  "description": "questionnaire: ownerInfo (дженерик на границе) + трёхчастное событие с kind в payload"
+}

@@ -1,0 +1,8 @@
+{
+  "track_id": "wish-module_20260814",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-14T00:00:00Z",
+  "updated_at": "2026-08-14T00:00:00Z",
+  "description": "wish: ядро модуля — агрегат Wish, express-wish/cancel-wish UC, record-wish ER, замена onboarding"
+}
