@@ -1,0 +1,1 @@
+Фаза 4 трека questionnaire-owner-info: перенос полного словаря навыков и оценки в peer-review (categories.ts Skill*/SkillMapping, scores.ts SkillScore, assessment.ts PeerReviewContext/Role/TriggerEvent/Assessment). metric-question-pool.ts→peer-review-question-pool.ts (skillMapping, PEER_REVIEW_POOLS, PeerReviewQuestion/Pool). Перенесены тесты валидации словаря и оценки.
