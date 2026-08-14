@@ -4,7 +4,10 @@ import type { UcMeta } from '../../api/uc/use-case';
 import { UseCase } from '../../api/uc/use-case';
 import type { ArMeta } from '../../domain/ar/aggregate';
 import { AppException } from '../../domain/errors/errors';
+import type { DomainEvent } from '../../domain/events/domain-event';
 import type { ApiModuleMeta, ModuleResolver } from '../../domain/types';
+import type { ErMeta } from '../er/event-reaction';
+import { EventReaction } from '../er/event-reaction';
 import { ApiModule } from './api-module';
 
 // ══ Тестовые типы ══
@@ -196,5 +199,133 @@ describe('ApiModule (рефакторинг)', () => {
       const module = new TestModule(makeResolve('test'));
       expect(module.hasCommand('unknown')).toBe(false);
     });
+  });
+});
+
+// ══ Авто-подписка реакций ══
+
+interface TestEvent extends DomainEvent {
+  eventName: 'test.event';
+  payload: { foo: string };
+}
+
+interface TestErMeta extends ErMeta<TestEvent> {
+  erName: 'record-test';
+}
+
+class TestEr extends EventReaction<TestErMeta, TestResolve> {
+  protected readonly erName = 'record-test' as const;
+  protected readonly erLabel = 'Записать тест';
+  protected readonly eventName = 'test.event' as const;
+
+  handled: TestEvent[] = [];
+
+  async handle(event: TestEvent): Promise<void> {
+    this.handled.push(event);
+  }
+}
+
+interface TestReactionsModuleMeta extends ApiModuleMeta {
+  name: 'TestReactionsModule';
+  url: '/test-reactions';
+  ucMetas: TestUcMeta;
+}
+
+class TestReactionsModule extends ApiModule<
+  TestReactionsModuleMeta,
+  TestResolve
+> {
+  readonly name = 'TestReactionsModule';
+  readonly useCases = [new TestUseCase()];
+  override readonly reactions = [new TestEr()];
+
+  constructor(resolve: TestResolve) {
+    super(resolve);
+    this.init();
+  }
+}
+
+describe('ApiModule.reactions (авто-подписка)', () => {
+  function makeResolveWithSubscribingBus(): {
+    resolve: TestResolve;
+    subscriptions: Array<{
+      eventName: string;
+      handler: (e: DomainEvent) => Promise<void>;
+    }>;
+  } {
+    const subscriptions: Array<{
+      eventName: string;
+      handler: (e: DomainEvent) => Promise<void>;
+    }> = [];
+    const eb = {
+      publish: mock(() => {}),
+      subscribe: mock(
+        (eventName: string, handler: (e: DomainEvent) => Promise<void>) => {
+          const entry = { eventName, handler };
+          subscriptions.push(entry);
+          return () => {
+            const idx = subscriptions.indexOf(entry);
+            if (idx >= 0) subscriptions.splice(idx, 1);
+          };
+        },
+      ),
+    };
+    const resolve: TestResolve = {
+      value: 'resolved',
+      eventBus: eb,
+      appResolver: {
+        eventBus: eb,
+        logger: {
+          debug: mock(() => {}),
+          info: mock(() => {}),
+          warn: mock(() => {}),
+          error: mock(() => {}),
+          setLogLevel: mock(() => {}),
+          getLogLevel: mock(() => LogLevel.DEBUG),
+          setSourceLevel: mock(() => {}),
+        },
+        mode: 'test',
+      },
+    };
+    return { resolve, subscriptions };
+  }
+
+  test('init() подписывает реакции на их eventName', () => {
+    const { resolve, subscriptions } = makeResolveWithSubscribingBus();
+    const module = new TestReactionsModule(resolve);
+    module.init();
+
+    expect(subscriptions).toHaveLength(1);
+    expect(subscriptions[0]?.eventName).toBe('test.event');
+  });
+
+  test('подписанный обработчик вызывает handle реакции', async () => {
+    const { resolve, subscriptions } = makeResolveWithSubscribingBus();
+    const module = new TestReactionsModule(resolve);
+    module.init();
+
+    const event: TestEvent = {
+      eventId: 'evt-2',
+      eventName: 'test.event',
+      occurredAt: '2026-08-14T00:00:00.000Z',
+      aggregateName: 'Test',
+      aggregateId: 'agg-2',
+      payload: { foo: 'bar' },
+    };
+
+    const handler = subscriptions[0]?.handler;
+    expect(handler).toBeDefined();
+    await handler?.(event);
+
+    const er = module.reactions[0] as TestEr;
+    expect(er.handled).toHaveLength(1);
+    expect(er.handled[0]?.eventId).toBe('evt-2');
+  });
+
+  test('модуль без reactions не падает при init()', () => {
+    const resolve = makeResolve('test');
+    const module = new TestModule(resolve);
+    module.init();
+    expect(module.hasCommand('test-cmd')).toBe(true);
   });
 });

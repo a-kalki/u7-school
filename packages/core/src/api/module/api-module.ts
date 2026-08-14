@@ -1,6 +1,8 @@
+import type { ErMeta, EventReaction } from '#api/er/event-reaction';
 import type { UcDocType, UseCase } from '#api/uc/use-case';
 import { errBadRequest, throwError } from '#domain/errors/error-helpers';
 import type { NoCommandFoundError } from '#domain/errors/errors';
+import type { DomainEvent } from '#domain/events/domain-event';
 import type {
   ApiExecutor,
   ApiModuleMeta,
@@ -25,6 +27,12 @@ export abstract class ApiModule<
   abstract readonly name: TMeta['name'];
   abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
 
+  /**
+   * Реакции на доменные события (опционально — не все модули реагируют).
+   * Автоматически подписываются на свои события в {@link init}.
+   */
+  readonly reactions?: EventReaction<ErMeta, ModuleResolver>[];
+
   protected resolve!: TResolve;
 
   logger!: Logger;
@@ -35,6 +43,8 @@ export abstract class ApiModule<
     string,
     UseCase<ApiModuleMeta['ucMetas'], TResolve>
   >();
+
+  private reactionsUnsubscribes: Array<() => void> = [];
 
   constructor(resolve: TResolve) {
     this.resolve = resolve;
@@ -53,6 +63,20 @@ export abstract class ApiModule<
     for (const uc of this.useCases) {
       uc.init(this.resolve);
       this.useCaseMap.set(uc.getUcName(), uc);
+    }
+
+    for (const unsubscribe of this.reactionsUnsubscribes) {
+      unsubscribe();
+    }
+    this.reactionsUnsubscribes = [];
+
+    for (const er of this.reactions ?? []) {
+      er.init(this.resolve);
+      this.reactionsUnsubscribes.push(
+        this.resolve.eventBus.subscribe(er.getEventName(), (event) =>
+          er.handle(event as DomainEvent),
+        ),
+      );
     }
   }
 
