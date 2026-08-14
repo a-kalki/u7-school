@@ -1,0 +1,10 @@
+Задача: EventReaction + ErMeta + ErDocType в core (Фаза 1 трека event-reaction_20260814).
+
+Созданные файлы:
+- packages/core/src/api/er/event-reaction.ts — ErMeta, ErDocType, абстрактный EventReaction (init/getErName/getEventName/handle/getDocType)
+- packages/core/src/api/er/event-reaction.test.ts — unit-тесты ER (5 тестов)
+
+Изменённые файлы:
+- packages/core/src/api/index.ts — экспорт EventReaction, ErMeta, ErDocType
+
+Причина: шина событий умеет только публиковать; ER даёт модулям декларативный способ реагировать на доменные события.
