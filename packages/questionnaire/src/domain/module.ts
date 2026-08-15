@@ -5,7 +5,6 @@ import type {
 } from '@u7-scl/core/domain';
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import type { UserFacade } from '@u7-scl/user/domain';
-import type { QuestionnaireBotFacade } from './bot-facade';
 import type { AbandonCmdMeta } from './questionnaire/commands/abandon-cmd';
 import type { DeclineInviteCmdMeta } from './questionnaire/commands/decline-invite-cmd';
 import type { GetCurrentCmdMeta } from './questionnaire/commands/get-current-cmd';
@@ -38,7 +37,6 @@ export interface QuestionnaireApiModuleMeta extends ApiModuleMeta {
 /** Резолвер зависимостей API-модуля questionnaire */
 export interface QuestionnaireApiModuleResolver extends ModuleResolver {
   questionnaireRepo: QuestionnaireRepo;
-  botFacade: QuestionnaireBotFacade;
   userFacade: UserFacade;
   db: BaseJsonDb;
   appResolver: AppResolver;

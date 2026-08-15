@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { InProcEventBus } from '@u7-scl/core/infra';
 import type { User, UserFacade } from '@u7-scl/user/domain';
 import { QuestionnaireApiModule } from '#api/module';
-import type { QuestionnaireBotFacade } from '#domain/bot-facade';
 import type { LikertQuestionPool } from '#domain/questionnaire/likert/likert-question';
 import type { QuestionnairePool } from '#domain/questionnaire/question';
 import { QuestionnaireFactory } from '#domain/questionnaire/questionnaire-factory';
@@ -27,14 +26,6 @@ function mockRepo(
       data.find((q: any) => q.uuid === uuid) as any,
     getByRespondentId: async (id: string) =>
       data.filter((q: any) => q.respondentId === id) as any,
-  };
-}
-
-// Мок-botFacade
-function mockBotFacade(): QuestionnaireBotFacade {
-  return {
-    sendQuestionnaireInvite: async () => {},
-    startQuestionnaire: async () => {},
   };
 }
 
@@ -95,7 +86,6 @@ const USER_ID = '00000000-0000-0000-0000-000000000001';
 function makeResolve(overrides: any = {}) {
   return {
     questionnaireRepo: mockRepo(),
-    botFacade: mockBotFacade(),
     userFacade: mockUserFacade(mockUser()),
     db: {} as any,
     appResolver: {
@@ -109,45 +99,36 @@ function makeResolve(overrides: any = {}) {
 }
 
 describe('QuestionnaireApiModule (v3 — commands)', () => {
-  test('start — создаёт, запускает анкету и вызывает botFacade', async () => {
-    let startCalled = false;
+  test('start — создаёт, запускает анкету и публикует questionnaire:start', async () => {
     const user = mockUser();
-    const botFacade: QuestionnaireBotFacade = {
-      sendQuestionnaireInvite: async () => {},
-      startQuestionnaire: async () => {
-        startCalled = true;
-      },
-    };
     const userFacade = mockUserFacade(user);
+    const eventBus = new InProcEventBus();
+    const received: any[] = [];
+    eventBus.subscribe('questionnaire:start', async (e) => {
+      received.push(e);
+    });
+
     const mod = new QuestionnaireApiModule(
-      makeResolve({ botFacade, userFacade }),
+      makeResolve({ userFacade, eventBus }),
     );
 
     await mod.execute('start', { pool: simplePool(), ownerInfo: {} }, USER_ID);
 
-    expect(startCalled).toBe(true);
+    expect(received.length).toBe(1);
+    expect(received[0]!.eventName).toBe('questionnaire:start');
+    expect(received[0]!.payload.telegramId).toBe(user.telegramId);
+    expect(received[0]!.payload.response.type).toBe('new_question');
   });
 
   test('start-by-invite — запускает по ID и возвращает ответ', async () => {
-    let botCalled = false;
     const user = mockUser();
     const repo = mockRepo();
-    const botFacade: QuestionnaireBotFacade = {
-      sendQuestionnaireInvite: async () => {
-        botCalled = true;
-      },
-      startQuestionnaire: async () => {
-        botCalled = true;
-      },
-    };
     const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(
-      makeResolve({ questionnaireRepo: repo, botFacade, userFacade }),
+      makeResolve({ questionnaireRepo: repo, userFacade }),
     );
 
     const qId = await seedStandardInvite(repo, USER_ID);
-
-    botCalled = false;
 
     const result = await mod.execute(
       'start-by-invite',
@@ -155,7 +136,6 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       USER_ID,
     );
 
-    expect(botCalled).toBe(false);
     expect(result).toBeDefined();
   });
 
@@ -287,8 +267,12 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const userFacade = mockUserFacade(user);
     const eventBus = new InProcEventBus();
     const received: any[] = [];
+    const inviteEvents: any[] = [];
     eventBus.subscribe('questionnaire:likert-complete', async (e) => {
       received.push(e);
+    });
+    eventBus.subscribe('questionnaire:invite', async (e) => {
+      inviteEvents.push(e);
     });
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade, eventBus }),
@@ -327,6 +311,10 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       { pool: likertPool, ownerInfo },
       USER_ID,
     );
+
+    expect(inviteEvents.length).toBe(1);
+    expect(inviteEvents[0]!.eventName).toBe('questionnaire:invite');
+    expect(inviteEvents[0]!.payload.response.type).toBe('invited');
 
     const all = (await mod.execute(
       'get-questionnaires-by-user',

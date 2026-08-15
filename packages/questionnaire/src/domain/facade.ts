@@ -1,36 +1,26 @@
-import type { QuestionnaireApiModule } from '../api/module';
 import type { LikertQuestionPool } from './questionnaire/likert/likert-question';
 import type { QuestionnairePool } from './questionnaire/question';
 
 /**
- * Фасад модуля questionnaire.
+ * Фасад модуля questionnaire для внешних модулей.
+ * Предоставляет запуск обычной анкеты и отправку приглашения на likert-анкету.
  */
-export class QuestionnaireInProcFacade {
-  constructor(private readonly module: QuestionnaireApiModule) {}
-
+export interface QuestionnaireFacade {
   /** Создать и сразу запустить обычную анкету. */
-  async startStandard<
+  startStandard<
     TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
   >(
     actorId: string,
     pool: QuestionnairePool,
     ownerInfo: TOwnerInfo,
-  ): Promise<void> {
-    await this.module.execute('start', { pool, ownerInfo }, actorId);
-  }
+  ): Promise<void>;
 
   /** Отправить приглашение на likert-анкету (invited). */
-  async sendLikertInvite<
+  sendLikertInvite<
     TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
   >(
     actorId: string,
     pool: LikertQuestionPool,
     ownerInfo: TOwnerInfo,
-  ): Promise<void> {
-    await this.module.execute(
-      'send-likert-invite',
-      { pool, ownerInfo },
-      actorId,
-    );
-  }
+  ): Promise<void>;
 }

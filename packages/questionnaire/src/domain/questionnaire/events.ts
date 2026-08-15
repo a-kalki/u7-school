@@ -1,6 +1,7 @@
 import type { DomainEvent } from '@u7-scl/core/domain';
 import type { BaseQuestionnaireArMeta } from './entity';
 import type { LikertScore } from './likert/likert-question';
+import type { InviteResponse, QuestionnaireActionResponse } from './types';
 
 /** Базовый payload событий анкеты (без дискриминатора kind). */
 type QuestionnaireBasePayload = {
@@ -66,4 +67,30 @@ export interface LikertQuestionnaireAbandonEvent<
   aggregateName: BaseQuestionnaireArMeta['name'];
   ownerInfo: TOwnerInfo;
   payload: QuestionnaireBasePayload;
+}
+
+/** Событие запуска обычной анкеты — для уведомления UI. */
+export interface QuestionnaireStartEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:start';
+  aggregateName: 'Questionnaire';
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload & {
+    telegramId: number;
+    response: QuestionnaireActionResponse;
+  };
+}
+
+/** Событие приглашения на анкету — для уведомления UI. */
+export interface QuestionnaireInviteEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:invite';
+  aggregateName: 'Questionnaire';
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload & {
+    telegramId: number;
+    response: InviteResponse;
+  };
 }

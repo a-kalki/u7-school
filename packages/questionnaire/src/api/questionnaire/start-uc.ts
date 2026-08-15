@@ -1,9 +1,11 @@
+import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type { StartCmdMeta } from '../../domain/questionnaire/commands/start-cmd';
 import {
   type StartCmd,
   StartCmdSchema,
 } from '../../domain/questionnaire/commands/start-cmd';
+import type { QuestionnaireStartEvent } from '../../domain/questionnaire/events';
 import { QuestionnaireFactory } from '../../domain/questionnaire/questionnaire-factory';
 import { QuestionnaireUseCase } from '../questionnaire-uc';
 
@@ -28,7 +30,23 @@ export class StartUc extends QuestionnaireUseCase<StartCmdMeta> {
     );
     const response = ar.start();
     await this.repo.save(ar.state);
-    await this.botFacade.startQuestionnaire(user, response);
+
+    const event: QuestionnaireStartEvent = {
+      eventId: crypto.randomUUID(),
+      eventName: 'questionnaire:start',
+      occurredAt: isoNow(),
+      aggregateName: 'Questionnaire',
+      aggregateId: ar.state.uuid,
+      ownerInfo: command.ownerInfo,
+      payload: {
+        questionnaireId: ar.state.uuid,
+        respondentId: user.uuid,
+        telegramId: user.telegramId,
+        response,
+      },
+    };
+    this.resolve.eventBus.publish(event);
+
     return undefined;
   }
 }

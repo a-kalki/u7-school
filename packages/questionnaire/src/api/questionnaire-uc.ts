@@ -1,7 +1,6 @@
 import { type UcMeta, UseCase } from '@u7-scl/core/api';
 import { errAccessDenied, errNotFound } from '@u7-scl/core/domain';
 import type { User, UserFacade } from '@u7-scl/user/domain';
-import type { QuestionnaireBotFacade } from '../domain/bot-facade';
 import type { QuestionnaireApiModuleResolver } from '../domain/module';
 import type { QuestionnaireNotFoundUcError } from '../domain/questionnaire/errors';
 import { QuestionnairePolicy } from '../domain/questionnaire/policy';
@@ -22,10 +21,6 @@ export abstract class QuestionnaireUseCase<
 
   protected get userFacade(): UserFacade {
     return this.resolve.userFacade;
-  }
-
-  protected get botFacade(): QuestionnaireBotFacade {
-    return this.resolve.botFacade;
   }
 
   /** Получает пользователя по actorId или выбрасывает ошибку */

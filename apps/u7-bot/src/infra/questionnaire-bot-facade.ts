@@ -3,19 +3,17 @@ import type {
   InviteResponse,
   Question,
   QuestionnaireActionResponse,
-  QuestionnaireBotFacade,
 } from '@u7-scl/questionnaire/domain';
-import type { User } from '@u7-scl/user/domain';
 import { buttons } from '../controllers/shared/buttons';
 import type { ProactiveSender } from './bot-transport';
 
 /**
- * Реализация QuestionnaireBotFacade для Telegram.
+ * Telegram-рендерер экранов анкеты (S01-S04).
  *
- * Рендерит экраны анкеты (S01-S04) через transport.send().
- * Рендеринг вынесен из OnboardingController.
+ * Используется как обработчик доменных событий questionnaire:start
+ * и questionnaire:invite — отправляет сообщения через transport.send().
  */
-export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
+export class TelegramQuestionnaireBotFacade {
   private readonly transport: ProactiveSender;
 
   constructor(transport: ProactiveSender) {
@@ -26,7 +24,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
    * S01 — Приглашение заполнить анкету.
    */
   async sendQuestionnaireInvite(
-    user: User,
+    telegramId: number,
     response: InviteResponse,
   ): Promise<void> {
     const qId = response.questionnaireId;
@@ -49,7 +47,7 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
       code: `questionnaire:fill:decline:${qId}`,
     });
 
-    await this.transport.send(user.telegramId, {
+    await this.transport.send(telegramId, {
       sendMessage: {
         text: `📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.`,
         parseMode: 'MarkdownV2',
@@ -65,11 +63,11 @@ export class TelegramQuestionnaireBotFacade implements QuestionnaireBotFacade {
    * S02-S04 — Вопросы анкеты / завершение.
    */
   async startQuestionnaire(
-    user: User,
+    telegramId: number,
     response: QuestionnaireActionResponse,
   ): Promise<void> {
     const botRes = this.#renderActionResponse(response);
-    await this.transport.send(user.telegramId, botRes);
+    await this.transport.send(telegramId, botRes);
   }
 
   // ── Рендеринг (из OnboardingController) ──

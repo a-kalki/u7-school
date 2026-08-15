@@ -6,6 +6,10 @@ import {
   serializeError,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
+import type {
+  QuestionnaireInviteEvent,
+  QuestionnaireStartEvent,
+} from '@u7-scl/questionnaire/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
 import { createBot } from './bot';
@@ -43,9 +47,27 @@ const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
 // ══ BotTransport — единый слой Grammy ↔ UiApp ══
 const transport = new BotTransport(uiApp, bot.api, sessionMap);
 
-// ══ Подключение реального рендеринга анкеты (был стаб в createApiApp) ══
-apiBundle.questionnaireResolver.botFacade = new TelegramQuestionnaireBotFacade(
-  transport,
+// ══ Подключение рендеринга анкеты через доменные события ══
+const questionnaireBotFacade = new TelegramQuestionnaireBotFacade(transport);
+
+apiBundle.eventBus.subscribe<QuestionnaireStartEvent>(
+  'questionnaire:start',
+  async (event) => {
+    await questionnaireBotFacade.startQuestionnaire(
+      event.payload.telegramId,
+      event.payload.response,
+    );
+  },
+);
+
+apiBundle.eventBus.subscribe<QuestionnaireInviteEvent>(
+  'questionnaire:invite',
+  async (event) => {
+    await questionnaireBotFacade.sendQuestionnaireInvite(
+      event.payload.telegramId,
+      event.payload.response,
+    );
+  },
 );
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══

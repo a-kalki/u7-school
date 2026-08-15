@@ -1,4 +1,5 @@
 import { ApiApp } from '@u7-scl/core/api';
+import type { EventBus } from '@u7-scl/core/domain';
 import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import { ConsoleLogger } from '@u7-scl/core/shared';
@@ -13,12 +14,11 @@ import {
 import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
 import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
-import type {
-  QuestionnaireApiModuleResolver,
-  QuestionnaireBotFacade,
-} from '@u7-scl/questionnaire/domain';
-import { QuestionnaireInProcFacade } from '@u7-scl/questionnaire/domain';
-import { QuestionnaireJsonRepo as QJsonRepo } from '@u7-scl/questionnaire/infra';
+import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
+import {
+  QuestionnaireJsonRepo as QJsonRepo,
+  QuestionnaireInProcFacade,
+} from '@u7-scl/questionnaire/infra';
 import {
   StreamApiModule,
   StreamJsonRepo,
@@ -35,12 +35,12 @@ import type { U7BotAppMeta } from './core/u7-bot-app-meta';
  */
 export interface ApiAppBundle {
   apiApp: ApiApp<U7BotAppMeta>;
+  eventBus: EventBus;
   userFacade: UserInProcFacade;
   userRepo: UserJsonRepo;
   questionnaireRepo: QuestionnaireJsonRepo;
   questionnaireFacade: QuestionnaireInProcFacade;
   questionnaireModule: QuestionnaireApiModule;
-  questionnaireResolver: QuestionnaireApiModuleResolver;
   poolService: QuestionPoolService;
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
@@ -126,12 +126,6 @@ export function createApiApp(
   });
 
   // ══ Questionnaire: модуль и фасад ══
-  // botFacade подключается позже (main.ts), когда готов BotTransport.
-  const botFacadeStub: QuestionnaireBotFacade = {
-    sendQuestionnaireInvite: async () => {},
-    startQuestionnaire: async () => {},
-  };
-
   const qRepo = new QJsonRepo(
     `${config.dbDir}/questionnaires/q-questionnaires.json`,
     db,
@@ -139,7 +133,6 @@ export function createApiApp(
 
   const questionnaireResolver: QuestionnaireApiModuleResolver = {
     questionnaireRepo: qRepo,
-    botFacade: botFacadeStub,
     userFacade,
     db,
     appResolver,
@@ -175,12 +168,12 @@ export function createApiApp(
 
   return {
     apiApp,
+    eventBus: appResolver.eventBus,
     userFacade,
     userRepo,
     questionnaireRepo,
     questionnaireFacade,
     questionnaireModule,
-    questionnaireResolver,
     poolService: activePoolService,
     streamModule,
     courseModule,
