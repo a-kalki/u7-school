@@ -148,8 +148,7 @@ export abstract class BotController<
   // ── Хелперы ──
 
   /**
-   * Генерирует callback_data с префиксом контроллера (без сжатия).
-   * Сжатием занимается BotUiApp.
+   * Генерирует callback_data с префиксом контроллера.
    */
   protected cb(action: string): string {
     return `${this.name}:${action}`;
