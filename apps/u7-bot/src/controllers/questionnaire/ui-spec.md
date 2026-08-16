@@ -22,7 +22,7 @@
 
 **Как попасть:** инициативно от системы через `sendInvite()`.
 **Кому:** пользователю, которому предназначена анкета.
-**Рендеринг:** `TelegramQuestionnaireBotFacade.sendQuestionnaireInvite()`
+**Рендеринг:** FillStory → подписка `questionnaire:invite` → `#handleInviteEvent`
 **Данные:** `InviteResponse` содержит `inviteText?`, `whyText?`, `questionnaireId`.
 
 **Содержание:**

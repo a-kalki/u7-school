@@ -24,7 +24,7 @@ Grammy (адаптер) → BotTransport (транспорт/исполнени�
 | Маршрутизация | `BotUiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Core: резолв актора, диспетчеризация, `delegate`. U7: сбор меню, `/start`, `/help` |
 | Диспетчер | `BotController` / `U7BotController` | `packages/core/src/ui/bot/bot-controller.ts`, `apps/u7-bot/src/core/u7-bot-controller.ts` | Core: реестр сторис, префиксация кнопок, `handleError`. U7: главное меню, `handleWelcome`/`handleHelpMessage` |
 | Сценарий | `BotUiStory` / `U7BotUiStory` | `packages/core/src/ui/bot/bot-ui-story.ts`, `apps/u7-bot/src/core/u7-bot-ui-story.ts` | Логика одного экрана: UC → рендер `BotResponse` |
-| Данные | `BotCommand` / `BotResponse` / `SessionData` | `packages/core/src/ui/bot/types.ts` | Типы между слоями |
+| Данные | `BotCommand` / `BotResponse` / `SessionData` / `ProactiveSender` | `packages/core/src/ui/bot/types.ts` | Типы между слоями |
 | Домен | `ApiApp.execute()` | `packages/core/src/api/` | UseCase'ы доменных модулей |
 
 ---
@@ -120,6 +120,7 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 ```ts
 BotCommand   // «приказ» транспорту: send/edit + сессия (captureInput/releaseInput)
 BotResponse extends BotCommand  // + delegate (маршрутная директива, ест BotUiApp)
+ProactiveSender  // send(telegramId, command) — цепочка transport → BotUiApp → BotController → BotUiStory
 ```
 
 Стори/контроллеры возвращают `BotResponse`; `BotTransport.execute()`/`send()`
@@ -183,9 +184,13 @@ Grammy ctx (callback_query.data)
 
 ### 3.5. Проактивные сообщения
 
-Фасады (например `TelegramQuestionnaireBotFacade`) шлют через
-`transport.send(telegramId, command)` — минуя `BotUiApp`. Поэтому `execute()` сам
-применяет `captureInput`/`releaseInput` и сжатие (`compressCommand`).
+Проактивная отправка идёт по цепочке `ProactiveSender`:
+`story.proactiveSender.send()` → `BotController.send()` (префиксация кнопок
+через `#prefixCommand`) → `BotUiApp.send()` (делегирование) →
+`BotTransport.send()` (исполнение). Каждый уровень передаёт себя вниз через
+`init(resolve, sender)` отдельным аргументом. `BotTransport.send()` сам
+применяет `captureInput`/`releaseInput` и сжатие (`compressCommand`), т.к.
+проактивная отправка минует обработчики `BotUiApp.handleCallback`/`handleMessage`.
 
 ---
 
