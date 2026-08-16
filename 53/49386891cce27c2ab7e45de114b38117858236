@@ -1,0 +1,18 @@
+Фаза 1 трека ui-proactive-sender: прокидка ProactiveSender через init.
+
+Задачи: Red-тесты прокидки, Green-реализация, вынос #prefixCommand, разделение create/init.
+
+Изменения:
+- packages/core/src/ui/bot/types.ts — добавлен интерфейс ProactiveSender (FR1).
+- packages/core/src/ui/bot/ui-app.ts — BotUiApp implements ProactiveSender; init(resolve, transport) передаёт себя контроллерам; send делегирует в transport.
+- packages/core/src/ui/bot/bot-controller.ts — BotController implements ProactiveSender; init(resolve, proactiveSender) передаёт себя стори; send префиксирует коды через #prefixCommand; #prefixCommand вынесен из #prefixResponse.
+- packages/core/src/ui/bot/bot-ui-story.ts — BotUiStory.init(resolve, proactiveSender) сохраняет родителя-контроллера.
+- apps/u7-bot/src/core/u7-bot-controller.ts — прокидка proactiveSender в super.init.
+- apps/u7-bot/src/core/ui-app.ts — U7BotUiApp.init принимает transport.
+- apps/u7-bot/src/infra/bot-transport.ts — ProactiveSender импортируется из @u7-scl/core/ui (FR8).
+- apps/u7-bot/src/infra/questionnaire-bot-facade.ts — импорт ProactiveSender из core.
+- apps/u7-bot/src/create-ui-app.ts — создание/init разделены, resolve возвращается из фабрики.
+- apps/u7-bot/src/main.ts — transport создаётся до uiApp.init(resolve, transport) и uiApp.subscribeEvents().
+- Тесты: bot-ui-story.test.ts, bot-controller.test.ts, ui-app.test.ts — Red-тесты прокидки.
+
+Причина: цепочка проактивной отправки transport → BotUiApp → BotController → BotUiStory, каждый уровень передаёт себя вниз через init отдельным аргументом.
