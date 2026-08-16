@@ -1,0 +1,12 @@
+Задача: wish модуль (ядро) — трек C1
+
+Изменения:
+- Новый пакет @u7-scl/wish: агрегат Wish (expressed/cancelled/fulfilled), WishRepo + WishJsonRepo
+- UC express-wish (мгновенно / через анкету) и cancel-wish
+- ER record-wish (по событию questionnaire:complete)
+- Пул/конфиг анкеты желания wish-questionnaire
+- CourseFacade.getCourse для проверки существования курса
+- Удалён старый код анкет onboarding, пакет переименован в @u7-scl/wish
+- WishApiModule зарегистрирован в ApiApp; удалён onboarding-контроллер и e2e-тест
+
+Причина: wish фиксирует желание пройти курс, анкеты теперь ведёт questionnaire.
