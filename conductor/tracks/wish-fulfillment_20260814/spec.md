@@ -19,7 +19,7 @@
 - `packages/user/src/api/user/remove-role-to-user-uc.ts` — комментарий/логика «только STUDENT или CANDIDATE у себя».
 - `packages/stream/src/api/student/enroll-student-uc.ts` — шаг 6 «Снятие роли CANDIDATE» (`userFacade.removeRoleFromUser(..., Role.CANDIDATE, ...)`).
 - `packages/stream/src/domain/stream/policy.ts` — `canEnroll(actor) = !UserPolicy.isStudent(actor)` (CANDIDATE напрямую НЕ проверяется; проверяется «не студент»).
-- Тесты/фикстуры: `user/roles.test.ts`, `user/a-root.test.ts`, `user/policy.test.ts`, `stream/policy.test.ts`, `stream/enroll-student-uc.test.ts`, `apps/u7-bot/controllers/app/stories/community.story.test.ts`, `apps/u7-bot/scripts/seed-fixtures.ts`.
+- Тесты/фикстуры: `user/roles.test.ts`, `user/a-root.test.ts`, `user/policy.test.ts`, `stream/policy.test.ts`, `stream/enroll-student-uc.test.ts`, `apps/u7-bot/src/controllers/app/stories/community.story.test.ts`, `apps/u7-bot/scripts/seed-fixtures.ts`.
 
 Текущее зачисление НЕ публикует событий: `StudentAr.enroll` не накапливает `addEvent`, `enroll-student-uc` не вызывает `publishEvents`.
 
@@ -81,7 +81,7 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
    - `packages/user/.../roles.test.ts`, `a-root.test.ts`, `policy.test.ts`;
    - `packages/stream/.../policy.test.ts` (тест «canEnroll для CANDIDATE» → заменить на `GUEST`/`SUBSCRIBER`);
    - `packages/stream/.../enroll-student-uc.test.ts` (убрать проверки «снятие CANDIDATE»);
-   - `apps/u7-bot/controllers/app/stories/community.story.test.ts`;
+   - `apps/u7-bot/src/controllers/app/stories/community.story.test.ts`;
    - `apps/u7-bot/scripts/seed-fixtures.ts` (убрать `Role.CANDIDATE` из списка ролей dev-пользователя и текста).
 6. Убедиться: `grep -rn "CANDIDATE" packages/ apps/` не находит ссылок (кроме, возможно, исторических комментариев — их тоже убрать).
 

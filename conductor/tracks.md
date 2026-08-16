@@ -1,7 +1,7 @@
 [$T1=./tracks/wish-module_20260814/, $T2=./tracks/wish-fulfillment_20260814/, $T3=./tracks/wish-ui_20260814/]
 # Реестр треков
 
-- [ ] **Track: wish: ядро модуля (замена onboarding)**
+- [x] **Track: wish: ядро модуля (замена onboarding)**
 *Link: [$T1]($T1)*
 
 ---

@@ -6,14 +6,14 @@ UI «желания пройти курс» встраивается в **кат
 
 Экраны и кнопки описаны в `apps/u7-bot/src/controllers/courses/ui-spec.md` (раздел «Желание пройти курс», экраны W01–W05).
 
-Зависит от: **C1** (UC `express-wish`/`cancel-wish`), **B** (проактивный старт анкеты через `TelegramQuestionnaireBotFacade`).
+Зависит от: **C1** (UC `express-wish`/`cancel-wish`), **B** (события/ownerInfo анкеты), а также рендер анкеты через `FillStory` + `ProactiveSender` (подписка на `questionnaire:start`/`questionnaire:invite`, треки `ui-event-subscriptions_20260816` и `ui-proactive-sender_20260816`).
 
 ## Текущее состояние (базовая линия)
 
 - `apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts` — стори каталога; уровень 0 рендерит карточки курсов кнопками `{emoji} {course.title}` → `course:course-catalog:phases:{courseId}`.
 - `apps/u7-bot/src/controllers/courses/controller.ts` — `CoursesController`, префикс `course`, стори `course-catalog`.
 - `apps/u7-bot/src/controllers/courses/ui-spec.md` — раздел «Желание пройти курс» (📋) с экранами W01–W05.
-- `packages/core/src/ui/bot/bot-user-story.ts` — `BotUserStory` (`cb()`, `cbFor()`, `confirm()`, `handleError()`).
+- `packages/core/src/ui/bot/bot-ui-story.ts` — `BotUiStory` (`cb()`, `cbFor()`, `confirm()`, `handleError()`); в u7-bot стори наследуют `U7BotUiStory` (`apps/u7-bot/src/core/u7-bot-ui-story.ts`).
 - `apps/u7-bot/src/controllers/shared/buttons.ts` — кнопка `buttons.mainMenu()`.
 
 ## Зафиксированные решения
@@ -39,7 +39,7 @@ UI «желания пройти курс» встраивается в **кат
 
 1. `const { outcome } = await this.appApi.execute('express-wish', { courseId }, actor.uuid);`
 2. `outcome === 'instant'` → отрендерить **W03** («Желание зафиксировано»).
-3. `outcome === 'questionnaire'` → вернуть `{}` (анкета рендерится проактивно через `TelegramQuestionnaireBotFacade`; стори ничего не отправляет).
+3. `outcome === 'questionnaire'` → вернуть `{}` (анкету проактивно рендерит `FillStory` через подписку на `questionnaire:start` и `ProactiveSender.send`; стори ничего не отправляет).
 4. Ошибки:
    - `WISH_ALREADY_EXISTS` (конфликт) → экран **W04** («Ты уже выразил желание пройти этот курс»).
    - `COURSE_NOT_FOUND` и прочие → через `handleError()`.
