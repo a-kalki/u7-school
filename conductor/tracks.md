@@ -1,4 +1,4 @@
-[$T1=./tracks/wish-module_20260814/, $T2=./tracks/wish-fulfillment_20260814/, $T3=./tracks/wish-ui_20260814/, $T4=./tracks/ui-event-subscriptions_20260816/, $T5=./tracks/ui-proactive-sender_20260816/]
+[$T1=./tracks/wish-module_20260814/, $T2=./tracks/wish-fulfillment_20260814/, $T3=./tracks/wish-ui_20260814/, $T4=./tracks/ui-proactive-sender_20260816/]
 # Реестр треков
 
 - [ ] **Track: wish: ядро модуля (замена onboarding)**
@@ -16,10 +16,5 @@
 
 ---
 
-- [x] **Track: UI: канально-независимый слой и механизм подписки стори на доменные события**
-*Link: [$T4]($T4)*
-
----
-
 - [ ] **Track: UI (bot): прокидка ProactiveSender через init и перенос рендеринга анкеты в стори**
-*Link: [$T5]($T5)*
+*Link: [$T4]($T4)*
