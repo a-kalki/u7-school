@@ -34,7 +34,7 @@ describe('CatalogStory (S01)', () => {
     };
 
     const story = new CatalogStory();
-    story.init(mockAppApi as never, mockUiApp as never);
+    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
     return { story, mockAppApi, mockUiApp };
   }
 

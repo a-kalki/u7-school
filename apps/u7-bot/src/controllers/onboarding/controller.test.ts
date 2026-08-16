@@ -115,7 +115,7 @@ describe('OnboardingController', () => {
 
     apiApp = new ApiApp([mod]) as ApiApp<U7BotAppMeta>;
     controller = new OnboardingController();
-    controller.init(apiApp, undefined as never);
+    controller.init({ appApi: apiApp, uiApp: undefined } as never);
   });
 
   afterEach(() => {
@@ -290,7 +290,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test2',
@@ -362,7 +362,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test3',
@@ -430,7 +430,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test4',
@@ -500,7 +500,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test5',
@@ -570,7 +570,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test6',
@@ -636,7 +636,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test7',
@@ -705,7 +705,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test8',
@@ -759,7 +759,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test9',
@@ -816,7 +816,7 @@ describe('OnboardingController', () => {
 
     const app2 = new ApiApp([mod2]) as ApiApp<U7BotAppMeta>;
     const ctrl2 = new OnboardingController();
-    ctrl2.init(app2, undefined as never);
+    ctrl2.init({ appApi: app2, uiApp: undefined } as never);
     const actor2: User = {
       uuid: botAdminUuid,
       name: 'Test10',

@@ -17,6 +17,7 @@
 ## Созданные файлы
 
 - `packages/core/src/ui/event-subscription.ts`
+- `packages/core/src/ui/types.ts` — `UiAppResolve<TActor>`
 - `packages/core/src/ui/ui-story.ts`
 - `packages/core/src/ui/ui-controller.ts`
 - `packages/core/src/ui/ui-app.ts`
@@ -50,10 +51,12 @@
 
 ## Архитектурные решения
 
-1. **Дженерик на стори в контроллере** — `UiController<TStory extends UiStory>` владеет `stories: TStory[]`; `BotController extends UiController<BotUiStory<...>>` получает корректный тип стори без теневого поля.
-2. **Дженерик на контроллере в UiApp** — `UiApp<TController extends UiController>` владеет `controllers: Map<string, TController>`; `BotUiApp extends UiApp<BotController<...>>` сохраняет типизированный доступ к bot-контроллерам.
-3. **Идемпотентная подписка** — `UiApp.subscribeEvents` запоминает `subscribed`, повторный вызов не дублирует обработчики; `unsubscribeAll` сбрасывает флаг.
-4. **Метод-сигнатура `handle(event: TEvent)`** в `UiEventSubscription` — бивариантность методов позволяет `UiEventSubscription<SpecificEvent>` быть совместимым с `UiEventSubscription<DomainEvent>` при агрегации.
+1. **`UiApp<TActor, TResolve extends UiAppResolve<TActor>>`** — без дженерика на контроллер; хранит `UiController` (базовый тип). Зависимости нижних слоёв приходят через `init(resolve)`.
+2. **`UiController<TResolve>`** — без дженерика на стори; `stories: UiStory<TResolve>[]`. `BotController` сужает тип стори через `declare`.
+3. **Каскадная загрузка** — `UiApp.init(resolve)` → `UiController.init(resolve)` → `UiStory.init(resolve)`, по аналогии с `ApiApp.init() → module.init() → uc.init()`.
+4. **`UiAppResolve<TActor>`** — `{ eventBus, actorResolver }` (аналог `AppResolver`); `BotUiResolve` расширяет его полями `appApi` и `uiApp` (аналог `ModuleResolver`).
+5. **Идемпотентная подписка** — `UiApp.subscribeEvents()` берёт шину из resolve, повторный вызов не дублирует обработчики; `unsubscribeAll` сбрасывает флаг.
+6. **Двойная подписка на один eventName не затирается** — `InProcEventBus.subscribe` добавляет обработчики в массив (проверено тестом в UI-слое и уже покрыто тестами API-слоя).
 
 ## Отклонения от плана
 

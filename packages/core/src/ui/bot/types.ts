@@ -1,5 +1,9 @@
 /** Общие типы для UI-слоя Telegram-бота */
 
+import type { ApiApp } from '#api/app/api-app';
+import type { AppMeta } from '#domain/types';
+import type { UiAppResolve } from '../types';
+
 /**
  * Описание inline-клавиатуры.
  *
@@ -111,4 +115,16 @@ export type BotUpdate =
 export interface MenuAggregator<TActor = unknown> {
   collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
   collectAllHelpDescriptions(actor: TActor): Promise<string[]>;
+}
+
+/**
+ * Зависимости UI-слоя бота. Расширяет UiAppResolve привязкой к API-приложению
+ * и агрегатору меню. Передаётся вниз по дереву через BotUiApp.init().
+ */
+export interface BotUiResolve<
+  TAppMeta extends AppMeta = AppMeta,
+  TActor = unknown,
+> extends UiAppResolve<TActor> {
+  appApi: ApiApp<TAppMeta>;
+  uiApp: MenuAggregator<TActor>;
 }

@@ -21,7 +21,7 @@ packages/<module>/
 
 > **UI-слой вынесен из пакетов.** Контроллеры и stories Telegram-бота живут в `apps/u7-bot/src/controllers/`.
 > Фреймворк бота (`BotController`, `BotUiApp`, `BotUiStory`) — в `packages/core/src/ui/bot/`.
-> Канально-независимая база (`UiApp`, `UiController`, `UiStory`, `UiEventSubscription`) — в `packages/core/src/ui/`. Подписки стори на доменные события — через `getEventSubscriptions()` и `UiApp.subscribeEvents(eventBus)`.
+> Канально-независимая база (`UiApp`, `UiController`, `UiStory`, `UiEventSubscription`, `UiAppResolve`) — в `packages/core/src/ui/`. Загрузка — через каскадный `UiApp.init(resolve)`; подписки стори на доменные события — через `getEventSubscriptions()` и `UiApp.subscribeEvents()`.
 ```
 
 ### Слой api: Структура папок

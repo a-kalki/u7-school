@@ -61,8 +61,8 @@ class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
     return { sendMessage: { text: `story_message:${this.name}` } };
   }
 
-  override init(apiApp: unknown, uiApp: unknown): void {
-    super.init(apiApp as never, uiApp as never);
+  override init(resolve: unknown): void {
+    super.init(resolve as never);
     this.initCalled = true;
   }
 
@@ -118,7 +118,7 @@ describe('BotController', () => {
 
   describe('init', () => {
     test('вызывает init у всех стори', () => {
-      ctrl.init({} as never, undefined as never);
+      ctrl.init({} as never);
       expect(story1.initCalled).toBe(true);
       expect(story2.initCalled).toBe(true);
     });
@@ -386,7 +386,7 @@ describe('BotController', () => {
       const mockUiApp = {} as unknown as ReturnType<
         typeof import('../ui-app').BotUiApp.prototype.init
       >;
-      c.init({} as never, mockUiApp as never);
+      c.init({ appApi: {}, uiApp: mockUiApp } as never);
 
       expect(story1.uiApp).toBe(mockUiApp as never);
       expect(story2.uiApp).toBe(mockUiApp as never);
@@ -394,7 +394,7 @@ describe('BotController', () => {
 
     test('init с пустым контроллером не падает', () => {
       const c = new TestController();
-      c.init({} as never, {} as never);
+      c.init({} as never);
     });
   });
 });

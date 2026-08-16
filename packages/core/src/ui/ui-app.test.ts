@@ -79,6 +79,13 @@ function makeEvent(): TestEvent {
   };
 }
 
+function makeResolve(bus: EventBus) {
+  return {
+    eventBus: bus,
+    actorResolver: async () => ({ id: 'a1' }),
+  };
+}
+
 describe('UiApp (общий слой)', () => {
   test('subscribeEvents регистрирует подписку с правильным eventName', () => {
     const bus = new FakeEventBus();
@@ -87,7 +94,8 @@ describe('UiApp (общий слой)', () => {
     ]);
     const app = new UiApp([new TestController('ctrl', [story])]);
 
-    app.subscribeEvents(bus);
+    app.init(makeResolve(bus));
+    app.subscribeEvents();
 
     expect(bus.handlers.has('test-event')).toBe(true);
     expect(bus.handlers.get('test-event')).toHaveLength(1);
@@ -102,7 +110,8 @@ describe('UiApp (общий слой)', () => {
       }),
     ]);
     const app = new UiApp([new TestController('ctrl', [story])]);
-    app.subscribeEvents(bus);
+    app.init(makeResolve(bus));
+    app.subscribeEvents();
 
     const event = makeEvent();
     bus.publish(event);
@@ -121,7 +130,8 @@ describe('UiApp (общий слой)', () => {
       }),
     ]);
     const app = new UiApp([new TestController('ctrl', [story])]);
-    app.subscribeEvents(bus);
+    app.init(makeResolve(bus));
+    app.subscribeEvents();
 
     app.unsubscribeAll();
     bus.publish(makeEvent());
@@ -138,11 +148,44 @@ describe('UiApp (общий слой)', () => {
       }),
     ]);
     const app = new UiApp([new TestController('ctrl', [story])]);
+    app.init(makeResolve(bus));
 
-    app.subscribeEvents(bus);
-    app.subscribeEvents(bus);
+    app.subscribeEvents();
+    app.subscribeEvents();
     bus.publish(makeEvent());
 
     expect(received).toHaveLength(1);
+  });
+
+  test('две стори на один eventName — обе подписки вызываются', () => {
+    const bus = new FakeEventBus();
+    const received: string[] = [];
+    const storyA = new TestStory([
+      eventSubscription<TestEvent>('test-event', async () => {
+        received.push('story-a');
+      }),
+    ]);
+    const storyB = new TestStory([
+      eventSubscription<TestEvent>('test-event', async () => {
+        received.push('story-b');
+      }),
+    ]);
+    const app = new UiApp([
+      new TestController('ctrl-a', [storyA]),
+      new TestController('ctrl-b', [storyB]),
+    ]);
+    app.init(makeResolve(bus));
+    app.subscribeEvents();
+
+    bus.publish(makeEvent());
+
+    expect(received).toContain('story-a');
+    expect(received).toContain('story-b');
+    expect(received).toHaveLength(2);
+  });
+
+  test('subscribeEvents до init — ошибка', () => {
+    const app = new UiApp([]);
+    expect(() => app.subscribeEvents()).toThrow('UiApp не инициализирован');
   });
 });

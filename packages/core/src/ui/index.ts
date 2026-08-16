@@ -7,6 +7,7 @@ export {
 export * from './bot/types';
 export * from './bot/ui-app';
 export * from './event-subscription';
+export * from './types';
 export * from './ui-app';
 export * from './ui-controller';
 export * from './ui-story';

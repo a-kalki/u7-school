@@ -8,12 +8,13 @@ import { UiController } from '../../ui-controller';
 import type { BotUiStory } from '../bot-ui-story';
 import type {
   BotResponse,
+  BotUiResolve,
   BotUpdate,
   KeyboardDescription,
   MainMenuAction,
+  MenuAggregator,
   SessionData,
 } from '../types';
-import type { BotUiApp } from '../ui-app';
 
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
@@ -28,7 +29,9 @@ import type { BotUiApp } from '../ui-app';
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-> extends UiController<BotUiStory<TAppMeta, TActor>> {
+> extends UiController<BotUiResolve<TAppMeta, TActor>> {
+  protected declare readonly stories: BotUiStory<TAppMeta, TActor>[];
+
   /** Публичный доступ к stories */
   getStories(): BotUiStory<TAppMeta, TActor>[] {
     return this.stories;
@@ -37,15 +40,13 @@ export abstract class BotController<
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** UI-приложение */
-  protected uiApp!: BotUiApp<TAppMeta, TActor>;
+  /** Агрегатор меню UI-приложения */
+  protected uiApp!: MenuAggregator<TActor>;
 
-  init(appApi: ApiApp<TAppMeta>, uiApp: BotUiApp<TAppMeta, TActor>): void {
-    this.appApi = appApi;
-    this.uiApp = uiApp;
-    for (const story of this.stories) {
-      story.init(appApi, uiApp);
-    }
+  override init(resolve: BotUiResolve<TAppMeta, TActor>): void {
+    this.appApi = resolve.appApi;
+    this.uiApp = resolve.uiApp;
+    super.init(resolve);
   }
 
   /** Сброс временных данных контроллера и всех стори */

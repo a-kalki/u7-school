@@ -61,7 +61,7 @@ describe('StreamsController (реестр)', () => {
 
   test('handleStart агрегирует кнопки от stories', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, mockUiApp);
+    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const items = await controller.handleStart(guestActor);
 
@@ -72,7 +72,7 @@ describe('StreamsController (реестр)', () => {
 
   test('handleCallback форвардит catalog:list', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, mockUiApp);
+    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const session = { activeHandler: null };
 
@@ -87,7 +87,7 @@ describe('StreamsController (реестр)', () => {
 
   test('handleCallback форвардит view-stream:view', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, mockUiApp);
+    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const session = { activeHandler: null };
 

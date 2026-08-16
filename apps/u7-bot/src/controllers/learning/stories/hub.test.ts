@@ -56,7 +56,7 @@ describe('HubStory', () => {
     };
 
     const story = new HubStory();
-    story.init(mockAppApi as never, mockUiApp as never);
+    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
     return { story, mockAppApi };
   }
 
@@ -98,7 +98,7 @@ describe('HubStory', () => {
       }),
       getController: mock(() => undefined),
     };
-    errorStory.init(errorAppApi as never, mockUiApp as never);
+    errorStory.init({ appApi: errorAppApi, uiApp: mockUiApp } as never);
 
     const response = await errorStory.handleCallback(
       'my-study',
@@ -161,7 +161,7 @@ describe('HubStory', () => {
     };
 
     const story = new HubStory();
-    story.init({ execute: executeSpy } as never, mockUiApp as never);
+    story.init({ appApi: { execute: executeSpy }, uiApp: mockUiApp } as never);
 
     const response = await story.handleCallback(
       'my-study:leave',
@@ -197,7 +197,7 @@ describe('HubStory', () => {
     };
 
     const story = new HubStory();
-    story.init({ execute: executeSpy } as never, mockUiApp as never);
+    story.init({ appApi: { execute: executeSpy }, uiApp: mockUiApp } as never);
 
     const response = await story.handleCallback(
       'my-study:leave',

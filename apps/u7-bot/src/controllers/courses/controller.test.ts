@@ -40,7 +40,7 @@ describe('CoursesController (реестр)', () => {
 
   test('handleStart агрегирует кнопки от stories', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, mockUiApp);
+    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const items = await controller.handleStart(guestActor);
 
@@ -51,7 +51,7 @@ describe('CoursesController (реестр)', () => {
 
   test('handleCallback форвардит по префиксу story', async () => {
     const controller = makeController();
-    controller.init(mockAppApi, mockUiApp);
+    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const session = { activeHandler: null };
 

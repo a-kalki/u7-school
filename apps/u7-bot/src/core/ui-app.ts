@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import type { ApiApp } from '@u7-scl/core/api';
+import type { BotUiResolve } from '@u7-scl/core/ui';
 import { BotUiApp } from '@u7-scl/core/ui';
 import type { U7BotAppMeta } from './u7-bot-app-meta';
 
@@ -8,15 +8,11 @@ import type { U7BotAppMeta } from './u7-bot-app-meta';
  */
 export class U7BotUiApp extends BotUiApp<U7BotAppMeta, User> {
   /**
-   * Инициализация с резолвером актора.
+   * Инициализация зависимостями UI-слоя U7-бота.
    *
-   * @param apiApp — приложение API
-   * @param actorResolver — резолвер пользователя по telegramId
+   * @param resolve — зависимости (appApi, uiApp, eventBus, actorResolver)
    */
-  override init(
-    apiApp: ApiApp<U7BotAppMeta>,
-    actorResolver: (tgId: number) => Promise<User>,
-  ): void {
-    super.init(apiApp, actorResolver);
+  override init(resolve: BotUiResolve<U7BotAppMeta, User>): void {
+    super.init(resolve);
   }
 }

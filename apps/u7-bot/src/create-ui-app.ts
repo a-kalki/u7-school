@@ -56,12 +56,17 @@ export function createUiApp(
     questionnaireController,
   ]);
 
-  // Каскадная инициализация: ApiApp → контроллеры → стори
+  // Каскадная инициализация: UiApp → контроллеры → стори
   // actorResolver: резолвит User по telegramId через userFacade
-  uiApp.init(apiApp, async (tgId: number) => {
-    const user = await bundle.userFacade.getUserByTelegramId(tgId);
-    if (!user) throw new Error(`Пользователь с telegramId ${tgId} не найден`);
-    return user;
+  uiApp.init({
+    eventBus: bundle.eventBus,
+    actorResolver: async (tgId: number) => {
+      const user = await bundle.userFacade.getUserByTelegramId(tgId);
+      if (!user) throw new Error(`Пользователь с telegramId ${tgId} не найден`);
+      return user;
+    },
+    appApi: apiApp,
+    uiApp,
   });
 
   return {

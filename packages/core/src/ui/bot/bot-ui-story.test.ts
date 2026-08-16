@@ -292,25 +292,25 @@ describe('BotUiStory', () => {
       expect(story.uiApp).toBeUndefined();
     });
 
-    test('init(appApi, uiApp) устанавливает и appApi и uiApp', () => {
+    test('init(resolve) устанавливает и appApi и uiApp', () => {
       const mockUiApp = {};
 
-      story.init({} as never, mockUiApp as never);
+      story.init({ appApi: {}, uiApp: mockUiApp } as never);
       expect(story.uiApp).toBe(mockUiApp as never);
     });
 
     test('init с null uiApp — устанавливает null', () => {
-      story.init({} as never, null as never);
+      story.init({ appApi: {}, uiApp: null } as never);
       expect(story.uiApp).toBeNull();
     });
 
     test('init с разными типами uiApp', () => {
       const obj1 = {};
-      story.init({} as never, obj1 as never);
+      story.init({ appApi: {}, uiApp: obj1 } as never);
       expect(story.uiApp).toBe(obj1 as never);
 
       const obj2 = {};
-      story.init({} as never, obj2 as never);
+      story.init({ appApi: {}, uiApp: obj2 } as never);
       expect(story.uiApp).toBe(obj2 as never);
     });
   });

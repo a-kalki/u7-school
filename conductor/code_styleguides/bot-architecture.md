@@ -216,7 +216,7 @@ Grammy ctx (callback_query.data)
 3. `bot = createBot(config.botToken, sessionMap)`.
 4. `apiBundle = createApiApp(config, logger, tgFacade)` — доменные модули + репозитории.
 5. `createUiApp(apiApp, apiBundle, config)` — все контроллеры + `U7BotUiApp`,
-   `uiApp.init(apiApp, actorResolver)` (actorResolver = `userFacade.getUserByTelegramId`).
+   `uiApp.init(resolve)` — каскадная инициализация по дереву (resolve = `{ eventBus, actorResolver, appApi, uiApp }`).
 6. `transport = new BotTransport(uiApp, bot.api, sessionMap)`.
 7. Регистрация Grammy-обработчиков → `transport.handle*`.
 

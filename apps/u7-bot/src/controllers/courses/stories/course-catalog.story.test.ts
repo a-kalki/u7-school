@@ -106,7 +106,7 @@ describe('CourseCatalogStory', () => {
     story: CourseCatalogStory,
     api: ReturnType<typeof makeAppApi>,
   ) {
-    story.init(api as never, mockUiApp);
+    story.init({ appApi: api, uiApp: mockUiApp } as never);
   }
 
   // ── Главное меню ──

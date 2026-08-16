@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import type { BotUiApp, MainMenuAction, MenuAggregator } from '@u7-scl/core/ui';
+import type { MainMenuAction, MenuAggregator } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -31,10 +31,10 @@ function initCtrl(
   menuItems: MainMenuAction[] = [],
   helpDescs: string[] = [],
 ): void {
-  ctrl.init(
-    {} as never,
-    makeAggregator(menuItems, helpDescs) as unknown as BotUiApp<any, User>,
-  );
+  ctrl.init({
+    appApi: {},
+    uiApp: makeAggregator(menuItems, helpDescs),
+  } as never);
 }
 
 describe('AppController', () => {

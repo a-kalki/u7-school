@@ -1,10 +1,10 @@
-import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
 import { getGlobalLogger } from '#shared/logger';
 import { UiApp } from '../ui-app';
 import type { BotController } from './controller/bot-controller';
 import type {
   BotResponse,
+  BotUiResolve,
   BotUpdate,
   KeyboardDescription,
   MainMenuAction,
@@ -39,35 +39,33 @@ export function extractRestData(data: string): string {
  * @typeParam TActor — тип актора (пользователя)
  */
 export class BotUiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
-  extends UiApp<BotController<TAppMeta, TActor>>
+  extends UiApp<TActor, BotUiResolve<TAppMeta, TActor>>
   implements MenuAggregator<TActor>
 {
-  private actorResolver: ((tgId: number) => Promise<TActor>) | null = null;
+  protected declare readonly controllers: Map<
+    string,
+    BotController<TAppMeta, TActor>
+  >;
 
-  /**
-   * Каскадная инициализация: ApiApp → контроллеры → стори.
-   *
-   * @param apiApp — приложение API
-   * @param actorResolver — резолвер актора по telegramId
-   */
-  init(
-    apiApp: ApiApp<TAppMeta>,
-    actorResolver: (tgId: number) => Promise<TActor>,
-  ): void {
-    this.actorResolver = actorResolver;
-    for (const controller of this.controllers.values()) {
-      controller.init(apiApp, this);
-    }
+  // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с UiController до BotController
+  constructor(controllers: BotController<TAppMeta, TActor>[]) {
+    super(controllers);
   }
 
-  // ── Резолвинг актора ──
+  /** Возвращает контроллер по имени */
+  override getController(
+    name: string,
+  ): BotController<TAppMeta, TActor> | undefined {
+    return this.controllers.get(name);
+  }
 
-  /** Резолвит актора по telegramId. Бросает ошибку если резолвер не настроен. */
-  private async resolveActor(tgId: number): Promise<TActor> {
-    if (!this.actorResolver) {
-      throw new Error('BotUiApp не инициализирован: actorResolver не задан');
-    }
-    return this.actorResolver(tgId);
+  /**
+   * Каскадная инициализация: UiApp → контроллеры → стори.
+   *
+   * @param resolve — зависимости UI-слоя бота
+   */
+  override init(resolve: BotUiResolve<TAppMeta, TActor>): void {
+    super.init(resolve);
   }
 
   // ── Сбор главного меню ──

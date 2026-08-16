@@ -76,7 +76,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     };
 
     const story = new ViewStreamStory();
-    story.init(mockAppApi as never, mockUiApp as never);
+    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
     return { story, mockAppApi, mockUiApp };
   }
 
@@ -320,7 +320,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     };
 
     const story = new ViewStreamStory();
-    story.init(mockAppApi as never, mockUiApp as never);
+    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const response = await story.handleCallback(
       `program:${SAMPLE_ID}`,
@@ -353,7 +353,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     };
 
     const story = new ViewStreamStory();
-    story.init(mockAppApi as never, mockUiApp as never);
+    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
 
     const response = await story.handleCallback(
       `program:${SAMPLE_ID}`,
@@ -549,7 +549,7 @@ describe('ViewStreamStory (S02-S04)', () => {
     };
 
     const story = new ViewStreamStory();
-    story.init(mockAppApi as never, mockUiApp as never);
+    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
     return { story, mockAppApi, mockUiApp };
   }
 

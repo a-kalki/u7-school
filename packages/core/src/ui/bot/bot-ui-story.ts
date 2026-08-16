@@ -8,11 +8,12 @@ import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type {
   BotResponse,
+  BotUiResolve,
   BotUpdate,
   MainMenuAction,
+  MenuAggregator,
   SessionData,
 } from './types';
-import type { BotUiApp } from './ui-app';
 
 /**
  * Абстрактный класс для пользовательского сценария внутри контроллера.
@@ -27,15 +28,15 @@ import type { BotUiApp } from './ui-app';
 export abstract class BotUiStory<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-> extends UiStory {
+> extends UiStory<BotUiResolve<TAppMeta, TActor>> {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
   /** API приложения — для вызовов к другим модулям */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** UI-приложение */
-  uiApp!: BotUiApp<TAppMeta, TActor>;
+  /** Агрегатор меню UI-приложения */
+  uiApp!: MenuAggregator<TActor>;
 
   /** @deprecated Используйте uiApp напрямую */
   // biome-ignore lint/suspicious/noExplicitAny: временная обратная совместимость до обновления стори
@@ -50,11 +51,12 @@ export abstract class BotUiStory<
 
   /**
    * Инициализация сценария — вызывается контроллером при старте бота.
-   * Сохраняет ссылки на API модуля и API приложения.
+   * Сохраняет ссылки на API приложения и агрегатор меню.
    */
-  init(appApi: ApiApp<TAppMeta>, uiApp: BotUiApp<TAppMeta, TActor>): void {
-    this.appApi = appApi;
-    this.uiApp = uiApp;
+  override init(resolve: BotUiResolve<TAppMeta, TActor>): void {
+    this.appApi = resolve.appApi;
+    this.uiApp = resolve.uiApp;
+    super.init(resolve);
   }
 
   /** Сброс временных данных сценария (переопределяется при необходимости) */

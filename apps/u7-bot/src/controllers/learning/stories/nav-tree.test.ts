@@ -224,7 +224,7 @@ describe('NavTreeStory', () => {
     };
 
     const story = new NavTreeStory();
-    story.init({ execute: appApiSpy } as never, mockUiApp as never);
+    story.init({ appApi: { execute: appApiSpy }, uiApp: mockUiApp } as never);
     return { story, appApiSpy };
   }
 

@@ -119,7 +119,7 @@ function createStory(apiOverrides?: Record<string, unknown>) {
   const story = new CreateStreamStory();
   const api = mockAppApi(apiOverrides);
   const ui = mockUiApp();
-  story.init(api as never, ui as never);
+  story.init({ appApi: api, uiApp: ui } as never);
   return { story, api };
 }
 

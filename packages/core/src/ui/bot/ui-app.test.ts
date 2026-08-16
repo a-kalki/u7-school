@@ -185,7 +185,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession();
     const res = await app.handleCallback('stream:view:123', 1, session);
@@ -201,7 +206,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleCallback('unknown:action', 1, makeSession());
 
@@ -215,7 +225,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleCallback('nodata', 1, makeSession());
 
@@ -231,7 +246,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([c1, c2]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -254,7 +274,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession();
     await app.handleCallback('onboarding:start', 1, session);
@@ -271,7 +296,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -292,7 +322,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession();
     await app.handleCallback('stream:step1', 1, session);
@@ -316,7 +351,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([stream, appCtrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleCallback('stream:enroll', 1, makeSession());
 
@@ -337,7 +377,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleMessage(
       { type: 'message', text: 'hello', telegramId: 1 },
@@ -356,7 +401,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -376,7 +426,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -401,7 +456,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession({
       activeHandler: {
@@ -427,7 +487,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleCancel(1, makeSession());
 
@@ -444,7 +509,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -463,7 +533,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleTimeout(1, makeSession());
 
@@ -538,7 +613,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([appCtrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleWelcome(1);
 
@@ -549,7 +629,12 @@ describe('BotUiApp', () => {
   test('handleWelcome без контроллера app — fallback', async () => {
     const actor = makeActor();
     const app = new BotUiApp([]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleWelcome(1);
 
@@ -565,7 +650,12 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([appCtrl]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleHelp(1);
 
@@ -575,7 +665,12 @@ describe('BotUiApp', () => {
   test('handleHelp без контроллера app — fallback', async () => {
     const actor = makeActor();
     const app = new BotUiApp([]);
-    app.init({} as any, makeActorResolver(actor));
+    app.init({
+      appApi: {} as any,
+      uiApp: app,
+      eventBus: {} as any,
+      actorResolver: makeActorResolver(actor),
+    });
 
     const res = await app.handleHelp(1);
 
