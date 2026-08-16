@@ -6,10 +6,11 @@
     "additional": "Код, программа, интерпретатор, поток выполнения — что такое программирование и зачем учить JavaScript",
     "status": "published",
     "createdAt": "2026-05-31T05:30",
-    "updatedAt": "2026-05-31T20:16",
+    "updatedAt": "2026-08-16T15:33",
     "estimatedMinutes": 11,
     "stepIds": [
       "fab2ab88-eb17-4c0e-850a-795dfb9fadb9",
+      "210c7922-1ea0-41da-af23-cfd002f6aff2",
       "4890a068-1335-4115-931a-b6f4ee5ea7e5",
       "255b3046-e46a-4e27-8794-5bf704691dc7",
       "1809238e-2942-4a09-96a4-c582a09097e1"
@@ -1908,6 +1909,41 @@
       "50b5413a-2250-44c3-84fb-7ae49e76689f",
       "9990b74c-f086-4217-8ec4-551b8c068e21",
       "89adc4e9-cacd-4824-ac20-f5a09c2c4c5d"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "35c2c6c9-e592-4cc1-9a33-541be9aeac3d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Редактор кода",
+    "additional": "Что такое редактор кода, выбор и установка (VS Code или Zed), папка для проектов и первый файл",
+    "status": "published",
+    "createdAt": "2026-08-16T15:33",
+    "updatedAt": "2026-08-16T15:33",
+    "estimatedMinutes": 35,
+    "stepIds": [
+      "bcf61045-55e2-43a4-80d8-60b7576558c8",
+      "6a2af748-fef1-44bc-b3f4-5d84ad63af7a",
+      "4118cf76-b2b7-4837-8e1f-552720ce43a7",
+      "a6009727-96ab-4add-8fa2-a669b0c87b0c",
+      "f63215f6-bda1-4591-af33-0d924bdcfef4",
+      "6500df2b-3b84-46e2-ad05-e5d6e50a3010"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "eedf9957-6822-41f7-b2d5-82013946542d",
+    "moduleId": "e4dea4fc-f8db-4b19-be2d-59fcf3ad96fa",
+    "title": "Bun — запускаем первый код",
+    "additional": "Что такое Bun, как установить и запустить первый файл из терминала редактора",
+    "status": "published",
+    "createdAt": "2026-08-16T15:33",
+    "updatedAt": "2026-08-16T15:33",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "ce25ace9-22e1-4f10-ba7b-87941b4436d0",
+      "74c3e502-d8e8-4fea-8cfa-1481b945bdad",
+      "a5fef85f-7d43-4820-be41-4da9beb39941"
     ],
     "mentorStepIds": []
   }
