@@ -2,15 +2,9 @@ import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
-import { BotUiStory } from '../bot-ui-story';
-import type {
-  BotResponse,
-  BotUpdate,
-  CbMainMenuAction,
-  MainMenuAction,
-  SessionData,
-} from '../types';
 import { BotController } from './bot-controller';
+import { BotUiStory } from './bot-ui-story';
+import type { BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
 type TestModuleMeta = ApiModuleMeta & {
@@ -38,7 +32,6 @@ class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
   readonly name: string;
   initCalled = false;
   resetCalled = false;
-  handleStartResult: MainMenuAction | null = null;
 
   constructor(name: string) {
     super();
@@ -69,10 +62,6 @@ class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
   override reset(): void {
     super.reset();
     this.resetCalled = true;
-  }
-
-  override async handleStart(_actor: unknown): Promise<MainMenuAction | null> {
-    return this.handleStartResult;
   }
 }
 
@@ -129,46 +118,6 @@ describe('BotController', () => {
       ctrl.reset();
       expect(story1.resetCalled).toBe(true);
       expect(story2.resetCalled).toBe(true);
-    });
-  });
-
-  describe('handleStart', () => {
-    test('агрегирует кнопки от стори с префиксами', async () => {
-      story1.handleStartResult = {
-        kind: 'callback',
-        text: 'Кнопка 1',
-        action: 'story_one:act1',
-        priority: 20,
-      };
-      story2.handleStartResult = {
-        kind: 'callback',
-        text: 'Кнопка 2',
-        action: 'story_two:act2',
-        priority: 10,
-      };
-
-      const result = (await ctrl.handleStart(testActor)) as CbMainMenuAction[];
-
-      expect(result).toHaveLength(2);
-      // Контроллер добавляет префикс: test_ctrl:story_two:act2
-      expect(result[0]!.text).toBe('Кнопка 2');
-      expect(result[0]!.action).toBe('test_ctrl:story_two:act2');
-      expect(result[1]!.text).toBe('Кнопка 1');
-      expect(result[1]!.action).toBe('test_ctrl:story_one:act1');
-    });
-
-    test('пропускает стори с null-результатом', async () => {
-      story1.handleStartResult = null;
-      story2.handleStartResult = {
-        kind: 'callback',
-        text: 'Кнопка',
-        action: 'act',
-        priority: 5,
-      };
-
-      const result = await ctrl.handleStart(testActor);
-      expect(result).toHaveLength(1);
-      expect(result[0]!.text).toBe('Кнопка');
     });
   });
 
@@ -376,22 +325,6 @@ describe('BotController', () => {
   });
 
   describe('init', () => {
-    test('пробрасывает uiApp всем стори', () => {
-      const c = new TestController();
-      const story1 = new TestStory('s1');
-      const story2 = new TestStory('s2');
-      c.addStory(story1);
-      c.addStory(story2);
-
-      const mockUiApp = {} as unknown as ReturnType<
-        typeof import('../ui-app').BotUiApp.prototype.init
-      >;
-      c.init({ appApi: {}, uiApp: mockUiApp } as never);
-
-      expect(story1.uiApp).toBe(mockUiApp as never);
-      expect(story2.uiApp).toBe(mockUiApp as never);
-    });
-
     test('init с пустым контроллером не падает', () => {
       const c = new TestController();
       c.init({} as never);

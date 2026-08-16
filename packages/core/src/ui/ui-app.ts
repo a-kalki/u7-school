@@ -3,24 +3,14 @@ import type { UiAppResolve } from './types';
 import type { UiController } from './ui-controller';
 
 /**
- * Канально-независимый UiApp — общий хаб UI-слоя.
- *
- * Владеет реестром контроллеров и централизованно подписывает их подписки
- * на доменные события на шине EventBus. Не знает ни про Telegram, ни про
- * транспорт, ни про доставку наружу.
- *
- * @typeParam TActor — тип актора (пользователя) приложения
- * @typeParam TResolve — зависимости приложения (расширяет UiAppResolve)
+ * UiApp — общий хаб UI-слоя.
  */
-export class UiApp<
-  TActor = unknown,
-  TResolve extends UiAppResolve<TActor> = UiAppResolve<TActor>,
-> {
+export class UiApp<TResolve extends UiAppResolve = UiAppResolve> {
   protected readonly controllers = new Map<string, UiController<TResolve>>();
 
   private readonly unsubscribers: Array<() => void> = [];
   private subscribed = false;
-  private resolve: TResolve | null = null;
+  protected resolve!: TResolve;
 
   constructor(controllers: UiController<TResolve>[]) {
     for (const controller of controllers) {
@@ -33,21 +23,12 @@ export class UiApp<
 
   /**
    * Каскадная инициализация: UiApp → контроллеры → стори.
-   * Завершает загрузку приложения.
    */
   init(resolve: TResolve): void {
     this.resolve = resolve;
     for (const controller of this.controllers.values()) {
       controller.init(resolve);
     }
-  }
-
-  /** Резолвит актора приложения по канальному идентификатору. */
-  protected async resolveActor(tgId: number): Promise<TActor> {
-    if (!this.resolve) {
-      throw new Error('UiApp не инициализирован: resolve не задан');
-    }
-    return this.resolve.actorResolver(tgId);
   }
 
   /** Возвращает контроллер по имени */
@@ -68,8 +49,7 @@ export class UiApp<
   }
 
   /**
-   * Подписывает все подписки контроллеров на шину событий из resolve.
-   * Требует предварительного вызова init(resolve).
+   * Подписывает все подписки контроллеров на шину событий.
    * Повторный вызов не дублирует обработчики.
    */
   subscribeEvents(): void {

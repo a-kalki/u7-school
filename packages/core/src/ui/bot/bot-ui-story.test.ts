@@ -142,13 +142,6 @@ describe('BotUiStory', () => {
     });
   });
 
-  describe('handleStart', () => {
-    test('по умолчанию возвращает null', async () => {
-      const result = await story.handleStart(testActor);
-      expect(result).toBeNull();
-    });
-  });
-
   describe('handleCancel', () => {
     test('по умолчанию возвращает releaseInput', async () => {
       const result = await story.handleCancel(testActor, {
@@ -284,34 +277,6 @@ describe('BotUiStory', () => {
       const resp = story.confirm('test-action', 'uuid-42', '?');
       const cancelBtn = resp.sendMessage!.keyboard!.rows[0]![1]!;
       expect(cancelBtn.code).toBe('test_story:detail:uuid-42');
-    });
-  });
-
-  describe('uiApp и init', () => {
-    test('uiApp изначально undefined', () => {
-      expect(story.uiApp).toBeUndefined();
-    });
-
-    test('init(resolve) устанавливает и appApi и uiApp', () => {
-      const mockUiApp = {};
-
-      story.init({ appApi: {}, uiApp: mockUiApp } as never);
-      expect(story.uiApp).toBe(mockUiApp as never);
-    });
-
-    test('init с null uiApp — устанавливает null', () => {
-      story.init({ appApi: {}, uiApp: null } as never);
-      expect(story.uiApp).toBeNull();
-    });
-
-    test('init с разными типами uiApp', () => {
-      const obj1 = {};
-      story.init({ appApi: {}, uiApp: obj1 } as never);
-      expect(story.uiApp).toBe(obj1 as never);
-
-      const obj2 = {};
-      story.init({ appApi: {}, uiApp: obj2 } as never);
-      expect(story.uiApp).toBe(obj2 as never);
     });
   });
 });

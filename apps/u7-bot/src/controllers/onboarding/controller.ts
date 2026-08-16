@@ -1,11 +1,11 @@
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
+import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
 import type { AppException } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
 import type {
   BotResponse,
   BotUpdate,
   KeyboardDescription,
-  MainMenuAction,
   SessionData,
 } from '@u7-scl/core/ui';
 import type {

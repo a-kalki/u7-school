@@ -21,8 +21,8 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
        └─ AppController                                (apps/u7-bot) — системные сценарии (/start, /help, сообщество)
 ```
 
-- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: префиксация кнопок, диспетчеризация в сторис, `handleError`, главное меню.
-- **`U7BotController`** (`@u7-scl/bot/u7-bot-controller`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`.
+- **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: префиксация кнопок, диспетчеризация в сторис, `handleError`.
+- **`U7BotController`** (`@u7-scl/bot/u7-bot-controller`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`, добавляет систему меню (`handleStart`, `handleWelcome`, `handleHelpMessage`, `uiApp`).
 - **Доменные контроллеры** (`StreamsController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUiStory`.
 - **`OnboardingController`** — пример контроллера **без сторис**: вшивает логику анкеты напрямую, использует `this.cb()` для формирования callback.
 - **`AppController`** (`apps/u7-bot/src/controllers/app/app-controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `main-menu` и `help`.
@@ -42,15 +42,15 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
 ## 3. Конструктор и init
 
 ```typescript
-init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void  // API приложения + UiApp; каскадно в стори
-reset(): void                                                           // сброс временного состояния стори
+init(resolve: TResolve): void  // eventBus + appApi + actorResolver (+ uiApp в U7); каскадно в стори
+reset(): void                  // сброс временного состояния стори
 ```
 
 `init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `reset()` вызывает `reset()` у всех стори — сжатые id и `sessionMap` здесь **не** сбрасываются (они в `BotTransport`).
 
-Контроллер сохраняет обе зависимости:
+Контроллер сохраняет зависимости:
 - `this.appApi` — для межмодульных вызовов (`appApi.execute(...)`)
-- `this.uiApp` — для сбора меню и доступа к контроллерам (`uiApp.getController(name)`)
+- `this.uiApp` — только в `U7BotController`: сбор меню и доступ к контроллерам (`uiApp.getController(name)`)
 
 ---
 
@@ -60,9 +60,9 @@ reset(): void                                                           // сб�
 |---|---|
 | `handleCallback(data, actor, session)` | Снимает префикс стори, делегирует в стори, префиксирует коды ответа |
 | `handleMessage(update, actor, session)` | Делегирует активной стори по `session.activeHandler.path` |
-| `handleStart(actor)` | Агрегирует кнопки главного меню от всех стори, добавляет префикс `name:` |
-| `handleWelcome` / `handleHelpMessage` | Системные сообщения (переопределяет `AppController`) |
 | `handleCancel` / `handleTimeout` | Делегируют активной стори или освобождают ввод |
+| `handleStart(actor)` (U7) | Агрегирует кнопки главного меню от всех стори, добавляет префикс `name:` |
+| `handleWelcome` / `handleHelpMessage` (U7) | Системные сообщения (переопределяет `AppController`) |
 
 Диспетчеризация callback: ищет стори по префиксу `${story.name}:`. Если не найдено — `⚠️ Неизвестная команда`.
 

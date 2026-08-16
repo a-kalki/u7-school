@@ -4,33 +4,28 @@ import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { serializeError } from '#shared/serialize-error';
-import { UiController } from '../../ui-controller';
-import type { BotUiStory } from '../bot-ui-story';
+import { UiController } from '../ui-controller';
+import type { BotUiAppResolve } from './app-types';
+import type { BotUiStory } from './bot-ui-story';
 import type {
   BotResponse,
-  BotUiResolve,
   BotUpdate,
   KeyboardDescription,
-  MainMenuAction,
-  MenuAggregator,
   SessionData,
-} from '../types';
+} from './types';
 
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
- *
- * Контроллер добавляет префикс имени к кнопкам и callback-данным,
- * но НЕ занимается сжатием id — это делает BotUiApp.
- * Story оперируют реальными данными, контроллер — префиксами.
- *
- * @typeParam TAppMeta — тип метаданных приложения (по умолчанию AppMeta)
- * @typeParam TActor — тип актора (пользователя)
  */
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-> extends UiController<BotUiResolve<TAppMeta, TActor>> {
-  protected declare readonly stories: BotUiStory<TAppMeta, TActor>[];
+  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+    TAppMeta,
+    TActor
+  >,
+> extends UiController<TResolve> {
+  protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */
   getStories(): BotUiStory<TAppMeta, TActor>[] {
@@ -40,12 +35,8 @@ export abstract class BotController<
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** Агрегатор меню UI-приложения */
-  protected uiApp!: MenuAggregator<TActor>;
-
-  override init(resolve: BotUiResolve<TAppMeta, TActor>): void {
+  override init(resolve: TResolve): void {
     this.appApi = resolve.appApi;
-    this.uiApp = resolve.uiApp;
     super.init(resolve);
   }
 
@@ -111,47 +102,6 @@ export abstract class BotController<
     } catch (err) {
       return this.handleError(err);
     }
-  }
-
-  /**
-   * Главное меню — агрегирует кнопки от всех стори.
-   * Добавляет префикс контроллера к action от стори.
-   * BotUiApp сожмёт id при отправке.
-   */
-  async handleStart(actor: TActor): Promise<MainMenuAction[]> {
-    const items: MainMenuAction[] = [];
-    for (const story of this.stories) {
-      const item = await story.handleStart(actor);
-      if (item) {
-        if (item.kind === 'url') {
-          items.push(item);
-        } else {
-          items.push({
-            ...item,
-            action: `${this.name}:${item.action}`,
-          });
-        }
-      }
-    }
-    return items.sort((a, b) => a.priority - b.priority);
-  }
-
-  /**
-   * Приветственное сообщение с главным меню.
-   * Переопределяется AppController.
-   * По умолчанию возвращает null — контроллер не участвует в /start.
-   */
-  async handleWelcome(_actor: TActor): Promise<BotResponse | null> {
-    return null;
-  }
-
-  /**
-   * Сообщение помощи (инструкция + список команд).
-   * Переопределяется AppController.
-   * По умолчанию возвращает null — контроллер не участвует в /help.
-   */
-  async handleHelpMessage(_actor: TActor): Promise<BotResponse | null> {
-    return null;
   }
 
   /**

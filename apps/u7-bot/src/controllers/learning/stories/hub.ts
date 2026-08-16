@@ -1,11 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type {
-  BotResponse,
-  BotUpdate,
-  MainMenuAction,
-  SessionData,
-} from '@u7-scl/core/ui';
+import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
+import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';

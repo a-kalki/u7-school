@@ -1,9 +1,5 @@
 /** Общие типы для UI-слоя Telegram-бота */
 
-import type { ApiApp } from '#api/app/api-app';
-import type { AppMeta } from '#domain/types';
-import type { UiAppResolve } from '../types';
-
 /**
  * Описание inline-клавиатуры.
  *
@@ -81,27 +77,6 @@ export interface SessionData {
   lastBotMessage?: SendMessageDescription & { messageId: number };
 }
 
-export type CbMainMenuAction = {
-  kind: 'callback';
-  text: string;
-  action: string;
-  priority: number;
-  /** Описание для /help (если нет — пункт не включается в помощь) */
-  description?: string;
-};
-
-export type UrlMainMenuAction = {
-  kind: 'url';
-  text: string;
-  url: string;
-  priority: number;
-  /** Описание для /help */
-  description?: string;
-};
-
-/** Элемент главного меню бота */
-export type MainMenuAction = CbMainMenuAction | UrlMainMenuAction;
-
 export type BotUpdate =
   | { type: 'command'; command: string; telegramId: number; name?: string }
   | { type: 'message'; text: string; telegramId: number }
@@ -109,22 +84,3 @@ export type BotUpdate =
   | { type: 'document'; fileId: string; telegramId: number }
   | { type: 'photo'; fileId: string; telegramId: number }
   | { type: 'voice'; fileId: string; telegramId: number };
-
-/** Агрегатор пунктов меню от всех контроллеров.
- * Реализуется BotUiApp, передаётся в AppController. */
-export interface MenuAggregator<TActor = unknown> {
-  collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
-  collectAllHelpDescriptions(actor: TActor): Promise<string[]>;
-}
-
-/**
- * Зависимости UI-слоя бота. Расширяет UiAppResolve привязкой к API-приложению
- * и агрегатору меню. Передаётся вниз по дереву через BotUiApp.init().
- */
-export interface BotUiResolve<
-  TAppMeta extends AppMeta = AppMeta,
-  TActor = unknown,
-> extends UiAppResolve<TActor> {
-  appApi: ApiApp<TAppMeta>;
-  uiApp: MenuAggregator<TActor>;
-}

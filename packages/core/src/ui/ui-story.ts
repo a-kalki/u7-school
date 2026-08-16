@@ -2,18 +2,16 @@ import type { UiEventSubscription } from './event-subscription';
 import type { UiAppResolve } from './types';
 
 /**
- * Базовая стори канально-независимого UI-слоя.
- *
- * Не знает ни про Telegram, ни про транспорт. Объявляет только подписки
- * на доменные события, на которые реагирует.
- *
- * @typeParam TResolve — зависимости приложения (расширяет UiAppResolve)
+ * Базовая стори UI-слоя.
  */
 export class UiStory<TResolve extends UiAppResolve = UiAppResolve> {
-  /** Инициализация — вызывается контроллером при загрузке приложения. */
-  init(_resolve: TResolve): void {}
+  protected resolver!: TResolve;
 
-  /** Подписки стори на доменные события (по умолчанию пусто). */
+  init(resolver: TResolve): void {
+    this.resolver = resolver;
+  }
+
+  /** Подписки стори на доменные события */
   getEventSubscriptions(): UiEventSubscription[] {
     return [];
   }

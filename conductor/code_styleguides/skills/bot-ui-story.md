@@ -10,7 +10,7 @@
 |---|---|---|
 | `UiStory` | `@u7-scl/core/ui` | Канально-независимая базовая стори; объявляет подписки на доменные события (`getEventSubscriptions()`) |
 | `BotUiStory<TAppMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий бота (extends `UiStory`) |
-| `U7BotUiStory` | `@u7-scl/bot/u7-bot-ui-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User` |
+| `U7BotUiStory` | `@u7-scl/bot/u7-bot-ui-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User`, добавляет `handleStart` (кнопка меню) |
 
 Контроллер, в котором живёт стори — см. [bot-controller.md](./bot-controller.md).
 

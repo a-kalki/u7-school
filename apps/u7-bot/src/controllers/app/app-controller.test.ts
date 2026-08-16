@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import type { MainMenuAction, MenuAggregator } from '@u7-scl/core/ui';
+import type { MainMenuAction, MenuAggregator } from '@u7-scl/bot/u7-menu';
 import { Role } from '@u7-scl/user/domain';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';

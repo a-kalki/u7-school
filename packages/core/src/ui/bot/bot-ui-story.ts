@@ -6,43 +6,25 @@ import { getGlobalLogger } from '#shared/logger';
 import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
-import type {
-  BotResponse,
-  BotUiResolve,
-  BotUpdate,
-  MainMenuAction,
-  MenuAggregator,
-  SessionData,
-} from './types';
+import type { BotUiAppResolve } from './app-types';
+import type { BotResponse, BotUpdate, SessionData } from './types';
 
 /**
- * Абстрактный класс для пользовательского сценария внутри контроллера.
+ * Абстрактный класс для пользовательского сценария.
  * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
- *
- * Story оперирует только реальными данными. Контроллер владеет сжатием id
- * и префиксом имени — story не знает ни того, ни другого.
- *
- * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
- * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
  */
 export abstract class BotUiStory<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-> extends UiStory<BotUiResolve<TAppMeta, TActor>> {
-  /** Уникальное имя сценария в рамках контроллера */
+  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+    TAppMeta,
+    TActor
+  >,
+> extends UiStory<TResolve> {
   abstract readonly name: string;
 
-  /** API приложения — для вызовов к другим модулям */
+  /** API приложения — для вызовов useCases */
   protected appApi!: ApiApp<TAppMeta>;
-
-  /** Агрегатор меню UI-приложения */
-  uiApp!: MenuAggregator<TActor>;
-
-  /** @deprecated Используйте uiApp напрямую */
-  // biome-ignore lint/suspicious/noExplicitAny: временная обратная совместимость до обновления стори
-  get ui(): any {
-    return this.uiApp;
-  }
 
   // ── Инициализация ──
   protected get logger(): Logger | undefined {
@@ -53,9 +35,8 @@ export abstract class BotUiStory<
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API приложения и агрегатор меню.
    */
-  override init(resolve: BotUiResolve<TAppMeta, TActor>): void {
+  override init(resolve: TResolve): void {
     this.appApi = resolve.appApi;
-    this.uiApp = resolve.uiApp;
     super.init(resolve);
   }
 
@@ -76,17 +57,6 @@ export abstract class BotUiStory<
     session: SessionData,
   ): Promise<BotResponse>;
 
-  /**
-   * Кнопка в главном меню.
-   * По умолчанию возвращает null — сценарий не показывается в меню.
-   */
-  async handleStart(_actor: TActor): Promise<MainMenuAction | null> {
-    return null;
-  }
-
-  /**
-   * Описание кнопки для команды /help.
-   * По умолчанию возвращает null — сценарий не добавляется в /help.
   /**
    * Отмена текущего действия.
    * По умолчанию освобождает ввод.

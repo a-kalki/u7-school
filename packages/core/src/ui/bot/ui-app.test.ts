@@ -1,11 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { BotController } from './controller/bot-controller';
-import type {
-  BotResponse,
-  BotUpdate,
-  MainMenuAction,
-  SessionData,
-} from './types';
+import { BotController } from './bot-controller';
+import type { BotResponse, BotUpdate, SessionData } from './types';
 import { BotUiApp } from './ui-app';
 
 // ── Тестовый контроллер ──
@@ -18,15 +13,11 @@ class TestController extends BotController<
 > {
   name = '';
 
-  private _startResult: MainMenuAction[] = [];
   private _callbackResult: BotResponse = {};
   private _messageResult: BotResponse = {};
   private _cancelResult: BotResponse = { releaseInput: true };
   private _timeoutResult: BotResponse = { releaseInput: true };
-  private _welcomeResult: BotResponse | null = null;
-  private _helpResult: BotResponse | null = null;
 
-  handleStartCalls: TestActor[] = [];
   handleCallbackCalls: Array<{
     data: string;
     actor: TestActor;
@@ -40,10 +31,6 @@ class TestController extends BotController<
   handleCancelCalls: Array<{ actor: TestActor; session: SessionData }> = [];
   handleTimeoutCalls: Array<{ actor: TestActor; session: SessionData }> = [];
 
-  withStartResult(items: MainMenuAction[]): this {
-    this._startResult = items;
-    return this;
-  }
   withCallbackResult(res: BotResponse): this {
     this._callbackResult = res;
     return this;
@@ -59,19 +46,6 @@ class TestController extends BotController<
   withTimeoutResult(res: BotResponse): this {
     this._timeoutResult = res;
     return this;
-  }
-  withWelcomeResult(res: BotResponse | null): this {
-    this._welcomeResult = res;
-    return this;
-  }
-  withHelpResult(res: BotResponse | null): this {
-    this._helpResult = res;
-    return this;
-  }
-
-  override async handleStart(actor: TestActor): Promise<MainMenuAction[]> {
-    this.handleStartCalls.push(actor);
-    return this._startResult;
   }
 
   override async handleCallback(
@@ -107,16 +81,6 @@ class TestController extends BotController<
     this.handleTimeoutCalls.push({ actor, session });
     return this._timeoutResult;
   }
-
-  override async handleWelcome(_actor: TestActor): Promise<BotResponse | null> {
-    return this._welcomeResult;
-  }
-
-  override async handleHelpMessage(
-    _actor: TestActor,
-  ): Promise<BotResponse | null> {
-    return this._helpResult;
-  }
 }
 
 function makeActor(): TestActor {
@@ -131,6 +95,14 @@ function makeActorResolver(
   actor: TestActor,
 ): (tgId: number) => Promise<TestActor> {
   return async (_tgId: number) => actor;
+}
+
+function makeResolve(actor: TestActor) {
+  return {
+    appApi: {} as never,
+    eventBus: {} as never,
+    actorResolver: makeActorResolver(actor),
+  };
 }
 
 // ── BotUiApp ──
@@ -157,27 +129,6 @@ describe('BotUiApp', () => {
     );
   });
 
-  test('collectMainMenu агрегирует и сортирует', async () => {
-    const c1 = new TestController();
-    c1.name = 'ctrl1';
-    c1.withStartResult([
-      { kind: 'callback', text: 'Б', action: 'ctrl1:b', priority: 10 },
-    ]);
-
-    const c2 = new TestController();
-    c2.name = 'ctrl2';
-    c2.withStartResult([
-      { kind: 'callback', text: 'А', action: 'ctrl2:a', priority: 5 },
-    ]);
-
-    const app = new BotUiApp([c1, c2]);
-    const items = await app.collectMainMenu(makeActor());
-
-    expect(items).toHaveLength(2);
-    expect(items[0]!.text).toBe('А');
-    expect(items[1]!.text).toBe('Б');
-  });
-
   test('handleCallback маршрутизирует по префиксу', async () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
@@ -185,12 +136,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession();
     const res = await app.handleCallback('stream:view:123', 1, session);
@@ -206,12 +152,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const res = await app.handleCallback('unknown:action', 1, makeSession());
 
@@ -225,12 +166,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const res = await app.handleCallback('nodata', 1, makeSession());
 
@@ -246,12 +182,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([c1, c2]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -274,12 +205,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession();
     await app.handleCallback('onboarding:start', 1, session);
@@ -296,12 +222,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -322,12 +243,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession();
     await app.handleCallback('stream:step1', 1, session);
@@ -351,12 +267,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([stream, appCtrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const res = await app.handleCallback('stream:enroll', 1, makeSession());
 
@@ -377,12 +288,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const res = await app.handleMessage(
       { type: 'message', text: 'hello', telegramId: 1 },
@@ -401,12 +307,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -426,12 +327,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -456,12 +352,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession({
       activeHandler: {
@@ -487,12 +378,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const res = await app.handleCancel(1, makeSession());
 
@@ -509,12 +395,7 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const session = makeSession({
       activeHandler: { path: 'onboarding/ask-name' },
@@ -533,148 +414,11 @@ describe('BotUiApp', () => {
 
     const actor = makeActor();
     const app = new BotUiApp([ctrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
+    app.init(makeResolve(actor));
 
     const res = await app.handleTimeout(1, makeSession());
 
     expect(res).toBeNull();
-  });
-
-  test('collectAllMenuItems агрегирует кнопки', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-    ctrl.withStartResult([
-      { kind: 'callback', text: 'Б', action: 'stream:b', priority: 10 },
-      { kind: 'callback', text: 'А', action: 'stream:a', priority: 5 },
-    ]);
-
-    const app = new BotUiApp([ctrl]);
-    const items = await app.collectAllMenuItems(makeActor());
-
-    expect(items).toHaveLength(2);
-    expect(items[0]!.text).toBe('А');
-    expect(items[1]!.text).toBe('Б');
-  });
-
-  test('collectAllMenuItems с пустым списком', async () => {
-    const app = new BotUiApp([]);
-    const items = await app.collectAllMenuItems(makeActor());
-    expect(items).toHaveLength(0);
-  });
-
-  test('collectAllHelpDescriptions собирает описания', async () => {
-    const c1 = new TestController();
-    c1.name = 'ctrl1';
-    c1.withStartResult([
-      {
-        kind: 'callback',
-        text: 'A',
-        action: 'a',
-        priority: 10,
-        description: 'Описание 1',
-      },
-    ]);
-
-    const c2 = new TestController();
-    c2.name = 'ctrl2';
-    c2.withStartResult([
-      {
-        kind: 'callback',
-        text: 'C',
-        action: 'c',
-        priority: 30,
-        description: 'Описание 3',
-      },
-    ]);
-
-    const app = new BotUiApp([c1, c2]);
-    const descs = await app.collectAllHelpDescriptions(makeActor());
-
-    expect(descs).toEqual(['Описание 1', 'Описание 3']);
-  });
-
-  test('handleWelcome делегирует в AppController', async () => {
-    const appCtrl = new TestController();
-    appCtrl.name = 'app';
-    appCtrl.withWelcomeResult({
-      sendMessage: {
-        text: 'Привет! 👋',
-        keyboard: {
-          rows: [[{ text: 'Кнопка', code: 'app:test' }]],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const actor = makeActor();
-    const app = new BotUiApp([appCtrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
-
-    const res = await app.handleWelcome(1);
-
-    expect(res.sendMessage?.text).toBe('Привет! 👋');
-    expect(res.sendMessage?.keyboard?.rows[0]![0]!.text).toBe('Кнопка');
-  });
-
-  test('handleWelcome без контроллера app — fallback', async () => {
-    const actor = makeActor();
-    const app = new BotUiApp([]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
-
-    const res = await app.handleWelcome(1);
-
-    expect(res.sendMessage?.text).toContain('Выберите действие');
-  });
-
-  test('handleHelp делегирует в AppController', async () => {
-    const appCtrl = new TestController();
-    appCtrl.name = 'app';
-    appCtrl.withHelpResult({
-      sendMessage: { text: 'Как работать? 🤔' },
-    });
-
-    const actor = makeActor();
-    const app = new BotUiApp([appCtrl]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
-
-    const res = await app.handleHelp(1);
-
-    expect(res.sendMessage?.text).toContain('Как работать?');
-  });
-
-  test('handleHelp без контроллера app — fallback', async () => {
-    const actor = makeActor();
-    const app = new BotUiApp([]);
-    app.init({
-      appApi: {} as any,
-      uiApp: app,
-      eventBus: {} as any,
-      actorResolver: makeActorResolver(actor),
-    });
-
-    const res = await app.handleHelp(1);
-
-    expect(res.sendMessage?.text).toContain('Нет доступных пунктов меню');
   });
 
   test('init не падает без publicActions', () => {

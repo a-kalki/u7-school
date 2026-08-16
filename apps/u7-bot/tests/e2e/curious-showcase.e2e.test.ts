@@ -12,8 +12,8 @@ import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { BotResponse, CbMainMenuAction } from '@u7-scl/core/ui';
-import { assertBotResponseValid } from '@u7-scl/core/ui';
+import type { CbMainMenuAction } from '@u7-scl/bot/u7-menu';
+import { assertBotResponseValid, type BotResponse } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {

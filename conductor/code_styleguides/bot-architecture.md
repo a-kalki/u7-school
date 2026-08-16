@@ -21,8 +21,8 @@ Grammy (адаптер) → BotTransport (транспорт/исполнени�
 |---|---|---|---|
 | Адаптер | `createBot`, `BotContext` | `apps/u7-bot/src/bot.ts`, `context.ts` | Grammy-бот + session middleware; тип контекста |
 | Транспорт | `BotTransport` | `apps/u7-bot/src/infra/bot-transport.ts` | Единый слой Grammy↔BotUiApp: сессии, сжатие UUID, исполнение `BotCommand` |
-| Маршрутизация | `BotUiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Резолв актора, диспетчеризация по контроллеру, сбор меню, `delegate` |
-| Диспетчер | `BotController` / `U7BotController` | `packages/core/src/ui/bot/controller/`, `apps/u7-bot/src/core/u7-bot-controller.ts` | Реестр сторис, префиксация кнопок, `handleError`, главное меню |
+| Маршрутизация | `BotUiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Core: резолв актора, диспетчеризация, `delegate`. U7: сбор меню, `/start`, `/help` |
+| Диспетчер | `BotController` / `U7BotController` | `packages/core/src/ui/bot/bot-controller.ts`, `apps/u7-bot/src/core/u7-bot-controller.ts` | Core: реестр сторис, префиксация кнопок, `handleError`. U7: главное меню, `handleWelcome`/`handleHelpMessage` |
 | Сценарий | `BotUiStory` / `U7BotUiStory` | `packages/core/src/ui/bot/bot-ui-story.ts`, `apps/u7-bot/src/core/u7-bot-ui-story.ts` | Логика одного экрана: UC → рендер `BotResponse` |
 | Данные | `BotCommand` / `BotResponse` / `SessionData` | `packages/core/src/ui/bot/types.ts` | Типы между слоями |
 | Домен | `ApiApp.execute()` | `packages/core/src/api/` | UseCase'ы доменных модулей |
@@ -66,8 +66,7 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 
 - **реестром контроллеров** (`getController(name)`);
 - **резолвером актора** (`actorResolver: (tgId) => Promise<TActor>`, задаётся в `init`);
-- **маршрутизацией**: `handleWelcome/handleHelp/handleCallback/handleMessage/handleCancel/handleTimeout(tgId, ...)`;
-- **сбором меню**: `collectMainMenu`, `collectHelp`, `collectAllMenuItems`, `collectAllHelpDescriptions`;
+- **маршрутизацией**: `handleCallback/handleMessage/handleCancel/handleTimeout(tgId, ...)`;
 - **обработкой `delegate`**: `#handleDelegate` + `#mergeResponses` (delegate.path — всегда полный маршрут `controller:story:action:...`, первый сегмент резолвится как контроллер).
 
 `handleCallback(data, tgId, session)`:
@@ -78,11 +77,12 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 5. если `response.delegate` — `#handleDelegate` (первый сегмент `delegate.path` — имя контроллера) и смержить через `#mergeResponses`.
 
 `U7BotUiApp` (`apps/u7-bot/src/core/ui-app.ts`) закрывает дженерики
-`<U7BotAppMeta, User>`.
+`<U7BotAppMeta, User>` и добавляет систему меню: `collectMainMenu`, `collectHelp`,
+`collectAllMenuItems`, `collectAllHelpDescriptions`, `handleWelcome`, `handleHelp`.
 
 ### 2.4. `BotController` / `U7BotController` (диспетчер)
 
-`packages/core/src/ui/bot/controller/bot-controller.ts`. Владеет:
+`packages/core/src/ui/bot/bot-controller.ts`. Владеет:
 
 - `name` — префикс контроллера в `callback_data`;
 - `stories` — реестр сторис;
@@ -90,7 +90,6 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
   добавляется `${name}:`; коды с префиксом другого контроллера (`app:main-menu`)
   не трогаются;
 - `handleError(err)` — универсальный обработчик ошибок;
-- `handleStart(actor)` — агрегация кнопок главного меню от стори;
 - `cb(action)` — `${name}:${action}`; `stripPrefix(data)`.
 
 `handleCallback/handleMessage/handleCancel/handleTimeout` находят стори
@@ -98,7 +97,8 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 возвращают ответ **с уже добавленным префиксом**.
 
 `U7BotController` (`apps/u7-bot/src/core/u7-bot-controller.ts`) закрывает
-дженерики `<U7BotAppMeta, User>`.
+дженерики `<U7BotAppMeta, User>` и добавляет систему меню: `handleStart`,
+`handleWelcome`, `handleHelpMessage`, поле `uiApp`.
 
 ### 2.5. `BotUiStory` / `U7BotUiStory` (сценарий)
 
@@ -110,7 +110,8 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 (код соседней стори того же контроллера), `confirm(...)`, `escapeMarkdown`,
 `formatDate`, `handleError`.
 
-`U7BotUiStory` закрывает дженерики `<U7BotAppMeta, User>`.
+`U7BotUiStory` закрывает дженерики `<U7BotAppMeta, User>` и добавляет
+`handleStart(actor)` — кнопку стори в главном меню.
 
 ### 2.6. `BotCommand` / `BotResponse` (типы)
 

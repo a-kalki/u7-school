@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
-import type { BotResponse, MainMenuAction, SessionData } from '@u7-scl/core/ui';
+import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
+import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { buttons } from '../shared/buttons';
 import { CommunityStory } from './stories/community.story';
 

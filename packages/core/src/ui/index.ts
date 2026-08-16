@@ -1,5 +1,6 @@
+export * from './bot/app-types';
+export * from './bot/bot-controller';
 export * from './bot/bot-ui-story';
-export * from './bot/controller/bot-controller';
 export {
   assertBotResponseValid,
   assertResponseMarkdownSafe,
