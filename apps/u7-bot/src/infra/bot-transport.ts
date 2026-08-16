@@ -154,6 +154,16 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     const compressed = this.compressCommand(command);
     await this.execute(session, telegramId, compressed);
 
+    if (compressed.captureInput) {
+      session.activeHandler = {
+        path: compressed.captureInput.path,
+        context: compressed.captureInput.context,
+        expiresAt: compressed.captureInput.ttlSeconds
+          ? Date.now() + compressed.captureInput.ttlSeconds * 1000
+          : undefined,
+      };
+    }
+
     this.sessionMap.set(telegramId, session);
   }
 
@@ -261,21 +271,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       }
     }
 
-    // 3. captureInput / releaseInput
-    if (command.captureInput) {
-      // Полный путь контроллер/стори можно передать как есть;
-      // иначе — дополняем именем текущего контроллера.
-      const path = command.captureInput.path.includes('/')
-        ? command.captureInput.path
-        : `${session.activeHandler?.path.split('/')[0] ?? ''}/${command.captureInput.path}`;
-      session.activeHandler = {
-        path,
-        context: command.captureInput.context,
-        expiresAt: command.captureInput.ttlSeconds
-          ? Date.now() + command.captureInput.ttlSeconds * 1000
-          : undefined,
-      };
-    }
+    // 3. releaseInput
     if (command.releaseInput) {
       session.activeHandler = null;
     }

@@ -56,7 +56,7 @@ export class FillStory extends U7BotUiStory {
 
     if (response.type === 'wait_next' || response.type === 'new_question') {
       command.captureInput = {
-        path: 'questionnaire/fill',
+        path: 'fill',
         context: { questionnaireId: response.questionnaireId },
       };
     }

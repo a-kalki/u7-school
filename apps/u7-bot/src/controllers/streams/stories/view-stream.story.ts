@@ -83,7 +83,7 @@ export class ViewStreamStory extends U7BotUiStory {
     }
 
     const ctx = session.activeHandler?.context as EnrollKeyContext | undefined;
-    if (!ctx || session.activeHandler?.path !== 'view-stream/enroll-key') {
+    if (!ctx) {
       return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
     }
 

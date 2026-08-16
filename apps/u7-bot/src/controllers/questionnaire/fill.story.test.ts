@@ -98,7 +98,7 @@ describe('FillStory — подписки на доменные события', 
     const { telegramId, command } = getSentCommand(sender);
     expect(telegramId).toBe(456);
     expect(command.sendMessage?.text).toContain('Как вас зовут?');
-    expect(command.captureInput?.path).toBe('questionnaire/fill');
+    expect(command.captureInput?.path).toBe('fill');
     expect(command.captureInput?.context).toEqual({ questionnaireId: 'q1' });
   });
 });

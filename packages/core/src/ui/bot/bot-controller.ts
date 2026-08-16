@@ -20,15 +20,16 @@ import type {
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
  */
 export abstract class BotController<
-  TAppMeta extends AppMeta = AppMeta,
-  TActor = unknown,
-  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-    TAppMeta,
-    TActor
-  >,
->
+    TAppMeta extends AppMeta = AppMeta,
+    TActor = unknown,
+    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+      TAppMeta,
+      TActor
+    >,
+  >
   extends UiController<TResolve>
-  implements ProactiveSender {
+  implements ProactiveSender
+{
   protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */
@@ -56,7 +57,14 @@ export abstract class BotController<
 
   /** Проактивная отправка — префиксирует коды кнопок и делегирует родителю */
   async send(telegramId: number, command: BotCommand): Promise<void> {
-    await this.proactiveSender.send(telegramId, this.#prefixCommand(command));
+    const prepared = this.#prefixCommand(command);
+    if (prepared.captureInput) {
+      prepared.captureInput = {
+        ...prepared.captureInput,
+        path: `${this.name}/${prepared.captureInput.path}`,
+      };
+    }
+    await this.proactiveSender.send(telegramId, prepared);
   }
 
   /** Сброс временных данных контроллера и всех стори */
