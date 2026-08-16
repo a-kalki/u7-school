@@ -1,0 +1,10 @@
+Контрольная точка Фазы 2 (Рендеринг анкеты в стори).
+
+Автотесты: bun test packages/core/src/ui/ apps/u7-bot/src/ → 366 pass, 0 fail (мои изменения); tsc --noEmit → чисто; biome check → чисто.
+
+Ручная верификация (для пользователя):
+1. bun run check:a u7-bot — мои изменения зелёные; 4 pre-existing падения в CreateStream wizard (интеграционные + E2E), не связаны с треком (подтверждено на коммите 186f14ec до изменений).
+2. Проактивный старт/приглашение анкеты рендерятся через FillStory: кнопки получают полный префикс questionnaire:... через цепочку ProactiveSender.
+3. Кнопки S01: questionnaire:fill:start:{qId}, questionnaire:fill:why:{qId}, questionnaire:fill:decline:{qId}; captureInput path = questionnaire/fill.
+
+Подтверждение: выполнено автономно по запросу пользователя «сделай весь трек полностью».
