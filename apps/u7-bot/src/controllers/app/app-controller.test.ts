@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import type { MainMenuAction, MenuAggregator, UiApp } from '@u7-scl/core/ui';
+import type { BotUiApp, MainMenuAction, MenuAggregator } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -33,7 +33,7 @@ function initCtrl(
 ): void {
   ctrl.init(
     {} as never,
-    makeAggregator(menuItems, helpDescs) as unknown as UiApp<any, User>,
+    makeAggregator(menuItems, helpDescs) as unknown as BotUiApp<any, User>,
   );
 }
 

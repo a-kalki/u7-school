@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
@@ -21,7 +21,7 @@ import {
  * Просмотр и прохождение шага (S05a).
  * Обрабатывает: продолжение, отметку о выполнении, просмотр пройденных шагов.
  */
-export class StepViewStory extends U7BotUserStory {
+export class StepViewStory extends U7BotUiStory {
   readonly name = 'step-view';
 
   async handleCallback(

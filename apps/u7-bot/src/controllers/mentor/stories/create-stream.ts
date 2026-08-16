@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -106,7 +106,7 @@ const OPTIONAL_FIELDS: OptionalFieldConfig[] = [
  * Шаг 10: кодовое слово (необязательно)
  * Шаг 11: превью и подтверждение
  */
-export class CreateStreamStory extends U7BotUserStory {
+export class CreateStreamStory extends U7BotUiStory {
   readonly name = 'create-stream';
 
   async handleCallback(

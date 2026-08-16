@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import type { NavigationTree } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -14,7 +14,7 @@ import {
  * Дерево уроков с маркерами ✅/▶️/🔒 (S05b).
  * Три уровня навигации: проекты → уроки → шаги.
  */
-export class NavTreeStory extends U7BotUserStory {
+export class NavTreeStory extends U7BotUiStory {
   readonly name = 'nav-tree';
 
   async handleCallback(

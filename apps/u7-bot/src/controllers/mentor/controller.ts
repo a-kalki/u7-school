@@ -9,7 +9,7 @@ import { ViewStreamMentorStory } from './stories/view-stream-mentor';
 /**
  * Контроллер mentor — «Инструменты ментора» (S02m, S07-S09).
  *
- * Тонкий реестр — делегирует все действия в U7BotUserStory.
+ * Тонкий реестр — делегирует все действия в U7BotUiStory.
  * Видимость: только роли MENTOR и ADMIN.
  */
 export class MentorController extends U7BotController {

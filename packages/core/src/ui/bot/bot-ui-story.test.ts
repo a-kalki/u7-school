@@ -6,7 +6,7 @@ import {
   LogLevel,
   setGlobalLogger,
 } from '#shared/logger';
-import { BotUserStory } from './bot-user-story';
+import { BotUiStory } from './bot-ui-story';
 import type { BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
@@ -26,7 +26,7 @@ const testActor = {
 };
 
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
-class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
+class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
   readonly name = 'test_story';
 
   async handleCallback(
@@ -69,7 +69,7 @@ class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
     action: string,
     targetId: string,
     text: string,
-    opts?: Parameters<BotUserStory['confirm']>[3],
+    opts?: Parameters<BotUiStory['confirm']>[3],
   ): BotResponse {
     return super.confirm(action, targetId, text, opts);
   }
@@ -79,7 +79,7 @@ class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   }
 }
 
-describe('BotUserStory', () => {
+describe('BotUiStory', () => {
   let story: TestStory;
 
   beforeEach(() => {

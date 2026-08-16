@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -13,7 +13,7 @@ import { buttons } from '../../shared/buttons';
  * S01: Просмотр витрины потоков (Каталог).
  * Показывает список активных потоков и потоков с открытым набором.
  */
-export class CatalogStory extends U7BotUserStory {
+export class CatalogStory extends U7BotUiStory {
   readonly name = 'catalog';
 
   async handleCallback(

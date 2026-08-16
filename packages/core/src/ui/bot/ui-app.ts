@@ -1,6 +1,7 @@
 import type { ApiApp } from '#api/app/api-app';
 import type { AppMeta } from '#domain/types';
 import { getGlobalLogger } from '#shared/logger';
+import { UiApp } from '../ui-app';
 import type { BotController } from './controller/bot-controller';
 import type {
   BotResponse,
@@ -37,24 +38,11 @@ export function extractRestData(data: string): string {
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
+export class BotUiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
+  extends UiApp<BotController<TAppMeta, TActor>>
   implements MenuAggregator<TActor>
 {
-  private readonly controllers = new Map<
-    string,
-    BotController<TAppMeta, TActor>
-  >();
-
   private actorResolver: ((tgId: number) => Promise<TActor>) | null = null;
-
-  constructor(controllers: BotController<TAppMeta, TActor>[]) {
-    for (const c of controllers) {
-      if (this.controllers.has(c.name)) {
-        throw new Error(`Дубликат имени контроллера: ${c.name}`);
-      }
-      this.controllers.set(c.name, c);
-    }
-  }
 
   /**
    * Каскадная инициализация: ApiApp → контроллеры → стори.
@@ -77,21 +65,9 @@ export class UiApp<TAppMeta extends AppMeta = AppMeta, TActor = unknown>
   /** Резолвит актора по telegramId. Бросает ошибку если резолвер не настроен. */
   private async resolveActor(tgId: number): Promise<TActor> {
     if (!this.actorResolver) {
-      throw new Error('UiApp не инициализирован: actorResolver не задан');
+      throw new Error('BotUiApp не инициализирован: actorResolver не задан');
     }
     return this.actorResolver(tgId);
-  }
-
-  // ── Контроллеры ──
-
-  /** Возвращает контроллер по имени */
-  getController(name: string): BotController<TAppMeta, TActor> | undefined {
-    return this.controllers.get(name);
-  }
-
-  /** Количество зарегистрированных контроллеров */
-  get size(): number {
-    return this.controllers.size;
   }
 
   // ── Сбор главного меню ──

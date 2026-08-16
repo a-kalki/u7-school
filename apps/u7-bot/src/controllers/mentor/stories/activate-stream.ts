@@ -1,12 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 
 /**
  * US-7: Запуск потока (старт обучения).
  * Ментор активирует поток — студенты получают первый шаг.
  */
-export class ActivateStreamStory extends U7BotUserStory {
+export class ActivateStreamStory extends U7BotUiStory {
   readonly name = 'activate-stream';
 
   async handleCallback(

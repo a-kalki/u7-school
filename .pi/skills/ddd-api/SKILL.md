@@ -1,6 +1,6 @@
 ---
 name: ddd-api
-description: Правила и шаблоны для API-слоя — UseCase, Command, Module, EventReaction (ER), BotUserStory. Используй при создании или изменении файлов в src/api/, src/domain/<entity>/commands/ и ui/bot/stories/.
+description: Правила и шаблоны для API-слоя — UseCase, Command, Module, EventReaction (ER), BotUiStory. Используй при создании или изменении файлов в src/api/, src/domain/<entity>/commands/ и ui/bot/stories/.
 ---
 
 # DDD API Layer — Styleguide
@@ -23,7 +23,7 @@ description: Правила и шаблоны для API-слоя — UseCase, C
 | Command | `domain/<entity>/commands/<name>-cmd.ts` | `conductor/code_styleguides/skills/commands.md` |
 | Module (domain meta) | `domain/module.ts` | `conductor/code_styleguides/skills/module.md` |
 | Module (api impl) | `api/module.ts` | `conductor/code_styleguides/skills/module.md` |
-| BotUserStory | `ui/bot/stories/<name>.story.ts` | `conductor/code_styleguides/skills/bot-user-story.md` |
+| BotUiStory | `ui/bot/stories/<name>.story.ts` | `conductor/code_styleguides/skills/bot-ui-story.md` |
 | BotController | `ui/bot/controller/<name>-controller.ts` | `conductor/code_styleguides/skills/bot-controller.md` |
 
 ---

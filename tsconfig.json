@@ -51,8 +51,8 @@
       "@u7-scl/bot/u7-bot-controller": [
         "apps/u7-bot/src/core/u7-bot-controller.ts"
       ],
-      "@u7-scl/bot/u7-bot-user-story": [
-        "apps/u7-bot/src/core/u7-bot-user-story.ts"
+      "@u7-scl/bot/u7-bot-ui-story": [
+        "apps/u7-bot/src/core/u7-bot-ui-story.ts"
       ],
       "@u7-scl/bot/u7-bot-app-meta": [
         "apps/u7-bot/src/core/u7-bot-app-meta.ts"

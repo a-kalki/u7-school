@@ -1,4 +1,4 @@
-# BotUserStory — Styleguide
+# BotUiStory — Styleguide
 
 **Назначение:** пользовательский сценарий внутри контроллера бота. Инкапсулирует логику одного сценария (каталог, карточка потока, запись и т.д.). Файл: `apps/u7-bot/src/controllers/<module>/stories/<story-name>.story.ts`.
 
@@ -8,8 +8,9 @@
 
 | Класс | Пакет | Назначение |
 |---|---|---|
-| `BotUserStory<TAppMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий |
-| `U7BotUserStory` | `@u7-scl/bot/u7-bot-user-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User` |
+| `UiStory` | `@u7-scl/core/ui` | Канально-независимая базовая стори; объявляет подписки на доменные события (`getEventSubscriptions()`) |
+| `BotUiStory<TAppMeta, TActor>` | `@u7-scl/core/ui` | Абстрактный сценарий бота (extends `UiStory`) |
+| `U7BotUiStory` | `@u7-scl/bot/u7-bot-ui-story` | Специализация для U7-бота: `TAppMeta = U7BotAppMeta`, `TActor = User` |
 
 Контроллер, в котором живёт стори — см. [bot-controller.md](./bot-controller.md).
 
@@ -44,7 +45,7 @@
 
 ## 4. Форматирование MarkdownV2
 
-`BotUserStory` предоставляет protected-методы — **не дублируй** их в стори:
+`BotUiStory` предоставляет protected-методы — **не дублируй** их в стори:
 
 - `this.escapeMarkdown(text)` — экранирует спецсимволы MarkdownV2.
 - `this.formatDate(iso)` — ISO → `дд.мм.гггг` (при ошибке — исходная строка).

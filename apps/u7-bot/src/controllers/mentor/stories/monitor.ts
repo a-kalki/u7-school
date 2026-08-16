@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { CategorizedStudent, Student } from '@u7-scl/stream/domain';
 import { StreamDs, StudentPolicy } from '@u7-scl/stream/domain';
@@ -9,7 +9,7 @@ import { StreamDs, StudentPolicy } from '@u7-scl/stream/domain';
  * Публичный список студентов с прогресс-барами.
  * Детальная карточка — кнопки действий только для ментора потока.
  */
-export class MonitorStory extends U7BotUserStory {
+export class MonitorStory extends U7BotUiStory {
   readonly name = 'monitor';
 
   async handleCallback(

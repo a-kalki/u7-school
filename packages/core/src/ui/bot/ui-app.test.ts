@@ -6,7 +6,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from './types';
-import { UiApp } from './ui-app';
+import { BotUiApp } from './ui-app';
 
 // ── Тестовый контроллер ──
 
@@ -133,14 +133,14 @@ function makeActorResolver(
   return async (_tgId: number) => actor;
 }
 
-// ── UiApp ──
+// ── BotUiApp ──
 
-describe('UiApp', () => {
+describe('BotUiApp', () => {
   test('создаётся с контроллерами, доступ по имени', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     expect(app.size).toBe(1);
     expect(app.getController('stream')).toBe(ctrl);
     expect(app.getController('unknown')).toBeUndefined();
@@ -152,7 +152,7 @@ describe('UiApp', () => {
     const c2 = new TestController();
     c2.name = 'dup';
 
-    expect(() => new UiApp([c1, c2])).toThrow(
+    expect(() => new BotUiApp([c1, c2])).toThrow(
       'Дубликат имени контроллера: dup',
     );
   });
@@ -170,7 +170,7 @@ describe('UiApp', () => {
       { kind: 'callback', text: 'А', action: 'ctrl2:a', priority: 5 },
     ]);
 
-    const app = new UiApp([c1, c2]);
+    const app = new BotUiApp([c1, c2]);
     const items = await app.collectMainMenu(makeActor());
 
     expect(items).toHaveLength(2);
@@ -184,7 +184,7 @@ describe('UiApp', () => {
     ctrl.withCallbackResult({ sendMessage: { text: 'ok' } });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession();
@@ -200,7 +200,7 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleCallback('unknown:action', 1, makeSession());
@@ -214,7 +214,7 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleCallback('nodata', 1, makeSession());
@@ -230,7 +230,7 @@ describe('UiApp', () => {
     c2.name = 'stream';
 
     const actor = makeActor();
-    const app = new UiApp([c1, c2]);
+    const app = new BotUiApp([c1, c2]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession({
@@ -253,7 +253,7 @@ describe('UiApp', () => {
     });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession();
@@ -270,7 +270,7 @@ describe('UiApp', () => {
     ctrl.withCallbackResult({ releaseInput: true });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession({
@@ -291,7 +291,7 @@ describe('UiApp', () => {
     });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession();
@@ -315,7 +315,7 @@ describe('UiApp', () => {
     appCtrl.withCallbackResult({ sendMessage: { text: 'Главное меню' } });
 
     const actor = makeActor();
-    const app = new UiApp([stream, appCtrl]);
+    const app = new BotUiApp([stream, appCtrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleCallback('stream:enroll', 1, makeSession());
@@ -336,7 +336,7 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleMessage(
@@ -355,7 +355,7 @@ describe('UiApp', () => {
     ctrl.withMessageResult({ sendMessage: { text: 'Принято' } });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession({
@@ -375,7 +375,7 @@ describe('UiApp', () => {
     ctrl.withMessageResult({ releaseInput: true });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession({
@@ -400,7 +400,7 @@ describe('UiApp', () => {
     });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession({
@@ -426,7 +426,7 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleCancel(1, makeSession());
@@ -443,7 +443,7 @@ describe('UiApp', () => {
     });
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const session = makeSession({
@@ -462,7 +462,7 @@ describe('UiApp', () => {
     ctrl.name = 'stream';
 
     const actor = makeActor();
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleTimeout(1, makeSession());
@@ -478,7 +478,7 @@ describe('UiApp', () => {
       { kind: 'callback', text: 'А', action: 'stream:a', priority: 5 },
     ]);
 
-    const app = new UiApp([ctrl]);
+    const app = new BotUiApp([ctrl]);
     const items = await app.collectAllMenuItems(makeActor());
 
     expect(items).toHaveLength(2);
@@ -487,7 +487,7 @@ describe('UiApp', () => {
   });
 
   test('collectAllMenuItems с пустым списком', async () => {
-    const app = new UiApp([]);
+    const app = new BotUiApp([]);
     const items = await app.collectAllMenuItems(makeActor());
     expect(items).toHaveLength(0);
   });
@@ -517,7 +517,7 @@ describe('UiApp', () => {
       },
     ]);
 
-    const app = new UiApp([c1, c2]);
+    const app = new BotUiApp([c1, c2]);
     const descs = await app.collectAllHelpDescriptions(makeActor());
 
     expect(descs).toEqual(['Описание 1', 'Описание 3']);
@@ -537,7 +537,7 @@ describe('UiApp', () => {
     });
 
     const actor = makeActor();
-    const app = new UiApp([appCtrl]);
+    const app = new BotUiApp([appCtrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleWelcome(1);
@@ -548,7 +548,7 @@ describe('UiApp', () => {
 
   test('handleWelcome без контроллера app — fallback', async () => {
     const actor = makeActor();
-    const app = new UiApp([]);
+    const app = new BotUiApp([]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleWelcome(1);
@@ -564,7 +564,7 @@ describe('UiApp', () => {
     });
 
     const actor = makeActor();
-    const app = new UiApp([appCtrl]);
+    const app = new BotUiApp([appCtrl]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleHelp(1);
@@ -574,7 +574,7 @@ describe('UiApp', () => {
 
   test('handleHelp без контроллера app — fallback', async () => {
     const actor = makeActor();
-    const app = new UiApp([]);
+    const app = new BotUiApp([]);
     app.init({} as any, makeActorResolver(actor));
 
     const res = await app.handleHelp(1);
@@ -583,7 +583,7 @@ describe('UiApp', () => {
   });
 
   test('init не падает без publicActions', () => {
-    const app = new UiApp([]);
+    const app = new BotUiApp([]);
     expect(app.size).toBe(0);
   });
 });

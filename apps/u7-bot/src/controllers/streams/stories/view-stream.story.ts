@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -29,7 +29,7 @@ const MAX_ENROLL_ATTEMPTS = 3;
  * S02-S04: Детальная карточка потока (curious-режим).
  * Показывает описание, статус, дату старта, имя ментора и публичные кнопки.
  */
-export class ViewStreamStory extends U7BotUserStory {
+export class ViewStreamStory extends U7BotUiStory {
   readonly name: string = 'view-stream';
 
   /** Имя сторис для cbFor. */

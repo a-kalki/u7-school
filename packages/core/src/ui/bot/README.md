@@ -41,7 +41,7 @@
 `Routes.app.mainMenu` — это `app:main-menu`: обычный callback, у которого первый сегмент (`app`) — имя
 контроллера `AppController`:
 
-1. `UiApp.handleCallback` маршрутизирует по `app` в `AppController`, остаток — `main-menu`.
+1. `BotUiApp.handleCallback` маршрутизирует по `app` в `AppController`, остаток — `main-menu`.
 2. `AppController.handleCallback('main-menu')` пересобирает главное меню через
    `collectAllMenuItems()` и возвращает `«Выберите действие:»` + клавиатуру.
 3. `BotTransport.execute` отправляет/редактирует сообщение.

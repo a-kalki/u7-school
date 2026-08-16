@@ -12,12 +12,12 @@ import {
 } from '@u7-scl/core/domain';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
-import { U7BotUserStory } from './u7-bot-user-story';
+import { U7BotUiStory } from './u7-bot-ui-story';
 
 /**
  * Заглушка для доступа к protected методу handleError.
  */
-class TestStory extends U7BotUserStory {
+class TestStory extends U7BotUiStory {
   readonly name = 'test-handle-error';
 
   override handleMessage(
@@ -58,7 +58,7 @@ function createMockLogger(): Logger & { error: ReturnType<typeof mock> } {
   } as unknown as Logger & { error: ReturnType<typeof mock> };
 }
 
-describe('U7BotUserStory.handleError', () => {
+describe('U7BotUiStory.handleError', () => {
   let story: TestStory;
   let mockLogger: Logger & { error: ReturnType<typeof mock> };
 

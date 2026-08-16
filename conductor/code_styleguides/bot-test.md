@@ -138,6 +138,6 @@ KEEP_FIXTURES=1 bun test apps/u7-bot/tests/streams/catalog.integration.test.ts  
 
 - [Общие правила тестирования](./testing.md)
 - [BotController](./skills/bot-controller.md) — префиксация кнопок, handleError
-- [BotUserStory](./skills/bot-user-story.md) — стиль сторис
+- [BotUiStory](./skills/bot-ui-story.md) — стиль сторис
 - [Архитектура bot-level](./bot-architecture.md)
 - [DDD принципы](./ddd.md)

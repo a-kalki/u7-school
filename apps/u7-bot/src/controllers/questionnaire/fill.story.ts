@@ -11,7 +11,7 @@ import type {
   Question,
   QuestionnaireActionResponse,
 } from '@u7-scl/questionnaire/domain';
-import { U7BotUserStory } from '../../core/u7-bot-user-story';
+import { U7BotUiStory } from '../../core/u7-bot-ui-story';
 import { buttons } from '../shared/buttons';
 
 /**
@@ -20,7 +20,7 @@ import { buttons } from '../shared/buttons';
  * Использует QuestionnaireApiModule напрямую (standalone-модуль).
  * Хранит questionnaireId в контексте сессии (activeHandler.context).
  */
-export class FillStory extends U7BotUserStory {
+export class FillStory extends U7BotUiStory {
   readonly name = 'fill';
   readonly #qmod: QuestionnaireApiModule;
 

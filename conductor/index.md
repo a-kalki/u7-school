@@ -10,7 +10,7 @@
 - [Рабочий процесс](./workflow.md)
 - [Руководства по стилю кода](./code_styleguides/)
   - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — Entity, Aggregate, Repo, Policy, Errors
-  - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module, BotUserStory
+  - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module, BotUiStory
   - [DDD Infra](../.pi/skills/ddd-infra/SKILL.md) — реализации репозиториев
   - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — соглашения об именовании
   - [EventReaction (ER)](./code_styleguides/skills/event-reaction.md) — реакция модуля на доменное событие

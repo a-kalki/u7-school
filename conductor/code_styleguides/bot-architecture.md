@@ -13,17 +13,17 @@
 ## 1. Слои
 
 ```
-Grammy (адаптер) → BotTransport (транспорт/исполнение) → UiApp (маршрутизация)
+Grammy (адаптер) → BotTransport (транспорт/исполнение) → BotUiApp (маршрутизация)
                 → Controller (диспетчер) → Story (сценарий) → ApiApp (доменные UC)
 ```
 
 | Слой | Объект | Где | Ответственность |
 |---|---|---|---|
 | Адаптер | `createBot`, `BotContext` | `apps/u7-bot/src/bot.ts`, `context.ts` | Grammy-бот + session middleware; тип контекста |
-| Транспорт | `BotTransport` | `apps/u7-bot/src/infra/bot-transport.ts` | Единый слой Grammy↔UiApp: сессии, сжатие UUID, исполнение `BotCommand` |
-| Маршрутизация | `UiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Резолв актора, диспетчеризация по контроллеру, сбор меню, `delegate` |
+| Транспорт | `BotTransport` | `apps/u7-bot/src/infra/bot-transport.ts` | Единый слой Grammy↔BotUiApp: сессии, сжатие UUID, исполнение `BotCommand` |
+| Маршрутизация | `BotUiApp` / `U7BotUiApp` | `packages/core/src/ui/bot/ui-app.ts`, `apps/u7-bot/src/core/ui-app.ts` | Резолв актора, диспетчеризация по контроллеру, сбор меню, `delegate` |
 | Диспетчер | `BotController` / `U7BotController` | `packages/core/src/ui/bot/controller/`, `apps/u7-bot/src/core/u7-bot-controller.ts` | Реестр сторис, префиксация кнопок, `handleError`, главное меню |
-| Сценарий | `BotUserStory` / `U7BotUserStory` | `packages/core/src/ui/bot/bot-user-story.ts`, `apps/u7-bot/src/core/u7-bot-user-story.ts` | Логика одного экрана: UC → рендер `BotResponse` |
+| Сценарий | `BotUiStory` / `U7BotUiStory` | `packages/core/src/ui/bot/bot-ui-story.ts`, `apps/u7-bot/src/core/u7-bot-ui-story.ts` | Логика одного экрана: UC → рендер `BotResponse` |
 | Данные | `BotCommand` / `BotResponse` / `SessionData` | `packages/core/src/ui/bot/types.ts` | Типы между слоями |
 | Домен | `ApiApp.execute()` | `packages/core/src/api/` | UseCase'ы доменных модулей |
 
@@ -60,7 +60,7 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 
 > Префиксация кнопок здесь **не** выполняется — она переехала в `BotController`.
 
-### 2.3. `UiApp` / `U7BotUiApp` (маршрутизация)
+### 2.3. `BotUiApp` / `U7BotUiApp` (маршрутизация)
 
 `packages/core/src/ui/bot/ui-app.ts` — центральный хаб. Владеет:
 
@@ -100,9 +100,9 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 `U7BotController` (`apps/u7-bot/src/core/u7-bot-controller.ts`) закрывает
 дженерики `<U7BotAppMeta, User>`.
 
-### 2.5. `BotUserStory` / `U7BotUserStory` (сценарий)
+### 2.5. `BotUiStory` / `U7BotUiStory` (сценарий)
 
-`packages/core/src/ui/bot/bot-user-story.ts`. Сценарий одного экрана:
+`packages/core/src/ui/bot/bot-ui-story.ts`. Сценарий одного экрана:
 выполняет UC через `this.appApi.execute(...)`, формирует `BotResponse`
 (текст MarkdownV2, клавиатуру, `captureInput`/`releaseInput`/`delegate`).
 
@@ -110,7 +110,7 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 (код соседней стори того же контроллера), `confirm(...)`, `escapeMarkdown`,
 `formatDate`, `handleError`.
 
-`U7BotUserStory` закрывает дженерики `<U7BotAppMeta, User>`.
+`U7BotUiStory` закрывает дженерики `<U7BotAppMeta, User>`.
 
 ### 2.6. `BotCommand` / `BotResponse` (типы)
 
@@ -118,11 +118,11 @@ middleware. Ключевой момент: **`sessionMap` — общий** `Map<
 
 ```ts
 BotCommand   // «приказ» транспорту: send/edit + сессия (captureInput/releaseInput)
-BotResponse extends BotCommand  // + delegate (маршрутная директива, ест UiApp)
+BotResponse extends BotCommand  // + delegate (маршрутная директива, ест BotUiApp)
 ```
 
 Стори/контроллеры возвращают `BotResponse`; `BotTransport.execute()`/`send()`
-принимают `BotCommand`. `delegate` до транспорта не доходит — его съедает `UiApp`.
+принимают `BotCommand`. `delegate` до транспорта не доходит — его съедает `BotUiApp`.
 
 ### 2.7. `SessionData` (сессия)
 
@@ -154,7 +154,7 @@ privateBot.on('message:text', (ctx, next) => transport.handleMessage(ctx, next))
 Grammy ctx (callback_query.data)
   → BotTransport.handleCallback(ctx)
     → expandAction(data)                      // разжатие UUID (shortIds)
-    → UiApp.handleCallback(data, tgId, ctx.session)
+    → BotUiApp.handleCallback(data, tgId, ctx.session)
       → resolveActor(tgId)                    // User из userFacade
       → extractControllerName → controller
       → controller.handleCallback(rest, actor, session)
@@ -183,7 +183,7 @@ Grammy ctx (callback_query.data)
 ### 3.5. Проактивные сообщения
 
 Фасады (например `TelegramQuestionnaireBotFacade`) шлют через
-`transport.send(telegramId, command)` — минуя `UiApp`. Поэтому `execute()` сам
+`transport.send(telegramId, command)` — минуя `BotUiApp`. Поэтому `execute()` сам
 применяет `captureInput`/`releaseInput` и сжатие (`compressCommand`).
 
 ---
@@ -199,7 +199,7 @@ Grammy ctx (callback_query.data)
   (`apps/u7-bot/src/controllers/shared/routes.ts`), готовые кнопки — в
   `buttons.mainMenu(text?)` (`apps/u7-bot/src/controllers/shared/buttons.ts`). `delegate.path`
   всегда полный маршрут: стори пишет относительный путь через `cb`/`cbFor`,
-  контроллер префиксует его в `#prefixResponse`, `UiApp` резолвит первый
+  контроллер префиксует его в `#prefixResponse`, `BotUiApp` резолвит первый
   сегмент как контроллер.
 - **Сжатие** — в `BotTransport`: каждый UUID-сегмент заменяется на первые 8
   hex-символов (`shortIds`), на входе `expandAction` разворачивает обратно.
@@ -225,7 +225,7 @@ Grammy ctx (callback_query.data)
 ## 6. Связанные документы
 
 - [BotController Styleguide](./skills/bot-controller.md)
-- [BotUserStory Styleguide](./skills/bot-user-story.md)
+- [BotUiStory Styleguide](./skills/bot-ui-story.md)
 - [Тестирование бота](./bot-test.md)
 - [Границы архитектуры](./architecture.md)
 - [Domain boundaries](./domain-boundaries.md)

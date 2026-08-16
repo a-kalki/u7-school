@@ -322,7 +322,7 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
 - [Система сбора метрик (родитель)](./metrics-system.md)
 - [1. Концепция метрик](./metrics-conception.md) — формулы агрегации, витрина
 - [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, intention
-- [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUserStory
+- [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUiStory
 - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
 - [Границы доменной логики](./code_styleguides/domain-boundaries.md) — межмодульные взаимодействия
 - [Архитектурная эволюция](./archive/mentor_tools_20260713/architecture-evolution.md) — контекст Релизов 1–3 (в архиве)

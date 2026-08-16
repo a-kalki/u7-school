@@ -4,7 +4,8 @@ import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { serializeError } from '#shared/serialize-error';
-import type { BotUserStory } from '../bot-user-story';
+import { UiController } from '../../ui-controller';
+import type { BotUiStory } from '../bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -12,13 +13,13 @@ import type {
   MainMenuAction,
   SessionData,
 } from '../types';
-import type { UiApp } from '../ui-app';
+import type { BotUiApp } from '../ui-app';
 
 /**
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
  *
  * Контроллер добавляет префикс имени к кнопкам и callback-данным,
- * но НЕ занимается сжатием id — это делает UiApp.
+ * но НЕ занимается сжатием id — это делает BotUiApp.
  * Story оперируют реальными данными, контроллер — префиксами.
  *
  * @typeParam TAppMeta — тип метаданных приложения (по умолчанию AppMeta)
@@ -27,15 +28,9 @@ import type { UiApp } from '../ui-app';
 export abstract class BotController<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-> {
-  /** Уникальное имя контроллера */
-  abstract readonly name: string;
-
-  /** Зарегистрированные пользовательские сценарии */
-  protected readonly stories: BotUserStory<TAppMeta, TActor>[] = [];
-
-  /** Публичный доступ к stories (для UiApp) */
-  getStories(): BotUserStory<TAppMeta, TActor>[] {
+> extends UiController<BotUiStory<TAppMeta, TActor>> {
+  /** Публичный доступ к stories */
+  getStories(): BotUiStory<TAppMeta, TActor>[] {
     return this.stories;
   }
 
@@ -43,9 +38,9 @@ export abstract class BotController<
   protected appApi!: ApiApp<TAppMeta>;
 
   /** UI-приложение */
-  protected uiApp!: UiApp<TAppMeta, TActor>;
+  protected uiApp!: BotUiApp<TAppMeta, TActor>;
 
-  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void {
+  init(appApi: ApiApp<TAppMeta>, uiApp: BotUiApp<TAppMeta, TActor>): void {
     this.appApi = appApi;
     this.uiApp = uiApp;
     for (const story of this.stories) {
@@ -69,7 +64,7 @@ export abstract class BotController<
 
   /**
    * Обработка callback (data без префикса контроллера, с реальными ID).
-   * Делегирует в стори. UiApp уже разжал данные.
+   * Делегирует в стори. BotUiApp уже разжал данные.
    * Необработанные ошибки стори перехватываются и логируются.
    */
   async handleCallback(
@@ -120,7 +115,7 @@ export abstract class BotController<
   /**
    * Главное меню — агрегирует кнопки от всех стори.
    * Добавляет префикс контроллера к action от стори.
-   * UiApp сожмёт id при отправке.
+   * BotUiApp сожмёт id при отправке.
    */
   async handleStart(actor: TActor): Promise<MainMenuAction[]> {
     const items: MainMenuAction[] = [];
@@ -203,7 +198,7 @@ export abstract class BotController<
 
   /**
    * Генерирует callback_data с префиксом контроллера (без сжатия).
-   * Сжатием занимается UiApp.
+   * Сжатием занимается BotUiApp.
    */
   protected cb(action: string): string {
     return `${this.name}:${action}`;
@@ -219,14 +214,12 @@ export abstract class BotController<
   }
 
   /** Поиск стори по имени */
-  protected findStory(
-    name: string,
-  ): BotUserStory<TAppMeta, TActor> | undefined {
+  protected findStory(name: string): BotUiStory<TAppMeta, TActor> | undefined {
     return this.stories.find((s) => s.name === name);
   }
 
   /** Поиск стори по пути из activeHandler: controllerName/storyName/... */
-  #findStoryByPath(path: string): BotUserStory<TAppMeta, TActor> | undefined {
+  #findStoryByPath(path: string): BotUiStory<TAppMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
       return this.findStory(parts[1] ?? '');

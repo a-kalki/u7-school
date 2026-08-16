@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -12,7 +12,7 @@ import type {
  * Ведёт на URL группы школы в Telegram.
  * Доступна всем ролям.
  */
-export class CommunityStory extends U7BotUserStory {
+export class CommunityStory extends U7BotUiStory {
   readonly name = 'community';
   readonly #groupUrl: string;
 

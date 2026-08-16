@@ -23,7 +23,7 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
 
 - **`BotController`** (`@u7-scl/core/ui`) — базовый класс. Общие механизмы: префиксация кнопок, диспетчеризация в сторис, `handleError`, главное меню.
 - **`U7BotController`** (`@u7-scl/bot/u7-bot-controller`) — специализация для U7-бота: фиксирует `TAppMeta = U7BotAppMeta`, `TActor = User`.
-- **Доменные контроллеры** (`StreamsController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUserStory`.
+- **Доменные контроллеры** (`StreamsController` и т.п.) — тонкий реестр: объявляют `name` и массив `stories`, делегируют всю логику в `U7BotUiStory`.
 - **`OnboardingController`** — пример контроллера **без сторис**: вшивает логику анкеты напрямую, использует `this.cb()` для формирования callback.
 - **`AppController`** (`apps/u7-bot/src/controllers/app/app-controller.ts`) — контроллер уровня приложения для сценариев, не привязанных к доменному модулю: приветствие `/start` (`handleWelcome`), помощь `/help` (`handleHelpMessage`), кнопка «Сообщество школы». Переопределяет `handleCallback` для `main-menu` и `help`.
 
@@ -31,7 +31,7 @@ BotController<TAppMeta, TActor>                        (core, абстрактн
 
 ## 2. Ключевые правила
 
-1. **Контроллер тонкий.** Доменный контроллер — только `name` + `stories`. Вся логика сценария — в `BotUserStory`.
+1. **Контроллер тонкий.** Доменный контроллер — только `name` + `stories`. Вся логика сценария — в `BotUiStory`.
 2. **Стори не знают имени контроллера.** Стори возвращают коды без префикса (`story:action`); контроллер на выходе добавляет префикс `name:` через `#prefixResponse`/`#prefixCode`. Сжатие/разжатие UUID — зона `BotTransport`, не стори и не контроллера.
 3. **Один контроллер = один модуль** (кроме `AppController` — уровень приложения).
 4. **Необработанные ошибки стори** перехватываются в `handleCallback`/`handleMessage` и идут в `handleError`.
@@ -104,7 +104,7 @@ reset(): void                                                           // сб�
 
 ## Связанные файлы
 
-- [BotUserStory](./bot-user-story.md) — стиль написания сторис
+- [BotUiStory](./bot-ui-story.md) — стиль написания сторис
 - [Ошибки](./errors.md) — `AppError`, `fromError()`
 - [Тестирование бота](../bot-test.md)
 - [Архитектура bot-level](../bot-architecture.md)

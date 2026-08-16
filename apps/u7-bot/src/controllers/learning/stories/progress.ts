@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import { StreamDs } from '@u7-scl/stream/domain';
 import { buttons } from '../../shared/buttons';
@@ -9,7 +9,7 @@ import { formatProgressBar, getStudent } from '../shared';
  * Прогресс студента (S06).
  * Показывает общую статистику прохождения потока.
  */
-export class ProgressStory extends U7BotUserStory {
+export class ProgressStory extends U7BotUiStory {
   readonly name = 'progress';
 
   async handleCallback(

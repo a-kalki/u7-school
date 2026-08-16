@@ -58,7 +58,7 @@ export interface BotCommand {
 
 /**
  * Реакция стори/контроллера на действие пользователя.
- * Расширяет BotCommand маршрутной директивой delegate, которую UiApp
+ * Расширяет BotCommand маршрутной директивой delegate, которую BotUiApp
  * обрабатывает ДО передачи команды транспорту.
  */
 export interface BotResponse extends BotCommand {
@@ -107,7 +107,7 @@ export type BotUpdate =
   | { type: 'voice'; fileId: string; telegramId: number };
 
 /** Агрегатор пунктов меню от всех контроллеров.
- * Реализуется UiApp, передаётся в AppController. */
+ * Реализуется BotUiApp, передаётся в AppController. */
 export interface MenuAggregator<TActor = unknown> {
   collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
   collectAllHelpDescriptions(actor: TActor): Promise<string[]>;

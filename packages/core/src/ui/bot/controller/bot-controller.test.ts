@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
-import { BotUserStory } from '../bot-user-story';
+import { BotUiStory } from '../bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -34,7 +34,7 @@ type TestAppMeta = AppMeta & {
 const testActor = { telegramId: 123 };
 
 // Тестовая стори
-class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
+class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
   readonly name: string;
   initCalled = false;
   resetCalled = false;
@@ -94,7 +94,7 @@ class TestController extends BotController<
 
   public override findStory(
     name: string,
-  ): BotUserStory<TestAppMeta, { telegramId: number }> | undefined {
+  ): BotUiStory<TestAppMeta, { telegramId: number }> | undefined {
     return super.findStory(name);
   }
 
@@ -384,7 +384,7 @@ describe('BotController', () => {
       c.addStory(story2);
 
       const mockUiApp = {} as unknown as ReturnType<
-        typeof import('../ui-app').UiApp.prototype.init
+        typeof import('../ui-app').BotUiApp.prototype.init
       >;
       c.init({} as never, mockUiApp as never);
 

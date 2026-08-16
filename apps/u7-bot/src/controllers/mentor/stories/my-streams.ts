@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 
 interface StreamRow {
@@ -23,7 +23,7 @@ const LEGEND =
  * Список потоков ментора с фильтрацией по статусу.
  * Доступен через подменю «Инструменты ментора».
  */
-export class MyStreamsStory extends U7BotUserStory {
+export class MyStreamsStory extends U7BotUiStory {
   readonly name = 'my-streams';
 
   async handleCallback(

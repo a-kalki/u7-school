@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -31,7 +31,7 @@ const DEFAULT_TRACK_EMOJI = '📚';
  * На каждом уровне: текущие объекты жирным + кнопками,
  * подуровень — inline текстом.
  */
-export class CourseCatalogStory extends U7BotUserStory {
+export class CourseCatalogStory extends U7BotUiStory {
   readonly name = 'course-catalog';
 
   // ── Главное меню ──

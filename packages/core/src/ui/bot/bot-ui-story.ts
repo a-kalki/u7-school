@@ -5,13 +5,14 @@ import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
+import { UiStory } from '../ui-story';
 import type {
   BotResponse,
   BotUpdate,
   MainMenuAction,
   SessionData,
 } from './types';
-import type { UiApp } from './ui-app';
+import type { BotUiApp } from './ui-app';
 
 /**
  * Абстрактный класс для пользовательского сценария внутри контроллера.
@@ -23,10 +24,10 @@ import type { UiApp } from './ui-app';
  * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
  * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
  */
-export abstract class BotUserStory<
+export abstract class BotUiStory<
   TAppMeta extends AppMeta = AppMeta,
   TActor = unknown,
-> {
+> extends UiStory {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
@@ -34,7 +35,7 @@ export abstract class BotUserStory<
   protected appApi!: ApiApp<TAppMeta>;
 
   /** UI-приложение */
-  uiApp!: UiApp<TAppMeta, TActor>;
+  uiApp!: BotUiApp<TAppMeta, TActor>;
 
   /** @deprecated Используйте uiApp напрямую */
   // biome-ignore lint/suspicious/noExplicitAny: временная обратная совместимость до обновления стори
@@ -51,7 +52,7 @@ export abstract class BotUserStory<
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API модуля и API приложения.
    */
-  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp<TAppMeta, TActor>): void {
+  init(appApi: ApiApp<TAppMeta>, uiApp: BotUiApp<TAppMeta, TActor>): void {
     this.appApi = appApi;
     this.uiApp = uiApp;
   }

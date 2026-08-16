@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { U7BotUserStory } from '@u7-scl/bot/u7-bot-user-story';
+import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type {
   BotResponse,
   BotUpdate,
@@ -13,7 +13,7 @@ import { buttons } from '../../shared/buttons';
  * Подменю «🛠️ Инструменты ментора».
  * Доступно только ролям MENTOR и ADMIN.
  */
-export class SubmenuStory extends U7BotUserStory {
+export class SubmenuStory extends U7BotUiStory {
   readonly name = 'submenu';
 
   async handleCallback(
