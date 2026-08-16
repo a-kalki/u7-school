@@ -13,7 +13,7 @@
 - [x] Task: Разделить создание/init в `apps/u7-bot/src/create-ui-app.ts`; в `main.ts` создать transport, затем `uiApp.init(resolve, transport)` и `uiApp.subscribeEvents()`. (5349386)
 - [x] Task: Conductor - Ручная верификация 'Прокидка ProactiveSender' (Protocol in workflow.md) (5fe142e)
 
-## Фаза 2: Рендеринг анкеты в FillStory
+## Фаза 2: Рендеринг анкеты в FillStory [checkpoint: c176ff1]
 
 - [x] Task: Red — тесты подписок `FillStory` в новом `apps/u7-bot/src/controllers/questionnaire/fill.story.test.ts`: (3b7b2ad)
   - `getEventSubscriptions()` возвращает 2 подписки: `questionnaire:start`, `questionnaire:invite`;
@@ -22,8 +22,8 @@
   - Не тестируем типы событий questionnaire.
 - [x] Task: Green — объявить подписки в `FillStory`; перенести рендер S01–S04 из `TelegramQuestionnaireBotFacade` в стори; вызов `this.proactiveSender.send(...)`. (3b7b2ad)
 - [x] Task: Удалить `apps/u7-bot/src/infra/questionnaire-bot-facade.ts` и прямые `eventBus.subscribe` из `main.ts`. (3b7b2ad)
-- [ ] Task: Conductor - Ручная верификация 'Рендеринг анкеты в стори' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Рендеринг анкеты в стори' (Protocol in workflow.md) (c176ff1)
 
 ## Финал
 
-- [ ] Task: `bun run check:a u7-bot`
+- [x] Task: `bun run check:a u7-bot` (5773bb9)
