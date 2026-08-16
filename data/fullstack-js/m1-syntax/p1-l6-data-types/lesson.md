@@ -265,4 +265,4 @@ typeof person;
 *   **Исключение (Exception):** Событие, которое нарушает нормальный поток выполнения программы и приводит к ее остановке, если оно не было обработано.
 ```
 
-**Видео:** [p1-l4. Типы данных.mp4](https://drive.google.com/file/d/1akcBsN2F1ACOcqrY1_4a_4AQdaJmxAFr)
+**Видео:** [Типы данных.mp4](https://drive.google.com/file/d/1akcBsN2F1ACOcqrY1_4a_4AQdaJmxAFr)

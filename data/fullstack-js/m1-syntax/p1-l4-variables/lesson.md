@@ -159,4 +159,4 @@
 
 ---
 
-**Видео:** [p1-l2. Переменные.mp4](https://drive.google.com/file/d/1RqUAfBfK6ZyMFblVVUr4gEmtRvrNRAqv)
+**Видео:** [Переменные.mp4](https://drive.google.com/file/d/1RqUAfBfK6ZyMFblVVUr4gEmtRvrNRAqv)

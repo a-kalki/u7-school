@@ -171,4 +171,4 @@
 
 ---
 
-**Видео:** [p1-l3. Математические операторы.mp4](https://drive.google.com/file/d/1NWKE6DDnQ98YOA94bk23smxQjERX2dbb)
+**Видео:** [Математические операторы.mp4](https://drive.google.com/file/d/1NWKE6DDnQ98YOA94bk23smxQjERX2dbb)

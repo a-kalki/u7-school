@@ -114,4 +114,4 @@ let alwaysTrue = (1 + 1) ? true : false;
 
 ---
 
-**Видео:** [p1-l10. Неявное преобразование типов.mp4](https://drive.google.com/file/d/1dMrVgB_7EcE2_u3Z7jep-onLjX-72J2D)
+**Видео:** [Неявное преобразование типов.mp4](https://drive.google.com/file/d/1dMrVgB_7EcE2_u3Z7jep-onLjX-72J2D)

@@ -181,4 +181,4 @@ let discount = isGoodClient ?
 Самостоятельно изучить оператор `switch ... case`.
 *Замечание от преподавателя: Этот оператор не будет подробно рассматриваться в уроках, так как он реже используется в повседневной практике программирования и многие задачи могут быть решены с помощью `if-else if`.*
 
-**Видео:** [p1-l9. Тернарный оператор.mp4](https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv)
+**Видео:** [Тернарный оператор.mp4](https://drive.google.com/file/d/18dh3ZG8HSJg4xy2doyim7PZJiQf4MTwv)

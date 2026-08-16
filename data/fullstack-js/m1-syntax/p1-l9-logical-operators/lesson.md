@@ -171,4 +171,4 @@ let isWorkingAgePerson = (personOld >= 18) &&
 
 ---
 
-**Видео:** [p1-l7. Логические операторы.mp4](https://drive.google.com/file/d/1uzeUR5lpZqG15YOHqOys33nRURHH5B-u)
+**Видео:** [Логические операторы.mp4](https://drive.google.com/file/d/1uzeUR5lpZqG15YOHqOys33nRURHH5B-u)

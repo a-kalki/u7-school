@@ -170,4 +170,4 @@
 
 ---
 
-**Видео:** [p1-l8. Ветвление.mp4](https://drive.google.com/file/d/1OJrLNr2c2MGBRLGUzFylbCkFyunPpX45)
+**Видео:** [Ветвление.mp4](https://drive.google.com/file/d/1OJrLNr2c2MGBRLGUzFylbCkFyunPpX45)

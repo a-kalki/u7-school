@@ -217,4 +217,4 @@ Boolean(n); // -> false
 
 ---
 
-**Видео:** [p1-l11. Явное приведение типов.mp4](https://drive.google.com/file/d/1jkL1NrdmkIyWHqOv9jcu6yvmRaY4glT7)
+**Видео:** [Явное приведение типов.mp4](https://drive.google.com/file/d/1jkL1NrdmkIyWHqOv9jcu6yvmRaY4glT7)

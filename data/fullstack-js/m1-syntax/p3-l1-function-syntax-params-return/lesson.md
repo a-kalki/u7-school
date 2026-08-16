@@ -217,4 +217,4 @@ console.log(repeatText('JS is great!', 2));
 
 ---
 
-**Видео:** [p3-l1. Функция как единица программы синтаксис параметры и return.mp4](https://drive.google.com/file/d/1uK1Ni8t6FHoQ_95_glwWnW7toNB56sJI)
+**Видео:** [Функция как единица программы синтаксис параметры и return.mp4](https://drive.google.com/file/d/1uK1Ni8t6FHoQ_95_glwWnW7toNB56sJI)
