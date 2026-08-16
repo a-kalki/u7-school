@@ -1,0 +1,13 @@
+Фаза 2 трека ui-proactive-sender: рендеринг анкеты в FillStory.
+
+Задачи: Red-тесты подписок FillStory, Green-перенос рендера S01–S04, удаление TelegramQuestionnaireBotFacade и прямых eventBus.subscribe из main.ts.
+
+Изменения:
+- apps/u7-bot/src/controllers/questionnaire/fill.story.ts — FillStory.getEventSubscriptions() объявляет подписки на questionnaire:start/questionnaire:invite; #handleStartEvent рендерит S02–S04 и шлёт с captureInput (путь questionnaire/fill); #handleInviteEvent рендерит S01 и шлёт проактивно через this.proactiveSender.send.
+- apps/u7-bot/src/controllers/questionnaire/fill.story.test.ts — новый unit-тест подписок и рендера.
+- apps/u7-bot/src/infra/questionnaire-bot-facade.ts — удалён (FR7).
+- apps/u7-bot/src/main.ts — удалены прямые eventBus.subscribe и импорты событий/фасада; остаётся uiApp.subscribeEvents().
+- apps/u7-bot/src/core/ui-app.ts, u7-bot-controller.ts — форматирование biome.
+- packages/core/src/ui/bot/* — форматирование biome после Фазы 1.
+
+Причина: проактивный старт/приглашение анкеты рендерятся через стори с полным префиксом кнопок questionnaire:... через цепочку ProactiveSender.
