@@ -77,4 +77,4 @@ function splice(arr, start, deleteCount, ...items) {
 
 `splice` **меняет** массив на месте. В JSDoc отметь это явно.
 
-**Видео:** [p6-l6. Функция splice.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция splice.mp4](https://drive.google.com/file/d/placeholder)

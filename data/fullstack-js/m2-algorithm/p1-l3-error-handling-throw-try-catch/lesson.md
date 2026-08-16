@@ -165,4 +165,4 @@ try {
 
 ---
 
-**Видео:** [p1-l3. Обработка ошибок throw и try-catch.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Обработка ошибок throw и try-catch.mp4](https://drive.google.com/file/d/placeholder)

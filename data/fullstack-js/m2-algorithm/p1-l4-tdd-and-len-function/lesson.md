@@ -216,4 +216,4 @@ js-algorithms/
 
 ---
 
-**Видео:** [p1-l4. TDD и функция len.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [TDD и функция len.mp4](https://drive.google.com/file/d/placeholder)

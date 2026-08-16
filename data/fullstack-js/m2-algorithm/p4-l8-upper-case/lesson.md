@@ -51,4 +51,4 @@
 
 ---
 
-**Видео:** [p4-l8. Функция upperCase.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция upperCase.mp4](https://drive.google.com/file/d/placeholder)

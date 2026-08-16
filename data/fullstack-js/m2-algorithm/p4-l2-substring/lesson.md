@@ -50,4 +50,4 @@
 
 ---
 
-**Видео:** [p4-l2. Функция substring.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция substring.mp4](https://drive.google.com/file/d/placeholder)

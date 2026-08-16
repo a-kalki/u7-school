@@ -136,4 +136,4 @@ function escapeCSV(value) {
 - `len` — длина массива/строки
 - Сборка строки через `+=` (ручная конкатенация, аналог `join`)
 
-**Видео:** [p10-l3. Функция toCSV.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция toCSV.mp4](https://drive.google.com/file/d/placeholder)

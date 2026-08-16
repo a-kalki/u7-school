@@ -82,4 +82,4 @@
 **Ссылки для самостоятельного изучения:**
 - [GitHub Send Pull Request](https://www.w3schools.com/git/git_remote_send_pull_request.asp) — работа с PR
 
-**Видео:** [p2-l4. Приглашение ревьюеров и правила ревью.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Приглашение ревьюеров и правила ревью.mp4](https://drive.google.com/file/d/placeholder)

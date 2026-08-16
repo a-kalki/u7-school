@@ -113,4 +113,4 @@ function isLess(a, b) {
 
 ---
 
-**Видео:** [p1-l7. Функции isNotEqual, isMore, isLess.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функции isNotEqual, isMore, isLess.mp4](https://drive.google.com/file/d/placeholder)

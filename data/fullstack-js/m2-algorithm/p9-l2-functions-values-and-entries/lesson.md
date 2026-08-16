@@ -106,4 +106,4 @@ function values(obj) {
 - `entries('строка')` → `TypeError`
 - Значения могут быть любого типа: числа, строки, массивы, объекты, `null`, `undefined`
 
-**Видео:** [p9-l2. Функции values и entries.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функции values и entries.mp4](https://drive.google.com/file/d/placeholder)

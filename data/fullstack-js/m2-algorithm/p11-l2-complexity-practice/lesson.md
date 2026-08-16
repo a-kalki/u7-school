@@ -107,4 +107,4 @@ function primesUpTo(n) {
 
 Мораль: при маленьких n константа может перевешивать, но при больших n **порядок роста решает всё**.
 
-**Видео:** [p11-l2. Тренировка — определение сложности.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Тренировка — определение сложности.mp4](https://drive.google.com/file/d/placeholder)

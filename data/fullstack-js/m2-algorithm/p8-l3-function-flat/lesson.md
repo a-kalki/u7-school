@@ -71,4 +71,4 @@ function flat(arr, depth) {
 
 `flat` **не меняет** исходный массив — создаёт и возвращает новый. В JSDoc отметь иммутабельность.
 
-**Видео:** [p8-l3. Функция flat.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция flat.mp4](https://drive.google.com/file/d/placeholder)

@@ -87,4 +87,4 @@ mkdir arrays
 ```
 
 
-**Видео:** [p5-l1. Мутабельность.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Мутабельность.mp4](https://drive.google.com/file/d/placeholder)

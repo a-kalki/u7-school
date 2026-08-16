@@ -31,4 +31,4 @@ function map(arr, callback) {
 
 `map` **не меняет** исходный массив — создаёт и возвращает новый. В JSDoc отметь иммутабельность. В тестах проверь, что исходный массив не изменился после вызова.
 
-**Видео:** [p7-l2. Функция map.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция map.mp4](https://drive.google.com/file/d/placeholder)

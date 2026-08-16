@@ -88,4 +88,4 @@ git push
 
 ---
 
-**Видео:** [p2-l5. Доработка по ревью и pin-сообщение.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Доработка по ревью и pin-сообщение.mp4](https://drive.google.com/file/d/placeholder)

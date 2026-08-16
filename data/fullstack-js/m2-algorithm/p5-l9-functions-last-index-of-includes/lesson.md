@@ -25,4 +25,4 @@
 `includes` — классический пример композиции: одна функция строится на другой. Это делает код короче, понятнее и проще в поддержке. Если в `indexOf` найдётся баг — починив его в одном месте, ты автоматически починишь и `includes`.
 
 
-**Видео:** [p5-l9. Функции lastIndexOf и includes.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функции lastIndexOf и includes.mp4](https://drive.google.com/file/d/placeholder)

@@ -41,4 +41,4 @@
 
 ---
 
-**Видео:** [p4-l4. Функция trim.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция trim.mp4](https://drive.google.com/file/d/placeholder)

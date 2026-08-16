@@ -33,4 +33,4 @@ git push -u origin feat/iterative-methods-2
 
 В описании перечислить все 4 функции с особенностями, указать `bun test` для запуска. Добавить 2 ревьюеров, закрепить сообщение в чате.
 
-**Видео:** [p8-l4. Финальный прогон и PR.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Финальный прогон и PR.mp4](https://drive.google.com/file/d/placeholder)

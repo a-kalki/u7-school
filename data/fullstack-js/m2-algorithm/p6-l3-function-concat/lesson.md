@@ -33,4 +33,4 @@ function concat(arr1, arr2) {
 
 `push` добавляет элементы **в конец существующего** массива, меняя его. `concat` создаёт **новый** массив, оставляя исходные нетронутыми. Выбор зависит от задачи: нужно сохранить исходные данные или нет.
 
-**Видео:** [p6-l3. Функция concat.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция concat.mp4](https://drive.google.com/file/d/placeholder)

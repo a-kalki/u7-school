@@ -47,4 +47,4 @@ function reverse(arr) {
 
 В проекте 3 мы реализовали `reverse(str)` для строк: строки иммутабельны, поэтому создавалась новая строка. Здесь `reverse(arr)` для массивов — мутабельная, меняет исходный массив. Это важное различие в поведении.
 
-**Видео:** [p6-l2. Функция reverse массива.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция reverse массива.mp4](https://drive.google.com/file/d/placeholder)

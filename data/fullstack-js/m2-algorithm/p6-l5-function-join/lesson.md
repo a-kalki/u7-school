@@ -41,4 +41,4 @@ function join(arr, separator) {
 
 `join` не меняет массив — только читает его и создаёт строку.
 
-**Видео:** [p6-l5. Функция join.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция join.mp4](https://drive.google.com/file/d/placeholder)

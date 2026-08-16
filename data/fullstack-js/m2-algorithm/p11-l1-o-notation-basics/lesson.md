@@ -150,4 +150,4 @@
 **Ссылка для самостоятельного изучения:**
 - [«Сложность алгоритмов. Big O. Основы»](https://habr.com/ru/articles/444594/) — подробный разбор с примерами на JavaScript
 
-**Видео:** [p11-l1. Сложность алгоритмов O-нотация.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Сложность алгоритмов O-нотация.mp4](https://drive.google.com/file/d/placeholder)

@@ -48,4 +48,4 @@ function slice(arr, start, end) {
 
 `slice` и `concat` — две иммутабельные функции для создания новых массивов. `concat` объединяет два массива, `slice` копирует часть одного.
 
-**Видео:** [p6-l4. Функция slice массива.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция slice массива.mp4](https://drive.google.com/file/d/placeholder)

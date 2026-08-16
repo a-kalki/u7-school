@@ -35,4 +35,4 @@ function shift(arr) {
 
 Оператор `delete` подробно разобран в уроке 5.5 (pop): он убирает элемент массива по индексу, не сдвигая остальные, оставляя «дырку». Здесь `shift` использует `delete arr[length - 1]`, чтобы убрать ставший лишним последний индекс после сдвига.
 
-**Видео:** [p5-l7. Функция shift.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция shift.mp4](https://drive.google.com/file/d/placeholder)

@@ -41,4 +41,4 @@ function fill(arr, value, start = 0, end = len(arr)) {
 
 Без `fill` чтобы заполнить массив, нужно писать цикл вручную. `fill` делает это одной строкой и поддерживает частичное заполнение (от `start` до `end`).
 
-**Видео:** [p6-l1. Функция fill.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция fill.mp4](https://drive.google.com/file/d/placeholder)

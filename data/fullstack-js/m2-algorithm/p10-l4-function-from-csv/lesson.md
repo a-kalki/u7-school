@@ -220,4 +220,4 @@ fromCSV: [{ msg: 'Привет, мир!', author: 'Я сказал: "Пока!"'
 - `len` — длина строки и массивов
 - `push` — накопление полей и строк
 
-**Видео:** [p10-l4. Функция fromCSV.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция fromCSV.mp4](https://drive.google.com/file/d/placeholder)

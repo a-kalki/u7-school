@@ -32,4 +32,4 @@ git push -u origin feat/array-transform
 - `flat` — первая функция с рекурсией
 - `splice` — самая сложная, объединяет удаление и вставку
 
-**Видео:** [p6-l8. Пуш и PR проекта 6.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Пуш и PR проекта 6.mp4](https://drive.google.com/file/d/placeholder)

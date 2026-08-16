@@ -34,4 +34,4 @@ function every(arr, callback) {
 
 Для пустого массива `every` возвращает `true` — вакуумная истина: если элементов нет, утверждение «все элементы удовлетворяют условию» формально верно.
 
-**Видео:** [p7-l5. Функция every.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция every.mp4](https://drive.google.com/file/d/placeholder)

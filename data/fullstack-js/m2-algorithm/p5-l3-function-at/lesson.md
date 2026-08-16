@@ -19,4 +19,4 @@
 `at` — первая функция, которая **использует** `len` как строительный блок. Так весь проект строится снизу вверх: `len` → `at` → `push`/`pop` → `indexOf` → ...
 
 
-**Видео:** [p5-l3. Функция at.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция at.mp4](https://drive.google.com/file/d/placeholder)

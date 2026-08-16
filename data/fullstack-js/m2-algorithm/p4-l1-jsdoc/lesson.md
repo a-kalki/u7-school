@@ -122,4 +122,4 @@ VS Code (и другие редакторы) понимают JSDoc и пока�
 
 ---
 
-**Видео:** [p4-l1. JSDoc.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [JSDoc.mp4](https://drive.google.com/file/d/placeholder)

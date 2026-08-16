@@ -29,4 +29,4 @@ git push -u origin feat/array-basics
 В описании перечисли все 9 функций, отметь какие из них мутабельные, укажи как запустить тесты.
 
 
-**Видео:** [p5-l10. Пуш и PR проекта 5.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Пуш и PR проекта 5.mp4](https://drive.google.com/file/d/placeholder)

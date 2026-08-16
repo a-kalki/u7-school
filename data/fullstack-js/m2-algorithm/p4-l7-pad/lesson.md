@@ -43,4 +43,4 @@
 
 ---
 
-**Видео:** [p4-l7. Функция pad.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция pad.mp4](https://drive.google.com/file/d/placeholder)

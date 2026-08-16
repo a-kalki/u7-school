@@ -77,4 +77,4 @@ function groupBy(array, key) {
 - `push` — добавление элемента в группу
 - `hasOwnProperty` — проверка существования группы
 
-**Видео:** [p10-l5. Функция groupBy.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция groupBy.mp4](https://drive.google.com/file/d/placeholder)

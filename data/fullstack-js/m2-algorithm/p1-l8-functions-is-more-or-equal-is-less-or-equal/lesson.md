@@ -80,4 +80,4 @@ function isLessOrEqual(a, b) {
 
 ---
 
-**Видео:** [p1-l8. Функции isMoreOrEqual и isLessOrEqual.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функции isMoreOrEqual и isLessOrEqual.mp4](https://drive.google.com/file/d/placeholder)

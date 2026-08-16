@@ -68,4 +68,4 @@ bun test
 
 ---
 
-**Видео:** [p4-l10. PR и ревью.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [PR и ревью.mp4](https://drive.google.com/file/d/placeholder)
