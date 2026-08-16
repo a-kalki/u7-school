@@ -1,6 +1,6 @@
 # План реализации — UI (bot): прокидка ProactiveSender через init и перенос рендеринга анкеты в стори
 
-## Фаза 1: Прокидка ProactiveSender через init
+## Фаза 1: Прокидка ProactiveSender через init [checkpoint: 5fe142e]
 
 - [x] Task: Red — тесты прокидки в `packages/core/src/ui/bot`: (5349386)
   - `BotUiStory.init(resolve, proactiveSender)` сохраняет `proactiveSender` (родитель-контроллер);
@@ -11,7 +11,7 @@
 - [x] Task: Green — перенести `ProactiveSender` в `packages/core/src/ui/bot/types.ts`; реализовать `ProactiveSender` в `BotUiApp` и `BotController`; прокидка по цепочке: каждый уровень передаёт себя вниз через `init`. (5349386)
 - [x] Task: Вынести `#prefixCommand(command: BotCommand)` из `#prefixResponse` в `BotController`. (5349386)
 - [x] Task: Разделить создание/init в `apps/u7-bot/src/create-ui-app.ts`; в `main.ts` создать transport, затем `uiApp.init(resolve, transport)` и `uiApp.subscribeEvents()`. (5349386)
-- [ ] Task: Conductor - Ручная верификация 'Прокидка ProactiveSender' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Прокидка ProactiveSender' (Protocol in workflow.md) (5fe142e)
 
 ## Фаза 2: Рендеринг анкеты в FillStory
 
