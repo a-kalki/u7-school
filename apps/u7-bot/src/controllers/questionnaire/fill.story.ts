@@ -1,15 +1,20 @@
 import type { User } from '@u7-scl/app/domain';
-import type {
-  BotResponse,
-  BotUpdate,
-  KeyboardDescription,
-  SessionData,
+import {
+  type BotCommand,
+  type BotResponse,
+  type BotUpdate,
+  eventSubscription,
+  type KeyboardDescription,
+  type SessionData,
+  type UiEventSubscription,
 } from '@u7-scl/core/ui';
 import type { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import type {
   InviteResponse,
   Question,
   QuestionnaireActionResponse,
+  QuestionnaireInviteEvent,
+  QuestionnaireStartEvent,
 } from '@u7-scl/questionnaire/domain';
 import { U7BotUiStory } from '../../core/u7-bot-ui-story';
 import { buttons } from '../shared/buttons';
@@ -27,6 +32,54 @@ export class FillStory extends U7BotUiStory {
   constructor(qmod: QuestionnaireApiModule) {
     super();
     this.#qmod = qmod;
+  }
+
+  // ── Подписки на доменные события ──
+
+  override getEventSubscriptions(): UiEventSubscription[] {
+    return [
+      eventSubscription<QuestionnaireStartEvent>(
+        'questionnaire:start',
+        (event) => this.#handleStartEvent(event),
+      ),
+      eventSubscription<QuestionnaireInviteEvent>(
+        'questionnaire:invite',
+        (event) => this.#handleInviteEvent(event),
+      ),
+    ];
+  }
+
+  /** questionnaire:start — рендерит S02–S04 и запускает диалог проактивно */
+  async #handleStartEvent(event: QuestionnaireStartEvent): Promise<void> {
+    const { telegramId, response } = event.payload;
+    const command = this.#renderActionResponse(response);
+
+    if (response.type === 'wait_next' || response.type === 'new_question') {
+      command.captureInput = {
+        path: 'questionnaire/fill',
+        context: { questionnaireId: response.questionnaireId },
+      };
+    }
+
+    await this.proactiveSender.send(telegramId, command);
+  }
+
+  /** questionnaire:invite — рендерит S01 (приглашение) и шлёт проактивно */
+  async #handleInviteEvent(event: QuestionnaireInviteEvent): Promise<void> {
+    const { telegramId, response } = event.payload;
+
+    const command: BotCommand = {
+      sendMessage: {
+        text: `📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.`,
+        parseMode: 'MarkdownV2',
+        keyboard: this.#inviteKeyboard(
+          response.questionnaireId,
+          response.whyText,
+        ),
+      },
+    };
+
+    await this.proactiveSender.send(telegramId, command);
   }
 
   // ── Callback ──

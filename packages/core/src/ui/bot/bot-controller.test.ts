@@ -141,9 +141,8 @@ describe('BotController', () => {
       });
 
       expect(mockSender.send).toHaveBeenCalled();
-      const [tgId, command] = (
-        mockSender.send as ReturnType<typeof mock>
-      ).mock.calls[0] as [number, BotCommand];
+      const [tgId, command] = (mockSender.send as ReturnType<typeof mock>).mock
+        .calls[0] as [number, BotCommand];
       expect(tgId).toBe(123);
       expect(command.sendMessage?.keyboard?.rows[0]?.[0]?.code).toBe(
         'test_ctrl:fill:start:q1',

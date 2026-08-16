@@ -1,5 +1,9 @@
 import type { User } from '@u7-scl/app/domain';
-import { BotController, type BotResponse, type ProactiveSender } from '@u7-scl/core/ui';
+import {
+  BotController,
+  type BotResponse,
+  type ProactiveSender,
+} from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotUiStory } from './u7-bot-ui-story';
 import type { MainMenuAction, MenuAggregator } from './u7-menu';

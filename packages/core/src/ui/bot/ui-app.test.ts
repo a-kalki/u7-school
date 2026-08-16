@@ -138,9 +138,8 @@ describe('BotUiApp', () => {
     await app.send(456, command);
 
     expect(transport.send).toHaveBeenCalled();
-    const [tgId, sent] = (
-      transport.send as ReturnType<typeof mock>
-    ).mock.calls[0] as [number, BotCommand];
+    const [tgId, sent] = (transport.send as ReturnType<typeof mock>).mock
+      .calls[0] as [number, BotCommand];
     expect(tgId).toBe(456);
     expect(sent).toEqual(command);
   });

@@ -20,13 +20,16 @@ import type {
  * Базовый контроллер для Telegram-бота с поддержкой UserStory.
  */
 export abstract class BotController<
-  TAppMeta extends AppMeta = AppMeta,
-  TActor = unknown,
-  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-    TAppMeta,
-    TActor
-  >,
-> extends UiController<TResolve> implements ProactiveSender {
+    TAppMeta extends AppMeta = AppMeta,
+    TActor = unknown,
+    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+      TAppMeta,
+      TActor
+    >,
+  >
+  extends UiController<TResolve>
+  implements ProactiveSender
+{
   protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */

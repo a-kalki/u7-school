@@ -17,13 +17,16 @@ import type {
  * @typeParam TActor — тип актора (пользователя)
  */
 export class BotUiApp<
-  TAppMeta extends AppMeta = AppMeta,
-  TActor = unknown,
-  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-    TAppMeta,
-    TActor
-  >,
-> extends UiApp<TResolve> implements ProactiveSender {
+    TAppMeta extends AppMeta = AppMeta,
+    TActor = unknown,
+    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+      TAppMeta,
+      TActor
+    >,
+  >
+  extends UiApp<TResolve>
+  implements ProactiveSender
+{
   protected declare readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>

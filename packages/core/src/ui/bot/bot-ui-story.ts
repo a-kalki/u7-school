@@ -7,7 +7,12 @@ import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type { BotUiAppResolve } from './app-types';
-import type { BotResponse, BotUpdate, ProactiveSender, SessionData } from './types';
+import type {
+  BotResponse,
+  BotUpdate,
+  ProactiveSender,
+  SessionData,
+} from './types';
 
 /**
  * Абстрактный класс для пользовательского сценария.

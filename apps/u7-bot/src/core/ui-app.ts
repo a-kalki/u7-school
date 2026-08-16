@@ -23,10 +23,7 @@ export class U7BotUiApp
    * Инициализация зависимостями UI-слоя U7-бота.
    * transport передаётся отдельным аргументом (ProactiveSender).
    */
-  override init(
-    resolve: U7BotUiAppResolve,
-    transport?: ProactiveSender,
-  ): void {
+  override init(resolve: U7BotUiAppResolve, transport?: ProactiveSender): void {
     super.init(resolve, transport);
   }
 

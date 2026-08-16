@@ -6,10 +6,6 @@ import {
   serializeError,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import type {
-  QuestionnaireInviteEvent,
-  QuestionnaireStartEvent,
-} from '@u7-scl/questionnaire/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
 import { createBot } from './bot';
@@ -20,7 +16,6 @@ import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
-import { TelegramQuestionnaireBotFacade } from './infra/questionnaire-bot-facade';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 const config = loadConfig();
@@ -51,29 +46,6 @@ const transport = new BotTransport(uiBundle.uiApp, bot.api, sessionMap);
 // transport передаётся отдельным аргументом (ProactiveSender).
 uiBundle.uiApp.init(uiBundle.resolve, transport);
 uiBundle.uiApp.subscribeEvents();
-
-// ══ Подключение рендеринга анкеты через доменные события ══
-const questionnaireBotFacade = new TelegramQuestionnaireBotFacade(transport);
-
-apiBundle.eventBus.subscribe<QuestionnaireStartEvent>(
-  'questionnaire:start',
-  async (event) => {
-    await questionnaireBotFacade.startQuestionnaire(
-      event.payload.telegramId,
-      event.payload.response,
-    );
-  },
-);
-
-apiBundle.eventBus.subscribe<QuestionnaireInviteEvent>(
-  'questionnaire:invite',
-  async (event) => {
-    await questionnaireBotFacade.sendQuestionnaireInvite(
-      event.payload.telegramId,
-      event.payload.response,
-    );
-  },
-);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
