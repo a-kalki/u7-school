@@ -15,13 +15,13 @@
 
 ## Фаза 2: Рендеринг анкеты в FillStory
 
-- [ ] Task: Red — тесты подписок `FillStory` в новом `apps/u7-bot/src/controllers/questionnaire/fill.story.test.ts`:
+- [x] Task: Red — тесты подписок `FillStory` в новом `apps/u7-bot/src/controllers/questionnaire/fill.story.test.ts`: (3b7b2ad)
   - `getEventSubscriptions()` возвращает 2 подписки: `questionnaire:start`, `questionnaire:invite`;
   - обработчик `questionnaire:invite` рендерит S01 (текст + кнопки `fill:start`/`fill:why`/`fill:decline`) и вызывает `proactiveSender.send` с правильным `telegramId`;
   - обработчик `questionnaire:start` рендерит S02–S04 и вызывает `send` с `captureInput` (путь `questionnaire/fill`).
   - Не тестируем типы событий questionnaire.
-- [ ] Task: Green — объявить подписки в `FillStory`; перенести рендер S01–S04 из `TelegramQuestionnaireBotFacade` в стори; вызов `this.proactiveSender.send(...)`.
-- [ ] Task: Удалить `apps/u7-bot/src/infra/questionnaire-bot-facade.ts` и прямые `eventBus.subscribe` из `main.ts`.
+- [x] Task: Green — объявить подписки в `FillStory`; перенести рендер S01–S04 из `TelegramQuestionnaireBotFacade` в стори; вызов `this.proactiveSender.send(...)`. (3b7b2ad)
+- [x] Task: Удалить `apps/u7-bot/src/infra/questionnaire-bot-facade.ts` и прямые `eventBus.subscribe` из `main.ts`. (3b7b2ad)
 - [ ] Task: Conductor - Ручная верификация 'Рендеринг анкеты в стори' (Protocol in workflow.md)
 
 ## Финал
