@@ -17,16 +17,15 @@ import type {
  * @typeParam TActor — тип актора (пользователя)
  */
 export class BotUiApp<
-    TAppMeta extends AppMeta = AppMeta,
-    TActor = unknown,
-    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-      TAppMeta,
-      TActor
-    >,
-  >
+  TAppMeta extends AppMeta = AppMeta,
+  TActor = unknown,
+  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+    TAppMeta,
+    TActor
+  >,
+>
   extends UiApp<TResolve>
-  implements ProactiveSender
-{
+  implements ProactiveSender {
   protected declare readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>
@@ -46,11 +45,12 @@ export class BotUiApp<
    */
   override init(resolve: TResolve, transport?: ProactiveSender): void {
     this.resolve = resolve;
-    if (transport) {
-      this.transport = transport;
-    }
     for (const controller of this.controllers.values()) {
       controller.init(resolve, this);
+    }
+
+    if (transport) {
+      this.transport = transport;
     }
   }
 
