@@ -358,4 +358,42 @@ describe('ViewStreamStory (интеграционный)', () => {
     expect(backBtn).toBeDefined();
     expect(backBtn!.code).toContain(':students:');
   });
+
+  // ── Запись с кодовым словом (enroll-key) ──
+
+  test('enroll-key: гость вводит кодовое слово и записывается', async () => {
+    const ENROLL_KEY_ID = 'e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4';
+
+    // 1. Открываем карточку потока с кодовым словом (Поток 5)
+    const viewResp = await transport.handleCallback(
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: `stream:view-stream:view:${ENROLL_KEY_ID}`,
+      }),
+    );
+    assertBotResponseValid(viewResp);
+    expect(viewResp.sendMessage?.text).toContain('Поток 5');
+
+    // 2. Находим кнопку «Записаться»
+    const enrollBtn = viewResp.sendMessage?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Записаться'));
+    expect(enrollBtn).toBeDefined();
+
+    // 3. Жмём «Записаться» — бот должен запросить кодовое слово
+    const enrollResp = await transport.handleCallback(
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: enrollBtn!.code,
+      }),
+    );
+    assertBotResponseValid(enrollResp);
+    expect(enrollResp.sendMessage?.text).toContain('кодовое слово');
+    expect(enrollResp.captureInput).toBeDefined();
+
+    // 4. Вводим верное кодовое слово — бот должен зачислить
+    const keyResp = await transport.handleMessage(
+      transport.makeBotContext(guest.telegramId, { text: 'secret123' }),
+    );
+    assertBotResponseValid(keyResp);
+    expect(keyResp.sendMessage?.text).toContain('записаны');
+  });
 });
