@@ -66,6 +66,17 @@ export interface BotResponse extends BotCommand {
   delegate?: { path: string };
 }
 
+/**
+ * Проактивный отправитель сообщений бота.
+ *
+ * Цепочка `transport → BotUiApp → BotController → BotUiStory`: каждый уровень
+ * реализует этот интерфейс и передаёт себя дочернему уровню через `init`
+ * отдельным аргументом (не через resolve).
+ */
+export interface ProactiveSender {
+  send(telegramId: number, command: BotCommand): Promise<void>;
+}
+
 /** Данные сессии пользователя с отслеживанием активного обработчика */
 export interface SessionData {
   activeHandler: {

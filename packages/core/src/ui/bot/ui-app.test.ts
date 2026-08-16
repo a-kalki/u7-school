@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 import { BotController } from './bot-controller';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type { BotCommand, BotResponse, BotUpdate, SessionData } from './types';
 import { BotUiApp } from './ui-app';
 
 // ── Тестовый контроллер ──
@@ -30,6 +30,14 @@ class TestController extends BotController<
   }> = [];
   handleCancelCalls: Array<{ actor: TestActor; session: SessionData }> = [];
   handleTimeoutCalls: Array<{ actor: TestActor; session: SessionData }> = [];
+
+  /** Сохраняет sender, переданный в init (для spy-проверок) */
+  initReceived: unknown;
+
+  override init(resolve: unknown, sender?: unknown): void {
+    super.init(resolve as never, sender as never);
+    this.initReceived = sender;
+  }
 
   withCallbackResult(res: BotResponse): this {
     this._callbackResult = res;
@@ -116,6 +124,36 @@ describe('BotUiApp', () => {
     expect(app.size).toBe(1);
     expect(app.getController('stream')).toBe(ctrl);
     expect(app.getController('unknown')).toBeUndefined();
+  });
+
+  test('send делегирует в transport', async () => {
+    const ctrl = new TestController();
+    ctrl.name = 'stream';
+
+    const app = new BotUiApp([ctrl]);
+    const transport = { send: mock(async () => {}) };
+    app.init(makeResolve(makeActor()), transport);
+
+    const command: BotCommand = { sendMessage: { text: 'Привет' } };
+    await app.send(456, command);
+
+    expect(transport.send).toHaveBeenCalled();
+    const [tgId, sent] = (
+      transport.send as ReturnType<typeof mock>
+    ).mock.calls[0] as [number, BotCommand];
+    expect(tgId).toBe(456);
+    expect(sent).toEqual(command);
+  });
+
+  test('init передаёт себя контроллерам', () => {
+    const ctrl = new TestController();
+    ctrl.name = 'stream';
+
+    const app = new BotUiApp([ctrl]);
+    const transport = { send: mock(async () => {}) };
+    app.init(makeResolve(makeActor()), transport);
+
+    expect(ctrl.initReceived).toBe(app);
   });
 
   test('дубликат имени → ошибка', () => {

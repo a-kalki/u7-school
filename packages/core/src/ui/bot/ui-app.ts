@@ -2,7 +2,13 @@ import type { AppMeta } from '#domain/types';
 import { UiApp } from '../ui-app';
 import type { BotUiAppResolve } from './app-types';
 import type { BotController } from './bot-controller';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type {
+  BotCommand,
+  BotResponse,
+  BotUpdate,
+  ProactiveSender,
+  SessionData,
+} from './types';
 
 /**
  * Центральный хаб UI-слоя бота.
@@ -17,15 +23,32 @@ export class BotUiApp<
     TAppMeta,
     TActor
   >,
-> extends UiApp<TResolve> {
+> extends UiApp<TResolve> implements ProactiveSender {
   protected declare readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>
   >;
 
+  /** Транспорт — получается через init отдельным аргументом */
+  protected transport!: ProactiveSender;
+
   // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с UiController до BotController
   constructor(controllers: BotController<TAppMeta, TActor, TResolve>[]) {
     super(controllers);
+  }
+
+  /**
+   * Каскадная инициализация: сохраняет transport и передаёт себя контроллерам
+   * отдельным аргументом (как ProactiveSender).
+   */
+  override init(resolve: TResolve, transport?: ProactiveSender): void {
+    this.resolve = resolve;
+    if (transport) {
+      this.transport = transport;
+    }
+    for (const controller of this.controllers.values()) {
+      controller.init(resolve, this);
+    }
   }
 
   /** Возвращает контроллер по имени */
@@ -33,6 +56,13 @@ export class BotUiApp<
     name: string,
   ): BotController<TAppMeta, TActor, TResolve> | undefined {
     return this.controllers.get(name);
+  }
+
+  // ── ProactiveSender ──
+
+  /** Проактивная отправка — делегирует в transport */
+  async send(telegramId: number, command: BotCommand): Promise<void> {
+    await this.transport.send(telegramId, command);
   }
 
   // ── Обработка callback ──

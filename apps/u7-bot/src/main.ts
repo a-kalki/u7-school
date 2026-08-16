@@ -42,10 +42,15 @@ const bot = createBot(config.botToken, sessionMap);
 const tgFacade = new TelegramTgFacade(bot);
 
 const apiBundle = createApiApp(config, logger, tgFacade);
-const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
+const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp ══
-const transport = new BotTransport(uiApp, bot.api, sessionMap);
+const transport = new BotTransport(uiBundle.uiApp, bot.api, sessionMap);
+
+// ══ Каскадная инициализация UI + подписка стори на доменные события ══
+// transport передаётся отдельным аргументом (ProactiveSender).
+uiBundle.uiApp.init(uiBundle.resolve, transport);
+uiBundle.uiApp.subscribeEvents();
 
 // ══ Подключение рендеринга анкеты через доменные события ══
 const questionnaireBotFacade = new TelegramQuestionnaireBotFacade(transport);

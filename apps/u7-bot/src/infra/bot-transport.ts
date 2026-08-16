@@ -1,4 +1,4 @@
-import type { BotCommand, SessionData } from '@u7-scl/core/ui';
+import type { BotCommand, ProactiveSender, SessionData } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { U7BotUiApp } from '../core/ui-app';
@@ -16,10 +16,6 @@ export interface BotUpdateHandler {
   handleMessage(ctx: BotContext, next: () => Promise<void>): Promise<void>;
   handleCancel(ctx: BotContext): Promise<void>;
   handleHelp(ctx: BotContext): Promise<void>;
-}
-
-export interface ProactiveSender {
-  send(telegramId: number, command: BotCommand): Promise<void>;
 }
 
 // ── BotTransport ──

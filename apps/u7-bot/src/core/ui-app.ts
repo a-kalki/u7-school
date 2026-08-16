@@ -4,6 +4,7 @@ import {
   type BotResponse,
   BotUiApp,
   type KeyboardDescription,
+  type ProactiveSender,
 } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
@@ -20,9 +21,13 @@ export class U7BotUiApp
 
   /**
    * Инициализация зависимостями UI-слоя U7-бота.
+   * transport передаётся отдельным аргументом (ProactiveSender).
    */
-  override init(resolve: U7BotUiAppResolve): void {
-    super.init(resolve);
+  override init(
+    resolve: U7BotUiAppResolve,
+    transport?: ProactiveSender,
+  ): void {
+    super.init(resolve, transport);
   }
 
   // ── Сбор главного меню ──

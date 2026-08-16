@@ -4,7 +4,7 @@ import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotController } from './bot-controller';
 import { BotUiStory } from './bot-ui-story';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type { BotCommand, BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
 type TestModuleMeta = ApiModuleMeta & {
@@ -32,6 +32,7 @@ class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
   readonly name: string;
   initCalled = false;
   resetCalled = false;
+  initReceived: unknown;
 
   constructor(name: string) {
     super();
@@ -54,8 +55,9 @@ class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
     return { sendMessage: { text: `story_message:${this.name}` } };
   }
 
-  override init(resolve: unknown): void {
-    super.init(resolve as never);
+  override init(resolve: unknown, sender?: unknown): void {
+    super.init(resolve as never, sender as never);
+    this.initReceived = sender;
     this.initCalled = true;
   }
 
@@ -110,6 +112,42 @@ describe('BotController', () => {
       ctrl.init({} as never);
       expect(story1.initCalled).toBe(true);
       expect(story2.initCalled).toBe(true);
+    });
+  });
+
+  describe('init (proactiveSender)', () => {
+    test('передаёт себя стори отдельным аргументом', () => {
+      const mockSender = { send: mock(async () => {}) };
+      ctrl.init({} as never, mockSender);
+      expect(story1.initReceived).toBe(ctrl);
+      expect(story2.initReceived).toBe(ctrl);
+    });
+  });
+
+  describe('send (ProactiveSender)', () => {
+    test('префиксирует коды кнопок и делегирует в родителя', async () => {
+      const mockSender = { send: mock(async () => {}) };
+      ctrl.addStory(new TestStory('fill'));
+      ctrl.init({} as never, mockSender);
+
+      await ctrl.send(123, {
+        sendMessage: {
+          text: 'Привет',
+          keyboard: {
+            rows: [[{ text: 'Начать', code: 'fill:start:q1' }]],
+            isMultiple: false,
+          },
+        },
+      });
+
+      expect(mockSender.send).toHaveBeenCalled();
+      const [tgId, command] = (
+        mockSender.send as ReturnType<typeof mock>
+      ).mock.calls[0] as [number, BotCommand];
+      expect(tgId).toBe(123);
+      expect(command.sendMessage?.keyboard?.rows[0]?.[0]?.code).toBe(
+        'test_ctrl:fill:start:q1',
+      );
     });
   });
 

@@ -7,7 +7,7 @@ import { MentorController } from './controllers/mentor/controller';
 import { OnboardingController } from './controllers/onboarding/controller';
 import { QuestionnaireController } from './controllers/questionnaire/controller';
 import { StreamsController } from './controllers/streams/controller';
-import type { U7BotAppMeta } from './core/u7-bot-app-meta';
+import type { U7BotAppMeta, U7BotUiAppResolve } from './core/u7-bot-app-meta';
 import { U7BotUiApp } from './core/ui-app';
 import type { ApiAppBundle } from './create-api-app';
 
@@ -16,6 +16,7 @@ import type { ApiAppBundle } from './create-api-app';
  */
 export interface UiAppBundle {
   uiApp: U7BotUiApp;
+  resolve: U7BotUiAppResolve;
   appController: AppController;
   onboardingController: OnboardingController;
   streamController: StreamsController;
@@ -26,10 +27,10 @@ export interface UiAppBundle {
 }
 
 /**
- * Создаёт U7BotUiApp и все контроллеры.
+ * Создаёт U7BotUiApp и все контроллеры, собирает resolve для init.
  *
- * Получает модули из ApiAppBundle, создаёт контроллеры,
- * собирает их в U7BotUiApp и выполняет каскадную инициализацию.
+ * Создание и init разделены: init (с передачей transport) выполняется
+ * вызывающим кодом (main.ts) после создания BotTransport.
  */
 export function createUiApp(
   apiApp: ApiApp<U7BotAppMeta>,
@@ -56,9 +57,9 @@ export function createUiApp(
     questionnaireController,
   ]);
 
-  // Каскадная инициализация: UiApp → контроллеры → стори
-  // actorResolver: резолвит User по telegramId через userFacade
-  uiApp.init({
+  // resolve для каскадной инициализации UiApp → контроллеры → стори.
+  // actorResolver: резолвит User по telegramId через userFacade.
+  const resolve: U7BotUiAppResolve = {
     eventBus: bundle.eventBus,
     actorResolver: async (tgId: number) => {
       const user = await bundle.userFacade.getUserByTelegramId(tgId);
@@ -67,10 +68,11 @@ export function createUiApp(
     },
     appApi: apiApp,
     uiApp,
-  });
+  };
 
   return {
     uiApp,
+    resolve,
     appController,
     onboardingController,
     streamController,

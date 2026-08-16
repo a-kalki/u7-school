@@ -1,5 +1,5 @@
 import type { User } from '@u7-scl/app/domain';
-import { BotController, type BotResponse } from '@u7-scl/core/ui';
+import { BotController, type BotResponse, type ProactiveSender } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotUiStory } from './u7-bot-ui-story';
 import type { MainMenuAction, MenuAggregator } from './u7-menu';
@@ -19,9 +19,12 @@ export abstract class U7BotController extends BotController<
   /** Агрегатор меню — передаётся через resolve при инициализации */
   protected uiApp!: MenuAggregator<User>;
 
-  override init(resolve: U7BotUiAppResolve): void {
+  override init(
+    resolve: U7BotUiAppResolve,
+    proactiveSender?: ProactiveSender,
+  ): void {
     this.uiApp = resolve.uiApp;
-    super.init(resolve);
+    super.init(resolve, proactiveSender);
   }
 
   /** Главное меню — агрегирует кнопки от всех стори. */

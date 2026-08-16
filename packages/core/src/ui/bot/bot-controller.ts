@@ -8,9 +8,11 @@ import { UiController } from '../ui-controller';
 import type { BotUiAppResolve } from './app-types';
 import type { BotUiStory } from './bot-ui-story';
 import type {
+  BotCommand,
   BotResponse,
   BotUpdate,
   KeyboardDescription,
+  ProactiveSender,
   SessionData,
 } from './types';
 
@@ -24,7 +26,7 @@ export abstract class BotController<
     TAppMeta,
     TActor
   >,
-> extends UiController<TResolve> {
+> extends UiController<TResolve> implements ProactiveSender {
   protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */
@@ -35,9 +37,24 @@ export abstract class BotController<
   /** API приложения (для внешних вызовов к другим модулям) */
   protected appApi!: ApiApp<TAppMeta>;
 
-  override init(resolve: TResolve): void {
+  /** Родитель (BotUiApp) — получается через init отдельным аргументом */
+  protected proactiveSender!: ProactiveSender;
+
+  override init(resolve: TResolve, proactiveSender?: ProactiveSender): void {
     this.appApi = resolve.appApi;
-    super.init(resolve);
+    if (proactiveSender) {
+      this.proactiveSender = proactiveSender;
+    }
+    for (const story of this.stories) {
+      story.init(resolve, this);
+    }
+  }
+
+  // ── ProactiveSender ──
+
+  /** Проактивная отправка — префиксирует коды кнопок и делегирует родителю */
+  async send(telegramId: number, command: BotCommand): Promise<void> {
+    await this.proactiveSender.send(telegramId, this.#prefixCommand(command));
   }
 
   /** Сброс временных данных контроллера и всех стори */
@@ -180,13 +197,13 @@ export abstract class BotController<
   // ── Префиксация кнопок ──
 
   /**
-   * Добавляет префикс контроллера (this.name) ко всем кодам кнопок в ответе.
+   * Префиксирует коды кнопок в команде (без делегирования).
    *
    * Коды стори (`story:action`) получают префикс контроллера.
    * Кросс-контроллерные коды (напр. `app:main-menu`) уже содержат префикс
    * другого контроллера и не трогаются.
    */
-  #prefixResponse(response: BotResponse): BotResponse {
+  #prefixCommand(command: BotCommand): BotCommand {
     const prefixKeyboard = (
       kb: KeyboardDescription | undefined,
     ): KeyboardDescription | undefined => {
@@ -202,7 +219,7 @@ export abstract class BotController<
       };
     };
 
-    const result: BotResponse = { ...response };
+    const result: BotCommand = { ...command };
 
     if (result.sendMessage?.keyboard) {
       result.sendMessage = {
@@ -226,10 +243,20 @@ export abstract class BotController<
       };
     }
 
-    if (result.delegate) {
+    return result;
+  }
+
+  /**
+   * Добавляет префикс контроллера (this.name) ко всем кодам кнопок в ответе
+   * и к `delegate.path`.
+   */
+  #prefixResponse(response: BotResponse): BotResponse {
+    const result: BotResponse = this.#prefixCommand(response);
+
+    if (response.delegate) {
       result.delegate = {
-        ...result.delegate,
-        path: this.#prefixCode(result.delegate.path),
+        ...response.delegate,
+        path: this.#prefixCode(response.delegate.path),
       };
     }
 

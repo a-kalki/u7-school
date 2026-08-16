@@ -1,11 +1,10 @@
-import type { BotResponse, KeyboardDescription } from '@u7-scl/core/ui';
+import type { BotResponse, KeyboardDescription, ProactiveSender } from '@u7-scl/core/ui';
 import type {
   InviteResponse,
   Question,
   QuestionnaireActionResponse,
 } from '@u7-scl/questionnaire/domain';
 import { buttons } from '../controllers/shared/buttons';
-import type { ProactiveSender } from './bot-transport';
 
 /**
  * Telegram-рендерер экранов анкеты (S01-S04).

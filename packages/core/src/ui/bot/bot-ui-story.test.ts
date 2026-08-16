@@ -77,6 +77,11 @@ class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
   public override get logger(): ReturnType<typeof getGlobalLogger> {
     return super.logger;
   }
+
+  /** Экспонируем сохранённый proactiveSender (родитель-контроллер) */
+  get savedSender() {
+    return this.proactiveSender;
+  }
 }
 
 describe('BotUiStory', () => {
@@ -84,6 +89,14 @@ describe('BotUiStory', () => {
 
   beforeEach(() => {
     story = new TestStory();
+  });
+
+  describe('proactiveSender', () => {
+    test('init сохраняет proactiveSender (родитель-контроллер)', () => {
+      const sender = { send: mock(async () => {}) };
+      story.init({} as never, sender);
+      expect(story.savedSender).toBe(sender);
+    });
   });
 
   describe('cb', () => {

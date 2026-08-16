@@ -7,7 +7,7 @@ import { escapeMarkdown } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type { BotUiAppResolve } from './app-types';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type { BotResponse, BotUpdate, ProactiveSender, SessionData } from './types';
 
 /**
  * Абстрактный класс для пользовательского сценария.
@@ -26,6 +26,9 @@ export abstract class BotUiStory<
   /** API приложения — для вызовов useCases */
   protected appApi!: ApiApp<TAppMeta>;
 
+  /** Родитель (BotController) — получается через init отдельным аргументом */
+  protected proactiveSender!: ProactiveSender;
+
   // ── Инициализация ──
   protected get logger(): Logger | undefined {
     return getGlobalLogger();
@@ -33,10 +36,13 @@ export abstract class BotUiStory<
 
   /**
    * Инициализация сценария — вызывается контроллером при старте бота.
-   * Сохраняет ссылки на API приложения и агрегатор меню.
+   * Сохраняет ссылки на API приложения и proactiveSender (родитель-контроллер).
    */
-  override init(resolve: TResolve): void {
+  override init(resolve: TResolve, proactiveSender?: ProactiveSender): void {
     this.appApi = resolve.appApi;
+    if (proactiveSender) {
+      this.proactiveSender = proactiveSender;
+    }
     super.init(resolve);
   }
 
