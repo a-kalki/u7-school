@@ -16,5 +16,5 @@
 
 ---
 
-- [ ] **Track: UI (bot): прокидка ProactiveSender через init и перенос рендеринга анкеты в стори**
+- [x] **Track: UI (bot): прокидка ProactiveSender через init и перенос рендеринга анкеты в стори**
 *Link: [$T4]($T4)*
