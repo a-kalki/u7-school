@@ -1,3 +1,4 @@
+import { AppException } from '@u7-scl/core/domain';
 import type { ContentSnapshot } from '#domain/content-snapshot';
 import type { Course } from '#domain/course/entity';
 import type { CourseFacade, CourseProgram } from '#domain/facade';
@@ -34,6 +35,22 @@ export class CourseInProcFacade implements CourseFacade {
     return courses.find((c) =>
       c.phases.some((p) => p.moduleIds.includes(moduleId)),
     );
+  }
+
+  async getCourse(courseId: string): Promise<Course | undefined> {
+    try {
+      return await this.courseModule.execute('get-course', {
+        uuid: courseId,
+      });
+    } catch (error) {
+      if (
+        error instanceof AppException &&
+        error.error.name === 'COURSE_NOT_FOUND'
+      ) {
+        return undefined;
+      }
+      throw error;
+    }
   }
 
   async getCourseProgram(courseId: string): Promise<CourseProgram> {

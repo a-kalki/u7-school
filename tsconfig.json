@@ -34,7 +34,10 @@
       "@u7-scl/course/infra": ["packages/course/src/infra/index.ts"],
       "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
       "@u7-scl/stream": ["packages/stream/src/index.ts"],
-      "@u7-scl/onboarding": ["packages/onboarding/src/index.ts"],
+      "@u7-scl/wish": ["packages/wish/src/index.ts"],
+      "@u7-scl/wish/domain": ["packages/wish/src/domain/index.ts"],
+      "@u7-scl/wish/api": ["packages/wish/src/api/index.ts"],
+      "@u7-scl/wish/infra": ["packages/wish/src/infra/index.ts"],
       "@u7-scl/questionnaire": ["packages/questionnaire/src/index.ts"],
       "@u7-scl/questionnaire/domain": [
         "packages/questionnaire/src/domain/index.ts"

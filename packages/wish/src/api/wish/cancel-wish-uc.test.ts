@@ -1,0 +1,67 @@
+import { describe, expect, mock, test } from 'bun:test';
+import type { WishApiModuleResolver } from '#domain/module';
+import type { Wish } from '#domain/wish/entity';
+import { CancelWishUc } from './cancel-wish-uc';
+
+function setupUc() {
+  const save = mock(async (_wish: Wish): Promise<void> => {});
+  const getByUserAndCourse = mock(
+    async (_userId: string, _courseId: string): Promise<Wish | undefined> =>
+      undefined,
+  );
+
+  const wishRepo = { save, getByUserAndCourse };
+
+  const uc = new CancelWishUc();
+  uc.init({ wishRepo } as unknown as WishApiModuleResolver);
+
+  return { save, getByUserAndCourse, uc };
+}
+
+function makeExpressedWish(userId: string, courseId: string): Wish {
+  return {
+    uuid: crypto.randomUUID(),
+    userId,
+    courseId,
+    status: 'expressed',
+    createdAt: '2026-01-01T10:00',
+  };
+}
+
+describe('CancelWishUc', () => {
+  const actorId = crypto.randomUUID();
+  const courseId = crypto.randomUUID();
+
+  test('отменяет выраженное желание', async () => {
+    const { save, getByUserAndCourse, uc } = setupUc();
+    getByUserAndCourse.mockResolvedValueOnce(
+      makeExpressedWish(actorId, courseId),
+    );
+
+    await uc.handle({ courseId }, actorId);
+
+    expect(save).toHaveBeenCalledTimes(1);
+    const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
+    expect(saved.status).toBe('cancelled');
+  });
+
+  test('выбрасывает WISH_NOT_FOUND если желания нет', async () => {
+    const { uc } = setupUc();
+
+    await expect(uc.handle({ courseId }, actorId)).rejects.toThrow(
+      'Желание не найдено',
+    );
+  });
+
+  test('выбрасывает WISH_NOT_FOUND если желание уже отменено', async () => {
+    const { getByUserAndCourse, uc } = setupUc();
+    getByUserAndCourse.mockResolvedValueOnce({
+      ...makeExpressedWish(actorId, courseId),
+      status: 'cancelled' as const,
+    });
+
+    await expect(uc.handle({ courseId }, actorId)).rejects.toThrow(
+      'Желание не найдено',
+    );
+  });
+});

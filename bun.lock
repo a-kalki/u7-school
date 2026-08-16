@@ -28,9 +28,10 @@
         "@u7-scl/app": "workspace:*",
         "@u7-scl/core": "workspace:*",
         "@u7-scl/course": "workspace:*",
-        "@u7-scl/onboarding": "workspace:*",
+        "@u7-scl/questionnaire": "workspace:*",
         "@u7-scl/stream": "workspace:*",
         "@u7-scl/user": "workspace:*",
+        "@u7-scl/wish": "workspace:*",
         "elysia": "^1.4.27",
         "grammy": "^1.41.1",
         "valibot": "^1.2.0",
@@ -66,13 +67,13 @@
         "valibot": "^1.0.0",
       },
     },
-    "packages/onboarding": {
-      "name": "@u7-scl/onboarding",
+    "packages/peer-review": {
+      "name": "@u7-scl/peer-review",
       "version": "0.1.0",
       "dependencies": {
-        "@u7-scl/app": "workspace:*",
         "@u7-scl/core": "workspace:*",
-        "@u7-scl/user": "workspace:*",
+        "@u7-scl/questionnaire": "workspace:*",
+        "valibot": "^1.0.0",
       },
     },
     "packages/questionnaire": {
@@ -113,6 +114,16 @@
       "dependencies": {
         "cheerio": "^1.2.0",
         "turndown": "^7.2.4",
+      },
+    },
+    "packages/wish": {
+      "name": "@u7-scl/wish",
+      "version": "0.1.0",
+      "dependencies": {
+        "@u7-scl/core": "workspace:*",
+        "@u7-scl/course": "workspace:*",
+        "@u7-scl/questionnaire": "workspace:*",
+        "@u7-scl/user": "workspace:*",
       },
     },
   },
@@ -199,7 +210,7 @@
 
     "@u7-scl/course": ["@u7-scl/course@workspace:packages/course"],
 
-    "@u7-scl/onboarding": ["@u7-scl/onboarding@workspace:packages/onboarding"],
+    "@u7-scl/peer-review": ["@u7-scl/peer-review@workspace:packages/peer-review"],
 
     "@u7-scl/questionnaire": ["@u7-scl/questionnaire@workspace:packages/questionnaire"],
 
@@ -210,6 +221,8 @@
     "@u7-scl/video-summarizer": ["@u7-scl/video-summarizer@workspace:packages/video-summarizer"],
 
     "@u7-scl/w3school": ["@u7-scl/w3school@workspace:packages/w3school"],
+
+    "@u7-scl/wish": ["@u7-scl/wish@workspace:packages/wish"],
 
     "@valibot/to-json-schema": ["@valibot/to-json-schema@1.7.1", "", { "peerDependencies": { "valibot": "^1.4.0" } }, "sha512-3qkmU6KXWh8GIThEAW3kuRHPQBMjWkKy+Ppz3WkUucx53DTpOa6siMn4xDGSOhlVyMrDaJTCTMLYPZVAIk1P0A=="],
 

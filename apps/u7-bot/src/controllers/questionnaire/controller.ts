@@ -6,7 +6,7 @@ import { FillStory } from './fill.story';
  * Контроллер questionnaire для Telegram-бота.
  *
  * Принимает QuestionnaireApiModule напрямую (standalone-модуль,
- * не зарегистрирован в ApiApp из-за конфликтов имён UC с onboarding).
+ * не зарегистрирован в ApiApp).
  */
 export class QuestionnaireController extends U7BotController {
   override readonly name = 'questionnaire';

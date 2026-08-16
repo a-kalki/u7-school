@@ -11,8 +11,6 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
-import { OnboardingApiModule, QuestionPoolService } from '@u7-scl/onboarding';
-import { QuestionnaireJsonRepo } from '@u7-scl/onboarding/infra';
 import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
 import {
@@ -27,6 +25,9 @@ import {
 import type { TgFacade } from '@u7-scl/stream/domain';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
+import { WishApiModule } from '@u7-scl/wish/api';
+import type { WishApiModuleResolver } from '@u7-scl/wish/domain';
+import { WishJsonRepo } from '@u7-scl/wish/infra';
 import type { BotConfig } from './config';
 import type { U7BotAppMeta } from './core/u7-bot-app-meta';
 
@@ -38,13 +39,11 @@ export interface ApiAppBundle {
   eventBus: EventBus;
   userFacade: UserInProcFacade;
   userRepo: UserJsonRepo;
-  questionnaireRepo: QuestionnaireJsonRepo;
   questionnaireFacade: QuestionnaireInProcFacade;
   questionnaireModule: QuestionnaireApiModule;
-  poolService: QuestionPoolService;
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
-  onboardingModule: OnboardingApiModule;
+  wishModule: WishApiModule;
 }
 
 /**
@@ -72,21 +71,10 @@ export function createApiApp(
     db,
   );
 
-  const questionnaireRepo = new QuestionnaireJsonRepo(
-    `${config.dbDir}/questionnaires/questionnaires.json`,
-    db,
-  );
-
   const streamRepo = new StreamJsonRepo(`${config.dbDir}/streams/streams.json`);
   const streamStudentRepo = new StudentJsonRepo(
     `${config.dbDir}/streams/students.json`,
   );
-
-  // ══ QuestionPoolService: явная загрузка пула ══
-  const rawPool = QuestionPoolService.loadDefaultPool();
-  const poolService = new QuestionPoolService(rawPool, []);
-  const allQuestionCodes = poolService.getAll().map((q) => q.questionCode);
-  const activePoolService = new QuestionPoolService(rawPool, allQuestionCodes);
 
   // ══ Модули: резолвер в конструкторе ══
   const userModule = new UserApiModule({
@@ -116,15 +104,6 @@ export function createApiApp(
 
   const courseFacade = new CourseInProcFacade(courseModule);
 
-  const onboardingModule = new OnboardingApiModule({
-    questionnaireRepo,
-    questionPoolService: activePoolService,
-    userFacade,
-    db,
-    appResolver,
-    eventBus: appResolver.eventBus,
-  });
-
   // ══ Questionnaire: модуль и фасад ══
   const qRepo = new QJsonRepo(
     `${config.dbDir}/questionnaires/q-questionnaires.json`,
@@ -145,6 +124,20 @@ export function createApiApp(
     questionnaireModule,
   );
 
+  // ══ Wish: репозиторий и модуль ══
+  const wishRepo = new WishJsonRepo(`${config.dbDir}/wish/wishes.json`);
+
+  const wishResolver: WishApiModuleResolver = {
+    wishRepo,
+    courseFacade,
+    questionnaireFacade,
+    userFacade,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  };
+
+  const wishModule = new WishApiModule(wishResolver);
+
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo,
@@ -158,7 +151,7 @@ export function createApiApp(
   // ══ ApiApp: модули ══
   const apiApp = new ApiApp<U7BotAppMeta>([
     userModule,
-    onboardingModule,
+    wishModule,
     streamModule,
     courseModule,
   ]);
@@ -171,12 +164,10 @@ export function createApiApp(
     eventBus: appResolver.eventBus,
     userFacade,
     userRepo,
-    questionnaireRepo,
     questionnaireFacade,
     questionnaireModule,
-    poolService: activePoolService,
     streamModule,
     courseModule,
-    onboardingModule,
+    wishModule,
   };
 }

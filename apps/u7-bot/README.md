@@ -53,8 +53,6 @@ apps/u7-bot/
           activate-stream.ts      # Активация потока
           submenu.ts              # Подменю
         ui-spec.md
-      onboarding/
-        controller.ts             # OnboardingController — анкета (без стори)
       questionnaire/
         controller.ts             # QuestionnaireController — анкета (standalone-модуль)
         fill.story.ts
@@ -85,7 +83,6 @@ apps/u7-bot/
 - **`StreamsController`** (`name: 'stream'`) — потоки: каталог, карточки, программа, детали.
 - **`LearningController`** (`name: 'learning'`) — обучение: хаб, дерево уроков, шаги, прогресс.
 - **`MentorController`** (`name: 'mentor'`) — ментор: мои потоки, мониторинг, wizard создания.
-- **`OnboardingController`** (`name: 'onboarding'`) — анкета (без stories).
 - **`QuestionnaireController`** (`name: 'questionnaire'`) — анкета (standalone-модуль).
 
 Контроллеры регистрируются в `U7BotUiApp` при создании (`create-ui-app.ts`). Каждый

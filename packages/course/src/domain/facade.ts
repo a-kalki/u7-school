@@ -26,6 +26,9 @@ export interface CourseFacade {
   /** Получить программу курса (агрегация снимков модулей по фазам) */
   getCourseProgram(courseId: string): Promise<CourseProgram>;
 
+  /** Получить курс по UUID (undefined, если курс не существует) */
+  getCourse(courseId: string): Promise<Course | undefined>;
+
   /** Найти курс, содержащий указанный модуль */
   getCourseByModuleId(moduleId: string): Promise<Course | undefined>;
 

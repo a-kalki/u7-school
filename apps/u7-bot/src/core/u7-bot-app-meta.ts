@@ -3,9 +3,9 @@ import type { ApiApp } from '@u7-scl/core/api';
 import type { AppMeta, AppResolver } from '@u7-scl/core/domain';
 import type { BotUiAppResolve } from '@u7-scl/core/ui';
 import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
-import type { OnboardingApiModuleMeta } from '@u7-scl/onboarding/domain';
 import type { StreamApiModuleMeta } from '@u7-scl/stream';
 import type { UserApiModuleMeta } from '@u7-scl/user/domain';
+import type { WishApiModuleMeta } from '@u7-scl/wish/domain';
 import type { MenuAggregator } from './u7-menu';
 //
 // ================= UI layer ===================
@@ -22,7 +22,7 @@ export interface U7BotAppMeta extends AppMeta {
   name: 'u7-bot-app';
   moduleMetas:
     | UserApiModuleMeta
-    | OnboardingApiModuleMeta
+    | WishApiModuleMeta
     | StreamApiModuleMeta
     | CourseApiModuleMeta;
 }
