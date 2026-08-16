@@ -17,3 +17,13 @@
 
 - [ ] **Track: wish: UI — кнопка и экраны в каталоге курсов**
 *Link: [./tracks/wish-ui_20260814/](./tracks/wish-ui_20260814/)*
+
+---
+
+- [ ] **Track: UI: канально-независимый слой и механизм подписки стори на доменные события**
+*Link: [./tracks/ui-event-subscriptions_20260816/](./tracks/ui-event-subscriptions_20260816/)*
+
+---
+
+- [ ] **Track: UI (bot): прокидка ProactiveSender через init и перенос рендеринга анкеты в стори**
+*Link: [./tracks/ui-proactive-sender_20260816/](./tracks/ui-proactive-sender_20260816/)*

@@ -1,0 +1,8 @@
+{
+  "track_id": "ui-proactive-sender_20260816",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-16T06:23:36Z",
+  "updated_at": "2026-08-16T06:23:36Z",
+  "description": "UI (bot): прокидка ProactiveSender через init и перенос рендеринга анкеты в стори"
+}
