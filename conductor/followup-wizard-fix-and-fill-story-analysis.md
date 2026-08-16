@@ -101,12 +101,43 @@ session.activeHandler = { path: `${activeCtrl}/${command.captureInput.path}`, ..
 - `apps/u7-bot/src/controllers/mentor/stories/create-stream.ts`
   (`WIZARD_PATH = 'create-stream/wizard'`) — даёт видимые падения.
 - `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts`
-  (`captureInput.path = 'view-stream/enroll-key'`) — потенциально тот же баг,
-  но не покрыт тестами, поэтому не падает.
+  (`captureInput.path = 'view-stream/enroll-key'`) — тот же баг. Теперь покрыт
+  новым падающим тестом (см. «Воспроизведение» ниже): текстовое сообщение с
+  кодовым словом не доходит до стори.
 
 Стори, использующие путь **без** `/` (например `fill.story.ts` в callback-потоке
 ставит `path: 'fill'`, onboarding — `path: 'questionnaire'`), не затронуты: для
 них `execute()` корректно дополняет контроллер из существующего activeHandler.
+
+### Второй баг в том же месте (обнаружен при покрытии тестом)
+
+Помимо перетирания пути в `execute()`, есть второй баг — в самой стори
+`view-stream.story.ts`. Её `handleMessage` сравнивает **полный** путь с
+**относительным**:
+
+```ts
+if (!ctx || session.activeHandler?.path !== 'view-stream/enroll-key') {
+  return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+}
+```
+
+После фикса транспорта путь станет `stream/view-stream/enroll-key`, и эта проверка
+всё равно вернёт «Неизвестное сообщение». Проверка лишняя (стори уже получила
+маршрут от контроллера через `#findStoryByPath`) — достаточно проверять только
+`context`.
+
+### Воспроизведение (новый падающий тест)
+
+В `apps/u7-bot/tests/streams/view-stream.integration.test.ts` добавлен тест:
+
+```
+enroll-key: гость вводит кодовое слово и записывается
+```
+
+Сценарий: карточка потока `e4e4e4e4-e4e4-e4e4-e4e4-e4e4e4e4e4e4` (Поток 5,
+`enrollmentKey: secret123`) → кнопка «Записаться» → ввод `secret123`. Падает на
+шаге ввода слова: message не доходит до стори (тот же баг). После фикса должен
+стать зелёным.
 
 ### Направления фикса
 
@@ -239,3 +270,155 @@ controllers/questionnaire/
 Точное место проактивного `captureInput` (полный путь) — `fill.story.ts`,
 `#handleStartEvent`; callback-поток использует `path: 'fill'` (без `/`), поэтому
 описанный в Части 1 баг его не касается.
+
+---
+
+## Часть 3. Дизайн: захват/освобождение ввода (captureInput / activeHandler)
+
+### Суть проблемы в общем виде
+
+Проект кодирует маршрут обработчика в строку с тремя уровнями
+`контроллер / стори / подшаг` и использует в разных местах **разные и
+одинаковые** разделители:
+
+| Где | Формат | Пример | Амбивалентность |
+|---|---|---|---|
+| `callback_data` | `controller:story:action:id1:id2` | `stream:view-stream:view:<uuid>` | нет — контроллер всегда первый сегмент (добавляет `#prefixResponse`) |
+| `activeHandler.path` | `controller/story/subpath` | `stream/view-stream/enroll-key` | нет — всегда полный |
+| `captureInput.path` (задаёт стори) | `story`, `story/subpath` или `controller/story` | `fill`, `create-stream/wizard`, `questionnaire/fill` | **ДА** — то контроллер есть, то нет |
+
+Баг Части 1 — следствие последней строки: `captureInput.path` бывает трёх видов,
+и код угадывает вид через `includes('/')`.
+
+### Предложение пользователя: отдельный разделитель для контроллера
+
+Идея: дать имени контроллера свой разделитель, чтобы при разборе строки было
+однозначно видно, есть ли сегмент контроллера. Пример автора:
+
+```
+ctrl-name_story-name:action-name:uuid1:uuid2
+```
+
+(контроллер от стори отделён `_`, стори/экшен/аргументы — `:`.)
+
+**Плюсы:** строка самодокументируется; любой слой может отличить полный путь от
+относительного без внешнего знания.
+
+**Минусы/риски:**
+1. Это «обнаружение», а не «предотвращение»: стори всё равно должна решать,
+   писать ли ей контроллер — источник амбивалентности остаётся.
+2. Новый символ сам становится источником хрупкости: если имя стори/контроллера
+   содержит `_` (или выбранный символ) — нужна валидация/экранировка, то есть
+   ещё одна договорённость.
+3. Баг Части 1 живёт в `activeHandler.path` (разделитель `/`), а пример автора —
+   про `callback_data` (`:`). Чтобы разделитель реально помог, его надо ввести в
+   **обоих** форматах, то есть унифицировать.
+
+Вывод: идея рабочая, но решает половину проблемы и добавляет договорённость о
+символах. Предпочитаю другой путь (см. ниже).
+
+### Моё предложение: «стори пишет только story-relative, префикс — ровно в одном месте»
+
+Базовый принцип уже заявлен в styleguide для callback-кодов: **стори не знает
+имени контроллера**. Распространяем его же на `captureInput.path`:
+
+1. **`captureInput.path` всегда `story` или `story/subpath`** — без контроллера.
+   - `fill.story.ts` (callback): `path: 'fill'` — уже так.
+   - `fill.story.ts` (проактивный): сейчас `'questionnaire/fill'` → меняем на `'fill'`.
+   - `create-stream.ts`: `'create-stream/wizard'` — уже story-relative.
+   - `view-stream.story.ts`: `'view-stream/enroll-key'` — уже story-relative.
+
+2. **Полный путь `controller/story/subpath` собирают только те, кто знает контроллер:**
+   - callback-поток: `BotUiApp.#applyCapturedInput()` — уже делает
+     `${controllerName}/${path}`.
+   - проактивный поток: `BotController.send()` — **новое**. Контроллер перед
+     отправкой префиксует `captureInput.path` своим именем (так же, как уже
+     префиксует коды кнопок через `#prefixCommand`).
+
+3. **`BotTransport.execute()` перестаёт трогать `activeHandler`** (остаются только
+   send/edit + `releaseInput`). Он становится «тупым исполнителем».
+
+4. **`BotTransport.send()`** (проактивный вход) сам ставит `activeHandler` из
+   уже полного `captureInput.path`.
+
+Что это даёт:
+- амбивалентность исчезает в корне (стори никогда не пишет контроллер);
+- не нужен новый разделитель и валидация имён;
+- каждый формат собирается ровно в одном месте — эвристики не нужны.
+
+### Конкретный план правок
+
+1. `apps/u7-bot/src/infra/bot-transport.ts` — в `execute()` удалить блок
+   `if (command.captureInput) { ... }` (оставить `releaseInput`).
+2. `packages/core/src/ui/bot/bot-controller.ts` — в `send()` после
+   `#prefixCommand` префиксовать `captureInput.path`:
+
+   ```ts
+   async send(telegramId, command) {
+     const prepared = this.#prefixCommand(command);
+     if (prepared.captureInput) {
+       prepared.captureInput = {
+         ...prepared.captureInput,
+         path: `${this.name}/${prepared.captureInput.path}`,
+       };
+     }
+     await this.proactiveSender.send(telegramId, prepared);
+   }
+   ```
+
+3. `apps/u7-bot/src/infra/bot-transport.ts` — в `send()` ставить activeHandler:
+
+   ```ts
+   async send(telegramId, command) {
+     let session = this.sessionMap.get(telegramId);
+     if (!session) session = { activeHandler: null };
+     const compressed = this.compressCommand(command);
+     await this.execute(session, telegramId, compressed);
+     if (compressed.captureInput) {
+       session.activeHandler = {
+         path: compressed.captureInput.path, // уже controller/story/...
+         context: compressed.captureInput.context,
+         expiresAt: compressed.captureInput.ttlSeconds
+           ? Date.now() + compressed.captureInput.ttlSeconds * 1000
+           : undefined,
+       };
+     }
+     this.sessionMap.set(telegramId, session);
+   }
+   ```
+
+4. `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts` — в
+   `handleMessage()` убрать сравнение полного пути с относительным (второй баг):
+
+   ```ts
+   // было: if (!ctx || session.activeHandler?.path !== 'view-stream/enroll-key')
+   if (!ctx) {
+     return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+   }
+   ```
+
+5. `apps/u7-bot/src/controllers/questionnaire/fill.story.ts` — в `#handleStartEvent`
+   поменять `path: 'questionnaire/fill'` → `path: 'fill'` (стори не знает контроллер).
+
+6. Прогнать: `bun test apps/u7-bot/tests/streams/ apps/u7-bot/tests/mentor/`
+   и `bun run check:a u7-bot`.
+
+### Что ещё проверить при фиксе
+
+- `#findStoryByPath` в `BotController` берёт `parts[1]` как имя стори — при
+  «всегда полный путь» это остаётся корректным.
+- `onboarding/controller.ts` — контроллер **без стори**, использует
+  `path: 'questionnaire'`. Убедиться, что после правки `execute()` его
+  маршрутизация не сломалась (у него, вероятно, свой `handleMessage`).
+- `fill.story.ts` после смены на `path: 'fill'` — проактивный `captureInput`
+  должен по-прежнему давать полный `questionnaire/fill` в сессии (это сделает
+  `BotController.send`).
+
+### Почему предпочитаю это варианту с разделителем
+
+- Убирает причину (стори не знает контроллер), а не симптом (как отличить формат).
+- Не вводит «магический символ», который надо валидировать/экранировать.
+- Переиспользует уже существующий принцип styleguide для callback-кодов.
+
+Если захочется сделать строки самодокументируемыми (например, для отладки) —
+можно дополнительно ввести разделитель контроллера, но это уже не обязательно.
