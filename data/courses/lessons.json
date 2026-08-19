@@ -1732,85 +1732,6 @@
     "mentorStepIds": []
   },
   {
-    "uuid": "e0c62db5-d422-47cc-b0ad-7e8007e075b0",
-    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
-    "title": "O-нотация: учимся оценивать свои функции",
-    "additional": "O(1), O(n), O(n²), O(log n). Анализ своих функций. Правила оценки.",
-    "status": "published",
-    "createdAt": "2026-08-05T12:00",
-    "updatedAt": "2026-08-05T12:00",
-    "estimatedMinutes": 20,
-    "stepIds": [
-      "5f6721c6-21c6-4572-973f-9d02760e9003",
-      "46661236-7a80-42ef-9def-4b5273b1c96c",
-      "0e53e652-38d8-426e-824b-a68077079158",
-      "caa65112-a054-4358-a22d-c3038568c157",
-      "ed25fef5-638a-4e8d-bf06-29ccdacbec83",
-      "5c7d1fab-7ab4-4935-ba7f-63d735b541ea",
-      "6b1bfe42-1bba-4aed-9af0-61a2f4a70f03",
-      "5cc32390-982f-4717-8dd7-9195e5ed21e0",
-      "924b45c4-700a-4e5b-9725-97762654d3d0",
-      "9364e936-fcc9-453b-a6e9-9dfc579620ad"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "1a029a2d-c534-44c1-93c3-82e4a952cc6f",
-    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
-    "title": "Тренировка: определяем сложность по коду",
-    "additional": "6 задач, поиск ошибок, когда константа перевешивает порядок роста.",
-    "status": "published",
-    "createdAt": "2026-08-05T12:00",
-    "updatedAt": "2026-08-05T12:00",
-    "estimatedMinutes": 18,
-    "stepIds": [
-      "55af8ecd-9bd1-4940-8006-4bde35eb9f1f",
-      "89bf217c-8d4b-4a5f-ad85-7f994924bc77",
-      "25efffdc-2727-4acd-a99a-8d9c6544dcc2",
-      "918c7de0-6c2e-4d1f-8141-b59ee4724dbf",
-      "7b54ee09-e1f0-4667-a1d5-0b20f0e9e5cc",
-      "29f9ca78-b925-47b4-9e9b-ed24a25eeb0c"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "7df071b9-fe5a-4069-a64b-e23469e9a247",
-    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
-    "title": "Структуры данных: массив, список, дерево",
-    "additional": "Массив, связанный список, BST — компромиссы, выбор под задачу.",
-    "status": "published",
-    "createdAt": "2026-08-05T12:00",
-    "updatedAt": "2026-08-05T12:00",
-    "estimatedMinutes": 20,
-    "stepIds": [
-      "12f25317-0219-486a-8f32-82b3c4a171c9",
-      "785f0dc5-0748-43f2-b38f-5378c5570ced",
-      "1b839423-dfbc-4ee4-a9e1-38723773bdec",
-      "3ed40bf5-2e10-4b3d-92ae-589ab45214b9",
-      "08299163-e276-4f93-9b36-1dc1a316d655",
-      "b76f86e6-3b58-4249-a65f-303b4194245e",
-      "7395fd95-5f55-45e0-9dbd-5eb310a6c507"
-    ],
-    "mentorStepIds": []
-  },
-  {
-    "uuid": "440563e0-b96c-4c2a-91af-a912b5aae34c",
-    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
-    "title": "Сложность всего модуля: смотрим назад",
-    "additional": "Сложность всех 55 функций. Узкие места. Итоги модуля.",
-    "status": "published",
-    "createdAt": "2026-08-05T12:00",
-    "updatedAt": "2026-08-05T12:00",
-    "estimatedMinutes": 20,
-    "stepIds": [
-      "eb4a97ae-7a91-4262-9623-18a6ec666fe5",
-      "0218bcd3-6393-4b55-8beb-53fcbd4f4b36",
-      "7b134a9b-e1ae-4c0b-b4b7-f9ce9c2cf264",
-      "232914ac-5ef7-4d11-8d31-ff403cde5322"
-    ],
-    "mentorStepIds": []
-  },
-  {
     "uuid": "c968f875-663e-4b70-a209-78989e0d5642",
     "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
     "title": "Объекты и функция keys(obj)",
@@ -1944,6 +1865,216 @@
       "ce25ace9-22e1-4f10-ba7b-87941b4436d0",
       "74c3e502-d8e8-4fea-8cfa-1481b945bdad",
       "a5fef85f-7d43-4820-be41-4da9beb39941"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f4623d7c-6abf-462e-9bc2-ba2314822522",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сортировка пузырьком (bubble sort)",
+    "additional": "Попарные обмены соседей, O(n²). Старт проекта.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "67b8da4a-1a89-42bb-afc0-ab7ba47f085f",
+      "145a5e67-5874-4909-8dad-79b980625f88",
+      "ca8f2004-f187-4dd4-a1cd-e1a0cf784292",
+      "dcada0f9-575e-4016-8154-c4b562c79407",
+      "5c65803e-ef4c-4e2b-b6eb-925c1f5fdad3"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "ddc1908e-158e-402f-80aa-fe49e689c55a",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сортировка вставками (insertion sort)",
+    "additional": "Вставка элемента в отсортированную часть, O(n²), ~O(n) на почти отсортированных.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "48ba699b-c310-4d4b-a9b6-bf1dbc606ccb",
+      "b3c9ee5a-c56b-4a20-b0db-4a93a81811ad",
+      "8bd5c48f-3232-40ec-8319-135e2591fed4",
+      "f5d6cc90-24df-46c1-80e4-fb544b77a55c"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f475b781-8273-43c7-ad67-e643909465c9",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сортировка выбором (selection sort)",
+    "additional": "Поиск минимума, O(n²), минимум обменов.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "b35076fe-8aba-4ed0-b1a5-2d4b324adcf4",
+      "9af82b4a-0301-4832-8519-8b9d676362df",
+      "c8b5bc25-7cef-4f49-8ee2-14c446f3ebaa",
+      "2a94d37e-e20b-4b0e-99ab-daa958824951"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "9f03be35-9ad8-4535-92f0-d13131d71dfb",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Быстрая сортировка (quick sort)",
+    "additional": "Рекурсия «разделяй и властвуй», O(n log n) в среднем.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "d725acfb-c88c-4fc5-80f0-7330a192faaa",
+      "0ea99884-b2eb-45e9-91ea-6513729a43ae",
+      "d6f6a307-908e-4938-b316-ebd41f49573b",
+      "7e062580-119c-492a-be95-ccc76e277f2d"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "60021652-d920-49e3-b16f-35b77d8af430",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Бинарный поиск: ищем в отсортированном массиве",
+    "additional": "Бинарный поиск в отсортированном массиве, O(log n).",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 15,
+    "stepIds": [
+      "41ee33ba-247d-4c70-b699-c0676c273a08",
+      "995c9207-9de7-4271-8872-42bd07a8d355",
+      "3dea1d7e-bcb7-4040-bb95-ef06b7af46ab",
+      "713357d5-8381-4fa8-b8aa-5a1fe3ce17fa"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "81add037-e014-4299-93f1-c4fee62d21b4",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Измеряем скорость: бенчмарк сортировок и поиска",
+    "additional": "Бенчмарк: замер скорости 4 сортировок и поиска.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 25,
+    "stepIds": [
+      "2659340f-a95e-4de6-9059-c8099447cd12",
+      "645c8f45-2f5b-4212-b349-c90fcca1b85c",
+      "252033d8-938b-408d-920a-5c371ef3dc3e",
+      "0d70f0bc-5599-4188-ad49-35a978386e48",
+      "20066eee-409b-483b-b53e-58231c06fd2f",
+      "9ce09bcf-b8da-4566-a792-0bd14dd4aa07",
+      "f93d0ed7-555f-4137-b591-2e65b3df67a1",
+      "f3c20b63-d688-47ff-ae24-05ff30846105",
+      "c0dd12bd-536a-4f66-8cb3-9c7406db0be1"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "adb78f29-c9a5-46c3-831a-c3ba4e52d2e0",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Финальный PR и сравнение алгоритмов",
+    "additional": "Финальный PR, сравнение алгоритмов, мостик к O-нотации.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "5bfa0d77-0503-4459-a618-3fb76b5b063d",
+      "d6dc82c2-9c3e-4825-8fcb-8accd0a672f7",
+      "e4e94170-0e97-494c-b57a-897fe9d29c10",
+      "a20d757e-ab79-4cf5-9bae-1e940fb3ddf9",
+      "fc450621-1842-4cd3-a654-199123d9d8e2",
+      "d51937a1-6ee3-4895-a104-b905145f311a",
+      "bfe30c2e-d162-40af-9036-ed448d4d04eb"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "30c67e8f-eb55-4f20-9237-28cb1e217ff0",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сложность алгоритмов: O-нотация",
+    "additional": "O(1), O(n), O(n²), O(log n), O(n log n). Анализ своих функций. Правила оценки.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "56d855cf-f9c9-45d1-a9ea-ac34365f13c7",
+      "f052390b-707d-4b40-93d7-6309549314aa",
+      "0ba03400-bc59-48ae-b2b1-cdb5c1a6b297",
+      "af708867-96d7-4d13-a607-3770ef560660",
+      "a5c327f7-c21f-4e4a-a933-43dc3768cee7",
+      "d39881ce-ee27-44ef-88db-9513e21c0eb2",
+      "992d5f33-1946-4767-8db2-44e6485106cd",
+      "5efab8e6-8e04-456d-a055-c007f3110b44",
+      "c0a00f2c-ce6c-41d5-9e9b-6092d62a0dd8",
+      "f07274aa-3e9c-41d4-afdc-6bb693e7c224",
+      "0091dbf7-6ba6-4f2a-b657-9696c6d14edb"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "f23f1a0c-92a7-4eb1-8a4a-c2fc91f65d3e",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Тренировка: определяем сложность по коду",
+    "additional": "Задачи A–J, поиск ошибок, когда константа перевешивает порядок роста.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 18,
+    "stepIds": [
+      "5aad083d-c2b4-4446-9dc5-f2ede866940a",
+      "c12b834f-0d1d-4369-ab0c-89ef8a6e4833",
+      "19d6a764-4bea-481b-a443-41a39917cc00",
+      "48ea21bf-d889-4be1-9940-db252dbbf075",
+      "70fece17-b550-43e8-9614-f5bfd6e28b5a",
+      "9b5d8dcc-9431-4dd1-96ac-b148d2719309",
+      "b7a00b90-6bdb-47a2-b77d-fee3d9856d9b",
+      "f39cce5c-9324-4b69-9bdc-7f13ec76ed3f"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "6c1df43a-d734-43bc-8510-8f27f6931cb3",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Структуры данных: массив, связанный список, дерево",
+    "additional": "Массив, связанный список, BST — компромиссы, выбор под задачу.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "b35515af-7397-49c6-86b5-76f87cd0d570",
+      "c39ed6e5-f78c-42d5-9334-888dcb9cca0f",
+      "26d9488b-380b-44d1-9fbe-5bb0c0424a36",
+      "48afc02e-4a19-482c-9562-cff2890b0160",
+      "e5ea439b-69f6-4822-a0bf-af7f3c0629c7",
+      "7339bb02-aebb-4965-bdc8-e8d99492b4e4",
+      "c731060d-af76-4056-9dbd-43ee26c10edf"
+    ],
+    "mentorStepIds": []
+  },
+  {
+    "uuid": "44ea61d8-1410-47ba-8e8f-12b48ef69373",
+    "moduleId": "16b9026b-7cc6-4397-81bc-9a9791d3a76b",
+    "title": "Сложность всего модуля: смотрим назад",
+    "additional": "Сложность всех ~60 функций. Узкие места. Итоги модуля.",
+    "status": "published",
+    "createdAt": "2026-08-18T13:43",
+    "updatedAt": "2026-08-18T13:43",
+    "estimatedMinutes": 20,
+    "stepIds": [
+      "6001bad0-b8f1-427b-84e5-9ff60e3dadce",
+      "3067d92a-0dbc-4fb0-94a4-e05a284ab9a4",
+      "97905901-843c-4a5e-97ca-63b74976ad54",
+      "5c7aa75a-3598-47ee-a493-bcdb75d56b38"
     ],
     "mentorStepIds": []
   }

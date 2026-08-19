@@ -41,7 +41,7 @@ function factorial(n) {
 }
 ```
 
-**Задача E.** Функция ищет число в **отсортированном** массиве бинарным поиском:
+**Задача E.** Функция ищет число в **отсортированном** массиве бинарным поиском (это твоя `binarySearch` из проекта 11):
 ```javascript
 function binarySearch(arr, target) {
   let left = 0, right = len(arr) - 1;
@@ -77,6 +77,37 @@ function primesUpTo(n) {
 
 Подсказка: внешний цикл до √n, внутренний — шаг p (не 1). Классический ответ: O(n × log(log n)).
 
+### Задачи H–J: твои сортировки из проекта 11
+
+**Задача H.** Оцени сложность `bubbleSort`:
+```javascript
+function bubbleSort(arr) {
+  const result = slice(arr, 0, len(arr));
+  const n = len(result);
+  for (let i = 0; i < n - 1; i++)
+    for (let j = 0; j < n - 1 - i; j++)
+      if (result[j] > result[j + 1]) { /* обмен */ }
+  return result;
+}
+```
+
+**Задача I.** Оцени сложность `quickSort` (в среднем и в худшем случае):
+```javascript
+function quickSort(arr) {
+  const n = len(arr);
+  if (n <= 1) return slice(arr, 0, n);
+  const pivot = arr[0];
+  const less = [];
+  const greater = [];
+  for (let i = 1; i < n; i++)
+    if (arr[i] < pivot) push(less, arr[i]);
+    else push(greater, arr[i]);
+  return concat(concat(quickSort(less), [pivot]), quickSort(greater));
+}
+```
+
+**Задача J.** Какова сложность `insertionSort` на **уже отсортированном** массиве? А на массиве в обратном порядке?
+
 ### Ответы
 
 1. **A (sum)** — O(n). Один цикл по всем элементам.
@@ -85,6 +116,9 @@ function primesUpTo(n) {
 4. **D (factorial)** — O(n). n рекурсивных вызовов, каждый делает O(1) работы.
 5. **E (binarySearch)** — O(log n). Каждый шаг отбрасывает половину оставшегося диапазона.
 6. **F (primesUpTo)** — O(n × log(log n)). Внешний цикл до √n, внутренний шагает с шагом p — суммарно получается n × log(log n).
+7. **H (bubbleSort)** — O(n²). Вложенный цикл: внешний n итераций, внутренний в среднем n/2 → O(n²).
+8. **I (quickSort)** — O(n log n) в среднем (n элементов × ~log n уровней рекурсии), O(n²) в худшем (отсортированный массив и первый опорный — «меньше» каждый раз пустая, рекурсия глубины n).
+9. **J (insertionSort)** — O(n) на отсортированном (внутренний цикл не выполняется), O(n²) в обратном порядке (каждый элемент сдвигает все предыдущие).
 
 ### Задача G: найди ошибку
 
