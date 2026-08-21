@@ -2,7 +2,7 @@
 // Работает и в браузере, и в Bun (терминал)
 
 const name = prompt('Как тебя зовут?');
-console.log(`Привет, ${name}!`);
+console.log('Привет,', name, '!');
 
 const age = prompt('Сколько тебе лет?');
 

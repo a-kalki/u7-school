@@ -4,8 +4,13 @@ console.log('Boolean(0):', Boolean(0));
 console.log('Boolean("hello"):', Boolean('hello'));
 console.log('Boolean(""):', Boolean(''));
 
+console.log('---');
+
 console.log('Boolean(null):', Boolean(null));
+console.log('Boolean(undefined):', Boolean(undefined));
 console.log('Boolean(NaN):', Boolean(NaN));
+console.log('Boolean({}):', Boolean({}));
+console.log('Boolean([]):', Boolean([]));
 
 console.log('---');
 
@@ -30,3 +35,6 @@ console.log('---');
 // Блок 3: Пасхалка — Boolean от пробельной строки
 const spaces = '   ';
 console.log('Boolean("   "):', Boolean(spaces));
+
+// Блок 4: Пасхалка — Boolean через двойное логическое отрицание
+console.log('!!("   "):', !!spaces);

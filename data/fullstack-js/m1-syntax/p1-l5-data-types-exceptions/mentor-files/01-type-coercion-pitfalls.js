@@ -1,11 +1,11 @@
 // Ситуация: данные пользователя из формы — всегда строки
 const ageInput = '25';
-const year = 1;
+const year = 2025;
 
 const nextAge = ageInput + year;
 console.log('nextAge =', nextAge);
 
-const nextAgeFixed = ageInput - -year;
+const nextAgeFixed = year - ageInput;
 console.log('nextAgeFixed =', nextAgeFixed);
 
 // Ситуация: складской учёт
@@ -26,12 +26,12 @@ console.log('typeof score =', typeof score);
 // const shout = score.toUpperCase();
 
 // Исключение останавливает поток выполнения
-console.log('1. Код до исключения');
+// console.log('1. Код до исключения');
 
 // Раскомментируй строку ниже и проверь
-// 'hello'.toFixed(2);
-
-console.log('2. Код после исключения');
+// let welcome = 'hello';
+// welcome.toFixed(2);
+// console.log('2. Код после исключения');
 
 // NaN распространяется в вычислениях
 const badValue = 'abc' - 5;

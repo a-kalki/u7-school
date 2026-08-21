@@ -1,10 +1,10 @@
 // Блок 1: Число 0 — валидное значение, но falsy
-const balance = 0;
+const balance = 0; // запрос от банка возвращает баланс или null
 
 if (balance) {
   console.log('1 if: баланс =', balance);
 } else {
-  console.log('1 else: БАГ! 0 принят за «нет значения»');
+  console.log('1 else: у вас нет счет в этом банке');
 }
 
 // Правильно: явно проверить, что значение не null/undefined

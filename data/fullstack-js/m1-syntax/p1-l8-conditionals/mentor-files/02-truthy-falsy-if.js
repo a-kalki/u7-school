@@ -53,4 +53,8 @@ console.log('hasName:', hasName);
 console.log('hasAge:', hasAge);
 
 const canRegister = hasName && hasAge;
-console.log('canRegister:', canRegister);
+if (canRegister) {
+  console.log('Регистрация проведена!');
+} else {
+  console.log('Недостаточно данных, регистрация невозможна.');
+}

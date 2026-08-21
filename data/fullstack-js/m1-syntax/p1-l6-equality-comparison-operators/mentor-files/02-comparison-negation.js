@@ -16,6 +16,10 @@ console.log('userBalance <= minBalance:', userBalance <= minBalance);
 console.log('"apple" < "banana":', 'apple' < 'banana');
 console.log('"apple" > "Banana":', 'apple' > 'Banana');
 
+// Сравнение undefined
+console.log('undefined === undefined:', undefined === undefined);
+console.log('null === null:', null === null);
+
 // Оператор отрицания
 const isLoggedIn = true;
 console.log('isLoggedIn:', isLoggedIn);
@@ -30,3 +34,6 @@ console.log('!!"":', !!'');
 console.log('NaN > 0:', NaN > 0);
 console.log('NaN < 0:', NaN < 0);
 console.log('NaN === NaN:', NaN === NaN);
+console.log('NaN == NaN:', NaN == NaN);
+console.log('Infinity === Infinity:', Infinity === Infinity);
+console.log('Infinity == Infinity:', Infinity == Infinity);

@@ -37,14 +37,15 @@ const temperature = 25;
 const isComfortable = temperature >= 18 && temperature <= 26;
 console.log('isComfortable:', isComfortable);
 
+// Проверка вне диапазона
 const isUncomfortable = temperature < 15 || temperature > 30;
 console.log('isUncomfortable:', isUncomfortable);
 
 // Одно из двух ||
 const firstPersonAge = 6;
-const secondPersonAge = о15;
+const secondPersonAge = 15;
 
-const canEnter = firstPersonAge > 18 || secondPersonAge > 18;
+const canEnter = firstPersonAge >= 18 || secondPersonAge >= 18;
 console.log('canEnter:', canEnter);
 
 // Все условия ложны

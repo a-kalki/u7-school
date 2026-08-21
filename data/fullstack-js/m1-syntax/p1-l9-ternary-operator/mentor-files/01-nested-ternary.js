@@ -18,7 +18,7 @@ console.log('Та же логика через if-else:', gradeIf);
 
 console.log('---');
 
-// Блок 2: Тернарник без else — ошибка
+// Блок 2: Тернарник
 const age = 20;
 const status = age >= 18 ? 'Взрослый' : 'Несовершеннолетний';
 console.log('status:', status);
@@ -33,7 +33,7 @@ console.log('a > b ? a + b : a - b =', result);
 
 // Пасхалка: сложение выполняется раньше тернарника
 const val = 5;
-const msg = 'Число: ' + val > 0 ? 'положительное' : 'отрицательное';
+const msg = -7 + val > 0 ? 'положительное' : 'отрицательное';
 console.log('msg:', msg);
 
 const msgFixed = 'Число: ' + (val > 0 ? 'положительное' : 'отрицательное');
