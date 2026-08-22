@@ -39,6 +39,10 @@ export class CompleteStepUc extends StreamUseCase<CompleteStepCmdMeta> {
       level: v.literal('stream'),
       completed: v.literal(true),
     }),
+    v.object({
+      level: v.literal('already_completed'),
+      currentStepId: v.string(),
+    }),
   ]);
 
   async execute(

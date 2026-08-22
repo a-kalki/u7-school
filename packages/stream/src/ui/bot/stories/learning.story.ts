@@ -223,6 +223,11 @@ export class LearningStory extends U7BotUserStory<StreamApiModuleMeta> {
       actor.uuid,
     );
 
+    if (result.level === 'already_completed') {
+      // Шаг уже был завершён ранее — просто показываем актуальный текущий шаг
+      return this.#showCurrentStep(actor, result.currentStepId);
+    }
+
     if (result.level === 'stream') {
       return {
         sendMessage: {
