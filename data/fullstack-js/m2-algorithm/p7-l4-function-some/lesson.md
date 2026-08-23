@@ -31,4 +31,4 @@ function some(arr, callback) {
 
 Для пустого массива `some` возвращает `false` — нет ни одного элемента, значит ни один не может удовлетворить условию.
 
-**Видео:** [p7-l4. Функция some.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция some.mp4](https://drive.google.com/file/d/placeholder)

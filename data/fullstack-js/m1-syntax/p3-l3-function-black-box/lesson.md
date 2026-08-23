@@ -120,4 +120,4 @@ printWithConsoleLog(txt, 1); // Имя говорит КАК (с console.log), �
 
 ---
 
-**Видео:** [p3-l3. Функция как единица программы черный ящик контракт декомпозиция.mp4](https://drive.google.com/file/d/1_fX7izCyH61jF2CTGfaIjZ8ZZmi3uwQ9)
+**Видео:** [Функция как единица программы черный ящик контракт декомпозиция.mp4](https://drive.google.com/file/d/1_fX7izCyH61jF2CTGfaIjZ8ZZmi3uwQ9)

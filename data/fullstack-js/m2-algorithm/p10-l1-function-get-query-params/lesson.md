@@ -99,4 +99,4 @@ function getQueryParams(url) {
 - `slice` — извлечение подстрок
 - `push` — не используется напрямую, но результат собирается в объект через `result[key] = value`
 
-**Видео:** [p10-l1. Функция getQueryParams.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция getQueryParams.mp4](https://drive.google.com/file/d/placeholder)

@@ -55,4 +55,4 @@ function findIndex(arr, callback) {
 
 Обе функции **не меняют** исходный массив. В JSDoc отметь иммутабельность и ранний выход.
 
-**Видео:** [p8-l1. Функции find и findIndex.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функции find и findIndex.mp4](https://drive.google.com/file/d/placeholder)

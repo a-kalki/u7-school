@@ -34,4 +34,4 @@ function filter(arr, callback) {
 
 `filter` **не меняет** исходный массив — создаёт новый из прошедших проверку элементов.
 
-**Видео:** [p7-l3. Функция filter.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция filter.mp4](https://drive.google.com/file/d/placeholder)

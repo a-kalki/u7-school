@@ -35,4 +35,4 @@ git push -u origin feat/iterative-methods
 
 Отметь, что все функции иммутабельные. Напомни про ранний выход у `some`/`every`.
 
-**Видео:** [p7-l6. Пуш и PR проекта 7.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Пуш и PR проекта 7.mp4](https://drive.google.com/file/d/placeholder)

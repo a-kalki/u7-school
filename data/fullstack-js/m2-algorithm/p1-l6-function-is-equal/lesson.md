@@ -42,4 +42,4 @@
 
 ---
 
-**Видео:** [p1-l6. Функция isEqual.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция isEqual.mp4](https://drive.google.com/file/d/placeholder)

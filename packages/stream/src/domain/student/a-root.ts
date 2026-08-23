@@ -190,9 +190,16 @@ export class StudentAr extends Aggregate<StudentArMeta> {
   }
 
   /**
-   * Завершить шаг.
+   * Завершить шаг и выдать следующий.
+   *
+   * Идемпотентно: повторное завершение уже завершённого шага ничего не меняет
+   * и возвращает 'already_completed'. Следующий шаг выдаётся только если он
+   * ещё не был выдан.
    */
-  completeStep(stepId: string): void {
+  completeStep(
+    stepId: string,
+    nextStepId: string | null,
+  ): 'completed' | 'already_completed' | 'finished' {
     const record = this._state.steps.find((s) => s.stepId === stepId);
     if (!record) {
       this.throwBadRequest(
@@ -200,9 +207,37 @@ export class StudentAr extends Aggregate<StudentArMeta> {
       );
     }
 
+    // Повторное завершение уже завершённого шага — no-op
+    if (record.status === 'completed') {
+      return 'already_completed';
+    }
+
     record.status = 'completed';
     record.completedAt = isoNow();
-    this.safeUpdate({});
+
+    // Последний шаг потока — следующего нет
+    if (!nextStepId) {
+      this.safeUpdate({});
+      return 'finished';
+    }
+
+    // Выдать следующий шаг только если он ещё не выдан
+    const alreadyIssued = this._state.steps.some(
+      (s) => s.stepId === nextStepId,
+    );
+    if (!alreadyIssued) {
+      const step: StepRecord = {
+        stepId: nextStepId,
+        status: 'issued',
+        issuedAt: isoNow(),
+      };
+      this._state.steps.push(step);
+      this.safeUpdate({ currentStepId: nextStepId });
+    } else {
+      this.safeUpdate({});
+    }
+
+    return 'completed';
   }
 
   /**

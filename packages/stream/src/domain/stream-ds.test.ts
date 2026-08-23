@@ -101,6 +101,40 @@ describe('StreamDs.completeStep', () => {
     ).toBe('issued');
   });
 
+  test('повторное завершение уже завершённого шага — already_completed', () => {
+    const stream = StreamAr.create(mockCreateCmd, snapshot);
+    stream.activate();
+    const student = StudentAr.enroll(
+      stream.state.uuid,
+      mockUserId,
+      '77777777-7777-4777-8777-777777777777',
+    );
+    student.issueStep('77777777-7777-4777-8777-777777777777');
+
+    const first = StreamDs.completeStep(
+      stream,
+      student,
+      '77777777-7777-4777-8777-777777777777',
+    );
+    expect(first.level).toBe('step');
+
+    const result = StreamDs.completeStep(
+      stream,
+      student,
+      '77777777-7777-4777-8777-777777777777',
+    );
+
+    expect(result).toEqual({
+      level: 'already_completed',
+      currentStepId: '88888888-8888-4888-8888-888888888888',
+    });
+    expect(
+      student.state.steps.find(
+        (s) => s.stepId === '88888888-8888-4888-8888-888888888888',
+      )?.status,
+    ).toBe('issued');
+  });
+
   test('при завершении последнего шага потока — студент completed', () => {
     const stream = StreamAr.create(mockCreateCmd, snapshot);
     stream.activate();

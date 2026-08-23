@@ -33,4 +33,4 @@ Callback получает три аргумента в порядке:
 
 `forEach` **не меняет** исходный массив и ничего не возвращает. Это «чистый» перебор — все изменения данных происходят внутри callback.
 
-**Видео:** [p7-l1. Функция forEach.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция forEach.mp4](https://drive.google.com/file/d/placeholder)

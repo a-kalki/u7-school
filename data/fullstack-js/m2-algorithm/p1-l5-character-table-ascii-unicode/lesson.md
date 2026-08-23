@@ -191,4 +191,4 @@ if (strA[i] > strB[i]) return true;
 
 ---
 
-**Видео:** [p1-l5. Таблица символов ASCII и Unicode.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Таблица символов ASCII и Unicode.mp4](https://drive.google.com/file/d/placeholder)

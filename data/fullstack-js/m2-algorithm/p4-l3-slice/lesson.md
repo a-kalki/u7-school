@@ -43,4 +43,4 @@
 
 ---
 
-**Видео:** [p4-l3. Функция slice.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция slice.mp4](https://drive.google.com/file/d/placeholder)

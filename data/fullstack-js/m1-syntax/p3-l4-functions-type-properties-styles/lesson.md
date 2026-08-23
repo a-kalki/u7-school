@@ -43,4 +43,4 @@ console.log(sayHi1(), sayHi2(), sayHi3(), sayHi4());
 // -> 'Hi 1' 'Hi 2' 'Hi 3' 'Hi 4'
 ```
 
-**Видео:** [p3-l4. Функции тип свойства и стили объявления.mp4](https://drive.google.com/file/d/1bKjF0W65JqxNKfnM18n91a1t6jnGNW7c)
+**Видео:** [Функции тип свойства и стили объявления.mp4](https://drive.google.com/file/d/1bKjF0W65JqxNKfnM18n91a1t6jnGNW7c)

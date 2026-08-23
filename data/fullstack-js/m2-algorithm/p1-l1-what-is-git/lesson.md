@@ -88,4 +88,4 @@ git config --global user.email
 - [Git Install](https://www.w3schools.com/git/git_install.asp) — установка Git
 - [Git Config](https://www.w3schools.com/git/git_config.asp) — настройка Git
 
-**Видео:** [p1-l1. Что такое Git и зачем он нужен.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Что такое Git и зачем он нужен.mp4](https://drive.google.com/file/d/placeholder)

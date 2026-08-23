@@ -23,4 +23,4 @@ indexOf([{a: 1}], {a: 1});    // -1 — это ДРУГОЙ объект, ссы
 В этом проекте мы работаем только с примитивами в тестах — этого достаточно.
 
 
-**Видео:** [p5-l8. Функция indexOf массив.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция indexOf массив.mp4](https://drive.google.com/file/d/placeholder)

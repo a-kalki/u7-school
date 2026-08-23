@@ -261,4 +261,4 @@ let x = j === i;      // x = (32 === 10) = false
 *   **Оператор нулевого слияния (Nullish Coalescing Operator) `??`:** Возвращает правый операнд, если левый операнд равен `null` или `undefined`. В противном случае возвращает левый операнд.
 *   **Truthiness / Falsiness (Истинность / Ложность):** В JavaScript каждое значение имеет внутреннее булево представление. Значения, которые при преобразовании к булеву типу становятся `true`, называются truthy; те, которые становятся `false`, называются falsy (например, `0`, `""`, `null`, `undefined`, `false` являются falsy).
 
-**Видео:** [p2-l2. Приоритеты выполнения операторов.mp4](https://drive.google.com/file/d/1gXLHWGdvXv7Webd-g4xKLxZvZh1UTlyA)
+**Видео:** [Приоритеты выполнения операторов.mp4](https://drive.google.com/file/d/1gXLHWGdvXv7Webd-g4xKLxZvZh1UTlyA)

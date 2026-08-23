@@ -34,4 +34,4 @@ git push -u origin feat/object-methods
 4. **Иммутабельность:** все 5 функций не меняют исходные объекты
 5. **Рекурсия:** `cloneDeep` и `isEqualDeep` корректно обрабатывают вложенные структуры
 
-**Видео:** [p9-l6. PR и ревью проекта 9.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [PR и ревью проекта 9.mp4](https://drive.google.com/file/d/placeholder)

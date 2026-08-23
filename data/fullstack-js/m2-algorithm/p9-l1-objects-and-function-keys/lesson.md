@@ -119,4 +119,4 @@ js-algorithms/
 - `keys('строка')` → `TypeError` (строка — не объект для нашей функции)
 - `keys([])` — на усмотрение реализации; массивы в JS — тоже объекты, но в рамках этого проекта мы работаем с plain-объектами
 
-**Видео:** [p9-l1. Объекты и функция keys.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Объекты и функция keys.mp4](https://drive.google.com/file/d/placeholder)

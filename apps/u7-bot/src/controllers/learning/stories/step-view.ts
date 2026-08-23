@@ -116,11 +116,16 @@ export class StepViewStory extends U7BotUiStory {
       { studentId: student.uuid, streamId, stepId },
       actor.uuid,
     )) as {
-      level: 'step' | 'lesson' | 'project' | 'stream';
+      level: 'step' | 'lesson' | 'project' | 'stream' | 'already_completed';
       completedLessonId?: string;
       completedProjectId?: string;
       currentStepId?: string;
     };
+
+    if (result.level === 'already_completed') {
+      // Шаг уже был завершён ранее — просто показываем актуальный текущий шаг
+      return this.#showCurrentStep(actor, result.currentStepId);
+    }
 
     if (result.level === 'stream') {
       return {

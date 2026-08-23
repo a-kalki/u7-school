@@ -258,26 +258,63 @@ describe('StudentAr', () => {
   });
 
   describe('completeStep', () => {
-    test('меняет статус StepRecord на completed и проставляет completedAt', () => {
+    test('завершает выданный шаг, выдаёт следующий и возвращает completed', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       const nextStepId = '44444444-4444-4444-8444-444444444444';
+      const followingStepId = '55555555-5555-4555-8555-555555555555';
 
       ar.issueStep(nextStepId);
-      ar.completeStep(nextStepId);
+      const outcome = ar.completeStep(nextStepId, followingStepId);
 
-      expect(ar.state.steps).toHaveLength(1);
+      expect(outcome).toBe('completed');
+      expect(ar.state.steps).toHaveLength(2);
       expect(ar.state.steps[0]?.stepId).toBe(nextStepId);
       expect(ar.state.steps[0]?.status).toBe('completed');
       expect(ar.state.steps[0]?.completedAt).toMatch(
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
       );
+      expect(ar.state.steps[1]?.stepId).toBe(followingStepId);
+      expect(ar.state.steps[1]?.status).toBe('issued');
+      expect(ar.state.currentStepId).toBe(followingStepId);
+    });
+
+    test('завершает последний шаг (nextStepId=null) и возвращает finished', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+
+      ar.issueStep(mockStepId);
+      const outcome = ar.completeStep(mockStepId, null);
+
+      expect(outcome).toBe('finished');
+      expect(ar.state.steps).toHaveLength(1);
+      expect(ar.state.steps[0]?.status).toBe('completed');
+      expect(ar.state.currentStepId).toBe(mockStepId);
+    });
+
+    test('повторное завершение уже завершённого шага — already_completed без изменений', () => {
+      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const nextStepId = '44444444-4444-4444-8444-444444444444';
+      const followingStepId = '55555555-5555-4555-8555-555555555555';
+
+      ar.issueStep(nextStepId);
+      ar.completeStep(nextStepId, followingStepId);
+
+      const stepsBefore = JSON.stringify(ar.state.steps);
+      const currentBefore = ar.state.currentStepId;
+      const completedAtBefore = ar.state.steps[0]?.completedAt;
+
+      const outcome = ar.completeStep(nextStepId, followingStepId);
+
+      expect(outcome).toBe('already_completed');
+      expect(JSON.stringify(ar.state.steps)).toBe(stepsBefore);
+      expect(ar.state.currentStepId).toBe(currentBefore);
+      expect(ar.state.steps[0]?.completedAt).toBe(completedAtBefore);
     });
 
     test('выбрасывает ошибку если шаг не был выдан', () => {
       const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
-      expect(() => ar.completeStep(nextStepId)).toThrow();
+      expect(() => ar.completeStep(nextStepId, null)).toThrow();
     });
   });
 

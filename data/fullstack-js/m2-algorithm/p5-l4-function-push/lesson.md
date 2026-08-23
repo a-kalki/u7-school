@@ -37,4 +37,4 @@ expect(result).toBe(3);            // число — toBe
 expect(arr).toEqual([1, 2, 3]);    // массив — toEqual
 ```
 
-**Видео:** [p5-l4. Функция push.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция push.mp4](https://drive.google.com/file/d/placeholder)

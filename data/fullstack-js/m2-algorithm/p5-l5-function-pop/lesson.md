@@ -27,4 +27,4 @@
 
 `pop([])` не должен падать. Проверяем `length === 0` и возвращаем `undefined`.
 
-**Видео:** [p5-l5. Функция pop.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция pop.mp4](https://drive.google.com/file/d/placeholder)

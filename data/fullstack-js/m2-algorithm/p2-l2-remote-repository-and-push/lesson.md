@@ -98,4 +98,4 @@ git branch -a      # все ветки (локальные + удалённые)
 - [Git Push to Remote](https://www.w3schools.com/git/git_push_to_remote.asp) — отправка изменений
 - [Git Set Remote](https://www.w3schools.com/git/git_set_remote.asp) — настройка remote
 
-**Видео:** [p2-l2. Создание удалённого репозитория и git push.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Создание удалённого репозитория и git push.mp4](https://drive.google.com/file/d/placeholder)

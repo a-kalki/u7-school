@@ -30,18 +30,24 @@ export const StreamDs = {
     student: StudentAr,
     stepId: string,
   ): CompletionResult {
-    student.completeStep(stepId);
-
     const nextStepId = stream.findNextStep(stepId);
+    const outcome = student.completeStep(stepId, nextStepId);
 
-    if (!nextStepId) {
-      // Все шаги пройдены — поток завершён для этого студента.
-      // Статус изменит ментор через CompleteStudentUc.
+    // Повторное завершение уже завершённого шага — ничего не выдаём
+    if (outcome === 'already_completed') {
+      return {
+        level: 'already_completed',
+        currentStepId: student.state.currentStepId,
+      };
+    }
+
+    // Все шаги пройдены — поток завершён для этого студента.
+    // Статус изменит ментор через CompleteStudentUc.
+    if (outcome === 'finished' || nextStepId === null) {
       return { level: 'stream', completed: true };
     }
 
     const ctx = stream.findStepContext(stepId);
-    student.issueStep(nextStepId);
 
     // Последний шаг урока + последний урок проекта → переход проекта
     if (ctx.isLastStepInLesson && ctx.isLastLessonInProject) {

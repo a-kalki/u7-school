@@ -55,4 +55,4 @@ function flat(arr, depth = 1) {
 
 `flat` **не меняет** исходный массив — создаёт новый.
 
-**Видео:** [p6-l7. Функция flat.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция flat.mp4](https://drive.google.com/file/d/placeholder)

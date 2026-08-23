@@ -45,4 +45,4 @@ function buildPyramid(n) {
 3. **Реализация** (20 мин) — пишем функцию вместе, шаг за шагом
 4. **Рефакторинг** (10 мин) — обсуждение улучшений, проверка крайних случаев
 
-**Видео:** [p4-l7. Мастер-класс рисуем пирамиду.mp4](https://drive.google.com/file/d/1PLACEHOLDER_pyramid_video)
+**Видео:** [Мастер-класс рисуем пирамиду.mp4](https://drive.google.com/file/d/1PLACEHOLDER_pyramid_video)

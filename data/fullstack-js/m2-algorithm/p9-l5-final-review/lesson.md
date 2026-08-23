@@ -99,4 +99,4 @@ js-algorithms/
     └── is-equal-deep.js
 ```
 
-**Видео:** [p9-l5. Финальный прогон проекта 9.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Финальный прогон проекта 9.mp4](https://drive.google.com/file/d/placeholder)

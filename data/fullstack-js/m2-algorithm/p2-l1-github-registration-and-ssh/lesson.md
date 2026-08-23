@@ -118,4 +118,4 @@ Hi username! You've successfully authenticated, but GitHub does not provide shel
 - [Git Security SSH](https://www.w3schools.com/git/git_security_ssh.asp) — SSH-безопасность
 - [GitHub Add SSH](https://www.w3schools.com/git/git_remote_add_ssh.asp) — добавление SSH-ключа
 
-**Видео:** [p2-l1. Регистрация на GitHub и SSH-ключ.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Регистрация на GitHub и SSH-ключ.mp4](https://drive.google.com/file/d/placeholder)

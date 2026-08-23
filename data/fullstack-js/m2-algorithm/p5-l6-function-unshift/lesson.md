@@ -33,4 +33,4 @@ function unshift(arr, item) {
 ```
 
 
-**Видео:** [p5-l6. Функция unshift.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция unshift.mp4](https://drive.google.com/file/d/placeholder)

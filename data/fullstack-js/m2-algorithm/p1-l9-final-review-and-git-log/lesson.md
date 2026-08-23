@@ -149,4 +149,4 @@ git log --oneline
 
 Создай в корне проекта файл `homework-notes.md` с конспектом прочитанных статей (хотя бы одной). Добавь его в Git отдельным коммитом с сообщением: `"Добавить конспекты домашнего чтения"`.
 
-**Видео:** [p1-l9. Финальный прогон и git log.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Финальный прогон и git log.mp4](https://drive.google.com/file/d/placeholder)

@@ -20,7 +20,8 @@ export type CompletionResult =
   | { level: 'step'; currentStepId: string }
   | { level: 'lesson'; currentStepId: string; completedLessonId: string }
   | { level: 'project'; currentStepId: string; completedProjectId: string }
-  | { level: 'stream'; completed: true };
+  | { level: 'stream'; completed: true }
+  | { level: 'already_completed'; currentStepId: string };
 
 // ── Типы для навигации и прогресса ──
 

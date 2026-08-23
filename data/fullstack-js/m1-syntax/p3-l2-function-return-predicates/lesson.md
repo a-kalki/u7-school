@@ -168,4 +168,4 @@ console.log(repeatText('Vivat!', 3)); // Выведет: Vivat!Vivat!Vivat!
 *   **Задача функции**: Описание того, *что* функция должна сделать, её цель или назначение.
 *   **Рекурсия**: Метод, при котором функция вызывает сама себя для решения задачи.
 
-**Видео:** [p3-l2. Функция как единица программы return предикаты и методы реализации.mp4](https://drive.google.com/file/d/1IGuYtzM6YarYPOLl2nQwgACSZcmzWpbq)
+**Видео:** [Функция как единица программы return предикаты и методы реализации.mp4](https://drive.google.com/file/d/1IGuYtzM6YarYPOLl2nQwgACSZcmzWpbq)

@@ -41,4 +41,4 @@
 
 ---
 
-**Видео:** [p4-l9. Функция lowerCase.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция lowerCase.mp4](https://drive.google.com/file/d/placeholder)

@@ -109,4 +109,4 @@ bun test
 - [GitHub Flow](https://www.w3schools.com/git/git_github_flow.asp) — рабочий процесс GitHub
 - [GitHub Send Pull Request](https://www.w3schools.com/git/git_remote_send_pull_request.asp) — создание PR
 
-**Видео:** [p2-l3. Pull Request — создание и описание.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Pull Request — создание и описание.mp4](https://drive.google.com/file/d/placeholder)

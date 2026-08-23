@@ -146,4 +146,4 @@ function parseUrl(url) {
 - `len`, `indexOf`, `slice` — основа всей работы со строками
 - Никаких дополнительных — вся логика строится на нарезании подстрок
 
-**Видео:** [p10-l2. Функция parseUrl.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция parseUrl.mp4](https://drive.google.com/file/d/placeholder)

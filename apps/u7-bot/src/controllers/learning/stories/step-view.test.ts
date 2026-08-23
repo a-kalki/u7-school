@@ -180,6 +180,32 @@ describe('StepViewStory', () => {
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
+  test('complete — level=already_completed — показывает актуальный текущий шаг (идемпотентность)', async () => {
+    const { story } = makeStory({
+      'complete-step': {
+        level: 'already_completed',
+        currentStepId: STEP1_ID,
+      },
+    });
+
+    const response = await story.handleCallback(
+      `complete:${STREAM_ID}:${STEP1_ID}`,
+      studentActor,
+      session,
+    );
+    assertResponseMarkdownSafe(response);
+
+    // Повторное нажатие «Выполнено» не должно показывать «поток завершён»
+    expect(response.sendMessage?.text).not.toContain(
+      'Поток полностью завершён',
+    );
+    expect(response.sendMessage?.text).toContain('Шаг 1 из 2:');
+
+    const btnTexts =
+      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
+  });
+
   test('complete — сверяет student.streamId с streamId из callback', async () => {
     const { story } = makeStory({
       'get-student-by-user': { ...mockStudent, streamId: 'other-stream' },

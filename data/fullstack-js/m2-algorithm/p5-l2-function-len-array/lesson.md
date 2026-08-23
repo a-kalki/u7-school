@@ -33,4 +33,4 @@ function len(arr) {
 Следуй циклу: заглушка (`return 0`) → JSDoc → первый тест (RED) → реализация (GREEN) → остальные тесты (REFACTOR).
 
 
-**Видео:** [p5-l2. Функция len массива.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Функция len массива.mp4](https://drive.google.com/file/d/placeholder)

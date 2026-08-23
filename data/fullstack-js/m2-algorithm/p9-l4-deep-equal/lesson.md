@@ -93,4 +93,4 @@ isEqualDeep({ x: undefined }, {}); // должно быть false
 - `isEqualDeep({ a: 1 }, { a: 1, b: 2 })` → `false` (разное количество ключей)
 - `isEqualDeep([], {})` → `false` (массив vs объект)
 
-**Видео:** [p9-l4. Глубокое сравнение isEqualDeep.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Глубокое сравнение isEqualDeep.mp4](https://drive.google.com/file/d/placeholder)

@@ -108,4 +108,4 @@ js-algorithms/
 - [Git Get Started](https://www.w3schools.com/git/git_getstarted.asp) — начало работы с Git
 - [Git Ignore](https://www.w3schools.com/git/git_ignore.asp) — файл .gitignore
 
-**Видео:** [p1-l2. Первый репозиторий.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Первый репозиторий.mp4](https://drive.google.com/file/d/placeholder)

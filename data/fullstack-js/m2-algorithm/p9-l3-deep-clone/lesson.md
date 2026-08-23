@@ -109,4 +109,4 @@ test('изменение копии не затрагивает оригинал
 - `cloneDeep([1, [2, [3]]])` — все три уровня вложенности скопированы
 - `cloneDeep({ a: { b: { c: 1 } } })` — все три уровня скопированы
 
-**Видео:** [p9-l3. Глубокое копирование cloneDeep.mp4](https://drive.google.com/file/d/placeholder)
+**Видео:** [Глубокое копирование cloneDeep.mp4](https://drive.google.com/file/d/placeholder)
