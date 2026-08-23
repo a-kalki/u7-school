@@ -1,6 +1,6 @@
 import type { ApiApp } from '#api/app/api-app';
 import { fromError } from '#domain/errors/error-helpers';
-import type { ApiExecutor, ApiModuleMeta, AppMeta } from '#domain/types';
+import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
 import { escapeMarkdown } from '#shared/markdown';
@@ -11,6 +11,7 @@ import type {
   MainMenuAction,
   SessionData,
 } from './types';
+import type { UiApp } from './ui-app';
 
 /**
  * Абстрактный класс для пользовательского сценария внутри контроллера.
@@ -20,24 +21,28 @@ import type {
  * и префиксом имени — story не знает ни того, ни другого.
  *
  * @typeParam TAppMeta — тип метаданных приложения (например, U7BotAppMeta)
- * @typeParam TModuleMeta — тип метаданных модуля, к которому принадлежит сценарий
  * @typeParam TActor — тип актора (пользователя). Минимально требуется поле telegramId.
  */
 export abstract class BotUserStory<
   TAppMeta extends AppMeta = AppMeta,
-  TModuleMeta extends ApiModuleMeta = ApiModuleMeta,
   TActor = unknown,
 > {
   /** Уникальное имя сценария в рамках контроллера */
   abstract readonly name: string;
 
-  /** API своего модуля — для внутренних вызовов (строгая типизация) */
-  protected moduleApi!: ApiExecutor<TModuleMeta>;
-
   /** API приложения — для вызовов к другим модулям */
   protected appApi!: ApiApp<TAppMeta>;
 
-  /** Логгер — берётся из глобального логгера приложения */
+  /** UI-приложение */
+  uiApp!: UiApp<TAppMeta, TActor>;
+
+  /** @deprecated Используйте uiApp напрямую */
+  // biome-ignore lint/suspicious/noExplicitAny: временная обратная совместимость до обновления стори
+  get ui(): any {
+    return this.uiApp;
+  }
+
+  // ── Инициализация ──
   protected get logger(): Logger | undefined {
     return getGlobalLogger();
   }
@@ -46,9 +51,9 @@ export abstract class BotUserStory<
    * Инициализация сценария — вызывается контроллером при старте бота.
    * Сохраняет ссылки на API модуля и API приложения.
    */
-  init(moduleApi: ApiExecutor<TModuleMeta>, appApi: ApiApp<TAppMeta>): void {
-    this.moduleApi = moduleApi;
+  init(appApi: ApiApp<TAppMeta>, uiApp: UiApp): void {
     this.appApi = appApi;
+    this.uiApp = uiApp;
   }
 
   /** Сброс временных данных сценария (переопределяется при необходимости) */

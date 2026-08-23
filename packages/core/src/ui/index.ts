@@ -4,5 +4,5 @@ export {
   assertBotResponseValid,
   assertResponseMarkdownSafe,
 } from './bot/response-assert';
-export * from './bot/router/bot-router';
 export * from './bot/types';
+export * from './bot/ui-app';

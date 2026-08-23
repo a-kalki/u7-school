@@ -275,7 +275,8 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     const last = this.lastActivityAt;
     if (!last) return false;
 
-    const studentHours = (Date.now() - last.getTime()) / (1000 * 60 * 60);
+    const studentHours =
+      (new Date(isoNow()).getTime() - last.getTime()) / (1000 * 60 * 60);
     return studentHours >= medianHours * 1.3;
   }
 }

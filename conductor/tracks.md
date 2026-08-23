@@ -1,30 +1,26 @@
 # Реестр треков
 
-> Объединяющий архитектурный документ: [architecture-evolution.md](tracks/mentor_tools_20260713/architecture-evolution.md)
+> Все треки Релиза 1 выполнены и перемещены в архив: `conductor/archive/`.
 
----
+## Структура тестов после Треков 0–6
 
-## Релиз 1 — Фундамент
+```
+apps/u7-bot/
+├── src/**/*.test.ts          ← unit-тесты рядом с исходниками
+└── tests/
+    ├── helpers/              ← test-app.ts, fixture-loader.ts
+    ├── fixtures/             ← JSON-шаблоны
+    ├── courses/              ← 4 integration-теста
+    ├── streams/              ← 2 integration-теста
+    ├── learning/             ← 1 integration-тест (Трек 5)
+    ├── mentor/               ← 5 integration-тестов (Трек 6)
+    └── e2e/                  ← 3 e2e-теста
 
-- [x] ~~**Track: Курс (последовательность модулей)**~~ → [архив](./archive/course_aggregate_20260708/)
+packages/stream/src/ui/bot/stories/   ← пусто (все стори перенесены)
+```
 
-- [x] ~~**Track: Жизненный цикл студента**~~ → [архив](./archive/student_lifecycle_20260708/)
+## TODO в коде (для будущих треков)
 
-- [x] ~~**Track: ContentPath (адресация контента)**~~ → [архив](./archive/content_path_20260708/)
-
----
-
-## Релиз 2 — UX ядра продукта
-
-- [x] ~~**Track: Gating модулей (Синтаксис → Алгоритмика)**~~ → [архив](./archive/module_gating_20260708/)
-
-- [x] ~~**Track: Навигация студента**~~ → [архив](./archive/student_navigation_20260708/)
-
-- [x] ~~**Track: Витрина для любопытного**~~ → [архив](./archive/curious_showcase_20260708/)
-
----
-
-## Релиз 3 — Инструменты ментора
-
-- [x] **Track: Инструменты ментора** — *зависит: трек 0, трек 1, трек 2, трек 5*
-*Link: [spec](./tracks/mentor_tools_20260713/)*
+| Что | Где | Трек |
+|-----|-----|------|
+| — | — | — |

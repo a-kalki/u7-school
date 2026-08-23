@@ -1,3 +1,4 @@
+import { CompositeLogger } from '@u7-scl/app/infra';
 import {
   ConsoleLogger,
   LogLevel,
@@ -7,13 +8,14 @@ import {
 } from '@u7-scl/core/shared';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
-import { createApiApp } from './api-app';
 import { createBot } from './bot';
 import { loadConfig } from './config';
+import { createApiApp } from './create-api-app';
+import { createUiApp } from './create-ui-app';
+import { connectUiApp } from './handlers/connect-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
-import { connectRouter } from './handlers/router';
+import { TelegramLogger } from './infra/logger';
 import { TelegramTgFacade } from './infra/telegram-tg-facade';
-import { CompositeLogger, TelegramLogger } from './logger';
 
 const config = loadConfig();
 
@@ -31,7 +33,9 @@ const logger = loggers;
 const bot = createBot(config.botToken);
 const tgFacade = new TelegramTgFacade(bot);
 
-const { userFacade, router } = createApiApp(config, logger, tgFacade);
+const apiBundle = createApiApp(config, logger, tgFacade);
+const { userFacade } = apiBundle;
+const { uiApp } = createUiApp(apiBundle.apiApp, apiBundle, config);
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -133,7 +137,7 @@ privateBot.command('log_level', async (ctx) => {
 });
 
 // Универсальный роутер — приватные чаты
-connectRouter(privateBot, router, userFacade, config.botAdminUuid, loggers);
+connectUiApp(privateBot, uiApp, userFacade, config.botAdminUuid, loggers);
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {

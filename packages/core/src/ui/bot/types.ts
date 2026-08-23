@@ -26,6 +26,13 @@ export interface EditMessageDescription {
   parseMode?: 'MarkdownV2';
 }
 
+/** Описание сообщения (общий тип для отправки/редактирования) */
+export interface MessageDescription {
+  text: string;
+  keyboard?: KeyboardDescription;
+  parseMode?: 'MarkdownV2';
+}
+
 export interface BotResponse {
   sendMessage?: SendMessageDescription;
   /** Несколько сообщений подряд (welcome + вопрос и т.п.) */
@@ -87,7 +94,7 @@ export type BotUpdate =
   | { type: 'voice'; fileId: string; telegramId: number };
 
 /** Агрегатор пунктов меню от всех контроллеров.
- * Реализуется BotRouter, передаётся в AppController. */
+ * Реализуется UiApp, передаётся в AppController. */
 export interface MenuAggregator<TActor = unknown> {
   collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
   collectAllHelpDescriptions(actor: TActor): Promise<string[]>;

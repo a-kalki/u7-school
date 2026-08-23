@@ -14,7 +14,13 @@
  */
 
 /** Символы, которые НИКОГДА не форматируют текст и ВСЕГДА должны быть экранированы */
-const NEVER_FORMATTING_RE = /(?<!\\)[.!+\-=>|#{}()[\]]/g;
+const NEVER_FORMATTING_RE = /(?<!\\)[.!+\-=|#{}()[\]]/g;
+
+/**
+ * Неэкранированный `>` — ошибка, КРОМЕ начала строки (blockquote-синтаксис).
+ * Telegram MarkdownV2 разрешает `> ` в начале строки как blockquote-маркер.
+ */
+const UNESCAPED_GT_RE = /(?<!\\)(?<=[^\n])>/g;
 
 export interface MarkdownIssue {
   /** Проблемный символ */
@@ -52,6 +58,14 @@ export function validateMarkdownV2(text: string): MarkdownValidationResult {
   for (const match of outsideCode.matchAll(NEVER_FORMATTING_RE)) {
     issues.push({
       char: match[0],
+      reason: 'unescaped',
+    });
+  }
+
+  // ── 1b. Неэкранированный `>` только не в начале строки ──
+  for (const _match of outsideCode.matchAll(UNESCAPED_GT_RE)) {
+    issues.push({
+      char: '>',
       reason: 'unescaped',
     });
   }

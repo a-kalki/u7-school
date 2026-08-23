@@ -34,16 +34,27 @@
       "@u7-scl/course/infra": ["packages/course/src/infra/index.ts"],
       "@u7-scl/course/domain": ["packages/course/src/domain/index.ts"],
       "@u7-scl/stream": ["packages/stream/src/index.ts"],
-      "@u7-scl/stream/ui/bot/controller/stream-controller": [
-        "packages/stream/src/ui/bot/controller/stream-controller.ts"
-      ],
       "@u7-scl/onboarding": ["packages/onboarding/src/index.ts"],
       "@u7-scl/w3school": ["packages/w3school/src/index.ts"],
       "@u7-scl/app": ["packages/app/src/index.ts"],
       "@u7-scl/app/domain": ["packages/app/src/domain/index.ts"],
-      "@u7-scl/app/ui": ["packages/app/src/ui/index.ts"],
       "@u7-scl/app/shared": ["packages/app/src/shared/index.ts"],
-      "@u7-scl/app/api": ["packages/app/src/api/index.ts"]
+      "@u7-scl/app/api": ["packages/app/src/api/index.ts"],
+      "@u7-scl/bot/u7-bot-controller": [
+        "apps/u7-bot/src/core/u7-bot-controller.ts"
+      ],
+      "@u7-scl/bot/u7-bot-user-story": [
+        "apps/u7-bot/src/core/u7-bot-user-story.ts"
+      ],
+      "@u7-scl/bot/u7-bot-app-meta": [
+        "apps/u7-bot/src/core/u7-bot-app-meta.ts"
+      ],
+      "@u7-scl/bot/app/*": ["apps/u7-bot/src/controllers/app/*"],
+      "@u7-scl/bot/courses/*": ["apps/u7-bot/src/controllers/courses/*"],
+      "@u7-scl/bot/streams/*": ["apps/u7-bot/src/controllers/streams/*"],
+      "@u7-scl/bot/learning/*": ["apps/u7-bot/src/controllers/learning/*"],
+      "@u7-scl/bot/mentor/*": ["apps/u7-bot/src/controllers/mentor/*"],
+      "@u7-scl/test-helpers/*": ["apps/u7-bot/tests/helpers/*"]
     }
   },
   "exclude": ["data/deploy/archive"]

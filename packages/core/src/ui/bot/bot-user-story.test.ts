@@ -10,13 +10,6 @@ import { BotUserStory } from './bot-user-story';
 import type { BotResponse, BotUpdate, SessionData } from './types';
 
 // Тестовый тип метаданных
-type TestModuleMeta = ApiModuleMeta & {
-  ucMetas: {
-    ucName: 'test-mod-cmd';
-    input: Record<string, never>;
-    output: Record<string, never>;
-  };
-};
 type TestAppMeta = AppMeta & {
   moduleMetas: ApiModuleMeta & {
     ucMetas: {
@@ -33,7 +26,7 @@ const testActor = {
 };
 
 // Конкретная реализация для тестов — экспонирует protected-методы как публичные
-class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
+class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   readonly name = 'test_story';
 
   async handleCallback(
@@ -291,6 +284,34 @@ describe('BotUserStory', () => {
       const resp = story.confirm('test-action', 'uuid-42', '?');
       const cancelBtn = resp.sendMessage!.keyboard!.rows[0]![1]!;
       expect(cancelBtn.code).toBe('test_story:detail:uuid-42');
+    });
+  });
+
+  describe('uiApp и init', () => {
+    test('uiApp изначально undefined', () => {
+      expect(story.uiApp).toBeUndefined();
+    });
+
+    test('init(appApi, uiApp) устанавливает и appApi и uiApp', () => {
+      const mockUiApp = {};
+
+      story.init({} as never, mockUiApp as never);
+      expect(story.uiApp).toBe(mockUiApp as never);
+    });
+
+    test('init с null uiApp — устанавливает null', () => {
+      story.init({} as never, null as never);
+      expect(story.uiApp).toBeNull();
+    });
+
+    test('init с разными типами uiApp', () => {
+      const obj1 = {};
+      story.init({} as never, obj1 as never);
+      expect(story.uiApp).toBe(obj1 as never);
+
+      const obj2 = {};
+      story.init({} as never, obj2 as never);
+      expect(story.uiApp).toBe(obj2 as never);
     });
   });
 });

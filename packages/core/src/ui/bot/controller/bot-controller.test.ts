@@ -34,7 +34,7 @@ type TestAppMeta = AppMeta & {
 const testActor = { telegramId: 123 };
 
 // Тестовая стори
-class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
+class TestStory extends BotUserStory<TestAppMeta, { telegramId: number }> {
   readonly name: string;
   initCalled = false;
   resetCalled = false;
@@ -61,8 +61,8 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
     return { sendMessage: { text: `story_message:${this.name}` } };
   }
 
-  override init(moduleApi: unknown, apiApp: unknown): void {
-    super.init(moduleApi as never, apiApp as never);
+  override init(apiApp: unknown, uiApp: unknown): void {
+    super.init(apiApp as never, uiApp as never);
     this.initCalled = true;
   }
 
@@ -77,17 +77,11 @@ class TestStory extends BotUserStory<TestAppMeta, TestModuleMeta> {
 }
 
 // Конкретный контроллер для тестов
-class TestController extends BotController<TestAppMeta, TestModuleMeta> {
+class TestController extends BotController<
+  TestAppMeta,
+  { telegramId: number }
+> {
   readonly name = 'test_ctrl';
-
-  constructor() {
-    super(
-      {} as import('#api/module/api-module').ApiModule<
-        TestModuleMeta,
-        import('#domain/types').ModuleResolver
-      >,
-    );
-  }
 
   // Экспонируем protected-методы
   public override cb(action: string): string {
@@ -100,7 +94,7 @@ class TestController extends BotController<TestAppMeta, TestModuleMeta> {
 
   public override findStory(
     name: string,
-  ): BotUserStory<TestAppMeta, TestModuleMeta> | undefined {
+  ): BotUserStory<TestAppMeta, { telegramId: number }> | undefined {
     return super.findStory(name);
   }
 
@@ -124,7 +118,7 @@ describe('BotController', () => {
 
   describe('init', () => {
     test('вызывает init у всех стори', () => {
-      ctrl.init({} as never);
+      ctrl.init({} as never, undefined as never);
       expect(story1.initCalled).toBe(true);
       expect(story2.initCalled).toBe(true);
     });
@@ -356,6 +350,29 @@ describe('BotController', () => {
       expect(result.sendMessage?.text).toContain('внутренняя ошибка');
       expect(result.sendMessage?.text).not.toContain('Бум в сообщении');
       expect(mockLogger.error).toHaveBeenCalled();
+    });
+  });
+
+  describe('init', () => {
+    test('пробрасывает uiApp всем стори', () => {
+      const c = new TestController();
+      const story1 = new TestStory('s1');
+      const story2 = new TestStory('s2');
+      c.addStory(story1);
+      c.addStory(story2);
+
+      const mockUiApp = {} as unknown as ReturnType<
+        typeof import('../ui-app').UiApp.prototype.init
+      >;
+      c.init({} as never, mockUiApp as never);
+
+      expect(story1.uiApp).toBe(mockUiApp as never);
+      expect(story2.uiApp).toBe(mockUiApp as never);
+    });
+
+    test('init с пустым контроллером не падает', () => {
+      const c = new TestController();
+      c.init({} as never, {} as never);
     });
   });
 });

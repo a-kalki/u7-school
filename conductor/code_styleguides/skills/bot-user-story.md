@@ -1,6 +1,6 @@
 # BotUserStory — Styleguide
 
-**Назначение:** пользовательский сценарий внутри контроллера бота. Инкапсулирует логику одного сценария (каталог, карточка потока, запись и т.д.). Файл: `ui/bot/stories/<story-name>.story.ts`.
+**Назначение:** пользовательский сценарий внутри контроллера бота. Инкапсулирует логику одного сценария (каталог, карточка потока, запись и т.д.). Файл: `apps/u7-bot/src/controllers/<module>/stories/<story-name>.story.ts`.
 
 ---
 
@@ -27,8 +27,10 @@
 4. **Не дублируй UC** в своём модуле для фасадов других модулей — вызывай через `this.appApi.execute(...)`.
 5. **Актор всегда `User`** из `@u7-scl/app/domain` — не `unknown`, не локальные интерфейсы.
 6. **Права — через Policy-объекты** (`UserPolicy.isStudent(...)`, `StreamPolicy.canEnroll(...)`), не ручные проверки `actor.roles.includes(...)`.
+7. **Кросс-стори вызовы — через `this.cbFor(storyName, action, ...args)`**. Стори не импортируют другие стори напрямую. **Только в пределах одного контроллера** — `storyName` должен быть зарегистрирован в том же контроллере, что и текущая стори.
+8. **Запрещены кросс-контроллерные переходы.** Нельзя использовать `cbFor` или `delegate` для перехода в стори другого контроллера. Причина: `BotController.#compressAction` добавляет префикс текущего контроллера, и целевой контроллер не сможет обработать колбэк. Для возврата в главное меню используй `app:main-menu`.
 
-Живые примеры: `packages/stream/src/ui/bot/stories/catalog.story.ts`, `view-stream.story.ts`, `enroll.story.ts`.
+Живые примеры: `apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts`, `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts`.
 
 ---
 
@@ -53,7 +55,7 @@
 
 ## 5. Wizard Story (пошаговый ввод)
 
-Конечный автомат на основе `captureInput`. Пример: `packages/stream/src/ui/bot/stories/create-stream.story.ts`.
+Конечный автомат на основе `captureInput`. Пример: `apps/u7-bot/src/controllers/streams/stories/create-stream.story.ts` (если существует, иначе см. `OnboardingController` для wizard-паттерна).
 
 - Определи интерфейс контекста со всеми собираемыми полями (`step`, обязательные `''`, необязательные `undefined`).
 - Каждый шаг возвращает `captureInput` с обновлённым контекстом (`step: N+1`).
@@ -73,16 +75,19 @@
 - **Без вызовов API** (например, `handleStart`) — `init()` не нужен.
 - **MarkdownV2:** `assertResponseMarkdownSafe(response)` после каждого `handle*`.
 
-Живой пример теста: `packages/stream/src/ui/bot/stories/view-stream.story.test.ts`.
+Живой пример теста: `apps/u7-bot/tests/streams/view-stream.integration.test.ts` (интеграционные), `apps/u7-bot/tests/e2e/` (E2E).
 
 ---
 
 ## 7. Структура файла
 
 ```
-ui/bot/stories/
+apps/u7-bot/src/controllers/<module>/stories/
   <story-name>.story.ts        — реализация
-  <story-name>.story.test.ts   — тесты
+apps/u7-bot/tests/<module>/
+  <story-name>.integration.test.ts — интеграционные тесты
+apps/u7-bot/tests/e2e/
+  <scenario>.e2e.test.ts       — E2E тесты
 ```
 
 ---

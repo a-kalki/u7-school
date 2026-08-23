@@ -19,7 +19,7 @@ export const StreamPolicy = {
   },
 
   canEnroll(actor: User): boolean {
-    return UserPolicy.isGuest(actor) || UserPolicy.isCandidate(actor);
+    return !UserPolicy.isStudent(actor);
   },
 
   isMentor(actor: User, stream: Stream): boolean {

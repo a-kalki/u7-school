@@ -1,0 +1,8 @@
+{
+  "track_id": "learning_20260807",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-07T21:30:00Z",
+  "updated_at": "2026-08-07T21:30:00Z",
+  "description": "Контроллер learning — «Моя учёба»: разделение learning.story.ts (670 строк) на 6 файлов и перенос в apps/u7-bot/src/learning/"
+}

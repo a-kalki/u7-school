@@ -1,0 +1,8 @@
+{
+  "track_id": "remove-public-actions_20260808",
+  "type": "refactor",
+  "status": "new",
+  "created_at": "2026-08-08T12:00:00Z",
+  "updated_at": "2026-08-08T12:00:00Z",
+  "description": "Удаление кросс-контроллерных publicActions/getAction — архитектурная дыра с префиксами и сжатием UUID"
+}

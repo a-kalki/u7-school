@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "test": "bun test",
-    "test:bot": "bun test packages/stream/src/ui/bot/ tests/bot/",
+    "test:bot": "bun test apps/u7-bot/",
     "backup": "bash scripts/backup.sh",
     "seed:fixtures": "bun run apps/u7-bot/scripts/seed-fixtures.ts",
     "dev:fixtures": "bun run seed:fixtures && DB_DIR=./data/fixtures NODE_ENV=development bun run apps/u7-bot/src/main.ts",
