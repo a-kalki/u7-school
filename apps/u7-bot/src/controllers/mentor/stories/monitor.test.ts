@@ -675,11 +675,7 @@ describe('MonitorStory', () => {
   test('handleMessage возвращает заглушку', async () => {
     const story = setupStory();
 
-    const response = await story.handleMessage(
-      { type: 'message', text: 'что-то', telegramId: 123 },
-      mentorActor(),
-      { activeHandler: null },
-    );
+    const response = await story.handleMessage();
 
     expect(response.sendMessage?.text).toContain('Неизвестное сообщение');
   });
