@@ -20,21 +20,21 @@
 
 ## Фаза 2: Единая точка проверки MarkdownV2 — fail-fast (TDD)
 
-- [ ] Задача: Написать падающие тесты (Red)
-    - [ ] `apps/u7-bot/src/core/ui-utils.test.ts`: новые тесты —
+- [x] Задача: Написать падающие тесты (Red) `5bd09eb`
+    - [x] `apps/u7-bot/src/core/ui-utils.test.ts`: новые тесты —
           валидный MarkdownV2 не бросает; невалидный бросает `MarkdownV2ValidationError`
           (проверить sendMessage / sendMessages / editMessage)
-- [ ] Задача: Реализовать объединение проверок (Green)
-    - [ ] `packages/core/src/shared/markdown-validator.ts`: класс
+- [x] Задача: Реализовать объединение проверок (Green) `5bd09eb`
+    - [x] `packages/core/src/shared/markdown-validator.ts`: класс
           `MarkdownV2ValidationError` (issues + фрагмент текста в `message`);
           перевести `assertMarkdownV2Safe` на него
-    - [ ] `packages/core/src/ui/bot/response-assert.ts`: `assertResponseMarkdownSafe`
+    - [x] `packages/core/src/ui/bot/response-assert.ts`: `assertResponseMarkdownSafe`
           остаётся единственной точкой проверки BotResponse (перебор
           sendMessage/sendMessages/editMessage уже там)
-    - [ ] `apps/u7-bot/src/core/ui-utils.ts`: `executeResponses` вызывает
+    - [x] `apps/u7-bot/src/core/ui-utils.ts`: `executeResponses` вызывает
           `assertResponseMarkdownSafe` из `@u7-scl/core/ui` вместо
           `validateResponseInPlace`; удалить `validateResponseInPlace`
-    - [ ] Проверить, что пользовательский текст об ошибке приходит через
+    - [x] Проверить, что пользовательский текст об ошибке приходит через
           глобальный обработчик `apps/u7-bot/src/main.ts` (строки 83–93) —
           без изменений
 - [ ] Задача: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
