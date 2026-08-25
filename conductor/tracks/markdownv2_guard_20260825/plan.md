@@ -58,9 +58,9 @@
           (выполнено в Фазе 2, коммит `5bd09eb`)
 - [x] Задача: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `9db552e`
 
-## Фаза 4: Финальная проверка
+## Фаза 4: Финальная проверка [checkpoint: dfbb35c]
 
 - [x] Задача: Прогнать `bun run check` (biome + tsc + тесты)
 - [x] Задача: Проверить покрытие (`bun test --coverage`, >80%)
 - [x] Задача: Убедиться, что в логах больше нет warn-блоков `[MarkdownV2]`
-- [ ] Задача: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
+- [x] Задача: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md) `dfbb35c`
