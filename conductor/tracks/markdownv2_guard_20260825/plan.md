@@ -18,7 +18,7 @@
     - [x] Убедиться, что тест S03 зелёный, остальные тесты стори не сломаны
 - [x] Задача: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) `0b13c4e`
 
-## Фаза 2: Единая точка проверки MarkdownV2 — fail-fast (TDD)
+## Фаза 2: Единая точка проверки MarkdownV2 — fail-fast (TDD) [checkpoint: d7e8cc7]
 
 - [x] Задача: Написать падающие тесты (Red) `5bd09eb`
     - [x] `apps/u7-bot/src/core/ui-utils.test.ts`: новые тесты —
@@ -37,7 +37,7 @@
     - [x] Проверить, что пользовательский текст об ошибке приходит через
           глобальный обработчик `apps/u7-bot/src/main.ts` (строки 83–93) —
           без изменений
-- [ ] Задача: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
+- [x] Задача: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) `d7e8cc7`
 
 ## Фаза 3: Документация
 
