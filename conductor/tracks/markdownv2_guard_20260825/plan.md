@@ -60,7 +60,7 @@
 
 ## Фаза 4: Финальная проверка
 
-- [ ] Задача: Прогнать `bun run check` (biome + tsc + тесты)
-- [ ] Задача: Проверить покрытие (`bun test --coverage`, >80%)
-- [ ] Задача: Убедиться, что в логах больше нет warn-блоков `[MarkdownV2]`
+- [x] Задача: Прогнать `bun run check` (biome + tsc + тесты)
+- [x] Задача: Проверить покрытие (`bun test --coverage`, >80%)
+- [x] Задача: Убедиться, что в логах больше нет warn-блоков `[MarkdownV2]`
 - [ ] Задача: Conductor - User Manual Verification 'Фаза 4' (Protocol in workflow.md)
