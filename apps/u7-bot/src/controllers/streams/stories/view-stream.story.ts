@@ -237,18 +237,20 @@ export class ViewStreamStory extends U7BotUserStory {
       };
     }
 
-    // Собираем дерево проектов для tree-renderer
+    // Собираем дерево проектов для tree-renderer.
+    // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
+    // поэтому заголовки экранируем ДО renderTree (образец: course-catalog #handleProjects).
     const projectNodes: TreeNode[] = snapshot.map(
       (p: {
         projectTitle: string;
         lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
       }) => ({
-        title: p.projectTitle,
+        title: this.escapeMarkdown(p.projectTitle),
         emoji: '📁',
         children: p.lessons.map(
           (l: { lessonTitle: string; stepIds: string[] }) =>
             ({
-              title: l.lessonTitle,
+              title: this.escapeMarkdown(l.lessonTitle),
               emoji: '📝',
               meta: `${l.stepIds.length} шаг${this.#plural(l.stepIds.length, '', 'а', 'ов')}`,
             }) as TreeNode,

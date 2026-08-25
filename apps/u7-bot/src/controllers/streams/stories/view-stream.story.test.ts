@@ -286,14 +286,24 @@ describe('ViewStreamStory (S02-S04)', () => {
   // ── S03: Программа курса ──
 
   test('program: показывает contentSnapshot', async () => {
+    // Реалистичные названия со спецсимволами (-, (, ), ., +, *, /) —
+    // санитарные значения не ловят регрессии экранирования (см. bot-test.md §4.1)
     const streamWithContent = {
       ...sampleStream,
       contentSnapshot: [
         {
-          projectTitle: 'Основы',
+          projectTitle: 'Git, TDD и посимвольное сравнение строк',
           lessons: [
-            { lessonTitle: 'Введение', lessonId: 'l1', stepIds: ['s1', 's2'] },
-            { lessonTitle: 'Переменные', lessonId: 'l2', stepIds: ['s3'] },
+            {
+              lessonTitle: 'Обработка ошибок: throw и try-catch',
+              lessonId: 'l1',
+              stepIds: ['s1', 's2'],
+            },
+            {
+              lessonTitle: 'Математические операторы (+, -, *, /)',
+              lessonId: 'l2',
+              stepIds: ['s3'],
+            },
           ],
         },
         {
@@ -330,9 +340,16 @@ describe('ViewStreamStory (S02-S04)', () => {
     assertResponseMarkdownSafe(response);
 
     expect(response.sendMessage?.text).toContain('Программа курса');
-    expect(response.sendMessage?.text).toContain('Основы');
-    expect(response.sendMessage?.text).toContain('Введение');
-    expect(response.sendMessage?.text).toContain('Переменные');
+    expect(response.sendMessage?.text).toContain(
+      'Git, TDD и посимвольное сравнение строк',
+    );
+    // Экранированная версия для MarkdownV2: дефис и скобки экранированы
+    expect(response.sendMessage?.text).toContain(
+      'Обработка ошибок: throw и try\\-catch',
+    );
+    expect(response.sendMessage?.text).toContain(
+      'Математические операторы \\(\\+, \\-, \\*, /\\)',
+    );
     expect(response.sendMessage?.text).toContain('Продвинутый');
     expect(response.sendMessage?.text).toContain('Асинхронность');
   });
