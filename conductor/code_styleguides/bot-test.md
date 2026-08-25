@@ -54,13 +54,19 @@ stream:learning:my-study             — LearningStory
 
 | Функция (`@u7-scl/core/ui`) | Проверяет | Где использовать |
 |---|---|---|
-| `assertResponseMarkdownSafe` | Только MarkdownV2 | Unit (стори без контроллера) |
+| `assertResponseMarkdownSafe` | Только MarkdownV2 | Unit (стори без контроллера) и **прод** (fail-fast перед отправкой) |
 | `assertBotResponseValid` | MarkdownV2 **+** длина `code` ≤ 64 байт | Integration, E2E |
 
 ```typescript
 const response = await uiApp.handleCallback(...);
 assertBotResponseValid(response);
 ```
+
+**Прод-поведение (fail-fast):** `executeResponses` (`apps/u7-bot/src/core/ui-utils.ts`)
+вызывает `assertResponseMarkdownSafe` перед отправкой — при невалидном MarkdownV2
+бросается `MarkdownV2ValidationError`, битый текст **НЕ отправляется** в Telegram.
+Ошибку логирует глобальный обработчик (`main.ts`, через `serializeError` — issues
+и фрагмент текста в `message`), пользователь получает стандартный текст об ошибке.
 
 ### 4.1 Экранирование MarkdownV2
 
@@ -75,8 +81,14 @@ Telegram резервирует: `` _ * [ ] ( ) ~ ` > # + - = | { } . ! ``
 
 - **Статические строки** — ручное экранирование.
 - **Динамические значения** — `escapeMarkdown` из `@u7-scl/core/shared`. Нельзя применять к строке с готовой разметкой — только к отдельным значениям.
+- **`TreeNode.title`** — контракт «уже экранированный для MarkdownV2»: стори, формирующая `TreeNode[]`, экранирует заголовки через `escapeMarkdown` **до** `renderTree`.
+- **Тестовые данные обязаны содержать спецсимволы** (минимум `-`, `(`, `)`, `.`, `!`, `+`). Санитарные значения («Основы», «Введение») не ловят регрессии экранирования — валидация всегда зелёная. Проверяй `assertResponseMarkdownSafe` на данных, приближенных к реальным названиям из контента.
 
-Функции: `validateMarkdownV2` (dev-assert), `assertMarkdownV2Safe` (низкоуровневые тесты), `assertResponseMarkdownSafe` (стори/контроллеры/e2e). Код: `packages/core/src/shared/markdown.ts`, `markdown-validator.ts`, `packages/core/src/ui/bot/response-markdown-assert.ts`.
+Функции: `validateMarkdownV2` (диагностика, без исключений), `assertMarkdownV2Safe`
+(низкоуровневые тесты текста), `assertResponseMarkdownSafe` (стори/контроллеры/e2e
+и прод-отправка). Обе `assert*` бросают `MarkdownV2ValidationError` (issues + фрагмент
+текста). Код: `packages/core/src/shared/markdown.ts`, `markdown-validator.ts`,
+`packages/core/src/ui/bot/response-assert.ts`. Warn-версий проверки больше нет.
 
 ---
 

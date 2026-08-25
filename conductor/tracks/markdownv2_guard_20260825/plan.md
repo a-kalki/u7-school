@@ -41,19 +41,21 @@
 
 ## Фаза 3: Документация
 
-- [ ] Задача: Обновить `conductor/code_styleguides/bot-test.md` §4/§4.1
-    - [ ] Прод-поведение: fail-fast через `assertResponseMarkdownSafe` в `executeResponses`
-    - [ ] Правило: тестовые данные обязаны содержать спецсимволы
+- [x] Задача: Обновить `conductor/code_styleguides/bot-test.md` §4/§4.1
+    - [x] Прод-поведение: fail-fast через `assertResponseMarkdownSafe` в `executeResponses`
+    - [x] Правило: тестовые данные обязаны содержать спецсимволы
           (`-`, `(`, `)`, `.`, `!`, `+`) — санитарные не ловят регрессии
-    - [ ] Обновить список функций (warn-версии больше нет)
-- [ ] Задача: Обновить `conductor/code_styleguides/skills/bot-user-story.md` §4
-    - [ ] Правило: стори, формирующая `TreeNode[]`, экранирует заголовки
+    - [x] Обновить список функций (warn-версии больше нет)
+- [x] Задача: Обновить `conductor/code_styleguides/skills/bot-user-story.md` §4
+    - [x] Правило: стори, формирующая `TreeNode[]`, экранирует заголовки
           через `escapeMarkdown` до `renderTree`
-- [ ] Задача: Обновить `apps/u7-bot/src/controllers/streams/ui-spec.md` S03
-    - [ ] Зафиксировать требование экранирования заголовков
-- [ ] Задача: Обновить JSDoc в `packages/core/src/shared/markdown-validator.ts`
-    - [ ] Роли: `escapeMarkdown` — producer; `validateMarkdownV2` — диагностика;
+- [x] Задача: Обновить `apps/u7-bot/src/controllers/streams/ui-spec.md` S03
+    - [x] Зафиксировать требование экранирования заголовков
+    - [x] Формат приведён к реальному `renderTree` (проекты жирным, уроки с отступом)
+- [x] Задача: Обновить JSDoc в `packages/core/src/shared/markdown-validator.ts`
+    - [x] Роли: `escapeMarkdown` — producer; `validateMarkdownV2` — диагностика;
           `assertMarkdownV2Safe` / `assertResponseMarkdownSafe` — fail-fast
+          (выполнено в Фазе 2, коммит `5bd09eb`)
 - [ ] Задача: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4: Финальная проверка
