@@ -3,7 +3,7 @@
 > Полный контекст — в `spec.md` (анализ логов, root cause, точные файлы и строки,
 > критерии приёмки). Перед реализацией прочитай `spec.md`.
 
-## Фаза 1: Исправление экранирования программы курса (TDD)
+## Фаза 1: Исправление экранирования программы курса (TDD) [checkpoint: 0b13c4e]
 
 - [x] Задача: Написать падающие тесты (Red)
     - [x] `apps/u7-bot/src/controllers/streams/stories/view-stream.story.test.ts`,
@@ -16,7 +16,7 @@
           и `lessonTitle` через `escapeMarkdown` перед `renderTree`
           (образец: `course-catalog.story.ts`, `this.#esc`)
     - [x] Убедиться, что тест S03 зелёный, остальные тесты стори не сломаны
-- [ ] Задача: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Задача: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md) `0b13c4e`
 
 ## Фаза 2: Единая точка проверки MarkdownV2 — fail-fast (TDD)
 
