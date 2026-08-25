@@ -27,5 +27,5 @@ packages/stream/src/ui/bot/stories/   ← пусто (все стори пере
 
 ---
 
-- [ ] **Track: MarkdownV2 — единая точка проверки (fail-fast) и исправление экранирования программы курса**
+- [~] **Track: MarkdownV2 — единая точка проверки (fail-fast) и исправление экранирования программы курса**
 *Link: [./tracks/markdownv2_guard_20260825/](./tracks/markdownv2_guard_20260825/)*
