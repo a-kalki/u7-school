@@ -52,6 +52,13 @@
 
 Правила экранирования и валидации — см. [bot-test.md](../bot-test.md), §4.1. Пакет `markdown-to-telegram` установлен, пока не используется (для больших блоков текста).
 
+**Дерево (`TreeNode[]` → `renderTree`):** контракт `TreeNode.title` — «уже экранированный
+для MarkdownV2». Стори, формирующая `TreeNode[]`, **обязана** экранировать заголовки
+через `escapeMarkdown` **до** передачи в `renderTree` (и проекты, и уроки).
+Неэкранированные заголовки с `-`, `(`, `)`, `.` роняют отправку с `GrammyError 400`.
+Образец: `course-catalog.story.ts` (`#handleProjects`), `view-stream.story.ts`
+(`handleProgramView`).
+
 ---
 
 ## 5. Wizard Story (пошаговый ввод)

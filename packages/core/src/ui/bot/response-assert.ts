@@ -5,11 +5,17 @@ import type { BotResponse, SendMessageDescription } from './types';
 const CALLBACK_DATA_MAX_BYTES = 64;
 
 /**
- * Проверяет MarkdownV2-сообщения в BotResponse на отсутствие
- * неэкранированных символов и непарного форматирования.
+ * Единственная точка проверки MarkdownV2-сообщений в BotResponse.
  *
- * Используется в unit-тестах стори и контроллеров (без контроллера,
- * callback_data могут быть несжатыми — проверка длины не делается).
+ * Проверяет sendMessage / sendMessages / editMessage на отсутствие
+ * неэкранированных символов и непарного форматирования.
+ * При невалидном тексте бросает `MarkdownV2ValidationError`.
+ *
+ * Используется:
+ * - в unit-тестах стори и контроллеров (без контроллера, callback_data могут
+ *   быть несжатыми — проверка длины не делается);
+ * - в проде: `BotTransport.execute` вызывает её fail-fast перед отправкой —
+ *   битый текст не уходит в Telegram.
  */
 export function assertResponseMarkdownSafe(response: BotResponse): void {
   // sendMessage — одиночное

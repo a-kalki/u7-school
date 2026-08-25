@@ -1,4 +1,9 @@
-import type { BotCommand, ProactiveSender, SessionData } from '@u7-scl/core/ui';
+import {
+  assertResponseMarkdownSafe,
+  type BotCommand,
+  type ProactiveSender,
+  type SessionData,
+} from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { U7BotUiApp } from '../core/ui-app';
@@ -176,6 +181,10 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     tgId: number,
     command: BotCommand,
   ): Promise<void> {
+    // Fail-fast: перед отправкой проверяем MarkdownV2 — битый текст не уходит
+    // в Telegram (единая точка проверки BotCommand, образец: ui-utils.ts).
+    assertResponseMarkdownSafe(command);
+
     // 1. editMessage
     if (command.editMessage) {
       const edit = command.editMessage;
