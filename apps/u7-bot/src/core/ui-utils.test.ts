@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { MarkdownV2ValidationError } from '@u7-scl/core/shared';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import type { BotContext } from '../context';
 import { executeResponses } from './ui-utils';
@@ -21,6 +22,84 @@ function makeMockContext(overrides: Partial<BotContext> = {}): BotContext {
     ...overrides,
   } as unknown as BotContext;
 }
+
+// ── Фаза 2: fail-fast проверка MarkdownV2 перед отправкой ──
+
+describe('executeResponses — fail-fast проверка MarkdownV2', () => {
+  test('валидный MarkdownV2 в sendMessage — отправка проходит без исключения', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessage: {
+        text: 'Текст с экранированной точкой\\.',
+        parseMode: 'MarkdownV2',
+      },
+    };
+
+    await expect(executeResponses(ctx, response)).resolves.toBeUndefined();
+  });
+
+  test('невалидный MarkdownV2 в sendMessage — бросает MarkdownV2ValidationError, отправка не выполняется', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessage: {
+        text: 'Текст с точкой. Без экранирования',
+        parseMode: 'MarkdownV2',
+      },
+    };
+
+    await expect(executeResponses(ctx, response)).rejects.toBeInstanceOf(
+      MarkdownV2ValidationError,
+    );
+    // fail-fast: битый текст НЕ уходит в Telegram
+    const replyMock = ctx.reply as any;
+    expect(replyMock).not.toHaveBeenCalled();
+  });
+
+  test('невалидный MarkdownV2 в sendMessages — бросает MarkdownV2ValidationError', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessages: [
+        { text: 'Первое сообщение' },
+        {
+          text: 'Второе с дефисом-без-экранирования',
+          parseMode: 'MarkdownV2',
+        },
+      ],
+    };
+
+    await expect(executeResponses(ctx, response)).rejects.toBeInstanceOf(
+      MarkdownV2ValidationError,
+    );
+  });
+
+  test('невалидный MarkdownV2 в editMessage — бросает MarkdownV2ValidationError', async () => {
+    const ctx = makeMockContext();
+    ctx.session.lastBotMessage = {
+      text: 'Старое сообщение',
+      messageId: 42,
+    };
+    const response: BotResponse = {
+      editMessage: {
+        messageId: 42,
+        text: 'Редактируем (с) скобками без экранирования',
+        parseMode: 'MarkdownV2',
+      },
+    };
+
+    await expect(executeResponses(ctx, response)).rejects.toBeInstanceOf(
+      MarkdownV2ValidationError,
+    );
+  });
+
+  test('сообщения без parseMode MarkdownV2 — проверка не применяется', async () => {
+    const ctx = makeMockContext();
+    const response: BotResponse = {
+      sendMessage: { text: 'Обычный текст. Без разметки' },
+    };
+
+    await expect(executeResponses(ctx, response)).resolves.toBeUndefined();
+  });
+});
 
 // ── А4: Задержка sendMessages ──
 

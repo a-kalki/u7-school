@@ -1,6 +1,13 @@
 /**
  * Валидатор MarkdownV2 для Telegram.
  *
+ * Роли функций:
+ * - `escapeMarkdown` (markdown.ts) — producer: экранирует спецсимволы перед сборкой текста.
+ * - `validateMarkdownV2` — диагностика: возвращает список issues без исключений.
+ * - `assertMarkdownV2Safe` / `assertResponseMarkdownSafe` — fail-fast: бросают
+ *   `MarkdownV2ValidationError` (issues + фрагмент текста) в тестах и в проде
+ *   перед отправкой в Telegram.
+ *
  * Проверяет, что текст не содержит неэкранированных зарезервированных символов
  * и все форматирующие символы парные.
  *
@@ -112,20 +119,44 @@ function stripProtectedSyntax(text: string): string {
 }
 
 /**
- * Бросает ошибку, если MarkdownV2-текст содержит неэкранированные символы
- * или непарное форматирование. Используется в тестах.
+ * Ошибка невалидного MarkdownV2-текста.
+ *
+ * Несёт список issues и фрагмент проблемного текста — достаточно для
+ * диагностики по логам. Бросается fail-fast проверками
+ * (`assertMarkdownV2Safe` / `assertResponseMarkdownSafe`) как в тестах,
+ * так и в продакшене (`executeResponses` → глобальный обработчик).
  */
-export function assertMarkdownV2Safe(text: string): void {
-  const result = validateMarkdownV2(text);
-  if (!result.valid) {
-    const details = result.issues
+export class MarkdownV2ValidationError extends Error {
+  /** Список проблем валидации (символ + причина) */
+  readonly issues: MarkdownIssue[];
+
+  /** Фрагмент проблемного текста (первые символы) для диагностики */
+  readonly textSnippet: string;
+
+  constructor(issues: MarkdownIssue[], text: string, snippetLength = 200) {
+    const details = issues
       .map(
         (i) =>
           `${i.reason === 'unescaped' ? 'неэкранированный' : 'непарный'} '${i.char}'`,
       )
       .join(', ');
-    throw new Error(
-      `MarkdownV2 validation failed (${result.issues.length} issue(s)): ${details}\nText: ${text}`,
+    super(
+      `MarkdownV2 validation failed (${issues.length} issue(s)): ${details}\nText: ${text.slice(0, snippetLength)}`,
     );
+    this.name = 'MarkdownV2ValidationError';
+    this.issues = issues;
+    this.textSnippet = text.slice(0, snippetLength);
+  }
+}
+
+/**
+ * Бросает `MarkdownV2ValidationError`, если MarkdownV2-текст содержит
+ * неэкранированные символы или непарное форматирование.
+ * Fail-fast: используется в тестах и в проде перед отправкой.
+ */
+export function assertMarkdownV2Safe(text: string): void {
+  const result = validateMarkdownV2(text);
+  if (!result.valid) {
+    throw new MarkdownV2ValidationError(result.issues, text);
   }
 }
