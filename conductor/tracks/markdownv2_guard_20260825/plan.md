@@ -39,7 +39,7 @@
           без изменений
 - [x] Задача: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md) `d7e8cc7`
 
-## Фаза 3: Документация
+## Фаза 3: Документация [checkpoint: 9db552e]
 
 - [x] Задача: Обновить `conductor/code_styleguides/bot-test.md` §4/§4.1
     - [x] Прод-поведение: fail-fast через `assertResponseMarkdownSafe` в `executeResponses`
@@ -56,7 +56,7 @@
     - [x] Роли: `escapeMarkdown` — producer; `validateMarkdownV2` — диагностика;
           `assertMarkdownV2Safe` / `assertResponseMarkdownSafe` — fail-fast
           (выполнено в Фазе 2, коммит `5bd09eb`)
-- [ ] Задача: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Задача: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md) `9db552e`
 
 ## Фаза 4: Финальная проверка
 
