@@ -5,17 +5,17 @@
 
 ## Фаза 1: Исправление экранирования программы курса (TDD)
 
-- [ ] Задача: Написать падающие тесты (Red)
-    - [ ] `apps/u7-bot/src/controllers/streams/stories/view-stream.story.test.ts`,
+- [x] Задача: Написать падающие тесты (Red)
+    - [x] `apps/u7-bot/src/controllers/streams/stories/view-stream.story.test.ts`,
           тест S03 (~строки 287–334): заменить санитарные данные на реалистичные
           со спецсимволами `-`, `(`, `)`, `.` (например: «Обработка ошибок: throw и try-catch»,
           «Математические операторы (+, -, *, /)», «Git, TDD и посимвольное сравнение строк»)
     - [ ] Запустить тест и убедиться, что `assertResponseMarkdownSafe` падает (Red)
-- [ ] Задача: Реализовать экранирование (Green)
-    - [ ] `view-stream.story.ts`, `handleProgramView`: экранировать `projectTitle`
+- [x] Задача: Реализовать экранирование (Green) `ce40630`
+    - [x] `view-stream.story.ts`, `handleProgramView`: экранировать `projectTitle`
           и `lessonTitle` через `escapeMarkdown` перед `renderTree`
           (образец: `course-catalog.story.ts`, `this.#esc`)
-    - [ ] Убедиться, что тест S03 зелёный, остальные тесты стори не сломаны
+    - [x] Убедиться, что тест S03 зелёный, остальные тесты стори не сломаны
 - [ ] Задача: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Единая точка проверки MarkdownV2 — fail-fast (TDD)
