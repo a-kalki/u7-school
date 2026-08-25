@@ -7,11 +7,16 @@ import {
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { U7BotUiApp } from '../core/ui-app';
+import { decodeShortId, encodeShortId, isShortId } from './short-id';
 
 // ── UUID-сжатие ──
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Сообщение при нажатии на устаревшую кнопку (shortId не найден в мапе). */
+const STALE_BUTTON_MESSAGE =
+  'Похоже, эта кнопка устарела после перезапуска сервиса. Нажмите /start, чтобы начать заново.';
 
 // ── Интерфейсы ──
 
@@ -70,9 +75,25 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     const tgId = ctx.from?.id;
     if (!tgId || !ctx.callbackQuery?.data) return;
 
-    const data = this.expandAction(ctx.callbackQuery.data);
+    const expanded = this.expandAction(ctx.callbackQuery.data);
 
-    const response = await this.uiApp.handleCallback(data, tgId, ctx.session);
+    // Устаревшая кнопка (shortId не найден в мапе) — отвечаем сразу,
+    // не обращаясь к UiApp.
+    if (expanded.stale) {
+      await ctx
+        .answerCallbackQuery({
+          text: STALE_BUTTON_MESSAGE,
+          show_alert: true,
+        })
+        .catch(() => {});
+      return;
+    }
+
+    const response = await this.uiApp.handleCallback(
+      expanded.data,
+      tgId,
+      ctx.session,
+    );
 
     // Проверка на «чужой callback» — показываем alert
     const alertText = response.sendMessage?.text;
@@ -302,23 +323,51 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       .join(':');
   }
 
-  /** Сжимает значение id в короткий ключ. */
+  /** Сжимает значение id в короткий ключ с маркером shortId. */
   private shrink(value: string): string {
-    let key = value.slice(0, 8);
+    const base = value.slice(0, 8);
 
-    const existing = this.shortIds.get(key);
-    if (existing !== undefined && existing !== value) {
-      key = `${key}-${this.shortIds.size}`;
+    // Гарантия уникальности: цикл с проверкой, а не одноразовая догадка.
+    // Суффикс добавляется только при реальной коллизии с ДРУГИМ значением.
+    let suffix: number | undefined;
+    let key = encodeShortId(base);
+    let existing = this.shortIds.get(key);
+    while (existing !== undefined && existing !== value) {
+      suffix = (suffix ?? 0) + 1;
+      key = encodeShortId(base, suffix);
+      existing = this.shortIds.get(key);
     }
 
     this.shortIds.set(key, value);
     return key;
   }
 
-  /** Разжимает сжатые UUID в callback_data (обратная операция к compressAction). */
-  private expandAction(raw: string): string {
+  /**
+   * Разжимает сжатые UUID в callback_data (обратная операция к compressAction).
+   *
+   * Возвращает `{ data, stale }`: `stale = true`, если в данных есть shortId,
+   * которого нет в мапе (устаревшая кнопка из прошлой жизни сервиса).
+   */
+  private expandAction(raw: string): { data: string; stale: boolean } {
     const parts = raw.split(':');
-    return parts.map((part) => this.shortIds.get(part) ?? part).join(':');
+    let stale = false;
+    const data = parts
+      .map((part) => {
+        // Не shortId (обычный сегмент) — оставляем как есть.
+        if (!isShortId(part)) return part;
+
+        const { hexKey, suffix } = decodeShortId(part)!;
+        const key = encodeShortId(hexKey, suffix);
+        const value = this.shortIds.get(key);
+        if (value === undefined) {
+          // Сжатый id, которого нет в мапе — устаревшая кнопка.
+          stale = true;
+          return part;
+        }
+        return value;
+      })
+      .join(':');
+    return { data, stale };
   }
 
   /** Обходит BotCommand и сжимает все кнопки (code). */

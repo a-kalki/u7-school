@@ -333,8 +333,8 @@ describe('BotTransport — сжатие UUID', () => {
 
     const call = (api.sendMessage as any).mock.calls[0];
     const cbData = call[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    // UUID должен быть сжат до первых 8 символов
-    expect(cbData).toBe('stream:view:a1b2c3d4');
+    // UUID должен быть сжат до первых 8 символов с маркером shortId
+    expect(cbData).toBe('stream:view:~a1b2c3d4');
     expect(cbData).not.toContain(uuid);
   });
 
@@ -380,7 +380,7 @@ describe('BotTransport — сжатие UUID', () => {
     const sentCall = (api.sendMessage as any).mock.calls[0];
     const compressedData =
       sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    expect(compressedData).toBe('stream:view:a1b2c3d4');
+    expect(compressedData).toBe('stream:view:~a1b2c3d4');
     expect(compressedData).not.toContain(uuid);
 
     uiApp.handleCallback = mock(async (data: string) => ({
@@ -397,6 +397,124 @@ describe('BotTransport — сжатие UUID', () => {
 
     const cbCall = (uiApp.handleCallback as any).mock.calls[0];
     expect(cbCall[0]).toBe(`stream:view:${uuid}`);
+  });
+
+  test('коллизия: одинаковые первые 8 символов получают суффикс и разжимаются оба', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    // Оба UUID начинаются с a1b2c3d4 — коллизия базового ключа
+    const uuid1 = 'a1b2c3d4-1111-2222-3333-444444444444';
+    const uuid2 = 'a1b2c3d4-aaaa-bbbb-cccc-dddddddddddd';
+
+    await transport.send(123, {
+      sendMessage: {
+        text: 'Выберите',
+        keyboard: {
+          rows: [
+            [{ text: 'Поток 1', code: `stream:view:${uuid1}` }],
+            [{ text: 'Поток 2', code: `stream:view:${uuid2}` }],
+          ],
+          isMultiple: false,
+        },
+      },
+    });
+
+    const sentCall = (api.sendMessage as any).mock.calls[0];
+    const kb = sentCall[2]?.reply_markup.inline_keyboard;
+    const first = kb[0][0].callback_data;
+    const second = kb[1][0].callback_data;
+
+    // Первый — без суффикса, второй — с суффиксом коллизии
+    expect(first).toBe('stream:view:~a1b2c3d4');
+    expect(second).toBe('stream:view:~a1b2c3d4-1');
+
+    // Оба разжимаются в свои полные UUID
+    uiApp.handleCallback = mock(async (data: string) => ({
+      sendMessage: { text: `view:${data}` },
+    }));
+
+    for (const [cbData, expected] of [
+      [first, uuid1],
+      [second, uuid2],
+    ] as const) {
+      const ctx = makeMockCtx({
+        callbackQuery: { data: cbData } as BotContext['callbackQuery'],
+      });
+      await transport.handleCallback(ctx);
+
+      const call = (uiApp.handleCallback as any).mock.calls.at(-1);
+      expect(call[0]).toBe(`stream:view:${expected}`);
+    }
+  });
+
+  test('несколько UUID в одной кнопке сжимаются и разжимаются все', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    const uuidA = '11111111-2222-3333-4444-555555555555';
+    const uuidB = 'abcdef12-3456-7890-abcd-ef1234567890';
+
+    await transport.send(123, {
+      sendMessage: {
+        text: 'Выберите',
+        keyboard: {
+          rows: [
+            [
+              {
+                text: 'Связать',
+                code: `stream:pair:${uuidA}:${uuidB}`,
+              },
+            ],
+          ],
+          isMultiple: false,
+        },
+      },
+    });
+
+    const sentCall = (api.sendMessage as any).mock.calls[0];
+    const cbData =
+      sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
+    // Каждый UUID сжат со своим маркером
+    expect(cbData).toBe('stream:pair:~11111111:~abcdef12');
+    expect(cbData).not.toContain(uuidA);
+    expect(cbData).not.toContain(uuidB);
+
+    // Оба UUID разжимаются обратно
+    uiApp.handleCallback = mock(async (data: string) => ({
+      sendMessage: { text: `pair:${data}` },
+    }));
+
+    const ctx = makeMockCtx({
+      callbackQuery: { data: cbData } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+
+    const call = (uiApp.handleCallback as any).mock.calls[0];
+    expect(call[0]).toBe(`stream:pair:${uuidA}:${uuidB}`);
+  });
+
+  test('hex8 без маркера — не сжимается и не считается shortId', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    const ctx = makeMockCtx({
+      callbackQuery: {
+        data: 'stream:view:a1b2c3d4',
+      } as BotContext['callbackQuery'],
+    });
+
+    await transport.handleCallback(ctx);
+
+    // Без маркера — уходит в UiApp как есть (не stale, не сжат)
+    const call = (uiApp.handleCallback as any).mock.calls[0];
+    expect(call[0]).toBe('stream:view:a1b2c3d4');
   });
 });
 
@@ -421,6 +539,71 @@ describe('BotTransport — handleCallback', () => {
     const call = (uiApp.handleCallback as any).mock.calls[0];
     expect(call[0]).toBe('stream:view:s1');
     expect(call[1]).toBe(123); // tgId
+  });
+
+  test('устаревшая кнопка (shortId не найден) — alert и НЕ вызов UiApp', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    const ctx = makeMockCtx({
+      callbackQuery: {
+        // Сжатый id без записи в shortIds (кнопка из прошлой жизни сервиса)
+        data: 'stream:view:~a1b2c3d4',
+      } as BotContext['callbackQuery'],
+    });
+
+    await transport.handleCallback(ctx);
+
+    // UiApp не вызывается
+    expect(uiApp.handleCallback).not.toHaveBeenCalled();
+
+    // Вместо этого — alert с текстом про устаревшую кнопку
+    const cb = (ctx.answerCallbackQuery as any).mock.calls[0];
+    expect(cb?.[0]?.show_alert).toBe(true);
+    expect(cb?.[0]?.text).toContain('кнопка устарела');
+    expect(cb?.[0]?.text).toContain('/start');
+  });
+
+  test('устаревшая кнопка с несколькими shortId — alert, если любой не найден', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    // Сжимаем один uuid, чтобы он был в мапе, а второй — нет
+    const known = '11111111-2222-3333-4444-555555555555';
+    await transport.send(123, {
+      sendMessage: {
+        text: 'Выберите',
+        keyboard: {
+          rows: [
+            [{ text: 'Связать', code: `stream:pair:${known}:unknown-id` }],
+          ],
+          isMultiple: false,
+        },
+      },
+    });
+
+    const sentCall = (api.sendMessage as any).mock.calls[0];
+    const cbData =
+      sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
+
+    // Подменяем известный shortId на неизвестный (как после перезапуска)
+    const staleData = cbData.replace('~11111111', '~deadbeef');
+
+    const ctx = makeMockCtx({
+      callbackQuery: {
+        data: staleData,
+      } as BotContext['callbackQuery'],
+    });
+
+    await transport.handleCallback(ctx);
+
+    expect(uiApp.handleCallback).not.toHaveBeenCalled();
+    const cb = (ctx.answerCallbackQuery as any).mock.calls[0];
+    expect(cb?.[0]?.text).toContain('кнопка устарела');
   });
 
   test('показывает alert при чужом callback', async () => {
@@ -609,7 +792,7 @@ describe('BotTransport — send (proactive)', () => {
 
     const call = (api.sendMessage as any).mock.calls[0];
     expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
-      'questionnaire:fill:start:b2c3d4e5',
+      'questionnaire:fill:start:~b2c3d4e5',
     );
   });
 });
