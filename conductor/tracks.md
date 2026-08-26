@@ -10,5 +10,5 @@
 
 ---
 
-- [ ] **Track: wish: полный жизненный цикл желания + универсальные цели (target)**
+- [x] **Track: wish: полный жизненный цикл желания + универсальные цели (target)**
 *Link: [./tracks/wish-lifecycle_20260826/](./tracks/wish-lifecycle_20260826/)*
