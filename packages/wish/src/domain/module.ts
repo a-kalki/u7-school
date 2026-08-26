@@ -7,10 +7,10 @@ import type { CourseFacade } from '@u7-scl/course/domain';
 import type { QuestionnaireFacade } from '@u7-scl/questionnaire/domain';
 import type { UserFacade } from '@u7-scl/user/domain';
 import type { CancelWishCmdMeta } from './wish/commands/cancel-wish-cmd';
-import type { ExpressWishCmdMeta } from './wish/commands/express-wish-cmd';
+import type { CreateCourseWishCmdMeta } from './wish/commands/create-course-wish-cmd';
 import type { WishRepo } from './wish/repo';
 
-export type WishUcMetas = ExpressWishCmdMeta | CancelWishCmdMeta;
+export type WishUcMetas = CreateCourseWishCmdMeta | CancelWishCmdMeta;
 
 /** Метаданные API-модуля wish. */
 export interface WishApiModuleMeta extends ApiModuleMeta {

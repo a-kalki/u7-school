@@ -47,6 +47,33 @@ describe('CancelWishUc', () => {
     expect(saved.status).toBe('cancelled');
   });
 
+  test('отменяет подтверждённое желание', async () => {
+    const { save, getByUserAndTarget, uc } = setupUc();
+    getByUserAndTarget.mockResolvedValueOnce({
+      ...makeExpressedWish(actorId, courseId),
+      status: 'confirmed' as const,
+    });
+
+    await uc.handle({ courseId }, actorId);
+
+    expect(save).toHaveBeenCalledTimes(1);
+    const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
+    expect(saved.status).toBe('cancelled');
+  });
+
+  test('выбрасывает WISH_NOT_FOUND для pending (отмена только через abandon)', async () => {
+    const { save, getByUserAndTarget, uc } = setupUc();
+    getByUserAndTarget.mockResolvedValueOnce({
+      ...makeExpressedWish(actorId, courseId),
+      status: 'pending' as const,
+    });
+
+    await expect(uc.handle({ courseId }, actorId)).rejects.toThrow(
+      'Желание не найдено',
+    );
+    expect(save).toHaveBeenCalledTimes(0);
+  });
+
   test('выбрасывает WISH_NOT_FOUND если желания нет', async () => {
     const { uc } = setupUc();
 

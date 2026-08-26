@@ -8,14 +8,15 @@ export type {
 } from './wish/commands/cancel-wish-cmd';
 export { CancelWishCmdSchema } from './wish/commands/cancel-wish-cmd';
 export type {
-  ExpressWishCmd,
-  ExpressWishCmdMeta,
-  ExpressWishOutput,
-} from './wish/commands/express-wish-cmd';
+  CreateCourseWishCmd,
+  CreateCourseWishCmdError,
+  CreateCourseWishCmdMeta,
+  CreateCourseWishOutput,
+} from './wish/commands/create-course-wish-cmd';
 export {
-  ExpressWishCmdSchema,
-  ExpressWishOutputSchema,
-} from './wish/commands/express-wish-cmd';
+  CreateCourseWishCmdSchema,
+  CreateCourseWishOutputSchema,
+} from './wish/commands/create-course-wish-cmd';
 export type {
   Wish,
   WishArMeta,
@@ -23,6 +24,8 @@ export type {
   WishTarget,
 } from './wish/entity';
 export {
+  ACTIVE_WISH_STATUSES,
+  isWishStatusActive,
   WishSchema,
   WishStatusSchema,
   WishTargetSchema,
@@ -33,9 +36,5 @@ export type {
   WishModuleError,
   WishNotFoundUcError,
 } from './wish/errors';
+export { findCoursePool } from './wish/pools/course-pool';
 export type { WishRepo } from './wish/repo';
-export {
-  hasQuestionnaire,
-  registerQuestionnaireCourse,
-  wishQuestionnairePool,
-} from './wish/wish-questionnaire';

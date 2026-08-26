@@ -29,7 +29,8 @@ export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
     const target: WishTarget = { kind: 'course', courseId: command.courseId };
 
     const wish = await this.repo.getByUserAndTarget(actorId, target);
-    if (!wish || wish.status !== 'expressed') {
+    // Отмена разрешена только из expressed|confirmed; для pending — только abandon.
+    if (!wish || (wish.status !== 'expressed' && wish.status !== 'confirmed')) {
       this.throwError(
         errNotFound<WishNotFoundUcError>(
           'WISH_NOT_FOUND',
