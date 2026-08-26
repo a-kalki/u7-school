@@ -1,0 +1,8 @@
+Правки по фидбеку пользователя после фазы 3 [4f63ab9c]
+
+1. Пользователь удалил fixtures-привязку (fafafafa-…) из course.json — оставлена одна анкета для курса Fullstack JS.
+2. Восстановлен полный пул из 11 вопросов из старого packages/onboarding/src/domain/questionnaire/question-pool.json (git f76a1794^, коммит замены onboarding→wish), включая условные вопросы base_days/base_time/intensive_time (condition по intensity). Тексты inviteText/cancelWarning/completionText взяты из старого OnboardingController.
+3. resolveJsonModule убран как избыточный: при moduleResolution: "bundler" tsc типизирует JSON-импорты без флага (проверено: без флага tsc-проверка с заведомой ошибкой типа показывает выведенный литеральный тип JSON). JsonFileRepo в флаге не нуждался никогда — читает JSON в рантайме через fs, компилятор файлы не видит.
+4. Правки пользователя сохранены: рефакторинг расположения const target в create-course-wish-uc.ts.
+
+Проверки: check:p wish (biome+tsc+53 теста), check:a u7-bot (406 тестов) — зелёные.
