@@ -1,0 +1,20 @@
+Сводка задач Фазы 1 «target-модель» (трек wish-lifecycle_20260826)
+
+Задачи (plan.md, фаза 1, задачи 1–3):
+1. Падающие тесты WishTargetSchema и WishAr.express/pending
+2. Реализация WishTargetSchema, WishSchema (target), WishAr (express/pending/confirm/abandon/cancel)
+3. WishRepo.getByUserAndTarget + WishJsonRepo + тесты репозитория
+
+Изменённые/созданные файлы:
+- packages/wish/src/domain/wish/entity.ts — WishTargetSchema (v.variant kind: course), WishStatusSchema (6 статусов), WishSchema с target
+- packages/wish/src/domain/wish/entity.test.ts — новый: тесты схем (конвенция v.safeParse)
+- packages/wish/src/domain/wish/a-root.ts — фабрики express/pending(userId, target), переходы confirm/abandon/cancel
+- packages/wish/src/domain/wish/a-root.test.ts — переписан под новый контракт
+- packages/wish/src/domain/wish/repo.ts — getByUserAndTarget(userId, target)
+- packages/wish/src/domain/wish/commands/{express,cancel}-wish-cmd.ts — courseId из CourseSchema.entries.uuid ( WishSchema больше не содержит courseId)
+- packages/wish/src/infra/db/wish-json-repo.ts — isSameTarget + getByUserAndTarget
+- packages/wish/src/infra/db/wish-json-repo.test.ts — target-тесты
+- packages/wish/src/api/wish/{express,cancel}-wish-uc.ts, api/er/record-wish-er.ts — временная адаптация под target (удаляются в фазе 3)
+- packages/wish/src/domain/index.ts — экспорт WishTarget, WishTargetSchema
+
+Причина: переход от жёсткой привязки желания к курсу (courseId) к универсальной цели (WishTarget) и полный жизненный цикл из 6 статусов. Покрытие нового доменного кода 100% строк. Проверки: check:p wish, check:a u7-bot — зелёные.
