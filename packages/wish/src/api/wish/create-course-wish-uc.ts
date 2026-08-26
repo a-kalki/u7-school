@@ -39,8 +39,6 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     command: CreateCourseWishCmd,
     actorId: string,
   ): Promise<CreateCourseWishOutput> {
-    const target: WishTarget = { kind: 'course', courseId: command.courseId };
-
     // 1. Курс должен существовать.
     const course = await this.resolve.courseFacade.getCourse(command.courseId);
     if (!course) {
@@ -54,7 +52,9 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     }
 
     // 2. Не более одного активного желания на пару (user, target).
+    const target: WishTarget = { kind: 'course', courseId: command.courseId };
     const existing = await this.repo.getByUserAndTarget(actorId, target);
+
     if (existing && isWishStatusActive(existing.status)) {
       this.throwError(
         errConflict<WishAlreadyExistsUcError>(
