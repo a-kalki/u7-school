@@ -5,12 +5,12 @@
 - [x] Task: Написать падающие тесты на `WishTargetSchema` (variant course) и `WishAr.express/pending` (сигнатуры (userId, target)) [35814814]
 - [x] Task: Реализовать `WishTargetSchema`, обновить `WishSchema` (target вместо courseId), `WishAr` (express/pending/confirm/abandon/cancel + инварианты) [35814814]
 - [x] Task: Обновить `WishRepo` → `getByUserAndTarget(userId, target)` + `WishJsonRepo` + тесты репозитория [35814814]
-- [ ] Task: Conductor - Ручная верификация 'target-модель'
+- [x] Task: Conductor - Ручная верификация 'target-модель' (check:p wish + check:a u7-bot зелёные, подтверждено пользователем) [35814814]
 
 ## Фаза 2: Анкетная ветка — ER confirm/abandon
 
-- [ ] Task: Написать падающие тесты на `confirm-wish-er` (pending→confirmed, идемпотентность: не pending → игнор) и `abandon-wish-er` (pending→abandoned)
-- [ ] Task: Реализовать `confirm-wish-er.ts` и `abandon-wish-er.ts`, зарегистрировать в `WishApiModule.reactions` (вместо `record-wish`)
+- [x] Task: Написать падающие тесты на `confirm-wish-er` (pending→confirmed, идемпотентность: не pending → игнор) и `abandon-wish-er` (pending→abandoned) [624481ae]
+- [x] Task: Реализовать `confirm-wish-er.ts` и `abandon-wish-er.ts`, зарегистрировать в `WishApiModule.reactions` (вместо `record-wish`) [624481ae]
 - [ ] Task: Conductor - Ручная верификация 'ER confirm/abandon'
 
 ## Фаза 3: UC create-course-wish + пул курса
