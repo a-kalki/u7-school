@@ -45,7 +45,7 @@
 
 2. **Иерархия анкет:** `QuestionnaireAr` (абстрактный) → `LikertQuestionnaireAr` (для метрик, умеет выдавать `LikertScore[]`). Онбординг-анкета использует `QuestionnaireFacade` напрямую, без наследования агрегата.
 
-3. **Модель данных анкеты:** `subjectId` (о ком), `respondentId` (кто заполняет), `context` (module_completed/pair_programming/code_review/initiative/onboarding), `role` (student_student/mentor_student/student_mentor), `triggerEvent` (что породило).
+3. **Модель данных анкеты:** `subjectId` (о ком), `respondentId` (кто заполняет), `context` (module_completed/pair_programming/code_review/initiative/wish), `role` (student_student/mentor_student/student_mentor), `triggerEvent` (что породило).
 
 4. **События генерирует агрегат, публикует UseCase.** Агрегат в `ArMeta.events` объявляет возможные события, метод `addEvent()` кладёт их внутрь. UseCase после вызова агрегата и сохранения вызывает `publishEvents(ar)`.
 
@@ -54,7 +54,7 @@
 6. **Запуск анкеты — Invite-паттерн.** Модуль-владелец вызывает `QuestionnaireFacade.sendInvite(user, pool)` или `start(user, pool)`. В первом случае пользователю отправляется приглашение (S01) с кнопками «Начать»/«Пропустить», во втором — анкета стартует сразу. Контроллер questionnaire обрабатывает ответы через стори `fill`.
 
 7. **Новые модули:**
-   - `questionnaire` — выделяется из `onboarding` (который остаётся как потребитель)
+   - `questionnaire` — универсальный движок анкет (потребители: `wish`, `peer-review`)
    - `peer-review` — парное программирование, код-ревью, кросс-оценки, оркестрация анкет при событиях
    - `metrics` — хранение и агрегация метрик, витрина профиля студента
 

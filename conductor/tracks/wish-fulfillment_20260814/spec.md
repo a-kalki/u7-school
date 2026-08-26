@@ -61,13 +61,15 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 `handle(event)`:
 1. `const { userId, moduleId } = event.payload;`
 2. `const course = await courseFacade.getCourseByModuleId(moduleId);` (если курса нет — пропустить).
-3. Найти `Wish(userId, course.uuid)` со статусом `expressed`; если нет — пропустить (идемпотентность).
+3. Найти `Wish(userId, target = { kind: 'course', courseId: course.uuid })` со статусом `expressed` или `confirmed`; если нет — пропустить (идемпотентность).
 4. `wishAr.fulfill()` → сохранить (`status = 'fulfilled'`).
 
-## FR3 — Метод `WishAr.fulfill()` (дополнение к C1)
+Поиск — через `wishRepo.getByUserAndTarget(userId, target)` (целевая модель трека wish-lifecycle).
 
-- Добавить в `WishAr` (из C1) метод `fulfill()`: переход `expressed` → `fulfilled`.
-- Инвариант: `fulfill()` допустим только из `expressed`.
+## FR3 — Метод `WishAr.fulfill()` (дополнение к wish-lifecycle)
+
+- Добавить в `WishAr` метод `fulfill()`: переход `expressed | confirmed` → `fulfilled`.
+- Инвариант: `fulfill()` допустим только из `expressed | confirmed` (зафиксирован в спеке трека wish-lifecycle, FR1).
 
 ## FR4 — Удаление роли `CANDIDATE`
 
@@ -88,7 +90,7 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 ## Критерии приёмки
 
 - [ ] Зачисление публикует `student.enrolled` (payload с `moduleId`).
-- [ ] `fulfill-wish` помечает `Wish(expressed)` как `fulfilled`; повторное событие идемпотентно.
+- [ ] `fulfill-wish` помечает `Wish(expressed|confirmed)` как `fulfilled`; повторное событие идемпотентно.
 - [ ] Шаг «снятие CANDIDATE» удалён из `enroll-student-uc`.
 - [ ] `Role.CANDIDATE` полностью удалён (enum user+app, policy, UC, тесты, seed); `grep CANDIDATE` пуст.
 - [ ] `bun run check:p wish`, `check:p stream`, `check:p user`, `check:p app`, `check:a u7-bot` проходят.

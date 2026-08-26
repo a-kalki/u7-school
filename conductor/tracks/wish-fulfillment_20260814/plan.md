@@ -8,7 +8,7 @@
 
 ## Фаза 2: ER fulfill-wish
 
-- [ ] Task: Написать падающие тесты на `fulfill-wish` ER (резолв курса, переход expressed→fulfilled, идемпотентность)
+- [ ] Task: Написать падающие тесты на `fulfill-wish` ER (резолв курса, переход expressed|confirmed→fulfilled, идемпотентность)
 - [ ] Task: Реализовать `WishAr.fulfill()` + `FulfillWishEr` + зарегистрировать в `WishApiModule.reactions`
 - [ ] Task: Conductor - Ручная верификация 'fulfill-wish'
 

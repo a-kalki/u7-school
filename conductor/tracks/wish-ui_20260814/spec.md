@@ -6,7 +6,7 @@ UI «желания пройти курс» встраивается в **кат
 
 Экраны и кнопки описаны в `apps/u7-bot/src/controllers/courses/ui-spec.md` (раздел «Желание пройти курс», экраны W01–W05).
 
-Зависит от: **C1** (UC `express-wish`/`cancel-wish`), **B** (события/ownerInfo анкеты), а также рендер анкеты через `FillStory` + `ProactiveSender` (подписка на `questionnaire:start`/`questionnaire:invite`, треки `ui-event-subscriptions_20260816` и `ui-proactive-sender_20260816`).
+Зависит от: **C1** (UC `create-course-wish`/`cancel-wish` — контракт закреплён в треке wish-lifecycle), **B** (события/ownerInfo анкеты), а также рендер анкеты через `FillStory` + `ProactiveSender` (подписка на `questionnaire:start`/`questionnaire:invite`, треки `ui-event-subscriptions_20260816` и `ui-proactive-sender_20260816`).
 
 ## Текущее состояние (базовая линия)
 
@@ -21,7 +21,7 @@ UI «желания пройти курс» встраивается в **кат
 1. Кнопка и экраны живут в **courses controller** (стори `course-catalog`), НЕ в отдельном контроллере wish.
 2. Callback кнопки: `course:course-catalog:apply:{courseId}` (внутри стори — `this.cb('apply', course.uuid)`).
 3. Отмена: `course:course-catalog:cancel:{courseId}` (+ подтверждение через `confirm()`).
-4. `express-wish` возвращает `{ outcome: 'instant' | 'questionnaire' }` — стори решает, что рендерить.
+4. `create-course-wish` возвращает `{ outcome: 'instant' | 'questionnaire' }` — стори решает, что рендерить.
 
 ## FR1 — Кнопка «🎓 Хочу пройти курс» на карточке курса
 
@@ -37,7 +37,7 @@ UI «желания пройти курс» встраивается в **кат
 
 В `course-catalog.story.handleCallback` добавить ветку `apply:{courseId}`:
 
-1. `const { outcome } = await this.appApi.execute('express-wish', { courseId }, actor.uuid);`
+1. `const { outcome } = await this.appApi.execute('create-course-wish', { courseId }, actor.uuid);`
 2. `outcome === 'instant'` → отрендерить **W03** («Желание зафиксировано»).
 3. `outcome === 'questionnaire'` → вернуть `{}` (анкету проактивно рендерит `FillStory` через подписку на `questionnaire:start` и `ProactiveSender.send`; стори ничего не отправляет).
 4. Ошибки:
@@ -69,6 +69,7 @@ UI «желания пройти курс» встраивается в **кат
 - Кнопка «Отменить желание» (место — «Мои заявки» в бэклоге ИЛИ на карточке курса при существующем желании; для v1 достаточно обработчика `cancel`).
 - `course:course-catalog:cancel:{courseId}` → подтверждение через `this.confirm('cancel', courseId, 'Отменить желание пройти курс?')`.
 - Подтверждение → `appApi.execute('cancel-wish', { courseId })` → сообщение об отмене.
+- Отмена доступна из `expressed | confirmed`; для `pending` `cancel-wish` возвращает `WISH_NOT_FOUND` (анкетная ветка закрывается через `questionnaire:abandon`).
 
 ## FR4 — Обновление ui-spec
 
@@ -77,7 +78,7 @@ UI «желания пройти курс» встраивается в **кат
 ## Критерии приёмки
 
 - [ ] Кнопка «🎓 Хочу пройти курс» рендерится на карточке курса.
-- [ ] Клик → `express-wish`: мгновенный путь показывает W03; путь с анкетой запускает анкету.
+- [ ] Клик → `create-course-wish`: мгновенный путь показывает W03; путь с анкетой запускает анкету.
 - [ ] Повторный клик → W04 (конфликт обработан).
 - [ ] Отмена → W05 (подтверждение + `cancel-wish`).
 - [ ] `course/ui-spec.md` отражает реальное состояние.
@@ -94,5 +95,5 @@ UI «желания пройти курс» встраивается в **кат
 - [ddd-api](../../.pi/skills/ddd-api/SKILL.md) — шаблоны API-слоя.
 - [course/ui-spec.md](../../apps/u7-bot/src/controllers/courses/ui-spec.md) — экраны W01–W05.
 - [course-catalog.story.ts](../../apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts) — точка интеграции.
-- [Трек C1](../../archive/wish-module_20260814/spec.md) — UC express-wish/cancel-wish.
+- [Трек C1 (архив)](../../archive/wish-module_20260814/spec.md) + [трек wish-lifecycle](../wish-lifecycle_20260826/spec.md) — UC create-course-wish/cancel-wish, target-модель, полный жизненный цикл.
 - [Рабочий процесс](../../workflow.md) — жизненный цикл задач.

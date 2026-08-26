@@ -16,7 +16,7 @@ export type WishTarget = v.InferOutput<typeof WishTargetSchema>;
 
 /**
  * Статус желания.
- * - `expressed` — мгновенная фиксация (курс без анкеты);
+ * - `expressed` — мгновенная фиксация (курс без пула анкеты);
  * - `pending` — анкета начата, желание зафиксировано в ожидании;
  * - `confirmed` — анкета завершена, желание подтверждено;
  * - `cancelled` — отменено пользователем (из expressed/confirmed);

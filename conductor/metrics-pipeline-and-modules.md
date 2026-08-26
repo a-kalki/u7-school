@@ -252,7 +252,7 @@ interface StudentMetrics {
 async execute(event: QuestionnaireCompleteEvent): Promise<void> {
   const { subjectId } = event.ownerInfo;
   const { likertScores } = event.payload;
-  if (!likertScores) return;  // не метрическая анкета (например onboarding)
+  if (!likertScores) return;  // не метрическая анкета (например анкета желания в `wish`)
 
   let metrics = await this.resolve.studentMetricsRepo.getByTelegramId(subjectId);
   if (!metrics) {
@@ -286,12 +286,12 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
      │ зависит
      ▼
 ┌──────────────┐     ┌─────────────────┐
-│ onboarding   │────>│  questionnaire  │
-│ (желания,    │     │  (движок анкет) │
-│  привязка к  │     │                 │
-│  курсам,     │     │ • BaseAr        │
-│  роль после  │     │ • LikertAr      │
-│  анкеты)     │     │ • LikertAr      │
+│ wish         │────>│  questionnaire  │
+│ (желания     │     │  (движок анкет) │
+│  пройти курс,│     │                 │
+│  target-     │     │ • BaseAr        │
+│  модель)     │     │ • LikertAr      │
+│              │     │ • LikertAr      │
 └──────────────┘     │ • QuestionPool  │
                      └────────┬────────┘
                               │ зависит
