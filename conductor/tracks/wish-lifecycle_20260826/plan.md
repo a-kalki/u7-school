@@ -11,15 +11,15 @@
 
 - [x] Task: Написать падающие тесты на `confirm-wish-er` (pending→confirmed, идемпотентность: не pending → игнор) и `abandon-wish-er` (pending→abandoned) [624481ae]
 - [x] Task: Реализовать `confirm-wish-er.ts` и `abandon-wish-er.ts`, зарегистрировать в `WishApiModule.reactions` (вместо `record-wish`) [624481ae]
-- [ ] Task: Conductor - Ручная верификация 'ER confirm/abandon'
+- [x] Task: Conductor - Ручная верификация 'ER confirm/abandon' (check:p wish + check:a u7-bot зелёные, подтверждено пользователем) [624481ae]
 
 ## Фаза 3: UC create-course-wish + пул курса
 
-- [ ] Task: Написать падающие тесты на `findCoursePool` (course.json: привязка к курсу, undefined для курса без пула)
-- [ ] Task: Создать `domain/wish/pools/course.json` + `pools/course-pool.ts` (findCoursePool), включить `resolveJsonModule` в tsconfig.json
-- [ ] Task: Написать падающие тесты на `create-course-wish` (обе ветки: пул есть → pending + startStandard + outcome questionnaire; пула нет → expressed + outcome instant; COURSE_NOT_FOUND; WISH_ALREADY_EXISTS при активном желании на тот же (user, target); параллельные желания на разные курсы)
-- [ ] Task: Реализовать `create-course-wish-uc.ts` + `create-course-wish-cmd.ts` (вход { courseId }, target course), обновить `cancel-wish` (скоуп (user, target), отмена только expressed|confirmed, для pending — WISH_NOT_FOUND)
-- [ ] Task: Удалить `express-wish-uc.ts`, `express-wish-cmd.ts`, `record-wish-er.ts`, `wish-questionnaire.ts` + их тесты; обновить appApi-метаданные (`u7-bot-app-meta.ts`, `create-api-app.ts`); grep express-wish/record-wish/wishQuestionnairePool → пусто
+- [x] Task: Написать падающие тесты на `findCoursePool` (course.json: привязка к курсу, undefined для курса без пула) [03db29bd]
+- [x] Task: Создать `domain/wish/pools/course.json` + `pools/course-pool.ts` (findCoursePool), включить `resolveJsonModule` в tsconfig.json [03db29bd]
+- [x] Task: Написать падающие тесты на `create-course-wish` (обе ветки: пул есть → pending + startStandard + outcome questionnaire; пула нет → expressed + outcome instant; COURSE_NOT_FOUND; WISH_ALREADY_EXISTS при активном желании на тот же (user, target); параллельные желания на разные курсы) [941ceff9]
+- [x] Task: Реализовать `create-course-wish-uc.ts` + `create-course-wish-cmd.ts` (вход { courseId }, target course), обновить `cancel-wish` (скоуп (user, target), отмена только expressed|confirmed, для pending — WISH_NOT_FOUND) [941ceff9]
+- [x] Task: Удалить `express-wish-uc.ts`, `express-wish-cmd.ts`, `record-wish-er.ts`, `wish-questionnaire.ts` + их тесты; обновить appApi-метаданные (`u7-bot-app-meta.ts`, `create-api-app.ts`); grep express-wish/record-wish/wishQuestionnairePool → пусто [941ceff9]
 - [ ] Task: Conductor - Ручная верификация 'create-course-wish'
 
 ## Фаза 4: Документация
