@@ -94,5 +94,5 @@ UI «желания пройти курс» встраивается в **кат
 - [ddd-api](../../.pi/skills/ddd-api/SKILL.md) — шаблоны API-слоя.
 - [course/ui-spec.md](../../apps/u7-bot/src/controllers/courses/ui-spec.md) — экраны W01–W05.
 - [course-catalog.story.ts](../../apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts) — точка интеграции.
-- [Трек C1](../wish-module_20260814/spec.md) — UC express-wish/cancel-wish.
+- [Трек C1](../../archive/wish-module_20260814/spec.md) — UC express-wish/cancel-wish.
 - [Рабочий процесс](../../workflow.md) — жизненный цикл задач.

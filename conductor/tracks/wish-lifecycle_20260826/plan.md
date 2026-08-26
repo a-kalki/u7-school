@@ -25,6 +25,7 @@
 ## Фаза 4: Документация
 
 - [ ] Task: Обновить `course/ui-spec.md` — экраны W01–W05 (контракт `create-course-wish`, статусы желания под новый жизненный цикл)
+- [ ] Task: Обновить спеки и планы треков C2 (`wish-fulfillment`) и D (`wish-ui`): контракт `create-course-wish` вместо `express-wish`, target-модель, новые статусы (`fulfill` из `expressed|confirmed`)
 - [ ] Task: Обновить `conductor/metrics-system.md` и `conductor/metrics-conception.md` (onboarding → wish, контексты анкет), проверить дочерние (`metrics-questionnaire-and-events.md`, `metrics-pipeline-and-modules.md`)
 - [ ] Task: Обновить README (root, apps/u7-bot) и JSDoc модуля wish (entity.ts, a-root.ts, pools)
 - [ ] Task: Conductor - Ручная верификация 'документация'

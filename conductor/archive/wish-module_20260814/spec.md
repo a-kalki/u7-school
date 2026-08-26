@@ -159,7 +159,7 @@ interface RecordWishErMeta extends ErMeta<QuestionnaireCompleteEvent<{ courseId:
 
 - [arch-boundary-design](../../.pi/skills/arch-boundary-design/SKILL.md) — где размещать логику.
 - [ddd-domain](../../.pi/skills/ddd-domain/SKILL.md), [ddd-api](../../.pi/skills/ddd-api/SKILL.md), [ddd-infra](../../.pi/skills/ddd-infra/SKILL.md), [ddd-naming](../../.pi/skills/ddd-naming/SKILL.md).
-- [course/ui-spec.md](../../apps/u7-bot/src/controllers/courses/ui-spec.md) — раздел «Желание пройти курс» (экраны W01–W05).
+- [course/ui-spec.md](../../../apps/u7-bot/src/controllers/courses/ui-spec.md) — раздел «Желание пройти курс» (экраны W01–W05).
 - [Трек A](../event-reaction_20260814/spec.md) — EventReaction/ErMeta.
 - [Трек B](../questionnaire-owner-info_20260814/spec.md) — ownerInfo + событие.
 - [Рабочий процесс](../../workflow.md) — жизненный цикл задач.

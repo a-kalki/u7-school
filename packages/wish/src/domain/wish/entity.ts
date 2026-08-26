@@ -1,4 +1,5 @@
 import type { ArMeta } from '@u7-scl/core/domain';
+import { CourseSchema } from '@u7-scl/course/domain';
 import { UserSchema } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 
@@ -14,7 +15,7 @@ export type WishStatus = v.InferOutput<typeof WishStatusSchema>;
 export const WishSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   userId: UserSchema.entries.uuid,
-  courseId: UserSchema.entries.uuid,
+  courseId: CourseSchema.entries.uuid,
   status: WishStatusSchema,
   createdAt: v.pipe(
     v.string(),

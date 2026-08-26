@@ -102,7 +102,7 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 
 - [arch-boundary-design](../../.pi/skills/arch-boundary-design/SKILL.md) — где размещать логику.
 - [Трек A](../event-reaction_20260814/spec.md) — EventReaction/ErMeta.
-- [Трек C1](../wish-module_20260814/spec.md) — Wish агрегат и статусы.
+- [Трек C1](../../archive/wish-module_20260814/spec.md) — Wish агрегат и статусы.
 - [course/ui-spec.md](../../apps/u7-bot/src/controllers/courses/ui-spec.md) — доменные замечания (статусы Wish).
 - [enroll-student-uc.ts](../../packages/stream/src/api/student/enroll-student-uc.ts) — точка зачисления.
 - [Рабочий процесс](../../workflow.md) — жизненный цикл задач.
