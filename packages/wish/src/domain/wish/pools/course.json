@@ -1,0 +1,24 @@
+{
+  "29adc3be-873e-47ec-aa30-61f5e6e25d4e": {
+    "inviteText": "Расскажи о своих ожиданиях от курса.",
+    "completionText": "Спасибо! Твоё желание зафиксировано.",
+    "questions": [
+      {
+        "type": "text",
+        "question": "Что ты хочешь получить от этого курса?",
+        "questionCode": "wish-expectations"
+      }
+    ]
+  },
+  "fafafafa-baba-4aba-8aba-babababababa": {
+    "inviteText": "Расскажи о своих ожиданиях от курса.",
+    "completionText": "Спасибо! Твоё желание зафиксировано.",
+    "questions": [
+      {
+        "type": "text",
+        "question": "Что ты хочешь получить от этого курса?",
+        "questionCode": "wish-expectations"
+      }
+    ]
+  }
+}
