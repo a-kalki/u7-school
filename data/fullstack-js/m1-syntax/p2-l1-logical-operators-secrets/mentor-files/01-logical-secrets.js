@@ -10,6 +10,8 @@ function dangerous() {
 console.log(1 || dangerous());
 console.log('' || dangerous());
 
+console.log('---');
+
 console.log(1 && 0);
 console.log(0 && 5);
 console.log(3 && 7);
@@ -17,6 +19,8 @@ console.log('' && 'hello');
 
 console.log(0 && dangerous());
 console.log('hi' && dangerous());
+
+console.log('---');
 
 console.log(1 || (0 && 5)); // Приоритет && выше, чем ||
 console.log(0 || (1 && 2));
@@ -26,15 +30,22 @@ console.log(0 || 0 || 5);
 console.log(1 && 2 && 3);
 console.log(1 && 0 && 3);
 
+console.log('---');
+
 // Можно ли гарантировать что name, будет всегда заполнен?
 // Если да, то какой синтаксис правильнее с учетом что
 //   - может вернуться null
 //   - может вернуться пустая строка ''
-let name = prompt('Введите имя') || 'Неизвестный пользователь';
-console.log('Введено имя для ИЛИ: ', name);
-name = prompt('Введите имя') ?? 'Неизвестный пользователь';
-console.log('Ведено имя для ОНС: ', name);
+const name = prompt('Введите имя');
+console.log('name || default: ', name || 'Неизвестный пользователь');
+console.log('name ?? default: ', name ?? 'Неизвестный пользователь');
 
 const recievedName = '';
-console.log('Полученное имя, ИЛИ:', recievedName || 'Неизвестный пользователь');
-console.log('Полученное имя, ОНС:', recievedName ?? 'Неизвестный пользователь');
+console.log(
+  'recievedName || default:',
+  recievedName || 'Неизвестный пользователь',
+);
+console.log(
+  'recievedName ?? default:',
+  recievedName ?? 'Неизвестный пользователь',
+);
