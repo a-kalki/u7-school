@@ -2,9 +2,9 @@
 
 ## Фаза 1: target-модель
 
-- [ ] Task: Написать падающие тесты на `WishTargetSchema` (variant course) и `WishAr.express/pending` (сигнатуры (userId, target))
-- [ ] Task: Реализовать `WishTargetSchema`, обновить `WishSchema` (target вместо courseId), `WishAr` (express/pending/confirm/abandon/cancel + инварианты)
-- [ ] Task: Обновить `WishRepo` → `getByUserAndTarget(userId, target)` + `WishJsonRepo` + тесты репозитория
+- [x] Task: Написать падающие тесты на `WishTargetSchema` (variant course) и `WishAr.express/pending` (сигнатуры (userId, target)) [35814814]
+- [x] Task: Реализовать `WishTargetSchema`, обновить `WishSchema` (target вместо courseId), `WishAr` (express/pending/confirm/abandon/cancel + инварианты) [35814814]
+- [x] Task: Обновить `WishRepo` → `getByUserAndTarget(userId, target)` + `WishJsonRepo` + тесты репозитория [35814814]
 - [ ] Task: Conductor - Ручная верификация 'target-модель'
 
 ## Фаза 2: Анкетная ветка — ER confirm/abandon
