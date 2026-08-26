@@ -1,0 +1,9 @@
+Сводка задач Фазы 4 «Документация» (трек wish-lifecycle_20260826) [8e9210c6]
+
+Задачи 1–4:
+1. courses/ui-spec.md: W01–W05 под create-course-wish; диаграмма пути: pending создаётся UC до старта анкеты, questionnaire:complete/abandon → ER confirm/abandon; доменные замечания — 6 статусов, target-модель, скоуп (user, target), повторное создание после cancelled/abandoned
+2. Трек C2 (wish-fulfillment): fulfill из expressed|confirmed (инвариант из wish-lifecycle FR1), getByUserAndTarget; трек D (wish-ui): create-course-wish, отмена pending → WISH_NOT_FOUND
+3. metrics-system.md: контекст wish вместо onboarding; metrics-pipeline-and-modules.md: комментарий и диаграмма onboarding → wish; metrics-questionnaire-and-events.md: примечание об историчности (правило: правки только технические, решение 8 спеки)
+4. README root: пакет wish — target-модель + жизненный цикл; CANDIDATE — «выразивший желание (wish)». JSDoc entity/a-root/pools уже актуальны (писались в фазах 1/3), уточнена формулировка «без пула анкеты»
+
+Проверки: check:p wish зелёный; grep express-wish/record-wish/wishQuestionnairePool по packages/+apps/ — пусто.
