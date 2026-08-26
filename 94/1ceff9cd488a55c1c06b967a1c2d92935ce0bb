@@ -1,0 +1,22 @@
+Сводка задач Фазы 3 «UC create-course-wish + пул курса» (трек wish-lifecycle_20260826)
+
+Задачи 1–2 [03db29bd]:
+- pools/course-pool.test.ts: для каждого курса из course.json валидный пул; курс без пула → undefined
+- pools/course.json: привязан к 29adc3be-... (Fullstack JS, prod) и fafafafa-... (Основы программирования, fixtures)
+- pools/course-pool.ts: findCoursePool с v.parse-валидацией при загрузке модуля
+- tsconfig.json (root): resolveJsonModule: true
+
+Задачи 3–5 [941ceff9]:
+- create-course-wish-uc.test.ts: обе ветки (пул → pending+startStandard+questionnaire; без пула → expressed+instant), COURSE_NOT_FOUND, WISH_ALREADY_EXISTS параметризованно по активным статусам, re-create после cancelled, параллельные желания на разные курсы
+- create-course-wish-cmd.ts: {courseId}, outcome instant|questionnaire
+- create-course-wish-uc.ts: по спецификации FR3
+- entity.ts: ACTIVE_WISH_STATUSES + isWishStatusActive (активные = expressed|pending|confirmed)
+- cancel-wish-uc: отмена только expressed|confirmed; pending → WISH_NOT_FOUND (тесты дополнены confirmed/pending-кейсами)
+- удалены: express-wish-uc.ts/.test.ts, express-wish-cmd.ts, record-wish-er.ts/.test.ts, wish-questionnaire.ts
+- обновлены: domain/module.ts (WishUcMetas), api/module.ts (useCases), domain/index.ts, api/index.ts
+- appApi-метаданные (u7-bot-app-meta.ts, create-api-app.ts) не требовали правок — ссылаются на стабильные WishApiModule*/WishJsonRepo
+- grep express-wish/record-wish/wishQuestionnairePool по packages/ apps/ → пусто
+
+Проверки: check:p wish (biome+tsc+53 теста), check:a u7-bot (406 тестов) — зелёные. Покрытие нового кода: entity/course-pool/cmd — 100% строк.
+
+Нюанс: #domain/*-маппинг пакета добавляет .ts-суффикс, поэтому JSON импортируется только относительными путями.
