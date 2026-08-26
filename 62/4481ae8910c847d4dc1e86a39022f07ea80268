@@ -1,0 +1,12 @@
+Сводка задач Фазы 2 «Анкетная ветка — ER confirm/abandon» (трек wish-lifecycle_20260826)
+
+Задачи (plan.md, фаза 2, задачи 1–2):
+1. Падающие тесты confirm-wish-er (pending→confirmed; идемпотентность не-pending → игнор; не найдено → игнор) и abandon-wish-er (pending→abandoned)
+2. Реализация confirm-wish-er.ts / abandon-wish-er.ts + регистрация в WishApiModule.reactions вместо record-wish
+
+Файлы:
+- packages/wish/src/api/er/confirm-wish-er.ts + .test.ts — подписка questionnaire:complete (ownerInfo.courseId, payload.respondentId)
+- packages/wish/src/api/er/abandon-wish-er.ts + .test.ts — подписка questionnaire:abandon
+- packages/wish/src/api/module.ts — reactions: [ConfirmWishEr, AbandonWishEr]
+
+Проверки: check:p wish (47 тестов), check:a u7-bot (406 тестов) — зелёные.
