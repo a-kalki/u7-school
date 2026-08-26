@@ -1,6 +1,6 @@
+import { CourseSchema } from '@u7-scl/course/domain';
 import * as v from 'valibot';
 import type { WishArMeta } from '../entity';
-import { WishSchema } from '../entity';
 import type {
   CourseNotFoundUcError,
   WishAlreadyExistsUcError,
@@ -8,7 +8,7 @@ import type {
 
 /** Схема команды выражения желания. */
 export const ExpressWishCmdSchema = v.object({
-  courseId: WishSchema.entries.courseId,
+  courseId: CourseSchema.entries.uuid,
 });
 
 /** Команда выражения желания. */

@@ -10,13 +10,15 @@ function makeWishRepo() {
   const getByUuid = mock(
     async (_uuid: string): Promise<Wish | undefined> => undefined,
   );
-  const getByUserAndCourse = mock(
-    async (_userId: string, _courseId: string): Promise<Wish | undefined> =>
-      undefined,
+  const getByUserAndTarget = mock(
+    async (
+      _userId: string,
+      _target: Wish['target'],
+    ): Promise<Wish | undefined> => undefined,
   );
   const getByUser = mock(async (_userId: string): Promise<Wish[]> => []);
 
-  return { save, getByUuid, getByUserAndCourse, getByUser };
+  return { save, getByUuid, getByUserAndTarget, getByUser };
 }
 
 function setupUc() {
@@ -70,10 +72,10 @@ describe('ExpressWishUc', () => {
   describe('конфликт', () => {
     test('выбрасывает WISH_ALREADY_EXISTS если желание уже выражено', async () => {
       const { wishRepo, uc } = setupUc();
-      wishRepo.getByUserAndCourse.mockResolvedValueOnce({
+      wishRepo.getByUserAndTarget.mockResolvedValueOnce({
         uuid: crypto.randomUUID(),
         userId: actorId,
-        courseId,
+        target: { kind: 'course', courseId },
         status: 'expressed',
         createdAt: '2026-01-01T10:00',
       } as Wish);

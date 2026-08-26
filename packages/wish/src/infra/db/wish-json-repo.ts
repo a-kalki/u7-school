@@ -1,7 +1,18 @@
 import { JsonFileRepo } from '@u7-scl/core/infra';
-import type { Wish } from '#domain/wish/entity';
+import type { Wish, WishTarget } from '#domain/wish/entity';
 import { WishSchema } from '#domain/wish/entity';
 import type { WishRepo } from '#domain/wish/repo';
+
+/** Проверяет равенство целей желания (сравнение по варианту и его ключам). */
+function isSameTarget(a: WishTarget, b: WishTarget): boolean {
+  if (a.kind !== b.kind) {
+    return false;
+  }
+  if (a.kind === 'course' && b.kind === 'course') {
+    return a.courseId === b.courseId;
+  }
+  return false;
+}
 
 /**
  * JSON-файловая реализация репозитория желаний.
@@ -30,13 +41,13 @@ export class WishJsonRepo implements WishRepo {
     return all.find((w) => w.uuid === uuid);
   }
 
-  async getByUserAndCourse(
+  async getByUserAndTarget(
     userId: string,
-    courseId: string,
+    target: WishTarget,
   ): Promise<Wish | undefined> {
     const all = await this.#repo.readAll();
     const matches = all.filter(
-      (w) => w.userId === userId && w.courseId === courseId,
+      (w) => w.userId === userId && isSameTarget(w.target, target),
     );
     matches.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     return matches[0];

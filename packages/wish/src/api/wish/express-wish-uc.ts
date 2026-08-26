@@ -9,6 +9,7 @@ import {
   ExpressWishCmdSchema,
   ExpressWishOutputSchema,
 } from '#domain/wish/commands/express-wish-cmd';
+import type { WishTarget } from '#domain/wish/entity';
 import type {
   CourseNotFoundUcError,
   WishAlreadyExistsUcError,
@@ -39,6 +40,8 @@ export class ExpressWishUc extends WishUseCase<ExpressWishCmdMeta> {
     command: ExpressWishCmd,
     actorId: string,
   ): Promise<ExpressWishOutput> {
+    const target: WishTarget = { kind: 'course', courseId: command.courseId };
+
     // 1. Курс должен существовать.
     const course = await this.resolve.courseFacade.getCourse(command.courseId);
     if (!course) {
@@ -52,10 +55,7 @@ export class ExpressWishUc extends WishUseCase<ExpressWishCmdMeta> {
     }
 
     // 2. Нельзя выразить желание повторно.
-    const existing = await this.repo.getByUserAndCourse(
-      actorId,
-      command.courseId,
-    );
+    const existing = await this.repo.getByUserAndTarget(actorId, target);
     if (existing && existing.status === 'expressed') {
       this.throwError(
         errConflict<WishAlreadyExistsUcError>(
@@ -75,7 +75,7 @@ export class ExpressWishUc extends WishUseCase<ExpressWishCmdMeta> {
     }
 
     // Без анкеты — фиксируем желание мгновенно.
-    const wish = WishAr.express(actorId, command.courseId);
+    const wish = WishAr.express(actorId, target);
     await this.repo.save(wish.state);
 
     return { outcome: 'instant' };

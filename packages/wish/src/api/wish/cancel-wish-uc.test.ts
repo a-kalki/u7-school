@@ -5,24 +5,26 @@ import { CancelWishUc } from './cancel-wish-uc';
 
 function setupUc() {
   const save = mock(async (_wish: Wish): Promise<void> => {});
-  const getByUserAndCourse = mock(
-    async (_userId: string, _courseId: string): Promise<Wish | undefined> =>
-      undefined,
+  const getByUserAndTarget = mock(
+    async (
+      _userId: string,
+      _target: Wish['target'],
+    ): Promise<Wish | undefined> => undefined,
   );
 
-  const wishRepo = { save, getByUserAndCourse };
+  const wishRepo = { save, getByUserAndTarget };
 
   const uc = new CancelWishUc();
   uc.init({ wishRepo } as unknown as WishApiModuleResolver);
 
-  return { save, getByUserAndCourse, uc };
+  return { save, getByUserAndTarget, uc };
 }
 
 function makeExpressedWish(userId: string, courseId: string): Wish {
   return {
     uuid: crypto.randomUUID(),
     userId,
-    courseId,
+    target: { kind: 'course', courseId },
     status: 'expressed',
     createdAt: '2026-01-01T10:00',
   };
@@ -33,8 +35,8 @@ describe('CancelWishUc', () => {
   const courseId = crypto.randomUUID();
 
   test('отменяет выраженное желание', async () => {
-    const { save, getByUserAndCourse, uc } = setupUc();
-    getByUserAndCourse.mockResolvedValueOnce(
+    const { save, getByUserAndTarget, uc } = setupUc();
+    getByUserAndTarget.mockResolvedValueOnce(
       makeExpressedWish(actorId, courseId),
     );
 
@@ -54,8 +56,8 @@ describe('CancelWishUc', () => {
   });
 
   test('выбрасывает WISH_NOT_FOUND если желание уже отменено', async () => {
-    const { getByUserAndCourse, uc } = setupUc();
-    getByUserAndCourse.mockResolvedValueOnce({
+    const { getByUserAndTarget, uc } = setupUc();
+    getByUserAndTarget.mockResolvedValueOnce({
       ...makeExpressedWish(actorId, courseId),
       status: 'cancelled' as const,
     });

@@ -3,6 +3,7 @@ import { EventReaction } from '@u7-scl/core/api';
 import type { QuestionnaireCompleteEvent } from '@u7-scl/questionnaire/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import { WishAr } from '#domain/wish/a-root';
+import type { WishTarget } from '#domain/wish/entity';
 
 /** Метаданные реакции записи желания. */
 export interface RecordWishErMeta
@@ -24,19 +25,22 @@ export class RecordWishEr extends EventReaction<
     'Зафиксировать желание по завершении анкеты' as const;
 
   async handle(event: RecordWishErMeta['event']): Promise<void> {
-    const courseId = event.ownerInfo.courseId;
+    const target: WishTarget = {
+      kind: 'course',
+      courseId: event.ownerInfo.courseId,
+    };
     const userId = event.payload.respondentId;
 
     // Идемпотентность: если желание уже выражено — ничего не делаем.
-    const existing = await this.resolve.wishRepo.getByUserAndCourse(
+    const existing = await this.resolve.wishRepo.getByUserAndTarget(
       userId,
-      courseId,
+      target,
     );
     if (existing && existing.status === 'expressed') {
       return;
     }
 
-    const wish = WishAr.express(userId, courseId);
+    const wish = WishAr.express(userId, target);
     await this.resolve.wishRepo.save(wish.state);
   }
 }

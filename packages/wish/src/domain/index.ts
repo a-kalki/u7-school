@@ -16,8 +16,17 @@ export {
   ExpressWishCmdSchema,
   ExpressWishOutputSchema,
 } from './wish/commands/express-wish-cmd';
-export type { Wish, WishArMeta, WishStatus } from './wish/entity';
-export { WishSchema, WishStatusSchema } from './wish/entity';
+export type {
+  Wish,
+  WishArMeta,
+  WishStatus,
+  WishTarget,
+} from './wish/entity';
+export {
+  WishSchema,
+  WishStatusSchema,
+  WishTargetSchema,
+} from './wish/entity';
 export type {
   CourseNotFoundUcError,
   WishAlreadyExistsUcError,

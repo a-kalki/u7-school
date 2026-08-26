@@ -1,11 +1,11 @@
+import { CourseSchema } from '@u7-scl/course/domain';
 import * as v from 'valibot';
 import type { WishArMeta } from '../entity';
-import { WishSchema } from '../entity';
 import type { WishNotFoundUcError } from '../errors';
 
 /** Схема команды отмены желания. */
 export const CancelWishCmdSchema = v.object({
-  courseId: WishSchema.entries.courseId,
+  courseId: CourseSchema.entries.uuid,
 });
 
 /** Команда отмены желания. */

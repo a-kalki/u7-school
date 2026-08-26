@@ -3,19 +3,38 @@ import { CourseSchema } from '@u7-scl/course/domain';
 import { UserSchema } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 
-/** Статус желания пройти курс. */
+/**
+ * Цель желания — универсальная ссылка на объект желания.
+ * Дискриминированный союз по `kind`: сейчас только `course`,
+ * в будущем расширяется (mentorship, challenge, ...) без смены модели агрегата.
+ */
+export const WishTargetSchema = v.variant('kind', [
+  v.object({ kind: v.literal('course'), courseId: CourseSchema.entries.uuid }),
+]);
+
+export type WishTarget = v.InferOutput<typeof WishTargetSchema>;
+
+/**
+ * Статус желания.
+ * - `expressed` — мгновенная фиксация (курс без анкеты);
+ * - `pending` — анкета начата, желание зафиксировано в ожидании;
+ * - `confirmed` — анкета завершена, желание подтверждено;
+ * - `cancelled` — отменено пользователем (из expressed/confirmed);
+ * - `abandoned` — анкета брошена (из pending);
+ * - `fulfilled` — реализовано (трек C2).
+ */
 export const WishStatusSchema = v.picklist(
-  ['expressed', 'cancelled', 'fulfilled'],
+  ['expressed', 'pending', 'confirmed', 'cancelled', 'abandoned', 'fulfilled'],
   'Некорректный статус желания',
 );
 
 export type WishStatus = v.InferOutput<typeof WishStatusSchema>;
 
-/** Схема желания пройти курс. */
+/** Схема желания. */
 export const WishSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),
   userId: UserSchema.entries.uuid,
-  courseId: CourseSchema.entries.uuid,
+  target: WishTargetSchema,
   status: WishStatusSchema,
   createdAt: v.pipe(
     v.string(),

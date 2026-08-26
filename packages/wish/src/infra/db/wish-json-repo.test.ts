@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, test } from 'bun:test';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Wish } from '#domain/wish/entity';
+import type { Wish, WishTarget } from '#domain/wish/entity';
 import { WishJsonRepo } from './wish-json-repo';
 
 const tmpDir = mkdtempSync('/tmp/wish-json-repo-test-');
@@ -10,11 +10,15 @@ function filePath(filename = 'wishes.json'): string {
   return join(tmpDir, filename);
 }
 
+function makeTarget(courseId = crypto.randomUUID()): WishTarget {
+  return { kind: 'course', courseId };
+}
+
 function makeWish(overrides: Partial<Wish> = {}): Wish {
   return {
     uuid: crypto.randomUUID(),
     userId: crypto.randomUUID(),
-    courseId: crypto.randomUUID(),
+    target: makeTarget(),
     status: 'expressed',
     createdAt: '2026-05-01T12:00',
     ...overrides,
@@ -60,35 +64,46 @@ describe('WishJsonRepo', () => {
     });
   });
 
-  describe('getByUserAndCourse', () => {
-    test('возвращает последнее желание пользователя по курсу', async () => {
-      const repo = new WishJsonRepo(filePath('wishes-by-user-course.json'));
+  describe('getByUserAndTarget', () => {
+    test('возвращает последнее желание пользователя по target', async () => {
+      const repo = new WishJsonRepo(filePath('wishes-by-user-target.json'));
       const userId = crypto.randomUUID();
-      const courseId = crypto.randomUUID();
+      const target = makeTarget();
       const older = makeWish({
         userId,
-        courseId,
+        target,
         createdAt: '2026-01-01T10:00',
       });
       const newer = makeWish({
         userId,
-        courseId,
+        target,
         createdAt: '2026-02-01T10:00',
       });
 
       await repo.save(older);
       await repo.save(newer);
 
-      const found = await repo.getByUserAndCourse(userId, courseId);
+      const found = await repo.getByUserAndTarget(userId, target);
       expect(found?.uuid).toBe(newer.uuid);
+    });
+
+    test('различает цели по courseId', async () => {
+      const repo = new WishJsonRepo(filePath('wishes-diff-targets.json'));
+      const userId = crypto.randomUUID();
+      const targetA = makeTarget();
+      const targetB = makeTarget();
+      await repo.save(makeWish({ userId, target: targetA }));
+
+      const found = await repo.getByUserAndTarget(userId, targetB);
+      expect(found).toBeUndefined();
     });
 
     test('возвращает undefined если желания нет', async () => {
       const repo = new WishJsonRepo(filePath('wishes-none.json'));
 
-      const found = await repo.getByUserAndCourse(
+      const found = await repo.getByUserAndTarget(
         crypto.randomUUID(),
-        crypto.randomUUID(),
+        makeTarget(),
       );
       expect(found).toBeUndefined();
     });

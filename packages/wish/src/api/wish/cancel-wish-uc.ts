@@ -6,6 +6,7 @@ import type {
   CancelWishCmdMeta,
 } from '#domain/wish/commands/cancel-wish-cmd';
 import { CancelWishCmdSchema } from '#domain/wish/commands/cancel-wish-cmd';
+import type { WishTarget } from '#domain/wish/entity';
 import type { WishNotFoundUcError } from '#domain/wish/errors';
 import { WishUseCase } from '../wish-uc';
 
@@ -25,7 +26,9 @@ export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
   protected readonly outputSchema = v.undefined();
 
   async execute(command: CancelWishCmd, actorId: string): Promise<undefined> {
-    const wish = await this.repo.getByUserAndCourse(actorId, command.courseId);
+    const target: WishTarget = { kind: 'course', courseId: command.courseId };
+
+    const wish = await this.repo.getByUserAndTarget(actorId, target);
     if (!wish || wish.status !== 'expressed') {
       this.throwError(
         errNotFound<WishNotFoundUcError>(
