@@ -13,3 +13,8 @@
 
 - [ ] **Track: wish: UI — кнопка и экраны в каталоге курсов**
 *Link: [$T3]($T3)*
+
+---
+
+- [ ] **Track: wish: полный жизненный цикл желания + универсальные цели (target)**
+*Link: [./tracks/wish-lifecycle_20260826/](./tracks/wish-lifecycle_20260826/)*
