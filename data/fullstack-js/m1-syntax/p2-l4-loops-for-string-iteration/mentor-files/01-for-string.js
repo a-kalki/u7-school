@@ -3,12 +3,16 @@ for (let i = 0; i < word.length; i += 1) {
   console.log(word[i]);
 }
 
+console.log('---');
+
 const text = 'hello world';
 let countO = 0;
 for (let i = 0; i < text.length; i++) {
   if (text[i] === 'o') countO++;
 }
 console.log(countO);
+
+console.log('---');
 
 const str = 'javascript';
 let found = -1;
@@ -19,6 +23,8 @@ for (let i = 0; i < str.length; i++) {
   }
 }
 console.log(found);
+
+console.log('---');
 
 let rev = '';
 for (let i = str.length - 1; i >= 0; i -= 1) {

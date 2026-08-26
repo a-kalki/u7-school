@@ -4,11 +4,15 @@ while (x > 0) {
 }
 console.log(x);
 
+console.log('---');
+
 let chars = '';
 while (chars.length < 5) {
   chars += 'x';
 }
 console.log(chars);
+
+console.log('---');
 
 let f = 1;
 let m = 1;
@@ -17,6 +21,8 @@ while (m <= 6) {
   m++;
 }
 console.log(f);
+
+console.log('---');
 
 let cur = 0;
 while (cur < 100) {
