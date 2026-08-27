@@ -6,13 +6,22 @@
 - [ ] Task: Добавить кнопку на карточку курса + обработчик `apply` в `course-catalog.story`
 - [ ] Task: Conductor - Ручная верификация 'Кнопка apply'
 
-## Фаза 2: Экраны W03/W04
+## Фаза 2: Экраны W03/W04 + статус в ошибке конфликта
 
-- [ ] Task: Написать падающие тесты на экраны W03 (мгновенно) и W04 (конфликт)
+- [ ] Task: Расширить `WISH_ALREADY_EXISTS` полем `status` желания (packages/wish) + тесты
+- [ ] Task: Написать падающие тесты на экраны W03 (мгновенно) и W04 (обе ветки: `pending` / `expressed`)
 - [ ] Task: Реализовать рендеринг W03/W04
 - [ ] Task: Conductor - Ручная верификация 'Экраны W03/W04'
 
-## Фаза 3: Отмена W05 + обновление ui-spec
+## Фаза 3: Продолжение анкеты (fill:resume) + completionText
+
+- [ ] Task: Написать падающие тесты на `fill:resume:{courseId}` (анкета найдена/не найдена, captureInput)
+- [ ] Task: Реализовать ветку `resume` в FillStory + `Routes.questionnaire.resume(courseId)`
+- [ ] Task: Написать падающие тесты на проброс `completionText` в `CompletedResponse` и рендер в FillStory
+- [ ] Task: Пробросить `completionText` в `CompletedResponse` (packages/questionnaire) + рендер в FillStory
+- [ ] Task: Conductor - Ручная верификация 'Продолжение анкеты + completionText'
+
+## Фаза 4: Отмена W05 + обновление ui-spec
 
 - [ ] Task: Написать падающие тесты на отмену (подтверждение + cancel-wish)
 - [ ] Task: Реализовать `cancel` + подтверждение + сообщение об отмене
