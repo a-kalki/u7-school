@@ -7,6 +7,7 @@ import type {
   AddPhaseToCourseCmdMeta,
   CreateCourseCmdMeta,
   GetCourseCmdMeta,
+  GetModulePlaceCmdMeta,
   ListCoursesCmdMeta,
 } from './course/commands';
 import type { CourseRepo } from './course/repo';
@@ -31,6 +32,7 @@ export type CourseUcMetas =
   | AddPhaseToCourseCmdMeta
   | AddModuleToCourseCmdMeta
   | GetCourseCmdMeta
+  | GetModulePlaceCmdMeta
   | ListCoursesCmdMeta
   | ResolveContentPathCmdMeta;
 

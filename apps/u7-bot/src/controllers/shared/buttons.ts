@@ -18,4 +18,15 @@ export const buttons = {
     text: text ?? '↩️ Главное меню',
     code: Routes.app.mainMenu,
   }),
+
+  /**
+   * Кнопка записи на модуль (из уведомления о завершении).
+   *
+   * @param moduleId — целевой модуль (следующий или тот же)
+   * @param text — переопределить подпись (по умолчанию «➡️ Следующий модуль»)
+   */
+  wishModule: (moduleId: string, text?: string) => ({
+    text: text ?? '➡️ Следующий модуль',
+    code: Routes.course.wishModule(moduleId),
+  }),
 } as const;

@@ -2,6 +2,7 @@ import type { AddModuleToCourseCmdMeta } from './add-module-to-course-cmd';
 import type { AddPhaseToCourseCmdMeta } from './add-phase-to-course-cmd';
 import type { CreateCourseCmdMeta } from './create-course-cmd';
 import type { GetCourseCmdMeta } from './get-course-cmd';
+import type { GetModulePlaceCmdMeta } from './get-module-place-cmd';
 import type { ListCoursesCmdMeta } from './list-courses-cmd';
 
 export type {
@@ -9,6 +10,7 @@ export type {
   AddPhaseToCourseCmdMeta,
   CreateCourseCmdMeta,
   GetCourseCmdMeta,
+  GetModulePlaceCmdMeta,
   ListCoursesCmdMeta,
 };
 
@@ -24,5 +26,13 @@ export type {
 } from './errors';
 export type { GetCourseCmd } from './get-course-cmd';
 export { GetCourseCmdSchema } from './get-course-cmd';
+export type {
+  GetModulePlaceCmd,
+  ModulePlace,
+} from './get-module-place-cmd';
+export {
+  GetModulePlaceCmdSchema,
+  ModulePlaceSchema,
+} from './get-module-place-cmd';
 export type { ListCoursesCmd } from './list-courses-cmd';
 export { ListCoursesCmdSchema } from './list-courses-cmd';

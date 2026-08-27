@@ -529,7 +529,7 @@ describe('CourseCatalogStory', () => {
 
   test('projects: несуществующий модуль — ошибка', async () => {
     const appApi = {
-      execute: mock(async (ucName: string, _attrs: Record<string, unknown>) => {
+      execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
         if (ucName === 'get-module-snapshot') {
           throw Object.assign(new Error('Модуль не найден'), {
             name: 'MODULE_NOT_FOUND',
@@ -627,5 +627,86 @@ describe('CourseCatalogStory', () => {
     );
     assertResponseMarkdownSafe(response);
     expect(response.sendMessage?.text).toContain('Неизвестное');
+  });
+
+  // ── Запись на модуль (кнопка из уведомления о завершении) ──
+
+  describe('wish — запись на модуль', () => {
+    const moduleId = '33333333-3333-4333-8333-333333333333';
+
+    function makeWishApi(error?: unknown) {
+      return {
+        execute: mock(
+          async (ucName: string, _attrs: Record<string, unknown>) => {
+            if (ucName === 'create-module-wish') {
+              if (error) throw error;
+              return undefined;
+            }
+            return undefined;
+          },
+        ),
+      };
+    }
+
+    test('успех: вызывает create-module-wish и подтверждает', async () => {
+      const api = makeWishApi();
+      const story = new CourseCatalogStory();
+      initStory(story, api as never);
+
+      const response = await story.handleCallback(
+        `wish:${moduleId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const call = (api.execute as ReturnType<typeof mock>).mock.calls.find(
+        (c) => c[0] === 'create-module-wish',
+      );
+      expect(call).toBeDefined();
+      expect(call![1]).toEqual({ moduleId });
+      expect(call![2]).toBe(actor.uuid);
+
+      expect(response.sendMessage?.text).toContain('Записали');
+    });
+
+    test('желание уже есть: дружелюбное сообщение, не ошибка', async () => {
+      const { errConflict, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', undefined),
+      );
+      const api = makeWishApi(error);
+      const story = new CourseCatalogStory();
+      initStory(story, api as never);
+
+      const response = await story.handleCallback(
+        `wish:${moduleId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      expect(response.sendMessage?.text).toContain('уже');
+      expect(response.sendMessage?.text).not.toContain('⚠️');
+    });
+
+    test('другая ошибка: уходит в handleError', async () => {
+      const { errNotFound, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errNotFound('MODULE_NOT_FOUND', 'Модуль не найден', undefined),
+      );
+      const api = makeWishApi(error);
+      const story = new CourseCatalogStory();
+      initStory(story, api as never);
+
+      const response = await story.handleCallback(
+        `wish:${moduleId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      expect(response.sendMessage?.text).toContain('⚠️');
+    });
   });
 });

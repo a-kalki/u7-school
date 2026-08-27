@@ -220,6 +220,45 @@ describe('CourseApiModule', () => {
     expect((result as { title: string }).title).toBe('Модуль');
   });
 
+  test('get-module-place: команда доходит до UC и возвращает место', async () => {
+    const facade = new MockUserFacade();
+    const author = makeAuthor();
+    facade.addUser(author);
+
+    const moduleId = crypto.randomUUID();
+    const nextId = crypto.randomUUID();
+    const mod = new CourseApiModule({
+      moduleRepo: new ModuleJsonRepo(nextPath('courses')),
+      courseRepo: {
+        save: mock(async () => {}),
+        getByUuid: mock(async () => undefined),
+        getAll: mock(async () => [
+          {
+            uuid: crypto.randomUUID(),
+            title: 'Курс',
+            description: 'd',
+            authorId: author.uuid,
+            status: Status.PUBLISHED,
+            phases: [{ title: 'P1', moduleIds: [moduleId, nextId] }],
+            createdAt: '2026-05-01T12:00',
+          },
+        ]),
+      },
+      lessonRepo: new LessonJsonRepo(nextPath('lessons')),
+      stepRepo: new StepJsonRepo(nextPath('steps')),
+      userFacade: facade,
+      appResolver,
+      eventBus: appResolver.eventBus,
+    });
+
+    const place = await mod.execute('get-module-place', { moduleId });
+    expect(place).toMatchObject({
+      isFirst: true,
+      isLast: false,
+      nextModuleId: nextId,
+    });
+  });
+
   test('list-courses: возвращает список модулей', async () => {
     const facade = new MockUserFacade();
     const author = makeAuthor();

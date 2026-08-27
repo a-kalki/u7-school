@@ -6,14 +6,18 @@
  * - готовая ссылка: `Routes.app.mainMenu`;
  * - параметризованная ссылка — фабрика, например:
  *     course: {
- *       catalogList: (courseId: string) => `course:catalog:list:${courseId}`,
+ *       wishModule: (moduleId: string) => `course:course-catalog:wish:${moduleId}`,
  *     },
- *   тогда вызов `Routes.course.catalogList(id)`.
+ *   тогда вызов `Routes.course.wishModule(id)`.
  *
  * Внутри одного контроллера сюда ничего не кладём — там `this.cb`/`this.cbFor`.
  */
 export const Routes = {
   app: {
     mainMenu: 'app:main-menu',
+  },
+  course: {
+    /** Запись на модуль: обработчик в course-catalog стори courses-контроллера */
+    wishModule: (moduleId: string) => `course:course-catalog:wish:${moduleId}`,
   },
 } as const;

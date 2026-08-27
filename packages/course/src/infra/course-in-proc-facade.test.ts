@@ -150,101 +150,31 @@ describe('CourseInProcFacade', () => {
   });
 
   describe('getModulePlace', () => {
-    const m1 = '11111111-1111-4111-8111-111111111111';
     const m2 = '22222222-2222-4222-8222-222222222222';
-    const m3 = '33333333-3333-4333-8333-333333333333';
 
-    function makeCourses() {
-      const mk = (
-        uuid: string,
-        moduleIds: string[],
-        status = Status.PUBLISHED,
-      ) => ({
-        uuid,
-        title: `Course ${uuid}`,
-        authorId: 'a1',
-        status,
-        phases: [{ title: 'P1', moduleIds }],
-        createdAt: '2026-01-01T00:00',
-      });
-      return [mk('c-1', [m1, m2, m3])];
-    }
-
-    test('первый модуль: isFirst=true, next', async () => {
+    test('делегирует в get-module-place и возвращает результат', async () => {
+      const place = { courseId: 'c-1', isFirst: false, isLast: true };
       const mockModule = {
-        execute: mock(() => Promise.resolve(makeCourses())),
+        execute: mock(async (name: string) => {
+          if (name === 'get-module-place') return place;
+          throw new Error(`unexpected ${name}`);
+        }),
       };
       const facade = new CourseInProcFacade(mockModule as any);
 
-      const place = await facade.getModulePlace(m1);
-      expect(place).toEqual({
-        courseId: 'c-1',
-        isFirst: true,
-        isLast: false,
-        nextModuleId: m2,
+      expect(await facade.getModulePlace(m2)).toEqual(place);
+      expect(mockModule.execute).toHaveBeenCalledWith('get-module-place', {
+        moduleId: m2,
       });
     });
 
-    test('средний модуль: prev и next', async () => {
+    test('undefined от модуля проксируется', async () => {
       const mockModule = {
-        execute: mock(() => Promise.resolve(makeCourses())),
-      };
-      const facade = new CourseInProcFacade(mockModule as any);
-
-      const place = await facade.getModulePlace(m2);
-      expect(place).toEqual({
-        courseId: 'c-1',
-        isFirst: false,
-        isLast: false,
-        prevModuleId: m1,
-        nextModuleId: m3,
-      });
-    });
-
-    test('последний модуль: isLast=true, prev', async () => {
-      const mockModule = {
-        execute: mock(() => Promise.resolve(makeCourses())),
-      };
-      const facade = new CourseInProcFacade(mockModule as any);
-
-      const place = await facade.getModulePlace(m3);
-      expect(place).toEqual({
-        courseId: 'c-1',
-        isFirst: false,
-        isLast: true,
-        prevModuleId: m2,
-      });
-    });
-
-    test('модуль вне опубликованных курсов → undefined', async () => {
-      const mockModule = {
-        execute: mock(() => Promise.resolve(makeCourses())),
+        execute: mock(async () => undefined),
       };
       const facade = new CourseInProcFacade(mockModule as any);
 
       expect(await facade.getModulePlace('unknown')).toBeUndefined();
-    });
-
-    test('приоритет опубликованному курсу при форках', async () => {
-      const mk = (uuid: string, moduleIds: string[], status: Status) => ({
-        uuid,
-        title: `Course ${uuid}`,
-        authorId: 'a1',
-        status,
-        phases: [{ title: 'P1', moduleIds }],
-        createdAt: '2026-01-01T00:00',
-      });
-      // Архивный содержит [m1, m2x], опубликованный [m1, m2, m3]
-      const courses = [
-        mk('c-arch', [m1, 'm-2x'], Status.ARCHIVED),
-        mk('c-1', [m1, m2, m3], Status.PUBLISHED),
-      ];
-      const mockModule = { execute: mock(() => Promise.resolve(courses)) };
-      const facade = new CourseInProcFacade(mockModule as any);
-
-      const place = await facade.getModulePlace(m2);
-      expect(place?.courseId).toBe('c-1');
-      expect(place?.prevModuleId).toBe(m1);
     });
   });
 

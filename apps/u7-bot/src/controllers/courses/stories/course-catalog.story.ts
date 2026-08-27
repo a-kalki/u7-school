@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
+import { fromError } from '@u7-scl/core/domain';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
@@ -47,7 +48,7 @@ export class CourseCatalogStory extends U7BotUiStory {
 
   override async handleCallback(
     action: string,
-    _actor: User,
+    actor: User,
     _session: SessionData,
   ): Promise<BotResponse> {
     const [cmd, ...ids] = action.split(':');
@@ -68,6 +69,8 @@ export class CourseCatalogStory extends U7BotUiStory {
           ids[2] ?? '',
           Number(ids[3]),
         );
+      case 'wish':
+        return this.#handleWishModule(ids[0] ?? '', actor);
       default:
         return {
           sendMessage: { text: '⚠️ Неизвестная команда каталога курсов' },
@@ -498,5 +501,40 @@ export class CourseCatalogStory extends U7BotUiStory {
   #truncate(text: string, maxLen = 4000): string {
     if (text.length <= maxLen) return text;
     return `${text.slice(0, maxLen - 15)}${this.#esc('...')}`;
+  }
+
+  // ── Запись на модуль (кнопка из уведомления о завершении) ──
+
+  /** wish:{moduleId} — фиксирует желание пройти модуль. */
+  async #handleWishModule(moduleId: string, actor: User): Promise<BotResponse> {
+    try {
+      await this.appApi.execute('create-module-wish', { moduleId }, actor.uuid);
+
+      return {
+        sendMessage: {
+          text: '✅ Записали\\! Мы сообщим, когда откроется набор на модуль\\.',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[buttons.mainMenu()]],
+            isMultiple: false,
+          },
+        },
+      };
+    } catch (err) {
+      // Повторное желание — не ошибка для пользователя
+      if (fromError(err).kind === 'conflict') {
+        return {
+          sendMessage: {
+            text: 'ℹ️ Ты уже записан на этот модуль — ждём открытия набора\\.',
+            parseMode: 'MarkdownV2',
+            keyboard: {
+              rows: [[buttons.mainMenu()]],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+      return this.handleError(err);
+    }
   }
 }

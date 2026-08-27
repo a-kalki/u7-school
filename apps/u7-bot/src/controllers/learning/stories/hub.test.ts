@@ -365,3 +365,154 @@ describe('HubStory — подписка на student.enrolled', () => {
     expect(payload.text).not.toContain('Поток по JS');
   });
 });
+
+// ── Подписка на student.completed ──
+
+describe('HubStory — подписка на student.completed', () => {
+  const session: SessionData = { activeHandler: null };
+
+  const moduleId = '33333333-3333-4333-8333-333333333333';
+  const nextModuleId = '55555555-5555-4555-8555-555555555555';
+
+  function makeCompletedEvent(outcome: 'advanced' | 'not_advanced') {
+    return {
+      eventId: 'ev-2',
+      eventName: 'student.completed' as const,
+      occurredAt: '2026-08-28T12:00:00.000Z',
+      aggregateName: 'Student' as const,
+      aggregateId: 'student-uuid',
+      payload: {
+        studentId: 'student-uuid',
+        userId: 'user-1',
+        streamId: '11111111-1111-1111-1111-111111111111',
+        moduleId,
+        outcome,
+      },
+    };
+  }
+
+  function makeStoryWithSender(place: unknown = undefined) {
+    const mockAppApi = {
+      execute: mock(async (name: string) => {
+        if (name === 'get-user')
+          return {
+            uuid: 'user-1',
+            name: 'Студент',
+            telegramId: 123,
+            roles: [Role.STUDENT],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          };
+        if (name === 'get-module-place') return place;
+        return undefined;
+      }),
+    };
+
+    const sender = {
+      send: mock(async () => {}),
+      notify: mock(async () => {}),
+    };
+
+    const story = new HubStory();
+    story.init({ appApi: mockAppApi } as never, sender as never);
+    return { story, sender };
+  }
+
+  function getSub(story: ReturnType<typeof makeStoryWithSender>['story']) {
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'student.completed');
+    if (!sub) throw new Error('подписка на student.completed не найдена');
+    return sub;
+  }
+
+  test('advanced + есть следующий модуль → кнопка «Следующий модуль» на next', async () => {
+    const { story, sender } = makeStoryWithSender({
+      courseId: 'c-1',
+      isFirst: false,
+      isLast: false,
+      prevModuleId: 'm-0',
+      nextModuleId,
+    });
+
+    await getSub(story).handle(makeCompletedEvent('advanced'));
+
+    expect(sender.notify).toHaveBeenCalledTimes(1);
+    const [tgId, payload] = (sender.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [
+      number,
+      { text: string; keyboard?: { rows: { text: string; code: string }[][] } },
+    ];
+    expect(tgId).toBe(123);
+    expect(payload.text).toContain('заверш');
+    const btn = payload.keyboard?.rows[0]?.[0];
+    expect(btn?.text).toContain('Следующий модуль');
+    // кросс-контроллерный код — Routes.course.wishModule(nextModuleId)
+    expect(btn?.code).toBe(`course:course-catalog:wish:${nextModuleId}`);
+  });
+
+  test('not_advanced → кнопка «Пройти модуль снова» на тот же модуль', async () => {
+    const { story, sender } = makeStoryWithSender({
+      courseId: 'c-1',
+      isFirst: false,
+      isLast: false,
+      nextModuleId,
+    });
+
+    await getSub(story).handle(makeCompletedEvent('not_advanced'));
+
+    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [
+      number,
+      { text: string; keyboard?: { rows: { text: string; code: string }[][] } },
+    ];
+    const btn = payload.keyboard?.rows[0]?.[0];
+    expect(btn?.text).toContain('снова');
+    expect(btn?.code).toBe(`course:course-catalog:wish:${moduleId}`);
+  });
+
+  test('advanced + последний модуль → «Курс завершён» без кнопки', async () => {
+    const { story, sender } = makeStoryWithSender({
+      courseId: 'c-1',
+      isFirst: false,
+      isLast: true,
+      prevModuleId: 'm-0',
+    });
+
+    await getSub(story).handle(makeCompletedEvent('advanced'));
+
+    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [number, { text: string; keyboard?: unknown }];
+    expect(payload.text).toContain('Курс заверш');
+    expect(payload.keyboard).toBeUndefined();
+  });
+
+  test('нет telegramId → notify не вызывается', async () => {
+    const { story, sender } = makeStoryWithSender({
+      courseId: 'c-1',
+      isLast: true,
+    });
+    // подменим get-user на пользователя без telegramId
+    (
+      story as unknown as { appApi: { execute: ReturnType<typeof mock> } }
+    ).appApi.execute.mockImplementation(async (name: string) =>
+      name === 'get-user'
+        ? { uuid: 'user-1', telegramId: undefined }
+        : undefined,
+    );
+
+    await getSub(story).handle(makeCompletedEvent('advanced'));
+
+    expect(sender.notify).not.toHaveBeenCalled();
+  });
+
+  test('place undefined + advanced → уведомление без кнопки', async () => {
+    const { story, sender } = makeStoryWithSender(undefined);
+
+    await getSub(story).handle(makeCompletedEvent('advanced'));
+
+    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [number, { text: string; keyboard?: unknown }];
+    expect(payload.text).toContain('заверш');
+    expect(payload.keyboard).toBeUndefined();
+  });
+});

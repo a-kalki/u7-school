@@ -4,11 +4,16 @@ import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
 import type {
   BotResponse,
   BotUpdate,
+  KeyboardDescription,
   SessionData,
   UiEventSubscription,
 } from '@u7-scl/core/ui';
 import { eventSubscription } from '@u7-scl/core/ui';
-import type { StudentEnrolledEvent } from '@u7-scl/stream/domain';
+import type { ModulePlace } from '@u7-scl/course/domain';
+import type {
+  StudentCompletedEvent,
+  StudentEnrolledEvent,
+} from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
@@ -25,6 +30,9 @@ export class HubStory extends U7BotUiStory {
     return [
       eventSubscription<StudentEnrolledEvent>('student.enrolled', (event) =>
         this.#handleEnrolledEvent(event),
+      ),
+      eventSubscription<StudentCompletedEvent>('student.completed', (event) =>
+        this.#handleCompletedEvent(event),
       ),
     ];
   }
@@ -55,12 +63,60 @@ export class HubStory extends U7BotUiStory {
       : '';
 
     await this.proactiveSender.notify(user.telegramId, {
-      text: `🎓 Ты зачислен${where}!\n\nНачинай учёбу — кнопка ниже.`,
+      text: `🎓 Ты зачислен${where}\\!\\n\\nНачинай учёбу — кнопка ниже\\.`,
       parseMode: 'MarkdownV2',
       keyboard: {
         rows: [[{ text: '🎓 Моя учёба', code: this.cb('my-study') }]],
         isMultiple: false,
       },
+    });
+  }
+
+  /** student.completed — уведомление с контекстной кнопкой по месту модуля */
+  async #handleCompletedEvent(event: StudentCompletedEvent): Promise<void> {
+    const { userId, moduleId, outcome } = event.payload;
+
+    const user = (await this.appApi.execute('get-user', {
+      uuid: userId,
+    })) as User;
+    if (!user?.telegramId) return;
+
+    // Место модуля в программе — идёт через домен курсов (appApi-запрос)
+    const place = (await this.appApi.execute('get-module-place', {
+      moduleId,
+    })) as ModulePlace | undefined;
+
+    let text: string;
+    let keyboard: KeyboardDescription | undefined;
+
+    if (outcome === 'not_advanced') {
+      // Повтор того же модуля
+      text =
+        '🔁 Модуль не пройден до конца\\.\\n\\nХочешь записаться на него снова?';
+      keyboard = {
+        rows: [[buttons.wishModule(moduleId, '🔁 Пройти модуль снова')]],
+        isMultiple: false,
+      };
+    } else if (place?.isLast) {
+      // advanced + последний модуль — курс завершён, без кнопки
+      text =
+        '🎉 Курс завершён\\!\\n\\nПоздравляем — ты прошёл всю программу\\.';
+    } else if (place?.nextModuleId) {
+      // advanced + есть следующий модуль
+      text = '🏁 Модуль завершён\\!\\n\\nХочешь записаться на следующий?';
+      keyboard = {
+        rows: [[buttons.wishModule(place.nextModuleId)]],
+        isMultiple: false,
+      };
+    } else {
+      // advanced, но место модуля неизвестно — без кнопки
+      text = '🏁 Модуль завершён\\!';
+    }
+
+    await this.proactiveSender.notify(user.telegramId, {
+      text,
+      parseMode: 'MarkdownV2',
+      keyboard,
     });
   }
 

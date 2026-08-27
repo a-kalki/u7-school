@@ -85,31 +85,7 @@ export class CourseInProcFacade implements CourseFacade {
   }
 
   async getModulePlace(moduleId: string): Promise<ModulePlace | undefined> {
-    // list-courses без параметров возвращает только опубликованные курсы
-    const courses: Course[] = await this.courseModule.execute(
-      'list-courses',
-      {},
-    );
-    const containing = courses.filter((c) =>
-      c.phases.some((p) => p.moduleIds.includes(moduleId)),
-    );
-    if (containing.length === 0) return undefined;
-
-    const published = containing.find((c) => c.status === Status.PUBLISHED);
-    const course = published ?? containing[0];
-    if (!course) return undefined;
-    const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
-    const idx = allModuleIds.indexOf(moduleId);
-    if (idx === -1) return undefined;
-
-    return {
-      courseId: course.uuid,
-      isFirst: idx === 0,
-      isLast: idx === allModuleIds.length - 1,
-      prevModuleId: idx > 0 ? allModuleIds[idx - 1] : undefined,
-      nextModuleId:
-        idx < allModuleIds.length - 1 ? allModuleIds[idx + 1] : undefined,
-    };
+    return this.courseModule.execute('get-module-place', { moduleId });
   }
 
   async isSameModule(moduleIdA: string, moduleIdB: string): Promise<boolean> {
