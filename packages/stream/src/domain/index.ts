@@ -10,6 +10,7 @@ export * from './stream/repo';
 export * from './stream-ds';
 export * from './student/a-root';
 export * from './student/entity';
+export * from './student/events';
 export * from './student/policy';
 export * from './student/repo';
 export * from './tg-facade';

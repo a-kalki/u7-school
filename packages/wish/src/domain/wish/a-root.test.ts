@@ -131,4 +131,47 @@ describe('WishAr', () => {
       );
     });
   });
+
+  describe('fulfill()', () => {
+    it('реализует выраженное желание: expressed → fulfilled', () => {
+      const wish = makeWish('expressed');
+
+      wish.fulfill();
+
+      expect(wish.state.status).toBe('fulfilled');
+      expect(wish.state.updatedAt).toBeTypeOf('string');
+    });
+
+    it('реализует подтверждённое желание: confirmed → fulfilled', () => {
+      const wish = makeWish('confirmed');
+
+      wish.fulfill();
+
+      expect(wish.state.status).toBe('fulfilled');
+    });
+
+    it('ошибка при fulfill из pending (для pending — только confirm/abandon)', () => {
+      const wish = makeWish('pending');
+
+      expect(() => wish.fulfill()).toThrow(
+        'Реализовать можно только выраженное или подтверждённое желание',
+      );
+    });
+
+    it('повторный fulfill выбрасывает ошибку (идемпотентность на уровне агрегата)', () => {
+      const wish = makeWish('fulfilled');
+
+      expect(() => wish.fulfill()).toThrow(
+        'Реализовать можно только выраженное или подтверждённое желание',
+      );
+    });
+
+    it('нельзя реализовать отменённое желание', () => {
+      const wish = makeWish('cancelled');
+
+      expect(() => wish.fulfill()).toThrow(
+        'Реализовать можно только выраженное или подтверждённое желание',
+      );
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { errConflict, errNotFound } from '@u7-scl/core/domain';
+import { Status } from '@u7-scl/course/domain';
 import { WishAr } from '#domain/wish/a-root';
 import type {
   CreateCourseWishCmd,
@@ -39,9 +40,10 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     command: CreateCourseWishCmd,
     actorId: string,
   ): Promise<CreateCourseWishOutput> {
-    // 1. Курс должен существовать.
+    // 1. Курс должен существовать и быть опубликован
+    //    (draft/archived для студента неотличимы от «не найден»).
     const course = await this.resolve.courseFacade.getCourse(command.courseId);
-    if (!course) {
+    if (!course || course.status !== Status.PUBLISHED) {
       this.throwError(
         errNotFound<CourseNotFoundUcError>(
           'COURSE_NOT_FOUND',

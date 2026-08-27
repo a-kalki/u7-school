@@ -37,6 +37,25 @@ export class CourseInProcFacade implements CourseFacade {
     );
   }
 
+  async filterCoursesContainingModule(
+    moduleId: string,
+    courseIds: string[],
+  ): Promise<string[]> {
+    if (courseIds.length === 0) {
+      return [];
+    }
+    // get-course возвращает курс в любом статусе, включая archived —
+    // это и даёт «историческую» принадлежность (форки, архивация).
+    const matched: string[] = [];
+    for (const courseId of courseIds) {
+      const course = await this.getCourse(courseId);
+      if (course?.phases.some((p) => p.moduleIds.includes(moduleId))) {
+        matched.push(courseId);
+      }
+    }
+    return matched;
+  }
+
   async getCourse(courseId: string): Promise<Course | undefined> {
     try {
       return await this.courseModule.execute('get-course', {

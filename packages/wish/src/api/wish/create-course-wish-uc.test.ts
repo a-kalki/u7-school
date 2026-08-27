@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { Course } from '@u7-scl/course/domain';
+import { type Course, Status } from '@u7-scl/course/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish, WishStatus } from '#domain/wish/entity';
 import coursePools from '../../domain/wish/pools/course.json';
@@ -29,7 +29,7 @@ function setupUc() {
   const wishRepo = makeWishRepo();
   const getCourse = mock(
     async (_courseId: string): Promise<Course | undefined> =>
-      ({ uuid: _courseId }) as Course,
+      ({ uuid: _courseId, status: Status.PUBLISHED }) as Course,
   );
   const startStandard = mock(
     async (_actorId: string, _pool: unknown, _ownerInfo: unknown) => {},
@@ -157,5 +157,26 @@ describe('CreateCourseWishUc', () => {
         uc.handle({ courseId: plainCourseId }, actorId),
       ).rejects.toThrow('Курс не найден');
     });
+  });
+
+  describe('курс не опубликован', () => {
+    const cases = [
+      ['draft', Status.DRAFT],
+      ['archived', Status.ARCHIVED],
+    ] as const;
+
+    for (const [label, status] of cases) {
+      test(`курс в статусе ${label} → COURSE_NOT_FOUND`, async () => {
+        const { getCourse, uc } = setupUc();
+        getCourse.mockResolvedValueOnce({
+          uuid: plainCourseId,
+          status,
+        } as Course);
+
+        await expect(
+          uc.handle({ courseId: plainCourseId }, actorId),
+        ).rejects.toThrow('Курс не найден');
+      });
+    }
   });
 });

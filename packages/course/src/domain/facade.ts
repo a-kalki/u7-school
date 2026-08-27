@@ -32,6 +32,16 @@ export interface CourseFacade {
   /** Найти курс, содержащий указанный модуль */
   getCourseByModuleId(moduleId: string): Promise<Course | undefined>;
 
+  /**
+   * Отфильтровать курсы, в программу которых входит модуль —
+   * в т.ч. исторически (форки, архивные курсы).
+   * Возвращает uuid тех из courseIds, которым модуль принадлежит.
+   */
+  filterCoursesContainingModule(
+    moduleId: string,
+    courseIds: string[],
+  ): Promise<string[]>;
+
   /** Получить модуль */
   getModule(moduleId: string): Promise<Module>;
 }

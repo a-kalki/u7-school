@@ -123,6 +123,7 @@
         "@u7-scl/core": "workspace:*",
         "@u7-scl/course": "workspace:*",
         "@u7-scl/questionnaire": "workspace:*",
+        "@u7-scl/stream": "workspace:*",
         "@u7-scl/user": "workspace:*",
       },
     },

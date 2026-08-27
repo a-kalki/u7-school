@@ -71,4 +71,83 @@ describe('CourseInProcFacade', () => {
 
     await expect(facade.getStep('bad-id')).rejects.toThrow('STEP_NOT_FOUND');
   });
+
+  describe('filterCoursesContainingModule', () => {
+    const moduleId = '33333333-3333-4333-8333-333333333333';
+
+    function makeCourse(
+      uuid: string,
+      moduleIds: string[],
+      status: Status = Status.PUBLISHED,
+    ) {
+      return {
+        uuid,
+        title: `Course ${uuid}`,
+        authorId: 'a1',
+        status,
+        phases: [{ title: 'P1', moduleIds }],
+        createdAt: '2026-01-01T00:00',
+      };
+    }
+
+    test('возвращает uuid курсов, чья программа содержит модуль', async () => {
+      const withModule = makeCourse('c-1', [moduleId]);
+      const withoutModule = makeCourse('c-2', ['other-module']);
+      const mockModule = {
+        execute: mock((name: string, cmd: { uuid: string }) => {
+          if (name !== 'get-course') throw new Error(`unexpected ${name}`);
+          return cmd.uuid === 'c-1'
+            ? Promise.resolve(withModule)
+            : Promise.resolve(withoutModule);
+        }),
+      };
+
+      const facade = new CourseInProcFacade(mockModule as any);
+      const result = await facade.filterCoursesContainingModule(moduleId, [
+        'c-1',
+        'c-2',
+      ]);
+
+      expect(result).toEqual(['c-1']);
+    });
+
+    test('архивный курс тоже учитывается (историческая принадлежность)', async () => {
+      const archived = makeCourse('c-arch', [moduleId], Status.ARCHIVED);
+      const mockModule = {
+        execute: mock(() => Promise.resolve(archived)),
+      };
+
+      const facade = new CourseInProcFacade(mockModule as any);
+      const result = await facade.filterCoursesContainingModule(moduleId, [
+        'c-arch',
+      ]);
+
+      expect(result).toEqual(['c-arch']);
+    });
+
+    test('несуществующий курс — пропускается без ошибки', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(undefined)),
+      };
+
+      const facade = new CourseInProcFacade(mockModule as any);
+      const result = await facade.filterCoursesContainingModule(moduleId, [
+        'nope',
+      ]);
+
+      expect(result).toEqual([]);
+    });
+
+    test('пустой список courseIds — пустой результат без обращения к модулю', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve([])),
+      };
+
+      const facade = new CourseInProcFacade(mockModule as any);
+      const result = await facade.filterCoursesContainingModule(moduleId, []);
+
+      expect(result).toEqual([]);
+      expect(mockModule.execute).not.toHaveBeenCalled();
+    });
+  });
 });

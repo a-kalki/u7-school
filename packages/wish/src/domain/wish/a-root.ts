@@ -76,4 +76,21 @@ export class WishAr extends Aggregate<WishArMeta> {
     }
     this.safeUpdate({ status: 'cancelled' });
   }
+
+  /**
+   * Реализует желание: expressed | confirmed → fulfilled
+   * (студент зачислен на поток курса — событие student.enrolled).
+   * Для pending реализация недоступна — сначала confirm (анкета).
+   */
+  fulfill(): void {
+    if (
+      this._state.status !== 'expressed' &&
+      this._state.status !== 'confirmed'
+    ) {
+      this.throwBadRequest(
+        'Реализовать можно только выраженное или подтверждённое желание',
+      );
+    }
+    this.safeUpdate({ status: 'fulfilled' });
+  }
 }
