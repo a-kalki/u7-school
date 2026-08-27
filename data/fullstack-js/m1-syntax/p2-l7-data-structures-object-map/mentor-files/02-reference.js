@@ -26,5 +26,7 @@ console.log('---');
 // Вложенные объекты: spread копирует только верхний уровень
 const nested = { a: 1, inner: { b: 2 } };
 const shallow = { ...nested };
+shallow.a = 5;
 shallow.inner.b = 999;
+console.log(nested.a);
 console.log(nested.inner.b);

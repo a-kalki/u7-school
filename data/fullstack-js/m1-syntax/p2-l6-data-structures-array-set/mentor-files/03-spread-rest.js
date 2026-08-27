@@ -18,8 +18,8 @@ console.log([0, ...a, 99]);
 console.log('---');
 
 // Rest — собирает оставшиеся в переменную
-const [first, _second, ...rest] = [10, 20, 30, 40];
-console.log(first);
+const [fItem, _second, ...rest] = [10, 20, 30, 40];
+console.log(fItem);
 console.log(rest);
 
 console.log('---');
