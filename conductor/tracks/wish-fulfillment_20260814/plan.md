@@ -4,8 +4,8 @@
 
 - [x] Task: Написать падающие тесты на `StudentAr.enroll` (добавляет событие) и публикацию в `enroll-student-uc` — 7ad0337e
 - [x] Task: Добавить `StudentEnrolledEvent`, `addEvent` в `StudentAr.enroll`, `publishEvents` в UC (и удалить шаг «снятие CANDIDATE») — 7ad0337e
-- [~] Task: Уведомление студенту при зачислении (tgFacade, сбой не откатывает) + тесты
-- [ ] Task: Conductor - Ручная верификация 'Событие student.enrolled'
+- [x] Task: Уведомление студенту при зачислении (tgFacade, сбой не откатывает) + тесты — 5976bf7
+- [x] Task: Conductor - Ручная верификация 'Событие student.enrolled' — план перенесён в release.md (§2) по директиве пользователя «не останавливаясь»
 
 ## Фаза 2: ER fulfill-wish
 

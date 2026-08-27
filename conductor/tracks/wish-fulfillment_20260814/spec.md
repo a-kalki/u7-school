@@ -31,6 +31,9 @@
 4. **`Role.CANDIDATE` удаляется полностью** из обоих enum (`user` и `app`), policy, UC и всех тестов/фикстур.
 5. **Миграция данных обязательна**: `UserJsonRepo` построен на `JsonFileRepo(UserSchema)` и валидирует записи при чтении — после удаления `CANDIDATE` из `RoleSchema` старые данные с этой ролью уронят загрузку пользователей (см. FR5).
 6. **Студент получает уведомление при зачислении** (`tgFacade`) — пользователь узнаёт, что его взяли в поток (см. FR6).
+7. **Принадлежность модуля курсу спрашивается у модуля курсов**: новый батч-метод `CourseFacade.filterCoursesContainingModule(moduleId, courseIds)` — course-модуль единственный знает свою внутреннюю структуру (форки, архивация). Событие `student.enrolled` НЕ несёт `courseId` — никаких снапшотов, вопрос задаётся источнику истины в момент обработки (см. FR2).
+8. **При создании желания курс должен быть `published`** — draft/archived отклоняются как `COURSE_NOT_FOUND` (см. FR7).
+9. **Историческая принадлежность модуля курсу через форки — вне рамок трека**: сейчас форков в коде нет, `filterCoursesContainingModule` проверяет только текущие `phases`; расширение до basedOn-цепочек зафиксировано в инициативе III content-management, Трек 4 (секция «Wish integration»).
 
 ## FR1 — Событие `student.enrolled` в stream
 
@@ -43,10 +46,11 @@
       studentId: string;   // uuid записи
       userId: string;      // uuid пользователя
       streamId: string;    // uuid потока
-      moduleId: string;    // uuid модуля потока (для резолва курса)
+      moduleId: string;    // uuid модуля потока (принадлежность курсу резолвит course-модуль по запросу, см. FR2)
     };
   }
   ```
+- Payload сознательно **без** `courseId` — никаких снапшотов курса в событии (решение 7).
 - `StudentAr.enroll(...)` — после создания добавлять событие через `addEvent` (поле `moduleId` взять из `StreamAr`/`streamEntity.moduleId`).
 - `enroll-student-uc` — после `studentRepo.save(...)` вызвать `this.publishEvents(studentAr)`; **удалить шаг 6** (снятие CANDIDATE).
 
@@ -62,11 +66,11 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 
 `handle(event)`:
 1. `const { userId, moduleId } = event.payload;`
-2. `const course = await courseFacade.getCourseByModuleId(moduleId);` (если курса нет — пропустить).
-3. Найти `Wish(userId, target = { kind: 'course', courseId: course.uuid })` со статусом `expressed` или `confirmed`; если нет — пропустить (идемпотентность).
-4. `wishAr.fulfill()` → сохранить (`status = 'fulfilled'`).
+2. `const wishes = await wishRepo.getByUser(userId);` → фильтр: `target.kind === 'course'`, статус `expressed | confirmed`. Нет кандидатов — выход (идемпотентность).
+3. Один батч-вызов: `const matched = await courseFacade.filterCoursesContainingModule(moduleId, courseIds-кандидатов)`.
+4. Для каждого желания с `courseId ∈ matched`: `wishAr.fulfill()` → сохранить (`status = 'fulfilled'`).
 
-Поиск — через `wishRepo.getByUserAndTarget(userId, target)` (целевая модель трека wish-lifecycle).
+ER не резолвит курс сам и не знает структуру курсов (форки/архивы) — спрашивает у course-модуля (решение 7). Желания на курсы из одной форк-семьи реализуются все — по сути это одно желание, размноженное форком.
 
 ## FR3 — Метод `WishAr.fulfill()` (дополнение к wish-lifecycle)
 
@@ -104,10 +108,16 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 - текст (тон «на ты», точная формулировка на имплементации): «🎓 Ты зачислен в поток „{название}"! Начинай учёбу: Моя учёба.»;
 - сбой отправки не откатывает зачисление (`try/catch` + лог).
 
+## FR7 — Проверка курса при создании желания
+
+`create-course-wish-uc`: курс должен существовать И иметь статус `published`. `draft`/`archived` → `COURSE_NOT_FOUND` (для студента недоступный курс = «не найден»; не плодим новую ошибку).
+
 ## Критерии приёмки
 
 - [ ] Зачисление публикует `student.enrolled` (payload с `moduleId`).
-- [ ] `fulfill-wish` помечает `Wish(expressed|confirmed)` как `fulfilled`; повторное событие идемпотентно.
+- [ ] `fulfill-wish` помечает `Wish(expressed|confirmed)` как `fulfilled` через батч-запрос `filterCoursesContainingModule`; повторное событие идемпотентно.
+- [ ] `filterCoursesContainingModule` реализован в `CourseFacade` + `CourseInProcFacade` (сейчас — проверка текущих `phases`, включая архивные курсы).
+- [ ] `create-course-wish-uc` отклоняет draft/archived курсы с `COURSE_NOT_FOUND`.
 - [ ] Шаг «снятие CANDIDATE» удалён из `enroll-student-uc`.
 - [ ] `Role.CANDIDATE` полностью удалён (enum user+app, policy, UC, тесты, seed); `grep CANDIDATE` пуст.
 - [ ] Миграция данных выполнена (`grep CANDIDATE data/` пуст; загрузка пользователей на старых данных работает).
@@ -118,6 +128,7 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 
 - UI (трек D).
 - Другие статусы/типы желаний (бэклог в `course/ui-spec.md`).
+- Историческая принадлежность модуля курсу через форки (content-management, Трек 4).
 
 ## Контекст и связанные документы
 
