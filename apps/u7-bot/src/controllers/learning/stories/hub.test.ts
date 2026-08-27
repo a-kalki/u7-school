@@ -250,3 +250,118 @@ describe('HubStory', () => {
     expect(response.sendMessage?.text).toContain('Неизвестное');
   });
 });
+
+// ── Подписка на student.enrolled ──
+
+describe('HubStory — подписка на student.enrolled', () => {
+  const session: SessionData = { activeHandler: null };
+
+  function makeEnrolledEvent() {
+    return {
+      eventId: 'ev-1',
+      eventName: 'student.enrolled' as const,
+      occurredAt: '2026-08-28T12:00:00.000Z',
+      aggregateName: 'Student' as const,
+      aggregateId: 'student-uuid',
+      payload: {
+        studentId: 'student-uuid',
+        userId: 'user-1',
+        streamId: '11111111-1111-1111-1111-111111111111',
+        moduleId: 'module-1',
+      },
+    };
+  }
+
+  function makeStoryWithSender(overrides: Record<string, unknown> = {}) {
+    const mockAppApi = {
+      execute: mock((name: string) => {
+        if (name in overrides) return overrides[name];
+        if (name === 'get-user')
+          return {
+            uuid: 'user-1',
+            name: 'Студент',
+            telegramId: 123,
+            roles: [Role.STUDENT],
+            createdAt: '2026-01-01T00:00:00.000Z',
+          };
+        if (name === 'get-stream')
+          return {
+            uuid: '11111111-1111-1111-1111-111111111111',
+            title: 'Поток по JS',
+          };
+        return undefined;
+      }),
+    };
+
+    const sender = {
+      send: mock(async () => {}),
+      notify: mock(async () => {}),
+    };
+
+    const story = new HubStory();
+    story.init({ appApi: mockAppApi } as never, sender as never);
+    return { story, sender };
+  }
+
+  test('getEventSubscriptions содержит подписку на student.enrolled', () => {
+    const { story } = makeStoryWithSender();
+    const subs = story.getEventSubscriptions();
+    expect(subs.some((s) => s.eventName === 'student.enrolled')).toBe(true);
+  });
+
+  test('событие → notify с текстом зачисления и кнопкой «Моя учёба»', async () => {
+    const { story, sender } = makeStoryWithSender();
+    const subs = story.getEventSubscriptions();
+    const sub = subs.find((s) => s.eventName === 'student.enrolled');
+
+    await sub!.handle(makeEnrolledEvent());
+
+    expect(sender.notify).toHaveBeenCalledTimes(1);
+    const [tgId, payload] = (sender.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [
+      number,
+      { text: string; keyboard?: { rows: { text: string; code: string }[][] } },
+    ];
+    expect(tgId).toBe(123);
+    expect(payload.text).toContain('зачислен');
+    expect(payload.text).toContain('Поток по JS');
+    const btn = payload.keyboard?.rows[0]?.[0];
+    expect(btn?.text).toContain('Моя учёба');
+    // код кнопки — этой стори, без префикса контроллера (его добавит BotController.notify)
+    expect(btn?.code).toBe('hub:my-study');
+  });
+
+  test('у пользователя нет telegramId — notify не вызывается', async () => {
+    const { story, sender } = makeStoryWithSender({
+      'get-user': {
+        uuid: 'user-1',
+        name: 'Студент',
+        telegramId: undefined,
+        roles: [Role.STUDENT],
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
+    const subs = story.getEventSubscriptions();
+    const sub = subs.find((s) => s.eventName === 'student.enrolled');
+
+    await sub!.handle(makeEnrolledEvent());
+
+    expect(sender.notify).not.toHaveBeenCalled();
+  });
+
+  test('сбой get-stream не мешает уведомлению (без названия потока)', async () => {
+    const { story, sender } = makeStoryWithSender({
+      'get-stream': Promise.reject(new Error('stream gone')),
+    });
+    const subs = story.getEventSubscriptions();
+    const sub = subs.find((s) => s.eventName === 'student.enrolled');
+
+    await sub!.handle(makeEnrolledEvent());
+
+    expect(sender.notify).toHaveBeenCalledTimes(1);
+    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [number, { text: string }];
+    expect(payload.text).toContain('зачислен');
+    expect(payload.text).not.toContain('Поток по JS');
+  });
+});

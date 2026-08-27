@@ -1,7 +1,14 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import type {
+  BotResponse,
+  BotUpdate,
+  SessionData,
+  UiEventSubscription,
+} from '@u7-scl/core/ui';
+import { eventSubscription } from '@u7-scl/core/ui';
+import type { StudentEnrolledEvent } from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
@@ -11,6 +18,51 @@ import { getStudent } from '../shared';
  */
 export class HubStory extends U7BotUiStory {
   readonly name = 'hub';
+
+  // ── Подписки на доменные события ──
+
+  override getEventSubscriptions(): UiEventSubscription[] {
+    return [
+      eventSubscription<StudentEnrolledEvent>('student.enrolled', (event) =>
+        this.#handleEnrolledEvent(event),
+      ),
+    ];
+  }
+
+  /** student.enrolled — уведомление «Ты зачислен» с кнопкой «Моя учёба» */
+  async #handleEnrolledEvent(event: StudentEnrolledEvent): Promise<void> {
+    const { userId, streamId } = event.payload;
+
+    // telegramId резолвится в стори — payload доменных событий без каналальных данных
+    const user = (await this.appApi.execute('get-user', {
+      uuid: userId,
+    })) as User;
+    if (!user?.telegramId) return;
+
+    // Название потока — необязательно: сбой загрузки не мешает уведомлению
+    let streamTitle: string | undefined;
+    try {
+      const stream = (await this.appApi.execute('get-stream', {
+        streamId,
+      })) as { title?: string };
+      streamTitle = stream?.title;
+    } catch {
+      streamTitle = undefined;
+    }
+
+    const where = streamTitle
+      ? ` в поток «${this.escapeMarkdown(streamTitle)}»`
+      : '';
+
+    await this.proactiveSender.notify(user.telegramId, {
+      text: `🎓 Ты зачислен${where}!\n\nНачинай учёбу — кнопка ниже.`,
+      parseMode: 'MarkdownV2',
+      keyboard: {
+        rows: [[{ text: '🎓 Моя учёба', code: this.cb('my-study') }]],
+        isMultiple: false,
+      },
+    });
+  }
 
   async handleCallback(
     action: string,
