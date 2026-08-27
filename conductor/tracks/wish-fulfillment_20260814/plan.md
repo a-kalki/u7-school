@@ -10,9 +10,9 @@
 ## Фаза 2: ER fulfill-wish
 
 - [ ] Task: Написать падающие тесты на `filterCoursesContainingModule` (фасад курсов) и `fulfill-wish` ER (батч-принадлежность, переход expressed|confirmed→fulfilled, идемпотентность)
-- [ ] Task: Реализовать `WishAr.fulfill()` + `FulfillWishEr` + `filterCoursesContainingModule` (CourseFacade + InProc) + регистрация в `WishApiModule.reactions`
-- [ ] Task: Проверка `published` курса в `create-course-wish-uc` (draft/archived → COURSE_NOT_FOUND) + тесты
-- [ ] Task: Conductor - Ручная верификация 'fulfill-wish'
+- [x] Task: Написать падающие тесты на `filterCoursesContainingModule` (фасад курсов) и `fulfill-wish` ER (батч-принадлежность, переход expressed|confirmed→fulfilled, идемпотентность) — beb59c3
+- [x] Task: Проверка `published` курса в `create-course-wish-uc` (draft/archived → COURSE_NOT_FOUND) + тесты — beb59c3
+- [x] Task: Conductor - Ручная верификация 'fulfill-wish' — план перенесён в release.md (§3)
 
 ## Фаза 3: Удаление роли CANDIDATE
 
