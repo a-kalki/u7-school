@@ -1,0 +1,8 @@
+{
+  "track_id": "wish-module_20260828",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-28T00:00:00Z",
+  "updated_at": "2026-08-28T00:00:00Z",
+  "description": "wish: желание на модуль + уведомления через события стори (удаление TgFacade)"
+}

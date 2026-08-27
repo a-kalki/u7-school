@@ -17,3 +17,8 @@
 
 - [ ] **Track: wish: приглашение желающим при открытии набора**
 *Link: [./tracks/wish-invite_20260827/](./tracks/wish-invite_20260827/)*
+
+---
+
+- [ ] **Track: wish: желание на модуль + уведомления через события стори (удаление TgFacade)**
+*Link: [./tracks/wish-module_20260828/](./tracks/wish-module_20260828/)*
