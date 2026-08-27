@@ -1,0 +1,10 @@
+Задача: Уведомление о зачислении (Фаза 2 трека wish-module)
+
+Изменения:
+- apps/u7-bot/src/controllers/learning/stories/hub.ts: подписка на student.enrolled, #handleEnrolledEvent
+- apps/u7-bot/src/controllers/learning/stories/hub.test.ts: 4 новых теста подписки
+- packages/stream/src/api/student/enroll-student-uc.ts: удалён шаг 7 (отправка через tgFacade)
+- packages/stream/src/api/student/enroll-student-uc.test.ts: удалены моки tgFacade и 2 теста уведомлений
+
+Решения: telegramId резолвится в стори (payload события без каналальных данных);
+название потока необязательно (сбой get-stream не мешает уведомлению).
