@@ -1,0 +1,24 @@
+Задачи 2.1–2.3: ER fulfill-wish + filterCoursesContainingModule + published-проверка
+
+Сводка:
+- CourseFacade.filterCoursesContainingModule(moduleId, courseIds) — новый метод фасада
+  курсов (решение 7 спеки): wish-ER не знает структуру курсов, а спрашивает.
+  Реализация через get-course (возвращает курс ЛЮБОГО статуса, включая archived) —
+  историческая принадлежность для архивных предков работает уже сейчас.
+- WishAr.fulfill(): expressed|confirmed → fulfilled; pending/cancelled/abandoned/fulfilled → ошибка.
+- FulfillWishEr (wish/api/er): подписка на student.enrolled; getByUser → фильтр
+  активных course-желаний → один батч-вызов фасада → fulfill всех совпавших.
+  Желания на курсы одной форк-семьи реализуются все.
+- create-course-wish-uc: курс обязан быть published (FR7); draft/archived → COURSE_NOT_FOUND.
+- wish/package.json: +зависимость @u7-scl/stream (тип события; прецедент — questionnaire).
+
+Тесты: +4 фасад (совпадение, archived, не найден, пустой список), +7 ER
+(expressed/confirmed → fulfilled, батч-вызов, неактивные исключены, нет совпадений,
+нет желаний, форк-семья), +5 WishAr.fulfill, +2 create (draft/archived).
+
+Файлы: course/src/domain/facade.ts, course/src/infra/course-in-proc-facade.{ts,test.ts},
+wish/src/api/er/fulfill-wish-er.{ts,test.ts}, wish/src/api/module.ts,
+wish/src/domain/wish/a-root.{ts,test.ts}, wish/src/api/wish/create-course-wish-uc.{ts,test.ts},
+wish/package.json, stream/src/domain/index.ts
+
+Тесты: bun test 1541 pass / 0 fail. TS OK во всех пакетах, biome чист.
