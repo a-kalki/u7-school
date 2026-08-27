@@ -98,6 +98,22 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // 6. Публикация доменного события (подписчики: ER fulfill-wish)
     this.publishEvents(studentAr);
 
+    // 7. Уведомление студенту (сбой отправки не откатывает зачисление)
+    try {
+      const user = await userFacade.getUserByUuid(command.userId);
+      if (user?.telegramId) {
+        await this.resolve.tgFacade.sendMessage(
+          user.telegramId,
+          `🎓 Ты зачислен в поток «${streamEntity.title}»! Начинай учёбу: Моя учёба.`,
+        );
+      }
+    } catch (error) {
+      console.error(
+        '[enroll-student] Не удалось отправить уведомление студенту:',
+        error,
+      );
+    }
+
     return undefined;
   }
 }
