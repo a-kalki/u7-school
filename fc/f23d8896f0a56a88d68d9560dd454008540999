@@ -1,0 +1,10 @@
+Задача: Уведомление о завершении с контекстными кнопками (Фаза 6 трека wish-module)
+
+Изменения:
+- packages/course: get-module-place-cmd.ts + get-module-place-uc.ts(+test) + регистрация; фасад getModulePlace делегирует в UC
+- apps/u7-bot/src/controllers/shared/routes.ts: Routes.course.wishModule
+- apps/u7-bot/src/controllers/shared/buttons.ts: buttons.wishModule
+- apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts(+test): обработчик wish
+- apps/u7-bot/src/controllers/learning/stories/hub.ts(+test): подписка student.completed
+
+Исправлен попутный баг: незкранированные ! и . в MarkdownV2 тексте зачисления (нашли при ревью, транспорт бы упал assert'ом).
