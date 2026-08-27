@@ -165,7 +165,7 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.advance();
+      ar.advance(mockModuleId);
       expect(ar.status).toBe('advanced');
 
       expect(() => ar.drop()).toThrow();
@@ -228,10 +228,38 @@ describe('StudentAr', () => {
       );
       ar.activate();
 
-      ar.advance();
+      ar.advance(mockModuleId);
       expect(ar.status).toBe('advanced');
       expect(ar.completionDetails).toEqual({
         nextPreference: 'undecided',
+      });
+    });
+
+    test('advance добавляет событие student.completed с outcome=advanced', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.flushEvents();
+
+      ar.advance(mockModuleId);
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+      const event = events[0]!;
+      expect(event.eventName).toBe('student.completed');
+      expect(event.aggregateName).toBe('Student');
+      expect(event.aggregateId).toBe(ar.state.uuid);
+      expect(event.payload).toEqual({
+        studentId: ar.state.uuid,
+        userId: mockUserId,
+        streamId: mockStreamId,
+        moduleId: mockModuleId,
+        outcome: 'advanced',
       });
     });
 
@@ -242,10 +270,10 @@ describe('StudentAr', () => {
         mockStepId,
         mockModuleId,
       );
-      expect(() => ar.advance()).toThrow();
+      expect(() => ar.advance(mockModuleId)).toThrow();
     });
 
-    test('сменить исход: not_advanced → advanced', () => {
+    test('сменить исход: not_advanced → advanced (событие не дублируется старым)', () => {
       const ar = StudentAr.enroll(
         mockStreamId,
         mockUserId,
@@ -253,11 +281,11 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.markNotAdvanced();
+      ar.markNotAdvanced(mockModuleId);
       expect(ar.status).toBe('not_advanced');
 
       // Меняем исход
-      ar.advance();
+      ar.advance(mockModuleId);
       expect(ar.status).toBe('advanced');
       expect(ar.completionDetails).toEqual({
         nextPreference: 'undecided',
@@ -275,10 +303,36 @@ describe('StudentAr', () => {
       );
       ar.activate();
 
-      ar.markNotAdvanced();
+      ar.markNotAdvanced(mockModuleId);
       expect(ar.status).toBe('not_advanced');
       expect(ar.completionDetails).toEqual({
         nextPreference: 'undecided',
+      });
+    });
+
+    test('markNotAdvanced добавляет событие student.completed с outcome=not_advanced', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.flushEvents();
+
+      ar.markNotAdvanced(mockModuleId);
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+      const event = events[0]!;
+      expect(event.eventName).toBe('student.completed');
+      expect(event.payload).toEqual({
+        studentId: ar.state.uuid,
+        userId: mockUserId,
+        streamId: mockStreamId,
+        moduleId: mockModuleId,
+        outcome: 'not_advanced',
       });
     });
 
@@ -289,7 +343,7 @@ describe('StudentAr', () => {
         mockStepId,
         mockModuleId,
       );
-      expect(() => ar.markNotAdvanced()).toThrow();
+      expect(() => ar.markNotAdvanced(mockModuleId)).toThrow();
     });
 
     test('сменить исход: advanced → not_advanced', () => {
@@ -300,11 +354,11 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.advance();
+      ar.advance(mockModuleId);
       expect(ar.status).toBe('advanced');
 
       // Меняем исход
-      ar.markNotAdvanced();
+      ar.markNotAdvanced(mockModuleId);
       expect(ar.status).toBe('not_advanced');
       expect(ar.completionDetails).toEqual({
         nextPreference: 'undecided',
@@ -321,7 +375,7 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.advance();
+      ar.advance(mockModuleId);
 
       ar.setNextPreference('wants_next');
       expect(ar.completionDetails?.nextPreference).toBe('wants_next');
@@ -335,7 +389,7 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.markNotAdvanced();
+      ar.markNotAdvanced(mockModuleId);
 
       ar.setNextPreference('wants_repeat');
       expect(ar.completionDetails?.nextPreference).toBe('wants_repeat');
@@ -509,7 +563,7 @@ describe('StudentAr', () => {
       ar.drop();
       expect(ar.status).toBe('abandoned');
 
-      expect(() => ar.advance()).toThrow();
+      expect(() => ar.advance(mockModuleId)).toThrow();
     });
 
     test('not_advanced → active — ошибка', () => {
@@ -520,7 +574,7 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.markNotAdvanced();
+      ar.markNotAdvanced(mockModuleId);
       expect(ar.status).toBe('not_advanced');
 
       expect(() => ar.activate()).toThrow();
@@ -534,7 +588,7 @@ describe('StudentAr', () => {
         mockModuleId,
       );
       ar.activate();
-      ar.advance();
+      ar.advance(mockModuleId);
       expect(ar.status).toBe('advanced');
 
       expect(() => ar.activate()).toThrow();

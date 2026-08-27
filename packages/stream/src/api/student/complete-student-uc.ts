@@ -56,10 +56,10 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
 
     switch (command.outcome) {
       case 'advanced':
-        studentAr.advance();
+        studentAr.advance(streamEntity.moduleId);
         break;
       case 'not_advanced':
-        studentAr.markNotAdvanced();
+        studentAr.markNotAdvanced(streamEntity.moduleId);
         break;
       case 'abandoned':
         studentAr.markAbandoned('by_mentor');
@@ -75,18 +75,8 @@ export class CompleteStudentUc extends StreamUseCase<CompleteStudentCmdMeta> {
       actorId,
     );
 
-    // Сообщение через TgFacade (только для advanced и not_advanced)
-    if (command.outcome !== 'abandoned') {
-      const tgFacade = this.resolve.tgFacade;
-      const user = await userFacade.getUserByUuid(studentEntity.userId);
-      if (user?.telegramId) {
-        const message =
-          command.outcome === 'advanced'
-            ? 'Ты завершил модуль. Хочешь записаться на следующий?'
-            : 'Ты завершил модуль, но не набрал проходной балл. Хочешь перезаписаться на этот же модуль?';
-        await tgFacade.sendMessage(user.telegramId, message);
-      }
-    }
+    // Публикация доменного события (подписчики: сторя hub — уведомление)
+    this.publishEvents(studentAr);
 
     return undefined;
   }

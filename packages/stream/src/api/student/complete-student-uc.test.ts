@@ -1,7 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
-import type { TgFacade } from '#domain/tg-facade';
 import { CompleteStudentUc } from './complete-student-uc';
 
 const mockDate = '2026-06-01T10:00';
@@ -73,24 +72,21 @@ describe('CompleteStudentUc', () => {
       registerGuest: mock(() => Promise.resolve({} as never)),
     };
 
-    const mockTgFacade: TgFacade = {
-      sendMessage: mock(() => Promise.resolve()),
-      sendBatch: mock(() => Promise.resolve()),
-    };
+    const mockEventBus = { publish: mock(() => {}) };
 
     const resolver = {
       streamRepo: mockStreamRepo,
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: mockTgFacade,
+      eventBus: mockEventBus,
     } as unknown as StreamApiModuleResolver;
 
-    return { resolver, mockStudentRepo, mockUserFacade, mockTgFacade };
+    return { resolver, mockStudentRepo, mockUserFacade, mockEventBus };
   }
 
-  test('ментор завершает студента → advanced + −STUDENT + сообщение', async () => {
-    const { resolver, mockStudentRepo, mockUserFacade, mockTgFacade } =
+  test('ментор завершает студента → advanced + −STUDENT + событие student.completed', async () => {
+    const { resolver, mockStudentRepo, mockUserFacade, mockEventBus } =
       createMocks();
 
     const uc = new CompleteStudentUc();
@@ -117,15 +113,23 @@ describe('CompleteStudentUc', () => {
       MENTOR_ID,
     );
 
-    // TgFacade.sendMessage вызван с telegramId студента
-    expect(mockTgFacade.sendMessage).toHaveBeenCalledWith(
-      12345,
-      'Ты завершил модуль. Хочешь записаться на следующий?',
-    );
+    // Публикуется событие student.completed с полным payload
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    const event = (mockEventBus.publish as ReturnType<typeof mock>).mock
+      .calls[0]![0];
+    expect(event.eventName).toBe('student.completed');
+    expect(event.aggregateName).toBe('Student');
+    expect(event.payload).toEqual({
+      studentId: STUDENT_ID,
+      userId: STUDENT_USER_ID,
+      streamId: STREAM_ID,
+      moduleId: '33333333-3333-4333-8333-333333333333',
+      outcome: 'advanced',
+    });
   });
 
-  test('ментор завершает → not_advanced + сообщение', async () => {
-    const { resolver, mockStudentRepo, mockUserFacade, mockTgFacade } =
+  test('ментор завершает → not_advanced + событие с outcome=not_advanced', async () => {
+    const { resolver, mockStudentRepo, mockUserFacade, mockEventBus } =
       createMocks();
 
     const uc = new CompleteStudentUc();
@@ -145,14 +149,13 @@ describe('CompleteStudentUc', () => {
     expect(saved.status).toBe('not_advanced');
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalled();
 
-    expect(mockTgFacade.sendMessage).toHaveBeenCalledWith(
-      12345,
-      'Ты завершил модуль, но не набрал проходной балл. Хочешь перезаписаться на этот же модуль?',
-    );
+    const event = (mockEventBus.publish as ReturnType<typeof mock>).mock
+      .calls[0]![0];
+    expect(event.payload.outcome).toBe('not_advanced');
   });
 
-  test('ментор завершает → abandoned БЕЗ сообщения', async () => {
-    const { resolver, mockStudentRepo, mockUserFacade, mockTgFacade } =
+  test('ментор завершает → abandoned БЕЗ события и сообщения', async () => {
+    const { resolver, mockStudentRepo, mockUserFacade, mockEventBus } =
       createMocks();
 
     const uc = new CompleteStudentUc();
@@ -172,8 +175,8 @@ describe('CompleteStudentUc', () => {
     expect(saved.status).toBe('abandoned');
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalled();
 
-    // abandoned — сообщение НЕ отправляется
-    expect(mockTgFacade.sendMessage).not.toHaveBeenCalled();
+    // abandoned — событие не публикуется
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   test('не-ментор → access denied', async () => {

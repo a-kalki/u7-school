@@ -21,3 +21,28 @@ export interface StudentEnrolledEvent extends DomainEvent {
     moduleId: string;
   };
 }
+
+/**
+ * Событие завершения студентом модуля потока.
+ *
+ * Публикуется агрегатом Student при advance()/markNotAdvanced().
+ * Подписчики стори формируют уведомления (текст/кнопки) по паре
+ * (outcome, место модуля в программе курса через фасад).
+ * Отчисление (abandoned) НЕ публикуется.
+ */
+export interface StudentCompletedEvent extends DomainEvent {
+  eventName: 'student.completed';
+  aggregateName: 'Student';
+  payload: {
+    /** uuid записи студента */
+    studentId: string;
+    /** uuid пользователя */
+    userId: string;
+    /** uuid потока */
+    streamId: string;
+    /** uuid завершённого модуля */
+    moduleId: string;
+    /** исход завершения */
+    outcome: 'advanced' | 'not_advanced';
+  };
+}

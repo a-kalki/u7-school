@@ -126,8 +126,9 @@ export class StudentAr extends Aggregate<StudentArMeta> {
   /**
    * Успешное завершение потока: active → advanced.
    * Также позволяет сменить исход с not_advanced → advanced.
+   * Добавляет доменное событие student.completed (публикуется UC'ом).
    */
-  advance(): void {
+  advance(moduleId: string): void {
     if (
       this._state.status !== 'active' &&
       this._state.status !== 'advanced' &&
@@ -141,13 +142,15 @@ export class StudentAr extends Aggregate<StudentArMeta> {
       status: 'advanced',
       completionDetails: { nextPreference: 'undecided' },
     });
+    this.#addCompletedEvent(moduleId, 'advanced');
   }
 
   /**
    * Завершение потока без повышения: active → not_advanced.
    * Также позволяет сменить исход с advanced → not_advanced.
+   * Добавляет доменное событие student.completed (публикуется UC'ом).
    */
-  markNotAdvanced(): void {
+  markNotAdvanced(moduleId: string): void {
     if (
       this._state.status !== 'active' &&
       this._state.status !== 'advanced' &&
@@ -160,6 +163,28 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     this.safeUpdate({
       status: 'not_advanced',
       completionDetails: { nextPreference: 'undecided' },
+    });
+    this.#addCompletedEvent(moduleId, 'not_advanced');
+  }
+
+  /** Добавляет событие завершения модуля (student.completed). */
+  #addCompletedEvent(
+    moduleId: string,
+    outcome: 'advanced' | 'not_advanced',
+  ): void {
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'student.completed',
+      occurredAt: isoNow(),
+      aggregateName: 'Student',
+      aggregateId: this._state.uuid,
+      payload: {
+        studentId: this._state.uuid,
+        userId: this._state.userId,
+        streamId: this._state.streamId,
+        moduleId,
+        outcome,
+      },
     });
   }
 
