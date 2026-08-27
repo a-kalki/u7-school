@@ -29,6 +29,8 @@
 2. **`fulfill-wish` — ER** в модуле wish, подписан на `student.enrolled`.
 3. **Шаг 6 в `enroll-student-uc` (снятие CANDIDATE) удаляется** — его заменяет публикация события.
 4. **`Role.CANDIDATE` удаляется полностью** из обоих enum (`user` и `app`), policy, UC и всех тестов/фикстур.
+5. **Миграция данных обязательна**: `UserJsonRepo` построен на `JsonFileRepo(UserSchema)` и валидирует записи при чтении — после удаления `CANDIDATE` из `RoleSchema` старые данные с этой ролью уронят загрузку пользователей (см. FR5).
+6. **Студент получает уведомление при зачислении** (`tgFacade`) — пользователь узнаёт, что его взяли в поток (см. FR6).
 
 ## FR1 — Событие `student.enrolled` в stream
 
@@ -87,12 +89,29 @@ interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
    - `apps/u7-bot/scripts/seed-fixtures.ts` (убрать `Role.CANDIDATE` из списка ролей dev-пользователя и текста).
 6. Убедиться: `grep -rn "CANDIDATE" packages/ apps/` не находит ссылок (кроме, возможно, исторических комментариев — их тоже убрать).
 
+## FR5 — Миграция данных: вычистить `CANDIDATE` из JSON-хранилищ
+
+`UserJsonRepo` валидирует записи схемой при чтении — старые записи с `"CANDIDATE"` сломают загрузку после удаления значения из `RoleSchema`.
+
+- Удалить роль из данных: `data/users/users.json`, `data/fixtures/users/users.json`, `data/fixtures/streams/users.json` (+ прод-данные `dbDir` из конфига при деплое).
+- Пользователи, у которых `CANDIDATE` была единственной ролью, теряют её без замены: информация о желании теперь живёт в `Wish`; ретроспективно желания для них не восстанавливаются (осознанно).
+- Критерий: `grep -rn "CANDIDATE" data/` — пусто; загрузка старых данных проходит.
+
+## FR6 — Уведомление студента при зачислении
+
+`enroll-student-uc` после успешного зачисления отправляет студенту сообщение через `tgFacade.sendMessage` (по аналогии с `complete-student-uc.ts`):
+
+- текст (тон «на ты», точная формулировка на имплементации): «🎓 Ты зачислен в поток „{название}"! Начинай учёбу: Моя учёба.»;
+- сбой отправки не откатывает зачисление (`try/catch` + лог).
+
 ## Критерии приёмки
 
 - [ ] Зачисление публикует `student.enrolled` (payload с `moduleId`).
 - [ ] `fulfill-wish` помечает `Wish(expressed|confirmed)` как `fulfilled`; повторное событие идемпотентно.
 - [ ] Шаг «снятие CANDIDATE» удалён из `enroll-student-uc`.
 - [ ] `Role.CANDIDATE` полностью удалён (enum user+app, policy, UC, тесты, seed); `grep CANDIDATE` пуст.
+- [ ] Миграция данных выполнена (`grep CANDIDATE data/` пуст; загрузка пользователей на старых данных работает).
+- [ ] Студент получает уведомление при зачислении; сбой отправки не откатывает зачисление.
 - [ ] `bun run check:p wish`, `check:p stream`, `check:p user`, `check:p app`, `check:a u7-bot` проходят.
 
 ## За рамками

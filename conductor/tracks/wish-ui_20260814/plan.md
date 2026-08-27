@@ -10,7 +10,7 @@
 
 - [ ] Task: Расширить `WISH_ALREADY_EXISTS` полем `status` желания (packages/wish) + тесты
 - [ ] Task: Написать падающие тесты на экраны W03 (мгновенно) и W04 (обе ветки: `pending` / `expressed`)
-- [ ] Task: Реализовать рендеринг W03/W04
+- [ ] Task: Реализовать рендеринг W03/W04 (+ кнопка «🗑️ Отменить желание» на W04 — вход в W05)
 - [ ] Task: Conductor - Ручная верификация 'Экраны W03/W04'
 
 ## Фаза 3: Продолжение анкеты (fill:resume) + completionText
@@ -19,6 +19,8 @@
 - [ ] Task: Реализовать ветку `resume` в FillStory + `Routes.questionnaire.resume(courseId)`
 - [ ] Task: Написать падающие тесты на проброс `completionText` в `CompletedResponse` и рендер в FillStory
 - [ ] Task: Пробросить `completionText` в `CompletedResponse` (packages/questionnaire) + рендер в FillStory
+- [ ] Task: Написать падающие тесты на прогресс «Вопрос N из M» и подсказку `/cancel` в первом вопросе
+- [ ] Task: Реализовать прогресс и подсказку в FillStory
 - [ ] Task: Conductor - Ручная верификация 'Продолжение анкеты + completionText'
 
 ## Фаза 4: Отмена W05 + обновление ui-spec
