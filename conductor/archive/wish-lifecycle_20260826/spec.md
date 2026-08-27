@@ -140,7 +140,7 @@ export function findCoursePool(courseId: string): QuestionnairePool | undefined;
 - [arch-boundary-design](../../.pi/skills/arch-boundary-design/SKILL.md) — где размещать логику.
 - [ddd-domain](../../.pi/skills/ddd-domain/SKILL.md), [ddd-api](../../.pi/skills/ddd-api/SKILL.md), [ddd-infra](../../.pi/skills/ddd-infra/SKILL.md), [ddd-naming](../../.pi/skills/ddd-naming/SKILL.md).
 - [Трек C1 (wish-module)](../../archive/wish-module_20260814/spec.md) — базовая модель агрегата, которую заменяет этот трек.
-- [Трек C2 (wish-fulfillment)](../wish-fulfillment_20260814/spec.md) — `fulfill()`, удаление `CANDIDATE` (зависит от новых статусов).
+- [Трек C2 (wish-fulfillment)](./wish-fulfillment_20260814/spec.md) — `fulfill()`, удаление `CANDIDATE` (зависит от новых статусов).
 - [Трек D (wish-ui)](../wish-ui_20260814/spec.md) — UI каталога курсов, контракт `create-course-wish`.
 - [metrics-system.md](../../metrics-system.md), [metrics-conception.md](../../metrics-conception.md) — технические правки (onboarding → wish).
 - [course/ui-spec.md](../../../apps/u7-bot/src/controllers/courses/ui-spec.md) — экраны W01–W05.

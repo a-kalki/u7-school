@@ -89,7 +89,7 @@
 ## Контекст и связанные документы
 
 - [arch-boundary-design](../../.pi/skills/arch-boundary-design/SKILL.md) — где размещать логику.
-- [Трек C2 wish-fulfillment](../wish-fulfillment_20260814/spec.md) — событие зачисления, fulfill-wish.
+- [Трек C2 wish-fulfillment](../../archive/wish-fulfillment_20260814/spec.md) — событие зачисления, fulfill-wish.
 - [Трек D wish-ui](../wish-ui_20260814/spec.md) — экраны W03–W05, cancel-флоу.
 - [Трек job-scheduler](../job-scheduler_20260827/spec.md) — планировщик (потенциальные повторные напоминания).
 - [view-stream.story.ts](../../apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts) — существующий флоу записи по ключу.
