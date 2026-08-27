@@ -1,0 +1,10 @@
+Задача: Событие student.completed (Фаза 3 трека wish-module)
+
+Изменения:
+- packages/stream/src/domain/student/events.ts: StudentCompletedEvent
+- packages/stream/src/domain/student/entity.ts: ArMeta.events расширен до union
+- packages/stream/src/domain/student/a-root.ts: advance(moduleId)/markNotAdvanced(moduleId) + #addCompletedEvent
+- packages/stream/src/api/student/complete-student-uc.ts: publishEvents вместо TgFacade
+- тесты агрегата и UC обновлены
+
+Решение: moduleId передаётся параметром (агрегат Student не хранит moduleId — он на Stream).
