@@ -1,0 +1,14 @@
+Задача 1.3: Уведомление студенту при зачислении
+
+Сводка:
+- enroll-student-uc: после публикации события — шаг 7: tgFacade.sendMessage(user.telegramId, текст).
+- Текст (тон «на ты», из FR6 спеки): «🎓 Ты зачислен в поток „<title>“! Начинай учёбу: Моя учёба.»
+- Сбой отправки не откатывает зачисление: try/catch + console.error (логгера в проекте нет — консольная диагностика, как в скриптах).
+- Не отправляет при отсутствии telegramId.
+- Тесты: +3 (отправка с проверкой текста, сбой не ломает execute, нет telegramId → не отправляет). tgFacade-мок добавлен во все 12 init-блоков тест-файла.
+
+Файлы:
+- packages/stream/src/api/student/enroll-student-uc.ts
+- packages/stream/src/api/student/enroll-student-uc.test.ts
+
+Тесты: bun test 1523 pass / 0 fail. TS OK, biome чист.
