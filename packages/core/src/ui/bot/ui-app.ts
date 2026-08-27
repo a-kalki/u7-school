@@ -6,6 +6,7 @@ import type {
   BotCommand,
   BotResponse,
   BotUpdate,
+  NotificationPayload,
   ProactiveSender,
   SessionData,
 } from './types';
@@ -67,6 +68,14 @@ export class BotUiApp<
   /** Проактивная отправка — делегирует в transport */
   async send(telegramId: number, command: BotCommand): Promise<void> {
     await this.transport.send(telegramId, command);
+  }
+
+  /** Проактивное уведомление — делегирует в transport */
+  async notify(
+    telegramId: number,
+    payload: NotificationPayload,
+  ): Promise<void> {
+    await this.transport.notify(telegramId, payload);
   }
 
   // ── Обработка callback ──

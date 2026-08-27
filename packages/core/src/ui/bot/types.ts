@@ -67,6 +67,20 @@ export interface BotResponse extends BotCommand {
 }
 
 /**
+ * Payload проактивного уведомления.
+ *
+ * В отличие от BotCommand — только контент сообщения: по построению
+ * без управления сессией (captureInput/releaseInput) и editMessage.
+ * Реализация транспорта обязана сохранить клавиатуру предыдущего
+ * экрана пользователя (keepPrevKeyboard) и не захватывать ввод.
+ */
+export interface NotificationPayload {
+  text: string;
+  keyboard?: KeyboardDescription;
+  parseMode?: 'MarkdownV2';
+}
+
+/**
  * Проактивный отправитель сообщений бота.
  *
  * Цепочка `transport → BotUiApp → BotController → BotUiStory`: каждый уровень
@@ -75,6 +89,9 @@ export interface BotResponse extends BotCommand {
  */
 export interface ProactiveSender {
   send(telegramId: number, command: BotCommand): Promise<void>;
+
+  /** Проактивное уведомление — не вмешивается в поток пользователя */
+  notify(telegramId: number, payload: NotificationPayload): Promise<void>;
 }
 
 /** Данные сессии пользователя с отслеживанием активного обработчика */

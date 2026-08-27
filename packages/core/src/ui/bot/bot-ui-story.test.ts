@@ -93,7 +93,10 @@ describe('BotUiStory', () => {
 
   describe('proactiveSender', () => {
     test('init сохраняет proactiveSender (родитель-контроллер)', () => {
-      const sender = { send: mock(async () => {}) };
+      const sender = {
+        send: mock(async () => {}),
+        notify: mock(async () => {}),
+      };
       story.init({} as never, sender);
       expect(story.savedSender).toBe(sender);
     });

@@ -4,7 +4,13 @@ import type { ApiModuleMeta, AppMeta } from '#domain/types';
 import { type Logger, LogLevel, setGlobalLogger } from '#shared/logger';
 import { BotController } from './bot-controller';
 import { BotUiStory } from './bot-ui-story';
-import type { BotCommand, BotResponse, BotUpdate, SessionData } from './types';
+import type {
+  BotCommand,
+  BotResponse,
+  BotUpdate,
+  NotificationPayload,
+  SessionData,
+} from './types';
 
 // Тестовый тип метаданных
 type TestModuleMeta = ApiModuleMeta & {
@@ -117,7 +123,10 @@ describe('BotController', () => {
 
   describe('init (proactiveSender)', () => {
     test('передаёт себя стори отдельным аргументом', () => {
-      const mockSender = { send: mock(async () => {}) };
+      const mockSender = {
+        send: mock(async () => {}),
+        notify: mock(async () => {}),
+      };
       ctrl.init({} as never, mockSender);
       expect(story1.initReceived).toBe(ctrl);
       expect(story2.initReceived).toBe(ctrl);
@@ -126,7 +135,10 @@ describe('BotController', () => {
 
   describe('send (ProactiveSender)', () => {
     test('префиксирует коды кнопок и делегирует в родителя', async () => {
-      const mockSender = { send: mock(async () => {}) };
+      const mockSender = {
+        send: mock(async () => {}),
+        notify: mock(async () => {}),
+      };
       ctrl.addStory(new TestStory('fill'));
       ctrl.init({} as never, mockSender);
 
@@ -147,6 +159,55 @@ describe('BotController', () => {
       expect(command.sendMessage?.keyboard?.rows[0]?.[0]?.code).toBe(
         'test_ctrl:fill:start:q1',
       );
+    });
+  });
+
+  describe('notify (ProactiveSender)', () => {
+    test('префиксирует кнопки уведомления и делегирует родителю', async () => {
+      const mockSender = {
+        send: mock(async () => {}),
+        notify: mock(async () => {}),
+      };
+      ctrl.addStory(new TestStory('hub'));
+      ctrl.init({} as never, mockSender);
+
+      await ctrl.notify(123, {
+        text: '🎓 Ты зачислен',
+        keyboard: {
+          rows: [[{ text: '🎓 Моя учёба', code: 'hub:my-study' }]],
+          isMultiple: false,
+        },
+      });
+
+      expect(mockSender.notify).toHaveBeenCalled();
+      const [tgId, payload] = (mockSender.notify as ReturnType<typeof mock>)
+        .mock.calls[0] as [number, NotificationPayload];
+      expect(tgId).toBe(123);
+      expect(payload.text).toBe('🎓 Ты зачислен');
+      expect(payload.keyboard?.rows[0]?.[0]?.code).toBe(
+        'test_ctrl:hub:my-study',
+      );
+    });
+
+    test('кросс-контроллерный код кнопки не префиксируется', async () => {
+      const mockSender = {
+        send: mock(async () => {}),
+        notify: mock(async () => {}),
+      };
+      ctrl.addStory(new TestStory('hub'));
+      ctrl.init({} as never, mockSender);
+
+      await ctrl.notify(123, {
+        text: 'Уведомление',
+        keyboard: {
+          rows: [[{ text: 'В каталог', code: 'app:main-menu' }]],
+          isMultiple: false,
+        },
+      });
+
+      const [, payload] = (mockSender.notify as ReturnType<typeof mock>).mock
+        .calls[0] as [number, NotificationPayload];
+      expect(payload.keyboard?.rows[0]?.[0]?.code).toBe('app:main-menu');
     });
   });
 

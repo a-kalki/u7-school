@@ -11,7 +11,7 @@ import { FillStory } from './fill.story';
  */
 function makeStory() {
   const story = new FillStory({} as QuestionnaireApiModule);
-  const sender = { send: mock(async () => {}) };
+  const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
   story.init({} as never, sender);
   return { story, sender };
 }

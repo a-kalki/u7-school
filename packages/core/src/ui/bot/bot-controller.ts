@@ -12,6 +12,7 @@ import type {
   BotResponse,
   BotUpdate,
   KeyboardDescription,
+  NotificationPayload,
   ProactiveSender,
   SessionData,
 } from './types';
@@ -65,6 +66,20 @@ export abstract class BotController<
       };
     }
     await this.proactiveSender.send(telegramId, prepared);
+  }
+
+  /** Проактивное уведомление — префиксирует кнопки, делегирует родителю */
+  async notify(
+    telegramId: number,
+    payload: NotificationPayload,
+  ): Promise<void> {
+    const prepared = this.#prefixCommand({
+      sendMessage: { ...payload },
+    }).sendMessage;
+    if (!prepared) {
+      throw new Error('NotificationPayload не сконвертирован в sendMessage');
+    }
+    await this.proactiveSender.notify(telegramId, prepared);
   }
 
   /** Сброс временных данных контроллера и всех стори */

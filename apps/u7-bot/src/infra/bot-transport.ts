@@ -1,6 +1,7 @@
 import {
   assertResponseMarkdownSafe,
   type BotCommand,
+  type NotificationPayload,
   type ProactiveSender,
   type SessionData,
 } from '@u7-scl/core/ui';
@@ -189,6 +190,31 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
           : undefined,
       };
     }
+
+    this.sessionMap.set(telegramId, session);
+  }
+
+  /**
+   * Проактивное уведомление — не вмешивается в поток пользователя:
+   * сохраняет клавиатуру предыдущего экрана (keepPrevKeyboard)
+   * и не трогает session.activeHandler.
+   */
+  async notify(
+    telegramId: number,
+    payload: NotificationPayload,
+  ): Promise<void> {
+    let session = this.sessionMap.get(telegramId);
+    if (!session) {
+      session = { activeHandler: null };
+    }
+
+    const command: BotCommand = {
+      sendMessage: { ...payload },
+      keepPrevKeyboard: true,
+    };
+
+    const compressed = this.compressCommand(command);
+    await this.execute(session, telegramId, compressed);
 
     this.sessionMap.set(telegramId, session);
   }

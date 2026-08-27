@@ -797,6 +797,124 @@ describe('BotTransport — send (proactive)', () => {
   });
 });
 
+// ── notify (proactive) ──
+
+describe('BotTransport — notify (proactive)', () => {
+  test('отправляет уведомление и НЕ удаляет клавиатуру предыдущего экрана', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+
+    // Пользователь смотрит каталог — его клавиатура не должна пострадать
+    sessionMap.set(123, {
+      activeHandler: null,
+      lastBotMessage: {
+        text: 'Каталог',
+        messageId: 42,
+        keyboard: {
+          rows: [[{ text: 'Курс 1', code: 'btn' }]],
+          isMultiple: false,
+        },
+      },
+    });
+
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await transport.notify(123, { text: '🎓 Ты зачислен' });
+
+    // Сообщение отправлено
+    expect(api.sendMessage).toHaveBeenCalled();
+    const call = (api.sendMessage as any).mock.calls[0];
+    expect(call[0]).toBe(123);
+    expect(call[1]).toBe('🎓 Ты зачислен');
+
+    // Клавиатура предыдущего сообщения сохранена — removal не вызывался
+    const editCalls = (api.editMessageText as any).mock.calls;
+    const removalCall = editCalls.find(
+      (c: any[]) => c[3]?.reply_markup === undefined,
+    );
+    expect(removalCall).toBeUndefined();
+
+    // И сама клавиатура в сессии не стёрта
+    expect(sessionMap.get(123)?.lastBotMessage).toBeDefined();
+  });
+
+  test('не трогает session.activeHandler при активном вводе', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+
+    const activeHandler = {
+      path: 'questionnaire/fill',
+      context: { questionnaireId: 'q1' },
+    };
+    sessionMap.set(123, { activeHandler });
+
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await transport.notify(123, { text: 'Уведомление' });
+
+    expect(sessionMap.get(123)?.activeHandler).toBe(activeHandler);
+  });
+
+  test('создаёт сессию, если её нет', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await transport.notify(456, { text: 'Привет' });
+
+    const session = sessionMap.get(456);
+    expect(session).toBeDefined();
+    expect(session?.activeHandler).toBeNull();
+  });
+
+  test('передаёт клавиатуру и parseMode уведомления', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await transport.notify(123, {
+      text: '*Уведомление*',
+      parseMode: 'MarkdownV2',
+      keyboard: {
+        rows: [[{ text: 'Моя учёба', code: 'learning:hub:my-study' }]],
+        isMultiple: false,
+      },
+    });
+
+    const call = (api.sendMessage as any).mock.calls[0];
+    expect(call[2]?.parse_mode).toBe('MarkdownV2');
+    expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
+      'learning:hub:my-study',
+    );
+  });
+
+  test('сжимает UUID в кнопках уведомления', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+
+    await transport.notify(123, {
+      text: 'Следующий модуль',
+      keyboard: {
+        rows: [[{ text: 'Далее', code: `course:wish:${uuid}` }]],
+        isMultiple: false,
+      },
+    });
+
+    const call = (api.sendMessage as any).mock.calls[0];
+    expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
+      'course:wish:~a1b2c3d4',
+    );
+  });
+});
+
 // ── handleStart / handleCancel / handleHelp ──
 
 describe('BotTransport — handleStart, handleCancel, handleHelp', () => {

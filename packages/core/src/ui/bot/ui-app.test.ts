@@ -1,6 +1,12 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { BotController } from './bot-controller';
-import type { BotCommand, BotResponse, BotUpdate, SessionData } from './types';
+import type {
+  BotCommand,
+  BotResponse,
+  BotUpdate,
+  NotificationPayload,
+  SessionData,
+} from './types';
 import { BotUiApp } from './ui-app';
 
 // ── Тестовый контроллер ──
@@ -131,7 +137,10 @@ describe('BotUiApp', () => {
     ctrl.name = 'stream';
 
     const app = new BotUiApp([ctrl]);
-    const transport = { send: mock(async () => {}) };
+    const transport = {
+      send: mock(async () => {}),
+      notify: mock(async () => {}),
+    };
     app.init(makeResolve(makeActor()), transport);
 
     const command: BotCommand = { sendMessage: { text: 'Привет' } };
@@ -144,12 +153,42 @@ describe('BotUiApp', () => {
     expect(sent).toEqual(command);
   });
 
+  test('notify делегирует в transport без изменений payload', async () => {
+    const ctrl = new TestController();
+    ctrl.name = 'stream';
+
+    const app = new BotUiApp([ctrl]);
+    const transport = {
+      send: mock(async () => {}),
+      notify: mock(async () => {}),
+    };
+    app.init(makeResolve(makeActor()), transport);
+
+    const payload: NotificationPayload = {
+      text: 'Ты зачислен',
+      keyboard: {
+        rows: [[{ text: '🎓 Моя учёба', code: 'hub:my-study' }]],
+        isMultiple: false,
+      },
+    };
+    await app.notify(456, payload);
+
+    expect(transport.notify).toHaveBeenCalled();
+    const [tgId, sent] = (transport.notify as ReturnType<typeof mock>).mock
+      .calls[0] as [number, NotificationPayload];
+    expect(tgId).toBe(456);
+    expect(sent).toEqual(payload);
+  });
+
   test('init передаёт себя контроллерам', () => {
     const ctrl = new TestController();
     ctrl.name = 'stream';
 
     const app = new BotUiApp([ctrl]);
-    const transport = { send: mock(async () => {}) };
+    const transport = {
+      send: mock(async () => {}),
+      notify: mock(async () => {}),
+    };
     app.init(makeResolve(makeActor()), transport);
 
     expect(ctrl.initReceived).toBe(app);
