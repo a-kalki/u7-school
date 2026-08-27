@@ -13,6 +13,5 @@ export * from './student/entity';
 export * from './student/events';
 export * from './student/policy';
 export * from './student/repo';
-export * from './tg-facade';
 export * from './types';
 export const STREAM_DOMAIN_VERSION = '1.0.0';

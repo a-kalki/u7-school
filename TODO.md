@@ -102,7 +102,6 @@
 - UC: `complete-student` (ментор), `drop-student` (self), `mark-abandoned` (mentor).
 - `CompleteStreamUc`: при завершении потока active/enrolled → `completed`, снять `STUDENT`.
 - `User.nick` (опц. поле).
-- `TgFacade` (порт в `core`, реализация в `app`) — в resolver доменных модулей.
 - Confirm-хелпер в `core/ui` (формализовать convention `action`/`action-confirm`).
 - Миграция: `dropped`→`abandoned(voluntary)`, `expelled`→`abandoned(by_mentor)` — на месте.
 - Bug: `statusLabels` в `MonitorStory` (`dropped`→`expelled`) — будет заменён на новые статусы.
@@ -146,7 +145,7 @@
 - История шагов студента (S08 `history:*`) — сейчас заглушка.
 
 ## Бэклог (не планируется в ближайших релизах)
-- Broadcast при запуске потока + произвольная рассылка ментором (требует `TgFacade`, уже в фундаменте).
+- Broadcast при запуске потока + произвольная рассылка ментором (через подписки стори на события / notify).
 - Сбор обратной связи (мини-опрос после урока/проекта).
 - Типы шагов (тест/квиз, практическое задание с ревью).
 - Заморозка студента (академический отпуск).

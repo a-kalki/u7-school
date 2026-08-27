@@ -42,8 +42,8 @@
 ## FR2 — ER `invite-wishers` в wish
 
 - `packages/wish/src/api/er/invite-wishers-er.ts`, подписан на `stream.created`:
-  1. `course = await courseFacade.getCourseByModuleId(moduleId)`; курса нет — пропуск.
-  2. `wishes = wishRepo.getByTarget({ kind: 'course', courseId })` (новый метод, FR4), фильтр активных: `expressed | confirmed`.
+  1. `place = await courseFacade.getModulePlace(moduleId)`; места нет (модуль вне опубликованных курсов) — пропуск. Идентичность и связи модуль↔курс решает только модуль курсов (см. фасадную модель трека wish-module).
+  2. Два вида желающих: course-wishes курса `place.courseId` (при `place.isFirst` — это набор на стартовый модуль, зовём желающих курса) и module-wishes, совпадающие с `moduleId` по `isSameModule` (набор на следующий/тот же модуль). Поиск: `wishRepo.getByTarget(target)` (новый метод, FR4), фильтр активных: `expressed | confirmed`.
   3. Для каждого — публикация события:
   ```ts
   interface WishInviteEvent extends DomainEvent {
@@ -56,7 +56,7 @@
 
 ## FR3 — UI: приглашение в боте
 
-- Подписка на `wish:invite` (место — streams-контроллер, т.к. основная кнопка ведёт на экран потока; итоговое место стори — по arch-boundary-design на имплементации) → `ProactiveSender.send`:
+- Подписка на `wish:invite` (место — streams-контроллер, т.к. основная кнопка ведёт на экран потока; итоговое место стори — по arch-boundary-design на имплементации) → `ProactiveSender.notify` (уведомление не вмешивается в поток пользователя — см. `notify()` в bot-architecture.md):
   ```
   📣 Открылся набор на курс, который ты хотел пройти!
   ```

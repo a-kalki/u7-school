@@ -60,8 +60,7 @@ apps/u7-bot/
         routes.ts                 # Routes — канонические кросс-контроллерные маршруты
         buttons.ts                # Готовые кнопки (buttons.mainMenu и др.)
     infra/
-      bot-transport.ts            # BotTransport — транспорт/исполнение (сессии, сжатие UUID, execute/send)
-      telegram-tg-facade.ts       # Telegram TgFacade
+      bot-transport.ts            # BotTransport — транспорт/исполнение (сессии, сжатие UUID, execute/send/notify)
       questionnaire-bot-facade.ts # Proactive-фасад анкеты (transport.send)
       logger/                     # TelegramLogger
   tests/

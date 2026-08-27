@@ -22,7 +22,6 @@ import {
   StreamJsonRepo,
   StudentJsonRepo,
 } from '@u7-scl/stream';
-import type { TgFacade } from '@u7-scl/stream/domain';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import { WishApiModule } from '@u7-scl/wish/api';
@@ -51,11 +50,7 @@ export interface ApiAppBundle {
  *
  * НЕ создаёт контроллеры — это ответственность createUiApp().
  */
-export function createApiApp(
-  config: BotConfig,
-  logger: Logger,
-  tgFacade: TgFacade,
-): ApiAppBundle {
+export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
   const db = new BaseJsonDb();
 
   const appLogger = logger ?? new ConsoleLogger();
@@ -143,7 +138,6 @@ export function createApiApp(
     streamStudentRepo,
     userFacade,
     courseFacade,
-    tgFacade,
     appResolver,
     eventBus: appResolver.eventBus,
   });

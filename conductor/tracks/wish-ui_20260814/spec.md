@@ -6,6 +6,13 @@ UI «желания пройти курс» встраивается в **кат
 
 Экраны и кнопки описаны в `apps/u7-bot/src/controllers/courses/ui-spec.md` (раздел «Желание пройти курс», экраны W01–W05).
 
+> **Обновление (трек wish-module, 2026-09):** фасад курса перешёл на вопросительные
+> доменные методы (`isCourseEnrollable`, `getCourseStartModuleId`, `getModulePlace`,
+> `isSameModule`, `whichCoursesIncludeModule`) — валидация UC `create-course-wish`
+> идёт через них. Появился UC `create-module-wish` (target `{kind:'module'}`,
+> без анкеты) и кросс-контроллерная кнопка `buttons.wishModule(moduleId)` /
+> `Routes.course.wishModule` — переиспользовать для новых кнопок желания.
+
 Зависит от: **C1** (UC `create-course-wish`/`cancel-wish` — контракт закреплён в треке wish-lifecycle), **B** (события/ownerInfo анкеты), а также рендер анкеты через `FillStory` + `ProactiveSender` (подписка на `questionnaire:start`/`questionnaire:invite`, треки `ui-event-subscriptions_20260816` и `ui-proactive-sender_20260816`).
 
 ## Текущее состояние (базовая линия)

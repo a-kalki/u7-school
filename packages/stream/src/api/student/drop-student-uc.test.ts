@@ -1,7 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { Role } from '@u7-scl/user/domain';
 import type { StreamApiModuleResolver } from '#domain/module';
-import type { TgFacade } from '#domain/tg-facade';
 import { DropStudentUc } from './drop-student-uc';
 
 const mockDate = '2026-06-01T10:00';
@@ -44,18 +43,12 @@ describe('DropStudentUc', () => {
       registerGuest: mock(() => Promise.resolve({} as never)),
     };
 
-    const mockTgFacade: TgFacade = {
-      sendMessage: mock(() => Promise.resolve()),
-      sendBatch: mock(() => Promise.resolve()),
-    };
-
     const uc = new DropStudentUc();
     uc.init({
       streamRepo: {},
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: mockTgFacade,
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
@@ -118,7 +111,6 @@ describe('DropStudentUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await expect(
@@ -166,7 +158,6 @@ describe('DropStudentUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await expect(

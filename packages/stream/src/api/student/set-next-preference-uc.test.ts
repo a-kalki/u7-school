@@ -45,7 +45,6 @@ describe('SetNextPreferenceUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
@@ -102,7 +101,6 @@ describe('SetNextPreferenceUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
@@ -154,7 +152,6 @@ describe('SetNextPreferenceUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await expect(
@@ -203,7 +200,6 @@ describe('SetNextPreferenceUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await expect(

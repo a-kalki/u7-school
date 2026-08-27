@@ -18,14 +18,12 @@ import type { GetStudentProgressCmdMeta } from './student/commands/get-student-p
 import type { MarkAbandonedCmdMeta } from './student/commands/mark-abandoned-cmd';
 import type { SetNextPreferenceCmdMeta } from './student/commands/set-next-preference-cmd';
 import type { StudentRepo } from './student/repo';
-import type { TgFacade } from './tg-facade';
 
 export interface StreamApiModuleResolver extends ModuleResolver {
   streamRepo: StreamRepo;
   streamStudentRepo: StudentRepo;
   userFacade: UserFacade;
   courseFacade: CourseFacade;
-  tgFacade: TgFacade;
 }
 
 export interface StreamApiModuleMeta {

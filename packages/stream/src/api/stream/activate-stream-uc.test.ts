@@ -85,7 +85,6 @@ describe('ActivateStreamUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
@@ -191,7 +190,6 @@ describe('ActivateStreamUc', () => {
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
-      tgFacade: {},
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(

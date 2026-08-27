@@ -192,6 +192,17 @@ Grammy ctx (callback_query.data)
 применяет `captureInput`/`releaseInput` и сжатие (`compressCommand`), т.к.
 проактивная отправка минует обработчики `BotUiApp.handleCallback`/`handleMessage`.
 
+**Уведомления** — отдельный тип команды `notify(telegramId, NotificationPayload)`
+(тот же интерфейс `ProactiveSender`, тот же `types.ts`). В отличие от `send`
+уведомление не вмешивается в поток пользователя: `BotTransport.notify()`
+передаёт `keepPrevKeyboard: true` (клавиатура предыдущего экрана сохраняется)
+и не трогает `session.activeHandler` (без `captureInput`/`releaseInput`).
+`BotController.notify()` префиксирует кнопки. Источник уведомлений — подписки
+стори на доменные события (`UiStory.getEventSubscriptions()` +
+`uiApp.subscribeEvents()`), telegramId резолвится в стори через
+`appApi.execute('user', 'get-user')`. Домен НИКОГДА не отправляет
+пользовательские тексты — никаких Telegram-портов в `packages/*`.
+
 ---
 
 ## 4. Формат `callback_data` и сжатие
@@ -220,7 +231,7 @@ Grammy ctx (callback_query.data)
 1. `config = loadConfig()`.
 2. `sessionMap = new Map<number, SessionData>()`.
 3. `bot = createBot(config.botToken, sessionMap)`.
-4. `apiBundle = createApiApp(config, logger, tgFacade)` — доменные модули + репозитории.
+4. `apiBundle = createApiApp(config, logger)` — доменные модули + репозитории (без Telegram-портов).
 5. `createUiApp(apiApp, apiBundle, config)` — все контроллеры + `U7BotUiApp`,
    `uiApp.init(resolve)` — каскадная инициализация по дереву (resolve = `{ eventBus, actorResolver, appApi, uiApp }`).
 6. `transport = new BotTransport(uiApp, bot.api, sessionMap)`.

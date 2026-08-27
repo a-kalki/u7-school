@@ -529,7 +529,7 @@ describe('CourseCatalogStory', () => {
 
   test('projects: несуществующий модуль — ошибка', async () => {
     const appApi = {
-      execute: mock(async (ucName: string, attrs: Record<string, unknown>) => {
+      execute: mock(async (ucName: string, _attrs: Record<string, unknown>) => {
         if (ucName === 'get-module-snapshot') {
           throw Object.assign(new Error('Модуль не найден'), {
             name: 'MODULE_NOT_FOUND',

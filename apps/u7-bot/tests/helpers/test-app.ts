@@ -15,30 +15,10 @@ import {
   StreamJsonRepo,
   StudentJsonRepo,
 } from '@u7-scl/stream';
-import type { TgFacade } from '@u7-scl/stream/domain';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
 import type { FixturePaths } from './fixture-loader';
 import { cleanupFixtures, loadFixtures } from './fixture-loader';
-
-/** Подставной TgFacade для тестов — записывает вызовы sendMessage */
-export class MockTgFacade implements TgFacade {
-  calls: { telegramId: number; text: string }[] = [];
-
-  async sendMessage(telegramId: number, text: string): Promise<void> {
-    this.calls.push({ telegramId, text });
-  }
-
-  async sendBatch(telegramIds: number[], text: string): Promise<void> {
-    for (const id of telegramIds) {
-      this.calls.push({ telegramId: id, text });
-    }
-  }
-
-  reset(): void {
-    this.calls = [];
-  }
-}
 
 export interface TestApp {
   /** Полноценный ApiApp со всеми модулями */
@@ -51,8 +31,6 @@ export interface TestApp {
   userFacade: UserInProcFacade;
   /** Фасад курсов */
   courseFacade: CourseInProcFacade;
-  /** Подставной tgFacade с записью вызовов */
-  tgFacade: MockTgFacade;
   /** Пути к временным фикстурам */
   fixtures: FixturePaths;
   /** Удаляет временную директорию с фикстурами */
@@ -109,14 +87,11 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   });
   const courseFacade = new CourseInProcFacade(courseModule);
 
-  const tgFacade = new MockTgFacade();
-
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo: studentRepo,
     userFacade,
     courseFacade,
-    tgFacade,
     appResolver,
     eventBus: appResolver.eventBus,
   });
@@ -133,7 +108,6 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     courseModule,
     userFacade,
     courseFacade,
-    tgFacade,
     fixtures,
     cleanup: () => cleanupFixtures(fixtures),
   };

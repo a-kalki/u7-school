@@ -16,7 +16,6 @@ import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
-import { TelegramTgFacade } from './infra/telegram-tg-facade';
 
 const config = loadConfig();
 
@@ -34,9 +33,8 @@ setGlobalLogger(loggers);
 const logger = loggers;
 
 const bot = createBot(config.botToken, sessionMap);
-const tgFacade = new TelegramTgFacade(bot);
 
-const apiBundle = createApiApp(config, logger, tgFacade);
+const apiBundle = createApiApp(config, logger);
 const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp ══
