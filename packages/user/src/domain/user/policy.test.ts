@@ -177,10 +177,6 @@ describe('UserPolicy', () => {
       expect(UserPolicy.canAddRole(guest, guest, Role.STUDENT)).toBe(true);
     });
 
-    test('GUEST может добавить себе роль CANDIDATE (после анкеты)', () => {
-      expect(UserPolicy.canAddRole(guest, guest, Role.CANDIDATE)).toBe(true);
-    });
-
     test('GUEST НЕ может добавить себе роль ADMIN', () => {
       expect(UserPolicy.canAddRole(guest, guest, Role.ADMIN)).toBe(false);
     });
@@ -222,13 +218,6 @@ describe('UserPolicy', () => {
       expect(UserPolicy.canRemoveRole(student, student, Role.STUDENT)).toBe(
         true,
       );
-    });
-
-    test('пользователь может удалить CANDIDATE у себя', () => {
-      const candidate = { ...guest, roles: [Role.CANDIDATE] };
-      expect(
-        UserPolicy.canRemoveRole(candidate, candidate, Role.CANDIDATE),
-      ).toBe(true);
     });
 
     test('ADMIN может удалить любую роль, включая у себя', () => {

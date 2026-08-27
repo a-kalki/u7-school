@@ -18,10 +18,6 @@ export const UserPolicy = {
     return actor.roles.includes(Role.SUBSCRIBER);
   },
 
-  isCandidate(actor: User): boolean {
-    return actor.roles.includes(Role.CANDIDATE);
-  },
-
   isGuest(actor: User): boolean {
     return actor.roles.includes(Role.GUEST);
   },
@@ -49,23 +45,23 @@ export const UserPolicy = {
   /**
    * ADMIN может добавлять любую роль любому пользователю.
    * MENTOR может добавить роль STUDENT любому пользователю.
-   * Обычный пользователь — роли STUDENT и CANDIDATE самому себе.
+   * Обычный пользователь — роль STUDENT самому себе.
    */
   canAddRole(actor: User, target: User, role: Role): boolean {
     if (this.isAdmin(actor)) return true;
     if (this.isMentor(actor) && role === Role.STUDENT) return true;
     if (actor.uuid !== target.uuid) return false;
-    return role === Role.STUDENT || role === Role.CANDIDATE;
+    return role === Role.STUDENT;
   },
   /**
    * ADMIN может удалять любую роль у любого пользователя.
    * MENTOR может снять роль STUDENT у любого пользователя.
-   * Обычный пользователь — роли STUDENT и CANDIDATE у самого себя.
+   * Обычный пользователь — роль STUDENT у самого себя.
    */
   canRemoveRole(actor: User, target: User, role: Role): boolean {
     if (this.isAdmin(actor)) return true;
     if (this.isMentor(actor) && role === Role.STUDENT) return true;
     if (actor.uuid !== target.uuid) return false;
-    return role === Role.STUDENT || role === Role.CANDIDATE;
+    return role === Role.STUDENT;
   },
 };

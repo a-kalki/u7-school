@@ -27,7 +27,6 @@ describe('CommunityStory', () => {
     const roles = [
       Role.GUEST,
       Role.SUBSCRIBER,
-      Role.CANDIDATE,
       Role.STUDENT,
       Role.MENTOR,
       Role.ADMIN,

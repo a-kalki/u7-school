@@ -8,7 +8,7 @@
  * Что делает:
  *   1. Копирует apps/u7-bot/tests/fixtures/templates/ → data/fixtures/
  *   2. Находит ментора (UUID 4444...) и привязывает к DEV_TELEGRAM_ID
- *   3. Даёт ему все роли: GUEST, CANDIDATE, STUDENT, MENTOR, AUTHOR, ADMIN
+ *   3. Даёт ему все роли: GUEST, STUDENT, MENTOR, AUTHOR, ADMIN
  *   4. Привязывает студента в потоке к этому же пользователю
  */
 
@@ -57,7 +57,7 @@ async function main() {
   console.log('   DB_DIR=./data/fixtures bun run apps/u7-bot/src/main.ts');
   console.log('');
   console.log(
-    '📋 Роли dev-пользователя: GUEST, CANDIDATE, STUDENT, MENTOR, AUTHOR, ADMIN',
+    '📋 Роли dev-пользователя: GUEST, STUDENT, MENTOR, AUTHOR, ADMIN',
   );
   console.log('📋 Ты ментор потоков: JS Core Поток 1–4');
   console.log('📋 Ты студент в потоке: JS Core Поток 2 (Активный)');
@@ -100,7 +100,6 @@ async function patchUsers(devId: number) {
   mentor.telegramId = devId;
   mentor.roles = [
     Role.GUEST,
-    Role.CANDIDATE,
     Role.STUDENT,
     Role.MENTOR,
     Role.AUTHOR,

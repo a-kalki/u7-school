@@ -6,7 +6,6 @@ describe('Роли пользователей (Roles)', () => {
   test('должны быть определены все роли', () => {
     expect(Role.GUEST as string).toBe('GUEST');
     expect(Role.SUBSCRIBER as string).toBe('SUBSCRIBER');
-    expect(Role.CANDIDATE as string).toBe('CANDIDATE');
     expect(Role.STUDENT as string).toBe('STUDENT');
     expect(Role.MENTOR as string).toBe('MENTOR');
     expect(Role.AUTHOR as string).toBe('AUTHOR');
@@ -20,7 +19,6 @@ describe('Роли пользователей (Roles)', () => {
   test('RoleSchema должна пропускать валидные значения ролей', () => {
     expect(v.safeParse(RoleSchema, Role.GUEST).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.SUBSCRIBER).success).toBe(true);
-    expect(v.safeParse(RoleSchema, Role.CANDIDATE).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.STUDENT).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.MENTOR).success).toBe(true);
     expect(v.safeParse(RoleSchema, Role.AUTHOR).success).toBe(true);

@@ -122,12 +122,12 @@ describe('UserAr', () => {
     test('добавляет несколько разных ролей последовательно', () => {
       const ar = UserAr.register({ name: 'Вика', telegramId: 111 });
       ar.addRole(Role.SUBSCRIBER);
-      ar.addRole(Role.CANDIDATE);
+      ar.addRole(Role.STUDENT);
       ar.addRole(Role.SUBSCRIBER); // дубль — игнорируется
       expect(ar.state.roles).toEqual([
         Role.GUEST,
         Role.SUBSCRIBER,
-        Role.CANDIDATE,
+        Role.STUDENT,
       ]);
     });
   });

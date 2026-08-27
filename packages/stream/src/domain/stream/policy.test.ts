@@ -103,12 +103,12 @@ describe('StreamPolicy', () => {
     expect(StreamPolicy.canEnroll(actor)).toBe(true);
   });
 
-  test('canEnroll — true для CANDIDATE', () => {
+  test('canEnroll — true для SUBSCRIBER', () => {
     const actor = {
       uuid: 'a1',
-      name: 'Candidate',
+      name: 'Subscriber',
       telegramId: 12,
-      roles: [Role.CANDIDATE],
+      roles: [Role.SUBSCRIBER],
       createdAt: '2026-01-01T00:00:00Z',
     };
     expect(StreamPolicy.canEnroll(actor)).toBe(true);

@@ -6,7 +6,6 @@ import * as v from 'valibot';
  * Роли пользователей платформы u7-school.
  * - GUEST: гость, только что начавший взаимодействие с ботом
  * - SUBSCRIBER: подписчик Telegram-канала
- * - CANDIDATE: кандидат на обучение, заполнивший анкету
  * - STUDENT: ученик, проходящий обучение
  * - MENTOR: наставник, проверяющий задания и ведущий потоки
  * - AUTHOR: автор программы — создаёт модули, курсы, уроки, шаги, проекты
@@ -15,7 +14,6 @@ import * as v from 'valibot';
 export enum Role {
   GUEST = 'GUEST',
   SUBSCRIBER = 'SUBSCRIBER',
-  CANDIDATE = 'CANDIDATE',
   STUDENT = 'STUDENT',
   MENTOR = 'MENTOR',
   AUTHOR = 'AUTHOR',
@@ -27,7 +25,6 @@ export const RoleSchema = v.picklist(
   [
     Role.GUEST,
     Role.SUBSCRIBER,
-    Role.CANDIDATE,
     Role.STUDENT,
     Role.MENTOR,
     Role.AUTHOR,

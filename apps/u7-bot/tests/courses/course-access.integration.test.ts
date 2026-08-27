@@ -23,7 +23,9 @@ describe('CourseAccess (интеграционный)', () => {
   // Ментор с ролью AUTHOR (фикстура)
   const MENTOR_AUTHOR_UUID = '44444444-4444-4444-4444-444444444444';
   // Студент без AUTHOR (фикстура: 2222...)
-  const STUDENT_UUID = '22222222-2222-2222-2222-222222222222';
+  // Пользователь 22222222 («Кандидат») удалён из фикстуры вместе с ролью CANDIDATE;
+  // берём существующего пользователя без роли AUTHOR
+  const STUDENT_UUID = '33333333-3333-3333-3333-333333333333';
 
   beforeAll(async () => {
     app = await createTestApp('course-access');

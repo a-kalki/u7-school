@@ -11,7 +11,7 @@ import { UserPolicy } from '#domain/user/policy';
 
 /**
  * Use-case удаления роли у пользователя.
- * ADMIN может удалить любую роль. Обычный пользователь — только STUDENT или CANDIDATE у себя.
+ * ADMIN может удалить любую роль. Обычный пользователь — только STUDENT у себя.
  */
 export class RemoveRoleToUserUc extends UserUseCase<RemoveRoleToUserCmdMeta> {
   protected readonly ucName = 'remove-role-to-user' as const;
