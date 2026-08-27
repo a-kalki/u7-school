@@ -1,0 +1,13 @@
+Задача: Wish на модуль (Фаза 5 трека wish-module)
+
+Изменения:
+- packages/wish/src/domain/wish/entity.ts: WishTarget + module-вариант
+- packages/wish/src/domain/wish/commands/create-module-wish-cmd.ts: новый
+- packages/wish/src/domain/wish/errors.ts: ModuleNotFoundUcError + расширенный payload WISH_ALREADY_EXISTS
+- packages/wish/src/api/wish/create-module-wish-uc.ts(+test): новый UC
+- packages/wish/src/api/er/fulfill-wish-er.ts(+test): module-ветка через isSameModule
+- packages/wish/src/api/module.ts + domain/module.ts: регистрация
+- packages/wish/src/infra/db/wish-json-repo.ts: isSameTarget module-ветка
+
+Решения: MODULE_NOT_FOUND покрывает и «курс недоступен» (студенту неотличимо);
+обе валидации фасада вызываются явно (по зафиксированному решению 6).
