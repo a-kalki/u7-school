@@ -1,0 +1,11 @@
+Задача: Доменный фасад курса (Фаза 4 трека wish-module)
+
+Изменения:
+- packages/course/src/domain/facade.ts: ModulePlace + 4 новых метода + переименование
+- packages/course/src/infra/course-in-proc-facade.ts: реализации (list-courses → published-only для getModulePlace)
+- packages/wish/src/api/er/fulfill-wish-er.ts(+test): whichCoursesIncludeModule
+- packages/wish/src/api/wish/create-course-wish-uc.ts(+test): isCourseEnrollable + getCourseStartModuleId
+
+Решения: getModulePlace ищет только в опубликованных курсах (для wish/уведомлений),
+историческая идентичность — только в whichCoursesIncludeModule; isSameModule сегодня
+тривиален (a === b), контракт на будущее.
