@@ -8,10 +8,14 @@ copy.age = 30;
 console.log(user.age);
 console.log(copy.age);
 
+console.log('---');
+
 // Слияние — позднее поле перезаписывает более раннее
 const base = { role: 'user', active: true };
 const ext = { ...base, role: 'admin', lastLogin: '2026-06-09' };
 console.log(ext);
+
+console.log('---');
 
 // Rest — собирает оставшиеся поля
 const { name, ...rest } = {
@@ -22,6 +26,8 @@ const { name, ...rest } = {
 };
 console.log(name);
 console.log(rest);
+
+console.log('---');
 
 // Извлечение нескольких полей + rest
 const data = { x: 10, y: 20, z: 30, label: 'point' };
