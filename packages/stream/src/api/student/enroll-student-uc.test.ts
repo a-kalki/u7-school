@@ -6,7 +6,8 @@ import { EnrollStudentUc } from './enroll-student-uc';
 const mockDate = '2026-06-01T10:00';
 
 describe('EnrollStudentUc', () => {
-  test('успешно зачисляет GUEST', async () => {
+  test('успешно зачисляет GUEST — публикует student.enrolled', async () => {
+    const mockEventBus = { publish: mock(() => {}) };
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
@@ -67,6 +68,7 @@ describe('EnrollStudentUc', () => {
       courseFacade: {
         getCourseByModuleId: mock(() => Promise.resolve(undefined)),
       },
+      eventBus: mockEventBus,
     } as unknown as StreamApiModuleResolver);
 
     await uc.execute(
@@ -82,6 +84,14 @@ describe('EnrollStudentUc', () => {
       Role.STUDENT,
       '99999999-9999-4999-8999-999999999999',
     );
+    // Публикация события student.enrolled с moduleId потока
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    const event = (mockEventBus.publish as any).mock.calls[0][0];
+    expect(event.eventName).toBe('student.enrolled');
+    expect(event.aggregateName).toBe('Student');
+    expect(event.payload.streamId).toBe('11111111-1111-4111-8111-111111111111');
+    expect(event.payload.userId).toBe('99999999-9999-4999-8999-999999999999');
+    expect(event.payload.moduleId).toBe('33333333-3333-4333-8333-333333333333');
   });
 
   test('ошибка если у пользователя уже есть активный поток', async () => {
@@ -165,6 +175,8 @@ describe('EnrollStudentUc', () => {
       getAll: mock(() => Promise.resolve([])),
     };
 
+    const mockEventBus = { publish: mock(() => {}) };
+
     const uc = new EnrollStudentUc();
     uc.init({
       userFacade: mockUserFacade,
@@ -173,6 +185,7 @@ describe('EnrollStudentUc', () => {
       courseFacade: {
         getCourseByModuleId: mock(() => Promise.resolve(undefined)),
       },
+      eventBus: mockEventBus,
     } as unknown as StreamApiModuleResolver);
 
     await expect(
@@ -184,6 +197,9 @@ describe('EnrollStudentUc', () => {
         '99999999-9999-4999-8999-999999999999',
       ),
     ).rejects.toThrow('Вы уже проходите обучение');
+
+    // При ошибке зачисления событие не публикуется
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   test('успешная запись если предыдущие записи завершённые', async () => {
@@ -500,88 +516,7 @@ describe('EnrollStudentUc', () => {
     ).rejects.toThrow();
   });
 
-  // --- CANDIDATE снятие ---
-
-  test('зачисление снимает CANDIDATE если был', async () => {
-    const mockStreamRepo = {
-      getByUuid: mock(() =>
-        Promise.resolve({
-          uuid: '11111111-1111-4111-8111-111111111111',
-          title: 'Test Stream',
-          description: 'Description',
-          mentorId: '22222222-2222-4222-8222-222222222222',
-          moduleId: '33333333-3333-4333-8333-333333333333',
-          startDate: mockDate,
-          status: 'enrollment',
-          contentSnapshot: [
-            {
-              projectId: '44444444-4444-4444-8444-444444444444',
-              projectTitle: 'Project 1',
-              lessons: [
-                {
-                  lessonId: '55555555-5555-4555-8555-555555555555',
-                  lessonTitle: 'Lesson 1',
-                  stepIds: ['66666666-6666-4666-8666-666666666666'],
-                },
-              ],
-            },
-          ],
-          createdAt: mockDate,
-        }),
-      ),
-      save: mock(() => Promise.resolve()),
-      getAll: mock(() => Promise.resolve([])),
-    };
-    const mockStudentRepo = {
-      save: mock(() => Promise.resolve()),
-      getByUuid: mock(() => Promise.resolve(undefined)),
-      getByStream: mock(() => Promise.resolve([])),
-      getByUser: mock(() => Promise.resolve([])),
-    };
-    const mockUserFacade = {
-      getUserByUuid: mock(() =>
-        Promise.resolve({
-          uuid: '99999999-9999-4999-8999-999999999999',
-          name: 'Candidate',
-          telegramId: 2,
-          roles: [Role.CANDIDATE],
-          createdAt: mockDate,
-        }),
-      ),
-      addRoleToUser: mock(() => Promise.resolve()),
-      removeRoleFromUser: mock(() => Promise.resolve(undefined)),
-      userExists: mock(() => Promise.resolve(true)),
-      getUserByTelegramId: mock(() => Promise.resolve(undefined)),
-      registerGuest: mock(() => Promise.resolve({} as any)),
-    };
-
-    const uc = new EnrollStudentUc();
-    uc.init({
-      streamRepo: mockStreamRepo,
-      streamStudentRepo: mockStudentRepo,
-      userFacade: mockUserFacade,
-      courseFacade: {
-        getCourseByModuleId: mock(() => Promise.resolve(undefined)),
-      },
-    } as unknown as StreamApiModuleResolver);
-
-    await uc.execute(
-      {
-        streamId: '11111111-1111-4111-8111-111111111111',
-        userId: '99999999-9999-4999-8999-999999999999',
-      },
-      '99999999-9999-4999-8999-999999999999',
-    );
-
-    expect(mockStudentRepo.save).toHaveBeenCalled();
-    expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalledWith(
-      '99999999-9999-4999-8999-999999999999',
-      Role.CANDIDATE,
-      '99999999-9999-4999-8999-999999999999',
-    );
-  });
-
-  test('зачисление без CANDIDATE — без ошибок', async () => {
+  test('зачисление не снимает другие роли — removeRoleFromUser не вызывается', async () => {
     const mockStreamRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
@@ -653,8 +588,8 @@ describe('EnrollStudentUc', () => {
     );
 
     expect(mockStudentRepo.save).toHaveBeenCalled();
-    // removeRoleFromUser вызывается всегда (идемпотентен)
-    expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalled();
+    // Роли (кроме добавления STUDENT) при зачислении не трогаются
+    expect(mockUserFacade.removeRoleFromUser).not.toHaveBeenCalled();
   });
 
   // ── Gate: проверка canEnrollNextModule ──

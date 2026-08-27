@@ -6,11 +6,17 @@ import type { Student } from './entity';
 const mockStreamId = '11111111-1111-4111-8111-111111111111';
 const mockUserId = '22222222-2222-4222-8222-222222222222';
 const mockStepId = '33333333-3333-4333-8333-333333333333';
+const mockModuleId = '44444444-4444-4444-8444-444444444444';
 
 describe('StudentAr', () => {
   describe('enroll', () => {
     test('создаёт студента со статусом enrolled и пустыми шагами', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
 
       expect(ar.state.streamId).toBe(mockStreamId);
       expect(ar.state.userId).toBe(mockUserId);
@@ -28,13 +34,61 @@ describe('StudentAr', () => {
     });
 
     test('currentStepId должен быть передан при создании', () => {
-      expect(() => StudentAr.enroll(mockStreamId, mockUserId, '')).toThrow();
+      expect(() =>
+        StudentAr.enroll(mockStreamId, mockUserId, '', mockModuleId),
+      ).toThrow();
+    });
+
+    test('enroll добавляет событие student.enrolled с полным payload', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+
+      const event = events[0]!;
+      expect(event.eventName).toBe('student.enrolled');
+      expect(event.aggregateName).toBe('Student');
+      expect(event.aggregateId).toBe(ar.state.uuid);
+      expect(event.eventId).toMatch(
+        /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i,
+      );
+      expect(event.occurredAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+      expect(event.payload).toEqual({
+        studentId: ar.state.uuid,
+        userId: mockUserId,
+        streamId: mockStreamId,
+        moduleId: mockModuleId,
+      });
+    });
+
+    test('flushEvents очищает накопленные события (защита от повторной публикации)', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+
+      expect(ar.flushEvents()).toHaveLength(1);
+      expect(ar.hasEvents()).toBe(false);
+      expect(ar.flushEvents()).toHaveLength(0);
     });
   });
 
   describe('activate', () => {
     test('переводит enrolled → active', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       expect(ar.status).toBe('enrolled');
 
       ar.activate();
@@ -42,7 +96,12 @@ describe('StudentAr', () => {
     });
 
     test('активация не-enrolled → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate(); // теперь active
       expect(ar.status).toBe('active');
 
@@ -52,7 +111,12 @@ describe('StudentAr', () => {
     });
 
     test('активация abandoned → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.drop();
       expect(ar.status).toBe('abandoned');
@@ -63,7 +127,12 @@ describe('StudentAr', () => {
 
   describe('drop', () => {
     test('переводит active → abandoned (who=self, cause=voluntary)', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       expect(ar.status).toBe('active');
 
@@ -76,7 +145,12 @@ describe('StudentAr', () => {
     });
 
     test('drop не из active → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       // enrolled — нельзя дропнуть
       expect(() => ar.drop()).toThrow(
         "Нельзя отчислить студента в статусе 'enrolled'.",
@@ -84,7 +158,12 @@ describe('StudentAr', () => {
     });
 
     test('drop на advanced → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.advance();
       expect(ar.status).toBe('advanced');
@@ -95,7 +174,12 @@ describe('StudentAr', () => {
 
   describe('markAbandoned', () => {
     test('переводит active → abandoned (who=mentor, cause=inactivity)', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
 
       ar.markAbandoned('inactivity');
@@ -107,7 +191,12 @@ describe('StudentAr', () => {
     });
 
     test('переводит active → abandoned (who=mentor, cause=by_mentor)', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
 
       ar.markAbandoned('by_mentor');
@@ -119,14 +208,24 @@ describe('StudentAr', () => {
     });
 
     test('markAbandoned не из active → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       expect(() => ar.markAbandoned('inactivity')).toThrow();
     });
   });
 
   describe('advance', () => {
     test('переводит active → advanced c nextPreference=undecided', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
 
       ar.advance();
@@ -137,12 +236,22 @@ describe('StudentAr', () => {
     });
 
     test('advance не из active → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       expect(() => ar.advance()).toThrow();
     });
 
     test('сменить исход: not_advanced → advanced', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.markNotAdvanced();
       expect(ar.status).toBe('not_advanced');
@@ -158,7 +267,12 @@ describe('StudentAr', () => {
 
   describe('markNotAdvanced', () => {
     test('переводит active → not_advanced c nextPreference=undecided', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
 
       ar.markNotAdvanced();
@@ -169,12 +283,22 @@ describe('StudentAr', () => {
     });
 
     test('markNotAdvanced не из active → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       expect(() => ar.markNotAdvanced()).toThrow();
     });
 
     test('сменить исход: advanced → not_advanced', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.advance();
       expect(ar.status).toBe('advanced');
@@ -190,7 +314,12 @@ describe('StudentAr', () => {
 
   describe('setNextPreference', () => {
     test('обновляет nextPreference у advanced студента', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.advance();
 
@@ -199,7 +328,12 @@ describe('StudentAr', () => {
     });
 
     test('обновляет nextPreference у not_advanced студента', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.markNotAdvanced();
 
@@ -208,7 +342,12 @@ describe('StudentAr', () => {
     });
 
     test('setNextPreference на active → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
 
       expect(() => ar.setNextPreference('wants_next')).toThrow(
@@ -217,12 +356,22 @@ describe('StudentAr', () => {
     });
 
     test('setNextPreference на enrolled → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       expect(() => ar.setNextPreference('wants_next')).toThrow();
     });
 
     test('setNextPreference на abandoned → ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.drop();
 
@@ -232,7 +381,12 @@ describe('StudentAr', () => {
 
   describe('issueStep', () => {
     test('добавляет StepRecord со статусом issued и обновляет currentStepId', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       ar.issueStep(nextStepId);
@@ -248,7 +402,12 @@ describe('StudentAr', () => {
     });
 
     test('выбрасывает ошибку если stepId уже выдан', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       ar.issueStep(nextStepId);
@@ -259,7 +418,12 @@ describe('StudentAr', () => {
 
   describe('completeStep', () => {
     test('завершает выданный шаг, выдаёт следующий и возвращает completed', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       const nextStepId = '44444444-4444-4444-8444-444444444444';
       const followingStepId = '55555555-5555-4555-8555-555555555555';
 
@@ -279,7 +443,12 @@ describe('StudentAr', () => {
     });
 
     test('завершает последний шаг (nextStepId=null) и возвращает finished', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
 
       ar.issueStep(mockStepId);
       const outcome = ar.completeStep(mockStepId, null);
@@ -291,7 +460,12 @@ describe('StudentAr', () => {
     });
 
     test('повторное завершение уже завершённого шага — already_completed без изменений', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       const nextStepId = '44444444-4444-4444-8444-444444444444';
       const followingStepId = '55555555-5555-4555-8555-555555555555';
 
@@ -311,7 +485,12 @@ describe('StudentAr', () => {
     });
 
     test('выбрасывает ошибку если шаг не был выдан', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       const nextStepId = '44444444-4444-4444-8444-444444444444';
 
       expect(() => ar.completeStep(nextStepId, null)).toThrow();
@@ -320,7 +499,12 @@ describe('StudentAr', () => {
 
   describe('недопустимые переходы', () => {
     test('abandoned → advanced — ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.drop();
       expect(ar.status).toBe('abandoned');
@@ -329,7 +513,12 @@ describe('StudentAr', () => {
     });
 
     test('not_advanced → active — ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.markNotAdvanced();
       expect(ar.status).toBe('not_advanced');
@@ -338,7 +527,12 @@ describe('StudentAr', () => {
     });
 
     test('advanced → active — ошибка', () => {
-      const ar = StudentAr.enroll(mockStreamId, mockUserId, mockStepId);
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
       ar.activate();
       ar.advance();
       expect(ar.status).toBe('advanced');

@@ -1,5 +1,6 @@
 import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
+import type { StudentEnrolledEvent } from './events';
 
 /** Детали отчисления студента */
 export const AbandonDetailsSchema = v.object({
@@ -75,4 +76,5 @@ export interface StudentArMeta extends ArMeta {
   name: 'Student';
   label: 'Студент потока';
   state: Student;
+  events: StudentEnrolledEvent;
 }

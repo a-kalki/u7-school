@@ -43,11 +43,13 @@ export class StudentAr extends Aggregate<StudentArMeta> {
 
   /**
    * Фабричный метод для зачисления студента на поток.
+   * Добавляет доменное событие student.enrolled (публикуется UC'ом).
    */
   static enroll(
     streamId: string,
     userId: string,
     currentStepId: string,
+    moduleId: string,
   ): StudentAr {
     const candidate: Student = {
       uuid: crypto.randomUUID(),
@@ -60,7 +62,21 @@ export class StudentAr extends Aggregate<StudentArMeta> {
       createdAt: isoNow(),
     };
 
-    return new StudentAr(candidate);
+    const ar = new StudentAr(candidate);
+    ar.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'student.enrolled',
+      occurredAt: isoNow(),
+      aggregateName: 'Student',
+      aggregateId: candidate.uuid,
+      payload: {
+        studentId: candidate.uuid,
+        userId,
+        streamId,
+        moduleId,
+      },
+    });
+    return ar;
   }
 
   /**

@@ -76,6 +76,7 @@ describe('StreamDs.completeStep', () => {
       stream.state.uuid,
       mockUserId,
       '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
     );
     student.issueStep('77777777-7777-4777-8777-777777777777');
 
@@ -108,6 +109,7 @@ describe('StreamDs.completeStep', () => {
       stream.state.uuid,
       mockUserId,
       '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
     );
     student.issueStep('77777777-7777-4777-8777-777777777777');
 
@@ -142,6 +144,7 @@ describe('StreamDs.completeStep', () => {
       stream.state.uuid,
       mockUserId,
       '88888888-8888-4888-8888-888888888888',
+      mockModuleId,
     );
     student.issueStep('88888888-8888-4888-8888-888888888888');
 
@@ -170,6 +173,7 @@ describe('StreamDs.completeStep — определение уровней (мн�
       stream.state.uuid,
       mockUserId,
       '77777777-7777-4777-8777-777777777777',
+      mockModuleId,
     );
     student.issueStep('77777777-7777-4777-8777-777777777777');
 
@@ -191,6 +195,7 @@ describe('StreamDs.completeStep — определение уровней (мн�
       stream.state.uuid,
       mockUserId,
       '88888888-8888-4888-8888-888888888888',
+      mockModuleId,
     );
     student.issueStep('88888888-8888-4888-8888-888888888888');
 
@@ -213,6 +218,7 @@ describe('StreamDs.completeStep — определение уровней (мн�
       stream.state.uuid,
       mockUserId,
       'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      mockModuleId,
     );
     student.issueStep('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
 
@@ -235,6 +241,7 @@ describe('StreamDs.completeStep — определение уровней (мн�
       stream.state.uuid,
       mockUserId,
       'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+      mockModuleId,
     );
     student.issueStep('dddddddd-dddd-4ddd-8ddd-dddddddddddd');
 

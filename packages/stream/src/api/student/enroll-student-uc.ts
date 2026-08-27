@@ -81,11 +81,12 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
       prevModuleTitle,
     });
 
-    // 3. Создание записи студента
+    // 3. Создание записи студента (агрегат добавляет событие student.enrolled)
     const studentAr = StudentAr.enroll(
       streamEntity.uuid,
       command.userId,
       firstStepId,
+      streamEntity.moduleId,
     );
 
     // 4. Сохранение
@@ -94,12 +95,8 @@ export class EnrollStudentUc extends StreamUseCase<EnrollStudentCmdMeta> {
     // 5. Выдача роли STUDENT
     await userFacade.addRoleToUser(command.userId, Role.STUDENT, actorId);
 
-    // 6. Снятие роли CANDIDATE
-    await userFacade.removeRoleFromUser(
-      command.userId,
-      Role.CANDIDATE,
-      actorId,
-    );
+    // 6. Публикация доменного события (подписчики: ER fulfill-wish)
+    this.publishEvents(studentAr);
 
     return undefined;
   }
