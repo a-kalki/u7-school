@@ -11,6 +11,9 @@ function isSameTarget(a: WishTarget, b: WishTarget): boolean {
   if (a.kind === 'course' && b.kind === 'course') {
     return a.courseId === b.courseId;
   }
+  if (a.kind === 'module' && b.kind === 'module') {
+    return a.moduleId === b.moduleId;
+  }
   return false;
 }
 

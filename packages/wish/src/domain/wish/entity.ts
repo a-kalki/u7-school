@@ -1,15 +1,17 @@
 import type { ArMeta } from '@u7-scl/core/domain';
-import { CourseSchema } from '@u7-scl/course/domain';
+import { CourseSchema, ModuleSchema } from '@u7-scl/course/domain';
 import { UserSchema } from '@u7-scl/user/domain';
 import * as v from 'valibot';
 
 /**
  * Цель желания — универсальная ссылка на объект желания.
- * Дискриминированный союз по `kind`: сейчас только `course`,
- * в будущем расширяется (mentorship, challenge, ...) без смены модели агрегата.
+ * Дискриминированный союз по `kind`:
+ * - `course` — желание пройти курс (вся программа, начиная со стартового модуля);
+ * - `module` — желание пройти конкретный модуль (следующий/тот же).
  */
 export const WishTargetSchema = v.variant('kind', [
   v.object({ kind: v.literal('course'), courseId: CourseSchema.entries.uuid }),
+  v.object({ kind: v.literal('module'), moduleId: ModuleSchema.entries.uuid }),
 ]);
 
 export type WishTarget = v.InferOutput<typeof WishTargetSchema>;

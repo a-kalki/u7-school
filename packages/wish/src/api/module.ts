@@ -6,13 +6,18 @@ import { ConfirmWishEr } from './er/confirm-wish-er';
 import { FulfillWishEr } from './er/fulfill-wish-er';
 import { CancelWishUc } from './wish/cancel-wish-uc';
 import { CreateCourseWishUc } from './wish/create-course-wish-uc';
+import { CreateModuleWishUc } from './wish/create-module-wish-uc';
 
 export class WishApiModule extends ApiModule<
   WishApiModuleMeta,
   WishApiModuleResolver
 > {
   readonly name = 'wish' as const;
-  readonly useCases = [new CreateCourseWishUc(), new CancelWishUc()];
+  readonly useCases = [
+    new CreateCourseWishUc(),
+    new CreateModuleWishUc(),
+    new CancelWishUc(),
+  ];
   readonly reactions: EventReaction<ErMeta>[] = [
     new ConfirmWishEr(),
     new AbandonWishEr(),

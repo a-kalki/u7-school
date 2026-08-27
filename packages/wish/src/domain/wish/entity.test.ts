@@ -9,6 +9,28 @@ const validCourseTarget: WishTarget = {
 };
 
 describe('WishTargetSchema', () => {
+  test('принимает валидную цель module', () => {
+    const validModuleTarget: WishTarget = {
+      kind: 'module',
+      moduleId: crypto.randomUUID(),
+    };
+    const result = v.safeParse(WishTargetSchema, validModuleTarget);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.output).toEqual(validModuleTarget);
+    }
+  });
+
+  test('отклоняет module-цель с некорректным moduleId', () => {
+    const result = v.safeParse(WishTargetSchema, {
+      kind: 'module',
+      moduleId: 'not-a-uuid',
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   test('принимает валидную цель course', () => {
     const result = v.safeParse(WishTargetSchema, validCourseTarget);
 

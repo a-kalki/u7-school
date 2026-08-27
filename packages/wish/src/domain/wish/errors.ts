@@ -6,10 +6,10 @@ export type CourseNotFoundUcError = NotFoundError<
   { courseId: string } | undefined
 >;
 
-/** Желание уже выражено для этого курса. */
+/** Желание уже выражено для этой цели (курс или модуль). */
 export type WishAlreadyExistsUcError = ConflictError<
   'WISH_ALREADY_EXISTS',
-  { userId: string; courseId: string } | undefined
+  { userId: string; courseId?: string; moduleId?: string } | undefined
 >;
 
 /** Желание не найдено. */
@@ -18,8 +18,15 @@ export type WishNotFoundUcError = NotFoundError<
   { userId: string; courseId: string } | undefined
 >;
 
+/** Модуль не найден (или его курс недоступен для записи). */
+export type ModuleNotFoundUcError = NotFoundError<
+  'MODULE_NOT_FOUND',
+  { moduleId: string } | undefined
+>;
+
 /** Любая известная ошибка модуля wish. */
 export type WishModuleError =
   | CourseNotFoundUcError
+  | ModuleNotFoundUcError
   | WishAlreadyExistsUcError
   | WishNotFoundUcError;

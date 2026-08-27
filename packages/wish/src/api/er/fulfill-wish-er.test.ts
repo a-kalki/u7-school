@@ -38,6 +38,20 @@ function makeWish(
   };
 }
 
+function makeModuleWish(
+  userId: string,
+  status: Wish['status'],
+  mid = moduleId,
+): Wish {
+  return {
+    uuid: crypto.randomUUID(),
+    userId,
+    target: { kind: 'module', moduleId: mid },
+    status,
+    createdAt: '2026-08-20T10:00',
+  };
+}
+
 function setupEr(wishes: Wish[], matchedCourseIds: string[] = []) {
   const save = mock(async (_wish: Wish): Promise<void> => {});
   const getByUser = mock(async (_userId: string): Promise<Wish[]> => wishes);
@@ -45,14 +59,17 @@ function setupEr(wishes: Wish[], matchedCourseIds: string[] = []) {
     async (_moduleId: string, _courseIds: string[]): Promise<string[]> =>
       matchedCourseIds,
   );
+  const isSameModule = mock(
+    async (a: string, b: string): Promise<boolean> => a === b,
+  );
 
   const er = new FulfillWishEr();
   er.init({
     wishRepo: { save, getByUser },
-    courseFacade: { whichCoursesIncludeModule },
+    courseFacade: { whichCoursesIncludeModule, isSameModule },
   } as unknown as WishApiModuleResolver);
 
-  return { save, getByUser, whichCoursesIncludeModule, er };
+  return { save, getByUser, whichCoursesIncludeModule, isSameModule, er };
 }
 
 describe('FulfillWishEr', () => {
@@ -142,5 +159,57 @@ describe('FulfillWishEr', () => {
       (c: unknown[]) => (c[0] as Wish).status,
     );
     expect(saved).toEqual(['fulfilled', 'fulfilled']);
+  });
+
+  // ── Ветка module-wish ──
+
+  test('модульное желание реализуется при зачислении на тот же модуль (isSameModule)', async () => {
+    const event = makeEvent(userId);
+    const wish = makeModuleWish(userId, 'expressed');
+    const { save, isSameModule, whichCoursesIncludeModule, er } = setupEr([
+      wish,
+    ]);
+
+    await er.handle(event);
+
+    expect(save).toHaveBeenCalledTimes(1);
+    const saved = (save as any).mock.calls[0][0] as Wish;
+    expect(saved.status).toBe('fulfilled');
+    // матчинг — через isSameModule, а не прямое сравнение id
+    expect(isSameModule).toHaveBeenCalledWith(moduleId, moduleId);
+    // course-ветка не вызывается (нет course-кандидатов)
+    expect(whichCoursesIncludeModule).not.toHaveBeenCalled();
+  });
+
+  test('модульное желание не реализуется при зачислении на другой модуль', async () => {
+    const event = makeEvent(userId);
+    const otherModuleId = '99999999-9999-4999-8999-999999999999';
+    const wish = makeModuleWish(userId, 'confirmed', otherModuleId);
+    const { save, er } = setupEr([wish]);
+
+    await er.handle(event);
+
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  test('неактивное модульное желание не реализуется', async () => {
+    const event = makeEvent(userId);
+    const wish = makeModuleWish(userId, 'cancelled');
+    const { save, er } = setupEr([wish]);
+
+    await er.handle(event);
+
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  test('смешанные желания: course и module реализуются независимо', async () => {
+    const event = makeEvent(userId);
+    const courseWish = makeWish(userId, 'expressed');
+    const moduleWish = makeModuleWish(userId, 'expressed');
+    const { save, er } = setupEr([courseWish, moduleWish], [courseId]);
+
+    await er.handle(event);
+
+    expect(save).toHaveBeenCalledTimes(2);
   });
 });

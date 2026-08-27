@@ -12,9 +12,12 @@ export interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 
 /**
  * Реакция на зачисление студента на поток.
- * Желания пользователя на курсы, в программу которых входит модуль потока
- * переходят expressed|confirmed → fulfilled; остальные состояния
- * игнорируются (идемпотентность).
+ *
+ * Course-wish: желания пользователя на курсы, в программу которых входит
+ * модуль потока, переходят expressed|confirmed → fulfilled.
+ * Module-wish: желания на модуль, исторически тот же (isSameModule),
+ * что и модуль потока, — реализуются.
+ * Остальные состояния игнорируются (идемпотентность).
  */
 export class FulfillWishEr extends EventReaction<
   FulfillWishErMeta,
@@ -22,39 +25,62 @@ export class FulfillWishEr extends EventReaction<
 > {
   protected readonly eventName = 'student.enrolled' as const;
   protected readonly erName = 'fulfill-wish' as const;
-  protected readonly erLabel =
-    'Отметить желание пройти курс реализованным' as const;
+  protected readonly erLabel = 'Отметить желание реализованным' as const;
 
   async handle(event: FulfillWishErMeta['event']): Promise<void> {
     const { userId, moduleId } = event.payload;
 
     const wishes = await this.resolve.wishRepo.getByUser(userId);
 
-    // Кандидаты: активные желания на курсы.
-    const candidates = wishes.filter(
-      (w): w is Wish & { target: { kind: 'course'; courseId: string } } =>
-        w.target.kind === 'course' &&
-        (w.status === 'expressed' || w.status === 'confirmed'),
+    // Кандидаты: активные желания обоих видов.
+    const active = wishes.filter(
+      (w) => w.status === 'expressed' || w.status === 'confirmed',
     );
-    if (candidates.length === 0) {
+    if (active.length === 0) {
       return;
     }
 
-    // Один батч-запрос: какие из курсов кандидатов содержат модуль потока.
-    const matched = new Set(
-      await this.resolve.courseFacade.whichCoursesIncludeModule(
-        moduleId,
-        candidates.map((w) => w.target.courseId),
-      ),
+    const courseCandidates = active.filter(
+      (w): w is Wish & { target: { kind: 'course'; courseId: string } } =>
+        w.target.kind === 'course',
+    );
+    const moduleCandidates = active.filter(
+      (w): w is Wish & { target: { kind: 'module'; moduleId: string } } =>
+        w.target.kind === 'module',
     );
 
-    for (const wish of candidates) {
-      if (!matched.has(wish.target.courseId)) {
-        continue;
+    // Course-ветка: один батч-запрос — какие из курсов кандидатов
+    // включают модуль потока (в т.ч. исторически).
+    if (courseCandidates.length > 0) {
+      const matched = new Set(
+        await this.resolve.courseFacade.whichCoursesIncludeModule(
+          moduleId,
+          courseCandidates.map((w) => w.target.courseId),
+        ),
+      );
+      for (const wish of courseCandidates) {
+        if (!matched.has(wish.target.courseId)) {
+          continue;
+        }
+        await this.#fulfill(wish);
       }
-      const ar = new WishAr(wish);
-      ar.fulfill();
-      await this.resolve.wishRepo.save(ar.state);
     }
+
+    // Module-ветка: идентичность модулей решает модуль курсов (isSameModule).
+    for (const wish of moduleCandidates) {
+      const same = await this.resolve.courseFacade.isSameModule(
+        moduleId,
+        wish.target.moduleId,
+      );
+      if (same) {
+        await this.#fulfill(wish);
+      }
+    }
+  }
+
+  async #fulfill(wish: Wish): Promise<void> {
+    const ar = new WishAr(wish);
+    ar.fulfill();
+    await this.resolve.wishRepo.save(ar.state);
   }
 }
