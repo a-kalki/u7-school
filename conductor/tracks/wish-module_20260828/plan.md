@@ -22,8 +22,8 @@
 
 ## Фаза 4: Доменный фасад курса
 
-- [ ] Task: Падающие тесты методов `CourseFacade`: `isCourseEnrollable`, `getCourseStartModuleId`, `getModulePlace` (isFirst/isLast/prev/next), `isSameModule` (контракт исторической идентичности), `whichCoursesIncludeModule`
-- [ ] Task: Реализация в `packages/course/src/domain/facade.ts` + InProc-реализация `packages/course/src/infra/course-in-proc-facade.ts`; переименование `filterCoursesContainingModule` → `whichCoursesIncludeModule` (обновить `FulfillWishEr` и тесты); перевод `create-course-wish` на новые методы
+- [x] Task: Падающие тесты методов `CourseFacade`: `isCourseEnrollable`, `getCourseStartModuleId`, `getModulePlace` (isFirst/isLast/prev/next), `isSameModule` (контракт исторической идентичности), `whichCoursesIncludeModule` (beda702)
+- [x] Task: Реализация в `packages/course/src/domain/facade.ts` + InProc-реализация `packages/course/src/infra/course-in-proc-facade.ts`; переименование `filterCoursesContainingModule` → `whichCoursesIncludeModule` (обновить `FulfillWishEr` и тесты); перевод `create-course-wish` на новые методы (beda702)
 - [ ] Task: Conductor - Ручная верификация фазы 'Фасад курса' (протокол в workflow.md)
 
 ## Фаза 5: Wish на модуль
