@@ -34,8 +34,8 @@
 
 ## Фаза 6: Уведомление о завершении с контекстными кнопками
 
-- [ ] Task: Падающие тесты: `Routes.course.wishModule(moduleId)` + фабрика кнопок в `controllers/shared/`; обработчик нажатия в courses-контроллере → `create-module-wish` (успех/«желание уже есть»); тексты подписки `student.completed` по `getModulePlace` + `outcome` (next / repeat / «Курс завершён» без кнопки)
-- [ ] Task: Реализация: `routes.ts`/`buttons.ts`, обработчик, финальные тексты в `HubStory`
+- [x] Task: Падающие тесты: `Routes.course.wishModule(moduleId)` + фабрика кнопок в `controllers/shared/`; обработчик нажатия в courses-контроллере → `create-module-wish` (успех/«желание уже есть»); тексты подписки `student.completed` по `getModulePlace` + `outcome` (next / repeat / «Курс завершён» без кнопки) (fcf23d8)
+- [x] Task: Реализация: `routes.ts`/`buttons.ts`, обработчик, финальные тексты в `HubStory` (fcf23d8)
 - [ ] Task: Conductor - Ручная верификация фазы 'Кнопки завершения' (протокол в workflow.md)
 
 ## Фаза 7: Удаление TgFacade и чистка
