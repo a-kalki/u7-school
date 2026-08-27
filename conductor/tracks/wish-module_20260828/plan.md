@@ -40,7 +40,7 @@
 
 ## Фаза 7: Удаление TgFacade и чистка
 
-- [ ] Task: Удалить: `packages/stream/src/domain/tg-facade.ts`, `apps/u7-bot/src/infra/telegram-tg-facade.ts` + тест, поле `tgFacade` в `StreamApiModuleResolver`, параметр в `create-api-app.ts` и `main.ts`, заглушку в `scripts/call-uc.ts` и `apps/u7-bot/tests/helpers/test-app.ts`, моки в тестах UC stream (`enroll`, `complete`, `drop`, `mark-abandoned`, `set-next-preference`, `activate-stream`, `complete-stream`)
-- [ ] Task: Проверки: `rg TgFacade` → пусто; `bun run check` чисто; полный прогон тестов
-- [ ] Task: Обновить `conductor/code_styleguides/bot-architecture.md` (сборка без tgFacade, раздел проактивных сообщений — `notify()`) и спеки треков wish-ui/wish-invite под новую модель фасада
+- [x] Task: Удалить: `packages/stream/src/domain/tg-facade.ts`, `apps/u7-bot/src/infra/telegram-tg-facade.ts` + тест, поле `tgFacade` в `StreamApiModuleResolver`, параметр в `create-api-app.ts` и `main.ts`, заглушку в `scripts/call-uc.ts` и `apps/u7-bot/tests/helpers/test-app.ts`, моки в тестах UC stream (`enroll`, `complete`, `drop`, `mark-abandoned`, `set-next-preference`, `activate-stream`, `complete-stream` (edc920c))
+- [x] Task: Проверки: `rg TgFacade` → пусто; `bun run check` чисто; полный прогон тестов (edc920c)
+- [x] Task: Обновить `conductor/code_styleguides/bot-architecture.md` (сборка без tgFacade, раздел проактивных сообщений — `notify()`) и спеки треков wish-ui/wish-invite под новую модель фасада (edc920c)
 - [ ] Task: Conductor - Ручная верификация фазы 'Удаление TgFacade' (протокол в workflow.md)
