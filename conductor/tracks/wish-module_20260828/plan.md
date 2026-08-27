@@ -4,8 +4,8 @@
 
 ## Фаза 1: `notify()` — проактивные уведомления в core
 
-- [ ] Task: Падающие тесты: `BotTransport.notify` — не трогает `session.activeHandler`, сохраняет клавиатуру предыдущего экрана (`keepPrevKeyboard`), префиксация кнопок контроллером; делегирование `BotUiApp`/`BotController`
-- [ ] Task: Реализация: `NotificationPayload` в `packages/core/src/ui/bot/types.ts`, метод `ProactiveSender.notify()`, реализации `BotTransport`/`BotUiApp`/`BotController`
+- [x] Task: Падающие тесты: `BotTransport.notify` — не трогает `session.activeHandler`, сохраняет клавиатуру предыдущего экрана (`keepPrevKeyboard`), префиксация кнопок контроллером; делегирование `BotUiApp`/`BotController` (d3184ba)
+- [x] Task: Реализация: `NotificationPayload` в `packages/core/src/ui/bot/types.ts`, метод `ProactiveSender.notify()`, реализации `BotTransport`/`BotUiApp`/`BotController` (d3184ba)
 - [ ] Task: Conductor - Ручная верификация фазы 'notify API' (протокол в workflow.md)
 
 ## Фаза 2: Уведомление о зачислении
