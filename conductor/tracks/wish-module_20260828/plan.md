@@ -28,7 +28,7 @@
 
 ## Фаза 5: Wish на модуль
 
-- [ ] Task: Падающие тесты: `WishTarget` принимает `{kind:'module', moduleId}`; UC `create-module-wish` (`getModulePlace` + `isCourseEnrollable` валидации, дедуп активного wish, `expressed`, без анкеты); fulfill-ветка module-wish через `isSameModule` (f1360f4)
+- [x] Task: Падающие тесты: `WishTarget` принимает `{kind:'module', moduleId}`; UC `create-module-wish` (`getModulePlace` + `isCourseEnrollable` валидации, дедуп активного wish, `expressed`, без анкеты); fulfill-ветка module-wish через `isSameModule` (f1360f4)
 - [x] Task: Реализация: схема target в `packages/wish/src/domain/wish/entity.ts`, `CreateModuleWishCmd` + UC + регистрация в `WishApiModule`, ветка в `FulfillWishEr` (f1360f4)
 - [x] Task: Conductor - Ручная верификация фазы 'Wish на модуль' (протокол в workflow\.md) *(автотесты прогнаны, план ручной проверки — в summary.md, подтверждение — на ревью пользователя по его указанию не останавливаться)*
 
