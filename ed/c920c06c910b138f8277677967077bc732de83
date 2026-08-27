@@ -1,0 +1,7 @@
+Задача: Удаление TgFacade и чистка (Фаза 7 трека wish-module)
+
+Удалено: packages/stream/src/domain/tg-facade.ts, apps/u7-bot/src/infra/telegram-tg-facade.ts(+test), поле tgFacade в StreamApiModuleResolver, параметр createApiApp/main, заглушки call-uc.ts/test-app.ts (MockTgFacade), моки tgFacade в 7 тест-файлах UC stream, export из domain/index.ts.
+
+Документация: conductor/code_styleguides/bot-architecture.md (notify(), сборка без tgFacade), спеки wish-ui/wish-invite под фасадную модель, learning/ui-spec.md (S05n — уведомления), courses/ui-spec.md (кнопка wish), AGENTS.md (пример порта), README/TODO.
+
+Проверки: rg TgFacade (код) — пусто; bun run check — чисто (1584 теста).
