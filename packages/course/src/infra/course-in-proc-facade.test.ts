@@ -72,7 +72,195 @@ describe('CourseInProcFacade', () => {
     await expect(facade.getStep('bad-id')).rejects.toThrow('STEP_NOT_FOUND');
   });
 
-  describe('filterCoursesContainingModule', () => {
+  describe('isCourseEnrollable', () => {
+    function makeCourse(status: Status) {
+      return {
+        uuid: 'c-1',
+        title: 'Course',
+        authorId: 'a1',
+        status,
+        phases: [{ title: 'P1', moduleIds: ['m-1'] }],
+        createdAt: '2026-01-01T00:00',
+      };
+    }
+
+    test('опубликованный курс → true', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(makeCourse(Status.PUBLISHED))),
+      };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      expect(await facade.isCourseEnrollable('c-1')).toBe(true);
+    });
+
+    test('draft/archived курс → false (неотличим от несуществующего)', async () => {
+      for (const status of [Status.DRAFT, Status.ARCHIVED]) {
+        const mockModule = {
+          execute: mock(() => Promise.resolve(makeCourse(status))),
+        };
+        const facade = new CourseInProcFacade(mockModule as any);
+
+        expect(await facade.isCourseEnrollable('c-1')).toBe(false);
+      }
+    });
+
+    test('несуществующий курс → false', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(undefined)),
+      };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      expect(await facade.isCourseEnrollable('nope')).toBe(false);
+    });
+  });
+
+  describe('getCourseStartModuleId', () => {
+    test('первый модуль линейного порядка фаз', async () => {
+      const course = {
+        uuid: 'c-1',
+        title: 'Course',
+        authorId: 'a1',
+        status: Status.PUBLISHED,
+        phases: [
+          { title: 'P1', moduleIds: ['m-1', 'm-2'] },
+          { title: 'P2', moduleIds: ['m-3'] },
+        ],
+        createdAt: '2026-01-01T00:00',
+      };
+      const mockModule = { execute: mock(() => Promise.resolve(course)) };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      expect(await facade.getCourseStartModuleId('c-1')).toBe('m-1');
+    });
+
+    test('пустая программа → undefined', async () => {
+      const course = {
+        uuid: 'c-1',
+        title: 'Course',
+        authorId: 'a1',
+        status: Status.PUBLISHED,
+        phases: [],
+        createdAt: '2026-01-01T00:00',
+      };
+      const mockModule = { execute: mock(() => Promise.resolve(course)) };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      expect(await facade.getCourseStartModuleId('c-1')).toBeUndefined();
+    });
+  });
+
+  describe('getModulePlace', () => {
+    const m1 = '11111111-1111-4111-8111-111111111111';
+    const m2 = '22222222-2222-4222-8222-222222222222';
+    const m3 = '33333333-3333-4333-8333-333333333333';
+
+    function makeCourses() {
+      const mk = (
+        uuid: string,
+        moduleIds: string[],
+        status = Status.PUBLISHED,
+      ) => ({
+        uuid,
+        title: `Course ${uuid}`,
+        authorId: 'a1',
+        status,
+        phases: [{ title: 'P1', moduleIds }],
+        createdAt: '2026-01-01T00:00',
+      });
+      return [mk('c-1', [m1, m2, m3])];
+    }
+
+    test('первый модуль: isFirst=true, next', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(makeCourses())),
+      };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      const place = await facade.getModulePlace(m1);
+      expect(place).toEqual({
+        courseId: 'c-1',
+        isFirst: true,
+        isLast: false,
+        nextModuleId: m2,
+      });
+    });
+
+    test('средний модуль: prev и next', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(makeCourses())),
+      };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      const place = await facade.getModulePlace(m2);
+      expect(place).toEqual({
+        courseId: 'c-1',
+        isFirst: false,
+        isLast: false,
+        prevModuleId: m1,
+        nextModuleId: m3,
+      });
+    });
+
+    test('последний модуль: isLast=true, prev', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(makeCourses())),
+      };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      const place = await facade.getModulePlace(m3);
+      expect(place).toEqual({
+        courseId: 'c-1',
+        isFirst: false,
+        isLast: true,
+        prevModuleId: m2,
+      });
+    });
+
+    test('модуль вне опубликованных курсов → undefined', async () => {
+      const mockModule = {
+        execute: mock(() => Promise.resolve(makeCourses())),
+      };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      expect(await facade.getModulePlace('unknown')).toBeUndefined();
+    });
+
+    test('приоритет опубликованному курсу при форках', async () => {
+      const mk = (uuid: string, moduleIds: string[], status: Status) => ({
+        uuid,
+        title: `Course ${uuid}`,
+        authorId: 'a1',
+        status,
+        phases: [{ title: 'P1', moduleIds }],
+        createdAt: '2026-01-01T00:00',
+      });
+      // Архивный содержит [m1, m2x], опубликованный [m1, m2, m3]
+      const courses = [
+        mk('c-arch', [m1, 'm-2x'], Status.ARCHIVED),
+        mk('c-1', [m1, m2, m3], Status.PUBLISHED),
+      ];
+      const mockModule = { execute: mock(() => Promise.resolve(courses)) };
+      const facade = new CourseInProcFacade(mockModule as any);
+
+      const place = await facade.getModulePlace(m2);
+      expect(place?.courseId).toBe('c-1');
+      expect(place?.prevModuleId).toBe(m1);
+    });
+  });
+
+  describe('isSameModule', () => {
+    test('одинаковые id → true', async () => {
+      const facade = new CourseInProcFacade({} as any);
+      expect(await facade.isSameModule('m-1', 'm-1')).toBe(true);
+    });
+
+    test('разные id → false (сегодня; контракт — для будущих версий/копий)', async () => {
+      const facade = new CourseInProcFacade({} as any);
+      expect(await facade.isSameModule('m-1', 'm-2')).toBe(false);
+    });
+  });
+
+  describe('whichCoursesIncludeModule', () => {
     const moduleId = '33333333-3333-4333-8333-333333333333';
 
     function makeCourse(
@@ -103,7 +291,7 @@ describe('CourseInProcFacade', () => {
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.filterCoursesContainingModule(moduleId, [
+      const result = await facade.whichCoursesIncludeModule(moduleId, [
         'c-1',
         'c-2',
       ]);
@@ -118,7 +306,7 @@ describe('CourseInProcFacade', () => {
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.filterCoursesContainingModule(moduleId, [
+      const result = await facade.whichCoursesIncludeModule(moduleId, [
         'c-arch',
       ]);
 
@@ -131,9 +319,7 @@ describe('CourseInProcFacade', () => {
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.filterCoursesContainingModule(moduleId, [
-        'nope',
-      ]);
+      const result = await facade.whichCoursesIncludeModule(moduleId, ['nope']);
 
       expect(result).toEqual([]);
     });
@@ -144,7 +330,7 @@ describe('CourseInProcFacade', () => {
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.filterCoursesContainingModule(moduleId, []);
+      const result = await facade.whichCoursesIncludeModule(moduleId, []);
 
       expect(result).toEqual([]);
       expect(mockModule.execute).not.toHaveBeenCalled();

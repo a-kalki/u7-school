@@ -1,5 +1,4 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { type Course, Status } from '@u7-scl/course/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish, WishStatus } from '#domain/wish/entity';
 import coursePools from '../../domain/wish/pools/course.json';
@@ -25,11 +24,14 @@ function makeWishRepo() {
   return { save, getByUuid, getByUserAndTarget, getByUser };
 }
 
-function setupUc() {
+function setupUc(facadeOverrides: Record<string, unknown> = {}) {
   const wishRepo = makeWishRepo();
-  const getCourse = mock(
-    async (_courseId: string): Promise<Course | undefined> =>
-      ({ uuid: _courseId, status: Status.PUBLISHED }) as Course,
+  const isCourseEnrollable = mock(
+    async (_courseId: string): Promise<boolean> => true,
+  );
+  const getCourseStartModuleId = mock(
+    async (_courseId: string): Promise<string | undefined> =>
+      '11111111-1111-4111-8111-111111111111',
   );
   const startStandard = mock(
     async (_actorId: string, _pool: unknown, _ownerInfo: unknown) => {},
@@ -38,12 +40,22 @@ function setupUc() {
   const uc = new CreateCourseWishUc();
   uc.init({
     wishRepo,
-    courseFacade: { getCourse },
+    courseFacade: {
+      isCourseEnrollable,
+      getCourseStartModuleId,
+      ...facadeOverrides,
+    },
     questionnaireFacade: { startStandard },
     userFacade: {},
   } as unknown as WishApiModuleResolver);
 
-  return { wishRepo, getCourse, startStandard, uc };
+  return {
+    wishRepo,
+    isCourseEnrollable,
+    getCourseStartModuleId,
+    startStandard,
+    uc,
+  };
 }
 
 function makeActiveWish(
@@ -150,8 +162,8 @@ describe('CreateCourseWishUc', () => {
 
   describe('курс не найден', () => {
     test('выбрасывает COURSE_NOT_FOUND', async () => {
-      const { getCourse, uc } = setupUc();
-      getCourse.mockResolvedValueOnce(undefined);
+      const { isCourseEnrollable, uc } = setupUc();
+      isCourseEnrollable.mockResolvedValueOnce(false);
 
       await expect(
         uc.handle({ courseId: plainCourseId }, actorId),
@@ -161,22 +173,30 @@ describe('CreateCourseWishUc', () => {
 
   describe('курс не опубликован', () => {
     const cases = [
-      ['draft', Status.DRAFT],
-      ['archived', Status.ARCHIVED],
+      ['draft', false],
+      ['archived', false],
     ] as const;
 
-    for (const [label, status] of cases) {
+    for (const [label, enrollable] of cases) {
       test(`курс в статусе ${label} → COURSE_NOT_FOUND`, async () => {
-        const { getCourse, uc } = setupUc();
-        getCourse.mockResolvedValueOnce({
-          uuid: plainCourseId,
-          status,
-        } as Course);
+        const { isCourseEnrollable, uc } = setupUc();
+        isCourseEnrollable.mockResolvedValueOnce(enrollable);
 
         await expect(
           uc.handle({ courseId: plainCourseId }, actorId),
         ).rejects.toThrow('Курс не найден');
       });
     }
+  });
+
+  describe('у курса нет стартового модуля', () => {
+    test('пустая программа → COURSE_NOT_FOUND', async () => {
+      const { getCourseStartModuleId, uc } = setupUc();
+      getCourseStartModuleId.mockResolvedValueOnce(undefined);
+
+      await expect(
+        uc.handle({ courseId: plainCourseId }, actorId),
+      ).rejects.toThrow('Курс не найден');
+    });
   });
 });

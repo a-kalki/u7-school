@@ -1,5 +1,4 @@
 import { errConflict, errNotFound } from '@u7-scl/core/domain';
-import { Status } from '@u7-scl/course/domain';
 import { WishAr } from '#domain/wish/a-root';
 import type {
   CreateCourseWishCmd,
@@ -20,7 +19,10 @@ import { findCoursePool } from '#domain/wish/pools/course-pool';
 import { WishUseCase } from '../wish-uc';
 
 /**
- * Use-case создания желания пройти курс.
+ * Use-case создания желания пройти курс («запись на курс»).
+ * Валидация через фасад: курс доступен для записи (существует и опубликован)
+ * и имеет стартовый модуль — статус курса и структура программы решает
+ * модуль курсов.
  * Курс с пулом анкеты → желание в pending + запуск анкеты;
  * курс без пула → мгновенная фиксация (expressed).
  */
@@ -40,10 +42,14 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     command: CreateCourseWishCmd,
     actorId: string,
   ): Promise<CreateCourseWishOutput> {
-    // 1. Курс должен существовать и быть опубликован
-    //    (draft/archived для студента неотличимы от «не найден»).
-    const course = await this.resolve.courseFacade.getCourse(command.courseId);
-    if (!course || course.status !== Status.PUBLISHED) {
+    // 1. Курс должен быть доступен для записи и иметь стартовый модуль
+    //    (draft/archived/пустая программа для студента неотличимы от «не найден»).
+    const courseFacade = this.resolve.courseFacade;
+    const enrollable = await courseFacade.isCourseEnrollable(command.courseId);
+    const startModuleId = enrollable
+      ? await courseFacade.getCourseStartModuleId(command.courseId)
+      : undefined;
+    if (!enrollable || !startModuleId) {
       this.throwError(
         errNotFound<CourseNotFoundUcError>(
           'COURSE_NOT_FOUND',

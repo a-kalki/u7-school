@@ -1,8 +1,9 @@
 import { AppException } from '@u7-scl/core/domain';
 import type { ContentSnapshot } from '#domain/content-snapshot';
 import type { Course } from '#domain/course/entity';
-import type { CourseFacade, CourseProgram } from '#domain/facade';
+import type { CourseFacade, CourseProgram, ModulePlace } from '#domain/facade';
 import type { Module } from '#domain/module/entity';
+import { Status } from '#domain/status';
 import type { Step } from '#domain/step/entity';
 import type { CourseApiModule } from '../api/module';
 
@@ -37,7 +38,7 @@ export class CourseInProcFacade implements CourseFacade {
     );
   }
 
-  async filterCoursesContainingModule(
+  async whichCoursesIncludeModule(
     moduleId: string,
     courseIds: string[],
   ): Promise<string[]> {
@@ -70,6 +71,51 @@ export class CourseInProcFacade implements CourseFacade {
       }
       throw error;
     }
+  }
+
+  async isCourseEnrollable(courseId: string): Promise<boolean> {
+    const course = await this.getCourse(courseId);
+    return course?.status === Status.PUBLISHED;
+  }
+
+  async getCourseStartModuleId(courseId: string): Promise<string | undefined> {
+    const course = await this.getCourse(courseId);
+    if (!course) return undefined;
+    return course.phases.flatMap((p) => p.moduleIds)[0];
+  }
+
+  async getModulePlace(moduleId: string): Promise<ModulePlace | undefined> {
+    // list-courses без параметров возвращает только опубликованные курсы
+    const courses: Course[] = await this.courseModule.execute(
+      'list-courses',
+      {},
+    );
+    const containing = courses.filter((c) =>
+      c.phases.some((p) => p.moduleIds.includes(moduleId)),
+    );
+    if (containing.length === 0) return undefined;
+
+    const published = containing.find((c) => c.status === Status.PUBLISHED);
+    const course = published ?? containing[0];
+    if (!course) return undefined;
+    const allModuleIds = course.phases.flatMap((p) => p.moduleIds);
+    const idx = allModuleIds.indexOf(moduleId);
+    if (idx === -1) return undefined;
+
+    return {
+      courseId: course.uuid,
+      isFirst: idx === 0,
+      isLast: idx === allModuleIds.length - 1,
+      prevModuleId: idx > 0 ? allModuleIds[idx - 1] : undefined,
+      nextModuleId:
+        idx < allModuleIds.length - 1 ? allModuleIds[idx + 1] : undefined,
+    };
+  }
+
+  async isSameModule(moduleIdA: string, moduleIdB: string): Promise<boolean> {
+    // Сегодня историческая идентичность тривиальна; контракт — для будущих
+    // версий модулей (копия модуля с другим id — тот же модуль).
+    return moduleIdA === moduleIdB;
   }
 
   async getCourseProgram(courseId: string): Promise<CourseProgram> {

@@ -41,7 +41,7 @@ function makeWish(
 function setupEr(wishes: Wish[], matchedCourseIds: string[] = []) {
   const save = mock(async (_wish: Wish): Promise<void> => {});
   const getByUser = mock(async (_userId: string): Promise<Wish[]> => wishes);
-  const filterCoursesContainingModule = mock(
+  const whichCoursesIncludeModule = mock(
     async (_moduleId: string, _courseIds: string[]): Promise<string[]> =>
       matchedCourseIds,
   );
@@ -49,10 +49,10 @@ function setupEr(wishes: Wish[], matchedCourseIds: string[] = []) {
   const er = new FulfillWishEr();
   er.init({
     wishRepo: { save, getByUser },
-    courseFacade: { filterCoursesContainingModule },
+    courseFacade: { whichCoursesIncludeModule },
   } as unknown as WishApiModuleResolver);
 
-  return { save, getByUser, filterCoursesContainingModule, er };
+  return { save, getByUser, whichCoursesIncludeModule, er };
 }
 
 describe('FulfillWishEr', () => {
@@ -84,12 +84,12 @@ describe('FulfillWishEr', () => {
   test('один батч-вызов фасада с courseIds всех активных кандидатов', async () => {
     const event = makeEvent(userId);
     const wish = makeWish(userId, 'expressed');
-    const { filterCoursesContainingModule, er } = setupEr([wish], [courseId]);
+    const { whichCoursesIncludeModule, er } = setupEr([wish], [courseId]);
 
     await er.handle(event);
 
-    expect(filterCoursesContainingModule).toHaveBeenCalledTimes(1);
-    expect(filterCoursesContainingModule).toHaveBeenCalledWith(moduleId, [
+    expect(whichCoursesIncludeModule).toHaveBeenCalledTimes(1);
+    expect(whichCoursesIncludeModule).toHaveBeenCalledWith(moduleId, [
       courseId,
     ]);
   });
@@ -98,14 +98,14 @@ describe('FulfillWishEr', () => {
     const event = makeEvent(userId);
     const fulfilled = makeWish(userId, 'fulfilled');
     const cancelled = makeWish(userId, 'cancelled');
-    const { save, filterCoursesContainingModule, er } = setupEr([
+    const { save, whichCoursesIncludeModule, er } = setupEr([
       fulfilled,
       cancelled,
     ]);
 
     await er.handle(event);
 
-    expect(filterCoursesContainingModule).not.toHaveBeenCalled();
+    expect(whichCoursesIncludeModule).not.toHaveBeenCalled();
     expect(save).not.toHaveBeenCalled();
   });
 
@@ -120,11 +120,11 @@ describe('FulfillWishEr', () => {
   });
 
   test('желаний у пользователя нет — тихий выход', async () => {
-    const { save, filterCoursesContainingModule, er } = setupEr([]);
+    const { save, whichCoursesIncludeModule, er } = setupEr([]);
 
     await er.handle(makeEvent(userId));
 
-    expect(filterCoursesContainingModule).not.toHaveBeenCalled();
+    expect(whichCoursesIncludeModule).not.toHaveBeenCalled();
     expect(save).not.toHaveBeenCalled();
   });
 

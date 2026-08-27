@@ -54,7 +54,7 @@ export { CoursePolicy } from './course/policy';
 export type { CourseListFilter, CourseRepo } from './course/repo';
 // Domain Service
 export { CourseDs } from './course-ds';
-export type { CourseFacade, CourseProgram } from './facade';
+export type { CourseFacade, CourseProgram, ModulePlace } from './facade';
 // Агрегат Lesson
 export { LessonAr } from './lesson/a-root';
 export type {

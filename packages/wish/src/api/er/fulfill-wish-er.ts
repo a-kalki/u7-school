@@ -42,7 +42,7 @@ export class FulfillWishEr extends EventReaction<
 
     // Один батч-запрос: какие из курсов кандидатов содержат модуль потока.
     const matched = new Set(
-      await this.resolve.courseFacade.filterCoursesContainingModule(
+      await this.resolve.courseFacade.whichCoursesIncludeModule(
         moduleId,
         candidates.map((w) => w.target.courseId),
       ),
