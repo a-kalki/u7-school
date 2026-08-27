@@ -1,0 +1,18 @@
+Задачи 1.1–1.2: Событие student.enrolled + публикация в enroll-student-uc
+
+Сводка:
+- Создан StudentEnrolledEvent (eventName student.enrolled, aggregateName Student, payload: studentId/userId/streamId/moduleId). Payload сознательно без courseId — принадлежность модуля курсу резолвит course-модуль по запросу (решение 7 спеки).
+- StudentAr.enroll: добавлен 4-й параметр moduleId, агрегат добавляет событие через addEvent; StudentArMeta.events обязателен (иначе flushEvents возвращает (T|undefined)[]).
+- enroll-student-uc: publishEvents(studentAr) после сохранения; удалён шаг 6 (снятие CANDIDATE) — заменён событием.
+- Тесты: 2 новых на агрегат (событие+flush-идемпотентность), публикация в UC (eventBus mock), отсутствие публикации при ошибке gate; CANDIDATE-тесты заменены на «removeRoleFromUser не вызывается» (разрешение — FR4 п.5 спеки).
+
+Файлы:
+- packages/stream/src/domain/student/events.ts (новый)
+- packages/stream/src/domain/student/entity.ts
+- packages/stream/src/domain/student/a-root.ts
+- packages/stream/src/domain/student/a-root.test.ts
+- packages/stream/src/domain/stream-ds.test.ts
+- packages/stream/src/api/student/enroll-student-uc.ts
+- packages/stream/src/api/student/enroll-student-uc.test.ts
+
+Тесты: bun test 1521 pass / 0 fail. TS OK, biome чист.
