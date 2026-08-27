@@ -16,8 +16,8 @@
 
 ## Фаза 3: Событие `student.completed`
 
-- [ ] Task: Падающие тесты: `StudentAr.advance()`/`markNotAdvanced()` добавляют `StudentCompletedEvent` (payload: `studentId, userId, streamId, moduleId, outcome`); `CompleteStudentUc` публикует через `publishEvents`; шаг отправки через фасад удалён
-- [ ] Task: Реализация: `packages/stream/src/domain/student/events.ts` + `addEvent` в агрегате + `publishEvents` в UC
+- [x] Task: Падающие тесты: `StudentAr.advance()`/`markNotAdvanced()` добавляют `StudentCompletedEvent` (payload: `studentId, userId, streamId, moduleId, outcome`); `CompleteStudentUc` публикует через `publishEvents`; шаг отправки через фасад удалён (${HASH:0:7})
+- [x] Task: Реализация: `packages/stream/src/domain/student/events.ts` + `addEvent` в агрегате + `publishEvents` в UC (${HASH:0:7})
 - [ ] Task: Conductor - Ручная верификация фазы 'Событие завершения' (протокол в workflow.md)
 
 ## Фаза 4: Доменный фасад курса
