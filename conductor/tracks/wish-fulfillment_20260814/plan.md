@@ -9,14 +9,14 @@
 
 ## Фаза 2: ER fulfill-wish
 
-- [ ] Task: Написать падающие тесты на `filterCoursesContainingModule` (фасад курсов) и `fulfill-wish` ER (батч-принадлежность, переход expressed|confirmed→fulfilled, идемпотентность)
 - [x] Task: Написать падающие тесты на `filterCoursesContainingModule` (фасад курсов) и `fulfill-wish` ER (батч-принадлежность, переход expressed|confirmed→fulfilled, идемпотентность) — beb59c3
+- [x] Task: Реализовать `WishAr.fulfill()` + `FulfillWishEr` + `filterCoursesContainingModule` (CourseFacade + InProc) + регистрация в `WishApiModule.reactions` — beb59c3
 - [x] Task: Проверка `published` курса в `create-course-wish-uc` (draft/archived → COURSE_NOT_FOUND) + тесты — beb59c3
 - [x] Task: Conductor - Ручная верификация 'fulfill-wish' — план перенесён в release.md (§3)
 
 ## Фаза 3: Удаление роли CANDIDATE
 
-- [ ] Task: Убрать `CANDIDATE` из enum (user + app), policy, `remove-role-to-user-uc`
-- [ ] Task: Обновить тесты и seed-fixtures (grep CANDIDATE → пусто)
-- [ ] Task: Вычистить `CANDIDATE` из JSON-данных (`data/`, прод `dbDir`) + проверка загрузки старых записей
-- [ ] Task: Conductor - Ручная верификация 'Удаление роли CANDIDATE'
+- [x] Task: Убрать `CANDIDATE` из enum (user + app), policy, `remove-role-to-user-uc` — 840adb7
+- [x] Task: Обновить тесты и seed-fixtures (grep CANDIDATE → пусто) — 840adb7
+- [x] Task: Вычистить `CANDIDATE` из JSON-данных (`data/`, прод `dbDir`) + проверка загрузки старых записей — 840adb7 (data/ вне git; прод-миграция — release.md §1)
+- [x] Task: Conductor - Ручная верификация 'Удаление роли CANDIDATE' — план перенесён в release.md (§4)

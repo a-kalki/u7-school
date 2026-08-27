@@ -762,6 +762,9 @@ type ImportReport = {
 - `CourseFacade.isProgramReady(courseId)`: все moduleIds → published.
 - `CreateStreamUc`: проверка readiness.
 
+**Wish integration (из трека wish-fulfillment):**
+- `CourseFacade.filterCoursesContainingModule(moduleId, courseIds)` (введён в треке wish-fulfillment для ER `fulfill-wish`) — расширить: при проверке ходить по `basedOn`-цепочке курсов (форки), чтобы историческая принадлежность модуля курсу отвечала `true` даже после форка/архивации предка (курсы-предки остаются в данных).
+
 **API-предупреждение:** fork UC: «новая версия видна только будущим; активные продолжают на старой».
 
 **`update-stream-snapshot.ts`:** ограничить/вынести (§6.3).

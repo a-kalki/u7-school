@@ -1,6 +1,6 @@
 # Реестр треков
 
-- [ ] **Track: wish: реализация желания при зачислении + удаление роли CANDIDATE**
+- [~] **Track: wish: реализация желания при зачислении + удаление роли CANDIDATE**
 *Link: [./tracks/wish-fulfillment_20260814/](./tracks/wish-fulfillment_20260814/)*
 
 ---
