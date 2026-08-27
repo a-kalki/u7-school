@@ -1,0 +1,8 @@
+{
+  "track_id": "wish-invite_20260827",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-08-27T20:15:00Z",
+  "updated_at": "2026-08-27T20:15:00Z",
+  "description": "wish: приглашение желающим при открытии набора (событие stream.created + ER invite-wishers + UI)"
+}
