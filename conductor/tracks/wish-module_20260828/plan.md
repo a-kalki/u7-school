@@ -10,8 +10,8 @@
 
 ## Фаза 2: Уведомление о зачислении
 
-- [ ] Task: Падающие тесты подписки `HubStory` на `student.enrolled`: резолв `telegramId` через `appApi.execute('user', 'get-user')`, текст «🎓 Ты зачислен…», кнопка «🎓 Моя учёба» через `this.cb('my-study')`, отправка через `notify`
-- [ ] Task: Реализация подписки в `learning/stories/hub.ts`; удалить шаг отправки из `EnrollStudentUc` + почистить его тесты от `tgFacade`
+- [x] Task: Падающие тесты подписки `HubStory` на `student.enrolled`: резолв `telegramId` через `appApi.execute('user', 'get-user')`, текст «🎓 Ты зачислен…», кнопка «🎓 Моя учёба» через `this.cb('my-study')`, отправка через `notify` (00ff3ec)
+- [x] Task: Реализация подписки в `learning/stories/hub.ts`; удалить шаг отправки из `EnrollStudentUc` + почистить его тесты от `tgFacade` (00ff3ec)
 - [ ] Task: Conductor - Ручная верификация фазы 'Уведомление о зачислении' (протокол в workflow.md)
 
 ## Фаза 3: Событие `student.completed`
