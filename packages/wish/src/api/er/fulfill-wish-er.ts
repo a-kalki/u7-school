@@ -13,7 +13,6 @@ export interface FulfillWishErMeta extends ErMeta<StudentEnrolledEvent> {
 /**
  * Реакция на зачисление студента на поток.
  * Желания пользователя на курсы, в программу которых входит модуль потока
- * (принадлежность спрашивает у модуля курсов, см. CourseFacade),
  * переходят expressed|confirmed → fulfilled; остальные состояния
  * игнорируются (идемпотентность).
  */
@@ -24,7 +23,7 @@ export class FulfillWishEr extends EventReaction<
   protected readonly eventName = 'student.enrolled' as const;
   protected readonly erName = 'fulfill-wish' as const;
   protected readonly erLabel =
-    'Реализовать желание при зачислении на поток' as const;
+    'Отметить желание пройти курс реализованным' as const;
 
   async handle(event: FulfillWishErMeta['event']): Promise<void> {
     const { userId, moduleId } = event.payload;
