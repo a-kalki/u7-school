@@ -1,0 +1,14 @@
+Задача: notify() — проактивные уведомления в core (Фаза 1, задачи 1-2 трека wish-module)
+
+Изменения:
+- packages/core/src/ui/bot/types.ts: NotificationPayload + ProactiveSender.notify()
+- packages/core/src/ui/bot/ui-app.ts: BotUiApp.notify() — делегирует transport
+- packages/core/src/ui/bot/bot-controller.ts: BotController.notify() — префиксация кнопок через #prefixCommand
+- apps/u7-bot/src/infra/bot-transport.ts: BotTransport.notify() — keepPrevKeyboard: true, без captureInput, создание сессии
+
+Тесты:
+- ui-app.test.ts: notify делегирует в transport
+- bot-controller.test.ts: notify префиксирует кнопки, кросс-контроллерные коды не трогает
+- bot-transport.test.ts: не удаляет клавиатуру предыдущего экрана, не трогает activeHandler, создаёт сессию, передаёт parseMode/клавиатуру, сжимает UUID
+
+Причина: уведомления студенту должны идти через стори (UI-слой), нужен безопасный API отправки без флагов.
