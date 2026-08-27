@@ -5,11 +5,6 @@
     "cancelWarning": "Анкета прервана. Ты можешь начать заново в карточке курса.",
     "questions": [
       {
-        "question": "Расскажи подробнее, чего ты хочешь достичь с помощью наших курсов? Какие у тебя ожидания и цели?",
-        "questionCode": "goal_text",
-        "type": "text"
-      },
-      {
         "question": "Как ты нашел нас?",
         "questionCode": "how_found",
         "type": "choice",
@@ -288,6 +283,11 @@
             "answerCode": "in_the_evening"
           }
         ]
+      },
+      {
+        "question": "Расскажи подробнее, чего ты хочешь достичь с помощью наших курсов? Какие у тебя ожидания и цели?",
+        "questionCode": "goal_text",
+        "type": "text"
       }
     ]
   }
