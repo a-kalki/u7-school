@@ -18,7 +18,7 @@
 - [x] Task: Прогон `CI=true bun run check:a u7-bot` — зелёный; полный `CI=true bun run check`: 1625 pass / 0 fail — 23d0a65
 - [ ] Task: Conductor - Ручная верификация 'Интеграционные тесты instant-ветки'
 
-## Фаза 3: E2E тесты анкетной ветки (B)
+## Фаза 3: E2E тесты анкетной ветки (B) [checkpoint: c6555ab]
 
 - [x] Task: Написать `tests/e2e/wish-questionnaire.e2e.test.ts` (каркас: CoursesController + QuestionnaireController + общий eventBus): apply на курс `dddddddd` → пустой ответ стори + проактивный первый вопрос («Вопрос 1 из 3», подсказка /cancel, captureInput) в `transport.api.sentMessages` — c6555ab
 - [x] Task: Тест опасного ответа: text-вопрос с ответом «Да. Конечно - (тест) #1! +2=2» → бот не падает, «Вопрос 2 из 3» без подсказки, markdown-safe — c6555ab
