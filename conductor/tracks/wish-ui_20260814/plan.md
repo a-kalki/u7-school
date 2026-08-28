@@ -2,8 +2,8 @@
 
 ## Фаза 1: Кнопка apply в course-catalog
 
-- [ ] Task: Написать падающие тесты на кнопку «🎓 Хочу пройти курс» и обработку `apply` (instant/questionnaire/конфликт)
-- [ ] Task: Добавить кнопку на карточку курса + обработчик `apply` в `course-catalog.story`
+- [x] Task: Написать падающие тесты на кнопку «🎓 Хочу пройти курс» и обработку `apply` (instant/questionnaire/конфликт) — caa3026
+- [x] Task: Добавить кнопку на карточку курса + обработчик `apply` в `course-catalog.story` — caa3026
 - [ ] Task: Conductor - Ручная верификация 'Кнопка apply'
 
 ## Фаза 2: Экраны W03/W04 + статус в ошибке конфликта
