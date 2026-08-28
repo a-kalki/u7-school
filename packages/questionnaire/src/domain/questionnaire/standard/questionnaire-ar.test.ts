@@ -436,3 +436,60 @@ describe('QuestionnaireAr (v2)', () => {
     });
   });
 });
+
+describe('QuestionnaireAr — прогресс в ответах', () => {
+  function progressPool(): QuestionnairePool {
+    return makePool([
+      {
+        question: 'Мультивыбор',
+        questionCode: 'm1',
+        type: 'choice',
+        multiple: true,
+        answers: [
+          { answer: 'А', answerCode: 'a' },
+          { answer: 'Б', answerCode: 'b' },
+        ],
+      },
+      {
+        question: 'Финал',
+        questionCode: 'f1',
+        type: 'choice',
+        multiple: false,
+        answers: [{ answer: 'OK', answerCode: 'ok' }],
+      },
+    ]);
+  }
+
+  test('wait_next несёт questionIndex и poolSize', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      progressPool(),
+    );
+    ar.start();
+
+    const draft = ar.handleAction({ type: 'callback', value: 'a' });
+    if (draft.type !== 'wait_next') {
+      throw new Error(`Ожидался wait_next, получен ${draft.type}`);
+    }
+
+    expect(draft.questionIndex).toBe(1);
+    expect(draft.poolSize).toBe(2);
+  });
+
+  test('new_question несёт questionIndex следующего вопроса и poolSize', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      progressPool(),
+    );
+    ar.start();
+    ar.handleAction({ type: 'callback', value: 'a' });
+
+    const next = ar.handleAction({ type: 'callback', value: 'next:m1' });
+    if (next.type !== 'new_question') {
+      throw new Error(`Ожидался new_question, получен ${next.type}`);
+    }
+
+    expect(next.questionIndex).toBe(2);
+    expect(next.poolSize).toBe(2);
+  });
+});

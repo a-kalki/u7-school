@@ -230,6 +230,7 @@ export abstract class BaseQuestionnaireAr<
           selectedAnswers,
           nextButton: BaseQuestionnaireAr.getNextButtonText(questionCode),
           cancelWarning: this.#cancelWarning(),
+          ...this.#progress(question.questionCode),
         };
       }
     }
@@ -243,6 +244,7 @@ export abstract class BaseQuestionnaireAr<
       question,
       selectedAnswers,
       cancelWarning: this.#cancelWarning(),
+      ...this.#progress(question.questionCode),
     };
   }
 
@@ -283,6 +285,7 @@ export abstract class BaseQuestionnaireAr<
       currentQuestion: question,
       selectedAnswers: newAnswers,
       cancelWarning: this.#cancelWarning(),
+      ...this.#progress(question.questionCode),
     };
     if (newAnswers.length > 0) {
       response.nextButton = BaseQuestionnaireAr.getNextButtonText(questionCode);
@@ -393,6 +396,7 @@ export abstract class BaseQuestionnaireAr<
         previousQuestion,
         previousSelectedAnswers: lastSelectedAnswers,
         cancelWarning: this.#cancelWarning(),
+        ...this.#progress(nextQuestion.questionCode),
       };
     }
 
@@ -433,6 +437,15 @@ export abstract class BaseQuestionnaireAr<
 
   #cancelWarning(): string | undefined {
     return this.state.questionPool.cancelWarning;
+  }
+
+  /** Прогресс вопроса в пуле — для шапки «Вопрос N из M» в UI. */
+  #progress(
+    questionCode: string,
+  ): { questionIndex: number; poolSize: number } | undefined {
+    const progress = this.#engine.getProgress(questionCode);
+    if (!progress) return undefined;
+    return { questionIndex: progress.index, poolSize: progress.total };
   }
 
   #checkIsInProgress(): void {

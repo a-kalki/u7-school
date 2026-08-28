@@ -442,10 +442,10 @@ export class FillStory extends U7BotUiStory {
     if (response.type === 'wait_next') {
       return {
         sendMessage: {
-          text: this.#formatQuestionMd(
-            response.currentQuestion,
-            response.selectedAnswers,
-          ),
+          text: this.#formatQuestionMd(response.currentQuestion, {
+            selected: response.selectedAnswers,
+            progress: this.#progressOf(response),
+          }),
           parseMode: 'MarkdownV2',
           keyboard: this.#getKeyboard(
             response.currentQuestion,
@@ -463,10 +463,11 @@ export class FillStory extends U7BotUiStory {
     if (response.type === 'new_question') {
       return {
         sendMessage: {
-          text: this.#formatQuestionMd(
-            response.question,
-            response.selectedAnswers ?? [],
-          ),
+          text: this.#formatQuestionMd(response.question, {
+            selected: response.selectedAnswers ?? [],
+            progress: this.#progressOf(response),
+            isFirstQuestion: response.previousQuestion === undefined,
+          }),
           parseMode: 'MarkdownV2',
           keyboard: this.#getKeyboard(response.question),
         },
@@ -506,18 +507,33 @@ export class FillStory extends U7BotUiStory {
     return this.cb('next', qId, questionCode);
   }
 
-  #formatQuestionMd(question: Question, selected: string[]): string {
+  #formatQuestionMd(
+    question: Question,
+    options: {
+      selected: string[];
+      progress?: { questionIndex: number; poolSize: number };
+      isFirstQuestion?: boolean;
+    },
+  ): string {
     const esc = (t: string) => t.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
 
+    const header = options.progress
+      ? `*Вопрос ${options.progress.questionIndex} из ${options.progress.poolSize}*\n\n`
+      : '';
+
+    const cancelHint = options.isFirstQuestion
+      ? `\n\n${esc('В любой момент можно нажать /cancel — вернёшься в главное меню.')}`
+      : '';
+
     if (question.type !== 'choice') {
-      return `*${esc(question.question)}*`;
+      return `${header}*${esc(question.question)}*${cancelHint}`;
     }
 
-    const lines = [`*${esc(question.question)}*`, ''];
+    const lines = [`${header}*${esc(question.question)}*`, ''];
     let idx = 0;
     for (const a of question.answers) {
       idx++;
-      const checked = selected.includes(a.answerCode);
+      const checked = options.selected.includes(a.answerCode);
       const marker = question.multiple
         ? checked
           ? '*\\[x\\]*'
@@ -527,7 +543,24 @@ export class FillStory extends U7BotUiStory {
           : '\\( \\)';
       lines.push(`${idx}\\. ${marker} ${esc(a.answer)}`);
     }
-    return lines.join('\n');
+    return `${lines.join('\n')}${cancelHint}`;
+  }
+
+  /** Достаёт прогресс из ответа UC (поля опциональны). */
+  #progressOf(response: {
+    questionIndex?: number;
+    poolSize?: number;
+  }): { questionIndex: number; poolSize: number } | undefined {
+    if (
+      response.questionIndex === undefined ||
+      response.poolSize === undefined
+    ) {
+      return undefined;
+    }
+    return {
+      questionIndex: response.questionIndex,
+      poolSize: response.poolSize,
+    };
   }
 
   #getKeyboard(

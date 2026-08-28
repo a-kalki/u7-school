@@ -234,3 +234,80 @@ describe('FillStory — completionText на completed', () => {
     expect(res.sendMessage?.text).toBe('Спасибо! Твоя анкета принята.');
   });
 });
+
+describe('FillStory — прогресс анкеты и подсказка /cancel', () => {
+  const actor = { uuid: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' } as User;
+  const session = {} as SessionData;
+
+  function questionStory(response: Record<string, unknown>) {
+    return makeStoryWithQmod(async () => response);
+  }
+
+  test('new_question: шапка «Вопрос N из M»', async () => {
+    const { story } = questionStory({
+      type: 'new_question',
+      questionnaireId: 'q-1',
+      question: { questionCode: 'qc2', type: 'text', question: 'Второй?' },
+      questionIndex: 2,
+      poolSize: 3,
+    });
+
+    const res = await story.handleCallback('answer:q-1:yes', actor, session);
+
+    expect(res.sendMessage?.text).toContain('Вопрос 2 из 3');
+  });
+
+  test('wait_next: тоже показывает прогресс', async () => {
+    const { story } = questionStory({
+      type: 'wait_next',
+      questionnaireId: 'q-1',
+      currentQuestion: {
+        questionCode: 'qc1',
+        type: 'choice',
+        multiple: true,
+        question: 'Первый?',
+        answers: [{ answer: 'А', answerCode: 'a' }],
+      },
+      selectedAnswers: ['a'],
+      questionIndex: 1,
+      poolSize: 3,
+    });
+
+    const res = await story.handleCallback('answer:q-1:a', actor, session);
+
+    expect(res.sendMessage?.text).toContain('Вопрос 1 из 3');
+  });
+
+  test('первый вопрос (previousQuestion отсутствует) — подсказка /cancel', async () => {
+    const { story } = questionStory({
+      type: 'new_question',
+      questionnaireId: 'q-1',
+      question: { questionCode: 'qc1', type: 'text', question: 'Первый?' },
+      questionIndex: 1,
+      poolSize: 3,
+    });
+
+    const res = await story.handleCallback('answer:q-1:yes', actor, session);
+
+    expect(res.sendMessage?.text).toContain('/cancel');
+  });
+
+  test('не первый вопрос (previousQuestion есть) — без подсказки', async () => {
+    const { story } = questionStory({
+      type: 'new_question',
+      questionnaireId: 'q-1',
+      question: { questionCode: 'qc2', type: 'text', question: 'Второй?' },
+      previousQuestion: {
+        questionCode: 'qc1',
+        type: 'text',
+        question: 'Первый?',
+      },
+      questionIndex: 2,
+      poolSize: 3,
+    });
+
+    const res = await story.handleCallback('answer:q-1:yes', actor, session);
+
+    expect(res.sendMessage?.text).not.toContain('/cancel');
+  });
+});

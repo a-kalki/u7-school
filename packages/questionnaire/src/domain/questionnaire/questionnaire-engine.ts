@@ -65,6 +65,18 @@ export class QuestionnaireEngine {
     return this.index.get(code);
   }
 
+  /**
+   * Прогресс вопроса в пуле: позиция (1-based) и общий размер пула.
+   * Для условных веток total не меняется — это полный размер пула.
+   */
+  getProgress(
+    questionCode: string,
+  ): { index: number; total: number } | undefined {
+    const idx = this.pool.findIndex((q) => q.questionCode === questionCode);
+    if (idx === -1) return undefined;
+    return { index: idx + 1, total: this.pool.length };
+  }
+
   /** Текст вопроса по коду (или сам код если вопрос не найден) */
   getQuestionText(code: string): string {
     return this.index.get(code)?.question ?? code;

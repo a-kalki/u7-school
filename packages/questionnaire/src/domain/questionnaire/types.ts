@@ -19,6 +19,10 @@ export type WaitNextResponse = {
   selectedAnswers: string[];
   nextButton?: string;
   cancelWarning?: string;
+  /** Позиция текущего вопроса в пуле (1-based) — для шапки «Вопрос N из M». */
+  questionIndex?: number;
+  /** Общий размер пула — для шапки «Вопрос N из M». */
+  poolSize?: number;
 };
 
 /** Новый вопрос */
@@ -30,6 +34,10 @@ export type NewQuestionResponse = {
   previousQuestion?: Question;
   previousSelectedAnswers?: string[];
   cancelWarning?: string;
+  /** Позиция текущего вопроса в пуле (1-based) — для шапки «Вопрос N из M». */
+  questionIndex?: number;
+  /** Общий размер пула — для шапки «Вопрос N из M». */
+  poolSize?: number;
 };
 
 /** Анкета завершена */
@@ -66,6 +74,8 @@ export const WaitNextResponseSchema = v.object({
   selectedAnswers: v.array(v.string()),
   nextButton: v.optional(v.string()),
   cancelWarning: v.optional(v.string()),
+  questionIndex: v.optional(v.number()),
+  poolSize: v.optional(v.number()),
 });
 
 export const NewQuestionResponseSchema = v.object({
@@ -76,6 +86,8 @@ export const NewQuestionResponseSchema = v.object({
   previousQuestion: v.optional(QuestionSchema),
   previousSelectedAnswers: v.optional(v.array(v.string())),
   cancelWarning: v.optional(v.string()),
+  questionIndex: v.optional(v.number()),
+  poolSize: v.optional(v.number()),
 });
 
 export const CompletedResponseSchema = v.object({

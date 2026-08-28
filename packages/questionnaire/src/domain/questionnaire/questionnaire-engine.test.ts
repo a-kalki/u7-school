@@ -196,3 +196,21 @@ describe('QuestionnaireEngine', () => {
     expect(nextWithNo?.questionCode).toBe('q3');
   });
 });
+
+describe('QuestionnaireEngine.getProgress', () => {
+  const pool: Question[] = [
+    { question: 'Один', questionCode: 'q1', type: 'text' },
+    { question: 'Два', questionCode: 'q2', type: 'text' },
+  ];
+
+  test('возвращает 1-based позицию вопроса и размер пула', () => {
+    const engine = new QuestionnaireEngine(pool);
+    expect(engine.getProgress('q1')).toEqual({ index: 1, total: 2 });
+    expect(engine.getProgress('q2')).toEqual({ index: 2, total: 2 });
+  });
+
+  test('неизвестный код вопроса — undefined', () => {
+    const engine = new QuestionnaireEngine(pool);
+    expect(engine.getProgress('nope')).toBeUndefined();
+  });
+});

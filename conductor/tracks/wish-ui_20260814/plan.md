@@ -19,7 +19,7 @@
 - [x] Task: Реализовать ветку `resume` в FillStory + `Routes.questionnaire.resume(courseId)` — 29d0ae0
 - [x] Task: Написать падающие тесты на проброс `completionText` в `CompletedResponse` и рендер в FillStory — ae430a9
 - [x] Task: Пробросить `completionText` в `CompletedResponse` (packages/questionnaire) + рендер в FillStory — ae430a9
-- [ ] Task: Написать падающие тесты на прогресс «Вопрос N из M» и подсказку `/cancel` в первом вопросе
+- [~] Task: Написать падающие тесты на прогресс «Вопрос N из M» и подсказку `/cancel` в первом вопросе
 - [ ] Task: Реализовать прогресс и подсказку в FillStory
 - [ ] Task: Conductor - Ручная верификация 'Продолжение анкеты + completionText'
 
