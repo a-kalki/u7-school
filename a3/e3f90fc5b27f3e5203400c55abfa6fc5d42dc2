@@ -1,0 +1,10 @@
+Задачи Фазы 3 (трек wish-invite_20260827): UI приглашения + W05-M
+
+Изменения:
+- apps/u7-bot/src/controllers/streams/stories/wish-invite.story.ts (новый) — подписка на wish:invite: адаптивный текст course/module, ментор-строка (nick → t.me-ссылка, без nick → имя), подсказка про ключ зачисления; кнопки «📚 Открыть поток» (Routes.stream.view) и «🗑️ Отменить желание» (cancel-маршрут по wishKind); доставка через ProactiveSender.send; тихий пропуск при сбое загрузки потока
+- apps/u7-bot/src/controllers/streams/controller.ts — регистрация WishInviteStory
+- apps/u7-bot/src/controllers/shared/routes.ts — + stream.view, course.cancelWishCourse, course.cancelWishModule (канонические кросс-контроллерные адреса)
+- apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts — W05-M: cancel-mod → подтверждение → cancel-mod-confirm → cancel-wish { kind: 'module', moduleId }; гонка — мягкое сообщение
+- Тесты: wish-invite.story.test.ts (новый, 6 кейсов), course-catalog.story.test.ts (+3 W05-M), controller.test.ts (реестр 2 → 3 stories)
+
+Причина: замыкание цикла желания — пользователь узнаёт о наборе и может записаться или отменить желание.
