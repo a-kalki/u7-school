@@ -5,11 +5,6 @@
 
 ---
 
-- [x] **Track: wish: интеграционные и e2e тесты пользовательского пути**
-*Link: [./tracks/wish-e2e_20260828/](./tracks/wish-e2e_20260828/)*
-
----
-
 - [ ] **Track: wish: приглашение желающим при открытии набора**
 *Link: [./tracks/wish-invite_20260827/](./tracks/wish-invite_20260827/)*
 
