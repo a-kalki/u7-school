@@ -7,11 +7,53 @@
     "phases": [
       {
         "title": "Синтаксис",
-        "moduleIds": ["a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"]
+        "moduleIds": [
+          "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"
+        ]
       },
       {
         "title": "Алгоритмика",
-        "moduleIds": ["a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"]
+        "moduleIds": [
+          "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"
+        ]
+      }
+    ],
+    "status": "published",
+    "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "29adc3be-873e-47ec-aa30-61f5e6e25d4e",
+    "title": "UX/UI Дизайн с нуля",
+    "description": "Курс по дизайну интерфейсов: от исследования до прототипа. Запись через анкету",
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "phases": [
+      {
+        "title": "Основы",
+        "moduleIds": [
+          "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"
+        ]
+      },
+      {
+        "title": "Практика",
+        "moduleIds": [
+          "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"
+        ]
+      }
+    ],
+    "status": "published",
+    "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+    "title": "Продвинутый JavaScript",
+    "description": "Курс для продолжающих: замыкания, асинхронность, паттерны",
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "phases": [
+      {
+        "title": "Глубокий JS",
+        "moduleIds": [
+          "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"
+        ]
       }
     ],
     "status": "published",
