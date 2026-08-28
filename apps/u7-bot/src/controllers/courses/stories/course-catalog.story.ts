@@ -71,6 +71,8 @@ export class CourseCatalogStory extends U7BotUiStory {
         );
       case 'wish':
         return this.#handleWishModule(ids[0] ?? '', actor);
+      case 'apply':
+        return this.#handleApply(ids[0] ?? '', actor);
       default:
         return {
           sendMessage: { text: '⚠️ Неизвестная команда каталога курсов' },
@@ -133,6 +135,10 @@ export class CourseCatalogStory extends U7BotUiStory {
         {
           text: `${direction} ${course.title}`,
           code: this.cb('phases', course.uuid),
+        },
+        {
+          text: '🎓 Хочу пройти курс',
+          code: this.cb('apply', course.uuid),
         },
       ]);
     }
@@ -501,6 +507,65 @@ export class CourseCatalogStory extends U7BotUiStory {
   #truncate(text: string, maxLen = 4000): string {
     if (text.length <= maxLen) return text;
     return `${text.slice(0, maxLen - 15)}${this.#esc('...')}`;
+  }
+
+  // ── Желание пройти курс (кнопка из карточки курса) ──
+
+  /**
+   * apply:{courseId} — фиксирует желание пройти курс (W01→W02/W03).
+   *
+   * outcome instant — рендер W03; outcome questionnaire — анкету
+   * проактивно рендерит FillStory (подписка на questionnaire:start),
+   * стори ничего не отправляет. Конфликт WISH_ALREADY_EXISTS — экран W04.
+   */
+  async #handleApply(courseId: string, actor: User): Promise<BotResponse> {
+    if (!courseId) {
+      return { sendMessage: { text: '⚠️ Курс не указан' } };
+    }
+
+    try {
+      const { outcome } = (await this.appApi.execute(
+        'create-course-wish',
+        { courseId },
+        actor.uuid,
+      )) as { outcome: 'instant' | 'questionnaire' };
+
+      if (outcome === 'questionnaire') {
+        // Анкета запущена UC — её экраны приходят проактивно через FillStory
+        return {};
+      }
+
+      // W03 — мгновенная фиксация (курс без пула анкеты)
+      return {
+        sendMessage: {
+          text: [
+            '🎯 Твоё желание пройти курс зафиксировано\\!',
+            '',
+            'Мы напишем тебе, когда откроется набор на этот курс\\.',
+          ].join('\n'),
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[this.#getMainMenuButton()]],
+            isMultiple: false,
+          },
+        },
+      };
+    } catch (err) {
+      // W04 — желание уже есть / анкета начата (конфликт — не ошибка)
+      if (fromError(err).kind === 'conflict') {
+        return {
+          sendMessage: {
+            text: '📝 Ты уже выразил желание пройти этот курс\\.',
+            parseMode: 'MarkdownV2',
+            keyboard: {
+              rows: [[this.#getMainMenuButton()]],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+      return this.handleError(err);
+    }
   }
 
   // ── Запись на модуль (кнопка из уведомления о завершении) ──

@@ -709,4 +709,144 @@ describe('CourseCatalogStory', () => {
       expect(response.sendMessage?.text).toContain('⚠️');
     });
   });
+
+  // ── Желание пройти курс (кнопка apply на карточке курса) ──
+
+  describe('apply — желание пройти курс', () => {
+    const courseId = 'c1';
+
+    function makeApplyApi(result?: { outcome: string }, error?: unknown) {
+      return {
+        execute: mock(
+          async (ucName: string, _attrs: Record<string, unknown>) => {
+            if (ucName === 'create-course-wish') {
+              if (error) throw error;
+              return result;
+            }
+            return undefined;
+          },
+        ),
+      };
+    }
+
+    function makeCatalogApi() {
+      return makeAppApi([
+        {
+          uuid: courseId,
+          title: 'JS Basics',
+          description: '...',
+          authorId: 'a',
+          phases: [{ title: 'Синтаксис', track: 'tech', moduleIds: [] }],
+          status: 'published',
+          createdAt: '2026-01-01T00:00:00.000Z',
+        },
+      ]);
+    }
+
+    test('list: кнопка «🎓 Хочу пройти курс» на карточке курса', async () => {
+      const appApi = makeCatalogApi();
+      const story = new CourseCatalogStory();
+      initStory(story, appApi);
+
+      const response = await story.handleCallback('list', actor, session);
+      assertResponseMarkdownSafe(response);
+
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const applyBtn = rows
+        .flat()
+        .find((b) => b.text.includes('Хочу пройти курс'));
+      expect(applyBtn).toBeDefined();
+      expect(applyBtn!.code).toBe(`course-catalog:apply:${courseId}`);
+    });
+
+    test('apply instant: вызывает create-course-wish и рендерит W03', async () => {
+      const appApi = makeApplyApi({ outcome: 'instant' });
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `apply:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
+        (c) => c[0] === 'create-course-wish',
+      );
+      expect(call).toBeDefined();
+      expect(call![1]).toEqual({ courseId });
+      expect(call![2]).toBe(actor.uuid);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('зафиксировано');
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      expect(rows.flat().some((b) => b.text.includes('Главное меню'))).toBe(
+        true,
+      );
+    });
+
+    test('apply questionnaire: пустой ответ — анкету рендерит FillStory', async () => {
+      const appApi = makeApplyApi({ outcome: 'questionnaire' });
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `apply:${courseId}`,
+        actor,
+        session,
+      );
+
+      const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
+        (c) => c[0] === 'create-course-wish',
+      );
+      expect(call).toBeDefined();
+      // Стори ничего не отправляет — анкету проактивно рендерит FillStory
+      expect(response.sendMessage).toBeUndefined();
+      expect(response.sendMessages).toBeUndefined();
+    });
+
+    test('apply конфликт WISH_ALREADY_EXISTS: дружелюбный экран, не ошибка', async () => {
+      const { errConflict, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+          userId: actor.uuid,
+          courseId,
+        }),
+      );
+      const appApi = makeApplyApi(undefined, error);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `apply:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('уже');
+      expect(text).not.toContain('⚠️');
+    });
+
+    test('apply: другая ошибка (курс не найден) — уходит в handleError', async () => {
+      const { errNotFound, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errNotFound('COURSE_NOT_FOUND', 'Курс не найден', { courseId }),
+      );
+      const appApi = makeApplyApi(undefined, error);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `apply:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      expect(response.sendMessage?.text).toContain('⚠️');
+    });
+  });
 });
