@@ -1,0 +1,11 @@
+Задача: Написать падающие тесты на публикацию stream.created + Добавить StreamCreatedEvent и публикацию в UC создания потока (Фаза 1, трек wish-invite_20260827)
+
+Изменения:
+- packages/stream/src/domain/stream/events.ts (новый) — интерфейс StreamCreatedEvent (eventName 'stream.created', payload: streamId, moduleId)
+- packages/stream/src/domain/stream/entity.ts — StreamArMeta дополнен events: StreamCreatedEvent
+- packages/stream/src/domain/stream/a-root.ts — StreamAr.create добавляет доменное событие (паттерн StudentAr.enroll)
+- packages/stream/src/domain/index.ts — экспорт событий
+- packages/stream/src/api/stream/create-stream-uc.ts — publishEvents(ar) после save (публикация не блокирует создание: eventBus опционален)
+- тесты: create-stream-uc.test.ts (+2: публикация события, отсутствие eventBus), a-root.test.ts (+2: событие create, очистка flushEvents)
+
+Причина: триггер приглашения желающим — открытие набора; первое событие агрегата Stream (спецификация FR1).
