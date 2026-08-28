@@ -15,6 +15,7 @@ import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
+import { startJobScheduler } from './infra/job-scheduler';
 import { TelegramLogger } from './infra/logger';
 
 const config = loadConfig();
@@ -36,6 +37,11 @@ const bot = createBot(config.botToken, sessionMap);
 
 const apiBundle = createApiApp(config, logger);
 const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);
+
+// ══ Планировщик периодических заданий (Job) ══
+// Ошибка одиночного прогона логируется внутри планировщика, процесс не падает.
+// Механизма graceful shutdown в приложении нет — таймеры живут до завершения процесса.
+startJobScheduler(apiBundle.allModules, logger);
 
 // ══ BotTransport — единый слой Grammy ↔ UiApp ══
 const transport = new BotTransport(uiBundle.uiApp, bot.api, sessionMap);
