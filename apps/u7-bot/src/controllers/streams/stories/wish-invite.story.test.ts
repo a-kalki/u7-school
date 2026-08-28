@@ -142,7 +142,8 @@ describe('WishInviteStory', () => {
     const command = sent[0] as { sendMessage?: { text: string } };
     const text = command.sendMessage?.text ?? '';
     expect(text).toContain('Ментор Менторович');
-    expect(text).toContain('[@mentor\\_nick](https://t.me/mentor_nick)');
+    // Внешние скобки экранированы — иначе MarkdownV2-разбор ломается
+    expect(text).toContain('\\([@mentor\\_nick](https://t.me/mentor_nick)\\)');
   });
 
   test('ментор без nick: просто имя, без ссылки', async () => {

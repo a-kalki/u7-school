@@ -72,11 +72,13 @@ export class WishInviteStory extends U7BotUiStory {
     ];
 
     if (mentorName) {
-      // t.me строится только из Telegram-username
+      // t.me строится только из Telegram-username; внешние скобки экранированы —
+      // неэкранированные «(»/«)» вне entity ломают разбор MarkdownV2 (и валидатор,
+      // и Telegram) — приглашение с nick-ментором не доставлялось.
       const mentorLine = this.escapeMarkdown(mentorName);
       lines.push(
         mentorNick
-          ? `👤 Ментор: ${mentorLine} ([@${this.escapeMarkdown(mentorNick)}](https://t.me/${mentorNick}))`
+          ? `👤 Ментор: ${mentorLine} \\([@${this.escapeMarkdown(mentorNick)}](https://t.me/${mentorNick})\\)`
           : `👤 Ментор: ${mentorLine}`,
       );
     }
