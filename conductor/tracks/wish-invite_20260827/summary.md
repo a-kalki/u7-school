@@ -54,6 +54,31 @@
 - `streams/ui-spec.md`: S11 → ✅, фактические коды кнопок, место стори,
   обработка сбоев.
 
+### Фаза 5 — Интеграционные и e2e тесты
+
+- **Интеграционный** (`apps/u7-bot/tests/streams/wish-invite.integration.test.ts`):
+  контур create-stream → ER → wish:invite на реальном ApiApp, события ловятся
+  подпиской теста на общую шину:
+  - course-ветка: поток на стартовый модуль — полный payload события
+    (id курса из желания — для cancel-маршрута), ровно одно приглашение;
+  - поток не на первом модуле — course-желающие не зовутся;
+  - module-ветка — на любой модуль (в т.ч. вне опубликованных курсов);
+  - fulfilled/cancelled/abandoned/pending не зовутся (course и module);
+  - пустая рассылка — ни одного события, без ошибок.
+- **E2E** (`apps/u7-bot/tests/e2e/wish-invite.e2e.test.ts`): полный контур с
+  CoursesController + StreamsController, проактивные сообщения — poll-ом из
+  transport.api.sentMessages:
+  - course-цикл: apply → W03 → приглашение S11 (текст, дата, ментор без nick,
+    подсказка про ключ) → «Открыть поток» → карточка S02 с «Записаться» →
+    «Отменить желание» → W05 → cancelled (по репозиторию);
+  - ментор с nick (register-guest + add-role) → кликабельная t.me-ссылка;
+  - module-цикл: «Хочу пройти модуль» → приглашение → W05-M → cancelled.
+- **Фикс по итогам e2e:** в `wish-invite.story.ts` внешние скобки вокруг
+  t.me-ссылки ментора не экранировались — MarkdownV2-валидация падала
+  («неэкранированный '('»), и приглашение с nick-ментором не доставлялось
+  (ошибка изолировалась шиной). Скобки экранированы, юнит-тест обновлён;
+  запись в troubleshoot-базе `markdownv2-unescaped-parens-around-link`.
+
 ## Затронутые файлы
 
 **Созданы:**
@@ -61,6 +86,14 @@
 - `packages/wish/src/domain/wish/events.ts`
 - `packages/wish/src/api/er/invite-wishers-er.ts` (+ тест)
 - `apps/u7-bot/src/controllers/streams/stories/wish-invite.story.ts` (+ тест)
+
+**Изменены (Фаза 5):**
+- `apps/u7-bot/tests/streams/wish-invite.integration.test.ts` (новый)
+- `apps/u7-bot/tests/e2e/wish-invite.e2e.test.ts` (новый)
+- `apps/u7-bot/src/controllers/streams/stories/wish-invite.story.ts`
+  (фикс экранирования) (+ тест)
+- `conductor/code_styleguides/troubleshoots/markdownv2-unescaped-parens-around-link.md`
+  (новый), реестр `.pi/skills/troubleshoot/SKILL.md`
 
 **Изменены:**
 - `packages/stream/src/domain/stream/entity.ts`, `a-root.ts`, `domain/index.ts`
@@ -129,8 +162,10 @@
 
 ## Проверки
 
-- `bun run check` (biome + `tsc --noEmit` + `bun test`): 1661 pass / 0 fail.
+- `bun run check` (biome + `tsc --noEmit` + `bun test`): 1669 pass / 0 fail
+  (после Фазы 4 — 1661; +8 тестов Фазы 5).
 - Изолированно: `check:p stream` 225, `check:p course` 366, `check:p wish` 95,
-  `check:a u7-bot` 462 — все зелёные.
+  `check:a u7-bot` 470 — все зелёные.
 - Новые тесты: stream +4, wish +20 (ER 11, репо 3, cancel 6), course +3,
-  u7-bot +9; удалено 2 устаревших теста `getStep`.
+  u7-bot +17 (Фаза 3: 9; Фаза 5: интеграционные 5 + e2e 3); удалено
+  2 устаревших теста `getStep`.
