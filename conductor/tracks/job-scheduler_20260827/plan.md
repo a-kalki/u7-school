@@ -2,9 +2,9 @@
 
 ## Фаза 1: Job в core + JobScheduler в приложении
 
-- [ ] Task: Написать падающие тесты на `Job` (контракт, регистрация в ApiModule, проброс резолвера)
-- [ ] Task: Реализовать `Job` в core/api + поле `jobs` в ApiModule
-- [ ] Task: Написать падающие тесты на JobScheduler (сбор jobs, интервалы, устойчивость к ошибкам, stop)
+- [x] Task: Написать падающие тесты на `Job` (контракт, регистрация в ApiModule, проброс резолвера) [f920555]
+- [x] Task: Реализовать `Job` в core/api + поле `jobs` в ApiModule [f920555]
+- [~] Task: Написать падающие тесты на JobScheduler (сбор jobs, интервалы, устойчивость к ошибкам, stop)
 - [ ] Task: Реализовать `job-scheduler.ts` в apps/u7-bot + запуск в `main.ts`
 - [ ] Task: Conductor - Ручная верификация 'Job + планировщик'
 
