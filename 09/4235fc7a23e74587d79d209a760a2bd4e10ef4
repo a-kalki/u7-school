@@ -1,0 +1,11 @@
+Задачи: Падающие тесты на экраны W03/W04 + Реализовать рендеринг W03/W04
+
+Изменения:
+- shared/routes.ts: Routes.questionnaire.resume(courseId) -> questionnaire:fill:resume:{courseId}
+- course-catalog.story.ts #handleApply конфликт-ветка: ветвление по payload.status:
+  - pending: W04 'начал заполнять анкету' + кнопка '▶️ Продолжить анкету' (Routes.questionnaire.resume) + меню
+  - expressed: W04 'уже выразил желание' + кнопка '🗑️ Отменить желание' (course-catalog:cancel:{courseId}, вход в W05) + меню
+  - confirmed: W04 'уже обучаешься' + те же кнопки; fallback без status: expressed
+- тесты: instant-тест расширен (код app:main-menu, вторая строка W03); test.each expressed/confirmed (кнопки+тексты), pending (resume-кнопка)
+
+Причина: Фаза 2 трека wish-ui_20260814 (FR3). TDD: Red (4 падающих) -> Green (27 pass стори, 1601 всего). Обработчик cancel — Фаза 4.
