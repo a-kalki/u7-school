@@ -5,7 +5,7 @@
 - **Среда выполнения и менеджер пакетов:** Bun
 
 ## Фреймворки и библиотеки
-- **Core Framework:** Собственный мета-фреймворк (@u7/core) с поддержкой DDD и type-safe ApiApp
+- **Core Framework:** Собственный мета-фреймворк (@u7/core) с поддержкой DDD, type-safe ApiApp и планировщиком периодических заданий (Job)
 - **Web API / Бэкенд:** Elysia
 - **Telegram Bot:** Grammy
 - **Telegram Conversations:** @grammyjs/conversations
