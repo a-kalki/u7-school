@@ -1,0 +1,8 @@
+Задача: Расширить WISH_ALREADY_EXISTS полем status желания (packages/wish) + тесты
+
+Изменения:
+- domain/wish/errors.ts: WishAlreadyExistsUcError payload += status: WishStatus (обязательное — конфликт бросается только при существующем активном желании)
+- create-course-wish-uc.ts / create-module-wish-uc.ts: в payload конфликта передаётся existing.status
+- create-course-wish-uc.test.ts: конфликт-тесты (expressed/pending/confirmed) проверяют payload {userId, courseId, status}
+
+Причина: Фаза 2 трека wish-ui_20260814 — сторя каталога ветвит экран W04 по статусу желания. TDD: Red (3 падающих) → Green (80 pass wish). Известный pre-existing warning: unused import CourseSchema в packages/course/.../get-course-by-module-cmd.ts (не мой код).
