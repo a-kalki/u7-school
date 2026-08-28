@@ -1,0 +1,14 @@
+Задачи: Написать падающие тесты на JobScheduler + Реализовать job-scheduler.ts в apps/u7-bot + запуск в main.ts
+
+Создан startJobScheduler(modules, logger): StopJobScheduler в apps/u7-bot/src/infra/job-scheduler.ts:
+- собирает jobs всех переданных модулей (включая standalone, не входящие в ApiApp)
+- каждый job запускается через setInterval по его intervalMs (первый прогон — после интервала)
+- ошибка одиночного прогона перехватывается и логируется через logger.warn — процесс не падает, остальные jobs продолжают работать
+- возвращает функцию остановки всех таймеров
+
+create-api-app.ts: в ApiAppBundle добавлено поле allModules (apiApp.getModules() + standalone questionnaireModule) — единый список модулей для планировщика.
+main.ts: startJobScheduler запускается после createApiApp; graceful shutdown в приложении нет — таймеры живут до завершения процесса.
+
+Тесты (job-scheduler.test.ts): сбор jobs всех модулей и запуск по интервалу; устойчивость к ошибкам прогона (warn + продолжение работы); stop() останавливает таймеры; модули без jobs не создают таймеров. Таймеры гасятся в afterEach даже при падении теста.
+
+Причина: Фаза 1 трека Job — периодические задания выполняются планировщиком уровня приложения.
