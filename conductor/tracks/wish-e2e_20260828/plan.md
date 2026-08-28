@@ -1,12 +1,12 @@
 # План реализации — wish: интеграционные и e2e тесты пользовательского пути
 
-## Фаза 1: Инфраструктура — тестовое приложение и фикстуры
+## Фаза 1: Инфраструктура — тестовое приложение и фикстуры [checkpoint: d74788e]
 
-- [ ] Task: Расширить `tests/helpers/test-app.ts`: WishJsonRepo + WishApiModule, QuestionnaireJsonRepo + QuestionnaireApiModule + фасады (зеркально `create-api-app.ts`); экспорт `wishRepo`, `questionnaireModule`, `questionnaireFacade`, общего `eventBus`
-    - [ ] Проверить, что существующие integration/e2e тесты не сломались (не используют новые модули — им безразлично)
-- [ ] Task: Расширить `tests/helpers/test-bot-transport.ts`: общий eventBus (параметр) + вызов `uiApp.subscribeEvents()`
-- [ ] Task: Добавить в шаблон фикстур курс `dddddddd-dddd-4ddd-8ddd-dddddddddddd` с опасным названием (спецсимволы MarkdownV2), published, phases → модуль `a0a0a0a0`
-- [ ] Task: Добавить в `packages/wish/src/domain/wish/pools/course.json` малый пул (3 вопроса: choice → text → choice) для курса `dddddddd`; проверить зелёным `CI=true bun test packages/wish` (валидация схемы пула)
+- [x] Task: Расширить `tests/helpers/test-app.ts` — d74788e: WishJsonRepo + WishApiModule, QuestionnaireJsonRepo + QuestionnaireApiModule + фасады (зеркально `create-api-app.ts`); экспорт `wishRepo`, `questionnaireModule`, `questionnaireFacade`, общего `eventBus`
+    - [x] Проверить, что существующие integration/e2e тесты не сломались (не используют новые модули — им безразлично) — d74788e (полный check 1618 pass)
+- [x] Task: Расширить `tests/helpers/test-bot-transport.ts`: общий eventBus (параметр) + вызов `uiApp.subscribeEvents()` — d74788e
+- [x] Task: Добавить в шаблон фикстур курс `dddddddd-dddd-4ddd-8ddd-dddddddddddd` с опасным названием (спецсимволы MarkdownV2), published, phases → модуль `a0a0a0a0` — d74788e
+- [x] Task: Добавить в `packages/wish/src/domain/wish/pools/course.json` малый пул (3 вопроса: choice → text → choice) для курса `dddddddd`; проверить зелёным `CI=true bun test packages/wish` (валидация схемы пула) — d74788e
 - [ ] Task: Conductor - Ручная верификация 'Инфраструктура тестов'
 
 ## Фаза 2: Интеграционные тесты instant-ветки (A)
