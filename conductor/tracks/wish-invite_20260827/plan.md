@@ -6,7 +6,7 @@
 - [x] Task: Добавить `StreamCreatedEvent` + публикацию в UC создания потока (a3acc84)
 - [ ] Task: Conductor - Ручная верификация 'Событие stream.created'
 
-## Фаза 2: ER `invite-wishers` + репо + фасад + cancel-wish [checkpoint: pending]
+## Фаза 2: ER `invite-wishers` + репо + фасад + cancel-wish [checkpoint: 07af347]
 
 - [x] Task: Написать падающие тесты: `WishRepo.findAllByKind` (фильтр по виду и статусам), ER `invite-wishers` (course-ветка только при isFirst, module-ветка на любой модуль, исторический матчинг через фасад, только активные статусы, пустая рассылка, пользователь без профиля), вариант команды `cancel-wish` (course | module) (97796a1)
 - [x] Task: Реализовать `findAllByKind` (интерфейс + JSON-репо), `whichModulesAreSame` в фасаде курсов, `InviteWishersEr` + регистрация в `WishApiModule.reactions`, вариант команды `cancel-wish` + обновление текущих вызовов (97796a1)
