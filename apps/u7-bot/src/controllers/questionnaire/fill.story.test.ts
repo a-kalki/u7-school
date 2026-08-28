@@ -196,3 +196,41 @@ describe('FillStory — fill:resume:{courseId}', () => {
     expect(res.sendMessage?.text).toContain('Анкета не найдена');
   });
 });
+
+describe('FillStory — completionText на completed', () => {
+  const actor = { uuid: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' } as User;
+  const session = {} as SessionData;
+
+  function completedStory(completionText?: string) {
+    return makeStoryWithQmod(async (name) => {
+      if (name === 'handle-action') {
+        return {
+          type: 'completed',
+          questionnaireId: 'q-1',
+          ...(completionText !== undefined ? { completionText } : {}),
+        };
+      }
+      throw new Error(`Неожиданный UC: ${name}`);
+    });
+  }
+
+  test('completed: рендерит completionText из пула', async () => {
+    const { story } = completedStory(
+      'Спасибо! Желание пройти курс закреплено.',
+    );
+
+    const res = await story.handleCallback('answer:q-1:yes', actor, session);
+
+    expect(res.sendMessage?.text).toBe(
+      'Спасибо! Желание пройти курс закреплено.',
+    );
+  });
+
+  test('completed: без completionText — fallback «на ты»', async () => {
+    const { story } = completedStory();
+
+    const res = await story.handleCallback('answer:q-1:yes', actor, session);
+
+    expect(res.sendMessage?.text).toBe('Спасибо! Твоя анкета принята.');
+  });
+});

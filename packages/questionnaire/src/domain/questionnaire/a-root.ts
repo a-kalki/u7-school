@@ -409,6 +409,7 @@ export abstract class BaseQuestionnaireAr<
       selectedAnswers: lastSelectedAnswers,
       previousQuestion,
       previousSelectedAnswers: lastSelectedAnswers,
+      completionText: this.state.questionPool.completionText,
     };
   }
 

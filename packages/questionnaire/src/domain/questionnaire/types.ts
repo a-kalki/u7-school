@@ -39,6 +39,8 @@ export type CompletedResponse = {
   selectedAnswers?: string[];
   previousQuestion?: Question;
   previousSelectedAnswers?: string[];
+  /** Текст завершения из пула анкеты — рендерится вместо fallback-сообщения. */
+  completionText?: string;
 };
 
 export type QuestionnaireActionResponse =
@@ -82,6 +84,7 @@ export const CompletedResponseSchema = v.object({
   selectedAnswers: v.optional(v.array(v.string())),
   previousQuestion: v.optional(QuestionSchema),
   previousSelectedAnswers: v.optional(v.array(v.string())),
+  completionText: v.optional(v.string()),
 });
 
 export const QuestionnaireActionResponseSchema = v.variant('type', [

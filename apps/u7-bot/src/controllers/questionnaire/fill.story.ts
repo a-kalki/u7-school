@@ -477,7 +477,7 @@ export class FillStory extends U7BotUiStory {
       return {
         releaseInput: true,
         sendMessage: {
-          text: 'Спасибо! Ваша анкета принята.',
+          text: response.completionText ?? 'Спасибо! Твоя анкета принята.',
           keyboard: {
             rows: [[buttons.mainMenu()]],
             isMultiple: false,

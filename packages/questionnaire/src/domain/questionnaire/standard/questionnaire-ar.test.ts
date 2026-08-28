@@ -198,6 +198,28 @@ describe('QuestionnaireAr (v2)', () => {
     expect(ar.state.answers.length).toBe(2);
   });
 
+  test('handleAction при завершении возвращает completionText из пула', () => {
+    const pool = {
+      ...simplePool(),
+      completionText: 'Спасибо! Анкета принята, желание закреплено.',
+    };
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      pool,
+    );
+    ar.start();
+
+    ar.handleAction({ type: 'callback', value: 'yes' });
+    const response = ar.handleAction({ type: 'callback', value: 'ok' });
+    if (response.type !== 'completed') {
+      throw new Error(`Ожидался completed, получен ${response.type}`);
+    }
+
+    expect(response.completionText).toBe(
+      'Спасибо! Анкета принята, желание закреплено.',
+    );
+  });
+
   test('getQuestionnaireActionResponse на completed возвращает completed', () => {
     const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
