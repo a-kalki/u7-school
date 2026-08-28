@@ -48,5 +48,19 @@
     ],
     "status": "published",
     "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+    "title": "Тест. Курс (v2.0) - #1! Плюс+равно=ок {скобки} |пайп| ~тильда~",
+    "description": "Курс с опасным названием для проверки экранирования MarkdownV2. Запись через анкету (малый пул).",
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "phases": [
+      {
+        "title": "Основы",
+        "moduleIds": ["a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"]
+      }
+    ],
+    "status": "published",
+    "createdAt": "2026-06-01T00:00:00.000Z"
   }
 ]

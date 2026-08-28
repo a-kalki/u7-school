@@ -117,14 +117,19 @@ export class TestBotTransport {
     apiApp: U7BotApp,
     actorResolver: (tgId: number) => Promise<User>,
     controllers: U7BotController[],
+    eventBus?: InProcEventBus,
   ) {
     this.uiApp = new U7BotUiApp(controllers);
     this.uiApp.init({
-      eventBus: new InProcEventBus(),
+      // Общая с apiApp шина — события модулей (напр. questionnaire:start)
+      // долетают до подписок стори (как в бою: create-ui-app + main.ts)
+      eventBus: eventBus ?? new InProcEventBus(),
       actorResolver,
       appApi: apiApp,
       uiApp: this.uiApp,
     });
+    // Подписки стори на доменные события (в бою вызывается в main.ts)
+    this.uiApp.subscribeEvents();
     this.transport = new BotTransport(
       this.uiApp,
       this.api as unknown as Api,
@@ -264,6 +269,7 @@ export class TestBotTransport {
 
 /**
  * Создаёт TestBotTransport из TestApp (стандартные фикстуры).
+ * Использует общую с apiApp шину событий — проактивные сценарии работают.
  */
 export function createTestBotTransport(
   app: TestApp,
@@ -279,5 +285,6 @@ export function createTestBotTransport(
       return user;
     },
     controllers,
+    app.eventBus,
   );
 }

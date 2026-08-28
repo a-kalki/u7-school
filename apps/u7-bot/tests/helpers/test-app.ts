@@ -10,6 +10,12 @@ import {
   ModuleJsonRepo,
   StepJsonRepo,
 } from '@u7-scl/course/infra';
+import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
+import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
+import {
+  QuestionnaireJsonRepo as QJsonRepo,
+  QuestionnaireInProcFacade,
+} from '@u7-scl/questionnaire/infra';
 import {
   StreamApiModule,
   StreamJsonRepo,
@@ -17,6 +23,9 @@ import {
 } from '@u7-scl/stream';
 import { UserApiModule } from '@u7-scl/user/api';
 import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
+import { WishApiModule } from '@u7-scl/wish/api';
+import type { WishApiModuleResolver } from '@u7-scl/wish/domain';
+import { WishJsonRepo } from '@u7-scl/wish/infra';
 import type { FixturePaths } from './fixture-loader';
 import { cleanupFixtures, loadFixtures } from './fixture-loader';
 
@@ -27,6 +36,12 @@ export interface TestApp {
   streamModule: StreamApiModule;
   /** API модуля курсов (для создания CoursesController) */
   courseModule: CourseApiModule;
+  /** API модуля анкет (для создания QuestionnaireController) */
+  questionnaireModule: QuestionnaireApiModule;
+  /** Общая шина событий (та же, что внутри apiApp) — для TestBotTransport */
+  eventBus: InProcEventBus;
+  /** Репозиторий желаний — для проверки статусов в тестах */
+  wishRepo: WishJsonRepo;
   /** Фасад пользователей (для получения тестовых акторов) */
   userFacade: UserInProcFacade;
   /** Фасад курсов */
@@ -96,8 +111,47 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     eventBus: appResolver.eventBus,
   });
 
-  // ══ ApiApp: все модули ══
-  const apiApp: U7BotApp = new ApiApp([userModule, courseModule, streamModule]);
+  // ══ Questionnaire: модуль и фасад (зеркально create-api-app.ts) ══
+  const qRepo = new QJsonRepo(
+    `${fixtures.dbDir}/questionnaires/q-questionnaires.json`,
+    db,
+  );
+
+  const questionnaireResolver: QuestionnaireApiModuleResolver = {
+    questionnaireRepo: qRepo,
+    userFacade,
+    db,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  };
+
+  const questionnaireModule = new QuestionnaireApiModule(questionnaireResolver);
+
+  const questionnaireFacade = new QuestionnaireInProcFacade(
+    questionnaireModule,
+  );
+
+  // ══ Wish: репозиторий и модуль ══
+  const wishRepo = new WishJsonRepo(`${fixtures.dbDir}/wish/wishes.json`);
+
+  const wishResolver: WishApiModuleResolver = {
+    wishRepo,
+    courseFacade,
+    questionnaireFacade,
+    userFacade,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  };
+
+  const wishModule = new WishApiModule(wishResolver);
+
+  // ══ ApiApp: все модули (состав как в боевом create-api-app.ts) ══
+  const apiApp: U7BotApp = new ApiApp([
+    userModule,
+    wishModule,
+    streamModule,
+    courseModule,
+  ]);
 
   // Каскадная инициализация: ApiApp → модули
   apiApp.init();
@@ -106,6 +160,9 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     apiApp,
     streamModule,
     courseModule,
+    questionnaireModule,
+    eventBus: appResolver.eventBus,
+    wishRepo,
     userFacade,
     courseFacade,
     fixtures,

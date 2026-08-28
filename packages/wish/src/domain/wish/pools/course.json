@@ -290,5 +290,53 @@
         "type": "text"
       }
     ]
+  },
+  "dddddddd-dddd-4ddd-8ddd-dddddddddddd": {
+    "inviteText": "Анкета короткая: 3 вопроса. В любой момент можно нажать /cancel для возврата в главное меню.",
+    "completionText": "Спасибо! Твоя анкета принята. Желание пройти курс закреплено — мы напишем тебе, когда откроется набор.",
+    "cancelWarning": "Анкета прервана. Ты можешь начать заново в карточке курса.",
+    "questions": [
+      {
+        "question": "Какой у тебя опыт?",
+        "questionCode": "experience_level",
+        "type": "choice",
+        "multiple": false,
+        "answers": [
+          {
+            "answer": "Новичок",
+            "answerCode": "novice"
+          },
+          {
+            "answer": "Средний",
+            "answerCode": "middle"
+          },
+          {
+            "answer": "Сеньор. Точно (100%)!",
+            "answerCode": "senior"
+          }
+        ]
+      },
+      {
+        "question": "Опиши свою цель. Что хочешь достичь?",
+        "questionCode": "goal_text",
+        "type": "text"
+      },
+      {
+        "question": "Как удобнее учиться?",
+        "questionCode": "study_format",
+        "type": "choice",
+        "multiple": true,
+        "answers": [
+          {
+            "answer": "Вечером",
+            "answerCode": "evening"
+          },
+          {
+            "answer": "Выходные",
+            "answerCode": "weekend"
+          }
+        ]
+      }
+    ]
   }
 }
