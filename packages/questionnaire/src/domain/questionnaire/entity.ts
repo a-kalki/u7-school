@@ -53,6 +53,13 @@ export const QuestionnaireSchema = v.object({
   updatedAt: v.optional(
     v.pipe(v.string(), v.isoDateTime('Некорректный формат даты обновления')),
   ),
+  /** Когда анкете отправлено предупреждение о закрытии (брошенная анкета) */
+  warnedAt: v.optional(
+    v.pipe(
+      v.string(),
+      v.isoDateTime('Некорректный формат даты предупреждения'),
+    ),
+  ),
   completedAt: v.nullable(
     v.pipe(v.string(), v.isoDateTime('Некорректный формат даты завершения')),
   ),
@@ -82,6 +89,8 @@ export type BaseQuestionnaireState = {
   ownerInfo: Record<string, unknown>;
   createdAt: string;
   updatedAt?: string;
+  /** Когда анкете отправлено предупреждение о закрытии */
+  warnedAt?: string;
   completedAt: string | null;
 };
 

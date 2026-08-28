@@ -42,7 +42,22 @@ export abstract class BaseQuestionnaireAr<
   protected abstract buildDeclinedEvent(): TMeta['events'];
 
   /** Событие прерывания анкеты (in_progress → abandoned). */
-  protected abstract buildAbandonedEvent(): TMeta['events'];
+  protected abstract buildAbandonedEvent(reason?: 'timeout'): TMeta['events'];
+
+  /**
+   * Отмечает, что анкете отправлено предупреждение о закрытии.
+   * Вызывается планировщиком брошенных анкет (SweepAbandonedJob).
+   *
+   * ВАЖНО: обходит safeUpdate — предупреждение не должно сдвигать updatedAt,
+   * иначе таймер простоя сбросится и анкета никогда не будет закрыта.
+   */
+  markWarned(): void {
+    this.#checkIsInProgress();
+    this._state = this.validateState({
+      ...this._state,
+      warnedAt: isoNow(),
+    });
+  }
 
   /**
    * Возвращает приглашение — InviteResponse.
@@ -73,6 +88,7 @@ export abstract class BaseQuestionnaireAr<
       );
     }
 
+    this.#resetWarning();
     this.safeUpdate({ status: 'in_progress' });
 
     return this.#findAndSetNextQuestion([]);
@@ -80,8 +96,9 @@ export abstract class BaseQuestionnaireAr<
 
   /**
    * Отменяет заполнение анкеты: in_progress → abandoned.
+   * @param reason — причина прерывания; 'timeout' — анкета закрыта планировщиком по таймауту.
    */
-  abandon(): void {
+  abandon(reason?: 'timeout'): void {
     if (this.state.status === 'abandoned') {
       return;
     }
@@ -89,7 +106,7 @@ export abstract class BaseQuestionnaireAr<
       this.throwBadRequest('Анкета не активна');
     }
     this.safeUpdate({ status: 'abandoned' });
-    this.addEvent(this.buildAbandonedEvent());
+    this.addEvent(this.buildAbandonedEvent(reason));
   }
 
   /**
@@ -139,6 +156,7 @@ export abstract class BaseQuestionnaireAr<
     value: string;
   }): QuestionnaireActionResponse {
     this.#checkIsInProgress();
+    this.#resetWarning();
 
     const questionCode = this.currentQuestionCode;
     const question = this.#getQuestion(questionCode);
@@ -452,6 +470,11 @@ export abstract class BaseQuestionnaireAr<
     if (this.state.status !== 'in_progress') {
       this.throwBadRequest('Анкета уже завершена');
     }
+  }
+
+  /** Сброс предупреждения о закрытии — пользователь проявил активность. */
+  #resetWarning(): void {
+    delete this._state.warnedAt;
   }
 
   #getQuestion(questionCode: string): Question {

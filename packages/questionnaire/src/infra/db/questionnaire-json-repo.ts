@@ -35,4 +35,9 @@ export class QuestionnaireJsonRepo
     const all = await this.readAll();
     return all.filter((q) => q.respondentId === respondentId);
   }
+
+  async getActive(): Promise<QuestionnaireState[]> {
+    const all = await this.readAll();
+    return all.filter((q) => q.status === 'in_progress');
+  }
 }

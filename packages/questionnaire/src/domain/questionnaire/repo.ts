@@ -26,4 +26,7 @@ export interface QuestionnaireRepo {
 
   /** Получить все анкеты пользователя */
   getByRespondentId(respondentId: string): Promise<QuestionnaireState[]>;
+
+  /** Получить все активные анкеты (в статусе in_progress) — для планировщика брошенных анкет */
+  getActive(): Promise<QuestionnaireState[]>;
 }

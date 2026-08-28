@@ -26,6 +26,8 @@ function mockRepo(
       data.find((q: any) => q.uuid === uuid) as any,
     getByRespondentId: async (id: string) =>
       data.filter((q: any) => q.respondentId === id) as any,
+    getActive: async () =>
+      data.filter((q: any) => q.status === 'in_progress') as any,
   };
 }
 
