@@ -273,6 +273,7 @@ describe('Wish: жизненный цикл желания курса (инте�
     const draftId = await createDraftCourseWithModule(
       'Чернов. Курс (v1.0) - #3! Draft+тест=ок {draft} |дерево| ~волна~',
     );
+
     const draftCard = await transport.handleCallback(
       transport.makeBotContext(guest.telegramId, {
         callbackData: `course:course-catalog:phases:${draftId}`,
@@ -282,6 +283,15 @@ describe('Wish: жизненный цикл желания курса (инте�
     expect(draftCard?.sendMessage?.text).toContain(
       'Чернов\\. Курс \\(v1\\.0\\)',
     );
+
+    // Каталог (list): опасное название published-курса — markdown-safe
+    const list = await transport.handleCallback(
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: 'course:course-catalog:list',
+      }),
+    );
+    assertBotResponseValid(list);
+    expect(list?.sendMessage?.text).toContain(ESCAPED_DANGEROUS_PREFIX);
 
     // Полный wish-цикл на published-курсе с опасным названием
     const card = await transport.handleCallback(
