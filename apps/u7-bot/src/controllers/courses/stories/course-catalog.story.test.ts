@@ -920,4 +920,94 @@ describe('CourseCatalogStory', () => {
       expect(response.sendMessage?.text).toContain('⚠️');
     });
   });
+
+  describe('cancel — отмена желания (W05)', () => {
+    const courseId = 'c1';
+
+    function makeCancelApi(error?: unknown) {
+      return {
+        execute: mock(
+          async (ucName: string, _attrs: Record<string, unknown>) => {
+            if (ucName === 'cancel-wish') {
+              if (error) throw error;
+              return undefined;
+            }
+            return undefined;
+          },
+        ),
+      };
+    }
+
+    test('cancel: рендерит подтверждение W05 с кнопками Да/Отмена', async () => {
+      const appApi = makeCancelApi();
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `cancel:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('Отменить желание пройти курс?');
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const flat = rows.flat();
+      const yes = flat.find((b) => b.text.includes('Да'));
+      expect(yes?.code).toBe(`course-catalog:cancel-confirm:${courseId}`);
+      const no = flat.find((b) => b.text.includes('Отмена'));
+      expect(no?.code).toBe(`course-catalog:phases:${courseId}`);
+    });
+
+    test('cancel-confirm: вызывает cancel-wish и сообщает об отмене', async () => {
+      const appApi = makeCancelApi();
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `cancel-confirm:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
+        (c) => c[0] === 'cancel-wish',
+      );
+      expect(call).toBeDefined();
+      expect(call![1]).toEqual({ courseId });
+      expect(call![2]).toBe(actor.uuid);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('отменено');
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const menuBtn = rows.flat().find((b) => b.text.includes('Главное меню'));
+      expect(menuBtn?.code).toBe(Routes.app.mainMenu);
+    });
+
+    test('cancel-confirm: WISH_NOT_FOUND — мягкое сообщение без ошибки', async () => {
+      const { errNotFound, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errNotFound('WISH_NOT_FOUND', 'Желание не найдено', {
+          userId: actor.uuid,
+          courseId,
+        }),
+      );
+      const appApi = makeCancelApi(error);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `cancel-confirm:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).not.toContain('⚠️');
+      expect(text).toContain('уже нет');
+    });
+  });
 });

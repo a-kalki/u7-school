@@ -74,6 +74,18 @@ export class CourseCatalogStory extends U7BotUiStory {
         return this.#handleWishModule(ids[0] ?? '', actor);
       case 'apply':
         return this.#handleApply(ids[0] ?? '', actor);
+      case 'cancel':
+        // W05 — экран подтверждения отмены желания
+        return this.confirm(
+          'cancel',
+          ids[0] ?? '',
+          'Отменить желание пройти курс?',
+          {
+            cancelCode: this.cb('phases', ids[0] ?? ''),
+          },
+        );
+      case 'cancel-confirm':
+        return this.#handleCancelConfirm(ids[0] ?? '', actor);
       default:
         return {
           sendMessage: { text: '⚠️ Неизвестная команда каталога курсов' },
@@ -631,6 +643,42 @@ export class CourseCatalogStory extends U7BotUiStory {
         return {
           sendMessage: {
             text: 'ℹ️ Ты уже записан на этот модуль — ждём открытия набора\\.',
+            parseMode: 'MarkdownV2',
+            keyboard: {
+              rows: [[buttons.mainMenu()]],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+      return this.handleError(err);
+    }
+  }
+
+  /** cancel-confirm:{courseId} — подтверждённая отмена желания (W05). */
+  async #handleCancelConfirm(
+    courseId: string,
+    actor: User,
+  ): Promise<BotResponse> {
+    try {
+      await this.appApi.execute('cancel-wish', { courseId }, actor.uuid);
+
+      return {
+        sendMessage: {
+          text: '🗑️ Желание пройти курс отменено\\.',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[buttons.mainMenu()]],
+            isMultiple: false,
+          },
+        },
+      };
+    } catch (err) {
+      // Гонка: желание уже отменили — не ошибка для пользователя
+      if (fromError(err).kind === 'not-found') {
+        return {
+          sendMessage: {
+            text: 'ℹ️ Активного желания на этот курс уже нет\\.',
             parseMode: 'MarkdownV2',
             keyboard: {
               rows: [[buttons.mainMenu()]],

@@ -7,15 +7,11 @@
     "phases": [
       {
         "title": "Синтаксис",
-        "moduleIds": [
-          "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"
-        ]
+        "moduleIds": ["a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"]
       },
       {
         "title": "Алгоритмика",
-        "moduleIds": [
-          "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"
-        ]
+        "moduleIds": ["a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"]
       }
     ],
     "status": "published",
@@ -29,15 +25,11 @@
     "phases": [
       {
         "title": "Основы",
-        "moduleIds": [
-          "a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"
-        ]
+        "moduleIds": ["a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"]
       },
       {
         "title": "Практика",
-        "moduleIds": [
-          "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"
-        ]
+        "moduleIds": ["a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"]
       }
     ],
     "status": "published",
@@ -51,9 +43,7 @@
     "phases": [
       {
         "title": "Глубокий JS",
-        "moduleIds": [
-          "a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"
-        ]
+        "moduleIds": ["a1a1a1a1-b1b1-4b1b-8b1b-b1b1b1b1b1b1"]
       }
     ],
     "status": "published",

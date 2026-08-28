@@ -244,7 +244,7 @@ export class FillStory extends U7BotUiStory {
         (s) =>
           s.kind === 'standard' &&
           s.status === 'in_progress' &&
-          s.ownerInfo['courseId'] === courseId,
+          s.ownerInfo.courseId === courseId,
       );
 
       if (!active) {
