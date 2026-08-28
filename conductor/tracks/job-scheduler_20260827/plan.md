@@ -18,9 +18,9 @@
 
 ## Фаза 3: UI предупреждения в FillStory
 
-- [ ] Task: Написать падающие тесты на подписку `questionnaire:warning` (рендер + кнопки) и сообщение таймаут-abandon (без дубля при /cancel)
-- [ ] Task: Реализовать подписки + рендер + ProactiveSender в FillStory
-- [ ] Task: Conductor - Ручная верификация 'UI предупреждения'
+- [x] Task: Написать падающие тесты на подписку `questionnaire:warning` (рендер + кнопки) и сообщение таймаут-abandon (без дубля при /cancel) [e1e2e51]
+- [x] Task: Реализовать подписки + рендер + ProactiveSender в FillStory [e1e2e51]
+- [x] Task: Conductor - Ручная верификация 'UI предупреждения'
 
 ## Фаза 4: Документация
 
