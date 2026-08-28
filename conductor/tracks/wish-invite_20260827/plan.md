@@ -13,10 +13,10 @@
 - [x] Task: Гигиена фасада курсов: удалить `getStep`, убрать `getCourse` из интерфейса (приватный хелпер) (97796a1)
 - [ ] Task: Conductor - Ручная верификация 'ER invite-wishers + cancel-wish + фасад'
 
-## Фаза 3: UI приглашения
+## Фаза 3: UI приглашения [checkpoint: pending]
 
-- [ ] Task: Написать падающие тесты на подписку `wish:invite` (адаптивный текст course/module, ментор-строка: nick → t.me-ссылка, без nick → имя; кнопки «Открыть поток» / «Отменить желание») и на W05-M (module-отмена)
-- [ ] Task: Реализовать подписку + ProactiveSender + кнопки через Routes; W05-M: маршрут `cancel-mod:{moduleId}` → подтверждение → `cancel-wish` `{ kind: 'module', moduleId }`
+- [x] Task: Написать падающие тесты на подписку `wish:invite` (адаптивный текст course/module, ментор-строка: nick → t.me-ссылка, без nick → имя; кнопки «Открыть поток» / «Отменить желание») и на W05-M (module-отмена) (a3e3f90)
+- [x] Task: Реализовать подписку + ProactiveSender + кнопки через Routes; W05-M: маршрут `cancel-mod:{moduleId}` → подтверждение → `cancel-wish` `{ kind: 'module', moduleId }` (a3e3f90)
 - [ ] Task: Conductor - Ручная верификация 'UI приглашения'
 
 ## Фаза 4: Документация
