@@ -20,4 +20,6 @@
 | 18 | 2026-07-31 | mentor_tools_20260713 | 48fefcc | post-task-debrief | 2/3 ⚠ | [лог](logs/2026-07-31-mentor_tools_20260713.md) |
 | 19 | 2026-07-31 | mentor_tools_20260713 | 528a380 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-07-31-mentor_tools_20260713-f5.md) |
 | 20 | 2026-07-31 | mentor_tools_20260713 | ddb0f34 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-07-31-mentor_tools_20260713-f6.md) |
-**Всего:** 20
+| 21 | 2026-08-28 | wish-ui_20260814 | caa30264 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-08-28-wish-ui_20260814-f1.md) |
+| 22 | 2026-08-28 | wish-ui_20260814 | 094235f | post-task-debrief | 1 ⚠, 2 ✓, 3 ✓ | [лог](logs/2026-08-28-wish-ui_20260814-f2.md) |
+**Всего:** 22

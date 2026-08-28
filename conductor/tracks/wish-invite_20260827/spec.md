@@ -10,7 +10,7 @@
 
 ## Текущее состояние (базовая линия)
 
-- `StreamAr.create` создаёт поток сразу в статусе `ENROLLMENT` (набор открыт); `activate()` → ACTIVE. Событий при создании потока нет (первое событие stream добавляет трек C2 — `student.enrolled`).
+- `StreamAr.create` создаёт поток сразу в статусе `ENROLLMENT` (набор открыт); `activate()` → ACTIVE. Событий при создании потока нет. События агрегата Student (`student.enrolled`, `student.completed`) уже существуют (трек wish-module); `stream.created` станет первым событием агрегата Stream.
 - `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts` — существующий флоу самозаписи: карточка потока → «Записаться» → ввод ключа зачисления (`enrollmentKey`).
 - `packages/wish/` — UC `cancel-wish` есть; репо умеет `getByUserAndTarget`, поиска «все желающие по цели» нет.
 - ProactiveSender + UiEventSubscription-подписки — паттерн отработан (FillStory).
@@ -19,7 +19,7 @@
 ## Зафиксированные решения
 
 1. **Триггер — создание потока** (`StreamAr.create`, статус сразу `ENROLLMENT`): UC создания потока публикует событие `stream.created` после сохранения.
-2. **ER `invite-wishers`** в модуле wish: резолвит курс по `moduleId` потока (через `courseFacade`), находит желающих и публикует событие `wish:invite` на каждого. `telegramId` — через `userFacade.getUser(userId)`.
+2. **ER `invite-wishers`** в модуле wish: резолвит курс по `moduleId` потока (через `courseFacade`), находит желающих и публикует событие `wish:invite` на каждого. `telegramId` — через `userFacade.getUserByUuid(userId)`.
 3. **UI-сообщение** рендерится подпиской в боте через ProactiveSender. Кнопки: «📚 Открыть поток» (существующий экран потока, запись по ключу) и «🗑️ Отменить желание» (cancel-флоу W05 трека D).
 4. **Запись не автоматическая** — пользователь сам жмёт «Записаться» и вводит ключ: сохраняется защита от случайных зачислений, переиспользуется готовый флоу.
 5. Идемпотентность: событие `stream.created` публикуется один раз при создании; повторной рассылки для того же потока нет.
