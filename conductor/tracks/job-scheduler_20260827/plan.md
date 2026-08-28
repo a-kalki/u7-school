@@ -1,6 +1,6 @@
 # План реализации — Трек: Job + брошенные анкеты
 
-## Фаза 1: Job в core + JobScheduler в приложении
+## Фаза 1: Job в core + JobScheduler в приложении [checkpoint: ac8616f]
 
 - [x] Task: Написать падающие тесты на `Job` (контракт, регистрация в ApiModule, проброс резолвера) [f920555]
 - [x] Task: Реализовать `Job` в core/api + поле `jobs` в ApiModule [f920555]
