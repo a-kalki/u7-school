@@ -1,0 +1,32 @@
+Задача: Фаза 3 — E2E тесты анкетной ветки (B), задачи 1–5
+
+Сводка: создан tests/e2e/wish-questionnaire.e2e.test.ts (7 тестов, B.1–B.7):
+полный контур CoursesController + QuestionnaireController + общая шина.
+Проверки по wishRepo и transport.api.sentMessages; проактивные сообщения —
+poll с таймаутом (события eventBus доставляются асинхронно).
+
+Найдены и исправлены 4 проблемы:
+1. test-bot-transport.ts: transport не передавался в uiApp.init —
+   BotUiApp.send падал (this.transport undefined); проактивный рендер
+   FillStory не доходил до транспорта. Фикс: init(resolve, transport) как в бою.
+2. fill.story #getKeyboard: коды кнопок ответов без questionnaireId
+   ('fill:answer:novice') — handle-action не знал анкету → sendUnknownError.
+   Теперь cb('answer', questionnaireId, a.answerCode).
+3. fill.story #callUc: type 'select'/'next-btn' не входят в схему
+   HandleActionCmd ('callback'|'text') — ошибка валидации UC. Приведено
+   к протоколу агрегата: type:'callback', «Далее» → value:'next:{qCode}'.
+4. users.json: роль CANDIDATE отсутствует в RoleSchema — пользователь 1002
+   молча отбрасывался readAll (warn json-repo). Роль заменена на SUBSCRIBER.
+
+Ложная гипотеза (откатил): подозрение на баг 'captureInput.path' в
+#handleStartEvent — BotController.send сам добавляет префикс контроллера,
+относительный 'fill' корректен.
+
+Изменённые файлы: apps/u7-bot/tests/e2e/wish-questionnaire.e2e.test.ts (нов),
+apps/u7-bot/tests/helpers/test-bot-transport.ts,
+apps/u7-bot/src/controllers/questionnaire/fill.story.ts,
+apps/u7-bot/tests/fixtures/templates/users.json
+
+Проверки: bun test 1632 pass / 0 fail; tsc --noEmit зелёный; biome — мои
+файлы чистые (в репо остался чужой unused import в get-course-by-module-cmd.ts,
+коммит f84b6681 вне трека — сообщено пользователю).
