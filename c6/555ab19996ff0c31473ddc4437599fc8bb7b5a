@@ -30,3 +30,5 @@ apps/u7-bot/tests/fixtures/templates/users.json
 Проверки: bun test 1632 pass / 0 fail; tsc --noEmit зелёный; biome — мои
 файлы чистые (в репо остался чужой unused import в get-course-by-module-cmd.ts,
 коммит f84b6681 вне трека — сообщено пользователю).
+
+Контрольная точка фазы 3 (E2E анкетная ветка): полный CI=true bun run check зелёный — biome 0 ошибок, tsc --noEmit чисто, тесты 1632 pass / 0 fail (172 файла). Ручная верификация: автоматические прогоны, пользователь дал «продолжаем». Попутно закоммичено удаление unused import CourseSchema (packages/course, правка из чужого коммита f84b6681).
