@@ -1,0 +1,13 @@
+Задачи: Написать падающие тесты на Job (контракт, регистрация в ApiModule, проброс резолвера) + Реализовать Job в core/api + поле jobs в ApiModule
+
+Создан абстрактный класс Job<TResolve> в packages/core/src/api/job/job.ts — аналог UseCase для периодических доменных задач:
+- абстрактные jobName, jobLabel, intervalMs
+- init(resolve) — проброс резолвера (вызывается модулем при init)
+- абстрактный execute(): Promise<void>
+
+ApiModule: добавлено поле readonly jobs: Job[] = [] (по умолчанию пустой), в init() пробрасывается резолвер каждому job (аналогично UC и ER).
+Job экспортирован из @u7-scl/core/api.
+
+Тесты (packages/core/src/api/job/job.test.ts): контракт Job (имя/метка/интервал, проброс резолвера, отсутствие resolve до init), регистрация jobs в ApiModule (по умолчанию пусто, проброс резолвера, повторный init).
+
+Причина: новая категория участников ApiModule для планировщика периодических заданий (трек Job + брошенные анкеты, Фаза 1).
