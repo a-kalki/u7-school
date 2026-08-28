@@ -1,0 +1,9 @@
+Фаза 1 трека wish-e2e_20260828 (инфраструктура):
+- createTestApp: + WishApiModule (wishRepo), + QuestionnaireApiModule (qRepo, фасад) — состав зеркален боевому create-api-app.ts; наружу экспортированы eventBus, wishRepo, questionnaireModule.
+- TestBotTransport: опциональный параметр eventBus (общий с apiApp), вызов uiApp.subscribeEvents() — без этого события questionnaire:start/invite не долетают до FillStory.
+- Фикстуры: курс dddddddd-dddd-4ddd-8ddd-dddddddddddd «Тест. Курс (v2.0) - #1! Плюс+равно=ок {скобки} |пайп| ~тильда~» (проверка экранирования).
+- Пул: dddddddd → 3 вопроса (choice → text → choice), текст ответа choice тоже с опасными символами; валидация схемы зелёная.
+
+Полный CI=true bun run check — 1618 pass / 0 fail.
+
+Примечание: в packages/course/.../get-course-by-module-cmd.ts есть warning biome noUnusedImports (CourseSchema) — чужой код, не тронут (сообщено пользователю).
