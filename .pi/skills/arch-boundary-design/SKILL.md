@@ -17,6 +17,7 @@ description: ЗАГРУЖАТЬ ПЕРВЫМ при создании или ре
 | **Фасад (Facade)** | `domain/facade.ts` | `conductor/code_styleguides/skills/facade.md` |
 | **UseCase (UC)** | `api/<entity>/<name>-uc.ts` | `conductor/code_styleguides/skills/usecase.md` |
 | **EventReaction (ER)** | `api/er/<name>-er.ts` | `conductor/code_styleguides/skills/event-reaction.md` |
+| **Job (периодическое задание)** | `api/<entity>/<name>-job.ts` | `conductor/code_styleguides/skills/job.md` |
 | **Story** | `ui/bot/stories/<name>.story.ts` | `conductor/code_styleguides/skills/bot-ui-story.md` |
 
 Общие документы:

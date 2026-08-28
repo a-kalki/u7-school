@@ -229,6 +229,47 @@
 
 ---
 
+## S07 — Предупреждение о закрытии (⏳ warning) ✅
+
+**Как попасть:** проактивно от системы: планировщик `SweepAbandonedJob` (анкета `in_progress` без активности 6 часов) публикует `questionnaire:warning`.
+**Кому:** респонденту анкеты (telegramId обогащается в job через user-фасад).
+**Рендеринг:** FillStory → подписка `questionnaire:warning` → `#handleWarningEvent`
+
+**Содержание:**
+```
+⏳ *Анкета приостановлена*
+
+Мы заметили, что ты давно не заполнял анкету. Скоро она будет закрыта.
+
+Продолжить?
+```
+
+**Кнопки:**
+
+| Текст | Код | Статус |
+|-------|-----|--------|
+| `▶️ Продолжить` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан) | ✅ |
+| `⏭️ Прервать` | `questionnaire:fill:cancel-confirm:{qId}` → S05a | ✅ |
+
+**Логика:** при активности респондента (ответ на вопрос) флаг `warnedAt` сбрасывается — таймер простоя не сдвигается предупреждением (`markWarned` обходит `safeUpdate`).
+
+---
+
+## S08 — Закрыто по таймауту (⏱ timeout-abandon) ✅
+
+**Как попасть:** проактивно от системы: `SweepAbandonedJob` закрывает анкету после 8 часов неактивности (`abandon('timeout')`) и публикует `questionnaire:abandon` с `reason='timeout'`.
+**Кому:** респонденту анкеты.
+**Рендеринг:** FillStory → подписка `questionnaire:abandon` → `#handleAbandonEvent` → `proactiveSender.notify` (без кнопок).
+
+**Содержание:**
+```
+⏱ Анкета была закрыта из-за длительной неактивности.
+```
+
+**Логика:** событие обрабатывается ТОЛЬКО с `reason='timeout'` — при ручном прерывании (/cancel) дубликат не отправляется (ответ UC «Анкета прервана» пользователь уже получил). Без `telegramId` уведомление не отправляется.
+
+---
+
 ## Стори fill — обработчики
 
 | Событие | UC | Действие |
@@ -244,6 +285,8 @@
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |
 | `/cancel` | — | `confirm('cancel', qId, ...)` → S05a |
+| `questionnaire:warning` (подписка) | — (SweepAbandonedJob) | sendMessage S07: Продолжить (если courseId) / Прервать |
+| `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob) | notify S08; без reason — ничего (без дубля) |
 
 ---
 
