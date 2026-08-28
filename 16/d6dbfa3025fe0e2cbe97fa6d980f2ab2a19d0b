@@ -1,0 +1,19 @@
+Задачи: Тесты на sweep-job + реализация SweepAbandonedJob, событие questionnaire:warning, reason в abandon, регистрация в модуле
+
+SweepAbandonedJob (packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.ts):
+- jobName 'sweep-abandoned-questionnaires', интервал — раз в час
+- пороги (экспортированы для тестов): WARN_AFTER_IDLE_MS=6ч, ABANDON_AFTER_IDLE_MS=8ч
+- простой считается от updatedAt ?? createdAt; только kind='standard'
+- 6ч..8ч без warnedAt → markWarned() + save + публикация QuestionnaireWarningEvent (telegramId через userFacade.getUserByUuid; пользователь не найден — событие не публикуется, ошибки нет)
+- >=8ч → ar.abandon('timeout') + save + flushEvents + обогащение payload.telegramId + публикация через eventBus (UC из job недоступен — резолвер job'а не знает модуль)
+- ошибка одной анкеты не прерывает обход (try/catch на анкету + logger.warn)
+
+Domain:
+- events.ts: QuestionnaireAbandonEvent.payload += reason?: 'timeout', telegramId?: number; новый QuestionnaireWarningEvent (telegramId обязателен)
+- standard/questionnaire-ar.ts: buildAbandonedEvent(reason?) — reason попадает в payload
+- api/module.ts: override readonly jobs = [new SweepAbandonedJob()] — job регистрируется модулем, резолвер пробрасывается через ApiModule.init()
+- api/index.ts: экспорт SweepAbandonedJob
+
+Тесты (9): контракт; свежая анкета — действий нет; 5ч — ниже порога; 7ч → warning+warnedAt+save; повторный прогон — идемпотентность; 9ч → abandon+reason=timeout; 9ч с warnedAt — закрывается; likert пропускается; неизвестный пользователь — без падения.
+
+Дизайн: 'timeout' в abandon-событии позволяет UI отличить принудительное закрытие от ручного /cancel (дубли уведомлений).
