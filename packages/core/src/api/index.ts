@@ -3,6 +3,7 @@ export { ApiApp } from './app/api-app';
 export { App } from './app/app';
 export type { ErDocType, ErMeta } from './er/event-reaction';
 export { EventReaction } from './er/event-reaction';
+export { Job } from './job/job';
 export { ApiModule } from './module/api-module';
 export type { UcDocType, UcMeta } from './uc/use-case';
 export { UseCase } from './uc/use-case';

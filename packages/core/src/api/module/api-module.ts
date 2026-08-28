@@ -1,4 +1,5 @@
 import type { ErMeta, EventReaction } from '#api/er/event-reaction';
+import type { Job } from '#api/job/job';
 import type { UcDocType, UseCase } from '#api/uc/use-case';
 import { errBadRequest, throwError } from '#domain/errors/error-helpers';
 import type { NoCommandFoundError } from '#domain/errors/errors';
@@ -27,6 +28,8 @@ export abstract class ApiModule<
   abstract readonly name: TMeta['name'];
   abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
   abstract readonly reactions: EventReaction<ErMeta, ModuleResolver>[];
+  /** Периодические задания модуля — запускаются планировщиком приложения. */
+  readonly jobs: Job[] = [];
   private reactionsUnsubscribes: Array<() => void> = [];
 
   protected resolve!: TResolve;
@@ -66,6 +69,10 @@ export abstract class ApiModule<
           er.handle(event as DomainEvent),
         ),
       );
+    }
+
+    for (const job of this.jobs) {
+      job.init(this.resolve);
     }
   }
 
