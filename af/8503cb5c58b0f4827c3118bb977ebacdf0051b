@@ -1,0 +1,9 @@
+Задача: Ревью покрытия wish-тестов (фаза 4, сверка со spec A.1–A.7 / B.1–B.7).
+
+Результат сверки:
+- Ветка A (wish-flow.integration.test.ts, 7 тестов): A.1 apply→W03 expressed; A.2 повторный apply→W04+кнопка отмены; A.3 cancel-экран, «❌ Отмена»→карточка без изменения; A.4 «✅ Да»→cancelled, apply после отмены→W03; A.5 двойное «✅ Да»→мягкое «уже нет»; A.6 confirmed→«обучаешься», отмена из confirmed; A.7 экранирование. ПРОБЕЛ: спека A.7 требует прогон «list» — каталог с опасным названием нигде не проверялся. Исправлено: добавлен прогон course:course-catalog:list с проверкой markdown-safe названия published-курса (draft-курсы в list не попадают — проверка привязана к published-фикстуре eeeeeeee).
+- Ветка B (wish-questionnaire.e2e.test.ts, 7 тестов): B.1 проактивный «Вопрос 1 из 3»+captureInput+pending; B.2 опасный text-ответ; B.3 /cancel→abandoned (ER); B.4 W04 pending→resume; B.5 полное прохождение→completed+confirmed (ER); B.6 confirmed→отмена→cancelled; B.7 resume без анкеты без ⚠️. Полное покрытие, пробелов нет.
+
+Критерии приёмки spec: статусы по wishRepo (не по текстам), markdown-safe, полный CI=true bun run check зелёный — 1632 pass / 0 fail.
+
+Изменённые файлы: apps/u7-bot/tests/courses/wish-flow.integration.test.ts (прогон list в тесте A7).
