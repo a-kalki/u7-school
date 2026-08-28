@@ -5,8 +5,8 @@
 
 ---
 
-- [~] **Track: wish: приглашение желающим при открытии набора**
-*Link: [./tracks/wish-invite_20260827/](./tracks/wish-invite_20260827/)*
+- [x] **Track: wish: приглашение желающим при открытии набора**
+*Link: [./archive/wish-invite_20260827/](./archive/wish-invite_20260827/)*
 
 ---
 
