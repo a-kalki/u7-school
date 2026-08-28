@@ -23,9 +23,9 @@
 - [x] Task: Реализовать прогресс и подсказку в FillStory — 11d5432
 - [x] Task: Conductor - Ручная верификация 'Продолжение анкеты + completionText' — 02e81bf
 
-## Фаза 4: Отмена W05 + обновление ui-spec
+## Фаза 4: Отмена W05 + обновление ui-spec [checkpoint: ba23a48]
 
 - [x] Task: Написать падающие тесты на отмену (подтверждение + cancel-wish) — b4b6686
 - [x] Task: Реализовать `cancel` + подтверждение + сообщение об отмене — b4b6686
 - [x] Task: Обновить `course/ui-spec.md` (статусы → ✅) — 1201ece
-- [ ] Task: Conductor - Ручная верификация 'Отмена W05 и ui-spec'
+- [x] Task: Conductor - Ручная верификация 'Отмена W05 и ui-spec' — ba23a48
