@@ -24,4 +24,5 @@
 | 22 | 2026-08-28 | wish-ui_20260814 | 094235f | post-task-debrief | 1 ⚠, 2 ✓, 3 ✓ | [лог](logs/2026-08-28-wish-ui_20260814-f2.md) |
 | 23 | 2026-08-28 | wish-ui_20260814 | 11d5432 | post-task-debrief | 2 ✓, 1 ⚠ | [лог](logs/2026-08-28-wish-ui_20260814-f3.md) |
 | 24 | 2026-08-28 | wish-ui_20260814 | b4b6686 | post-task-debrief | пропущен пользователем | [лог](logs/2026-08-28-wish-ui_20260814-f4.md) |
-**Всего:** 24
+| 25 | 2026-08-27 | job-scheduler_20260827 | ac8616f | post-task-debrief | 0/2 ⏭ пропущено пользователем | [лог](logs/2026-08-27-job-scheduler-phase1.md) |
+**Всего:** 25
