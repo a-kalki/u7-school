@@ -163,7 +163,7 @@ describe('BotController', () => {
   });
 
   describe('notify (ProactiveSender)', () => {
-    test('префиксирует кнопки уведомления и делегирует родителю', async () => {
+    test('делегирует payload родителю без изменений (кнопок в уведомлении нет)', async () => {
       const mockSender = {
         send: mock(async () => {}),
         notify: mock(async () => {}),
@@ -173,41 +173,17 @@ describe('BotController', () => {
 
       await ctrl.notify(123, {
         text: '🎓 Ты зачислен',
-        keyboard: {
-          rows: [[{ text: '🎓 Моя учёба', code: 'hub:my-study' }]],
-          isMultiple: false,
-        },
+        parseMode: 'MarkdownV2',
       });
 
       expect(mockSender.notify).toHaveBeenCalled();
       const [tgId, payload] = (mockSender.notify as ReturnType<typeof mock>)
         .mock.calls[0] as [number, NotificationPayload];
       expect(tgId).toBe(123);
-      expect(payload.text).toBe('🎓 Ты зачислен');
-      expect(payload.keyboard?.rows[0]?.[0]?.code).toBe(
-        'test_ctrl:hub:my-study',
-      );
-    });
-
-    test('кросс-контроллерный код кнопки не префиксируется', async () => {
-      const mockSender = {
-        send: mock(async () => {}),
-        notify: mock(async () => {}),
-      };
-      ctrl.addStory(new TestStory('hub'));
-      ctrl.init({} as never, mockSender);
-
-      await ctrl.notify(123, {
-        text: 'Уведомление',
-        keyboard: {
-          rows: [[{ text: 'В каталог', code: 'app:main-menu' }]],
-          isMultiple: false,
-        },
+      expect(payload).toEqual({
+        text: '🎓 Ты зачислен',
+        parseMode: 'MarkdownV2',
       });
-
-      const [, payload] = (mockSender.notify as ReturnType<typeof mock>).mock
-        .calls[0] as [number, NotificationPayload];
-      expect(payload.keyboard?.rows[0]?.[0]?.code).toBe('app:main-menu');
     });
   });
 

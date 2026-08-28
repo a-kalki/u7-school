@@ -37,7 +37,13 @@ export class HubStory extends U7BotUiStory {
     ];
   }
 
-  /** student.enrolled — уведомление «Ты зачислен» с кнопкой «Моя учёба» */
+  /**
+   * student.enrolled — сообщение с кнопкой «Моя учёба».
+   *
+   * Кнопки — только в обычном send(): новый экран ломает текущий флоу
+   * (клавиатура предыдущего сообщения снимается транспортом).
+   * Уведомления (notify) — всегда без кнопок.
+   */
   async #handleEnrolledEvent(event: StudentEnrolledEvent): Promise<void> {
     const { userId, streamId } = event.payload;
 
@@ -62,17 +68,26 @@ export class HubStory extends U7BotUiStory {
       ? ` в поток «${this.escapeMarkdown(streamTitle)}»`
       : '';
 
-    await this.proactiveSender.notify(user.telegramId, {
-      text: `🎓 Ты зачислен${where}\\!\\n\\nНачинай учёбу — кнопка ниже\\.`,
-      parseMode: 'MarkdownV2',
-      keyboard: {
-        rows: [[{ text: '🎓 Моя учёба', code: this.cb('my-study') }]],
-        isMultiple: false,
+    await this.proactiveSender.send(user.telegramId, {
+      sendMessage: {
+        text: `🎓 Ты зачислен${where}\\!\\n\\nНачинай учёбу — кнопка ниже\\.`,
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '🎓 Моя учёба', code: this.cb('my-study') }]],
+          isMultiple: false,
+        },
       },
     });
   }
 
-  /** student.completed — уведомление с контекстной кнопкой по месту модуля */
+  /**
+   * student.completed — контекстное сообщение по месту модуля.
+   *
+   * С кнопкой («Следующий модуль»/«Пройти снова») — обычный send():
+   * ломает текущий флоу, кнопки предыдущего экрана снимаются.
+   * Без кнопки («Курс завершён», место неизвестно) — notify():
+   * помечено заголовком 🔔 и не трогает поток пользователя.
+   */
   async #handleCompletedEvent(event: StudentCompletedEvent): Promise<void> {
     const { userId, moduleId, outcome } = event.payload;
 
@@ -113,11 +128,16 @@ export class HubStory extends U7BotUiStory {
       text = '🏁 Модуль завершён\\!';
     }
 
-    await this.proactiveSender.notify(user.telegramId, {
-      text,
-      parseMode: 'MarkdownV2',
-      keyboard,
-    });
+    if (keyboard) {
+      await this.proactiveSender.send(user.telegramId, {
+        sendMessage: { text, parseMode: 'MarkdownV2', keyboard },
+      });
+    } else {
+      await this.proactiveSender.notify(user.telegramId, {
+        text,
+        parseMode: 'MarkdownV2',
+      });
+    }
   }
 
   async handleCallback(

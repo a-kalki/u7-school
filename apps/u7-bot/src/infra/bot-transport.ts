@@ -195,9 +195,22 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   }
 
   /**
+   * Заголовок уведомления — первая строка сообщения.
+   * В MarkdownV2 «Уведомление:» выделяется жирным.
+   */
+  #notificationHeader(parseMode?: 'MarkdownV2'): string {
+    return parseMode === 'MarkdownV2'
+      ? '🔔 *Уведомление:*\n\n'
+      : '🔔 Уведомление:\n\n';
+  }
+
+  /**
    * Проактивное уведомление — не вмешивается в поток пользователя:
-   * сохраняет клавиатуру предыдущего экрана (keepPrevKeyboard)
-   * и не трогает session.activeHandler.
+   * - помечено заголовком 🔔 (пользователю видно, что это уведомление);
+   * - сохраняет клавиатуру предыдущего экрана (keepPrevKeyboard);
+   * - не трогает activeHandler и lastBotMessage — уведомление НЕ становится
+   *   последним сообщением, логика снятия клавиатуры продолжает работать
+   *   по предыдущему экрану.
    */
   async notify(
     telegramId: number,
@@ -209,12 +222,18 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     }
 
     const command: BotCommand = {
-      sendMessage: { ...payload },
+      sendMessage: {
+        text: this.#notificationHeader(payload.parseMode) + payload.text,
+        parseMode: payload.parseMode,
+      },
       keepPrevKeyboard: true,
     };
 
+    // Уведомление не занимает слот «последнего сообщения» сессии
+    const prevLastBotMessage = session.lastBotMessage;
     const compressed = this.compressCommand(command);
     await this.execute(session, telegramId, compressed);
+    session.lastBotMessage = prevLastBotMessage;
 
     this.sessionMap.set(telegramId, session);
   }

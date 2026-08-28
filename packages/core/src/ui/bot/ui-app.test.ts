@@ -166,10 +166,7 @@ describe('BotUiApp', () => {
 
     const payload: NotificationPayload = {
       text: 'Ты зачислен',
-      keyboard: {
-        rows: [[{ text: '🎓 Моя учёба', code: 'hub:my-study' }]],
-        isMultiple: false,
-      },
+      parseMode: 'MarkdownV2',
     };
     await app.notify(456, payload);
 

@@ -822,11 +822,11 @@ describe('BotTransport — notify (proactive)', () => {
 
     await transport.notify(123, { text: '🎓 Ты зачислен' });
 
-    // Сообщение отправлено
+    // Сообщение отправлено — с заголовком уведомления
     expect(api.sendMessage).toHaveBeenCalled();
     const call = (api.sendMessage as any).mock.calls[0];
     expect(call[0]).toBe(123);
-    expect(call[1]).toBe('🎓 Ты зачислен');
+    expect(call[1]).toBe('🔔 Уведомление:\n\n🎓 Ты зачислен');
 
     // Клавиатура предыдущего сообщения сохранена — removal не вызывался
     const editCalls = (api.editMessageText as any).mock.calls;
@@ -835,8 +835,10 @@ describe('BotTransport — notify (proactive)', () => {
     );
     expect(removalCall).toBeUndefined();
 
-    // И сама клавиатура в сессии не стёрта
-    expect(sessionMap.get(123)?.lastBotMessage).toBeDefined();
+    // Уведомление НЕ стало последним сообщением — сессия помнит каталог
+    const last = sessionMap.get(123)?.lastBotMessage;
+    expect(last?.messageId).toBe(42);
+    expect(last?.keyboard).toBeDefined();
   });
 
   test('не трогает session.activeHandler при активном вводе', async () => {
@@ -868,50 +870,24 @@ describe('BotTransport — notify (proactive)', () => {
     const session = sessionMap.get(456);
     expect(session).toBeDefined();
     expect(session?.activeHandler).toBeNull();
+    // Уведомление не занимает слот последнего сообщения
+    expect(session?.lastBotMessage).toBeUndefined();
   });
 
-  test('передаёт клавиатуру и parseMode уведомления', async () => {
+  test('MarkdownV2: заголовок жирным + parseMode прокидывается', async () => {
     const api = makeMockBotApi();
     const uiApp = makeMockUiApp();
     const sessionMap = new Map<number, SessionData>();
     const transport = new BotTransport(uiApp, api, sessionMap);
 
     await transport.notify(123, {
-      text: '*Уведомление*',
+      text: '🎉 Курс завершён\\!',
       parseMode: 'MarkdownV2',
-      keyboard: {
-        rows: [[{ text: 'Моя учёба', code: 'learning:hub:my-study' }]],
-        isMultiple: false,
-      },
     });
 
     const call = (api.sendMessage as any).mock.calls[0];
+    expect(call[1]).toBe('🔔 *Уведомление:*\n\n🎉 Курс завершён\\!');
     expect(call[2]?.parse_mode).toBe('MarkdownV2');
-    expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
-      'learning:hub:my-study',
-    );
-  });
-
-  test('сжимает UUID в кнопках уведомления', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
-
-    await transport.notify(123, {
-      text: 'Следующий модуль',
-      keyboard: {
-        rows: [[{ text: 'Далее', code: `course:wish:${uuid}` }]],
-        isMultiple: false,
-      },
-    });
-
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
-      'course:wish:~a1b2c3d4',
-    );
   });
 });
 

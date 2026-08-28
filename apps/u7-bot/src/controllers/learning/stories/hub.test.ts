@@ -309,29 +309,34 @@ describe('HubStory — подписка на student.enrolled', () => {
     expect(subs.some((s) => s.eventName === 'student.enrolled')).toBe(true);
   });
 
-  test('событие → notify с текстом зачисления и кнопкой «Моя учёба»', async () => {
+  test('событие → send с текстом зачисления и кнопкой «Моя учёба»', async () => {
     const { story, sender } = makeStoryWithSender();
     const subs = story.getEventSubscriptions();
     const sub = subs.find((s) => s.eventName === 'student.enrolled');
 
     await sub!.handle(makeEnrolledEvent());
 
-    expect(sender.notify).toHaveBeenCalledTimes(1);
-    const [tgId, payload] = (sender.notify as ReturnType<typeof mock>).mock
+    expect(sender.send).toHaveBeenCalledTimes(1);
+    const [tgId, command] = (sender.send as ReturnType<typeof mock>).mock
       .calls[0] as [
       number,
-      { text: string; keyboard?: { rows: { text: string; code: string }[][] } },
+      {
+        sendMessage: {
+          text: string;
+          keyboard?: { rows: { text: string; code: string }[][] };
+        };
+      },
     ];
     expect(tgId).toBe(123);
-    expect(payload.text).toContain('зачислен');
-    expect(payload.text).toContain('Поток по JS');
-    const btn = payload.keyboard?.rows[0]?.[0];
+    expect(command.sendMessage.text).toContain('зачислен');
+    expect(command.sendMessage.text).toContain('Поток по JS');
+    const btn = command.sendMessage.keyboard?.rows[0]?.[0];
     expect(btn?.text).toContain('Моя учёба');
-    // код кнопки — этой стори, без префикса контроллера (его добавит BotController.notify)
+    // код кнопки — этой стори, без префикса контроллера (его добавит BotController.send)
     expect(btn?.code).toBe('hub:my-study');
   });
 
-  test('у пользователя нет telegramId — notify не вызывается', async () => {
+  test('у пользователя нет telegramId — send не вызывается', async () => {
     const { story, sender } = makeStoryWithSender({
       'get-user': {
         uuid: 'user-1',
@@ -346,10 +351,10 @@ describe('HubStory — подписка на student.enrolled', () => {
 
     await sub!.handle(makeEnrolledEvent());
 
-    expect(sender.notify).not.toHaveBeenCalled();
+    expect(sender.send).not.toHaveBeenCalled();
   });
 
-  test('сбой get-stream не мешает уведомлению (без названия потока)', async () => {
+  test('сбой get-stream не мешает сообщению (без названия потока)', async () => {
     const { story, sender } = makeStoryWithSender({
       'get-stream': Promise.reject(new Error('stream gone')),
     });
@@ -358,11 +363,11 @@ describe('HubStory — подписка на student.enrolled', () => {
 
     await sub!.handle(makeEnrolledEvent());
 
-    expect(sender.notify).toHaveBeenCalledTimes(1);
-    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, { text: string }];
-    expect(payload.text).toContain('зачислен');
-    expect(payload.text).not.toContain('Поток по JS');
+    expect(sender.send).toHaveBeenCalledTimes(1);
+    const [, command] = (sender.send as ReturnType<typeof mock>).mock
+      .calls[0] as [number, { sendMessage: { text: string } }];
+    expect(command.sendMessage.text).toContain('зачислен');
+    expect(command.sendMessage.text).not.toContain('Поток по JS');
   });
 });
 
@@ -436,15 +441,22 @@ describe('HubStory — подписка на student.completed', () => {
 
     await getSub(story).handle(makeCompletedEvent('advanced'));
 
-    expect(sender.notify).toHaveBeenCalledTimes(1);
-    const [tgId, payload] = (sender.notify as ReturnType<typeof mock>).mock
+    // кнопка → обычное сообщение (ломает флоу), не notify
+    expect(sender.notify).not.toHaveBeenCalled();
+    expect(sender.send).toHaveBeenCalledTimes(1);
+    const [tgId, command] = (sender.send as ReturnType<typeof mock>).mock
       .calls[0] as [
       number,
-      { text: string; keyboard?: { rows: { text: string; code: string }[][] } },
+      {
+        sendMessage: {
+          text: string;
+          keyboard?: { rows: { text: string; code: string }[][] };
+        };
+      },
     ];
     expect(tgId).toBe(123);
-    expect(payload.text).toContain('заверш');
-    const btn = payload.keyboard?.rows[0]?.[0];
+    expect(command.sendMessage.text).toContain('заверш');
+    const btn = command.sendMessage.keyboard?.rows[0]?.[0];
     expect(btn?.text).toContain('Следующий модуль');
     // кросс-контроллерный код — Routes.course.wishModule(nextModuleId)
     expect(btn?.code).toBe(`course:course-catalog:wish:${nextModuleId}`);
@@ -460,12 +472,17 @@ describe('HubStory — подписка на student.completed', () => {
 
     await getSub(story).handle(makeCompletedEvent('not_advanced'));
 
-    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
+    expect(sender.notify).not.toHaveBeenCalled();
+    const [, command] = (sender.send as ReturnType<typeof mock>).mock
       .calls[0] as [
       number,
-      { text: string; keyboard?: { rows: { text: string; code: string }[][] } },
+      {
+        sendMessage: {
+          keyboard?: { rows: { text: string; code: string }[][] };
+        };
+      },
     ];
-    const btn = payload.keyboard?.rows[0]?.[0];
+    const btn = command.sendMessage.keyboard?.rows[0]?.[0];
     expect(btn?.text).toContain('снова');
     expect(btn?.code).toBe(`course:course-catalog:wish:${moduleId}`);
   });
@@ -481,12 +498,12 @@ describe('HubStory — подписка на student.completed', () => {
     await getSub(story).handle(makeCompletedEvent('advanced'));
 
     const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, { text: string; keyboard?: unknown }];
+      .calls[0] as [number, { text: string }];
     expect(payload.text).toContain('Курс заверш');
-    expect(payload.keyboard).toBeUndefined();
+    expect('keyboard' in payload).toBe(false);
   });
 
-  test('нет telegramId → notify не вызывается', async () => {
+  test('нет telegramId → сообщения не отправляются', async () => {
     const { story, sender } = makeStoryWithSender({
       courseId: 'c-1',
       isLast: true,
@@ -503,6 +520,7 @@ describe('HubStory — подписка на student.completed', () => {
     await getSub(story).handle(makeCompletedEvent('advanced'));
 
     expect(sender.notify).not.toHaveBeenCalled();
+    expect(sender.send).not.toHaveBeenCalled();
   });
 
   test('place undefined + advanced → уведомление без кнопки', async () => {
@@ -511,8 +529,8 @@ describe('HubStory — подписка на student.completed', () => {
     await getSub(story).handle(makeCompletedEvent('advanced'));
 
     const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, { text: string; keyboard?: unknown }];
+      .calls[0] as [number, { text: string }];
     expect(payload.text).toContain('заверш');
-    expect(payload.keyboard).toBeUndefined();
+    expect('keyboard' in payload).toBe(false);
   });
 });
