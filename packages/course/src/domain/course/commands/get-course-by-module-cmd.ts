@@ -1,7 +1,6 @@
 import * as v from 'valibot';
 import { ModuleSchema } from '../../module/entity';
 import type { Course, CourseArMeta } from '../entity';
-import { CourseSchema } from '../entity';
 
 /** Схема команды поиска курса по модулю. */
 export const GetCourseByModuleCmdSchema = v.object({
