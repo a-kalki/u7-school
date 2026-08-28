@@ -1010,4 +1010,91 @@ describe('CourseCatalogStory', () => {
       expect(text).toContain('уже нет');
     });
   });
+
+  describe('cancel-mod — отмена желания модуля (W05-M)', () => {
+    const moduleId = '33333333-3333-4333-8333-333333333333';
+
+    function makeCancelApi(error?: unknown) {
+      return {
+        execute: mock(
+          async (ucName: string, _attrs: Record<string, unknown>) => {
+            if (ucName === 'cancel-wish') {
+              if (error) throw error;
+              return undefined;
+            }
+            return undefined;
+          },
+        ),
+      };
+    }
+
+    test('cancel-mod: рендерит подтверждение W05-M с кнопками Да/Отмена', async () => {
+      const appApi = makeCancelApi();
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `cancel-mod:${moduleId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('Отменить желание пройти модуль?');
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const flat = rows.flat();
+      const yes = flat.find((b) => b.text.includes('Да'));
+      expect(yes?.code).toBe(`course-catalog:cancel-mod-confirm:${moduleId}`);
+      const no = flat.find((b) => b.text.includes('Отмена'));
+      expect(no?.code).toBe(Routes.app.mainMenu);
+    });
+
+    test('cancel-mod-confirm: вызывает cancel-wish с вариантом module', async () => {
+      const appApi = makeCancelApi();
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `cancel-mod-confirm:${moduleId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
+        (c) => c[0] === 'cancel-wish',
+      );
+      expect(call).toBeDefined();
+      expect(call![1]).toEqual({ kind: 'module', moduleId });
+      expect(call![2]).toBe(actor.uuid);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('отменено');
+    });
+
+    test('cancel-mod-confirm: WISH_NOT_FOUND — мягкое сообщение без ошибки', async () => {
+      const { errNotFound, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errNotFound('WISH_NOT_FOUND', 'Желание не найдено', {
+          userId: actor.uuid,
+          moduleId,
+        }),
+      );
+      const appApi = makeCancelApi(error);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `cancel-mod-confirm:${moduleId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).not.toContain('⚠️');
+      expect(text).toContain('уже нет');
+    });
+  });
 });

@@ -53,10 +53,10 @@ describe('StreamsController (реестр)', () => {
     expect(controller.name).toBe('stream');
   });
 
-  test('содержит 2 stories (catalog + view-stream)', () => {
+  test('содержит 3 stories (catalog + view-stream + wish-invite)', () => {
     const controller = makeController();
     const stories = (controller as unknown as { stories: unknown[] }).stories;
-    expect(stories.length).toBe(2);
+    expect(stories.length).toBe(3);
   });
 
   test('handleStart агрегирует кнопки от stories', async () => {

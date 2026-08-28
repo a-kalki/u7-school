@@ -86,6 +86,18 @@ export class CourseCatalogStory extends U7BotUiStory {
         );
       case 'cancel-confirm':
         return this.#handleCancelConfirm(ids[0] ?? '', actor);
+      case 'cancel-mod':
+        // W05-M — экран подтверждения отмены желания модуля
+        return this.confirm(
+          'cancel-mod',
+          ids[0] ?? '',
+          'Отменить желание пройти модуль?',
+          {
+            cancelCode: Routes.app.mainMenu,
+          },
+        );
+      case 'cancel-mod-confirm':
+        return this.#handleCancelModConfirm(ids[0] ?? '', actor);
       default:
         return {
           sendMessage: { text: '⚠️ Неизвестная команда каталога курсов' },
@@ -683,6 +695,46 @@ export class CourseCatalogStory extends U7BotUiStory {
         return {
           sendMessage: {
             text: 'ℹ️ Активного желания на этот курс уже нет\\.',
+            parseMode: 'MarkdownV2',
+            keyboard: {
+              rows: [[buttons.mainMenu()]],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+      return this.handleError(err);
+    }
+  }
+
+  /** cancel-mod-confirm:{moduleId} — подтверждённая отмена желания модуля (W05-M). */
+  async #handleCancelModConfirm(
+    moduleId: string,
+    actor: User,
+  ): Promise<BotResponse> {
+    try {
+      await this.appApi.execute(
+        'cancel-wish',
+        { kind: 'module', moduleId },
+        actor.uuid,
+      );
+
+      return {
+        sendMessage: {
+          text: '🗑️ Желание пройти модуль отменено\\.',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[buttons.mainMenu()]],
+            isMultiple: false,
+          },
+        },
+      };
+    } catch (err) {
+      // Гонка: желание уже отменили — не ошибка для пользователя
+      if (fromError(err).kind === 'not-found') {
+        return {
+          sendMessage: {
+            text: 'ℹ️ Активного желания на этот модуль уже нет\\.',
             parseMode: 'MarkdownV2',
             keyboard: {
               rows: [[buttons.mainMenu()]],
