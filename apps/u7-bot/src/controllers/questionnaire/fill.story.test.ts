@@ -64,7 +64,7 @@ function getSentCommand(sender: { send: ReturnType<typeof mock> }): {
 }
 
 describe('FillStory — подписки на доменные события', () => {
-  test('getEventSubscriptions возвращает 2 подписки', () => {
+  test('getEventSubscriptions возвращает 4 подписки', () => {
     const { story } = makeStory();
 
     const subs = story.getEventSubscriptions();
@@ -72,6 +72,8 @@ describe('FillStory — подписки на доменные события', 
     expect(subs.map((s) => s.eventName)).toEqual([
       'questionnaire:start',
       'questionnaire:invite',
+      'questionnaire:warning',
+      'questionnaire:abandon',
     ]);
   });
 

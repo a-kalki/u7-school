@@ -12,13 +12,16 @@ import type { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import type {
   InviteResponse,
   Question,
+  QuestionnaireAbandonEvent,
   QuestionnaireActionResponse,
   QuestionnaireInviteEvent,
   QuestionnaireStartEvent,
   QuestionnaireState,
+  QuestionnaireWarningEvent,
 } from '@u7-scl/questionnaire/domain';
 import { U7BotUiStory } from '../../core/u7-bot-ui-story';
 import { buttons } from '../shared/buttons';
+import { Routes } from '../shared/routes';
 
 /**
  * FillStory — сценарий заполнения анкеты.
@@ -46,6 +49,14 @@ export class FillStory extends U7BotUiStory {
       eventSubscription<QuestionnaireInviteEvent>(
         'questionnaire:invite',
         (event) => this.#handleInviteEvent(event),
+      ),
+      eventSubscription<QuestionnaireWarningEvent>(
+        'questionnaire:warning',
+        (event) => this.#handleWarningEvent(event),
+      ),
+      eventSubscription<QuestionnaireAbandonEvent>(
+        'questionnaire:abandon',
+        (event) => this.#handleAbandonEvent(event),
       ),
     ];
   }
@@ -81,6 +92,56 @@ export class FillStory extends U7BotUiStory {
     };
 
     await this.proactiveSender.send(telegramId, command);
+  }
+
+  /**
+   * questionnaire:warning — предупреждение о закрытии брошенной анкеты.
+   * Кнопка «Продолжить» возвращается только если анкета привязана к курсу.
+   */
+  async #handleWarningEvent(event: QuestionnaireWarningEvent): Promise<void> {
+    const { telegramId, questionnaireId } = event.payload;
+    const courseId = event.ownerInfo['courseId'];
+
+    const rows: { text: string; code: string }[][] = [];
+    if (typeof courseId === 'string') {
+      rows.push([
+        {
+          text: '▶️ Продолжить',
+          code: Routes.questionnaire.resume(courseId),
+        },
+      ]);
+    }
+    rows.push([
+      {
+        text: '⏭️ Прервать',
+        code: this.cb('cancel-confirm', questionnaireId),
+      },
+    ]);
+
+    await this.proactiveSender.send(telegramId, {
+      sendMessage: {
+        text: '⏳ *Анкета приостановлена*\n\nМы заметили, что ты давно не заполнял анкету\\. Скоро она будет закрыта\\.\n\nПродолжить?',
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    });
+  }
+
+  /**
+   * questionnaire:abandon — уведомление о принудительном закрытии.
+   * Только reason='timeout': при ручном прерывании (/cancel) пользователь уже
+   * получил ответ UC — дублировать не нужно. Без telegramId слать некому.
+   */
+  async #handleAbandonEvent(event: QuestionnaireAbandonEvent): Promise<void> {
+    const { reason, telegramId } = event.payload;
+    if (reason !== 'timeout' || telegramId === undefined) {
+      return;
+    }
+
+    await this.proactiveSender.notify(telegramId, {
+      text: '⏱ Анкета была закрыта из\\-за длительной неактивности\\.',
+      parseMode: 'MarkdownV2',
+    });
   }
 
   // ── Callback ──
