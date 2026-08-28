@@ -1,0 +1,1 @@
+Задача 3 фазы 4 (трек wish-ui_20260814): обновлён apps/u7-bot/src/controllers/courses/ui-spec.md — раздел «Желание пройти курс» 📋→✅; W01–W04 ✅; кнопка отмены добавлена в таблицу W04; новая секция W05 (подтверждение → cancel-wish → сообщение; обработка WISH_NOT_FOUND); questionnaire:abandon ✅ в схеме пути.
