@@ -16,7 +16,7 @@
 - [x] Task: Реализовать `SweepAbandonedJob` + событие `questionnaire:warning` + `reason` в abandon + регистрация в модуле [16d6dbf]
 - [x] Task: Conductor - Ручная верификация 'Sweep-job'
 
-## Фаза 3: UI предупреждения в FillStory
+## Фаза 3: UI предупреждения в FillStory [checkpoint: 0f26df7]
 
 - [x] Task: Написать падающие тесты на подписку `questionnaire:warning` (рендер + кнопки) и сообщение таймаут-abandon (без дубля при /cancel) [e1e2e51]
 - [x] Task: Реализовать подписки + рендер + ProactiveSender в FillStory [e1e2e51]
