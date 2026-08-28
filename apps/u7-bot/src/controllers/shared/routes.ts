@@ -20,4 +20,8 @@ export const Routes = {
     /** Запись на модуль: обработчик в course-catalog стори courses-контроллера */
     wishModule: (moduleId: string) => `course:course-catalog:wish:${moduleId}`,
   },
+  questionnaire: {
+    /** Продолжить анкету по курсу: обработчик в fill-стори questionnaire-контроллера */
+    resume: (courseId: string) => `questionnaire:fill:resume:${courseId}`,
+  },
 } as const;

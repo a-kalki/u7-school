@@ -3,6 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import type { SessionData } from '@u7-scl/core/ui';
 import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
+import { Routes } from '../../shared/routes';
 import { CourseCatalogStory } from './course-catalog.story';
 
 describe('CourseCatalogStory', () => {
@@ -780,10 +781,10 @@ describe('CourseCatalogStory', () => {
 
       const text = response.sendMessage?.text ?? '';
       expect(text).toContain('зафиксировано');
+      expect(text).toContain('когда откроется набор');
       const rows = response.sendMessage?.keyboard?.rows ?? [];
-      expect(rows.flat().some((b) => b.text.includes('Главное меню'))).toBe(
-        true,
-      );
+      const menuBtn = rows.flat().find((b) => b.text.includes('Главное меню'));
+      expect(menuBtn?.code).toBe(Routes.app.mainMenu);
     });
 
     test('apply questionnaire: пустой ответ — анкету рендерит FillStory', async () => {
@@ -806,12 +807,16 @@ describe('CourseCatalogStory', () => {
       expect(response.sendMessages).toBeUndefined();
     });
 
-    test('apply конфликт WISH_ALREADY_EXISTS: дружелюбный экран, не ошибка', async () => {
+    test.each([
+      'expressed',
+      'confirmed',
+    ] as const)('apply конфликт %s: W04 с кнопкой отмены и меню', async (status) => {
       const { errConflict, AppException } = await import('@u7-scl/core/domain');
       const error = new AppException(
         errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
           userId: actor.uuid,
           courseId,
+          status,
         }),
       );
       const appApi = makeApplyApi(undefined, error);
@@ -826,8 +831,74 @@ describe('CourseCatalogStory', () => {
       assertResponseMarkdownSafe(response);
 
       const text = response.sendMessage?.text ?? '';
-      expect(text).toContain('уже');
       expect(text).not.toContain('⚠️');
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const flat = rows.flat();
+      expect(flat.some((b) => b.text.includes('Отменить желание'))).toBe(true);
+      expect(
+        flat.some((b) => b.code === `course-catalog:cancel:${courseId}`),
+      ).toBe(true);
+      expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
+    });
+
+    test.each([
+      'expressed',
+      'confirmed',
+    ] as const)('apply конфликт %s: текст ветвится', async (status) => {
+      const { errConflict, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+          userId: actor.uuid,
+          courseId,
+          status,
+        }),
+      );
+      const appApi = makeApplyApi(undefined, error);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `apply:${courseId}`,
+        actor,
+        session,
+      );
+
+      const text = response.sendMessage?.text ?? '';
+      if (status === 'confirmed') {
+        expect(text).toContain('обучаешься');
+      } else {
+        expect(text).toContain('выразил желание');
+      }
+    });
+
+    test('apply конфликт pending: W04 — продолжить анкету', async () => {
+      const { errConflict, AppException } = await import('@u7-scl/core/domain');
+      const error = new AppException(
+        errConflict('WISH_ALREADY_EXISTS', 'Желание уже выражено', {
+          userId: actor.uuid,
+          courseId,
+          status: 'pending',
+        }),
+      );
+      const appApi = makeApplyApi(undefined, error);
+      const story = new CourseCatalogStory();
+      initStory(story, appApi as never);
+
+      const response = await story.handleCallback(
+        `apply:${courseId}`,
+        actor,
+        session,
+      );
+      assertResponseMarkdownSafe(response);
+
+      const text = response.sendMessage?.text ?? '';
+      expect(text).toContain('начал заполнять анкету');
+      expect(text).toContain('не закончил');
+      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const flat = rows.flat();
+      const resumeBtn = flat.find((b) => b.text.includes('Продолжить анкету'));
+      expect(resumeBtn?.code).toBe(`questionnaire:fill:resume:${courseId}`);
+      expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
     });
 
     test('apply: другая ошибка (курс не найден) — уходит в handleError', async () => {

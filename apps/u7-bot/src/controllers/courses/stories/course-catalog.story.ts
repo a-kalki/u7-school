@@ -6,6 +6,7 @@ import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
 import { buttons } from '../../shared/buttons';
+import { Routes } from '../../shared/routes';
 
 /** Эмодзи для направлений */
 const TRACK_EMOJI: Record<string, string> = {
@@ -551,14 +552,53 @@ export class CourseCatalogStory extends U7BotUiStory {
         },
       };
     } catch (err) {
-      // W04 — желание уже есть / анкета начата (конфликт — не ошибка)
+      // W04 — желание уже есть / анкета начата (конфликт — не ошибка).
+      // Ветвление по статусу существующего желания (payload ошибки).
       if (fromError(err).kind === 'conflict') {
+        const status =
+          (fromError(err).payload as { status?: string } | undefined)?.status ??
+          'expressed';
+
+        if (status === 'pending') {
+          // Анкета начата, но не завершена — выход есть: продолжить анкету
+          return {
+            sendMessage: {
+              text: '📝 Ты начал заполнять анкету по этому курсу, но не закончил её\\.\nПродолжи — и желание будет закреплено\\.',
+              parseMode: 'MarkdownV2',
+              keyboard: {
+                rows: [
+                  [
+                    {
+                      text: '▶️ Продолжить анкету',
+                      code: Routes.questionnaire.resume(courseId),
+                    },
+                  ],
+                  [this.#getMainMenuButton()],
+                ],
+                isMultiple: false,
+              },
+            },
+          };
+        }
+
+        const text =
+          status === 'confirmed'
+            ? '📚 Ты уже обучаешься на этом курсе\\.'
+            : '📝 Ты уже выразил желание пройти этот курс\\.';
         return {
           sendMessage: {
-            text: '📝 Ты уже выразил желание пройти этот курс\\.',
+            text,
             parseMode: 'MarkdownV2',
             keyboard: {
-              rows: [[this.#getMainMenuButton()]],
+              rows: [
+                [
+                  {
+                    text: '🗑️ Отменить желание',
+                    code: this.cb('cancel', courseId),
+                  },
+                ],
+                [this.#getMainMenuButton()],
+              ],
               isMultiple: false,
             },
           },
