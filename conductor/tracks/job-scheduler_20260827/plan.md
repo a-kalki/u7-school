@@ -8,7 +8,7 @@
 - [x] Task: Реализовать `job-scheduler.ts` в apps/u7-bot + запуск в `main.ts` [e421732]
 - [x] Task: Conductor - Ручная верификация 'Job + планировщик'
 
-## Фаза 2: warnedAt + sweep-job в questionnaire
+## Фаза 2: warnedAt + sweep-job в questionnaire [checkpoint: d3c8710]
 
 - [x] Task: Написать падающие тесты на `warnedAt` (markWarned, сброс при активности) и `repo.getActive()` [7a40b51]
 - [x] Task: Добавить `warnedAt` в схему/состояние анкеты + доменные методы [7a40b51]
