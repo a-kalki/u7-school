@@ -12,9 +12,9 @@
 
 - [x] Task: Написать падающие тесты на `warnedAt` (markWarned, сброс при активности) и `repo.getActive()` [7a40b51]
 - [x] Task: Добавить `warnedAt` в схему/состояние анкеты + доменные методы [7a40b51]
-- [ ] Task: Написать падающие тесты на sweep-job (6ч → warning + warnedAt; 8ч → abandon с reason timeout; идемпотентность; только kind standard)
-- [ ] Task: Реализовать `SweepAbandonedJob` + событие `questionnaire:warning` + `reason` в abandon + регистрация в модуле
-- [ ] Task: Conductor - Ручная верификация 'Sweep-job'
+- [x] Task: Написать падающие тесты на sweep-job (6ч → warning + warnedAt; 8ч → abandon с reason timeout; идемпотентность; только kind standard) [16d6dbf]
+- [x] Task: Реализовать `SweepAbandonedJob` + событие `questionnaire:warning` + `reason` в abandon + регистрация в модуле [16d6dbf]
+- [x] Task: Conductor - Ручная верификация 'Sweep-job'
 
 ## Фаза 3: UI предупреждения в FillStory
 
