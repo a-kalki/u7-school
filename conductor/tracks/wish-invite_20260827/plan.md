@@ -1,6 +1,6 @@
 # План реализации — Трек E: wish-invite (приглашение желающим)
 
-## Фаза 1: Событие `stream.created` [checkpoint: pending]
+## Фаза 1: Событие `stream.created` [checkpoint: be0a3c6]
 
 - [x] Task: Написать падающие тесты на публикацию `stream.created` при создании потока (UC) (a3acc84)
 - [x] Task: Добавить `StreamCreatedEvent` + публикацию в UC создания потока (a3acc84)
