@@ -21,6 +21,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
 
   /**
    * Фабричный метод для создания нового потока.
+   * Добавляет доменное событие stream.created (публикуется UC'ом).
    */
   static create(
     cmd: CreateStreamCmd,
@@ -45,7 +46,19 @@ export class StreamAr extends Aggregate<StreamArMeta> {
       createdAt: isoNow(),
     };
 
-    return new StreamAr(candidate);
+    const ar = new StreamAr(candidate);
+    ar.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'stream.created',
+      occurredAt: isoNow(),
+      aggregateName: 'Stream',
+      aggregateId: candidate.uuid,
+      payload: {
+        streamId: candidate.uuid,
+        moduleId: candidate.moduleId,
+      },
+    });
+    return ar;
   }
 
   /**

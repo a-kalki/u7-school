@@ -37,6 +37,9 @@ export class CreateStreamUc extends StreamUseCase<CreateStreamCmdMeta> {
     const ar = StreamAr.create(command, snapshot);
     await repo.save(ar.state);
 
+    // Публикация доменного события stream.created (подписчики: ER invite-wishers)
+    this.publishEvents(ar);
+
     return ar.state;
   }
 }

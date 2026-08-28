@@ -5,6 +5,7 @@ export * from './module';
 export * from './status';
 export * from './stream/a-root';
 export * from './stream/entity';
+export * from './stream/events';
 export * from './stream/policy';
 export * from './stream/repo';
 export * from './stream-ds';

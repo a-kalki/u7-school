@@ -278,4 +278,31 @@ describe('StreamAr', () => {
       ).toThrow('Шаг не найден в структуре потока');
     });
   });
+
+  describe('события', () => {
+    test('create добавляет доменное событие stream.created', () => {
+      const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+
+      const event = events[0]!;
+      expect(event.eventName).toBe('stream.created');
+      expect(event.aggregateName).toBe('Stream');
+      expect(event.aggregateId).toBe(ar.state.uuid);
+      expect(event.eventId).toBeTruthy();
+      expect(event.occurredAt).toBeTruthy();
+      expect(event.payload).toEqual({
+        streamId: ar.state.uuid,
+        moduleId: mockCreateCmd.moduleId,
+      });
+    });
+
+    test('flushEvents очищает очередь (повторный вызов — пусто)', () => {
+      const ar = StreamAr.create(mockCreateCmd, validContentSnapshot);
+      ar.flushEvents();
+      expect(ar.hasEvents()).toBe(false);
+    });
+  });
 });
