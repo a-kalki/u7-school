@@ -13,6 +13,7 @@ import { HandleActionUc } from './questionnaire/handle-action-uc';
 import { SendLikertInviteUc } from './questionnaire/send-likert-invite-uc';
 import { StartByInviteUc } from './questionnaire/start-by-invite-uc';
 import { StartUc } from './questionnaire/start-uc';
+import { SweepAbandonedJob } from './questionnaire/sweep-abandoned-job';
 
 export class QuestionnaireApiModule extends ApiModule<
   QuestionnaireApiModuleMeta,
@@ -31,6 +32,7 @@ export class QuestionnaireApiModule extends ApiModule<
     new GetQuestionnairesByUserUc(),
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
+  override readonly jobs = [new SweepAbandonedJob()];
 
   constructor(resolve: QuestionnaireApiModuleResolver) {
     super(resolve);

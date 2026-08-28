@@ -8,5 +8,6 @@ export { HandleActionUc } from './questionnaire/handle-action-uc';
 export { SendLikertInviteUc } from './questionnaire/send-likert-invite-uc';
 export { StartByInviteUc } from './questionnaire/start-by-invite-uc';
 export { StartUc } from './questionnaire/start-uc';
+export { SweepAbandonedJob } from './questionnaire/sweep-abandoned-job';
 export * from './questionnaire/uc-metas';
 export { QuestionnaireUseCase } from './questionnaire-uc';

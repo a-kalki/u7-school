@@ -55,7 +55,7 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
     };
   }
 
-  protected buildAbandonedEvent(): QuestionnaireAbandonEvent {
+  protected buildAbandonedEvent(reason?: 'timeout'): QuestionnaireAbandonEvent {
     return {
       eventId: crypto.randomUUID(),
       eventName: 'questionnaire:abandon',
@@ -63,7 +63,7 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
       aggregateName: 'Questionnaire',
       aggregateId: this.state.uuid,
       ownerInfo: this.state.ownerInfo,
-      payload: this.basePayload(),
+      payload: reason ? { ...this.basePayload(), reason } : this.basePayload(),
     };
   }
 }

@@ -36,7 +36,25 @@ export interface QuestionnaireAbandonEvent<
   eventName: 'questionnaire:abandon';
   aggregateName: BaseQuestionnaireArMeta['name'];
   ownerInfo: TOwnerInfo;
-  payload: QuestionnaireBasePayload;
+  payload: QuestionnaireBasePayload & {
+    /** 'timeout' — анкета закрыта планировщиком по таймауту */
+    reason?: 'timeout';
+    /** Telegram ID респондента (добавляется при публикации из job) */
+    telegramId?: number;
+  };
+}
+
+/**
+ * Событие предупреждения о закрытии брошенной анкеты.
+ * Публикуется планировщиком (SweepAbandonedJob) после 6ч простоя.
+ */
+export interface QuestionnaireWarningEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:warning';
+  aggregateName: BaseQuestionnaireArMeta['name'];
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload & { telegramId: number };
 }
 
 /** Событие завершения likert-анкеты: ownerInfo + вычисленные баллы. */
