@@ -20,11 +20,11 @@
 
 ## Фаза 3: E2E тесты анкетной ветки (B)
 
-- [ ] Task: Написать `tests/e2e/wish-questionnaire.e2e.test.ts` (каркас: CoursesController + QuestionnaireController + общий eventBus): apply на курс `dddddddd` → пустой ответ стори + проактивный первый вопрос («Вопрос 1 из 3», подсказка /cancel, captureInput) в `transport.api.sentMessages`
-- [ ] Task: Тест опасного ответа: text-вопрос с ответом «Да. Конечно - (тест) #1! +2=2» → бот не падает, «Вопрос 2 из 3» без подсказки, markdown-safe
-- [ ] Task: Тест abandon/resume: /cancel → `abandoned` в репо (ER); apply → W04 pending → «Продолжить анкету» → resume → тот же вопрос + captureInput; resume без анкеты → контролируемый ответ без ⚠️
-- [ ] Task: Тест полного прохождения: все 3 вопроса → completed-экран с completionText из пула, `confirmed` в репо (ER confirm-wish); apply → W04 confirmed → отмена → `cancelled`
-- [ ] Task: Прогон полного `CI=true bun run check` — зелёный; при падениях кода чинить причину
+- [x] Task: Написать `tests/e2e/wish-questionnaire.e2e.test.ts` (каркас: CoursesController + QuestionnaireController + общий eventBus): apply на курс `dddddddd` → пустой ответ стори + проактивный первый вопрос («Вопрос 1 из 3», подсказка /cancel, captureInput) в `transport.api.sentMessages` — c6555ab
+- [x] Task: Тест опасного ответа: text-вопрос с ответом «Да. Конечно - (тест) #1! +2=2» → бот не падает, «Вопрос 2 из 3» без подсказки, markdown-safe — c6555ab
+- [x] Task: Тест abandon/resume: /cancel → `abandoned` в репо (ER); apply → W04 pending → «Продолжить анкету» → resume → тот же вопрос + captureInput; resume без анкеты → контролируемый ответ без ⚠️ — c6555ab
+- [x] Task: Тест полного прохождения: все 3 вопроса → completed-экран с completionText из пула, `confirmed` в репо (ER confirm-wish); apply → W04 confirmed → отмена → `cancelled` — c6555ab
+- [x] Task: Прогон полного `CI=true bun run check` — зелёный; при падениях кода чинить причину — c6555ab (тесты 1632 pass, tsc зелёный; найдено 4 бага и исправлено, см. git note; в чужом коммите f84b6681 остался unused import — сообщено пользователю)
 - [ ] Task: Conductor - Ручная верификация 'E2E тесты анкетной ветки'
 
 ## Фаза 4: Финализация
