@@ -152,7 +152,8 @@ export class FillStory extends U7BotUiStory {
       const aCode = rest.slice(colonIdx + 1);
       return this.#callUc(
         'handle-action',
-        { questionnaireId: qId, type: 'select', value: aCode },
+        // Протокол UC: выбор и «Далее» — callback (value = код ответа / 'next:{qCode}')
+        { questionnaireId: qId, type: 'callback', value: aCode },
         actor,
         { questionnaireId: qId },
       );
@@ -164,9 +165,14 @@ export class FillStory extends U7BotUiStory {
       const colonIdx = rest.indexOf(':');
       if (colonIdx === -1) return this.sendUnknownError();
       const qId = rest.slice(0, colonIdx);
+      const qCode = rest.slice(colonIdx + 1);
       return this.#callUc(
         'handle-action',
-        { questionnaireId: qId, type: 'next-btn' },
+        {
+          questionnaireId: qId,
+          type: 'callback',
+          value: `next:${qCode}`,
+        },
         actor,
         { questionnaireId: qId },
       );
@@ -449,6 +455,7 @@ export class FillStory extends U7BotUiStory {
           parseMode: 'MarkdownV2',
           keyboard: this.#getKeyboard(
             response.currentQuestion,
+            response.questionnaireId,
             response.nextButton
               ? this.#makeNextCode(
                   response.questionnaireId,
@@ -469,7 +476,10 @@ export class FillStory extends U7BotUiStory {
             isFirstQuestion: response.previousQuestion === undefined,
           }),
           parseMode: 'MarkdownV2',
-          keyboard: this.#getKeyboard(response.question),
+          keyboard: this.#getKeyboard(
+            response.question,
+            response.questionnaireId,
+          ),
         },
       };
     }
@@ -565,13 +575,16 @@ export class FillStory extends U7BotUiStory {
 
   #getKeyboard(
     question: Question,
+    questionnaireId: string,
     nextButton?: string,
   ): KeyboardDescription | undefined {
     if (question.type !== 'choice') return undefined;
 
+    // Код кнопки обязан нести questionnaireId: handle-action без него
+    // не знает, к какой анкете относится выбор (см. #callUc 'answer:').
     const buttons = question.answers.map((a, i) => ({
       text: String(i + 1),
-      code: this.cb('answer', a.answerCode),
+      code: this.cb('answer', questionnaireId, a.answerCode),
     }));
 
     const rows = [buttons];

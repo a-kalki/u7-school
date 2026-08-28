@@ -120,21 +120,24 @@ export class TestBotTransport {
     eventBus?: InProcEventBus,
   ) {
     this.uiApp = new U7BotUiApp(controllers);
-    this.uiApp.init({
-      // Общая с apiApp шина — события модулей (напр. questionnaire:start)
-      // долетают до подписок стори (как в бою: create-ui-app + main.ts)
-      eventBus: eventBus ?? new InProcEventBus(),
-      actorResolver,
-      appApi: apiApp,
-      uiApp: this.uiApp,
-    });
-    // Подписки стори на доменные события (в бою вызывается в main.ts)
-    this.uiApp.subscribeEvents();
     this.transport = new BotTransport(
       this.uiApp,
       this.api as unknown as Api,
       this.sessionMap,
     );
+    this.uiApp.init(
+      {
+        // Общая с apiApp шина — события модулей (напр. questionnaire:start)
+        // долетают до подписок стори (как в бою: create-ui-app + main.ts)
+        eventBus: eventBus ?? new InProcEventBus(),
+        actorResolver,
+        appApi: apiApp,
+        uiApp: this.uiApp,
+      },
+      this.transport,
+    );
+    // Подписки стори на доменные события (в бою вызывается в main.ts)
+    this.uiApp.subscribeEvents();
   }
 
   /** Сбрасывает накопленные сообщения и сессии (изоляция между тестами). */

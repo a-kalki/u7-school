@@ -10,7 +10,7 @@
     "uuid": "22222222-2222-2222-2222-222222222222",
     "name": "Кандидат",
     "telegramId": 1002,
-    "roles": ["CANDIDATE"],
+    "roles": ["SUBSCRIBER"],
     "createdAt": "2026-01-02T00:00"
   },
   {
