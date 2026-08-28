@@ -22,8 +22,8 @@
 - [x] Task: Реализовать подписки + рендер + ProactiveSender в FillStory [e1e2e51]
 - [x] Task: Conductor - Ручная верификация 'UI предупреждения'
 
-## Фаза 4: Документация
+## Фаза 4: Документация [checkpoint: 15c6f59]
 
-- [ ] Task: Добавить Job в таблицу arch-boundary-design + styleguide `skills/job.md` (по аналогии с usecase.md)
-- [ ] Task: Обновить `conductor/index.md` и questionnaire ui-spec (если экраны менялись)
-- [ ] Task: Conductor - Ручная верификация 'Документация'
+- [x] Task: Добавить Job в таблицу arch-boundary-design + styleguide `skills/job.md` (по аналогии с usecase.md) [15c6f59]
+- [x] Task: Обновить `conductor/index.md` и questionnaire ui-spec (если экраны менялись) [15c6f59]
+- [x] Task: Conductor - Ручная верификация 'Документация'
