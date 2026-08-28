@@ -1,15 +1,17 @@
 import { AppException } from '@u7-scl/core/domain';
 import type { ContentSnapshot } from '#domain/content-snapshot';
+import type { CourseProgram } from '#domain/course/commands/get-course-program-cmd';
 import type { Course } from '#domain/course/entity';
-import type { CourseFacade, CourseProgram, ModulePlace } from '#domain/facade';
+import type { CourseFacade, ModulePlace } from '#domain/facade';
+import { CoursePolicy } from '#domain/index';
 import type { Module } from '#domain/module/entity';
-import { Status } from '#domain/status';
 import type { Step } from '#domain/step/entity';
 import type { CourseApiModule } from '../api/module';
 
 /**
  * In-process реализация фасада курсов.
- * Делегирует вызовы CourseApiModule, не дублируя бизнес-логику.
+ * Тонкая обёртка над UC модуля: реальная работа — в use-case'ах,
+ * здесь только делегирование и адаптация результата под контракт фасада.
  */
 export class CourseInProcFacade implements CourseFacade {
   constructor(private readonly courseModule: CourseApiModule) {}
@@ -29,32 +31,17 @@ export class CourseInProcFacade implements CourseFacade {
   }
 
   async getCourseByModuleId(moduleId: string): Promise<Course | undefined> {
-    const courses: Course[] = await this.courseModule.execute(
-      'list-courses',
-      {},
-    );
-    return courses.find((c) =>
-      c.phases.some((p) => p.moduleIds.includes(moduleId)),
-    );
+    return this.courseModule.execute('get-course-by-module', { moduleId });
   }
 
   async whichCoursesIncludeModule(
     moduleId: string,
     courseIds: string[],
   ): Promise<string[]> {
-    if (courseIds.length === 0) {
-      return [];
-    }
-    // get-course возвращает курс в любом статусе, включая archived —
-    // это и даёт «историческую» принадлежность (форки, архивация).
-    const matched: string[] = [];
-    for (const courseId of courseIds) {
-      const course = await this.getCourse(courseId);
-      if (course?.phases.some((p) => p.moduleIds.includes(moduleId))) {
-        matched.push(courseId);
-      }
-    }
-    return matched;
+    return this.courseModule.execute('which-courses-include-module', {
+      moduleId,
+      courseIds,
+    });
   }
 
   async getCourse(courseId: string): Promise<Course | undefined> {
@@ -73,11 +60,19 @@ export class CourseInProcFacade implements CourseFacade {
     }
   }
 
+  /**
+   * Простая операция (существует + опубликован) — остаётся в фасаде:
+   * один вызов UC + проверка статуса через CoursePolicy.
+   */
   async isCourseEnrollable(courseId: string): Promise<boolean> {
     const course = await this.getCourse(courseId);
-    return course?.status === Status.PUBLISHED;
+    return !!course && CoursePolicy.isPublished(course);
   }
 
+  /**
+   * Простая операция (первый модуль линейного порядка фаз) — остаётся
+   * в фасаде: один вызов UC + тривиальное преобразование.
+   */
   async getCourseStartModuleId(courseId: string): Promise<string | undefined> {
     const course = await this.getCourse(courseId);
     if (!course) return undefined;
@@ -95,23 +90,6 @@ export class CourseInProcFacade implements CourseFacade {
   }
 
   async getCourseProgram(courseId: string): Promise<CourseProgram> {
-    const course: Course = await this.courseModule.execute('get-course', {
-      uuid: courseId,
-    });
-
-    const phases = await Promise.all(
-      course.phases.map(async (phase) => {
-        const modules = await Promise.all(
-          phase.moduleIds.map((moduleId) => this.getModuleSnapshot(moduleId)),
-        );
-        return {
-          title: phase.title,
-          track: phase.track,
-          modules,
-        };
-      }),
-    );
-
-    return { course, phases };
+    return this.courseModule.execute('get-course-program', { courseId });
   }
 }

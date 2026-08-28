@@ -1,4 +1,5 @@
 import type { ContentSnapshot, StepPosition } from './content-snapshot';
+import type { Course } from './course/entity';
 import { LessonAr } from './lesson/a-root';
 import type { CreateLessonCmd } from './lesson/commands/create-lesson-cmd';
 import type { Lesson } from './lesson/entity';
@@ -13,6 +14,18 @@ import type { CreateStepCmd } from './step/commands/create-step-cmd';
  * Координирует работу нескольких агрегатов.
  */
 export class CourseDs {
+  /**
+   * Входит ли модуль в программу курса — с учётом возможных форков/копий.
+   *
+   * Место именно в DS, а не в агрегате: агрегат Course знает только своё
+   * текущее состояние, а связь модуль↔курс может быть исторической (модуль
+   * в копии курса с другим id — тот же модуль). Когда версионность появится,
+   * расширение идёт сюда, не ломая контракт фасада.
+   */
+  includesModule(course: Course, moduleId: string): boolean {
+    return course.phases.some((p) => p.moduleIds.includes(moduleId));
+  }
+
   /**
    * Создаёт урок и добавляет его в проект модуля.
    * Если проект не найден — ModuleAr.addLessonToProject выбросит badRequest.

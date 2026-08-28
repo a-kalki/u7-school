@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/user/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
+import { Status } from '#domain/status';
 import { CourseAr } from './a-root';
 import type { Course } from './entity';
 
@@ -29,6 +30,10 @@ export const CoursePolicy = {
 
   isAuthor(actor: User, course: Course): boolean {
     return actor.uuid === course.authorId;
+  },
+
+  isPublished(course: Course): boolean {
+    return course.status === Status.PUBLISHED;
   },
 
   /**

@@ -8,9 +8,12 @@ import { ResolveContentPathUc } from './content-path/resolve-content-path-uc';
 import { AddModuleToCourseUc } from './course/add-module-to-course-uc';
 import { AddPhaseToCourseUc } from './course/add-phase-to-course-uc';
 import { CreateCourseUc } from './course/create-course-uc';
+import { GetCourseByModuleUc } from './course/get-course-by-module-uc';
+import { GetCourseProgramUc } from './course/get-course-program-uc';
 import { GetCourseUc } from './course/get-course-uc';
 import { GetModulePlaceUc } from './course/get-module-place-uc';
 import { ListCoursesUc } from './course/list-courses-uc';
+import { WhichCoursesIncludeModuleUc } from './course/which-courses-include-module-uc';
 import { CreateLessonUc } from './lesson/create-lesson-uc';
 import { GetLessonUc } from './lesson/get-lesson-uc';
 import { AddProjectUc } from './module/add-project-uc';
@@ -48,6 +51,9 @@ export class CourseApiModule extends ApiModule<
     new AddModuleToCourseUc(),
     new GetCourseUc(),
     new GetModulePlaceUc(),
+    new GetCourseByModuleUc(),
+    new GetCourseProgramUc(),
+    new WhichCoursesIncludeModuleUc(),
     new ListCoursesUc(),
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];

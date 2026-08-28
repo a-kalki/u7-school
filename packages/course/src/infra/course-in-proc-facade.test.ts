@@ -1,4 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { CourseProgram } from '#domain/course/commands/get-course-program-cmd';
+import type { Course } from '#domain/course/entity';
 import { Status } from '#domain/status';
 import { CourseInProcFacade } from './course-in-proc-facade';
 
@@ -193,31 +195,9 @@ describe('CourseInProcFacade', () => {
   describe('whichCoursesIncludeModule', () => {
     const moduleId = '33333333-3333-4333-8333-333333333333';
 
-    function makeCourse(
-      uuid: string,
-      moduleIds: string[],
-      status: Status = Status.PUBLISHED,
-    ) {
-      return {
-        uuid,
-        title: `Course ${uuid}`,
-        authorId: 'a1',
-        status,
-        phases: [{ title: 'P1', moduleIds }],
-        createdAt: '2026-01-01T00:00',
-      };
-    }
-
-    test('возвращает uuid курсов, чья программа содержит модуль', async () => {
-      const withModule = makeCourse('c-1', [moduleId]);
-      const withoutModule = makeCourse('c-2', ['other-module']);
+    test('делегирует в which-courses-include-module и возвращает результат', async () => {
       const mockModule = {
-        execute: mock((name: string, cmd: { uuid: string }) => {
-          if (name !== 'get-course') throw new Error(`unexpected ${name}`);
-          return cmd.uuid === 'c-1'
-            ? Promise.resolve(withModule)
-            : Promise.resolve(withoutModule);
-        }),
+        execute: mock(() => Promise.resolve(['c-1'])),
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
@@ -227,43 +207,43 @@ describe('CourseInProcFacade', () => {
       ]);
 
       expect(result).toEqual(['c-1']);
+      expect(mockModule.execute).toHaveBeenCalledWith(
+        'which-courses-include-module',
+        { moduleId, courseIds: ['c-1', 'c-2'] },
+      );
     });
+  });
 
-    test('архивный курс тоже учитывается (историческая принадлежность)', async () => {
-      const archived = makeCourse('c-arch', [moduleId], Status.ARCHIVED);
+  describe('getCourseByModuleId', () => {
+    test('делегирует в get-course-by-module', async () => {
+      const course = { uuid: 'c-1', title: 'Course' } as Course;
       const mockModule = {
-        execute: mock(() => Promise.resolve(archived)),
+        execute: mock((): Promise<unknown> => Promise.resolve(course)),
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.whichCoursesIncludeModule(moduleId, [
-        'c-arch',
-      ]);
-
-      expect(result).toEqual(['c-arch']);
+      expect(await facade.getCourseByModuleId('m-1')).toBe(course);
+      expect(mockModule.execute).toHaveBeenCalledWith('get-course-by-module', {
+        moduleId: 'm-1',
+      });
     });
+  });
 
-    test('несуществующий курс — пропускается без ошибки', async () => {
+  describe('getCourseProgram', () => {
+    test('делегирует в get-course-program', async () => {
+      const program = {
+        course: { uuid: 'c-1' },
+        phases: [{ title: 'P1', modules: [] }],
+      } as unknown as CourseProgram;
       const mockModule = {
-        execute: mock(() => Promise.resolve(undefined)),
+        execute: mock((): Promise<unknown> => Promise.resolve(program)),
       };
 
       const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.whichCoursesIncludeModule(moduleId, ['nope']);
-
-      expect(result).toEqual([]);
-    });
-
-    test('пустой список courseIds — пустой результат без обращения к модулю', async () => {
-      const mockModule = {
-        execute: mock(() => Promise.resolve([])),
-      };
-
-      const facade = new CourseInProcFacade(mockModule as any);
-      const result = await facade.whichCoursesIncludeModule(moduleId, []);
-
-      expect(result).toEqual([]);
-      expect(mockModule.execute).not.toHaveBeenCalled();
+      expect(await facade.getCourseProgram('c-1')).toBe(program);
+      expect(mockModule.execute).toHaveBeenCalledWith('get-course-program', {
+        courseId: 'c-1',
+      });
     });
   });
 });

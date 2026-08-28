@@ -6,9 +6,12 @@ import type {
   AddModuleToCourseCmdMeta,
   AddPhaseToCourseCmdMeta,
   CreateCourseCmdMeta,
+  GetCourseByModuleCmdMeta,
   GetCourseCmdMeta,
+  GetCourseProgramCmdMeta,
   GetModulePlaceCmdMeta,
   ListCoursesCmdMeta,
+  WhichCoursesIncludeModuleCmdMeta,
 } from './course/commands';
 import type { CourseRepo } from './course/repo';
 import type { CreateLessonCmdMeta } from './lesson/commands/create-lesson-cmd';
@@ -32,8 +35,11 @@ export type CourseUcMetas =
   | AddPhaseToCourseCmdMeta
   | AddModuleToCourseCmdMeta
   | GetCourseCmdMeta
+  | GetCourseByModuleCmdMeta
+  | GetCourseProgramCmdMeta
   | GetModulePlaceCmdMeta
   | ListCoursesCmdMeta
+  | WhichCoursesIncludeModuleCmdMeta
   | ResolveContentPathCmdMeta;
 
 export type ModuleUcMetas =

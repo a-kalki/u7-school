@@ -5,6 +5,7 @@ import {
   GetModulePlaceCmdSchema,
   ModulePlaceSchema,
 } from '#domain/course/commands/get-module-place-cmd';
+import { CourseDs } from '#domain/course-ds';
 import { Status } from '#domain/status';
 import { CourseUseCase } from '../course-uc';
 
@@ -36,8 +37,9 @@ export class GetModulePlaceUc extends CourseUseCase<GetModulePlaceCmdMeta> {
       status: Status.PUBLISHED,
     });
 
+    const ds = new CourseDs();
     const containing = courses.filter((c) =>
-      c.phases.some((p) => p.moduleIds.includes(command.moduleId)),
+      ds.includesModule(c, command.moduleId),
     );
     const course = containing[0];
     if (!course) return undefined;

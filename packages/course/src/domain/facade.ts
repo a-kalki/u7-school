@@ -1,17 +1,10 @@
 import type { ContentSnapshot } from './content-snapshot';
+import type { CourseProgram } from './course/commands/get-course-program-cmd';
 import type { Course } from './course/entity';
 import type { Module } from './module/entity';
 import type { Step } from './step/entity';
 
-/** Программа курса — агрегация снимков модулей по фазам */
-export interface CourseProgram {
-  course: Course;
-  phases: {
-    title: string;
-    track?: string;
-    modules: ContentSnapshot[];
-  }[];
-}
+export type { CourseProgram };
 
 /** Место модуля в программе курса (линейный порядок фаз). */
 export interface ModulePlace {
