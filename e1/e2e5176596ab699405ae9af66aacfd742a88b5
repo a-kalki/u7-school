@@ -1,0 +1,13 @@
+Задачи: Тесты на подписку questionnaire:warning (рендер + кнопки) и сообщение таймаут-abandon (без дубля при /cancel) + реализация подписок, рендера и ProactiveSender в FillStory
+
+FillStory (apps/u7-bot/src/controllers/questionnaire/fill.story.ts):
+- #handleWarningEvent: questionnaire:warning → proactiveSender.send
+  * текст '⏳ Анкета приостановлена... Продолжить?' (MarkdownV2)
+  * кнопка '▶️ Продолжить' → Routes.questionnaire.resume(courseId) — только если ownerInfo.courseId задан (полный код questionnaire:fill:resume:* проходит без префиксации)
+  * кнопка '⏭️ Прервать' → this.cb('cancel-confirm', qId)
+- #handleAbandonEvent: questionnaire:abandon → только reason='timeout' и telegramId !== undefined → proactiveSender.notify (без кнопок)
+  * ручное прерывание (/cancel) не дублируется: у него reason нет, а ответ UC 'Анкета прервана' пользователь уже получил
+
+Тесты (новый fill.story.warning.test.ts, 6): подписки содержат warning/abandon; warning с кнопками Продолжить+Прервать; warning без courseId — только Прервать; abandon timeout → notify; abandon без reason → дубля нет; timeout без telegramId → ничего.
+
+Исключение из правила: в существующем fill.story.test.ts обновлён единственный тест getEventSubscriptions (2 → 4 подписки) — контракт расширился, без правки пакет не проходит тесты.
