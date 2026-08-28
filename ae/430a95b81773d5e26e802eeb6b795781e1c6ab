@@ -1,0 +1,5 @@
+Задачи фазы 3 (трек wish-ui_20260814):
+3. Падающие тесты на completionText: домен (агрегат возвращает completionText при завершении) + UI (рендер completionText, fallback «на ты»).
+4. Проброс: CompletedResponse (+схема) получил completionText; агрегат вкладывает questionPool.completionText при завершении; FillStory рендерит completionText ?? 'Спасибо! Твоя анкета принята.' (хардкод «Ваша» удалён).
+
+Проверки: check:p questionnaire — 62 pass; check:a u7-bot — 432 pass.
