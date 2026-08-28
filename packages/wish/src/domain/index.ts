@@ -24,8 +24,6 @@ export type {
   WishTarget,
 } from './wish/entity';
 export {
-  ACTIVE_WISH_STATUSES,
-  isWishStatusActive,
   WishSchema,
   WishStatusSchema,
   WishTargetSchema,
@@ -36,5 +34,6 @@ export type {
   WishModuleError,
   WishNotFoundUcError,
 } from './wish/errors';
+export { WishPolicy } from './wish/policy';
 export { findCoursePool } from './wish/pools/course-pool';
 export type { WishRepo } from './wish/repo';

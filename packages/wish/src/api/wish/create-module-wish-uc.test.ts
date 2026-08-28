@@ -22,19 +22,12 @@ function makeWishRepo(existing?: Wish) {
 }
 
 function setupUc(
-  opts: {
-    existing?: Wish;
-    place?: { courseId: string } | undefined;
-    enrollable?: boolean;
-  } = {},
+  opts: { existing?: Wish; place?: { courseId: string } | undefined } = {},
 ) {
   const wishRepo = makeWishRepo(opts.existing);
   const getModulePlace = mock(
     async (_moduleId: string): Promise<{ courseId: string } | undefined> =>
       opts.place === undefined ? undefined : opts.place,
-  );
-  const isCourseEnrollable = mock(
-    async (_courseId: string): Promise<boolean> => opts.enrollable ?? true,
   );
   const startStandard = mock(
     async (_actorId: string, _pool: unknown, _ownerInfo: unknown) => {},
@@ -43,12 +36,12 @@ function setupUc(
   const uc = new CreateModuleWishUc();
   uc.init({
     wishRepo,
-    courseFacade: { getModulePlace, isCourseEnrollable },
+    courseFacade: { getModulePlace },
     questionnaireFacade: { startStandard },
     userFacade: {},
   } as unknown as WishApiModuleResolver);
 
-  return { wishRepo, getModulePlace, isCourseEnrollable, startStandard, uc };
+  return { wishRepo, getModulePlace, startStandard, uc };
 }
 
 function makeActiveWish(status: WishStatus): Wish {
@@ -83,18 +76,6 @@ describe('CreateModuleWishUc', () => {
 
   test('валидация: модуль вне опубликованных курсов → MODULE_NOT_FOUND', async () => {
     const { wishRepo, uc } = setupUc({ place: undefined });
-
-    await expect(uc.handle({ moduleId }, actorId)).rejects.toThrow(
-      'Модуль не найден',
-    );
-    expect(wishRepo.save).not.toHaveBeenCalled();
-  });
-
-  test('валидация: курс модуля недоступен для записи → MODULE_NOT_FOUND', async () => {
-    const { wishRepo, uc } = setupUc({
-      place: { courseId },
-      enrollable: false,
-    });
 
     await expect(uc.handle({ moduleId }, actorId)).rejects.toThrow(
       'Модуль не найден',

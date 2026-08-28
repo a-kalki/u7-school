@@ -32,18 +32,6 @@ export const WishStatusSchema = v.picklist(
 
 export type WishStatus = v.InferOutput<typeof WishStatusSchema>;
 
-/** Активные статусы желания — блокируют повторное создание на тот же target. */
-export const ACTIVE_WISH_STATUSES: readonly WishStatus[] = [
-  'expressed',
-  'pending',
-  'confirmed',
-] as const;
-
-/** Проверяет, активен ли статус желания. */
-export function isWishStatusActive(status: WishStatus): boolean {
-  return ACTIVE_WISH_STATUSES.includes(status);
-}
-
 /** Схема желания. */
 export const WishSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID')),

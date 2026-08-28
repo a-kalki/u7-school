@@ -10,11 +10,11 @@ import {
   CreateCourseWishOutputSchema,
 } from '#domain/wish/commands/create-course-wish-cmd';
 import type { WishTarget } from '#domain/wish/entity';
-import { isWishStatusActive } from '#domain/wish/entity';
 import type {
   CourseNotFoundUcError,
   WishAlreadyExistsUcError,
 } from '#domain/wish/errors';
+import { WishPolicy } from '#domain/wish/policy';
 import { findCoursePool } from '#domain/wish/pools/course-pool';
 import { WishUseCase } from '../wish-uc';
 
@@ -63,7 +63,7 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     const target: WishTarget = { kind: 'course', courseId: command.courseId };
     const existing = await this.repo.getByUserAndTarget(actorId, target);
 
-    if (existing && isWishStatusActive(existing.status)) {
+    if (existing && WishPolicy.isActive(existing.status)) {
       this.throwError(
         errConflict<WishAlreadyExistsUcError>(
           'WISH_ALREADY_EXISTS',
