@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { BotCommand } from '@u7-scl/core/ui';
+import type { User } from '@u7-scl/app/domain';
+import type { BotCommand, SessionData } from '@u7-scl/core/ui';
 import type { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import { FillStory } from './fill.story';
 
@@ -14,6 +15,39 @@ function makeStory() {
   const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
   story.init({} as never, sender);
   return { story, sender };
+}
+
+/**
+ * Создаёт FillStory с моком API-модуля questionnaire.
+ *
+ * execute имитирует диспетчеризацию UC: поведение задаётся тестом.
+ */
+function makeStoryWithQmod(
+  execute: (name: string, cmd: unknown, actorId: string) => Promise<unknown>,
+) {
+  const qmod = {
+    execute: mock(execute),
+  } as unknown as QuestionnaireApiModule;
+  const story = new FillStory(qmod);
+  const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
+  story.init({} as never, sender);
+  return { story, qmod };
+}
+
+/** Активная standard-анкета пользователя по курсу. */
+function inProgressState(overrides?: Record<string, unknown>) {
+  return {
+    kind: 'standard',
+    uuid: '11111111-2222-4333-8444-555555555555',
+    respondentId: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+    status: 'in_progress',
+    currentQuestionCode: 'qc1',
+    draftAnswers: {},
+    answers: [],
+    questionPool: { questions: [] },
+    ownerInfo: { courseId: 'course-1' },
+    ...overrides,
+  };
 }
 
 /** Извлекает последний вызов proactiveSender.send. */
@@ -100,5 +134,65 @@ describe('FillStory — подписки на доменные события', 
     expect(command.sendMessage?.text).toContain('Как вас зовут?');
     expect(command.captureInput?.path).toBe('fill');
     expect(command.captureInput?.context).toEqual({ questionnaireId: 'q1' });
+  });
+});
+
+describe('FillStory — fill:resume:{courseId}', () => {
+  const actor = { uuid: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' } as User;
+  const session = {} as SessionData;
+
+  test('resume: активная анкета найдена — рендер текущего вопроса + captureInput', async () => {
+    const { story, qmod } = makeStoryWithQmod(async (name, cmd) => {
+      if (name === 'get-questionnaires-by-user') {
+        return [inProgressState()];
+      }
+      if (
+        name === 'get-current' &&
+        (cmd as { questionnaireId: string }).questionnaireId ===
+          '11111111-2222-4333-8444-555555555555'
+      ) {
+        return {
+          type: 'new_question',
+          questionnaireId: '11111111-2222-4333-8444-555555555555',
+          question: {
+            questionCode: 'qc1',
+            type: 'text',
+            question: 'Как тебя зовут?',
+          },
+        };
+      }
+      throw new Error(`Неожиданный UC: ${name}`);
+    });
+
+    const res = await story.handleCallback('resume:course-1', actor, session);
+
+    expect(res.sendMessage?.text).toContain('Как тебя зовут?');
+    expect(res.captureInput?.path).toBe('fill');
+    expect(res.captureInput?.context).toEqual({
+      questionnaireId: '11111111-2222-4333-8444-555555555555',
+    });
+    expect(qmod.execute).toHaveBeenCalledTimes(2);
+  });
+
+  test('resume: анкета не найдена — сообщение и главное меню', async () => {
+    const { story } = makeStoryWithQmod(async () => []);
+
+    const res = await story.handleCallback('resume:course-1', actor, session);
+
+    expect(res.sendMessage?.text).toContain('Анкета не найдена');
+    const codes =
+      res.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toEqual(['app:main-menu']);
+  });
+
+  test('resume: completed и likert-анкеты по тому же курсу игнорируются', async () => {
+    const { story } = makeStoryWithQmod(async () => [
+      inProgressState({ status: 'completed' }),
+      inProgressState({ kind: 'likert', status: 'in_progress' }),
+    ]);
+
+    const res = await story.handleCallback('resume:course-1', actor, session);
+
+    expect(res.sendMessage?.text).toContain('Анкета не найдена');
   });
 });

@@ -15,8 +15,8 @@
 
 ## Фаза 3: Продолжение анкеты (fill:resume) + completionText
 
-- [ ] Task: Написать падающие тесты на `fill:resume:{courseId}` (анкета найдена/не найдена, captureInput)
-- [ ] Task: Реализовать ветку `resume` в FillStory + `Routes.questionnaire.resume(courseId)`
+- [x] Task: Написать падающие тесты на `fill:resume:{courseId}` (анкета найдена/не найдена, captureInput)
+- [~] Task: Реализовать ветку `resume` в FillStory + `Routes.questionnaire.resume(courseId)`
 - [ ] Task: Написать падающие тесты на проброс `completionText` в `CompletedResponse` и рендер в FillStory
 - [ ] Task: Пробросить `completionText` в `CompletedResponse` (packages/questionnaire) + рендер в FillStory
 - [ ] Task: Написать падающие тесты на прогресс «Вопрос N из M» и подсказку `/cancel` в первом вопросе

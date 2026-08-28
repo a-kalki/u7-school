@@ -15,6 +15,7 @@ import type {
   QuestionnaireActionResponse,
   QuestionnaireInviteEvent,
   QuestionnaireStartEvent,
+  QuestionnaireState,
 } from '@u7-scl/questionnaire/domain';
 import { U7BotUiStory } from '../../core/u7-bot-ui-story';
 import { buttons } from '../shared/buttons';
@@ -96,6 +97,12 @@ export class FillStory extends U7BotUiStory {
         questionnaireId: qId,
         captureInput: true,
       });
+    }
+
+    // fill:resume:{courseId}
+    if (action.startsWith('resume:')) {
+      const courseId = action.slice(7);
+      return this.#handleResume(courseId, actor);
     }
 
     // fill:why:{qId}
@@ -219,6 +226,49 @@ export class FillStory extends U7BotUiStory {
   }
 
   // ── Приватные обработчики ──
+
+  /**
+   * Продолжение анкеты по курсу (кнопка «▶️ Продолжить анкету» на W04):
+   * ищет активную standard-анкету пользователя с ownerInfo.courseId = courseId
+   * и рендерит её текущий вопрос с восстановлением сессии (captureInput).
+   */
+  async #handleResume(courseId: string, actor: User): Promise<BotResponse> {
+    try {
+      const states = (await this.#qmod.execute(
+        'get-questionnaires-by-user',
+        { userId: actor.uuid },
+        actor.uuid,
+      )) as QuestionnaireState[];
+
+      const active = states.find(
+        (s) =>
+          s.kind === 'standard' &&
+          s.status === 'in_progress' &&
+          s.ownerInfo['courseId'] === courseId,
+      );
+
+      if (!active) {
+        return {
+          sendMessage: {
+            text: 'Анкета не найдена или уже завершена.',
+            keyboard: {
+              rows: [[buttons.mainMenu()]],
+              isMultiple: false,
+            },
+          },
+        };
+      }
+
+      return this.#callUc(
+        'get-current',
+        { questionnaireId: active.uuid },
+        actor,
+        { questionnaireId: active.uuid, captureInput: true },
+      );
+    } catch (err) {
+      return this.handleError(err);
+    }
+  }
 
   async #handleWhy(qId: string, actor: User): Promise<BotResponse> {
     try {
