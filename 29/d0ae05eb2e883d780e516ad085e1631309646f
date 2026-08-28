@@ -1,0 +1,5 @@
+Задачи фазы 3 (трек wish-ui_20260814):
+1. Падающие тесты на fill:resume:{courseId} (анкета найдена/не найдена, captureInput, фильтр completed/likert).
+2. Ветка resume в FillStory: get-questionnaires-by-user → фильтр standard/in_progress/ownerInfo.courseId → get-current + captureInput; не найдена — сообщение + главное меню. Routes.questionnaire.resume(courseId) уже существовал (фаза 2).
+
+Фаза Red подтверждена (3 теста падали), Green: 430 pass / 0 fail (check:a u7-bot).
