@@ -1,0 +1,5 @@
+Задачи фазы 3 (трек wish-ui_20260814):
+5. Падающие тесты: движок getProgress (позиция 1-based + размер пула), агрегат (questionIndex/poolSize в wait_next и new_question), UI (шапка «Вопрос N из M», подсказка /cancel при отсутствии previousQuestion).
+6. Реализация: QuestionnaireEngine.getProgress; WaitNext/NewQuestionResponse (+схемы) с опциональными questionIndex/poolSize; агрегат вкладывает прогресс во все 4 места формирования ответов с вопросом; FillStory #formatQuestionMd — шапка прогресса + подсказка «В любой момент можно нажать /cancel — вернёшься в главное меню.» для первого вопроса.
+
+Проверки: check:p questionnaire — 66 pass; check:a u7-bot — 436 pass.
