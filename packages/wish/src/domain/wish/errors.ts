@@ -1,4 +1,5 @@
 import type { ConflictError, NotFoundError } from '@u7-scl/core/domain';
+import type { WishStatus } from './entity';
 
 /** Курс не найден. */
 export type CourseNotFoundUcError = NotFoundError<
@@ -9,7 +10,14 @@ export type CourseNotFoundUcError = NotFoundError<
 /** Желание уже выражено для этой цели (курс или модуль). */
 export type WishAlreadyExistsUcError = ConflictError<
   'WISH_ALREADY_EXISTS',
-  { userId: string; courseId?: string; moduleId?: string } | undefined
+  | {
+      userId: string;
+      courseId?: string;
+      moduleId?: string;
+      /** Статус существующего активного желания — для ветвления UI (W04). */
+      status: WishStatus;
+    }
+  | undefined
 >;
 
 /** Желание не найдено. */

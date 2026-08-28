@@ -61,7 +61,11 @@ export class CreateModuleWishUc extends WishUseCase<CreateModuleWishCmdMeta> {
         errConflict<WishAlreadyExistsUcError>(
           'WISH_ALREADY_EXISTS',
           'Желание уже выражено',
-          { userId: actorId, moduleId: command.moduleId },
+          {
+            userId: actorId,
+            moduleId: command.moduleId,
+            status: existing.status,
+          },
         ),
       );
     }

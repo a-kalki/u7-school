@@ -1,4 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { AppException } from '@u7-scl/core/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish, WishStatus } from '#domain/wish/entity';
 import coursePools from '../../domain/wish/pools/course.json';
@@ -127,9 +128,16 @@ describe('CreateCourseWishUc', () => {
         makeActiveWish(actorId, plainCourseId, status),
       );
 
-      await expect(
-        uc.handle({ courseId: plainCourseId }, actorId),
-      ).rejects.toThrow('Желание уже выражено');
+      const err = (await uc
+        .handle({ courseId: plainCourseId }, actorId)
+        .catch((e: unknown) => e)) as AppException;
+      expect(err).toBeInstanceOf(AppException);
+      expect(err.error.kind).toBe('conflict');
+      expect(err.error.payload).toMatchObject({
+        userId: actorId,
+        courseId: plainCourseId,
+        status,
+      });
     });
 
     test('повторное желание после cancelled разрешено', async () => {

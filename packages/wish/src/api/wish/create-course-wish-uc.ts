@@ -68,7 +68,11 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
         errConflict<WishAlreadyExistsUcError>(
           'WISH_ALREADY_EXISTS',
           'Желание уже выражено',
-          { userId: actorId, courseId: command.courseId },
+          {
+            userId: actorId,
+            courseId: command.courseId,
+            status: existing.status,
+          },
         ),
       );
     }
