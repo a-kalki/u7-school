@@ -13,7 +13,7 @@
 - [x] Task: Реализовать рендеринг W03/W04 (+ кнопка «🗑️ Отменить желание» на W04 — вход в W05) — 094235f
 - [x] Task: Conductor - Ручная верификация 'Экраны W03/W04' — 4c24170
 
-## Фаза 3: Продолжение анкеты (fill:resume) + completionText
+## Фаза 3: Продолжение анкеты (fill:resume) + completionText [checkpoint: 02e81bf]
 
 - [x] Task: Написать падающие тесты на `fill:resume:{courseId}` (анкета найдена/не найдена, captureInput)
 - [x] Task: Реализовать ветку `resume` в FillStory + `Routes.questionnaire.resume(courseId)` — 29d0ae0
@@ -21,7 +21,7 @@
 - [x] Task: Пробросить `completionText` в `CompletedResponse` (packages/questionnaire) + рендер в FillStory — ae430a9
 - [x] Task: Написать падающие тесты на прогресс «Вопрос N из M» и подсказку `/cancel` в первом вопросе — 11d5432
 - [x] Task: Реализовать прогресс и подсказку в FillStory — 11d5432
-- [ ] Task: Conductor - Ручная верификация 'Продолжение анкеты + completionText'
+- [x] Task: Conductor - Ручная верификация 'Продолжение анкеты + completionText' — 02e81bf
 
 ## Фаза 4: Отмена W05 + обновление ui-spec
 
