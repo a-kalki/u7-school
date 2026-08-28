@@ -19,7 +19,7 @@
 - [x] Task: Реализовать подписку + ProactiveSender + кнопки через Routes; W05-M: маршрут `cancel-mod:{moduleId}` → подтверждение → `cancel-wish` `{ kind: 'module', moduleId }` (a3e3f90)
 - [ ] Task: Conductor - Ручная верификация 'UI приглашения'
 
-## Фаза 4: Документация [checkpoint: pending]
+## Фаза 4: Документация [checkpoint: e133e43]
 
 - [x] Task: Актуализировать `courses/ui-spec.md` (W05, W05-M, «Предложение о реализации») и `streams/ui-spec.md` (S11) по итогам имплементации (6c58b1e)
 - [ ] Task: Conductor - Ручная верификация 'Документация'
