@@ -9,13 +9,13 @@
 - [x] Task: Добавить в `packages/wish/src/domain/wish/pools/course.json` малый пул (3 вопроса: choice → text → choice) для курса `dddddddd`; проверить зелёным `CI=true bun test packages/wish` (валидация схемы пула) — d74788e
 - [ ] Task: Conductor - Ручная верификация 'Инфраструктура тестов'
 
-## Фаза 2: Интеграционные тесты instant-ветки (A)
+## Фаза 2: Интеграционные тесты instant-ветки (A) [checkpoint: 23d0a65]
 
-- [ ] Task: Написать `tests/courses/wish-flow.integration.test.ts`: apply → W03 (`expressed` в репо), повторный apply → W04 expressed с кнопкой отмены
-- [ ] Task: Тесты цикла отмены: подтверждение-экран; «❌ Отмена» → phases без изменения статуса; «✅ Да» → сообщение + `cancelled` в репо; apply после отмены → снова W03; двойное «✅ Да» → мягкое «уже нет»
-- [ ] Task: Тест W04 confirmed (confirmed-желание через wishRepo напрямую): текст «обучаешься», отмена из confirmed → `cancelled`
-- [ ] Task: Тест экранирования: курс с опасным названием через `create-course` → list/карточка/apply/W03/W04 — все ответы `assertBotResponseValid`
-- [ ] Task: Прогон `CI=true bun run check:a u7-bot` — зелёный; при падениях кода чинить причину
+- [x] Task: Написать `tests/courses/wish-flow.integration.test.ts`: apply → W03 (`expressed` в репо), повторный apply → W04 expressed с кнопкой отмены — 23d0a65
+- [x] Task: Тесты цикла отмены: подтверждение-экран; «❌ Отмена» → phases без изменения статуса; «✅ Да» → сообщение + `cancelled` в репо; apply после отмены → снова W03; двойное «✅ Да» → мягкое «уже нет» — 23d0a65
+- [x] Task: Тест W04 confirmed (confirmed-желание через wishRepo напрямую): текст «обучаешься», отмена из confirmed → `cancelled` — 23d0a65
+- [x] Task: Тест экранирования: draft-курс с опасным названием (карточка) + published-фикстурный курс `eeeeeeee` (полный цикл apply→W05) — все ответы `assertBotResponseValid` — 23d0a65. Попутно исправлен найденный тестами баг домена (getByUserAndTarget/findAllByUserAndTarget, см. troubleshoot-запись)
+- [x] Task: Прогон `CI=true bun run check:a u7-bot` — зелёный; полный `CI=true bun run check`: 1625 pass / 0 fail — 23d0a65
 - [ ] Task: Conductor - Ручная верификация 'Интеграционные тесты instant-ветки'
 
 ## Фаза 3: E2E тесты анкетной ветки (B)
