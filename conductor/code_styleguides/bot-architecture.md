@@ -193,15 +193,26 @@ Grammy ctx (callback_query.data)
 проактивная отправка минует обработчики `BotUiApp.handleCallback`/`handleMessage`.
 
 **Уведомления** — отдельный тип команды `notify(telegramId, NotificationPayload)`
-(тот же интерфейс `ProactiveSender`, тот же `types.ts`). В отличие от `send`
-уведомление не вмешивается в поток пользователя: `BotTransport.notify()`
-передаёт `keepPrevKeyboard: true` (клавиатура предыдущего экрана сохраняется)
-и не трогает `session.activeHandler` (без `captureInput`/`releaseInput`).
-`BotController.notify()` префиксирует кнопки. Источник уведомлений — подписки
-стори на доменные события (`UiStory.getEventSubscriptions()` +
-`uiApp.subscribeEvents()`), telegramId резолвится в стори через
-`appApi.execute('user', 'get-user')`. Домен НИКОГДА не отправляет
-пользовательские тексты — никаких Telegram-портов в `packages/*`.
+(тот же интерфейс `ProactiveSender`, тот же `types.ts`). `NotificationPayload`
+содержит **только текст** — кнопки в уведомлении невозможны по построению
+(на уровне типов). Уведомление не вмешивается в поток пользователя:
+`BotTransport.notify()` передаёт `keepPrevKeyboard: true` (клавиатура
+предыдущего экрана сохраняется), не трогает `session.activeHandler`
+(без `captureInput`/`releaseInput`) и **не занимает слот `lastBotMessage`** —
+логика снятия клавиатуры продолжает работать по предыдущему экрану. Каждое
+уведомление помечается заголовком `🔔 Уведомление:` (первая строка,
+в MarkdownV2 — жирным), чтобы пользователь отличал его от ответов бота.
+
+**Проактивные сообщения с кнопками** — только обычный `send()`
+(`sendMessage` + `keyboard`): новый экран бота ломает текущий флоу —
+транспорт снимает клавиатуру предыдущего сообщения, а сообщение с кнопками
+становится `lastBotMessage`. `captureInput` по-прежнему опционален.
+
+Источники проактивных сообщений — подписки стори на доменные события
+(`UiStory.getEventSubscriptions()` + `uiApp.subscribeEvents()`), telegramId
+резолвится в стори через `appApi.execute('user', 'get-user')`. Домен
+НИКОГДА не отправляет пользовательские тексты — никаких Telegram-портов
+в `packages/*`.
 
 ---
 
