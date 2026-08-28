@@ -1,0 +1,7 @@
+Задачи фазы 4 (трек wish-ui_20260814):
+1. Падающие тесты W05: cancel:{courseId} рендерит подтверждение («Отменить желание пройти курс?» + Да/Отмена), cancel-confirm вызывает cancel-wish и сообщает об отмене, WISH_NOT_FOUND — мягкое сообщение без ошибки.
+2. Реализация: ветки cancel/cancel-confirm в course-catalog.story (confirm() с возвратом к карточке phases), #handleCancelConfirm (appApi cancel-wish, кнопка меню, обработка гонки not-found).
+
+Попутно (линтер/tsc): ownerInfo['courseId'] → ownerInfo.courseId в fill.story; формат фикстур courses.json под biome; добавлены анкетный и instant-курсы в шаблон фикстур (шаг 0 верификации фазы 3).
+
+Проверки: check:a u7-bot — 439 pass / 0 fail.
