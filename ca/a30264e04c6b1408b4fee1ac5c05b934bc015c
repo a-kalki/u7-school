@@ -1,0 +1,9 @@
+Задача: Написать падающие тесты на кнопку «🎓 Хочу пройти курс» и обработку apply (instant/questionnaire/конфликт) + Добавить кнопку на карточку курса + обработчик apply в course-catalog.story
+
+Изменения:
+- apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts:
+  - #handleList: кнопка «🎓 Хочу пройти курс» (course-catalog:apply:{courseId}) в ряду карточки курса
+  - #handleApply: вызов create-course-wish { courseId }, outcome instant → W03 («зафиксировано» + главное меню), outcome questionnaire → пустой ответ (анкету рендерит FillStory проактивно), конфликт WISH_ALREADY_EXISTS → базовый W04 («уже выразил желание»), прочие ошибки → handleError
+- course-catalog.story.test.ts: describe 'apply — желание пройти курс' — 5 тестов (кнопка на карточке, instant, questionnaire, конфликт, курс не найден)
+
+Причина: Фаза 1 трека wish-ui_20260814 (FR1, FR2 спеки). TDD: Red (4 падающих) → Green (23 pass). Покрытие стори 96.55%.
