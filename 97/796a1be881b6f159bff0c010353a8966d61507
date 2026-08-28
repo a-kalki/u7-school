@@ -1,0 +1,15 @@
+Задачи Фазы 2 (трек wish-invite_20260827): ER invite-wishers + репо + фасад + cancel-wish + гигиена фасада
+
+Изменения:
+- packages/wish/src/api/er/invite-wishers-er.ts (новый) — реакция на stream.created: course-ветка (только place.isFirst) через whichCoursesIncludeModule, module-ветка (любой модуль) через whichModulesAreSame; только активные желания; публикация wish:invite через eventBus; пропуск без профиля
+- packages/wish/src/domain/wish/events.ts (новый) — WishInviteEvent (wishId, streamId, userId, telegramId, wishKind, courseId?/moduleId?)
+- packages/wish/src/domain/wish/repo.ts + infra/db/wish-json-repo.ts — findAllByKind(kind, statuses?) — выборка по виду цели, фильтр статусов на стороне хранилища
+- packages/wish/src/domain/wish/commands/cancel-wish-cmd.ts — дискриминированный вариант по kind (зеркально WishTargetSchema)
+- packages/wish/src/api/wish/cancel-wish-uc.ts — резолв WishTarget по kind; имя UC сохранено
+- packages/wish/src/domain/wish/errors.ts — payload WISH_NOT_FOUND нейтрален к виду цели (courseId?/moduleId?)
+- packages/course/src/domain/facade.ts + infra/course-in-proc-facade.ts — + whichModulesAreSame (batch); гигиена: − getStep (мёртвый), getCourse убран из интерфейса (приватный #getCourse)
+- packages/wish/src/api/module.ts + api/index.ts + domain/index.ts — регистрация ER в WishApiModule.reactions, экспорты
+- apps/u7-bot course-catalog.story.ts — вызов cancel-wish: { kind: 'course', courseId } (обновление вызовов, FR5)
+- Тесты: invite-wishers-er.test.ts (новый, 11 кейсов), wish-json-repo.test.ts (+3), cancel-wish-uc.test.ts (обновлены payloads +2 module-кейса), course-in-proc-facade.test.ts (+3 whichModulesAreSame, −2 устаревших getStep)
+
+Причина: рассылка приглашений при открытии набора без прямых сравнений id — историческая идентичность только через фасад курсов.
