@@ -1,0 +1,15 @@
+Задачи: Тесты на warnedAt (markWarned, сброс при активности) и repo.getActive() + реализация
+
+Domain (packages/questionnaire):
+- entity.ts: warnedAt (optional, isoDateTime) в QuestionnaireSchema и BaseQuestionnaireState (likert наследует через spread entries)
+- a-root.ts: markWarned() — публичный, только для in_progress, обходит safeUpdate (НЕ сдвигает updatedAt, иначе таймер простоя сбрасывался бы); сброс warnedAt в start() и handleAction() (#resetWarning); abandon(reason?: 'timeout') — пробрасывает причину в buildAbandonedEvent(reason)
+- repo.ts: getActive(): QuestionnaireState[] — контракт
+- json-repo.ts: getActive() — фильтр status === 'in_progress'
+
+Тесты (новые файлы, существующие не модифицированы):
+- warned-at.test.ts: markWarned ставит warnedAt и не трогает updatedAt; ошибка на не-активной; сброс в start()/handleAction()
+- questionnaire-repo-active.test.ts: только in_progress; пустой результат
+
+Исключение из правила: в module.test.ts добавлен метод getActive в мок repo (без изменения тест-кейсов) — иначе пакет не компилируется из-за расширения интерфейса QuestionnaireRepo.
+
+Нюанс isoNow(): точность до минуты (toISOString().slice(0,16)) — тест 'повторный markWarned перезаписывает warnedAt' убран из своего же нового тестового файла как ненадёжный (идемпотентность обеспечивается job-уровнем).
