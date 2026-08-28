@@ -11,14 +11,12 @@ function makeWishRepo(existing?: Wish) {
   const getByUuid = mock(
     async (_uuid: string): Promise<Wish | undefined> => undefined,
   );
-  const getByUserAndTarget = mock(
-    async (
-      _userId: string,
-      _target: Wish['target'],
-    ): Promise<Wish | undefined> => existing,
+  const findAllByUserAndTarget = mock(
+    async (_userId: string, _target: Wish['target']): Promise<Wish[]> =>
+      existing ? [existing] : [],
   );
   const getByUser = mock(async (_userId: string): Promise<Wish[]> => []);
-  return { save, getByUuid, getByUserAndTarget, getByUser };
+  return { save, getByUuid, findAllByUserAndTarget, getByUser };
 }
 
 function setupUc(

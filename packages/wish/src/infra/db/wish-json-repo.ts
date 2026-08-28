@@ -1,6 +1,7 @@
 import { JsonFileRepo } from '@u7-scl/core/infra';
 import type { Wish, WishTarget } from '#domain/wish/entity';
 import { WishSchema } from '#domain/wish/entity';
+import { WishPolicy } from '#domain/wish/policy';
 import type { WishRepo } from '#domain/wish/repo';
 
 /** Проверяет равенство целей желания (сравнение по варианту и его ключам). */
@@ -44,16 +45,29 @@ export class WishJsonRepo implements WishRepo {
     return all.find((w) => w.uuid === uuid);
   }
 
+  async findAllByUserAndTarget(
+    userId: string,
+    target: WishTarget,
+  ): Promise<Wish[]> {
+    const all = await this.#repo.readAll();
+    return all.filter(
+      (w) => w.userId === userId && isSameTarget(w.target, target),
+    );
+  }
+
   async getByUserAndTarget(
     userId: string,
     target: WishTarget,
   ): Promise<Wish | undefined> {
-    const all = await this.#repo.readAll();
-    const matches = all.filter(
-      (w) => w.userId === userId && isSameTarget(w.target, target),
-    );
-    matches.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    return matches[0];
+    const matches = await this.findAllByUserAndTarget(userId, target);
+    // При равных createdAt порядок записей недетерминирован, поэтому
+    // сначала сужаем выборку до активных желаний (релевантных для
+    // потребителей: отмена, экран W04, ER-реакции), и только среди
+    // них берём последнее созданное.
+    const active = matches.filter((w) => WishPolicy.isActive(w.status));
+    const pool = active.length > 0 ? active : matches;
+    pool.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return pool[0];
   }
 
   async getByUser(userId: string): Promise<Wish[]> {

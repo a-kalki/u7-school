@@ -61,6 +61,20 @@
       }
     ],
     "status": "published",
-    "createdAt": "2026-06-01T00:00:00.000Z"
+    "createdAt": "2026-06-01T00:00"
+  },
+  {
+    "uuid": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+    "title": "Опас. Название (v9.9) - #2! Тест+проба=ок {тут} |пайп| ~тильда~",
+    "description": "Published-курс с опасным названием (MarkdownV2) для интеграционных тестов wish.",
+    "authorId": "44444444-4444-4444-4444-444444444444",
+    "phases": [
+      {
+        "title": "Этап опасностей",
+        "moduleIds": ["a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0"]
+      }
+    ],
+    "status": "published",
+    "createdAt": "2026-06-01T00:00"
   }
 ]

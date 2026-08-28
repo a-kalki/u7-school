@@ -14,15 +14,12 @@ function makeWishRepo() {
   const getByUuid = mock(
     async (_uuid: string): Promise<Wish | undefined> => undefined,
   );
-  const getByUserAndTarget = mock(
-    async (
-      _userId: string,
-      _target: Wish['target'],
-    ): Promise<Wish | undefined> => undefined,
+  const findAllByUserAndTarget = mock(
+    async (_userId: string, _target: Wish['target']): Promise<Wish[]> => [],
   );
   const getByUser = mock(async (_userId: string): Promise<Wish[]> => []);
 
-  return { save, getByUuid, getByUserAndTarget, getByUser };
+  return { save, getByUuid, findAllByUserAndTarget, getByUser };
 }
 
 function setupUc(facadeOverrides: Record<string, unknown> = {}) {
@@ -124,9 +121,9 @@ describe('CreateCourseWishUc', () => {
       'confirmed',
     ] as const)('WISH_ALREADY_EXISTS при активном желании в статусе %s', async (status) => {
       const { wishRepo, uc } = setupUc();
-      wishRepo.getByUserAndTarget.mockResolvedValueOnce(
+      wishRepo.findAllByUserAndTarget.mockResolvedValueOnce([
         makeActiveWish(actorId, plainCourseId, status),
-      );
+      ]);
 
       const err = (await uc
         .handle({ courseId: plainCourseId }, actorId)
@@ -142,9 +139,9 @@ describe('CreateCourseWishUc', () => {
 
     test('повторное желание после cancelled разрешено', async () => {
       const { wishRepo, uc } = setupUc();
-      wishRepo.getByUserAndTarget.mockResolvedValueOnce(
+      wishRepo.findAllByUserAndTarget.mockResolvedValueOnce([
         makeActiveWish(actorId, plainCourseId, 'cancelled'),
-      );
+      ]);
 
       const result = await uc.handle({ courseId: plainCourseId }, actorId);
 
@@ -153,13 +150,13 @@ describe('CreateCourseWishUc', () => {
 
     test('активное желание на другой курс не блокирует', async () => {
       const { wishRepo, uc } = setupUc();
-      wishRepo.getByUserAndTarget.mockImplementationOnce(
+      wishRepo.findAllByUserAndTarget.mockImplementationOnce(
         async (_userId: string, target: Wish['target']) =>
           target.kind === 'course' &&
           target.courseId !== plainCourseId &&
           target.courseId !== pooledCourseId
-            ? makeActiveWish(actorId, target.courseId, 'confirmed')
-            : undefined,
+            ? [makeActiveWish(actorId, target.courseId, 'confirmed')]
+            : [],
       );
 
       const result = await uc.handle({ courseId: plainCourseId }, actorId);

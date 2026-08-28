@@ -60,10 +60,15 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
     }
 
     // 2. Не более одного активного желания на пару (user, target).
+    //    Проверяем ВСЕ желания на цель, а не «последнее»: при равных createdAt
+    //    порядок сортировки недетерминирован и активное желание может
+    //    оказаться не первым.
     const target: WishTarget = { kind: 'course', courseId: command.courseId };
-    const existing = await this.repo.getByUserAndTarget(actorId, target);
+    const active = (
+      await this.repo.findAllByUserAndTarget(actorId, target)
+    ).find((w) => WishPolicy.isActive(w.status));
 
-    if (existing && WishPolicy.isActive(existing.status)) {
+    if (active) {
       this.throwError(
         errConflict<WishAlreadyExistsUcError>(
           'WISH_ALREADY_EXISTS',
@@ -71,7 +76,7 @@ export class CreateCourseWishUc extends WishUseCase<CreateCourseWishCmdMeta> {
           {
             userId: actorId,
             courseId: command.courseId,
-            status: existing.status,
+            status: active.status,
           },
         ),
       );

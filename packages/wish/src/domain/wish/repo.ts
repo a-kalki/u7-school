@@ -14,6 +14,9 @@ export interface WishRepo {
     target: WishTarget,
   ): Promise<Wish | undefined>;
 
+  /** Получить все желания пользователя по цели (в любом статусе). */
+  findAllByUserAndTarget(userId: string, target: WishTarget): Promise<Wish[]>;
+
   /** Получить все желания пользователя. */
   getByUser(userId: string): Promise<Wish[]>;
 }

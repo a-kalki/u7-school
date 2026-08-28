@@ -42,3 +42,4 @@ description: ЗАГРУЗИ при любой неожиданной ошибк�
 | `#pi` `#edit` | `$T`-подстановка ломает `edit` на skill-файлах — oldText не совпадает | [pi-tsubstitution-edit.md](../../../conductor/code_styleguides/troubleshoots/pi-tsubstitution-edit.md) |
 | `#git` `#gitignore` | `conductor/archive/` в `.gitignore` — `git add` отказывается добавлять | [git-archive-gitignore.md](../../../conductor/code_styleguides/troubleshoots/git-archive-gitignore.md) |
 | `#deploy` `#valibot` `#isoDateTime` | Миграция пишет `updatedAt` с пробелом вместо `T` — невалидный isoDateTime | [deploy-migration-updatedAt-format.md](../../../conductor/code_styleguides/troubleshoots/deploy-migration-updatedAt-format.md) |
+| `#wish` `#repo` `#createdAt` | `getByUserAndTarget` при равных `createdAt` возвращает недетерминированную запись — конфликты не срабатывают | [wish-getbyuserandtarget-createdAt-tie.md](../../../conductor/code_styleguides/troubleshoots/wish-getbyuserandtarget-createdAt-tie.md) |
