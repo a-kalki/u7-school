@@ -5,7 +5,6 @@ import type { Course } from '#domain/course/entity';
 import type { CourseFacade, ModulePlace } from '#domain/facade';
 import { CoursePolicy } from '#domain/index';
 import type { Module } from '#domain/module/entity';
-import type { Step } from '#domain/step/entity';
 import type { CourseApiModule } from '../api/module';
 
 /**
@@ -18,10 +17,6 @@ export class CourseInProcFacade implements CourseFacade {
 
   async getModuleSnapshot(moduleId: string): Promise<ContentSnapshot> {
     return this.courseModule.execute('get-module-snapshot', { moduleId });
-  }
-
-  async getStep(stepId: string): Promise<Step> {
-    return this.courseModule.execute('get-step', { uuid: stepId });
   }
 
   async getModule(moduleId: string): Promise<Module> {
@@ -44,7 +39,11 @@ export class CourseInProcFacade implements CourseFacade {
     });
   }
 
-  async getCourse(courseId: string): Promise<Course | undefined> {
+  /**
+   * Приватный хелпер: получить курс по UUID (undefined, если не существует).
+   * Наружу не выставлен — внешним модулям хватает вопросных запросов фасада.
+   */
+  async #getCourse(courseId: string): Promise<Course | undefined> {
     try {
       return await this.courseModule.execute('get-course', {
         uuid: courseId,
@@ -65,7 +64,7 @@ export class CourseInProcFacade implements CourseFacade {
    * один вызов UC + проверка статуса через CoursePolicy.
    */
   async isCourseEnrollable(courseId: string): Promise<boolean> {
-    const course = await this.getCourse(courseId);
+    const course = await this.#getCourse(courseId);
     return !!course && CoursePolicy.isPublished(course);
   }
 
@@ -74,7 +73,7 @@ export class CourseInProcFacade implements CourseFacade {
    * в фасаде: один вызов UC + тривиальное преобразование.
    */
   async getCourseStartModuleId(courseId: string): Promise<string | undefined> {
-    const course = await this.getCourse(courseId);
+    const course = await this.#getCourse(courseId);
     if (!course) return undefined;
     return course.phases.flatMap((p) => p.moduleIds)[0];
   }
@@ -87,6 +86,14 @@ export class CourseInProcFacade implements CourseFacade {
     // Сегодня историческая идентичность тривиальна; контракт — для будущих
     // версий модулей (копия модуля с другим id — тот же модуль).
     return moduleIdA === moduleIdB;
+  }
+
+  async whichModulesAreSame(
+    moduleId: string,
+    moduleIds: string[],
+  ): Promise<string[]> {
+    // Batch-аналог isSameModule: сегодня — равенство id, дубли сохраняются.
+    return moduleIds.filter((id) => id === moduleId);
   }
 
   async getCourseProgram(courseId: string): Promise<CourseProgram> {

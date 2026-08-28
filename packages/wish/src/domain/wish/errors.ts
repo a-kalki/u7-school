@@ -23,7 +23,7 @@ export type WishAlreadyExistsUcError = ConflictError<
 /** Желание не найдено. */
 export type WishNotFoundUcError = NotFoundError<
   'WISH_NOT_FOUND',
-  { userId: string; courseId: string } | undefined
+  { userId: string; courseId?: string; moduleId?: string } | undefined
 >;
 
 /** Модуль не найден (или его курс недоступен для записи). */

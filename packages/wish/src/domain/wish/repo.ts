@@ -1,4 +1,4 @@
-import type { Wish, WishTarget } from './entity';
+import type { Wish, WishStatus, WishTarget } from './entity';
 
 /** Интерфейс репозитория желаний. */
 export interface WishRepo {
@@ -19,4 +19,14 @@ export interface WishRepo {
 
   /** Получить все желания пользователя. */
   getByUser(userId: string): Promise<Wish[]>;
+
+  /**
+   * Все желания по виду цели (независимо от пользователя).
+   * statuses не задан — все статусы; задан — фильтр на стороне хранилища.
+   * Идентичность цели (форки) решается фасадом курсов, не выборкой.
+   */
+  findAllByKind(
+    kind: 'course' | 'module',
+    statuses?: WishStatus[],
+  ): Promise<Wish[]>;
 }

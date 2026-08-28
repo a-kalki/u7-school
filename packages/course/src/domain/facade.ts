@@ -2,7 +2,6 @@ import type { ContentSnapshot } from './content-snapshot';
 import type { CourseProgram } from './course/commands/get-course-program-cmd';
 import type { Course } from './course/entity';
 import type { Module } from './module/entity';
-import type { Step } from './step/entity';
 
 export type { CourseProgram };
 
@@ -26,14 +25,8 @@ export interface CourseFacade {
   /** Получить снимок контента модуля */
   getModuleSnapshot(moduleId: string): Promise<ContentSnapshot>;
 
-  /** Получить шаг по UUID */
-  getStep(stepId: string): Promise<Step>;
-
   /** Получить программу курса (агрегация снимков модулей по фазам) */
   getCourseProgram(courseId: string): Promise<CourseProgram>;
-
-  /** Получить курс по UUID (undefined, если курс не существует) */
-  getCourse(courseId: string): Promise<Course | undefined>;
 
   /** Найти курс, содержащий указанный модуль */
   getCourseByModuleId(moduleId: string): Promise<Course | undefined>;
@@ -73,6 +66,13 @@ export interface CourseFacade {
     moduleId: string,
     courseIds: string[],
   ): Promise<string[]>;
+
+  /**
+   * Какие из moduleIds исторически тот же модуль (batch-аналог isSameModule).
+   * Сегодня реализация тривиальна (равенство id); контракт — на будущее
+   * (версионность/копии модулей, генеалогия внутри модуля курсов).
+   */
+  whichModulesAreSame(moduleId: string, moduleIds: string[]): Promise<string[]>;
 
   /** Получить модуль */
   getModule(moduleId: string): Promise<Module>;

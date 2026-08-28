@@ -655,13 +655,17 @@ export class CourseCatalogStory extends U7BotUiStory {
     }
   }
 
-  /** cancel-confirm:{courseId} — подтверждённая отмена желания (W05). */
+  /** cancel-confirm:{courseId} — подтверждённая отмена желания курса (W05). */
   async #handleCancelConfirm(
     courseId: string,
     actor: User,
   ): Promise<BotResponse> {
     try {
-      await this.appApi.execute('cancel-wish', { courseId }, actor.uuid);
+      await this.appApi.execute(
+        'cancel-wish',
+        { kind: 'course', courseId },
+        actor.uuid,
+      );
 
       return {
         sendMessage: {

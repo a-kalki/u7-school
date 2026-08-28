@@ -976,7 +976,7 @@ describe('CourseCatalogStory', () => {
         (c) => c[0] === 'cancel-wish',
       );
       expect(call).toBeDefined();
-      expect(call![1]).toEqual({ courseId });
+      expect(call![1]).toEqual({ kind: 'course', courseId });
       expect(call![2]).toBe(actor.uuid);
 
       const text = response.sendMessage?.text ?? '';

@@ -40,7 +40,7 @@ describe('CancelWishUc', () => {
       makeExpressedWish(actorId, courseId),
     );
 
-    await uc.handle({ courseId }, actorId);
+    await uc.handle({ kind: 'course', courseId }, actorId);
 
     expect(save).toHaveBeenCalledTimes(1);
     const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
@@ -54,7 +54,7 @@ describe('CancelWishUc', () => {
       status: 'confirmed' as const,
     });
 
-    await uc.handle({ courseId }, actorId);
+    await uc.handle({ kind: 'course', courseId }, actorId);
 
     expect(save).toHaveBeenCalledTimes(1);
     const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
@@ -68,18 +68,18 @@ describe('CancelWishUc', () => {
       status: 'pending' as const,
     });
 
-    await expect(uc.handle({ courseId }, actorId)).rejects.toThrow(
-      'Желание не найдено',
-    );
+    await expect(
+      uc.handle({ kind: 'course', courseId }, actorId),
+    ).rejects.toThrow('Желание не найдено');
     expect(save).toHaveBeenCalledTimes(0);
   });
 
   test('выбрасывает WISH_NOT_FOUND если желания нет', async () => {
     const { uc } = setupUc();
 
-    await expect(uc.handle({ courseId }, actorId)).rejects.toThrow(
-      'Желание не найдено',
-    );
+    await expect(
+      uc.handle({ kind: 'course', courseId }, actorId),
+    ).rejects.toThrow('Желание не найдено');
   });
 
   test('выбрасывает WISH_NOT_FOUND если желание уже отменено', async () => {
@@ -89,8 +89,44 @@ describe('CancelWishUc', () => {
       status: 'cancelled' as const,
     });
 
-    await expect(uc.handle({ courseId }, actorId)).rejects.toThrow(
-      'Желание не найдено',
-    );
+    await expect(
+      uc.handle({ kind: 'course', courseId }, actorId),
+    ).rejects.toThrow('Желание не найдено');
+  });
+
+  // ── Вариант команды: module ──
+
+  test('отменяет module-желание по варианту { kind: module, moduleId }', async () => {
+    const moduleId = crypto.randomUUID();
+    const { save, getByUserAndTarget, uc } = setupUc();
+    getByUserAndTarget.mockResolvedValueOnce({
+      ...makeExpressedWish(actorId, courseId),
+      target: { kind: 'module', moduleId },
+    });
+
+    await uc.handle({ kind: 'module', moduleId }, actorId);
+
+    expect(getByUserAndTarget).toHaveBeenCalledWith(actorId, {
+      kind: 'module',
+      moduleId,
+    });
+    expect(save).toHaveBeenCalledTimes(1);
+    const saved = (save as ReturnType<typeof mock>).mock.calls[0]![0] as Wish;
+    expect(saved.status).toBe('cancelled');
+  });
+
+  test('module-вариант: неактивное желание — WISH_NOT_FOUND', async () => {
+    const moduleId = crypto.randomUUID();
+    const { save, getByUserAndTarget, uc } = setupUc();
+    getByUserAndTarget.mockResolvedValueOnce({
+      ...makeExpressedWish(actorId, courseId),
+      target: { kind: 'module', moduleId },
+      status: 'fulfilled' as const,
+    });
+
+    await expect(
+      uc.handle({ kind: 'module', moduleId }, actorId),
+    ).rejects.toThrow('Желание не найдено');
+    expect(save).not.toHaveBeenCalled();
   });
 });

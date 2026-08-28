@@ -39,41 +39,6 @@ describe('CourseInProcFacade', () => {
     expect(result).toEqual([]);
   });
 
-  test('делегирует getStep в CourseApiModule.execute', async () => {
-    const mockStep = {
-      uuid: 'step-1',
-      moduleId: 'mod-1',
-      kind: 'text' as const,
-      description: 'Описание шага',
-      status: Status.PUBLISHED,
-      createdAt: '2025-01-01T00:00:00.000Z',
-    };
-
-    const mockModule = {
-      execute: mock(() => Promise.resolve(mockStep)),
-    };
-
-    const facade = new CourseInProcFacade(mockModule as any);
-    const result = await facade.getStep('step-1');
-
-    expect(result).toEqual(mockStep);
-    expect(mockModule.execute).toHaveBeenCalledTimes(1);
-    expect(mockModule.execute).toHaveBeenCalledWith('get-step', {
-      uuid: 'step-1',
-    });
-  });
-
-  test('getStep пробрасывает ошибку от модуля', async () => {
-    const error = new Error('STEP_NOT_FOUND');
-    const mockModule = {
-      execute: mock(() => Promise.reject(error)),
-    };
-
-    const facade = new CourseInProcFacade(mockModule as any);
-
-    await expect(facade.getStep('bad-id')).rejects.toThrow('STEP_NOT_FOUND');
-  });
-
   describe('isCourseEnrollable', () => {
     function makeCourse(status: Status) {
       return {
@@ -211,6 +176,30 @@ describe('CourseInProcFacade', () => {
         'which-courses-include-module',
         { moduleId, courseIds: ['c-1', 'c-2'] },
       );
+    });
+  });
+
+  describe('whichModulesAreSame', () => {
+    test('возвращает только совпадающие id модулей (с сохранением дублей)', async () => {
+      const facade = new CourseInProcFacade({} as any);
+      const result = await facade.whichModulesAreSame('m-1', [
+        'm-1',
+        'm-2',
+        'm-1',
+      ]);
+      expect(result).toEqual(['m-1', 'm-1']);
+    });
+
+    test('нет совпадений — пустой массив', async () => {
+      const facade = new CourseInProcFacade({} as any);
+      const result = await facade.whichModulesAreSame('m-1', ['m-2', 'm-3']);
+      expect(result).toEqual([]);
+    });
+
+    test('пустой список кандидатов — пустой массив', async () => {
+      const facade = new CourseInProcFacade({} as any);
+      const result = await facade.whichModulesAreSame('m-1', []);
+      expect(result).toEqual([]);
     });
   });
 

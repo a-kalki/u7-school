@@ -1,5 +1,5 @@
 import { JsonFileRepo } from '@u7-scl/core/infra';
-import type { Wish, WishTarget } from '#domain/wish/entity';
+import type { Wish, WishStatus, WishTarget } from '#domain/wish/entity';
 import { WishSchema } from '#domain/wish/entity';
 import { WishPolicy } from '#domain/wish/policy';
 import type { WishRepo } from '#domain/wish/repo';
@@ -73,5 +73,16 @@ export class WishJsonRepo implements WishRepo {
   async getByUser(userId: string): Promise<Wish[]> {
     const all = await this.#repo.readAll();
     return all.filter((w) => w.userId === userId);
+  }
+
+  async findAllByKind(
+    kind: 'course' | 'module',
+    statuses?: WishStatus[],
+  ): Promise<Wish[]> {
+    const all = await this.#repo.readAll();
+    return all.filter(
+      (w) =>
+        w.target.kind === kind && (!statuses || statuses.includes(w.status)),
+    );
   }
 }

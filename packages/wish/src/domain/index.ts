@@ -34,6 +34,7 @@ export type {
   WishModuleError,
   WishNotFoundUcError,
 } from './wish/errors';
+export type { WishInviteEvent } from './wish/events';
 export { WishPolicy } from './wish/policy';
 export { findCoursePool } from './wish/pools/course-pool';
 export type { WishRepo } from './wish/repo';

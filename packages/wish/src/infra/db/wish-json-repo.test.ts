@@ -125,4 +125,48 @@ describe('WishJsonRepo', () => {
       expect(found).toHaveLength(2);
     });
   });
+
+  describe('findAllByKind', () => {
+    test('возвращает все желания заданного вида (все статусы)', async () => {
+      const repo = new WishJsonRepo(filePath('wishes-kind-all.json'));
+      const courseWish = makeWish({ target: makeTarget() });
+      const moduleWish = makeWish({
+        target: { kind: 'module', moduleId: crypto.randomUUID() },
+      });
+
+      await repo.save(courseWish);
+      await repo.save(moduleWish);
+
+      const found = await repo.findAllByKind('module');
+      expect(found).toHaveLength(1);
+      expect(found[0]?.target.kind).toBe('module');
+    });
+
+    test('фильтрует по статусам, если они заданы', async () => {
+      const repo = new WishJsonRepo(filePath('wishes-kind-statuses.json'));
+      const expressed = makeWish({ status: 'expressed' });
+      const confirmed = makeWish({ status: 'confirmed' });
+      const fulfilled = makeWish({ status: 'fulfilled' });
+
+      await repo.save(expressed);
+      await repo.save(confirmed);
+      await repo.save(fulfilled);
+
+      const found = await repo.findAllByKind('course', [
+        'expressed',
+        'confirmed',
+      ]);
+      expect(found).toHaveLength(2);
+      for (const w of found) {
+        expect(['expressed', 'confirmed']).toContain(w.status);
+      }
+    });
+
+    test('нет совпадений — пустой массив', async () => {
+      const repo = new WishJsonRepo(filePath('wishes-kind-empty.json'));
+
+      const found = await repo.findAllByKind('course', ['confirmed']);
+      expect(found).toEqual([]);
+    });
+  });
 });

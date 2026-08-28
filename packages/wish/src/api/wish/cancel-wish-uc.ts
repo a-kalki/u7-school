@@ -12,10 +12,13 @@ import { WishUseCase } from '../wish-uc';
 
 /**
  * Use-case отмены желания.
+ *
+ * Цель отмены явна в команде (дискриминированный вариант по kind:
+ * course | module) — резолвится в WishTarget без изменения имени UC.
  */
 export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
   protected readonly ucName = 'cancel-wish' as const;
-  protected readonly ucLabel = 'Отменить желание пройти курс' as const;
+  protected readonly ucLabel = 'Отменить желание' as const;
   protected readonly arMeta = {
     arName: WishAr.arName as 'Wish',
     arLabel: WishAr.arLabel as 'Желание',
@@ -26,7 +29,10 @@ export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
   protected readonly outputSchema = v.undefined();
 
   async execute(command: CancelWishCmd, actorId: string): Promise<undefined> {
-    const target: WishTarget = { kind: 'course', courseId: command.courseId };
+    const target: WishTarget =
+      command.kind === 'course'
+        ? { kind: 'course', courseId: command.courseId }
+        : { kind: 'module', moduleId: command.moduleId };
 
     const wish = await this.repo.getByUserAndTarget(actorId, target);
     // Отмена разрешена только из expressed|confirmed; для pending — только abandon.
@@ -35,7 +41,9 @@ export class CancelWishUc extends WishUseCase<CancelWishCmdMeta> {
         errNotFound<WishNotFoundUcError>(
           'WISH_NOT_FOUND',
           'Желание не найдено',
-          { userId: actorId, courseId: command.courseId },
+          target.kind === 'course'
+            ? { userId: actorId, courseId: target.courseId }
+            : { userId: actorId, moduleId: target.moduleId },
         ),
       );
     }
