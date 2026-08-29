@@ -5,14 +5,14 @@
 > TDD не применяется: скрипт одноразовый, без юнит-тестов (консистентно с другими скриптами `scripts/`).
 > Главная проверка — dry-run на копии реальных данных (Фаза 2) со встроенной valibot-валидацией до записи.
 
-## Фаза 1: Скрипт миграции
+## Фаза 1: Скрипт миграции [checkpoint: 425153c]
 
 - [x] Task: Реализация `scripts/migrate-old-questionnaires.ts` [b03b241f]
   - [ ] Чтение: questionnaires.json (старый), users.json, пул из course.json (ключ 29adc3be), wishes.json, students.json
   - [ ] Фильтры + трансформация анкет + wish по FR1–FR3 (мульти → join через запятую, goal_text → 'text'+answerText, fulfilled по students.json)
   - [ ] Валидация valibot до записи (FR4), бэкап с таймстампом первым шагом (FR5), append к массивам, идемпотентность (FR6), отчёт со счётчиками (FR7)
 - [x] Task: Вороты качества (`bun run check` — lint + tsc; тесты проекта не затронуты) [b03b241f]
-- [ ] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md) [425153c]
 
 ## Фаза 2: Dry-run на копии данных — главная проверка
 
