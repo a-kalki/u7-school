@@ -1,40 +1,64 @@
 /**
- * call-uc — утилита для вызова UseCase из командной строки.
+ * call-uc — утилита для вызова UseCase из команднойчей строки.
+ *
+ * Собирает полный стек ApiApp со всеми модулями приложения
+ * (user, course, stream, questionnaire, wish) — в том же порядке
+ * и с теми же зависимостями, что и живое приложение бота
+ * (apps/u7-bot/src/create-api-app.ts), но без Telegram-интерфейса.
  *
  * Использование:
  *   bun run scripts/call-uc.ts <usecase> '<json-params>' [actorId]
  *
  * Примеры:
  *   bun run scripts/call-uc.ts list-modules '{}'
+ *   bun run scripts/call-uc.ts get-module '{"moduleId":"<uuid>"}'
  *   bun run scripts/call-uc.ts create-module '{"title":"Основы JS","description":"Описание"}'
  *   bun run scripts/call-uc.ts enrich-module '{"moduleId":"<uuid>","goal":"Цель","tags":["js"]}'
- *   bun run scripts/call-uc.ts add-project   '{"moduleId":"<uuid>","title":"Проект 1"}'
- *   bun run scripts/call-uc.ts create-lesson '{"moduleId":"<uuid>","projectId":"<uuid>","title":"Урок 1","estimatedMinutes":30}'
- *   bun run scripts/call-uc.ts create-step   '{"moduleId":"<uuid>","lessonId":"<uuid>","description":"...","kind":"code","content":"..."}'
- *   bun run scripts/call-uc.ts publish-module '{"moduleId":"<uuid>"}'
- *   bun run scripts/call-uc.ts get-module '{"moduleId":"<uuid>"}'
+ *   bun run scripts/call-uc.ts get-questionnaires-by-user '{"userId":"<uuid>"}'
+ *   bun run scripts/call-uc.ts get-current '{"userId":"<uuid>"}'
+ *   bun run scripts/call-uc.ts create-course-wish '{"courseId":"<uuid>"}'
+ *
+ * ⚠️ Команды (не query) пишут в боевые JSON-файлы: перед изменяющими
+ * вызовами убедись, что бот остановлен (pm2 stop u7-school-bot).
  *
  * По умолчанию авторизация: Nur (ADMIN + MENTOR).
  * actorId можно переопределить третьим аргументом.
  */
 
 import { ApiApp } from '@u7-scl/core/api';
+import {
+  BaseJsonDb,
+  InProcEventBus,
+  InProcJobScheduler,
+} from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
-import { CourseApiModule } from '../packages/course/src/api/module.ts';
-import type { CourseApiModuleResolver } from '../packages/course/src/domain/module.ts';
-import { CourseInProcFacade } from '../packages/course/src/infra/course-in-proc-facade.ts';
-import { CourseJsonRepo } from '../packages/course/src/infra/db/course-json-repo.ts';
-import { LessonJsonRepo } from '../packages/course/src/infra/db/lesson-json-repo.ts';
-import { ModuleJsonRepo } from '../packages/course/src/infra/db/module-json-repo.ts';
-import { StepJsonRepo } from '../packages/course/src/infra/db/step-json-repo.ts';
-import { StreamApiModule } from '../packages/stream/src/api/module.ts';
-import type { StreamApiModuleResolver } from '../packages/stream/src/domain/module.ts';
-import { StreamJsonRepo } from '../packages/stream/src/infra/db/stream-json-repo.ts';
-import { StudentJsonRepo } from '../packages/stream/src/infra/db/student-json-repo.ts';
-import { UserApiModule } from '../packages/user/src/api/index.ts';
-import type { UserApiModuleResolver } from '../packages/user/src/domain/module.ts';
-import { UserJsonRepo } from '../packages/user/src/infra/db/user-json-repo.ts';
-import { UserInProcFacade } from '../packages/user/src/infra/user-in-proc-facade.ts';
+import { CourseApiModule } from '@u7-scl/course/api';
+import type { CourseApiModuleResolver } from '@u7-scl/course/domain';
+import {
+  CourseInProcFacade,
+  CourseJsonRepo,
+  LessonJsonRepo,
+  ModuleJsonRepo,
+  StepJsonRepo,
+} from '@u7-scl/course/infra';
+import { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
+import type { QuestionnaireApiModuleResolver } from '@u7-scl/questionnaire/domain';
+import {
+  QuestionnaireInProcFacade,
+  QuestionnaireJsonRepo,
+} from '@u7-scl/questionnaire/infra';
+import type { StreamApiModuleResolver } from '@u7-scl/stream';
+import {
+  StreamApiModule,
+  StreamJsonRepo,
+  StudentJsonRepo,
+} from '@u7-scl/stream';
+import { UserApiModule } from '@u7-scl/user/api';
+import type { UserApiModuleResolver } from '@u7-scl/user/domain';
+import { UserInProcFacade, UserJsonRepo } from '@u7-scl/user/infra';
+import { WishApiModule } from '@u7-scl/wish/api';
+import type { WishApiModuleResolver } from '@u7-scl/wish/domain';
+import { WishJsonRepo } from '@u7-scl/wish/infra';
 
 const NUR_UUID = '8d9a56f6-51e7-49f0-ba58-2832b157e718';
 
@@ -48,11 +72,20 @@ function printHelp() {
   json-params  — параметры в JSON (обязательно, можно '{}')
   actorId      — UUID пользователя (опционально, по умолчанию Nur)
 
+Доступные модули: user, course, stream, questionnaire, wish.
+
 Примеры:
   bun run scripts/call-uc.ts list-modules '{}'
+  bun run scripts/call-uc.ts get-module '{"moduleId":"<uuid>"}'
   bun run scripts/call-uc.ts create-module '{"title":"Мой модуль","description":"Описание"}'
   bun run scripts/call-uc.ts enrich-module '{"moduleId":"<uuid>","goal":"Цель","tags":["js"]}'
-  bun run scripts/call-uc.ts get-module '{"moduleId":"<uuid>"}'
+  bun run scripts/call-uc.ts add-project   '{"moduleId":"<uuid>","title":"Проект 1"}'
+  bun run scripts/call-uc.ts create-lesson '{"moduleId":"<uuid>","projectId":"<uuid>","title":"Урок 1","estimatedMinutes":30}'
+  bun run scripts/call-uc.ts create-step   '{"moduleId":"<uuid>","lessonId":"<uuid>","description":"...","kind":"code","content":"..."}'
+  bun run scripts/call-uc.ts publish-module '{"moduleId":"<uuid>"}'
+  bun run scripts/call-uc.ts get-questionnaires-by-user '{"userId":"<uuid>"}'
+  bun run scripts/call-uc.ts get-current '{"userId":"<uuid>"}'
+  bun run scripts/call-uc.ts create-course-wish '{"courseId":"<uuid>"}'
   bun run scripts/call-uc.ts --help
 `);
 }
@@ -84,50 +117,86 @@ async function main() {
 
   const actorId = actorIdOverride || NUR_UUID;
 
-  // ─── Инициализация ────────────────────────────────
-  const moduleRepo = new ModuleJsonRepo();
-  const courseRepo = new CourseJsonRepo();
-  const lessonRepo = new LessonJsonRepo();
-  const stepRepo = new StepJsonRepo();
-  const userRepo = new UserJsonRepo();
+  // ─── Инициализация (порядок как в create-api-app.ts) ────────
+  const db = new BaseJsonDb();
+  const appResolver = {
+    logger: console as unknown as Logger,
+    mode: 'development' as const,
+    eventBus: new InProcEventBus(),
+  };
+
+  const userRepo = new UserJsonRepo('data/users/users.json', undefined, db);
   const streamRepo = new StreamJsonRepo('data/streams/streams.json');
   const studentRepo = new StudentJsonRepo('data/streams/students.json');
 
-  // Фейковый appResolver для скрипта (без DI-контейнера)
-  const fakeAppResolver = {
-    logger: console as unknown as Logger,
-    mode: 'development' as const,
-  };
-
   const userModule = new UserApiModule({
     userRepo,
-    appResolver: fakeAppResolver,
+    appResolver,
+    eventBus: appResolver.eventBus,
   } as unknown as UserApiModuleResolver);
   const userFacade = new UserInProcFacade(userModule);
 
-  const courseResolve = {
+  const moduleRepo = new ModuleJsonRepo('data/courses/modules.json');
+  const lessonRepo = new LessonJsonRepo('data/courses/lessons.json');
+  const stepRepo = new StepJsonRepo('data/courses/steps.json');
+  const courseRepo = new CourseJsonRepo('data/courses/courses.json');
+
+  const courseModule = new CourseApiModule({
+    db,
     moduleRepo,
     courseRepo,
     lessonRepo,
     stepRepo,
     userFacade,
-    appResolver: fakeAppResolver,
-  };
-
-  const courseModule = new CourseApiModule(
-    courseResolve as unknown as CourseApiModuleResolver,
-  );
+    appResolver,
+    eventBus: appResolver.eventBus,
+  } as unknown as CourseApiModuleResolver);
   const courseFacade = new CourseInProcFacade(courseModule);
+
+  const qRepo = new QuestionnaireJsonRepo(
+    'data/questionnaires/q-questionnaires.json',
+    db,
+  );
+  const questionnaireModule = new QuestionnaireApiModule({
+    questionnaireRepo: qRepo,
+    userFacade,
+    db,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  } as unknown as QuestionnaireApiModuleResolver);
+  const questionnaireFacade = new QuestionnaireInProcFacade(
+    questionnaireModule,
+  );
+
+  const wishModule = new WishApiModule({
+    wishRepo: new WishJsonRepo('data/wish/wishes.json'),
+    courseFacade,
+    questionnaireFacade,
+    userFacade,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  } as unknown as WishApiModuleResolver);
 
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo: studentRepo,
     userFacade,
     courseFacade,
-    appResolver: fakeAppResolver,
+    appResolver,
+    eventBus: appResolver.eventBus,
   } as unknown as StreamApiModuleResolver);
 
-  const app = new ApiApp([userModule, courseModule, streamModule]);
+  const app = new ApiApp([
+    userModule,
+    wishModule,
+    streamModule,
+    courseModule,
+    questionnaireModule,
+  ]);
+
+  // init() заполняет карты UC и подписки ER; start() НЕ вызываем —
+  // таймеры job'ов в одноразовом скрипте не нужны (паттерн _app-factory)
+  app.init(new InProcJobScheduler({ logger: console as unknown as Logger }));
 
   // ─── Вызов UseCase ────────────────────────────────
   try {
