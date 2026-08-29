@@ -49,7 +49,7 @@
 
 ## Фаза 8: Уточнение контрактов предупреждения о закрытии
 
-- [ ] Task: Переименовать событие `questionnaire:warning` → `questionnaire:abandon-warning` (+ тип `QuestionnaireAbandonWarningEvent`): events.ts, SweepAbandonedJob, FillStory, тесты, spec.md
+- [x] Task: Переименовать событие `questionnaire:warning` → `questionnaire:abandon-warning` (+ тип `QuestionnaireAbandonWarningEvent`): events.ts, SweepAbandonedJob, FillStory, тесты, spec.md [caa65ad]
 
 ## Фаза 7: Ревизия v2 — документация
 
