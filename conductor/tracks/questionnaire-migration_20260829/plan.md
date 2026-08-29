@@ -21,14 +21,16 @@
 - [x] Task: Выборочная ручная сверка содержимого: пара completed-анкет (мульти-ответы, goal_text, пул-снимок, ownerInfo, даты), wish fulfilled для студента и confirmed для остальных
 - [x] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md) [2300246]
 
-## Фаза 3: Боевое применение
+## Фаза 3: Боевое применение [checkpoint: b2dd34f]
 
 - [x] Task: Ручной бэкап данных (backup.sh / tar) до выполнения скрипта
 - [x] Task: Остановка pm2 u7-school-bot → прогон скрипта → старт бота
 - [x] Task: Проверка логов pm2: нет console.warn от JsonFileRepo; выборочная проверка анкет (get-questionnaires-by-user) и wish
-- [ ] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md) [b2dd34f]
 
 ## Фаза 4: Завершение трека
 
+- [ ] Task: Обновление `scripts/call-uc.ts`: подключить все модули (добавить questionnaire, wish) — запрос пользователя, вне исходного плана
+- [ ] Task: Удаление временных файлов миграции (песочница /tmp/u7-migration-sandbox, /tmp/pre-migration-md5.txt) — запрос пользователя, вне исходного плана
 - [ ] Task: summary.md трека; обновление MIGRATION-OLD-QUESTIONNAIRES.md (итог миграции); отметка трека в conductor/tracks.md
 - [ ] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
