@@ -5,6 +5,8 @@ export type { ErDocType, ErMeta } from './er/event-reaction';
 export { EventReaction } from './er/event-reaction';
 export type { JobMeta, JobSchedule } from './job/job';
 export { Job } from './job/job';
+export type { JobExecutor } from './job/job-executor';
+export type { JobScheduler } from './job/job-scheduler';
 export { ApiModule } from './module/api-module';
 export type { UcDocType, UcMeta } from './uc/use-case';
 export { UseCase } from './uc/use-case';
