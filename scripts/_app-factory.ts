@@ -84,21 +84,18 @@ interface ScriptAppMeta extends AppMeta {
  * 4. ApiApp регистрирует оба модуля и вызывает init()
  */
 export function createApp(silent = false): ApiApp<ScriptAppMeta> {
-  // appResolver для скрипта (без DI-контейнера)
   const appResolver = {
     logger: silent ? silentLogger : (console as unknown as Logger),
     mode: 'development' as const,
     eventBus: new InProcEventBus(),
   };
 
-  // Infra: репозитории
   const moduleRepo = new ModuleJsonRepo();
   const courseRepo = new CourseJsonRepo();
   const lessonRepo = new LessonJsonRepo();
   const stepRepo = new StepJsonRepo();
   const userRepo = new UserJsonRepo();
 
-  // User-модуль
   const userModule = new UserApiModule({
     userRepo,
     appResolver,
@@ -106,7 +103,6 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
   });
   const userFacade = new UserInProcFacade(userModule);
 
-  // Course-модуль
   const courseModule = new CourseApiModule({
     moduleRepo,
     courseRepo,
@@ -117,7 +113,6 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
     eventBus: appResolver.eventBus,
   });
 
-  // ApiApp: регистрируем оба модуля.
   // Планировщик — техническая зависимость: передаётся через init();
   // для скриптов достаточно in-memory-хранилища прогонов.
   const app = new ApiApp([userModule, courseModule]);

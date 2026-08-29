@@ -12,13 +12,10 @@ export const WARN_AFTER_IDLE_MS = 6 * 60 * 60 * 1000;
 /** Порог закрытия: анкета неактивна 8 часов */
 export const ABANDON_AFTER_IDLE_MS = 8 * 60 * 60 * 1000;
 
-/** Интервал запуска */
 export const INTERVAL_MS = 60 * 60 * 1000;
 
-/** Лог-источник задания */
 const SOURCE = 'sweep-abandoned-questionnaires';
 
-/** Мета задания — типизирует jobName/jobLabel */
 interface SweepAbandonedJobMeta extends JobMeta {
   name: typeof SOURCE;
   label: 'Предупреждение и закрытие брошенных анкет';
@@ -45,7 +42,6 @@ export class SweepAbandonedJob extends Job<
   };
 
   async execute(): Promise<void> {
-    // Все фильтры (тип, активность, порог простоя) — в запросе репозитория
     const idle = await this.resolve.questionnaireRepo.getIdle({
       idleMs: WARN_AFTER_IDLE_MS,
       kinds: ['standard'],
@@ -64,7 +60,6 @@ export class SweepAbandonedJob extends Job<
           await this.warn(state);
         }
       } catch (err) {
-        // Ошибка одной анкеты не должна ломать весь обход
         this.resolve.appResolver.logger.warn(
           SOURCE,
           `Не удалось обработать анкету ${state.uuid}: ${String(err)}`,

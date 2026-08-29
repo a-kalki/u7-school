@@ -158,7 +158,6 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     questionnaireModule,
   ]);
 
-  // Каскадная инициализация: ApiApp → модули (планировщик — через init)
   apiApp.init(new InProcJobScheduler({ logger }));
 
   return {

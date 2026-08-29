@@ -26,7 +26,6 @@ interface TestModuleMeta extends ApiModuleMeta {
   };
 }
 
-/** Мета job — типизирует jobName/jobLabel (аналог UcMeta для UC) */
 interface TestJobMeta extends JobMeta {
   name: 'test-job';
   label: 'Тестовая задача';

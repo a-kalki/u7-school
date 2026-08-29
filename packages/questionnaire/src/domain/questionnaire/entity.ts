@@ -2,7 +2,6 @@ import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
 import { QuestionnairePoolSchema } from './question';
 
-/** Зафиксированный ответ */
 export const AnswerSchema = v.object({
   questionCode: v.pipe(
     v.string(),
@@ -20,7 +19,6 @@ export const AnswerSchema = v.object({
 
 export type Answer = v.InferOutput<typeof AnswerSchema>;
 
-/** Статус анкеты */
 export const QuestionnaireStatusSchema = v.picklist(
   ['invited', 'in_progress', 'completed', 'abandoned'],
   'Некорректный статус анкеты',
@@ -30,7 +28,6 @@ export type QuestionnaireStatus = v.InferOutput<
   typeof QuestionnaireStatusSchema
 >;
 
-/** Причина прерывания анкеты */
 export const AbandonReasonSchema = v.picklist(
   ['timeout', 'by_user'],
   'Некорректная причина прерывания анкеты',

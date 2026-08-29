@@ -77,9 +77,6 @@ export abstract class BaseQuestionnaireAr<
     });
   }
 
-  /**
-   * Возвращает приглашение — InviteResponse.
-   */
   getInvite(): InviteResponse {
     if (this.state.status !== 'invited') {
       this.throwBadRequest(
@@ -256,7 +253,6 @@ export abstract class BaseQuestionnaireAr<
       return { type: 'completed', questionnaireId: this.state.uuid };
     }
 
-    // in_progress
     const questionCode = this.state.currentQuestionCode;
     if (!questionCode) {
       this.throwInternal('Код текущего вопроса не установлен');
@@ -348,7 +344,6 @@ export abstract class BaseQuestionnaireAr<
     const questionCode = this.currentQuestionCode;
     const engine = this.#engine;
 
-    // Извлекаем значение ответа
     let rawValue: string | string[] | undefined = explicitValue;
     if (rawValue === undefined) {
       const draft = this.state.draftAnswers[questionCode];
@@ -361,7 +356,6 @@ export abstract class BaseQuestionnaireAr<
       }
     }
 
-    // Валидация через engine
     const schema = engine.buildValidationSchema(questionCode);
     let parsedValue: unknown;
     try {
@@ -375,7 +369,7 @@ export abstract class BaseQuestionnaireAr<
       throw e;
     }
 
-    // Формируем Answer (только коды, answerText только для text)
+    // answerText — только для text-вопросов
     const entry: Answer = {
       questionCode,
       answerCode: '',
@@ -396,7 +390,6 @@ export abstract class BaseQuestionnaireAr<
 
     this._state.answers.push(entry);
 
-    // Очищаем черновики
     const newDraft: Record<string, string> = {
       ...this.state.draftAnswers,
     };

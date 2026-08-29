@@ -69,7 +69,7 @@ export class ApiApp<TMeta extends AppMeta>
       );
     }
 
-    // Делегируем выполнение модулю — логирование происходит внутри module.handle
+    // Логирование — внутри module.execute
     return module.execute(ucName, attrs, actorId);
   }
 }

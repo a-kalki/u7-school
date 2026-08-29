@@ -147,7 +147,7 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     eventBus: appResolver.eventBus,
   });
 
-  // ══ ApiApp: модули (questionnaire — полноправный участник) ══
+  // ══ ApiApp: модули ══
   const apiApp = new ApiApp<U7BotAppMeta>([
     userModule,
     wishModule,
@@ -156,7 +156,6 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     questionnaireModule,
   ]);
 
-  // Каскадная инициализация: ApiApp → модули.
   // Планировщик — техническая зависимость: передаётся через init(),
   // lastRunAt персистится — задания переживают перезагрузку (misfire-политика).
   apiApp.init(
