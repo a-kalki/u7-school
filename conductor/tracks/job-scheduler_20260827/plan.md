@@ -50,6 +50,8 @@
 ## Фаза 8: Уточнение контрактов предупреждения о закрытии
 
 - [x] Task: Переименовать событие `questionnaire:warning` → `questionnaire:abandon-warning` (+ тип `QuestionnaireAbandonWarningEvent`): events.ts, SweepAbandonedJob, FillStory, тесты, spec.md [caa65ad]
+- [ ] Task: Явный reason ручного прерывания: домен `abandon(reason?: 'timeout' | 'by_user')`; AbandonUc передаёт `'by_user'`; поведение FillStory не менять (push только при 'timeout'); обновить события/тесты. Опционально (решить при реализации): персистировать reason в состоянии анкеты (сейчас — только в payload события)
+- [ ] Task: Репозиторий: явный метод выборки для SweepAbandonedJob — все фильтры в запросе. Перенести пороги WARN_AFTER_IDLE_MS/ABANDON_AFTER_IDLE_MS из api/job-файла в домен (repo не должен зависеть от api). Контракт метода: на вход — текущее время; возвращает in_progress-анкеты kind='standard' с простоем (от updatedAt ?? createdAt) ≥ порогов, разделённые на кандидатов на предупреждение (≥6ч, без warnedAt) и на закрытие (≥8ч). Заменить getActive() (используется только этим job'ом): доменный интерфейс, json-impl, questionnaire-repo-active.test.ts, моки в тестах
 
 ## Фаза 7: Ревизия v2 — документация
 
