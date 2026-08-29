@@ -1,5 +1,15 @@
 # Миграция старых анкет в новую среду — вводный файл
 
+> ✅ **МИГРАЦИЯ ВЫПОЛНЕНА 2026-08-29** (трек `questionnaire-migration_20260829`).
+> Итог: перенесено 67 анкет (completed, без тестовых Nur), создано 62 wish
+> (16 `fulfilled` + 46 `confirmed`) на курс Fullstack JS. Боевой файл анкет
+> побайтово совпал с dry-run; бот перезапущен без предупреждений JsonFileRepo.
+> Отчёт: `conductor/tracks/questionnaire-migration_20260829/summary.md`.
+> Бэкапы: `data/backup/2026-08-29_18-57-05-before-migration/` и
+> `~/backups/u7-data-pre-questionnaire-migration-2026-08-29_18-57-05.tar.gz`.
+> Старый файл `questionnaires.json` не удалён (архив). Скрипт:
+> `scripts/migrate-old-questionnaires.ts` (идемпотентный, повторный запуск безвреден).
+
 > Задача для новой сессии: провести полный анализ и спланировать миграцию.
 > Этот файл — входная точка. Написан 2026-08-29 после выкатки релиза 6215b840.
 
