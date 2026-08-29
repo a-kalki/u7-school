@@ -1,0 +1,7 @@
+Задачи: тесты+реализация объектной модели планировщика (Фаза 5)
+
+Файлы: job-schedule-planner(.test).ts, scheduled-job-runner(.test).ts, job-run-store.ts,
+json-job-run-store.ts, in-proc-job-executor.ts, in-proc-job-scheduler(.test).ts, infra/index.ts
+
+Решения: расписание от фактического конца прогона; misfire — один прогон через startDelay;
+lastRunAt пишется в finally; сетка alignUtc от epoch; кламп monthlyAt как в cron.
