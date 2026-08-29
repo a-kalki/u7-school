@@ -27,7 +27,7 @@
 3. **`JobScheduler` на уровне приложения** (`apps/u7-bot/src/infra/job-scheduler.ts`): собирает `jobs` всех модулей, запускает по `setInterval`. Ошибка одного прогона — лог, процесс не падает.
 4. **Sweep-job в модуле questionnaire**: имя `sweep-abandoned-questionnaires`, интервал 60 мин.
 5. **Точка отсчёта простоя — `updatedAt` анкеты** (последняя активность): каждый ответ сбрасывает оба таймера и обнуляет `warnedAt`.
-6. **Предупреждение (≥6ч)** — событие `questionnaire:warning`; рендерит FillStory через ProactiveSender, кнопки «▶️ Продолжить анкету» и «⏭️ Прервать».
+6. **Предупреждение (≥6ч)** — событие `questionnaire:abandon-warning`; рендерит FillStory через ProactiveSender, кнопки «▶️ Продолжить анкету» и «⏭️ Прервать».
 7. **Abandon (≥8ч)** — через существующий механизм UC abandon; в событие `questionnaire:abandon` добавляется опциональное `reason: 'timeout'` (обратно совместимо), чтобы UI не дублировал сообщение при пользовательском `/cancel`.
 8. **v1 — только `kind: 'standard'`** (wish-флоу); likert-анкеты — за рамками.
 
@@ -68,8 +68,8 @@
 - **3.1 abandon:** вызов существующего UC `abandon` от имени респондента (либо доменный `ar.abandon()` + save + publish — единообразно с UC, на усмотрение имплементации). Идемпотентно: статус уже `abandoned` → пропустить. В payload события — `reason: 'timeout'`.
 - **3.2 предупреждение:** `warnedAt = now` (доменный метод), save, публикация события:
   ```ts
-  interface QuestionnaireWarningEvent extends DomainEvent {
-    eventName: 'questionnaire:warning';
+  interface QuestionnaireAbandonWarningEvent extends DomainEvent {
+    eventName: 'questionnaire:abandon-warning';
     ownerInfo: Record<string, unknown>; // как у анкеты (courseId)
     payload: { questionnaireId, respondentId, telegramId };
   }
@@ -83,7 +83,7 @@
 
 ## FR5 — UI: предупреждение и таймаут-abandon в FillStory
 
-- Подписка на `questionnaire:warning` → `ProactiveSender.send`:
+- Подписка на `questionnaire:abandon-warning` → `ProactiveSender.send`:
   - текст предупреждения (тон «на ты», точная формулировка — на имплементации): «⏳ Ты не закончил анкету. Если не продолжить, она будет прервана автоматически.»
   - кнопки: `▶️ Продолжить анкету` → `fill:resume:{courseId}` из ownerInfo (механика трека D); `⏭️ Прервать` → существующий confirm-флоу отмены.
 - Подписка на `questionnaire:abandon`: сообщение «Анкета прервана. Начни заново в карточке курса» — **только при `reason === 'timeout'`** (пользовательский `/cancel` уже рендерит своё сообщение, дубля быть не должно).

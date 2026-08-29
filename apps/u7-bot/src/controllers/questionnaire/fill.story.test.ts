@@ -72,7 +72,7 @@ describe('FillStory — подписки на доменные события', 
     expect(subs.map((s) => s.eventName)).toEqual([
       'questionnaire:start',
       'questionnaire:invite',
-      'questionnaire:warning',
+      'questionnaire:abandon-warning',
       'questionnaire:abandon',
     ]);
   });

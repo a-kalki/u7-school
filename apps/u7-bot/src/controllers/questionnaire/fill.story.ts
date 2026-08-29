@@ -13,11 +13,11 @@ import type {
   InviteResponse,
   Question,
   QuestionnaireAbandonEvent,
+  QuestionnaireAbandonWarningEvent,
   QuestionnaireActionResponse,
   QuestionnaireInviteEvent,
   QuestionnaireStartEvent,
   QuestionnaireState,
-  QuestionnaireWarningEvent,
 } from '@u7-scl/questionnaire/domain';
 import { U7BotUiStory } from '../../core/u7-bot-ui-story';
 import { buttons } from '../shared/buttons';
@@ -50,8 +50,8 @@ export class FillStory extends U7BotUiStory {
         'questionnaire:invite',
         (event) => this.#handleInviteEvent(event),
       ),
-      eventSubscription<QuestionnaireWarningEvent>(
-        'questionnaire:warning',
+      eventSubscription<QuestionnaireAbandonWarningEvent>(
+        'questionnaire:abandon-warning',
         (event) => this.#handleWarningEvent(event),
       ),
       eventSubscription<QuestionnaireAbandonEvent>(
@@ -95,10 +95,12 @@ export class FillStory extends U7BotUiStory {
   }
 
   /**
-   * questionnaire:warning — предупреждение о закрытии брошенной анкеты.
+   * questionnaire:abandon-warning — предупреждение о закрытии брошенной анкеты.
    * Кнопка «Продолжить» возвращается только если анкета привязана к курсу.
    */
-  async #handleWarningEvent(event: QuestionnaireWarningEvent): Promise<void> {
+  async #handleWarningEvent(
+    event: QuestionnaireAbandonWarningEvent,
+  ): Promise<void> {
     const { telegramId, questionnaireId } = event.payload;
     const courseId = event.ownerInfo['courseId'];
 

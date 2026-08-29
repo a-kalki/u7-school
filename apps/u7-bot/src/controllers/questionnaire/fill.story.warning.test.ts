@@ -19,22 +19,22 @@ function getSub(story: FillStory, eventName: string) {
 }
 
 describe('FillStory — предупреждение о брошенной анкете', () => {
-  test('подписки включают questionnaire:warning и questionnaire:abandon', () => {
+  test('подписки включают questionnaire:abandon-warning и questionnaire:abandon', () => {
     const { story } = makeStory();
 
     const names = story.getEventSubscriptions().map((s) => s.eventName);
 
-    expect(names).toContain('questionnaire:warning');
+    expect(names).toContain('questionnaire:abandon-warning');
     expect(names).toContain('questionnaire:abandon');
   });
 
-  test('questionnaire:warning — сообщение с кнопками «Продолжить» и «Прервать»', async () => {
+  test('questionnaire:abandon-warning — сообщение с кнопками «Продолжить» и «Прервать»', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:warning');
+    const sub = getSub(story, 'questionnaire:abandon-warning');
     expect(sub).toBeDefined();
 
     await sub!.handle({
-      eventName: 'questionnaire:warning',
+      eventName: 'questionnaire:abandon-warning',
       aggregateName: 'Questionnaire',
       ownerInfo: { courseId: 'course-1' },
       payload: {
@@ -71,12 +71,12 @@ describe('FillStory — предупреждение о брошенной ан�
     expect(cancel?.code).toBe('fill:cancel-confirm:q-1');
   });
 
-  test('questionnaire:warning без courseId — кнопка только «Прервать»', async () => {
+  test('questionnaire:abandon-warning без courseId — кнопка только «Прервать»', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:warning');
+    const sub = getSub(story, 'questionnaire:abandon-warning');
 
     await sub!.handle({
-      eventName: 'questionnaire:warning',
+      eventName: 'questionnaire:abandon-warning',
       aggregateName: 'Questionnaire',
       ownerInfo: {},
       payload: {

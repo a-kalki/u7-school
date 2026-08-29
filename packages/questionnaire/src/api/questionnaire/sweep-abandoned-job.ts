@@ -3,7 +3,7 @@ import type { DomainEvent } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import type { QuestionnaireApiModuleResolver } from '../../domain/module';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
-import type { QuestionnaireWarningEvent } from '../../domain/questionnaire/events';
+import type { QuestionnaireAbandonWarningEvent } from '../../domain/questionnaire/events';
 import { QuestionnaireAr } from '../../domain/questionnaire/standard/questionnaire-ar';
 
 /** Порог предупреждения: анкета неактивна 6 часов */
@@ -12,12 +12,15 @@ export const WARN_AFTER_IDLE_MS = 6 * 60 * 60 * 1000;
 /** Порог закрытия: анкета неактивна 8 часов */
 export const ABANDON_AFTER_IDLE_MS = 8 * 60 * 60 * 1000;
 
+/** Интервал запуска */
+export const INTERVAL_MS = 60 * 60 * 1000;
+
 /** Лог-источник задания */
 const SOURCE = 'sweep-abandoned-questionnaires';
 
 /** Мета задания — типизирует jobName/jobLabel */
 interface SweepAbandonedJobMeta extends JobMeta {
-  name: 'sweep-abandoned-questionnaires';
+  name: typeof SOURCE;
   label: 'Предупреждение и закрытие брошенных анкет';
 }
 
@@ -38,7 +41,7 @@ export class SweepAbandonedJob extends Job<
   readonly jobLabel = 'Предупреждение и закрытие брошенных анкет';
   readonly schedule: JobSchedule = {
     kind: 'interval',
-    intervalMs: 60 * 60 * 1000,
+    intervalMs: INTERVAL_MS,
   };
 
   async execute(): Promise<void> {
@@ -67,7 +70,7 @@ export class SweepAbandonedJob extends Job<
     }
   }
 
-  /** Предупреждение о закрытии: warnedAt + событие questionnaire:warning */
+  /** Предупреждение о закрытии: warnedAt + событие questionnaire:abandon-warning */
   private async warn(state: Questionnaire): Promise<void> {
     const ar = new QuestionnaireAr(state);
     ar.markWarned();
@@ -76,9 +79,9 @@ export class SweepAbandonedJob extends Job<
     const telegramId = await this.resolveTelegramId(state);
     if (telegramId === undefined) return;
 
-    const event: QuestionnaireWarningEvent = {
+    const event: QuestionnaireAbandonWarningEvent = {
       eventId: crypto.randomUUID(),
-      eventName: 'questionnaire:warning',
+      eventName: 'questionnaire:abandon-warning',
       occurredAt: isoNow(),
       aggregateName: 'Questionnaire',
       aggregateId: state.uuid,

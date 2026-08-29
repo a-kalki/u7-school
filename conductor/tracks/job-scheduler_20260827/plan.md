@@ -47,6 +47,10 @@
 - [x] Task: Переписать main.ts: `uiApp.start()` → `apiApp.start()`, graceful shutdown (SIGINT/SIGTERM), удалить старый `apps/u7-bot/src/infra/job-scheduler.ts` [16fab3e]
 - [x] Task: Conductor - Ручная верификация 'Жизненный цикл и graceful shutdown'
 
+## Фаза 8: Уточнение контрактов предупреждения о закрытии
+
+- [ ] Task: Переименовать событие `questionnaire:warning` → `questionnaire:abandon-warning` (+ тип `QuestionnaireAbandonWarningEvent`): events.ts, SweepAbandonedJob, FillStory, тесты, spec.md
+
 ## Фаза 7: Ревизия v2 — документация
 
 - [x] Task: Обновить styleguide `skills/job.md` (JobSchedule, publishEvents, abstract jobs, объектная модель, misfire/alignUtc) [64cc198a]

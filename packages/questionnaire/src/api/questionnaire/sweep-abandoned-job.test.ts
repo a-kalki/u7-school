@@ -137,7 +137,7 @@ describe('SweepAbandonedJob', () => {
     expect(mocks.publish).not.toHaveBeenCalled();
   });
 
-  test('7ч простоя → предупреждение: warnedAt + save + событие questionnaire:warning', async () => {
+  test('7ч простоя → предупреждение: warnedAt + save + событие questionnaire:abandon-warning', async () => {
     const state = makeState({ updatedAt: hoursAgo(7) });
     const { resolve, mocks } = makeResolve([state], userByUuid);
     const job = new SweepAbandonedJob();
@@ -156,7 +156,7 @@ describe('SweepAbandonedJob', () => {
       eventName: string;
       payload: { questionnaireId: string; telegramId: number };
     };
-    expect(event.eventName).toBe('questionnaire:warning');
+    expect(event.eventName).toBe('questionnaire:abandon-warning');
     expect(event.payload.questionnaireId).toBe(state.uuid);
     expect(event.payload.telegramId).toBe(42);
   });

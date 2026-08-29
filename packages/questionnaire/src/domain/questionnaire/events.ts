@@ -48,10 +48,10 @@ export interface QuestionnaireAbandonEvent<
  * Событие предупреждения о закрытии брошенной анкеты.
  * Публикуется планировщиком (SweepAbandonedJob) после 6ч простоя.
  */
-export interface QuestionnaireWarningEvent<
+export interface QuestionnaireAbandonWarningEvent<
   TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
 > extends DomainEvent {
-  eventName: 'questionnaire:warning';
+  eventName: 'questionnaire:abandon-warning';
   aggregateName: BaseQuestionnaireArMeta['name'];
   ownerInfo: TOwnerInfo;
   payload: QuestionnaireBasePayload & { telegramId: number };

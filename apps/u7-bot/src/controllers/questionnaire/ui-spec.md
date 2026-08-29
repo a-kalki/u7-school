@@ -231,9 +231,9 @@
 
 ## S07 — Предупреждение о закрытии (⏳ warning) ✅
 
-**Как попасть:** проактивно от системы: планировщик `SweepAbandonedJob` (анкета `in_progress` без активности 6 часов) публикует `questionnaire:warning`.
+**Как попасть:** проактивно от системы: планировщик `SweepAbandonedJob` (анкета `in_progress` без активности 6 часов) публикует `questionnaire:abandon-warning`.
 **Кому:** респонденту анкеты (telegramId обогащается в job через user-фасад).
-**Рендеринг:** FillStory → подписка `questionnaire:warning` → `#handleWarningEvent`
+**Рендеринг:** FillStory → подписка `questionnaire:abandon-warning` → `#handleWarningEvent`
 
 **Содержание:**
 ```
@@ -285,7 +285,7 @@
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |
 | `/cancel` | — | `confirm('cancel', qId, ...)` → S05a |
-| `questionnaire:warning` (подписка) | — (SweepAbandonedJob) | sendMessage S07: Продолжить (если courseId) / Прервать |
+| `questionnaire:abandon-warning` (подписка) | — (SweepAbandonedJob) | sendMessage S07: Продолжить (если courseId) / Прервать |
 | `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob) | notify S08; без reason — ничего (без дубля) |
 
 ---
