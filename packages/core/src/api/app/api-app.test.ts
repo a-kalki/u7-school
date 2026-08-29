@@ -33,7 +33,7 @@ function makeScheduler() {
 
 function makeAppWithMods(
   mods: { name: string; jobs: Job[] }[],
-  scheduler?: JobScheduler,
+  scheduler: JobScheduler,
 ): { app: ApiApp<AppMeta>; mods: unknown[] } {
   const created = mods.map(({ name, jobs }) => ({
     name,
@@ -66,10 +66,14 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
     expect(started).toEqual([['job-a1', 'job-b1', 'job-b2']]);
   });
 
-  test('start() без планировщика, но с заданиями — явная ошибка конфигурации', () => {
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [makeJob('x')] }]);
+  test('start() без заданий: планировщику передаётся пустой список — no-op', () => {
+    const { scheduler, started } = makeScheduler();
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
 
-    expect(() => app.start()).toThrow('планировщик');
+    app.init();
+    app.start();
+
+    expect(started).toEqual([[]]);
   });
 
   test('stop() останавливает планировщик', () => {
@@ -82,13 +86,6 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
     expect(stopCalls()).toBe(1);
   });
 
-  test('start() без заданий и без планировщика — безопасен (нечего запускать)', () => {
-    // модуль без заданий: контракт не требует планировщика для пустого набора
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
-    app.init();
-    expect(() => app.start()).not.toThrow();
-  });
-
   test('stop() без start() — безопасен', () => {
     const { scheduler } = makeScheduler();
     const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
@@ -99,7 +96,8 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
 
 describe('ApiApp — наследование App', () => {
   test('остаётся App: модули доступны через getModules()', () => {
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
+    const { scheduler } = makeScheduler();
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
 
     expect(app).toBeInstanceOf(App);
     expect(app.getModules().map((m) => m.name)).toEqual(['a']);

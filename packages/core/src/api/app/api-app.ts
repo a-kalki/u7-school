@@ -13,16 +13,16 @@ export class ApiApp<TMeta extends AppMeta>
   extends App
   implements ApiExecutor<TMeta>
 {
-  readonly #scheduler: JobScheduler | undefined;
+  readonly #scheduler: JobScheduler;
 
   /**
    * @param mods — API-модули приложения
-   * @param scheduler — планировщик job'ов (core/infra); опционален,
-   *   если ни один модуль не регистрирует задания
+   * @param scheduler — планировщик заданий (реализация из core/infra,
+   *   например InProcJobScheduler)
    */
   constructor(
     mods: ConstructorParameters<typeof App>[0],
-    scheduler?: JobScheduler,
+    scheduler: JobScheduler,
   ) {
     super(mods);
     this.#scheduler = scheduler;
@@ -45,13 +45,6 @@ export class ApiApp<TMeta extends AppMeta>
    */
   start(): void {
     const jobs = this.getModules().flatMap((module) => module.jobs);
-    if (jobs.length === 0) return;
-
-    if (this.#scheduler === undefined) {
-      throw new Error(
-        'ApiApp: зарегистрированы задания, но планировщик не передан (второй аргумент конструктора)',
-      );
-    }
     this.#scheduler.start(jobs);
   }
 
@@ -59,7 +52,7 @@ export class ApiApp<TMeta extends AppMeta>
    * Остановка периодических заданий (graceful shutdown).
    */
   stop(): void {
-    this.#scheduler?.stop();
+    this.#scheduler.stop();
   }
 
   async execute<N extends GetUcNamesFromMeta<TMeta>>(

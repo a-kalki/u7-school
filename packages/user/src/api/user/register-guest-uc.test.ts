@@ -3,7 +3,12 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppResolver } from '@u7-scl/core/domain';
-import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
+import {
+  BaseJsonDb,
+  InProcEventBus,
+  InProcJobScheduler,
+} from '@u7-scl/core/infra';
+import { ConsoleLogger } from '@u7-scl/core/shared';
 import { Role } from '#domain/user/roles';
 import { UserJsonRepo } from '#infra/db/user-json-repo';
 import { UserApiModule } from '../module';
@@ -29,7 +34,10 @@ describe('RegisterGuestUc', () => {
         eventBus: new InProcEventBus(),
       } as unknown as AppResolver,
     });
-    apiApp = new ApiApp([mod]);
+    apiApp = new ApiApp(
+      [mod],
+      new InProcJobScheduler({ logger: new ConsoleLogger() }),
+    );
 
     // Seed admin
     db.begin();

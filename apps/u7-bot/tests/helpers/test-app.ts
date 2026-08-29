@@ -1,6 +1,10 @@
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { ApiApp } from '@u7-scl/core/api';
-import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
+import {
+  BaseJsonDb,
+  InProcEventBus,
+  InProcJobScheduler,
+} from '@u7-scl/core/infra';
 import { ConsoleLogger } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
@@ -146,12 +150,10 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const wishModule = new WishApiModule(wishResolver);
 
   // ══ ApiApp: все модули (состав как в боевом create-api-app.ts) ══
-  const apiApp: U7BotApp = new ApiApp([
-    userModule,
-    wishModule,
-    streamModule,
-    courseModule,
-  ]);
+  const apiApp: U7BotApp = new ApiApp(
+    [userModule, wishModule, streamModule, courseModule],
+    new InProcJobScheduler({ logger }),
+  );
 
   // Каскадная инициализация: ApiApp → модули
   apiApp.init();

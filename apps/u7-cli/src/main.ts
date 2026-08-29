@@ -1,6 +1,6 @@
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppResolver } from '@u7-scl/core/domain';
-import { InProcEventBus } from '@u7-scl/core/infra';
+import { InProcEventBus, InProcJobScheduler } from '@u7-scl/core/infra';
 import { ConsoleLogger, LogLevel } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
 import {
@@ -43,7 +43,12 @@ async function main() {
     eventBus: appResolver.eventBus,
   });
 
-  const app = new ApiApp<CliAppMeta>([userModule, courseModule]);
+  // CLI — короткоживущий процесс: планировщик передаётся (обязательный контракт
+  // ApiApp), но start() не вызывается — фоновые задания не нужны.
+  const app = new ApiApp<CliAppMeta>(
+    [userModule, courseModule],
+    new InProcJobScheduler({ logger }),
+  );
   const controller = new CliController(app);
   await controller.run();
 }

@@ -4,7 +4,12 @@ import type {
   EventBus,
   ModuleResolver,
 } from '@u7-scl/core/domain';
-import { BaseJsonDb, InProcEventBus } from '@u7-scl/core/infra';
+import {
+  BaseJsonDb,
+  InProcEventBus,
+  InProcJobScheduler,
+  JsonJobRunStore,
+} from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import { ConsoleLogger } from '@u7-scl/core/shared';
 import { CourseApiModule } from '@u7-scl/course/api';
@@ -148,13 +153,16 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     eventBus: appResolver.eventBus,
   });
 
-  // ══ ApiApp: модули ══
-  const apiApp = new ApiApp<U7BotAppMeta>([
-    userModule,
-    wishModule,
-    streamModule,
-    courseModule,
-  ]);
+  // ══ ApiApp: модули + планировщик заданий ══
+  const scheduler = new InProcJobScheduler({
+    logger: appLogger,
+    // lastRunAt персистится — задания переживают перезагрузку (misfire-политика)
+    store: new JsonJobRunStore(`${config.dbDir}/jobs/last-runs.json`),
+  });
+  const apiApp = new ApiApp<U7BotAppMeta>(
+    [userModule, wishModule, streamModule, courseModule],
+    scheduler,
+  );
 
   // Каскадная инициализация: ApiApp → модули
   apiApp.init();
