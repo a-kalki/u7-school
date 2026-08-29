@@ -1,0 +1,11 @@
+Задача: попутные исправления перед закрытием Фазы 6 (жизненный цикл и graceful shutdown).
+
+Сводка изменений:
+- scripts/_app-factory.ts: ApiApp.init() теперь требует JobScheduler (контракт Фазы 5) — передан InProcJobScheduler с in-memory-хранилищем прогонов (для скриптов персистентность не нужна).
+- apps/u7-bot/src/create-api-app.ts: удалены неиспользуемые импорты ApiModule, ApiModuleMeta, ModuleResolver (остатки рефакторинга Фазы 6).
+- packages/core/src/api/app/api-app.ts: удалён бесполезный конструктор (noUselessConstructor), doc-комментарий перенесён на уровень класса.
+- Новые тесты: packages/stream/src/api/module.test.ts и packages/wish/src/api/module.test.ts — контракт jobs = [] (явное объявление по ApiModule).
+
+Причина: изменения контракта ApiApp в Фазах 5–6 сломали tsc для скриптов; biome выявил мёртвые импорты; протокол контрольной точки требует покрытия тестами всех изменённых файлов фазы.
+
+Проверки: bun run check — exit 0 (biome чисто, tsc без ошибок, 1748 тестов pass).
