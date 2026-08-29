@@ -26,6 +26,9 @@ export class WishApiModule extends ApiModule<
     new InviteWishersEr(),
   ];
 
+  /** Запланированных задач нет (контракт ApiModule требует явного объявления) */
+  readonly jobs = [];
+
   constructor(resolve: WishApiModuleResolver) {
     super(resolve);
     this.init();

@@ -106,11 +106,11 @@ describe('SweepAbandonedJob', () => {
     userByUuid = new Map([['00000000-0000-0000-0000-000000000007', 42]]);
   });
 
-  test('контракт job: имя, метка, интервал — раз в час', () => {
+  test('контракт job: имя, метка, расписание — интервал раз в час', () => {
     const job = new SweepAbandonedJob();
     expect(job.jobName).toBe('sweep-abandoned-questionnaires');
     expect(job.jobLabel).toBe('Предупреждение и закрытие брошенных анкет');
-    expect(job.intervalMs).toBe(HOUR);
+    expect(job.schedule).toEqual({ kind: 'interval', intervalMs: HOUR });
   });
 
   test('свежая анкета (простоя нет) — никаких действий', async () => {

@@ -58,6 +58,9 @@ export class CourseApiModule extends ApiModule<
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
 
+  /** Запланированных задач нет (контракт ApiModule требует явного объявления) */
+  readonly jobs = [];
+
   constructor(resolve: CourseApiModuleResolver) {
     super(resolve);
     this.init();

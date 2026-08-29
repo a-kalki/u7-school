@@ -25,6 +25,9 @@ export class UserApiModule extends ApiModule<
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
 
+  /** Запланированных задач нет (контракт ApiModule требует явного объявления) */
+  readonly jobs = [];
+
   constructor(resolve: UserApiModuleResolver) {
     super(resolve);
     this.init();

@@ -1,4 +1,4 @@
-import type { ApiModule } from '@u7-scl/core/api';
+import type { ApiModule, Job } from '@u7-scl/core/api';
 import type { ApiModuleMeta, ModuleResolver } from '@u7-scl/core/domain';
 import type { Logger } from '@u7-scl/core/shared';
 
@@ -7,6 +7,16 @@ export type StopJobScheduler = () => void;
 
 /** Источник логов планировщика. */
 const SOURCE = 'job-scheduler';
+
+/** Интервал job — до переезда на календарные расписания поддерживается только interval. */
+function intervalOf(job: Job): number {
+  if (job.schedule.kind !== 'interval') {
+    throw new Error(
+      `Job '${job.jobName}': расписание '${job.schedule.kind}' пока не поддерживается (ожидается перенос планировщика в core)`,
+    );
+  }
+  return job.schedule.intervalMs;
+}
 
 /**
  * Запускает планировщик периодических заданий (Job).
@@ -29,9 +39,10 @@ export function startJobScheduler(
 
   for (const module of modules) {
     for (const job of module.jobs) {
+      const intervalMs = intervalOf(job);
       logger.info(
         SOURCE,
-        `Зарегистрирован job '${job.jobName}' (интервал ${job.intervalMs}мс): ${job.jobLabel}`,
+        `Зарегистрирован job '${job.jobName}' (интервал ${intervalMs}мс): ${job.jobLabel}`,
       );
 
       const timer = setInterval(() => {
@@ -41,7 +52,7 @@ export function startJobScheduler(
             `Ошибка прогона job '${job.jobName}': ${String(err)}`,
           );
         });
-      }, job.intervalMs);
+      }, intervalMs);
 
       timers.push(timer);
     }

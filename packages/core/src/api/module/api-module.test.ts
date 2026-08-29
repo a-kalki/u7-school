@@ -70,6 +70,7 @@ class TestModule extends ApiModule<TestModuleMeta, TestResolve> {
   readonly name = 'TestModule';
   readonly useCases = [new TestUseCase()];
   readonly reactions: EventReaction<ErMeta>[] = [];
+  readonly jobs = [];
 
   constructor(resolve: TestResolve) {
     super(resolve);
@@ -239,6 +240,7 @@ class TestReactionsModule extends ApiModule<
   readonly name = 'TestReactionsModule';
   readonly useCases = [new TestUseCase()];
   readonly reactions = [new TestEr()];
+  readonly jobs = [];
 
   constructor(resolve: TestResolve) {
     super(resolve);

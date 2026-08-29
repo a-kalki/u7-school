@@ -1,4 +1,4 @@
-import { Job } from '@u7-scl/core/api';
+import { Job, type JobMeta, type JobSchedule } from '@u7-scl/core/api';
 import { isoNow } from '@u7-scl/core/shared';
 import type { QuestionnaireApiModuleResolver } from '../../domain/module';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
@@ -14,6 +14,12 @@ export const ABANDON_AFTER_IDLE_MS = 8 * 60 * 60 * 1000;
 /** Лог-источник задания */
 const SOURCE = 'sweep-abandoned-questionnaires';
 
+/** Мета задания — типизирует jobName/jobLabel */
+interface SweepAbandonedJobMeta extends JobMeta {
+  name: 'sweep-abandoned-questionnaires';
+  label: 'Предупреждение и закрытие брошенных анкет';
+}
+
 /**
  * Обход брошенных анкет: предупреждение через 6ч простоя,
  * принудительное закрытие через 8ч.
@@ -23,10 +29,16 @@ const SOURCE = 'sweep-abandoned-questionnaires';
  * - Обрабатываются только анкеты kind='standard'.
  * - Ошибка обработки одной анкеты не прерывает обход.
  */
-export class SweepAbandonedJob extends Job<QuestionnaireApiModuleResolver> {
+export class SweepAbandonedJob extends Job<
+  SweepAbandonedJobMeta,
+  QuestionnaireApiModuleResolver
+> {
   readonly jobName = 'sweep-abandoned-questionnaires';
   readonly jobLabel = 'Предупреждение и закрытие брошенных анкет';
-  readonly intervalMs = 60 * 60 * 1000;
+  readonly schedule: JobSchedule = {
+    kind: 'interval',
+    intervalMs: 60 * 60 * 1000,
+  };
 
   async execute(): Promise<void> {
     const active = await this.resolve.questionnaireRepo.getActive();

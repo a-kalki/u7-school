@@ -44,6 +44,9 @@ export class StreamApiModule extends ApiModule<
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
 
+  /** Запланированных задач нет (контракт ApiModule требует явного объявления) */
+  readonly jobs = [];
+
   constructor(resolve: StreamApiModuleResolver) {
     super(resolve);
     this.init();

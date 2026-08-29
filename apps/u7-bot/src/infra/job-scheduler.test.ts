@@ -36,7 +36,7 @@ function makeJob(overrides?: {
   return {
     jobName: 'test-job',
     jobLabel: 'Тестовая задача',
-    intervalMs: overrides?.intervalMs ?? 5,
+    schedule: { kind: 'interval', intervalMs: overrides?.intervalMs ?? 5 },
     calls: () => calls,
     execute: async () => {
       await execute();

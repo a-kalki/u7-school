@@ -28,8 +28,9 @@ export abstract class ApiModule<
   abstract readonly name: TMeta['name'];
   abstract readonly useCases: UseCase<ApiModuleMeta['ucMetas'], TResolve>[];
   abstract readonly reactions: EventReaction<ErMeta, ModuleResolver>[];
-  /** Периодические задания модуля — запускаются планировщиком приложения. */
-  readonly jobs: Job[] = [];
+  /** Задания модуля: наследники обязаны объявить явно, даже пустой список */
+  abstract readonly jobs: Job[];
+
   private reactionsUnsubscribes: Array<() => void> = [];
 
   protected resolve!: TResolve;
