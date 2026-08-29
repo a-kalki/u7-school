@@ -5,9 +5,9 @@
  * сравнивает lastRunAt с расписанием и выполняет упущенный запуск
  * (misfire), а интервальные — не раньше intervalMs от последнего прогона.
  *
- * Реализации: MemoryJobRunStore (тесты), JsonJobRunStore (файл).
+ * Реализации: MemoryJobRunRepo (тесты), JsonJobRunRepo (файл).
  */
-export interface JobRunStore {
+export interface JobRunRepo {
   /** ISO-время последнего прогона задания или undefined, если не запускалось */
   getLastRunAt(jobName: string): string | undefined;
 
@@ -16,7 +16,7 @@ export interface JobRunStore {
 }
 
 /** Хранилище прогонов в памяти (тесты, ephemeral-окружения). */
-export class MemoryJobRunStore implements JobRunStore {
+export class MemoryJobRunRepo implements JobRunRepo {
   #lastRuns = new Map<string, string>();
 
   getLastRunAt(jobName: string): string | undefined {

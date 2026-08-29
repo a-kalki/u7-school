@@ -150,13 +150,15 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const wishModule = new WishApiModule(wishResolver);
 
   // ══ ApiApp: все модули (состав как в боевом create-api-app.ts) ══
-  const apiApp: U7BotApp = new ApiApp(
-    [userModule, wishModule, streamModule, courseModule],
-    new InProcJobScheduler({ logger }),
-  );
+  const apiApp: U7BotApp = new ApiApp([
+    userModule,
+    wishModule,
+    streamModule,
+    courseModule,
+  ]);
 
-  // Каскадная инициализация: ApiApp → модули
-  apiApp.init();
+  // Каскадная инициализация: ApiApp → модули (планировщик — через init)
+  apiApp.init(new InProcJobScheduler({ logger }));
 
   return {
     apiApp,

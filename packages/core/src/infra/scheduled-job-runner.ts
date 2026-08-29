@@ -1,7 +1,7 @@
 import type { Job } from '../api/job/job';
 import type { JobExecutor } from '../api/job/job-executor';
 import type { Logger } from '../shared/logger';
-import type { JobRunStore } from './job-run-store';
+import type { JobRunRepo } from './job-run-repo';
 import type { JobSchedulePlanner } from './job-schedule-planner';
 
 /** Стартовая задержка по умолчанию: не конкурировать с кодом запуска приложения. */
@@ -16,7 +16,7 @@ export interface ScheduledJobRunnerDeps {
   /** Исполнитель прогона (точка будущего воркера) */
   executor: JobExecutor;
   /** Хранилище моментов прогонов (переживание перезагрузки) */
-  store: JobRunStore;
+  store: JobRunRepo;
   logger: Logger;
   /** Задержка первого прогона после старта (мс), по умолчанию 3 минуты */
   startDelayMs?: number;

@@ -31,10 +31,10 @@ function makeScheduler() {
   return { scheduler, started, stopCalls: () => stopCalls };
 }
 
-function makeAppWithMods(
-  mods: { name: string; jobs: Job[] }[],
-  scheduler: JobScheduler,
-): { app: ApiApp<AppMeta>; mods: unknown[] } {
+function makeAppWithMods(mods: { name: string; jobs: Job[] }[]): {
+  app: ApiApp<AppMeta>;
+  mods: unknown[];
+} {
   const created = mods.map(({ name, jobs }) => ({
     name,
     useCases: [],
@@ -45,22 +45,41 @@ function makeAppWithMods(
     execute: mock(async () => {}),
     getDocTypes: () => [],
   }));
-  return { app: new ApiApp(created as never, scheduler), mods: created };
+  return { app: new ApiApp(created as never), mods: created };
 }
 
 // ══ Тесты ══
 
+describe('ApiApp.init() — технические зависимости и каскадная инициализация', () => {
+  test('init(scheduler) сохраняет планировщик и вызывает init() модулей', () => {
+    const { scheduler } = makeScheduler();
+    const { app, mods } = makeAppWithMods([{ name: 'a', jobs: [] }]);
+
+    app.init(scheduler);
+
+    expect(
+      (mods[0] as { init: ReturnType<typeof mock> }).init,
+    ).toHaveBeenCalled();
+    app.stop(); // планировщик сохранён — stop() безопасен
+    expect(app).toBeInstanceOf(ApiApp);
+  });
+
+  test('start() до init() — явная ошибка', () => {
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
+
+    expect(() => app.start()).toThrow('init');
+  });
+});
+
 describe('ApiApp.start()/stop() — жизненный цикл заданий', () => {
   test('start() передаёт планировщику jobы всех своих модулей', () => {
     const { scheduler, started } = makeScheduler();
-    const { app } = makeAppWithMods(
-      [
-        { name: 'a', jobs: [makeJob('job-a1')] },
-        { name: 'b', jobs: [makeJob('job-b1'), makeJob('job-b2')] },
-      ],
-      scheduler,
-    );
+    const { app } = makeAppWithMods([
+      { name: 'a', jobs: [makeJob('job-a1')] },
+      { name: 'b', jobs: [makeJob('job-b1'), makeJob('job-b2')] },
+    ]);
 
+    app.init(scheduler);
     app.start();
 
     expect(started).toEqual([['job-a1', 'job-b1', 'job-b2']]);
@@ -68,9 +87,9 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
 
   test('start() без заданий: планировщику передаётся пустой список — no-op', () => {
     const { scheduler, started } = makeScheduler();
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
 
-    app.init();
+    app.init(scheduler);
     app.start();
 
     expect(started).toEqual([[]]);
@@ -78,8 +97,9 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
 
   test('stop() останавливает планировщик', () => {
     const { scheduler, stopCalls } = makeScheduler();
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
 
+    app.init(scheduler);
     app.start();
     app.stop();
 
@@ -88,8 +108,9 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
 
   test('stop() без start() — безопасен', () => {
     const { scheduler } = makeScheduler();
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
 
+    app.init(scheduler);
     expect(() => app.stop()).not.toThrow();
   });
 });
@@ -97,7 +118,9 @@ describe('ApiApp.start()/stop() — жизненный цикл заданий',
 describe('ApiApp — наследование App', () => {
   test('остаётся App: модули доступны через getModules()', () => {
     const { scheduler } = makeScheduler();
-    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }], scheduler);
+    const { app } = makeAppWithMods([{ name: 'a', jobs: [] }]);
+
+    app.init(scheduler);
 
     expect(app).toBeInstanceOf(App);
     expect(app.getModules().map((m) => m.name)).toEqual(['a']);

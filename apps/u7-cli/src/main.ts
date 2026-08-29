@@ -43,12 +43,11 @@ async function main() {
     eventBus: appResolver.eventBus,
   });
 
-  // CLI — короткоживущий процесс: планировщик передаётся (обязательный контракт
-  // ApiApp), но start() не вызывается — фоновые задания не нужны.
-  const app = new ApiApp<CliAppMeta>(
-    [userModule, courseModule],
-    new InProcJobScheduler({ logger }),
-  );
+  // CLI — короткоживущий процесс: планировщик передаётся через init()
+  // (обязательный контракт ApiApp), но start() не вызывается —
+  // фоновые задания не нужны.
+  const app = new ApiApp<CliAppMeta>([userModule, courseModule]);
+  app.init(new InProcJobScheduler({ logger }));
   const controller = new CliController(app);
   await controller.run();
 }

@@ -8,7 +8,7 @@ import {
   BaseJsonDb,
   InProcEventBus,
   InProcJobScheduler,
-  JsonJobRunStore,
+  JobRunJsonRepo,
 } from '@u7-scl/core/infra';
 import type { Logger } from '@u7-scl/core/shared';
 import { ConsoleLogger } from '@u7-scl/core/shared';
@@ -153,19 +153,23 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     eventBus: appResolver.eventBus,
   });
 
-  // ══ ApiApp: модули + планировщик заданий ══
-  const scheduler = new InProcJobScheduler({
-    logger: appLogger,
-    // lastRunAt персистится — задания переживают перезагрузку (misfire-политика)
-    store: new JsonJobRunStore(`${config.dbDir}/jobs/last-runs.json`),
-  });
-  const apiApp = new ApiApp<U7BotAppMeta>(
-    [userModule, wishModule, streamModule, courseModule],
-    scheduler,
-  );
+  // ══ ApiApp: модули ══
+  const apiApp = new ApiApp<U7BotAppMeta>([
+    userModule,
+    wishModule,
+    streamModule,
+    courseModule,
+  ]);
 
-  // Каскадная инициализация: ApiApp → модули
-  apiApp.init();
+  // Каскадная инициализация: ApiApp → модули.
+  // Планировщик — техническая зависимость: передаётся через init(),
+  // lastRunAt персистится — задания переживают перезагрузку (misfire-политика).
+  apiApp.init(
+    new InProcJobScheduler({
+      logger: appLogger,
+      store: new JobRunJsonRepo(`${config.dbDir}/jobs/last-runs.json`),
+    }),
+  );
 
   // allModules — для планировщика периодических заданий (Job).
   // questionnaire — standalone-модуль (в ApiApp не входит), инициализируется

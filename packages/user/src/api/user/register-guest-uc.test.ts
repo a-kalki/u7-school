@@ -34,10 +34,8 @@ describe('RegisterGuestUc', () => {
         eventBus: new InProcEventBus(),
       } as unknown as AppResolver,
     });
-    apiApp = new ApiApp(
-      [mod],
-      new InProcJobScheduler({ logger: new ConsoleLogger() }),
-    );
+    apiApp = new ApiApp([mod]);
+    apiApp.init(new InProcJobScheduler({ logger: new ConsoleLogger() }));
 
     // Seed admin
     db.begin();

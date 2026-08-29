@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import type { JobRunStore } from './job-run-store';
+import type { JobRunRepo } from './job-run-repo';
 
 /** Формат файла хранилища */
 interface JobRunFile {
@@ -15,7 +15,7 @@ interface JobRunFile {
  * прогона (файл мал — накладные расходы незначительны). Один экземпляр
  * рассчитан на один процесс.
  */
-export class JsonJobRunStore implements JobRunStore {
+export class JobRunJsonRepo implements JobRunRepo {
   #filePath: string;
   #cache: JobRunFile | undefined;
 

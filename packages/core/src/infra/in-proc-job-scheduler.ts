@@ -3,7 +3,7 @@ import type { JobExecutor } from '../api/job/job-executor';
 import type { JobScheduler } from '../api/job/job-scheduler';
 import type { Logger } from '../shared/logger';
 import { InProcJobExecutor } from './in-proc-job-executor';
-import { type JobRunStore, MemoryJobRunStore } from './job-run-store';
+import { type JobRunRepo, MemoryJobRunRepo } from './job-run-repo';
 import { JobSchedulePlanner } from './job-schedule-planner';
 import { ScheduledJobRunner } from './scheduled-job-runner';
 
@@ -13,7 +13,7 @@ export interface InProcJobSchedulerDeps {
   /** Исполнитель прогонов (по умолчанию — InProcJobExecutor) */
   executor?: JobExecutor;
   /** Хранилище прогонов (по умолчанию — память, без переживания перезагрузки) */
-  store?: JobRunStore;
+  store?: JobRunRepo;
   /** Задержка первого прогона после старта, мс (по умолчанию 3 минуты) */
   startDelayMs?: number;
 }
@@ -24,12 +24,12 @@ const SOURCE = 'job-scheduler';
  * Планировщик заданий в текущем процессе: создаёт по раннеру на каждое
  * задание и делегирует ему запуск/остановку.
  *
- * Для переживания перезагрузки передайте JsonJobRunStore (см. приложение).
+ * Для переживания перезагрузки передайте JsonJobRunRepo (см. приложение).
  */
 export class InProcJobScheduler implements JobScheduler {
   readonly #deps: InProcJobSchedulerDeps & {
     executor: JobExecutor;
-    store: JobRunStore;
+    store: JobRunRepo;
   };
   #runners: ScheduledJobRunner[] = [];
   #started = false;
@@ -38,7 +38,7 @@ export class InProcJobScheduler implements JobScheduler {
     this.#deps = {
       ...deps,
       executor: deps.executor ?? new InProcJobExecutor(),
-      store: deps.store ?? new MemoryJobRunStore(),
+      store: deps.store ?? new MemoryJobRunRepo(),
     };
   }
 

@@ -8,7 +8,7 @@ import {
 } from 'bun:test';
 import type { Job, JobSchedule } from '../api/job/job';
 import { LogLevel } from '../shared/logger';
-import { MemoryJobRunStore } from './job-run-store';
+import { MemoryJobRunRepo } from './job-run-repo';
 import { JobSchedulePlanner } from './job-schedule-planner';
 import { ScheduledJobRunner } from './scheduled-job-runner';
 
@@ -77,7 +77,7 @@ function makeJob(
 
 const START_DELAY_MS = 10;
 
-function makeRunner(job: Job, store: MemoryJobRunStore) {
+function makeRunner(job: Job, store: MemoryJobRunRepo) {
   const { logger, warn } = makeLogger();
   const executor = {
     execute: async (j: Job) => {
@@ -108,7 +108,7 @@ afterEach(() => {
 describe('ScheduledJobRunner — interval', () => {
   test('первый прогон — после интервала от старта, затем по интервалу', async () => {
     const job = makeJob({ kind: 'interval', intervalMs: 30 });
-    const { runner } = makeRunner(job, new MemoryJobRunStore());
+    const { runner } = makeRunner(job, new MemoryJobRunRepo());
     active.push(runner);
 
     runner.start();
@@ -126,7 +126,7 @@ describe('ScheduledJobRunner — interval', () => {
       intervalMs: 60_000,
       runAtStart: true,
     });
-    const { runner } = makeRunner(job, new MemoryJobRunStore());
+    const { runner } = makeRunner(job, new MemoryJobRunRepo());
     active.push(runner);
 
     runner.start();
@@ -138,7 +138,7 @@ describe('ScheduledJobRunner — interval', () => {
   test('runAtStart со свежим lastRunAt: быстрого прогона нет — ждём остаток интервала', async () => {
     const intervalMs = 60;
     const job = makeJob({ kind: 'interval', intervalMs, runAtStart: true });
-    const store = new MemoryJobRunStore();
+    const store = new MemoryJobRunRepo();
     // последний прогон — половину интервала назад
     store.setLastRunAt(
       'test-job',
@@ -159,7 +159,7 @@ describe('ScheduledJobRunner — interval', () => {
 
   test('успешный прогон записывает lastRunAt в store', async () => {
     const job = makeJob({ kind: 'interval', intervalMs: 20 });
-    const store = new MemoryJobRunStore();
+    const store = new MemoryJobRunRepo();
     const { runner } = makeRunner(job, store);
     active.push(runner);
 
@@ -171,7 +171,7 @@ describe('ScheduledJobRunner — interval', () => {
 
   test('stop(): прогоны прекращаются', async () => {
     const job = makeJob({ kind: 'interval', intervalMs: 20 });
-    const { runner } = makeRunner(job, new MemoryJobRunStore());
+    const { runner } = makeRunner(job, new MemoryJobRunRepo());
 
     runner.start();
     await waitFor(() => job.starts() >= 1);
@@ -184,7 +184,7 @@ describe('ScheduledJobRunner — interval', () => {
 
   test('ошибка прогона: лог warn, lastRunAt записан, следующий прогон происходит', async () => {
     const job = makeJob({ kind: 'interval', intervalMs: 20 }, { fail: true });
-    const store = new MemoryJobRunStore();
+    const store = new MemoryJobRunRepo();
     const { runner, warn } = makeRunner(job, store);
     active.push(runner);
 
@@ -200,7 +200,7 @@ describe('ScheduledJobRunner — interval', () => {
       { kind: 'interval', intervalMs: 5 },
       { durationMs: 60 },
     );
-    const { runner } = makeRunner(job, new MemoryJobRunStore());
+    const { runner } = makeRunner(job, new MemoryJobRunRepo());
     active.push(runner);
 
     runner.start();
@@ -216,7 +216,7 @@ describe('ScheduledJobRunner — календарные расписания', (
     // lastRun — вчера 12:00 → сегодняшний 12:00 упущен → догоняющий прогон
     setSystemTime(new Date('2026-01-10T13:00:00.000Z'));
     const job = makeJob({ kind: 'dailyAt', hour: 12, minute: 0 });
-    const store = new MemoryJobRunStore();
+    const store = new MemoryJobRunRepo();
     store.setLastRunAt('test-job', '2026-01-09T12:00:00.000Z');
     const { runner } = makeRunner(job, store);
     active.push(runner);
@@ -230,7 +230,7 @@ describe('ScheduledJobRunner — календарные расписания', (
   test('misfire multi: упущено несколько суток — ровно один догоняющий прогон', async () => {
     setSystemTime(new Date('2026-01-10T13:00:00.000Z'));
     const job = makeJob({ kind: 'dailyAt', hour: 12, minute: 0 });
-    const store = new MemoryJobRunStore();
+    const store = new MemoryJobRunRepo();
     store.setLastRunAt('test-job', '2026-01-05T12:00:00.000Z'); // 5 дней назад
     const { runner } = makeRunner(job, store);
     active.push(runner);
@@ -245,7 +245,7 @@ describe('ScheduledJobRunner — календарные расписания', (
   test('без misfire: время впереди — прогона нет до расписания', async () => {
     setSystemTime(new Date('2026-01-10T10:00:00.000Z'));
     const job = makeJob({ kind: 'dailyAt', hour: 12, minute: 0 });
-    const { runner } = makeRunner(job, new MemoryJobRunStore());
+    const { runner } = makeRunner(job, new MemoryJobRunRepo());
     active.push(runner);
 
     runner.start();
@@ -258,7 +258,7 @@ describe('ScheduledJobRunner — календарные расписания', (
     // lastRun нет → nextRunAfter(now) всегда в будущем → прогон только завтра
     setSystemTime(new Date('2026-01-10T13:00:00.000Z'));
     const job = makeJob({ kind: 'dailyAt', hour: 12, minute: 0 });
-    const { runner } = makeRunner(job, new MemoryJobRunStore());
+    const { runner } = makeRunner(job, new MemoryJobRunRepo());
     active.push(runner);
 
     runner.start();

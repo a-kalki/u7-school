@@ -13,26 +13,22 @@ export class ApiApp<TMeta extends AppMeta>
   extends App
   implements ApiExecutor<TMeta>
 {
-  readonly #scheduler: JobScheduler;
+  #scheduler: JobScheduler | undefined;
 
   /**
-   * @param mods — API-модули приложения
-   * @param scheduler — планировщик заданий (реализация из core/infra,
-   *   например InProcJobScheduler)
+   * @param mods — API-модули приложения (доменные зависимости — в конструкторе)
    */
-  constructor(
-    mods: ConstructorParameters<typeof App>[0],
-    scheduler: JobScheduler,
-  ) {
+  constructor(mods: ConstructorParameters<typeof App>[0]) {
     super(mods);
-    this.#scheduler = scheduler;
   }
 
   /**
-   * Каскадная инициализация: вызывает init() у каждого модуля.
-   * Должна вызываться после создания ApiApp и всех модулей.
+   * Приводит приложение в рабочее состояние: каскадная инициализация модулей
+   * и получение технических зависимостей (планировщик заданий — реализация
+   * из core/infra, например InProcJobScheduler).
    */
-  init(): void {
+  init(scheduler: JobScheduler): void {
+    this.#scheduler = scheduler;
     for (const module of this.getModules()) {
       module.init();
     }
@@ -44,14 +40,19 @@ export class ApiApp<TMeta extends AppMeta>
    * job'ов находили слушателей).
    */
   start(): void {
+    if (this.#scheduler === undefined) {
+      throw new Error('ApiApp: вызовите init(scheduler) перед start()');
+    }
     const jobs = this.getModules().flatMap((module) => module.jobs);
     this.#scheduler.start(jobs);
   }
 
   /**
    * Остановка периодических заданий (graceful shutdown).
+   * До init() останавливать нечего — безопасный no-op.
    */
   stop(): void {
+    if (this.#scheduler === undefined) return;
     this.#scheduler.stop();
   }
 

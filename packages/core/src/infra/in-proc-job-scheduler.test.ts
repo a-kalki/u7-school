@@ -6,8 +6,8 @@ import type { Job, JobSchedule } from '../api/job/job';
 import { LogLevel } from '../shared/logger';
 import { InProcJobExecutor } from './in-proc-job-executor';
 import { InProcJobScheduler } from './in-proc-job-scheduler';
-import { MemoryJobRunStore } from './job-run-store';
-import { JsonJobRunStore } from './json-job-run-store';
+import { JobRunJsonRepo } from './job-run-json-repo';
+import { MemoryJobRunRepo } from './job-run-repo';
 
 // ══ Хелперы ══
 
@@ -72,7 +72,7 @@ describe('InProcJobScheduler', () => {
     const { logger, info } = makeLogger();
     const scheduler = new InProcJobScheduler({
       logger,
-      store: new MemoryJobRunStore(),
+      store: new MemoryJobRunRepo(),
       startDelayMs: 5,
     });
     activeSchedulers.push(scheduler);
@@ -108,7 +108,7 @@ describe('InProcJobScheduler', () => {
     const { logger } = makeLogger();
     const scheduler = new InProcJobScheduler({
       logger,
-      store: new MemoryJobRunStore(),
+      store: new MemoryJobRunRepo(),
       startDelayMs: 5,
     });
 
@@ -142,7 +142,7 @@ describe('InProcJobExecutor', () => {
   });
 });
 
-describe('JsonJobRunStore', () => {
+describe('JobRunJsonRepo', () => {
   const tmpDir = mkdtempSync(join(tmpdir(), 'job-run-store-'));
   const filePath = join(tmpDir, 'sub', 'last-runs.json');
 
@@ -151,25 +151,25 @@ describe('JsonJobRunStore', () => {
   });
 
   test('get без записи — undefined', () => {
-    const store = new JsonJobRunStore(filePath);
+    const store = new JobRunJsonRepo(filePath);
     expect(store.getLastRunAt('job-a')).toBeUndefined();
   });
 
   test('set → новый экземпляр читает записанное (переживание перезагрузки)', () => {
-    const writer = new JsonJobRunStore(filePath);
+    const writer = new JobRunJsonRepo(filePath);
     writer.setLastRunAt('job-a', '2026-01-01T12:00:00.000Z');
 
-    const reader = new JsonJobRunStore(filePath);
+    const reader = new JobRunJsonRepo(filePath);
     expect(reader.getLastRunAt('job-a')).toBe('2026-01-01T12:00:00.000Z');
   });
 
   test('повреждённый файл — история начинается заново, без падения', () => {
     writeFileSync(filePath, 'не-json{{{');
 
-    const store = new JsonJobRunStore(filePath);
+    const store = new JobRunJsonRepo(filePath);
     expect(store.getLastRunAt('job-a')).toBeUndefined();
     store.setLastRunAt('job-b', '2026-02-01T00:00:00.000Z');
-    expect(new JsonJobRunStore(filePath).getLastRunAt('job-b')).toBe(
+    expect(new JobRunJsonRepo(filePath).getLastRunAt('job-b')).toBe(
       '2026-02-01T00:00:00.000Z',
     );
   });
