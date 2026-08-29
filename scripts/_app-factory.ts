@@ -36,7 +36,10 @@
 import { ApiApp } from '@u7-scl/core/api';
 import type { AppMeta } from '@u7-scl/core/domain';
 import { type Logger, LogLevel } from '@u7-scl/core/shared';
-import { InProcEventBus } from '../packages/core/src/infra/index.ts';
+import {
+  InProcEventBus,
+  InProcJobScheduler,
+} from '../packages/core/src/infra/index.ts';
 import { CourseApiModule } from '../packages/course/src/api/module.ts';
 import type { CourseApiModuleMeta } from '../packages/course/src/domain/module.ts';
 import { CourseJsonRepo } from '../packages/course/src/infra/db/course-json-repo.ts';
@@ -114,9 +117,15 @@ export function createApp(silent = false): ApiApp<ScriptAppMeta> {
     eventBus: appResolver.eventBus,
   });
 
-  // ApiApp: регистрируем оба модуля
+  // ApiApp: регистрируем оба модуля.
+  // Планировщик — техническая зависимость: передаётся через init();
+  // для скриптов достаточно in-memory-хранилища прогонов.
   const app = new ApiApp([userModule, courseModule]);
-  app.init();
+  app.init(
+    new InProcJobScheduler({
+      logger: silent ? silentLogger : (console as unknown as Logger),
+    }),
+  );
 
   return app;
 }

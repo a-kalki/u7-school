@@ -1,9 +1,5 @@
-import { ApiApp, type ApiModule } from '@u7-scl/core/api';
-import type {
-  ApiModuleMeta,
-  EventBus,
-  ModuleResolver,
-} from '@u7-scl/core/domain';
+import { ApiApp } from '@u7-scl/core/api';
+import type { EventBus } from '@u7-scl/core/domain';
 import {
   BaseJsonDb,
   InProcEventBus,

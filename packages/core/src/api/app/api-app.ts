@@ -9,18 +9,15 @@ import type {
 import type { JobScheduler } from '../job/job-scheduler';
 import { App } from './app';
 
+/**
+ * API-приложение. Модули передаются в конструктор (доменные зависимости),
+ * планировщик заданий — через init() (техническая зависимость из core/infra).
+ */
 export class ApiApp<TMeta extends AppMeta>
   extends App
   implements ApiExecutor<TMeta>
 {
   #scheduler: JobScheduler | undefined;
-
-  /**
-   * @param mods — API-модули приложения (доменные зависимости — в конструкторе)
-   */
-  constructor(mods: ConstructorParameters<typeof App>[0]) {
-    super(mods);
-  }
 
   /**
    * Приводит приложение в рабочее состояние: каскадная инициализация модулей
