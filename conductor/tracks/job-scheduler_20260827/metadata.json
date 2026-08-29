@@ -1,8 +1,0 @@
-{
-  "track_id": "job-scheduler_20260827",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-08-27T19:53:20Z",
-  "updated_at": "2026-08-27T19:53:20Z",
-  "description": "Job (cron на уровне приложения): планировщик периодических заданий + брошенные анкеты questionnaire (6ч — предупреждение, 8ч — abandon)"
-}
