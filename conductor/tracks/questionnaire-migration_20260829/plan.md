@@ -14,12 +14,12 @@
 - [x] Task: Вороты качества (`bun run check` — lint + tsc; тесты проекта не затронуты) [b03b241f]
 - [x] Task: Conductor - Ручная верификация 'Фаза 1' (Protocol in workflow.md) [425153c]
 
-## Фаза 2: Dry-run на копии данных — главная проверка
+## Фаза 2: Dry-run на копии данных — главная проверка [checkpoint: 2300246]
 
 - [x] Task: Прогон скрипта на копии директории data в песочнице
 - [x] Task: Сверка результатов: 67 анкет / 62 wish (16 fulfilled + 46 confirmed) / wish Nur нетронут / 0 ошибок валидации / повторный запуск — 0 изменений
 - [x] Task: Выборочная ручная сверка содержимого: пара completed-анкет (мульти-ответы, goal_text, пул-снимок, ownerInfo, даты), wish fulfilled для студента и confirmed для остальных
-- [ ] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Фаза 2' (Protocol in workflow.md) [2300246]
 
 ## Фаза 3: Боевое применение
 
