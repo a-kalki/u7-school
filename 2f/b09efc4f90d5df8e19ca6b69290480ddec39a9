@@ -1,0 +1,10 @@
+Задача: тесты Job v2 + реализация контракта (Фаза 5, трек job-scheduler v2)
+
+Изменения:
+- job.ts: JobSchedule (interval/dailyAt/weeklyAt/monthlyAt), JobMeta, Job<TMeta,TResolve>, publishEvents(ar)
+- api-module.ts: jobs → abstract
+- Адаптация потребителей контракта: SweepAbandonedJob (мета+schedule), apps-планировщик (intervalOf), модули user/wish/stream/course (jobs=[]), тесты core/questionnaire
+
+Файлы: job.ts, job.test.ts, api-module.ts(+test), api/index.ts, sweep-abandoned-job.ts(+test), module.ts x4, apps job-scheduler.ts(+test)
+
+Причина: ревизия v2 трека — расписание как объект с kind, JobMeta-типизация, публикация событий через базовый класс, явный контракт jobs.
