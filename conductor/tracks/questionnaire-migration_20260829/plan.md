@@ -28,9 +28,9 @@
 - [x] Task: Проверка логов pm2: нет console.warn от JsonFileRepo; выборочная проверка анкет (get-questionnaires-by-user) и wish
 - [x] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md) [b2dd34f]
 
-## Фаза 4: Завершение трека
+## Фаза 4: Завершение трека [checkpoint: 33a3b97]
 
 - [x] Task: Обновление `scripts/call-uc.ts`: подключить все модули (добавить questionnaire, wish) — запрос пользователя, вне исходного плана [d2530532]
 - [x] Task: Удаление временных файлов миграции (песочница /tmp/u7-migration-sandbox, /tmp/pre-migration-md5.txt) — запрос пользователя, вне исходного плана [d2530532]
 - [x] Task: summary.md трека; обновление MIGRATION-OLD-QUESTIONNAIRES.md (итог миграции); отметка трека в conductor/tracks.md [c8fd41ba]
-- [~] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md) [33a3b97]
