@@ -1,74 +1,70 @@
 # Периодическое задание (Job) — Styleguide
 
-**Назначение:** файл `api/<entity>/<name>-job.ts` — класс Job, доменная логика, выполняемая планировщиком приложения по расписанию, а не по действию пользователя. Наследуется от `Job<Resolver>`. Аналог UseCase для фоновых операций: один job — одна фоновая операция.
+**Назначение:** файл `api/<entity>/<name>-job.ts` — класс Job, доменная логика, выполняемая планировщиком приложения по расписанию, а не по действию пользователя. Наследуется от `Job<Meta, Resolver>`. Аналог UseCase для фоновых операций: один job — одна фоновая операция.
+
+Контракт: `packages/core/src/api/job/job.ts`. Живой пример: `packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.ts`.
 
 ---
 
 ## 1. Ключевые правила
 
 1. **Логика job — доменная:** работа с агрегатами, репозиториями и событиями. Никакой UI-логики: уведомления — только через публикацию доменных событий (UI рендерит их в Story-подписках).
-2. **Один прогон = `execute()`.** Ошибка прогона перехватывается планировщиком приложения и логируется — процесс не падает, остальные job'ы продолжают работать.
-3. **Идемпотентность:** job запускается многократно; повторный прогон не должен дублировать эффекты (защита флагами состояния — например, `warnedAt` — или проверкой статуса).
-4. **Пороги и константы** — экспортируйте из файла job'а: тесты и运维 должны иметь возможность ссылаться на них.
-5. **Ошибка одной записи не должна ломать весь обход** — оборачивайте обработку каждой сущности в try/catch с `logger.warn` (`this.resolve.appResolver.logger`).
+2. **Один прогон = `execute()`.** Ошибка прогона перехватывается планировщиком (`ScheduledJobRunner`) и логируется — процесс не падает, остальные job'ы продолжают работать.
+3. **Идемпотентность:** повторный прогон не должен дублировать эффекты (флаги состояния — например, `warnedAt` — или проверка статуса).
+4. **Пороги и константы** — экспортируйте из файла job'а: тесты и运维 ссылаются на них.
+5. **Ошибка одной записи не ломает обход** — try/catch вокруг каждой сущности с `logger.warn`.
 6. Репозитории и фасады — через `this.resolve.<name>`; моки в тестах — `as unknown as <реальный тип>`, без `as any`.
 
-Живой пример: `packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.ts`.
+## 2. Объектная модель
 
----
-
-## 2. Поля Job
-
-| Поле | Назначение | Пример |
+| Часть | Поля / члены | Комментарий |
 |---|---|---|
-| `jobName` | Уникальное имя (kebab-case) | `"sweep-abandoned-questionnaires"` |
-| `jobLabel` | Человекочитаемая метка (логи, документация) | `"Предупреждение и закрытие брошенных анкет"` |
-| `intervalMs` | Интервал запуска в мс | `60 * 60 * 1000` |
-| `execute()` | Один прогон задания | `async execute(): Promise<void>` |
+| `Job<TMeta, TResolve>` | `jobName`, `jobLabel` | Типизируются `JobMeta` (аналог `UcMeta`) |
+| | `schedule: JobSchedule` | Расписание — см. ниже |
+| | `execute()` | Один прогон задания |
+| | `publishEvents(ar)` | Публикация событий агрегата — как `UseCase.publishEvents` (ручной цикл с `eventBus.publish` не используется) |
 
-### Резолвер
+### JobSchedule (все времена — UTC)
 
-`Job<TResolve>` типизируется резолвером API-модуля (`<Entity>ApiModuleResolver`) — те же зависимости, что у UC модуля: репозитории, фасады, `eventBus`, `appResolver`. Резолвер пробрасывается модулем в `ApiModule.init()`.
+- `interval` — `intervalMs`; `alignUtc` выравнивает запуски по сетке от epoch (6ч + alignUtc → 00:00/06:00/12:00/18:00 UTC), `runAtStart` — прогон сразу при старте.
+- `dailyAt` / `weeklyAt` / `monthlyAt` — календарные расписания; `monthlyAt` клампит несуществующий день (31 → последний день месяца).
 
-### Публикация событий
+Резолвер типизируется `<Entity>ApiModuleResolver` — те же зависимости, что у UC модуля; пробрасывается модулем в `init()`.
 
-Из job недоступен `publishEvents()` UseCase'а (резолвер job'а не знает модуль). Публикуйте события напрямую:
+## 3. Планировщик: порты и реализации
 
-```typescript
-const events = ar.flushEvents();
-for (const event of events) {
-  this.resolve.eventBus.publish(event);
-}
-```
+Порты в core/api, реализации в core/infra — приложение не знает о механизме запуска:
 
-Если payload события требует данных из другого модуля (например, `telegramId` из user-фасада) — обогащайте payload перед публикацией.
+- **`JobScheduler`** (`start(jobs)` / `stop()`) — порт управления. Реализация `InProcJobScheduler`: по раннеру на job, первый прогон через `startDelayMs` (по умолчанию 3 минуты).
+- **`JobExecutor`** — порт «где выполнять прогон» (точка расширения под будущий воркер; контракт Job не меняется).
+- **`JobRunRepo`** (`MemoryJobRunRepo` / `JobRunJsonRepo`) — персистентность `lastRunAt`: планировщик при старте видит последний прогон и **догоняет упущенный запуск** (misfire), интервальные — не раньше `intervalMs` от прошлого прогона.
+- **`JobSchedulePlanner`** — чистая календарная математика («следующий запуск строго после»); отдельно тестируется на фиксированных датах.
 
----
+## 4. Жизненный цикл приложения
 
-## 3. Регистрация
-
-Job регистрируется в API-модуле — поле `jobs` (по умолчанию пустой массив):
+Планировщик — техническая зависимость приложения, а не модуля:
 
 ```typescript
-export class QuestionnaireApiModule extends ApiModule<...> {
-  override readonly jobs = [new SweepAbandonedJob()];
-}
+apiApp.init(new InProcJobScheduler({ logger, store: new JobRunJsonRepo(...) }));
+uiApp.start();   // сначала подписки UI — события job'ов находят слушателей
+apiApp.start();  // собирает jobs всех модулей и запускает
+// SIGINT/SIGTERM: uiApp.stop(); apiApp.stop();
 ```
 
-Планировщик приложения (`startJobScheduler` в `apps/u7-bot`) собирает `jobs` всех модулей — в том числе standalone — и запускает каждый по его `intervalMs` (первый прогон — после истечения интервала).
+Сборка — в `apps/u7-bot/src/create-api-app.ts`, graceful shutdown — в `apps/u7-bot/src/main.ts`.
 
----
+## 5. Регистрация
 
-## 4. Тестирование
+`ApiModule.jobs` — **abstract**: каждый модуль объявляет список явно, даже если он пуст (см. `stream`/`wish` модули):
 
-- Тестируйте `execute()` как обычный доменный метод: `job.init(mockResolve)` → `await job.execute()` → проверки на моках репозитория/событий.
-- Покрывайте пороги: до порога — ничего; между порогами — одно действие; после — другое.
-- Обязательно: идемпотентность (повторный прогон — дублей нет) и устойчивость (ошибка одной записи не роняет job).
-- Планировщик приложения тестируется отдельно (`job-scheduler.test.ts`): сбор jobs, интервалы, `stop()`.
+```typescript
+override readonly jobs = [new SweepAbandonedJob()];
+```
 
-Живой пример теста: `packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.test.ts`.
+## 6. Тестирование
 
----
+- `execute()` — как обычный доменный метод: `job.init(mockResolve)` → `await job.execute()` → проверки на моках. Покрывать пороги и идемпотентность. Пример: `sweep-abandoned-job.test.ts`.
+- Планировщик и календарная математика — в core/infra: `job-schedule-planner.test.ts` (все kind, UTC, кламп, alignUtc), `scheduled-job-runner.test.ts` (misfire, runAtStart, lastRunAt), `in-proc-job-scheduler.test.ts`, `api-app.test.ts` / `ui-app.test.ts` (start/stop).
 
 ## Регресс
 
