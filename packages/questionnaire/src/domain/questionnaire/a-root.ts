@@ -7,6 +7,7 @@ import type {
   BaseQuestionnaireArMeta,
   BaseQuestionnaireState,
 } from './entity';
+import { AbandonReasonSchema } from './entity';
 import type { Question } from './question';
 import { QuestionnaireEngine } from './questionnaire-engine';
 import type { InviteResponse, QuestionnaireActionResponse } from './types';
@@ -44,8 +45,22 @@ export abstract class BaseQuestionnaireAr<
 
   /** Событие прерывания анкеты (in_progress → abandoned). */
   protected abstract buildAbandonedEvent(
-    reason?: AbandonReason,
+    reason: AbandonReason,
   ): TMeta['events'];
+
+  /**
+   * Инвариант агрегата: анкета в статусе abandoned всегда имеет заполненную
+   * причину прерывания (abandonReason). Проверяется при конструировании/restore
+   * и при каждом обновлении состояния (см. core Aggregate).
+   */
+  protected override checkInvariant(): void {
+    if (this._state.status === 'abandoned' && !this._state.abandonReason) {
+      this.throwInvariant(
+        { uuid: this._state.uuid, status: this._state.status },
+        'Анкета в статусе abandoned без причины прерывания (abandonReason)',
+      );
+    }
+  }
 
   /**
    * Отмечает, что анкете отправлено предупреждение о закрытии.
@@ -99,16 +114,20 @@ export abstract class BaseQuestionnaireAr<
 
   /**
    * Отменяет заполнение анкеты: in_progress → abandoned.
-   * @param reason — причина прерывания: 'timeout' (планировщик по таймауту) или
-   *   'by_user' (ручное прерывание). Персистируется в состоянии (abandonReason)
-   *   и попадает в payload события questionnaire:abandon.
+   * @param reason — причина прерывания (обязательна): 'timeout' (планировщик
+   *   по таймауту) или 'by_user' (ручное прерывание). Персистируется в
+   *   состоянии (abandonReason) и попадает в payload события questionnaire:abandon.
    */
-  abandon(reason?: AbandonReason): void {
+  abandon(reason: AbandonReason): void {
     if (this.state.status === 'abandoned') {
       return;
     }
     if (this.state.status === 'completed') {
       this.throwBadRequest('Анкета не активна');
+    }
+    // Рантайм-проверка: без валидного reason прерывать нельзя (инвариант агрегата)
+    if (!v.is(AbandonReasonSchema, reason)) {
+      this.throwBadRequest('Причина прерывания обязательна: timeout | by_user');
     }
     this.safeUpdate({ status: 'abandoned', abandonReason: reason });
     this.addEvent(this.buildAbandonedEvent(reason));
@@ -116,6 +135,8 @@ export abstract class BaseQuestionnaireAr<
 
   /**
    * Отказывается от приглашения: invited → abandoned.
+   * Отказ — ручное действие пользователя, поэтому reason = 'by_user'
+   * (инвариант: abandoned ⇒ abandonReason заполнен).
    */
   decline(): void {
     if (this.state.status !== 'invited') {
@@ -123,7 +144,7 @@ export abstract class BaseQuestionnaireAr<
         'Анкета не в статусе invited, невозможно отказаться',
       );
     }
-    this.safeUpdate({ status: 'abandoned' });
+    this.safeUpdate({ status: 'abandoned', abandonReason: 'by_user' });
     this.addEvent(this.buildDeclinedEvent());
   }
 

@@ -60,7 +60,7 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
   }
 
   protected buildAbandonedEvent(
-    reason?: AbandonReason,
+    reason: AbandonReason,
   ): QuestionnaireAbandonEvent {
     return {
       eventId: crypto.randomUUID(),
@@ -69,7 +69,7 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
       aggregateName: 'Questionnaire',
       aggregateId: this.state.uuid,
       ownerInfo: this.state.ownerInfo,
-      payload: reason ? { ...this.basePayload(), reason } : this.basePayload(),
+      payload: { ...this.basePayload(), reason },
     };
   }
 }

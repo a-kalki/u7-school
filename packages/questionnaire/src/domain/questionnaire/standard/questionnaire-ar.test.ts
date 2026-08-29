@@ -76,13 +76,15 @@ describe('QuestionnaireAr (v2)', () => {
 
   // ── decline ──
 
-  test('decline переводит invited → abandoned', () => {
+  test('decline переводит invited → abandoned с reason by_user', () => {
     const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
     ar.decline();
     expect(ar.state.status).toBe('abandoned');
+    // Инвариант: abandoned ⇒ abandonReason заполнен (отказ — ручное действие)
+    expect(ar.state.abandonReason).toBe('by_user');
   });
 
   test('decline на не-invited анкете выбрасывает ошибку', () => {
@@ -299,9 +301,9 @@ describe('QuestionnaireAr (v2)', () => {
       simplePool(),
     );
     ar.start();
-    ar.abandon();
+    ar.abandon('timeout');
     expect(ar.state.status).toBe('abandoned');
-    ar.abandon(); // повторно не падает
+    ar.abandon('timeout'); // повторно не падает
   });
 
   test("abandon('by_user') персистит reason в состоянии и событии", () => {
@@ -345,17 +347,45 @@ describe('QuestionnaireAr (v2)', () => {
     expect(event.payload.reason).toBe('timeout');
   });
 
-  test('abandon() без reason — abandonReason не установлен', () => {
+  test('abandon без reason — ошибка: причина прерывания обязательна', () => {
     const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',
       simplePool(),
     );
     ar.start();
 
-    ar.abandon();
+    expect(() => ar.abandon(undefined as never)).toThrow(
+      'Причина прерывания обязательна',
+    );
+    // Состояние не изменилось
+    expect(ar.state.status).toBe('in_progress');
+  });
 
-    expect(ar.state.status).toBe('abandoned');
-    expect(ar.state.abandonReason).toBeUndefined();
+  test('abandon с невалидным reason — ошибка', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+
+    expect(() => ar.abandon('неверно' as never)).toThrow(
+      'Причина прерывания обязательна',
+    );
+  });
+
+  test('restore abandoned без abandonReason — нарушение инварианта', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+    ar.abandon('timeout');
+
+    // Повреждённое состояние: abandoned без причины — не должно восстанавливаться
+    const corrupted = { ...ar.state, abandonReason: undefined };
+    expect(() => QuestionnaireFactory.restore(corrupted)).toThrow(
+      'abandonReason',
+    );
   });
 
   test('abandon на completed — выбрасывает ошибку', () => {
@@ -366,7 +396,7 @@ describe('QuestionnaireAr (v2)', () => {
     ar.start();
     ar.handleAction({ type: 'callback', value: 'yes' });
     ar.handleAction({ type: 'callback', value: 'ok' });
-    expect(() => ar.abandon()).toThrow('Анкета не активна');
+    expect(() => ar.abandon('timeout')).toThrow('Анкета не активна');
   });
 
   test('handleAction на завершённой анкете выбрасывает ошибку', () => {
@@ -424,7 +454,7 @@ describe('QuestionnaireAr (v2)', () => {
       simplePool(),
     );
     ar.start();
-    ar.abandon();
+    ar.abandon('timeout');
     expect(ar.getQuestionnaireActionResponse().type).toBe('completed');
   });
 
@@ -479,7 +509,7 @@ describe('QuestionnaireAr (v2)', () => {
       simplePool(),
     );
     ar.start();
-    ar.abandon();
+    ar.abandon('timeout');
     expect(ar.hasEvents()).toBe(true);
     const events = ar.flushEvents();
     expect(events.length).toBe(1);
@@ -487,6 +517,7 @@ describe('QuestionnaireAr (v2)', () => {
     expect(events[0]!.payload).toEqual({
       questionnaireId: ar.state.uuid,
       respondentId: '00000000-0000-0000-0000-000000000007',
+      reason: 'timeout',
     });
   });
 });

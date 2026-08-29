@@ -1,7 +1,7 @@
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import { BaseQuestionnaireAr } from '../a-root';
-import type { BaseQuestionnaireArMeta } from '../entity';
+import type { AbandonReason, BaseQuestionnaireArMeta } from '../entity';
 import type {
   LikertQuestionnaireAbandonEvent,
   LikertQuestionnaireCompleteEvent,
@@ -93,7 +93,9 @@ export class LikertQuestionnaireAr extends BaseQuestionnaireAr<LikertQuestionnai
     };
   }
 
-  protected buildAbandonedEvent(): LikertQuestionnaireAbandonEvent {
+  protected buildAbandonedEvent(
+    _reason: AbandonReason,
+  ): LikertQuestionnaireAbandonEvent {
     return {
       ...this.baseEvent(),
       eventName: 'questionnaire:likert-abandon',
