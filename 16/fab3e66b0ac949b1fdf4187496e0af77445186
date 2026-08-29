@@ -1,0 +1,8 @@
+Фаза 6 (кодовая часть): questionnaire в ApiApp, UiApp start/stop, main + graceful shutdown
+
+Решения:
+- порядок старта: uiApp.start() до apiApp.start() — события job'ов находят слушателей
+- shutdown в обратном порядке: uiApp.stop → apiApp.stop → бот/сервер; повторный сигнал — форс-exit
+- e2e-фикс: test-app включил questionnaire в ApiApp (после отказа от self-init иначе не инициализировался)
+- SweepAbandonedJob: публикация через базовый publishEvents (носитель-массив в приватном #publishAll —
+  агрегат не знает telegramId, обогащение перед публикацией сохранено)
