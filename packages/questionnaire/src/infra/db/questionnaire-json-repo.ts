@@ -1,6 +1,8 @@
 import type { BaseJsonDb } from '@u7-scl/core/infra';
 import { JsonFileRepo } from '@u7-scl/core/infra';
+import type { QuestionnaireStatus } from '#domain/questionnaire/entity';
 import type {
+  GetIdleQuestionnairesParams,
   QuestionnaireRepo,
   QuestionnaireState,
 } from '#domain/questionnaire/repo';
@@ -39,5 +41,26 @@ export class QuestionnaireJsonRepo
   async getActive(): Promise<QuestionnaireState[]> {
     const all = await this.readAll();
     return all.filter((q) => q.status === 'in_progress');
+  }
+
+  async getIdle<
+    K extends QuestionnaireState['kind'] = QuestionnaireState['kind'],
+  >(
+    params: GetIdleQuestionnairesParams<K>,
+  ): Promise<Array<Extract<QuestionnaireState, { kind: K }>>> {
+    const statuses: QuestionnaireStatus[] = params.statuses ?? [
+      'invited',
+      'in_progress',
+    ];
+    const now = Date.now();
+    const all = await this.readAll();
+    return all.filter((q): q is Extract<QuestionnaireState, { kind: K }> => {
+      if (!statuses.includes(q.status)) return false;
+      if (params.kinds && !params.kinds.includes(q.kind as K)) {
+        return false;
+      }
+      const idleFrom = Date.parse(q.updatedAt ?? q.createdAt);
+      return now - idleFrom >= params.idleMs;
+    });
   }
 }

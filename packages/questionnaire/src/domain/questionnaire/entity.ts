@@ -30,6 +30,19 @@ export type QuestionnaireStatus = v.InferOutput<
   typeof QuestionnaireStatusSchema
 >;
 
+/** Причина прерывания анкеты */
+export const AbandonReasonSchema = v.picklist(
+  ['timeout', 'by_user'],
+  'Некорректная причина прерывания анкеты',
+);
+
+/**
+ * Причина прерывания анкеты:
+ * - 'timeout' — анкета закрыта планировщиком по таймауту простоя;
+ * - 'by_user' — пользователь прервал анкету вручную.
+ */
+export type AbandonReason = v.InferOutput<typeof AbandonReasonSchema>;
+
 /** Схема состояния обычной анкеты */
 export const QuestionnaireSchema = v.object({
   kind: v.literal('standard'),
@@ -63,6 +76,8 @@ export const QuestionnaireSchema = v.object({
   completedAt: v.nullable(
     v.pipe(v.string(), v.isoDateTime('Некорректный формат даты завершения')),
   ),
+  /** Причина прерывания — персистируется вместе со статусом abandoned */
+  abandonReason: v.optional(AbandonReasonSchema),
 });
 
 export type Questionnaire = v.InferOutput<typeof QuestionnaireSchema>;
@@ -92,6 +107,8 @@ export type BaseQuestionnaireState = {
   /** Когда анкете отправлено предупреждение о закрытии */
   warnedAt?: string;
   completedAt: string | null;
+  /** Причина прерывания анкеты (см. AbandonReason) */
+  abandonReason?: AbandonReason;
 };
 
 /** Метаданные агрегата Questionnaire */

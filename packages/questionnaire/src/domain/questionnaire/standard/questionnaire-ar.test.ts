@@ -304,6 +304,60 @@ describe('QuestionnaireAr (v2)', () => {
     ar.abandon(); // повторно не падает
   });
 
+  test("abandon('by_user') персистит reason в состоянии и событии", () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+
+    ar.abandon('by_user');
+
+    expect(ar.state.status).toBe('abandoned');
+    expect(ar.state.abandonReason).toBe('by_user');
+
+    const events = ar.flushEvents();
+    expect(events.length).toBe(1);
+    const event = events[0]!;
+    if (event.eventName !== 'questionnaire:abandon') {
+      throw new Error('ожидалось событие questionnaire:abandon');
+    }
+    expect(event.payload.reason).toBe('by_user');
+  });
+
+  test("abandon('timeout') персистит reason в состоянии и событии", () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+
+    ar.abandon('timeout');
+
+    expect(ar.state.status).toBe('abandoned');
+    expect(ar.state.abandonReason).toBe('timeout');
+
+    const events = ar.flushEvents();
+    const event = events[0]!;
+    if (event.eventName !== 'questionnaire:abandon') {
+      throw new Error('ожидалось событие questionnaire:abandon');
+    }
+    expect(event.payload.reason).toBe('timeout');
+  });
+
+  test('abandon() без reason — abandonReason не установлен', () => {
+    const ar = QuestionnaireFactory.createStandard(
+      '00000000-0000-0000-0000-000000000007',
+      simplePool(),
+    );
+    ar.start();
+
+    ar.abandon();
+
+    expect(ar.state.status).toBe('abandoned');
+    expect(ar.state.abandonReason).toBeUndefined();
+  });
+
   test('abandon на completed — выбрасывает ошибку', () => {
     const ar = QuestionnaireFactory.createStandard(
       '00000000-0000-0000-0000-000000000007',

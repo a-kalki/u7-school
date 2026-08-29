@@ -26,7 +26,8 @@ export class AbandonUc extends QuestionnaireUseCase<AbandonCmdMeta> {
       actor,
     );
     const ar = QuestionnaireFactory.restore(state);
-    ar.abandon();
+    // Ручное прерывание пользователем — фиксируем причину в состоянии и событии
+    ar.abandon('by_user');
     await this.repo.save(ar.state);
     this.publishEvents(ar);
     return undefined;

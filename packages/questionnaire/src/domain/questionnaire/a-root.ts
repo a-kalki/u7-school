@@ -2,6 +2,7 @@ import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import * as v from 'valibot';
 import type {
+  AbandonReason,
   Answer,
   BaseQuestionnaireArMeta,
   BaseQuestionnaireState,
@@ -42,7 +43,9 @@ export abstract class BaseQuestionnaireAr<
   protected abstract buildDeclinedEvent(): TMeta['events'];
 
   /** Событие прерывания анкеты (in_progress → abandoned). */
-  protected abstract buildAbandonedEvent(reason?: 'timeout'): TMeta['events'];
+  protected abstract buildAbandonedEvent(
+    reason?: AbandonReason,
+  ): TMeta['events'];
 
   /**
    * Отмечает, что анкете отправлено предупреждение о закрытии.
@@ -96,16 +99,18 @@ export abstract class BaseQuestionnaireAr<
 
   /**
    * Отменяет заполнение анкеты: in_progress → abandoned.
-   * @param reason — причина прерывания; 'timeout' — анкета закрыта планировщиком по таймауту.
+   * @param reason — причина прерывания: 'timeout' (планировщик по таймауту) или
+   *   'by_user' (ручное прерывание). Персистируется в состоянии (abandonReason)
+   *   и попадает в payload события questionnaire:abandon.
    */
-  abandon(reason?: 'timeout'): void {
+  abandon(reason?: AbandonReason): void {
     if (this.state.status === 'abandoned') {
       return;
     }
     if (this.state.status === 'completed') {
       this.throwBadRequest('Анкета не активна');
     }
-    this.safeUpdate({ status: 'abandoned' });
+    this.safeUpdate({ status: 'abandoned', abandonReason: reason });
     this.addEvent(this.buildAbandonedEvent(reason));
   }
 

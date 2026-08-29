@@ -1,7 +1,11 @@
 import { isoNow } from '@u7-scl/core/shared';
 import { BaseQuestionnaireAr } from '../a-root';
-import type { BaseQuestionnaireArMeta } from '../entity';
-import { type Questionnaire, QuestionnaireSchema } from '../entity';
+import type {
+  AbandonReason,
+  BaseQuestionnaireArMeta,
+  Questionnaire,
+} from '../entity';
+import { QuestionnaireSchema } from '../entity';
 import type {
   QuestionnaireAbandonEvent,
   QuestionnaireCompleteEvent,
@@ -55,7 +59,9 @@ export class QuestionnaireAr extends BaseQuestionnaireAr<StandardQuestionnaireAr
     };
   }
 
-  protected buildAbandonedEvent(reason?: 'timeout'): QuestionnaireAbandonEvent {
+  protected buildAbandonedEvent(
+    reason?: AbandonReason,
+  ): QuestionnaireAbandonEvent {
     return {
       eventId: crypto.randomUUID(),
       eventName: 'questionnaire:abandon',

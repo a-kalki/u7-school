@@ -28,6 +28,17 @@ function mockRepo(
       data.filter((q: any) => q.respondentId === id) as any,
     getActive: async () =>
       data.filter((q: any) => q.status === 'in_progress') as any,
+    getIdle: async (params: any) =>
+      data.filter((q: any) => {
+        const statuses: string[] = params.statuses ?? [
+          'invited',
+          'in_progress',
+        ];
+        if (!statuses.includes(q.status)) return false;
+        if (params.kinds && !params.kinds.includes(q.kind)) return false;
+        const idleFrom = Date.parse(q.updatedAt ?? q.createdAt);
+        return Date.now() - idleFrom >= params.idleMs;
+      }) as any,
   };
 }
 
@@ -402,5 +413,11 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
       'questionnaire:decline',
       'questionnaire:abandon',
     ]);
+
+    // Ручное прерывание из UC — reason='by_user'
+    const abandonEvent = received.find(
+      (e) => e.eventName === 'questionnaire:abandon',
+    );
+    expect(abandonEvent?.payload.reason).toBe('by_user');
   });
 });

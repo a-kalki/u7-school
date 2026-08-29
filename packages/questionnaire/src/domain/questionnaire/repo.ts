@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { QuestionnaireSchema } from './entity';
+import { QuestionnaireSchema, type QuestionnaireStatus } from './entity';
 import { LikertQuestionnaireSchema } from './likert/likert-questionnaire';
 
 /**
@@ -13,6 +13,21 @@ export const QuestionnaireStateSchema = v.variant('kind', [
 ]);
 
 export type QuestionnaireState = v.InferOutput<typeof QuestionnaireStateSchema>;
+
+/**
+ * Параметры выборки неактивных анкет — все фильтры применяются в запросе.
+ * Тип K связан с kinds: позволяет сузить возвращаемый тип до нужного варианта.
+ */
+export interface GetIdleQuestionnairesParams<
+  K extends QuestionnaireState['kind'] = QuestionnaireState['kind'],
+> {
+  /** Минимальный простой в мс — от `updatedAt ?? createdAt` */
+  idleMs: number;
+  /** Типы анкет; если не указан — все типы */
+  kinds?: K[];
+  /** Статусы анкет; если не указан — активные (invited, in_progress) */
+  statuses?: QuestionnaireStatus[];
+}
 
 /**
  * Интерфейс репозитория анкет.
@@ -29,4 +44,17 @@ export interface QuestionnaireRepo {
 
   /** Получить все активные анкеты (в статусе in_progress) — для планировщика брошенных анкет */
   getActive(): Promise<QuestionnaireState[]>;
+
+  /**
+   * Получить неактивные анкеты — для планировщика брошенных анкет.
+   * Возвращает незавершённые анкеты с простоем от `updatedAt ?? createdAt`
+   * не меньше порога. По умолчанию — активные анкеты, включая выданные,
+   * но не начатые (invited). Все фильтры применяются в запросе.
+   *
+   * @typeParam K — типы анкет: при указании kinds возвращаемый тип
+   *   сужается до соответствующих вариантов QuestionnaireState.
+   */
+  getIdle<K extends QuestionnaireState['kind'] = QuestionnaireState['kind']>(
+    params: GetIdleQuestionnairesParams<K>,
+  ): Promise<Array<Extract<QuestionnaireState, { kind: K }>>>;
 }

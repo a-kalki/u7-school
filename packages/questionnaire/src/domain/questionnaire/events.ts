@@ -37,8 +37,12 @@ export interface QuestionnaireAbandonEvent<
   aggregateName: BaseQuestionnaireArMeta['name'];
   ownerInfo: TOwnerInfo;
   payload: QuestionnaireBasePayload & {
-    /** 'timeout' — анкета закрыта планировщиком по таймауту */
-    reason?: 'timeout';
+    /**
+     * Причина прерывания:
+     * - 'timeout' — анкета закрыта планировщиком по таймауту простоя;
+     * - 'by_user' — пользователь прервал анкету вручную.
+     */
+    reason?: 'timeout' | 'by_user';
     /** Telegram ID респондента (добавляется при публикации из job) */
     telegramId?: number;
   };

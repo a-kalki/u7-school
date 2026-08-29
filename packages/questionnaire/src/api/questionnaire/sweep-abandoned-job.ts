@@ -30,7 +30,7 @@ interface SweepAbandonedJobMeta extends JobMeta {
  *
  * - Время простоя считается от updatedAt (любая активность респондента
  *   сбрасывает таймер; предупреждение — НЕТ: markWarned обходит safeUpdate).
- * - Обрабатываются только анкеты kind='standard'.
+ * - Тип, активность и порог простоя фильтруются в запросе репозитория (getIdle).
  * - Ошибка обработки одной анкеты не прерывает обход.
  */
 export class SweepAbandonedJob extends Job<
@@ -45,19 +45,22 @@ export class SweepAbandonedJob extends Job<
   };
 
   async execute(): Promise<void> {
-    const active = await this.resolve.questionnaireRepo.getActive();
+    // Все фильтры (тип, активность, порог простоя) — в запросе репозитория
+    const idle = await this.resolve.questionnaireRepo.getIdle({
+      idleMs: WARN_AFTER_IDLE_MS,
+      kinds: ['standard'],
+    });
 
-    for (const state of active) {
-      if (state.kind !== 'standard') continue;
-
-      // Простое время: от последнего обновления (или создания)
+    for (const state of idle) {
+      // Точный простой: репо отсёк всё ниже порога предупреждения,
+      // здесь различаем порог предупреждения и порог закрытия
       const idleFrom = Date.parse(state.updatedAt ?? state.createdAt);
       const idleMs = Date.now() - idleFrom;
 
       try {
         if (idleMs >= ABANDON_AFTER_IDLE_MS) {
           await this.abandonByTimeout(state);
-        } else if (idleMs >= WARN_AFTER_IDLE_MS && !state.warnedAt) {
+        } else if (!state.warnedAt) {
           await this.warn(state);
         }
       } catch (err) {

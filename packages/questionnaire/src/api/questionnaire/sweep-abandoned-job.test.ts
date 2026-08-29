@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { QuestionnaireApiModuleResolver } from '../../domain/module';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
+import type { GetIdleQuestionnairesParams } from '../../domain/questionnaire/repo';
 import { SweepAbandonedJob } from './sweep-abandoned-job';
 
 // ══ Помощники ══
@@ -43,7 +44,7 @@ function makeState(overrides: Partial<Questionnaire> = {}): Questionnaire {
 }
 
 interface JobMocks {
-  getActive: ReturnType<typeof mock>;
+  getIdle: ReturnType<typeof mock>;
   save: ReturnType<typeof mock>;
   publish: ReturnType<typeof mock>;
   getUserByUuid: ReturnType<typeof mock>;
@@ -54,7 +55,16 @@ function makeResolve(
   userByUuid: Map<string, number>,
 ): { resolve: QuestionnaireApiModuleResolver; mocks: JobMocks } {
   const mocks: JobMocks = {
-    getActive: mock(async () => states),
+    // Мок эмулирует контракт getIdle: фильтры применяются в запросе
+    getIdle: mock(async (params: GetIdleQuestionnairesParams) =>
+      states.filter((s) => {
+        if (params.kinds && !params.kinds.includes(s.kind)) return false;
+        if (params.statuses && !params.statuses.includes(s.status))
+          return false;
+        const idleFrom = Date.parse(s.updatedAt ?? s.createdAt);
+        return Date.now() - idleFrom >= params.idleMs;
+      }),
+    ),
     save: mock(async (_q: Questionnaire) => {}),
     publish: mock((_e: unknown) => {}),
     getUserByUuid: mock(async (uuid: string) =>
@@ -66,7 +76,7 @@ function makeResolve(
 
   const resolve = {
     questionnaireRepo: {
-      getActive: mocks.getActive,
+      getIdle: mocks.getIdle,
       save: mocks.save,
       getByUuid: mock(async () => undefined),
       getByRespondentId: mock(async () => []),
@@ -187,6 +197,7 @@ describe('SweepAbandonedJob', () => {
     expect(mocks.save).toHaveBeenCalledTimes(1);
     const saved = mocks.save.mock.calls[0]![0] as Questionnaire;
     expect(saved.status).toBe('abandoned');
+    expect(saved.abandonReason).toBe('timeout');
 
     expect(mocks.publish).toHaveBeenCalledTimes(1);
     const event = mocks.publish.mock.calls[0]![0] as {
