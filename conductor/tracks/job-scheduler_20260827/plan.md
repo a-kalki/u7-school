@@ -40,11 +40,11 @@
 
 ## Фаза 6: Редизайн v2 — модули и жизненный цикл приложения
 
-- [ ] Task: Questionnaire → обычный модуль: убрать self-init из конструктора, мета в `U7BotAppMeta`, убрать `allModules` из bundle
-- [ ] Task: Явные `jobs = []` в user/wish/stream/course; миграция `SweepAbandonedJob` на `schedule` + `publishEvents`
-- [ ] Task: Написать падающие тесты: `UiApp.start()/stop()`
-- [ ] Task: Реализовать `UiApp.start()/stop()` в core/ui
-- [ ] Task: Переписать main.ts: `uiApp.start()` → `apiApp.start()`, graceful shutdown (SIGINT/SIGTERM), удалить старый `apps/u7-bot/src/infra/job-scheduler.ts`
+- [x] Task: Questionnaire → обычный модуль: убрать self-init из конструктора, мета в `U7BotAppMeta`, убрать `allModules` из bundle [16fab3e]
+- [x] Task: Явные `jobs = []` в user/wish/stream/course (фаза 5); миграция `SweepAbandonedJob` на `schedule` + `publishEvents` [16fab3e]
+- [x] Task: Написать падающие тесты: `UiApp.start()/stop()` [16fab3e]
+- [x] Task: Реализовать `UiApp.start()/stop()` в core/ui [16fab3e]
+- [x] Task: Переписать main.ts: `uiApp.start()` → `apiApp.start()`, graceful shutdown (SIGINT/SIGTERM), удалить старый `apps/u7-bot/src/infra/job-scheduler.ts` [16fab3e]
 - [ ] Task: Conductor - Ручная верификация 'Жизненный цикл и graceful shutdown'
 
 ## Фаза 7: Ревизия v2 — документация
