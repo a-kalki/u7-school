@@ -1,0 +1,13 @@
+Отчёт о верификации — Фаза 9 (Обязательный reason прерывания)
+
+Автоматические проверки (команда: bun run lint && bun run tslint && bun test):
+- biome check — без ошибок
+- tsc --noEmit — без ошибок
+- bun test — 1761 pass / 0 fail (188 файлов)
+
+Изменённые файлы фазы: domain/questionnaire/a-root.ts, standard/questionnaire-ar.ts,
+likert/likert-questionnaire-ar.ts, standard/questionnaire-ar.test.ts.
+
+Ручная верификация: подтверждена пользователем командой на завершение трека
+('ок, завершай трек'); полный прогон автотестов зелёный, отдельный ручной
+сценарий в боте не проводился.
