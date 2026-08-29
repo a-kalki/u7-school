@@ -47,14 +47,21 @@
 - [x] Task: Переписать main.ts: `uiApp.start()` → `apiApp.start()`, graceful shutdown (SIGINT/SIGTERM), удалить старый `apps/u7-bot/src/infra/job-scheduler.ts` [16fab3e]
 - [x] Task: Conductor - Ручная верификация 'Жизненный цикл и graceful shutdown'
 
-## Фаза 8: Уточнение контрактов предупреждения о закрытии
-
-- [x] Task: Переименовать событие `questionnaire:warning` → `questionnaire:abandon-warning` (+ тип `QuestionnaireAbandonWarningEvent`): events.ts, SweepAbandonedJob, FillStory, тесты, spec.md [caa65ad]
-- [ ] Task: Явный reason ручного прерывания: домен `abandon(reason?: 'timeout' | 'by_user')`; AbandonUc передаёт `'by_user'`; поведение FillStory не менять (push только при 'timeout'); обновить события/тесты. Опционально (решить при реализации): персистировать reason в состоянии анкеты (сейчас — только в payload события)
-- [ ] Task: Репозиторий: явный метод выборки для SweepAbandonedJob — все фильтры в запросе. Перенести пороги WARN_AFTER_IDLE_MS/ABANDON_AFTER_IDLE_MS из api/job-файла в домен (repo не должен зависеть от api). Контракт метода: на вход — текущее время; возвращает in_progress-анкеты kind='standard' с простоем (от updatedAt ?? createdAt) ≥ порогов, разделённые на кандидатов на предупреждение (≥6ч, без warnedAt) и на закрытие (≥8ч). Заменить getActive() (используется только этим job'ом): доменный интерфейс, json-impl, questionnaire-repo-active.test.ts, моки в тестах
-
 ## Фаза 7: Ревизия v2 — документация
 
 - [x] Task: Обновить styleguide `skills/job.md` (JobSchedule, publishEvents, abstract jobs, объектная модель, misfire/alignUtc) [64cc198a]
 - [x] Task: Зафиксировать техдолг: JobExecutor → воркер (предусловие — внешнее хранилище); симметричный жизненный цикл init/start/stop по слоям — кандидат в отдельный трек [bfda592c]
-- [ ] Task: Conductor - Ручная верификация 'Документация v2'
+- [x] Task: Conductor - Ручная верификация 'Документация v2'
+
+## Фаза 8: Уточнение контрактов предупреждения о закрытии
+
+- [x] Task: Переименовать событие `questionnaire:warning` → `questionnaire:abandon-warning` (+ тип `QuestionnaireAbandonWarningEvent`): events.ts, SweepAbandonedJob, FillStory, тесты, spec.md [caa65ad]
+- [x] Task: Явный reason ручного прерывания: домен `abandon(reason?: 'timeout' | 'by_user')`; AbandonUc передаёт `'by_user'`; поведение FillStory не менять (push только при 'timeout'); обновить события/тесты. Персистировать reason в состоянии анкеты (сейчас — только в payload события)
+- [x] Task: Репозиторий: явный метод выборки для SweepAbandonedJob — все фильтры в запросе.  Контракт метода: порог по времени; возвращает все незавершенные анкеты с простоем (от updatedAt ?? createdAt) ≥ порогов, опционально можно указать нужные типы как массив, по умолчанию только активные, в том числе выданные, но не начатые (если такой статус есть). Заменить вызов getActive() в job на этот метод.
+
+## Фаза 9: Обязательный reason прерывания
+
+- [ ] Task: Обязательный reason прерывания в агрегате: домен `abandon(reason: AbandonReason)` — параметр обязателен, без reason прерывать нельзя; инвариант агрегата: статус `abandoned` ⇒ `abandonReason` заполнен (проверка при restore/конструировании). Свойство `abandonReason` уже есть в схеме/состоянии (фаза 8) — переиспользовать; AbandonUc передаёт `'by_user'`, SweepAbandonedJob — `'timeout'`. Без обратной совместимости со старыми abandoned-записями без reason (новый агрегат, ломать данные безопасно); обновить тесты (сценарий «abandon без reason» → ожидаем ошибку/невалидность)
+- [ ] Task: Conductor - Ручная верификация 'Reason'
+
+> Техдолг по таймзонам (Date.parse дат isoNow без маркера зоны) снят с фазы — перенесён в TODO.md, раздел «Планировщик Job»: прод работает в UTC, проявление — только при переезде окружения.
