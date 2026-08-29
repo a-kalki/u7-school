@@ -32,5 +32,5 @@
 
 - [x] Task: Обновление `scripts/call-uc.ts`: подключить все модули (добавить questionnaire, wish) — запрос пользователя, вне исходного плана [d2530532]
 - [x] Task: Удаление временных файлов миграции (песочница /tmp/u7-migration-sandbox, /tmp/pre-migration-md5.txt) — запрос пользователя, вне исходного плана [d2530532]
-- [ ] Task: summary.md трека; обновление MIGRATION-OLD-QUESTIONNAIRES.md (итог миграции); отметка трека в conductor/tracks.md
-- [ ] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
+- [x] Task: summary.md трека; обновление MIGRATION-OLD-QUESTIONNAIRES.md (итог миграции); отметка трека в conductor/tracks.md [c8fd41ba]
+- [~] Task: Conductor - Ручная верификация 'Фаза 4' (Protocol in workflow.md)
