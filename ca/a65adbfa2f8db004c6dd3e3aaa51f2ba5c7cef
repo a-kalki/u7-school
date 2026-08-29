@@ -1,0 +1,12 @@
+Задача Фазы 8: переименование события questionnaire:warning → questionnaire:abandon-warning (явное имя: предупреждение о закрытии анкеты).
+
+Сводка:
+- packages/questionnaire/src/domain/questionnaire/events.ts: eventName + тип QuestionnaireWarningEvent → QuestionnaireAbandonWarningEvent.
+- sweep-abandoned-job.ts (публикация), fill.story.ts (подписка), ui-spec.md, spec.md трека — синхронно.
+- Тесты: sweep-abandoned-job.test.ts, fill.story.warning.test.ts, fill.story.test.ts.
+
+Попутно (автофикс biome, тот же файл): organizeImports + format в fill.story.ts после удлинения имени типа.
+
+BREAKING: имя события в контракте событий questionnaire. Публикация и подписка обновлены в одном коммите.
+
+Проверки: bun run check — exit 0, 1748 pass / 0 fail.
