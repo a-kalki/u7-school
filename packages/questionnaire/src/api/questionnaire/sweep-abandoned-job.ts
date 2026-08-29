@@ -1,4 +1,5 @@
 import { Job, type JobMeta, type JobSchedule } from '@u7-scl/core/api';
+import type { DomainEvent } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
 import type { QuestionnaireApiModuleResolver } from '../../domain/module';
 import type { Questionnaire } from '../../domain/questionnaire/entity';
@@ -88,7 +89,7 @@ export class SweepAbandonedJob extends Job<
         telegramId,
       },
     };
-    this.resolve.eventBus.publish(event);
+    this.#publishAll([event]);
   }
 
   /** Принудительное закрытие по таймауту: abandon + событие с reason='timeout' */
@@ -104,8 +105,16 @@ export class SweepAbandonedJob extends Job<
       if (event.eventName === 'questionnaire:abandon') {
         event.payload.telegramId = telegramId;
       }
-      this.resolve.eventBus.publish(event);
     }
+    this.#publishAll(events);
+  }
+
+  /** Публикует события через базовый publishEvents (носитель — массив) */
+  #publishAll(events: DomainEvent[]): void {
+    this.publishEvents({
+      hasEvents: () => events.length > 0,
+      flushEvents: () => events.splice(0),
+    });
   }
 
   /** Telegram ID респондента (может отсутствовать, если пользователь удалён) */

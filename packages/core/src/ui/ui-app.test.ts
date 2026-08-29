@@ -188,4 +188,36 @@ describe('UiApp (общий слой)', () => {
     const app = new UiApp([]);
     expect(() => app.subscribeEvents()).toThrow('UiApp не инициализирован');
   });
+
+  test('start() подписывает сторин на события, stop() отписывает', () => {
+    const bus = new FakeEventBus();
+    const received: string[] = [];
+    const story = new TestStory([
+      eventSubscription<TestEvent>('test-event', async (event) => {
+        received.push(event.payload.value);
+      }),
+    ]);
+    const app = new UiApp([new TestController('ctrl', [story])]);
+    app.init(makeResolve(bus));
+
+    app.start();
+    bus.publish(makeEvent());
+    expect(received).toEqual(['hello']);
+
+    app.stop();
+    bus.publish(makeEvent());
+    expect(received).toEqual(['hello']);
+  });
+
+  test('start() до init — ошибка (как и подписки напрямую)', () => {
+    const app = new UiApp([]);
+    expect(() => app.start()).toThrow('UiApp не инициализирован');
+  });
+
+  test('stop() до start() — безопасен', () => {
+    const bus = new FakeEventBus();
+    const app = new UiApp([]);
+    app.init(makeResolve(bus));
+    expect(() => app.stop()).not.toThrow();
+  });
 });

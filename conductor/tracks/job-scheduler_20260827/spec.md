@@ -88,6 +88,46 @@
   - кнопки: `▶️ Продолжить анкету` → `fill:resume:{courseId}` из ownerInfo (механика трека D); `⏭️ Прервать` → существующий confirm-флоу отмены.
 - Подписка на `questionnaire:abandon`: сообщение «Анкета прервана. Начни заново в карточке курса» — **только при `reason === 'timeout'`** (пользовательский `/cancel` уже рендерит своё сообщение, дубля быть не должно).
 
+## Ревизия v2 — редизайн контракта Job и жизненного цикла приложения
+
+Ревью выполненной фазы 1 выявило архитектурные замечания. Ниже — зафиксированные решения (фазы 5–7 плана; заменяют решения FR1–FR2 в части контракта Job и планировщика).
+
+### Решения
+
+1. **Расписание — свойство-объект с дискриминантом `kind`** (вместо `intervalMs`), всё в **UTC**:
+   ```ts
+   type JobSchedule =
+     | { kind: 'interval'; intervalMs: number; alignUtc?: boolean; runAtStart?: boolean }
+     | { kind: 'dailyAt'; hour: number; minute: number }
+     | { kind: 'weeklyAt'; weekday: number; hour: number; minute: number } // 0=вс…6=сб
+     | { kind: 'monthlyAt'; day: number; hour: number; minute: number };   // 1–31, кламп на последний день месяца
+   ```
+   - `alignUtc` — сетка от epoch (UTC): «каждые 6ч после 12:00 UTC» = `intervalMs: 6h + alignUtc`. Сценарий «окно запуска» — не вводится.
+2. **`JobMeta = { name; label }`** — без `events` (публикация событий — ответственность агрегата). Job типизируется метой как UC/ER.
+3. **`Job.publishEvents(ar)`** — защищённый метод в базовом классе, имя и семантика как у UseCase.
+4. **`ApiModule.jobs` — abstract**: каждый модуль явно объявляет свои job'ы (в т.ч. пустой список).
+5. **Переживание перезагрузки**: порт `JobRunStore` персистит `lastRunAt` по `jobName` (JSON-файл `db/jobs/last-runs.json`); пишется после каждого прогона (в т.ч. упавшего). При старте упущенный запуск календарного расписания — **один** догоняющий прогон (multi-misfire не воспроизводится, job'ы идемпотентны).
+6. **Стартовая задержка** прогонов при старте приложения — 3 мин (константа планировщика, параметр для тестов): не конкурировать с кодом запуска. `runAtStart` уважает `lastRunAt` (без дублей при рестартах).
+7. **`questionnaire` — обычный модуль ApiApp**: убрать self-`init()` из конструктора (нарушение каскадной инициализации), включить в `U7BotAppMeta.moduleMetas`, удалить ручной `allModules` из bundle.
+8. **Жизненный цикл приложения**: `ApiApp.start()/stop()` (job'ы через DI-планировщик), `UiApp.start()/stop()` (подписки/отписки стори — внутреннее дело UiApp). Порядок в main: `uiApp.start()` → `apiApp.start()` (подписки раньше job'ов). Graceful shutdown по SIGINT/SIGTERM: `uiApp.stop()` → `apiApp.stop()` → bot/server stop; повторный сигнал — форс-выход.
+9. **Worker — техдолг**: точка расширения — порт `JobExecutor` (реализация `InProcJobExecutor`). Вынос в отдельный процесс возможен только при внешнем хранилище (in-memory JSON-репо недоступны из воркера).
+
+### Объектная модель планировщика
+
+**Контракты — `core/api/job/`** (их знает ApiApp):
+- `Job<TMeta, TResolve>` — abstract: `jobName`, `jobLabel`, `schedule`, `init()`, `execute()`, `publishEvents()`;
+- `JobScheduler` — порт: `start(jobs)`, `stop()`;
+- `JobExecutor` — порт: `execute(job)` (точка будущего воркера).
+
+**Реализации — `core/infra/`** (аналог InProcEventBus):
+- `InProcJobScheduler implements JobScheduler` — оркестратор: создаёт по раннеру на job, делегирует start/stop;
+- `ScheduledJobRunner` — инкапсулирует один job: таймер, misfire-политика, стартовая задержка, запись `lastRunAt`;
+- `JobSchedulePlanner` — чистая календарная математика: `nextRunAfter(schedule, after)` (UTC, кламп, сетка alignUtc);
+- `JobRunStore` (порт, только для infra) + `JsonJobRunStore` / `MemoryJobRunStore`;
+- `InProcJobExecutor implements JobExecutor` — прогон в текущем процессе.
+
+Ответственности: ApiApp знает модули и запускает планировщик; JobScheduler координирует; ScheduledJobRunner владеет жизнью одного job; Planner считает время; Store помнит прогоны. Хелпер-функции не раскидываются по пакету — каждая ответственность в своём объекте.
+
 ## Критерии приёмки
 
 - [ ] ApiModule регистрирует jobs; резолвер пробрасывается; JobScheduler запускает по интервалу; ошибка прогона логируется, процесс жив.

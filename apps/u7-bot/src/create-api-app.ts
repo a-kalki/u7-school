@@ -44,8 +44,6 @@ import type { U7BotAppMeta } from './core/u7-bot-app-meta';
  */
 export interface ApiAppBundle {
   apiApp: ApiApp<U7BotAppMeta>;
-  /** Все API-модули приложения, включая standalone (questionnaire). */
-  allModules: ApiModule<ApiModuleMeta, ModuleResolver>[];
   eventBus: EventBus;
   userFacade: UserInProcFacade;
   userRepo: UserJsonRepo;
@@ -153,12 +151,13 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     eventBus: appResolver.eventBus,
   });
 
-  // ══ ApiApp: модули ══
+  // ══ ApiApp: модули (questionnaire — полноправный участник) ══
   const apiApp = new ApiApp<U7BotAppMeta>([
     userModule,
     wishModule,
     streamModule,
     courseModule,
+    questionnaireModule,
   ]);
 
   // Каскадная инициализация: ApiApp → модули.
@@ -171,17 +170,8 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     }),
   );
 
-  // allModules — для планировщика периодических заданий (Job).
-  // questionnaire — standalone-модуль (в ApiApp не входит), инициализируется
-  // в конструкторе, поэтому добавляем его отдельно.
-  const allModules: ApiModule<ApiModuleMeta, ModuleResolver>[] = [
-    ...apiApp.getModules(),
-    questionnaireModule,
-  ];
-
   return {
     apiApp,
-    allModules,
     eventBus: appResolver.eventBus,
     userFacade,
     userRepo,

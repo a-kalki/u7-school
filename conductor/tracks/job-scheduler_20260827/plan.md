@@ -27,3 +27,28 @@
 - [x] Task: Добавить Job в таблицу arch-boundary-design + styleguide `skills/job.md` (по аналогии с usecase.md) [15c6f59]
 - [x] Task: Обновить `conductor/index.md` и questionnaire ui-spec (если экраны менялись) [15c6f59]
 - [x] Task: Conductor - Ручная верификация 'Документация'
+
+## Фаза 5: Редизайн v2 — контракты и объектная модель планировщика в core
+
+- [x] Task: Написать падающие тесты: `Job` v2 (JobSchedule/JobMeta/publishEvents), abstract `ApiModule.jobs` [2fb09e]
+- [x] Task: Реализовать `Job` v2 + abstract `jobs` + порт `JobScheduler`/`JobExecutor` в core/api [3d10410]
+- [x] Task: Написать падающие тесты: `JobSchedulePlanner` (все kind, UTC, кламп, alignUtc-сетка), `ScheduledJobRunner` (misfire, runAtStart, стартовая задержка, lastRunAt) [f63a25]
+- [x] Task: Реализовать `core/infra`: `JobSchedulePlanner`, `ScheduledJobRunner`, `InProcJobScheduler`, `InProcJobExecutor`, `JobRunStore` + `JsonJobRunStore`/`MemoryJobRunStore` [f63a25]
+- [x] Task: Написать падающие тесты: `ApiApp.start()/stop()` (DI-планировщик, job'ы всех модулей) [cff82f9a]
+- [x] Task: Реализовать `ApiApp.start()/stop()` + DI планировщика в конструктор [cff82f9a]
+- [ ] Task: Conductor - Ручная верификация 'Планировщик v2 в core'
+
+## Фаза 6: Редизайн v2 — модули и жизненный цикл приложения
+
+- [ ] Task: Questionnaire → обычный модуль: убрать self-init из конструктора, мета в `U7BotAppMeta`, убрать `allModules` из bundle
+- [ ] Task: Явные `jobs = []` в user/wish/stream/course; миграция `SweepAbandonedJob` на `schedule` + `publishEvents`
+- [ ] Task: Написать падающие тесты: `UiApp.start()/stop()`
+- [ ] Task: Реализовать `UiApp.start()/stop()` в core/ui
+- [ ] Task: Переписать main.ts: `uiApp.start()` → `apiApp.start()`, graceful shutdown (SIGINT/SIGTERM), удалить старый `apps/u7-bot/src/infra/job-scheduler.ts`
+- [ ] Task: Conductor - Ручная верификация 'Жизненный цикл и graceful shutdown'
+
+## Фаза 7: Ревизия v2 — документация
+
+- [ ] Task: Обновить styleguide `skills/job.md` (JobSchedule, publishEvents, abstract jobs, объектная модель, misfire/alignUtc)
+- [ ] Task: Зафиксировать техдолг: JobExecutor → воркер (предусловие — внешнее хранилище); симметричный жизненный цикл init/start/stop по слоям — кандидат в отдельный трек
+- [ ] Task: Conductor - Ручная верификация 'Документация v2'

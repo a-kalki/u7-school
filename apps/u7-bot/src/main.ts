@@ -15,7 +15,6 @@ import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
-import { startJobScheduler } from './infra/job-scheduler';
 import { TelegramLogger } from './infra/logger';
 
 const config = loadConfig();
@@ -38,18 +37,17 @@ const bot = createBot(config.botToken, sessionMap);
 const apiBundle = createApiApp(config, logger);
 const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);
 
-// ══ Планировщик периодических заданий (Job) ══
-// Ошибка одиночного прогона логируется внутри планировщика, процесс не падает.
-// Механизма graceful shutdown в приложении нет — таймеры живут до завершения процесса.
-startJobScheduler(apiBundle.allModules, logger);
-
 // ══ BotTransport — единый слой Grammy ↔ UiApp ══
 const transport = new BotTransport(uiBundle.uiApp, bot.api, sessionMap);
 
-// ══ Каскадная инициализация UI + подписка стори на доменные события ══
+// ══ Жизненный цикл: init → start ══
 // transport передаётся отдельным аргументом (ProactiveSender).
 uiBundle.uiApp.init(uiBundle.resolve, transport);
-uiBundle.uiApp.subscribeEvents();
+uiBundle.uiApp.start(); // подписки стори на доменные события — раньше старта job'ов
+
+// ══ Старт периодических заданий (Job) ══
+// Ошибка одиночного прогона логируется внутри планировщика, процесс не падает.
+apiBundle.apiApp.start();
 
 // ══ TelegramLogger — только если указаны adminTelegramIds ══
 if (config.adminTelegramIds.length > 0) {
@@ -164,6 +162,7 @@ bot.catch((err) => {
 });
 
 // ══ Запуск: polling или webhook ══
+let server: ReturnType<typeof Bun.serve> | undefined;
 if (config.botMode === 'webhook') {
   const webhookUrl = config.webhookUrl;
   if (!webhookUrl) {
@@ -177,7 +176,7 @@ if (config.botMode === 'webhook') {
 
   const handler = webhookCallback(bot, 'bun');
 
-  Bun.serve({
+  server = Bun.serve({
     hostname: '127.0.0.1',
     port: config.webhookPort,
     async fetch(req) {
@@ -197,3 +196,34 @@ if (config.botMode === 'webhook') {
   bot.start();
   logger.info('main', 'Бот запущен в режиме polling');
 }
+
+// ══ Graceful shutdown: SIGINT / SIGTERM ══
+let shuttingDown = false;
+async function shutdown(signal: string): Promise<void> {
+  if (shuttingDown) {
+    // Повторный сигнал — немедленный выход (не ждём зависших операций)
+    process.exit(1);
+  }
+  shuttingDown = true;
+  logger.info('main', `Получен ${signal} — graceful shutdown`);
+
+  try {
+    // 1. UI: отписка стори от доменных событий
+    uiBundle.uiApp.stop();
+    // 2. API: остановка периодических заданий
+    apiBundle.apiApp.stop();
+    // 3. Транспорт бота
+    if (config.botMode === 'webhook') {
+      server?.stop(true);
+    } else {
+      await bot.stop();
+    }
+  } catch (err) {
+    logger.error('main', `Ошибка при завершении: ${String(err)}`);
+  }
+
+  logger.info('main', 'Graceful shutdown завершён');
+  process.exit(0);
+}
+process.on('SIGINT', () => void shutdown('SIGINT'));
+process.on('SIGTERM', () => void shutdown('SIGTERM'));

@@ -32,10 +32,5 @@ export class QuestionnaireApiModule extends ApiModule<
     new GetQuestionnairesByUserUc(),
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
-  override readonly jobs = [new SweepAbandonedJob()];
-
-  constructor(resolve: QuestionnaireApiModuleResolver) {
-    super(resolve);
-    this.init();
-  }
+  readonly jobs = [new SweepAbandonedJob()];
 }

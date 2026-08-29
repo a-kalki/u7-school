@@ -49,9 +49,22 @@ export class UiApp<TResolve extends UiAppResolve = UiAppResolve> {
   }
 
   /**
-   * Подписывает все подписки контроллеров на шину событий.
+   * Старт UI: подписывает контроллеры (сторин) на шину событий.
+   * Подписки — внутренняя часть UiApp: вызывающий код знает только start/stop.
    * Повторный вызов не дублирует обработчики.
    */
+  start(): void {
+    this.subscribeEvents();
+  }
+
+  /**
+   * Остановка UI: отписывает все подписки (graceful shutdown).
+   */
+  stop(): void {
+    this.unsubscribeAll();
+  }
+
+  /** Подписывает все подписки контроллеров на шину событий. */
   subscribeEvents(): void {
     if (this.subscribed) return;
     if (!this.resolve) {

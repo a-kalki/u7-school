@@ -155,6 +155,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     wishModule,
     streamModule,
     courseModule,
+    questionnaireModule,
   ]);
 
   // Каскадная инициализация: ApiApp → модули (планировщик — через init)

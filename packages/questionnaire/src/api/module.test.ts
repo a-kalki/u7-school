@@ -113,6 +113,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ userFacade, eventBus }),
     );
+    mod.init();
 
     await mod.execute('start', { pool: simplePool(), ownerInfo: {} }, USER_ID);
 
@@ -129,6 +130,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
+    mod.init();
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
@@ -148,6 +150,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
+    mod.init();
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
@@ -168,6 +171,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
+    mod.init();
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
@@ -189,6 +193,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
+    mod.init();
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
@@ -210,6 +215,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
+    mod.init();
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
@@ -238,6 +244,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade }),
     );
+    mod.init();
 
     const qId = await seedStandardInvite(repo, USER_ID);
 
@@ -253,6 +260,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const user = mockUser();
     const userFacade = mockUserFacade(user);
     const mod = new QuestionnaireApiModule(makeResolve({ userFacade }));
+    mod.init();
 
     await expect(
       mod.execute(
@@ -279,6 +287,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade, eventBus }),
     );
+    mod.init();
 
     const likertPool: LikertQuestionPool = {
       questions: [
@@ -372,6 +381,7 @@ describe('QuestionnaireApiModule (v3 — commands)', () => {
     const mod = new QuestionnaireApiModule(
       makeResolve({ questionnaireRepo: repo, userFacade, eventBus }),
     );
+    mod.init();
 
     const declinedId = await seedStandardInvite(repo, USER_ID);
     await mod.execute(
