@@ -102,7 +102,7 @@ export class FillStory extends U7BotUiStory {
     event: QuestionnaireAbandonWarningEvent,
   ): Promise<void> {
     const { telegramId, questionnaireId } = event.payload;
-    const courseId = event.ownerInfo['courseId'];
+    const courseId = event.ownerInfo.courseId;
 
     const rows: { text: string; code: string }[][] = [];
     if (typeof courseId === 'string') {
