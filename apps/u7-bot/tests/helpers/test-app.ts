@@ -117,7 +117,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
 
   // ══ Questionnaire: модуль и фасад (зеркально create-api-app.ts) ══
   const qRepo = new QJsonRepo(
-    `${fixtures.dbDir}/questionnaires/q-questionnaires.json`,
+    `${fixtures.dbDir}/questionnaires/questionnaires.json`,
     db,
   );
 

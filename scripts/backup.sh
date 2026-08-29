@@ -10,8 +10,7 @@
 #
 # Копируемые файлы (отсутствующие пропускаются с предупреждением):
 #   users:       users.json, seed.json
-#   questionnaires: questionnaires.json (старый движок onboarding, архив),
-#                   q-questionnaires.json (новый движок questionnaire)
+#   questionnaires: questionnaires.json (движок questionnaire)
 #   wish:        wishes.json
 #   jobs:        last-runs.json (состояние планировщика)
 #   streams:     streams.json, students.json
@@ -33,7 +32,6 @@ FILES=(
   "users/users.json"
   "users/seed.json"
   "questionnaires/questionnaires.json"
-  "questionnaires/q-questionnaires.json"
   "wish/wishes.json"
   "jobs/last-runs.json"
   "streams/streams.json"

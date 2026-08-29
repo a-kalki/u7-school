@@ -106,7 +106,7 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
 
   // ══ Questionnaire: модуль и фасад ══
   const qRepo = new QJsonRepo(
-    `${config.dbDir}/questionnaires/q-questionnaires.json`,
+    `${config.dbDir}/questionnaires/questionnaires.json`,
     db,
   );
 
