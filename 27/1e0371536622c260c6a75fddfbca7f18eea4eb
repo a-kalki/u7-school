@@ -1,0 +1,22 @@
+Задача: Обязательный reason прерывания в агрегате (Фаза 9, трек job-scheduler_20260827)
+
+Изменения:
+- domain/questionnaire/a-root.ts: abandon(reason: AbandonReason) — параметр
+  обязателен + рантайм-валидация AbandonReasonSchema (без reason — BadRequest,
+  состояние не меняется); decline() проставляет 'by_user'; добавлен
+  checkInvariant(): abandoned ⇒ abandonReason заполнен (конструирование,
+  restore, каждое обновление состояния).
+- standard/questionnaire-ar.ts: buildAbandonedEvent(reason: AbandonReason),
+  payload события всегда содержит reason.
+- likert/likert-questionnaire-ar.ts: сигнатура согласована (_reason).
+- Тесты: сценарий «abandon без reason» теперь ожидает ошибку; новые тесты:
+  abandon с невалидным reason → ошибка; restore abandoned без abandonReason →
+  нарушение инварианта; decline → abandonReason 'by_user'; обновлены
+  существующие вызовы abandon() на явные reason.
+
+Причина: замкнуть инвариант «каждая abandoned-анкета имеет причину» —
+без reason прерывать нельзя. Вызывающие стороны уже передают reason
+(AbandonUc — 'by_user', SweepAbandonedJob — 'timeout'), обратная
+совместимость со старыми abandoned-записями не требуется (решение в плане).
+
+Проверки: lint (biome) ✓, tsc --noEmit ✓, bun test 1761 pass ✓
