@@ -1,0 +1,4 @@
+Задача: порты JobScheduler/JobExecutor (Фаза 5)
+
+Изменения: core/api/job/job-scheduler.ts, job-executor.ts + экспорт из api/index.ts
+Причина: DI для ApiApp.start(); JobExecutor — точка будущего воркера (техдолг: предусловие — внешнее хранилище).
