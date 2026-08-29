@@ -1,0 +1,13 @@
+Задача Фазы 7: обновить styleguide skills/job.md под модель планировщика v2.
+
+Сводка:
+- Раздел «Поля Job» (jobName/jobLabel/intervalMs) заменён на объектную модель v2: Job<TMeta, TResolve> + JobMeta, schedule: JobSchedule, publishEvents(ar) как у UseCase.
+- Описан JobSchedule: interval (intervalMs, alignUtc-сетка от epoch, runAtStart), dailyAt, weeklyAt, monthlyAt (кламп дня); все времена UTC.
+- Новый раздел «Планировщик: порты и реализации»: JobScheduler/JobExecutor (core/api), InProcJobScheduler (startDelayMs 3 мин), JobRunRepo (Memory/Json, lastRunAt, misfire-политика «догнать упущенное»), JobSchedulePlanner.
+- Новый раздел «Жизненный цикл приложения»: ApiApp.init(scheduler)/start()/stop(), порядок uiApp.start() → apiApp.start(), graceful shutdown; ссылки на create-api-app.ts и main.ts.
+- Регистрация: ApiModule.jobs теперь abstract — явное объявление обязательно даже для пустого списка.
+- Тестирование: ссылки на тесты core/infra (planner, runner, scheduler, api-app, ui-app).
+
+Причина: styleguide описывал контракт v1 (intervalMs, startJobScheduler в app), который удалён в Фазах 5–6.
+
+Ссылки на живой код вместо дублирования — по правилам conductor-docs.
