@@ -23,9 +23,9 @@
 
 ## Фаза 3: Боевое применение
 
-- [ ] Task: Ручной бэкап данных (backup.sh / tar) до выполнения скрипта
-- [ ] Task: Остановка pm2 u7-school-bot → прогон скрипта → старт бота
-- [ ] Task: Проверка логов pm2: нет console.warn от JsonFileRepo; выборочная проверка анкет (get-questionnaires-by-user) и wish
+- [x] Task: Ручной бэкап данных (backup.sh / tar) до выполнения скрипта
+- [x] Task: Остановка pm2 u7-school-bot → прогон скрипта → старт бота
+- [x] Task: Проверка логов pm2: нет console.warn от JsonFileRepo; выборочная проверка анкет (get-questionnaires-by-user) и wish
 - [ ] Task: Conductor - Ручная верификация 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4: Завершение трека
