@@ -154,7 +154,7 @@ async function main() {
   const courseFacade = new CourseInProcFacade(courseModule);
 
   const qRepo = new QuestionnaireJsonRepo(
-    'data/questionnaires/q-questionnaires.json',
+    'data/questionnaires/questionnaires.json',
     db,
   );
   const questionnaireModule = new QuestionnaireApiModule({
