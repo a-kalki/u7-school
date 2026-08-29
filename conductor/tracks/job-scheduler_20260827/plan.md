@@ -49,6 +49,6 @@
 
 ## Фаза 7: Ревизия v2 — документация
 
-- [ ] Task: Обновить styleguide `skills/job.md` (JobSchedule, publishEvents, abstract jobs, объектная модель, misfire/alignUtc)
+- [x] Task: Обновить styleguide `skills/job.md` (JobSchedule, publishEvents, abstract jobs, объектная модель, misfire/alignUtc) [64cc198a]
 - [ ] Task: Зафиксировать техдолг: JobExecutor → воркер (предусловие — внешнее хранилище); симметричный жизненный цикл init/start/stop по слоям — кандидат в отдельный трек
 - [ ] Task: Conductor - Ручная верификация 'Документация v2'
