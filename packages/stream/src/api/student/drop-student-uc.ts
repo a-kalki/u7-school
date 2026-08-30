@@ -11,12 +11,13 @@ import type { StreamNotFoundUcError, StreamUcErrors } from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
 /**
- * Use-case самостоятельного выхода студента из потока.
- * active → abandoned (who=self, cause=voluntary) + −STUDENT.
+ * Use-case самостоятельного выхода студента из учёбы («Покинуть учёбу»).
+ * active/enrolled → abandoned (who=self, cause=voluntary) + −STUDENT
+ * + событие student.abandoned (кик из TG-группы, уведомление ментору).
  */
 export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
   protected readonly ucName = 'drop-student' as const;
-  protected readonly ucLabel = 'Выйти из потока' as const;
+  protected readonly ucLabel = 'Покинуть учёбу' as const;
   protected readonly arMeta = {
     arName: StudentAr.arName as 'Student',
     arLabel: StudentAr.arLabel as 'Студент потока',
@@ -49,6 +50,9 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
     const studentAr = new StudentAr(studentEntity);
     studentAr.drop();
     await studentRepo.save(studentAr.state);
+
+    // Событие ухода студента (подписчики: ER кика из TG-группы, стори уведомлений)
+    this.publishEvents(studentAr);
 
     // Снятие роли STUDENT
     await userFacade.removeRoleFromUser(

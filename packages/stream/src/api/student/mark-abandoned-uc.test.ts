@@ -170,6 +170,82 @@ describe('MarkAbandonedUc', () => {
     });
   });
 
+  test('снятие с учёбы публикует событие student.abandoned на шину', async () => {
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
+          status: 'enrolled',
+          enrolledAt: mockDate,
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUser: mock(() => Promise.resolve([])),
+      getByStream: mock(() => Promise.resolve([])),
+    };
+
+    const mockStreamRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '77777777-7777-4777-8777-777777777777',
+          title: 'Test Stream',
+          description: 'Test Description',
+          mentorId: '66666666-6666-4666-8666-666666666666',
+          moduleId: '33333333-3333-4333-8333-333333333333',
+          startDate: mockDate,
+          status: 'active',
+          contentSnapshot: [],
+          createdAt: mockDate,
+        }),
+      ),
+    };
+
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '66666666-6666-4666-8666-666666666666',
+          name: 'Mentor',
+          telegramId: 1,
+          roles: [Role.MENTOR],
+          createdAt: mockDate,
+        }),
+      ),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+    };
+
+    const mockEventBus = { publish: mock(() => {}) };
+
+    const uc = new MarkAbandonedUc();
+    uc.init({
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+      eventBus: mockEventBus,
+    } as unknown as StreamApiModuleResolver);
+
+    await uc.execute(
+      {
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        cause: 'inactivity',
+      },
+      '66666666-6666-4666-8666-666666666666',
+    );
+
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    const event = (mockEventBus.publish as ReturnType<typeof mock>).mock
+      .calls[0]![0];
+    expect(event.eventName).toBe('student.abandoned');
+    expect(event.payload.who).toBe('mentor');
+    expect(event.payload.cause).toBe('inactivity');
+  });
+
   test('не-ментор не может отчислить', async () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>

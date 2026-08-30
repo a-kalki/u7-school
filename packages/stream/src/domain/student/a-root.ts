@@ -1,6 +1,12 @@
 import { Aggregate } from '@u7-scl/core/domain';
 import { isoNow } from '@u7-scl/core/shared';
-import type { StepRecord, Student, StudentArMeta } from './entity';
+import type {
+  StepRecord,
+  Student,
+  StudentArMeta,
+  StudentNoticeKind,
+  StudentNoticeRecord,
+} from './entity';
 import { StudentSchema } from './entity';
 
 /**
@@ -81,6 +87,7 @@ export class StudentAr extends Aggregate<StudentArMeta> {
 
   /**
    * Активировать студента: enrolled → active.
+   * Возобновление учёбы сбрасывает цепочку уведомлений о бездействии.
    */
   activate(): void {
     if (this._state.status !== 'enrolled') {
@@ -90,36 +97,87 @@ export class StudentAr extends Aggregate<StudentArMeta> {
     }
     this.safeUpdate({
       status: 'active',
+      notices: [],
     });
   }
 
   /**
-   * Самостоятельный выход из потока: active → abandoned.
+   * Пометить, что уведомление данного типа отправлено.
+   * Даёт idempotentность повтора «через день» и проверяемость строки
+   * «уведомления были ранее отправлены» в уведомлении ментору.
+   */
+  markNoticed(kind: StudentNoticeKind, at: Date = new Date()): void {
+    const record: StudentNoticeRecord = {
+      kind,
+      // Формат до минут — общий стандарт хранения дат проекта (isoNow)
+      sentAt: at.toISOString().slice(0, 16),
+    };
+    // Последняя запись по kind — единственная значимая: заменяем её,
+    // историю всех отправок не храним.
+    const rest = (this._state.notices ?? []).filter((n) => n.kind !== kind);
+    this.safeUpdate({ notices: [...rest, record] });
+  }
+
+  /** Последняя отправленная запись уведомления данного типа (или undefined). */
+  getLastNotice(kind: StudentNoticeKind): StudentNoticeRecord | undefined {
+    const records = this._state.notices ?? [];
+    return records.find((n) => n.kind === kind);
+  }
+
+  /**
+   * Самостоятельный выход из учёбы: active/enrolled → abandoned.
+   * Публикует событие student.abandoned (UC'ем).
    */
   drop(): void {
-    if (this._state.status !== 'active') {
+    const status = this._state.status;
+    if (status !== 'active' && status !== 'enrolled') {
       this.throwBadRequest(
-        `Нельзя отчислить студента в статусе '${this._state.status}'.`,
+        `Нельзя снять студента с учёбы в статусе '${status}'.`,
       );
     }
     this.safeUpdate({
       status: 'abandoned',
       abandonDetails: { who: 'self', cause: 'voluntary' },
     });
+    this.#addAbandonedEvent('self', 'voluntary');
   }
 
   /**
-   * Отчисление ментором: active → abandoned.
+   * Снятие с учёбы ментором: active/enrolled → abandoned.
+   * Публикует событие student.abandoned (UC'ем).
    */
   markAbandoned(cause: 'inactivity' | 'by_mentor'): void {
-    if (this._state.status !== 'active') {
+    const status = this._state.status;
+    if (status !== 'active' && status !== 'enrolled') {
       this.throwBadRequest(
-        `Нельзя отчислить студента в статусе '${this._state.status}'.`,
+        `Нельзя снять студента с учёбы в статусе '${status}'.`,
       );
     }
     this.safeUpdate({
       status: 'abandoned',
       abandonDetails: { who: 'mentor', cause },
+    });
+    this.#addAbandonedEvent('mentor', cause);
+  }
+
+  /** Добавляет событие снятия с учёбы (student.abandoned). */
+  #addAbandonedEvent(
+    who: 'self' | 'mentor',
+    cause: 'voluntary' | 'inactivity' | 'by_mentor',
+  ): void {
+    this.addEvent({
+      eventId: crypto.randomUUID(),
+      eventName: 'student.abandoned',
+      occurredAt: isoNow(),
+      aggregateName: 'Student',
+      aggregateId: this._state.uuid,
+      payload: {
+        studentId: this._state.uuid,
+        userId: this._state.userId,
+        streamId: this._state.streamId,
+        who,
+        cause,
+      },
     });
   }
 
@@ -255,6 +313,9 @@ export class StudentAr extends Aggregate<StudentArMeta> {
 
     record.status = 'completed';
     record.completedAt = isoNow();
+
+    // Возобновление учёбы сбрасывает цепочку уведомлений о бездействии
+    this._state.notices = [];
 
     // Последний шаг потока — следующего нет
     if (!nextStepId) {

@@ -144,16 +144,35 @@ describe('StudentAr', () => {
       });
     });
 
-    test('drop не из active → ошибка', () => {
+    test('drop из enrolled (записался, но не начал) → abandoned', () => {
       const ar = StudentAr.enroll(
         mockStreamId,
         mockUserId,
         mockStepId,
         mockModuleId,
       );
-      // enrolled — нельзя дропнуть
+      expect(ar.status).toBe('enrolled');
+
+      ar.drop();
+      expect(ar.status).toBe('abandoned');
+      expect(ar.abandonDetails).toEqual({
+        who: 'self',
+        cause: 'voluntary',
+      });
+    });
+
+    test('drop на abandoned (повторно) → ошибка', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.drop();
+
       expect(() => ar.drop()).toThrow(
-        "Нельзя отчислить студента в статусе 'enrolled'.",
+        "Нельзя снять студента с учёбы в статусе 'abandoned'.",
       );
     });
 
@@ -207,14 +226,36 @@ describe('StudentAr', () => {
       });
     });
 
-    test('markAbandoned не из active → ошибка', () => {
+    test('markAbandoned из enrolled (без шагов) → abandoned (who=mentor, cause=inactivity)', () => {
       const ar = StudentAr.enroll(
         mockStreamId,
         mockUserId,
         mockStepId,
         mockModuleId,
       );
-      expect(() => ar.markAbandoned('inactivity')).toThrow();
+      expect(ar.status).toBe('enrolled');
+
+      ar.markAbandoned('inactivity');
+      expect(ar.status).toBe('abandoned');
+      expect(ar.abandonDetails).toEqual({
+        who: 'mentor',
+        cause: 'inactivity',
+      });
+    });
+
+    test('markAbandoned на abandoned (повторно) → ошибка', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.markAbandoned('inactivity');
+
+      expect(() => ar.markAbandoned('by_mentor')).toThrow(
+        "Нельзя снять студента с учёбы в статусе 'abandoned'.",
+      );
     });
   });
 
@@ -551,6 +592,78 @@ describe('StudentAr', () => {
     });
   });
 
+  describe('событие student.abandoned', () => {
+    test('drop публикует событие с payload who=self, cause=voluntary', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.flushEvents();
+
+      ar.drop();
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+      const event = events[0]!;
+      expect(event.eventName).toBe('student.abandoned');
+      expect(event.aggregateName).toBe('Student');
+      expect(event.aggregateId).toBe(ar.state.uuid);
+      expect(event.payload).toEqual({
+        studentId: ar.state.uuid,
+        userId: mockUserId,
+        streamId: mockStreamId,
+        who: 'self',
+        cause: 'voluntary',
+      });
+    });
+
+    test('markAbandoned публикует событие с payload who=mentor, cause=inactivity', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.flushEvents();
+
+      ar.markAbandoned('inactivity');
+
+      expect(ar.hasEvents()).toBe(true);
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+      const event = events[0]!;
+      expect(event.eventName).toBe('student.abandoned');
+      expect(event.payload).toEqual({
+        studentId: ar.state.uuid,
+        userId: mockUserId,
+        streamId: mockStreamId,
+        who: 'mentor',
+        cause: 'inactivity',
+      });
+    });
+
+    test('markAbandoned из enrolled тоже публикует событие', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.flushEvents();
+
+      ar.markAbandoned('inactivity');
+
+      const events = ar.flushEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]?.eventName).toBe('student.abandoned');
+    });
+  });
+
   describe('недопустимые переходы', () => {
     test('abandoned → advanced — ошибка', () => {
       const ar = StudentAr.enroll(
@@ -799,6 +912,106 @@ describe('StudentAr', () => {
         },
       ]);
       expect(ar.computeLagLevel(now)).toBe('critical');
+    });
+  });
+
+  // ── notices: маркер уведомлённости ──
+
+  describe('notices', () => {
+    test('новый студент — notices пуст', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      expect(ar.getLastNotice('inactivity_warn_student')).toBeUndefined();
+      expect(ar.getLastNotice('inactivity_warn_mentor')).toBeUndefined();
+    });
+
+    test('markNoticed добавляет запись, getLastNotice возвращает последнюю по kind', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+
+      ar.markNoticed('inactivity_warn_student', new Date('2026-08-25T19:00'));
+      ar.markNoticed('inactivity_warn_student', new Date('2026-08-27T19:00'));
+
+      const last = ar.getLastNotice('inactivity_warn_student');
+      expect(last?.kind).toBe('inactivity_warn_student');
+      expect(last?.sentAt).toBe('2026-08-27T19:00');
+    });
+
+    test('kind-ы независимы: студентский и менторский маркеры не мешают друг другу', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+
+      ar.markNoticed('inactivity_warn_student', new Date('2026-08-25T19:00'));
+
+      expect(ar.getLastNotice('inactivity_warn_mentor')).toBeUndefined();
+
+      ar.markNoticed('inactivity_warn_mentor', new Date('2026-08-27T19:00'));
+      expect(ar.getLastNotice('inactivity_warn_mentor')?.sentAt).toBe(
+        '2026-08-27T19:00',
+      );
+      // Студентский маркер не изменился
+      expect(ar.getLastNotice('inactivity_warn_student')?.sentAt).toBe(
+        '2026-08-25T19:00',
+      );
+    });
+
+    test('activate сбрасывает цепочку уведомлений', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.markNoticed('inactivity_warn_student', new Date('2026-08-25T19:00'));
+
+      ar.activate();
+
+      expect(ar.getLastNotice('inactivity_warn_student')).toBeUndefined();
+    });
+
+    test('completeStep сбрасывает цепочку уведомлений (возобновление учёбы)', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.activate();
+      ar.issueStep(mockStepId);
+      ar.markNoticed('inactivity_warn_student', new Date('2026-08-25T19:00'));
+      ar.markNoticed('inactivity_warn_mentor', new Date('2026-08-25T19:00'));
+
+      ar.completeStep(mockStepId, null);
+
+      expect(ar.getLastNotice('inactivity_warn_student')).toBeUndefined();
+      expect(ar.getLastNotice('inactivity_warn_mentor')).toBeUndefined();
+    });
+
+    test('notices персистится в состоянии (валидная схема)', () => {
+      const ar = StudentAr.enroll(
+        mockStreamId,
+        mockUserId,
+        mockStepId,
+        mockModuleId,
+      );
+      ar.markNoticed('inactivity_warn_student', new Date('2026-08-25T19:00'));
+
+      // Структура проходит валидацию схемы (safeUpdate не бросает)
+      expect(ar.state.notices).toEqual([
+        { kind: 'inactivity_warn_student', sentAt: '2026-08-25T19:00' },
+      ]);
     });
   });
 

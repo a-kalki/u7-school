@@ -1,6 +1,10 @@
 import type { ArMeta } from '@u7-scl/core/domain';
 import * as v from 'valibot';
-import type { StudentCompletedEvent, StudentEnrolledEvent } from './events';
+import type {
+  StudentAbandonedEvent,
+  StudentCompletedEvent,
+  StudentEnrolledEvent,
+} from './events';
 
 /** Детали отчисления студента */
 export const AbandonDetailsSchema = v.object({
@@ -41,6 +45,31 @@ export const StepRecordSchema = v.object({
 
 export type StepRecord = v.InferOutput<typeof StepRecordSchema>;
 
+/**
+ * Тип уведомления о бездействии (маркер уведомлённости).
+ * Отдельные kind-ы для студента и ментора дают независимые цепочки
+ * периодичности «через день» и строку «уведомления были ранее отправлены».
+ */
+export const StudentNoticeKindSchema = v.picklist(
+  ['inactivity_warn_student', 'inactivity_warn_mentor'],
+  'Недопустимый тип уведомления',
+);
+
+export type StudentNoticeKind = v.InferOutput<typeof StudentNoticeKindSchema>;
+
+/** Запись маркера уведомлённости: тип + дата последней отправки */
+export const StudentNoticeRecordSchema = v.object({
+  kind: StudentNoticeKindSchema,
+  sentAt: v.pipe(
+    v.string(),
+    v.isoDateTime('Некорректный формат даты уведомления'),
+  ),
+});
+
+export type StudentNoticeRecord = v.InferOutput<
+  typeof StudentNoticeRecordSchema
+>;
+
 /** Схема сущности записи студента на поток */
 export const StudentSchema = v.object({
   uuid: v.pipe(v.string(), v.uuid('Некорректный формат UUID студента')),
@@ -61,6 +90,7 @@ export const StudentSchema = v.object({
     v.uuid('Некорректный формат UUID текущего шага'),
   ),
   steps: v.array(StepRecordSchema),
+  notices: v.optional(v.array(StudentNoticeRecordSchema)),
   createdAt: v.pipe(
     v.string(),
     v.isoDateTime('Некорректный формат даты создания'),
@@ -76,5 +106,5 @@ export interface StudentArMeta extends ArMeta {
   name: 'Student';
   label: 'Студент потока';
   state: Student;
-  events: StudentEnrolledEvent | StudentCompletedEvent;
+  events: StudentEnrolledEvent | StudentCompletedEvent | StudentAbandonedEvent;
 }

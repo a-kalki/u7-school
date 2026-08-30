@@ -12,13 +12,14 @@ import type { StreamNotFoundUcError, StreamUcErrors } from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
 /**
- * Use-case отчисления студента ментором.
- * active → abandoned (who=mentor, cause=inactivity|by_mentor) + −STUDENT.
- * Заменяет прежний expel-student.
+ * Use-case снятия студента с учёбы ментором.
+ * active/enrolled → abandoned (who=mentor, cause=inactivity|by_mentor) + −STUDENT
+ * + событие student.abandoned (кик из TG-группы, уведомления).
+ * Терминология продукта: «Снять с учёбы» (не «отчислить»).
  */
 export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
   protected readonly ucName = 'mark-abandoned' as const;
-  protected readonly ucLabel = 'Отчислить студента' as const;
+  protected readonly ucLabel = 'Снять студента с учёбы' as const;
   protected readonly arMeta = {
     arName: StudentAr.arName as 'Student',
     arLabel: StudentAr.arLabel as 'Студент потока',
@@ -56,6 +57,9 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
     const studentAr = new StudentAr(studentEntity);
     studentAr.markAbandoned(command.cause);
     await studentRepo.save(studentAr.state);
+
+    // Событие ухода студента (подписчики: ER кика из TG-группы, стори уведомлений)
+    this.publishEvents(studentAr);
 
     // Снятие роли STUDENT
     await userFacade.removeRoleFromUser(

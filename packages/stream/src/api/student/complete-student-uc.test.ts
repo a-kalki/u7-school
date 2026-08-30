@@ -154,7 +154,7 @@ describe('CompleteStudentUc', () => {
     expect(event.payload.outcome).toBe('not_advanced');
   });
 
-  test('ментор завершает → abandoned БЕЗ события и сообщения', async () => {
+  test('ментор завершает → abandoned: публикуется student.abandoned (who=mentor)', async () => {
     const { resolver, mockStudentRepo, mockUserFacade, mockEventBus } =
       createMocks();
 
@@ -175,8 +175,12 @@ describe('CompleteStudentUc', () => {
     expect(saved.status).toBe('abandoned');
     expect(mockUserFacade.removeRoleFromUser).toHaveBeenCalled();
 
-    // abandoned — событие не публикуется
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    // abandoned → событие student.abandoned (кик из TG-группы, spec FR-6)
+    const event = (mockEventBus.publish as ReturnType<typeof mock>).mock
+      .calls[0]![0];
+    expect(event.eventName).toBe('student.abandoned');
+    expect(event.payload.who).toBe('mentor');
+    expect(event.payload.cause).toBe('by_mentor');
   });
 
   test('не-ментор → access denied', async () => {

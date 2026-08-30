@@ -124,14 +124,15 @@ describe('DropStudentUc', () => {
     ).rejects.toThrow();
   });
 
-  test('нельзя выйти из не-active статуса', async () => {
+  test('нельзя покинуть учёбу повторно (abandoned → ошибка)', async () => {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
           uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
           streamId: '77777777-7777-4777-8777-777777777777',
           userId: '11111111-1111-4111-8111-111111111111',
-          status: 'enrolled',
+          status: 'abandoned',
+          abandonDetails: { who: 'self', cause: 'voluntary' },
           enrolledAt: mockDate,
           currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
           steps: [],
@@ -169,5 +170,65 @@ describe('DropStudentUc', () => {
         '11111111-1111-4111-8111-111111111111',
       ),
     ).rejects.toThrow();
+  });
+
+  test('самовыход из enrolled возможен и публикует student.abandoned', async () => {
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
+          status: 'enrolled',
+          enrolledAt: mockDate,
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUser: mock(() => Promise.resolve([])),
+      getByStream: mock(() => Promise.resolve([])),
+    };
+
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '11111111-1111-4111-8111-111111111111',
+          name: 'Student',
+          telegramId: 1,
+          roles: [Role.STUDENT],
+          createdAt: mockDate,
+        }),
+      ),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+    };
+
+    const mockEventBus = { publish: mock(() => {}) };
+
+    const uc = new DropStudentUc();
+    uc.init({
+      streamRepo: {},
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+      eventBus: mockEventBus,
+    } as unknown as StreamApiModuleResolver);
+
+    await uc.execute(
+      {
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      '11111111-1111-4111-8111-111111111111',
+    );
+
+    expect(mockStudentRepo.save).toHaveBeenCalled();
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    const event = (mockEventBus.publish as ReturnType<typeof mock>).mock
+      .calls[0]![0];
+    expect(event.eventName).toBe('student.abandoned');
+    expect(event.payload.who).toBe('self');
+    expect(event.payload.cause).toBe('voluntary');
   });
 });
