@@ -2,7 +2,7 @@
 
 ---
 
-- [ ] **Track: UX анкет — маркировка выбора, редактирование на месте (questionnaire-ux_20260830)**
+- [~] **Track: UX анкет — маркировка выбора, редактирование на месте (questionnaire-ux_20260830)**
 *Link: [./tracks/questionnaire-ux_20260830/](./tracks/questionnaire-ux_20260830/)*
 
 ---
