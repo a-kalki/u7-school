@@ -1,0 +1,12 @@
+Задача: Job мониторинга бездействия (Фаза 2, все задачи)
+
+Сводка:
+- inactivity-sweep-job.ts: ежедневный job 19:00 UTC; пороги 5/7 дней, повторы через день; события job'а для студент/ментор уведомлений
+- События StudentInactivityWarningEvent / StudentInactivityRemoveCandidateEvent в events.ts (payload с telegramId адресата, daysInactive, wasWarned)
+- wasWarned вычисляется ДО маркера текущего прогона («ранее отправленные»)
+- StudentRepo.getByStatuses(statuses) + StudentJsonRepo (тесты на выборку)
+- StreamApiModule.jobs = [InactivitySweepJob] (тест контракта обновлён)
+- UC mark-abandoned (ucLabel/термин/enrolled) — закрыт в Фазе 1
+
+Файлы: inactivity-sweep-job.ts(+test), events.ts, repo.ts, student-json-repo.ts(+test), module.ts, module.test.ts
+Тесты: 15 unit-тестов job + 2 репо; bun run check — 1844 pass / 0 fail.
