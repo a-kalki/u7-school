@@ -1,0 +1,7 @@
+Отчёт о верификации Фазы 2 «Job мониторинга бездействия»
+
+Автотесты: bun run check — 1844 pass / 0 fail (biome + tsc + bun test).
+Изменённые файлы: git diff --name-only 99e6c70..cb25255 — 8 файлов.
+Покрытие: 15 unit-тестов job (пороги 5/7, периодичность через день, enrolled без шагов, wasWarned, отказоустойчивость), 2 теста getByStatuses, контракт модуля.
+Job подключается автоматически: ApiApp.init(InProcJobScheduler) уже есть в create-api-app.ts и test-app.ts — регистрация в StreamApiModule.jobs достаточна.
+Ручная верификация суммарно в конце трека (режим непрерывного выполнения).
