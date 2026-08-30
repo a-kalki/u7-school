@@ -3,8 +3,10 @@ import {
   type BotCommand,
   type BotResponse,
   type BotUpdate,
+  type EditMessageDescription,
   eventSubscription,
   type KeyboardDescription,
+  type MessageDescription,
   type SessionData,
   type UiEventSubscription,
 } from '@u7-scl/core/ui';
@@ -218,7 +220,7 @@ export class FillStory extends U7BotUiStory {
         // Протокол UC: выбор и «Далее» — callback (value = код ответа / 'next:{qCode}')
         { questionnaireId: qId, type: 'callback', value: aCode },
         actor,
-        { questionnaireId: qId },
+        { questionnaireId: qId, session, editPrev: true },
       );
     }
 
@@ -237,7 +239,7 @@ export class FillStory extends U7BotUiStory {
           value: `next:${qCode}`,
         },
         actor,
-        { questionnaireId: qId },
+        { questionnaireId: qId, session, editPrev: true },
       );
     }
 
@@ -258,7 +260,7 @@ export class FillStory extends U7BotUiStory {
       'handle-action',
       { questionnaireId: qId, type: 'text', value: update.text },
       actor,
-      { questionnaireId: qId },
+      { questionnaireId: qId, session, editPrev: true },
     );
   }
 
@@ -469,7 +471,10 @@ export class FillStory extends U7BotUiStory {
     actor: User,
     opts: {
       questionnaireId: string;
+      session?: SessionData;
       captureInput?: boolean;
+      /** Редактировать предыдущий вопрос (история «вопрос → ответ») */
+      editPrev?: boolean;
     },
   ): Promise<BotResponse> {
     try {
@@ -479,7 +484,10 @@ export class FillStory extends U7BotUiStory {
         actor.uuid,
       )) as QuestionnaireActionResponse;
 
-      const rendered = this.#renderActionResponse(response);
+      const rendered = this.#renderActionResponse(response, {
+        session: opts.session,
+        editPrev: opts.editPrev,
+      });
 
       if (opts.captureInput) {
         rendered.captureInput = {
@@ -507,10 +515,30 @@ export class FillStory extends U7BotUiStory {
 
   // ── Рендеринг ──
 
-  #renderActionResponse(response: QuestionnaireActionResponse): BotResponse {
+  /**
+   * Рендерит ответ движка анкеты в команду транспорту.
+   *
+   * UX-контракт (spec FR-1/FR-2):
+   * - `wait_next` (тоггл мультивыбора) — editMessage вопроса на месте
+   *   (маркеры обновляются, клавиатура жива); fallback — sendMessage.
+   * - `new_question` — предыдущий вопрос редактируется (финальные маркеры,
+   *   клавиатура удаляется), новый вопрос отправляется новым сообщением.
+   * - `completed` — аналогично new_question + финальное сообщение.
+   *
+   * Редактирование возможно только при `editPrev` (ответ в активном флоу)
+   * и наличии `session.lastBotMessage` — проактивные сценарии (старт,
+   * resume) всегда шлют sendMessage.
+   */
+  #renderActionResponse(
+    response: QuestionnaireActionResponse,
+    opts: { session?: SessionData; editPrev?: boolean } = {},
+  ): BotResponse {
+    const lastMsg = opts.session?.lastBotMessage;
+    const canEditPrev = opts.editPrev === true && lastMsg !== undefined;
+
     if (response.type === 'wait_next') {
-      return {
-        sendMessage: {
+      return this.#editOrSend(
+        {
           text: this.#formatQuestionMd(response.currentQuestion, {
             selected: response.selectedAnswers,
             progress: this.#progressOf(response),
@@ -527,28 +555,35 @@ export class FillStory extends U7BotUiStory {
               : undefined,
           ),
         },
-      };
+        canEditPrev ? lastMsg : undefined,
+      );
     }
 
     if (response.type === 'new_question') {
-      return {
-        sendMessage: {
-          text: this.#formatQuestionMd(response.question, {
-            selected: response.selectedAnswers ?? [],
-            progress: this.#progressOf(response),
-            isFirstQuestion: response.previousQuestion === undefined,
-          }),
-          parseMode: 'MarkdownV2',
-          keyboard: this.#getKeyboard(
-            response.question,
-            response.questionnaireId,
-          ),
-        },
+      const nextMessage = {
+        text: this.#formatQuestionMd(response.question, {
+          selected: response.selectedAnswers ?? [],
+          progress: this.#progressOf(response),
+          isFirstQuestion: response.previousQuestion === undefined,
+        }),
+        parseMode: 'MarkdownV2' as const,
+        keyboard: this.#getKeyboard(
+          response.question,
+          response.questionnaireId,
+        ),
       };
+
+      const prevEdit = this.#renderPreviousQuestion(
+        response.previousQuestion,
+        response.previousSelectedAnswers ?? [],
+        canEditPrev ? lastMsg : undefined,
+      );
+      if (!prevEdit) return { sendMessage: nextMessage };
+      return { editMessage: prevEdit, sendMessage: nextMessage };
     }
 
     if (response.type === 'completed') {
-      return {
+      const doneCommand: BotResponse = {
         releaseInput: true,
         sendMessage: {
           text: response.completionText ?? 'Спасибо! Твоя анкета принята.',
@@ -558,6 +593,14 @@ export class FillStory extends U7BotUiStory {
           },
         },
       };
+
+      const prevEdit = this.#renderPreviousQuestion(
+        response.previousQuestion,
+        response.previousSelectedAnswers ?? [],
+        canEditPrev ? lastMsg : undefined,
+      );
+      if (!prevEdit) return doneCommand;
+      return { ...doneCommand, editMessage: prevEdit };
     }
 
     // invited — рендерим как приглашение
@@ -571,6 +614,44 @@ export class FillStory extends U7BotUiStory {
         ),
       },
     };
+  }
+
+  /**
+   * Рендер предыдущего вопроса для истории «вопрос → выбранный ответ»:
+   * editMessage с финальными маркерами и БЕЗ клавиатуры.
+   * Возвращает undefined, если редактировать нечем (нет сообщения/вопроса).
+   */
+  #renderPreviousQuestion(
+    previousQuestion: Question | undefined,
+    selectedAnswers: string[],
+    lastMsg: SessionData['lastBotMessage'],
+  ): EditMessageDescription | undefined {
+    if (!previousQuestion || !lastMsg) return undefined;
+    return {
+      messageId: lastMsg.messageId,
+      text: this.#formatQuestionMd(previousQuestion, {
+        selected: selectedAnswers,
+      }),
+      parseMode: 'MarkdownV2',
+    };
+  }
+
+  /** editMessage, если есть последнее сообщение бота; иначе sendMessage. */
+  #editOrSend(
+    message: MessageDescription,
+    lastMsg: SessionData['lastBotMessage'],
+  ): BotResponse {
+    if (lastMsg) {
+      return {
+        editMessage: {
+          messageId: lastMsg.messageId,
+          text: message.text,
+          keyboard: message.keyboard,
+          parseMode: message.parseMode,
+        },
+      };
+    }
+    return { sendMessage: message };
   }
 
   #makeNextCode(qId: string, nextButton: string): string {
