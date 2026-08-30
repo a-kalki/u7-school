@@ -1,0 +1,9 @@
+Задача: Написать падающие unit-тесты FillStory: тоггл варианта → editMessage того же сообщения + маркеры + клавиатура; кнопка «Далее» только при >=1 выбранном
+Задача: Реализовать wait_next как editMessage (editOrSend); «Далее» — edit+sendMessage комбинированная команда
+Задача: Обновить существующие тесты (не потребовалось — старые тесты без lastBotMessage идут по fallback)
+
+Изменения:
+- apps/u7-bot/src/controllers/questionnaire/fill.story.ts — новый рендеринг: #renderActionResponse(response, {session, editPrev}), #renderPreviousQuestion, #editOrSend; answer/next/text передают session+editPrev
+- apps/u7-bot/src/controllers/questionnaire/fill.story.multiple.test.ts — НОВЫЙ: 9 unit-тестов UX-контракта (editMessage на месте, маркеры, исчезновение «Далее», fallback, completed)
+
+Причина: spec FR-1/FR-2 — история «вопрос → ответ» без замусоривания чата, тогглы без перерисовки экрана.
