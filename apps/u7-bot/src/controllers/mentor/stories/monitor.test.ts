@@ -233,7 +233,7 @@ describe('MonitorStory', () => {
 
   // ═══ students — множественные статусы и метрики ═══
 
-  test('handleCallback "students" — несколько студентов с разными статусами', async () => {
+  test('handleCallback "students" — дефолт: только активные, метрики по активным, сводка всегда', async () => {
     const story = setupStory({
       students: [
         makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
@@ -253,14 +253,52 @@ describe('MonitorStory', () => {
     );
 
     const text = response.sendMessage?.text ?? '';
-    // Метрики группы
-    expect(text).toContain('Метрики группы');
+    // Сводка всегда видна (FR-8)
+    expect(text).toContain('Всего: 4 студента, из них 1 активный, 3 выбывших');
+    // Метрики по активным только
+    expect(text).toContain('В процессе: 1');
+    expect(text).not.toContain('Прошли: 1');
+    expect(text).not.toContain('Выбыли: 1');
+
+    // В тексте и кнопках — только активный студент
+    expect(text).toContain('Активный');
+    expect(text).not.toContain('Прошёл');
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const allTexts = rows.flat().map((b) => b.text);
+    expect(allTexts.some((t) => t.includes('Активный'))).toBe(true);
+    expect(allTexts.some((t) => t.includes('Выбыл'))).toBe(false);
+    // Кнопка-переключатель «Показать выбывших» присутствует
+    expect(allTexts.some((t) => t.includes('Показать выбывших'))).toBe(true);
+  });
+
+  test('handleCallback "students-all" — показывает всех, метрики по всем', async () => {
+    const story = setupStory({
+      students: [
+        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
+        makeStudent({ uuid: 's2', userId: 'u2', status: 'advanced' }),
+        makeStudent({ uuid: 's3', userId: 'u3', status: 'abandoned' }),
+        makeStudent({ uuid: 's4', userId: 'u4', status: 'not_advanced' }),
+      ],
+      userNames: { u1: 'Активный', u2: 'Прошёл', u3: 'Выбыл', u4: 'Не прошёл' },
+    });
+
+    const response = await story.handleCallback(
+      'students-all:stream-1',
+      mentorActor(),
+      {
+        activeHandler: null,
+      },
+    );
+
+    const text = response.sendMessage?.text ?? '';
+    expect(text).toContain('Всего: 4 студента, из них 1 активный, 3 выбывших');
+    // Метрики по всем
     expect(text).toContain('В процессе: 1');
     expect(text).toContain('Прошли: 1');
     expect(text).toContain('Не прошли: 1');
     expect(text).toContain('Выбыли: 1');
 
-    // Статусные маркеры
+    // Статусные маркеры в кнопках
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     const allTexts = rows.flat().map((b) => b.text);
     expect(allTexts.some((t) => t.includes('🚫') && t.includes('Выбыл'))).toBe(
@@ -269,9 +307,40 @@ describe('MonitorStory', () => {
     expect(allTexts.some((t) => t.includes('✅') && t.includes('Прошёл'))).toBe(
       true,
     );
-    expect(
-      allTexts.some((t) => t.includes('↩️') && t.includes('Не прошёл')),
-    ).toBe(true);
+    // Кнопка-переключатель обратно «Скрыть выбывших»
+    expect(allTexts.some((t) => t.includes('Скрыть выбывших'))).toBe(true);
+  });
+
+  test('students-all — менторские кнопки ⛔✅ работают в режиме «все» (у активных)', async () => {
+    const story = setupStory({
+      students: [
+        makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
+        makeStudent({ uuid: 's3', userId: 'u3', status: 'abandoned' }),
+      ],
+      userNames: { u1: 'Активный', u3: 'Выбыл' },
+    });
+
+    const response = await story.handleCallback(
+      'students-all:stream-1',
+      mentorActor(),
+      {
+        activeHandler: null,
+      },
+    );
+
+    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const flat = rows.flat();
+    // У активного студента есть ⛔ (как и в дефолтном режиме)
+    const activeRow = flat.find((b) => b.text.includes('Активный'));
+    expect(activeRow).toBeDefined();
+    const rowIdx = flat.indexOf(activeRow!);
+    expect(flat[rowIdx + 1]?.text).toBe('⛔');
+    expect(flat[rowIdx + 2]?.text).toBe('✅');
+    // У выбывшего — нет ⛔/✅
+    const abandonedRow = flat.find((b) => b.text.includes('🚫'));
+    expect(abandonedRow).toBeDefined();
+    const abIdx = flat.indexOf(abandonedRow!);
+    expect(flat[abIdx + 1]?.text).not.toBe('⛔');
   });
 
   // ═══ students — отставание ═══
@@ -319,14 +388,14 @@ describe('MonitorStory', () => {
     expect(btnTexts.some((t) => t === '✅')).toBe(true);
   });
 
-  test('handleCallback "students" — кнопка 🔄 для advanced', async () => {
+  test('handleCallback "students-all" — кнопка 🔄 для advanced (в дефолте advanced скрыт)', async () => {
     const story = setupStory({
       students: [makeStudent({ uuid: 's2', userId: 'u2', status: 'advanced' })],
       userNames: { u2: 'Студент Прошёл' },
     });
 
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students-all:stream-1',
       mentorActor(),
       {
         activeHandler: null,
@@ -710,7 +779,7 @@ describe('MonitorStory', () => {
     expect(lagIdx).toBeLessThan(normIdx);
   });
 
-  test('сортировка: завершённые — в конце', async () => {
+  test('сортировка (students-all): завершённые — в конце', async () => {
     const story = setupStory({
       students: [
         makeStudent({ uuid: 's1', userId: 'u1', status: 'active' }),
@@ -720,7 +789,7 @@ describe('MonitorStory', () => {
     });
 
     const response = await story.handleCallback(
-      'students:stream-1',
+      'students-all:stream-1',
       mentorActor(),
       {
         activeHandler: null,

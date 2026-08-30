@@ -319,9 +319,18 @@ describe('E2E: Ментор — управление студентами', () =
       }),
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await transport.handleCallback(
+    let studentsResp = await transport.handleCallback(
       transport.makeBotContext(mentor.telegramId, {
         callbackData: studentsBtn.code,
+      }),
+    );
+    assertBotResponseValid(studentsResp);
+
+    // Дефолт — только активные; показываем всех (FR-8)
+    const showAllBtn = findButton(studentsResp, 'Показать выбывших');
+    studentsResp = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: showAllBtn.code,
       }),
     );
     assertBotResponseValid(studentsResp);
@@ -385,9 +394,18 @@ describe('E2E: Ментор — управление студентами', () =
       }),
     );
     const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await transport.handleCallback(
+    let studentsResp = await transport.handleCallback(
       transport.makeBotContext(mentor.telegramId, {
         callbackData: studentsBtn.code,
+      }),
+    );
+    assertBotResponseValid(studentsResp);
+
+    // Карточка advanced-студента — только в режиме «все» (FR-8)
+    const showAllBtn = findButton(studentsResp, 'Показать выбывших');
+    studentsResp = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: showAllBtn.code,
       }),
     );
     assertBotResponseValid(studentsResp);

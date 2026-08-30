@@ -58,11 +58,16 @@ export class MonitorStory extends U7BotUiStory {
       return this.#handleCompleteExecute(id, actor, action);
     }
 
-    if (cmd !== 'students' || !id) {
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    if (cmd === 'students' && id) {
+      return this.#handleStudents(id, actor, false);
     }
 
-    return this.#handleStudents(id, actor);
+    // Список студентов — режим «все» (с выбывшими, FR-8)
+    if (cmd === 'students-all' && id) {
+      return this.#handleStudents(id, actor, true);
+    }
+
+    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
   }
 
   override async handleMessage(): Promise<BotResponse> {
@@ -75,7 +80,11 @@ export class MonitorStory extends U7BotUiStory {
 
   // ── Приватные методы ──
 
-  async #handleStudents(streamId: string, actor: User): Promise<BotResponse> {
+  async #handleStudents(
+    streamId: string,
+    actor: User,
+    showAll: boolean,
+  ): Promise<BotResponse> {
     const students = await this.appApi.execute(
       'list-stream-students',
       { streamId },
@@ -90,8 +99,16 @@ export class MonitorStory extends U7BotUiStory {
       return { sendMessage: { text: '⚠️ Поток не найден' } };
     }
 
+    // FR-8: по умолчанию — только активные (active/enrolled);
+    // режим «все» показывает и выбывших (метрики в нём — тоже по всем)
+    const visible = showAll
+      ? students
+      : students.filter(
+          (s) => s.status === 'active' || s.status === 'enrolled',
+        );
+
     // Категоризируем через DS
-    const categorized = StreamDs.categorizeStudents(students, new Date());
+    const categorized = StreamDs.categorizeStudents(visible, new Date());
     const lagMap = new Map(categorized.map((c) => [c.studentId, c.lagLevel]));
 
     // Считаем прогресс и собираем данные для каждого студента
@@ -103,7 +120,7 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     const rows: StudentRow[] = [];
-    for (const s of students) {
+    for (const s of visible) {
       const progress = StreamDs.computeProgress(stream.contentSnapshot, s);
       const lagLevel = lagMap.get(s.uuid) ?? 'on_track';
 
@@ -228,6 +245,18 @@ export class MonitorStory extends U7BotUiStory {
       keyboardRows.push(studentRow);
     }
 
+    // FR-8: кнопка-переключатель фильтра выбывших
+    keyboardRows.push([
+      {
+        text: showAll ? '🙈 Скрыть выбывших' : '👁 Показать выбывших',
+        code: this.cbFor(
+          'monitor',
+          showAll ? 'students' : 'students-all',
+          streamId,
+        ),
+      },
+    ]);
+
     keyboardRows.push([
       {
         text: '⬅️ Назад к потоку',
@@ -235,7 +264,11 @@ export class MonitorStory extends U7BotUiStory {
       },
     ]);
 
-    // Текст сводки
+    // Сводка FR-8: всегда видна, от режима не зависит (по всем студентам)
+    const activeTotal = students.filter(
+      (s) => s.status === 'active' || s.status === 'enrolled',
+    ).length;
+    const departedTotal = students.length - activeTotal;
     const countLabel = this.#pluralize(
       students.length,
       'студент',
@@ -246,7 +279,7 @@ export class MonitorStory extends U7BotUiStory {
     const header = [
       `👥 *Студенты потока* — _${this.escapeMarkdown(stream.title)}_`,
       '',
-      `Всего: ${students.length} ${countLabel}`,
+      `Всего: ${students.length} ${countLabel}, из них ${activeTotal} ${this.#pluralize(activeTotal, 'активный', 'активных', 'активных')}, ${departedTotal} выбывших`,
     ];
 
     // Метрики группы (с заголовком)
@@ -279,10 +312,10 @@ export class MonitorStory extends U7BotUiStory {
 
     header.push('');
     header.push('*Легенда:*');
-    header.push('🛑 критическое отставание, кандидат на отчисление');
+    header.push('🛑 критическое отставание, кандидат на снятие с учёбы');
     header.push('⚠️ учится, но отстаёт от группы');
     header.push('🏃 в норме, учится');
-    header.push('🚫 забросил учебу');
+    header.push('🚫 выбыл из учёбы');
     header.push('↩️ завершил модуль, но пройдет заново');
     header.push('✅ завершил модуль, проходит дальше');
 
