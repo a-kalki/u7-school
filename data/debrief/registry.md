@@ -26,4 +26,5 @@
 | 24 | 2026-08-28 | wish-ui_20260814 | b4b6686 | post-task-debrief | пропущен пользователем | [лог](logs/2026-08-28-wish-ui_20260814-f4.md) |
 | 25 | 2026-08-27 | job-scheduler_20260827 | ac8616f | post-task-debrief | 0/2 ⏭ пропущено пользователем | [лог](logs/2026-08-27-job-scheduler-phase1.md) |
 | 26 | 2026-08-27 | job-scheduler_20260827 | 15384354 | post-task-debrief | 1/3 ✓, 2 открыт | [лог](logs/2026-08-27-job-scheduler-phase5.md) |
-**Всего:** 26
+| 27 | 2026-08-30 | standalone | WIP | post-task-debrief | 2/4 ✓, 1 ⚠, 1 закрыт эталоном | [лог](logs/2026-08-30-questionnaire-story-canon.md) |
+**Всего:** 27
