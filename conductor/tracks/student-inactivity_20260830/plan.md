@@ -2,12 +2,12 @@
 
 ## Фаза 1: Домен Student — статусы, маркер уведомлений, событие
 
-- [ ] Task: Написать падающие тесты StudentAr: `drop()` и `markAbandoned()` допустимы из статусов **active и enrolled**
-- [ ] Task: Расширить `drop()`/`markAbandoned()` в `packages/stream/src/domain/student/a-root.ts` (активные + записавшиеся)
-- [ ] Task: Написать падающие тесты: типизированный маркер уведомлённости в состоянии Student (`notices`: kind — enum с одним значением на текущий момент, отдельные типы для студент/ментор + `sentAt`)
-- [ ] Task: Реализовать `notices` в `entity.ts` + методы `markNoticed(kind, at)` / `getLastNotice(kind)`; сброс маркера при возобновлении учёбы (`activate()`, завершение шага)
-- [ ] Task: Написать падающие тесты: событие `student.abandoned` публикуется при `drop()` и `markAbandoned()` (payload: studentId, userId, streamId, who, cause)
-- [ ] Task: Добавить `StudentAbandonedEvent` в `domain/student/events.ts`; публикация из агрегата
+- [x] Task: Написать падающие тесты StudentAr: `drop()` и `markAbandoned()` допустимы из статусов **active и enrolled** (d48bd91)
+- [x] Task: Расширить `drop()`/`markAbandoned()` в `packages/stream/src/domain/student/a-root.ts` (активные + записавшиеся) (d48bd91)
+- [x] Task: Написать падающие тесты: типизированный маркер уведомлённости в состоянии Student (`notices`: kind — enum с одним значением на текущий момент, отдельные типы для студент/ментор + `sentAt`) (d48bd91)
+- [x] Task: Реализовать `notices` в `entity.ts` + методы `markNoticed(kind, at)` / `getLastNotice(kind)`; сброс маркера при возобновлении учёбы (`activate()`, завершение шага) (d48bd91)
+- [x] Task: Написать падающие тесты: событие `student.abandoned` публикуется при `drop()` и `markAbandoned()` (payload: studentId, userId, streamId, who, cause) (d48bd91)
+- [x] Task: Добавить `StudentAbandonedEvent` в `domain/student/events.ts`; публикация из агрегата (d48bd91)
 - [ ] Conductor - Ручная верификация 'Домен Student'
 
 ## Фаза 2: Job мониторинга бездействия
