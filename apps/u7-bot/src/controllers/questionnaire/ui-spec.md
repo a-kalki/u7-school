@@ -51,7 +51,7 @@
 
 ---
 
-## S02a — Одиночный выбор (🔘 single choice)
+## S02a — Одиночный выбор (🔘 single choice) ✅
 
 **Как попасть:** S01 (Начать) → S02a, или предыдущий вопрос → S02a, или сразу от `start()` (без S01).
 **Кому:** пользователь в процессе заполнения.
@@ -70,16 +70,19 @@
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `1` | `questionnaire:fill:answer:{qId}:{aCode1}` | 📋 |
-| `2` | `questionnaire:fill:answer:{qId}:{aCode2}` | 📋 |
-| `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | 📋 |
+| `1` | `questionnaire:fill:answer:{qId}:{aCode1}` | ✅ |
+| `2` | `questionnaire:fill:answer:{qId}:{aCode2}` | ✅ |
+| `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | ✅ |
 
-**Логика:** клик → UC `handle-action({type:'select'})` → фиксация → следующий вопрос / завершение.
-Предыдущий — editMessage, новый — sendMessage.
+**Логика (UX, spec FR-1) ✅:** клик → UC `handle-action({type:'callback'})` → комбинированная команда:
+текущее сообщение **редактируется** (маркер `(x)` у выбранного варианта, **клавиатура удалена**),
+следующий вопрос отправляется **новым сообщением** (история «вопрос → выбранный ответ»). 
+Автопереход: кнопка «Далее» не появляется. Fallback: без `session.lastBotMessage`
+(проактивный старт/resume) — только sendMessage.
 
 ---
 
-## S02b — Множественный выбор (☑️ multiple choice)
+## S02b — Множественный выбор (☑️ multiple choice) ✅
 
 **Как попасть:** аналогично S02a.
 
@@ -96,15 +99,15 @@
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `1` | `questionnaire:fill:answer:{qId}:{aCode1}` | 📋 |
-| `2` | `questionnaire:fill:answer:{qId}:{aCode2}` | 📋 |
-| `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | 📋 |
-| `▶️ Далее` | `questionnaire:fill:next:{qId}` | 📋 |
+| `1` | `questionnaire:fill:answer:{qId}:{aCode1}` | ✅ |
+| `2` | `questionnaire:fill:answer:{qId}:{aCode2}` | ✅ |
+| `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | ✅ |
+| `Далее -->` | `questionnaire:fill:next:{qId}:{qCode}` | ✅ |
 
-**Логика:**
-- клик → toggle (editMessage)
-- «Далее» → фиксация → следующий вопрос.
-- «Далее» показывается только есть хоть один выбор
+**Логика (UX, spec FR-2) ✅:**
+- клик (тоггл) → **editMessage того же сообщения** (маркеры обновляются, клавиатура жива); fallback — sendMessage без `lastBotMessage`;
+- «Далее» рендерится **только при ≥1 выбранном варианте** (UC не присылает `nextButton` при пустом выборе);
+- «Далее» → **editMessage текущего вопроса** (финальные маркеры `[x]`, **клавиатура удалена**) + **sendMessage следующего вопроса** / completed.
 
 ---
 
@@ -121,14 +124,15 @@
 
 **Кнопки:** отсутствуют
 
-**Логика:** текст → `handle-action({type:'text'})` → `answerText` → дальше.
+**Логика ✅:** текст → `handle-action({type:'text'})` → `answerText` → дальше (комбинированная
+команда: предыдущий вопрос editMessage без клавиатуры + следующий вопрос новым сообщением, spec FR-2).
 
 ---
 
-## S04 — Завершение (✅ completed)
+## S04 — Завершение (✅ completed) ✅
 
 **Как попасть:** после последнего ответа.
-**Данные:** `completionText` из pool (или дефолт «Спасибо! Ваша анкета принята.»).
+**Данные:** `completionText` из pool (или дефолт «Спасибо! Твоя анкета принята.»).
 
 **Содержание:**
 ```
@@ -141,9 +145,11 @@
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `↩️ Главное меню` | `app:main-menu` | 📋 |
+| `↩️ Главное меню` | `app:main-menu` | ✅ |
 
-**Логика:** `releaseInput`, `questionnaireCompleted: true`.
+**Логика ✅:** `releaseInput`. При ответе из активного флоу (есть `lastBotMessage` и `previousQuestion`)
+предыдущий вопрос сначала **редактируется** (финальные маркеры, без клавиатуры),
+completed-экран отправляется **новым сообщением** (spec FR-1/FR-2).
 
 ---
 
@@ -231,7 +237,7 @@
 
 ## S07 — Предупреждение о закрытии (⏳ warning) ✅
 
-**Как попасть:** проактивно от системы: планировщик `SweepAbandonedJob` (анкета `in_progress` без активности 6 часов) публикует `questionnaire:abandon-warning`.
+**Как попасть:** проактивно от системы: планировщик `SweepAbandonedJob` (анкета `in_progress` без активности 6 часов — `WARN_AFTER_HOURS`) публикует `questionnaire:abandon-warning`.
 **Кому:** респонденту анкеты (telegramId обогащается в job через user-фасад).
 **Рендеринг:** FillStory → подписка `questionnaire:abandon-warning` → `#handleWarningEvent`
 
@@ -248,16 +254,50 @@
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `▶️ Продолжить` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан) | ✅ |
+| `▶️ Продолжить` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан), **takeover: true** | ✅ |
 | `⏭️ Прервать` | `questionnaire:fill:cancel-confirm:{qId}` → S05a | ✅ |
 
-**Логика:** при активности респондента (ответ на вопрос) флаг `warnedAt` сбрасывается — таймер простоя не сдвигается предупреждением (`markWarned` обходит `safeUpdate`).
+**Логика:** при активности респондента (ответ на вопрос) флаги `warnedAt` и `continueInvitedAt`
+сбрасываются — таймер простоя не сдвигается метками ступеней (`markWarned`/`markContinueInvited`
+обходят `safeUpdate`). Takeover-кнопка перехватывает ввод при активном чужом действии (spec FR-5).
+
+---
+
+## S09 — Приглашение продолжить (📋 continue-invite) ✅
+
+**Как попасть:** проактивно от системы: `SweepAbandonedJob` (анкета `in_progress` без активности 3 часа — `INVITE_AFTER_HOURS`, интервал запуска 3ч) публикует `questionnaire:continue-invite`.
+**Кому:** респонденту анкеты.
+**Рендеринг:** FillStory → подписка `questionnaire:continue-invite` → `#handleContinueInviteEvent`
+
+**Содержание:**
+```
+📋 *Анкета*
+
+Вы начали заполнять анкету — продолжим?
+```
+
+**Кнопки:**
+
+| Текст | Код | Статус |
+|-------|-----|--------|
+| `▶️ Продолжить анкету` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан), **takeover: true** | ✅ |
+| `⏭️ Прервать` | `questionnaire:fill:cancel-confirm:{qId}` → S05a | ✅ |
+
+**Логика:** первая ступень цепочки брошенных анкет (3ч → 6ч → 9ч). Отправляется **один раз**
+(флаг `continueInvitedAt`); при возобновлении заполнения цепочка сбрасывается.
+
+**Takeover-предупреждение (spec FR-5, транспорт) ✅:** если у пользователя есть активное действие
+(`session.activeHandler != null`), вниз текста сообщения с takeover-кнопками транспорт добавляет
+строку «⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия.»; без активного
+действия строка не добавляется. Нажатие takeover-кнопки НЕ блокируется alert'ом «Сначала
+завершите текущее действие» — захват ввода перезаписывается fill-стори (маркер-префикс в
+callback_data кодирует/снимает uiApp, транспорт и стори работают с нативным кодом).
 
 ---
 
 ## S08 — Закрыто по таймауту (⏱ timeout-abandon) ✅
 
-**Как попасть:** проактивно от системы: `SweepAbandonedJob` закрывает анкету после 8 часов неактивности (`abandon('timeout')`) и публикует `questionnaire:abandon` с `reason='timeout'`.
+**Как попасть:** проактивно от системы: `SweepAbandonedJob` закрывает анкету после **9 часов** неактивности (`ABANDON_AFTER_HOURS`, до трека было 8ч) и публикует `questionnaire:abandon` с `reason='timeout'`.
 **Кому:** респонденту анкеты.
 **Рендеринг:** FillStory → подписка `questionnaire:abandon` → `#handleAbandonEvent` → `proactiveSender.notify` (без кнопок).
 
@@ -285,8 +325,9 @@
 | `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |
 | `/cancel` | — | `confirm('cancel', qId, ...)` → S05a |
-| `questionnaire:abandon-warning` (подписка) | — (SweepAbandonedJob) | sendMessage S07: Продолжить (если courseId) / Прервать |
-| `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob) | notify S08; без reason — ничего (без дубля) |
+| `questionnaire:continue-invite` (подписка) | — (SweepAbandonedJob, 3ч) | sendMessage S09: Продолжить анкету (takeover, если courseId) / Прервать |
+| `questionnaire:abandon-warning` (подписка) | — (SweepAbandonedJob, 6ч) | sendMessage S07: Продолжить (takeover, если courseId) / Прервать |
+| `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob, 9ч) | notify S08; без reason — ничего (без дубля) |
 
 ---
 
