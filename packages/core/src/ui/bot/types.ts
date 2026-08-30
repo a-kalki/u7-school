@@ -9,7 +9,17 @@
  * (будут видны бэкслеши).
  */
 export interface KeyboardDescription {
-  rows: { text: string; code: string; url?: string }[][];
+  rows: {
+    text: string;
+    code: string;
+    url?: string;
+    /**
+     * Takeover-кнопка: явный перехват ввода (см. BotUiApp).
+     * При нажатии callback НЕ блокируется чужим activeHandler —
+     * захват ввода перезаписывается новой стори.
+     */
+    takeover?: boolean;
+  }[][];
   isMultiple: boolean;
 }
 

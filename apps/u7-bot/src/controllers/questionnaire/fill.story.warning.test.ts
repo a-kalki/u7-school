@@ -63,6 +63,12 @@ describe('FillStory — предупреждение о брошенной ан�
     );
     expect(resume).toBeDefined();
     expect(resume?.code).toBe('questionnaire:fill:resume:course-1');
+    // Takeover: кнопка перехватывает ввод при активном чужом действии
+    expect(
+      command.sendMessage?.keyboard?.rows
+        .flat()
+        .find((b) => b.code.startsWith('questionnaire:fill:resume:'))?.takeover,
+    ).toBe(true);
 
     const cancel = buttons.find((b) =>
       b.code.startsWith('fill:cancel-confirm:'),

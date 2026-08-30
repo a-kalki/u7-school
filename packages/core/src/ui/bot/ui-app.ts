@@ -6,10 +6,22 @@ import type {
   BotCommand,
   BotResponse,
   BotUpdate,
+  KeyboardDescription,
   NotificationPayload,
   ProactiveSender,
   SessionData,
 } from './types';
+
+/**
+ * Маркер-префикс callback_data takeover-кнопок (явный перехват ввода).
+ *
+ * Кодирование/снятие — уровень uiApp: при отправке кнопки с
+ * `takeover: true` получают префикс, при приёме маркер снимается первым
+ * делом и включает обход блокировки чужим activeHandler. Транспорт,
+ * контроллеры и стори работают с «нативным» кодом и маркера не знают
+ * (для предупреждающей строки транспорт читает структурное поле `takeover`).
+ */
+export const TAKEOVER_MARKER = '!';
 
 /**
  * Центральный хаб UI-слоя бота.
@@ -65,9 +77,9 @@ export class BotUiApp<
 
   // ── ProactiveSender ──
 
-  /** Проактивная отправка — делегирует в transport */
+  /** Проактивная отправка — кодирует takeover-маркеры и делегирует в transport */
   async send(telegramId: number, command: BotCommand): Promise<void> {
-    await this.transport.send(telegramId, command);
+    await this.transport.send(telegramId, this.#encodeTakeover(command));
   }
 
   /** Проактивное уведомление — делегирует в transport */
@@ -82,12 +94,22 @@ export class BotUiApp<
 
   /**
    * Обрабатывает callback, маршрутизируя по префиксу контроллера.
+   *
+   * Takeover-кнопки (маркер в callback_data) обрабатываются даже при
+   * активном ЧУЖОМ activeHandler — захват ввода перезаписывается новой
+   * стори (спец FR-5).
    */
   async handleCallback(
     data: string,
     tgId: number,
     session: SessionData,
   ): Promise<BotResponse> {
+    // Takeover-маркер снимается первым делом — дальше только нативный код
+    const takeover = data.startsWith(TAKEOVER_MARKER);
+    if (takeover) {
+      data = data.slice(TAKEOVER_MARKER.length);
+    }
+
     const actor = await this.resolve.actorResolver(tgId);
     const controllerName = this.#extractControllerName(data);
 
@@ -98,7 +120,7 @@ export class BotUiApp<
     }
 
     const activeHandler = session.activeHandler;
-    if (activeHandler) {
+    if (activeHandler && !takeover) {
       const [activeCtrl] = activeHandler.path.split('/');
       if (activeCtrl !== controllerName) {
         return {
@@ -126,10 +148,12 @@ export class BotUiApp<
         actor,
         session,
       );
-      return this.#mergeResponses(response, delegateResponse);
+      return this.#encodeTakeover(
+        this.#mergeResponses(response, delegateResponse),
+      );
     }
 
-    return response;
+    return this.#encodeTakeover(response);
   }
 
   // ── Обработка сообщений ──
@@ -157,7 +181,7 @@ export class BotUiApp<
 
     const response = await controller.handleMessage(update, actor, session);
     this.#applyCapturedInput(session, ctrlName ?? '', response);
-    return response;
+    return this.#encodeTakeover(response);
   }
 
   // ── Обработка отмены ──
@@ -213,6 +237,44 @@ export class BotUiApp<
   }
 
   // ── Приватные хелперы ──
+
+  /**
+   * Кодирует takeover-кнопки: маркер-префикс в `code` при отправке.
+   * Структурное поле `takeover: true` сохраняется — транспорт рендерит
+   * по нему предупреждающую строку (структурное поле, не маркер).
+   */
+  #encodeTakeover(command: BotCommand): BotCommand {
+    const encode = (kb: KeyboardDescription): KeyboardDescription => ({
+      ...kb,
+      rows: kb.rows.map((row) =>
+        row.map((btn) =>
+          btn.takeover === true && !btn.code.startsWith(TAKEOVER_MARKER)
+            ? { ...btn, code: TAKEOVER_MARKER + btn.code }
+            : btn,
+        ),
+      ),
+    });
+
+    const result: BotCommand = { ...command };
+    if (result.sendMessage?.keyboard) {
+      result.sendMessage = {
+        ...result.sendMessage,
+        keyboard: encode(result.sendMessage.keyboard),
+      };
+    }
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map((sm) =>
+        sm.keyboard ? { ...sm, keyboard: encode(sm.keyboard) } : sm,
+      );
+    }
+    if (result.editMessage?.keyboard) {
+      result.editMessage = {
+        ...result.editMessage,
+        keyboard: encode(result.editMessage.keyboard),
+      };
+    }
+    return result;
+  }
 
   #applyCapturedInput(
     session: SessionData,

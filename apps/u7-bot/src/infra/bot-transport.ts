@@ -1,6 +1,8 @@
 import {
   assertResponseMarkdownSafe,
   type BotCommand,
+  type KeyboardDescription,
+  type MessageDescription,
   type NotificationPayload,
   type ProactiveSender,
   type SessionData,
@@ -18,6 +20,25 @@ const UUID_RE =
 /** Сообщение при нажатии на устаревшую кнопку (shortId не найден в мапе). */
 const STALE_BUTTON_MESSAGE =
   'Похоже, эта кнопка устарела после перезапуска сервиса. Нажмите /start, чтобы начать заново.';
+
+/**
+ * Строка-предупреждение для takeover-кнопок (spec FR-5).
+ *
+ * Абстрактная формулировка, не привязанная к анкетам: добавляется вниз
+ * текста сообщения, несущего takeover-кнопки, когда у пользователя есть
+ * активное действие. Нажатие takeover-кнопки перехватывает ввод (uiApp),
+ * поэтому пользователь должен знать, что текущее действие завершится.
+ */
+function takeoverWarningLine(parseMode?: 'MarkdownV2'): string {
+  return parseMode === 'MarkdownV2'
+    ? '⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия\\.'
+    : '⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия.';
+}
+
+/** Есть ли в клавиатуре takeover-кнопка (структурное поле, не маркер). */
+function hasTakeoverButtons(kb?: KeyboardDescription): boolean {
+  return kb?.rows.flat().some((btn) => btn.takeover === true) ?? false;
+}
 
 // ── Интерфейсы ──
 
@@ -247,13 +268,15 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     tgId: number,
     command: BotCommand,
   ): Promise<void> {
+    const prepared = this.#appendTakeoverWarning(command, session);
+
     // Fail-fast: перед отправкой проверяем MarkdownV2 — битый текст не уходит
     // в Telegram (единая точка проверки BotCommand, образец: ui-utils.ts).
-    assertResponseMarkdownSafe(command);
+    assertResponseMarkdownSafe(prepared);
 
     // 1. editMessage
-    if (command.editMessage) {
-      const edit = command.editMessage;
+    if (prepared.editMessage) {
+      const edit = prepared.editMessage;
       const keyboard = edit.keyboard
         ? {
             inline_keyboard: edit.keyboard.rows.map((row) =>
@@ -286,9 +309,9 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // 1.5. Удаление клавиатуры у предыдущего сообщения
     if (
-      command.keepPrevKeyboard !== true &&
+      prepared.keepPrevKeyboard !== true &&
       session.lastBotMessage &&
-      !command.editMessage
+      !prepared.editMessage
     ) {
       const prev = session.lastBotMessage;
       const keyboardRemoved = !prev.keyboard;
@@ -310,8 +333,8 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // 2. sendMessage / sendMessages
     const toSend =
-      command.sendMessages ??
-      (command.sendMessage ? [command.sendMessage] : []);
+      prepared.sendMessages ??
+      (prepared.sendMessage ? [prepared.sendMessage] : []);
 
     for (let i = 0; i < toSend.length; i++) {
       const send = toSend[i]!;
@@ -341,15 +364,51 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
       // Задержка между сообщениями
       if (i < toSend.length - 1) {
-        const delay = command.sendDelayMs ?? 1000;
+        const delay = prepared.sendDelayMs ?? 1000;
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 
     // 3. releaseInput
-    if (command.releaseInput) {
+    if (prepared.releaseInput) {
       session.activeHandler = null;
     }
+  }
+
+  /**
+   * Добавляет предупреждающую строку вниз текста сообщений, несущих
+   * takeover-кнопки, если у пользователя есть активное действие.
+   *
+   * Предупреждение добавляется ДО проверки MarkdownV2 (assertResponseMarkdownSafe),
+   * чтобы приписанный текст тоже валидировался. Чужое сообщение (текущий
+   * флоу) не редактируется — только текущее отправляемое/редактируемое.
+   */
+  #appendTakeoverWarning(
+    command: BotCommand,
+    session: SessionData,
+  ): BotCommand {
+    // Нет активного действия — предупреждать не о чем
+    if (session.activeHandler == null) return command;
+
+    const withWarning = <T extends MessageDescription>(desc: T): T => {
+      if (!hasTakeoverButtons(desc.keyboard)) return desc;
+      return {
+        ...desc,
+        text: `${desc.text}\n\n${takeoverWarningLine(desc.parseMode)}`,
+      };
+    };
+
+    const result: BotCommand = { ...command };
+    if (result.sendMessage) {
+      result.sendMessage = withWarning(result.sendMessage);
+    }
+    if (result.sendMessages) {
+      result.sendMessages = result.sendMessages.map(withWarning);
+    }
+    if (result.editMessage) {
+      result.editMessage = withWarning(result.editMessage);
+    }
+    return result;
   }
 
   // ═══════════════════════════════════════════

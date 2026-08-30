@@ -106,12 +106,14 @@ export class FillStory extends U7BotUiStory {
     const { telegramId, questionnaireId } = event.payload;
     const courseId = event.ownerInfo.courseId;
 
-    const rows: { text: string; code: string }[][] = [];
+    const rows: KeyboardDescription['rows'] = [];
     if (typeof courseId === 'string') {
       rows.push([
         {
           text: '▶️ Продолжить',
           code: Routes.questionnaire.resume(courseId),
+          // Takeover: перехват ввода при активном чужом действии (spec FR-5)
+          takeover: true,
         },
       ]);
     }
