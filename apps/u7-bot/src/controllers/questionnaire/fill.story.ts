@@ -118,8 +118,7 @@ export class FillStory extends U7BotUiStory {
         {
           text: '▶️ Продолжить анкету',
           code: Routes.questionnaire.resume(courseId),
-          // Takeover: перехват ввода при активном чужом действии (spec FR-5)
-          takeover: true,
+          takeover: true, // Takeover: перехват ввода
         },
       ]);
     }
@@ -155,8 +154,7 @@ export class FillStory extends U7BotUiStory {
         {
           text: '▶️ Продолжить',
           code: Routes.questionnaire.resume(courseId),
-          // Takeover: перехват ввода при активном чужом действии (spec FR-5)
-          takeover: true,
+          takeover: true, // Takeover: перехват ввода
         },
       ]);
     }
