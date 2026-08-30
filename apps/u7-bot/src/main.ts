@@ -13,6 +13,7 @@ import { loadConfig } from './config';
 import type { SessionData } from './context';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
+import { ensureRegisteredGuest } from './ensure-registered';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
@@ -87,10 +88,12 @@ if (config.adminTelegramIds.length > 0) {
 }
 
 // ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
-// FR-7: при выходе студента из группы — уведомление ментору потока
+// FR-7: при выходе студента из группы — уведомление ментору потока.
+// actorId — бот как системный актор: регистрация гостей в group-handler.
 registerGroupHandlers(bot, apiBundle.userFacade, logger, {
   apiApp: apiBundle.apiApp,
   transport,
+  actorId: config.botAdminUuid,
 });
 
 // ══ Приватные чаты — через filter ══
@@ -152,7 +155,17 @@ privateBot.command('log_level', async (ctx) => {
 });
 
 // ══ Регистрация обработчиков через BotTransport ══
-privateBot.command('start', (ctx) => transport.handleStart(ctx));
+privateBot.command('start', async (ctx) => {
+  // Новый пользователь → гость (от имени бота, BOT_ADMIN_UUID)
+  if (ctx.from) {
+    await ensureRegisteredGuest(
+      apiBundle.userFacade,
+      config.botAdminUuid,
+      ctx.from,
+    );
+  }
+  await transport.handleStart(ctx);
+});
 privateBot.command('help', (ctx) => transport.handleHelp(ctx));
 privateBot.command('cancel', (ctx) => transport.handleCancel(ctx));
 privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));

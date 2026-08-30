@@ -7,12 +7,14 @@ import type { Bot } from 'grammy';
 import type { BotContext } from '../context';
 import type { U7BotApp } from '../core/u7-bot-app-meta';
 
-/** Дополнительные зависимости для уведомлений о выходе из группы (FR-7). */
+/** Дополнительные зависимости групповых обработчиков. */
 export interface GroupHandlerDeps {
   /** ApiApp — выборка потоков и студентов (только чтение) */
   apiApp: U7BotApp;
   /** Проактивные уведомления ментору */
   transport: ProactiveSender;
+  /** uuid бота (BOT_ADMIN_UUID): системный актор для регистрации гостей */
+  actorId: string;
 }
 
 /**
@@ -24,7 +26,8 @@ export interface GroupHandlerDeps {
  *
  * - `chat_member` — пользователь присоединился/покинул группу
  *   (требует прав администратора в группе).
- *   При присоединении — выдаёт SUBSCRIBER.
+ *   При присоединении — регистрирует нового пользователя как гостя
+ *   (от имени бота, если его ещё нет в БД) и выдаёт SUBSCRIBER.
  *   При выходе — снимает SUBSCRIBER и уведомляет ментора потока
  *   «Студент A покинул группу» (spec FR-7); статус студента не меняется.
  */
@@ -46,7 +49,15 @@ export function registerGroupHandlers(
       (newStatus === 'member' || newStatus === 'administrator')
     ) {
       try {
-        const user = await userFacade.getUserByTelegramId(adderId);
+        let user = await userFacade.getUserByTelegramId(adderId);
+        if (!user && deps) {
+          // Незнакомый добавил бота → регистрируем гостя от имени бота
+          user = await userFacade.registerGuest(
+            adderId,
+            ctx.myChatMember.from.first_name,
+            deps.actorId,
+          );
+        }
         if (user) {
           await userFacade.addRoleToUser(user.uuid, Role.SUBSCRIBER);
         }
@@ -74,7 +85,15 @@ export function registerGroupHandlers(
         member.new_chat_member.status === 'administrator')
     ) {
       try {
-        const user = await userFacade.getUserByTelegramId(userId);
+        let user = await userFacade.getUserByTelegramId(userId);
+        if (!user && deps) {
+          // Незнакомый присоединился → регистрируем гостя от имени бота
+          user = await userFacade.registerGuest(
+            userId,
+            member.new_chat_member.user.first_name,
+            deps.actorId,
+          );
+        }
         if (user) {
           await userFacade.addRoleToUser(user.uuid, Role.SUBSCRIBER, user.uuid);
         }

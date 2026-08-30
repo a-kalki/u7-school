@@ -35,6 +35,7 @@ import { registerGroupHandlers } from '../../src/handlers/group-handler';
 
 const STUDENT_TG = 1003; // «Студент» (active, поток e1e1e1e1)
 const MENTOR_TG = 1004; // «Ментор» (ментор обоих потоков)
+const BOT_ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f'; // «Бот-админ» из фикстур
 const STREAM2_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const STUDENT_F0 = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
 const GROUP2_ID = '-1002222222222';
@@ -69,7 +70,11 @@ async function createInactivityStand(tag: string): Promise<Stand> {
     } as never,
     app.userFacade,
     new ConsoleLogger(),
-    { apiApp: app.apiApp, transport: transport.transport },
+    {
+      apiApp: app.apiApp,
+      transport: transport.transport,
+      actorId: BOT_ADMIN_UUID,
+    },
   );
 
   return { app, transport, student, mentor, chatMemberHandlers };
