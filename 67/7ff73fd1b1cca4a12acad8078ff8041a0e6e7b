@@ -1,0 +1,8 @@
+Задачи Фазы 5: проверка проактивных сценариев (покрыто существующими e2e/unit); likert-совместимость (рендер типонезависим, адаптация не нужна); e2e полного сценария (radio+text+multiple) с проверками уровня Telegram; e2e takeover-сценария
+
+Изменения:
+- apps/u7-bot/tests/e2e/questionnaire-ux.e2e.test.ts — НОВЫЙ: 5 e2e тестов (radio, multiple тогглы, «Далее», takeover с предупреждением, takeover без активного действия)
+
+Выводы по регрессиям: TestBotTransport сворачивает edit в sendMessage-ответ — семантика старых e2e не пострадала; на уровне Telegram-вызовов новое поведение зафиксировано новыми тестами через transport.api.editedMessages.
+
+Причина: spec НФТ — интеграционные/e2e тесты по bot-test.md, проверка реальных editMessageText/sendMessage вызовов.
