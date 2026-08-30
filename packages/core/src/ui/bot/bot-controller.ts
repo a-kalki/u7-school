@@ -79,6 +79,11 @@ export abstract class BotController<
     await this.proactiveSender.notify(telegramId, payload);
   }
 
+  /** Проактивный кик из группы — делегирует родителю без изменений */
+  async kickFromGroup(groupId: number | string, userId: number): Promise<void> {
+    await this.proactiveSender.kickFromGroup(groupId, userId);
+  }
+
   /** Сброс временных данных контроллера и всех стори */
   reset(): void {
     for (const story of this.stories) {

@@ -90,6 +90,11 @@ export class BotUiApp<
     await this.transport.notify(telegramId, payload);
   }
 
+  /** Проактивный кик из группы — делегирует в transport */
+  async kickFromGroup(groupId: number | string, userId: number): Promise<void> {
+    await this.transport.kickFromGroup(groupId, userId);
+  }
+
   // ── Обработка callback ──
 
   /**

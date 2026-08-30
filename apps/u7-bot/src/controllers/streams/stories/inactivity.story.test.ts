@@ -17,6 +17,7 @@ const STREAM_ID = '77777777-7777-4777-8777-777777777777';
 const STUDENT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const STUDENT_USER_ID = '11111111-1111-4111-8111-111111111111';
 const MENTOR_USER_ID = '66666666-6666-4666-8666-666666666666';
+const GROUP_ID = '-1002222222222';
 
 const student: User = {
   uuid: STUDENT_USER_ID,
@@ -116,16 +117,19 @@ interface SetupOptions {
     userId: string;
     status: string;
   };
+  streamOverrides?: Partial<Stream>;
 }
 
 function setupStory(opts: SetupOptions = {}): {
   story: InactivityStory;
   sends: Array<{ telegramId: number; text: string }>;
   notifies: Array<{ telegramId: number; text: string }>;
+  kicks: Array<{ groupId: number | string; userId: number }>;
   execute: ReturnType<typeof mock>;
 } {
   const sends: Array<{ telegramId: number; text: string }> = [];
   const notifies: Array<{ telegramId: number; text: string }> = [];
+  const kicks: Array<{ groupId: number | string; userId: number }> = [];
   const execute = mock(
     async (name: string, params?: Record<string, unknown>) => {
       if (name === 'get-user') {
@@ -134,7 +138,9 @@ function setupStory(opts: SetupOptions = {}): {
         if (uuid === MENTOR_USER_ID) return mentor;
         return undefined;
       }
-      if (name === 'get-stream') return stream;
+      if (name === 'get-stream') {
+        return { ...stream, ...opts.streamOverrides };
+      }
       if (name === 'get-student-progress') {
         return (
           opts.studentEntity ?? {
@@ -164,11 +170,14 @@ function setupStory(opts: SetupOptions = {}): {
       notify: mock(async (telegramId: number, payload: { text: string }) => {
         notifies.push({ telegramId, text: payload.text });
       }),
+      kickFromGroup: mock(async (groupId: number | string, userId: number) => {
+        kicks.push({ groupId, userId });
+      }),
     },
     uiApp: { getAction: () => () => ({ text: '↩️', code: 'app:main-menu' }) },
   } as unknown);
 
-  return { story, sends, notifies, execute };
+  return { story, sends, notifies, kicks, execute };
 }
 
 /** Достаёт обработчик подписки по имени события */
@@ -314,6 +323,26 @@ describe('InactivityStory', () => {
     expect(all).toHaveLength(1);
     expect(all[0]?.telegramId).toBe(1003);
     expect(all[0]?.text).toContain('снят с учёбы');
+  });
+
+  test('abandoned → мягкий кик из группы потока (FR-6)', async () => {
+    const { story, kicks } = setupStory({
+      streamOverrides: { telegramGroupId: GROUP_ID },
+    });
+
+    await subHandler(story, 'student.abandoned')(makeAbandonedEvent() as never);
+
+    expect(kicks).toHaveLength(1);
+    expect(kicks[0]).toEqual({ groupId: GROUP_ID, userId: 1003 });
+  });
+
+  test('abandoned: у потока нет группы — кик не вызывается, уведомление уходит', async () => {
+    const { story, kicks, notifies } = setupStory();
+
+    await subHandler(story, 'student.abandoned')(makeAbandonedEvent() as never);
+
+    expect(kicks).toHaveLength(0);
+    expect(notifies).toHaveLength(1);
   });
 
   // ── Callback: самовыход (FR-4) ──

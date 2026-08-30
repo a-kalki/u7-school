@@ -53,7 +53,11 @@ function makeStory(
 ) {
   const appApi = { execute: mock(execute) } as unknown as U7BotApp;
   const story = new FillStory();
-  const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
+  const sender = {
+    send: mock(async () => {}),
+    notify: mock(async () => {}),
+    kickFromGroup: mock(async () => {}),
+  };
   story.init({ appApi } as never, sender);
   return { story, appApi, sender };
 }

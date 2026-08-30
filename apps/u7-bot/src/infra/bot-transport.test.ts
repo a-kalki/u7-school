@@ -11,6 +11,8 @@ function makeMockBotApi(): Api {
   return {
     sendMessage: mock(async () => ({ message_id: 100 })),
     editMessageText: mock(async () => ({ message_id: 1 })),
+    banChatMember: mock(async () => true),
+    unbanChatMember: mock(async () => true),
   } as unknown as Api;
 }
 
@@ -888,6 +890,41 @@ describe('BotTransport — notify (proactive)', () => {
     const call = (api.sendMessage as any).mock.calls[0];
     expect(call[1]).toBe('🔔 *Уведомление:*\n\n🎉 Курс завершён\\!');
     expect(call[2]?.parse_mode).toBe('MarkdownV2');
+  });
+});
+
+// ── kickFromGroup ──
+
+describe('BotTransport — kickFromGroup', () => {
+  test('мягкий кик: banChatMember на минуту + unbanChatMember', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await transport.kickFromGroup('-1002222222222', 1003);
+
+    expect(api.banChatMember).toHaveBeenCalledWith(
+      '-1002222222222',
+      1003,
+      expect.objectContaining({ until_date: expect.any(Number) }),
+    );
+    expect(api.unbanChatMember).toHaveBeenCalledWith('-1002222222222', 1003);
+  });
+
+  test('ошибка banChatMember не всплывает наружу (бот не админ)', async () => {
+    const api = makeMockBotApi();
+    (api.banChatMember as any).mockImplementation(async () => {
+      throw new Error('Bad Request: not enough rights');
+    });
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await expect(
+      transport.kickFromGroup('-1002222222222', 1003),
+    ).resolves.toBeUndefined();
+    expect(api.unbanChatMember).not.toHaveBeenCalled();
   });
 });
 

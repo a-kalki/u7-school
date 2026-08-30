@@ -126,6 +126,7 @@ describe('BotController', () => {
       const mockSender = {
         send: mock(async () => {}),
         notify: mock(async () => {}),
+        kickFromGroup: mock(async () => {}),
       };
       ctrl.init({} as never, mockSender);
       expect(story1.initReceived).toBe(ctrl);
@@ -138,6 +139,7 @@ describe('BotController', () => {
       const mockSender = {
         send: mock(async () => {}),
         notify: mock(async () => {}),
+        kickFromGroup: mock(async () => {}),
       };
       ctrl.addStory(new TestStory('fill'));
       ctrl.init({} as never, mockSender);
@@ -167,6 +169,7 @@ describe('BotController', () => {
       const mockSender = {
         send: mock(async () => {}),
         notify: mock(async () => {}),
+        kickFromGroup: mock(async () => {}),
       };
       ctrl.addStory(new TestStory('hub'));
       ctrl.init({} as never, mockSender);

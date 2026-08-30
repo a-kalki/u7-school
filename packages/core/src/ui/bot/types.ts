@@ -106,6 +106,13 @@ export interface ProactiveSender {
 
   /** Проактивное уведомление — не вмешивается в поток пользователя */
   notify(telegramId: number, payload: NotificationPayload): Promise<void>;
+
+  /**
+   * Мягкий кик пользователя из Telegram-группы: ban на минуту + мгновенный
+   * unban. Пользователь исключён, но может вернуться по инвайту.
+   * Ошибки (бот не админ, группа не найдена) не всплывают наружу.
+   */
+  kickFromGroup(groupId: number | string, userId: number): Promise<void>;
 }
 
 /** Данные сессии пользователя с отслеживанием активного обработчика */

@@ -32,7 +32,7 @@ export interface EditedMessage {
   keyboard?: KeyboardDescription;
 }
 
-/** Запись мягкого кика из группы (banChatMember + unbanChatMember). */
+/** Запись мягкого кика из группы (bot-transport.kickFromGroup: ban + unban). */
 export interface KickedMember {
   chatId: string | number;
   telegramId: number;
@@ -94,7 +94,7 @@ export class RecordingBotApi {
     return { message_id: messageId };
   }
 
-  /** Мягкий кик: banChatMember + unbanChatMember (как student-kick-handler). */
+  /** Мягкий кик: banChatMember + unbanChatMember (bot-transport.kickFromGroup). */
   async banChatMember(
     chatId: string | number,
     telegramId: number,

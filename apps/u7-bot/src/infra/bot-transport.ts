@@ -1,3 +1,4 @@
+import { getGlobalLogger } from '@u7-scl/core/shared';
 import {
   assertResponseMarkdownSafe,
   type BotCommand,
@@ -257,6 +258,31 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     session.lastBotMessage = prevLastBotMessage;
 
     this.sessionMap.set(telegramId, session);
+  }
+
+  /**
+   * Мягкий кик пользователя из Telegram-группы (FR-6).
+   *
+   * ban на 60 секунд + мгновенный unban — пользователь удалён из группы,
+   * но может вернуться по инвайту. Ошибки (бот не админ, группа не найдена)
+   * логируются и не всплывают наружу — снятие с учёбы не ломается.
+   */
+  async kickFromGroup(groupId: number | string, userId: number): Promise<void> {
+    try {
+      await this.botApi.banChatMember(groupId, userId, {
+        until_date: Math.floor(Date.now() / 1000) + 60,
+      });
+      await this.botApi.unbanChatMember(groupId, userId);
+      getGlobalLogger()?.info(
+        'bot-transport',
+        `Пользователь ${userId} исключён из группы ${groupId}`,
+      );
+    } catch (err) {
+      getGlobalLogger()?.warn(
+        'bot-transport',
+        `Не удалось исключить пользователя ${userId} из группы ${groupId} (бот не админ?): ${String(err)}`,
+      );
+    }
   }
 
   // ═══════════════════════════════════════════

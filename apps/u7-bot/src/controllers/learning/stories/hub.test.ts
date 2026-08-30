@@ -296,6 +296,7 @@ describe('HubStory — подписка на student.enrolled', () => {
     const sender = {
       send: mock(async () => {}),
       notify: mock(async () => {}),
+      kickFromGroup: mock(async () => {}),
     };
 
     const story = new HubStory();
@@ -415,6 +416,7 @@ describe('HubStory — подписка на student.completed', () => {
     const sender = {
       send: mock(async () => {}),
       notify: mock(async () => {}),
+      kickFromGroup: mock(async () => {}),
     };
 
     const story = new HubStory();

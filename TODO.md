@@ -5,6 +5,13 @@
 **UI бота (stream):**
 1. `CreateStreamStory` (wizard): шаг 9 запрашивает только ссылку на Telegram-группу и сохраняет в `telegramGroupId`. Нужно запрашивать **два** поля — ID группы (`telegramGroupId`) и ссылку-приглашение (`telegramGroupInvite`) — и записывать их в соответствующие свойства. Сейчас `telegramGroupInvite` никогда не заполняется через wizard.
 
+2. **Автоподключение к группе при зачислении** — на событие `student.enrolled` студент автоматически подключается к Telegram-группе потока (группа — `stream.telegramGroupId` или env-fallback). Реализация — **не отдельным handler'ом** (как было с киком `registerStudentKickHandler`), а новым контрактом в цепочке `transport → uiApp → controller → story`:
+   - расширить `ProactiveSender` (`packages/core/src/ui/bot/types.ts`) методом вроде `inviteToGroup`/`approveJoinRequest`;
+   - реализовать в `BotTransport` (grammy: `createChatInviteLink` и/или `approveChatJoinRequest`);
+   - прокинуть делегированием через `BotUiApp` и `BotController`;
+   - вызвать из стори, подписанной на `student.enrolled` (аналог `InactivityStory.#kickFromGroup`).
+   Сообщение студенту при зачислении уже есть (`HubStory.#handleEnrolledEvent`) — дублировать не нужно.
+
 
 ## Архитектурные
 1. **`WizardStory`** — базовый класс с унифицированным движком пошагового ввода (контекст, переходы, обработка ошибок валидации). Сейчас логика wizard дублируется в `CreateStreamStory`. **Отложено** — делать при появлении второго wizard'а (см. `conductor/architecture-evolution.md` §2.7).
@@ -146,6 +153,11 @@
 - Синхронизация контента (обновление `contentSnapshot` при изменении модуля).
 - Снятие `CANDIDATE` при `+STUDENT` (сейчас: только добавление `STUDENT`).
 - Отзывы выпускников на карточке completed-потока.
+- **Роль `SUBSCRIBER` не работает (`group-handler`).** В `apps/u7-bot/src/handlers/group-handler.ts` все три ветки выдачи/снятия `SUBSCRIBER` падают на проверке прав и тихо глушатся try/catch:
+  - `my_chat_member` → `addRoleToUser(uuid, SUBSCRIBER)` без actorId → `UNAUTHORIZED` (UC требует авторизацию);
+  - `chat_member` join → `addRoleToUser(uuid, SUBSCRIBER, user.uuid)` → `UserPolicy.canAddRole` разрешает обычному пользователю добавлять себе только `STUDENT` → `ACCESS_DENIED`;
+  - `chat_member` left → `removeRoleFromUser(uuid, SUBSCRIBER, user.uuid)` → `canRemoveRole` разрешает снимать себе только `STUDENT` → `ACCESS_DENIED`.
+  Решение: выдавать/снимать `SUBSCRIBER` от системного актора (`BOT_ADMIN_UUID`) или расширить `UserPolicy` (системный/ADMIN актор управляет `SUBSCRIBER`). `UserPolicy.isSubscriber()` объявлен, но в бизнес-логике пока не используется.
 
 ## Wish и проактивные уведомления (после трека wish-module_20260828)
 - Событие `wish.fulfilled` + уведомления на его основе (студент узнаёт, что желание реализовано). Сейчас событие не публикуется.

@@ -75,6 +75,7 @@ function makeStory(options: Record<string, unknown> = {}) {
         sent.push(command);
       }),
       notify: mock(async () => {}),
+      kickFromGroup: mock(async () => {}),
     } as never,
   );
 

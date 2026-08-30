@@ -98,6 +98,7 @@ describe('BotUiApp takeover — кодирование маркера при о�
     const transport = {
       send: mock(async () => {}),
       notify: mock(async () => {}),
+      kickFromGroup: mock(async () => {}),
     };
     app.init(makeResolve(makeActor()), transport);
 

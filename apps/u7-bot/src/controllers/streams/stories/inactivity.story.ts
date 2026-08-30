@@ -134,6 +134,9 @@ export class InactivityStory extends U7BotUiStory {
   async #handleAbandonedEvent(event: StudentAbandonedEvent): Promise<void> {
     const { who, userId, streamId } = event.payload;
 
+    // FR-6: мягкое исключение из Telegram-группы потока — для обоих сценариев
+    await this.#kickFromGroup(streamId, userId);
+
     if (who === 'self') {
       const [studentName, mentorTelegramId] = await Promise.all([
         this.#resolveName(userId),
@@ -307,32 +310,46 @@ export class InactivityStory extends U7BotUiStory {
 
   /** Название потока (fallback — id). */
   async #resolveStreamTitle(streamId: string): Promise<string> {
+    const stream = await this.#resolveStream(streamId);
+    if (stream) return stream.title;
+    return streamId.slice(0, 8);
+  }
+
+  /** Поток по id (undefined, если недоступен). */
+  async #resolveStream(streamId: string): Promise<Stream | undefined> {
     try {
       const stream: Stream | undefined = await this.appApi.execute(
         'get-stream',
         { streamId },
       );
-      if (stream) return stream.title;
+      return stream;
     } catch {
-      // поток недоступен
+      return undefined;
     }
-    return streamId.slice(0, 8);
   }
 
   /** telegramId ментора потока. */
   async #resolveMentorTelegramId(
     streamId: string,
   ): Promise<number | undefined> {
-    try {
-      const stream: Stream | undefined = await this.appApi.execute(
-        'get-stream',
-        { streamId },
-      );
-      if (!stream) return undefined;
-      return await this.#resolveTelegramId(stream.mentorId);
-    } catch {
-      return undefined;
-    }
+    const stream = await this.#resolveStream(streamId);
+    if (!stream) return undefined;
+    return await this.#resolveTelegramId(stream.mentorId);
+  }
+
+  /**
+   * Мягко исключает студента из Telegram-группы потока (FR-6).
+   * Нет группы у потока или нет telegramId у студента — пропуск.
+   * Ошибки кика изолированы в транспорте и не всплывают наружу.
+   */
+  async #kickFromGroup(streamId: string, userId: string): Promise<void> {
+    const [stream, telegramId] = await Promise.all([
+      this.#resolveStream(streamId),
+      this.#resolveTelegramId(userId),
+    ]);
+    const groupId = stream?.telegramGroupId;
+    if (groupId === undefined || telegramId === undefined) return;
+    await this.proactiveSender.kickFromGroup(groupId, telegramId);
   }
 
   /** Склоняет «N дней» (1 день, 2 дня, 5 дней). */

@@ -96,6 +96,7 @@ describe('BotUiStory', () => {
       const sender = {
         send: mock(async () => {}),
         notify: mock(async () => {}),
+        kickFromGroup: mock(async () => {}),
       };
       story.init({} as never, sender);
       expect(story.savedSender).toBe(sender);

@@ -15,7 +15,6 @@ import {
 } from '@u7-scl/test-helpers/test-bot-transport';
 import { MentorController } from '../../src/controllers/mentor/controller';
 import { registerGroupHandlers } from '../../src/handlers/group-handler';
-import { registerStudentKickHandler } from '../../src/handlers/student-kick-handler';
 
 /**
  * E2E тесты трека student-inactivity_20260830:
@@ -29,7 +28,8 @@ import { registerStudentKickHandler } from '../../src/handlers/student-kick-hand
  *      сводка «Всего N, из них M активных, P выбывших».
  *
  * События job'а публикуются на общую шину (как в бою после inactivity-sweep);
- * ER кика подключается как в main.ts (botApi = RecordingBotApi).
+ * кик из группы (FR-6) выполняет InactivityStory через BotTransport.kickFromGroup
+ * (botApi = RecordingBotApi).
  * Два describe — отдельные фикстуры (сценарии меняют статус одного студента).
  */
 
@@ -47,7 +47,7 @@ interface Stand {
   chatMemberHandlers: Record<string, (ctx: unknown) => Promise<void>>;
 }
 
-/** Стенд e2e: TestApp + TestBotTransport + ER кика + chat_member-обработчики. */
+/** Стенд e2e: TestApp + TestBotTransport + chat_member-обработчики. */
 async function createInactivityStand(tag: string): Promise<Stand> {
   const app = await createTestApp(tag);
   const transport = createTestBotTransport(app, [
@@ -57,16 +57,6 @@ async function createInactivityStand(tag: string): Promise<Stand> {
   ]);
   const student = (await app.userFacade.getUserByTelegramId(STUDENT_TG))!;
   const mentor = (await app.userFacade.getUserByTelegramId(MENTOR_TG))!;
-
-  // ER кика — как в main.ts (ботApi = recording api)
-  registerStudentKickHandler({
-    eventBus: app.eventBus,
-    getStream: async (streamId) =>
-      app.apiApp.execute('get-stream', { streamId }),
-    userFacade: app.userFacade,
-    botApi: transport.api as never,
-    logger: new ConsoleLogger(),
-  });
 
   // chat_member-обработчики — как в main.ts (мок grammy Bot)
   const chatMemberHandlers: Record<string, (ctx: unknown) => Promise<void>> =

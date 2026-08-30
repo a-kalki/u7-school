@@ -8,7 +8,11 @@ import { FillStory } from './fill.story';
  */
 function makeStory() {
   const story = new FillStory();
-  const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
+  const sender = {
+    send: mock(async () => {}),
+    notify: mock(async () => {}),
+    kickFromGroup: mock(async () => {}),
+  };
   story.init({} as never, sender);
   return { story, sender };
 }
