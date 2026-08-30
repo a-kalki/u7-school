@@ -504,7 +504,7 @@ export class MonitorStory extends U7BotUiStory {
     return this.confirm(
       'mark-abandoned',
       studentId,
-      `⚠️ Отметить *${this.escapeMarkdown(userName)}* как неактивного?`,
+      `⚠️ Снять студента *${this.escapeMarkdown(userName)}* с учёбы за бездействие?`,
       {
         confirmButton: '⚠️ Да, неактивен',
       },
@@ -544,7 +544,7 @@ export class MonitorStory extends U7BotUiStory {
 
     return {
       sendMessage: {
-        text: `✅ Студент *${this.escapeMarkdown(userName)}* отмечен как неактивный\\.`,
+        text: `✅ Студент *${this.escapeMarkdown(userName)}* снят с учёбы\\.`,
         parseMode: 'MarkdownV2',
       },
       delegate: {

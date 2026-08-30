@@ -209,6 +209,7 @@ export class TestBotTransport {
   // ── Восстановление BotResponse ──
 
   async #run(ctx: BotContext, fn: () => Promise<void>): Promise<BotResponse> {
+    const tgId = ctx.from?.id;
     const beforeActive = ctx.session?.activeHandler ?? null;
     const beforeLastText = ctx.session?.lastBotMessage?.text;
     const startIndex = this.api.sentMessages.length;
@@ -216,8 +217,14 @@ export class TestBotTransport {
 
     await fn();
 
-    const sent = this.api.sentMessages.slice(startIndex);
-    const edited = this.api.editedMessages.slice(editStartIndex);
+    // Только сообщения самого пользователя: проактивные уведомления другим
+    // (напр. студенту после mark-abandoned ментором) — не часть его ответа
+    const sent = this.api.sentMessages
+      .slice(startIndex)
+      .filter((m) => tgId === undefined || m.telegramId === tgId);
+    const edited = this.api.editedMessages
+      .slice(editStartIndex)
+      .filter((m) => tgId === undefined || m.telegramId === tgId);
     const afterActive = ctx.session?.activeHandler ?? null;
 
     const response: BotResponse = {};

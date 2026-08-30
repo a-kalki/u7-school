@@ -14,6 +14,7 @@ import type { SessionData } from './context';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { registerGroupHandlers } from './handlers/group-handler';
+import { registerStudentKickHandler } from './handlers/student-kick-handler';
 import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
 
@@ -87,7 +88,21 @@ if (config.adminTelegramIds.length > 0) {
 }
 
 // ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
-registerGroupHandlers(bot, apiBundle.userFacade, logger);
+// FR-7: при выходе студента из группы — уведомление ментору потока
+registerGroupHandlers(bot, apiBundle.userFacade, logger, {
+  apiApp: apiBundle.apiApp,
+  transport,
+});
+
+// ══ ER кика: student.abandoned → мягкое исключение из группы потока (FR-6) ══
+registerStudentKickHandler({
+  eventBus: apiBundle.eventBus,
+  getStream: async (streamId) =>
+    apiBundle.apiApp.execute('get-stream', { streamId }),
+  userFacade: apiBundle.userFacade,
+  botApi: bot.api,
+  logger,
+});
 
 // ══ Приватные чаты — через filter ══
 const privateBot = bot.filter((ctx) => ctx.chat?.type === 'private');

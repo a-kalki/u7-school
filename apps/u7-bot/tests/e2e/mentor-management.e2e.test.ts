@@ -219,7 +219,7 @@ describe('E2E: Ментор — управление студентами', () =
     const confirmText = confirmResp.sendMessage?.text ?? '';
 
     // Должен быть диалог подтверждения
-    expect(confirmText).toContain('неактивного');
+    expect(confirmText).toContain('Снять студента');
     expect(confirmText).not.toContain('Неизвестная команда');
 
     // Кнопки подтверждения/отмены
@@ -292,7 +292,7 @@ describe('E2E: Ментор — управление студентами', () =
     // После mark-abandoned — делегирование к списку студентов.
     const finalText2 =
       resultResp.sendMessage?.text ?? resultResp.sendMessages?.[0]?.text ?? '';
-    expect(finalText2).toContain('неактивный');
+    expect(finalText2).toContain('снят с учёбы');
   });
 
   test('ментор: ✅ complete → выбрать «Прошёл» → подтвердить → студент завершён', async () => {

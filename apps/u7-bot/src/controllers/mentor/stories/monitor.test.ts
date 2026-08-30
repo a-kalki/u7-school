@@ -449,7 +449,7 @@ describe('MonitorStory', () => {
 
     const text = response.sendMessage?.text ?? '';
     expect(text).toContain('Иван Петров');
-    expect(text).toContain('неактивного');
+    expect(text).toContain('Снять студента');
     // Кнопка подтверждения
     const rows = response.sendMessage?.keyboard?.rows ?? [];
     const btnTexts = rows.flat().map((b) => b.text);
@@ -484,7 +484,7 @@ describe('MonitorStory', () => {
     );
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('отмечен как неактивный');
+    expect(text).toContain('снят с учёбы');
     // Проверяем делегирование (возврат к списку)
     expect(response.delegate?.path).toContain('monitor:students:');
   });
