@@ -5,4 +5,6 @@ export interface StudentRepo {
   getByUuid(uuid: string): Promise<Student | undefined>;
   getByStream(streamId: string): Promise<Student[]>;
   getByUser(userId: string): Promise<Student[]>;
+  /** Все студенты с указанными статусами (выборка кандидатов для job'ов). */
+  getByStatuses(statuses: Array<Student['status']>): Promise<Student[]>;
 }

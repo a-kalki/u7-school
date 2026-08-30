@@ -40,4 +40,9 @@ export class StudentJsonRepo implements StudentRepo {
     const all = await this.#repo.readAll();
     return all.filter((s) => s.userId === userId);
   }
+
+  async getByStatuses(statuses: Array<Student['status']>): Promise<Student[]> {
+    const all = await this.#repo.readAll();
+    return all.filter((s) => statuses.includes(s.status));
+  }
 }

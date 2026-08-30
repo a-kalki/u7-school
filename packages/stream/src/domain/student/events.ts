@@ -47,6 +47,55 @@ export interface StudentAbandonedEvent extends DomainEvent {
 }
 
 /**
+ * Событие предупреждения студента о бездействии (публикует InactivitySweepJob).
+ *
+ * Ступень 5+ дней простоя: студенту приходит предупреждение
+ * «Вы уже не занимаетесь N дней…» с кнопкой «Покинуть учёбу» (FR-1).
+ */
+export interface StudentInactivityWarningEvent extends DomainEvent {
+  eventName: 'student.inactivity-warning';
+  aggregateName: 'Student';
+  payload: {
+    /** uuid записи студента */
+    studentId: string;
+    /** uuid пользователя-студента */
+    userId: string;
+    /** uuid потока */
+    streamId: string;
+    /** telegramId студента (адресат уведомления) */
+    telegramId: number;
+    /** полных дней без активности */
+    daysInactive: number;
+  };
+}
+
+/**
+ * Событие «кандидат на снятие с учёбы» (публикует InactivitySweepJob).
+ *
+ * Ступень 7+ дней простоя: ментору потока приходит уведомление
+ * «Студент A из группы B не занимался N дней» с кнопкой «Снять с учёбы» (FR-1).
+ * wasWarned — были ли студенту ранее предупреждения (маркер notices).
+ */
+export interface StudentInactivityRemoveCandidateEvent extends DomainEvent {
+  eventName: 'student.inactivity-remove-candidate';
+  aggregateName: 'Student';
+  payload: {
+    /** uuid записи студента */
+    studentId: string;
+    /** uuid пользователя-студента */
+    userId: string;
+    /** uuid потока */
+    streamId: string;
+    /** telegramId ментора потока (адресат уведомления) */
+    mentorTelegramId: number;
+    /** полных дней без активности */
+    daysInactive: number;
+    /** отправлялись ли студенту предупреждения о бездействии */
+    wasWarned: boolean;
+  };
+}
+
+/**
  * Событие завершения студентом модуля потока.
  *
  * Публикуется агрегатом Student при advance()/markNotAdvanced().

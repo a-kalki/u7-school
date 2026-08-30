@@ -17,6 +17,7 @@ import { DropStudentUc } from './student/drop-student-uc';
 import { EnrollStudentUc } from './student/enroll-student-uc';
 import { GetStudentByUserUc } from './student/get-student-by-user-uc';
 import { GetStudentProgressUc } from './student/get-student-progress-uc';
+import { InactivitySweepJob } from './student/inactivity-sweep-job';
 import { MarkAbandonedUc } from './student/mark-abandoned-uc';
 import { SetNextPreferenceUc } from './student/set-next-preference-uc';
 
@@ -44,8 +45,8 @@ export class StreamApiModule extends ApiModule<
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
 
-  /** Запланированных задач нет (контракт ApiModule требует явного объявления) */
-  readonly jobs = [];
+  /** Периодические задания: ежедневный мониторинг бездействующих студентов */
+  readonly jobs = [new InactivitySweepJob()];
 
   constructor(resolve: StreamApiModuleResolver) {
     super(resolve);

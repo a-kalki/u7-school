@@ -14,7 +14,13 @@ describe('StreamApiModule', () => {
     expect(module.name).toBe('stream');
   });
 
-  test('модуль не содержит job (явное пустое объявление по контракту ApiModule)', () => {
-    expect(module.jobs).toEqual([]);
+  test('модуль регистрирует job мониторинга бездействующих студентов', () => {
+    expect(module.jobs).toHaveLength(1);
+    expect(module.jobs[0]?.jobName).toBe('inactivity-sweep');
+    expect(module.jobs[0]?.schedule).toEqual({
+      kind: 'dailyAt',
+      hour: 19,
+      minute: 0,
+    });
   });
 });
