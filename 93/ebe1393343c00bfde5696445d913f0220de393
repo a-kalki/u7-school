@@ -1,0 +1,9 @@
+Задача: Карточка студентов — фильтр выбывших (Фаза 4, все задачи)
+
+Сводка:
+- monitor.ts: #handleStudents(streamId, actor, showAll); фильтрация visible; метрики по visible; сводка всегда по всем студентам
+- Роутинг: 'students' (дефолт) и 'students-all' (все)
+- Кнопка-переключатель в клавиатуре перед «Назад к потоку»
+- Обновлены: monitor.test.ts (5 новых/обновлённых тестов), mentor-management.e2e.test.ts (advanced-сценарии через переключатель)
+
+Тесты: bun run check — 1867 pass / 0 fail.
