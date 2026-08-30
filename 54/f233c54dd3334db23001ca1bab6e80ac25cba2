@@ -1,0 +1,7 @@
+Отчёт о верификации Фазы 5 «e2e, документация, финал»
+
+Автотесты: bun run check — 1872 pass / 0 fail (biome + tsc --noEmit + bun test по всему проекту).
+Изменённые файлы: git diff --name-only ad92385..720d765.
+Покрытие: 5 e2e-сценариев трека (inactivity.e2e.test.ts) поверх unit/интеграционных фаз 1-4.
+Найдены и исправлены e2e-баги: actorId в get-student-progress (InactivityStory), MarkdownV2-точка после динамических значений, системные вызовы add/removeRoleFromUser без actorId в group-handler.
+Документация: mentor/ui-spec.md (S07 — фильтр/сводка/переключатель), streams/ui-spec.md (раздел SIN), термин «Снять с учёбы» в коде и легендах.
