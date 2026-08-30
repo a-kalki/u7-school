@@ -1,0 +1,15 @@
+Задачи Фазы 4: тесты агрегата continueInvitedAt; entity+a-root; тесты job ступеней 3/6/9; константы в файле job; эволюция SweepAbandonedJob; FillStory обработка приглашения
+
+Изменения:
+- packages/questionnaire/src/domain/questionnaire/entity.ts — continueInvitedAt (schema + BaseQuestionnaireState)
+- packages/questionnaire/src/domain/questionnaire/a-root.ts — markContinueInvited(), #resetWarning → #resetIdleFlags (сброс обеих меток при активности — «возобновление сбрасывает цепочку»)
+- packages/questionnaire/src/domain/questionnaire/continue-invited-at.test.ts — НОВЫЙ: 5 тестов
+- packages/questionnaire/src/domain/questionnaire/events.ts — QuestionnaireContinueInviteEvent
+- packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.ts — константы 3/6/9 (INVITE_AFTER_HOURS, WARN_AFTER_HOURS, ABANDON_AFTER_HOURS, INTERVAL_MS), ступень inviteToContinue, порог закрытия 8ч→9ч, интервал 1ч→3ч
+- packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.stages.test.ts — НОВЫЙ: 10 тестов (ступени, границы, идемпотентность, сброс цепочки)
+- packages/questionnaire/src/api/questionnaire/sweep-abandoned-job.test.ts — обновлены контрактные тесты (интервал 3ч, метка job, 5ч → приглашение)
+- apps/u7-bot/src/controllers/questionnaire/fill.story.ts — #handleContinueInviteEvent (takeover-кнопка) + подписка
+- apps/u7-bot/src/controllers/questionnaire/fill.story.continue-invite.test.ts — НОВЫЙ: 3 теста
+- apps/u7-bot/src/controllers/questionnaire/fill.story.test.ts — 4 подписки → 5
+
+Причина: spec FR-4 — мягкое возвращение пользователя к брошенной анкете за 3ч до предупреждения, каждая ступень один раз.
