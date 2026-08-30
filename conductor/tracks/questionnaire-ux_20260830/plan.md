@@ -2,11 +2,11 @@
 
 ## Фаза 1: Мультивыбор — редактирование на месте
 
-- [ ] Task: Написать падающие unit-тесты FillStory: тоггл варианта → `editMessage` того же сообщения (`messageId` из `session.lastBotMessage`), маркеры `[x]`/`[ ]` обновлены, клавиатура сохранена
-- [ ] Task: Написать падающие unit-тесты: кнопка «Далее» рендерится только при ≥1 выбранном варианте; при снятии всех вариантов — исчезает
-- [ ] Task: Реализовать в `#renderActionResponse`/`#callUc` обработку `wait_next` как editMessage (паттерн `editOrSend` из `controllers/learning/shared.ts`); fallback на sendMessage, если `lastBotMessage` нет (проактивный старт/resume)
-- [ ] Task: Реализовать «Далее»: edit текущего сообщения с финальными маркерами и **без клавиатуры** + sendMessage следующего вопроса (комбинированный BotCommand)
-- [ ] Task: Обновить существующие тесты `fill.story.test.ts` под новое поведение
+- [x] Task: Написать падающие unit-тесты FillStory: тоггл варианта → `editMessage` того же сообщения (`messageId` из `session.lastBotMessage`), маркеры `[x]`/`[ ]` обновлены, клавиатура сохранена (7115fed)
+- [x] Task: Написать падающие unit-тесты: кнопка «Далее» рендерится только при ≥1 выбранном варианте; при снятии всех вариантов — исчезает (7115fed)
+- [x] Task: Реализовать в `#renderActionResponse`/`#callUc` обработку `wait_next` как editMessage (паттерн `editOrSend` из `controllers/learning/shared.ts`); fallback на sendMessage, если `lastBotMessage` нет (проактивный старт/resume) (7115fed)
+- [x] Task: Реализовать «Далее»: edit текущего сообщения с финальными маркерами и **без клавиатуры** + sendMessage следующего вопроса (комбинированный BotCommand) (7115fed)
+- [x] Task: Обновить существующие тесты `fill.story.test.ts` под новое поведение (не потребовалось: тесты без lastBotMessage идут по fallback; 7115fed)
 - [ ] Conductor - Ручная верификация 'Мультивыбор — редактирование на месте'
 
 ## Фаза 2: Одиночный выбор — маркировка и автопереход
