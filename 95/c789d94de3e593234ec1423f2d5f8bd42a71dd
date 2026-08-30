@@ -1,0 +1,13 @@
+Задачи Фазы 3: KeyboardDescription.takeover; тесты uiApp (кодирование/снятие маркера, обход блокировки); реализация в ui-app.ts; тесты транспорта (предупреждающая строка); реализация в execute(); takeover: true на resume в FillStory
+
+Изменения:
+- packages/core/src/ui/bot/types.ts — takeover?: boolean в KeyboardDescription
+- packages/core/src/ui/bot/ui-app.ts — TAKEOVER_MARKER ('!'), #encodeTakeover, снятие маркера и обход блокировки в handleCallback, кодирование в send/handleCallback/handleMessage
+- packages/core/src/ui/bot/ui-app.takeover.test.ts — НОВЫЙ: 9 тестов
+- apps/u7-bot/src/infra/bot-transport.ts — #appendTakeoverWarning (до assertResponseMarkdownSafe), withWarning generic
+- apps/u7-bot/src/infra/bot-transport.takeover.test.ts — НОВЫЙ: 6 тестов
+- apps/u7-bot/src/controllers/questionnaire/fill.story.ts + fill.story.warning.test.ts — takeover: true на «▶️ Продолжить»
+
+Архитектурное решение: маркер — уровень uiApp (транспорт/контроллеры/стори не знают о нём); предупреждающая строка — транспорт по структурному полю takeover (SessionData доступна транспорту всегда, включая проактивные сценарии).
+
+Причина: spec FR-5 — takeover-кнопка «Продолжить анкету» перехватывает ввод у чужого флоу без alert-блокировки.
