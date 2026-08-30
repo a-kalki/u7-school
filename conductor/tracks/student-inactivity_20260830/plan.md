@@ -1,6 +1,6 @@
 # План реализации — Трек: Снятие с учёбы за бездействие (student-inactivity_20260830)
 
-## Фаза 1: Домен Student — статусы, маркер уведомлений, событие
+## Фаза 1: Домен Student — статусы, маркер уведомлений, событие [checkpoint: 99e6c70]
 
 - [x] Task: Написать падающие тесты StudentAr: `drop()` и `markAbandoned()` допустимы из статусов **active и enrolled** (d48bd91)
 - [x] Task: Расширить `drop()`/`markAbandoned()` в `packages/stream/src/domain/student/a-root.ts` (активные + записавшиеся) (d48bd91)
@@ -12,12 +12,12 @@
 
 ## Фаза 2: Job мониторинга бездействия
 
-- [ ] Task: Написать падающие тесты job'а: выборка active+enrolled; бездействие от последнего шага или от `enrolledAt` (нет шагов); пороги 5/7 дней; повтор «через день»; сброс при возобновлении учёбы
-- [ ] Task: Константы в файле job'а: `WARN_AFTER_DAYS = 5`, `REMOVE_AFTER_DAYS = 7`, `NOTICE_EVERY_DAYS = 2` (задел: конфиг/поле потока в будущем)
-- [ ] Task: Реализовать `InactivitySweepJob` (`schedule: dailyAt 19:00 UTC`) в `packages/stream/src/api/`: события `student.inactivity-warning` (студенту) и `student.inactivity-remove-candidate` (ментору) + `markNoticed` для idempotentности
-- [ ] Task: Метод выборки кандидатов в репо (или фильтрация в job — по возможностям repo)
-- [ ] Task: Зарегистрировать job в модуле stream (`readonly jobs = [...]`) и подключить в приложении
-- [ ] Task: UC `mark-abandoned`: ucLabel «Снять студента с учёбы» (термин); допустить enrolled
+- [x] Task: Написать падающие тесты job'а: выборка active+enrolled; бездействие от последнего шага или от `enrolledAt` (нет шагов); пороги 5/7 дней; повтор «через день»; сброс при возобновлении учёбы (cb25255)
+- [x] Task: Константы в файле job'а: `WARN_AFTER_DAYS = 5`, `REMOVE_AFTER_DAYS = 7`, `NOTICE_EVERY_DAYS = 2` (задел: конфиг/поле потока в будущем) (cb25255)
+- [x] Task: Реализовать `InactivitySweepJob` (`schedule: dailyAt 19:00 UTC`) в `packages/stream/src/api/`: события `student.inactivity-warning` (студенту) и `student.inactivity-remove-candidate` (ментору) + `markNoticed` для idempotentности (cb25255)
+- [x] Task: Метод выборки кандидатов в репо (или фильтрация в job — по возможностям repo) (cb25255)
+- [x] Task: Зарегистрировать job в модуле stream (`readonly jobs = [...]`) и подключить в приложении (cb25255)
+- [x] Task: UC `mark-abandoned`: ucLabel «Снять студента с учёбы» (термин); допустить enrolled (d48bd91)
 - [ ] Conductor - Ручная верификация 'Job мониторинга бездействия'
 
 ## Фаза 3: Уведомления и кик в боте (u7-bot)
