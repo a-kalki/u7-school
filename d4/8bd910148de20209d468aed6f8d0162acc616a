@@ -1,0 +1,20 @@
+Задача: Домен Student — статусы, маркер уведомлений, событие (Фаза 1, задачи 1-6)
+
+Сводка:
+- drop()/markAbandoned() расширены с active до active+enrolled (самовыход и снятие ментором доступны записавшимся без шагов)
+- Термин «Снять с учёбы» закреплён в сообщениях агрегата
+- entity.ts: StudentNoticeKindSchema (inactivity_warn_student|inactivity_warn_mentor), StudentNoticeRecordSchema, поле notices (optional — старые данные валидны)
+- a-root.ts: markNoticed(kind, at)/getLastNotice(kind); сброс notices при activate() и completeStep() (возобновление учёбы)
+- events.ts: StudentAbandonedEvent (student.abandoned; payload: studentId, userId, streamId, who, cause); публикация из drop()/markAbandoned()
+- drop-student-uc.ts / mark-abandoned-uc.ts: publishEvents + ucLabel («Покинуть учёбу» / «Снять студента с учёбы»)
+
+Изменённые файлы:
+- packages/stream/src/domain/student/entity.ts
+- packages/stream/src/domain/student/a-root.ts
+- packages/stream/src/domain/student/events.ts
+- packages/stream/src/domain/student/a-root.test.ts
+- packages/stream/src/api/student/drop-student-uc.ts (+test)
+- packages/stream/src/api/student/mark-abandoned-uc.ts (+test)
+- packages/stream/src/api/student/complete-student-uc.test.ts (обновлён под новый контракт события)
+
+Причина: трек student-inactivity_20260830 FR-1/3/4/5/6 — бездействующие enrolled-студенты, idempotentность уведомлений, кик из TG-группы по событию. Изменение существующих тестов (drop/markAbandoned из enrolled, complete-student abandoned без события) прямо предусмотрено планом трека — контракт менялся.
