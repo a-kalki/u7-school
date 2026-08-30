@@ -1,0 +1,9 @@
+Задача: e2e, документация, финал (Фаза 5, все задачи)
+
+Сводка:
+- tests/e2e/inactivity.e2e.test.ts: 5 сценариев в двух независимых контурах (createInactivityStand)
+- helpers/test-bot-transport.ts: kickedMembers в RecordingBotApi; фильтрация ответа по tgId (Фаза 3)
+- Исправлены найденные e2e-ошибки: actorId для get-student-progress в InactivityStory; неэкранированная точка после динамических значений (MarkdownV2)
+- group-handler: системные вызовы ролей с actorId=user.uuid (иначе 'Требуется авторизация'); FR-7 уведомление не зависит от снятия роли
+- Документация: mentor/ui-spec.md (S07: сводка+фильтр+переключатель), streams/ui-spec.md (раздел SIN), термин в mark-abandoned-uc и легендах
+- bun run check: 1872 pass / 0 fail
