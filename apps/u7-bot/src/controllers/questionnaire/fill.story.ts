@@ -17,6 +17,7 @@ import type {
   QuestionnaireAbandonEvent,
   QuestionnaireAbandonWarningEvent,
   QuestionnaireActionResponse,
+  QuestionnaireContinueInviteEvent,
   QuestionnaireInviteEvent,
   QuestionnaireStartEvent,
   QuestionnaireState,
@@ -56,6 +57,10 @@ export class FillStory extends U7BotUiStory {
         'questionnaire:abandon-warning',
         (event) => this.#handleWarningEvent(event),
       ),
+      eventSubscription<QuestionnaireContinueInviteEvent>(
+        'questionnaire:continue-invite',
+        (event) => this.#handleContinueInviteEvent(event),
+      ),
       eventSubscription<QuestionnaireAbandonEvent>(
         'questionnaire:abandon',
         (event) => this.#handleAbandonEvent(event),
@@ -94,6 +99,44 @@ export class FillStory extends U7BotUiStory {
     };
 
     await this.proactiveSender.send(telegramId, command);
+  }
+
+  /**
+   * questionnaire:continue-invite — приглашение продолжить брошенную анкету
+   * (ступень 3ч планировщика). Takeover-кнопка перехватывает ввод у чужого
+   * флоу без alert-блокировки (spec FR-4/FR-5).
+   */
+  async #handleContinueInviteEvent(
+    event: QuestionnaireContinueInviteEvent,
+  ): Promise<void> {
+    const { telegramId, questionnaireId } = event.payload;
+    const courseId = event.ownerInfo.courseId;
+
+    const rows: KeyboardDescription['rows'] = [];
+    if (typeof courseId === 'string') {
+      rows.push([
+        {
+          text: '▶️ Продолжить анкету',
+          code: Routes.questionnaire.resume(courseId),
+          // Takeover: перехват ввода при активном чужом действии (spec FR-5)
+          takeover: true,
+        },
+      ]);
+    }
+    rows.push([
+      {
+        text: '⏭️ Прервать',
+        code: this.cb('cancel-confirm', questionnaireId),
+      },
+    ]);
+
+    await this.proactiveSender.send(telegramId, {
+      sendMessage: {
+        text: '📋 *Анкета*\n\nВы начали заполнять анкету — продолжим?',
+        parseMode: 'MarkdownV2',
+        keyboard: { rows, isMultiple: false },
+      },
+    });
   }
 
   /**

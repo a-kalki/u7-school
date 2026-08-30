@@ -70,6 +70,13 @@ export const QuestionnaireSchema = v.object({
       v.isoDateTime('Некорректный формат даты предупреждения'),
     ),
   ),
+  /** Когда анкете отправлено приглашение продолжить заполнение (брошенная анкета, ступень 3ч) */
+  continueInvitedAt: v.optional(
+    v.pipe(
+      v.string(),
+      v.isoDateTime('Некорректный формат даты приглашения продолжить'),
+    ),
+  ),
   completedAt: v.nullable(
     v.pipe(v.string(), v.isoDateTime('Некорректный формат даты завершения')),
   ),
@@ -103,6 +110,8 @@ export type BaseQuestionnaireState = {
   updatedAt?: string;
   /** Когда анкете отправлено предупреждение о закрытии */
   warnedAt?: string;
+  /** Когда анкете отправлено приглашение продолжить заполнение */
+  continueInvitedAt?: string;
   completedAt: string | null;
   /** Причина прерывания анкеты (см. AbandonReason) */
   abandonReason?: AbandonReason;

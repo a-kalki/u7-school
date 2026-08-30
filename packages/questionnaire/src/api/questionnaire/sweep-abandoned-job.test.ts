@@ -116,11 +116,16 @@ describe('SweepAbandonedJob', () => {
     userByUuid = new Map([['00000000-0000-0000-0000-000000000007', 42]]);
   });
 
-  test('контракт job: имя, метка, расписание — интервал раз в час', () => {
+  test('контракт job: имя, метка, расписание — интервал раз в 3 часа', () => {
     const job = new SweepAbandonedJob();
     expect(job.jobName).toBe('sweep-abandoned-questionnaires');
-    expect(job.jobLabel).toBe('Предупреждение и закрытие брошенных анкет');
-    expect(job.schedule).toEqual({ kind: 'interval', intervalMs: HOUR });
+    expect(job.jobLabel).toBe(
+      'Продолжение, предупреждение и закрытие брошенных анкет',
+    );
+    expect(job.schedule).toEqual({
+      kind: 'interval',
+      intervalMs: 3 * HOUR,
+    });
   });
 
   test('свежая анкета (простоя нет) — никаких действий', async () => {
@@ -135,7 +140,7 @@ describe('SweepAbandonedJob', () => {
     expect(mocks.publish).not.toHaveBeenCalled();
   });
 
-  test('5ч простоя — ниже порога предупреждения, действий нет', async () => {
+  test('5ч простоя → приглашение продолжить (ступень 3ч, ещё не 6ч)', async () => {
     const state = makeState({ updatedAt: hoursAgo(5) });
     const { resolve, mocks } = makeResolve([state], userByUuid);
     const job = new SweepAbandonedJob();
@@ -143,8 +148,10 @@ describe('SweepAbandonedJob', () => {
 
     await job.execute();
 
-    expect(mocks.save).not.toHaveBeenCalled();
-    expect(mocks.publish).not.toHaveBeenCalled();
+    // Первая ступень: приглашение продолжить, не предупреждение
+    expect(mocks.publish).toHaveBeenCalledTimes(1);
+    const event = mocks.publish.mock.calls[0]![0] as { eventName: string };
+    expect(event.eventName).toBe('questionnaire:continue-invite');
   });
 
   test('7ч простоя → предупреждение: warnedAt + save + событие questionnaire:abandon-warning', async () => {

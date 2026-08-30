@@ -61,6 +61,20 @@ export interface QuestionnaireAbandonWarningEvent<
   payload: QuestionnaireBasePayload & { telegramId: number };
 }
 
+/**
+ * Событие приглашения продолжить заполнение брошенной анкеты.
+ * Публикуется планировщиком (SweepAbandonedJob) после 3ч простоя —
+ * первая ступень перед предупреждением (6ч) и закрытием (9ч).
+ */
+export interface QuestionnaireContinueInviteEvent<
+  TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,
+> extends DomainEvent {
+  eventName: 'questionnaire:continue-invite';
+  aggregateName: BaseQuestionnaireArMeta['name'];
+  ownerInfo: TOwnerInfo;
+  payload: QuestionnaireBasePayload & { telegramId: number };
+}
+
 /** Событие завершения likert-анкеты: ownerInfo + вычисленные баллы. */
 export interface LikertQuestionnaireCompleteEvent<
   TOwnerInfo extends Record<string, unknown> = Record<string, unknown>,

@@ -77,6 +77,21 @@ export abstract class BaseQuestionnaireAr<
     });
   }
 
+  /**
+   * Отмечает, что анкете отправлено приглашение продолжить заполнение.
+   * Вызывается планировщиком брошенных анкет (SweepAbandonedJob, ступень 3ч).
+   *
+   * ВАЖНО: обходит safeUpdate по той же причине, что и markWarned —
+   * приглашение не должно сбрасывать таймер простоя (updatedAt).
+   */
+  markContinueInvited(): void {
+    this.#checkIsInProgress();
+    this._state = this.validateState({
+      ...this._state,
+      continueInvitedAt: isoNow(),
+    });
+  }
+
   getInvite(): InviteResponse {
     if (this.state.status !== 'invited') {
       this.throwBadRequest(
@@ -103,7 +118,7 @@ export abstract class BaseQuestionnaireAr<
       );
     }
 
-    this.#resetWarning();
+    this.#resetIdleFlags();
     this.safeUpdate({ status: 'in_progress' });
 
     return this.#findAndSetNextQuestion([]);
@@ -179,7 +194,7 @@ export abstract class BaseQuestionnaireAr<
     value: string;
   }): QuestionnaireActionResponse {
     this.#checkIsInProgress();
-    this.#resetWarning();
+    this.#resetIdleFlags();
 
     const questionCode = this.currentQuestionCode;
     const question = this.#getQuestion(questionCode);
@@ -491,9 +506,10 @@ export abstract class BaseQuestionnaireAr<
     }
   }
 
-  /** Сброс предупреждения о закрытии — пользователь проявил активность. */
-  #resetWarning(): void {
+  /** Сброс флагов простоя — пользователь проявил активность (возобновление сбрасывает цепочку ступеней). */
+  #resetIdleFlags(): void {
     delete this._state.warnedAt;
+    delete this._state.continueInvitedAt;
   }
 
   #getQuestion(questionCode: string): Question {
