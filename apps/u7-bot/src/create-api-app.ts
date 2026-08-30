@@ -44,7 +44,6 @@ export interface ApiAppBundle {
   userFacade: UserInProcFacade;
   userRepo: UserJsonRepo;
   questionnaireFacade: QuestionnaireInProcFacade;
-  questionnaireModule: QuestionnaireApiModule;
   streamModule: StreamApiModule;
   courseModule: CourseApiModule;
   wishModule: WishApiModule;
@@ -171,7 +170,6 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     userFacade,
     userRepo,
     questionnaireFacade,
-    questionnaireModule,
     streamModule,
     courseModule,
     wishModule,

@@ -22,7 +22,7 @@
 
 **Как попасть:** инициативно от системы через `sendInvite()`.
 **Кому:** пользователю, которому предназначена анкета.
-**Рендеринг:** FillStory → подписка `questionnaire:invite` → `#handleInviteEvent`
+**Рендеринг:** InviteStory → подписка `questionnaire:invite` → `#handleInviteEvent`
 **Данные:** `InviteResponse` содержит `inviteText?`, `whyText?`, `questionnaireId`.
 
 **Содержание:**
@@ -38,9 +38,9 @@
 
 | Текст | Код | Действие | Статус |
 |-------|-----|----------|--------|
-| `▶️ Начать заполнение` | `questionnaire:fill:start:{qId}` | → S02 | 📋 |
-| `❔ Зачем это нужно?` | `questionnaire:fill:why:{qId}` | sendMessage с whyText | 📋 |
-| `⏭️ Пропустить` | `questionnaire:fill:decline:{qId}` | → S06a (confirm) | 📋 |
+| `▶️ Начать заполнение` | `questionnaire:invite:start:{qId}` | → S02 (captureInput → fill) | 📋 |
+| `❔ Зачем это нужно?` | `questionnaire:invite:why:{qId}` | sendMessage с whyText | 📋 |
+| `⏭️ Пропустить` | `questionnaire:invite:decline:{qId}` | → S06a (confirm) | 📋 |
 
 > **«Зачем это нужно?»** — только если `whyText` есть в pool.
 >
@@ -55,7 +55,7 @@
 
 **Как попасть:** S01 (Начать) → S02a, или предыдущий вопрос → S02a, или сразу от `start()` (без S01).
 **Кому:** пользователь в процессе заполнения.
-**Рендеринг:** FillStory → UC `start-by-invite` / `handle-action` → render
+**Рендеринг:** FillStory → UC `start-by-invite` / `handle-action` → `renderActionResponse` (stories/render.ts)
 
 **Содержание:**
 ```
@@ -199,7 +199,7 @@ completed-экран отправляется **новым сообщением*
 ### S06a — Подтверждение отказа
 
 **Как попасть:** кнопка «⏭️ Пропустить» на S01.
-**Рендеринг:** FillStory → `confirm()` из BotUserStory
+**Рендеринг:** InviteStory → `confirm()` из BotUserStory
 
 **Содержание:**
 ```
@@ -212,13 +212,13 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `✅ Да, пропустить` | `questionnaire:fill:decline-confirm:{qId}` | 📋 |
-| `❌ Нет, вернуться` | `questionnaire:fill:invite:{qId}` → S01 | 📋 |
+| `✅ Да, пропустить` | `questionnaire:invite:decline-confirm:{qId}` | 📋 |
+| `❌ Нет, вернуться` | `questionnaire:invite:invite:{qId}` → S01 | 📋 |
 
 ### S06b — Отказ подтверждён
 
 **Как попасть:** «Да, пропустить» на S06a.
-**Рендеринг:** FillStory → UC `decline-invite({questionnaireId})`
+**Рендеринг:** InviteStory → UC `decline-invite({questionnaireId})`
 
 **Содержание:**
 ```
@@ -310,21 +310,33 @@ callback_data кодирует/снимает uiApp, транспорт и ст�
 
 ---
 
-## Стори fill — обработчики
+## Стори контроллера — обработчики
 
-| Событие | UC | Действие |
+Контроллер состоит из двух стори (общий рендер — `stories/render.ts`):
+
+### InviteStory (`invite`) — приглашение и отказ
+
+| Событие / код | UC | Действие |
 |---|---|---|
-| `fill:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` |
-| `fill:why:{qId}` | `get-current` | editMessage S01 (убрать кнопки) + sendMessage whyText + «Хорошо» |
-| `fill:invite:{qId}` | `get-current` | sendMessage: новый S01 из InviteResponse |
-| `fill:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
-| `fill:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
-| `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
+| `invite:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` (управление переходит fill-стори) |
+| `invite:why:{qId}` | `get-current` | sendMessage whyText + «Хорошо» → `invite:invite:{qId}` |
+| `invite:invite:{qId}` | `get-current` | sendMessage: новый S01 из InviteResponse |
+| `invite:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
+| `invite:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
+| `questionnaire:invite` (подписка) | — | sendMessage S01 |
+
+### FillStory (`fill`) — заполнение и жизненный цикл
+
+| Событие / код | UC | Действие |
+|---|---|---|
 | `fill:current` | `get-current` | Возврат к текущему вопросу (S02a/S02b/S03) |
-| `fill:answer:{qId}:{aCode}` | `handle-action({type:'select'})` | Render |
-| `fill:next:{qId}` | `handle-action({type:'next-btn'})` | Render |
+| `fill:answer:{qId}:{aCode}` | `handle-action({type:'callback'})` | Render |
+| `fill:next:{qId}:{qCode}` | `handle-action({type:'callback'})` | Render |
 | text message | `handle-action({type:'text'})` | Render |
-| `/cancel` | — | `confirm('cancel', qId, ...)` → S05a |
+| `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
+| `fill:resume:{courseId}` | `get-questionnaires-by-user` + `get-current` | Render → `captureInput: questionnaire/fill` |
+| `/cancel` | `get-current` (warning) | `confirm('cancel', qId, ...)` → S05a |
+| `questionnaire:start` (подписка) | — | Render S02–S04 + `captureInput: questionnaire/fill` |
 | `questionnaire:continue-invite` (подписка) | — (SweepAbandonedJob, 3ч) | sendMessage S09: Продолжить анкету (takeover, если courseId) / Прервать |
 | `questionnaire:abandon-warning` (подписка) | — (SweepAbandonedJob, 6ч) | sendMessage S07: Продолжить (takeover, если courseId) / Прервать |
 | `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob, 9ч) | notify S08; без reason — ничего (без дубля) |

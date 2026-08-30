@@ -49,9 +49,7 @@ describe('Wish: анкетная ветка (e2e)', () => {
     app = await createTestApp('wish-questionnaire-e2e');
     const courseController = new CoursesController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    const questionnaireController = new QuestionnaireController(
-      app.questionnaireModule,
-    );
+    const questionnaireController = new QuestionnaireController();
     transport = createTestBotTransport(app, [
       appController,
       courseController,
@@ -139,11 +137,11 @@ describe('Wish: анкетная ветка (e2e)', () => {
     user: User,
     courseId: string,
   ): Promise<QuestionnaireState['status'] | undefined> {
-    const states = (await app.questionnaireModule.execute(
+    const states = await app.apiApp.execute(
       'get-questionnaires-by-user',
       { userId: user.uuid },
       user.uuid,
-    )) as QuestionnaireState[];
+    );
     return states.find(
       (s) => s.kind === 'standard' && s.ownerInfo.courseId === courseId,
     )?.status;

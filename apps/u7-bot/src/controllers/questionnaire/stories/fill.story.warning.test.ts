@@ -1,6 +1,5 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { BotCommand } from '@u7-scl/core/ui';
-import type { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import { FillStory } from './fill.story';
 
 /**
@@ -8,7 +7,7 @@ import { FillStory } from './fill.story';
  * Обработчики событий рендерят и шлют — resolve не нужен.
  */
 function makeStory() {
-  const story = new FillStory({} as QuestionnaireApiModule);
+  const story = new FillStory();
   const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
   story.init({} as never, sender);
   return { story, sender };

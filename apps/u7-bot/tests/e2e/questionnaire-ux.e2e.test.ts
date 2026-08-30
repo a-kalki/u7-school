@@ -48,7 +48,7 @@ describe('Questionnaire UX (e2e)', () => {
       new AppController(SCHOOL_GROUP_URL),
       new CoursesController(),
       new StreamsController(),
-      new QuestionnaireController(app.questionnaireModule),
+      new QuestionnaireController(),
     ]);
     guest = (await app.userFacade.getUserByTelegramId(1001))!;
     candidate = (await app.userFacade.getUserByTelegramId(1002))!;

@@ -1,37 +1,22 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { BotCommand, SessionData } from '@u7-scl/core/ui';
-import type { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
+import type { SessionData } from '@u7-scl/core/ui';
 import { FillStory } from './fill.story';
 
 /**
- * Создаёт FillStory с мок-отправителем и без реальных модулей.
- *
- * Обработчики событий не вызывают API — только рендерят и шлют через
- * proactiveSender, поэтому resolve можно не заполнять.
- */
-function makeStory() {
-  const story = new FillStory({} as QuestionnaireApiModule);
-  const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
-  story.init({} as never, sender);
-  return { story, sender };
-}
-
-/**
- * Создаёт FillStory с моком API-модуля questionnaire.
+ * Создаёт FillStory с моком API приложения.
  *
  * execute имитирует диспетчеризацию UC: поведение задаётся тестом.
  */
-function makeStoryWithQmod(
+function makeStoryWithApi(
   execute: (name: string, cmd: unknown, actorId: string) => Promise<unknown>,
 ) {
-  const qmod = {
-    execute: mock(execute),
-  } as unknown as QuestionnaireApiModule;
-  const story = new FillStory(qmod);
+  const appApi = { execute: mock(execute) } as unknown as U7BotApp;
+  const story = new FillStory();
   const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
-  story.init({} as never, sender);
-  return { story, qmod };
+  story.init({ appApi } as never, sender);
+  return { story, appApi, sender };
 }
 
 /** Активная standard-анкета пользователя по курсу. */
@@ -53,63 +38,32 @@ function inProgressState(overrides?: Record<string, unknown>) {
 /** Извлекает последний вызов proactiveSender.send. */
 function getSentCommand(sender: { send: ReturnType<typeof mock> }): {
   telegramId: number;
-  command: BotCommand;
+  command: import('@u7-scl/core/ui').BotCommand;
 } {
   expect(sender.send).toHaveBeenCalled();
   const [telegramId, command] = sender.send.mock.calls[0] as [
     number,
-    BotCommand,
+    import('@u7-scl/core/ui').BotCommand,
   ];
   return { telegramId, command };
 }
 
 describe('FillStory — подписки на доменные события', () => {
-  test('getEventSubscriptions возвращает 5 подписок', () => {
-    const { story } = makeStory();
+  test('getEventSubscriptions возвращает 4 подписки', () => {
+    const { story } = makeStoryWithApi(async () => ({}));
 
     const subs = story.getEventSubscriptions();
 
     expect(subs.map((s) => s.eventName)).toEqual([
       'questionnaire:start',
-      'questionnaire:invite',
       'questionnaire:abandon-warning',
       'questionnaire:continue-invite',
       'questionnaire:abandon',
     ]);
   });
 
-  test('questionnaire:invite рендерит S01 и шлёт через proactiveSender', async () => {
-    const { story, sender } = makeStory();
-
-    const inviteSub = story
-      .getEventSubscriptions()
-      .find((s) => s.eventName === 'questionnaire:invite');
-    expect(inviteSub).toBeDefined();
-
-    await inviteSub!.handle({
-      eventName: 'questionnaire:invite',
-      payload: {
-        telegramId: 456,
-        response: {
-          type: 'invited',
-          questionnaireId: 'q1',
-          inviteText: 'Заполните анкету',
-          whyText: 'Для обучения',
-        },
-      },
-    } as never);
-
-    const { telegramId, command } = getSentCommand(sender);
-    expect(telegramId).toBe(456);
-    expect(command.sendMessage?.text).toContain('Анкета');
-
-    const codes =
-      command.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
-    expect(codes).toEqual(['fill:start:q1', 'fill:why:q1', 'fill:decline:q1']);
-  });
-
   test('questionnaire:start рендерит вопрос и захватывает ввод', async () => {
-    const { story, sender } = makeStory();
+    const { story, sender } = makeStoryWithApi(async () => ({}));
 
     const startSub = story
       .getEventSubscriptions()
@@ -145,7 +99,7 @@ describe('FillStory — fill:resume:{courseId}', () => {
   const session = {} as SessionData;
 
   test('resume: активная анкета найдена — рендер текущего вопроса + captureInput', async () => {
-    const { story, qmod } = makeStoryWithQmod(async (name, cmd) => {
+    const { story, appApi } = makeStoryWithApi(async (name, cmd) => {
       if (name === 'get-questionnaires-by-user') {
         return [inProgressState()];
       }
@@ -174,11 +128,11 @@ describe('FillStory — fill:resume:{courseId}', () => {
     expect(res.captureInput?.context).toEqual({
       questionnaireId: '11111111-2222-4333-8444-555555555555',
     });
-    expect(qmod.execute).toHaveBeenCalledTimes(2);
+    expect(appApi.execute).toHaveBeenCalledTimes(2);
   });
 
   test('resume: анкета не найдена — сообщение и главное меню', async () => {
-    const { story } = makeStoryWithQmod(async () => []);
+    const { story } = makeStoryWithApi(async () => []);
 
     const res = await story.handleCallback('resume:course-1', actor, session);
 
@@ -189,7 +143,7 @@ describe('FillStory — fill:resume:{courseId}', () => {
   });
 
   test('resume: completed и likert-анкеты по тому же курсу игнорируются', async () => {
-    const { story } = makeStoryWithQmod(async () => [
+    const { story } = makeStoryWithApi(async () => [
       inProgressState({ status: 'completed' }),
       inProgressState({ kind: 'likert', status: 'in_progress' }),
     ]);
@@ -205,7 +159,7 @@ describe('FillStory — completionText на completed', () => {
   const session = {} as SessionData;
 
   function completedStory(completionText?: string) {
-    return makeStoryWithQmod(async (name) => {
+    return makeStoryWithApi(async (name) => {
       if (name === 'handle-action') {
         return {
           type: 'completed',
@@ -243,7 +197,7 @@ describe('FillStory — прогресс анкеты и подсказка /can
   const session = {} as SessionData;
 
   function questionStory(response: Record<string, unknown>) {
-    return makeStoryWithQmod(async () => response);
+    return makeStoryWithApi(async () => response);
   }
 
   test('new_question: шапка «Вопрос N из M»', async () => {

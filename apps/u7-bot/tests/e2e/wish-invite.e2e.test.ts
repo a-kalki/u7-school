@@ -59,9 +59,7 @@ describe('Wish: приглашение при открытии набора (e2e
     const courseController = new CoursesController();
     const streamController = new StreamsController();
     const appController = new AppController(SCHOOL_GROUP_URL);
-    const questionnaireController = new QuestionnaireController(
-      app.questionnaireModule,
-    );
+    const questionnaireController = new QuestionnaireController();
     transport = createTestBotTransport(app, [
       appController,
       courseController,

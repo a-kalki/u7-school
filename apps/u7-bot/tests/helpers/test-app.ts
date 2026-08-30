@@ -40,8 +40,6 @@ export interface TestApp {
   streamModule: StreamApiModule;
   /** API модуля курсов (для создания CoursesController) */
   courseModule: CourseApiModule;
-  /** API модуля анкет (для создания QuestionnaireController) */
-  questionnaireModule: QuestionnaireApiModule;
   /** Общая шина событий (та же, что внутри apiApp) — для TestBotTransport */
   eventBus: InProcEventBus;
   /** Репозиторий желаний — для проверки статусов в тестах */
@@ -164,7 +162,6 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     apiApp,
     streamModule,
     courseModule,
-    questionnaireModule,
     eventBus: appResolver.eventBus,
     wishRepo,
     userFacade,

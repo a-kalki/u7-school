@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { BotCommand, SessionData } from '@u7-scl/core/ui';
-import type { QuestionnaireApiModule } from '@u7-scl/questionnaire/api';
 import { FillStory } from './fill.story';
 
 /**
@@ -47,17 +47,15 @@ function fillSession(lastBotMessageId = 42): SessionData {
   } as unknown as SessionData;
 }
 
-/** Story с моком API-модуля (конвенция fill.story.test.ts). */
+/** Story с моком API приложения (конвенция fill.story.test.ts). */
 function makeStory(
   execute: (name: string, cmd: unknown, actorId: string) => Promise<unknown>,
 ) {
-  const qmod = {
-    execute: mock(execute),
-  } as unknown as QuestionnaireApiModule;
-  const story = new FillStory(qmod);
+  const appApi = { execute: mock(execute) } as unknown as U7BotApp;
+  const story = new FillStory();
   const sender = { send: mock(async () => {}), notify: mock(async () => {}) };
-  story.init({} as never, sender);
-  return { story, qmod, sender };
+  story.init({ appApi } as never, sender);
+  return { story, appApi, sender };
 }
 
 function waitNextResponse(overrides: Record<string, unknown> = {}) {

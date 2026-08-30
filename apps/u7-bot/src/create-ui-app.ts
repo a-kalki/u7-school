@@ -39,9 +39,7 @@ export function createUiApp(
   const courseController = new CoursesController();
   const learningController = new LearningController();
   const mentorController = new MentorController();
-  const questionnaireController = new QuestionnaireController(
-    bundle.questionnaireModule,
-  );
+  const questionnaireController = new QuestionnaireController();
   const appController = new AppController(config.schoolGroupUrl);
 
   const uiApp = new U7BotUiApp([

@@ -783,7 +783,7 @@ describe('BotTransport — send (proactive)', () => {
         text: 'Приглашение',
         keyboard: {
           rows: [
-            [{ text: 'Начать', code: `questionnaire:fill:start:${uuid}` }],
+            [{ text: 'Начать', code: `questionnaire:invite:start:${uuid}` }],
           ],
           isMultiple: false,
         },
@@ -792,7 +792,7 @@ describe('BotTransport — send (proactive)', () => {
 
     const call = (api.sendMessage as any).mock.calls[0];
     expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
-      'questionnaire:fill:start:~b2c3d4e5',
+      'questionnaire:invite:start:~b2c3d4e5',
     );
   });
 });
