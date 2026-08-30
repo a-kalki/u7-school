@@ -1,0 +1,12 @@
+Задача: Уведомления и кик в боте (Фаза 3, все задачи)
+
+Сводка:
+- InactivityStory (controllers/streams/stories/inactivity.story.ts): 3 подписки + 4 callback-обработчика (confirm/execute для drop-student и mark-abandoned)
+- student-kick-handler.ts: ER на student.abandoned; мягкий кик ban+unban; лог вместо ошибок
+- group-handler.ts: расширение deps (apiApp+transport); notifyMentorsAboutGroupLeft по активным записям студента
+- main.ts: registerStudentKickHandler + registerGroupHandlers(deps); StreamsController + InactivityStory
+- Термин «Снять с учёбы»: monitor.ts (confirm/результат), тесты обновлены
+- TestBotTransport.#run: фильтрация sentMessages/editedMessages по tgId пользователя
+
+Файлы: inactivity.story.ts(+test), student-kick-handler.ts(+test), group-handler.ts(+test), controller.ts(+test), main.ts, monitor.ts(+test), mentor-management.e2e.test.ts, test-bot-transport.ts
+Тесты: bun run check — 1865 pass / 0 fail.
