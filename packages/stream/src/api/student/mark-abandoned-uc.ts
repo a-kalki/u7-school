@@ -51,7 +51,7 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
     const streamEntity = await this.getStream(command.streamId);
     const actor = await this.getActor(actorId);
     if (!StudentPolicy.canManageStudent(actor, streamEntity)) {
-      this.throwAccessDenied('Недостаточно прав для отчисления студента');
+      this.throwAccessDenied('Недостаточно прав для снятия студента с учёбы');
     }
 
     const studentAr = new StudentAr(studentEntity);

@@ -76,7 +76,7 @@ export function registerGroupHandlers(
       try {
         const user = await userFacade.getUserByTelegramId(userId);
         if (user) {
-          await userFacade.addRoleToUser(user.uuid, Role.SUBSCRIBER);
+          await userFacade.addRoleToUser(user.uuid, Role.SUBSCRIBER, user.uuid);
         }
       } catch (err) {
         logger.error(
@@ -97,8 +97,8 @@ export function registerGroupHandlers(
       try {
         const user = await userFacade.getUserByTelegramId(userId);
         if (user) {
-          await userFacade.removeRoleFromUser(user.uuid, Role.SUBSCRIBER);
-          // FR-7: уведомить менторов потоков, где пользователь — активный студент
+          // FR-7: уведомление ментору — раньше снятия роли,
+          // чтобы сбой роли не блокировал уведомление
           if (deps) {
             await notifyMentorsAboutGroupLeft(
               user.uuid,
@@ -108,6 +108,11 @@ export function registerGroupHandlers(
               logger,
             );
           }
+          await userFacade.removeRoleFromUser(
+            user.uuid,
+            Role.SUBSCRIBER,
+            user.uuid,
+          );
         }
       } catch (err) {
         logger.error(

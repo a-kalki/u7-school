@@ -271,6 +271,13 @@ describe('InactivityStory', () => {
     )(makeCandidateEvent({ wasWarned: true }) as never);
 
     expect(sends[0]?.text).toContain('Уведомления были ранее отправлены');
+
+    // MarkdownV2-валидация (динамические значения + точка после них)
+    expect(() => {
+      assertResponseMarkdownSafe({
+        sendMessage: { text: sends[0]?.text ?? '', parseMode: 'MarkdownV2' },
+      });
+    }).not.toThrow();
   });
 
   // ── События ухода (FR-4/FR-5) ──

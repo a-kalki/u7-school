@@ -564,10 +564,10 @@ export class ViewStreamStory extends U7BotUiStory {
 
     header.push('');
     header.push('*Легенда:*');
-    header.push('🛑 критическое отставание, кандидат на отчисление');
+    header.push('🛑 критическое отставание, кандидат на снятие с учёбы');
     header.push('⚠️ учится, но отстаёт от группы');
     header.push('🏃 в норме, учится');
-    header.push('🚫 забросил учебу');
+    header.push('🚫 выбыл из учёбы');
     header.push('↩️ завершил модуль, но пройдет заново');
     header.push('✅ завершил модуль, проходит дальше');
 

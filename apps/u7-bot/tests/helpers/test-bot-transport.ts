@@ -32,6 +32,13 @@ export interface EditedMessage {
   keyboard?: KeyboardDescription;
 }
 
+/** Запись мягкого кика из группы (banChatMember + unbanChatMember). */
+export interface KickedMember {
+  chatId: string | number;
+  telegramId: number;
+  unbanned: boolean;
+}
+
 interface RawReplyMarkup {
   inline_keyboard: Array<
     Array<{ text: string; callback_data?: string; url?: string }>
@@ -45,11 +52,13 @@ interface RawReplyMarkup {
 export class RecordingBotApi {
   readonly sentMessages: SentMessage[] = [];
   readonly editedMessages: EditedMessage[] = [];
+  readonly kickedMembers: KickedMember[] = [];
   #nextMessageId = 1;
 
   reset(): void {
     this.sentMessages.length = 0;
     this.editedMessages.length = 0;
+    this.kickedMembers.length = 0;
     this.#nextMessageId = 1;
   }
 
@@ -83,6 +92,33 @@ export class RecordingBotApi {
       keyboard: this.#toKeyboard(other?.reply_markup),
     });
     return { message_id: messageId };
+  }
+
+  /** Мягкий кик: banChatMember + unbanChatMember (как student-kick-handler). */
+  async banChatMember(
+    chatId: string | number,
+    telegramId: number,
+    _other?: { until_date?: number },
+  ): Promise<true> {
+    this.kickedMembers.push({ chatId, telegramId, unbanned: false });
+    return true;
+  }
+
+  async unbanChatMember(
+    chatId: string | number,
+    telegramId: number,
+  ): Promise<true> {
+    const record =
+      this.kickedMembers.find(
+        (k) =>
+          String(k.chatId) === String(chatId) &&
+          k.telegramId === telegramId &&
+          !k.unbanned,
+      ) ?? this.kickedMembers[this.kickedMembers.length - 1];
+    if (record) {
+      record.unbanned = true;
+    }
+    return true;
   }
 
   #toKeyboard(markup?: RawReplyMarkup): KeyboardDescription | undefined {

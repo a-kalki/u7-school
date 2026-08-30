@@ -100,7 +100,7 @@ export class InactivityStory extends U7BotUiStory {
     const lines = [
       '🛑 *Кандидат на снятие с учёбы*',
       '',
-      `Студент *${this.escapeMarkdown(studentName)}* из группы «${this.escapeMarkdown(streamTitle)}» не занимался ${this.#pluralizeDays(daysInactive)}.`,
+      `Студент *${this.escapeMarkdown(studentName)}* из группы «${this.escapeMarkdown(streamTitle)}» не занимался ${this.#pluralizeDays(daysInactive)}\\.`,
     ];
     if (wasWarned) {
       lines.push('', 'ℹ️ Уведомления были ранее отправлены студенту\\.');
@@ -210,7 +210,7 @@ export class InactivityStory extends U7BotUiStory {
   // ── Приватные методы ──
 
   async #executeDrop(studentId: string, actor: User): Promise<BotResponse> {
-    const student = await this.#getStudent(studentId);
+    const student = await this.#getStudent(studentId, actor);
     if (!student) {
       return { sendMessage: { text: '⚠️ Запись студента не найдена' } };
     }
@@ -241,7 +241,7 @@ export class InactivityStory extends U7BotUiStory {
     studentId: string,
     actor: User,
   ): Promise<BotResponse> {
-    const student = await this.#getStudent(studentId);
+    const student = await this.#getStudent(studentId, actor);
     if (!student) {
       return { sendMessage: { text: '⚠️ Запись студента не найдена' } };
     }
@@ -269,9 +269,16 @@ export class InactivityStory extends U7BotUiStory {
   }
 
   /** Запись студента (streamId для команды UC). */
-  async #getStudent(studentId: string): Promise<Student | undefined> {
+  async #getStudent(
+    studentId: string,
+    actor: User,
+  ): Promise<Student | undefined> {
     try {
-      return await this.appApi.execute('get-student-progress', { studentId });
+      return await this.appApi.execute(
+        'get-student-progress',
+        { studentId },
+        actor.uuid,
+      );
     } catch {
       return undefined;
     }
