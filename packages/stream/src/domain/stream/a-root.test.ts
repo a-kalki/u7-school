@@ -27,6 +27,7 @@ const mockCreateCmd = {
   moduleId: '770e8400-e29b-41d4-a716-446655440003',
   startDate: '2026-06-01T12:00',
   telegramGroupId: '-100123456789',
+  telegramGroupInvite: 'https://t.me/+abc123',
   goal: 'Цель обучения',
   result: 'Результат обучения',
   rules: 'Правила прохождения',
@@ -45,6 +46,9 @@ describe('StreamAr', () => {
       expect(ar.state.moduleId).toBe(mockCreateCmd.moduleId);
       expect(ar.state.startDate).toBe(mockCreateCmd.startDate);
       expect(ar.state.telegramGroupId).toBe(mockCreateCmd.telegramGroupId);
+      expect(ar.state.telegramGroupInvite).toBe(
+        mockCreateCmd.telegramGroupInvite,
+      );
       expect(ar.state.status).toBe(StreamStatus.ENROLLMENT);
       expect(ar.state.uuid).toMatch(
         /^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i,

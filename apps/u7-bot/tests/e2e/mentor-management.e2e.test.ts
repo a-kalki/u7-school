@@ -517,7 +517,7 @@ describe('E2E: Ментор — управление студентами', () =
         assertBotResponseValid(resp);
       }
 
-      // Шаг 9: группа — пропускаем
+      // Шаг 9: группа (ID) — пропускаем
       expect(resp.sendMessage?.text).toContain('Telegram');
       const skipGroup = findButton(resp, 'Пропустить');
       resp = await transport.handleCallback(
@@ -527,7 +527,17 @@ describe('E2E: Ментор — управление студентами', () =
       );
       assertBotResponseValid(resp);
 
-      // Шаг 10: кодовое слово — пропускаем
+      // Шаг 10: инвайт-ссылка — пропускаем
+      expect(resp.sendMessage?.text).toContain('инвайт');
+      const skipInvite = findButton(resp, 'Пропустить');
+      resp = await transport.handleCallback(
+        transport.makeBotContext(mentor.telegramId, {
+          callbackData: skipInvite.code,
+        }),
+      );
+      assertBotResponseValid(resp);
+
+      // Шаг 11: кодовое слово — пропускаем
       expect(resp.sendMessage?.text).toContain('кодовое слово');
       const skipKey = findButton(resp, 'Пропустить');
       resp = await transport.handleCallback(
@@ -537,7 +547,7 @@ describe('E2E: Ментор — управление студентами', () =
       );
       assertBotResponseValid(resp);
 
-      // Шаг 11: превью
+      // Шаг 12: превью
       expect(resp.sendMessage?.text).toContain('Превью потока');
       expect(resp.sendMessage?.text).toContain('JavaScript Основы');
       expect(resp.sendMessage?.text).toContain('E2E Тестовый Поток');

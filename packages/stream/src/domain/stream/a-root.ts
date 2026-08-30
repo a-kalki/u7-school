@@ -36,6 +36,7 @@ export class StreamAr extends Aggregate<StreamArMeta> {
       startDate: cmd.startDate,
       status: StreamStatus.ENROLLMENT,
       telegramGroupId: cmd.telegramGroupId,
+      telegramGroupInvite: cmd.telegramGroupInvite,
       goal: cmd.goal,
       result: cmd.result,
       rules: cmd.rules,

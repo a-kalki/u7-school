@@ -17,6 +17,7 @@ function wizardSession(
     description: string;
     startDate: string;
     telegramGroupId: string;
+    telegramGroupInvite: string;
     goal: string;
     result: string;
     rules: string;
@@ -40,6 +41,7 @@ function wizardSession(
         description: overrides.description ?? '',
         startDate: overrides.startDate ?? '',
         telegramGroupId: overrides.telegramGroupId ?? '',
+        telegramGroupInvite: overrides.telegramGroupInvite ?? '',
         goal: overrides.goal ?? '',
         result: overrides.result ?? '',
         rules: overrides.rules ?? '',
@@ -577,7 +579,7 @@ describe('CreateStreamStory', () => {
 
   // ── Шаг 9: группа ──
 
-  test('handleCallback "skip-group" — пропуск группы → шаг 10 (кодовое слово)', async () => {
+  test('handleCallback "skip-group" — пропуск группы → шаг 10 (инвайт-ссылка)', async () => {
     const { story } = createStory();
 
     const session = wizardSession({
@@ -598,13 +600,13 @@ describe('CreateStreamStory', () => {
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('кодовое слово');
+    expect(response.sendMessage?.text).toContain('инвайт');
     const ctx = response.captureInput!.context as Record<string, unknown>;
     expect(ctx.step).toBe(10);
     expect(ctx.telegramGroupId).toBe('');
   });
 
-  test('handleMessage step 9 — ввод группы → шаг 10', async () => {
+  test('handleMessage step 9 — ввод ID группы → шаг 10 (инвайт)', async () => {
     const { story } = createStory();
 
     const session = wizardSession({
@@ -620,28 +622,87 @@ describe('CreateStreamStory', () => {
     });
 
     const response = await story.handleMessage(
-      { type: 'message', text: 'https://t.me/joinchat/abc', telegramId: 123 },
+      { type: 'message', text: '-100123456789', telegramId: 123 },
+      mentorActor,
+      session,
+    );
+
+    expect(response.sendMessage?.text).toContain('инвайт');
+    const ctx = response.captureInput!.context as Record<string, unknown>;
+    expect(ctx.step).toBe(10);
+    expect(ctx.telegramGroupId).toBe('-100123456789');
+  });
+
+  // ── Шаг 10: инвайт-ссылка ──
+
+  test('handleMessage step 10 — ввод инвайт-ссылки → шаг 11 (кодовое слово)', async () => {
+    const { story } = createStory();
+
+    const session = wizardSession({
+      step: 10,
+      title: 'Поток',
+      description: 'Описание',
+      startDate: '2026-09-01T00:00',
+      telegramGroupId: '-100123456789',
+      goal: 'Цель',
+      result: 'Рез',
+      rules: 'Прав',
+      targetAudience: 'Ауд',
+      additional: 'Доп',
+    });
+
+    const response = await story.handleMessage(
+      { type: 'message', text: 'https://t.me/+abc123', telegramId: 123 },
       mentorActor,
       session,
     );
 
     expect(response.sendMessage?.text).toContain('кодовое слово');
     const ctx = response.captureInput!.context as Record<string, unknown>;
-    expect(ctx.step).toBe(10);
-    expect(ctx.telegramGroupId).toBe('https://t.me/joinchat/abc');
+    expect(ctx.step).toBe(11);
+    expect(ctx.telegramGroupInvite).toBe('https://t.me/+abc123');
   });
 
-  // ── Шаг 10: кодовое слово ──
+  test('handleCallback "skip-invite" — пропуск инвайт-ссылки → шаг 11 (кодовое слово)', async () => {
+    const { story } = createStory();
+
+    const session = wizardSession({
+      step: 10,
+      title: 'Поток',
+      description: 'Описание',
+      startDate: '2026-09-01T00:00',
+      telegramGroupId: '-100123456789',
+      goal: 'Цель',
+      result: 'Рез',
+      rules: 'Прав',
+      targetAudience: 'Ауд',
+      additional: 'Доп',
+    });
+
+    const response = await story.handleCallback(
+      'skip-invite',
+      mentorActor,
+      session,
+    );
+
+    expect(response.sendMessage?.text).toContain('кодовое слово');
+    const ctx = response.captureInput!.context as Record<string, unknown>;
+    expect(ctx.step).toBe(11);
+    expect(ctx.telegramGroupInvite).toBe('');
+  });
+
+  // ── Шаг 11: кодовое слово ──
 
   test('handleCallback "skip-key" — пропуск кодового слова → превью', async () => {
     const { story } = createStory();
 
     const session = wizardSession({
-      step: 10,
+      step: 11,
       title: 'Мой Поток',
       description: 'Описание',
       startDate: '2026-09-01T14:00',
-      telegramGroupId: 'https://t.me/group',
+      telegramGroupId: '-100123456789',
+      telegramGroupInvite: 'https://t.me/+abc123',
       goal: 'Научиться',
       result: 'Проект',
       rules: 'Дедлайны',
@@ -659,16 +720,20 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('Мой Поток');
     expect(response.sendMessage?.text).toContain('Научиться');
     expect(response.sendMessage?.text).toContain('Проект');
+    expect(response.sendMessage?.text).toContain('ID группы');
+    expect(response.sendMessage?.text).toContain('100123456789');
+    expect(response.sendMessage?.text).toContain('Ссылка для студентов');
+    expect(response.sendMessage?.text).toContain('abc123');
     const ctx = response.captureInput!.context as Record<string, unknown>;
-    expect(ctx.step).toBe(11);
+    expect(ctx.step).toBe(12);
     expect(ctx.enrollmentKey).toBe('');
   });
 
-  test('handleMessage step 10 — ввод кодового слова → превью', async () => {
+  test('handleMessage step 11 — ввод кодового слова → превью', async () => {
     const { story } = createStory();
 
     const session = wizardSession({
-      step: 10,
+      step: 11,
       title: 'Поток',
       description: 'Описание',
       startDate: '2026-09-01T00:00',
@@ -687,27 +752,23 @@ describe('CreateStreamStory', () => {
 
     expect(response.sendMessage?.text).toContain('Превью потока');
     const ctx = response.captureInput!.context as Record<string, unknown>;
-    expect(ctx.step).toBe(11);
+    expect(ctx.step).toBe(12);
     expect(ctx.enrollmentKey).toBe('secret123');
   });
 
-  // ── Шаг 11: превью и подтверждение ──
+  // ── Шаг 12: превью и подтверждение ──
 
-  test('handleCallback "confirm" — успешное создание потока', async () => {
-    let createCalled = false;
-    const { story } = createStory({
-      'create-stream': (() => {
-        createCalled = true;
-      }) as unknown,
-    });
+  test('handleCallback "confirm" — успешное создание потока и передача обоих полей группы', async () => {
+    const { story, api } = createStory();
 
     const session = wizardSession({
-      step: 11,
+      step: 12,
       moduleId: 'mod-1',
       title: 'Мой Поток',
       description: 'Описание',
       startDate: '2026-09-01T14:00',
-      telegramGroupId: 'https://t.me/group',
+      telegramGroupId: '-100123456789',
+      telegramGroupInvite: 'https://t.me/+abc123',
       goal: 'Цель',
       result: 'Результат',
       rules: 'Правила',
@@ -722,9 +783,15 @@ describe('CreateStreamStory', () => {
       session,
     );
 
-    expect(createCalled).toBe(true);
     expect(response.sendMessage?.text).toContain('успешно создан');
     expect(response.releaseInput).toBe(true);
+
+    const calls = (api.execute as ReturnType<typeof mock>).mock.calls;
+    const createCall = calls.find((c: unknown[]) => c[0] === 'create-stream');
+    expect(createCall).toBeDefined();
+    const cmd = createCall![1] as Record<string, unknown>;
+    expect(cmd.telegramGroupId).toBe('-100123456789');
+    expect(cmd.telegramGroupInvite).toBe('https://t.me/+abc123');
   });
 
   test('handleCallback "confirm" — ошибка при создании', async () => {
@@ -735,7 +802,7 @@ describe('CreateStreamStory', () => {
     });
 
     const session = wizardSession({
-      step: 11,
+      step: 12,
       moduleId: 'mod-1',
       title: 'Поток',
       description: 'Описание',
@@ -763,10 +830,10 @@ describe('CreateStreamStory', () => {
     expect(response.sendMessage?.text).toContain('потерян');
   });
 
-  test('handleMessage step 11 — предлагает использовать кнопки', async () => {
+  test('handleMessage step 12 — предлагает использовать кнопки', async () => {
     const { story } = createStory();
 
-    const session = wizardSession({ step: 11 });
+    const session = wizardSession({ step: 12 });
     const response = await story.handleMessage(
       { type: 'message', text: 'да', telegramId: 123 },
       mentorActor,

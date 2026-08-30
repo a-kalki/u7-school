@@ -29,6 +29,7 @@ interface CreateStreamWizardContext {
   description: string;
   startDate: string;
   telegramGroupId: string;
+  telegramGroupInvite: string;
   // Реальные значения для потока
   goal: string;
   result: string;
@@ -98,9 +99,10 @@ const OPTIONAL_FIELDS: OptionalFieldConfig[] = [
  * Шаг 6: правила (rules)
  * Шаг 7: целевая аудитория (targetAudience)
  * Шаг 8: дополнительно (additional)
- * Шаг 9: ссылка на Telegram-группу (необязательно)
- * Шаг 10: кодовое слово (необязательно)
- * Шаг 11: превью и подтверждение
+ * Шаг 9: ID/username Telegram-группы (необязательно)
+ * Шаг 10: инвайт-ссылка на группу (необязательно)
+ * Шаг 11: кодовое слово (необязательно)
+ * Шаг 12: превью и подтверждение
  */
 export class CreateStreamStory extends U7BotUiStory {
   readonly name = 'create-stream';
@@ -128,6 +130,11 @@ export class CreateStreamStory extends U7BotUiStory {
     // Пропуск кодового слова
     if (action === 'skip-key') {
       return this.#handleSkipEnrollmentKey(session);
+    }
+
+    // Пропуск инвайт-ссылки
+    if (action === 'skip-invite') {
+      return this.#handleSkipInvite(session);
     }
 
     // Пропуск необязательного поля (группа)
@@ -194,8 +201,10 @@ export class CreateStreamStory extends U7BotUiStory {
       case 9:
         return this.#handleGroupInput(context, update.text, actor);
       case 10:
-        return this.#handleEnrollmentKeyInput(context, update.text);
+        return this.#handleInviteInput(context, update.text);
       case 11:
+        return this.#handleEnrollmentKeyInput(context, update.text);
+      case 12:
         return {
           sendMessage: {
             text: '👆 Используйте кнопки выше для подтверждения или изменения.',
@@ -489,20 +498,7 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     // После последнего необязательного поля (additional → step 9: группа)
-    return {
-      sendMessage: {
-        text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
-          isMultiple: false,
-        },
-      },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: nextCtx,
-      },
-    };
+    return this.#showGroupStep(nextCtx);
   }
 
   /** Обработчик кнопки «Принять» */
@@ -532,20 +528,7 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     // Переход к группе
-    return {
-      sendMessage: {
-        text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
-          isMultiple: false,
-        },
-      },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: nextCtx,
-      },
-    };
+    return this.#showGroupStep(nextCtx);
   }
 
   /** Обработчик кнопки «Пропустить» */
@@ -574,20 +557,7 @@ export class CreateStreamStory extends U7BotUiStory {
     }
 
     // Переход к группе
-    return {
-      sendMessage: {
-        text: '🔗 Введите ссылку на Telegram\\-группу потока \\(необязательно\\):',
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
-          isMultiple: false,
-        },
-      },
-      captureInput: {
-        path: WIZARD_PATH,
-        context: nextCtx,
-      },
-    };
+    return this.#showGroupStep(nextCtx);
   }
 
   #handleAcceptTitle(session: SessionData): BotResponse {
@@ -654,7 +624,7 @@ export class CreateStreamStory extends U7BotUiStory {
       telegramGroupId: text,
     };
 
-    return this.#showEnrollmentKeyStep(nextCtx);
+    return this.#showInviteStep(nextCtx);
   }
 
   #handleSkipGroup(session: SessionData): BotResponse {
@@ -669,7 +639,68 @@ export class CreateStreamStory extends U7BotUiStory {
       step: 10,
       telegramGroupId: '',
     };
-    return this.#showEnrollmentKeyStep(nextCtx);
+    return this.#showInviteStep(nextCtx);
+  }
+
+  // ── Группа: показ шагов и инвайт-ссылка ──
+
+  #showGroupStep(ctx: CreateStreamWizardContext): BotResponse {
+    return {
+      sendMessage: {
+        text: '🔗 Введите ID или username Telegram\\-группы потока — по нему бот сможет исключать \\(кикать\\) студентов \\(необязательно\\):',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
+          isMultiple: false,
+        },
+      },
+      captureInput: {
+        path: WIZARD_PATH,
+        context: ctx,
+      },
+    };
+  }
+
+  #showInviteStep(ctx: CreateStreamWizardContext): BotResponse {
+    return {
+      sendMessage: {
+        text: '🔗 Введите инвайт\\-ссылку на группу потока — по ней студенты попадут в группу \\(необязательно\\):',
+        parseMode: 'MarkdownV2',
+        keyboard: {
+          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-invite') }]],
+          isMultiple: false,
+        },
+      },
+      captureInput: {
+        path: WIZARD_PATH,
+        context: ctx,
+      },
+    };
+  }
+
+  #handleInviteInput(
+    ctx: CreateStreamWizardContext,
+    text: string,
+  ): BotResponse {
+    return this.#showEnrollmentKeyStep({
+      ...ctx,
+      step: 11,
+      telegramGroupInvite: text,
+    });
+  }
+
+  #handleSkipInvite(session: SessionData): BotResponse {
+    const ctx = session.activeHandler?.context as
+      | CreateStreamWizardContext
+      | undefined;
+    if (!ctx) {
+      return { sendMessage: { text: '⚠️ Контекст wizard-а потерян' } };
+    }
+    return this.#showEnrollmentKeyStep({
+      ...ctx,
+      step: 11,
+      telegramGroupInvite: '',
+    });
   }
 
   // ── Кодовое слово ──
@@ -696,7 +727,7 @@ export class CreateStreamStory extends U7BotUiStory {
   ): BotResponse {
     return this.#showPreview({
       ...ctx,
-      step: 11,
+      step: 12,
       enrollmentKey: text,
     });
   }
@@ -710,7 +741,7 @@ export class CreateStreamStory extends U7BotUiStory {
     }
     return this.#showPreview({
       ...ctx,
-      step: 11,
+      step: 12,
       enrollmentKey: '',
     });
   }
@@ -724,8 +755,14 @@ export class CreateStreamStory extends U7BotUiStory {
       `*Название:* ${this.escapeMarkdown(ctx.title)}`,
       `*Описание:* ${this.escapeMarkdown(ctx.description)}`,
       `*Дата старта:* ${this.escapeMarkdown(ctx.startDate)}`,
-      `*Группа:* ${this.escapeMarkdown(ctx.telegramGroupId)}`,
     ];
+
+    if (ctx.telegramGroupId)
+      lines.push(`*ID группы:* ${this.escapeMarkdown(ctx.telegramGroupId)}`);
+    if (ctx.telegramGroupInvite)
+      lines.push(
+        `*Ссылка для студентов:* ${this.escapeMarkdown(ctx.telegramGroupInvite)}`,
+      );
 
     if (ctx.goal) lines.push(`*Цель:* ${this.escapeMarkdown(ctx.goal)}`);
     if (ctx.result)
@@ -793,6 +830,8 @@ export class CreateStreamStory extends U7BotUiStory {
     if (context.targetAudience) cmd.targetAudience = context.targetAudience;
     if (context.additional) cmd.additional = context.additional;
     if (context.enrollmentKey) cmd.enrollmentKey = context.enrollmentKey;
+    if (context.telegramGroupInvite)
+      cmd.telegramGroupInvite = context.telegramGroupInvite;
 
     try {
       await this.appApi.execute('create-stream', cmd, actor.uuid);
@@ -819,6 +858,7 @@ export class CreateStreamStory extends U7BotUiStory {
       description: '',
       startDate: '',
       telegramGroupId: '',
+      telegramGroupInvite: '',
       goal: '',
       result: '',
       rules: '',

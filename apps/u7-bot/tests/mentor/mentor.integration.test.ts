@@ -238,7 +238,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
       assertBotResponseValid(currentResp);
     }
 
-    // После additional — шаг 9: группа
+    // После additional — шаг 9: группа (ID)
     expect(currentResp.sendMessage?.text).toContain('Telegram');
 
     // Пропускаем группу
@@ -250,7 +250,19 @@ describe('CreateStream Wizard (интеграционный)', () => {
     ))!;
     assertBotResponseValid(currentResp);
 
-    // Шаг 10: кодовое слово
+    // Шаг 10: инвайт-ссылка
+    expect(currentResp.sendMessage?.text).toContain('инвайт');
+
+    // Пропускаем инвайт-ссылку
+    const skipInviteBtn = findButton(currentResp, 'Пропустить');
+    currentResp = (await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: skipInviteBtn.code,
+      }),
+    ))!;
+    assertBotResponseValid(currentResp);
+
+    // Шаг 11: кодовое слово
     expect(currentResp.sendMessage?.text).toContain('кодовое слово');
 
     // Пропускаем кодовое слово
@@ -262,7 +274,7 @@ describe('CreateStream Wizard (интеграционный)', () => {
     );
     assertBotResponseValid(previewResp);
 
-    // Шаг 11: подтверждение (превью)
+    // Шаг 12: подтверждение (превью)
     expect(previewResp.sendMessage?.text).toContain('Превью');
     const confirmBtn = findButton(previewResp, 'Создать');
 
@@ -276,6 +288,130 @@ describe('CreateStream Wizard (интеграционный)', () => {
     // Поток создан — releaseInput
     expect(finalResp.releaseInput).toBe(true);
     expect(finalResp.sendMessage?.text).toContain('создан');
+  });
+
+  test('wizard: ввод ID группы и инвайт-ссылки → оба поля сохранены в потоке', async () => {
+    // Шаг 0: Инструменты ментора → Создать поток
+    const menu = await transport.collectMainMenu(mentor);
+    const toolsBtn = menu.find((i) => i.text.includes('Инструменты ментора'));
+    expect(toolsBtn).toBeDefined();
+
+    const submenuResp = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: (toolsBtn as { action: string }).action,
+      }),
+    );
+    assertBotResponseValid(submenuResp);
+
+    const createBtn = findButton(submenuResp, 'Создать поток');
+    const step0 = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: createBtn.code,
+      }),
+    );
+    assertBotResponseValid(step0);
+
+    const moduleBtn = findButton(step0, 'JavaScript Основы');
+
+    // Шаг 1: название (предзаполнено из модуля)
+    const step1 = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: moduleBtn.code,
+      }),
+    );
+    assertBotResponseValid(step1);
+
+    const acceptTitleBtn = findButton(step1, 'Принять');
+    const step2 = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: acceptTitleBtn.code,
+      }),
+    );
+    assertBotResponseValid(step2);
+
+    // Шаг 2: описание
+    const step3 = await transport.handleMessage(
+      transport.makeBotContext(mentor.telegramId, {
+        text: 'Тестовый поток (поля группы)',
+      }),
+    );
+    assertBotResponseValid(step3!);
+
+    // Шаг 3: дата
+    const step4 = await transport.handleMessage(
+      transport.makeBotContext(mentor.telegramId, {
+        text: '2026-06-15',
+      }),
+    );
+    assertBotResponseValid(step4!);
+
+    // Шаги 4-8: пропускаем необязательные поля модуля
+    let currentResp = step4!;
+    for (let i = 0; i < 5; i++) {
+      const skipBtn = findButton(currentResp, 'Пропустить');
+      currentResp = (await transport.handleCallback(
+        transport.makeBotContext(mentor.telegramId, {
+          callbackData: skipBtn.code,
+        }),
+      ))!;
+      assertBotResponseValid(currentResp);
+    }
+
+    // Шаг 9: вводим ID группы
+    expect(currentResp.sendMessage?.text).toContain('Telegram');
+    currentResp = (await transport.handleMessage(
+      transport.makeBotContext(mentor.telegramId, {
+        text: '-100987654321',
+      }),
+    ))!;
+    assertBotResponseValid(currentResp);
+
+    // Шаг 10: вводим инвайт-ссылку
+    expect(currentResp.sendMessage?.text).toContain('инвайт');
+    currentResp = (await transport.handleMessage(
+      transport.makeBotContext(mentor.telegramId, {
+        text: 'https://t.me/+testgroup',
+      }),
+    ))!;
+    assertBotResponseValid(currentResp);
+
+    // Шаг 11: пропускаем кодовое слово
+    expect(currentResp.sendMessage?.text).toContain('кодовое слово');
+    const skipKeyBtn = findButton(currentResp, 'Пропустить');
+    const previewResp = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: skipKeyBtn.code,
+      }),
+    );
+    assertBotResponseValid(previewResp);
+
+    // Шаг 12: превью содержит оба поля
+    expect(previewResp.sendMessage?.text).toContain('Превью');
+    expect(previewResp.sendMessage?.text).toContain('ID группы');
+    expect(previewResp.sendMessage?.text).toContain('Ссылка для студентов');
+
+    const confirmBtn = findButton(previewResp, 'Создать');
+    const finalResp = await transport.handleCallback(
+      transport.makeBotContext(mentor.telegramId, {
+        callbackData: confirmBtn.code,
+      }),
+    );
+    assertBotResponseValid(finalResp);
+    expect(finalResp.releaseInput).toBe(true);
+    expect(finalResp.sendMessage?.text).toContain('создан');
+
+    // Сквозная проверка: оба поля сохранены в правильных полях потока
+    const streams = (await app.apiApp.execute('list-streams', {})) as Array<{
+      description: string;
+      telegramGroupId?: string;
+      telegramGroupInvite?: string;
+    }>;
+    const created = streams.find(
+      (s) => s.description === 'Тестовый поток (поля группы)',
+    );
+    expect(created).toBeDefined();
+    expect(created!.telegramGroupId).toBe('-100987654321');
+    expect(created!.telegramGroupInvite).toBe('https://t.me/+testgroup');
   });
 
   test('wizard: отмена создания потока через /cancel', async () => {

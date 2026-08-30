@@ -55,22 +55,29 @@ export class HubStory extends U7BotUiStory {
 
     // Название потока — необязательно: сбой загрузки не мешает уведомлению
     let streamTitle: string | undefined;
+    let telegramGroupInvite: string | undefined;
     try {
       const stream = (await this.appApi.execute('get-stream', {
         streamId,
-      })) as { title?: string };
+      })) as { title?: string; telegramGroupInvite?: string };
       streamTitle = stream?.title;
+      telegramGroupInvite = stream?.telegramGroupInvite;
     } catch {
       streamTitle = undefined;
+      telegramGroupInvite = undefined;
     }
 
     const where = streamTitle
       ? ` в поток «${this.escapeMarkdown(streamTitle)}»`
       : '';
 
+    const groupLine = telegramGroupInvite
+      ? `💬 [Группа потока](${telegramGroupInvite})`
+      : '💬 Ссылку на группу потока можешь получить у ментора\\.';
+
     await this.proactiveSender.send(user.telegramId, {
       sendMessage: {
-        text: `🎓 Ты зачислен${where}\\!\\n\\nНачинай учёбу — кнопка ниже\\.`,
+        text: `🎓 Ты зачислен${where}\\!\\n\\nНачинай учёбу — кнопка ниже\\.\\n\\n${groupLine}`,
         parseMode: 'MarkdownV2',
         keyboard: {
           rows: [[{ text: '🎓 Моя учёба', code: this.cb('my-study') }]],

@@ -288,6 +288,7 @@ describe('HubStory — подписка на student.enrolled', () => {
           return {
             uuid: '11111111-1111-1111-1111-111111111111',
             title: 'Поток по JS',
+            telegramGroupInvite: 'https://t.me/+stream123',
           };
         return undefined;
       }),
@@ -369,6 +370,41 @@ describe('HubStory — подписка на student.enrolled', () => {
       .calls[0] as [number, { sendMessage: { text: string } }];
     expect(command.sendMessage.text).toContain('зачислен');
     expect(command.sendMessage.text).not.toContain('Поток по JS');
+  });
+
+  test('invite есть → текст содержит ссылку на группу', async () => {
+    const { story, sender } = makeStoryWithSender();
+    const subs = story.getEventSubscriptions();
+    const sub = subs.find((s) => s.eventName === 'student.enrolled');
+
+    await sub!.handle(makeEnrolledEvent());
+
+    expect(sender.send).toHaveBeenCalledTimes(1);
+    const [, command] = (sender.send as ReturnType<typeof mock>).mock
+      .calls[0] as [number, { sendMessage: { text: string } }];
+    expect(command.sendMessage.text).toContain('[Группа потока]');
+    expect(command.sendMessage.text).toContain('https://t.me/+stream123');
+  });
+
+  test('invite нет → текст содержит подсказку «…у ментора»', async () => {
+    const { story, sender } = makeStoryWithSender({
+      'get-stream': {
+        uuid: '11111111-1111-1111-1111-111111111111',
+        title: 'Поток по JS',
+      },
+    });
+    const subs = story.getEventSubscriptions();
+    const sub = subs.find((s) => s.eventName === 'student.enrolled');
+
+    await sub!.handle(makeEnrolledEvent());
+
+    expect(sender.send).toHaveBeenCalledTimes(1);
+    const [, command] = (sender.send as ReturnType<typeof mock>).mock
+      .calls[0] as [number, { sendMessage: { text: string } }];
+    expect(command.sendMessage.text).toContain(
+      'Ссылку на группу потока можешь получить у ментора',
+    );
+    expect(command.sendMessage.text).not.toContain('[Группа потока]');
   });
 });
 
