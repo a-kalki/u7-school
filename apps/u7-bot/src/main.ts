@@ -178,6 +178,16 @@ bot.catch((err) => {
   logger.error('bot', 'Необработанная ошибка бота', { error: String(err) });
 });
 
+// ══ Типы обновлений ══
+// chat_member НЕ входит в дефолтный набор Telegram: без явного allowed_updates
+// бот не получает события входа/выхода участников группы (SUBSCRIBER, FR-7).
+const ALLOWED_UPDATES = [
+  'message',
+  'callback_query',
+  'my_chat_member',
+  'chat_member',
+] as const;
+
 // ══ Запуск: polling или webhook ══
 let server: ReturnType<typeof Bun.serve> | undefined;
 if (config.botMode === 'webhook') {
@@ -188,7 +198,9 @@ if (config.botMode === 'webhook') {
 
   const fullWebhookUrl = `${webhookUrl.replace(/\/+$/, '')}${config.webhookPath}`;
 
-  await bot.api.setWebhook(fullWebhookUrl);
+  await bot.api.setWebhook(fullWebhookUrl, {
+    allowed_updates: [...ALLOWED_UPDATES],
+  });
   logger.info('main', `Webhook установлен: ${fullWebhookUrl}`);
 
   const handler = webhookCallback(bot, 'bun');
@@ -210,7 +222,7 @@ if (config.botMode === 'webhook') {
     `Бот запущен в режиме webhook на порту ${config.webhookPort}`,
   );
 } else {
-  bot.start();
+  bot.start({ allowed_updates: [...ALLOWED_UPDATES] });
   logger.info('main', 'Бот запущен в режиме polling');
 }
 
