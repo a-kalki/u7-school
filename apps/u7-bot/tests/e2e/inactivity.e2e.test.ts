@@ -74,6 +74,7 @@ async function createInactivityStand(tag: string): Promise<Stand> {
       apiApp: app.apiApp,
       transport: transport.transport,
       actorId: BOT_ADMIN_UUID,
+      schoolGroupId: -1003964284604, // ≠ группы потока: выход из неё роль не снимает
     },
   );
 

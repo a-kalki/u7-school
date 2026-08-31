@@ -10,6 +10,10 @@ export const BotConfigSchema = v.object({
     v.string(),
     v.nonEmpty('SCHOOL_GROUP_URL не может быть пустым'),
   ),
+  schoolGroupId: v.pipe(
+    v.number(),
+    v.integer('SCHOOL_GROUP_ID должен быть целым числом'),
+  ),
   botAdminUuid: v.pipe(
     v.string(),
     v.uuid('BOT_ADMIN_UUID должен быть валидным UUID'),
@@ -60,6 +64,9 @@ export function loadConfig(): BotConfig {
   const raw = {
     botToken: process.env.BOT_TOKEN,
     schoolGroupUrl: process.env.SCHOOL_GROUP_URL,
+    schoolGroupId: process.env.SCHOOL_GROUP_ID
+      ? Number(process.env.SCHOOL_GROUP_ID)
+      : undefined,
     botAdminUuid: process.env.BOT_ADMIN_UUID,
     botMode: process.env.BOT_MODE,
     webhookUrl: process.env.WEBHOOK_URL,

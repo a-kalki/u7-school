@@ -5,7 +5,9 @@ import { type GroupHandlerDeps, registerGroupHandlers } from './group-handler';
 
 // ══ Моки ══
 
-const GROUP_ID = -1002222222222;
+const SCHOOL_GROUP_ID = -1002222222222; // школьная группа (deps.schoolGroupId)
+const STREAM_GROUP_ID = -1003333333333; // группа потока (≠ школьной)
+const FOREIGN_GROUP_ID = -1009999999999; // посторонняя группа
 const STUDENT_TG = 1003;
 const STUDENT_UUID = '33333333-3333-3333-3333-333333333333';
 const MENTOR_UUID = '44444444-4444-4444-4444-444444444444';
@@ -74,7 +76,7 @@ function makeUserFacade(opts?: { mentorTelegramId?: number }) {
 function makeChatMemberContext(
   newStatus: string,
   oldStatus = 'member',
-  chatId: number | string = GROUP_ID,
+  chatId: number | string = SCHOOL_GROUP_ID,
   user: { id: number; first_name: string } = {
     id: STUDENT_TG,
     first_name: 'Иван',
@@ -90,6 +92,21 @@ function makeChatMemberContext(
   };
 }
 
+function makeMyChatMemberContext(
+  chatId: number,
+  status: 'member' | 'administrator' = 'administrator',
+  from: { id: number; first_name: string } = { id: 888, first_name: 'Пётр' },
+) {
+  return {
+    myChatMember: {
+      chat: { id: chatId },
+      from,
+      old_chat_member: { status: 'left' },
+      new_chat_member: { status },
+    },
+  };
+}
+
 const logger = {
   info: () => {},
   warn: () => {},
@@ -99,7 +116,7 @@ const logger = {
 // ══ Тесты FR-7 ══
 
 describe('registerGroupHandlers — chat_member left (FR-7)', () => {
-  test('студент покинул группу → ментору потока приходит уведомление, статус студента не меняется', async () => {
+  test('студент покинул группу потока → ментору уведомление, SUBSCRIBER не тронут (не школьная группа)', async () => {
     const { bot, handlers } = makeBot();
     const userFacade = makeUserFacade();
     const notify = mock(async () => {});
@@ -110,7 +127,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
             uuid: STREAM_ID,
             title: 'JS Core — Поток 2',
             mentorId: MENTOR_UUID,
-            telegramGroupId: String(GROUP_ID),
+            telegramGroupId: String(STREAM_GROUP_ID),
           },
         ];
       }
@@ -140,9 +157,12 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
-    await handlers.chat_member?.(makeChatMemberContext('left'));
+    await handlers.chat_member?.(
+      makeChatMemberContext('left', 'member', STREAM_GROUP_ID),
+    );
 
     expect(notify).toHaveBeenCalledTimes(1);
     const firstCall = (notify as ReturnType<typeof mock>).mock.calls[0]!;
@@ -162,6 +182,46 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
     ]);
     expect(ucNames).not.toContain('drop-student');
     expect(ucNames).not.toContain('mark-abandoned');
+
+    // Выход из группы потока (не школьной) роль не меняет
+    expect(
+      (userFacade.removeRoleFromUser as ReturnType<typeof mock>).mock.calls,
+    ).toEqual([]);
+  });
+
+  test('студент покинул школьную группу → SUBSCRIBER снят от имени бота, ментору ничего (поток не матчится)', async () => {
+    const { bot, handlers } = makeBot();
+    const userFacade = makeUserFacade();
+    const notify = mock(async () => {});
+    const execute = mock(async (name: string) => {
+      if (name === 'list-streams') {
+        // Поток привязан к другой группе — уведомление не должно уйти
+        return [
+          {
+            uuid: STREAM_ID,
+            mentorId: MENTOR_UUID,
+            telegramGroupId: String(STREAM_GROUP_ID),
+          },
+        ];
+      }
+      return undefined;
+    });
+
+    registerGroupHandlers(bot, userFacade, logger, {
+      apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
+      transport: { notify } as unknown as GroupHandlerDeps['transport'],
+      actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
+    });
+
+    await handlers.chat_member?.(
+      makeChatMemberContext('left', 'member', SCHOOL_GROUP_ID),
+    );
+
+    expect(notify).not.toHaveBeenCalled();
+    expect(
+      (userFacade.removeRoleFromUser as ReturnType<typeof mock>).mock.calls,
+    ).toEqual([[STUDENT_UUID, 'SUBSCRIBER', BOT_ACTOR_UUID]]);
   });
 
   test('выход не-студента потока (нет активной записи) — ментору ничего не приходит', async () => {
@@ -175,7 +235,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
             {
               uuid: STREAM_ID,
               mentorId: MENTOR_UUID,
-              telegramGroupId: String(GROUP_ID),
+              telegramGroupId: String(STREAM_GROUP_ID),
             },
           ];
         }
@@ -188,14 +248,17 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
-    await handlers.chat_member?.(makeChatMemberContext('left'));
+    await handlers.chat_member?.(
+      makeChatMemberContext('left', 'member', STREAM_GROUP_ID),
+    );
 
     expect(notify).not.toHaveBeenCalled();
   });
 
-  test('выход из чужой группы (не потока) — ментору ничего не приходит', async () => {
+  test('выход из чужой группы (ни школьная, ни поток) — ни уведомления, ни роли', async () => {
     const { bot, handlers } = makeBot();
     const userFacade = makeUserFacade();
     const notify = mock(async () => {});
@@ -206,7 +269,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
             {
               uuid: STREAM_ID,
               mentorId: MENTOR_UUID,
-              telegramGroupId: String(GROUP_ID),
+              telegramGroupId: String(STREAM_GROUP_ID),
             },
           ];
         }
@@ -218,14 +281,17 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
-    // Другой chat id
     await handlers.chat_member?.(
-      makeChatMemberContext('left', 'member', -1009999999999),
+      makeChatMemberContext('left', 'member', FOREIGN_GROUP_ID),
     );
 
     expect(notify).not.toHaveBeenCalled();
+    expect(
+      (userFacade.removeRoleFromUser as ReturnType<typeof mock>).mock.calls,
+    ).toEqual([]);
   });
 
   test('выбывший (abandoned) студент выходит — ментору ничего не приходит', async () => {
@@ -239,7 +305,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
             {
               uuid: STREAM_ID,
               mentorId: MENTOR_UUID,
-              telegramGroupId: String(GROUP_ID),
+              telegramGroupId: String(STREAM_GROUP_ID),
             },
           ];
         }
@@ -261,9 +327,12 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
       apiApp: { execute } as unknown as GroupHandlerDeps['apiApp'],
       transport: { notify } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
-    await handlers.chat_member?.(makeChatMemberContext('left'));
+    await handlers.chat_member?.(
+      makeChatMemberContext('left', 'member', STREAM_GROUP_ID),
+    );
 
     expect(notify).not.toHaveBeenCalled();
   });
@@ -272,7 +341,7 @@ describe('registerGroupHandlers — chat_member left (FR-7)', () => {
 // ══ Тесты регистрации гостей ══
 
 describe('registerGroupHandlers — регистрация гостей', () => {
-  test('незнакомый пользователь вошёл в группу → регистрируется как гость от имени бота и получает SUBSCRIBER', async () => {
+  test('незнакомый вошёл в школьную группу → гость от имени бота + SUBSCRIBER от имени бота', async () => {
     const { bot, handlers } = makeBot();
     const registerGuest = mock(async (tgId: number, name: string) => ({
       uuid: NEW_USER_UUID,
@@ -297,10 +366,11 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
     await handlers.chat_member?.(
-      makeChatMemberContext('member', 'left', GROUP_ID, {
+      makeChatMemberContext('member', 'left', SCHOOL_GROUP_ID, {
         id: 555,
         first_name: 'Анна',
       }),
@@ -315,11 +385,48 @@ describe('registerGroupHandlers — регистрация гостей', () => 
     expect(addRoleToUser).toHaveBeenCalledWith(
       NEW_USER_UUID,
       'SUBSCRIBER',
-      NEW_USER_UUID,
+      BOT_ACTOR_UUID,
     );
   });
 
-  test('известный пользователь вошёл в группу → регистрация не вызывается, SUBSCRIBER добавлен', async () => {
+  test('незнакомый вошёл в чужую группу → игнор: ни регистрации, ни роли', async () => {
+    const { bot, handlers } = makeBot();
+    const registerGuest = mock(async () => {
+      throw new Error('registerGuest не должен вызываться для чужой группы');
+    });
+    const addRoleToUser = mock(async () => {
+      throw new Error('addRoleToUser не должен вызываться для чужой группы');
+    });
+    const userFacade = {
+      getUserByTelegramId: mock(async () => undefined),
+      registerGuest,
+      addRoleToUser,
+      removeRoleFromUser: mock(async () => {}),
+    } as unknown as UserFacade;
+
+    registerGroupHandlers(bot, userFacade, logger, {
+      apiApp: {
+        execute: mock(async () => []),
+      } as unknown as GroupHandlerDeps['apiApp'],
+      transport: {
+        notify: mock(async () => {}),
+      } as unknown as GroupHandlerDeps['transport'],
+      actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
+    });
+
+    await handlers.chat_member?.(
+      makeChatMemberContext('member', 'left', FOREIGN_GROUP_ID, {
+        id: 555,
+        first_name: 'Анна',
+      }),
+    );
+
+    expect(registerGuest).not.toHaveBeenCalled();
+    expect(addRoleToUser).not.toHaveBeenCalled();
+  });
+
+  test('известный пользователь вошёл в школьную группу → регистрация не вызывается, SUBSCRIBER от имени бота', async () => {
     const { bot, handlers } = makeBot();
     const registerGuest = mock(async () => {
       throw new Error(
@@ -352,18 +459,21 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
-    await handlers.chat_member?.(makeChatMemberContext('member', 'left'));
+    await handlers.chat_member?.(
+      makeChatMemberContext('member', 'left', SCHOOL_GROUP_ID),
+    );
 
     expect(addRoleToUser).toHaveBeenCalledWith(
       STUDENT_UUID,
       'SUBSCRIBER',
-      STUDENT_UUID,
+      BOT_ACTOR_UUID,
     );
   });
 
-  test('незнакомый добавил бота в группу → регистрируется как гость и получает SUBSCRIBER', async () => {
+  test('незнакомый добавил бота в школьную группу → гость + SUBSCRIBER от имени бота', async () => {
     const { bot, handlers } = makeBot();
     const registerGuest = mock(async (tgId: number, name: string) => ({
       uuid: NEW_USER_UUID,
@@ -388,17 +498,52 @@ describe('registerGroupHandlers — регистрация гостей', () => 
         notify: mock(async () => {}),
       } as unknown as GroupHandlerDeps['transport'],
       actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
     });
 
-    await handlers.my_chat_member?.({
-      myChatMember: {
-        from: { id: 888, first_name: 'Пётр' },
-        old_chat_member: { status: 'left' },
-        new_chat_member: { status: 'administrator' },
-      },
-    });
+    await handlers.my_chat_member?.(
+      makeMyChatMemberContext(SCHOOL_GROUP_ID, 'administrator'),
+    );
 
     expect(registerGuest).toHaveBeenCalledWith(888, 'Пётр', BOT_ACTOR_UUID);
-    expect(addRoleToUser).toHaveBeenCalledWith(NEW_USER_UUID, 'SUBSCRIBER');
+    expect(addRoleToUser).toHaveBeenCalledWith(
+      NEW_USER_UUID,
+      'SUBSCRIBER',
+      BOT_ACTOR_UUID,
+    );
+  });
+
+  test('незнакомый добавил бота в чужую группу → игнор: ни регистрации, ни роли', async () => {
+    const { bot, handlers } = makeBot();
+    const registerGuest = mock(async () => {
+      throw new Error('registerGuest не должен вызываться для чужой группы');
+    });
+    const addRoleToUser = mock(async () => {
+      throw new Error('addRoleToUser не должен вызываться для чужой группы');
+    });
+    const userFacade = {
+      getUserByTelegramId: mock(async () => undefined),
+      registerGuest,
+      addRoleToUser,
+      removeRoleFromUser: mock(async () => {}),
+    } as unknown as UserFacade;
+
+    registerGroupHandlers(bot, userFacade, logger, {
+      apiApp: {
+        execute: mock(async () => []),
+      } as unknown as GroupHandlerDeps['apiApp'],
+      transport: {
+        notify: mock(async () => {}),
+      } as unknown as GroupHandlerDeps['transport'],
+      actorId: BOT_ACTOR_UUID,
+      schoolGroupId: SCHOOL_GROUP_ID,
+    });
+
+    await handlers.my_chat_member?.(
+      makeMyChatMemberContext(FOREIGN_GROUP_ID, 'member'),
+    );
+
+    expect(registerGuest).not.toHaveBeenCalled();
+    expect(addRoleToUser).not.toHaveBeenCalled();
   });
 });

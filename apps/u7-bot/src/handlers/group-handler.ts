@@ -13,23 +13,34 @@ export interface GroupHandlerDeps {
   apiApp: U7BotApp;
   /** Проактивные уведомления ментору */
   transport: ProactiveSender;
-  /** uuid бота (BOT_ADMIN_UUID): системный актор для регистрации гостей */
+  /** uuid бота (BOT_ADMIN_UUID): системный актор для регистрации гостей
+   * и операций с ролями (UC требуют ADMIN) */
   actorId: string;
+  /** chat id школьной группы (SCHOOL_GROUP_ID): единственная группа,
+   * события которой влияют на регистрацию гостей и роли */
+  schoolGroupId: number;
 }
 
 /**
  * Регистрирует обработчики событий группы.
  *
  * - `my_chat_member` — бот добавлен/удалён из группы.
- *   При добавлении — выдаёт SUBSCRIBER тому, кто добавил.
+ *   При добавлении в школьную группу (deps.schoolGroupId) — выдаёт
+ *   SUBSCRIBER тому, кто добавил (регистрация и выдача роли — от имени
+ *   бота, deps.actorId). Остальные группы игнорируются.
  *   При удалении — ничего не делает.
  *
  * - `chat_member` — пользователь присоединился/покинул группу
  *   (требует прав администратора в группе).
- *   При присоединении — регистрирует нового пользователя как гостя
- *   (от имени бота, если его ещё нет в БД) и выдаёт SUBSCRIBER.
- *   При выходе — снимает SUBSCRIBER и уведомляет ментора потока
- *   «Студент A покинул группу» (spec FR-7); статус студента не меняется.
+ *   При присоединении к школьной группе — регистрирует нового
+ *   пользователя как гостя (от имени бота, если его ещё нет в БД)
+ *   и выдаёт SUBSCRIBER.
+ *   При выходе — снимает SUBSCRIBER (только для школьной группы;
+ *   выход из других групп на роли не влияет) и уведомляет ментора
+ *   потока «Студент A покинул группу» (spec FR-7, матчится по
+ *   telegramGroupId потока); статус студента не меняется.
+ *   Все операции с ролями выполняются от имени бота (deps.actorId):
+ *   UC add/remove-role требуют ADMIN, а гость/участник таких прав не имеет.
  */
 export function registerGroupHandlers(
   bot: Bot<BotContext>,
@@ -43,14 +54,17 @@ export function registerGroupHandlers(
     const newStatus = ctx.myChatMember.new_chat_member.status;
     const adderId = ctx.myChatMember.from.id;
 
-    // Бота добавили в группу → выдаём SUBSCRIBER тому, кто добавил
+    // Бота добавили в школьную группу → выдаём SUBSCRIBER тому, кто добавил.
+    // Чужие группы игнорируем: SUBSCRIBER — только для SCHOOL_GROUP_ID.
     if (
+      deps &&
+      ctx.myChatMember.chat.id === deps.schoolGroupId &&
       oldStatus === 'left' &&
       (newStatus === 'member' || newStatus === 'administrator')
     ) {
       try {
         let user = await userFacade.getUserByTelegramId(adderId);
-        if (!user && deps) {
+        if (!user) {
           // Незнакомый добавил бота → регистрируем гостя от имени бота
           user = await userFacade.registerGuest(
             adderId,
@@ -59,7 +73,11 @@ export function registerGroupHandlers(
           );
         }
         if (user) {
-          await userFacade.addRoleToUser(user.uuid, Role.SUBSCRIBER);
+          await userFacade.addRoleToUser(
+            user.uuid,
+            Role.SUBSCRIBER,
+            deps.actorId,
+          );
         }
       } catch (err) {
         logger.error(
@@ -78,15 +96,20 @@ export function registerGroupHandlers(
     const member = ctx.chatMember;
     const userId = member.new_chat_member.user.id;
 
-    // Пользователь присоединился
+    // Регистрация и роли — только для школьной группы (SCHOOL_GROUP_ID)
+    const isSchoolGroup =
+      deps !== undefined && member.chat.id === deps.schoolGroupId;
+
+    // Пользователь присоединился к школьной группе
     if (
+      isSchoolGroup &&
       member.old_chat_member.status === 'left' &&
       (member.new_chat_member.status === 'member' ||
         member.new_chat_member.status === 'administrator')
     ) {
       try {
         let user = await userFacade.getUserByTelegramId(userId);
-        if (!user && deps) {
+        if (!user) {
           // Незнакомый присоединился → регистрируем гостя от имени бота
           user = await userFacade.registerGuest(
             userId,
@@ -95,7 +118,11 @@ export function registerGroupHandlers(
           );
         }
         if (user) {
-          await userFacade.addRoleToUser(user.uuid, Role.SUBSCRIBER, user.uuid);
+          await userFacade.addRoleToUser(
+            user.uuid,
+            Role.SUBSCRIBER,
+            deps.actorId,
+          );
         }
       } catch (err) {
         logger.error(
@@ -127,11 +154,14 @@ export function registerGroupHandlers(
               logger,
             );
           }
-          await userFacade.removeRoleFromUser(
-            user.uuid,
-            Role.SUBSCRIBER,
-            user.uuid,
-          );
+          // SUBSCRIBER снимается только при выходе из школьной группы
+          if (isSchoolGroup) {
+            await userFacade.removeRoleFromUser(
+              user.uuid,
+              Role.SUBSCRIBER,
+              deps.actorId,
+            );
+          }
         }
       } catch (err) {
         logger.error(

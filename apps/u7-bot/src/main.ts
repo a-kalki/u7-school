@@ -90,10 +90,12 @@ if (config.adminTelegramIds.length > 0) {
 // ══ Групповые события — на исходный бот (chat_member, my_chat_member) ══
 // FR-7: при выходе студента из группы — уведомление ментору потока.
 // actorId — бот как системный актор: регистрация гостей в group-handler.
+// Регистрация гостей и роли (SUBSCRIBER) — только для школьной группы.
 registerGroupHandlers(bot, apiBundle.userFacade, logger, {
   apiApp: apiBundle.apiApp,
   transport,
   actorId: config.botAdminUuid,
+  schoolGroupId: config.schoolGroupId,
 });
 
 // ══ Приватные чаты — через filter ══
