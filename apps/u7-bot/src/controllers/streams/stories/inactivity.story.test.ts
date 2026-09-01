@@ -117,6 +117,8 @@ interface SetupOptions {
     userId: string;
     status: string;
   };
+  /** Запись студента не найдена (get-student-progress → undefined). */
+  studentMissing?: boolean;
   streamOverrides?: Partial<Stream>;
 }
 
@@ -142,6 +144,7 @@ function setupStory(opts: SetupOptions = {}): {
         return { ...stream, ...opts.streamOverrides };
       }
       if (name === 'get-student-progress') {
+        if (opts.studentMissing) return undefined;
         return (
           opts.studentEntity ?? {
             uuid: STUDENT_ID,
@@ -384,7 +387,7 @@ describe('InactivityStory', () => {
 
   // ── Callback: снятие ментором (FR-5) ──
 
-  test('mark-abandoned → confirm-диалог «Снять с учёбы»', async () => {
+  test('mark-abandoned → confirm-диалог «Снять с учёбы» с именем студента', async () => {
     const { story } = setupStory();
 
     const response = await story.handleCallback(
@@ -394,11 +397,45 @@ describe('InactivityStory', () => {
     );
 
     const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Снять студента с учёбы');
+    expect(text).toContain('Снять студента *Иван Студент* с учёбы');
     const buttons = response.sendMessage?.keyboard?.rows.flat() ?? [];
     expect(buttons.some((b) => b.code.includes('mark-abandoned-confirm'))).toBe(
       true,
     );
+    assertResponseMarkdownSafe(response);
+  });
+
+  test('mark-abandoned: студент не найден → предупреждение без confirm', async () => {
+    const { story } = setupStory({ studentMissing: true });
+
+    const response = await story.handleCallback(
+      `mark-abandoned:${STUDENT_ID}`,
+      mentor,
+      { activeHandler: null },
+    );
+
+    expect(response.sendMessage?.text).toContain('Запись студента не найдена');
+    expect(response.sendMessage?.keyboard).toBeUndefined();
+  });
+
+  test('mark-abandoned: get-user недоступен → fallback, первые 8 символов userId', async () => {
+    const { story } = setupStory({
+      studentEntity: {
+        uuid: STUDENT_ID,
+        streamId: STREAM_ID,
+        userId: '99999999-9999-4999-8999-999999999999',
+        status: 'active',
+      },
+    });
+
+    const response = await story.handleCallback(
+      `mark-abandoned:${STUDENT_ID}`,
+      mentor,
+      { activeHandler: null },
+    );
+
+    // Имя не резолвится — вместо него первые 8 символов userId
+    expect(response.sendMessage?.text).toContain('Снять студента *99999999*');
     assertResponseMarkdownSafe(response);
   });
 
@@ -420,7 +457,41 @@ describe('InactivityStory', () => {
       },
       MENTOR_USER_ID,
     );
-    expect(response.sendMessage?.text).toContain('снят с учёбы');
+    expect(response.sendMessage?.text).toContain(
+      'Студент *Иван Студент* снят с учёбы',
+    );
+  });
+
+  test('mark-abandoned-confirm: студент не найден → предупреждение', async () => {
+    const { story } = setupStory({ studentMissing: true });
+
+    const response = await story.handleCallback(
+      `mark-abandoned-confirm:${STUDENT_ID}`,
+      mentor,
+      { activeHandler: null },
+    );
+
+    expect(response.sendMessage?.text).toContain('Запись студента не найдена');
+  });
+
+  test('mark-abandoned-confirm: get-user недоступен → fallback в результате', async () => {
+    const { story } = setupStory({
+      studentEntity: {
+        uuid: STUDENT_ID,
+        streamId: STREAM_ID,
+        userId: '99999999-9999-4999-8999-999999999999',
+        status: 'active',
+      },
+    });
+
+    const response = await story.handleCallback(
+      `mark-abandoned-confirm:${STUDENT_ID}`,
+      mentor,
+      { activeHandler: null },
+    );
+
+    expect(response.sendMessage?.text).toContain('Студент *99999999* снят');
+    assertResponseMarkdownSafe(response);
   });
 
   test('неизвестный action → сообщение об ошибке', async () => {

@@ -188,10 +188,15 @@ export class InactivityStory extends U7BotUiStory {
 
     // Снятие с учёбы ментором: confirm → mark-abandoned (FR-5)
     if (cmd === 'mark-abandoned' && id) {
+      const student = await this.#getStudent(id, actor);
+      if (!student) {
+        return { sendMessage: { text: '⚠️ Запись студента не найдена' } };
+      }
+      const name = this.escapeMarkdown(await this.#resolveName(student.userId));
       return this.confirm(
         'mark-abandoned',
         id,
-        'Снять студента с учёбы за бездействие?\n\nСтудент будет исключён из группы потока и получит уведомление\\.',
+        `Снять студента *${name}* с учёбы за бездействие?\n\nСтудент будет исключён из группы потока и получит уведомление\\.`,
         {
           confirmButton: '⚠️ Да, снять с учёбы',
           cancelButton: '❌ Отмена',
@@ -263,9 +268,11 @@ export class InactivityStory extends U7BotUiStory {
       return this.handleError(err);
     }
 
+    const name = this.escapeMarkdown(await this.#resolveName(student.userId));
+
     return {
       sendMessage: {
-        text: '✅ Студент снят с учёбы за бездействие и исключён из группы потока\\.',
+        text: `✅ Студент *${name}* снят с учёбы за бездействие и исключён из группы потока\\.`,
         parseMode: 'MarkdownV2',
       },
     };
