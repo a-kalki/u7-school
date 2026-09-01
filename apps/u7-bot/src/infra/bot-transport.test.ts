@@ -994,3 +994,104 @@ describe('BotTransport — handleStart, handleCancel, handleHelp', () => {
     expect(ctx.reply).toHaveBeenCalledWith('Нечего отменять. Нажмите /start');
   });
 });
+
+// ── Очередь отправок per-chat ──
+
+describe('BotTransport — очередь отправок per-chat', () => {
+  /** Api с задержкой: пишет порядок входа/выхода sendMessage, id растёт. */
+  function makeDelayedBotApi(order: string[], delayMs = 10): Api {
+    let nextId = 1;
+    return {
+      sendMessage: mock(async (_tgId: number, text: string) => {
+        order.push(`start:${text}`);
+        await new Promise((r) => setTimeout(r, delayMs));
+        order.push(`end:${text}`);
+        return { message_id: nextId++ };
+      }),
+      editMessageText: mock(async () => ({ message_id: 1 })),
+    } as unknown as Api;
+  }
+
+  test('две параллельные send() одному tgId: sendMessage строго последовательны, lastBotMessage — вторая', async () => {
+    const order: string[] = [];
+    const api = makeDelayedBotApi(order);
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await Promise.all([
+      transport.send(123, { sendMessage: { text: 'Первый' } }),
+      transport.send(123, { sendMessage: { text: 'Второй' } }),
+    ]);
+
+    // Без очереди был бы интерливинг start/start/end/end
+    expect(order).toEqual([
+      'start:Первый',
+      'end:Первый',
+      'start:Второй',
+      'end:Второй',
+    ]);
+
+    // Сессия указывает на вторую отправку (а не на первую, перезаписанную)
+    const last = sessionMap.get(123)?.lastBotMessage;
+    expect(last?.text).toBe('Второй');
+    expect(last?.messageId).toBe(2);
+  });
+
+  test('send() + notify() вперемешку: порядок строгий, lastBotMessage не затирается уведомлением', async () => {
+    const order: string[] = [];
+    const api = makeDelayedBotApi(order);
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    await Promise.all([
+      transport.send(123, {
+        sendMessage: {
+          text: 'Экран',
+          keyboard: {
+            rows: [[{ text: 'Кнопка', code: 'app:main-menu' }]],
+            isMultiple: false,
+          },
+        },
+      }),
+      transport.notify(123, { text: 'Уведомление' }),
+    ]);
+
+    expect(order).toEqual([
+      'start:Экран',
+      'end:Экран',
+      'start:🔔 Уведомление:\n\nУведомление',
+      'end:🔔 Уведомление:\n\nУведомление',
+    ]);
+
+    // Уведомление не затёрло lastBotMessage экрана
+    const last = sessionMap.get(123)?.lastBotMessage;
+    expect(last?.text).toBe('Экран');
+    expect(last?.keyboard).toBeDefined();
+  });
+
+  test('ошибка первой отправки не ломает вторую (хвост очереди не rejected)', async () => {
+    let calls = 0;
+    const api = {
+      sendMessage: mock(async (_tgId: number, _text: string) => {
+        calls++;
+        if (calls === 1) throw new Error('Telegram down');
+        return { message_id: 2 };
+      }),
+      editMessageText: mock(async () => ({ message_id: 1 })),
+    } as unknown as Api;
+    const uiApp = makeMockUiApp();
+    const sessionMap = new Map<number, SessionData>();
+    const transport = new BotTransport(uiApp, api, sessionMap);
+
+    const first = transport.send(123, { sendMessage: { text: 'Упадёт' } });
+    const second = transport.send(123, { sendMessage: { text: 'Дойдёт' } });
+
+    await expect(first).rejects.toThrow('Telegram down');
+    await expect(second).resolves.toBeUndefined();
+
+    const last = sessionMap.get(123)?.lastBotMessage;
+    expect(last?.text).toBe('Дойдёт');
+  });
+});

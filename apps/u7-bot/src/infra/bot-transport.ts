@@ -69,6 +69,9 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   /** Единая мапа сжатых id на всё приложение */
   private readonly shortIds = new Map<string, string>();
 
+  /** Последовательные очереди отправок per-chat: tgId → хвост очереди. */
+  private readonly queues = new Map<number, Promise<void>>();
+
   constructor(
     uiApp: U7BotUiApp,
     botApi: Api,
@@ -195,25 +198,27 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   // ═══════════════════════════════════════════
 
   async send(telegramId: number, command: BotCommand): Promise<void> {
-    let session = this.sessionMap.get(telegramId);
-    if (!session) {
-      session = { activeHandler: null };
-    }
+    return this.#enqueue(telegramId, async () => {
+      let session = this.sessionMap.get(telegramId);
+      if (!session) {
+        session = { activeHandler: null };
+      }
 
-    const compressed = this.compressCommand(command);
-    await this.execute(session, telegramId, compressed);
+      const compressed = this.compressCommand(command);
+      await this.execute(session, telegramId, compressed);
 
-    if (compressed.captureInput) {
-      session.activeHandler = {
-        path: compressed.captureInput.path,
-        context: compressed.captureInput.context,
-        expiresAt: compressed.captureInput.ttlSeconds
-          ? Date.now() + compressed.captureInput.ttlSeconds * 1000
-          : undefined,
-      };
-    }
+      if (compressed.captureInput) {
+        session.activeHandler = {
+          path: compressed.captureInput.path,
+          context: compressed.captureInput.context,
+          expiresAt: compressed.captureInput.ttlSeconds
+            ? Date.now() + compressed.captureInput.ttlSeconds * 1000
+            : undefined,
+        };
+      }
 
-    this.sessionMap.set(telegramId, session);
+      this.sessionMap.set(telegramId, session);
+    });
   }
 
   /**
@@ -238,26 +243,28 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     telegramId: number,
     payload: NotificationPayload,
   ): Promise<void> {
-    let session = this.sessionMap.get(telegramId);
-    if (!session) {
-      session = { activeHandler: null };
-    }
+    return this.#enqueue(telegramId, async () => {
+      let session = this.sessionMap.get(telegramId);
+      if (!session) {
+        session = { activeHandler: null };
+      }
 
-    const command: BotCommand = {
-      sendMessage: {
-        text: this.#notificationHeader(payload.parseMode) + payload.text,
-        parseMode: payload.parseMode,
-      },
-      keepPrevKeyboard: true,
-    };
+      const command: BotCommand = {
+        sendMessage: {
+          text: this.#notificationHeader(payload.parseMode) + payload.text,
+          parseMode: payload.parseMode,
+        },
+        keepPrevKeyboard: true,
+      };
 
-    // Уведомление не занимает слот «последнего сообщения» сессии
-    const prevLastBotMessage = session.lastBotMessage;
-    const compressed = this.compressCommand(command);
-    await this.execute(session, telegramId, compressed);
-    session.lastBotMessage = prevLastBotMessage;
+      // Уведомление не занимает слот «последнего сообщения» сессии
+      const prevLastBotMessage = session.lastBotMessage;
+      const compressed = this.compressCommand(command);
+      await this.execute(session, telegramId, compressed);
+      session.lastBotMessage = prevLastBotMessage;
 
-    this.sessionMap.set(telegramId, session);
+      this.sessionMap.set(telegramId, session);
+    });
   }
 
   /**
@@ -288,6 +295,30 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   // ═══════════════════════════════════════════
   // execute — единая точка отправки
   // ═══════════════════════════════════════════
+
+  /**
+   * Ставит работу в per-chat очередь отправок.
+   *
+   * Серия проактивных событий (кандидаты на снятие, уведомления) идёт
+   * параллельно — без очереди их работы с сессией интерливятся: lost update
+   * на lastBotMessage/activeHandler, клавиатура снимается у «не того»
+   * сообщения. Очередь гарантирует строгий порядок на чат; разные чаты
+   * не блокируют друг друга.
+   *
+   * Ошибка предыдущей работы не роняет хвост очереди (хвост нормализован).
+   */
+  #enqueue<T>(tgId: number, fn: () => Promise<T>): Promise<T> {
+    const prev = this.queues.get(tgId) ?? Promise.resolve();
+    const next = prev.then(fn, fn); // ошибка предыдущего НЕ роняет хвост
+    this.queues.set(
+      tgId,
+      next.then(
+        () => undefined,
+        () => undefined,
+      ),
+    );
+    return next;
+  }
 
   private async execute(
     session: SessionData,
