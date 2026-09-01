@@ -37,6 +37,9 @@
   - [2. Модуль Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, шина событий, API агрегатов
   - [3. Пайплайн + новые модули](./metrics-pipeline-and-modules.md) — события→анкеты→метрики, peer-review, metrics
 
+## Система задач и уведомлений (Концепция)
+- [Система задач и уведомлений](./tasks-system.md) — бизнес-проблема и решение: pull вместо push, три канала касания, «Мои задачи»/`/tasks`
+
 ## Управление
 - [Реестр треков](./tracks.md)
 - [Архив треков](./archive/)
