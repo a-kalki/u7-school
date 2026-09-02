@@ -19,7 +19,7 @@ function calcIpn(salary, opv, mzp) {
 
 // Шаг 3: итоговая сумма на руки
 function calcNetSalary(salary) {
-  const mzp = 85000;
+  const mzp = 85000; // минимальная зар.плата
   const opv = calcOpv(salary);
   const ipn = calcIpn(salary, opv, mzp);
   return salary - opv - ipn;
@@ -30,3 +30,5 @@ console.log(calcNetSalary(100000));
 console.log(calcNetSalary(200000));
 console.log(calcNetSalary(300000));
 console.log(calcNetSalary(50000));
+
+// Где клиент, менеджер и специалисты?

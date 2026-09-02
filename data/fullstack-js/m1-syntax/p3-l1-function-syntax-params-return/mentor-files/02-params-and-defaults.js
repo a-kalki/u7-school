@@ -10,6 +10,8 @@ console.log(greet('Айгуль'));
 console.log(greet('Бауыржан', 'Сәлем'));
 console.log(greet('Диана', 'Hello'));
 
+console.log('---');
+
 // Расчёт налога — ставка НДС 12% по умолчанию
 function getTax(amount, taxRate = 12) {
   return Math.round((amount * taxRate) / 100);
@@ -18,6 +20,8 @@ function getTax(amount, taxRate = 12) {
 console.log(getTax(10000));
 console.log(getTax(10000, 5));
 console.log(getTax(15500));
+
+console.log('---');
 
 // Подсчёт символов в строке — по умолчанию ищем пробелы
 function countChar(text, char = ' ') {

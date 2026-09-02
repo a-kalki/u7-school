@@ -13,6 +13,8 @@ a.b = 'b';
 
 console.log(a.c);
 
+console.log('---');
+
 // Свойство-счётчик: сколько раз вызвали функцию
 function sayHi() {
   sayHi.callCount = (sayHi.callCount || 0) + 1;
@@ -24,6 +26,8 @@ sayHi();
 sayHi();
 
 console.log(sayHi.callCount);
+
+console.log('---');
 
 // Функция-генератор ID с состоянием в свойстве
 function getNextId() {

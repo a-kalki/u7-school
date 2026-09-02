@@ -18,6 +18,8 @@ console.log(addClassic(3, 7));
 console.log(addArrow(3, 7));
 console.log(addShort(3, 7));
 
+console.log('---');
+
 // Один параметр — скобки можно опустить
 const greet = (name) => `Сәлем, ${name}!`;
 console.log(greet('Айжан'));
@@ -26,6 +28,8 @@ console.log(greet('Данияр'));
 // Без параметров — пустые скобки обязательны
 const getYear = () => new Date().getFullYear();
 console.log(getYear());
+
+console.log('---');
 
 // Стрелочная с телом из нескольких строк
 const getDiscountLabel = (price, percent) => {

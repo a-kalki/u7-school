@@ -14,6 +14,8 @@ console.log(square(12));
 console.log(square('5'));
 console.log(square('abc'));
 
+console.log('---');
+
 // Функция с защитой контракта — валидация входа
 function safeDivide(a, b) {
   if (b === 0) {
@@ -25,6 +27,8 @@ function safeDivide(a, b) {
 console.log(safeDivide(10, 2));
 console.log(safeDivide(10, 0));
 console.log(safeDivide(7, 3));
+
+console.log('---');
 
 // Контракт с бизнес-логикой: можно ли получить скидку
 // Вход: сумма покупки, постоянный ли клиент

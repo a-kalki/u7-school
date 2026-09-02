@@ -8,6 +8,9 @@ function getFullName(first, last) {
 
 console.log(getFullName('Нурсултан', 'Назарбаев'));
 console.log(getFullName('', 'Сериков'));
+console.log(getFullName('Ерлан'));
+
+console.log('---');
 
 // С валидацией — досрочный выход (guard clause)
 function getFullNameSafe(first, last) {
@@ -20,6 +23,9 @@ function getFullNameSafe(first, last) {
 console.log(getFullNameSafe('Айжан', 'Тулегенова'));
 console.log(getFullNameSafe('', 'Сериков'));
 console.log(getFullNameSafe('Ерлан', ''));
+console.log(getFullNameSafe('Ерлан'));
+
+console.log('---');
 
 // Расчёт бонуса: отрицательные значения не имеют смысла
 function calculateBonus(salary, bonusPercent) {

@@ -15,6 +15,8 @@ console.log(isString(42));
 console.log(isNumber(100));
 console.log(isNumber('100'));
 
+console.log('---');
+
 // Бизнес-логика: может ли пользователь получить кредит
 function canGetCredit(age, hasJob) {
   return age >= 21 && hasJob === true;
@@ -23,6 +25,8 @@ function canGetCredit(age, hasJob) {
 console.log(canGetCredit(25, true));
 console.log(canGetCredit(20, true));
 console.log(canGetCredit(30, false));
+
+console.log('---');
 
 // Проверка надёжности пароля: длина >= 8
 function isStrongPassword(password) {

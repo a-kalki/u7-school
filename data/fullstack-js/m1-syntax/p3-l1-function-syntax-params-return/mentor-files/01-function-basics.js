@@ -17,6 +17,8 @@ function sayHello(name) {
 const result = sayHello('Ерлан');
 console.log(result);
 
+console.log('---');
+
 // Функция с несколькими параметрами — форматирование цены
 function formatPrice(amount, currency) {
   return `${amount} ${currency}`;
@@ -25,6 +27,8 @@ function formatPrice(amount, currency) {
 console.log(formatPrice(1500, '₸'));
 console.log(formatPrice(25, '$'));
 console.log(formatPrice(1000, '₽'));
+
+console.log('---');
 
 // Функция-калькулятор: считает итоговую цену со скидкой
 function getDiscountPrice(price, discountPercent) {

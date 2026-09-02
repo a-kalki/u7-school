@@ -7,7 +7,9 @@ function add(a, b) {
 }
 
 // 2. Function Expression — анонимная функция в переменной
-const subtract = (a, b) => a - b;
+const subtract = function(a, b) {
+  return a - b;
+};
 
 // 3. Arrow Function — стрелочная функция
 const multiply = (a, b) => {
@@ -18,6 +20,8 @@ console.log(add(5, 3));
 console.log(subtract(5, 3));
 console.log(multiply(5, 3));
 
+console.log('---');
+
 // Стрелочная с неявным return — без фигурных скобок
 const divide = (a, b) => a / b;
 
@@ -27,12 +31,16 @@ const square = (n) => n * n;
 console.log(divide(10, 2));
 console.log(square(7));
 
+console.log('---');
+
 // Все три стиля в одном сценарии: расчёт заказа
 function calcTotal(price, qty, discount) {
   return price * qty - discount;
 }
 
-const calcTax = (total, rate) => (total * rate) / 100;
+const calcTax = function(total, rate) {
+  return (total * rate) / 100;
+};
 
 const formatReceipt = (total, tax) => `Итого: ${total + tax} ₸`;
 
