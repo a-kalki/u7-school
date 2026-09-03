@@ -23,8 +23,9 @@ import { U7BotUiStory } from '../../../core/u7-bot-ui-story';
  * - student.inactivity-remove-candidate (7+ дней) → ментору потока
  *   «Студент A из группы B не занимался N дней» (+ строка о ранее
  *   отправленных предупреждениях) + кнопка «Снять с учёбы»;
- * - student.abandoned → самовыход: ментору «покинул учёбу»;
- *   решение ментора: студенту «Ты снят с учёбы…».
+ * - student.abandoned → мягкий кик из TG-группы потока.
+ *   Текстовые уведомления (#3/#4) перенесены в UC drop-student /
+ *   mark-abandoned через механизм userFacade.notify (трек user-notify).
  */
 export class InactivityStory extends U7BotUiStory {
   readonly name = 'inactivity';
@@ -127,37 +128,15 @@ export class InactivityStory extends U7BotUiStory {
   }
 
   /**
-   * Событие ухода из учёбы:
-   * самовыход → ментору «покинул учёбу» (FR-4);
-   * решение ментора → студенту мягкое уведомление (FR-5).
+   * Событие ухода из учёбы — мягкий кик из Telegram-группы потока (FR-6).
+   * Текстовые уведомления отправляют UC drop-student / mark-abandoned
+   * через userFacade.notify.
    */
   async #handleAbandonedEvent(event: StudentAbandonedEvent): Promise<void> {
-    const { who, userId, streamId } = event.payload;
+    const { userId, streamId } = event.payload;
 
     // FR-6: мягкое исключение из Telegram-группы потока — для обоих сценариев
     await this.#kickFromGroup(streamId, userId);
-
-    if (who === 'self') {
-      const [studentName, mentorTelegramId] = await Promise.all([
-        this.#resolveName(userId),
-        this.#resolveMentorTelegramId(streamId),
-      ]);
-      if (mentorTelegramId === undefined) return;
-
-      await this.proactiveSender.notify(mentorTelegramId, {
-        text: `🚪 Студент ${this.escapeMarkdown(studentName)} покинул учёбу\\.`,
-        parseMode: 'MarkdownV2',
-      });
-      return;
-    }
-
-    const telegramId = await this.#resolveTelegramId(userId);
-    if (telegramId === undefined) return;
-
-    await this.proactiveSender.notify(telegramId, {
-      text: 'Ты снят с учёбы из\\-за длительного отсутствия активности\\. Если захочешь вернуться — напиши ментору потока\\.',
-      parseMode: 'MarkdownV2',
-    });
   }
 
   // ── Callback ──
@@ -333,15 +312,6 @@ export class InactivityStory extends U7BotUiStory {
     } catch {
       return undefined;
     }
-  }
-
-  /** telegramId ментора потока. */
-  async #resolveMentorTelegramId(
-    streamId: string,
-  ): Promise<number | undefined> {
-    const stream = await this.#resolveStream(streamId);
-    if (!stream) return undefined;
-    return await this.#resolveTelegramId(stream.mentorId);
   }
 
   /**

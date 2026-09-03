@@ -292,41 +292,7 @@ describe('InactivityStory', () => {
     }).not.toThrow();
   });
 
-  // ── События ухода (FR-4/FR-5) ──
-
-  test('abandoned who=self → ментору «покинул учёбу»', async () => {
-    const { story, sends, notifies } = setupStory();
-
-    await subHandler(
-      story,
-      'student.abandoned',
-    )(makeAbandonedEvent({ who: 'self', cause: 'voluntary' }) as never);
-
-    const all = [...sends, ...notifies];
-    expect(all).toHaveLength(1);
-    expect(all[0]?.telegramId).toBe(1004);
-    expect(all[0]?.text).toContain('Иван Студент');
-    expect(all[0]?.text).toContain('покинул учёбу');
-  });
-
-  test('abandoned who=mentor → студенту «Ты снят с учёбы…»', async () => {
-    const { story, sends, notifies } = setupStory();
-
-    await subHandler(
-      story,
-      'student.abandoned',
-    )(
-      makeAbandonedEvent({
-        who: 'mentor',
-        cause: 'inactivity',
-      }) as never,
-    );
-
-    const all = [...sends, ...notifies];
-    expect(all).toHaveLength(1);
-    expect(all[0]?.telegramId).toBe(1003);
-    expect(all[0]?.text).toContain('снят с учёбы');
-  });
+  // ── События ухода (кик; текстовые уведомления — в UC, трек user-notify) ──
 
   test('abandoned → мягкий кик из группы потока (FR-6)', async () => {
     const { story, kicks } = setupStory({
@@ -339,13 +305,13 @@ describe('InactivityStory', () => {
     expect(kicks[0]).toEqual({ groupId: GROUP_ID, userId: 1003 });
   });
 
-  test('abandoned: у потока нет группы — кик не вызывается, уведомление уходит', async () => {
+  test('abandoned: у потока нет группы — кик не вызывается, ошибок нет', async () => {
     const { story, kicks, notifies } = setupStory();
 
     await subHandler(story, 'student.abandoned')(makeAbandonedEvent() as never);
 
     expect(kicks).toHaveLength(0);
-    expect(notifies).toHaveLength(1);
+    expect(notifies).toHaveLength(0);
   });
 
   // ── Callback: самовыход (FR-4) ──
