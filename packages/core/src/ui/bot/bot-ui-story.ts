@@ -234,11 +234,14 @@ export abstract class BotUiStory<
         const issues = payload?.issues;
 
         if (issues && issues.length > 0) {
-          const lines = issues.map((i) => `• *${i.field}*: ${i.message}`);
+          const lines = issues.map(
+            (i) =>
+              `• *${this.escapeMarkdown(i.field)}*: ${this.escapeMarkdown(i.message)}`,
+          );
           return {
             releaseInput: true,
             sendMessage: {
-              text: `⚠️ *Ошибка валидации*\n\n${lines.join('\n')}\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями.`,
+              text: `⚠️ *Ошибка валидации*\n\n${lines.join('\n')}\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями\\.`,
               parseMode: 'MarkdownV2',
             },
           };
@@ -247,7 +250,7 @@ export abstract class BotUiStory<
         return {
           releaseInput: true,
           sendMessage: {
-            text: `⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова.`,
+            text: `⚠️ *Ошибка валидации*\n\n${this.escapeMarkdown(appError.message)}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
             parseMode: 'MarkdownV2',
           },
         };
@@ -274,7 +277,7 @@ export abstract class BotUiStory<
         return {
           releaseInput: true,
           sendMessage: {
-            text: `⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору.`,
+            text: `⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
             parseMode: 'MarkdownV2',
           },
         };

@@ -10,7 +10,12 @@ import {
   errUnauthorized,
   errValidation,
 } from '@u7-scl/core/domain';
-import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
+import {
+  assertMarkdownV2Safe,
+  type Logger,
+  LogLevel,
+  setGlobalLogger,
+} from '@u7-scl/core/shared';
 import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
 import { U7BotUiStory } from './u7-bot-ui-story';
 
@@ -106,7 +111,7 @@ describe('U7BotUiStory.handleError', () => {
       const resp = story.testHandleError(exception);
 
       expect(resp.sendMessage).toBeDefined();
-      expect(resp.sendMessage!.text).toContain('Что-то не так');
+      expect(resp.sendMessage!.text).toContain('Что\\-то не так');
     });
   });
 
@@ -222,6 +227,56 @@ describe('U7BotUiStory.handleError', () => {
 
       expect(mockLogger.error).toHaveBeenCalled();
       expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
+    });
+  });
+
+  // Инцидент 2026-09-03: неэкранированная точка в fallback-тексте внутренней ошибки
+  // роняла MarkdownV2-валидатор → сообщение об ошибке не отправлялось вовсе.
+  describe('MarkdownV2-безопасность текста', () => {
+    test('internal: fallback-текст с точкой проходит assertMarkdownV2Safe', () => {
+      const appError = errInternal(
+        'ServerError',
+        'Внутренняя ошибка сервера',
+        undefined as unknown as undefined,
+      );
+      const exception = new AppException(appError);
+
+      const resp = story.testHandleError(exception);
+
+      expect(resp.sendMessage!.parseMode).toBe('MarkdownV2');
+      expect(() => assertMarkdownV2Safe(resp.sendMessage!.text)).not.toThrow();
+    });
+
+    test('validation с issues: field и message с точками/скобками экранированы', () => {
+      const appError = errValidation('ValidationError', 'Ошибка валидации', {
+        issues: [
+          { field: 'title', message: 'Поле "title" обязательно (см. пример).' },
+          {
+            field: 'startDate',
+            message: 'Некорректный формат даты [дд.мм.гггг]',
+          },
+        ],
+      });
+      const exception = new AppException(appError);
+
+      const resp = story.testHandleError(exception);
+
+      expect(resp.sendMessage!.parseMode).toBe('MarkdownV2');
+      expect(() => assertMarkdownV2Safe(resp.sendMessage!.text)).not.toThrow();
+    });
+
+    test('validation без issues: message с точкой проходит assertMarkdownV2Safe', () => {
+      const appError = errValidation(
+        'GenericValidationError',
+        'Некорректное значение поля (см. инструкцию).',
+        undefined as unknown as Record<string, unknown>,
+      );
+      const exception = new AppException(appError);
+
+      const resp = story.testHandleError(exception);
+
+      expect(resp.sendMessage!.parseMode).toBe('MarkdownV2');
+      expect(() => assertMarkdownV2Safe(resp.sendMessage!.text)).not.toThrow();
     });
   });
 });
