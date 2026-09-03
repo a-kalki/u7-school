@@ -10,7 +10,15 @@ const MENTOR_ID = '66666666-6666-4666-8666-666666666666';
 const STREAM_ID = '77777777-7777-4777-8777-777777777777';
 
 describe('CompleteStudentUc', () => {
-  function createMocks(mentorId = MENTOR_ID) {
+  function createMocks(
+    mentorId = MENTOR_ID,
+    place?: {
+      courseId: string;
+      isFirst: boolean;
+      isLast: boolean;
+      nextModuleId?: string;
+    },
+  ) {
     const mockStudentRepo = {
       getByUuid: mock(() =>
         Promise.resolve({
@@ -65,6 +73,7 @@ describe('CompleteStudentUc', () => {
         });
       }),
       removeRoleFromUser: mock(() => Promise.resolve()),
+      notify: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
       addRoleToUser: mock(() => Promise.resolve()),
       updateUserRole: mock(() => Promise.resolve({})),
@@ -78,7 +87,7 @@ describe('CompleteStudentUc', () => {
       streamRepo: mockStreamRepo,
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
-      courseFacade: {},
+      courseFacade: { getModulePlace: mock(() => Promise.resolve(place)) },
       eventBus: mockEventBus,
     } as unknown as StreamApiModuleResolver;
 
@@ -213,5 +222,87 @@ describe('CompleteStudentUc', () => {
         '22222222-2222-4222-8222-222222222222',
       ),
     ).rejects.toThrow();
+  });
+
+  // ── Уведомления при advanced (трек user-notify, сценарии #7c/7d) ──
+
+  test('advanced + последний модуль → студенту «🎉 Курс завершён!» (FR-6 #7c)', async () => {
+    const { resolver, mockUserFacade } = createMocks(MENTOR_ID, {
+      courseId: 'c-1',
+      isFirst: false,
+      isLast: true,
+      prevModuleId: 'm-0',
+    });
+
+    const uc = new CompleteStudentUc();
+    uc.init(resolver);
+
+    await uc.execute(
+      { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'advanced' },
+      MENTOR_ID,
+    );
+
+    expect(mockUserFacade.notify).toHaveBeenCalledTimes(1);
+    expect(mockUserFacade.notify).toHaveBeenCalledWith(
+      STUDENT_USER_ID,
+      '🎉 Курс завершён! Поздравляем — ты прошёл всю программу.',
+      MENTOR_ID,
+    );
+  });
+
+  test('advanced + место модуля неизвестно → студенту «🏁 Модуль завершён!» (FR-6 #7d)', async () => {
+    const { resolver, mockUserFacade } = createMocks(MENTOR_ID, undefined);
+
+    const uc = new CompleteStudentUc();
+    uc.init(resolver);
+
+    await uc.execute(
+      { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'advanced' },
+      MENTOR_ID,
+    );
+
+    expect(mockUserFacade.notify).toHaveBeenCalledTimes(1);
+    expect(mockUserFacade.notify).toHaveBeenCalledWith(
+      STUDENT_USER_ID,
+      '🏁 Модуль завершён!',
+      MENTOR_ID,
+    );
+  });
+
+  test('advanced + есть следующий модуль → notify НЕ шлётся (кнопка — в HubStory)', async () => {
+    const { resolver, mockUserFacade } = createMocks(MENTOR_ID, {
+      courseId: 'c-1',
+      isFirst: false,
+      isLast: false,
+      nextModuleId: '55555555-5555-4555-8555-555555555555',
+    });
+
+    const uc = new CompleteStudentUc();
+    uc.init(resolver);
+
+    await uc.execute(
+      { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'advanced' },
+      MENTOR_ID,
+    );
+
+    expect(mockUserFacade.notify).not.toHaveBeenCalled();
+  });
+
+  test('not_advanced → notify НЕ шлётся (кнопка «Пройти снова» — в HubStory)', async () => {
+    const { resolver, mockUserFacade } = createMocks(MENTOR_ID, {
+      courseId: 'c-1',
+      isFirst: false,
+      isLast: true,
+    });
+
+    const uc = new CompleteStudentUc();
+    uc.init(resolver);
+
+    await uc.execute(
+      { streamId: STREAM_ID, studentId: STUDENT_ID, outcome: 'not_advanced' },
+      MENTOR_ID,
+    );
+
+    expect(mockUserFacade.notify).not.toHaveBeenCalled();
   });
 });
