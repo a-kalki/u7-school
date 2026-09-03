@@ -52,6 +52,7 @@ describe('MarkAbandonedUc', () => {
         }),
       ),
       removeRoleFromUser: mock(() => Promise.resolve()),
+      notify: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
       addRoleToUser: mock(() => Promise.resolve()),
       updateUserRole: mock(() => Promise.resolve({})),
@@ -138,6 +139,7 @@ describe('MarkAbandonedUc', () => {
         }),
       ),
       removeRoleFromUser: mock(() => Promise.resolve()),
+      notify: mock(() => Promise.resolve()),
       userExists: mock(() => Promise.resolve(true)),
       addRoleToUser: mock(() => Promise.resolve()),
       updateUserRole: mock(() => Promise.resolve({})),
@@ -216,6 +218,7 @@ describe('MarkAbandonedUc', () => {
         }),
       ),
       removeRoleFromUser: mock(() => Promise.resolve()),
+      notify: mock(() => Promise.resolve()),
     };
 
     const mockEventBus = { publish: mock(() => {}) };
@@ -308,5 +311,86 @@ describe('MarkAbandonedUc', () => {
         '22222222-2222-4222-8222-222222222222',
       ),
     ).rejects.toThrow();
+  });
+
+  test('снятие ментором → студенту уведомление с названием потока (FR-6 #4)', async () => {
+    const STUDENT_USER_ID = '11111111-1111-4111-8111-111111111111';
+    const ACTOR_ID = '66666666-6666-4666-8666-666666666666';
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: STUDENT_USER_ID,
+          status: 'active',
+          enrolledAt: mockDate,
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUser: mock(() => Promise.resolve([])),
+      getByStream: mock(() => Promise.resolve([])),
+    };
+
+    const mockStreamRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '77777777-7777-4777-8777-777777777777',
+          title: 'Поток JS',
+          description: '',
+          mentorId: ACTOR_ID,
+          moduleId: '33333333-3333-4333-8333-333333333333',
+          startDate: mockDate,
+          status: 'active',
+          contentSnapshot: [],
+          createdAt: mockDate,
+        }),
+      ),
+    };
+
+    const notify = mock(() => Promise.resolve());
+    const mockUserFacade = {
+      getUserByUuid: mock((_uuid: string) =>
+        Promise.resolve(
+          _uuid === ACTOR_ID
+            ? {
+                uuid: ACTOR_ID,
+                name: 'Mentor',
+                telegramId: 1,
+                roles: [Role.MENTOR],
+                createdAt: mockDate,
+              }
+            : undefined,
+        ),
+      ),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+      notify,
+    };
+
+    const uc = new MarkAbandonedUc();
+    uc.init({
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
+
+    await uc.execute(
+      {
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        cause: 'inactivity',
+      },
+      ACTOR_ID,
+    );
+
+    expect(notify).toHaveBeenCalledTimes(1);
+    expect(notify).toHaveBeenCalledWith(
+      STUDENT_USER_ID,
+      'Ты снят с учёбы с потока «Поток JS» за бездействие и исключён из его группы. Прогресс сохранён — если захочешь вернуться, напиши ментору потока.',
+      ACTOR_ID,
+    );
   });
 });

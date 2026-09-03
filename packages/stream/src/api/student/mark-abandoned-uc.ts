@@ -7,6 +7,7 @@ import {
   type MarkAbandonedCmdMeta,
   MarkAbandonedCmdSchema,
 } from '#domain/student/commands/mark-abandoned-cmd';
+import type { Student } from '#domain/student/entity';
 import { StudentPolicy } from '#domain/student/policy';
 import type { StreamNotFoundUcError, StreamUcErrors } from '../errors';
 import { StreamUseCase } from '../stream-uc';
@@ -68,6 +69,27 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
       actorId,
     );
 
+    // Уведомление студенту (перенос из InactivityStory, сценарий #4)
+    await this.#notifyStudentAboutAbandon(studentEntity, actorId);
+
     return undefined;
+  }
+
+  /**
+   * Уведомление студенту о снятии ментором (текст FR-6 #4).
+   * Поток недоступен — уведомление невозможно, молчаливый пропуск.
+   */
+  async #notifyStudentAboutAbandon(
+    student: Pick<Student, 'userId' | 'streamId'>,
+    actorId: string,
+  ): Promise<void> {
+    const stream = await this.resolve.streamRepo.getByUuid(student.streamId);
+    if (!stream) return;
+
+    await this.resolve.userFacade.notify(
+      student.userId,
+      `Ты снят с учёбы с потока «${stream.title}» за бездействие и исключён из его группы. Прогресс сохранён — если захочешь вернуться, напиши ментору потока.`,
+      actorId,
+    );
   }
 }
