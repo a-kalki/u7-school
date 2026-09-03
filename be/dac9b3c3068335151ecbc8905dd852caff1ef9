@@ -1,0 +1,18 @@
+Задача: Падающие тесты handleError + Реализация экранирования MarkdownV2-мин (Фаза 1, задачи 1-2)
+
+Сводка: handle-error бота содержал неэкранированную точку в fallback-тексте
+внутренней ошибки (инцидент 2026-09-03: 36 CRITICAL за 5 сек) и сырые
+field/message в ветке validation. MarkdownV2 fail-fast валидатор ронял отправку
+сообщения об ошибке, пользователь оставался без обратной связи.
+
+Изменения:
+- apps/u7-bot/src/core/u7-bot-ui-story.test.ts — блок 'MarkdownV2-безопасность
+  текста' (3 теста: internal fallback, validation с issues, validation без
+  issues) + обновлён ассерт существующего теста ('Что-то не так' →
+  'Что\\-то не так'), т.к. он фиксировал небезопасное поведение
+- packages/core/src/ui/bot/bot-ui-story.ts — escapeMarkdown для
+  field/message/issues и appError.message, экранированы статические точки
+  (значениями\\., снова\\., администратору\\. — по образцу bot-controller.ts:376)
+
+Причина: FR-2 спеки questionnaire-robustness_20260903. Red→Green: 3 новых
+теста падали до правки, 13/13 проходят после. bun run check чистый.
