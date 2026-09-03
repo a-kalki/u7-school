@@ -12,9 +12,9 @@
 
 ## Фаза 2: Graceful stale-ответы (домен + UI)
 
-- [~] Task: Написать падающие тесты агрегата (`packages/questionnaire`): выбор несуществующего кода → ответ `stale_answer` (reason `stale_button`), состояние анкеты не меняется; «Далее» с пустым драфтом multiple → `stale_answer` (`empty_selection`); все валидные флоу работают как раньше
-- [ ] Task: Тип `stale_answer` в `types.ts` (`questionnaireId`, `question`, `selectedAnswers`, `progress`, `cancelWarning`, `reason: 'stale_button' | 'empty_selection'`); реализовать в `a-root.ts`: `#submitCurrentQuestion` (ValiError → `stale_answer` вместо `throwInternal`) и `#toggleDraftAnswer` (валидация кода до записи в драфт)
-- [ ] Task: Написать падающие тесты render/story: `stale_answer` → перерисовка актуального вопроса с пояснением по reason, `captureInput` сохраняется; `logger.warn` с questionCode'ами зафиксирован
+- [x] Task: Написать падающие тесты агрегата (`packages/questionnaire`): выбор несуществующего кода → ответ `stale_answer` (reason `stale_button`), состояние анкеты не меняется; «Далее» с пустым драфтом multiple → `stale_answer` (`empty_selection`); все валидные флоу работают как раньше [1679feb]
+- [x] Task: Тип `stale_answer` в `types.ts` (`questionnaireId`, `question`, `selectedAnswers`, `progress`, `cancelWarning`, `reason: 'stale_button' | 'empty_selection'`); реализовать в `a-root.ts`: `#submitCurrentQuestion` (ValiError → `stale_answer` вместо `throwInternal`) и `#toggleDraftAnswer` (валидация кода до записи в драфт) [1679feb]
+- [~] Task: Написать падающие тесты render/story: `stale_answer` → перерисовка актуального вопроса с пояснением по reason, `captureInput` сохраняется; `logger.warn` с questionCode'ами зафиксирован
 - [ ] Task: Реализовать рендер `stale_answer` в `render.ts` + логирование `warn` в `fill.story.ts`
 - [ ] Task: Conductor - User Manual Verification 'Graceful stale-ответы' (Protocol in workflow.md)
 
