@@ -7,9 +7,7 @@ function add(a, b) {
 }
 
 // 2. Function Expression — анонимная функция в переменной
-const subtract = function(a, b) {
-  return a - b;
-};
+const subtract = (a, b) => a - b;
 
 // 3. Arrow Function — стрелочная функция
 const multiply = (a, b) => {
@@ -38,9 +36,7 @@ function calcTotal(price, qty, discount) {
   return price * qty - discount;
 }
 
-const calcTax = function(total, rate) {
-  return (total * rate) / 100;
-};
+const calcTax = (total, rate) => (total * rate) / 100;
 
 const formatReceipt = (total, tax) => `Итого: ${total + tax} ₸`;
 
