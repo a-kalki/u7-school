@@ -9,16 +9,17 @@ import type {
 } from '@u7-scl/core/ui';
 import { eventSubscription } from '@u7-scl/core/ui';
 import type { ModulePlace } from '@u7-scl/course/domain';
-import type {
-  StudentCompletedEvent,
-  StudentEnrolledEvent,
-} from '@u7-scl/stream/domain';
+import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
 
 /**
  * Хаб «Моя учёба» — главное меню обучения, список действий студента.
+ *
+ * Подписка на student.enrolled удалена (трек user-notify): студент уже
+ * получает флоу-ответ view-stream о зачислении с инструкцией по /start.
+ * Событие student.enrolled остаётся — его слушает ER fulfill-wish.
  */
 export class HubStory extends U7BotUiStory {
   readonly name = 'hub';
@@ -27,63 +28,10 @@ export class HubStory extends U7BotUiStory {
 
   override getEventSubscriptions(): UiEventSubscription[] {
     return [
-      eventSubscription<StudentEnrolledEvent>('student.enrolled', (event) =>
-        this.#handleEnrolledEvent(event),
-      ),
       eventSubscription<StudentCompletedEvent>('student.completed', (event) =>
         this.#handleCompletedEvent(event),
       ),
     ];
-  }
-
-  /**
-   * student.enrolled — сообщение с кнопкой «Моя учёба».
-   *
-   * Кнопки — только в обычном send(): новый экран ломает текущий флоу
-   * (клавиатура предыдущего сообщения снимается транспортом).
-   * Уведомления (notify) — всегда без кнопок.
-   */
-  async #handleEnrolledEvent(event: StudentEnrolledEvent): Promise<void> {
-    const { userId, streamId } = event.payload;
-
-    // telegramId резолвится в стори — payload доменных событий без каналальных данных
-    const user = (await this.appApi.execute('get-user', {
-      uuid: userId,
-    })) as User;
-    if (!user?.telegramId) return;
-
-    // Название потока — необязательно: сбой загрузки не мешает уведомлению
-    let streamTitle: string | undefined;
-    let telegramGroupInvite: string | undefined;
-    try {
-      const stream = (await this.appApi.execute('get-stream', {
-        streamId,
-      })) as { title?: string; telegramGroupInvite?: string };
-      streamTitle = stream?.title;
-      telegramGroupInvite = stream?.telegramGroupInvite;
-    } catch {
-      streamTitle = undefined;
-      telegramGroupInvite = undefined;
-    }
-
-    const where = streamTitle
-      ? ` в поток «${this.escapeMarkdown(streamTitle)}»`
-      : '';
-
-    const groupLine = telegramGroupInvite
-      ? `💬 [Группа потока](${telegramGroupInvite})`
-      : '💬 Ссылку на группу потока можешь получить у ментора\\.';
-
-    await this.proactiveSender.send(user.telegramId, {
-      sendMessage: {
-        text: `🎓 Ты зачислен${where}\\!\\n\\nНачинай учёбу — кнопка ниже\\.\\n\\n${groupLine}`,
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [[{ text: '🎓 Моя учёба', code: this.cb('my-study') }]],
-          isMultiple: false,
-        },
-      },
-    });
   }
 
   /**

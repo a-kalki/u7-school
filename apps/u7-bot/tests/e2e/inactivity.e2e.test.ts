@@ -14,6 +14,7 @@ import {
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
 import { MentorController } from '../../src/controllers/mentor/controller';
+import { UserController } from '../../src/controllers/user/controller';
 import { registerGroupHandlers } from '../../src/handlers/group-handler';
 
 /**
@@ -55,6 +56,8 @@ async function createInactivityStand(tag: string): Promise<Stand> {
     new AppController('https://t.me/u7_school_group'),
     new StreamsController(),
     new MentorController(),
+    // Доставка user.notified (уведомления UC drop-student / mark-abandoned)
+    new UserController(),
   ]);
   const student = (await app.userFacade.getUserByTelegramId(STUDENT_TG))!;
   const mentor = (await app.userFacade.getUserByTelegramId(MENTOR_TG))!;
@@ -191,9 +194,10 @@ describe('E2E: самовыход «Покинуть учёбу» (трек stud
     expect(String(kick?.chatId)).toBe(GROUP2_ID);
     expect(kick?.unbanned).toBe(true);
 
-    // Ментор уведомлён о самовыходе
+    // Ментор уведомлён о самовыходе (через механизм userFacade.notify)
     const mentorNotice = await waitMessageFor(transport, MENTOR_TG);
     expect(mentorNotice).toContain('покинул учёбу');
+    expect(mentorNotice).toContain('по собственному желанию');
   });
 });
 
@@ -285,9 +289,10 @@ describe('E2E: снятие ментором, выход из группы, ка
     )) as unknown as { status: string };
     expect(record.status).toBe('abandoned');
 
-    // Студент уведомлён мягкой формулировкой
+    // Студент уведомлён мягкой формулировкой (через userFacade.notify)
     const studentNotice = await waitMessageFor(transport, STUDENT_TG);
     expect(studentNotice).toContain('снят с учёбы');
+    expect(studentNotice).toContain('Прогресс сохранён');
 
     // Кик из группы
     await new Promise((r) => setTimeout(r, 100));

@@ -845,6 +845,8 @@ export class ViewStreamStory extends U7BotUiStory {
       '',
       `📋 _${this.escapeMarkdown(stream.title)}_`,
       `📅 Обучение начнётся: ${this.escapeMarkdown(dateStr)}`,
+      '',
+      'Теперь вы можете получить функционал по учёбе, набрав /start и перейдя по кнопке «Моя учёба»',
     ];
 
     if (stream.telegramGroupInvite) {
