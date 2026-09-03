@@ -16,6 +16,7 @@ describe('CompleteStudentUc', () => {
       courseId: string;
       isFirst: boolean;
       isLast: boolean;
+      prevModuleId?: string;
       nextModuleId?: string;
     },
   ) {
