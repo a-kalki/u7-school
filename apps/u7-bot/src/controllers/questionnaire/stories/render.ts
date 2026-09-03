@@ -80,13 +80,18 @@ export function renderActionResponse(
   }
 
   if (response.type === 'stale_answer') {
-    // Неактуальный ответ: перерисовка актуального вопроса (spec FR-1)
+    // Неактуальный ответ: перерисовка актуального вопроса с пояснением
+    // по reason (spec FR-1). Литералы экранированы под MarkdownV2.
+    const hint =
+      response.reason === 'stale_button'
+        ? '⚠️ Эта кнопка относится к предыдущему вопросу\\. Вот актуальный:'
+        : '⚠️ Сначала выбери хотя бы один вариант\\.';
     return editOrSend(
       {
-        text: formatQuestionMd(response.question, {
+        text: `${hint}\n\n${formatQuestionMd(response.question, {
           selected: response.selectedAnswers,
           progress: progressOf(response),
-        }),
+        })}`,
         parseMode: 'MarkdownV2',
         keyboard: getKeyboard(
           response.question,

@@ -210,6 +210,7 @@ export class FillStory extends U7BotUiStory {
           questionnaireId: qId,
           session,
           editPrev: true,
+          pressed: aCode,
         });
       } catch (err) {
         return this.handleError(err);
@@ -237,6 +238,7 @@ export class FillStory extends U7BotUiStory {
           questionnaireId: qId,
           session,
           editPrev: true,
+          pressed: `next:${qCode}`,
         });
       } catch (err) {
         return this.handleError(err);
@@ -266,6 +268,7 @@ export class FillStory extends U7BotUiStory {
         questionnaireId: qId,
         session,
         editPrev: true,
+        pressed: update.text,
       });
     } catch (err) {
       return this.handleError(err);
@@ -387,8 +390,21 @@ export class FillStory extends U7BotUiStory {
       captureInput?: boolean;
       /** Редактировать предыдущий вопрос (история «вопрос → ответ») */
       editPrev?: boolean;
+      /** Нажатое пользователем значение (для диагностики stale-ответов) */
+      pressed?: string;
     },
   ): BotResponse {
+    // Неактуальный ответ — сигнал для наблюдаемости (warn, не error:
+    // не должен попадать в критические ошибки Logger Bot, spec FR-1)
+    if (response.type === 'stale_answer' && opts.pressed !== undefined) {
+      this.logger?.warn('fill-story', 'Неактуальный ответ в анкете', {
+        questionnaireId: opts.questionnaireId,
+        pressed: opts.pressed,
+        questionCode: response.question.questionCode,
+        reason: response.reason,
+      });
+    }
+
     const rendered = renderActionResponse(response, {
       session: opts.session,
       editPrev: opts.editPrev,
