@@ -69,6 +69,14 @@ class MockUserFacade implements UserFacade {
   ): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
+  async notify(
+    _userId: string,
+    _text: string,
+    _actorId?: string,
+  ): Promise<void> {
+    // уведомления в тестах курсов не проверяются
+  }
 }
 
 function makeAdmin(): User {

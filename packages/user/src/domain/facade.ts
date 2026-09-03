@@ -39,4 +39,10 @@ export interface UserFacade {
     actorId?: string,
     nick?: string,
   ): Promise<User>;
+
+  /**
+   * Уведомить пользователя — единый механизм уведомлений модуля.
+   * Публикует user.notified; доставку выполняет подписчик UI-слоя.
+   */
+  notify(userId: string, text: string, actorId?: string): Promise<void>;
 }

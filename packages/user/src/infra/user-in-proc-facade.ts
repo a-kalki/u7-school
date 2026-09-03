@@ -96,4 +96,8 @@ export class UserInProcFacade implements UserFacade {
     );
     return result as User;
   }
+
+  async notify(userId: string, text: string, actorId?: string): Promise<void> {
+    await this.#userApi.execute('notify-user', { userId, text }, actorId);
+  }
 }
