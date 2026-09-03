@@ -182,11 +182,28 @@ export class QuestionnaireEngine {
       }
     }
 
+    const codeToIndex = new Map(
+      parsed.map((q, idx) => [q.questionCode, idx] as const),
+    );
     for (const q of parsed) {
       if (q.condition) {
-        if (!codes.has(q.condition.questionCode)) {
+        if (!codeToIndex.has(q.condition.questionCode)) {
           throw new Error(
             `condition в вопросе "${q.questionCode}" ссылается на несуществующий questionCode: ${q.condition.questionCode}`,
+          );
+        }
+        // Инвариант «условие только назад»: условие обязано ссылаться на вопрос,
+        // стоящий раньше по пулу. Это гарантирует разрешимость условия
+        // на момент показа вопроса (ответ на источник условия уже получен).
+        const targetIdx = codeToIndex.get(q.condition.questionCode);
+        const ownIdx = codeToIndex.get(q.questionCode);
+        if (
+          targetIdx !== undefined &&
+          ownIdx !== undefined &&
+          targetIdx >= ownIdx
+        ) {
+          throw new Error(
+            `condition в вопросе "${q.questionCode}" ссылается на вопрос, стоящий позже в пуле: ${q.condition.questionCode}`,
           );
         }
       }

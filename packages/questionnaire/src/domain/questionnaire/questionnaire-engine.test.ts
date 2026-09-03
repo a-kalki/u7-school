@@ -117,6 +117,64 @@ describe('QuestionnaireEngine', () => {
     );
   });
 
+  test('падает если condition ссылается на более поздний вопрос («вперёд»)', () => {
+    const pool: Question[] = [
+      {
+        question: 'Q1',
+        questionCode: 'q1',
+        type: 'choice',
+        multiple: false,
+        condition: { questionCode: 'q2', answerCodes: ['b'] },
+        answers: [{ answer: 'A', answerCode: 'a' }],
+      },
+      {
+        question: 'Q2',
+        questionCode: 'q2',
+        type: 'choice',
+        multiple: false,
+        answers: [{ answer: 'B', answerCode: 'b' }],
+      },
+    ];
+    expect(() => new QuestionnaireEngine(pool)).toThrow(
+      'condition в вопросе "q1" ссылается на вопрос, стоящий позже в пуле: q2',
+    );
+  });
+
+  test('падает если condition ссылается на самого себя', () => {
+    const pool: Question[] = [
+      {
+        question: 'Q1',
+        questionCode: 'q1',
+        type: 'choice',
+        multiple: false,
+        condition: { questionCode: 'q1', answerCodes: ['a'] },
+        answers: [{ answer: 'A', answerCode: 'a' }],
+      },
+    ];
+    expect(() => new QuestionnaireEngine(pool)).toThrow(
+      'condition в вопросе "q1" ссылается на вопрос, стоящий позже в пуле: q1',
+    );
+  });
+
+  test('condition на более ранний вопрос — пул валиден', () => {
+    const pool: Question[] = [
+      {
+        question: 'Q1',
+        questionCode: 'q1',
+        type: 'choice',
+        multiple: false,
+        answers: [{ answer: 'A', answerCode: 'a' }],
+      },
+      {
+        question: 'Q2',
+        questionCode: 'q2',
+        type: 'text',
+        condition: { questionCode: 'q1', answerCodes: ['a'] },
+      },
+    ];
+    expect(() => new QuestionnaireEngine(pool)).not.toThrow();
+  });
+
   test('падает если text-вопрос содержит answers', () => {
     const raw = [
       {
