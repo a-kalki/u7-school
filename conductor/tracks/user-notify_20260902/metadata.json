@@ -1,0 +1,8 @@
+{
+  "track_id": "user-notify_20260902",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-09-02T12:00:00Z",
+  "updated_at": "2026-09-02T12:00:00Z",
+  "description": "Механизм уведомлений userFacade.notify (событие user.notified + контроллер user) и перенос чистых уведомлений с подписок стори"
+}
