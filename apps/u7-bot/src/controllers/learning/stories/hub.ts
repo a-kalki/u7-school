@@ -4,7 +4,6 @@ import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
 import type {
   BotResponse,
   BotUpdate,
-  KeyboardDescription,
   SessionData,
   UiEventSubscription,
 } from '@u7-scl/core/ui';
@@ -88,12 +87,10 @@ export class HubStory extends U7BotUiStory {
   }
 
   /**
-   * student.completed — контекстное сообщение по месту модуля.
-   *
-   * С кнопкой («Следующий модуль»/«Пройти снова») — обычный send():
-   * ломает текущий флоу, кнопки предыдущего экрана снимаются.
-   * Без кнопки («Курс завершён», место неизвестно) — notify():
-   * помечено заголовком 🔔 и не трогает поток пользователя.
+   * student.completed — кнопочные ветки 7a/7b (ломают флоу, кнопки
+   * предыдущего экрана снимаются). Безкнопочные 7c/7d («Курс завершён»,
+   * место неизвестно) доставляет механизм userFacade.notify из UC
+   * complete-student — здесь они не рендерятся (трек user-notify).
    */
   async #handleCompletedEvent(event: StudentCompletedEvent): Promise<void> {
     const { userId, moduleId, outcome } = event.payload;
@@ -108,43 +105,35 @@ export class HubStory extends U7BotUiStory {
       moduleId,
     })) as ModulePlace | undefined;
 
-    let text: string;
-    let keyboard: KeyboardDescription | undefined;
-
     if (outcome === 'not_advanced') {
-      // Повтор того же модуля
-      text =
-        '🔁 Модуль не пройден до конца\\.\\n\\nХочешь записаться на него снова?';
-      keyboard = {
-        rows: [[buttons.wishModule(moduleId, '🔁 Пройти модуль снова')]],
-        isMultiple: false,
-      };
-    } else if (place?.isLast) {
-      // advanced + последний модуль — курс завершён, без кнопки
-      text =
-        '🎉 Курс завершён\\!\\n\\nПоздравляем — ты прошёл всю программу\\.';
-    } else if (place?.nextModuleId) {
-      // advanced + есть следующий модуль
-      text = '🏁 Модуль завершён\\!\\n\\nХочешь записаться на следующий?';
-      keyboard = {
-        rows: [[buttons.wishModule(place.nextModuleId)]],
-        isMultiple: false,
-      };
-    } else {
-      // advanced, но место модуля неизвестно — без кнопки
-      text = '🏁 Модуль завершён\\!';
+      // Повтор того же модуля (7b)
+      await this.proactiveSender.send(user.telegramId, {
+        sendMessage: {
+          text: '🔁 Модуль не пройден до конца\\.\\n\\nХочешь записаться на него снова?',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[buttons.wishModule(moduleId, '🔁 Пройти модуль снова')]],
+            isMultiple: false,
+          },
+        },
+      });
+      return;
     }
 
-    if (keyboard) {
+    if (place?.nextModuleId) {
+      // advanced + есть следующий модуль (7a)
       await this.proactiveSender.send(user.telegramId, {
-        sendMessage: { text, parseMode: 'MarkdownV2', keyboard },
-      });
-    } else {
-      await this.proactiveSender.notify(user.telegramId, {
-        text,
-        parseMode: 'MarkdownV2',
+        sendMessage: {
+          text: '🏁 Модуль завершён\\!\\n\\nХочешь записаться на следующий?',
+          parseMode: 'MarkdownV2',
+          keyboard: {
+            rows: [[buttons.wishModule(place.nextModuleId)]],
+            isMultiple: false,
+          },
+        },
       });
     }
+    // иначе — безкнопочные 7c/7d: уведомление уже отправлено UC
   }
 
   async handleCallback(
