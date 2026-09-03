@@ -38,7 +38,7 @@ export class InviteStory extends U7BotUiStory {
 
     const command: BotCommand = {
       sendMessage: {
-        text: `📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.`,
+        text: `📋 *Анкета*\n\n${this.escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}\n\nДля отмены в любой момент нажмите /cancel\\.`,
         parseMode: 'MarkdownV2',
         keyboard: inviteKeyboard(response.questionnaireId, response.whyText),
       },
@@ -159,7 +159,7 @@ export class InviteStory extends U7BotUiStory {
 
       return {
         sendMessage: {
-          text: `📋 *Анкета*\n\n${invited?.inviteText ?? 'Заполните, пожалуйста, анкету.'}`,
+          text: `📋 *Анкета*\n\n${this.escapeMarkdown(invited?.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
           parseMode: 'MarkdownV2',
           keyboard: inviteKeyboard(qId, invited?.whyText),
         },
