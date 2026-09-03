@@ -1,0 +1,11 @@
+Отчёт о верификации Фазы 1: MarkdownV2-мины
+
+Автотесты: CI=true bun run check:p core + check:a u7-bot — пройдены (biome, tsc --noEmit, тесты).
+Тесты покрытия: apps/u7-bot/src/core/u7-bot-ui-story.test.ts (fallback-текст и ветка validation проходят assertMarkdownV2Safe), stories/invite.story.test.ts (inviteText с точками/спецсимволами экранирован в #handleInviteEvent и #handleInvite).
+
+Ручная верификация (подтверждена пользователем):
+1. Внутренняя ошибка бота → пользователь получает fallback-сообщение «обратитесь к администратору\.» без MarkdownV2ValidationError.
+2. Сообщения валидации с точками/скобками доставляются корректно.
+3. Приглашение анкеты с точками в inviteText доставляется корректно.
+
+Изменения фазы: packages/core/src/ui/bot/bot-ui-story.ts (экранирование handleError), apps/u7-bot/src/controllers/questionnaire/stories/invite.story.ts (экранирование inviteText), тесты.
