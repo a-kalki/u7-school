@@ -4,8 +4,8 @@
 
 ## Фаза 1: MarkdownV2-мины (P0-B + inviteText)
 
-- [ ] Task: Написать падающие тесты `handleError` (`apps/u7-bot/src/core/u7-bot-ui-story.test.ts`): internal-ошибка → fallback-текст с экранированной точкой проходит `assertMarkdownV2Safe`; ветка `validation` с issues, содержащими точки/скобки → field и message экранированы
-- [ ] Task: Реализовать экранирование в `packages/core/src/ui/bot/bot-ui-story.ts`: fallback-текст (`обратитесь к администратору\\.`), ветка `validation` — `escapeMarkdown` для field/message
+- [x] Task: Написать падающие тесты `handleError` (`apps/u7-bot/src/core/u7-bot-ui-story.test.ts`): internal-ошибка → fallback-текст с экранированной точкой проходит `assertMarkdownV2Safe`; ветка `validation` с issues, содержащими точки/скобки → field и message экранированы [bedac9b]
+- [x] Task: Реализовать экранирование в `packages/core/src/ui/bot/bot-ui-story.ts`: fallback-текст (`обратитесь к администратору\\.`), ветка `validation` — `escapeMarkdown` для field/message [bedac9b]
 - [ ] Task: Написать падающие тесты `invite.story`: `inviteText` с точками и спецсимволами → текст в `#handleInviteEvent` и `#handleInvite` экранирован (по образцу `#handleWhy`)
 - [ ] Task: Реализовать экранирование `inviteText` в обоих методах `invite.story.ts`
 - [ ] Task: Conductor - User Manual Verification 'MarkdownV2-мины' (Protocol in workflow.md)
