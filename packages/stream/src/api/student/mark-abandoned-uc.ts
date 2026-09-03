@@ -69,15 +69,14 @@ export class MarkAbandonedUc extends StreamUseCase<MarkAbandonedCmdMeta> {
       actorId,
     );
 
-    // Уведомление студенту (перенос из InactivityStory, сценарий #4)
+    // Уведомление студенту
     await this.#notifyStudentAboutAbandon(studentEntity, actorId);
 
     return undefined;
   }
 
   /**
-   * Уведомление студенту о снятии ментором (текст FR-6 #4).
-   * Поток недоступен — уведомление невозможно, молчаливый пропуск.
+   * Уведомление студенту о снятии ментором.
    */
   async #notifyStudentAboutAbandon(
     student: Pick<Student, 'userId' | 'streamId'>,

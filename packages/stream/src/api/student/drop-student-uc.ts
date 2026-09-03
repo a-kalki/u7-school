@@ -52,7 +52,7 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
     studentAr.drop();
     await studentRepo.save(studentAr.state);
 
-    // Событие ухода студента (подписчики: ER кика из TG-группы, стори уведомлений)
+    // Событие ухода студента
     this.publishEvents(studentAr);
 
     // Снятие роли STUDENT

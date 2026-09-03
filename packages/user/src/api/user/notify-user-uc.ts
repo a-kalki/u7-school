@@ -9,12 +9,6 @@ import type { UserNotifiedEvent } from '#domain/user/events';
 
 /**
  * Use-case уведомления пользователя — единый механизм для всех отправителей.
- *
- * Любой UC / ER / Job вызывает userFacade.notify(userId, text), UI-слой —
- * appApi.execute('notify-user'). UC не мутирует агрегаты: публикует событие
- * user.notified, доставку выполняет подписчик (сторя notify контроллера
- * user в bot-ui — резолв telegramId и proactiveSender).
- * Ошибки доставки изолируются шиной — UC всегда завершается успешно.
  */
 export class NotifyUserUc extends UserUseCase<NotifyUserCmdMeta> {
   protected readonly ucName = 'notify-user' as const;

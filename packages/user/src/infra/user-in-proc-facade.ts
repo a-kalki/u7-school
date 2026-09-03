@@ -5,10 +5,8 @@ import type { User } from '#domain/user/entity';
 import type { Role } from '#domain/user/roles';
 
 /**
- * In-process реализация фасада пользователей.
- * Принимает UserApiModule и делегирует вызовы его API.
+ * Фасад модуля пользователей.
  */
-// TODO: Test edit
 export class UserInProcFacade implements UserFacade {
   readonly #userApi: UserApiModule;
 
