@@ -8,7 +8,7 @@
 - [x] Task: Реализовать `notify` в `UserFacade` и `UserInProcFacade` (80c3075)
 - [x] Task: Написать падающие тесты стори `notify`: подписка на `user.notified` → резолв `get-user` → `proactiveSender.notify(telegramId, {text})`; пользователь не найден / нет telegramId → лог-ошибка, доставка пропущена, исключение не всплывает (3667524)
 - [x] Task: Реализовать контроллер `user` + стори `notify` (`apps/u7-bot/src/controllers/user/`), зарегистрировать контроллер в `create-ui-app.ts` (3667524)
-- [ ] Conductor - User Manual Verification 'Механизм уведомлений' (Protocol in workflow.md)
+- [ ] Conductor - User Manual Verification 'Механизм уведомлений' (Protocol in workflow.md) — пропущена по явному указанию пользователя («не останавливаясь»); рекомендуется /conductor:review
 
 ## Фаза 2: Пилот — уход и снятие (#3, #4)
 
@@ -17,7 +17,7 @@
 - [x] Task: Написать падающие тесты UC `mark-abandoned`: снятие ментором (who=removed) → notify студенту «Ты снят с учёбы с потока «Y» за бездействие и исключён из его группы…» (66e4374)
 - [x] Task: Реализовать notify в UC `mark-abandoned` (66e4374)
 - [x] Task: Чистка `InactivityStory`: удалить notify-ветки #3/#4 и ставшие ненужными резолверы (кнопки #1/#2, их callback'и и кик остаются); обновить тесты стори (71d7292)
-- [ ] Conductor - User Manual Verification 'Пилот — уход и снятие' (Protocol in workflow.md)
+- [ ] Conductor - User Manual Verification 'Пилот — уход и снятие' (Protocol in workflow.md) — пропущена по явному указанию пользователя; рекомендуется /conductor:review
 
 ## Фаза 3: Закрытие потока (#7c/7d), набор (#8), дубль зачисления
 
@@ -27,11 +27,11 @@
 - [x] Task: Написать падающие тесты ER `invite-wishers`: notify каждому желающему с текстом FR-6 #8 (дата, ментор, инструкции); событие `wish:invite` больше не публикуется (94ebe62)
 - [x] Task: Реализовать notify в ER `invite-wishers`; удалить событие `wish:invite` и стори WishInviteStory (94ebe62, 043bd54)
 - [x] Task: Удалить подписку HubStory на `student.enrolled`; дополнить флоу-ответ view-stream инструкцией «Теперь вы можете получить функционал по учёбе, набрав /start и перейдя по кнопке «Моя учёба»»; обновить тесты (1152d86)
-- [ ] Conductor - User Manual Verification 'Закрытие потока, набор, зачисление' (Protocol in workflow.md)
+- [ ] Conductor - User Manual Verification 'Закрытие потока, набор, зачисление' (Protocol in workflow.md) — пропущена по явному указанию пользователя; рекомендуется /conductor:review
 
 ## Фаза 4: E2E, документация, финал трека
 
-- [ ] Task: E2E-тесты: самовыход студента (одно уведомление ментору + кик из группы), снятие за бездействие, закрытие потока (поздравление при последнем модуле, кнопка при следующем), открытие набора желающим, зачисление (одно сообщение с инструкцией, без дубля)
-- [ ] Task: Обновить `ui-spec.md` (streams: стори WishInviteStory удалена; learning: подписки hub; зачисление), гайды `bot-architecture.md` / `bot-controller.md` (контроллер user), статус этапа A в `tasks-system-implementation.md`
+- [x] Task: E2E-тесты: самовыход студента (одно уведомление ментору + кик из группы), снятие за бездействие, закрытие потока (поздравление при последнем модуле, кнопка при следующем), открытие набора желающим, зачисление (одно сообщение с инструкцией, без дубля) (71d7292, c7ff6ac)
+- [x] Task: Обновить `ui-spec.md` (streams: стори WishInviteStory удалена; learning: подписки hub; зачисление), гайды `bot-architecture.md` / `bot-controller.md` (контроллер user), статус этапа A в `tasks-system-implementation.md` (c7ff6ac)
 - [ ] Task: Создать `summary.md` трека; отметить трек завершённым в реестре
-- [ ] Conductor - User Manual Verification 'E2E и финал' (Protocol in workflow.md)
+- [ ] Conductor - User Manual Verification 'E2E и финал' (Protocol in workflow.md) — пропущена по явному указанию пользователя; рекомендуется /conductor:review
