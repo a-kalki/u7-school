@@ -8,7 +8,7 @@
 - [x] Task: Реализовать экранирование в `packages/core/src/ui/bot/bot-ui-story.ts`: fallback-текст (`обратитесь к администратору\\.`), ветка `validation` — `escapeMarkdown` для field/message [bedac9b]
 - [x] Task: Написать падающие тесты `invite.story`: `inviteText` с точками и спецсимволами → текст в `#handleInviteEvent` и `#handleInvite` экранирован (по образцу `#handleWhy`) [0fdee05]
 - [x] Task: Реализовать экранирование `inviteText` в обоих методах `invite.story.ts` [0fdee05]
-- [ ] Task: Conductor - User Manual Verification 'MarkdownV2-мины' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'MarkdownV2-мины' (Protocol in workflow.md)
 
 ## Фаза 2: Graceful stale-ответы (домен + UI)
 
