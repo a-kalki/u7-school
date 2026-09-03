@@ -6,6 +6,7 @@ import { CreateUserUc } from './user/create-user-uc';
 import { GetUserByTelegramIdUc } from './user/get-user-by-telegram-id-uc';
 import { GetUserUc } from './user/get-user-uc';
 import { ListUsersUc } from './user/list-users-uc';
+import { NotifyUserUc } from './user/notify-user-uc';
 import { RegisterGuestUc } from './user/register-guest-uc';
 import { RemoveRoleToUserUc } from './user/remove-role-to-user-uc';
 
@@ -22,6 +23,7 @@ export class UserApiModule extends ApiModule<
     new RegisterGuestUc(),
     new AddRoleToUserUc(),
     new RemoveRoleToUserUc(),
+    new NotifyUserUc(),
   ];
   readonly reactions: EventReaction<ErMeta>[] = [];
 

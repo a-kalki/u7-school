@@ -1,0 +1,21 @@
+import type { DomainEvent } from '@u7-scl/core/domain';
+
+/**
+ * Событие уведомления пользователя.
+ *
+ * Публикуется UC notify-user (модуль user) в ответ на команду notify-user.
+ * Единственный подписчик — сторя notify контроллера user (bot-ui):
+ * резолвит telegramId и доставляет текст через proactiveSender.notify.
+ * Событие — не мутация агрегата: канал-агностичный факт «доставь текст»
+ * (сегодня Telegram, завтра — web/mobile без изменения отправителей).
+ */
+export interface UserNotifiedEvent extends DomainEvent {
+  eventName: 'user.notified';
+  aggregateName: 'User';
+  payload: {
+    /** uuid пользователя-адресата */
+    userId: string;
+    /** текст уведомления (plain; экранирование — в стори доставки) */
+    text: string;
+  };
+}
