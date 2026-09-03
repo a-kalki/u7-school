@@ -6,6 +6,7 @@ import { LearningController } from './controllers/learning/controller';
 import { MentorController } from './controllers/mentor/controller';
 import { QuestionnaireController } from './controllers/questionnaire/controller';
 import { StreamsController } from './controllers/streams/controller';
+import { UserController } from './controllers/user/controller';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './core/u7-bot-app-meta';
 import { U7BotUiApp } from './core/ui-app';
 import type { ApiAppBundle } from './create-api-app';
@@ -18,6 +19,7 @@ export interface UiAppBundle {
   resolve: U7BotUiAppResolve;
   appController: AppController;
   streamController: StreamsController;
+  userController: UserController;
   courseController: CoursesController;
   learningController: LearningController;
   mentorController: MentorController;
@@ -40,11 +42,13 @@ export function createUiApp(
   const learningController = new LearningController();
   const mentorController = new MentorController();
   const questionnaireController = new QuestionnaireController();
+  const userController = new UserController();
   const appController = new AppController(config.schoolGroupUrl);
 
   const uiApp = new U7BotUiApp([
     appController,
     streamController,
+    userController,
     courseController,
     learningController,
     mentorController,
@@ -69,6 +73,7 @@ export function createUiApp(
     resolve,
     appController,
     streamController,
+    userController,
     courseController,
     learningController,
     mentorController,
