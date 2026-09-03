@@ -1,0 +1,16 @@
+Задача: Тесты getNextQuestion any-of + реализация any-of (Фаза 3, questionnaire-robustness_20260903)
+
+Сводка: condition на multiple-вопрос теперь матчится по пересечению кодов
+(ANY-OF). Раньше getNextQuestion сравнивал answerCode строго через
+includes — склейка 'mon,wed' никогда не равнялась одиночному коду 'mon',
+из-за чего ветвление по множественному выбору не срабатывало никогда.
+
+Изменения:
+- packages/questionnaire/src/domain/questionnaire/questionnaire-engine.ts:
+  getNextQuestion разбивает answerCode по запятой и проверяет some-пересечение
+  с condition.answerCodes; одиночные ответы работают как раньше (split даёт один код).
+- packages/questionnaire/src/domain/questionnaire/questionnaire-engine.test.ts:
+  новый describe с 4 тестами: 'mon,wed' против ['mon'], 'tue,mon' (не первым),
+  'tue,wed' без пересечения (пропуск), одиночный 'mon' (регресс).
+
+Причина: спецификация трека FR-3 — латентный дефект движка анкет.
