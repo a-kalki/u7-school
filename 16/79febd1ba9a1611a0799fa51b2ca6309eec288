@@ -1,0 +1,11 @@
+Задача: 'Падающие тесты агрегата stale-ответов' + 'Тип stale_answer и реализация в a-root'
+
+Сводка: клик по устаревшей клавиатуре больше не создаёт internal-error (36 критических ошибок инцидента 2026-09-03). Провал valibot-валидации ответа возвращает контрактный stale_answer с reason; чужой код не протекает в draftAnswers; «Далее» без выбора = empty_selection.
+
+Файлы:
+- packages/questionnaire/src/domain/questionnaire/types.ts — StaleAnswerResponse + StaleReason + валюот-схема, добавлены в union/variant
+- packages/questionnaire/src/domain/questionnaire/a-root.ts — #staleAnswerResponse, #submitCurrentQuestion (ValiError -> stale_answer), #toggleDraftAnswer (проверка кода до записи), isKnownAnswerCode
+- packages/questionnaire/src/domain/questionnaire/standard/stale-answer.test.ts — 8 тестов (4 stale + 4 регресс)
+- apps/u7-bot/src/controllers/questionnaire/stories/render.ts — минимальная exhaustive-ветка stale_answer (перерисовка актуального вопроса, как wait_next) — необходима для типобезопасности монорепо после расширения union; пояснение по reason и logger.warn добавляются следующей задачей (задачи 3-4 плана)
+
+Причина: FR-1 спеки трека — graceful-обработка неактуальных ответов.
