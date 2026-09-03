@@ -1,0 +1,10 @@
+Задача: 'Тесты render/story stale-ответов' + 'Рендер stale_answer и логирование warn'
+
+Сводка: stale-ответ перерисовывает актуальный вопрос (editMessage при активном флоу, иначе sendMessage) с пояснением по reason; флоу не отпускает ввод (releaseInput отсутствует, captureInput сохраняется). Наблюдаемость: logger.warn (не error) в fill-story с нажатым значением, questionCode и reason — сигнал сохраняется, но не попадает в критические ошибки Logger Bot (spec FR-1).
+
+Файлы:
+- apps/u7-bot/src/controllers/questionnaire/stories/fill.story.stale.test.ts — 6 тестов: перерисовка + пояснения по обоим reason, сохранение маркера выбора и кнопки «Далее», fallback sendMessage, logger.warn (callback и text-ввод)
+- apps/u7-bot/src/controllers/questionnaire/stories/render.ts — ветка stale_answer: hint по reason + formatQuestionMd + клавиатура с nextButton
+- apps/u7-bot/src/controllers/questionnaire/stories/fill.story.ts — opts.pressed в #renderUc, warn при stale_answer из трёх точек ввода (answer, next, text)
+
+Покрытие: a-root/types 100%, fill.story 96.3/100, render 100/94.8.
