@@ -21,12 +21,12 @@
 
 ## Фаза 3: Закрытие потока (#7c/7d), набор (#8), дубль зачисления
 
-- [ ] Task: Написать падающие тесты UC `complete-student`: advanced + последний модуль → notify «🎉 Курс завершён!…»; advanced + место неизвестно → notify «🏁 Модуль завершён!»; advanced + есть следующий / not_advanced → notify не шлётся (кнопочные ветки остаются в HubStory)
-- [ ] Task: Реализовать notify в UC `complete-student` (место модуля через `courseFacade.getModulePlace`)
-- [ ] Task: HubStory: перестать слать безкнопочные ветки 7c/7d (кнопочные 7a/7b рендерить как раньше); обновить тесты
-- [ ] Task: Написать падающие тесты ER `invite-wishers`: notify каждому желающему с текстом FR-6 #8 (дата, ментор, инструкции); событие `wish:invite` больше не публикуется
-- [ ] Task: Реализовать notify в ER `invite-wishers`; удалить событие `wish:invite` и стори WishInviteStory
-- [ ] Task: Удалить подписку HubStory на `student.enrolled`; дополнить флоу-ответ view-stream инструкцией «Теперь вы можете получить функционал по учёбе, набрав /start и перейдя по кнопке «Моя учёба»»; обновить тесты
+- [x] Task: Написать падающие тесты UC `complete-student`: advanced + последний модуль → notify «🎉 Курс завершён!…»; advanced + место неизвестно → notify «🏁 Модуль завершён!»; advanced + есть следующий / not_advanced → notify не шлётся (кнопочные ветки остаются в HubStory) (78f765a)
+- [x] Task: Реализовать notify в UC `complete-student` (место модуля через `courseFacade.getModulePlace`) (78f765a)
+- [x] Task: HubStory: перестать слать безкнопочные ветки 7c/7d (кнопочные 7a/7b рендерить как раньше); обновить тесты (779c8f8)
+- [x] Task: Написать падающие тесты ER `invite-wishers`: notify каждому желающему с текстом FR-6 #8 (дата, ментор, инструкции); событие `wish:invite` больше не публикуется (94ebe62)
+- [x] Task: Реализовать notify в ER `invite-wishers`; удалить событие `wish:invite` и стори WishInviteStory (94ebe62, 043bd54)
+- [x] Task: Удалить подписку HubStory на `student.enrolled`; дополнить флоу-ответ view-stream инструкцией «Теперь вы можете получить функционал по учёбе, набрав /start и перейдя по кнопке «Моя учёба»»; обновить тесты (1152d86)
 - [ ] Conductor - User Manual Verification 'Закрытие потока, набор, зачисление' (Protocol in workflow.md)
 
 ## Фаза 4: E2E, документация, финал трека
