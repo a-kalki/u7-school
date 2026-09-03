@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import * as v from 'valibot';
+import type { Answer } from './entity';
 import type { Question } from './question';
 import { QuestionnaireEngine } from './questionnaire-engine';
 
@@ -194,6 +195,58 @@ describe('QuestionnaireEngine', () => {
       { ...baseAnswer, questionCode: 'q1', answerCode: 'no', answerText: 'No' },
     ]);
     expect(nextWithNo?.questionCode).toBe('q3');
+  });
+});
+
+describe('QuestionnaireEngine.getNextQuestion — any-of на multiple-вопросах', () => {
+  const pool: Question[] = [
+    {
+      question: 'Дни недели',
+      questionCode: 'days',
+      type: 'choice',
+      multiple: true,
+      answers: [
+        { answer: 'Пн', answerCode: 'mon' },
+        { answer: 'Вт', answerCode: 'tue' },
+        { answer: 'Ср', answerCode: 'wed' },
+      ],
+    },
+    {
+      question: 'Только для понедельника',
+      questionCode: 'mon_followup',
+      type: 'text',
+      condition: { questionCode: 'days', answerCodes: ['mon'] },
+    },
+    { question: 'Финальный', questionCode: 'final', type: 'text' },
+  ];
+
+  const answeredAt = '2024-01-01T00:00';
+  const daysAnswer = (answerCode: string): Answer[] => [
+    { questionCode: 'days', answerCode, answeredAt },
+  ];
+
+  test("multiple-ответ 'mon,wed' матчится с condition answerCodes: ['mon']", () => {
+    const engine = new QuestionnaireEngine(pool);
+    const next = engine.getNextQuestion('days', daysAnswer('mon,wed'));
+    expect(next?.questionCode).toBe('mon_followup');
+  });
+
+  test("multiple-ответ 'tue,mon' матчится, даже если мон не первый", () => {
+    const engine = new QuestionnaireEngine(pool);
+    const next = engine.getNextQuestion('days', daysAnswer('tue,mon'));
+    expect(next?.questionCode).toBe('mon_followup');
+  });
+
+  test("multiple-ответ 'tue,wed' без пересечения — вопрос пропускается", () => {
+    const engine = new QuestionnaireEngine(pool);
+    const next = engine.getNextQuestion('days', daysAnswer('tue,wed'));
+    expect(next?.questionCode).toBe('final');
+  });
+
+  test('одиночный ответ продолжает работать как раньше (split без изменений)', () => {
+    const engine = new QuestionnaireEngine(pool);
+    const next = engine.getNextQuestion('days', daysAnswer('mon'));
+    expect(next?.questionCode).toBe('mon_followup');
   });
 });
 

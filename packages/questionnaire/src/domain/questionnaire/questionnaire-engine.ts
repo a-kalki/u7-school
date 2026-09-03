@@ -48,8 +48,13 @@ export class QuestionnaireEngine {
         (a: Answer) => a.questionCode === condition.questionCode,
       );
       if (conditionAnswer) {
-        const hasMatch = condition.answerCodes.includes(
-          conditionAnswer.answerCode,
+        // multiple-ответ хранится склейкой через запятую ('mon,wed'),
+        // поэтому условие матчится по пересечению кодов (any-of), а не по строгому равенству
+        const selectedCodes = conditionAnswer.answerCode
+          .split(',')
+          .filter(Boolean);
+        const hasMatch = condition.answerCodes.some((code) =>
+          selectedCodes.includes(code),
         );
         if (hasMatch) {
           return question;
