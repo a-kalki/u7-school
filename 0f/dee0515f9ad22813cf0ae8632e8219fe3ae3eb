@@ -1,0 +1,15 @@
+Задача: Тесты и экранирование inviteText (Фаза 1, задачи 3-4)
+
+Сводка: inviteText из доменного ответа вставлялся в MarkdownV2-текст без
+экранирования — точки/скобки в тексте приглашения роняли fail-fast валидатор
+и сообщение не отправлялось. Экранирование по образцу #handleWhy (whyText).
+
+Изменения:
+- apps/u7-bot/src/controllers/questionnaire/stories/invite.story.ts —
+  escapeMarkdown(inviteText ?? fallback) в #handleInviteEvent и #handleInvite
+- apps/u7-bot/src/controllers/questionnaire/stories/invite.story.test.ts —
+  3 новых теста: событие questionnaire:invite, callback invite:invite,
+  fallback без inviteText; все через assertMarkdownV2Safe
+
+Причина: FR-2 спеки questionnaire-robustness_20260903. Red→Green: 3 падали
+до правки, 7/7 после. bun run check чистый (1903 теста).
