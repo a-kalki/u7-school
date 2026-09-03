@@ -39,6 +39,11 @@ export type {
 } from './user/commands/list-users-cmd';
 export { ListUsersCmdSchema } from './user/commands/list-users-cmd';
 export type {
+  NotifyUserCmd,
+  NotifyUserCmdMeta,
+} from './user/commands/notify-user-cmd';
+export { NotifyUserCmdSchema } from './user/commands/notify-user-cmd';
+export type {
   RegisterGuestCmd,
   RegisterGuestCmdMeta,
 } from './user/commands/register-guest-cmd';
@@ -49,14 +54,9 @@ export type {
   RemoveRoleToUserCmdMeta,
 } from './user/commands/remove-role-to-user-cmd';
 export { RemoveRoleToUserCmdSchema } from './user/commands/remove-role-to-user-cmd';
-export type { UserNotifiedEvent } from './user/events';
 export type { User, UserArMeta } from './user/entity';
 export { UserSchema } from './user/entity';
-export type {
-  NotifyUserCmd,
-  NotifyUserCmdMeta,
-} from './user/commands/notify-user-cmd';
-export { NotifyUserCmdSchema } from './user/commands/notify-user-cmd';
+export type { UserNotifiedEvent } from './user/events';
 export { UserPolicy } from './user/policy';
 export type { UserRepo } from './user/repo';
 export { Role, RoleSchema } from './user/roles';

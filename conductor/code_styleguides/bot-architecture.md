@@ -214,6 +214,13 @@ Grammy ctx (callback_query.data)
 НИКОГДА не отправляет пользовательские тексты — никаких Telegram-портов
 в `packages/*`.
 
+**Чистые уведомления (без кнопок)** — через механизм `userFacade.notify`
+(трек user-notify): UC/ER/Job шлёт `userFacade.notify(userId, text)` → UC
+`notify-user` публикует `user.notified {userId, text}` → подписка — сторя
+`notify` контроллера `user` (резолв telegramId, экранирование, 🔔,
+`proactiveSender.notify`). Текст — plain; экранирование и рендер канала —
+в стори доставки. Без подписчиков — тихий no-op (u7-cli).
+
 ---
 
 ## 4. Формат `callback_data` и сжатие

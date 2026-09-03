@@ -13,6 +13,7 @@
 BotController<TAppMeta, TActor>                        (core, абстрактный)
   └─ U7BotController                                    (apps/u7-bot) — закрывает U7BotAppMeta + User
        ├─ StreamsController                            (apps/u7-bot) — реестр доменных сторис
+       ├─ UserController                                (apps/u7-bot) — доставка уведомлений (сторя notify)
        ├─ CoursesController                            (apps/u7-bot) — реестр доменных сторис
        ├─ LearningController                           (apps/u7-bot) — реестр доменных сторис
        ├─ MentorController                             (apps/u7-bot) — реестр доменных сторис

@@ -395,5 +395,17 @@ describe('ViewStreamStory (интеграционный)', () => {
     );
     assertBotResponseValid(keyResp);
     expect(keyResp.sendMessage?.text).toContain('записаны');
+
+    // Флоу-ответ содержит инструкцию по /start и кнопке «Моя учёба»
+    expect(keyResp.sendMessage?.text).toContain(
+      'Теперь вы можете получить функционал по учёбе',
+    );
+
+    // Без дубля: подписка хаба на student.enrolled удалена (трек user-notify) —
+    // гостю не приходит отдельное «Ты зачислен…» поверх флоу-ответа
+    const duplicates = transport.api.sentMessages.filter(
+      (m) => m.telegramId === guest.telegramId && m.text.includes('зачислен'),
+    );
+    expect(duplicates).toHaveLength(0);
   });
 });
