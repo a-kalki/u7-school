@@ -14,15 +14,15 @@
 
 - [x] Task: Написать падающие тесты агрегата (`packages/questionnaire`): выбор несуществующего кода → ответ `stale_answer` (reason `stale_button`), состояние анкеты не меняется; «Далее» с пустым драфтом multiple → `stale_answer` (`empty_selection`); все валидные флоу работают как раньше [1679feb]
 - [x] Task: Тип `stale_answer` в `types.ts` (`questionnaireId`, `question`, `selectedAnswers`, `progress`, `cancelWarning`, `reason: 'stale_button' | 'empty_selection'`); реализовать в `a-root.ts`: `#submitCurrentQuestion` (ValiError → `stale_answer` вместо `throwInternal`) и `#toggleDraftAnswer` (валидация кода до записи в драфт) [1679feb]
-- [~] Task: Написать падающие тесты render/story: `stale_answer` → перерисовка актуального вопроса с пояснением по reason, `captureInput` сохраняется; `logger.warn` с questionCode'ами зафиксирован
-- [ ] Task: Реализовать рендер `stale_answer` в `render.ts` + логирование `warn` в `fill.story.ts`
-- [ ] Task: Conductor - User Manual Verification 'Graceful stale-ответы' (Protocol in workflow.md)
+- [x] Task: Написать падающие тесты render/story: `stale_answer` → перерисовка актуального вопроса с пояснением по reason, `captureInput` сохраняется; `logger.warn` с questionCode'ами зафиксирован [b880713]
+- [x] Task: Реализовать рендер `stale_answer` в `render.ts` + логирование `warn` в `fill.story.ts` [b880713]
+- [x] Task: Conductor - User Manual Verification 'Graceful stale-ответы' (Protocol in workflow.md)
 
 ## Фаза 3: Движок — condition any-of, инвариант, честный прогресс
 
-- [ ] Task: Написать падающие тесты `getNextQuestion`: condition на multiple-вопрос матчит any-of (`'mon,wed'` против `answerCodes: ['mon']`)
-- [ ] Task: Реализовать any-of (split по запятой + `some`) в `getNextQuestion`
-- [ ] Task: Написать падающие тесты `validate()`: condition, ссылающийся на вопрос «вперёд» по пулу → ошибка валидации пула
+- [x] Task: Написать падающие тесты `getNextQuestion`: condition на multiple-вопрос матчит any-of (`'mon,wed'` против `answerCodes: ['mon']`) [8192615]
+- [x] Task: Реализовать any-of (split по запятой + `some`) в `getNextQuestion` [8192615]
+- [~] Task: Написать падающие тесты `validate()`: condition, ссылающийся на вопрос «вперёд» по пулу → ошибка валидации пула
 - [ ] Task: Реализовать инвариант «условие только назад» в `validate()`
 - [ ] Task: Написать падающие тесты `getProgress(questionCode, answers)`: index/total по активному маршруту (реальный пул: base-ветка — 10, intensive-ветка — 9 вместо 11)
 - [ ] Task: Реализовать динамический маршрут в `getProgress` + передать `state.answers` из агрегата (`#progress`)
