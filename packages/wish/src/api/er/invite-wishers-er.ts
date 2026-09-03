@@ -3,7 +3,6 @@ import { EventReaction } from '@u7-scl/core/api';
 import type { StreamCreatedEvent } from '@u7-scl/stream/domain';
 import type { WishApiModuleResolver } from '#domain/module';
 import type { Wish } from '#domain/wish/entity';
-import type { WishInviteEvent } from '#domain/wish/events';
 
 /** Метаданные реакции приглашения желающих при открытии набора. */
 export interface InviteWishersErMeta extends ErMeta<StreamCreatedEvent> {
@@ -17,9 +16,12 @@ export interface InviteWishersErMeta extends ErMeta<StreamCreatedEvent> {
  * курса (place.isFirst); набор на стартовый модуль — реализация course-желания.
  * Module-ветка: желания на модуль зовутся на поток любого модуля
  * (ретейкеры, «следующий модуль»).
- * Историческая идентичность (форки) решается только фасадом курсов;
- * в событии уходит id из желания — cancel-маршрут работает по нему.
- * Пользователь без профиля (нет telegramId) — пропуск.
+ * Историческая идентичность (форки) решается только фасадом курсов.
+ *
+ * Приглашение — чистое уведомление через userFacade.notify (трек
+ * user-notify): текст FR-6 #8 с контекстом (поток, дата, ментор) ER
+ * собирает сам; доставку и резолв telegramId выполняет сторя notify.
+ * Поток недоступен — рассылка невозможна, молчаливый пропуск.
  */
 export class InviteWishersEr extends EventReaction<
   InviteWishersErMeta,
@@ -56,10 +58,7 @@ export class InviteWishersEr extends EventReaction<
         if (!matched.has(wish.target.courseId)) {
           continue;
         }
-        await this.#invite(wish, streamId, {
-          wishKind: 'course',
-          courseId: wish.target.courseId,
-        });
+        await this.#invite(wish, streamId);
       }
     }
 
@@ -83,47 +82,35 @@ export class InviteWishersEr extends EventReaction<
         if (!matched.has(wish.target.moduleId)) {
           continue;
         }
-        await this.#invite(wish, streamId, {
-          wishKind: 'module',
-          moduleId: wish.target.moduleId,
-        });
+        await this.#invite(wish, streamId);
       }
     }
   }
 
-  /** Публикация wish:invite для совпавшего желания (без профиля — пропуск). */
-  async #invite(
-    wish: Wish,
-    streamId: string,
-    target:
-      | { wishKind: 'course'; courseId: string }
-      | {
-          wishKind: 'module';
-          moduleId: string;
-        },
-  ): Promise<void> {
-    const user = await this.resolve.userFacade.getUserByUuid(wish.userId);
-    if (!user) {
-      return;
+  /** Уведомление желающему (текст FR-6 #8). Поток недоступен — пропуск. */
+  async #invite(wish: Wish, streamId: string): Promise<void> {
+    const stream = await this.resolve.streamFacade.getStream(streamId);
+    if (!stream) return;
+
+    const mentor = await this.resolve.userFacade.getUserByUuid(stream.mentorId);
+
+    // Старт: дд.мм.гггг (UTC потока); сбой формата — исходная строка
+    let dateText = stream.startDate;
+    try {
+      const d = new Date(stream.startDate);
+      dateText = [
+        String(d.getUTCDate()).padStart(2, '0'),
+        String(d.getUTCMonth() + 1).padStart(2, '0'),
+        d.getUTCFullYear(),
+      ].join('.');
+    } catch {
+      // оставляем ISO-строку
     }
 
-    const event: WishInviteEvent = {
-      eventId: crypto.randomUUID(),
-      eventName: 'wish:invite',
-      occurredAt: new Date().toISOString(),
-      aggregateName: 'Wish',
-      aggregateId: wish.uuid,
-      payload: {
-        wishId: wish.uuid,
-        streamId,
-        userId: wish.userId,
-        telegramId: user.telegramId,
-        wishKind: target.wishKind,
-        ...(target.wishKind === 'course'
-          ? { courseId: target.courseId }
-          : { moduleId: target.moduleId }),
-      },
-    };
-    this.resolve.eventBus.publish(event);
+    const mentorLine = mentor?.name ? ` Ментор: ${mentor.name}.` : '';
+
+    const text = `📣 Открылся набор на «${stream.title}», который ты хотел пройти! Старт: ${dateText}.${mentorLine} Подробности: /start → 📚 Потоки курсов. Для записи нужен ключ — его выдаёт ментор. Не актуально — отмени желание: 📖 Программы курсов → карточка курса → 🗑️.`;
+
+    await this.resolve.userFacade.notify(wish.userId, text);
   }
 }

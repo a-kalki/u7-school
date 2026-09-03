@@ -22,6 +22,7 @@ import {
 } from '@u7-scl/questionnaire/infra';
 import {
   StreamApiModule,
+  StreamInProcFacade,
   StreamJsonRepo,
   StudentJsonRepo,
 } from '@u7-scl/stream';
@@ -113,6 +114,8 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
     eventBus: appResolver.eventBus,
   });
 
+  const streamFacade = new StreamInProcFacade(streamModule);
+
   // ══ Questionnaire: модуль и фасад (зеркально create-api-app.ts) ══
   const qRepo = new QJsonRepo(
     `${fixtures.dbDir}/questionnaires/questionnaires.json`,
@@ -139,6 +142,7 @@ export async function createTestApp(tag?: string): Promise<TestApp> {
   const wishResolver: WishApiModuleResolver = {
     wishRepo,
     courseFacade,
+    streamFacade,
     questionnaireFacade,
     userFacade,
     appResolver,

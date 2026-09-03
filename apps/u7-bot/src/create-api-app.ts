@@ -24,6 +24,7 @@ import {
 } from '@u7-scl/questionnaire/infra';
 import {
   StreamApiModule,
+  StreamInProcFacade,
   StreamJsonRepo,
   StudentJsonRepo,
 } from '@u7-scl/stream';
@@ -123,20 +124,6 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     questionnaireModule,
   );
 
-  // ══ Wish: репозиторий и модуль ══
-  const wishRepo = new WishJsonRepo(`${config.dbDir}/wish/wishes.json`);
-
-  const wishResolver: WishApiModuleResolver = {
-    wishRepo,
-    courseFacade,
-    questionnaireFacade,
-    userFacade,
-    appResolver,
-    eventBus: appResolver.eventBus,
-  };
-
-  const wishModule = new WishApiModule(wishResolver);
-
   const streamModule = new StreamApiModule({
     streamRepo,
     streamStudentRepo,
@@ -145,6 +132,23 @@ export function createApiApp(config: BotConfig, logger: Logger): ApiAppBundle {
     appResolver,
     eventBus: appResolver.eventBus,
   });
+
+  const streamFacade = new StreamInProcFacade(streamModule);
+
+  // ══ Wish: репозиторий и модуль ══
+  const wishRepo = new WishJsonRepo(`${config.dbDir}/wish/wishes.json`);
+
+  const wishResolver: WishApiModuleResolver = {
+    wishRepo,
+    courseFacade,
+    streamFacade,
+    questionnaireFacade,
+    userFacade,
+    appResolver,
+    eventBus: appResolver.eventBus,
+  };
+
+  const wishModule = new WishApiModule(wishResolver);
 
   // ══ ApiApp: модули ══
   const apiApp = new ApiApp<U7BotAppMeta>([

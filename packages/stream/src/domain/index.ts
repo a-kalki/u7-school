@@ -2,6 +2,7 @@
 export type { ContentSnapshot } from '@u7-scl/course/domain';
 export { ContentSnapshotSchema } from '@u7-scl/course/domain';
 export * from './module';
+export type { StreamFacade } from './facade';
 export * from './status';
 export * from './stream/a-root';
 export * from './stream/entity';
