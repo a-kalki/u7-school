@@ -2,7 +2,7 @@
 
 > Методология: workflow.md (TDD Red → Green → Refactor, `bun run check` перед коммитом, git notes, контрольные точки по фазам).
 
-## Фаза 1: MarkdownV2-мины (P0-B + inviteText)
+## Фаза 1: MarkdownV2-мины (P0-B + inviteText) [checkpoint: a70e25a]
 
 - [x] Task: Написать падающие тесты `handleError` (`apps/u7-bot/src/core/u7-bot-ui-story.test.ts`): internal-ошибка → fallback-текст с экранированной точкой проходит `assertMarkdownV2Safe`; ветка `validation` с issues, содержащими точки/скобки → field и message экранированы [bedac9b]
 - [x] Task: Реализовать экранирование в `packages/core/src/ui/bot/bot-ui-story.ts`: fallback-текст (`обратитесь к администратору\\.`), ветка `validation` — `escapeMarkdown` для field/message [bedac9b]
