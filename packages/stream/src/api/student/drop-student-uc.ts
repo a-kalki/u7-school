@@ -7,6 +7,7 @@ import {
   type DropStudentCmdMeta,
   DropStudentCmdSchema,
 } from '#domain/student/commands/drop-student-cmd';
+import type { Student } from '#domain/student/entity';
 import type { StreamNotFoundUcError, StreamUcErrors } from '../errors';
 import { StreamUseCase } from '../stream-uc';
 
@@ -61,6 +62,30 @@ export class DropStudentUc extends StreamUseCase<DropStudentCmdMeta> {
       actorId,
     );
 
+    // Уведомление ментору (перенос из InactivityStory, сценарий #3)
+    await this.#notifyMentorAboutDrop(studentEntity, actorId);
+
     return undefined;
+  }
+
+  /**
+   * Уведомление ментору о самовыходе студента (текст FR-6 #3).
+   * Поток недоступен — уведомление невозможно, молчаливый пропуск.
+   */
+  async #notifyMentorAboutDrop(
+    student: Pick<Student, 'userId' | 'streamId'>,
+    actorId: string,
+  ): Promise<void> {
+    const stream = await this.resolve.streamRepo.getByUuid(student.streamId);
+    if (!stream) return;
+
+    const user = await this.resolve.userFacade.getUserByUuid(student.userId);
+    const studentName = user?.name ?? student.userId.slice(0, 8);
+
+    await this.resolve.userFacade.notify(
+      stream.mentorId,
+      `🚪 Студент ${studentName} покинул учёбу с потока «${stream.title}» по собственному желанию.`,
+      actorId,
+    );
   }
 }

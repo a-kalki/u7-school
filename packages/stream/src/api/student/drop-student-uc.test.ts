@@ -45,7 +45,7 @@ describe('DropStudentUc', () => {
 
     const uc = new DropStudentUc();
     uc.init({
-      streamRepo: {},
+      streamRepo: { getByUuid: mock(() => Promise.resolve(undefined)) },
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
@@ -107,7 +107,7 @@ describe('DropStudentUc', () => {
 
     const uc = new DropStudentUc();
     uc.init({
-      streamRepo: {},
+      streamRepo: { getByUuid: mock(() => Promise.resolve(undefined)) },
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
@@ -155,7 +155,7 @@ describe('DropStudentUc', () => {
 
     const uc = new DropStudentUc();
     uc.init({
-      streamRepo: {},
+      streamRepo: { getByUuid: mock(() => Promise.resolve(undefined)) },
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
@@ -208,7 +208,7 @@ describe('DropStudentUc', () => {
 
     const uc = new DropStudentUc();
     uc.init({
-      streamRepo: {},
+      streamRepo: { getByUuid: mock(() => Promise.resolve(undefined)) },
       streamStudentRepo: mockStudentRepo,
       userFacade: mockUserFacade,
       courseFacade: {},
@@ -230,5 +230,130 @@ describe('DropStudentUc', () => {
     expect(event.eventName).toBe('student.abandoned');
     expect(event.payload.who).toBe('self');
     expect(event.payload.cause).toBe('voluntary');
+  });
+
+  test('самовыход → ментору уведомление с именем студента и потока (FR-6 #3)', async () => {
+    const MENTOR_ID = '66666666-6666-4666-8666-666666666666';
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
+          status: 'active',
+          enrolledAt: mockDate,
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUser: mock(() => Promise.resolve([])),
+      getByStream: mock(() => Promise.resolve([])),
+    };
+    const mockStreamRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '77777777-7777-4777-8777-777777777777',
+          title: 'Поток JS',
+          mentorId: MENTOR_ID,
+        }),
+      ),
+    };
+    const notify = mock(() => Promise.resolve());
+    const mockUserFacade = {
+      getUserByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '11111111-1111-4111-8111-111111111111',
+          name: 'Student',
+          telegramId: 1,
+          roles: [Role.STUDENT],
+          createdAt: mockDate,
+        }),
+      ),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+      notify,
+    };
+
+    const uc = new DropStudentUc();
+    uc.init({
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
+
+    await uc.execute(
+      {
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      '11111111-1111-4111-8111-111111111111',
+    );
+
+    expect(notify).toHaveBeenCalledTimes(1);
+    expect(notify).toHaveBeenCalledWith(
+      MENTOR_ID,
+      '🚪 Студент Student покинул учёбу с потока «Поток JS» по собственному желанию.',
+      '11111111-1111-4111-8111-111111111111',
+    );
+  });
+
+  test('самовыход: имя недоступно → в уведомлении первые 8 символов userId', async () => {
+    const MENTOR_ID = '66666666-6666-4666-8666-666666666666';
+    const mockStudentRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+          streamId: '77777777-7777-4777-8777-777777777777',
+          userId: '11111111-1111-4111-8111-111111111111',
+          status: 'active',
+          enrolledAt: mockDate,
+          currentStepId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaa01',
+          steps: [],
+          createdAt: mockDate,
+        }),
+      ),
+      save: mock(() => Promise.resolve()),
+      getByUser: mock(() => Promise.resolve([])),
+      getByStream: mock(() => Promise.resolve([])),
+    };
+    const mockStreamRepo = {
+      getByUuid: mock(() =>
+        Promise.resolve({
+          uuid: '77777777-7777-4777-8777-777777777777',
+          title: 'Поток JS',
+          mentorId: MENTOR_ID,
+        }),
+      ),
+    };
+    const notify = mock(() => Promise.resolve());
+    const mockUserFacade = {
+      getUserByUuid: mock(() => Promise.resolve(undefined)),
+      removeRoleFromUser: mock(() => Promise.resolve()),
+      notify,
+    };
+
+    const uc = new DropStudentUc();
+    uc.init({
+      streamRepo: mockStreamRepo,
+      streamStudentRepo: mockStudentRepo,
+      userFacade: mockUserFacade,
+      courseFacade: {},
+    } as unknown as StreamApiModuleResolver);
+
+    await uc.execute(
+      {
+        streamId: '77777777-7777-4777-8777-777777777777',
+        studentId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      },
+      '11111111-1111-4111-8111-111111111111',
+    );
+
+    expect(notify).toHaveBeenCalledWith(
+      MENTOR_ID,
+      '🚪 Студент 11111111 покинул учёбу с потока «Поток JS» по собственному желанию.',
+      '11111111-1111-4111-8111-111111111111',
+    );
   });
 });
