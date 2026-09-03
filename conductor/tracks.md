@@ -3,7 +3,7 @@
 ---
 
 
-- [ ] **Track: Механизм уведомлений userFacade.notify и перенос чистых уведомлений (user-notify_20260902)**
+- [x] **Track: Механизм уведомлений userFacade.notify и перенос чистых уведомлений (user-notify_20260902)**
 *Link: [./tracks/user-notify_20260902/](./tracks/user-notify_20260902/)*
 
 ---
