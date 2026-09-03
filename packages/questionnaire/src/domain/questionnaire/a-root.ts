@@ -10,7 +10,11 @@ import type {
 import { AbandonReasonSchema } from './entity';
 import type { Question } from './question';
 import { QuestionnaireEngine } from './questionnaire-engine';
-import type { InviteResponse, QuestionnaireActionResponse } from './types';
+import type {
+  InviteResponse,
+  QuestionnaireActionResponse,
+  StaleReason,
+} from './types';
 
 /** Префикс значения кнопки «Далее» */
 const NEXT_BUTTON_PREFIX = 'next:';
@@ -312,6 +316,15 @@ export abstract class BaseQuestionnaireAr<
     answerCode: string,
     questionCode: string,
   ): QuestionnaireActionResponse {
+    // Код проверяется против вариантов вопроса ДО записи в драфт:
+    // чужой код (устаревшая клавиатура) не протекает в состояние (spec FR-1)
+    if (
+      question.type === 'choice' &&
+      !isKnownAnswerCode(question, answerCode)
+    ) {
+      return this.#staleAnswerResponse(question, 'stale_button');
+    }
+
     const currentDraft = this.state.draftAnswers[questionCode];
     const currentAnswers = currentDraft
       ? currentDraft.split(',').filter(Boolean)
@@ -377,8 +390,17 @@ export abstract class BaseQuestionnaireAr<
       parsedValue = v.parse(schema, rawValue);
     } catch (e) {
       if (e instanceof v.ValiError) {
-        this.throwInternal(
-          `Некорректный ответ на вопрос "${question.question}"`,
+        // Неактуальный ответ — не внутренняя ошибка (spec FR-1):
+        // «Далее» без выбора на multiple → empty_selection,
+        // иначе (чужой код / пустой ввод) → stale_button
+        const isEmptySelection =
+          question.type === 'choice' &&
+          question.multiple &&
+          (rawValue === undefined ||
+            (Array.isArray(rawValue) && rawValue.length === 0));
+        return this.#staleAnswerResponse(
+          question,
+          isEmptySelection ? 'empty_selection' : 'stale_button',
         );
       }
       throw e;
@@ -491,6 +513,37 @@ export abstract class BaseQuestionnaireAr<
     return this.state.questionPool.cancelWarning;
   }
 
+  /**
+   * Ответ на неактуальное действие: актуальный вопрос + причина,
+   * состояние анкеты не меняется (spec FR-1).
+   */
+  #staleAnswerResponse(
+    question: Question,
+    reason: StaleReason,
+  ): QuestionnaireActionResponse {
+    const questionCode = question.questionCode;
+    const draft = this.state.draftAnswers[questionCode] ?? '';
+    const selectedAnswers = draft ? draft.split(',').filter(Boolean) : [];
+
+    const response: QuestionnaireActionResponse = {
+      type: 'stale_answer',
+      questionnaireId: this.state.uuid,
+      question,
+      selectedAnswers,
+      cancelWarning: this.#cancelWarning(),
+      reason,
+      ...this.#progress(questionCode),
+    };
+    if (
+      question.type === 'choice' &&
+      question.multiple &&
+      selectedAnswers.length > 0
+    ) {
+      response.nextButton = BaseQuestionnaireAr.getNextButtonText(questionCode);
+    }
+    return response;
+  }
+
   /** Прогресс вопроса в пуле — для шапки «Вопрос N из M» в UI. */
   #progress(
     questionCode: string,
@@ -519,4 +572,12 @@ export abstract class BaseQuestionnaireAr<
     }
     return question;
   }
+}
+
+/** Принадлежит ли код ответа вариантам choice-вопроса. */
+function isKnownAnswerCode(
+  question: Extract<Question, { type: 'choice' }>,
+  answerCode: string,
+): boolean {
+  return question.answers.some((a) => a.answerCode === answerCode);
 }

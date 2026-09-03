@@ -51,11 +51,35 @@ export type CompletedResponse = {
   completionText?: string;
 };
 
+/** Причина неактуального ответа */
+export type StaleReason = 'stale_button' | 'empty_selection';
+
+/**
+ * Неактуальный ответ (устаревшая клавиатура / пустой выбор):
+ * состояние анкеты не изменилось, UI перерисовывает актуальный вопрос
+ * с пояснением по reason (spec FR-1).
+ */
+export type StaleAnswerResponse = {
+  type: 'stale_answer';
+  questionnaireId: string;
+  question: Question;
+  selectedAnswers: string[];
+  cancelWarning?: string;
+  reason: StaleReason;
+  /** Кнопка «Далее» для multiple-вопроса с непустым драфтом. */
+  nextButton?: string;
+  /** Позиция текущего вопроса в пуле (1-based) — для шапки «Вопрос N из M». */
+  questionIndex?: number;
+  /** Общий размер пула — для шапки «Вопрос N из M». */
+  poolSize?: number;
+};
+
 export type QuestionnaireActionResponse =
   | InviteResponse
   | WaitNextResponse
   | NewQuestionResponse
-  | CompletedResponse;
+  | CompletedResponse
+  | StaleAnswerResponse;
 
 // ── Valibot схемы ──
 
@@ -99,9 +123,22 @@ export const CompletedResponseSchema = v.object({
   completionText: v.optional(v.string()),
 });
 
+export const StaleAnswerResponseSchema = v.object({
+  type: v.literal('stale_answer'),
+  questionnaireId: v.string(),
+  question: QuestionSchema,
+  selectedAnswers: v.array(v.string()),
+  cancelWarning: v.optional(v.string()),
+  reason: v.picklist(['stale_button', 'empty_selection']),
+  nextButton: v.optional(v.string()),
+  questionIndex: v.optional(v.number()),
+  poolSize: v.optional(v.number()),
+});
+
 export const QuestionnaireActionResponseSchema = v.variant('type', [
   InviteResponseSchema,
   WaitNextResponseSchema,
   NewQuestionResponseSchema,
   CompletedResponseSchema,
+  StaleAnswerResponseSchema,
 ]);

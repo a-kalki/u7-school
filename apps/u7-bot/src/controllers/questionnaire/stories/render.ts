@@ -79,6 +79,27 @@ export function renderActionResponse(
     );
   }
 
+  if (response.type === 'stale_answer') {
+    // Неактуальный ответ: перерисовка актуального вопроса (spec FR-1)
+    return editOrSend(
+      {
+        text: formatQuestionMd(response.question, {
+          selected: response.selectedAnswers,
+          progress: progressOf(response),
+        }),
+        parseMode: 'MarkdownV2',
+        keyboard: getKeyboard(
+          response.question,
+          response.questionnaireId,
+          response.nextButton
+            ? makeNextCode(response.questionnaireId, response.nextButton)
+            : undefined,
+        ),
+      },
+      canEditPrev ? lastMsg : undefined,
+    );
+  }
+
   if (response.type === 'new_question') {
     const nextMessage = {
       text: formatQuestionMd(response.question, {
