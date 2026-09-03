@@ -2,12 +2,12 @@
 
 ## Фаза 1: Механизм уведомлений (модуль user + контроллер user)
 
-- [ ] Task: Написать падающие тесты UC `notify-user`: публикует событие `user.notified {userId, text}`, ничего не мутирует; зарегистрирован в apiApp
-- [ ] Task: Реализовать событие `UserNotifiedEvent` (`packages/user/src/domain/user/events.ts`) и UC `notify-user` (`packages/user/src/api/user/`), зарегистрировать в модуле
-- [ ] Task: Написать падающие тесты `UserFacade.notify(userId, text)`: делегирует в UC `notify-user` (интерфейс + UserInProcFacade)
-- [ ] Task: Реализовать `notify` в `UserFacade` и `UserInProcFacade`
-- [ ] Task: Написать падающие тесты стори `notify`: подписка на `user.notified` → резолв `get-user` → `proactiveSender.notify(telegramId, {text})`; пользователь не найден / нет telegramId → лог-ошибка, доставка пропущена, исключение не всплывает
-- [ ] Task: Реализовать контроллер `user` + стори `notify` (`apps/u7-bot/src/controllers/user/`), зарегистрировать контроллер в `create-ui-app.ts`
+- [x] Task: Написать падающие тесты UC `notify-user`: публикует событие `user.notified {userId, text}`, ничего не мутирует; зарегистрирован в apiApp (5600dfe)
+- [x] Task: Реализовать событие `UserNotifiedEvent` (`packages/user/src/domain/user/events.ts`) и UC `notify-user` (`packages/user/src/api/user/`), зарегистрировать в модуле (5600dfe)
+- [x] Task: Написать падающие тесты `UserFacade.notify(userId, text)`: делегирует в UC `notify-user` (интерфейс + UserInProcFacade) (80c3075)
+- [x] Task: Реализовать `notify` в `UserFacade` и `UserInProcFacade` (80c3075)
+- [x] Task: Написать падающие тесты стори `notify`: подписка на `user.notified` → резолв `get-user` → `proactiveSender.notify(telegramId, {text})`; пользователь не найден / нет telegramId → лог-ошибка, доставка пропущена, исключение не всплывает (3667524)
+- [x] Task: Реализовать контроллер `user` + стори `notify` (`apps/u7-bot/src/controllers/user/`), зарегистрировать контроллер в `create-ui-app.ts` (3667524)
 - [ ] Conductor - User Manual Verification 'Механизм уведомлений' (Protocol in workflow.md)
 
 ## Фаза 2: Пилот — уход и снятие (#3, #4)
