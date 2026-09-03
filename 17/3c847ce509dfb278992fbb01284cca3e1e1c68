@@ -1,0 +1,21 @@
+Задача: Тесты getProgress по маршруту + динамический маршрут и передача state.answers (Фаза 3, questionnaire-robustness_20260903)
+
+Сводка: прогресс «Вопрос N из M» теперь честный. Раньше total был
+размером полного пула (11) — пользователь intensive-ветки видел
+«Вопрос 8 из 9+2 лишних». Теперь маршрут строится с начала пула
+с применением условий к уже полученным ответам: base — 10,
+intensive — 9, до ответа на intensity — 8.
+
+Изменения:
+- questionnaire-engine.ts: getProgress(questionCode, answers) строит
+  активный маршрут; вопрос чужой ветки → undefined. Проверка условия
+  вынесена в приватный isConditionMet (any-of), переиспользуется
+  getNextQuestion — дублирование устранено.
+- a-root.ts: #progress передаёт this.state.answers в движок.
+- questionnaire-engine.test.ts: describe на миниатюре реального пула
+  курса (11 вопросов): base total=10, intensive total=9, чужая ветка
+  undefined, до intensity total=8. Существующие 2 теста getProgress
+  обновлены только на новую сигнатуру (второй аргумент []),
+  ассерты не менялись.
+
+Причина: спецификация трека FR-4.
