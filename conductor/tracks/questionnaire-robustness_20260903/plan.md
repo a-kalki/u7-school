@@ -22,9 +22,9 @@
 
 - [x] Task: Написать падающие тесты `getNextQuestion`: condition на multiple-вопрос матчит any-of (`'mon,wed'` против `answerCodes: ['mon']`) [8192615]
 - [x] Task: Реализовать any-of (split по запятой + `some`) в `getNextQuestion` [8192615]
-- [~] Task: Написать падающие тесты `validate()`: condition, ссылающийся на вопрос «вперёд» по пулу → ошибка валидации пула
-- [ ] Task: Реализовать инвариант «условие только назад» в `validate()`
-- [ ] Task: Написать падающие тесты `getProgress(questionCode, answers)`: index/total по активному маршруту (реальный пул: base-ветка — 10, intensive-ветка — 9 вместо 11)
+- [x] Task: Написать падающие тесты `validate()`: condition, ссылающийся на вопрос «вперёд» по пулу → ошибка валидации пула [ffb4b83]
+- [x] Task: Реализовать инвариант «условие только назад» в `validate()` [ffb4b83]
+- [~] Task: Написать падающие тесты `getProgress(questionCode, answers)`: index/total по активному маршруту (реальный пул: base-ветка — 10, intensive-ветка — 9 вместо 11)
 - [ ] Task: Реализовать динамический маршрут в `getProgress` + передать `state.answers` из агрегата (`#progress`)
 - [ ] Task: Conductor - User Manual Verification 'Движок' (Protocol in workflow.md)
 
