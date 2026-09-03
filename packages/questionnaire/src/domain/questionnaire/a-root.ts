@@ -544,11 +544,11 @@ export abstract class BaseQuestionnaireAr<
     return response;
   }
 
-  /** Прогресс вопроса в пуле — для шапки «Вопрос N из M» в UI. */
+  /** Прогресс вопроса — для шапки «Вопрос N из M» в UI. Считается по активному маршруту (spec FR-4). */
   #progress(
     questionCode: string,
   ): { questionIndex: number; poolSize: number } | undefined {
-    const progress = this.#engine.getProgress(questionCode);
+    const progress = this.#engine.getProgress(questionCode, this.state.answers);
     if (!progress) return undefined;
     return { questionIndex: progress.index, poolSize: progress.total };
   }

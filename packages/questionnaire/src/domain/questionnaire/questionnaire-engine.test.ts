@@ -308,6 +308,154 @@ describe('QuestionnaireEngine.getNextQuestion — any-of на multiple-вопр�
   });
 });
 
+describe('QuestionnaireEngine.getProgress — динамический маршрут (реальный пул)', () => {
+  // Миниатюра реального пула курса (packages/wish/.../pools/course.json):
+  // 11 вопросов, из них 3 условных от intensity. Полный пул — 11,
+  // но активный маршрут зависит от ветки: base — 10, intensive — 9.
+  const pool: Question[] = [
+    {
+      question: 'Как ты нашел нас?',
+      questionCode: 'how_found',
+      type: 'choice',
+      multiple: true,
+      answers: [{ answer: 'Телеграм', answerCode: 'telegram' }],
+    },
+    {
+      question: 'Почему мы заинтересовали?',
+      questionCode: 'interest_reason',
+      type: 'choice',
+      multiple: true,
+      answers: [{ answer: 'Профессионалы', answerCode: 'professionals' }],
+    },
+    {
+      question: 'Опыт?',
+      questionCode: 'experience',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: 'Новичок', answerCode: 'beginner' }],
+    },
+    {
+      question: 'Язык?',
+      questionCode: 'language',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: 'JS/TS', answerCode: 'js_ts' }],
+    },
+    {
+      question: 'Формат?',
+      questionCode: 'format',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: 'Офлайн', answerCode: 'offline' }],
+    },
+    {
+      question: 'Темп и цели?',
+      questionCode: 'goals',
+      type: 'choice',
+      multiple: false,
+      answers: [{ answer: 'Fullstack', answerCode: 'fullstack' }],
+    },
+    {
+      question: 'Интенсивность?',
+      questionCode: 'intensity',
+      type: 'choice',
+      multiple: false,
+      answers: [
+        { answer: 'Базовый', answerCode: 'base' },
+        { answer: 'Интенсивный', answerCode: 'intensive' },
+      ],
+    },
+    {
+      question: 'Дни недели?',
+      questionCode: 'base_days',
+      type: 'choice',
+      multiple: true,
+      condition: { questionCode: 'intensity', answerCodes: ['base'] },
+      answers: [{ answer: 'Пн', answerCode: 'mon' }],
+    },
+    {
+      question: 'Время занятий?',
+      questionCode: 'base_time',
+      type: 'choice',
+      multiple: true,
+      condition: { questionCode: 'intensity', answerCodes: ['base'] },
+      answers: [{ answer: '9-11 утра', answerCode: '9_11' }],
+    },
+    {
+      question: 'Время занятий?',
+      questionCode: 'intensive_time',
+      type: 'choice',
+      multiple: false,
+      condition: { questionCode: 'intensity', answerCodes: ['intensive'] },
+      answers: [{ answer: 'До обеда', answerCode: 'before_noon' }],
+    },
+    {
+      question: 'Чего хочешь достичь?',
+      questionCode: 'goal_text',
+      type: 'text',
+    },
+  ];
+
+  const answeredAt = '2024-01-01T00:00';
+  const answer = (questionCode: string, answerCode: string): Answer => ({
+    questionCode,
+    answerCode,
+    answeredAt,
+  });
+
+  // Ответы на все вопросы до intensity включительно (как в реальном флоу)
+  const baseAnswers: Answer[] = [
+    answer('how_found', 'telegram'),
+    answer('interest_reason', 'professionals'),
+    answer('experience', 'beginner'),
+    answer('language', 'js_ts'),
+    answer('format', 'offline'),
+    answer('goals', 'fullstack'),
+    answer('intensity', 'base'),
+  ];
+
+  const intensiveAnswers: Answer[] = baseAnswers.map((a) =>
+    a.questionCode === 'intensity' ? answer('intensity', 'intensive') : a,
+  );
+
+  test('base-ветка: total = 10 (без intensive_time), позиция по маршруту', () => {
+    const engine = new QuestionnaireEngine(pool);
+    expect(engine.getProgress('base_time', baseAnswers)).toEqual({
+      index: 9,
+      total: 10,
+    });
+    expect(engine.getProgress('goal_text', baseAnswers)).toEqual({
+      index: 10,
+      total: 10,
+    });
+  });
+
+  test('intensive-ветка: total = 9 (без base_days и base_time)', () => {
+    const engine = new QuestionnaireEngine(pool);
+    expect(engine.getProgress('intensive_time', intensiveAnswers)).toEqual({
+      index: 8,
+      total: 9,
+    });
+    expect(engine.getProgress('goal_text', intensiveAnswers)).toEqual({
+      index: 9,
+      total: 9,
+    });
+  });
+
+  test('вопрос чужой ветки не входит в активный маршрут — undefined', () => {
+    const engine = new QuestionnaireEngine(pool);
+    expect(engine.getProgress('base_days', intensiveAnswers)).toBeUndefined();
+  });
+
+  test('до ответа на intensity условные вопросы не в маршруте: total = 8', () => {
+    const engine = new QuestionnaireEngine(pool);
+    expect(engine.getProgress('intensity', baseAnswers.slice(0, 6))).toEqual({
+      index: 7,
+      total: 8,
+    });
+  });
+});
+
 describe('QuestionnaireEngine.getProgress', () => {
   const pool: Question[] = [
     { question: 'Один', questionCode: 'q1', type: 'text' },
@@ -316,12 +464,12 @@ describe('QuestionnaireEngine.getProgress', () => {
 
   test('возвращает 1-based позицию вопроса и размер пула', () => {
     const engine = new QuestionnaireEngine(pool);
-    expect(engine.getProgress('q1')).toEqual({ index: 1, total: 2 });
-    expect(engine.getProgress('q2')).toEqual({ index: 2, total: 2 });
+    expect(engine.getProgress('q1', [])).toEqual({ index: 1, total: 2 });
+    expect(engine.getProgress('q2', [])).toEqual({ index: 2, total: 2 });
   });
 
   test('неизвестный код вопроса — undefined', () => {
     const engine = new QuestionnaireEngine(pool);
-    expect(engine.getProgress('nope')).toBeUndefined();
+    expect(engine.getProgress('nope', [])).toBeUndefined();
   });
 });

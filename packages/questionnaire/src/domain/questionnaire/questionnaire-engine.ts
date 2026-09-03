@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 import type { Answer } from './entity';
-import type { Question } from './question';
+import type { Condition, Question } from './question';
 import { QuestionSchema } from './question';
 
 /**
@@ -39,30 +39,31 @@ export class QuestionnaireEngine {
         continue;
       }
 
-      const condition = question.condition;
-      if (!condition) {
+      if (this.isConditionMet(question.condition, answers)) {
         return question;
-      }
-
-      const conditionAnswer = answers.find(
-        (a: Answer) => a.questionCode === condition.questionCode,
-      );
-      if (conditionAnswer) {
-        // multiple-ответ хранится склейкой через запятую ('mon,wed'),
-        // поэтому условие матчится по пересечению кодов (any-of), а не по строгому равенству
-        const selectedCodes = conditionAnswer.answerCode
-          .split(',')
-          .filter(Boolean);
-        const hasMatch = condition.answerCodes.some((code) =>
-          selectedCodes.includes(code),
-        );
-        if (hasMatch) {
-          return question;
-        }
       }
     }
 
     return null;
+  }
+
+  /**
+   * Выполнено ли условие показа вопроса по уже полученным ответам.
+   * Вопрос без условия показывается всегда. Условие матчится any-of:
+   * multiple-ответ хранится склейкой кодов через запятую ('mon,wed'),
+   * поэтому достаточно пересечения хотя бы одного кода с answerCodes.
+   */
+  private isConditionMet(
+    condition: Condition | undefined,
+    answers: Answer[],
+  ): boolean {
+    if (!condition) return true;
+    const conditionAnswer = answers.find(
+      (a: Answer) => a.questionCode === condition.questionCode,
+    );
+    if (!conditionAnswer) return false;
+    const selectedCodes = conditionAnswer.answerCode.split(',').filter(Boolean);
+    return condition.answerCodes.some((code) => selectedCodes.includes(code));
   }
 
   /** Вопрос по коду */
@@ -71,15 +72,25 @@ export class QuestionnaireEngine {
   }
 
   /**
-   * Прогресс вопроса в пуле: позиция (1-based) и общий размер пула.
-   * Для условных веток total не меняется — это полный размер пула.
+   * Прогресс вопроса: позиция (1-based) и total — по активному маршруту,
+   * а не по полному пулу. Маршрут строится с начала пула применением
+   * условий к уже известным ответам, поэтому total честно отражает
+   * реальную ветку (напр., base — 10, intensive — 9 при пуле в 11).
+   * Вопрос чужой ветки в маршрут не входит — undefined.
    */
   getProgress(
     questionCode: string,
+    answers: Answer[],
   ): { index: number; total: number } | undefined {
-    const idx = this.pool.findIndex((q) => q.questionCode === questionCode);
+    const route: string[] = [];
+    for (const question of this.pool) {
+      if (this.isConditionMet(question.condition, answers)) {
+        route.push(question.questionCode);
+      }
+    }
+    const idx = route.indexOf(questionCode);
     if (idx === -1) return undefined;
-    return { index: idx + 1, total: this.pool.length };
+    return { index: idx + 1, total: route.length };
   }
 
   /** Текст вопроса по коду (или сам код если вопрос не найден) */
