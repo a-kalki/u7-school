@@ -64,5 +64,5 @@
 
 - [x] Task: `TODO.md` — запись в техдолг: optional-вопросы (флаг в схеме `question.ts`, skip-семантика `answerCode='skipped'`, кнопка «⏭️ Пропустить» сразу для single/text, «Далее» с пустым драфтом = skip для multiple, условия могут ссылаться на `skipped`) [bfef4a8]
 - [x] Task: Обновить `apps/u7-bot/src/controllers/questionnaire/ui-spec.md`: новый тип ответа `stale_answer`, поведение при устаревшей клавиатуре, прогресс «Вопрос N из M» по маршруту [c272f17]
-- [~] Task: Финальная проверка `bun run check` по всему монорепо
+- [x] Task: Финальная проверка `bun run check` по всему монорепо — ✅ exit 0: biome + tsc --noEmit чисто, 1928 тестов / 0 fail
 - [ ] Task: Conductor - User Manual Verification 'Документация, техдолг, финал' (Protocol in workflow.md)
