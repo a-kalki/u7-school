@@ -1,0 +1,11 @@
+Задача: TODO.md — запись в техдолг optional-вопросов анкеты.
+
+Изменения:
+- Новая секция «Анкеты (после трека questionnaire-robustness_20260903)» в TODO.md с тремя пунктами техдолга:
+  1. Optional-вопросы: флаг optional в ChoiceQuestionSchema/TextQuestionSchema (question.ts), skip-семантика answerCode='skipped' (AnswerSchema), кнопка «⏭️ Пропустить» для single/text, «Далее» с пустым драфтом = skip для optional multiple (с сохранением stale_answer/empty_selection для обязательных), условия могут ссылаться на 'skipped'.
+  2. Очистка исторических draftAnswers от невалидных кодов (сознательно не сделана в треке).
+  3. Вариант C (questionCode в callback кнопок) — отвергнут, кандидату на пересмотр.
+
+Файлы: TODO.md
+
+Причина: п. «За рамками» спецификации трека questionnaire-robustness_20260903 требует зафиксировать дизайн в техдолге.
