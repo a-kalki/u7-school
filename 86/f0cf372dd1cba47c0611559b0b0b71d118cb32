@@ -1,0 +1,7 @@
+Задача: Исследование гонки сессии при двойном /start (Фаза 4 трека questionnaire-robustness_20260903).
+
+Сводка: Исследована механика перезаписи session.lastBotMessage в BotTransport.execute(). Зафиксированы три источника интерливинга: (1) webhook-режим без sequentialize — параллельная обработка апдейтов; (2) обработчики апдейтов вызывают execute() напрямую, минуя per-chat очередь #enqueue (проактивный send × апдейт); (3) lost update на общем объекте сессии из sessionMap. Воспроизведён сценарий инцидента: двойной /start + callback старой кнопки → editPrev-рендер берёт messageId welcome-соезда и затирает его вопросом анкеты.
+
+Файлы: conductor/tracks/questionnaire-robustness_20260903/plan.md (секция «Исследование» + «Дизайн guard»).
+
+Причина: Корень проблемы — lastBotMessage «ничейный»: не помечен флоу-владельцем, а editPrev-рендер безусловно использует его messageId. Дизайн guard'а (поле flowPath + проверка принадлежности перед editMessage, fallback на sendMessage) предложен на согласование пользователю.
