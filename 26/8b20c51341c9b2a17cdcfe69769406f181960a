@@ -1,0 +1,11 @@
+Задача: Follow-up дебрифа Фазы 1 — экранирование inviteText в renderActionResponse
+
+Сводка: ветка invited в renderActionResponse экранирует inviteText через
+escapeMarkdown (упущенная «мина» MarkdownV2). Тесты: inviteText с минами и
+fallback проходят assertMarkdownV2Safe; stale-перерисовки FillStory тоже.
+
+Файлы: apps/u7-bot/src/controllers/questionnaire/stories/render.ts,
+invite.story.test.ts, fill.story.stale.test.ts.
+
+Причина: после дебрифа Фазы 2 (запись №28) замечена симметричная уязвимость
+MarkdownV2 в рендере invited, не покрытая Фазой 1.
