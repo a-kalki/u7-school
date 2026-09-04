@@ -62,7 +62,7 @@
 - [x] Task: Реализовать guard по дизайну из `conductor/bot-ui-session-architecture.md` §5 (flowPath в `lastBotMessage`, проверка принадлежности перед editMessage, fallback на sendMessage) — ⏭️ ПРОПУСК по решению пользователя (2026-09-03): перенесено в новый трек по концепции bot-ui
 - [x] Task: Conductor - User Manual Verification 'Гонка сессии' (Protocol in workflow.md) — ⏭️ ПРОПУСК по решению пользователя (2026-09-03): перенесено в новый трек вместе с реализацией
 
-## Фаза 5: Документация, техдолг, финал
+## Фаза 5: Документация, техдолг, финал [checkpoint: 9686bf6]
 
 - [x] Task: `TODO.md` — запись в техдолг: optional-вопросы (флаг в схеме `question.ts`, skip-семантика `answerCode='skipped'`, кнопка «⏭️ Пропустить» сразу для single/text, «Далее» с пустым драфтом = skip для multiple, условия могут ссылаться на `skipped`) [bfef4a8]
 - [x] Task: Обновить `apps/u7-bot/src/controllers/questionnaire/ui-spec.md`: новый тип ответа `stale_answer`, поведение при устаревшей клавиатуре, прогресс «Вопрос N из M» по маршруту [c272f17]
