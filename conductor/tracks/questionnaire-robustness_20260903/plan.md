@@ -8,6 +8,7 @@
 - [x] Task: Реализовать экранирование в `packages/core/src/ui/bot/bot-ui-story.ts`: fallback-текст (`обратитесь к администратору\\.`), ветка `validation` — `escapeMarkdown` для field/message [bedac9b]
 - [x] Task: Написать падающие тесты `invite.story`: `inviteText` с точками и спецсимволами → текст в `#handleInviteEvent` и `#handleInvite` экранирован (по образцу `#handleWhy`) [0fdee05]
 - [x] Task: Реализовать экранирование `inviteText` в обоих методах `invite.story.ts` [0fdee05]
+- [x] Task: Follow-up дебрифа №28: экранирование `inviteText` в `renderActionResponse` (ветка invited) + `assertMarkdownV2Safe`-тесты [268b20c]
 - [x] Task: Conductor - User Manual Verification 'MarkdownV2-мины' (Protocol in workflow.md)
 
 ## Фаза 2: Graceful stale-ответы (домен + UI)
@@ -16,6 +17,7 @@
 - [x] Task: Тип `stale_answer` в `types.ts` (`questionnaireId`, `question`, `selectedAnswers`, `progress`, `cancelWarning`, `reason: 'stale_button' | 'empty_selection'`); реализовать в `a-root.ts`: `#submitCurrentQuestion` (ValiError → `stale_answer` вместо `throwInternal`) и `#toggleDraftAnswer` (валидация кода до записи в драфт) [1679feb]
 - [x] Task: Написать падающие тесты render/story: `stale_answer` → перерисовка актуального вопроса с пояснением по reason, `captureInput` сохраняется; `logger.warn` с questionCode'ами зафиксирован [b880713]
 - [x] Task: Реализовать рендер `stale_answer` в `render.ts` + логирование `warn` в `fill.story.ts` [b880713]
+- [x] Task: Follow-up дебрифа №28: ветки «Далее» чужого вопроса / next на non-multiple / callback на text → `stale_answer` вместо `bad_request` [3707be3]
 - [x] Task: Conductor - User Manual Verification 'Graceful stale-ответы' (Protocol in workflow.md)
 
 ## Фаза 3: Движок — condition any-of, инвариант, честный прогресс
@@ -65,4 +67,4 @@
 - [x] Task: `TODO.md` — запись в техдолг: optional-вопросы (флаг в схеме `question.ts`, skip-семантика `answerCode='skipped'`, кнопка «⏭️ Пропустить» сразу для single/text, «Далее» с пустым драфтом = skip для multiple, условия могут ссылаться на `skipped`) [bfef4a8]
 - [x] Task: Обновить `apps/u7-bot/src/controllers/questionnaire/ui-spec.md`: новый тип ответа `stale_answer`, поведение при устаревшей клавиатуре, прогресс «Вопрос N из M» по маршруту [c272f17]
 - [x] Task: Финальная проверка `bun run check` по всему монорепо — ✅ exit 0: biome + tsc --noEmit чисто, 1928 тестов / 0 fail
-- [ ] Task: Conductor - User Manual Verification 'Документация, техдолг, финал' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Документация, техдолг, финал' (Protocol in workflow.md) — закрыта по явному указанию пользователя (2026-09-03): `bun run check` зелёный (biome + tsc, 1931 pass / 0 fail), ручная верификация doc-only фазы не требуется
