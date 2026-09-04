@@ -1,0 +1,12 @@
+Задача: Follow-up дебрифа Фазы 2 — stale_answer для веток next/text
+
+Сводка: три ветки throwBadRequest в BaseQuestionnaireAr.handleAction заменены
+на graceful stale_answer (reason stale_button): чужая кнопка «Далее», next на
+non-multiple, callback на text-вопросе. Состояние анкеты не меняется.
+
+Файлы: packages/questionnaire/src/domain/questionnaire/a-root.ts,
+packages/questionnaire/src/domain/questionnaire/standard/stale-answer.test.ts.
+
+Причина: после дебрифа Фазы 2 (запись №28) выявлены непокрытые ветки, где
+устаревшая клавиатура приводила к bad_request вместо перерисовки актуального
+вопроса.
