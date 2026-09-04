@@ -216,14 +216,10 @@ export abstract class BaseQuestionnaireAr<
     // 1. Кнопка «Далее»
     if (action.value.startsWith(NEXT_BUTTON_PREFIX)) {
       if (!this.#isValidNextButtonText(action.value)) {
-        this.throwBadRequest(
-          'Кнопка «Далее» не соответствует текущему вопросу',
-        );
+        return this.#staleAnswerResponse(question, 'stale_button');
       }
       if (question.type !== 'choice' || !question.multiple) {
-        this.throwBadRequest(
-          'Команда next доступна только для вопросов с множественным выбором',
-        );
+        return this.#staleAnswerResponse(question, 'stale_button');
       }
       return this.#submitCurrentQuestion(question);
     }
@@ -242,9 +238,9 @@ export abstract class BaseQuestionnaireAr<
       return this.#submitCurrentQuestion(question, answerCode);
     }
 
-    // 3. Колбэк при текстовом вопросе
+    // 3. Колбэк при текстовом вопросе — нажатие любой кнопки устаревшей клавиатуры
     if (question.type === 'text') {
-      this.throwBadRequest('Ожидался текстовый ответ');
+      return this.#staleAnswerResponse(question, 'stale_button');
     }
 
     this.throwInternal(

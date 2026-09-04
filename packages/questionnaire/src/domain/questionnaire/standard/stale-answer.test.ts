@@ -83,13 +83,17 @@ describe('Graceful stale-ответы (FR-1)', () => {
     expect(snapshot(ar)).toEqual(before);
   });
 
-  test('single-choice: чужой код кнопки «Далее» — как и раньше ошибка (не stale)', () => {
-    // «Далее» чужого вопроса не попадает в валидацию ответа — это отдельная
-    // ветка next-проверки, остаётся bad_request
+  test('single-choice: чужой код кнопки «Далее» → stale_answer (stale_button), состояние не меняется', () => {
     const ar = startedAr();
-    expect(() =>
-      ar.handleAction({ type: 'callback', value: 'next:q9' }),
-    ).toThrow();
+    const before = snapshot(ar);
+    const response = ar.handleAction({ type: 'callback', value: 'next:q9' });
+
+    expect(response.type).toBe('stale_answer');
+    if (response.type === 'stale_answer') {
+      expect(response.reason).toBe('stale_button');
+      expect(response.question.questionCode).toBe('q1');
+    }
+    expect(snapshot(ar)).toEqual(before);
   });
 
   test('multiple: тоггл чужого кода → stale_answer (stale_button), драфт не меняется', () => {
@@ -164,6 +168,40 @@ describe('Graceful stale-ответы (FR-1)', () => {
     }
     expect(ar.state.draftAnswers).toEqual({});
     expect(ar.state.answers.length).toBe(2);
+  });
+
+  test('text: нажатие устаревшей кнопки (callback) → stale_answer (stale_button), состояние не меняется', () => {
+    const ar = startedAr();
+    ar.handleAction({ type: 'callback', value: 'yes' }); // → q2
+    ar.handleAction({ type: 'callback', value: 'fe' });
+    ar.handleAction({ type: 'callback', value: 'next:q2' }); // → q3 (text)
+
+    const before = snapshot(ar);
+    const response = ar.handleAction({ type: 'callback', value: 'fe' });
+
+    expect(response.type).toBe('stale_answer');
+    if (response.type === 'stale_answer') {
+      expect(response.reason).toBe('stale_button');
+      expect(response.question.questionCode).toBe('q3');
+    }
+    expect(snapshot(ar)).toEqual(before);
+  });
+
+  test('text: кнопка «Далее» (callback) → stale_answer (stale_button), состояние не меняется', () => {
+    const ar = startedAr();
+    ar.handleAction({ type: 'callback', value: 'yes' }); // → q2
+    ar.handleAction({ type: 'callback', value: 'fe' });
+    ar.handleAction({ type: 'callback', value: 'next:q2' }); // → q3 (text)
+
+    const before = snapshot(ar);
+    const response = ar.handleAction({ type: 'callback', value: 'next:q2' });
+
+    expect(response.type).toBe('stale_answer');
+    if (response.type === 'stale_answer') {
+      expect(response.reason).toBe('stale_button');
+      expect(response.question.questionCode).toBe('q3');
+    }
+    expect(snapshot(ar)).toEqual(before);
   });
 
   test('text: валидный текст → переход к завершению анкеты', () => {
