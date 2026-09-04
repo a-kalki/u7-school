@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
-import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
+import {
+  assertMarkdownV2Safe,
+  type Logger,
+  LogLevel,
+  setGlobalLogger,
+} from '@u7-scl/core/shared';
 import type { BotResponse, SessionData } from '@u7-scl/core/ui';
 import { FillStory } from './fill.story';
 
@@ -105,6 +110,7 @@ describe('FillStory UX — stale_answer (неактуальный ответ)', 
     expect(res.editMessage).toBeDefined();
     expect(res.editMessage?.messageId).toBe(42);
     expect(res.sendMessage).toBeUndefined();
+    expect(() => assertMarkdownV2Safe(res.editMessage!.text)).not.toThrow();
 
     // Пояснение по reason + актуальный вопрос
     expect(res.editMessage?.text).toContain('относится к предыдущему вопросу');
@@ -130,6 +136,7 @@ describe('FillStory UX — stale_answer (неактуальный ответ)', 
     expect(res.editMessage?.text).toContain('выбери хотя бы один вариант');
     expect(res.editMessage?.text).toContain('Что интересно?');
     expect(res.releaseInput).toBeUndefined();
+    expect(() => assertMarkdownV2Safe(res.editMessage!.text)).not.toThrow();
   });
 
   test('stale_answer с драфтом: маркер выбора и кнопка «Далее» сохранены', async () => {
@@ -159,6 +166,7 @@ describe('FillStory UX — stale_answer (неактуальный ответ)', 
     expect(res.editMessage).toBeUndefined();
     expect(res.sendMessage?.text).toContain('относится к предыдущему вопросу');
     expect(res.sendMessage?.text).toContain('Что интересно?');
+    expect(() => assertMarkdownV2Safe(res.sendMessage!.text)).not.toThrow();
   });
 
   test('logger.warn фиксирует нажатое значение и актуальный вопрос', async () => {

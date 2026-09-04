@@ -3,6 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import { assertMarkdownV2Safe } from '@u7-scl/core/shared';
 import { InviteStory } from './invite.story';
+import { renderActionResponse } from './render';
 
 /**
  * Создаёт InviteStory с моком API приложения.
@@ -206,6 +207,25 @@ describe('InviteStory — MarkdownV2-безопасность inviteText', () =>
 
     expect(() =>
       assertMarkdownV2Safe(res.sendMessage!.text as string),
+    ).not.toThrow();
+  });
+
+  test('renderActionResponse(invited): inviteText с точками/скобками и fallback проходят assertMarkdownV2Safe', () => {
+    const withMines = renderActionResponse({
+      type: 'invited',
+      questionnaireId: 'q1',
+      inviteText: inviteTextWithMines,
+    });
+    expect(() =>
+      assertMarkdownV2Safe(withMines.sendMessage!.text as string),
+    ).not.toThrow();
+
+    const fallback = renderActionResponse({
+      type: 'invited',
+      questionnaireId: 'q1',
+    });
+    expect(() =>
+      assertMarkdownV2Safe(fallback.sendMessage!.text as string),
     ).not.toThrow();
   });
 });

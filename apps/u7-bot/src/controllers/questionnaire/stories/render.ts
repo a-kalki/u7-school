@@ -1,3 +1,4 @@
+import { escapeMarkdown } from '@u7-scl/core/shared';
 import type {
   BotResponse,
   EditMessageDescription,
@@ -149,7 +150,7 @@ export function renderActionResponse(
   // invited — рендерим как приглашение
   return {
     sendMessage: {
-      text: `📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}`,
+      text: `📋 *Анкета*\n\n${escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
       parseMode: 'MarkdownV2',
       keyboard: inviteKeyboard(response.questionnaireId, response.whyText),
     },
