@@ -62,7 +62,7 @@
 
 ## Фаза 5: Документация, техдолг, финал
 
-- [ ] Task: `TODO.md` — запись в техдолг: optional-вопросы (флаг в схеме `question.ts`, skip-семантика `answerCode='skipped'`, кнопка «⏭️ Пропустить» сразу для single/text, «Далее» с пустым драфтом = skip для multiple, условия могут ссылаться на `skipped`)
-- [ ] Task: Обновить `apps/u7-bot/src/controllers/questionnaire/ui-spec.md`: новый тип ответа `stale_answer`, поведение при устаревшей клавиатуре, прогресс «Вопрос N из M» по маршруту
+- [x] Task: `TODO.md` — запись в техдолг: optional-вопросы (флаг в схеме `question.ts`, skip-семантика `answerCode='skipped'`, кнопка «⏭️ Пропустить» сразу для single/text, «Далее» с пустым драфтом = skip для multiple, условия могут ссылаться на `skipped`) [bfef4a8]
+- [~] Task: Обновить `apps/u7-bot/src/controllers/questionnaire/ui-spec.md`: новый тип ответа `stale_answer`, поведение при устаревшей клавиатуре, прогресс «Вопрос N из M» по маршруту
 - [ ] Task: Финальная проверка `bun run check` по всему монорепо
 - [ ] Task: Conductor - User Manual Verification 'Документация, техдолг, финал' (Protocol in workflow.md)
