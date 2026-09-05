@@ -1,0 +1,12 @@
+Задача 4 Фазы 2: InactivityStory — notify-текст вместо кнопочных проактивов (И3)
+
+Изменения:
+- #handleWarningEvent/#handleCandidateEvent → proactiveSender.notify
+  (текст MdText, тон notice по умолчанию, без клавиатуры).
+- Callback drop-student/mark-abandoned (confirm) сохранены — на новом
+  контракте; в бою вызываются из интерактивного UI.
+- e2e: сценарии самовыхода/снятия — через прямые коды кнопок
+  (stream:inactivity:...), проверка отсутствия клавиатуры в notify;
+  monitor-тест перенесён в mentor-management.e2e (трек 5).
+
+Проверки: юнит 17/17, e2e 4/4.
