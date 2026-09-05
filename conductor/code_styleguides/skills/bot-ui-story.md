@@ -31,7 +31,7 @@
 7. **Кросс-стори вызовы — через `this.cbFor(storyName, action, ...args)`**. Стори не импортируют другие стори напрямую. **Только в пределах одного контроллера** — `storyName` должен быть зарегистрирован в том же контроллере, что и текущая стори.
 8. **Кросс-контроллерные переходы — через реестр `Routes` и готовые кнопки `buttons`.** `cbFor` работает только для стори того же контроллера. Чужие адреса бери из `Routes` (`apps/u7-bot/src/controllers/shared/routes.ts`), готовые кнопки — из `buttons` (`apps/u7-bot/src/controllers/shared/buttons.ts`): `buttons.mainMenu(text?)` возвращает `{ text, code }` (текст по умолчанию «↩️ Главное меню», можно переопределить), `Routes.app.mainMenu` — только адрес. `delegate.path` — всегда полный маршрут: относительный путь (`this.cb`/`this.cbFor`) префиксуется контроллером.
 
-Живые примеры: `apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts`, `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts`.
+Живой образец стори на контракте «Диалог и Экран»: `apps/u7-bot/src/controllers/app/stories/community.story.ts`; базовый класс с докой — `packages/core/src/ui/bot/bot-ui-story.ts`.
 
 ---
 
@@ -41,32 +41,30 @@
 
 Внутри catch можно вызвать `this.handleError(err)` — он возвращает `DialogResponse`-экран. Логируются `internal`/`unauthorized`/`default`; `validation`/`not-found`/`conflict`/`access-denied`/`bad-request` — нормальный поток, не логируются.
 
-`handleTimeout` удалён (TTL-механика мертва): у стори нет таймаутов.
-
 ---
 
 ## 4. Тексты: `MdText` через `md`/`mdRaw`
 
-Ответ стори — `DialogResponse` (`packages/core/src/ui/bot/types.ts`): декларативный контракт без `messageId`/`parseMode`/`sendMessages`/`takeover` — механика рендера принадлежит транспорту. Все тексты (`screen`/`info`/`finalize`) — `MdText`:
+Ответ стори — `DialogResponse` (`packages/core/src/ui/bot/types.ts`): шесть декларативных полей — `screen`/`info`/`finalize` (влияние на чат), `awaitInput`/`release` (ввод), `delegate` (маршрут). Механика рендера принадлежит транспорту.
 
-- **`md\`…${data}…\``** — интерполяция доменных данных экранируется автоматически.
-- **`mdRaw\`…\``** — только для полностью статичных литералов.
-- Точки в md-литералах пишутся `\\.` — `\.` в шаблонной строке это невалидный JS-escape (backslash молча отбрасывается).
-- **Композиция** готовых `MdText` — только через `mdConcat`/`mdJoin`: вложенная интерполяция `${fragment}` в `md`-шаблон экранирует уже-безопасный текст повторно. Бренд `MdText` существует только в типах, рантайм-детект невозможен.
-- `escapeMarkdown` удалён из базового класса. Fail-fast: `assertDialogResponseMarkdownSafe` в тестах и транспорте роняет невалидный MarkdownV2.
+Все тексты (`screen.text`, `info.text`, `finalize.text`) — тип `MdText`:
+
+- **`md\`…${data}…\``** — интерполяция доменных данных экранируется автоматически. Точка в литеральной части пишется `\\.` (`\.` — невалидный JS-escape, backslash отбрасывается).
+- **`mdRaw\`…\``** — только для полностью статичных литералов (весь текст пишется в MarkdownV2-нотации вручную).
+- **Композиция** готовых `MdText` — только через `mdConcat`/`mdJoin` из `@u7-scl/core/shared`: вложенная интерполяция `${fragment}` в `md`-шаблон экранирует уже-безопасный текст повторно.
 - `confirm(text: MdText)` — confirm-хелпер принимает уже готовый текст.
 
-Живой образец: `packages/core/src/ui/bot/bot-ui-story.ts`, `packages/core/src/shared/markdown.ts`.
+Fail-fast: `assertDialogResponseMarkdownSafe(response)` (тесты, транспорт) роняет невалидный MarkdownV2. Живой образец: `packages/core/src/shared/markdown.ts` (+ тесты там же).
 
-**Дерево (`TreeNode[]` → `renderTree`):** `TreeNode.title` — пока «сырая» строка, экранирование делает стори при формировании узлов (`apps/u7-bot/src/shared/tree-renderer.ts`); при миграции доменных стори (треки 2–5) заголовки собираются через `md`.
+**Дерево (`TreeNode[]` → `renderTree`, `apps/u7-bot/src/shared/tree-renderer.ts`):** `TreeNode.title` — строка, уже безопасная для MarkdownV2: формируй заголовки через `md\`…\``.
 
 ---
 
 ## 5. Ввод пользователя: `awaitInput`/`release`
 
-Вместо `captureInput` у `DialogResponse` два поля: `awaitInput: { context?: unknown }` — диалог ждёт текст (path уже известен — это `dialog.path`), `release: true` — снять ожидание. `handleMessage(update, actor, session)` вызывается только при активном вводе; может вернуть `null` — «стори отказалась», тогда сообщение игнорируется.
+У `DialogResponse` два поля ввода: `awaitInput: { context?: unknown }` — диалог ждёт текст (path уже известен — это `dialog.path`), `release: true` — снять ожидание. `handleMessage(update, actor, session)` вызывается только при активном вводе; может вернуть `null` — «стори отказалась», тогда сообщение игнорируется.
 
-Wizard (пошаговый ввод) — конечный автомат на `awaitInput`. Пример: `apps/u7-bot/src/controllers/mentor/stories/create-stream.ts` (до миграции трека 4).
+Wizard (пошаговый ввод) — конечный автомат на `awaitInput`:
 
 - Контекст со всеми собираемыми полями (`step`, обязательные `''`, необязательные `undefined`) живёт в `awaitInput.context`.
 - Каждый шаг возвращает `awaitInput` с обновлённым контекстом (`step: N+1`).
@@ -74,7 +72,9 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 - **Выделяй переиспользуемые методы клавиатуры** в private-методы, если клавиатура показывается из нескольких мест.
 - Финальный шаг (`#handleConfirm`) оборачивай в `try/catch`: при ошибке валидации покажи детали, верни `release: true`, предложи начать заново.
 
-Также у стори: `handleHelp(actor, session): Promise<Screen | null>` — контекстная справка для /help (null — общего fallback); `handleCancel` по умолчанию `{ release: true }` — переопределяй при доменной очистке (очистка + возврат экрана или пустой release → дефолт-меню).
+Также у стори:
+- `handleHelp(actor, session): Promise<Screen | null>` — контекстная справка для /help; `null` — общего fallback.
+- `handleCancel(actor, session): Promise<DialogResponse>` — по умолчанию `{ release: true }`; переопределяй при доменной очистке (очистка + возврат экрана; пустой ответ → дефолт-меню).
 
 ---
 
@@ -88,7 +88,7 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 - **Без вызовов API** (например, `handleStart`) — `init()` не нужен.
 - **MarkdownV2:** `assertDialogResponseMarkdownSafe(response)` после каждого `handle*`.
 
-Живой пример теста: `apps/u7-bot/tests/streams/view-stream.integration.test.ts` (интеграционные), `apps/u7-bot/tests/e2e/` (E2E).
+Живые образцы тестов на новом контракте: `apps/u7-bot/src/controllers/app/stories/community.story.test.ts`, `apps/u7-bot/src/controllers/app/app-controller.test.ts`; базовые сценарии (awaitInput/release, delegate, /help, /cancel) — `packages/core/src/ui/bot/ui-app.test.ts`.
 
 ---
 
@@ -111,4 +111,4 @@ apps/u7-bot/tests/e2e/
 - [Ошибки](./errors.md) — AppError, хелперы
 - [Тестирование бота](../bot-test.md)
 - [Архитектура bot-level](../bot-architecture.md)
-- [DDD API](../api.md) — UseCase, Module
+- [DDD API](./api.md) — UseCase, Module

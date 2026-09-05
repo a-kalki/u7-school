@@ -61,13 +61,12 @@ reset(): void                  // сброс временного состоян
 |---|---|
 | `handleCallback(data, actor, session)` | Снимает префикс стори, делегирует в стори, префиксирует коды ответа |
 | `handleMessage(update, actor, session)` | Делегирует стори по `session.dialog.path`; `null` — стори отказалась |
-| `handleCancel(actor, session)` | Делегирует стори по `dialog.path`; `handleTimeout` удалён (TTL мёртв) |
+| `handleCancel(actor, session)` | Делегирует стори по `dialog.path` |
 | `handleStart(actor)` (U7) | Агрегирует кнопки главного меню от всех стори, добавляет префикс `name:` |
 | `handleWelcome` / `handleHelpMessage` (U7) | `Promise<Screen \| null>` — экраны меню/справки (переопределяет `AppController`) |
 
 Диспетчеризация callback: ищет стори по префиксу `${story.name}:`. Если не найдено —
-ответ пустой (`null`), сообщение игнорируется молча: устаревшие клики не текстовы
-в чат. Все сигнатуры принимают `BotSession` (контракт «Диалог и Экран»), а не старую `SessionData`.
+ответ пустой (`null`), апдейт игнорируется молча. Все сигнатуры принимают `BotSession`.
 
 ---
 
@@ -93,7 +92,7 @@ reset(): void                  // сброс временного состоян
 
 | kind | Действие |
 |---|---|
-| `validation` | Перечисляет поля из `payload.issues` (формат домена — `path`, не `field`) |
+| `validation` | Перечисляет поля из `payload.issues[].path` |
 | `not-found`, `conflict`, `access-denied`, `bad-request` | Текст ошибки |
 | `internal`, `unauthorized`, default | Логирует через `logger.error` + общее сообщение |
 
