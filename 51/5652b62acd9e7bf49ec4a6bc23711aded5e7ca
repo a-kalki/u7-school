@@ -1,0 +1,13 @@
+Фаза 3 «Ядро» (трек bot-ui-dialog-core_20260905)
+
+Сводка:
+- BotUiApp: seq-механика (#switchDialog: смена controller/story → seq++ + сброс input; тот же path — no-op), #dispatch (кнопка-мост = обычная маршрутизация), delegate-склейка (info инициатора + screen делегата; экран делегата приоритетен — архитектура §5.5), /help → handleHelp стори → fallback info-репликой, /cancel → доменная очистка → дефолт меню, /start → seq++ + buildMenuScreen.
+- Абстрактные хуки приложения: menuPath, buildMenuScreen(actor, session), buildHelpScreen(actor) — core-дефолты нейтральны.
+- BotController: #prefixResponse(DialogResponse) — screen/info клавиатуры + delegate.path; handleMessage/handleCancel по dialog.path (#storyByPath); ошибки → экран.
+- BotUiStory: confirm(text: MdText) → DialogResponse; handleHelp(): Screen | null; формат issues унифицирован с доменом (path, не field).
+- markdown: mdConcat/mdJoin — композиция MdText; 发现ены и закрыты: (а) вложенная интерполяция MdText экранирует повторно; (б) в шаблонных литералах '\.' — невалидный JS-escape (backslash отбрасывается) → точки в md-литералах пишутся '\\.'.
+- Удалено: TAKEOVER_MARKER, takeover-кодирование, handleTimeout-цепочка, escapeMarkdown/sendUnknownError у стори и контроллера, send()/префиксация BotCommand, Grammy-сессии (context/bot/main), sessionMap.
+- u7-bot: U7BotUiApp.menuPath='app/menu' (= INITIAL_DIALOG_PATH транспорта); AppController+CommunityStory конвертированы (опережение трека 2 — иначе welcome/help мертвы); group-handler на md.
+- e2e-хелпер: tsc-совместим (DialogResponse-снимок, без awaitInput/release — сессию не экспонирует).
+
+Заявленное состояние: прикладные стори красны (tsc + ~99 юнит + e2e) — треки 2–5. Ядро: core tsc/biome/266 тестов ✓; u7-bot ядро (infra/core/app/handlers/shared) 98 тестов ✓ tsc ✓ biome ✓.
