@@ -1,0 +1,14 @@
+Инфраструктура Фазы 2: /start seq++ (И2), штампы в тест-транспорте, MdText-литералы
+
+- Ядро: handleWelcome — явный сброс (seq++) даже в диалоге меню: сессии
+  без /start (path=menuPath, seq=0) делали кнопки welcome мёртвыми
+  (штампы валидны от 1). Тест ядра на повторный /start добавлен.
+- BotTransport: dialogSeq/dialogInputContext (публично для тест-транспорта).
+- TestBotTransport: makeCallback (штамп из сессии; кнопки из рендера —
+  как есть), восстановление awaitInput из dialog.input.
+- AppController/group-handler: экранирование спецсимволов литералов
+  (точки/скобки/дефисы) — валидатор транспорта fail-fast.
+- troubleshoot: markdownv2-md-literal-specials.
+
+Причина: блокеры скоупа Фазы 2 (интеграционные/e2e требуют валидный /start
+и валидные MdText-экраны).
