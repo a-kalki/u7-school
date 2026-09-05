@@ -26,3 +26,8 @@
 
 - [ ] **Track: Mentor-стори и демонтаж старых типов, весь репозиторий зелёный**
 *Link: [./tracks/bot-ui-dialog-mentor_20260905/](./tracks/bot-ui-dialog-mentor_20260905/)*
+
+---
+
+- [ ] **Track: Персистентность сессий и shortIds — диалоги переживают перезапуск сервиса**
+*Link: [./tracks/bot-ui-session-persist_20260905/](./tracks/bot-ui-session-persist_20260905/)*
