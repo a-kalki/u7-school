@@ -1,0 +1,17 @@
+Задача: Перевести user-notify путь на новый контракт (notify как реплика тон-канала)
+
+Сводка изменений:
+- NotifyStory переведена на контракт «Диалог и Экран»: сигнатуры handleCallback/handleMessage принимают BotSession и возвращают DialogResponse/DialogResponse|null.
+- Текст уведомления — MdText: md-интерполяция экранирует спецсимволы MarkdownV2 (замена escapeMarkdown-хелпера, удалённого из BotUiStory в треке 1).
+- Payload NotificationPayload без parseMode: тон 'notice' (заголовок 🔔 «Уведомление») добавляет транспорт — уведомление не трогает диалог и экран (инвариант И3).
+- Заглушка handleCallback → unknownCommand (warn-телеметрия мёртвых кнопок), handleMessage → экран «Неизвестное сообщение».
+- E2E user-notify: из стенда убраны StreamsController/MentorController (доменные действия идут через apiApp.execute) — tsc-скоуп user-notify зелёный.
+
+Изменённые файлы:
+- apps/u7-bot/src/controllers/user/stories/notify.story.ts
+- apps/u7-bot/src/controllers/user/stories/notify.story.test.ts
+- apps/u7-bot/tests/e2e/user-notify.e2e.test.ts
+
+Причина: трек bot-ui-dialog-nav (Фаза 1) — миграция user-notify пути на новый контракт; правило «трек уменьшает».
+
+Проверки: юнит-тесты NotifyStory 7/7, e2e user-notify 3/3, lint чист, tsc-скоуп user чист; вне скоупа — заявленное красное состояние трека 1.
