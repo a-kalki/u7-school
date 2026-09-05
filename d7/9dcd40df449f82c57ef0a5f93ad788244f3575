@@ -1,0 +1,12 @@
+Фаза 4 «Финал трека 1» — сводка верификации
+
+Зелёное ядро:
+- packages/core: bun run check = lint ✓ + tsc ✓ + 268 тестов ✓ (markdown 30, ui-app 21, bot-controller 22, bot-ui-story 30, transport 54, response-assert и пр.)
+- apps/u7-bot ядро (infra/core/controllers/app/handlers/shared/context/bot/main + tests/helpers): 101 тест ✓, biome ✓, tsc ✓ (0 ошибок вне заявленной зоны).
+
+Заявленное красное (треки 2–5, подтверждено владельцем):
+- tsc apps/u7-bot: 521 ошибка — все в controllers/{courses,learning,mentor,questionnaire,streams,user}, create-ui-app.ts, tests/* (e2e).
+- bun test src: 311 pass / 99 fail — прикладные стори-тесты старого контракта.
+- e2e-набор красный (реальный старый uiApp через новый транспорт).
+
+Стильгайды обновлены минимально-точно: только контрактные места (§3–§6 story, §3–§6 controller); структура и ссылки сохранены, битых ссылок нет (grep по удалённым символам чист).
