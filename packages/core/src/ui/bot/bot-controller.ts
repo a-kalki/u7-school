@@ -106,7 +106,7 @@ export abstract class BotController<
           return this.#prefixResponse(response);
         }
       }
-      return this.#unknownCommandScreen();
+      return this.#unknownCommandScreen(data, actor, session);
     } catch (err) {
       return this.handleError(err);
     }
@@ -174,7 +174,20 @@ export abstract class BotController<
     return undefined;
   }
 
-  #unknownCommandScreen(): DialogResponse {
+  /**
+   * Экран «Неизвестная команда» — с warn-логом телеметрии: владелец видит
+   * в проде, что кнопка рендерится, но не обрабатывается (слепая зона И-UX).
+   */
+  #unknownCommandScreen(
+    data: string,
+    actor: TActor,
+    session: BotSession,
+  ): DialogResponse {
+    this.logger?.warn('bot', 'Кнопка без обработчика', {
+      code: `${this.name}:${data}`,
+      dialogPath: session.dialog.path,
+      actor,
+    });
     return { screen: { text: md`⚠️ Неизвестная команда` } };
   }
 

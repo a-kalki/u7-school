@@ -10,12 +10,33 @@ import {
 } from '#domain/errors/error-helpers';
 import { AppException } from '#domain/errors/errors';
 import type { AppMeta } from '#domain/types';
+import type { Logger } from '#shared/logger';
+import { setGlobalLogger } from '#shared/logger';
 import { md, type mdRaw } from '../../shared/markdown';
 import { assertMarkdownV2Safe } from '../../shared/markdown-validator';
 import { BotUiStory } from './bot-ui-story';
 import type { BotSession, BotUpdate, DialogResponse } from './types';
 
 type TestActor = { id: string };
+
+/** Логгер-шпион warn-вызовов (остальное — молчаливые заглушки). */
+function makeWarnSpyLogger(
+  warns: Array<[string, string, Record<string, unknown> | undefined]>,
+): Logger {
+  return {
+    debug() {},
+    info() {},
+    warn(source, message, meta) {
+      warns.push([source, message, meta]);
+    },
+    error() {},
+    setLogLevel() {},
+    getLogLevel() {
+      return 0;
+    },
+    setSourceLevel() {},
+  };
+}
 
 /** Стори-заглушка: открывает protected API (confirm/handleError). */
 class TestStory extends BotUiStory<AppMeta, TestActor> {
@@ -56,6 +77,13 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
   }
   callStripPrefix(data: string): string {
     return this.stripPrefix(data);
+  }
+  callUnknownCommand(
+    action: string,
+    actor: TestActor,
+    session: BotSession,
+  ): ReturnType<TestStory['unknownCommand']> {
+    return this.unknownCommand(action, actor, session);
   }
   callFormatDate(iso: string): string {
     return this.formatDate(iso);
@@ -179,26 +207,30 @@ describe('BotUiStory — handleError', () => {
     [
       'not-found',
       new AppException(errNotFound('ERR', 'Объект [не] найден_', undefined)),
+      'Объект',
     ],
     [
       'conflict',
       new AppException(errConflict('ERR', 'Конфликт [x] _y_', undefined)),
+      'Конфликт',
     ],
     [
       'access-denied',
       new AppException(errAccessDenied('ERR', 'Доступ (закрыт)', undefined)),
+      'Доступ',
     ],
     [
       'bad-request',
       new AppException(errBadRequest('ERR', 'Плохой запрос _[1]', undefined)),
+      'Плохой',
     ],
-  ])('%s → экран с текстом ошибки, валидный md', (_kind, error) => {
+  ])('%s → экран с текстом ошибки, валидный md', (_kind, error, snippet) => {
     const story = new TestStory();
 
     const response = story.callHandleError(error);
 
     const text = String(response.screen?.text);
-    expect(text).toContain('Объект');
+    expect(text).toContain(snippet);
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
 
@@ -245,6 +277,26 @@ describe('BotUiStory — колбэк-хелперы', () => {
 
 // Нужен для типизации update в будущих кейсах (сохраняем поверхность)
 describe('BotUiStory — поверхность', () => {
+  test('unknownCommand: экран + warn-лог с кодом и контекстом', () => {
+    const warns: Array<[string, string, Record<string, unknown> | undefined]> =
+      [];
+    setGlobalLogger(makeWarnSpyLogger(warns));
+    const story = new TestStory();
+    const session: BotSession = { dialog: { path: 'quest/anketa', seq: 2 } };
+
+    const response = story.callUnknownCommand('boom:1', { id: 'u9' }, session);
+
+    expect(String(response.screen?.text)).toContain('Неизвестная команда');
+    expect(warns.length).toBe(1);
+    expect(warns[0]?.[0]).toBe('bot');
+    expect(warns[0]?.[2]).toMatchObject({
+      code: 'anketa:boom:1',
+      dialogPath: 'quest/anketa',
+      actor: { id: 'u9' },
+    });
+    setGlobalLogger(undefined as unknown as Logger);
+  });
+
   test('handleCallback/handleMessage реализуемы (контракт не抽象)', async () => {
     const story = new TestStory();
     const session: BotSession = { dialog: { path: 'c/anketa', seq: 1 } };

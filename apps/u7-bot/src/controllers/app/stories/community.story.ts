@@ -29,11 +29,11 @@ export class CommunityStory extends U7BotUiStory {
   }
 
   async handleCallback(
-    _action: string,
-    _actor: User,
-    _session: BotSession,
+    action: string,
+    actor: User,
+    session: BotSession,
   ): Promise<DialogResponse> {
-    return { screen: { text: mdRaw('⚠️ Неизвестная команда') } };
+    return this.unknownCommand(action, actor, session);
   }
 
   override async handleMessage(

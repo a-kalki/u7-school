@@ -172,6 +172,25 @@ export abstract class BotUiStory<
     return [storyName, action, ...ids].join(':');
   }
 
+  /**
+   * Экран «Неизвестная команда» для ветки внутри стори: код кнопки не
+   * покрыт ни одной веткой handleCallback. Не молчим — warn-лог с
+   * телеметрией (код, путь диалога, актёр), чтобы владелец видел в проде
+   * мёртвые кнопки.
+   */
+  protected unknownCommand(
+    action: string,
+    actor?: TActor,
+    session?: BotSession,
+  ): DialogResponse {
+    this.logger?.warn('bot', 'Кнопка без обработчика', {
+      code: `${this.name}:${action}`,
+      dialogPath: session?.dialog.path,
+      ...(actor !== undefined ? { actor } : {}),
+    });
+    return { screen: { text: md`⚠️ Неизвестная команда` } };
+  }
+
   /** Убирает префикс сценария из callback_data */
   protected stripPrefix(data: string): string {
     const prefix = `${this.name}:`;

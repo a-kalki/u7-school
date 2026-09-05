@@ -2,6 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { errNotFound, errValidation } from '#domain/errors/error-helpers';
 import { AppException } from '#domain/errors/errors';
 import type { AppMeta } from '#domain/types';
+import type { Logger } from '#shared/logger';
+import { setGlobalLogger } from '#shared/logger';
 import { md } from '../../shared/markdown';
 import { assertMarkdownV2Safe } from '../../shared/markdown-validator';
 import { BotController } from './bot-controller';
@@ -76,6 +78,25 @@ function kb(...codes: string[]): KeyboardDescription {
 
 function makeSession(path = 'learn/hub', seq = 3): BotSession {
   return { dialog: { path, seq } };
+}
+
+/** Логгер-шпион warn-вызовов (остальное — молчаливые заглушки). */
+function makeWarnSpyLogger(
+  warns: Array<[string, string, Record<string, unknown> | undefined]>,
+): Logger {
+  return {
+    debug() {},
+    info() {},
+    warn(source, message, meta) {
+      warns.push([source, message, meta]);
+    },
+    error() {},
+    setLogLevel() {},
+    getLogLevel() {
+      return 0;
+    },
+    setSourceLevel() {},
+  };
 }
 
 function makeUpdate(text = 'ответ'): BotUpdate {
@@ -255,6 +276,30 @@ describe('BotController — утилиты', () => {
     // cb protected — проверяем через его использование в handleCallback не требуется:
     // контракт фиксирован форматом 'controller:story:action'
     expect(ctrl.name).toBe('learn');
+  });
+
+  test('кнопка без обработчика → warn-лог с телеметрией (не молчим)', async () => {
+    const warns: Array<[string, string, Record<string, unknown> | undefined]> =
+      [];
+    setGlobalLogger(makeWarnSpyLogger(warns));
+    const story = new SpyStory('hub');
+    const ctrl = new TestController([story]);
+    const session = makeSession('learn/hub', 3);
+    const actor: TestActor = { id: 'u1' };
+
+    const response = await ctrl.handleCallback('zzz:q', actor, session);
+
+    expect(String(response.screen?.text)).toContain('Неизвестная команда');
+    expect(warns.length).toBe(1);
+    expect(warns[0]?.[0]).toBe('bot');
+    expect(warns[0]?.[1]).toContain('Кнопка без обработчика');
+    // полный код кнопки, какой видел пользователь + контекст диалога и актёр
+    expect(warns[0]?.[2]).toMatchObject({
+      code: 'learn:zzz:q',
+      dialogPath: 'learn/hub',
+      actor: { id: 'u1' },
+    });
+    setGlobalLogger(undefined as unknown as Logger);
   });
 
   test('getStories возвращает зарегистрированные стори', () => {
