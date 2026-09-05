@@ -1,5 +1,51 @@
 import { convert } from 'markdown-to-telegram';
 
+// ── MdText — безопасный MarkdownV2 ──
+
+/**
+ * Брендированный тип «безопасного» MarkdownV2-текста для Telegram.
+ *
+ * Производится ТОЛЬКО хелперами `md`/`mdRaw`: доменные данные вставляются
+ * через `${}`-интерполяцию `md` и экранируются автоматически. Присвоить
+ * обычную строку в поля `Screen.text` и `NotificationPayload.text`
+ * компилятор не даст — забывание экранирования невозможно типами.
+ */
+export type MdText = string & { readonly __md: never };
+
+/**
+ * Тегированный шаблон безопасного MarkdownV2.
+ *
+ * Литеральные части проходят как есть (разметка разрешена и остаётся
+ * на совести автора текста), интерполированные `${значения}` экранируются
+ * целиком — доменные данные не могут сломать разметку.
+ *
+ * @example
+ * const name = 'Иван_5';
+ * md`Привет, *${name}*!` // 'Привет, *Иван\\_5*!'
+ */
+export function md(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+): MdText {
+  let result = '';
+  for (let i = 0; i < strings.length; i++) {
+    result += strings[i];
+    if (i < values.length) {
+      result += escapeMarkdown(String(values[i]));
+    }
+  }
+  return result as MdText;
+}
+
+/**
+ * Явный «этот текст уже корректный MarkdownV2» (редкие случаи: вставка
+ * заранее размеченного блока). Ответственность за экранирование — на
+ * вызывающем.
+ */
+export function mdRaw(text: string): MdText {
+  return text as MdText;
+}
+
 /**
  * Экранирует спецсимволы MarkdownV2 для Telegram.
  *

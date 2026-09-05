@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { safeConvert } from './markdown';
+import { type MdText, md, mdRaw, safeConvert } from './markdown';
 import { validateMarkdownV2 } from './markdown-validator';
 
 describe('safeConvert', () => {
@@ -122,5 +122,62 @@ describe('safeConvert', () => {
     // Валидатор подтверждает: нет проблем с парностью _
     const v = validateMarkdownV2(result);
     expect(v.issues.filter((i) => i.char === '_')).toEqual([]);
+  });
+});
+
+// ── md / mdRaw / MdText — безопасный конструктор MarkdownV2 (трек bot-ui-dialog-core) ──
+
+describe('md — тегированный шаблон', () => {
+  test('интерполяция ${} экранирует доменные данные', () => {
+    const userName = 'Иван_5 + 5 = 10.';
+    const text = md`Привет, ${userName}!`;
+
+    expect(text).toBe('Привет, Иван\\_5 \\+ 5 \\= 10\\.!');
+  });
+
+  test('литеральные части не экранируются — разметка сохраняется', () => {
+    const text = md`*Жирный* и ${'точка.'}`;
+
+    // Разметка литерала жива, данные экранированы
+    expect(text).toBe('*Жирный* и точка\\.');
+  });
+
+  test('несколько интерполяций подряд', () => {
+    const text = md`${'a_b'} и ${'c(d)'} и ${'e.f'}`;
+
+    expect(text).toBe('a\\_b и c\\(d\\) и e\\.f');
+  });
+
+  test('не-строковые значения приводятся к строке', () => {
+    const text = md`Количество: ${42}, флаг: ${null}`;
+
+    expect(text).toBe('Количество: 42, флаг: null');
+  });
+
+  test('результат проходит валидатор MarkdownV2 при опасных данных', () => {
+    const text = md`Ответ: ${'5 + 5 = 10. Отлично_1!'}`;
+
+    expect(validateMarkdownV2(text).valid).toBe(true);
+  });
+
+  test('результат — строка (бренд-тип стирается в рантайме)', () => {
+    const text: MdText = md`Текст`;
+
+    expect(typeof text).toBe('string');
+    expect(text).toBe('Текст');
+  });
+});
+
+describe('mdRaw — явный «уже с разметкой»', () => {
+  test('пропускает текст как есть, без экранирования', () => {
+    const raw = '*Жирный* и `код` и [ссылка](https://example.com)\\.';
+
+    expect(mdRaw(raw)).toBe(raw);
+  });
+
+  test('валидный размеченный текст проходит валидатор', () => {
+    const text = mdRaw('*Заголовок*\\. Точка экранирована\\.');
+
+    expect(validateMarkdownV2(text).valid).toBe(true);
   });
 });
