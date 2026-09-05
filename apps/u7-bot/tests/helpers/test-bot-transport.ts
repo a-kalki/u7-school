@@ -3,10 +3,9 @@ import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import { InProcEventBus } from '@u7-scl/core/infra';
 import type {
-  BotResponse,
+  DialogResponse,
   KeyboardDescription,
-  SendMessageDescription,
-  SessionData,
+  Screen,
 } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../../src/context';
@@ -145,7 +144,6 @@ export class RecordingBotApi {
  */
 export class TestBotTransport {
   readonly api = new RecordingBotApi();
-  readonly sessionMap = new Map<number, SessionData>();
   readonly uiApp: U7BotUiApp;
   readonly transport: BotTransport;
 
@@ -172,10 +170,9 @@ export class TestBotTransport {
     this.uiApp.subscribeEvents();
   }
 
-  /** Сбрасывает накопленные сообщения и сессии (изоляция между тестами). */
+  /** Сбрасывает накопленные сообщения (изоляция между тестами). */
   reset(): void {
     this.api.reset();
-    this.sessionMap.clear();
   }
 
   // ── Фабрика мок-контекста ──
@@ -188,16 +185,9 @@ export class TestBotTransport {
     tgId: number,
     opts: { callbackData?: string; text?: string } = {},
   ): BotContext {
-    let session = this.sessionMap.get(tgId);
-    if (!session) {
-      session = { activeHandler: null };
-      this.sessionMap.set(tgId, session);
-    }
-
     return {
       from: { id: tgId, first_name: 'Test', is_bot: false },
       chat: { id: tgId, type: 'private' },
-      session,
       reply: async () => ({ message_id: 0 }),
       answerCallbackQuery: async () => true,
       callbackQuery:
@@ -216,34 +206,42 @@ export class TestBotTransport {
 
   // ── Обработчики ──
 
-  async handleStart(ctx: BotContext): Promise<BotResponse> {
+  async handleStart(ctx: BotContext): Promise<DialogResponse> {
     return this.#run(ctx, () => this.transport.handleStart(ctx));
   }
 
-  async handleCallback(ctx: BotContext): Promise<BotResponse> {
+  async handleCallback(ctx: BotContext): Promise<DialogResponse> {
     return this.#run(ctx, () => this.transport.handleCallback(ctx));
   }
 
-  async handleMessage(ctx: BotContext): Promise<BotResponse> {
+  async handleMessage(ctx: BotContext): Promise<DialogResponse> {
     return this.#run(ctx, () =>
       this.transport.handleMessage(ctx, async () => {}),
     );
   }
 
-  async handleCancel(ctx: BotContext): Promise<BotResponse> {
+  async handleCancel(ctx: BotContext): Promise<DialogResponse> {
     return this.#run(ctx, () => this.transport.handleCancel(ctx));
   }
 
-  async handleHelp(ctx: BotContext): Promise<BotResponse> {
+  async handleHelp(ctx: BotContext): Promise<DialogResponse> {
     return this.#run(ctx, () => this.transport.handleHelp(ctx));
   }
 
   // ── Восстановление BotResponse ──
 
-  async #run(ctx: BotContext, fn: () => Promise<void>): Promise<BotResponse> {
+  /**
+   * Запускает обработчик транспорта и восстанавливает снимок ответа
+   * (DialogResponse-форма) из накопленных вызовов мок-Api.
+   *
+   * Слоты awaitInput/release не восстанавливаются: сессией владеет
+   * транспорт; e2e-сценарии мигрируют на новый контракт в треках 2–5.
+   */
+  async #run(
+    ctx: BotContext,
+    fn: () => Promise<void>,
+  ): Promise<DialogResponse> {
     const tgId = ctx.from?.id;
-    const beforeActive = ctx.session?.activeHandler ?? null;
-    const beforeLastText = ctx.session?.lastBotMessage?.text;
     const startIndex = this.api.sentMessages.length;
     const editStartIndex = this.api.editedMessages.length;
 
@@ -257,55 +255,24 @@ export class TestBotTransport {
     const edited = this.api.editedMessages
       .slice(editStartIndex)
       .filter((m) => tgId === undefined || m.telegramId === tgId);
-    const afterActive = ctx.session?.activeHandler ?? null;
 
-    const response: BotResponse = {};
+    const response: DialogResponse = {};
 
     const first = sent[0];
-    if (sent.length === 1 && first) {
-      response.sendMessage = this.#toSend(first);
-    } else if (sent.length > 1) {
-      response.sendMessages = sent.map((s) => this.#toSend(s));
-    } else if (edited.length >= 1) {
-      // Ответ был редактированием (editMessage). Отделяем его от удаления
-      // клавиатуры у предыдущего сообщения (тот же текст, клавиатура снята).
+    if (first) {
+      response.screen = this.#toScreen(first);
+    } else {
       const last = edited[edited.length - 1];
       if (last) {
-        const isRemoval =
-          last.keyboard === undefined && last.text === beforeLastText;
-        if (!isRemoval) {
-          response.sendMessage = this.#toSend(last);
-        }
+        response.screen = this.#toScreen(last);
       }
-    }
-
-    if (afterActive && afterActive !== beforeActive) {
-      response.captureInput = {
-        path: afterActive.path.split('/').slice(1).join('/'),
-        context: afterActive.context,
-        ttlSeconds: afterActive.expiresAt
-          ? Math.max(1, Math.round((afterActive.expiresAt - Date.now()) / 1000))
-          : undefined,
-      };
-    }
-
-    if (beforeActive && !afterActive) {
-      response.releaseInput = true;
     }
 
     return response;
   }
 
-  #toSend(s: {
-    text: string;
-    keyboard?: KeyboardDescription;
-    parseMode?: 'MarkdownV2';
-  }): SendMessageDescription {
-    return {
-      text: s.text,
-      keyboard: s.keyboard,
-      parseMode: s.parseMode,
-    };
+  #toScreen(s: { text: string; keyboard?: KeyboardDescription }): Screen {
+    return { text: s.text as never, keyboard: s.keyboard };
   }
 }
 

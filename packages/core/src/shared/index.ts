@@ -9,7 +9,15 @@ export {
   parseLogLevel,
   setGlobalLogger,
 } from './logger';
-export { escapeMarkdown, type MdText, md, mdRaw, safeConvert } from './markdown';
+export {
+  escapeMarkdown,
+  type MdText,
+  md,
+  mdConcat,
+  mdJoin,
+  mdRaw,
+  safeConvert,
+} from './markdown';
 export type {
   MarkdownIssue,
   MarkdownValidationResult,

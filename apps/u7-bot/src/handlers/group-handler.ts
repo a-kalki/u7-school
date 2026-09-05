@@ -1,5 +1,5 @@
 import type { Logger } from '@u7-scl/core/shared';
-import { escapeMarkdown } from '@u7-scl/core/shared';
+import { md } from '@u7-scl/core/shared';
 import type { ProactiveSender } from '@u7-scl/core/ui';
 import type { UserFacade } from '@u7-scl/user/domain';
 import { Role } from '@u7-scl/user/domain';
@@ -211,8 +211,8 @@ async function notifyMentorsAboutGroupLeft(
       if (mentor.telegramId === undefined) continue;
 
       await deps.transport.notify(mentor.telegramId, {
-        text: `🚪 Студент ${escapeMarkdown(userName)} покинул группу «${escapeMarkdown(stream.title)}»\\.`,
-        parseMode: 'MarkdownV2',
+        // интерполяция доменных данных экранируется автоматически (md)
+        text: md`🚪 Студент ${userName} покинул группу «${stream.title}».`,
       });
     }
   } catch (err) {

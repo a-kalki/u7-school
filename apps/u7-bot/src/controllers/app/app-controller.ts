@@ -1,14 +1,14 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
-import { buttons } from '../shared/buttons';
+import { md, mdConcat, mdJoin } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse, Screen } from '@u7-scl/core/ui';
 import { CommunityStory } from './stories/community.story';
 
 /**
  * Контроллер уровня приложения для системных сценариев:
- * - Приветствие /start (handleWelcome)
- * - Помощь /help (handleHelpMessage)
+ * - Приветствие /start (handleWelcome — экран меню)
+ * - Помощь /help (handleHelpMessage — общий fallback)
  * - Кнопки «Сообщество школы» и «Помощь»
  * - Callback'и app:main-menu и app:help
  */
@@ -47,51 +47,45 @@ export class AppController extends U7BotController {
   // ── Системные сообщения ──
 
   /**
-   * Приветствие /start: greeting + главное меню.
+   * Приветствие /start: greeting + главное меню (экран диалога app/menu).
    */
-  override async handleWelcome(actor: User): Promise<BotResponse | null> {
+  override async handleWelcome(actor: User): Promise<Screen | null> {
     const name = actor.name;
-    const greeting = [
-      `Привет, ${name}! 👋`,
-      '',
-      'Я бот-помощник школы «u7 schools» 🎓',
-      'Я проведу тебя от знакомства до обучения на курсах.',
-      '',
-      'Если ты здесь впервые — начни с кнопки «❓ Помощь», расскажу как всё устроено.',
-      'Если уже знаком — выбирай нужный раздел:',
-    ].join('\n');
+    const greeting = md`Привет, ${name}! 👋
 
-    return this.#buildMenuResponse(greeting, actor);
+Я бот-помощник школы «u7 schools» 🎓
+Я проведу тебя от знакомства до обучения на курсах.
+
+Если ты здесь впервые — начни с кнопки «❓ Помощь», расскажу как всё устроено.
+Если уже знаком — выбирай нужный раздел:`;
+
+    return this.#buildMenuScreen(greeting, actor);
   }
 
   /**
-   * Помощь /help: инструкция + список описаний кнопок + кнопка «Назад».
+   * Помощь /help: инструкция + список описаний кнопок.
+   * Уходит info-репликой — клавиатура не рендерится (диалог не трогаем).
    */
-  override async handleHelpMessage(actor: User): Promise<BotResponse | null> {
-    const header = [
-      'Как со мной работать? 🤔',
-      '',
-      'В основном ты будешь нажимать на кнопки — это быстро и удобно. Иногда я попрошу написать что-то самому (например, ответ на вопрос анкеты).',
-      '',
-      '📌 После выбора кнопки я убираю клавиатуру и добавляю пометку «Вы выбрали: ...» — чтобы экран оставался чистым.',
-      '📌 В некоторых сценариях (например, заполнение анкеты) работает команда /cancel — она вернёт тебя обратно к выбору.',
-      '',
-      'Вот что я умею:',
-    ].join('\n');
+  override async handleHelpMessage(actor: User): Promise<Screen | null> {
+    const header = md`Как со мной работать? 🤔
+
+В основном ты будешь нажимать на кнопки — это быстро и удобно. Иногда я попрошу написать что-то самому (например, ответ на вопрос анкеты).
+
+📌 После выбора кнопки я убираю клавиатуру и добавляю пометку «Вы выбрали: ...» — чтобы экран оставался чистым.
+📌 В некоторых сценариях (например, заполнение анкеты) работает команда /cancel — она вернёт тебя обратно к выбору.
+
+Вот что я умею:`;
 
     const descriptions = await this.uiApp.collectAllHelpDescriptions(actor);
 
-    const body =
-      descriptions.length > 0 ? `\n\n${descriptions.join('\n\n')}` : '';
+    if (descriptions.length === 0) {
+      return { text: header };
+    }
 
+    // Композиция: header уже MdText, интерполяция экранировала бы повторно
+    const parts = descriptions.map((d) => md`${d}`);
     return {
-      sendMessage: {
-        text: header + body,
-        keyboard: {
-          rows: [[buttons.mainMenu('🔙 Назад')]],
-          isMultiple: false,
-        },
-      },
+      text: mdConcat(header, md`\n\n`, mdJoin(parts, '\n\n')),
     };
   }
 
@@ -100,17 +94,17 @@ export class AppController extends U7BotController {
   override async handleCallback(
     data: string,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (data === 'main-menu') {
-      return this.#buildMenuResponse('Выберите действие:', actor);
+      return {
+        screen: await this.#buildMenuScreen(md`Выберите действие:`, actor),
+      };
     }
 
     if (data === 'help') {
-      const helpRes = await this.handleHelpMessage(actor);
-      return (
-        helpRes ?? { sendMessage: { text: 'Нет доступных пунктов меню.' } }
-      );
+      const helpScreen = await this.handleHelpMessage(actor);
+      return { info: helpScreen ?? { text: md`Нет доступных пунктов меню.` } };
     }
 
     // Делегируем в stories (например, CommunityStory)
@@ -122,15 +116,15 @@ export class AppController extends U7BotController {
       }
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    return { screen: { text: md`⚠️ Неизвестная команда` } };
   }
 
   // ── Приватные ──
 
   /**
-   * Формирует BotResponse с текстом и клавиатурой из MenuAggregator.
+   * Формирует экран меню: текст + клавиатура из MenuAggregator.
    */
-  async #buildMenuResponse(title: string, actor: User): Promise<BotResponse> {
+  async #buildMenuScreen(title: Screen['text'], actor: User): Promise<Screen> {
     const items = this.uiApp ? await this.uiApp.collectAllMenuItems(actor) : [];
 
     // Формируем клавиатуру: каждая кнопка в отдельном ряду
@@ -148,11 +142,6 @@ export class AppController extends U7BotController {
     const keyboard =
       rows.length > 0 ? { rows, isMultiple: false as const } : undefined;
 
-    return {
-      sendMessage: {
-        text: title,
-        keyboard,
-      },
-    };
+    return { text: title, keyboard };
   }
 }

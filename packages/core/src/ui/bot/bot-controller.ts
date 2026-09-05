@@ -3,22 +3,26 @@ import { fromError } from '#domain/errors/error-helpers';
 import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
+import { md, mdConcat, mdJoin } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiController } from '../ui-controller';
 import type { BotUiAppResolve } from './app-types';
 import type { BotUiStory } from './bot-ui-story';
 import type {
-  BotCommand,
-  BotResponse,
+  BotSession,
   BotUpdate,
+  DialogResponse,
   KeyboardDescription,
   NotificationPayload,
   ProactiveSender,
-  SessionData,
 } from './types';
 
 /**
- * Базовый контроллер для Telegram-бота с поддержкой UserStory.
+ * Базовый контроллер Telegram-бота на контракте «Диалог и Экран».
+ *
+ * Ответственность: стори-роутинг по префиксу, префиксация кодов кнопок и
+ * `delegate.path` именем контроллера, обработка ошибок (экран, не падение).
+ * Сессией и маршрутом диалога владеет uiApp; экраном — транспорт.
  */
 export abstract class BotController<
     TAppMeta extends AppMeta = AppMeta,
@@ -56,22 +60,7 @@ export abstract class BotController<
 
   // ── ProactiveSender ──
 
-  /** Проактивная отправка — префиксирует коды кнопок и делегирует родителю */
-  async send(telegramId: number, command: BotCommand): Promise<void> {
-    const prepared = this.#prefixCommand(command);
-    if (prepared.captureInput) {
-      prepared.captureInput = {
-        ...prepared.captureInput,
-        path: `${this.name}/${prepared.captureInput.path}`,
-      };
-    }
-    await this.proactiveSender.send(telegramId, prepared);
-  }
-
-  /**
-   * Проактивное уведомление — делегирует родителю без изменений:
-   * в payload нет кнопок, префиксировать нечего.
-   */
+  /** Проактивное уведомление — делегирует родителю без изменений */
   async notify(
     telegramId: number,
     payload: NotificationPayload,
@@ -99,15 +88,15 @@ export abstract class BotController<
   // ── Обработчики ──
 
   /**
-   * Обработка callback (data без префикса контроллера, с реальными ID).
-   * Делегирует в стори. BotUiApp уже разжал данные.
-   * Необработанные ошибки стори перехватываются и логируются.
+   * Обработка callback (data без префикса контроллера, с реальными ID —
+   * shortId и штамп уже сняты транспортом). Делегирует в стори по префиксу.
+   * Необработанные ошибки стори перехватываются и превращаются в экран.
    */
   async handleCallback(
     data: string,
     actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     try {
       for (const story of this.stories) {
         const prefix = `${story.name}:`;
@@ -117,83 +106,47 @@ export abstract class BotController<
           return this.#prefixResponse(response);
         }
       }
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+      return this.#unknownCommandScreen();
     } catch (err) {
       return this.handleError(err);
     }
   }
 
   /**
-   * Обработка сообщений (когда контроллер активен через captureInput).
-   * Делегирует активной стори по activeHandler.path.
-   * Необработанные ошибки стори перехватываются и логируются.
+   * Текстовый ввод активного диалога (dialog.path = controller/story).
+   * null — ввод не обработан (uiApp передаст next).
    */
   async handleMessage(
     update: BotUpdate,
     actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
     try {
-      const activePath = session.activeHandler?.path;
-      if (activePath) {
-        const story = this.#findStoryByPath(activePath);
-        if (story) {
-          const response = await story.handleMessage(update, actor, session);
-          return this.#prefixResponse(response);
-        }
+      const story = this.#storyByPath(session.dialog.path);
+      if (story) {
+        return await story.handleMessage(update, actor, session);
       }
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+      return null;
     } catch (err) {
       return this.handleError(err);
     }
   }
 
-  /**
-   * Отмена текущего действия.
-   * Делегирует активной стори или освобождает ввод.
-   */
+  /** Отмена активного диалога — доменная очистка стори. */
   async handleCancel(
     actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    const activePath = session.activeHandler?.path;
-    if (activePath) {
-      const story = this.#findStoryByPath(activePath);
-      if (story) {
-        const response = await story.handleCancel(actor, session);
-        return this.#prefixResponse(response);
-      }
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const story = this.#storyByPath(session.dialog.path);
+    if (story) {
+      return story.handleCancel(actor, session);
     }
-    return { releaseInput: true };
-  }
-
-  /**
-   * Таймаут активного обработчика.
-   * Делегирует активной стори или освобождает ввод.
-   */
-  async handleTimeout(
-    actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    const activePath = session.activeHandler?.path;
-    if (activePath) {
-      const story = this.#findStoryByPath(activePath);
-      if (story) {
-        const response = await story.handleTimeout(actor, session);
-        return this.#prefixResponse(response);
-      }
-    }
-    return {
-      releaseInput: true,
-      sendMessage: { text: '⏰ Время ожидания истекло.' },
-    };
+    return { release: true };
   }
 
   // ── Хелперы ──
 
-  /**
-   * Генерирует callback_data с префиксом контроллера.
-   */
+  /** Генерирует callback_data с префиксом контроллера. */
   protected cb(action: string): string {
     return `${this.name}:${action}`;
   }
@@ -212,8 +165,8 @@ export abstract class BotController<
     return this.stories.find((s) => s.name === name);
   }
 
-  /** Поиск стори по пути из activeHandler: controllerName/storyName/... */
-  #findStoryByPath(path: string): BotUiStory<TAppMeta, TActor> | undefined {
+  /** Стори активного диалога по `controller/story` (dialog.path). */
+  #storyByPath(path: string): BotUiStory<TAppMeta, TActor> | undefined {
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
       return this.findStory(parts[1] ?? '');
@@ -221,73 +174,47 @@ export abstract class BotController<
     return undefined;
   }
 
+  #unknownCommandScreen(): DialogResponse {
+    return { screen: { text: md`⚠️ Неизвестная команда` } };
+  }
+
   // ── Префиксация кнопок ──
 
   /**
-   * Префиксирует коды кнопок в команде (без делегирования).
-   *
-   * Коды стори (`story:action`) получают префикс контроллера.
-   * Кросс-контроллерные коды (напр. `app:main-menu`) уже содержат префикс
-   * другого контроллера и не трогаются.
+   * Добавляет префикс контроллера (this.name) ко всем кодам кнопок в ответе
+   * и к `delegate.path`.
    */
-  #prefixCommand(command: BotCommand): BotCommand {
-    const prefixKeyboard = (
-      kb: KeyboardDescription | undefined,
-    ): KeyboardDescription | undefined => {
-      if (!kb) return kb;
-      return {
-        ...kb,
-        rows: kb.rows.map((row) =>
-          row.map((btn) => ({
-            ...btn,
-            code: this.#prefixCode(btn.code),
-          })),
-        ),
-      };
-    };
+  #prefixResponse(response: DialogResponse): DialogResponse {
+    const result: DialogResponse = { ...response };
 
-    const result: BotCommand = { ...command };
-
-    if (result.sendMessage?.keyboard) {
-      result.sendMessage = {
-        ...result.sendMessage,
-        keyboard: prefixKeyboard(result.sendMessage.keyboard) ?? undefined,
+    if (response.screen?.keyboard) {
+      result.screen = {
+        ...response.screen,
+        keyboard: this.#prefixKeyboard(response.screen.keyboard),
       };
     }
-
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map((sm) =>
-        sm.keyboard
-          ? { ...sm, keyboard: prefixKeyboard(sm.keyboard) ?? undefined }
-          : sm,
-      );
+    if (response.info?.keyboard) {
+      result.info = {
+        ...response.info,
+        keyboard: this.#prefixKeyboard(response.info.keyboard),
+      };
     }
-
-    if (result.editMessage?.keyboard) {
-      result.editMessage = {
-        ...result.editMessage,
-        keyboard: prefixKeyboard(result.editMessage.keyboard) ?? undefined,
+    if (response.delegate) {
+      result.delegate = {
+        path: this.#prefixCode(response.delegate.path),
       };
     }
 
     return result;
   }
 
-  /**
-   * Добавляет префикс контроллера (this.name) ко всем кодам кнопок в ответе
-   * и к `delegate.path`.
-   */
-  #prefixResponse(response: BotResponse): BotResponse {
-    const result: BotResponse = this.#prefixCommand(response);
-
-    if (response.delegate) {
-      result.delegate = {
-        ...response.delegate,
-        path: this.#prefixCode(response.delegate.path),
-      };
-    }
-
-    return result;
+  #prefixKeyboard(kb: KeyboardDescription): KeyboardDescription {
+    return {
+      ...kb,
+      rows: kb.rows.map((row) =>
+        row.map((btn) => ({ ...btn, code: this.#prefixCode(btn.code) })),
+      ),
+    };
   }
 
   /**
@@ -303,50 +230,46 @@ export abstract class BotController<
       return ownPrefix + code;
     }
 
-    // Иначе — кросс-контроллерный код, уже с префиксом (напр. app:main-menu).
+    // Иначе — кросс-контроллерный код, уже с префиксом (напр. app:menu).
     return code;
   }
 
   // ── Утилиты ──
 
-  protected escapeMarkdown(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
-
   /**
-   * Универсальный обработчик ошибок на уровне контроллера.
-   * Различает типы ошибок через `fromError()` и возвращает
-   * подходящее пользовательское сообщение.
+   * Универсальный обработчик ошибок: ошибка — ЭКРАН (решение владельца №1).
+   * Различает типы ошибок через `fromError()` и возвращает подходящее
+   * пользовательское сообщение (валидный MarkdownV2 — md-интерполяция
+   * экранирует доменные данные).
    */
-  protected handleError(err: unknown): BotResponse {
+  protected handleError(err: unknown): DialogResponse {
     const appError = fromError(err);
 
     switch (appError.kind) {
       case 'validation': {
         const payload = appError.payload as
-          | { issues?: Array<{ path: string; message: string }> }
+          | { issues?: Array<{ path?: string; message: string }> }
           | undefined;
         const issues = payload?.issues;
 
         if (issues && issues.length > 0) {
           const lines = issues.map(
-            (i) =>
-              `• *${this.escapeMarkdown(i.path)}*: ${this.escapeMarkdown(i.message)}`,
+            (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
           return {
-            releaseInput: true,
-            sendMessage: {
-              text: `⚠️ *Некорректные данные*\n\n${lines.join('\n')}\n\nПожалуйста, нажмите /start и попробуйте снова\\.`,
-              parseMode: 'MarkdownV2',
+            screen: {
+              text: mdConcat(
+                md`⚠️ *Некорректные данные*\n\n`,
+                mdJoin(lines),
+                md`\n\nПожалуйста, нажмите /start и попробуйте снова\\.`,
+              ),
             },
           };
         }
 
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: `⚠️ *Некорректные данные*\n\n${this.escapeMarkdown(appError.message)}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`⚠️ *Некорректные данные*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
           },
         };
       }
@@ -356,11 +279,7 @@ export abstract class BotController<
       case 'access-denied':
       case 'bad-request':
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: `⚠️ ${this.escapeMarkdown(appError.message)}`,
-            parseMode: 'MarkdownV2',
-          },
+          screen: { text: md`⚠️ ${appError.message}` },
         };
 
       default: {
@@ -371,10 +290,8 @@ export abstract class BotController<
         );
 
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: '⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.',
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
           },
         };
       }

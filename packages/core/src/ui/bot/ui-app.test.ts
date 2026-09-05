@@ -1,504 +1,440 @@
 import { describe, expect, mock, test } from 'bun:test';
+import type { AppMeta } from '#domain/types';
+import { md, mdRaw } from '../../shared/markdown';
 import { BotController } from './bot-controller';
-import type {
-  BotCommand,
-  BotResponse,
-  BotUpdate,
-  NotificationPayload,
-  SessionData,
-} from './types';
+import { BotUiStory } from './bot-ui-story';
+import type { BotSession, BotUpdate, DialogResponse, Screen } from './types';
 import { BotUiApp } from './ui-app';
 
-// ── Тестовый контроллер ──
+// ── Тестовые контроллер и стори ──
 
 type TestActor = { id: string; name: string };
 
-class TestController extends BotController<
-  import('#domain/types').AppMeta,
-  TestActor
-> {
+/** Очередь ответов callback: первый вызов — первый элемент, дальше последний. */
+class Queue<T> {
+  constructor(private items: T[]) {}
+  next(): T {
+    return this.items.length > 1
+      ? (this.items.shift() as T)
+      : (this.items[0] as T);
+  }
+}
+
+class TestStory extends BotUiStory<AppMeta, TestActor> {
+  readonly name: string;
+  helpScreen: Screen | null = null;
+
+  constructor(name: string) {
+    super();
+    this.name = name;
+  }
+
+  override async handleCallback(): Promise<DialogResponse> {
+    return {};
+  }
+  override async handleMessage(): Promise<DialogResponse | null> {
+    return null;
+  }
+  override async handleHelp(): Promise<Screen | null> {
+    return this.helpScreen;
+  }
+}
+
+class TestController extends BotController<AppMeta, TestActor> {
   name = '';
+  fakeStories: TestStory[] = [];
 
-  private _callbackResult: BotResponse = {};
-  private _messageResult: BotResponse = {};
-  private _cancelResult: BotResponse = { releaseInput: true };
-  private _timeoutResult: BotResponse = { releaseInput: true };
+  private callbackQueue = new Queue<DialogResponse>([{}]);
+  private _messageResult: DialogResponse | null = {};
+  private _cancelResult: DialogResponse = { release: true };
 
-  handleCallbackCalls: Array<{
-    data: string;
-    actor: TestActor;
-    session: SessionData;
-  }> = [];
-  handleMessageCalls: Array<{
-    update: BotUpdate;
-    actor: TestActor;
-    session: SessionData;
-  }> = [];
-  handleCancelCalls: Array<{ actor: TestActor; session: SessionData }> = [];
-  handleTimeoutCalls: Array<{ actor: TestActor; session: SessionData }> = [];
-
-  /** Сохраняет sender, переданный в init (для spy-проверок) */
-  initReceived: unknown;
+  callbackData: string[] = [];
+  messageCalled = 0;
+  cancelCalled = 0;
 
   override init(resolve: unknown, sender?: unknown): void {
     super.init(resolve as never, sender as never);
-    this.initReceived = sender;
   }
 
-  withCallbackResult(res: BotResponse): this {
-    this._callbackResult = res;
+  withCallbackResults(...results: DialogResponse[]): this {
+    this.callbackQueue = new Queue(results);
     return this;
   }
-  withMessageResult(res: BotResponse): this {
+  withMessageResult(res: DialogResponse | null): this {
     this._messageResult = res;
     return this;
   }
-  withCancelResult(res: BotResponse): this {
+  withCancelResult(res: DialogResponse): this {
     this._cancelResult = res;
     return this;
   }
-  withTimeoutResult(res: BotResponse): this {
-    this._timeoutResult = res;
-    return this;
+
+  override getStories(): BotUiStory<AppMeta, TestActor>[] {
+    return this.fakeStories;
   }
 
   override async handleCallback(
     data: string,
-    actor: TestActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    this.handleCallbackCalls.push({ data, actor, session });
-    return this._callbackResult;
+    _actor: TestActor,
+    _session: BotSession,
+  ): Promise<DialogResponse> {
+    this.callbackData.push(data);
+    return this.callbackQueue.next();
   }
 
   override async handleMessage(
-    update: BotUpdate,
-    actor: TestActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    this.handleMessageCalls.push({ update, actor, session });
+    _update: BotUpdate,
+    _actor: TestActor,
+    _session: BotSession,
+  ): Promise<DialogResponse | null> {
+    this.messageCalled++;
     return this._messageResult;
   }
 
   override async handleCancel(
-    actor: TestActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    this.handleCancelCalls.push({ actor, session });
+    _actor: TestActor,
+    _session: BotSession,
+  ): Promise<DialogResponse> {
+    this.cancelCalled++;
     return this._cancelResult;
   }
+}
 
-  override async handleTimeout(
-    actor: TestActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    this.handleTimeoutCalls.push({ actor, session });
-    return this._timeoutResult;
+/** Тестовый uiApp: menuPath 'menu/main', экран меню «Меню». */
+class TestUiApp extends BotUiApp<AppMeta, TestActor> {
+  protected override readonly menuPath = 'menu/main';
+  menuScreens = 0;
+
+  protected override async buildMenuScreen(): Promise<Screen> {
+    this.menuScreens++;
+    return { text: mdRaw('Меню') };
   }
+}
+
+function makeController(name: string): TestController {
+  const c = new TestController();
+  c.name = name;
+  return c;
+}
+
+function makeSession(
+  path = 'menu/main',
+  seq = 3,
+  input?: { context?: unknown },
+): BotSession {
+  return { dialog: { path, seq, ...(input ? { input } : {}) } };
 }
 
 function makeActor(): TestActor {
   return { id: 'u1', name: 'Тест' };
 }
 
-function makeSession(overrides: Partial<SessionData> = {}): SessionData {
-  return { activeHandler: null, ...overrides };
-}
-
-function makeActorResolver(
-  actor: TestActor,
-): (tgId: number) => Promise<TestActor> {
-  return async (_tgId: number) => actor;
-}
-
-function makeResolve(actor: TestActor) {
-  return {
+function makeUiApp(controllers: TestController[]): TestUiApp {
+  const uiApp = new TestUiApp(controllers);
+  uiApp.init({
     appApi: {} as never,
     eventBus: {} as never,
-    actorResolver: makeActorResolver(actor),
-  };
+    actorResolver: async () => makeActor(),
+  });
+  return uiApp;
 }
 
-// ── BotUiApp ──
+describe('BotUiApp — маршрутизация', () => {
+  test('кнопка маршрутизируется по префиксу контроллера без блокировки чужим диалогом', async () => {
+    const ctrlA = makeController('a');
+    const ctrlB = makeController('b');
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 5);
 
-describe('BotUiApp', () => {
-  test('создаётся с контроллерами, доступ по имени', () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
+    await uiApp.handleCallback('b:two:view', 42, session);
 
-    const app = new BotUiApp([ctrl]);
-    expect(app.size).toBe(1);
-    expect(app.getController('stream')).toBe(ctrl);
-    expect(app.getController('unknown')).toBeUndefined();
+    expect(ctrlA.callbackData.length).toBe(0);
+    expect(ctrlB.callbackData).toEqual(['two:view']);
   });
 
-  test('send делегирует в transport', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const app = new BotUiApp([ctrl]);
-    const transport = {
-      send: mock(async () => {}),
-      notify: mock(async () => {}),
-      kickFromGroup: mock(async () => {}),
-    };
-    app.init(makeResolve(makeActor()), transport);
-
-    const command: BotCommand = { sendMessage: { text: 'Привет' } };
-    await app.send(456, command);
-
-    expect(transport.send).toHaveBeenCalled();
-    const [tgId, sent] = (transport.send as ReturnType<typeof mock>).mock
-      .calls[0] as [number, BotCommand];
-    expect(tgId).toBe(456);
-    expect(sent).toEqual(command);
-  });
-
-  test('notify делегирует в transport без изменений payload', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const app = new BotUiApp([ctrl]);
-    const transport = {
-      send: mock(async () => {}),
-      notify: mock(async () => {}),
-      kickFromGroup: mock(async () => {}),
-    };
-    app.init(makeResolve(makeActor()), transport);
-
-    const payload: NotificationPayload = {
-      text: 'Ты зачислен',
-      parseMode: 'MarkdownV2',
-    };
-    await app.notify(456, payload);
-
-    expect(transport.notify).toHaveBeenCalled();
-    const [tgId, sent] = (transport.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, NotificationPayload];
-    expect(tgId).toBe(456);
-    expect(sent).toEqual(payload);
-  });
-
-  test('init передаёт себя контроллерам', () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const app = new BotUiApp([ctrl]);
-    const transport = {
-      send: mock(async () => {}),
-      notify: mock(async () => {}),
-      kickFromGroup: mock(async () => {}),
-    };
-    app.init(makeResolve(makeActor()), transport);
-
-    expect(ctrl.initReceived).toBe(app);
-  });
-
-  test('дубликат имени → ошибка', () => {
-    const c1 = new TestController();
-    c1.name = 'dup';
-    const c2 = new TestController();
-    c2.name = 'dup';
-
-    expect(() => new BotUiApp([c1, c2])).toThrow(
-      'Дубликат имени контроллера: dup',
-    );
-  });
-
-  test('handleCallback маршрутизирует по префиксу', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-    ctrl.withCallbackResult({ sendMessage: { text: 'ok' } });
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
+  test('кнопка без сегмента стори → экран ошибки формата, маршрутизации нет', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA]);
     const session = makeSession();
-    const res = await app.handleCallback('stream:view:123', 1, session);
 
-    expect(ctrl.handleCallbackCalls).toHaveLength(1);
-    expect(ctrl.handleCallbackCalls[0]!.data).toBe('view:123');
-    expect(res.sendMessage?.text).toBe('ok');
+    const response = await uiApp.handleCallback('a', 42, session);
+
+    expect(ctrlA.callbackData.length).toBe(0);
+    expect(String(response?.screen?.text ?? '').length).toBeGreaterThan(0);
   });
 
-  test('handleCallback: неизвестный префикс → ошибка', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const res = await app.handleCallback('unknown:action', 1, makeSession());
-
-    expect(ctrl.handleCallbackCalls).toHaveLength(0);
-    expect(res.sendMessage?.text).toContain('Неизвестная команда');
-  });
-
-  test('handleCallback: без ":" → ошибка формата', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const res = await app.handleCallback('nodata', 1, makeSession());
-
-    expect(ctrl.handleCallbackCalls).toHaveLength(0);
-    expect(res.sendMessage?.text).toContain('Неизвестный формат');
-  });
-
-  test('handleCallback: чужой callback → отказ', async () => {
-    const c1 = new TestController();
-    c1.name = 'onboarding';
-    const c2 = new TestController();
-    c2.name = 'stream';
-
-    const actor = makeActor();
-    const app = new BotUiApp([c1, c2]);
-    app.init(makeResolve(actor));
-
-    const session = makeSession({
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    const res = await app.handleCallback('stream:view:123', 1, session);
-
-    expect(res.sendMessage?.text).toContain('завершите текущее действие');
-    expect(c1.handleCallbackCalls).toHaveLength(0);
-    expect(c2.handleCallbackCalls).toHaveLength(0);
-  });
-
-  test('handleCallback: captureInput', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'onboarding';
-    ctrl.withCallbackResult({
-      sendMessage: { text: 'Введите имя:' },
-      captureInput: { path: 'ask-name', ttlSeconds: 30 },
-    });
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
+  test('неизвестный контроллер → экран неизвестной команды', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
     const session = makeSession();
-    await app.handleCallback('onboarding:start', 1, session);
 
-    expect(session.activeHandler).not.toBeNull();
-    expect(session.activeHandler!.path).toBe('onboarding/ask-name');
-    expect(session.activeHandler!.expiresAt).toBeGreaterThan(Date.now());
+    const response = await uiApp.handleCallback('zzz:one:act', 42, session);
+
+    expect(String(response?.screen?.text ?? '').length).toBeGreaterThan(0);
   });
 
-  test('handleCallback: releaseInput', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'onboarding';
-    ctrl.withCallbackResult({ releaseInput: true });
+  test('handleMessage маршрутизируется в контроллер активного диалога', async () => {
+    const ctrlA = makeController('a').withMessageResult({ release: true });
+    const ctrlB = makeController('b');
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 2, { context: { q: 1 } });
 
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
+    const update: BotUpdate = {
+      type: 'message',
+      text: 'привет',
+      telegramId: 42,
+    };
+    const response = await uiApp.handleMessage(update, 42, session);
 
-    const session = makeSession({
-      activeHandler: { path: 'onboarding/ask-name' },
+    expect(ctrlA.messageCalled).toBe(1);
+    expect(ctrlB.messageCalled).toBe(0);
+    expect(response?.release).toBe(true);
+  });
+
+  test('handleMessage при диалоге без контроллера меню → null (next в грамми)', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('menu/main', 1, { context: {} });
+
+    const update: BotUpdate = { type: 'message', text: 'х', telegramId: 42 };
+    const response = await uiApp.handleMessage(update, 42, session);
+
+    expect(ctrlA.messageCalled).toBe(0);
+    expect(response).toBeNull();
+  });
+});
+
+describe('BotUiApp — seq и смена диалога', () => {
+  test('кнопка в ЧУЖУЮ стори (мост) → seq++, path обновлён, input сброшен', async () => {
+    const ctrlB = makeController('b');
+    const uiApp = makeUiApp([makeController('a'), ctrlB]);
+    const session = makeSession('a/one', 5, { context: { step: 2 } });
+
+    await uiApp.handleCallback('b:two:open', 42, session);
+
+    expect(session.dialog.path).toBe('b/two');
+    expect(session.dialog.seq).toBe(6);
+    expect(session.dialog.input).toBeUndefined();
+  });
+
+  test('кнопка СВОЕЙ стори → seq и input не меняются', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA, makeController('b')]);
+    const session = makeSession('a/one', 5, { context: { step: 2 } });
+
+    await uiApp.handleCallback('a:one:next', 42, session);
+
+    expect(session.dialog.path).toBe('a/one');
+    expect(session.dialog.seq).toBe(5);
+    expect(session.dialog.input).toEqual({ context: { step: 2 } });
+  });
+
+  test('кнопка другой стори ТОГО ЖЕ контроллера — смена диалога (seq++)', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    await uiApp.handleCallback('a:two:open', 42, session);
+
+    expect(session.dialog.path).toBe('a/two');
+    expect(session.dialog.seq).toBe(6);
+  });
+});
+
+describe('BotUiApp — delegate', () => {
+  test('delegate: info инициатора + screen делегата, seq++ при смене пути', async () => {
+    const ctrlA = makeController('a').withCallbackResults({
+      info: { text: md`Переход в каталог` },
+      delegate: { path: 'b:two:open' },
     });
-
-    await app.handleCallback('onboarding:done', 1, session);
-
-    expect(session.activeHandler).toBeNull();
-  });
-
-  test('handleCallback: delegate', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-    ctrl.withCallbackResult({
-      sendMessage: { text: 'Промежуточное' },
-      delegate: { path: 'stream:final' },
+    const ctrlB = makeController('b').withCallbackResults({
+      screen: { text: md`Каталог` },
     });
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 5);
 
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
+    const response = await uiApp.handleCallback('a:one:go', 42, session);
 
-    const session = makeSession();
-    await app.handleCallback('stream:step1', 1, session);
-
-    expect(ctrl.handleCallbackCalls).toHaveLength(2);
-    expect(ctrl.handleCallbackCalls[0]!.data).toBe('step1');
-    expect(ctrl.handleCallbackCalls[1]!.data).toBe('final');
+    // делегат вызван без префикса контроллера
+    expect(ctrlB.callbackData).toEqual(['two:open']);
+    // диалог — делегата
+    expect(session.dialog.path).toBe('b/two');
+    expect(session.dialog.seq).toBe(6);
+    // слоты: info от инициатора, screen от делегата
+    expect(String(response?.info?.text)).toBe('Переход в каталог');
+    expect(String(response?.screen?.text)).toBe('Каталог');
   });
 
-  test('handleCallback: delegate с абсолютным путём уходит в другой контроллер', async () => {
-    const stream = new TestController();
-    stream.name = 'stream';
-    stream.withCallbackResult({
-      sendMessage: { text: 'Вы успешно записаны' },
-      delegate: { path: 'app:main-menu' },
-    });
-
-    const appCtrl = new TestController();
-    appCtrl.name = 'app';
-    appCtrl.withCallbackResult({ sendMessage: { text: 'Главное меню' } });
-
-    const actor = makeActor();
-    const app = new BotUiApp([stream, appCtrl]);
-    app.init(makeResolve(actor));
-
-    const res = await app.handleCallback('stream:enroll', 1, makeSession());
-
-    expect(res.sendMessage).toBeUndefined();
-    expect(res.sendMessages?.map((m) => m.text)).toEqual([
-      'Вы успешно записаны',
-      'Главное меню',
-    ]);
-    expect(stream.handleCallbackCalls).toHaveLength(1);
-    expect(stream.handleCallbackCalls[0]!.data).toBe('enroll');
-    expect(appCtrl.handleCallbackCalls).toHaveLength(1);
-    expect(appCtrl.handleCallbackCalls[0]!.data).toBe('main-menu');
-  });
-
-  test('handleMessage: нет активного обработчика → null', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const res = await app.handleMessage(
-      { type: 'message', text: 'hello', telegramId: 1 },
-      1,
-      makeSession(),
-    );
-
-    expect(res).toBeNull();
-    expect(ctrl.handleMessageCalls).toHaveLength(0);
-  });
-
-  test('handleMessage: форвард активному контроллеру', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'onboarding';
-    ctrl.withMessageResult({ sendMessage: { text: 'Принято' } });
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const session = makeSession({
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-    const update: BotUpdate = { type: 'message', text: 'Иван', telegramId: 1 };
-
-    const res = await app.handleMessage(update, 1, session);
-
-    expect(res).not.toBeNull();
-    expect(ctrl.handleMessageCalls).toHaveLength(1);
-  });
-
-  test('handleMessage: releaseInput очищает activeHandler', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'onboarding';
-    ctrl.withMessageResult({ releaseInput: true });
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const session = makeSession({
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    await app.handleMessage(
-      { type: 'message', text: 'ok', telegramId: 1 },
-      1,
-      session,
-    );
-
-    expect(session.activeHandler).toBeNull();
-  });
-
-  test('handleMessage: таймаут вызывает handleTimeout', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'onboarding';
-    ctrl.withTimeoutResult({
-      releaseInput: true,
-      sendMessage: { text: 'Время истекло' },
-    });
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const session = makeSession({
-      activeHandler: {
-        path: 'onboarding/ask-name',
-        expiresAt: Date.now() - 1000,
+  test('delegate в тот же диалог: seq не растёт, экран делегата приоритетен', async () => {
+    const ctrlA = makeController('a').withCallbackResults(
+      {
+        screen: { text: md`Промежуточный` },
+        delegate: { path: 'a:one:final' },
       },
-    });
+      { screen: { text: md`Финал` } },
+    );
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
 
-    const res = await app.handleMessage(
-      { type: 'message', text: 'любое', telegramId: 1 },
-      1,
-      session,
+    const response = await uiApp.handleCallback('a:one:go', 42, session);
+
+    expect(session.dialog.seq).toBe(5);
+    expect(ctrlA.callbackData).toEqual(['one:go', 'one:final']);
+    // экран делегата (последнего) побеждает
+    expect(String(response?.screen?.text)).toBe('Финал');
+  });
+
+  test('delegate: awaitInput делегата прокидывается, инициатора — затирается', async () => {
+    const ctrlA = makeController('a').withCallbackResults({
+      awaitInput: { context: 'старый' },
+      delegate: { path: 'b:two:start' },
+    });
+    const ctrlB = makeController('b').withCallbackResults({
+      screen: { text: md`Вопрос` },
+      awaitInput: { context: { q: 1 } },
+    });
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCallback('a:one:go', 42, session);
+
+    expect(response?.awaitInput).toEqual({ context: { q: 1 } });
+  });
+
+  test('delegate в несуществующий контроллер → экран ошибки, не падает', async () => {
+    const ctrlA = makeController('a').withCallbackResults({
+      delegate: { path: 'zzz:one:x' },
+    });
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCallback('a:one:go', 42, session);
+
+    expect(String(response?.screen?.text ?? '').length).toBeGreaterThan(0);
+  });
+});
+
+describe('BotUiApp — /start (handleWelcome)', () => {
+  test('закрывает диалог: seq++, path = menuPath, input сброшен, экран меню', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
+    const session = makeSession('a/one', 5, { context: { step: 3 } });
+
+    const response = await uiApp.handleWelcome(42, session);
+
+    expect(session.dialog.path).toBe('menu/main');
+    expect(session.dialog.seq).toBe(6);
+    expect(session.dialog.input).toBeUndefined();
+    expect(String(response.screen?.text)).toBe('Меню');
+  });
+});
+
+describe('BotUiApp — /help (handleHelp)', () => {
+  test('активная стори с handleHelp → её экран как info-реплика', async () => {
+    const story = new TestStory('one');
+    story.helpScreen = { text: md`Вы в анкете, вопрос 3 из 10` };
+    const ctrlA = makeController('a');
+    ctrlA.fakeStories = [story];
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleHelp(42, session);
+
+    expect(String(response.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
+  });
+
+  test('стори без handleHelp → общий fallback (buildHelpScreen)', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.fakeStories = [new TestStory('one')];
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleHelp(42, session);
+
+    expect(response.info?.keyboard).toBeUndefined();
+    expect(String(response.info?.text).length).toBeGreaterThan(0);
+    expect(String(response.info?.text)).not.toBe('Вы в анкете, вопрос 3 из 10');
+  });
+
+  test('общий fallback: диалог не меняется (info не трогает сессию)', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
+    const session = makeSession('a/one', 5);
+
+    await uiApp.handleHelp(42, session);
+
+    expect(session.dialog.path).toBe('a/one');
+    expect(session.dialog.seq).toBe(5);
+  });
+});
+
+describe('BotUiApp — /cancel (handleCancel)', () => {
+  test('активный ввод: доменная очистка стори, дефолт пустой → возврат в меню (seq++)', async () => {
+    const ctrlA = makeController('a').withCancelResult({ release: true });
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5, { context: { step: 2 } });
+
+    const response = await uiApp.handleCancel(42, session);
+
+    expect(ctrlA.cancelCalled).toBe(1);
+    expect(session.dialog.path).toBe('menu/main');
+    expect(session.dialog.seq).toBe(6);
+    expect(String(response?.screen?.text)).toBe('Меню');
+  });
+
+  test('стори вернула свой экран отмены → он рендерится, диалог остаётся', async () => {
+    const ctrlA = makeController('a').withCancelResult({
+      release: true,
+      screen: { text: md`Анкета отменена` },
+    });
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5, { context: {} });
+
+    const response = await uiApp.handleCancel(42, session);
+
+    expect(String(response?.screen?.text)).toBe('Анкета отменена');
+    expect(session.dialog.path).toBe('a/one');
+  });
+
+  test('без активного ввода → сразу меню, стори не дёргается', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCancel(42, session);
+
+    expect(ctrlA.cancelCalled).toBe(0);
+    expect(session.dialog.path).toBe('menu/main');
+    expect(String(response?.screen?.text)).toBe('Меню');
+  });
+});
+
+describe('BotUiApp — awaitInput/release', () => {
+  test('awaitInput прокидывается как есть (без path в поле)', async () => {
+    const ctrlA = makeController('a').withCallbackResults({
+      screen: { text: md`Вопрос` },
+      awaitInput: { context: { q: 1 } },
+    });
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCallback('a:one:ask', 42, session);
+
+    expect(response?.awaitInput).toEqual({ context: { q: 1 } });
+  });
+});
+
+describe('BotUiApp — init-каскад', () => {
+  test('init передаёт resolve и transport, getController сужен до BotController', async () => {
+    const ctrl = makeController('a');
+    const uiApp = new TestUiApp([ctrl]);
+    const sender = { notify: mock(), kickFromGroup: mock() };
+    uiApp.init(
+      {
+        appApi: {} as never,
+        eventBus: {} as never,
+        actorResolver: async () => makeActor(),
+      },
+      sender,
     );
 
-    expect(ctrl.handleTimeoutCalls).toHaveLength(1);
-    expect(session.activeHandler).toBeNull();
-    expect(res?.sendMessage?.text).toBe('Время истекло');
-  });
-
-  test('handleCancel: нет активного обработчика → null', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const res = await app.handleCancel(1, makeSession());
-
-    expect(res).toBeNull();
-  });
-
-  test('handleCancel: форвард контроллеру', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'onboarding';
-    ctrl.withCancelResult({
-      releaseInput: true,
-      sendMessage: { text: 'Отменено' },
-    });
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const session = makeSession({
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    const res = await app.handleCancel(1, session);
-
-    expect(ctrl.handleCancelCalls).toHaveLength(1);
-    expect(session.activeHandler).toBeNull();
-    expect(res?.sendMessage?.text).toBe('Отменено');
-  });
-
-  test('handleTimeout: нет активного обработчика → null', async () => {
-    const ctrl = new TestController();
-    ctrl.name = 'stream';
-
-    const actor = makeActor();
-    const app = new BotUiApp([ctrl]);
-    app.init(makeResolve(actor));
-
-    const res = await app.handleTimeout(1, makeSession());
-
-    expect(res).toBeNull();
-  });
-
-  test('init не падает без publicActions', () => {
-    const app = new BotUiApp([]);
-    expect(app.size).toBe(0);
+    expect(uiApp.getController('a')?.name).toBe('a');
   });
 });

@@ -10,7 +10,6 @@ import { UserPolicy } from '@u7-scl/user/domain';
 import { webhookCallback } from 'grammy';
 import { createBot } from './bot';
 import { loadConfig } from './config';
-import type { SessionData } from './context';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
 import { ensureRegisteredGuest } from './ensure-registered';
@@ -19,9 +18,6 @@ import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
 
 const config = loadConfig();
-
-// ══ Общее хранилище сессий (Grammy + BotTransport) ══
-const sessionMap = new Map<number, SessionData>();
 
 // ══ Инициализация логгера ══
 const consoleLogger = new ConsoleLogger();
@@ -33,7 +29,7 @@ setGlobalLogger(loggers);
 // TelegramLogger создадим после createBot, но пока есть только consoleLogger
 const logger = loggers;
 
-const bot = createBot(config.botToken, sessionMap);
+const bot = createBot(config.botToken);
 
 const apiBundle = createApiApp(config, logger);
 const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);

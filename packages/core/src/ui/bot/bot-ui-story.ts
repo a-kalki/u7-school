@@ -3,20 +3,25 @@ import { fromError } from '#domain/errors/error-helpers';
 import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
-import { escapeMarkdown } from '#shared/markdown';
+import { type MdText, md, mdConcat, mdJoin } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiStory } from '../ui-story';
 import type { BotUiAppResolve } from './app-types';
 import type {
-  BotResponse,
+  BotSession,
   BotUpdate,
+  DialogResponse,
+  KeyboardDescription,
   ProactiveSender,
-  SessionData,
+  Screen,
 } from './types';
 
 /**
- * Абстрактный класс для пользовательского сценария.
- * Инкапсулирует логику одного сценария (например, просмотр курса, запись на поток).
+ * Абстрактная стори на контракте «Диалог и Экран».
+ *
+ * Ответ — `DialogResponse` (без messageId/parseMode/sendMessages/takeover:
+ * механика рендера — транспорт). Тексты — `MdText` через `md`/`mdRaw`
+ * (интерполяция доменных данных экранируется автоматически).
  */
 export abstract class BotUiStory<
   TAppMeta extends AppMeta = AppMeta,
@@ -34,7 +39,6 @@ export abstract class BotUiStory<
   /** Родитель (BotController) — получается через init отдельным аргументом */
   protected proactiveSender!: ProactiveSender;
 
-  // ── Инициализация ──
   protected get logger(): Logger | undefined {
     return getGlobalLogger();
   }
@@ -54,62 +58,59 @@ export abstract class BotUiStory<
   /** Сброс временных данных сценария (переопределяется при необходимости) */
   reset(): void {}
 
-  /** Обработка callback — абстрактный, реализуется в наследниках */
+  /** Обработка callback — реализуется в наследниках */
   abstract handleCallback(
     action: string,
     actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse>;
+    session: BotSession,
+  ): Promise<DialogResponse>;
 
-  /** Обработка сообщений — абстрактный, реализуется в наследниках */
+  /**
+   * Обработка текстового ввода (диалог ждёт ввод — awaitInput).
+   * null — «не моё» (uiApp передаст дальше в next).
+   */
   abstract handleMessage(
     update: BotUpdate,
     actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse>;
+    session: BotSession,
+  ): Promise<DialogResponse | null>;
 
-  /**
-   * Отмена текущего действия.
-   * По умолчанию освобождает ввод.
-   */
+  /** Отмена текущего действия. По умолчанию — снять ожидание ввода. */
   async handleCancel(
     _actor: TActor,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { releaseInput: true };
+    _session: BotSession,
+  ): Promise<DialogResponse> {
+    return { release: true };
   }
 
   /**
-   * Таймаут активного обработчика.
-   * По умолчанию освобождает ввод и показывает сообщение.
+   * Контекстная справка диалога для /help (§5.3): вызывается uiApp,
+   * результат уходит info-репликой. null — справки нет, общий fallback.
    */
-  async handleTimeout(
+  async handleHelp(
     _actor: TActor,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return {
-      releaseInput: true,
-      sendMessage: { text: '⏰ Время ожидания истекло.' },
-    };
+    _session: BotSession,
+  ): Promise<Screen | null> {
+    return null;
   }
 
   // ── Подтверждение действия (confirm-хелпер) ──
 
   /**
-   * Строит confirm-клавиатуру: кнопка подтверждения и кнопка отмены.
+   * Строит confirm-экран: кнопка подтверждения и кнопка отмены.
    *
    * Convention: `action` → `action-confirm`.
    * При подтверждении генерируется callback: `action-confirm:targetId[:extraData]`.
    *
    * @param action    — базовое действие (напр. 'mark-abandoned', 'complete')
    * @param targetId  — id объекта (UUID студента, потока)
-   * @param text      — текст сообщения-подтверждения
+   * @param text      — текст-подтверждение (MdText: доменные данные — через md-интерполяцию)
    * @param opts      — опции (текст кнопок, куда вернуться при отмене, доп. данные)
    */
   protected confirm(
     action: string,
     targetId: string,
-    text: string,
+    text: MdText,
     opts?: {
       /** Текст на кнопке подтверждения (по умолчанию '✅ Да') */
       confirmButton?: string;
@@ -120,33 +121,29 @@ export abstract class BotUiStory<
       /** Дополнительные данные, добавляемые через : после id */
       extraData?: string;
     },
-  ): BotResponse {
+  ): DialogResponse {
     const confirmCode = `${action}-confirm`;
     const extra = opts?.extraData ? `:${opts.extraData}` : '';
     const cancelCode =
       opts?.cancelCode ?? this.cbFor(this.name, 'detail', targetId);
 
-    return {
-      sendMessage: {
-        text,
-        parseMode: 'MarkdownV2',
-        keyboard: {
-          rows: [
-            [
-              {
-                text: opts?.confirmButton ?? '✅ Да',
-                code: this.cbFor(this.name, confirmCode, targetId) + extra,
-              },
-              {
-                text: opts?.cancelButton ?? '❌ Отмена',
-                code: cancelCode,
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
+    const keyboard: KeyboardDescription = {
+      rows: [
+        [
+          {
+            text: opts?.confirmButton ?? '✅ Да',
+            code: this.cbFor(this.name, confirmCode, targetId) + extra,
+          },
+          {
+            text: opts?.cancelButton ?? '❌ Отмена',
+            code: cancelCode,
+          },
+        ],
+      ],
+      isMultiple: false,
     };
+
+    return { screen: { text, keyboard } };
   }
 
   // ── Формирование callback_data (только реальные данные, без сжатия) ──
@@ -154,7 +151,7 @@ export abstract class BotUiStory<
   /**
    * Колбэк для своей стори.
    * Возвращает `storyName:action[:id...]` — БЕЗ префикса контроллера, БЕЗ сжатия.
-   * Контроллер добавит префикс и сожмёт id при отправке.
+   * Контроллер добавит префикс, транспорт сожмёт id и добавит штамп.
    *
    * @param action — имя действия (view, list, complete, ...)
    * @param ids — реальные значения id (UUID, ключи)
@@ -184,16 +181,7 @@ export abstract class BotUiStory<
     return data;
   }
 
-  /**
-   * Экранирует спецсимволы MarkdownV2 для Telegram.
-   */
-  protected escapeMarkdown(text: string): string {
-    return escapeMarkdown(text);
-  }
-
-  /**
-   * Форматирует ISO-дату в читаемый вид (дд.мм.гггг).
-   */
+  /** Форматирует ISO-дату в читаемый вид (дд.мм.гггг). */
   protected formatDate(iso: string): string {
     try {
       const d = new Date(iso);
@@ -206,52 +194,43 @@ export abstract class BotUiStory<
     }
   }
 
-  protected sendUnknownError(): BotResponse {
-    return {
-      sendMessage: {
-        text: 'Произошла неизвестная ошибка. Попробуйте начать с команды /start.',
-      },
-    };
-  }
-
   /**
-   * Универсальный обработчик ошибок.
-   * Различает типы ошибок через `fromError()` и возвращает
-   * подходящее пользовательское сообщение.
+   * Универсальный обработчик ошибок: ошибка — ЭКРАН (решение владельца №1),
+   * не отдельное сообщение. Тексты — валидный MarkdownV2 (md-интерполяция
+   * экранирует доменные данные).
    *
    * - `validation` — перечисляет поля из `payload.issues`
    * - `not-found`, `conflict`, `access-denied`, `bad-request` — текст ошибки
-   * - `internal`, `unauthorized` — логирует через логгер и возвращает общее сообщение
+   * - `internal`, `unauthorized` — логирует и возвращает общее сообщение
    */
-  protected handleError(err: unknown): BotResponse {
+  protected handleError(err: unknown): DialogResponse {
     const appError = fromError(err);
 
     switch (appError.kind) {
       case 'validation': {
         const payload = appError.payload as
-          | { issues?: Array<{ field: string; message: string }> }
+          | { issues?: Array<{ path?: string; message: string }> }
           | undefined;
         const issues = payload?.issues;
 
         if (issues && issues.length > 0) {
           const lines = issues.map(
-            (i) =>
-              `• *${this.escapeMarkdown(i.field)}*: ${this.escapeMarkdown(i.message)}`,
+            (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
           return {
-            releaseInput: true,
-            sendMessage: {
-              text: `⚠️ *Ошибка валидации*\n\n${lines.join('\n')}\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями\\.`,
-              parseMode: 'MarkdownV2',
+            screen: {
+              text: mdConcat(
+                md`⚠️ *Ошибка валидации*\n\n`,
+                mdJoin(lines),
+                md`\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями\\.`,
+              ),
             },
           };
         }
 
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: `⚠️ *Ошибка валидации*\n\n${this.escapeMarkdown(appError.message)}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
           },
         };
       }
@@ -261,11 +240,7 @@ export abstract class BotUiStory<
       case 'access-denied':
       case 'bad-request':
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: `⚠️ ${this.escapeMarkdown(appError.message)}`,
-            parseMode: 'MarkdownV2',
-          },
+          screen: { text: md`⚠️ ${appError.message}` },
         };
 
       // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
@@ -275,10 +250,8 @@ export abstract class BotUiStory<
       default: {
         this.logger?.error('bot', 'Ошибка в story', serializeError(err));
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: `⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
           },
         };
       }

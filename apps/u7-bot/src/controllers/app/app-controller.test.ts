@@ -14,6 +14,10 @@ const actor: User = {
   createdAt: '2026-01-01T00:00:00.000Z',
 };
 
+function makeSession() {
+  return { dialog: { path: 'app/menu', seq: 1 } };
+}
+
 /** Заглушка MenuAggregator для тестов */
 function makeAggregator(
   menuItems: MainMenuAction[] = [],
@@ -48,7 +52,7 @@ describe('AppController', () => {
     // Кнопка «Сообщество школы» — url, priority 90
     expect(items[0]!.text).toBe('💬 Сообщество школы');
     expect(items[0]!.kind).toBe('url');
-    expect((items[0]! as any).url).toBe(SCHOOL_URL);
+    expect((items[0]! as { url?: string }).url).toBe(SCHOOL_URL);
     expect(items[0]!.priority).toBe(90);
     // Кнопка «Помощь» — callback, priority 100
     expect(items[1]!.text).toBe('❓ Помощь');
@@ -58,7 +62,7 @@ describe('AppController', () => {
 
   // ── handleWelcome ──
 
-  test('handleWelcome возвращает приветствие с клавиатурой', async () => {
+  test('handleWelcome возвращает приветствие-экран с клавиатурой', async () => {
     const ctrl = new AppController(SCHOOL_URL);
     initCtrl(ctrl, [
       {
@@ -76,15 +80,15 @@ describe('AppController', () => {
       { kind: 'url', text: '💬 Сообщество', url: SCHOOL_URL, priority: 90 },
     ]);
 
-    const res = await ctrl.handleWelcome(actor);
+    const screen = await ctrl.handleWelcome(actor);
 
-    expect(res).not.toBeNull();
-    expect(res!.sendMessage?.text).toContain('Привет');
-    expect(res!.sendMessage?.text).toContain('u7 schools');
-    expect(res!.sendMessage?.text).toContain('Помощь');
-    expect(res!.sendMessage?.keyboard).toBeDefined();
+    expect(screen).not.toBeNull();
+    expect(String(screen!.text)).toContain('Привет');
+    expect(String(screen!.text)).toContain('u7 schools');
+    expect(String(screen!.text)).toContain('Помощь');
+    expect(screen!.keyboard).toBeDefined();
     // Все кнопки (включая url) попадают в клавиатуру
-    const rows = res!.sendMessage!.keyboard!.rows;
+    const rows = screen!.keyboard!.rows;
     expect(rows.length).toBeGreaterThanOrEqual(2);
     // url-кнопка «Сообщество» имеет url
     const communityRow = rows.find((r) => r[0]!.text === '💬 Сообщество');
@@ -96,55 +100,53 @@ describe('AppController', () => {
     const ctrl = new AppController(SCHOOL_URL);
     // Не вызываем init — uiApp не задан
 
-    const res = await ctrl.handleWelcome(actor);
+    const screen = await ctrl.handleWelcome(actor);
 
-    expect(res!.sendMessage?.text).toContain('Привет');
-    expect(res!.sendMessage?.keyboard).toBeUndefined();
+    expect(String(screen!.text)).toContain('Привет');
+    expect(screen!.keyboard).toBeUndefined();
   });
 
   // ── handleHelpMessage ──
 
-  test('handleHelpMessage возвращает инструкцию и описания', async () => {
+  test('handleHelpMessage: инструкция + описания, без клавиатуры (info-канал)', async () => {
     const ctrl = new AppController(SCHOOL_URL);
     initCtrl(
       ctrl,
       [],
       [
         '💬 Сообщество школы — ссылка на группу',
-        '📚 Потоки курсов — просмотр каталога',
+        '📚 Потоки курсов — просмотр каталога (список)',
       ],
     );
 
-    const res = await ctrl.handleHelpMessage(actor);
+    const screen = await ctrl.handleHelpMessage(actor);
 
-    expect(res).not.toBeNull();
-    const text = res!.sendMessage!.text;
+    expect(screen).not.toBeNull();
+    const text = String(screen!.text);
     expect(text).toContain('Как со мной работать?');
     expect(text).toContain('После выбора кнопки');
     expect(text).toContain('/cancel');
     expect(text).toContain('Сообщество школы');
-    expect(text).toContain('Потоки курсов');
-
-    // Кнопка «Назад»
-    expect(res!.sendMessage!.keyboard).toBeDefined();
-    expect(res!.sendMessage!.keyboard!.rows[0]![0]!.text).toBe('🔙 Назад');
+    // Доменные описания экранируются как данные
+    expect(text).toContain('просмотр каталога \\(список\\)');
+    // info-реплика — без клавиатуры (транспорт её не рендерит)
+    expect(screen!.keyboard).toBeUndefined();
   });
 
   test('handleHelpMessage без описаний — только инструкция', async () => {
     const ctrl = new AppController(SCHOOL_URL);
     initCtrl(ctrl, [], []);
 
-    const res = await ctrl.handleHelpMessage(actor);
+    const screen = await ctrl.handleHelpMessage(actor);
 
-    expect(res!.sendMessage!.text).toContain('Как со мной работать?');
-    expect(res!.sendMessage!.text).toContain('Вот что я умею:');
-    // Кнопка «Назад» есть даже без описаний
-    expect(res!.sendMessage!.keyboard).toBeDefined();
+    expect(String(screen!.text)).toContain('Как со мной работать?');
+    expect(String(screen!.text)).toContain('Вот что я умею:');
+    expect(screen!.keyboard).toBeUndefined();
   });
 
   // ── handleCallback: main-menu ──
 
-  test('handleCallback main-menu возвращает клавиатуру без приветствия', async () => {
+  test('handleCallback main-menu: экран меню без приветствия', async () => {
     const ctrl = new AppController(SCHOOL_URL);
     initCtrl(ctrl, [
       {
@@ -155,39 +157,35 @@ describe('AppController', () => {
       },
     ]);
 
-    const res = await ctrl.handleCallback('main-menu', actor, {
-      activeHandler: null,
-    });
+    const res = await ctrl.handleCallback('main-menu', actor, makeSession());
 
     // Не должно быть приветственного текста
-    expect(res.sendMessage?.text).not.toContain('Привет');
-    expect(res.sendMessage?.text).toBe('Выберите действие:');
-    expect(res.sendMessage?.keyboard).toBeDefined();
+    expect(String(res.screen?.text)).not.toContain('Привет');
+    expect(String(res.screen?.text)).toBe('Выберите действие:');
+    expect(res.screen?.keyboard).toBeDefined();
   });
 
   // ── handleCallback: help ──
 
-  test('handleCallback help вызывает handleHelpMessage', async () => {
+  test('handleCallback help → info-реплика с инструкцией', async () => {
     const ctrl = new AppController(SCHOOL_URL);
     initCtrl(ctrl, [], ['📝 Заполнить анкету']);
 
-    const res = await ctrl.handleCallback('help', actor, {
-      activeHandler: null,
-    });
+    const res = await ctrl.handleCallback('help', actor, makeSession());
 
-    expect(res.sendMessage?.text).toContain('Как со мной работать?');
-    expect(res.sendMessage?.text).toContain('Заполнить анкету');
+    // help-кнопка не строит экран диалога — тихая info-реплика
+    expect(res.screen).toBeUndefined();
+    expect(String(res.info?.text)).toContain('Как со мной работать?');
+    expect(String(res.info?.text)).toContain('Заполнить анкету');
   });
 
   // ── handleCallback: неизвестный ──
 
-  test('handleCallback с неизвестным действием возвращает ошибку', async () => {
+  test('handleCallback с неизвестным действием возвращает ошибку-экран', async () => {
     const ctrl = new AppController(SCHOOL_URL);
 
-    const res = await ctrl.handleCallback('unknown', actor, {
-      activeHandler: null,
-    });
+    const res = await ctrl.handleCallback('unknown', actor, makeSession());
 
-    expect(res.sendMessage?.text).toContain('Неизвестная команда');
+    expect(String(res.screen?.text)).toContain('Неизвестная команда');
   });
 });

@@ -1,7 +1,8 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { md, mdRaw } from '@u7-scl/core/shared';
+import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 
 /**
  * US: Кнопка «Сообщество школы» в главном меню.
@@ -30,16 +31,16 @@ export class CommunityStory extends U7BotUiStory {
   async handleCallback(
     _action: string,
     _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    _session: BotSession,
+  ): Promise<DialogResponse> {
+    return { screen: { text: mdRaw('⚠️ Неизвестная команда') } };
   }
 
   override async handleMessage(
     _update: BotUpdate,
     _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+    _session: BotSession,
+  ): Promise<DialogResponse | null> {
+    return { screen: { text: md`⚠️ Неизвестное сообщение` } };
   }
 }

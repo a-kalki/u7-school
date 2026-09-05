@@ -47,6 +47,22 @@ export function mdRaw(text: string): MdText {
 }
 
 /**
+ * Конкатенация MdText-фрагментов — композиция разметки.
+ *
+ * Бренд MdText существует только в типах, поэтому `md`-интерполяция не может
+ * отличить «уже безопасный» фрагмент и экранирует его повторно. Склейку
+ * готовых MdText делайте здесь — без повторного экранирования.
+ */
+export function mdConcat(...parts: MdText[]): MdText {
+  return parts.join('') as MdText;
+}
+
+/** Склейка MdText-строк с разделителем (по умолчанию \n) — композиция. */
+export function mdJoin(parts: MdText[], separator = '\n'): MdText {
+  return parts.join(separator) as MdText;
+}
+
+/**
  * Экранирует спецсимволы MarkdownV2 для Telegram.
  *
  * MarkdownV2 резервирует символы: _ * [ ] ( ) ~ ` > # + - = | { } . !

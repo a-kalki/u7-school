@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
-import type { Role } from '@u7-scl/app/domain';
+import type { User } from '@u7-scl/app/domain';
 import {
   AppException,
   errAccessDenied,
@@ -16,7 +16,8 @@ import {
   LogLevel,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
+import { Role } from '@u7-scl/user/domain';
 import { U7BotUiStory } from './u7-bot-ui-story';
 
 /**
@@ -27,28 +28,29 @@ class TestStory extends U7BotUiStory {
 
   override handleMessage(
     _update: BotUpdate,
-    _actor: {
-      uuid: string;
-      name: string;
-      telegramId: number;
-      roles: Role[];
-      createdAt: string;
-      updatedAt?: string | undefined;
-    },
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    _actor: User,
+    _session: BotSession,
+  ): Promise<DialogResponse | null> {
     throw new Error('Method not implemented.');
   }
 
-  handleCallback(): Promise<BotResponse> {
+  handleCallback(): Promise<DialogResponse> {
     throw new Error('Не используется');
   }
 
   /** Экспонируем protected handleError */
-  testHandleError(err: unknown): BotResponse {
+  testHandleError(err: unknown): DialogResponse {
     return this.handleError(err);
   }
 }
+
+const actor: User = {
+  uuid: 'u1',
+  name: 'Тест',
+  telegramId: 1,
+  roles: [Role.GUEST],
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
 
 /** Создаёт мок-логгер */
 function createMockLogger(): Logger & { error: ReturnType<typeof mock> } {
@@ -78,14 +80,14 @@ describe('U7BotUiStory.handleError', () => {
   });
 
   describe('validation error', () => {
-    test('возвращает сообщение с перечислением полей', () => {
+    test('возвращает экран с перечислением полей', () => {
       const appError = errValidation(
         'CreateStreamValidationError',
         'Ошибка валидации',
         {
           issues: [
-            { field: 'title', message: 'Обязательное поле' },
-            { field: 'startDate', message: 'Некорректный формат даты' },
+            { path: 'title', message: 'Обязательное поле' },
+            { path: 'startDate', message: 'Некорректный формат даты' },
           ],
         },
       );
@@ -93,11 +95,11 @@ describe('U7BotUiStory.handleError', () => {
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage).toBeDefined();
-      expect(resp.sendMessage!.text).toContain('title');
-      expect(resp.sendMessage!.text).toContain('startDate');
-      expect(resp.sendMessage!.text).toContain('Обязательное поле');
-      expect(resp.sendMessage!.text).toContain('Некорректный формат даты');
+      expect(resp.screen).toBeDefined();
+      expect(String(resp.screen!.text)).toContain('title');
+      expect(String(resp.screen!.text)).toContain('startDate');
+      expect(String(resp.screen!.text)).toContain('Обязательное поле');
+      expect(String(resp.screen!.text)).toContain('Некорректный формат даты');
     });
 
     test('валидация без issues — показывает общее сообщение', () => {
@@ -110,149 +112,133 @@ describe('U7BotUiStory.handleError', () => {
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage).toBeDefined();
-      expect(resp.sendMessage!.text).toContain('Что\\-то не так');
+      expect(resp.screen).toBeDefined();
+      expect(String(resp.screen!.text)).toContain('Что\\-то не так');
     });
   });
 
   describe('not-found error', () => {
-    test('возвращает сообщение ошибки', () => {
-      const appError = errNotFound(
-        'ModuleNotFound',
-        'Модуль не найден',
-        undefined as unknown as undefined,
+    test('возвращает экран ошибки', () => {
+      const exception = new AppException(
+        errNotFound('ModuleNotFound', 'Модуль не найден', undefined),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage).toBeDefined();
-      expect(resp.sendMessage!.text).toContain('Модуль не найден');
+      expect(String(resp.screen!.text)).toContain('Модуль не найден');
       expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
   describe('conflict error', () => {
-    test('возвращает сообщение ошибки', () => {
-      const appError = errConflict(
-        'StreamAlreadyExists',
-        'Поток уже существует',
-        undefined as unknown as undefined,
+    test('возвращает экран ошибки', () => {
+      const exception = new AppException(
+        errConflict('StreamAlreadyExists', 'Поток уже существует', undefined),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage!.text).toContain('Поток уже существует');
+      expect(String(resp.screen!.text)).toContain('Поток уже существует');
       expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
   describe('access-denied error', () => {
-    test('возвращает сообщение ошибки', () => {
-      const appError = errAccessDenied(
-        'AccessDenied',
-        'Недостаточно прав',
-        undefined as unknown as undefined,
+    test('возвращает экран ошибки', () => {
+      const exception = new AppException(
+        errAccessDenied('AccessDenied', 'Недостаточно прав', undefined),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage!.text).toContain('Недостаточно прав');
+      expect(String(resp.screen!.text)).toContain('Недостаточно прав');
       expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
   describe('bad-request error', () => {
-    test('возвращает сообщение ошибки', () => {
-      const appError = errBadRequest(
-        'BadRequest',
-        'Некорректный запрос',
-        undefined as unknown as undefined,
+    test('возвращает экран ошибки', () => {
+      const exception = new AppException(
+        errBadRequest('BadRequest', 'Некорректный запрос', undefined),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage!.text).toContain('Некорректный запрос');
+      expect(String(resp.screen!.text)).toContain('Некорректный запрос');
       expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
   describe('internal error', () => {
-    test('логирует и возвращает общее сообщение', () => {
-      const appError = errInternal(
-        'ServerError',
-        'Внутренняя ошибка сервера',
-        undefined as unknown as undefined,
+    test('логирует и возвращает общий экран', () => {
+      const exception = new AppException(
+        errInternal('ServerError', 'Внутренняя ошибка сервера', undefined),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
       expect(mockLogger.error).toHaveBeenCalled();
-      expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
-      expect(resp.sendMessage!.text).not.toContain('Внутренняя ошибка сервера');
+      expect(String(resp.screen!.text)).toContain('внутренняя ошибка');
+      expect(String(resp.screen!.text)).not.toContain(
+        'Внутренняя ошибка сервера',
+      );
     });
   });
 
   describe('unauthorized error', () => {
-    test('логирует и возвращает общее сообщение', () => {
-      const appError = errUnauthorized('Unauthorized', 'Не авторизован');
-      const exception = new AppException(appError);
+    test('логирует и возвращает общий экран', () => {
+      const exception = new AppException(
+        errUnauthorized('Unauthorized', 'Не авторизован'),
+      );
 
       const resp = story.testHandleError(exception);
 
       expect(mockLogger.error).toHaveBeenCalled();
-      expect(resp.sendMessage!.text).not.toContain('Не авторизован');
+      expect(String(resp.screen!.text)).not.toContain('Не авторизован');
     });
   });
 
   describe('обычный Error (не AppException)', () => {
-    test('логирует и возвращает общее сообщение', () => {
+    test('логирует и возвращает общий экран', () => {
       const err = new Error('Что-то пошло не так');
 
       const resp = story.testHandleError(err);
 
       expect(mockLogger.error).toHaveBeenCalled();
-      expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
-      expect(resp.sendMessage!.text).not.toContain('Что-то пошло не так');
+      expect(String(resp.screen!.text)).toContain('внутренняя ошибка');
+      expect(String(resp.screen!.text)).not.toContain('Что-то пошло не так');
     });
   });
 
   describe('неизвестный тип ошибки', () => {
-    test('логирует и возвращает общее сообщение', () => {
+    test('логирует и возвращает общий экран', () => {
       const resp = story.testHandleError('странная строка');
 
       expect(mockLogger.error).toHaveBeenCalled();
-      expect(resp.sendMessage!.text).toContain('внутренняя ошибка');
+      expect(String(resp.screen!.text)).toContain('внутренняя ошибка');
     });
   });
 
   // Инцидент 2026-09-03: неэкранированная точка в fallback-тексте внутренней ошибки
   // роняла MarkdownV2-валидатор → сообщение об ошибке не отправлялось вовсе.
+  // Новый контракт: MdText-тексты, валидируются транспортом (assertDialogResponseMarkdownSafe).
   describe('MarkdownV2-безопасность текста', () => {
-    test('internal: fallback-текст с точкой проходит assertMarkdownV2Safe', () => {
-      const appError = errInternal(
-        'ServerError',
-        'Внутренняя ошибка сервера',
-        undefined as unknown as undefined,
+    test('internal: fallback-текст проходит assertMarkdownV2Safe', () => {
+      const exception = new AppException(
+        errInternal('ServerError', 'Внутренняя ошибка сервера', undefined),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage!.parseMode).toBe('MarkdownV2');
-      expect(() => assertMarkdownV2Safe(resp.sendMessage!.text)).not.toThrow();
+      expect(() => assertMarkdownV2Safe(resp.screen!.text)).not.toThrow();
     });
 
-    test('validation с issues: field и message с точками/скобками экранированы', () => {
+    test('validation с issues: path и message с точками/скобками экранированы', () => {
       const appError = errValidation('ValidationError', 'Ошибка валидации', {
         issues: [
-          { field: 'title', message: 'Поле "title" обязательно (см. пример).' },
+          { path: 'title', message: 'Поле "title" обязательно (см. пример).' },
           {
-            field: 'startDate',
+            path: 'startDate',
             message: 'Некорректный формат даты [дд.мм.гггг]',
           },
         ],
@@ -261,22 +247,28 @@ describe('U7BotUiStory.handleError', () => {
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage!.parseMode).toBe('MarkdownV2');
-      expect(() => assertMarkdownV2Safe(resp.sendMessage!.text)).not.toThrow();
+      expect(() => assertMarkdownV2Safe(resp.screen!.text)).not.toThrow();
     });
 
     test('validation без issues: message с точкой проходит assertMarkdownV2Safe', () => {
-      const appError = errValidation(
-        'GenericValidationError',
-        'Некорректное значение поля (см. инструкцию).',
-        undefined as unknown as Record<string, unknown>,
+      const exception = new AppException(
+        errValidation(
+          'GenericValidationError',
+          'Некорректное значение поля (см. инструкцию).',
+          undefined as unknown as Record<string, unknown>,
+        ),
       );
-      const exception = new AppException(appError);
 
       const resp = story.testHandleError(exception);
 
-      expect(resp.sendMessage!.parseMode).toBe('MarkdownV2');
-      expect(() => assertMarkdownV2Safe(resp.sendMessage!.text)).not.toThrow();
+      expect(() => assertMarkdownV2Safe(resp.screen!.text)).not.toThrow();
+    });
+  });
+
+  describe('наследник U7BotUiStory', () => {
+    test('handleStart по умолчанию — пункт меню не добавляется', async () => {
+      const s = new TestStory();
+      expect(await s.handleStart(actor)).toBeNull();
     });
   });
 });

@@ -1,299 +1,258 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
-import type { ApiModuleMeta, AppMeta } from '#domain/types';
+import { describe, expect, test } from 'bun:test';
 import {
-  getGlobalLogger,
-  type Logger,
-  LogLevel,
-  setGlobalLogger,
-} from '#shared/logger';
+  errAccessDenied,
+  errBadRequest,
+  errConflict,
+  errInternal,
+  errNotFound,
+  errUnauthorized,
+  errValidation,
+} from '#domain/errors/error-helpers';
+import { AppException } from '#domain/errors/errors';
+import type { AppMeta } from '#domain/types';
+import { md, type mdRaw } from '../../shared/markdown';
+import { assertMarkdownV2Safe } from '../../shared/markdown-validator';
 import { BotUiStory } from './bot-ui-story';
-import type { BotResponse, BotUpdate, SessionData } from './types';
+import type { BotSession, BotUpdate, DialogResponse } from './types';
 
-// Тестовый тип метаданных
-type TestAppMeta = AppMeta & {
-  moduleMetas: ApiModuleMeta & {
-    ucMetas: {
-      ucName: 'test-cmd';
-      input: { x: number };
-      output: { y: number };
-    };
-  };
-};
+type TestActor = { id: string };
 
-// Тестовый актор — минимально содержит telegramId
-const testActor = {
-  telegramId: 123,
-};
+/** Стори-заглушка: открывает protected API (confirm/handleError). */
+class TestStory extends BotUiStory<AppMeta, TestActor> {
+  readonly name = 'anketa';
 
-// Конкретная реализация для тестов — экспонирует protected-методы как публичные
-class TestStory extends BotUiStory<TestAppMeta, { telegramId: number }> {
-  readonly name = 'test_story';
-
-  async handleCallback(
-    action: string,
-    _actor: { telegramId: number },
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: `callback: ${action}` } };
+  override async handleCallback(
+    _action: string,
+    _actor: { id: string },
+    _session: BotSession,
+  ): Promise<DialogResponse> {
+    return {};
+  }
+  override async handleMessage(
+    _update: BotUpdate,
+    _actor: { id: string },
+    _session: BotSession,
+  ): Promise<DialogResponse | null> {
+    return null;
   }
 
-  async handleMessage(
-    update: BotUpdate,
-    _actor: { telegramId: number },
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    if (update.type === 'message') {
-      return { sendMessage: { text: `echo: ${update.text}` } };
-    }
-    return { sendMessage: { text: 'ok' } };
-  }
-
-  // Экспонируем protected-методы для тестирования
-  public override cb(action: string, ...ids: string[]): string {
-    return super.cb(action, ...ids);
-  }
-
-  public override cbFor(
-    storyName: string,
-    action: string,
-    ...ids: string[]
-  ): string {
-    return super.cbFor(storyName, action, ...ids);
-  }
-
-  public override stripPrefix(data: string): string {
-    return super.stripPrefix(data);
-  }
-
-  public override confirm(
+  // Экспонирование protected для тестов
+  callConfirm(
     action: string,
     targetId: string,
-    text: string,
-    opts?: Parameters<BotUiStory['confirm']>[3],
-  ): BotResponse {
-    return super.confirm(action, targetId, text, opts);
+    text: ReturnType<typeof mdRaw>,
+    opts?: Parameters<TestStory['confirm']>[3],
+  ): ReturnType<TestStory['confirm']> {
+    return this.confirm(action, targetId, text, opts);
   }
-
-  public override get logger(): ReturnType<typeof getGlobalLogger> {
-    return super.logger;
+  callHandleError(err: unknown): ReturnType<TestStory['handleError']> {
+    return this.handleError(err);
   }
-
-  /** Экспонируем сохранённый proactiveSender (родитель-контроллер) */
-  get savedSender() {
-    return this.proactiveSender;
+  callCb(action: string, ...ids: string[]): string {
+    return this.cb(action, ...ids);
+  }
+  callCbFor(story: string, action: string, ...ids: string[]): string {
+    return this.cbFor(story, action, ...ids);
+  }
+  callStripPrefix(data: string): string {
+    return this.stripPrefix(data);
+  }
+  callFormatDate(iso: string): string {
+    return this.formatDate(iso);
   }
 }
 
-describe('BotUiStory', () => {
-  let story: TestStory;
+describe('BotUiStory — confirm', () => {
+  test('строит confirm-экран: кнопки подтверждения и отмены с кодами', () => {
+    const story = new TestStory();
 
-  beforeEach(() => {
-    story = new TestStory();
+    const response = story.callConfirm(
+      'complete',
+      'uuid-123',
+      md`Завершить шаг?`,
+    );
+
+    const row = response.screen?.keyboard?.rows[0];
+    expect(row?.length).toBe(2);
+    expect(row?.[0]).toEqual({
+      text: '✅ Да',
+      code: 'anketa:complete-confirm:uuid-123',
+    });
+    expect(row?.[1]).toEqual({
+      text: '❌ Отмена',
+      code: 'anketa:detail:uuid-123',
+    });
+    expect(String(response.screen?.text)).toBe('Завершить шаг?');
+    expect(response.screen?.keyboard?.isMultiple).toBe(false);
   });
 
-  describe('proactiveSender', () => {
-    test('init сохраняет proactiveSender (родитель-контроллер)', () => {
-      const sender = {
-        send: mock(async () => {}),
-        notify: mock(async () => {}),
-        kickFromGroup: mock(async () => {}),
-      };
-      story.init({} as never, sender);
-      expect(story.savedSender).toBe(sender);
+  test('опции: custom-кнопки, cancelCode, extraData', () => {
+    const story = new TestStory();
+
+    const response = story.callConfirm('remove', 'id-9', md`Точно?`, {
+      confirmButton: '🔥 Снять',
+      cancelButton: '◀️ Назад к списку',
+      cancelCode: 'anketa:list',
+      extraData: 'force',
     });
+
+    const row = response.screen?.keyboard?.rows[0];
+    expect(row?.[0]).toEqual({
+      text: '🔥 Снять',
+      code: 'anketa:remove-confirm:id-9:force',
+    });
+    expect(row?.[1]).toEqual({ text: '◀️ Назад к списку', code: 'anketa:list' });
   });
 
-  describe('cb', () => {
-    test('формирует callback_data: storyName:action (без префикса контроллера)', () => {
-      expect(story.cb('some_action')).toBe('test_story:some_action');
-    });
+  test('confirm-текст — валидный MarkdownV2 с доменными данными', () => {
+    const story = new TestStory();
+    const dangerous = 'Имя с *спец*символами _и_ [скобками]';
 
-    test('добавляет id через двоеточие', () => {
-      expect(story.cb('complete', 'uuid-1', 'uuid-2')).toBe(
-        'test_story:complete:uuid-1:uuid-2',
-      );
-    });
+    const response = story.callConfirm('act', 'id', md`Удалить ${dangerous}?`);
 
-    test('работает с пустым действием', () => {
-      expect(story.cb('')).toBe('test_story:');
-    });
+    // интерполяция экранирована: литерал целиком валиден
+    expect(() =>
+      assertMarkdownV2Safe(response.screen?.text ?? ''),
+    ).not.toThrow();
+    expect(String(response.screen?.text)).toContain(
+      'Имя с \\*спец\\*символами',
+    );
+  });
+});
 
-    test('без id — только storyName:action', () => {
-      expect(story.cb('view')).toBe('test_story:view');
-    });
+describe('BotUiStory — дефолты контракта', () => {
+  test('handleCancel по умолчанию → release', async () => {
+    const story = new TestStory();
+    const response = await story.handleCancel(
+      { id: 'u' },
+      { dialog: { path: 'x/y', seq: 1 } },
+    );
+    expect(response).toEqual({ release: true });
   });
 
-  describe('cbFor', () => {
-    test('кросс-стори колбэк: targetStory:action (без префикса контроллера)', () => {
-      expect(story.cbFor('view-stream', 'view')).toBe('view-stream:view');
-    });
+  test('handleHelp по умолчанию → null (общий fallback)', async () => {
+    const story = new TestStory();
+    const screen = await story.handleHelp(
+      { id: 'u' },
+      { dialog: { path: 'x/y', seq: 1 } },
+    );
+    expect(screen).toBeNull();
+  });
+});
 
-    test('кросс-стори с id', () => {
-      expect(story.cbFor('monitor', 'detail', 'student-uuid')).toBe(
-        'monitor:detail:student-uuid',
-      );
-    });
+describe('BotUiStory — handleError', () => {
+  test('validation с issues → экран-список полей, валидный md', () => {
+    const story = new TestStory();
 
-    test('кросс-стори с несколькими id', () => {
-      expect(story.cbFor('monitor', 'history', 'id1', 'id2')).toBe(
-        'monitor:history:id1:id2',
-      );
-    });
+    const response = story.callHandleError(
+      new AppException(
+        errValidation('VALIDATION', 'Некорректные данные', {
+          issues: [
+            { path: 'Имя', message: 'слишком *короткое*' },
+            { path: 'Email', message: 'невалиден' },
+          ],
+        }),
+      ),
+    );
+
+    const text = String(response.screen?.text);
+    expect(text).toContain('Имя');
+    expect(text).toContain('слишком \\*короткое\\*');
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
 
-  describe('stripPrefix', () => {
-    test('убирает префикс имени стори', () => {
-      expect(story.stripPrefix('test_story:some_action')).toBe('some_action');
-    });
+  test('validation без issues → общий экран валидации', () => {
+    const story = new TestStory();
 
-    test('не трогает данные без префикса', () => {
-      expect(story.stripPrefix('other_story:action')).toBe(
-        'other_story:action',
-      );
-    });
+    const response = story.callHandleError(
+      new AppException(
+        errValidation('VALIDATION', 'Что-то не так (скобки) [тут]', undefined),
+      ),
+    );
 
-    test('не трогает частичное совпадение', () => {
-      expect(story.stripPrefix('test_story_extra:action')).toBe(
-        'test_story_extra:action',
-      );
-    });
+    const text = String(response.screen?.text);
+    expect(text).toContain('Что\\-то не так \\(скобки\\)');
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
 
-  describe('handleCancel', () => {
-    test('по умолчанию возвращает releaseInput', async () => {
-      const result = await story.handleCancel(testActor, {
-        activeHandler: null,
-      });
-      expect(result.releaseInput).toBe(true);
-    });
+  test.each([
+    [
+      'not-found',
+      new AppException(errNotFound('ERR', 'Объект [не] найден_', undefined)),
+    ],
+    [
+      'conflict',
+      new AppException(errConflict('ERR', 'Конфликт [x] _y_', undefined)),
+    ],
+    [
+      'access-denied',
+      new AppException(errAccessDenied('ERR', 'Доступ (закрыт)', undefined)),
+    ],
+    [
+      'bad-request',
+      new AppException(errBadRequest('ERR', 'Плохой запрос _[1]', undefined)),
+    ],
+  ])('%s → экран с текстом ошибки, валидный md', (_kind, error) => {
+    const story = new TestStory();
+
+    const response = story.callHandleError(error);
+
+    const text = String(response.screen?.text);
+    expect(text).toContain('Объект');
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
   });
 
-  describe('handleTimeout', () => {
-    test('по умолчанию возвращает releaseInput и сообщение', async () => {
-      const result = await story.handleTimeout(testActor, {
-        activeHandler: null,
-      });
-      expect(result.releaseInput).toBe(true);
-      expect(result.sendMessage?.text).toContain('истекло');
-    });
+  test.each([
+    [
+      'internal',
+      new AppException(errInternal('ERR', 'boom [x] _y_', undefined)),
+    ],
+    ['unauthorized', new AppException(errUnauthorized('ERR', 'нет доступа'))],
+  ])('%s → общий экран, доменные данные не утекают', (_kind, error) => {
+    const story = new TestStory();
+
+    const response = story.callHandleError(error);
+
+    const text = String(response.screen?.text);
+    expect(text).not.toContain('внутренняя деталь');
+    expect(text).not.toContain('boom');
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+  });
+});
+
+describe('BotUiStory — колбэк-хелперы', () => {
+  test('cb: story:action:ids без префикса контроллера', () => {
+    const story = new TestStory();
+    expect(story.callCb('view', 'id-1', 'id-2')).toBe('anketa:view:id-1:id-2');
   });
 
-  describe('конкретная реализация', () => {
-    test('handleCallback передаёт action', async () => {
-      const resp = await story.handleCallback('my_action', testActor, {
-        activeHandler: null,
-      });
-      expect(resp.sendMessage?.text).toBe('callback: my_action');
-    });
-
-    test('handleMessage обрабатывает текстовые сообщения', async () => {
-      const resp = await story.handleMessage(
-        { type: 'message', text: 'привет', telegramId: 123 },
-        testActor,
-        { activeHandler: null },
-      );
-      expect(resp.sendMessage?.text).toBe('echo: привет');
-    });
+  test('cbFor: чужая стори того же контроллера', () => {
+    const story = new TestStory();
+    expect(story.callCbFor('list', 'open', 'x')).toBe('list:open:x');
   });
 
-  describe('logger', () => {
-    let savedLogger: Logger | undefined;
-
-    beforeEach(() => {
-      savedLogger = getGlobalLogger();
-    });
-
-    afterEach(() => {
-      if (savedLogger) {
-        setGlobalLogger(savedLogger);
-      }
-    });
-
-    test('возвращает глобальный логгер, когда он установлен', () => {
-      const mockLogger: Logger = {
-        debug: mock(() => {}),
-        info: mock(() => {}),
-        warn: mock(() => {}),
-        error: mock(() => {}),
-        setLogLevel: mock(() => {}),
-        getLogLevel: mock(() => LogLevel.DEBUG),
-        setSourceLevel: mock(() => {}),
-      };
-
-      setGlobalLogger(mockLogger);
-
-      const s = new TestStory();
-      expect(s.logger).toBe(mockLogger);
-    });
-
-    test('возвращает undefined, когда глобальный логгер не установлен', () => {
-      // Сбрасываем глобальный логгер
-      setGlobalLogger(undefined as unknown as Logger);
-
-      const s = new TestStory();
-      expect(s.logger).toBeUndefined();
-    });
+  test('stripPrefix снимает префикс только своей стори', () => {
+    const story = new TestStory();
+    expect(story.callStripPrefix('anketa:view:1')).toBe('view:1');
+    expect(story.callStripPrefix('other:view:1')).toBe('other:view:1');
   });
 
-  describe('confirm', () => {
-    test('генерирует клавиатуру с Да/Отмена по умолчанию', () => {
-      const resp = story.confirm('mark-abandoned', 'student-123', 'Удалить?');
+  test('formatDate: ISO → дд.мм.гггг', () => {
+    const story = new TestStory();
+    expect(story.callFormatDate('2026-09-05T00:00:00Z')).toBe('05.09.2026');
+  });
+});
 
-      expect(resp.sendMessage?.text).toBe('Удалить?');
-      expect(resp.sendMessage?.parseMode).toBe('MarkdownV2');
+// Нужен для типизации update в будущих кейсах (сохраняем поверхность)
+describe('BotUiStory — поверхность', () => {
+  test('handleCallback/handleMessage реализуемы (контракт не抽象)', async () => {
+    const story = new TestStory();
+    const session: BotSession = { dialog: { path: 'c/anketa', seq: 1 } };
+    const update: BotUpdate = { type: 'message', text: 'текст', telegramId: 1 };
 
-      const kb = resp.sendMessage?.keyboard!;
-      expect(kb.isMultiple).toBe(false);
-      expect(kb.rows).toHaveLength(1);
-      expect(kb.rows[0]).toHaveLength(2);
-
-      // Кнопка подтверждения
-      const [confirmBtn, cancelBtn] = kb.rows[0]!;
-      expect(confirmBtn!.text).toBe('✅ Да');
-      expect(confirmBtn!.code).toBe(
-        'test_story:mark-abandoned-confirm:student-123',
-      );
-
-      // Кнопка отмены (по умолчанию detail)
-      expect(cancelBtn!.text).toBe('❌ Отмена');
-      expect(cancelBtn!.code).toBe('test_story:detail:student-123');
-    });
-
-    test('позволяет переопределить текст кнопок', () => {
-      const resp = story.confirm('drop', 's1', 'Точно?', {
-        confirmButton: '⚠️ Да, точно',
-        cancelButton: 'Назад',
-      });
-
-      const [confirmBtn, cancelBtn] = resp.sendMessage!.keyboard!.rows[0]!;
-      expect(confirmBtn!.text).toBe('⚠️ Да, точно');
-      expect(cancelBtn!.text).toBe('Назад');
-    });
-
-    test('принимает кастомный cancelCode', () => {
-      const resp = story.confirm('complete', 's1', '?', {
-        cancelCode: 'monitor:students:stream-1',
-      });
-
-      const cancelBtn = resp.sendMessage!.keyboard!.rows[0]![1]!;
-      expect(cancelBtn.code).toBe('monitor:students:stream-1');
-    });
-
-    test('добавляет extraData в confirm-колбэк', () => {
-      const resp = story.confirm('mark-abandoned', 's1', '?', {
-        extraData: 'inactivity',
-      });
-
-      const confirmBtn = resp.sendMessage!.keyboard!.rows[0]![0]!;
-      expect(confirmBtn.code).toBe(
-        'test_story:mark-abandoned-confirm:s1:inactivity',
-      );
-    });
-
-    test('cancelCode по умолчанию ведёт на detail той же стори', () => {
-      const resp = story.confirm('test-action', 'uuid-42', '?');
-      const cancelBtn = resp.sendMessage!.keyboard!.rows[0]![1]!;
-      expect(cancelBtn.code).toBe('test_story:detail:uuid-42');
-    });
+    expect(await story.handleCallback('view', { id: 'u' }, session)).toEqual(
+      {},
+    );
+    expect(await story.handleMessage(update, { id: 'u' }, session)).toBeNull();
   });
 });

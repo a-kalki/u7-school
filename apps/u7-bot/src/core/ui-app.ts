@@ -1,23 +1,30 @@
 import type { User } from '@u7-scl/app/domain';
-import { getGlobalLogger } from '@u7-scl/core/shared';
+import { getGlobalLogger, md } from '@u7-scl/core/shared';
 import {
-  type BotResponse,
   BotUiApp,
   type KeyboardDescription,
   type ProactiveSender,
+  type Screen,
 } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
 import type { MainMenuAction, MenuAggregator } from './u7-menu';
 
 /**
- * Оркестратор UI приложения U7 Bot.
+ * Оркестратор UI приложения U7 Bot на контракте «Диалог и Экран».
+ *
+ * Диалоговая механика (seq, delegate, /help, /cancel) — в ядре BotUiApp;
+ * здесь только U7-специфика: якорь меню `app/menu`, welcome-экран и
+ * общий help-fallback с агрегацией описаний контроллеров.
  */
 export class U7BotUiApp
   extends BotUiApp<U7BotAppMeta, User, U7BotUiAppResolve>
   implements MenuAggregator<User>
 {
   protected declare readonly controllers: Map<string, U7BotController>;
+
+  /** Диалог меню после /start (сущностной стори нет — якорь для seq/штампов). */
+  protected override readonly menuPath = 'app/menu';
 
   /**
    * Инициализация зависимостями UI-слоя U7-бота.
@@ -71,37 +78,34 @@ export class U7BotUiApp
     return this.collectHelp(actor);
   }
 
-  // ── Системные команды ──
+  // ── Хуки ядра (welcome / help) ──
 
-  /** Обрабатывает /start: приветствие от контроллера 'app' или fallback. */
-  async handleWelcome(tgId: number): Promise<BotResponse> {
-    const actor = await this.resolve.actorResolver(tgId);
+  /**
+   * Экран меню для /start и дефолт-/cancel: приветствие от контроллера 'app'
+   * (U7-текст) либо fallback «Выберите действие:» с агрегированной
+   * клавиатурой.
+   */
+  protected override async buildMenuScreen(actor: User): Promise<Screen> {
     const appCtrl = this.controllers.get('app');
     if (appCtrl) {
-      const response = await appCtrl.handleWelcome(actor);
-      if (response) return response;
+      const welcome = await appCtrl.handleWelcome(actor);
+      if (welcome) return welcome;
     }
     const items = await this.collectMainMenu(actor);
-    const keyboard = this.#toKeyboard(items);
     return {
-      sendMessage: {
-        text: 'Выберите действие:',
-        keyboard: keyboard ?? undefined,
-      },
+      text: md`Выберите действие:`,
+      keyboard: this.#toKeyboard(items) ?? undefined,
     };
   }
 
-  /** Обрабатывает /help. */
-  async handleHelp(tgId: number): Promise<BotResponse> {
-    const actor = await this.resolve.actorResolver(tgId);
+  /** Общий help-fallback: инструкция от контроллера 'app'. */
+  protected override async buildHelpScreen(actor: User): Promise<Screen> {
     const appCtrl = this.controllers.get('app');
     if (appCtrl) {
-      const response = await appCtrl.handleHelpMessage(actor);
-      if (response) return response;
+      const help = await appCtrl.handleHelpMessage(actor);
+      if (help) return help;
     }
-    return {
-      sendMessage: { text: 'Нет доступных пунктов меню.' },
-    };
+    return { text: md`Нет доступных пунктов меню.` };
   }
 
   // ── Приватные хелперы ──

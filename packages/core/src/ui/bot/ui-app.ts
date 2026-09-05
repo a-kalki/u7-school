@@ -1,36 +1,38 @@
-import type { AppMeta } from '#domain/types';
+import { mdRaw } from '../../shared/markdown';
 import { UiApp } from '../ui-app';
 import type { BotUiAppResolve } from './app-types';
 import type { BotController } from './bot-controller';
+import type { BotUiStory } from './bot-ui-story';
 import type {
-  BotCommand,
-  BotResponse,
+  BotSession,
   BotUpdate,
-  KeyboardDescription,
+  DialogResponse,
   NotificationPayload,
   ProactiveSender,
-  SessionData,
+  Screen,
 } from './types';
 
 /**
- * Маркер-префикс callback_data takeover-кнопок (явный перехват ввода).
+ * Центральный хаб UI-слоя бота на контракте «Диалог и Экран».
  *
- * Кодирование/снятие — уровень uiApp: при отправке кнопки с
- * `takeover: true` получают префикс, при приёме маркер снимается первым
- * делом и включает обход блокировки чужим activeHandler. Транспорт,
- * контроллеры и стори работают с «нативным» кодом и маркера не знают
- * (для предупреждающей строки транспорт читает структурное поле `takeover`).
- */
-export const TAKEOVER_MARKER = '!';
-
-/**
- * Центральный хаб UI-слоя бота.
+ * Ответственность:
+ * - маршрутизация кнопок/ввода по префиксу контроллера (без блокировки
+ *   «чужим диалогом» — штампы транспорта уже гарантировали актуальность
+ *   кнопки, И2);
+ * - владение `DialogState`: смена диалога (`seq++`, сброс `input`),
+ *   `delegate`-переходы;
+ * - системные команды: /start (диалог меню + welcome), /help (контекстная
+ *   справка стори → общий fallback, как info-реплика), /cancel (доменная
+ *   очистка стори → дефолт-возврат в меню).
+ *
+ * Экран и Telegram-механика — транспорт (§5); uiApp только решает КУДА.
  *
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
-export class BotUiApp<
-    TAppMeta extends AppMeta = AppMeta,
+export abstract class BotUiApp<
+    TAppMeta extends
+      import('#domain/types').AppMeta = import('#domain/types').AppMeta,
     TActor = unknown,
     TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
       TAppMeta,
@@ -47,6 +49,9 @@ export class BotUiApp<
 
   /** Транспорт — получается через init отдельным аргументом */
   protected transport!: ProactiveSender;
+
+  /** Путь диалога главного меню: `controller/story` — якорь /start и /cancel. */
+  protected abstract readonly menuPath: string;
 
   // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с UiController до BotController
   constructor(controllers: BotController<TAppMeta, TActor, TResolve>[]) {
@@ -75,12 +80,110 @@ export class BotUiApp<
     return this.controllers.get(name);
   }
 
-  // ── ProactiveSender ──
+  // ── Системные команды ──
 
-  /** Проактивная отправка — кодирует takeover-маркеры и делегирует в transport */
-  async send(telegramId: number, command: BotCommand): Promise<void> {
-    await this.transport.send(telegramId, this.#encodeTakeover(command));
+  /**
+   * /start: явный сброс — диалог закрывается (seq++), открывается диалог
+   * меню, welcome-экран (транспорт отправит send'ом — экран не наш).
+   */
+  async handleWelcome(
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const actor = await this.resolve.actorResolver(tgId);
+    this.#switchDialog(session, this.menuPath);
+    return { screen: await this.buildMenuScreen(actor, session) };
   }
+
+  /**
+   * /help: не трогает диалог и экран (§5.3) — результат уходит info-репликой.
+   * Активная стори может дать контекстную справку (`handleHelp`),
+   * иначе — общий fallback.
+   */
+  async handleHelp(tgId: number, session: BotSession): Promise<DialogResponse> {
+    const actor = await this.resolve.actorResolver(tgId);
+    const story = this.#storyByPath(session.dialog.path);
+    const contextHelp = story ? await story.handleHelp(actor, session) : null;
+    if (contextHelp) {
+      return { info: contextHelp };
+    }
+    return { info: await this.buildHelpScreen(actor) };
+  }
+
+  /**
+   * /cancel: доменная очистка активной стори (если ждём ввод), дефолт —
+   * возврат в меню (диалог меню, seq++).
+   */
+  async handleCancel(
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    const actor = await this.resolve.actorResolver(tgId);
+
+    let response: DialogResponse | null = null;
+    if (session.dialog.input) {
+      const controller = this.#controllerByPath(session.dialog.path);
+      response = controller
+        ? await controller.handleCancel(actor, session)
+        : null;
+    }
+
+    if (!response || this.#isEmpty(response)) {
+      this.#switchDialog(session, this.menuPath);
+      return { screen: await this.buildMenuScreen(actor, session) };
+    }
+    return response;
+  }
+
+  // ── Обработка callback ──
+
+  /**
+   * Нажатие кнопки (штамп и shortId уже сверены транспортом).
+   *
+   * Кнопка в другую стори (мост) — смена диалога: `seq++`, input сброс;
+   * своей — продолжение без смены seq. `delegate` исполняется здесь,
+   * до транспорта: info/screen инициатора уходят до экрана делегата,
+   * слоты делегата (screen/awaitInput) приоритетны.
+   */
+  async handleCallback(
+    data: string,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    const actor = await this.resolve.actorResolver(tgId);
+
+    const initiator = await this.#dispatch(data, actor, session);
+
+    const delegatePath = initiator.delegate?.path;
+    if (delegatePath === undefined) {
+      return initiator;
+    }
+
+    const target = await this.#dispatch(delegatePath, actor, session);
+
+    return {
+      info: initiator.info ?? target.info,
+      screen: target.screen ?? initiator.screen,
+      awaitInput: target.awaitInput,
+      release: target.release ?? initiator.release,
+    };
+  }
+
+  // ── Обработка сообщений ──
+
+  /** Текстовый ввод при ожидающем диалоге (path — активный dialog.path). */
+  async handleMessage(
+    update: BotUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    const actor = await this.resolve.actorResolver(tgId);
+    const controller = this.#controllerByPath(session.dialog.path);
+    if (!controller) return null;
+    return controller.handleMessage(update, actor, session);
+  }
+
+  // ── ProactiveSender ──
 
   /** Проактивное уведомление — делегирует в transport */
   async notify(
@@ -95,272 +198,86 @@ export class BotUiApp<
     await this.transport.kickFromGroup(groupId, userId);
   }
 
-  // ── Обработка callback ──
+  // ── Хуки приложения ──
 
   /**
-   * Обрабатывает callback, маршрутизируя по префиксу контроллера.
-   *
-   * Takeover-кнопки (маркер в callback_data) обрабатываются даже при
-   * активном ЧУЖОМ activeHandler — захват ввода перезаписывается новой
-   * стори (спец FR-5).
+   * Экран диалога меню (welcome / агрегированное меню).
+   * Переопределяется приложением; core-дефолт — нейтральная заглушка.
    */
-  async handleCallback(
-    data: string,
-    tgId: number,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    // Takeover-маркер снимается первым делом — дальше только нативный код
-    const takeover = data.startsWith(TAKEOVER_MARKER);
-    if (takeover) {
-      data = data.slice(TAKEOVER_MARKER.length);
-    }
-
-    const actor = await this.resolve.actorResolver(tgId);
-    const controllerName = this.#extractControllerName(data);
-
-    if (!controllerName) {
-      return {
-        sendMessage: { text: '⚠️ Неизвестный формат команды' },
-      };
-    }
-
-    const activeHandler = session.activeHandler;
-    if (activeHandler && !takeover) {
-      const [activeCtrl] = activeHandler.path.split('/');
-      if (activeCtrl !== controllerName) {
-        return {
-          sendMessage: {
-            text: '⚠️ Сначала завершите текущее действие (/cancel)',
-          },
-        };
-      }
-    }
-
-    const controller = this.controllers.get(controllerName);
-    if (!controller) {
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
-    }
-
-    const restData = this.#extractRestData(data);
-
-    const response = await controller.handleCallback(restData, actor, session);
-
-    this.#applyCapturedInput(session, controllerName, response);
-
-    if (response.delegate) {
-      const delegateResponse = await this.#handleDelegate(
-        response.delegate.path,
-        actor,
-        session,
-      );
-      return this.#encodeTakeover(
-        this.#mergeResponses(response, delegateResponse),
-      );
-    }
-
-    return this.#encodeTakeover(response);
+  protected async buildMenuScreen(
+    _actor: TActor,
+    _session: BotSession,
+  ): Promise<Screen> {
+    return { text: mdRaw('Выберите действие:') };
   }
 
-  // ── Обработка сообщений ──
-
-  async handleMessage(
-    update: BotUpdate,
-    tgId: number,
-    session: SessionData,
-  ): Promise<BotResponse | null> {
-    const activeHandler = session.activeHandler;
-    if (!activeHandler) return null;
-
-    if (activeHandler.expiresAt && Date.now() > activeHandler.expiresAt) {
-      return (
-        (await this.handleTimeout(tgId, session)) ?? {
-          releaseInput: true,
-        }
-      );
-    }
-
-    const actor = await this.resolve.actorResolver(tgId);
-    const [ctrlName] = activeHandler.path.split('/');
-    const controller = this.controllers.get(ctrlName ?? '');
-    if (!controller) return null;
-
-    const response = await controller.handleMessage(update, actor, session);
-    this.#applyCapturedInput(session, ctrlName ?? '', response);
-    return this.#encodeTakeover(response);
-  }
-
-  // ── Обработка отмены ──
-
-  async handleCancel(
-    tgId: number,
-    session: SessionData,
-  ): Promise<BotResponse | null> {
-    const activeHandler = session.activeHandler;
-    if (!activeHandler) return null;
-
-    const [ctrlName] = activeHandler.path.split('/');
-    const actor = await this.resolve.actorResolver(tgId);
-    const controller = this.controllers.get(ctrlName ?? '');
-    if (!controller) {
-      session.activeHandler = null;
-      return { releaseInput: true };
-    }
-
-    const response = await controller.handleCancel(actor, session);
-
-    if (response.releaseInput) {
-      session.activeHandler = null;
-    }
-
-    return response;
-  }
-
-  // ── Обработка таймаута ──
-
-  async handleTimeout(
-    tgId: number,
-    session: SessionData,
-  ): Promise<BotResponse | null> {
-    const activeHandler = session.activeHandler;
-    if (!activeHandler) return null;
-
-    const [ctrlName] = activeHandler.path.split('/');
-    const actor = await this.resolve.actorResolver(tgId);
-    const controller = this.controllers.get(ctrlName ?? '');
-    if (!controller) {
-      session.activeHandler = null;
-      return { releaseInput: true };
-    }
-
-    const response = await controller.handleTimeout(actor, session);
-
-    if (response.releaseInput) {
-      session.activeHandler = null;
-    }
-
-    return response;
+  /** Общий help-fallback, когда стори не дала контекстной справки. */
+  protected async buildHelpScreen(_actor: TActor): Promise<Screen> {
+    return { text: mdRaw('Справка недоступна\\.') };
   }
 
   // ── Приватные хелперы ──
 
   /**
-   * Кодирует takeover-кнопки: маркер-префикс в `code` при отправке.
-   * Структурное поле `takeover: true` сохраняется — транспорт рендерит
-   * по нему предупреждающую строку (структурное поле, не маркер).
+   * Смена диалога: `seq++`, input сброс. Экран прежнего диалога становится
+   * «чужим» — транспорт отправит send (retire прежнего, §5.2).
+   * Тот же path — полный no-op: input живёт до awaitInput/release ответа
+   * (транспорт применит их при рендере).
    */
-  #encodeTakeover(command: BotCommand): BotCommand {
-    const encode = (kb: KeyboardDescription): KeyboardDescription => ({
-      ...kb,
-      rows: kb.rows.map((row) =>
-        row.map((btn) =>
-          btn.takeover === true && !btn.code.startsWith(TAKEOVER_MARKER)
-            ? { ...btn, code: TAKEOVER_MARKER + btn.code }
-            : btn,
-        ),
-      ),
-    });
-
-    const result: BotCommand = { ...command };
-    if (result.sendMessage?.keyboard) {
-      result.sendMessage = {
-        ...result.sendMessage,
-        keyboard: encode(result.sendMessage.keyboard),
-      };
-    }
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map((sm) =>
-        sm.keyboard ? { ...sm, keyboard: encode(sm.keyboard) } : sm,
-      );
-    }
-    if (result.editMessage?.keyboard) {
-      result.editMessage = {
-        ...result.editMessage,
-        keyboard: encode(result.editMessage.keyboard),
-      };
-    }
-    return result;
-  }
-
-  #applyCapturedInput(
-    session: SessionData,
-    controllerName: string,
-    response: BotResponse,
-  ): void {
-    if (response.captureInput) {
-      session.activeHandler = {
-        path: `${controllerName}/${response.captureInput.path}`,
-        context: response.captureInput.context,
-        expiresAt: response.captureInput.ttlSeconds
-          ? Date.now() + response.captureInput.ttlSeconds * 1000
-          : undefined,
-      };
-    }
-    if (response.releaseInput) {
-      session.activeHandler = null;
-    }
+  #switchDialog(session: BotSession, path: string): void {
+    if (session.dialog.path === path) return;
+    session.dialog = { path, seq: session.dialog.seq + 1 };
   }
 
   /**
-   * Маршрутизирует delegate.path — полный маршрут `controller:story:action:...`.
-   * Первый сегмент — всегда имя контроллера.
+   * Маршрутизация `controller:story:action...`: смена диалога при
+   * `controller/story` ≠ текущему, затем контроллер.
    */
-  async #handleDelegate(
-    path: string,
+  async #dispatch(
+    data: string,
     actor: TActor,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    const controllerName = this.#extractControllerName(path);
-    if (!controllerName) {
-      return { sendMessage: { text: '⚠️ Неизвестный формат команды' } };
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const [ctrlName, storyName] = data.split(':');
+    if (!ctrlName || !storyName) {
+      return { screen: { text: mdRaw('⚠️ Неизвестный формат команды') } };
     }
 
-    const target = this.getController(controllerName);
-    if (!target) {
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    const controller = this.controllers.get(ctrlName);
+    if (!controller) {
+      return { screen: { text: mdRaw('⚠️ Неизвестная команда') } };
     }
 
-    const res = await target.handleCallback(
-      this.#extractRestData(path),
-      actor,
-      session,
+    this.#switchDialog(session, `${ctrlName}/${storyName}`);
+
+    const rest = data.slice(ctrlName.length + 1);
+    return controller.handleCallback(rest, actor, session);
+  }
+
+  /** Контроллер активного диалога по `controller/story`. */
+  #controllerByPath(
+    path: string,
+  ): BotController<TAppMeta, TActor, TResolve> | undefined {
+    const [ctrlName] = path.split('/');
+    if (!ctrlName) return undefined;
+    return this.controllers.get(ctrlName);
+  }
+
+  /** Стори активного диалога по `controller/story` (для контекстного /help). */
+  #storyByPath(path: string): BotUiStory<TAppMeta, TActor> | undefined {
+    const controller = this.#controllerByPath(path);
+    const storyName = path.split('/')[1];
+    if (!controller || !storyName) return undefined;
+    return controller.getStories().find((story) => story.name === storyName);
+  }
+
+  /** Ответ без визуальных/маршрутных слотов (только release/awaitInput). */
+  #isEmpty(response: DialogResponse): boolean {
+    return (
+      !response.screen &&
+      !response.info &&
+      !response.finalize &&
+      !response.delegate
     );
-    this.#applyCapturedInput(session, controllerName, res);
-    return res;
-  }
-
-  #mergeResponses(main: BotResponse, delegate: BotResponse): BotResponse {
-    const result: BotResponse = { ...delegate };
-    if (main.sendMessage) {
-      result.sendMessage = main.sendMessage;
-      if (delegate.sendMessage && delegate.sendMessage !== main.sendMessage) {
-        result.sendMessages = [
-          main.sendMessage,
-          ...(delegate.sendMessages ?? [delegate.sendMessage]),
-        ];
-        result.sendMessage = undefined;
-      }
-    }
-    if (main.editMessage) {
-      result.editMessage = main.editMessage;
-    }
-    return result;
-  }
-
-  /**
-   * Извлекает имя контроллера из callback_data (первый сегмент до «:»).
-   */
-  #extractControllerName(data: string): string | null {
-    const colonIdx = data.indexOf(':');
-    if (colonIdx === -1) return null;
-    return data.substring(0, colonIdx);
-  }
-
-  /**
-   * Извлекает остаток данных после имени контроллера.
-   */
-  #extractRestData(data: string): string {
-    const colonIdx = data.indexOf(':');
-    if (colonIdx === -1) return data;
-    return data.substring(colonIdx + 1);
   }
 }

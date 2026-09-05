@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { type MdText, md, mdRaw, safeConvert } from './markdown';
+import {
+  type MdText,
+  md,
+  mdConcat,
+  mdJoin,
+  mdRaw,
+  safeConvert,
+} from './markdown';
 import { validateMarkdownV2 } from './markdown-validator';
 
 describe('safeConvert', () => {
@@ -179,5 +186,40 @@ describe('mdRaw — явный «уже с разметкой»', () => {
     const text = mdRaw('*Заголовок*\\. Точка экранирована\\.');
 
     expect(validateMarkdownV2(text).valid).toBe(true);
+  });
+});
+
+// ── Композиция: mdConcat / mdJoin ──
+
+describe('mdConcat / mdJoin — композиция MdText', () => {
+  test('mdConcat склеивает без повторного экранирования', () => {
+    const part1 = md`Курс: *${'Java_5'}*`;
+    const part2 = md`\nСтатус: ${'запись (открыта)'}`;
+
+    const result = mdConcat(part1, part2);
+
+    expect(String(result)).toBe(
+      'Курс: *Java\\_5*\nСтатус: запись \\(открыта\\)',
+    );
+  });
+
+  test('mdJoin склеивает списком с разделителем', () => {
+    const lines = [md`• ${'Первая'}`, md`• ${'Вторая_2'}`];
+
+    const result = mdJoin(lines, '\n');
+
+    expect(String(result)).toBe('• Первая\n• Вторая\\_2');
+  });
+
+  test('интерполяция MdText в md экранирует повторно — потому нужна композиция', () => {
+    const part = md`*${'bold_имя'}*`; // уже безопасный фрагмент
+
+    const wrong = md`Заголовок\n${part}`;
+    const right = mdConcat(md`Заголовок\n`, part);
+
+    // wrong: разметка part экранирована повторно (звёзды и подчёрки удвоены)
+    expect(String(wrong)).toContain('\\*bold\\\\_имя\\*');
+    // right: композиция сохраняет разметку, экранирование одинарное
+    expect(String(right)).toBe('Заголовок\n*bold\\_имя*');
   });
 });

@@ -1,8 +1,8 @@
 import type { User } from '@u7-scl/app/domain';
 import {
   BotController,
-  type BotResponse,
   type ProactiveSender,
+  type Screen,
 } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotUiStory } from './u7-bot-ui-story';
@@ -50,13 +50,13 @@ export abstract class U7BotController extends BotController<
     return items.sort((a, b) => a.priority - b.priority);
   }
 
-  /** Приветствие /start. По умолчанию контроллер не участвует. */
-  async handleWelcome(_actor: User): Promise<BotResponse | null> {
+  /** Приветствие /start (экран меню). По умолчанию контроллер не участвует. */
+  async handleWelcome(_actor: User): Promise<Screen | null> {
     return null;
   }
 
-  /** Сообщение помощи /help. По умолчанию контроллер не участвует. */
-  async handleHelpMessage(_actor: User): Promise<BotResponse | null> {
+  /** Общий help-fallback /help. По умолчанию контроллер не участвует. */
+  async handleHelpMessage(_actor: User): Promise<Screen | null> {
     return null;
   }
 }

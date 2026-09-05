@@ -48,9 +48,9 @@ describe('CommunityStory', () => {
   test('handleCallback возвращает заглушку', async () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
     const response = await story.handleCallback('any', actor, {
-      activeHandler: null,
+      dialog: { path: 'app/community', seq: 1 },
     });
-    expect(response.sendMessage?.text).toContain('Неизвестная');
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 
   test('handleMessage возвращает заглушку', async () => {
@@ -58,8 +58,8 @@ describe('CommunityStory', () => {
     const response = await story.handleMessage(
       { type: 'message', text: 'что-то', telegramId: 123 },
       actor,
-      { activeHandler: null },
+      { dialog: { path: 'app/community', seq: 1 } },
     );
-    expect(response.sendMessage?.text).toContain('Неизвестное');
+    expect(String(response?.screen?.text)).toContain('Неизвестное');
   });
 });
