@@ -21,12 +21,12 @@
 
 ## Фаза 3: BotUiApp, BotController, BotUiStory
 
-- [ ] Task: Написать падающие тесты uiApp: маршрутизация без «чужого контроллера», `seq++` при смене диалога, `delegate` (info/screen инициатора до экрана делегата, без `#mergeResponses`), `awaitInput`/`release` без `path`, `/help` (handleHelp стори → fallback, info-реплика)
-- [ ] Task: Реализовать `ui-app.ts`, удалить takeover-кодирование
-- [ ] Task: Написать падающие тесты `BotUiStory`: `handleHelp(): Screen | null`, `confirm`, `handleError` → `DialogResponse`
-- [ ] Task: Реализовать `bot-ui-story.ts`; удалить `handleTimeout`, `escapeMarkdown`
-- [ ] Task: `BotController`: `handleError` → `DialogResponse`, удалить `handleTimeout`; команды `/start` (закрытие диалога, welcome send'ом), `/cancel` (делегация `handleCancel`, дефолт — меню)
-- [ ] Task: `apps/u7-bot/src/context.ts`: `BotSession` вместо `SessionData`
+- [x] Task: Написать падающие тесты uiApp: маршрутизация без «чужого контроллера», `seq++` при смене диалога, `delegate` (info/screen инициатора до экрана делегата, без `#mergeResponses`), `awaitInput`/`release` без `path`, `/help` (handleHelp стори → fallback, info-реплика)
+- [x] Task: Реализовать `ui-app.ts`, удалить takeover-кодирование
+- [x] Task: Написать падающие тесты `BotUiStory`: `handleHelp(): Screen | null`, `confirm`, `handleError` → `DialogResponse`
+- [x] Task: Реализовать `bot-ui-story.ts`; удалить `handleTimeout`, `escapeMarkdown`
+- [x] Task: `BotController`: `handleError` → `DialogResponse`, удалить `handleTimeout`; команды `/start` (закрытие диалога, welcome send'ом), `/cancel` (делегация `handleCancel`, дефолт — меню)
+- [x] Task: `apps/u7-bot/src/context.ts`: `BotSession` вместо `SessionData`
 - [ ] Conductor - User Manual Verification 'Ядро' (Protocol in workflow.md)
 
 ## Фаза 4: Финал трека 1
