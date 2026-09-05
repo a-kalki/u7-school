@@ -1,0 +1,13 @@
+Задача: Тесты md/mdRaw/MdText + Реализация MdText/md/mdRaw (Фаза 1, трек bot-ui-dialog-core_20260905)
+
+Сводка:
+- md(): тегированный шаблон — литералы как есть (разметка разрешена), ${}-интерполяция экранируется escapeMarkdown целиком.
+- mdRaw(): явный пропуск «уже с разметкой» (редкие случаи).
+- MdText = string & { readonly __md: never } — бренд-тип, производимый только хелперами.
+
+Файлы:
+- packages/core/src/shared/markdown.ts — реализация (MdText, md, mdRaw).
+- packages/core/src/shared/markdown.test.ts — новые describe 'md', 'mdRaw' (11 тестов).
+- packages/core/src/shared/index.ts — экспорт MdText, md, mdRaw.
+
+Причина: фундамент контракта «Диалог и Экран» (§4 bot-ui-session-architecture.md) — забывание экранирования невозможно компилятором.
