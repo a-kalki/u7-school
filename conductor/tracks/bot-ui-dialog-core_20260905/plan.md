@@ -31,6 +31,6 @@
 
 ## Фаза 4: Финал трека 1
 
-- [ ] Task: Тесты и линт ядра зелёные (`bun run check` для core/ui + ядра u7-bot); красный tsc прикладных сторей зафиксирован как заявленное состояние
-- [ ] Task: Обновить стильгайды `bot-ui-story.md` и `bot-controller.md` (новый контракт)
+- [x] Task: Тесты и линт ядра зелёные (`bun run check` для core/ui + ядра u7-bot); красный tsc прикладных сторей зафиксирован как заявленное состояние
+- [x] Task: Обновить стильгайды `bot-ui-story.md` и `bot-controller.md` (новый контракт)
 - [ ] Conductor - User Manual Verification 'Финал ядра' (Protocol in workflow.md)

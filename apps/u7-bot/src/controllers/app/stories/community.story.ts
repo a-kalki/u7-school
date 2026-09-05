@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import { md, mdRaw } from '@u7-scl/core/shared';
+import { md } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 
 /**

@@ -47,7 +47,7 @@ init(resolve: TResolve): void  // eventBus + appApi + actorResolver (+ uiApp в 
 reset(): void                  // сброс временного состояния стори
 ```
 
-`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `reset()` вызывает `reset()` у всех стори — сжатые id и `sessionMap` здесь **не** сбрасываются (они в `BotTransport`).
+`init()` вызывается при создании `UiApp` (каскадно из `UiApp.init()`). `reset()` вызывает `reset()` у всех стори — сжатые id и `BotSession`-состояние здесь **не** сбрасываются (они в `BotTransport`).
 
 Контроллер сохраняет зависимости:
 - `this.appApi` — для межмодульных вызовов (`appApi.execute(...)`)
@@ -60,19 +60,23 @@ reset(): void                  // сброс временного состоян
 | Метод | Назначение |
 |---|---|
 | `handleCallback(data, actor, session)` | Снимает префикс стори, делегирует в стори, префиксирует коды ответа |
-| `handleMessage(update, actor, session)` | Делегирует активной стори по `session.activeHandler.path` |
-| `handleCancel` / `handleTimeout` | Делегируют активной стори или освобождают ввод |
+| `handleMessage(update, actor, session)` | Делегирует стори по `session.dialog.path`; `null` — стори отказалась |
+| `handleCancel(actor, session)` | Делегирует стори по `dialog.path`; `handleTimeout` удалён (TTL мёртв) |
 | `handleStart(actor)` (U7) | Агрегирует кнопки главного меню от всех стори, добавляет префикс `name:` |
-| `handleWelcome` / `handleHelpMessage` (U7) | Системные сообщения (переопределяет `AppController`) |
+| `handleWelcome` / `handleHelpMessage` (U7) | `Promise<Screen \| null>` — экраны меню/справки (переопределяет `AppController`) |
 
-Диспетчеризация callback: ищет стори по префиксу `${story.name}:`. Если не найдено — `⚠️ Неизвестная команда`.
+Диспетчеризация callback: ищет стори по префиксу `${story.name}:`. Если не найдено —
+ответ пустой (`null`), сообщение игнорируется молча: устаревшие клики не текстовы
+в чат. Все сигнатуры принимают `BotSession` (контракт «Диалог и Экран»), а не старую `SessionData`.
 
 ---
 
 ## 5. Префиксация кнопок
 
-`handleCallback`/`handleMessage`/`handleCancel`/`handleTimeout` возвращают ответ стори
-**с уже добавленным префиксом** `name:` ко всем кодам кнопок (`#prefixResponse`).
+`handleCallback`/`handleMessage`/`handleCancel` возвращают ответ стори
+(`DialogResponse`) **с уже добавленным префиксом** `name:` (`#prefixResponse`):
+префиксуются клавиатуры `screen`/`info` и `delegate.path`. Механику рендера
+(edit/send/finalize/retire) контроллер не знает — это транспорт.
 
 - `story:action` → `name:story:action` (стори текущего контроллера).
 - `app:main-menu` → без изменений (кросс-контроллерный код).
@@ -89,11 +93,11 @@ reset(): void                  // сброс временного состоян
 
 | kind | Действие |
 |---|---|
-| `validation` | Перечисляет поля из `payload.issues` |
+| `validation` | Перечисляет поля из `payload.issues` (формат домена — `path`, не `field`) |
 | `not-found`, `conflict`, `access-denied`, `bad-request` | Текст ошибки |
 | `internal`, `unauthorized`, default | Логирует через `logger.error` + общее сообщение |
 
-Все сообщения — в MarkdownV2 с экранированием. См. [errors.md](./errors.md) для контракта `AppError`.
+`handleError` возвращает `DialogResponse`-экран; тексты — `MdText` через `md` (см. [bot-ui-story.md](./bot-ui-story.md), §4). См. [errors.md](./errors.md) для контракта `AppError`.
 
 ---
 
