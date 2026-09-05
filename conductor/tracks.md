@@ -1,6 +1,11 @@
 # Реестр треков
 
-Порядок миграции bot-ui: 1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./bot-ui-session-architecture.md), §9.
+Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./bot-ui-session-architecture.md), §9.
+
+---
+
+- [ ] **Track: Жизненный цикл диалога — операция входа, команды, kind-уведомления (трек 1.1)**
+*Link: [./tracks/bot-ui-dialog-lifecycle_20260905/](./tracks/bot-ui-dialog-lifecycle_20260905/)*
 
 ---
 
