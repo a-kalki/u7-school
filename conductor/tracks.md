@@ -16,3 +16,8 @@
 
 - [ ] **Track: Learning-стори (hub, step-view, nav-tree, progress) на новом контракте**
 *Link: [./tracks/bot-ui-dialog-learning_20260905/](./tracks/bot-ui-dialog-learning_20260905/)*
+
+---
+
+- [ ] **Track: Анкетные стори (fill, invite, render.ts) на новом контракте, finalize-паттерн**
+*Link: [./tracks/bot-ui-dialog-questionnaire_20260905/](./tracks/bot-ui-dialog-questionnaire_20260905/)*
