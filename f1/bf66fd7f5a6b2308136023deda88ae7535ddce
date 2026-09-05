@@ -1,0 +1,20 @@
+Фаза 2 «Транспорт» (трек bot-ui-dialog-core_20260905), задачи 1–6
+
+Сводка:
+- Штампы: #stamp/#splitStamp — :~<seq36> в конец кода кнопки (после сжатия UUID); парсинг берёт последний сегмент, ~-сегменты данных (в т.ч. shortId) не затрагиваются (§12.2 покрыт тестами).
+- Очередь: #enqueue на все handle* + notify; polling — no-op по эффекту (трактовка зафиксирована в комментарии и тесте порядка).
+- Рендер-политика §5: #render — info → finalize (только ownerSeq===seq, иначе warn) → screen (edit своего / retire+#sendScreen чужого) → awaitInput/release.
+- Маркер выбора: «—————\nВы выбрали: <текст>» по pressedCode (код нажатой кнопки ищется в клавиатуре ретируемого экрана, текст экранируется escapeMarkdown).
+- Notify: тон notice → '🔔 *Уведомление:*', info → без заголовка; сессию не читает/не пишет (И3); fail-fast assertMarkdownV2Safe.
+- Ошибки Telegram API: warn-лог (#warnTelegram) вместо .catch(()=>{}).
+- Удалено: send(), execute(), compressCommand, #appendTakeoverWarning, takeover-тесты.
+- Типы grammy: EditReplyMarkup выведен из Api (без прямой зависимости @grammyjs/types).
+
+Файлы:
+- apps/u7-bot/src/infra/bot-transport.ts — полная перезапись (39 тестов).
+- apps/u7-bot/src/infra/bot-transport.test.ts — новая сюита (39 тестов: штампы 9, очередь 4, рендер 16, notify 3, сжатие 4, кик 2, +1 welcome).
+- apps/u7-bot/src/infra/bot-transport.takeover.test.ts — УДАЛЁН.
+- apps/u7-bot/src/main.ts — конструктор транспорта без sessionMap.
+- apps/u7-bot/tests/helpers/test-bot-transport.ts — конструктор без sessionMap (e2e-хелпер мигрируется в Фазе 3).
+
+Заявленное состояние: e2e красны (старый uiApp + новый транспорт) — до Фазы 3; src/ юниты зелёные, линт зелёный, tsc транспорт/infra чист.
