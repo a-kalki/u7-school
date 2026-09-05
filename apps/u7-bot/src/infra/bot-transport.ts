@@ -148,9 +148,11 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       const session = this.#session(tgId);
 
       // 1. Штамп — сверка первым делом: старый экран, кнопка из истории,
-      //    гонка, рестарт → alert, до uiApp не доезжает (И2).
+      //    гонка, рестарт, крафтовый ~0 или легаси-код без штампа → alert,
+      //    до uiApp не доезжает (И2). Штампы валидны от 1: seq 0 означает
+      //    «диалог ещё не открыт через /start».
       const { data, stamp } = this.#splitStamp(rawData);
-      if (stamp === null || stamp !== session.dialog.seq) {
+      if (stamp === null || stamp < 1 || stamp !== session.dialog.seq) {
         await this.#answerCallbackQuery(ctx, STALE_STAMP_MESSAGE);
         return;
       }
@@ -249,7 +251,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
    * Проактивное уведомление — единственный проактивный канал (И3):
    * не читает и не пишет сессию, не трогает экран и диалог.
    * Тон-каналы: notice (по умолчанию) — 🔔 «Уведомление»;
-   * info — тихая реплика без заголовка.
+   * info — ℹ️ «Информация» в стилистике уведомлений.
    */
   async notify(
     telegramId: number,
@@ -257,7 +259,9 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   ): Promise<void> {
     return this.#enqueue(telegramId, async () => {
       const header =
-        (payload.tone ?? 'notice') === 'notice' ? '🔔 *Уведомление:*\n\n' : '';
+        (payload.tone ?? 'notice') === 'notice'
+          ? '🔔 *Уведомление:*\n\n'
+          : 'ℹ️ *Информация:*\n\n';
       const text = header + payload.text;
 
       // Fail-fast: битые md-литералы не уходят в Telegram.

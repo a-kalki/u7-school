@@ -257,6 +257,22 @@ describe('BotTransport — штампы :~<seq36>', () => {
     expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe(`stream:view:${uuid}`);
   });
 
+  test('штамп ~0 (диалог ещё не открыт) — отвергается, как и легаси', async () => {
+    // Свежий чат без /start имеет seq 0 — штампы валидны только от 1
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp();
+    const transport = new BotTransport(uiApp, api);
+
+    const ctx = makeCtx({
+      callbackQuery: { data: 'menu:open:~0' } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+
+    expect(callsOf(uiApp.handleCallback).length).toBe(0);
+    const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
+    expect((ack[0] as { text: string }).text).toContain('/start');
+  });
+
   test('shortId не найден (рестарт) → alert про перезапуск, uiApp не вызывается', async () => {
     const { transport, uiApp } = await startDialog({ seq: 1 });
 
@@ -851,7 +867,7 @@ describe('BotTransport — notify (тон-каналы)', () => {
     expect(callsOf(api.editMessageText).length).toBe(0); // экран не тронут
   });
 
-  test('tone info: без заголовка', async () => {
+  test('tone info: заголовок «ℹ️ Информация» в стилистике уведомлений', async () => {
     const api = makeMockBotApi();
     const transport = new BotTransport(makeUiApp(), api);
 
@@ -861,7 +877,7 @@ describe('BotTransport — notify (тон-каналы)', () => {
       callsOf(api.sendMessage)
         .map((c) => c[1])
         .at(-1),
-    ).toBe('Тихая реплика');
+    ).toBe('ℹ️ *Информация:*\n\nТихая реплика');
   });
 
   test('битый md-литерал в notify — fail-fast, в Telegram не уходит', async () => {
