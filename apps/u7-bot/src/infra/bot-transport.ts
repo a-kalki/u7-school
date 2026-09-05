@@ -1,47 +1,83 @@
-import { getGlobalLogger } from '@u7-scl/core/shared';
 import {
-  assertResponseMarkdownSafe,
-  type BotCommand,
+  assertMarkdownV2Safe,
+  escapeMarkdown,
+  getGlobalLogger,
+} from '@u7-scl/core/shared';
+import {
+  assertDialogResponseMarkdownSafe,
+  type BotSession,
+  type BotUpdate,
+  type DialogResponse,
   type KeyboardDescription,
-  type MessageDescription,
   type NotificationPayload,
   type ProactiveSender,
-  type SessionData,
 } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
-import type { U7BotUiApp } from '../core/ui-app';
 import { decodeShortId, encodeShortId, isShortId } from './short-id';
+
+/** Узкий тип reply_markup для editMessageText (грамми сужает его до inline).
+ * Выведен из Grammy Api — без прямой зависимости от @grammyjs/types. */
+type EditReplyMarkup = NonNullable<
+  Parameters<Api['editMessageText']>[3]
+>['reply_markup'];
 
 // ── UUID-сжатие ──
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/**
+ * Штамп кнопки: последний сегмент callback_data вида `:~<seq36>`.
+ *
+ * `~` — общий маркер со shortId, но штамп всегда ДОПИСЫВАЕТСЯ в конец,
+ * поэтому парсер берёт последний сегмент; shortId-сегменты в середине
+ * кода не затрагиваются (коллизия §12.2 закрыта порядком).
+ */
+const STAMP_SEGMENT_RE = /^~[0-9a-z]+$/;
+
+/** Сообщение при нажатии на кнопку чужого/устаревшего экрана (штамп не совпал). */
+const STALE_STAMP_MESSAGE = 'Экран устарел — нажмите /start';
+
 /** Сообщение при нажатии на устаревшую кнопку (shortId не найден в мапе). */
 const STALE_BUTTON_MESSAGE =
   'Похоже, эта кнопка устарела после перезапуска сервиса. Нажмите /start, чтобы начать заново.';
 
-/**
- * Строка-предупреждение для takeover-кнопок (spec FR-5).
- *
- * Абстрактная формулировка, не привязанная к анкетам: добавляется вниз
- * текста сообщения, несущего takeover-кнопки, когда у пользователя есть
- * активное действие. Нажатие takeover-кнопки перехватывает ввод (uiApp),
- * поэтому пользователь должен знать, что текущее действие завершится.
- */
-function takeoverWarningLine(parseMode?: 'MarkdownV2'): string {
-  return parseMode === 'MarkdownV2'
-    ? '⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия\\.'
-    : '⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия.';
-}
+/** Маркер выбора при retire экрана: «—————\nВы выбрали: …» (UX-запрос §10.6). */
+const CHOICE_MARKER = '\n\n—————\nВы выбрали: ';
 
-/** Есть ли в клавиатуре takeover-кнопка (структурное поле, не маркер). */
-function hasTakeoverButtons(kb?: KeyboardDescription): boolean {
-  return kb?.rows.flat().some((btn) => btn.takeover === true) ?? false;
-}
+/**
+ * Диалог меню по умолчанию для сессий, созданных до первого /start.
+ * Любой валидный `controller/story` (деталь Фазы 3 — путь закрепит uiApp).
+ */
+const INITIAL_DIALOG_PATH = 'app/menu';
 
 // ── Интерфейсы ──
+
+/** Порт uiApp на контракте «Диалог и Экран» (реализуется BotUiApp в Фазе 3). */
+export interface DialogUiAppPort {
+  /** /start: закрыть диалог (seq++), вернуть welcome-экран */
+  handleWelcome(tgId: number, session: BotSession): Promise<DialogResponse>;
+  /** /help: контекстная справка стори или общий fallback — как info-реплика */
+  handleHelp(tgId: number, session: BotSession): Promise<DialogResponse>;
+  /** Нажатие кнопки (штамп и shortId уже сверены транспортом) */
+  handleCallback(
+    data: string,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null>;
+  /** Текстовый ввод при ожидающем диалоге */
+  handleMessage(
+    update: BotUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null>;
+  /** /cancel: доменная очистка стори, дефолт — меню */
+  handleCancel(
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null>;
+}
 
 export interface BotUpdateHandler {
   handleStart(ctx: BotContext): Promise<void>;
@@ -54,88 +90,91 @@ export interface BotUpdateHandler {
 // ── BotTransport ──
 
 /**
- * Единый транспортный слой между Grammy и UiApp.
+ * Единый транспортный слой между Grammy и uiApp на контракте
+ * «Диалог и Экран» (bot-ui-session-architecture.md §5).
  *
  * Владеет:
- * - сессиями (через общий sessionMap)
- * - сжатием/разжатием UUID в callback_data
- * - исполнением BotCommand (отправка/редактирование/сессии)
+ * - сессиями BotSession (диалог + активный экран) — внутренняя мапа;
+ * - рендер-политикой: edit своего экрана / retire чужого + send;
+ * - штампами `:~<seq36>` в callback_data (дописывание/сверка);
+ * - сжатием/разжатием UUID в callback_data;
+ * - per-chat очередью на ВСЕ апдейты и notify (в polling — no-op:
+ *   грамми уже обрабатывает апдейты последовательно, очередь лишь
+ *   сохраняет порядок и не переупорядочивает ничего).
+ *
+ * Ошибки Telegram API не глушатся — warn-лог (замена .catch(() => {})).
  */
 export class BotTransport implements BotUpdateHandler, ProactiveSender {
-  private readonly uiApp: U7BotUiApp;
+  private readonly uiApp: DialogUiAppPort;
   private readonly botApi: Api;
-  private readonly sessionMap: Map<number, SessionData>;
 
-  /** Единая мапа сжатых id на всё приложение */
+  /** Сессии пользователей: tgId → BotSession (диалог + экран). */
+  private readonly sessions = new Map<number, BotSession>();
+
+  /** Единая мапа сжатых id на всё приложение. */
   private readonly shortIds = new Map<string, string>();
 
-  /** Последовательные очереди отправок per-chat: tgId → хвост очереди. */
+  /** Хвосты per-chat очередей: tgId → нормализованный хвост. */
   private readonly queues = new Map<number, Promise<void>>();
 
-  constructor(
-    uiApp: U7BotUiApp,
-    botApi: Api,
-    sessionMap: Map<number, SessionData>,
-  ) {
+  constructor(uiApp: DialogUiAppPort, botApi: Api) {
     this.uiApp = uiApp;
     this.botApi = botApi;
-    this.sessionMap = sessionMap;
   }
 
   // ═══════════════════════════════════════════
-  // BotUpdateHandler
+  // BotUpdateHandler — всё через per-chat очередь
   // ═══════════════════════════════════════════
 
   async handleStart(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
     if (!tgId) return;
 
-    ctx.session.activeHandler = null;
-
-    const response = await this.uiApp.handleWelcome(tgId);
-    const compressed = this.compressCommand(response);
-    await this.execute(ctx.session, tgId, compressed);
+    await this.#enqueue(tgId, async () => {
+      const session = this.#session(tgId);
+      // uiApp закрывает диалог (seq++) и возвращает welcome-экран;
+      // pressedCode нет → retire прежнего экрана без маркера выбора.
+      const response = await this.uiApp.handleWelcome(tgId, session);
+      await this.#render(tgId, session, response);
+    });
   }
 
   async handleCallback(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
-    if (!tgId || !ctx.callbackQuery?.data) return;
+    const rawData = ctx.callbackQuery?.data;
+    if (!tgId || !rawData) return;
 
-    const expanded = this.expandAction(ctx.callbackQuery.data);
+    await this.#enqueue(tgId, async () => {
+      const session = this.#session(tgId);
 
-    // Устаревшая кнопка (shortId не найден в мапе) — отвечаем сразу,
-    // не обращаясь к UiApp.
-    if (expanded.stale) {
-      await ctx
-        .answerCallbackQuery({
-          text: STALE_BUTTON_MESSAGE,
-          show_alert: true,
-        })
-        .catch(() => {});
-      return;
-    }
+      // 1. Штамп — сверка первым делом: старый экран, кнопка из истории,
+      //    гонка, рестарт → alert, до uiApp не доезжает (И2).
+      const { data, stamp } = this.#splitStamp(rawData);
+      if (stamp === null || stamp !== session.dialog.seq) {
+        await this.#answerCallbackQuery(ctx, STALE_STAMP_MESSAGE);
+        return;
+      }
 
-    const response = await this.uiApp.handleCallback(
-      expanded.data,
-      tgId,
-      ctx.session,
-    );
+      // 2. Разжатие shortId: кнопка из прошлой жизни сервиса → alert.
+      const expanded = this.expandAction(data);
+      if (expanded.stale) {
+        await this.#answerCallbackQuery(ctx, STALE_BUTTON_MESSAGE);
+        return;
+      }
 
-    // Проверка на «чужой callback» — показываем alert
-    const alertText = response.sendMessage?.text;
-    if (alertText?.includes('завершите текущее действие')) {
-      await ctx
-        .answerCallbackQuery({
-          text: 'Сначала завершите текущее действие (/cancel)',
-          show_alert: true,
-        })
-        .catch(() => {});
-      return;
-    }
-
-    const compressed = this.compressCommand(response);
-    await this.execute(ctx.session, tgId, compressed);
-    await ctx.answerCallbackQuery().catch(() => {});
+      // 3. Маршрутизация в uiApp и рендер ответа.
+      const response = await this.uiApp.handleCallback(
+        expanded.data,
+        tgId,
+        session,
+      );
+      if (response) {
+        await this.#render(tgId, session, response, {
+          pressedCode: expanded.data,
+        });
+      }
+      await this.#answerCallbackQuery(ctx);
+    });
   }
 
   async handleMessage(
@@ -148,122 +187,82 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     const tgId = ctx.from?.id;
     if (!tgId) return;
 
-    // Нет активного обработчика — передаём управление дальше
-    if (!ctx.session.activeHandler) {
-      return next();
-    }
+    // Быстрая проверка без создания сессии: нечего маршрутизировать.
+    const existing = this.sessions.get(tgId);
+    if (!existing?.dialog.input) return next();
 
-    const update = {
-      type: 'message' as const,
-      text,
-      telegramId: tgId,
-    };
+    await this.#enqueue(tgId, async () => {
+      const session = this.#session(tgId);
+      // Повторная проверка внутри слота очереди — к моменту исполнения
+      // ввод мог быть снят параллельной кнопкой.
+      if (!session.dialog.input) {
+        await next();
+        return;
+      }
 
-    const response = await this.uiApp.handleMessage(update, tgId, ctx.session);
-
-    if (response === null) {
-      return next();
-    }
-
-    const compressed = this.compressCommand(response);
-    await this.execute(ctx.session, tgId, compressed);
+      const update: BotUpdate = {
+        type: 'message',
+        text,
+        telegramId: tgId,
+      };
+      const response = await this.uiApp.handleMessage(update, tgId, session);
+      if (response === null) {
+        await next();
+        return;
+      }
+      await this.#render(tgId, session, response);
+    });
   }
 
   async handleCancel(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
     if (!tgId) return;
 
-    const response = await this.uiApp.handleCancel(tgId, ctx.session);
-
-    if (response === null) {
-      await ctx.reply('Нечего отменять. Нажмите /start');
-      return;
-    }
-
-    const compressed = this.compressCommand(response);
-    await this.execute(ctx.session, tgId, compressed);
+    await this.#enqueue(tgId, async () => {
+      const session = this.#session(tgId);
+      const response = await this.uiApp.handleCancel(tgId, session);
+      // null → тихий пропуск; дефолт-меню возвращает uiApp (Фаза 3).
+      if (response) {
+        await this.#render(tgId, session, response);
+      }
+    });
   }
 
   async handleHelp(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
     if (!tgId) return;
 
-    const response = await this.uiApp.handleHelp(tgId);
-    const compressed = this.compressCommand(response);
-    await this.execute(ctx.session, tgId, compressed);
+    await this.#enqueue(tgId, async () => {
+      const session = this.#session(tgId);
+      // uiApp возвращает info-реплику (контекстный handleHelp стори или
+      // общий fallback) — диалог и экран не трогаются.
+      const response = await this.uiApp.handleHelp(tgId, session);
+      await this.#render(tgId, session, response);
+    });
   }
 
   // ═══════════════════════════════════════════
   // ProactiveSender
   // ═══════════════════════════════════════════
 
-  async send(telegramId: number, command: BotCommand): Promise<void> {
-    return this.#enqueue(telegramId, async () => {
-      let session = this.sessionMap.get(telegramId);
-      if (!session) {
-        session = { activeHandler: null };
-      }
-
-      const compressed = this.compressCommand(command);
-      await this.execute(session, telegramId, compressed);
-
-      if (compressed.captureInput) {
-        session.activeHandler = {
-          path: compressed.captureInput.path,
-          context: compressed.captureInput.context,
-          expiresAt: compressed.captureInput.ttlSeconds
-            ? Date.now() + compressed.captureInput.ttlSeconds * 1000
-            : undefined,
-        };
-      }
-
-      this.sessionMap.set(telegramId, session);
-    });
-  }
-
   /**
-   * Заголовок уведомления — первая строка сообщения.
-   * В MarkdownV2 «Уведомление:» выделяется жирным.
-   */
-  #notificationHeader(parseMode?: 'MarkdownV2'): string {
-    return parseMode === 'MarkdownV2'
-      ? '🔔 *Уведомление:*\n\n'
-      : '🔔 Уведомление:\n\n';
-  }
-
-  /**
-   * Проактивное уведомление — не вмешивается в поток пользователя:
-   * - помечено заголовком 🔔 (пользователю видно, что это уведомление);
-   * - сохраняет клавиатуру предыдущего экрана (keepPrevKeyboard);
-   * - не трогает activeHandler и lastBotMessage — уведомление НЕ становится
-   *   последним сообщением, логика снятия клавиатуры продолжает работать
-   *   по предыдущему экрану.
+   * Проактивное уведомление — единственный проактивный канал (И3):
+   * не читает и не пишет сессию, не трогает экран и диалог.
+   * Тон-каналы: notice (по умолчанию) — 🔔 «Уведомление»;
+   * info — тихая реплика без заголовка.
    */
   async notify(
     telegramId: number,
     payload: NotificationPayload,
   ): Promise<void> {
     return this.#enqueue(telegramId, async () => {
-      let session = this.sessionMap.get(telegramId);
-      if (!session) {
-        session = { activeHandler: null };
-      }
+      const header =
+        (payload.tone ?? 'notice') === 'notice' ? '🔔 *Уведомление:*\n\n' : '';
+      const text = header + payload.text;
 
-      const command: BotCommand = {
-        sendMessage: {
-          text: this.#notificationHeader(payload.parseMode) + payload.text,
-          parseMode: payload.parseMode,
-        },
-        keepPrevKeyboard: true,
-      };
-
-      // Уведомление не занимает слот «последнего сообщения» сессии
-      const prevLastBotMessage = session.lastBotMessage;
-      const compressed = this.compressCommand(command);
-      await this.execute(session, telegramId, compressed);
-      session.lastBotMessage = prevLastBotMessage;
-
-      this.sessionMap.set(telegramId, session);
+      // Fail-fast: битые md-литералы не уходят в Telegram.
+      assertMarkdownV2Safe(text);
+      await this.#sendText(telegramId, text);
     });
   }
 
@@ -293,19 +292,220 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   }
 
   // ═══════════════════════════════════════════
-  // execute — единая точка отправки
+  // Рендер-политика §5 — единая точка исполнения
   // ═══════════════════════════════════════════
 
   /**
-   * Ставит работу в per-chat очередь отправок.
+   * Исполняет DialogResponse по правилам §5.
    *
-   * Серия проактивных событий (кандидаты на снятие, уведомления) идёт
-   * параллельно — без очереди их работы с сессией интерливятся: lost update
-   * на lastBotMessage/activeHandler, клавиатура снимается у «не того»
-   * сообщения. Очередь гарантирует строгий порядок на чат; разные чаты
-   * не блокируют друг друга.
+   * @param opts.pressedCode — код нажатой кнопки (после снятия штампа и
+   *   разжатия shortId); по нему ищется текст для маркера выбора при
+   *   retire. Отсутствует для команд (/start, /cancel) и сообщений —
+   *   тогда retire без маркера.
+   */
+  async #render(
+    tgId: number,
+    session: BotSession,
+    response: DialogResponse,
+    opts: { pressedCode?: string } = {},
+  ): Promise<void> {
+    // Fail-fast: битые md-литералы не уходят в Telegram.
+    assertDialogResponseMarkdownSafe(response);
+
+    // 1. info — тихая реплика поверх диалога (без клавиатуры, сессию
+    //    и экран не трогает). Уходит первой — читается «над» новым экраном.
+    if (response.info) {
+      await this.#sendText(tgId, response.info.text);
+    }
+
+    // 2. finalize — перезапись активного экрана (фиксация выбора).
+    //    Только своего: ownerSeq === dialog.seq, иначе warn-лог и пропуск.
+    if (response.finalize) {
+      const screen = session.screen;
+      if (screen && screen.ownerSeq === session.dialog.seq) {
+        await this.#editMessage(tgId, screen.messageId, response.finalize.text);
+        screen.text = response.finalize.text;
+        screen.keyboard = undefined;
+      } else {
+        getGlobalLogger()?.warn(
+          'bot-transport',
+          'finalize пропущен: активный экран не принадлежит текущему диалогу',
+          { tgId, ownerSeq: screen?.ownerSeq, seq: session.dialog.seq },
+        );
+      }
+    }
+
+    // 3. screen — владеешь экраном (и без finalize) → edit на месте;
+    //    иначе → retire прежнего (маркер выбора при известном коде) + send.
+    if (response.screen) {
+      const current = session.screen;
+      if (current?.ownerSeq === session.dialog.seq && !response.finalize) {
+        await this.#editMessage(
+          tgId,
+          current.messageId,
+          response.screen.text,
+          response.screen.keyboard
+            ? this.#telegramKeyboard(
+                response.screen.keyboard,
+                session.dialog.seq,
+              )
+            : undefined,
+        );
+        current.text = response.screen.text;
+        current.keyboard = response.screen.keyboard;
+      } else {
+        await this.#retireScreen(tgId, session, opts.pressedCode);
+        const messageId = await this.#sendScreen(
+          tgId,
+          session.dialog.seq,
+          response.screen,
+        );
+        if (messageId !== undefined) {
+          session.screen = {
+            messageId,
+            ownerSeq: session.dialog.seq,
+            text: response.screen.text,
+            keyboard: response.screen.keyboard,
+          };
+        }
+      }
+    }
+
+    // 4. awaitInput / release — ожидание текстового ввода диалога.
+    if (response.awaitInput) {
+      session.dialog.input = { context: response.awaitInput.context };
+    }
+    if (response.release) {
+      session.dialog.input = undefined;
+    }
+    // delegate исполняется uiApp до транспорта — сюда не доезжает.
+  }
+
+  /** Снятие клавиатуры прошлого экрана (+ маркер выбора при известном коде). */
+  async #retireScreen(
+    tgId: number,
+    session: BotSession,
+    pressedCode?: string,
+  ): Promise<void> {
+    const screen = session.screen;
+    // Нет экрана или клавиатуры — ретирить нечего (маркер не о чем).
+    if (!screen?.keyboard) return;
+
+    const marker = this.#choiceMarker(screen.keyboard, pressedCode);
+    await this.#editMessage(tgId, screen.messageId, screen.text + marker);
+    screen.keyboard = undefined;
+  }
+
+  /** Маркер «Вы выбрали: …»: текст кнопки ищется в клавиатуре по коду. */
+  #choiceMarker(keyboard: KeyboardDescription, pressedCode?: string): string {
+    if (!pressedCode) return '';
+    const btn = keyboard.rows
+      .flat()
+      .find((b) => b.code === pressedCode && !b.url);
+    if (!btn) return '';
+    // Текст кнопки — plain: экранируем для вставки в MarkdownV2-сообщение.
+    return `${CHOICE_MARKER}${escapeMarkdown(btn.text)}`;
+  }
+
+  // ── Отправка в Telegram (warn-лог вместо глушения) ──
+
+  async #editMessage(
+    tgId: number,
+    messageId: number,
+    text: string,
+    replyMarkup?: EditReplyMarkup,
+  ): Promise<void> {
+    await this.botApi
+      .editMessageText(tgId, messageId, text, {
+        reply_markup: replyMarkup,
+        parse_mode: 'MarkdownV2',
+      })
+      .catch((err: unknown) =>
+        this.#warnTelegram('editMessageText', tgId, err),
+      );
+  }
+
+  async #sendText(tgId: number, text: string): Promise<void> {
+    await this.botApi
+      .sendMessage(tgId, text, { parse_mode: 'MarkdownV2' })
+      .catch((err: unknown) => this.#warnTelegram('sendMessage', tgId, err));
+  }
+
+  /** Отправляет экран; возвращает message_id (undefined при ошибке API). */
+  async #sendScreen(
+    tgId: number,
+    seq: number,
+    screen: { text: string; keyboard?: KeyboardDescription },
+  ): Promise<number | undefined> {
+    try {
+      const sent = await this.botApi.sendMessage(tgId, screen.text, {
+        reply_markup: screen.keyboard
+          ? this.#telegramKeyboard(screen.keyboard, seq)
+          : undefined,
+        parse_mode: 'MarkdownV2',
+      });
+      return sent.message_id;
+    } catch (err) {
+      this.#warnTelegram('sendMessage', tgId, err);
+      return undefined;
+    }
+  }
+
+  /** Клавиатура для Telegram: сжатие UUID + штамп `:~<seq36>` (url — как есть). */
+  #telegramKeyboard(
+    kb: KeyboardDescription,
+    seq: number,
+  ): NonNullable<EditReplyMarkup> {
+    return {
+      inline_keyboard: kb.rows.map((row) =>
+        row.map((btn) =>
+          btn.url
+            ? { text: btn.text, url: btn.url }
+            : {
+                text: btn.text,
+                callback_data: this.#stamp(this.compressAction(btn.code), seq),
+              },
+        ),
+      ),
+    };
+  }
+
+  async #answerCallbackQuery(ctx: BotContext, text?: string): Promise<void> {
+    await ctx
+      .answerCallbackQuery(text ? { text, show_alert: true } : undefined)
+      .catch((err: unknown) =>
+        this.#warnTelegram('answerCallbackQuery', ctx.from?.id, err),
+      );
+  }
+
+  #warnTelegram(op: string, tgId: number | undefined, err: unknown): void {
+    getGlobalLogger()?.warn('bot-transport', `Ошибка Telegram API (${op})`, {
+      tgId,
+      error: String(err),
+    });
+  }
+
+  // ═══════════════════════════════════════════
+  // Сессии и per-chat очередь
+  // ═══════════════════════════════════════════
+
+  /** Сессия чата; создаётся ленивo с диалогом меню и seq 0 (штампы ≥ 1). */
+  #session(tgId: number): BotSession {
+    let session = this.sessions.get(tgId);
+    if (!session) {
+      session = { dialog: { path: INITIAL_DIALOG_PATH, seq: 0 } };
+      this.sessions.set(tgId, session);
+    }
+    return session;
+  }
+
+  /**
+   * Ставит работу в per-chat очередь: строгий порядок на чат,
+   * разные чаты не блокируют друг друга. Ошибка предыдущей работы
+   * не роняет хвост (хвост нормализован).
    *
-   * Ошибка предыдущей работы не роняет хвост очереди (хвост нормализован).
+   * Покрывает и webhook (нет встроенной сериализации), и конкуренцию
+   * notify с апдейтами; в polling — no-op (грамми уже последователен).
    */
   #enqueue<T>(tgId: number, fn: () => Promise<T>): Promise<T> {
     const prev = this.queues.get(tgId) ?? Promise.resolve();
@@ -320,152 +520,31 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     return next;
   }
 
-  private async execute(
-    session: SessionData,
-    tgId: number,
-    command: BotCommand,
-  ): Promise<void> {
-    const prepared = this.#appendTakeoverWarning(command, session);
+  // ═══════════════════════════════════════════
+  // Штампы `:~<seq36>`
+  // ═══════════════════════════════════════════
 
-    // Fail-fast: перед отправкой проверяем MarkdownV2 — битый текст не уходит
-    // в Telegram (единая точка проверки BotCommand, образец: ui-utils.ts).
-    assertResponseMarkdownSafe(prepared);
-
-    // 1. editMessage
-    if (prepared.editMessage) {
-      const edit = prepared.editMessage;
-      const keyboard = edit.keyboard
-        ? {
-            inline_keyboard: edit.keyboard.rows.map((row) =>
-              row.map((btn) =>
-                btn.url
-                  ? { text: btn.text, url: btn.url }
-                  : { text: btn.text, callback_data: btn.code },
-              ),
-            ),
-          }
-        : undefined;
-
-      await this.botApi
-        .editMessageText(tgId, edit.messageId, edit.text, {
-          reply_markup: keyboard,
-          parse_mode: edit.parseMode,
-        })
-        .catch(() => {});
-
-      // Обновляем lastBotMessage после редактирования
-      if (session.lastBotMessage) {
-        session.lastBotMessage = {
-          ...session.lastBotMessage,
-          text: edit.text,
-          keyboard: edit.keyboard,
-          parseMode: edit.parseMode ?? session.lastBotMessage.parseMode,
-        };
-      }
-    }
-
-    // 1.5. Удаление клавиатуры у предыдущего сообщения
-    if (
-      prepared.keepPrevKeyboard !== true &&
-      session.lastBotMessage &&
-      !prepared.editMessage
-    ) {
-      const prev = session.lastBotMessage;
-      const keyboardRemoved = !prev.keyboard;
-
-      if (!keyboardRemoved) {
-        await this.botApi
-          .editMessageText(tgId, prev.messageId, prev.text, {
-            reply_markup: undefined,
-            parse_mode: prev.parseMode,
-          })
-          .catch(() => {});
-      }
-
-      session.lastBotMessage = {
-        ...prev,
-        keyboard: undefined,
-      };
-    }
-
-    // 2. sendMessage / sendMessages
-    const toSend =
-      prepared.sendMessages ??
-      (prepared.sendMessage ? [prepared.sendMessage] : []);
-
-    for (let i = 0; i < toSend.length; i++) {
-      const send = toSend[i]!;
-      const keyboard = send.keyboard
-        ? {
-            inline_keyboard: send.keyboard.rows.map((row) =>
-              row.map((btn) =>
-                btn.url
-                  ? { text: btn.text, url: btn.url }
-                  : { text: btn.text, callback_data: btn.code },
-              ),
-            ),
-          }
-        : undefined;
-
-      const sent = await this.botApi.sendMessage(tgId, send.text, {
-        reply_markup: keyboard,
-        parse_mode: send.parseMode,
-      });
-
-      session.lastBotMessage = {
-        text: send.text,
-        keyboard: send.keyboard,
-        parseMode: send.parseMode,
-        messageId: sent.message_id,
-      };
-
-      // Задержка между сообщениями
-      if (i < toSend.length - 1) {
-        const delay = prepared.sendDelayMs ?? 1000;
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      }
-    }
-
-    // 3. releaseInput
-    if (prepared.releaseInput) {
-      session.activeHandler = null;
-    }
+  /** Дописывает штамп к (уже сжатому) коду кнопки. */
+  #stamp(code: string, seq: number): string {
+    return `${code}:~${seq.toString(36)}`;
   }
 
   /**
-   * Добавляет предупреждающую строку вниз текста сообщений, несущих
-   * takeover-кнопки, если у пользователя есть активное действие.
-   *
-   * Предупреждение добавляется ДО проверки MarkdownV2 (assertResponseMarkdownSafe),
-   * чтобы приписанный текст тоже валидировался. Чужое сообщение (текущий
-   * флоу) не редактируется — только текущее отправляемое/редактируемое.
+   * Снимает последний сегмент-штамп, если он им является.
+   * `stamp === null` — штампа нет (легаси-кнопка до деплоя).
    */
-  #appendTakeoverWarning(
-    command: BotCommand,
-    session: SessionData,
-  ): BotCommand {
-    // Нет активного действия — предупреждать не о чем
-    if (session.activeHandler == null) return command;
+  #splitStamp(raw: string): { data: string; stamp: number | null } {
+    const idx = raw.lastIndexOf(':');
+    if (idx === -1) return { data: raw, stamp: null };
 
-    const withWarning = <T extends MessageDescription>(desc: T): T => {
-      if (!hasTakeoverButtons(desc.keyboard)) return desc;
-      return {
-        ...desc,
-        text: `${desc.text}\n\n${takeoverWarningLine(desc.parseMode)}`,
-      };
+    const last = raw.slice(idx + 1);
+    if (!STAMP_SEGMENT_RE.test(last)) {
+      return { data: raw, stamp: null };
+    }
+    return {
+      data: raw.slice(0, idx),
+      stamp: Number.parseInt(last.slice(1), 36),
     };
-
-    const result: BotCommand = { ...command };
-    if (result.sendMessage) {
-      result.sendMessage = withWarning(result.sendMessage);
-    }
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map(withWarning);
-    }
-    if (result.editMessage) {
-      result.editMessage = withWarning(result.editMessage);
-    }
-    return result;
   }
 
   // ═══════════════════════════════════════════
@@ -529,48 +608,5 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       })
       .join(':');
     return { data, stale };
-  }
-
-  /** Обходит BotCommand и сжимает все кнопки (code). */
-  private compressCommand(command: BotCommand): BotCommand {
-    const compressKeyboard = (
-      kb: NonNullable<BotCommand['sendMessage']>['keyboard'],
-    ): typeof kb => {
-      if (!kb) return kb;
-      return {
-        ...kb,
-        rows: kb.rows.map((row) =>
-          row.map((btn) => ({
-            ...btn,
-            code: this.compressAction(btn.code),
-          })),
-        ),
-      };
-    };
-
-    const result: BotCommand = { ...command };
-
-    if (result.sendMessage?.keyboard) {
-      result.sendMessage = {
-        ...result.sendMessage,
-        keyboard: compressKeyboard(result.sendMessage.keyboard) ?? undefined,
-      };
-    }
-
-    if (result.sendMessages) {
-      result.sendMessages = result.sendMessages.map((sm) => ({
-        ...sm,
-        keyboard: compressKeyboard(sm.keyboard) ?? undefined,
-      }));
-    }
-
-    if (result.editMessage?.keyboard) {
-      result.editMessage = {
-        ...result.editMessage,
-        keyboard: compressKeyboard(result.editMessage.keyboard) ?? undefined,
-      };
-    }
-
-    return result;
   }
 }

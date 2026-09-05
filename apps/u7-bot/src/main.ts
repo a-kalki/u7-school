@@ -38,8 +38,9 @@ const bot = createBot(config.botToken, sessionMap);
 const apiBundle = createApiApp(config, logger);
 const uiBundle = createUiApp(apiBundle.apiApp, apiBundle, config);
 
-// ══ BotTransport — единый слой Grammy ↔ UiApp ══
-const transport = new BotTransport(uiBundle.uiApp, bot.api, sessionMap);
+// ══ BotTransport — единый слой Grammy ↔ UiApp (контракт «Диалог и Экран») ══
+// Сессиями BotSession владеет транспорт (внутренняя мапа).
+const transport = new BotTransport(uiBundle.uiApp, bot.api);
 
 // ══ Жизненный цикл: init → start ══
 // transport передаётся отдельным аргументом (ProactiveSender).

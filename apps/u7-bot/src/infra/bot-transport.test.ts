@@ -1,906 +1,965 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import { type Logger, mdRaw, setGlobalLogger } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
-import type { U7BotUiApp } from '../core/ui-app';
+import type { DialogUiAppPort } from './bot-transport';
 import { BotTransport } from './bot-transport';
+
+/**
+ * Тесты транспорта на контракте «Диалог и Экран»
+ * (трек bot-ui-dialog-core, Фаза 2): штампы, per-chat очередь,
+ * рендер-политика §5, тон-каналы, warn-логи ошибок Telegram API.
+ *
+ * Транспорт чёрным ящиком: сессия наблюдается через объект, который
+ * транспорт передаёт в uiApp; штампованные коды читаются из аргументов
+ * моков Grammy Api. Первый экран всегда открывается через /start
+ * (handleWelcome выставляет dialog.seq — как uiApp Фазы 3).
+ */
 
 // ── Фабрики ──
 
-function makeMockBotApi(): Api {
+let messageIdSeq = 0;
+
+function makeMockBotApi(overrides: Record<string, unknown> = {}): Api {
+  messageIdSeq = 0;
   return {
-    sendMessage: mock(async () => ({ message_id: 100 })),
+    sendMessage: mock(async () => ({ message_id: ++messageIdSeq })),
     editMessageText: mock(async () => ({ message_id: 1 })),
     banChatMember: mock(async () => true),
     unbanChatMember: mock(async () => true),
+    ...overrides,
   } as unknown as Api;
 }
 
-function makeMockUiApp(overrides: Partial<U7BotUiApp> = {}): U7BotUiApp {
+function makeUiApp(overrides: Partial<DialogUiAppPort> = {}): DialogUiAppPort {
   return {
-    handleWelcome: mock(async () => ({ sendMessage: { text: 'Привет' } })),
-    handleHelp: mock(async () => ({ sendMessage: { text: 'Помощь' } })),
-    handleCallback: mock(async () => ({ sendMessage: { text: 'ok' } })),
-    handleMessage: mock(async () => ({ sendMessage: { text: 'принято' } })),
-    handleCancel: mock(async () => ({
-      releaseInput: true,
-      sendMessage: { text: 'Отменено' },
-    })),
-    handleTimeout: mock(async () => ({ releaseInput: true })),
+    handleWelcome: mock(async () => ({ screen: { text: mdRaw('Привет') } })),
+    handleHelp: mock(async () => ({ info: { text: mdRaw('Помощь') } })),
+    handleCallback: mock(async () => ({ screen: { text: mdRaw('Ок') } })),
+    handleMessage: mock(async () => ({ screen: { text: mdRaw('Принято') } })),
+    handleCancel: mock(async () => null),
     ...overrides,
-  } as unknown as U7BotUiApp;
+  } as unknown as DialogUiAppPort;
 }
 
-function makeSession(overrides: Partial<SessionData> = {}): SessionData {
-  return { activeHandler: null, ...overrides };
-}
-
-function makeMockCtx(overrides: Partial<BotContext> = {}): BotContext {
+function makeCtx(overrides: Partial<BotContext> = {}): BotContext {
   return {
     from: { id: 123, first_name: 'Test', is_bot: false } as BotContext['from'],
     chat: { id: 123, type: 'private' } as BotContext['chat'],
-    session: makeSession(),
     reply: mock(async () => ({ message_id: 99 })),
     answerCallbackQuery: mock(async () => true),
     callbackQuery: {
-      data: 'stream:view:123',
+      data: 'app:menu:open',
     } as BotContext['callbackQuery'],
-    message: {
-      text: 'hello',
-    } as BotContext['message'],
+    message: { text: 'hello' } as BotContext['message'],
     ...overrides,
   } as unknown as BotContext;
 }
 
-// ── execute ──
+function makeLogger(): Logger {
+  return {
+    debug: mock(() => {}),
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    setLogLevel: mock(() => {}),
+    getLogLevel: mock(() => 0),
+    setSourceLevel: mock(() => {}),
+  } as unknown as Logger;
+}
 
-describe('BotTransport — execute', () => {
-  test('sendMessage отправляет через botApi.sendMessage', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+/** Клавиатура одной кнопки. */
+function kb(code: string, text = 'Кнопка') {
+  return { rows: [[{ text, code }]], isMultiple: false };
+}
 
-    const session = makeSession();
-    const response: BotResponse = {
-      sendMessage: { text: 'Тест', parseMode: 'MarkdownV2' },
-    };
+type ApiMock = ReturnType<typeof mock>;
 
-    // используем send для доступа к приватному execute
-    await transport.send(123, response);
+/** Все вызовы мока Grammy Api. */
+function callsOf(m: unknown): unknown[][] {
+  return (m as ApiMock).mock.calls as unknown[][];
+}
 
-    expect(api.sendMessage).toHaveBeenCalled();
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[0]).toBe(123);
-    expect(call[1]).toBe('Тест');
-    expect(call[2]?.parse_mode).toBe('MarkdownV2');
-  });
+/** Последний отправленный callback_data (первая кнопка последнего send). */
+function lastSentCallbackData(api: Api): string | undefined {
+  const last = callsOf(api.sendMessage).at(-1);
+  return (
+    last?.[2] as {
+      reply_markup?: { inline_keyboard?: { callback_data?: string }[][] };
+    }
+  )?.reply_markup?.inline_keyboard?.[0]?.[0]?.callback_data;
+}
 
-  test('sendMessage сохраняет lastBotMessage в сессию', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessage: { text: 'Привет', parseMode: 'MarkdownV2' },
-    });
-
-    const session = sessionMap.get(123);
-    expect(session?.lastBotMessage).toBeDefined();
-    expect(session!.lastBotMessage!.text).toBe('Привет');
-    expect(session!.lastBotMessage!.messageId).toBe(100);
-    expect(session!.lastBotMessage!.parseMode).toBe('MarkdownV2');
-  });
-
-  test('sendMessage с клавиатурой', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Выберите',
-        keyboard: {
-          rows: [[{ text: 'Кнопка', code: 'btn:action' }]],
-          isMultiple: false,
+/**
+ * Сборка: транспорт + мок uiApp, открывающий начальный экран через /start.
+ * Возвращает код нажимаемой кнопки (со штампом) и captured-сессию.
+ */
+async function startDialog(
+  opts: {
+    seq: number;
+    code?: string;
+    text?: string;
+    path?: string;
+    uiApp?: Partial<DialogUiAppPort>;
+  } = { seq: 5 },
+): Promise<{
+  api: Api;
+  uiApp: DialogUiAppPort;
+  transport: BotTransport;
+  pressed: string;
+  session: BotSession;
+}> {
+  const api = makeMockBotApi();
+  let captured: BotSession | undefined;
+  const code = opts.code ?? 'menu:open';
+  const { handleWelcome, ...rest } = opts.uiApp ?? {};
+  const uiApp = makeUiApp({
+    handleWelcome: mock(async (tg: number, s: BotSession) => {
+      captured = s;
+      if (handleWelcome) return handleWelcome(tg, s);
+      s.dialog = { path: opts.path ?? 'app/menu', seq: opts.seq };
+      return {
+        screen: {
+          text: mdRaw(opts.text ?? 'Меню'),
+          keyboard: kb(code, '📂 Меню'),
         },
-      },
-    });
+      };
+    }),
+    ...rest,
+  });
+  const transport = new BotTransport(uiApp, api);
+  await transport.handleStart(makeCtx());
+  const pressed = lastSentCallbackData(api);
+  if (!pressed) throw new Error('welcome-экран не отправлен');
+  if (!captured) throw new Error('сессия не передана в uiApp');
+  return { api, uiApp, transport, pressed, session: captured };
+}
 
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[2]?.reply_markup).toBeDefined();
-    expect(call[2]?.reply_markup.inline_keyboard[0][0].text).toBe('Кнопка');
-    expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
-      'btn:action',
+// ── Штампы ──
+
+describe('BotTransport — штампы :~<seq36>', () => {
+  test('отправка: в код callback-кнопки дописывается :~<seq36>', async () => {
+    const { api, pressed } = await startDialog({ seq: 5 });
+
+    expect(pressed).toBe('menu:open:~5');
+  });
+
+  test('большой seq кодируется base36', async () => {
+    const { pressed } = await startDialog({ seq: 1234 });
+
+    expect(pressed).toBe(`menu:open:~${(1234).toString(36)}`);
+  });
+
+  test('url-кнопки — без штампа', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 1 };
+        return {
+          screen: {
+            text: mdRaw('Ссылка'),
+            keyboard: {
+              rows: [[{ text: 'Google', code: '', url: 'https://google.com' }]],
+              isMultiple: false,
+            },
+          },
+        };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleStart(makeCtx());
+
+    const sent = callsOf(api.sendMessage)[0];
+    const row = (
+      sent?.[2] as {
+        reply_markup?: {
+          inline_keyboard?: { url?: string; callback_data?: string }[][];
+        };
+      }
+    )?.reply_markup?.inline_keyboard?.[0]?.[0];
+    expect(row?.url).toBe('https://google.com');
+    expect(row?.callback_data).toBeUndefined();
+  });
+
+  test('приём: валидный штамп срезается, uiApp получает чистый код', async () => {
+    const { transport, uiApp, pressed } = await startDialog({ seq: 5 });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
     );
+
+    expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe('menu:open');
   });
 
-  test('sendMessage с кнопкой-ссылкой (url)', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+  test('приём: несовпавший штамп → alert «нажмите /start», uiApp не вызывается', async () => {
+    const { transport, uiApp } = await startDialog({ seq: 5 });
 
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Ссылка',
-        keyboard: {
-          rows: [[{ text: 'Google', code: '', url: 'https://google.com' }]],
-          isMultiple: false,
-        },
-      },
+    const ctx = makeCtx({
+      callbackQuery: { data: 'menu:open:~9' } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+
+    expect(callsOf(uiApp.handleCallback).length).toBe(0);
+    const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
+    expect(ack[0]).toMatchObject({ show_alert: true });
+    expect((ack[0] as { text: string }).text).toContain('/start');
+  });
+
+  test('приём: кнопка без штампа (легаси до деплоя) → alert', async () => {
+    const { transport, uiApp } = await startDialog({ seq: 5 });
+
+    const ctx = makeCtx({
+      callbackQuery: { data: 'menu:open' } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+
+    expect(callsOf(uiApp.handleCallback).length).toBe(0);
+    const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
+    expect((ack[0] as { text: string }).text).toContain('/start');
+  });
+
+  test('коллизия с ~: сегмент данных на ~ не съедается парсером штампа', async () => {
+    const { transport, uiApp, pressed } = await startDialog({
+      seq: 7,
+      code: 'fill:answer:~weird',
     });
 
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[2]?.reply_markup.inline_keyboard[0][0].url).toBe(
-      'https://google.com',
+    expect(pressed).toBe('fill:answer:~weird:~7');
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
     );
+
+    expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe('fill:answer:~weird');
   });
 
-  test('editMessage редактирует через botApi.editMessageText', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      editMessage: {
-        messageId: 42,
-        text: 'Отредактировано',
-      },
+  test('коллизия с ~: shortId-сегмент + штамп round-trip', async () => {
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    const { transport, uiApp, pressed } = await startDialog({
+      seq: 2,
+      code: `stream:view:${uuid}`,
     });
 
-    expect(api.editMessageText).toHaveBeenCalled();
-    const call = (api.editMessageText as any).mock.calls[0];
-    expect(call[0]).toBe(123);
-    expect(call[1]).toBe(42);
-    expect(call[2]).toBe('Отредактировано');
-  });
+    expect(pressed).toBe('stream:view:~a1b2c3d4:~2');
 
-  test('sendMessages отправляет несколько сообщений', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessages: [{ text: 'Первое' }, { text: 'Второе' }],
-      sendDelayMs: 0,
-    });
-
-    expect((api.sendMessage as any).mock.calls.length).toBe(2);
-    expect((api.sendMessage as any).mock.calls[0][1]).toBe('Первое');
-    expect((api.sendMessage as any).mock.calls[1][1]).toBe('Второе');
-  });
-
-  test('captureInput устанавливает activeHandler в сессии', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessage: { text: 'Введите имя' },
-      captureInput: { path: 'ask-name', ttlSeconds: 30 },
-    });
-
-    const session = sessionMap.get(123);
-    expect(session?.activeHandler).not.toBeNull();
-    expect(session!.activeHandler!.path).toContain('ask-name');
-    expect(session!.activeHandler!.expiresAt).toBeGreaterThan(Date.now());
-  });
-
-  test('releaseInput очищает activeHandler', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    // Предустановленный activeHandler
-    sessionMap.set(123, {
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      releaseInput: true,
-    });
-
-    const session = sessionMap.get(123);
-    expect(session?.activeHandler).toBeNull();
-  });
-
-  test('captureInput сохраняет context', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessage: { text: '?' },
-      captureInput: {
-        path: 'fill',
-        context: { questionnaireId: 'q1' },
-      },
-    });
-
-    const session = sessionMap.get(123);
-    expect(session?.activeHandler?.context).toEqual({
-      questionnaireId: 'q1',
-    });
-  });
-
-  test('удаление клавиатуры у предыдущего сообщения', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    // Устанавливаем lastBotMessage с клавиатурой
-    sessionMap.set(123, {
-      activeHandler: null,
-      lastBotMessage: {
-        text: 'Предыдущее',
-        messageId: 42,
-        keyboard: {
-          rows: [[{ text: 'Кнопка', code: 'btn' }]],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessage: { text: 'Новое' },
-    });
-
-    // editMessageText должен быть вызван для удаления клавиатуры
-    expect(api.editMessageText).toHaveBeenCalled();
-    const call = (api.editMessageText as any).mock.calls[0];
-    expect(call[0]).toBe(123);
-    expect(call[1]).toBe(42);
-    expect(call[3]?.reply_markup).toBeUndefined();
-  });
-
-  test('keepPrevKeyboard: true — НЕ удаляет клавиатуру', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    sessionMap.set(123, {
-      activeHandler: null,
-      lastBotMessage: {
-        text: 'Предыдущее',
-        messageId: 42,
-        keyboard: {
-          rows: [[{ text: 'Кнопка', code: 'btn' }]],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(123, {
-      sendMessage: { text: 'Новое' },
-      keepPrevKeyboard: true,
-    });
-
-    // editMessageText не должен вызываться для удаления
-    // (но мог вызываться для чего-то другого)
-    const editCalls = (api.editMessageText as any).mock.calls;
-    const removalCall = editCalls.find(
-      (c: any[]) => c[3]?.reply_markup === undefined,
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
     );
-    expect(removalCall).toBeUndefined();
+
+    expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe(`stream:view:${uuid}`);
   });
 
-  test('без lastBotMessage — удаление не вызывается', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+  test('shortId не найден (рестарт) → alert про перезапуск, uiApp не вызывается', async () => {
+    const { transport, uiApp } = await startDialog({ seq: 1 });
 
-    await transport.send(123, {
-      sendMessage: { text: 'Новое' },
+    // Штамп ~1 валиден, но shortId ~deadbeef неизвестен (рестарт сервиса)
+    const ctx = makeCtx({
+      callbackQuery: {
+        data: 'stream:view:~deadbeef:~1',
+      } as BotContext['callbackQuery'],
     });
+    await transport.handleCallback(ctx);
 
-    // editMessageText не должен вызываться
-    expect(api.editMessageText).not.toHaveBeenCalled();
+    expect(callsOf(uiApp.handleCallback).length).toBe(0);
+    const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
+    expect((ack[0] as { text: string }).text).toContain('перезапуска');
   });
 });
 
-// ── Сжатие UUID ──
+// ── Per-chat очередь ──
 
-describe('BotTransport — сжатие UUID', () => {
-  test('compressResponse сжимает UUID в callback_data кнопок', async () => {
+describe('BotTransport — per-chat очередь', () => {
+  test('параллельные handleCallback сериализуются (webhook-сценарий)', async () => {
+    const order: string[] = [];
+    const api = makeMockBotApi({
+      sendMessage: mock(async () => {
+        order.push('send:start');
+        await new Promise((r) => setTimeout(r, 5));
+        order.push('send:end');
+        return { message_id: ++messageIdSeq };
+      }),
+    });
+    let session: BotSession | undefined;
+    let step = 0;
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        session = s;
+        s.dialog = { path: 'app/menu', seq: 5 };
+        return { screen: { text: mdRaw('Меню'), keyboard: kb('menu:open') } };
+      }),
+      handleCallback: mock(async () => {
+        step += 1;
+        // info-ответ: не меняет seq/экран — обе параллельные кнопки валидны
+        return { info: { text: mdRaw(`Реплика ${step}`) } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleStart(makeCtx());
+    const pressed = lastSentCallbackData(api)!;
+    order.length = 0; // дальше — только параллельная пара
+
+    await Promise.all([
+      transport.handleCallback(
+        makeCtx({
+          callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+        }),
+      ),
+      transport.handleCallback(
+        makeCtx({
+          callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+        }),
+      ),
+    ]);
+
+    expect(order).toEqual(['send:start', 'send:end', 'send:start', 'send:end']);
+    expect(session).toBeDefined();
+  });
+
+  test('notify сериализуется с handle*-апдейтами', async () => {
+    const order: string[] = [];
+    const api = makeMockBotApi({
+      sendMessage: mock(async (_id: number, text: string) => {
+        order.push(`send:${text}`);
+        await new Promise((r) => setTimeout(r, 5));
+        return { message_id: ++messageIdSeq };
+      }),
+    });
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 5 };
+        return { screen: { text: mdRaw('Меню'), keyboard: kb('menu:open') } };
+      }),
+      handleCallback: mock(async (_d, _t, s: BotSession) => {
+        s.dialog = { path: 'x/y', seq: 6 }; // send-путь
+        return { screen: { text: mdRaw('Экран') } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleStart(makeCtx());
+    order.length = 0;
+
+    await Promise.all([
+      transport.handleCallback(
+        makeCtx({
+          callbackQuery: {
+            data: 'app:menu:open:~5',
+          } as BotContext['callbackQuery'],
+        }),
+      ),
+      transport.notify(123, { text: mdRaw('Уведомление') }),
+    ]);
+
+    expect(order).toEqual([
+      'send:Экран',
+      'send:🔔 *Уведомление:*\n\nУведомление',
+    ]);
+  });
+
+  test('ошибка первой работы не роняет хвост очереди', async () => {
     const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+    let n = 0;
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 5 };
+        return { screen: { text: mdRaw('Меню') } };
+      }),
+      handleCallback: mock(async (_d, _t, s: BotSession) => {
+        n += 1;
+        if (n === 1) throw new Error('uiApp упал');
+        s.dialog = { path: 'x/y', seq: 6 }; // send-путь
+        return { screen: { text: mdRaw('Дошло') } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+    await transport.handleStart(makeCtx());
 
-    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    const first = transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: 'app:menu:open:~5',
+        } as BotContext['callbackQuery'],
+      }),
+    );
+    const second = transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: 'app:menu:open:~5',
+        } as BotContext['callbackQuery'],
+      }),
+    );
 
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Выберите',
-        keyboard: {
-          rows: [[{ text: 'Поток 1', code: `stream:view:${uuid}` }]],
-          isMultiple: false,
-        },
+    await expect(first).rejects.toThrow('uiApp упал');
+    await expect(second).resolves.toBeUndefined();
+    const sends = callsOf(api.sendMessage).map((c) => c[1]);
+    expect(sends).toContain('Дошло');
+  });
+
+  test('polling: последовательные вызовы сохраняют порядок (очередь no-op)', async () => {
+    let step = 0;
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 1 };
+        return { screen: { text: mdRaw('Меню') } };
+      }),
+      handleCallback: mock(async () => {
+        step += 1;
+        // info-ответ: не меняет seq — обе последовательные кнопки валидны
+        return { info: { text: mdRaw(`Шаг ${step}`) } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleStart(makeCtx());
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: 'app:menu:open:~1',
+        } as BotContext['callbackQuery'],
+      }),
+    );
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: 'app:menu:open:~1',
+        } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(api.sendMessage).map((c) => c[1])).toEqual([
+      'Меню',
+      'Шаг 1',
+      'Шаг 2',
+    ]);
+  });
+});
+
+// ── Рендер-политика §5 ──
+
+describe('BotTransport — рендер-политика', () => {
+  test('screen чужого диалога: retire с маркером выбора + send нового', async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      code: 'menu:open',
+      text: 'Меню',
+      uiApp: {
+        handleCallback: mock(async (_d, _t, s: BotSession) => {
+          s.dialog = { path: 'streams/catalog', seq: 6 };
+          return { screen: { text: mdRaw('Каталог') } };
+        }),
       },
     });
 
-    const call = (api.sendMessage as any).mock.calls[0];
-    const cbData = call[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    // UUID должен быть сжат до первых 8 символов с маркером shortId
-    expect(cbData).toBe('stream:view:~a1b2c3d4');
-    expect(cbData).not.toContain(uuid);
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    // retire: edit первого сообщения — текст + маркер выбора, клавиатура снята
+    const edits = callsOf(api.editMessageText);
+    expect(edits[0]?.[1]).toBe(1); // messageId экрана меню
+    expect(edits[0]?.[2]).toContain('Вы выбрали: 📂 Меню');
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+    // send нового экрана
+    expect(
+      callsOf(api.sendMessage)
+        .map((c) => c[1])
+        .at(-1),
+    ).toBe('Каталог');
+  });
+
+  test('код нажатой кнопки не найден в ретируемой клавиатуре — retire без маркера', async () => {
+    const { api, transport } = await startDialog({
+      seq: 5,
+      text: 'Меню',
+      uiApp: {
+        handleCallback: mock(async (_d, _t, s: BotSession) => {
+          s.dialog = { path: 'x/y', seq: 6 };
+          return { screen: { text: mdRaw('Новый') } };
+        }),
+      },
+    });
+
+    // Штамп ~5 валиден, но код 'menu:zzz' отсутствует в клавиатуре экрана
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: 'menu:zzz:~5' } as BotContext['callbackQuery'],
+      }),
+    );
+
+    const edits = callsOf(api.editMessageText);
+    expect(edits[0]?.[2]).toBe('Меню'); // без маркера
+  });
+
+  test('/start: retire без маркера + send welcome', async () => {
+    const api = makeMockBotApi();
+    let n = 0;
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        n += 1;
+        s.dialog = { path: 'app/menu', seq: 4 + n };
+        return {
+          screen: {
+            text: mdRaw(n === 1 ? 'Меню' : 'Добро пожаловать'),
+            keyboard: n === 1 ? kb('menu:open', '📂 Меню') : undefined,
+          },
+        };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleStart(makeCtx()); // экран с клавиатурой, seq 5
+    await transport.handleStart(makeCtx()); // seq 6 → retire без маркера + send
+
+    const edits = callsOf(api.editMessageText);
+    expect(edits[0]?.[2]).toBe('Меню'); // ровно текст, без «Вы выбрали»
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+    const sends = callsOf(api.sendMessage).map((c) => c[1]);
+    expect(sends.at(-1)).toBe('Добро пожаловать');
+  });
+
+  test('screen своего диалога: edit на месте со штампом текущего seq', async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleCallback: mock(async () => ({
+          screen: { text: mdRaw('Меню 2'), keyboard: kb('menu:list') },
+        })),
+      },
+    });
+    const sendsAfterWelcome = callsOf(api.sendMessage).length;
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    const edits = callsOf(api.editMessageText);
+    expect(edits[0]?.[1]).toBe(1); // тот же messageId
+    expect(edits[0]?.[2]).toBe('Меню 2');
+    const editKb = (
+      edits[0]?.[3] as {
+        reply_markup?: { inline_keyboard: { callback_data: string }[][] };
+      }
+    )?.reply_markup?.inline_keyboard[0]?.[0]?.callback_data;
+    expect(editKb).toBe('menu:list:~5');
+    expect(callsOf(api.sendMessage).length).toBe(sendsAfterWelcome); // send не было
+  });
+
+  test('finalize своего экрана: edit без клавиатуры, затем send нового экрана', async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      path: 'questionnaire/fill',
+      code: 'fill:answer:1',
+      text: 'Вопрос 1',
+      uiApp: {
+        handleCallback: mock(async () => ({
+          finalize: { text: mdRaw('✅ Вы выбрали: Вариант 1') },
+          screen: { text: mdRaw('Вопрос 2'), keyboard: kb('fill:answer:2') },
+        })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    const edits = callsOf(api.editMessageText);
+    expect(edits[0]?.[1]).toBe(1);
+    expect(edits[0]?.[2]).toBe('✅ Вы выбрали: Вариант 1'); // без транспортного маркера
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+    const sends = callsOf(api.sendMessage).map((c) => c[1]);
+    expect(sends.at(-1)).toBe('Вопрос 2');
+  });
+
+  test('finalize один (без screen): экран финализирован, release снимает input', async () => {
+    const { transport, pressed, session } = await startDialog({
+      seq: 5,
+      path: 'questionnaire/fill',
+      uiApp: {
+        handleCallback: mock(async () => ({
+          finalize: { text: mdRaw('✅ Готово') },
+          release: true,
+        })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(session.screen?.keyboard).toBeUndefined();
+    expect(session.screen?.text).toBe('✅ Готово');
+    expect(session.dialog.input).toBeUndefined();
+  });
+
+  test('finalize чужого экрана: warn-лог и пропуск, ничего не редактируется', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleCallback: mock(async (_d, _t, s: BotSession) => {
+          s.dialog = { path: 'x/y', seq: 9 };
+          return { finalize: { text: mdRaw('Фиксация') } };
+        }),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(api.editMessageText).length).toBe(0);
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  test('info: send без клавиатуры, экран и диалог не тронуты', async () => {
+    const { api, transport, pressed, session } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleCallback: mock(async () => ({
+          info: { text: mdRaw('ⓘ Подсказка') },
+        })),
+      },
+    });
+    const screenBefore = session.screen;
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    const sends = callsOf(api.sendMessage);
+    expect(sends.at(-1)?.[1]).toBe('ⓘ Подсказка');
+    expect(
+      (sends.at(-1)?.[2] as { reply_markup?: unknown }).reply_markup,
+    ).toBeUndefined();
+    expect(callsOf(api.editMessageText).length).toBe(0);
+    expect(session.screen).toBe(screenBefore);
+  });
+
+  test('awaitInput ставит dialog.input', async () => {
+    const { transport, session } = await startDialog({
+      seq: 5,
+      path: 'q/fill',
+      uiApp: {
+        handleCallback: mock(async () => ({
+          screen: { text: mdRaw('Вопрос') },
+          awaitInput: { context: { step: 1 } },
+        })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: 'app:menu:open:~5',
+        } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(session.dialog.input).toEqual({ context: { step: 1 } });
+  });
+
+  test('release снимает dialog.input', async () => {
+    const { transport, session } = await startDialog({
+      seq: 5,
+      path: 'q/fill',
+      uiApp: {
+        handleWelcome: mock(async (_tg, s: BotSession) => {
+          s.dialog = {
+            path: 'q/fill',
+            seq: 5,
+            input: { context: { step: 2 } },
+          };
+          return {
+            screen: { text: mdRaw('Вопрос'), keyboard: kb('menu:open') },
+          };
+        }),
+        handleCallback: mock(async () => ({ release: true })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: 'app:menu:open:~5',
+        } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(session.dialog.input).toBeUndefined();
+  });
+
+  test('ошибка Telegram API: warn-лог вместо глушения, обработчик не падает', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const api = makeMockBotApi({
+      sendMessage: mock(async () => {
+        throw new Error('Telegram down');
+      }),
+    });
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 5 };
+        return { screen: { text: mdRaw('Экран') } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await expect(transport.handleStart(makeCtx())).resolves.toBeUndefined();
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  test('handleMessage: без ожидания ввода → next(), uiApp не вызывается', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp();
+    const transport = new BotTransport(uiApp, api);
+
+    let nextCalled = false;
+    await transport.handleMessage(makeCtx(), async () => {
+      nextCalled = true;
+    });
+
+    expect(nextCalled).toBe(true);
+    expect(callsOf(uiApp.handleMessage).length).toBe(0);
+  });
+
+  test('handleMessage: команда (/start) → next()', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp();
+    const transport = new BotTransport(uiApp, api);
+
+    let nextCalled = false;
+    await transport.handleMessage(
+      makeCtx({ message: { text: '/start' } as BotContext['message'] }),
+      async () => {
+        nextCalled = true;
+      },
+    );
+
+    expect(nextCalled).toBe(true);
+    expect(callsOf(uiApp.handleMessage).length).toBe(0);
+  });
+
+  test('handleMessage: при ожидании ввода — форвард в uiApp и рендер', async () => {
+    const { api, transport, uiApp } = await startDialog({
+      seq: 5,
+      path: 'q/fill',
+      uiApp: {
+        handleWelcome: mock(async (_tg, s: BotSession) => {
+          s.dialog = { path: 'q/fill', seq: 5, input: {} };
+          return {
+            screen: { text: mdRaw('Вопрос'), keyboard: kb('menu:open') },
+          };
+        }),
+        handleMessage: mock(
+          async () =>
+            ({ screen: { text: mdRaw('Принято') } }) as DialogResponse,
+        ),
+      },
+    });
+
+    await transport.handleMessage(
+      makeCtx({ message: { text: 'Ответ' } as BotContext['message'] }),
+      async () => {},
+    );
+
+    const msgs = callsOf(uiApp.handleMessage);
+    expect(msgs[0]?.[0]).toMatchObject({ type: 'message', text: 'Ответ' });
+    // Экран диалога наш — ответ рендерится edit'ом на месте
+    const edits = callsOf(api.editMessageText);
+    expect(edits.at(-1)?.[2]).toBe('Принято');
+  });
+
+  test('handleCancel: ответ uiApp рендерится', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleCancel: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 8 };
+        return { screen: { text: mdRaw('Отменено') } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleCancel(makeCtx());
+
+    expect(
+      callsOf(api.sendMessage)
+        .map((c) => c[1])
+        .at(-1),
+    ).toBe('Отменено');
+  });
+
+  test('handleCancel: null → тихий пропуск (дефолт-меню вернёт uiApp в Фазе 3)', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({ handleCancel: mock(async () => null) });
+    const transport = new BotTransport(uiApp, api);
+
+    await expect(transport.handleCancel(makeCtx())).resolves.toBeUndefined();
+    expect(callsOf(api.sendMessage).length).toBe(0);
+  });
+
+  test('handleHelp: ответ рендерится (uiApp возвращает info-реплику)', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleHelp: mock(async () => ({ info: { text: mdRaw('Справка') } })),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleHelp(makeCtx());
+
+    expect(
+      callsOf(api.sendMessage)
+        .map((c) => c[1])
+        .at(-1),
+    ).toBe('Справка');
+    expect(callsOf(api.editMessageText).length).toBe(0);
+  });
+});
+
+// ── notify: тон-каналы, сессия не трогается ──
+
+describe('BotTransport — notify (тон-каналы)', () => {
+  test('tone notice (по умолчанию): 🔔-заголовок, экран пользователя не ретирится', async () => {
+    const { api, transport } = await startDialog({ seq: 5 });
+
+    await transport.notify(123, { text: mdRaw('🎓 Ты зачислен') });
+
+    const sends = callsOf(api.sendMessage);
+    expect(sends.at(-1)?.[1]).toBe('🔔 *Уведомление:*\n\n🎓 Ты зачислен');
+    expect(callsOf(api.editMessageText).length).toBe(0); // экран не тронут
+  });
+
+  test('tone info: без заголовка', async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await transport.notify(123, { text: mdRaw('Тихая реплика'), tone: 'info' });
+
+    expect(
+      callsOf(api.sendMessage)
+        .map((c) => c[1])
+        .at(-1),
+    ).toBe('Тихая реплика');
+  });
+
+  test('битый md-литерал в notify — fail-fast, в Telegram не уходит', async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await expect(
+      transport.notify(123, { text: mdRaw('Голая точка.') }),
+    ).rejects.toThrow();
+    expect(callsOf(api.sendMessage).length).toBe(0);
+  });
+});
+
+// ── Сжатие UUID (перенос из старого контракта) ──
+
+describe('BotTransport — сжатие UUID', () => {
+  test('сжимает UUID в callback_data кнопок', async () => {
+    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+    const { pressed } = await startDialog({
+      seq: 1,
+      code: `stream:view:${uuid}`,
+    });
+
+    expect(pressed).toBe('stream:view:~a1b2c3d4:~1');
   });
 
   test('префикс app: не сжимается', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+    const { pressed } = await startDialog({ seq: 1, code: 'app:main-menu' });
 
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Меню',
-        keyboard: {
-          rows: [[{ text: 'Главная', code: 'app:main-menu' }]],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const call = (api.sendMessage as any).mock.calls[0];
-    const cbData = call[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    expect(cbData).toBe('app:main-menu');
+    expect(pressed).toBe('app:main-menu:~1');
   });
 
-  test('разжимает сжатый UUID при обратном callback (round-trip)', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const uuid = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
-
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Выберите',
-        keyboard: {
-          rows: [[{ text: 'Поток 1', code: `stream:view:${uuid}` }]],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const sentCall = (api.sendMessage as any).mock.calls[0];
-    const compressedData =
-      sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    expect(compressedData).toBe('stream:view:~a1b2c3d4');
-    expect(compressedData).not.toContain(uuid);
-
-    uiApp.handleCallback = mock(async (data: string) => ({
-      sendMessage: { text: `view:${data}` },
-    }));
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: compressedData,
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    const cbCall = (uiApp.handleCallback as any).mock.calls[0];
-    expect(cbCall[0]).toBe(`stream:view:${uuid}`);
-  });
-
-  test('коллизия: одинаковые первые 8 символов получают суффикс и разжимаются оба', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    // Оба UUID начинаются с a1b2c3d4 — коллизия базового ключа
+  test('коллизия одинаковых префиксов: суффикс и обратное разжатие', async () => {
     const uuid1 = 'a1b2c3d4-1111-2222-3333-444444444444';
     const uuid2 = 'a1b2c3d4-aaaa-bbbb-cccc-dddddddddddd';
-
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Выберите',
-        keyboard: {
-          rows: [
-            [{ text: 'Поток 1', code: `stream:view:${uuid1}` }],
-            [{ text: 'Поток 2', code: `stream:view:${uuid2}` }],
-          ],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const sentCall = (api.sendMessage as any).mock.calls[0];
-    const kb = sentCall[2]?.reply_markup.inline_keyboard;
-    const first = kb[0][0].callback_data;
-    const second = kb[1][0].callback_data;
-
-    // Первый — без суффикса, второй — с суффиксом коллизии
-    expect(first).toBe('stream:view:~a1b2c3d4');
-    expect(second).toBe('stream:view:~a1b2c3d4-1');
-
-    // Оба разжимаются в свои полные UUID
-    uiApp.handleCallback = mock(async (data: string) => ({
-      sendMessage: { text: `view:${data}` },
-    }));
-
-    for (const [cbData, expected] of [
-      [first, uuid1],
-      [second, uuid2],
-    ] as const) {
-      const ctx = makeMockCtx({
-        callbackQuery: { data: cbData } as BotContext['callbackQuery'],
-      });
-      await transport.handleCallback(ctx);
-
-      const call = (uiApp.handleCallback as any).mock.calls.at(-1);
-      expect(call[0]).toBe(`stream:view:${expected}`);
-    }
-  });
-
-  test('несколько UUID в одной кнопке сжимаются и разжимаются все', async () => {
     const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const uuidA = '11111111-2222-3333-4444-555555555555';
-    const uuidB = 'abcdef12-3456-7890-abcd-ef1234567890';
-
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Выберите',
-        keyboard: {
-          rows: [
-            [
-              {
-                text: 'Связать',
-                code: `stream:pair:${uuidA}:${uuidB}`,
-              },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
+    const uiApp = makeUiApp({
+      handleWelcome: mock(async (_tg, s: BotSession) => {
+        s.dialog = { path: 'streams/catalog', seq: 1 };
+        return {
+          screen: {
+            text: mdRaw('Каталог'),
+            keyboard: {
+              rows: [
+                [{ text: 'Поток 1', code: `stream:view:${uuid1}` }],
+                [{ text: 'Поток 2', code: `stream:view:${uuid2}` }],
+              ],
+              isMultiple: false,
+            },
+          },
+        };
+      }),
+      handleCallback: mock(async () => ({ screen: { text: mdRaw('Поток') } })),
     });
+    const transport = new BotTransport(uiApp, api);
 
-    const sentCall = (api.sendMessage as any).mock.calls[0];
-    const cbData =
-      sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-    // Каждый UUID сжат со своим маркером
-    expect(cbData).toBe('stream:pair:~11111111:~abcdef12');
-    expect(cbData).not.toContain(uuidA);
-    expect(cbData).not.toContain(uuidB);
+    await transport.handleStart(makeCtx());
+    const sent = callsOf(api.sendMessage)[0];
+    const kbSent = (
+      sent?.[2] as {
+        reply_markup: { inline_keyboard: { callback_data: string }[][] };
+      }
+    ).reply_markup.inline_keyboard;
+    expect(kbSent[0]?.[0]?.callback_data).toBe('stream:view:~a1b2c3d4:~1');
+    expect(kbSent[1]?.[0]?.callback_data).toBe('stream:view:~a1b2c3d4-1:~1');
 
-    // Оба UUID разжимаются обратно
-    uiApp.handleCallback = mock(async (data: string) => ({
-      sendMessage: { text: `pair:${data}` },
-    }));
-
-    const ctx = makeMockCtx({
-      callbackQuery: { data: cbData } as BotContext['callbackQuery'],
-    });
-    await transport.handleCallback(ctx);
-
-    const call = (uiApp.handleCallback as any).mock.calls[0];
-    expect(call[0]).toBe(`stream:pair:${uuidA}:${uuidB}`);
-  });
-
-  test('hex8 без маркера — не сжимается и не считается shortId', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: 'stream:view:a1b2c3d4',
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    // Без маркера — уходит в UiApp как есть (не stale, не сжат)
-    const call = (uiApp.handleCallback as any).mock.calls[0];
-    expect(call[0]).toBe('stream:view:a1b2c3d4');
-  });
-});
-
-// ── handleCallback ──
-
-describe('BotTransport — handleCallback', () => {
-  test('маршрутизирует callback в uiApp.handleCallback', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: 'stream:view:s1',
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    expect(uiApp.handleCallback).toHaveBeenCalled();
-    const call = (uiApp.handleCallback as any).mock.calls[0];
-    expect(call[0]).toBe('stream:view:s1');
-    expect(call[1]).toBe(123); // tgId
-  });
-
-  test('устаревшая кнопка (shortId не найден) — alert и НЕ вызов UiApp', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        // Сжатый id без записи в shortIds (кнопка из прошлой жизни сервиса)
-        data: 'stream:view:~a1b2c3d4',
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    // UiApp не вызывается
-    expect(uiApp.handleCallback).not.toHaveBeenCalled();
-
-    // Вместо этого — alert с текстом про устаревшую кнопку
-    const cb = (ctx.answerCallbackQuery as any).mock.calls[0];
-    expect(cb?.[0]?.show_alert).toBe(true);
-    expect(cb?.[0]?.text).toContain('кнопка устарела');
-    expect(cb?.[0]?.text).toContain('/start');
-  });
-
-  test('устаревшая кнопка с несколькими shortId — alert, если любой не найден', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    // Сжимаем один uuid, чтобы он был в мапе, а второй — нет
-    const known = '11111111-2222-3333-4444-555555555555';
-    await transport.send(123, {
-      sendMessage: {
-        text: 'Выберите',
-        keyboard: {
-          rows: [
-            [{ text: 'Связать', code: `stream:pair:${known}:unknown-id` }],
-          ],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const sentCall = (api.sendMessage as any).mock.calls[0];
-    const cbData =
-      sentCall[2]?.reply_markup.inline_keyboard[0][0].callback_data;
-
-    // Подменяем известный shortId на неизвестный (как после перезапуска)
-    const staleData = cbData.replace('~11111111', '~deadbeef');
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: staleData,
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    expect(uiApp.handleCallback).not.toHaveBeenCalled();
-    const cb = (ctx.answerCallbackQuery as any).mock.calls[0];
-    expect(cb?.[0]?.text).toContain('кнопка устарела');
-  });
-
-  test('показывает alert при чужом callback', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp({
-      handleCallback: mock(async () => ({
-        sendMessage: {
-          text: '⚠️ Сначала завершите текущее действие (/cancel)',
-        },
-      })),
-    });
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: 'stream:view:s1',
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-    const call = (ctx.answerCallbackQuery as any).mock.calls[0];
-    expect(call[0]?.show_alert).toBe(true);
-    expect(call[0]?.text).toContain('завершите текущее действие');
-  });
-
-  test('ack после обработки callback', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx({
-      callbackQuery: {
-        data: 'stream:view:s1',
-      } as BotContext['callbackQuery'],
-    });
-
-    await transport.handleCallback(ctx);
-
-    // answerCallbackQuery должен быть вызван (ack)
-    expect(ctx.answerCallbackQuery).toHaveBeenCalled();
-  });
-});
-
-// ── handleMessage ──
-
-describe('BotTransport — handleMessage', () => {
-  test('форвардит сообщение в uiApp.handleMessage', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    // Устанавливаем activeHandler
-    sessionMap.set(123, {
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx({
-      message: { text: 'Иван' } as BotContext['message'],
-      session: sessionMap.get(123)!,
-    });
-
-    await transport.handleMessage(ctx, async () => {});
-
-    expect(uiApp.handleMessage).toHaveBeenCalled();
-    const call = (uiApp.handleMessage as any).mock.calls[0];
-    expect(call[0]?.text).toBe('Иван');
-    expect(call[0]?.telegramId).toBe(123);
-  });
-
-  test('без activeHandler — передаёт управление next', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp({
-      handleMessage: mock(async () => null),
-    });
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    let nextCalled = false;
-    const ctx = makeMockCtx();
-
-    await transport.handleMessage(ctx, async () => {
-      nextCalled = true;
-    });
-
-    expect(nextCalled).toBe(true);
-    expect(uiApp.handleMessage).not.toHaveBeenCalled();
-  });
-
-  test('команды пропускаются (начинаются с /)', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    let nextCalled = false;
-    const ctx = makeMockCtx({
-      message: { text: '/start' } as BotContext['message'],
-    });
-
-    await transport.handleMessage(ctx, async () => {
-      nextCalled = true;
-    });
-
-    expect(nextCalled).toBe(true);
-    expect(uiApp.handleMessage).not.toHaveBeenCalled();
-  });
-});
-
-// ── send (proactive) ──
-
-describe('BotTransport — send (proactive)', () => {
-  test('отправляет сообщение пользователю без контекста', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(456, {
-      sendMessage: { text: 'Упредительное сообщение' },
-    });
-
-    expect(api.sendMessage).toHaveBeenCalled();
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[0]).toBe(456);
-    expect(call[1]).toBe('Упредительное сообщение');
-  });
-
-  test('создаёт сессию если её нет', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(456, {
-      captureInput: { path: 'fill', context: { questionnaireId: 'q1' } },
-    });
-
-    const session = sessionMap.get(456);
-    expect(session).toBeDefined();
-    expect(session!.activeHandler).not.toBeNull();
-  });
-
-  test('использует существующую сессию', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    sessionMap.set(456, {
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.send(456, {
-      releaseInput: true,
-    });
-
-    const session = sessionMap.get(456);
-    expect(session?.activeHandler).toBeNull();
-  });
-
-  test('сжимает UUID в proactive send', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const uuid = 'b2c3d4e5-f6a7-8901-bcde-f12345678901';
-
-    await transport.send(456, {
-      sendMessage: {
-        text: 'Приглашение',
-        keyboard: {
-          rows: [
-            [{ text: 'Начать', code: `questionnaire:invite:start:${uuid}` }],
-          ],
-          isMultiple: false,
-        },
-      },
-    });
-
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[2]?.reply_markup.inline_keyboard[0][0].callback_data).toBe(
-      'questionnaire:invite:start:~b2c3d4e5',
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: {
+          data: kbSent[1]?.[0]?.callback_data,
+        } as BotContext['callbackQuery'],
+      }),
     );
+    expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe(`stream:view:${uuid2}`);
   });
-});
 
-// ── notify (proactive) ──
-
-describe('BotTransport — notify (proactive)', () => {
-  test('отправляет уведомление и НЕ удаляет клавиатуру предыдущего экрана', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    // Пользователь смотрит каталог — его клавиатура не должна пострадать
-    sessionMap.set(123, {
-      activeHandler: null,
-      lastBotMessage: {
-        text: 'Каталог',
-        messageId: 42,
-        keyboard: {
-          rows: [[{ text: 'Курс 1', code: 'btn' }]],
-          isMultiple: false,
-        },
-      },
+  test('hex8 без маркера — не shortId, проходит как есть', async () => {
+    const { transport, uiApp, pressed } = await startDialog({
+      seq: 1,
+      code: 'stream:view:a1b2c3d4',
     });
 
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.notify(123, { text: '🎓 Ты зачислен' });
-
-    // Сообщение отправлено — с заголовком уведомления
-    expect(api.sendMessage).toHaveBeenCalled();
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[0]).toBe(123);
-    expect(call[1]).toBe('🔔 Уведомление:\n\n🎓 Ты зачислен');
-
-    // Клавиатура предыдущего сообщения сохранена — removal не вызывался
-    const editCalls = (api.editMessageText as any).mock.calls;
-    const removalCall = editCalls.find(
-      (c: any[]) => c[3]?.reply_markup === undefined,
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
     );
-    expect(removalCall).toBeUndefined();
 
-    // Уведомление НЕ стало последним сообщением — сессия помнит каталог
-    const last = sessionMap.get(123)?.lastBotMessage;
-    expect(last?.messageId).toBe(42);
-    expect(last?.keyboard).toBeDefined();
-  });
-
-  test('не трогает session.activeHandler при активном вводе', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    const activeHandler = {
-      path: 'questionnaire/fill',
-      context: { questionnaireId: 'q1' },
-    };
-    sessionMap.set(123, { activeHandler });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.notify(123, { text: 'Уведомление' });
-
-    expect(sessionMap.get(123)?.activeHandler).toBe(activeHandler);
-  });
-
-  test('создаёт сессию, если её нет', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.notify(456, { text: 'Привет' });
-
-    const session = sessionMap.get(456);
-    expect(session).toBeDefined();
-    expect(session?.activeHandler).toBeNull();
-    // Уведомление не занимает слот последнего сообщения
-    expect(session?.lastBotMessage).toBeUndefined();
-  });
-
-  test('MarkdownV2: заголовок жирным + parseMode прокидывается', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await transport.notify(123, {
-      text: '🎉 Курс завершён\\!',
-      parseMode: 'MarkdownV2',
-    });
-
-    const call = (api.sendMessage as any).mock.calls[0];
-    expect(call[1]).toBe('🔔 *Уведомление:*\n\n🎉 Курс завершён\\!');
-    expect(call[2]?.parse_mode).toBe('MarkdownV2');
+    expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe('stream:view:a1b2c3d4');
   });
 });
 
-// ── kickFromGroup ──
+// ── kickFromGroup (перенос) ──
 
 describe('BotTransport — kickFromGroup', () => {
   test('мягкий кик: banChatMember на минуту + unbanChatMember', async () => {
     const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+    const transport = new BotTransport(makeUiApp(), api);
 
     await transport.kickFromGroup('-1002222222222', 1003);
 
@@ -913,185 +972,16 @@ describe('BotTransport — kickFromGroup', () => {
   });
 
   test('ошибка banChatMember не всплывает наружу (бот не админ)', async () => {
-    const api = makeMockBotApi();
-    (api.banChatMember as any).mockImplementation(async () => {
-      throw new Error('Bad Request: not enough rights');
+    const api = makeMockBotApi({
+      banChatMember: mock(async () => {
+        throw new Error('Bad Request: not enough rights');
+      }),
     });
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
+    const transport = new BotTransport(makeUiApp(), api);
 
     await expect(
       transport.kickFromGroup('-1002222222222', 1003),
     ).resolves.toBeUndefined();
     expect(api.unbanChatMember).not.toHaveBeenCalled();
-  });
-});
-
-// ── handleStart / handleCancel / handleHelp ──
-
-describe('BotTransport — handleStart, handleCancel, handleHelp', () => {
-  test('handleStart вызывает uiApp.handleWelcome и сбрасывает activeHandler', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx();
-    ctx.session.activeHandler = { path: 'some/path' };
-
-    await transport.handleStart(ctx);
-
-    expect(ctx.session.activeHandler).toBeNull();
-    expect(uiApp.handleWelcome).toHaveBeenCalledWith(123);
-    expect(api.sendMessage).toHaveBeenCalled();
-  });
-
-  test('handleHelp вызывает uiApp.handleHelp', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx();
-
-    await transport.handleHelp(ctx);
-
-    expect(uiApp.handleHelp).toHaveBeenCalledWith(123);
-    expect(api.sendMessage).toHaveBeenCalled();
-  });
-
-  test('handleCancel вызывает uiApp.handleCancel', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-
-    sessionMap.set(123, {
-      activeHandler: { path: 'onboarding/ask-name' },
-    });
-
-    const transport = new BotTransport(uiApp, api, sessionMap);
-    const ctx = makeMockCtx();
-    ctx.session = sessionMap.get(123)!;
-
-    await transport.handleCancel(ctx);
-
-    expect(uiApp.handleCancel).toHaveBeenCalledWith(123, ctx.session);
-  });
-
-  test('handleCancel без activeHandler — reply', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeMockUiApp({
-      handleCancel: mock(async () => null),
-    });
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const ctx = makeMockCtx();
-
-    await transport.handleCancel(ctx);
-
-    expect(ctx.reply).toHaveBeenCalledWith('Нечего отменять. Нажмите /start');
-  });
-});
-
-// ── Очередь отправок per-chat ──
-
-describe('BotTransport — очередь отправок per-chat', () => {
-  /** Api с задержкой: пишет порядок входа/выхода sendMessage, id растёт. */
-  function makeDelayedBotApi(order: string[], delayMs = 10): Api {
-    let nextId = 1;
-    return {
-      sendMessage: mock(async (_tgId: number, text: string) => {
-        order.push(`start:${text}`);
-        await new Promise((r) => setTimeout(r, delayMs));
-        order.push(`end:${text}`);
-        return { message_id: nextId++ };
-      }),
-      editMessageText: mock(async () => ({ message_id: 1 })),
-    } as unknown as Api;
-  }
-
-  test('две параллельные send() одному tgId: sendMessage строго последовательны, lastBotMessage — вторая', async () => {
-    const order: string[] = [];
-    const api = makeDelayedBotApi(order);
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await Promise.all([
-      transport.send(123, { sendMessage: { text: 'Первый' } }),
-      transport.send(123, { sendMessage: { text: 'Второй' } }),
-    ]);
-
-    // Без очереди был бы интерливинг start/start/end/end
-    expect(order).toEqual([
-      'start:Первый',
-      'end:Первый',
-      'start:Второй',
-      'end:Второй',
-    ]);
-
-    // Сессия указывает на вторую отправку (а не на первую, перезаписанную)
-    const last = sessionMap.get(123)?.lastBotMessage;
-    expect(last?.text).toBe('Второй');
-    expect(last?.messageId).toBe(2);
-  });
-
-  test('send() + notify() вперемешку: порядок строгий, lastBotMessage не затирается уведомлением', async () => {
-    const order: string[] = [];
-    const api = makeDelayedBotApi(order);
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    await Promise.all([
-      transport.send(123, {
-        sendMessage: {
-          text: 'Экран',
-          keyboard: {
-            rows: [[{ text: 'Кнопка', code: 'app:main-menu' }]],
-            isMultiple: false,
-          },
-        },
-      }),
-      transport.notify(123, { text: 'Уведомление' }),
-    ]);
-
-    expect(order).toEqual([
-      'start:Экран',
-      'end:Экран',
-      'start:🔔 Уведомление:\n\nУведомление',
-      'end:🔔 Уведомление:\n\nУведомление',
-    ]);
-
-    // Уведомление не затёрло lastBotMessage экрана
-    const last = sessionMap.get(123)?.lastBotMessage;
-    expect(last?.text).toBe('Экран');
-    expect(last?.keyboard).toBeDefined();
-  });
-
-  test('ошибка первой отправки не ломает вторую (хвост очереди не rejected)', async () => {
-    let calls = 0;
-    const api = {
-      sendMessage: mock(async (_tgId: number, _text: string) => {
-        calls++;
-        if (calls === 1) throw new Error('Telegram down');
-        return { message_id: 2 };
-      }),
-      editMessageText: mock(async () => ({ message_id: 1 })),
-    } as unknown as Api;
-    const uiApp = makeMockUiApp();
-    const sessionMap = new Map<number, SessionData>();
-    const transport = new BotTransport(uiApp, api, sessionMap);
-
-    const first = transport.send(123, { sendMessage: { text: 'Упадёт' } });
-    const second = transport.send(123, { sendMessage: { text: 'Дойдёт' } });
-
-    await expect(first).rejects.toThrow('Telegram down');
-    await expect(second).resolves.toBeUndefined();
-
-    const last = sessionMap.get(123)?.lastBotMessage;
-    expect(last?.text).toBe('Дойдёт');
   });
 });

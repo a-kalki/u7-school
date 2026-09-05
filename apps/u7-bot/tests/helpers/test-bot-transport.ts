@@ -156,11 +156,7 @@ export class TestBotTransport {
     eventBus?: InProcEventBus,
   ) {
     this.uiApp = new U7BotUiApp(controllers);
-    this.transport = new BotTransport(
-      this.uiApp,
-      this.api as unknown as Api,
-      this.sessionMap,
-    );
+    this.transport = new BotTransport(this.uiApp, this.api as unknown as Api);
     this.uiApp.init(
       {
         // Общая с apiApp шина — события модулей (напр. questionnaire:start)
