@@ -6,3 +6,8 @@
 
 - [ ] **Track: Ядро контракта «Диалог и Экран» (типы, транспорт, uiApp, контроллер, стори-база)**
 *Link: [./tracks/bot-ui-dialog-core_20260905/](./tracks/bot-ui-dialog-core_20260905/)*
+
+---
+
+- [ ] **Track: Стори навигации app/user/courses/streams на новом контракте**
+*Link: [./tracks/bot-ui-dialog-nav_20260905/](./tracks/bot-ui-dialog-nav_20260905/)*

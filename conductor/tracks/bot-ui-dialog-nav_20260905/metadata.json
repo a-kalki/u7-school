@@ -1,0 +1,8 @@
+{
+  "track_id": "bot-ui-dialog-nav_20260905",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-09-05T03:08:46Z",
+  "updated_at": "2026-09-05T03:08:46Z",
+  "description": "Миграция сторей навигации: app (community), user (notify), courses (catalog), streams (catalog, view-stream, inactivity → notify-текст)"
+}
