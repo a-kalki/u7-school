@@ -4,9 +4,9 @@
 
 ## Фаза 1: Типы и MdText
 
-- [ ] Task: Написать падающие тесты `md`/`mdRaw`/`MdText`: интерполяция `${}` экранирует доменные данные, `mdRaw` пропускает как есть, битые литералы ловятся `response-assert` (fail-fast)
-- [ ] Task: Реализовать `MdText`/`md`/`mdRaw` (`packages/core/src/shared/markdown.ts`)
-- [ ] Task: Объявить контракты в `packages/core/src/ui/bot/types.ts`: `Screen`, `KeyboardDescription` (без `takeover`), `DialogResponse`, `DialogState`, `ScreenState`, `BotSession`, `NotificationPayload` (+`tone`), `ProactiveSender` (без `send()`); старые типы пока остаются рядом
+- [x] Task: Написать падающие тесты `md`/`mdRaw`/`MdText`: интерполяция `${}` экранирует доменные данные, `mdRaw` пропускает как есть, битые литералы ловятся `response-assert` (fail-fast)
+- [x] Task: Реализовать `MdText`/`md`/`mdRaw` (`packages/core/src/shared/markdown.ts`) [b1f831d]
+- [x] Task: Объявить контракты в `packages/core/src/ui/bot/types.ts`: `Screen`, `KeyboardDescription` (без `takeover`), `DialogResponse`, `DialogState`, `ScreenState`, `BotSession`, `NotificationPayload` (+`tone`), `ProactiveSender` (без `send()`); старые типы пока остаются рядом [a0604a3]
 - [ ] Conductor - User Manual Verification 'Типы и MdText' (Protocol in workflow.md)
 
 ## Фаза 2: Транспорт
