@@ -104,10 +104,17 @@ class TestController extends BotController<AppMeta, TestActor> {
 class TestUiApp extends BotUiApp<AppMeta, TestActor> {
   protected override readonly menuPath = 'menu/main';
   menuScreens = 0;
+  cancelScreens = 0;
 
   protected override async buildMenuScreen(): Promise<Screen> {
     this.menuScreens++;
     return { text: mdRaw('Меню') };
+  }
+
+  /** /cancel — короткий экран, отдельный хук (по умолчанию = меню /start). */
+  protected override async buildCancelMenuScreen(): Promise<Screen> {
+    this.cancelScreens++;
+    return { text: mdRaw('Выберите действие:') };
   }
 }
 
@@ -376,7 +383,7 @@ describe('BotUiApp — /cancel (handleCancel)', () => {
     expect(ctrlA.cancelCalled).toBe(1);
     expect(session.dialog.path).toBe('menu/main');
     expect(session.dialog.seq).toBe(6);
-    expect(String(response?.screen?.text)).toBe('Меню');
+    expect(String(response?.screen?.text)).toBe('Выберите действие:');
   });
 
   test('стори вернула свой экран отмены → он рендерится, диалог остаётся', async () => {
@@ -402,7 +409,10 @@ describe('BotUiApp — /cancel (handleCancel)', () => {
 
     expect(ctrlA.cancelCalled).toBe(0);
     expect(session.dialog.path).toBe('menu/main');
-    expect(String(response?.screen?.text)).toBe('Меню');
+    // /cancel — КОРОТКИЙ экран (buildCancelMenuScreen), не welcome
+    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(uiApp.menuScreens).toBe(0);
+    expect(uiApp.cancelScreens).toBe(1);
   });
 });
 

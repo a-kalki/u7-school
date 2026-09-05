@@ -91,6 +91,16 @@ export class U7BotUiApp
       const welcome = await appCtrl.handleWelcome(actor);
       if (welcome) return welcome;
     }
+    return this.#shortMenuScreen(actor);
+  }
+
+  /** /cancel — КОРОТКОЕ меню без приветствия (решение владельца). */
+  protected override async buildCancelMenuScreen(actor: User): Promise<Screen> {
+    return this.#shortMenuScreen(actor);
+  }
+
+  /** Короткий экран меню: текст + агрегированная клавиатура. */
+  async #shortMenuScreen(actor: User): Promise<Screen> {
     const items = await this.collectMainMenu(actor);
     return {
       text: md`Выберите действие:`,

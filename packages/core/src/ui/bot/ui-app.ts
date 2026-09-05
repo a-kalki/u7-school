@@ -130,7 +130,7 @@ export abstract class BotUiApp<
 
     if (!response || this.#isEmpty(response)) {
       this.#switchDialog(session, this.menuPath);
-      return { screen: await this.buildMenuScreen(actor, session) };
+      return { screen: await this.buildCancelMenuScreen(actor, session) };
     }
     return response;
   }
@@ -209,6 +209,17 @@ export abstract class BotUiApp<
     _session: BotSession,
   ): Promise<Screen> {
     return { text: mdRaw('Выберите действие:') };
+  }
+
+  /**
+   * Экран меню для /cancel — по решению владельца КОРОТКИЙ (без welcome).
+   * Дефолт — тот же экран, что и у /start; переопределяется приложением.
+   */
+  protected async buildCancelMenuScreen(
+    actor: TActor,
+    session: BotSession,
+  ): Promise<Screen> {
+    return this.buildMenuScreen(actor, session);
   }
 
   /** Общий help-fallback, когда стори не дала контекстной справки. */
