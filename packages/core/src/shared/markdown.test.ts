@@ -128,30 +128,30 @@ describe('safeConvert', () => {
 // ── md / mdRaw / MdText — безопасный конструктор MarkdownV2 (трек bot-ui-dialog-core) ──
 
 describe('md — тегированный шаблон', () => {
-  test('интерполяция ${} экранирует доменные данные', () => {
+  test('интерполяция экранирует доменные данные', () => {
     const userName = 'Иван_5 + 5 = 10.';
     const text = md`Привет, ${userName}!`;
 
-    expect(text).toBe('Привет, Иван\\_5 \\+ 5 \\= 10\\.!');
+    expect(String(text)).toBe('Привет, Иван\\_5 \\+ 5 \\= 10\\.!');
   });
 
   test('литеральные части не экранируются — разметка сохраняется', () => {
     const text = md`*Жирный* и ${'точка.'}`;
 
     // Разметка литерала жива, данные экранированы
-    expect(text).toBe('*Жирный* и точка\\.');
+    expect(String(text)).toBe('*Жирный* и точка\\.');
   });
 
   test('несколько интерполяций подряд', () => {
     const text = md`${'a_b'} и ${'c(d)'} и ${'e.f'}`;
 
-    expect(text).toBe('a\\_b и c\\(d\\) и e\\.f');
+    expect(String(text)).toBe('a\\_b и c\\(d\\) и e\\.f');
   });
 
   test('не-строковые значения приводятся к строке', () => {
     const text = md`Количество: ${42}, флаг: ${null}`;
 
-    expect(text).toBe('Количество: 42, флаг: null');
+    expect(String(text)).toBe('Количество: 42, флаг: null');
   });
 
   test('результат проходит валидатор MarkdownV2 при опасных данных', () => {
@@ -164,7 +164,7 @@ describe('md — тегированный шаблон', () => {
     const text: MdText = md`Текст`;
 
     expect(typeof text).toBe('string');
-    expect(text).toBe('Текст');
+    expect(String(text)).toBe('Текст');
   });
 });
 
@@ -172,7 +172,7 @@ describe('mdRaw — явный «уже с разметкой»', () => {
   test('пропускает текст как есть, без экранирования', () => {
     const raw = '*Жирный* и `код` и [ссылка](https://example.com)\\.';
 
-    expect(mdRaw(raw)).toBe(raw);
+    expect(String(mdRaw(raw))).toBe(raw);
   });
 
   test('валидный размеченный текст проходит валидатор', () => {

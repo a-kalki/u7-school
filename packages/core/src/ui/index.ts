@@ -3,6 +3,7 @@ export * from './bot/bot-controller';
 export * from './bot/bot-ui-story';
 export {
   assertBotResponseValid,
+  assertDialogResponseMarkdownSafe,
   assertResponseMarkdownSafe,
 } from './bot/response-assert';
 export * from './bot/types';

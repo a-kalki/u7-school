@@ -1,5 +1,9 @@
 import { assertMarkdownV2Safe } from '../../shared/markdown-validator';
-import type { BotResponse, SendMessageDescription } from './types';
+import type {
+  BotResponse,
+  DialogResponse,
+  SendMessageDescription,
+} from './types';
 
 /** Telegram-лимит на длину callback_data в байтах (ASCII) */
 const CALLBACK_DATA_MAX_BYTES = 64;
@@ -34,6 +38,32 @@ export function assertResponseMarkdownSafe(response: BotResponse): void {
   }
 
   // delegate — не BotResponse, просто { path }, проверять нечего
+}
+
+/**
+ * Единственная точка проверки MdText-литералов в DialogResponse
+ * (контракт «Диалог и Экран»).
+ *
+ * `md()` экранирует интерполированные данные, но литеральные части
+ * шаблона остаются на совести автора — битый литерал (непарная разметка,
+ * голый спецсимвол) ловится здесь fail-fast, до отправки в Telegram.
+ *
+ * Используется в проде: `BotTransport` вызывает перед рендером ответа.
+ */
+export function assertDialogResponseMarkdownSafe(
+  response: DialogResponse,
+): void {
+  if (response.screen?.text) {
+    assertMarkdownV2Safe(response.screen.text);
+  }
+  if (response.finalize?.text) {
+    assertMarkdownV2Safe(response.finalize.text);
+  }
+  if (response.info?.text) {
+    assertMarkdownV2Safe(response.info.text);
+  }
+
+  // awaitInput / release / delegate — текстов не несут
 }
 
 /**

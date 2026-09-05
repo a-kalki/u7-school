@@ -1,5 +1,7 @@
 /** Общие типы для UI-слоя Telegram-бота */
 
+import type { MdText } from '../../shared/markdown';
+
 /**
  * Описание inline-клавиатуры.
  *
@@ -7,18 +9,18 @@
  * Telegram НЕ парсит MarkdownV2 в кнопках, поэтому экранирование
  * `escapeMarkdown()` для текста кнопок не нужно и портит отображение
  * (будут видны бэкслеши).
+ *
+ * Коды — `story:action[:id...]` без префикса контроллера (префиксует
+ * контроллер), без сжатия и штампа (транспорт сжимает и штампует).
+ *
+ * Мостом в другой диалог признаётся любая валидная кнопка текущего
+ * экрана — отдельное поле `takeover` удалено (контракт «Диалог и Экран»).
  */
 export interface KeyboardDescription {
   rows: {
     text: string;
     code: string;
     url?: string;
-    /**
-     * Takeover-кнопка: явный перехват ввода (см. BotUiApp).
-     * При нажатии callback НЕ блокируется чужим activeHandler —
-     * захват ввода перезаписывается новой стори.
-     */
-    takeover?: boolean;
   }[][];
   isMultiple: boolean;
 }
@@ -77,33 +79,32 @@ export interface BotResponse extends BotCommand {
 }
 
 /**
- * Payload проактивного уведомления.
+ * Payload проактивного уведомления (контракт «Диалог и Экран»).
  *
  * Только текст — кнопки в уведомлении невозможны по построению (типом).
- * Проактивное сообщение с кнопками — это обычный send(): новый экран
- * ломает текущий флоу (клавиатура предыдущего сообщения снимается).
+ * Единственный проактивный канал: не читает и не пишет сессию,
+ * не трогает экран и диалог (инвариант И3).
  *
- * Реализация транспорта обязана:
- * - пометить сообщение заголовком уведомления (🔔);
- * - сохранить клавиатуру предыдущего экрана (keepPrevKeyboard);
- * - НЕ делать уведомление последним сообщением сессии (lastBotMessage
- *   не трогается) и не захватывать ввод.
+ * Тон определяет оформление реплики транспортом:
+ * - `notice` (по умолчанию) — 🔔 «Уведомление»;
+ * - `info` — тихая реплика без заголовка.
  */
 export interface NotificationPayload {
-  text: string;
-  parseMode?: 'MarkdownV2';
+  text: MdText;
+  tone?: 'notice' | 'info';
 }
 
 /**
- * Проактивный отправитель сообщений бота.
+ * Проактивный отправитель сообщений бота (контракт «Диалог и Экран»).
  *
  * Цепочка `transport → BotUiApp → BotController → BotUiStory`: каждый уровень
  * реализует этот интерфейс и передаёт себя дочернему уровню через `init`
  * отдельным аргументом (не через resolve).
+ *
+ * Проактивный запуск диалога (send с BotCommand) удалён: невоспроизводим
+ * синтаксически — только notify без кнопок и без влияния на сессию.
  */
 export interface ProactiveSender {
-  send(telegramId: number, command: BotCommand): Promise<void>;
-
   /** Проактивное уведомление — не вмешивается в поток пользователя */
   notify(telegramId: number, payload: NotificationPayload): Promise<void>;
 
@@ -113,6 +114,79 @@ export interface ProactiveSender {
    * Ошибки (бот не админ, группа не найдена) не всплывают наружу.
    */
   kickFromGroup(groupId: number | string, userId: number): Promise<void>;
+}
+
+// ── Контракт «Диалог и Экран» (bot-ui-session-architecture.md §4) ──
+
+/**
+ * Экран — сообщение бота с (опц.) клавиатурой.
+ *
+ * `keyboard` имеет смысл только у активного экрана диалога; в `info`
+ * (тихой реплике) клавиатура транспортом не рендерится.
+ */
+export interface Screen {
+  text: MdText;
+  keyboard?: KeyboardDescription;
+}
+
+/**
+ * Ответ стори/контроллера — максимально декларативный (замена BotResponse).
+ *
+ * Три способа повлиять на чат (`screen`/`info`/`finalize`), два — на ввод
+ * (`awaitInput`/`release`), один — на маршрут (`delegate`, исполняется
+ * uiApp до транспорта). Чего нет: `messageId`, `keepPrevKeyboard`,
+ * `sendMessages`, `parseMode`, `captureInput.path`, `takeover`, `ttlSeconds`.
+ */
+export interface DialogResponse {
+  /** Показать экран диалога (edit своего / retire чужого + send) */
+  screen?: Screen;
+  /** Перезаписать активный экран (фиксация выбора), клавиатура снимается */
+  finalize?: { text: MdText };
+  /** Тихая реплика поверх диалога (без клавиатуры, сессию не трогает) */
+  info?: Screen;
+  /** Ждать текстовый ввод (path уже известен — это dialog.path) */
+  awaitInput?: { context?: unknown };
+  /** Снять ожидание текста (диалог живёт на финальном экране) */
+  release?: boolean;
+  /** Программный переход: seq++, рендер экрана целевой стори (исполняет uiApp) */
+  delegate?: { path: string };
+}
+
+/**
+ * Состояние диалога (владение — uiApp и транспорт).
+ *
+ * Диалог существует всегда (после первого /start — это диалог меню).
+ * Смена диалога — только командой или мостом; `seq` — монотонный штамп,
+ * проставляемый транспортом в callback_data и сверяемый при приёме.
+ */
+export interface DialogState {
+  /** `controller/story`, например 'questionnaire/fill' */
+  path: string;
+  /** Штамп диалога (инкремент при смене диалога — uiApp) */
+  seq: number;
+  /** Ожидание текстового ввода (без expiresAt — TTL удалён, §7) */
+  input?: { context?: unknown };
+}
+
+/**
+ * Состояние активного экрана (владение — транспорт, messageId знает только он).
+ *
+ * `text`/`keyboard` хранятся для retire: снятие клавиатуры + маркер выбора.
+ */
+export interface ScreenState {
+  messageId: number;
+  /** seq диалога-владельца */
+  ownerSeq: number;
+  /** MdText (для retire-маркера) */
+  text: string;
+  /** Для retire: снятие + поиск текста кнопки */
+  keyboard?: KeyboardDescription;
+}
+
+/** Сессия пользователя в контракте «Диалог и Экран» (всё сериализуемо) */
+export interface BotSession {
+  dialog: DialogState;
+  screen?: ScreenState;
 }
 
 /** Данные сессии пользователя с отслеживанием активного обработчика */
