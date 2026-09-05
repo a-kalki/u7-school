@@ -1,0 +1,17 @@
+Задача: Объявить контракты в types.ts (Фаза 1, трек bot-ui-dialog-core_20260905)
+
+Сводка:
+- Screen { text: MdText, keyboard? }, DialogResponse { screen/finalize/info/awaitInput/release/delegate }.
+- DialogState { path, seq, input? }, ScreenState { messageId, ownerSeq, text, keyboard? }, BotSession { dialog, screen? }.
+- NotificationPayload: text: MdText + tone 'notice'|'info' (parseMode удалён).
+- ProactiveSender: send() удалён (инвариант И3), остались notify/kickFromGroup.
+- KeyboardDescription: takeover удалён (мост = любая валидная кнопка).
+- response-assert.ts: +assertDialogResponseMarkdownSafe (fail-fast md-литералов), экспортирован из ui/index.
+
+Файлы:
+- packages/core/src/ui/bot/types.ts — модифицирован (новые контракты, удалены takeover/send/parseMode).
+- packages/core/src/ui/bot/response-assert.ts, response-assert.test.ts — новый ассерт + 5 тестов.
+- packages/core/src/ui/index.ts — экспорт.
+- packages/core/src/shared/markdown.test.ts — фикс toBe для бренд-типа (String()).
+
+Заявленное состояние: tsc core красный на ui-app.ts/bot-controller.ts и их старых тестах — переписываются Фазой 3 (правило «трек уменьшает»).
