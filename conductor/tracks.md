@@ -21,3 +21,8 @@
 
 - [ ] **Track: Анкетные стори (fill, invite, render.ts) на новом контракте, finalize-паттерн**
 *Link: [./tracks/bot-ui-dialog-questionnaire_20260905/](./tracks/bot-ui-dialog-questionnaire_20260905/)*
+
+---
+
+- [ ] **Track: Mentor-стори и демонтаж старых типов, весь репозиторий зелёный**
+*Link: [./tracks/bot-ui-dialog-mentor_20260905/](./tracks/bot-ui-dialog-mentor_20260905/)*
