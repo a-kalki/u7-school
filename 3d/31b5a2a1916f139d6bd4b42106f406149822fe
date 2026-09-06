@@ -1,0 +1,7 @@
+Задача: Фаза 2 / Task 3 — Транспорт: единый handleCommand + парсинг конверта.
+
+Сводка: parseCommandText-парсер (ФР-4: команда — первый токен, @botname-суффикс, args строкой), единый командный хендлер с перехватом слэшей в message:text, удалены handleStart/handleHelp/handleCancel транспорта и порта. Тесты переведены.
+
+Файлы: apps/u7-bot/src/infra/bot-transport.ts, bot-transport.test.ts.
+
+Причина: ФР-4 — транспортный слой единого входа команд.
