@@ -1,0 +1,9 @@
+Задача: Core — CommandReaction + handleCommand на трёх уровнях (Фаза 2.1)
+
+Изменения:
+- packages/core/src/ui/bot/types.ts: тип CommandReaction (pass | continue(notice?) | stop(response)) — единая реакция стори и контроллера в pipe
+- packages/core/src/ui/bot/bot-ui-story.ts: handleCommand → Promise<CommandReaction>, дефолт pass; удалены именные handleHelp/handleCancel
+- packages/core/src/ui/bot/bot-controller.ts: handleCommand — pipe своих стори: первый stop прерывает обход, continue-нотисы склеиваются (\n\n) в continue либо info-реплику над ответом стопа, ошибка стори → stop с handleError-экраном, все pass → pass
+- packages/core/src/ui/bot/ui-app.ts: handleCommand — резолвит актора, pipe контроллеров (активный по dialog.path первым, без дубля, далее порядок регистрации); stop → DialogResponse (+нотисы сверху), только continue → {info: склейка}, все pass → null; удалены handleAppCommand-хук и build-хуки экранов (buildMenuScreen/buildCancelMenuScreen/buildHelpScreen), menuPath (уровень приложения); #enterDialog → protected enterDialog; удалены #storyByPath/#commandNotice
+
+Причина: решения владельца 2026-09-06 — единственный обработчик команд handleCommand на уровнях uiApp/uiController/uiStory; ядро имён команд не знает; дефолты команд — уровень приложения. Проверки: check:p core зелёный (276 тестов).
