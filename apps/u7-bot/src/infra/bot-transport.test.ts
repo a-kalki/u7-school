@@ -4,6 +4,7 @@ import {
   BotController,
   type BotSession,
   BotUiApp,
+  type CommandUpdate,
   type DialogResponse,
   type Screen,
 } from '@u7-scl/core/ui';
@@ -20,7 +21,7 @@ import { BotTransport, parseCommandText } from './bot-transport';
  * Транспорт чёрным ящиком: сессия наблюдается через объект, который
  * транспорт передаёт в uiApp; штампованные коды читаются из аргументов
  * моков Grammy Api. Первый экран всегда открывается через /start
- * (handleWelcome выставляет dialog.seq — как uiApp Фазы 3).
+ * (handleCommand 'start' выставляет диалог — как конвейер uiApp Фазы 2).
  */
 
 // ── Фабрики ──
@@ -41,11 +42,8 @@ function makeMockBotApi(overrides: Record<string, unknown> = {}): Api {
 function makeUiApp(overrides: Partial<DialogUiAppPort> = {}): DialogUiAppPort {
   return {
     handleCommand: mock(async () => null),
-    handleWelcome: mock(async () => ({ screen: { text: mdRaw('Привет') } })),
-    handleHelp: mock(async () => ({ info: { text: mdRaw('Помощь') } })),
     handleCallback: mock(async () => ({ screen: { text: mdRaw('Ок') } })),
     handleMessage: mock(async () => ({ screen: { text: mdRaw('Принято') } })),
-    handleCancel: mock(async () => null),
     ...overrides,
   } as unknown as DialogUiAppPort;
 }
@@ -62,6 +60,11 @@ function makeCtx(overrides: Partial<BotContext> = {}): BotContext {
     message: { text: 'hello' } as BotContext['message'],
     ...overrides,
   } as unknown as BotContext;
+}
+
+/** Контекст со слэш-текстом (единственный вход команд — ФР-4). */
+function makeCommandCtx(text: string): BotContext {
+  return makeCtx({ message: { text } as BotContext['message'] });
 }
 
 function makeLogger(): Logger {
@@ -121,23 +124,25 @@ async function startDialog(
   const api = makeMockBotApi();
   let captured: BotSession | undefined;
   const code = opts.code ?? 'menu:open';
-  const { handleWelcome, ...rest } = opts.uiApp ?? {};
+  const { handleCommand, ...rest } = opts.uiApp ?? {};
   const uiApp = makeUiApp({
-    handleWelcome: mock(async (tg: number, s: BotSession) => {
-      captured = s;
-      if (handleWelcome) return handleWelcome(tg, s);
-      s.dialog = { path: opts.path ?? 'app/menu', seq: opts.seq };
-      return {
-        screen: {
-          text: mdRaw(opts.text ?? 'Меню'),
-          keyboard: kb(code, '📂 Меню'),
-        },
-      };
-    }),
+    handleCommand: mock(
+      async (update: CommandUpdate, tg: number, s: BotSession) => {
+        captured = s;
+        if (handleCommand) return handleCommand(update, tg, s);
+        s.dialog = { path: opts.path ?? 'app/menu', seq: opts.seq };
+        return {
+          screen: {
+            text: mdRaw(opts.text ?? 'Меню'),
+            keyboard: kb(code, '📂 Меню'),
+          },
+        };
+      },
+    ),
     ...rest,
   });
   const transport = new BotTransport(uiApp, api);
-  await transport.handleStart(makeCtx());
+  await transport.handleCommand(makeCommandCtx('/start'));
   const pressed = lastSentCallbackData(api);
   if (!pressed) throw new Error('welcome-экран не отправлен');
   if (!captured?.dialog) {
@@ -172,7 +177,7 @@ describe('BotTransport — штампы :~<seq36>', () => {
   test('url-кнопки — без штампа', async () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'app/menu', seq: 1 };
         return {
           screen: {
@@ -187,7 +192,7 @@ describe('BotTransport — штампы :~<seq36>', () => {
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
 
     const sent = callsOf(api.sendMessage)[0];
     const row = (
@@ -326,7 +331,7 @@ describe('BotTransport — per-chat очередь', () => {
     let session: BotSession | undefined;
     let step = 0;
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         session = s;
         s.dialog = { path: 'app/menu', seq: 5 };
         return { screen: { text: mdRaw('Меню'), keyboard: kb('menu:open') } };
@@ -339,7 +344,7 @@ describe('BotTransport — per-chat очередь', () => {
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
     const pressed = lastSentCallbackData(api)!;
     order.length = 0; // дальше — только параллельная пара
 
@@ -370,7 +375,7 @@ describe('BotTransport — per-chat очередь', () => {
       }),
     });
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'app/menu', seq: 5 };
         return { screen: { text: mdRaw('Меню'), keyboard: kb('menu:open') } };
       }),
@@ -381,7 +386,7 @@ describe('BotTransport — per-chat очередь', () => {
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
     order.length = 0;
 
     await Promise.all([
@@ -405,7 +410,7 @@ describe('BotTransport — per-chat очередь', () => {
     const api = makeMockBotApi();
     let n = 0;
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'app/menu', seq: 5 };
         return { screen: { text: mdRaw('Меню') } };
       }),
@@ -417,7 +422,7 @@ describe('BotTransport — per-chat очередь', () => {
       }),
     });
     const transport = new BotTransport(uiApp, api);
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
 
     const first = transport.handleCallback(
       makeCtx({
@@ -444,7 +449,7 @@ describe('BotTransport — per-chat очередь', () => {
     let step = 0;
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'app/menu', seq: 1 };
         return { screen: { text: mdRaw('Меню') } };
       }),
@@ -456,7 +461,7 @@ describe('BotTransport — per-chat очередь', () => {
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
     await transport.handleCallback(
       makeCtx({
         callbackQuery: {
@@ -542,7 +547,7 @@ describe('BotTransport — рендер-политика', () => {
     const api = makeMockBotApi();
     let n = 0;
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         n += 1;
         s.dialog = { path: 'app/menu', seq: 4 + n };
         return {
@@ -555,8 +560,8 @@ describe('BotTransport — рендер-политика', () => {
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleStart(makeCtx()); // экран с клавиатурой, seq 5
-    await transport.handleStart(makeCtx()); // seq 6 → retire без маркера + send
+    await transport.handleCommand(makeCommandCtx('/start')); // экран с клавиатурой, seq 5
+    await transport.handleCommand(makeCommandCtx('/start')); // seq 6 → retire без маркера + send
 
     const edits = callsOf(api.editMessageText);
     expect(edits[0]?.[2]).toBe('Меню'); // ровно текст, без «Вы выбрали»
@@ -722,7 +727,7 @@ describe('BotTransport — рендер-политика', () => {
       seq: 5,
       path: 'q/fill',
       uiApp: {
-        handleWelcome: mock(async (_tg, s: BotSession) => {
+        handleCommand: mock(async (_update, _tg, s: BotSession) => {
           s.dialog = {
             path: 'q/fill',
             seq: 5,
@@ -756,14 +761,16 @@ describe('BotTransport — рендер-политика', () => {
       }),
     });
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'app/menu', seq: 5 };
         return { screen: { text: mdRaw('Экран') } };
       }),
     });
     const transport = new BotTransport(uiApp, api);
 
-    await expect(transport.handleStart(makeCtx())).resolves.toBeUndefined();
+    await expect(
+      transport.handleCommand(makeCommandCtx('/start')),
+    ).resolves.toBeUndefined();
     expect(logger.warn).toHaveBeenCalled();
   });
 
@@ -781,29 +788,12 @@ describe('BotTransport — рендер-политика', () => {
     expect(callsOf(uiApp.handleMessage).length).toBe(0);
   });
 
-  test('handleMessage: команда (/start) → next()', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeUiApp();
-    const transport = new BotTransport(uiApp, api);
-
-    let nextCalled = false;
-    await transport.handleMessage(
-      makeCtx({ message: { text: '/start' } as BotContext['message'] }),
-      async () => {
-        nextCalled = true;
-      },
-    );
-
-    expect(nextCalled).toBe(true);
-    expect(callsOf(uiApp.handleMessage).length).toBe(0);
-  });
-
   test('handleMessage: при ожидании ввода — форвард в uiApp и рендер', async () => {
     const { api, transport, uiApp } = await startDialog({
       seq: 5,
       path: 'q/fill',
       uiApp: {
-        handleWelcome: mock(async (_tg, s: BotSession) => {
+        handleCommand: mock(async (_update, _tg, s: BotSession) => {
           s.dialog = { path: 'q/fill', seq: 5, input: {} };
           return {
             screen: { text: mdRaw('Вопрос'), keyboard: kb('menu:open') },
@@ -828,17 +818,17 @@ describe('BotTransport — рендер-политика', () => {
     expect(edits.at(-1)?.[2]).toBe('Принято');
   });
 
-  test('handleCancel: ответ uiApp рендерится', async () => {
+  test('handleCommand: screen-ответ uiApp рендерится', async () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
-      handleCancel: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'app/menu', seq: 8 };
         return { screen: { text: mdRaw('Отменено') } };
       }),
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleCancel(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/cancel'));
 
     expect(
       callsOf(api.sendMessage)
@@ -847,23 +837,25 @@ describe('BotTransport — рендер-политика', () => {
     ).toBe('Отменено');
   });
 
-  test('handleCancel: null → тихий пропуск (дефолт-меню вернёт uiApp в Фазе 3)', async () => {
+  test('handleCommand: null → тихий пропуск (меню/реплику вернёт конвейер uiApp)', async () => {
     const api = makeMockBotApi();
-    const uiApp = makeUiApp({ handleCancel: mock(async () => null) });
+    const uiApp = makeUiApp({ handleCommand: mock(async () => null) });
     const transport = new BotTransport(uiApp, api);
 
-    await expect(transport.handleCancel(makeCtx())).resolves.toBeUndefined();
+    await expect(
+      transport.handleCommand(makeCommandCtx('/cancel')),
+    ).resolves.toBeUndefined();
     expect(callsOf(api.sendMessage).length).toBe(0);
   });
 
-  test('handleHelp: ответ рендерится (uiApp возвращает info-реплику)', async () => {
+  test('handleCommand: info-реплика рендерится, экран не трогается', async () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
-      handleHelp: mock(async () => ({ info: { text: mdRaw('Справка') } })),
+      handleCommand: mock(async () => ({ info: { text: mdRaw('Справка') } })),
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleHelp(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/help'));
 
     expect(
       callsOf(api.sendMessage)
@@ -1060,7 +1052,7 @@ describe('BotTransport — сжатие UUID', () => {
     const uuid2 = 'a1b2c3d4-aaaa-bbbb-cccc-dddddddddddd';
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
-      handleWelcome: mock(async (_tg, s: BotSession) => {
+      handleCommand: mock(async (_update, _tg, s: BotSession) => {
         s.dialog = { path: 'streams/catalog', seq: 1 };
         return {
           screen: {
@@ -1079,7 +1071,7 @@ describe('BotTransport — сжатие UUID', () => {
     });
     const transport = new BotTransport(uiApp, api);
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
     const sent = callsOf(api.sendMessage)[0];
     const kbSent = (
       sent?.[2] as {
@@ -1192,7 +1184,7 @@ describe('BotTransport — инварианты жизненного цикла 
   test('первый /start: кнопки welcome со штампом ~1 и живые', async () => {
     const { api, transport } = makeLifecycleRig();
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
 
     const menuBtn = sentButton(api, 0, 0);
     expect(menuBtn).toBe('app:menu:open:~1');
@@ -1208,8 +1200,8 @@ describe('BotTransport — инварианты жизненного цикла 
   test('повторный /start: reopen — seq++ (не no-op), кнопки ~1 умирают', async () => {
     const { api, transport } = makeLifecycleRig();
 
-    await transport.handleStart(makeCtx());
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
+    await transport.handleCommand(makeCommandCtx('/start'));
 
     const fresh = sentButton(api, 0, 0);
     expect(fresh).toBe('app:menu:open:~2');
@@ -1243,7 +1235,7 @@ describe('BotTransport — инварианты жизненного цикла 
   test('дубль-тап по мосту: первый открывает диалог (seq++), второй — alert «Экран устарел»', async () => {
     const { api, transport } = makeLifecycleRig();
 
-    await transport.handleStart(makeCtx());
+    await transport.handleCommand(makeCommandCtx('/start'));
     const bridge = sentButton(api, 1, 0);
     expect(bridge).toBe('other:list:open:~1');
 

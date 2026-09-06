@@ -7,6 +7,7 @@ import {
   assertDialogResponseMarkdownSafe,
   type BotSession,
   type BotUpdate,
+  type CommandUpdate,
   type DialogResponse,
   type KeyboardDescription,
   type NotificationPayload,
@@ -51,12 +52,14 @@ const CHOICE_MARKER = '\n\n—————\nВы выбрали: ';
 
 // ── Интерфейсы ──
 
-/** Порт uiApp на контракте «Диалог и Экран» (реализуется BotUiApp в Фазе 3). */
+/** Порт uiApp на контракте «Диалог и Экран» (реализуется BotUiApp, ФР-4). */
 export interface DialogUiAppPort {
-  /** /start: закрыть диалог (seq++), вернуть welcome-экран */
-  handleWelcome(tgId: number, session: BotSession): Promise<DialogResponse>;
-  /** /help: контекстная справка стори или общий fallback — как info-реплика */
-  handleHelp(tgId: number, session: BotSession): Promise<DialogResponse>;
+  /** Слэш-команда (конверт уже разобран): конвейер хук → стори → дефолты */
+  handleCommand(
+    update: CommandUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null>;
   /** Нажатие кнопки (штамп и shortId уже сверены транспортом) */
   handleCallback(
     data: string,
@@ -69,19 +72,58 @@ export interface DialogUiAppPort {
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null>;
-  /** /cancel: доменная очистка стори, дефолт — меню */
-  handleCancel(
-    tgId: number,
-    session: BotSession,
-  ): Promise<DialogResponse | null>;
 }
 
 export interface BotUpdateHandler {
-  handleStart(ctx: BotContext): Promise<void>;
+  handleCommand(ctx: BotContext): Promise<void>;
   handleCallback(ctx: BotContext): Promise<void>;
   handleMessage(ctx: BotContext, next: () => Promise<void>): Promise<void>;
-  handleCancel(ctx: BotContext): Promise<void>;
-  handleHelp(ctx: BotContext): Promise<void>;
+}
+
+// ── Парсинг слэш-команд (ФР-4) ──
+
+/** Данные отправителя, достаточные для конверта команды (гост-регистрация). */
+interface TgSenderInfo {
+  first_name?: string;
+  username?: string;
+}
+
+/**
+ * Разбирает слэш-текст в конверт команды (ФР-4).
+ *
+ * Правило: команда — всегда первый токен после ведущего `/` (без
+ * ведущих пробелов — иначе это не команда); суффикс `@botname`
+ * отбрасывается; всё после первого токена — `args` одной строкой
+ * (краевые пробелы срезаются, внутренние сохраняются; стори сам решает,
+ * что с ними делать).
+ *
+ * `null` — текст не команда (без `/`, голый `/`, `/@bot`).
+ */
+export function parseCommandText(
+  text: string,
+  telegramId: number,
+  from?: TgSenderInfo,
+): CommandUpdate | null {
+  if (!text.startsWith('/')) return null;
+
+  // Первый токен — до первого пробельного символа.
+  const ws = /\s/.exec(text);
+  const head = ws ? text.slice(0, ws.index) : text;
+  const args = ws ? text.slice(ws.index + 1).trim() : '';
+
+  // Суффикс @botname (группы) отбрасывается.
+  const at = head.indexOf('@');
+  const command = (at === -1 ? head : head.slice(0, at)).slice(1);
+  if (!command) return null;
+
+  return {
+    type: 'command',
+    command,
+    args,
+    telegramId,
+    ...(from?.first_name !== undefined ? { name: from.first_name } : {}),
+    ...(from?.username !== undefined ? { username: from.username } : {}),
+  };
 }
 
 // ── BotTransport ──
@@ -92,6 +134,8 @@ export interface BotUpdateHandler {
  *
  * Владеет:
  * - сессиями BotSession (диалог + активный экран) — внутренняя мапа;
+ * - единым входом слэш-команд (ФР-4): перехват в message:text по `/`-префиксу,
+ *   парсинг конверта, без поимённой grammy-регистрации;
  * - рендер-политикой: edit своего экрана / retire чужого + send;
  * - штампами `:~<seq36>` в callback_data (дописывание/сверка);
  * - сжатием/разжатием UUID в callback_data;
@@ -123,16 +167,27 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   // BotUpdateHandler — всё через per-chat очередь
   // ═══════════════════════════════════════════
 
-  async handleStart(ctx: BotContext): Promise<void> {
+  /**
+   * Единый вход слэш-команд (ФР-4): конверт уже разобран из message.text
+   * (или передан напрямую), конвейер — в uiApp. Не-команда (parse → null)
+   * тихо игнорируется: сюда попадают только слэш-тексты.
+   */
+  async handleCommand(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
-    if (!tgId) return;
+    const text = ctx.message?.text;
+    if (!tgId || !text) return;
+
+    const update = parseCommandText(text, tgId, ctx.from);
+    if (!update) return;
 
     await this.#enqueue(tgId, async () => {
       const session = this.#session(tgId);
-      // uiApp закрывает диалог (seq++) и возвращает welcome-экран;
-      // pressedCode нет → retire прежнего экрана без маркера выбора.
-      const response = await this.uiApp.handleWelcome(tgId, session);
-      await this.#render(tgId, session, response);
+      const response = await this.uiApp.handleCommand(update, tgId, session);
+      // null → тихий пропуск; конвейер отвечает меню/репликой сам (ФР-4).
+      if (response) {
+        // pressedCode нет → retire прежнего экрана без маркера выбора.
+        await this.#render(tgId, session, response);
+      }
     });
   }
 
@@ -194,12 +249,23 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     });
   }
 
+  /**
+   * Текстовое сообщение: слэш-префикс — команда (единый конвейер ФР-4,
+   * next не зовётся — это не ввод), остальное — ввод ожидающего диалога.
+   */
   async handleMessage(
     ctx: BotContext,
     next: () => Promise<void>,
   ): Promise<void> {
     const text = ctx.message?.text;
-    if (!text || text.startsWith('/')) return next();
+    if (!text) return next();
+
+    // Слэш-текст — команда: перехват ДО логики ввода, без grammy-command
+    // регистрации (ФР-4). next не зовётся: команда — не текстовый ввод.
+    if (text.startsWith('/')) {
+      await this.handleCommand(ctx);
+      return;
+    }
 
     const tgId = ctx.from?.id;
     if (!tgId) return;
@@ -227,33 +293,6 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
         await next();
         return;
       }
-      await this.#render(tgId, session, response);
-    });
-  }
-
-  async handleCancel(ctx: BotContext): Promise<void> {
-    const tgId = ctx.from?.id;
-    if (!tgId) return;
-
-    await this.#enqueue(tgId, async () => {
-      const session = this.#session(tgId);
-      const response = await this.uiApp.handleCancel(tgId, session);
-      // null → тихий пропуск; дефолт-меню возвращает uiApp (Фаза 3).
-      if (response) {
-        await this.#render(tgId, session, response);
-      }
-    });
-  }
-
-  async handleHelp(ctx: BotContext): Promise<void> {
-    const tgId = ctx.from?.id;
-    if (!tgId) return;
-
-    await this.#enqueue(tgId, async () => {
-      const session = this.#session(tgId);
-      // uiApp возвращает info-реплику (контекстный handleHelp стори или
-      // общий fallback) — диалог и экран не трогаются.
-      const response = await this.uiApp.handleHelp(tgId, session);
       await this.#render(tgId, session, response);
     });
   }
