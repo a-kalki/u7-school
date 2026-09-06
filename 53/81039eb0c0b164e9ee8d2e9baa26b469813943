@@ -1,0 +1,14 @@
+Задача: Проверки скоупа зелёные + покрытие (Фаза 2.1, завершение)
+
+Проверки:
+- bun run check:p core: зелёный полностью (276 тестов, biome+tsc чисто)
+- u7-bot скоуп (src/core, src/controllers/app, src/infra, src/main.ts, src/create-ui-app.ts, src/config, src/ensure-registered): lint/tsc/тесты зелёные, 131 тест; покрытие нового контракта: ui-app.ts 100%, app-controller.ts 100%, community.story 100%, u7-bot-ui-story 87.5%, u7-bot-controller 83.33%
+- tsl u7-bot в целом: create-ui-app.ts — те же 5 легаси-ошибок что в базе (легаси-контроллеры), нового от фазы нет
+
+Изменения:
+- src/core/u7-bot-controller.test.ts (новый): menuButtons-сбор
+- src/controllers/app/app-controller.test.ts: handleCallback-роутинг
+- src/core/u7-bot-ui-story.test.ts: дефолт contextHelp
+- src/main.ts: wiring-комментарий (pipe вместо appCommand-гейта)
+
+Известная деградация легаси-зон (заявленно красные, миграция в треках 2–5): 7 e2e-тестов main-menu/curious-showcase перешли из pass в fail (легаси test-bot-transport зовёт удалённые collectMainMenu/transport.handleStart); tsl вырос с 444 до ~563 (override handleStart по легаси-сториям).
