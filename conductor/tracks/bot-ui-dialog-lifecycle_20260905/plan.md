@@ -12,9 +12,9 @@
 
 ## Фаза 2: Единый вход команд
 
-- [ ] Task: Написать падающие тесты конвейера `handleCommand`: appCommand-хук → активная стори → core-дефолт; `/help` три уровня (стори → main-help на меню → fallback), `/cancel` (доменная очистка → меню), команды при не открытом диалоге
+- [ ] Task: Написать падающие тесты конвейера `handleCommand`: appCommand-хук → активная стори → core-дефолт; парсинг конверта (аргументы, суффикс `@botname`, без аргументов); `/help` три уровня (стори → main-help на меню → fallback), `/cancel` (доменная очистка → меню), команды при не открытом диалоге
 - [ ] Task: Core: `BotUiApp.handleCommand(cmd, tgId, session)` + appCommand-хук (`null` = «пропускаю») + `BotUiStory.handleCommand` (обобщение `handleHelp`/`handleCancel`, `null` = «не моё»)
-- [ ] Task: Транспорт: один `handleCommand(ctx)` вместо `handleStart/handleHelp/handleCancel`; перехват всех слэш-текстов в едином `message:text`-хендлере (фильтр `/`-префикса), без поимённой grammy-регистрации
+- [ ] Task: Транспорт: один `handleCommand(ctx)` вместо `handleStart/handleHelp/handleCancel`; перехват всех слэш-текстов в едином `message:text`-хендлере (фильтр `/`-префикса), без поимённой grammy-регистрации; парсинг слэш-текста в конверт `{ command, args }` (ведущий `/`, суффикс `@botname`, разбив по пробелам)
 - [ ] Task: u7-bot: словарь команд + appController-гейт (гост-регистрация, админ-проверки `/log_level`, `/help` на меню → сборка описаний главных кнопок); welcome-меню как сейчас; `setMyCommands` — опция wiring'а
 - [ ] Conductor - User Manual Verification 'Команды' (Protocol in workflow.md)
 
