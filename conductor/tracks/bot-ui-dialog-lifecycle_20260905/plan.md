@@ -16,7 +16,7 @@
 - [x] Task: Core: `BotUiApp.handleCommand(cmd, tgId, session)` + appCommand-хук (`null` = «пропускаю») + `BotUiStory.handleCommand` (обобщение `handleHelp`/`handleCancel`, `null` = «не моё») [27e643d]
 - [x] Task: Транспорт: один `handleCommand(ctx)` вместо `handleStart/handleHelp/handleCancel`; перехват всех слэш-текстов в едином `message:text`-хендлере (фильтр `/`-префикса), без поимённой grammy-регистрации; парсинг слэш-текста в конверт `{ command, args }` (ведущий `/`, суффикс `@botname`, разбив по пробелам) [3d31b5a]
 - [x] Task: u7-bot: appCommand-гейт (гост-регистрация на `/start`, админ-гейт `/log_level`, `/help` на меню → сборка описаний главных кнопок); welcome-меню как сейчас; без словаря команд и `setMyCommands` — команда доставляется конвейером по адресу (решение владельца) [c1794c4]
-- [ ] Conductor - User Manual Verification 'Команды' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Команды' (Protocol in workflow.md)
 
 ## Фаза 2.1: Ревизия ФР-4 — трёхуровневый pipe команд
 

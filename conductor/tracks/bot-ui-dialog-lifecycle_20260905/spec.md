@@ -19,7 +19,7 @@
 
 **ФР-4. Единый вход команд — трёхуровневый pipe (ревизия фазы 2.1, решения владельца 2026-09-06).** Единственный обработчик команд на всех уровнях — `handleCommand` (uiApp → uiController → uiStory); именных обработчиков (`handleHelp`/`handleCancel`/`handleWelcome`/`handleStart`/appCommand-хук) нет ни на одном уровне.
 
-- **Транспорт**: один `handleCommand(ctx)`, перехват `/`-префикса в едином `message:text`-хендлере; сам парсит конверт `CommandUpdate { command, args, telegramId, name?, username? }` (первый токен, суффикс `@botname` отброшен, `args` — вся строка после команды, стори сама решает как его парсить). Без поимённой grammy-регистрации, реестра команд и `setMyCommands`.
+- **Транспорт**: один `handleCommand(ctx)`, перехват `/`-префикса в едином `message:text`-хендлере; сам парсит конверт `CommandUpdate { command, args, telegramId, name?, username? }` (`@botname` отброшен, первый токен команда, `args` — вся строка после команды, стори сама решает как его парсить). Без поимённой grammy-регистрации, реестра команд и `setMyCommands`.
 - **Core (ядро имён команд не знает)**: реакция едина для стори и контроллера —
   `CommandReaction = {reaction:'pass'} | {reaction:'continue', notice?} | {reaction:'stop', response}`
   (pass — не моё; continue — моё, обход продолжается, только текст-вклад; stop — терминал: info-only / screen / пусто).

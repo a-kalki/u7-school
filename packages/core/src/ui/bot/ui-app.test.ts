@@ -575,7 +575,7 @@ describe('BotUiApp — конвейер handleCommand (ФР-4)', () => {
     expect(String(response?.screen?.text)).toBe('Выберите действие:');
   });
 
-  // ── доменные команды стори (задел под /tasks) ──
+  // ── доменные команды стори (команда доходит до активного стори) ──
 
   test('доменная команда: стори ответила — её ответ как есть (screen допустим)', async () => {
     const story = new TestStory('one');
