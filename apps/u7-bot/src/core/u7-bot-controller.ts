@@ -1,17 +1,16 @@
 import type { User } from '@u7-scl/app/domain';
-import {
-  BotController,
-  type ProactiveSender,
-  type Screen,
-} from '@u7-scl/core/ui';
+import { BotController, type ProactiveSender } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotUiStory } from './u7-bot-ui-story';
-import type { MainMenuAction, MenuAggregator } from './u7-menu';
+import type { MenuButton } from './u7-menu';
 
 /**
  * Специализированный контроллер для U7 Telegram-бота.
  *
- * Закрывает дженерики `U7BotAppMeta`, `User` и добавляет систему меню.
+ * Закрывает дженерики `U7BotAppMeta`, `User`; в pipe команд — дефолт ядра
+ * (свои стори с агрегацией). Именных обработчиков (handleStart /
+ * handleWelcome / handleHelpMessage) нет: меню — декларативные
+ * `menuButtons`, welcome/help-тексты — U7BotUiApp.
  */
 export abstract class U7BotController extends BotController<
   U7BotAppMeta,
@@ -20,43 +19,26 @@ export abstract class U7BotController extends BotController<
 > {
   protected declare readonly stories: U7BotUiStory[];
 
-  /** Агрегатор меню — передаётся через resolve при инициализации */
-  protected uiApp!: MenuAggregator<User>;
+  /**
+   * Кнопки главного меню контроллера: сбор от своих стори, callback-коды
+   * префиксуются именем контроллера, сортировка по приоритету.
+   * Декларативные данные — экран строит uiApp.
+   */
+  menuButtons(actor: User): MenuButton[] {
+    return this.stories
+      .flatMap((story) => story.menuButtons(actor))
+      .map((button) =>
+        button.kind === 'callback'
+          ? { ...button, action: `${this.name}:${button.action}` }
+          : button,
+      )
+      .sort((a, b) => a.priority - b.priority);
+  }
 
   override init(
     resolve: U7BotUiAppResolve,
     proactiveSender?: ProactiveSender,
   ): void {
-    this.uiApp = resolve.uiApp;
     super.init(resolve, proactiveSender);
-  }
-
-  /** Главное меню — агрегирует кнопки от всех стори. */
-  async handleStart(actor: User): Promise<MainMenuAction[]> {
-    const items: MainMenuAction[] = [];
-    for (const story of this.stories) {
-      const item = await story.handleStart(actor);
-      if (item) {
-        if (item.kind === 'url') {
-          items.push(item);
-        } else {
-          items.push({
-            ...item,
-            action: `${this.name}:${item.action}`,
-          });
-        }
-      }
-    }
-    return items.sort((a, b) => a.priority - b.priority);
-  }
-
-  /** Приветствие /start (экран меню). По умолчанию контроллер не участвует. */
-  async handleWelcome(_actor: User): Promise<Screen | null> {
-    return null;
-  }
-
-  /** Общий help-fallback /help. По умолчанию контроллер не участвует. */
-  async handleHelpMessage(_actor: User): Promise<Screen | null> {
-    return null;
   }
 }

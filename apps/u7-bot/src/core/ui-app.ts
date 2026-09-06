@@ -3,7 +3,8 @@ import {
   getGlobalLogger,
   type Logger,
   md,
-  parseLogLevel,
+  mdConcat,
+  mdJoin,
 } from '@u7-scl/core/shared';
 import {
   type BotSession,
@@ -18,15 +19,13 @@ import type { UserFacade } from '@u7-scl/user/domain';
 import { ensureRegisteredGuest } from '../ensure-registered';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
-import type { MainMenuAction, MenuAggregator } from './u7-menu';
+import type { MenuButton } from './u7-menu';
 
 /**
- * Зависимости appCommand-гейта (правила u7 на входе конвейера ФР-4):
- * гост-регистрация /start, админ-гейт /log_level.
+ * Зависимости U7BotUiApp: идемпотентная гост-регистрация на /start.
+ * (Админ-гейт /log_level — app-контроллер, не uiApp.)
  */
-export interface AppCommandGateOptions {
-  /** tgId администраторов — доступ к /log_level */
-  adminTelegramIds: number[];
+export interface U7BotUiAppDeps {
   /** фасад пользователей — идемпотентная гост-регистрация на /start */
   userFacade: UserFacade;
   /** системный актор-бот (BOT_ADMIN_UUID) — регистрация гостя от его имени */
@@ -36,26 +35,32 @@ export interface AppCommandGateOptions {
 /**
  * Оркестратор UI приложения U7 Bot на контракте «Диалог и Экран».
  *
- * Диалоговая механика (seq, delegate, конвейер команд) — в ядре BotUiApp;
- * здесь только U7-специфика: якорь меню `app/menu`, welcome-экран и
- * общий help-fallback с агрегацией описаний контроллеров, а также
- * appCommand-гейт правил приложения (/start — гост-регистрация,
- * /log_level — админ-гейт, /help на меню — main-help).
+ * Диалоговая механика (seq, delegate, pipe контроллеров) — в ядре BotUiApp;
+ * здесь U7-специфика: якорь меню `app/menu`, `/start` напрямую (гость →
+ * лог → reopen → welcome из menuButtons), дефолты команд после пустого
+ * pipe (/help — общий справочник, /cancel — короткое меню, прочее —
+ * подсказка), системные кнопки `app:main-menu` / `app:help`.
  */
-export class U7BotUiApp
-  extends BotUiApp<U7BotAppMeta, User, U7BotUiAppResolve>
-  implements MenuAggregator<User>
-{
+export class U7BotUiApp extends BotUiApp<
+  U7BotAppMeta,
+  User,
+  U7BotUiAppResolve
+> {
   protected declare readonly controllers: Map<string, U7BotController>;
 
   /** Диалог меню после /start (сущностной стори нет — якорь для seq/штампов). */
-  protected override readonly menuPath = 'app/menu';
+  protected readonly menuPath = 'app/menu';
 
-  readonly #gate: AppCommandGateOptions;
+  /** Кнопка «В меню» легаси-экранов (routes.mainMenu). */
+  static readonly MAIN_MENU_CODE = 'app:main-menu';
+  /** Кнопка «❓ Помощь» главного меню. */
+  static readonly HELP_CODE = 'app:help';
 
-  constructor(controllers: U7BotController[], gate: AppCommandGateOptions) {
+  readonly #deps: U7BotUiAppDeps;
+
+  constructor(controllers: U7BotController[], deps: U7BotUiAppDeps) {
     super(controllers);
-    this.#gate = gate;
+    this.#deps = deps;
   }
 
   /**
@@ -66,194 +71,161 @@ export class U7BotUiApp
     super.init(resolve, transport);
   }
 
-  // ── appCommand-гейт: правила u7 на входе конвейера (ФР-4) ──
+  // ── Команды: /start напрямую, прочее — pipe + дефолты u7 (ФР-4) ──
 
   /**
-   * Перехват команд приложения ДО конвейера (null = «пропускаю»):
-   * - /start — идемпотентная гост-регистрация нового tgId + лог топ-меню,
-   *   затем конвейер продолжает (welcome-меню — core-дефолт);
-   * - /log_level — скрытая админ-команда: не-админу — тишина, админу —
-   *   смена уровня глобального логгера с info-подтверждением;
-   * - /help при активном меню — main-help (инструкция + описания кнопок);
-   *   в остальных диалогах — пропускаю (справка стори или fallback).
+   * `/start` — НЕ через pipe: идемпотентная гост-регистрация → лог
+   * топ-меню → reopen(menu) → welcome-экран из menuButtons.
+   * Прочие команды — pipe контроллеров (`super`); пустой pipe →
+   * дефолты u7: `/help` — общий справочник, `/cancel` — reopen(menu) +
+   * короткое меню, прочее — подсказка о неизвестной команде.
+   * При `/cancel` с ответом pipe (активная стори отменила себя) —
+   * глобальный сброс диалога на меню делает uiApp, ответ стори — как есть.
    */
-  protected override async handleAppCommand(
+  override async handleCommand(
     update: CommandUpdate,
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null> {
+    if (update.command === 'start') {
+      return this.#commandStart(update, tgId, session);
+    }
+
+    const response = await super.handleCommand(update, tgId, session);
+    if (update.command === 'cancel') {
+      // Глобальный сброс диалога — всегда (решение владельца: сброс
+      // активной делает стори в pipe, меню — уровень приложения).
+      this.enterDialog(session, this.menuPath, 'reopen');
+      if (response) return response;
+      return { screen: await this.#shortMenuScreen(tgId) };
+    }
+    if (response) return response;
+
     switch (update.command) {
-      case 'start':
-        await this.#gateStart(update, tgId);
-        return null;
-      case 'log_level':
-        return this.#gateLogLevel(update, tgId);
       case 'help':
-        return this.#gateHelpOnMenu(update, tgId, session);
+        return { info: await this.#commonHelpScreen(tgId) };
       default:
-        return null;
+        return {
+          info: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
+        };
     }
   }
 
-  /** /start: гост-регистрация (гость до резолва актора) + лог топ-меню. */
-  async #gateStart(update: CommandUpdate, tgId: number): Promise<void> {
+  /** /start: гост-регистрация (до резолва актора) + лог + welcome-меню. */
+  async #commandStart(
+    update: CommandUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse> {
     this.#logger?.info(
       'top-menu',
       `Команда /start от пользователя ${tgId} (${update.name || '?'})`,
     );
     await ensureRegisteredGuest(
-      this.#gate.userFacade,
-      this.#gate.botAdminUuid,
+      this.#deps.userFacade,
+      this.#deps.botAdminUuid,
       {
         id: tgId,
         first_name: update.name ?? 'друг',
         ...(update.username !== undefined ? { username: update.username } : {}),
       },
     );
+
+    const actor = await this.resolve.actorResolver(tgId);
+    this.enterDialog(session, this.menuPath, 'reopen');
+    return { screen: await this.#welcomeScreen(actor) };
   }
 
-  /** /log_level: админ-гейт — как в wiring'е ранее, ответы info-репликой. */
-  #gateLogLevel(update: CommandUpdate, tgId: number): Promise<DialogResponse> {
-    // Не-админ: тихий перехват — команда обработана, но без реплики.
-    if (!this.#gate.adminTelegramIds.includes(tgId)) {
-      return Promise.resolve({});
-    }
+  // ── Системные кнопки (экс-ветки AppController) ──
 
-    const args = update.args;
-    if (!args) {
-      return Promise.resolve({
-        info: {
-          text: md`${'Использование: /log_level <уровень>\n\nДоступные уровни: debug, info, warn, error, all'}`,
-        },
-      });
-    }
-
-    const level = parseLogLevel(args);
-    if (level === undefined) {
-      return Promise.resolve({
-        info: {
-          text: md`Неизвестный уровень: "${args}". Доступные: ${'debug, info, warn, error, all'}`,
-        },
-      });
-    }
-
-    const logger = this.#logger;
-    logger?.setLogLevel(level);
-    logger?.info(
-      'log_level',
-      `Уровень логирования изменён на ${args} администратором ${tgId}`,
-    );
-    return Promise.resolve({
-      info: { text: md`✅ Уровень логирования изменён на: ${args}` },
-    });
-  }
-
-  /** /help на активном меню — main-help; иначе пропуск (стори → fallback). */
-  async #gateHelpOnMenu(
-    _update: CommandUpdate,
+  /**
+   * Перехват системных кодов приложения ДО маршрутизации: меню и общий
+   * help собирает uiApp (владеет menuButtons), контроллеры не задействуются.
+   */
+  override async handleCallback(
+    data: string,
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null> {
-    if (session.dialog?.path !== this.menuPath) {
-      return null;
+    if (data === U7BotUiApp.MAIN_MENU_CODE) {
+      this.enterDialog(session, this.menuPath, 'switch');
+      return { screen: await this.#shortMenuScreen(tgId) };
     }
-    const actor = await this.resolve.actorResolver(tgId);
-    const appCtrl = this.controllers.get('app');
-    const help = appCtrl ? await appCtrl.handleHelpMessage(actor) : null;
-    return help ? { info: help } : null;
+    if (data === U7BotUiApp.HELP_CODE) {
+      return { info: await this.#commonHelpScreen(tgId) };
+    }
+    return super.handleCallback(data, tgId, session);
   }
 
-  get #logger(): Logger | undefined {
-    return getGlobalLogger();
-  }
+  // ── Сбор главного меню (menuButtons) ──
 
-  // ── Сбор главного меню ──
-
-  /** Собирает пункты меню со всех контроллеров, сортирует по priority. */
-  async collectMainMenu(actor: User): Promise<MainMenuAction[]> {
-    const items: MainMenuAction[] = [];
-    for (const c of this.controllers.values()) {
+  /** Кнопки всех контроллеров, отсортированные по приоритету. */
+  async #menuButtons(actor: User): Promise<MenuButton[]> {
+    const items: MenuButton[] = [];
+    for (const controller of this.controllers.values()) {
       try {
-        const cItems = await c.handleStart(actor);
-        items.push(...cItems);
+        items.push(...controller.menuButtons(actor));
       } catch (err) {
-        getGlobalLogger()?.warn(
-          'ui-app',
-          'Ошибка контроллера в collectMainMenu',
-          {
-            error: String(err),
-            controller: c.name,
-          },
-        );
+        this.#logger?.warn('ui-app', 'Ошибка контроллера в сборе menuButtons', {
+          error: String(err),
+          controller: controller.name,
+        });
       }
     }
     return items.sort((a, b) => a.priority - b.priority);
   }
 
-  /** Собирает описания пунктов меню для /help. */
-  async collectHelp(actor: User): Promise<string[]> {
-    const menu = await this.collectMainMenu(actor);
-    return menu
-      .filter(
-        (i): i is MainMenuAction & { description: string } =>
-          typeof i.description === 'string',
-      )
-      .map((i) => i.description);
-  }
+  /** Общий справочник: инструкция + описания кнопок из menuButtons. */
+  async #commonHelpScreen(tgId: number): Promise<Screen> {
+    const actor = await this.resolve.actorResolver(tgId);
+    const header = md`Как со мной работать? 🤔
 
-  // ── MenuAggregator ──
+В основном ты будешь нажимать на кнопки — это быстро и удобно\\. Иногда я попрошу написать что\\-то самому \\(например, ответ на вопрос анкеты\\)\\.
 
-  async collectAllMenuItems(actor: User): Promise<MainMenuAction[]> {
-    return this.collectMainMenu(actor);
-  }
+📌 После выбора кнопки я убираю клавиатуру и добавляю пометку «Вы выбрали: \\.\\.\\.» — чтобы экран оставался чистым\\.
+📌 В некоторых сценариях \\(например, заполнение анкеты\\) работает команда /cancel — она вернёт тебя обратно к выбору\\.
 
-  async collectAllHelpDescriptions(actor: User): Promise<string[]> {
-    return this.collectHelp(actor);
-  }
+Вот что я умею:`;
 
-  // ── Хуки ядра (welcome / help) ──
+    const descriptions = (await this.#menuButtons(actor))
+      .map((b) => b.description)
+      .filter((d): d is string => typeof d === 'string');
 
-  /**
-   * Экран меню для /start и дефолт-/cancel: приветствие от контроллера 'app'
-   * (U7-текст) либо fallback «Выберите действие:» с агрегированной
-   * клавиатурой.
-   */
-  protected override async buildMenuScreen(actor: User): Promise<Screen> {
-    const appCtrl = this.controllers.get('app');
-    if (appCtrl) {
-      const welcome = await appCtrl.handleWelcome(actor);
-      if (welcome) return welcome;
-    }
-    return this.#shortMenuScreen(actor);
-  }
-
-  /** /cancel — КОРОТКОЕ меню без приветствия (решение владельца). */
-  protected override async buildCancelMenuScreen(actor: User): Promise<Screen> {
-    return this.#shortMenuScreen(actor);
-  }
-
-  /** Короткий экран меню: текст + агрегированная клавиатура. */
-  async #shortMenuScreen(actor: User): Promise<Screen> {
-    const items = await this.collectMainMenu(actor);
+    if (descriptions.length === 0) return { text: header };
+    // Описания — доменные данные: экранируются интерполяцией
+    const parts = descriptions.map((d) => md`${d}`);
     return {
-      text: md`Выберите действие:`,
-      keyboard: this.#toKeyboard(items) ?? undefined,
+      text: mdConcat(header, md`\n\n`, mdJoin(parts, '\n\n')),
     };
   }
 
-  /** Общий help-fallback: инструкция от контроллера 'app'. */
-  protected override async buildHelpScreen(actor: User): Promise<Screen> {
-    const appCtrl = this.controllers.get('app');
-    if (appCtrl) {
-      const help = await appCtrl.handleHelpMessage(actor);
-      if (help) return help;
-    }
-    return { text: md`Нет доступных пунктов меню.` };
+  /** Welcome-экран /start: приветствие + клавиатура из menuButtons. */
+  async #welcomeScreen(actor: User): Promise<Screen> {
+    const greeting = md`Привет, ${actor.name}! 👋
+
+Я бот\\-помощник школы «u7 schools» 🎓
+Я проведу тебя от знакомства до обучения на курсах\\.
+
+Если ты здесь впервые — начни с кнопки «❓ Помощь», расскажу как всё устроено\\.
+Если уже знаком — выбирай нужный раздел:`;
+
+    const keyboard = this.#toKeyboard(await this.#menuButtons(actor));
+    return { text: greeting, ...(keyboard ? { keyboard } : {}) };
+  }
+
+  /** Короткий экран меню (/cancel, «В меню»): текст + клавиатура. */
+  async #shortMenuScreen(tgId: number): Promise<Screen> {
+    const actor = await this.resolve.actorResolver(tgId);
+    const keyboard = this.#toKeyboard(await this.#menuButtons(actor));
+    return {
+      text: md`Выберите действие:`,
+      ...(keyboard ? { keyboard } : {}),
+    };
   }
 
   // ── Приватные хелперы ──
 
-  #toKeyboard(items: MainMenuAction[]): KeyboardDescription | null {
+  #toKeyboard(items: MenuButton[]): KeyboardDescription | null {
     const rows = items
       .filter((i) => i.kind === 'callback' || i.kind === 'url')
       .map((i) => [
@@ -263,5 +235,9 @@ export class U7BotUiApp
       ]);
     if (rows.length === 0) return null;
     return { rows, isMultiple: false };
+  }
+
+  get #logger(): Logger | undefined {
+    return getGlobalLogger();
   }
 }

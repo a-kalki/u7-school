@@ -1,6 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { md } from '@u7-scl/core/shared';
 import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
 
@@ -18,14 +18,16 @@ export class CommunityStory extends U7BotUiStory {
     this.#groupUrl = groupUrl;
   }
 
-  override async handleStart(_actor: User): Promise<MainMenuAction | null> {
-    return {
-      kind: 'url',
-      text: '💬 Сообщество школы',
-      priority: 90,
-      url: this.#groupUrl,
-      description: '💬 Сообщество школы — ссылка на Telegram-группу школы',
-    };
+  override menuButtons(_actor: User): MenuButton[] {
+    return [
+      {
+        kind: 'url',
+        text: '💬 Сообщество школы',
+        priority: 90,
+        url: this.#groupUrl,
+        description: '💬 Сообщество школы — ссылка на Telegram-группу школы',
+      },
+    ];
   }
 
   async handleCallback(

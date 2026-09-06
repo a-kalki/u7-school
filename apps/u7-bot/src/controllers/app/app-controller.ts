@@ -1,112 +1,108 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotController } from '@u7-scl/bot/u7-bot-controller';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import { md, mdConcat, mdJoin } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse, Screen } from '@u7-scl/core/ui';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
+import { md, parseLogLevel } from '@u7-scl/core/shared';
+import type {
+  BotSession,
+  CommandReaction,
+  CommandUpdate,
+  DialogResponse,
+} from '@u7-scl/core/ui';
 import { CommunityStory } from './stories/community.story';
 
 /**
  * Контроллер уровня приложения для системных сценариев:
- * - Приветствие /start (handleWelcome — экран меню)
- * - Помощь /help (handleHelpMessage — общий fallback)
- * - Кнопки «Сообщество школы» и «Помощь»
- * - Callback'и app:main-menu и app:help
+ * - `/log_level` — скрытая админ-команда (handleCommand-override);
+ * - кнопки «❓ Помощь» (menuButtons) и «Сообщество школы» (CommunityStory);
+ * - callback'и стори (community).
+ *
+ * Меню и общий help собирает U7BotUiApp (menuButtons — декларативные
+ * данные); welcome/main-help-тексты — там же (решения 2026-09-06).
  */
 export class AppController extends U7BotController {
   readonly name = 'app';
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: присваивается в конструкторе, требуется для инициализации
-  readonly #groupUrl: string;
+  readonly #adminTelegramIds: number[];
 
   /**
    * @param schoolGroupUrl — URL группы школы (обязателен)
+   * @param adminTelegramIds — tgId администраторов (доступ к /log_level)
    */
-  constructor(schoolGroupUrl: string) {
+  constructor(schoolGroupUrl: string, adminTelegramIds: number[] = []) {
     super();
-    this.#groupUrl = schoolGroupUrl;
+    this.#adminTelegramIds = adminTelegramIds;
     this.stories.push(new CommunityStory(schoolGroupUrl));
   }
 
-  // ── Главное меню ──
+  // ── Главное меню (декларативные кнопки) ──
 
-  override async handleStart(actor: User): Promise<MainMenuAction[]> {
-    // Получаем кнопки от stories через базовый механизм (с префиксами)
-    const items = await super.handleStart(actor);
-
-    // Кнопка «Сообщество школы» уже добавлена через CommunityStory с priority 90.
-    // Кнопка «Помощь» — priority 100 (ниже сообщества)
-    items.push({
-      kind: 'callback',
-      text: '❓ Помощь',
-      action: this.cb('help'),
-      priority: 100,
-    });
-
-    return items.sort((a, b) => a.priority - b.priority);
+  override menuButtons(actor: User): MenuButton[] {
+    return [
+      ...super.menuButtons(actor), // сообщество школы (CommunityStory, 90)
+      {
+        kind: 'callback',
+        text: '❓ Помощь',
+        action: this.cb('help'),
+        priority: 100,
+      },
+    ];
   }
 
-  // ── Системные сообщения ──
+  // ── Команды (ФР-4: перехват /log_level, прочее — pipe стори) ──
 
   /**
-   * Приветствие /start: greeting + главное меню (экран диалога app/menu).
+   * `/log_level`: не-админ → stop{} (тишина); админ → stop{info}
+   * (parseLogLevel, тексты прежние). Прочие команды — super (свои стори).
    */
-  override async handleWelcome(actor: User): Promise<Screen | null> {
-    const name = actor.name;
-    const greeting = md`Привет, ${name}! 👋
-
-Я бот-помощник школы «u7 schools» 🎓
-Я проведу тебя от знакомства до обучения на курсах.
-
-Если ты здесь впервые — начни с кнопки «❓ Помощь», расскажу как всё устроено.
-Если уже знаком — выбирай нужный раздел:`;
-
-    return this.#buildMenuScreen(greeting, actor);
+  override async handleCommand(
+    update: CommandUpdate,
+    actor: User,
+    session: BotSession,
+  ): Promise<CommandReaction> {
+    if (update.command === 'log_level') {
+      return { reaction: 'stop', response: this.#logLevelResponse(update) };
+    }
+    return super.handleCommand(update, actor, session);
   }
 
-  /**
-   * Помощь /help: инструкция + список описаний кнопок.
-   * Уходит info-репликой — клавиатура не рендерится (диалог не трогаем).
-   */
-  override async handleHelpMessage(actor: User): Promise<Screen | null> {
-    const header = md`Как со мной работать? 🤔
-
-В основном ты будешь нажимать на кнопки — это быстро и удобно. Иногда я попрошу написать что-то самому (например, ответ на вопрос анкеты).
-
-📌 После выбора кнопки я убираю клавиатуру и добавляю пометку «Вы выбрали: ...» — чтобы экран оставался чистым.
-📌 В некоторых сценариях (например, заполнение анкеты) работает команда /cancel — она вернёт тебя обратно к выбору.
-
-Вот что я умею:`;
-
-    const descriptions = await this.uiApp.collectAllHelpDescriptions(actor);
-
-    if (descriptions.length === 0) {
-      return { text: header };
+  #logLevelResponse(update: CommandUpdate): DialogResponse {
+    // Не-админ: тихий терминал — команда обработана, но без реплики.
+    if (!this.#adminTelegramIds.includes(update.telegramId)) {
+      return {};
     }
 
-    // Композиция: header уже MdText, интерполяция экранировала бы повторно
-    const parts = descriptions.map((d) => md`${d}`);
-    return {
-      text: mdConcat(header, md`\n\n`, mdJoin(parts, '\n\n')),
-    };
+    const args = update.args;
+    if (!args) {
+      return {
+        info: {
+          text: md`${'Использование: /log_level <уровень>\n\nДоступные уровни: debug, info, warn, error, all'}`,
+        },
+      };
+    }
+
+    const level = parseLogLevel(args);
+    if (level === undefined) {
+      return {
+        info: {
+          text: md`Неизвестный уровень: "${args}". Доступные: ${'debug, info, warn, error, all'}`,
+        },
+      };
+    }
+
+    this.logger?.setLogLevel(level);
+    this.logger?.info(
+      'log_level',
+      `Уровень логирования изменён на ${args} администратором ${update.telegramId}`,
+    );
+    return { info: { text: md`✅ Уровень логирования изменён на: ${args}` } };
   }
 
-  // ── Callback ──
+  // ── Callback (стори-роутинг) ──
 
   override async handleCallback(
     data: string,
     actor: User,
     session: BotSession,
   ): Promise<DialogResponse> {
-    if (data === 'main-menu') {
-      return {
-        screen: await this.#buildMenuScreen(md`Выберите действие:`, actor),
-      };
-    }
-
-    if (data === 'help') {
-      const helpScreen = await this.handleHelpMessage(actor);
-      return { info: helpScreen ?? { text: md`Нет доступных пунктов меню.` } };
-    }
-
     // Делегируем в stories (например, CommunityStory)
     for (const story of this.stories) {
       const prefix = `${story.name}:`;
@@ -117,31 +113,5 @@ export class AppController extends U7BotController {
     }
 
     return { screen: { text: md`⚠️ Неизвестная команда` } };
-  }
-
-  // ── Приватные ──
-
-  /**
-   * Формирует экран меню: текст + клавиатура из MenuAggregator.
-   */
-  async #buildMenuScreen(title: Screen['text'], actor: User): Promise<Screen> {
-    const items = this.uiApp ? await this.uiApp.collectAllMenuItems(actor) : [];
-
-    // Формируем клавиатуру: каждая кнопка в отдельном ряду
-    const rows = items
-      .filter((i) => i.kind === 'callback' || i.kind === 'url')
-      .map((i) => [
-        i.kind === 'url'
-          ? { text: i.text, code: '', url: i.url }
-          : {
-              text: i.text,
-              code: (i as { action: string }).action,
-            },
-      ]);
-
-    const keyboard =
-      rows.length > 0 ? { rows, isMultiple: false as const } : undefined;
-
-    return { text: title, keyboard };
   }
 }

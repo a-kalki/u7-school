@@ -1,13 +1,19 @@
-export type CbMainMenuAction = {
+/**
+ * Декларативная кнопка главного меню (ФР-4, решения 2026-09-06):
+ * данные (кнопка, описание, приоритет), не обработчик. Сбор —
+ * `menuButtons(actor)` у стори/контроллеров, экран — uiApp.
+ */
+export type CbMenuButton = {
   kind: 'callback';
   text: string;
+  /** Код `story:action[:id...]` — контроллер префиксует своим именем */
   action: string;
   priority: number;
   /** Описание для /help (если нет — пункт не включается в помощь) */
   description?: string;
 };
 
-export type UrlMainMenuAction = {
+export type UrlMenuButton = {
   kind: 'url';
   text: string;
   url: string;
@@ -16,11 +22,5 @@ export type UrlMainMenuAction = {
   description?: string;
 };
 
-/** Элемент главного меню бота */
-export type MainMenuAction = CbMainMenuAction | UrlMainMenuAction;
-
-/** Агрегатор пунктов меню от всех контроллеров. Реализуется U7BotUiApp. */
-export interface MenuAggregator<TActor = unknown> {
-  collectAllMenuItems(actor: TActor): Promise<MainMenuAction[]>;
-  collectAllHelpDescriptions(actor: TActor): Promise<string[]>;
-}
+/** Кнопка главного меню бота */
+export type MenuButton = CbMenuButton | UrlMenuButton;

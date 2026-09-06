@@ -17,7 +17,13 @@ import {
   md,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import type { BotSession, BotUpdate, CommandUpdate, DialogResponse, Screen } from '@u7-scl/core/ui';
+import type {
+  BotSession,
+  BotUpdate,
+  CommandUpdate,
+  DialogResponse,
+  Screen,
+} from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { U7BotController } from './u7-bot-controller';
 import { U7BotUiStory } from './u7-bot-ui-story';
@@ -291,7 +297,7 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     override handleCallback(): Promise<DialogResponse> {
       throw new Error('Не используется');
     }
-    override handleMessage(): Promise<DialogResponse | null> {
+    override async handleMessage(): Promise<DialogResponse | null> {
       return null;
     }
     protected override async contextHelp(): Promise<Screen | null> {
@@ -324,7 +330,9 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     return { type: 'command', command, args: '', telegramId: 1 };
   }
 
-  const activeSession: BotSession = { dialog: { path: 'questionnaire/fill', seq: 2 } };
+  const activeSession: BotSession = {
+    dialog: { path: 'questionnaire/fill', seq: 2 },
+  };
   const otherSession: BotSession = { dialog: { path: 'app/menu', seq: 2 } };
 
   test('dialogPath вычисляется из контроллера и имени стори', () => {
@@ -341,14 +349,20 @@ describe('U7BotUiStory — контракт handleCommand', () => {
 
   test('/start → исключение-сторож: команда обрабатывается uiApp, до стори не доходит', async () => {
     const story = makeStory();
-    await expect(story.handleCommand(cmd('start'), actor, activeSession)).rejects.toThrow();
+    await expect(
+      story.handleCommand(cmd('start'), actor, activeSession),
+    ).rejects.toThrow();
   });
 
   test('/help активна → stop{info: контекстная справка}', async () => {
     const story = makeStory();
     story.help = { text: md`Вы в анкете, вопрос 3 из 10` };
 
-    const reaction = await story.handleCommand(cmd('help'), actor, activeSession);
+    const reaction = await story.handleCommand(
+      cmd('help'),
+      actor,
+      activeSession,
+    );
 
     expect(reaction.reaction).toBe('stop');
     if (reaction.reaction === 'stop') {
@@ -362,7 +376,11 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     const story = makeStory();
     story.help = null;
 
-    const reaction = await story.handleCommand(cmd('help'), actor, activeSession);
+    const reaction = await story.handleCommand(
+      cmd('help'),
+      actor,
+      activeSession,
+    );
 
     expect(reaction).toEqual({ reaction: 'pass' });
   });
@@ -371,7 +389,11 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     const story = makeStory();
     story.help = { text: md`Справка` };
 
-    const reaction = await story.handleCommand(cmd('help'), actor, otherSession);
+    const reaction = await story.handleCommand(
+      cmd('help'),
+      actor,
+      otherSession,
+    );
 
     expect(reaction).toEqual({ reaction: 'pass' });
   });
@@ -379,7 +401,11 @@ describe('U7BotUiStory — контракт handleCommand', () => {
   test('/cancel активна → сброс себя + stop{info: «Отменено. Наберите /start»}', async () => {
     const story = makeStory();
 
-    const reaction = await story.handleCommand(cmd('cancel'), actor, activeSession);
+    const reaction = await story.handleCommand(
+      cmd('cancel'),
+      actor,
+      activeSession,
+    );
 
     expect(story.resetCalls).toBe(1);
     expect(reaction.reaction).toBe('stop');
@@ -395,7 +421,11 @@ describe('U7BotUiStory — контракт handleCommand', () => {
   test('/cancel неактивна → pass без побочных действий (сброс только активной)', async () => {
     const story = makeStory();
 
-    const reaction = await story.handleCommand(cmd('cancel'), actor, otherSession);
+    const reaction = await story.handleCommand(
+      cmd('cancel'),
+      actor,
+      otherSession,
+    );
 
     expect(story.resetCalls).toBe(0);
     expect(reaction).toEqual({ reaction: 'pass' });
@@ -404,7 +434,11 @@ describe('U7BotUiStory — контракт handleCommand', () => {
   test('прочая команда → pass (домен реагирует только своими командами)', async () => {
     const story = makeStory();
 
-    const reaction = await story.handleCommand(cmd('tasks'), actor, activeSession);
+    const reaction = await story.handleCommand(
+      cmd('tasks'),
+      actor,
+      activeSession,
+    );
 
     expect(reaction).toEqual({ reaction: 'pass' });
   });

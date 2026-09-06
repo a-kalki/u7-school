@@ -7,13 +7,11 @@ import type { QuestionnaireApiModuleMeta } from '@u7-scl/questionnaire/domain';
 import type { StreamApiModuleMeta } from '@u7-scl/stream';
 import type { UserApiModuleMeta } from '@u7-scl/user/domain';
 import type { WishApiModuleMeta } from '@u7-scl/wish/domain';
-import type { MenuAggregator } from './u7-menu';
 //
 // ================= UI layer ===================
 
-export interface U7BotUiAppResolve extends BotUiAppResolve<U7BotAppMeta, User> {
-  uiApp: MenuAggregator<User>;
-}
+export interface U7BotUiAppResolve
+  extends BotUiAppResolve<U7BotAppMeta, User> {}
 
 // ================= API layer ===================
 /**

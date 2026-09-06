@@ -14,7 +14,7 @@ import type {
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
 import { U7BotController } from './u7-bot-controller';
-import { type U7BotUiAppDeps, U7BotUiApp } from './ui-app';
+import { U7BotUiApp, type U7BotUiAppDeps } from './ui-app';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
 const BOT_ADMIN_UUID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -48,9 +48,7 @@ function makeUserFacade(
   } as unknown as UserFacade & { registerGuest: ReturnType<typeof mock> };
 }
 
-function makeDeps(
-  opts: { userFacade?: UserFacade } = {},
-): U7BotUiAppDeps {
+function makeDeps(opts: { userFacade?: UserFacade } = {}): U7BotUiAppDeps {
   return {
     userFacade: opts.userFacade ?? makeUserFacade(),
     botAdminUuid: BOT_ADMIN_UUID,
@@ -95,24 +93,16 @@ function makeUiApp(
     spy?: SpyController;
   } = {},
 ): U7BotUiApp {
-  const controllers = [
+  const controllers: U7BotController[] = [
     new AppController(SCHOOL_URL, opts.adminTelegramIds ?? []),
   ];
   if (opts.spy) controllers.push(opts.spy);
   const uiApp = new U7BotUiApp(controllers, makeDeps(opts));
-  const resolve: {
-    appApi: never;
-    eventBus: never;
-    actorResolver: () => Promise<User>;
-    uiApp: unknown;
-  } = {
+  uiApp.init({
     appApi: {} as never,
     eventBus: { subscribe: () => () => {} } as never,
     actorResolver: async () => actor,
-    uiApp: undefined,
-  };
-  resolve.uiApp = uiApp;
-  uiApp.init(resolve as never);
+  } as never);
   return uiApp;
 }
 
@@ -267,7 +257,9 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
       response: { info: { text: md`Отменено. Наберите /start` } },
     };
     const uiApp = makeUiApp({ spy });
-    const session = { dialog: { path: 'questionnaire/fill', seq: 7 } } as BotSession;
+    const session = {
+      dialog: { path: 'questionnaire/fill', seq: 7 },
+    } as BotSession;
 
     const response = await uiApp.handleCommand(
       makeCommand('cancel'),
@@ -292,11 +284,9 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
     };
     const uiApp = makeUiApp({ spy });
 
-    const response = await uiApp.handleCommand(
-      makeCommand('help'),
-      123,
-      { dialog: { path: 'questionnaire/fill', seq: 2 } } as BotSession,
-    );
+    const response = await uiApp.handleCommand(makeCommand('help'), 123, {
+      dialog: { path: 'questionnaire/fill', seq: 2 },
+    } as BotSession);
 
     expect(String(response?.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
   });

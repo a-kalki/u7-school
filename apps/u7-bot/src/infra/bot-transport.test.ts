@@ -1127,22 +1127,30 @@ class InvController extends BotController {
 
 /** uiApp интеграционной сборки: меню с кнопкой и мостом в другой контроллер. */
 class InvUiApp extends BotUiApp {
-  protected override readonly menuPath = 'app/menu';
+  protected readonly menuPath = 'app/menu';
 
-  protected override async buildMenuScreen(
-    _actor: unknown,
-    _session: BotSession,
-  ): Promise<Screen> {
-    return {
-      text: mdRaw('Меню'),
-      keyboard: {
-        rows: [
-          [{ text: '📂 Меню', code: 'app:menu:open' }],
-          [{ text: '🌉 Мост', code: 'other:list:open' }],
-        ],
-        isMultiple: false,
-      },
-    };
+  #menuScreen: Screen = {
+    text: mdRaw('Меню'),
+    keyboard: {
+      rows: [
+        [{ text: '📂 Меню', code: 'app:menu:open' }],
+        [{ text: '🌉 Мост', code: 'other:list:open' }],
+      ],
+      isMultiple: false,
+    },
+  };
+
+  /** /start — уровень приложения (ФР-4, ревизия 2.1): reopen + welcome-экран. */
+  override async handleCommand(
+    update: CommandUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    if (update.command === 'start') {
+      this.enterDialog(session, this.menuPath, 'reopen');
+      return { screen: this.#menuScreen };
+    }
+    return super.handleCommand(update, tgId, session);
   }
 }
 

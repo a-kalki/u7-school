@@ -2,11 +2,7 @@ import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
-import {
-  type Logger,
-  LogLevel,
-  setGlobalLogger,
-} from '@u7-scl/core/shared';
+import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
 import type { CommandReaction, CommandUpdate } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 

@@ -8,7 +8,7 @@ import { QuestionnaireController } from './controllers/questionnaire/controller'
 import { StreamsController } from './controllers/streams/controller';
 import { UserController } from './controllers/user/controller';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './core/u7-bot-app-meta';
-import { type AppCommandGateOptions, U7BotUiApp } from './core/ui-app';
+import { U7BotUiApp } from './core/ui-app';
 import type { ApiAppBundle } from './create-api-app';
 
 /**
@@ -43,16 +43,13 @@ export function createUiApp(
   const mentorController = new MentorController();
   const questionnaireController = new QuestionnaireController();
   const userController = new UserController();
-  const appController = new AppController(config.schoolGroupUrl);
+  // Админ-гейт /log_level — app-контроллер (ФР-4, ревизия 2.1)
+  const appController = new AppController(
+    config.schoolGroupUrl,
+    config.adminTelegramIds,
+  );
 
-  // appCommand-гейт (ФР-4): правила u7 на входе конвейера команд —
-  // гост-регистрация /start, админ-гейт /log_level, main-help «на меню».
-  const gate: AppCommandGateOptions = {
-    adminTelegramIds: config.adminTelegramIds,
-    userFacade: bundle.userFacade,
-    botAdminUuid: config.botAdminUuid,
-  };
-
+  // Гост-регистрация /start — uiApp (ФР-4, ревизия 2.1)
   const uiApp = new U7BotUiApp(
     [
       appController,
@@ -63,7 +60,10 @@ export function createUiApp(
       mentorController,
       questionnaireController,
     ],
-    gate,
+    {
+      userFacade: bundle.userFacade,
+      botAdminUuid: config.botAdminUuid,
+    },
   );
 
   // resolve для каскадной инициализации UiApp → контроллеры → стори.
