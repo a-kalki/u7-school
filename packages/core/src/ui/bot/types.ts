@@ -196,7 +196,9 @@ export interface BotSession {
   screen?: ScreenState;
 }
 
-/** Данные сессии пользователя с отслеживанием активного обработчика */
+/**
+ * Данные сессии пользователя с отслеживанием активного обработчика
+ */
 export interface SessionData {
   activeHandler: {
     path: string;
@@ -208,9 +210,30 @@ export interface SessionData {
 }
 
 export type BotUpdate =
-  | { type: 'command'; command: string; telegramId: number; name?: string }
+  | CommandUpdate
   | { type: 'message'; text: string; telegramId: number }
   | { type: 'callback'; data: string; telegramId: number; messageId: number }
   | { type: 'document'; fileId: string; telegramId: number }
   | { type: 'photo'; fileId: string; telegramId: number }
   | { type: 'voice'; fileId: string; telegramId: number };
+
+/**
+ * Конверт слэш-команды (ФР-4): транспорт парсирует слэш-текст, ядро
+ * и стори получают только разобранный конверт.
+ *
+ * Правило парсинга (транспорт): команда — всегда первый токен после
+ * ведущего `/`; суффикс `@botname` отбрасывается; всё после первого
+ * токена — `args` одной строкой (стори сам решает, что с ним делать).
+ */
+export type CommandUpdate = {
+  type: 'command';
+  /** Имя команды без `/` и суффикса @botname (напр. 'start') */
+  command: string;
+  /** Всё после первого токена, одной строкой (может быть пусто) */
+  args: string;
+  telegramId: number;
+  /** first_name отправителя — для гост-регистрации на /start */
+  name?: string;
+  /** @username отправителя без собаки */
+  username?: string;
+};

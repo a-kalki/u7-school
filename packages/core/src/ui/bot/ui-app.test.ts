@@ -73,11 +73,9 @@ class TestController extends BotController<AppMeta, TestActor> {
 
   private callbackQueue = new Queue<DialogResponse>([{}]);
   private _messageResult: DialogResponse | null = {};
-  private _cancelResult: DialogResponse = { release: true };
 
   callbackData: string[] = [];
   messageCalled = 0;
-  cancelCalled = 0;
 
   override init(resolve: unknown, sender?: unknown): void {
     super.init(resolve as never, sender as never);
@@ -89,10 +87,6 @@ class TestController extends BotController<AppMeta, TestActor> {
   }
   withMessageResult(res: DialogResponse | null): this {
     this._messageResult = res;
-    return this;
-  }
-  withCancelResult(res: DialogResponse): this {
-    this._cancelResult = res;
     return this;
   }
 
@@ -117,14 +111,6 @@ class TestController extends BotController<AppMeta, TestActor> {
     this.messageCalled++;
     return this._messageResult;
   }
-
-  override async handleCancel(
-    _actor: TestActor,
-    _session: BotSession,
-  ): Promise<DialogResponse> {
-    this.cancelCalled++;
-    return this._cancelResult;
-  }
 }
 
 /** Тестовый uiApp: menuPath 'menu/main', экран меню «Меню». */
@@ -136,11 +122,13 @@ class TestUiApp extends BotUiApp<AppMeta, TestActor> {
   /** Вызовы appCommand-хука (конвейер ФР-4). */
   appCommandCalls: CommandUpdate[] = [];
   /** Поведение хука: null — «пропускаю» (по умолчанию). */
-  appCommandHandler: (
-    update: CommandUpdate,
-    tgId: number,
-    session: BotSession,
-  ) => Promise<DialogResponse | null> | null = null;
+  appCommandHandler:
+    | ((
+        update: CommandUpdate,
+        tgId: number,
+        session: BotSession,
+      ) => Promise<DialogResponse | null>)
+    | null = null;
 
   protected override async buildMenuScreen(): Promise<Screen> {
     this.menuScreens++;
@@ -369,102 +357,6 @@ describe('BotUiApp — delegate', () => {
     const response = await uiApp.handleCallback('a:one:go', 42, session);
 
     expect(String(response?.screen?.text ?? '').length).toBeGreaterThan(0);
-  });
-});
-
-describe('BotUiApp — /start (handleWelcome)', () => {
-  test('закрывает диалог: seq++, path = menuPath, input сброшен, экран меню', async () => {
-    const uiApp = makeUiApp([makeController('a')]);
-    const session = makeSession('a/one', 5, { context: { step: 3 } });
-
-    const response = await uiApp.handleWelcome(42, session);
-
-    expect(session.dialog.path).toBe('menu/main');
-    expect(session.dialog.seq).toBe(6);
-    expect(session.dialog.input).toBeUndefined();
-    expect(String(response.screen?.text)).toBe('Меню');
-  });
-});
-
-describe('BotUiApp — /help (handleHelp)', () => {
-  test('активная стори с handleHelp → её экран как info-реплика', async () => {
-    const story = new TestStory('one');
-    story.helpScreen = { text: md`Вы в анкете, вопрос 3 из 10` };
-    const ctrlA = makeController('a');
-    ctrlA.fakeStories = [story];
-    const uiApp = makeUiApp([ctrlA]);
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleHelp(42, session);
-
-    expect(String(response.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
-  });
-
-  test('стори без handleHelp → общий fallback (buildHelpScreen)', async () => {
-    const ctrlA = makeController('a');
-    ctrlA.fakeStories = [new TestStory('one')];
-    const uiApp = makeUiApp([ctrlA]);
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleHelp(42, session);
-
-    expect(response.info?.keyboard).toBeUndefined();
-    expect(String(response.info?.text).length).toBeGreaterThan(0);
-    expect(String(response.info?.text)).not.toBe('Вы в анкете, вопрос 3 из 10');
-  });
-
-  test('общий fallback: диалог не меняется (info не трогает сессию)', async () => {
-    const uiApp = makeUiApp([makeController('a')]);
-    const session = makeSession('a/one', 5);
-
-    await uiApp.handleHelp(42, session);
-
-    expect(session.dialog.path).toBe('a/one');
-    expect(session.dialog.seq).toBe(5);
-  });
-});
-
-describe('BotUiApp — /cancel (handleCancel)', () => {
-  test('активный ввод: доменная очистка стори, дефолт пустой → возврат в меню (seq++)', async () => {
-    const ctrlA = makeController('a').withCancelResult({ release: true });
-    const uiApp = makeUiApp([ctrlA]);
-    const session = makeSession('a/one', 5, { context: { step: 2 } });
-
-    const response = await uiApp.handleCancel(42, session);
-
-    expect(ctrlA.cancelCalled).toBe(1);
-    expect(session.dialog.path).toBe('menu/main');
-    expect(session.dialog.seq).toBe(6);
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
-  });
-
-  test('стори вернула свой экран отмены → он рендерится, диалог остаётся', async () => {
-    const ctrlA = makeController('a').withCancelResult({
-      release: true,
-      screen: { text: md`Анкета отменена` },
-    });
-    const uiApp = makeUiApp([ctrlA]);
-    const session = makeSession('a/one', 5, { context: {} });
-
-    const response = await uiApp.handleCancel(42, session);
-
-    expect(String(response?.screen?.text)).toBe('Анкета отменена');
-    expect(session.dialog.path).toBe('a/one');
-  });
-
-  test('без активного ввода → сразу меню, стори не дёргается', async () => {
-    const ctrlA = makeController('a');
-    const uiApp = makeUiApp([ctrlA]);
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleCancel(42, session);
-
-    expect(ctrlA.cancelCalled).toBe(0);
-    expect(session.dialog.path).toBe('menu/main');
-    // /cancel — КОРОТКИЙ экран (buildCancelMenuScreen), не welcome
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
-    expect(uiApp.menuScreens).toBe(0);
-    expect(uiApp.cancelScreens).toBe(1);
   });
 });
 
@@ -753,21 +645,11 @@ describe('BotUiApp — awaitInput/release', () => {
 // ── Инварианты: операция входа (трек 1.1, ФР-1/ФР-2) ──
 
 describe('BotUiApp — инварианты: операция входа', () => {
-  test('первый /start открывает диалог с seq=1 (штампы валидны от 1)', async () => {
-    const uiApp = makeUiApp([makeController('a')]);
-    const session = {} as BotSession;
-
-    await uiApp.handleWelcome(42, session);
-
-    expect(session.dialog?.path).toBe('menu/main');
-    expect(session.dialog?.seq).toBe(1);
-  });
-
   test('повторный /start — reopen: seq++ даже «меню → меню» (не no-op)', async () => {
     const uiApp = makeUiApp([makeController('a')]);
     const session = makeSession('menu/main', 5);
 
-    await uiApp.handleWelcome(42, session);
+    await uiApp.handleCommand(makeCommand('start'), 42, session);
 
     expect(session.dialog.seq).toBe(6);
   });
@@ -788,23 +670,17 @@ describe('BotUiApp — инварианты: операция входа', () =>
     expect(response).toBeNull();
   });
 
-  test('handleHelp при закрытом диалоге → общий fallback (info-реплика)', async () => {
+  test('/help при закрытом диалоге → общий fallback (info-реплика)', async () => {
     const uiApp = makeUiApp([makeController('a')]);
     const session = {} as BotSession;
 
-    const response = await uiApp.handleHelp(42, session);
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      42,
+      session,
+    );
 
-    expect(String(response.info?.text).length).toBeGreaterThan(0);
-  });
-
-  test('handleCancel при закрытом диалоге → reopen меню seq=1', async () => {
-    const uiApp = makeUiApp([makeController('a')]);
-    const session = {} as BotSession;
-
-    await uiApp.handleCancel(42, session);
-
-    expect(session.dialog?.path).toBe('menu/main');
-    expect(session.dialog?.seq).toBe(1);
+    expect(String(response?.info?.text).length).toBeGreaterThan(0);
   });
 });
 

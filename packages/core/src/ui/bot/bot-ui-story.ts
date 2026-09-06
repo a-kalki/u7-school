@@ -10,6 +10,7 @@ import type { BotUiAppResolve } from './app-types';
 import type {
   BotSession,
   BotUpdate,
+  CommandUpdate,
   DialogResponse,
   KeyboardDescription,
   ProactiveSender,
@@ -92,6 +93,34 @@ export abstract class BotUiStory<
     _session: BotSession,
   ): Promise<Screen | null> {
     return null;
+  }
+
+  /**
+   * Команда активному стори — конвейер `BotUiApp.handleCommand` (ФР-4).
+   *
+   * Дефолт — обобщение системных команд: 'cancel' → `handleCancel`
+   * (доменная очистка), 'help' → `handleHelp` как info-реплика; прочие
+   * команды — null. Наследники переопределяют целиком для доменных
+   * команд (задел под /tasks): null = «не моё» → core-дефолт.
+   *
+   * Ответ на системные команды (/help, /cancel) конвейер нормализует
+   * в info-реплику — экран диалога системная команда не занимает.
+   */
+  async handleCommand(
+    update: CommandUpdate,
+    actor: TActor,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    switch (update.command) {
+      case 'cancel':
+        return this.handleCancel(actor, session);
+      case 'help': {
+        const help = await this.handleHelp(actor, session);
+        return help ? { info: help } : null;
+      }
+      default:
+        return null;
+    }
   }
 
   // ── Подтверждение действия (confirm-хелпер) ──

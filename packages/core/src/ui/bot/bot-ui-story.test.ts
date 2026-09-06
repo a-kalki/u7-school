@@ -166,6 +166,43 @@ describe('BotUiStory — дефолты контракта', () => {
     );
     expect(screen).toBeNull();
   });
+
+  test('handleCommand по умолчанию: cancel → handleCancel (доменная очистка)', async () => {
+    const story = new TestStory();
+
+    const response = await story.handleCommand(
+      { type: 'command', command: 'cancel', args: '', telegramId: 7 },
+      { id: 'u' },
+      { dialog: { path: 'x/y', seq: 1 } },
+    );
+
+    expect(response).toEqual({ release: true });
+  });
+
+  test('handleCommand по умолчанию: help → handleHelp как info-реплика', async () => {
+    const story = new TestStory();
+
+    const response = await story.handleCommand(
+      { type: 'command', command: 'help', args: '', telegramId: 7 },
+      { id: 'u' },
+      { dialog: { path: 'x/y', seq: 1 } },
+    );
+
+    // handleHelp по умолчанию null → «не моё»
+    expect(response).toBeNull();
+  });
+
+  test('handleCommand по умолчанию: прочие команды → null («не моё»)', async () => {
+    const story = new TestStory();
+
+    const response = await story.handleCommand(
+      { type: 'command', command: 'tasks', args: 'today', telegramId: 7 },
+      { id: 'u' },
+      { dialog: { path: 'x/y', seq: 1 } },
+    );
+
+    expect(response).toBeNull();
+  });
 });
 
 describe('BotUiStory — handleError', () => {

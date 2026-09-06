@@ -28,8 +28,6 @@ class SpyStory extends BotUiStory<AppMeta, TestActor> {
 
   callbackData: string[] = [];
   messageCalled = 0;
-  cancelResult: DialogResponse = { release: true };
-  cancelCalled = 0;
   throwError: unknown = null;
 
   override async handleCallback(
@@ -49,14 +47,6 @@ class SpyStory extends BotUiStory<AppMeta, TestActor> {
   ): Promise<DialogResponse | null> {
     this.messageCalled++;
     return { release: true };
-  }
-
-  override async handleCancel(
-    _actor: TestActor,
-    _session: BotSession,
-  ): Promise<DialogResponse> {
-    this.cancelCalled++;
-    return this.cancelResult;
   }
 }
 
@@ -205,7 +195,7 @@ describe('BotController — префиксация delegate', () => {
   });
 });
 
-describe('BotController — handleMessage/handleCancel по dialog.path', () => {
+describe('BotController — handleMessage по dialog.path', () => {
   test('ввод уходит в стори активного диалога', async () => {
     const hub = new SpyStory('hub');
     const list = new SpyStory('list');
@@ -220,16 +210,6 @@ describe('BotController — handleMessage/handleCancel по dialog.path', () => 
     expect(list.messageCalled).toBe(1);
     expect(hub.messageCalled).toBe(0);
     expect(response?.release).toBe(true);
-  });
-
-  test('отмена уходит в стори активного диалога', async () => {
-    const hub = new SpyStory('hub');
-    const ctrl = new TestController([hub]);
-
-    const response = await ctrl.handleCancel({ id: 'u' }, makeSession());
-
-    expect(hub.cancelCalled).toBe(1);
-    expect(response.release).toBe(true);
   });
 
   test('диалог без своей стори → handleMessage null', async () => {

@@ -132,18 +132,6 @@ export abstract class BotController<
     }
   }
 
-  /** Отмена активного диалога — доменная очистка стори. */
-  async handleCancel(
-    actor: TActor,
-    session: BotSession,
-  ): Promise<DialogResponse> {
-    const story = this.#storyByPath(session.dialog?.path);
-    if (story) {
-      return story.handleCancel(actor, session);
-    }
-    return { release: true };
-  }
-
   // ── Хелперы ──
 
   /** Генерирует callback_data с префиксом контроллера. */

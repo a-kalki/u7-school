@@ -1,4 +1,4 @@
-import { mdRaw } from '../../shared/markdown';
+import { md, mdRaw } from '../../shared/markdown';
 import { UiApp } from '../ui-app';
 import type { BotUiAppResolve } from './app-types';
 import type { BotController } from './bot-controller';
@@ -6,6 +6,7 @@ import type { BotUiStory } from './bot-ui-story';
 import type {
   BotSession,
   BotUpdate,
+  CommandUpdate,
   DialogResponse,
   NotificationPayload,
   ProactiveSender,
@@ -21,9 +22,10 @@ import type {
  *   кнопки, И2);
  * - владение `DialogState`: смена диалога (`seq++`, сброс `input`),
  *   `delegate`-переходы;
- * - системные команды: /start (диалог меню + welcome), /help (контекстная
- *   справка стори → общий fallback, как info-реплика), /cancel (доменная
- *   очистка стори → дефолт-возврат в меню).
+ * - системные команды через единый конвейер `handleCommand` (ФР-4):
+ *   appCommand-хук приложения → активная стори → core-дефолты
+ *   (/start — всегда меню; /help — три уровня; /cancel — доменная
+ *   очистка + сброс + меню).
  *
  * Экран и Telegram-механика — транспорт (§5); uiApp только решает КУДА.
  *
@@ -80,59 +82,95 @@ export abstract class BotUiApp<
     return this.controllers.get(name);
   }
 
-  // ── Системные команды ──
+  // ── Системные команды: конвейер handleCommand (ФР-4) ──
 
   /**
-   * /start: явный сброс — диалог закрывается (seq++), открывается диалог
-   * меню, welcome-экран (транспорт отправит send'ом — экран не наш).
+   * Единый вход команд: appCommand-хук → активная стори → core-дефолты.
+   *
+   * Общая логика ядра: команды ДОХОДЯТ до активного стори (`handleCommand`,
+   * null = «не моё»); построение конкретных экранов меню — приложение
+   * (хуки `buildMenuScreen`/`buildCancelMenuScreen`/`buildHelpScreen`).
+   *
+   * - `/start` — системное правило «с любого места — меню»: стори НЕ
+   *   опрашивается, reopen(menu) + welcome-экран;
+   * - `/help` — три уровня: ответ стори (нормализуется в info-реплику)
+   *   → main-help приложения (перехват в хуке, напр. «на меню») → общий
+   *   fallback; диалог и экран не трогает;
+   * - `/cancel` — доменная очистка активного стори (вызывается ВСЕГДА,
+   *   не только при ожидании ввода), затем безусловный сброс уровня
+   *   приложения (диалог reopen, input сброс) и короткое меню; доменный
+   *   текст стори — info-реплика НАД меню (решение владельца, трек 1.1);
+   * - прочие команды — доменные (задел /tasks): ответ стори как есть.
    */
-  async handleWelcome(
-    tgId: number,
-    session: BotSession,
-  ): Promise<DialogResponse> {
-    const actor = await this.resolve.actorResolver(tgId);
-    this.#enterDialog(session, this.menuPath, 'reopen');
-    return { screen: await this.buildMenuScreen(actor, session) };
-  }
-
-  /**
-   * /help: не трогает диалог и экран (§5.3) — результат уходит info-репликой.
-   * Активная стори может дать контекстную справку (`handleHelp`),
-   * иначе — общий fallback.
-   */
-  async handleHelp(tgId: number, session: BotSession): Promise<DialogResponse> {
-    const actor = await this.resolve.actorResolver(tgId);
-    const story = this.#storyByPath(session.dialog?.path);
-    const contextHelp = story ? await story.handleHelp(actor, session) : null;
-    if (contextHelp) {
-      return { info: contextHelp };
-    }
-    return { info: await this.buildHelpScreen(actor) };
-  }
-
-  /**
-   * /cancel: доменная очистка активной стори (если ждём ввод), дефолт —
-   * возврат в меню (диалог меню, seq++).
-   */
-  async handleCancel(
+  async handleCommand(
+    update: CommandUpdate,
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null> {
+    // 1. appCommand-хук: системные/админ-команды приложения.
+    //    null = «пропускаю» — конвейер продолжается.
+    const appResponse = await this.handleAppCommand(update, tgId, session);
+    if (appResponse !== null) {
+      return appResponse;
+    }
+
+    // /start — до стори: системное правило, экран меню строит приложение.
+    if (update.command === 'start') {
+      const actor = await this.resolve.actorResolver(tgId);
+      this.#enterDialog(session, this.menuPath, 'reopen');
+      return { screen: await this.buildMenuScreen(actor, session) };
+    }
+
     const actor = await this.resolve.actorResolver(tgId);
 
-    let response: DialogResponse | null = null;
-    if (session.dialog?.input) {
-      const controller = this.#controllerByPath(session.dialog.path);
-      response = controller
-        ? await controller.handleCancel(actor, session)
-        : null;
-    }
+    // 2. Активная стори: null = «не моё» → core-дефолты.
+    const story = this.#storyByPath(session.dialog?.path);
+    const storyResponse = story
+      ? await story.handleCommand(update, actor, session)
+      : null;
 
-    if (!response || this.#isEmpty(response)) {
-      this.#enterDialog(session, this.menuPath, 'reopen');
-      return { screen: await this.buildCancelMenuScreen(actor, session) };
+    // 3. Core-дефолты.
+    switch (update.command) {
+      case 'help': {
+        // Справка — только info-реплика: экран диалога не трогаем (§5.3).
+        const notice = this.#commandNotice(storyResponse);
+        if (notice) {
+          return { info: notice };
+        }
+        return { info: await this.buildHelpScreen(actor) };
+      }
+      case 'cancel': {
+        // Доменный текст стори (info или текст screen) — реплика НАД меню;
+        // awaitInput/delegate системной командой не поддерживаются.
+        const notice = this.#commandNotice(storyResponse);
+        this.#enterDialog(session, this.menuPath, 'reopen');
+        const screen = await this.buildCancelMenuScreen(actor, session);
+        return notice ? { info: notice, screen } : { screen };
+      }
+      default:
+        // Доменная команда: ответ стори — полноправный (screen допустим).
+        if (storyResponse) {
+          return storyResponse;
+        }
+        // Неизвестная команда — info-подсказка, диалог не трогаем.
+        return {
+          info: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
+        };
     }
-    return response;
+  }
+
+  /**
+   * appCommand-хук — точка перехвата команд приложением (уровень u7:
+   * гейт /log_level, main-help «на меню», гост-регистрация на /start).
+   * Дефолт — всегда «пропускаю»; непустой ответ завершает конвейер
+   * без опроса стори и core-дефолтов.
+   */
+  protected async handleAppCommand(
+    _update: CommandUpdate,
+    _tgId: number,
+    _session: BotSession,
+  ): Promise<DialogResponse | null> {
+    return null;
   }
 
   // ── Обработка callback ──
@@ -297,13 +335,15 @@ export abstract class BotUiApp<
     return controller.getStories().find((story) => story.name === storyName);
   }
 
-  /** Ответ без визуальных/маршрутных слотов (только release/awaitInput). */
-  #isEmpty(response: DialogResponse): boolean {
-    return (
-      !response.screen &&
-      !response.info &&
-      !response.finalize &&
-      !response.delegate
-    );
+  /**
+   * Реплика доменного ответа стори на системную команду (/help, /cancel):
+   * info — как есть, иначе текст screen (доменный текст не теряем);
+   * экран диалога системная команда не занимает. undefined — реплики нет.
+   */
+  #commandNotice(response: DialogResponse | null): Screen | undefined {
+    if (!response) return undefined;
+    if (response.info) return response.info;
+    if (response.screen) return { text: response.screen.text };
+    return undefined;
   }
 }
