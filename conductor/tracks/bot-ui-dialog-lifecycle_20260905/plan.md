@@ -15,7 +15,7 @@
 - [x] Task: Написать падающие тесты конвейера `handleCommand`: appCommand-хук → активная стори → core-дефолт; парсинг конверта (аргументы, суффикс `@botname`, без аргументов); `/help` три уровня (стори → main-help на меню → fallback), `/cancel` (доменная очистка → меню), команды при не открытом диалоге [79c6445]
 - [x] Task: Core: `BotUiApp.handleCommand(cmd, tgId, session)` + appCommand-хук (`null` = «пропускаю») + `BotUiStory.handleCommand` (обобщение `handleHelp`/`handleCancel`, `null` = «не моё») [27e643d]
 - [x] Task: Транспорт: один `handleCommand(ctx)` вместо `handleStart/handleHelp/handleCancel`; перехват всех слэш-текстов в едином `message:text`-хендлере (фильтр `/`-префикса), без поимённой grammy-регистрации; парсинг слэш-текста в конверт `{ command, args }` (ведущий `/`, суффикс `@botname`, разбив по пробелам) [3d31b5a]
-- [~] Task: u7-bot: appCommand-гейт (гост-регистрация на `/start`, админ-гейт `/log_level`, `/help` на меню → сборка описаний главных кнопок); welcome-меню как сейчас; без словаря команд и `setMyCommands` — команда доставляется конвейером по адресу (решение владельца)
+- [x] Task: u7-bot: appCommand-гейт (гост-регистрация на `/start`, админ-гейт `/log_level`, `/help` на меню → сборка описаний главных кнопок); welcome-меню как сейчас; без словаря команд и `setMyCommands` — команда доставляется конвейером по адресу (решение владельца) [c1794c4]
 - [ ] Conductor - User Manual Verification 'Команды' (Protocol in workflow.md)
 
 ## Фаза 3: Kind-уведомления
