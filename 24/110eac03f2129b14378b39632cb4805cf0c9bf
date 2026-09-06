@@ -1,0 +1,13 @@
+Задача: ФР-1 — явное состояние «диалог не открыт» (Фаза 1, Task 2)
+
+Сводка: BotSession.dialog? — undefined означает «диалог не открыт»; транспорт больше не создаёт фиктивный диалог меню (INITIAL_DIALOG_PATH, seq=0 удалены). Кнопка до /start → alert «Наберите /start» без исключений.
+
+Файлы:
+- packages/core/src/ui/bot/types.ts — BotSession.dialog опционален, док-комментарии.
+- packages/core/src/ui/bot/ui-app.ts — guard-ы на закрытый диалог (help/cancel/message/dispatch), #switchDialog открывает seq=1 из пустой сессии.
+- packages/core/src/ui/bot/bot-controller.ts — storyByPath принимает undefined.
+- packages/core/src/ui/bot/bot-ui-story.ts — dialogPath в warn-логе опционален.
+- apps/u7-bot/src/infra/bot-transport.ts — пустая #session, NO_DIALOG_MESSAGE, guard-ы #render.
+- Тесты: makeSession/хелперы типизированы под опциональный диалог; инвариант-тесты (кроме reopen) зелёные.
+
+Причина: устранение системной причины рассинхрона seq (проблема 1, трек bot-ui-dialog-lifecycle).
