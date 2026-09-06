@@ -3,7 +3,13 @@ import type { AppMeta } from '#domain/types';
 import { md, mdRaw } from '../../shared/markdown';
 import { BotController } from './bot-controller';
 import { BotUiStory } from './bot-ui-story';
-import type { BotSession, BotUpdate, DialogResponse, Screen } from './types';
+import type {
+  BotSession,
+  BotUpdate,
+  DialogResponse,
+  DialogState,
+  Screen,
+} from './types';
 import { BotUiApp } from './ui-app';
 
 // ── Тестовые контроллер и стори ──
@@ -128,7 +134,7 @@ function makeSession(
   path = 'menu/main',
   seq = 3,
   input?: { context?: unknown },
-): BotSession {
+): BotSession & { dialog: DialogState } {
   return { dialog: { path, seq, ...(input ? { input } : {}) } };
 }
 
@@ -458,7 +464,11 @@ describe('BotUiApp — инварианты: операция входа', () =>
     const uiApp = makeUiApp([ctrlA]);
     const session = {} as BotSession;
 
-    const update: BotUpdate = { type: 'message', text: 'привет', telegramId: 42 };
+    const update: BotUpdate = {
+      type: 'message',
+      text: 'привет',
+      telegramId: 42,
+    };
     const response = await uiApp.handleMessage(update, 42, session);
 
     expect(ctrlA.messageCalled).toBe(0);

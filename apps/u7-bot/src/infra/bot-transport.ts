@@ -36,6 +36,9 @@ const UUID_RE =
  */
 const STAMP_SEGMENT_RE = /^~[0-9a-z]+$/;
 
+/** Сообщение при нажатии на кнопку без открытого диалога (до /start). */
+const NO_DIALOG_MESSAGE = 'Наберите /start';
+
 /** Сообщение при нажатии на кнопку чужого/устаревшего экрана (штамп не совпал). */
 const STALE_STAMP_MESSAGE = 'Экран устарел — нажмите /start';
 
@@ -45,12 +48,6 @@ const STALE_BUTTON_MESSAGE =
 
 /** Маркер выбора при retire экрана: «—————\nВы выбрали: …» (UX-запрос §10.6). */
 const CHOICE_MARKER = '\n\n—————\nВы выбрали: ';
-
-/**
- * Диалог меню по умолчанию для сессий, созданных до первого /start.
- * Любой валидный `controller/story` (деталь Фазы 3 — путь закрепит uiApp).
- */
-const INITIAL_DIALOG_PATH = 'app/menu';
 
 // ── Интерфейсы ──
 
@@ -147,10 +144,16 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     await this.#enqueue(tgId, async () => {
       const session = this.#session(tgId);
 
+      // 0. Диалог не открыт (до первого /start) → alert «Наберите /start»,
+      //    до uiApp не доезжает (ФР-1/ФР-3: валидация без исключений).
+      if (!session.dialog) {
+        await this.#answerCallbackQuery(ctx, NO_DIALOG_MESSAGE);
+        return;
+      }
+
       // 1. Штамп — сверка первым делом: старый экран, кнопка из истории,
       //    гонка, рестарт, крафтовый ~0 или легаси-код без штампа → alert,
-      //    до uiApp не доезжает (И2). Штампы валидны от 1: seq 0 означает
-      //    «диалог ещё не открыт через /start».
+      //    до uiApp не доезжает (И2). Штампы валидны от 1.
       const { data, stamp } = this.#splitStamp(rawData);
       if (stamp === null || stamp < 1 || stamp !== session.dialog.seq) {
         await this.#answerCallbackQuery(ctx, STALE_STAMP_MESSAGE);
@@ -191,13 +194,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // Быстрая проверка без создания сессии: нечего маршрутизировать.
     const existing = this.sessions.get(tgId);
-    if (!existing?.dialog.input) return next();
+    if (!existing?.dialog?.input) return next();
 
     await this.#enqueue(tgId, async () => {
       const session = this.#session(tgId);
       // Повторная проверка внутри слота очереди — к моменту исполнения
       // ввод мог быть снят параллельной кнопкой.
-      if (!session.dialog.input) {
+      if (!session.dialog?.input) {
         await next();
         return;
       }
@@ -322,11 +325,31 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       await this.#sendText(tgId, response.info.text);
     }
 
+    // Слоты ниже требуют открытого диалога (ФР-1): /help и info-реплики
+    // возможны и без него — все прочие ответы — программная ошибка,
+    // warn-лог и пропуск (не падение).
+    if (!session.dialog) {
+      if (
+        response.finalize ||
+        response.screen ||
+        response.awaitInput ||
+        response.release
+      ) {
+        getGlobalLogger()?.warn(
+          'bot-transport',
+          'ответ с экраном/вводом при закрытом диалоге пропущен',
+          { tgId },
+        );
+      }
+      return;
+    }
+    const dialog = session.dialog;
+
     // 2. finalize — перезапись активного экрана (фиксация выбора).
     //    Только своего: ownerSeq === dialog.seq, иначе warn-лог и пропуск.
     if (response.finalize) {
       const screen = session.screen;
-      if (screen && screen.ownerSeq === session.dialog.seq) {
+      if (screen && screen.ownerSeq === dialog.seq) {
         await this.#editMessage(tgId, screen.messageId, response.finalize.text);
         screen.text = response.finalize.text;
         screen.keyboard = undefined;
@@ -334,7 +357,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
         getGlobalLogger()?.warn(
           'bot-transport',
           'finalize пропущен: активный экран не принадлежит текущему диалогу',
-          { tgId, ownerSeq: screen?.ownerSeq, seq: session.dialog.seq },
+          { tgId, ownerSeq: screen?.ownerSeq, seq: dialog.seq },
         );
       }
     }
@@ -343,16 +366,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     //    иначе → retire прежнего (маркер выбора при известном коде) + send.
     if (response.screen) {
       const current = session.screen;
-      if (current?.ownerSeq === session.dialog.seq && !response.finalize) {
+      if (current?.ownerSeq === dialog.seq && !response.finalize) {
         await this.#editMessage(
           tgId,
           current.messageId,
           response.screen.text,
           response.screen.keyboard
-            ? this.#telegramKeyboard(
-                response.screen.keyboard,
-                session.dialog.seq,
-              )
+            ? this.#telegramKeyboard(response.screen.keyboard, dialog.seq)
             : undefined,
         );
         current.text = response.screen.text;
@@ -361,13 +381,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
         await this.#retireScreen(tgId, session, opts.pressedCode);
         const messageId = await this.#sendScreen(
           tgId,
-          session.dialog.seq,
+          dialog.seq,
           response.screen,
         );
         if (messageId !== undefined) {
           session.screen = {
             messageId,
-            ownerSeq: session.dialog.seq,
+            ownerSeq: dialog.seq,
             text: response.screen.text,
             keyboard: response.screen.keyboard,
           };
@@ -377,10 +397,10 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
     // 4. awaitInput / release — ожидание текстового ввода диалога.
     if (response.awaitInput) {
-      session.dialog.input = { context: response.awaitInput.context };
+      dialog.input = { context: response.awaitInput.context };
     }
     if (response.release) {
-      session.dialog.input = undefined;
+      dialog.input = undefined;
     }
     // delegate исполняется uiApp до транспорта — сюда не доезжает.
   }
@@ -493,11 +513,14 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   // Сессии и per-chat очередь
   // ═══════════════════════════════════════════
 
-  /** Сессия чата; создаётся ленивo с диалогом меню и seq 0 (штампы ≥ 1). */
+  /**
+   * Сессия чата; создаётся лениво ПУСТОЙ (ФР-1): до первого /start диалог
+   * не открыт (`dialog === undefined`), штампы у кнопок не валидны.
+   */
   #session(tgId: number): BotSession {
     let session = this.sessions.get(tgId);
     if (!session) {
-      session = { dialog: { path: INITIAL_DIALOG_PATH, seq: 0 } };
+      session = {};
       this.sessions.set(tgId, session);
     }
     return session;

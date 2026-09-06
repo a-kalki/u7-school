@@ -99,7 +99,8 @@ function lastSentCallbackData(api: Api): string | undefined {
 
 /**
  * Сборка: транспорт + мок uiApp, открывающий начальный экран через /start.
- * Возвращает код нажимаемой кнопки (со штампом) и captured-сессию.
+ * Возвращает код нажимаемой кнопки (со штампом) и captured-сессию
+ * (мок выставляет диалог — тип сужен для удобства ассертов).
  */
 async function startDialog(
   opts: {
@@ -114,7 +115,7 @@ async function startDialog(
   uiApp: DialogUiAppPort;
   transport: BotTransport;
   pressed: string;
-  session: BotSession;
+  session: BotSession & { dialog: NonNullable<BotSession['dialog']> };
 }> {
   const api = makeMockBotApi();
   let captured: BotSession | undefined;
@@ -138,8 +139,16 @@ async function startDialog(
   await transport.handleStart(makeCtx());
   const pressed = lastSentCallbackData(api);
   if (!pressed) throw new Error('welcome-экран не отправлен');
-  if (!captured) throw new Error('сессия не передана в uiApp');
-  return { api, uiApp, transport, pressed, session: captured };
+  if (!captured?.dialog) {
+    throw new Error('сессия/диалог не передан в uiApp');
+  }
+  return {
+    api,
+    uiApp,
+    transport,
+    pressed,
+    session: captured as BotSession & { dialog: NonNullable<BotSession['dialog']> },
+  };
 }
 
 // ── Штампы ──

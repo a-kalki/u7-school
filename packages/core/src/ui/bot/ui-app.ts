@@ -102,7 +102,7 @@ export abstract class BotUiApp<
    */
   async handleHelp(tgId: number, session: BotSession): Promise<DialogResponse> {
     const actor = await this.resolve.actorResolver(tgId);
-    const story = this.#storyByPath(session.dialog.path);
+    const story = this.#storyByPath(session.dialog?.path);
     const contextHelp = story ? await story.handleHelp(actor, session) : null;
     if (contextHelp) {
       return { info: contextHelp };
@@ -121,7 +121,7 @@ export abstract class BotUiApp<
     const actor = await this.resolve.actorResolver(tgId);
 
     let response: DialogResponse | null = null;
-    if (session.dialog.input) {
+    if (session.dialog?.input) {
       const controller = this.#controllerByPath(session.dialog.path);
       response = controller
         ? await controller.handleCancel(actor, session)
@@ -178,7 +178,7 @@ export abstract class BotUiApp<
     session: BotSession,
   ): Promise<DialogResponse | null> {
     const actor = await this.resolve.actorResolver(tgId);
-    const controller = this.#controllerByPath(session.dialog.path);
+    const controller = this.#controllerByPath(session.dialog?.path);
     if (!controller) return null;
     return controller.handleMessage(update, actor, session);
   }
@@ -230,14 +230,15 @@ export abstract class BotUiApp<
   // ── Приватные хелперы ──
 
   /**
-   * Смена диалога: `seq++`, input сброс. Экран прежнего диалога становится
-   * «чужим» — транспорт отправит send (retire прежнего, §5.2).
-   * Тот же path — полный no-op: input живёт до awaitInput/release ответа
-   * (транспорт применит их при рендере).
+   * Смена диалога: `seq++`, input сброс (ФР-1: закрытый диалог — тоже вход).
+   * Экран прежнего диалога становится «чужим» — транспорт отправит send
+   * (retire прежнего, §5.2). Тот же path — no-op: input живёт до
+   * awaitInput/release ответа (транспорт применит их при рендере).
    */
   #switchDialog(session: BotSession, path: string): void {
-    if (session.dialog.path === path) return;
-    session.dialog = { path, seq: session.dialog.seq + 1 };
+    const current = session.dialog;
+    if (current?.path === path) return;
+    session.dialog = { path, seq: (current?.seq ?? 0) + 1 };
   }
 
   /**
@@ -267,15 +268,19 @@ export abstract class BotUiApp<
 
   /** Контроллер активного диалога по `controller/story`. */
   #controllerByPath(
-    path: string,
+    path: string | undefined,
   ): BotController<TAppMeta, TActor, TResolve> | undefined {
+    if (!path) return undefined;
     const [ctrlName] = path.split('/');
     if (!ctrlName) return undefined;
     return this.controllers.get(ctrlName);
   }
 
   /** Стори активного диалога по `controller/story` (для контекстного /help). */
-  #storyByPath(path: string): BotUiStory<TAppMeta, TActor> | undefined {
+  #storyByPath(
+    path: string | undefined,
+  ): BotUiStory<TAppMeta, TActor> | undefined {
+    if (!path) return undefined;
     const controller = this.#controllerByPath(path);
     const storyName = path.split('/')[1];
     if (!controller || !storyName) return undefined;

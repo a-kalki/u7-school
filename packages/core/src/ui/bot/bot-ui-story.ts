@@ -185,7 +185,7 @@ export abstract class BotUiStory<
   ): DialogResponse {
     this.logger?.warn('bot', 'Кнопка без обработчика', {
       code: `${this.name}:${action}`,
-      dialogPath: session?.dialog.path,
+      dialogPath: session?.dialog?.path,
       ...(actor !== undefined ? { actor } : {}),
     });
     return { screen: { text: md`⚠️ Неизвестная команда` } };

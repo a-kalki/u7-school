@@ -122,7 +122,7 @@ export abstract class BotController<
     session: BotSession,
   ): Promise<DialogResponse | null> {
     try {
-      const story = this.#storyByPath(session.dialog.path);
+      const story = this.#storyByPath(session.dialog?.path);
       if (story) {
         return await story.handleMessage(update, actor, session);
       }
@@ -137,7 +137,7 @@ export abstract class BotController<
     actor: TActor,
     session: BotSession,
   ): Promise<DialogResponse> {
-    const story = this.#storyByPath(session.dialog.path);
+    const story = this.#storyByPath(session.dialog?.path);
     if (story) {
       return story.handleCancel(actor, session);
     }
@@ -166,7 +166,10 @@ export abstract class BotController<
   }
 
   /** Стори активного диалога по `controller/story` (dialog.path). */
-  #storyByPath(path: string): BotUiStory<TAppMeta, TActor> | undefined {
+  #storyByPath(
+    path: string | undefined,
+  ): BotUiStory<TAppMeta, TActor> | undefined {
+    if (!path) return undefined;
     const parts = path.split('/').filter(Boolean);
     if (parts.length >= 2) {
       return this.findStory(parts[1] ?? '');
@@ -185,7 +188,7 @@ export abstract class BotController<
   ): DialogResponse {
     this.logger?.warn('bot', 'Кнопка без обработчика', {
       code: `${this.name}:${data}`,
-      dialogPath: session.dialog.path,
+      dialogPath: session.dialog?.path,
       actor,
     });
     return { screen: { text: md`⚠️ Неизвестная команда` } };
