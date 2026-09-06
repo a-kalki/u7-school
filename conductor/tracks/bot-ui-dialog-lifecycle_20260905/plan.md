@@ -18,6 +18,16 @@
 - [x] Task: u7-bot: appCommand-гейт (гост-регистрация на `/start`, админ-гейт `/log_level`, `/help` на меню → сборка описаний главных кнопок); welcome-меню как сейчас; без словаря команд и `setMyCommands` — команда доставляется конвейером по адресу (решение владельца) [c1794c4]
 - [ ] Conductor - User Manual Verification 'Команды' (Protocol in workflow.md)
 
+## Фаза 2.1: Ревизия ФР-4 — трёхуровневый pipe команд
+
+> Решения владельца (сессия 2026-09-06): единственный обработчик команд `handleCommand` на уровнях uiApp/uiController/uiStory; ядро не знает имён команд; реакция `pass | continue(notice) | stop(response)`; меню — декларативные данные `menuButtons` (не обработчики); активная стори сама проверяет `isActive(session)`. Поведение для пользователя не меняется. Подробности — ФР-4 в spec.md.
+
+- [ ] Task: Написать падающие тесты: core — pipe триада (pass/continue/stop на стори и контроллере, активная первой, первый stop побеждает, склейка notice-вкладов, все pass → null); u7 — `/start` uiApp без pipe (гость → welcome из menuButtons), дефолты help/cancel/unknown, контракт u7-стори (isActive: help/cancel → stop, неактивна → pass, start → throw), app-контроллер log_level, menuButtons-сбор
+- [ ] Task: Core: `CommandReaction` + `handleCommand` на трёх уровнях (uiApp pipe контроллеров → uiController pipe стори с агрегацией); удалить именные `handleHelp`/`handleCancel` (стори), `handleAppCommand`-хук (uiApp)
+- [ ] Task: u7-bot: `U7BotUiApp.handleCommand` — `/start` напрямую (гость → лог → reopen → welcome из menuButtons), прочее → super + дефолты (help общий из menuButtons, cancel короткое меню, unknown); `U7BotUiStory`-контракт с isActive; app-контроллер: log_level-override + menuButtons; `menuButtons(actor)` у стори/контроллера вместо handleStart, welcome/main-help тексты переезжают в u7UiApp; удалить handleWelcome/handleHelpMessage/MenuAggregator-гейт-остатки
+- [ ] Task: Проверки скоупа зелёные (core; u7-bot: transport/wiring/новый контракт) + коммиты с notes
+- [ ] Conductor - User Manual Verification 'Pipe-конвейер команд' (Protocol in workflow.md)
+
 ## Фаза 3: Kind-уведомления
 
 - [ ] Task: Написать падающие тесты рендера: проактив `kind` (🔔/ℹ️/⚠️, дефолт `'notify'`), диалоговая `info`-реплика с `kind` (дефолт `'info'`)
