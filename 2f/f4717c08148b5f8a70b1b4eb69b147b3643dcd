@@ -1,0 +1,11 @@
+Задача: Падающие тесты pipe-конвейера команд (Фаза 2.1, ФР-4 ревизия)
+
+Изменения:
+- packages/core/src/ui/bot/bot-ui-story.test.ts: дефолт handleCommand → {reaction:'pass'} на любую команду (ядро имён команд не знает)
+- packages/core/src/ui/bot/bot-controller.test.ts: новый describe 'handleCommand: pipe стори' — pass/continue/stop, первый stop прерывает, склейка нотисов (continue и над stop), ошибка стори → stop с handleError-экраном
+- packages/core/src/ui/bot/ui-app.test.ts: конвейерный блок заменён на pipe контроллеров (активный первым без дубля, все pass → null, только continue → info-склейка, stop → ответ + нотисы сверху); /start-тесты из core удалены (команда — уровень приложения)
+- apps/u7-bot/src/core/ui-app.test.ts: /start напрямую в uiApp (гость → регистрация → reopen → welcome из menuButtons, pipe не дёргается), дефолты help (общий из menuButtons)/cancel (короткое меню)/unknown, pipe-ответ побеждает дефолт (/cancel стори + глобальный reopen), log_level через app-контроллер, системные кнопки app:main-menu/app:help
+- apps/u7-bot/src/core/u7-bot-ui-story.test.ts: контракт u7-стори — dialogPath из контроллера, isActive, start → throw, help/cancel активна → stop, неактивна → pass, menuButtons дефолт пуст
+- apps/u7-bot/src/controllers/app/app-controller.test.ts + community.story.test.ts: menuButtons вместо handleStart/handleWelcome/handleHelpMessage, log_level-override
+
+Причина: решения владельца 2026-09-06 — единый handleCommand на уровнях uiApp/uiController/uiStory, реакция pass|continue|stop, меню — декларативные menuButtons.
