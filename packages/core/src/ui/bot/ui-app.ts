@@ -91,7 +91,7 @@ export abstract class BotUiApp<
     session: BotSession,
   ): Promise<DialogResponse> {
     const actor = await this.resolve.actorResolver(tgId);
-    this.#switchDialog(session, this.menuPath);
+    this.#enterDialog(session, this.menuPath, 'reopen');
     return { screen: await this.buildMenuScreen(actor, session) };
   }
 
@@ -129,7 +129,7 @@ export abstract class BotUiApp<
     }
 
     if (!response || this.#isEmpty(response)) {
-      this.#switchDialog(session, this.menuPath);
+      this.#enterDialog(session, this.menuPath, 'reopen');
       return { screen: await this.buildCancelMenuScreen(actor, session) };
     }
     return response;
@@ -230,14 +230,24 @@ export abstract class BotUiApp<
   // ── Приватные хелперы ──
 
   /**
-   * Смена диалога: `seq++`, input сброс (ФР-1: закрытый диалог — тоже вход).
+   * Операция входа в диалог — ЕДИНСТВЕННАЯ точка инкремента `seq` (ФР-2).
+   *
+   * - `switch` (мосты, delegate): другой path → `seq+1` и input сброс;
+   *   тот же path → продолжение без изменений (input живёт до
+   *   awaitInput/release ответа — их применит транспорт при рендере);
+   * - `reopen` (/start, /cancel): всегда `seq+1`, в т.ч. «меню → меню», —
+   *   повторный вход делает штампы прежнего экрана мёртвыми.
+   *
    * Экран прежнего диалога становится «чужим» — транспорт отправит send
-   * (retire прежнего, §5.2). Тот же path — no-op: input живёт до
-   * awaitInput/release ответа (транспорт применит их при рендере).
+   * (retire прежнего, §5.2).
    */
-  #switchDialog(session: BotSession, path: string): void {
+  #enterDialog(
+    session: BotSession,
+    path: string,
+    mode: 'switch' | 'reopen',
+  ): void {
     const current = session.dialog;
-    if (current?.path === path) return;
+    if (mode === 'switch' && current?.path === path) return;
     session.dialog = { path, seq: (current?.seq ?? 0) + 1 };
   }
 
@@ -260,7 +270,7 @@ export abstract class BotUiApp<
       return { screen: { text: mdRaw('⚠️ Неизвестная команда') } };
     }
 
-    this.#switchDialog(session, `${ctrlName}/${storyName}`);
+    this.#enterDialog(session, `${ctrlName}/${storyName}`, 'switch');
 
     const rest = data.slice(ctrlName.length + 1);
     return controller.handleCallback(rest, actor, session);
