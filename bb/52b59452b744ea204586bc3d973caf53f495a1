@@ -1,0 +1,14 @@
+Задача: u7-bot — /start, дефолты, контракт u7-стори, menuButtons (Фаза 2.1)
+
+Изменения:
+- src/core/u7-menu.ts: MainMenuAction → MenuButton (декларативные данные), MenuAggregator удалён
+- src/core/u7-bot-ui-story.ts: dialogPath (из контроллера через init), isActive, menuButtons, protected contextHelp; контракт handleCommand: start → throw-сторож, help активна+справка → stop{info}, cancel активна → reset + stop{info «Отменено. Наберите /start»}, неактивна → pass
+- src/core/u7-bot-controller.ts: menuButtons (сбор стори, префиксация callback-кодов именем контроллера, сортировка); удалены handleStart/handleWelcome/handleHelpMessage/uiApp-поле
+- src/core/ui-app.ts: U7BotUiAppDeps (userFacade, botAdminUuid); /start напрямую без pipe; дефолты help/cancel/unknown; /cancel — reopen(menu) всегда (глобальный сброс — uiApp); welcome/main-help/короткое меню с MarkdownV2-экранированием (легаси-тексты из AppController имели неэкранированные . и -); перехват системных кнопок app:main-menu/app:help в handleCallback
+- src/controllers/app/app-controller.ts: конструктор (schoolGroupUrl, adminTelegramIds); handleCommand /log_level → stop (тишина/инфо); menuButtons «❓ Помощь» (app:help); удалены handleStart/handleWelcome/handleHelpMessage/#buildMenuScreen/ветки main-menu+help
+- community.story.ts: menuButtons вместо handleStart
+- u7-bot-app-meta.ts: из resolve удалено поле uiApp (MenuAggregator-остаток)
+- create-ui-app.ts: adminTelegramIds → AppController, guest-deps → U7BotUiApp
+- infra/bot-transport.test.ts: InvUiApp мигрирован с core-хуков (menuPath/buildMenuScreen) на override handleCommand /start
+
+Причина: решения владельца 2026-09-06 — единый handleCommand, menuButtons вместо handleStart, welcome/help — uiApp. Известная деградация: 7 легаси e2e-тестов (main-menu/curious-showcase через легаси test-bot-transport: collectMainMenu/transport.handleStart) перешли из pass в fail — легаси-зоны, миграция в треках 2–5. Скоуп зелёный: lint/tsc/тесты core/, controllers/app/, infra/, create-ui-app.
