@@ -334,7 +334,11 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
     const uiApp = makeUiApp([ctrlA, ctrlB]);
     const session = makeSession('a/one', 5);
 
-    const response = await uiApp.handleCommand(makeCommand('help'), 42, session);
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      42,
+      session,
+    );
 
     expect(ctrlA.commandCalls.length).toBe(1);
     expect(ctrlB.commandCalls.length).toBe(1);
@@ -399,20 +403,25 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
   });
 
   test('первый stop побеждает: последующие контроллеры не опрашиваются', async () => {
+    // стоп — у АКТИВНОГО контроллера (он в pipe первым)
     const ctrlA = makeController('a');
-    ctrlA.commandReaction = {
-      reaction: 'stop',
-      response: { info: { text: md`Ответ A` } },
-    };
     const ctrlB = makeController('b');
+    ctrlB.commandReaction = {
+      reaction: 'stop',
+      response: { info: { text: md`Ответ B` } },
+    };
     const uiApp = makeUiApp([ctrlA, ctrlB]);
     const session = makeSession('b/two', 5);
 
-    const response = await uiApp.handleCommand(makeCommand('help'), 42, session);
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      42,
+      session,
+    );
 
-    expect(ctrlA.commandCalls.length).toBe(1);
-    expect(ctrlB.commandCalls.length).toBe(0);
-    expect(String(response?.info?.text)).toBe('Ответ A');
+    expect(ctrlB.commandCalls.length).toBe(1);
+    expect(ctrlA.commandCalls.length).toBe(0);
+    expect(String(response?.info?.text)).toBe('Ответ B');
   });
 
   test('stop с пустым ответом — терминал без реплики (null не возвращается)', async () => {
@@ -420,7 +429,11 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
     ctrlA.commandReaction = { reaction: 'stop', response: {} };
     const uiApp = makeUiApp([ctrlA]);
 
-    const response = await uiApp.handleCommand(makeCommand('help'), 42, makeSession());
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      42,
+      makeSession(),
+    );
 
     expect(response).toEqual({});
   });
@@ -432,7 +445,11 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
     ctrlB.commandReaction = { reaction: 'continue', notice: md`Вклад B` };
     const uiApp = makeUiApp([ctrlA, ctrlB]);
 
-    const response = await uiApp.handleCommand(makeCommand('help'), 42, makeSession());
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      42,
+      makeSession(),
+    );
 
     expect(String(response?.info?.text)).toBe('Вклад A\n\nВклад B');
     expect(response?.screen).toBeUndefined();
@@ -448,7 +465,11 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
     };
     const uiApp = makeUiApp([ctrlA, ctrlB]);
 
-    const response = await uiApp.handleCommand(makeCommand('cancel'), 42, makeSession());
+    const response = await uiApp.handleCommand(
+      makeCommand('cancel'),
+      42,
+      makeSession(),
+    );
 
     expect(String(response?.info?.text)).toBe('Вклад A');
     expect(String(response?.screen?.text)).toBe('Экран B');

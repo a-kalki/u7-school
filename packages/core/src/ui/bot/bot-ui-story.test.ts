@@ -151,7 +151,7 @@ describe('BotUiStory — confirm', () => {
 describe('BotUiStory — дефолты контракта команд (ФР-4, pipe)', () => {
   // Ядро имён команд не знает: именных обработчиков нет,
   // дефолт на любую команду — pass («не моё»).
-  test('handleCommand по умолчанию: любая команда → {reaction: \'pass\'}', async () => {
+  test("handleCommand по умолчанию: любая команда → {reaction: 'pass'}", async () => {
     const story = new TestStory();
 
     for (const command of ['cancel', 'help', 'start', 'tasks']) {

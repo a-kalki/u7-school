@@ -1,8 +1,7 @@
-import { md, mdRaw } from '../../shared/markdown';
+import { type MdText, mdJoin, mdRaw } from '../../shared/markdown';
 import { UiApp } from '../ui-app';
 import type { BotUiAppResolve } from './app-types';
 import type { BotController } from './bot-controller';
-import type { BotUiStory } from './bot-ui-story';
 import type {
   BotSession,
   BotUpdate,
@@ -10,7 +9,6 @@ import type {
   DialogResponse,
   NotificationPayload,
   ProactiveSender,
-  Screen,
 } from './types';
 
 /**
@@ -21,11 +19,13 @@ import type {
  *   «чужим диалогом» — штампы транспорта уже гарантировали актуальность
  *   кнопки, И2);
  * - владение `DialogState`: смена диалога (`seq++`, сброс `input`),
- *   `delegate`-переходы;
- * - системные команды через единый конвейер `handleCommand` (ФР-4):
- *   appCommand-хук приложения → активная стори → core-дефолты
- *   (/start — всегда меню; /help — три уровня; /cancel — доменная
- *   очистка + сброс + меню).
+ *   `delegate`-переходы, операция входа `enterDialog` (для прикладного
+ *   uiApp: /start, /cancel);
+ * - трёхуровневый pipe команд (ФР-4, решения 2026-09-06):
+ *   `handleCommand` резолвит актора и опрашивает контроллеры (активный
+ *   первым) с агрегацией `CommandReaction`; ядро имён команд не знает —
+ *   дефолты (/start, /help, /cancel, «неизвестная команда») — уровень
+ *   приложения.
  *
  * Экран и Telegram-механика — транспорт (§5); uiApp только решает КУДА.
  *
@@ -51,9 +51,6 @@ export abstract class BotUiApp<
 
   /** Транспорт — получается через init отдельным аргументом */
   protected transport!: ProactiveSender;
-
-  /** Путь диалога главного меню: `controller/story` — якорь /start и /cancel. */
-  protected abstract readonly menuPath: string;
 
   // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с UiController до BotController
   constructor(controllers: BotController<TAppMeta, TActor, TResolve>[]) {
@@ -82,95 +79,66 @@ export abstract class BotUiApp<
     return this.controllers.get(name);
   }
 
-  // ── Системные команды: конвейер handleCommand (ФР-4) ──
+  // ── Pipe команд (ФР-4, решения 2026-09-06) ──
 
   /**
-   * Единый вход команд: appCommand-хук → активная стори → core-дефолты.
+   * Командный вход ядра: резолвит актора, опрашивает контроллеры
+   * (активный первым, далее по порядку регистрации) и агрегирует
+   * `CommandReaction`:
    *
-   * Общая логика ядра: команды ДОХОДЯТ до активного стори (`handleCommand`,
-   * null = «не моё»); построение конкретных экранов меню — приложение
-   * (хуки `buildMenuScreen`/`buildCancelMenuScreen`/`buildHelpScreen`).
+   * - первый `stop` → его `response` (DialogResponse); накопленные
+   *   к этому моменту `continue`-нотисы — info-репликой над ответом;
+   * - только `continue` → `{info: склейка нотисов}`;
+   * - все `pass` → `null` — включаются дефолты уровня приложения
+   *   (`U7BotUiApp.handleCommand` и наследники).
    *
-   * - `/start` — системное правило «с любого места — меню»: стори НЕ
-   *   опрашивается, reopen(menu) + welcome-экран;
-   * - `/help` — три уровня: ответ стори (нормализуется в info-реплику)
-   *   → main-help приложения (перехват в хуке, напр. «на меню») → общий
-   *   fallback; диалог и экран не трогает;
-   * - `/cancel` — доменная очистка активного стори (вызывается ВСЕГДА,
-   *   не только при ожидании ввода), затем безусловный сброс уровня
-   *   приложения (диалог reopen, input сброс) и короткое меню; доменный
-   *   текст стори — info-реплика НАД меню (решение владельца, трек 1.1);
-   * - прочие команды — доменные: ответ стори как есть.
+   * Ядро имён команд не знает: /start, /help, /cancel и тексты —
+   * прикладной uiApp.
    */
   async handleCommand(
     update: CommandUpdate,
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null> {
-    // 1. appCommand-хук: системные/админ-команды приложения.
-    //    null = «пропускаю» — конвейер продолжается.
-    const appResponse = await this.handleAppCommand(update, tgId, session);
-    if (appResponse !== null) {
-      return appResponse;
-    }
-
-    // /start — до стори: системное правило, экран меню строит приложение.
-    if (update.command === 'start') {
-      const actor = await this.resolve.actorResolver(tgId);
-      this.#enterDialog(session, this.menuPath, 'reopen');
-      return { screen: await this.buildMenuScreen(actor, session) };
-    }
-
     const actor = await this.resolve.actorResolver(tgId);
+    const notices: MdText[] = [];
 
-    // 2. Активная стори: null = «не моё» → core-дефолты.
-    const story = this.#storyByPath(session.dialog?.path);
-    const storyResponse = story
-      ? await story.handleCommand(update, actor, session)
-      : null;
-
-    // 3. Core-дефолты.
-    switch (update.command) {
-      case 'help': {
-        // Справка — только info-реплика: экран диалога не трогаем (§5.3).
-        const notice = this.#commandNotice(storyResponse);
-        if (notice) {
-          return { info: notice };
-        }
-        return { info: await this.buildHelpScreen(actor) };
+    for (const controller of this.#commandPipeOrder(session)) {
+      const reaction = await controller.handleCommand(update, actor, session);
+      if (reaction.reaction === 'pass') continue;
+      if (reaction.reaction === 'stop') {
+        return this.#attachNotices(reaction.response, notices);
       }
-      case 'cancel': {
-        // Доменный текст стори (info или текст screen) — реплика НАД меню;
-        // awaitInput/delegate системной командой не поддерживаются.
-        const notice = this.#commandNotice(storyResponse);
-        this.#enterDialog(session, this.menuPath, 'reopen');
-        const screen = await this.buildCancelMenuScreen(actor, session);
-        return notice ? { info: notice, screen } : { screen };
-      }
-      default:
-        // Доменная команда: ответ стори — полноправный (screen допустим).
-        if (storyResponse) {
-          return storyResponse;
-        }
-        // Неизвестная команда — info-подсказка, диалог не трогаем.
-        return {
-          info: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
-        };
+      if (reaction.notice !== undefined) notices.push(reaction.notice);
     }
+
+    if (notices.length > 0) {
+      return { info: { text: mdJoin(notices, '\n\n') } };
+    }
+    return null;
   }
 
-  /**
-   * appCommand-хук — точка перехвата команд приложением (уровень u7:
-   * гейт /log_level, main-help «на меню», гост-регистрация на /start).
-   * Дефолт — всегда «пропускаю»; непустой ответ завершает конвейер
-   * без опроса стори и core-дефолтов.
-   */
-  protected async handleAppCommand(
-    _update: CommandUpdate,
-    _tgId: number,
-    _session: BotSession,
-  ): Promise<DialogResponse | null> {
-    return null;
+  /** Порядок опроса контроллеров: активный первым, далее регистрация. */
+  #commandPipeOrder(
+    session: BotSession,
+  ): BotController<TAppMeta, TActor, TResolve>[] {
+    const list = [...this.controllers.values()];
+    const activeName = session.dialog?.path.split('/')[0];
+    const active = activeName
+      ? list.find((c) => c.name === activeName)
+      : undefined;
+    if (!active) return list;
+    return [active, ...list.filter((c) => c !== active)];
+  }
+
+  /** Накопленные continue-нотисы — info-репликой над ответом стопа. */
+  #attachNotices(response: DialogResponse, notices: MdText[]): DialogResponse {
+    if (notices.length === 0) return response;
+    const merged = response.info?.text;
+    const text = merged
+      ? mdJoin([...notices, merged], '\n\n')
+      : mdJoin(notices, '\n\n');
+    return { ...response, info: { text } };
   }
 
   // ── Обработка callback ──
@@ -236,39 +204,12 @@ export abstract class BotUiApp<
     await this.transport.kickFromGroup(groupId, userId);
   }
 
-  // ── Хуки приложения ──
-
-  /**
-   * Экран диалога меню (welcome / агрегированное меню).
-   * Переопределяется приложением; core-дефолт — нейтральная заглушка.
-   */
-  protected async buildMenuScreen(
-    _actor: TActor,
-    _session: BotSession,
-  ): Promise<Screen> {
-    return { text: mdRaw('Выберите действие:') };
-  }
-
-  /**
-   * Экран меню для /cancel — по решению владельца КОРОТКИЙ (без welcome).
-   * Дефолт — тот же экран, что и у /start; переопределяется приложением.
-   */
-  protected async buildCancelMenuScreen(
-    actor: TActor,
-    session: BotSession,
-  ): Promise<Screen> {
-    return this.buildMenuScreen(actor, session);
-  }
-
-  /** Общий help-fallback, когда стори не дала контекстной справки. */
-  protected async buildHelpScreen(_actor: TActor): Promise<Screen> {
-    return { text: mdRaw('Справка недоступна\\.') };
-  }
-
   // ── Приватные хелперы ──
 
   /**
    * Операция входа в диалог — ЕДИНСТВЕННАЯ точка инкремента `seq` (ФР-2).
+   * Вызывается прикладным uiApp (/start, /cancel) и маршрутизацией
+   * кнопок (мосты, delegate).
    *
    * - `switch` (мосты, delegate): другой path → `seq+1` и input сброс;
    *   тот же path → продолжение без изменений (input живёт до
@@ -279,7 +220,7 @@ export abstract class BotUiApp<
    * Экран прежнего диалога становится «чужим» — транспорт отправит send
    * (retire прежнего, §5.2).
    */
-  #enterDialog(
+  protected enterDialog(
     session: BotSession,
     path: string,
     mode: 'switch' | 'reopen',
@@ -308,7 +249,7 @@ export abstract class BotUiApp<
       return { screen: { text: mdRaw('⚠️ Неизвестная команда') } };
     }
 
-    this.#enterDialog(session, `${ctrlName}/${storyName}`, 'switch');
+    this.enterDialog(session, `${ctrlName}/${storyName}`, 'switch');
 
     const rest = data.slice(ctrlName.length + 1);
     return controller.handleCallback(rest, actor, session);
@@ -322,28 +263,5 @@ export abstract class BotUiApp<
     const [ctrlName] = path.split('/');
     if (!ctrlName) return undefined;
     return this.controllers.get(ctrlName);
-  }
-
-  /** Стори активного диалога по `controller/story` (для контекстного /help). */
-  #storyByPath(
-    path: string | undefined,
-  ): BotUiStory<TAppMeta, TActor> | undefined {
-    if (!path) return undefined;
-    const controller = this.#controllerByPath(path);
-    const storyName = path.split('/')[1];
-    if (!controller || !storyName) return undefined;
-    return controller.getStories().find((story) => story.name === storyName);
-  }
-
-  /**
-   * Реплика доменного ответа стори на системную команду (/help, /cancel):
-   * info — как есть, иначе текст screen (доменный текст не теряем);
-   * экран диалога системная команда не занимает. undefined — реплики нет.
-   */
-  #commandNotice(response: DialogResponse | null): Screen | undefined {
-    if (!response) return undefined;
-    if (response.info) return response.info;
-    if (response.screen) return { text: response.screen.text };
-    return undefined;
   }
 }

@@ -10,11 +10,11 @@ import type { BotUiAppResolve } from './app-types';
 import type {
   BotSession,
   BotUpdate,
+  CommandReaction,
   CommandUpdate,
   DialogResponse,
   KeyboardDescription,
   ProactiveSender,
-  Screen,
 } from './types';
 
 /**
@@ -67,7 +67,7 @@ export abstract class BotUiStory<
   ): Promise<DialogResponse>;
 
   /**
-   * Обработка текстового ввода (диалог ждёт ввод — awaitInput).
+   * Текстовый ввод (диалог ждёт ввод — awaitInput).
    * null — «не моё» (uiApp передаст дальше в next).
    */
   abstract handleMessage(
@@ -76,51 +76,20 @@ export abstract class BotUiStory<
     session: BotSession,
   ): Promise<DialogResponse | null>;
 
-  /** Отмена текущего действия. По умолчанию — снять ожидание ввода. */
-  async handleCancel(
-    _actor: TActor,
-    _session: BotSession,
-  ): Promise<DialogResponse> {
-    return { release: true };
-  }
-
   /**
-   * Контекстная справка диалога для /help (§5.3): вызывается uiApp,
-   * результат уходит info-репликой. null — справки нет, общий fallback.
-   */
-  async handleHelp(
-    _actor: TActor,
-    _session: BotSession,
-  ): Promise<Screen | null> {
-    return null;
-  }
-
-  /**
-   * Команда активному стори — конвейер `BotUiApp.handleCommand` (ФР-4).
+   * Команда стори в трёхуровневом pipe (ФР-4, решения 2026-09-06).
    *
-   * Дефолт — обобщение системных команд: 'cancel' → `handleCancel`
-   * (доменная очистка), 'help' → `handleHelp` как info-реплика; прочие
-   * команды — null. Наследники переопределяют целиком для доменных
-   * команд: null = «не моё» → core-дефолт.
-   *
-   * Ответ на системные команды (/help, /cancel) конвейер нормализует
-   * в info-реплику — экран диалога системная команда не занимает.
+   * Дефолт — `pass` («не моё»): ядро имён команд не знает, именных
+   * обработчиков (handleHelp/handleCancel) нет. Контекстные справки
+   * и доменные команды — в переопределениях наследников (контракт
+   * u7-стори: isActive + help/cancel/start) или напрямую.
    */
   async handleCommand(
-    update: CommandUpdate,
-    actor: TActor,
-    session: BotSession,
-  ): Promise<DialogResponse | null> {
-    switch (update.command) {
-      case 'cancel':
-        return this.handleCancel(actor, session);
-      case 'help': {
-        const help = await this.handleHelp(actor, session);
-        return help ? { info: help } : null;
-      }
-      default:
-        return null;
-    }
+    _update: CommandUpdate,
+    _actor: TActor,
+    _session: BotSession,
+  ): Promise<CommandReaction> {
+    return { reaction: 'pass' };
   }
 
   // ── Подтверждение действия (confirm-хелпер) ──

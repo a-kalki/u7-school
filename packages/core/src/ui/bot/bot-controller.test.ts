@@ -54,7 +54,7 @@ class SpyStory extends BotUiStory<AppMeta, TestActor> {
 class TestController extends BotController<AppMeta, TestActor> {
   name = 'learn';
 
-  constructor(stories: SpyStory[]) {
+  constructor(stories: BotUiStory<AppMeta, TestActor>[]) {
     super();
     this.stories.push(...stories);
   }
@@ -185,6 +185,7 @@ describe('BotController — handleCommand: pipe стори', () => {
     );
 
     expect(reaction.reaction).toBe('continue');
+    if (reaction.reaction !== 'continue') return;
     expect(String(reaction.notice)).toBe('Вклад один\n\nВклад два');
   });
 
@@ -245,9 +246,7 @@ describe('BotController — handleCommand: pipe стори', () => {
     );
 
     if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
-    expect(String(reaction.response.info?.text)).toBe(
-      'Вклад один\n\nОтменено',
-    );
+    expect(String(reaction.response.info?.text)).toBe('Вклад один\n\nОтменено');
   });
 
   test('ошибка стори → stop с handleError-экраном, обход прерывается', async () => {

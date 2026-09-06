@@ -3,7 +3,7 @@ import { fromError } from '#domain/errors/error-helpers';
 import type { AppMeta } from '#domain/types';
 import type { Logger } from '#shared/logger';
 import { getGlobalLogger } from '#shared/logger';
-import { md, mdConcat, mdJoin } from '#shared/markdown';
+import { type MdText, md, mdConcat, mdJoin } from '#shared/markdown';
 import { serializeError } from '#shared/serialize-error';
 import { UiController } from '../ui-controller';
 import type { BotUiAppResolve } from './app-types';
@@ -11,6 +11,8 @@ import type { BotUiStory } from './bot-ui-story';
 import type {
   BotSession,
   BotUpdate,
+  CommandReaction,
+  CommandUpdate,
   DialogResponse,
   KeyboardDescription,
   NotificationPayload,
@@ -130,6 +132,59 @@ export abstract class BotController<
     } catch (err) {
       return this.handleError(err);
     }
+  }
+
+  /**
+   * Команда в трёхуровневом pipe (ФР-4, решения 2026-09-06): дефолт —
+   * pipe своих стори с агрегацией.
+   *
+   * - первый `stop` → `stop` (обход прерывается, ответ — как есть);
+   * - `continue`-нотисы склеиваются (\n\n) → `continue`; при позднейшем
+   *   `stop` склейка — info-нотисом над ответом стопа;
+   * - все `pass` (или continue без нотисов) → `pass`.
+   *
+   * Ошибка стори — терминал: `stop` с handleError-экраном (ошибка —
+   * экран, не падение конвейера).
+   */
+  async handleCommand(
+    update: CommandUpdate,
+    actor: TActor,
+    session: BotSession,
+  ): Promise<CommandReaction> {
+    const notices: MdText[] = [];
+    for (const story of this.stories) {
+      let reaction: CommandReaction;
+      try {
+        reaction = await story.handleCommand(update, actor, session);
+      } catch (err) {
+        return { reaction: 'stop', response: this.handleError(err) };
+      }
+      if (reaction.reaction === 'pass') continue;
+      if (reaction.reaction === 'stop') {
+        return this.#withNotices(reaction, notices);
+      }
+      if (reaction.notice !== undefined) notices.push(reaction.notice);
+    }
+    if (notices.length > 0) {
+      return { reaction: 'continue', notice: mdJoin(notices, '\n\n') };
+    }
+    return { reaction: 'pass' };
+  }
+
+  /** Накопленные continue-нотисы — info-репликой над ответом стопа. */
+  #withNotices(
+    stop: { reaction: 'stop'; response: DialogResponse },
+    notices: MdText[],
+  ): CommandReaction {
+    if (notices.length === 0) return stop;
+    const merged = stop.response.info?.text;
+    const text = merged
+      ? mdJoin([...notices, merged], '\n\n')
+      : mdJoin(notices, '\n\n');
+    return {
+      reaction: 'stop',
+      response: { ...stop.response, info: { text } },
+    };
   }
 
   // ── Хелперы ──
