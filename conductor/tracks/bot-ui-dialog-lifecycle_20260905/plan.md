@@ -8,11 +8,11 @@
 - [x] Task: ФР-1 `BotSession.dialog?` — явное состояние «не открыт»; удалить `INITIAL_DIALOG_PATH` и ленивый фиктивный диалог в `#session` [24110ea]
 - [x] Task: ФР-2 `#enterDialog(path, mode: 'switch' | 'reopen')` — единственная точка инкремента `seq`; провести через неё `/start`, `/cancel`, delegate, мосты (`#dispatch`) [bbd26cb]
 - [x] Task: ФР-3 валидация кнопок без исключений: не открыт → «Наберите /start»; штамп ≠ seq → «Экран устарел — нажмите /start»; адаптировать тесты транспорта [ede3089]
-- [ ] Conductor - User Manual Verification 'Модель диалога' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Модель диалога' (Protocol in workflow.md)
 
 ## Фаза 2: Единый вход команд
 
-- [ ] Task: Написать падающие тесты конвейера `handleCommand`: appCommand-хук → активная стори → core-дефолт; парсинг конверта (аргументы, суффикс `@botname`, без аргументов); `/help` три уровня (стори → main-help на меню → fallback), `/cancel` (доменная очистка → меню), команды при не открытом диалоге
+- [~] Task: Написать падающие тесты конвейера `handleCommand`: appCommand-хук → активная стори → core-дефолт; парсинг конверта (аргументы, суффикс `@botname`, без аргументов); `/help` три уровня (стори → main-help на меню → fallback), `/cancel` (доменная очистка → меню), команды при не открытом диалоге
 - [ ] Task: Core: `BotUiApp.handleCommand(cmd, tgId, session)` + appCommand-хук (`null` = «пропускаю») + `BotUiStory.handleCommand` (обобщение `handleHelp`/`handleCancel`, `null` = «не моё»)
 - [ ] Task: Транспорт: один `handleCommand(ctx)` вместо `handleStart/handleHelp/handleCancel`; перехват всех слэш-текстов в едином `message:text`-хендлере (фильтр `/`-префикса), без поимённой grammy-регистрации; парсинг слэш-текста в конверт `{ command, args }` (ведущий `/`, суффикс `@botname`, разбив по пробелам)
 - [ ] Task: u7-bot: словарь команд + appController-гейт (гост-регистрация, админ-проверки `/log_level`, `/help` на меню → сборка описаний главных кнопок); welcome-меню как сейчас; `setMyCommands` — опция wiring'а
