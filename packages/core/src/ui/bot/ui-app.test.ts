@@ -1,15 +1,15 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { AppMeta } from '#domain/types';
-import { md, mdRaw } from '../../shared/markdown';
+import { md } from '../../shared/markdown';
 import { BotController } from './bot-controller';
 import { BotUiStory } from './bot-ui-story';
 import type {
   BotSession,
   BotUpdate,
+  CommandReaction,
   CommandUpdate,
   DialogResponse,
   DialogState,
-  Screen,
 } from './types';
 import { BotUiApp } from './ui-app';
 
@@ -29,14 +29,11 @@ class Queue<T> {
 
 class TestStory extends BotUiStory<AppMeta, TestActor> {
   readonly name: string;
-  helpScreen: Screen | null = null;
 
-  /** Вызовы handleCommand (конвейер ФР-4). */
+  /** Вызовы handleCommand (pipe ФР-4, ревизия 2.1). */
   commandCalls: CommandUpdate[] = [];
-  /** undefined — дефолт (обобщение handleHelp/handleCancel), null/объект — явный ответ стори. */
-  commandResult: DialogResponse | null | undefined = undefined;
-  /** Счётчик доменной очистки (handleCancel). */
-  cancelCalls = 0;
+  /** Реакция на команду (дефолт — pass). */
+  commandReaction: CommandReaction = { reaction: 'pass' };
 
   constructor(name: string) {
     super();
@@ -49,21 +46,11 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
   override async handleMessage(): Promise<DialogResponse | null> {
     return null;
   }
-  override async handleHelp(): Promise<Screen | null> {
-    return this.helpScreen;
-  }
   override async handleCommand(
     update: CommandUpdate,
-    actor: TestActor,
-    session: BotSession,
-  ): Promise<DialogResponse | null> {
+  ): Promise<CommandReaction> {
     this.commandCalls.push(update);
-    if (this.commandResult !== undefined) return this.commandResult;
-    return super.handleCommand(update, actor, session);
-  }
-  override async handleCancel(): Promise<DialogResponse> {
-    this.cancelCalls++;
-    return { release: true };
+    return this.commandReaction;
   }
 }
 
@@ -76,6 +63,13 @@ class TestController extends BotController<AppMeta, TestActor> {
 
   callbackData: string[] = [];
   messageCalled = 0;
+
+  /** Вызовы handleCommand в pipe uiApp (ревизия 2.1). */
+  commandCalls: CommandUpdate[] = [];
+  /** Реакция контроллера в pipe (дефолт — pass). */
+  commandReaction: CommandReaction = { reaction: 'pass' };
+  /** Программируемый обработчик (для тестов порядка): приоритетнее commandReaction. */
+  commandHandler: ((name: string) => CommandReaction) | null = null;
 
   override init(resolve: unknown, sender?: unknown): void {
     super.init(resolve as never, sender as never);
@@ -92,6 +86,14 @@ class TestController extends BotController<AppMeta, TestActor> {
 
   override getStories(): BotUiStory<AppMeta, TestActor>[] {
     return this.fakeStories;
+  }
+
+  override async handleCommand(
+    update: CommandUpdate,
+  ): Promise<CommandReaction> {
+    this.commandCalls.push(update);
+    if (this.commandHandler) return this.commandHandler(this.name);
+    return this.commandReaction;
   }
 
   override async handleCallback(
@@ -113,45 +115,8 @@ class TestController extends BotController<AppMeta, TestActor> {
   }
 }
 
-/** Тестовый uiApp: menuPath 'menu/main', экран меню «Меню». */
-class TestUiApp extends BotUiApp<AppMeta, TestActor> {
-  protected override readonly menuPath = 'menu/main';
-  menuScreens = 0;
-  cancelScreens = 0;
-
-  /** Вызовы appCommand-хука (конвейер ФР-4). */
-  appCommandCalls: CommandUpdate[] = [];
-  /** Поведение хука: null — «пропускаю» (по умолчанию). */
-  appCommandHandler:
-    | ((
-        update: CommandUpdate,
-        tgId: number,
-        session: BotSession,
-      ) => Promise<DialogResponse | null>)
-    | null = null;
-
-  protected override async buildMenuScreen(): Promise<Screen> {
-    this.menuScreens++;
-    return { text: mdRaw('Меню') };
-  }
-
-  /** /cancel — короткий экран, отдельный хук (по умолчанию = меню /start). */
-  protected override async buildCancelMenuScreen(): Promise<Screen> {
-    this.cancelScreens++;
-    return { text: mdRaw('Выберите действие:') };
-  }
-
-  protected override async handleAppCommand(
-    update: CommandUpdate,
-    tgId: number,
-    session: BotSession,
-  ): Promise<DialogResponse | null> {
-    this.appCommandCalls.push(update);
-    return this.appCommandHandler
-      ? this.appCommandHandler(update, tgId, session)
-      : null;
-  }
-}
+/** Тестовый uiApp: чистый BotUiApp без прикладных переопределений. */
+class TestUiApp extends BotUiApp<AppMeta, TestActor> {}
 
 function makeController(name: string): TestController {
   const c = new TestController();
@@ -360,270 +325,144 @@ describe('BotUiApp — delegate', () => {
   });
 });
 
-// ── Конвейер команд (трек 1.1, ФР-4): appCommand-хук → стори → дефолты ──
+// ── Pipe команд (трек 1.1, ФР-4 ревизия 2.1): uiApp агрегирует контроллеры ──
 
-describe('BotUiApp — конвейер handleCommand (ФР-4)', () => {
-  function makeStoryUiApp(story: TestStory): {
-    uiApp: TestUiApp;
-    ctrlA: TestController;
-  } {
+describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', () => {
+  test('все контроллеры pass → null (дефолты — уровень приложения)', async () => {
     const ctrlA = makeController('a');
-    ctrlA.fakeStories = [story];
-    return { uiApp: makeUiApp([ctrlA]), ctrlA };
-  }
+    const ctrlB = makeController('b');
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 5);
 
-  // ── Уровень 1: appCommand-хук ──
+    const response = await uiApp.handleCommand(makeCommand('help'), 42, session);
 
-  test('appCommand-хук: непустой ответ завершает конвейер — стори и дефолты не дёргаются', async () => {
-    const story = new TestStory('one');
-    const { uiApp } = makeStoryUiApp(story);
-    uiApp.appCommandHandler = async () => ({ info: { text: md`Перехвачено` } });
-    const session = makeSession('a/one', 5, { context: { step: 2 } });
-
-    const response = await uiApp.handleCommand(
-      makeCommand('cancel'),
-      42,
-      session,
-    );
-
-    expect(String(response?.info?.text)).toBe('Перехвачено');
-    expect(uiApp.appCommandCalls.length).toBe(1);
-    // конвейер прерван: стори не опрошена, дефолт-cancel не сбросил диалог
-    expect(story.commandCalls.length).toBe(0);
+    expect(ctrlA.commandCalls.length).toBe(1);
+    expect(ctrlB.commandCalls.length).toBe(1);
+    expect(response).toBeNull();
+    // pipe не трогает диалог и seq
     expect(session.dialog.path).toBe('a/one');
     expect(session.dialog.seq).toBe(5);
   });
 
-  test('appCommand-хук: null («пропускаю») — конвейер продолжается до дефолта', async () => {
-    const { uiApp } = makeStoryUiApp(new TestStory('one'));
-    const session = makeSession('a/one', 5);
+  test('актор резолвится один раз и доезжает до контроллеров', async () => {
+    let resolveCalls = 0;
+    const ctrlA = makeController('a');
+    const uiApp = new TestUiApp([ctrlA]);
+    uiApp.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => {
+        resolveCalls++;
+        return makeActor();
+      },
+    });
 
-    const response = await uiApp.handleCommand(
-      makeCommand('start'),
-      42,
-      session,
-    );
+    await uiApp.handleCommand(makeCommand('help'), 42, makeSession());
 
-    expect(uiApp.appCommandCalls.length).toBe(1);
-    expect(String(response?.screen?.text)).toBe('Меню');
-    expect(session.dialog.path).toBe('menu/main');
+    expect(resolveCalls).toBe(1);
   });
 
-  // ── /start: с любого места — основное меню ──
+  test('активный контроллер первым, далее по порядку регистрации (без дубля)', async () => {
+    const order: string[] = [];
+    const ctrlA = makeController('a');
+    const ctrlB = makeController('b');
+    const ctrlC = makeController('c');
+    for (const c of [ctrlA, ctrlB, ctrlC]) {
+      c.commandHandler = (name) => {
+        order.push(name);
+        return { reaction: 'pass' };
+      };
+    }
+    const uiApp = makeUiApp([ctrlA, ctrlB, ctrlC]);
+    const session = makeSession('b/two', 5);
 
-  test('/start: с любого места — reopen меню + welcome, активная стори не опрашивается', async () => {
-    const story = new TestStory('one');
-    story.commandResult = { screen: { text: md`Стоп` } };
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5, { context: { step: 2 } });
+    await uiApp.handleCommand(makeCommand('help'), 42, session);
 
-    const response = await uiApp.handleCommand(
-      makeCommand('start'),
-      42,
-      session,
-    );
-
-    expect(story.commandCalls.length).toBe(0);
-    expect(session.dialog.path).toBe('menu/main');
-    expect(session.dialog.seq).toBe(6);
-    expect(session.dialog.input).toBeUndefined();
-    expect(String(response?.screen?.text)).toBe('Меню');
+    expect(order).toEqual(['b', 'a', 'c']);
   });
 
-  test('/start при закрытом диалоге открывает меню с seq=1', async () => {
-    const { uiApp } = makeStoryUiApp(new TestStory('one'));
-    const session = {} as BotSession;
+  test('при закрытом диалоге — порядок регистрации, без активного', async () => {
+    const order: string[] = [];
+    const ctrlA = makeController('a');
+    const ctrlB = makeController('b');
+    for (const c of [ctrlA, ctrlB]) {
+      c.commandHandler = (name) => {
+        order.push(name);
+        return { reaction: 'pass' };
+      };
+    }
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
 
-    await uiApp.handleCommand(makeCommand('start'), 42, session);
+    await uiApp.handleCommand(makeCommand('help'), 42, {} as BotSession);
 
-    expect(session.dialog?.path).toBe('menu/main');
-    expect(session.dialog?.seq).toBe(1);
+    expect(order).toEqual(['a', 'b']);
   });
 
-  // ── /help: три уровня (стори → main-help на меню → fallback) ──
-
-  test('/help уровень «стори»: активная стори дала справку → её info-реплика, диалог не тронут', async () => {
-    const story = new TestStory('one');
-    story.commandResult = { info: { text: md`Вы в анкете, вопрос 3 из 10` } };
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleCommand(
-      makeCommand('help'),
-      42,
-      session,
-    );
-
-    expect(String(response?.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
-    expect(response?.screen).toBeUndefined();
-    expect(session.dialog.path).toBe('a/one');
-    expect(session.dialog.seq).toBe(5);
-  });
-
-  test('/help: стори вернула screen → текст экрана уходит info-репликой, экран диалога не рендерится', async () => {
-    const story = new TestStory('one');
-    story.commandResult = { screen: { text: md`Справка анкеты` } };
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleCommand(
-      makeCommand('help'),
-      42,
-      session,
-    );
-
-    expect(String(response?.info?.text)).toBe('Справка анкеты');
-    expect(response?.screen).toBeUndefined();
-    expect(session.dialog.seq).toBe(5);
-  });
-
-  test('/help уровень «стори» через дефолт: handleHelp стори подхватывается обобщением handleCommand', async () => {
-    const story = new TestStory('one');
-    story.helpScreen = { text: md`Контекстная справка` };
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleCommand(
-      makeCommand('help'),
-      42,
-      session,
-    );
-
-    expect(String(response?.info?.text)).toBe('Контекстная справка');
-  });
-
-  test('/help без стори (меню/закрыт диалог) → общий fallback', async () => {
-    const { uiApp } = makeStoryUiApp(new TestStory('one'));
-    const session = makeSession('menu/main', 2);
-
-    const response = await uiApp.handleCommand(
-      makeCommand('help'),
-      42,
-      session,
-    );
-
-    expect(String(response?.info?.text)).toContain('Справка');
-    expect(response?.screen).toBeUndefined();
-  });
-
-  // ── /cancel: доменная очистка → сброс приложения → меню ──
-
-  test('/cancel: доменная очистка активной стори вызывается ВСЕГДА (и без ожидания ввода)', async () => {
-    const story = new TestStory('one');
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5); // без input
-
-    await uiApp.handleCommand(makeCommand('cancel'), 42, session);
-
-    expect(story.commandCalls.length).toBe(1);
-    // дефолт handleCommand('cancel') обобщает handleCancel — доменная очистка
-    expect(story.cancelCalls).toBe(1);
-  });
-
-  test('/cancel: пустой ответ стори → сброс диалога (seq++, меню-якорь) и короткое меню', async () => {
-    const story = new TestStory('one');
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5, { context: { step: 2 } });
-
-    const response = await uiApp.handleCommand(
-      makeCommand('cancel'),
-      42,
-      session,
-    );
-
-    expect(session.dialog.path).toBe('menu/main');
-    expect(session.dialog.seq).toBe(6);
-    expect(session.dialog.input).toBeUndefined();
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
-    expect(uiApp.cancelScreens).toBe(1);
-    expect(uiApp.menuScreens).toBe(0);
-  });
-
-  test('/cancel: доменный текст стори («Анкета отменена») — info-реплика НАД меню, экран — меню', async () => {
-    const story = new TestStory('one');
-    story.commandResult = {
-      release: true,
-      screen: { text: md`Анкета отменена` },
+  test('первый stop побеждает: последующие контроллеры не опрашиваются', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = {
+      reaction: 'stop',
+      response: { info: { text: md`Ответ A` } },
     };
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5, { context: {} });
+    const ctrlB = makeController('b');
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('b/two', 5);
 
-    const response = await uiApp.handleCommand(
-      makeCommand('cancel'),
-      42,
-      session,
-    );
+    const response = await uiApp.handleCommand(makeCommand('help'), 42, session);
 
-    expect(String(response?.info?.text)).toBe('Анкета отменена');
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
-    expect(session.dialog.path).toBe('menu/main');
-    expect(session.dialog.seq).toBe(6);
+    expect(ctrlA.commandCalls.length).toBe(1);
+    expect(ctrlB.commandCalls.length).toBe(0);
+    expect(String(response?.info?.text)).toBe('Ответ A');
   });
 
-  test('/cancel при закрытом диалоге → reopen меню seq=1 (нечего чистить)', async () => {
-    const { uiApp } = makeStoryUiApp(new TestStory('one'));
-    const session = {} as BotSession;
+  test('stop с пустым ответом — терминал без реплики (null не возвращается)', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = { reaction: 'stop', response: {} };
+    const uiApp = makeUiApp([ctrlA]);
 
-    const response = await uiApp.handleCommand(
-      makeCommand('cancel'),
-      42,
-      session,
-    );
+    const response = await uiApp.handleCommand(makeCommand('help'), 42, makeSession());
 
-    expect(session.dialog?.path).toBe('menu/main');
-    expect(session.dialog?.seq).toBe(1);
-    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(response).toEqual({});
   });
 
-  // ── доменные команды стори (команда доходит до активного стори) ──
+  test('только continue → {info: склейка нотисов}', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = { reaction: 'continue', notice: md`Вклад A` };
+    const ctrlB = makeController('b');
+    ctrlB.commandReaction = { reaction: 'continue', notice: md`Вклад B` };
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
 
-  test('доменная команда: стори ответила — её ответ как есть (screen допустим)', async () => {
-    const story = new TestStory('one');
-    story.commandResult = { screen: { text: md`Список задач` } };
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5);
+    const response = await uiApp.handleCommand(makeCommand('help'), 42, makeSession());
 
-    const response = await uiApp.handleCommand(
-      makeCommand('tasks'),
-      42,
-      session,
-    );
-
-    expect(String(response?.screen?.text)).toBe('Список задач');
-    expect(session.dialog.seq).toBe(5);
+    expect(String(response?.info?.text)).toBe('Вклад A\n\nВклад B');
+    expect(response?.screen).toBeUndefined();
   });
 
-  test('конверт доезжает до стори целиком: command + args', async () => {
-    const story = new TestStory('one');
-    const { uiApp } = makeStoryUiApp(story);
-    const session = makeSession('a/one', 5);
+  test('continue-нотисы + stop: склейка — info-нотисом НАД ответом стопа', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = { reaction: 'continue', notice: md`Вклад A` };
+    const ctrlB = makeController('b');
+    ctrlB.commandReaction = {
+      reaction: 'stop',
+      response: { screen: { text: md`Экран B` } },
+    };
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+
+    const response = await uiApp.handleCommand(makeCommand('cancel'), 42, makeSession());
+
+    expect(String(response?.info?.text)).toBe('Вклад A');
+    expect(String(response?.screen?.text)).toBe('Экран B');
+  });
+
+  test('конверт доезжает до контроллеров целиком: command + args', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA]);
 
     const update = makeCommand('tasks', 'today urgent');
-    await uiApp.handleCommand(update, 42, session);
+    await uiApp.handleCommand(update, 42, makeSession());
 
-    expect(story.commandCalls[0]?.command).toBe('tasks');
-    expect(story.commandCalls[0]?.args).toBe('today urgent');
-  });
-
-  test('неизвестная команда без обработчика → info-подсказка, диалог не тронут', async () => {
-    const { uiApp } = makeStoryUiApp(new TestStory('one'));
-    const session = makeSession('a/one', 5);
-
-    const response = await uiApp.handleCommand(makeCommand('foo'), 42, session);
-
-    expect(response?.info).toBeDefined();
-    expect(response?.screen).toBeUndefined();
-    expect(session.dialog.path).toBe('a/one');
-    expect(session.dialog.seq).toBe(5);
-  });
-
-  test('неизвестная команда при закрытом диалоге → info-подсказка (не падение)', async () => {
-    const { uiApp } = makeStoryUiApp(new TestStory('one'));
-    const session = {} as BotSession;
-
-    const response = await uiApp.handleCommand(makeCommand('foo'), 42, session);
-
-    expect(response?.info).toBeDefined();
+    expect(ctrlA.commandCalls[0]?.command).toBe('tasks');
+    expect(ctrlA.commandCalls[0]?.args).toBe('today urgent');
   });
 });
 
@@ -645,15 +484,6 @@ describe('BotUiApp — awaitInput/release', () => {
 // ── Инварианты: операция входа (трек 1.1, ФР-1/ФР-2) ──
 
 describe('BotUiApp — инварианты: операция входа', () => {
-  test('повторный /start — reopen: seq++ даже «меню → меню» (не no-op)', async () => {
-    const uiApp = makeUiApp([makeController('a')]);
-    const session = makeSession('menu/main', 5);
-
-    await uiApp.handleCommand(makeCommand('start'), 42, session);
-
-    expect(session.dialog.seq).toBe(6);
-  });
-
   test('handleMessage при закрытом диалоге → null (next), контроллеры не дёргаются', async () => {
     const ctrlA = makeController('a');
     const uiApp = makeUiApp([ctrlA]);
@@ -668,19 +498,6 @@ describe('BotUiApp — инварианты: операция входа', () =>
 
     expect(ctrlA.messageCalled).toBe(0);
     expect(response).toBeNull();
-  });
-
-  test('/help при закрытом диалоге → общий fallback (info-реплика)', async () => {
-    const uiApp = makeUiApp([makeController('a')]);
-    const session = {} as BotSession;
-
-    const response = await uiApp.handleCommand(
-      makeCommand('help'),
-      42,
-      session,
-    );
-
-    expect(String(response?.info?.text).length).toBeGreaterThan(0);
   });
 });
 

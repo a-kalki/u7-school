@@ -14,10 +14,12 @@ import {
   assertMarkdownV2Safe,
   type Logger,
   LogLevel,
+  md,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import type { BotSession, BotUpdate, DialogResponse } from '@u7-scl/core/ui';
+import type { BotSession, BotUpdate, CommandUpdate, DialogResponse, Screen } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
+import { U7BotController } from './u7-bot-controller';
 import { U7BotUiStory } from './u7-bot-ui-story';
 
 /**
@@ -266,9 +268,144 @@ describe('U7BotUiStory.handleError', () => {
   });
 
   describe('наследник U7BotUiStory', () => {
-    test('handleStart по умолчанию — пункт меню не добавляется', async () => {
+    test('menuButtons по умолчанию — пусто (стори не участвует в меню)', () => {
       const s = new TestStory();
-      expect(await s.handleStart(actor)).toBeNull();
+      expect(s.menuButtons(actor)).toEqual([]);
     });
+  });
+});
+
+// ── Контракт команд u7-стори (ФР-4, ревизия 2.1) ──
+
+describe('U7BotUiStory — контракт handleCommand', () => {
+  /** Стори с контекстной справкой и счётчиком сброса. */
+  class ContractStory extends U7BotUiStory {
+    readonly name = 'fill';
+    resetCalls = 0;
+    help: Screen | null = null;
+
+    override reset(): void {
+      this.resetCalls++;
+    }
+
+    override handleCallback(): Promise<DialogResponse> {
+      throw new Error('Не используется');
+    }
+    override handleMessage(): Promise<DialogResponse | null> {
+      return null;
+    }
+    protected override async contextHelp(): Promise<Screen | null> {
+      return this.help;
+    }
+  }
+
+  class ContractController extends U7BotController {
+    readonly name = 'questionnaire';
+
+    constructor(story: U7BotUiStory) {
+      super();
+      this.stories.push(story);
+    }
+  }
+
+  /** Инициализированная пара контроллер+стори (dialogPath = ctrl/story). */
+  function makeStory(): ContractStory {
+    const story = new ContractStory();
+    const ctrl = new ContractController(story);
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => actor,
+    } as never);
+    return story;
+  }
+
+  function cmd(command: string): CommandUpdate {
+    return { type: 'command', command, args: '', telegramId: 1 };
+  }
+
+  const activeSession: BotSession = { dialog: { path: 'questionnaire/fill', seq: 2 } };
+  const otherSession: BotSession = { dialog: { path: 'app/menu', seq: 2 } };
+
+  test('dialogPath вычисляется из контроллера и имени стори', () => {
+    const story = makeStory();
+    expect(story.dialogPath).toBe('questionnaire/fill');
+  });
+
+  test('isActive: свой диалог — true, чужой/закрытый — false', () => {
+    const story = makeStory();
+    expect(story.isActive(activeSession)).toBe(true);
+    expect(story.isActive(otherSession)).toBe(false);
+    expect(story.isActive({} as BotSession)).toBe(false);
+  });
+
+  test('/start → исключение-сторож: команда обрабатывается uiApp, до стори не доходит', async () => {
+    const story = makeStory();
+    await expect(story.handleCommand(cmd('start'), actor, activeSession)).rejects.toThrow();
+  });
+
+  test('/help активна → stop{info: контекстная справка}', async () => {
+    const story = makeStory();
+    story.help = { text: md`Вы в анкете, вопрос 3 из 10` };
+
+    const reaction = await story.handleCommand(cmd('help'), actor, activeSession);
+
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction === 'stop') {
+      expect(String(reaction.response.info?.text)).toBe(
+        'Вы в анкете, вопрос 3 из 10',
+      );
+    }
+  });
+
+  test('/help активна без справки → pass (общий help уровня приложения)', async () => {
+    const story = makeStory();
+    story.help = null;
+
+    const reaction = await story.handleCommand(cmd('help'), actor, activeSession);
+
+    expect(reaction).toEqual({ reaction: 'pass' });
+  });
+
+  test('/help неактивна → pass (даже при наличии справки)', async () => {
+    const story = makeStory();
+    story.help = { text: md`Справка` };
+
+    const reaction = await story.handleCommand(cmd('help'), actor, otherSession);
+
+    expect(reaction).toEqual({ reaction: 'pass' });
+  });
+
+  test('/cancel активна → сброс себя + stop{info: «Отменено. Наберите /start»}', async () => {
+    const story = makeStory();
+
+    const reaction = await story.handleCommand(cmd('cancel'), actor, activeSession);
+
+    expect(story.resetCalls).toBe(1);
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction === 'stop') {
+      expect(String(reaction.response.info?.text)).toContain('Отменено');
+      // MarkdownV2-безопасность дефолтного текста
+      expect(() =>
+        assertMarkdownV2Safe(reaction.response.info?.text ?? ''),
+      ).not.toThrow();
+    }
+  });
+
+  test('/cancel неактивна → pass без побочных действий (сброс только активной)', async () => {
+    const story = makeStory();
+
+    const reaction = await story.handleCommand(cmd('cancel'), actor, otherSession);
+
+    expect(story.resetCalls).toBe(0);
+    expect(reaction).toEqual({ reaction: 'pass' });
+  });
+
+  test('прочая команда → pass (домен реагирует только своими командами)', async () => {
+    const story = makeStory();
+
+    const reaction = await story.handleCommand(cmd('tasks'), actor, activeSession);
+
+    expect(reaction).toEqual({ reaction: 'pass' });
   });
 });

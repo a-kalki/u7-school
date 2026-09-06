@@ -12,17 +12,20 @@ describe('CommunityStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  test('handleStart возвращает кнопку «Сообщество школы» с URL', async () => {
+  test('menuButtons возвращает кнопку «Сообщество школы» с URL и описанием', () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
-    const item = await story.handleStart(actor);
-    expect(item).not.toBeNull();
-    expect(item!.text).toBe('💬 Сообщество школы');
-    expect(item!.kind).toBe('url');
-    expect((item as any).url).toBe('https://t.me/u7_school_group');
-    expect(item!.priority).toBe(90);
+    const buttons = story.menuButtons(actor);
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]!.text).toBe('💬 Сообщество школы');
+    expect(buttons[0]!.kind).toBe('url');
+    expect((buttons[0] as { url?: string }).url).toBe(
+      'https://t.me/u7_school_group',
+    );
+    expect(buttons[0]!.priority).toBe(90);
+    expect(buttons[0]!.description).toBeDefined();
   });
 
-  test('handleStart возвращает кнопку для всех ролей', async () => {
+  test('menuButtons возвращает кнопку для всех ролей', () => {
     const story = new CommunityStory('https://t.me/u7_school_group');
     const roles = [
       Role.GUEST,
@@ -39,9 +42,8 @@ describe('CommunityStory', () => {
         roles: [role],
         createdAt: '2026-01-01T00:00:00.000Z',
       };
-      const item = await story.handleStart(user);
-      expect(item).not.toBeNull();
-      expect(item!.text).toBe('💬 Сообщество школы');
+      const buttons = story.menuButtons(user);
+      expect(buttons[0]!.text).toBe('💬 Сообщество школы');
     }
   });
 

@@ -148,60 +148,20 @@ describe('BotUiStory — confirm', () => {
   });
 });
 
-describe('BotUiStory — дефолты контракта', () => {
-  test('handleCancel по умолчанию → release', async () => {
-    const story = new TestStory();
-    const response = await story.handleCancel(
-      { id: 'u' },
-      { dialog: { path: 'x/y', seq: 1 } },
-    );
-    expect(response).toEqual({ release: true });
-  });
-
-  test('handleHelp по умолчанию → null (общий fallback)', async () => {
-    const story = new TestStory();
-    const screen = await story.handleHelp(
-      { id: 'u' },
-      { dialog: { path: 'x/y', seq: 1 } },
-    );
-    expect(screen).toBeNull();
-  });
-
-  test('handleCommand по умолчанию: cancel → handleCancel (доменная очистка)', async () => {
+describe('BotUiStory — дефолты контракта команд (ФР-4, pipe)', () => {
+  // Ядро имён команд не знает: именных обработчиков нет,
+  // дефолт на любую команду — pass («не моё»).
+  test('handleCommand по умолчанию: любая команда → {reaction: \'pass\'}', async () => {
     const story = new TestStory();
 
-    const response = await story.handleCommand(
-      { type: 'command', command: 'cancel', args: '', telegramId: 7 },
-      { id: 'u' },
-      { dialog: { path: 'x/y', seq: 1 } },
-    );
-
-    expect(response).toEqual({ release: true });
-  });
-
-  test('handleCommand по умолчанию: help → handleHelp как info-реплика', async () => {
-    const story = new TestStory();
-
-    const response = await story.handleCommand(
-      { type: 'command', command: 'help', args: '', telegramId: 7 },
-      { id: 'u' },
-      { dialog: { path: 'x/y', seq: 1 } },
-    );
-
-    // handleHelp по умолчанию null → «не моё»
-    expect(response).toBeNull();
-  });
-
-  test('handleCommand по умолчанию: прочие команды → null («не моё»)', async () => {
-    const story = new TestStory();
-
-    const response = await story.handleCommand(
-      { type: 'command', command: 'tasks', args: 'today', telegramId: 7 },
-      { id: 'u' },
-      { dialog: { path: 'x/y', seq: 1 } },
-    );
-
-    expect(response).toBeNull();
+    for (const command of ['cancel', 'help', 'start', 'tasks']) {
+      const reaction = await story.handleCommand(
+        { type: 'command', command, args: '', telegramId: 7 },
+        { id: 'u' },
+        { dialog: { path: 'x/y', seq: 1 } },
+      );
+      expect(reaction).toEqual({ reaction: 'pass' });
+    }
   });
 });
 

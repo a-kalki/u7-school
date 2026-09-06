@@ -1,7 +1,13 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
-import type { MainMenuAction, MenuAggregator } from '@u7-scl/bot/u7-menu';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
+import {
+  type Logger,
+  LogLevel,
+  setGlobalLogger,
+} from '@u7-scl/core/shared';
+import type { CommandReaction, CommandUpdate } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -14,178 +20,141 @@ const actor: User = {
   createdAt: '2026-01-01T00:00:00.000Z',
 };
 
-function makeSession() {
-  return { dialog: { path: 'app/menu', seq: 1 } };
-}
-
-/** Заглушка MenuAggregator для тестов */
-function makeAggregator(
-  menuItems: MainMenuAction[] = [],
-  helpDescs: string[] = [],
-): MenuAggregator<User> {
+function makeLogger(): Logger & { setLogLevel: ReturnType<typeof mock> } {
   return {
-    collectAllMenuItems: async () => menuItems,
-    collectAllHelpDescriptions: async () => helpDescs,
-  };
+    debug: mock(() => {}),
+    info: mock(() => {}),
+    warn: mock(() => {}),
+    error: mock(() => {}),
+    setLogLevel: mock(() => {}),
+    getLogLevel: mock(() => 0),
+    setSourceLevel: mock(() => {}),
+  } as unknown as Logger & { setLogLevel: ReturnType<typeof mock> };
 }
 
-/** Инициализирует контроллер с моком MenuAggregator */
-function initCtrl(
-  ctrl: AppController,
-  menuItems: MainMenuAction[] = [],
-  helpDescs: string[] = [],
-): void {
-  ctrl.init({
-    appApi: {},
-    uiApp: makeAggregator(menuItems, helpDescs),
-  } as never);
+function makeCtrl(adminIds: number[] = []): AppController {
+  return new AppController(SCHOOL_URL, adminIds);
 }
 
-describe('AppController', () => {
-  // ── handleStart ──
+function makeCommand(
+  command: string,
+  args = '',
+  telegramId = 123,
+): CommandUpdate {
+  return { type: 'command', command, args, telegramId };
+}
 
-  test('handleStart возвращает две кнопки: Сообщество и Помощь', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    const items = await ctrl.handleStart(actor);
+describe('AppController — menuButtons', () => {
+  test('две кнопки: Сообщество (url, 90) и Помощь (callback, 100) — по приоритету', () => {
+    const ctrl = makeCtrl();
 
-    expect(items).toHaveLength(2);
-    // Кнопка «Сообщество школы» — url, priority 90
-    expect(items[0]!.text).toBe('💬 Сообщество школы');
-    expect(items[0]!.kind).toBe('url');
-    expect((items[0]! as { url?: string }).url).toBe(SCHOOL_URL);
-    expect(items[0]!.priority).toBe(90);
-    // Кнопка «Помощь» — callback, priority 100
-    expect(items[1]!.text).toBe('❓ Помощь');
-    expect(items[1]!.kind).toBe('callback');
-    expect(items[1]!.priority).toBe(100);
+    const buttons = ctrl.menuButtons(actor);
+
+    expect(buttons).toHaveLength(2);
+    expect(buttons[0]!.text).toBe('💬 Сообщество школы');
+    expect(buttons[0]!.kind).toBe('url');
+    expect((buttons[0]! as { url?: string }).url).toBe(SCHOOL_URL);
+    expect(buttons[0]!.priority).toBe(90);
+    expect(buttons[1]!.text).toBe('❓ Помощь');
+    expect(buttons[1]!.kind).toBe('callback');
+    expect(buttons[1]!.priority).toBe(100);
+    // код кнопки Помощь — префиксован контроллером
+    expect((buttons[1]! as { action?: string }).action).toBe('app:help');
   });
+});
 
-  // ── handleWelcome ──
+describe('AppController — handleCommand: /log_level', () => {
+  test('от НЕ-админа → stop{} (тишина), уровень не меняется', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const ctrl = makeCtrl([999]);
 
-  test('handleWelcome возвращает приветствие-экран с клавиатурой', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    initCtrl(ctrl, [
-      {
-        kind: 'callback',
-        text: '📚 Потоки',
-        action: 'stream:catalog',
-        priority: 50,
-      },
-      {
-        kind: 'callback',
-        text: '❓ Помощь',
-        action: 'app:help',
-        priority: 100,
-      },
-      { kind: 'url', text: '💬 Сообщество', url: SCHOOL_URL, priority: 90 },
-    ]);
-
-    const screen = await ctrl.handleWelcome(actor);
-
-    expect(screen).not.toBeNull();
-    expect(String(screen!.text)).toContain('Привет');
-    expect(String(screen!.text)).toContain('u7 schools');
-    expect(String(screen!.text)).toContain('Помощь');
-    expect(screen!.keyboard).toBeDefined();
-    // Все кнопки (включая url) попадают в клавиатуру
-    const rows = screen!.keyboard!.rows;
-    expect(rows.length).toBeGreaterThanOrEqual(2);
-    // url-кнопка «Сообщество» имеет url
-    const communityRow = rows.find((r) => r[0]!.text === '💬 Сообщество');
-    expect(communityRow).toBeDefined();
-    expect(communityRow![0]!.url).toBe(SCHOOL_URL);
-  });
-
-  test('handleWelcome без MenuAggregator (до init) — только приветствие', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    // Не вызываем init — uiApp не задан
-
-    const screen = await ctrl.handleWelcome(actor);
-
-    expect(String(screen!.text)).toContain('Привет');
-    expect(screen!.keyboard).toBeUndefined();
-  });
-
-  // ── handleHelpMessage ──
-
-  test('handleHelpMessage: инструкция + описания, без клавиатуры (info-канал)', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    initCtrl(
-      ctrl,
-      [],
-      [
-        '💬 Сообщество школы — ссылка на группу',
-        '📚 Потоки курсов — просмотр каталога (список)',
-      ],
+    const reaction = await ctrl.handleCommand(
+      makeCommand('log_level', 'debug'),
+      actor,
+      { dialog: { path: 'app/menu', seq: 1 } },
     );
 
-    const screen = await ctrl.handleHelpMessage(actor);
-
-    expect(screen).not.toBeNull();
-    const text = String(screen!.text);
-    expect(text).toContain('Как со мной работать?');
-    expect(text).toContain('После выбора кнопки');
-    expect(text).toContain('/cancel');
-    expect(text).toContain('Сообщество школы');
-    // Доменные описания экранируются как данные
-    expect(text).toContain('просмотр каталога \\(список\\)');
-    // info-реплика — без клавиатуры (транспорт её не рендерит)
-    expect(screen!.keyboard).toBeUndefined();
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction === 'stop') {
+      expect(reaction.response).toEqual({});
+    }
+    expect(logger.setLogLevel).not.toHaveBeenCalled();
   });
 
-  test('handleHelpMessage без описаний — только инструкция', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    initCtrl(ctrl, [], []);
+  test('от админа с аргументом → stop{info}, уровень изменён', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const ctrl = makeCtrl([123]);
 
-    const screen = await ctrl.handleHelpMessage(actor);
+    const reaction = await ctrl.handleCommand(
+      makeCommand('log_level', 'debug'),
+      actor,
+      { dialog: { path: 'app/menu', seq: 1 } },
+    );
 
-    expect(String(screen!.text)).toContain('Как со мной работать?');
-    expect(String(screen!.text)).toContain('Вот что я умею:');
-    expect(screen!.keyboard).toBeUndefined();
+    expect(logger.setLogLevel).toHaveBeenCalledWith(LogLevel.DEBUG);
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
+    expect(String(reaction.response.info?.text)).toContain('debug');
   });
 
-  // ── handleCallback: main-menu ──
+  test('от админа без аргументов → stop{info} с инструкцией', async () => {
+    setGlobalLogger(makeLogger());
+    const ctrl = makeCtrl([123]);
 
-  test('handleCallback main-menu: экран меню без приветствия', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    initCtrl(ctrl, [
-      {
-        kind: 'callback',
-        text: '📚 Потоки',
-        action: 'stream:catalog',
-        priority: 50,
-      },
-    ]);
+    const reaction = await ctrl.handleCommand(
+      makeCommand('log_level', ''),
+      actor,
+      { dialog: { path: 'app/menu', seq: 1 } },
+    );
 
-    const res = await ctrl.handleCallback('main-menu', actor, makeSession());
-
-    // Не должно быть приветственного текста
-    expect(String(res.screen?.text)).not.toContain('Привет');
-    expect(String(res.screen?.text)).toBe('Выберите действие:');
-    expect(res.screen?.keyboard).toBeDefined();
+    if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
+    expect(String(reaction.response.info?.text)).toContain('Использование');
+    // MarkdownV2: подчёркивание экранировано
+    expect(String(reaction.response.info?.text)).toContain('log\\_level');
   });
 
-  // ── handleCallback: help ──
+  test('от админа с неизвестным уровнем → stop{info} со списком уровней', async () => {
+    setGlobalLogger(makeLogger());
+    const ctrl = makeCtrl([123]);
 
-  test('handleCallback help → info-реплика с инструкцией', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
-    initCtrl(ctrl, [], ['📝 Заполнить анкету']);
+    const reaction = await ctrl.handleCommand(
+      makeCommand('log_level', 'bogus'),
+      actor,
+      { dialog: { path: 'app/menu', seq: 1 } },
+    );
 
-    const res = await ctrl.handleCallback('help', actor, makeSession());
+    if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
+    expect(String(reaction.response.info?.text)).toContain('bogus');
+    expect(String(reaction.response.info?.text)).toContain('debug');
+  });
+});
 
-    // help-кнопка не строит экран диалога — тихая info-реплика
-    expect(res.screen).toBeUndefined();
-    expect(String(res.info?.text)).toContain('Как со мной работать?');
-    expect(String(res.info?.text)).toContain('Заполнить анкету');
+describe('AppController — handleCommand: прочее', () => {
+  test('прочая команда → super (свои стори): community pass → pass', async () => {
+    const ctrl = makeCtrl();
+
+    const reaction: CommandReaction = await ctrl.handleCommand(
+      makeCommand('help'),
+      actor,
+      { dialog: { path: 'app/menu', seq: 1 } },
+    );
+
+    expect(reaction).toEqual({ reaction: 'pass' });
   });
 
-  // ── handleCallback: неизвестный ──
+  test('кнопка сообщества в menuButtons — код url, описание для /help', () => {
+    const ctrl = makeCtrl();
+    ctrl.init({
+      appApi: {},
+      eventBus: {},
+      actorResolver: async () => actor,
+    } as never);
 
-  test('handleCallback с неизвестным действием возвращает ошибку-экран', async () => {
-    const ctrl = new AppController(SCHOOL_URL);
+    const buttons: MenuButton[] = ctrl.menuButtons(actor);
+    const community = buttons.find((b) => b.text.includes('Сообщество'));
 
-    const res = await ctrl.handleCallback('unknown', actor, makeSession());
-
-    expect(String(res.screen?.text)).toContain('Неизвестная команда');
+    expect(community?.description).toBeDefined();
   });
 });

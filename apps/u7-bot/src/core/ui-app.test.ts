@@ -1,9 +1,20 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
+import {
+  type Logger,
+  LogLevel,
+  md,
+  setGlobalLogger,
+} from '@u7-scl/core/shared';
+import type {
+  BotSession,
+  CommandReaction,
+  CommandUpdate,
+} from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
-import { U7BotUiApp } from './ui-app';
+import { U7BotController } from './u7-bot-controller';
+import { type U7BotUiAppDeps, U7BotUiApp } from './ui-app';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
 const BOT_ADMIN_UUID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -37,14 +48,58 @@ function makeUserFacade(
   } as unknown as UserFacade & { registerGuest: ReturnType<typeof mock> };
 }
 
-function makeUiApp(
-  opts: { adminTelegramIds?: number[]; userFacade?: UserFacade } = {},
-): ProbeUiApp {
-  const uiApp = new ProbeUiApp([new AppController(SCHOOL_URL)], {
-    adminTelegramIds: opts.adminTelegramIds ?? [],
+function makeDeps(
+  opts: { userFacade?: UserFacade } = {},
+): U7BotUiAppDeps {
+  return {
     userFacade: opts.userFacade ?? makeUserFacade(),
     botAdminUuid: BOT_ADMIN_UUID,
-  });
+  };
+}
+
+function makeCommand(
+  command: string,
+  args = '',
+  extra: { telegramId?: number; name?: string } = {},
+): CommandUpdate {
+  return {
+    type: 'command',
+    command,
+    args,
+    telegramId: extra.telegramId ?? 123,
+    ...(extra.name ? { name: extra.name } : {}),
+  };
+}
+
+/** Контроллер-шпион: настраиваемая реакция в pipe. */
+class SpyController extends U7BotController {
+  name: string;
+  commandReaction: CommandReaction = { reaction: 'pass' };
+  commandCalls = 0;
+
+  constructor(name = 'spy') {
+    super();
+    this.name = name;
+  }
+
+  override async handleCommand(): Promise<CommandReaction> {
+    this.commandCalls++;
+    return this.commandReaction;
+  }
+}
+
+function makeUiApp(
+  opts: {
+    adminTelegramIds?: number[];
+    userFacade?: UserFacade;
+    spy?: SpyController;
+  } = {},
+): U7BotUiApp {
+  const controllers = [
+    new AppController(SCHOOL_URL, opts.adminTelegramIds ?? []),
+  ];
+  if (opts.spy) controllers.push(opts.spy);
+  const uiApp = new U7BotUiApp(controllers, makeDeps(opts));
   const resolve: {
     appApi: never;
     eventBus: never;
@@ -56,66 +111,120 @@ function makeUiApp(
     actorResolver: async () => actor,
     uiApp: undefined,
   };
-  // AppController собирает меню через MenuAggregator — им и есть сам uiApp
   resolve.uiApp = uiApp;
   uiApp.init(resolve as never);
   return uiApp;
 }
 
-/** Доступ к protected handleAppCommand через подкласс-пробник. */
-class ProbeUiApp extends U7BotUiApp {
-  async probe(
-    update: Parameters<U7BotUiApp['handleCommand']>[0],
-    tgId: number,
-    session: Parameters<U7BotUiApp['handleCommand']>[2],
-  ) {
-    return this.handleAppCommand(update, tgId, session);
-  }
-}
+// ── /start: напрямую в uiApp, без pipe (ФР-4, ревизия 2.1) ──
 
-function makeProbeUiApp(
-  opts: { adminTelegramIds?: number[]; userFacade?: UserFacade } = {},
-): ProbeUiApp {
-  return makeUiApp(opts);
-}
-
-function makeCommand(
-  command: string,
-  args = '',
-  extra: { telegramId?: number; name?: string } = {},
-) {
-  return {
-    type: 'command' as const,
-    command,
-    args,
-    telegramId: extra.telegramId ?? 123,
-    ...(extra.name ? { name: extra.name } : {}),
-  };
-}
-
-describe('U7BotUiApp — экраны меню', () => {
-  test('/start (buildMenuScreen): полное приветствие + меню', async () => {
+describe('U7BotUiApp — /start', () => {
+  test('гость регистрируется, диалог reopen меню seq++, welcome из menuButtons', async () => {
     setGlobalLogger(makeLogger());
-    const uiApp = makeUiApp();
-    const session = { dialog: { path: 'zz/old', seq: 4 } };
+    const facade = makeUserFacade(undefined);
+    const spy = new SpyController();
+    const uiApp = makeUiApp({ userFacade: facade, spy });
+    const session = { dialog: { path: 'zz/old', seq: 4 } } as BotSession;
 
     const response = await uiApp.handleCommand(
-      makeCommand('start'),
+      makeCommand('start', '', { telegramId: 777, name: 'Анна' }),
+      777,
+      session,
+    );
+
+    expect(facade.registerGuest).toHaveBeenCalledTimes(1);
+    const [tgId, name, actorId] = facade.registerGuest.mock
+      .calls[0] as unknown[];
+    expect(tgId).toBe(777);
+    expect(name).toBe('Анна');
+    expect(actorId).toBe(BOT_ADMIN_UUID);
+
+    // welcome-экран: приветствие + клавиатура menuButtons
+    expect(String(response?.screen?.text)).toContain('Привет');
+    expect(String(response?.screen?.text)).toContain('u7 schools');
+    const codes = response?.screen?.keyboard?.rows.flatMap((r) =>
+      r.map((b) => [b.code, b.url]),
+    );
+    expect(codes).toContainEqual(['app:help', undefined]);
+    expect(codes).toContainEqual(['', SCHOOL_URL]);
+    // reopen: seq++ даже с чужого пути
+    expect(session.dialog?.path).toBe('app/menu');
+    expect(session.dialog?.seq).toBe(5);
+    // pipe не задействуется: контроллеры не опрашиваются
+    expect(spy.commandCalls).toBe(0);
+  });
+
+  test('знакомый пользователь → регистрация не вызывается', async () => {
+    setGlobalLogger(makeLogger());
+    const facade = makeUserFacade(actor);
+    const uiApp = makeUiApp({ userFacade: facade });
+
+    await uiApp.handleCommand(makeCommand('start'), 123, {} as BotSession);
+
+    expect(facade.registerGuest).not.toHaveBeenCalled();
+  });
+
+  test('первый /start при закрытом диалоге → меню с seq=1', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp();
+    const session = {} as BotSession;
+
+    await uiApp.handleCommand(makeCommand('start'), 123, session);
+
+    expect(session.dialog?.path).toBe('app/menu');
+    expect(session.dialog?.seq).toBe(1);
+  });
+
+  test('повторный /start — reopen: seq++ даже «меню → меню»', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp();
+    const session = { dialog: { path: 'app/menu', seq: 5 } } as BotSession;
+
+    await uiApp.handleCommand(makeCommand('start'), 123, session);
+
+    expect(session.dialog?.seq).toBe(6);
+  });
+});
+
+// ── дефолты u7 после пустого pipe ──
+
+describe('U7BotUiApp — дефолты команд', () => {
+  test('/help при пустом pipe → общий help: инструкция + описания menuButtons', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp();
+    const session = { dialog: { path: 'app/menu', seq: 2 } } as BotSession;
+
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
       123,
       session,
     );
 
-    expect(String(response?.screen?.text)).toContain('Привет, Иван');
-    expect(String(response?.screen?.text)).toContain('u7 schools');
-    expect(response?.screen?.keyboard).toBeDefined();
-    expect(session.dialog.path).toBe('app/menu');
-    expect(session.dialog.seq).toBe(5);
+    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    // описание кнопки сообщества — из menuButtons
+    expect(String(response?.info?.text)).toContain('Сообщество школы');
+    expect(response?.screen).toBeUndefined();
+    // диалог не тронут
+    expect(session.dialog?.seq).toBe(2);
   });
 
-  test('/cancel (buildCancelMenuScreen): КОРОТКОЕ меню без приветствия', async () => {
+  test('/help при закрытом диалоге → общий help (без фиктивной сессии)', async () => {
     setGlobalLogger(makeLogger());
     const uiApp = makeUiApp();
-    const session = { dialog: { path: 'zz/old', seq: 4 } };
+
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      123,
+      {} as BotSession,
+    );
+
+    expect(String(response?.info?.text)).toContain('Как со мной работать');
+  });
+
+  test('/cancel при пустом pipe → reopen меню + КОРОТКОЕ меню без приветствия', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp();
+    const session = { dialog: { path: 'zz/old', seq: 4 } } as BotSession;
 
     const response = await uiApp.handleCommand(
       makeCommand('cancel'),
@@ -126,14 +235,39 @@ describe('U7BotUiApp — экраны меню', () => {
     expect(String(response?.screen?.text)).toBe('Выберите действие:');
     expect(String(response?.screen?.text)).not.toContain('Привет');
     expect(response?.screen?.keyboard).toBeDefined();
-    expect(session.dialog.path).toBe('app/menu');
-    expect(session.dialog.seq).toBe(5);
+    expect(session.dialog?.path).toBe('app/menu');
+    expect(session.dialog?.seq).toBe(5);
   });
 
-  test('клавиатура меню содержит кнопку «Помощь» с кодом app:help', async () => {
+  test('неизвестная команда при пустом pipe → info-подсказка, диалог не тронут', async () => {
     setGlobalLogger(makeLogger());
     const uiApp = makeUiApp();
-    const session = { dialog: { path: 'zz/old', seq: 1 } };
+    const session = { dialog: { path: 'app/menu', seq: 2 } } as BotSession;
+
+    const response = await uiApp.handleCommand(
+      makeCommand('foo'),
+      123,
+      session,
+    );
+
+    expect(String(response?.info?.text)).toContain('Неизвестная команда');
+    expect(response?.screen).toBeUndefined();
+    expect(session.dialog?.seq).toBe(2);
+  });
+});
+
+// ── pipe поверх дефолтов: ответ контроллера/стори побеждает дефолт ──
+
+describe('U7BotUiApp — pipe перед дефолтами', () => {
+  test('/cancel с ответом стори: ответ как есть + глобальный reopen меню (seq++)', async () => {
+    setGlobalLogger(makeLogger());
+    const spy = new SpyController();
+    spy.commandReaction = {
+      reaction: 'stop',
+      response: { info: { text: md`Отменено. Наберите /start` } },
+    };
+    const uiApp = makeUiApp({ spy });
+    const session = { dialog: { path: 'questionnaire/fill', seq: 7 } } as BotSession;
 
     const response = await uiApp.handleCommand(
       makeCommand('cancel'),
@@ -141,152 +275,96 @@ describe('U7BotUiApp — экраны меню', () => {
       session,
     );
 
-    const codes = response?.screen?.keyboard?.rows.flatMap((r) =>
-      r.map((b) => b.code),
+    // ответ стори — как есть (без экрана меню поверх)
+    expect(String(response?.info?.text)).toBe('Отменено. Наберите /start');
+    expect(response?.screen).toBeUndefined();
+    // глобальный сброс диалога — всегда
+    expect(session.dialog?.path).toBe('app/menu');
+    expect(session.dialog?.seq).toBe(8);
+  });
+
+  test('/help с контекстом активной стори → info стори (без общего help)', async () => {
+    setGlobalLogger(makeLogger());
+    const spy = new SpyController();
+    spy.commandReaction = {
+      reaction: 'stop',
+      response: { info: { text: md`Вы в анкете, вопрос 3 из 10` } },
+    };
+    const uiApp = makeUiApp({ spy });
+
+    const response = await uiApp.handleCommand(
+      makeCommand('help'),
+      123,
+      { dialog: { path: 'questionnaire/fill', seq: 2 } } as BotSession,
     );
-    expect(codes).toContain('app:help');
+
+    expect(String(response?.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
+  });
+
+  test('/log_level от админа через app-контроллер → stop{info}, уровень изменён', async () => {
+    const logger = makeLogger();
+    setGlobalLogger(logger);
+    const uiApp = makeUiApp({ adminTelegramIds: [123] });
+
+    const response = await uiApp.handleCommand(
+      makeCommand('log_level', 'debug'),
+      123,
+      {} as BotSession,
+    );
+
+    expect(logger.setLogLevel).toHaveBeenCalledWith(LogLevel.DEBUG);
+    expect(String(response?.info?.text)).toContain('debug');
+  });
+
+  test('/log_level от НЕ-админа → тишина: пустой ответ без реплики', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp({ adminTelegramIds: [999] });
+
+    const response = await uiApp.handleCommand(
+      makeCommand('log_level', 'debug'),
+      123,
+      {} as BotSession,
+    );
+
+    expect(response).toEqual({});
   });
 });
 
-// ── appCommand-гейт (трек 1.1, ФР-4): правила u7 на входе конвейера ──
+// ── системные кнопки app:main-menu / app:help (экс-ветки AppController) ──
 
-describe('U7BotUiApp — appCommand-гейт', () => {
-  describe('/log_level — скрытая админ-команда', () => {
-    test('от НЕ-админа: тихий перехват (пустой ответ, без info/screen), уровень не меняется', async () => {
-      const logger = makeLogger();
-      setGlobalLogger(logger);
-      const uiApp = makeProbeUiApp({ adminTelegramIds: [999] });
-
-      const response = await uiApp.probe(
-        makeCommand('log_level', 'debug'),
-        123,
-        {},
-      );
-
-      // Перехвачено (не null!), но тихо: реплики и экрана нет
-      expect(response).not.toBeNull();
-      expect(response?.info).toBeUndefined();
-      expect(response?.screen).toBeUndefined();
-      expect(logger.setLogLevel).not.toHaveBeenCalled();
-    });
-
-    test('от админа с аргументом: уровень изменён + info-подтверждение', async () => {
-      const logger = makeLogger();
-      setGlobalLogger(logger);
-      const uiApp = makeProbeUiApp({ adminTelegramIds: [123] });
-
-      const response = await uiApp.probe(
-        makeCommand('log_level', 'debug'),
-        123,
-        {},
-      );
-
-      expect(logger.setLogLevel).toHaveBeenCalledWith(LogLevel.DEBUG);
-      expect(String(response?.info?.text)).toContain('debug');
-    });
-
-    test('от админа без аргументов: инструкция использования', async () => {
-      setGlobalLogger(makeLogger());
-      const uiApp = makeProbeUiApp({ adminTelegramIds: [123] });
-
-      const response = await uiApp.probe(makeCommand('log_level', ''), 123, {});
-
-      expect(String(response?.info?.text)).toContain('Использование');
-      // текст интерполируется с экранированием MarkdownV2: /log\_level
-      expect(String(response?.info?.text)).toContain('log\\_level');
-    });
-
-    test('от админа с неизвестным уровнем: ошибка со списком уровней', async () => {
-      setGlobalLogger(makeLogger());
-      const uiApp = makeProbeUiApp({ adminTelegramIds: [123] });
-
-      const response = await uiApp.probe(
-        makeCommand('log_level', 'bogus'),
-        123,
-        {},
-      );
-
-      expect(String(response?.info?.text)).toContain('bogus');
-      expect(String(response?.info?.text)).toContain('debug');
-    });
-  });
-
-  describe('/help — правило «на меню — помощь по меню»', () => {
-    test('активный диалог = меню → main-help (инструкция + описания кнопок)', async () => {
-      const uiApp = makeProbeUiApp();
-      const session = { dialog: { path: 'app/menu', seq: 2 } };
-
-      const response = await uiApp.probe(makeCommand('help'), 123, session);
-
-      expect(response).not.toBeNull();
-      // main-help — сборка AppController.handleHelpMessage
-      expect(String(response?.info?.text)).toContain('Как со мной работать');
-      expect(response?.screen).toBeUndefined();
-    });
-
-    test('активный диалог ≠ меню → гейт пропускает (null): конвейер продолжится', async () => {
-      const uiApp = makeProbeUiApp();
-      const session = { dialog: { path: 'questionnaire/fill', seq: 2 } };
-
-      const response = await uiApp.probe(makeCommand('help'), 123, session);
-
-      expect(response).toBeNull();
-    });
-
-    test('диалог не открыт → гейт пропускает (null)', async () => {
-      const uiApp = makeProbeUiApp();
-
-      const response = await uiApp.probe(makeCommand('help'), 123, {});
-
-      expect(response).toBeNull();
-    });
-  });
-
-  describe('/start — гост-регистрация', () => {
-    test('незнакомый tgId → регистрация гостя от имени бота, гейт пропускает (null)', async () => {
-      const facade = makeUserFacade(undefined);
-      const uiApp = makeProbeUiApp({ userFacade: facade });
-
-      const response = await uiApp.probe(
-        makeCommand('start', '', { telegramId: 777, name: 'Анна' }),
-        777,
-        {},
-      );
-
-      expect(facade.registerGuest).toHaveBeenCalledTimes(1);
-      const [tgId, name, actorId] = facade.registerGuest.mock
-        .calls[0] as unknown[];
-      expect(tgId).toBe(777);
-      expect(name).toBe('Анна');
-      expect(actorId).toBe(BOT_ADMIN_UUID);
-      expect(response).toBeNull();
-    });
-
-    test('знакомый пользователь → регистрация не вызывается', async () => {
-      const facade = makeUserFacade(actor);
-      const uiApp = makeProbeUiApp({ userFacade: facade });
-
-      await uiApp.probe(makeCommand('start'), 123, {});
-
-      expect(facade.registerGuest).not.toHaveBeenCalled();
-    });
-  });
-
-  test('полный конвейер /start от нового пользователя: гость + welcome-меню', async () => {
+describe('U7BotUiApp — системные кнопки', () => {
+  test('app:main-menu → вход в меню-диалог (seq++ с чужого пути) + экран меню', async () => {
     setGlobalLogger(makeLogger());
-    const facade = makeUserFacade(undefined);
-    const uiApp = makeUiApp({ userFacade: facade });
-    const session = {} as Parameters<U7BotUiApp['handleCommand']>[2];
+    const uiApp = makeUiApp();
+    const session = { dialog: { path: 'zz/old', seq: 3 } } as BotSession;
 
-    const response = await uiApp.handleCommand(
-      makeCommand('start', '', { telegramId: 777, name: 'Анна' }),
-      777,
-      session,
-    );
+    const response = await uiApp.handleCallback('app:main-menu', 123, session);
 
-    expect(facade.registerGuest).toHaveBeenCalledTimes(1);
-    expect(String(response?.screen?.text)).toContain('Привет');
+    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(response?.screen?.keyboard).toBeDefined();
     expect(session.dialog?.path).toBe('app/menu');
-    expect(session.dialog?.seq).toBe(1);
+    expect(session.dialog?.seq).toBe(4);
+  });
+
+  test('app:main-menu из меню → seq не растёт (switch на тот же путь)', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp();
+    const session = { dialog: { path: 'app/menu', seq: 3 } } as BotSession;
+
+    await uiApp.handleCallback('app:main-menu', 123, session);
+
+    expect(session.dialog?.seq).toBe(3);
+  });
+
+  test('app:help → общий help info-репликой, диалог не тронут', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp();
+    const session = { dialog: { path: 'app/menu', seq: 3 } } as BotSession;
+
+    const response = await uiApp.handleCallback('app:help', 123, session);
+
+    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    expect(response?.screen).toBeUndefined();
+    expect(session.dialog?.seq).toBe(3);
   });
 });

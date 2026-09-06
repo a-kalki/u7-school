@@ -11,6 +11,7 @@ import { BotUiStory } from './bot-ui-story';
 import type {
   BotSession,
   BotUpdate,
+  CommandReaction,
   DialogResponse,
   KeyboardDescription,
 } from './types';
@@ -92,6 +93,186 @@ function makeWarnSpyLogger(
 function makeUpdate(text = 'ответ'): BotUpdate {
   return { type: 'message', text, telegramId: 7 };
 }
+
+function makeCommandUpdate(
+  command: string,
+  args = '',
+): Parameters<BotUiStory<AppMeta, TestActor>['handleCommand']>[0] {
+  return { type: 'command', command, args, telegramId: 7 };
+}
+
+// ── Pipe команд (ФР-4, ревизия 2.1): контроллер агрегирует реакции стори ──
+
+describe('BotController — handleCommand: pipe стори', () => {
+  /** Стори с записью вызовов и запрограммированной реакцией. */
+  class PipeStory extends BotUiStory<AppMeta, TestActor> {
+    commandCalls = 0;
+    reaction: CommandReaction = { reaction: 'pass' };
+    throwError: unknown = null;
+
+    constructor(readonly name: string) {
+      super();
+    }
+
+    override async handleCallback(): Promise<DialogResponse> {
+      return {};
+    }
+    override async handleMessage(): Promise<DialogResponse | null> {
+      return null;
+    }
+    override async handleCommand(): Promise<CommandReaction> {
+      this.commandCalls++;
+      if (this.throwError) throw this.throwError;
+      return this.reaction;
+    }
+  }
+
+  function makeCtrl(stories: PipeStory[]): TestController {
+    return new TestController(stories);
+  }
+
+  const actor: TestActor = { id: 'u1' };
+
+  test('все стори pass → контроллер pass', async () => {
+    const s1 = new PipeStory('one');
+    const s2 = new PipeStory('two');
+    const ctrl = makeCtrl([s1, s2]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('help'),
+      actor,
+      makeSession(),
+    );
+
+    expect(s1.commandCalls).toBe(1);
+    expect(s2.commandCalls).toBe(1);
+    expect(reaction).toEqual({ reaction: 'pass' });
+  });
+
+  test('первый stop побеждает: обход прерывается, ответ — как есть', async () => {
+    const s1 = new PipeStory('one');
+    s1.reaction = {
+      reaction: 'stop',
+      response: { info: { text: md`Контекстная справка` } },
+    };
+    const s2 = new PipeStory('two');
+    const ctrl = makeCtrl([s1, s2]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('help'),
+      actor,
+      makeSession(),
+    );
+
+    expect(reaction).toEqual({
+      reaction: 'stop',
+      response: { info: { text: md`Контекстная справка` } },
+    });
+    expect(s2.commandCalls).toBe(0);
+  });
+
+  test('склейка continue-нотисов → continue со склеенным notice', async () => {
+    const s1 = new PipeStory('one');
+    s1.reaction = { reaction: 'continue', notice: md`Вклад один` };
+    const s2 = new PipeStory('two');
+    s2.reaction = { reaction: 'continue', notice: md`Вклад два` };
+    const ctrl = makeCtrl([s1, s2]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('help'),
+      actor,
+      makeSession(),
+    );
+
+    expect(reaction.reaction).toBe('continue');
+    expect(String(reaction.notice)).toBe('Вклад один\n\nВклад два');
+  });
+
+  test('continue без notice + все pass → pass (пустого continue нет)', async () => {
+    const s1 = new PipeStory('one');
+    s1.reaction = { reaction: 'continue' };
+    const ctrl = makeCtrl([s1, new PipeStory('two')]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('help'),
+      actor,
+      makeSession(),
+    );
+
+    expect(reaction).toEqual({ reaction: 'pass' });
+  });
+
+  test('continue-нотисы + stop: notice — info-нотисом НАД ответом стопа', async () => {
+    const s1 = new PipeStory('one');
+    s1.reaction = { reaction: 'continue', notice: md`Вклад один` };
+    const s2 = new PipeStory('two');
+    s2.reaction = { reaction: 'continue', notice: md`Вклад два` };
+    const s3 = new PipeStory('three');
+    s3.reaction = {
+      reaction: 'stop',
+      response: { screen: { text: md`Экран` } },
+    };
+    const ctrl = makeCtrl([s1, s2, s3]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('cancel'),
+      actor,
+      makeSession(),
+    );
+
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction !== 'stop') return;
+    expect(String(reaction.response.info?.text)).toBe(
+      'Вклад один\n\nВклад два',
+    );
+    expect(String(reaction.response.screen?.text)).toBe('Экран');
+  });
+
+  test('stop с собственным info: склейка с накопленными нотисами (не потеря)', async () => {
+    const s1 = new PipeStory('one');
+    s1.reaction = { reaction: 'continue', notice: md`Вклад один` };
+    const s2 = new PipeStory('two');
+    s2.reaction = {
+      reaction: 'stop',
+      response: { info: { text: md`Отменено` } },
+    };
+    const ctrl = makeCtrl([s1, s2]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('cancel'),
+      actor,
+      makeSession(),
+    );
+
+    if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
+    expect(String(reaction.response.info?.text)).toBe(
+      'Вклад один\n\nОтменено',
+    );
+  });
+
+  test('ошибка стори → stop с handleError-экраном, обход прерывается', async () => {
+    setGlobalLogger(makeWarnSpyLogger([]));
+    const s1 = new PipeStory('one');
+    s1.throwError = new AppException(
+      errNotFound('NotFound', 'Анкета не найдена', undefined),
+    );
+    const s2 = new PipeStory('two');
+    const ctrl = makeCtrl([s1, s2]);
+
+    const reaction = await ctrl.handleCommand(
+      makeCommandUpdate('cancel'),
+      actor,
+      makeSession(),
+    );
+
+    expect(reaction.reaction).toBe('stop');
+    if (reaction.reaction !== 'stop') return;
+    expect(String(reaction.response.screen?.text)).toContain(
+      'Анкета не найдена',
+    );
+    expect(s2.commandCalls).toBe(0);
+  });
+});
 
 describe('BotController — маршрутизация callback', () => {
   test('кнопка своей стори: префикс стори снят, коды кнопок префиксованы контроллером', async () => {
