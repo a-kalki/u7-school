@@ -2,7 +2,6 @@ import { CompositeLogger } from '@u7-scl/app/infra';
 import {
   ConsoleLogger,
   LogLevel,
-  parseLogLevel,
   serializeError,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
@@ -12,7 +11,6 @@ import { createBot } from './bot';
 import { loadConfig } from './config';
 import { createApiApp } from './create-api-app';
 import { createUiApp } from './create-ui-app';
-import { ensureRegisteredGuest } from './ensure-registered';
 import { registerGroupHandlers } from './handlers/group-handler';
 import { BotTransport } from './infra/bot-transport';
 import { TelegramLogger } from './infra/logger';
@@ -113,60 +111,11 @@ privateBot.use(async (ctx, next) => {
   }
 });
 
-// ══ Логирование команд (только приватные чаты) ══
-privateBot.command('start', async (ctx, next) => {
-  logger.info(
-    'top-menu',
-    `Команда /start от пользователя ${ctx.from?.id} (${ctx.from?.first_name || '?'})`,
-  );
-  await next();
-});
-
-// ══ Скрытая команда управления уровнем логирования (только для админов) ══
-privateBot.command('log_level', async (ctx) => {
-  const userId = ctx.from?.id;
-  if (!userId || !config.adminTelegramIds.includes(userId)) {
-    return;
-  }
-
-  const args = ctx.message?.text?.split(' ').slice(1).join(' ') || '';
-  if (!args) {
-    await ctx.reply(
-      'Использование: /log_level <level>\n\nДоступные уровни: debug, info, warn, error, all',
-    );
-    return;
-  }
-
-  const level = parseLogLevel(args);
-  if (level === undefined) {
-    await ctx.reply(
-      `Неизвестный уровень: "${args}". Доступные: debug, info, warn, error, all`,
-    );
-    return;
-  }
-
-  logger.setLogLevel(level);
-  await ctx.reply(`✅ Уровень логирования изменён на: ${args}`);
-  logger.info(
-    'log_level',
-    `Уровень логирования изменён на ${args} администратором ${userId}`,
-  );
-});
-
-// ══ Регистрация обработчиков через BotTransport ══
-privateBot.command('start', async (ctx) => {
-  // Новый пользователь → гость (от имени бота, BOT_ADMIN_UUID)
-  if (ctx.from) {
-    await ensureRegisteredGuest(
-      apiBundle.userFacade,
-      config.botAdminUuid,
-      ctx.from,
-    );
-  }
-  await transport.handleStart(ctx);
-});
-privateBot.command('help', (ctx) => transport.handleHelp(ctx));
-privateBot.command('cancel', (ctx) => transport.handleCancel(ctx));
+// ══ Регистрация обработчиков: единый message:text + callback ══
+// Слэш-команды перехватываются транспортом по `/`-префиксу (ФР-4) и
+// уходят конвейером uiApp: appCommand-гейт (гост-регистрация /start,
+// админ-гейт /log_level, main-help на меню) → активная стори → дефолты.
+// Поимённой grammy-регистрации команд нет.
 privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
 privateBot.on('message:text', (ctx, next) =>
   transport.handleMessage(ctx, next),

@@ -1,21 +1,46 @@
 import type { User } from '@u7-scl/app/domain';
-import { getGlobalLogger, md } from '@u7-scl/core/shared';
 import {
+  getGlobalLogger,
+  type Logger,
+  md,
+  parseLogLevel,
+} from '@u7-scl/core/shared';
+import {
+  type BotSession,
   BotUiApp,
+  type CommandUpdate,
+  type DialogResponse,
   type KeyboardDescription,
   type ProactiveSender,
   type Screen,
 } from '@u7-scl/core/ui';
+import type { UserFacade } from '@u7-scl/user/domain';
+import { ensureRegisteredGuest } from '../ensure-registered';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
 import type { MainMenuAction, MenuAggregator } from './u7-menu';
 
 /**
+ * Зависимости appCommand-гейта (правила u7 на входе конвейера ФР-4):
+ * гост-регистрация /start, админ-гейт /log_level.
+ */
+export interface AppCommandGateOptions {
+  /** tgId администраторов — доступ к /log_level */
+  adminTelegramIds: number[];
+  /** фасад пользователей — идемпотентная гост-регистрация на /start */
+  userFacade: UserFacade;
+  /** системный актор-бот (BOT_ADMIN_UUID) — регистрация гостя от его имени */
+  botAdminUuid: string;
+}
+
+/**
  * Оркестратор UI приложения U7 Bot на контракте «Диалог и Экран».
  *
- * Диалоговая механика (seq, delegate, /help, /cancel) — в ядре BotUiApp;
+ * Диалоговая механика (seq, delegate, конвейер команд) — в ядре BotUiApp;
  * здесь только U7-специфика: якорь меню `app/menu`, welcome-экран и
- * общий help-fallback с агрегацией описаний контроллеров.
+ * общий help-fallback с агрегацией описаний контроллеров, а также
+ * appCommand-гейт правил приложения (/start — гост-регистрация,
+ * /log_level — админ-гейт, /help на меню — main-help).
  */
 export class U7BotUiApp
   extends BotUiApp<U7BotAppMeta, User, U7BotUiAppResolve>
@@ -26,12 +51,120 @@ export class U7BotUiApp
   /** Диалог меню после /start (сущностной стори нет — якорь для seq/штампов). */
   protected override readonly menuPath = 'app/menu';
 
+  readonly #gate: AppCommandGateOptions;
+
+  constructor(controllers: U7BotController[], gate: AppCommandGateOptions) {
+    super(controllers);
+    this.#gate = gate;
+  }
+
   /**
    * Инициализация зависимостями UI-слоя U7-бота.
    * transport передаётся отдельным аргументом (ProactiveSender).
    */
   override init(resolve: U7BotUiAppResolve, transport?: ProactiveSender): void {
     super.init(resolve, transport);
+  }
+
+  // ── appCommand-гейт: правила u7 на входе конвейера (ФР-4) ──
+
+  /**
+   * Перехват команд приложения ДО конвейера (null = «пропускаю»):
+   * - /start — идемпотентная гост-регистрация нового tgId + лог топ-меню,
+   *   затем конвейер продолжает (welcome-меню — core-дефолт);
+   * - /log_level — скрытая админ-команда: не-админу — тишина, админу —
+   *   смена уровня глобального логгера с info-подтверждением;
+   * - /help при активном меню — main-help (инструкция + описания кнопок);
+   *   в остальных диалогах — пропускаю (справка стори или fallback).
+   */
+  protected override async handleAppCommand(
+    update: CommandUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    switch (update.command) {
+      case 'start':
+        await this.#gateStart(update, tgId);
+        return null;
+      case 'log_level':
+        return this.#gateLogLevel(update, tgId);
+      case 'help':
+        return this.#gateHelpOnMenu(update, tgId, session);
+      default:
+        return null;
+    }
+  }
+
+  /** /start: гост-регистрация (гость до резолва актора) + лог топ-меню. */
+  async #gateStart(update: CommandUpdate, tgId: number): Promise<void> {
+    this.#logger?.info(
+      'top-menu',
+      `Команда /start от пользователя ${tgId} (${update.name || '?'})`,
+    );
+    await ensureRegisteredGuest(
+      this.#gate.userFacade,
+      this.#gate.botAdminUuid,
+      {
+        id: tgId,
+        first_name: update.name ?? 'друг',
+        ...(update.username !== undefined ? { username: update.username } : {}),
+      },
+    );
+  }
+
+  /** /log_level: админ-гейт — как в wiring'е ранее, ответы info-репликой. */
+  #gateLogLevel(update: CommandUpdate, tgId: number): Promise<DialogResponse> {
+    // Не-админ: тихий перехват — команда обработана, но без реплики.
+    if (!this.#gate.adminTelegramIds.includes(tgId)) {
+      return Promise.resolve({});
+    }
+
+    const args = update.args;
+    if (!args) {
+      return Promise.resolve({
+        info: {
+          text: md`${'Использование: /log_level <уровень>\n\nДоступные уровни: debug, info, warn, error, all'}`,
+        },
+      });
+    }
+
+    const level = parseLogLevel(args);
+    if (level === undefined) {
+      return Promise.resolve({
+        info: {
+          text: md`Неизвестный уровень: "${args}". Доступные: ${'debug, info, warn, error, all'}`,
+        },
+      });
+    }
+
+    const logger = this.#logger;
+    logger?.setLogLevel(level);
+    logger?.info(
+      'log_level',
+      `Уровень логирования изменён на ${args} администратором ${tgId}`,
+    );
+    return Promise.resolve({
+      info: { text: md`✅ Уровень логирования изменён на: ${args}` },
+    });
+  }
+
+  /** /help на активном меню — main-help; иначе пропуск (стори → fallback). */
+  async #gateHelpOnMenu(
+    _update: CommandUpdate,
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse | null> {
+    if (session.dialog?.path !== this.menuPath) {
+      return null;
+    }
+    const actor = await this.resolve.actorResolver(tgId);
+    const appCtrl = this.controllers.get('app');
+    const help = appCtrl ? await appCtrl.handleHelpMessage(actor) : null;
+    return help ? { info: help } : null;
+  }
+
+  get #logger(): Logger | undefined {
+    return getGlobalLogger();
   }
 
   // ── Сбор главного меню ──

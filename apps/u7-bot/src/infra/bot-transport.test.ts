@@ -1129,10 +1129,6 @@ class InvController extends BotController {
 class InvUiApp extends BotUiApp {
   protected override readonly menuPath = 'app/menu';
 
-  constructor(controllers: InvController[]) {
-    super(controllers);
-  }
-
   protected override async buildMenuScreen(
     _actor: unknown,
     _session: BotSession,

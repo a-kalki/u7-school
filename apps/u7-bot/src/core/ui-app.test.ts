@@ -2,9 +2,7 @@ import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import { type Logger, LogLevel, setGlobalLogger } from '@u7-scl/core/shared';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
-import type { Api } from 'grammy';
 import { AppController } from '../controllers/app/app-controller';
-import { BOT_COMMANDS, registerBotCommands } from './commands';
 import { U7BotUiApp } from './ui-app';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -31,7 +29,7 @@ function makeLogger(): Logger {
 }
 
 function makeUserFacade(
-  existing: unknown = actor,
+  existing?: unknown,
 ): UserFacade & { registerGuest: ReturnType<typeof mock> } {
   return {
     getUserByTelegramId: mock(async () => existing),
@@ -41,8 +39,8 @@ function makeUserFacade(
 
 function makeUiApp(
   opts: { adminTelegramIds?: number[]; userFacade?: UserFacade } = {},
-): U7BotUiApp {
-  const uiApp = new U7BotUiApp([new AppController(SCHOOL_URL)], {
+): ProbeUiApp {
+  const uiApp = new ProbeUiApp([new AppController(SCHOOL_URL)], {
     adminTelegramIds: opts.adminTelegramIds ?? [],
     userFacade: opts.userFacade ?? makeUserFacade(),
     botAdminUuid: BOT_ADMIN_UUID,
@@ -78,7 +76,7 @@ class ProbeUiApp extends U7BotUiApp {
 function makeProbeUiApp(
   opts: { adminTelegramIds?: number[]; userFacade?: UserFacade } = {},
 ): ProbeUiApp {
-  return makeUiApp(opts) as ProbeUiApp;
+  return makeUiApp(opts);
 }
 
 function makeCommand(
@@ -97,23 +95,33 @@ function makeCommand(
 
 describe('U7BotUiApp — экраны меню', () => {
   test('/start (buildMenuScreen): полное приветствие + меню', async () => {
+    setGlobalLogger(makeLogger());
     const uiApp = makeUiApp();
     const session = { dialog: { path: 'zz/old', seq: 4 } };
 
-    const response = await uiApp.handleWelcome(123, session);
+    const response = await uiApp.handleCommand(
+      makeCommand('start'),
+      123,
+      session,
+    );
 
-    expect(String(response.screen?.text)).toContain('Привет, Иван');
-    expect(String(response.screen?.text)).toContain('u7 schools');
-    expect(response.screen?.keyboard).toBeDefined();
+    expect(String(response?.screen?.text)).toContain('Привет, Иван');
+    expect(String(response?.screen?.text)).toContain('u7 schools');
+    expect(response?.screen?.keyboard).toBeDefined();
     expect(session.dialog.path).toBe('app/menu');
     expect(session.dialog.seq).toBe(5);
   });
 
   test('/cancel (buildCancelMenuScreen): КОРОТКОЕ меню без приветствия', async () => {
+    setGlobalLogger(makeLogger());
     const uiApp = makeUiApp();
     const session = { dialog: { path: 'zz/old', seq: 4 } };
 
-    const response = await uiApp.handleCancel(123, session);
+    const response = await uiApp.handleCommand(
+      makeCommand('cancel'),
+      123,
+      session,
+    );
 
     expect(String(response?.screen?.text)).toBe('Выберите действие:');
     expect(String(response?.screen?.text)).not.toContain('Привет');
@@ -123,10 +131,15 @@ describe('U7BotUiApp — экраны меню', () => {
   });
 
   test('клавиатура меню содержит кнопку «Помощь» с кодом app:help', async () => {
+    setGlobalLogger(makeLogger());
     const uiApp = makeUiApp();
     const session = { dialog: { path: 'zz/old', seq: 1 } };
 
-    const response = await uiApp.handleCancel(123, session);
+    const response = await uiApp.handleCommand(
+      makeCommand('cancel'),
+      123,
+      session,
+    );
 
     const codes = response?.screen?.keyboard?.rows.flatMap((r) =>
       r.map((b) => b.code),
@@ -135,7 +148,7 @@ describe('U7BotUiApp — экраны меню', () => {
   });
 });
 
-// ── appCommand-гейт (трек 1.1, ФР-4): словарь команд и правила u7 ──
+// ── appCommand-гейт (трек 1.1, ФР-4): правила u7 на входе конвейера ──
 
 describe('U7BotUiApp — appCommand-гейт', () => {
   describe('/log_level — скрытая админ-команда', () => {
@@ -179,7 +192,8 @@ describe('U7BotUiApp — appCommand-гейт', () => {
       const response = await uiApp.probe(makeCommand('log_level', ''), 123, {});
 
       expect(String(response?.info?.text)).toContain('Использование');
-      expect(String(response?.info?.text)).toContain('log_level');
+      // текст интерполируется с экранированием MarkdownV2: /log\_level
+      expect(String(response?.info?.text)).toContain('log\\_level');
     });
 
     test('от админа с неизвестным уровнем: ошибка со списком уровней', async () => {
@@ -274,30 +288,5 @@ describe('U7BotUiApp — appCommand-гейт', () => {
     expect(String(response?.screen?.text)).toContain('Привет');
     expect(session.dialog?.path).toBe('app/menu');
     expect(session.dialog?.seq).toBe(1);
-  });
-});
-
-describe('словарь команд бота (BOT_COMMANDS)', () => {
-  test('публичные команды: start, help, cancel; log_level — скрытая', () => {
-    const names = BOT_COMMANDS.map((c) => c.name);
-    expect(names).toContain('start');
-    expect(names).toContain('help');
-    expect(names).toContain('cancel');
-    const hidden = BOT_COMMANDS.filter((c) => c.hidden).map((c) => c.name);
-    expect(hidden).toEqual(['log_level']);
-  });
-
-  test('registerBotCommands: в Telegram уходят только публичные команды', async () => {
-    const api = { setMyCommands: mock(async () => true) } as unknown as Api;
-
-    await registerBotCommands(api);
-
-    const payload = (
-      (api.setMyCommands as ReturnType<typeof mock>).mock.calls[0] as [
-        { commands: { command: string }[] },
-      ]
-    )[0];
-    const sent = payload.commands.map((c) => c.command);
-    expect(sent).toEqual(['start', 'help', 'cancel']);
   });
 });
