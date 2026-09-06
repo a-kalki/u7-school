@@ -1,0 +1,7 @@
+Задача: Фаза 2 / Task 2 — Core: BotUiApp.handleCommand + appCommand-хук + BotUiStory.handleCommand.
+
+Сводка: единый конвейер команд в ядре. CommandUpdate-конверт (args одной строкой, name/username). /start — системное правило до стори; /help — нормализация ответа стори в info; /cancel — доменная очистка всегда + сброс + меню. Удалены handleWelcome/handleHelp/handleCancel (uiApp) и BotController.handleCancel.
+
+Файлы: packages/core/src/ui/bot/types.ts, bot-ui-story.ts, ui-app.ts, bot-controller.ts + тесты.
+
+Причина: ФР-4 трека bot-ui-dialog-lifecycle — общая логика команд в core, вызовы доходят до активного стори.
