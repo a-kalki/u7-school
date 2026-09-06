@@ -272,8 +272,9 @@ describe('BotTransport — штампы :~<seq36>', () => {
     expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe(`stream:view:${uuid}`);
   });
 
-  test('штамп ~0 (диалог ещё не открыт) — отвергается, как и легаси', async () => {
-    // Свежий чат без /start имеет seq 0 — штампы валидны только от 1
+  test('штамп ~0 при закрытом диалоге (легаси-кнопка до /start) → alert «Наберите /start»', async () => {
+    // Свежий чат без /start: диалог не открыт — любая кнопка ведёт к /start.
+    // Штампы валидны только от 1 (seq = 0 в живой сессии больше невозможен).
     const api = makeMockBotApi();
     const uiApp = makeUiApp();
     const transport = new BotTransport(uiApp, api);
@@ -285,7 +286,8 @@ describe('BotTransport — штампы :~<seq36>', () => {
 
     expect(callsOf(uiApp.handleCallback).length).toBe(0);
     const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
-    expect((ack[0] as { text: string }).text).toContain('/start');
+    expect(ack[0]).toMatchObject({ show_alert: true });
+    expect((ack[0] as { text: string }).text).toBe('Наберите /start');
   });
 
   test('shortId не найден (рестарт) → alert про перезапуск, uiApp не вызывается', async () => {

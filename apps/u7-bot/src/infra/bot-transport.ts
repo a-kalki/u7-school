@@ -136,6 +136,18 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     });
   }
 
+  /**
+   * Нажатие кнопки — валидация без исключений (ФР-3), порядок строгий:
+   *
+   * 0. Диалог не открыт (до /start) → alert «Наберите /start».
+   * 1. Штамп `:~<seq36>`: несовпадение с dialog.seq (старый экран, кнопка
+   *    из истории, гонка, рестарт, крафтовый ~0, легаси без штампа) →
+   *    alert «Экран устарел — нажмите /start».
+   * 2. Разжатие shortId: кнопка из прошлой жизни сервиса → alert про рестарт.
+   *
+   * До uiApp доезжают только валидные кнопки (И2) — исключений валидации
+   * uiApp не получает вовсе.
+   */
   async handleCallback(ctx: BotContext): Promise<void> {
     const tgId = ctx.from?.id;
     const rawData = ctx.callbackQuery?.data;
