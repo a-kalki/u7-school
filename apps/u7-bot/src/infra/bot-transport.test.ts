@@ -2,15 +2,15 @@ import { describe, expect, mock, test } from 'bun:test';
 import { type Logger, mdRaw, setGlobalLogger } from '@u7-scl/core/shared';
 import {
   BotController,
-  BotUiApp,
   type BotSession,
+  BotUiApp,
   type DialogResponse,
   type Screen,
 } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { DialogUiAppPort } from './bot-transport';
-import { BotTransport } from './bot-transport';
+import { BotTransport, parseCommandText } from './bot-transport';
 
 /**
  * Тесты транспорта на контракте «Диалог и Экран»
@@ -40,6 +40,7 @@ function makeMockBotApi(overrides: Record<string, unknown> = {}): Api {
 
 function makeUiApp(overrides: Partial<DialogUiAppPort> = {}): DialogUiAppPort {
   return {
+    handleCommand: mock(async () => null),
     handleWelcome: mock(async () => ({ screen: { text: mdRaw('Привет') } })),
     handleHelp: mock(async () => ({ info: { text: mdRaw('Помощь') } })),
     handleCallback: mock(async () => ({ screen: { text: mdRaw('Ок') } })),
@@ -147,7 +148,9 @@ async function startDialog(
     uiApp,
     transport,
     pressed,
-    session: captured as BotSession & { dialog: NonNullable<BotSession['dialog']> },
+    session: captured as BotSession & {
+      dialog: NonNullable<BotSession['dialog']>;
+    },
   };
 }
 
@@ -873,6 +876,131 @@ describe('BotTransport — рендер-политика', () => {
 
 // ── notify: тон-каналы, сессия не трогается ──
 
+// ── Единый вход команд (трек 1.1, ФР-4) ──
+
+describe('parseCommandText — конверт слэш-команды', () => {
+  test('/help без аргументов → { command: help, args: "" }', () => {
+    const cmd = parseCommandText('/help', 42);
+
+    expect(cmd).toEqual({
+      type: 'command',
+      command: 'help',
+      args: '',
+      telegramId: 42,
+    });
+  });
+
+  test('суффикс @botname отбрасывается (группы)', () => {
+    const cmd = parseCommandText('/cancel@u7_school_bot', 42);
+
+    expect(cmd?.command).toBe('cancel');
+    expect(cmd?.args).toBe('');
+  });
+
+  test('команда — первый токен, всё после неё — args (одной строкой)', () => {
+    const cmd = parseCommandText('/log_level@bot   debug  all', 42);
+
+    expect(cmd?.command).toBe('log_level');
+    expect(cmd?.args).toBe('debug  all');
+  });
+
+  test('name/username отправителя попадают в конверт (гост-регистрация)', () => {
+    const cmd = parseCommandText('/start', 42, {
+      first_name: 'Анна',
+      username: 'anna_u7',
+    });
+
+    expect(cmd?.name).toBe('Анна');
+    expect(cmd?.username).toBe('anna_u7');
+  });
+
+  test('текст без ведущего / — не команда (null)', () => {
+    expect(parseCommandText('привет', 42)).toBeNull();
+    expect(parseCommandText('  /start', 42)).toBeNull();
+  });
+
+  test('голый «/» — не команда (null)', () => {
+    expect(parseCommandText('/', 42)).toBeNull();
+    expect(parseCommandText('/@bot', 42)).toBeNull();
+  });
+});
+
+describe('BotTransport — единый вход команд (ФР-4)', () => {
+  test('handleCommand: конверт уходит в uiApp.handleCommand, ответ рендерится', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleCommand: mock(
+        async () => ({ info: { text: mdRaw('Готово') } }) as DialogResponse,
+      ),
+    });
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleCommand(
+      makeCtx({ message: { text: '/help@bot' } as BotContext['message'] }),
+    );
+
+    expect(uiApp.handleCommand).toHaveBeenCalledTimes(1);
+    const [update, tgId] = callsOf(uiApp.handleCommand)[0] as [
+      Record<string, unknown>,
+      number,
+    ];
+    expect(update).toEqual({
+      type: 'command',
+      command: 'help',
+      args: '',
+      telegramId: 123,
+      name: 'Test',
+    });
+    expect(tgId).toBe(123);
+    // info-реплика отправлена
+    expect(callsOf(api.sendMessage).length).toBe(1);
+  });
+
+  test('handleCommand: null от uiApp → тихий пропуск (ничего не отправляется)', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp();
+    const transport = new BotTransport(uiApp, api);
+
+    await transport.handleCommand(
+      makeCtx({ message: { text: '/cancel' } as BotContext['message'] }),
+    );
+
+    expect(uiApp.handleCommand).toHaveBeenCalledTimes(1);
+    expect(callsOf(api.sendMessage).length).toBe(0);
+  });
+
+  test('handleMessage со слэш-текстом → конвейер команд, не ввод: next не зовётся', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp();
+    const transport = new BotTransport(uiApp, api);
+    const next = mock(async () => {});
+
+    await transport.handleMessage(
+      makeCtx({ message: { text: '/cancel' } as BotContext['message'] }),
+      next,
+    );
+
+    expect(uiApp.handleCommand).toHaveBeenCalledTimes(1);
+    expect(uiApp.handleMessage).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('handleMessage без слэша → как раньше: ввод (или next)', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp();
+    const transport = new BotTransport(uiApp, api);
+    const next = mock(async () => {});
+
+    await transport.handleMessage(
+      makeCtx({ message: { text: 'привет' } as BotContext['message'] }),
+      next,
+    );
+
+    expect(uiApp.handleCommand).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('BotTransport — notify (тон-каналы)', () => {
   test('tone notice (по умолчанию): 🔔-заголовок, экран пользователя не ретирится', async () => {
     const { api, transport } = await startDialog({ seq: 5 });
@@ -1046,10 +1174,7 @@ function makeLifecycleRig(): {
     eventBus: {} as never,
     actorResolver: async () => ({ id: 'u1', name: 'Тест' }),
   });
-  const transport = new BotTransport(
-    uiApp as unknown as DialogUiAppPort,
-    api,
-  );
+  const transport = new BotTransport(uiApp as unknown as DialogUiAppPort, api);
   return { api, uiApp, transport };
 }
 
@@ -1090,7 +1215,9 @@ describe('BotTransport — инварианты жизненного цикла 
     expect(fresh).toBe('app:menu:open:~2');
 
     const ctx = makeCtx({
-      callbackQuery: { data: 'app:menu:open:~1' } as BotContext['callbackQuery'],
+      callbackQuery: {
+        data: 'app:menu:open:~1',
+      } as BotContext['callbackQuery'],
     });
     await transport.handleCallback(ctx);
     const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
@@ -1102,7 +1229,9 @@ describe('BotTransport — инварианты жизненного цикла 
     const { transport } = makeLifecycleRig();
 
     const ctx = makeCtx({
-      callbackQuery: { data: 'app:menu:open:~1' } as BotContext['callbackQuery'],
+      callbackQuery: {
+        data: 'app:menu:open:~1',
+      } as BotContext['callbackQuery'],
     });
     await transport.handleCallback(ctx);
 
