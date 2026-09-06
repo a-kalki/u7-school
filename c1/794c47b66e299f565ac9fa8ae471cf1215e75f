@@ -1,0 +1,7 @@
+Задача: Фаза 2 / Task 4 — u7-bot: appCommand-гейт + wiring; словарь команд удалён по решению владельца.
+
+Сводка: гейт U7BotUiApp (гост-регистрация /start, админ-гейт /log_level, main-help на меню), wiring main.ts на единый message:text. BOT_COMMANDS/registerBotCommands/setMyCommands не реализованы — легаси-идея, команда доставляется конвейером по адресу. create-ui-app передаёт AppCommandGateOptions.
+
+Файлы: apps/u7-bot/src/core/ui-app.ts(+test), create-ui-app.ts, main.ts, infra/bot-transport.test.ts; plan.md, spec.md.
+
+Причина: ФР-4 без словаря команд — решение владельца сессии.
