@@ -1,0 +1,7 @@
+Задача: ФР-2 — единая операция входа #enterDialog (Фаза 1, Task 3)
+
+Сводка: #switchDialog заменён на #enterDialog(session, path, mode) — единственная точка инкремента seq. Режимы: switch (мосты/delegate — тот же path продолжает диалог без изменений, другой path → seq+1 и input сброс) и reopen (/start, /cancel — всегда seq+1, включая «меню → меню»). Инвариант-тесты reopen зелёные.
+
+Файлы: packages/core/src/ui/bot/ui-app.ts (handleWelcome, handleCancel, #dispatch).
+
+Причина: точки инкремента seq были рассыпаны по ядру — каждая новая точка входа становилась кандидатом в баг класса 47a5b05f (мёртвые кнопки welcome при повторном /start).
