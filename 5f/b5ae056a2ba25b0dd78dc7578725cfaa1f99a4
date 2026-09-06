@@ -1,0 +1,9 @@
+Задача: Инвариант-тесты жизненного цикла диалога (Фаза 1, Task 1)
+
+Сводка: написаны падающие инвариант-тесты TDD-Red для ФР-1/ФР-2/ФР-3 трека bot-ui-dialog-lifecycle.
+
+Изменённые файлы:
+- packages/core/src/ui/bot/ui-app.test.ts — секция «Инварианты: операция входа»: первый /start seq=1, повторный /start reopen, handleMessage/handleHelp/handleCancel при закрытом диалоге.
+- apps/u7-bot/src/infra/bot-transport.test.ts — секция интеграционных инвариантов (настоящий BotUiApp + BotTransport): штамп ~1 на welcome, reopen /start, alert «Наберите /start» до входа, дубль-тап по мосту.
+
+Причина: TDD-фаза Red; тесты фиксируют целевое поведение операции входа до реализации ФР-1/ФР-2/ФР-3.
