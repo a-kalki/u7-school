@@ -1,0 +1,7 @@
+Задача: Фаза 2 / Task 1 — падающие тесты конвейера handleCommand (ФР-4).
+
+Сводка: RED-тесты единого входа команд до реализации. Ядро: конвейер appCommand-хук → активная стори → core-дефолты, правила /start (всегда меню), /help (три уровня), /cancel (доменная очистка + сброс + меню), доменные команды стори. Транспорт: парсер конверта и единый handleCommand со слэш-перехватом. u7-bot: appCommand-гейт, словарь команд.
+
+Файлы: packages/core/src/ui/bot/ui-app.test.ts, apps/u7-bot/src/infra/bot-transport.test.ts, apps/u7-bot/src/core/ui-app.test.ts.
+
+Причина: TDD-фаза Red перед Core/Транспорт/u7-bot реализациями ФР-4.
