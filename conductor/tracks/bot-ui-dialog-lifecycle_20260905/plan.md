@@ -4,8 +4,8 @@
 
 ## Фаза 1: Модель диалога — состояние и операция входа
 
-- [ ] Task: Написать падающие инвариант-тесты: первый `/start` (seq=1, кнопки живы), повторный `/start` (reopen, не no-op), кнопка до `/start` → alert «Наберите /start», дубль-тап по мосту (второй — alert), delegate «меню→меню» (seq не растёт) и кросс-контроллерный (seq++)
-- [ ] Task: ФР-1 `BotSession.dialog?` — явное состояние «не открыт»; удалить `INITIAL_DIALOG_PATH` и ленивый фиктивный диалог в `#session`
+- [x] Task: Написать падающие инвариант-тесты: первый `/start` (seq=1, кнопки живы), повторный `/start` (reopen, не no-op), кнопка до `/start` → alert «Наберите /start», дубль-тап по мосту (второй — alert), delegate «меню→меню» (seq не растёт) и кросс-контроллерный (seq++) [5fb5ae0]
+- [~] Task: ФР-1 `BotSession.dialog?` — явное состояние «не открыт»; удалить `INITIAL_DIALOG_PATH` и ленивый фиктивный диалог в `#session`
 - [ ] Task: ФР-2 `#enterDialog(path, mode: 'switch' | 'reopen')` — единственная точка инкремента `seq`; провести через неё `/start`, `/cancel`, delegate, мосты (`#dispatch`)
 - [ ] Task: ФР-3 валидация кнопок без исключений: не открыт → «Наберите /start»; штамп ≠ seq → «Экран устарел — нажмите /start»; адаптировать тесты транспорта
 - [ ] Conductor - User Manual Verification 'Модель диалога' (Protocol in workflow.md)
