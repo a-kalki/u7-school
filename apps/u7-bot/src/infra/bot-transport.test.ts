@@ -1,6 +1,12 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { type Logger, mdRaw, setGlobalLogger } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import {
+  BotController,
+  BotUiApp,
+  type BotSession,
+  type DialogResponse,
+  type Screen,
+} from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
 import type { DialogUiAppPort } from './bot-transport';
@@ -967,6 +973,157 @@ describe('BotTransport — сжатие UUID', () => {
     );
 
     expect(callsOf(uiApp.handleCallback)[0]?.[0]).toBe('stream:view:a1b2c3d4');
+  });
+});
+
+// ── Инварианты жизненного цикла (трек 1.1, Фаза 1): настоящий BotUiApp + транспорт ──
+
+/** Контроллер интеграционной сборки: фикс-ответ на любой callback. */
+class InvController extends BotController {
+  readonly name: string;
+  private readonly response: DialogResponse;
+
+  constructor(name: string, response: DialogResponse = {}) {
+    super();
+    this.name = name;
+    this.response = response;
+  }
+
+  override async handleCallback(): Promise<DialogResponse> {
+    return this.response;
+  }
+}
+
+/** uiApp интеграционной сборки: меню с кнопкой и мостом в другой контроллер. */
+class InvUiApp extends BotUiApp {
+  protected override readonly menuPath = 'app/menu';
+
+  constructor(controllers: InvController[]) {
+    super(controllers);
+  }
+
+  protected override async buildMenuScreen(
+    _actor: unknown,
+    _session: BotSession,
+  ): Promise<Screen> {
+    return {
+      text: mdRaw('Меню'),
+      keyboard: {
+        rows: [
+          [{ text: '📂 Меню', code: 'app:menu:open' }],
+          [{ text: '🌉 Мост', code: 'other:list:open' }],
+        ],
+        isMultiple: false,
+      },
+    };
+  }
+}
+
+/** Сборка: настоящий uiApp + транспорт (грамми — мок). */
+function makeLifecycleRig(): {
+  api: Api;
+  uiApp: InvUiApp;
+  transport: BotTransport;
+} {
+  const api = makeMockBotApi();
+  const uiApp = new InvUiApp([
+    new InvController('app'),
+    new InvController('other', { screen: { text: mdRaw('Список') } }),
+  ]);
+  uiApp.init({
+    appApi: {} as never,
+    eventBus: {} as never,
+    actorResolver: async () => ({ id: 'u1', name: 'Тест' }),
+  });
+  const transport = new BotTransport(
+    uiApp as unknown as DialogUiAppPort,
+    api,
+  );
+  return { api, uiApp, transport };
+}
+
+/** callback_data кнопки [row][col] последнего отправленного сообщения. */
+function sentButton(api: Api, row: number, col: number): string | undefined {
+  const last = callsOf(api.sendMessage).at(-1);
+  return (
+    last?.[2] as {
+      reply_markup?: { inline_keyboard?: { callback_data?: string }[][] };
+    }
+  )?.reply_markup?.inline_keyboard?.[row]?.[col]?.callback_data;
+}
+
+describe('BotTransport — инварианты жизненного цикла (настоящий uiApp)', () => {
+  test('первый /start: кнопки welcome со штампом ~1 и живые', async () => {
+    const { api, transport } = makeLifecycleRig();
+
+    await transport.handleStart(makeCtx());
+
+    const menuBtn = sentButton(api, 0, 0);
+    expect(menuBtn).toBe('app:menu:open:~1');
+
+    const ctx = makeCtx({
+      callbackQuery: { data: menuBtn } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+    // Кнопка принята: answerCallbackQuery без alert-текста
+    expect(callsOf(ctx.answerCallbackQuery)[0]?.[0]).toBeUndefined();
+  });
+
+  test('повторный /start: reopen — seq++ (не no-op), кнопки ~1 умирают', async () => {
+    const { api, transport } = makeLifecycleRig();
+
+    await transport.handleStart(makeCtx());
+    await transport.handleStart(makeCtx());
+
+    const fresh = sentButton(api, 0, 0);
+    expect(fresh).toBe('app:menu:open:~2');
+
+    const ctx = makeCtx({
+      callbackQuery: { data: 'app:menu:open:~1' } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+    const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
+    expect(ack[0]).toMatchObject({ show_alert: true });
+    expect((ack[0] as { text: string }).text).toContain('/start');
+  });
+
+  test('кнопка до /start → alert «Наберите /start»', async () => {
+    const { transport } = makeLifecycleRig();
+
+    const ctx = makeCtx({
+      callbackQuery: { data: 'app:menu:open:~1' } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(ctx);
+
+    const ack = callsOf(ctx.answerCallbackQuery)[0] ?? [];
+    expect(ack[0]).toMatchObject({ show_alert: true });
+    expect((ack[0] as { text: string }).text).toBe('Наберите /start');
+  });
+
+  test('дубль-тап по мосту: первый открывает диалог (seq++), второй — alert «Экран устарел»', async () => {
+    const { api, transport } = makeLifecycleRig();
+
+    await transport.handleStart(makeCtx());
+    const bridge = sentButton(api, 1, 0);
+    expect(bridge).toBe('other:list:open:~1');
+
+    const first = makeCtx({
+      callbackQuery: { data: bridge } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(first);
+    expect(callsOf(first.answerCallbackQuery)[0]?.[0]).toBeUndefined();
+    expect(
+      callsOf(api.sendMessage)
+        .map((c) => c[1])
+        .at(-1),
+    ).toBe('Список');
+
+    const second = makeCtx({
+      callbackQuery: { data: bridge } as BotContext['callbackQuery'],
+    });
+    await transport.handleCallback(second);
+    const ack = callsOf(second.answerCallbackQuery)[0] ?? [];
+    expect((ack[0] as { text: string }).text).toContain('устарел');
   });
 });
 

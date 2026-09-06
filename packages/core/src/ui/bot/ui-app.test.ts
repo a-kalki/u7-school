@@ -431,6 +431,60 @@ describe('BotUiApp — awaitInput/release', () => {
   });
 });
 
+// ── Инварианты: операция входа (трек 1.1, ФР-1/ФР-2) ──
+
+describe('BotUiApp — инварианты: операция входа', () => {
+  test('первый /start открывает диалог с seq=1 (штампы валидны от 1)', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
+    const session = {} as BotSession;
+
+    await uiApp.handleWelcome(42, session);
+
+    expect(session.dialog?.path).toBe('menu/main');
+    expect(session.dialog?.seq).toBe(1);
+  });
+
+  test('повторный /start — reopen: seq++ даже «меню → меню» (не no-op)', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
+    const session = makeSession('menu/main', 5);
+
+    await uiApp.handleWelcome(42, session);
+
+    expect(session.dialog.seq).toBe(6);
+  });
+
+  test('handleMessage при закрытом диалоге → null (next), контроллеры не дёргаются', async () => {
+    const ctrlA = makeController('a');
+    const uiApp = makeUiApp([ctrlA]);
+    const session = {} as BotSession;
+
+    const update: BotUpdate = { type: 'message', text: 'привет', telegramId: 42 };
+    const response = await uiApp.handleMessage(update, 42, session);
+
+    expect(ctrlA.messageCalled).toBe(0);
+    expect(response).toBeNull();
+  });
+
+  test('handleHelp при закрытом диалоге → общий fallback (info-реплика)', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
+    const session = {} as BotSession;
+
+    const response = await uiApp.handleHelp(42, session);
+
+    expect(String(response.info?.text).length).toBeGreaterThan(0);
+  });
+
+  test('handleCancel при закрытом диалоге → reopen меню seq=1', async () => {
+    const uiApp = makeUiApp([makeController('a')]);
+    const session = {} as BotSession;
+
+    await uiApp.handleCancel(42, session);
+
+    expect(session.dialog?.path).toBe('menu/main');
+    expect(session.dialog?.seq).toBe(1);
+  });
+});
+
 describe('BotUiApp — init-каскад', () => {
   test('init передаёт resolve и transport, getController сужен до BotController', async () => {
     const ctrl = makeController('a');
