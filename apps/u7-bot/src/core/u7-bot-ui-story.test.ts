@@ -385,6 +385,32 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     expect(reaction).toEqual({ reaction: 'pass' });
   });
 
+  test('дефолт contextHelp — null: активна без переопределения → pass', async () => {
+    // Стори без собственной справки — дефолт u7-стори contextHelp
+    class BareStory extends U7BotUiStory {
+      readonly name = 'fill';
+      override handleCallback(): Promise<DialogResponse> {
+        throw new Error('Не используется');
+      }
+      override async handleMessage(): Promise<DialogResponse | null> {
+        return null;
+      }
+    }
+    const ctrl = new ContractController(new BareStory());
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => actor,
+    } as never);
+    const bare = ctrl.getStories()[0] as BareStory;
+
+    const reaction = await bare.handleCommand(cmd('help'), actor, {
+      dialog: { path: 'questionnaire/fill', seq: 2 },
+    });
+
+    expect(reaction).toEqual({ reaction: 'pass' });
+  });
+
   test('/help неактивна → pass (даже при наличии справки)', async () => {
     const story = makeStory();
     story.help = { text: md`Справка` };

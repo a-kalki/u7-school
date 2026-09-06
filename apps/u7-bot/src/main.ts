@@ -113,8 +113,9 @@ privateBot.use(async (ctx, next) => {
 
 // ══ Регистрация обработчиков: единый message:text + callback ══
 // Слэш-команды перехватываются транспортом по `/`-префиксу (ФР-4) и
-// уходят конвейером uiApp: appCommand-гейт (гост-регистрация /start,
-// админ-гейт /log_level, main-help на меню) → активная стори → дефолты.
+// уходят трёхуровневым pipe uiApp: /start — uiApp напрямую (гость →
+// welcome из menuButtons), прочее — pipe контроллеров (активный первым)
+// → дефолты u7 (help/cancel/unknown). /log_level — app-контроллер.
 // Поимённой grammy-регистрации команд нет.
 privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
 privateBot.on('message:text', (ctx, next) =>

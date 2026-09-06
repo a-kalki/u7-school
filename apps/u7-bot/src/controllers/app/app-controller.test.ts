@@ -154,3 +154,35 @@ describe('AppController — handleCommand: прочее', () => {
     expect(community?.description).toBeDefined();
   });
 });
+
+describe('AppController — handleCallback (стори-роутинг)', () => {
+  test('community:* → делегируется в стори', async () => {
+    const ctrl = makeCtrl();
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => actor,
+    } as never);
+
+    const response = await ctrl.handleCallback('community:any', actor, {
+      dialog: { path: 'app/community', seq: 1 },
+    });
+
+    expect(String(response.screen?.text)).toContain('Неизвестная');
+  });
+
+  test('неизвестный префикс → экран неизвестной команды', async () => {
+    const ctrl = makeCtrl();
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => actor,
+    } as never);
+
+    const response = await ctrl.handleCallback('zzz:act', actor, {
+      dialog: { path: 'app/menu', seq: 1 },
+    });
+
+    expect(String(response.screen?.text)).toContain('Неизвестная');
+  });
+});
