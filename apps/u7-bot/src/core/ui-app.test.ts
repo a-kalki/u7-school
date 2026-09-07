@@ -14,7 +14,7 @@ import type {
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
 import { U7BotController } from './u7-bot-controller';
-import { U7BotUiApp, type U7BotUiAppDeps } from './ui-app';
+import { U7BotUiApp } from './ui-app';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
 const BOT_ADMIN_UUID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -46,13 +46,6 @@ function makeUserFacade(
     getUserByTelegramId: mock(async () => existing),
     registerGuest: mock(async () => ({ uuid: 'new-guest' })),
   } as unknown as UserFacade & { registerGuest: ReturnType<typeof mock> };
-}
-
-function makeDeps(opts: { userFacade?: UserFacade } = {}): U7BotUiAppDeps {
-  return {
-    userFacade: opts.userFacade ?? makeUserFacade(),
-    botAdminUuid: BOT_ADMIN_UUID,
-  };
 }
 
 function makeCommand(
@@ -97,11 +90,13 @@ function makeUiApp(
     new AppController(SCHOOL_URL, opts.adminTelegramIds ?? []),
   ];
   if (opts.spy) controllers.push(opts.spy);
-  const uiApp = new U7BotUiApp(controllers, makeDeps(opts));
+  const uiApp = new U7BotUiApp(controllers);
   uiApp.init({
     appApi: {} as never,
     eventBus: { subscribe: () => () => {} } as never,
     actorResolver: async () => actor,
+    userFacade: opts.userFacade ?? makeUserFacade(),
+    botAdminUuid: BOT_ADMIN_UUID,
   } as never);
   return uiApp;
 }

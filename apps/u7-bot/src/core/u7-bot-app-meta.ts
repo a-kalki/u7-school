@@ -5,13 +5,22 @@ import type { BotUiAppResolve } from '@u7-scl/core/ui';
 import type { CourseApiModuleMeta } from '@u7-scl/course/domain';
 import type { QuestionnaireApiModuleMeta } from '@u7-scl/questionnaire/domain';
 import type { StreamApiModuleMeta } from '@u7-scl/stream';
-import type { UserApiModuleMeta } from '@u7-scl/user/domain';
+import type { UserApiModuleMeta, UserFacade } from '@u7-scl/user/domain';
 import type { WishApiModuleMeta } from '@u7-scl/wish/domain';
 //
 // ================= UI layer ===================
 
+/**
+ * Зависимости UI-слоя u7-бота: базовый резолв ядра + идемпотентная
+ * гост-регистрация на /start (от имени системного актора-бота).
+ */
 export interface U7BotUiAppResolve
-  extends BotUiAppResolve<U7BotAppMeta, User> {}
+  extends BotUiAppResolve<U7BotAppMeta, User> {
+  /** фасад пользователей — идемпотентная гост-регистрация на /start */
+  userFacade: UserFacade;
+  /** системный актор-бот (BOT_ADMIN_UUID) — регистрация гостя от его имени */
+  botAdminUuid: string;
+}
 
 // ================= API layer ===================
 /**

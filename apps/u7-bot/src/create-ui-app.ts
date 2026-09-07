@@ -49,25 +49,20 @@ export function createUiApp(
     config.adminTelegramIds,
   );
 
-  // Гост-регистрация /start — uiApp (ФР-4, ревизия 2.1)
-  const uiApp = new U7BotUiApp(
-    [
-      appController,
-      streamController,
-      userController,
-      courseController,
-      learningController,
-      mentorController,
-      questionnaireController,
-    ],
-    {
-      userFacade: bundle.userFacade,
-      botAdminUuid: config.botAdminUuid,
-    },
-  );
+  // Гост-регистрация /start — uiApp через resolve (ФР-4, ревизия 2.1)
+  const uiApp = new U7BotUiApp([
+    appController,
+    streamController,
+    userController,
+    courseController,
+    learningController,
+    mentorController,
+    questionnaireController,
+  ]);
 
   // resolve для каскадной инициализации UiApp → контроллеры → стори.
-  // actorResolver: резолвит User по telegramId через userFacade.
+  // actorResolver: резолвит User по telegramId через userFacade;
+  // userFacade + botAdminUuid — идемпотентная гост-регистрация на /start.
   const resolve: U7BotUiAppResolve = {
     eventBus: bundle.eventBus,
     actorResolver: async (tgId: number) => {
@@ -76,7 +71,8 @@ export function createUiApp(
       return user;
     },
     appApi: apiApp,
-    uiApp,
+    userFacade: bundle.userFacade,
+    botAdminUuid: config.botAdminUuid,
   };
 
   return {

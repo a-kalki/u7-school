@@ -15,22 +15,10 @@ import {
   type ProactiveSender,
   type Screen,
 } from '@u7-scl/core/ui';
-import type { UserFacade } from '@u7-scl/user/domain';
 import { ensureRegisteredGuest } from '../ensure-registered';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
 import type { MenuButton } from './u7-menu';
-
-/**
- * Зависимости U7BotUiApp: идемпотентная гост-регистрация на /start.
- * (Админ-гейт /log_level — app-контроллер, не uiApp.)
- */
-export interface U7BotUiAppDeps {
-  /** фасад пользователей — идемпотентная гост-регистрация на /start */
-  userFacade: UserFacade;
-  /** системный актор-бот (BOT_ADMIN_UUID) — регистрация гостя от его имени */
-  botAdminUuid: string;
-}
 
 /**
  * Оркестратор UI приложения U7 Bot на контракте «Диалог и Экран».
@@ -40,6 +28,9 @@ export interface U7BotUiAppDeps {
  * лог → reopen → welcome из menuButtons), дефолты команд после пустого
  * pipe (/help — общий справочник, /cancel — короткое меню, прочее —
  * подсказка), системные кнопки `app:main-menu` / `app:help`.
+ *
+ * Зависимости (фасад пользователей, актор-бот для гост-регистрации) —
+ * в `U7BotUiAppResolve`, приходят через init.
  */
 export class U7BotUiApp extends BotUiApp<
   U7BotAppMeta,
@@ -56,11 +47,9 @@ export class U7BotUiApp extends BotUiApp<
   /** Кнопка «❓ Помощь» главного меню. */
   static readonly HELP_CODE = 'app:help';
 
-  readonly #deps: U7BotUiAppDeps;
-
-  constructor(controllers: U7BotController[], deps: U7BotUiAppDeps) {
+  // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с BotController до U7BotController
+  constructor(controllers: U7BotController[]) {
     super(controllers);
-    this.#deps = deps;
   }
 
   /**
@@ -122,8 +111,8 @@ export class U7BotUiApp extends BotUiApp<
       `Команда /start от пользователя ${tgId} (${update.name || '?'})`,
     );
     await ensureRegisteredGuest(
-      this.#deps.userFacade,
-      this.#deps.botAdminUuid,
+      this.resolve.userFacade,
+      this.resolve.botAdminUuid,
       {
         id: tgId,
         first_name: update.name ?? 'друг',
