@@ -1,0 +1,1 @@
+Ревью владельца фазы 2.1, п.4: U7BotUiAppDeps излишен — зависимости (userFacade, botAdminUuid) перенесены в U7BotUiAppResolve (u7-bot-app-meta.ts), приходят через init. Конструктор U7BotUiApp(controllers). Wiring и тесты обновлены; из create-ui-app удалён остаток resolve.uiApp.
