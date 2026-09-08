@@ -1030,6 +1030,113 @@ describe('BotTransport — notify (тон-каналы)', () => {
   });
 });
 
+// ── Kind-уведомления (ФР-5, единая таблица 🔔/ℹ️/⚠️ для обоих каналов) ──
+
+describe('BotTransport — проактив kind (ФР-5)', () => {
+  test("kind по умолчанию ('notify'): 🔔-заголовок", async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await transport.notify(123, { text: mdRaw('Ты зачислен') });
+
+    expect(callsOf(api.sendMessage).at(-1)?.[1]).toBe(
+      '🔔 *Уведомление:*\n\nТы зачислен',
+    );
+  });
+
+  test("kind 'info': ℹ️-заголовок", async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await transport.notify(123, { text: mdRaw('Тихая реплика'), kind: 'info' });
+
+    expect(callsOf(api.sendMessage).at(-1)?.[1]).toBe(
+      'ℹ️ *Информация:*\n\nТихая реплика',
+    );
+  });
+
+  test("kind 'warn': ⚠️-заголовок", async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await transport.notify(123, { text: mdRaw('Скоро дедлайн'), kind: 'warn' });
+
+    expect(callsOf(api.sendMessage).at(-1)?.[1]).toBe(
+      '⚠️ *Внимание:*\n\nСкоро дедлайн',
+    );
+  });
+});
+
+describe('BotTransport — диалоговая реплика notify (ФР-5)', () => {
+  test("дефолт kind ('info'): ℹ️-заголовок, экран и диалог не тронуты", async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleCallback: mock(async () => ({
+          notify: { text: mdRaw('Подсказка') },
+        })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(api.sendMessage).at(-1)?.[1]).toBe(
+      'ℹ️ *Информация:*\n\nПодсказка',
+    );
+    // экран не перерисован (реплика поверх диалога)
+    expect(callsOf(api.editMessageText).length).toBe(0);
+  });
+
+  test("kind 'warn': ⚠️-заголовок", async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleCallback: mock(async () => ({
+          notify: { text: mdRaw('Некорректно'), kind: 'warn' },
+        })),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    expect(callsOf(api.sendMessage).at(-1)?.[1]).toBe(
+      '⚠️ *Внимание:*\n\nНекорректно',
+    );
+  });
+
+  test('notify при ожидающем вводе (errorNotify-семантика): переспрос — input жив, экран не тронут', async () => {
+    const { api, transport, session } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleMessage: mock(async () => ({
+          notify: { text: mdRaw('Некорректный email'), kind: 'warn' },
+        })),
+      },
+    });
+    session.dialog.input = { context: { step: 'email' } };
+
+    await transport.handleMessage(
+      makeCtx({ message: { text: 'мусор' } as BotContext['message'] }),
+    );
+
+    expect(callsOf(api.sendMessage).at(-1)?.[1]).toBe(
+      '⚠️ *Внимание:*\n\nНекорректный email',
+    );
+    // экран не перерисован...
+    expect(callsOf(api.editMessageText).length).toBe(0);
+    // ...и ввод не снят — переспрос (awaitInput-контекст сохранён)
+    expect(session.dialog.input?.context).toEqual({ step: 'email' });
+  });
+});
+
 // ── Временный проактив с кнопками (ФР-6, до tasks-system) ──
 
 describe('BotTransport — invite (временный, ФР-6)', () => {

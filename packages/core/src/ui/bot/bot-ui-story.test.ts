@@ -38,6 +38,23 @@ function makeWarnSpyLogger(
   };
 }
 
+/** Логгер-шпион error-вызовов (остальное — молчаливые заглушки). */
+function makeErrorSpyLogger(errors: unknown[]): Logger {
+  return {
+    debug() {},
+    info() {},
+    warn() {},
+    error(_source, _message, meta) {
+      errors.push(meta);
+    },
+    setLogLevel() {},
+    getLogLevel() {
+      return 0;
+    },
+    setSourceLevel() {},
+  };
+}
+
 /** Стори-заглушка: открывает protected API (confirm/handleError). */
 class TestStory extends BotUiStory<AppMeta, TestActor> {
   readonly name = 'anketa';
@@ -62,6 +79,9 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
   }
   callHandleError(err: unknown): ReturnType<TestStory['handleError']> {
     return this.handleError(err);
+  }
+  callErrorNotify(err: unknown): ReturnType<TestStory['errorNotify']> {
+    return this.errorNotify(err);
   }
   callCb(action: string, ...ids: string[]): string {
     return this.cb(action, ...ids);
@@ -274,6 +294,70 @@ describe('BotUiStory — handleError', () => {
     expect(text).not.toContain('внутренняя деталь');
     expect(text).not.toContain('boom');
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+  });
+});
+
+describe('BotUiStory — errorNotify (ФР-5)', () => {
+  test('validation с issues → warn-реплика со списком полей, без экрана', () => {
+    const story = new TestStory();
+
+    const response = story.callErrorNotify(
+      new AppException(
+        errValidation('VALIDATION', 'Некорректные данные', {
+          issues: [
+            { path: 'Email', message: 'невалиден' },
+            { path: 'Имя', message: 'слишком *короткое*' },
+          ],
+        }),
+      ),
+    );
+
+    // Реплика, а не экран: экран диалога не захвачен
+    expect(response.screen).toBeUndefined();
+    // Ввод не снят и не переустановлен — awaitInput-контекст живёт (переспрос)
+    expect(response.release).toBeUndefined();
+    expect(response.awaitInput).toBeUndefined();
+    expect(response.notify?.kind).toBe('warn');
+    const text = String(response.notify?.text);
+    expect(text).toContain('Email');
+    expect(text).toContain('невалиден');
+    expect(text).toContain('слишком \\*короткое\\*');
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+  });
+
+  test.each([
+    ['not-found', new AppException(errNotFound('ERR', 'Объект [не] найден_', undefined)), 'Объект'],
+    ['conflict', new AppException(errConflict('ERR', 'Конфликт [x] _y_', undefined)), 'Конфликт'],
+    ['bad-request', new AppException(errBadRequest('ERR', 'Плохой запрос _[1]', undefined)), 'Плохой'],
+  ])('%s → warn-реплика с текстом ошибки, без экрана', (_kind, error, snippet) => {
+    const story = new TestStory();
+
+    const response = story.callErrorNotify(error);
+
+    expect(response.screen).toBeUndefined();
+    expect(response.notify?.kind).toBe('warn');
+    const text = String(response.notify?.text);
+    expect(text).toContain(snippet);
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+  });
+
+  test('internal → общее сообщение, доменные данные не утекают, error-лог', () => {
+    const errors: unknown[] = [];
+    setGlobalLogger(makeErrorSpyLogger(errors));
+    const story = new TestStory();
+
+    const response = story.callErrorNotify(
+      new AppException(errInternal('ERR', 'boom [секретная деталь] _y_', undefined)),
+    );
+
+    expect(response.screen).toBeUndefined();
+    expect(response.notify?.kind).toBe('warn');
+    const text = String(response.notify?.text);
+    expect(text).not.toContain('boom');
+    expect(text).not.toContain('секретная деталь');
+    expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+    expect(errors.length).toBe(1);
+    setGlobalLogger(undefined as unknown as Logger);
   });
 });
 
