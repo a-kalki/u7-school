@@ -11,6 +11,7 @@ import {
   type CommandUpdate,
   type DialogResponse,
   type KeyboardDescription,
+  type NoticeKind,
   type NotificationPayload,
   type ProactiveSender,
 } from '@u7-scl/core/ui';
@@ -58,6 +59,18 @@ const INPUT_NOT_EXPECTED_MESSAGE =
 
 /** Маркер выбора при retire экрана: «—————\nВы выбрали: …» (UX-запрос §10.6). */
 const CHOICE_MARKER = '\n\n—————\nВы выбрали: ';
+
+/**
+ * Единая таблица рендера kind-уведомлений (ФР-5): вид → заголовок.
+ * Одинакова для обоих каналов — проактивных уведомлений и диалоговых
+ * реплик (`DialogResponse.notify`). Дефолты вида: проактив — `notify`,
+ * реплика — `info`.
+ */
+const NOTICE_HEADER: Record<NoticeKind, string> = {
+  notify: '🔔 *Уведомление:*\n\n',
+  info: 'ℹ️ *Информация:*\n\n',
+  warn: '⚠️ *Внимание:*\n\n',
+};
 
 /** Виртуальный якорь «временно активного» диалога приглашения (ФР-6). */
 const INVITE_DIALOG_PATH = 'app/invite';
@@ -339,19 +352,14 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   /**
    * Проактивное уведомление — единственный проактивный канал (И3):
    * не читает и не пишет сессию, не трогает экран и диалог.
-   * Тон-каналы: notice (по умолчанию) — 🔔 «Уведомление»;
-   * info — ℹ️ «Информация» в стилистике уведомлений.
+   * Рендер — единая таблица ФР-5; вид по умолчанию — `notify` (🔔).
    */
   async notify(
     telegramId: number,
     payload: NotificationPayload,
   ): Promise<void> {
     return this.#enqueue(telegramId, async () => {
-      const header =
-        (payload.tone ?? 'notice') === 'notice'
-          ? '🔔 *Уведомление:*\n\n'
-          : 'ℹ️ *Информация:*\n\n';
-      const text = header + payload.text;
+      const text = NOTICE_HEADER[payload.kind ?? 'notify'] + payload.text;
 
       // Fail-fast: битые md-литералы не уходят в Telegram.
       assertMarkdownV2Safe(text);
@@ -435,10 +443,14 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     // Fail-fast: битые md-литералы не уходят в Telegram.
     assertDialogResponseMarkdownSafe(response);
 
-    // 1. info — тихая реплика поверх диалога (без клавиатуры, сессию
-    //    и экран не трогает). Уходит первой — читается «над» новым экраном.
-    if (response.info) {
-      await this.#sendText(tgId, response.info.text);
+    // 1. notify — реплика поверх диалога (без клавиатуры, сессию и экран
+    //    не трогает, ожидание ввода живёт). Рендер — единая таблица ФР-5;
+    //    вид по умолчанию — info (ℹ️). Уходит первой — читается «над»
+    //    новым экраном.
+    if (response.notify) {
+      const text =
+        NOTICE_HEADER[response.notify.kind ?? 'info'] + response.notify.text;
+      await this.#sendText(tgId, text);
     }
 
     // Слоты ниже требуют открытого диалога (ФР-1): /help и info-реплики

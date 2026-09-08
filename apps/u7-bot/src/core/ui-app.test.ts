@@ -3,6 +3,7 @@ import type { User } from '@u7-scl/app/domain';
 import {
   type Logger,
   LogLevel,
+  type MdText,
   md,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
@@ -11,7 +12,6 @@ import type {
   CommandReaction,
   CommandUpdate,
   DialogResponse,
-  Screen,
 } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
@@ -85,12 +85,12 @@ class SpyController extends U7BotController {
 /** Стори с настраиваемой контекстной справкой (для /help). */
 class HelpStory extends U7BotUiStory {
   readonly name = 'fill';
-  help: Screen | null = null;
+  help: MdText | null = null;
 
   override handleCallback(): Promise<DialogResponse> {
     throw new Error('Не используется');
   }
-  override async contextHelp(): Promise<Screen | null> {
+  override async contextHelp(): Promise<MdText | null> {
     return this.help;
   }
 }
@@ -213,9 +213,9 @@ describe('U7BotUiApp — дефолты команд', () => {
       session,
     );
 
-    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    expect(String(response?.notify?.text)).toContain('Как со мной работать');
     // описание кнопки сообщества — из menuButtons
-    expect(String(response?.info?.text)).toContain('Сообщество школы');
+    expect(String(response?.notify?.text)).toContain('Сообщество школы');
     expect(response?.screen).toBeUndefined();
     // диалог не тронут
     expect(session.dialog?.seq).toBe(2);
@@ -231,7 +231,7 @@ describe('U7BotUiApp — дефолты команд', () => {
       {} as BotSession,
     );
 
-    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    expect(String(response?.notify?.text)).toContain('Как со мной работать');
   });
 
   test('/cancel при пустом pipe → reopen меню + КОРОТКОЕ меню без приветствия', async () => {
@@ -263,7 +263,7 @@ describe('U7BotUiApp — дефолты команд', () => {
       session,
     );
 
-    expect(String(response?.info?.text)).toContain('Неизвестная команда');
+    expect(String(response?.notify?.text)).toContain('Неизвестная команда');
     expect(response?.screen).toBeUndefined();
     expect(session.dialog?.seq).toBe(2);
   });
@@ -277,7 +277,7 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
     const spy = new SpyController();
     spy.commandReaction = {
       reaction: 'stop',
-      response: { info: { text: md`Отменено. Наберите /start` } },
+      response: { notify: { text: md`Отменено. Наберите /start` } },
     };
     const uiApp = makeUiApp({ spy });
     const session = {
@@ -291,7 +291,7 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
     );
 
     // ответ стори — как есть (без экрана меню поверх)
-    expect(String(response?.info?.text)).toBe('Отменено. Наберите /start');
+    expect(String(response?.notify?.text)).toBe('Отменено. Наберите /start');
     expect(response?.screen).toBeUndefined();
     // глобальный сброс диалога — всегда
     expect(session.dialog?.path).toBe('app/menu');
@@ -301,14 +301,14 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
   test('/help активной стори со справкой → ТОЛЬКО её контекстная справка', async () => {
     setGlobalLogger(makeLogger());
     const story = new HelpStory();
-    story.help = { text: md`Вы в анкете, вопрос 3 из 10` };
+    story.help = md`Вы в анкете, вопрос 3 из 10`;
     const uiApp = makeUiApp({ extra: [new HelpController(story)] });
 
     const response = await uiApp.handleCommand(makeCommand('help'), 123, {
       dialog: { path: 'questionnaire/fill', seq: 2 },
     } as BotSession);
 
-    expect(String(response?.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
+    expect(String(response?.notify?.text)).toBe('Вы в анкете, вопрос 3 из 10');
   });
 
   test('/help активной стори БЕЗ справки → общий help (fallback)', async () => {
@@ -319,13 +319,13 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
       dialog: { path: 'questionnaire/fill', seq: 2 },
     } as BotSession);
 
-    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    expect(String(response?.notify?.text)).toContain('Как со мной работать');
   });
 
   test('/help при неактивной стори → общий help, даже при наличии справки', async () => {
     setGlobalLogger(makeLogger());
     const story = new HelpStory();
-    story.help = { text: md`Справка анкеты` };
+    story.help = md`Справка анкеты`;
     const uiApp = makeUiApp({ extra: [new HelpController(story)] });
 
     // чужой диалог — вопрос активности решает uiApp, не стори
@@ -333,7 +333,7 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
       dialog: { path: 'zz/old', seq: 2 },
     } as BotSession);
 
-    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    expect(String(response?.notify?.text)).toContain('Как со мной работать');
   });
 
   test('/log_level от админа через app-контроллер → stop{info}, уровень изменён', async () => {
@@ -348,7 +348,7 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
     );
 
     expect(logger.setLogLevel).toHaveBeenCalledWith(LogLevel.DEBUG);
-    expect(String(response?.info?.text)).toContain('debug');
+    expect(String(response?.notify?.text)).toContain('debug');
   });
 
   test('/log_level от НЕ-админа → тишина: пустой ответ без реплики', async () => {
@@ -398,7 +398,7 @@ describe('U7BotUiApp — системные кнопки', () => {
 
     const response = await uiApp.handleCallback('app:help', 123, session);
 
-    expect(String(response?.info?.text)).toContain('Как со мной работать');
+    expect(String(response?.notify?.text)).toContain('Как со мной работать');
     expect(response?.screen).toBeUndefined();
     expect(session.dialog?.seq).toBe(3);
   });

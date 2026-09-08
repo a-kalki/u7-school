@@ -179,19 +179,19 @@ export abstract class BotController<
     return [active, ...this.stories.filter((s) => s !== active)];
   }
 
-  /** Накопленные continue-нотисы — info-репликой над ответом стопа. */
+  /** Накопленные continue-нотисы — notify-репликой над ответом стопа. */
   #withNotices(
     stop: { reaction: 'stop'; response: DialogResponse },
     notices: MdText[],
   ): CommandReaction {
     if (notices.length === 0) return stop;
-    const merged = stop.response.info?.text;
+    const merged = stop.response.notify?.text;
     const text = merged
       ? mdJoin([...notices, merged], '\n\n')
       : mdJoin(notices, '\n\n');
     return {
       reaction: 'stop',
-      response: { ...stop.response, info: { text } },
+      response: { ...stop.response, notify: { text } },
     };
   }
 
@@ -259,12 +259,7 @@ export abstract class BotController<
         keyboard: this.#prefixKeyboard(response.screen.keyboard),
       };
     }
-    if (response.info?.keyboard) {
-      result.info = {
-        ...response.info,
-        keyboard: this.#prefixKeyboard(response.info.keyboard),
-      };
-    }
+    // notify без клавиатуры по построению (ФР-5) — префиксировать нечего
     if (response.delegate) {
       result.delegate = {
         path: this.#prefixCode(response.delegate.path),

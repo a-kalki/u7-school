@@ -1,11 +1,10 @@
 import type { User } from '@u7-scl/app/domain';
-import { md } from '@u7-scl/core/shared';
+import { type MdText, md } from '@u7-scl/core/shared';
 import type {
   BotSession,
   CommandReaction,
   CommandUpdate,
   ProactiveSender,
-  Screen,
 } from '@u7-scl/core/ui';
 import { BotUiStory } from '@u7-scl/core/ui';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
@@ -20,7 +19,7 @@ import type { MenuButton } from './u7-menu';
  * - `/start` → исключение-сторож (обрабатывает uiApp, до стори не доходит);
  * - `/help` → тоже uiApp напрямую, мимо pipe: активной стори задаётся
  *   `contextHelp()` (публичный, зовёт uiApp), остальным — общий help;
- * - `/cancel` → активна → сброс себя + stop{info}; неактивна → pass
+ * - `/cancel` → активна → сброс себя + stop{notify}; неактивна → pass
  *   без побочных действий (сброс только активной; глобальный сброс
  *   диалога на меню делает uiApp);
  * - прочее → pass (доменные команды — в переопределениях наследников).
@@ -64,7 +63,7 @@ export abstract class U7BotUiStory extends BotUiStory<
   async contextHelp(
     _actor: User,
     _session: BotSession,
-  ): Promise<Screen | null> {
+  ): Promise<MdText | null> {
     return null;
   }
 
@@ -83,7 +82,7 @@ export abstract class U7BotUiStory extends BotUiStory<
         this.reset();
         return {
           reaction: 'stop',
-          response: { info: { text: md`Отменено\\. Наберите /start` } },
+          response: { notify: { text: md`Отменено\\. Наберите /start` } },
         };
       }
       default:

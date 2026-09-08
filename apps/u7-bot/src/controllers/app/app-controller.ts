@@ -73,7 +73,7 @@ export class AppController extends U7BotController {
     const args = update.args;
     if (!args) {
       return {
-        info: {
+        notify: {
           text: md`${'Использование: /log_level <уровень>\n\nДоступные уровни: debug, info, warn, error, all'}`,
         },
       };
@@ -82,7 +82,7 @@ export class AppController extends U7BotController {
     const level = parseLogLevel(args);
     if (level === undefined) {
       return {
-        info: {
+        notify: {
           text: md`Неизвестный уровень: "${args}". Доступные: ${'debug, info, warn, error, all'}`,
         },
       };
@@ -93,7 +93,7 @@ export class AppController extends U7BotController {
       'log_level',
       `Уровень логирования изменён на ${args} администратором ${update.telegramId}`,
     );
-    return { info: { text: md`✅ Уровень логирования изменён на: ${args}` } };
+    return { notify: { text: md`✅ Уровень логирования изменён на: ${args}` } };
   }
 
   // ── Callback (стори-роутинг) ──

@@ -205,8 +205,8 @@ describe('BotUiStory — дефолты контракта команд (ФР-4,
       dialogPath: 'x/anketa',
     });
     // ...и явная реплика пользователю (экран и ввод не трогает)
-    expect(Object.keys(response)).toEqual(['info']);
-    expect(String(response.info?.text)).toBe(
+    expect(Object.keys(response)).toEqual(['notify']);
+    expect(String(response.notify?.text)).toBe(
       'Извините, на данном этапе сообщения не принимаются\\.',
     );
     setGlobalLogger(undefined as unknown as Logger);
@@ -326,9 +326,21 @@ describe('BotUiStory — errorNotify (ФР-5)', () => {
   });
 
   test.each([
-    ['not-found', new AppException(errNotFound('ERR', 'Объект [не] найден_', undefined)), 'Объект'],
-    ['conflict', new AppException(errConflict('ERR', 'Конфликт [x] _y_', undefined)), 'Конфликт'],
-    ['bad-request', new AppException(errBadRequest('ERR', 'Плохой запрос _[1]', undefined)), 'Плохой'],
+    [
+      'not-found',
+      new AppException(errNotFound('ERR', 'Объект [не] найден_', undefined)),
+      'Объект',
+    ],
+    [
+      'conflict',
+      new AppException(errConflict('ERR', 'Конфликт [x] _y_', undefined)),
+      'Конфликт',
+    ],
+    [
+      'bad-request',
+      new AppException(errBadRequest('ERR', 'Плохой запрос _[1]', undefined)),
+      'Плохой',
+    ],
   ])('%s → warn-реплика с текстом ошибки, без экрана', (_kind, error, snippet) => {
     const story = new TestStory();
 
@@ -347,7 +359,9 @@ describe('BotUiStory — errorNotify (ФР-5)', () => {
     const story = new TestStory();
 
     const response = story.callErrorNotify(
-      new AppException(errInternal('ERR', 'boom [секретная деталь] _y_', undefined)),
+      new AppException(
+        errInternal('ERR', 'boom [секретная деталь] _y_', undefined),
+      ),
     );
 
     expect(response.screen).toBeUndefined();
@@ -416,7 +430,7 @@ describe('BotUiStory — поверхность', () => {
     );
     // Дефолт — реплика-отказ (контракт «обязана ответить» соблюдён ядром)
     expect(
-      (await story.handleMessage(update, { id: 'u' }, session)).info?.text,
+      (await story.handleMessage(update, { id: 'u' }, session)).notify?.text,
     ).toContain('не принимаются');
   });
 });

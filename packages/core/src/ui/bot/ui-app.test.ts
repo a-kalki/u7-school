@@ -253,9 +253,9 @@ describe('BotUiApp — seq и смена диалога', () => {
 });
 
 describe('BotUiApp — delegate', () => {
-  test('delegate: info инициатора + screen делегата, seq++ при смене пути', async () => {
+  test('delegate: notify инициатора + screen делегата, seq++ при смене пути', async () => {
     const ctrlA = makeController('a').withCallbackResults({
-      info: { text: md`Переход в каталог` },
+      notify: { text: md`Переход в каталог` },
       delegate: { path: 'b:two:open' },
     });
     const ctrlB = makeController('b').withCallbackResults({
@@ -271,8 +271,8 @@ describe('BotUiApp — delegate', () => {
     // диалог — делегата
     expect(session.dialog.path).toBe('b/two');
     expect(session.dialog.seq).toBe(6);
-    // слоты: info от инициатора, screen от делегата
-    expect(String(response?.info?.text)).toBe('Переход в каталог');
+    // слоты: notify от инициатора, screen от делегата
+    expect(String(response?.notify?.text)).toBe('Переход в каталог');
     expect(String(response?.screen?.text)).toBe('Каталог');
   });
 
@@ -408,7 +408,7 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
     const ctrlB = makeController('b');
     ctrlB.commandReaction = {
       reaction: 'stop',
-      response: { info: { text: md`Ответ B` } },
+      response: { notify: { text: md`Ответ B` } },
     };
     const uiApp = makeUiApp([ctrlA, ctrlB]);
     const session = makeSession('b/two', 5);
@@ -421,7 +421,7 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
 
     expect(ctrlB.commandCalls.length).toBe(1);
     expect(ctrlA.commandCalls.length).toBe(0);
-    expect(String(response?.info?.text)).toBe('Ответ B');
+    expect(String(response?.notify?.text)).toBe('Ответ B');
   });
 
   test('stop с пустым ответом — терминал без реплики (null не возвращается)', async () => {
@@ -438,7 +438,7 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
     expect(response).toEqual({});
   });
 
-  test('только continue → {info: склейка нотисов}', async () => {
+  test('только continue → {notify: склейка нотисов}', async () => {
     const ctrlA = makeController('a');
     ctrlA.commandReaction = { reaction: 'continue', notice: md`Вклад A` };
     const ctrlB = makeController('b');
@@ -451,11 +451,11 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
       makeSession(),
     );
 
-    expect(String(response?.info?.text)).toBe('Вклад A\n\nВклад B');
+    expect(String(response?.notify?.text)).toBe('Вклад A\n\nВклад B');
     expect(response?.screen).toBeUndefined();
   });
 
-  test('continue-нотисы + stop: склейка — info-нотисом НАД ответом стопа', async () => {
+  test('continue-нотисы + stop: склейка — notify-нотисом НАД ответом стопа', async () => {
     const ctrlA = makeController('a');
     ctrlA.commandReaction = { reaction: 'continue', notice: md`Вклад A` };
     const ctrlB = makeController('b');
@@ -471,7 +471,7 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
       makeSession(),
     );
 
-    expect(String(response?.info?.text)).toBe('Вклад A');
+    expect(String(response?.notify?.text)).toBe('Вклад A');
     expect(String(response?.screen?.text)).toBe('Экран B');
   });
 

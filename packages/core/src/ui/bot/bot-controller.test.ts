@@ -153,7 +153,7 @@ describe('BotController — handleCommand: pipe стори', () => {
     const s1 = new PipeStory('one');
     s1.reaction = {
       reaction: 'stop',
-      response: { info: { text: md`Контекстная справка` } },
+      response: { notify: { text: md`Контекстная справка` } },
     };
     const s2 = new PipeStory('two');
     const ctrl = makeCtrl([s1, s2]);
@@ -166,7 +166,7 @@ describe('BotController — handleCommand: pipe стори', () => {
 
     expect(reaction).toEqual({
       reaction: 'stop',
-      response: { info: { text: md`Контекстная справка` } },
+      response: { notify: { text: md`Контекстная справка` } },
     });
     expect(s2.commandCalls).toBe(0);
   });
@@ -203,7 +203,7 @@ describe('BotController — handleCommand: pipe стори', () => {
     expect(reaction).toEqual({ reaction: 'pass' });
   });
 
-  test('continue-нотисы + stop: notice — info-нотисом НАД ответом стопа', async () => {
+  test('continue-нотисы + stop: notice — notify-нотисом НАД ответом стопа', async () => {
     const s1 = new PipeStory('one');
     s1.reaction = { reaction: 'continue', notice: md`Вклад один` };
     const s2 = new PipeStory('two');
@@ -223,19 +223,19 @@ describe('BotController — handleCommand: pipe стори', () => {
 
     expect(reaction.reaction).toBe('stop');
     if (reaction.reaction !== 'stop') return;
-    expect(String(reaction.response.info?.text)).toBe(
+    expect(String(reaction.response.notify?.text)).toBe(
       'Вклад один\n\nВклад два',
     );
     expect(String(reaction.response.screen?.text)).toBe('Экран');
   });
 
-  test('stop с собственным info: склейка с накопленными нотисами (не потеря)', async () => {
+  test('stop с собственным notify: склейка с накопленными нотисами (не потеря)', async () => {
     const s1 = new PipeStory('one');
     s1.reaction = { reaction: 'continue', notice: md`Вклад один` };
     const s2 = new PipeStory('two');
     s2.reaction = {
       reaction: 'stop',
-      response: { info: { text: md`Отменено` } },
+      response: { notify: { text: md`Отменено` } },
     };
     const ctrl = makeCtrl([s1, s2]);
 
@@ -246,7 +246,9 @@ describe('BotController — handleCommand: pipe стори', () => {
     );
 
     if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
-    expect(String(reaction.response.info?.text)).toBe('Вклад один\n\nОтменено');
+    expect(String(reaction.response.notify?.text)).toBe(
+      'Вклад один\n\nОтменено',
+    );
   });
 
   test('активная стори первой в pipe контроллера (право первой обработки)', async () => {

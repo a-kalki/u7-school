@@ -17,7 +17,7 @@ import { BotTransport, parseCommandText } from './bot-transport';
 /**
  * Тесты транспорта на контракте «Диалог и Экран»
  * (трек bot-ui-dialog-core, Фаза 2): штампы, per-chat очередь,
- * рендер-политика §5, тон-каналы, warn-логи ошибок Telegram API.
+ * рендер-политика §5, kind-уведомления (ФР-5), warn-логи ошибок Telegram API.
  *
  * Транспорт чёрным ящиком: сессия наблюдается через объект, который
  * транспорт передаёт в uiApp; штампованные коды читаются из аргументов
@@ -339,8 +339,8 @@ describe('BotTransport — per-chat очередь', () => {
       }),
       handleCallback: mock(async () => {
         step += 1;
-        // info-ответ: не меняет seq/экран — обе параллельные кнопки валидны
-        return { info: { text: mdRaw(`Реплика ${step}`) } };
+        // notify-ответ: не меняет seq/экран — обе параллельные кнопки валидны
+        return { notify: { text: mdRaw(`Реплика ${step}`) } };
       }),
     });
     const transport = new BotTransport(uiApp, api);
@@ -456,8 +456,8 @@ describe('BotTransport — per-chat очередь', () => {
       }),
       handleCallback: mock(async () => {
         step += 1;
-        // info-ответ: не меняет seq — обе последовательные кнопки валидны
-        return { info: { text: mdRaw(`Шаг ${step}`) } };
+        // notify-ответ: не меняет seq — обе последовательные кнопки валидны
+        return { notify: { text: mdRaw(`Шаг ${step}`) } };
       }),
     });
     const transport = new BotTransport(uiApp, api);
@@ -480,8 +480,8 @@ describe('BotTransport — per-chat очередь', () => {
 
     expect(callsOf(api.sendMessage).map((c) => c[1])).toEqual([
       'Меню',
-      'Шаг 1',
-      'Шаг 2',
+      'ℹ️ *Информация:*\n\nШаг 1',
+      'ℹ️ *Информация:*\n\nШаг 2',
     ]);
   });
 });
@@ -674,12 +674,12 @@ describe('BotTransport — рендер-политика', () => {
     expect(logger.warn).toHaveBeenCalled();
   });
 
-  test('info: send без клавиатуры, экран и диалог не тронуты', async () => {
+  test('notify: send без клавиатуры, экран и диалог не тронуты', async () => {
     const { api, transport, pressed, session } = await startDialog({
       seq: 5,
       uiApp: {
         handleCallback: mock(async () => ({
-          info: { text: mdRaw('ⓘ Подсказка') },
+          notify: { text: mdRaw('ⓘ Подсказка') },
         })),
       },
     });
@@ -692,7 +692,7 @@ describe('BotTransport — рендер-политика', () => {
     );
 
     const sends = callsOf(api.sendMessage);
-    expect(sends.at(-1)?.[1]).toBe('ⓘ Подсказка');
+    expect(sends.at(-1)?.[1]).toBe('ℹ️ *Информация:*\n\nⓘ Подсказка');
     expect(
       (sends.at(-1)?.[2] as { reply_markup?: unknown }).reply_markup,
     ).toBeUndefined();
@@ -868,10 +868,10 @@ describe('BotTransport — рендер-политика', () => {
     expect(callsOf(api.sendMessage).length).toBe(0);
   });
 
-  test('handleCommand: info-реплика рендерится, экран не трогается', async () => {
+  test('handleCommand: notify-реплика рендерится, экран не трогается', async () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
-      handleCommand: mock(async () => ({ info: { text: mdRaw('Справка') } })),
+      handleCommand: mock(async () => ({ notify: { text: mdRaw('Справка') } })),
     });
     const transport = new BotTransport(uiApp, api);
 
@@ -881,12 +881,12 @@ describe('BotTransport — рендер-политика', () => {
       callsOf(api.sendMessage)
         .map((c) => c[1])
         .at(-1),
-    ).toBe('Справка');
+    ).toBe('ℹ️ *Информация:*\n\nСправка');
     expect(callsOf(api.editMessageText).length).toBe(0);
   });
 });
 
-// ── notify: тон-каналы, сессия не трогается ──
+// ── notify: проактив (И3: сессия не трогается) ──
 
 // ── Единый вход команд (трек 1.1, ФР-4) ──
 
@@ -942,7 +942,7 @@ describe('BotTransport — единый вход команд (ФР-4)', () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp({
       handleCommand: mock(
-        async () => ({ info: { text: mdRaw('Готово') } }) as DialogResponse,
+        async () => ({ notify: { text: mdRaw('Готово') } }) as DialogResponse,
       ),
     });
     const transport = new BotTransport(uiApp, api);
@@ -964,7 +964,7 @@ describe('BotTransport — единый вход команд (ФР-4)', () => {
       name: 'Test',
     });
     expect(tgId).toBe(123);
-    // info-реплика отправлена
+    // notify-реплика отправлена
     expect(callsOf(api.sendMessage).length).toBe(1);
   });
 
@@ -995,8 +995,8 @@ describe('BotTransport — единый вход команд (ФР-4)', () => {
   });
 });
 
-describe('BotTransport — notify (тон-каналы)', () => {
-  test('tone notice (по умолчанию): 🔔-заголовок, экран пользователя не ретирится', async () => {
+describe('BotTransport — notify (проактив, И3)', () => {
+  test("вид по умолчанию ('notify'): 🔔-заголовок, экран пользователя не ретирится", async () => {
     const { api, transport } = await startDialog({ seq: 5 });
 
     await transport.notify(123, { text: mdRaw('🎓 Ты зачислен') });
@@ -1004,19 +1004,6 @@ describe('BotTransport — notify (тон-каналы)', () => {
     const sends = callsOf(api.sendMessage);
     expect(sends.at(-1)?.[1]).toBe('🔔 *Уведомление:*\n\n🎓 Ты зачислен');
     expect(callsOf(api.editMessageText).length).toBe(0); // экран не тронут
-  });
-
-  test('tone info: заголовок «ℹ️ Информация» в стилистике уведомлений', async () => {
-    const api = makeMockBotApi();
-    const transport = new BotTransport(makeUiApp(), api);
-
-    await transport.notify(123, { text: mdRaw('Тихая реплика'), tone: 'info' });
-
-    expect(
-      callsOf(api.sendMessage)
-        .map((c) => c[1])
-        .at(-1),
-    ).toBe('ℹ️ *Информация:*\n\nТихая реплика');
   });
 
   test('битый md-литерал в notify — fail-fast, в Telegram не уходит', async () => {
@@ -1096,7 +1083,7 @@ describe('BotTransport — диалоговая реплика notify (ФР-5)',
       seq: 5,
       uiApp: {
         handleCallback: mock(async () => ({
-          notify: { text: mdRaw('Некорректно'), kind: 'warn' },
+          notify: { text: mdRaw('Некорректно'), kind: 'warn' as const },
         })),
       },
     });
@@ -1117,7 +1104,7 @@ describe('BotTransport — диалоговая реплика notify (ФР-5)',
       seq: 5,
       uiApp: {
         handleMessage: mock(async () => ({
-          notify: { text: mdRaw('Некорректный email'), kind: 'warn' },
+          notify: { text: mdRaw('Некорректный email'), kind: 'warn' as const },
         })),
       },
     });

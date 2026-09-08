@@ -78,7 +78,7 @@ describe('AppController — handleCommand: /log_level', () => {
     expect(logger.setLogLevel).not.toHaveBeenCalled();
   });
 
-  test('от админа с аргументом → stop{info}, уровень изменён', async () => {
+  test('от админа с аргументом → stop{notify}, уровень изменён', async () => {
     const logger = makeLogger();
     setGlobalLogger(logger);
     const ctrl = makeCtrl([123]);
@@ -92,10 +92,10 @@ describe('AppController — handleCommand: /log_level', () => {
     expect(logger.setLogLevel).toHaveBeenCalledWith(LogLevel.DEBUG);
     expect(reaction.reaction).toBe('stop');
     if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
-    expect(String(reaction.response.info?.text)).toContain('debug');
+    expect(String(reaction.response.notify?.text)).toContain('debug');
   });
 
-  test('от админа без аргументов → stop{info} с инструкцией', async () => {
+  test('от админа без аргументов → stop{notify} с инструкцией', async () => {
     setGlobalLogger(makeLogger());
     const ctrl = makeCtrl([123]);
 
@@ -106,12 +106,12 @@ describe('AppController — handleCommand: /log_level', () => {
     );
 
     if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
-    expect(String(reaction.response.info?.text)).toContain('Использование');
+    expect(String(reaction.response.notify?.text)).toContain('Использование');
     // MarkdownV2: подчёркивание экранировано
-    expect(String(reaction.response.info?.text)).toContain('log\\_level');
+    expect(String(reaction.response.notify?.text)).toContain('log\\_level');
   });
 
-  test('от админа с неизвестным уровнем → stop{info} со списком уровней', async () => {
+  test('от админа с неизвестным уровнем → stop{notify} со списком уровней', async () => {
     setGlobalLogger(makeLogger());
     const ctrl = makeCtrl([123]);
 
@@ -122,8 +122,8 @@ describe('AppController — handleCommand: /log_level', () => {
     );
 
     if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
-    expect(String(reaction.response.info?.text)).toContain('bogus');
-    expect(String(reaction.response.info?.text)).toContain('debug');
+    expect(String(reaction.response.notify?.text)).toContain('bogus');
+    expect(String(reaction.response.notify?.text)).toContain('debug');
   });
 });
 

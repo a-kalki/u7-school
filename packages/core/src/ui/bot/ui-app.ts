@@ -87,7 +87,7 @@ export abstract class BotUiApp<
     }
 
     if (notices.length > 0) {
-      return { info: { text: mdJoin(notices, '\n\n') } };
+      return { notify: { text: mdJoin(notices, '\n\n') } };
     }
     return null;
   }
@@ -105,14 +105,14 @@ export abstract class BotUiApp<
     return [active, ...list.filter((c) => c !== active)];
   }
 
-  /** Накопленные continue-нотисы — info-репликой над ответом стопа. */
+  /** Накопленные continue-нотисы — notify-репликой над ответом стопа. */
   #attachNotices(response: DialogResponse, notices: MdText[]): DialogResponse {
     if (notices.length === 0) return response;
-    const merged = response.info?.text;
+    const merged = response.notify?.text;
     const text = merged
       ? mdJoin([...notices, merged], '\n\n')
       : mdJoin(notices, '\n\n');
-    return { ...response, info: { text } };
+    return { ...response, notify: { text } };
   }
 
   // ── Обработка callback ──
@@ -137,7 +137,7 @@ export abstract class BotUiApp<
     const target = await this.#dispatch(delegatePath, actor, session);
 
     return {
-      info: initiator.info ?? target.info,
+      notify: initiator.notify ?? target.notify,
       screen: target.screen ?? initiator.screen,
       awaitInput: target.awaitInput,
       release: target.release ?? initiator.release,

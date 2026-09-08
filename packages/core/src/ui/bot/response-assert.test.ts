@@ -87,7 +87,7 @@ describe('assertDialogResponseMarkdownSafe', () => {
     const response: DialogResponse = {
       screen: { text: md`*Экран* с данными: ${'5.5!'}` },
       finalize: { text: md`Фиксация: ${'а_б'}` },
-      info: { text: md`ⓘ Подсказка: ${'(1)'}` },
+      notify: { text: md`ⓘ Подсказка: ${'(1)'}` },
     };
 
     expect(() => assertDialogResponseMarkdownSafe(response)).not.toThrow();
@@ -109,9 +109,9 @@ describe('assertDialogResponseMarkdownSafe', () => {
     expect(() => assertDialogResponseMarkdownSafe(response)).toThrow();
   });
 
-  test('битый литерал в info ловится', () => {
+  test('битый литерал в notify ловится', () => {
     const response: DialogResponse = {
-      info: { text: mdRaw('Тихая_реплика_с_разметкой') },
+      notify: { text: mdRaw('Тихая_реплика_с_разметкой') },
     };
 
     expect(() => assertDialogResponseMarkdownSafe(response)).toThrow();

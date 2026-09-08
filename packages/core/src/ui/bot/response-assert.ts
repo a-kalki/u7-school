@@ -59,8 +59,8 @@ export function assertDialogResponseMarkdownSafe(
   if (response.finalize?.text) {
     assertMarkdownV2Safe(response.finalize.text);
   }
-  if (response.info?.text) {
-    assertMarkdownV2Safe(response.info.text);
+  if (response.notify?.text) {
+    assertMarkdownV2Safe(response.notify.text);
   }
 
   // awaitInput / release / delegate — текстов не несут

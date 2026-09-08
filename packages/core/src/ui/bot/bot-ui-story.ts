@@ -83,7 +83,9 @@ export abstract class BotUiStory<
       { story: this.name, dialogPath: session.dialog?.path },
     );
     return {
-      info: { text: md`Извините, на данном этапе сообщения не принимаются\\.` },
+      notify: {
+        text: md`Извините, на данном этапе сообщения не принимаются\\.`,
+      },
     };
   }
 
@@ -267,6 +269,72 @@ export abstract class BotUiStory<
         return {
           screen: {
             text: md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
+          },
+        };
+      }
+    }
+  }
+
+  /**
+   * Реплика-ошибка без захвата экрана (ФР-5): warn-уведомление поверх
+   * диалога (`notify.kind: 'warn'`), экран и ввод не трогает —
+   * при валидации ввода awaitInput-контекст сохраняется (переспрос),
+   * в pipe-командах — ошибка без перерисовки экрана.
+   *
+   * Различает типы ошибок через `fromError()`:
+   * - `validation` — перечисляет поля из `payload.issues`;
+   * - `not-found`, `conflict`, `access-denied`, `bad-request` — текст ошибки;
+   * - `internal`, `unauthorized` — логирует и возвращает общее сообщение
+   *   (доменные данные не утекают).
+   */
+  protected errorNotify(err: unknown): DialogResponse {
+    const appError = fromError(err);
+
+    switch (appError.kind) {
+      case 'validation': {
+        const payload = appError.payload as
+          | { issues?: Array<{ path?: string; message: string }> }
+          | undefined;
+        const issues = payload?.issues;
+
+        if (issues && issues.length > 0) {
+          const lines = issues.map(
+            (i) => md`• *${i.path ?? ''}*: ${i.message}`,
+          );
+          return {
+            notify: {
+              text: mdConcat(md`*Ошибка валидации*\n\n`, mdJoin(lines)),
+              kind: 'warn',
+            },
+          };
+        }
+
+        return {
+          notify: {
+            text: md`*Ошибка валидации*\n\n${appError.message}`,
+            kind: 'warn',
+          },
+        };
+      }
+
+      case 'not-found':
+      case 'conflict':
+      case 'access-denied':
+      case 'bad-request':
+        return {
+          notify: { text: md`${appError.message}`, kind: 'warn' },
+        };
+
+      // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
+      case 'internal':
+      // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
+      case 'unauthorized':
+      default: {
+        this.logger?.error('bot', 'Ошибка в story', serializeError(err));
+        return {
+          notify: {
+            text: md`Произошла ошибка\\. Попробуйте ещё раз или обратитесь к администратору\\.`,
+            kind: 'warn',
           },
         };
       }

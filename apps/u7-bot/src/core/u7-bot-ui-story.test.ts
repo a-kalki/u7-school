@@ -14,6 +14,7 @@ import {
   assertMarkdownV2Safe,
   type Logger,
   LogLevel,
+  type MdText,
   md,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
@@ -22,7 +23,6 @@ import type {
   BotUpdate,
   CommandUpdate,
   DialogResponse,
-  Screen,
 } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { U7BotController } from './u7-bot-controller';
@@ -288,7 +288,7 @@ describe('U7BotUiStory — контракт handleCommand', () => {
   class ContractStory extends U7BotUiStory {
     readonly name = 'fill';
     resetCalls = 0;
-    help: Screen | null = null;
+    help: MdText | null = null;
 
     override reset(): void {
       this.resetCalls++;
@@ -298,7 +298,7 @@ describe('U7BotUiStory — контракт handleCommand', () => {
       throw new Error('Не используется');
     }
     // handleMessage не переопределена — дефолт ядра (реплика-отказ)
-    override async contextHelp(): Promise<Screen | null> {
+    override async contextHelp(): Promise<MdText | null> {
       return this.help;
     }
   }
@@ -354,7 +354,7 @@ describe('U7BotUiStory — контракт handleCommand', () => {
 
   test('/help → pass: команда обрабатывает uiApp, до pipe не доходит', async () => {
     const story = makeStory();
-    story.help = { text: md`Справка анкеты` };
+    story.help = md`Справка анкеты`;
 
     const reaction = await story.handleCommand(
       cmd('help'),
@@ -378,7 +378,7 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     expect(await bare.contextHelp(actor, activeSession)).toBeNull();
   });
 
-  test('/cancel активна → сброс себя + stop{info: «Отменено. Наберите /start»}', async () => {
+  test('/cancel активна → сброс себя + stop{notify: «Отменено. Наберите /start»}', async () => {
     const story = makeStory();
 
     const reaction = await story.handleCommand(
@@ -390,10 +390,10 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     expect(story.resetCalls).toBe(1);
     expect(reaction.reaction).toBe('stop');
     if (reaction.reaction === 'stop') {
-      expect(String(reaction.response.info?.text)).toContain('Отменено');
+      expect(String(reaction.response.notify?.text)).toContain('Отменено');
       // MarkdownV2-безопасность дефолтного текста
       expect(() =>
-        assertMarkdownV2Safe(reaction.response.info?.text ?? ''),
+        assertMarkdownV2Safe(reaction.response.notify?.text ?? ''),
       ).not.toThrow();
     }
   });

@@ -2,6 +2,7 @@ import type { User } from '@u7-scl/app/domain';
 import {
   getGlobalLogger,
   type Logger,
+  type MdText,
   md,
   mdConcat,
   mdJoin,
@@ -99,7 +100,7 @@ export class U7BotUiApp extends BotUiApp<
     if (response) return response;
 
     return {
-      info: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
+      notify: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
     };
   }
 
@@ -116,8 +117,8 @@ export class U7BotUiApp extends BotUiApp<
     const actor = await this.resolve.actorResolver(tgId);
     const story = this.#activeStory(session);
     const context = story ? await story.contextHelp(actor, session) : null;
-    if (context) return { info: context };
-    return { info: await this.#commonHelpScreen(tgId) };
+    if (context) return { notify: { text: context } };
+    return { notify: { text: await this.#commonHelpScreen(tgId) } };
   }
 
   /** Активная стори по `dialog.path` (виртуальные пути `app/*` — не стори). */
@@ -177,7 +178,7 @@ export class U7BotUiApp extends BotUiApp<
       return { screen: await this.#shortMenuScreen(tgId) };
     }
     if (data === U7BotUiApp.HELP_CODE) {
-      return { info: await this.#commonHelpScreen(tgId) };
+      return { notify: { text: await this.#commonHelpScreen(tgId) } };
     }
     return super.handleCallback(data, tgId, session);
   }
@@ -201,7 +202,7 @@ export class U7BotUiApp extends BotUiApp<
   }
 
   /** Общий справочник: инструкция + описания кнопок из menuButtons. */
-  async #commonHelpScreen(tgId: number): Promise<Screen> {
+  async #commonHelpScreen(tgId: number): Promise<MdText> {
     const actor = await this.resolve.actorResolver(tgId);
     const header = md`Как со мной работать? 🤔
 
@@ -216,12 +217,10 @@ export class U7BotUiApp extends BotUiApp<
       .map((b) => b.description)
       .filter((d): d is string => typeof d === 'string');
 
-    if (descriptions.length === 0) return { text: header };
+    if (descriptions.length === 0) return header;
     // Описания — доменные данные: экранируются интерполяцией
     const parts = descriptions.map((d) => md`${d}`);
-    return {
-      text: mdConcat(header, md`\n\n`, mdJoin(parts, '\n\n')),
-    };
+    return mdConcat(header, md`\n\n`, mdJoin(parts, '\n\n'));
   }
 
   /** Welcome-экран /start: приветствие + клавиатура из menuButtons. */
