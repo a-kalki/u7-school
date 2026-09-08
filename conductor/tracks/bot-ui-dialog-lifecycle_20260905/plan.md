@@ -39,7 +39,7 @@
 ## Фаза 3: Kind-уведомления
 
 - [x] Task: Написать падающие тесты рендера: проактив `kind` (🔔/ℹ️/⚠️, дефолт `'notify'`), диалоговая реплика `notify` с `kind` (дефолт `'info'`), `errorNotify` — переспрос ввода без захвата экрана (решение владельца при ревью 2.1) [f18afcb]
-- [~] Task: ФР-5 `NoticeKind = 'notify' | 'info' | 'warn'`; `NotificationPayload.kind` (замена `tone`); `DialogResponse.notify = { text, kind }` — переименование слота `info` + поглощение `Screen`; хелпер `errorNotify(err)` у стори (валидация — переспрос, `awaitInput`-контекст сохраняется); единая таблица рендера в транспорте; обновить потребителей ядра
+- [x] Task: ФР-5 `NoticeKind = 'notify' | 'info' | 'warn'`; `NotificationPayload.kind` (замена `tone`); `DialogResponse.notify = { text, kind }` — переименование слота `info` + поглощение `Screen`; хелпер `errorNotify(err)` у стори (валидация — переспрос, `awaitInput`-контекст сохраняется); единая таблица рендера в транспорте; обновить потребителей ядра [15e89a0]
 - [ ] Conductor - User Manual Verification 'Kind-уведомления' (Protocol in workflow.md)
 
 ## Фаза 4: Документация и последующие треки
