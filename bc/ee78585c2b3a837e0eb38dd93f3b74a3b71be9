@@ -1,0 +1,14 @@
+Задачи фазы 2.2 (1–3), решения владельца при ревью 2.1
+
+1. Адресация:
+- bot-controller.ts: #commandPipeOrder — активная стори контроллера первой (по dialog.path), тест 'активная стори первой в pipe'
+- bot-ui-story.ts: handleMessage → Promise<DialogResponse> (без null, контракт 'стори обязана ответить'); bot-controller.handleMessage null = нет адресата (ответ — транспорт)
+- bot-transport.ts: handleMessage(ctx) без next (бот — единственный обработчик, легаси group-handler на корневом bot, не пересекается); реплики-подсказки NO_INPUT_NO_DIALOG_MESSAGE / INPUT_NOT_EXPECTED_MESSAGE через #hint (вне очереди); порт BotUpdateHandler без next; main.ts без next
+
+2. invite (временный, ФР-6, удаляется с tasks-system):
+- types.ts: ProactiveSender.invite(telegramId, { text, keyboard })
+- bot-controller/ui-app: делегаты по цепочке; транспорт: seq-штамп кнопок при открытом диалоге / текст+подсказка без диалога; тесты: штамп ~5, подсказка, fail-fast md
+
+3. Чистка: CommandReaction-докстринг сжат; остальное вычищено владельцем в 05f81ee3
+
+Проверки: check:p core зелёный (278 тестов); u7-скоуп зелёный (134 теста, lint/tsc чисто). Легаси-зоны — заявленно красные (handleMessage-типы легаси-сторий).
