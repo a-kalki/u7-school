@@ -1,0 +1,29 @@
+Задача: ФР-5 kind-уведомления — реализация (Фаза 3, фаза Green)
+
+Сводка: единый словарь kind-уведомлений для проактива и диалоговых реплик.
+
+Ядро (packages/core/src/ui/bot):
+- types.ts: NoticeKind = 'notify' | 'info' | 'warn'; NotificationPayload.kind (замена tone);
+  DialogResponse.info?: Screen → notify?: { text, kind? } (переименование + поглощение Screen — без клавиатуры)
+- bot-ui-story.ts: хелпер errorNotify(err) — warn-реплика без захвата экрана
+  (validation с issues → список полей; not-found/conflict/access-denied/bad-request → текст ошибки;
+  internal/unauthorized → общее сообщение + error-лог, без утечки данных);
+  дефолт handleMessage — реплика notify
+- bot-controller.ts: #withNotices → notify; удалена префиксация info.keyboard (notify без клавиатуры)
+- ui-app.ts: pipe-агрегация continue-нотисов → notify; delegate: notify инициатора ?? целевого
+- response-assert.ts: проверка md notify.text
+
+Транспорт (apps/u7-bot/src/infra/bot-transport.ts):
+- Единая таблица рендера NOTICE_HEADER: notify→🔔 «Уведомление», info→ℹ️ «Информация», warn→⚠️ «Внимание»;
+  одинакова для проактива (дефолт notify) и диалоговых реплик (дефолт info)
+
+Потребители u7: ui-app.ts (#commandHelp, #commonHelpScreen → MdText, help-код callback),
+u7-bot-ui-story.ts (contextHelp → MdText | null, cancel → notify), app-controller.ts (log_level → notify)
+
+Тесты: миграция существующих на слот notify/kind (bot-transport, ui-app, bot-controller,
+bot-ui-story, response-assert, app-controller); новые kind/errorNotify тесты — зелёные.
+
+Проверки: core 284 pass, транспорт/core/app 194 pass, tsc core чист, biome чист.
+Легаси-зоны (courses/learning/mentor/questionnaire/streams/user-стори) — заявленно красные (треки 2–5).
+
+Причина: ФР-5 spec трека bot-ui-dialog-lifecycle_20260905.
