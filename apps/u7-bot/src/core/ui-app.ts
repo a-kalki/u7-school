@@ -18,16 +18,18 @@ import {
 import { ensureRegisteredGuest } from '../ensure-registered';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
+import { U7BotUiStory } from './u7-bot-ui-story';
 import type { MenuButton } from './u7-menu';
 
 /**
  * Оркестратор UI приложения U7 Bot на контракте «Диалог и Экран».
  *
  * Диалоговая механика (seq, delegate, pipe контроллеров) — в ядре BotUiApp;
- * здесь U7-специфика: якорь меню `app/menu`, `/start` напрямую (гость →
- * лог → reopen → welcome из menuButtons), дефолты команд после пустого
- * pipe (/help — общий справочник, /cancel — короткое меню, прочее —
- * подсказка), системные кнопки `app:main-menu` / `app:help`.
+ * здесь U7-специфика: якорь меню `app/menu`, `/start` и `/help` напрямую
+ * (гость → лог → reopen → welcome из menuButtons; help — контекстная
+ * справка активной стори или общий справочник), дефолты команд после
+ * пустого pipe (/cancel — короткое меню, прочее — подсказка), системные
+ * кнопки `app:main-menu` / `app:help`.
  *
  * Зависимости (фасад пользователей, актор-бот для гост-регистрации) —
  * в `U7BotUiAppResolve`, приходят через init.
@@ -65,9 +67,12 @@ export class U7BotUiApp extends BotUiApp<
   /**
    * `/start` — НЕ через pipe: идемпотентная гост-регистрация → лог
    * топ-меню → reopen(menu) → welcome-экран из menuButtons.
+   * `/help` — тоже напрямую, мимо pipe: активная стори одна получает
+   * право ответить (контекстная справка), общий справочник — во всех
+   * остальных случаях (меню, закрытый диалог, активная без справки).
    * Прочие команды — pipe контроллеров (`super`); пустой pipe →
-   * дефолты u7: `/help` — общий справочник, `/cancel` — reopen(menu) +
-   * короткое меню, прочее — подсказка о неизвестной команде.
+   * дефолты u7: `/cancel` — reopen(menu) + короткое меню, прочее —
+   * подсказка о неизвестной команде.
    * При `/cancel` с ответом pipe (активная стори отменила себя) —
    * глобальный сброс диалога на меню делает uiApp, ответ стори — как есть.
    */
@@ -78,6 +83,9 @@ export class U7BotUiApp extends BotUiApp<
   ): Promise<DialogResponse | null> {
     if (update.command === 'start') {
       return this.#commandStart(update, tgId, session);
+    }
+    if (update.command === 'help') {
+      return this.#commandHelp(tgId, session);
     }
 
     const response = await super.handleCommand(update, tgId, session);
@@ -90,14 +98,42 @@ export class U7BotUiApp extends BotUiApp<
     }
     if (response) return response;
 
-    switch (update.command) {
-      case 'help':
-        return { info: await this.#commonHelpScreen(tgId) };
-      default:
-        return {
-          info: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
-        };
-    }
+    return {
+      info: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
+    };
+  }
+
+  /**
+   * `/help`: активная стори — только её контекстная справка (public
+   * `contextHelp()` — мост uiApp → стори); во всех остальных случаях —
+   * общий справочник. Инвариант ревью 2.2: неактивная стори на /help
+   * не отвечает никогда — проверка активности принадлежит uiApp, не стори.
+   */
+  async #commandHelp(
+    tgId: number,
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const actor = await this.resolve.actorResolver(tgId);
+    const story = this.#activeStory(session);
+    const context = story ? await story.contextHelp(actor, session) : null;
+    if (context) return { info: context };
+    return { info: await this.#commonHelpScreen(tgId) };
+  }
+
+  /** Активная стори по `dialog.path` (виртуальные пути `app/*` — не стори). */
+  #activeStory(session: BotSession): U7BotUiStory | undefined {
+    const path = session.dialog?.path;
+    if (!path) return undefined;
+    const [ctrlName, storyName] = path.split('/');
+    if (!ctrlName || !storyName) return undefined;
+    const controller = this.getController(ctrlName);
+    if (!controller) return undefined;
+    return controller
+      .getStories()
+      .find(
+        (s): s is U7BotUiStory =>
+          s instanceof U7BotUiStory && s.name === storyName,
+      );
   }
 
   /** /start: гост-регистрация (до резолва актора) + лог + welcome-меню. */

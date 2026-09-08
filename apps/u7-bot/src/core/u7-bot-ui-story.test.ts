@@ -297,10 +297,8 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     override handleCallback(): Promise<DialogResponse> {
       throw new Error('Не используется');
     }
-    override async handleMessage(): Promise<DialogResponse> {
-      return {};
-    }
-    protected override async contextHelp(): Promise<Screen | null> {
+    // handleMessage не переопределена — дефолт ядра (реплика-отказ)
+    override async contextHelp(): Promise<Screen | null> {
       return this.help;
     }
   }
@@ -354,9 +352,9 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     ).rejects.toThrow();
   });
 
-  test('/help активна → stop{info: контекстная справка}', async () => {
+  test('/help → pass: команда обрабатывает uiApp, до pipe не доходит', async () => {
     const story = makeStory();
-    story.help = { text: md`Вы в анкете, вопрос 3 из 10` };
+    story.help = { text: md`Справка анкеты` };
 
     const reaction = await story.handleCommand(
       cmd('help'),
@@ -364,64 +362,20 @@ describe('U7BotUiStory — контракт handleCommand', () => {
       activeSession,
     );
 
-    expect(reaction.reaction).toBe('stop');
-    if (reaction.reaction === 'stop') {
-      expect(String(reaction.response.info?.text)).toBe(
-        'Вы в анкете, вопрос 3 из 10',
-      );
-    }
-  });
-
-  test('/help активна без справки → pass (общий help уровня приложения)', async () => {
-    const story = makeStory();
-    story.help = null;
-
-    const reaction = await story.handleCommand(
-      cmd('help'),
-      actor,
-      activeSession,
-    );
-
+    // Ни активная, ни неактивная стори в /help не вовлечены — даже со справкой
     expect(reaction).toEqual({ reaction: 'pass' });
   });
 
-  test('дефолт contextHelp — null: активна без переопределения → pass', async () => {
-    // Стори без собственной справки — дефолт u7-стори contextHelp
+  test('contextHelp по умолчанию — null (uiApp уйдёт в общий help)', async () => {
     class BareStory extends U7BotUiStory {
-      readonly name = 'fill';
+      readonly name = 'bare';
       override handleCallback(): Promise<DialogResponse> {
         throw new Error('Не используется');
       }
-      override async handleMessage(): Promise<DialogResponse> {
-        return {};
-      }
     }
-    const ctrl = new ContractController(new BareStory());
-    ctrl.init({
-      appApi: {} as never,
-      eventBus: {} as never,
-      actorResolver: async () => actor,
-    } as never);
-    const bare = ctrl.getStories()[0] as BareStory;
+    const bare = new BareStory();
 
-    const reaction = await bare.handleCommand(cmd('help'), actor, {
-      dialog: { path: 'questionnaire/fill', seq: 2 },
-    });
-
-    expect(reaction).toEqual({ reaction: 'pass' });
-  });
-
-  test('/help неактивна → pass (даже при наличии справки)', async () => {
-    const story = makeStory();
-    story.help = { text: md`Справка` };
-
-    const reaction = await story.handleCommand(
-      cmd('help'),
-      actor,
-      otherSession,
-    );
-
-    expect(reaction).toEqual({ reaction: 'pass' });
+    expect(await bare.contextHelp(actor, activeSession)).toBeNull();
   });
 
   test('/cancel активна → сброс себя + stop{info: «Отменено. Наберите /start»}', async () => {

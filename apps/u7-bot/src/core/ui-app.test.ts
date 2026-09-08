@@ -10,10 +10,13 @@ import type {
   BotSession,
   CommandReaction,
   CommandUpdate,
+  DialogResponse,
+  Screen,
 } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
 import { U7BotController } from './u7-bot-controller';
+import { U7BotUiStory } from './u7-bot-ui-story';
 import { U7BotUiApp } from './ui-app';
 
 const SCHOOL_URL = 'https://t.me/u7_school_group';
@@ -79,17 +82,42 @@ class SpyController extends U7BotController {
   }
 }
 
+/** Стори с настраиваемой контекстной справкой (для /help). */
+class HelpStory extends U7BotUiStory {
+  readonly name = 'fill';
+  help: Screen | null = null;
+
+  override handleCallback(): Promise<DialogResponse> {
+    throw new Error('Не используется');
+  }
+  override async contextHelp(): Promise<Screen | null> {
+    return this.help;
+  }
+}
+
+/** Контроллер с одной стори (dialog.path = questionnaire/fill). */
+class HelpController extends U7BotController {
+  readonly name = 'questionnaire';
+
+  constructor(story: U7BotUiStory) {
+    super();
+    this.stories.push(story);
+  }
+}
+
 function makeUiApp(
   opts: {
     adminTelegramIds?: number[];
     userFacade?: UserFacade;
     spy?: SpyController;
+    extra?: U7BotController[];
   } = {},
 ): U7BotUiApp {
   const controllers: U7BotController[] = [
     new AppController(SCHOOL_URL, opts.adminTelegramIds ?? []),
   ];
   if (opts.spy) controllers.push(opts.spy);
+  if (opts.extra) controllers.push(...opts.extra);
   const uiApp = new U7BotUiApp(controllers);
   uiApp.init({
     appApi: {} as never,
@@ -270,20 +298,42 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
     expect(session.dialog?.seq).toBe(8);
   });
 
-  test('/help с контекстом активной стори → info стори (без общего help)', async () => {
+  test('/help активной стори со справкой → ТОЛЬКО её контекстная справка', async () => {
     setGlobalLogger(makeLogger());
-    const spy = new SpyController();
-    spy.commandReaction = {
-      reaction: 'stop',
-      response: { info: { text: md`Вы в анкете, вопрос 3 из 10` } },
-    };
-    const uiApp = makeUiApp({ spy });
+    const story = new HelpStory();
+    story.help = { text: md`Вы в анкете, вопрос 3 из 10` };
+    const uiApp = makeUiApp({ extra: [new HelpController(story)] });
 
     const response = await uiApp.handleCommand(makeCommand('help'), 123, {
       dialog: { path: 'questionnaire/fill', seq: 2 },
     } as BotSession);
 
     expect(String(response?.info?.text)).toBe('Вы в анкете, вопрос 3 из 10');
+  });
+
+  test('/help активной стори БЕЗ справки → общий help (fallback)', async () => {
+    setGlobalLogger(makeLogger());
+    const uiApp = makeUiApp({ extra: [new HelpController(new HelpStory())] });
+
+    const response = await uiApp.handleCommand(makeCommand('help'), 123, {
+      dialog: { path: 'questionnaire/fill', seq: 2 },
+    } as BotSession);
+
+    expect(String(response?.info?.text)).toContain('Как со мной работать');
+  });
+
+  test('/help при неактивной стори → общий help, даже при наличии справки', async () => {
+    setGlobalLogger(makeLogger());
+    const story = new HelpStory();
+    story.help = { text: md`Справка анкеты` };
+    const uiApp = makeUiApp({ extra: [new HelpController(story)] });
+
+    // чужой диалог — вопрос активности решает uiApp, не стори
+    const response = await uiApp.handleCommand(makeCommand('help'), 123, {
+      dialog: { path: 'zz/old', seq: 2 },
+    } as BotSession);
+
+    expect(String(response?.info?.text)).toContain('Как со мной работать');
   });
 
   test('/log_level от админа через app-контроллер → stop{info}, уровень изменён', async () => {

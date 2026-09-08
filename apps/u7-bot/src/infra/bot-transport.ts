@@ -3,8 +3,6 @@ import {
   escapeMarkdown,
   getGlobalLogger,
   type MdText,
-  md,
-  mdConcat,
 } from '@u7-scl/core/shared';
 import {
   assertDialogResponseMarkdownSafe,
@@ -60,6 +58,9 @@ const INPUT_NOT_EXPECTED_MESSAGE =
 
 /** Маркер выбора при retire экрана: «—————\nВы выбрали: …» (UX-запрос §10.6). */
 const CHOICE_MARKER = '\n\n—————\nВы выбрали: ';
+
+/** Виртуальный якорь «временно активного» диалога приглашения (ФР-6). */
+const INVITE_DIALOG_PATH = 'app/invite';
 
 // ── Интерфейсы ──
 
@@ -361,9 +362,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   /**
    * ВРЕМЕННЫЙ проактив с кнопками (ФР-6): удаляется с tasks-system.
    *
-   * Диалог получателя открыт → сообщение с кнопками, штампованными seq
-   * текущей эпохи (легальны, пока диалог не сменится). Диалог не открыт →
-   * только текст с подсказкой /start. Сессию и экран не трогает.
+   * Кнопки штампуются seq текущей эпохи диалога получателя. Диалога нет →
+   * создаётся «временно активный» диалог-якорь `app/invite` (seq = 1):
+   * даёт легальную эпоху штампам — приглашение не умирает. Первое нажатие
+   * switch-ит диалог в целевую стори (seq++), /start делает reopen —
+   * обе ветки легальны. Единственное место, где транспорт пишет
+   * `session.dialog` в обход enterDialog: у проактива нет сессии-аргумента,
+   * а сессиями владеет только транспорт (компромисс временного метода).
    */
   async invite(
     telegramId: number,
@@ -371,20 +376,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
   ): Promise<void> {
     return this.#enqueue(telegramId, async () => {
       const session = this.#session(telegramId);
-      const dialog = session.dialog;
 
-      if (!dialog) {
-        const text = mdConcat(
-          payload.text,
-          md`\n\nНаберите /start, чтобы начать работу с ботом\\.`,
-        );
-        assertMarkdownV2Safe(text);
-        await this.#sendText(telegramId, text);
-        return;
+      if (!session.dialog) {
+        session.dialog = { path: INVITE_DIALOG_PATH, seq: 1 };
       }
 
       assertMarkdownV2Safe(payload.text);
-      await this.#sendScreen(telegramId, dialog.seq, {
+      await this.#sendScreen(telegramId, session.dialog.seq, {
         text: payload.text,
         keyboard: payload.keyboard,
       });

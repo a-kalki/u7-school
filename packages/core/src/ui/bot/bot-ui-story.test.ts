@@ -49,13 +49,7 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
   ): Promise<DialogResponse> {
     return {};
   }
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: { id: string },
-    _session: BotSession,
-  ): Promise<DialogResponse> {
-    return {};
-  }
+  // handleMessage НЕ переопределена: наследуем дефолт ядра (реплика-отказ)
 
   // Экспонирование protected для тестов
   callConfirm(
@@ -162,6 +156,40 @@ describe('BotUiStory — дефолты контракта команд (ФР-4,
       );
       expect(reaction).toEqual({ reaction: 'pass' });
     }
+  });
+
+  test('handleMessage по умолчанию: warn + реплика-отказ без захвата экрана', async () => {
+    const warns: Array<[string, string, Record<string, unknown> | undefined]> =
+      [];
+    setGlobalLogger(makeWarnSpyLogger(warns));
+    const story = new TestStory();
+    const update: BotUpdate = {
+      type: 'message',
+      text: 'привет',
+      telegramId: 7,
+    };
+
+    const response = await story.handleMessage(
+      update,
+      { id: 'u' },
+      {
+        dialog: { path: 'x/anketa', seq: 3, input: {} },
+      },
+    );
+
+    // Недостижимый при корректной стори путь — warn разработчику...
+    expect(warns.length).toBe(1);
+    expect(warns[0]?.[1]).toContain('handleMessage');
+    expect(warns[0]?.[2]).toMatchObject({
+      story: 'anketa',
+      dialogPath: 'x/anketa',
+    });
+    // ...и явная реплика пользователю (экран и ввод не трогает)
+    expect(Object.keys(response)).toEqual(['info']);
+    expect(String(response.info?.text)).toBe(
+      'Извините, на данном этапе сообщения не принимаются\\.',
+    );
+    setGlobalLogger(undefined as unknown as Logger);
   });
 });
 
@@ -294,7 +322,7 @@ describe('BotUiStory — поверхность', () => {
     setGlobalLogger(undefined as unknown as Logger);
   });
 
-  test('handleCallback/handleMessage реализуемы (контракт не抽象)', async () => {
+  test('handleCallback переопределён, handleMessage — дефолт ядра', async () => {
     const story = new TestStory();
     const session: BotSession = { dialog: { path: 'c/anketa', seq: 1 } };
     const update: BotUpdate = { type: 'message', text: 'текст', telegramId: 1 };
@@ -302,7 +330,9 @@ describe('BotUiStory — поверхность', () => {
     expect(await story.handleCallback('view', { id: 'u' }, session)).toEqual(
       {},
     );
-    // Контракт фазы 2.2: стори обязана ответить, null больше нет
-    expect(await story.handleMessage(update, { id: 'u' }, session)).toEqual({});
+    // Дефолт — реплика-отказ (контракт «обязана ответить» соблюдён ядром)
+    expect(
+      (await story.handleMessage(update, { id: 'u' }, session)).info?.text,
+    ).toContain('не принимаются');
   });
 });

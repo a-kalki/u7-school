@@ -14,11 +14,12 @@ import type { MenuButton } from './u7-menu';
 /**
  * Специализированный пользовательский сценарий для U7 Telegram-бота.
  *
- * Контракт команд (ФР-4, решения 2026-09-06): стори знает свой
- * диалог-путь (`dialogPath`) и реагирует в pipe только будучи активной
- * (`isActive`):
+ * Контракт команд (ФР-4, решения 2026-09-06, ревизия ревью 2.2): стори
+ * знает свой диалог-путь (`dialogPath`) и реагирует в pipe только будучи
+ * активной (`isActive`):
  * - `/start` → исключение-сторож (обрабатывает uiApp, до стори не доходит);
- * - `/help` → активна и есть контекстная справка → stop{info}; иначе pass;
+ * - `/help` → тоже uiApp напрямую, мимо pipe: активной стори задаётся
+ *   `contextHelp()` (публичный, зовёт uiApp), остальным — общий help;
  * - `/cancel` → активна → сброс себя + stop{info}; неактивна → pass
  *   без побочных действий (сброс только активной; глобальный сброс
  *   диалога на меню делает uiApp);
@@ -56,10 +57,11 @@ export abstract class U7BotUiStory extends BotUiStory<
   }
 
   /**
-   * Контекстная справка диалога для /help активной стори.
-   * null — справки нет → pass → общий help приложения.
+   * Контекстная справка диалога. ПУБЛИЧНЫЙ мост для uiApp: при /help
+   * спрашивается только активная стори (неактивным help не достаётся —
+   * механизм принадлежит uiApp). null — справки нет → общий help.
    */
-  protected async contextHelp(
+  async contextHelp(
     _actor: User,
     _session: BotSession,
   ): Promise<Screen | null> {
@@ -68,7 +70,7 @@ export abstract class U7BotUiStory extends BotUiStory<
 
   override async handleCommand(
     update: CommandUpdate,
-    actor: User,
+    _actor: User,
     session: BotSession,
   ): Promise<CommandReaction> {
     switch (update.command) {
@@ -76,13 +78,6 @@ export abstract class U7BotUiStory extends BotUiStory<
         throw new Error(
           `Команда /start обрабатывается uiApp — до стори ${this.dialogPath} она не доходит`,
         );
-      case 'help': {
-        if (!this.isActive(session)) return { reaction: 'pass' };
-        const help = await this.contextHelp(actor, session);
-        return help
-          ? { reaction: 'stop', response: { info: help } }
-          : { reaction: 'pass' };
-      }
       case 'cancel': {
         if (!this.isActive(session)) return { reaction: 'pass' };
         this.reset();

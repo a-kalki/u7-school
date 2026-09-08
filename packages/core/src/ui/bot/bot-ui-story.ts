@@ -64,12 +64,28 @@ export abstract class BotUiStory<
   /**
    * Текстовый ввод (диалог ждёт ввод — awaitInput). Адресат всегда один —
    * активная стори: обязана ответить (контракт фазы 2.2, без null).
+   *
+   * Дефолт должен быть недостижим: awaitInput делает стори, умеющая
+   * принимать ввод (переопределяет метод). Дошедший ввод — программная
+   * ошибка: warn разработчику + явная реплика-отказ пользователю
+   * (исключение не бросаем — контроллер превратил бы его в экран
+   * «внутренняя ошибка», непонятный пользователю). Ввод БЕЗ ожидания
+   * до стори не доходит — его перехватывает транспорт.
    */
-  abstract handleMessage(
-    update: BotUpdate,
-    actor: TActor,
+  async handleMessage(
+    _update: BotUpdate,
+    _actor: TActor,
     session: BotSession,
-  ): Promise<DialogResponse>;
+  ): Promise<DialogResponse> {
+    this.logger?.warn(
+      'bot',
+      'Ввод дошёл до стори без переопределённого handleMessage (awaitInput без обработчика)',
+      { story: this.name, dialogPath: session.dialog?.path },
+    );
+    return {
+      info: { text: md`Извините, на данном этапе сообщения не принимаются\\.` },
+    };
+  }
 
   /**
    * Команда стори в трёхуровневом pipe (ФР-4, решения 2026-09-06).

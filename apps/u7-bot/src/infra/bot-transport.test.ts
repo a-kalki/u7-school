@@ -1057,7 +1057,7 @@ describe('BotTransport — invite (временный, ФР-6)', () => {
     expect(btn).toBe('invite:start:q1:~5');
   });
 
-  test('диалог не открыт: текст с подсказкой /start, без клавиатуры', async () => {
+  test('диалог не открыт: временный якорь — кнопки штампуются seq=1', async () => {
     const api = makeMockBotApi();
     const transport = new BotTransport(makeUiApp(), api);
 
@@ -1067,10 +1067,14 @@ describe('BotTransport — invite (временный, ФР-6)', () => {
     });
 
     const sent = callsOf(api.sendMessage).at(-1);
-    expect(String(sent?.[1])).toContain('Наберите /start, чтобы начать');
-    expect(
-      (sent?.[2] as { reply_markup?: unknown } | undefined)?.reply_markup,
-    ).toBeUndefined();
+    expect(sent?.[1]).toBe('📋 Анкета готова к заполнению');
+    const btn = (
+      sent?.[2] as {
+        reply_markup?: { inline_keyboard?: { callback_data?: string }[][] };
+      }
+    )?.reply_markup?.inline_keyboard?.[0]?.[0]?.callback_data;
+    // seq якоря = 1 → 36-ричная «1»
+    expect(btn).toBe('invite:start:q1:~1');
   });
 
   test('битый md-литерал — fail-fast, в Telegram не уходит', async () => {
