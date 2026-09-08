@@ -23,20 +23,19 @@ import type {
  * Базовый контроллер Telegram-бота на контракте «Диалог и Экран».
  *
  * Ответственность: стори-роутинг по префиксу, префиксация кодов кнопок и
- * `delegate.path` именем контроллера, обработка ошибок (экран, не падение).
+ * `delegate.path` именем контроллера, обработка ошибок.
  * Сессией и маршрутом диалога владеет uiApp; экраном — транспорт.
  */
 export abstract class BotController<
-    TAppMeta extends AppMeta = AppMeta,
-    TActor = unknown,
-    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-      TAppMeta,
-      TActor
-    >,
-  >
+  TAppMeta extends AppMeta = AppMeta,
+  TActor = unknown,
+  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+    TAppMeta,
+    TActor
+  >,
+>
   extends UiController<TResolve>
-  implements ProactiveSender
-{
+  implements ProactiveSender {
   protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */
@@ -90,8 +89,7 @@ export abstract class BotController<
   // ── Обработчики ──
 
   /**
-   * Обработка callback (data без префикса контроллера, с реальными ID —
-   * shortId и штамп уже сняты транспортом). Делегирует в стори по префиксу.
+   * Обработка callback. Делегирует в стори по префиксу.
    * Необработанные ошибки стори перехватываются и превращаются в экран.
    */
   async handleCallback(
@@ -135,16 +133,8 @@ export abstract class BotController<
   }
 
   /**
-   * Команда в трёхуровневом pipe (ФР-4, решения 2026-09-06): дефолт —
-   * pipe своих стори с агрегацией.
-   *
-   * - первый `stop` → `stop` (обход прерывается, ответ — как есть);
-   * - `continue`-нотисы склеиваются (\n\n) → `continue`; при позднейшем
-   *   `stop` склейка — info-нотисом над ответом стопа;
-   * - все `pass` (или continue без нотисов) → `pass`.
-   *
-   * Ошибка стори — терминал: `stop` с handleError-экраном (ошибка —
-   * экран, не падение конвейера).
+   * Обработка команды, первым вызывается текущая стори.
+   * Если активный стори ответил что это команда не его, то передается другим сторис.
    */
   async handleCommand(
     update: CommandUpdate,
@@ -221,8 +211,7 @@ export abstract class BotController<
   }
 
   /**
-   * Экран «Неизвестная команда» — с warn-логом телеметрии: владелец видит
-   * в проде, что кнопка рендерится, но не обрабатывается (слепая зона И-UX).
+   * Экран «Неизвестная команда»
    */
   #unknownCommandScreen(
     data: string,
@@ -289,7 +278,7 @@ export abstract class BotController<
       return ownPrefix + code;
     }
 
-    // Иначе — кросс-контроллерный код, уже с префиксом (напр. app:menu).
+    // Иначе — кросс-контроллерный код, уже с префиксом другого контроллера.
     return code;
   }
 
