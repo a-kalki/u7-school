@@ -22,16 +22,16 @@
 
 > Решения владельца (сессия 2026-09-06): единственный обработчик команд `handleCommand` на уровнях uiApp/uiController/uiStory; ядро не знает имён команд; реакция `pass | continue(notice) | stop(response)`; меню — декларативные данные `menuButtons` (не обработчики); активная стори сама проверяет `isActive(session)`. Поведение для пользователя не меняется. Подробности — ФР-4 в spec.md.
 
-- [ ] Task: Написать падающие тесты: core — pipe триада (pass/continue/stop на стори и контроллере, активная первой, первый stop побеждает, склейка notice-вкладов, все pass → null); u7 — `/start` uiApp без pipe (гость → welcome из menuButtons), дефолты help/cancel/unknown, контракт u7-стори (isActive: help/cancel → stop, неактивна → pass, start → throw), app-контроллер log_level, menuButtons-сбор
-- [ ] Task: Core: `CommandReaction` + `handleCommand` на трёх уровнях (uiApp pipe контроллеров → uiController pipe стори с агрегацией); удалить именные `handleHelp`/`handleCancel` (стори), `handleAppCommand`-хук (uiApp)
-- [ ] Task: u7-bot: `U7BotUiApp.handleCommand` — `/start` напрямую (гость → лог → reopen → welcome из menuButtons), прочее → super + дефолты (help общий из menuButtons, cancel короткое меню, unknown); `U7BotUiStory`-контракт с isActive; app-контроллер: log_level-override + menuButtons; `menuButtons(actor)` у стори/контроллера вместо handleStart, welcome/main-help тексты переезжают в u7UiApp; удалить handleWelcome/handleHelpMessage/MenuAggregator-гейт-остатки
-- [ ] Task: Проверки скоупа зелёные (core; u7-bot: transport/wiring/новый контракт) + коммиты с notes
+- [x] Task: Написать падающие тесты: core — pipe триада (pass/continue/stop на стори и контроллере, активная первой, первый stop побеждает, склейка notice-вкладов, все pass → null); u7 — `/start` uiApp без pipe (гость → welcome из menuButtons), дефолты help/cancel/unknown, контракт u7-стори (isActive: help/cancel → stop, неактивна → pass, start → throw), app-контроллер log_level, menuButtons-сбор [2ff4717]
+- [x] Task: Core: `CommandReaction` + `handleCommand` на трёх уровнях (uiApp pipe контроллеров → uiController pipe стори с агрегацией); удалить именные `handleHelp`/`handleCancel` (стори), `handleAppCommand`-хук (uiApp) [91b8463]
+- [x] Task: u7-bot: `U7BotUiApp.handleCommand` — `/start` напрямую (гость → лог → reopen → welcome из menuButtons), прочее → super + дефолты (help общий из menuButtons, cancel короткое меню, unknown); `U7BotUiStory`-контракт с isActive; app-контроллер: log_level-override + menuButtons; `menuButtons(actor)` у стори/контроллера вместо handleStart, welcome/main-help тексты переезжают в u7UiApp; удалить handleWelcome/handleHelpMessage/MenuAggregator-гейт-остатки [bb52b59]
+- [x] Task: Проверки скоупа зелёные (core; u7-bot: transport/wiring/новый контракт) + коммиты с notes [5381039]
 - [ ] Conductor - User Manual Verification 'Pipe-конвейер команд' (Protocol in workflow.md)
 
 ## Фаза 3: Kind-уведомления
 
-- [ ] Task: Написать падающие тесты рендера: проактив `kind` (🔔/ℹ️/⚠️, дефолт `'notify'`), диалоговая `info`-реплика с `kind` (дефолт `'info'`)
-- [ ] Task: ФР-5 `NoticeKind = 'notify' | 'info' | 'warn'`; `NotificationPayload.kind` (замена `tone`); `DialogResponse.info = { text, kind }` вместо `Screen`; единая таблица рендера в транспорте; обновить потребителей ядра
+- [ ] Task: Написать падающие тесты рендера: проактив `kind` (🔔/ℹ️/⚠️, дефолт `'notify'`), диалоговая реплика `notify` с `kind` (дефолт `'info'`), `errorNotify` — переспрос ввода без захвата экрана (решение владельца при ревью 2.1)
+- [ ] Task: ФР-5 `NoticeKind = 'notify' | 'info' | 'warn'`; `NotificationPayload.kind` (замена `tone`); `DialogResponse.notify = { text, kind }` — переименование слота `info` + поглощение `Screen`; хелпер `errorNotify(err)` у стори (валидация — переспрос, `awaitInput`-контекст сохраняется); единая таблица рендера в транспорте; обновить потребителей ядра
 - [ ] Conductor - User Manual Verification 'Kind-уведомления' (Protocol in workflow.md)
 
 ## Фаза 4: Документация и последующие треки
