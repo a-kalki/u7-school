@@ -23,7 +23,7 @@
    const [cmd, streamId] = action.split(':');
    const [, studentId, streamId, stepId] = action.split(':'); // пропустить префикс
    ```
-2. **`this.moduleApi`** — команды своего модуля; **`this.appApi`** — команды других модулей (фасады).
+2. **`this.appApi`** — доменных модулей.
 3. **Запрещено `as unknown as`** для результатов `execute()` и **`as any`** в моках — строгая типизация. Если TS ругается — проблема в типах команд/меты.
 4. **Не дублируй UC** в своём модуле для фасадов других модулей — вызывай через `this.appApi.execute(...)`.
 5. **Актор всегда `User`** из `@u7-scl/app/domain` — не `unknown`, не локальные интерфейсы.
@@ -37,7 +37,7 @@
 
 ## 3. Обработка исключений
 
-`try/catch` нужен **только** при специфичной реакции на ошибку: показать поля валидации, вернуть fallback, компенсирующее действие. Если стори просто вызывает `moduleApi.execute()` без реакции — `try/catch` НЕ нужен, ошибка пробросится в контроллер → `handleError` (см. [bot-controller.md](./bot-controller.md), §6).
+`try/catch` нужен **только** при специфичной реакции на ошибку: показать поля валидации, вернуть fallback, компенсирующее действие. Если стори просто вызывает `appApi.execute()` без реакции — `try/catch` НЕ нужен, ошибка пробросится в контроллер → `handleError` (см. [bot-controller.md](./bot-controller.md), §6).
 
 Внутри catch можно вызвать `this.handleError(err)` — он возвращает `DialogResponse`-экран. Логируются `internal`/`unauthorized`/`default`; `validation`/`not-found`/`conflict`/`access-denied`/`bad-request` — нормальный поток, не логируются.
 

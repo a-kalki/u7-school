@@ -13,43 +13,27 @@ import type {
 
 /**
  * Центральный хаб UI-слоя бота на контракте «Диалог и Экран».
- *
- * Ответственность:
- * - маршрутизация кнопок/ввода по префиксу контроллера (без блокировки
- *   «чужим диалогом» — штампы транспорта уже гарантировали актуальность
- *   кнопки, И2);
- * - владение `DialogState`: смена диалога (`seq++`, сброс `input`),
- *   `delegate`-переходы, операция входа `enterDialog` (для прикладного
- *   uiApp: /start, /cancel);
- * - трёхуровневый pipe команд (ФР-4, решения 2026-09-06):
- *   `handleCommand` резолвит актора и опрашивает контроллеры (активный
- *   первым) с агрегацией `CommandReaction`; ядро имён команд не знает —
- *   дефолты (/start, /help, /cancel, «неизвестная команда») — уровень
- *   приложения.
- *
- * Экран и Telegram-механика — транспорт (§5); uiApp только решает КУДА.
+ * Экран и Telegram-механика — транспорт; uiApp только решает КУДА.
  *
  * @typeParam TAppMeta — тип метаданных приложения
  * @typeParam TActor — тип актора (пользователя)
  */
 export abstract class BotUiApp<
-    TAppMeta extends
-      import('#domain/types').AppMeta = import('#domain/types').AppMeta,
-    TActor = unknown,
-    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-      TAppMeta,
-      TActor
-    >,
-  >
+  TAppMeta extends
+  import('#domain/types').AppMeta = import('#domain/types').AppMeta,
+  TActor = unknown,
+  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+    TAppMeta,
+    TActor
+  >,
+>
   extends UiApp<TResolve>
-  implements ProactiveSender
-{
+  implements ProactiveSender {
   protected declare readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>
   >;
 
-  /** Транспорт — получается через init отдельным аргументом */
   protected transport!: ProactiveSender;
 
   // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с UiController до BotController
@@ -58,8 +42,7 @@ export abstract class BotUiApp<
   }
 
   /**
-   * Каскадная инициализация: сохраняет transport и передаёт себя контроллерам
-   * отдельным аргументом (как ProactiveSender).
+   * Каскадная инициализация.
    */
   override init(resolve: TResolve, transport?: ProactiveSender): void {
     this.resolve = resolve;
@@ -82,18 +65,7 @@ export abstract class BotUiApp<
   // ── Pipe команд (ФР-4, решения 2026-09-06) ──
 
   /**
-   * Командный вход ядра: резолвит актора, опрашивает контроллеры
-   * (активный первым, далее по порядку регистрации) и агрегирует
-   * `CommandReaction`:
-   *
-   * - первый `stop` → его `response` (DialogResponse); накопленные
-   *   к этому моменту `continue`-нотисы — info-репликой над ответом;
-   * - только `continue` → `{info: склейка нотисов}`;
-   * - все `pass` → `null` — включаются дефолты уровня приложения
-   *   (`U7BotUiApp.handleCommand` и наследники).
-   *
-   * Ядро имён команд не знает: /start, /help, /cancel и тексты —
-   * прикладной uiApp.
+   * Обработка команды, делегирует сторис.
    */
   async handleCommand(
     update: CommandUpdate,
@@ -144,12 +116,7 @@ export abstract class BotUiApp<
   // ── Обработка callback ──
 
   /**
-   * Нажатие кнопки (штамп и shortId уже сверены транспортом).
-   *
-   * Кнопка в другую стори (мост) — смена диалога: `seq++`, input сброс;
-   * своей — продолжение без смены seq. `delegate` исполняется здесь,
-   * до транспорта: info/screen инициатора уходят до экрана делегата,
-   * слоты делегата (screen/awaitInput) приоритетны.
+   * Обработка нажатия кнопки.
    */
   async handleCallback(
     data: string,

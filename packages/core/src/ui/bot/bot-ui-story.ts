@@ -19,10 +19,6 @@ import type {
 
 /**
  * Абстрактная стори на контракте «Диалог и Экран».
- *
- * Ответ — `DialogResponse` (без messageId/parseMode/sendMessages/takeover:
- * механика рендера — транспорт). Тексты — `MdText` через `md`/`mdRaw`
- * (интерполяция доменных данных экранируется автоматически).
  */
 export abstract class BotUiStory<
   TAppMeta extends AppMeta = AppMeta,
@@ -46,7 +42,6 @@ export abstract class BotUiStory<
 
   /**
    * Инициализация сценария — вызывается контроллером при старте бота.
-   * Сохраняет ссылки на API приложения и proactiveSender (родитель-контроллер).
    */
   override init(resolve: TResolve, proactiveSender?: ProactiveSender): void {
     this.appApi = resolve.appApi;
@@ -57,7 +52,7 @@ export abstract class BotUiStory<
   }
 
   /** Сброс временных данных сценария (переопределяется при необходимости) */
-  reset(): void {}
+  reset(): void { }
 
   /** Обработка callback — реализуется в наследниках */
   abstract handleCallback(
@@ -78,11 +73,6 @@ export abstract class BotUiStory<
 
   /**
    * Команда стори в трёхуровневом pipe (ФР-4, решения 2026-09-06).
-   *
-   * Дефолт — `pass` («не моё»): ядро имён команд не знает, именных
-   * обработчиков (handleHelp/handleCancel) нет. Контекстные справки
-   * и доменные команды — в переопределениях наследников (контракт
-   * u7-стори: isActive + help/cancel/start) или напрямую.
    */
   async handleCommand(
     _update: CommandUpdate,
@@ -147,9 +137,7 @@ export abstract class BotUiStory<
   // ── Формирование callback_data (только реальные данные, без сжатия) ──
 
   /**
-   * Колбэк для своей стори.
-   * Возвращает `storyName:action[:id...]` — БЕЗ префикса контроллера, БЕЗ сжатия.
-   * Контроллер добавит префикс, транспорт сожмёт id и добавит штамп.
+   * Колбэк для своей стори. Возвращает `storyName:action[:id...]`.
    *
    * @param action — имя действия (view, list, complete, ...)
    * @param ids — реальные значения id (UUID, ключи)
@@ -160,7 +148,6 @@ export abstract class BotUiStory<
 
   /**
    * Кросс-стори колбэк: кнопка, ведущая в другую стори того же контроллера.
-   * Возвращает `targetStoryName:action[:id...]` — БЕЗ префикса контроллера, БЕЗ сжатия.
    *
    * @param storyName — имя целевой стори
    * @param action — имя действия
@@ -171,10 +158,7 @@ export abstract class BotUiStory<
   }
 
   /**
-   * Экран «Неизвестная команда» для ветки внутри стори: код кнопки не
-   * покрыт ни одной веткой handleCallback. Не молчим — warn-лог с
-   * телеметрией (код, путь диалога, актёр), чтобы владелец видел в проде
-   * мёртвые кнопки.
+   * Экран «Неизвестная команда» для ветки внутри стори.
    */
   protected unknownCommand(
     action: string,
@@ -212,9 +196,7 @@ export abstract class BotUiStory<
   }
 
   /**
-   * Универсальный обработчик ошибок: ошибка — ЭКРАН (решение владельца №1),
-   * не отдельное сообщение. Тексты — валидный MarkdownV2 (md-интерполяция
-   * экранирует доменные данные).
+   * Универсальный обработчик ошибок: ошибка.
    *
    * - `validation` — перечисляет поля из `payload.issues`
    * - `not-found`, `conflict`, `access-denied`, `bad-request` — текст ошибки
