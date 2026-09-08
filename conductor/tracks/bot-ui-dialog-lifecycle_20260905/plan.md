@@ -26,7 +26,14 @@
 - [x] Task: Core: `CommandReaction` + `handleCommand` на трёх уровнях (uiApp pipe контроллеров → uiController pipe стори с агрегацией); удалить именные `handleHelp`/`handleCancel` (стори), `handleAppCommand`-хук (uiApp) [91b8463]
 - [x] Task: u7-bot: `U7BotUiApp.handleCommand` — `/start` напрямую (гость → лог → reopen → welcome из menuButtons), прочее → super + дефолты (help общий из menuButtons, cancel короткое меню, unknown); `U7BotUiStory`-контракт с isActive; app-контроллер: log_level-override + menuButtons; `menuButtons(actor)` у стори/контроллера вместо handleStart, welcome/main-help тексты переезжают в u7UiApp; удалить handleWelcome/handleHelpMessage/MenuAggregator-гейт-остатки [bb52b59]
 - [x] Task: Проверки скоупа зелёные (core; u7-bot: transport/wiring/новый контракт) + коммиты с notes [5381039]
-- [ ] Conductor - User Manual Verification 'Pipe-конвейер команд' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Pipe-конвейер команд' (Protocol in workflow.md)
+
+## Фаза 2.2: Правки ревью фазы 2.1 (решения владельца)
+
+- [~] Task: Core: активная стори первой в pipe контроллера (порядок: активная стори → остальные стори активного контроллера → остальные контроллеры); контракт ввода — стори обязана ответить (`handleMessage` без null); убрать next из транспорта: ввод без ожидания / без адресата — реплика-подсказка транспорта
+- [ ] Task: Временный проактив `invite(telegramId, { text, keyboard })` до tasks-system (ФР-6): кнопки штампуются seq диалога получателя на момент отправки; без диалога — текст с подсказкой /start; ретрансляция на всех уровнях ProactiveSender
+- [ ] Task: Чистка комментариев скоупа фазы: докстринги только для ответственности (классы, функции, основные методы); тривиальные — убрать
+- [ ] Conductor - User Manual Verification 'Правки ревью' (Protocol in workflow.md)
 
 ## Фаза 3: Kind-уведомления
 
