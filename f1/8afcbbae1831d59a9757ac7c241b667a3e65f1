@@ -1,0 +1,15 @@
+Задача: Написать падающие тесты рендера kind-уведомлений (Фаза 3, ФР-5)
+
+Сводка: TDD-фаза Red для kind-уведомлений. Написаны падающие тесты:
+1. Проактивный kind (транспорт): 'notify' (дефолт) → 🔔, 'info' → ℹ️, 'warn' → ⚠️
+2. Диалоговая реплика notify: дефолт 'info' → ℹ️, 'warn' → ⚠️; экран и диалог не тронуты
+3. errorNotify-семантика на транспорте: реплика при захваченном вводе — input живёт (переспрос), экран не перерисован
+4. errorNotify у стори (core): validation с issues / not-found / conflict / bad-request → warn-реплика без screen; internal → общее сообщение без утечки + error-лог
+
+Единая таблица рендера: notify→🔔 «Уведомление», info→ℹ️ «Информация», warn→⚠️ «Внимание».
+
+Файлы:
+- apps/u7-bot/src/infra/bot-transport.test.ts (+describe проактив kind, диалоговая реплика notify)
+- packages/core/src/ui/bot/bot-ui-story.test.ts (+describe errorNotify, хелпер makeErrorSpyLogger)
+
+Причина: контракт ФР-5 из spec трека bot-ui-dialog-lifecycle_20260905 — единый словарь kind-уведомлений для обоих каналов.
