@@ -2,6 +2,9 @@ import {
   assertMarkdownV2Safe,
   escapeMarkdown,
   getGlobalLogger,
+  type MdText,
+  md,
+  mdConcat,
 } from '@u7-scl/core/shared';
 import {
   assertDialogResponseMarkdownSafe,
@@ -47,6 +50,14 @@ const STALE_STAMP_MESSAGE = 'Экран устарел — нажмите /start
 const STALE_BUTTON_MESSAGE =
   'Похоже, эта кнопка устарела после перезапуска сервиса. Нажмите /start, чтобы начать заново.';
 
+/** Текст без слэша при не открытом диалоге. */
+const NO_INPUT_NO_DIALOG_MESSAGE =
+  'Сначала наберите /start — потом я смогу принимать сообщения.';
+
+/** Текст без слэша при открытом диалоге без ожидания ввода. */
+const INPUT_NOT_EXPECTED_MESSAGE =
+  'Сейчас я работаю с кнопками — сообщения не принимаются. Наберите /help — справка.';
+
 /** Маркер выбора при retire экрана: «—————\nВы выбрали: …» (UX-запрос §10.6). */
 const CHOICE_MARKER = '\n\n—————\nВы выбрали: ';
 
@@ -77,7 +88,7 @@ export interface DialogUiAppPort {
 export interface BotUpdateHandler {
   handleCommand(ctx: BotContext): Promise<void>;
   handleCallback(ctx: BotContext): Promise<void>;
-  handleMessage(ctx: BotContext, next: () => Promise<void>): Promise<void>;
+  handleMessage(ctx: BotContext): Promise<void>;
 }
 
 // ── Парсинг слэш-команд (ФР-4) ──
@@ -253,15 +264,12 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
    * Текстовое сообщение: слэш-префикс — команда (единый конвейер ФР-4,
    * next не зовётся — это не ввод), остальное — ввод ожидающего диалога.
    */
-  async handleMessage(
-    ctx: BotContext,
-    next: () => Promise<void>,
-  ): Promise<void> {
+  async handleMessage(ctx: BotContext): Promise<void> {
     const text = ctx.message?.text;
-    if (!text) return next();
+    if (!text) return;
 
     // Слэш-текст — команда: перехват ДО логики ввода, без grammy-command
-    // регистрации (ФР-4). next не зовётся: команда — не текстовый ввод.
+    // регистрации (ФР-4).
     if (text.startsWith('/')) {
       await this.handleCommand(ctx);
       return;
@@ -271,15 +279,25 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
     if (!tgId) return;
 
     // Быстрая проверка без создания сессии: нечего маршрутизировать.
+    // Бот — единственный обработчик (решение владельца, фаза 2.2):
+    // дальше по grammy-цепочке ввод не уходит, отвечаем подсказкой.
     const existing = this.sessions.get(tgId);
-    if (!existing?.dialog?.input) return next();
+    if (!existing?.dialog?.input) {
+      this.#hint(
+        tgId,
+        existing?.dialog
+          ? INPUT_NOT_EXPECTED_MESSAGE
+          : NO_INPUT_NO_DIALOG_MESSAGE,
+      );
+      return;
+    }
 
     await this.#enqueue(tgId, async () => {
       const session = this.#session(tgId);
       // Повторная проверка внутри слота очереди — к моменту исполнения
       // ввод мог быть снят параллельной кнопкой.
       if (!session.dialog?.input) {
-        await next();
+        this.#hint(tgId, INPUT_NOT_EXPECTED_MESSAGE);
         return;
       }
 
@@ -290,10 +308,26 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       };
       const response = await this.uiApp.handleMessage(update, tgId, session);
       if (response === null) {
-        await next();
+        // Активная стори обязана ответить (контракт фазы 2.2);
+        // null — адресата нет (напр. диалог меню).
+        this.#hint(tgId, INPUT_NOT_EXPECTED_MESSAGE);
         return;
       }
       await this.#render(tgId, session, response);
+    });
+  }
+
+  /** Реплика-подсказка на не-наш ввод: вне очереди и сессии (plain-текст). */
+  #hint(tgId: number, text: string): void {
+    this.botApi.sendMessage(tgId, text).catch((err) => {
+      getGlobalLogger()?.warn(
+        'bot-transport',
+        'Не отправлена подсказка ввода',
+        {
+          telegramId: tgId,
+          error: String(err),
+        },
+      );
     });
   }
 
@@ -321,6 +355,39 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       // Fail-fast: битые md-литералы не уходят в Telegram.
       assertMarkdownV2Safe(text);
       await this.#sendText(telegramId, text);
+    });
+  }
+
+  /**
+   * ВРЕМЕННЫЙ проактив с кнопками (ФР-6): удаляется с tasks-system.
+   *
+   * Диалог получателя открыт → сообщение с кнопками, штампованными seq
+   * текущей эпохи (легальны, пока диалог не сменится). Диалог не открыт →
+   * только текст с подсказкой /start. Сессию и экран не трогает.
+   */
+  async invite(
+    telegramId: number,
+    payload: { text: MdText; keyboard: KeyboardDescription },
+  ): Promise<void> {
+    return this.#enqueue(telegramId, async () => {
+      const session = this.#session(telegramId);
+      const dialog = session.dialog;
+
+      if (!dialog) {
+        const text = mdConcat(
+          payload.text,
+          md`\n\nНаберите /start, чтобы начать работу с ботом\\.`,
+        );
+        assertMarkdownV2Safe(text);
+        await this.#sendText(telegramId, text);
+        return;
+      }
+
+      assertMarkdownV2Safe(payload.text);
+      await this.#sendScreen(telegramId, dialog.seq, {
+        text: payload.text,
+        keyboard: payload.keyboard,
+      });
     });
   }
 

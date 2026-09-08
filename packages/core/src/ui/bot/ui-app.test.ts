@@ -43,8 +43,8 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
   override async handleCallback(): Promise<DialogResponse> {
     return {};
   }
-  override async handleMessage(): Promise<DialogResponse | null> {
-    return null;
+  override async handleMessage(): Promise<DialogResponse> {
+    return {};
   }
   override async handleCommand(
     update: CommandUpdate,
@@ -109,9 +109,9 @@ class TestController extends BotController<AppMeta, TestActor> {
     _update: BotUpdate,
     _actor: TestActor,
     _session: BotSession,
-  ): Promise<DialogResponse | null> {
+  ): Promise<DialogResponse> {
     this.messageCalled++;
-    return this._messageResult;
+    return this._messageResult ?? {};
   }
 }
 
@@ -526,7 +526,7 @@ describe('BotUiApp — init-каскад', () => {
   test('init передаёт resolve и transport, getController сужен до BotController', async () => {
     const ctrl = makeController('a');
     const uiApp = new TestUiApp([ctrl]);
-    const sender = { notify: mock(), kickFromGroup: mock() };
+    const sender = { notify: mock(), invite: mock(), kickFromGroup: mock() };
     uiApp.init(
       {
         appApi: {} as never,

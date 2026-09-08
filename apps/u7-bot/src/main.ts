@@ -118,9 +118,7 @@ privateBot.use(async (ctx, next) => {
 // → дефолты u7 (help/cancel/unknown). /log_level — app-контроллер.
 // Поимённой grammy-регистрации команд нет.
 privateBot.on('callback_query:data', (ctx) => transport.handleCallback(ctx));
-privateBot.on('message:text', (ctx, next) =>
-  transport.handleMessage(ctx, next),
-);
+privateBot.on('message:text', (ctx) => transport.handleMessage(ctx));
 
 // ══ Глобальный catch — на исходный бот (ловит ошибки из всех веток) ══
 bot.catch((err) => {

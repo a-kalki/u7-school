@@ -53,8 +53,8 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
     _update: BotUpdate,
     _actor: { id: string },
     _session: BotSession,
-  ): Promise<DialogResponse | null> {
-    return null;
+  ): Promise<DialogResponse> {
+    return {};
   }
 
   // Экспонирование protected для тестов
@@ -302,6 +302,7 @@ describe('BotUiStory — поверхность', () => {
     expect(await story.handleCallback('view', { id: 'u' }, session)).toEqual(
       {},
     );
-    expect(await story.handleMessage(update, { id: 'u' }, session)).toBeNull();
+    // Контракт фазы 2.2: стори обязана ответить, null больше нет
+    expect(await story.handleMessage(update, { id: 'u' }, session)).toEqual({});
   });
 });

@@ -7,6 +7,7 @@ import type {
   BotUpdate,
   CommandUpdate,
   DialogResponse,
+  KeyboardDescription,
   NotificationPayload,
   ProactiveSender,
 } from './types';
@@ -19,16 +20,17 @@ import type {
  * @typeParam TActor — тип актора (пользователя)
  */
 export abstract class BotUiApp<
-  TAppMeta extends
-  import('#domain/types').AppMeta = import('#domain/types').AppMeta,
-  TActor = unknown,
-  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-    TAppMeta,
-    TActor
-  >,
->
+    TAppMeta extends
+      import('#domain/types').AppMeta = import('#domain/types').AppMeta,
+    TActor = unknown,
+    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+      TAppMeta,
+      TActor
+    >,
+  >
   extends UiApp<TResolve>
-  implements ProactiveSender {
+  implements ProactiveSender
+{
   protected declare readonly controllers: Map<
     string,
     BotController<TAppMeta, TActor, TResolve>
@@ -164,6 +166,14 @@ export abstract class BotUiApp<
     payload: NotificationPayload,
   ): Promise<void> {
     await this.transport.notify(telegramId, payload);
+  }
+
+  /** Временный проактив с кнопками (ФР-6) — делегирует в transport */
+  async invite(
+    telegramId: number,
+    payload: { text: MdText; keyboard: KeyboardDescription },
+  ): Promise<void> {
+    await this.transport.invite(telegramId, payload);
   }
 
   /** Проактивный кик из группы — делегирует в transport */

@@ -6,6 +6,7 @@ import {
   BotUiApp,
   type CommandUpdate,
   type DialogResponse,
+  type KeyboardDescription,
   type Screen,
 } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
@@ -774,18 +775,38 @@ describe('BotTransport — рендер-политика', () => {
     expect(logger.warn).toHaveBeenCalled();
   });
 
-  test('handleMessage: без ожидания ввода → next(), uiApp не вызывается', async () => {
+  test('handleMessage: без сессии → подсказка «Сначала наберите /start», uiApp не вызывается', async () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp();
     const transport = new BotTransport(uiApp, api);
 
-    let nextCalled = false;
-    await transport.handleMessage(makeCtx(), async () => {
-      nextCalled = true;
-    });
+    await transport.handleMessage(makeCtx());
 
-    expect(nextCalled).toBe(true);
     expect(callsOf(uiApp.handleMessage).length).toBe(0);
+    await new Promise((r) => setTimeout(r, 5));
+    const sent = callsOf(api.sendMessage).at(-1);
+    expect(String(sent?.[1])).toContain('Сначала наберите /start');
+  });
+
+  test('handleMessage: диалог открыт, но не ждёт ввода → подсказка «сообщения не принимаются»', async () => {
+    const api = makeMockBotApi();
+    const uiApp = makeUiApp({
+      handleCommand: mock(async (_u: unknown, _t: number, s: BotSession) => {
+        s.dialog = { path: 'app/menu', seq: 2 };
+        return { screen: { text: mdRaw('Меню') } };
+      }),
+    });
+    const transport = new BotTransport(uiApp, api);
+    await transport.handleCommand(makeCommandCtx('/start'));
+
+    await transport.handleMessage(
+      makeCtx({ message: { text: 'привет' } as BotContext['message'] }),
+    );
+
+    expect(callsOf(uiApp.handleMessage).length).toBe(0);
+    await new Promise((r) => setTimeout(r, 5));
+    const sent = callsOf(api.sendMessage).at(-1);
+    expect(String(sent?.[1])).toContain('не принимаются');
   });
 
   test('handleMessage: при ожидании ввода — форвард в uiApp и рендер', async () => {
@@ -808,7 +829,6 @@ describe('BotTransport — рендер-политика', () => {
 
     await transport.handleMessage(
       makeCtx({ message: { text: 'Ответ' } as BotContext['message'] }),
-      async () => {},
     );
 
     const msgs = callsOf(uiApp.handleMessage);
@@ -961,35 +981,17 @@ describe('BotTransport — единый вход команд (ФР-4)', () => {
     expect(callsOf(api.sendMessage).length).toBe(0);
   });
 
-  test('handleMessage со слэш-текстом → конвейер команд, не ввод: next не зовётся', async () => {
+  test('handleMessage со слэш-текстом → конвейер команд, не ввод', async () => {
     const api = makeMockBotApi();
     const uiApp = makeUiApp();
     const transport = new BotTransport(uiApp, api);
-    const next = mock(async () => {});
 
     await transport.handleMessage(
       makeCtx({ message: { text: '/cancel' } as BotContext['message'] }),
-      next,
     );
 
     expect(uiApp.handleCommand).toHaveBeenCalledTimes(1);
     expect(uiApp.handleMessage).not.toHaveBeenCalled();
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  test('handleMessage без слэша → как раньше: ввод (или next)', async () => {
-    const api = makeMockBotApi();
-    const uiApp = makeUiApp();
-    const transport = new BotTransport(uiApp, api);
-    const next = mock(async () => {});
-
-    await transport.handleMessage(
-      makeCtx({ message: { text: 'привет' } as BotContext['message'] }),
-      next,
-    );
-
-    expect(uiApp.handleCommand).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -1023,6 +1025,63 @@ describe('BotTransport — notify (тон-каналы)', () => {
 
     await expect(
       transport.notify(123, { text: mdRaw('Голая точка.') }),
+    ).rejects.toThrow();
+    expect(callsOf(api.sendMessage).length).toBe(0);
+  });
+});
+
+// ── Временный проактив с кнопками (ФР-6, до tasks-system) ──
+
+describe('BotTransport — invite (временный, ФР-6)', () => {
+  const inviteKeyboard: KeyboardDescription = {
+    rows: [[{ text: '▶️ Начать', code: 'invite:start:q1' }]],
+    isMultiple: false,
+  };
+
+  test('диалог открыт: кнопки штампуются seq текущей эпохи, сессия не тронута', async () => {
+    const { api, transport } = await startDialog({ seq: 5, path: 'app/menu' });
+
+    await transport.invite(123, {
+      text: mdRaw('📋 Анкета готова к заполнению'),
+      keyboard: inviteKeyboard,
+    });
+
+    const sent = callsOf(api.sendMessage).at(-1);
+    expect(sent?.[1]).toBe('📋 Анкета готова к заполнению');
+    const btn = (
+      sent?.[2] as {
+        reply_markup?: { inline_keyboard?: { callback_data?: string }[][] };
+      }
+    )?.reply_markup?.inline_keyboard?.[0]?.[0]?.callback_data;
+    // штамп seq=5 → 36-ричная «5»
+    expect(btn).toBe('invite:start:q1:~5');
+  });
+
+  test('диалог не открыт: текст с подсказкой /start, без клавиатуры', async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await transport.invite(123, {
+      text: mdRaw('📋 Анкета готова к заполнению'),
+      keyboard: inviteKeyboard,
+    });
+
+    const sent = callsOf(api.sendMessage).at(-1);
+    expect(String(sent?.[1])).toContain('Наберите /start, чтобы начать');
+    expect(
+      (sent?.[2] as { reply_markup?: unknown } | undefined)?.reply_markup,
+    ).toBeUndefined();
+  });
+
+  test('битый md-литерал — fail-fast, в Telegram не уходит', async () => {
+    const api = makeMockBotApi();
+    const transport = new BotTransport(makeUiApp(), api);
+
+    await expect(
+      transport.invite(123, {
+        text: mdRaw('Голая точка.'),
+        keyboard: inviteKeyboard,
+      }),
     ).rejects.toThrow();
     expect(callsOf(api.sendMessage).length).toBe(0);
   });

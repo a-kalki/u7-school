@@ -45,7 +45,7 @@ class SpyStory extends BotUiStory<AppMeta, TestActor> {
     _update: BotUpdate,
     _actor: TestActor,
     _session: BotSession,
-  ): Promise<DialogResponse | null> {
+  ): Promise<DialogResponse> {
     this.messageCalled++;
     return { release: true };
   }
@@ -117,8 +117,8 @@ describe('BotController — handleCommand: pipe стори', () => {
     override async handleCallback(): Promise<DialogResponse> {
       return {};
     }
-    override async handleMessage(): Promise<DialogResponse | null> {
-      return null;
+    override async handleMessage(): Promise<DialogResponse> {
+      return {};
     }
     override async handleCommand(): Promise<CommandReaction> {
       this.commandCalls++;
@@ -247,6 +247,68 @@ describe('BotController — handleCommand: pipe стори', () => {
 
     if (reaction.reaction !== 'stop') throw new Error('ожидался stop');
     expect(String(reaction.response.info?.text)).toBe('Вклад один\n\nОтменено');
+  });
+
+  test('активная стори первой в pipe контроллера (право первой обработки)', async () => {
+    const order: string[] = [];
+    class OrderStory extends PipeStory {
+      override async handleCommand(): Promise<CommandReaction> {
+        order.push(this.name);
+        return { reaction: 'pass' };
+      }
+    }
+    const s1 = new OrderStory('one');
+    const s2 = new OrderStory('two');
+    const s3 = new OrderStory('three');
+    const ctrl = new TestController([s1, s2, s3]);
+    ctrl.name = 'learn';
+
+    // активна третья стори активного контроллера — она первой
+    await ctrl.handleCommand(
+      makeCommandUpdate('help'),
+      actor,
+      makeSession('learn/three', 2),
+    );
+
+    expect(order).toEqual(['three', 'one', 'two']);
+
+    // диалог чужого контроллера — порядок регистрации
+    order.length = 0;
+    await ctrl.handleCommand(
+      makeCommandUpdate('help'),
+      actor,
+      makeSession('other/any', 2),
+    );
+
+    expect(order).toEqual(['one', 'two', 'three']);
+  });
+
+  test('invite (временный ФР-6) делегирует родителю-отправителю', async () => {
+    const invited: Array<[number, string]> = [];
+    const ctrl = makeCtrl([]);
+    ctrl.init(
+      {
+        appApi: {} as never,
+        eventBus: {} as never,
+        actorResolver: async () => actor,
+      } as never,
+      {
+        notify: async () => {},
+        invite: async (tg: number, p: { text: unknown }) =>
+          invited.push([tg, String(p.text)]),
+        kickFromGroup: async () => {},
+      } as never,
+    );
+
+    await ctrl.invite(7, {
+      text: md`Приглашение`,
+      keyboard: {
+        rows: [[{ text: 'Поехали', code: 'invite:start:q1' }]],
+        isMultiple: false,
+      },
+    });
+
+    expect(invited).toEqual([[7, 'Приглашение']]);
   });
 
   test('ошибка стори → stop с handleError-экраном, обход прерывается', async () => {

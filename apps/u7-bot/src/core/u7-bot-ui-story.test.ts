@@ -38,7 +38,7 @@ class TestStory extends U7BotUiStory {
     _update: BotUpdate,
     _actor: User,
     _session: BotSession,
-  ): Promise<DialogResponse | null> {
+  ): Promise<DialogResponse> {
     throw new Error('Method not implemented.');
   }
 
@@ -297,8 +297,8 @@ describe('U7BotUiStory — контракт handleCommand', () => {
     override handleCallback(): Promise<DialogResponse> {
       throw new Error('Не используется');
     }
-    override async handleMessage(): Promise<DialogResponse | null> {
-      return null;
+    override async handleMessage(): Promise<DialogResponse> {
+      return {};
     }
     protected override async contextHelp(): Promise<Screen | null> {
       return this.help;
@@ -392,8 +392,8 @@ describe('U7BotUiStory — контракт handleCommand', () => {
       override handleCallback(): Promise<DialogResponse> {
         throw new Error('Не используется');
       }
-      override async handleMessage(): Promise<DialogResponse | null> {
-        return null;
+      override async handleMessage(): Promise<DialogResponse> {
+        return {};
       }
     }
     const ctrl = new ContractController(new BareStory());

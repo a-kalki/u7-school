@@ -52,7 +52,7 @@ export abstract class BotUiStory<
   }
 
   /** Сброс временных данных сценария (переопределяется при необходимости) */
-  reset(): void { }
+  reset(): void {}
 
   /** Обработка callback — реализуется в наследниках */
   abstract handleCallback(
@@ -62,14 +62,14 @@ export abstract class BotUiStory<
   ): Promise<DialogResponse>;
 
   /**
-   * Текстовый ввод (диалог ждёт ввод — awaitInput).
-   * null — «не моё» (uiApp передаст дальше в next).
+   * Текстовый ввод (диалог ждёт ввод — awaitInput). Адресат всегда один —
+   * активная стори: обязана ответить (контракт фазы 2.2, без null).
    */
   abstract handleMessage(
     update: BotUpdate,
     actor: TActor,
     session: BotSession,
-  ): Promise<DialogResponse | null>;
+  ): Promise<DialogResponse>;
 
   /**
    * Команда стори в трёхуровневом pipe (ФР-4, решения 2026-09-06).

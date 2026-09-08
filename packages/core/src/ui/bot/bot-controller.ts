@@ -27,15 +27,16 @@ import type {
  * Сессией и маршрутом диалога владеет uiApp; экраном — транспорт.
  */
 export abstract class BotController<
-  TAppMeta extends AppMeta = AppMeta,
-  TActor = unknown,
-  TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
-    TAppMeta,
-    TActor
-  >,
->
+    TAppMeta extends AppMeta = AppMeta,
+    TActor = unknown,
+    TResolve extends BotUiAppResolve<TAppMeta, TActor> = BotUiAppResolve<
+      TAppMeta,
+      TActor
+    >,
+  >
   extends UiController<TResolve>
-  implements ProactiveSender {
+  implements ProactiveSender
+{
   protected declare readonly stories: BotUiStory<TAppMeta, TActor, TResolve>[];
 
   /** Публичный доступ к stories */
@@ -67,6 +68,14 @@ export abstract class BotController<
     payload: NotificationPayload,
   ): Promise<void> {
     await this.proactiveSender.notify(telegramId, payload);
+  }
+
+  /** Временный проактив с кнопками (ФР-6) — делегирует родителю */
+  async invite(
+    telegramId: number,
+    payload: { text: MdText; keyboard: KeyboardDescription },
+  ): Promise<void> {
+    await this.proactiveSender.invite(telegramId, payload);
   }
 
   /** Проактивный кик из группы — делегирует родителю без изменений */
@@ -112,10 +121,7 @@ export abstract class BotController<
     }
   }
 
-  /**
-   * Текстовый ввод активного диалога (dialog.path = controller/story).
-   * null — ввод не обработан (uiApp передаст next).
-   */
+  /** Текстовый ввод активного стори (dialog.path = controller/story). null — адресата нет (ответит транспорт). */
   async handleMessage(
     update: BotUpdate,
     actor: TActor,
@@ -142,7 +148,7 @@ export abstract class BotController<
     session: BotSession,
   ): Promise<CommandReaction> {
     const notices: MdText[] = [];
-    for (const story of this.stories) {
+    for (const story of this.#commandPipeOrder(session)) {
       let reaction: CommandReaction;
       try {
         reaction = await story.handleCommand(update, actor, session);
@@ -159,6 +165,18 @@ export abstract class BotController<
       return { reaction: 'continue', notice: mdJoin(notices, '\n\n') };
     }
     return { reaction: 'pass' };
+  }
+
+  /** Активная стори этого контроллера — первой, далее по регистрации. */
+  #commandPipeOrder(
+    session: BotSession,
+  ): BotUiStory<TAppMeta, TActor, TResolve>[] {
+    const path = session.dialog?.path;
+    if (!path || path.split('/')[0] !== this.name) return this.stories;
+    const activeName = path.split('/')[1];
+    const active = this.stories.find((s) => s.name === activeName);
+    if (!active) return this.stories;
+    return [active, ...this.stories.filter((s) => s !== active)];
   }
 
   /** Накопленные continue-нотисы — info-репликой над ответом стопа. */

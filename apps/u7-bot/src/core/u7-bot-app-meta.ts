@@ -14,8 +14,7 @@ import type { WishApiModuleMeta } from '@u7-scl/wish/domain';
  * Зависимости UI-слоя u7-бота: базовый резолв ядра + идемпотентная
  * гост-регистрация на /start (от имени системного актора-бота).
  */
-export interface U7BotUiAppResolve
-  extends BotUiAppResolve<U7BotAppMeta, User> {
+export interface U7BotUiAppResolve extends BotUiAppResolve<U7BotAppMeta, User> {
   /** фасад пользователей — идемпотентная гост-регистрация на /start */
   userFacade: UserFacade;
   /** системный актор-бот (BOT_ADMIN_UUID) — регистрация гостя от его имени */

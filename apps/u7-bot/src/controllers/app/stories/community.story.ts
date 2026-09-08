@@ -42,7 +42,7 @@ export class CommunityStory extends U7BotUiStory {
     _update: BotUpdate,
     _actor: User,
     _session: BotSession,
-  ): Promise<DialogResponse | null> {
+  ): Promise<DialogResponse> {
     return { screen: { text: md`⚠️ Неизвестное сообщение` } };
   }
 }

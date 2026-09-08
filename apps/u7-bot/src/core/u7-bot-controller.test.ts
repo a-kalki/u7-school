@@ -36,8 +36,8 @@ class ButtonedStory extends U7BotUiStory {
     _update: BotUpdate,
     _actor: User,
     _session: BotSession,
-  ): Promise<DialogResponse | null> {
-    return null;
+  ): Promise<DialogResponse> {
+    return {};
   }
 }
 
