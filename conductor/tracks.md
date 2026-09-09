@@ -2,12 +2,6 @@
 
 Порядок миграции bot-ui: 1 → 1.1 → 2 → (3 ∥ 4) → 5 → 6. Декомпозиция — в [bot-ui-session-architecture.md](./bot-ui-session-architecture.md), §9.
 
----
-
-- [x] **Track: Стори навигации app/user/courses/streams на новом контракте**
-*Link: [./tracks/bot-ui-dialog-nav_20260905/](./tracks/bot-ui-dialog-nav_20260905/)*
-
----
 
 - [ ] **Track: Learning-стори (hub, step-view, nav-tree, progress) на новом контракте**
 *Link: [./tracks/bot-ui-dialog-learning_20260905/](./tracks/bot-ui-dialog-learning_20260905/)*
