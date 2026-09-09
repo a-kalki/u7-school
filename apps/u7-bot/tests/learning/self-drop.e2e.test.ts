@@ -95,21 +95,15 @@ describe('E2E: Самовыход из учёбы (learning/hub, FR-4/FR-6)', ()
     expect((studentAfter as { status: string }).status).toBe('abandoned');
   });
 
-  test('после самовыхода повторное меню хаба — без кнопок учёбы', async () => {
-    const tgId = student.telegramId;
+  test('после самовыхода студент теряет кнопку «Моя учёба» в меню (роль STUDENT снята)', async () => {
+    // drop-student снимает роль STUDENT — свежий актор из репо без роли,
+    // menuButtons больше не отдаёт пункт
+    const fresh = (await app.userFacade.getUserByTelegramId(
+      student.telegramId,
+    ))!;
+    expect(fresh.roles).not.toContain('STUDENT');
 
-    await transport.handleStart(transport.makeBotContext(tgId));
-    const hubResp = await transport.handleCallback(
-      transport.makeBotContext(tgId, {
-        callbackData: pressedCode(transport, tgId, 'Моя учёба'),
-      }),
-    );
-
-    const btnTexts =
-      hubResp.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    // Студент abandoned — нет «Продолжить/Начать» и «Уроки»
-    expect(btnTexts.some((t) => t.includes('учёбу'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
+    const menu = await transport.collectMainMenu(fresh);
+    expect(menu.some((i) => i.text.includes('Моя учёба'))).toBe(false);
   });
 });

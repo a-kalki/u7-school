@@ -1,7 +1,14 @@
 import type { User } from '@u7-scl/app/domain';
 import type { ApiApp } from '@u7-scl/core/api';
-import { escapeMarkdown } from '@u7-scl/core/shared';
-import type { BotResponse, SessionData } from '@u7-scl/core/ui';
+import {
+  type MdText,
+  md,
+  mdConcat,
+  mdJoin,
+  mdRaw,
+  safeConvert,
+} from '@u7-scl/core/shared';
+import type { DialogResponse } from '@u7-scl/core/ui';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -9,12 +16,14 @@ import type { U7BotAppMeta } from '../../core/u7-bot-app-meta';
 
 /**
  * Получает студента по userId через appApi.
- * Возвращает BotResponse при ошибке.
+ * Возвращает DialogResponse (экран) при ошибке.
  */
 export async function getStudent(
   appApi: ApiApp<U7BotAppMeta>,
   userId: string,
-): Promise<{ ok: true; value: Student } | { ok: false; value: BotResponse }> {
+): Promise<
+  { ok: true; value: Student } | { ok: false; value: DialogResponse }
+> {
   try {
     const user = await appApi.execute(
       'get-student-by-user',
@@ -23,20 +32,17 @@ export async function getStudent(
     );
     return { ok: true, value: user as Student };
   } catch {
-    return {
-      ok: false,
-      value: {
-        sendMessage: {
-          text: '📖 Вы не записаны ни на один поток',
-          parseMode: 'MarkdownV2',
-        },
-      },
-    };
+    return { ok: false, value: notEnrolled() };
   }
 }
 
+/** Экран «студент не записан» (общий для стори learning). */
+export function notEnrolled(): DialogResponse {
+  return { screen: { text: md`📖 Вы не записаны ни на один поток` } };
+}
+
 /**
- * Получает студента и поток. Возвращает ошибку как BotResponse при неудаче.
+ * Получает студента и поток. null — студент не записан или поток недоступен.
  */
 export async function getStudentAndStream(
   appApi: ApiApp<U7BotAppMeta>,
@@ -61,47 +67,6 @@ export async function getStudentAndStream(
   } catch {
     return { student: null, stream: null };
   }
-}
-
-/**
- * Если в сессии есть lastBotMessage — редактируем его (editMessage).
- * Иначе — отправляем новое (sendMessage).
- */
-export function respondInContext(
-  response: BotResponse,
-  session: SessionData,
-): BotResponse {
-  const lastMsg = session.lastBotMessage;
-  if (lastMsg && response.sendMessage) {
-    return {
-      editMessage: {
-        messageId: lastMsg.messageId,
-        text: response.sendMessage.text,
-        keyboard: response.sendMessage.keyboard,
-        parseMode: response.sendMessage.parseMode,
-      },
-    };
-  }
-  return response;
-}
-
-/** Хелпер для editMessage или sendMessage в зависимости от сессии. */
-export function editOrSend(
-  response: BotResponse,
-  session: SessionData,
-): BotResponse {
-  const lastMsg = session.lastBotMessage;
-  if (lastMsg && response.sendMessage) {
-    return {
-      editMessage: {
-        messageId: lastMsg.messageId,
-        text: response.sendMessage.text,
-        keyboard: response.sendMessage.keyboard,
-        parseMode: response.sendMessage.parseMode,
-      },
-    };
-  }
-  return response;
 }
 
 /** Находит lessonId для шага в снапшоте. */
@@ -132,7 +97,7 @@ export async function buildStepList(
   snapshot: ContentSnapshot,
   lessonId: string,
   student: Student,
-): Promise<string> {
+): Promise<MdText> {
   const stepStatuses = new Map<string, 'completed' | 'issued'>();
   for (const sr of student.steps) {
     stepStatuses.set(sr.stepId, sr.status as 'completed' | 'issued');
@@ -150,10 +115,9 @@ export async function buildStepList(
     if (stepIds.length > 0) break;
   }
 
-  if (stepIds.length === 0) return '';
+  if (stepIds.length === 0) return md``;
 
-  const esc = escapeMarkdown;
-  const lines: string[] = ['_Шаги урока:_'];
+  const lines: MdText[] = [md`_Шаги урока:_`];
 
   for (const sid of stepIds) {
     const status = stepStatuses.get(sid);
@@ -166,7 +130,7 @@ export async function buildStepList(
       marker = '🔒';
     }
 
-    let desc = '';
+    let desc: string;
     try {
       const step = await appApi.execute('get-step', { uuid: sid });
       desc = (step as { description?: string }).description ?? sid;
@@ -174,10 +138,10 @@ export async function buildStepList(
       desc = sid;
     }
 
-    lines.push(`${marker} _${esc(desc)}_`);
+    lines.push(md`${marker} _${desc}_`);
   }
 
-  return lines.join('\n');
+  return mdJoin(lines);
 }
 
 /**
@@ -198,13 +162,14 @@ export async function loadStepDescriptions(
 
 /**
  * Форматирует прогресс-бар: [██████░░░░] X/Y (10 блоков).
+ * Возвращает уже размеченный MdText (mdRaw).
  */
-export function formatProgressBar(current: number, total: number): string {
+export function formatProgressBar(current: number, total: number): MdText {
   const width = 10;
   const filled = total === 0 ? 0 : Math.round((current / total) * width);
   const empty = width - filled;
   const block = '█'.repeat(filled) + '░'.repeat(empty);
-  return `\\[${block}\\] ${current}/${total}`;
+  return mdRaw(`\\[${block}\\] ${current}/${total}`);
 }
 
 /**
@@ -229,9 +194,7 @@ export function formatStepMessage(
   },
   snapshot?: ContentSnapshot,
   student?: { steps: Array<{ stepId: string; status: string }> },
-): string {
-  const esc = escapeMarkdown;
-
+): MdText {
   // Прогресс урока: только завершённые шаги
   let completed = resolved?.stepIndex ?? 0;
   if (snapshot && student) {
@@ -245,26 +208,26 @@ export function formatStepMessage(
 
   const totalSteps = resolved?.totalSteps ?? 1;
 
-  const lines: string[] = [
-    `📖 *Поток:* ${esc(streamTitle)}`,
-    `📁 *Проект:* ${esc(resolved?.projectTitle || '(неизвестный проект)')}`,
-    `📚 *Урок:* «${esc(resolved?.lessonTitle || '(неизвестный урок)')}»`,
-    `🔢 p${resolved?.projectIndex ?? 0}\\-l${resolved?.lessonIndex ?? 0}`,
-    '',
-    '――――――――――――――',
-    '',
-    `📊 ${formatProgressBar(completed, totalSteps)}`,
-    `📝 *Шаг ${resolved?.stepIndex ?? 1} из ${totalSteps}:* ${esc(step.description)}`,
+  const lines: MdText[] = [
+    md`📖 *Поток:* ${streamTitle}`,
+    md`📁 *Проект:* ${resolved?.projectTitle ?? '(неизвестный проект)'}`,
+    md`📚 *Урок:* «${resolved?.lessonTitle ?? '(неизвестный урок)'}»`,
+    md`🔢 p${resolved?.projectIndex ?? 0}\\-l${resolved?.lessonIndex ?? 0}`,
+    md``,
+    mdRaw('――――――――――――――'),
+    md``,
+    mdConcat(md`📊 `, formatProgressBar(completed, totalSteps)),
+    md`📝 *Шаг ${resolved?.stepIndex ?? 1} из ${totalSteps}:* ${step.description}`,
   ];
 
   if (step.kind === 'code' && step.code) {
-    lines.push('', '```', step.code, '```');
+    // Блок кода: содержимое не форматируется (валидатор вырезает ```...```)
+    lines.push(md``, mdRaw(`\`\`\`\n${step.code}\n\`\`\``));
   } else if (step.kind === 'text' && step.content) {
-    const { safeConvert } = require('@u7-scl/core/shared');
-    lines.push('', safeConvert(step.content));
+    lines.push(md``, mdRaw(safeConvert(step.content)));
   }
 
-  return lines.join('\n');
+  return mdJoin(lines);
 }
 
 /**
@@ -280,15 +243,9 @@ export function buildTransitionMessage(
   stream: { title: string; contentSnapshot: ContentSnapshot },
   student: Student,
 ): {
-  messageText: string;
+  messageText: MdText;
   buttonText: string;
 } {
-  const esc = escapeMarkdown;
-
-  let messageText: string;
-  let buttonText: string;
-  let progressLine = '';
-
   if (result.level === 'lesson' && result.completedLessonId) {
     const lessonTitle =
       StreamDs.buildLessonSteps(
@@ -296,9 +253,6 @@ export function buildTransitionMessage(
         result.completedLessonId,
         student,
       )?.lessonTitle ?? '';
-
-    messageText = `🎉 Урок «${esc(lessonTitle)}» завершён\\!`;
-    buttonText = '▶️ Начать следующий урок';
 
     // Найти проект, содержащий этот урок
     let projectIdx = 0;
@@ -318,24 +272,42 @@ export function buildTransitionMessage(
     const projectProgress = projectItem
       ? StreamDs.computeProgress([projectItem], student)
       : { completed: 0, total: 0 };
-    progressLine =
-      `\n📊 Прогресс по модулю: ${formatProgressBar(moduleProgress.completed, moduleProgress.total)}` +
-      `\n📊 Прогресс по проекту: ${formatProgressBar(projectProgress.completed, projectProgress.total)}`;
-  } else if (result.level === 'project' && result.completedProjectId) {
+
+    const messageText = mdJoin([
+      md`🎉 Урок «${lessonTitle}» завершён\\!`,
+      md``,
+      mdConcat(
+        md`📊 Прогресс по модулю: `,
+        formatProgressBar(moduleProgress.completed, moduleProgress.total),
+      ),
+      mdConcat(
+        md`📊 Прогресс по проекту: `,
+        formatProgressBar(projectProgress.completed, projectProgress.total),
+      ),
+    ]);
+
+    return { messageText, buttonText: '▶️ Начать следующий урок' };
+  }
+
+  if (result.level === 'project' && result.completedProjectId) {
     const title =
       stream.contentSnapshot.find(
         (p) => p.projectId === result.completedProjectId,
       )?.projectTitle ?? '';
 
-    messageText = `🚀 Проект «${esc(title)}» завершён\\!`;
-    buttonText = '▶️ Начать следующий проект';
-
     const progress = StreamDs.computeProgress(stream.contentSnapshot, student);
-    progressLine = `\n📊 Прогресс по модулю: ${formatProgressBar(progress.completed, progress.total)}`;
-  } else {
-    messageText = '🎉 Отличная работа!';
-    buttonText = '▶️ Продолжить';
+
+    const messageText = mdJoin([
+      md`🚀 Проект «${title}» завершён\\!`,
+      md``,
+      mdConcat(
+        md`📊 Прогресс по модулю: `,
+        formatProgressBar(progress.completed, progress.total),
+      ),
+    ]);
+
+    return { messageText, buttonText: '▶️ Начать следующий проект' };
   }
 
-  return { messageText: messageText + progressLine, buttonText };
+  return { messageText: md`🎉 Отличная работа\\!`, buttonText: '▶️ Продолжить' };
 }

@@ -1,6 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { md, mdJoin } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -8,18 +9,20 @@ import { buttons } from '../../shared/buttons';
 import {
   buildStepList,
   buildTransitionMessage,
-  editOrSend,
   findLessonIdForStep,
   formatStepMessage,
   getCompletedStepsInOrder,
   getStudent,
   getStudentAndStream,
-  respondInContext,
 } from '../shared';
 
 /**
  * Просмотр и прохождение шага (S05a).
  * Обрабатывает: продолжение, отметку о выполнении, просмотр пройденных шагов.
+ *
+ * Контракт «Диалог и Экран»: стори возвращает экраны (screen) — edit или
+ * send решает транспорт (владеем экраном → edit на месте, drill-down
+ * внутри стори не растит seq).
  */
 export class StepViewStory extends U7BotUiStory {
   readonly name = 'step-view';
@@ -27,8 +30,8 @@ export class StepViewStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (action === 'my-study:continue') {
       return this.#showCurrentStep(actor);
     }
@@ -38,19 +41,11 @@ export class StepViewStory extends U7BotUiStory {
     if (action.startsWith('my-study:view:')) {
       const [, , streamId, stepId] = action.split(':');
       if (!streamId || !stepId) {
-        return { sendMessage: { text: '⚠️ Неверный формат команды' } };
+        return this.unknownCommand(action, actor, session);
       }
-      return this.#showStepView(actor, streamId, stepId, session);
+      return this.#showStepView(actor, streamId, stepId);
     }
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
-  }
-
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+    return this.unknownCommand(action, actor, session);
   }
 
   // ── Приватные методы: основной поток ──
@@ -58,7 +53,7 @@ export class StepViewStory extends U7BotUiStory {
   async #showCurrentStep(
     actor: User,
     _overrideStepId?: string,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const studentResult = await getStudent(this.appApi, actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
@@ -70,9 +65,8 @@ export class StepViewStory extends U7BotUiStory {
       student.status === 'abandoned'
     ) {
       return {
-        sendMessage: {
-          text: '🎉 *Поздравляю\\!* Вы завершили обучение в потоке\\!',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`🎉 *Поздравляю\\!* Вы завершили обучение в потоке\\!`,
         },
       };
     }
@@ -91,10 +85,10 @@ export class StepViewStory extends U7BotUiStory {
     );
   }
 
-  async #handleComplete(action: string, actor: User): Promise<BotResponse> {
+  async #handleComplete(action: string, actor: User): Promise<DialogResponse> {
     const [, streamId, stepId] = action.split(':');
     if (!streamId || !stepId) {
-      return this.sendUnknownError();
+      return this.unknownCommand(action, actor);
     }
 
     const studentResult = await getStudent(this.appApi, actor.uuid);
@@ -104,9 +98,8 @@ export class StepViewStory extends U7BotUiStory {
 
     if (student.streamId !== streamId) {
       return {
-        sendMessage: {
-          text: '⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\. Пожалуйста, используйте /start для обновления\\.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\. Пожалуйста, используйте /start для обновления\\.`,
         },
       };
     }
@@ -129,9 +122,8 @@ export class StepViewStory extends U7BotUiStory {
 
     if (result.level === 'stream') {
       return {
-        sendMessage: {
-          text: '🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
           keyboard: {
             rows: [[buttons.mainMenu()]],
             isMultiple: false,
@@ -169,40 +161,31 @@ export class StepViewStory extends U7BotUiStory {
     actor: User,
     streamId: string,
     stepId: string,
-    session: SessionData,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const { student, stream } = await getStudentAndStream(this.appApi, actor);
     if (!student || !stream) {
       const studentResult = await getStudent(this.appApi, actor.uuid);
       return studentResult.ok
-        ? { sendMessage: { text: '⚠️ Поток не найден' } }
+        ? { screen: { text: md`⚠️ Поток не найден` } }
         : studentResult.value;
     }
 
     if (student.streamId !== streamId) {
-      return editOrSend(
-        {
-          sendMessage: {
-            text: '⚠️ *Ошибка:* поток не соответствует вашему текущему обучению.',
-            parseMode: 'MarkdownV2',
-          },
+      return {
+        screen: {
+          text: md`⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\.`,
         },
-        session,
-      );
+      };
     }
 
     const resolved = StreamDs.getStepPosition(stream.contentSnapshot, stepId);
 
     if (!resolved) {
-      return editOrSend(
-        {
-          sendMessage: {
-            text: '⚠️ Шаг не найден в программе потока.',
-            parseMode: 'MarkdownV2',
-          },
+      return {
+        screen: {
+          text: md`⚠️ Шаг не найден в программе потока\\.`,
         },
-        session,
-      );
+      };
     }
 
     const step = await this.appApi.execute('get-step', { uuid: stepId });
@@ -229,7 +212,9 @@ export class StepViewStory extends U7BotUiStory {
         )
       : '';
 
-    const fullText = [mainMessage, '', stepList].join('\n');
+    const fullText = stepList
+      ? mdJoin([mainMessage, stepList], '\n\n')
+      : mainMessage;
 
     // Кнопки
     const rows: Array<Array<{ text: string; code: string }>> = [];
@@ -276,15 +261,12 @@ export class StepViewStory extends U7BotUiStory {
 
     rows.push([buttons.mainMenu()]);
 
-    const description: BotResponse = {
-      sendMessage: {
+    return {
+      screen: {
         text: fullText,
-        parseMode: 'MarkdownV2',
         keyboard: { rows, isMultiple: false },
       },
     };
-
-    return respondInContext(description, session);
   }
 
   // ── Приватные методы: сборка представления шага ──
@@ -294,7 +276,7 @@ export class StepViewStory extends U7BotUiStory {
     stepId: string,
     streamId: string,
     student?: Student,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const resolved = StreamDs.getStepPosition(stream.contentSnapshot, stepId);
 
     const step = await this.appApi.execute('get-step', { uuid: stepId });
@@ -310,9 +292,8 @@ export class StepViewStory extends U7BotUiStory {
     keyboard.rows.push([buttons.mainMenu()]);
 
     return {
-      sendMessage: {
+      screen: {
         text: message,
-        parseMode: 'MarkdownV2',
         keyboard,
       },
     };
@@ -343,7 +324,7 @@ export class StepViewStory extends U7BotUiStory {
     },
     streamId: string,
     student: Student,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as { title: string; contentSnapshot: ContentSnapshot };
@@ -355,9 +336,8 @@ export class StepViewStory extends U7BotUiStory {
     );
 
     return {
-      sendMessage: {
+      screen: {
         text: messageText,
-        parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
             [{ text: buttonText, code: this.cb('my-study:continue') }],

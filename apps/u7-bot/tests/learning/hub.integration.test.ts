@@ -203,14 +203,20 @@ describe('LearningController (интеграционный)', () => {
 
     const sentBefore = transport.api.sentMessages.length;
 
-    // Мост в nav-tree (смена диалога → send)
+    // Мост в nav-tree: /start → «Моя учёба» (хаб) → «📂 Уроки» (смена диалога → send)
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Моя учёба'),
+      }),
+    );
     await transport.handleCallback(
       transport.makeBotContext(tgId, {
         callbackData: pressedCode(transport, tgId, 'Уроки'),
       }),
     );
+    // send-ы: welcome + хаб + дерево (retire старых экранов — это edit-ы)
     const sentAfterEnter = transport.api.sentMessages.length;
-    expect(sentAfterEnter).toBe(sentBefore + 1);
+    const editsAfterEnter = transport.api.editedMessages.length;
 
     // Drill-down: проект → урок — тот же dialog.path, экран наш → edit
     await transport.handleCallback(
@@ -226,7 +232,7 @@ describe('LearningController (интеграционный)', () => {
 
     // Новых сообщений нет — оба перехода отрендерены edit'ом
     expect(transport.api.sentMessages.length).toBe(sentAfterEnter);
-    expect(transport.api.editedMessages.length).toBe(2);
+    expect(transport.api.editedMessages.length).toBe(editsAfterEnter + 2);
 
     // Последний экран — шаги урока (edit существующего messageId)
     const lastScreen = screensNewFirst(transport, tgId)[0]!;

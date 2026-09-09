@@ -38,8 +38,12 @@ describe('HubStory', () => {
   function makeStory(appApiOverrides?: Record<string, unknown>) {
     const mockAppApi = {
       execute: mock((name: string) => {
-        if (appApiOverrides && name in appApiOverrides)
-          return appApiOverrides[name];
+        if (appApiOverrides && name in appApiOverrides) {
+          const val = appApiOverrides[name];
+          if (typeof val === 'function') return (val as () => unknown)();
+          if (val instanceof Error) throw val;
+          return val;
+        }
         if (name === 'get-student-by-user') return mockStudent;
         return undefined;
       }),
@@ -53,7 +57,11 @@ describe('HubStory', () => {
   test('my-study — экран хаба с кнопками', async () => {
     const { story } = makeStory();
 
-    const response = await story.handleCallback('my-study', studentActor, session);
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
     assertDialogResponseMarkdownSafe(response);
 
     const text = String(response.screen?.text);
@@ -83,7 +91,11 @@ describe('HubStory', () => {
       }) as unknown,
     });
 
-    const response = await story.handleCallback('my-study', studentActor, session);
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
     assertDialogResponseMarkdownSafe(response);
 
     expect(String(response.screen?.text)).toContain('не записаны');
@@ -94,7 +106,11 @@ describe('HubStory', () => {
       'get-student-by-user': { ...mockStudent, status: 'advanced' },
     });
 
-    const response = await story.handleCallback('my-study', studentActor, session);
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
 
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
@@ -112,7 +128,11 @@ describe('HubStory', () => {
       },
     });
 
-    const response = await story.handleCallback('my-study', studentActor, session);
+    const response = await story.handleCallback(
+      'my-study',
+      studentActor,
+      session,
+    );
     const btnTexts =
       response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Начать учёбу'))).toBe(true);
@@ -208,9 +228,9 @@ describe('HubStory', () => {
 
   test('menuButtons — описание содержит «Моя учёба»', async () => {
     const { story } = makeStory();
-    const item = story.menuButtons(studentActor).find((i) =>
-      i.text.includes('Моя учёба'),
-    );
+    const item = story
+      .menuButtons(studentActor)
+      .find((i) => i.text.includes('Моя учёба'));
     expect(item?.description).toContain('Моя учёба');
   });
 
@@ -299,10 +319,7 @@ describe('HubStory — подписка на student.completed', () => {
     expect(sender.invite).not.toHaveBeenCalled();
     expect(sender.notify).toHaveBeenCalledTimes(1);
     const [tgId, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [
-      number,
-      { text: string; kind?: string },
-    ];
+      .calls[0] as [number, { text: string; kind?: string }];
     expect(tgId).toBe(123);
     expect(payload.text).toContain('заверш');
     expect(payload.text).toContain('/start');
@@ -322,7 +339,7 @@ describe('HubStory — подписка на student.completed', () => {
     expect(sender.invite).not.toHaveBeenCalled();
     expect(sender.notify).toHaveBeenCalledTimes(1);
     const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [{ text: string; kind?: string }];
+      .calls[0] as [number, { text: string; kind?: string }];
     expect(payload.text).toContain('не пройден');
     expect(payload.text).toContain('/start');
   });

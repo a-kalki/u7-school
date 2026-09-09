@@ -117,7 +117,9 @@ describe('ProgressStory', () => {
     const backBtn = btns.find((b) => b.text.includes('Назад к учёбе'));
     expect(backBtn?.code).toBe('hub:my-study');
     expect(
-      btns.some((b) => b.text.includes('Главное меню') && b.code === 'app:main-menu'),
+      btns.some(
+        (b) => b.text.includes('Главное меню') && b.code === 'app:main-menu',
+      ),
     ).toBe(true);
   });
 

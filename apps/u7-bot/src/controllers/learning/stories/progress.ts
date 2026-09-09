@@ -1,6 +1,8 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { type MdText, md, mdConcat, mdJoin } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
 import { buttons } from '../../shared/buttons';
 import { formatProgressBar, getStudent } from '../shared';
@@ -15,27 +17,19 @@ export class ProgressStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (action.startsWith('progress:')) {
       const streamId = action.split(':')[1];
       if (!streamId) {
-        return { sendMessage: { text: '⚠️ Не указан поток' } };
+        return this.unknownCommand(action, actor, session);
       }
       return this.#showProgress(actor, streamId);
     }
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    return this.unknownCommand(action, actor, session);
   }
 
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
-  }
-
-  async #showProgress(actor: User, streamId: string): Promise<BotResponse> {
+  async #showProgress(actor: User, streamId: string): Promise<DialogResponse> {
     const studentResult = await getStudent(this.appApi, actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
@@ -43,9 +37,8 @@ export class ProgressStory extends U7BotUiStory {
 
     if (student.streamId !== streamId) {
       return {
-        sendMessage: {
-          text: '⚠️ Этот прогресс не соответствует вашему текущему потоку.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`⚠️ Этот прогресс не соответствует вашему текущему потоку\\.`,
         },
       };
     }
@@ -54,30 +47,31 @@ export class ProgressStory extends U7BotUiStory {
       streamId,
     })) as {
       title: string;
-      contentSnapshot: import('@u7-scl/course/domain').ContentSnapshot;
+      contentSnapshot: ContentSnapshot;
     };
 
     if (!stream?.contentSnapshot) {
       return {
-        sendMessage: {
-          text: '⚠️ Программа потока не найдена.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`⚠️ Программа потока не найдена\\.`,
         },
       };
     }
 
-    const esc = this.escapeMarkdown;
     const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
     const moduleProgress = StreamDs.computeProgress(
       stream.contentSnapshot,
       student,
     );
 
-    const lines: string[] = [
-      `📊 *Мой прогресс* — ${esc(stream.title)}`,
-      '',
-      `📊 Общий: ${formatProgressBar(moduleProgress.completed, moduleProgress.total)}`,
-      '',
+    const lines: MdText[] = [
+      md`📊 *Мой прогресс* — ${stream.title}`,
+      md``,
+      mdConcat(
+        md`📊 Общий: `,
+        formatProgressBar(moduleProgress.completed, moduleProgress.total),
+      ),
+      md``,
     ];
 
     // Прогресс по проектам
@@ -93,7 +87,10 @@ export class ProgressStory extends U7BotUiStory {
             ? '▶️'
             : '🔒';
       lines.push(
-        `${icon} *Проект ${pi}: ${esc(project.projectTitle)}* — ${formatProgressBar(projProgress.completed, projProgress.total)}`,
+        mdConcat(
+          md`${icon} *Проект ${pi}: ${project.projectTitle}* — `,
+          formatProgressBar(projProgress.completed, projProgress.total),
+        ),
       );
 
       for (const lesson of project.lessons) {
@@ -111,20 +108,22 @@ export class ProgressStory extends U7BotUiStory {
               ? '  ▶️'
               : '  🔒';
         lines.push(
-          `    ${lIcon} ${esc(lesson.lessonTitle)} — ${formatProgressBar(lessonProgress.completed, lessonProgress.total)}`,
+          mdConcat(
+            md`    ${lIcon} ${lesson.lessonTitle} — `,
+            formatProgressBar(lessonProgress.completed, lessonProgress.total),
+          ),
         );
       }
     }
 
     lines.push(
-      '',
-      `📝 Всего шагов завершено: ${moduleProgress.completed} из ${moduleProgress.total}`,
+      md``,
+      md`📝 Всего шагов завершено: ${moduleProgress.completed} из ${moduleProgress.total}`,
     );
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: {
           rows: [
             [{ text: '⬅️ Назад к учёбе', code: this.cbFor('hub', 'my-study') }],

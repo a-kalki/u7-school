@@ -1,25 +1,29 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
+import { md, mdJoin } from '@u7-scl/core/shared';
 import type {
-  BotResponse,
-  BotUpdate,
-  SessionData,
+  BotSession,
+  DialogResponse,
   UiEventSubscription,
 } from '@u7-scl/core/ui';
 import { eventSubscription } from '@u7-scl/core/ui';
 import type { ModulePlace } from '@u7-scl/course/domain';
 import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
 
 /**
  * Хаб «Моя учёба» — главное меню обучения, список действий студента.
  *
+ * Самовыход (FR-4, восстановлен треком bot-ui-dialog-learning после
+ * [7034c7e]): кнопка «🚪 Покинуть учёбу» в меню хаба → confirm-диалог →
+ * UC drop-student → студент abandoned + мягкий кик из TG-группы (FR-6 —
+ * событие student.abandoned слушает InactivityStory).
+ *
  * Подписка на student.enrolled удалена (трек user-notify): студент уже
  * получает флоу-ответ view-stream о зачислении с инструкцией по /start.
- * Событие student.enrolled остаётся — его слушает ER fulfill-wish.
  */
 export class HubStory extends U7BotUiStory {
   readonly name = 'hub';
@@ -35,9 +39,10 @@ export class HubStory extends U7BotUiStory {
   }
 
   /**
-   * student.completed — кнопочные ветки 7a/7b (ломают флоу, кнопки
-   * предыдущего экрана снимаются). Безкнопочные 7c/7d («Курс завершён»,
-   * место неизвестно) доставляет механизм userFacade.notify из UC
+   * student.completed — ветки 7a/7b (И3): notify-текст без кнопок с
+   * подсказкой меню (кнопочные проактивы мигрированы на notify треком
+   * bot-ui-dialog-learning). Безкнопочные 7c/7d («Курс завершён», место
+   * неизвестно) доставляет механизм userFacade.notify из UC
    * complete-student — здесь они не рендерятся (трек user-notify).
    */
   async #handleCompletedEvent(event: StudentCompletedEvent): Promise<void> {
@@ -55,40 +60,38 @@ export class HubStory extends U7BotUiStory {
 
     if (outcome === 'not_advanced') {
       // Повтор того же модуля (7b)
-      await this.proactiveSender.send(user.telegramId, {
-        sendMessage: {
-          text: '🔁 Модуль не пройден до конца\\.\\n\\nХочешь записаться на него снова?',
-          parseMode: 'MarkdownV2',
-          keyboard: {
-            rows: [[buttons.wishModule(moduleId, '🔁 Пройти модуль снова')]],
-            isMultiple: false,
-          },
-        },
+      await this.proactiveSender.notify(user.telegramId, {
+        text: mdJoin([
+          md`🔁 *Модуль не пройден до конца*`,
+          md``,
+          md`Пройти его снова можно в меню: /start → 📖 Программы курсов`,
+        ]),
+        kind: 'notify',
       });
       return;
     }
 
     if (place?.nextModuleId) {
       // advanced + есть следующий модуль (7a)
-      await this.proactiveSender.send(user.telegramId, {
-        sendMessage: {
-          text: '🏁 Модуль завершён\\!\\n\\nХочешь записаться на следующий?',
-          parseMode: 'MarkdownV2',
-          keyboard: {
-            rows: [[buttons.wishModule(place.nextModuleId)]],
-            isMultiple: false,
-          },
-        },
+      await this.proactiveSender.notify(user.telegramId, {
+        text: mdJoin([
+          md`🏁 *Модуль завершён\\!*`,
+          md``,
+          md`Записаться на следующий можно в меню: /start → 📖 Программы курсов`,
+        ]),
+        kind: 'notify',
       });
     }
     // иначе — безкнопочные 7c/7d: уведомление уже отправлено UC
   }
 
+  // ── Callback ──
+
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (action === 'my-study') {
       return this.#showHub(actor);
     }
@@ -98,34 +101,30 @@ export class HubStory extends U7BotUiStory {
     if (action === 'my-study:leave') {
       return this.#executeLeave(actor);
     }
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    return this.unknownCommand(action, actor, session);
   }
 
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
-  }
+  // ── Главное меню (декларативные кнопки) ──
 
-  override async handleStart(actor: User): Promise<MainMenuAction | null> {
+  override menuButtons(actor: User): MenuButton[] {
     if (UserPolicy.isStudent(actor)) {
-      return {
-        kind: 'callback',
-        text: '🎓 Моя учёба',
-        action: this.cb('my-study'),
-        priority: 20,
-        description: '🎓 Моя учёба — доступ к твоим учебным материалам',
-      };
+      return [
+        {
+          kind: 'callback',
+          text: '🎓 Моя учёба',
+          action: this.cb('my-study'),
+          priority: 20,
+          description: '🎓 Моя учёба — доступ к твоим учебным материалам',
+        },
+      ];
     }
-    return null;
+    return [];
   }
 
   // ── Приватные методы: хаб ──
 
-  /** Показывает хаб «Моя учёба» с кнопками действий. */
-  async #showHub(actor: User): Promise<BotResponse> {
+  /** Экран хаба «Моя учёба» с кнопками действий. */
+  async #showHub(actor: User): Promise<DialogResponse> {
     const studentResult = await getStudent(this.appApi, actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
@@ -157,34 +156,32 @@ export class HubStory extends U7BotUiStory {
       },
     ]);
     rows.push([
-      { text: '🚪 Покинуть поток', code: this.cb('my-study:leave-confirm') },
+      { text: '🚪 Покинуть учёбу', code: this.cb('my-study:leave-confirm') },
     ]);
     rows.push([buttons.mainMenu()]);
 
     return {
-      sendMessage: {
-        text: '📖 *Моя учёба*\n\nВыберите действие:',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`📖 *Моя учёба*\n\nВыберите действие:`,
         keyboard: { rows, isMultiple: false },
       },
     };
   }
 
-  // ── Приватные методы: выход из потока ──
+  // ── Приватные методы: самовыход из учёбы (FR-4) ──
 
-  async #showLeaveConfirm(actor: User): Promise<BotResponse> {
+  async #showLeaveConfirm(actor: User): Promise<DialogResponse> {
     const studentResult = await getStudent(this.appApi, actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
     return {
-      sendMessage: {
-        text: '🚪 *Покинуть поток?*\n\nВы уверены, что хотите покинуть поток? Это действие нельзя отменить\\.',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`🚪 *Покинуть учёбу?*\n\nПрогресс сохранится, но ментор больше не будет тебя сопровождать\\.`,
         keyboard: {
           rows: [
             [
               { text: '🚪 Да, покинуть', code: this.cb('my-study:leave') },
-              { text: '❌ Отмена', code: this.cb('my-study') },
+              { text: '❌ Остаться', code: this.cb('my-study') },
             ],
           ],
           isMultiple: false,
@@ -193,7 +190,7 @@ export class HubStory extends U7BotUiStory {
     };
   }
 
-  async #executeLeave(actor: User): Promise<BotResponse> {
+  async #executeLeave(actor: User): Promise<DialogResponse> {
     const studentResult = await getStudent(this.appApi, actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
@@ -210,11 +207,10 @@ export class HubStory extends U7BotUiStory {
     }
 
     return {
-      sendMessage: {
-        text: '👋 Вы покинули поток\\. Если захотите вернуться — обратитесь к ментору\\.',
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: md`Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!`,
         keyboard: {
-          rows: [[buttons.mainMenu()]],
+          rows: [[{ text: '⬅️ В меню', code: buttons.mainMenu().code }]],
           isMultiple: false,
         },
       },

@@ -191,7 +191,7 @@ describe('Главное меню (интеграционные)', () => {
       }),
     );
 
-    expect(response.screen?.text).toBe('Выберите действие:');
+    expect(String(response.screen?.text)).toBe('Выберите действие:');
     expect(response.screen?.text).not.toContain('Привет');
     expect(response.screen?.keyboard).toBeDefined();
   });
@@ -341,7 +341,9 @@ describe('E2E: Студент — «Моя учёба» (learning)', () => {
         callbackData: pressedCode(transport, tgId, 'Переменные и типы'),
       }),
     );
-    expect(String(stepsResp.screen?.text)).toContain('знакомство с переменными');
+    expect(String(stepsResp.screen?.text)).toContain(
+      'знакомство с переменными',
+    );
   });
 
   test('студент: хаб → Мой прогресс → детализация проектов и уроков', async () => {

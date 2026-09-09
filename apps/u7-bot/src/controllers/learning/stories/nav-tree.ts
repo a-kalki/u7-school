@@ -1,18 +1,28 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { type MdText, md, mdConcat, mdJoin } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import type { NavigationTree } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
 import {
-  editOrSend,
   getStudentAndStream,
   loadStepDescriptions,
-  respondInContext,
+  notEnrolled,
 } from '../shared';
+
+/** Иконки статуса элементов дерева (✅ пройдено / ▶️ текущий / 🔒 закрыто). */
+const STATUS_ICONS: Record<string, string> = {
+  completed: '✅',
+  current: '▶️',
+  locked: '🔒',
+};
 
 /**
  * Дерево уроков с маркерами ✅/▶️/🔒 (S05b).
  * Три уровня навигации: проекты → уроки → шаги.
+ *
+ * Drill-down внутри стори — тот же dialog.path: транспорт рендерит
+ * ответ edit'ом на месте («владеешь экраном — обновляй»).
  */
 export class NavTreeStory extends U7BotUiStory {
   readonly name = 'nav-tree';
@@ -20,28 +30,20 @@ export class NavTreeStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (action === 'my-study:lessons') {
-      return this.#showProjects(actor, session);
+      return this.#showProjects(actor);
     }
     if (action.startsWith('my-study:project:')) {
       const projectIndex = Number.parseInt(action.split(':')[2] ?? '0', 10);
-      return this.#showLessons(actor, projectIndex, session);
+      return this.#showLessons(actor, projectIndex);
     }
     if (action.startsWith('my-study:lesson:')) {
       const lessonId = action.split(':').slice(2).join(':');
-      return this.#showSteps(actor, lessonId, session);
+      return this.#showSteps(actor, lessonId);
     }
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
-  }
-
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+    return this.unknownCommand(action, actor, session);
   }
 
   // ── Приватные методы: форматирование дерева ──
@@ -58,53 +60,43 @@ export class NavTreeStory extends U7BotUiStory {
       Array<{ uuid: string; description: string }>
     >,
     maxDepth = 2,
-  ): string {
-    const esc = this.escapeMarkdown;
-    const lines: string[] = [];
-    const sIcon: Record<string, string> = {
-      completed: '✅',
-      current: '▶️',
-      locked: '🔒',
-    };
+  ): MdText {
+    const lines: MdText[] = [];
 
     let pi = 0;
     for (const p of tree.projects) {
       pi++;
       lines.push(
-        `📁 *Проект ${pi}: ${esc(p.title)}* \\(${p.completedLessons}/${p.totalLessons}\\) ${sIcon[p.status]}`,
+        md`📁 *Проект ${pi}: ${p.title}* \\(${p.completedLessons}/${p.totalLessons}\\) ${STATUS_ICONS[p.status] ?? ''}`,
       );
       let li = 0;
       for (const l of p.lessons) {
         li++;
         lines.push(
-          `    📝 Урок ${li}: ${esc(l.title)} \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
+          md`    📝 Урок ${li}: ${l.title} \\(${l.completedSteps}/${l.totalSteps}\\) ${STATUS_ICONS[l.status] ?? ''}`,
         );
         if (maxDepth < 2) continue;
         const stepDescs = stepsByLesson?.[l.lessonId];
         for (const s of l.steps) {
           const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
           lines.push(
-            `        📄 Шаг ${s.index}: ${esc(desc ?? '—')} ${sIcon[s.status]}`,
+            md`        📄 Шаг ${s.index}: ${desc ?? '—'} ${STATUS_ICONS[s.status] ?? ''}`,
           );
         }
       }
-      lines.push('');
+      lines.push(md``);
     }
 
-    return lines.join('\n').trimEnd();
+    return mdJoin(lines).trimEnd() as MdText;
   }
 
   // ── Уровень 1: список проектов ──
 
   /** Уровень 1: список проектов с прогрессом. */
-  async #showProjects(actor: User, session: SessionData): Promise<BotResponse> {
+  async #showProjects(actor: User): Promise<DialogResponse> {
     const { student, stream } = await getStudentAndStream(this.appApi, actor);
     if (!student || !stream) {
-      const _studentResult = 'student' in { student } ? undefined : undefined;
-      return editOrSend(
-        { sendMessage: { text: '📖 Вы не записаны ни на один поток' } },
-        session,
-      );
+      return notEnrolled();
     }
 
     const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
@@ -135,15 +127,15 @@ export class NavTreeStory extends U7BotUiStory {
       { text: '⬅️ Назад к учёбе', code: this.cbFor('hub', 'my-study') },
     ]);
 
-    const description: BotResponse = {
-      sendMessage: {
-        text: `📂 *Уроки*\n\n${this.#formatTreeBody(tree, stepsByLesson, 1)}`,
-        parseMode: 'MarkdownV2',
+    return {
+      screen: {
+        text: mdConcat(
+          md`📂 *Уроки*\n\n`,
+          this.#formatTreeBody(tree, stepsByLesson, 1),
+        ),
         keyboard: { rows, isMultiple: false },
       },
     };
-
-    return respondInContext(description, session);
   }
 
   // ── Уровень 2: уроки проекта ──
@@ -152,24 +144,17 @@ export class NavTreeStory extends U7BotUiStory {
   async #showLessons(
     actor: User,
     projectIndex: number,
-    session: SessionData,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const { student, stream } = await getStudentAndStream(this.appApi, actor);
     if (!student || !stream) {
-      return editOrSend(
-        { sendMessage: { text: '📖 Вы не записаны ни на один поток' } },
-        session,
-      );
+      return notEnrolled();
     }
 
     const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
 
     const project = tree.projects[projectIndex - 1];
     if (!project) {
-      return editOrSend(
-        { sendMessage: { text: '⚠️ Проект не найден' } },
-        session,
-      );
+      return { screen: { text: md`⚠️ Проект не найден` } };
     }
 
     const rows: Array<Array<{ text: string; code: string }>> = [];
@@ -191,53 +176,40 @@ export class NavTreeStory extends U7BotUiStory {
     const lessonIds = project.lessons.map((l) => l.lessonId);
     const stepsByLesson = await loadStepDescriptions(this.appApi, lessonIds);
 
-    const esc = this.escapeMarkdown;
-    const sIcon: Record<string, string> = {
-      completed: '✅',
-      current: '▶️',
-      locked: '🔒',
-    };
-    const bodyLines: string[] = [];
+    const bodyLines: MdText[] = [];
     let li = 0;
     for (const l of project.lessons) {
       li++;
       bodyLines.push(
-        `📝 *Урок ${li}: ${esc(l.title)}* \\(${l.completedSteps}/${l.totalSteps}\\) ${sIcon[l.status]}`,
+        md`📝 *Урок ${li}: ${l.title}* \\(${l.completedSteps}/${l.totalSteps}\\) ${STATUS_ICONS[l.status] ?? ''}`,
       );
       const stepDescs = stepsByLesson?.[l.lessonId];
       for (const s of l.steps) {
         const desc = stepDescs?.find((d) => d.uuid === s.stepId)?.description;
         bodyLines.push(
-          `    📄 Шаг ${s.index}: ${esc(desc ?? '—')} ${sIcon[s.status]}`,
+          md`    📄 Шаг ${s.index}: ${desc ?? '—'} ${STATUS_ICONS[s.status] ?? ''}`,
         );
       }
     }
 
-    const description: BotResponse = {
-      sendMessage: {
-        text: `📂 *Уроки* › ${esc(project.title)}\n\n${bodyLines.join('\n')}`,
-        parseMode: 'MarkdownV2',
+    return {
+      screen: {
+        text: mdConcat(
+          md`📂 *Уроки* › ${project.title}\n\n`,
+          mdJoin(bodyLines),
+        ),
         keyboard: { rows, isMultiple: false },
       },
     };
-
-    return respondInContext(description, session);
   }
 
   // ── Уровень 3: шаги урока ──
 
   /** Уровень 3: шаги урока с маркерами ✅/▶️/🔒. */
-  async #showSteps(
-    actor: User,
-    lessonId: string,
-    session: SessionData,
-  ): Promise<BotResponse> {
+  async #showSteps(actor: User, lessonId: string): Promise<DialogResponse> {
     const { student, stream } = await getStudentAndStream(this.appApi, actor);
     if (!student || !stream) {
-      return editOrSend(
-        { sendMessage: { text: '📖 Вы не записаны ни на один поток' } },
-        session,
-      );
+      return notEnrolled();
     }
 
     const view = StreamDs.buildLessonSteps(
@@ -247,7 +219,7 @@ export class NavTreeStory extends U7BotUiStory {
     );
 
     if (!view) {
-      return editOrSend({ sendMessage: { text: '⚠️ Урок не найден' } }, session);
+      return { screen: { text: md`⚠️ Урок не найден` } };
     }
 
     // Собираем описания шагов
@@ -279,17 +251,16 @@ export class NavTreeStory extends U7BotUiStory {
       stepsWithDesc.push({ stepId: s.stepId, description, marker });
     }
 
-    const esc = this.escapeMarkdown;
-    const lines: string[] = [
-      `📂 *Уроки* › ${esc(view.projectTitle)} › ${esc(view.lessonTitle)}`,
-      '',
+    const lines: MdText[] = [
+      md`📂 *Уроки* › ${view.projectTitle} › ${view.lessonTitle}`,
+      md``,
     ];
 
     for (const s of stepsWithDesc) {
-      lines.push(`${s.marker} _${esc(s.description || s.stepId)}_`);
+      lines.push(md`${s.marker} _${s.description || s.stepId}_`);
     }
 
-    lines.push('', 'Выберите шаг:');
+    lines.push(md``, md`Выберите шаг:`);
 
     // Кнопки: только доступные шаги
     const rows: Array<Array<{ text: string; code: string }>> = [];
@@ -319,14 +290,11 @@ export class NavTreeStory extends U7BotUiStory {
       },
     ]);
 
-    const description: BotResponse = {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+    return {
+      screen: {
+        text: mdJoin(lines),
         keyboard: { rows, isMultiple: false },
       },
     };
-
-    return respondInContext(description, session);
   }
 }
