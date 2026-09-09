@@ -1,0 +1,19 @@
+Задача (переработка Фазы 3): Единая точка перехвата системных кодов
+
+Сводка:
+- app:help перенесён из handleCallback в dispatch; override handleCallback
+  удалён. Оба системных кода (mainMenu, help) перехватываются в dispatch —
+  единственной точке маршрутизации, общей для кнопок и delegate.
+  До правки delegate → app:help падал в «Неизвестная команда» (допущение
+  «в delegate не встречается» не было инвариантом).
+- #commonHelpScreen(tgId) → #commonHelpScreen(actor): dispatch получает
+  уже разрешённого актора, двойной actorResolver устранён.
+- Тест delegate → app:help: help-реплика + склейка notify инициатора,
+  без захвата экрана, диалог не тронут.
+
+Причина: закрытие архитектурной асимметрии двух входов маршрутизации
+(handleCallback/dispatch), обнаруженной при миграции delegate: enroll→menu.
+
+Файлы:
+- apps/u7-bot/src/core/ui-app.ts
+- apps/u7-bot/src/core/ui-app.test.ts
