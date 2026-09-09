@@ -1,0 +1,19 @@
+Задача (переработка Фазы 3): миграция тест-стенда и main-menu e2e на новый контракт
+
+Сводка:
+- tests/helpers/test-bot-transport.ts: захват DialogResponse на границе
+  uiApp (обёртки handle*), команды через transport.handleCommand,
+  collectMainMenu через protected-подкласс ExposedMenuUiApp, resolve с
+  userFacade/botAdminUuid, документирован паттерн отштампованных нажатий.
+- main-menu e2e: 13 pass / 7 skip (learning — describe.skip с указанием
+  трека-владельца, сценарии сохранены) / 0 fail.
+- Исправлен прод-баг welcome-текста (неэкранированный '!' ронял рендер
+  /start fail-fast'ом валидатора) — пойман только сквозным прогоном.
+
+Причина: гейт качества — полный прогон тестов; хелпер сломан с трека 1
+(ex-collectMainMenu), e2e не гонялись сквозь транспорт.
+
+Файлы:
+- apps/u7-bot/tests/helpers/test-bot-transport.ts
+- apps/u7-bot/tests/e2e/main-menu.e2e.test.ts
+- apps/u7-bot/src/core/ui-app.ts (protected collectMenuButtons, \\! fix)
