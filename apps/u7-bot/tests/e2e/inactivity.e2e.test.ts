@@ -1,10 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import { AppController } from '@u7-scl/bot/app/app-controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
 import { ConsoleLogger } from '@u7-scl/core/shared';
-import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type {
+  StudentAbandonedEvent,
   StudentInactivityRemoveCandidateEvent,
   StudentInactivityWarningEvent,
 } from '@u7-scl/stream/domain';
@@ -13,25 +12,31 @@ import {
   createTestBotTransport,
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
-import { MentorController } from '../../src/controllers/mentor/controller';
 import { UserController } from '../../src/controllers/user/controller';
 import { registerGroupHandlers } from '../../src/handlers/group-handler';
 
 /**
- * E2E тесты трека student-inactivity_20260830:
- *   1) предупреждение → «Покинуть учёбу» → confirm → abandoned + кик
- *      из группы + уведомление ментору;
- *   2) уведомление ментору → «Снять с учёбы» → confirm → abandoned + кик
- *      + уведомление студенту;
- *   3) самостоятельный выход из TG-группы → уведомление ментору,
- *      статус студента не меняется;
- *   4) карточка студентов: дефолт — только активные, переключатель — все,
- *      сводка «Всего N, из них M активных, P выбывших».
+ * E2E проактивов бездействия и ухода из учёбы (И3, контрак «Диалог и Экран»):
+ *   1) предупреждение студенту (5+ дней) — notify-текст без кнопок
+ *      с подсказкой /start;
+ *   2) кандидат ментору (7+ дней, wasWarned) — notify-текст без кнопок;
+ *   3) student.abandoned → мягкий кик из TG-группы потока (FR-6);
+ *   4) легаси-кнопка самовыхода → «Неизвестная команда» (callback-тупик);
+ *   5) chat_member left активного студента → ментору «покинул группу»,
+ *      статус студента не меняется (FR-7);
+ *   6) mark-abandoned (UC) → abandoned + мягкий кик (FR-6);
+ *   7) chat_member left выбывшего студента → уведомления нет (FR-7).
+ *
+ * Кнопочные сцены confirm (drop-student / mark-abandoned) удалены из
+ * проактивов осознанно (И3): самовыход — через меню (трек learning),
+ * снятие ментором — через monitor (трек mentor). Здесь они не
+ * восстанавливаются; проактив — чистый notify-текст, сессию не трогает.
+ * Текстовые уведомления UC (drop-student / mark-abandoned) доставляются
+ * через userFacade.notify — механизм покрыт user-notify e2e.
  *
  * События job'а публикуются на общую шину (как в бою после inactivity-sweep);
- * кик из группы (FR-6) выполняет InactivityStory через BotTransport.kickFromGroup
- * (botApi = RecordingBotApi).
- * Два describe — отдельные фикстуры (сценарии меняют статус одного студента).
+ * кик выполняет InactivityStory через transport.kickFromGroup (ban + unban).
+ * Два describe — отдельные фикстуры (сценарии 5–7 меняют статус студента).
  */
 
 const STUDENT_TG = 1003; // «Студент» (active, поток e1e1e1e1)
@@ -39,7 +44,9 @@ const MENTOR_TG = 1004; // «Ментор» (ментор обоих поток�
 const BOT_ADMIN_UUID = 'ae00f3f6-1392-4b98-b178-41c27e794b7f'; // «Бот-админ» из фикстур
 const STREAM2_ID = 'e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1';
 const STUDENT_F0 = 'f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0';
+const STUDENT_USER_ID = '33333333-3333-3333-3333-333333333333';
 const GROUP2_ID = '-1002222222222';
+const SCHOOL_GROUP_ID = -1003964284604; // ≠ группы потока: выход из неё роль не снимает
 
 interface Stand {
   app: TestApp;
@@ -53,10 +60,8 @@ interface Stand {
 async function createInactivityStand(tag: string): Promise<Stand> {
   const app = await createTestApp(tag);
   const transport = createTestBotTransport(app, [
-    new AppController('https://t.me/u7_school_group'),
     new StreamsController(),
-    new MentorController(),
-    // Доставка user.notified (уведомления UC drop-student / mark-abandoned)
+    // Доставка user.notified (уведомления UC mark-abandoned)
     new UserController(),
   ]);
   const student = (await app.userFacade.getUserByTelegramId(STUDENT_TG))!;
@@ -77,7 +82,7 @@ async function createInactivityStand(tag: string): Promise<Stand> {
       apiApp: app.apiApp,
       transport: transport.transport,
       actorId: BOT_ADMIN_UUID,
-      schoolGroupId: -1003964284604, // ≠ группы потока: выход из неё роль не снимает
+      schoolGroupId: SCHOOL_GROUP_ID,
     },
   );
 
@@ -101,113 +106,180 @@ async function waitMessageFor(
   return undefined;
 }
 
-/** Находит кнопку в последнем сообщении адресата. */
-function findButtonFor(
+/** Ждёт мягкого кика адресата (poll kickedMembers). */
+async function waitKick(
   transport: TestBotTransport,
   telegramId: number,
-  textContains: string,
-): { text: string; code: string } {
-  const messages = transport.api.sentMessages.filter(
-    (m) => m.telegramId === telegramId,
-  );
-  const last = messages[messages.length - 1];
-  const btn = last?.keyboard?.rows
-    .flat()
-    .find((b) => b.text.includes(textContains));
-  if (!btn) {
-    throw new Error(
-      `Кнопка «${textContains}» не найдена для tg=${telegramId}. Сообщения: ${messages.map((m) => m.text).join(' || ')}`,
+  timeoutMs = 3000,
+) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const found = transport.api.kickedMembers.find(
+      (k) => k.telegramId === telegramId,
     );
+    if (found) return found;
+    await new Promise((r) => setTimeout(r, 20));
   }
-  return btn;
+  return undefined;
 }
 
-// ═══ Контур A: самовыход студента (FR-1 предупреждение + FR-4) ═══
+/** Публикует событие-предупреждение job'а (ступень 5+ дней). */
+function publishWarning(app: TestApp, daysInactive: number): void {
+  app.eventBus.publish({
+    eventId: crypto.randomUUID(),
+    eventName: 'student.inactivity-warning',
+    occurredAt: '2026-09-09T12:00',
+    aggregateName: 'Student',
+    aggregateId: STUDENT_F0,
+    payload: {
+      studentId: STUDENT_F0,
+      userId: STUDENT_USER_ID,
+      streamId: STREAM2_ID,
+      telegramId: STUDENT_TG,
+      daysInactive,
+    },
+  } satisfies StudentInactivityWarningEvent);
+}
 
-describe('E2E: самовыход «Покинуть учёбу» (трек student-inactivity)', () => {
+/** Публикует событие-кандидата на снятие (ступень 7+ дней). */
+function publishCandidate(
+  app: TestApp,
+  daysInactive: number,
+  wasWarned: boolean,
+): void {
+  app.eventBus.publish({
+    eventId: crypto.randomUUID(),
+    eventName: 'student.inactivity-remove-candidate',
+    occurredAt: '2026-09-09T12:00',
+    aggregateName: 'Student',
+    aggregateId: STUDENT_F0,
+    payload: {
+      studentId: STUDENT_F0,
+      userId: STUDENT_USER_ID,
+      streamId: STREAM2_ID,
+      mentorTelegramId: MENTOR_TG,
+      daysInactive,
+      wasWarned,
+    },
+  } satisfies StudentInactivityRemoveCandidateEvent);
+}
+
+/** Публикует событие ухода из учёбы (подписчик — мягкий кик, FR-6). */
+function publishAbandoned(app: TestApp): void {
+  app.eventBus.publish({
+    eventId: crypto.randomUUID(),
+    eventName: 'student.abandoned',
+    occurredAt: '2026-09-09T12:00',
+    aggregateName: 'Student',
+    aggregateId: STUDENT_F0,
+    payload: {
+      studentId: STUDENT_F0,
+      userId: STUDENT_USER_ID,
+      streamId: STREAM2_ID,
+      who: 'self',
+      cause: 'voluntary',
+    },
+  } satisfies StudentAbandonedEvent);
+}
+
+// ═══ Контур A: проактивы бездействия (FR-1) + callback-тупик (И3) ═══
+
+describe('E2E: проактивы бездействия (трек student-inactivity)', () => {
   let stand: Stand;
 
   beforeAll(async () => {
-    stand = await createInactivityStand('inactivity-self-drop');
+    stand = await createInactivityStand('inactivity-proactive');
   });
 
   afterAll(async () => {
     await stand.app.cleanup();
   });
 
-  test('предупреждение студенту → «Покинуть учёбу» → abandoned + кик + уведомление ментору', async () => {
-    const { app, transport, student, mentor } = stand;
+  test('warning (5 дней) → студенту notify-текст без кнопок, подсказка /start', async () => {
+    const { app, transport } = stand;
     transport.reset();
 
-    // Job публикует предупреждение (день 5)
-    app.eventBus.publish({
-      eventId: crypto.randomUUID(),
-      eventName: 'student.inactivity-warning',
-      occurredAt: '2026-08-30T19:00',
-      aggregateName: 'Student',
-      aggregateId: STUDENT_F0,
-      payload: {
-        studentId: STUDENT_F0,
-        userId: student.uuid,
-        streamId: STREAM2_ID,
-        telegramId: STUDENT_TG,
-        daysInactive: 5,
-      },
-    } satisfies StudentInactivityWarningEvent);
+    publishWarning(app, 5);
 
-    const warningText = await waitMessageFor(transport, STUDENT_TG);
-    expect(warningText).toContain('5 дней');
-    expect(warningText).toContain('снять тебя с учёбы');
-
-    // Студент нажимает «Покинуть учёбу» → confirm
-    const dropBtn = findButtonFor(transport, STUDENT_TG, 'Покинуть учёбу');
-    const confirmResp = await transport.handleCallback(
-      transport.makeBotContext(STUDENT_TG, { callbackData: dropBtn.code }),
+    const text = await waitMessageFor(transport, STUDENT_TG);
+    expect(text).toBeDefined();
+    expect(text).toContain('Учёба стоит');
+    expect(text).toContain('5 дней');
+    expect(text).toContain('снять тебя с учёбы');
+    // И3: получателю без открытого диалога подсказан /start
+    expect(text).toContain('/start');
+    // Проактив — реплика без клавиатуры: экран и сессию не трогает
+    const msg = transport.api.sentMessages.find(
+      (m) => m.telegramId === STUDENT_TG,
     );
-    assertBotResponseValid(confirmResp);
-    expect(confirmResp.sendMessage?.text).toContain('Покинуть учёбу');
+    expect(msg?.keyboard).toBeUndefined();
+  });
 
-    // Подтверждение → drop-student
-    const yesBtn = confirmResp.sendMessage?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes('Да, покинуть'))!;
-    const resultResp = await transport.handleCallback(
-      transport.makeBotContext(STUDENT_TG, { callbackData: yesBtn.code }),
+  test('candidate (7 дней, wasWarned) → ментору notify без кнопок', async () => {
+    const { app, transport } = stand;
+    transport.reset();
+
+    publishCandidate(app, 7, true);
+
+    const text = await waitMessageFor(transport, MENTOR_TG);
+    expect(text).toBeDefined();
+    expect(text).toContain('Кандидат на снятие с учёбы');
+    // Имя студента и группа резолвятся из профиля/потока
+    expect(text).toContain('Студент');
+    expect(text).toContain('JS Core — Поток 2');
+    expect(text).toContain('не занимался 7 дней');
+    expect(text).toContain('Уведомления были ранее отправлены');
+    expect(text).toContain('/start');
+    // Без кнопок: confirm-сцена снятия ушла в monitor (долг трека mentor)
+    const msg = transport.api.sentMessages.find(
+      (m) => m.telegramId === MENTOR_TG,
     );
-    assertBotResponseValid(resultResp);
-    expect(resultResp.sendMessage?.text).toContain('покинул учёбу');
+    expect(msg?.keyboard).toBeUndefined();
+  });
 
-    // Студент abandoned в репозитории
-    const record = (await app.apiApp.execute(
-      'get-student-progress',
-      { studentId: STUDENT_F0 },
-      mentor.uuid,
-    )) as unknown as { status: string };
-    expect(record.status).toBe('abandoned');
+  test('student.abandoned → мягкий кик из группы потока (FR-6)', async () => {
+    const { app, transport } = stand;
+    transport.reset();
 
-    // Кик из группы потока (мягкий: ban + unban)
-    await new Promise((r) => setTimeout(r, 100));
-    const kick = transport.api.kickedMembers.find(
-      (k) => k.telegramId === STUDENT_TG,
-    );
+    publishAbandoned(app);
+
+    const kick = await waitKick(transport, STUDENT_TG);
     expect(kick).toBeDefined();
     expect(String(kick?.chatId)).toBe(GROUP2_ID);
+    // Мягкость: ban на 60 секунд + мгновенный unban (можно вернуться)
     expect(kick?.unbanned).toBe(true);
+  });
 
-    // Ментор уведомлён о самовыходе (через механизм userFacade.notify)
-    const mentorNotice = await waitMessageFor(transport, MENTOR_TG);
-    expect(mentorNotice).toContain('покинул учёбу');
-    expect(mentorNotice).toContain('по собственному желанию');
+  test('легаси-кнопка самовыхода → «Неизвестная команда», без падений (И3)', async () => {
+    const { transport } = stand;
+    transport.reset();
+
+    // /start: диалог seq=1 — косвенно подтверждает, что проактивы выше
+    // сессию студента не трогали (иначе штамп не совпал бы)
+    const startResp = await transport.handleStart(
+      transport.makeBotContext(STUDENT_TG),
+    );
+    expect(startResp.screen?.text).toContain('Привет');
+
+    // Кнопка «Покинуть учёбу» из истории чата: код по форме валиден,
+    // штамп совпадает с seq, но действия drop-student больше нет —
+    // тупик без падений, экраном «Неизвестная команда»
+    const legacyResp = await transport.handleCallback(
+      transport.makeBotContext(STUDENT_TG, {
+        callbackData: 'stream:inactivity:drop-student:~1',
+      }),
+    );
+    expect(legacyResp.screen?.text).toContain('Неизвестная команда');
   });
 });
 
-// ═══ Контур B: снятие ментором + выход из группы + карточка (FR-1/5/6/7/8) ═══
+// ═══ Контур B: выход из группы + снятие ментором (FR-6/7) ═══
 
-describe('E2E: снятие ментором, выход из группы, карточка (трек student-inactivity)', () => {
+describe('E2E: выход из группы и снятие ментором (трек student-inactivity)', () => {
   let stand: Stand;
 
   beforeAll(async () => {
-    stand = await createInactivityStand('inactivity-mentor-flow');
+    stand = await createInactivityStand('inactivity-group-left');
   });
 
   afterAll(async () => {
@@ -228,82 +300,50 @@ describe('E2E: снятие ментором, выход из группы, ка
     });
 
     const notice = await waitMessageFor(transport, MENTOR_TG);
+    expect(notice).toBeDefined();
     expect(notice).toContain('покинул группу');
 
-    // Статус студента не изменился
-    const after = (await app.apiApp.execute(
+    // Статус студента не изменился — решение об уходе принимают люди
+    const record = (await app.apiApp.execute(
       'get-student-progress',
       { studentId: STUDENT_F0 },
       mentor.uuid,
     )) as unknown as { status: string };
-    expect(after.status).toBe('active');
+    expect(record.status).toBe('active');
   });
 
-  test('кандидат ментору → «Снять с учёбы» → abandoned + кик + уведомление студенту', async () => {
-    const { app, transport, student } = stand;
+  test('mark-abandoned (UC) → abandoned + мягкий кик (FR-6)', async () => {
+    const { app, transport, mentor } = stand;
     transport.reset();
 
-    app.eventBus.publish({
-      eventId: crypto.randomUUID(),
-      eventName: 'student.inactivity-remove-candidate',
-      occurredAt: '2026-08-30T19:00',
-      aggregateName: 'Student',
-      aggregateId: STUDENT_F0,
-      payload: {
-        studentId: STUDENT_F0,
-        userId: student.uuid,
-        streamId: STREAM2_ID,
-        mentorTelegramId: MENTOR_TG,
-        daysInactive: 7,
-        wasWarned: true,
-      },
-    } satisfies StudentInactivityRemoveCandidateEvent);
-
-    const candidateText = await waitMessageFor(transport, MENTOR_TG);
-    expect(candidateText).toContain('не занимался 7 дней');
-    expect(candidateText).toContain('Уведомления были ранее отправлены');
-
-    // Ментор: «Снять с учёбы» → confirm
-    const markBtn = findButtonFor(transport, MENTOR_TG, 'Снять с учёбы');
-    const confirmResp = await transport.handleCallback(
-      transport.makeBotContext(MENTOR_TG, { callbackData: markBtn.code }),
+    // UC напрямую (в бою — кнопка в monitor, долг трека mentor):
+    // снимает студента, публикует student.abandoned и уведомляет студента
+    await app.apiApp.execute(
+      'mark-abandoned',
+      { studentId: STUDENT_F0, streamId: STREAM2_ID, cause: 'inactivity' },
+      mentor.uuid,
     );
-    assertBotResponseValid(confirmResp);
-    expect(confirmResp.sendMessage?.text).toContain('Снять студента');
 
-    // Подтверждение → mark-abandoned (cause=inactivity)
-    const yesBtn = confirmResp.sendMessage?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes('Да, снять'))!;
-    const resultResp = await transport.handleCallback(
-      transport.makeBotContext(MENTOR_TG, { callbackData: yesBtn.code }),
-    );
-    assertBotResponseValid(resultResp);
-    expect(resultResp.sendMessage?.text).toContain('снят с учёбы');
-
-    // Студент abandoned
+    // Студент abandoned в репозитории
     const record = (await app.apiApp.execute(
       'get-student-progress',
       { studentId: STUDENT_F0 },
-      stand.mentor.uuid,
+      mentor.uuid,
     )) as unknown as { status: string };
     expect(record.status).toBe('abandoned');
 
-    // Студент уведомлён мягкой формулировкой (через userFacade.notify)
+    // Мягкий кик из группы потока
+    const kick = await waitKick(transport, STUDENT_TG);
+    expect(kick).toBeDefined();
+    expect(String(kick?.chatId)).toBe(GROUP2_ID);
+    expect(kick?.unbanned).toBe(true);
+
+    // Студенту доставлено уведомление UC (полный механизм — user-notify e2e)
     const studentNotice = await waitMessageFor(transport, STUDENT_TG);
     expect(studentNotice).toContain('снят с учёбы');
-    expect(studentNotice).toContain('Прогресс сохранён');
-
-    // Кик из группы
-    await new Promise((r) => setTimeout(r, 100));
-    const kick = transport.api.kickedMembers.find(
-      (k) => k.telegramId === STUDENT_TG,
-    );
-    expect(kick).toBeDefined();
-    expect(kick?.unbanned).toBe(true);
   });
 
-  test('chat_member left выбывшего студента → ментору уведомления нет, ошибок нет (FR-7)', async () => {
+  test('chat_member left выбывшего студента → ментору уведомления нет (FR-7)', async () => {
     const { transport, chatMemberHandlers } = stand;
     transport.reset();
 
@@ -315,54 +355,12 @@ describe('E2E: снятие ментором, выход из группы, ка
         new_chat_member: { status: 'left', user: { id: STUDENT_TG } },
       },
     });
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 200));
 
     const noticed = transport.api.sentMessages.find(
       (m) => m.telegramId === MENTOR_TG,
     );
     // Студент уже abandoned — ментору «покинул группу» не приходит
     expect(noticed?.text ?? '').not.toContain('покинул группу');
-  });
-
-  test('monitor: дефолт — только активные; переключатель показывает всех + сводка', async () => {
-    const { transport } = stand;
-    transport.reset();
-
-    const studentsResp = await transport.handleCallback(
-      transport.makeBotContext(MENTOR_TG, {
-        callbackData: `mentor:monitor:students:${STREAM2_ID}`,
-      }),
-    );
-    assertBotResponseValid(studentsResp);
-
-    const text = studentsResp.sendMessage?.text ?? '';
-    // Сводка всегда: 3 записи, активных 0 (студент снят), выбывших 3
-    expect(text).toMatch(/Всего: 3 студент(а|ов), из них 0 активных/);
-    // Дефолт: метрики только по активным — пустых метрик нет
-    expect(text).not.toContain('Прошли:');
-
-    // Переключатель
-    const showAllBtn = studentsResp.sendMessage?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes('Показать выбывших'))!;
-    expect(showAllBtn).toBeDefined();
-
-    const allResp = await transport.handleCallback(
-      transport.makeBotContext(MENTOR_TG, {
-        callbackData: showAllBtn.code,
-      }),
-    );
-    assertBotResponseValid(allResp);
-
-    const allText = allResp.sendMessage?.text ?? '';
-    expect(allText).toContain('Прошли:');
-    expect(allText).toContain('Не прошли:');
-    expect(allText).toContain('Выбыли:');
-    // Обратный переключатель
-    expect(
-      allResp.sendMessage?.keyboard?.rows
-        .flat()
-        .some((b) => b.text.includes('Скрыть выбывших')),
-    ).toBe(true);
   });
 });
