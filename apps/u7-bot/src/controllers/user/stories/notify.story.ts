@@ -1,8 +1,8 @@
 import type { User } from '@u7-scl/app/domain';
+import { md } from '@u7-scl/core/shared';
 import type {
-  BotResponse,
-  BotUpdate,
-  SessionData,
+  BotSession,
+  DialogResponse,
   UiEventSubscription,
 } from '@u7-scl/core/ui';
 import { eventSubscription } from '@u7-scl/core/ui';
@@ -12,9 +12,12 @@ import { U7BotUiStory } from '../../../core/u7-bot-ui-story';
 /**
  * Доставка уведомлений user.notified — единственный подписчик механизма.
  *
- * Резолвит пользователя (get-user) → telegramId и доставляет plain-текст
- * через proactiveSender.notify: без кнопок — уведомление не перехватывает
- * ввод (keepPrevKeyboard, 🔔-заголовок — забота транспорта).
+ * Резолвит пользователя (get-user) → telegramId и доставляет проактивную
+ * реплику через proactiveSender.notify: текст без кнопок (И3: проактив не
+ * трогает сессию и клавиатуры), вид `notify` 🔔 — единая таблица ФР-5
+ * (заголовок и оформление — забота транспорта).
+ * Доменный текст события — данные: md-интерполяция экранирует MarkdownV2
+ * автоматически, отправители (UC/ER/Job) передают чистый текст.
  * Пользователь не найден / нет telegramId → лог-ошибка, пропуск,
  * приложение не падает. Ошибки доставки изолирует шина (InProcEventBus).
  */
@@ -61,29 +64,22 @@ export class NotifyStory extends U7BotUiStory {
       return;
     }
 
-    // Текст уведомления — plain: экранирование MarkdownV2 выполняется здесь,
-    // отправители (UC/ER/Job) передают чистый текст.
     await this.proactiveSender.notify(user.telegramId, {
-      text: this.escapeMarkdown(text),
-      parseMode: 'MarkdownV2',
+      text: md`${text}`,
+      kind: 'notify',
     });
   }
 
-  // ── Story не интерактивна: callback/сообщения не обрабатывает ──
+  // ── Story не интерактивна: callback не обрабатывает ──
 
-  override async handleCallback(
-    _action: string,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+  async handleCallback(
+    action: string,
+    actor: User,
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    return this.unknownCommand(action, actor, session);
   }
 
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
-  }
+  // handleMessage не переопределяется: дефолт ядра — реплика-отказ
+  // без захвата экрана (ввод до неинтерактивной стори не доходит).
 }

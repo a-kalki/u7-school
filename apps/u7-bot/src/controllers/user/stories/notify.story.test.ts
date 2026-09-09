@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import type { NotificationPayload } from '@u7-scl/core/ui';
 import type { UserNotifiedEvent } from '@u7-scl/user/domain';
 import { NotifyStory } from './notify.story';
 
@@ -46,14 +47,16 @@ function setupStory(opts: SetupOptions = {}) {
     },
   );
 
-  const notify = mock(async (_tgId: number, _payload: { text: string }) => {});
+  const notify = mock(
+    async (_tgId: number, _payload: NotificationPayload) => {},
+  );
 
   const story = new NotifyStory();
   story.init(
     { appApi: { execute }, uiApp: {} } as never,
     {
-      send: mock(async () => {}),
       notify,
+      invite: mock(async () => {}),
       kickFromGroup: mock(async () => {}),
     } as never,
   );
@@ -76,21 +79,21 @@ describe('NotifyStory', () => {
     expect(subs[0]!.eventName).toBe('user.notified');
   });
 
-  test('доставляет текст адресату через proactiveSender.notify (MarkdownV2)', async () => {
+  test('доставляет адресату проактив вида notify (🔔, единая таблица ФР-5)', async () => {
     const { story, notify } = setupStory();
 
     await subHandler(story)(makeEvent({ text: 'Привет, мир!' }));
 
     expect(notify).toHaveBeenCalledTimes(1);
     const [tgId, payload] = (notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, { text: string; parseMode?: string }];
+      .calls[0] as [number, NotificationPayload];
     expect(tgId).toBe(1003);
-    expect(payload.parseMode).toBe('MarkdownV2');
-    // спецсимвол «!» экранирован
+    expect(payload.kind).toBe('notify');
+    // спецсимвол «!» экранирован md-интерполяцией
     expect(payload.text).toContain('Привет, мир\\!');
   });
 
-  test('экранирует спецсимволы MarkdownV2 в тексте', async () => {
+  test('экранирует спецсимволы MarkdownV2 в доменном тексте', async () => {
     const { story, notify } = setupStory();
 
     await subHandler(story)(
@@ -99,7 +102,7 @@ describe('NotifyStory', () => {
 
     const [, payload] = (notify as ReturnType<typeof mock>).mock.calls[0] as [
       number,
-      { text: string },
+      NotificationPayload,
     ];
     // ( ) ! — спецсимволы MarkdownV2, должны быть экранированы
     expect(payload.text).toContain('\\(');
@@ -132,24 +135,36 @@ describe('NotifyStory', () => {
     expect(notify).not.toHaveBeenCalled();
   });
 
-  test('story не интерактивна: callback/message — заглушки', async () => {
+  test('story не интерактивна: callback — заглушка «Неизвестная команда»', async () => {
     const { story } = setupStory();
-    const actor = {
+    const actor: User = {
       uuid: USER_ID,
       name: 'С',
       telegramId: 1,
       roles: [],
       createdAt: '2026-01-01T00:00',
     };
-    const cb = await story.handleCallback('any', actor as never, {
-      activeHandler: null,
+    const cb = await story.handleCallback('any', actor, {
+      dialog: { path: 'user/notify', seq: 1 },
     });
-    expect(cb.sendMessage?.text).toContain('Неизвестная');
+    expect(String(cb.screen?.text)).toContain('Неизвестная');
+  });
+
+  test('handleMessage — дефолт ядра: реплика-отказ без захвата экрана', async () => {
+    const { story } = setupStory();
+    const actor: User = {
+      uuid: USER_ID,
+      name: 'С',
+      telegramId: 1,
+      roles: [],
+      createdAt: '2026-01-01T00:00',
+    };
     const msg = await story.handleMessage(
       { type: 'message', text: 'x', telegramId: 1 },
-      actor as never,
-      { activeHandler: null },
+      actor,
+      { dialog: { path: 'user/notify', seq: 1 } },
     );
-    expect(msg.sendMessage?.text).toContain('Неизвестное');
+    expect(String(msg.notify?.text)).toContain('не принимаются');
+    expect(msg.release).toBe(true);
   });
 });
