@@ -272,7 +272,7 @@ describe('U7BotUiApp — дефолты команд', () => {
 // ── pipe поверх дефолтов: ответ контроллера/стори побеждает дефолт ──
 
 describe('U7BotUiApp — pipe перед дефолтами', () => {
-  test('/cancel с ответом стори: ответ как есть + глобальный reopen меню (seq++)', async () => {
+  test('/cancel с ответом стори: notify сохраняется + экран меню (seq++)', async () => {
     setGlobalLogger(makeLogger());
     const spy = new SpyController();
     spy.commandReaction = {
@@ -290,11 +290,38 @@ describe('U7BotUiApp — pipe перед дефолтами', () => {
       session,
     );
 
-    // ответ стори — как есть (без экрана меню поверх)
+    // notify стори сохранён...
     expect(String(response?.notify?.text)).toBe('Отменено. Наберите /start');
-    expect(response?.screen).toBeUndefined();
+    // ...и дополнен экраном меню: прежняя клавиатура умерла вместе с seq++
+    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    const codes = response?.screen?.keyboard?.rows.flatMap((r) =>
+      r.map((b) => b.code),
+    );
+    expect(codes).toContain('app:help');
     // глобальный сброс диалога — всегда
     expect(session.dialog?.path).toBe('app/menu');
+    expect(session.dialog?.seq).toBe(8);
+  });
+
+  test('/cancel с ответом стори, содержащим screen — экран стори, меню не добавляется', async () => {
+    setGlobalLogger(makeLogger());
+    const spy = new SpyController();
+    spy.commandReaction = {
+      reaction: 'stop',
+      response: { screen: { text: md`Экран стори` } },
+    };
+    const uiApp = makeUiApp({ spy });
+    const session = {
+      dialog: { path: 'questionnaire/fill', seq: 7 },
+    } as BotSession;
+
+    const response = await uiApp.handleCommand(
+      makeCommand('cancel'),
+      123,
+      session,
+    );
+
+    expect(String(response?.screen?.text)).toBe('Экран стори');
     expect(session.dialog?.seq).toBe(8);
   });
 

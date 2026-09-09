@@ -17,6 +17,7 @@ import {
   type Screen,
 } from '@u7-scl/core/ui';
 import { ensureRegisteredGuest } from '../ensure-registered';
+import { APP_CODES, APP_DIALOG_PATHS } from '../shared/app-codes';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotController } from './u7-bot-controller';
 import { U7BotUiStory } from './u7-bot-ui-story';
@@ -26,11 +27,11 @@ import type { MenuButton } from './u7-menu';
  * Оркестратор UI приложения U7 Bot на контракте «Диалог и Экран».
  *
  * Диалоговая механика (seq, delegate, pipe контроллеров) — в ядре BotUiApp;
- * здесь U7-специфика: якорь меню `app/menu`, `/start` и `/help` напрямую
- * (гость → лог → reopen → welcome из menuButtons; help — контекстная
- * справка активной стори или общий справочник), дефолты команд после
- * пустого pipe (/cancel — короткое меню, прочее — подсказка), системные
- * кнопки `app:main-menu` / `app:help`.
+ * здесь U7-специфика: якорь меню (APP_DIALOG_PATHS.menu), `/start` и
+ * `/help` напрямую (гость → лог → reopen → welcome из menuButtons; help —
+ * контекстная справка активной стори или общий справочник), дефолты команд
+ * после пустого pipe (/cancel — короткое меню, прочее — подсказка), системные
+ * кнопки из `APP_CODES` (mainMenu / help).
  *
  * Зависимости (фасад пользователей, актор-бот для гост-регистрации) —
  * в `U7BotUiAppResolve`, приходят через init.
@@ -43,12 +44,7 @@ export class U7BotUiApp extends BotUiApp<
   protected declare readonly controllers: Map<string, U7BotController>;
 
   /** Диалог меню после /start (сущностной стори нет — якорь для seq/штампов). */
-  protected readonly menuPath = 'app/menu';
-
-  /** Кнопка «В меню» легаси-экранов (routes.mainMenu). */
-  static readonly MAIN_MENU_CODE = 'app:main-menu';
-  /** Кнопка «❓ Помощь» главного меню. */
-  static readonly HELP_CODE = 'app:help';
+  protected readonly menuPath = APP_DIALOG_PATHS.menu;
 
   // biome-ignore lint/complexity/noUselessConstructor: сужает тип контроллеров с BotController до U7BotController
   constructor(controllers: U7BotController[]) {
@@ -75,7 +71,9 @@ export class U7BotUiApp extends BotUiApp<
    * дефолты u7: `/cancel` — reopen(menu) + короткое меню, прочее —
    * подсказка о неизвестной команде.
    * При `/cancel` с ответом pipe (активная стори отменила себя) —
-   * глобальный сброс диалога на меню делает uiApp, ответ стори — как есть.
+   * глобальный сброс диалога на меню делает uiApp; ответ без `screen`
+   * дополняется экраном меню — прежняя клавиатура умерла вместе с
+   * seq++, пользователь не остаётся с мёртвыми кнопками.
    */
   override async handleCommand(
     update: CommandUpdate,
@@ -94,8 +92,15 @@ export class U7BotUiApp extends BotUiApp<
       // Глобальный сброс диалога — всегда (решение владельца: сброс
       // активной делает стори в pipe, меню — уровень приложения).
       this.enterDialog(session, this.menuPath, 'reopen');
-      if (response) return response;
-      return { screen: await this.#shortMenuScreen(tgId) };
+      if (!response) {
+        return { screen: await this.#shortMenuScreen(tgId) };
+      }
+      // Ответ стори без экрана — дополняем экраном меню (notify сохраняется:
+      // транспорт рендерит реплику первой, затем retire+send меню — уже умеет).
+      if (!response.screen) {
+        return { ...response, screen: await this.#shortMenuScreen(tgId) };
+      }
+      return response;
     }
     if (response) return response;
 
@@ -173,11 +178,11 @@ export class U7BotUiApp extends BotUiApp<
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null> {
-    if (data === U7BotUiApp.MAIN_MENU_CODE) {
+    if (data === APP_CODES.mainMenu) {
       this.enterDialog(session, this.menuPath, 'switch');
       return { screen: await this.#shortMenuScreen(tgId) };
     }
-    if (data === U7BotUiApp.HELP_CODE) {
+    if (data === APP_CODES.help) {
       return { notify: { text: await this.#commonHelpScreen(tgId) } };
     }
     return super.handleCallback(data, tgId, session);

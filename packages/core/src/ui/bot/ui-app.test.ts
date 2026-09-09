@@ -487,6 +487,106 @@ describe('BotUiApp — handleCommand: pipe контроллеров (ФР-4)', (
   });
 });
 
+// ── delegate в stop-ответах команд (§10.19): ядро исполняет симметрично handleCallback ──
+
+describe('BotUiApp — handleCommand: delegate в stop-ответах (§10.19)', () => {
+  test('команда stop {screen, delegate} → диалог делегата, seq++, экран делегата', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = {
+      reaction: 'stop',
+      response: {
+        screen: { text: md`Экран команды` },
+        delegate: { path: 'b:two:open' },
+      },
+    };
+    const ctrlB = makeController('b').withCallbackResults({
+      screen: { text: md`Экран делегата` },
+    });
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCommand(
+      makeCommand('tasks'),
+      42,
+      session,
+    );
+
+    // делегат вызван без префикса контроллера
+    expect(ctrlB.callbackData).toEqual(['two:open']);
+    // диалог переключён, seq инкрементирован
+    expect(session.dialog.path).toBe('b/two');
+    expect(session.dialog.seq).toBe(6);
+    // экран делегата приоритетен над экраном инициатора
+    expect(String(response?.screen?.text)).toBe('Экран делегата');
+  });
+
+  test('notify инициатора + notify делегата → склеены в один (обе строки)', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = {
+      reaction: 'stop',
+      response: {
+        notify: { text: md`Отменено` },
+        delegate: { path: 'b:two:open' },
+      },
+    };
+    const ctrlB = makeController('b').withCallbackResults({
+      notify: { text: md`Список задач` },
+    });
+    const uiApp = makeUiApp([ctrlA, ctrlB]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCommand(
+      makeCommand('tasks'),
+      42,
+      session,
+    );
+
+    // прежде `??` терял notify делегата — теперь конкатенация '\n\n'
+    expect(String(response?.notify?.text)).toBe('Отменено\n\nСписок задач');
+  });
+
+  test('delegate в несуществующий контроллер → экран ошибки, не падение', async () => {
+    const ctrlA = makeController('a');
+    ctrlA.commandReaction = {
+      reaction: 'stop',
+      response: { delegate: { path: 'zzz:one:x' } },
+    };
+    const uiApp = makeUiApp([ctrlA]);
+    const session = makeSession('a/one', 5);
+
+    const response = await uiApp.handleCommand(
+      makeCommand('tasks'),
+      42,
+      session,
+    );
+
+    expect(String(response?.screen?.text ?? '').length).toBeGreaterThan(0);
+  });
+
+  test('команда до /start (диалог не открыт) → диалог открыт с seq=1, экран в ответе', async () => {
+    const ctrlA = makeController('a').withCallbackResults({
+      screen: { text: md`Задачи` },
+    });
+    ctrlA.commandReaction = {
+      reaction: 'stop',
+      response: { delegate: { path: 'a:tasks:list' } },
+    };
+    const uiApp = makeUiApp([ctrlA]);
+    const session = {} as BotSession;
+
+    const response = await uiApp.handleCommand(
+      makeCommand('tasks'),
+      42,
+      session,
+    );
+
+    // команда — легальный способ открыть диалог (§10.19): seq = 1 из undefined
+    expect(session.dialog?.path).toBe('a/tasks');
+    expect(session.dialog?.seq).toBe(1);
+    expect(String(response?.screen?.text)).toBe('Задачи');
+  });
+});
+
 describe('BotUiApp — awaitInput/release', () => {
   test('awaitInput прокидывается как есть (без path в поле)', async () => {
     const ctrlA = makeController('a').withCallbackResults({

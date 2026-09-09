@@ -68,6 +68,11 @@ export abstract class BotUiApp<
 
   /**
    * Обработка команды, делегирует сторис.
+   *
+   * Stop-ответ с `delegate` — исполняется ядром (симметрично handleCallback,
+   * §10.19): команда с экраном открывает диалог целевой стори
+   * (`enterDialog(switch)`, в т.ч. из закрытого диалога — seq = 1),
+   * ответ склеивается с ответом делегата.
    */
   async handleCommand(
     update: CommandUpdate,
@@ -81,7 +86,12 @@ export abstract class BotUiApp<
       const reaction = await controller.handleCommand(update, actor, session);
       if (reaction.reaction === 'pass') continue;
       if (reaction.reaction === 'stop') {
-        return this.#attachNotices(reaction.response, notices);
+        const response = await this.#resolveDelegate(
+          reaction.response,
+          actor,
+          session,
+        );
+        return this.#attachNotices(response, notices);
       }
       if (reaction.notice !== undefined) notices.push(reaction.notice);
     }
@@ -126,22 +136,8 @@ export abstract class BotUiApp<
     session: BotSession,
   ): Promise<DialogResponse | null> {
     const actor = await this.resolve.actorResolver(tgId);
-
     const initiator = await this.#dispatch(data, actor, session);
-
-    const delegatePath = initiator.delegate?.path;
-    if (delegatePath === undefined) {
-      return initiator;
-    }
-
-    const target = await this.#dispatch(delegatePath, actor, session);
-
-    return {
-      notify: initiator.notify ?? target.notify,
-      screen: target.screen ?? initiator.screen,
-      awaitInput: target.awaitInput,
-      release: target.release ?? initiator.release,
-    };
+    return this.#resolveDelegate(initiator, actor, session);
   }
 
   // ── Обработка сообщений ──
@@ -230,6 +226,42 @@ export abstract class BotUiApp<
 
     const rest = data.slice(ctrlName.length + 1);
     return controller.handleCallback(rest, actor, session);
+  }
+
+  /**
+   * Исполняет делегат ответа (если есть) и склеивает инициатора с делегатом
+   * (единая точка для handleCallback и handleCommand).
+   *
+   * Склейка слотов: notify обоих — конкатенация '\n\n' (Иначе — чей есть);
+   * screen/release — приоритет делегата, awaitInput — только делегат.
+   * Без delegate — ответ как есть.
+   */
+  async #resolveDelegate(
+    initiator: DialogResponse,
+    actor: TActor,
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    const delegatePath = initiator.delegate?.path;
+    if (delegatePath === undefined) {
+      return initiator;
+    }
+
+    const target = await this.#dispatch(delegatePath, actor, session);
+
+    const notify =
+      initiator.notify && target.notify
+        ? {
+            text: mdJoin([initiator.notify.text, target.notify.text], '\n\n'),
+            kind: target.notify.kind ?? initiator.notify.kind,
+          }
+        : (initiator.notify ?? target.notify);
+
+    return {
+      notify,
+      screen: target.screen ?? initiator.screen,
+      awaitInput: target.awaitInput,
+      release: target.release ?? initiator.release,
+    };
   }
 
   /** Контроллер активного диалога по `controller/story`. */

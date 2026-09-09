@@ -1,3 +1,5 @@
+import { APP_CODES } from '../../shared/app-codes';
+
 /**
  * Канонические кросс-контроллерные маршруты бота.
  * Единственное место, где живут «чужие» адреса.
@@ -14,7 +16,7 @@
  */
 export const Routes = {
   app: {
-    mainMenu: 'app:main-menu',
+    mainMenu: APP_CODES.mainMenu,
   },
   stream: {
     /** Экран потока: обработчик в view-stream стори streams-контроллера */

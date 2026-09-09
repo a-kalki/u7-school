@@ -544,6 +544,64 @@ describe('BotTransport — рендер-политика', () => {
     expect(edits[0]?.[2]).toBe('Меню'); // без маркера
   });
 
+  // ── «Хлебные крошки» (§5.2a): гашение при ответе без screen после смены диалога ──
+
+  test('крошки: мост в другую стори + ответ { notify } → прежний экран погашен с маркером выбора', async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      text: 'Меню',
+      uiApp: {
+        handleCallback: mock(async (_d, _t, s: BotSession) => {
+          s.dialog = { path: 'streams/catalog', seq: 6 }; // мост (seq++)
+          return { notify: { text: mdRaw('Загружаю каталог…') } };
+        }),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    // реплика ушла, экрана в ответе нет...
+    expect(
+      callsOf(api.sendMessage)
+        .map((c) => c[1])
+        .at(-1),
+    ).toBe('ℹ️ *Информация:*\n\nЗагружаю каталог…');
+    // ...но прежний экран погашен: edit с маркером и снятой клавиатурой
+    const edits = callsOf(api.editMessageText);
+    expect(edits.length).toBe(1);
+    expect(edits[0]?.[1]).toBe(1);
+    expect(edits[0]?.[2]).toContain('Вы выбрали: 📂 Меню');
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+  });
+
+  test('крошки: мост + пустой ответ {} → клавиатура снята', async () => {
+    const { api, transport, pressed } = await startDialog({
+      seq: 5,
+      uiApp: {
+        handleCallback: mock(async (_d, _t, s: BotSession) => {
+          s.dialog = { path: 'x/y', seq: 6 }; // мост (seq++)
+          return {};
+        }),
+      },
+    });
+
+    await transport.handleCallback(
+      makeCtx({
+        callbackQuery: { data: pressed } as BotContext['callbackQuery'],
+      }),
+    );
+
+    // новых сообщений нет, прежний экран погашен
+    expect(callsOf(api.sendMessage).length).toBe(1); // только welcome
+    const edits = callsOf(api.editMessageText);
+    expect(edits.length).toBe(1);
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+  });
+
   test('/start: retire без маркера + send welcome', async () => {
     const api = makeMockBotApi();
     let n = 0;
@@ -651,7 +709,7 @@ describe('BotTransport — рендер-политика', () => {
     expect(session.dialog.input).toBeUndefined();
   });
 
-  test('finalize чужого экрана: warn-лог и пропуск, ничего не редактируется', async () => {
+  test('finalize чужого экрана: крошки гасят экран, сам finalize — warn-лог и пропуск', async () => {
     const logger = makeLogger();
     setGlobalLogger(logger);
     const { api, transport, pressed } = await startDialog({
@@ -670,7 +728,13 @@ describe('BotTransport — рендер-политика', () => {
       }),
     );
 
-    expect(callsOf(api.editMessageText).length).toBe(0);
+    // Смена диалога без screen — экран погашен крошками (§5.2a)...
+    const edits = callsOf(api.editMessageText);
+    expect(edits.length).toBe(1);
+    expect(edits[0]?.[2]).toContain('Вы выбрали: 📂 Меню');
+    expect(edits[0]?.[3]).toMatchObject({ reply_markup: undefined });
+    // ...но finalize по-прежнему пропущен с warn-логом (текст стори не применён)
+    expect(String(edits[0]?.[2])).not.toContain('Фиксация');
     expect(logger.warn).toHaveBeenCalled();
   });
 

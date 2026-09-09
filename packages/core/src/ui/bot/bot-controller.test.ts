@@ -494,6 +494,50 @@ describe('BotController — handleError', () => {
   });
 });
 
+describe('BotController — handleError: errorExitRows (§10.20)', () => {
+  /** Контроллер с кнопкой выхода на экранах ошибок. */
+  class ExitController extends TestController {
+    protected override errorExitRows(): { text: string; code: string }[][] {
+      return [[{ text: '⬅️ Меню', code: 'app:main-menu' }]];
+    }
+  }
+
+  test('хук подставляет кнопки в экран ошибки контроллера', async () => {
+    const story = new SpyStory('hub');
+    story.throwError = new AppException(
+      errNotFound('E', 'Объект не найден', undefined),
+    );
+    const ctrl = new ExitController([story]);
+
+    const response = await ctrl.handleCallback(
+      'hub:open',
+      { id: 'u' },
+      makeSession(),
+    );
+
+    expect(String(response.screen?.text)).toContain('Объект не найден');
+    expect(response.screen?.keyboard?.rows).toEqual([
+      [{ text: '⬅️ Меню', code: 'app:main-menu' }],
+    ]);
+  });
+
+  test('без переопределения — экран ошибки без клавиатуры, как раньше', async () => {
+    const story = new SpyStory('hub');
+    story.throwError = new AppException(
+      errNotFound('E', 'Объект не найден', undefined),
+    );
+    const ctrl = new TestController([story]);
+
+    const response = await ctrl.handleCallback(
+      'hub:open',
+      { id: 'u' },
+      makeSession(),
+    );
+
+    expect(response.screen?.keyboard).toBeUndefined();
+  });
+});
+
 describe('BotController — утилиты', () => {
   test('cb: префикс контроллера + action', () => {
     const ctrl = new TestController([]);

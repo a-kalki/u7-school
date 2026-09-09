@@ -13,6 +13,7 @@ import type {
   StudentInactivityWarningEvent,
 } from '@u7-scl/stream/domain';
 import { U7BotUiStory } from '../../../core/u7-bot-ui-story';
+import { Routes } from '../../shared/routes';
 
 /**
  * Проактивные уведомления о бездействии и уходе из учёбы.
@@ -157,7 +158,7 @@ export class InactivityStory extends U7BotUiStory {
         {
           confirmButton: '🚪 Да, покинуть',
           cancelButton: '❌ Остаться',
-          cancelCode: 'app:main-menu',
+          cancelCode: Routes.app.mainMenu,
         },
       );
     }
@@ -179,7 +180,7 @@ export class InactivityStory extends U7BotUiStory {
         {
           confirmButton: '⚠️ Да, снять с учёбы',
           cancelButton: '❌ Отмена',
-          cancelCode: 'app:main-menu',
+          cancelCode: Routes.app.mainMenu,
         },
       );
     }
@@ -217,7 +218,7 @@ export class InactivityStory extends U7BotUiStory {
         text: 'Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!',
         parseMode: 'MarkdownV2',
         keyboard: {
-          rows: [[{ text: '⬅️ В меню', code: 'app:main-menu' }]],
+          rows: [[{ text: '⬅️ В меню', code: Routes.app.mainMenu }]],
           isMultiple: false,
         },
       },

@@ -15,6 +15,7 @@ import type {
   DialogResponse,
   KeyboardDescription,
   ProactiveSender,
+  Screen,
 } from './types';
 
 /**
@@ -54,6 +55,15 @@ export abstract class BotUiStory<
   /** Сброс временных данных сценария (переопределяется при необходимости) */
   reset(): void {}
 
+  /**
+   * Кнопки выхода на экранах ошибок (ядро не знает кодов приложения).
+   * Переопределяется прикладным слоем (например, «⬅️ Меню»); пустой
+   * массив — экран ошибки без клавиатуры, как сейчас.
+   */
+  protected errorExitRows(): { text: string; code: string }[][] {
+    return [];
+  }
+
   /** Обработка callback — реализуется в наследниках */
   abstract handleCallback(
     action: string,
@@ -69,7 +79,9 @@ export abstract class BotUiStory<
    * принимать ввод (переопределяет метод). Дошедший ввод — программная
    * ошибка: warn разработчику + явная реплика-отказ пользователю
    * (исключение не бросаем — контроллер превратил бы его в экран
-   * «внутренняя ошибка», непонятный пользователю). Ввод БЕЗ ожидания
+   * «внутренняя ошибка», непонятный пользователю) + `release`: контекст
+   * ввода сброшен, пользователь выведен из зависшего ожидания — ошибка
+   * самоликвидируется, а не циклично повторяется. Ввод БЕЗ ожидания
    * до стори не доходит — его перехватывает транспорт.
    */
   async handleMessage(
@@ -86,6 +98,7 @@ export abstract class BotUiStory<
       notify: {
         text: md`Извините, на данном этапе сообщения не принимаются\\.`,
       },
+      release: true,
     };
   }
 
@@ -235,20 +248,20 @@ export abstract class BotUiStory<
             (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
           return {
-            screen: {
-              text: mdConcat(
+            screen: this.#errorScreen(
+              mdConcat(
                 md`⚠️ *Ошибка валидации*\n\n`,
                 mdJoin(lines),
                 md`\n\nПожалуйста, попробуйте снова начав с команды /start с исправленными значениями\\.`,
               ),
-            },
+            ),
           };
         }
 
         return {
-          screen: {
-            text: md`⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
-          },
+          screen: this.#errorScreen(
+            md`⚠️ *Ошибка валидации*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
+          ),
         };
       }
 
@@ -257,7 +270,7 @@ export abstract class BotUiStory<
       case 'access-denied':
       case 'bad-request':
         return {
-          screen: { text: md`⚠️ ${appError.message}` },
+          screen: this.#errorScreen(md`⚠️ ${appError.message}`),
         };
 
       // biome-ignore lint/complexity/noUselessSwitchCase: явно документирует обрабатываемые типы ошибок
@@ -267,12 +280,19 @@ export abstract class BotUiStory<
       default: {
         this.logger?.error('bot', 'Ошибка в story', serializeError(err));
         return {
-          screen: {
-            text: md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
-          },
+          screen: this.#errorScreen(
+            md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
+          ),
         };
       }
     }
+  }
+
+  /** Экран ошибки: текст + кнопки выхода (errorExitRows), если заданы. */
+  #errorScreen(text: MdText): Screen {
+    const rows = this.errorExitRows();
+    if (rows.length === 0) return { text };
+    return { text, keyboard: { rows, isMultiple: false } };
   }
 
   /**

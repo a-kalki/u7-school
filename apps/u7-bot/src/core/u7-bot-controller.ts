@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { BotController, type ProactiveSender } from '@u7-scl/core/ui';
+import { APP_CODES } from '../shared/app-codes';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { U7BotUiStory } from './u7-bot-ui-story';
 import type { MenuButton } from './u7-menu';
@@ -18,6 +19,11 @@ export abstract class U7BotController extends BotController<
   U7BotUiAppResolve
 > {
   protected declare readonly stories: U7BotUiStory[];
+
+  /** Кнопка выхода на экранах ошибок: «⬅️ Меню» (системный код приложения). */
+  protected override errorExitRows(): { text: string; code: string }[][] {
+    return [[{ text: '⬅️ Меню', code: APP_CODES.mainMenu }]];
+  }
 
   /**
    * Кнопки главного меню контроллера: сбор от своих стори, callback-коды

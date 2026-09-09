@@ -7,6 +7,7 @@ import type {
   ProactiveSender,
 } from '@u7-scl/core/ui';
 import { BotUiStory } from '@u7-scl/core/ui';
+import { APP_CODES } from '../shared/app-codes';
 import type { U7BotAppMeta, U7BotUiAppResolve } from './u7-bot-app-meta';
 import type { MenuButton } from './u7-menu';
 
@@ -48,6 +49,11 @@ export abstract class U7BotUiStory extends BotUiStory<
   /** Открыт ли диалог этой стори (активна ли она). */
   isActive(session: BotSession): boolean {
     return session.dialog?.path === this.dialogPath;
+  }
+
+  /** Кнопка выхода на экранах ошибок: «⬅️ Меню» (системный код приложения). */
+  protected override errorExitRows(): { text: string; code: string }[][] {
+    return [[{ text: '⬅️ Меню', code: APP_CODES.mainMenu }]];
   }
 
   /** Кнопки главного меню — декларативные данные. Дефолт — не участвует. */

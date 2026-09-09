@@ -17,6 +17,7 @@ import {
 } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../context';
+import { APP_CODE_PREFIX, APP_DIALOG_PATHS } from '../shared/app-codes';
 import { decodeShortId, encodeShortId, isShortId } from './short-id';
 
 /** Узкий тип reply_markup для editMessageText (грамми сужает его до inline).
@@ -71,9 +72,6 @@ const NOTICE_HEADER: Record<NoticeKind, string> = {
   info: 'ℹ️ *Информация:*\n\n',
   warn: '⚠️ *Внимание:*\n\n',
 };
-
-/** Виртуальный якорь «временно активного» диалога приглашения (ФР-6). */
-const INVITE_DIALOG_PATH = 'app/invite';
 
 // ── Интерфейсы ──
 
@@ -371,7 +369,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
    * ВРЕМЕННЫЙ проактив с кнопками (ФР-6): удаляется с tasks-system.
    *
    * Кнопки штампуются seq текущей эпохи диалога получателя. Диалога нет →
-   * создаётся «временно активный» диалог-якорь `app/invite` (seq = 1):
+   * создаётся «временно активный» диалог-якорь приложения (seq = 1):
    * даёт легальную эпоху штампам — приглашение не умирает. Первое нажатие
    * switch-ит диалог в целевую стори (seq++), /start делает reopen —
    * обе ветки легальны. Единственное место, где транспорт пишет
@@ -386,7 +384,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       const session = this.#session(telegramId);
 
       if (!session.dialog) {
-        session.dialog = { path: INVITE_DIALOG_PATH, seq: 1 };
+        session.dialog = { path: APP_DIALOG_PATHS.invite, seq: 1 };
       }
 
       assertMarkdownV2Safe(payload.text);
@@ -472,6 +470,13 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
       return;
     }
     const dialog = session.dialog;
+
+    // Гашение устаревшего экрана при любом ответе — «хлебные крошки» (§5.2a):
+    // смена диалога без screen не оставляет мёртвую клавиатуру. Идемпотентно
+    // — повторный retire из screen-ветки безопасен (guard на снятую клавиатуру).
+    if (session.screen?.keyboard && session.screen.ownerSeq !== dialog.seq) {
+      await this.#retireScreen(tgId, session, opts.pressedCode);
+    }
 
     // 2. finalize — перезапись активного экрана (фиксация выбора).
     //    Только своего: ownerSeq === dialog.seq, иначе warn-лог и пропуск.
@@ -708,7 +713,7 @@ export class BotTransport implements BotUpdateHandler, ProactiveSender {
 
   /** Сжимает все UUID в callback_data. */
   private compressAction(raw: string): string {
-    if (raw.startsWith('app:')) {
+    if (raw.startsWith(APP_CODE_PREFIX)) {
       return raw;
     }
 

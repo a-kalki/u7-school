@@ -178,7 +178,7 @@ describe('BotUiStory — дефолты контракта команд (ФР-4,
     }
   });
 
-  test('handleMessage по умолчанию: warn + реплика-отказ без захвата экрана', async () => {
+  test('handleMessage по умолчанию: warn + реплика-отказ + release (самоликвидация зависшего ввода)', async () => {
     const warns: Array<[string, string, Record<string, unknown> | undefined]> =
       [];
     setGlobalLogger(makeWarnSpyLogger(warns));
@@ -204,8 +204,10 @@ describe('BotUiStory — дефолты контракта команд (ФР-4,
       story: 'anketa',
       dialogPath: 'x/anketa',
     });
-    // ...и явная реплика пользователю (экран и ввод не трогает)
-    expect(Object.keys(response)).toEqual(['notify']);
+    // ...и явная реплика пользователю (экран не трогает) + release:
+    // контекст ввода сброшен, пользователь выведен из зависшего ожидания
+    expect(Object.keys(response)).toEqual(['notify', 'release']);
+    expect(response.release).toBe(true);
     expect(String(response.notify?.text)).toBe(
       'Извините, на данном этапе сообщения не принимаются\\.',
     );
@@ -294,6 +296,60 @@ describe('BotUiStory — handleError', () => {
     expect(text).not.toContain('внутренняя деталь');
     expect(text).not.toContain('boom');
     expect(() => assertMarkdownV2Safe(text)).not.toThrow();
+  });
+});
+
+describe('BotUiStory — errorExitRows (кнопки выхода на экранах ошибок, §10.20)', () => {
+  /** Стори с кнопкой выхода на экранах ошибок. */
+  class ExitStory extends TestStory {
+    protected override errorExitRows(): { text: string; code: string }[][] {
+      return [[{ text: '⬅️ Меню', code: 'app:main-menu' }]];
+    }
+  }
+
+  test('хук подставляет кнопки во все виды экранов ошибок', () => {
+    const story = new ExitStory();
+
+    const validation = story.callHandleError(
+      new AppException(
+        errValidation('V', 'Некорректные данные', {
+          issues: [{ path: 'Имя', message: 'короткое' }],
+        }),
+      ),
+    );
+    const validationNoIssues = story.callHandleError(
+      new AppException(errValidation('V', 'Что-то не так', undefined)),
+    );
+    const notFound = story.callHandleError(
+      new AppException(errNotFound('E', 'Объект не найден', undefined)),
+    );
+    const internal = story.callHandleError(
+      new AppException(errInternal('E', 'boom', undefined)),
+    );
+
+    const expected = [[{ text: '⬅️ Меню', code: 'app:main-menu' }]];
+    for (const response of [
+      validation,
+      validationNoIssues,
+      notFound,
+      internal,
+    ]) {
+      expect(response.screen?.keyboard?.rows).toEqual(expected);
+      expect(response.screen?.keyboard?.isMultiple).toBe(false);
+      expect(() =>
+        assertMarkdownV2Safe(String(response.screen?.text)),
+      ).not.toThrow();
+    }
+  });
+
+  test('без переопределения — экраны ошибок без клавиатуры, как раньше', () => {
+    const story = new TestStory();
+
+    const response = story.callHandleError(
+      new AppException(errNotFound('E', 'Объект не найден', undefined)),
+    );
+
+    expect(response.screen?.keyboard).toBeUndefined();
   });
 });
 

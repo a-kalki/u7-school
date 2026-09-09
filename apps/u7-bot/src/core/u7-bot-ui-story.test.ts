@@ -25,6 +25,7 @@ import type {
   DialogResponse,
 } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
+import { APP_CODES } from '../shared/app-codes';
 import { U7BotController } from './u7-bot-controller';
 import { U7BotUiStory } from './u7-bot-ui-story';
 
@@ -278,6 +279,61 @@ describe('U7BotUiStory.handleError', () => {
       const s = new TestStory();
       expect(s.menuButtons(actor)).toEqual([]);
     });
+
+    test('экран ошибки содержит кнопку «⬅️ Меню» с кодом из APP_CODES (§10.20)', () => {
+      const resp = story.testHandleError(
+        new AppException(
+          errNotFound('ModuleNotFound', 'Модуль не найден', undefined),
+        ),
+      );
+
+      expect(resp.screen?.keyboard?.rows).toEqual([
+        [{ text: '⬅️ Меню', code: APP_CODES.mainMenu }],
+      ]);
+    });
+  });
+});
+
+// ── Кнопки выхода на экранах ошибок прикладного слоя (§10.20) ──
+
+describe('U7BotController — errorExitRows (§10.20)', () => {
+  /** Стори, кидающая ошибку из callback — контроллер построит экран ошибки. */
+  class ThrowingStory extends U7BotUiStory {
+    readonly name = 'boom';
+
+    override handleCallback(): Promise<DialogResponse> {
+      throw new AppException(
+        errNotFound('StreamNotFound', 'Поток не найден', undefined),
+      );
+    }
+  }
+
+  class ThrowingController extends U7BotController {
+    readonly name = 'streams';
+
+    constructor(story: U7BotUiStory) {
+      super();
+      this.stories.push(story);
+    }
+  }
+
+  test('экран ошибки контроллера содержит кнопку «⬅️ Меню» с кодом из APP_CODES', async () => {
+    setGlobalLogger(createMockLogger());
+    const ctrl = new ThrowingController(new ThrowingStory());
+    ctrl.init({
+      appApi: {} as never,
+      eventBus: {} as never,
+      actorResolver: async () => actor,
+    } as never);
+
+    const resp = await ctrl.handleCallback('boom:open', actor, {
+      dialog: { path: 'streams/boom', seq: 1 },
+    });
+
+    expect(String(resp.screen?.text)).toContain('Поток не найден');
+    expect(resp.screen?.keyboard?.rows).toEqual([
+      [{ text: '⬅️ Меню', code: APP_CODES.mainMenu }],
+    ]);
   });
 });
 

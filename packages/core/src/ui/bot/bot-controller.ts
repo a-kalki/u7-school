@@ -17,6 +17,7 @@ import type {
   KeyboardDescription,
   NotificationPayload,
   ProactiveSender,
+  Screen,
 } from './types';
 
 /**
@@ -93,6 +94,15 @@ export abstract class BotController<
   /** Логгер — берётся из глобального логгера приложения */
   protected get logger(): Logger | undefined {
     return getGlobalLogger();
+  }
+
+  /**
+   * Кнопки выхода на экранах ошибок (ядро не знает кодов приложения).
+   * Переопределяется прикладным слоем (например, «⬅️ Меню»); пустой
+   * массив — экран ошибки без клавиатуры, как сейчас.
+   */
+  protected errorExitRows(): { text: string; code: string }[][] {
+    return [];
   }
 
   // ── Обработчики ──
@@ -318,20 +328,20 @@ export abstract class BotController<
             (i) => md`• *${i.path ?? ''}*: ${i.message}`,
           );
           return {
-            screen: {
-              text: mdConcat(
+            screen: this.#errorScreen(
+              mdConcat(
                 md`⚠️ *Некорректные данные*\n\n`,
                 mdJoin(lines),
                 md`\n\nПожалуйста, нажмите /start и попробуйте снова\\.`,
               ),
-            },
+            ),
           };
         }
 
         return {
-          screen: {
-            text: md`⚠️ *Некорректные данные*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
-          },
+          screen: this.#errorScreen(
+            md`⚠️ *Некорректные данные*\n\n${appError.message}\n\nПожалуйста, исправьте и попробуйте снова\\.`,
+          ),
         };
       }
 
@@ -340,7 +350,7 @@ export abstract class BotController<
       case 'access-denied':
       case 'bad-request':
         return {
-          screen: { text: md`⚠️ ${appError.message}` },
+          screen: this.#errorScreen(md`⚠️ ${appError.message}`),
         };
 
       default: {
@@ -351,11 +361,18 @@ export abstract class BotController<
         );
 
         return {
-          screen: {
-            text: md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
-          },
+          screen: this.#errorScreen(
+            md`⚠️ *Произошла внутренняя ошибка*\n\nПожалуйста, попробуйте позже или обратитесь к администратору\\.`,
+          ),
         };
       }
     }
+  }
+
+  /** Экран ошибки: текст + кнопки выхода (errorExitRows), если заданы. */
+  #errorScreen(text: MdText): Screen {
+    const rows = this.errorExitRows();
+    if (rows.length === 0) return { text };
+    return { text, keyboard: { rows, isMultiple: false } };
   }
 }
