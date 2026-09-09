@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
+import type { BotSession } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { NavTreeStory } from './nav-tree';
 
@@ -28,10 +29,9 @@ describe('NavTreeStory', () => {
   const LESSON3_ID = 'lesson-uuid-3';
   const LESSON4_ID = 'lesson-uuid-4';
 
-  const session: SessionData = { activeHandler: null };
-  const richSession: SessionData = {
-    activeHandler: null,
-    lastBotMessage: { text: 'предыдущее', messageId: 42 },
+  /** Диалог этой стори: drill-down внутри nav-tree — тот же path (edit). */
+  const session: BotSession = {
+    dialog: { path: 'learning/nav-tree', seq: 1 },
   };
 
   const richSnapshot = [
@@ -216,21 +216,37 @@ describe('NavTreeStory', () => {
       return undefined;
     });
 
-    const mockUiApp = {
-      getAction: mock(() => {
-        throw new Error('not found');
-      }),
-      getController: mock(() => undefined),
-    };
-
     const story = new NavTreeStory();
-    story.init({ appApi: { execute: appApiSpy }, uiApp: mockUiApp } as never);
+    story.init({ appApi: { execute: appApiSpy } } as never);
     return { story, appApiSpy };
   }
 
   // ── Уровень 1: список проектов ──
 
-  test('my-study:lessons — показывает проекты с прогрессом (sendMessage)', async () => {
+  test('my-study:lessons — экран проектов с прогрессом', async () => {
+    const { story } = makeStory();
+
+    const response = await story.handleCallback(
+      'my-study:lessons',
+      studentActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+
+    const text = String(response.screen?.text);
+    expect(text).toContain('📂');
+    expect(text).toContain('Уроки');
+    expect(text).toContain('Основы');
+    expect(text).toContain('Продвинутый');
+
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Основы'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Продвинутый'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Назад к учёбе'))).toBe(true);
+  });
+
+  test('my-study:lessons — код кнопки проекта ведёт в my-study:project', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -239,69 +255,67 @@ describe('NavTreeStory', () => {
       session,
     );
 
-    // Первый вход — новое сообщение
-    expect(response.sendMessage).toBeDefined();
-    expect(response.editMessage).toBeUndefined();
-
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('📂');
-    expect(text).toContain('Уроки');
-    expect(text).toContain('Основы');
-    expect(text).toContain('Продвинутый');
-
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Основы'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Продвинутый'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Назад к учёбе'))).toBe(true);
+    const projectBtn = response.screen?.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes('Основы'));
+    expect(projectBtn?.code).toBe('nav-tree:my-study:project:1');
   });
 
   // ── Уровень 2: уроки проекта ──
 
-  test('my-study:project:1 — показывает уроки проекта (editMessage)', async () => {
+  test('my-study:project:1 — экран уроков проекта', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
       'my-study:project:1',
       studentActor,
-      richSession,
+      session,
     );
+    assertDialogResponseMarkdownSafe(response);
 
-    // Переход внутри дерева — editMessage
-    expect(response.editMessage).toBeDefined();
-    expect(response.sendMessage).toBeUndefined();
-    expect(response.editMessage?.messageId).toBe(42);
-
-    const text = response.editMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Основы');
     expect(text).toContain('Введение');
 
     const btnTexts =
-      response.editMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Введение'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Переменные'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к проектам'))).toBe(true);
   });
 
+  test('my-study:project:999 — проект не найден', async () => {
+    const { story } = makeStory();
+
+    const response = await story.handleCallback(
+      'my-study:project:999',
+      studentActor,
+      session,
+    );
+
+    expect(String(response.screen?.text)).toContain('Проект не найден');
+  });
+
   // ── Уровень 3: шаги урока ──
 
-  test('my-study:lesson:{id} — показывает шаги с маркерами (editMessage)', async () => {
+  test('my-study:lesson:{id} — экран шагов с маркерами', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
       `my-study:lesson:${LESSON1_ID}`,
       studentActor,
-      richSession,
+      session,
     );
+    assertDialogResponseMarkdownSafe(response);
 
-    const text = response.editMessage?.text ?? '';
+    const text = String(response.screen?.text);
     // Все шаги completed в уроке 1
     expect(text).toContain('✅');
     expect(text).toContain('Первый шаг');
     expect(text).toContain('Второй шаг');
 
     const btnTexts =
-      response.editMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Первый шаг'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Второй шаг'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Назад к урокам'))).toBe(true);
@@ -314,14 +328,14 @@ describe('NavTreeStory', () => {
     const response = await story.handleCallback(
       `my-study:lesson:${LESSON3_ID}`,
       studentActor,
-      richSession,
+      session,
     );
 
-    const text = response.editMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('🔒');
 
     const btnTexts =
-      response.editMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     const stepButtons = btnTexts.filter(
       (t) => !t.includes('Назад') && !t.includes('Выберите'),
     );
@@ -335,39 +349,70 @@ describe('NavTreeStory', () => {
     const response = await story.handleCallback(
       `my-study:lesson:${LESSON2_ID}`,
       studentActor,
-      richSession,
+      session,
     );
 
-    const text = response.editMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('▶️');
 
-    const btnTexts =
-      response.editMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Третий шаг'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Четвёртый шаг'))).toBe(true);
+    const btns = response.screen?.keyboard?.rows.flat() ?? [];
+    expect(btns.some((b) => b.text.includes('Третий шаг'))).toBe(true);
+    expect(btns.some((b) => b.text.includes('Четвёртый шаг'))).toBe(true);
+
+    // ✅-кнопка ведёт в просмотр шага, ▶️-кнопка — в продолжение
+    const completedBtn = btns.find((b) => b.text.includes('Третий шаг'));
+    expect(completedBtn?.code).toBe(
+      `step-view:my-study:view:${STREAM_ID}:${STEP3_ID}`,
+    );
+    const currentBtn = btns.find((b) => b.text.includes('Четвёртый шаг'));
+    expect(currentBtn?.code).toBe('step-view:my-study:continue');
+  });
+
+  test('my-study:lesson:{unknown} — урок не найден', async () => {
+    const { story } = makeStory();
+
+    const response = await story.handleCallback(
+      'my-study:lesson:no-such-lesson',
+      studentActor,
+      session,
+    );
+
+    expect(String(response.screen?.text)).toContain('Урок не найден');
   });
 
   // ── Возвраты ──
 
-  test('«⬅️ Назад к проектам» → editMessage с уровнем 1', async () => {
+  test('«⬅️ Назад к проектам» — экран уровня 1', async () => {
     const { story } = makeStory();
 
-    // my-study:lessons с сессией → editMessage
     const response = await story.handleCallback(
       'my-study:lessons',
       studentActor,
-      richSession,
+      session,
     );
 
-    expect(response.editMessage).toBeDefined();
-    expect(response.sendMessage).toBeUndefined();
-
-    const text = response.editMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Уроки');
     expect(text).toContain('Основы');
   });
 
-  test('неизвестная команда', async () => {
+  test('студент не записан — экран «не записаны»', async () => {
+    const { story } = makeStory({
+      'get-student-by-user': (() => {
+        throw new Error('not found');
+      }) as unknown,
+    });
+
+    const response = await story.handleCallback(
+      'my-study:lessons',
+      studentActor,
+      session,
+    );
+
+    expect(String(response.screen?.text)).toContain('не записаны');
+  });
+
+  test('неизвестная команда — экран unknownCommand', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -375,16 +420,6 @@ describe('NavTreeStory', () => {
       studentActor,
       session,
     );
-    expect(response.sendMessage?.text).toContain('Неизвестная');
-  });
-
-  test('handleMessage возвращает заглушку', async () => {
-    const { story } = makeStory();
-    const response = await story.handleMessage(
-      { type: 'message', text: 'test', telegramId: 123 },
-      studentActor,
-      session,
-    );
-    expect(response.sendMessage?.text).toContain('Неизвестное');
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 });

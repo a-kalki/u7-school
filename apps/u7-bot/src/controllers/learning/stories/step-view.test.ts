@@ -1,12 +1,14 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { BotSession } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { StepViewStory } from './step-view';
 
 describe('StepViewStory', () => {
-  const session: SessionData = { activeHandler: null };
+  const session: BotSession = {
+    dialog: { path: 'learning/step-view', seq: 1 },
+  };
 
   const studentActor: User = {
     uuid: 'user-1',
@@ -60,7 +62,7 @@ describe('StepViewStory', () => {
     ],
   };
 
-  /** Создаёт StepViewStory с замоканными appApi и uiApp. */
+  /** Создаёт StepViewStory с замоканным appApi. */
   function makeStory(
     appApiOverrides?: Record<string, unknown>,
     customStep?: Record<string, unknown>,
@@ -96,19 +98,12 @@ describe('StepViewStory', () => {
       },
     );
 
-    const mockUiApp = {
-      getAction: mock(() => {
-        throw new Error('not found');
-      }),
-      getController: mock(() => undefined),
-    };
-
     const story = new StepViewStory();
-    story.init({ appApi: { execute: appApiSpy }, uiApp: mockUiApp } as never);
-    return { story, appApiSpy, mockUiApp };
+    story.init({ appApi: { execute: appApiSpy } } as never);
+    return { story, appApiSpy };
   }
 
-  test('handleCallback("my-study:continue") показывает текущий шаг с телом', async () => {
+  test('my-study:continue — экран текущего шага с телом', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -116,9 +111,9 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Поток:');
     expect(text).toContain('Python');
     expect(text).toContain('Проект:');
@@ -131,11 +126,11 @@ describe('StepViewStory', () => {
     expect(text).toContain('Контент шага');
 
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
-  test('my-study:continue — содержит «↩️ Главное меню» последней строкой', async () => {
+  test('my-study:continue — «↩️ Главное меню» последней строкой', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -143,15 +138,15 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const lastRow = rows[rows.length - 1]!;
     expect(lastRow[0]!.text).toBe('↩️ Главное меню');
     expect(lastRow[0]!.code).toBe('app:main-menu');
   });
 
-  test('handleCallback("complete:...") level=step — показывает следующий шаг', async () => {
+  test('complete level=step — экран следующего шага', async () => {
     const customStep = {
       uuid: STEP2_ID,
       moduleId: 'mod-1',
@@ -169,18 +164,18 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Шаг 2 из 2:');
     expect(text).toContain('Напишите код');
 
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
-  test('complete — level=already_completed — показывает актуальный текущий шаг (идемпотентность)', async () => {
+  test('complete — already_completed — показывает актуальный текущий шаг (идемпотентность)', async () => {
     const { story } = makeStory({
       'complete-step': {
         level: 'already_completed',
@@ -193,16 +188,16 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
     // Повторное нажатие «Выполнено» не должно показывать «поток завершён»
-    expect(response.sendMessage?.text).not.toContain(
+    expect(String(response.screen?.text)).not.toContain(
       'Поток полностью завершён',
     );
-    expect(response.sendMessage?.text).toContain('Шаг 1 из 2:');
+    expect(String(response.screen?.text)).toContain('Шаг 1 из 2:');
 
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(true);
   });
 
@@ -217,10 +212,10 @@ describe('StepViewStory', () => {
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('не соответствует');
+    expect(String(response.screen?.text)).toContain('не соответствует');
   });
 
-  test('complete — studentId в cb-data НЕ содержит studentId', async () => {
+  test('complete — код кнопки содержит streamId и stepId (без studentId)', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -230,9 +225,7 @@ describe('StepViewStory', () => {
     );
 
     const btnCodes =
-      response.sendMessage?.keyboard?.rows
-        .flat()
-        .map((b: { code?: string }) => b.code) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
     const completeCode = btnCodes.find((c) =>
       c?.startsWith('step-view:complete:'),
     );
@@ -258,18 +251,18 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    expect(response.sendMessage?.text).toContain('завершён');
+    expect(String(response.screen?.text)).toContain('завершён');
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Начать следующий урок'))).toBe(
       true,
     );
 
-    expect(response.sendMessage?.text).toContain('📊');
-    expect(response.sendMessage?.text).toContain('Прогресс по модулю');
-    expect(response.sendMessage?.text).toContain('Прогресс по проекту');
+    expect(String(response.screen?.text)).toContain('📊');
+    expect(String(response.screen?.text)).toContain('Прогресс по модулю');
+    expect(String(response.screen?.text)).toContain('Прогресс по проекту');
   });
 
   test('при завершении проекта — поздравление и кнопка «Начать следующий проект»', async () => {
@@ -286,11 +279,11 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    expect(response.sendMessage?.text).toContain('завершён');
+    expect(String(response.screen?.text)).toContain('завершён');
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Начать следующий проект'))).toBe(
       true,
     );
@@ -299,7 +292,6 @@ describe('StepViewStory', () => {
   test('при завершении потока — сообщение о полном завершении', async () => {
     const { story } = makeStory({
       'complete-step': { level: 'stream' },
-      'get-student-by-user': mockStudent,
     });
 
     const response = await story.handleCallback(
@@ -307,12 +299,12 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    expect(response.sendMessage?.text).toContain('Поток полностью завершён');
+    expect(String(response.screen?.text)).toContain('Поток полностью завершён');
   });
 
-  test('complete (level=lesson) содержит «↩️ Главное меню»', async () => {
+  test('complete (level=lesson) — «↩️ Главное меню» в конце', async () => {
     const { story } = makeStory({
       'complete-step': {
         level: 'lesson',
@@ -326,15 +318,14 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const lastRow = rows[rows.length - 1]!;
     expect(lastRow[0]!.text).toBe('↩️ Главное меню');
     expect(lastRow[0]!.code).toBe('app:main-menu');
   });
 
-  test('complete (level=stream) содержит «↩️ Главное меню»', async () => {
+  test('complete (level=stream) — «↩️ Главное меню» в конце', async () => {
     const { story } = makeStory({
       'complete-step': { level: 'stream' },
     });
@@ -344,9 +335,8 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const lastRow = rows[rows.length - 1]!;
     expect(lastRow[0]!.text).toBe('↩️ Главное меню');
     expect(lastRow[0]!.code).toBe('app:main-menu');
@@ -372,15 +362,40 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
+    assertDialogResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Контент 2');
     expect(text).toContain('Шаги урока');
 
     // Нет кнопки «✅ Выполнено» для completed шага
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Выполнено'))).toBe(false);
+  });
+
+  test('my-study:view — ◀️/▶️ навигация по завершённым шагам', async () => {
+    const { story } = makeStory();
+
+    // STEP1, STEP2 completed → просмотр STEP1: есть «Вперёд», нет «Назад»
+    const resp1 = await story.handleCallback(
+      `my-study:view:${STREAM_ID}:${STEP1_ID}`,
+      studentActor,
+      session,
+    );
+    const btns1 = resp1.screen?.keyboard?.rows.flat() ?? [];
+    expect(btns1.some((b) => b.text.includes('Вперёд'))).toBe(true);
+    expect(btns1.some((b) => b.text.includes('Назад к уроку'))).toBe(true);
+
+    // Просмотр STEP2 (последний): есть «Назад», нет «Вперёд»
+    const resp2 = await story.handleCallback(
+      `my-study:view:${STREAM_ID}:${STEP2_ID}`,
+      studentActor,
+      session,
+    );
+    const btns2 = resp2.screen?.keyboard?.rows.flat() ?? [];
+    expect(btns2.some((b) => b.text.includes('◀️ Назад'))).toBe(true);
+    expect(btns2.some((b) => b.text.includes('Вперёд'))).toBe(false);
   });
 
   test('my-study:view — другой streamId → ошибка', async () => {
@@ -392,27 +407,19 @@ describe('StepViewStory', () => {
       session,
     );
 
-    // Без lastBotMessage — sendMessage, не editMessage
-    expect(response.sendMessage?.text).toContain('не соответствует');
+    expect(String(response.screen?.text)).toContain('не соответствует');
   });
 
-  test('my-study:view — несуществующий stepId → ошибка', async () => {
-    const { story } = makeStory({
-      'get-step': (() => {
-        throw new Error('not found');
-      }) as unknown,
-    });
+  test('my-study:view — несуществующий stepId → шаг не найден', async () => {
+    const { story } = makeStory();
 
-    // Сначала нужно дать getStudentAndStream отработать
-    const { story: story2 } = makeStory();
-
-    const response = await story2.handleCallback(
+    const response = await story.handleCallback(
       `my-study:view:${STREAM_ID}:aaaa-aaaa`,
       studentActor,
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('не найден');
+    expect(String(response.screen?.text)).toContain('не найден');
   });
 
   // ── my-study:continue для завершившего ──
@@ -428,10 +435,10 @@ describe('StepViewStory', () => {
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('завершили');
+    expect(String(response.screen?.text)).toContain('завершили');
   });
 
-  test('студент не записан — ошибка', async () => {
+  test('студент не записан — экран «не записаны»', async () => {
     const { story } = makeStory({
       'get-student-by-user': (() => {
         throw new Error('not found');
@@ -444,10 +451,10 @@ describe('StepViewStory', () => {
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('не записаны');
+    expect(String(response.screen?.text)).toContain('не записаны');
   });
 
-  test('неизвестная команда', async () => {
+  test('неизвестная команда — экран unknownCommand', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -455,16 +462,6 @@ describe('StepViewStory', () => {
       studentActor,
       session,
     );
-    expect(response.sendMessage?.text).toContain('Неизвестная');
-  });
-
-  test('handleMessage возвращает заглушку', async () => {
-    const { story } = makeStory();
-    const response = await story.handleMessage(
-      { type: 'message', text: 'test', telegramId: 123 },
-      studentActor,
-      session,
-    );
-    expect(response.sendMessage?.text).toContain('Неизвестное');
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 });

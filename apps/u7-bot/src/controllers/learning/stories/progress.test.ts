@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { BotSession } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { ProgressStory } from './progress';
 
@@ -14,7 +14,9 @@ describe('ProgressStory', () => {
     createdAt: '2026-01-01T00:00:00.000Z',
   };
 
-  const session: SessionData = { activeHandler: null };
+  const session: BotSession = {
+    dialog: { path: 'learning/progress', seq: 1 },
+  };
   const STREAM_ID = '11111111-1111-1111-1111-111111111111';
   const STEP1_ID = '22222222-2222-2222-2222-222222222222';
   const STEP2_ID = '33333333-3333-3333-3333-333333333333';
@@ -65,19 +67,12 @@ describe('ProgressStory', () => {
       return undefined;
     });
 
-    const mockUiApp = {
-      getAction: mock(() => {
-        throw new Error('not found');
-      }),
-      getController: mock(() => undefined),
-    };
-
     const story = new ProgressStory();
-    story.init({ appApi: { execute: appApiSpy }, uiApp: mockUiApp } as never);
+    story.init({ appApi: { execute: appApiSpy } } as never);
     return { story, appApiSpy };
   }
 
-  test('progress:{streamId} — показывает общий прогресс', async () => {
+  test('progress:{streamId} — экран общего прогресса', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -85,9 +80,9 @@ describe('ProgressStory', () => {
       studentActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Мой прогресс');
     expect(text).toContain('Python Basic');
     expect(text).toContain('Общий:');
@@ -95,7 +90,7 @@ describe('ProgressStory', () => {
     expect(text).toContain('Всего шагов завершено');
   });
 
-  test('progress:{streamId} — показывает прогресс по проектам и урокам', async () => {
+  test('progress:{streamId} — прогресс по проектам и урокам', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -104,9 +99,26 @@ describe('ProgressStory', () => {
       session,
     );
 
-    const text = response.sendMessage?.text ?? '';
+    const text = String(response.screen?.text);
     expect(text).toContain('Проект 1:');
     expect(text).toContain('Введение');
+  });
+
+  test('progress:{streamId} — кнопки «Назад к учёбе» и «Главное меню»', async () => {
+    const { story } = makeStory();
+
+    const response = await story.handleCallback(
+      `progress:${STREAM_ID}`,
+      studentActor,
+      session,
+    );
+
+    const btns = response.screen?.keyboard?.rows.flat() ?? [];
+    const backBtn = btns.find((b) => b.text.includes('Назад к учёбе'));
+    expect(backBtn?.code).toBe('hub:my-study');
+    expect(
+      btns.some((b) => b.text.includes('Главное меню') && b.code === 'app:main-menu'),
+    ).toBe(true);
   });
 
   test('progress:{streamId} — несовпадение streamId → ошибка', async () => {
@@ -118,10 +130,10 @@ describe('ProgressStory', () => {
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('не соответствует');
+    expect(String(response.screen?.text)).toContain('не соответствует');
   });
 
-  test('студент не записан → ошибка', async () => {
+  test('студент не записан → экран «не записаны»', async () => {
     const { story } = makeStory({
       'get-student-by-user': (() => {
         throw new Error('not found');
@@ -134,10 +146,10 @@ describe('ProgressStory', () => {
       session,
     );
 
-    expect(response.sendMessage?.text).toContain('не записаны');
+    expect(String(response.screen?.text)).toContain('не записаны');
   });
 
-  test('неизвестная команда', async () => {
+  test('неизвестная команда — экран unknownCommand', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -145,16 +157,6 @@ describe('ProgressStory', () => {
       studentActor,
       session,
     );
-    expect(response.sendMessage?.text).toContain('Неизвестная');
-  });
-
-  test('handleMessage возвращает заглушку', async () => {
-    const { story } = makeStory();
-    const response = await story.handleMessage(
-      { type: 'message', text: 'test', telegramId: 123 },
-      studentActor,
-      session,
-    );
-    expect(response.sendMessage?.text).toContain('Неизвестное');
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 });
