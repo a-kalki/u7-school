@@ -1,0 +1,10 @@
+Задача: чистка докстрингов в packages/core/src/ui/bot/types.ts
+
+Сводка: сокращены комментарии-дубли контракта (KeyboardDescription,
+NoticeKind, NotificationPayload). Правила контракта остаются в
+conductor/bot-ui-session-architecture.md и в докстрингах методов.
+
+Причина: правило «докстринг только для ответственности», устранение
+дублирования документации в двух местах (риск расхождения).
+
+Файлы: packages/core/src/ui/bot/types.ts
