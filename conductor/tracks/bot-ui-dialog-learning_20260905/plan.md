@@ -13,5 +13,5 @@
 ## Фаза 2: Финал трека 3
 
 - [x] Task: Проверки скоупа зелёные; grep-чистота скоупа [db5aca61]
-- [ ] Task: Обновить блоки `ui-spec.md`; создать `summary.md`
+- [x] Task: Обновить блоки `ui-spec.md`; создать `summary.md` [3d705474]
 - [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
