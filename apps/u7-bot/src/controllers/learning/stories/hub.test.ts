@@ -64,7 +64,7 @@ describe('HubStory', () => {
     expect(btnTexts.some((t) => t.includes('Продолжить учёбу'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Покинуть поток'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
 
     // Коды навигации — мосты в стори контроллера (§3 И1–И2)
@@ -101,7 +101,7 @@ describe('HubStory', () => {
     expect(btnTexts.some((t) => t.includes('Продолжить'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Уроки'))).toBe(false);
     expect(btnTexts.some((t) => t.includes('Мой прогресс'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Покинуть поток'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
   });
 
   test('my-study — не начавший учёбу видит «Начать учёбу»', async () => {
@@ -119,7 +119,7 @@ describe('HubStory', () => {
     expect(btnTexts.some((t) => t.includes('Продолжить учёбу'))).toBe(false);
   });
 
-  test('my-study:leave-confirm — confirm-диалог', async () => {
+  test('my-study:leave-confirm — confirm-диалог «Покинуть учёбу?» (FR-4)', async () => {
     const { story } = makeStory();
 
     const response = await story.handleCallback(
@@ -129,15 +129,18 @@ describe('HubStory', () => {
     );
     assertDialogResponseMarkdownSafe(response);
 
-    expect(String(response.screen?.text)).toContain('уверены');
+    const text = String(response.screen?.text);
+    expect(text).toContain('Покинуть учёбу');
+    expect(text).toContain('Прогресс сохранится');
+    expect(text).toContain('ментор больше не будет тебя сопровождать');
 
-    const btnTexts =
-      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Да'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Отмена'))).toBe(true);
+    const btns = response.screen?.keyboard?.rows.flat() ?? [];
+    const confirmBtn = btns.find((b) => b.text.includes('Да, покинуть'));
+    expect(confirmBtn?.code).toBe('hub:my-study:leave');
+    expect(btns.some((b) => b.text.includes('Остаться'))).toBe(true);
   });
 
-  test('my-study:leave — вызывает drop-student и прощается экраном', async () => {
+  test('my-study:leave — вызывает drop-student, реплика «Ты покинул учёбу…»', async () => {
     const executeSpy = mock((name: string, ..._args: unknown[]) => {
       if (name === 'get-student-by-user') return mockStudent;
       if (name === 'drop-student') return undefined;
@@ -163,7 +166,9 @@ describe('HubStory', () => {
       studentId: mockStudent.uuid,
     });
 
-    expect(String(response.screen?.text)).toContain('покинули поток');
+    const text = String(response.screen?.text);
+    expect(text).toContain('Ты покинул учёбу');
+    expect(text).toContain('возвращайся');
   });
 
   test('my-study:leave при ошибке — экран ошибки с кнопкой меню', async () => {
