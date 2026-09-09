@@ -198,8 +198,12 @@ export class U7BotUiApp extends BotUiApp<
 
   // ── Сбор главного меню (menuButtons) ──
 
-  /** Кнопки всех контроллеров, отсортированные по приоритету. */
-  async #menuButtons(actor: User): Promise<MenuButton[]> {
+  /**
+   * Кнопки всех контроллеров, отсортированные по приоритету.
+   * protected (не private): тестовый стенд открывает сбор меню подклассом —
+   * прод-API не расширяет.
+   */
+  protected async collectMenuButtons(actor: User): Promise<MenuButton[]> {
     const items: MenuButton[] = [];
     for (const controller of this.controllers.values()) {
       try {
@@ -225,7 +229,7 @@ export class U7BotUiApp extends BotUiApp<
 
 Вот что я умею:`;
 
-    const descriptions = (await this.#menuButtons(actor))
+    const descriptions = (await this.collectMenuButtons(actor))
       .map((b) => b.description)
       .filter((d): d is string => typeof d === 'string');
 
@@ -237,7 +241,7 @@ export class U7BotUiApp extends BotUiApp<
 
   /** Welcome-экран /start: приветствие + клавиатура из menuButtons. */
   async #welcomeScreen(actor: User): Promise<Screen> {
-    const greeting = md`Привет, ${actor.name}! 👋
+    const greeting = md`Привет, ${actor.name}\\! 👋
 
 Я бот\\-помощник школы «u7 schools» 🎓
 Я проведу тебя от знакомства до обучения на курсах\\.
@@ -245,13 +249,13 @@ export class U7BotUiApp extends BotUiApp<
 Если ты здесь впервые — начни с кнопки «❓ Помощь», расскажу как всё устроено\\.
 Если уже знаком — выбирай нужный раздел:`;
 
-    const keyboard = this.#toKeyboard(await this.#menuButtons(actor));
+    const keyboard = this.#toKeyboard(await this.collectMenuButtons(actor));
     return { text: greeting, ...(keyboard ? { keyboard } : {}) };
   }
 
   /** Короткий экран меню (/cancel, «В меню», delegate): текст + клавиатура. */
   async #shortMenuScreen(actor: User): Promise<Screen> {
-    const keyboard = this.#toKeyboard(await this.#menuButtons(actor));
+    const keyboard = this.#toKeyboard(await this.collectMenuButtons(actor));
     return {
       text: md`Выберите действие:`,
       ...(keyboard ? { keyboard } : {}),

@@ -2,16 +2,16 @@ import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
 import type { U7BotController } from '@u7-scl/bot/u7-bot-controller';
 import { InProcEventBus } from '@u7-scl/core/infra';
-import type {
-  DialogResponse,
-  KeyboardDescription,
-  Screen,
-} from '@u7-scl/core/ui';
+import type { DialogResponse, KeyboardDescription } from '@u7-scl/core/ui';
 import type { Api } from 'grammy';
 import type { BotContext } from '../../src/context';
+import type { U7BotUiAppResolve } from '../../src/core/u7-bot-app-meta';
 import { U7BotUiApp } from '../../src/core/ui-app';
 import { BotTransport } from '../../src/infra/bot-transport';
 import type { TestApp } from './test-app';
+
+/** Валидный нейтральный UUID (системный актор по умолчанию в e2e). */
+const EMPTY_UUID = '00000000-0000-4000-8000-000000000000';
 
 // ── Записи вызовов мок-Api ──
 
@@ -19,7 +19,6 @@ export interface SentMessage {
   telegramId: number;
   messageId: number;
   text: string;
-  parseMode?: 'MarkdownV2';
   keyboard?: KeyboardDescription;
 }
 
@@ -27,7 +26,6 @@ export interface EditedMessage {
   telegramId: number;
   messageId: number;
   text: string;
-  parseMode?: 'MarkdownV2';
   keyboard?: KeyboardDescription;
 }
 
@@ -47,6 +45,11 @@ interface RawReplyMarkup {
 /**
  * Мок Grammy Api — записывает вызовы sendMessage / editMessageText в массивы,
  * возвращает инкрементальный message_id (как реальный Telegram).
+ *
+ * Уровень Api = «что увидел Telegram»: сюда транспорт рендерит реплики
+ * (с заголовком вида 🔔/ℹ️/⚠️ — единая таблица ФР-5) и экраны (со штампами
+ * `:~<seq36>` в кодах кнопок). E2E-сценарии нажимают кнопки, взяв
+ * отштампованный код из клавиатуры предыдущего экрана — как реальный клиент.
  */
 export class RecordingBotApi {
   readonly sentMessages: SentMessage[] = [];
@@ -71,7 +74,6 @@ export class RecordingBotApi {
       telegramId,
       messageId,
       text,
-      parseMode: other?.parse_mode,
       keyboard: this.#toKeyboard(other?.reply_markup),
     });
     return { message_id: messageId };
@@ -87,7 +89,6 @@ export class RecordingBotApi {
       telegramId,
       messageId,
       text,
-      parseMode: other?.parse_mode,
       keyboard: this.#toKeyboard(other?.reply_markup),
     });
     return { message_id: messageId };
@@ -136,49 +137,79 @@ export class RecordingBotApi {
 }
 
 /**
- * Честный тестовый BotTransport: реальный BotTransport + мок-Api +
- * реальная сессионная мапа + реальный U7BotUiApp.
+ * Тестовый подкласс U7BotUiApp: открывает сбор menuButtons (в проде меню
+ * собирается только внутри welcome/short/help-экранов). Прод-API не
+ * расширяет — метод открывается protected-членом подкласса.
+ */
+class ExposedMenuUiApp extends U7BotUiApp {
+  collectMainMenu(actor: User) {
+    return this.collectMenuButtons(actor);
+  }
+}
+
+/**
+ * Честный тестовый стенд: реальный BotTransport + мок-Api + реальная
+ * сессионная мапа + реальный U7BotUiApp.
  *
- * Методы handle* возвращают BotResponse, восстановленный из накопленных
- * вызовов мок-Api и состояния сессии (как это видит Telegram + сессия).
+ * DialogResponse захватывается на границе uiApp (обёртки handle*): транспорт
+ * рендерит ответ сам, восстановление из Api-вызовов теряло бы notify/
+ * awaitInput/release и путало реплику с экраном. Api-записи при этом
+ * остаются доступными для проактивных сценариев (сообщения другим адресатам)
+ * и для проверки штампов/ретира — «что увидел Telegram».
  */
 export class TestBotTransport {
   readonly api = new RecordingBotApi();
-  readonly uiApp: U7BotUiApp;
+  readonly uiApp: ExposedMenuUiApp;
   readonly transport: BotTransport;
+  #lastResponse: DialogResponse | null = null;
 
   constructor(
     apiApp: U7BotApp,
     actorResolver: (tgId: number) => Promise<User>,
     controllers: U7BotController[],
-    eventBus?: InProcEventBus,
+    opts: {
+      eventBus?: InProcEventBus;
+      /** Фасад пользователей — гост-регистрация на /start (см. ensureRegisteredGuest). */
+      userFacade?: U7BotUiAppResolve['userFacade'];
+      /** Системный актор-бот: от его имени регистрируются гости. */
+      botAdminUuid?: string;
+    } = {},
   ) {
-    this.uiApp = new U7BotUiApp(controllers);
+    this.uiApp = new ExposedMenuUiApp(controllers);
     this.transport = new BotTransport(this.uiApp, this.api as unknown as Api);
     this.uiApp.init(
       {
         // Общая с apiApp шина — события модулей (напр. questionnaire:start)
         // долетают до подписок стори (как в бою: create-ui-app + main.ts)
-        eventBus: eventBus ?? new InProcEventBus(),
+        eventBus: opts.eventBus ?? new InProcEventBus(),
         actorResolver,
         appApi: apiApp,
-        uiApp: this.uiApp,
+        userFacade:
+          opts.userFacade ??
+          ({
+            // Гост-регистрация в e2e не тестируется (все акторы из фикстур);
+            // заглушка сохраняет форму resolve, не пишя в хранилище.
+            registerGuest: async () => undefined,
+          } as unknown as U7BotUiAppResolve['userFacade']),
+        botAdminUuid: opts.botAdminUuid ?? EMPTY_UUID,
       },
       this.transport,
     );
     // Подписки стори на доменные события (в бою вызывается в main.ts)
     this.uiApp.subscribeEvents();
+    this.#captureResponses();
   }
 
-  /** Сбрасывает накопленные сообщения (изоляция между тестами). */
+  /** Сбрасывает накопленные сообщения и последний ответ (изоляция тестов). */
   reset(): void {
     this.api.reset();
+    this.#lastResponse = null;
   }
 
   // ── Фабрика мок-контекста ──
 
   /**
-   * Создаёт мок Grammy-контекст, привязанный к сессии из sessionMap.
+   * Создаёт мок Grammy-контекста, привязанный к сессии из sessionMap.
    * Повторные вызовы для одного tgId возвращают одну и ту же сессию.
    */
   makeBotContext(
@@ -200,79 +231,84 @@ export class TestBotTransport {
 
   // ── Меню ──
 
+  /** menuButtons актора (приоритеты, kind, action) — сбор реального uiApp. */
   collectMainMenu(actor: User) {
     return this.uiApp.collectMainMenu(actor);
   }
 
-  // ── Обработчики ──
+  // ── Обработчики (маршруты main.ts) ──
 
+  /** /start — команда (в бою: transport.handleCommand, конверт парсится). */
   async handleStart(ctx: BotContext): Promise<DialogResponse> {
-    return this.#run(ctx, () => this.transport.handleStart(ctx));
+    return this.#command(ctx, '/start');
   }
 
-  async handleCallback(ctx: BotContext): Promise<DialogResponse> {
-    return this.#run(ctx, () => this.transport.handleCallback(ctx));
-  }
-
-  async handleMessage(ctx: BotContext): Promise<DialogResponse> {
-    return this.#run(ctx, () =>
-      this.transport.handleMessage(ctx, async () => {}),
-    );
-  }
-
-  async handleCancel(ctx: BotContext): Promise<DialogResponse> {
-    return this.#run(ctx, () => this.transport.handleCancel(ctx));
-  }
-
+  /** /help — команда. */
   async handleHelp(ctx: BotContext): Promise<DialogResponse> {
-    return this.#run(ctx, () => this.transport.handleHelp(ctx));
+    return this.#command(ctx, '/help');
   }
 
-  // ── Восстановление BotResponse ──
+  /** /cancel — команда. */
+  async handleCancel(ctx: BotContext): Promise<DialogResponse> {
+    return this.#command(ctx, '/cancel');
+  }
+
+  /** Произвольная слэш-команда текстом. */
+  async handleCommand(ctx: BotContext, text: string): Promise<DialogResponse> {
+    return this.#command(ctx, text);
+  }
 
   /**
-   * Запускает обработчик транспорта и восстанавливает снимок ответа
-   * (DialogResponse-форма) из накопленных вызовов мок-Api.
-   *
-   * Слоты awaitInput/release не восстанавливаются: сессией владеет
-   * транспорт; e2e-сценарии мигрируют на новый контракт в треках 2–5.
+   * Нажатие кнопки. Код должен быть отштампован транспорт (:~seq36) —
+   * берите его из клавиатуры предыдущего экрана (api.sentMessages /
+   * .editedMessages), как это делает реальный клиент.
    */
-  async #run(
-    ctx: BotContext,
-    fn: () => Promise<void>,
-  ): Promise<DialogResponse> {
-    const tgId = ctx.from?.id;
-    const startIndex = this.api.sentMessages.length;
-    const editStartIndex = this.api.editedMessages.length;
-
-    await fn();
-
-    // Только сообщения самого пользователя: проактивные уведомления другим
-    // (напр. студенту после mark-abandoned ментором) — не часть его ответа
-    const sent = this.api.sentMessages
-      .slice(startIndex)
-      .filter((m) => tgId === undefined || m.telegramId === tgId);
-    const edited = this.api.editedMessages
-      .slice(editStartIndex)
-      .filter((m) => tgId === undefined || m.telegramId === tgId);
-
-    const response: DialogResponse = {};
-
-    const first = sent[0];
-    if (first) {
-      response.screen = this.#toScreen(first);
-    } else {
-      const last = edited[edited.length - 1];
-      if (last) {
-        response.screen = this.#toScreen(last);
-      }
-    }
-
-    return response;
+  async handleCallback(ctx: BotContext): Promise<DialogResponse> {
+    return this.#run(() => this.transport.handleCallback(ctx));
   }
 
-  #toScreen(s: { text: string; keyboard?: KeyboardDescription }): Screen {
-    return { text: s.text as never, keyboard: s.keyboard };
+  /** Текстовый ввод в ожидающий диалог (awaitInput). */
+  async handleMessage(ctx: BotContext): Promise<DialogResponse> {
+    return this.#run(() => this.transport.handleMessage(ctx));
+  }
+
+  // ── Внутреннее ──
+
+  /** Команда: подставляет текст в конверт и идёт через transport.handleCommand. */
+  async #command(ctx: BotContext, text: string): Promise<DialogResponse> {
+    (ctx as { message: unknown }).message = { text };
+    return this.#run(() => this.transport.handleCommand(ctx));
+  }
+
+  /**
+   * Обёртки на экземпляре uiApp: транспорт вызывает uiApp.handle* —
+   * перехватываем возвращённый DialogResponse (последний за #run).
+   */
+  #captureResponses(): void {
+    const ui = this.uiApp as unknown as Record<
+      string,
+      (...args: never[]) => Promise<DialogResponse | null>
+    >;
+    for (const key of ['handleCommand', 'handleCallback', 'handleMessage']) {
+      const original = ui[key]?.bind(this.uiApp);
+      if (!original) continue;
+      ui[key] = async (...args: never[]) => {
+        const response = await original(...args);
+        this.#lastResponse = response;
+        return response;
+      };
+    }
+  }
+
+  /**
+   * Запускает обработчик транспорта и возвращает DialogResponse,
+   * захваченный на границе uiApp (полная форма: screen + notify +
+   * awaitInput/release). {} — ответа не было (тихий пропуск).
+   */
+  async #run(fn: () => Promise<void>): Promise<DialogResponse> {
+    this.#lastResponse = null;
+    await fn();
+    return this.#lastResponse ?? {};
   }
 }
 
@@ -294,6 +330,6 @@ export function createTestBotTransport(
       return user;
     },
     controllers,
-    app.eventBus,
+    { eventBus: app.eventBus, userFacade: app.userFacade },
   );
 }
