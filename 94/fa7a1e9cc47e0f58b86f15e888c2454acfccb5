@@ -1,0 +1,1 @@
+Задача C HANDOFF: integration courses/streams 27 fail → 36 pass / 0 fail. Ключ: stampedCode(transport, tgId, rawCode) — сырой код с актуальным штампом; внутри одной стори seq не растёт (enterDialog switch на тот же path — no-op), поэтому крафтовый штамп валиден для цепочек нажатий.
