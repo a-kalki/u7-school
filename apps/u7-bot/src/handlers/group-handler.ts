@@ -212,7 +212,7 @@ async function notifyMentorsAboutGroupLeft(
 
       await deps.transport.notify(mentor.telegramId, {
         // интерполяция доменных данных экранируется автоматически (md)
-        text: md`🚪 Студент ${userName} покинул группу «${stream.title}».`,
+        text: md`🚪 Студент ${userName} покинул группу «${stream.title}\\.`,
       });
     }
   } catch (err) {
