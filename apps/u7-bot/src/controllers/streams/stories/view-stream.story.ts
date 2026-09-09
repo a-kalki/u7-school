@@ -358,15 +358,6 @@ export class ViewStreamStory extends U7BotUiStory {
           },
         ]);
       }
-
-      if (stream.status === 'active' && canEnroll) {
-        rows.push([
-          {
-            text: '🔔 Уведомить о наборе',
-            code: this.cbFor(this.storyName, 'notify', stream.uuid),
-          },
-        ]);
-      }
     }
 
     // Кнопка «⬅️ Назад к списку» — возврат в каталог

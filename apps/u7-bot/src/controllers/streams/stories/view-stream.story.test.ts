@@ -86,6 +86,19 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(text).toContain('🟡 Набор открыт');
   });
 
+  test('view: активный поток — без мёртвой кнопки «🔔 Уведомить о наборе»', async () => {
+    const { story } = makeStory({ stream: makeStream({ status: 'active' }) });
+    const response = await story.handleCallback(
+      `view:${STREAM_ID}`,
+      guest,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Уведомить'))).toBe(false);
+  });
+
   test('view: показывает имя ментора', async () => {
     const { story } = makeStory();
     const response = await story.handleCallback(
@@ -145,9 +158,11 @@ describe('ViewStreamStory (S02-S04)', () => {
     expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
   });
 
-  test('MENTOR на своём enrollment — НЕ видит lifecycle-кнопок', async () => {
-    const { story } = makeStory();
+  test('MENTOR — владелец потока — НЕ видит lifecycle-кнопок', async () => {
     const mentor = makeActor([Role.MENTOR]);
+    const { story } = makeStory({
+      stream: makeStream({ mentorId: mentor.uuid }),
+    });
     const response = await story.handleCallback(
       `view:${STREAM_ID}`,
       mentor,
@@ -164,6 +179,7 @@ describe('ViewStreamStory (S02-S04)', () => {
   test('program: показывает contentSnapshot', async () => {
     const snapshot: ContentSnapshot = [
       {
+        projectId: 'proj-1',
         projectTitle: 'Проект «CLI-калькулятор»',
         lessons: [
           {
@@ -185,7 +201,8 @@ describe('ViewStreamStory (S02-S04)', () => {
     assertDialogResponseMarkdownSafe(response);
     const text = String(response.screen?.text);
     expect(text).toContain('Программа курса');
-    expect(text).toContain('CLI-калькулятор');
+    // дефис в доменном названии экранирован md-интерполяцией
+    expect(text).toContain('CLI\\-калькулятор');
     expect(text).toContain('Введение');
   });
 
@@ -308,6 +325,7 @@ describe('ViewStreamStory (S02-S04)', () => {
         return undefined;
       }),
     };
+    const { story } = makeStory();
     story.init({ appApi: mockAppApi } as never);
 
     const response = await story.handleCallback(
