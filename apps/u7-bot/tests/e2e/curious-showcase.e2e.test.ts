@@ -86,10 +86,7 @@ function pressedCode(
 }
 
 /** Callback-пункт главного меню по подстроке текста. */
-function findMenuItem(
-  items: MenuButton[],
-  textContains: string,
-): CbMenuButton {
+function findMenuItem(items: MenuButton[], textContains: string): CbMenuButton {
   const item = items.find((i) => i.text.includes(textContains));
   if (!item) {
     const all = items.map((i) => i.text).join(', ');
