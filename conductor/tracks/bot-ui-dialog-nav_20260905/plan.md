@@ -15,7 +15,7 @@
 
 - [x] Task: Написать падающие тесты courses catalog и streams catalog/view-stream на `DialogResponse` [6c5edfa]
 - [x] Task: Перевести стори; delegate: enroll→menu, enroll-cancel→view, monitor→students; enroll-capture на `awaitInput`/`release`; команды — дефолт pipe (`pass`), ошибки валидации — `errorNotify` [7c3ecf4]
-- [ ] Task: **Удалить кнопку «🔔 Уведомить о наборе»** из `view-stream.story.ts` (мёртвая — обработчика `notify:` нет, пользователи тычут в неё и получают «Неизвестная команда»; решение владельца — фичи не будет)
+- [x] Task: **Удалить кнопку «🔔 Уведомить о наборе»** из `view-stream.story.ts` (мёртвая — обработчика `notify:` нет, пользователи тычут в неё и получают «Неизвестная команда»; решение владельца — фичи не будет) [d2299e5]
 - [ ] Task: InactivityStory: кнопочные проактивы → notify-текст, кнопочные подписки умирают (И3); обновить тесты
 - [ ] Conductor - User Manual Verification 'courses и streams' (Protocol in workflow.md)
 
