@@ -1,0 +1,1 @@
+Задача B HANDOFF: curious-showcase 17 fail → 18 pass / 0 fail. Ключевая находка: pressedCode из main-menu (склейка [...edited, ...sent].reverse()) ломается на чередовании edit/send-рендеров — в этом файле заменён на screensNewFirst (edit прикрепляется к messageId оригинала). Пригодится для задачи C.
