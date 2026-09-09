@@ -1,0 +1,15 @@
+Задача: Удалить кнопку «🔔 Уведомить о наборе» из view-stream.story.ts (мёртвая — обработчика notify: нет)
+
+Сводка:
+- Из buildKeyboard удалён блок active+canEnroll с кнопкой «🔔 Уведомить о
+  наборе» (code: notify:...). Обработчика у стори не было — тычки вели к
+  «Неизвестная команда».
+- Тест: гость на активном потоке — в клавиатуре нет «Уведомить» (плюс уже
+  существующая проверка отсутствия в mentor-кейсе).
+
+Причина: Задача 3 Фазы 2 трека bot-ui-dialog-nav (решение владельца —
+фичи «уведомить о наборе» не будет).
+
+Файлы:
+- apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts
+- apps/u7-bot/src/controllers/streams/stories/view-stream.story.test.ts
