@@ -1,0 +1,18 @@
+Задача: ФР-7 — обновить документацию контракта (трек 1.1)
+
+Сводка: обновлены оба контрактных документа под решения трека 1.1.
+
+- conductor/bot-ui-session-architecture.md (v3 → v4):
+  - шапка: версия, дата, ссылка на живой контракт;
+  - §1 глоссарий: реплика notify (kind 🔔/ℹ️/⚠️), уведомление + invite (ФР-6), команда через pipe;
+  - §3 инварианты: И1 «не более одного» (dialog? до /start), И2 — валидация без исключений, И3 — исключение invite;
+  - §4: DialogResponse.notify (вместо info: Screen), BotSession.dialog?, CommandUpdate/CommandReaction, NoticeKind, ProactiveSender (notify/invite/kickFromGroup), обновлена таблица производитель→потребитель;
+  - §5: п.0 валидация callback без исключений (порядок: диалог → штамп → shortId), notify-таблица ФР-5, п.6 единый вход команд (перехват слэш-текста, parseCommandText, подсказки транспорта);
+  - §6: слои — enterDialog, pipe handleCommand, contextHelp, errorNotify, menuButtons; команды /start /help /cancel /log_level по решениям 1.1;
+  - §10: решения 1–9 сохранены (2 помечено скорректированным), добавлены решения 10–16 трека 1.1;
+  - §11: актуальные имена методов ядра/транспорта; §12: вопросы 1–2 помечены решёнными.
+- conductor/bot-dialog-lifecycle.md: статус «РЕШЕНО треком 1.1», итог по решениям (вариант A, «без исключений», легаси invite — ФР-6), варианты и открытые вопросы помечены принятыми/отвеченными.
+
+Причина: задача ФР-7 плана трека bot-ui-dialog-lifecycle_20260905 — документация должна отражать финальный контракт ядра после фаз 1–3.
+
+Файлы: conductor/bot-ui-session-architecture.md, conductor/bot-ui-dialog-lifecycle.md
