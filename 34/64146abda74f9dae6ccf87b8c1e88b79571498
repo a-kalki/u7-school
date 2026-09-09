@@ -1,0 +1,25 @@
+Задача: ФР-8 — обновить спеки/планы треков 2–5 под решения трека 1.1
+
+Сводка: 7 файлов треков nav/learning/questionnaire/mentor приведены к
+решениям трека 1.1:
+- материнский документ v3 → v4 (ссылки на §5 валидация, §6 команды,
+  §10.10–16 решения);
+- kind-реплики: notify { text, kind? } (единая таблица ФР-5), ошибки
+  валидации — errorNotify (переспрос без захвата экрана);
+- команды: трёхуровневый pipe handleCommand, дефолт pass, именных
+  обработчиков нет (/start и /help — uiApp, /cancel — сброс активной);
+- трек 4 (questionnaire): приглашения по варианту A — временный
+  ProactiveSender.invite (штамп текущей эпохи, якорь app/invite для
+  получателя без диалога, кнопка-мост fill:resume:<id>, подсказка
+  /start, deep-link опция); fill.start (questionnaire:start) — тоже
+  вариант A;
+- трек 2 (nav): историческое примечание переписано (welcome/help/меню
+  — U7BotUiApp из menuButtons, AppController — menuButtons + /log_level);
+- трек 5 (mentor): список демонтажа дополнен (именные обработчики
+  команд, notifyWithButtons); invite/app-invite — вне демонтажа,
+  удаляет tasks-system.
+
+Причина: задача ФР-8 плана трека bot-ui-dialog-lifecycle_20260905 —
+последующие треки должны планировать миграцию по финальному контракту.
+
+Файлы: spec.md/plan.md треков bot-ui-dialog-{nav,learning,questionnaire,mentor}_20260905
