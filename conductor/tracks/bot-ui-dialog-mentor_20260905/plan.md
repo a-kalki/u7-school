@@ -4,13 +4,13 @@
 
 ## Фаза 1: Mentor-стори
 
-- [ ] Task: Написать падающие тесты submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor на `DialogResponse` (включая delegate monitor→students)
+- [ ] Task: Написать падающие тесты submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor на `DialogResponse` (включая delegate monitor→students); команды — дефолт pipe, ошибки — `errorNotify`
 - [ ] Task: Перевести все mentor-стори
 - [ ] Conductor - User Manual Verification 'Mentor-стори' (Protocol in workflow.md)
 
 ## Фаза 2: Демонтаж старого мира
 
-- [ ] Task: Удалить старые типы и код: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover, `handleTimeout`, `escapeMarkdown`, старые ассерты; `context.ts` финально на `BotSession`
+- [ ] Task: Удалить старые типы и код: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover, `handleTimeout`, `escapeMarkdown`, старые ассерты, остатки именных обработчиков команд и `notifyWithButtons`; `context.ts` финально на `BotSession` (временные `invite`/`app/invite` не трогать — их удаляет tasks-system)
 - [ ] Task: Весь репозиторий зелёный: `bun run check` (biome + tsc + тесты); grep не находит старых типов
 - [ ] Conductor - User Manual Verification 'Демонтаж' (Protocol in workflow.md)
 

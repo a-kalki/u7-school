@@ -1,6 +1,6 @@
 # Спецификация — Трек: Mentor-стори и демонтаж старого мира (bot-ui-dialog-mentor_20260905)
 
-> **Материнский документ:** [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md) — утверждённая целевая архитектура bot-ui v3 (инварианты §3, контракты §4, карта кода §11). Трек 5 декомпозиции §9, финальный миграционный.
+> **Материнский документ:** [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md) — целевая архитектура bot-ui v4 (инварианты §3, контракты §4, карта кода §11, решения трека 1.1 §10.10–16). Трек 5 декомпозиции §9, финальный миграционный.
 
 ## Обзор
 
@@ -8,8 +8,9 @@
 
 ## Функциональные требования
 
-- Mentor-стори на `DialogResponse` (включая delegate monitor→students, если ещё не переведён).
-- **Удаление старых типов**: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover-код, цепочка `handleTimeout`, `escapeMarkdown`, старые ассерты.
+- Mentor-стори на `DialogResponse` (включая delegate monitor→students, если ещё не переведён); команды — дефолт pipe (`pass`, доменные команды — override `handleCommand`); ошибки валидации — `errorNotify`.
+- **Удаление старых типов**: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover-код, цепочка `handleTimeout`, `escapeMarkdown`, старые ассерты, остатки именных обработчиков команд (`handleHelp`/`handleCancel`/`handleWelcome`/`handleStart`/appCommand-хук) и `notifyWithButtons` (заменён временным `invite`).
+- Временное остаётся: `ProactiveSender.invite` и якорь `app/invite` (ФР-6) — их удаляет tasks-system, не этот трек.
 - Зачистка ассертов, `apps/u7-bot/src/context.ts` окончательно на `BotSession`.
 - Обновление стильгайдов (`code_styleguides/bot-architecture.md`, `code_styleguides/skills/bot-ui-story.md`, `code_styleguides/skills/bot-controller.md`) и `ui-spec.md` (полная сверка всех экранов).
 

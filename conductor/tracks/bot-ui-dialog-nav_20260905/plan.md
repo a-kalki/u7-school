@@ -2,24 +2,19 @@
 
 > Материнский документ: [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md)
 
-> **Выполнено в треке 1 (bot-ui-dialog-core, Фаза 3):** домен `app` уже мигрирован —
-> `AppController` (welcome-экран, help → info-реплика, main-menu/help-кнопки, экран меню
-> через MenuAggregator) и `CommunityStory` переведены на `DialogResponse`/`Screen`/`md`
-> вместе с их юнит-тестами (опережение трека 2: иначе welcome/help — скоуп Фазы 3 трека 1 —
-> были мертвы). Остаток скоупа «app» здесь: только ревизия на предмет ставших ненужными
-> хелперов и e2e-сценарии домена app.
+> **Выполнено в треке 1 (bot-ui-dialog-core, Фаза 3) и треке 1.1 (фазы 2.1–2.2):** домен `app` уже на новом контракте — после ревизии ФР-4 welcome/help/меню собирает `U7BotUiApp` из декларативных `menuButtons(actor)` (welcome-экран, общий help, короткое меню, системные кнопки `app:main-menu`/`app:help`); `AppController` — `menuButtons` (помощь) + override `/log_level`; `CommunityStory` — кнопка сообщества; всё на `DialogResponse`/`Screen`/`md` с юнит-тестами. Остаток скоупа «app» здесь: только ревизия на предмет ставших ненужными хелперов и e2e-сценарии домена app.
 
 ## Фаза 1: app и user
 
 - [x] Task: Написать падающие тесты стори app (community) на `DialogResponse`: edit-in-place своих экранов, мосты-кнопки — выполнено в треке 1 [3a58b33a]
 - [x] Task: Перевести сторю app; удалить ставшие ненужными хелперы — стори переведена в треке 1 [3a58b33a]; ревизия хелперов — в Фазе 3 этого трека
-- [ ] Task: Перевести user-notify путь на новый контракт (notify как реплика тон-канала)
+- [ ] Task: Перевести user-notify путь на новый контракт (реплика `notify { text, kind? }` — единая таблица ФР-5, вид `notify` 🔔)
 - [ ] Conductor - User Manual Verification 'app и user' (Protocol in workflow.md)
 
 ## Фаза 2: courses и streams
 
 - [ ] Task: Написать падающие тесты courses catalog и streams catalog/view-stream на `DialogResponse`
-- [ ] Task: Перевести стори; delegate: enroll→menu, enroll-cancel→view, monitor→students; enroll-capture на `awaitInput`/`release`
+- [ ] Task: Перевести стори; delegate: enroll→menu, enroll-cancel→view, monitor→students; enroll-capture на `awaitInput`/`release`; команды — дефолт pipe (`pass`), ошибки валидации — `errorNotify`
 - [ ] Task: **Удалить кнопку «🔔 Уведомить о наборе»** из `view-stream.story.ts` (мёртвая — обработчика `notify:` нет, пользователи тычут в неё и получают «Неизвестная команда»; решение владельца — фичи не будет)
 - [ ] Task: InactivityStory: кнопочные проактивы → notify-текст, кнопочные подписки умирают (И3); обновить тесты
 - [ ] Conductor - User Manual Verification 'courses и streams' (Protocol in workflow.md)
