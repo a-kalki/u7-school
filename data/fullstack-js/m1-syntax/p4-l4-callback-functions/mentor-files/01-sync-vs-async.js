@@ -9,13 +9,13 @@ function processArray(arr, cb) {
   console.log('  processArray: finish');
 }
 
-console.log('до processArray');
+console.log('before processArray');
 processArray(['order 1', 'order 2', 'order 3'], (item, _i) => {
   console.log('    process:', item);
 });
 console.log('after processArray');
 
-console.log('');
+console.log('---');
 
 // ============================================================
 
@@ -36,11 +36,12 @@ fetchOrder(101, (order) => {
 });
 console.log('after fetchOrder');
 
-console.log('');
+console.log('---');
 
 // ============================================================
 
 // два асинхронных вызова — перемешивание
+console.log('before fetchUser');
 
 function fetchUser(userId, cb) {
   setTimeout(() => {
