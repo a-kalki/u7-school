@@ -1,0 +1,19 @@
+Задача: Перевести user-notify путь на новый контракт (реплика notify { text, kind? } — единая таблица ФР-5, вид notify 🔔)
+
+Сводка:
+- NotifyStory доставляет user.notified через proactiveSender.notify на новом
+  контракте: payload { text: MdText, kind: 'notify' } — вид 🔔 единой таблицы
+  ФР-5; parseMode и escapeMarkdown удалены, экранирование доменного текста
+  выполняет md-интерполяция.
+- handleMessage не переопределяется — дефолт ядра (реплика-отказ + release).
+- handleCallback — заглушка unknownCommand на DialogResponse.
+
+Файлы:
+- apps/u7-bot/src/controllers/user/stories/notify.story.ts — перевод на контракт
+- apps/u7-bot/src/controllers/user/stories/notify.story.test.ts — тесты на
+  DialogResponse/NotificationPayload, проверка kind='notify' и md-экранирования
+
+Причина: трек 1 сломал прикладные стори (escapeMarkdown/parseMode удалены из
+ядра); задача мигрирует user-домен скоупа трека bot-ui-dialog-nav_20260905.
+
+Проверки: bun test user — 8/8; biome — чисто; tsc — 0 ошибок в скоупе.
