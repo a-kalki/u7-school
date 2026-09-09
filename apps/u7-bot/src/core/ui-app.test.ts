@@ -487,6 +487,25 @@ describe('U7BotUiApp — delegate на системные коды', () => {
     expect(session.dialog?.seq).toBe(2);
   });
 
+  test('delegate app:help → общий help-реплика, notify инициатора сохранён', async () => {
+    setGlobalLogger(makeLogger());
+    const story = new DelegateStory();
+    story.delegatePath = APP_CODES.help;
+    story.initiator = { notify: { text: md`Контекст\.` } };
+    const uiApp = makeUiApp({ extra: [new DelegateController(story)] });
+    const session = { dialog: { path: 'nav/go', seq: 2 } } as BotSession;
+
+    const response = await uiApp.handleCallback('nav:go:x', 123, session);
+
+    // help — notify без захвата экрана; текст инициатора склеен (§merge)
+    const text = String(response?.notify?.text);
+    expect(text).toContain('Контекст');
+    expect(text).toContain('Как со мной работать');
+    expect(response?.screen).toBeUndefined();
+    // диалог не тронут
+    expect(session.dialog?.path).toBe('nav/go');
+  });
+
   test('delegate в несуществующий контроллер — экран ошибки (перехват не мешает)', async () => {
     setGlobalLogger(makeLogger());
     const story = new DelegateStory();

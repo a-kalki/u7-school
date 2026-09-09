@@ -125,7 +125,7 @@ export class U7BotUiApp extends BotUiApp<
     const story = this.#activeStory(session);
     const context = story ? await story.contextHelp(actor, session) : null;
     if (context) return { notify: { text: context } };
-    return { notify: { text: await this.#commonHelpScreen(tgId) } };
+    return { notify: { text: await this.#commonHelpScreen(actor) } };
   }
 
   /** Активная стори по `dialog.path` (виртуальные пути `app/*` — не стори). */
@@ -173,9 +173,13 @@ export class U7BotUiApp extends BotUiApp<
 
   /**
    * Перехват системных кодов приложения в маршрутизации — ЕДИНАЯ точка
-   * и для нажатий кнопок, и для delegate (§10.19): меню — виртуальный
-   * якорь `app/menu` (сущностной стори нет), короткое меню собирает uiApp.
-   * Общий help перехватывается в handleCallback (в delegate не встречается).
+   * и для нажатий кнопок, и для delegate (§10.19): оба входа маршрутизации
+   * сходятся в dispatch, поэтому перехват здесь покрывает оба. Актор уже
+   * разрешён ядром — двойного резолва нет.
+   * - меню — виртуальный якорь `app/menu` (сущностной стори нет),
+   *   короткое меню собирает uiApp;
+   * - help — общий справочник из menuButtons (контекстная справка активной
+   *   стори — уровень команды /help в #commandHelp, не кнопки).
    */
   protected override async dispatch(
     data: string,
@@ -186,23 +190,10 @@ export class U7BotUiApp extends BotUiApp<
       this.enterDialog(session, this.menuPath, 'switch');
       return { screen: await this.#shortMenuScreen(actor) };
     }
-    return super.dispatch(data, actor, session);
-  }
-
-  /**
-   * Перехват системных кодов приложения ДО маршрутизации: общий help
-   * собирает uiApp (владеет menuButtons). Меню перехватывается в dispatch
-   * — оно доступно и delegate.
-   */
-  override async handleCallback(
-    data: string,
-    tgId: number,
-    session: BotSession,
-  ): Promise<DialogResponse | null> {
     if (data === APP_CODES.help) {
-      return { notify: { text: await this.#commonHelpScreen(tgId) } };
+      return { notify: { text: await this.#commonHelpScreen(actor) } };
     }
-    return super.handleCallback(data, tgId, session);
+    return super.dispatch(data, actor, session);
   }
 
   // ── Сбор главного меню (menuButtons) ──
@@ -224,8 +215,7 @@ export class U7BotUiApp extends BotUiApp<
   }
 
   /** Общий справочник: инструкция + описания кнопок из menuButtons. */
-  async #commonHelpScreen(tgId: number): Promise<MdText> {
-    const actor = await this.resolve.actorResolver(tgId);
+  async #commonHelpScreen(actor: User): Promise<MdText> {
     const header = md`Как со мной работать? 🤔
 
 В основном ты будешь нажимать на кнопки — это быстро и удобно\\. Иногда я попрошу написать что\\-то самому \\(например, ответ на вопрос анкеты\\)\\.
