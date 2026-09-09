@@ -21,6 +21,6 @@
 
 ## Фаза 3: Финал трека 2
 
-- [ ] Task: Проверки скоупа зелёные (тесты/линт/tsc затронутых файлов); grep: в скоупе не осталось `BotResponse`/`editOrSend`/`respondInContext`
-- [ ] Task: Обновить блоки `ui-spec.md` затронутых экранов; создать `summary.md`
+- [x] Task: Проверки скоупа зелёные (тесты/линт/tsc затронутых файлов); grep: в скоупе не осталось `BotResponse`/`editOrSend`/`respondInContext`
+- [x] Task: Обновить блоки `ui-spec.md` затронутых экранов; создать `summary.md`
 - [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
