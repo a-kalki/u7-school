@@ -9,11 +9,11 @@
 - [x] Task: Написать падающие тесты стори app (community) на `DialogResponse`: edit-in-place своих экранов, мосты-кнопки — выполнено в треке 1 [3a58b33a]
 - [x] Task: Перевести сторю app; удалить ставшие ненужными хелперы — стори переведена в треке 1 [3a58b33a]; ревизия хелперов — в Фазе 3 этого трека
 - [x] Task: Перевести user-notify путь на новый контракт (реплика `notify { text, kind? }` — единая таблица ФР-5, вид `notify` 🔔) — e84516e3
-- [ ] Conductor - User Manual Verification 'app и user' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'app и user' (Protocol in workflow.md)
 
 ## Фаза 2: courses и streams
 
-- [ ] Task: Написать падающие тесты courses catalog и streams catalog/view-stream на `DialogResponse`
+- [x] Task: Написать падающие тесты courses catalog и streams catalog/view-stream на `DialogResponse` [6c5edfa]
 - [ ] Task: Перевести стори; delegate: enroll→menu, enroll-cancel→view, monitor→students; enroll-capture на `awaitInput`/`release`; команды — дефолт pipe (`pass`), ошибки валидации — `errorNotify`
 - [ ] Task: **Удалить кнопку «🔔 Уведомить о наборе»** из `view-stream.story.ts` (мёртвая — обработчика `notify:` нет, пользователи тычут в неё и получают «Неизвестная команда»; решение владельца — фичи не будет)
 - [ ] Task: InactivityStory: кнопочные проактивы → notify-текст, кнопочные подписки умирают (И3); обновить тесты
