@@ -1,0 +1,26 @@
+Задача: InactivityStory — кнопочные проактивы → notify-текст, кнопочные подписки умирают (И3); обновить тесты
+
+Сводка:
+- Оба проактива (предупреждение студенту 5+ дней; уведомление ментору о
+  кандидате 7+ дней) переведены с proactiveSender.send+клавиатурой на
+  proactiveSender.notify: чистый MdText (md/mdJoin), вид notify 🔔 —
+  заголовок/оформление на транспорте. Сессия получателя не трогается;
+  в обоих текстах подсказка /start (получатель без открытого диалога).
+- Кнопочные сценарии удалены: drop-student/mark-abandoned ветки
+  handleCallback, #executeDrop, #executeMarkAbandoned, #getStudent,
+  переопределение handleMessage (дефолт ядра — pass).
+- handleCallback → unknownCommand — нажатия по мёртвым кнопкам не делают
+  ничего. Самовыход живёт в меню (трек 3), снятие ментором — в monitor
+  (трек 5).
+- Сохранены: 3 подписки на события, резолверы, #kickFromGroup (FR-6).
+- Тесты переписаны (10): подписки, notify-тексты (MarkdownV2-валидность,
+  подсказка /start, wasWarned, fallback имени по 8 символам), кик из
+  группы (+ветки «нет группы»/«нет telegramId»), callback-тупик.
+- С *.test прогоном фазы: 160 тестов зелёные; StreamsController.stories
+  снова типобезопасен (tsc скоупа чист).
+
+Причина: Задача 4 Фазы 2 трека bot-ui-dialog-nav.
+
+Файлы:
+- apps/u7-bot/src/controllers/streams/stories/inactivity.story.ts
+- apps/u7-bot/src/controllers/streams/stories/inactivity.story.test.ts
