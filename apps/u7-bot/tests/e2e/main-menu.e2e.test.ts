@@ -167,11 +167,11 @@ describe('Главное меню (интеграционные)', () => {
       transport.makeBotContext(student.telegramId),
     );
     const text = response.notify?.text ?? '';
-    // Справочник собирается из menuButtons актора. Пункт «Моя учёба»
-    // добавится с menuButtons learning-контроллера (промежуточное
-    // состояние — трек bot-ui-dialog-learning); сейчас — общие пункты.
+    // Справочник собирается из menuButtons актора: с трека learning
+    // включён и пункт «🎓 Моя учёба» (см. describe learning ниже).
     expect(text).toContain('Программы курсов');
     expect(text).toContain('Потоки курсов');
+    expect(text).toContain('Моя учёба');
   });
 
   // ── app:main-menu кнопкой (отштампованный код из Api-записи) ──
@@ -234,16 +234,13 @@ describe('Главное меню (интеграционные)', () => {
   });
 });
 
-// ════════════════════════════════════════════════════════════════════
-// ПРОМЕЖУТОЧНОЕ СОСТОЯНИЕ (НЕ РЕГРЕСС): домен learning мигрируется
-// треком bot-ui-dialog-learning_20260905 (задача о миграции e2e — в его
-// плане). Сценарии сохранены как есть (старый контракт BotResponse,
-// сырые коды кнопок) — перенести на паттерн «отштампованные коды +
-// DialogResponse» при миграции hub-стори. Проверка после переноса:
-// список сценариев этого блока покрыт новыми тестами.
-// ════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// E2E домена learning — контракт «Диалог и Экран» (мигрировано треком
+// bot-ui-dialog-learning_20260905): отштампованные коды кнопок из
+// Api-записей, ассерты — по DialogResponse (screen).
+// ══════════════════════════════════════════════════════════════════
 
-describe.skip('E2E: Студент — «Моя учёба» (learning — трек bot-ui-dialog-learning)', () => {
+describe('E2E: Студент — «Моя учёба» (learning)', () => {
   let app: TestApp;
   let transport: TestBotTransport;
   let student: User;
@@ -269,77 +266,48 @@ describe.skip('E2E: Студент — «Моя учёба» (learning — тр�
     await app.cleanup();
   });
 
-  /** Находит кнопку в ответе по вхождению подстроки в текст. */
-  function findButton(
-    response: DialogResponse,
-    textContains: string,
-  ): { text: string; code: string } {
-    const btn = response.screen?.keyboard?.rows
-      .flat()
-      .find((b) => b.text.includes(textContains));
-    if (!btn) {
-      const all =
-        response.screen?.keyboard?.rows
-          .flat()
-          .map((b) => b.text)
-          .join(', ') ?? '(нет клавиатуры)';
-      throw new Error(`Кнопка «${textContains}» не найдена. Доступны: ${all}`);
-    }
-    return btn;
+  /** Открывает хаб студента: /start → «🎓 Моя учёба». */
+  async function openHub(): Promise<DialogResponse> {
+    await transport.handleStart(transport.makeBotContext(student.telegramId));
+    return transport.handleCallback(
+      transport.makeBotContext(student.telegramId, {
+        callbackData: pressedCode(transport, student.telegramId, 'Моя учёба'),
+      }),
+    );
   }
 
   test('студент: главное меню → Моя учёба → хаб', async () => {
-    // 1. Получаем главное меню студента
-    const menu = await transport.collectMainMenu(student);
-    const studyBtn = menu.find((i) => i.text.includes('Моя учёба'));
-    expect(studyBtn).toBeDefined();
+    const hubResp = await openHub();
+    expect(String(hubResp.screen?.text)).toContain('Моя учёба');
 
-    // 2. Нажимаем «🎓 Моя учёба»
-    const hubResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: (studyBtn as { action: string }).action,
-      }),
-    );
-    expect(hubResp.screen?.text).toContain('Моя учёба');
-
-    // 3. Проверяем кнопки хаба
     const btns = hubResp.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btns.some((t) => t.includes('Начать учёбу'))).toBe(true);
     expect(btns.some((t) => t.includes('Уроки'))).toBe(true);
     expect(btns.some((t) => t.includes('Мой прогресс'))).toBe(true);
+    expect(btns.some((t) => t.includes('Покинуть учёбу'))).toBe(true);
   });
 
   test('студент: хаб → Начать учёбу → просмотр шага → Выполнено', async () => {
-    // 1. Открываем хаб
-    const menu = await transport.collectMainMenu(student);
-    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
-      action: string;
-    };
-    const hubResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: studyBtn.action,
-      }),
-    );
+    const tgId = student.telegramId;
+    const hubResp = await openHub();
 
     // 2. Нажимаем «▶️ Начать учёбу»
-    const startBtn = findButton(hubResp, 'Начать учёбу');
     const stepResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: startBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Начать учёбу'),
       }),
     );
-    expect(stepResp.screen?.text).toContain('JS Core');
-    expect(stepResp.screen?.text).toContain('Шаг 1');
+    expect(String(stepResp.screen?.text)).toContain('JS Core');
+    expect(String(stepResp.screen?.text)).toContain('Шаг 1');
 
     // 3. Нажимаем «✅ Выполнено»
-    const doneBtn = findButton(stepResp, 'Выполнено');
     const completeResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: doneBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Выполнено'),
       }),
     );
     // После выполнения — либо следующий шаг, либо завершение урока
-    const text = completeResp.screen?.text ?? '';
+    const text = String(completeResp.screen?.text);
     expect(
       text.includes('Шаг 2') ||
         text.includes('завершён') ||
@@ -348,66 +316,46 @@ describe.skip('E2E: Студент — «Моя учёба» (learning — тр�
   });
 
   test('студент: хаб → Уроки → проект → урок → шаги', async () => {
-    // 1. Открываем хаб
-    const menu = await transport.collectMainMenu(student);
-    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
-      action: string;
-    };
-    const hubResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: studyBtn.action,
-      }),
-    );
+    const tgId = student.telegramId;
+    const hubResp = await openHub();
 
     // 2. Нажимаем «📂 Уроки»
-    const lessonsBtn = findButton(hubResp, 'Уроки');
     const projectsResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: lessonsBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Уроки'),
       }),
     );
-    expect(projectsResp.screen?.text).toContain('Введение');
+    expect(String(projectsResp.screen?.text)).toContain('Введение');
 
     // 3. Нажимаем проект «Введение»
-    const projectBtn = findButton(projectsResp, 'Введение');
     const lessonsListResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: projectBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Введение'),
       }),
     );
-    expect(lessonsListResp.screen?.text).toContain('Переменные и типы');
+    expect(String(lessonsListResp.screen?.text)).toContain('Переменные и типы');
 
     // 4. Нажимаем урок «Переменные и типы»
-    const lessonBtn = findButton(lessonsListResp, 'Переменные и типы');
     const stepsResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: lessonBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Переменные и типы'),
       }),
     );
-    expect(stepsResp.screen?.text).toContain('знакомство с переменными');
+    expect(String(stepsResp.screen?.text)).toContain('знакомство с переменными');
   });
 
   test('студент: хаб → Мой прогресс → детализация проектов и уроков', async () => {
-    // 1. Открываем хаб
-    const menu = await transport.collectMainMenu(student);
-    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
-      action: string;
-    };
-    const hubResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: studyBtn.action,
-      }),
-    );
+    const tgId = student.telegramId;
+    const hubResp = await openHub();
 
     // 2. Нажимаем «📊 Мой прогресс»
-    const progressBtn = findButton(hubResp, 'Мой прогресс');
     const progressResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: progressBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Мой прогресс'),
       }),
     );
 
-    const text = progressResp.screen?.text ?? '';
+    const text = String(progressResp.screen?.text);
     // Заголовок
     expect(text).toContain('Мой прогресс');
     // Общий прогресс
@@ -418,9 +366,6 @@ describe.skip('E2E: Студент — «Моя учёба» (learning — тр�
     expect(text).toContain('Переменные и типы');
     // Счётчик шагов
     expect(text).toContain('Всего шагов завершено');
-    // Кнопка «Назад к учёбе»
-    const backBtn = findButton(progressResp, 'Назад к учёбе');
-    expect(backBtn.code).toContain('hub:my-study');
     // Кнопка «Главное меню»
     const menuBtn = progressResp.screen?.keyboard?.rows
       .flat()
@@ -429,30 +374,21 @@ describe.skip('E2E: Студент — «Моя учёба» (learning — тр�
   });
 
   test('студент: хаб → Мой прогресс → назад к учёбе', async () => {
-    // 1. Открываем хаб → прогресс
-    const menu = await transport.collectMainMenu(student);
-    const studyBtn = menu.find((i) => i.text.includes('Моя учёба')) as {
-      action: string;
-    };
-    const hubResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: studyBtn.action,
-      }),
-    );
-    const progressBtn = findButton(hubResp, 'Мой прогресс');
+    const tgId = student.telegramId;
+    await openHub();
+
     const progressResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: progressBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Мой прогресс'),
       }),
     );
 
     // 2. «Назад к учёбе» → возврат в хаб
-    const backBtn = findButton(progressResp, 'Назад к учёбе');
     const backResp = await transport.handleCallback(
-      transport.makeBotContext(student.telegramId, {
-        callbackData: backBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Назад к учёбе'),
       }),
     );
-    expect(backResp.screen?.text).toContain('Моя учёба');
+    expect(String(backResp.screen?.text)).toContain('Моя учёба');
   });
 });
