@@ -1,5 +1,6 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { md, mdJoin } from '@u7-scl/core/shared';
 import type {
   BotSession,
@@ -10,7 +11,6 @@ import { eventSubscription } from '@u7-scl/core/ui';
 import type { ModulePlace } from '@u7-scl/course/domain';
 import type { StudentCompletedEvent } from '@u7-scl/stream/domain';
 import { UserPolicy } from '@u7-scl/user/domain';
-import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { buttons } from '../../shared/buttons';
 import { getStudent } from '../shared';
 
