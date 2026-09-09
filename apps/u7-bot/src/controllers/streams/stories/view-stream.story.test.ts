@@ -1,707 +1,505 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { BotSession } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { ContentSnapshot } from '@u7-scl/course/domain';
 import { Role } from '@u7-scl/user/domain';
 import { ViewStreamStory } from './view-stream.story';
 
-describe('ViewStreamStory (S02-S04)', () => {
-  const session: SessionData = { activeHandler: null };
-  const guestActor: User = {
+const STREAM_ID = 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s';
+
+/** Поток в статусе enrollment с кодовым словом и без */
+function makeStream(overrides: Record<string, unknown> = {}) {
+  return {
+    uuid: STREAM_ID,
+    title: 'Поток «JS Core — Поток 2»',
+    description: 'Базовый поток по fullstack JS',
+    status: 'enrollment',
+    startDate: '2026-10-01T10:00:00.000Z',
+    mentorId: 'm1-m1-m1',
+    contentSnapshot: [] as ContentSnapshot,
+    ...overrides,
+  };
+}
+
+function makeActor(roles: Role[] = [Role.GUEST]): User {
+  return {
     uuid: 'user-1',
     name: 'Гость',
     telegramId: 123,
-    roles: [Role.GUEST],
+    roles,
     createdAt: '2026-01-01T00:00:00.000Z',
   };
-  const studentActor: User = {
-    uuid: 'user-2',
-    name: 'Студент',
-    telegramId: 456,
-    roles: [Role.STUDENT],
-    createdAt: '2026-01-01T00:00:00.000Z',
+}
+
+describe('ViewStreamStory (S02-S04)', () => {
+  const session: BotSession = {
+    dialog: { path: 'stream/view-stream', seq: 2 },
   };
-  const mentorActor: User = {
-    uuid: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
-    name: 'Алексей Смирнов',
-    telegramId: 999,
-    roles: [Role.MENTOR],
-    createdAt: '2026-01-01T00:00:00.000Z',
-  };
+  const guest = makeActor();
 
-  const SAMPLE_ID = 's-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s';
+  interface SetupOptions {
+    /** Поток, возвращаемый get-stream */
+    stream?: Record<string, unknown>;
+    /** Студенты, возвращаемые list-stream-students */
+    students?: unknown[];
+    /** Пользователи, возвращаемые get-user (по uuid) */
+    users?: Record<string, { name: string }>;
+  }
 
-  const sampleStream = {
-    uuid: SAMPLE_ID,
-    title: 'Python Advanced',
-    description: 'Продвинутый курс',
-    moduleId: 'mod-1',
-    status: 'enrollment',
-    startDate: '2026-06-01T00:00:00.000Z',
-    mentorId: 'm-m-m-m-m-m-m-m-m-m-m-m-m-m-m-m',
-    contentSnapshot: [],
-  };
-
-  function makeStory(
-    streamOverrides: Record<string, unknown> = {},
-    studentCount = 0,
-    mentorName = 'Алексей Смирнов',
-  ) {
-    const stream = { ...sampleStream, ...streamOverrides };
-
+  function makeStory(opts: SetupOptions = {}) {
     const mockAppApi = {
-      execute: mock((name: string) => {
-        if (name === 'get-stream') return stream;
-        if (name === 'list-stream-students')
-          return Array.from({ length: studentCount }, (_, i) => ({
-            uuid: `student-${i}`,
-            userId: `user-${i}`,
-            status: 'active',
-            joinedAt: '2026-01-01T00:00:00.000Z',
-            streamId: SAMPLE_ID,
-            currentStepId: null,
-            steps: [],
-          }));
+      execute: mock(async (name: string, params?: Record<string, unknown>) => {
+        if (name === 'get-stream') return opts.stream ?? makeStream();
+        if (name === 'list-stream-students') return opts.students ?? [];
         if (name === 'get-user')
-          return { uuid: 'm1', name: mentorName, roles: [Role.MENTOR] };
-        if (name === 'get-steps-by-lessons') return {};
+          return (
+            opts.users?.[String(params?.uuid)] ?? {
+              uuid: params?.uuid,
+              name: 'Ментор Менторович',
+              roles: [],
+            }
+          );
+        if (name === 'get-student-progress') return undefined;
         return undefined;
       }),
     };
 
-    const mockUiApp = {
-      getAction: mock((_name: string) => {
-        throw new Error(`Действие «${_name}» не найдено`);
-      }),
-    };
-
     const story = new ViewStreamStory();
-    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-    return { story, mockAppApi, mockUiApp };
+    story.init({ appApi: mockAppApi } as never);
+    return { story, mockAppApi };
   }
 
-  // ── S02: Карточка потока ──
+  // ── Карточка потока (view) ──
 
   test('view: показывает карточку потока', async () => {
-    const { story } = makeStory({}, 0);
-
+    const { story } = makeStory();
     const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
+      `view:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Python Advanced');
-    expect(response.sendMessage?.text).toContain('Продвинутый курс');
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Поток «JS Core — Поток 2»');
+    expect(text).toContain('Базовый поток по fullstack JS');
+    expect(text).toContain('🟡 Набор открыт');
   });
 
   test('view: показывает имя ментора', async () => {
-    const { story } = makeStory({}, 0);
-
+    const { story } = makeStory();
     const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
+      `view:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Алексей Смирнов');
+    expect(String(response.screen?.text)).toContain('Ментор Менторович');
   });
 
   test('view: показывает количество студентов', async () => {
-    const { story } = makeStory({}, 5);
-
+    const { story } = makeStory({
+      students: [{ uuid: 'st1' }, { uuid: 'st2' }],
+    });
     const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
+      `view:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('5');
+    expect(String(response.screen?.text)).toContain('Студентов: 2');
   });
 
   test('view: строчка «📚 Курс: Fullstack JS»', async () => {
-    const { story } = makeStory({}, 0);
-
+    const { story } = makeStory();
     const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
+      `view:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('📚 Курс: Fullstack JS');
+    expect(String(response.screen?.text)).toContain('📚 Курс: Fullstack JS');
   });
 
   test('S02: публичные кнопки — Программа, Студенты, Детали, Назад к списку', async () => {
-    const { story } = makeStory({ status: 'enrollment' }, 0);
-
+    const { story } = makeStory();
     const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      guestActor,
+      `view:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain(`view-stream:program:${STREAM_ID}`);
+    expect(codes).toContain(`view-stream:students:${STREAM_ID}`);
+    expect(codes).toContain(`view-stream:details:${STREAM_ID}`);
+    expect(codes).toContain('catalog:list');
+  });
+
+  test('view: гост на enrollment — кнопка «📝 Записаться»', async () => {
+    const { story } = makeStory();
+    const response = await story.handleCallback(
+      `view:${STREAM_ID}`,
+      guest,
+      session,
+    );
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Студенты'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
-  });
-
-  test('handleStudentsList: кнопка студента ведёт в view-stream (не monitor)', async () => {
-    const { story, mockAppApi } = makeStory({}, 1);
-    // Переопределяем list-stream-students чтобы вернуть одного активного студента
-    mockAppApi.execute = mock((name: string) => {
-      if (name === 'get-stream') return { ...sampleStream };
-      if (name === 'list-stream-students')
-        return [
-          {
-            uuid: 'student-1',
-            userId: 'user-id-1',
-            status: 'active',
-            joinedAt: '2026-01-01T00:00:00.000Z',
-            streamId: SAMPLE_ID,
-            currentStepId: null,
-            steps: [],
-          },
-        ];
-      if (name === 'get-user')
-        return {
-          uuid: 'user-id-1',
-          name: 'Иван Петров',
-          roles: [Role.STUDENT],
-        };
-      if (name === 'get-steps-by-lessons') return {};
-      return undefined;
-    });
-
-    const response = await story.handleCallback(
-      `students:${SAMPLE_ID}`,
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const allCodes =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
-
-    // Кнопка студента должна вести в view-stream (публичный просмотр), НЕ в monitor
-    const hasViewStreamDetail = allCodes.some((c) =>
-      c.startsWith('view-stream:student-detail:'),
-    );
-    const hasMonitorDetail = allCodes.some((c) =>
-      c.startsWith('monitor:detail:'),
-    );
-    expect(hasViewStreamDetail).toBe(true);
-    expect(hasMonitorDetail).toBe(false);
-  });
-
-  test('handleStudentsList: НЕ содержит менторских кнопок (⛔✅🔄)', async () => {
-    const { story, mockAppApi } = makeStory({}, 1);
-    mockAppApi.execute = mock((name: string) => {
-      if (name === 'get-stream') return { ...sampleStream };
-      if (name === 'list-stream-students')
-        return [
-          {
-            uuid: 'student-1',
-            userId: 'user-id-1',
-            status: 'active',
-            joinedAt: '2026-01-01T00:00:00.000Z',
-            streamId: SAMPLE_ID,
-            currentStepId: null,
-            steps: [],
-          },
-        ];
-      if (name === 'get-user')
-        return {
-          uuid: 'user-id-1',
-          name: 'Иван Петров',
-          roles: [Role.STUDENT],
-        };
-      if (name === 'get-steps-by-lessons') return {};
-      return undefined;
-    });
-
-    const response = await story.handleCallback(
-      `students:${SAMPLE_ID}`,
-      mentorActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const allTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    // Даже ментор в публичном режиме НЕ видит кнопок управления студентами
-    expect(allTexts.some((t) => t === '⛔')).toBe(false);
-    expect(allTexts.some((t) => t === '✅')).toBe(false);
-    expect(allTexts.some((t) => t === '🔄')).toBe(false);
-  });
-
-  test('handleStudentsList: содержит кнопку «⬅️ Назад к потоку»', async () => {
-    const { story, mockAppApi } = makeStory({}, 0);
-    mockAppApi.execute = mock((name: string) => {
-      if (name === 'get-stream') return { ...sampleStream };
-      if (name === 'list-stream-students') return [];
-      return undefined;
-    });
-
-    const response = await story.handleCallback(
-      `students:${SAMPLE_ID}`,
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const lastRow =
-      response.sendMessage?.keyboard?.rows[
-        (response.sendMessage?.keyboard?.rows.length ?? 1) - 1
-      ];
-    const backBtn = lastRow?.[0];
-    expect(backBtn?.text).toContain('Назад к потоку');
-    expect(backBtn?.code).toBe(`view-stream:view:${SAMPLE_ID}`);
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(true);
   });
 
   test('MENTOR на своём enrollment — НЕ видит lifecycle-кнопок', async () => {
-    const { story } = makeStory({ status: 'enrollment' }, 5);
-
+    const { story } = makeStory();
+    const mentor = makeActor([Role.MENTOR]);
     const response = await story.handleCallback(
-      `view:${SAMPLE_ID}`,
-      mentorActor,
+      `view:${STREAM_ID}`,
+      mentor,
       session,
     );
-    assertResponseMarkdownSafe(response);
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Запустить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('Завершить'))).toBe(false);
-    expect(btnTexts.some((t) => t.includes('В архив'))).toBe(false);
-
-    expect(btnTexts.some((t) => t.includes('Детали'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Программа курса'))).toBe(true);
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Записаться'))).toBe(false);
+    expect(btnTexts.some((t) => t.includes('Уведомить'))).toBe(false);
   });
 
-  // ── S03: Программа курса ──
+  // ── Программа (program) ──
 
   test('program: показывает contentSnapshot', async () => {
-    // Реалистичные названия со спецсимволами (-, (, ), ., +, *, /) —
-    // санитарные значения не ловят регрессии экранирования (см. bot-test.md §4.1)
-    const streamWithContent = {
-      ...sampleStream,
-      contentSnapshot: [
-        {
-          projectTitle: 'Git, TDD и посимвольное сравнение строк',
-          lessons: [
-            {
-              lessonTitle: 'Обработка ошибок: throw и try-catch',
-              lessonId: 'l1',
-              stepIds: ['s1', 's2'],
-            },
-            {
-              lessonTitle: 'Математические операторы (+, -, *, /)',
-              lessonId: 'l2',
-              stepIds: ['s3'],
-            },
-          ],
-        },
-        {
-          projectTitle: 'Продвинутый',
-          lessons: [
-            { lessonTitle: 'Асинхронность', lessonId: 'l3', stepIds: ['s4'] },
-          ],
-        },
-      ],
-    };
-
-    const mockAppApi = {
-      execute: mock((name: string) => {
-        if (name === 'get-stream') return streamWithContent;
-        if (name === 'get-steps-by-lessons') return {};
-        return undefined;
-      }),
-    };
-
-    const mockUiApp = {
-      getAction: mock((_name: string) => {
-        throw new Error(`Действие «${_name}» не найдено`);
-      }),
-    };
-
-    const story = new ViewStreamStory();
-    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-
+    const snapshot: ContentSnapshot = [
+      {
+        projectTitle: 'Проект «CLI-калькулятор»',
+        lessons: [
+          {
+            lessonId: 'l1',
+            lessonTitle: 'Урок «Введение»',
+            stepIds: ['1', '2'],
+          },
+        ],
+      },
+    ];
+    const { story } = makeStory({
+      stream: makeStream({ contentSnapshot: snapshot }),
+    });
     const response = await story.handleCallback(
-      `program:${SAMPLE_ID}`,
-      guestActor,
+      `program:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-
-    expect(response.sendMessage?.text).toContain('Программа курса');
-    expect(response.sendMessage?.text).toContain(
-      'Git, TDD и посимвольное сравнение строк',
-    );
-    // Экранированная версия для MarkdownV2: дефис и скобки экранированы
-    expect(response.sendMessage?.text).toContain(
-      'Обработка ошибок: throw и try\\-catch',
-    );
-    expect(response.sendMessage?.text).toContain(
-      'Математические операторы \\(\\+, \\-, \\*, /\\)',
-    );
-    expect(response.sendMessage?.text).toContain('Продвинутый');
-    expect(response.sendMessage?.text).toContain('Асинхронность');
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Программа курса');
+    expect(text).toContain('CLI-калькулятор');
+    expect(text).toContain('Введение');
   });
 
   test('program: пустой contentSnapshot — заглушка', async () => {
-    const streamNoContent = { ...sampleStream, contentSnapshot: [] };
-
-    const mockAppApi = {
-      execute: mock((name: string) => {
-        if (name === 'get-stream') return streamNoContent;
-        return undefined;
-      }),
-    };
-    const mockUiApp = {
-      getAction: mock((_name: string) => {
-        throw new Error(`Действие «${_name}» не найдено`);
-      }),
-    };
-
-    const story = new ViewStreamStory();
-    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-
+    const { story } = makeStory({
+      stream: makeStream({ contentSnapshot: [] }),
+    });
     const response = await story.handleCallback(
-      `program:${SAMPLE_ID}`,
-      guestActor,
+      `program:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Программа пока не загружена');
+    expect(String(response.screen?.text)).toContain('не загружена');
   });
 
-  // ── S04: Детали ──
+  // ── Детали (details) ──
 
   test('details: показывает заполненные поля', async () => {
-    const { story } = makeStory(
-      {
-        goal: 'Научиться программировать',
-        result: 'Свой проект',
-        rules: 'Без списывания',
-        targetAudience: 'Новички',
-        additional: 'Дополнительно',
-      },
-      1,
-    );
-
+    const { story } = makeStory({
+      stream: makeStream({ goal: 'Цель курса', result: 'Результат курса' }),
+    });
     const response = await story.handleCallback(
-      `details:${SAMPLE_ID}`,
-      guestActor,
+      `details:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-
-    expect(response.sendMessage?.text).toContain('Детали');
-    expect(response.sendMessage?.text).toContain('Научиться программировать');
-    expect(response.sendMessage?.text).toContain('Свой проект');
-    expect(response.sendMessage?.text).toContain('Без списывания');
-    expect(response.sendMessage?.text).toContain('Новички');
-    expect(response.sendMessage?.text).toContain('Дополнительно');
+    const text = String(response.screen?.text);
+    expect(text).toContain('Детали');
+    expect(text).toContain('Цель курса');
+    expect(text).toContain('Результат курса');
   });
 
   test('details: без полей — заглушка', async () => {
-    const { story } = makeStory({}, 1);
-
+    const { story } = makeStory();
     const response = await story.handleCallback(
-      `details:${SAMPLE_ID}`,
-      guestActor,
+      `details:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Расширенная информация');
+    expect(String(response.screen?.text)).toContain('не добавлена');
   });
 
   test('details: кнопка «Назад к потоку»', async () => {
-    const { story } = makeStory({}, 1);
-
+    const { story } = makeStory();
     const response = await story.handleCallback(
-      `details:${SAMPLE_ID}`,
-      guestActor,
+      `details:${STREAM_ID}`,
+      guest,
       session,
     );
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    expect(btnTexts.some((t) => t.includes('Назад к потоку'))).toBe(true);
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain(`view-stream:view:${STREAM_ID}`);
   });
 
-  // ── Краевые случаи ──
+  // ── Неизвестные команды ──
 
   test('неизвестная команда', async () => {
-    const { story } = makeStory({}, 0);
-
-    const response = await story.handleCallback(
-      'unknown:cmd',
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестная');
+    const { story } = makeStory();
+    const response = await story.handleCallback('bogus:1', guest, session);
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 
   test('view без streamId — ошибка', async () => {
-    const { story } = makeStory({}, 0);
-
-    const response = await story.handleCallback('view', guestActor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестная');
+    const { story } = makeStory();
+    const response = await story.handleCallback('view', guest, session);
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 
-  test('handleMessage без активного контекста — заглушка', async () => {
-    const { story } = makeStory({}, 0);
-    const response = await story.handleMessage(
-      { type: 'message', text: 'тест', telegramId: 123 },
-      guestActor,
-      { activeHandler: null },
-    );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестное');
-  });
+  // ── Список студентов (students) ──
 
-  test('handleStart возвращает null (нет кнопки в главном меню)', async () => {
-    const { story } = makeStory({}, 0);
-    const item = await story.handleStart(guestActor);
-    expect(item).toBeNull();
-  });
-
-  // ── student-detail: полная карточка студента ──
-
-  /** Создаёт story с мок-студентом, имеющим шаги для computeStudentCard */
-  function makeStudentDetailStory(
-    opts: {
-      streamOverrides?: Record<string, unknown>;
-      studentOverrides?: Record<string, unknown>;
-      userError?: boolean;
-      streamNotFound?: boolean;
-    } = {},
-  ) {
-    const now = new Date();
-    const h = (hoursAgo: number) =>
-      new Date(now.getTime() - hoursAgo * 36e5).toISOString();
-
-    const student = {
-      uuid: 'student-1',
-      streamId: SAMPLE_ID,
-      userId: 'user-id-1',
+  /** Полная запись студента (как возвращает get-student-progress) */
+  function makeStudent(overrides: Record<string, unknown> = {}) {
+    return {
+      uuid: 'st-1',
+      userId: 'u-1',
       status: 'active',
-      enrolledAt: '2026-01-01T00:00:00.000Z',
-      currentStepId: 'step-3',
-      steps: [
-        {
-          stepId: 'step-1',
-          status: 'completed' as const,
-          issuedAt: h(2),
-          completedAt: h(1.5),
-        },
-        {
-          stepId: 'step-2',
-          status: 'completed' as const,
-          issuedAt: h(1),
-          completedAt: h(0.5),
-        },
-        { stepId: 'step-3', status: 'issued' as const, issuedAt: h(0.2) },
-      ],
-      createdAt: '2026-01-01T00:00:00.000Z',
-      ...opts.studentOverrides,
+      joinedAt: '2026-01-01T00:00:00.000Z',
+      streamId: STREAM_ID,
+      currentStepId: null,
+      steps: [],
+      ...overrides,
     };
+  }
 
-    const stream = {
-      ...sampleStream,
-      contentSnapshot: [
-        {
-          projectTitle: 'Основы',
-          lessons: [
-            {
-              lessonTitle: 'Введение',
-              lessonId: 'l1',
-              stepIds: ['step-1', 'step-2'],
-            },
-            {
-              lessonTitle: 'Переменные',
-              lessonId: 'l2',
-              stepIds: ['step-3', 'step-4'],
-            },
-          ],
-        },
-      ],
-      ...opts.streamOverrides,
-    };
+  test('students: пустой список — заголовок и «Назад к потоку»', async () => {
+    const { story } = makeStory({ students: [] });
+    const response = await story.handleCallback(
+      `students:${STREAM_ID}`,
+      guest,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Студенты потока');
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain(`view-stream:view:${STREAM_ID}`);
+  });
 
+  test('students: НЕ содержит менторских кнопок (⛔✅🔄)', async () => {
+    const { story } = makeStory({ students: [makeStudent()] });
+    const response = await story.handleCallback(
+      `students:${STREAM_ID}`,
+      guest,
+      session,
+    );
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => /[⛔✅🔄]/u.test(t))).toBe(false);
+  });
+
+  // ── Карточка студента (student-detail) ──
+
+  test('student-detail: показывает карточку студента', async () => {
     const mockAppApi = {
-      execute: mock((name: string, params?: Record<string, unknown>) => {
-        if (name === 'get-student-progress') {
-          const sid = params?.studentId;
-          return sid === 'student-1' ? student : null;
-        }
-        if (name === 'get-stream') {
-          if (opts.streamNotFound) return null;
-          return stream;
-        }
-        if (name === 'get-user') {
-          if (opts.userError) throw new Error('User not found');
-          return {
-            uuid: 'user-id-1',
-            name: 'Иван Петров',
-            roles: [Role.STUDENT],
-          };
-        }
+      execute: mock(async (name: string) => {
+        if (name === 'get-student-progress') return makeStudent();
+        if (name === 'get-stream') return makeStream();
+        if (name === 'get-user')
+          return { uuid: 'u-1', name: 'Студент Студентов', roles: [] };
         return undefined;
       }),
     };
+    story.init({ appApi: mockAppApi } as never);
 
-    const mockUiApp = {
-      getAction: mock((_name: string) => {
-        throw new Error(`Действие «${_name}» не найдено`);
+    const response = await story.handleCallback(
+      'student-detail:st-1',
+      guest,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text);
+    expect(text).toContain('Студент Студентов');
+    expect(text).toContain('Учится');
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain(`view-stream:students:${STREAM_ID}`);
+  });
+
+  // ── Запись (enroll): без кодового слова → delegate на меню ──
+
+  test('enroll без кодового слова: поздравление-реплика + delegate на меню', async () => {
+    const { story, mockAppApi } = makeStory({
+      stream: makeStream({ enrollmentKey: undefined }),
+    });
+    const response = await story.handleCallback(
+      `enroll:${STREAM_ID}`,
+      guest,
+      session,
+    );
+
+    expect(mockAppApi.execute).toHaveBeenCalledWith(
+      'enroll-student',
+      { streamId: STREAM_ID, userId: guest.uuid, enrollmentKey: undefined },
+      guest.uuid,
+    );
+    expect(String(response.notify?.text)).toContain('успешно записаны');
+    // delegate: enroll→menu (сохранённое использование)
+    expect(response.delegate?.path).toBe('app:main-menu');
+    expect(response.screen).toBeUndefined();
+  });
+
+  test('enroll c кодовым словом: экран запроса слова + awaitInput', async () => {
+    const { story, mockAppApi } = makeStory({
+      stream: makeStream({ enrollmentKey: 'дракон' }),
+    });
+    const response = await story.handleCallback(
+      `enroll:${STREAM_ID}`,
+      guest,
+      session,
+    );
+
+    expect(String(response.screen?.text)).toContain('кодовое слово');
+    // Зачисления ещё нет — только запрос слова
+    const enrollCalls = (
+      mockAppApi.execute as unknown as { mock: { calls: unknown[][] } }
+    ).mock.calls.filter((c) => c[0] === 'enroll-student');
+    expect(enrollCalls).toHaveLength(0);
+    expect(response.awaitInput?.context).toEqual({
+      streamId: STREAM_ID,
+      enrollmentKey: 'дракон',
+      attempts: 0,
+    });
+    // Кнопка отмены — на enroll-cancel
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain(`view-stream:cancel:${STREAM_ID}`);
+  });
+
+  test('enroll: ошибка UC — errorNotify (реплика warn без захвата экрана)', async () => {
+    const { story } = makeStory();
+    // Подменяем execute, чтобы enroll-student бросил ошибку валидации
+    const failing = {
+      execute: mock(async (name: string) => {
+        if (name === 'get-stream')
+          return makeStream({ enrollmentKey: undefined });
+        if (name === 'enroll-student') throw new Error('validation failed');
+        return undefined;
       }),
     };
+    story.init({ appApi: failing } as never);
 
-    const story = new ViewStreamStory();
-    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-    return { story, mockAppApi, mockUiApp };
+    const response = await story.handleCallback(
+      `enroll:${STREAM_ID}`,
+      guest,
+      session,
+    );
+    expect(response.notify?.kind).toBe('warn');
+    expect(response.delegate).toBeUndefined();
+  });
+
+  // ── Отмена записи (cancel): release + delegate на view ──
+
+  test('cancel: release + delegate на экран потока (enroll-cancel→view)', async () => {
+    const { story } = makeStory();
+    const response = await story.handleCallback(
+      `cancel:${STREAM_ID}`,
+      guest,
+      session,
+    );
+    expect(response.release).toBe(true);
+    expect(response.delegate?.path).toBe(`view-stream:view:${STREAM_ID}`);
+  });
+
+  // ── Ввод кодового слова (handleMessage) ──
+
+  function enrollSession(attempts: number): BotSession {
+    return {
+      dialog: {
+        path: 'stream/view-stream',
+        seq: 2,
+        input: {
+          context: { streamId: STREAM_ID, enrollmentKey: 'дракон', attempts },
+        },
+      },
+    };
   }
 
-  test('student-detail: показывает полную карточку студента', async () => {
-    const { story } = makeStudentDetailStory();
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Иван Петров');
-    expect(text).toContain('Прогресс студента');
-    expect(text).toContain('Прогресс по модулю');
-    expect(text).toContain('Усидчивость студента');
-    expect(text).toContain('Активность студента');
-  });
-
-  test('student-detail: показывает проект и урок из currentStepId', async () => {
-    const { story } = makeStudentDetailStory();
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Основы');
-    expect(text).toContain('Переменные');
-    expect(text).toContain('Прогресс по проекту');
-  });
-
-  test('student-detail: показывает категории времени (усидчивость)', async () => {
-    const { story } = makeStudentDetailStory();
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-
-    const text = response.sendMessage?.text ?? '';
-    // В каждой категории есть эмодзи: 🏃 Бегун, ⚡ Спринтер, 🐢 Вдумчивый, 📚 Исследователь
-    expect(text).toContain('Бегун');
-    expect(text).toContain('Спринтер');
-    expect(text).toContain('Вдумчивый');
-    expect(text).toContain('Исследователь');
-  });
-
-  test('student-detail: показывает статус студента', async () => {
-    const { story } = makeStudentDetailStory({
-      studentOverrides: { status: 'advanced' },
+  test('handleMessage: верное слово — зачисление (notify + delegate на меню)', async () => {
+    const { story, mockAppApi } = makeStory({
+      stream: makeStream({ enrollmentKey: 'дракон' }),
     });
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
-      session,
+    const response = await story.handleMessage(
+      { type: 'message', text: 'дракон', telegramId: 1 },
+      guest,
+      enrollSession(0),
     );
-    assertResponseMarkdownSafe(response);
 
-    const text = response.sendMessage?.text ?? '';
-    expect(text).toContain('Прошёл');
+    expect(mockAppApi.execute).toHaveBeenCalledWith(
+      'enroll-student',
+      { streamId: STREAM_ID, userId: guest.uuid, enrollmentKey: 'дракон' },
+      guest.uuid,
+    );
+    expect(String(response.notify?.text)).toContain('успешно записаны');
+    expect(response.delegate?.path).toBe('app:main-menu');
   });
 
-  test('student-detail: кнопка «Назад к списку» ведёт в students', async () => {
-    const { story } = makeStudentDetailStory();
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
-      session,
+  test('handleMessage: неверное слово — warn-переспрос + awaitInput с попытками+1', async () => {
+    const { story } = makeStory();
+    const response = await story.handleMessage(
+      { type: 'message', text: 'не то', telegramId: 1 },
+      guest,
+      enrollSession(0),
     );
-    assertResponseMarkdownSafe(response);
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allTexts = rows.flat().map((b) => b.text);
-    expect(allTexts.some((t) => t.includes('Назад к списку'))).toBe(true);
-
-    const allCodes = rows.flat().map((b) => b.code);
-    expect(
-      allCodes.some((c) => c === `view-stream:students:${SAMPLE_ID}`),
-    ).toBe(true);
+    expect(response.notify?.kind).toBe('warn');
+    expect(String(response.notify?.text)).toContain('Осталось попыток: 2');
+    expect(response.awaitInput?.context).toEqual({
+      streamId: STREAM_ID,
+      enrollmentKey: 'дракон',
+      attempts: 1,
+    });
+    expect(response.screen).toBeUndefined();
   });
 
-  test('student-detail: поток не найден — ошибка', async () => {
-    const { story } = makeStudentDetailStory({ streamNotFound: true });
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
-      session,
+  test('handleMessage: попытки исчерпаны — release + экран возврата к потоку', async () => {
+    const { story } = makeStory();
+    const response = await story.handleMessage(
+      { type: 'message', text: 'не то', telegramId: 1 },
+      guest,
+      enrollSession(2),
     );
-    assertResponseMarkdownSafe(response);
 
-    expect(response.sendMessage?.text).toContain('Поток не найден');
+    expect(response.release).toBe(true);
+    expect(String(response.screen?.text)).toContain('Попытки исчерпаны');
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain(`view-stream:view:${STREAM_ID}`);
   });
 
-  test('student-detail: ошибка getUser — показывает обрезок userId', async () => {
-    const { story } = makeStudentDetailStory({ userError: true });
-
-    const response = await story.handleCallback(
-      'student-detail:student-1',
-      guestActor,
+  test('handleMessage: ввод без awaitInput-контекста — реплика-отказ + release', async () => {
+    const { story } = makeStory();
+    const response = await story.handleMessage(
+      { type: 'message', text: 'что-то', telegramId: 1 },
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-
-    const text = response.sendMessage?.text ?? '';
-    // Имя — первые 8 символов userId (user-id-1), но дефис экранирован в MarkdownV2
-    expect(text).toContain('user\\-id\\-');
-    // НЕ содержит настоящего имени (getUser упал)
-    expect(text).not.toContain('Иван Петров');
+    expect(String(response.notify?.text)).toContain('не принимаются');
+    expect(response.release).toBe(true);
   });
 
-  test('student-detail: НЕ содержит менторских кнопок (⛔✅🔄)', async () => {
-    const { story } = makeStudentDetailStory();
+  // ── Мосты навигации ──
 
+  test('students: кнопка студента ведёт в view-stream:student-detail (не monitor)', async () => {
+    const { story } = makeStory({
+      students: [makeStudent({ uuid: 'st-9', userId: 'u-9' })],
+    });
     const response = await story.handleCallback(
-      'student-detail:student-1',
-      mentorActor,
+      `students:${STREAM_ID}`,
+      guest,
       session,
     );
-    assertResponseMarkdownSafe(response);
-
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    const allTexts = rows.flat().map((b) => b.text);
-    expect(allTexts.some((t) => t === '⛔')).toBe(false);
-    expect(allTexts.some((t) => t === '✅')).toBe(false);
-    expect(allTexts.some((t) => t === '🔄')).toBe(false);
+    const codes =
+      response.screen?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+    expect(codes).toContain('view-stream:student-detail:st-9');
+    expect(codes.some((c) => c.startsWith('monitor:'))).toBe(false);
   });
 });

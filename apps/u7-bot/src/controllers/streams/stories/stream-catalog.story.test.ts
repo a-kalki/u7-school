@@ -1,12 +1,12 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { BotSession } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { CatalogStory } from './stream-catalog.story';
 
 describe('CatalogStory (S01)', () => {
-  const session: SessionData = { activeHandler: null };
+  const session: BotSession = { dialog: { path: 'stream/catalog', seq: 1 } };
   const guestActor: User = {
     uuid: 'user-1',
     name: 'Гость',
@@ -24,36 +24,24 @@ describe('CatalogStory (S01)', () => {
       }),
     };
 
-    const mockUiApp = {
-      getAction: mock((name: string) => {
-        if (name === 'mainMenu') {
-          return () => ({ text: '↩️ Главное меню', code: 'app:main-menu' });
-        }
-        throw new Error(`Действие «${name}» не найдено`);
-      }),
-    };
-
     const story = new CatalogStory();
-    story.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-    return { story, mockAppApi, mockUiApp };
+    story.init({ appApi: mockAppApi } as never);
+    return { story, mockAppApi };
   }
 
-  test('handleStart возвращает кнопку «📚 Потоки курсов»', async () => {
+  test('menuButtons возвращает кнопку «📚 Потоки курсов» (приоритет 15)', () => {
     const { story } = makeStory([]);
-    const item = await story.handleStart(guestActor);
-    expect(item?.kind).toBe('callback');
-    expect(item?.text).toContain('Потоки курсов');
-    expect(item?.priority).toBe(15);
-    if (item?.kind === 'callback') {
-      expect(item.action).toBe('catalog:list');
+    const buttons = story.menuButtons(guestActor);
+    expect(buttons).toHaveLength(1);
+    const button = buttons[0];
+    expect(button?.kind).toBe('callback');
+    if (button?.kind === 'callback') {
+      expect(button.text).toContain('Потоки курсов');
+      expect(button.action).toBe('catalog:list');
+      expect(button.priority).toBe(15);
     }
-  });
-
-  test('handleStart содержит описание для help', async () => {
-    const { story } = makeStory([]);
-    const item = await story.handleStart(guestActor);
-    expect(item?.description).toContain('Потоки курсов');
-    expect(item?.description).toContain('каталога');
+    expect(button?.description).toContain('Потоки курсов');
+    expect(button?.description).toContain('каталога');
   });
 
   test('list: показывает enrollment и active потоки', async () => {
@@ -71,12 +59,21 @@ describe('CatalogStory (S01)', () => {
     ]);
 
     const response = await story.handleCallback('list', guestActor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Потоки курсов');
-    const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Потоки курсов');
+    const rows = response.screen?.keyboard?.rows ?? [];
+    const btnTexts = rows.flat().map((b) => b.text);
     expect(btnTexts.some((t) => t.includes('Поток Набора'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Активный Поток'))).toBe(true);
+
+    // Кнопки потока — мосты в view-stream (кросс-стори колбэк)
+    const btnCodes = rows.flat().map((b) => b.code);
+    expect(btnCodes).toContain(
+      'view-stream:view:e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
+    );
+    expect(btnCodes).toContain(
+      'view-stream:view:a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
+    );
   });
 
   test('list: скрывает completed и archived по умолчанию', async () => {
@@ -104,9 +101,9 @@ describe('CatalogStory (S01)', () => {
     ]);
 
     const response = await story.handleCallback('list', guestActor, session);
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
     expect(btnTexts.some((t) => t.includes('Поток Набора'))).toBe(true);
     expect(btnTexts.some((t) => t.includes('Активный Поток'))).toBe(true);
@@ -123,14 +120,14 @@ describe('CatalogStory (S01)', () => {
         status: 'enrollment',
       },
       {
-        uuid: 'a-a-a-a-a-a-a-a-a-a-a-a-a-a-a-a',
-        title: 'Активный Поток',
-        status: 'active',
-      },
-      {
         uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
         title: 'Завершённый',
         status: 'completed',
+      },
+      {
+        uuid: 'r-r-r-r-r-r-r-r-r-r-r-r-r-r-r-r',
+        title: 'Архивный',
+        status: 'archived',
       },
     ]);
 
@@ -139,25 +136,49 @@ describe('CatalogStory (S01)', () => {
       guestActor,
       session,
     );
-    assertResponseMarkdownSafe(response);
+    assertDialogResponseMarkdownSafe(response);
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-
-    expect(btnTexts.some((t) => t.includes('Поток Набора'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Активный Поток'))).toBe(true);
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
-    expect(btnTexts.some((t) => t.includes('Только активные'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(false);
   });
 
-  test('list: пустой список — сообщение «Нет доступных потоков»', async () => {
+  test('list-with-all: показывает и completed, и archived', async () => {
+    const { story } = makeStory([
+      {
+        uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
+        title: 'Завершённый',
+        status: 'completed',
+      },
+      {
+        uuid: 'r-r-r-r-r-r-r-r-r-r-r-r-r-r-r-r',
+        title: 'Архивный',
+        status: 'archived',
+      },
+    ]);
+
+    const response = await story.handleCallback(
+      'list-with-all',
+      guestActor,
+      session,
+    );
+    assertDialogResponseMarkdownSafe(response);
+    const btnTexts =
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+    expect(btnTexts.some((t) => t.includes('Завершённый'))).toBe(true);
+    expect(btnTexts.some((t) => t.includes('Архивный'))).toBe(true);
+  });
+
+  test('list: нет потоков и нет скрытых — заглушка без клавиатуры', async () => {
     const { story } = makeStory([]);
 
     const response = await story.handleCallback('list', guestActor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Нет доступных потоков');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Нет доступных потоков');
+    expect(response.screen?.keyboard).toBeUndefined();
   });
 
-  test('list: без активных, с completed — кнопка «Вкл. завершённые»', async () => {
+  test('list: нет активных, но есть завершённые — заглушка с переключателем', async () => {
     const { story } = makeStory([
       {
         uuid: 'c-c-c-c-c-c-c-c-c-c-c-c-c-c-c-c',
@@ -167,14 +188,16 @@ describe('CatalogStory (S01)', () => {
     ]);
 
     const response = await story.handleCallback('list', guestActor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Нет активных потоков');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Нет активных потоков');
     const btnTexts =
-      response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(btnTexts.some((t) => t.includes('Вкл. завершённые'))).toBe(true);
+    // Кнопка выхода в меню
+    expect(btnTexts.some((t) => t.includes('Главное меню'))).toBe(true);
   });
 
-  test('list: легенда цветных кружков в тексте', async () => {
+  test('кнопка «↩️ Главное меню» — последняя строка каталога', async () => {
     const { story } = makeStory([
       {
         uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
@@ -184,51 +207,46 @@ describe('CatalogStory (S01)', () => {
     ]);
 
     const response = await story.handleCallback('list', guestActor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('🟡');
-    expect(response.sendMessage?.text).toContain('🔵');
-    expect(response.sendMessage?.text).toContain('🟢');
-    expect(response.sendMessage?.text).toContain('⚫');
+    const rows = response.screen?.keyboard?.rows ?? [];
+    expect(rows.length).toBeGreaterThan(0);
+    const lastRow = rows[rows.length - 1];
+    expect(lastRow?.[0]?.code).toBe('app:main-menu');
   });
 
-  test('list: кнопка «↩️ Главное меню» последней строкой', async () => {
+  test('неизвестная команда каталога — экран «Неизвестная команда»', async () => {
+    const { story } = makeStory([]);
+
+    const response = await story.handleCallback('bogus', guestActor, session);
+    expect(String(response.screen?.text)).toContain('Неизвестная');
+  });
+
+  test('handleMessage — дефолт ядра (ввод без ожидания до стори не доходит)', async () => {
+    const { story } = makeStory([]);
+    const msg = await story.handleMessage(
+      { type: 'message', text: 'x', telegramId: 1 },
+      guestActor,
+      session,
+    );
+    expect(String(msg.notify?.text)).toContain('не принимаются');
+    expect(msg.release).toBe(true);
+  });
+
+  test('тексты экрана: заголовок и легенда статусов', async () => {
     const { story } = makeStory([
       {
         uuid: 'e-e-e-e-e-e-e-e-e-e-e-e-e-e-e-e',
-        title: 'Поток Набора',
+        title: 'Поток «JS_Core» (набор!)',
         status: 'enrollment',
       },
     ]);
 
     const response = await story.handleCallback('list', guestActor, session);
-    assertResponseMarkdownSafe(response);
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
-    expect(rows.length).toBeGreaterThanOrEqual(1);
-    const lastRow = rows[rows.length - 1]!;
-    expect(lastRow).toHaveLength(1);
-    expect(lastRow[0]!.text).toBe('↩️ Главное меню');
-    expect(lastRow[0]!.code).toBe('app:main-menu');
-  });
-
-  test('handleMessage возвращает заглушку', async () => {
-    const { story } = makeStory([]);
-    const response = await story.handleMessage(
-      { type: 'message', text: 'что-то', telegramId: 123 },
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестное');
-  });
-
-  test('list: неизвестная команда каталога', async () => {
-    const { story } = makeStory([]);
-    const response = await story.handleCallback(
-      'unknown-cmd',
-      guestActor,
-      session,
-    );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестная');
+    const text = String(response.screen?.text);
+    expect(text).toContain('📚 *Потоки курсов*');
+    expect(text).toContain('🟡 — идёт набор');
+    expect(text).toContain('⚫ — в архиве');
+    // Текст кнопки — plain (без экранирования по контракту)
+    const btn = response.screen?.keyboard?.rows[0]?.[0];
+    expect(btn?.text).toBe('🟡 Поток «JS_Core» (набор!)');
   });
 });

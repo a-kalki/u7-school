@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
+import type { BotSession } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { StreamsController } from './controller';
 
@@ -29,15 +30,6 @@ describe('StreamsController (реестр)', () => {
     }),
   } as never;
 
-  const mockUiApp = {
-    getAction: mock(() => () => ({
-      text: '↩️ Главное меню',
-      code: 'app:main-menu',
-    })),
-    collectAllMenuItems: mock(() => []),
-    collectAllHelpDescriptions: mock(() => []),
-  } as never;
-
   const makeController = () => new StreamsController();
 
   const guestActor: User = {
@@ -46,6 +38,10 @@ describe('StreamsController (реестр)', () => {
     telegramId: 123,
     roles: [Role.GUEST],
     createdAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  const session: BotSession = {
+    dialog: { path: 'stream/catalog', seq: 1 },
   };
 
   test('имя контроллера — stream', () => {
@@ -59,55 +55,54 @@ describe('StreamsController (реестр)', () => {
     expect(stories.length).toBe(3);
   });
 
-  test('handleStart агрегирует кнопки от stories', async () => {
+  test('menuButtons агрегирует кнопки от stories с префиксом контроллера', () => {
     const controller = makeController();
-    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
+    controller.init({ appApi: mockAppApi } as never);
 
-    const items = await controller.handleStart(guestActor);
+    const items = controller.menuButtons(guestActor);
 
     expect(items.length).toBeGreaterThanOrEqual(1);
     const texts = items.map((i) => i.text);
     expect(texts).toContain('📚 Потоки курсов');
+    const callback = items.find((i) => i.kind === 'callback');
+    if (callback?.kind === 'callback') {
+      expect(callback.action).toBe('stream:catalog:list');
+    }
   });
 
   test('handleCallback форвардит catalog:list', async () => {
     const controller = makeController();
-    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-
-    const session = { activeHandler: null };
+    controller.init({ appApi: mockAppApi } as never);
 
     const response = await controller.handleCallback(
       'catalog:list',
       guestActor,
       session,
     );
-    expect(response.sendMessage?.text).toBeDefined();
-    expect(response.sendMessage?.text).toContain('Потоки');
+    expect(response.screen?.text).toBeDefined();
+    expect(String(response.screen?.text)).toContain('Потоки');
   });
 
   test('handleCallback форвардит view-stream:view', async () => {
     const controller = makeController();
-    controller.init({ appApi: mockAppApi, uiApp: mockUiApp } as never);
-
-    const session = { activeHandler: null };
+    controller.init({ appApi: mockAppApi } as never);
 
     const response = await controller.handleCallback(
       'view-stream:view:s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-s',
       guestActor,
       session,
     );
-    expect(response.sendMessage?.text).toBeDefined();
+    expect(response.screen?.text).toBeDefined();
   });
 
   test('handleCallback — неизвестный префикс', async () => {
     const controller = makeController();
-    const session = { activeHandler: null };
 
     const response = await controller.handleCallback(
       'unknown:action',
       guestActor,
       session,
     );
-    expect(response.sendMessage?.text).toContain('Неизвестная');
+    expect(String(response.screen?.text)).toContain('Неизвестная');
   });
 });

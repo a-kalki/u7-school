@@ -1,13 +1,15 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
-import type { SessionData } from '@u7-scl/core/ui';
-import { assertResponseMarkdownSafe } from '@u7-scl/core/ui';
+import type { BotSession } from '@u7-scl/core/ui';
+import { assertDialogResponseMarkdownSafe } from '@u7-scl/core/ui';
 import { Role } from '@u7-scl/user/domain';
 import { Routes } from '../../shared/routes';
 import { CourseCatalogStory } from './course-catalog.story';
 
 describe('CourseCatalogStory', () => {
-  const session: SessionData = { activeHandler: null };
+  const session: BotSession = {
+    dialog: { path: 'course/course-catalog', seq: 1 },
+  };
   const actor: User = {
     uuid: 'user-1',
     name: 'Гость',
@@ -94,27 +96,20 @@ describe('CourseCatalogStory', () => {
     };
   }
 
-  const mockUiApp = {
-    getAction: mock(() => () => ({
-      text: '↩️ Главное меню',
-      code: 'app:main-menu',
-    })),
-    collectAllMenuItems: mock(() => []),
-    collectAllHelpDescriptions: mock(() => []),
-  } as never;
-
   function initStory(
     story: CourseCatalogStory,
     api: ReturnType<typeof makeAppApi>,
   ) {
-    story.init({ appApi: api, uiApp: mockUiApp } as never);
+    story.init({ appApi: api } as never);
   }
 
-  // ── Главное меню ──
+  // ── Главное меню (декларативные menuButtons) ──
 
-  test('handleStart возвращает кнопку главного меню', async () => {
+  test('menuButtons возвращает кнопку главного меню (приоритет 10)', () => {
     const story = new CourseCatalogStory();
-    const item = await story.handleStart(actor);
+    const items = story.menuButtons(actor);
+    expect(items).toHaveLength(1);
+    const item = items[0];
     expect(item?.kind).toBe('callback');
     expect(item?.text).toContain('Программы курсов');
     expect(item?.priority).toBe(10);
@@ -123,11 +118,11 @@ describe('CourseCatalogStory', () => {
     }
   });
 
-  test('handleStart содержит описание для help', async () => {
+  test('menuButtons содержит описание для help', () => {
     const story = new CourseCatalogStory();
-    const item = await story.handleStart(actor);
-    expect(item?.description).toContain('Программы курсов');
-    expect(item?.description).toContain('каталог');
+    const items = story.menuButtons(actor);
+    expect(items[0]?.description).toContain('Программы курсов');
+    expect(items[0]?.description).toContain('каталог');
   });
 
   // ── Уровень 0: Курсы + этапы inline ──
@@ -152,8 +147,8 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback('list', actor, session);
-    assertResponseMarkdownSafe(response);
-    const text = response.sendMessage?.text ?? '';
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Курсы');
     expect(text).toContain('JS Basics');
@@ -164,7 +159,7 @@ describe('CourseCatalogStory', () => {
     expect(text).not.toContain('Описание курса');
 
     // Кнопка курса ведёт на phases:
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const courseBtn = rows.find((r) => r[0]?.text?.includes('JS Basics'));
     expect(courseBtn).toBeDefined();
     expect(courseBtn![0]!.code).toBe('course-catalog:phases:c1');
@@ -180,8 +175,10 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback('list', actor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Пока нет доступных курсов');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain(
+      'Пока нет доступных курсов',
+    );
   });
 
   test('list: заголовок «📖 *Курсы*»', async () => {
@@ -200,7 +197,7 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback('list', actor, session);
-    expect(response.sendMessage?.text).toContain('📖 *Курсы*');
+    expect(String(response.screen?.text)).toContain('📖 *Курсы*');
   });
 
   // ── Уровень 1: Этапы + модули inline ──
@@ -248,8 +245,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    const text = response.sendMessage?.text ?? '';
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Курс: Fullstack JS');
     expect(text).toContain('Синтаксис');
@@ -259,7 +256,7 @@ describe('CourseCatalogStory', () => {
     expect(text).toContain('2 урока');
 
     // Кнопки-этапы
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const syntaxBtn = rows.find((r) => r[0]?.text?.includes('Синтаксис'));
     expect(syntaxBtn).toBeDefined();
     expect(syntaxBtn![0]!.code).toBe(`course-catalog:modules:${courseUuid}:0`);
@@ -317,8 +314,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    const text = response.sendMessage?.text ?? '';
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Этап: Синтаксис');
     expect(text).toContain('Модуль A');
@@ -328,7 +325,7 @@ describe('CourseCatalogStory', () => {
     expect(text).toContain('Проект 3');
 
     // Кнопки-модули
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const modABtn = rows.find((r) => r[0]?.text?.includes('Модуль A'));
     expect(modABtn).toBeDefined();
     expect(modABtn![0]!.code).toBe(
@@ -404,8 +401,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    const text = response.sendMessage?.text ?? '';
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Модуль: Модуль X');
     expect(text).toContain('ToDo App');
@@ -415,7 +412,7 @@ describe('CourseCatalogStory', () => {
     expect(text).toContain('WebSocket');
 
     // Кнопки-проекты (не уроки!)
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     const projectBtn = rows.find((r) => r[0]?.text?.includes('ToDo App'));
     expect(projectBtn).toBeDefined();
     expect(projectBtn![0]!.code).toBe(
@@ -480,8 +477,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    const text = response.sendMessage?.text ?? '';
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
 
     expect(text).toContain('Проект: App');
     expect(text).toContain('Урок 1');
@@ -494,7 +491,7 @@ describe('CourseCatalogStory', () => {
     expect(text).not.toContain('code');
 
     // Кнопка «Назад к модулю»
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
   });
 
@@ -510,8 +507,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('не найден');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('не найден');
   });
 
   test('modules: несуществующий курс — ошибка', async () => {
@@ -524,8 +521,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('не найден');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('не найден');
   });
 
   test('projects: несуществующий модуль — ошибка', async () => {
@@ -548,8 +545,8 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('не найден');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('не найден');
   });
 
   // ── Обрезка длинных сообщений ──
@@ -600,11 +597,10 @@ describe('CourseCatalogStory', () => {
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage!.text!.length).toBeLessThanOrEqual(4100);
-    expect(response.sendMessage?.text?.endsWith('\\.\\.\\.') ?? false).toBe(
-      true,
-    );
+    assertDialogResponseMarkdownSafe(response);
+    const text = String(response.screen?.text ?? '');
+    expect(text.length).toBeLessThanOrEqual(4100);
+    expect(text.endsWith('\\.\\.\\.')).toBe(true);
   });
 
   // ── Неизвестная команда ──
@@ -615,19 +611,19 @@ describe('CourseCatalogStory', () => {
     initStory(story, appApi);
 
     const response = await story.handleCallback('unknown', actor, session);
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестная команда');
+    assertDialogResponseMarkdownSafe(response);
+    expect(String(response.screen?.text)).toContain('Неизвестная команда');
   });
 
-  test('handleMessage возвращает заглушку', async () => {
+  test('handleMessage — дефолт ядра (ввод без ожидания до стори не доходит)', async () => {
     const story = new CourseCatalogStory();
     const response = await story.handleMessage(
       { type: 'message', text: 'текст', telegramId: 123 },
       actor,
       session,
     );
-    assertResponseMarkdownSafe(response);
-    expect(response.sendMessage?.text).toContain('Неизвестное');
+    expect(String(response.notify?.text)).toContain('не принимаются');
+    expect(response.release).toBe(true);
   });
 
   // ── Запись на модуль (кнопка из уведомления о завершении) ──
@@ -659,7 +655,7 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
       const call = (api.execute as ReturnType<typeof mock>).mock.calls.find(
         (c) => c[0] === 'create-module-wish',
@@ -668,7 +664,7 @@ describe('CourseCatalogStory', () => {
       expect(call![1]).toEqual({ moduleId });
       expect(call![2]).toBe(actor.uuid);
 
-      expect(response.sendMessage?.text).toContain('Записали');
+      expect(String(response.screen?.text)).toContain('Записали');
     });
 
     test('желание уже есть: дружелюбное сообщение, не ошибка', async () => {
@@ -685,13 +681,13 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      expect(response.sendMessage?.text).toContain('уже');
-      expect(response.sendMessage?.text).not.toContain('⚠️');
+      expect(String(response.screen?.text)).toContain('уже');
+      expect(String(response.screen?.text)).not.toContain('⚠️');
     });
 
-    test('другая ошибка: уходит в handleError', async () => {
+    test('другая ошибка: errorNotify — warn-реплика без захвата экрана', async () => {
       const { errNotFound, AppException } = await import('@u7-scl/core/domain');
       const error = new AppException(
         errNotFound('MODULE_NOT_FOUND', 'Модуль не найден', undefined),
@@ -705,9 +701,10 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
 
-      expect(response.sendMessage?.text).toContain('⚠️');
+      expect(response.notify?.kind).toBe('warn');
+      expect(String(response.notify?.text)).toContain('не найден');
+      expect(response.screen).toBeUndefined();
     });
   });
 
@@ -750,9 +747,9 @@ describe('CourseCatalogStory', () => {
       initStory(story, appApi);
 
       const response = await story.handleCallback('list', actor, session);
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const applyBtn = rows
         .flat()
         .find((b) => b.text.includes('Хочу пройти курс'));
@@ -770,7 +767,7 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
       const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
         (c) => c[0] === 'create-course-wish',
@@ -779,10 +776,10 @@ describe('CourseCatalogStory', () => {
       expect(call![1]).toEqual({ courseId });
       expect(call![2]).toBe(actor.uuid);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).toContain('зафиксировано');
       expect(text).toContain('когда откроется набор');
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const menuBtn = rows.flat().find((b) => b.text.includes('Главное меню'));
       expect(menuBtn?.code).toBe(Routes.app.mainMenu);
     });
@@ -803,8 +800,8 @@ describe('CourseCatalogStory', () => {
       );
       expect(call).toBeDefined();
       // Стори ничего не отправляет — анкету проактивно рендерит FillStory
-      expect(response.sendMessage).toBeUndefined();
-      expect(response.sendMessages).toBeUndefined();
+      expect(response.screen).toBeUndefined();
+      expect(response.notify).toBeUndefined();
     });
 
     test.each([
@@ -828,11 +825,11 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).not.toContain('⚠️');
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const flat = rows.flat();
       expect(flat.some((b) => b.text.includes('Отменить желание'))).toBe(true);
       expect(
@@ -863,7 +860,7 @@ describe('CourseCatalogStory', () => {
         session,
       );
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       if (status === 'confirmed') {
         expect(text).toContain('обучаешься');
       } else {
@@ -889,19 +886,19 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).toContain('начал заполнять анкету');
       expect(text).toContain('не закончил');
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const flat = rows.flat();
       const resumeBtn = flat.find((b) => b.text.includes('Продолжить анкету'));
       expect(resumeBtn?.code).toBe(`questionnaire:fill:resume:${courseId}`);
       expect(flat.some((b) => b.code === Routes.app.mainMenu)).toBe(true);
     });
 
-    test('apply: другая ошибка (курс не найден) — уходит в handleError', async () => {
+    test('apply: другая ошибка (курс не найден) — errorNotify (warn-реплика)', async () => {
       const { errNotFound, AppException } = await import('@u7-scl/core/domain');
       const error = new AppException(
         errNotFound('COURSE_NOT_FOUND', 'Курс не найден', { courseId }),
@@ -915,9 +912,10 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
 
-      expect(response.sendMessage?.text).toContain('⚠️');
+      expect(response.notify?.kind).toBe('warn');
+      expect(String(response.notify?.text)).toContain('не найден');
+      expect(response.screen).toBeUndefined();
     });
   });
 
@@ -948,11 +946,11 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).toContain('Отменить желание пройти курс?');
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const flat = rows.flat();
       const yes = flat.find((b) => b.text.includes('Да'));
       expect(yes?.code).toBe(`course-catalog:cancel-confirm:${courseId}`);
@@ -970,7 +968,7 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
       const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
         (c) => c[0] === 'cancel-wish',
@@ -979,9 +977,9 @@ describe('CourseCatalogStory', () => {
       expect(call![1]).toEqual({ kind: 'course', courseId });
       expect(call![2]).toBe(actor.uuid);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).toContain('отменено');
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const menuBtn = rows.flat().find((b) => b.text.includes('Главное меню'));
       expect(menuBtn?.code).toBe(Routes.app.mainMenu);
     });
@@ -1003,9 +1001,9 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).not.toContain('⚠️');
       expect(text).toContain('уже нет');
     });
@@ -1038,11 +1036,11 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).toContain('Отменить желание пройти модуль?');
-      const rows = response.sendMessage?.keyboard?.rows ?? [];
+      const rows = response.screen?.keyboard?.rows ?? [];
       const flat = rows.flat();
       const yes = flat.find((b) => b.text.includes('Да'));
       expect(yes?.code).toBe(`course-catalog:cancel-mod-confirm:${moduleId}`);
@@ -1060,7 +1058,7 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
       const call = (appApi.execute as ReturnType<typeof mock>).mock.calls.find(
         (c) => c[0] === 'cancel-wish',
@@ -1069,7 +1067,7 @@ describe('CourseCatalogStory', () => {
       expect(call![1]).toEqual({ kind: 'module', moduleId });
       expect(call![2]).toBe(actor.uuid);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).toContain('отменено');
     });
 
@@ -1090,9 +1088,9 @@ describe('CourseCatalogStory', () => {
         actor,
         session,
       );
-      assertResponseMarkdownSafe(response);
+      assertDialogResponseMarkdownSafe(response);
 
-      const text = response.sendMessage?.text ?? '';
+      const text = String(response.screen?.text ?? '');
       expect(text).not.toContain('⚠️');
       expect(text).toContain('уже нет');
     });
