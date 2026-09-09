@@ -1,0 +1,33 @@
+Задача: Перевести стори; delegate: enroll→menu, enroll-cancel→view, monitor→students; enroll-capture на awaitInput/release; команды — дефолт pipe (pass), ошибки валидации — errorNotify
+
+Сводка:
+- Три стори переведены на DialogResponse: stream-catalog (каталог потоков),
+  course-catalog (каталог курсов), view-stream (карточка потока).
+- Экранные тексты — MdText через md-интерполяцию; escapeMarkdown/parseMode
+  удалены (экранирование — забота md).
+- Delegate-контракты сохранены: enroll → app:main-menu; enroll-cancel →
+  view-stream:view (release + delegate); monitor→students остаётся валидным.
+- Enroll-захват: awaitInput { context: EnrollKeyContext } / release; неверное
+  слово — warn-реплика + awaitInput (attempts+1); исчерпание попыток —
+  release + экран «Назад к потоку»; верное — errorNotify-защищённый UC и
+  notify-поздравление + delegate на меню.
+- Команды: дефолт pipe (pass) — переопределений handleCommand нет.
+- menuButtons вместо handleStart: course-catalog (приоритет 10),
+  stream-catalog (приоритет 15).
+- Ядро (packages/core): приватный #dispatch → protected dispatch — точка
+  перехвата системных кодов приложения; U7BotUiApp.dispatch перехватывает
+  app:main-menu (виртуальный якорь app/menu + короткое меню) — единая точка
+  для кнопок и delegate (симметрия §10.19). Перехват меню из handleCallback
+  перенесён в dispatch; #shortMenuScreen теперь принимает actor.
+- Известное следствие: mentor/view-stream-mentor (вне скоупа, трек 5) остался
+  на старом контракте поверх новой базы ViewStreamStory — tsc красный, как
+  и заявлено.
+
+Причина: Задача 2 Фазы 2 трека bot-ui-dialog-nav.
+
+Файлы:
+- packages/core/src/ui/bot/ui-app.ts
+- apps/u7-bot/src/core/ui-app.ts, ui-app.test.ts
+- apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts
+- apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts
+- apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts
