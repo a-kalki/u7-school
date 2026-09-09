@@ -12,8 +12,7 @@ import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { CbMainMenuAction } from '@u7-scl/bot/u7-menu';
-import { assertBotResponseValid, type BotResponse } from '@u7-scl/core/ui';
+import type { CbMenuButton, MenuButton } from '@u7-scl/bot/u7-menu';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
@@ -23,34 +22,81 @@ import {
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
-function findButton(
-  response: BotResponse,
-  textContains: string,
-): { text: string; code: string } {
-  const btn = response.sendMessage?.keyboard?.rows
-    .flat()
-    .find((b) => b.text.includes(textContains));
-  if (!btn) {
-    const allTexts =
-      response.sendMessage?.keyboard?.rows
-        .flat()
-        .map((b) => b.text)
-        .join(', ') ?? '(нет клавиатуры)';
-    throw new Error(
-      `Кнопка «${textContains}» не найдена. Доступны: ${allTexts}`,
-    );
-  }
-  return btn;
+/** Экран в хронологии отображения: sent или edit (text + keyboard). */
+interface ScreenRecord {
+  text: string;
+  keyboard?: { rows: Array<Array<{ text: string; code: string }>> };
 }
 
-function findMenuItem(
-  items: CbMainMenuAction[],
+/**
+ * E2E: Витрина для любопытного (курсы + потоки, контракт «Диалог и Экран»).
+ *
+ * Паттерн нажатий: перед нажатием экран открыт (/start или предыдущая
+ * кнопка), код берётся отштампованным из Api-записи (pressedCode) —
+ * как реальный клиент. Содержимое ответа ассертится по DialogResponse,
+ * захваченному на границе uiApp (screen/notify разделены).
+ */
+
+/**
+ * Экраны пользователя в порядке отображения (новые первее).
+ *
+ * Api-записи ведут два массива (sent/edited); edit рендерит СУЩЕСТВУЮЩЕЕ
+ * сообщение (messageId оригинала), поэтому хронология восстанавливается
+ * так: sent-ы по порядку, каждый edit — сразу за своим sent. Простая
+ * склейка [...edited, ...sent] даёт неверный порядок, когда edit-экраны
+ * (дрill-down одной стори) чередуются с send-экранами (смена стори).
+ */
+function screensNewFirst(
+  transport: TestBotTransport,
+  tgId: number,
+): ScreenRecord[] {
+  const editsByMessageId = new Map<number, ScreenRecord[]>();
+  for (const e of transport.api.editedMessages) {
+    if (e.telegramId !== tgId) continue;
+    const list = editsByMessageId.get(e.messageId) ?? [];
+    list.push(e);
+    editsByMessageId.set(e.messageId, list);
+  }
+  const merged: ScreenRecord[] = [];
+  for (const s of transport.api.sentMessages) {
+    if (s.telegramId !== tgId) continue;
+    merged.push(s);
+    merged.push(...(editsByMessageId.get(s.messageId) ?? []));
+  }
+  return merged.reverse();
+}
+
+/** Отштампованный код кнопки с последнего экрана пользователя (Api-запись). */
+function pressedCode(
+  transport: TestBotTransport,
+  tgId: number,
   textContains: string,
-): { text: string; action: string } {
+): string {
+  const screens = screensNewFirst(transport, tgId);
+  for (const screen of screens) {
+    const btn = screen.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes(textContains));
+    if (btn) return btn.code;
+  }
+  throw new Error(
+    `Кнопка «${textContains}» не найдена на экранах ${tgId} ` +
+      `(перед нажатием открой экран через /start или кнопку).`,
+  );
+}
+
+/** Callback-пункт главного меню по подстроке текста. */
+function findMenuItem(
+  items: MenuButton[],
+  textContains: string,
+): CbMenuButton {
   const item = items.find((i) => i.text.includes(textContains));
   if (!item) {
     const all = items.map((i) => i.text).join(', ');
     throw new Error(`Пункт меню «${textContains}» не найден. Доступны: ${all}`);
+  }
+  if (item.kind !== 'callback') {
+    throw new Error(`Пункт «${textContains}» — не callback-кнопка`);
   }
   return item;
 }
@@ -88,9 +134,7 @@ describe('E2E: Витрина для любопытного', () => {
   // ── Главное меню ──
   describe('Главное меню гостя', () => {
     test('содержит «📖 Программы курсов» и «📚 Потоки курсов»', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
+      const menu = await transport.collectMainMenu(guest);
       const courseBtn = findMenuItem(menu, 'Программы курсов');
       expect(courseBtn.action).toStartWith('course:');
       const streamBtn = findMenuItem(menu, 'Потоки курсов');
@@ -103,169 +147,144 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Программы курсов»: 5-уровневый drill-down ──
   describe('«Программы курсов» — drill-down', () => {
     test('уровень 0: курсы + этапы inline', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
       const response = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
         }),
       );
-      assertBotResponseValid(response);
-      const text = response.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('Курсы');
       expect(text).toContain('Основы программирования');
       expect(text).toContain('Синтаксис');
       expect(text).toContain('Алгоритмика');
       const btns =
-        response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Основы'))).toBe(true);
       expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
 
     test('уровень 1: клик на курс → этапы + модули inline', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
         }),
       );
-      const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseButton.code,
+      const response = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Основы'),
         }),
       );
-      assertBotResponseValid(phasesResp);
-      const text = phasesResp.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('Курс: Основы программирования');
       expect(text).toContain('Синтаксис');
       expect(text).toContain('JavaScript Основы');
       const btns =
-        phasesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Синтаксис'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к курсам'))).toBe(true);
     });
 
     test('уровень 2: клик на этап → модули + проекты inline', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
         }),
       );
-      const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseButton.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Основы'),
         }),
       );
-      const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: phaseBtn.code,
+      const response = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Синтаксис'),
         }),
       );
-      assertBotResponseValid(modulesResp);
-      const text = modulesResp.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('Этап: Синтаксис');
       expect(text).toContain('JavaScript Основы');
       expect(text).toContain('Введение');
       const btns =
-        modulesResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('JavaScript'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к курсу'))).toBe(true);
     });
 
     test('уровень 3: клик на модуль → проекты + уроки inline', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
         }),
       );
-      const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseButton.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Основы'),
         }),
       );
-      const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: phaseBtn.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Синтаксис'),
         }),
       );
-      const moduleBtn = findButton(modulesResp, 'JavaScript');
-      const projectsResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: moduleBtn.code,
+      const response = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'JavaScript'),
         }),
       );
-      assertBotResponseValid(projectsResp);
-      const text = projectsResp.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('Введение');
       expect(text).toContain('Переменные и типы');
       expect(text).toContain('Циклы и функции');
       const btns =
-        projectsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ??
-        [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Введение'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к этапу'))).toBe(true);
     });
 
     test('уровень 4: клик на проект → уроки + шаги inline', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const catalogResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
         }),
       );
-      const courseButton = findButton(catalogResp, 'Основы');
-      const phasesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseButton.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Основы'),
         }),
       );
-      const phaseBtn = findButton(phasesResp, 'Синтаксис');
-      const modulesResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: phaseBtn.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Синтаксис'),
         }),
       );
-      const moduleBtn = findButton(modulesResp, 'JavaScript');
-      const projectsResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: moduleBtn.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'JavaScript'),
         }),
       );
-      const projectBtn = findButton(projectsResp, 'Введение');
-      const lessonsResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: projectBtn.code,
+      const response = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Введение'),
         }),
       );
-      assertBotResponseValid(lessonsResp);
-      const text = lessonsResp.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('Проект: Введение');
       expect(text).toContain('Переменные и типы');
+      // Тела шагов скрыты — только заголовки уроков и нумерация шагов
       expect(text).not.toContain('```');
       expect(text).not.toContain('function');
       const btns =
-        lessonsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Назад к модулю'))).toBe(true);
     });
   });
@@ -273,48 +292,41 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Потоки курсов»: curious-режим карточки потока ──
   describe('«Потоки курсов» — curious-режим карточки потока', () => {
     test('гость открывает каталог потоков (S01)', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
       const response = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
         }),
       );
-      assertBotResponseValid(response);
-      const text = response.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('Потоки курсов');
       const btns =
-        response.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('🟡') || t.includes('🔵'))).toBe(true);
       expect(btns.some((t) => t.includes('↩️ Главное меню'))).toBe(true);
     });
 
     test('гость → enrollment-поток: карточка без менторских кнопок (S02)', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
         }),
       );
-      const streamButton = findButton(catalogResp, '🟡');
-      const viewResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamButton.code,
+      const response = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'JS Core — Поток 1'),
         }),
       );
-      assertBotResponseValid(viewResp);
-      const text = viewResp.sendMessage?.text ?? '';
+      const text = response.screen?.text ?? '';
       expect(text).toContain('JS Core');
       expect(text).toContain('Ментор');
       expect(text).toContain('📚 Курс');
       expect(text).not.toContain('Неизвестная команда');
       const btns =
-        viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
       expect(btns.some((t) => t.includes('Назад к списку'))).toBe(true);
@@ -322,43 +334,38 @@ describe('E2E: Витрина для любопытного', () => {
       expect(btns.some((t) => t.includes('Запустить'))).toBe(false);
       expect(btns.some((t) => t.includes('Завершить'))).toBe(false);
       expect(btns.some((t) => t.includes('В архив'))).toBe(false);
+      // Гостевая кнопка записи (статус enrollment, гость — не студент)
       expect(btns.some((t) => t.includes('Записаться'))).toBe(true);
-      // Кнопка «👥 Студенты» доступна (Трек 6)
+      // Публичная карточка студентов (Трек 6)
       expect(btns.some((t) => t.includes('Студенты'))).toBe(true);
 
-      // Проверяем, что нажатие на «Студенты» работает (кросс-контроллерный callback)
-      const studentsBtn = findButton(viewResp, 'Студенты');
+      // Нажатие на «Студенты» работает (кросс-стори callback)
       const studentsResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: studentsBtn.code,
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Студенты'),
         }),
       );
-      assertBotResponseValid(studentsResp);
-      const studentsText = studentsResp.sendMessage?.text ?? '';
+      const studentsText = studentsResp.screen?.text ?? '';
       expect(studentsText).not.toContain('Неизвестная команда');
       expect(studentsText).toContain('Студенты потока');
       expect(studentsText).toContain('Всего:');
     });
 
     test('гость → active-поток: Программа и Детали видны (S02)', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalogResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
         }),
       );
-      const activeButton = findButton(catalogResp, '🔵');
-      const viewResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: activeButton.code,
+      const response = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'JS Core — Поток 2'),
         }),
       );
-      assertBotResponseValid(viewResp);
       const btns =
-        viewResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+        response.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
       expect(btns.some((t) => t.includes('Программа курса'))).toBe(true);
       expect(btns.some((t) => t.includes('Детали'))).toBe(true);
     });
@@ -367,338 +374,208 @@ describe('E2E: Витрина для любопытного', () => {
   // ── «Программы курсов» — drill-up (обратная навигация) ──
   describe('«Программы курсов» — обратная навигация', () => {
     test('drill-down 5 уровней → drill-up 4 уровня обратно', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      const press = (label: string) =>
+        transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, label),
+          }),
+        );
 
-      const l0 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
-        }),
-      );
-      const l1 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l0, 'Основы').code,
-        }),
-      );
-      const l2 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l1, 'Синтаксис').code,
-        }),
-      );
-      const l3 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l2, 'JavaScript').code,
-        }),
-      );
-      const l4 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l3, 'Введение').code,
-        }),
-      );
-
-      assertBotResponseValid(l4);
-      expect(l4.sendMessage?.text).toContain('Проект: Введение');
+      await press('Программы курсов');
+      await press('Основы');
+      await press('Синтаксис');
+      await press('JavaScript');
+      const l4 = await press('Введение');
+      expect(l4.screen?.text).toContain('Проект: Введение');
 
       // Назад: 4 → 3
-      const back43 = findButton(l4, 'Назад к модулю');
-      const back3 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: back43.code,
-        }),
-      );
-      assertBotResponseValid(back3);
-      expect(back3.sendMessage?.text).toContain('Модуль: JavaScript');
+      const back3 = await press('Назад к модулю');
+      expect(back3.screen?.text).toContain('Модуль: JavaScript');
 
       // Назад: 3 → 2
-      const back32 = findButton(back3, 'Назад к этапу');
-      const back2 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: back32.code,
-        }),
-      );
-      assertBotResponseValid(back2);
-      expect(back2.sendMessage?.text).toContain('Синтаксис');
+      const back2 = await press('Назад к этапу');
+      expect(back2.screen?.text).toContain('Синтаксис');
 
       // Назад: 2 → 1
-      const back21 = findButton(back2, 'Назад к курсу');
-      const back1 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: back21.code,
-        }),
-      );
-      assertBotResponseValid(back1);
-      expect(back1.sendMessage?.text).toContain(
-        'Курс: Основы программирования',
-      );
+      const back1 = await press('Назад к курсу');
+      expect(back1.screen?.text).toContain('Курс: Основы программирования');
 
       // Назад: 1 → 0
-      const back10 = findButton(back1, 'Назад к курсам');
-      const back0 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: back10.code,
-        }),
-      );
-      assertBotResponseValid(back0);
-      expect(back0.sendMessage?.text).toContain('Курсы');
+      const back0 = await press('Назад к курсам');
+      expect(back0.screen?.text).toContain('Курсы');
     });
 
     test('drill-down → назад → другой путь', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      const press = (label: string) =>
+        transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, label),
+          }),
+        );
 
-      const l0 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
-        }),
-      );
-      const l1 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l0, 'Основы').code,
-        }),
-      );
-      const l2 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l1, 'Синтаксис').code,
-        }),
-      );
-      expect(l2.sendMessage?.text).toContain('Синтаксис');
+      await press('Программы курсов');
+      await press('Основы');
+      const l2 = await press('Синтаксис');
+      expect(l2.screen?.text).toContain('Синтаксис');
 
-      const back1 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(l2, 'Назад к курсу').code,
-        }),
-      );
+      const back1 = await press('Назад к курсу');
 
-      const algoBtn = findButton(back1, 'Алгоритмика');
-      const algoResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: algoBtn.code,
-        }),
-      );
-      assertBotResponseValid(algoResp);
-      expect(algoResp.sendMessage?.text).toContain('Алгоритмика');
+      // Другой путь: этап «Алгоритмика» того же курса
+      const algoResp = await press('Алгоритмика');
+      expect(algoResp.screen?.text).toContain('Алгоритмика');
+      expect(back1.screen?.text).toContain('Курс: Основы программирования');
     });
 
     test('c карточки курса — Главное меню', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const l0 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Программы курсов'),
         }),
       );
-
-      const mainMenuBtn = findButton(l0, 'Главное меню');
       const mainResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: mainMenuBtn.code,
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Главное меню'),
         }),
       );
-      assertBotResponseValid(mainResp);
-      expect(mainResp.sendMessage?.text).toContain('Выберите действие');
+      expect(mainResp.screen?.text).toContain('Выберите действие');
     });
   });
 
   // ── «Потоки курсов» — полный round-trip ──
   describe('«Потоки курсов» — round-trip навигация', () => {
     test('каталог → карточка → программа → назад → детали → назад → каталог', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      const press = (label: string) =>
+        transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, label),
+          }),
+        );
 
-      const catalog = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
-        }),
-      );
-      assertBotResponseValid(catalog);
+      const catalog = await press('Потоки курсов');
+      expect(catalog.screen?.text).toContain('Потоки курсов');
 
-      const card = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(catalog, '🟡').code,
-        }),
-      );
-      assertBotResponseValid(card);
-      expect(card.sendMessage?.text).toContain('JS Core');
+      const card = await press('JS Core — Поток 1');
+      expect(card.screen?.text).toContain('JS Core');
 
-      const program = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(card, 'Программа курса').code,
-        }),
-      );
-      assertBotResponseValid(program);
-      expect(program.sendMessage?.text).toContain('Программа курса');
-      expect(program.sendMessage?.text).toContain('📁');
+      const program = await press('Программа курса');
+      expect(program.screen?.text).toContain('Программа курса');
+      expect(program.screen?.text).toContain('📁');
 
-      const backToCard = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(program, 'Назад к потоку').code,
-        }),
-      );
-      assertBotResponseValid(backToCard);
-      expect(backToCard.sendMessage?.text).toContain('JS Core');
+      const backToCard = await press('Назад к потоку');
+      expect(backToCard.screen?.text).toContain('JS Core');
 
-      const details = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(backToCard, 'Детали').code,
-        }),
-      );
-      assertBotResponseValid(details);
-      expect(details.sendMessage?.text).toContain('Детали');
+      const details = await press('Детали');
+      expect(details.screen?.text).toContain('Детали');
 
-      const backAgain = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(details, 'Назад к потоку').code,
-        }),
-      );
-      assertBotResponseValid(backAgain);
-      expect(backAgain.sendMessage?.text).toContain('JS Core');
+      const backAgain = await press('Назад к потоку');
+      expect(backAgain.screen?.text).toContain('JS Core');
 
-      const backToCatalog = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(backAgain, 'Назад к списку').code,
-        }),
-      );
-      assertBotResponseValid(backToCatalog);
-      expect(backToCatalog.sendMessage?.text).toContain('Потоки курсов');
+      const backToCatalog = await press('Назад к списку');
+      expect(backToCatalog.screen?.text).toContain('Потоки курсов');
     });
 
     test('каталог → active-поток → программа → назад → каталог', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      const press = (label: string) =>
+        transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, label),
+          }),
+        );
 
-      const catalog = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
-        }),
-      );
-      const card = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(catalog, '🔵').code,
-        }),
-      );
-      assertBotResponseValid(card);
-      expect(card.sendMessage?.text).toContain('Поток 2');
+      await press('Потоки курсов');
+      const card = await press('JS Core — Поток 2');
+      expect(card.screen?.text).toContain('Поток 2');
 
-      const program = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(card, 'Программа курса').code,
-        }),
-      );
-      assertBotResponseValid(program);
-      expect(program.sendMessage?.text).toContain('📁');
+      const program = await press('Программа курса');
+      expect(program.screen?.text).toContain('📁');
 
-      const back1 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(program, 'Назад к потоку').code,
-        }),
-      );
-      const backCatalog = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(back1, 'Назад к списку').code,
-        }),
-      );
-      expect(backCatalog.sendMessage?.text).toContain('Потоки курсов');
+      await press('Назад к потоку');
+      const backCatalog = await press('Назад к списку');
+      expect(backCatalog.screen?.text).toContain('Потоки курсов');
     });
 
     test('каталог → Главное меню', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
-      const streamBtn = findMenuItem(menu, 'Потоки курсов');
-      const catalog = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Потоки курсов'),
         }),
       );
-
-      const mainMenuBtn = findButton(catalog, 'Главное меню');
       const mainResp = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: mainMenuBtn.code,
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Главное меню'),
         }),
       );
-      assertBotResponseValid(mainResp);
-      expect(mainResp.sendMessage?.text).toContain('Выберите действие');
+      expect(mainResp.screen?.text).toContain('Выберите действие');
     });
 
-    test('несуществующий поток — ошибка', async () => {
+    test('несуществующий поток — экран ошибки', async () => {
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      // Крафтовый код с АКТУАЛЬНЫМ штампом экрана: по форме валиден,
+      // но поток не существует — экран ошибки, без падений
+      const stamp = pressedCode(transport, tgId, 'Программы курсов')
+        .split(':')
+        .pop();
       const response = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData:
-            'stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff',
+        transport.makeBotContext(tgId, {
+          callbackData: `stream:view-stream:view:ffffffff-ffff-ffff-ffff-ffffffffffff:${stamp}`,
         }),
       );
-      assertBotResponseValid(response);
-      expect(response.sendMessage?.text).toContain('не найден');
+      expect(response.screen?.text).toContain('не найден');
     });
   });
 
   // ── Сквозной: курсы ↔ потоки ──
   describe('Сквозная навигация: курсы ↔ потоки', () => {
     test('главное меню → курсы → назад → потоки → карточка → назад', async () => {
-      const menu = (await transport.collectMainMenu(
-        guest,
-      )) as CbMainMenuAction[];
+      const tgId = guest.telegramId;
+      await transport.handleStart(transport.makeBotContext(tgId));
+      const press = (label: string) =>
+        transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, label),
+          }),
+        );
 
-      const courseBtn = findMenuItem(menu, 'Программы курсов');
-      const courses = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: courseBtn.action,
-        }),
-      );
-      expect(courses.sendMessage?.text).toContain('Курсы');
+      const courses = await press('Программы курсов');
+      expect(courses.screen?.text).toContain('Курсы');
 
-      const main1 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(courses, 'Главное меню').code,
-        }),
-      );
-      expect(main1.sendMessage?.text).toContain('Выберите действие');
+      const main1 = await press('Главное меню');
+      expect(main1.screen?.text).toContain('Выберите действие');
 
-      const streamBtn = findMenuItem(
-        (await transport.collectMainMenu(guest)) as CbMainMenuAction[],
-        'Потоки курсов',
-      );
-      const catalog = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: streamBtn.action,
-        }),
-      );
-      expect(catalog.sendMessage?.text).toContain('Потоки курсов');
+      // Кнопки меню есть на экране короткого меню — pressedCode их найдёт
+      const catalog = await press('Потоки курсов');
+      expect(catalog.screen?.text).toContain('Потоки курсов');
 
-      const card = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(catalog, '🟡').code,
-        }),
-      );
-      expect(card.sendMessage?.text).toContain('JS Core');
+      const card = await press('JS Core — Поток 1');
+      expect(card.screen?.text).toContain('JS Core');
 
-      const main2 = await transport.handleCallback(
-        transport.makeBotContext(guest.telegramId, {
-          callbackData: findButton(card, 'Назад к списку').code,
-        }),
-      );
-      expect(main2.sendMessage?.text).toContain('Потоки курсов');
+      const back = await press('Назад к списку');
+      expect(back.screen?.text).toContain('Потоки курсов');
     });
 
-    test('handleHelp показывает описания курсов и потоков', async () => {
+    test('handleHelp показывает описания курсов и потоков (notify, ФР-5)', async () => {
       const response = await transport.handleHelp(
         transport.makeBotContext(guest.telegramId),
       );
-      const text = response.sendMessage?.text ?? '';
+      const text = response.notify?.text ?? '';
       expect(text).toContain('Как со мной работать');
       expect(text).toContain('Программы курсов');
       expect(text).toContain('Потоки курсов');
+      // /help — реплика, экран не захватывает
+      expect(response.screen).toBeUndefined();
     });
   });
 });
