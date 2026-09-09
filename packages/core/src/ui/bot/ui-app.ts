@@ -136,7 +136,7 @@ export abstract class BotUiApp<
     session: BotSession,
   ): Promise<DialogResponse | null> {
     const actor = await this.resolve.actorResolver(tgId);
-    const initiator = await this.#dispatch(data, actor, session);
+    const initiator = await this.dispatch(data, actor, session);
     return this.#resolveDelegate(initiator, actor, session);
   }
 
@@ -206,8 +206,12 @@ export abstract class BotUiApp<
   /**
    * Маршрутизация `controller:story:action...`: смена диалога при
    * `controller/story` ≠ текущему, затем контроллер.
+   *
+   * Protected: прикладной uiApp перехватывает системные коды приложения
+   * (меню и др.) — единая точка и для кнопок, и для delegate (§10.19:
+   * delegate исполняется симметрично handleCallback).
    */
-  async #dispatch(
+  protected async dispatch(
     data: string,
     actor: TActor,
     session: BotSession,
@@ -246,7 +250,7 @@ export abstract class BotUiApp<
       return initiator;
     }
 
-    const target = await this.#dispatch(delegatePath, actor, session);
+    const target = await this.dispatch(delegatePath, actor, session);
 
     const notify =
       initiator.notify && target.notify

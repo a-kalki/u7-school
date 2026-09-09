@@ -1,8 +1,9 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { fromError } from '@u7-scl/core/domain';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
 import { buttons } from '../../shared/buttons';
@@ -32,17 +33,19 @@ const DEFAULT_TRACK_EMOJI = '📚';
 export class CourseCatalogStory extends U7BotUiStory {
   readonly name = 'course-catalog';
 
-  // ── Главное меню ──
+  // ── Главное меню (декларативные кнопки) ──
 
-  override async handleStart(_actor: User): Promise<MainMenuAction | null> {
-    return {
-      kind: 'callback',
-      text: '📖 Программы курсов',
-      action: this.cb('list'),
-      priority: 10,
-      description:
-        '📖 Программы курсов — каталог учебных курсов и их структура',
-    };
+  override menuButtons(_actor: User): MenuButton[] {
+    return [
+      {
+        kind: 'callback',
+        text: '📖 Программы курсов',
+        action: this.cb('list'),
+        priority: 10,
+        description:
+          '📖 Программы курсов — каталог учебных курсов и их структура',
+      },
+    ];
   }
 
   // ── Callback ──
@@ -50,8 +53,8 @@ export class CourseCatalogStory extends U7BotUiStory {
   override async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const [cmd, ...ids] = action.split(':');
 
     switch (cmd) {
@@ -79,7 +82,7 @@ export class CourseCatalogStory extends U7BotUiStory {
         return this.confirm(
           'cancel',
           ids[0] ?? '',
-          'Отменить желание пройти курс?',
+          md`Отменить желание пройти курс?`,
           {
             cancelCode: this.cb('phases', ids[0] ?? ''),
           },
@@ -91,7 +94,7 @@ export class CourseCatalogStory extends U7BotUiStory {
         return this.confirm(
           'cancel-mod',
           ids[0] ?? '',
-          'Отменить желание пройти модуль?',
+          md`Отменить желание пройти модуль?`,
           {
             cancelCode: Routes.app.mainMenu,
           },
@@ -99,49 +102,34 @@ export class CourseCatalogStory extends U7BotUiStory {
       case 'cancel-mod-confirm':
         return this.#handleCancelModConfirm(ids[0] ?? '', actor);
       default:
-        return {
-          sendMessage: { text: '⚠️ Неизвестная команда каталога курсов' },
-        };
+        return this.unknownCommand(action, actor, session);
     }
-  }
-
-  // ── Сообщения ──
-
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
   }
 
   // ═══ Уровень 0: Курсы + этапы inline ═══
 
-  async #handleList(): Promise<BotResponse> {
+  async #handleList(): Promise<DialogResponse> {
     const courses = (await this.appApi.execute('list-courses', {})) as Course[];
-
-    const mainMenuBtn = this.#getMainMenuButton();
 
     if (courses.length === 0) {
       return {
-        sendMessage: {
-          text: '📖 *Курсы*\n\nПока нет доступных курсов\\.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`📖 *Курсы*\n\nПока нет доступных курсов\\.`,
           keyboard: {
-            rows: [[mainMenuBtn]],
+            rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },
       };
     }
 
-    const lines: string[] = ['📖 *Курсы*', ''];
+    const lines: MdText[] = [md`📖 *Курсы*`, md``];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const course of courses) {
       const direction = this.#getDirectionEmoji(course);
 
-      lines.push(`${direction} *Курс: ${this.#esc(course.title)}*`);
+      lines.push(md`${direction} *Курс: ${course.title}*`);
 
       // Этапы курса inline (один уровень вниз)
       for (const phase of course.phases) {
@@ -150,11 +138,11 @@ export class CourseCatalogStory extends U7BotUiStory {
           : '🗂️';
         const modCount = phase.moduleIds?.length ?? 0;
         lines.push(
-          `    ${phaseEmoji} Этап: ${this.#esc(phase.title)} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+          md`    ${phaseEmoji} Этап: ${phase.title} — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
         );
       }
 
-      lines.push('');
+      lines.push(md``);
 
       rows.push([
         {
@@ -168,12 +156,11 @@ export class CourseCatalogStory extends U7BotUiStory {
       ]);
     }
 
-    rows.push([mainMenuBtn]);
+    rows.push([buttons.mainMenu()]);
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: { rows, isMultiple: false },
       },
     };
@@ -181,9 +168,9 @@ export class CourseCatalogStory extends U7BotUiStory {
 
   // ═══ Уровень 1: Этапы + модули inline ═══
 
-  async #handlePhases(courseId: string): Promise<BotResponse> {
+  async #handlePhases(courseId: string): Promise<DialogResponse> {
     if (!courseId) {
-      return { sendMessage: { text: '⚠️ Курс не указан' } };
+      return { screen: { text: md`⚠️ Курс не указан` } };
     }
 
     let course: Course;
@@ -192,10 +179,10 @@ export class CourseCatalogStory extends U7BotUiStory {
         uuid: courseId,
       })) as Course;
     } catch {
-      return { sendMessage: { text: '⚠️ Курс не найден или недоступен' } };
+      return { screen: { text: md`⚠️ Курс не найден или недоступен` } };
     }
 
-    const lines: string[] = [`📖 *Курс: ${this.#esc(course.title)}*`, ''];
+    const lines: MdText[] = [md`📖 *Курс: ${course.title}*`, md``];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (let pi = 0; pi < course.phases.length; pi++) {
@@ -207,7 +194,7 @@ export class CourseCatalogStory extends U7BotUiStory {
       const modCount = phase.moduleIds?.length ?? 0;
 
       lines.push(
-        `${emoji} *Этап: ${this.#esc(phase.title)}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
+        md`${emoji} *Этап: ${phase.title}* — ${modCount} модул${this.#plural(modCount, 'ь', 'я', 'ей')}`,
       );
 
       // Модули этапа inline (один уровень вниз) — нужны заголовки
@@ -221,14 +208,14 @@ export class CourseCatalogStory extends U7BotUiStory {
             mod.projects?.reduce((s, p) => s + (p.lessonIds?.length ?? 0), 0) ??
             0;
           lines.push(
-            `    📦 Модуль: ${this.#esc(mod.title)} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+            md`    📦 Модуль: ${mod.title} — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
           );
         } catch {
-          lines.push(`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
+          lines.push(md`    📦 _модуль ${modId.slice(0, 8)}\\.\\.\\._`);
         }
       }
 
-      lines.push('');
+      lines.push(md``);
 
       rows.push([
         {
@@ -241,9 +228,8 @@ export class CourseCatalogStory extends U7BotUiStory {
     rows.push([{ text: '⬅️ Назад к курсам школы', code: this.cb('list') }]);
 
     return {
-      sendMessage: {
-        text: this.#truncate(lines.join('\n')),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: this.#truncate(mdJoin(lines)),
         keyboard: { rows, isMultiple: false },
       },
     };
@@ -254,9 +240,9 @@ export class CourseCatalogStory extends U7BotUiStory {
   async #handleModules(
     courseId: string,
     phaseIdx: number,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     if (!courseId) {
-      return { sendMessage: { text: '⚠️ Курс не указан' } };
+      return { screen: { text: md`⚠️ Курс не указан` } };
     }
 
     let course: Course;
@@ -265,15 +251,15 @@ export class CourseCatalogStory extends U7BotUiStory {
         uuid: courseId,
       })) as Course;
     } catch {
-      return { sendMessage: { text: '⚠️ Курс не найден или недоступен' } };
+      return { screen: { text: md`⚠️ Курс не найден или недоступен` } };
     }
 
     const phase = course.phases[phaseIdx];
     if (!phase) {
-      return { sendMessage: { text: '⚠️ Этап не найден' } };
+      return { screen: { text: md`⚠️ Этап не найден` } };
     }
 
-    const lines: string[] = [`📖 *Этап: ${this.#esc(phase.title)}*`, ''];
+    const lines: MdText[] = [md`📖 *Этап: ${phase.title}*`, md``];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     for (const modId of phase.moduleIds ?? []) {
@@ -297,18 +283,18 @@ export class CourseCatalogStory extends U7BotUiStory {
       );
 
       lines.push(
-        `📦 *Модуль: ${this.#esc(mod.title)}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
+        md`📦 *Модуль: ${mod.title}* — ${projCount} проект${this.#plural(projCount, '', 'а', 'ов')}, ${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}`,
       );
 
       // Проекты модуля inline (один уровень вниз)
       for (const proj of projects) {
         const lCount = proj.lessonIds?.length ?? 0;
         lines.push(
-          `    📁 Проект: ${this.#esc(proj.title)} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
+          md`    📁 Проект: ${proj.title} — ${lCount} урок${this.#plural(lCount, '', 'а', 'ов')}`,
         );
       }
 
-      lines.push('');
+      lines.push(md``);
 
       rows.push([
         {
@@ -321,9 +307,8 @@ export class CourseCatalogStory extends U7BotUiStory {
     rows.push([{ text: '⬅️ Назад к курсу', code: this.cb('phases', courseId) }]);
 
     return {
-      sendMessage: {
-        text: this.#truncate(lines.join('\n')),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: this.#truncate(mdJoin(lines)),
         keyboard: { rows, isMultiple: false },
       },
     };
@@ -335,9 +320,9 @@ export class CourseCatalogStory extends U7BotUiStory {
     courseId: string,
     phaseIdx: number,
     moduleId: string,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     if (!moduleId) {
-      return { sendMessage: { text: '⚠️ Модуль не указан' } };
+      return { screen: { text: md`⚠️ Модуль не указан` } };
     }
 
     let snapshot: ContentSnapshot;
@@ -346,7 +331,7 @@ export class CourseCatalogStory extends U7BotUiStory {
         moduleId,
       })) as ContentSnapshot;
     } catch {
-      return { sendMessage: { text: '⚠️ Модуль не найден или недоступен' } };
+      return { screen: { text: md`⚠️ Модуль не найден или недоступен` } };
     }
 
     // Получаем название модуля для заголовка
@@ -360,25 +345,29 @@ export class CourseCatalogStory extends U7BotUiStory {
       // оставляем пустым
     }
 
-    const lines: string[] = [`📖 *Модуль: ${this.#esc(modTitle)}*`, ''];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
-
-    // Строим дерево через tree-renderer
+    // Строим дерево через tree-renderer.
+    // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
+    // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
     const treeNodes: TreeNode[] = snapshot.map((project) => ({
-      title: this.#esc(project.projectTitle),
+      title: md`${project.projectTitle}`,
       emoji: '📁',
       meta: this.#lessonSummary(project.lessons),
       children: project.lessons.map((lesson) => ({
-        title: this.#esc(lesson.lessonTitle),
+        title: md`${lesson.lessonTitle}`,
         emoji: '📝',
         meta: `${lesson.stepIds.length} шаг${this.#plural(lesson.stepIds.length, '', 'а', 'ов')}`,
       })),
     }));
 
-    lines.push(renderTree(treeNodes));
-    lines.push('');
+    const lines: MdText[] = [
+      md`📖 *Модуль: ${modTitle}*`,
+      md``,
+      mdRaw(renderTree(treeNodes)),
+      md``,
+    ];
 
     // Кнопки — проекты
+    const rows: Array<Array<{ text: string; code: string }>> = [];
     for (let pi = 0; pi < snapshot.length; pi++) {
       const project = snapshot[pi];
       if (!project) continue;
@@ -404,9 +393,8 @@ export class CourseCatalogStory extends U7BotUiStory {
     ]);
 
     return {
-      sendMessage: {
-        text: this.#truncate(lines.join('\n')),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: this.#truncate(mdJoin(lines)),
         keyboard: { rows, isMultiple: false },
       },
     };
@@ -419,9 +407,9 @@ export class CourseCatalogStory extends U7BotUiStory {
     phaseIdx: number,
     moduleId: string,
     projectIdx: number,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     if (!moduleId) {
-      return { sendMessage: { text: '⚠️ Модуль не указан' } };
+      return { screen: { text: md`⚠️ Модуль не указан` } };
     }
 
     let snapshot: ContentSnapshot;
@@ -430,28 +418,25 @@ export class CourseCatalogStory extends U7BotUiStory {
         moduleId,
       })) as ContentSnapshot;
     } catch {
-      return { sendMessage: { text: '⚠️ Модуль не найден или недоступен' } };
+      return { screen: { text: md`⚠️ Модуль не найден или недоступен` } };
     }
 
     const project = snapshot[projectIdx];
     if (!project) {
-      return { sendMessage: { text: '⚠️ Проект не найден' } };
+      return { screen: { text: md`⚠️ Проект не найден` } };
     }
 
-    const lines: string[] = [
-      `📖 *Проект: ${this.#esc(project.projectTitle)}*`,
-      '',
-    ];
+    const lines: MdText[] = [md`📖 *Проект: ${project.projectTitle}*`, md``];
     const rows: Array<Array<{ text: string; code: string }>> = [];
 
     if (project.lessons.length === 0) {
-      lines.push('_В этом проекте пока нет уроков_');
+      lines.push(md`_В этом проекте пока нет уроков_`);
     } else {
       for (const lesson of project.lessons) {
         const sCount = lesson.stepIds.length;
 
         lines.push(
-          `📝 *Урок: ${this.#esc(lesson.lessonTitle)}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
+          md`📝 *Урок: ${lesson.lessonTitle}* — ${sCount} шаг${this.#plural(sCount, '', 'а', 'ов')}`,
         );
 
         // Шаги урока inline
@@ -466,12 +451,10 @@ export class CourseCatalogStory extends U7BotUiStory {
           for (let si = 0; si < maxSteps; si++) {
             const step = steps[si];
             if (!step) continue;
-            lines.push(
-              `    ${this.#esc(`${si + 1}.`)} ${this.#esc(step.description)}`,
-            );
+            lines.push(md`    ${si + 1}\\. ${step.description}`);
           }
           if (steps.length > 3) {
-            lines.push(`    ${this.#esc('...')}`);
+            lines.push(md`    \\.\\.\\.`);
           }
         }
       }
@@ -485,24 +468,14 @@ export class CourseCatalogStory extends U7BotUiStory {
     ]);
 
     return {
-      sendMessage: {
-        text: this.#truncate(lines.join('\n')),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: this.#truncate(mdJoin(lines)),
         keyboard: { rows, isMultiple: false },
       },
     };
   }
 
   // ═══ Утилиты ═══
-
-  /** Кнопка «↩️ Главное меню» — общая фабрика */
-  #getMainMenuButton(): { text: string; code: string } {
-    return buttons.mainMenu();
-  }
-
-  #esc(text: string): string {
-    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
-  }
 
   #getDirectionEmoji(course: Course): string {
     for (const phase of course.phases) {
@@ -529,9 +502,9 @@ export class CourseCatalogStory extends U7BotUiStory {
     return `${lessonCount} урок${this.#plural(lessonCount, '', 'а', 'ов')}, ${stepCount} шаг${this.#plural(stepCount, '', 'а', 'ов')}`;
   }
 
-  #truncate(text: string, maxLen = 4000): string {
+  #truncate(text: MdText, maxLen = 4000): MdText {
     if (text.length <= maxLen) return text;
-    return `${text.slice(0, maxLen - 15)}${this.#esc('...')}`;
+    return mdConcat(mdRaw(text.slice(0, maxLen - 15)), md`${'...'}`);
   }
 
   // ── Желание пройти курс (кнопка из карточки курса) ──
@@ -543,9 +516,9 @@ export class CourseCatalogStory extends U7BotUiStory {
    * проактивно рендерит FillStory (подписка на questionnaire:start),
    * стори ничего не отправляет. Конфликт WISH_ALREADY_EXISTS — экран W04.
    */
-  async #handleApply(courseId: string, actor: User): Promise<BotResponse> {
+  async #handleApply(courseId: string, actor: User): Promise<DialogResponse> {
     if (!courseId) {
-      return { sendMessage: { text: '⚠️ Курс не указан' } };
+      return { screen: { text: md`⚠️ Курс не указан` } };
     }
 
     try {
@@ -562,15 +535,10 @@ export class CourseCatalogStory extends U7BotUiStory {
 
       // W03 — мгновенная фиксация (курс без пула анкеты)
       return {
-        sendMessage: {
-          text: [
-            '🎯 Твоё желание пройти курс зафиксировано\\!',
-            '',
-            'Мы напишем тебе, когда откроется набор на этот курс\\.',
-          ].join('\n'),
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`🎯 Твоё желание пройти курс зафиксировано\\!\n\nМы напишем тебе, когда откроется набор на этот курс\\.`,
           keyboard: {
-            rows: [[this.#getMainMenuButton()]],
+            rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },
@@ -586,9 +554,8 @@ export class CourseCatalogStory extends U7BotUiStory {
         if (status === 'pending') {
           // Анкета начата, но не завершена — выход есть: продолжить анкету
           return {
-            sendMessage: {
-              text: '📝 Ты начал заполнять анкету по этому курсу, но не закончил её\\.\nПродолжи — и желание будет закреплено\\.',
-              parseMode: 'MarkdownV2',
+            screen: {
+              text: md`📝 Ты начал заполнять анкету по этому курсу, но не закончил её\\.\nПродолжи — и желание будет закреплено\\.`,
               keyboard: {
                 rows: [
                   [
@@ -597,7 +564,7 @@ export class CourseCatalogStory extends U7BotUiStory {
                       code: Routes.questionnaire.resume(courseId),
                     },
                   ],
-                  [this.#getMainMenuButton()],
+                  [buttons.mainMenu()],
                 ],
                 isMultiple: false,
               },
@@ -605,14 +572,13 @@ export class CourseCatalogStory extends U7BotUiStory {
           };
         }
 
-        const text =
+        const screen =
           status === 'confirmed'
-            ? '📚 Ты уже обучаешься на этом курсе\\.'
-            : '📝 Ты уже выразил желание пройти этот курс\\.';
+            ? md`📚 Ты уже обучаешься на этом курсе\\.`
+            : md`📝 Ты уже выразил желание пройти этот курс\\.`;
         return {
-          sendMessage: {
-            text,
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: screen,
             keyboard: {
               rows: [
                 [
@@ -621,28 +587,30 @@ export class CourseCatalogStory extends U7BotUiStory {
                     code: this.cb('cancel', courseId),
                   },
                 ],
-                [this.#getMainMenuButton()],
+                [buttons.mainMenu()],
               ],
               isMultiple: false,
             },
           },
         };
       }
-      return this.handleError(err);
+      return this.errorNotify(err);
     }
   }
 
   // ── Запись на модуль (кнопка из уведомления о завершении) ──
 
   /** wish:{moduleId} — фиксирует желание пройти модуль. */
-  async #handleWishModule(moduleId: string, actor: User): Promise<BotResponse> {
+  async #handleWishModule(
+    moduleId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
     try {
       await this.appApi.execute('create-module-wish', { moduleId }, actor.uuid);
 
       return {
-        sendMessage: {
-          text: '✅ Записали\\! Мы сообщим, когда откроется набор на модуль\\.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`✅ Записали\\! Мы сообщим, когда откроется набор на модуль\\.`,
           keyboard: {
             rows: [[buttons.mainMenu()]],
             isMultiple: false,
@@ -653,9 +621,8 @@ export class CourseCatalogStory extends U7BotUiStory {
       // Повторное желание — не ошибка для пользователя
       if (fromError(err).kind === 'conflict') {
         return {
-          sendMessage: {
-            text: 'ℹ️ Ты уже записан на этот модуль — ждём открытия набора\\.',
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`ℹ️ Ты уже записан на этот модуль — ждём открытия набора\\.`,
             keyboard: {
               rows: [[buttons.mainMenu()]],
               isMultiple: false,
@@ -663,7 +630,7 @@ export class CourseCatalogStory extends U7BotUiStory {
           },
         };
       }
-      return this.handleError(err);
+      return this.errorNotify(err);
     }
   }
 
@@ -671,7 +638,7 @@ export class CourseCatalogStory extends U7BotUiStory {
   async #handleCancelConfirm(
     courseId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     try {
       await this.appApi.execute(
         'cancel-wish',
@@ -680,9 +647,8 @@ export class CourseCatalogStory extends U7BotUiStory {
       );
 
       return {
-        sendMessage: {
-          text: '🗑️ Желание пройти курс отменено\\.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`🗑️ Желание пройти курс отменено\\.`,
           keyboard: {
             rows: [[buttons.mainMenu()]],
             isMultiple: false,
@@ -693,9 +659,8 @@ export class CourseCatalogStory extends U7BotUiStory {
       // Гонка: желание уже отменили — не ошибка для пользователя
       if (fromError(err).kind === 'not-found') {
         return {
-          sendMessage: {
-            text: 'ℹ️ Активного желания на этот курс уже нет\\.',
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`ℹ️ Активного желания на этот курс уже нет\\.`,
             keyboard: {
               rows: [[buttons.mainMenu()]],
               isMultiple: false,
@@ -703,7 +668,7 @@ export class CourseCatalogStory extends U7BotUiStory {
           },
         };
       }
-      return this.handleError(err);
+      return this.errorNotify(err);
     }
   }
 
@@ -711,7 +676,7 @@ export class CourseCatalogStory extends U7BotUiStory {
   async #handleCancelModConfirm(
     moduleId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     try {
       await this.appApi.execute(
         'cancel-wish',
@@ -720,9 +685,8 @@ export class CourseCatalogStory extends U7BotUiStory {
       );
 
       return {
-        sendMessage: {
-          text: '🗑️ Желание пройти модуль отменено\\.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`🗑️ Желание пройти модуль отменено\\.`,
           keyboard: {
             rows: [[buttons.mainMenu()]],
             isMultiple: false,
@@ -733,9 +697,8 @@ export class CourseCatalogStory extends U7BotUiStory {
       // Гонка: желание уже отменили — не ошибка для пользователя
       if (fromError(err).kind === 'not-found') {
         return {
-          sendMessage: {
-            text: 'ℹ️ Активного желания на этот модуль уже нет\\.',
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`ℹ️ Активного желания на этот модуль уже нет\\.`,
             keyboard: {
               rows: [[buttons.mainMenu()]],
               isMultiple: false,
@@ -743,7 +706,7 @@ export class CourseCatalogStory extends U7BotUiStory {
           },
         };
       }
-      return this.handleError(err);
+      return this.errorNotify(err);
     }
   }
 }

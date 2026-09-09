@@ -1,10 +1,11 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
+import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
 import type {
-  BotResponse,
+  BotSession,
   BotUpdate,
+  DialogResponse,
   KeyboardDescription,
-  SessionData,
 } from '@u7-scl/core/ui';
 import type {
   CategorizedStudent,
@@ -16,11 +17,18 @@ import type { TreeNode } from '../../../shared/tree-renderer';
 import { renderTree } from '../../../shared/tree-renderer';
 import { Routes } from '../../shared/routes';
 
-/** Контекст для captureInput при вводе кодового слова */
+/** Контекст awaitInput при вводе кодового слова */
 interface EnrollKeyContext {
   streamId: string;
   enrollmentKey: string;
   attempts: number;
+}
+
+/** Минимум полей потока для финального поздравления */
+interface EnrollStreamInfo {
+  title: string;
+  startDate: string;
+  telegramGroupInvite?: string;
 }
 
 const MAX_ENROLL_ATTEMPTS = 3;
@@ -38,8 +46,8 @@ export class ViewStreamStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const [cmd, streamId] = action.split(':');
 
     if (cmd === 'program' && streamId) {
@@ -67,7 +75,7 @@ export class ViewStreamStory extends U7BotUiStory {
     }
 
     if (cmd !== 'view' || !streamId) {
-      return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+      return this.unknownCommand(action, actor, session);
     }
 
     return this.handleView(streamId, actor);
@@ -76,15 +84,23 @@ export class ViewStreamStory extends U7BotUiStory {
   override async handleMessage(
     update: BotUpdate,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     if (update.type !== 'message') {
-      return { sendMessage: { text: '⚠️ Ожидалось текстовое сообщение' } };
+      return {
+        notify: { text: md`Ожидалось текстовое сообщение\\.`, kind: 'warn' },
+      };
     }
 
-    const ctx = session.activeHandler?.context as EnrollKeyContext | undefined;
+    const ctx = session.dialog?.input?.context as EnrollKeyContext | undefined;
     if (!ctx) {
-      return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+      // Ввод без ожидания — страховочный отказ (диалог не ждёт кодовое слово)
+      return {
+        notify: {
+          text: md`Извините, на данном этапе сообщения не принимаются\\.`,
+        },
+        release: true,
+      };
     }
 
     const enteredKey = update.text;
@@ -93,9 +109,9 @@ export class ViewStreamStory extends U7BotUiStory {
       const attemptsLeft = MAX_ENROLL_ATTEMPTS - ctx.attempts - 1;
       if (attemptsLeft <= 0) {
         return {
-          releaseInput: true,
-          sendMessage: {
-            text: '❌ Попытки исчерпаны.\nВозврат к потоку — нажмите кнопку ниже.',
+          release: true,
+          screen: {
+            text: md`❌ Попытки исчерпаны\\.\nВозврат к потоку — нажмите кнопку ниже\\.`,
             keyboard: {
               rows: [
                 [
@@ -112,22 +128,11 @@ export class ViewStreamStory extends U7BotUiStory {
       }
 
       return {
-        sendMessage: {
-          text: `❌ Неверное слово. Осталось попыток: ${attemptsLeft}`,
-          keyboard: {
-            rows: [
-              [
-                {
-                  text: '❌ Отмена',
-                  code: this.cbFor(this.storyName, 'cancel', ctx.streamId),
-                },
-              ],
-            ],
-            isMultiple: false,
-          },
+        notify: {
+          text: md`❌ Неверное слово\\. Осталось попыток: ${attemptsLeft}`,
+          kind: 'warn',
         },
-        captureInput: {
-          path: 'view-stream/enroll-key',
+        awaitInput: {
           context: {
             ...ctx,
             attempts: ctx.attempts + 1,
@@ -140,16 +145,12 @@ export class ViewStreamStory extends U7BotUiStory {
     return this.#doEnroll(ctx.streamId, actor, ctx.enrollmentKey);
   }
 
-  override async handleStart(_actor: User): Promise<null> {
-    return null;
-  }
-
   // ── Защищённые методы (доступны для наследования) ──
 
   protected async handleView(
     streamId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -161,8 +162,8 @@ export class ViewStreamStory extends U7BotUiStory {
         actor.uuid,
       );
       studentCount = (students as unknown[]).length;
-    } catch (err) {
-      this.handleError(err);
+    } catch {
+      // счётчик студентов не критичен для карточки
     }
 
     let mentorName = '';
@@ -171,8 +172,8 @@ export class ViewStreamStory extends U7BotUiStory {
         uuid: stream.mentorId,
       });
       mentorName = mentor.name;
-    } catch (err) {
-      this.handleError(err);
+    } catch {
+      // имя ментора не критично для карточки
     }
 
     const statusLabels: Record<string, string> = {
@@ -182,37 +183,33 @@ export class ViewStreamStory extends U7BotUiStory {
       archived: '⚫ Архивирован',
     };
 
-    const dateStr = this.#formatDate(stream.startDate);
+    const dateStr = this.formatDate(stream.startDate);
     const timeStr = this.#formatTime(stream.startDate);
 
-    const esc = (s: string): string => this.escapeMarkdown(s);
+    const text = mdJoin([
+      md`📋 *${stream.title}*`,
+      md``,
+      md`_${stream.description}_`,
+      md``,
+      md`👤 Ментор: ${mentorName}`,
+      md`📅 Старт: ${dateStr}`,
+      md`🕐 Время: ${timeStr}`,
+      md`👥 Студентов: ${studentCount}`,
+      md`📌 Статус: ${statusLabels[stream.status] ?? stream.status}`,
+      md`📚 Курс: Fullstack JS`,
+    ]);
 
-    const lines = [
-      `📋 *${esc(stream.title)}*`,
-      '',
-      `_${esc(stream.description)}_`,
-      '',
-      `👤 Ментор: ${esc(mentorName)}`,
-      `📅 Старт: ${esc(dateStr)}`,
-      `🕐 Время: ${esc(timeStr)}`,
-      `👥 Студентов: ${studentCount}`,
-      `📌 Статус: ${statusLabels[stream.status] ?? esc(stream.status)}`,
-      `📚 Курс: Fullstack JS`,
-    ];
-
-    const text = lines.join('\n');
     const keyboard = this.buildKeyboard(stream, actor);
 
     return {
-      sendMessage: {
+      screen: {
         text,
-        parseMode: 'MarkdownV2',
         keyboard: keyboard.rows.length > 0 ? keyboard : undefined,
       },
     };
   }
 
-  protected async handleProgramView(streamId: string): Promise<BotResponse> {
+  protected async handleProgramView(streamId: string): Promise<DialogResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -220,9 +217,8 @@ export class ViewStreamStory extends U7BotUiStory {
 
     if (!snapshot || snapshot.length === 0) {
       return {
-        sendMessage: {
-          text: '📖 *Программа курса*\n\nПрограмма пока не загружена\\.',
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`📖 *Программа курса*\n\nПрограмма пока не загружена\\.`,
           keyboard: {
             rows: [
               [
@@ -240,18 +236,18 @@ export class ViewStreamStory extends U7BotUiStory {
 
     // Собираем дерево проектов для tree-renderer.
     // Контракт TreeNode.title — «уже экранированный для MarkdownV2»,
-    // поэтому заголовки экранируем ДО renderTree (образец: course-catalog #handleProjects).
+    // поэтому заголовки пропускаем через md-интерполяцию ДО renderTree.
     const projectNodes: TreeNode[] = snapshot.map(
       (p: {
         projectTitle: string;
         lessons: Array<{ lessonTitle: string; stepIds: string[] }>;
       }) => ({
-        title: this.escapeMarkdown(p.projectTitle),
+        title: md`${p.projectTitle}`,
         emoji: '📁',
         children: p.lessons.map(
           (l: { lessonTitle: string; stepIds: string[] }) =>
             ({
-              title: this.escapeMarkdown(l.lessonTitle),
+              title: md`${l.lessonTitle}`,
               emoji: '📝',
               meta: `${l.stepIds.length} шаг${this.#plural(l.stepIds.length, '', 'а', 'ов')}`,
             }) as TreeNode,
@@ -260,12 +256,11 @@ export class ViewStreamStory extends U7BotUiStory {
     );
 
     const treeText = renderTree(projectNodes);
-    const text = `📖 *Программа курса*\n\n${treeText}`;
+    const text = mdConcat(md`📖 *Программа курса*\n\n`, mdRaw(treeText));
 
     return {
-      sendMessage: {
+      screen: {
         text: this.#truncate(text),
-        parseMode: 'MarkdownV2',
         keyboard: {
           rows: [
             [
@@ -281,7 +276,7 @@ export class ViewStreamStory extends U7BotUiStory {
     };
   }
 
-  protected async handleDetailsView(streamId: string): Promise<BotResponse> {
+  protected async handleDetailsView(streamId: string): Promise<DialogResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as Stream;
@@ -295,22 +290,20 @@ export class ViewStreamStory extends U7BotUiStory {
     ];
 
     const filled = fields.filter((f) => f.value);
-    const esc = (s: string): string => this.escapeMarkdown(s);
 
-    const lines: string[] = [`📋 *Детали: ${esc(stream.title)}*`, ''];
+    const lines: MdText[] = [md`📋 *Детали: ${stream.title}*`, md``];
 
     if (filled.length > 0) {
       for (const f of filled) {
-        lines.push(`${f.label}: ${esc(f.value ?? '')}`);
+        lines.push(md`${f.label}: ${f.value ?? ''}`);
       }
     } else {
-      lines.push('_Расширенная информация пока не добавлена\\._');
+      lines.push(md`_Расширенная информация пока не добавлена\\._`);
     }
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: {
           rows: [
             [
@@ -392,7 +385,7 @@ export class ViewStreamStory extends U7BotUiStory {
   protected async handleStudentsList(
     streamId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const students = (await this.appApi.execute(
       'list-stream-students',
       { streamId },
@@ -404,7 +397,7 @@ export class ViewStreamStory extends U7BotUiStory {
     })) as Stream;
 
     if (!stream) {
-      return { sendMessage: { text: '⚠️ Поток не найден' } };
+      return { screen: { text: md`⚠️ Поток не найден` } };
     }
 
     // Категоризируем через DS
@@ -476,11 +469,10 @@ export class ViewStreamStory extends U7BotUiStory {
       }
     }
 
-    // Клавиатура
     const keyboardRows: Array<Array<{ text: string; code: string }>> = [];
 
     // Строки студентов для текста
-    const studentLines: string[] = [];
+    const studentLines: MdText[] = [];
 
     for (const r of rows) {
       const marker = this.#lagMarker(r.lagLevel, r.student.status);
@@ -494,16 +486,20 @@ export class ViewStreamStory extends U7BotUiStory {
         summary.progress.completed,
         summary.progress.total,
       );
-      const parts = [
-        `${marker} ${this.escapeMarkdown(r.name)}`,
-        `${bar} ${summary.progress.percent}%`,
+      const lineParts: MdText[] = [
+        md`${marker} ${r.name}`,
+        mdConcat(bar, md` ${summary.progress.percent}%`),
       ];
       if (summary.dominantCategory && summary.medianTimeMinutes !== null) {
-        parts.push(
-          `${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: ${summary.medianTimeMinutes} мин`,
+        lineParts.push(
+          mdConcat(
+            md`${summary.dominantCategory.emoji} ${summary.dominantCategory.name}: `,
+            md`${summary.medianTimeMinutes}`,
+            md` мин`,
+          ),
         );
       }
-      studentLines.push(parts.join(' \\| '));
+      studentLines.push(mdJoin(lineParts, ' \\| '));
 
       const nameBtn = `${marker} ${r.name} — ${summary.progress.percent}%`;
 
@@ -530,10 +526,10 @@ export class ViewStreamStory extends U7BotUiStory {
       'студентов',
     );
 
-    const header = [
-      `👥 *Студенты потока* — _${this.escapeMarkdown(stream.title)}_`,
-      '',
-      `Всего: ${students.length} ${countLabel}`,
+    const header: MdText[] = [
+      md`👥 *Студенты потока* — _${stream.title}_`,
+      md``,
+      md`Всего: ${students.length} ${countLabel}`,
     ];
 
     const metrics: string[] = [];
@@ -542,39 +538,37 @@ export class ViewStreamStory extends U7BotUiStory {
     if (notAdvancedCount > 0) metrics.push(`↩️ Не прошли: ${notAdvancedCount}`);
     if (abandonedCount > 0) metrics.push(`🚫 Выбыли: ${abandonedCount}`);
 
-    header.push('', '———');
+    header.push(md``, md`———`);
 
     if (metrics.length > 0) {
-      header.push('', '*Метрики группы:*', ...metrics);
+      header.push(md``, md`*Метрики группы:*`);
+      for (const m of metrics) {
+        header.push(mdRaw(m));
+      }
     }
 
     header.push(
-      '',
-      '*Легенда:*',
-      '🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл',
-      '',
-      '———',
-      '',
-      '*Метрики по студентам:*',
+      md``,
+      md`*Легенда:*`,
+      md`🏃 учится   ✅ прошёл   ↩️ не прошёл   🚫 выбыл`,
+      md``,
+      md`———`,
+      md``,
+      md`*Метрики по студентам:*`,
+      ...studentLines,
+      md``,
+      md`*Легенда:*`,
+      md`🛑 критическое отставание, кандидат на снятие с учёбы`,
+      md`⚠️ учится, но отстаёт от группы`,
+      md`🏃 в норме, учится`,
+      md`🚫 выбыл из учёбы`,
+      md`↩️ завершил модуль, но пройдет заново`,
+      md`✅ завершил модуль, проходит дальше`,
     );
 
-    for (const line of studentLines) {
-      header.push(line);
-    }
-
-    header.push('');
-    header.push('*Легенда:*');
-    header.push('🛑 критическое отставание, кандидат на снятие с учёбы');
-    header.push('⚠️ учится, но отстаёт от группы');
-    header.push('🏃 в норме, учится');
-    header.push('🚫 выбыл из учёбы');
-    header.push('↩️ завершил модуль, но пройдет заново');
-    header.push('✅ завершил модуль, проходит дальше');
-
     return {
-      sendMessage: {
-        text: header.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(header),
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
@@ -588,7 +582,7 @@ export class ViewStreamStory extends U7BotUiStory {
   async #handleStudentDetail(
     studentId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const student = (await this.appApi.execute(
       'get-student-progress',
       { studentId },
@@ -610,7 +604,7 @@ export class ViewStreamStory extends U7BotUiStory {
     })) as Stream;
 
     if (!stream) {
-      return { sendMessage: { text: '⚠️ Поток не найден' } };
+      return { screen: { text: md`⚠️ Поток не найден` } };
     }
 
     // Lag info
@@ -636,37 +630,49 @@ export class ViewStreamStory extends U7BotUiStory {
       not_advanced: '↩️ Не прошёл',
     };
 
-    const esc = (s: string) => this.escapeMarkdown(s);
     const bar = (c: number, t: number) => this.#formatProgressBar(c, t);
 
-    const lines = [
-      `👤 *${esc(userName)}* \\| ${statusLabels[student.status] ?? student.status}`,
-      '',
-      '———',
-      '',
-      '*Прогресс студента:*',
-      `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| ${card.moduleProgress.percent}%`,
+    const lines: MdText[] = [
+      mdConcat(
+        md`👤 *${userName}* \\| `,
+        md`${statusLabels[student.status] ?? student.status}`,
+      ),
+      md``,
+      md`———`,
+      md``,
+      md`*Прогресс студента:*`,
+      mdConcat(
+        mdRaw(
+          `📊 Прогресс по модулю: ${bar(card.moduleProgress.completed, card.moduleProgress.total)} \\| `,
+        ),
+        md`${card.moduleProgress.percent}%`,
+      ),
     ];
 
     // Проект и урок
     if (card.currentProject) {
-      lines.push('', `📁 Проект: «${esc(card.currentProject.title)}»`);
+      lines.push(md``, md`📁 Проект: «${card.currentProject.title}»`);
       if (card.currentLesson) {
-        lines.push(`📝 Урок: «${esc(card.currentLesson.title)}»`);
+        lines.push(md`📝 Урок: «${card.currentLesson.title}»`);
       }
       lines.push(
-        `📊 Прогресс по проекту: ${bar(card.currentProject.progress.completed, card.currentProject.progress.total)} \\| ${card.currentProject.progress.percent}%`,
+        mdConcat(
+          mdRaw(
+            `📊 Прогресс по проекту: ${bar(card.currentProject.progress.completed, card.currentProject.progress.total)} \\| `,
+          ),
+          md`${card.currentProject.progress.percent}%`,
+        ),
       );
     }
 
     // Усидчивость студента
-    lines.push('', '———', '', '*Усидчивость студента:*');
+    lines.push(md``, md`———`, md``, md`*Усидчивость студента:*`);
 
     // Среднее время
     if (card.medianTimeMinutes !== null) {
       lines.push(
-        '',
-        `⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`,
+        md``,
+        md`⏱ Типичное время на шаг: ${card.medianTimeMinutes} мин\\.`,
       );
     }
 
@@ -680,21 +686,25 @@ export class ViewStreamStory extends U7BotUiStory {
     for (const c of card.timeCategories) {
       const desc = catDescs[c.name] ?? '';
       lines.push(
-        `${c.emoji} ${c.name} \u005c\u0028${desc}\u005c\u0029: ${c.count} шаг\u005c\u0028ов\u005c\u0029`,
+        mdConcat(
+          md`${c.emoji} ${c.name} `,
+          mdRaw(`\\(${desc}\\)`),
+          md`: ${c.count} шаг\\(ов\\)`,
+        ),
       );
     }
 
     // Активность студента
-    lines.push('', '———', '', '*Активность студента:*');
+    lines.push(md``, md`———`, md``, md`*Активность студента:*`);
 
     // Последняя активность
     const hours = Math.round(card.hoursSinceLastActivity);
     if (hours > 0) {
       const days = Math.round(hours / 24);
       if (days >= 1) {
-        lines.push('', `📅 Последняя активность: ${days} дн\\. назад`);
+        lines.push(md``, md`📅 Последняя активность: ${days} дн\\. назад`);
       } else {
-        lines.push('', `📅 Последняя активность: ${hours} ч\\. назад`);
+        lines.push(md``, md`📅 Последняя активность: ${hours} ч\\. назад`);
       }
     }
 
@@ -702,16 +712,16 @@ export class ViewStreamStory extends U7BotUiStory {
     if (student.status === 'active') {
       if (card.lagLevel === 'critical') {
         const days = Math.round(card.hoursSinceLastActivity / 24);
-        lines.push('', `🛑 Критическое отставание: ${days} дн\\.`);
+        lines.push(md``, md`🛑 Критическое отставание: ${days} дн\\.`);
       } else if (card.lagLevel === 'lagging') {
         if (card.hoursSinceLastActivity > 4 * 24) {
           const days = Math.round(card.hoursSinceLastActivity / 24);
-          lines.push('', `⚠️ Отстаёт: ${days} дн\\.`);
+          lines.push(md``, md`⚠️ Отстаёт: ${days} дн\\.`);
         } else {
-          lines.push('', '⚠️ Отстаёт от группы');
+          lines.push(md``, md`⚠️ Отстаёт от группы`);
         }
       } else {
-        lines.push('', '✅ Идёт по расписанию');
+        lines.push(md``, md`✅ Идёт по расписанию`);
       }
     }
 
@@ -726,9 +736,8 @@ export class ViewStreamStory extends U7BotUiStory {
     ];
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: mdJoin(lines),
         keyboard: { rows: keyboardRows, isMultiple: false },
       },
     };
@@ -747,12 +756,15 @@ export class ViewStreamStory extends U7BotUiStory {
   /**
    * Форматирует прогресс-бар для Telegram MarkdownV2.
    * Скобки экранированы: \[ ████░░░░ \]
+   * Возвращает уже размеченный текст (mdRaw — экранирование внутри).
    */
-  #formatProgressBar(completed: number, total: number): string {
+  #formatProgressBar(completed: number, total: number): MdText {
     const width = 10;
     const filled = total === 0 ? 0 : Math.round((completed / total) * width);
     const empty = width - filled;
-    return `\\[${'█'.repeat(filled)}${'░'.repeat(empty)}\\] ${completed}/${total}`;
+    return mdRaw(
+      `\\[${'█'.repeat(filled)}${'░'.repeat(empty)}\\] ${completed}/${total}`,
+    );
   }
 
   /** Склоняет существительное: 1 студент, 2 студента, 5 студентов */
@@ -770,7 +782,7 @@ export class ViewStreamStory extends U7BotUiStory {
   protected async handleEnrollStart(
     streamId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
     })) as { enrollmentKey?: string; title: string };
@@ -778,8 +790,8 @@ export class ViewStreamStory extends U7BotUiStory {
     // Если есть кодовое слово — запрашиваем его
     if (stream.enrollmentKey) {
       return {
-        sendMessage: {
-          text: '🔑 Введите кодовое слово для записи на поток:',
+        screen: {
+          text: md`🔑 Введите кодовое слово для записи на поток:`,
           keyboard: {
             rows: [
               [
@@ -792,8 +804,7 @@ export class ViewStreamStory extends U7BotUiStory {
             isMultiple: false,
           },
         },
-        captureInput: {
-          path: 'view-stream/enroll-key',
+        awaitInput: {
           context: {
             streamId,
             enrollmentKey: stream.enrollmentKey,
@@ -807,9 +818,11 @@ export class ViewStreamStory extends U7BotUiStory {
     return this.#doEnroll(streamId, actor);
   }
 
-  protected async handleEnrollCancel(streamId: string): Promise<BotResponse> {
+  protected async handleEnrollCancel(
+    streamId: string,
+  ): Promise<DialogResponse> {
     return {
-      releaseInput: true,
+      release: true,
       delegate: {
         path: this.cbFor(this.storyName, 'view', streamId),
       },
@@ -820,58 +833,49 @@ export class ViewStreamStory extends U7BotUiStory {
     streamId: string,
     actor: User,
     enrollmentKey?: string,
-  ): Promise<BotResponse> {
-    const stream = (await this.appApi.execute('get-stream', {
-      streamId,
-    })) as {
-      title: string;
-      startDate: string;
-      telegramGroupInvite?: string;
-    };
-
-    await this.appApi.execute(
-      'enroll-student',
-      {
+  ): Promise<DialogResponse> {
+    let stream: EnrollStreamInfo;
+    try {
+      stream = (await this.appApi.execute('get-stream', {
         streamId,
-        userId: actor.uuid,
-        enrollmentKey,
-      },
-      actor.uuid,
-    );
+      })) as EnrollStreamInfo;
+    } catch (err) {
+      return this.errorNotify(err);
+    }
 
-    const dateStr = this.#formatDate(stream.startDate);
-    const lines = [
-      '🎉 *Вы успешно записаны на поток\\!*',
-      '',
-      `📋 _${this.escapeMarkdown(stream.title)}_`,
-      `📅 Обучение начнётся: ${this.escapeMarkdown(dateStr)}`,
-      '',
-      'Теперь вы можете получить функционал по учёбе, набрав /start и перейдя по кнопке «Моя учёба»',
+    try {
+      await this.appApi.execute(
+        'enroll-student',
+        {
+          streamId,
+          userId: actor.uuid,
+          enrollmentKey,
+        },
+        actor.uuid,
+      );
+    } catch (err) {
+      // Ошибки валидации/конфликты — реплика-переспрос без захвата экрана
+      return this.errorNotify(err);
+    }
+
+    const dateStr = this.formatDate(stream.startDate);
+    const lines: MdText[] = [
+      md`🎉 *Вы успешно записаны на поток\\!*`,
+      md``,
+      md`📋 _${stream.title}_`,
+      md`📅 Обучение начнётся: ${dateStr}`,
+      md``,
+      md`Теперь вы можете получить функционал по учёбе, набрав /start и перейдя по кнопке «Моя учёба»`,
     ];
 
     if (stream.telegramGroupInvite) {
-      lines.push('', `🔗 ${this.escapeMarkdown(stream.telegramGroupInvite)}`);
+      lines.push(md``, md`🔗 ${stream.telegramGroupInvite}`);
     }
 
     return {
-      sendMessage: {
-        text: lines.join('\n'),
-        parseMode: 'MarkdownV2',
-      },
+      notify: { text: mdJoin(lines) },
       delegate: { path: Routes.app.mainMenu },
     };
-  }
-
-  #formatDate(iso: string): string {
-    try {
-      const d = new Date(iso);
-      const dd = String(d.getUTCDate()).padStart(2, '0');
-      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-      const yyyy = d.getUTCFullYear();
-      return `${dd}.${mm}.${yyyy}`;
-    } catch {
-      return iso;
-    }
   }
 
   #formatTime(iso: string): string {
@@ -894,8 +898,8 @@ export class ViewStreamStory extends U7BotUiStory {
     return five;
   }
 
-  #truncate(text: string, maxLen = 4000): string {
+  #truncate(text: MdText, maxLen = 4000): MdText {
     if (text.length <= maxLen) return text;
-    return `${text.slice(0, maxLen - 15)}${this.escapeMarkdown('...')}`;
+    return mdConcat(mdRaw(text.slice(0, maxLen - 15)), md`${'...'}`);
   }
 }

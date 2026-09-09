@@ -1,44 +1,78 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
-import type { MainMenuAction } from '@u7-scl/bot/u7-menu';
-import type { BotResponse, BotUpdate, SessionData } from '@u7-scl/core/ui';
+import type { MenuButton } from '@u7-scl/bot/u7-menu';
+import { type MdText, md, mdConcat } from '@u7-scl/core/shared';
+import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import { StreamStatus } from '@u7-scl/stream/domain';
 import { buttons } from '../../shared/buttons';
+
+/** Витрина потока каталога — минимум полей для отображения */
+interface StreamRow {
+  uuid: string;
+  title: string;
+  status: string;
+}
+
+const STATUS_EMOJI: Record<string, string> = {
+  enrollment: '🟡',
+  active: '🔵',
+  completed: '🟢',
+  archived: '⚫',
+};
+
+const LEGEND = md`\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве`;
 
 /**
  * S01: Просмотр витрины потоков (Каталог).
  * Показывает список активных потоков и потоков с открытым набором.
+ * Кнопки потоков — мосты в view-stream (валидный штамп).
  */
 export class CatalogStory extends U7BotUiStory {
   readonly name = 'catalog';
 
+  override menuButtons(_actor: User): MenuButton[] {
+    return [
+      {
+        kind: 'callback',
+        text: '📚 Потоки курсов',
+        action: this.cb('list'),
+        priority: 15,
+        description:
+          '📚 Потоки курсов — просмотр каталога учебных потоков школы',
+      },
+    ];
+  }
+
   async handleCallback(
     action: string,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
+    actor: User,
+    session: BotSession,
+  ): Promise<DialogResponse> {
     const showCompleted =
       action === 'list-with-completed' || action === 'list-with-all';
     const showArchived = action === 'list-with-all';
     if (action !== 'list' && !showCompleted) {
-      return { sendMessage: { text: '⚠️ Неизвестная команда каталога' } };
+      return this.unknownCommand(action, actor, session);
     }
 
     // Получаем все потоки одним запросом (без фильтра по статусу)
-    const allStreams = await this.appApi.execute('list-streams', {});
+    const allStreams = (await this.appApi.execute(
+      'list-streams',
+      {},
+    )) as StreamRow[];
 
     // Разделяем по статусам
     const enrollmentStreams = allStreams.filter(
-      (s: { status: string }) => s.status === StreamStatus.ENROLLMENT,
+      (s) => s.status === StreamStatus.ENROLLMENT,
     );
     const activeStreams = allStreams.filter(
-      (s: { status: string }) => s.status === StreamStatus.ACTIVE,
+      (s) => s.status === StreamStatus.ACTIVE,
     );
     const completedStreams = allStreams.filter(
-      (s: { status: string }) => s.status === StreamStatus.COMPLETED,
+      (s) => s.status === StreamStatus.COMPLETED,
     );
     const archivedStreams = allStreams.filter(
-      (s: { status: string }) => s.status === StreamStatus.ARCHIVED,
+      (s) => s.status === StreamStatus.ARCHIVED,
     );
 
     const hasCompleted = completedStreams.length > 0;
@@ -73,43 +107,27 @@ export class CatalogStory extends U7BotUiStory {
         ]);
       }
       if (toggleRows.length > 0) {
-        toggleRows.push([this.#getMainMenuButton()]);
+        toggleRows.push([this.#mainMenuButton()]);
         return {
-          sendMessage: {
-            text: '📚 *Нет активных потоков*',
-            parseMode: 'MarkdownV2',
+          screen: {
+            text: md`📚 *Нет активных потоков*`,
             keyboard: { rows: toggleRows, isMultiple: false },
           },
         };
       }
 
-      return {
-        sendMessage: {
-          text: '📚 Нет доступных потоков',
-          parseMode: 'MarkdownV2',
-        },
-      };
+      return { screen: { text: md`📚 Нет доступных потоков` } };
     }
-
-    const statusEmoji: Record<string, string> = {
-      enrollment: '🟡',
-      active: '🔵',
-      completed: '🟢',
-      archived: '⚫',
-    };
 
     // Кросс-стори колбэки: ссылаемся на ViewStreamStory
     const rows: Array<Array<{ text: string; code: string }>> = visible.map(
-      (s: { status: string; title: string; uuid: string }) => [
+      (s) => [
         {
-          text: `${statusEmoji[s.status] ?? '❓'} ${s.title}`,
+          text: `${STATUS_EMOJI[s.status] ?? '❓'} ${s.title}`,
           code: this.cbFor('view-stream', 'view', s.uuid),
         },
       ],
     );
-
-    const legend =
-      '\n\n🟡 — идёт набор   🔵 — идёт обучение   🟢 — завершён   ⚫ — в архиве';
 
     // Кнопки-переключатели
     const toggles: Array<{ text: string; code: string }> = [];
@@ -142,37 +160,23 @@ export class CatalogStory extends U7BotUiStory {
     }
 
     // Кнопка «↩️ Главное меню» последней строкой
-    rows.push([this.#getMainMenuButton()]);
+    rows.push([this.#mainMenuButton()]);
 
     return {
-      sendMessage: {
-        text: `📚 *Потоки курсов*${legend}`,
-        parseMode: 'MarkdownV2',
+      screen: {
+        text: this.#catalogTitle(),
         keyboard: { rows, isMultiple: false },
       },
     };
   }
 
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+  /** Заголовок каталога с легендой статусов. */
+  #catalogTitle(): MdText {
+    return mdConcat(md`📚 *Потоки курсов*`, LEGEND);
   }
 
-  override async handleStart(_actor: User): Promise<MainMenuAction | null> {
-    return {
-      kind: 'callback',
-      text: '📚 Потоки курсов',
-      action: this.cb('list'),
-      priority: 15,
-      description: '📚 Потоки курсов — просмотр каталога учебных потоков школы',
-    };
-  }
-
-  /** Кнопка «↩️ Главное меню» — общая фабрика */
-  #getMainMenuButton(): { text: string; code: string } {
+  /** Кнопка «↩️ Главное меню» — мост на системный код приложения. */
+  #mainMenuButton(): { text: string; code: string } {
     return buttons.mainMenu();
   }
 }

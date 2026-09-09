@@ -15,6 +15,7 @@ import type {
 } from '@u7-scl/core/ui';
 import { Role, type UserFacade } from '@u7-scl/user/domain';
 import { AppController } from '../controllers/app/app-controller';
+import { APP_CODES } from '../shared/app-codes';
 import { U7BotController } from './u7-bot-controller';
 import { U7BotUiStory } from './u7-bot-ui-story';
 import { U7BotUiApp } from './ui-app';
@@ -428,5 +429,73 @@ describe('U7BotUiApp — системные кнопки', () => {
     expect(String(response?.notify?.text)).toContain('Как со мной работать');
     expect(response?.screen).toBeUndefined();
     expect(session.dialog?.seq).toBe(3);
+  });
+});
+
+// ── delegate на системные коды (§10.19: delegate ≡ handleCallback) ──
+
+/** Стори, возвращающая delegate на заданный путь (например, enroll→menu). */
+class DelegateStory extends U7BotUiStory {
+  readonly name = 'go';
+  delegatePath: string = APP_CODES.mainMenu;
+  initiator: DialogResponse = {};
+
+  override async handleCallback(): Promise<DialogResponse> {
+    return { ...this.initiator, delegate: { path: this.delegatePath } };
+  }
+}
+
+/** Контроллер-владелец DelegateStory. */
+class DelegateController extends U7BotController {
+  readonly name = 'nav';
+
+  constructor(story: U7BotUiStory) {
+    super();
+    this.stories.push(story);
+  }
+}
+
+describe('U7BotUiApp — delegate на системные коды', () => {
+  test('delegate app:main-menu → меню-диалог (seq++) + экран меню, notify инициатора сохранён', async () => {
+    setGlobalLogger(makeLogger());
+    const story = new DelegateStory();
+    story.initiator = { notify: { text: md`🎉 Успех\\!` } };
+    const uiApp = makeUiApp({ extra: [new DelegateController(story)] });
+    const session = { dialog: { path: 'nav/go', seq: 2 } } as BotSession;
+
+    const response = await uiApp.handleCallback('nav:go:x', 123, session);
+
+    // notify инициатора склеен с экраном делегата (меню)
+    expect(String(response?.notify?.text)).toContain('Успех');
+    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(response?.screen?.keyboard).toBeDefined();
+    expect(session.dialog?.path).toBe('app/menu');
+    expect(session.dialog?.seq).toBe(3);
+  });
+
+  test('delegate app:main-menu из закрытого диалога → меню (seq растёт дважды: nav, menu)', async () => {
+    setGlobalLogger(makeLogger());
+    const story = new DelegateStory();
+    const uiApp = makeUiApp({ extra: [new DelegateController(story)] });
+    const session = {} as BotSession;
+
+    const response = await uiApp.handleCallback('nav:go:x', 123, session);
+
+    expect(String(response?.screen?.text)).toBe('Выберите действие:');
+    expect(session.dialog?.path).toBe('app/menu');
+    // nav открывает диалог (seq=1), delegate на меню — второй вход (seq=2)
+    expect(session.dialog?.seq).toBe(2);
+  });
+
+  test('delegate в несуществующий контроллер — экран ошибки (перехват не мешает)', async () => {
+    setGlobalLogger(makeLogger());
+    const story = new DelegateStory();
+    story.delegatePath = 'zzz:one:x';
+    const uiApp = makeUiApp({ extra: [new DelegateController(story)] });
+    const session = { dialog: { path: 'nav/go', seq: 2 } } as BotSession;
+
+    const response = await uiApp.handleCallback('nav:go:x', 123, session);
+
+    expect(String(response?.screen?.text)).toContain('Неизвестная');
   });
 });

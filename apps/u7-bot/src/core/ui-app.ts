@@ -93,12 +93,14 @@ export class U7BotUiApp extends BotUiApp<
       // активной делает стори в pipe, меню — уровень приложения).
       this.enterDialog(session, this.menuPath, 'reopen');
       if (!response) {
-        return { screen: await this.#shortMenuScreen(tgId) };
+        const actor = await this.resolve.actorResolver(tgId);
+        return { screen: await this.#shortMenuScreen(actor) };
       }
       // Ответ стори без экрана — дополняем экраном меню (notify сохраняется:
       // транспорт рендерит реплику первой, затем retire+send меню — уже умеет).
       if (!response.screen) {
-        return { ...response, screen: await this.#shortMenuScreen(tgId) };
+        const actor = await this.resolve.actorResolver(tgId);
+        return { ...response, screen: await this.#shortMenuScreen(actor) };
       }
       return response;
     }
@@ -170,18 +172,33 @@ export class U7BotUiApp extends BotUiApp<
   // ── Системные кнопки (экс-ветки AppController) ──
 
   /**
-   * Перехват системных кодов приложения ДО маршрутизации: меню и общий
-   * help собирает uiApp (владеет menuButtons), контроллеры не задействуются.
+   * Перехват системных кодов приложения в маршрутизации — ЕДИНАЯ точка
+   * и для нажатий кнопок, и для delegate (§10.19): меню — виртуальный
+   * якорь `app/menu` (сущностной стори нет), короткое меню собирает uiApp.
+   * Общий help перехватывается в handleCallback (в delegate не встречается).
+   */
+  protected override async dispatch(
+    data: string,
+    actor: User,
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    if (data === APP_CODES.mainMenu) {
+      this.enterDialog(session, this.menuPath, 'switch');
+      return { screen: await this.#shortMenuScreen(actor) };
+    }
+    return super.dispatch(data, actor, session);
+  }
+
+  /**
+   * Перехват системных кодов приложения ДО маршрутизации: общий help
+   * собирает uiApp (владеет menuButtons). Меню перехватывается в dispatch
+   * — оно доступно и delegate.
    */
   override async handleCallback(
     data: string,
     tgId: number,
     session: BotSession,
   ): Promise<DialogResponse | null> {
-    if (data === APP_CODES.mainMenu) {
-      this.enterDialog(session, this.menuPath, 'switch');
-      return { screen: await this.#shortMenuScreen(tgId) };
-    }
     if (data === APP_CODES.help) {
       return { notify: { text: await this.#commonHelpScreen(tgId) } };
     }
@@ -242,9 +259,8 @@ export class U7BotUiApp extends BotUiApp<
     return { text: greeting, ...(keyboard ? { keyboard } : {}) };
   }
 
-  /** Короткий экран меню (/cancel, «В меню»): текст + клавиатура. */
-  async #shortMenuScreen(tgId: number): Promise<Screen> {
-    const actor = await this.resolve.actorResolver(tgId);
+  /** Короткий экран меню (/cancel, «В меню», delegate): текст + клавиатура. */
+  async #shortMenuScreen(actor: User): Promise<Screen> {
     const keyboard = this.#toKeyboard(await this.#menuButtons(actor));
     return {
       text: md`Выберите действие:`,
