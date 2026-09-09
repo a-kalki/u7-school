@@ -1,0 +1,1 @@
+Задача A HANDOFF: inactivity e2e 4 fail → 7 pass / 0 fail. Ассерты контента — по захваченной доставке Api (проактивы не проходят через захват uiApp). Легаси-кнопка симулируется крафтовым штампованным кодом stream:inactivity:drop-student:~1.
