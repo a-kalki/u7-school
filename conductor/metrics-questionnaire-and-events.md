@@ -1,6 +1,13 @@
 # 2. Модуль Questionnaire + инфраструктура событий
 
-**Назначение:** технический документ. Ядро системы: движок анкет, EventBus в core, API агрегатов для событий, intention-паттерн запуска.
+**Назначение:** технический документ. Ядро системы: движок анкет, EventBus в core, API агрегатов для событий.
+
+> **Актуализация (2026-09-09):** механика запуска сведена с [tasks-system](./tasks-system.md):
+> асинхронные приглашения анкет — задачи модуля `task` (трек 3.1 [документа 3](./metrics-pipeline-and-modules.md)),
+> прямой старт — синхронный `start` + `delegate` в `fill`-стори. Упомянутые ниже `sendInvite`/
+> `BotUiApp.send()` — исторические (реализованы до tasks-system); их кнопочная часть —
+> временный `invite` (ФР-6 bot-ui), демонтируется с приходом задач. Документ сохранён
+> как история проектирования.
 
 > **Родительский документ:** [Система сбора метрик](./metrics-system.md)
 > **Связан с:** [1. Концепция метрик](./metrics-conception.md) — структура `likertMapping`
@@ -214,7 +221,7 @@ handleAction({type, value}): QuestionnaireActionResponse
 abandon(): void
 ```
 
-**Два пути запуска:**
+**Два пути запуска:** *(историческое проектирование; целевая механика — см. актуализацию в шапке и трек 3.1 документа 3)*
 - **Путь A (инициативный):** модуль-владелец → `QuestionnaireFacade.sendInvite(actorId, pool)` или `start(actorId, pool)` → UC → `botFacade.sendQuestionnaireInvite()` / `startQuestionnaire()`
 - **Путь B (ответный):** контроллер questionnaire (стори `fill`) → UC `start-by-invite` / `handle-action` / `decline-invite` → return response
 

@@ -4,7 +4,14 @@
 
 > **Родительский документ:** [Система сбора метрик](./metrics-system.md)
 > **Связан с:** [1. Концепция метрик](./metrics-conception.md) — формулы агрегации
-> **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, intention-паттерн
+> **Связан с:** [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, запуск анкет
+>
+> **Актуализация (2026-09-09):** документ сведён с [tasks-system](./tasks-system.md)
+> (инициатива V проектировалась позже и поглотила механику приглашений): все
+> асинхронные предложения («оцени напарника», «заполни анкету») реализуются
+> **задачами** модуля `task`, а не собственными статусами анкет и не кнопочными
+> проактивами. Прежний intention-паттерн (статус `intention` у агрегата анкеты)
+> не вводится — см. трек 3.1.
 
 ---
 
@@ -16,12 +23,14 @@ stream (ModuleEnrollment.complete)
   │  → UC publishEvents
   ▼
 EventBus ──> peer-review (подписчик)
-                │  questionnaireFacade.createIntention() × N
-                │  → возвращает intentionId + message
-                │  → бот показывает кнопки студентам/ментору
+                │  taskFacade.upsert({ kind: 'questionnaire.invite', окно жизни,
+                │                     ownerInfo: { context, role, subjectId,
+                │                                 respondentId, triggerEvent } }) × N
+                │  → task-модуль: userFacade.notify «есть дело — /tasks»
                 ▼
-           questionnaire (пользователь нажимает кнопку)
-                │  start → handleAction → ... → completed
+           пользователь: /tasks → кнопка задачи [Начать анкету]
+                │  → мост в контроллер questionnaire (BotUiApp)
+                │  → start (пул по context + role) → handleAction → ... → completed
                 │  addEvent(QuestionnaireComplete)
                 │  → UC publishEvents
                 ▼
@@ -32,38 +41,42 @@ EventBus ──> peer-review (подписчик)
                       профиль студента
 ```
 
+Прямой старт (без приглашения) — когда пользователь инициировал анкету сам
+действием в боте (например, анкета желания в `wish`): инициатор выполняет
+`questionnaireFacade.start(...)` синхронно и делегирует экран в `fill`-стори
+(`delegate`) — задача не создаётся, кнопка «Начать» не нужна.
+
 ---
 
 ## Треки
 
-### Трек 3.1 — Intention-паттерн в `questionnaire`
+### Трек 3.1 — Приглашения анкет через задачи (tasks-system)
 
-**Цель:** реализовать механизм «намерения» — анкета не стартует принудительно, а предлагается пользователю.
+**Цель:** предложить анкету пользователю, не вторгаясь в его текущий флоу, с окном актуальности и памятью об отказе.
 
-**Проблема:** сейчас `questionnaire.start()` сразу начинает анкету и захватывает ввод пользователя. Но для peer-review надо: студент завершил модуль → показать кнопку «Оценить напарника» → студент сам решает когда нажать.
+**Проблема:** исторически проектировался intention-паттерн — отдельный статус `intention` у агрегата анкеты («анкета предложена, ждёт согласия») плюс проактивные кнопки «Оценить напарника». После проработки [tasks-system](./tasks-system.md) эта механика избыточна: задача уже даёт окно жизни, память отказа (`task.skipped` → ER владельца), уведомление «есть дело — /tasks» и кнопку в едином списке. Двойная механика «ожидающего действия» (статус анкеты ⊕ статус задачи) не вводится.
 
-**Решение — жизненный цикл через статусы агрегата:**
+**Решение — приглашение = задача:**
 
-Вместо отдельной сущности `Intention` и `IntentionRepo`, агрегат анкеты получает новый статус `intention`:
+- Модуль-владелец (peer-review) создаёт задачу: `taskFacade.upsert({ kind:
+  'questionnaire.invite', assigneeId: respondentId, dedupeKey, mandatory: false,
+  expiresAt: <окно актуальности>, ownerInfo: { context, role, subjectId,
+  respondentId, triggerEvent } })`. Пул вопросов в задаче НЕ персистится —
+  тексты вычисляются на лету (`TaskTypeMeta.resolveRenderInfo`).
+- Task-модуль уведомляет: `userFacade.notify` «📋 Есть дело — /tasks» (текст
+  без кнопок, инвариант И3 [bot-ui](./bot-ui-session-architecture.md)).
+- В `/tasks` задача рендерится контрактом `TaskRenderInfo` (кнопка [Начать
+  анкету]); kind-рендерер questionnaire превращает её в колбек своей стори —
+  дальше штатная маршрутизация бота (мост со штампом).
+- Нажатие → UC `start` с пулом по `context` + `role` → диалог `fill` →
+  обычный жизненный цикл анкеты → `questionnaire.completed`.
+- Отказ ([Пропустить] / истечение окна) → `task.skipped`/`task.expired` → ER
+  владельца → `QuestionnaireAr.decline()` (память: не предлагать до нового
+  повода).
 
-```
-intention → in_progress → completed/abandoned
-```
-
-**Фасад:**
-- `createIntention(context, role, subjectId, respondentId)` → создаёт агрегат в статусе `intention` (пул = null), возвращает `{ questionnaireId, message }`
-- `startLikert(questionnaireId, questionPool, triggerEvent?)` → переводит `intention` → `in_progress`, сохраняет снимок пула, возвращает первый вопрос
-
-**Механика:**
-1. `createIntention()` создаёт агрегат в статусе `intention` и возвращает `questionnaireId` + текст приглашения
-2. Бот показывает пользователю приглашение с кнопкой
-3. Когда пользователь нажимает кнопку → контроллер загружает пул вопросов (по `context` + `role`) → вызывает `startLikert(questionnaireId, questionPool)`
-4. Агрегат переходит `intention` → `in_progress`, начинает анкету
-
-**Преимущества:**
-- Один агрегат, один `QuestionnaireRepo` — без дополнительных сущностей
-- Естественный жизненный цикл через статусы
-- Пул не нужен до фактического старта — `questionPool` остаётся `null` в статусе `intention`
+**Механика без изменений:** жизненный цикл самой анкеты (`invited →
+in_progress → completed/abandoned` из трека 2.4a+) остаётся; задача — только
+способ доставки предложения, агрегат анкеты создаётся в момент старта.
 
 ---
 
@@ -107,7 +120,7 @@ this.addEvent({
 **Цель:** новый пакет, отвечающий за кросс-оценки, парное программирование, код-ревью.
 
 **Ответственности:**
-- Подписка на `module.completed` → оркестрация intentions для группы
+- Подписка на `module.completed` → создание задач-приглашений для группы
 - Управление сессиями парного программирования («кто смотрит», «кто программирует»)
 - Запуск анкет по завершении парного урока
 
@@ -128,16 +141,17 @@ packages/peer-review/src/
     review-session/
       create-session-uc.ts
       complete-session-uc.ts
-      orchestrate-module-reviews-uc.ts  — оркестратор при module.completed
+      orchestrate-module-reviews-uc.ts  — оркестратор при module.completed (создаёт задачи)
   infra/
     db/
       review-session-json-repo.ts
     peer-review-bootstrap.ts   — подписки на EventBus
-  ui/bot/
-    controller/                — PeerReviewController
-    types.ts
   index.ts
 ```
+
+UI бота — в `apps/u7-bot/src/controllers/` (контракт «Диалог и Экран»):
+kind-рендерер `questionnaire.invite` у questionnaire-контроллера, при
+потребности — контроллер сессий парного программирования.
 
 **Оркестрация при `module.completed`:**
 
@@ -149,39 +163,42 @@ async execute(event: ModuleCompletedEvent): Promise<void> {
   // 1. Найти группу (всех студентов того же потока)
   const group = await this.resolve.streamFacade.getGroupByCourseId(courseId);
 
-  // 2. Для каждой ПАРЫ студентов (A←B, B←A) — создать intention student_student
+  // 2. Для каждой ПАРЫ студентов (A←B, B←A) — задача-приглашение student_student
   for (const reviewer of group) {
     if (reviewer.telegramId === studentId) continue; // не себе
 
-    await this.resolve.questionnaireFacade.createIntention({
-      context: 'module_completed',
-      role: 'student_student',
-      subjectId: studentId,
-      respondentId: reviewer.telegramId,
-      triggerEvent: { type: 'module_completed', aggregateId: event.aggregateId },
+    await this.resolve.taskFacade.upsert({
+      kind: 'questionnaire.invite',
+      assigneeId: reviewer.userId,
+      dedupeKey: `module-completed:${moduleId}:${studentId}:${reviewer.userId}`,
+      mandatory: false,
+      expiresAt: isoInDays(14), // окно актуальности предложения
+      ownerInfo: {
+        context: 'module_completed',
+        role: 'student_student',
+        subjectId: studentId,
+        respondentId: reviewer.userId,
+        triggerEvent: { type: 'module_completed', aggregateId: event.aggregateId },
+      },
     });
   }
 
-  // 3. Для ментора потока — intention на mentor_student
-  const mentor = await this.resolve.streamFacade.getMentor(courseId);
-  await this.resolve.questionnaireFacade.createIntention({
-    context: 'module_completed',
-    role: 'mentor_student',
-    subjectId: studentId,
-    respondentId: mentor.telegramId,
-    triggerEvent: { type: 'module_completed', aggregateId: event.aggregateId },
-  });
+  // 3. Для ментора потока — задача mentor_student (аналогично)
+  // ...
 }
 ```
 
+Уведомления, напоминания, дайджест-склейка и окна жизни — централизованы в
+`task`-модуле; peer-review только создаёт задачи ([tasks-system-architecture.md](./tasks-system-architecture.md)).
+
 **Парное программирование:**
 - `PeerReviewAr` управляет сессией: `start(reviewerId, programmerId, lessonId)` → `complete(outcome)`
-- При `complete()` → создаёт intention с `context: 'pair_programming', role: 'student_student'` для «смотревшего» оценить «программировавшего»
+- При `complete()` → задача-приглашение `questionnaire.invite` с `context: 'pair_programming'` для «смотревшего» оценить «программировавшего»
 - Пул вопросов для `pair_programming` фокусируется на самостоятельности (ключевой вопрос: «писал ли код сам, без ИИ»)
 
 **Контроллер бота:**
-- Показывает кнопки «Оценить напарника», «Оценить студента» (из intentions)
-- При нажатии — перенаправляет в questionnaire flow
+- Отдельного «списка предложений» нет — кнопки [Оценить напарника] живут в `/tasks` (kind-рендерер questionnaire, слой C tasks-system)
+- Нужен только UI сессий парного программирования, если появится их ручное управление
 
 ---
 
@@ -274,6 +291,10 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
 **Витрина профиля** (см. Документ 1, §5):
 - `GetProfileUc` собирает все метрики + рекомендации
 - `MetricsController` рендерит в MarkdownV2 (или текст) для бота
+- ⚠️ Лимит Telegram — 4096 символов на сообщение: профиль с рекомендациями
+  может не влезть. Контракт bot-ui не содержит серии экранов — витрину
+  строить пагинацией на уровне стори (кнопки-мосты «Ещё ›» в ту же стори),
+  заложить сразу в дизайн `MetricsController`
 
 ---
 
@@ -303,17 +324,25 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
 │ • подписка на  │  │ • подписка на  │  │ • генерирует     │
 │   ModuleComp-  │  │   Questionn-   │  │   ModuleComp-    │
 │   leted        │  │   aireComp-    │  │   leted          │
-│ • оркестрирует │  │   leted        │  │ • авто-метрики   │
-│   intentions   │  │ • StudentMet-  │  │                  │
-│ • парное прог. │  │   ricsAr       │  │                  │
+│ • создаёт      │  │   leted        │  │ • авто-метрики   │
+│   задачи-      │  │ • StudentMet-  │  │                  │
+│   приглашения  │  │   ricsAr       │  │                  │
+│ • парное прог. │  │                │  │                  │
 └────────────────┘  └────────────────┘  └──────────────────┘
+
+        ┌──────────┐
+        │   task   │  ← peer-review (фасад задач-приглашений)
+        │ (задачи, │
+        │  notify) │  → questionnaire (старт по кнопке задачи)
+        └──────────┘
 ```
 
 **Ключевые правила зависимостей:**
-- `questionnaire` НЕ зависит от `metrics`, `peer-review`, `stream`
-- `peer-review` зависит от `questionnaire` (фасад), `stream` (фасад для группы), `user` (фасад)
+- `questionnaire` НЕ зависит от `metrics`, `peer-review`, `stream`, `task` — движок анкет не знает, кто и зачем его запускает
+- `peer-review` зависит от `questionnaire` (фасад старта), `task` (фасад задач-приглашений), `stream` (фасад для группы), `user` (фасад)
 - `metrics` зависит от `questionnaire` (читает likertScores из событий)
 - `stream` НЕ зависит от `peer-review` или `metrics` (только публикует события)
+- `task` ни о ком не знает (кроме `user` — notify, как все)
 
 ---
 
@@ -321,7 +350,7 @@ async execute(event: QuestionnaireCompleteEvent): Promise<void> {
 
 - [Система сбора метрик (родитель)](./metrics-system.md)
 - [1. Концепция метрик](./metrics-conception.md) — формулы агрегации, витрина
-- [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, intention
+- [2. Questionnaire + EventBus](./metrics-questionnaire-and-events.md) — движок анкет, EventBus, запуск анкет
 - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Module, BotUiStory
 - [DDD Naming](../.pi/skills/ddd-naming/SKILL.md) — именование пакетов, файлов
 - [Границы доменной логики](./code_styleguides/domain-boundaries.md) — межмодульные взаимодействия
