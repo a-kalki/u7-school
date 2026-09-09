@@ -6,7 +6,7 @@
 
 - [ ] Task: Написать падающие тесты submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor на `DialogResponse` (включая delegate monitor→students); команды — дефолт pipe, ошибки — `errorNotify`
 - [ ] Task: **Убедиться, что «⚠️ Снять с учёбы» (mark-abandoned, cause=inactivity, FR-5) доступен ментору без проактива:** точка входа в monitor (карточка студента) с confirm-диалогом — ex-кнопка проактива inactivity, удалённая треком bot-ui-dialog-nav [7034c7e]; приёмка — сценарий снятия проходит из monitor, студент исключён из TG-группы (FR-6), реплика «✅ Студент снят с учёбы…» доставляется
-- [ ] Task: Мигрировать тесты домена: e2e `mentor-management`, integration `tests/mentor/mentor.integration.test.ts` — на `DialogResponse` (тест-хелпер — общая задача learning-трека, если ещё не закрыта)
+- [ ] Task: Мигрировать тесты домена: e2e `mentor-management`, integration `tests/mentor/mentor.integration.test.ts` — на `DialogResponse` (тест-стенд `tests/helpers/test-bot-transport.ts` уже на новом контракте — мигрирован треком bot-ui-dialog-nav [6e1147a4], хелперы нажатий готовы: `pressedCode`/`stampedCode` [94fa7a1e])
 - [ ] Task: Перевести все mentor-стори
 - [ ] Conductor - User Manual Verification 'Mentor-стори' (Protocol in workflow.md)
 

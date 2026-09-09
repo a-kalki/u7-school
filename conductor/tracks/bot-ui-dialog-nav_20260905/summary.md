@@ -47,6 +47,26 @@
   awaitInput-сценарий; SIN-W/SIN-M — notify-тексты), courses (контракт-плашка,
   errorNotify в W04).
 
+### Фаза 3: добивка тестовой миграции (HANDOFF-сессия)
+
+- InactivityStory e2e переписан на проактивы без кнопок: warning/candidate —
+  notify-текст с подсказкой /start (И3), мягкий кик (FR-6), callback-тупик
+  («Неизвестная команда» на легаси-кнопку), chat_member left (FR-7);
+  снятие ментором — UC mark-abandoned напрямую (кнопочная сцена — долг
+  трека mentor) [a8b7e3bf].
+- **Прод-баг доставки FR-7**: неэкранированная точка в md-литерале
+  group-handler глушила уведомление ментору «покинул группу»
+  (MarkdownV2ValidationError изолировался warn'ом) — исправлено [79dacb12].
+- curious-showcase e2e (18 тестов) — на DialogResponse и отштампованные
+  нажатия; найдена и задокументирована ловушка хронологии Api-записей
+  (edit привязан к messageId sent) [6aa17591].
+- Integration courses/streams (catalog, view-stream, course-catalog,
+  wish-flow — 36 тестов) — на DialogResponse; прямые вызовы стори —
+  крафтовые коды с актуальным штампом; enroll-key на awaitInput;
+  сжатие UUID — по Api-записи [94fa7a1e].
+- Тест-стенд расширен (без ломки API): screensNewFirst / pressedCode /
+  currentStamp / stampedCode [94fa7a1e].
+
 ## Ключевые решения
 
 - **Перехват системных кодов в dispatch** (§10.19): `packages/core` открывает
@@ -64,11 +84,27 @@
 
 ## Состояние проверок
 
-- Тесты скоупа (app/user/courses/streams/core): 160 pass / 0 fail.
+Полный прогон `CI=true bun test apps/u7-bot/src apps/u7-bot/tests`:
+**508 pass / 94 fail**, все 94 — чужие домены (промежуточное состояние,
+мигрируются треками-владельцами), скоуп трека — **0 fail**.
+
+| Группа | Фейлов | Владелец |
+|---|---|---|
+| Скоуп трека: app/user/courses/streams + ядро (юниты + integration + e2e) | 0 | этот трек |
+| learning: LearningController int (9), NavTree (6), Progress (2), Hub (1) | 18 | трек 3 (hub) |
+| mentor: MonitorStory (26), CreateStreamStory (15), ViewStreamMentorStory (8), mentor-management e2e (7), wizard int (3) | 59 | трек 5 (mentor) |
+| questionnaire: wish-questionnaire e2e (7), Questionnaire UX e2e (5), InviteStory (5) | 17 | трек questionnaire |
+
+Причина красноты чужих доменов: тесты старого контракта (`sendMessage`,
+`escapeMarkdown`, `captureInput`) против мигрированного ядра — восстанавливаются
+при миграции домена его треком, не являются регрессом скоупа.
+
 - Lint (biome): чисто.
-- tsc затронутых файлов: чисто. Оставшаяся краснота — заявленное состояние
-  (learning/mentor/questionnaire + tests/e2e, tests/helpers): мигрируются
-  треками 3 (hub) и 5 (mentor/monitor).
+- tsc: скоуп трека и затронутые файлы — чисто. Оставшаяся краснота —
+  заявленное промежуточное состояние (learning/mentor/questionnaire
+  контроллеры и их тесты; e2e-стенды, подключающие их контроллеры:
+  main-menu, curious-showcase): мигрируются треками 3 (hub) и 5
+  (mentor/monitor).
 - Grep скоупа: `BotResponse` / `editOrSend` / `respondInContext` /
   `parseMode` / `escapeMarkdown` / `sendMessage` — не встречаются.
 
@@ -80,6 +116,10 @@
 - [7c3ecf44] feat(bot-ui): перевести courses/streams каталоги и view-stream
 - [d2299e52] fix(bot-ui): удалить мёртвую кнопку «🔔 Уведомить о наборе»
 - [7034c7e3] feat(bot-ui): перевести InactivityStory на notify-проактивы (И3)
+- [79dacb12] fix(bot-ui): экранировать точку в FR-7 уведомлении о выходе из группы
+- [a8b7e3bf] test(bot-ui): переписать inactivity e2e на проактивы без кнопок (И3)
+- [6aa17591] test(bot-ui): переписать curious-showcase e2e на контракт «Диалог и Экран»
+- [94fa7a1e] test(bot-ui): мигрировать integration courses/streams на контракт «Диалог и Экран»
 
 (каждому основному коммиту приложен git note с задачей и сводкой)
 
