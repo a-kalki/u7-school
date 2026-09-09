@@ -4,11 +4,6 @@
 
 ---
 
-- [x] **Track: Жизненный цикл диалога — операция входа, команды, kind-уведомления (трек 1.1)**
-*Link: [./tracks/bot-ui-dialog-lifecycle_20260905/](./tracks/bot-ui-dialog-lifecycle_20260905/)*
-
----
-
 - [ ] **Track: Стори навигации app/user/courses/streams на новом контракте**
 *Link: [./tracks/bot-ui-dialog-nav_20260905/](./tracks/bot-ui-dialog-nav_20260905/)*
 
