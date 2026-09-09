@@ -333,3 +333,93 @@ export function createTestBotTransport(
     { eventBus: app.eventBus, userFacade: app.userFacade },
   );
 }
+
+// ── Хелперы отштампованных нажатий (integration/e2e) ──
+
+/** Экран в хронологии отображения: sent или edit (text + keyboard). */
+interface ScreenRecord {
+  text: string;
+  keyboard?: KeyboardDescription;
+}
+
+/**
+ * Экраны пользователя в порядке отображения (новые первее).
+ *
+ * Api-записи ведут два массива (sent/edited); edit рендерит СУЩЕСТВУЮЩЕЕ
+ * сообщение (messageId оригинала), поэтому хронология восстанавливается
+ * так: sent-ы по порядку, каждый edit — сразу за своим sent. Простая
+ * склейка [...edited, ...sent] даёт неверный порядок, когда edit-экраны
+ * (drill-down одной стори — seq не растёт, рендер edit'ом) чередуются
+ * с send-экранами (смена стори).
+ */
+export function screensNewFirst(
+  transport: TestBotTransport,
+  tgId: number,
+): ScreenRecord[] {
+  const editsByMessageId = new Map<number, ScreenRecord[]>();
+  for (const e of transport.api.editedMessages) {
+    if (e.telegramId !== tgId) continue;
+    const list = editsByMessageId.get(e.messageId) ?? [];
+    list.push(e);
+    editsByMessageId.set(e.messageId, list);
+  }
+  const merged: ScreenRecord[] = [];
+  for (const s of transport.api.sentMessages) {
+    if (s.telegramId !== tgId) continue;
+    merged.push(s);
+    merged.push(...(editsByMessageId.get(s.messageId) ?? []));
+  }
+  return merged.reverse();
+}
+
+/**
+ * Отштампованный код кнопки с последнего экрана пользователя (Api-запись).
+ * Перед нажатием экран должен быть открыт (/start или предыдущая кнопка).
+ */
+export function pressedCode(
+  transport: TestBotTransport,
+  tgId: number,
+  textContains: string,
+): string {
+  for (const screen of screensNewFirst(transport, tgId)) {
+    const btn = screen.keyboard?.rows
+      .flat()
+      .find((b) => b.text.includes(textContains));
+    if (btn) return btn.code;
+  }
+  throw new Error(
+    `Кнопка «${textContains}» не найдена на экранах ${tgId} ` +
+      `(перед нажатием открой экран через /start или кнопку).`,
+  );
+}
+
+/**
+ * Штамп текущего экрана пользователя (последний сегмент `:~seq36`).
+ * Транспорт валидирует штамп на входе — крафтовый код прямого вызова
+ * стори должен нести актуальный штамп открытого экрана.
+ */
+export function currentStamp(
+  transport: TestBotTransport,
+  tgId: number,
+): string {
+  for (const screen of screensNewFirst(transport, tgId)) {
+    const btn = screen.keyboard?.rows.flat()[0];
+    if (!btn) continue;
+    const stamp = btn.code.split(':').pop();
+    if (stamp?.startsWith('~')) return stamp;
+  }
+  throw new Error(`Нет открытого экрана у ${tgId} — сначала /start`);
+}
+
+/**
+ * Сырой код, отштампованный актуальным штампом экрана — для прямых
+ * вызовов стори через транспорт (integration): коды с UUID, созданными
+ * в тесте, неоткуда взять с экрана — штампуем вручную.
+ */
+export function stampedCode(
+  transport: TestBotTransport,
+  tgId: number,
+  rawCode: string,
+): string {
+  return `${rawCode}:${currentStamp(transport, tgId)}`;
+}

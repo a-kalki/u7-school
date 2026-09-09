@@ -9,16 +9,20 @@ import {
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
-import { assertBotResponseValid } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
   createTestBotTransport,
+  stampedCode,
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
 
 /**
  * Интеграционный тест CourseCatalogStory (S00 + drill-down)
+ *
+ * Контракт «Диалог и Экран»: ассерты — по DialogResponse, захваченному
+ * на границе uiApp. Коды прямых вызовов штампуются актуальным штампом
+ * открытого экрана (transport валидирует штампы на входе).
  *
  * 5 уровней:
  *   list     — курсы + этапы inline
@@ -54,6 +58,16 @@ describe('CourseCatalogStory (интеграционный)', () => {
     await app.cleanup();
   });
 
+  /** Открывает диалог гостя и вызывает сырой код стори с актуальным штампом. */
+  async function openCourse(rawCode: string) {
+    await transport.handleStart(transport.makeBotContext(guest.telegramId));
+    return transport.handleCallback(
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: stampedCode(transport, guest.telegramId, rawCode),
+      }),
+    );
+  }
+
   async function createCourseWithModule(
     title: string,
   ): Promise<{ courseId: string; moduleId: string }> {
@@ -88,15 +102,11 @@ describe('CourseCatalogStory (интеграционный)', () => {
   // ── Уровень 0: Курсы ──
 
   test('list: курсы + этапы inline', async () => {
-    const response = await transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, {
-        callbackData: 'course:course-catalog:list',
-      }),
-    );
-    assertBotResponseValid(response);
-    expect(response.sendMessage?.text).toContain('Курсы');
-    expect(response.sendMessage?.text).toContain('Основы программирования');
-    expect(response.sendMessage?.text).toContain('Синтаксис');
+    const response = await openCourse('course:course-catalog:list');
+    const text = response.screen?.text ?? '';
+    expect(text).toContain('Курсы');
+    expect(text).toContain('Основы программирования');
+    expect(text).toContain('Синтаксис');
   });
 
   // ── Уровень 1: Этапы ──
@@ -104,29 +114,22 @@ describe('CourseCatalogStory (интеграционный)', () => {
   test('phases: этапы + модули inline', async () => {
     const { courseId } = await createCourseWithModule('Тестовый курс');
 
-    const response = await transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:phases:${courseId}`,
-      }),
+    const response = await openCourse(
+      `course:course-catalog:phases:${courseId}`,
     );
-    assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Курс: Тестовый курс');
-    expect(response.sendMessage?.text).toContain('Этап 1');
+    const text = response.screen?.text ?? '';
+    expect(text).toContain('Курс: Тестовый курс');
+    expect(text).toContain('Этап 1');
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.some((r) => r[0]?.text?.includes('Этап 1'))).toBe(true);
     expect(rows.some((r) => r[0]?.text?.includes('Назад к курсам'))).toBe(true);
   });
 
   test('phases: несуществующий курс — ошибка', async () => {
-    const response = await transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, {
-        callbackData: 'course:course-catalog:phases:bad-uuid',
-      }),
-    );
-    assertBotResponseValid(response);
-    expect(response.sendMessage?.text).toContain('не найден');
+    const response = await openCourse('course:course-catalog:phases:bad-uuid');
+    expect(response.screen?.text).toContain('не найден');
   });
 
   // ── Уровень 2: Модули ──
@@ -134,17 +137,15 @@ describe('CourseCatalogStory (интеграционный)', () => {
   test('modules: модули + проекты inline', async () => {
     const { courseId } = await createCourseWithModule('Курс M');
 
-    const response = await transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:modules:${courseId}:0`,
-      }),
+    const response = await openCourse(
+      `course:course-catalog:modules:${courseId}:0`,
     );
-    assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Этап: Этап 1');
-    expect(response.sendMessage?.text).toContain('Модуль');
+    const text = response.screen?.text ?? '';
+    expect(text).toContain('Этап: Этап 1');
+    expect(text).toContain('Модуль');
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.some((r) => r[0]?.text?.includes('Модуль'))).toBe(true);
     expect(rows.some((r) => r[0]?.text?.includes('Назад к курсу'))).toBe(true);
   });
@@ -172,17 +173,15 @@ describe('CourseCatalogStory (интеграционный)', () => {
       author.uuid,
     );
 
-    const response = await transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
-      }),
+    const response = await openCourse(
+      `course:course-catalog:projects:${course.uuid}:0:${FIXTURE_MODULE_UUID}`,
     );
-    assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Введение');
-    expect(response.sendMessage?.text).toContain('Переменные и типы');
+    const text = response.screen?.text ?? '';
+    expect(text).toContain('Введение');
+    expect(text).toContain('Переменные и типы');
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     // Кнопки — проекты, не уроки
     expect(rows.some((r) => r[0]?.text?.includes('Введение'))).toBe(true);
     expect(rows.some((r) => r[0]?.text?.includes('Назад к этапу'))).toBe(true);
@@ -211,21 +210,19 @@ describe('CourseCatalogStory (интеграционный)', () => {
       author.uuid,
     );
 
-    const response = await transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
-      }),
+    const response = await openCourse(
+      `course:course-catalog:lessons:${course.uuid}:0:${FIXTURE_MODULE_UUID}:0`,
     );
-    assertBotResponseValid(response);
 
-    expect(response.sendMessage?.text).toContain('Проект: Введение');
-    expect(response.sendMessage?.text).toContain('Переменные и типы');
+    const text = response.screen?.text ?? '';
+    expect(text).toContain('Проект: Введение');
+    expect(text).toContain('Переменные и типы');
 
     // Тела шагов не видны
-    expect(response.sendMessage?.text).not.toContain('<html');
-    expect(response.sendMessage?.text).not.toContain('function');
+    expect(text).not.toContain('<html');
+    expect(text).not.toContain('function');
 
-    const rows = response.sendMessage?.keyboard?.rows ?? [];
+    const rows = response.screen?.keyboard?.rows ?? [];
     expect(rows.some((r) => r[0]?.text?.includes('Назад к модулю'))).toBe(true);
   });
 });

@@ -9,11 +9,12 @@ import {
 import type { User } from '@u7-scl/app/domain';
 import { AppController } from '@u7-scl/bot/app/app-controller';
 import { CoursesController } from '@u7-scl/bot/courses/controller';
-import { assertBotResponseValid, type BotResponse } from '@u7-scl/core/ui';
+import type { DialogResponse } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
   createTestBotTransport,
+  stampedCode,
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
 import type { WishStatus } from '@u7-scl/wish/domain';
@@ -22,8 +23,11 @@ import type { WishStatus } from '@u7-scl/wish/domain';
  * Интеграционный тест wish-флоу (ветка A — instant):
  *   apply → W03 → повторный apply → W04 → cancel → confirm → W05
  *
- * Реальный ApiApp (wish-модуль включён) + реальный CoursesController.
- * Статусы проверяются по фактическому содержимому wishRepo.
+ * Контракт «Диалог и Экран»: ассерты — по DialogResponse, захваченному
+ * на границе uiApp. Реальный ApiApp (wish-модуль включён) + реальный
+ * CoursesController. Коды прямых вызовов штампуются актуальным штампом
+ * открытого экрана; клики по кнопкам ответа — тот же штамп (внутри
+ * одной стори seq не меняется). Статусы проверяются по wishRepo.
  */
 describe('Wish: жизненный цикл желания курса (интеграционный)', () => {
   let app: TestApp;
@@ -57,6 +61,11 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   // ── Хелперы ──
 
+  /** Открывает диалог гостя (актуальный штамп для нажатий). */
+  async function openDialog(): Promise<void> {
+    await transport.handleStart(transport.makeBotContext(guest.telegramId));
+  }
+
   /** Создаёт draft-курс с модулем и этапом (для проверки карточки). */
   async function createDraftCourseWithModule(title: string): Promise<string> {
     const course = await app.apiApp.execute(
@@ -87,37 +96,41 @@ describe('Wish: жизненный цикл желания курса (инте�
     return course.uuid;
   }
 
-  /** Прямой callback: кнопка «Хочу пройти курс» по несжатому коду. */
-  async function apply(courseId: string): Promise<BotResponse | null> {
+  /** Прямой callback «Хочу пройти курс»: сырой код + актуальный штамп. */
+  async function apply(courseId: string): Promise<DialogResponse> {
     return transport.handleCallback(
       transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:apply:${courseId}`,
+        callbackData: stampedCode(
+          transport,
+          guest.telegramId,
+          `course:course-catalog:apply:${courseId}`,
+        ),
       }),
     );
   }
 
-  /** Клик по кнопке с заданным текстом (код берётся из ответа — сжатие учтено). */
+  /** Клик по кнопке последнего ответа (код raw, штамп — текущий экран). */
   async function click(
-    response: BotResponse | null,
+    response: DialogResponse,
     buttonText: string,
-  ): Promise<BotResponse | null> {
+  ): Promise<DialogResponse> {
     const btn = buttonsOf(response).find((b) => b.text === buttonText);
     expect(btn, `Кнопка «${buttonText}» не найдена в ответе`).toBeDefined();
     return transport.handleCallback(
-      transport.makeBotContext(guest.telegramId, { callbackData: btn!.code }),
+      transport.makeBotContext(guest.telegramId, {
+        callbackData: stampedCode(transport, guest.telegramId, btn!.code),
+      }),
     );
   }
 
-  function hasButton(response: BotResponse | null, text: string): boolean {
+  function hasButton(response: DialogResponse, text: string): boolean {
     return buttonsOf(response).some((b) => b.text.includes(text));
   }
 
-  type Button = NonNullable<
-    NonNullable<BotResponse['sendMessage']>['keyboard']
-  >['rows'][number][number];
-
-  function buttonsOf(response: BotResponse | null): Button[] {
-    return response?.sendMessage?.keyboard?.rows.flat() ?? [];
+  function buttonsOf(
+    response: DialogResponse,
+  ): Array<{ text: string; code: string }> {
+    return response.screen?.keyboard?.rows.flat() ?? [];
   }
 
   /**
@@ -143,10 +156,10 @@ describe('Wish: жизненный цикл желания курса (инте�
   }
 
   /** apply → cancel → «✅ Да»: возвращает W05-ответ (желание cancelled). */
-  async function applyAndCancel(courseId: string): Promise<BotResponse | null> {
+  async function applyAndCancel(courseId: string): Promise<DialogResponse> {
     await apply(courseId);
     const w04 = await apply(courseId);
-    expect(w04?.sendMessage?.text).toContain('уже выразил');
+    expect(w04.screen?.text).toContain('уже выразил');
     const confirmScreen = await click(w04, '🗑️ Отменить желание');
     return click(confirmScreen, '✅ Да');
   }
@@ -155,10 +168,10 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('apply instant-курса → W03 «зафиксировано», в репо expressed', async () => {
     await deactivateWishes();
+    await openDialog();
 
     const response = await apply(INSTANT_COURSE_ID);
-    assertBotResponseValid(response);
-    expect(response?.sendMessage?.text).toContain('зафиксировано');
+    expect(response.screen?.text).toContain('зафиксировано');
     expect(hasButton(response, 'Главное меню')).toBe(true);
 
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
@@ -168,11 +181,11 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('повторный apply → W04 «уже выразил» с кнопкой отмены желания', async () => {
     await deactivateWishes();
+    await openDialog();
     await apply(INSTANT_COURSE_ID);
 
     const response = await apply(INSTANT_COURSE_ID);
-    assertBotResponseValid(response);
-    expect(response?.sendMessage?.text).toContain('уже выразил');
+    expect(response.screen?.text).toContain('уже выразил');
     expect(hasButton(response, '🗑️ Отменить желание')).toBe(true);
 
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
@@ -182,12 +195,12 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('cancel: экран подтверждения; «❌ Отмена» → карточка курса, статус прежний', async () => {
     await deactivateWishes();
+    await openDialog();
     await apply(INSTANT_COURSE_ID);
     const w04 = await apply(INSTANT_COURSE_ID);
 
     const confirmScreen = await click(w04, '🗑️ Отменить желание');
-    assertBotResponseValid(confirmScreen);
-    expect(confirmScreen?.sendMessage?.text).toContain(
+    expect(confirmScreen.screen?.text).toContain(
       'Отменить желание пройти курс?',
     );
     expect(hasButton(confirmScreen, '✅ Да')).toBe(true);
@@ -195,8 +208,7 @@ describe('Wish: жизненный цикл желания курса (инте�
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
 
     const card = await click(confirmScreen, '❌ Отмена');
-    assertBotResponseValid(card);
-    expect(card?.sendMessage?.text).toContain('Курс: Продвинутый JavaScript');
+    expect(card.screen?.text).toContain('Курс: Продвинутый JavaScript');
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
   });
 
@@ -204,17 +216,16 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('cancel: «✅ Да» → «отменено», в репо cancelled; apply после отмены → W03', async () => {
     await deactivateWishes();
+    await openDialog();
 
     const w05 = await applyAndCancel(INSTANT_COURSE_ID);
-    assertBotResponseValid(w05);
-    expect(w05?.sendMessage?.text).toContain('отменено');
+    expect(w05.screen?.text).toContain('отменено');
     expect(hasButton(w05, 'Главное меню')).toBe(true);
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('cancelled');
     expect(await wishStatuses(INSTANT_COURSE_ID)).not.toContain('expressed');
 
     const again = await apply(INSTANT_COURSE_ID);
-    assertBotResponseValid(again);
-    expect(again?.sendMessage?.text).toContain('зафиксировано');
+    expect(again.screen?.text).toContain('зафиксировано');
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('expressed');
   });
 
@@ -222,6 +233,7 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('двойное «✅ Да» (устаревший экран) → мягкое «уже нет», статус не меняется', async () => {
     await deactivateWishes();
+    await openDialog();
     await apply(INSTANT_COURSE_ID);
     const w04 = await apply(INSTANT_COURSE_ID);
     const confirmScreen = await click(w04, '🗑️ Отменить желание');
@@ -231,8 +243,7 @@ describe('Wish: жизненный цикл желания курса (инте�
     // Повторный клик по той же кнопке «✅ Да» (устаревший cancel-confirm):
     // активного желания уже нет — мягкое сообщение вместо ошибки
     const stale = await click(confirmScreen, '✅ Да');
-    assertBotResponseValid(stale);
-    expect(stale?.sendMessage?.text).toContain('уже нет');
+    expect(stale.screen?.text).toContain('уже нет');
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('cancelled');
     expect(await wishStatuses(INSTANT_COURSE_ID)).not.toContain('expressed');
   });
@@ -241,6 +252,7 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('confirmed-желание → W04 «обучаешься»; отмена из confirmed → cancelled', async () => {
     await deactivateWishes();
+    await openDialog();
     await apply(INSTANT_COURSE_ID);
     // Переводим свежее желание в confirmed напрямую через репозиторий
     const wishes = await app.wishRepo.findAllByUserAndTarget(guest.uuid, {
@@ -252,14 +264,12 @@ describe('Wish: жизненный цикл желания курса (инте�
     await app.wishRepo.save({ ...expressed!, status: 'confirmed' });
 
     const response = await apply(INSTANT_COURSE_ID);
-    assertBotResponseValid(response);
-    expect(response?.sendMessage?.text).toContain('обучаешься');
+    expect(response.screen?.text).toContain('обучаешься');
     expect(hasButton(response, '🗑️ Отменить желание')).toBe(true);
 
     const confirmScreen = await click(response, '🗑️ Отменить желание');
     const w05 = await click(confirmScreen, '✅ Да');
-    assertBotResponseValid(w05);
-    expect(w05?.sendMessage?.text).toContain('отменено');
+    expect(w05.screen?.text).toContain('отменено');
     expect(await wishStatuses(INSTANT_COURSE_ID)).toContain('cancelled');
     expect(await wishStatuses(INSTANT_COURSE_ID)).not.toContain('confirmed');
   });
@@ -268,6 +278,7 @@ describe('Wish: жизненный цикл желания курса (инте�
 
   test('опасное название курса — все экраны markdown-safe', async () => {
     await deactivateWishes();
+    await openDialog();
 
     // Карточка draft-курса с опасным названием (создан через create-course)
     const draftId = await createDraftCourseWithModule(
@@ -276,44 +287,48 @@ describe('Wish: жизненный цикл желания курса (инте�
 
     const draftCard = await transport.handleCallback(
       transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:phases:${draftId}`,
+        callbackData: stampedCode(
+          transport,
+          guest.telegramId,
+          `course:course-catalog:phases:${draftId}`,
+        ),
       }),
     );
-    assertBotResponseValid(draftCard);
-    expect(draftCard?.sendMessage?.text).toContain(
-      'Чернов\\. Курс \\(v1\\.0\\)',
-    );
+    expect(draftCard.screen?.text).toContain('Чернов\\. Курс \\(v1\\.0\\)');
 
     // Каталог (list): опасное название published-курса — markdown-safe
     const list = await transport.handleCallback(
       transport.makeBotContext(guest.telegramId, {
-        callbackData: 'course:course-catalog:list',
+        callbackData: stampedCode(
+          transport,
+          guest.telegramId,
+          'course:course-catalog:list',
+        ),
       }),
     );
-    assertBotResponseValid(list);
-    expect(list?.sendMessage?.text).toContain(ESCAPED_DANGEROUS_PREFIX);
+    expect(list.screen?.text).toContain(ESCAPED_DANGEROUS_PREFIX);
 
     // Полный wish-цикл на published-курсе с опасным названием
     const card = await transport.handleCallback(
       transport.makeBotContext(guest.telegramId, {
-        callbackData: `course:course-catalog:phases:${DANGEROUS_COURSE_ID}`,
+        callbackData: stampedCode(
+          transport,
+          guest.telegramId,
+          `course:course-catalog:phases:${DANGEROUS_COURSE_ID}`,
+        ),
       }),
     );
-    assertBotResponseValid(card);
-    expect(card?.sendMessage?.text).toContain(ESCAPED_DANGEROUS_PREFIX);
+    expect(card.screen?.text).toContain(ESCAPED_DANGEROUS_PREFIX);
 
     const w03 = await apply(DANGEROUS_COURSE_ID);
-    assertBotResponseValid(w03);
-    expect(w03?.sendMessage?.text).toContain('зафиксировано');
+    expect(w03.screen?.text).toContain('зафиксировано');
 
     const w04 = await apply(DANGEROUS_COURSE_ID);
-    assertBotResponseValid(w04);
-    expect(w04?.sendMessage?.text).toContain('уже выразил');
+    expect(w04.screen?.text).toContain('уже выразил');
 
     const confirmScreen = await click(w04, '🗑️ Отменить желание');
     const w05 = await click(confirmScreen, '✅ Да');
-    assertBotResponseValid(w05);
-    expect(w05?.sendMessage?.text).toContain('отменено');
+    expect(w05.screen?.text).toContain('отменено');
     expect(await wishStatuses(DANGEROUS_COURSE_ID)).toContain('cancelled');
   });
 });
