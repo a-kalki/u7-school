@@ -44,7 +44,7 @@
 
 ## Фаза 4: Документация и последующие треки
 
-- [~] Task: ФР-7 обновить `bot-ui-session-architecture.md` (§4 состояние/типы, §5 валидация и рендер, §6 команды, §10 решения) и `bot-ui-dialog-lifecycle.md` (пометка о решениях: вариант A, «без исключений», легаси-контракт приглашений — ФР-6)
+- [x] Task: ФР-7 обновить `bot-ui-session-architecture.md` (§4 состояние/типы, §5 валидация и рендер, §6 команды, §10 решения) и `bot-ui-dialog-lifecycle.md` (пометка о решениях: вариант A, «без исключений», легаси-контракт приглашений — ФР-6) [2853b16]
 - [ ] Task: ФР-8 обновить спеки/планы треков 2–5 (nav, learning, questionnaire, mentor) под решения: info-kind, `handleCommand` у сторей, приглашения анкет по варианту A (штамп текущей эпохи + подсказка /start / deep-link опция)
 - [ ] Task: Проверки скоупа зелёные (`bun run check:p core`, `bun run check:a u7-bot` — транспорт и wiring; легаси-стори заявленно красные); создать `summary.md`
 - [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
