@@ -1,0 +1,22 @@
+Задача: Написать падающие тесты courses catalog и streams catalog/view-stream на DialogResponse (Фаза Red TDD)
+
+Сводка:
+- Переписаны тесты 5 файлов на контракт «Диалог и Экран»: stream-catalog.story.test.ts,
+  view-stream.story.test.ts, course-catalog.story.test.ts, courses/controller.test.ts,
+  streams/controller.test.ts
+- Ожидания переведены: sendMessage/parseMode → screen { text: MdText, keyboard? },
+  captureInput/releaseInput → awaitInput/release, delegate enroll→app:main-menu и
+  enroll-cancel→view-stream:view, handleStart → декларативные menuButtons
+- Новые проверки: errorNotify (warn-реплика без захвата экрана) для ошибок UC,
+  дефолт handleMessage ядра (реплика-отказ + release), ввод кодового слова через
+  session.dialog.input.context
+
+Причина: Задача 1 Фазы 2 трека bot-ui-dialog-nav — Фаза Red, тесты падают против
+старого BotResponse-кода стори (78 fail / 19 pass).
+
+Файлы:
+- apps/u7-bot/src/controllers/courses/stories/course-catalog.story.test.ts
+- apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.test.ts
+- apps/u7-bot/src/controllers/streams/stories/view-stream.story.test.ts
+- apps/u7-bot/src/controllers/courses/controller.test.ts
+- apps/u7-bot/src/controllers/streams/controller.test.ts
