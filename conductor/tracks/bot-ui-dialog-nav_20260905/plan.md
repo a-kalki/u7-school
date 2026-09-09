@@ -8,7 +8,7 @@
 
 - [x] Task: Написать падающие тесты стори app (community) на `DialogResponse`: edit-in-place своих экранов, мосты-кнопки — выполнено в треке 1 [3a58b33a]
 - [x] Task: Перевести сторю app; удалить ставшие ненужными хелперы — стори переведена в треке 1 [3a58b33a]; ревизия хелперов — в Фазе 3 этого трека
-- [ ] Task: Перевести user-notify путь на новый контракт (реплика `notify { text, kind? }` — единая таблица ФР-5, вид `notify` 🔔)
+- [x] Task: Перевести user-notify путь на новый контракт (реплика `notify { text, kind? }` — единая таблица ФР-5, вид `notify` 🔔) — e84516e3
 - [ ] Conductor - User Manual Verification 'app и user' (Protocol in workflow.md)
 
 ## Фаза 2: courses и streams
