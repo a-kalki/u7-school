@@ -1,0 +1,1 @@
+Прод-баг доставки FR-7: неэкранированная точка в md-литерале group-handler глушила уведомление ментору (MarkdownV2ValidationError изолирован warn'ом). Фикс одной строки по категории troubleshoot markdownv2.
