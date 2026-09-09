@@ -42,9 +42,9 @@
 - [x] Task: ФР-5 `NoticeKind = 'notify' | 'info' | 'warn'`; `NotificationPayload.kind` (замена `tone`); `DialogResponse.notify = { text, kind }` — переименование слота `info` + поглощение `Screen`; хелпер `errorNotify(err)` у стори (валидация — переспрос, `awaitInput`-контекст сохраняется); единая таблица рендера в транспорте; обновить потребителей ядра [15e89a0]
 - [x] Conductor - User Manual Verification 'Kind-уведомления' (Protocol in workflow.md)
 
-## Фаза 4: Документация и последующие треки
+## Фаза 4: Документация и последующие треки [checkpoint: 73384d2]
 
 - [x] Task: ФР-7 обновить `bot-ui-session-architecture.md` (§4 состояние/типы, §5 валидация и рендер, §6 команды, §10 решения) и `bot-ui-dialog-lifecycle.md` (пометка о решениях: вариант A, «без исключений», легаси-контракт приглашений — ФР-6) [2853b16]
 - [x] Task: ФР-8 обновить спеки/планы треков 2–5 (nav, learning, questionnaire, mentor) под решения: info-kind, `handleCommand` у сторей, приглашения анкет по варианту A (штамп текущей эпохи + подсказка /start / deep-link опция) [3464146]
 - [x] Task: Проверки скоупа зелёные (`bun run check:p core`, `bun run check:a u7-bot` — транспорт и wiring; легаси-стори заявленно красные); создать `summary.md` [ba45810]
-- [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
+- [x] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md) — сводка фазы без замечаний; подтверждена владельцем командами «заверши трек» и «в архив» (2026-09-09)
