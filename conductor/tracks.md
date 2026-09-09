@@ -4,7 +4,7 @@
 
 ---
 
-- [ ] **Track: Стори навигации app/user/courses/streams на новом контракте**
+- [x] **Track: Стори навигации app/user/courses/streams на новом контракте**
 *Link: [./tracks/bot-ui-dialog-nav_20260905/](./tracks/bot-ui-dialog-nav_20260905/)*
 
 ---
