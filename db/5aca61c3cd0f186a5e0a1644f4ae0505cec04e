@@ -1,0 +1,12 @@
+Задача: Проверки скоупа зелёные; grep-чистота скоупа (Фаза 2, трек bot-ui-dialog-learning_20260905)
+
+Сводка:
+- Grep-чистота скоупа подтверждена: BotResponse/editOrSend в apps/u7-bot/src/controllers/learning и tests/learning — 0 совпадений; learning/shared.ts очищен (только DialogResponse-хелперы).
+- Линтер (biome) по u7-bot: чист после фикса сортировки импортов в hub.ts (единственный найденный дефект).
+- tsc (tslint) по u7-bot: ошибки только вне скоупа — mentor (трек 5) и questionnaire (трек 4), включая точки регистрации MentorController (create-ui-app.ts, user-notify.e2e, curious-showcase.e2e). В скоупе learning — 0 ошибок.
+- Тесты: скоуп learning (stories, integration hub, e2e self-drop) — 68 pass / 0 fail. Остальное приложение — 538 pass / 0 fail. Вне-скоупные падения: 76 (mentor 59 + questionnaire 17) — легальное промежуточное состояние, треки-владельцы есть в реестре (трек 4 bot-ui-dialog-questionnaire, трек 5 bot-ui-dialog-mentor «весь репозиторий зелёный»).
+
+Изменённые файлы:
+- apps/u7-bot/src/controllers/learning/stories/hub.ts — перестановка импорта MenuButton (organizeImports).
+
+Причина: гейт качества при закрытии трека — скоуп обязан быть зелёным по всем трём проверкам.
