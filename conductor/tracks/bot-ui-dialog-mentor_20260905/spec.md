@@ -9,6 +9,8 @@
 ## Функциональные требования
 
 - Mentor-стори на `DialogResponse` (включая delegate monitor→students, если ещё не переведён); команды — дефолт pipe (`pass`, доменные команды — override `handleCommand`); ошибки валидации — `errorNotify`.
+- **Восстановить кнопочные проактивы InactivityStory через `invite`** (решение владельца, ревью трека 3): «🚪 Покинуть учёбу» студенту в предупреждении о бездействии (5+ дней) и «⚠️ Снять с учёбы» ментору в уведомлении об отстающем — прежние тексты и переходы, срезанные треком bot-ui-dialog-nav [7034c7e]. Канал — `invite` (ФР-6, временное исключение И3 до tasks-system), не notify-срезка. Точка входа в monitor остаётся и развивается.
+- **Протокол «миграция без потери функциональности»** (решение владельца, ревью трека 3): до миграции — инвентаризация всех кнопок/реплик mentor-стори из `ui-spec.md` и кода → падающие тесты с точными keyboard-ассертами; миграция обязана воспроизвести каждую кнопку. `ui-spec.md` — источник истины: не подгоняется под реализацию; расхождение — вопрос владельцу.
 - **Удаление старых типов**: `BotCommand`, `BotResponse`, `SessionData`, `SendMessage/EditMessageDescription`, takeover-код, цепочка `handleTimeout`, `escapeMarkdown`, старые ассерты, остатки именных обработчиков команд (`handleHelp`/`handleCancel`/`handleWelcome`/`handleStart`/appCommand-хук) и `notifyWithButtons` (заменён временным `invite`).
 - Временное остаётся: `ProactiveSender.invite` и якорь `app/invite` (ФР-6) — их удаляет tasks-system, не этот трек.
 - Зачистка ассертов, `apps/u7-bot/src/context.ts` окончательно на `BotSession`.
