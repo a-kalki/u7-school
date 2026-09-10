@@ -1,0 +1,13 @@
+Задача: Восстановить кнопочные проактивы 7a/7b через invite (Фаза 2, трек bot-ui-dialog-learning_20260905, решение владельца на ревью)
+
+Сводка:
+- Root cause: при миграции ddd196e1 И3 (notify без кнопок) был ошибочно распространён на кнопочные проактивы — кнопки срезаны, ui-spec подогнан под урезанную реализацию. Канал invite (ФР-6) для кнопочных проактивов существовал и предусмотрен контрактом.
+- hub.ts #handleCompletedEvent: notify → invite с прежними текстами и кнопками buttons.wishModule; mdJoin удалён (мёртвый импорт).
+- hub.test.ts: 7a/7b — ассерты invite (keyboard.rows[0][0]: text + code course:course-catalog:wish:{id}); 7c/7d, нет telegramId, place undefined — прежние негативные ассерты.
+- learning/ui-spec.md S05n: таблицы кнопок возвращены + описание invite-канала. courses/ui-spec.md: строка wish — прежняя формулировка + «доставка — invite».
+- summary.md: решения/ограничения/отклонения обновлены (восстановление + выводы в треки 4–5).
+- Скоуп: 68 pass / 0 fail, biome чист.
+
+Изменённые файлы: apps/u7-bot/src/controllers/learning/stories/hub.ts, hub.test.ts, apps/u7-bot/src/controllers/learning/ui-spec.md, apps/u7-bot/src/controllers/courses/ui-spec.md.
+
+Причина: директива владельца — по итогам всех треков перейти на новую архитектуру без потери функциональности.
