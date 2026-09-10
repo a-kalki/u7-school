@@ -8,19 +8,25 @@
 - ❌ не реализовано
 - 📋 в бэклоге / запланировано в треке
 
+> **Контракт рендера** (трек bot-ui-dialog-questionnaire): экраны описаны в терминах
+> «Диалог и Экран» — `DialogResponse { screen, finalize, notify, awaitInput, release,
+> delegate }`; ввод анкеты — `awaitInput` с контекстом `{ questionnaireId }` (без path);
+> edit/send решает транспорт по владению экраном. Кнопочные проактивы — только канал
+> `invite` (ФР-6, вариант A), чистые уведомления — `notify`.
+
 ---
 
 ## Путь пользователя
 
 Два варианта входа в анкету:
 - **Через приглашение (sendLikertInvite):** модуль-владелец вызывает `facade.sendLikertInvite(actorId, pool, ownerInfo)` → S01 → пользователь принимает → S02.
-- **Сразу (startStandard):** модуль-владелец вызывает `facade.startStandard(actorId, pool, ownerInfo)` → пользователь получает сразу первый вопрос (S02), без приглашения.
+- **Сразу (startStandard):** модуль-владелец вызывает `facade.startStandard(actorId, pool, ownerInfo)` → пользователь получает приглашение с кнопкой «▶️ Заполнить анкету» (вариант A, ФР-6): анкета открывается только действием пользователя (кнопка-мост `fill:resume:{courseId}`); без courseId — notify с подсказкой /start.
 
 ---
 
-## S01 — Приглашение (📋 invite)
+## S01 — Приглашение (📋 invite) ✅
 
-**Как попасть:** инициативно от системы через `sendInvite()`.
+**Как попасть:** инициативно от системы (событие `questionnaire:invite` → канал `invite`, ФР-6).
 **Кому:** пользователю, которому предназначена анкета.
 **Рендеринг:** InviteStory → подписка `questionnaire:invite` → `#handleInviteEvent`
 **Данные:** `InviteResponse` содержит `inviteText?`, `whyText?`, `questionnaireId`.
@@ -32,21 +38,23 @@
 {inviteText или дефолт «Заполните, пожалуйста, анкету.»}
 
 Для отмены в любой момент нажмите /cancel.
+
+Если кнопки не открываются — наберите /start.
 ```
 
 **Кнопки:**
 
 | Текст | Код | Действие | Статус |
 |-------|-----|----------|--------|
-| `▶️ Начать заполнение` | `questionnaire:invite:start:{qId}` | → S02 (captureInput → fill) | 📋 |
-| `❔ Зачем это нужно?` | `questionnaire:invite:why:{qId}` | sendMessage с whyText | 📋 |
-| `⏭️ Пропустить` | `questionnaire:invite:decline:{qId}` | → S06a (confirm) | 📋 |
+| `▶️ Начать заполнение` | `questionnaire:invite:start:{qId}` | → delegate `fill:current:{qId}` → S02 (диалог fill + awaitInput) | ✅ |
+| `❔ Зачем это нужно?` | `questionnaire:invite:why:{qId}` | экран whyText | ✅ |
+| `⏭️ Пропустить` | `questionnaire:invite:decline:{qId}` | → S06a (confirm) | ✅ |
 
 > **«Зачем это нужно?»** — только если `whyText` есть в pool.
 >
 > Логика:
-> 1. sendMessage: `whyText` + кнопка `✅ Хорошо`
-> 2. «Хорошо» → sendMessage: новый S01 с полным набором кнопок
+> 1. экран: `whyText` + кнопка `✅ Хорошо`
+> 2. «Хорошо» → экран: новый S01 с полным набором кнопок
 > **«Пропустить»** — переходит к подтверждению (S06a).
 
 ---
@@ -78,11 +86,11 @@
 | `2` | `questionnaire:fill:answer:{qId}:{aCode2}` | ✅ |
 | `3` | `questionnaire:fill:answer:{qId}:{aCode3}` | ✅ |
 
-**Логика (UX, spec FR-1) ✅:** клик → UC `handle-action({type:'callback'})` → комбинированная команда:
-текущее сообщение **редактируется** (маркер `(x)` у выбранного варианта, **клавиатура удалена**),
-следующий вопрос отправляется **новым сообщением** (история «вопрос → выбранный ответ»). 
-Автопереход: кнопка «Далее» не появляется. Fallback: без `session.lastBotMessage`
-(проактивный старт/resume) — только sendMessage.
+**Логика (UX, spec FR-1) ✅:** клик → UC `handle-action({type:'callback'})` → finalize-паттерн:
+предыдущий вопрос **фиксируется** (`finalize`: маркер `(x)` у выбранного варианта, клавиатура
+снимается транспортом), следующий вопрос — `screen` **новым сообщением** (история «вопрос →
+выбранный ответ»). edit/send решает транспорт по владению экраном.
+Автопереход: кнопка «Далее» не появляется.
 Клик по чужому коду ответа (устаревшая клавиатура) → **S10** (`stale_button`), состояние анкеты не меняется.
 
 ---
@@ -112,9 +120,9 @@
 | `Далее -->` | `questionnaire:fill:next:{qId}:{qCode}` | ✅ |
 
 **Логика (UX, spec FR-2) ✅:**
-- клик (тоггл) → **editMessage того же сообщения** (маркеры обновляются, клавиатура жива); fallback — sendMessage без `lastBotMessage`; чужой код → **S10** (`stale_button`), в `draftAnswers` не попадает;
+- клик (тоггл) → `screen` на месте (edit-in-place: маркеры обновляются, клавиатура жива — владение экраном); чужой код → **S10** (`stale_button`), в `draftAnswers` не попадает;
 - «Далее» рендерится **только при ≥1 выбранном варианте** (UC не присылает `nextButton` при пустом выборе);
-- «Далее» → **editMessage текущего вопроса** (финальные маркеры `[x]`, **клавиатура удалена**) + **sendMessage следующего вопроса** / completed;
+- «Далее» → **finalize текущего вопроса** (финальные маркеры `[x]`, клавиатура снимается) + **screen следующего вопроса** / completed;
 - «Далее» с пустым драфтом (если всё же нажата) → **S10** (`empty_selection`), не CRITICAL.
 
 ---
@@ -134,8 +142,8 @@
 
 **Кнопки:** отсутствуют
 
-**Логика ✅:** текст → `handle-action({type:'text'})` → `answerText` → дальше (комбинированная
-команда: предыдущий вопрос editMessage без клавиатуры + следующий вопрос новым сообщением, spec FR-2).
+**Логика ✅:** текст → `handle-action({type:'text'})` → `answerText` → finalize-паттерн
+(finalize предыдущего вопроса без клавиатуры + screen следующего, spec FR-2).
 
 ---
 
@@ -157,18 +165,18 @@
 |-------|-----|--------|
 | `↩️ Главное меню` | `app:main-menu` | ✅ |
 
-**Логика ✅:** `releaseInput`. При ответе из активного флоу (есть `lastBotMessage` и `previousQuestion`)
-предыдущий вопрос сначала **редактируется** (финальные маркеры, без клавиатуры),
-completed-экран отправляется **новым сообщением** (spec FR-1/FR-2).
+**Логика ✅:** `release` (ввод отпущен). При наличии `previousQuestion` — `finalize`
+предыдущего (финальные маркеры, клавиатура снимается), completed-экран — `screen`
+новым сообщением (spec FR-1/FR-2).
 
 ---
 
-## S05 — Отмена (🚫 cancelled)
+## S05 — Отмена (🚫 cancelled) ✅
 
 ### S05a — Подтверждение отмены
 
-**Как попасть:** `/cancel` на любом экране анкеты (S02/S03).
-**Рендеринг:** FillStory.handleCancel → `confirm()` из BotUserStory
+**Как попасть:** `/cancel` на любом экране анкеты (S02/S03) или кнопка «⏭️ Прервать» из S07/S09 (`fill:cancel:{qId}`) — прерывание только после подтверждения (решение владельца 2026-09-10).
+**Рендеринг:** FillStory.handleCommand (`/cancel`) / `#cancelConfirmScreen` (кнопка) → `confirm()`
 
 **Содержание:**
 ```
@@ -181,8 +189,8 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `✅ Да, прервать` | `questionnaire:fill:cancel-confirm:{qId}` | 📋 |
-| `❌ Нет, продолжить` | `questionnaire:fill:current` → возврат к вопросу | 📋 |
+| `✅ Да, прервать` | `questionnaire:fill:cancel-confirm:{qId}` | ✅ |
+| `❌ Нет, продолжить` | `questionnaire:fill:current:{qId}` → возврат к вопросу (awaitInput восстанавливается по qId — контекст ввода умирает при reopen меню) | ✅ |
 
 ### S05b — Отменено
 
@@ -198,13 +206,13 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `↩️ Главное меню` | `app:main-menu` | 📋 |
+| `↩️ Главное меню` | `app:main-menu` | ✅ |
 
-**Логика:** статус → `abandoned`, `releaseInput`.
+**Логика:** статус → `abandoned`, `release`.
 
 ---
 
-## S06 — Отказ от приглашения (⏭️ declined)
+## S06 — Отказ от приглашения (⏭️ declined) ✅
 
 ### S06a — Подтверждение отказа
 
@@ -222,8 +230,8 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `✅ Да, пропустить` | `questionnaire:invite:decline-confirm:{qId}` | 📋 |
-| `❌ Нет, вернуться` | `questionnaire:invite:invite:{qId}` → S01 | 📋 |
+| `✅ Да, пропустить` | `questionnaire:invite:decline-confirm:{qId}` | ✅ |
+| `❌ Нет, вернуться` | `questionnaire:invite:invite:{qId}` → S01 | ✅ |
 
 ### S06b — Отказ подтверждён
 
@@ -239,7 +247,7 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `↩️ Главное меню` | `app:main-menu` | 📋 |
+| `↩️ Главное меню` | `app:main-menu` | ✅ |
 
 **Логика:** статус → `abandoned`.
 
@@ -264,12 +272,17 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `▶️ Продолжить` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан), **takeover: true** | ✅ |
-| `⏭️ Прервать` | `questionnaire:fill:cancel-confirm:{qId}` → S05a | ✅ |
+| `▶️ Продолжить` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан) | ✅ |
+| `⏭️ Прервать` | `questionnaire:fill:cancel:{qId}` → S05a (подтверждение) | ✅ |
+
+**Доставка:** канал `invite` (ФР-6): кнопки штампуются seq текущей эпохи диалога получателя;
+получателю без диалога транспорт открывает якорь `app/invite` (seq=1). В тексте — подсказка
+«Если кнопки не открываются — наберите /start.»
 
 **Логика:** при активности респондента (ответ на вопрос) флаги `warnedAt` и `continueInvitedAt`
 сбрасываются — таймер простоя не сдвигается метками ступеней (`markWarned`/`markContinueInvited`
-обходят `safeUpdate`). Takeover-кнопка перехватывает ввод при активном чужом действии (spec FR-5).
+обходят `safeUpdate`). Кнопка-мост `fill:resume` switch-ит диалог в fill (seq++) — перехват ввода
+без блокировки (функциональный эквивалент прежнего takeover, spec FR-5).
 
 ---
 
@@ -290,18 +303,13 @@ completed-экран отправляется **новым сообщением*
 
 | Текст | Код | Статус |
 |-------|-----|--------|
-| `▶️ Продолжить анкету` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан), **takeover: true** | ✅ |
-| `⏭️ Прервать` | `questionnaire:fill:cancel-confirm:{qId}` → S05a | ✅ |
+| `▶️ Продолжить анкету` | `questionnaire:fill:resume:{courseId}` (только если ownerInfo.courseId задан) | ✅ |
+| `⏭️ Прервать` | `questionnaire:fill:cancel:{qId}` → S05a (подтверждение) | ✅ |
+
+**Доставка:** канал `invite` (ФР-6), подсказка /start — как в S07.
 
 **Логика:** первая ступень цепочки брошенных анкет (3ч → 6ч → 9ч). Отправляется **один раз**
 (флаг `continueInvitedAt`); при возобновлении заполнения цепочка сбрасывается.
-
-**Takeover-предупреждение (spec FR-5, транспорт) ✅:** если у пользователя есть активное действие
-(`session.activeHandler != null`), вниз текста сообщения с takeover-кнопками транспорт добавляет
-строку «⚠️ Нажатие на кнопку приведёт к окончанию вашего текущего действия.»; без активного
-действия строка не добавляется. Нажатие takeover-кнопки НЕ блокируется alert'ом «Сначала
-завершите текущее действие» — захват ввода перезаписывается fill-стори (маркер-префикс в
-callback_data кодирует/снимает uiApp, транспорт и стори работают с нативным кодом).
 
 ---
 
@@ -326,32 +334,24 @@ callback_data кодирует/снимает uiApp, транспорт и ст�
 **Рендеринг:** FillStory → UC `handle-action` → `renderActionResponse` (ветка `stale_answer`)
 **Данные:** `StaleAnswerResponse` — `questionnaireId`, `question` (актуальный), `selectedAnswers`, `progress`, `cancelWarning`, `reason`.
 
-**Содержание** (`reason='stale_button'`):
+**Содержание** (`reason='stale_button'`) — warn-реплика поверх экрана:
 ```
-⚠️ Эта кнопка относится к предыдущему вопросу. Вот актуальный:
-
-*Вопрос N из M*
-
-*{текст актуального вопроса}*
-… (варианты с маркерами актуального драфта)
+⚠️ Эта кнопка относится к предыдущему вопросу.
 ```
 
 **Содержание** (`reason='empty_selection'`):
 ```
 ⚠️ Сначала выбери хотя бы один вариант.
-
-*Вопрос N из M*
-
-*{текст вопроса}*
-…
 ```
 
-**Кнопки:** клавиатура актуального вопроса (S02a/S02b/S03) — жива.
+**Кнопки:** клавиатура актуального вопроса (S02a/S02b/S03) — жива: экран и ввод
+не трогаются, вопрос уже показан на экране (реплика без перерисовки — решение
+трека bot-ui-dialog-questionnaire).
 
 **Логика ✅ (трек questionnaire-robustness_20260903, spec FR-1):**
 - состояние анкеты **не меняется**: чужой код не попадает в `draftAnswers`/`answers`;
-- перерисовка актуального вопроса с пояснением по reason: editMessage при активном флоу (`lastBotMessage`), иначе sendMessage;
-- `captureInput` сохраняется — флоу продолжается, `releaseInput` **не** выполняется;
+- warn-реплика (`notify`, kind: warn) с пояснением по reason — без перерисовки экрана;
+- `awaitInput`-контекст сохраняется — флоу продолжается, `release` **не** выполняется;
 - наблюдаемость: `logger.warn('fill-story', 'Неактуальный ответ в анкете', {questionnaireId, pressed, questionCode, reason})` — warn, не error: не создаёт CRITICAL в Logger Bot.
 
 ---
@@ -364,28 +364,29 @@ callback_data кодирует/снимает uiApp, транспорт и ст�
 
 | Событие / код | UC | Действие |
 |---|---|---|
-| `invite:start:{qId}` | `start-by-invite` | Render → `captureInput: questionnaire/fill` (управление переходит fill-стори) |
-| `invite:why:{qId}` | `get-current` | sendMessage whyText + «Хорошо» → `invite:invite:{qId}` |
-| `invite:invite:{qId}` | `get-current` | sendMessage: новый S01 из InviteResponse |
-| `invite:decline:{qId}` | — | `confirm('decline', qId, ...)` → S06a |
-| `invite:decline-confirm:{qId}` | `decline-invite` | Render → S06b |
-| `questionnaire:invite` (подписка) | — | sendMessage S01 |
+| `invite:start:{qId}` | `start-by-invite` | delegate `fill:current:{qId}` → get-current → экран вопроса + awaitInput (диалог fill) |
+| `invite:why:{qId}` | `get-current` | экран whyText + «Хорошо» → `invite:invite:{qId}` |
+| `invite:invite:{qId}` | `get-current` | экран: новый S01 из InviteResponse |
+| `invite:decline:{qId}` | `get-current` (warning) | `confirm('decline', qId, ...)` → S06a |
+| `invite:decline-confirm:{qId}` | `decline-invite` | экран S06b + `release` |
+| `questionnaire:invite` (подписка) | — | канал `invite`: S01 с полными кодами кнопок + подсказка /start (ФР-6) |
 
 ### FillStory (`fill`) — заполнение и жизненный цикл
 
 | Событие / код | UC | Действие |
 |---|---|---|
-| `fill:current` | `get-current` | Возврат к текущему вопросу (S02a/S02b/S03) |
-| `fill:answer:{qId}:{aCode}` | `handle-action({type:'callback'})` | Render |
-| `fill:next:{qId}:{qCode}` | `handle-action({type:'callback'})` | Render |
-| text message | `handle-action({type:'text'})` | Render |
-| `fill:cancel-confirm:{qId}` | `abandon` | Render → S05b |
-| `fill:resume:{courseId}` | `get-questionnaires-by-user` + `get-current` | Render → `captureInput: questionnaire/fill` |
-| `/cancel` | `get-current` (warning) | `confirm('cancel', qId, ...)` → S05a |
-| `questionnaire:start` (подписка) | — | Render S02–S04 + `captureInput: questionnaire/fill` |
-| `questionnaire:continue-invite` (подписка) | — (SweepAbandonedJob, 3ч) | sendMessage S09: Продолжить анкету (takeover, если courseId) / Прервать |
-| `questionnaire:abandon-warning` (подписка) | — (SweepAbandonedJob, 6ч) | sendMessage S07: Продолжить (takeover, если courseId) / Прервать |
-| `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob, 9ч) | notify S08; без reason — ничего (без дубля) |
+| `fill:current:{qId}` | `get-current` | Возврат к текущему вопросу (S02a/S02b/S03) + awaitInput |
+| `fill:cancel:{qId}` | `get-current` (warning) | `confirm('cancel', qId, ...)` → S05a |
+| `fill:answer:{qId}:{aCode}` | `handle-action({type:'callback'})` | Render (finalize-паттерн) |
+| `fill:next:{qId}:{qCode}` | `handle-action({type:'callback'})` | Render (finalize-паттерн) |
+| text message | `handle-action({type:'text'})` | Render (finalize-паттерн); ошибки валидации — errorNotify |
+| `fill:cancel-confirm:{qId}` | `abandon` | экран S05b + `release` |
+| `fill:resume:{courseId}` | `get-questionnaires-by-user` + `get-current` | Render + awaitInput (контекст `{ questionnaireId }`) |
+| `/cancel` | `get-current` (warning) | `confirm('cancel', qId, ...)` → S05a (handleCommand активной стори) |
+| `questionnaire:start` (подписка) | — | вариант A: invite «▶️ Заполнить анкету» с кнопкой-мостом `fill:resume:{courseId}`; без courseId — notify с подсказкой /start |
+| `questionnaire:continue-invite` (подписка) | — (SweepAbandonedJob, 3ч) | канал invite: S09 «Продолжить анкету» (resume, если courseId) / «Прервать» (cancel → S05a) |
+| `questionnaire:abandon-warning` (подписка) | — (SweepAbandonedJob, 6ч) | канал invite: S07 «Продолжить» (resume, если courseId) / «Прервать» (cancel → S05a) |
+| `questionnaire:abandon` (подписка, `reason='timeout'`) | — (SweepAbandonedJob, 9ч) | notify S08; иначе (`by_user`) — ничего (без дубля) |
 
 ---
 
@@ -395,4 +396,4 @@ callback_data кодирует/снимает uiApp, транспорт и ст�
 - Вопросы: `*{текст}*` (жирный)
 - Single choice: `( )` / `(x)`; Multiple choice: `[ ]` / `[x]`
 - Подсказка «В любой момент можно нажать /cancel…» — только под первым вопросом анкеты (`previousQuestion === undefined`)
-- Все тексты — `escapeMarkdown()` (включая `inviteText`, `whyText`, fallback-тексты ошибок и сообщения валидации); номера вариантов экранируются (`1\.`)
+- Все тексты — MdText: доменные данные через `md`-интерполяцию (авто-экранирование, включая `inviteText`, `whyText`, `completionText`, `cancelWarning`, fallback-тексты); литеральные части — экранированы вручную/`escapeMarkdown()`; номера вариантов экранируются (`1\.`)
