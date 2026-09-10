@@ -10,7 +10,7 @@ const result = addFive(num);
 console.log('после вызова: num =', num);
 console.log('result =', result);
 
-console.log('');
+console.log('---');
 
 // ============================================================
 
@@ -28,13 +28,13 @@ console.log('после вызова:', employee);
 // если объект изменился, то мы называем это мутацией
 // если функция или метод изменяет объект то мы называем его мутабельным
 
-console.log('');
+console.log('---');
 
 // ============================================================
 
 // защита от мутации — возвращаем новый объект
 
-const emp2 = { name: 'Бек', salary: 80000 };
+const emp2 = { name: 'Бек', salary: 100000 };
 console.log('до вызова:', emp2);
 
 function giveBonusSafe(emp, percent) {
@@ -44,7 +44,7 @@ function giveBonusSafe(emp, percent) {
   return newEmp;
 }
 
-const updated = giveBonusSafe(emp2, 15);
+const updated = giveBonusSafe(emp2, 10);
 console.log('после вызова: emp2 =', emp2);
 console.log('после вызова: updated =', updated);
 console.log('emp2 === updated ?', emp2 === updated);
@@ -53,7 +53,7 @@ console.log('emp2 === updated ?', emp2 === updated);
 // то мы говорим что он иммутабельный
 // мы стремимся чтобы наши функции и методы были иммутабельными
 
-console.log('');
+console.log('---');
 
 // ============================================================
 
@@ -67,4 +67,3 @@ function addItem(list, item) {
 
 addItem(arr, 4);
 console.log('после вызова:', arr);
-console.log('массив тоже изменился — передан по ссылке');
