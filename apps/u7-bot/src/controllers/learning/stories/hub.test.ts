@@ -246,7 +246,7 @@ describe('HubStory', () => {
   });
 });
 
-// ── Подписка на student.completed (И3: notify-текст без кнопок) ──
+// ── Подписка на student.completed (кнопочные 7a/7b — канал invite, ФР-6) ──
 
 describe('HubStory — подписка на student.completed', () => {
   const moduleId = '33333333-3333-4333-8333-333333333333';
@@ -304,7 +304,7 @@ describe('HubStory — подписка на student.completed', () => {
     return sub;
   }
 
-  test('advanced + следующий модуль → notify-текст с подсказкой меню (без кнопок)', async () => {
+  test('advanced + следующий модуль → invite с кнопкой «➡️ Следующий модуль»', async () => {
     const { story, sender } = makeStoryWithSender({
       courseId: 'c-1',
       isFirst: false,
@@ -315,18 +315,26 @@ describe('HubStory — подписка на student.completed', () => {
 
     await getSub(story).handle(makeCompletedEvent('advanced'));
 
-    // И3: notify — текст без кнопок; invite-канал не используется
-    expect(sender.invite).not.toHaveBeenCalled();
-    expect(sender.notify).toHaveBeenCalledTimes(1);
-    const [tgId, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, { text: string; kind?: string }];
+    // 7a: кнопочный проактив — invite (временное исключение И3 до tasks-system)
+    expect(sender.notify).not.toHaveBeenCalled();
+    expect(sender.invite).toHaveBeenCalledTimes(1);
+    const [tgId, payload] = (sender.invite as ReturnType<typeof mock>).mock
+      .calls[0] as [
+      number,
+      {
+        text: string;
+        keyboard: { rows: Array<Array<{ text: string; code: string }>> };
+      },
+    ];
     expect(tgId).toBe(123);
-    expect(payload.text).toContain('заверш');
-    expect(payload.text).toContain('/start');
-    expect(payload.kind).toBe('notify');
+    expect(payload.text).toContain('Модуль заверш');
+    expect(payload.text).toContain('записаться на следующий');
+    const button = payload.keyboard.rows[0]?.[0];
+    expect(button?.text).toBe('➡️ Следующий модуль');
+    expect(button?.code).toBe(`course:course-catalog:wish:${nextModuleId}`);
   });
 
-  test('not_advanced → notify «пройти модуль снова» с подсказкой меню', async () => {
+  test('not_advanced → invite с кнопкой «🔁 Пройти модуль снова»', async () => {
     const { story, sender } = makeStoryWithSender({
       courseId: 'c-1',
       isFirst: false,
@@ -336,12 +344,22 @@ describe('HubStory — подписка на student.completed', () => {
 
     await getSub(story).handle(makeCompletedEvent('not_advanced'));
 
-    expect(sender.invite).not.toHaveBeenCalled();
-    expect(sender.notify).toHaveBeenCalledTimes(1);
-    const [, payload] = (sender.notify as ReturnType<typeof mock>).mock
-      .calls[0] as [number, { text: string; kind?: string }];
+    // 7b: повтор того же модуля — кнопка ведёт на текущий moduleId
+    expect(sender.notify).not.toHaveBeenCalled();
+    expect(sender.invite).toHaveBeenCalledTimes(1);
+    const [, payload] = (sender.invite as ReturnType<typeof mock>).mock
+      .calls[0] as [
+      number,
+      {
+        text: string;
+        keyboard: { rows: Array<Array<{ text: string; code: string }>> };
+      },
+    ];
     expect(payload.text).toContain('не пройден');
-    expect(payload.text).toContain('/start');
+    expect(payload.text).toContain('снова');
+    const button = payload.keyboard.rows[0]?.[0];
+    expect(button?.text).toBe('🔁 Пройти модуль снова');
+    expect(button?.code).toBe(`course:course-catalog:wish:${moduleId}`);
   });
 
   test('advanced + последний модуль → ничего не шлётся (уведомление — из UC, 7c)', async () => {

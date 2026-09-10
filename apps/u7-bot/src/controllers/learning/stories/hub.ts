@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
-import { md, mdJoin } from '@u7-scl/core/shared';
+import { md } from '@u7-scl/core/shared';
 import type {
   BotSession,
   DialogResponse,
@@ -39,9 +39,10 @@ export class HubStory extends U7BotUiStory {
   }
 
   /**
-   * student.completed — ветки 7a/7b (И3): notify-текст без кнопок с
-   * подсказкой меню (кнопочные проактивы мигрированы на notify треком
-   * bot-ui-dialog-learning). Безкнопочные 7c/7d («Курс завершён», место
+   * student.completed — кнопочные ветки 7a/7b через канал invite
+   * (ФР-6, временное исключение И3 до tasks-system): прежний UX
+   * сохранён — кнопка ведёт в CourseCatalogStory (wish → UC
+   * create-module-wish). Безкнопочные 7c/7d («Курс завершён», место
    * неизвестно) доставляет механизм userFacade.notify из UC
    * complete-student — здесь они не рендерятся (трек user-notify).
    */
@@ -59,27 +60,25 @@ export class HubStory extends U7BotUiStory {
     })) as ModulePlace | undefined;
 
     if (outcome === 'not_advanced') {
-      // Повтор того же модуля (7b)
-      await this.proactiveSender.notify(user.telegramId, {
-        text: mdJoin([
-          md`🔁 *Модуль не пройден до конца*`,
-          md``,
-          md`Пройти его снова можно в меню: /start → 📖 Программы курсов`,
-        ]),
-        kind: 'notify',
+      // Повтор того же модуля (7b) — кнопочный проактив, канал invite
+      await this.proactiveSender.invite(user.telegramId, {
+        text: md`🔁 Модуль не пройден до конца\\.\n\nХочешь записаться на него снова\\?`,
+        keyboard: {
+          rows: [[buttons.wishModule(moduleId, '🔁 Пройти модуль снова')]],
+          isMultiple: false,
+        },
       });
       return;
     }
 
     if (place?.nextModuleId) {
-      // advanced + есть следующий модуль (7a)
-      await this.proactiveSender.notify(user.telegramId, {
-        text: mdJoin([
-          md`🏁 *Модуль завершён\\!*`,
-          md``,
-          md`Записаться на следующий можно в меню: /start → 📖 Программы курсов`,
-        ]),
-        kind: 'notify',
+      // advanced + есть следующий модуль (7a) — кнопочный проактив, invite
+      await this.proactiveSender.invite(user.telegramId, {
+        text: md`🏁 Модуль завершён\\!\n\nХочешь записаться на следующий\\?`,
+        keyboard: {
+          rows: [[buttons.wishModule(place.nextModuleId)]],
+          isMultiple: false,
+        },
       });
     }
     // иначе — безкнопочные 7c/7d: уведомление уже отправлено UC
