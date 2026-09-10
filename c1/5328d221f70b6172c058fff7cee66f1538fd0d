@@ -1,0 +1,20 @@
+Фаза 2 'Подписки fill-событий и приглашения (вариант A)' трека bot-ui-dialog-questionnaire_20260905.
+
+Верификация выполнения (код вошёл в коммиты фазы 1 и трека 1.1, отдельной реализации не потребовалось):
+
+Задача 1 — Takeover-подписки → notify/invite:
+- grep по скоупу: takeover/бот-ответы старого контракта отсутствуют
+- abandon (timeout) → notify-текст; by_user — дубля нет (тест)
+- abandon-warning/continue-invite → invite-канал, кнопочные ветки не срезаны:
+  «Продолжить(анкету)» мост fill:resume:{courseId} + «Прервать» через confirm (решение владельца 2026-09-10)
+- тесты: fill.story.warning.test.ts (6), fill.story.continue-invite.test.ts (3)
+
+Задача 2 — Приглашения по варианту A:
+- транспорт invite (bcee7858): штамп seq текущей эпохи получателя; без диалога —
+  якорь app/invite (seq=1); тесты обеих веток (bot-transport.test.ts, ~5/~1) + fail-fast md
+- стори (31a551c): questionnaire:invite S01, continue-invite, abandon-warning,
+  questionnaire:start (с courseId — invite с мостом; без — notify-подсказка /start)
+- подсказка /start во всех invite-текстах
+
+Проверки: тесты questionnaire 61 pass; транспорт 63 pass; biome чист (фикс 5f2a1f92);
+tsc красный только вне скоупа (mentor — трек 5, легальное промежуточное состояние).
