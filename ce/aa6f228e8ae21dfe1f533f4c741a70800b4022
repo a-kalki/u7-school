@@ -1,0 +1,9 @@
+Задача: Обновить ui-spec.md всех контроллеров под новую архитектуру
+
+Сводка: Проверены все 5 ui-spec.md (courses, learning, mentor, questionnaire, streams). courses/learning/streams — уже чистые (обновлены в своих треках миграции, 0 упоминаний старых терминов). mentor — НЕ тронут (контроллер ещё на старом контракте, трек 5; обновление спеки без миграции кода создало бы рассинхрон). questionnaire — обновлён (последний комитет c272f173 от 2026-09-04, треки миграции документ не меняли): шапка контракта рендера (DialogResponse); вариант A (startStandard → приглашение с кнопкой-мостом; канал invite + подсказка /start в S01/S07/S09); /cancel-подтверждение (fill:cancel:{qId} из S07/S09 → S05a; «Нет, продолжить» → fill:current:{qId} c обоснованием); S10 — warn-реплика вместо перерисовки; терминология (finalize/screen/awaitInput/release вместо editMessage/sendMessage/captureInput/releaseInput); takeover-механика описана как кнопка-мост; статусы 📋→✅; MdText в блоке форматирования. Логика поведения для конечного пользователя не изменена — только утверждённые владельцем решения (2026-09-10: прерывание после подтверждения, вариант A, подсказка /start).
+
+Файлы: apps/u7-bot/src/controllers/questionnaire/ui-spec.md.
+
+Верификации: grep старых терминов (captureInput/releaseInput/sendMessage/editMessage/lastBotMessage/activeHandler/takeover/parseMode) — чисто, кроме исторической фразы «эквивалент прежнего takeover».
+
+Причина: указание владельца 2026-09-10 «просмотри все ui-spec.md и обнови в связи с новой архитектурой; логику поведения конечного пользователя не трогать».
