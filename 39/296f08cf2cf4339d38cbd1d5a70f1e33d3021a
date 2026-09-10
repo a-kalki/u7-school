@@ -1,0 +1,7 @@
+Задача: Поведенческие тесты fill/invite (render.ts) на DialogResponse
+
+Сводка: fill.dialog.test.ts (18 тестов) — finalize-паттерн (single \(x\)/multiple \[x\]/текст/completed), wait_next edit-in-place без finalize, awaitInput при входе + подсказка /cancel на первом вопросе, errorNotify-валидация (bad-request от UC → warn-реплика, ввод живёт), stale_answer → warn-реплика без перерисовки + logger.warn, /cancel через handleCommand: stop+confirm-экран (abandon не звался до подтверждения), дефолтный сброс при недоступной анкете, pass-ветки. invite.dialog.test.ts (8 тестов) — start → delegate fill:current:{qId}, экран ошибки UC, MarkdownV2-безопасность доменных текстов (инцидент 2026-09-03), fallback-реплики. 20 из 26 падают на старом коде (Red); 6 зелёных — инварианты, обязательные к сохранению.
+
+Файлы: fill.dialog.test.ts, invite.dialog.test.ts (новые).
+
+Причина: TDD Red-фаза задачи 2 фазы 1 перед переводом стори на контракт «Диалог и Экран».
