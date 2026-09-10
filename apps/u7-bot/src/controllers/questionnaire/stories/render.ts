@@ -1,11 +1,5 @@
-import { escapeMarkdown } from '@u7-scl/core/shared';
-import type {
-  BotResponse,
-  EditMessageDescription,
-  KeyboardDescription,
-  MessageDescription,
-  SessionData,
-} from '@u7-scl/core/ui';
+import { escapeMarkdown, type MdText, mdRaw } from '@u7-scl/core/shared';
+import type { DialogResponse, KeyboardDescription } from '@u7-scl/core/ui';
 import type {
   Question,
   QuestionnaireActionResponse,
@@ -14,11 +8,21 @@ import { buttons } from '../../shared/buttons';
 
 /**
  * Общий рендер-слой questionnaire-контроллера: преобразует ответы
- * движка анкеты (QuestionnaireActionResponse) в команды транспорта.
+ * движка анкеты (QuestionnaireActionResponse) в декларативный
+ * DialogResponse контракта «Диалог и Экран».
  *
- * Коды кнопок — литеральные маршруты стори (канон Routes/buttons):
- * вопросные клавиатуры принадлежат fill-стори, клавиатура приглашения —
- * invite-стори. Префикс контроллера добавляется при отправке.
+ * Ответы стори несут маршруты БЕЗ префикса контроллера (его добавляет
+ * контроллер при отправке); полные коды invite-канала (проактивы) —
+ * только в Routes (канон кросс-адресов).
+ *
+ * Рендер-политика (§5 материнского дока):
+ * - `wait_next` (тоггл мультивыбора) — только screen: транспорт владеет
+ *   экраном и редактирует его на месте (маркеры обновляются, клавиатура жива);
+ * - `stale_answer` — warn-реплика (notify), экран и ввод не трогаем:
+ *   экран и так показывает актуальный вопрос (spec FR-1);
+ * - `new_question` — finalize предыдущего вопроса (финальные маркеры,
+ *   клавиатуру снимает транспорт) + screen нового;
+ * - `completed` — finalize + финальный screen + release (ввод отпущен).
  */
 
 /** Клавиатура приглашения S01 (обработчики в invite-стори). */
@@ -40,34 +44,18 @@ export function inviteKeyboard(
 }
 
 /**
- * Рендерит ответ движка анкеты в команду транспорту.
- *
- * UX-контракт (spec FR-1/FR-2):
- * - `wait_next` (тоггл мультивыбора) — editMessage вопроса на месте
- *   (маркеры обновляются, клавиатура жива); fallback — sendMessage.
- * - `new_question` — предыдущий вопрос редактируется (финальные маркеры,
- *   клавиатура удаляется), новый вопрос отправляется новым сообщением.
- * - `completed` — аналогично new_question + финальное сообщение.
- *
- * Редактирование возможно только при `editPrev` (ответ в активном флоу)
- * и наличии `session.lastBotMessage` — проактивные сценарии (старт,
- * resume) всегда шлют sendMessage.
+ * Рендерит ответ движка анкеты в DialogResponse.
  */
 export function renderActionResponse(
   response: QuestionnaireActionResponse,
-  opts: { session?: SessionData; editPrev?: boolean } = {},
-): BotResponse {
-  const lastMsg = opts.session?.lastBotMessage;
-  const canEditPrev = opts.editPrev === true && lastMsg !== undefined;
-
+): DialogResponse {
   if (response.type === 'wait_next') {
-    return editOrSend(
-      {
+    return {
+      screen: {
         text: formatQuestionMd(response.currentQuestion, {
           selected: response.selectedAnswers,
           progress: progressOf(response),
         }),
-        parseMode: 'MarkdownV2',
         keyboard: getKeyboard(
           response.currentQuestion,
           response.questionnaireId,
@@ -76,123 +64,70 @@ export function renderActionResponse(
             : undefined,
         ),
       },
-      canEditPrev ? lastMsg : undefined,
-    );
+    };
   }
 
   if (response.type === 'stale_answer') {
-    // Неактуальный ответ: перерисовка актуального вопроса с пояснением
-    // по reason (spec FR-1). Литералы экранированы под MarkdownV2.
+    // Реплика-подсказка по reason (spec FR-1), без перерисовки.
     const hint =
       response.reason === 'stale_button'
-        ? '⚠️ Эта кнопка относится к предыдущему вопросу\\. Вот актуальный:'
+        ? '⚠️ Эта кнопка относится к предыдущему вопросу\\.'
         : '⚠️ Сначала выбери хотя бы один вариант\\.';
-    return editOrSend(
-      {
-        text: `${hint}\n\n${formatQuestionMd(response.question, {
-          selected: response.selectedAnswers,
-          progress: progressOf(response),
-        })}`,
-        parseMode: 'MarkdownV2',
-        keyboard: getKeyboard(
-          response.question,
-          response.questionnaireId,
-          response.nextButton
-            ? makeNextCode(response.questionnaireId, response.nextButton)
-            : undefined,
-        ),
-      },
-      canEditPrev ? lastMsg : undefined,
-    );
+    return { notify: { text: mdRaw(hint), kind: 'warn' } };
   }
 
   if (response.type === 'new_question') {
-    const nextMessage = {
-      text: formatQuestionMd(response.question, {
-        selected: response.selectedAnswers ?? [],
-        progress: progressOf(response),
-        isFirstQuestion: response.previousQuestion === undefined,
-      }),
-      parseMode: 'MarkdownV2' as const,
-      keyboard: getKeyboard(response.question, response.questionnaireId),
+    const result: DialogResponse = {
+      screen: {
+        text: formatQuestionMd(response.question, {
+          selected: response.selectedAnswers ?? [],
+          progress: progressOf(response),
+          isFirstQuestion: response.previousQuestion === undefined,
+        }),
+        keyboard: getKeyboard(response.question, response.questionnaireId),
+      },
     };
-
-    const prevEdit = renderPreviousQuestion(
-      response.previousQuestion,
-      response.previousSelectedAnswers ?? [],
-      canEditPrev ? lastMsg : undefined,
-    );
-    if (!prevEdit) return { sendMessage: nextMessage };
-    return { editMessage: prevEdit, sendMessage: nextMessage };
+    if (response.previousQuestion) {
+      result.finalize = {
+        text: formatQuestionMd(response.previousQuestion, {
+          selected: response.previousSelectedAnswers ?? [],
+        }),
+      };
+    }
+    return result;
   }
 
   if (response.type === 'completed') {
-    const doneCommand: BotResponse = {
-      releaseInput: true,
-      sendMessage: {
-        text: response.completionText ?? 'Спасибо! Твоя анкета принята.',
-        keyboard: {
-          rows: [[buttons.mainMenu()]],
-          isMultiple: false,
-        },
+    const result: DialogResponse = {
+      screen: {
+        text: mdRaw(
+          escapeMarkdown(
+            response.completionText ?? 'Спасибо! Твоя анкета принята.',
+          ),
+        ),
+        keyboard: { rows: [[buttons.mainMenu()]], isMultiple: false },
       },
+      release: true,
     };
-
-    const prevEdit = renderPreviousQuestion(
-      response.previousQuestion,
-      response.previousSelectedAnswers ?? [],
-      canEditPrev ? lastMsg : undefined,
-    );
-    if (!prevEdit) return doneCommand;
-    return { ...doneCommand, editMessage: prevEdit };
+    if (response.previousQuestion) {
+      result.finalize = {
+        text: formatQuestionMd(response.previousQuestion, {
+          selected: response.previousSelectedAnswers ?? [],
+        }),
+      };
+    }
+    return result;
   }
 
   // invited — рендерим как приглашение
   return {
-    sendMessage: {
-      text: `📋 *Анкета*\n\n${escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
-      parseMode: 'MarkdownV2',
+    screen: {
+      text: mdRaw(
+        `📋 *Анкета*\n\n${escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
+      ),
       keyboard: inviteKeyboard(response.questionnaireId, response.whyText),
     },
   };
-}
-
-/**
- * Рендер предыдущего вопроса для истории «вопрос → выбранный ответ»:
- * editMessage с финальными маркерами и БЕЗ клавиатуры.
- * Возвращает undefined, если редактировать нечем (нет сообщения/вопроса).
- */
-function renderPreviousQuestion(
-  previousQuestion: Question | undefined,
-  selectedAnswers: string[],
-  lastMsg: SessionData['lastBotMessage'],
-): EditMessageDescription | undefined {
-  if (!previousQuestion || !lastMsg) return undefined;
-  return {
-    messageId: lastMsg.messageId,
-    text: formatQuestionMd(previousQuestion, {
-      selected: selectedAnswers,
-    }),
-    parseMode: 'MarkdownV2',
-  };
-}
-
-/** editMessage, если есть последнее сообщение бота; иначе sendMessage. */
-function editOrSend(
-  message: MessageDescription,
-  lastMsg: SessionData['lastBotMessage'],
-): BotResponse {
-  if (lastMsg) {
-    return {
-      editMessage: {
-        messageId: lastMsg.messageId,
-        text: message.text,
-        keyboard: message.keyboard,
-        parseMode: message.parseMode,
-      },
-    };
-  }
-  return { sendMessage: message };
 }
 
 function makeNextCode(qId: string, nextButton: string): string {
@@ -209,7 +144,7 @@ function formatQuestionMd(
     progress?: { questionIndex: number; poolSize: number };
     isFirstQuestion?: boolean;
   },
-): string {
+): MdText {
   const esc = (t: string) => t.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
 
   const header = options.progress
@@ -217,11 +152,14 @@ function formatQuestionMd(
     : '';
 
   const cancelHint = options.isFirstQuestion
-    ? `\n\n${esc('В любой момент можно нажать /cancel — вернёшься в главное меню.')}`
+    ? '\n\nВ любой момент можно нажать /cancel — вернёшься в главное меню.'
     : '';
 
   if (question.type !== 'choice') {
-    return `${header}*${esc(question.question)}*${cancelHint}`;
+    // Подсказка текстового ввода (ui-spec S03)
+    return mdRaw(
+      `${header}*${esc(question.question)}*\n\nВведите ваш ответ текстом\\.\\.\\.${esc(cancelHint)}`,
+    );
   }
 
   const lines = [`${header}*${esc(question.question)}*`, ''];
@@ -238,7 +176,7 @@ function formatQuestionMd(
         : '\\( \\)';
     lines.push(`${idx}\\. ${marker} ${esc(a.answer)}`);
   }
-  return `${lines.join('\n')}${cancelHint}`;
+  return mdRaw(`${lines.join('\n')}${esc(cancelHint)}`);
 }
 
 /** Достаёт прогресс из ответа UC (поля опциональны). */

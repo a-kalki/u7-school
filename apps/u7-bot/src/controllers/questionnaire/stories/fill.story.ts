@@ -1,10 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
+import { md } from '@u7-scl/core/shared';
 import {
-  type BotResponse,
+  type BotSession,
   type BotUpdate,
+  type CommandReaction,
+  type CommandUpdate,
+  type DialogResponse,
   eventSubscription,
-  type KeyboardDescription,
-  type SessionData,
   type UiEventSubscription,
 } from '@u7-scl/core/ui';
 import type {
@@ -25,12 +27,17 @@ import { renderActionResponse } from './render';
  * Вопросы, ответы, отмена и жизненный цикл брошенной анкеты
  * (предупреждение, приглашение продолжить, закрытие по таймауту).
  * Вызовы UC — через this.appApi (объект приложения, канон BotUiStory).
- * Хранит questionnaireId в контексте сессии (activeHandler.context).
+ *
+ * Контракт «Диалог и Экран»: анкета держит ввод (awaitInput с контекстом
+ * { questionnaireId }) с момента входа в диалог (resume/current/start) до
+ * завершения (release при completed/abandoned). Прерывание — только после
+ * подтверждения (решение владельца 2026-09-10): /cancel и кнопка «Прервать»
+ * из S07/S09 показывают confirm-экран S05a.
  */
 export class FillStory extends U7BotUiStory {
   readonly name = 'fill';
 
-  // ── Подписки на доменные события ──
+  // ── Подписки на доменные события (вариант A: invite-канал, ФР-6) ──
 
   override getEventSubscriptions(): UiEventSubscription[] {
     return [
@@ -53,98 +60,84 @@ export class FillStory extends U7BotUiStory {
     ];
   }
 
-  /** questionnaire:start — рендерит S02–S04 и запускает диалог проактивно */
-  async #handleStartEvent(event: QuestionnaireStartEvent): Promise<void> {
-    const { telegramId, response } = event.payload;
-    const command = renderActionResponse(response);
-
-    if (response.type === 'wait_next' || response.type === 'new_question') {
-      command.captureInput = {
-        path: 'fill',
-        context: { questionnaireId: response.questionnaireId },
-      };
-    }
-
-    await this.proactiveSender.send(telegramId, command);
-  }
-
   /**
-   * questionnaire:continue-invite — приглашение продолжить брошенную анкету
-   * (ступень 3ч планировщика). Takeover-кнопка перехватывает ввод у чужого
-   * флоу без alert-блокировки (spec FR-4/FR-5).
+   * questionnaire:start (старт из каталога) — вариант A: сервер только
+   * зовёт, диалог открывается действием пользователя. Кнопка-мост
+   * fill:resume:{courseId}; без courseId — подсказка входа через меню.
    */
-  async #handleContinueInviteEvent(
-    event: QuestionnaireContinueInviteEvent,
-  ): Promise<void> {
-    const { telegramId, questionnaireId } = event.payload;
+  async #handleStartEvent(event: QuestionnaireStartEvent): Promise<void> {
+    const { telegramId } = event.payload;
     const courseId = event.ownerInfo.courseId;
 
-    const rows: KeyboardDescription['rows'] = [];
-    if (typeof courseId === 'string') {
-      rows.push([
-        {
-          text: '▶️ Продолжить анкету',
-          code: Routes.questionnaire.resume(courseId),
-          takeover: true, // Takeover: перехват ввода
-        },
-      ]);
+    if (typeof courseId !== 'string') {
+      await this.proactiveSender.notify(telegramId, {
+        text: md`📋 *Анкета*\n\nДля вас подготовлена анкета — откройте её через /start\\.`,
+      });
+      return;
     }
-    rows.push([
-      {
-        text: '⏭️ Прервать',
-        code: this.cb('cancel-confirm', questionnaireId),
-      },
-    ]);
 
-    await this.proactiveSender.send(telegramId, {
-      sendMessage: {
-        text: '📋 *Анкета*\n\nВы начали заполнять анкету — продолжим?',
-        parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
+    await this.proactiveSender.invite(telegramId, {
+      text: md`📋 *Анкета*\n\nДля вас подготовлена анкета — заполните, пожалуйста\\.\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      keyboard: {
+        rows: [
+          [
+            {
+              text: '▶️ Заполнить анкету',
+              code: Routes.questionnaire.resume(courseId),
+            },
+          ],
+        ],
+        isMultiple: false,
       },
     });
   }
 
   /**
-   * questionnaire:abandon-warning — предупреждение о закрытии брошенной анкеты.
-   * Кнопка «Продолжить» возвращается только если анкета привязана к курсу.
+   * questionnaire:abandon-warning (S07, ступень 6ч) — кнопочный проактив
+   * через invite-канал: «Продолжить» (кнопка-мост по курсу) / «Прервать»
+   * (confirm-экран S05a — прерывание только после подтверждения).
    */
   async #handleWarningEvent(
     event: QuestionnaireAbandonWarningEvent,
   ): Promise<void> {
     const { telegramId, questionnaireId } = event.payload;
-    const courseId = event.ownerInfo.courseId;
+    const rows = this.#lifecycleRows(
+      event.ownerInfo.courseId,
+      questionnaireId,
+      '▶️ Продолжить',
+    );
 
-    const rows: KeyboardDescription['rows'] = [];
-    if (typeof courseId === 'string') {
-      rows.push([
-        {
-          text: '▶️ Продолжить',
-          code: Routes.questionnaire.resume(courseId),
-          takeover: true, // Takeover: перехват ввода
-        },
-      ]);
-    }
-    rows.push([
-      {
-        text: '⏭️ Прервать',
-        code: this.cb('cancel-confirm', questionnaireId),
-      },
-    ]);
-
-    await this.proactiveSender.send(telegramId, {
-      sendMessage: {
-        text: '⏳ *Анкета приостановлена*\n\nМы заметили, что ты давно не заполнял анкету\\. Скоро она будет закрыта\\.\n\nПродолжить?',
-        parseMode: 'MarkdownV2',
-        keyboard: { rows, isMultiple: false },
-      },
+    await this.proactiveSender.invite(telegramId, {
+      text: md`⏳ *Анкета приостановлена*\n\nМы заметили, что ты давно не заполнял анкету\\. Скоро она будет закрыта\\.\n\nПродолжить?\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      keyboard: { rows, isMultiple: false },
     });
   }
 
   /**
-   * questionnaire:abandon — уведомление о принудительном закрытии.
-   * Только reason='timeout': при ручном прерывании (/cancel) пользователь уже
-   * получил ответ UC — дублировать не нужно. Без telegramId слать некому.
+   * questionnaire:continue-invite (S09, ступень 3ч) — приглашение
+   * продолжить брошенную анкету, канал invite (ФР-6).
+   */
+  async #handleContinueInviteEvent(
+    event: QuestionnaireContinueInviteEvent,
+  ): Promise<void> {
+    const { telegramId, questionnaireId } = event.payload;
+    const rows = this.#lifecycleRows(
+      event.ownerInfo.courseId,
+      questionnaireId,
+      '▶️ Продолжить анкету',
+    );
+
+    await this.proactiveSender.invite(telegramId, {
+      text: md`📋 *Анкета*\n\nВы начали заполнять анкету — продолжим?\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      keyboard: { rows, isMultiple: false },
+    });
+  }
+
+  /**
+   * questionnaire:abandon — уведомление о принудительном закрытии (S08).
+   * Только reason='timeout': при ручном прерывании пользователь уже
+   * получил экран «Анкета прервана» — дублировать не нужно. Без telegramId
+   * слать некому.
    */
   async #handleAbandonEvent(event: QuestionnaireAbandonEvent): Promise<void> {
     const { reason, telegramId } = event.payload;
@@ -153,9 +146,29 @@ export class FillStory extends U7BotUiStory {
     }
 
     await this.proactiveSender.notify(telegramId, {
-      text: '⏱ Анкета была закрыта из\\-за длительной неактивности\\.',
-      parseMode: 'MarkdownV2',
+      text: md`⏱ Анкета была закрыта из\\-за длительной неактивности\\.`,
     });
+  }
+
+  /** Кнопки S07/S09: продолжить (если анкета привязана к курсу) / прервать. */
+  #lifecycleRows(
+    courseId: unknown,
+    questionnaireId: string,
+    continueText: string,
+  ): { text: string; code: string }[][] {
+    const rows: { text: string; code: string }[][] = [];
+    if (typeof courseId === 'string') {
+      rows.push([
+        { text: continueText, code: Routes.questionnaire.resume(courseId) },
+      ]);
+    }
+    rows.push([
+      {
+        text: '⏭️ Прервать',
+        code: Routes.questionnaire.fillCancel(questionnaireId),
+      },
+    ]);
+    return rows;
   }
 
   // ── Callback ──
@@ -163,57 +176,49 @@ export class FillStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
+    session: BotSession,
+  ): Promise<DialogResponse> {
     // fill:resume:{courseId}
     if (action.startsWith('resume:')) {
       const courseId = action.slice(7);
       return this.#handleResume(courseId, actor);
     }
 
-    // fill:cancel-confirm:{qId}
+    // fill:cancel-confirm:{qId} — подтверждённое прерывание (S05b)
     if (action.startsWith('cancel-confirm:')) {
       const qId = action.slice(15);
       return this.#handleCancelConfirmed(qId, actor);
     }
 
-    // fill:current
-    if (action === 'current') {
-      const qId = this.#getQId(session);
-      try {
-        const response = await this.appApi.execute(
-          'get-current',
-          { questionnaireId: qId },
-          actor.uuid,
-        );
-        return this.#renderUc(response, { questionnaireId: qId });
-      } catch (err) {
-        return this.handleError(err);
-      }
+    // fill:cancel:{qId} — confirm-экран прерывания (S05a)
+    if (action.startsWith('cancel:')) {
+      const qId = action.slice(7);
+      return this.#cancelConfirmScreen(qId, actor);
+    }
+
+    // fill:current:{qId} — восстановление флоу (кнопка «Нет, продолжить»)
+    if (action.startsWith('current:')) {
+      const qId = action.slice(8);
+      return this.#showCurrent(qId, actor);
     }
 
     // fill:answer:{qId}:{aCode}
     if (action.startsWith('answer:')) {
       const rest = action.slice(7);
       const colonIdx = rest.indexOf(':');
-      if (colonIdx === -1) return this.sendUnknownError();
+      if (colonIdx === -1) return this.unknownCommand(action, actor, session);
       const qId = rest.slice(0, colonIdx);
       const aCode = rest.slice(colonIdx + 1);
       try {
         const response = await this.appApi.execute(
           'handle-action',
-          // Протокол UC: выбор и «Далее» — callback (value = код ответа / 'next:{qCode}')
+          // Протокол UC: выбор — callback (value = код ответа)
           { questionnaireId: qId, type: 'callback', value: aCode },
           actor.uuid,
         );
-        return this.#renderUc(response, {
-          questionnaireId: qId,
-          session,
-          editPrev: true,
-          pressed: aCode,
-        });
+        return this.#renderUc(response, qId, aCode);
       } catch (err) {
-        return this.handleError(err);
+        return this.errorNotify(err);
       }
     }
 
@@ -221,103 +226,107 @@ export class FillStory extends U7BotUiStory {
     if (action.startsWith('next:')) {
       const rest = action.slice(5);
       const colonIdx = rest.indexOf(':');
-      if (colonIdx === -1) return this.sendUnknownError();
+      if (colonIdx === -1) return this.unknownCommand(action, actor, session);
       const qId = rest.slice(0, colonIdx);
       const qCode = rest.slice(colonIdx + 1);
       try {
         const response = await this.appApi.execute(
           'handle-action',
-          {
-            questionnaireId: qId,
-            type: 'callback',
-            value: `next:${qCode}`,
-          },
+          { questionnaireId: qId, type: 'callback', value: `next:${qCode}` },
           actor.uuid,
         );
-        return this.#renderUc(response, {
-          questionnaireId: qId,
-          session,
-          editPrev: true,
-          pressed: `next:${qCode}`,
-        });
+        return this.#renderUc(response, qId, `next:${qCode}`);
       } catch (err) {
-        return this.handleError(err);
+        return this.errorNotify(err);
       }
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
+    return this.unknownCommand(action, actor, session);
   }
 
-  // ── Сообщения ──
+  // ── Сообщения (текстовые ответы анкеты) ──
 
-  async handleMessage(
+  override async handleMessage(
     update: BotUpdate,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    if (update.type !== 'message') return this.sendUnknownError();
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    if (update.type !== 'message') {
+      // Анкета ждёт текст: документ/фото/войс — переспрос, ввод живёт
+      return {
+        notify: {
+          text: md`Пожалуйста, введите ваш ответ текстом\.`,
+          kind: 'warn',
+        },
+      };
+    }
 
-    const qId = this.#getQId(session);
+    const qId = this.#qIdOf(session);
+    if (!qId) {
+      this.logger?.warn('fill-story', 'Текстовый ввод без контекста анкеты', {
+        dialogPath: session.dialog?.path,
+      });
+      return {
+        notify: {
+          text: md`Анкета не найдена — начните с /start\\.`,
+          kind: 'warn',
+        },
+        release: true,
+      };
+    }
+
     try {
       const response = await this.appApi.execute(
         'handle-action',
         { questionnaireId: qId, type: 'text', value: update.text },
         actor.uuid,
       );
-      return this.#renderUc(response, {
-        questionnaireId: qId,
-        session,
-        editPrev: true,
-        pressed: update.text,
-      });
+      return this.#renderUc(response, qId, update.text);
     } catch (err) {
-      return this.handleError(err);
+      return this.errorNotify(err);
     }
   }
 
-  // ── Отмена ──
+  // ── Команды: /cancel — подтверждение перед прерыванием ──
 
-  override async handleCancel(
+  override async handleCommand(
+    update: CommandUpdate,
     actor: User,
-    session: SessionData,
-  ): Promise<BotResponse> {
-    try {
-      const qId = this.#getQId(session);
-      const current = await this.appApi.execute(
-        'get-current',
-        { questionnaireId: qId },
-        actor.uuid,
-      );
-      // cancelWarning есть у всех вариантов ответа, кроме completed
-      const warningRaw =
-        current.type === 'completed' ? undefined : current.cancelWarning;
-      const warning = warningRaw
-        ? `\n\n${this.escapeMarkdown(warningRaw)}`
-        : '';
-
-      return this.confirm(
-        'cancel',
-        qId,
-        `Вы уверены, что хотите прервать анкету?${warning}`,
-        {
-          confirmButton: '✅ Да, прервать',
-          cancelButton: '❌ Нет, продолжить',
-          cancelCode: 'questionnaire:fill:current',
-        },
-      );
-    } catch {
-      return { releaseInput: true };
+    session: BotSession,
+  ): Promise<CommandReaction> {
+    if (update.command === 'cancel' && this.isActive(session)) {
+      // qId берём из контекста ввода ДО того, как ядро переоткроет меню
+      const qId = this.#qIdOf(session);
+      if (!qId) {
+        return {
+          reaction: 'stop',
+          response: { notify: { text: md`Отменено\\. Наберите /start` } },
+        };
+      }
+      try {
+        return {
+          reaction: 'stop',
+          response: await this.#cancelConfirmScreen(qId, actor),
+        };
+      } catch {
+        return {
+          reaction: 'stop',
+          response: { notify: { text: md`Отменено\\. Наберите /start` } },
+        };
+      }
     }
+
+    return super.handleCommand(update, actor, session);
   }
 
   // ── Приватные обработчики ──
 
   /**
-   * Продолжение анкеты по курсу (кнопка «▶️ Продолжить анкету» на W04):
-   * ищет активную standard-анкету пользователя с ownerInfo.courseId = courseId
-   * и рендерит её текущий вопрос с восстановлением сессии (captureInput).
+   * Продолжение анкеты по курсу (кнопки-мосты «Продолжить»): ищет активную
+   * standard-анкету пользователя с ownerInfo.courseId = courseId и
+   * рендерит её текущий вопрос с захватом ввода.
    */
-  async #handleResume(courseId: string, actor: User): Promise<BotResponse> {
+  async #handleResume(courseId: string, actor: User): Promise<DialogResponse> {
     try {
       const states = await this.appApi.execute(
         'get-questionnaires-by-user',
@@ -325,7 +334,14 @@ export class FillStory extends U7BotUiStory {
         actor.uuid,
       );
 
-      const active = states.find(
+      const active = (
+        states as Array<{
+          kind: string;
+          status: string;
+          ownerInfo: { courseId?: string };
+          uuid: string;
+        }>
+      ).find(
         (s) =>
           s.kind === 'standard' &&
           s.status === 'in_progress' &&
@@ -334,8 +350,8 @@ export class FillStory extends U7BotUiStory {
 
       if (!active) {
         return {
-          sendMessage: {
-            text: 'Анкета не найдена или уже завершена.',
+          screen: {
+            text: md`Анкета не найдена или уже завершена\\.`,
             keyboard: {
               rows: [[buttons.mainMenu()]],
               isMultiple: false,
@@ -344,21 +360,62 @@ export class FillStory extends U7BotUiStory {
         };
       }
 
-      const response = await this.appApi.execute(
-        'get-current',
-        { questionnaireId: active.uuid },
-        actor.uuid,
-      );
-      return this.#renderUc(response, {
-        questionnaireId: active.uuid,
-        captureInput: true,
-      });
+      return this.#showCurrent(active.uuid, actor);
     } catch (err) {
       return this.handleError(err);
     }
   }
 
-  async #handleCancelConfirmed(qId: string, actor: User): Promise<BotResponse> {
+  /** Показ текущего вопроса с захватом ввода (resume/current/возврат). */
+  async #showCurrent(qId: string, actor: User): Promise<DialogResponse> {
+    try {
+      const response = await this.appApi.execute(
+        'get-current',
+        { questionnaireId: qId },
+        actor.uuid,
+      );
+      const res = renderActionResponse(response);
+      // Ввод ждём только пока есть вопрос; completed сам несёт release
+      if (response.type === 'new_question' || response.type === 'wait_next') {
+        res.awaitInput = { context: { questionnaireId: qId } };
+      }
+      return res;
+    } catch (err) {
+      return this.handleError(err);
+    }
+  }
+
+  /** Confirm-экран прерывания S05a: вопрос + cancelWarning анкеты. */
+  async #cancelConfirmScreen(
+    qId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
+    const current = await this.appApi.execute(
+      'get-current',
+      { questionnaireId: qId },
+      actor.uuid,
+    );
+    // cancelWarning есть у всех вариантов ответа, кроме completed
+    const warningRaw =
+      current.type === 'completed' ? undefined : current.cancelWarning;
+
+    return this.confirm(
+      'cancel',
+      qId,
+      md`Вы уверены, что хотите прервать анкету?${warningRaw ? `\n\n${warningRaw}` : ''}`,
+      {
+        confirmButton: '✅ Да, прервать',
+        cancelButton: '❌ Нет, продолжить',
+        cancelCode: this.cbFor('fill', 'current', qId),
+      },
+    );
+  }
+
+  /** Подтверждённое прерывание (S05b): abandon UC + release. */
+  async #handleCancelConfirmed(
+    qId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
     try {
       await this.appApi.execute(
         'abandon',
@@ -367,67 +424,42 @@ export class FillStory extends U7BotUiStory {
       );
 
       return {
-        releaseInput: true,
-        sendMessage: {
-          text: 'Анкета прервана.',
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
+        screen: {
+          text: md`Анкета прервана\\.`,
+          keyboard: { rows: [[buttons.mainMenu()]], isMultiple: false },
         },
+        release: true,
       };
     } catch (err) {
       return this.handleError(err);
     }
   }
 
-  /** Рендеринг ответа UC + опциональный captureInput */
+  /** Рендеринг ответа UC: наблюдаемость stale + декларативный рендер. */
   #renderUc(
     response: QuestionnaireActionResponse,
-    opts: {
-      questionnaireId: string;
-      session?: SessionData;
-      captureInput?: boolean;
-      /** Редактировать предыдущий вопрос (история «вопрос → ответ») */
-      editPrev?: boolean;
-      /** Нажатое пользователем значение (для диагностики stale-ответов) */
-      pressed?: string;
-    },
-  ): BotResponse {
+    questionnaireId: string,
+    pressed: string,
+  ): DialogResponse {
     // Неактуальный ответ — сигнал для наблюдаемости (warn, не error:
     // не должен попадать в критические ошибки Logger Bot, spec FR-1)
-    if (response.type === 'stale_answer' && opts.pressed !== undefined) {
+    if (response.type === 'stale_answer') {
       this.logger?.warn('fill-story', 'Неактуальный ответ в анкете', {
-        questionnaireId: opts.questionnaireId,
-        pressed: opts.pressed,
+        questionnaireId,
+        pressed,
         questionCode: response.question.questionCode,
         reason: response.reason,
       });
     }
 
-    const rendered = renderActionResponse(response, {
-      session: opts.session,
-      editPrev: opts.editPrev,
-    });
-
-    if (opts.captureInput) {
-      rendered.captureInput = {
-        path: 'fill',
-        context: { questionnaireId: opts.questionnaireId },
-      };
-    }
-
-    return rendered;
+    return renderActionResponse(response);
   }
 
-  /** Извлекает questionnaireId из контекста сессии */
-  #getQId(session: SessionData): string {
-    const ctx = session.activeHandler?.context as
+  /** questionnaireId активного ввода (контекст awaitInput). */
+  #qIdOf(session: BotSession): string | undefined {
+    const ctx = session.dialog?.input?.context as
       | { questionnaireId?: string }
       | undefined;
-    if (!ctx?.questionnaireId) {
-      throw new Error('questionnaireId не найден в контексте сессии');
-    }
-    return ctx.questionnaireId;
+    return ctx?.questionnaireId;
   }
 }

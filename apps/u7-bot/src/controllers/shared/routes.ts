@@ -35,5 +35,15 @@ export const Routes = {
   questionnaire: {
     /** Продолжить анкету по курсу: обработчик в fill-стори questionnaire-контроллера */
     resume: (courseId: string) => `questionnaire:fill:resume:${courseId}`,
+    /** Подтверждение прерывания анкеты (S07/S09 → S05a, кнопка «Прервать») */
+    fillCancel: (questionnaireId: string) =>
+      `questionnaire:fill:cancel:${questionnaireId}`,
+    /** Кнопки приглашения S01 (invite-канал, полные коды) */
+    inviteStart: (questionnaireId: string) =>
+      `questionnaire:invite:start:${questionnaireId}`,
+    inviteWhy: (questionnaireId: string) =>
+      `questionnaire:invite:why:${questionnaireId}`,
+    inviteDecline: (questionnaireId: string) =>
+      `questionnaire:invite:decline:${questionnaireId}`,
   },
 } as const;

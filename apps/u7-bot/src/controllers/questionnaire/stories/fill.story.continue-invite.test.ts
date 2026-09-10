@@ -1,95 +1,91 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { BotCommand } from '@u7-scl/core/ui';
+import { assertMarkdownV2Safe } from '@u7-scl/core/shared';
 import { FillStory } from './fill.story';
 
 /**
- * Приглашение продолжить брошенную анкету (ступень 3ч, spec FR-4):
- * «Вы начали заполнять анкету — продолжим?» + takeover-кнопка
- * «▶️ Продолжить анкету» + «⏭️ Прервать».
+ * Подписка questionnaire:continue-invite (S09, ступень 3ч планировщика)
+ * на контракте «Диалог и Экран»: канал invite (ФР-6), кнопки-мосты с
+ * ПОЛНЫМИ кодами, подсказка /start, прерывание — через confirm.
  */
+//
+// ══ Помощники ══
 
 function makeStory() {
   const story = new FillStory();
   const sender = {
-    send: mock(async () => {}),
+    name: 'questionnaire',
     notify: mock(async () => {}),
+    invite: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   };
-  story.init({} as never, sender);
+  story.init({ appApi: { execute: mock(async () => ({})) } } as never, sender);
   return { story, sender };
 }
 
-function getSub(story: FillStory, eventName: string) {
-  return story.getEventSubscriptions().find((s) => s.eventName === eventName);
-}
-
-function continueInviteEvent(
-  ownerInfo: Record<string, unknown> = { courseId: 'course-1' },
-) {
-  return {
-    eventName: 'questionnaire:continue-invite',
-    aggregateName: 'Questionnaire',
-    ownerInfo,
-    payload: {
-      questionnaireId: 'q-1',
-      respondentId: '00000000-0000-0000-0000-000000000007',
-      telegramId: 456,
-    },
-  } as never;
-}
-
-describe('FillStory — приглашение продолжить (questionnaire:continue-invite)', () => {
+describe('FillStory — continue-invite (S09): invite-канал', () => {
   test('подписка зарегистрирована', () => {
     const { story } = makeStory();
-
     const names = story.getEventSubscriptions().map((s) => s.eventName);
-
     expect(names).toContain('questionnaire:continue-invite');
   });
 
-  test('сообщение «продолжим?» с кнопками «▶️ Продолжить анкету» (takeover) и «⏭️ Прервать»', async () => {
+  test('сообщение «продолжим?» с кнопками «Продолжить анкету» и «Прервать»', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:continue-invite');
-    expect(sub).toBeDefined();
 
-    await sub!.handle(continueInviteEvent());
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:continue-invite')!;
 
-    expect(sender.send).toHaveBeenCalled();
-    const [telegramId, command] = sender.send.mock.calls[0] as unknown as [
+    await sub.handle({
+      eventName: 'questionnaire:continue-invite',
+      payload: {
+        questionnaireId: 'q-1',
+        respondentId: 'r-1',
+        telegramId: 456,
+      },
+      ownerInfo: { courseId: 'course-1' },
+    } as never);
+
+    expect(sender.invite).toHaveBeenCalledTimes(1);
+    const [telegramId, payload] = sender.invite.mock.calls[0] as unknown as [
       number,
-      BotCommand,
+      { text: string; keyboard: { rows: { text: string; code: string }[][] } },
     ];
     expect(telegramId).toBe(456);
-    expect(command.sendMessage?.text).toContain('продолжим');
 
-    const buttons =
-      command.sendMessage?.keyboard?.rows.flat().map((b) => ({
-        text: b.text,
-        code: b.code,
-        takeover: b.takeover,
-      })) ?? [];
+    expect(payload.text).toContain('продолжим?');
+    expect(payload.text).toContain('/start');
+    expect(() => assertMarkdownV2Safe(payload.text)).not.toThrow();
 
-    // Takeover-кнопка «Продолжить анкету» — перехват ввода у чужого флоу
-    const resume = buttons.find((b) => b.text.includes('Продолжить анкету'));
-    expect(resume).toBeDefined();
-    expect(resume?.code).toBe('questionnaire:fill:resume:course-1');
-    expect(resume?.takeover).toBe(true);
-
-    const cancel = buttons.find((b) => b.text.includes('Прервать'));
-    expect(cancel).toBeDefined();
-    expect(cancel?.code).toBe('fill:cancel-confirm:q-1');
-    expect(cancel?.takeover).toBeUndefined();
+    expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([
+      ['▶️ Продолжить анкету', 'questionnaire:fill:resume:course-1'],
+      ['⏭️ Прервать', 'questionnaire:fill:cancel:q-1'],
+    ]);
   });
 
-  test('без courseId — takeover-кнопки нет, только «⏭️ Прервать»', async () => {
+  test('без courseId — кнопки-моста нет, только «Прервать»', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:continue-invite');
 
-    await sub!.handle(continueInviteEvent({}));
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:continue-invite')!;
 
-    const command = (sender.send.mock.calls[0] as unknown[])[1] as BotCommand;
-    const codes =
-      command.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
-    expect(codes).toEqual(['fill:cancel-confirm:q-1']);
+    await sub.handle({
+      eventName: 'questionnaire:continue-invite',
+      payload: {
+        questionnaireId: 'q-1',
+        respondentId: 'r-1',
+        telegramId: 456,
+      },
+      ownerInfo: {},
+    } as never);
+
+    const [, payload] = sender.invite.mock.calls[0] as unknown as [
+      number,
+      { keyboard: { rows: { text: string; code: string }[][] } },
+    ];
+    expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([
+      ['⏭️ Прервать', 'questionnaire:fill:cancel:q-1'],
+    ]);
   });
 });

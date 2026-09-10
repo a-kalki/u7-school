@@ -53,7 +53,11 @@ function makeFillStory(
 }
 
 function makeInviteStory(
-  execute: (name: string, cmd: unknown, actorId: string) => Promise<unknown> = async () => ({}),
+  execute: (
+    name: string,
+    cmd: unknown,
+    actorId: string,
+  ) => Promise<unknown> = async () => ({}),
 ) {
   const appApi = { execute: mock(execute) } as unknown as U7BotApp;
   const story = new InviteStory();
@@ -111,11 +115,7 @@ describe('Инвентаризация FillStory', () => {
       poolSize: 3,
     }));
 
-    const res = await story.handleCallback(
-      'current:q-1',
-      actor,
-      fillSession(),
-    );
+    const res = await story.handleCallback('current:q-1', actor, fillSession());
 
     expect(flatButtons(res)).toEqual([
       ['1', 'fill:answer:q-1:novice'],
@@ -140,7 +140,9 @@ describe('Инвентаризация FillStory', () => {
       fillSession(),
     );
 
-    expect(res.screen?.keyboard?.rows.map((r) => r.map((b) => [b.text, b.code]))).toEqual([
+    expect(
+      res.screen?.keyboard?.rows.map((r) => r.map((b) => [b.text, b.code])),
+    ).toEqual([
       [
         ['1', 'fill:answer:q-1:fe'],
         ['2', 'fill:answer:q-1:be'],
@@ -159,11 +161,7 @@ describe('Инвентаризация FillStory', () => {
       poolSize: 3,
     }));
 
-    const res = await story.handleCallback(
-      'current:q-1',
-      actor,
-      fillSession(),
-    );
+    const res = await story.handleCallback('current:q-1', actor, fillSession());
 
     expect(res.screen?.keyboard).toBeUndefined();
     expect(String(res.screen?.text)).toContain('Введите ваш ответ текстом');
@@ -198,7 +196,9 @@ describe('Инвентаризация FillStory', () => {
 
     const res = await story.handleCallback('cancel:q-1', actor, fillSession());
 
-    expect(String(res.screen?.text)).toContain('Вы уверены, что хотите прервать анкету?');
+    expect(String(res.screen?.text)).toContain(
+      'Вы уверены, что хотите прервать анкету?',
+    );
     expect(String(res.screen?.text)).toContain('Данные не сохранятся');
     expect(flatButtons(res)).toEqual([
       ['✅ Да, прервать', 'fill:cancel-confirm:q-1'],
@@ -242,7 +242,11 @@ describe('Инвентаризация FillStory', () => {
       throw new Error(`Неожиданный UC: ${name}`);
     });
 
-    const res = await story.handleCallback('resume:course-1', actor, fillSession());
+    const res = await story.handleCallback(
+      'resume:course-1',
+      actor,
+      fillSession(),
+    );
 
     expect(String(res.screen?.text)).toContain('Расскажи о себе');
     expect(res.awaitInput?.context).toEqual({ questionnaireId: 'q-1' });
@@ -251,7 +255,11 @@ describe('Инвентаризация FillStory', () => {
   test('fill:resume — анкета не найдена: экран с главным меню', async () => {
     const { story } = makeFillStory(async () => []);
 
-    const res = await story.handleCallback('resume:course-1', actor, fillSession());
+    const res = await story.handleCallback(
+      'resume:course-1',
+      actor,
+      fillSession(),
+    );
 
     expect(String(res.screen?.text)).toContain('Анкета не найдена');
     expect(flatButtons(res)).toEqual([['↩️ Главное меню', 'app:main-menu']]);
@@ -307,7 +315,7 @@ describe('Инвентаризация InviteStory', () => {
     } as never);
 
     expect(sender.invite).toHaveBeenCalledTimes(1);
-    const [telegramId, payload] = sender.invite.mock.calls[0] as [
+    const [telegramId, payload] = sender.invite.mock.calls[0] as unknown as [
       number,
       { text: string; keyboard: { rows: { text: string; code: string }[][] } },
     ];
@@ -317,7 +325,9 @@ describe('Инвентаризация InviteStory', () => {
     // Подсказка /start на случай устаревшего экрана (вариант A)
     expect(payload.text).toContain('/start');
 
-    expect(payload.keyboard.rows.map((r) => r.map((b) => [b.text, b.code]))).toEqual([
+    expect(
+      payload.keyboard.rows.map((r) => r.map((b) => [b.text, b.code])),
+    ).toEqual([
       [['▶️ Начать заполнение', 'questionnaire:invite:start:q1']],
       [['❔ Зачем это нужно?', 'questionnaire:invite:why:q1']],
       [['⏭️ Пропустить', 'questionnaire:invite:decline:q1']],
@@ -389,7 +399,9 @@ describe('Инвентаризация InviteStory', () => {
 
     const res = await story.handleCallback('decline:q1', actor, fillSession());
 
-    expect(String(res.screen?.text)).toContain('Вы уверены, что хотите пропустить анкету?');
+    expect(String(res.screen?.text)).toContain(
+      'Вы уверены, что хотите пропустить анкету?',
+    );
     expect(String(res.screen?.text)).toContain('Придётся заполнять с начала');
     expect(flatButtons(res)).toEqual([
       ['✅ Да, пропустить', 'invite:decline-confirm:q1'],
@@ -400,7 +412,11 @@ describe('Инвентаризация InviteStory', () => {
   test('invite:decline-confirm:{qId} (S06b): «Анкета пропущена.» + меню + release', async () => {
     const { story } = makeInviteStory(async () => undefined);
 
-    const res = await story.handleCallback('decline-confirm:q1', actor, fillSession());
+    const res = await story.handleCallback(
+      'decline-confirm:q1',
+      actor,
+      fillSession(),
+    );
 
     expect(String(res.screen?.text)).toContain('Анкета пропущена');
     expect(flatButtons(res)).toEqual([['↩️ Главное меню', 'app:main-menu']]);

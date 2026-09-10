@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
+import { AppException, errBadRequest } from '@u7-scl/core/domain';
 import { assertMarkdownV2Safe } from '@u7-scl/core/shared';
 import type { BotSession } from '@u7-scl/core/ui';
 import { InviteStory } from './invite.story';
@@ -21,11 +22,16 @@ const session: BotSession = {
 };
 
 function makeStory(
-  execute: (name: string, cmd: unknown, actorId: string) => Promise<unknown> = async () => ({}),
+  execute: (
+    name: string,
+    cmd: unknown,
+    actorId: string,
+  ) => Promise<unknown> = async () => ({}),
 ) {
   const appApi = { execute: mock(execute) } as unknown as U7BotApp;
   const story = new InviteStory();
   const sender = {
+    name: 'questionnaire',
     notify: mock(async () => {}),
     invite: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
@@ -66,11 +72,8 @@ describe('InviteStory — invite:start: делегирование fill-стор
 
   test('start:q при недоступной анкете: экран ошибки с выходом в меню', async () => {
     const { story } = makeStory(async () => {
-      throw new (await import('@u7-scl/core/domain')).AppException(
-        (await import('@u7-scl/core/domain')).errBadRequest(
-          'BAD_REQUEST',
-          'Анкета уже завершена',
-        ),
+      throw new AppException(
+        errBadRequest('BAD_REQUEST', 'Анкета уже завершена', undefined),
       );
     });
 
@@ -106,12 +109,12 @@ describe('InviteStory — MarkdownV2-безопасность (инцидент 
       },
     } as never);
 
-    const [telegramId, payload] = sender.invite.mock.calls[0] as [
+    const [telegramId, payload] = sender.invite.mock.calls[0] as unknown as [
       number,
       { text: string },
     ];
     expect(telegramId).toBe(456);
-    expect(payload.text).toContain('Иванов_Иван');
+    expect(payload.text).toContain('Иванов\\_Иван');
     expect(() => assertMarkdownV2Safe(payload.text)).not.toThrow();
   });
 
@@ -124,7 +127,7 @@ describe('InviteStory — MarkdownV2-безопасность (инцидент 
 
     const res = await story.handleCallback('why:q1', actor, session);
 
-    expect(res.screen?.text).toContain('Иванов_Иван');
+    expect(res.screen?.text).toContain('Иванов\\_Иван');
     expect(() => assertMarkdownV2Safe(res.screen!.text)).not.toThrow();
   });
 
@@ -149,7 +152,7 @@ describe('InviteStory — MarkdownV2-безопасность (инцидент 
 
     const res = await story.handleCallback('decline:q1', actor, session);
 
-    expect(String(res.screen?.text)).toContain('Иванов_Иван');
+    expect(String(res.screen?.text)).toContain('Иванов\\_Иван');
     expect(() => assertMarkdownV2Safe(res.screen!.text)).not.toThrow();
   });
 });
@@ -172,7 +175,7 @@ describe('InviteStory — fallback-реплики при пустых текст
       },
     } as never);
 
-    const [, payload] = sender.invite.mock.calls[0] as [
+    const [, payload] = sender.invite.mock.calls[0] as unknown as [
       number,
       { text: string },
     ];

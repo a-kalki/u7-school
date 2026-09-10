@@ -1,16 +1,13 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 import type { User } from '@u7-scl/app/domain';
 import type { U7BotApp } from '@u7-scl/bot/u7-bot-app-meta';
+import { AppException, errBadRequest } from '@u7-scl/core/domain';
 import {
   assertMarkdownV2Safe,
   type Logger,
   LogLevel,
   setGlobalLogger,
 } from '@u7-scl/core/shared';
-import {
-  AppException,
-  errBadRequest,
-} from '@u7-scl/core/domain';
 import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
 import { FillStory } from './fill.story';
 
@@ -66,15 +63,17 @@ function menuSession(): BotSession {
 function makeStory(
   execute: (name: string, cmd: unknown, actorId: string) => Promise<unknown>,
 ) {
-  const appApi = { execute: mock(execute) } as unknown as U7BotApp;
+  const executeMock = mock(execute);
+  const appApi = { execute: executeMock } as unknown as U7BotApp;
   const story = new FillStory();
   const sender = {
+    name: 'questionnaire',
     notify: mock(async () => {}),
     invite: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   };
   story.init({ appApi } as never, sender);
-  return { story, appApi };
+  return { story, appApi, executeMock };
 }
 
 function createMockLogger(): Logger & { warn: ReturnType<typeof mock> } {
@@ -91,14 +90,14 @@ function createMockLogger(): Logger & { warn: ReturnType<typeof mock> } {
 
 /** Ошибка UC как из домена: bad-request (текст при choice-вопросе). */
 function badRequest(message: string): AppException {
-  return new AppException(errBadRequest('BAD_REQUEST', message));
+  return new AppException(errBadRequest('BAD_REQUEST', message, undefined));
 }
 
 // ══ Finalize-паттерн ══
 
 describe('FillStory — finalize-паттерн («зафиксируй выбор → следующий вопрос»)', () => {
   test('single answer: finalize с финальными маркерами \\(x\\)/\\( \\), screen — следующий вопрос, ввод живёт', async () => {
-    const { story, appApi } = makeStory(async () => ({
+    const { story, executeMock } = makeStory(async () => ({
       type: 'new_question',
       questionnaireId: 'q-1',
       question: nextTextQuestion,
@@ -115,7 +114,7 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
     );
 
     // UC вызван с выбором варианта
-    expect(appApi.execute).toHaveBeenCalledWith(
+    expect(executeMock).toHaveBeenCalledWith(
       'handle-action',
       { questionnaireId: 'q-1', type: 'callback', value: 'novice' },
       actor.uuid,
@@ -166,7 +165,7 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
   });
 
   test('текстовый ответ: finalize предыдущего вопроса + screen следующего', async () => {
-    const { story, appApi } = makeStory(async () => ({
+    const { story, executeMock } = makeStory(async () => ({
       type: 'new_question',
       questionnaireId: 'q-1',
       question: nextTextQuestion,
@@ -181,7 +180,7 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
     );
 
     // UC вызван с type:'text' и значением из сообщения
-    expect(appApi.execute).toHaveBeenCalledWith(
+    expect(executeMock).toHaveBeenCalledWith(
       'handle-action',
       { questionnaireId: 'q-1', type: 'text', value: '3 года фронтенда' },
       actor.uuid,
@@ -208,7 +207,7 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
     );
 
     expect(res.finalize?.text).toContain('Расскажи о себе');
-    expect(String(res.screen?.text)).toContain('Спасибо! Анкета принята.');
+    expect(String(res.screen?.text)).toContain('Анкета принята');
     expect(res.release).toBe(true);
   });
 
@@ -262,7 +261,11 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
       nextButton: 'next:qc1',
     }));
 
-    const res = await story.handleCallback('answer:q-1:fe', actor, fillSession());
+    const res = await story.handleCallback(
+      'answer:q-1:fe',
+      actor,
+      fillSession(),
+    );
 
     // Тоггл — тот же экран: без finalize, клавиатура жива
     expect(res.finalize).toBeUndefined();
@@ -392,7 +395,11 @@ describe('FillStory — stale_answer: реплика поверх, экран и
       staleResponse({ reason: 'empty_selection' }),
     );
 
-    const res = await story.handleCallback('next:q-1:qc1', actor, fillSession());
+    const res = await story.handleCallback(
+      'next:q-1:qc1',
+      actor,
+      fillSession(),
+    );
 
     expect(res.notify?.kind).toBe('warn');
     expect(res.notify?.text).toContain('выбери хотя бы один вариант');
@@ -405,7 +412,7 @@ describe('FillStory — stale_answer: реплика поверх, экран и
     await story.handleCallback('answer:q-1:alien', actor, fillSession());
 
     expect(mockLogger.warn).toHaveBeenCalledTimes(1);
-    const [source, message, meta] = mockLogger.warn.mock.calls[0] as [
+    const [source, message, meta] = mockLogger.warn.mock.calls[0] as unknown as [
       string,
       string,
       Record<string, unknown>,
@@ -419,11 +426,239 @@ describe('FillStory — stale_answer: реплика поверх, экран и
   });
 });
 
+// ══ Шапка прогресса и «Далее» мультивыбора ══
+
+describe('FillStory — шапка «Вопрос N из M»', () => {
+  test('new_question: шапка с индексом и размером пула', async () => {
+    const { story } = makeStory(async () => ({
+      type: 'new_question',
+      questionnaireId: 'q-1',
+      question: radioQuestion,
+      questionIndex: 2,
+      poolSize: 5,
+    }));
+
+    const res = await story.handleCallback('current:q-1', actor, menuSession());
+
+    expect(String(res.screen?.text)).toContain('Вопрос 2 из 5');
+  });
+
+  test('wait_next: прогресс тоже показывается', async () => {
+    const { story } = makeStory(async () => ({
+      type: 'wait_next',
+      questionnaireId: 'q-1',
+      currentQuestion: {
+        questionCode: 'qc1',
+        type: 'choice' as const,
+        multiple: true,
+        question: 'Что интересно?',
+        answers: [{ answer: 'Фронтенд', answerCode: 'fe' }],
+      },
+      selectedAnswers: ['fe'],
+      nextButton: 'next:qc1',
+      questionIndex: 1,
+      poolSize: 3,
+    }));
+
+    const res = await story.handleCallback(
+      'answer:q-1:fe',
+      actor,
+      fillSession(),
+    );
+
+    expect(String(res.screen?.text)).toContain('Вопрос 1 из 3');
+  });
+});
+
+describe('FillStory — кнопка «Далее» мультивыбора', () => {
+  const multiQ = {
+    questionCode: 'qc1',
+    type: 'choice' as const,
+    multiple: true,
+    question: 'Что интересно?',
+    answers: [
+      { answer: 'Фронтенд', answerCode: 'fe' },
+      { answer: 'Бэкенд', answerCode: 'be' },
+    ],
+  };
+
+  test('выбран хотя бы один вариант — «Далее» присутствует', async () => {
+    const { story } = makeStory(async () => ({
+      type: 'wait_next',
+      questionnaireId: 'q-1',
+      currentQuestion: multiQ,
+      selectedAnswers: ['fe'],
+      nextButton: 'next:qc1',
+    }));
+
+    const res = await story.handleCallback(
+      'answer:q-1:fe',
+      actor,
+      fillSession(),
+    );
+
+    const texts = res.screen?.keyboard?.rows.flat().map((b) => b.text);
+    expect(texts).toContain('Далее -->');
+  });
+
+  test('все варианты сняты (пустой драфт) — «Далее» исчезает', async () => {
+    const { story } = makeStory(async () => ({
+      type: 'wait_next',
+      questionnaireId: 'q-1',
+      currentQuestion: multiQ,
+      selectedAnswers: [],
+      nextButton: undefined,
+    }));
+
+    const res = await story.handleCallback(
+      'answer:q-1:fe',
+      actor,
+      fillSession(),
+    );
+
+    const texts = res.screen?.keyboard?.rows.flat().map((b) => b.text);
+    expect(texts).not.toContain('Далее -->');
+  });
+});
+
+// ══ Подписки (вариант A: сервер только зовёт) ══
+
+describe('FillStory — подписки вариант A (invite-канал)', () => {
+  const senderOf = () => ({
+    name: 'questionnaire',
+    notify: mock(async () => {}),
+    invite: mock(async () => {}),
+    kickFromGroup: mock(async () => {}),
+  });
+
+  test('getEventSubscriptions: start, abandon-warning, continue-invite, abandon', () => {
+    const story = new FillStory();
+    story.init(
+      { appApi: { execute: mock(async () => ({})) } } as never,
+      senderOf(),
+    );
+
+    const names = story.getEventSubscriptions().map((s) => s.eventName);
+    expect(names).toEqual([
+      'questionnaire:start',
+      'questionnaire:abandon-warning',
+      'questionnaire:continue-invite',
+      'questionnaire:abandon',
+    ]);
+  });
+
+  test('questionnaire:start с courseId: invite «заполнить анкету» с кнопкой-мостом resume', async () => {
+    const story = new FillStory();
+    const sender = senderOf();
+    story.init(
+      { appApi: { execute: mock(async () => ({})) } } as never,
+      sender,
+    );
+
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:start')!;
+
+    await sub.handle({
+      eventName: 'questionnaire:start',
+      payload: {
+        telegramId: 456,
+        response: { type: 'new_question', questionnaireId: 'q-1' },
+      },
+      ownerInfo: { courseId: 'course-1' },
+    } as never);
+
+    expect(sender.invite).toHaveBeenCalledTimes(1);
+    const [telegramId, payload] = sender.invite.mock.calls[0] as unknown as [
+      number,
+      { text: string; keyboard: { rows: { text: string; code: string }[][] } },
+    ];
+    expect(telegramId).toBe(456);
+    expect(payload.text).toContain('Анкета');
+    expect(payload.text).toContain('/start');
+    expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([
+      ['▶️ Заполнить анкету', 'questionnaire:fill:resume:course-1'],
+    ]);
+  });
+
+  test('questionnaire:start без courseId: notify-подсказка входа через меню', async () => {
+    const story = new FillStory();
+    const sender = senderOf();
+    story.init(
+      { appApi: { execute: mock(async () => ({})) } } as never,
+      sender,
+    );
+
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:start')!;
+
+    await sub.handle({
+      eventName: 'questionnaire:start',
+      payload: {
+        telegramId: 456,
+        response: { type: 'new_question', questionnaireId: 'q-1' },
+      },
+      ownerInfo: {},
+    } as never);
+
+    expect(sender.invite).not.toHaveBeenCalled();
+    expect(sender.notify).toHaveBeenCalledTimes(1);
+    const [telegramId, payload] = sender.notify.mock.calls[0] as unknown as [
+      number,
+      { text: string },
+    ];
+    expect(telegramId).toBe(456);
+    expect(payload.text).toContain('/start');
+  });
+});
+
+// ══ Resume: фильтр активных standard-анкет ══
+
+describe('FillStory — resume по курсу: фильтрация', () => {
+  test('completed и likert-анкеты того же курса игнорируются', async () => {
+    const { story } = makeStory(async (name) => {
+      if (name === 'get-questionnaires-by-user') {
+        return [
+          {
+            kind: 'standard',
+            status: 'completed',
+            ownerInfo: { courseId: 'course-1' },
+            uuid: 'q-done',
+          },
+          {
+            kind: 'likert',
+            status: 'in_progress',
+            ownerInfo: { courseId: 'course-1' },
+            uuid: 'q-likert',
+          },
+          {
+            kind: 'standard',
+            status: 'in_progress',
+            ownerInfo: { courseId: 'course-2' },
+            uuid: 'q-other',
+          },
+        ];
+      }
+      throw new Error(`Неожиданный UC: ${name}`);
+    });
+
+    const res = await story.handleCallback(
+      'resume:course-1',
+      actor,
+      menuSession(),
+    );
+
+    // Ни одна не подошла — экран «не найдена»
+    expect(String(res.screen?.text)).toContain('Анкета не найдена');
+  });
+});
+
 // ══ Команда /cancel — подтверждение перед abandon ══
 
 describe('FillStory — /cancel: подтверждение перед прерыванием', () => {
   test('активная fill: stop с confirm-экраном, abandon НЕ вызывается', async () => {
-    const { story, appApi } = makeStory(async (name) => {
+    const { story, executeMock } = makeStory(async (name) => {
       if (name === 'get-current') {
         return {
           type: 'new_question',
@@ -444,7 +679,9 @@ describe('FillStory — /cancel: подтверждение перед прер�
     expect(reaction.reaction).toBe('stop');
     const res = (reaction as { response: DialogResponse }).response;
 
-    expect(String(res.screen?.text)).toContain('Вы уверены, что хотите прервать анкету?');
+    expect(String(res.screen?.text)).toContain(
+      'Вы уверены, что хотите прервать анкету?',
+    );
     expect(String(res.screen?.text)).toContain('Данные не сохранятся');
 
     const flat = res.screen?.keyboard?.rows.flat() ?? [];
@@ -454,7 +691,7 @@ describe('FillStory — /cancel: подтверждение перед прер�
     ]);
 
     // Прерывание — только после подтверждения: abandon не звали
-    const ucNames = (appApi.execute.mock.calls as unknown[][]).map((c) => c[0]);
+    const ucNames = (executeMock.mock.calls as unknown[][]).map((c) => c[0]);
     expect(ucNames).not.toContain('abandon');
   });
 
@@ -476,7 +713,7 @@ describe('FillStory — /cancel: подтверждение перед прер�
   });
 
   test('неактивная fill: pass без побочных действий', async () => {
-    const { story, appApi } = makeStory(async () => ({}));
+    const { story, executeMock } = makeStory(async () => ({}));
 
     const reaction = await story.handleCommand(
       { type: 'command', command: 'cancel', args: '', telegramId: 1 },
@@ -485,7 +722,7 @@ describe('FillStory — /cancel: подтверждение перед прер�
     );
 
     expect(reaction).toEqual({ reaction: 'pass' });
-    expect(appApi.execute).not.toHaveBeenCalled();
+    expect(executeMock).not.toHaveBeenCalled();
   });
 
   test('прочая команда (/help): pass — дефолт контракта U7BotUiStory', async () => {

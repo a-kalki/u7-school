@@ -1,22 +1,28 @@
 import type { User } from '@u7-scl/app/domain';
+import { md } from '@u7-scl/core/shared';
 import {
-  type BotCommand,
-  type BotResponse,
-  type BotUpdate,
+  type BotSession,
+  type DialogResponse,
   eventSubscription,
-  type SessionData,
   type UiEventSubscription,
 } from '@u7-scl/core/ui';
 import type { QuestionnaireInviteEvent } from '@u7-scl/questionnaire/domain';
 import { U7BotUiStory } from '../../../core/u7-bot-ui-story';
 import { buttons } from '../../shared/buttons';
-import { inviteKeyboard, renderActionResponse } from './render';
+import { Routes } from '../../shared/routes';
+import { renderActionResponse } from './render';
 
 /**
  * InviteStory — сценарий приглашения в анкету (S01, S06).
  *
  * Приглашение, пояснение «зачем», отказ от анкеты. Старт заполнения
- * (`invite:start`) передаёт управление fill-стори через captureInput.
+ * (`invite:start`) делегирует fill-стори: диалог с вопросами (и ввод
+ * текстовых ответов) принадлежит fill, а не invite.
+ *
+ * Подписка questionnaire:invite — вариант A (ФР-6): кнопочный проактив
+ * через ProactiveSender.invite с ПОЛНЫМИ кодами (транспорт проактивы
+ * не префиксует контроллером); в тексте — подсказка /start на случай
+ * устаревшего экрана.
  */
 export class InviteStory extends U7BotUiStory {
   readonly name = 'invite';
@@ -32,19 +38,38 @@ export class InviteStory extends U7BotUiStory {
     ];
   }
 
-  /** questionnaire:invite — рендерит S01 (приглашение) и шлёт проактивно */
+  /** questionnaire:invite — рендерит S01 (приглашение) в канале invite */
   async #handleInviteEvent(event: QuestionnaireInviteEvent): Promise<void> {
     const { telegramId, response } = event.payload;
+    const qId = response.questionnaireId;
 
-    const command: BotCommand = {
-      sendMessage: {
-        text: `📋 *Анкета*\n\n${this.escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}\n\nДля отмены в любой момент нажмите /cancel\\.`,
-        parseMode: 'MarkdownV2',
-        keyboard: inviteKeyboard(response.questionnaireId, response.whyText),
+    const rows: { text: string; code: string }[][] = [
+      [
+        {
+          text: '▶️ Начать заполнение',
+          code: Routes.questionnaire.inviteStart(qId),
+        },
+      ],
+    ];
+    if (response.whyText) {
+      rows.push([
+        {
+          text: '❔ Зачем это нужно?',
+          code: Routes.questionnaire.inviteWhy(qId),
+        },
+      ]);
+    }
+    rows.push([
+      {
+        text: '⏭️ Пропустить',
+        code: Routes.questionnaire.inviteDecline(qId),
       },
-    };
+    ]);
 
-    await this.proactiveSender.send(telegramId, command);
+    await this.proactiveSender.invite(telegramId, {
+      text: md`📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
+      keyboard: { rows, isMultiple: false },
+    });
   }
 
   // ── Callback ──
@@ -52,23 +77,21 @@ export class InviteStory extends U7BotUiStory {
   async handleCallback(
     action: string,
     actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    // invite:start:{qId} — старт заполнения, далее вопросами ведёт fill-стори
+    session: BotSession,
+  ): Promise<DialogResponse> {
+    // invite:start:{qId} — старт заполнения: делегат в fill (ввод анкеты
+    // адресуется fill-диалогу, не invite)
     if (action.startsWith('start:')) {
       const qId = action.slice(6);
       try {
-        const response = await this.appApi.execute(
+        await this.appApi.execute(
           'start-by-invite',
           { questionnaireId: qId },
           actor.uuid,
         );
-        const rendered = renderActionResponse(response);
-        rendered.captureInput = {
-          path: 'fill',
-          context: { questionnaireId: qId },
+        return {
+          delegate: { path: this.cbFor('fill', 'current', qId) },
         };
-        return rendered;
       } catch (err) {
         return this.handleError(err);
       }
@@ -86,34 +109,24 @@ export class InviteStory extends U7BotUiStory {
       return this.#handleInvite(qId, actor);
     }
 
-    // invite:decline:{qId}
+    // invite:decline:{qId} — confirm-экран отказа (S06a)
     if (action.startsWith('decline:')) {
       const qId = action.slice(8);
       return this.#handleDeclineConfirm(qId, actor);
     }
 
-    // invite:decline-confirm:{qId}
+    // invite:decline-confirm:{qId} — подтверждённый отказ (S06b)
     if (action.startsWith('decline-confirm:')) {
       const qId = action.slice(16);
       return this.#handleDeclineConfirmed(qId, actor);
     }
 
-    return { sendMessage: { text: '⚠️ Неизвестная команда' } };
-  }
-
-  // ── Сообщения ──
-
-  override async handleMessage(
-    _update: BotUpdate,
-    _actor: User,
-    _session: SessionData,
-  ): Promise<BotResponse> {
-    return { sendMessage: { text: '⚠️ Неизвестное сообщение' } };
+    return this.unknownCommand(action, actor, session);
   }
 
   // ── Приватные обработчики ──
 
-  async #handleWhy(qId: string, actor: User): Promise<BotResponse> {
+  async #handleWhy(qId: string, actor: User): Promise<DialogResponse> {
     try {
       const current = await this.appApi.execute(
         'get-current',
@@ -124,20 +137,10 @@ export class InviteStory extends U7BotUiStory {
       const invited = current.type === 'invited' ? current : undefined;
 
       return {
-        sendMessage: {
-          text: this.escapeMarkdown(
-            invited?.whyText ?? 'Нет дополнительной информации.',
-          ),
-          parseMode: 'MarkdownV2',
+        screen: {
+          text: md`${invited?.whyText ?? 'Нет дополнительной информации.'}`,
           keyboard: {
-            rows: [
-              [
-                {
-                  text: '✅ Хорошо',
-                  code: this.cb('invite', qId),
-                },
-              ],
-            ],
+            rows: [[{ text: '✅ Хорошо', code: this.cb('invite', qId) }]],
             isMultiple: false,
           },
         },
@@ -147,7 +150,7 @@ export class InviteStory extends U7BotUiStory {
     }
   }
 
-  async #handleInvite(qId: string, actor: User): Promise<BotResponse> {
+  async #handleInvite(qId: string, actor: User): Promise<DialogResponse> {
     try {
       const current = await this.appApi.execute(
         'get-current',
@@ -157,19 +160,21 @@ export class InviteStory extends U7BotUiStory {
       // inviteText/whyText определены только в состоянии invited
       const invited = current.type === 'invited' ? current : undefined;
 
-      return {
-        sendMessage: {
-          text: `📋 *Анкета*\n\n${this.escapeMarkdown(invited?.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
-          parseMode: 'MarkdownV2',
-          keyboard: inviteKeyboard(qId, invited?.whyText),
-        },
-      };
+      return renderActionResponse({
+        type: 'invited',
+        questionnaireId: qId,
+        inviteText: invited?.inviteText,
+        whyText: invited?.whyText,
+      });
     } catch (err) {
       return this.handleError(err);
     }
   }
 
-  async #handleDeclineConfirm(qId: string, actor: User): Promise<BotResponse> {
+  async #handleDeclineConfirm(
+    qId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
     try {
       const current = await this.appApi.execute(
         'get-current',
@@ -179,14 +184,11 @@ export class InviteStory extends U7BotUiStory {
       // cancelWarning есть у всех вариантов ответа, кроме completed
       const warningRaw =
         current.type === 'completed' ? undefined : current.cancelWarning;
-      const warning = warningRaw
-        ? `\n\n${this.escapeMarkdown(warningRaw)}`
-        : '';
 
       return this.confirm(
         'decline',
         qId,
-        `Вы уверены, что хотите пропустить анкету?${warning}`,
+        md`Вы уверены, что хотите пропустить анкету?${warningRaw ? `\n\n${warningRaw}` : ''}`,
         {
           confirmButton: '✅ Да, пропустить',
           cancelButton: '❌ Нет, вернуться',
@@ -201,7 +203,7 @@ export class InviteStory extends U7BotUiStory {
   async #handleDeclineConfirmed(
     qId: string,
     actor: User,
-  ): Promise<BotResponse> {
+  ): Promise<DialogResponse> {
     try {
       await this.appApi.execute(
         'decline-invite',
@@ -210,14 +212,14 @@ export class InviteStory extends U7BotUiStory {
       );
 
       return {
-        releaseInput: true,
-        sendMessage: {
-          text: 'Анкета пропущена.',
+        screen: {
+          text: md`Анкета пропущена\\.`,
           keyboard: {
             rows: [[buttons.mainMenu()]],
             isMultiple: false,
           },
         },
+        release: true,
       };
     } catch (err) {
       return this.handleError(err);

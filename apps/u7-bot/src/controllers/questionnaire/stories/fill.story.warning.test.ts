@@ -1,169 +1,149 @@
 import { describe, expect, mock, test } from 'bun:test';
-import type { BotCommand } from '@u7-scl/core/ui';
+import { assertMarkdownV2Safe } from '@u7-scl/core/shared';
 import { FillStory } from './fill.story';
 
 /**
- * FillStory с мок-отправителем (конвенция fill.story.test.ts).
- * Обработчики событий рендерят и шлют — resolve не нужен.
+ * Подписка questionnaire:abandon-warning (S07, ступень 6ч планировщика)
+ * и questionnaire:abandon (S08) на контракте «Диалог и Экран»:
+ * кнопочный проактив — ТОЛЬКО канал invite (ФР-6, «никогда срезка в
+ * notify»), полные коды кнопок (транспорт проактивы не префиксует),
+ * подсказка /start на случай устаревшего экрана. Прерывание — через
+ * confirm-экран (fill:cancel), не сразу abandon.
  */
+//
+// ══ Помощники ══
+
 function makeStory() {
   const story = new FillStory();
   const sender = {
-    send: mock(async () => {}),
+    name: 'questionnaire',
     notify: mock(async () => {}),
+    invite: mock(async () => {}),
     kickFromGroup: mock(async () => {}),
   };
-  story.init({} as never, sender);
+  story.init({ appApi: { execute: mock(async () => ({})) } } as never, sender);
   return { story, sender };
 }
 
-function getSub(story: FillStory, eventName: string) {
-  return story.getEventSubscriptions().find((s) => s.eventName === eventName);
+function warningEvent(overrides: Record<string, unknown> = {}) {
+  return {
+    eventName: 'questionnaire:abandon-warning',
+    payload: {
+      questionnaireId: 'q-1',
+      respondentId: 'r-1',
+      telegramId: 456,
+    },
+    ownerInfo: { courseId: 'course-1' },
+    ...overrides,
+  };
 }
 
-describe('FillStory — предупреждение о брошенной анкете', () => {
+describe('FillStory — abandon-warning (S07): invite-канал', () => {
   test('подписки включают questionnaire:abandon-warning и questionnaire:abandon', () => {
     const { story } = makeStory();
-
     const names = story.getEventSubscriptions().map((s) => s.eventName);
-
     expect(names).toContain('questionnaire:abandon-warning');
     expect(names).toContain('questionnaire:abandon');
   });
 
-  test('questionnaire:abandon-warning — сообщение с кнопками «Продолжить» и «Прервать»', async () => {
+  test('с courseId: кнопки «Продолжить» (мост resume) и «Прервать» (confirm), подсказка /start', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:abandon-warning');
-    expect(sub).toBeDefined();
 
-    await sub!.handle({
-      eventName: 'questionnaire:abandon-warning',
-      aggregateName: 'Questionnaire',
-      ownerInfo: { courseId: 'course-1' },
-      payload: {
-        questionnaireId: 'q-1',
-        respondentId: '00000000-0000-0000-0000-000000000007',
-        telegramId: 456,
-      },
-    } as never);
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:abandon-warning')!;
 
-    expect(sender.send).toHaveBeenCalled();
-    const [telegramId, command] = sender.send.mock.calls[0] as unknown as [
+    await sub.handle(warningEvent() as never);
+
+    expect(sender.invite).toHaveBeenCalledTimes(1);
+    const [telegramId, payload] = sender.invite.mock.calls[0] as unknown as [
       number,
-      BotCommand,
+      { text: string; keyboard: { rows: { text: string; code: string }[][] } },
     ];
     expect(telegramId).toBe(456);
-    expect(command.sendMessage?.text).toContain('анкет');
 
-    const buttons =
-      command.sendMessage?.keyboard?.rows.flat().map((b) => ({
-        text: b.text,
-        code: b.code,
-      })) ?? [];
+    expect(payload.text).toContain('Анкета приостановлена');
+    expect(payload.text).toContain('Скоро она будет закрыта');
+    expect(payload.text).toContain('/start');
+    expect(() => assertMarkdownV2Safe(payload.text)).not.toThrow();
 
-    const resume = buttons.find((b) =>
-      b.code.startsWith('questionnaire:fill:resume:'),
-    );
-    expect(resume).toBeDefined();
-    expect(resume?.code).toBe('questionnaire:fill:resume:course-1');
-    // Takeover: кнопка перехватывает ввод при активном чужом действии
-    expect(
-      command.sendMessage?.keyboard?.rows
-        .flat()
-        .find((b) => b.code.startsWith('questionnaire:fill:resume:'))?.takeover,
-    ).toBe(true);
-
-    const cancel = buttons.find((b) =>
-      b.code.startsWith('fill:cancel-confirm:'),
-    );
-    expect(cancel).toBeDefined();
-    expect(cancel?.code).toBe('fill:cancel-confirm:q-1');
+    expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([
+      ['▶️ Продолжить', 'questionnaire:fill:resume:course-1'],
+      ['⏭️ Прервать', 'questionnaire:fill:cancel:q-1'],
+    ]);
   });
 
-  test('questionnaire:abandon-warning без courseId — кнопка только «Прервать»', async () => {
+  test('без courseId — кнопка только «Прервать»', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:abandon-warning');
 
-    await sub!.handle({
-      eventName: 'questionnaire:abandon-warning',
-      aggregateName: 'Questionnaire',
-      ownerInfo: {},
-      payload: {
-        questionnaireId: 'q-1',
-        respondentId: '00000000-0000-0000-0000-000000000007',
-        telegramId: 456,
-      },
-    } as never);
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:abandon-warning')!;
 
-    const command = (sender.send.mock.calls[0] as unknown[])[1] as BotCommand;
-    const codes =
-      command.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
-    expect(codes).toEqual(['fill:cancel-confirm:q-1']);
+    await sub.handle(warningEvent({ ownerInfo: {} }) as never);
+
+    const [, payload] = sender.invite.mock.calls[0] as unknown as [
+      number,
+      { keyboard: { rows: { text: string; code: string }[][] } },
+    ];
+    expect(payload.keyboard.rows.flat().map((b) => [b.text, b.code])).toEqual([
+      ['⏭️ Прервать', 'questionnaire:fill:cancel:q-1'],
+    ]);
   });
+});
 
-  test('questionnaire:abandon с reason=timeout — notify о закрытии', async () => {
+describe('FillStory — abandon (S08): notify о закрытии по таймауту', () => {
+  test('reason=timeout — notify без кнопок', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:abandon');
-    expect(sub).toBeDefined();
 
-    await sub!.handle({
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:abandon')!;
+
+    await sub.handle({
       eventName: 'questionnaire:abandon',
-      aggregateName: 'Questionnaire',
-      ownerInfo: {},
-      payload: {
-        questionnaireId: 'q-1',
-        respondentId: '00000000-0000-0000-0000-000000000007',
-        reason: 'timeout',
-        telegramId: 456,
-      },
+      payload: { reason: 'timeout', questionnaireId: 'q-1', telegramId: 456 },
     } as never);
 
-    expect(sender.notify).toHaveBeenCalled();
+    expect(sender.invite).not.toHaveBeenCalled();
+    expect(sender.notify).toHaveBeenCalledTimes(1);
     const [telegramId, payload] = sender.notify.mock.calls[0] as unknown as [
       number,
       { text: string },
     ];
     expect(telegramId).toBe(456);
-    expect(payload.text).toContain('закрыт');
-    // Уведомление без кнопок — не send
-    expect(sender.send).not.toHaveBeenCalled();
+    expect(payload.text).toContain('длительной неактивности');
+    expect(() => assertMarkdownV2Safe(payload.text)).not.toThrow();
   });
 
-  test('questionnaire:abandon без reason (ручной /cancel) — дубля нет', async () => {
+  test('reason=by_user (ручное прерывание) — дубля нет, ничего не шлём', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:abandon');
 
-    await sub!.handle({
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:abandon')!;
+
+    await sub.handle({
       eventName: 'questionnaire:abandon',
-      aggregateName: 'Questionnaire',
-      ownerInfo: {},
-      payload: {
-        questionnaireId: 'q-1',
-        respondentId: '00000000-0000-0000-0000-000000000007',
-        telegramId: 456,
-      },
+      payload: { reason: 'by_user', questionnaireId: 'q-1', telegramId: 456 },
     } as never);
 
     expect(sender.notify).not.toHaveBeenCalled();
-    expect(sender.send).not.toHaveBeenCalled();
+    expect(sender.invite).not.toHaveBeenCalled();
   });
 
-  test('questionnaire:abandon timeout без telegramId — ничего не шлём', async () => {
+  test('timeout без telegramId — слать некому', async () => {
     const { story, sender } = makeStory();
-    const sub = getSub(story, 'questionnaire:abandon');
 
-    await sub!.handle({
+    const sub = story
+      .getEventSubscriptions()
+      .find((s) => s.eventName === 'questionnaire:abandon')!;
+
+    await sub.handle({
       eventName: 'questionnaire:abandon',
-      aggregateName: 'Questionnaire',
-      ownerInfo: {},
-      payload: {
-        questionnaireId: 'q-1',
-        respondentId: '00000000-0000-0000-0000-000000000007',
-        reason: 'timeout',
-      },
+      payload: { reason: 'timeout', questionnaireId: 'q-1' },
     } as never);
 
     expect(sender.notify).not.toHaveBeenCalled();
-    expect(sender.send).not.toHaveBeenCalled();
   });
 });
