@@ -100,10 +100,9 @@ export function renderActionResponse(
   if (response.type === 'completed') {
     const result: DialogResponse = {
       screen: {
+        // Шапка S04 по ui-spec + completionText пула (или fallback)
         text: mdRaw(
-          escapeMarkdown(
-            response.completionText ?? 'Спасибо! Твоя анкета принята.',
-          ),
+          `✅ *Анкета завершена*\n\n${escapeMarkdown(response.completionText ?? 'Спасибо! Твоя анкета принята.')}`,
         ),
         keyboard: { rows: [[buttons.mainMenu()]], isMultiple: false },
       },

@@ -207,6 +207,8 @@ describe('FillStory — finalize-паттерн («зафиксируй выбо
     );
 
     expect(res.finalize?.text).toContain('Расскажи о себе');
+    // Шапка по ui-spec S04 + completionText из пула
+    expect(String(res.screen?.text)).toContain('Анкета завершена');
     expect(String(res.screen?.text)).toContain('Анкета принята');
     expect(res.release).toBe(true);
   });

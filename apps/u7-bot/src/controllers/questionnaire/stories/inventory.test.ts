@@ -182,6 +182,7 @@ describe('Инвентаризация FillStory', () => {
       fillSession(),
     );
 
+    expect(String(res.screen?.text)).toContain('Анкета завершена');
     expect(flatButtons(res)).toEqual([['↩️ Главное меню', 'app:main-menu']]);
     expect(res.release).toBe(true);
   });
