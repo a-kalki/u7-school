@@ -6,7 +6,7 @@
 
 - [x] Task: **Инвентаризация кнопок/реплик** fill, invite (`render.ts`) из `ui-spec.md` и кода → зафиксировать в падающих тестах с точными keyboard-ассертами (текст + код каждой кнопки); протокол «миграция без потери функциональности» — решение владельца, ревью трека 3 (см. spec) [a3b2b60]
 - [x] Task: Написать падающие тесты fill/invite (`render.ts`) на `DialogResponse`: паттерн `finalize` («зафиксируй выбор → следующий вопрос»), resume, `awaitInput`/`release`; валидация ответов — `errorNotify` (переспрос, ввод живёт) [39296f0]
-- [~] Task: Перевести стори; удалить `respondInContext`-хелперы `render.ts`; команды — контракт `U7BotUiStory` (`/cancel` активного — сброс себя, прочее — pass)
+- [x] Task: Перевести стори; удалить `respondInContext`-хелперы `render.ts`; команды — контракт `U7BotUiStory` (`/cancel` активного — подтверждение прерывания по решению владельца 2026-09-10, прочее — pass) [31a551c]
 - [ ] Conductor - User Manual Verification 'Анкетные стори' (Protocol in workflow.md)
 
 ## Фаза 2: Подписки fill-событий и приглашения (вариант A)
