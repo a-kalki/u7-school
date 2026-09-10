@@ -414,11 +414,8 @@ describe('FillStory — stale_answer: реплика поверх, экран и
     await story.handleCallback('answer:q-1:alien', actor, fillSession());
 
     expect(mockLogger.warn).toHaveBeenCalledTimes(1);
-    const [source, message, meta] = mockLogger.warn.mock.calls[0] as unknown as [
-      string,
-      string,
-      Record<string, unknown>,
-    ];
+    const [source, message, meta] = mockLogger.warn.mock
+      .calls[0] as unknown as [string, string, Record<string, unknown>];
     expect(source).toBe('fill-story');
     expect(message).toContain('Неактуальный ответ');
     expect(meta.pressed).toBe('alien');
