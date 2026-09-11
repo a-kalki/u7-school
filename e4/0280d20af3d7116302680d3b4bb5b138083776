@@ -1,0 +1,13 @@
+Задача: Инвентаризация кнопок/реплик + падающие тесты на DialogResponse (задачи 1-2 Фазы 1 трека bot-ui-dialog-mentor)
+
+Сводка:
+- Инвентаризация всех кнопок/реплик 6 mentor-стори из кода и ui-spec.md зафиксирована в conductor/tracks/bot-ui-dialog-mentor_20260905/inventory.md и в падающих тестах с точными keyboard-ассертами.
+- Тесты 6 сторей переписаны на контракт «Диалог и Экран»: submenu (menuButtons, точная клавиатура), my-streams (4 состояния фильтров), view-stream-mentor (lifecycle-кнопки, мост students→monitor, confirms), create-stream (wizard 0-12 на awaitInput/release, /cancel через pipe — CommandReaction), activate-stream, monitor (FR-8, mark-abandoned cause=inactivity + delegate, complete-student + delegate).
+- Переопределения handleMessage (реплики «Используйте кнопки…»/«Неизвестное сообщение») заменяются дефолтом ядра (реплика-отказ + release) — та же семантика отказа, решение отражено в inventory.md.
+- Потеря контекста wizard-а — реплика-предупреждение + release (ввод не держится мёртвым); шаг 12 — переспрос репликой без release (ввод живёт).
+- handleTimeout тестов больше нет: TTL удаляется из контракта (§7 архитектуры).
+- Замечание владельцу: ui-spec.md ментора покрывает только S07/S08 — остальные экраны не описаны (пробел, не расхождение); закрывается в Фазе 3.
+
+Фаза Red: 83 падают / 16 проходят (bun test mentor-сторей).
+
+Файлы: 6 *.test.ts в apps/u7-bot/src/controllers/mentor/stories/, inventory.md, plan.md.
