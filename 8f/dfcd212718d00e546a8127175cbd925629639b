@@ -1,0 +1,7 @@
+Задача: Мигрировать stream-catalog, inactivity
+
+Сводка: stream-catalog.story — каталог потоков: кнопки потоков и тогглы фильтров на this.btn, экраны на this.screen/this.kb, типы rows KbButton[][]. inactivity.story — проактивные invite-уведомления (предупреждение студенту 5+ дней, кандидат на снятие ментору 7+ дней): клавиатуры через this.kb/this.btn; callback-экраны (запись не найдена, прощание, снятие) — this.screen.
+
+Файлы: apps/u7-bot/src/controllers/streams/stories/stream-catalog.story.ts, apps/u7-bot/src/controllers/streams/stories/inactivity.story.ts
+
+Причина: завершение миграции streams-контроллера в Фазе 2; 637 тестов u7-bot зелёные без правок.
