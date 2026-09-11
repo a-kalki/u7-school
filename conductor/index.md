@@ -8,6 +8,7 @@
 ## Процесс разработки (Workflow)
 - [Дорожная карта разработки](./development-roadmap.md) — **порядок релизов, миграции, зависимости** между инициативами
 - [Рабочий процесс](./workflow.md)
+- [conductor-docs](../.pi/skills/conductor-docs/SKILL.md) — правила создания и ведения документации в conductor/
 - [Руководства по стилю кода](./code_styleguides/)
   - [DDD Domain](../.pi/skills/ddd-domain/SKILL.md) — Entity, Aggregate, Repo, Policy, Errors
   - [DDD API](../.pi/skills/ddd-api/SKILL.md) — UseCase, Command, Module, BotUiStory
@@ -23,13 +24,6 @@
 
 ## Гайды по контенту курса
 - [Наполнение уроков шагами](./guides/lesson-design.md)
-
-## Learning Skills (верификация понимания)
-Навыки, которые проверяют, что разработчик понимает внесённые изменения, а не просто принимает диффы.
-- [conductor-docs](../.pi/skills/conductor-docs/SKILL.md) — правила создания и ведения документации
-- [post-task-debrief](../.pi/skills/post-task-debrief/SKILL.md) — разбор после значимой задачи (domain/api слои)
-- [Реестр дебрифингов](../data/debrief/registry.md) — таблица всех разборов
-- [Логи дебрифингов](../data/debrief/logs/) — подробные Q&A
 
 ## Система сбора метрик студента (Релиз 4)
 - [Система сбора метрик — Глобальная задача](./metrics-system.md) — объединяющий документ, видение, архитектурные решения

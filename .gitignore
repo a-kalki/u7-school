@@ -37,7 +37,6 @@ conductor/archive/
 # data — whitelist: по умолчанию всё игнорируется, явно разрешены только папки ниже
 data/*
 !data/courses/
-!data/debrief/
 !data/fixtures/
 !data/sources/
 !data/fullstack-js/
