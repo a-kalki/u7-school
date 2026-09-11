@@ -13,6 +13,7 @@ import type {
   CommandReaction,
   CommandUpdate,
   DialogResponse,
+  KbButton,
 } from '@u7-scl/core/ui';
 import { Status } from '@u7-scl/course/domain';
 
@@ -193,12 +194,7 @@ export class CreateStreamStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     if (update.type !== 'message') {
       // Wizard ждёт текст: документ/фото/кнопка — переспрос, ввод живёт
-      return {
-        notify: {
-          text: md`⚠️ Ожидалось текстовое сообщение\\.`,
-          kind: 'warn',
-        },
-      };
+      return this.warn(md`⚠️ Ожидалось текстовое сообщение\\.`);
     }
 
     const context = session.dialog?.input?.context as
@@ -206,7 +202,7 @@ export class CreateStreamStory extends U7BotUiStory {
       | undefined;
     if (!context) {
       return {
-        notify: { text: md`⚠️ Контекст wizard\\-а потерян\\.`, kind: 'warn' },
+        ...this.warn(md`⚠️ Контекст wizard\\-а потерян\\.`),
         release: true,
       };
     }
@@ -235,15 +231,11 @@ export class CreateStreamStory extends U7BotUiStory {
       case 11:
         return this.#handleEnrollmentKeyInput(context, update.text);
       case 12:
-        return {
-          notify: {
-            text: md`👆 Используйте кнопки выше для подтверждения или изменения\\.`,
-          },
-        };
+        return this.notify(
+          md`👆 Используйте кнопки выше для подтверждения или изменения\\.`,
+        );
       default:
-        return {
-          notify: { text: md`⚠️ Неизвестный шаг wizard\\-а\\.`, kind: 'warn' },
-        };
+        return this.warn(md`⚠️ Неизвестный шаг wizard\\-а\\.`);
     }
   }
 
@@ -258,7 +250,7 @@ export class CreateStreamStory extends U7BotUiStory {
       return {
         reaction: 'stop',
         response: {
-          notify: { text: md`🚫 Создание потока отменено\\.`, kind: 'warn' },
+          ...this.warn(md`🚫 Создание потока отменено\\.`),
           release: true,
         },
       };
@@ -280,35 +272,18 @@ export class CreateStreamStory extends U7BotUiStory {
     })) as Array<{ uuid: string; title: string }>;
 
     if (!modules || modules.length === 0) {
-      return {
-        screen: {
-          text: md`📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей\\. Создайте модуль в конструкторе курсов\\.`,
-          keyboard: {
-            rows: [[{ text: '🔄 Обновить список', code: this.cb('start') }]],
-            isMultiple: false,
-          },
-        },
-        awaitInput: { context: ctx },
-      };
+      return this.ask(
+        md`📦 *Нет доступных модулей*\n\nУ вас нет опубликованных модулей\\. Создайте модуль в конструкторе курсов\\.`,
+        ctx,
+        this.kb([[this.btn('🔄 Обновить список', this.cb('start'))]]),
+      );
     }
 
     const rows = modules.map((m) => [
-      {
-        text: m.title,
-        code: `create-stream:module:${m.uuid}`,
-      },
+      this.btn(m.title, this.cb('module', m.uuid)),
     ]);
 
-    return {
-      screen: {
-        text: md`📦 *Выберите модуль курса\\:*`,
-        keyboard: {
-          rows,
-          isMultiple: false,
-        },
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(md`📦 *Выберите модуль курса\\:*`, ctx, this.kb(rows));
   }
 
   async #onModuleSelected(
@@ -368,24 +343,16 @@ export class CreateStreamStory extends U7BotUiStory {
       lines.push(md`_По умолчанию: «${moduleTitle}»_`);
     }
 
-    const buttons: { text: string; code: string }[] = [];
+    const buttons: KbButton[] = [];
     if (moduleTitle) {
-      buttons.push({
-        text: '✅ Принять',
-        code: this.cb('accept-title'),
-      });
+      buttons.push(this.btn('✅ Принять', this.cb('accept-title')));
     }
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard:
-          buttons.length > 0
-            ? { rows: [buttons], isMultiple: false }
-            : undefined,
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(
+      mdJoin(lines),
+      ctx,
+      buttons.length > 0 ? this.kb([buttons]) : undefined,
+    );
   }
 
   #handleTitleInput(
@@ -397,24 +364,16 @@ export class CreateStreamStory extends U7BotUiStory {
       lines.push(md`_По умолчанию: «${ctx.description}»_`);
     }
 
-    const buttons: { text: string; code: string }[] = [];
+    const buttons: KbButton[] = [];
     if (ctx.description) {
-      buttons.push({
-        text: '✅ Принять',
-        code: this.cb('accept-description'),
-      });
+      buttons.push(this.btn('✅ Принять', this.cb('accept-description')));
     }
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard:
-          buttons.length > 0
-            ? { rows: [buttons], isMultiple: false }
-            : undefined,
-      },
-      awaitInput: { context: { ...ctx, step: 2, title: text } },
-    };
+    return this.ask(
+      mdJoin(lines),
+      { ...ctx, step: 2, title: text },
+      buttons.length > 0 ? this.kb([buttons]) : undefined,
+    );
   }
 
   #handleDescriptionInput(
@@ -428,20 +387,18 @@ export class CreateStreamStory extends U7BotUiStory {
     const dd = String(exampleDate.getDate()).padStart(2, '0');
     const exampleStr = mdInlineCode(`${yyyy}-${mm}-${dd}T10:00`);
 
-    return {
-      screen: {
-        // Композиция MdText — через mdConcat: интерполяция готового MdText
-        // в md-шаблон экранирует его повторно. Внутри инлайн-кода дефисы
-        // и двоеточия не экранируются — по правилам Telegram внутри code
-        // обязательны к экранированию только ` и \
-        text: mdConcat(
-          md`📅 Введите дату старта в формате \`YYYY-MM-DD\` или дату время \`YYYY-MM-DDTHH:MM\`\\.\nНапример: `,
-          exampleStr,
-          md`\\.`,
-        ),
-      },
-      awaitInput: { context: { ...ctx, step: 3, description: text } },
-    };
+    return this.ask(
+      // Композиция MdText — через mdConcat: интерполяция готового MdText
+      // в md-шаблон экранирует его повторно. Внутри инлайн-кода дефисы
+      // и двоеточия не экранируются — по правилам Telegram внутри code
+      // обязательны к экранированию только ` и \
+      mdConcat(
+        md`📅 Введите дату старта в формате \`YYYY-MM-DD\` или дату время \`YYYY-MM-DDTHH:MM\`\\.\nНапример: `,
+        exampleStr,
+        md`\\.`,
+      ),
+      { ...ctx, step: 3, description: text },
+    );
   }
 
   #handleDateInput(
@@ -468,31 +425,18 @@ export class CreateStreamStory extends U7BotUiStory {
     const moduleValue: string = ctx[field.moduleKey] || '';
     const lines: MdText[] = [md`📝 *${field.label}*`];
 
-    const buttons: { text: string; code: string }[] = [];
+    const buttons: KbButton[] = [];
 
     if (moduleValue) {
       lines.push(md`_По умолчанию: «${moduleValue}»_`);
-      buttons.push({
-        text: '✅ Принять',
-        code: this.cb(`accept-${field.fieldName}`),
-      });
+      buttons.push(
+        this.btn('✅ Принять', this.cb(`accept-${field.fieldName}`)),
+      );
     }
 
-    buttons.push({
-      text: '⏭️ Пропустить',
-      code: this.cb(`skip-${field.fieldName}`),
-    });
+    buttons.push(this.btn('⏭️ Пропустить', this.cb(`skip-${field.fieldName}`)));
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: {
-          rows: [buttons],
-          isMultiple: false,
-        },
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(mdJoin(lines), ctx, this.kb([buttons]));
   }
 
   /** Обработчик ввода текста для необязательного поля */
@@ -586,24 +530,16 @@ export class CreateStreamStory extends U7BotUiStory {
       lines.push(md`_По умолчанию: «${ctx.description}»_`);
     }
 
-    const buttons: { text: string; code: string }[] = [];
+    const buttons: KbButton[] = [];
     if (ctx.description) {
-      buttons.push({
-        text: '✅ Принять',
-        code: this.cb('accept-description'),
-      });
+      buttons.push(this.btn('✅ Принять', this.cb('accept-description')));
     }
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard:
-          buttons.length > 0
-            ? { rows: [buttons], isMultiple: false }
-            : undefined,
-      },
-      awaitInput: { context: { ...ctx, step: 2, title } },
-    };
+    return this.ask(
+      mdJoin(lines),
+      { ...ctx, step: 2, title },
+      buttons.length > 0 ? this.kb([buttons]) : undefined,
+    );
   }
 
   #handleAcceptDescription(session: BotSession): DialogResponse {
@@ -651,29 +587,19 @@ export class CreateStreamStory extends U7BotUiStory {
   // ── Группа: показ шагов и инвайт-ссылка ──
 
   #showGroupStep(ctx: CreateStreamWizardContext): DialogResponse {
-    return {
-      screen: {
-        text: md`🔗 Введите ID или username Telegram\\-группы потока — по нему бот сможет исключать \\(кикать\\) студентов \\(необязательно\\)\\:`,
-        keyboard: {
-          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-group') }]],
-          isMultiple: false,
-        },
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(
+      md`🔗 Введите ID или username Telegram\\-группы потока — по нему бот сможет исключать \\(кикать\\) студентов \\(необязательно\\)\\:`,
+      ctx,
+      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip-group'))]]),
+    );
   }
 
   #showInviteStep(ctx: CreateStreamWizardContext): DialogResponse {
-    return {
-      screen: {
-        text: md`🔗 Введите инвайт\\-ссылку на группу потока — по ней студенты попадут в группу \\(необязательно\\)\\:`,
-        keyboard: {
-          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-invite') }]],
-          isMultiple: false,
-        },
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(
+      md`🔗 Введите инвайт\\-ссылку на группу потока — по ней студенты попадут в группу \\(необязательно\\)\\:`,
+      ctx,
+      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip-invite'))]]),
+    );
   }
 
   #handleInviteInput(
@@ -702,16 +628,11 @@ export class CreateStreamStory extends U7BotUiStory {
   // ── Кодовое слово ──
 
   #showEnrollmentKeyStep(ctx: CreateStreamWizardContext): DialogResponse {
-    return {
-      screen: {
-        text: md`🔑 Введите кодовое слово для записи на поток \\(необязательно\\)\\. Оставьте пустым для свободной записи\\.`,
-        keyboard: {
-          rows: [[{ text: '⏭️ Пропустить', code: this.cb('skip-key') }]],
-          isMultiple: false,
-        },
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(
+      md`🔑 Введите кодовое слово для записи на поток \\(необязательно\\)\\. Оставьте пустым для свободной записи\\.`,
+      ctx,
+      this.kb([[this.btn('⏭️ Пропустить', this.cb('skip-key'))]]),
+    );
   }
 
   #handleEnrollmentKeyInput(
@@ -765,21 +686,16 @@ export class CreateStreamStory extends U7BotUiStory {
 
     lines.push(md``, md`Всё верно\\?`);
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: {
-          rows: [
-            [
-              { text: '✅ Создать', code: this.cb('confirm') },
-              { text: '⬅️ Изменить', code: this.cb('start') },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-      awaitInput: { context: ctx },
-    };
+    return this.ask(
+      mdJoin(lines),
+      ctx,
+      this.kb([
+        [
+          this.btn('✅ Создать', this.cb('confirm')),
+          this.btn('⬅️ Изменить', this.cb('start')),
+        ],
+      ]),
+    );
   }
 
   async #handleConfirm(
@@ -791,10 +707,7 @@ export class CreateStreamStory extends U7BotUiStory {
       | undefined;
     if (!context) {
       return {
-        notify: {
-          text: md`⚠️ Контекст wizard\\-а потерян\\. Начните заново\\.`,
-          kind: 'warn',
-        },
+        ...this.warn(md`⚠️ Контекст wizard\\-а потерян\\. Начните заново\\.`),
         release: true,
       };
     }
@@ -826,9 +739,7 @@ export class CreateStreamStory extends U7BotUiStory {
 
     return {
       release: true,
-      screen: {
-        text: md`✅ *Поток успешно создан\\!*`,
-      },
+      ...this.screen(md`✅ *Поток успешно создан\\!*`),
     };
   }
 
@@ -837,7 +748,7 @@ export class CreateStreamStory extends U7BotUiStory {
   /** Реплика о потере контекста wizard-а: ввод не держится мёртвым. */
   #lostContext(): DialogResponse {
     return {
-      notify: { text: md`⚠️ Контекст wizard\\-а потерян\\.`, kind: 'warn' },
+      ...this.warn(md`⚠️ Контекст wizard\\-а потерян\\.`),
       release: true,
     };
   }
