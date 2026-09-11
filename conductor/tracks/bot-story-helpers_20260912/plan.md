@@ -6,11 +6,11 @@
 
 ## Фаза 1: Билдеры и делегаты (core)
 
-- [ ] Task: Реализовать билдеры ответов в core
-  - [ ] Написать падающие unit-тесты `response-builders.test.ts` (все функции: дефолты `isMultiple: false`, kind-уведомления, чистота вызовов)
-  - [ ] Реализовать `packages/core/src/ui/bot/response-builders.ts`: `screen/ask/warn/note/go/kb/btn/btnUrl`
-  - [ ] Экспорт из `@u7-scl/core/ui`; ворота `lint/tslint/test` чисто
-- [ ] Task: Protected-делегаты на `BotUiStory`
+- [x] Task: Реализовать билдеры ответов в core `9d3522f`
+  - [x] Написать падающие unit-тесты `response-builders.test.ts` (все функции: дефолты `isMultiple: false`, kind-уведомления, чистота вызовов)
+  - [x] Реализовать `packages/core/src/ui/bot/response-builders.ts`: `screen/ask/warn/note/go/kb/btn/btnUrl`
+  - [x] Экспорт из `@u7-scl/core/ui`; ворота `lint/tslint/test` чисто
+- [~] Task: Protected-делегаты на `BotUiStory`
   - [ ] Тесты: делегаты возвращают результат билдеров; `btn` + `cb`-композиция
   - [ ] Реализация тонких `protected`-методов (`screen/ask/warn/note/go/kb/btn/btnUrl`)
 - [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
