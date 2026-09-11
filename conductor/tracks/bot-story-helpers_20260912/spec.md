@@ -10,8 +10,8 @@
 
 ## Функциональные требования
 
-- **ФР-1. Билдеры (core).** Модуль `response-builders.ts`: `screen(text, keyboard?)`, `ask(text, context, keyboard?)`, `warn(text)`, `note(text)`, `go(path)`, `kb(rows, opts?)`, `btn(text, code)`, `btnUrl(text, url)`. Чистые функции без доступа к сессии/транспорту; экспорт из `@u7-scl/core/ui`.
-- **ФР-2. Делегаты на `BotUiStory`.** Тонкие `protected`-методы (`this.screen(...)`, `this.ask(...)`, `this.warn(...)`, `this.note(...)`, `this.go(...)`, `this.kb(...)`, `this.btn(...)`/`this.btnUrl(...)`); `isMultiple: false` — по умолчанию, опция `multiple: true`.
+- **ФР-1. Билдеры (core).** Модуль `response-builders.ts`: `screen(text, keyboard?)`, `ask(text, context, keyboard?)`, `notify(text)`, `warn(text)`, `note(text)`, `go(path)`, `kb(rows, opts?)`, `btn(text, code)`, `btnUrl(text, url)`. Чистые функции без доступа к сессии/транспорту; экспорт из `@u7-scl/core/ui`. *Тон `notify` — дефолтный вид транспорта 🔔 (kind отсутствует); добавлен по решению владельца в Фазе 2: дефолтный тон — самый частый (19 литералов), три тона контракта = три доменных слова.*
+- **ФР-2. Делегаты на `BotUiStory`.** Тонкие `protected`-методы (`this.screen(...)`, `this.ask(...)`, `this.notify(...)`, `this.warn(...)`, `this.note(...)`, `this.go(...)`, `this.kb(...)`, `this.btn(...)`/`this.btnUrl(...)`); `isMultiple: false` — по умолчанию, опция `multiple: true`.
 - **ФР-3. Миграция стори.** Все 19 стори контроллеров (streams, courses, questionnaire, mentor, learning, app, user) переведены на хелперы; локальные kb-хелперы mentor удалены; комбинации-редкости (например `+ release`) — спредом: `{ ...this.ask(...), release: true }`.
 - **ФР-4. Миграция core/app-литералов.** `bot-controller.ts` (`#errorScreen`, `unknownCommand`, handleError-литералы), `core/ui-app.ts` (4 литерала), `app/core/ui-app.ts` (7 литералов), `learning/shared.ts` — на билдеры.
 - **ФР-5. Документация.** `conductor/code_styleguides/skills/bot-ui-story.md` — раздел «Хелперы ответов»: когда хелпер, когда литерал/spread; живой образец — мигрированная стори.

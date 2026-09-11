@@ -93,12 +93,11 @@ export class ViewStreamStory extends U7BotUiStory {
 
     const ctx = session.dialog?.input?.context as EnrollKeyContext | undefined;
     if (!ctx) {
-      // Ввод без ожидания — страховочный отказ (диалог не ждёт кодовое слово).
-      // Литерал: notify без kind — дефолтный вид 🔔 (не info) + release.
+      // Ввод без ожидания — страховочный отказ (диалог не ждёт кодовое слово)
       return {
-        notify: {
-          text: md`Извините, на данном этапе сообщения не принимаются\\.`,
-        },
+        ...this.notify(
+          md`Извините, на данном этапе сообщения не принимаются\\.`,
+        ),
         release: true,
       };
     }
@@ -812,9 +811,8 @@ export class ViewStreamStory extends U7BotUiStory {
       lines.push(md``, md`🔗 ${stream.telegramGroupInvite}`);
     }
 
-    // Литерал: notify без kind — дефолтный вид 🔔 (не info) + delegate.
     return {
-      notify: { text: mdJoin(lines) },
+      ...this.notify(mdJoin(lines)),
       delegate: { path: Routes.app.mainMenu },
     };
   }

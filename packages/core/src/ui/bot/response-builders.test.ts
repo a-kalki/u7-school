@@ -7,6 +7,7 @@ import {
   go,
   kb,
   note,
+  notify,
   screen,
   warn,
 } from './response-builders';
@@ -52,6 +53,14 @@ describe('response-builders / ask', () => {
     const res = ask(text, { q: 1 }, keyboard);
     expect(res.screen?.keyboard).toEqual(keyboard);
     expect(res.awaitInput).toEqual({ context: { q: 1 } });
+  });
+});
+
+describe('response-builders / notify', () => {
+  test('уведомление без kind — дефолтный вид транспорта 🔔', () => {
+    expect(notify(md`Отменено\\. Наберите /start`)).toEqual({
+      notify: { text: md`Отменено\\. Наберите /start` },
+    });
   });
 });
 

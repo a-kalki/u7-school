@@ -136,6 +136,11 @@ export abstract class BotUiStory<
     return rb.ask(text, context, keyboard);
   }
 
+  /** Уведомить: реплика поверх диалога без kind (дефолтный вид транспорта 🔔). */
+  protected notify(text: MdText): DialogResponse {
+    return rb.notify(text);
+  }
+
   /** Предупреждение поверх диалога (kind: 'warn'). */
   protected warn(text: MdText): DialogResponse {
     return rb.warn(text);

@@ -57,6 +57,11 @@ export function ask(
   };
 }
 
+/** Уведомить: реплика поверх диалога без kind — дефолтный вид транспорта 🔔. */
+export function notify(text: MdText): DialogResponse {
+  return { notify: { text } };
+}
+
 /** Предупреждение поверх диалога (kind: 'warn') — экран и ввод не трогает. */
 export function warn(text: MdText): DialogResponse {
   return { notify: { text, kind: 'warn' } };

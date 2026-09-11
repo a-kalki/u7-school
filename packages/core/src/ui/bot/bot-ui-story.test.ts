@@ -23,6 +23,7 @@ import {
   type KbButton,
   kb,
   note,
+  notify,
   screen,
   warn,
 } from './response-builders';
@@ -136,6 +137,11 @@ class TestStory extends BotUiStory<AppMeta, TestActor> {
     text: ReturnType<typeof mdRaw>,
   ): ReturnType<BotUiStory<AppMeta, TestActor>['warn']> {
     return this.warn(text);
+  }
+  callNotify(
+    text: ReturnType<typeof mdRaw>,
+  ): ReturnType<BotUiStory<AppMeta, TestActor>['notify']> {
+    return this.notify(text);
   }
   callNote(
     text: ReturnType<typeof mdRaw>,
@@ -547,12 +553,13 @@ describe('BotUiStory — поверхность', () => {
 });
 
 describe('BotUiStory — делегаты билдеров ответов (ФР-2)', () => {
-  test('screen/ask/warn/note/go возвращают результат билдеров', () => {
+  test('screen/ask/notify/warn/note/go возвращают результат билдеров', () => {
     const story = new TestStory();
     const text = md`Текст экрана`;
 
     expect(story.callScreen(text)).toEqual(screen(text));
     expect(story.callAsk(text, { step: 1 })).toEqual(ask(text, { step: 1 }));
+    expect(story.callNotify(text)).toEqual(notify(text));
     expect(story.callWarn(text)).toEqual(warn(text));
     expect(story.callNote(text)).toEqual(note(text));
     expect(story.callGo('menu:main')).toEqual(go('menu:main'));
