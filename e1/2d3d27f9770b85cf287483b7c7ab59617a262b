@@ -1,0 +1,7 @@
+Задача: Удалить старые типы и код (Фаза 2 «Демонтаж старого мира»)
+
+Сводка: финальная зачистка старого контракта bot-ui. Удалены типы BotCommand, BotResponse, SessionData, SendMessageDescription, EditMessageDescription, мёртвый MessageDescription; старые ассерты assertBotResponseValid/assertResponseMarkdownSafe и их приватные помощники (проверка длины callback_data жила только в них и была мертва после миграции тестов на DialogResponse); тесты старых ассертов; реэкспорты из ui/index.ts; устаревшие ссылки в комментариях markdown-validator.ts.
+
+Файлы: packages/core/src/ui/bot/types.ts, response-assert.ts, response-assert.test.ts, ui/index.ts, packages/core/src/shared/markdown-validator.ts.
+
+Причина: критерий приёмки трека — grep не находит старых типов, репозиторий зелёный. escapeMarkdown из core/shared — живой продюсер md-конвейера, используется questionnaire/render.ts легитимно; удалялась только версия-метод старого мира (её уже не было). Хелперы handleStart/handleHelp/handleCancel тест-стенда — обёртки над uiApp.handleCommand нового контракта, оставлены.
