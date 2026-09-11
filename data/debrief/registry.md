@@ -28,4 +28,5 @@
 | 26 | 2026-08-27 | job-scheduler_20260827 | 15384354 | post-task-debrief | 1/3 ✓, 2 открыт | [лог](logs/2026-08-27-job-scheduler-phase5.md) |
 | 27 | 2026-08-30 | standalone | WIP | post-task-debrief | 2/4 ✓, 1 ⚠, 1 закрыт эталоном | [лог](logs/2026-08-30-questionnaire-story-canon.md) |
 | 28 | 2026-09-03 | questionnaire-robustness_20260903 | b880713 | post-task-debrief | 3/3 ✓ | [лог](logs/2026-09-03-questionnaire-robustness-phase2.md) |
-**Всего:** 28
+| 29 | 2026-09-12 | bot-story-helpers_20260912 | ec2b1c1 | post-task-debrief | 1/1 ✓ | [лог](logs/2026-09-12-bot-story-helpers.md) |
+**Всего:** 29
