@@ -1,0 +1,7 @@
+Задача: Мигрировать course-catalog.story.ts — эталон каталога (26 литералов)
+
+Сводка: Полная миграция стори course-catalog на декларативные хелперы ответов (ФР-3 трека bot-story-helpers). Все экраны каталога (5 уровней иерархии), желания курса/модуля, confirm-ветки — на this.screen/this.kb/this.btn. Сырых литералов keyboard:{rows:...isMultiple} больше нет.
+
+Файлы: apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts
+
+Причина: первая образцовая миграция Фазы 2; структура ответов идентична (инвариант трека), 637 тестов u7-bot зелёные без правок.
