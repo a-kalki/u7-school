@@ -13,11 +13,11 @@
 - [x] Task: Protected-делегаты на `BotUiStory` `0da5d6a`
   - [x] Тесты: делегаты возвращают результат билдеров; `btn` + `cb`-композиция
   - [x] Реализация тонких `protected`-методов (`screen/ask/warn/note/go/kb/btn/btnUrl`)
-- [ ] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 1' (Protocol in workflow.md)
 
 ## Фаза 2: Миграция образцовых стори (courses, streams)
 
-- [ ] Task: Мигрировать `course-catalog.story.ts` — эталон каталога (26 литералов); тесты стори зелёные без правок
+- [~] Task: Мигрировать `course-catalog.story.ts` — эталон каталога (26 литералов); тесты стори зелёные без правок
 - [ ] Task: Мигрировать `view-stream.story.ts` — эталон wizard/`awaitInput`/`delegate`/`release` (21)
 - [ ] Task: Мигрировать `stream-catalog`, `inactivity`
 - [ ] Task: Conductor - User Manual Verification 'Фаза 2' (Protocol in workflow.md)
