@@ -1,0 +1,10 @@
+Задача: Реализовать билдеры ответов в core (Фаза 1, трек bot-story-helpers_20260912)
+
+Сводка: TDD-реализация модуля чистых билдеров ответов контракта «Диалог и Экран»: screen(text, keyboard?), ask(text, context, keyboard?), warn(text), note(text), go(path), kb(rows, opts?), btn(text, code), btnUrl(text, url). 14 unit-тестов: дефолты isMultiple: false, kind-уведомления (warn/info), чистота (немутация rows, детерминированность).
+
+Файлы:
+- packages/core/src/ui/bot/response-builders.ts (создан) — билдеры + тип KbButton
+- packages/core/src/ui/bot/response-builders.test.ts (создан) — 14 тестов
+- packages/core/src/ui/index.ts — экспорт из @u7-scl/core/ui
+
+Причина: ФР-1 спецификации — язык ответов стори становится доменным вместо транспортных литералов DialogResponse; инвариант — структуры идентичны литералам, контракт не меняется.
