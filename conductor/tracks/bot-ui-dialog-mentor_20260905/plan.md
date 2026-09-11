@@ -2,7 +2,7 @@
 
 > Материнский документ: [bot-ui-session-architecture.md](../../bot-ui-session-architecture.md)
 
-## Фаза 1: Mentor-стори
+## Фаза 1: Mentor-стори [checkpoint: b7ac1d2]
 
 - [x] Task: **Инвентаризация кнопок/реплик** всех mentor-стори из `ui-spec.md` и кода → зафиксировать в падающих тестах с точными keyboard-ассертами; протокол «миграция без потери функциональности» — решение владельца, ревью трека 3 (см. spec) [e40280d2]
 - [x] Task: Написать падающие тесты submenu, my-streams, view-stream-mentor, create-stream, activate-stream, monitor на `DialogResponse` (включая delegate monitor→students); команды — дефолт pipe, ошибки — `errorNotify` [e40280d2]
