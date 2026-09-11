@@ -10,6 +10,7 @@ import {
   safeConvert,
 } from '@u7-scl/core/shared';
 import type { DialogResponse } from '@u7-scl/core/ui';
+import { screen } from '@u7-scl/core/ui';
 import type { ContentSnapshot } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -39,7 +40,7 @@ export async function getStudent(
 
 /** Экран «студент не записан» (общий для стори learning). */
 export function notEnrolled(): DialogResponse {
-  return { screen: { text: md`📖 Вы не записаны ни на один поток` } };
+  return screen(md`📖 Вы не записаны ни на один поток`);
 }
 
 /**

@@ -13,8 +13,11 @@ import {
   type CommandUpdate,
   type DialogResponse,
   type KeyboardDescription,
+  kb,
+  notify,
   type ProactiveSender,
   type Screen,
+  screen,
 } from '@u7-scl/core/ui';
 import { ensureRegisteredGuest } from '../ensure-registered';
 import { APP_CODES, APP_DIALOG_PATHS } from '../shared/app-codes';
@@ -94,7 +97,8 @@ export class U7BotUiApp extends BotUiApp<
       this.enterDialog(session, this.menuPath, 'reopen');
       if (!response) {
         const actor = await this.resolve.actorResolver(tgId);
-        return { screen: await this.#shortMenuScreen(actor) };
+        const menu = await this.#shortMenuScreen(actor);
+        return screen(menu.text, menu.keyboard);
       }
       // Ответ стори без экрана — дополняем экраном меню (notify сохраняется:
       // транспорт рендерит реплику первой, затем retire+send меню — уже умеет).
@@ -106,9 +110,7 @@ export class U7BotUiApp extends BotUiApp<
     }
     if (response) return response;
 
-    return {
-      notify: { text: md`Неизвестная команда\. Наберите /help — справка\.` },
-    };
+    return notify(md`Неизвестная команда\. Наберите /help — справка\.`);
   }
 
   /**
@@ -124,8 +126,8 @@ export class U7BotUiApp extends BotUiApp<
     const actor = await this.resolve.actorResolver(tgId);
     const story = this.#activeStory(session);
     const context = story ? await story.contextHelp(actor, session) : null;
-    if (context) return { notify: { text: context } };
-    return { notify: { text: await this.#commonHelpScreen(actor) } };
+    if (context) return notify(context);
+    return notify(await this.#commonHelpScreen(actor));
   }
 
   /** Активная стори по `dialog.path` (виртуальные пути `app/*` — не стори). */
@@ -166,7 +168,8 @@ export class U7BotUiApp extends BotUiApp<
 
     const actor = await this.resolve.actorResolver(tgId);
     this.enterDialog(session, this.menuPath, 'reopen');
-    return { screen: await this.#welcomeScreen(actor) };
+    const welcome = await this.#welcomeScreen(actor);
+    return screen(welcome.text, welcome.keyboard);
   }
 
   // ── Системные кнопки (экс-ветки AppController) ──
@@ -188,10 +191,11 @@ export class U7BotUiApp extends BotUiApp<
   ): Promise<DialogResponse> {
     if (data === APP_CODES.mainMenu) {
       this.enterDialog(session, this.menuPath, 'switch');
-      return { screen: await this.#shortMenuScreen(actor) };
+      const menu = await this.#shortMenuScreen(actor);
+      return screen(menu.text, menu.keyboard);
     }
     if (data === APP_CODES.help) {
-      return { notify: { text: await this.#commonHelpScreen(actor) } };
+      return notify(await this.#commonHelpScreen(actor));
     }
     return super.dispatch(data, actor, session);
   }
@@ -273,7 +277,7 @@ export class U7BotUiApp extends BotUiApp<
           : { text: i.text, code: i.action },
       ]);
     if (rows.length === 0) return null;
-    return { rows, isMultiple: false };
+    return kb(rows);
   }
 
   get #logger(): Logger | undefined {
