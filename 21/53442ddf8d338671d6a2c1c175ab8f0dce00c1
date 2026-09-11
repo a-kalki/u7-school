@@ -1,0 +1,7 @@
+Задача: Мигрировать fill.story, invite.story (wizard + release) (Фаза 3, трек bot-story-helpers_20260912)
+
+Сводка: Миграция questionnaire-стори на хелперы ответов. fill.story (переспрос не-текста warn, потеря контекста warn+release, /cancel-реплика notify, экраны отмены/прерывания screen+release, проактивы invite-канала kb/btn), invite.story (S01-приглашение, why-экран, делегат go, decline с release). Расширение скоупа: render.ts (вспомогательный чистый рендер-слой стори) переведён на прямые билдеры screen/warn/kb/btn из '@u7-scl/core/ui' — соответствует НФ спеки о переиспользовании билдеров вне наследников; локальные kb-хелперы inviteKeyboard/getKeyboard теперь kb()/btn(), мультивыбор — kb(rows, { multiple: question.multiple }).
+
+Файлы: apps/u7-bot/src/controllers/questionnaire/stories/{fill.story.ts, invite.story.ts, render.ts}
+
+Обоснование: ФР-3. Инцидент при миграции: eventSubscription случайно попал в import type → ReferenceError; исправлен возвратом value-импорта. 61 тест questionnaire зелёный без правок.
