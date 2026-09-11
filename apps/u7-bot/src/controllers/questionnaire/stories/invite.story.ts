@@ -4,6 +4,7 @@ import {
   type BotSession,
   type DialogResponse,
   eventSubscription,
+  type KbButton,
   type UiEventSubscription,
 } from '@u7-scl/core/ui';
 import type { QuestionnaireInviteEvent } from '@u7-scl/questionnaire/domain';
@@ -43,32 +44,21 @@ export class InviteStory extends U7BotUiStory {
     const { telegramId, response } = event.payload;
     const qId = response.questionnaireId;
 
-    const rows: { text: string; code: string }[][] = [
-      [
-        {
-          text: '▶️ Начать заполнение',
-          code: Routes.questionnaire.inviteStart(qId),
-        },
-      ],
+    const rows: KbButton[][] = [
+      [this.btn('▶️ Начать заполнение', Routes.questionnaire.inviteStart(qId))],
     ];
     if (response.whyText) {
       rows.push([
-        {
-          text: '❔ Зачем это нужно?',
-          code: Routes.questionnaire.inviteWhy(qId),
-        },
+        this.btn('❔ Зачем это нужно?', Routes.questionnaire.inviteWhy(qId)),
       ]);
     }
     rows.push([
-      {
-        text: '⏭️ Пропустить',
-        code: Routes.questionnaire.inviteDecline(qId),
-      },
+      this.btn('⏭️ Пропустить', Routes.questionnaire.inviteDecline(qId)),
     ]);
 
     await this.proactiveSender.invite(telegramId, {
       text: md`📋 *Анкета*\n\n${response.inviteText ?? 'Заполните, пожалуйста, анкету.'}\n\nДля отмены в любой момент нажмите /cancel\\.\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
-      keyboard: { rows, isMultiple: false },
+      keyboard: this.kb(rows),
     });
   }
 
@@ -89,9 +79,7 @@ export class InviteStory extends U7BotUiStory {
           { questionnaireId: qId },
           actor.uuid,
         );
-        return {
-          delegate: { path: this.cbFor('fill', 'current', qId) },
-        };
+        return this.go(this.cbFor('fill', 'current', qId));
       } catch (err) {
         return this.handleError(err);
       }
@@ -136,15 +124,10 @@ export class InviteStory extends U7BotUiStory {
       // whyText/inviteText определены только в состоянии invited
       const invited = current.type === 'invited' ? current : undefined;
 
-      return {
-        screen: {
-          text: md`${invited?.whyText ?? 'Нет дополнительной информации.'}`,
-          keyboard: {
-            rows: [[{ text: '✅ Хорошо', code: this.cb('invite', qId) }]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`${invited?.whyText ?? 'Нет дополнительной информации.'}`,
+        this.kb([[this.btn('✅ Хорошо', this.cb('invite', qId))]]),
+      );
     } catch (err) {
       return this.handleError(err);
     }
@@ -212,13 +195,10 @@ export class InviteStory extends U7BotUiStory {
       );
 
       return {
-        screen: {
-          text: md`Анкета пропущена\\.`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
+        ...this.screen(
+          md`Анкета пропущена\\.`,
+          this.kb([[buttons.mainMenu()]]),
+        ),
         release: true,
       };
     } catch (err) {

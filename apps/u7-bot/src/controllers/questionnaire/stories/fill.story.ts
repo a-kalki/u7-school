@@ -7,6 +7,7 @@ import {
   type CommandUpdate,
   type DialogResponse,
   eventSubscription,
+  type KbButton,
   type UiEventSubscription,
 } from '@u7-scl/core/ui';
 import type {
@@ -78,17 +79,9 @@ export class FillStory extends U7BotUiStory {
 
     await this.proactiveSender.invite(telegramId, {
       text: md`📋 *Анкета*\n\nДля вас подготовлена анкета — заполните, пожалуйста\\.\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
-      keyboard: {
-        rows: [
-          [
-            {
-              text: '▶️ Заполнить анкету',
-              code: Routes.questionnaire.resume(courseId),
-            },
-          ],
-        ],
-        isMultiple: false,
-      },
+      keyboard: this.kb([
+        [this.btn('▶️ Заполнить анкету', Routes.questionnaire.resume(courseId))],
+      ]),
     });
   }
 
@@ -109,7 +102,7 @@ export class FillStory extends U7BotUiStory {
 
     await this.proactiveSender.invite(telegramId, {
       text: md`⏳ *Анкета приостановлена*\n\nМы заметили, что ты давно не заполнял анкету\\. Скоро она будет закрыта\\.\n\nПродолжить?\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
-      keyboard: { rows, isMultiple: false },
+      keyboard: this.kb(rows),
     });
   }
 
@@ -129,7 +122,7 @@ export class FillStory extends U7BotUiStory {
 
     await this.proactiveSender.invite(telegramId, {
       text: md`📋 *Анкета*\n\nВы начали заполнять анкету — продолжим?\n\nЕсли кнопки не открываются \\- наберите /start\\.`,
-      keyboard: { rows, isMultiple: false },
+      keyboard: this.kb(rows),
     });
   }
 
@@ -155,18 +148,15 @@ export class FillStory extends U7BotUiStory {
     courseId: unknown,
     questionnaireId: string,
     continueText: string,
-  ): { text: string; code: string }[][] {
-    const rows: { text: string; code: string }[][] = [];
+  ): KbButton[][] {
+    const rows: KbButton[][] = [];
     if (typeof courseId === 'string') {
       rows.push([
-        { text: continueText, code: Routes.questionnaire.resume(courseId) },
+        this.btn(continueText, Routes.questionnaire.resume(courseId)),
       ]);
     }
     rows.push([
-      {
-        text: '⏭️ Прервать',
-        code: Routes.questionnaire.fillCancel(questionnaireId),
-      },
+      this.btn('⏭️ Прервать', Routes.questionnaire.fillCancel(questionnaireId)),
     ]);
     return rows;
   }
@@ -253,12 +243,7 @@ export class FillStory extends U7BotUiStory {
   ): Promise<DialogResponse> {
     if (update.type !== 'message') {
       // Анкета ждёт текст: документ/фото/войс — переспрос, ввод живёт
-      return {
-        notify: {
-          text: md`Пожалуйста, введите ваш ответ текстом\.`,
-          kind: 'warn',
-        },
-      };
+      return this.warn(md`Пожалуйста, введите ваш ответ текстом\.`);
     }
 
     const qId = this.#qIdOf(session);
@@ -267,10 +252,7 @@ export class FillStory extends U7BotUiStory {
         dialogPath: session.dialog?.path,
       });
       return {
-        notify: {
-          text: md`Анкета не найдена — начните с /start\\.`,
-          kind: 'warn',
-        },
+        ...this.warn(md`Анкета не найдена — начните с /start\\.`),
         release: true,
       };
     }
@@ -300,7 +282,7 @@ export class FillStory extends U7BotUiStory {
       if (!qId) {
         return {
           reaction: 'stop',
-          response: { notify: { text: md`Отменено\\. Наберите /start` } },
+          response: this.notify(md`Отменено\\. Наберите /start`),
         };
       }
       try {
@@ -311,7 +293,7 @@ export class FillStory extends U7BotUiStory {
       } catch {
         return {
           reaction: 'stop',
-          response: { notify: { text: md`Отменено\\. Наберите /start` } },
+          response: this.notify(md`Отменено\\. Наберите /start`),
         };
       }
     }
@@ -349,15 +331,10 @@ export class FillStory extends U7BotUiStory {
       );
 
       if (!active) {
-        return {
-          screen: {
-            text: md`Анкета не найдена или уже завершена\\.`,
-            keyboard: {
-              rows: [[buttons.mainMenu()]],
-              isMultiple: false,
-            },
-          },
-        };
+        return this.screen(
+          md`Анкета не найдена или уже завершена\\.`,
+          this.kb([[buttons.mainMenu()]]),
+        );
       }
 
       return this.#showCurrent(active.uuid, actor);
@@ -424,10 +401,7 @@ export class FillStory extends U7BotUiStory {
       );
 
       return {
-        screen: {
-          text: md`Анкета прервана\\.`,
-          keyboard: { rows: [[buttons.mainMenu()]], isMultiple: false },
-        },
+        ...this.screen(md`Анкета прервана\\.`, this.kb([[buttons.mainMenu()]])),
         release: true,
       };
     } catch (err) {

@@ -1,5 +1,13 @@
 import { escapeMarkdown, type MdText, mdRaw } from '@u7-scl/core/shared';
-import type { DialogResponse, KeyboardDescription } from '@u7-scl/core/ui';
+import {
+  btn,
+  type DialogResponse,
+  type KbButton,
+  type KeyboardDescription,
+  kb,
+  screen,
+  warn,
+} from '@u7-scl/core/ui';
 import type {
   Question,
   QuestionnaireActionResponse,
@@ -30,17 +38,17 @@ export function inviteKeyboard(
   qId: string,
   whyText?: string,
 ): KeyboardDescription | undefined {
-  const rows: { text: string; code: string }[][] = [
-    [{ text: '▶️ Начать заполнение', code: `invite:start:${qId}` }],
+  const rows: KbButton[][] = [
+    [btn('▶️ Начать заполнение', `invite:start:${qId}`)],
   ];
 
   if (whyText) {
-    rows.push([{ text: '❔ Зачем это нужно?', code: `invite:why:${qId}` }]);
+    rows.push([btn('❔ Зачем это нужно?', `invite:why:${qId}`)]);
   }
 
-  rows.push([{ text: '⏭️ Пропустить', code: `invite:decline:${qId}` }]);
+  rows.push([btn('⏭️ Пропустить', `invite:decline:${qId}`)]);
 
-  return { rows, isMultiple: false };
+  return kb(rows);
 }
 
 /**
@@ -50,21 +58,19 @@ export function renderActionResponse(
   response: QuestionnaireActionResponse,
 ): DialogResponse {
   if (response.type === 'wait_next') {
-    return {
-      screen: {
-        text: formatQuestionMd(response.currentQuestion, {
-          selected: response.selectedAnswers,
-          progress: progressOf(response),
-        }),
-        keyboard: getKeyboard(
-          response.currentQuestion,
-          response.questionnaireId,
-          response.nextButton
-            ? makeNextCode(response.questionnaireId, response.nextButton)
-            : undefined,
-        ),
-      },
-    };
+    return screen(
+      formatQuestionMd(response.currentQuestion, {
+        selected: response.selectedAnswers,
+        progress: progressOf(response),
+      }),
+      getKeyboard(
+        response.currentQuestion,
+        response.questionnaireId,
+        response.nextButton
+          ? makeNextCode(response.questionnaireId, response.nextButton)
+          : undefined,
+      ),
+    );
   }
 
   if (response.type === 'stale_answer') {
@@ -73,20 +79,18 @@ export function renderActionResponse(
       response.reason === 'stale_button'
         ? '⚠️ Эта кнопка относится к предыдущему вопросу\\.'
         : '⚠️ Сначала выбери хотя бы один вариант\\.';
-    return { notify: { text: mdRaw(hint), kind: 'warn' } };
+    return warn(mdRaw(hint));
   }
 
   if (response.type === 'new_question') {
-    const result: DialogResponse = {
-      screen: {
-        text: formatQuestionMd(response.question, {
-          selected: response.selectedAnswers ?? [],
-          progress: progressOf(response),
-          isFirstQuestion: response.previousQuestion === undefined,
-        }),
-        keyboard: getKeyboard(response.question, response.questionnaireId),
-      },
-    };
+    const result: DialogResponse = screen(
+      formatQuestionMd(response.question, {
+        selected: response.selectedAnswers ?? [],
+        progress: progressOf(response),
+        isFirstQuestion: response.previousQuestion === undefined,
+      }),
+      getKeyboard(response.question, response.questionnaireId),
+    );
     if (response.previousQuestion) {
       result.finalize = {
         text: formatQuestionMd(response.previousQuestion, {
@@ -99,13 +103,13 @@ export function renderActionResponse(
 
   if (response.type === 'completed') {
     const result: DialogResponse = {
-      screen: {
+      ...screen(
         // Шапка S04 по ui-spec + completionText пула (или fallback)
-        text: mdRaw(
+        mdRaw(
           `✅ *Анкета завершена*\n\n${escapeMarkdown(response.completionText ?? 'Спасибо! Твоя анкета принята.')}`,
         ),
-        keyboard: { rows: [[buttons.mainMenu()]], isMultiple: false },
-      },
+        kb([[buttons.mainMenu()]]),
+      ),
       release: true,
     };
     if (response.previousQuestion) {
@@ -119,14 +123,12 @@ export function renderActionResponse(
   }
 
   // invited — рендерим как приглашение
-  return {
-    screen: {
-      text: mdRaw(
-        `📋 *Анкета*\n\n${escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
-      ),
-      keyboard: inviteKeyboard(response.questionnaireId, response.whyText),
-    },
-  };
+  return screen(
+    mdRaw(
+      `📋 *Анкета*\n\n${escapeMarkdown(response.inviteText ?? 'Заполните, пожалуйста, анкету.')}`,
+    ),
+    inviteKeyboard(response.questionnaireId, response.whyText),
+  );
 }
 
 function makeNextCode(qId: string, nextButton: string): string {
@@ -201,15 +203,15 @@ function getKeyboard(
 
   // Код кнопки обязан нести questionnaireId: handle-action без него
   // не знает, к какой анкете относится выбор (см. fill-стори, 'answer:').
-  const buttons = question.answers.map((a, i) => ({
-    text: String(i + 1),
-    code: `fill:answer:${questionnaireId}:${a.answerCode}`,
-  }));
+  const answerBtns = question.answers.map((a, i) =>
+    btn(String(i + 1), `fill:answer:${questionnaireId}:${a.answerCode}`),
+  );
 
-  const rows = [buttons];
+  const rows = [answerBtns];
   if (nextButton) {
-    rows.push([{ text: 'Далее -->', code: nextButton }]);
+    rows.push([btn('Далее -->', nextButton)]);
   }
 
-  return { rows, isMultiple: question.multiple };
+  // Мультивыбор — осознанный dynamic multiple (кнопки-тогглы)
+  return kb(rows, { multiple: question.multiple });
 }
