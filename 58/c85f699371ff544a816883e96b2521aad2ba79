@@ -1,0 +1,16 @@
+Задача: фикс бага префиксации BotController (в рамках фазы 3 трека bot-ui-dialog-questionnaire)
+
+Баг: BotController.handleMessage и stop-ответы handleCommand возвращали
+DialogResponse с клавиатурами без префикса контроллера (handleCallback
+префиксовал, остальные — нет). Кнопки таких экранов (вопрос после
+текстового ответа анкеты, confirm-экран /cancel) не маршрутизировались:
+«⚠️ Неизвестная команда».
+
+Изменения:
+- packages/core/src/ui/bot/bot-controller.ts: handleMessage → #prefixResponse;
+  stop-реакция команд → #prefixResponse (симметрия с handleCallback)
+- packages/core/src/ui/bot/bot-controller.test.ts: 2 новых теста
+  префиксации (экран из ввода; экран stop-ответа команды); SpyStory
+  расширен messageResult/commandReaction
+
+Тесты: core 294/294 зелёные; найдено миграцией e2e wish-questionnaire
