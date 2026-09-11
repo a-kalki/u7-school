@@ -36,11 +36,9 @@ export class ProgressStory extends U7BotUiStory {
     const student = studentResult.value;
 
     if (student.streamId !== streamId) {
-      return {
-        screen: {
-          text: md`⚠️ Этот прогресс не соответствует вашему текущему потоку\\.`,
-        },
-      };
+      return this.screen(
+        md`⚠️ Этот прогресс не соответствует вашему текущему потоку\\.`,
+      );
     }
 
     const stream = (await this.appApi.execute('get-stream', {
@@ -51,11 +49,7 @@ export class ProgressStory extends U7BotUiStory {
     };
 
     if (!stream?.contentSnapshot) {
-      return {
-        screen: {
-          text: md`⚠️ Программа потока не найдена\\.`,
-        },
-      };
+      return this.screen(md`⚠️ Программа потока не найдена\\.`);
     }
 
     const tree = StreamDs.buildNavigationTree(stream.contentSnapshot, student);
@@ -121,17 +115,12 @@ export class ProgressStory extends U7BotUiStory {
       md`📝 Всего шагов завершено: ${moduleProgress.completed} из ${moduleProgress.total}`,
     );
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: {
-          rows: [
-            [{ text: '⬅️ Назад к учёбе', code: this.cbFor('hub', 'my-study') }],
-            [buttons.mainMenu()],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      mdJoin(lines),
+      this.kb([
+        [this.btn('⬅️ Назад к учёбе', this.cbFor('hub', 'my-study'))],
+        [buttons.mainMenu()],
+      ]),
+    );
   }
 }

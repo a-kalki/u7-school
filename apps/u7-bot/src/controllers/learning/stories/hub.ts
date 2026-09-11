@@ -5,6 +5,7 @@ import { md } from '@u7-scl/core/shared';
 import type {
   BotSession,
   DialogResponse,
+  KbButton,
   UiEventSubscription,
 } from '@u7-scl/core/ui';
 import { eventSubscription } from '@u7-scl/core/ui';
@@ -61,10 +62,9 @@ export class HubStory extends U7BotUiStory {
       // Повтор того же модуля (7b) — кнопочный проактив, канал invite
       await this.proactiveSender.invite(user.telegramId, {
         text: md`🔁 Модуль не пройден до конца\\.\n\nХочешь записаться на него снова\\?`,
-        keyboard: {
-          rows: [[buttons.wishModule(moduleId, '🔁 Пройти модуль снова')]],
-          isMultiple: false,
-        },
+        keyboard: this.kb([
+          [buttons.wishModule(moduleId, '🔁 Пройти модуль снова')],
+        ]),
       });
       return;
     }
@@ -73,10 +73,7 @@ export class HubStory extends U7BotUiStory {
       // advanced + есть следующий модуль (7a) — кнопочный проактив, invite
       await this.proactiveSender.invite(user.telegramId, {
         text: md`🏁 Модуль завершён\\!\n\nХочешь записаться на следующий\\?`,
-        keyboard: {
-          rows: [[buttons.wishModule(place.nextModuleId)]],
-          isMultiple: false,
-        },
+        keyboard: this.kb([[buttons.wishModule(place.nextModuleId)]]),
       });
     }
     // иначе — безкнопочные 7c/7d: уведомление уже отправлено UC
@@ -131,38 +128,33 @@ export class HubStory extends U7BotUiStory {
       student.status === 'not_advanced' ||
       student.status === 'abandoned';
 
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     if (!isFinished) {
       const hasStarted = student.steps.some((s) => s.status === 'completed');
       rows.push([
-        {
-          text: hasStarted ? '▶️ Продолжить учёбу' : '▶️ Начать учёбу',
-          code: this.cbFor('step-view', 'my-study:continue'),
-        },
+        this.btn(
+          hasStarted ? '▶️ Продолжить учёбу' : '▶️ Начать учёбу',
+          this.cbFor('step-view', 'my-study:continue'),
+        ),
       ]);
       rows.push([
-        { text: '📂 Уроки', code: this.cbFor('nav-tree', 'my-study:lessons') },
+        this.btn('📂 Уроки', this.cbFor('nav-tree', 'my-study:lessons')),
       ]);
     }
 
     rows.push([
-      {
-        text: '📊 Мой прогресс',
-        code: this.cbFor('progress', 'progress', student.streamId),
-      },
+      this.btn(
+        '📊 Мой прогресс',
+        this.cbFor('progress', 'progress', student.streamId),
+      ),
     ]);
     rows.push([
-      { text: '🚪 Покинуть учёбу', code: this.cb('my-study:leave-confirm') },
+      this.btn('🚪 Покинуть учёбу', this.cb('my-study:leave-confirm')),
     ]);
     rows.push([buttons.mainMenu()]);
 
-    return {
-      screen: {
-        text: md`📖 *Моя учёба*\n\nВыберите действие:`,
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(md`📖 *Моя учёба*\n\nВыберите действие:`, this.kb(rows));
   }
 
   // ── Приватные методы: самовыход из учёбы (FR-4) ──
@@ -171,20 +163,15 @@ export class HubStory extends U7BotUiStory {
     const studentResult = await getStudent(this.appApi, actor.uuid);
     if (!studentResult.ok) return studentResult.value;
 
-    return {
-      screen: {
-        text: md`🚪 *Покинуть учёбу?*\n\nПрогресс сохранится, но ментор больше не будет тебя сопровождать\\.`,
-        keyboard: {
-          rows: [
-            [
-              { text: '🚪 Да, покинуть', code: this.cb('my-study:leave') },
-              { text: '❌ Остаться', code: this.cb('my-study') },
-            ],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`🚪 *Покинуть учёбу?*\n\nПрогресс сохранится, но ментор больше не будет тебя сопровождать\\.`,
+      this.kb([
+        [
+          this.btn('🚪 Да, покинуть', this.cb('my-study:leave')),
+          this.btn('❌ Остаться', this.cb('my-study')),
+        ],
+      ]),
+    );
   }
 
   async #executeLeave(actor: User): Promise<DialogResponse> {
@@ -203,14 +190,9 @@ export class HubStory extends U7BotUiStory {
       return this.handleError(err);
     }
 
-    return {
-      screen: {
-        text: md`Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!`,
-        keyboard: {
-          rows: [[{ text: '⬅️ В меню', code: buttons.mainMenu().code }]],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      md`Ты покинул учёбу\\. Жаль, что не сложилось — возвращайся, когда будешь готов\\!`,
+      this.kb([[buttons.mainMenu('⬅️ В меню')]]),
+    );
   }
 }

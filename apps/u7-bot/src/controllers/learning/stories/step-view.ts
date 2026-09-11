@@ -1,7 +1,12 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { md, mdJoin } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type {
+  BotSession,
+  DialogResponse,
+  KbButton,
+  KeyboardDescription,
+} from '@u7-scl/core/ui';
 import type { ContentSnapshot, Step } from '@u7-scl/course/domain';
 import type { Student } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
@@ -64,11 +69,9 @@ export class StepViewStory extends U7BotUiStory {
       student.status === 'not_advanced' ||
       student.status === 'abandoned'
     ) {
-      return {
-        screen: {
-          text: md`🎉 *Поздравляю\\!* Вы завершили обучение в потоке\\!`,
-        },
-      };
+      return this.screen(
+        md`🎉 *Поздравляю\\!* Вы завершили обучение в потоке\\!`,
+      );
     }
 
     const stepId = _overrideStepId ?? student.currentStepId;
@@ -97,11 +100,9 @@ export class StepViewStory extends U7BotUiStory {
     const student = studentResult.value;
 
     if (student.streamId !== streamId) {
-      return {
-        screen: {
-          text: md`⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\. Пожалуйста, используйте /start для обновления\\.`,
-        },
-      };
+      return this.screen(
+        md`⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\. Пожалуйста, используйте /start для обновления\\.`,
+      );
     }
 
     const result = (await this.appApi.execute(
@@ -121,15 +122,10 @@ export class StepViewStory extends U7BotUiStory {
     }
 
     if (result.level === 'stream') {
-      return {
-        screen: {
-          text: md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`🏆 *Поток полностью завершён\\!* Поздравляю с успешным окончанием обучения\\!`,
+        this.kb([[buttons.mainMenu()]]),
+      );
     }
 
     if (result.level === 'lesson' || result.level === 'project') {
@@ -166,26 +162,20 @@ export class StepViewStory extends U7BotUiStory {
     if (!student || !stream) {
       const studentResult = await getStudent(this.appApi, actor.uuid);
       return studentResult.ok
-        ? { screen: { text: md`⚠️ Поток не найден` } }
+        ? this.screen(md`⚠️ Поток не найден`)
         : studentResult.value;
     }
 
     if (student.streamId !== streamId) {
-      return {
-        screen: {
-          text: md`⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\.`,
-        },
-      };
+      return this.screen(
+        md`⚠️ *Ошибка:* поток не соответствует вашему текущему обучению\\.`,
+      );
     }
 
     const resolved = StreamDs.getStepPosition(stream.contentSnapshot, stepId);
 
     if (!resolved) {
-      return {
-        screen: {
-          text: md`⚠️ Шаг не найден в программе потока\\.`,
-        },
-      };
+      return this.screen(md`⚠️ Шаг не найден в программе потока\\.`);
     }
 
     const step = await this.appApi.execute('get-step', { uuid: stepId });
@@ -217,56 +207,46 @@ export class StepViewStory extends U7BotUiStory {
       : mainMessage;
 
     // Кнопки
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     if (isCompleted) {
       // ◀️/▶️ навигация
-      const navRow: Array<{ text: string; code: string }> = [];
+      const navRow: KbButton[] = [];
       const completedSteps = getCompletedStepsInOrder(student);
       const currentIdx = completedSteps.indexOf(stepId);
       const prevIndex = completedSteps[currentIdx - 1];
       const nextIndex = completedSteps[currentIdx + 1];
 
       if (currentIdx > 0 && prevIndex) {
-        navRow.push({
-          text: '◀️ Назад',
-          code: this.cb('my-study:view', streamId, prevIndex),
-        });
+        navRow.push(
+          this.btn('◀️ Назад', this.cb('my-study:view', streamId, prevIndex)),
+        );
       }
       if (currentIdx < completedSteps.length - 1 && nextIndex) {
-        navRow.push({
-          text: '▶️ Вперёд',
-          code: this.cb('my-study:view', streamId, nextIndex),
-        });
+        navRow.push(
+          this.btn('▶️ Вперёд', this.cb('my-study:view', streamId, nextIndex)),
+        );
       }
       if (navRow.length > 0) rows.push(navRow);
 
       rows.push([
-        {
-          text: '⬅️ Назад к уроку',
-          code: lessonId
+        this.btn(
+          '⬅️ Назад к уроку',
+          lessonId
             ? this.cbFor('nav-tree', 'my-study:lesson', lessonId)
             : this.cbFor('nav-tree', 'my-study:lessons'),
-        },
+        ),
       ]);
     } else {
       // Активный шаг
       rows.push([
-        {
-          text: '✅ Выполнено',
-          code: this.cb('complete', streamId, stepId),
-        },
+        this.btn('✅ Выполнено', this.cb('complete', streamId, stepId)),
       ]);
     }
 
     rows.push([buttons.mainMenu()]);
 
-    return {
-      screen: {
-        text: fullText,
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(fullText, this.kb(rows));
   }
 
   // ── Приватные методы: сборка представления шага ──
@@ -291,26 +271,13 @@ export class StepViewStory extends U7BotUiStory {
 
     keyboard.rows.push([buttons.mainMenu()]);
 
-    return {
-      screen: {
-        text: message,
-        keyboard,
-      },
-    };
+    return this.screen(message, keyboard);
   }
 
-  #buildStepKeyboard(streamId: string, stepId: string) {
-    return {
-      rows: [
-        [
-          {
-            text: '✅ Выполнено',
-            code: this.cb('complete', streamId, stepId),
-          },
-        ],
-      ],
-      isMultiple: false,
-    };
+  #buildStepKeyboard(streamId: string, stepId: string): KeyboardDescription {
+    return this.kb([
+      [this.btn('✅ Выполнено', this.cb('complete', streamId, stepId))],
+    ]);
   }
 
   // ── Приватные методы: переходы ──
@@ -335,17 +302,12 @@ export class StepViewStory extends U7BotUiStory {
       student,
     );
 
-    return {
-      screen: {
-        text: messageText,
-        keyboard: {
-          rows: [
-            [{ text: buttonText, code: this.cb('my-study:continue') }],
-            [buttons.mainMenu()],
-          ],
-          isMultiple: false,
-        },
-      },
-    };
+    return this.screen(
+      messageText,
+      this.kb([
+        [this.btn(buttonText, this.cb('my-study:continue'))],
+        [buttons.mainMenu()],
+      ]),
+    );
   }
 }

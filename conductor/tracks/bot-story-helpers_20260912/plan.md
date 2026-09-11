@@ -28,11 +28,11 @@
 - [x] Task: Мигрировать `create-stream` — самый большой wizard (35 полей, 11 `awaitInput`); локальные kb-хелперы → `kb/btn` `5f507c3`
 - [x] Task: Мигрировать `monitor`, `my-streams`, `submenu`, `activate-stream`, `view-stream-mentor` `58d0a27`
 - [x] Task: Мигрировать `fill.story`, `invite.story` (wizard + release) `2153442`
-- [ ] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Фаза 3' (Protocol in workflow.md)
 
 ## Фаза 4: Миграция learning, app/user + core-литералы
 
-- [ ] Task: Мигрировать learning-стори: `hub`, `step-view`, `nav-tree`, `progress`
+- [~] Task: Мигрировать learning-стори: `hub`, `step-view`, `nav-tree`, `progress`
 - [ ] Task: Мигрировать `community`, `notify.story`
 - [ ] Task: Мигрировать core: `bot-controller.ts` (`#errorScreen`, `unknownCommand` → билдеры; убрать дубль метода со стори), `core/ui-app.ts` (4 литерала)
 - [ ] Task: Мигрировать app-слой: `app/core/ui-app.ts` (7 литералов), `learning/shared.ts`

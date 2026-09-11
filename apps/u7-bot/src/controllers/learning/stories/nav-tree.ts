@@ -1,7 +1,7 @@
 import type { User } from '@u7-scl/app/domain';
 import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import { type MdText, md, mdConcat, mdJoin } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import type { NavigationTree } from '@u7-scl/stream/domain';
 import { StreamDs } from '@u7-scl/stream/domain';
 import {
@@ -109,33 +109,29 @@ export class NavTreeStory extends U7BotUiStory {
       ? await loadStepDescriptions(this.appApi, lessonIds)
       : undefined;
 
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     for (let pi = 0; pi < tree.projects.length; pi++) {
       const p = tree.projects[pi];
       if (!p) continue;
 
       rows.push([
-        {
-          text: `📁 ${p.title} (${p.completedLessons}/${p.totalLessons})`,
-          code: this.cb('my-study:project', String(pi + 1)),
-        },
+        this.btn(
+          `📁 ${p.title} (${p.completedLessons}/${p.totalLessons})`,
+          this.cb('my-study:project', String(pi + 1)),
+        ),
       ]);
     }
 
-    rows.push([
-      { text: '⬅️ Назад к учёбе', code: this.cbFor('hub', 'my-study') },
-    ]);
+    rows.push([this.btn('⬅️ Назад к учёбе', this.cbFor('hub', 'my-study'))]);
 
-    return {
-      screen: {
-        text: mdConcat(
-          md`📂 *Уроки*\n\n`,
-          this.#formatTreeBody(tree, stepsByLesson, 1),
-        ),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(
+      mdConcat(
+        md`📂 *Уроки*\n\n`,
+        this.#formatTreeBody(tree, stepsByLesson, 1),
+      ),
+      this.kb(rows),
+    );
   }
 
   // ── Уровень 2: уроки проекта ──
@@ -154,17 +150,17 @@ export class NavTreeStory extends U7BotUiStory {
 
     const project = tree.projects[projectIndex - 1];
     if (!project) {
-      return { screen: { text: md`⚠️ Проект не найден` } };
+      return this.screen(md`⚠️ Проект не найден`);
     }
 
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     for (const lesson of project.lessons) {
       rows.push([
-        {
-          text: `📝 ${lesson.title} (${lesson.completedSteps}/${lesson.totalSteps})`,
-          code: this.cb('my-study:lesson', lesson.lessonId),
-        },
+        this.btn(
+          `📝 ${lesson.title} (${lesson.completedSteps}/${lesson.totalSteps})`,
+          this.cb('my-study:lesson', lesson.lessonId),
+        ),
       ]);
     }
 
@@ -192,15 +188,10 @@ export class NavTreeStory extends U7BotUiStory {
       }
     }
 
-    return {
-      screen: {
-        text: mdConcat(
-          md`📂 *Уроки* › ${project.title}\n\n`,
-          mdJoin(bodyLines),
-        ),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(
+      mdConcat(md`📂 *Уроки* › ${project.title}\n\n`, mdJoin(bodyLines)),
+      this.kb(rows),
+    );
   }
 
   // ── Уровень 3: шаги урока ──
@@ -219,7 +210,7 @@ export class NavTreeStory extends U7BotUiStory {
     );
 
     if (!view) {
-      return { screen: { text: md`⚠️ Урок не найден` } };
+      return this.screen(md`⚠️ Урок не найден`);
     }
 
     // Собираем описания шагов
@@ -263,38 +254,32 @@ export class NavTreeStory extends U7BotUiStory {
     lines.push(md``, md`Выберите шаг:`);
 
     // Кнопки: только доступные шаги
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     for (const s of stepsWithDesc) {
       if (s.marker === '🔒') continue;
       rows.push([
-        {
-          text: `${s.marker} ${s.description || s.stepId}`,
-          code:
-            s.marker === '✅'
-              ? this.cbFor(
-                  'step-view',
-                  'my-study:view',
-                  student.streamId,
-                  s.stepId,
-                )
-              : this.cbFor('step-view', 'my-study:continue'),
-        },
+        this.btn(
+          `${s.marker} ${s.description || s.stepId}`,
+          s.marker === '✅'
+            ? this.cbFor(
+                'step-view',
+                'my-study:view',
+                student.streamId,
+                s.stepId,
+              )
+            : this.cbFor('step-view', 'my-study:continue'),
+        ),
       ]);
     }
 
     rows.push([
-      {
-        text: '⬅️ Назад к урокам',
-        code: this.cb('my-study:project', String(view.projectIndex)),
-      },
+      this.btn(
+        '⬅️ Назад к урокам',
+        this.cb('my-study:project', String(view.projectIndex)),
+      ),
     ]);
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(mdJoin(lines), this.kb(rows));
   }
 }
