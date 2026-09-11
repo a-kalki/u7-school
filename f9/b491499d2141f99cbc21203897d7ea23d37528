@@ -1,0 +1,7 @@
+Задача: Закрытие трека — финальный прогон, summary.md
+
+Сводка: финальный гейт качества — tslint чисто, bun test 2086 pass / 0 fail (0 промежуточных состояний), lint — 1 формат-ошибка в data/courses/lessons.json (чужой коммит 74cb4496, вне трека). Создан conductor/tracks/bot-story-helpers_20260912/summary.md: задачи по фазам с SHA, 27 файлов миграции (+1209/−1386), архитектурные решения (чистые билдеры, protected-делегаты, kb multiple-опция, notify без kind, спред-комбинации), триаж гейта, известные ограничения.
+
+Файлы: conductor/tracks/bot-story-helpers_20260912/summary.md
+
+Причина: протокол «Завершение трека» workflow.md.
