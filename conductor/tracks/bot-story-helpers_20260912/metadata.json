@@ -1,0 +1,8 @@
+{
+  "track_id": "bot-story-helpers_20260912",
+  "type": "chore",
+  "status": "new",
+  "created_at": "2026-09-11T20:02:33Z",
+  "updated_at": "2026-09-11T20:02:33Z",
+  "description": "Декларативные хелперы ответов стори бота: чистые билдеры DialogResponse (screen/ask/warn/note/go/kb/btn/btnUrl) в core + тонкие protected-делегаты на BotUiStory; полная миграция 19 стори шести контроллеров и core/app-литералов без изменения контракта «Диалог и Экран»"
+}
