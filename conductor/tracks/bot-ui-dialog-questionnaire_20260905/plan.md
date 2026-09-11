@@ -17,7 +17,7 @@
 
 ## Фаза 3: Финал трека 4
 
-- [ ] Task: Проверки скоупа зелёные; grep-чистота
-- [ ] Task: Мигрировать e2e домена анкеты (`questionnaire-ux`, `wish-questionnaire`) на `DialogResponse`
+- [x] Task: Проверки скоупа зелёные; grep-чистота [d4ad7610]
+- [~] Task: Мигрировать e2e домена анкеты (`questionnaire-ux`, `wish-questionnaire`) на `DialogResponse`
 - [ ] Task: Обновить блоки `ui-spec.md`; создать `summary.md` (спек — источник истины: расхождения с кодом — вопрос владельцу, не подгонка спека)
 - [ ] Conductor - User Manual Verification 'Финал' (Protocol in workflow.md)
