@@ -1,8 +1,0 @@
-{
-  "track_id": "bot-ui-dialog-learning_20260905",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-09-05T03:08:46Z",
-  "updated_at": "2026-09-05T03:08:46Z",
-  "description": "Миграция learning-сторей: hub, step-view, nav-tree, progress — edit-интенсивная навигация"
-}
