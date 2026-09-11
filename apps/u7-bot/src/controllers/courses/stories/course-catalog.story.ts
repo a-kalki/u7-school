@@ -3,7 +3,7 @@ import { U7BotUiStory } from '@u7-scl/bot/u7-bot-ui-story';
 import type { MenuButton } from '@u7-scl/bot/u7-menu';
 import { fromError } from '@u7-scl/core/domain';
 import { type MdText, md, mdConcat, mdJoin, mdRaw } from '@u7-scl/core/shared';
-import type { BotSession, DialogResponse } from '@u7-scl/core/ui';
+import type { BotSession, DialogResponse, KbButton } from '@u7-scl/core/ui';
 import type { ContentSnapshot, Course } from '@u7-scl/course/domain';
 import { renderTree, type TreeNode } from '../../../shared/tree-renderer';
 import { buttons } from '../../shared/buttons';
@@ -112,19 +112,14 @@ export class CourseCatalogStory extends U7BotUiStory {
     const courses = (await this.appApi.execute('list-courses', {})) as Course[];
 
     if (courses.length === 0) {
-      return {
-        screen: {
-          text: md`📖 *Курсы*\n\nПока нет доступных курсов\\.`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`📖 *Курсы*\n\nПока нет доступных курсов\\.`,
+        this.kb([[buttons.mainMenu()]]),
+      );
     }
 
     const lines: MdText[] = [md`📖 *Курсы*`, md``];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     for (const course of courses) {
       const direction = this.#getDirectionEmoji(course);
@@ -145,32 +140,24 @@ export class CourseCatalogStory extends U7BotUiStory {
       lines.push(md``);
 
       rows.push([
-        {
-          text: `${direction} ${course.title}`,
-          code: this.cb('phases', course.uuid),
-        },
-        {
-          text: '🎓 Хочу пройти курс',
-          code: this.cb('apply', course.uuid),
-        },
+        this.btn(
+          `${direction} ${course.title}`,
+          this.cb('phases', course.uuid),
+        ),
+        this.btn('🎓 Хочу пройти курс', this.cb('apply', course.uuid)),
       ]);
     }
 
     rows.push([buttons.mainMenu()]);
 
-    return {
-      screen: {
-        text: mdJoin(lines),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(mdJoin(lines), this.kb(rows));
   }
 
   // ═══ Уровень 1: Этапы + модули inline ═══
 
   async #handlePhases(courseId: string): Promise<DialogResponse> {
     if (!courseId) {
-      return { screen: { text: md`⚠️ Курс не указан` } };
+      return this.screen(md`⚠️ Курс не указан`);
     }
 
     let course: Course;
@@ -179,11 +166,11 @@ export class CourseCatalogStory extends U7BotUiStory {
         uuid: courseId,
       })) as Course;
     } catch {
-      return { screen: { text: md`⚠️ Курс не найден или недоступен` } };
+      return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
 
     const lines: MdText[] = [md`📖 *Курс: ${course.title}*`, md``];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     for (let pi = 0; pi < course.phases.length; pi++) {
       const phase = course.phases[pi];
@@ -218,21 +205,16 @@ export class CourseCatalogStory extends U7BotUiStory {
       lines.push(md``);
 
       rows.push([
-        {
-          text: `${emoji} ${phase.title}`,
-          code: this.cb('modules', courseId, String(pi)),
-        },
+        this.btn(
+          `${emoji} ${phase.title}`,
+          this.cb('modules', courseId, String(pi)),
+        ),
       ]);
     }
 
-    rows.push([{ text: '⬅️ Назад к курсам школы', code: this.cb('list') }]);
+    rows.push([this.btn('⬅️ Назад к курсам школы', this.cb('list'))]);
 
-    return {
-      screen: {
-        text: this.#truncate(mdJoin(lines)),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
   }
 
   // ═══ Уровень 2: Модули + проекты inline ═══
@@ -242,7 +224,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     phaseIdx: number,
   ): Promise<DialogResponse> {
     if (!courseId) {
-      return { screen: { text: md`⚠️ Курс не указан` } };
+      return this.screen(md`⚠️ Курс не указан`);
     }
 
     let course: Course;
@@ -251,16 +233,16 @@ export class CourseCatalogStory extends U7BotUiStory {
         uuid: courseId,
       })) as Course;
     } catch {
-      return { screen: { text: md`⚠️ Курс не найден или недоступен` } };
+      return this.screen(md`⚠️ Курс не найден или недоступен`);
     }
 
     const phase = course.phases[phaseIdx];
     if (!phase) {
-      return { screen: { text: md`⚠️ Этап не найден` } };
+      return this.screen(md`⚠️ Этап не найден`);
     }
 
     const lines: MdText[] = [md`📖 *Этап: ${phase.title}*`, md``];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     for (const modId of phase.moduleIds ?? []) {
       let mod: {
@@ -297,21 +279,16 @@ export class CourseCatalogStory extends U7BotUiStory {
       lines.push(md``);
 
       rows.push([
-        {
-          text: `📦 ${mod.title}`,
-          code: this.cb('projects', courseId, String(phaseIdx), modId),
-        },
+        this.btn(
+          `📦 ${mod.title}`,
+          this.cb('projects', courseId, String(phaseIdx), modId),
+        ),
       ]);
     }
 
-    rows.push([{ text: '⬅️ Назад к курсу', code: this.cb('phases', courseId) }]);
+    rows.push([this.btn('⬅️ Назад к курсу', this.cb('phases', courseId))]);
 
-    return {
-      screen: {
-        text: this.#truncate(mdJoin(lines)),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
   }
 
   // ═══ Уровень 3: Проекты + уроки inline (tree-renderer) ═══
@@ -322,7 +299,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     moduleId: string,
   ): Promise<DialogResponse> {
     if (!moduleId) {
-      return { screen: { text: md`⚠️ Модуль не указан` } };
+      return this.screen(md`⚠️ Модуль не указан`);
     }
 
     let snapshot: ContentSnapshot;
@@ -331,7 +308,7 @@ export class CourseCatalogStory extends U7BotUiStory {
         moduleId,
       })) as ContentSnapshot;
     } catch {
-      return { screen: { text: md`⚠️ Модуль не найден или недоступен` } };
+      return this.screen(md`⚠️ Модуль не найден или недоступен`);
     }
 
     // Получаем название модуля для заголовка
@@ -367,37 +344,26 @@ export class CourseCatalogStory extends U7BotUiStory {
     ];
 
     // Кнопки — проекты
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
     for (let pi = 0; pi < snapshot.length; pi++) {
       const project = snapshot[pi];
       if (!project) continue;
       rows.push([
-        {
-          text: `📁 ${project.projectTitle}`,
-          code: this.cb(
-            'lessons',
-            courseId,
-            String(phaseIdx),
-            moduleId,
-            String(pi),
-          ),
-        },
+        this.btn(
+          `📁 ${project.projectTitle}`,
+          this.cb('lessons', courseId, String(phaseIdx), moduleId, String(pi)),
+        ),
       ]);
     }
 
     rows.push([
-      {
-        text: '⬅️ Назад к этапу',
-        code: this.cb('modules', courseId, String(phaseIdx)),
-      },
+      this.btn(
+        '⬅️ Назад к этапу',
+        this.cb('modules', courseId, String(phaseIdx)),
+      ),
     ]);
 
-    return {
-      screen: {
-        text: this.#truncate(mdJoin(lines)),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
   }
 
   // ═══ Уровень 4: Уроки + заголовки шагов (тела скрыты) ═══
@@ -409,7 +375,7 @@ export class CourseCatalogStory extends U7BotUiStory {
     projectIdx: number,
   ): Promise<DialogResponse> {
     if (!moduleId) {
-      return { screen: { text: md`⚠️ Модуль не указан` } };
+      return this.screen(md`⚠️ Модуль не указан`);
     }
 
     let snapshot: ContentSnapshot;
@@ -418,16 +384,16 @@ export class CourseCatalogStory extends U7BotUiStory {
         moduleId,
       })) as ContentSnapshot;
     } catch {
-      return { screen: { text: md`⚠️ Модуль не найден или недоступен` } };
+      return this.screen(md`⚠️ Модуль не найден или недоступен`);
     }
 
     const project = snapshot[projectIdx];
     if (!project) {
-      return { screen: { text: md`⚠️ Проект не найден` } };
+      return this.screen(md`⚠️ Проект не найден`);
     }
 
     const lines: MdText[] = [md`📖 *Проект: ${project.projectTitle}*`, md``];
-    const rows: Array<Array<{ text: string; code: string }>> = [];
+    const rows: KbButton[][] = [];
 
     if (project.lessons.length === 0) {
       lines.push(md`_В этом проекте пока нет уроков_`);
@@ -461,18 +427,13 @@ export class CourseCatalogStory extends U7BotUiStory {
     }
 
     rows.push([
-      {
-        text: '⬅️ Назад к модулю',
-        code: this.cb('projects', courseId, String(phaseIdx), moduleId),
-      },
+      this.btn(
+        '⬅️ Назад к модулю',
+        this.cb('projects', courseId, String(phaseIdx), moduleId),
+      ),
     ]);
 
-    return {
-      screen: {
-        text: this.#truncate(mdJoin(lines)),
-        keyboard: { rows, isMultiple: false },
-      },
-    };
+    return this.screen(this.#truncate(mdJoin(lines)), this.kb(rows));
   }
 
   // ═══ Утилиты ═══
@@ -518,7 +479,7 @@ export class CourseCatalogStory extends U7BotUiStory {
    */
   async #handleApply(courseId: string, actor: User): Promise<DialogResponse> {
     if (!courseId) {
-      return { screen: { text: md`⚠️ Курс не указан` } };
+      return this.screen(md`⚠️ Курс не указан`);
     }
 
     try {
@@ -534,15 +495,10 @@ export class CourseCatalogStory extends U7BotUiStory {
       }
 
       // W03 — мгновенная фиксация (курс без пула анкеты)
-      return {
-        screen: {
-          text: md`🎯 Твоё желание пройти курс зафиксировано\\!\n\nМы напишем тебе, когда откроется набор на этот курс\\.`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`🎯 Твоё желание пройти курс зафиксировано\\!\n\nМы напишем тебе, когда откроется набор на этот курс\\.`,
+        this.kb([[buttons.mainMenu()]]),
+      );
     } catch (err) {
       // W04 — желание уже есть / анкета начата (конфликт — не ошибка).
       // Ветвление по статусу существующего желания (payload ошибки).
@@ -553,46 +509,31 @@ export class CourseCatalogStory extends U7BotUiStory {
 
         if (status === 'pending') {
           // Анкета начата, но не завершена — выход есть: продолжить анкету
-          return {
-            screen: {
-              text: md`📝 Ты начал заполнять анкету по этому курсу, но не закончил её\\.\nПродолжи — и желание будет закреплено\\.`,
-              keyboard: {
-                rows: [
-                  [
-                    {
-                      text: '▶️ Продолжить анкету',
-                      code: Routes.questionnaire.resume(courseId),
-                    },
-                  ],
-                  [buttons.mainMenu()],
-                ],
-                isMultiple: false,
-              },
-            },
-          };
+          return this.screen(
+            md`📝 Ты начал заполнять анкету по этому курсу, но не закончил её\\.\nПродолжи — и желание будет закреплено\\.`,
+            this.kb([
+              [
+                this.btn(
+                  '▶️ Продолжить анкету',
+                  Routes.questionnaire.resume(courseId),
+                ),
+              ],
+              [buttons.mainMenu()],
+            ]),
+          );
         }
 
-        const screen =
+        const text =
           status === 'confirmed'
             ? md`📚 Ты уже обучаешься на этом курсе\\.`
             : md`📝 Ты уже выразил желание пройти этот курс\\.`;
-        return {
-          screen: {
-            text: screen,
-            keyboard: {
-              rows: [
-                [
-                  {
-                    text: '🗑️ Отменить желание',
-                    code: this.cb('cancel', courseId),
-                  },
-                ],
-                [buttons.mainMenu()],
-              ],
-              isMultiple: false,
-            },
-          },
-        };
+        return this.screen(
+          text,
+          this.kb([
+            [this.btn('🗑️ Отменить желание', this.cb('cancel', courseId))],
+            [buttons.mainMenu()],
+          ]),
+        );
       }
       return this.errorNotify(err);
     }
@@ -608,27 +549,17 @@ export class CourseCatalogStory extends U7BotUiStory {
     try {
       await this.appApi.execute('create-module-wish', { moduleId }, actor.uuid);
 
-      return {
-        screen: {
-          text: md`✅ Записали\\! Мы сообщим, когда откроется набор на модуль\\.`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`✅ Записали\\! Мы сообщим, когда откроется набор на модуль\\.`,
+        this.kb([[buttons.mainMenu()]]),
+      );
     } catch (err) {
       // Повторное желание — не ошибка для пользователя
       if (fromError(err).kind === 'conflict') {
-        return {
-          screen: {
-            text: md`ℹ️ Ты уже записан на этот модуль — ждём открытия набора\\.`,
-            keyboard: {
-              rows: [[buttons.mainMenu()]],
-              isMultiple: false,
-            },
-          },
-        };
+        return this.screen(
+          md`ℹ️ Ты уже записан на этот модуль — ждём открытия набора\\.`,
+          this.kb([[buttons.mainMenu()]]),
+        );
       }
       return this.errorNotify(err);
     }
@@ -646,27 +577,17 @@ export class CourseCatalogStory extends U7BotUiStory {
         actor.uuid,
       );
 
-      return {
-        screen: {
-          text: md`🗑️ Желание пройти курс отменено\\.`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`🗑️ Желание пройти курс отменено\\.`,
+        this.kb([[buttons.mainMenu()]]),
+      );
     } catch (err) {
       // Гонка: желание уже отменили — не ошибка для пользователя
       if (fromError(err).kind === 'not-found') {
-        return {
-          screen: {
-            text: md`ℹ️ Активного желания на этот курс уже нет\\.`,
-            keyboard: {
-              rows: [[buttons.mainMenu()]],
-              isMultiple: false,
-            },
-          },
-        };
+        return this.screen(
+          md`ℹ️ Активного желания на этот курс уже нет\\.`,
+          this.kb([[buttons.mainMenu()]]),
+        );
       }
       return this.errorNotify(err);
     }
@@ -684,27 +605,17 @@ export class CourseCatalogStory extends U7BotUiStory {
         actor.uuid,
       );
 
-      return {
-        screen: {
-          text: md`🗑️ Желание пройти модуль отменено\\.`,
-          keyboard: {
-            rows: [[buttons.mainMenu()]],
-            isMultiple: false,
-          },
-        },
-      };
+      return this.screen(
+        md`🗑️ Желание пройти модуль отменено\\.`,
+        this.kb([[buttons.mainMenu()]]),
+      );
     } catch (err) {
       // Гонка: желание уже отменили — не ошибка для пользователя
       if (fromError(err).kind === 'not-found') {
-        return {
-          screen: {
-            text: md`ℹ️ Активного желания на этот модуль уже нет\\.`,
-            keyboard: {
-              rows: [[buttons.mainMenu()]],
-              isMultiple: false,
-            },
-          },
-        };
+        return this.screen(
+          md`ℹ️ Активного желания на этот модуль уже нет\\.`,
+          this.kb([[buttons.mainMenu()]]),
+        );
       }
       return this.errorNotify(err);
     }
