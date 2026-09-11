@@ -26,7 +26,7 @@ export class MonitorStory extends U7BotUiStory {
 
     // Детальная карточка студента
     if (cmd === 'detail' && id) {
-      return this.#handleDetail(id);
+      return this.#handleDetail(id, actor);
     }
 
     // История шагов — ещё не реализована
@@ -40,7 +40,7 @@ export class MonitorStory extends U7BotUiStory {
 
     // mark-abandoned — подтверждение
     if (cmd === 'mark-abandoned' && id) {
-      return this.#handleMarkAbandonedConfirm(id);
+      return this.#handleMarkAbandonedConfirm(id, actor);
     }
 
     // mark-abandoned — выполнить
@@ -55,7 +55,7 @@ export class MonitorStory extends U7BotUiStory {
 
     // complete-student — подтверждение исхода (confirm-диалог)
     if (cmd === 'complete-confirm' && id) {
-      return this.#handleCompleteConfirm(id, action);
+      return this.#handleCompleteConfirm(id, action, actor);
     }
 
     // complete-student — выполнение (после подтверждения)
@@ -82,9 +82,11 @@ export class MonitorStory extends U7BotUiStory {
     actor: User,
     showAll: boolean,
   ): Promise<DialogResponse> {
-    const students = (await this.appApi.execute('list-stream-students', {
-      streamId,
-    })) as Student[];
+    const students = (await this.appApi.execute(
+      'list-stream-students',
+      { streamId },
+      actor.uuid,
+    )) as Student[];
 
     const stream = (await this.appApi.execute('get-stream', {
       streamId,
@@ -356,10 +358,15 @@ export class MonitorStory extends U7BotUiStory {
     return many;
   }
 
-  async #handleDetail(studentId: string): Promise<DialogResponse> {
-    const student = (await this.appApi.execute('get-student-progress', {
-      studentId,
-    })) as Student;
+  async #handleDetail(
+    studentId: string,
+    actor: User,
+  ): Promise<DialogResponse> {
+    const student = (await this.appApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    )) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -518,10 +525,13 @@ export class MonitorStory extends U7BotUiStory {
 
   async #handleMarkAbandonedConfirm(
     studentId: string,
+    actor: User,
   ): Promise<DialogResponse> {
-    const student = (await this.appApi.execute('get-student-progress', {
-      studentId,
-    })) as Student;
+    const student = (await this.appApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    )) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -547,9 +557,11 @@ export class MonitorStory extends U7BotUiStory {
     studentId: string,
     actor: User,
   ): Promise<DialogResponse> {
-    const student = (await this.appApi.execute('get-student-progress', {
-      studentId,
-    })) as Student;
+    const student = (await this.appApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    )) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -572,9 +584,9 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     return {
-      screen: {
-        text: md`✅ Студент *${userName}* снят с учёбы\\.`,
-      },
+      // Реплика результата — notify (поверх целевого экрана delegate,
+      // #resolveDelegate сохраняет initiator.notify над target.screen)
+      notify: { text: md`✅ Студент *${userName}* снят с учёбы\\.` },
       delegate: {
         path: this.cbFor('monitor', 'students', student.streamId),
       },
@@ -624,14 +636,17 @@ export class MonitorStory extends U7BotUiStory {
   async #handleCompleteConfirm(
     studentId: string,
     action: string,
+    actor: User,
   ): Promise<DialogResponse> {
     // action = 'complete-confirm:studentId:outcome'
     const parts = action.split(':');
     const outcome = parts[2]; // advanced | not_advanced | abandoned
 
-    const student = (await this.appApi.execute('get-student-progress', {
-      studentId,
-    })) as Student;
+    const student = (await this.appApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    )) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -680,9 +695,11 @@ export class MonitorStory extends U7BotUiStory {
     }
     const outcome = rawOutcome;
 
-    const student = (await this.appApi.execute('get-student-progress', {
-      studentId,
-    })) as Student;
+    const student = (await this.appApi.execute(
+      'get-student-progress',
+      { studentId },
+      actor.uuid,
+    )) as Student;
 
     let userName = student.userId.slice(0, 8);
     try {
@@ -709,9 +726,8 @@ export class MonitorStory extends U7BotUiStory {
     }
 
     return {
-      screen: {
-        text: md`✅ Студент *${userName}* завершён\\.`,
-      },
+      // Реплика результата — notify (см. #handleMarkAbandonedExecute)
+      notify: { text: md`✅ Студент *${userName}* завершён\\.` },
       delegate: {
         path: this.cbFor('monitor', 'students', student.streamId),
       },

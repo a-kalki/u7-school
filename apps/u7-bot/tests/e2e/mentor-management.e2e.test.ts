@@ -12,53 +12,35 @@ import { CoursesController } from '@u7-scl/bot/courses/controller';
 import { LearningController } from '@u7-scl/bot/learning/controller';
 import { MentorController } from '@u7-scl/bot/mentor/controller';
 import { StreamsController } from '@u7-scl/bot/streams/controller';
-import type { CbMainMenuAction } from '@u7-scl/bot/u7-menu';
-import { assertBotResponseValid, type BotResponse } from '@u7-scl/core/ui';
 import type { TestApp } from '@u7-scl/test-helpers/test-app';
 import { createTestApp } from '@u7-scl/test-helpers/test-app';
 import {
   createTestBotTransport,
+  pressedCode,
+  screensNewFirst,
   type TestBotTransport,
 } from '@u7-scl/test-helpers/test-bot-transport';
 
 const SCHOOL_GROUP_URL = 'https://t.me/u7_school_group';
 
-/**
- * Находит кнопку на клавиатуре по частичному совпадению текста.
- */
-function findButton(
-  response: BotResponse,
-  textContains: string,
-): { text: string; code: string } {
-  const btn = response.sendMessage?.keyboard?.rows
-    .flat()
-    .find((b) => b.text.includes(textContains));
-  if (!btn) {
-    const allTexts =
-      response.sendMessage?.keyboard?.rows
-        .flat()
-        .map((b) => b.text)
-        .join(', ') ?? '(нет клавиатуры)';
-    throw new Error(
-      `Кнопка «${textContains}» не найдена. Доступны: ${allTexts}`,
-    );
-  }
-  return btn;
+/** Последний отправленный экран пользователя (send+edit по messageId). */
+function lastScreen(transport: TestBotTransport, tgId: number) {
+  const [screen] = screensNewFirst(transport, tgId);
+  if (!screen) throw new Error(`Нет экранов у пользователя ${tgId}`);
+  return screen;
 }
 
-/**
- * Находит пункт в главном меню по частичному совпадению текста.
- */
-function findMenuItem(
-  items: CbMainMenuAction[],
-  textContains: string,
-): { text: string; action: string } {
-  const item = items.find((i) => i.text.includes(textContains));
-  if (!item) {
-    const all = items.map((i) => i.text).join(', ');
-    throw new Error(`Пункт меню «${textContains}» не найден. Доступны: ${all}`);
+/** Отштампованный код кнопки по предикату кода (для мостов controller:…). */
+function pressedCodeBy(
+  transport: TestBotTransport,
+  tgId: number,
+  predicate: (code: string) => boolean,
+): string {
+  for (const screen of screensNewFirst(transport, tgId)) {
+    const btn = screen.keyboard?.rows.flat().find((b) => predicate(b.code));
+    if (btn) return btn.code;
   }
-  return item;
+  throw new Error(`Кнопка по предикату не найдена на экранах ${tgId}`);
 }
 
 /**
@@ -66,11 +48,17 @@ function findMenuItem(
  *
  * Путь: главное меню → «🛠️ Инструменты ментора» → «📋 Мои потоки»
  *       → карточка потока → «👥 Студенты» → действия со студентами.
+ *
+ * Контракт «Диалог и Экран»: коды кнопок берутся отштампованными
+ * из Api-записи предыдущего экрана (:~seq36 — как реальный клиент),
+ * содержимое ответа ассертится по DialogResponse (notify и screen
+ * разделены: реплика результата — notify, целевой экран — screen).
  */
 describe('E2E: Ментор — управление студентами', () => {
   let app: TestApp;
   let transport: TestBotTransport;
   let mentor: User;
+  let tgId: number;
 
   beforeAll(async () => {
     app = await createTestApp('e2e-mentor');
@@ -87,6 +75,7 @@ describe('E2E: Ментор — управление студентами', () =
       mentorController,
     ]);
     mentor = (await app.userFacade.getUserByTelegramId(1004))!;
+    tgId = mentor.telegramId;
   });
 
   beforeEach(() => {
@@ -97,343 +86,210 @@ describe('E2E: Ментор — управление студентами', () =
     await app.cleanup();
   });
 
+  /** Меню → подменю → мои потоки → активный поток → «Студенты». */
+  async function openStudents() {
+    await transport.handleStart(transport.makeBotContext(tgId));
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Инструменты ментора'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Мои потоки'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, '🔵'),
+      }),
+    );
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Студенты'),
+      }),
+    );
+  }
+
   // ── Список студентов через менторскую карточку ──
 
   test('ментор → мои потоки → «👥 Студенты» → список с менторскими кнопками ⛔✅', async () => {
-    // 1. Главное меню ментора
-    const menu = (await transport.collectMainMenu(
-      mentor,
-    )) as CbMainMenuAction[];
-    const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
+    await transport.handleStart(transport.makeBotContext(tgId));
 
-    // 2. Подменю: нажимаем «📋 Мои потоки»
-    const submenuResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: toolsBtn.action,
+    // 2. Подменю: «📋 Мои потоки»
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Инструменты ментора'),
       }),
     );
-    assertBotResponseValid(submenuResp);
-    const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-
-    // 3. Список моих потоков → выбираем активный (🔵)
-    const myStreamsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: myStreamsBtn.code,
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Мои потоки'),
       }),
     );
-    assertBotResponseValid(myStreamsResp);
-    const activeBtn = findButton(myStreamsResp, '🔵');
 
-    // 4. Менторская карточка потока
-    const cardResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: activeBtn.code,
+    // 3. Список моих потоков → активный (🔵)
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, '🔵'),
       }),
     );
-    assertBotResponseValid(cardResp);
-    const cardBtns =
-      cardResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
 
-    // Должна быть кнопка «👥 Студенты»
+    // 4. Менторская карточка потока: «👥 Студенты» + lifecycle «Завершить»
+    const card = lastScreen(transport, tgId);
+    const cardBtns = card.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(cardBtns.some((t) => t.includes('Студенты'))).toBe(true);
-    // Должны быть lifecycle-кнопки (ментор видит «Завершить» для active)
     expect(cardBtns.some((t) => t.includes('Завершить'))).toBe(true);
 
-    // 5. Нажимаем «👥 Студенты»
-    const studentsBtn = findButton(cardResp, 'Студенты');
+    // 5. Нажимаем «👥 Студенты» → менторский список (monitor)
     const studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: studentsBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Студенты'),
       }),
     );
-    assertBotResponseValid(studentsResp);
-    const studentsText = studentsResp.sendMessage?.text ?? '';
-    expect(studentsText).not.toContain('Неизвестная команда');
-    expect(studentsText).toContain('Студенты потока');
+    expect(String(studentsResp.screen?.text)).not.toContain('Неизвестная');
+    expect(String(studentsResp.screen?.text)).toContain('Студенты потока');
 
-    // 6. Проверяем кнопки в списке студентов
+    // 6. Кнопки в списке студентов
     const allTexts =
-      studentsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
-    const allCodes =
-      studentsResp.sendMessage?.keyboard?.rows.flat().map((b) => b.code) ?? [];
+      lastScreen(transport, tgId)
+        .keyboard?.rows.flat()
+        .map((b) => b) ?? [];
 
-    // Должны быть менторские кнопки ⛔✅ для активных студентов
-    expect(allTexts).toContain('⛔');
-    expect(allTexts).toContain('✅');
+    // Менторские кнопки ⛔✅ для активных студентов
+    expect(allTexts.map((b) => b.text)).toContain('⛔');
+    expect(allTexts.map((b) => b.text)).toContain('✅');
 
-    // Кнопка ⛔ должна вести в monitor (MentorController)
-    const abandonIdx = allTexts.indexOf('⛔');
-    expect(abandonIdx).toBeGreaterThan(-1);
-    expect(allCodes[abandonIdx]).toStartWith('mentor:monitor:mark-abandoned:');
+    // Кнопка ⛔ ведёт в monitor (MentorController)
+    const abandon = allTexts.find((b) => b.text === '⛔')!;
+    expect(abandon.code).toStartWith('mentor:monitor:mark-abandoned:');
 
-    // Кнопка ✅ должна вести в monitor (MentorController)
-    const completeIdx = allTexts.indexOf('✅');
-    expect(completeIdx).toBeGreaterThan(-1);
-    expect(allCodes[completeIdx]).toStartWith('mentor:monitor:complete:');
+    // Кнопка ✅ ведёт в monitor (MentorController)
+    const complete = allTexts.find((b) => b.text === '✅')!;
+    expect(complete.code).toStartWith('mentor:monitor:complete:');
 
-    // Кнопка-имя студента должна вести в monitor:detail
-    const detailCodes = allCodes.filter((c) => c.includes('monitor:detail:'));
+    // Кнопка-имя студента ведёт в monitor:detail
+    const detailCodes = allTexts
+      .map((b) => b.code)
+      .filter((c) => c.includes('monitor:detail:'));
     expect(detailCodes.length).toBeGreaterThan(0);
   });
 
   // ── Диалог mark-abandoned ──
 
   test('ментор: ⛔ mark-abandoned → подтверждение → отмена → возврат к карточке', async () => {
-    // 1. Получаем список студентов
-    const menu = (await transport.collectMainMenu(
-      mentor,
-    )) as CbMainMenuAction[];
-    const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: toolsBtn.action,
-      }),
-    );
-    const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: myStreamsBtn.code,
-      }),
-    );
-    const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: activeBtn.code,
-      }),
-    );
-    const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: studentsBtn.code,
-      }),
-    );
+    await openStudents();
 
-    // 2. Нажимаем ⛔ на первом студенте
-    const abandonBtn = findButton(studentsResp, '⛔');
+    // 2. ⛔ на первом студенте → confirm-диалог
     const confirmResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: abandonBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, '⛔'),
       }),
     );
-    assertBotResponseValid(confirmResp);
-    const confirmText = confirmResp.sendMessage?.text ?? '';
 
-    // Должен быть диалог подтверждения
-    expect(confirmText).toContain('Снять студента');
-    expect(confirmText).not.toContain('Неизвестная команда');
+    // Диалог подтверждения с репликой-экраном
+    expect(String(confirmResp.screen?.text)).toContain('Снять студента');
+    expect(String(confirmResp.screen?.text)).not.toContain('Неизвестная');
 
     // Кнопки подтверждения/отмены
     const confirmBtns =
-      confirmResp.sendMessage?.keyboard?.rows.flat().map((b) => b.text) ?? [];
+      confirmResp.screen?.keyboard?.rows.flat().map((b) => b.text) ?? [];
     expect(confirmBtns.some((t) => t.includes('Да'))).toBe(true);
     expect(confirmBtns.some((t) => t.includes('Отмена'))).toBe(true);
 
-    // 3. Нажимаем отмену → возврат к детальной карточке студента
-    const cancelBtn = findButton(confirmResp, 'Отмена');
+    // 3. Отмена → возврат к детальной карточке студента (monitor:detail)
     const cancelResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: cancelBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Отмена'),
       }),
     );
-    assertBotResponseValid(cancelResp);
-    const cancelText = cancelResp.sendMessage?.text ?? '';
-    expect(cancelText).not.toContain('Неизвестная команда');
+    expect(String(cancelResp.screen?.text)).not.toContain('Неизвестная');
+    expect(String(cancelResp.screen?.text)).toContain('Прогресс студента');
   });
 
   test('ментор: ⛔ mark-abandoned → подтвердить → студент отчислен', async () => {
-    // 1. Получаем список студентов
-    const menu = (await transport.collectMainMenu(
-      mentor,
-    )) as CbMainMenuAction[];
-    const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: toolsBtn.action,
-      }),
-    );
-    const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: myStreamsBtn.code,
-      }),
-    );
-    const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: activeBtn.code,
-      }),
-    );
-    const studentsBtn = findButton(cardResp, 'Студенты');
-    const studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: studentsBtn.code,
-      }),
-    );
-    assertBotResponseValid(studentsResp);
+    await openStudents();
 
-    // 2. Нажимаем ⛔ на первом студенте
-    const abandonBtn = findButton(studentsResp, '⛔');
-    const confirmResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: abandonBtn.code,
+    // 2. ⛔ на первом студенте → confirm-диалог → «⚠️ Да, неактивен»:
+    //    реплика результата + delegate к списку студентов
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, '⛔'),
       }),
     );
-    assertBotResponseValid(confirmResp);
-
-    // 3. Нажимаем «Да, неактивен» (подтвердить)
-    const confirmActionBtn = findButton(confirmResp, 'Да, неактивен');
     const resultResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: confirmActionBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Да, неактивен'),
       }),
     );
-    assertBotResponseValid(resultResp);
-
-    // После mark-abandoned — делегирование к списку студентов.
-    const finalText2 =
-      resultResp.sendMessage?.text ?? resultResp.sendMessages?.[0]?.text ?? '';
-    expect(finalText2).toContain('снят с учёбы');
+    expect(resultResp.notify?.text).toContain('снят с учёбы');
+    expect(String(resultResp.screen?.text)).toContain('Студенты потока');
   });
 
   test('ментор: ✅ complete → выбрать «Прошёл» → подтвердить → студент завершён', async () => {
-    // 1. Получаем список студентов
-    const menu = (await transport.collectMainMenu(
-      mentor,
-    )) as CbMainMenuAction[];
-    const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: toolsBtn.action,
-      }),
-    );
-    const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: myStreamsBtn.code,
-      }),
-    );
-    const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: activeBtn.code,
-      }),
-    );
-    const studentsBtn = findButton(cardResp, 'Студенты');
-    let studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: studentsBtn.code,
-      }),
-    );
-    assertBotResponseValid(studentsResp);
+    await openStudents();
 
     // Дефолт — только активные; показываем всех (FR-8)
-    const showAllBtn = findButton(studentsResp, 'Показать выбывших');
-    studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: showAllBtn.code,
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Показать выбывших'),
       }),
     );
-    assertBotResponseValid(studentsResp);
 
-    // 2. Находим перезавершаемого студента и нажимаем 🔄
-    const redoBtn = findButton(studentsResp, '🔄');
+    // 2. 🔄 у перезавершаемого студента → выбор исхода
     const choiceResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: redoBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, '🔄'),
       }),
     );
-    assertBotResponseValid(choiceResp);
-    expect(choiceResp.sendMessage?.text).toContain('Выберите исход');
+    expect(String(choiceResp.screen?.text)).toContain('Выберите исход');
 
-    // 3. Выбираем «Прошёл»
-    const advancedBtn = findButton(choiceResp, 'Прошёл');
+    // 3. Выбираем «✅ Прошёл» → confirm-диалог
     const confirmResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: advancedBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Прошёл'),
       }),
     );
-    assertBotResponseValid(confirmResp);
-    expect(confirmResp.sendMessage?.text).toContain('прошёл');
+    expect(String(confirmResp.screen?.text)).toContain('прошёл');
 
-    // 4. Подтверждаем
-    const confirmActionBtn = findButton(confirmResp, 'Завершить');
+    // 4. Подтверждаем: реплика + delegate к списку
     const resultResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: confirmActionBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Завершить'),
       }),
     );
-    assertBotResponseValid(resultResp);
-
-    // После complete — делегирование к списку студентов.
-    const finalText =
-      resultResp.sendMessage?.text ?? resultResp.sendMessages?.[0]?.text ?? '';
-    expect(finalText).toContain('завершён');
+    expect(resultResp.notify?.text).toContain('завершён');
+    expect(String(resultResp.screen?.text)).toContain('Студенты потока');
   });
 
   test('ментор: карточка студента (detail) — видна с «Назад к списку»', async () => {
-    // 1. Получаем список студентов
-    const menu = (await transport.collectMainMenu(
-      mentor,
-    )) as CbMainMenuAction[];
-    const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-    const submenuResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: toolsBtn.action,
-      }),
-    );
-    const myStreamsBtn = findButton(submenuResp, 'Мои потоки');
-    const myStreamsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: myStreamsBtn.code,
-      }),
-    );
-    const activeBtn = findButton(myStreamsResp, '🔵');
-    const cardResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: activeBtn.code,
-      }),
-    );
-    const studentsBtn = findButton(cardResp, 'Студенты');
-    let studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: studentsBtn.code,
-      }),
-    );
-    assertBotResponseValid(studentsResp);
+    await openStudents();
 
     // Карточка advanced-студента — только в режиме «все» (FR-8)
-    const showAllBtn = findButton(studentsResp, 'Показать выбывших');
-    studentsResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: showAllBtn.code,
+    await transport.handleCallback(
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCode(transport, tgId, 'Показать выбывших'),
       }),
     );
-    assertBotResponseValid(studentsResp);
 
-    // 2. Кликаем на имя студента (detail)
-    const studentRows = studentsResp.sendMessage?.keyboard?.rows ?? [];
-    const detailRow = studentRows.find((r) =>
-      r.some((b) => b.code.includes('monitor:detail')),
-    );
-    expect(detailRow).toBeDefined();
-    const detailBtn = detailRow!.find((b) =>
-      b.code.includes('monitor:detail'),
-    )!;
-
+    // 2. Кликаем на кнопку-имя студента (monitor:detail)
     const detailResp = await transport.handleCallback(
-      transport.makeBotContext(mentor.telegramId, {
-        callbackData: detailBtn.code,
+      transport.makeBotContext(tgId, {
+        callbackData: pressedCodeBy(transport, tgId, (c) =>
+          c.includes('monitor:detail'),
+        ),
       }),
     );
-    assertBotResponseValid(detailResp);
 
-    const text = detailResp.sendMessage?.text ?? '';
+    const text = String(detailResp.screen?.text);
     expect(text).toContain('Прогресс студента');
     expect(text).toContain('Усидчивость');
     expect(text).toContain('Активность');
 
     // Кнопка «Назад к списку»
-    const backBtn = findButton(detailResp, 'Назад к списку');
+    const backBtn = lastScreen(transport, tgId)
+      .keyboard?.rows.flat()
+      .find((b) => b.text.includes('Назад к списку'));
     expect(backBtn).toBeDefined();
   });
 
@@ -441,157 +297,127 @@ describe('E2E: Ментор — управление студентами', () =
 
   describe('Создание потока (wizard)', () => {
     test('полный цикл: меню → wizard (все шаги) → поток создан', async () => {
-      // 1. Главное меню → Инструменты ментора
-      const menu = (await transport.collectMainMenu(
-        mentor,
-      )) as CbMainMenuAction[];
-      const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
+      await transport.handleStart(transport.makeBotContext(tgId));
 
-      const submenuResp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: toolsBtn.action,
+      // 1-2. Инструменты ментора → Создать поток (шаг 0: выбор модуля)
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Инструменты ментора'),
         }),
       );
-      assertBotResponseValid(submenuResp);
-
-      // 2. Подменю → Создать поток
-      const createBtn = findButton(submenuResp, 'Создать поток');
-
-      // Шаг 0: выбор модуля
-      let resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: createBtn.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Создать поток'),
         }),
       );
-      assertBotResponseValid(resp);
-      expect(resp.sendMessage?.text).toContain('Выберите модуль');
-      expect(resp.captureInput).toBeDefined();
+      const step0 = lastScreen(transport, tgId);
+      expect(String(step0.text)).toContain('Выберите модуль');
+      expect(
+        step0.keyboard?.rows
+          .flat()
+          .some((b) => b.text.includes('JavaScript Основы')),
+      ).toBe(true);
 
-      // Выбираем модуль
-      const moduleBtn = findButton(resp, 'JavaScript Основы');
-
-      // Шаг 1: название (с передачей контекста wizard'а)
-      resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: moduleBtn.code,
+      // Шаг 1: название
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'JavaScript Основы'),
         }),
       );
-      assertBotResponseValid(resp);
-      expect(resp.sendMessage?.text).toContain('название потока');
+      const step1 = lastScreen(transport, tgId);
+      expect(String(step1.text)).toContain('название потока');
 
       // Принимаем название
-      const acceptTitle = findButton(resp, 'Принять');
-      resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: acceptTitle.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Принять'),
         }),
       );
-      assertBotResponseValid(resp);
-      expect(resp.sendMessage?.text).toContain('описание потока');
+      const step2 = lastScreen(transport, tgId);
+      expect(String(step2.text)).toContain('описание потока');
 
       // Шаг 2: вводим описание вручную
-      resp = (await transport.handleMessage(
-        transport.makeBotContext(mentor.telegramId, {
-          text: 'E2E Тестовый Поток',
-        }),
-      ))!;
-      assertBotResponseValid(resp);
-      expect(resp.sendMessage?.text).toContain('дату старта');
+      const step3 = await transport.handleMessage(
+        transport.makeBotContext(tgId, { text: 'E2E Тестовый Поток' }),
+      );
+      expect(String(step3.screen?.text)).toContain('дату старта');
 
       // Шаг 3: вводим дату
-      resp = (await transport.handleMessage(
-        transport.makeBotContext(mentor.telegramId, {
-          text: '2026-12-15',
-        }),
-      ))!;
-      assertBotResponseValid(resp);
+      const step4 = await transport.handleMessage(
+        transport.makeBotContext(tgId, { text: '2026-12-15' }),
+      );
+      expect(String(step4.screen?.text)).toContain('Цель');
 
       // Шаги 4-8: пропускаем все необязательные поля
       for (let i = 0; i < 5; i++) {
-        const skipBtn = findButton(resp, 'Пропустить');
-        resp = await transport.handleCallback(
-          transport.makeBotContext(mentor.telegramId, {
-            callbackData: skipBtn.code,
+        await transport.handleCallback(
+          transport.makeBotContext(tgId, {
+            callbackData: pressedCode(transport, tgId, 'Пропустить'),
           }),
         );
-        assertBotResponseValid(resp);
       }
+      expect(String(lastScreen(transport, tgId).text)).toContain('Telegram');
 
       // Шаг 9: группа (ID) — пропускаем
-      expect(resp.sendMessage?.text).toContain('Telegram');
-      const skipGroup = findButton(resp, 'Пропустить');
-      resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: skipGroup.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Пропустить'),
         }),
       );
-      assertBotResponseValid(resp);
+      expect(String(lastScreen(transport, tgId).text)).toContain('инвайт');
 
       // Шаг 10: инвайт-ссылка — пропускаем
-      expect(resp.sendMessage?.text).toContain('инвайт');
-      const skipInvite = findButton(resp, 'Пропустить');
-      resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: skipInvite.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Пропустить'),
         }),
       );
-      assertBotResponseValid(resp);
+      expect(String(lastScreen(transport, tgId).text)).toContain(
+        'кодовое слово',
+      );
 
-      // Шаг 11: кодовое слово — пропускаем
-      expect(resp.sendMessage?.text).toContain('кодовое слово');
-      const skipKey = findButton(resp, 'Пропустить');
-      resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: skipKey.code,
+      // Шаг 11: кодовое слово — пропускаем → превью
+      const previewResp = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Пропустить'),
         }),
       );
-      assertBotResponseValid(resp);
+      const preview = String(previewResp.screen?.text);
+      expect(preview).toContain('Превью потока');
+      expect(preview).toContain('JavaScript Основы');
+      expect(preview).toContain('E2E Тестовый Поток');
 
-      // Шаг 12: превью
-      expect(resp.sendMessage?.text).toContain('Превью потока');
-      expect(resp.sendMessage?.text).toContain('JavaScript Основы');
-      expect(resp.sendMessage?.text).toContain('E2E Тестовый Поток');
-
-      // Подтверждаем
-      const confirmBtn = findButton(resp, 'Создать');
-      resp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: confirmBtn.code,
+      // Подтверждаем: поток создан, ввод освобождён
+      const finalResp = await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Создать'),
         }),
       );
-      assertBotResponseValid(resp);
-
-      expect(resp.sendMessage?.text).toContain('успешно создан');
-      expect(resp.releaseInput).toBe(true);
+      expect(String(finalResp.screen?.text)).toContain('успешно создан');
+      expect(finalResp.release).toBe(true);
     });
 
     test('отмена создания потока', async () => {
-      // Начинаем wizard
-      const menu = (await transport.collectMainMenu(
-        mentor,
-      )) as CbMainMenuAction[];
-      const toolsBtn = findMenuItem(menu, 'Инструменты ментора');
-      const submenuResp = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: toolsBtn.action,
+      await transport.handleStart(transport.makeBotContext(tgId));
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Инструменты ментора'),
         }),
       );
-      const createBtn = findButton(submenuResp, 'Создать поток');
-      const step0 = await transport.handleCallback(
-        transport.makeBotContext(mentor.telegramId, {
-          callbackData: createBtn.code,
+      await transport.handleCallback(
+        transport.makeBotContext(tgId, {
+          callbackData: pressedCode(transport, tgId, 'Создать поток'),
         }),
       );
-      assertBotResponseValid(step0);
-      expect(step0.captureInput).toBeDefined();
+      const step0 = lastScreen(transport, tgId);
+      expect(String(step0.text)).toContain('Выберите модуль');
 
-      // Отменяем
-      const cancelResp = (await transport.handleCancel(
-        transport.makeBotContext(mentor.telegramId),
-      ))!;
-      assertBotResponseValid(cancelResp);
-      expect(cancelResp.sendMessage?.text).toContain('отменено');
-      expect(cancelResp.releaseInput).toBe(true);
+      // Отменяем (/cancel — команда pipe: активная стори стопается)
+      const cancelResp = await transport.handleCancel(
+        transport.makeBotContext(tgId),
+      );
+      expect(cancelResp.notify?.text).toContain('отменено');
+      expect(cancelResp.release).toBe(true);
     });
   });
 });

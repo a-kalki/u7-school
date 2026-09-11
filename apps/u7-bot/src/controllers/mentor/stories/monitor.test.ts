@@ -486,7 +486,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       cause: 'inactivity',
     });
 
-    expect(String(response.screen?.text)).toContain('снят с учёбы');
+    expect(response.notify?.text).toContain('снят с учёбы');
     // delegate monitor→students: возврат к списку потока
     expect(response.delegate?.path).toBe('monitor:students:stream-1');
   });
@@ -575,7 +575,7 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       studentId: 'student-1',
       outcome: 'advanced',
     });
-    expect(String(response.screen?.text)).toContain('завершён');
+    expect(response.notify?.text).toContain('завершён');
     expect(response.delegate?.path).toBe('monitor:students:stream-1');
   });
 
@@ -586,14 +586,14 @@ describe('MonitorStory (S07/S08) — контракт «Диалог и Экра
       mentorActor(),
       session,
     );
-    expect(String(notAdvanced.screen?.text)).toContain('завершён');
+    expect(String(notAdvanced.notify?.text)).toContain('завершён');
 
     const abandoned = await story.handleCallback(
       'complete-confirm-confirm:student-1:abandoned',
       mentorActor(),
       session,
     );
-    expect(String(abandoned.screen?.text)).toContain('завершён');
+    expect(String(abandoned.notify?.text)).toContain('завершён');
   });
 
   test('complete-confirm-confirm: неизвестный исход — экран ошибки', async () => {
