@@ -45,9 +45,9 @@
 
 ## 4. Тексты: `MdText` через `md`/`mdRaw`
 
-Ответ стори — `DialogResponse` (`packages/core/src/ui/bot/types.ts`): шесть декларативных полей — `screen`/`info`/`finalize` (влияние на чат), `awaitInput`/`release` (ввод), `delegate` (маршрут). Механика рендера принадлежит транспорту.
+Ответ стори — `DialogResponse` (`packages/core/src/ui/bot/types.ts`): шесть декларативных полей — `screen`/`finalize`/`notify` (влияние на чат), `awaitInput`/`release` (ввод), `delegate` (маршрут). Механика рендера принадлежит транспорту. Строится хелперами (§5), не литералами.
 
-Все тексты (`screen.text`, `info.text`, `finalize.text`) — тип `MdText`:
+Все тексты (`screen.text`, `notify.text`, `finalize.text`) — тип `MdText`:
 
 - **`md\`…${data}…\``** — интерполяция доменных данных экранируется автоматически. Точка в литеральной части пишется `\\.` (`\.` — невалидный JS-escape, backslash отбрасывается).
 - **`mdRaw\`…\``** — только для полностью статичных литералов (весь текст пишется в MarkdownV2-нотации вручную).
@@ -60,7 +60,61 @@ Fail-fast: `assertDialogResponseMarkdownSafe(response)` (тесты, транс�
 
 ---
 
-## 5. Ввод пользователя: `awaitInput`/`release`
+## 5. Хелперы ответов: `screen`/`ask`/`notify`/`warn`/`note`/`go`/`kb`/`btn`
+
+Ответ стори — доменный язык («показать экран», «спросить», «предупредить», «уйти»), а не транспортные поля `DialogResponse`. Чистые билдеры живут в `packages/core/src/ui/bot/response-builders.ts` (экспорт `@u7-scl/core/ui`), на `BotUiStory` — тонкие `protected`-делегаты `this.screen(...)` и т.д. Возвращают те же структуры — контракт и транспорт не меняются.
+
+| Хелпер | Возвращает | Назначение |
+|---|---|---|
+| `screen(text, keyboard?)` | `{ screen }` | Экран: текст + опц. клавиатура |
+| `ask(text, context, keyboard?)` | `{ screen, awaitInput }` | Спросить: экран + ожидание текстового ввода с контекстом |
+| `notify(text)` | `{ notify }` | Уведомление поверх диалога, дефолтный тон транспорта 🔔 (без `kind`) |
+| `warn(text)` | `{ notify, kind: 'warn' }` | Предупреждение поверх диалога — экран и ввод не трогает |
+| `note(text)` | `{ notify, kind: 'info' }` | Инфо-заметка поверх диалога |
+| `go(path)` | `{ delegate }` | Уйти: делегировать диалог по полному маршруту |
+| `kb(rows, opts?)` | `KeyboardDescription` | Клавиатура: `isMultiple: false` по умолчанию, `{ multiple: true }` — многострочный выбор |
+| `btn(text, code)` | `KbButton` | Callback-кнопка: нажатие шлёт `code` |
+| `btnUrl(text, url)` | `KbButton` | Кнопка-ссылка (callback-код пуст) |
+
+**Когда хелпер, когда спред, когда литерал:**
+
+- **Стандартная реплика — всегда хелпер.** Ручные литералы `{ screen: { text, keyboard } }` и `keyboard: { rows, isMultiple }` в сторях запрещены (в т.ч. локальные kb-хелперы в стори — клавиатуру собирай через `this.kb`/`this.btn`).
+- **Комбинации-редкости — спредом поверх хелпера:** `{ ...this.notify(текст), release: true }`, `{ release: true, ...this.screen(...) }`, `{ ...this.ask(...), release: true }`.
+- **Литерал `KeyboardDescription`** — только если клавиатура строится по частям доменной логикой с нетривиальным `isMultiple`-режимом (с комментарием почему не `kb(...)`).
+- Билдеры чистые (аргументы → структура, без сессии/транспорта) — можно использовать вне наследников `BotUiStory` (контроллеры, ui-app) прямым импортом из `@u7-scl/core/ui`.
+
+**Живые образцы** (мигрированные стори):
+
+Каталог с клавиатурой — `apps/u7-bot/src/controllers/courses/stories/course-catalog.story.ts`:
+```typescript
+if (courses.length === 0) {
+  return this.screen(
+    md`📖 *Курсы*\n\nПока нет доступных курсов\.`,
+    this.kb([[buttons.mainMenu()]]),
+  );
+// ...
+rows.push([
+  this.btn(`${direction} ${course.title}`, this.cb('phases', course.uuid)),
+]);
+return this.screen(mdJoin(lines), this.kb(rows));
+```
+
+Wizard-шаг (`ask` + обновлённый контекст) — `apps/u7-bot/src/controllers/mentor/stories/create-stream.ts`:
+```typescript
+return this.ask(md`📦 *Выберите модуль курса\:*`, ctx, this.kb(rows));
+```
+
+Комбинация со снятием ввода (спред) — `apps/u7-bot/src/controllers/streams/stories/view-stream.story.ts`:
+```typescript
+return {
+  ...this.notify(md`Извините, на данном этапе сообщения не принимаются\.`),
+  release: true,
+};
+```
+
+---
+
+## 6. Ввод пользователя: `awaitInput`/`release`
 
 У `DialogResponse` два поля ввода: `awaitInput: { context?: unknown }` — диалог ждёт текст (path уже известен — это `dialog.path`), `release: true` — снять ожидание. `handleMessage(update, actor, session)` вызывается только при активном вводе; может вернуть `null` — «стори отказалась», тогда сообщение игнорируется.
 
@@ -79,7 +133,7 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 
 ---
 
-## 6. Тестирование
+## 7. Тестирование
 
 См. [bot-test.md](../bot-test.md) — уровни и правила. Специфика unit-тестов сторис:
 
@@ -93,7 +147,7 @@ Wizard (пошаговый ввод) — конечный автомат на `a
 
 ---
 
-## 7. Структура файла
+## 8. Структура файла
 
 ```
 apps/u7-bot/src/controllers/<module>/stories/
