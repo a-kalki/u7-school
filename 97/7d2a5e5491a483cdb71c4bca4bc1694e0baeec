@@ -1,0 +1,5 @@
+Задача: Мигрировать community, notify.story (Фаза 4, трек bot-story-helpers_20260912)
+
+Сводка: community.story.ts — литерал экрана «⚠️ Неизвестное сообщение» заменён на делегат this.screen(). notify.story.ts — проверен на литералы DialogResponse: отсутствуют; единственный литерал kind:'notify' в NotificationPayload — контракт транспорта (дефолтный вид 🔔), защищён тестом expect(payload.kind).toBe('notify') и не является ответом стори. Миграция не потребовалась.
+
+Файлы: apps/u7-bot/src/controllers/app/stories/community.story.ts
